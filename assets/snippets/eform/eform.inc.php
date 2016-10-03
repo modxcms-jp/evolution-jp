@@ -665,7 +665,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 	// set vericode
 	if($vericode) {
 		$_SESSION['eForm.VeriCode'] = $fields['vericode'] = substr(uniqid(''),-5);
-		$fields['verimageurl'] = $modx->config['base_url'].'captcha.php';
+		$fields['verimageurl'] = $modx->config['base_url'].'index.php?get=captcha';
 	}
 
 	# get SESSION data - thanks to sottwell

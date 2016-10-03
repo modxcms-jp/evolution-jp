@@ -78,7 +78,7 @@
 					else {
 					var cimg = document.getElementById('captcha_image');
 					if (cimg) {
-					cimg.src = '../captcha.php';
+					cimg.src = '../index.php?get=captcha';
 					}
 					jAlert(response);
 					}

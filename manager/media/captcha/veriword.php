@@ -2,9 +2,7 @@
 if(!isset($modx))
 {
 	define('MODX_API_MODE',true);
-	$self = 'manager/media/captcha/veriword.php';
-	$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-	require_once("{$base_path}index.php");
+	$modx = include_once($base_path.'manager/includes/document.parser.class.inc.php');
 	$modx->getSettings();
 }
 

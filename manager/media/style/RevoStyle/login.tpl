@@ -101,7 +101,7 @@
             if (header.toLowerCase()=='location:') top.location = response.substr(10);
             else {
                 var cimg = document.getElementById('captcha_image');
-                if (cimg) cimg.src = '../captcha.php';
+                if (cimg) cimg.src = '../index.php?get=captcha';
                 jAlert(response);
             }
         });

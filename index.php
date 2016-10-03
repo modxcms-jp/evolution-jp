@@ -106,6 +106,11 @@ if (!defined('MODX_API_MODE')
 if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
+if(isset($_GET['get']) && $_GET['get']=='captcha') {
+    include_once("{$base_path}manager/media/captcha/veriword.php");
+    return;
+}
+
 // initiate a new document parser
 $modx = include_once('manager/includes/document.parser.class.inc.php');
 $modx->mstart = $mstart;
