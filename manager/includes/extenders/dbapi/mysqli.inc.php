@@ -762,8 +762,7 @@ $s = '';
         return $rs->field_count;
     }
 
-    function importSql($source,$watchError=true)
-    {
+    function importSql($source,$watchError=true) {
         if(is_file($source)) $source = file_get_contents($source);
         
         if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\r"),"\n",$source);
@@ -783,8 +782,7 @@ $s = '';
         }
     }
     
-    function table_exists($table_name)
-    {
+    function table_exists($table_name) {
         $dbname = trim($this->dbname,'`');
         $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
         $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $dbname, $table_name);
@@ -793,8 +791,7 @@ $s = '';
         return 0<$this->getRecordCount($rs) ? 1 : 0;
     }
     
-    function field_exists($field_name,$table_name)
-    {
+    function field_exists($field_name,$table_name) {
         $table_name = $this->replaceFullTableName($table_name);
         
         if(!$this->table_exists($table_name)) return 0;
