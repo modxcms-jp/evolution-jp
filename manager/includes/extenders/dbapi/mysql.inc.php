@@ -114,6 +114,10 @@ class DBAPI {
         }
     }
     
+    function select_db($dbase='') {
+        if($dbase) return mysql_select_db($dbase, $this->conn);
+    }
+    
     /**
     * @name:  disconnect
     *

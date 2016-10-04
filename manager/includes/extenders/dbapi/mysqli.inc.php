@@ -96,6 +96,10 @@ class DBAPI {
         }
     }
     
+    function select_db($dbase='') {
+        if($dbase) return $this->conn->select_db($dbase);
+    }
+    
     /**
     * @name:  disconnect
     *
