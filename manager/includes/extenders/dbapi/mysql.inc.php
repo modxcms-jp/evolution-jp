@@ -49,19 +49,25 @@ class DBAPI {
     */
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $persist = 0) {
         global $modx;
-        if(!$host)  $host  = $this->hostname;
-        if(substr(PHP_OS,0,3) === 'WIN' && $host==='localhost')
-            $host = '127.0.0.1';
-        if(!$dbase) $dbase = $this->dbname;
-        $dbase   = trim($dbase, '`'); // remove the `` chars
-        if(!$uid)   $uid   = $this->username;
-        if(!$pwd)   $pwd   = $this->password;
+        
+        if($host)  $this->hostname = $host;
+        if($uid)   $this->username = $uid;
+        if($pwd)   $this->password = $pwd;
+        if($dbase) $this->dbname   = $dbase;
+        
+        if(!$this->hostname) return false;
+        if(!$this->username) return false;
+        
+        if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
+            $this->hostname = '127.0.0.1';
+        if(!$this->dbname) $this->dbname = $this->dbname;
+        $this->dbname   = trim($this->dbname, '`'); // remove the `` chars
         
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            if($persist!=0) $this->conn = mysql_pconnect($host, $uid, $pwd);
-            else            $this->conn = mysql_connect($host, $uid, $pwd, true);
+            if($persist!=0) $this->conn = mysql_pconnect($this->hostname, $this->username, $this->password);
+            else            $this->conn = mysql_connect($this->hostname, $this->username, $this->password, true);
             
             if(!$this->conn) {
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
@@ -83,35 +89,31 @@ class DBAPI {
                 $safe_count++;
             }
         } while (!$this->conn && $safe_count<3);
+        
         if(!$this->conn) {
             $modx->messageQuit('Failed to create the database connection!');
             exit;
-        } else {
-            $dbase = str_replace('`', '', $dbase); // remove the `` chars
-            if($dbase) {
-                $rs = @ mysql_select_db($dbase, $this->conn);
-                if (!$rs) {
-                    $modx->messageQuit("Failed to select the database '{$dbase}'!");
-                    exit;
-                }
-                else
-                    @mysql_query("{$this->connection_method} {$this->charset}", $this->conn);
-            }
-            
-            $tend = $modx->getMicroTime();
-            $totaltime = $tend - $tstart;
-            if ($modx->dumpSQL) {
-                $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-                $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
-            }
-            if (function_exists('mysql_set_charset')) {
-                mysql_set_charset($this->charset);
-            } else {
-                @mysql_query("SET NAMES {$this->charset}", $this->conn);
-            }
-            $this->isConnected = true;
-            $modx->queryTime += $totaltime;
         }
+        
+        if($this->dbname) {
+            $this->dbname = trim($this->dbname, '` '); // remove the `` chars
+            $rs = mysql_select_db($this->dbname, $this->conn);
+            if (!$rs) {
+                $modx->messageQuit("Failed to select the database '{$this->dbname}'!");
+                exit;
+            }
+            mysql_query("{$this->connection_method} {$this->charset}", $this->conn);
+            if (function_exists('mysql_set_charset')) mysql_set_charset($this->charset);
+            else mysql_query("SET NAMES {$this->charset}", $this->conn);
+        }
+        
+        $tend = $modx->getMicroTime();
+        $totaltime = $tend - $tstart;
+        if ($modx->dumpSQL) {
+            $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
+            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+        }
+        $modx->queryTime += $totaltime;
     }
     
     function select_db($dbase='') {

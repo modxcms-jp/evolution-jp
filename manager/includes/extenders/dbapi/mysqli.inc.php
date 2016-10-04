@@ -46,18 +46,22 @@ class DBAPI {
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
         global $modx;
         if($this->conn) return;
-        if($host) $this->hostname = $host;
+        
+        if($host)  $this->hostname = $host;
+        if($uid)   $this->username = $uid;
+        if($pwd)   $this->password = $pwd;
+        if($dbase) $this->dbname   = $dbase;
+        
+        if(!$this->hostname) return false;
+        if(!$this->username) return false;
+        
         if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
             $this->hostname = '127.0.0.1';
-        if(!$dbase) $dbase = $this->dbname;
-        $dbase   = trim($dbase, '`'); // remove the `` chars
-        if(!$uid)   $uid   = $this->username;
-        if(!$pwd)   $pwd   = $this->password;
         
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            $this->conn = new mysqli($this->hostname, $uid, $pwd, $dbase);
+            $this->conn = new mysqli($this->hostname, $this->username, $this->password);
             if ($this->conn->connect_error) {
                 $this->conn = null;
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
@@ -79,21 +83,30 @@ class DBAPI {
                 $safe_count++;
             }
         } while (!$this->conn && $safe_count<3);
+        
         if(!$this->conn) {
             $modx->messageQuit('Failed to create the database connection!');
             exit;
-        } else {
-            $this->conn->query("{$this->connection_method} {$this->charset}");
-            $tend = $modx->getMicroTime();
-            $totaltime = $tend - $tstart;
-            if ($modx->dumpSQL) {
-                $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-                $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
-            }
-            $this->conn->set_charset($this->charset);
-            $this->isConnected = true;
-            $modx->queryTime += $totaltime;
         }
+        
+        if($this->dbname) {
+            $this->dbname = trim($this->dbname, '` '); // remove the `` chars
+            $rs = $this->select_db($this->dbname);
+            if (!$rs) {
+                $modx->messageQuit("Failed to select the database '{$this->dbname}'!");
+                exit;
+            }
+            $this->conn->query("{$this->connection_method} {$this->charset}");
+            $this->conn->set_charset($this->charset);
+        }
+        
+        $tend = $modx->getMicroTime();
+        $totaltime = $tend - $tstart;
+        if ($modx->dumpSQL) {
+            $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
+            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+        }
+        $modx->queryTime += $totaltime;
     }
     
     function select_db($dbase='') {
