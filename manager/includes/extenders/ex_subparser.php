@@ -578,7 +578,7 @@ class SubParser {
         else                            $dist = $modx->config['site_start'];
         
         $modx->http_status_code = '404';
-        $modx->sendForward($dist, 'HTTP/1.0 404 Not Found');
+        $modx->sendForward($dist, $_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
     }
     
     function sendUnauthorizedPage()
