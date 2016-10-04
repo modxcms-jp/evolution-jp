@@ -3,7 +3,6 @@ class DBAPI {
 
     var $conn;
     var $config;
-    var $isConnected;
     var $lastQuery;
     var $hostname;
     var $dbname;
@@ -104,15 +103,12 @@ class DBAPI {
     function disconnect() {
         $this->conn->close();
         $this->conn = null;
-        $this->isConnected = false;
     }
     
     function escape($s, $safecount=0) {
         $safecount++;
         if(1000<$safecount) exit("Too many loops '{$safecount}'");
-        if (empty ($this->conn) || !is_object($this->conn)) {
-            $this->connect();
-        }
+        if (!$this->isConnected()) $this->connect();
         
         if(is_array($s)) {
             if(count($s) === 0) {
@@ -147,9 +143,7 @@ $s = '';
     */
     function query($sql,$watchError=true) {
         global $modx;
-        if (empty ($this->conn) || !is_object($this->conn)) {
-            $this->connect();
-        }
+        if (!$this->isConnected()) $this->connect();
         $tstart = $modx->getMicroTime();
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
@@ -499,6 +493,7 @@ $s = '';
     * @return string
     */
     function getVersion() {
+        if (!$this->isConnected()) $this->connect();
         return $this->conn->server_info;
     }
     

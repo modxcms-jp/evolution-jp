@@ -9,7 +9,6 @@ class DBAPI {
 
     var $conn;
     var $config;
-    var $isConnected;
     var $lastQuery;
     var $hostname;
     var $dbname;
@@ -121,15 +120,14 @@ class DBAPI {
     */
     function disconnect() {
         @ mysql_close($this->conn);
+        $this->conn = null;
     }
     
     function escape($s, $safecount=0) {
         $safecount++;
         if(1000<$safecount) exit("Too many loops '{$safecount}'");
         
-        if (empty ($this->conn) || !is_resource($this->conn)) {
-            $this->connect();
-        }
+        if (!$this->isConnected()) $this->connect();
         
         if(is_array($s)) {
             if(count($s) === 0) {
@@ -164,9 +162,7 @@ $s = '';
     */
     function query($sql,$watchError=true) {
         global $modx;
-        if (empty ($this->conn) || !is_resource($this->conn)) {
-            $this->connect();
-        }
+        if (!$this->isConnected()) $this->connect();
         $tstart = $modx->getMicroTime();
         $this->lastQuery = $sql;
         $result = @ mysql_query($sql, $this->conn);
@@ -502,6 +498,7 @@ $s = '';
     * @return string
     */
     function getVersion() {
+        if (!$this->isConnected()) $this->connect();
         return mysql_get_server_info();
     }
     
