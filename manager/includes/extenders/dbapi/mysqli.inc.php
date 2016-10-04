@@ -805,4 +805,12 @@ $s = '';
         if (!empty ($this->conn) && is_object($this->conn)) return true;
         else                                                return false;
     }
+    
+    function getCollation($table='[+prefix+]site_content',$field='content') {
+        $table = str_replace('[+prefix+]', $this->table_prefix, $table);
+        $sql = sprintf("SHOW FULL COLUMNS FROM `%s` WHERE Field='%s'", $table, $field);
+        $rs = $this->query($sql);
+        $row = $this->getRow($rs);
+        return $row['Collation'];
+    }
 }
