@@ -47,7 +47,7 @@ $dbase = trim($dbase,'`');
 			echo render_tr($_lang['database_charset'],$charset[1]);
 		?>
 		<?php
-			$rs = $modx->db->query("show variables like 'collation_database'");
+			$rs = $modx->db->query("SHOW variables LIKE 'collation_database'");
 			$collation = $modx->db->getRow($rs, 'num');
 			echo render_tr($_lang['database_collation'],$collation[1]);
 		?>
