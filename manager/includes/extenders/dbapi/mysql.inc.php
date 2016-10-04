@@ -848,4 +848,9 @@ $s = '';
         
         return $this->getRow($rs) ? 1 : 0;
     }
+    
+    function isConnected() {
+        if (!empty ($this->conn) && is_resource($this->conn)) return true;
+        else                                                  return false;
+    }
 }
