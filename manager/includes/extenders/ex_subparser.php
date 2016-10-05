@@ -127,9 +127,9 @@ class SubParser {
         $type = intval($type);
         if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
         if (3 < $type) $type= 3;
-        $msg= $modx->db->escape($msg);
+        if($modx->db->isConnected()) $msg= $modx->db->escape($msg);
         $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
-        $title= $modx->db->escape($title);
+        if($modx->db->isConnected()) $title= $modx->db->escape($title);
         if (function_exists('mb_substr'))
         {
             $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
@@ -147,8 +147,8 @@ class SubParser {
         $fields['source']      = $title;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
-        $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
-        if(!$modx->db->conn) $title = 'DB connect error';
+        if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
+        else $title = 'DB connect error';
         if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
         {
             if($modx->config['send_errormail'] <= $type)
@@ -172,13 +172,8 @@ class SubParser {
                 $modx->sendmail($subject,$mailbody);
             }
         }
-        if (!$insert_id)
-        {
-            echo 'Error while inserting event log into database.';
-            exit();
-        }
-        else
-        {
+        if (!isset($insert_id) || !$insert_id) exit('Error while inserting event log into database.');
+        else {
             $trim  = (isset($modx->config['event_log_trim']))  ? intval($modx->config['event_log_trim']) : 100;
             if(($insert_id % $trim) == 0)
             {
