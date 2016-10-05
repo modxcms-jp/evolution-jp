@@ -1,6 +1,33 @@
 # Insert system records
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+# Default Site Settings
+INSERT IGNORE INTO `{PREFIX}system_settings` 
+(setting_name, setting_value) VALUES 
+('settings_version','0'),
+('server_offset_time','0'),
+('manager_language','{MANAGERLANGUAGE}'),
+('modx_charset','UTF-8'),
+('site_name','My MODX Site'),
+('site_start','1'),
+('error_page','1'),
+('unauthorized_page','1'),
+('site_status','1'),
+('old_template',''),
+('cache_type','1'),
+('use_udperms','0'),
+('udperms_allowroot','0'),
+('failed_login_attempts','5'),
+('blocked_minutes','10'),
+('use_captcha','0'),
+('emailsender','{ADMINEMAIL}'),
+('use_editor','1'),
+('use_browser','1'),
+('fe_editor_lang','{MANAGERLANGUAGE}'),
+('session.cookie.lifetime','604800'),
+('manager_theme','RevoStyle'),
+('theme_refresher','');
+
 # Default Site Template
 
 INSERT INTO `{PREFIX}site_templates` 
