@@ -18,7 +18,7 @@
  * 		Grant French (grant@mcpuk.net)
  */
 
-// ** START FOR MODx
+// ** START FOR MODX
 $self = 'manager/media/browser/mcpuk/connectors/php/config.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 
