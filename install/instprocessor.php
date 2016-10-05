@@ -50,10 +50,17 @@ $sqlParser->showSqlErrors = false;
 
 // install/update database
 echo "<p>{$lang_setup_database_creating_tables}";
-$sqlParser->intoDB('both_createtables.sql');
-if($_SESSION['installmode']==0) $sqlParser->intoDB('new_setvalues.sql');
 
-$sqlParser->intoDB('both_fixvalues.sql');
+$sqlParser->intoDB('create_tables.sql');
+
+if($_SESSION['installmode']==0) {
+    $sqlParser->intoDB('default_settings.sql');
+    if(is_file("{$base_path}install/sql/default_settings_custom.sql"))
+        $sqlParser->intoDB('default_settings_custom.sql');
+}
+
+
+$sqlParser->intoDB('fix_settings.sql');
 // display database results
 if ($sqlParser->installFailed == true)
 {
@@ -132,16 +139,11 @@ include_once('processors/prc_insModules.inc');   // Install Modules
 include_once('processors/prc_insPlugins.inc');   // Install Plugins
 include_once('processors/prc_insSnippets.inc');  // Install Snippets
 
-if($_SESSION['installmode'] ==0 && is_file("{$base_path}install/sql/new_override.sql"))
-{
-	$sqlParser->intoDB('new_override.sql');
-}
-
 // install data
 if ($_SESSION['installmode'] == 0 && $installdata==1)
 {
 	echo "<p>{$lang_installing_demo_site}";
-	$sqlParser->intoDB('new_sample.sql');
+	$sqlParser->intoDB('sample_data.sql');
 	if ($sqlParser->installFailed == true)
 	{
 		$errors += 1;
