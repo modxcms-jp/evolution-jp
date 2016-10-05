@@ -295,7 +295,6 @@ class DocumentParser {
         $this->directParse = 0;
         
         // get the settings
-        if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
 
         $this->setBaseTime();
@@ -336,7 +335,6 @@ class DocumentParser {
         $this->directParse = 1;
         
         // get the settings
-        if(!$this->db->conn)      $this->db->connect();
         if(!isset($this->config)) $this->config = $this->getSettings();
 
         $this->setBaseTime();
