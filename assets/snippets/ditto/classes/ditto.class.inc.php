@@ -1003,6 +1003,7 @@ class ditto {
         $queryString = '';
         foreach ($query as $param=>$value) {
             if(!is_array($value)){
+                if($param=="{$dittoID}start" && $value==0) continue;
                 $queryString .= "&{$param}={$value}";
             } else {
                 foreach ($value as $key=>$val) {
@@ -1056,7 +1057,7 @@ class ditto {
 		if($previous!=0) $prevUrl = $this->buildURL("start={$previous}");
 		else {
 			$args = $_GET;
-			if(isset($args['start'])) unset($args['start']);
+			if(isset($args["{$dittoID}start"])) unset($args["{$dittoID}start"]);
             if(is_array($args)) {
                 foreach($args as $k=>$v) {
                     $args[$k] = "{$k}={$v}";
