@@ -457,7 +457,12 @@ class DocumentParser {
             // validation routines
             if($this->checkSiteStatus()===false)
             {
-                if (!$this->config['site_unavailable_page'])
+                if (!$this->config['site_unavailable_page']) {
+                    header("Content-Type: text/html; charset={$this->config['modx_charset']}");
+                    $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
+                    exit($this->parseTextSimple($tpl,$this->config));
+                }
+                else
                     $this->documentObject['content'] = $this->config['site_unavailable_message'];
             }
             
