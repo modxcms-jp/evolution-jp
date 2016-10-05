@@ -131,9 +131,8 @@ if($modx->config['tvs_below_content']==0&&0<count($tmplVars)) {
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
 
-if($modx->doc->mode==='normal') {
-	$ph['fieldPublished'] =  fieldPublished();
-}
+if($modx->doc->mode==='normal') $ph['fieldPublished'] = fieldPublished();
+else                            $ph['fieldPublished'] = '';
 
 $ph['fieldPub_date']   = fieldPub_date($id);
 $ph['fieldUnpub_date'] = fieldUnpub_date($id);

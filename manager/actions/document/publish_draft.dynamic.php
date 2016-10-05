@@ -22,13 +22,6 @@ $ph['id'] = $docid;
 $ph['style_icons_cancel'] = $_style['icons_cancel'];
 $ph['lang_cancel']        = $_lang['cancel'];
 
-$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/calendar/datepicker.tpl');
-$ph['dayNames']   = "['" . join("','",explode(',',$_lang['day_names'])) . "']";
-$ph['monthNames'] = "['" . join("','",explode(',',$_lang['month_names'])) . "']";
-$ph['datepicker_offset'] = $modx->config['datepicker_offset'];
-$ph['datetime_format'] = $modx->config['datetime_format'];
-$ph['JScripts'] = $modx->parseTextSimple($tpl,$ph);
-
 $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
 $ph['fieldDraftPub_date']  = fieldDraftPub_date($docid);
@@ -79,7 +72,6 @@ function getTplDraft()
 <style>
 	label {display:block;}
 </style>
-[+JScripts+]
 <script>
 	jQuery(function(){
 		jQuery("input[name='publishoption']").click(function(){
