@@ -124,7 +124,10 @@ class DBAPI {
     function escape($s, $safecount=0) {
         $safecount++;
         if(1000<$safecount) exit("Too many loops '{$safecount}'");
-        if (!$this->isConnected()) $this->connect();
+        if (!$this->isConnected()) {
+            $rs = $this->connect();
+            if(!$rs) return false;
+        }
         
         if(is_array($s)) {
             if(count($s) === 0) {
@@ -159,7 +162,11 @@ $s = '';
     */
     function query($sql,$watchError=true) {
         global $modx;
-        if (!$this->isConnected()) $this->connect();
+        if (!$this->isConnected()) {
+            $rs = $this->connect();
+            if(!$rs) return false;
+        }
+        
         $tstart = $modx->getMicroTime();
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
@@ -509,7 +516,10 @@ $s = '';
     * @return string
     */
     function getVersion() {
-        if (!$this->isConnected()) $this->connect();
+        if (!$this->isConnected()) {
+            $rs = $this->connect();
+            if(!$rs) return false;
+        }
         return $this->conn->server_info;
     }
     
