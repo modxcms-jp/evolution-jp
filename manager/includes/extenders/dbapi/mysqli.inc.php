@@ -106,6 +106,7 @@ class DBAPI {
             $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
         }
         $modx->queryTime += $totaltime;
+        return true;
     }
     
     function select_db($dbase='') {
