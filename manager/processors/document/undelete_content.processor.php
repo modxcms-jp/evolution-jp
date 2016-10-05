@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 if(!$modx->hasPermission('delete_document'))
 {
 	$e->setError(3);

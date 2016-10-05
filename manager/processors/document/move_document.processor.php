@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 if(!$modx->hasPermission('edit_document'))   {$e->setError(3);$e->dumpError();}
 
 if($_REQUEST['id']==$_REQUEST['new_parent']) {$e->setError(600); $e->dumpError();}
