@@ -66,9 +66,11 @@ class MODX_INIT {
                 return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/manager/')+1);
             elseif(strpos($SCRIPT_NAME,'/assets/')!==false)
                 return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/assets/')+1);
-            elseif(strpos($SCRIPT_NAME,'/install/')!==false)
-                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/install/')+1);
         }
+        
+        if(strpos($SCRIPT_NAME,'/install/')!==false) 
+            return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/install/')+1);
+        
         if(substr($SCRIPT_NAME,0,2)==='/~' && substr($SCRIPT_NAME,-9)==='index.php') {
             $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/'));
             $pos = strrpos($dir,'/',-1);
