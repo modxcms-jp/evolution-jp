@@ -85,4 +85,4 @@ $ph['content'] = ob_get_contents();
 ob_end_clean();
 
 $tpl = file_get_contents("{$base_path}install/tpl/template.tpl");
-echo parse($tpl,$ph);
+echo $modx->parseTextSimple($tpl,$ph);

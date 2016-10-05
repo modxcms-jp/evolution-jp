@@ -55,7 +55,7 @@ class SqlParser {
 		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['DATE_NOW']          = time();
-		$idata = parse($idata,$ph,'{','}');
+		$idata = $modx->parseTextSimple($idata,$ph,'{','}');
 		
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 		

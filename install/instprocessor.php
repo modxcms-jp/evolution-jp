@@ -83,7 +83,7 @@ $ph['table_prefix']                = $_SESSION['table_prefix'];
 $ph['lastInstallTime']             = time();
 $ph['https_port']                  = '443';
 
-$configString = parse($configString, $ph);
+$configString = $modx->parseTextSimple($configString, $ph);
 $config_path = "{$base_path}manager/includes/config.inc.php";
 $config_saved = @ file_put_contents($config_path, $configString);
 

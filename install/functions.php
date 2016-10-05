@@ -287,16 +287,6 @@ function getCreateDbCategory($category) {
     return $category_id;
 }
 
-function parse($src,$ph,$left='[+',$right='+]')
-{
-	foreach($ph as $k=>$v)
-	{
-		$k = $left . $k . $right;
-		$src = str_replace($k,$v,$src);
-	}
-	return $src;
-}
-
 function is_webmatrix()
 {
 	return (isset($_SERVER['WEBMATRIXMODE'])) ? true : false;
@@ -342,13 +332,6 @@ function isUpGrade()
         return 0;
 }
 
-function getFullTableName($table_name)
-{
-	$dbase        = getOption('dbase');
-	$table_prefix = getOption('table_prefix');
-	return "`{$dbase}`.`{$table_prefix}{$table_name}`";
-}
-
 function parseProperties($propertyString)
 {
 	$parameter= array ();
@@ -377,11 +360,13 @@ function parseProperties($propertyString)
 
 function result($status='ok',$ph=array())
 {
+	global $modx;
+	
 	$ph['status'] = $status;
 	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
 	if(!isset($ph['msg'])) $ph['msg'] = '';
 	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
-	return parse($tpl,$ph);
+	return $modx->parseTextSimple($tpl,$ph);
 }
 
 function get_langs()
