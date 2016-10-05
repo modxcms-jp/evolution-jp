@@ -32,8 +32,7 @@ if ($modx->getLoginUserType() !== 'manager')
     header('pragma: no-cache');
     header('expires: 0');
     
-    echo 'var mceTemplateList = Array();';
-    exit();
+    exit('var mceTemplateList = Array();');
 }
 
 $modx->getSettings();
