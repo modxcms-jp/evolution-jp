@@ -188,6 +188,7 @@ class DocumentParser {
     function __construct()
     {
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+        $this->setConfig();
         $this->loadExtension('DocumentAPI');
         
         if($this->isBackend()) $this->loadExtension('ManagerAPI');
