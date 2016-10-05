@@ -3768,7 +3768,7 @@ class DocumentParser {
         include(MODX_BASE_PATH.$config_path);
         if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
         
-        if(!isset($this->db->hostname)) return false;
+        if(!isset($database_server)) return false;
         
         $this->db->hostname     = $database_server;
         $this->db->username     = $database_user;
