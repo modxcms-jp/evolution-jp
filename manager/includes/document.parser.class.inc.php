@@ -3765,6 +3765,22 @@ class DocumentParser {
         return true;
     }
 
+    function setConfig($config_path='manager/includes/config.inc.php') {
+        if(!is_file(MODX_BASE_PATH.$config_path)) return false;
+        
+        include(MODX_BASE_PATH.$config_path);
+        if(!isset($this->db->hostname)) return false;
+        
+        $this->db->hostname     = $database_server;
+        $this->db->username     = $database_user;
+        $this->db->password     = $database_password;
+        $this->db->dbname       = $dbase;
+        $this->db->charset      = $database_connection_charset;
+        $this->db->table_prefix = $table_prefix;
+        
+        return true;
+    }
+    
     // End of class.
 }
 

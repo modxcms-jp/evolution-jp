@@ -52,8 +52,7 @@ class DBAPI {
         if($pwd)   $this->password = $pwd;
         if($dbase) $this->dbname   = $dbase;
         
-        if(!$this->hostname) return false;
-        if(!$this->username) return false;
+        if(!$this->hostname || !$this->username) if(!$modx->setConfig()) return false;
         
         if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
             $this->hostname = '127.0.0.1';
