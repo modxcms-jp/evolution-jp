@@ -190,7 +190,6 @@ $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
 //---Includes-------------------------------------------------------- //
 
 $files = array (
-    "base_language"  => "{$ditto_base}lang/english.inc.php",
     "language"       => "{$ditto_base}lang/{$language}.inc.php",
     "main_class"     => "{$ditto_base}classes/ditto.class.inc.php",
     "template_class" => "{$ditto_base}classes/template.class.inc.php",
