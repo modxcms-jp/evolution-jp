@@ -62,6 +62,8 @@ TPL;
 }
 
 function block_install_sample_site($installdata='', $ph) {
+	global $modx;
+	
 	$ph['checked'] = $installdata==1 ? 'checked' : '';
 	$tpl = <<< TPL
 <img src="img/sample_site.png" class="options" alt="Sample Data" />
@@ -76,7 +78,7 @@ TPL;
 }
 
 function block_templates($tplTemplates,$formTemplates,$ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
 	if(count($tplTemplates) === 0) return '';
 	
@@ -92,7 +94,7 @@ function block_templates($tplTemplates,$formTemplates,$ph) {
 }
 
 function block_tvs($tplTVs,$formTvs,$ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
     if (count($tplTVs) === 0) return '';
     
@@ -108,7 +110,7 @@ function block_tvs($tplTVs,$formTvs,$ph) {
 }
 
 function block_chunks($tplChunks,$formChunks,$ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
     if (count($tplChunks) === 0) return '';
     
@@ -124,7 +126,7 @@ function block_chunks($tplChunks,$formChunks,$ph) {
 }
 
 function block_modules($tplModules,$formModules,$ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
     if (count($tplModules) === 0) return '';
     
@@ -140,7 +142,7 @@ function block_modules($tplModules,$formModules,$ph) {
 }
 
 function block_plugins($tplPlugins, $formPlugins, $ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
     if (count($tplPlugins) === 0) return '';
     
@@ -156,7 +158,7 @@ function block_plugins($tplPlugins, $formPlugins, $ph) {
 }
 
 function block_snippets($tplSnippets,$formSnippets,$ph) {
-	global $selDefault;
+	global $modx,$selDefault;
 	
     if (count($tplSnippets) === 0) return '';
     

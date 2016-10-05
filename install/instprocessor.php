@@ -16,7 +16,7 @@ $base_path = str_replace($self, '',str_replace('\\','/', __FILE__));
 
 require_once("{$base_path}manager/includes/default.config.php");
 
-$installdata = $_SESSION['installdata'];
+$installdata      = $_SESSION['installdata'];
 $formvTemplates   = $_SESSION['template'];
 $formvTvs         = $_SESSION['tv'];
 $formvChunks      = $_SESSION['chunk'];
@@ -45,7 +45,6 @@ $sqlParser->connection_collation = $_SESSION['database_collation'];
 $sqlParser->connection_method = $_SESSION['database_connection_method'];
 $sqlParser->managerlanguage = $_SESSION['managerlanguage'];
 $sqlParser->manager_theme = $default_config['manager_theme'];
-$sqlParser->mode = ($_SESSION['installmode'] < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
 $sqlParser->showSqlErrors = false;
 
@@ -69,42 +68,40 @@ if ($sqlParser->installFailed == true)
 	echo "<p>{$lang_some_tables_not_updated}</p>";
 	return;
 }
-else printf('<span class="ok">%s</span></p>', $lang_ok);
-
-$configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
-$ph['database_type']               = $database_type;
-$ph['database_server']             = $_SESSION['database_server'];
-$ph['database_user']               = $modx->db->escape($_SESSION['database_user']);
-$ph['database_password']           = $modx->db->escape($_SESSION['database_password']);
-$ph['database_connection_charset'] = $_SESSION['database_charset'];
-$ph['database_connection_method']  = $_SESSION['database_connection_method'];
-$ph['dbase']                       = trim($_SESSION['dbase'],'`');
-$ph['table_prefix']                = $_SESSION['table_prefix'];
-$ph['lastInstallTime']             = time();
-$ph['https_port']                  = '443';
-
-$configString = $modx->parseTextSimple($configString, $ph);
-$config_path = "{$base_path}manager/includes/config.inc.php";
-$config_saved = @ file_put_contents($config_path, $configString);
-
-// try to chmod the config file go-rwx (for suexeced php)
-@chmod($config_path, 0404);
-
-echo "<p>{$lang_writing_config_file}";
-if ($config_saved === false)
-{
-	printf('<span class="notok">%s</span></p>', $lang_failed);
-	$errors += 1;
-	echo sprintf('<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>', $lang_cant_write_config_file);
-	echo '<textarea style="width:100%; height:200px;font-size:inherit;font-family:\'Courier New\',\'Courier\', monospace;">';
-	echo htmlspecialchars($configString);
-	echo '</textarea>';
-	echo "<p>{$lang_cant_write_config_file_note}</p>";
-}
-else
+else {
 	printf('<span class="ok">%s</span></p>', $lang_ok);
-
-$_SESSION = array();
+    $configString = file_get_contents("{$base_path}install/tpl/config.inc.tpl");
+    $ph['database_type']               = $database_type;
+    $ph['database_server']             = $_SESSION['database_server'];
+    $ph['database_user']               = $modx->db->escape($_SESSION['database_user']);
+    $ph['database_password']           = $modx->db->escape($_SESSION['database_password']);
+    $ph['database_connection_charset'] = $_SESSION['database_charset'];
+    $ph['database_connection_method']  = $_SESSION['database_connection_method'];
+    $ph['dbase']                       = trim($_SESSION['dbase'],'`');
+    $ph['table_prefix']                = $_SESSION['table_prefix'];
+    $ph['lastInstallTime']             = time();
+    $ph['https_port']                  = '443';
+    
+    $configString = $modx->parseTextSimple($configString, $ph);
+    $config_path = "{$base_path}manager/includes/config.inc.php";
+    $config_saved = @ file_put_contents($config_path, $configString);
+    // try to chmod the config file go-rwx (for suexeced php)
+    @chmod($config_path, 0404);
+    
+    echo "<p>{$lang_writing_config_file}";
+    if ($config_saved === false)
+    {
+    	printf('<span class="notok">%s</span></p>', $lang_failed);
+    	$errors += 1;
+    	echo sprintf('<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>', $lang_cant_write_config_file);
+    	echo '<textarea style="width:100%; height:200px;font-size:inherit;font-family:\'Courier New\',\'Courier\', monospace;">';
+    	echo htmlspecialchars($configString);
+    	echo '</textarea>';
+    	echo "<p>{$lang_cant_write_config_file_note}</p>";
+    }
+    else
+    	printf('<span class="ok">%s</span></p>', $lang_ok);
+}
 
 if ($_SESSION['installmode'] == 0) // generate new site_id
 {
@@ -203,6 +200,8 @@ if($_SESSION['installmode'] == 0) echo $lang_installation_note;
 else                              echo $lang_upgrade_note;
 
 echo '</p>';
+
+$_SESSION = array();
 
 function ok($name,$msg) {
 	return sprintf('<p>&nbsp;&nbsp;%s: <span class="ok">%s</span></p>', $name, $msg) . "\n";

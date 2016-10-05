@@ -1,5 +1,4 @@
 <?php
-define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
 include_once('../manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
@@ -8,11 +7,7 @@ require_once('functions.php');
 $language = $_SESSION['install_language'] ? $_SESSION['install_language'] : 'english';
 includeLang($language);
 
-if(isset($_POST['host'])) $host = $_POST['host'];
-if(isset($_POST['uid']))  $uid  = $_POST['uid'];
-$pwd  = (isset($_POST['pwd'])) ? $_POST['pwd'] : '';
-
-$modx->db->hostname = !isset($_POST['host']) ? '' : $_POST['host'];
+$modx->db->hostname = $host = !isset($_POST['host']) ? '' : $_POST['host'];
 $modx->db->username = !isset($_POST['uid']) ?  '' : $_POST['uid'];
 $modx->db->password = !isset($_POST['pwd']) ?  '' : $_POST['pwd'];
 $modx->db->connect();
@@ -25,7 +20,7 @@ if (!$modx->db->isConnected()) {
 else {
     $output = sprintf('<span id="server_pass" style="color:#388000;">%s</span>',$_lang['status_passed_server']);
     $bgcolor = '#e6ffeb';
-    $_SESSION['database_server']   = $modx->db->hostname;
+    $_SESSION['database_server']   = $host;
     $_SESSION['database_user']     = $modx->db->username;
     $_SESSION['database_password'] = $modx->db->password;
 }
