@@ -1,13 +1,4 @@
 <?php
-function install_session_start() {
-	$_ = crc32(__FILE__);
-	$_ = sprintf('%u', $_);
-	$_ = base_convert($_,10,36);
-	$site_sessionname = 'evo' . $_;
-	session_name($site_sessionname);
-	session_start();
-}
-
 function setOption($fieldName,$value='') {
 	$_SESSION[$fieldName] = $value;
 	return $value;
@@ -35,17 +26,17 @@ function autoDetectLang() {
 	return $lang;
 }
 
-function includeLang($language, $dir='langs/') {
+function includeLang($lang_name, $dir='langs/') {
 	global $_lang;
 	
 	# load language file
 	$_lang = array ();
-	$language = str_replace('\\','/',$language);
-	if(strpos($language,'/')!==false) {
+	$lang_name = str_replace('\\','/',$lang_name);
+	if(strpos($lang_name,'/')!==false) {
 		 require_once('langs/english.inc.php');
 	}
-	elseif(is_file("{$dir}{$language}.inc.php")) {
-		 require_once("{$dir}{$language}.inc.php");
+	elseif(is_file("{$dir}{$lang_name}.inc.php")) {
+		 require_once("{$dir}{$lang_name}.inc.php");
 	}
 	else require_once("{$dir}english.inc.php");
 }
@@ -276,8 +267,7 @@ function propUpdate($new,$old)
 		$return .= "&{$k}={$v} ";
 	}
 	global $modx;
-	if($modx->db) return $modx->db->escape($return);
-	else          return sql_real_escape_string($return);
+	return $modx->db->escape($return);
 }
 
 function getCreateDbCategory($category) {
@@ -319,46 +309,37 @@ function is_iis()
 
 function isUpGrade()
 {
-	global $base_path;
+	global $modx,$base_path;
 	
 	$conf_path = "{$base_path}manager/includes/config.inc.php";
-	if (!is_file($conf_path)) $installmode = 0;
-	elseif(isset($_POST['installmode'])) $installmode = $_POST['installmode'];
-	else
-	{
-		include_once($conf_path);
-		error_reporting(E_ALL & ~E_NOTICE);
-		
-		if(!isset($dbase) || empty($dbase)) $installmode = 0;
-		else
-		{
-			global $db;
-			$db = sql_connect($database_server, $database_user, $database_password);
-			if($db)
-			{
-				$dbase = trim($dbase, '`');
-				$rs = sql_select_db($dbase);
-			}
-			else $rs = false;
-			
-			if($rs)
-			{
-				$tbl_system_settings = "`{$dbase}`.`{$table_prefix}system_settings`";
-				$rs = sql_query("SELECT setting_value FROM {$tbl_system_settings} WHERE setting_name='settings_version'");
-				if($rs)
-				{
-					$row = sql_fetch_assoc($rs);
-					$settings_version = $row['setting_value'];
-				}
-				else $settings_version = '';
-				
-				if (empty($settings_version)) $installmode = 0;
-				else                          $installmode = 1;
-			}
-			else $installmode = 1;
-		}
-	}
-	return $installmode;
+	if (!is_file($conf_path)) return 0;
+	
+	include($conf_path);
+	error_reporting(E_ALL & ~E_NOTICE);
+	
+	if(!isset($dbase) || empty($dbase)) return 0;
+	
+    $modx->db->hostname     = $database_server;
+    $modx->db->username     = $database_user;
+    $modx->db->password     = $database_password;
+    $modx->db->dbname       = $dbase;
+    $modx->db->charset      = $database_connection_charset;
+    $modx->db->table_prefix = $table_prefix;
+    $modx->db->connect();
+    
+    if($modx->db->isConnected() && $modx->db->table_exists('[+prefix+]system_settings')) {
+        $_SESSION['database_server']            = $database_server;
+        $_SESSION['database_user']              = $database_user;
+        $_SESSION['database_password']          = $database_password;
+        $_SESSION['dbase']                      = trim($dbase,'`');
+        $_SESSION['database_charset']           = $database_connection_charset;
+        $_SESSION['table_prefix']               = $table_prefix;
+        $_SESSION['database_collation']         = $modx->db->getCollation();
+        $_SESSION['database_connection_method'] = 'SET CHARACTER SET';
+        return 1;
+    }
+    else
+        return 0;
 }
 
 function getFullTableName($table_name)
@@ -415,14 +396,14 @@ function get_langs()
 	return $langs;
 }
 
-function get_lang_options($install_language)
+function get_lang_options($lang_name)
 {
 	$langs = get_langs();
 	
-	foreach ($langs as $language)
+	foreach ($langs as $lang)
 	{
-		$abrv_language = explode('-',$language);
-		$option[] = '<option value="' . $language . '"'. (($language == $install_language) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>';
+		$abrv_language = explode('-',$lang);
+		$option[] = '<option value="' . $lang . '"'. (($lang == $lang_name) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>';
 	}
 	return "\n" . join("\n",$option);
 }
@@ -450,12 +431,9 @@ function ph()
 {
 	global $_lang,$cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
 
-	if(isset($_SESSION['installmode'])) $installmode = $_SESSION['installmode'];
-	else                                $installmode = isUpGrade();
-
 	$ph['pagetitle']     = $_lang['modx_install'];
 	$ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
-	$ph['help_link']     = $installmode == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
+	$ph['help_link']     = $_SESSION['installmode'] == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
 	$ph['version']       = $cmsName.' '.$cmsVersion;
 	$ph['release_date']  = (($modx_textdir && $modx_textdir==='rtl') ? '&rlm;':'') . $modx_release_date;
 	$ph['footer1']       = $_lang['modx_footer1'];
@@ -467,164 +445,13 @@ function install_sessionCheck()
 {
 	global $_lang;
 	
-	// session loop-back tester
-	if(!isset($_GET['action']) || $_GET['action']!=='mode')
-	{
-		if(!isset($_SESSION['test']) || $_SESSION['test']!=1)
-		{
-			echo '
-<html>
-<head>
-	<title>Install Problem</title>
-	<style type="text/css">
-		*{margin:0;padding:0}
-		body{margin:150px;background:#eee;}
-		.install{padding:10px;border:3px solid #ffc565;background:#ffddb4;margin:0 auto;text-align:center;}
-		p{ margin:20px 0; }
-		a{margin-top:30px;padding:5px;}
-	</style>
-</head>
-<body>
-	<div class="install">
-		<p>' . $_lang["session_problem"] . '</p>
-		<p><a href="./">' .$_lang["session_problem_try_again"] . '</a></p>
-	</div>
-</body>
-</html>';
-		exit;
-		}
-	}
-}
-
-function get_dbase() {
-    global $dbase;
-    
-    if(isset($_SESSION['dbase']))
-    	$dbase = $_SESSION['dbase'];
-    elseif(!isset($dbase) || empty($dbase))
-    	$dbase = '';
-    
-    $dbase = trim($dbase, '`');
-    
-    return $dbase;
-}
-
-function get_database_server() {
-	global $database_server;
+	$_SESSION['test'] = 1;
 	
-	if(isset($_SESSION['database_server']))
-		$database_server = $_SESSION['database_server'];
-	elseif(!isset($database_server) || empty($database_server))
-		$database_server = 'localhost';
-
-	return $database_server;
-}
-
-function get_database_user() {
-	if(isset($_SESSION['database_user']))
-		$database_user = $_SESSION['database_user'];
-	elseif(!isset($database_user) || empty($database_user))
-		$database_user = '';
-
-	return $database_user;
-}
-
-function get_database_password() {
-	global $database_password;
-	
-    if(isset($_SESSION['database_password']))
-    	$database_password = $_SESSION['database_password'];
-    elseif(!isset($database_password) || empty($database_password))
-    	$database_password = '';
-
-    return $database_password;
-}
-
-function get_table_prefix() {
-	global $table_prefix;
-	
-	if(isset($_SESSION['table_prefix']))
-		$table_prefix = $_SESSION['table_prefix'];
-	elseif(!isset($table_prefix) || empty($table_prefix))
-		$table_prefix = 'modx_';
-
-	return $table_prefix;
-}
-
-function get_database_connection_method() {
-	global $database_connection_method;
-	
-	if(isset($_SESSION['database_connection_method']))
-		$database_connection_method = $_SESSION['database_connection_method'];
-	elseif(!isset($database_connection_method) || empty($database_connection_method))
-		$database_connection_method = 'SET CHARACTER SET';
-
-	return $database_connection_method;
-}
-
-function get_database_collation() {
-	global $database_collation;
-	
-	if(isset($_SESSION['database_collation']))
-		$database_connection_method = $_SESSION['database_collation'];
-	elseif(!isset($database_collation) || empty($database_collation))
-		$database_collation = 'utf8_general_ci';
-
-	return $database_collation;
+	if(!isset($_SESSION['test']) || $_SESSION['test']!=1) return false;
+	else return true;
 }
 
 function getLast($array=array()) {
 	$array = (array) $array;
     return end($array);
-}
-
-function checkOldConfig($config_path) {
-	if(is_file($config_path)) include_once($config_path);
-	if(isset($lastInstallTime)) exit('test');
-}
-
-function sql_connect($host, $uid, $pwd) {
-    if(function_exists('mysqli_connect')) $db = @ mysqli_connect($host, $uid, $pwd);
-    else                                  $db = @ mysql_connect($host, $uid, $pwd);
-    return $db;
-}
-
-function sql_select_db($dbase) {
-    global $db;
-    if(function_exists('mysqli_select_db')) return mysqli_select_db($db,$dbase);
-    else                                    return mysql_select_db($dbase);
-}
-
-function sql_set_charset($encode='utf8') {
-    global $db;
-	if(function_exists('mysqli_set_charset'))    mysqli_set_charset($db,$encode);
-	elseif(function_exists('mysql_set_charset')) mysql_set_charset($encode);
-	else                                         sql_query("SET NAMES '{$encode}'");;
-}
-
-function sql_query($query) {
-	global $db;
-	if(function_exists('mysqli_query')) return mysqli_query($db,$query);
-	else                                return mysql_query($query);
-}
-
-function sql_real_escape_string($s) {
-	if (function_exists('mysqli_real_escape_string')) {
-		global $db;
-		$s = mysqli_real_escape_string($db,$s);
-	}
-	elseif (function_exists('mysql_real_escape_string')) {
-		$s = mysql_real_escape_string($s);
-	}
-	else {
-		$s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
-		$s = mysql_escape_string($s);
-		$s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
-	}
-	return $s;
-}
-
-function sql_fetch_assoc($rs) {
-	if(function_exists('mysqli_fetch_assoc')) return mysqli_fetch_assoc($rs);
-	else                                      return mysql_fetch_assoc($rs);
 }

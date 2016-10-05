@@ -1,5 +1,5 @@
 <?php
-if($installmode==1)                               return;
+if($_SESSION['installmode']==1)                   return;
 if(empty($formvTemplates) && empty($installdata)) return;
 
 echo "<h3>{$lang_templates}:</h3>";
@@ -33,7 +33,7 @@ foreach ($tplTemplates as $i=>$tplInfo)
 	$dbv_template = $modx->db->getObject('site_templates', "templatename='{$templatename}'");
 	if ($dbv_template)
 	{
-		if (!@ $modx->db->update($f, '[+prefix+]site_templates', "templatename='{$templatename}'"))
+		if (! $modx->db->update($f, '[+prefix+]site_templates', "templatename='{$templatename}'"))
 		{
 			$errors += 1;
 			showError();
@@ -44,7 +44,7 @@ foreach ($tplTemplates as $i=>$tplInfo)
 	else
 	{
 		$f['templatename'] = $templatename;
-		if (!@ $modx->db->insert($f, '[+prefix+]site_templates'))
+		if (! $modx->db->insert($f, '[+prefix+]site_templates'))
 		{
 			$errors += 1;
 			showError();

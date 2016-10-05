@@ -17,8 +17,12 @@ if (version_compare(phpversion(), "5.3") < 0) {
 
 header("Content-Type: text/html; charset=utf-8");
 
-define('IN_MANAGER_MODE', 'true');
+define('MODX_API_MODE', true);
 $base_path      = str_replace('\\','/', dirname(getcwd())).'/';
+
+include_once("{$base_path}manager/includes/document.parser.class.inc.php");
+$modx = new DocumentParser;
+
 $installer_path = "{$base_path}install/";
 
 require_once("{$base_path}manager/includes/version.inc.php");
@@ -29,50 +33,48 @@ $moduleRelease = $modx_release_date;
 require_once("{$base_path}manager/includes/default.config.php");
 require_once("{$installer_path}functions.php");
 
-install_session_start();
+$lang_name = autoDetectLang();
+$rs = install_sessionCheck();
+if(!$rs) {
+    includeLang($lang_name);
+    $ph = $_lang;
+    $tpl = file_get_contents("{$base_path}install/tpl/session_problem.tpl");
+    echo $modx->parseTextSimple($tpl,$ph);
+    exit;
+}
 
 $action = isset($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
 $_SESSION['prevAction']    = isset($_SESSION['currentAction']) ? $_SESSION['currentAction'] : '';
 $_SESSION['currentAction'] = $action;
 
-if($action==='mode') {
-	$installmode = isUpGrade();
-	$_SESSION['installmode'] = $installmode;
-	if($installmode==1) {
-		include("{$base_path}manager/includes/config.inc.php");
-		$_SESSION['database_server']            = $database_server;
-		$_SESSION['database_user']              = $database_user;
-		$_SESSION['database_password']          = $database_password;
-		$_SESSION['dbase']                      = trim($dbase,'`');
-		$_SESSION['table_prefix']               = $table_prefix;
-		$_SESSION['database_collation']         = 'utf8_general_ci';
-		$_SESSION['database_connection_method'] = 'SET CHARACTER SET';
-	}
-}
+if($action==='mode') $_SESSION['installmode'] = isUpGrade();
+
+if(isset($_SESSION['database_server']))   $modx->db->hostname     = $_SESSION['database_server'];
+if(isset($_SESSION['database_user']))     $modx->db->username     = $_SESSION['database_user'];
+if(isset($_SESSION['database_password'])) $modx->db->password     = $_SESSION['database_password'];
+if(isset($_SESSION['dbase']))             $modx->db->dbname       = $_SESSION['dbase'];
+if(isset($_SESSION['database_charset']))  $modx->db->charset      = $_SESSION['database_charset'];
+if(isset($_SESSION['table_prefix']))      $modx->db->table_prefix = $_SESSION['table_prefix'];
+if(isset($_SESSION['database_server']))   $modx->db->connect();
 
 if(isset($_POST['install_language']) && !empty($_POST['install_language'])) {
-	$install_language = $_POST['install_language'];
+	$lang_name = $_POST['install_language'];
 	$_SESSION['install_language'] = $_POST['install_language'];
 }
 elseif(isset($_SESSION['install_language']) && !empty($_SESSION['install_language']))
-	$install_language = $_SESSION['install_language'];
+	$lang_name = $_SESSION['install_language'];
 else {
-	$install_language = autoDetectLang();
-	$_SESSION['install_language'] = $install_language;
+	$_SESSION['install_language'] = $lang_name;
 }
 
-//echo $install_language;exit;
-includeLang($install_language);
-
-// start session
-$_SESSION['test'] = 1;
-install_sessionCheck();
+//echo $lang_name;exit;
+includeLang($lang_name);
 
 $errors= 0;
 
 $ph = ph();
 $ph = array_merge($ph,$_lang);
-$ph['install_language'] = $install_language;
+$ph['install_language'] = $lang_name;
 
 ob_start();
 if (!@include_once ("{$installer_path}actions/{$action}.php"))

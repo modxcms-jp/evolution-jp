@@ -1,7 +1,10 @@
 <?php
+define('IN_MANAGER_MODE', 'true');
+define('MODX_API_MODE', true);
+include_once('../manager/includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
 require_once('../manager/includes/default.config.php');
 require_once('functions.php');
-install_session_start();
 $language = $_SESSION['install_language'] ? $_SESSION['install_language'] : 'english';
 includeLang($language);
 
@@ -9,10 +12,12 @@ if(isset($_POST['host'])) $host = $_POST['host'];
 if(isset($_POST['uid']))  $uid  = $_POST['uid'];
 $pwd  = (isset($_POST['pwd'])) ? $_POST['pwd'] : '';
 
-if(!isset($host) || !isset($uid))         $db = false;
-$db = sql_connect($host, $uid, $pwd);
+$modx->db->hostname = !isset($_POST['host']) ? '' : $_POST['host'];
+$modx->db->username = !isset($_POST['uid']) ?  '' : $_POST['uid'];
+$modx->db->password = !isset($_POST['pwd']) ?  '' : $_POST['pwd'];
+$modx->db->connect();
 
-if (!$db) {
+if (!$modx->db->isConnected()) {
     $output = sprintf('<span id="server_fail" style="color:#FF0000;">%s</span>',$_lang['status_failed']);
     $bgcolor = '#ffe6eb';
 }
@@ -20,9 +25,9 @@ if (!$db) {
 else {
     $output = sprintf('<span id="server_pass" style="color:#388000;">%s</span>',$_lang['status_passed_server']);
     $bgcolor = '#e6ffeb';
-    $_SESSION['database_server']   = $host;
-    $_SESSION['database_user']     = $uid;
-    $_SESSION['database_password'] = $pwd;
+    $_SESSION['database_server']   = $modx->db->hostname;
+    $_SESSION['database_user']     = $modx->db->username;
+    $_SESSION['database_password'] = $modx->db->password;
 }
 
 echo sprintf('<div style="background: %s;padding:8px;border-radius:5px;">%s</div>', $bgcolor, $_lang["status_connecting"] . $output);
@@ -45,18 +50,18 @@ jQuery.each(characters, function (value, name) {
 echo $script;
 
 function getCollation() {
-    $db = sql_connect(getOption('database_server'), getOption('database_user'), getOption('database_password'));
-    $rs = sql_query('SHOW COLLATION');
-    while($row=sql_fetch_assoc($rs)) {
-        if(substr($row['Collation'],0,4)!='utf8') continue;
-        if(_cond($row['Collation'])) $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
+    global $modx;
+    $rs = $modx->db->query("SHOW COLLATION LIKE 'utf8%'");
+    while($row=$modx->db->getRow($rs)) {
+        if(isSafeCollation($row['Collation'])) $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
         //$row['Charset'];
     }
     return join(',', $_);
 }
 
-function _cond($collation) {
-    if(strpos($collation,'_general_ci')!==false || strpos($collation,'_unicode_ci')!==false || strpos($collation,'_bin')!==false)
-        return true;
-    else return false;
+function isSafeCollation($collation) {
+    if    (strpos($collation,'_general_c')!==false) return true;
+    elseif(strpos($collation,'_unicode_c')!==false) return true;
+    elseif(strpos($collation,'_bin')!==false)     return true;
+    else                                          return false;
 }

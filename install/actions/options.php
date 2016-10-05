@@ -18,14 +18,12 @@ if(isset($_POST['adminemail']))        $_SESSION['adminemail']        = $_POST['
 if(isset($_POST['adminpass']))         $_SESSION['adminpass']         = $_POST['adminpass'];
 if(isset($_POST['adminpassconfirm']))  $_SESSION['adminpassconfirm']  = $_POST['adminpassconfirm'];
 
-$installmode = $_SESSION['installmode'];
-
 $_SESSION['managerlanguage'] = $_SESSION['install_language'];
 include_once("{$installer_path}setup.info.php");
 
-$ph['installmode'] = $installmode;
+$ph['installmode'] = $_SESSION['installmode'];
 
-$ph['install_sample_site']     = $installmode==0 ? block_install_sample_site($installdata,$ph) . "\n" : '';
+$ph['install_sample_site']     = $_SESSION['installmode']==0 ? block_install_sample_site($installdata,$ph) . "\n" : '';
 $ph['block_templates'] = block_templates($tplTemplates,$formTemplates,$ph);
 $ph['block_tvs']       = block_tvs(      $tplTVs,      $formTvs,      $ph);
 $ph['block_chunks']    = block_chunks(   $tplChunks,   $formChunks,   $ph);

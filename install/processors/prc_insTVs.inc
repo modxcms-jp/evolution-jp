@@ -1,5 +1,5 @@
 <?php
-if($installmode==1) return;
+if($_SESSION['installmode']==1) return;
 if (empty($formvTvs) && empty($installdata)) return;
 
 echo "<h3>{$lang_tvs}:</h3> ";

@@ -11,22 +11,8 @@ $tvPath       = "{$base_path}assets/tvs/";
 
 global $_lang;
 
-$installmode = $_SESSION['installmode'];
-define('MODX_API_MODE', true);
-
-if(!$modx) {
-    $modx = include_once("{$base_path}manager/includes/document.parser.class.inc.php");
-    $modx->db->hostname     = $_SESSION['database_server'];
-    $modx->db->username     = $_SESSION['database_user'];
-    $modx->db->password     = $_SESSION['database_password'];
-    $modx->db->dbname       = $_SESSION['dbase'];
-    $modx->db->charset      = $_SESSION['database_charset'];
-    $modx->db->table_prefix = $_SESSION['table_prefix'];
-    $modx->db->connect();
-}
-
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
-if($installmode==0 && is_dir($templatePath) && is_readable($templatePath))
+if($_SESSION['installmode']==0 && is_dir($templatePath) && is_readable($templatePath))
 {
 	$files = collectTpls($templatePath);
 	foreach ($files as $tplfile)
@@ -34,7 +20,7 @@ if($installmode==0 && is_dir($templatePath) && is_readable($templatePath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
-			if($installmode==1 && compare_check($params)==='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)==='same') continue;
 			elseif(!empty($params['version']))
 				$params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$p = array();
@@ -51,7 +37,7 @@ if($installmode==0 && is_dir($templatePath) && is_readable($templatePath))
 }
 
 // setup Template Variable template files
-if($installmode==0 && is_dir($tvPath) && is_readable($tvPath))
+if($_SESSION['installmode']==0 && is_dir($tvPath) && is_readable($tvPath))
 {
 	$files = collectTpls($tvPath);
 	foreach ($files as $tplfile)
@@ -59,7 +45,7 @@ if($installmode==0 && is_dir($tvPath) && is_readable($tvPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$p = array();
 			$p['name']                 = $params['name'];
@@ -81,7 +67,7 @@ if($installmode==0 && is_dir($tvPath) && is_readable($tvPath))
 }
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
-if($installmode==0 && is_dir($chunkPath) && is_readable($chunkPath))
+if($_SESSION['installmode']==0 && is_dir($chunkPath) && is_readable($chunkPath))
 {
 	$files = collectTpls($chunkPath);
 	foreach ($files as $tpl_file_path)
@@ -89,7 +75,7 @@ if($installmode==0 && is_dir($chunkPath) && is_readable($chunkPath))
 		$params = parse_docblock($tpl_file_path);
 		if(is_array($params) && count($params) > 0)
 		{
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
 			$p = array();
 			$p['name']          = $params['name'];
 			$p['description']   = $params['description'];
@@ -111,7 +97,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$p = array();
 		    $p['name']        = $params['name'];
@@ -139,7 +125,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 		
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
 			$p['name']          = $params['name'];
 			$p['description']   = $params['description'];
 			$p['tpl_file_path'] = $tplfile;
@@ -166,7 +152,7 @@ if(is_dir($modulePath) && is_readable($modulePath))
 		{
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($installmode==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
 			$p = array();
 		    $p['name']          = $params['name'];
 		    $p['description']   = $params['description'];

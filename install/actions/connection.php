@@ -11,9 +11,8 @@ if($_SESSION['prevAction']==='options') {
 	$_SESSION['module']      = $_POST['module']      ? $_POST['module']      : array();
 }
 
-$installmode = $_SESSION['installmode'];
 $_ = explode(',', 'adminname,adminemail,adminpass,adminpassconfirm,database_server,database_user,database_password,dbase,table_prefix');
-$ph['installmode'] = $installmode;
+$ph['installmode'] = $_SESSION['installmode'];
 foreach($_ as $k) {
 	if(isset($_SESSION[$k]))       $ph[$k] = $_SESSION[$k];
 	elseif($k==='adminname')       $ph[$k] = 'admin';
@@ -21,6 +20,6 @@ foreach($_ as $k) {
 	elseif($k==='table_prefix')    $ph[$k] = 'modx_';
 	else                           $ph[$k] = '';
 }
-
+if($ph['database_server'] == '127.0.0.1') $ph['database_server'] = 'localhost';
 $src = file_get_contents("{$base_path}install/tpl/connection.tpl");
 echo  parse($src,$ph);

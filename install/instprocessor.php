@@ -24,31 +24,12 @@ $formvSnippets    = $_SESSION['snippet'];
 $formvPlugins     = $_SESSION['plugin'];
 $formvModules     = $_SESSION['module'];
 
-$installmode = $_SESSION['installmode'];
-
 extract($_lang, EXTR_PREFIX_ALL, 'lang');
 
 echo "<p>{$lang_setup_database}</p>\n";
 // get base path and url
 define('MODX_API_MODE', true);
 $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
-$modx = include_once("{$base_path}manager/includes/document.parser.class.inc.php");
-$modx->db->hostname          = $_SESSION['database_server'];
-$modx->db->username          = $_SESSION['database_user'];
-$modx->db->password          = $_SESSION['database_password'];
-$modx->db->dbname            = $_SESSION['dbase'];
-$modx->db->charset           = $_SESSION['database_charset'];
-$modx->db->table_prefix      = $_SESSION['table_prefix'];
-$modx->db->connect();
-
-$rs = $modx->db->table_exists('[+prefix+]site_revision');
-if($rs) {
-	$rs = $modx->db->field_exists('elmid','[+prefix+]site_revision');
-    if(!$rs) {
-    	$sql = 'DROP TABLE ' . $modx->db->table_prefix . 'site_revision';
-    	$modx->db->query($sql);
-    }
-}
 
 // open db connection
 $setupPath = realpath(getcwd());
@@ -64,14 +45,14 @@ $sqlParser->connection_collation = $_SESSION['database_collation'];
 $sqlParser->connection_method = $_SESSION['database_connection_method'];
 $sqlParser->managerlanguage = $_SESSION['managerlanguage'];
 $sqlParser->manager_theme = $default_config['manager_theme'];
-$sqlParser->mode = ($installmode < 1) ? 'new' : 'upd';
+$sqlParser->mode = ($_SESSION['installmode'] < 1) ? 'new' : 'upd';
 $sqlParser->base_path = $base_path;
 $sqlParser->showSqlErrors = false;
 
 // install/update database
 echo "<p>{$lang_setup_database_creating_tables}";
 $sqlParser->intoDB('both_createtables.sql');
-if($installmode==0) $sqlParser->intoDB('new_setvalues.sql');
+if($_SESSION['installmode']==0) $sqlParser->intoDB('new_setvalues.sql');
 
 $sqlParser->intoDB('both_fixvalues.sql');
 // display database results
@@ -125,7 +106,7 @@ else
 
 $_SESSION = array();
 
-if ($installmode == 0) // generate new site_id
+if ($_SESSION['installmode'] == 0) // generate new site_id
 {
 	$uniqid = uniqid('');
 	$query = "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','{$uniqid}')";
@@ -154,13 +135,13 @@ include_once('processors/prc_insModules.inc');   // Install Modules
 include_once('processors/prc_insPlugins.inc');   // Install Plugins
 include_once('processors/prc_insSnippets.inc');  // Install Snippets
 
-if($installmode ==0 && is_file("{$base_path}install/sql/new_override.sql"))
+if($_SESSION['installmode'] ==0 && is_file("{$base_path}install/sql/new_override.sql"))
 {
 	$sqlParser->intoDB('new_override.sql');
 }
 
 // install data
-if ($installmode == 0 && $installdata==1)
+if ($_SESSION['installmode'] == 0 && $installdata==1)
 {
 	echo "<p>{$lang_installing_demo_site}";
 	$sqlParser->intoDB('new_sample.sql');
@@ -218,8 +199,8 @@ echo "<p><b>{$lang_installation_successful}</b></p>";
 echo "<p>{$lang_to_log_into_content_manager}</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
 
-if($installmode == 0) echo $lang_installation_note;
-else                  echo $lang_upgrade_note;
+if($_SESSION['installmode'] == 0) echo $lang_installation_note;
+else                              echo $lang_upgrade_note;
 
 echo '</p>';
 
