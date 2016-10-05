@@ -259,7 +259,7 @@ class DocumentParser {
             case 'export_site' :
             case 'subparser'   :
             case 'revision'    :
-                return include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
+                return require_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
                 Document::$modx=$this;
