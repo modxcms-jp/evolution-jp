@@ -3764,7 +3764,16 @@ class DocumentParser {
         }
         return true;
     }
-
+    
+    function gotoSetup() {
+        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false) return;
+        
+        if(is_file(MODX_BASE_PATH . 'install/index.php')) {
+            header('Location: install/index.php?action=mode');
+            exit();
+        } else exit('Not installed.');
+    }
+    
     function setConfig($config_path='manager/includes/config.inc.php') {
         if(!is_file(MODX_BASE_PATH.$config_path)) return false;
         
