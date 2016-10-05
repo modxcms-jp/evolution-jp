@@ -35,10 +35,7 @@ if(!isset($_SESSION['mgrValidated'])) {
  * before being able to run this script
  */
 
-// connect to the database
-$modx->db->connect();
 // Override system settings with user settings
-$modx->getSettings();
 extract($modx->config);
 $settings = &$modx->config;
 if($settings['use_browser'] != 1){

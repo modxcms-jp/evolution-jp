@@ -35,7 +35,7 @@ if(!isset($_SESSION['mgrValidated'])) {
 }
 $mcpuk_path = "{$base_path}manager/media/browser/mcpuk/";
 
-$modx->db->connect();
+$modx->getSettings();
 
 global $fckphp_config;
 include_once("{$mcpuk_path}connectors/php/config.php");

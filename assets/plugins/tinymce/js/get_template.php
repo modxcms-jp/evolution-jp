@@ -23,7 +23,6 @@ $self = 'assets/plugins/tinymce/js/get_template.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-$modx->db->connect();
 
 /* only display if manager user is logged in */
 if ($modx->getLoginUserType() !== 'manager')

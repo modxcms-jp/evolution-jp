@@ -10,7 +10,6 @@ $self = 'manager/session_keepalive.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-$modx->db->connect();
 $modx->getSettings();
 
 // Keep it alive
