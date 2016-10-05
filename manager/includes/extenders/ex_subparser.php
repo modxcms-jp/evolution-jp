@@ -90,7 +90,7 @@ class SubParser {
     
     function rotate_log($target='event_log',$limit=2000, $trim=100)
     {
-        global $modx, $dbase;
+        global $modx;
         
         if($limit < $trim) $trim = $limit;
         
@@ -102,7 +102,7 @@ class SubParser {
             $modx->db->delete("[+prefix+]{$target}",'','',$trim);
         }
 		if( isset($modx->config['automatic_optimize']) && $modx->config['automatic_optimize'] == 1 ){
-			$result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($dbase,'`')));
+			$result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($modx->db->dbname,'`')));
 			while ($row = $modx->db->getRow($result))
 			{
 				$modx->db->query('OPTIMIZE TABLE ' . $row['Name']);

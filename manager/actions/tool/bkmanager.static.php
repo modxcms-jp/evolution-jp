@@ -168,8 +168,7 @@ else $ph['result_msg'] = '';
 		</tr></thead>
 		<tbody>
 			<?php
-$dbase = trim($dbase,'`');
-$sql = "SHOW TABLE STATUS FROM `{$dbase}` LIKE '{$table_prefix}%'";
+$sql = "SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$table_prefix}%'";
 $rs = $modx->db->query($sql);
 $i = 0;
 while($row = $modx->db->getRow($rs)) {
