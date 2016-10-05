@@ -6,17 +6,6 @@
  */
 
 require_once('initialize.inc.php');
-$conf_path = MODX_CORE_PATH . 'config.inc.php';
-if (is_file($conf_path)) include_once($conf_path);
-
-if (!isset($lastInstallTime) || empty($lastInstallTime)) {
-    if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')===false) {
-        if(is_file(MODX_BASE_PATH . 'install/index.php')) {
-            header('Location: install/index.php?action=mode');
-            exit();
-        }else exit('Not installed.');
-    }
-}
 
 class DocumentParser {
     var $db; // db object
@@ -3772,9 +3761,13 @@ class DocumentParser {
     }
     
     function setConfig($config_path='manager/includes/config.inc.php') {
+        
+        if(!is_file(MODX_BASE_PATH.$config_path)) $this->gotoSetup();
         if(!is_file(MODX_BASE_PATH.$config_path)) return false;
         
         include(MODX_BASE_PATH.$config_path);
+        if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
+        
         if(!isset($this->db->hostname)) return false;
         
         $this->db->hostname     = $database_server;
