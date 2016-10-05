@@ -9,8 +9,8 @@ define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE',true);
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-$modx->getSettings();
-extract($modx->config);
+$config = $modx->getSettings();
+extract($config);
 
 include_once(MODX_CORE_PATH . 'log.class.inc.php');
 
