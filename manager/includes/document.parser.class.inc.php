@@ -3764,7 +3764,6 @@ class DocumentParser {
     function setConfig($config_path='manager/includes/config.inc.php') {
         
         if(!is_file(MODX_BASE_PATH.$config_path)) $this->gotoSetup();
-        if(!is_file(MODX_BASE_PATH.$config_path)) return false;
         
         include(MODX_BASE_PATH.$config_path);
         if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
