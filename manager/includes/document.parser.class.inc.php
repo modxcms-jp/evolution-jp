@@ -3759,6 +3759,7 @@ class DocumentParser {
     
     function gotoSetup() {
         if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false) return;
+        elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return;
         
         if(is_file(MODX_BASE_PATH . 'install/index.php')) {
             header('Location: install/index.php?action=mode');
@@ -3769,8 +3770,8 @@ class DocumentParser {
     function setConfig($config_path='manager/includes/config.inc.php') {
         
         if(!is_file(MODX_BASE_PATH.$config_path)) $this->gotoSetup();
+        else include(MODX_BASE_PATH.$config_path);
         
-        include(MODX_BASE_PATH.$config_path);
         if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
         
         if(!isset($database_server)) return false;
