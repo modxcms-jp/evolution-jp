@@ -15,7 +15,10 @@ $log->initAndWriteLog($msg, $internalKey, $username, $action, $id, $itemname); /
 class logHandler {
 	// Single variable for a log entry
 	var $entry = array();
-
+	
+	function __construct() {
+	}
+	
 	function logError($msg) {
 		include_once MODX_CORE_PATH . 'error.class.inc.php';
 		$e = new errorHandler;
@@ -49,8 +52,6 @@ class logHandler {
 	function writeToLog() {
 		global $modx;
 		
-		$tbl_manager_log = $modx->getFullTableName('manager_log');
-		
 		if($this->entry['internalKey'] == "") {
 			$this->logError("internalKey not set.");
 			return;
@@ -76,7 +77,7 @@ class logHandler {
 		$fields['itemname']    = $modx->db->escape($this->entry['itemName']);
 		$fields['message']     = $modx->db->escape($this->entry['msg']);
 		
-		if(!$insert_id = $modx->db->insert($fields,$tbl_manager_log)) {
+		if(!$insert_id = $modx->db->insert($fields,'[+prefix+]manager_log')) {
 			$this->logError("Couldn't save log to table! ".$modx->db->getLastError());
 			return true;
 		}
