@@ -1,4 +1,5 @@
-<?php if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+<?php
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 

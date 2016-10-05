@@ -1,4 +1,5 @@
-<?php if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+<?php
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 $esc_request = $modx->db->escape($_REQUEST);

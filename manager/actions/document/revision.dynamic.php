@@ -1,6 +1,6 @@
 <?php
 // Action 127
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id']))
 	$id = $_GET['id'];

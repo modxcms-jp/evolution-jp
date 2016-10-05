@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 ?>
 
 <div class="sectionHeader"><?php echo $_lang['about_title']; ?></div><div class="sectionBody">

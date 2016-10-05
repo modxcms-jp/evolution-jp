@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 function iconMessage() {
 	global $modx,$_lang;

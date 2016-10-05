@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 $ph['_lang_cleaningup']     = $_lang['cleaningup'];
 $ph['_lang_actioncomplete'] = $_lang['actioncomplete'];
 

@@ -1,5 +1,5 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 $tbl_active_users        = $modx->getFullTableName('active_users');
 $tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');

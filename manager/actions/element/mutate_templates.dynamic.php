@@ -1,5 +1,5 @@
  <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 if(isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) $id = $_REQUEST['id'];
 else                                                                   $id = '';
