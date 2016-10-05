@@ -80,7 +80,8 @@ if (@is_file("{$base_path}autoload.php")) {
 }
 
 // initiate the content manager class
-$modx = include_once('includes/document.parser.class.inc.php');
+include_once('includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)

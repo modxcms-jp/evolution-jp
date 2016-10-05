@@ -112,7 +112,9 @@ if(isset($_GET['get']) && $_GET['get']=='captcha') {
 }
 
 // initiate a new document parser
-$modx = include_once('manager/includes/document.parser.class.inc.php');
+include_once('manager/includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
+
 $modx->mstart = $mstart;
 $modx->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) $modx->error_reporting = $error_reporting;

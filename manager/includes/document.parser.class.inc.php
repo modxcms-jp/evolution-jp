@@ -20,8 +20,6 @@ if (!isset($lastInstallTime) || empty($lastInstallTime)) {
 
 if(!defined('MODX_API_MODE')) set_parser_mode();
 if (session_id() === '') startCMSSession();
-$modx = new DocumentParser;
-return $modx;
 
 class DocumentParser {
     var $db; // db object

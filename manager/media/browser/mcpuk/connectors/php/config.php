@@ -24,9 +24,6 @@ $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 
 // load configuration file
 // initialize the variables prior to grabbing the config file
-define('IN_MANAGER_MODE', 'true'); // set this so that user_settings will trust us.
-define('MODX_API_MODE',true);
-include_once("{$base_path}index.php");
 if(!isset($_SESSION['mgrValidated'])) {
 	if(!isset($_SESSION['webValidated'])){
 		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");

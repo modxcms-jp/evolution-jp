@@ -25,7 +25,9 @@ define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
 $self = 'manager/media/browser/mcpuk/connectors/php/connector.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-include_once("{$base_path}index.php");
+include_once($base_path.'manager/includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
+
 if(!isset($_SESSION['mgrValidated'])) {
 	if(!isset($_SESSION['webValidated'])){
 		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");

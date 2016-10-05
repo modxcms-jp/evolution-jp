@@ -2,7 +2,8 @@
 if(!isset($modx))
 {
 	define('MODX_API_MODE',true);
-	$modx = include_once($base_path.'manager/includes/document.parser.class.inc.php');
+	include_once($base_path.'manager/includes/document.parser.class.inc.php');
+	$modx = new DocumentParser;
 	$modx->getSettings();
 }
 

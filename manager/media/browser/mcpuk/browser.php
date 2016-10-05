@@ -3,13 +3,16 @@ define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
 $self = 'manager/media/browser/mcpuk/browser.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-require_once("{$base_path}index.php");
+include_once($base_path.'manager/includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
 header('X-UA-Compatible: IE=EmulateIE7');
 if(!isset($_SESSION['mgrValidated'])) {
 	if(!isset($_SESSION['webValidated'])){
 		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 	}
 }
+
+$modx->getSettings();
 
 $rb = new FBROWSER();
 $ph = array();
