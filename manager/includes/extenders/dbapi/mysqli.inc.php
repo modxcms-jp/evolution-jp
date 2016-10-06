@@ -830,9 +830,13 @@ $s = '';
     
     function getCollation($table='[+prefix+]site_content',$field='content') {
         $table = str_replace('[+prefix+]', $this->table_prefix, $table);
-        $sql = sprintf("SHOW FULL COLUMNS FROM `%s` WHERE Field='%s'", $table, $field);
+        $sql = sprintf("SHOW FULL COLUMNS FROM `%s`", $table);
         $rs = $this->query($sql);
-        $row = $this->getRow($rs);
-        return $row['Collation'];
+        $Collation = 'utf8_general_ci';
+        while ($row = $this->getRow($rs)) {
+            if($row['Field']==$field && isset($row['Collation']))
+                $Collation = $row['Collation'];
+        }
+        return $Collation;
     }
 }
