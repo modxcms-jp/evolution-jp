@@ -31,14 +31,14 @@ global $database_connection_method,$lastInstallTime;
 		<table border="0" cellspacing="2" cellpadding="2">
 		<?php echo render_tr($_lang['modx_version'],$settings_version);?>
 		<?php echo render_tr($_lang['release_date'],$modx_release_date);?>
-		<?php echo render_tr('システム更新日時',$modx->toDateFormat($lastInstallTime));?>
+		<?php echo render_tr('システム更新日時',$modx->toDateFormat($modx->config['lastInstallTime']));?>
 		<?php echo render_tr('phpInfo()','<a href="#" onclick="viewPHPInfo();return false;">' . $_lang['view'] . '</a>');?>
 		<?php echo render_tr($_lang['udperms_title'],($modx->config['use_udperms']==1 ? $_lang['enabled'] : $_lang['disabled']));?>
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
 		<?php echo render_tr($_lang['localtime'],strftime('%H:%M:%S', time()+$server_offset_time));?>
 		<?php echo render_tr($_lang['serveroffset'],$server_offset_time/(60*60) . ' h');?>
 		<?php echo render_tr($_lang['database_name'],$modx->db->dbname);?>
-		<?php echo render_tr($_lang['database_server'],$database_server);?>
+		<?php echo render_tr($_lang['database_server'],$modx->db->hostname);?>
 		<?php echo render_tr($_lang['database_version'],$modx->db->getVersion());?>
 		<?php
 			$rs = $modx->db->query("show variables like 'character_set_database'");
@@ -50,7 +50,7 @@ global $database_connection_method,$lastInstallTime;
 			$collation = $modx->db->getRow($rs, 'num');
 			echo render_tr($_lang['database_collation'],$collation[1]);
 		?>
-		<?php echo render_tr($_lang['table_prefix'],$table_prefix);?>
+		<?php echo render_tr($_lang['table_prefix'],$modx->db->table_prefix);?>
 		<?php echo render_tr($_lang['cfg_base_path'],MODX_BASE_PATH);?>
 		<?php echo render_tr($_lang['cfg_base_url'],MODX_BASE_URL);?>
 		<?php echo render_tr($_lang['cfg_manager_url'],MODX_MANAGER_URL);?>
@@ -214,7 +214,7 @@ echo '</table>' . "\n";
 		  </thead>
 		  <tbody>
 <?php
-	$rs = $modx->db->query("SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$table_prefix}%'");
+	$rs = $modx->db->query("SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$modx->db->table_prefix}%'");
 	$limit = $modx->db->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$log_status = $modx->db->getRow($rs);

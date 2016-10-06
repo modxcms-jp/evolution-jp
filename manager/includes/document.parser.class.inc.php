@@ -71,6 +71,7 @@ class DocumentParser {
     var $chunkieCache;
     var $template_path;
     var $condScope = false;
+    var $lastInstallTime;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -981,7 +982,7 @@ class DocumentParser {
             $this->config['modx_charset'] = 'utf-8';
         
         if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
-        
+        if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
         return $this->config;
     }
@@ -3782,6 +3783,7 @@ class DocumentParser {
         $this->db->dbname       = $dbase;
         $this->db->charset      = $database_connection_charset;
         $this->db->table_prefix = $table_prefix;
+        $this->lastInstallTime  = $lastInstallTime;
         
         return true;
     }

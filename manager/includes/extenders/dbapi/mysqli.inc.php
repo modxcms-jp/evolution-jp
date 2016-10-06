@@ -55,12 +55,13 @@ class DBAPI {
         if(!$this->hostname || !$this->username) if(!$modx->setConfig()) return false;
         
         if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
-            $this->hostname = '127.0.0.1';
+            $hostname = '127.0.0.1';
+        else $hostname = $this->hostname;
         
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            $this->conn = new mysqli($this->hostname, $this->username, $this->password);
+            $this->conn = new mysqli($hostname, $this->username, $this->password);
             if ($this->conn->connect_error) {
                 $this->conn = null;
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
@@ -71,10 +72,10 @@ class DBAPI {
                         $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
                         $ip          = $_SERVER['REMOTE_ADDR'];
                         $remote_host = $_SERVER['REMOTE_HOST'] ? $_SERVER['REMOTE_HOST'].'(REMOTE_HOST)'."\n" : '';
-                        $hostname    = gethostbyaddr($ip);
+                        $remote_hostname    = gethostbyaddr($ip);
                         $time = date('Y-m-d H:i:s');
                         $subject = 'Missing to create the database connection! from ' . $modx->config['site_name'];
-                        $msg = "{$logtitle}\n{$request_uri}\n{$ua}\n{$ip}\n{$remote_host}{$hostname}(hostname)\n{$referer}\n{$time}";
+                        $msg = "{$logtitle}\n{$request_uri}\n{$ua}\n{$ip}\n{$remote_host}{$remote_hostname}(hostname)\n{$referer}\n{$time}";
                         $modx->sendmail($subject,$msg);
                     }
                 }
