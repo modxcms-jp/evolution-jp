@@ -1707,15 +1707,6 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 	cursor:text;
 }
 
-/* System Alert Box
----------------------------------------------------------- */
-.cbOverlay {background-color: #000;z-index: 50000;}
-.cbContainer {padding:5px;background-color:white;z-index: 50000;}
-.cbBox h3 {color:#000;background: #bee860 url(images/misc/fade.gif) repeat-x top;padding:5px;font-weight:bold;}
-.cbBox p {margin:3px;}
-.cbBox .cbButtons {text-align:center;}
-.sysAlert {width: 500px;height: 330px;white-space: nowrap;overflow: auto;}
-
 .phptextarea {
 font-family: Consolas,'Courier New','Courier', monospace;
 -webkit-box-sizing: border-box; /* Chrome, Safari */
