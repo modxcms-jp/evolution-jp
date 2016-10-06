@@ -1,5 +1,4 @@
 /* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html { /overflow-x: hidden; /overflow-y: auto;} /* for IE7, IE6 */
 html, body, form, fieldset {
 	margin: 0;
 	padding: 0;
