@@ -320,14 +320,15 @@ function isUpGrade()
     $modx->db->connect();
     
     if($modx->db->isConnected() && $modx->db->table_exists('[+prefix+]system_settings')) {
+        $collation = $modx->db->getCollation();
         $_SESSION['database_server']            = $database_server;
         $_SESSION['database_user']              = $database_user;
         $_SESSION['database_password']          = $database_password;
         $_SESSION['dbase']                      = trim($dbase,'`');
-        $_SESSION['database_charset']           = $database_connection_charset;
-        $_SESSION['table_prefix']               = $table_prefix;
-        $_SESSION['database_collation']         = $modx->db->getCollation();
+        $_SESSION['database_charset']           = substr($collation,0,strpos($collation,'_'));
+        $_SESSION['database_collation']         = $collation;
         $_SESSION['database_connection_method'] = 'SET CHARACTER SET';
+        $_SESSION['table_prefix']               = $table_prefix;
         return 1;
     }
     else
