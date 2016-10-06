@@ -32,7 +32,6 @@ class DBAPI {
         $this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $table_prefix;
         $this->config['charset'] = $charset ? $charset : $database_connection_charset;
         $this->config['connection_method'] = (isset($database_connection_method) ? $database_connection_method : 'SET CHARACTER SET');
-        $this->initDataTypes();
         $this->hostname            = & $this->config['host'];
         $this->dbname              = & $this->config['dbase'];
         $this->username            = & $this->config['user'];
@@ -620,54 +619,6 @@ $s = '';
         
         return $result;
         
-    }
-    
-    /**
-    * @name:  initDataTypes
-    * @desc:  called in the constructor to set up arrays containing the types
-    *         of database fields that can be used with specific PHP types
-    */
-    function initDataTypes()
-    {
-        $this->dataTypes['numeric'] = array (
-            'INT',
-            'INTEGER',
-            'TINYINT',
-            'BOOLEAN',
-            'DECIMAL',
-            'DEC',
-            'NUMERIC',
-            'FLOAT',
-            'DOUBLE PRECISION',
-            'REAL',
-            'SMALLINT',
-            'MEDIUMINT',
-            'BIGINT',
-            'BIT'
-        );
-        $this->dataTypes['string'] = array (
-            'CHAR',
-            'VARCHAR',
-            'BINARY',
-            'VARBINARY',
-            'TINYBLOB',
-            'BLOB',
-            'MEDIUMBLOB',
-            'LONGBLOB',
-            'TINYTEXT',
-            'TEXT',
-            'MEDIUMTEXT',
-            'LONGTEXT',
-            'ENUM',
-            'SET'
-        );
-        $this->dataTypes['date'] = array (
-            'DATE',
-            'DATETIME',
-            'TIMESTAMP',
-            'TIME',
-            'YEAR'
-        );
     }
     
     /**
