@@ -981,6 +981,8 @@ class DocumentParser {
         if(!isset($this->config['modx_charset']) || !$this->config['modx_charset'])
             $this->config['modx_charset'] = 'utf-8';
         
+        if(!isset($this->config['cleanUpRemainPH'])) $this->config['cleanUpRemainPH'] = true;
+        
         if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
@@ -2841,7 +2843,7 @@ class DocumentParser {
         return $src;
     }
 
-    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
+    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$hasModifier=false)
     {
         if(is_array($tpl)&&is_string($ph)) {list($ph,$tpl) = array($tpl,$ph);}
         
@@ -2875,7 +2877,7 @@ class DocumentParser {
                     $modifiers = false;
                 
                 $key = trim($key);
-                if($cleanup=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
+                if($hasModifier && !isset($ph[$key])) $ph[$key] = '';
                 
                 if(isset($ph[$key])) {
                     $value = $ph[$key];
@@ -2885,13 +2887,13 @@ class DocumentParser {
                     }
                     $replace[$i]= $value;
                 }
-                elseif($cleanup) $replace[$i] = '';
-                else             $replace[$i] = $matches[0][$i];
+                elseif($this->config['cleanUpRemainPH']) $replace[$i] = '';
+                else                                     $replace[$i] = $matches[0][$i];
             }
             $tpl= str_replace($matches[0], $replace, $tpl);
             if($bt===md5($tpl)) break;
             $c++;
-            $cleanup = false;
+            $hasModifier = false;
             if(1000<$c) $this->messageQuit('parseText parse over');
         }
         if ($this->debug)
