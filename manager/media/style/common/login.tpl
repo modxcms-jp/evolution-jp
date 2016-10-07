@@ -47,7 +47,6 @@
     input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background-color: #EAECEE;border:1px solid #ccc;}
     .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;}
     .loginLicense a {color: #B2B2B2;}
-    .notice {width: 100%;padding: 5px;border: 1px solid #eee;background-color: #F4F4F4;color: #707070;}
 	.loginMessage {font-size:12px;color: #999;padding-top: 10px;}
 	input#FMP-email {width:300px;}
 	label#FMP-email_label {padding-left:0;}
