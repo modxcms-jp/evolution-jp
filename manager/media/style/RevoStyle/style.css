@@ -30,20 +30,7 @@ li, dd, blockquote {
 	}
 
 
-.file-manager td {
-	border-bottom: 1px solid #d5dfea;
-}
-.ab2 {
-	padding-bottom: 20px;
-}
 /* -------------------------[ Miscellaneous conveniences ]--- */
-.clearfix, .cls {
-	clear: both;
-	height: 0 !important;
-	margin: 0;
-	font-size: 1px;
-	overflow: hidden;
-}
 .clear {
 	clear: both;
 }
@@ -58,10 +45,6 @@ li, dd, blockquote {
 .success {
 	color: #090;
 	font-weight: bold;
-}
-.contentPad {
-	height: 20px !important;
-	clear: both;
 }
 .hide, .skip, .printonly {
 	display: none;
@@ -137,10 +120,6 @@ hr {
 	font-size: 0;
 	clear: both;
 	padding: 0;
-}
-#previewIframe {
-	width: 100%;
-	height: 400px;
 }
 .messageRead {
 	color: #333;
@@ -309,10 +288,6 @@ form textarea
 	border-radius:3px;
 	box-shadow: 0px 1px 3px #E8E8E8 inset;
 }
-form textarea.webui-ignore
-{
-	box-shadow:none;
-}
 	.rtl form input[type=text],
 	.rtl form textarea {
 		padding: 2px 2px 2px 0;
@@ -339,7 +314,7 @@ form select:focus
 }
 input[type="button"],
 input[type="submit"] {
-background:#ededed;
+	background:#ededed;
 	border: 1px solid green;
 	cursor: pointer;
 	line-height: normal;
@@ -493,7 +468,7 @@ ime-mode:disabled;
 	padding-bottom: 0;
 	margin-bottom: 10px;
 }
-.sectionHeader, .showHideVisible {
+.sectionHeader {
 	color: #606060;
 	margin: 0 15px;
 	padding: 5px 3px 5px;
@@ -509,32 +484,26 @@ ime-mode:disabled;
 		direction: rtl;
 		padding: 5px 18px 5px 3px;
 	}
-.sectionBody, .layerVisible {
+.sectionBody {
 	position: relative;
 	display: none;
 	margin: 5px 15px 15px;
 	display: block;
 }
-	.tab-page .sectionBody,
-	.section .sectionBody {
-		background: none repeat scroll 0 0 #F7F7F7;
-		border: 1px solid #CCCCCC;
-		margin: 0 3px 15px;
-		padding: 15px;
-	}
-	.rtl .sectionBody, .layerVisible {
+.tab-page .sectionBody,
+.section .sectionBody {
+	background: none repeat scroll 0 0 #F7F7F7;
+	border: 1px solid #CCCCCC;
+	margin: 0 3px 15px;
+	padding: 15px;
+}
+	.rtl .sectionBody {
 		direction: rtl;
 		position: inherit;
 	}
 .section .sectionBody {
 	margin:0 15px 15px;
 	background-color:#fff;
-}
-#tabdocInfo .sectionBody {
-	border-top:1px solid #ccc;
-}
-.showHideVisible, .layerVisible {
-	margin: 0 10px 4px;
 }
 .sectionHeader {
 	padding: 5px 9px 5px 15px;
@@ -553,7 +522,7 @@ ime-mode:disabled;
 .comment {
 	color: #999;
 }
-thead, .fancyrow {
+thead {
 	color: #333;
 	height: 18px !important;
 	background-color: #E4E4E4;
@@ -561,14 +530,6 @@ thead, .fancyrow {
 thead td {
 	color: #333;
 	border-top: 1px solid #fff;
-}
-.fancyrow2 {
-	height: 18px !important;
-	background-color: #F0A62F;
-	background-position: top;
-	background-repeat: repeat-x;
-	border-bottom: 1px solid #fff;
-	color: #fff;
 }
 li {
 	padding: 0;
@@ -1324,9 +1285,6 @@ h2#edit_document_title {
 	border-bottom: none;
 	padding: 5px 10px;
 }
-fieldset#preview h2.tab {
-	float: right;
-}
 /* -------------------------[ Action Buttons ]--- */
 /* from https://github.com/manse/ScienceStyle */
 #actions {
@@ -1593,14 +1551,6 @@ form#mutate fieldset#meta_keywords dl dt label {
 form#mutate fieldset#meta_keywords dl dd {
 	margin-left: 110px;
 }
-/*
-* Individual Styles for fieldset#preview
-*/
-fieldset#preview iframe {
-	width: 100%;
-	margin: 0 auto;
-	border: 1px solid #f5f5f5;
-}
 
 /*
 * Individual Styles for fieldset#document_content
@@ -1623,76 +1573,6 @@ fieldset#access_permissions dd {
 }
 fieldset#access_permissions dl dd ul li {
 	list-style-type: none;
-}
-
-/* ppb:
-* fieldset#settings_templvars
-*/
-fieldset#settings_templvars .tv_url_select {
-	width: 70px;
-	margin-right: 10px;
-}
-fieldset#settings_templvars .tv_url_input {
-	width: 220px;
-}
-fieldset#settings_templvars dd.tvCheckBox label input,
-fieldset#settings_templvars dd.tvRadioOptions label input {
-	margin-right: 10px;
-}
-fieldset#settings_templvars .tv_date {
-	width: 150px;
-}
-form#mutate select.tv_url_select {
-	padding: 5px 3px;
-}
-
-/* ppb:
-* Style mootools tooltips
-*/
-
-.custom-tip {
-	color: #333;
-	width: 175px;
-	z-index: 13000;
-	border: 1px solid #cccccc;
-	background: #fff;
-	padding: 5px;
-}
-
-.custom-title {
-	font-weight: bold;
-	font-size: 1em;
-	margin: 0;
-	color: #fff;
-	padding: 6px 6px 4px;
-	background: #758CA2 url(images/misc/tab.gif);
-}
-
-.custom-text {
-	font-size: 1em;
-	padding: 4px 8px 8px;
-	background: #fff;
-}
-
-/* ppb:
-* Some styling for legacy mode fieldsets
-*/
-
-fieldset.legacy {
-	background: #fff;
-	margin: 10px;
-	padding: 10px;
-	border: 1px solid #e4e4e4!important;
-	position: relative;
-	margin-bottom: 35px;
-}
-
-fieldset.legacy h2 {
-	width: 100%;
-	background: #f5f5f5;
-	margin: -10px -10px 15px -10px;
-	padding: 0 10px;
-	border-bottom: 1px solid #e4e4e4!important;
 }
 
 /* -------------------------[ date picker ]--- */
@@ -1724,7 +1604,5 @@ strong[style*='color:#EF1D1D'] {
 
 .tmplvars tr {height: 24px;}
 .tvname {width:150px;}
-
-#loadingBar div {background-color:#91ba49;}
 
 .okmsg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
