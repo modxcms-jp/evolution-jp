@@ -2841,7 +2841,7 @@ class DocumentParser {
         return $src;
     }
 
-    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$cleanup=false)
+    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$cleanup=true)
     {
         if(is_array($tpl)&&is_string($ph)) {list($ph,$tpl) = array($tpl,$ph);}
         
