@@ -37,7 +37,8 @@ $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 $mtime = microtime();
 $mtime = explode(" ",$mtime);
-include_once("{$base_path}index.php");
+include_once($base_path.'manager/includes/document.parser.class.inc.php');
+$modx = new DocumentParser;
 $modx->tstart = $mtime[1] + $mtime[0];;
 $modx->mstart = memory_get_usage();
 
