@@ -168,7 +168,7 @@ else $ph['result_msg'] = '';
 		</tr></thead>
 		<tbody>
 			<?php
-$sql = "SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$table_prefix}%'";
+$sql = "SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$modx->db->table_prefix}%'";
 $rs = $modx->db->query($sql);
 $i = 0;
 while($row = $modx->db->getRow($rs)) {
@@ -185,8 +185,8 @@ while($row = $modx->db->getRow($rs)) {
 
 	// Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
 	$truncateable = array(
-		$table_prefix.'event_log',
-		$table_prefix.'manager_log',
+		$modx->db->table_prefix.'event_log',
+		$modx->db->table_prefix.'manager_log',
 	);
 	if($modx->hasPermission('settings') && in_array($row['Name'], $truncateable) && $row['Rows'] > 0) {
 		echo '<td dir="ltr" align="right">'.
