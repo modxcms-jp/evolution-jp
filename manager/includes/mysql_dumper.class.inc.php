@@ -25,8 +25,8 @@ class Mysqldumper {
 		global $modx;
 		// Don't drop tables by default.
 		$this->database_server = $modx->db->config['host']==='127.0.0.1' ? 'localhost' : $modx->db->config['host'];
-		$this->dbname          = trim($modx->db->config['dbase'],'`');
-		$this->table_prefix    = $modx->db->config['table_prefix'];
+		$this->dbname          = trim($modx->db->dbname,'`');
+		$this->table_prefix    = $modx->db->table_prefix;
 		$this->mode            = '';
 		$this->addDropCommand(false);
 		$this->_isDroptables = true;
