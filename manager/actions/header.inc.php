@@ -89,10 +89,15 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
+        jQuery(function(){
+            jQuery('#preLoader').hide();
+        });
+        
 		jQuery(window).on('beforeunload', function(){
 			if(documentDirty) return '<?php echo addslashes($_lang['warning_not_saved']);?>';
             	jQuery('#actions').fadeOut(100);
             	jQuery('input,textarea,select').addClass('readonly');
+            	jQuery('#preLoader').show();
 			if(!dontShowWorker && top.mainMenu) top.mainMenu.work();
 		});
         
@@ -109,4 +114,4 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     </script>
 </head>
 <body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir==='rtl' ? ' class="rtl"':''?>>
-<div id="preLoader"><table width="100%" border="0" cellpadding="0"><tr><td align="center"><div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div></td></tr></table></div>
+<div id="preLoader"><div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div></div>
