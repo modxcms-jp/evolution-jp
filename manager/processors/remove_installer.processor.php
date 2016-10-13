@@ -10,12 +10,8 @@
  * This file is mormally called from the installer
  *
  */
-define('MODX_API_MODE', true);
-define('IN_MANAGER_MODE', 'true');
 $self = 'manager/processors/remove_installer.processor.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-include_once("{$base_path}index.php");
-
 $install_dir = "{$base_path}install";
 if(isset($_GET['rminstall']))
 {
