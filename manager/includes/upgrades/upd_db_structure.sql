@@ -2,47 +2,55 @@
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
+ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedon` int(20) NOT NULL DEFAULT '0' COMMENT 'Date the document was published' AFTER `deletedby`;
 
-ALTER TABLE `{PREFIX}site_content`
-  ADD COLUMN `publishedon` int(20) NOT NULL DEFAULT '0' COMMENT 'Date the document was published' AFTER `deletedby`,
-  ADD COLUMN `publishedby` int(10) NOT NULL DEFAULT '0' COMMENT 'ID of user who published the document' AFTER `publishedon`,
-  ADD COLUMN `link_attributes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link attriubtes' AFTER `alias`,
-  ADD COLUMN `alias_visible` int(2) NOT NULL DEFAULT '1' COMMENT 'Hide document from alias path';
+ALTER TABLE `{PREFIX}site_content` ADD COLUMN `publishedby` int(10) NOT NULL DEFAULT '0' COMMENT 'ID of user who published the document' AFTER `publishedon`;
 
-ALTER TABLE `{PREFIX}site_htmlsnippets`
-  ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`,
-  ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`,
-  ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
+ALTER TABLE `{PREFIX}site_content` ADD COLUMN `link_attributes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Link attriubtes' AFTER `alias`;
 
-ALTER TABLE `{PREFIX}site_plugin_events`
-  ADD COLUMN `priority` int(10) NOT NULL default '0' COMMENT 'determines the run order of the plugin' AFTER `evtid`;
+ALTER TABLE `{PREFIX}site_content` ADD COLUMN `alias_visible` int(2) NOT NULL DEFAULT '1' COMMENT 'Hide document from alias path';
 
-ALTER TABLE `{PREFIX}site_templates`
-  ADD COLUMN `parent` int(10) NOT NULL default '0' AFTER `content`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `pub_date` int(20) NOT NULL default '0' AFTER `published`;
 
-ALTER TABLE `{PREFIX}site_tmplvar_templates`
-  ADD COLUMN `rank` integer(11) NOT NULL DEFAULT '0' AFTER `templateid`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `published` int(1) NOT NULL default '1' AFTER `description`;
 
-ALTER TABLE `{PREFIX}user_attributes`
-  ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`,
-  ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`;
+ALTER TABLE `{PREFIX}site_htmlsnippets` ADD COLUMN `unpub_date` int(20) NOT NULL default '0' AFTER `pub_date`;
 
-ALTER TABLE `{PREFIX}user_roles`
-  ADD COLUMN `edit_chunk` int(1) NOT NULL DEFAULT '0' AFTER `delete_snippet`,
-  ADD COLUMN `new_chunk` int(1) NOT NULL DEFAULT '0' AFTER `edit_chunk`,
-  ADD COLUMN `save_chunk` int(1) NOT NULL DEFAULT '0' AFTER `new_chunk`,
-  ADD COLUMN `delete_chunk` int(1) NOT NULL DEFAULT '0' AFTER `save_chunk`,
-  ADD COLUMN `empty_trash` int(1) NOT NULL DEFAULT '0' AFTER `delete_document`,
-  ADD COLUMN `view_unpublished` int(1) NOT NULL DEFAULT '0' AFTER `web_access_permissions`,
-  ADD COLUMN `import_static` int(1) NOT NULL DEFAULT '0' AFTER `view_unpublished`,
-  ADD COLUMN `export_static` int(1) NOT NULL DEFAULT '0' AFTER `import_static`,
-  ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0' AFTER `export_static`,
-  ADD COLUMN `view_schedule` int(1) NOT NULL DEFAULT '0' AFTER `remove_locks`,
-  ADD COLUMN `publish_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
+ALTER TABLE `{PREFIX}site_plugin_events` ADD COLUMN `priority` int(10) NOT NULL default '0' COMMENT 'determines the run order of the plugin' AFTER `evtid`;
 
-ALTER TABLE `{PREFIX}web_user_attributes`
- ADD COLUMN `street` varchar(255) NOT NULL DEFAULT '' AFTER `country`,
- ADD COLUMN `city` varchar(255) NOT NULL DEFAULT '' AFTER `street`;
+ALTER TABLE `{PREFIX}site_templates` ADD COLUMN `parent` int(10) NOT NULL default '0' AFTER `content`;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD COLUMN `rank` integer(11) NOT NULL DEFAULT '0' AFTER `templateid`;
+
+ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `city` varchar(255) NOT NULL default '' AFTER `street`;
+
+ALTER TABLE `{PREFIX}user_attributes` ADD COLUMN `street` varchar(255) NOT NULL default '' AFTER `country`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `edit_chunk` int(1) NOT NULL DEFAULT '0' AFTER `delete_snippet`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `new_chunk` int(1) NOT NULL DEFAULT '0' AFTER `edit_chunk`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `save_chunk` int(1) NOT NULL DEFAULT '0' AFTER `new_chunk`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `delete_chunk` int(1) NOT NULL DEFAULT '0' AFTER `save_chunk`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `empty_trash` int(1) NOT NULL DEFAULT '0' AFTER `delete_document`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_unpublished` int(1) NOT NULL DEFAULT '0' AFTER `web_access_permissions`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `import_static` int(1) NOT NULL DEFAULT '0' AFTER `view_unpublished`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `export_static` int(1) NOT NULL DEFAULT '0' AFTER `import_static`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `remove_locks` int(1) NOT NULL DEFAULT '0' AFTER `export_static`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFAULT '0' AFTER `remove_locks`;
+
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `publish_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
+
+ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `street` varchar(255) NOT NULL DEFAULT '' AFTER `country`;
+
+ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `city` varchar(255) NOT NULL DEFAULT '' AFTER `street`;
 
 ALTER TABLE `{PREFIX}active_users`
   MODIFY COLUMN `ip` varchar(50) NOT NULL DEFAULT '';
@@ -199,28 +207,31 @@ ALTER TABLE `{PREFIX}site_plugin_events` DROP PRIMARY KEY;
 
 ALTER TABLE `{PREFIX}site_plugin_events` ADD PRIMARY KEY (`pluginid`, `evtid`);
 
-ALTER TABLE `{PREFIX}site_tmplvar_templates`
- DROP INDEX `idx_tmplvarid`,
- DROP INDEX `idx_templateid`,
- ADD PRIMARY KEY (`tmplvarid`, `templateid`);
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_tmplvarid`;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_templateid`;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD PRIMARY KEY (`tmplvarid`, `templateid`);
 
 ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
 
 ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
 
-ALTER TABLE `{PREFIX}system_settings` 
- DROP PRIMARY KEY,
- DROP INDEX `setting_name`,
- ADD PRIMARY KEY (`setting_name`);
+ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
 
-ALTER TABLE `{PREFIX}site_revision`
-  DROP INDEX `idx_revision`,
-  ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
+ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
 
-ALTER TABLE `{PREFIX}site_content` 
- DROP INDEX `content_ft_idx`,
- ADD INDEX `typeidx` (`type`);
+ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
 
-ALTER TABLE `{PREFIX}site_tmplvar_contentvalues`
- ADD FULLTEXT `value_ft_idx` (`value`);
+ALTER TABLE `{PREFIX}site_revision` DROP INDEX `idx_revision`;
+
+ALTER TABLE `{PREFIX}site_revision`  ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
+
+ALTER TABLE `{PREFIX}site_content`  DROP INDEX `content_ft_idx`;
+
+ALTER TABLE `{PREFIX}site_content` ADD INDEX `typeidx` (`type`);
+
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
