@@ -9,6 +9,8 @@
         <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
         <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
         <script type="text/javascript">
+	        var $j = jQuery.noConflict();
+	        jQuery('#workText',parent.mainMenu.document).html('');
 			var baseurl = '[+baseurl+]';
 			top.mainMenu.defaultTreeFrame();
 	        var $j = jQuery.noConflict();
