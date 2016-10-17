@@ -167,6 +167,10 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 		else w=window.setTimeout('work()', 50);
 	}
 
+	function stopWork() {
+		jQuery('#workText').html('');
+	}
+	
 	// GENERAL FUNCTIONS - Remove locks
 	// This function removes locks on documents, templates, parsers, and snippets
 	function removeLocks() {

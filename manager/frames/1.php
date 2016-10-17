@@ -29,7 +29,7 @@ $modx->invokeEvent('OnManagerPreFrameLoader',$tmp);
 </head>
 <?php
 $treePane = '<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">';
-$mainPane = '<frame name="main" src="' . $mainurl . '" scrolling="auto" frameborder="0">';
+$mainPane = sprintf('<frame name="main" src="%s" scrolling="auto" frameborder="0" onload="if (mainMenu.stopWork()) mainMenu.stopWork();">', $mainurl);
 ?>
 <frameset rows="<?php echo $modx->config['manager_menu_height'];?>,*" border="0">
 	<frame name="mainMenu" src="index.php?a=1&amp;f=menu" scrolling="no" frameborder="0" noresize="noresize">
