@@ -23,7 +23,8 @@
 <!-- end connection test action/status message -->
 
 
-<div id="setCollation"><div id="collationMask">
+    <div id="setCollation">
+        <div id="collationMask">
   <h3>[+connection_screen_database_connection_information+]</h3>
   <p>[+connection_screen_database_connection_note+]</p>
   <p class="labelHolder"><label for="dbase">[+connection_screen_database_name+]</label>
@@ -45,7 +46,8 @@
 	&rarr; <a id="databasetest" href="#footer">[+connection_screen_database_test_connection+]</a>
   </div>
   <div class="status" id="databasestatus" style="display:none;">&nbsp;</div>
-</div></div>
+        </div>
+    </div>
 
 <script type="text/javascript">
 jQuery('#servertest').click(function(){
@@ -120,7 +122,9 @@ jQuery('#databasetest').click(function(){
 				jQuery('#AUH').fadeIn();
 		});
 	});
+	
 	if(jQuery('#adminpassconfirm').val() != '') jQuery('a.next').css('display','block');
+	
 	jQuery('#adminpassconfirm').focus(function(){
 		jQuery('a.next').css('display','block');
 	});
@@ -131,13 +135,9 @@ jQuery('#databasetest').click(function(){
 	});
 	jQuery('a.next').click(function(){
 		if(jQuery('#adminpass').val() !== jQuery('#adminpassconfirm').val())
-		{
 			alert("[+alert_enter_adminpassword+]");
-		}
 		else
-		{
 			jQuery('#install').submit();
-		}
 	});
 	var language ='[+install_language+]';
 	var installMode ='[+installmode+]';
