@@ -73,6 +73,7 @@ $header = '
 	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
 	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
 	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>
+	<script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
 
 	<style type="text/css">
         .topdiv {border: 0;}
