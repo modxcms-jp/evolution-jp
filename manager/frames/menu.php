@@ -161,10 +161,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	// GENERAL FUNCTIONS - Work
 	// These functions are used for showing the user the system is working
-	function work() {
-		var elm = document.getElementById('workText');
-		if (elm) elm.innerHTML = "&nbsp;<img src='<?php echo $_style['icons_working']?>' />&nbsp;<?php echo $_lang['working']?>";
-		else w=window.setTimeout('work()', 50);
+	function work() { // parent.mainMenu.document
+		jQuery('#workText').html('&nbsp;<img src="<?php echo $_style['icons_working']?>" />&nbsp;<?php echo $_lang['working']?>');
 	}
 
 	function stopWork() {
