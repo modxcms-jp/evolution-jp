@@ -38,7 +38,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript">
 		/* <![CDATA[ */
-		jQuery('#workText',parent.mainMenu.document).html('');
 		var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
 		if(treeopen==0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 		
