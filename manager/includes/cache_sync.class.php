@@ -348,6 +348,7 @@ class synccache {
 		$row = array();
 		$path = '';
 		$modx->aliasListing = array();
+		$modx->documentMap  = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			if($use_alias_path==='1')     $path = $this->getParents($row['parent']);
