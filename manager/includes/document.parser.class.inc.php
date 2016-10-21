@@ -980,6 +980,7 @@ class DocumentParser {
             $this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
         if(!isset($this->config['modx_charset']) || !$this->config['modx_charset'])
             $this->config['modx_charset'] = 'utf-8';
+        if(!isset($this->config['gen_alias_cache'])) $modx->config['gen_alias_cache'] = '1';
         
         if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
