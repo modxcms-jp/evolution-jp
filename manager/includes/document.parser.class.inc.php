@@ -1622,6 +1622,11 @@ class DocumentParser {
                 if($flag===false) $cmd = ltrim($cmd,'!');
                 
                 if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
+                $safe=0;
+                $bt=md5('');
+                while($bt!==md5($cmd) && $safe<20) {
+                    $safe++;
+                    $bt = md5($cmd);
                 $this->condScope = true;
                 if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
                 if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
@@ -1630,6 +1635,7 @@ class DocumentParser {
                 if(strpos($cmd,'[+')!==false
                  &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
                 $this->condScope = false;
+                }
                 $cmd = ltrim($cmd);
                 $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
                 
