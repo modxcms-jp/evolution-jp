@@ -388,6 +388,7 @@ function buildMenu($target,$item)
 	foreach($a as $v)
 	{
 		$v = trim($v);
+		$v = trim($v,'* ');
 		if(isset($item[$v]) && !empty($item[$v])) $result[] = $item[$v];
 		elseif(isset($item['modules'][$v]))
 		{
