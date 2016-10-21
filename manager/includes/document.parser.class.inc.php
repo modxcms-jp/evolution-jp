@@ -1356,7 +1356,7 @@ class DocumentParser {
             }
             if($this->condScope) {
                 $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
+                if($value!=='' && $value!='0') $value = "'{$value}'";
                 else                         $value = 0;
             }
             
