@@ -974,17 +974,14 @@ function fieldsTV() {
 		endif;
 		
 		// post back value
-		if(array_key_exists($tvid, $form_v)){
+		if(isset($form_v[$tvid])){
 			switch( $tv['type'] ){
 			case 'listbox-multiple':
 				$tvPBV = implode('||', $form_v[$tvid]);
 				break;
 			case 'url':
-				if( $form_v[$tvid.'_prefix'] == 'DocID' ){
-					$tvPBV = '[~' . $form_v[$tvid] . '~]';
-				}else{
-					$tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
-				}
+				if( $form_v[$tvid.'_prefix'] == 'DocID' ) $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
+				else                                      $tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
 				break;
 			default:
 				$tvPBV = $form_v[$tvid];
