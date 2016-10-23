@@ -355,8 +355,9 @@ $s = '';
     * @name:  freeResult
     *
     */
-    function freeResult($rs) {
-        mysql_free_result($rs);
+    function freeResult($conn=null) {
+        if(!is_resource($conn)) $conn =& $this->conn;
+        mysql_free_result($conn);
     }
     
     /**
