@@ -1242,19 +1242,19 @@ class SubParser {
                 $custom_output = '';
                 /* If we are loading a file */
                 if(substr($field_elements, 0, 5) == '@FILE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
-                    if( !is_file($file_name) ) {
-                        $custom_output = $file_name . ' does not exist';
-                    } else {
-                        $custom_output = file_get_contents($file_name);
-                    }
-                } elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
-                    if( !is_file($file_name) ) {
-                        $custom_output = $file_name . ' does not exist';
-                    } else {
+                    $path = MODX_BASE_PATH . trim(substr($field_elements, 6));
+                    if(!is_file($path)) $custom_output = $path . ' does not exist';
+                    else                $custom_output = file_get_contents($path);
+                }
+                elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
+                    $path_str = trim(substr($field_elements, 9));
+                    if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
+                    elseif(is_file( MODX_BASE_PATH.$path_str))          $path = MODX_BASE_PATH . $path_str;
+                    else                                                $path = false;
+                    if(!$path) $custom_output = $path_str . ' does not exist';
+                    else {
                         ob_start();
-                        include($file_name);
+                        include($path);
                         $custom_output = ob_get_contents();
                         ob_end_clean();
                     }
