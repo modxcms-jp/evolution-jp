@@ -455,11 +455,12 @@ class MODIFIERS {
                     $str = '';
                 }
                 if($len==='') $len = 100;
+                if(abs($len) > $this->strlen($value)) $str ='';
                 if(preg_match('/^[1-9][0-9]*$/',$len)) {
                     return $this->substr($value,0,$len) . $str;
                 }
                 elseif(preg_match('/^\-[1-9][0-9]*$/',$len)) {
-                    return $this->substr($value,$len) . $str;
+                    return $str . $this->substr($value,$len);
                 }
                 break;
             case 'summary':
