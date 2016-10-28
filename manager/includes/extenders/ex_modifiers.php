@@ -254,8 +254,7 @@ class MODIFIERS {
                 if(!$opt) $path = $value;
                 else      $path = $opt;
                 if(strpos($path,MODX_MANAGER_PATH)!==false) exit('Can not read core path');
-                if(!$opt) $path = $value;
-                else      $path = $opt;
+                if(strpos($path,$modx->config['base_path'])===false) $path = ltrim($path,'/');
                 $this->condition[] = intval($cmd($path)!==false);break;
             case 'is_image':
                 if(!$opt) $path = $value;
