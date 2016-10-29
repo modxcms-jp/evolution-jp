@@ -193,6 +193,8 @@ ALTER TABLE `{PREFIX}site_revision` CHANGE `target` `element` varchar(32) NOT NU
 
 ALTER TABLE `{PREFIX}site_revision` CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0';
 
+ALTER TABLE `{PREFIX}site_revision` CHANGE `docid` `elmid` int(10) NOT NULL DEFAULT '0';
+
 ALTER TABLE `{PREFIX}site_revision` CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0';
 
 ALTER TABLE `{PREFIX}user_settings` DROP PRIMARY KEY;
