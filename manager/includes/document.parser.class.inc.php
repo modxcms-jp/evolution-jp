@@ -37,7 +37,7 @@ class DocumentParser {
     var $dumpSQL;
     var $dumpSnippets;
     var $dumpPlugins;
-    var $snipCode;
+    var $dumpSnippetsCode = array();
     var $chunkCache;
     var $snippetCache;
     var $contentTypes;
@@ -679,7 +679,7 @@ class DocumentParser {
         }
         if ($this->dumpSnippets)
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", $this->snipCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
         
         // invoke OnLogPageView event
@@ -1789,7 +1789,7 @@ class DocumentParser {
         if(!$matches) return $content;
         $this->snipLapCount++;
         if ($this->dumpSnippets)
-            $this->snipCode .= '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
+            $this->dumpSnippetsCode[] = '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
         
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
@@ -1813,7 +1813,7 @@ class DocumentParser {
             $replace[$i] = $value;
         }
         
-        if($this->dumpSnippets) $this->snipCode .= '</div></fieldset>';
+        if($this->dumpSnippets) $this->dumpSnippetsCode[] = '</div></fieldset>';
         
         $content = str_replace($matches[0], $replace, $content);
         return $content;
@@ -1883,10 +1883,10 @@ class DocumentParser {
             if($value) {
                 if(150<strlen($value)) $height = 200;
                 else                   $height = 50;
-                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, htmlspecialchars($value,ENT_NOQUOTES,$this->config['modx_charset']));
+                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, $this->htmlspecialchars($value));
             }
             else $code = 'Empty';
-            $this->snipCode .= sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $key, $code);
+            $this->dumpSnippetsCode[] = sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $key, $code);
         }
         return $value;
     }
