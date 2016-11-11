@@ -50,7 +50,6 @@ $row = $modx->db->getRow($rs);
 		$output.= '</td></tr>';
 	}
 	$output.='</table>';
-	//$output.= '<br />'.$dm->lang['DM_tv_ignore_tv'].' <input type="text" id="ignoreTV" name="ignoreTV" size="50" value="" />';
 }
 else
 {
