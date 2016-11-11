@@ -90,72 +90,11 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
-        switch($method_name) {
-            case 'splitTVCommand':
-            case 'ParseInputOptions':
-            case 'ProcessTVCommand':
-            case '_IIS_furl_fix':
-            case 'addEventListener':
-            case 'addLog':
-            case 'atBindFile':
-            case 'atBindUrl':
-            case 'atBindInclude':
-            case 'changeWebUserPassword':
-            case 'checkPermissions':
-            case 'clearCache':
-            case 'decodeParamValue':
-            case 'genToken':
-            case 'getActiveChildren':
-            case 'getAllChildren':
-            case 'getDocumentChildren':
-            case 'getDocumentChildrenTVarOutput':
-            case 'getDocumentChildrenTVars':
-            case 'getExtention':
-            case 'getLoginUserName':
-            case 'getLoginUserType':
-            case 'getMimeType':
-            case 'getOption':
-            case 'getPreviewObject':
-            case 'getSnippetId':
-            case 'getSnippetName':
-            case 'getUnixtimeFromDateString':
-            case 'getUserInfo':
-            case 'getVersionData':
-            case 'getWebUserInfo':
-            case 'get_backtrace':
-            case 'isMemberOfWebGroup':
-            case 'isSelected':
-            case 'loadLexicon':
-            case 'logEvent':
-            case 'mergeInlineFilter':
-            case 'messageQuit':
-            case 'parseInput':
-            case 'recDebugInfo':
-            case 'regClientCSS':
-            case 'regClientHTMLBlock':
-            case 'regClientScript':
-            case 'regClientStartupHTMLBlock':
-            case 'regClientStartupScript':
-            case 'regOption':
-            case 'removeEventListener':
-            case 'renderFormElement':
-            case 'rotate_log':
-            case 'runSnippet':
-            case 'sendErrorPage':
-            case 'sendForward':
-            case 'sendRedirect':
-            case 'sendUnauthorizedPage':
-            case 'sendUnavailablePage':
-            case 'sendmail':
-            case 'setCacheRefreshTime':
-            case 'setOption':
-            case 'snapshot':
-            case 'splitOption':
-            case 'updateDraft':
-            case 'webAlertAndQuit':
-                $this->loadExtension('SubParser');
-                if(method_exists($this->sub,$method_name))
-                    return call_user_func_array(array($this->sub,$method_name),$arguments);
+        $_ = explode(',', 'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genToken,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
+        if(in_array($method_name, $_)) {
+            $this->loadExtension('SubParser');
+            if(method_exists($this->sub,$method_name))
+                return call_user_func_array(array($this->sub,$method_name),$arguments);
         }
         
         $this->loadExtension('DeprecatedAPI');
