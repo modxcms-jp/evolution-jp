@@ -1265,11 +1265,7 @@ class DocumentParser {
                 else                       $value= $this->tvProcessor($value);
             }
             
-            if($modifiers!==false && $modifiers!=='raw')
-            {
-                $this->loadExtension('MODIFIERS');
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
-            }
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             elseif($convertValue)
             {
                 switch($key)
@@ -1385,11 +1381,7 @@ class DocumentParser {
             if(isset($this->config[$key]))
             {
                 $value = $this->config[$key];
-                if($modifiers!==false)
-                {
-                    $this->loadExtension('MODIFIERS');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
-                }
+                if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
                 
                 $replace[$i]= $value;
             }
@@ -1431,11 +1423,7 @@ class DocumentParser {
             $value = $this->getChunk($key);
             $value = $this->parseText($ph,$value,'[+','+]','hasModifier');
             
-            if($modifiers!==false)
-            {
-                $this->loadExtension('MODIFIERS');
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
-            }
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             if($this->condScope) {
                 $value = trim($value);
                 if($value!==''&&$value!='0') $value = 1;
@@ -1472,9 +1460,8 @@ class DocumentParser {
             
             if($modifiers!==false)
             {
-                $this->loadExtension('MODIFIERS');
                 $modifiers = $this->mergePlaceholderContent($modifiers);
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
+                $value = $this->applyFilter($value,$modifiers,$key);
             }
             if($this->condScope) {
                 $value = trim($value);
@@ -1771,11 +1758,9 @@ class DocumentParser {
         elseif(0<eval("return count({$key});"))
             $value = eval("return print_r({$key},true);");
         else $value = '';
-        if($modifiers!==false)
-        {
-            $this->loadExtension('MODIFIERS');
-            $value = $this->filter->phxFilter($key,$value,$modifiers);
-        }
+        
+        if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+        
         return $value;
     }
     private function _get_snip_result($piece)
@@ -1798,11 +1783,8 @@ class DocumentParser {
         }
         
         $value = $this->evalSnippet($snippetObject['content'], $params);
-        if($modifiers!==false)
-        {
-            $this->loadExtension('MODIFIERS');
-            $value = $this->filter->phxFilter($key,$value,$modifiers);
-        }
+        
+        if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
         
         if($this->dumpSnippets)
         {
@@ -2810,10 +2792,7 @@ class DocumentParser {
                 
                 if(isset($ph[$key])) {
                     $value = $ph[$key];
-                    if($modifiers!==false) {
-                        $this->loadExtension('MODIFIERS');
-                        $value = $this->filter->phxFilter($key,$value,$modifiers);
-                    }
+                    if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
                     $replace[$i]= $value;
                 }
                 elseif($flag) $replace[$i] = '';
@@ -3443,6 +3422,14 @@ class DocumentParser {
                 break;
         }
         return $o;
+    }
+    
+    function applyFilter($value='', $modifiers=false, $key='') {
+        if($modifiers===false || $modifiers=='raw') return $value;
+        if($modifiers!==false) $modifiers = trim($modifiers);
+        
+        $this->loadExtension('MODIFIERS');
+        return $this->filter->phxFilter($key,$value,$modifiers);
     }
     
     // - deprecated db functions
