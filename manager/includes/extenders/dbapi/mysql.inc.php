@@ -110,7 +110,7 @@ class DBAPI {
         $totaltime = $tend - $tstart;
         if ($modx->dumpSQL) {
             $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+            $modx->dumpSQLCode[] = '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
         }
         $modx->queryTime += $totaltime;
         return true;
@@ -205,9 +205,9 @@ $s = '';
                         $function .= sprintf('(%s)',$modx->currentSnippet);
                     $bt .= "{$function} - {$file}[{$line}]<br />";
                 }
-                $modx->queryCode .= '<fieldset style="text-align:left">';
-                $modx->queryCode .= '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>';
-                $modx->queryCode .= "{$sql}<br />{$bt}</fieldset>";
+                $modx->dumpSQLCode[] = '<fieldset style="text-align:left">';
+                $modx->dumpSQLCode[] = '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>';
+                $modx->dumpSQLCode[] = "{$sql}<br />{$bt}</fieldset>";
             }
             $modx->executedQueries = $modx->executedQueries + 1;
             return $result;

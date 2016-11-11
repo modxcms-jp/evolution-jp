@@ -34,13 +34,13 @@ class DocumentParser {
     var $currentSnippet;
     var $aliases;
     var $entrypage;
+    var $dumpSQL;
     var $dumpSnippets;
     var $snipCode;
     var $chunkCache;
     var $snippetCache;
     var $contentTypes;
-    var $dumpSQL;
-    var $queryCode;
+    var $dumpSQLCode = array();
     var $ph;
     var $placeholders;
     var $sjscripts = array();
@@ -673,7 +673,7 @@ class DocumentParser {
         
         if ($this->dumpSQL)
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", $this->queryCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
         if ($this->dumpSnippets)
         {
