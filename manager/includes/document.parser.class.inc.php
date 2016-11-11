@@ -1254,11 +1254,8 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             if(substr($key, 0, 1) == '#') $key = substr($key, 1); // remove # for QuickEdit format
             
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $key = trim($key);
             if(strpos($key,'@')!==false) $value = $this->_contextValue($key);
             elseif(!isset($this->documentObject[$key])) $value = '';
             else $value= $this->documentObject[$key];
@@ -1307,6 +1304,17 @@ class DocumentParser {
             $this->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
         }
         return $content;
+    }
+    
+    function splitKeyAndFilter($key) {
+        
+        if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
+        else                         $modifiers = false;
+        
+        $key = trim($key);
+        if($modifiers!==false) $modifiers = trim($modifiers);
+        
+        return array($key,$modifiers);
     }
     
     function _contextValue($key) {
@@ -1372,11 +1380,8 @@ class DocumentParser {
         
         $replace= array ();
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $key = trim($key);
             if(isset($this->config[$key]))
             {
                 $value = $this->config[$key];
@@ -1421,11 +1426,8 @@ class DocumentParser {
             $key = $snip_call['name'];
             $ph = $this->_snipParamsToArray($snip_call['params']);
             if(substr($key,0,6)==='@FILE:') $key = '@FILE ' . substr($key,6);
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $key = trim($key);
             $value = $this->getChunk($key);
             $value = $this->parseText($ph,$value,'[+','+]','hasModifier');
             
@@ -1462,11 +1464,8 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $key = trim($key);
             if (isset($this->placeholders[$key])) $value = $this->placeholders[$key];
             elseif($key==='phx') $value = '';
             else continue;
@@ -1757,11 +1756,8 @@ class DocumentParser {
     
     function _getSGVar($value) { // Get super globals
         $key = $value;
-        if(strpos($key,':')!==false)
-            list($key,$modifiers) = explode(':', $key, 2);
-        else $modifiers = false;
+        list($key,$modifiers) = $this->splitKeyAndFilter($key);
         
-        $key = trim($key);
         $key = str_replace(array('(',')'),array("['","']"),$key);
         if(strpos($key,'$_SESSION')!==false)
         {
@@ -1785,15 +1781,9 @@ class DocumentParser {
     private function _get_snip_result($piece)
     {
         $snip_call = $this->_split_snip_call($piece);
-        $key = $snip_call['name'];
         
-        if(strpos($key,':')!==false)
-        {
-            list($key,$modifiers) = explode(':', $key, 2);
-            $key = trim($key);
-            $snip_call['name'] = $key;
-        }
-        else $modifiers = false;
+        list($key,$modifiers) = $this->splitKeyAndFilter($snip_call['name']);
+        $snip_call['name'] = $key;
         
         $snippetObject = $this->_getSnippetObject($key);
         $this->currentSnippet = $key;
@@ -2814,12 +2804,8 @@ class DocumentParser {
             $bt = md5($tpl);
             $replace= array ();
             foreach($matches[1] as $i=>$key) {
-                if(strpos($key,':')!==false)
-                    list($key,$modifiers) = explode(':', $key, 2);
-                else
-                    $modifiers = false;
+                list($key,$modifiers) = $this->splitKeyAndFilter($key);
                 
-                $key = trim($key);
                 if($flag=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
                 
                 if(isset($ph[$key])) {
