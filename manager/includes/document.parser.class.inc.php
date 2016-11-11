@@ -36,6 +36,7 @@ class DocumentParser {
     var $entrypage;
     var $dumpSQL;
     var $dumpSnippets;
+    var $dumpPlugins;
     var $snipCode;
     var $chunkCache;
     var $snippetCache;
@@ -203,6 +204,7 @@ class DocumentParser {
         $this->debug        = false;
         $this->dumpSQL      = false;
         $this->dumpSnippets = false; // feed the parser the execution start time
+        $this->dumpPlugins  = false;
         $this->snipLapCount = 0;
         $this->stopOnNotice = false;
         $this->safeMode     = false;
