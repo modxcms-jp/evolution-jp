@@ -71,7 +71,6 @@ class DocumentParser {
     var $snipLapCount;
     var $chunkieCache;
     var $template_path;
-    var $condScope = false;
     var $lastInstallTime;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
@@ -1285,11 +1284,6 @@ class DocumentParser {
                         break;
                 }
             }
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!=='' && $value!='0') $value = "'{$value}'";
-                else                         $value = 0;
-            }
             
             $content= str_replace($matches[0][$i], $value, $content);
         }
@@ -1386,11 +1380,6 @@ class DocumentParser {
                 $replace[$i]= $value;
             }
             else $value = $key;
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!=='' && $value!='0') $value = 1;
-                else                           $value = 0;
-            }
             $replace[$i]= $value;
         }
         
@@ -1424,11 +1413,7 @@ class DocumentParser {
             $value = $this->parseText($ph,$value,'[+','+]','hasModifier');
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
-                else                         $value = 0;
-            }
+            
             $replace[$i] = $value;
         }
         
@@ -1462,11 +1447,6 @@ class DocumentParser {
             {
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->applyFilter($value,$modifiers,$key);
-            }
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
-                else                         $value = 0;
             }
             $content= str_replace($matches[0][$i], $value, $content);
         }
@@ -1551,14 +1531,12 @@ class DocumentParser {
                 while($bt!==md5($cmd) && $safe<20) {
                     $safe++;
                     $bt = md5($cmd);
-                $this->condScope = true;
                 if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
                 if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
                 if(strpos($cmd,'{{')!==false) $cmd= $this->mergeChunkContent($cmd);
                 if(strpos($cmd,'[[')!==false) $cmd= $this->evalSnippets($cmd);
                 if(strpos($cmd,'[+')!==false
                  &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
-                $this->condScope = false;
                 }
                 $cmd = ltrim($cmd);
                 $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
@@ -1727,11 +1705,6 @@ class DocumentParser {
             }
             $this->currentSnippetCall = $matches[0][$i];
             $value = $this->_get_snip_result($value);
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!=='' && $value!='0') $value = 1;
-                else                           $value = 0;
-            }
             $replace[$i] = $value;
         }
         
