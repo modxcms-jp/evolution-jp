@@ -189,6 +189,7 @@ class DocumentParser {
     // constructor
     function __construct()
     {
+        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
         $this->setConfig();
         $this->loadExtension('DocumentAPI');
@@ -278,7 +279,6 @@ class DocumentParser {
     function executeParser()
     {
         ob_start();
-        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         
         $this->http_status_code = '200';
 
@@ -318,7 +318,6 @@ class DocumentParser {
     function executeParserDirect($id='')
     {
         ob_start();
-        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         
         $this->http_status_code = '200';
 
