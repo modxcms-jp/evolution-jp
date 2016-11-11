@@ -3797,6 +3797,23 @@ class DocumentParser {
         return true;
     }
     
+	function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
+	{
+		if($str=='') return '';
+		
+		if($encode=='') $encode = $this->config['modx_charset'];
+		
+		$ent_str = htmlspecialchars($str, $flags, $encode);
+		
+		if(!empty($str) && empty($ent_str))
+		{
+			$detect_order = implode(',', mb_detect_order());
+			$ent_str = mb_convert_encoding($str, $encode, $detect_order); 
+		}
+		
+		return $ent_str;
+	}
+	
     // End of class.
 }
 
