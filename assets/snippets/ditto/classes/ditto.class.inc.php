@@ -688,24 +688,19 @@ class ditto {
 		
 	function getParentList() {
 		global $modx;
-		$kids = array();
-		if(method_exists($modx, 'setdocumentMap') && empty($modx->documentMap))
-		{
-			$modx->setdocumentMap();
-		}
 		
-		foreach ($modx->documentMap as $null => $document) {
-			foreach ($document as $parent => $id) {
-				$kids[$parent][] = $id;
-			}
-		}
+        $rs = $modx->db->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        $kids = array();
+        while($row = $this->db->getRow($rs)) {
+            $kids[] = $row['parent'];
+        }
 		$parents = array();
-		foreach ($kids as $item => $value)
-		{
-			if ($item != 0)  $pInfo = $modx->getPageInfo($item,0,'published');
-			else             $pInfo["published"] = '1';
-			
-			$parents[$item] = $pInfo['published'];
+		foreach ($kids as $parent) {
+			if ($parent == 0)   $parents[$parent] = '1';
+			else {
+				$pInfo = $modx->getPageInfo($parent,0,'published');
+				$parents[$parent] = $pInfo['published'];
+			}
 		}
 		return $parents;
 	}
