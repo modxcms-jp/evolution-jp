@@ -138,9 +138,9 @@ class synccache {
 		if($limit > 0)
 		{
 			echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
-			for($i=0;$i<$limit; $i++)
+			foreach($deletedfiles as $i=>$deletedfile)
 			{
-				echo '<li>',$deletedfiles[$i],'</li>';
+				echo '<li>',$deletedfile,'</li>';
 			}
 			echo '</ul>';
 		}
