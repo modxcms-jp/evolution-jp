@@ -3717,7 +3717,7 @@ class DocumentParser {
             if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
                 $t=$_REQUEST['baseTime'];
             }else{
-                $this->baseTime = time();
+                $this->baseTime = $_SERVER['REQUEST_TIME'];
                 return true;
             }
         }
