@@ -126,6 +126,7 @@ function run()
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$modx->db->delete('[+prefix+]site_content');
 		$modx->db->query("ALTER TABLE {$tbl_site_content} AUTO_INCREMENT = 1");
+		$modx->db->update(array('setting_value'=>''), '[+prefix+]system_settings', "setting_name='error_page'");
 	}
 	
 	$parent = intval($_POST['parent']);
