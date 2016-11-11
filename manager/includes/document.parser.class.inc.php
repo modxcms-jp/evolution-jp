@@ -106,10 +106,8 @@ class DocumentParser {
             if($error_type==1)
             {
                 $title = 'Call deprecated method';
-                $msg = htmlspecialchars("\$modx->{$method_name}() is deprecated function");
-            }
-            else
-            {
+                $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
+            } else {
                 $title = 'Call undefined method';
                 $msg = htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
@@ -343,7 +341,7 @@ class DocumentParser {
             exit();
         
         foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
-            $_SERVER[$key] = isset ($_SERVER[$key]) ? htmlspecialchars($_SERVER[$key], ENT_QUOTES) : null;
+            $_SERVER[$key] = isset ($_SERVER[$key]) ? $this->htmlspecialchars($_SERVER[$key]) : null;
         }
         $this->sanitize_gpc($_GET);
         if($this->isBackend()) {
@@ -1358,7 +1356,7 @@ class DocumentParser {
     {
         $tend = $this->getMicroTime();
         $totaltime = $tend - $fstart;
-        $fname = htmlspecialchars($fname, ENT_QUOTES, $this->config['modx_charset']);
+        $fname = $this->htmlspecialchars($fname);
         $msg = sprintf('%2.4fs, %s',$totaltime,$fname);
         $this->functionLog[] = $msg;
     }
