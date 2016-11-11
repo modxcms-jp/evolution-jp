@@ -1115,6 +1115,7 @@ class ditto {
 				$modx->setPlaceholder($dittoID."currentPage", $display);
 				$pages .= $modx->parseText(array('page'=>$display),$tplPaginateCurrentPage);
 			}
+			if($x < $max_x) $pages .= $paginateSplitterCharacter;
 		}
 		if ($totalpages>1 || $paginateAlwaysShowLinks==1){
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);
