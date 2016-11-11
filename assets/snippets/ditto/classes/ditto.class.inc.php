@@ -1036,7 +1036,7 @@ class ditto {
 	// Paginate the documents
 	// ---------------------------------------------------
 		
-	function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter) {
+	function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter,$maxPaginate=10) {
 		global $modx, $dittoID,$ditto_lang;
 
 		if ($stop == 0 || $total == 0 || $summarize==0) {
@@ -1090,7 +1090,7 @@ class ditto {
 		}
 		$totalpages = ceil($total / $summarize);
 		
-		$max_paginate = 10;
+		$max_paginate = $maxPaginate;
 		$max_previous = 5;
 		$cur_x = floor($start / $summarize);
 		$min_x = $cur_x - $max_previous;
