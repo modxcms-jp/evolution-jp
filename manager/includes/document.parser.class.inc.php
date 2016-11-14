@@ -229,7 +229,7 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
-        $this->q = (!isset($_GET['id'])) ? $this->setRequestQ($this->decoded_request_uri) : false;
+        $this->q = (!isset($_GET['id'])) ? $this->getRequestQ($this->decoded_request_uri) : false;
         
         $this->updatePublishStatus();
         
@@ -321,11 +321,11 @@ class DocumentParser {
         else     return $alias;
     }
     
-    function setRequestQ($decoded_request_uri) {
+    function getRequestQ($uri) {
         if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) // IIS friendly url fix
             $q = $this->_IIS_furl_fix();
         else {
-            $q = substr($decoded_request_uri,strlen($this->config['base_url']));
+            $q = substr($uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
             if($q=='index.php')        $q = '';
         }
