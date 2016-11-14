@@ -1884,6 +1884,7 @@ class DocumentParser {
         $_tmp = ltrim($_tmp, '?&');
         $temp_params = array();
         $key = '';
+        $value = null;
         while($_tmp!==''):
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
