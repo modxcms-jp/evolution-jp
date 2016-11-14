@@ -128,7 +128,7 @@ class DocumentParser {
     {
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->setConfig();
+        $this->setConfig('manager/includes/config.inc.php');
         $this->loadExtension('DocumentAPI');
         
         // events
