@@ -2555,8 +2555,8 @@ class DocumentParser {
             }
         }
 
-        if ($this->config['friendly_urls'] == 1)
-        {
+        if ($this->config['friendly_urls'] == 0) $makeurl= "index.php?id={$id}";
+        else {
             $alPath = '';
             if(empty($alias))
             {
@@ -2576,18 +2576,18 @@ class DocumentParser {
                     }
                     if ($al && $al['alias'])
                     {
-                        if($this->config['xhtml_urls']==='1') $alias = urlencode($al['alias']);
+                        if($this->config['xhtml_urls']==1) $alias = urlencode($al['alias']);
                         else                                  $alias = $al['alias'];
                     }
                     else return false;
                 }
             }
             
-            if(strpos($alias, '.') !== false && $this->config['suffix_mode']==='1')
+            if(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
             {
                 $f_url_suffix = '';
             }
-            elseif($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
+            elseif($al['isfolder']==1 && $this->config['make_folders']==1 && $id != $this->config['site_start'])
             {
                 $f_url_suffix = '/';
             }
@@ -2818,7 +2818,7 @@ class DocumentParser {
                     $replace[$i]= $value;
                 }
                 elseif($flag) $replace[$i] = '';
-                else                                     $replace[$i] = $matches[0][$i];
+                else          $replace[$i] = $matches[0][$i];
             }
             $tpl= str_replace($matches[0], $replace, $tpl);
             if(md5($tpl)===$bt) break;
