@@ -17,6 +17,10 @@ class ManagerAPI {
 	function __construct(){
 		global $action;
 		$this->action = $action; // set action directive
+		if(isset($_POST['token'])||isset($_GET['token'])) {
+			$rs = $this->checkToken();
+			if(!$rs) exit('unvalid token');
+		}
 	}
 	
 	function initPageViewState($id=0)
@@ -310,22 +314,26 @@ class ManagerAPI {
 	
 	function checkToken()
 	{
-		if(isset($_POST['token']) && !empty($_POST['token']))    $token = $_POST['token'];
-		elseif(isset($_GET['token']) && !empty($_GET['token']))  $token = $_GET['token'];
-		else                                                     $token = false;
+		if(isset($_POST['token']) && !empty($_POST['token']))    $clientToken = $_POST['token'];
+		elseif(isset($_GET['token']) && !empty($_GET['token']))  $clientToken = $_GET['token'];
+		else                                                     $clientToken = false;
 		
-		if(isset($_SESSION['token']) && !empty($_SESSION['token']) && $_SESSION['token']===$token)
-		{
-			$rs =true;
-		}
-		else $rs = false;
+		if(isset($_SESSION['token']) && !empty($_SESSION['token'])) $serverToken = $_SESSION['token'];
+		else                                                        $serverToken = false;
+		
+		if($clientToken===false)            $rs = false;
+		elseif($clientToken===$serverToken) $rs = true;
+		else                                $rs = false;
+		
 		$_SESSION['token'] = '';
 		return $rs;
 	}
 	
 	function makeToken()
 	{
-		$newToken = uniqid('');
+		global $modx;
+		
+		$newToken = $modx->genToken();
 		$_SESSION['token'] = $newToken;
 		return $newToken;
 	}
