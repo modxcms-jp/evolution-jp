@@ -338,6 +338,8 @@ setTimeout('showParameters()',10);
 	$option['url']          = 'URL';
 	$option['email']        = 'Email';
 	$option['number']       = 'Number';
+	$option['tel']          = 'Telephone';
+	$option['zipcode']      = 'Zip Code';
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['hidden']       = 'Hidden';
