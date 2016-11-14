@@ -7,10 +7,10 @@ if(!isset($modx))
 	$modx->getSettings();
 }
 
-$vword = new VeriWord(135,43);
-$word = $vword->pick_word();
+$vword = new VeriWord();
+$word = $vword->pick_word($modx->config['captcha_words']);
 $vword->set_veriword($word);
-$vword->output_image($word);
+$vword->output_image($word,135,43);
 exit;
 
 /*
@@ -24,73 +24,50 @@ exit;
 
 class VeriWord {
 	/* path to font directory*/
-	var $font;
-	/* path to background image directory*/
-	var $dir_noise;
-	var $word;
-	var $im_width;
-	var $im_height;
-	var $words;
+	var $font_path;
 
-	function __construct($w=200, $h=80)
-	{
-		global $modx;
-		$vw_path = str_replace('\\','/',dirname(__FILE__)) . '/';
-		$this->font  = $vw_path.'ftb_____.ttf';
-		$this->noise = $vw_path.'noise.jpg';
-		$this->words = $modx->config['captcha_words'];
-		$this->im_width         = $w;
-		$this->im_height        = $h;
-		/* create session to set word for verification */
+	function __construct() {
+		$vword_base_path = str_replace('\\','/',dirname(__FILE__)) . '/';
+		$this->font_path  = $vword_base_path.'ftb_____.ttf';
+		$this->bg_image   = $vword_base_path.'noise.jpg';
 	}
 
-	function set_veriword($word)
-	{
-		/* create session variable for verification,
-		you may change the session variable name */
+	function set_veriword($word) {
 		$_SESSION['veriword']   = $word;
 	}
 
-	function output_image($word)
-	{
-		/* output the image as jpeg */
-		$this->draw_image($word);
+	function output_image($word,$img_width=200,$img_height=80) {
+		$img = $this->draw_image($word,$img_width,$img_height);
 		header('Content-type: image/jpeg');
-		imagejpeg($this->im);
+		imagejpeg($img);
 	}
 
-	function pick_word()
-	{
-		$arr_words = explode(',', $this->words);
-		/* pick one randomly for text verification */
+	function pick_word($words='abc,def') {
+		$arr_words = explode(',', $words);
 		return (string) $arr_words[array_rand($arr_words)].mt_rand(10,999);
 	}
 
-	function draw_text($word)
-	{
-		/* angle for text inclination */
+	function draw_text($word,$img_width=200,$img_height=80) {
 		$text_angle = mt_rand(-9,9);
-		/* initial text size */
-		$text_size  = 30;
 		/* calculate text width and height */
-		$box        = imagettfbbox ( $text_size, $text_angle, $this->font, $word);
+		$box        = imagettfbbox ( 30, $text_angle, $this->font_path, $word);
 		$text_width = $box[2]-$box[0]; //text width
 		$text_height= $box[5]-$box[3]; //text height
 		
 		/* adjust text size */
-		$text_size  = round((20 * $this->im_width)/$text_width);
+		$text_size  = round((20 * $img_width)/$text_width);
 		
 		/* recalculate text width and height */
-		$box        = imagettfbbox ( $text_size, $text_angle, $this->font, $word);
+		$box        = imagettfbbox ( $text_size, $text_angle, $this->font_path, $word);
 		$text_width = $box[2]-$box[0]; //text width
 		$text_height= $box[5]-$box[3]; //text height
 		
 		/* calculate center position of text */
-		$text_x         = ($this->im_width - $text_width)/2;
-		$text_y         = ($this->im_height - $text_height)/2;
+		$text_x         = ($img_width - $text_width)/2;
+		$text_y         = ($img_height - $text_height)/2;
 		
 		/* create canvas for text drawing */
-		$im_text        = imagecreate ($this->im_width, $this->im_height);
+		$im_text        = imagecreate ($img_width, $img_height);
 		$bg_color       = imagecolorallocate ($im_text, 255, 255, 255);
 		
 		/* pick color for text */
@@ -104,7 +81,7 @@ class VeriWord {
 			$text_x,
 			$text_y,
 			$text_color,
-			$this->font,
+			$this->font_path,
 			$word);
 		
 		/* remove background color */
@@ -113,33 +90,32 @@ class VeriWord {
 		imagedestroy($im_text);
 	}
 
-	function draw_image($word)
-	{
+	function draw_image($word,$img_width=200,$img_height=80) {
 		/* create "noise" background image from your image stock*/
-		$noise_img      = @imagecreatefromjpeg ($this->noise);
+		$noise_img      = @imagecreatefromjpeg ($this->bg_image);
 		$noise_width    = imagesx($noise_img);
 		$noise_height   = imagesy($noise_img);
 		
 		/* resize the background image to fit the size of image output */
-		$this->im       = imagecreatetruecolor($this->im_width,$this->im_height);
+		$image = imagecreatetruecolor($img_width,$img_height);
 		imagecopyresampled(
-			$this->im,
+			$image,
 			$noise_img,
 			0, 0, 0, 0,
-			$this->im_width,
-			$this->im_height,
+			$img_width,
+			$img_height,
 			$noise_width,
 			$noise_height);
 		
 		/* put text image into background image */
 		imagecopymerge(
-			$this->im,
-			$this->draw_text($word),
+			$image,
+			$this->draw_text($word,$img_width,$img_height),
 			0, 0, 0, 0,
-			$this->im_width,
-			$this->im_height,
-			70);
+			$img_width,
+			$img_height,
+			50);
 		
-		return $this->im;
+		return $image;
 	}
 }
