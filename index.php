@@ -49,6 +49,11 @@ $mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() :
 $base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
 define('MODX_BASE_PATH', $base_path);
 
+if(isset($_GET['get']) && $_GET['get']=='captcha') {
+    include_once("{$base_path}manager/media/captcha/veriword.php");
+    return;
+}
+
 $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
@@ -105,11 +110,6 @@ if (!defined('MODX_API_MODE')
 }
 if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
-
-if(isset($_GET['get']) && $_GET['get']=='captcha') {
-    include_once("{$base_path}manager/media/captcha/veriword.php");
-    return;
-}
 
 // initiate a new document parser
 include_once('manager/includes/document.parser.class.inc.php');
