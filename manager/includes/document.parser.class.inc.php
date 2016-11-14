@@ -1242,13 +1242,13 @@ class DocumentParser {
             
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            if(strpos($key,'@')!==false) $value = $this->_contextValue($key);
+            if(strpos($key,'@')!==false)                $value = $this->_contextValue($key);
             elseif(!isset($this->documentObject[$key])) $value = '';
-            else $value= $this->documentObject[$key];
+            else                                        $value= $this->documentObject[$key];
             
             if (is_array($value)) {
-                if($modifiers==='raw')     $value = $value['value'];
-                else                       $value= $this->tvProcessor($value);
+                if($modifiers==='raw') $value = $value['value'];
+                else                   $value= $this->tvProcessor($value);
             }
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
