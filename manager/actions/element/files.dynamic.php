@@ -116,7 +116,7 @@ if (is_writable($startpath))
 	}
 	$ph['style_path'] = $style_path;
 	$tpl = '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>';
-	$ph['image']   = $_style['tree_folder'];
+	$ph['tree_folder']   = $_style['tree_folder'];
 	$ph['subject'] = $_lang['add_folder'];
 	$ph['href'] = 'index.php?a=31&mode=newfolder&path='.urlencode($startpath).'&name=';
 	$_ .= $modx->parseTextSimple($tpl,$ph);
