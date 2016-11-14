@@ -1740,30 +1740,25 @@ class DocumentParser {
         }
     }
     
-    function evalSnippet($phpcode, $params)
-    {
+    function evalSnippet($phpcode, $params) {
         $modx= & $this;
         if ($this->debug) $fstart = $this->getMicroTime();
-        if(isset($params) && is_array($params))
-        {
-            while(list($k,$v) = each($params))
-            {
+        if(isset($params) && is_array($params)) {
+            foreach($params as $k=>$v) {
                 if($v==='false')    $params[$k] = false;
                 elseif($v==='true') $params[$k] = true;
             }
         }
         $modx->event->params = $params; // store params inside event object
-        if (is_array($params))
-        {
+        if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        $return= eval($phpcode);
-        $echo= ob_get_contents();
+        $return = eval($phpcode);
+        $echo = ob_get_contents();
         ob_end_clean();
         
-        if ((0<$this->config['error_reporting']) && $echo && isset($php_errormsg))
-        {
+        if ((0 < $this->config['error_reporting']) && $echo && isset($php_errormsg)) {
             $error_info = error_get_last();
             if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
             else                                                         $error_type = 3;
@@ -1777,7 +1772,7 @@ class DocumentParser {
                 }
             }
         }
-        unset ($modx->event->params);
+        unset($modx->event->params);
         if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
