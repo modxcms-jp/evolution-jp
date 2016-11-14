@@ -1097,7 +1097,7 @@ class SubParser {
         switch (strtolower($field_type)) {
 
             case "text":    // handler for regular text boxes
-            case "rawtext"; // non-htmlentity converted text boxes
+            case "rawtext": // non-htmlentity converted text boxes
             case "email":   // handles email input fields
             case "number":  // handles the input of numbers
                 $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php');
