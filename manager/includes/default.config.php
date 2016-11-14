@@ -8,6 +8,7 @@ $default_config['blocked_minutes']          = '10';
 $default_config['cache_default']            = '1';
 $default_config['cache_type']               = '1';
 $default_config['individual_cache']         = '0';
+$default_config['legacy_cache']             = '0';
 $default_config['conditional_get']          = '0';
 $default_config['captcha_words']            = 'maguro,toro,tako,ika,hotate,awabi,kazunoko,ebi,kani,uni,iwashi,aji,saba,tamago,negitoro,tekka,hamachi,sanma,sake,tai,buri,hirame,unagi,anago,amaebi,ikura,kanpachi,syako';
 $default_config['clean_uploaded_filename']  = '0';

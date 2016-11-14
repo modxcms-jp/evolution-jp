@@ -254,8 +254,8 @@ class synccache {
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		
 		$this->_get_settings(); // get settings
-		if(!isset($modx->config['gen_alias_cache']) || $modx->config['gen_alias_cache'])
-		$this->_get_aliases();  // get aliases modx: support for alias path
+		if($modx->config['legacy_cache']) 
+			$this->_get_aliases();  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types(); // get content types
 		$this->_get_chunks();   // WRITE Chunks to cache file
 		$this->_get_snippets(); // WRITE snippets to cache file

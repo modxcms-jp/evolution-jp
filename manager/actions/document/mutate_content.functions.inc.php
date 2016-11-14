@@ -223,14 +223,15 @@ function get_alias_path($id)
 	if($modx->config['use_alias_path']==='0') $path = '';
 	elseif($pid)
 	{
-		if($modx->aliasListing[$pid]['path'])
+		if($modx->getAliasListing($pid,'path'))
 		{
-			$path = $modx->aliasListing[$pid]['path'] . '/' . $modx->aliasListing[$pid]['alias'];
+			$path = $modx->getAliasListing($pid,'path') . '/' . $modx->getAliasListing($pid,'alias');
 		}
-		else $path = $modx->aliasListing[$pid]['alias'];
+		else $path = $modx->getAliasListing($pid,'alias');
 	}
-	elseif($id) $path = $modx->aliasListing[$id]['path'];
+	elseif($id) $path = $modx->getAliasListing($id,'path');
 	else        $path = '';
+	
 	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
 	else           $path = $modx->config['base_url'];
 	

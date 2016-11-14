@@ -72,18 +72,16 @@ class DocumentParser {
     var $chunkieCache;
     var $template_path;
     var $lastInstallTime;
+    var $aliaslist = array();
+    var $parentlist = array();
+    var $aliasPath = array();
     var $tmpCache = array();
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
     function __get($property_name)
     {
-        if($property_name==='documentMap')
-            $this->setdocumentMap();
-        elseif($property_name==='documentListing')
-            return $this->makeDocumentListing();
-        elseif(isset($this->config[$property_name]))
-            return $this->config[$property_name];
+        if(isset($this->config[$property_name])) return $this->config[$property_name];
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
@@ -155,13 +153,6 @@ class DocumentParser {
         }
         if(!isset($this->mstart))
             $this->mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
-        
-        $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
-        if(is_file($alias_cache_path)) {
-            $aliasCache = file_get_contents($alias_cache_path);
-            $this->aliasCache=unserialize($aliasCache);
-        }
-        $this->setAliasListing();
     }
 
     /*
@@ -914,11 +905,11 @@ class DocumentParser {
             $this->config['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['rb_base_dir']);
         if(!isset($this->config['modx_charset']) || !$this->config['modx_charset'])
             $this->config['modx_charset'] = 'utf-8';
-        if(!isset($this->config['gen_alias_cache'])) $modx->config['gen_alias_cache'] = '1';
         
         if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
+        if($this->config['legacy_cache']) $this->setAliasListing();
         return $this->config;
     }
     
@@ -1119,7 +1110,7 @@ class DocumentParser {
 
         unset($this->chunkCache);
         $this->setChunkCache();
-        $this->setAliasListing();
+        if($this->config['legacy_cache']) $this->setAliasListing();
 
         //invoke events
         if( !empty($pub_ids) ){
@@ -1217,11 +1208,140 @@ class DocumentParser {
         return $tags;
     }
     
+    function getAliasListing($id,$key=false){
+        
+        if(isset($this->aliasListing[$id])) {
+            if($key) return $this->aliasListing[$id][$key];
+            else     return $this->aliasListing[$id];
+        }
+        $where = sprintf('id=%s', (int)$id);
+        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        
+        if(!$this->db->getRecordCount($rs)) return false;
+        
+        $row = $this->db->getRow($rs);
+        $pathInfo =  array(
+            'id'       => (int)$row['id'],
+            'alias'    => $row['alias']=='' ? $row['id'] : $row['alias'],
+            'parent'   => (int)$row['parent'],
+            'isfolder' => (int)$row['isfolder'],
+        );
+        $pathInfo['path'] = '';
+        if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
+            $_ = $this->getAliasListing((int)$row['parent']);
+            if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
+            else                                 $pathInfo['path'] = $_['alias'];
+        }
+        if(!isset($this->tmpCache['setAliasListingByParent'][$row['parent']]))
+            $this->setAliasListingByParent($row['parent'],$pathInfo['alias']);
+        $this->aliasListing[$id] = $pathInfo;
+        
+        if($key) return $pathInfo[$key];
+        else     return $pathInfo;
+    }
+    
+    function setAliasListingByParent($parent_id,$path){
+        if(isset($this->tmpCache['setAliasListingByParent'][$parent_id])) return;
+        $where = sprintf('parent=%s', (int)$parent_id);
+        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        
+        if(!$this->db->getRecordCount($rs)) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            $docid = (int)$row['id'];
+            if(isset($this->aliasListing[$docid])) continue;
+            
+            $pathInfo =  array(
+                'id'       => $docid,
+                'alias'    => $row['alias']=='' ? $docid : $row['alias'],
+                'parent'   => (int)$row['parent'],
+                'isfolder' => (int)$row['isfolder']
+            );
+            if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
+                $_ = $this->getAliasListing((int)$row['parent']);
+                if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
+                else                                 $pathInfo['path'] = $_['alias'];
+            }
+            else $pathInfo['path'] = '';
+            
+            $this->aliasListing[$docid] = $pathInfo;
+        }
+        $this->tmpCache['setAliasListingByParent'][$parent_id] = true;
+    }
+    
+    function getAliasFromID($docid) {
+        
+        if(isset($this->aliaslist[$docid])) return $this->aliaslist[$docid];
+        
+        $fields = "id, IF(alias='', id, alias) AS alias";
+        $parent_id = $this->getParentID($docid);
+        $where = sprintf("parent='%s'", $parent_id);
+        $rs = $this->db->select($fields,'[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            extract($row);
+            $this->aliaslist[$id]  = $alias;
+        }
+        return $this->aliaslist[$docid];
+    }
+    
+    function getParentID($docid) {
+        
+        if(isset($this->parentlist[$docid])) return $this->parentlist[$docid];
+        elseif($docid==0)                    return 0;
+        
+        $where = sprintf("id='%s'", $docid);
+        $rs = $this->db->select('parent','[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        $row = $this->db->getRow($rs);
+        extract($row);
+        $this->parentlist[$docid] = $parent;
+        $this->setParentIDByParent($parent);
+        return $parent;
+    }
+    
+    function setParentIDByParent($parent) {
+        if(isset($this->tmpCache['setParentIDByParent'][$parent])) return;
+        $where = sprintf("parent='%s'", $parent);
+        $rs = $this->db->select('id','[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            extract($row);
+            $this->parentlist[$id] = $parent;
+        }
+        $this->tmpCache['setParentIDByParent'][$parent] = true;
+    }
+    
+    function getAliasPath($docid) {
+        
+        if(isset($this->aliasPath[$docid])) return $this->aliasPath[$docid];
+        
+        $parent = $docid;
+        $i=0;
+        while($parent!=0) {
+            $_[] = $this->getAliasFromID($parent);
+            $parent = $this->getParentID($parent);
+            $i++;
+            if(20<$i) break;
+        }
+        if(0<count($_)) $aliasPath = join('/', array_reverse($_));
+        else            $aliasPath = '';
+        
+        $this->aliasPath[$docid] = $aliasPath;
+        
+        return $aliasPath;
+    }
+    
     function getUltimateParentId($docid,$top=0) {
+        
+        //$this->getParentID($docid)
         $i=0;
         while ($docid &&$i<20) {
-            if($top==$this->aliasListing[$docid]['parent']) break;
-            $docid = $this->aliasListing[$docid]['parent'];
+            if($top==$this->getParentID($docid)) break;
+            $docid = $this->getParentID($docid);
             $i++;
         }
         return $docid;
@@ -1975,27 +2095,6 @@ class DocumentParser {
         else return false;
     }
     
-    function setdocumentMap()
-    {
-        $fields = 'id, parent';
-        $rs = $this->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
-        $this->documentMap = array();
-        while ($row = $this->db->getRow($rs))
-        {
-            $docid  = $row['id'];
-            $parent = $row['parent'];
-            $this->documentMap[] = array($row['parent'] => $row['id']);
-        }
-    }
-    
-    function setAliasListing()
-    {
-        if($this->aliasListing) return;
-        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
-        if($aliases) $this->aliasListing = $aliases;
-        else return false;
-    }
-    
     /**
     * name: getDocumentObject  - used by parser
     * desc: returns a document object - $method: alias, id
@@ -2195,7 +2294,7 @@ class DocumentParser {
         while( $id && 0<$height)
         {
             $current_id = $id;
-            $id = $this->aliasListing[$id]['parent'];
+            $id = $this->getParentID($id);
             if(!$id) break;
             $parents[$current_id] = $id;
             $height--;
@@ -2203,67 +2302,42 @@ class DocumentParser {
         return $parents;
     }
     
-    function set_childrenList()
-    {
-        if($this->childrenList) return $this->childrenList;
-        $path_childrenListCache = MODX_BASE_PATH . 'assets/cache/childrenList.siteCache.idx.php';
-        if(is_file($path_childrenListCache))
-        {
-            $src = file_get_contents($path_childrenListCache);
-            $this->childrenList = unserialize($src);
-        }
-        else
-        {
-            $childrenList= array ();
-            
-            if(!$this->documentMap) $this->setdocumentMap();
-            
-            foreach ($this->documentMap as $document)
-            {
-                while(list($p, $c) = each($document))
-                {
-                    $childrenList[$p][] = $c;
-                }
-            }
-            $this->saveToFile($path_childrenListCache,serialize($childrenList));
-            $this->childrenList = $childrenList;
-        }
-        return $this->childrenList;
-    }
-
     function getChildIds($id, $depth= 10, $children= array ())
     {
         $args = print_r(func_get_args(),true);
         $cacheKey = md5($args);
         if(isset($this->functionCache['getchildids'][$cacheKey])) return $this->functionCache['getchildids'][$cacheKey];
-        
-        // Initialise a static array to index parents->children
-        if(empty($this->childrenList))
-            $childrenList = $this->set_childrenList();
-        else
-            $childrenList = $this->childrenList;
-        
-        // Get all the children for this parent node
-        if (isset($childrenList[$id]))
-        {
-            $depth--;
-            
-            foreach ($childrenList[$id] as $childId)
-            {
-                $pkey = $this->aliasListing[$childId]['alias'];
-                if(strlen($this->aliasListing[$childId]['path']))
-                {
-                    $pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
-                }
-                
-                if (!strlen($pkey)) $pkey = $childId;
-                $children[$pkey] = $childId;
-                
-                if ($depth && isset($childrenList[$childId])) {
-                    $children += $this->getChildIds($childId, $depth);
-                }
+        if(!isset($this->tmpCache['getChildIds']['hasChildren'])) {
+            $this->tmpCache['getChildIds']['hasChildren'] = array();
+            $rs = $this->db->select('DISTINCT(parent)', '[+prefix+]site_content');
+            while($row = $this->db->getRow($rs)) {
+                extract($row);
+                $this->tmpCache['getChildIds']['hasChildren'][$parent] = true;
             }
         }
+        if(!isset($this->tmpCache['getChildIds']['hasChildren'][$id])) return array();
+        
+        $where = sprintf('deleted=0 AND parent=%s',$id);
+        $rs = $this->db->select('id', '[+prefix+]site_content', $where, 'parent, menuindex');
+        $childrenList = array();
+        while($row = $this->db->getRow($rs)) {
+            $childrenList[] = $row['id'];
+        }
+        
+        $depth--;
+        foreach ($childrenList as $childId)
+        {
+            $path  = $this->getAliasListing($childId,'path');
+            $alias = $this->getAliasListing($childId,'alias');
+            $key = trim("{$path}/{$alias}", '/');
+            $children[$key] = $childId;
+            
+            if ($depth) {
+                $subChildId = $this->getChildIds($childId, $depth);
+                if($subChildId) $children += $subChildId;
+            }
+        }
+        
         $this->functionCache['getchildids'][$cacheKey] = $children;
         return $children;
     }
@@ -2490,7 +2564,7 @@ class DocumentParser {
             $alPath = '';
             if(empty($alias))
             {
-                $al= $this->aliasListing[$id];
+                $al= $this->getAliasListing($id);
                 $alias = $id;
                 if ($this->config['friendly_alias_urls'] == 1)
                 {
@@ -2522,10 +2596,6 @@ class DocumentParser {
                 $f_url_suffix = '/';
             }
             $makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
-        }
-        else {
-            if(isset($this->aliasListing[$id])) $makeurl= "index.php?id={$id}";
-            else return false;
         }
 
         $site_url = $this->config['site_url'];
@@ -3481,11 +3551,6 @@ class DocumentParser {
                $pos++;
         }
         return round($size,2).' '.$a[$pos];
-    }
-    
-    function getDocumentListing($str)
-    {
-        return $this->getIdFromAlias($str);
     }
     
     function getIdFromAlias($aliasPath)

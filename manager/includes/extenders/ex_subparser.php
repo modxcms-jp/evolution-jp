@@ -2049,4 +2049,29 @@ class SubParser {
         }
         $modx->db->delete('[+prefix+]site_revision', "pub_date!=0 AND pub_date<{$now}");
     }
+    
+    function setdocumentMap()
+    {
+        global $modx;
+        
+        $fields = 'id, parent';
+        $rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
+        $modx->documentMap = array();
+        while ($row = $modx->db->getRow($rs))
+        {
+            $docid  = $row['id'];
+            $parent = $row['parent'];
+            $modx->documentMap[] = array($row['parent'] => $row['id']);
+        }
+    }
+    
+    function setAliasListing()
+    {
+        global $modx;
+        
+        if($modx->aliasListing) return;
+        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+        if($aliases) $modx->aliasListing = $aliases;
+        else return false;
+    }
 }

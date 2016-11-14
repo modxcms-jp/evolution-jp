@@ -372,6 +372,14 @@ function confirmLangChange(el, lkey, elupd)
 	</td>
 </tr>
 <tr>
+	<th>旧式のキャッシュ機構</th>
+	<td>
+		<?php echo wrap_label($_lang['enabled'] ,form_radio('legacy_cache','1',$legacy_cache=='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('legacy_cache','0',$legacy_cache=='0'));?><br />
+		古いスニペット・プラグインは<a href="https://www.google.co.jp/search?q=modx+aliasListing+ddocumentMap+ocumentListing" target="_blank">旧式のキャッシュ機構</a>が有効でないと動作しないことがあります。その場合はこの設定を有効にしてください。このキャッシュ機構はサイトの規模が大きくなると負荷が高くなるため注意が必要です。
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang['setting_conditional_get'] ?></th>
 	<td>
 		<?php echo wrap_label($_lang['enabled'] ,form_radio('conditional_get','1',$conditional_get=='1'));?><br />
