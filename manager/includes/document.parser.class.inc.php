@@ -1777,7 +1777,11 @@ class DocumentParser {
         if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
-        return $echo . $return;
+        if (is_array($return) || is_object($return)) {
+            return $return;
+        } else {
+            return $echo . $return;
+        }
     }
     
     function evalSnippets($content,$nest=0)
