@@ -681,11 +681,6 @@ class DocumentParser {
                     break;
             }
             
-            if(mt_rand(0,99) < 1)
-            {
-                $file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
-                if(1000 < $file_count) $this->clearCache();
-            }
             if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
