@@ -282,21 +282,18 @@ class DocumentParser {
         return $result;
     }
     
-    function getDocumentIdentifier($request_uri) {
+    function getDocumentIdentifier($uri) {
         
-        $pos = strpos($request_uri,'?');
-        if($pos!==false) $request_uri = substr($request_uri,0,$pos);
+        $getId = isset($_GET['id']) ? $_GET['id'] : 0;
+        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
         
-        if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
-            $docid = intval($_GET['id']);
-        }
-        elseif ($this->config['base_url']==$request_uri) {
-            $docid = $this->config['site_start'];
-        }
-        elseif ($this->q!==false) {
-            $docid = $this->getIdFromAlias($this->_treatAliasPath($this->q));
-        }
-        else $docid = false;
+        $pos = strpos($uri,'?');
+        if($pos!==false) $uri = substr($uri,0,$pos);
+        
+        if(preg_match('@^[1-9][0-9]*$@',$getId)) $docid = $getId;
+        elseif ($this->config['base_url']==$uri) $docid = $this->config['site_start'];
+        elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
+        else                                     $docid = false;
         
         return $docid;
     }
