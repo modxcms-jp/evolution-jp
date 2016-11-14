@@ -2958,7 +2958,7 @@ class DocumentParser {
         if ($idname == '') return false;
         else
         {
-            $result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
+            $result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', '');
             return ($result != false) ? $result['0'] : false;
         }
     }
@@ -2994,8 +2994,8 @@ class DocumentParser {
             $sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
             
             if ($idnames === '*') $where= 'tv.id<>0';
-            elseif (preg_match('@^[0-9]+$@',$idnames['0']))
-                $where= "tv.id='{$idnames['0']}'";
+            elseif (preg_match('@^[1-9][0-9]*$@',$idnames[0]))
+                $where= "tv.id='{$idnames[0]}'";
             else
             {
                 $i = 0;
@@ -3005,7 +3005,7 @@ class DocumentParser {
                     $i++;
                 }
                 $tvnames = "'" . join("','", $idnames) . "'";
-                $where = (preg_match('@^[1-9][0-9]*$@',$idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
+                $where = (preg_match('@^[1-9][0-9]*$@',$idnames[0])) ? 'tv.id' : "tv.name IN ({$tvnames})";
             }
             if ($docgrp= $this->getUserDocGroups())
                 $docgrp= implode(',', $docgrp);
@@ -3028,10 +3028,8 @@ class DocumentParser {
             
             // get default/built-in template variables
             ksort($resource);
-            while(list($key, $value) = each($resource))
-            {
-                if ($idnames == '*' || in_array($key, $idnames))
-                {
+            foreach($resource as $key=>$value) {
+                if ($idnames == '*' || in_array($key, $idnames)) {
                     $result[] = array ('name'=>$key,'value'=>$value);
                 }
             }
@@ -3220,7 +3218,8 @@ class DocumentParser {
         if ($this->safeMode)                       $return = false;
         if (!$evtName)                             $return = false;
         if (!isset($this->pluginEvent[$evtName]))  $return = false;
-        if(count($this->pluginEvent[$evtName])==0) $return = array();
+        if(!isset($this->pluginEvent[$evtName])
+         ||count($this->pluginEvent[$evtName])==0) $return = array();
         if(empty($return)) {
             if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName})", $fstart);
             return $return;
