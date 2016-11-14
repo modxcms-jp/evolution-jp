@@ -86,7 +86,7 @@ switch ($actionToTake) {
 
 		// set publishedon and publishedby
 		$form_v['published']   = checkPublished($db_v);
-		$form_v['pub_date']	= checkPub_date($db_v);
+		$form_v['pub_date']    = checkPub_date($db_v);
 		$form_v['unpub_date']  = checkUnpub_date($db_v);
 		$form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
 		$form_v['publishedby'] = checkPublishedby($db_v);
