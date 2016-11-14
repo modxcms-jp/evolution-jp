@@ -220,10 +220,11 @@ class DocumentParser {
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
-        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
-        $this->q = (!isset($_GET['id'])) ? $this->getRequestQ($this->decoded_request_uri) : false;
-        
         $this->updatePublishStatus();
+        
+        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
+        $this->uri_parent_dir = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
+        $this->uri_parent_dir = ltrim($this->uri_parent_dir,'/');
         
         if(0 < count($_POST)) $this->config['cache_type'] = 0;
         
@@ -260,10 +261,10 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
+        $this->uri_parent_dir = '';
+        
         $_REQUEST['id'] = $id;
         $_GET['id']     = $id;
-        
-        $this->q = false;
         
         $this->documentIdentifier = $id;
         
@@ -658,12 +659,12 @@ class DocumentParser {
                     $cacheContent  = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
                     $cacheContent .= serialize($this->documentObject);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-                    $filename = "docid_{$docid}{$this->qs_hash}";
+                    $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
                     break;
                 case '2':
                     $cacheContent  = serialize($this->documentObject['contentType']);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-                    $filename = md5($this->decoded_request_uri);
+                    $filename = $this->uri_parent_dir.md5($this->decoded_request_uri);
                     break;
             }
             
@@ -688,6 +689,8 @@ class DocumentParser {
             if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
+            if(!is_dir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}"))
+                mkdir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}",0777, true);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             $this->saveToFile($page_cache_path, $cacheContent);
             $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
@@ -963,7 +966,7 @@ class DocumentParser {
                 $filename = 'error503';
                 break;
             default:
-                $filename = "docid_{$id}{$this->qs_hash}";
+                $filename = "{$this->uri_parent_dir}docid_{$id}{$this->qs_hash}";
         }
         
         $cacheFile = "{$this->config['base_path']}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
