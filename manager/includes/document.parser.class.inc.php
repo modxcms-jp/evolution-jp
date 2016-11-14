@@ -3579,8 +3579,9 @@ class DocumentParser {
      */
     function setBaseTime($t=''){
         if( empty($t) ){
-            if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
-                $t=$_REQUEST['baseTime'];
+            $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
+            if( !empty($baseTime) && $this->isLoggedin() ){
+                $t=$baseTime;
             }else{
                 $this->baseTime = $_SERVER['REQUEST_TIME'];
                 return true;
