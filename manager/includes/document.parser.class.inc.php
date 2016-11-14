@@ -1478,10 +1478,9 @@ class DocumentParser {
             {
                 $value = $this->config[$key];
                 if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-                
-                $replace[$i]= $value;
             }
-            else $value = $key;
+            else $value = '';
+            
             $replace[$i]= $value;
         }
         
