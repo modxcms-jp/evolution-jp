@@ -3510,9 +3510,9 @@ class DocumentParser {
                 if($id===false) break;
                 if( empty($alias) ){ continue; }
                 $alias = $this->db->escape($alias);
-                $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and alias='{$alias}'");
+                $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND alias REGEXP '^{$alias}$'");
                 if($this->db->getRecordCount($rs)==0)
-                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and id='{$alias}'");
+                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND id REGEXP '^{$alias}$'");
                 $row = $this->db->getRow($rs);
                 
                 if($row) $id = $row['id'];
