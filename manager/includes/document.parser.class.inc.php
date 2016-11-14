@@ -357,7 +357,10 @@ class DocumentParser {
         {
             $qs = $_GET;
             if(isset($qs['id'])) unset($qs['id']);
-            if(0 < count($qs)) $qs_hash = '_' . md5(join('&',$qs));
+            if(0 < count($qs)) {
+                ksort($qs);
+                $qs_hash = '_' . md5(join('&',$qs));
+            }
             else $qs_hash = '';
             $userID = $this->getLoginUserID('web');
             if($userID) $qs_hash = md5($qs_hash."^{$userID}^");
