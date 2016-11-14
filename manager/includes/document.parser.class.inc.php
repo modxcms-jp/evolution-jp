@@ -937,21 +937,10 @@ class DocumentParser {
 
     function checkPreview()
     {
-        if ($this->checkSession() == true)
-        {
-            if (isset ($_REQUEST['z']) && $_REQUEST['z'] == 'manprev')
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+        if($this->checkSession()!=true) return false;
+        
+        if(isset($_REQUEST['z']) && $_REQUEST['z']=='manprev') return true;
+        else                                                   return false;
     }
     
     // check if site is offline
