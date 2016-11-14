@@ -244,15 +244,16 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
                 //remove empty values
                 $fields[$name] = array_filter($value, create_function('$v','return (!empty($v));'));
             } else {
-                $value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
-                if ($allowhtml || $formats[$name][2]=='html') {
-                    $fields[$name] = stripslashes($value);
-                } else {
-                    $fields[$name] = strip_tags(stripslashes($value));
-                }
+                if(get_magic_quotes_gpc())                     $value = stripslashes($value);
+                if (!$allowhtml || $formats[$name][2]!='html') $value = strip_tags($value);
+                else                                           $value = $modx->htmlspecialchars($value);
+                $fields[$name] = $value;
             }
         }
 
+        # sanitize the values with slashes stripped to avoid remote execution of Snippets
+        $modx->sanitize_gpc($fields);
+        
         # get uploaded files
         foreach ($_FILES as $name => $value){
             $fields[$name] = $value;
@@ -267,9 +268,6 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
                 $rClass['vericode']=$invalidClass; //added in 1.4.4
             }
         }
-
-        # sanitize the values with slashes stripped to avoid remote execution of Snippets
-        $modx->sanitize_gpc($fields);
 
         # validate fields
         foreach($fields as $name => $value) {
