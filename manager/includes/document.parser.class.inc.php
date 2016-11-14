@@ -108,7 +108,7 @@ class DocumentParser {
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
             } else {
                 $title = 'Call undefined method';
-                $msg = htmlspecialchars("\$modx->{$method_name}() is undefined function");
+                $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
             $info = debug_backtrace();
             $m[] = $msg;
