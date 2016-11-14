@@ -1216,14 +1216,14 @@ class DocumentParser {
         return $tags;
     }
     
-    function getUltimateParentId($id,$top=0) {
+    function getUltimateParentId($docid,$top=0) {
         $i=0;
-        while ($id &&$i<20) {
-            if($top==$this->aliasListing[$id]['parent']) break;
-            $id = $this->aliasListing[$id]['parent'];
+        while ($docid &&$i<20) {
+            if($top==$this->aliasListing[$docid]['parent']) break;
+            $docid = $this->aliasListing[$docid]['parent'];
             $i++;
         }
-        return $id;
+        return $docid;
     }
     // mod by Raymond
     function mergeDocumentContent($content,$convertValue=true)
