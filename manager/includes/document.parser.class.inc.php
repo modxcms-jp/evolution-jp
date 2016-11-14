@@ -922,11 +922,13 @@ class DocumentParser {
     }
     
     // check for manager login session
-    function isLoggedin()
+    function isLoggedin($context='mgr')
     {
-        if(isset($_SESSION['mgrValidated']) && !empty($_SESSION['mgrValidated']))
-            return true;
-        else return false;
+        if(substr($context,0,1)=='m') $_ = 'mgrValidated';
+        else                          $_ = 'webValidated';
+        
+        if(isset($_SESSION[$_]) && !empty($_SESSION[$_])) return true;
+        else                                              return false;
     }
 
     function checkSession() {
