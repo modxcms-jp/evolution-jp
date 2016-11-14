@@ -347,6 +347,7 @@ class Wayfinder {
         
         $depth = !empty($this->_config['level']) ? $this->_config['level'] : 10;
         $ids = array();
+        $resourceArray = array();
         
         if(strtolower(substr($this->_config['id'],0,1))==='p')
             $this->_config['id'] = $this->getParentID($modx->documentIdentifier);
@@ -446,7 +447,6 @@ class Wayfinder {
             //run the query
             $result = $modx->db->select($fields,$from,$where,$sort,$limit);
             
-            $resourceArray = array();
             $level = 1;
             $prevParent = -1;
             //Setup startlevel for determining each items level
