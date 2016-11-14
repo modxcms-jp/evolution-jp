@@ -1170,31 +1170,6 @@ class SubParser {
                 elseif($field_type==='dropdown')     $ph['size']   = '1';
                 $field_html =  $modx->parseTextSimple($tpl,$ph);
                 break;
-            case "url": // handles url input fields
-                $field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
-                $urls= array(''=>'--', 'DocID'=>'DocID', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
-                $tpl = '<option value="[+value+]" [+selected+]>[+name+]</option>';
-                $option = array();
-                foreach($urls as $k => $v)
-                {
-                  if( $k == 'DocID' )
-                  {
-                    $tmp = preg_replace('/\A\[~([0-9]+)~\]\z/','$1',$field_value);
-                    $selected = ($tmp != $field_value) ? 'selected' : '';
-                    $field_value = $tmp;
-                  }
-                  else
-                  {
-                    $selected = (strpos($field_value,$v)!==false) ? 'selected' : '';
-                    if(strpos($field_value,$v)!==false)
-                      $field_value = str_replace($v,'',$field_value);
-                  }
-                  $option[] = $modx->parseTextSimple($tpl,array('name'=>$k,'value'=>$v,'selected'=>$selected));
-                }
-                $field_html .= join("\n", $option) . "\n";
-                $field_html .='</select></td><td>';
-                $field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
-                break;
             case "checkbox": // handles check boxes
                 $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
                 if(!is_array($field_value)) $field_value = explode('||',$field_value);
