@@ -818,7 +818,7 @@ class DocumentParser {
         
         $content = file_get_contents($filepath);
         if($content) {
-            $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+            $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: {$mime_type}");
             echo $this->documentOutput;
