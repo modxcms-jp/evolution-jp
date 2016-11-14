@@ -398,8 +398,6 @@ class DocumentParser {
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
                     exit($this->parseTextSimple($tpl,$this->config));
                 }
-                else
-                    $this->documentObject['content'] = $this->config['site_unavailable_message'];
             }
             
             if($this->http_status_code == '200')
