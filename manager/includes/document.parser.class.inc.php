@@ -688,11 +688,6 @@ class DocumentParser {
                 mkdir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}",0777, true);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             $this->saveToFile($page_cache_path, $cacheContent);
-            $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
-            if(count($this->aliasCache)<7000) {
-                $aliasCache = serialize($this->aliasCache);
-                $this->saveToFile($alias_cache_path, $aliasCache);
-            }
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
