@@ -1220,12 +1220,18 @@ class SubParser {
                 $custom_output = '';
                 /* If we are loading a file */
                 if(substr($field_elements, 0, 5) == '@FILE') {
-                    $path = MODX_BASE_PATH . trim(substr($field_elements, 6));
-                    if(!is_file($path)) $custom_output = $path . ' does not exist';
-                    else                $custom_output = file_get_contents($path);
+                    $path_str = substr($field_elements, 6);
+                    $lfpos = strpos($path_str,"\n");
+                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
+                    $path_str = MODX_BASE_PATH . trim($path_str);
+                    if(!is_file($path_str)) $custom_output = $path_str . ' does not exist';
+                    else                    $custom_output = file_get_contents($path_str);
                 }
                 elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
-                    $path_str = trim(substr($field_elements, 9));
+                    $path_str = substr($field_elements, 9);
+                    $lfpos = strpos($path_str,"\n");
+                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
+                    $path_str = trim($path_str);
                     if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
                     elseif(is_file( MODX_BASE_PATH.$path_str))          $path = MODX_BASE_PATH . $path_str;
                     else                                                $path = false;
@@ -1315,6 +1321,8 @@ class SubParser {
             $v = trim($v);
             if(strpos($v,'||')===false && strpos(trim($v),"\n")!==false)
                 $v = str_replace("\n",'||',$v);
+            elseif(strpos($v,'||')===false && strpos(trim($v),"\n")===false && strpos(trim($v),',')!==false)
+                $v = str_replace(',','||',$v);
             $a = explode('||', $v);
         }
         return $a;
@@ -1960,7 +1968,10 @@ class SubParser {
         {
             $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
         }
+        
+        $modx->getSettings();
     }
+    
     function mergeInlineFilter($content)
     {
         global $modx;
