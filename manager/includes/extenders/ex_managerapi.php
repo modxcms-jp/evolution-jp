@@ -228,7 +228,6 @@ class ManagerAPI {
 	{
 		global $modx;
 		
-		if($flag!=1) return;
         if(isset($_GET['frame']) && $_GET['frame']==='main')
         {
         	switch($modx->manager->action)
@@ -294,7 +293,8 @@ class ManagerAPI {
             	default :
         	}
         }
-
+        
+		if($flag!=1) return;
 		$referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 		
 		if(empty($referer))
