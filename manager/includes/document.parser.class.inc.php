@@ -1252,25 +1252,7 @@ class DocumentParser {
             }
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            elseif($convertValue)
-            {
-                switch($key)
-                {
-                    case 'createdon':
-                    case 'editedon':
-                    case 'publishedon':
-                    case 'pub_date':
-                    case 'unpub_date':
-                        $value = $this->toDateFormat($value);
-                        break;
-                    case 'createdby':
-                    case 'editedby':
-                    case 'publishedby':
-                        $_ = $this->getUserInfo($value);
-                        $value = $_['username'];
-                        break;
-                }
-            }
+            elseif($convertValue)  $value = $this->getReadableValue($key,$value);
             
             $content= str_replace($matches[0][$i], $value, $content);
         }
@@ -1292,6 +1274,25 @@ class DocumentParser {
         if($modifiers!==false) $modifiers = trim($modifiers);
         
         return array($key,$modifiers);
+    }
+    
+    function getReadableValue($key,$value) {
+        switch($key) {
+            case 'createdon':
+            case 'editedon':
+            case 'publishedon':
+            case 'pub_date':
+            case 'unpub_date':
+                $value = $this->toDateFormat($value);
+                break;
+            case 'createdby':
+            case 'editedby':
+            case 'publishedby':
+                $_ = $this->getUserInfo($value);
+                $value = $_['username'];
+                break;
+        }
+        return $value;
     }
     
     function _contextValue($key) {
