@@ -130,8 +130,6 @@ class DocumentParser {
         $this->setConfig();
         $this->loadExtension('DocumentAPI');
         
-        if($this->isBackend()) $this->loadExtension('ManagerAPI');
-        
         // events
         $this->event= new SystemEvent();
         $this->Event= & $this->event; //alias for backward compatibility
