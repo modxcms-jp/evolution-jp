@@ -176,8 +176,10 @@ function get_tmplvars($id=0)
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
-		if(!isset($form_v[$tvid]) && $row['type']!=='checkbox' && $row['type']!=='listbox-multiple' && $row['type']!=='custom_tv')
-			continue;
+    	if(!isset($form_v[$tvid])) {
+    		$multi_type = array('checkbox','listbox-multiple','custom_tv');
+    		if(!in_array($row['type'], $multi_type)) continue;
+    	}
 		
 		if($row['type']==='url') {
 			if( $form_v["{$tvid}_prefix"] === 'DocID' ){
