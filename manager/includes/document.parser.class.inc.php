@@ -2087,15 +2087,10 @@ class DocumentParser {
         $docid = $documentObject['id'];
         
         // load TVs and merge with document - Orig by Apodigm - Docvars
-        $f[] = 'tv.name';
-        $f[] = "IF(tvc.value!='',tvc.value,tv.default_text) as value";
-        $f[] = 'tv.display';
-        $f[] = 'tv.display_params';
-        $f[] = 'tv.type';
-        $field = implode(',',$f);
+        $field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) AS value, tv.display, tv.display_params, tv.type";
         $from  = "[+prefix+]site_tmplvars tv ";
-        $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
+        $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id ";
+        $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
         if( isset($previewObject['template']) )
             $tmp = $previewObject['template'];
         else
