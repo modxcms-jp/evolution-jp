@@ -1784,12 +1784,13 @@ class DocumentParser {
         }
     }
     
-    function evalSnippets($content,$nest=0)
+    function evalSnippets($content)
     {
         if(strpos($content,'[[')===false) return $content;
         
         if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');
+        
         if(!$matches) return $content;
         $this->snipLapCount++;
         if ($this->dumpSnippets)
@@ -1808,8 +1809,7 @@ class DocumentParser {
                 }
             }
             $this->currentSnippetCall = $matches[0][$i];
-            $value = $this->_get_snip_result($value);
-            $replace[$i] = $value;
+            $replace[$i] = $this->_get_snip_result($value);
         }
         
         if($this->dumpSnippets) $this->dumpSnippetsCode[] = '</div></fieldset>';
