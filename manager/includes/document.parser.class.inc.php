@@ -1854,25 +1854,36 @@ class DocumentParser {
     }
     
     function _getSplitPosition($str) {
-        $chars = str_split($str);
-        $pass = false;
-        $i = -1;
-        $pos = false;
+        $closeOpt = false;
+        $maybePos = false;
         $inFilter = false;
-        foreach($chars as $c) {
-            $i++;
-            if($inFilter)    {
-                if    ($c===')') { $pass = false; continue; }
-                elseif($pass)    { continue; }
-                elseif($c==='(') { $pass=true; continue; }
-                elseif($c==='?') { $pos=$i; break; }
-                elseif($c===' ') { 
-                    if(strpos($str,'?')===false) {$pos = $i; break;}
-                }
+        $total = strlen($str);
+        $i=0;
+        for($i=0;$i<$total;$i++) {
+            $c  = substr($str,$i,1);
+            $cc = substr($str,$i,2);
+            if(!$inFilter) {
+                if($c===':')                  $inFilter=true;
+                elseif($c==='?')              $pos = $i;
+                elseif($c===' ')              $maybePos = $i;
+                elseif($c==='&' && $maybePos) $pos = $maybePos;
+                elseif($c==="\n")             $pos = $i;
+                else                          $pos = false;
             }
-            elseif($c===':')     { $inFilter=true; }
-            elseif($c==='?')     { $pos = $i; break; }
-            else                 $pos = false;
+            else {
+                if    ($cc==$closeOpt) $closeOpt = false;
+                elseif($c==$closeOpt)  $closeOpt = false;
+                elseif($closeOpt)      continue;
+                elseif($cc==="('")     $closeOpt = "')";
+                elseif($cc==='("')     $closeOpt = '")';
+                elseif($cc==='(`')     $closeOpt = '`)';
+                elseif($c==='(')       $closeOpt = ')';
+                elseif($c==='?')       $pos=$i;
+                elseif($c===' ' && strpos($str,'?')===false)
+                                       $pos = $i;
+                else                   $pos = false;
+            }
+            if($pos) break;
         }
         return $pos;
     }
@@ -1883,26 +1894,13 @@ class DocumentParser {
         if(strpos($call,']]>')!==false)
             $call = str_replace(']]>', "]{$spacer}]>",$call);
         
-        $pos['?']  = $this->_getSplitPosition($call);
-        $pos['&']  = strpos($call, '&');
-        $pos['=']  = strpos($call, '=');
-        $pos['lf'] = strpos($call, "\n");
+        $splitPosition  = $this->_getSplitPosition($call);
         
-        if($pos['?'] !== false)
+        if($splitPosition !== false)
         {
-            if($pos['lf']!==false && $pos['?'] < $pos['lf'])
-                list($name,$params) = explode('?',$call,2);
-            elseif($pos['lf']!==false && $pos['lf'] < $pos['?'])
-                list($name,$params) = explode("\n",$call,2);
-            else {
-                $name   = substr($call, 0, $pos['?']);
-                $params = substr($call, $pos['?']+1);
-            }
+            $name   = substr($call, 0, $splitPosition);
+            $params = substr($call, $splitPosition+1);
         }
-        elseif($pos['&'] !== false && $pos['='] !== false && $pos['?'] === false)
-            list($name,$params) = explode('&',$call,2);
-        elseif($pos['lf'] !== false)
-            list($name,$params) = explode("\n",$call,2);
         else
         {
             $name   = $call;
@@ -1913,6 +1911,7 @@ class DocumentParser {
         if(strpos($params,$spacer)!==false)
             $params = str_replace("]{$spacer}]>",']]>',$params);
         $snip['params'] = $params = ltrim($params,"?& \t\n");
+        
         return $snip;
     }
     
