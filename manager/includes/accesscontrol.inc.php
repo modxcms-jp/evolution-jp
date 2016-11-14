@@ -68,7 +68,7 @@ if(!isset($_SESSION['mgrValidated']))
 
 	global $tpl;
 	
-    if(is_file($touch_path))
+    if(is_file($touch_path) && time() < filemtime($touch_path)+300)
     {
         $modx->safeMode = 1;
         $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
