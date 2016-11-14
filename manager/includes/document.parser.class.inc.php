@@ -72,6 +72,7 @@ class DocumentParser {
     var $chunkieCache;
     var $template_path;
     var $lastInstallTime;
+    var $tmpCache = array();
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -2456,8 +2457,8 @@ class DocumentParser {
     {
         if($id==0) $id = $this->config['site_start'];
         elseif($id=='') $id = $this->documentIdentifier;
-        $cacheKey = "[{$id}-{$alias}-{$args}-{$scheme}]";
-        if(isset($this->functionCache['makeurl'][$cacheKey])) return $this->functionCache['makeurl'][$cacheKey];
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($this->tmpCache['makeurl'][$cacheKey])) return $this->tmpCache['makeurl'][$cacheKey];
         $makeurl= '';
         $f_url_prefix = $this->config['friendly_url_prefix'];
         $f_url_suffix = $this->config['friendly_url_suffix'];
@@ -2479,7 +2480,7 @@ class DocumentParser {
                 $id = $this->referenceListing[$id];
             }
             else {
-                $this->functionCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
+                $this->tmpCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
                 return $this->referenceListing[$id];
             }
         }
@@ -2596,7 +2597,7 @@ class DocumentParser {
         if( $url != $params['url'] )
           $url = $params['url'];
         
-        $this->functionCache['makeurl'][$cacheKey] = $url;
+        $this->tmpCache['makeurl'][$cacheKey] = $url;
         return $url;
     }
     
