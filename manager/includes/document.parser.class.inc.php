@@ -1393,7 +1393,7 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             $snip_call = $this->_split_snip_call($key);
             $key = $snip_call['name'];
-            $ph = $this->_snipParamsToArray($snip_call['params']);
+            $ph = $this->getParamsFromString($snip_call['params']);
             if(substr($key,0,6)==='@FILE:') $key = '@FILE ' . substr($key,6);
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
@@ -1735,7 +1735,7 @@ class DocumentParser {
         $this->currentSnippet = $key;
         
         // current params
-        $params = $this->_snipParamsToArray($snip_call['params']);
+        $params = $this->getParamsFromString($snip_call['params']);
         
         if(isset($snippetObject['properties']))
         {
@@ -1760,7 +1760,7 @@ class DocumentParser {
         return $value;
     }
     
-    function _snipParamsToArray($string='')
+    function getParamsFromString($string='') // _snipParamsToArray()
     {
         if(empty($string)) return array();
         
