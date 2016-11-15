@@ -3220,8 +3220,8 @@ class DocumentParser {
         if ($this->safeMode)                       $return = false;
         if (!$evtName)                             $return = false;
         if (!isset($this->pluginEvent[$evtName]))  $return = false;
-        if(!isset($this->pluginEvent[$evtName])
-         ||count($this->pluginEvent[$evtName])==0) $return = array();
+        if(isset($this->pluginEvent[$evtName])
+         &&count($this->pluginEvent[$evtName])==0) $return = array();
         if(empty($return)) {
             if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName})", $fstart);
             return $return;
