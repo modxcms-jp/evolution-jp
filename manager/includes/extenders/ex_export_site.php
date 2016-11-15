@@ -214,7 +214,7 @@ class EXPORT_SITE
 		
 		while($row = $modx->db->getRow($rs))
 		{
-			$_ = $modx->aliasListing[$row['id']]['path'];
+			$_ = $modx->getAliasListing($row['id'],'path');
 			$target_base_path = $_=='' ? $this->targetDir . '/' : $this->targetDir . '/' . $_ . '/';
 			if (!is_dir($target_base_path))
 			{
