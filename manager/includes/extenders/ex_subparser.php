@@ -1790,9 +1790,11 @@ class SubParser {
     
     function genTokenString() {
         global $modx;
+        if(isset($modx->tmpCache['tokenString'])) return $modx->tmpCache['tokenString'];
         $key = md5(mt_rand());
         $key = base_convert($key,16,36);
         $key = substr($key,0,12);
+        $modx->tmpCache['tokenString'] = $key;
         return $key;
     }
 
