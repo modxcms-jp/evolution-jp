@@ -1788,7 +1788,7 @@ class SubParser {
         return $qp['path'];
     }
     
-    function genToken() {
+    function genTokenString() {
         global $modx;
         $key = md5(mt_rand());
         $key = base_convert($key,16,36);

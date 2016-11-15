@@ -98,7 +98,7 @@ if($modx->doc->mode==='normal') {
 }
 
 $ph['actionButtons'] = getActionButtons($id);
-$ph['token'] = $modx->genToken();
+$ph['token'] = $modx->genTokenString();
 $_SESSION['token'] = $ph['token'];
 
 echo parseText($tpl['head'],$ph);

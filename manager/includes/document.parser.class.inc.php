@@ -88,7 +88,7 @@ class DocumentParser {
     
     function __call($method_name, $arguments)
     {
-        $_ = explode(',', 'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genToken,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
+        $_ = explode(',', 'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
         if(in_array($method_name, $_)) {
             $this->loadExtension('SubParser');
             if(method_exists($this->sub,$method_name))
@@ -1643,6 +1643,7 @@ class DocumentParser {
                     if(20<$safe) break;
                 }
                 $cmd = ltrim($cmd);
+                $cmd = rtrim($cmd,'-');
                 $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
                 
                 if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
@@ -2691,12 +2692,12 @@ class DocumentParser {
             
             if(preg_match('/^[0-9]+$/',$key))
             {
-                $id = $key;
-                if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
+                $docid = $key;
+                if(isset($this->referenceListing[$docid]) && preg_match('/^[0-9]+$/',$this->referenceListing[$docid] ))
                 {
-                    $id = $this->referenceListing[$id];
+                    $docid = $this->referenceListing[$docid];
                 }
-                $replace[$i] = $this->makeUrl($id,'','','rel');
+                $replace[$i] = $this->makeUrl($docid,'','','rel');
                 if(!$replace[$i])
                 {
                     $ph['linktag']     = "[~{$key_org}~]";
@@ -2709,7 +2710,8 @@ class DocumentParser {
             }
             else
             {
-                $replace[$i] = $key;
+                $docid = $this->getIdFromAlias($key);
+                $replace[$i] = $docid;
             }
         }
         $content = str_replace($matches[0], $replace, $content);
@@ -3548,7 +3550,7 @@ class DocumentParser {
         return round($size,2).' '.$a[$pos];
     }
     
-    function getIdFromAlias($aliasPath)
+    function getIdFromAlias($aliasPath='')
     {
         if(isset($this->aliasCache[__FUNCTION__][$aliasPath]))
             return $this->aliasCache[__FUNCTION__][$aliasPath];

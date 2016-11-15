@@ -333,7 +333,7 @@ class ManagerAPI {
 	{
 		global $modx;
 		
-		$newToken = $modx->genToken();
+		$newToken = $modx->genTokenString();
 		$_SESSION['token'] = $newToken;
 		return $newToken;
 	}
