@@ -907,7 +907,7 @@ class DocumentParser {
     }
     
     // check for manager login session
-    function isLoggedin($context='mgr')
+    function isLoggedIn($context='mgr')
     {
         if(substr($context,0,1)=='m') $_ = 'mgrValidated';
         else                          $_ = 'webValidated';
