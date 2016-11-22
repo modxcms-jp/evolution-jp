@@ -1532,19 +1532,24 @@ class DocumentParser {
     }
     
     // Added by Raymond
-    function mergePlaceholderContent($content)
-    {
+    function mergePlaceholderContent($content,$ph=false) {
+        
         if(strpos($content,'[+')===false) return $content;
-        if(!is_array($this->placeholders)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->placeholders;
+        
+        $replace = array();
         $content=$this->mergeSettingsContent($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
+            
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            if (isset($this->placeholders[$key])) $value = $this->placeholders[$key];
+            if (isset($ph[$key])) $value = $ph[$key];
+            elseif($modifiers)    $value = '';
             elseif($key==='phx') $value = '';
             else continue;
             
