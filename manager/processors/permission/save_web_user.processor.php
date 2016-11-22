@@ -412,7 +412,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 	$ph['sname'] = $site_name;
 	$ph['semail'] = $emailsender;
 	$ph['surl'] = $site_url;
-	$message = $modx->parseTextSimple($message,$ph);
+	$message = $modx->parseText($message,$ph);
 	$message = $modx->mergeSettingsContent($message);
 	$message = $modx->mergeChunkContent($message);
 	$message = $modx->rewriteUrls($message);

@@ -389,7 +389,7 @@ class DocumentParser {
                 if (!$this->config['site_unavailable_page']) {
                     header("Content-Type: text/html; charset={$this->config['modx_charset']}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
-                    exit($this->parseTextSimple($tpl,$this->config));
+                    exit($this->parseText($tpl,$this->config));
                 }
             }
             
@@ -1360,7 +1360,7 @@ class DocumentParser {
             if(isset($ph[$key]))             $value = $ph[$key];
             elseif(strpos($key,'@')!==false) $value = $this->_contextValue($key);
             elseif($modifiers)               $value = '';
-            else                             $value = $matches[0][$i];
+            else                             $value = '';
             
             if (is_array($value)) {
                 if($modifiers==='raw') $value = $value['value'];
@@ -2811,18 +2811,6 @@ class DocumentParser {
                 }
         
         return str_replace($matches[0], $replace, $tpl);
-    }
-    
-    function parseTextSimple($tpl='', $ph=array(), $left= '[+', $right= '+]')
-    {
-        if(!$ph)  return $tpl;
-        if(!$tpl) return $tpl;
-        
-        foreach($ph as $k=>$v) {
-            $k = "{$left}{$k}{$right}";
-            if(strpos($tpl,$k)!==false) $tpl = str_replace($k,$v,$tpl);
-        }
-        return $tpl;
     }
     
     function toDateFormat($timestamp = 0, $mode = '')

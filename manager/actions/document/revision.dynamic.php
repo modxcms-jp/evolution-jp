@@ -32,7 +32,7 @@ switch($_GET['mode'])
 
 $tpl = tpl();
 
-echo $modx->parseTextSimple($tpl,$ph);
+echo $modx->parseText($tpl,$ph);
 
 function tpl()
 {

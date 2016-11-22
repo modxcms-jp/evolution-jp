@@ -369,7 +369,7 @@ function result($status='ok',$ph=array())
 	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
 	if(!isset($ph['msg'])) $ph['msg'] = '';
 	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
-	return $modx->parseTextSimple($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function get_langs()

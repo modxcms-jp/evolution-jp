@@ -664,7 +664,7 @@ $ph['itemDocInfo']      = itemDocInfo(); // undelete
 $ph['itemViewPage']     = itemViewPage(); // preview
 
 $tpl = getTplCtxMenu();
-echo $modx->parseTextSimple($tpl,$ph);
+echo $modx->parseText($tpl,$ph);
 
 ?>
 </body>
@@ -692,7 +692,7 @@ function itemEditDoc() {
 	$ph['action'] = '27';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang['edit_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemCreateDraft() {
@@ -704,7 +704,7 @@ function itemCreateDraft() {
 	$ph['action'] = 'createDraft';
 	$ph['img']    = $_style['icons_new_document'];
 	$ph['text']   = $_lang["create_draft"];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemEditDraft() {
@@ -716,7 +716,7 @@ function itemEditDraft() {
 	$ph['action'] = 'editDraft';
 	$ph['img']    = $_style['icons_edit_document'];
 	$ph['text']   = $_lang["edit_draft"];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemDocList() {
@@ -727,7 +727,7 @@ function itemDocList() {
 	$ph['action'] = '120';
 	$ph['img']    = $_style['icons_table'];
 	$ph['text']   = $_lang['view_child_resources_in_container'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemNewDoc() {
@@ -738,7 +738,7 @@ function itemNewDoc() {
 	$ph['action'] = '4';
 	$ph['img']    = $_style['icons_new_document'];
 	$ph['text']   = $_lang['create_resource_here'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemMoveDoc() {
@@ -749,7 +749,7 @@ function itemMoveDoc() {
 	$ph['action'] = '51';
 	$ph['img']    = $_style['icons_move_document'];
 	$ph['text']   = $_lang['move_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemDuplicateDoc() {
@@ -760,7 +760,7 @@ function itemDuplicateDoc() {
 	$ph['action'] = '94';
 	$ph['img']    = $_style['icons_resource_duplicate'];
 	$ph['text']   = $_lang['resource_duplicate'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemSeperator1() {
@@ -779,7 +779,7 @@ function itemPubDoc() {
 	$ph['action'] = '61';
 	$ph['img']    = $_style['icons_publish_document'];
 	$ph['text']   = $_lang['publish_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemUnPubDoc() {
@@ -790,7 +790,7 @@ function itemUnPubDoc() {
 	$ph['action'] = '62';
 	$ph['img']    = $_style['icons_unpublish_resource'];
 	$ph['text']   = $_lang['unpublish_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemDelDoc() {
@@ -801,7 +801,7 @@ function itemDelDoc() {
 	$ph['action'] = '6';
 	$ph['img']    = $_style['icons_delete'];
 	$ph['text']   = $_lang['delete_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemUndelDoc() {
@@ -812,7 +812,7 @@ function itemUndelDoc() {
 	$ph['action'] = '63';
 	$ph['img']    = $_style['icons_undelete_resource'];
 	$ph['text']   = $_lang['undelete_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemDelDocComplete() {
@@ -823,7 +823,7 @@ function itemDelDocComplete() {
 	$ph['action'] = '64';
 	$ph['img']    = $_style['icons_delete_complete'];
 	$ph['text']   = $_lang['delete_resource_complete'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemSeperator2() {
@@ -842,7 +842,7 @@ function itemWebLink() {
 	$ph['action'] = '72';
 	$ph['img']    = $_style['icons_weblink'];
 	$ph['text']   = $_lang['create_weblink_here'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemSeperator3() {
@@ -861,7 +861,7 @@ function itemDocInfo() {
 	$ph['action'] = '3';
 	$ph['img']    = $_style['icons_information'];
 	$ph['text']   = $_lang['resource_overview'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }
 
 function itemViewPage() {
@@ -871,5 +871,5 @@ function itemViewPage() {
 	$ph['action'] = 'pv';
 	$ph['img']    = $_style['icons_information'];
 	$ph['text']   = $_lang['preview_resource'];
-	return $modx->parseTextSimple($tpl, $ph);
+	return $modx->parseText($tpl, $ph);
 }

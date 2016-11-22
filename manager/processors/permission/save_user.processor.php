@@ -456,7 +456,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 	$site_url       = $modx->config['site_url'];
 	$ph['site_url'] = $site_url;
 	$ph['surl']     = "{$site_url}manager/";
-	$message = $modx->parseTextSimple($modx->config['signupemail_message'],$ph);
+	$message = $modx->parseText($modx->config['signupemail_message'],$ph);
 	$message = $modx->mergeSettingsContent($message);
 
 	$rs = $modx->sendmail($email,$message);

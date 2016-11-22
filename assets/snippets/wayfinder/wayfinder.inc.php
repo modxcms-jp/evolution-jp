@@ -126,7 +126,7 @@ class Wayfinder {
         else                                                            $tpl = $this->_templates['outerTpl'];
         
         //Process the wrapper
-        $subMenuOutput = $modx->parseTextSimple($tpl,$ph);
+        $subMenuOutput = $modx->parseText($tpl,$ph);
         //Debug
         if ($this->_config['debug']) {
             $info = array();

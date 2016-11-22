@@ -200,7 +200,7 @@ EOD;
 		$ph['fine_print']   = $_lang['forgot_password_email_fine_print'];
 		
 		$tpl = file_get_contents($this->fmp_path . 'sendmail.tpl');
-		$body = $this->parseText($tpl,$ph);
+		$body = $modx->parseText($tpl,$ph);
 		$body = $modx->parseDocumentSource($body);
 		
 		$mail['subject'] = $_lang['password_change_request'];
@@ -210,16 +210,6 @@ EOD;
 		
 		if(!$result) $this->errors[] = $_lang['error_sending_email'];
 		return $result;
-	}
-	
-	function parseText($tpl='',$ph=array())
-	{
-		foreach($ph as $k=>$v)
-		{
-			$k = "[+{$k}+]";
-			$tpl = str_replace($k,$v,$tpl);
-		}
-		return $tpl;
 	}
 	
 	function getVar($varName)

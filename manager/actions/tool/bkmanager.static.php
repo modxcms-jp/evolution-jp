@@ -60,7 +60,7 @@ elseif ($mode=='snapshot')
 	}
 	if(!is_writable(rtrim($modx->config['snapshot_path'],'/')))
 	{
-		echo $modx->parseTextSimple($_lang["bkmgr_alert_mkdir"],array('snapshot_path'=>$modx->config['snapshot_path']));
+		echo $modx->parseText($_lang["bkmgr_alert_mkdir"],array('snapshot_path'=>$modx->config['snapshot_path']));
 		exit;
 	}
 	
@@ -333,7 +333,7 @@ if(isset($_SESSION['last_result']) || !empty($_SESSION['last_result']))
 <div class="tab-page" id="tabSnapshot">
 	<h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"];?></h2>
 	<?php echo $ph['result_msg']; ?>
-	<?php echo $modx->parseTextSimple($_lang["bkmgr_snapshot_msg"],array('snapshot_path'=>$modx->config['snapshot_path']));?>
+	<?php echo $modx->parseText($_lang["bkmgr_snapshot_msg"],array('snapshot_path'=>$modx->config['snapshot_path']));?>
 	<form method="post" name="snapshot" action="index.php">
 	<input type="hidden" name="a" value="307" />
 	<input type="hidden" name="mode" value="snapshot" />

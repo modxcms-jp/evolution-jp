@@ -22,4 +22,4 @@ foreach($_ as $k) {
 }
 if($ph['database_server'] == '127.0.0.1') $ph['database_server'] = 'localhost';
 $src = file_get_contents("{$base_path}install/tpl/connection.tpl");
-echo  $modx->parseTextSimple($src,$ph);
+echo  $modx->parseText($src,$ph);

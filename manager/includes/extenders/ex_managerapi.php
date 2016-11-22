@@ -463,7 +463,7 @@ class ManagerAPI {
     	$tpl = '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
     	$ph['class'] = $ph['label']==$_lang['cancel'] ? 'class="mutate"' : '';
-    	return $modx->parseTextSimple($tpl,$ph);
+    	return $modx->parseText($tpl,$ph);
     }
     
 	//Helper functions for categories
@@ -559,7 +559,7 @@ class ManagerAPI {
 		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl');
 		$ph['alerts'] = $modx->db->escape($sysMsgs);
 		$ph['title']  = $_lang['sys_alert'];
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function getMessageCount() {
@@ -697,7 +697,7 @@ class ManagerAPI {
 		if(!isset($ph['tab-pages'])) $ph['tab-pages'] = 'content';
 		elseif(is_array($ph['tab-pages'])) join("\n", $ph['tab-pages']);
 		
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderTabPage($ph) {
@@ -713,7 +713,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderSection($ph) {
@@ -729,7 +729,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderTr($ph) {
@@ -745,7 +745,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function isAllowed($id)
