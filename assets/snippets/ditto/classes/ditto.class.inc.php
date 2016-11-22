@@ -330,7 +330,15 @@ class ditto {
 		unset($PHs);
 		if($modifier_mode==='normal')
 		{
-            $output = $modx->parseText($template,$placeholders,'[+','+]',false);
+			$output = $template;
+			$bt     = md5('');
+			$i=0;
+			while($bt!==md5($output)) {
+				$bt = md5($output);
+                $output = $modx->parseText($output,$placeholders);
+                if(10<$i) break;
+                $i++;
+			}
 		}
 		elseif($modifier_mode==='phx')
 		{
