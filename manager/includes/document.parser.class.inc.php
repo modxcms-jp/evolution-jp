@@ -2808,7 +2808,10 @@ class DocumentParser {
             elseif($modifiers)   $value = '';
             else                 $value = $matches[0][$i];
                 
-                    if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            if($modifiers!==false) {
+                $modifiers = $this->parseText($modifiers,$ph,$left,$right);
+                $value = $this->applyFilter($value,$modifiers,$key);
+            }
                     $replace[$i]= $value;
                 }
         
