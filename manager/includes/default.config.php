@@ -1,4 +1,6 @@
 <?php
+$default_config['site_url']                 = MODX_SITE_URL;
+$default_config['base_url']                 = MODX_BASE_URL;
 $default_config['allow_duplicate_alias']    = '0';
 $default_config['allow_mgr2web']            = '0';
 $default_config['auto_menuindex']           = '1';
