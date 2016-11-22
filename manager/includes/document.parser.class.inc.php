@@ -1340,13 +1340,14 @@ class DocumentParser {
         return $docid;
     }
     // mod by Raymond
-    function mergeDocumentContent($content,$convertValue=true)
-    {
+    function mergeDocumentContent($content,$ph=false,$convertValue=true) {
         if(!isset($this->documentIdentifier)) return $content;
         if(strpos($content,'[*')===false)     return $content;
         if(!isset($this->documentObject) || empty($this->documentObject)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->documentObject;
         
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
@@ -1356,9 +1357,10 @@ class DocumentParser {
             
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            if(strpos($key,'@')!==false)                $value = $this->_contextValue($key);
-            elseif(!isset($this->documentObject[$key])) $value = '';
-            else                                        $value= $this->documentObject[$key];
+            if(isset($ph[$key]))             $value = $ph[$key];
+            elseif(strpos($key,'@')!==false) $value = $this->_contextValue($key);
+            elseif($modifiers)               $value = '';
+            else                             $value = $matches[0][$i];
             
             if (is_array($value)) {
                 if($modifiers==='raw') $value = $value['value'];
