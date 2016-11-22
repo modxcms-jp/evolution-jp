@@ -1463,11 +1463,13 @@ class DocumentParser {
         $this->functionLog[] = $msg;
     }
     
-    function mergeSettingsContent($content)
-    {
-        if(strpos($content,'[(')===false) return $content;
+    function mergeSettingsContent($content,$ph=false) {
+        if (strpos($content, '[(') === false)
+            return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->config;
         
         $matches = $this->getTagsFromContent($content,'[(',')]');
         if(!$matches) return $content;
@@ -1476,13 +1478,11 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            if(isset($this->config[$key]))
-            {
-                $value = $this->config[$key];
-                if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            }
-            else $value = '';
+            if(isset($ph[$key])) $value = $ph[$key];
+            elseif($modifiers)   $value = '';
+            else                 $value = $matches[0][$i];
             
+                if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             $replace[$i]= $value;
         }
         
