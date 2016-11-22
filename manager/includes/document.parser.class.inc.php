@@ -1495,11 +1495,12 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeChunkContent($content)
-    {
+    function mergeChunkContent($content,$ph=false) {
         if(strpos($content,'{{')===false) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->chunkCache;
         
         $matches = $this->getTagsFromContent($content,'{{','}}');
         if(!$matches) return $content;
@@ -1508,12 +1509,13 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             $snip_call = $this->_split_snip_call($key);
             $key = $snip_call['name'];
-            $ph = $this->getParamsFromString($snip_call['params']);
-            if(substr($key,0,6)==='@FILE:') $key = '@FILE ' . substr($key,6);
+            $params = $this->getParamsFromString($snip_call['params']);
+            
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $value = $this->getChunk($key);
-            $value = $this->parseText($ph,$value,'[+','+]','hasModifier');
+            if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
+            $value = $ph[$key];
+            $value = !is_null($value) ? $this->mergePlaceholderContent($value,$params) : $matches[0][$i];
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
