@@ -2791,58 +2791,26 @@ class DocumentParser {
         return $src;
     }
 
-    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$flag=true)
+    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]')
     {
-        if(is_array($tpl)&&is_string($ph)) {list($ph,$tpl) = array($tpl,$ph);}
-        
         if(!$ph) return $tpl;
-        if ($this->debug) $fstart = $this->getMicroTime();
-        if(strpos($tpl,$left)===false) return $tpl;
-        elseif(is_string($ph) && strpos($ph,'='))
-        {
-            if(strpos($ph,',')) $pairs   = explode(',',$ph);
-            else                $pairs[] = $ph;
+        if(!$tpl) return $tpl;
             
-            unset($ph);
-            $ph = array();
-            foreach($pairs as $pair)
-            {
-                list($k,$v) = explode('=',trim($pair));
-                $ph[$k] = $v;
-            }
-        }
-        $c=0;
-        $bt='';
-        while($bt!==md5($tpl)) {
             $matches = $this->getTagsFromContent($tpl,$left,$right);
-            if(!$matches) break;
-            $bt = md5($tpl);
+        if(!$matches) return $tpl;
+        
             $replace= array ();
             foreach($matches[1] as $i=>$key) {
                 list($key,$modifiers) = $this->splitKeyAndFilter($key);
+            if(isset($ph[$key])) $value = $ph[$key];
+            elseif($modifiers)   $value = '';
+            else                 $value = $matches[0][$i];
                 
-                if($flag=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
-                
-                if(isset($ph[$key])) {
-                    $value = $ph[$key];
                     if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
                     $replace[$i]= $value;
                 }
-                elseif($flag) $replace[$i] = '';
-                else          $replace[$i] = $matches[0][$i];
-            }
-            $tpl= str_replace($matches[0], $replace, $tpl);
-            if(md5($tpl)===$bt) break;
-            $c++;
-            $flag = false;
-            if(20<$c) $this->messageQuit('parseText parse over');
-        }
-        if ($this->debug)
-        {
-            $_ = join(', ', $matches[0]);
-            $this->addLogEntry('$modx->'.__FUNCTION__ . "({$_})",$fstart);
-        }
-        return $tpl;
+        
+        return str_replace($matches[0], $replace, $tpl);
     }
     
     function parseTextSimple($tpl='', $ph=array(), $left= '[+', $right= '+]')
