@@ -1480,7 +1480,7 @@ class DocumentParser {
             
             if(isset($ph[$key])) $value = $ph[$key];
             elseif($modifiers)   $value = '';
-            else                 $value = $matches[0][$i];
+            else                 $value = '';
             
                 if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             $replace[$i]= $value;
@@ -1515,7 +1515,7 @@ class DocumentParser {
             
             if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
             $value = $ph[$key];
-            $value = !is_null($value) ? $this->mergePlaceholderContent($value,$params) : $matches[0][$i];
+            $value = !is_null($value) ? $this->mergePlaceholderContent($value,$params) : '';
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
