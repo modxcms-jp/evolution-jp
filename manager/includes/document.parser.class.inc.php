@@ -2796,6 +2796,8 @@ class DocumentParser {
         if(!$ph) return $tpl;
         if(!$tpl) return $tpl;
             
+        if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
+        
             $matches = $this->getTagsFromContent($tpl,$left,$right);
         if(!$matches) return $tpl;
         
