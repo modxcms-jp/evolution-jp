@@ -2712,7 +2712,7 @@ class DocumentParser {
                     $ph['linktag']     = "[~{$key_org}~]";
                     $ph['request_uri'] = $this->decoded_request_uri;
                     $ph['docid']       = $this->documentIdentifier;
-                    $tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>';
+                    $tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>' . MODX_SITE_URL;
                     $tpl = $this->parseText($tpl,$ph);
                     $this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
                 }
