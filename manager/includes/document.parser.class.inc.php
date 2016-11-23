@@ -1614,18 +1614,26 @@ class DocumentParser {
         if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);    // for jp
         if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);       // for jp
         
-        $delim = '#'.md5('ConditionalTags'.time()).'#';
+        $_ = '#'.md5('ConditionalTags'.time()).'#';
         $s = array('<@IF:', '<@ELSEIF:', '<@ELSE>', '<@ENDIF>');
-        $r = array($delim.'<@IF:', $delim.'<@ELSEIF:', $delim.'<@ELSE>', $delim.'<@ENDIF>');
+        $r = array("{$_}<@IF:", "{$_}<@ELSEIF:", "{$_}<@ELSE>", "{$_}<@ENDIF>");
         $content = str_replace($s, $r, $content);
-        $splits = explode($delim, $content);
+        $splits = explode($_, $content);
+        unset($_);
         foreach($splits as $i=>$split) {
             if($i===0) {
                 $content = $split;
                 $excute = false;
                 continue;
             }
-            if(substr($split,0,5)==='<@IF:' || substr($split,0,9)==='<@ELSEIF:') {
+            
+            if    (substr($split,0,5)==='<@IF:')     $scope = '@IF';
+            elseif(substr($split,0,9)==='<@ELSEIF:') $scope = '@ELSEIF';
+            elseif(substr($split,0,6)==='<@ELSE')    $scope = '@ELSE';
+            elseif(substr($split,0,7)==='<@ENDIF')   $scope = '';
+            else exit('Unknown error '.__LINE__);
+            
+            if($scope==='@IF' || $scope==='@ELSEIF') {
                 if($excute) continue;
                 $_ = md5('@:>@');
                 if(strpos($split,':>')!==false) $split = str_replace(':>', ':'.$_, $split);
@@ -1665,7 +1673,7 @@ class DocumentParser {
                 }
                 else $excute = false;
             }
-            elseif(substr($split,0,6)==='<@ELSE') {
+            elseif($scope==='@ELSE') {
                 if($excute) continue;
                 list(, $text) = explode('>', $split, 2);
                 $content .= $text;
