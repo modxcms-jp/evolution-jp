@@ -1608,14 +1608,14 @@ class DocumentParser {
         if ($this->debug) $fstart = $this->getMicroTime();
         
         if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content); // for jp
-        if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content); // for jp
+        if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
         if(strpos($content,$iftag)===false)          return $content;
         if(strpos($content,'<!--@ELSEIF:')!==false)  $content = str_replace('<!--@ELSEIF:', $elseiftag,  $content); // for jp
         if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);  // for jp
         if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);    // for jp
-        if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);       // for jp
+        if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);
         
-        $_ = '#'.md5('ConditionalTags'.time()).'#';
+        $_ = '#'.md5('ConditionalTags'.$_SERVER['REQUEST_TIME']).'#';
         $s = array('<@IF:', '<@ELSEIF:', '<@ELSE>', '<@ENDIF>');
         $r = array("{$_}<@IF:", "{$_}<@ELSEIF:", "{$_}<@ELSE>", "{$_}<@ENDIF>");
         $content = str_replace($s, $r, $content);
