@@ -3442,6 +3442,10 @@ class DocumentParser {
         $this->snippetCache[$name] = $phpCode;
     }
     
+    function addChunk($name, $text) {
+        $this->chunkCache[$name] = $text;
+    }
+    
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
