@@ -237,9 +237,14 @@ $s = '';
     */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
         global $modx;
+        
+        if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
+        if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
+        
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
         } else {
+            $fields = $this->replaceFullTableName($fields);
             $from = $this->replaceFullTableName($from);
             if($where !== '')   $where   = "WHERE {$where}";
             if($orderby !== '') $orderby = "ORDER BY {$orderby}";
@@ -829,5 +834,25 @@ $s = '';
                 $Collation = $row['Collation'];
         }
         return $Collation;
+    }
+    
+    function _getFieldsStringFromArray($fields=array()) {
+        
+        if(empty($fields)) return '*';
+        
+        $_ = array();
+        foreach($fields as $k=>$v) {
+            if($k!==$v) $_[] = "{$v} as {$k}";
+            else        $_[] = $v;
+        }
+        return join(',', $_);
+    }
+    
+    function _getFromStringFromArray($tables=array()) {
+        $_ = array();
+        foreach($tables as $k=>$v) {
+            $_[] = $v;
+        }
+        return join(' ', $_);
     }
 }
