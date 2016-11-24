@@ -396,15 +396,6 @@ function get_lang_options($lang_name)
 	return "\n" . join("\n",$option);
 }
 
-function genHash($password, $seed='1')
-{
-	$salt = md5($password . $seed);
-	$password = sha1($salt.$password);
-	$result = 'uncrypt>' . md5($salt.$password) . substr(md5($salt),0,8);
-	
-	return $result;
-}
-
 function collectTpls($path)
 {
 	$files1 = glob("{$path}*/*.install_base.tpl");

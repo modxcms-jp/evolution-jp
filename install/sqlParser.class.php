@@ -50,7 +50,7 @@ class SqlParser {
 		$ph = array();
 		$ph['PREFIX']            = $this->prefix;
 		$ph['ADMINNAME']         = $this->adminname;
-		$ph['ADMINPASS']         = genHash($this->adminpass, '1');
+		$ph['ADMINPASS']         = md5($this->adminpass);
 		$ph['ADMINEMAIL']        = $this->adminemail;
 		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
