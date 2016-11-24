@@ -3438,6 +3438,10 @@ class DocumentParser {
         return $this->filter->phxFilter($key,$value,$modifiers);
     }
     
+    function addSnippet($name, $phpCode) {
+        $this->snippetCache[$name] = $phpCode;
+    }
+    
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
