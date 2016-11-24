@@ -355,7 +355,15 @@ class ManagerAPI {
 		$modx->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
 	}
 	
-	function genHash($password, $seed='1')
+	function getHashType($db_value='') { // md5 | v1 | phpass
+		$c = substr($db_value,0,1);
+		if($c==='$')                                      return 'phpass';
+		elseif(strlen($db_value)===32)                    return 'md5';
+		elseif($c!=='$' && strpos($db_value,'>')!==false) return 'v1';
+		else                                              return 'unknown';
+	}
+	
+	function genV1Hash($password, $seed='1')
 	{ // $seed is user_id basically
 		global $modx;
 		
@@ -397,7 +405,7 @@ class ManagerAPI {
 		return $result;
 	}
 	
-	function getUserHashAlgorithm($uid)
+	function getV1UserHashAlgorithm($uid)
 	{
 		global $modx;
 		
