@@ -5,7 +5,7 @@
  * Time: 19:14
  */
 
-if (is_object($this->phpass)){
+if (isset($this->phpass) && is_object($this->phpass)){
     return true;
 }
 
