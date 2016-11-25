@@ -1607,6 +1607,8 @@ class DocumentParser {
     {
         if ($this->debug) $fstart = $this->getMicroTime();
         
+        $bt = md5($content);
+        
         if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content); // for jp
         if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
         if(strpos($content,$iftag)===false)          return $content;
@@ -1625,14 +1627,23 @@ class DocumentParser {
             if($i===0) {
                 $content = $split;
                 $excute = false;
+                $depth = 0;
                 continue;
             }
             
             if    (substr($split,0,5)==='<@IF:')     $scope = '@IF';
             elseif(substr($split,0,9)==='<@ELSEIF:') $scope = '@ELSEIF';
             elseif(substr($split,0,6)==='<@ELSE')    $scope = '@ELSE';
-            elseif(substr($split,0,7)==='<@ENDIF')   $scope = '';
+            elseif(substr($split,0,7)==='<@ENDIF')   $scope = '@ENDIF';
             else exit('Unknown error '.__LINE__);
+            
+            if($scope==='@IF')    $depth++;
+            if(1<$depth) {
+                if($scope==='@ENDIF') $depth--;
+                if($excute) $content .= $split;
+                continue;
+            }
+            if($scope==='@ENDIF') $depth--;
             
             if($scope==='@IF' || $scope==='@ELSEIF') {
                 if($excute) continue;
@@ -1681,12 +1692,16 @@ class DocumentParser {
                 $content .= $text;
                 $excute = true;
             }
-            else {
+            elseif($scope==='@ENDIF') {
                 list(, $text) = explode('>', $split, 2);
                 $content .= $text;
                 $excute = false;
             }
         }
+        
+        if(strpos($content,$iftag) && $bt!==md5($content))
+            $content = $this->mergeConditionalTagsContent($content, $iftag, $elseiftag, $elsetag, $endiftag);
+        
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
