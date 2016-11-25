@@ -100,32 +100,6 @@ $gdAvailable = extension_loaded('gd');
 </td>
 </tr>
 
-<tr>
-<th><?php echo $_lang["pwd_hash_algo_title"] ?></th>
-<td>
-<?php
-	$phm['sel']['BLOWFISH_Y'] = $pwd_hash_algo=='BLOWFISH_Y' ?  1 : 0;
-	$phm['sel']['BLOWFISH_A'] = $pwd_hash_algo=='BLOWFISH_A' ?  1 : 0;
-	$phm['sel']['SHA512']     = $pwd_hash_algo=='SHA512' ?  1 : 0;
-	$phm['sel']['SHA256']     = $pwd_hash_algo=='SHA256' ?  1 : 0;
-	$phm['sel']['MD5']        = $pwd_hash_algo=='MD5' ?  1 : 0;
-	$phm['sel']['UNCRYPT']    = $pwd_hash_algo=='UNCRYPT' ?  1 : 0;
-	$phm['e']['BLOWFISH_Y'] = $modx->manager->checkHashAlgorithm('BLOWFISH_Y') ? 0:1;
-	$phm['e']['BLOWFISH_A'] = $modx->manager->checkHashAlgorithm('BLOWFISH_A') ? 0:1;
-	$phm['e']['SHA512']     = $modx->manager->checkHashAlgorithm('SHA512') ? 0:1;
-	$phm['e']['SHA256']     = $modx->manager->checkHashAlgorithm('SHA256') ? 0:1;
-	$phm['e']['MD5']        = $modx->manager->checkHashAlgorithm('MD5') ? 0:1;
-	$phm['e']['UNCRYPT']    = $modx->manager->checkHashAlgorithm('UNCRYPT') ? 0:1;
-?>
-	<?php echo wrap_label('CRYPT_BLOWFISH_Y (salt &amp; stretch)',form_radio('pwd_hash_algo','BLOWFISH_Y',$phm['sel']['BLOWFISH_Y'], '', $phm['e']['BLOWFISH_Y']));?><br />
-	<?php echo wrap_label('CRYPT_BLOWFISH_A (salt &amp; stretch)',form_radio('pwd_hash_algo','BLOWFISH_A',$phm['sel']['BLOWFISH_A'], '', $phm['e']['BLOWFISH_A']));?><br />
-	<?php echo wrap_label('CRYPT_SHA512 (salt &amp; stretch)'    ,form_radio('pwd_hash_algo','SHA512'    ,$phm['sel']['SHA512']    , '', $phm['e']['SHA512']));?><br />
-	<?php echo wrap_label('CRYPT_SHA256 (salt &amp; stretch)'    ,form_radio('pwd_hash_algo','SHA256'    ,$phm['sel']['SHA256']    , '', $phm['e']['SHA256']));?><br />
-	<?php echo wrap_label('CRYPT_MD5'       ,form_radio('pwd_hash_algo','MD5'       ,$phm['sel']['MD5']       , '', $phm['e']['MD5']));?><br />
-	<?php echo wrap_label('UNCRYPT(32 chars salt + SHA-1 hash)'   ,form_radio('pwd_hash_algo','UNCRYPT'   ,$phm['sel']['UNCRYPT']   , '', $phm['e']['UNCRYPT']));?><br />
-	<?php echo $_lang["pwd_hash_algo_message"]?>
-</td>
-</tr>
 
 <tr>
 <th><?php echo $_lang["captcha_title"] ?></th>
