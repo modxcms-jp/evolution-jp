@@ -7,16 +7,11 @@ $modx = $this;
 $this->db= new DBAPI;
 $config_path='manager/includes/config.inc.php';
 
-if(!is_file(MODX_BASE_PATH.$config_path)) {
-    $this->gotoSetup();
-    exit;
-}
-include(MODX_BASE_PATH.$config_path);
+if(!is_file(MODX_BASE_PATH.$config_path)) $rs = $this->gotoSetup();
+else                                      $rs = include(MODX_BASE_PATH.$config_path);
 
-if (!isset($lastInstallTime) || empty($lastInstallTime)) {
-    $this->gotoSetup();
-    exit;
-}
+if (!isset($lastInstallTime) || empty($lastInstallTime)) $rs = $this->gotoSetup();
+if(!$rs) return true;
 
 $this->db->hostname        = $database_server;
 $this->db->username        = $database_user;

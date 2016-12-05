@@ -3705,8 +3705,8 @@ class DocumentParser {
     }
     
     function gotoSetup() {
-        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false)       return;
-        elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return;
+        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false)       return false;
+        elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return false;
         
         if(is_file(MODX_BASE_PATH . 'install/index.php')) {
             header('Location: install/index.php?action=mode');
