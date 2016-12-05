@@ -55,7 +55,7 @@ var oConnector = new Object() ;
 oConnector.CurrentFolder	= '/' ;
 oConnector.UploadHandler	= GetUrlParam( 'UploadHandler' );
 var pathname = window.location.pathname.replace(/manager\/media\/browser\/mcpuk\/.*$/,'');
-oConnector.ConnectorUrl		= pathname + 'manager/media/browser/mcpuk/connectors/php/connector.php';
+oConnector.ConnectorUrl		= pathname + 'manager/media/browser/mcpuk/connectors/connector.php';
 oConnector.ResourceType		= GetUrlParam( 'Type' ) ;
 oConnector.ExtraParams		= GetUrlParam( 'ExtraParams' ) ;
 oConnector.Editor			= GetUrlParam( 'editor' ) ;
@@ -74,7 +74,6 @@ oConnector.SendCommand = function( command, params, callBackFunction )
 	if ( params ) sUrl += '&' + params ;
 
 	var oXML = new FCKXml() ;
-	
 	if ( callBackFunction )
 		oXML.LoadUrl( sUrl, callBackFunction ) ;	// Asynchronous load.
 	else

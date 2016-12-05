@@ -39,7 +39,7 @@ class FileUpload {
 		{
 			define('IN_MANAGER_MODE', 'true');
 			if(!defined('MODX_API_MODE')) define('MODX_API_MODE', true);
-			$self = 'manager/media/browser/mcpuk/connectors/php/Commands/FileUpload.php';
+			$self = 'manager/media/browser/mcpuk/connectors/Commands/FileUpload.php';
 			$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
             include_once($base_path.'manager/includes/document.parser.class.inc.php');
             $modx = new DocumentParser;

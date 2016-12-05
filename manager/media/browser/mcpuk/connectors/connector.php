@@ -20,10 +20,9 @@
  * 		Grant French (grant@mcpuk.net)
  */
 //Errors in the config.php could still cause problems.
-
 define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
-$self = 'manager/media/browser/mcpuk/connectors/php/connector.php';
+$self = 'manager/media/browser/mcpuk/connectors/connector.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
@@ -38,7 +37,7 @@ $mcpuk_path = "{$base_path}manager/media/browser/mcpuk/";
 $modx->getSettings();
 
 global $fckphp_config;
-include_once("{$mcpuk_path}connectors/php/config.php");
+include_once("{$mcpuk_path}connectors/config.php");
 
 outputHeaders();
 //These are the commands we may expect
@@ -82,7 +81,7 @@ if (in_array($command,$valid_commands))
 		exit(0);
 	}
 	
-	$rs = include_once("{$mcpuk_path}connectors/php/Commands/{$command}.php");
+	$rs = include_once("{$mcpuk_path}connectors/Commands/{$command}.php");
 
 	$action=new $command($fckphp_config,$type,$cwd);
 	$action->run();
