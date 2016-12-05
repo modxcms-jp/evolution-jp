@@ -1483,7 +1483,7 @@ class DocumentParser {
             elseif($modifiers)   $value = '';
             else                 $value = '';
             
-                if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             $replace[$i]= $value;
         }
         
@@ -1551,7 +1551,7 @@ class DocumentParser {
             
             if (isset($ph[$key])) $value = $ph[$key];
             elseif($modifiers)    $value = '';
-            elseif($key==='phx') $value = '';
+            elseif($key==='phx')  $value = '';
             else continue;
             
             if($modifiers!==false)
@@ -1618,7 +1618,7 @@ class DocumentParser {
         if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);
         
         $_ = '#'.md5('ConditionalTags'.$_SERVER['REQUEST_TIME']).'#';
-        $s = array('<@IF:', '<@ELSEIF:', '<@ELSE>', '<@ENDIF>');
+        $s = array('<@IF:'    ,     '<@ELSEIF:',     '<@ELSE>',     '<@ENDIF>');
         $r = array("{$_}<@IF:", "{$_}<@ELSEIF:", "{$_}<@ELSE>", "{$_}<@ENDIF>");
         $content = str_replace($s, $r, $content);
         $splits = explode($_, $content);
@@ -1626,7 +1626,7 @@ class DocumentParser {
         foreach($splits as $i=>$split) {
             if($i===0) {
                 $content = $split;
-                $excute = false;
+                $excute  = false;
                 $depth = 0;
                 continue;
             }
@@ -2818,16 +2818,16 @@ class DocumentParser {
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]')
     {
-        if(!$ph) return $tpl;
+        if(!$ph)  return $tpl;
         if(!$tpl) return $tpl;
-            
+        
         if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
         
-            $matches = $this->getTagsFromContent($tpl,$left,$right);
+        $matches = $this->getTagsFromContent($tpl,$left,$right);
         if(!$matches) return $tpl;
         
-            $replace= array ();
-            foreach($matches[1] as $i=>$key) {
+        $replace= array ();
+        foreach($matches[1] as $i=>$key) {
             
             if(strpos($key,':')!==false) list($key,$modifiers)=$this->splitKeyAndFilter($key);
             else $modifiers = false;
@@ -2835,13 +2835,13 @@ class DocumentParser {
             if(isset($ph[$key])) $value = $ph[$key];
             elseif($modifiers)   $value = '';
             else                 $value = $matches[0][$i];
-                
+            
             if($modifiers!==false) {
                 if(strpos($modifiers,$left)!==false) $modifiers=$this->parseText($modifiers,$ph,$left,$right);
                 $value = $this->applyFilter($value,$modifiers,$key);
             }
-                    $replace[$i]= $value;
-                }
+            $replace[$i] = $value;
+        }
         
         return str_replace($matches[0], $replace, $tpl);
     }
@@ -3215,11 +3215,11 @@ class DocumentParser {
     {
         if($this->debug)     $fstart = $this->getMicroTime();
         $return = true;
-        if ($this->safeMode)                       $return = false;
-        if (!$evtName)                             $return = false;
-        if (!isset($this->pluginEvent[$evtName]))  $return = false;
+        if($this->safeMode)                      $return = false;
+        if(!$evtName)                            $return = false;
+        if(!isset($this->pluginEvent[$evtName])) $return = false;
         if(isset($this->pluginEvent[$evtName])
-         &&count($this->pluginEvent[$evtName])==0) $return = array();
+         && count($this->pluginEvent[$evtName])==0)  $return = array();
         if(empty($return)) {
             if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName})", $fstart);
             return $return;
@@ -3702,7 +3702,7 @@ class DocumentParser {
     }
     
     function gotoSetup() {
-        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false) return;
+        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false)       return;
         elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return;
         
         if(is_file(MODX_BASE_PATH . 'install/index.php')) {
