@@ -126,8 +126,8 @@ class DocumentParser {
     {
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->setConfig('manager/includes/config.inc.php');
         $this->loadExtension('DocumentAPI');
+        if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
         // events
         $this->event= new SystemEvent();
@@ -3712,26 +3712,6 @@ class DocumentParser {
             header('Location: install/index.php?action=mode');
             exit();
         } else exit('Not installed.');
-    }
-    
-    function setConfig($config_path='manager/includes/config.inc.php') {
-        
-        if(!is_file(MODX_BASE_PATH.$config_path)) $this->gotoSetup();
-        else include(MODX_BASE_PATH.$config_path);
-        
-        if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
-        
-        if(!isset($database_server)) return false;
-        
-        $this->db->hostname     = $database_server;
-        $this->db->username     = $database_user;
-        $this->db->password     = $database_password;
-        $this->db->dbname       = $dbase;
-        $this->db->charset      = $database_connection_charset;
-        $this->db->table_prefix = $table_prefix;
-        $this->lastInstallTime  = $lastInstallTime;
-        
-        return true;
     }
     
 	function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
