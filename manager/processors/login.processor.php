@@ -164,13 +164,13 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
 	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
 	else                     $matchPassword = false;
-		}
-		
+}
+
 if(!$matchPassword) {
-			jsAlert($e->errors[901]);
-			failedLogin($dbv_internalKey,$dbv_failedlogincount);
-			return;
-		}
+	jsAlert($e->errors[901]);
+	failedLogin($dbv_internalKey,$dbv_failedlogincount);
+	return;
+}
 
 if($modx->config['use_captcha']==1) {
 	if (!isset ($_SESSION['veriword'])) {
