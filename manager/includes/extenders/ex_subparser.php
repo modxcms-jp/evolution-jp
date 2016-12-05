@@ -1546,6 +1546,9 @@ class SubParser {
     {
         global $modx;
         
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
+        
         // modify field names to use sc. table reference
         $fields= $modx->join(',', explode(',',$fields),'sc.');
         $sort  = $modx->join(',', explode(',',$sort),'sc.');
@@ -1571,12 +1574,17 @@ class SubParser {
         {
             $resourceArray[] = $row;
         }
+        
+        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
+        
         return $resourceArray;
     }
     
-    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
-    {
+    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
         global $modx;
+        
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
         
         // get document groups for current user
         if ($docgrp= $modx->getUserDocGroups())
@@ -1590,6 +1598,8 @@ class SubParser {
         $where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
         
         $resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
+        
+        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
         
         return $resourceArray;
     }
