@@ -999,7 +999,7 @@ class MODIFIERS {
         
         if(strpos($content,'[')===false && strpos($content,'{')===false) return $content;
         
-        if(!$modx->maxParserPasses) $modx->maxParserPasses = 20;
+        if(!$modx->maxParserPasses) $modx->maxParserPasses = 10;
         $bt='';
         $i=0;
         while($bt!==$content)

@@ -2274,7 +2274,7 @@ class DocumentParser {
     */
     function parseDocumentSource($source)
     {
-        if(!$this->maxParserPasses) $this->maxParserPasses = 20;
+        if(!$this->maxParserPasses) $this->maxParserPasses = 10;
         $bt = '';
         $i = 0;
         while ($bt!=md5($source))
