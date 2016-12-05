@@ -59,11 +59,13 @@ class MODIFIERS {
     
     function _getOpt($mode,$delim,$modifiers) {
         if($delim) {
-            if($mode=='(')
-                return substr($modifiers,1,strpos($modifiers, $delim . ')' )-1);
-            else return substr($modifiers,1,strpos($modifiers,$delim,1)-1);
+            if($mode=='(') return substr($modifiers,1,strpos($modifiers, $delim . ')' )-1);
+            
+            return substr($modifiers,1,strpos($modifiers,$delim,1)-1);
         }
         else {
+            if($mode=='(') return substr($modifiers,0,strpos($modifiers, ')') );
+            
             $chars = str_split($modifiers);
             $opt='';
             foreach($chars as $c) {
@@ -84,6 +86,7 @@ class MODIFIERS {
             }
         }
         else {
+            if($mode=='(') return substr($modifiers,strpos($modifiers, ')' )+1);
             $chars = str_split($modifiers);
             foreach($chars as $c) {
                 if($c==':') return $modifiers;
