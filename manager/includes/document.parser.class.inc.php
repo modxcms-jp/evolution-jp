@@ -1542,7 +1542,10 @@ class DocumentParser {
         if(!$ph) $ph = $this->placeholders;
         
         $replace = array();
-        $content=$this->mergeSettingsContent($content);
+        $content= $this->mergeConditionalTagsContent($content);
+        $content= $this->mergeDocumentContent($content);
+        $content= $this->mergeSettingsContent($content);
+        $content= $this->evalSnippets($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
