@@ -1903,7 +1903,7 @@ class DocumentParser {
             if(isset($_['token'])) unset($_['token']);
         }
         if(strpos($key,'[')!==false)
-            $value = eval("return isset($key) ? $key : '';");
+            $value = $key ? eval("return {$key};") : '';
         elseif(0<eval("return count({$key});"))
             $value = eval("return print_r({$key},true);");
         else $value = '';
