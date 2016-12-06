@@ -4,7 +4,7 @@
 	$widget_output = '';
 	$o = '';
 	/* If we are loading a file */
-	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name),'[+','+]',false);
+	$params['output'] = $this->parseText($params['output'],array('value'=>$value,'tvname'=>$name));
 	
 	if(substr($params['output'], 0, 5)==='<?php') $params['output'] = "@EVAL:\n" . substr($params['output'],5);
 	$modx->tvfilter = new stdClass();
