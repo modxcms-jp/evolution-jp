@@ -1441,7 +1441,10 @@ class DocumentParser {
                 $docid = $this->getIdFromAlias($str);
                 break;
             case 'prev':
-                $children = $this->getActiveChildren($this->documentObject['parent'], 'menuindex', 'ASC');
+                if(!$option) $option = 'menuindex,ASC';
+                elseif(strpos($option, ',')===false) $option .= ',ASC';
+                list($by,$dir) = explode(',', $option, 2);
+                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
                 $find = false;
                 $prev = false;
                 foreach($children as $row) {
@@ -1458,7 +1461,10 @@ class DocumentParser {
                 else $docid = '';
                 break;
             case 'next':
-                $children = $this->getActiveChildren($this->documentObject['parent'], 'menuindex', 'ASC');
+                if(!$option) $option = 'menuindex,ASC';
+                elseif(strpos($option, ',')===false) $option .= ',ASC';
+                list($by,$dir) = explode(',', $option, 2);
+                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
                 $find = false;
                 $next = false;
                 foreach($children as $row) {
