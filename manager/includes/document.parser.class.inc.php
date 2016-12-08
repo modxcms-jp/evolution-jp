@@ -1409,12 +1409,13 @@ class DocumentParser {
         if(preg_match('/@\d+\/u/',$key))
         $key = str_replace(array('@','/u'),array('@u(',')'),$key);
         list($key,$str) = explode('@',$key,2);
-        $context = strtolower($str);
-        if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
-            $context = 'alias';
-        elseif(substr($str,0,1)==='u' && strpos($str,'(')!==false)
-            $context = 'uparent';
-        switch($context) {
+        
+        if(strpos($str,'(')) list($context,$option) = explode('(', $str, 2);
+        else                 list($context,$option) = array($str, false);
+        
+        if($option) $option = trim($option, ')(\'"`');
+        
+        switch(strtolower($context)) {
             case 'site_start':
                 $docid = $this->config['site_start'];
                 break;
