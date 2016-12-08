@@ -1354,8 +1354,7 @@ class DocumentParser {
             
             if(isset($ph[$key]))             $value = $ph[$key];
             elseif(strpos($key,'@')!==false) $value = $this->_contextValue($key);
-            elseif($modifiers)               $value = '';
-            else                             $value = '';
+            else                             continue;
             
             if (is_array($value)) {
                 if($modifiers==='raw') $value = $value['value'];
@@ -1508,8 +1507,7 @@ class DocumentParser {
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
             if(isset($ph[$key])) $value = $ph[$key];
-            elseif($modifiers)   $value = '';
-            else                 $value = '';
+            else                 continue;
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             $replace[$i]= $value;
@@ -1581,7 +1579,6 @@ class DocumentParser {
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
             if (isset($ph[$key])) $value = $ph[$key];
-            elseif($modifiers)    $value = '';
             elseif($key==='phx')  $value = '';
             else continue;
             
