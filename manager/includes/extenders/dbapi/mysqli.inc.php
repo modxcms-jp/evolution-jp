@@ -787,6 +787,10 @@ $s = '';
         return $rs;
     }
     
+    function dataSeek($result, $row_number) {
+        return $result->data_seek($row_number);
+    }
+
     function numFields($rs) {
         return $rs->field_count;
     }

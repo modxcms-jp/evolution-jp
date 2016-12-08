@@ -780,6 +780,10 @@ $s = '';
         return $rs;
     }
     
+    function dataSeek($result, $row_number) {
+        return mysql_data_seek($result, $row_number);
+    }
+    
     function numFields($ds) {
         return mysql_num_fields($ds);
     }
