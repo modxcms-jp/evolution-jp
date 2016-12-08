@@ -134,6 +134,10 @@ switch ($_POST['mode']) {
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_templates');
                 $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_htmlsnippets');
                 $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_content');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_templates');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}?','{{{$name}?')", '[+prefix+]site_tmplvar_contentvalues');
             }
 
             // invoke OnChunkFormSave event
