@@ -552,13 +552,7 @@ class DocumentParser {
         // End fix by sirlancelot
         
         // remove all unused placeholders
-        if (strpos($this->documentOutput, '[+') !==false)
-        {
-            $matches= array ();
-            $matches = $this->getTagsFromContent($this->documentOutput,'[+','+]');
-            if ($matches[0])
-            $this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
-        }
+        $this->documentOutput = $this->cleanUpMODXTags($this->documentOutput);
         
         if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
         if(strpos($this->documentOutput,'<!---->')!==false)
@@ -3497,6 +3491,18 @@ class DocumentParser {
     
     function addChunk($name, $text) {
         $this->chunkCache[$name] = $text;
+    }
+    
+    function cleanUpMODXTags($content='') {
+        $_ = array('[* *]','[( )]','{{ }}','[[ ]]','[+ +]');
+        foreach($_ as $brackets) {
+            list($left,$right) = explode(' ', $brackets);
+            if(strpos($content,$left)!==false) {
+                $matches = $this->getTagsFromContent($content,$left,$right);
+                $content= str_replace($matches[0], '', $content);
+            }
+        }
+        return $content;
     }
     
     // - deprecated db functions
