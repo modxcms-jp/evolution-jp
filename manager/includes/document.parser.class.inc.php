@@ -1549,7 +1549,11 @@ class DocumentParser {
             
             if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
             $value = $ph[$key];
-            $value = !is_null($value) ? $this->mergePlaceholderContent($value,$params) : '';
+            $value = !is_null($value) ? $this->parseText($value,$params) : '';
+            $value= $this->mergeConditionalTagsContent($value);
+            $value= $this->mergeDocumentContent($value);
+            $value= $this->mergeSettingsContent($value);
+            $value= $this->mergeChunkContent($value);
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
@@ -1578,7 +1582,6 @@ class DocumentParser {
         $content= $this->mergeConditionalTagsContent($content);
         $content= $this->mergeDocumentContent($content);
         $content= $this->mergeSettingsContent($content);
-        $content= $this->evalSnippets($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
