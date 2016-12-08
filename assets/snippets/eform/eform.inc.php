@@ -511,7 +511,13 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				$subject = ($subject) ? formMerge($subject,$fields) : "from {$fromname}";
 			}
 			$fields['subject'] = $subject; //make subject available in report & thank you page
-			$report	= ($report)? formMerge($report,$fields):"";
+			if($report) {
+    			$report	= $modx->mergeConditionalTagsContent($report);
+    			$report	= $modx->parseText($report,$fields);
+    			$report	= formMerge($report,$fields);
+			}
+			else $report = '';
+			
 			$keywords = ($keywords)? formMerge($keywords,$fields):"";
 
 			$to = formMerge($to,$fields);
