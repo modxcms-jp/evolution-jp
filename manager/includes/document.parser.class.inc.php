@@ -524,10 +524,9 @@ class DocumentParser {
             // Parse document source
             $bt = '';
             $i=0;
-            while($bt!=md5($this->documentOutput))
+            while($i < $this->maxParserPasses)
             {
-                if($this->maxParserPasses < $i) break;
-                
+                if(strpos($this->documentOutput, '[!')===false) break;
                 $bt = md5($this->documentOutput);
                 $this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
                 $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
