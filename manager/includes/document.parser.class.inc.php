@@ -1644,8 +1644,6 @@ class DocumentParser {
     {
         if ($this->debug) $fstart = $this->getMicroTime();
         
-        $bt = md5($content);
-        
         if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content); // for jp
         if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
         if(strpos($content,$iftag)===false)          return $content;
@@ -1660,6 +1658,7 @@ class DocumentParser {
         $content = str_replace($s, $r, $content);
         $splits = explode($_, $content);
         unset($_);
+        
         foreach($splits as $i=>$split) {
             if($i===0) {
                 $content = $split;
@@ -1697,17 +1696,17 @@ class DocumentParser {
                 
                 if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
                 $safe=0;
-                $bt=md5('');
-                while($bt!==md5($cmd)) {
-                    $bt = md5($cmd);
+                $bt2='';
+                while($safe < 20) {
+                    $bt2 = md5($cmd);
                     if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
                     if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
                     if(strpos($cmd,'{{')!==false) $cmd= $this->mergeChunkContent($cmd);
                     if(strpos($cmd,'[[')!==false) $cmd= $this->evalSnippets($cmd);
                     if(strpos($cmd,'[+')!==false
                      &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
+                    if($bt2===md5($cmd)) break;
                     $safe++;
-                    if(20<$safe) break;
                 }
                 $cmd = ltrim($cmd);
                 $cmd = rtrim($cmd,'-');
@@ -1736,8 +1735,15 @@ class DocumentParser {
             }
         }
         
-        if(strpos($content,$iftag) && $bt!==md5($content))
+        $bt = '';
+        $i = 0;
+        while($i<10) {
+            if(strpos($content,$iftag)===false) break;
+            $bt = md5($content);
             $content = $this->mergeConditionalTagsContent($content, $iftag, $elseiftag, $elsetag, $endiftag);
+            if($bt===md5($content)) break;
+            $i++;
+        }
         
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
