@@ -2315,13 +2315,10 @@ class DocumentParser {
     */
     function parseDocumentSource($source)
     {
-        if(!$this->maxParserPasses) $this->maxParserPasses = 10;
         $bt = '';
         $i = 0;
-        while ($bt!=md5($source))
+        while ($i < $this->maxParserPasses)
         {
-            if($this->maxParserPasses < $i) break;
-            
             $bt = md5($source);
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
