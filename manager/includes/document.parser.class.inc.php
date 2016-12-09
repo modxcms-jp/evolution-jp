@@ -2332,22 +2332,17 @@ class DocumentParser {
             if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
             
             if(strpos($source,'[+@')!==false)                  $source= $this->mergeInlineFilter($source);
-            // combine template and document variables
             if(strpos($source,'[*')!==false)                   $source= $this->mergeDocumentContent($source);
-            // replace settings referenced in document
             if(strpos($source,'[(')!==false)                   $source= $this->mergeSettingsContent($source);
-            // replace HTMLSnippets in document
             if(strpos($source,'{{')!==false)                   $source= $this->mergeChunkContent($source);
-            // find and merge snippets
             if(strpos($source,'[[')!==false)                   $source= $this->evalSnippets($source);
-            // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false
              &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
             if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false)
                                                                $source = $this->rewriteUrls($source);
             
-            if($bt == md5($source))         break;
+            if($bt === md5($source))  break;
             
             $i++;
         }
