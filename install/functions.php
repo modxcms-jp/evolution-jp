@@ -301,8 +301,6 @@ function isUpGrade()
 {
 	global $modx,$base_path;
 	
-	$_SESSION = array();
-	
 	$conf_path = "{$base_path}manager/includes/config.inc.php";
 	if (!is_file($conf_path)) return 0;
 	
