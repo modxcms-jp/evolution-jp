@@ -1547,7 +1547,8 @@ class DocumentParser {
             
             if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
             $value = $ph[$key];
-            $value = !is_null($value) ? $this->parseText($value,$params) : '';
+            if(is_null($value)) continue;
+            $value = $this->parseText($value,$params);
             $value= $this->mergeConditionalTagsContent($value);
             $value= $this->mergeDocumentContent($value);
             $value= $this->mergeSettingsContent($value);
@@ -1555,10 +1556,9 @@ class DocumentParser {
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
-            $replace[$i] = $value;
+            $content= str_replace($matches[0][$i], $value, $content);
         }
         
-        $content= str_replace($matches[0], $replace, $content);
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
