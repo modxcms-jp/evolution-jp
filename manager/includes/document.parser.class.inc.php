@@ -1516,10 +1516,9 @@ class DocumentParser {
             else                 continue;
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            $replace[$i]= $value;
+            $content= str_replace($matches[0][$i], $value, $content);
         }
         
-        $content= str_replace($matches[0], $replace, $content);
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
