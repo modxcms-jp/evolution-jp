@@ -1612,14 +1612,13 @@ class DocumentParser {
         if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!empty($matches))
-        {
-            foreach($matches[1] as $i=>$v)
-            {
-                $matches[1][$i] = $this->parseDocumentSource($v);
+        if(empty($matches)) return $content;
+        
+        foreach($matches[1] as $i=>$v) {
+            $matches[1][$i] = trim($v);
             }
             $content = str_replace($matches[0],$matches[1],$content);
-        }
+        
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
