@@ -23,7 +23,8 @@ class SqlParser {
 	
 	function file_get_sql_contents($filename) {
 		// check to make sure file exists
-		$path = "{$this->base_path}install/sql/{$filename}";
+		if(strpos($filename,'/')===false) $path = "{$this->base_path}install/sql/{$filename}";
+		else                              $path = "{$this->base_path}{$filename}";
 		if (!is_file($path)) {
 			$this->mysqlErrors[] = array("error" => "File '{$path}' not found");
 			$this->installFailed = true ;

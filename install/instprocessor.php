@@ -59,7 +59,7 @@ if($_SESSION['installmode']==0) {
         $sqlParser->intoDB('default_settings_custom.sql');
 }
 
-
+$sqlParser->intoDB('manager/includes/upgrades/upd_db_structure.sql');
 $sqlParser->intoDB('fix_settings.sql');
 // display database results
 if ($sqlParser->installFailed == true)
