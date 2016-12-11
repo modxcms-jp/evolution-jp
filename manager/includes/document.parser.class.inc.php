@@ -1874,6 +1874,7 @@ class DocumentParser {
         
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
+            $this->currentSnippetCall = $matches[0][$i];
             if(substr($value,0,2)==='$_') {
                 $replace[$i] = $this->_getSGVar($value);
                 continue;
@@ -1884,7 +1885,6 @@ class DocumentParser {
                     break;
                 }
             }
-            $this->currentSnippetCall = $matches[0][$i];
             $replace[$i] = $this->_get_snip_result($value);
         }
         
