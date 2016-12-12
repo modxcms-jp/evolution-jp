@@ -1549,10 +1549,10 @@ class DocumentParser {
             $value = $ph[$key];
             if(is_null($value)) continue;
             $value = $this->parseText($value,$params);
-            $value= $this->mergeConditionalTagsContent($value);
-            $value= $this->mergeDocumentContent($value);
-            $value= $this->mergeSettingsContent($value);
-            $value= $this->mergeChunkContent($value);
+            $value = $this->mergeConditionalTagsContent($value);
+            $value = $this->mergeDocumentContent($value);
+            $value = $this->mergeSettingsContent($value);
+            $value = $this->mergeChunkContent($value);
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             
@@ -1616,8 +1616,8 @@ class DocumentParser {
         
         foreach($matches[1] as $i=>$v) {
             $matches[1][$i] = trim($v);
-            }
-            $content = str_replace($matches[0],$matches[1],$content);
+        }
+        $content = str_replace($matches[0],$matches[1],$content);
         
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
