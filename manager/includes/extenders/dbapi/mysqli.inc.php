@@ -172,7 +172,8 @@ $s = '';
         $result = $this->conn->query($sql);
         if (!$result) {
             if(!$watchError) return;
-            switch($this->conn->connect_errno) {
+            switch($this->conn->errno) {
+                case 1064:
                 case 1054:
                 case 1060:
                 case 1061:
@@ -411,7 +412,7 @@ $s = '';
     
     function getLastErrorNo($conn=NULL) {
         if (!is_object($conn)) $conn =& $this->conn;
-        return $conn->connect_errno;
+        return $conn->errno;
     }
     
     /**

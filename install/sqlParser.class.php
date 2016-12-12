@@ -60,21 +60,22 @@ class SqlParser {
 		
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 		
-		foreach($sql_array as $sql)
+		foreach($sql_array as $i=>$sql)
 		{
 			$sql = trim($sql, "\r\n; ");
 			if ($sql) $modx->db->query($sql,false);
-			if($modx->db->getLastError())
-			{
-				// Ignore duplicate and drop errors - Raymond
-				if (!$this->showSqlErrors)
-				{
-					$errno = $modx->db->getLastErrorNo();
-					if ($errno == 1060 || $errno == 1061 || $errno == 1091 || $errno == 1054) continue;
-				}
-				// End Ignore duplicate
-				$this->mysqlErrors[] = array("error" => $modx->db->getLastError(), "sql" => $sql);
-				$this->installFailed = true;
+			$error_no = $modx->db->getLastErrorNo();
+			if(!$error_no) continue;
+			switch($error_no) {
+				case 1060:
+				case 1061:
+				case 1091:
+				case 1054:
+				case 1064:
+					continue;break;
+				default:
+    				$this->mysqlErrors[] = array("error" => $modx->db->getLastError(), "sql" => $sql);
+    				$this->installFailed = true;
 			}
 		}
 	}
