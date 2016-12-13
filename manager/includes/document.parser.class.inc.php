@@ -2002,14 +2002,13 @@ class DocumentParser {
                 if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
                 $key=trim($key);
                 if(strpos($value,'[!')!==false) $value = str_replace(array('[!','!]'), array('[[',']]'), $value);
+                $value = $this->mergeDocumentContent($value);
+                $value = $this->mergeSettingsContent($value);
+                $value = $this->mergeChunkContent($value);
+                $value = $this->evalSnippets($value);
                 if(substr($value,0,6)!=='@CODE:')
-                {
-                    if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
-                    if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
-                    if(strpos($value,'{{')!==false) $value = $this->mergeChunkContent($value);
-                    if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
-                    if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
-                }
+                    $value = $this->mergePlaceholderContent($value);
+                
                 $temp_params[][$key]=$value;
                 
                 $key   = '';
