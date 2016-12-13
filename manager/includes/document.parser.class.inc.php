@@ -1350,10 +1350,14 @@ class DocumentParser {
             if(substr($key, 0, 1) == '#') $key = substr($key, 1); // remove # for QuickEdit format
             
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
+            list($key,$context)   = explode('@',$key,2);
             
-            if(isset($ph[$key]))             $value = $ph[$key];
-            elseif(strpos($key,'@')!==false) $value = $this->_contextValue($key);
-            else                             continue;
+            if(!isset($ph[$key])) {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
+            }
+            elseif($context) $value = $this->_contextValue("{$key}@{$context}");
+            else             $value = $ph[$key];
             
             if (is_array($value)) {
                 if($modifiers==='raw') $value = $value['value'];
@@ -1513,7 +1517,10 @@ class DocumentParser {
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
             if(isset($ph[$key])) $value = $ph[$key];
-            else                 continue;
+            else {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
+            }
             
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             $content= str_replace($matches[0][$i], $value, $content);
@@ -1547,7 +1554,10 @@ class DocumentParser {
             
             if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
             $value = $ph[$key];
-            if(is_null($value)) continue;
+            if(is_null($value)) {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
+            }
             $value = $this->parseText($value,$params);
             $value = $this->mergeConditionalTagsContent($value);
             $value = $this->mergeDocumentContent($value);
