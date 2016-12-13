@@ -3489,11 +3489,11 @@ class DocumentParser {
     }
     
     function addSnippet($name, $phpCode) {
-        $this->snippetCache[$name] = $phpCode;
+        $this->snippetCache['#'.$name] = $phpCode;
     }
     
     function addChunk($name, $text) {
-        $this->chunkCache[$name] = $text;
+        $this->chunkCache['#'.$name] = $text;
     }
     
     function cleanUpMODXTags($content='') {
