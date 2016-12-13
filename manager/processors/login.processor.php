@@ -184,6 +184,8 @@ if($modx->config['use_captcha']==1) {
     }
 }
 
+session_regenerate_id(true);
+
 $_SESSION['usertype'] = 'manager'; // user is a backend user
 
 // get permissions
