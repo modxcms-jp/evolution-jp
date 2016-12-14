@@ -25,7 +25,7 @@ if(!is_file("{$snapshot_path}.htaccess"))
 }
 if(!is_writable(rtrim($snapshot_path,'/')))
 {
-	echo $modx->parseTextSimple($_lang["bkmgr_alert_mkdir"],array('snapshot_path'=>$snapshot_path));
+	echo $modx->parseText($_lang["bkmgr_alert_mkdir"],array('snapshot_path'=>$snapshot_path));
 	exit;
 }
 

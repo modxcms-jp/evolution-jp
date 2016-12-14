@@ -9,19 +9,23 @@ function startCMSSession() {
     session_name($site_sessionname);
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
-    $cookieExpiration= 0;
-    if(isset($_SESSION['mgrValidated']) || isset ($_SESSION['webValidated'])) {
-        $context= isset($_SESSION['mgrValidated']) ? 'mgr' : 'web';
-        if(isset($_SESSION["modx{$context}.session.cookie.lifetime"]) && is_numeric($_SESSION["modx{$context}.session.cookie.lifetime"]))
-            $cookieLifetime= intval($_SESSION["modx{$context}.session.cookie.lifetime"]);
-        
-        if($cookieLifetime)
-            $cookieExpiration= $_SERVER['REQUEST_TIME'] + $cookieLifetime;
-        
-        if(!isset($_SESSION['modx.session.created.time']))
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+    
+    if    (isset($_SESSION['mgrValidated'])) $ctx = 'mgr';
+    elseif(isset($_SESSION['webValidated'])) $ctx = 'web';
+    else {
+        setcookie($site_sessionname, session_id(), 0, MODX_BASE_URL);
+        return;
     }
-    setcookie(session_name(), session_id(), $cookieExpiration, MODX_BASE_URL);
+    
+    $key = "modx.{$ctx}.session.cookie.lifetime";
+    $lifetime = !isset($_SESSION[$key]) ? 0 : $_SESSION[$key];
+    
+    if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) $cookieExpiration = 0;
+    else                                         $cookieExpiration = $_SERVER['REQUEST_TIME']+$lifetime;
+    
+    setcookie($site_sessionname, session_id(), $cookieExpiration, MODX_BASE_URL);
+    
+    if(!isset($_SESSION['modx.session.created.time'])) $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
 }
 
 function set_parser_mode() {

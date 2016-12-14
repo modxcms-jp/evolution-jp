@@ -169,6 +169,9 @@ function getArray($element_name,$action,$nameField = 'name')
 		case 'site_htmlsnippets':
 			$f[] = "{$tbl_element_name}.published";
 			break;
+		case 'site_tmplvars':
+			$f[] = "{$tbl_element_name}.rank";
+			break;
 	}
 	$f[] = "{$tbl_element_name}.{$nameField} as name";
 	$f[] = "{$tbl_element_name}.id";
@@ -177,7 +180,8 @@ function getArray($element_name,$action,$nameField = 'name')
 	$f[] = "if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$fields = implode(',', $f);
 	$from   ="{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
-	$orderby = 'category,name';
+	if($element_name=='site_tmplvars') $orderby = 'category,rank ASC,name';
+	else                               $orderby = 'category,name';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = $modx->db->getRecordCount($rs);

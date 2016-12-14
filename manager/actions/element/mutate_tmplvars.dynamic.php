@@ -75,7 +75,7 @@ $ph=array();
 $ph['src']   = $_style['icons_tooltip_over'];
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt']   = $_lang['tmplvars_input_option_msg'];
-$tooltip_input_option = $modx->parseTextSimple($tooltip_tpl,$ph);
+$tooltip_input_option = $modx->parseText($tooltip_tpl,$ph);
 
 ?>
 <script language="JavaScript">
@@ -338,6 +338,8 @@ setTimeout('showParameters()',10);
 	$option['url']          = 'URL';
 	$option['email']        = 'Email';
 	$option['number']       = 'Number';
+	$option['tel']          = 'Telephone';
+	$option['zipcode']      = 'Zip Code';
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['hidden']       = 'Hidden';
@@ -460,7 +462,7 @@ function selected($target='')
 	    	$ph['checked']      = $checked ? 'checked':'';
 	    	$ph['id']           = $row['id'];
 	    	$ph['templatename'] = $row['templatename'];
-	    	echo $modx->parseTextSimple('<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] />[+templatename+]</label>',$ph);
+	    	echo $modx->parseText('<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] />[+templatename+]</label>',$ph);
 	    endwhile;
 	endif;
 ?>

@@ -110,18 +110,6 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
 			}
 		}
 		return $value;
-	}
-
-function parseText($tpl,$ph=array())
-{
-	if(empty($ph)) return $tpl;
-	foreach($ph as $k=>$v)
-	{
-		$k = "[+{$k}+]";
-		if(strpos($tpl,$k)!==false)
-			$tpl = str_replace($k,$v,$tpl);
-	}
-	return $tpl;
 }
 
 function webLoginGetCode($target)

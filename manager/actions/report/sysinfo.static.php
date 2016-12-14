@@ -323,5 +323,5 @@ function render_tr($label,$content)
 <td style="font-weight:bold;">[+content+]</td>
 </tr>
 EOT;
-	return $modx->parseTextSimple($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }

@@ -33,9 +33,9 @@ if (is_file($instcheck_path))
 if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
 
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && isset($_SESSION['mgrValidated'])) {
-	if (isset($_SESSION['modx.session.created.time'])
-		&& ($_SESSION['modx.session.created.time'] < $lastInstallTime)
+if (isset($lastInstallTime) && isset($_SESSION['modx.session.created.time']) && isset($_SESSION['mgrValidated'])) {
+	if (
+		($_SESSION['modx.session.created.time'] < $lastInstallTime)
 		&& $_SERVER['REQUEST_METHOD'] != 'POST'
 		)
 	{
@@ -53,10 +53,8 @@ $theme_path = "{$style_path}{$manager_theme}/";
 $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
 if(!isset($_SESSION['mgrValidated']))
 {
-	if(isset($_GET['frame']) && !empty($_GET['frame']))
-	{
-		$_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
-	}
+	if(isset($_GET['frame']) && !empty($_GET['frame'])) $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+	
 	// include localized overrides
 	if(!isset($manager_language)) $manager_language = 'english';
 	include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
@@ -70,7 +68,7 @@ if(!isset($_SESSION['mgrValidated']))
 
 	global $tpl;
 	
-    if(is_file($touch_path))
+    if(is_file($touch_path) && time() < filemtime($touch_path)+300)
     {
         $modx->safeMode = 1;
         $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);

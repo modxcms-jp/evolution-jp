@@ -15,4 +15,4 @@ $ph['btnnext_value'] = $_lang['btnnext_value'];
 $ph['lang_options']  = get_lang_options($lang_name);
 
 $tpl = file_get_contents("{$base_path}install/tpl/mode.tpl");
-echo  $modx->parseTextSimple($tpl,$ph);
+echo  $modx->parseText($tpl,$ph);

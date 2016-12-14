@@ -34,7 +34,7 @@ $ph['block_snippets']  = block_snippets( $tplSnippets, $formSnippets, $ph);
 $ph['object_list'] = object_list($ph) . "\n";
 
 $tpl = file_get_contents("{$base_path}install/tpl/options.tpl");
-echo  $modx->parseTextSimple($tpl,$ph);
+echo  $modx->parseText($tpl,$ph);
 
 
 
@@ -58,7 +58,7 @@ function object_list($ph) {
 </div>
 TPL;
     	}
-	return $modx->parseTextSimple($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function block_install_sample_site($installdata='', $ph) {
@@ -74,7 +74,7 @@ function block_install_sample_site($installdata='', $ph) {
 </p>
 <p><em>&nbsp;[+sample_web_site_note+]</em></p>
 TPL;
-	return $modx->parseTextSimple($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function block_templates($tplTemplates,$formTemplates,$ph) {
@@ -90,7 +90,7 @@ function block_templates($tplTemplates,$formTemplates,$ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+templates+]</h3>\n" . join("\n", $_);
     else           $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }
 
 function block_tvs($tplTVs,$formTvs,$ph) {
@@ -106,7 +106,7 @@ function block_tvs($tplTVs,$formTvs,$ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+tvs+]</h3>\n" . join("\n", $_);
     else $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }
 
 function block_chunks($tplChunks,$formChunks,$ph) {
@@ -122,7 +122,7 @@ function block_chunks($tplChunks,$formChunks,$ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+chunks+]</h3>\n" . join("\n", $_);
     else $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }
 
 function block_modules($tplModules,$formModules,$ph) {
@@ -138,7 +138,7 @@ function block_modules($tplModules,$formModules,$ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+modules+]</h3>\n" . join("\n", $_);
     else $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }
 
 function block_plugins($tplPlugins, $formPlugins, $ph) {
@@ -154,7 +154,7 @@ function block_plugins($tplPlugins, $formPlugins, $ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+plugins+]</h3>\n" . join("\n", $_);
     else           $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }
 
 function block_snippets($tplSnippets,$formSnippets,$ph) {
@@ -170,5 +170,5 @@ function block_snippets($tplSnippets,$formSnippets,$ph) {
     }
     if(!empty($_)) $tpl = "<h3>[+snippets+]</h3>\n" . join("\n", $_);
     else $tpl = '';
-    return $modx->parseTextSimple($tpl,$ph);
+    return $modx->parseText($tpl,$ph);
 }

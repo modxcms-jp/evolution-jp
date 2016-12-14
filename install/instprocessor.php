@@ -8,6 +8,8 @@ global $tplTVs;
 
 global $errors;
 
+if(!isset($_SESSION['database_server'])) exit('go to first step');
+
 // set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
@@ -59,7 +61,6 @@ if($_SESSION['installmode']==0) {
         $sqlParser->intoDB('default_settings_custom.sql');
 }
 
-
 $sqlParser->intoDB('fix_settings.sql');
 // display database results
 if ($sqlParser->installFailed == true)
@@ -89,7 +90,7 @@ else {
     $ph['lastInstallTime']             = time();
     $ph['https_port']                  = '443';
     
-    $configString = $modx->parseTextSimple($configString, $ph);
+    $configString = $modx->parseText($configString, $ph);
     $config_path = "{$base_path}manager/includes/config.inc.php";
     $config_saved = @ file_put_contents($config_path, $configString);
     // try to chmod the config file go-rwx (for suexeced php)

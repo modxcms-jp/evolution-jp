@@ -109,8 +109,8 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
 		//Получаем псевдоним корневого родителя
 		$ultimateAlias = '';
 		//Если корневой родитель не в корне, допишем путь к нему
-		if ($modx->aliasListing[$ddParent]['path'] != '') $ultimateAlias .= $modx->aliasListing[$ddParent]['path'].'/';
-		$ultimateAlias .= $modx->aliasListing[$ddParent]['alias'];
+		if ($modx->getAliasListing($ddParent,'path') != '') $ultimateAlias .= $modx->getAliasListing($ddParent,'path').'/';
+		$ultimateAlias .= $modx->getAliasListing($ddParent,'alias');
 		
 		//Получаем годы (непосредственных детей корневого родителя)
 		$years = $modx->getChildIds($ddParent, 1);

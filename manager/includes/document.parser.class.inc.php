@@ -34,13 +34,14 @@ class DocumentParser {
     var $currentSnippet;
     var $aliases;
     var $entrypage;
+    var $dumpSQL;
     var $dumpSnippets;
-    var $snipCode;
+    var $dumpPlugins;
+    var $dumpSnippetsCode = array();
     var $chunkCache;
     var $snippetCache;
     var $contentTypes;
-    var $dumpSQL;
-    var $queryCode;
+    var $dumpSQLCode = array();
     var $ph;
     var $placeholders;
     var $sjscripts = array();
@@ -70,108 +71,43 @@ class DocumentParser {
     var $snipLapCount;
     var $chunkieCache;
     var $template_path;
-    var $condScope = false;
     var $lastInstallTime;
+    var $aliaslist = array();
+    var $parentlist = array();
+    var $aliasPath = array();
+    var $tmpCache = array();
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
     function __get($property_name)
     {
-        if($property_name==='documentMap')
-            $this->setdocumentMap();
-        elseif($property_name==='documentListing')
-            return $this->makeDocumentListing();
-        elseif(isset($this->config[$property_name]))
-            return $this->config[$property_name];
+        if(isset($this->config[$property_name])) return $this->config[$property_name];
         else
             $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
     }
     
     function __call($method_name, $arguments)
     {
-        switch($method_name) {
-            case 'splitTVCommand':
-            case 'ParseInputOptions':
-            case 'ProcessTVCommand':
-            case '_IIS_furl_fix':
-            case 'addEventListener':
-            case 'addLog':
-            case 'atBindFile':
-            case 'atBindUrl':
-            case 'atBindInclude':
-            case 'changeWebUserPassword':
-            case 'checkPermissions':
-            case 'clearCache':
-            case 'decodeParamValue':
-            case 'genToken':
-            case 'getActiveChildren':
-            case 'getAllChildren':
-            case 'getDocumentChildren':
-            case 'getDocumentChildrenTVarOutput':
-            case 'getDocumentChildrenTVars':
-            case 'getExtention':
-            case 'getLoginUserName':
-            case 'getLoginUserType':
-            case 'getMimeType':
-            case 'getOption':
-            case 'getPreviewObject':
-            case 'getSnippetId':
-            case 'getSnippetName':
-            case 'getUnixtimeFromDateString':
-            case 'getUserInfo':
-            case 'getVersionData':
-            case 'getWebUserInfo':
-            case 'get_backtrace':
-            case 'isMemberOfWebGroup':
-            case 'isSelected':
-            case 'loadLexicon':
-            case 'logEvent':
-            case 'mergeInlineFilter':
-            case 'messageQuit':
-            case 'parseInput':
-            case 'recDebugInfo':
-            case 'regClientCSS':
-            case 'regClientHTMLBlock':
-            case 'regClientScript':
-            case 'regClientStartupHTMLBlock':
-            case 'regClientStartupScript':
-            case 'regOption':
-            case 'removeEventListener':
-            case 'renderFormElement':
-            case 'rotate_log':
-            case 'runSnippet':
-            case 'sendErrorPage':
-            case 'sendForward':
-            case 'sendRedirect':
-            case 'sendUnauthorizedPage':
-            case 'sendUnavailablePage':
-            case 'sendmail':
-            case 'setCacheRefreshTime':
-            case 'setOption':
-            case 'snapshot':
-            case 'splitOption':
-            case 'updateDraft':
-            case 'webAlertAndQuit':
-                $this->loadExtension('SubParser');
-                if(method_exists($this->sub,$method_name))
-                    return call_user_func_array(array($this->sub,$method_name),$arguments);
+        $_ = explode(',', 'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
+        if(in_array($method_name, $_)) {
+            $this->loadExtension('SubParser');
+            if(method_exists($this->sub,$method_name))
+                return call_user_func_array(array($this->sub,$method_name),$arguments);
         }
         
         $this->loadExtension('DeprecatedAPI');
         if(method_exists($this->old,$method_name)) $error_type=1;
         else                                       $error_type=3;
         
-        if(!isset($this->config['error_reporting'])||1<$this->config['error_reporting'])
-        {
-            if($error_type==1)
-            {
+        if(!isset($this->config)) $this->config = $this->getSettings();
+        
+        if(!isset($this->config['error_reporting'])||1<$this->config['error_reporting']) {
+            if($error_type==1) {
                 $title = 'Call deprecated method';
-                $msg = htmlspecialchars("\$modx->{$method_name}() is deprecated function");
-            }
-            else
-            {
+                $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
+            } else {
                 $title = 'Call undefined method';
-                $msg = htmlspecialchars("\$modx->{$method_name}() is undefined function");
+                $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
             $info = debug_backtrace();
             $m[] = $msg;
@@ -188,10 +124,9 @@ class DocumentParser {
     // constructor
     function __construct()
     {
+        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
-        $this->setConfig();
         $this->loadExtension('DocumentAPI');
-        
         if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
         // events
@@ -203,6 +138,7 @@ class DocumentParser {
         $this->debug        = false;
         $this->dumpSQL      = false;
         $this->dumpSnippets = false; // feed the parser the execution start time
+        $this->dumpPlugins  = false;
         $this->snipLapCount = 0;
         $this->stopOnNotice = false;
         $this->safeMode     = false;
@@ -217,13 +153,6 @@ class DocumentParser {
         }
         if(!isset($this->mstart))
             $this->mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
-        
-        $alias_cache_path = MODX_BASE_PATH . 'assets/cache/alias.siteCache.idx.php';
-        if(is_file($alias_cache_path)) {
-            $aliasCache = file_get_contents($alias_cache_path);
-            $this->aliasCache=unserialize($aliasCache);
-        }
-        $this->setAliasListing();
     }
 
     /*
@@ -247,6 +176,7 @@ class DocumentParser {
             case 'export_site' :
             case 'subparser'   :
             case 'revision'    :
+            case 'phpass'      :
                 return require_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$low_extname}.php");
@@ -276,7 +206,6 @@ class DocumentParser {
     function executeParser()
     {
         ob_start();
-        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         
         $this->http_status_code = '200';
 
@@ -292,10 +221,11 @@ class DocumentParser {
         
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
-        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
-        $this->q = (!isset($_GET['id'])) ? $this->setRequestQ($this->decoded_request_uri) : false;
-        
         $this->updatePublishStatus();
+        
+        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
+        $this->uri_parent_dir = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
+        $this->uri_parent_dir = ltrim($this->uri_parent_dir,'/');
         
         if(0 < count($_POST)) $this->config['cache_type'] = 0;
         
@@ -316,7 +246,6 @@ class DocumentParser {
     function executeParserDirect($id='')
     {
         ob_start();
-        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         
         $this->http_status_code = '200';
 
@@ -333,10 +262,10 @@ class DocumentParser {
         if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
         
         $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
+        $this->uri_parent_dir = '';
+        
         $_REQUEST['id'] = $id;
         $_GET['id']     = $id;
-        
-        $this->q = false;
         
         $this->documentIdentifier = $id;
         
@@ -347,21 +276,18 @@ class DocumentParser {
         return $result;
     }
     
-    function getDocumentIdentifier($request_uri) {
+    function getDocumentIdentifier($uri) {
         
-        $pos = strpos($request_uri,'?');
-        if($pos!==false) $request_uri = substr($request_uri,0,$pos);
+        $getId = isset($_GET['id']) ? $_GET['id'] : 0;
+        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
         
-        if(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
-            $docid = intval($_GET['id']);
-        }
-        elseif ($this->config['base_url']==$request_uri) {
-            $docid = $this->config['site_start'];
-        }
-        elseif ($this->q!==false) {
-            $docid = $this->getIdFromAlias($this->_treatAliasPath($this->q));
-        }
-        else $docid = false;
+        $pos = strpos($uri,'?');
+        if($pos!==false) $uri = substr($uri,0,$pos);
+        
+        if(preg_match('@^[1-9][0-9]*$@',$getId)) $docid = $getId;
+        elseif ($this->config['base_url']==$uri) $docid = $this->config['site_start'];
+        elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
+        else                                     $docid = false;
         
         return $docid;
     }
@@ -386,11 +312,11 @@ class DocumentParser {
         else     return $alias;
     }
     
-    function setRequestQ($decoded_request_uri) {
+    function getRequestQ($uri) {
         if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) // IIS friendly url fix
             $q = $this->_IIS_furl_fix();
         else {
-            $q = substr($decoded_request_uri,strlen($this->config['base_url']));
+            $q = substr($uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
             if($q=='index.php')        $q = '';
         }
@@ -403,7 +329,7 @@ class DocumentParser {
             exit();
         
         foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
-            $_SERVER[$key] = isset ($_SERVER[$key]) ? htmlspecialchars($_SERVER[$key], ENT_QUOTES) : null;
+            $_SERVER[$key] = isset ($_SERVER[$key]) ? $this->htmlspecialchars($_SERVER[$key]) : null;
         }
         $this->sanitize_gpc($_GET);
         if($this->isBackend()) {
@@ -425,7 +351,10 @@ class DocumentParser {
         {
             $qs = $_GET;
             if(isset($qs['id'])) unset($qs['id']);
-            if(0 < count($qs)) $qs_hash = '_' . md5(join('&',$qs));
+            if(0 < count($qs)) {
+                ksort($qs);
+                $qs_hash = '_' . md5(join('&',$qs));
+            }
             else $qs_hash = '';
             $userID = $this->getLoginUserID('web');
             if($userID) $qs_hash = md5($qs_hash."^{$userID}^");
@@ -461,10 +390,8 @@ class DocumentParser {
                 if (!$this->config['site_unavailable_page']) {
                     header("Content-Type: text/html; charset={$this->config['modx_charset']}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
-                    exit($this->parseTextSimple($tpl,$this->config));
+                    exit($this->parseText($tpl,$this->config));
                 }
-                else
-                    $this->documentObject['content'] = $this->config['site_unavailable_message'];
             }
             
             if($this->http_status_code == '200')
@@ -597,10 +524,9 @@ class DocumentParser {
             // Parse document source
             $bt = '';
             $i=0;
-            while($bt!=md5($this->documentOutput))
+            while($i < $this->maxParserPasses)
             {
-                if($this->maxParserPasses < $i) break;
-                
+                if(strpos($this->documentOutput, '[!')===false) break;
                 $bt = md5($this->documentOutput);
                 $this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
                 $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
@@ -625,13 +551,7 @@ class DocumentParser {
         // End fix by sirlancelot
         
         // remove all unused placeholders
-        if (strpos($this->documentOutput, '[+') !==false)
-        {
-            $matches= array ();
-            $matches = $this->getTagsFromContent($this->documentOutput,'[+','+]');
-            if ($matches[0])
-            $this->documentOutput= str_replace($matches[0], '', $this->documentOutput);
-        }
+        $this->documentOutput = $this->cleanUpMODXTags($this->documentOutput);
         
         if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
         if(strpos($this->documentOutput,'<!---->')!==false)
@@ -673,11 +593,11 @@ class DocumentParser {
         
         if ($this->dumpSQL)
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", $this->queryCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
         if ($this->dumpSnippets)
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", $this->snipCode . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
         
         // invoke OnLogPageView event
@@ -733,12 +653,12 @@ class DocumentParser {
                     $cacheContent  = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
                     $cacheContent .= serialize($this->documentObject);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-                    $filename = "docid_{$docid}{$this->qs_hash}";
+                    $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
                     break;
                 case '2':
                     $cacheContent  = serialize($this->documentObject['contentType']);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-                    $filename = md5($this->decoded_request_uri);
+                    $filename = $this->uri_parent_dir.md5($this->decoded_request_uri);
                     break;
             }
             
@@ -755,21 +675,13 @@ class DocumentParser {
                     break;
             }
             
-            if(mt_rand(0,99) < 1)
-            {
-                $file_count = count(glob($this->config['base_path'].'assets/cache/*.php'));
-                if(1000 < $file_count) $this->clearCache();
-            }
             if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
             if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
                 mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
+            if(!is_dir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}"))
+                mkdir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}",0777, true);
             $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
             $this->saveToFile($page_cache_path, $cacheContent);
-            $alias_cache_path = "{$base_path}assets/cache/alias.siteCache.idx.php";
-            if(count($this->aliasCache)<7000) {
-                $aliasCache = serialize($this->aliasCache);
-                $this->saveToFile($alias_cache_path, $aliasCache);
-            }
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
@@ -885,7 +797,7 @@ class DocumentParser {
         
         $content = file_get_contents($filepath);
         if($content) {
-            $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
+            $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: {$mime_type}");
             echo $this->documentOutput;
@@ -984,15 +896,18 @@ class DocumentParser {
         if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
+        if($this->config['legacy_cache']) $this->setAliasListing();
         return $this->config;
     }
     
     // check for manager login session
-    function isLoggedin()
+    function isLoggedIn($context='mgr')
     {
-        if(isset($_SESSION['mgrValidated']) && !empty($_SESSION['mgrValidated']))
-            return true;
-        else return false;
+        if(substr($context,0,1)=='m') $_ = 'mgrValidated';
+        else                          $_ = 'webValidated';
+        
+        if(isset($_SESSION[$_]) && !empty($_SESSION[$_])) return true;
+        else                                              return false;
     }
 
     function checkSession() {
@@ -1001,21 +916,10 @@ class DocumentParser {
 
     function checkPreview()
     {
-        if ($this->checkSession() == true)
-        {
-            if (isset ($_REQUEST['z']) && $_REQUEST['z'] == 'manprev')
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+        if($this->checkSession()!=true) return false;
+        
+        if(isset($_REQUEST['z']) && $_REQUEST['z']=='manprev') return true;
+        else                                                   return false;
     }
     
     // check if site is offline
@@ -1046,7 +950,7 @@ class DocumentParser {
                 $filename = 'error503';
                 break;
             default:
-                $filename = "docid_{$id}{$this->qs_hash}";
+                $filename = "{$this->uri_parent_dir}docid_{$id}{$this->qs_hash}";
         }
         
         $cacheFile = "{$this->config['base_path']}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
@@ -1193,7 +1097,7 @@ class DocumentParser {
 
         unset($this->chunkCache);
         $this->setChunkCache();
-        $this->setAliasListing();
+        if($this->config['legacy_cache']) $this->setAliasListing();
 
         //invoke events
         if( !empty($pub_ids) ){
@@ -1291,23 +1195,153 @@ class DocumentParser {
         return $tags;
     }
     
-    function getUltimateParentId($id,$top=0) {
+    function getAliasListing($id,$key=false){
+        
+        if(isset($this->aliasListing[$id])) {
+            if($key) return $this->aliasListing[$id][$key];
+            else     return $this->aliasListing[$id];
+        }
+        $where = sprintf('id=%s', (int)$id);
+        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        
+        if(!$this->db->getRecordCount($rs)) return false;
+        
+        $row = $this->db->getRow($rs);
+        $pathInfo =  array(
+            'id'       => (int)$row['id'],
+            'alias'    => $row['alias']=='' ? $row['id'] : $row['alias'],
+            'parent'   => (int)$row['parent'],
+            'isfolder' => (int)$row['isfolder'],
+        );
+        $pathInfo['path'] = '';
+        if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
+            $_ = $this->getAliasListing((int)$row['parent']);
+            if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
+            else                                 $pathInfo['path'] = $_['alias'];
+        }
+        if(!isset($this->tmpCache['setAliasListingByParent'][$row['parent']]))
+            $this->setAliasListingByParent($row['parent'],$pathInfo['alias']);
+        $this->aliasListing[$id] = $pathInfo;
+        
+        if($key) return $pathInfo[$key];
+        else     return $pathInfo;
+    }
+    
+    function setAliasListingByParent($parent_id,$path){
+        if(isset($this->tmpCache['setAliasListingByParent'][$parent_id])) return;
+        $where = sprintf('parent=%s', (int)$parent_id);
+        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        
+        if(!$this->db->getRecordCount($rs)) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            $docid = (int)$row['id'];
+            if(isset($this->aliasListing[$docid])) continue;
+            
+            $pathInfo =  array(
+                'id'       => $docid,
+                'alias'    => $row['alias']=='' ? $docid : $row['alias'],
+                'parent'   => (int)$row['parent'],
+                'isfolder' => (int)$row['isfolder']
+            );
+            if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
+                $_ = $this->getAliasListing((int)$row['parent']);
+                if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
+                else                                 $pathInfo['path'] = $_['alias'];
+            }
+            else $pathInfo['path'] = '';
+            
+            $this->aliasListing[$docid] = $pathInfo;
+        }
+        $this->tmpCache['setAliasListingByParent'][$parent_id] = true;
+    }
+    
+    function getAliasFromID($docid) {
+        
+        if(isset($this->aliaslist[$docid])) return $this->aliaslist[$docid];
+        
+        $fields = "id, IF(alias='', id, alias) AS alias";
+        $parent_id = $this->getParentID($docid);
+        $where = sprintf("parent='%s'", $parent_id);
+        $rs = $this->db->select($fields,'[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            extract($row);
+            $this->aliaslist[$id]  = $alias;
+        }
+        return $this->aliaslist[$docid];
+    }
+    
+    function getParentID($docid) {
+        
+        if(isset($this->parentlist[$docid])) return $this->parentlist[$docid];
+        elseif($docid==0)                    return 0;
+        
+        $where = sprintf("id='%s'", $docid);
+        $rs = $this->db->select('parent','[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        $row = $this->db->getRow($rs);
+        extract($row);
+        $this->parentlist[$docid] = $parent;
+        $this->setParentIDByParent($parent);
+        return $parent;
+    }
+    
+    function setParentIDByParent($parent) {
+        if(isset($this->tmpCache['setParentIDByParent'][$parent])) return;
+        $where = sprintf("parent='%s'", $parent);
+        $rs = $this->db->select('id','[+prefix+]site_content', $where);
+        if(!$rs) return false;
+        
+        while($row = $this->db->getRow($rs)) {
+            extract($row);
+            $this->parentlist[$id] = $parent;
+        }
+        $this->tmpCache['setParentIDByParent'][$parent] = true;
+    }
+    
+    function getAliasPath($docid) {
+        
+        if(isset($this->aliasPath[$docid])) return $this->aliasPath[$docid];
+        
+        $parent = $docid;
         $i=0;
-        while ($id &&$i<20) {
-            if($top==$this->aliasListing[$id]['parent']) break;
-            $id = $this->aliasListing[$id]['parent'];
+        while($parent!=0) {
+            $_[] = $this->getAliasFromID($parent);
+            $parent = $this->getParentID($parent);
+            $i++;
+            if(20<$i) break;
+        }
+        if(0<count($_)) $aliasPath = join('/', array_reverse($_));
+        else            $aliasPath = '';
+        
+        $this->aliasPath[$docid] = $aliasPath;
+        
+        return $aliasPath;
+    }
+    
+    function getUltimateParentId($docid,$top=0) {
+        
+        //$this->getParentID($docid)
+        $i=0;
+        while ($docid &&$i<20) {
+            if($top==$this->getParentID($docid)) break;
+            $docid = $this->getParentID($docid);
             $i++;
         }
-        return $id;
+        return $docid;
     }
     // mod by Raymond
-    function mergeDocumentContent($content,$convertValue=true)
-    {
+    function mergeDocumentContent($content,$ph=false,$convertValue=true) {
         if(!isset($this->documentIdentifier)) return $content;
         if(strpos($content,'[*')===false)     return $content;
         if(!isset($this->documentObject) || empty($this->documentObject)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->documentObject;
         
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
@@ -1315,49 +1349,23 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             if(substr($key, 0, 1) == '#') $key = substr($key, 1); // remove # for QuickEdit format
             
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
+            list($key,$context)   = explode('@',$key,2);
             
-            $key = trim($key);
-            if(strpos($key,'@')!==false) $value = $this->_contextValue($key);
-            elseif(!isset($this->documentObject[$key])) $value = '';
-            else $value= $this->documentObject[$key];
+            if(!isset($ph[$key])) {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
+            }
+            elseif($context) $value = $this->_contextValue("{$key}@{$context}");
+            else             $value = $ph[$key];
             
             if (is_array($value)) {
-                if($modifiers==='raw')     $value = $value['value'];
-                else                       $value= $this->tvProcessor($value);
+                if($modifiers==='raw') $value = $value['value'];
+                else                   $value= $this->tvProcessor($value);
             }
             
-            if($modifiers!==false && $modifiers!=='raw')
-            {
-                $this->loadExtension('MODIFIERS');
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
-            }
-            elseif($convertValue)
-            {
-                switch($key)
-                {
-                    case 'createdon':
-                    case 'editedon':
-                    case 'publishedon':
-                    case 'pub_date':
-                    case 'unpub_date':
-                        $value = $this->toDateFormat($value);
-                        break;
-                    case 'createdby':
-                    case 'editedby':
-                    case 'publishedby':
-                        $_ = $this->getUserInfo($value);
-                        $value = $_['username'];
-                        break;
-                }
-            }
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
-                else                         $value = 0;
-            }
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            elseif($convertValue)  $value = $this->getReadableValue($key,$value);
             
             $content= str_replace($matches[0][$i], $value, $content);
         }
@@ -1370,16 +1378,47 @@ class DocumentParser {
         return $content;
     }
     
+    function splitKeyAndFilter($key) {
+        
+        if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
+        else                         $modifiers = false;
+        
+        $key = trim($key);
+        if($modifiers!==false) $modifiers = trim($modifiers);
+        
+        return array($key,$modifiers);
+    }
+    
+    function getReadableValue($key,$value) {
+        switch($key) {
+            case 'createdon':
+            case 'editedon':
+            case 'publishedon':
+            case 'pub_date':
+            case 'unpub_date':
+                $value = $this->toDateFormat($value);
+                break;
+            case 'createdby':
+            case 'editedby':
+            case 'publishedby':
+                $_ = $this->getUserInfo($value);
+                $value = $_['username'];
+                break;
+        }
+        return $value;
+    }
+    
     function _contextValue($key) {
         if(preg_match('/@\d+\/u/',$key))
         $key = str_replace(array('@','/u'),array('@u(',')'),$key);
         list($key,$str) = explode('@',$key,2);
-        $context = strtolower($str);
-        if(substr($str,0,5)==='alias' && strpos($str,'(')!==false)
-            $context = 'alias';
-        elseif(substr($str,0,1)==='u' && strpos($str,'(')!==false)
-            $context = 'uparent';
-        switch($context) {
+        
+        if(strpos($str,'(')) list($context,$option) = explode('(', $str, 2);
+        else                 list($context,$option) = array($str, false);
+        
+        if($option) $option = trim($option, ')(\'"`');
+        
+        switch(strtolower($context)) {
             case 'site_start':
                 $docid = $this->config['site_start'];
                 break;
@@ -1404,6 +1443,46 @@ class DocumentParser {
                 $str = trim($str,'()"\'');
                 $docid = $this->getIdFromAlias($str);
                 break;
+            case 'prev':
+                if(!$option) $option = 'menuindex,ASC';
+                elseif(strpos($option, ',')===false) $option .= ',ASC';
+                list($by,$dir) = explode(',', $option, 2);
+                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
+                $find = false;
+                $prev = false;
+                foreach($children as $row) {
+                    if($row['id'] == $this->documentIdentifier) {
+                        $find = true;
+                        break;
+                    }
+                    $prev = $row;
+                }
+                if($find) {
+                    if(isset($prev[$key])) return $prev[$key];
+                    else $docid = $prev['id'];
+                }
+                else $docid = '';
+                break;
+            case 'next':
+                if(!$option) $option = 'menuindex,ASC';
+                elseif(strpos($option, ',')===false) $option .= ',ASC';
+                list($by,$dir) = explode(',', $option, 2);
+                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
+                $find = false;
+                $next = false;
+                foreach($children as $row) {
+                    if($find) {
+                        $next = $row;
+                        break;
+                    }
+                    if($row['id'] == $this->documentIdentifier) $find = true;
+                }
+                if($find) {
+                    if(isset($next[$key])) return $next[$key];
+                    else $docid = $next['id'];
+                }
+                else $docid = '';
+                break;
             default:
                 $docid = $str;
         }
@@ -1417,48 +1496,36 @@ class DocumentParser {
     {
         $tend = $this->getMicroTime();
         $totaltime = $tend - $fstart;
-        $fname = htmlspecialchars($fname, ENT_QUOTES, $this->config['modx_charset']);
+        $fname = $this->htmlspecialchars($fname);
         $msg = sprintf('%2.4fs, %s',$totaltime,$fname);
         $this->functionLog[] = $msg;
     }
     
-    function mergeSettingsContent($content)
-    {
-        if(strpos($content,'[(')===false) return $content;
+    function mergeSettingsContent($content,$ph=false) {
+        if (strpos($content, '[(') === false)
+            return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->config;
         
         $matches = $this->getTagsFromContent($content,'[(',')]');
         if(!$matches) return $content;
         
         $replace= array ();
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            $key = trim($key);
-            if(isset($this->config[$key]))
-            {
-                $value = $this->config[$key];
-                if($modifiers!==false)
-                {
-                    $this->loadExtension('MODIFIERS');
-                    $value = $this->filter->phxFilter($key,$value,$modifiers);
-                }
-                
-                $replace[$i]= $value;
+            if(isset($ph[$key])) $value = $ph[$key];
+            else {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
             }
-            else $value = $key;
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!=='' && $value!='0') $value = 1;
-                else                           $value = 0;
-            }
-            $replace[$i]= $value;
+            
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            $content= str_replace($matches[0][$i], $value, $content);
         }
         
-        $content= str_replace($matches[0], $replace, $content);
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
@@ -1467,11 +1534,12 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeChunkContent($content)
-    {
+    function mergeChunkContent($content,$ph=false) {
         if(strpos($content,'{{')===false) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
+        
+        if(!$ph) $ph = $this->chunkCache;
         
         $matches = $this->getTagsFromContent($content,'{{','}}');
         if(!$matches) return $content;
@@ -1480,30 +1548,27 @@ class DocumentParser {
         foreach($matches[1] as $i=>$key) {
             $snip_call = $this->_split_snip_call($key);
             $key = $snip_call['name'];
-            $ph = $this->_snipParamsToArray($snip_call['params']);
-            if(substr($key,0,6)==='@FILE:') $key = '@FILE ' . substr($key,6);
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
+            $params = $this->getParamsFromString($snip_call['params']);
             
-            $key = trim($key);
-            $value = $this->getChunk($key);
-            $value = $this->parseText($ph,$value,'[+','+]','hasModifier');
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
             
-            if($modifiers!==false)
-            {
-                $this->loadExtension('MODIFIERS');
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
+            if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
+            $value = $ph[$key];
+            if(is_null($value)) {
+                $content= str_replace($matches[0][$i], '', $content);
+                continue;
             }
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
-                else                         $value = 0;
-            }
-            $replace[$i] = $value;
+            $value = $this->parseText($value,$params);
+            $value = $this->mergeConditionalTagsContent($value);
+            $value = $this->mergeDocumentContent($value);
+            $value = $this->mergeSettingsContent($value);
+            $value = $this->mergeChunkContent($value);
+            
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            
+            $content= str_replace($matches[0][$i], $value, $content);
         }
         
-        $content= str_replace($matches[0], $replace, $content);
         if ($this->debug)
         {
             $_ = join(', ', $matches[0]);
@@ -1513,35 +1578,32 @@ class DocumentParser {
     }
     
     // Added by Raymond
-    function mergePlaceholderContent($content)
-    {
+    function mergePlaceholderContent($content,$ph=false) {
+        
         if(strpos($content,'[+')===false) return $content;
-        if(!is_array($this->placeholders)) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
-        $content=$this->mergeSettingsContent($content);
+        
+        if(!$ph) $ph = $this->placeholders;
+        
+        $replace = array();
+        $content= $this->mergeConditionalTagsContent($content);
+        $content= $this->mergeDocumentContent($content);
+        $content= $this->mergeSettingsContent($content);
         $matches = $this->getTagsFromContent($content,'[+','+]');
         if(!$matches) return $content;
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
             
-            $key = trim($key);
-            if (isset($this->placeholders[$key])) $value = $this->placeholders[$key];
-            elseif($key==='phx') $value = '';
+            list($key,$modifiers) = $this->splitKeyAndFilter($key);
+            
+            if (isset($ph[$key])) $value = $ph[$key];
+            elseif($key==='phx')  $value = '';
             else continue;
             
             if($modifiers!==false)
             {
-                $this->loadExtension('MODIFIERS');
                 $modifiers = $this->mergePlaceholderContent($modifiers);
-                $value = $this->filter->phxFilter($key,$value,$modifiers);
-            }
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!==''&&$value!='0') $value = 1;
-                else                         $value = 0;
+                $value = $this->applyFilter($value,$modifiers,$key);
             }
             $content= str_replace($matches[0][$i], $value, $content);
         }
@@ -1560,14 +1622,13 @@ class DocumentParser {
         if ($this->debug) $fstart = $this->getMicroTime();
         
         $matches = $this->getTagsFromContent($content,$left,$right);
-        if(!empty($matches))
-        {
-            foreach($matches[1] as $i=>$v)
-            {
-                $matches[1][$i] = $this->parseDocumentSource($v);
-            }
-            $content = str_replace($matches[0],$matches[1],$content);
+        if(empty($matches)) return $content;
+        
+        foreach($matches[1] as $i=>$v) {
+            $matches[1][$i] = trim($v);
         }
+        $content = str_replace($matches[0],$matches[1],$content);
+        
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
@@ -1587,73 +1648,111 @@ class DocumentParser {
         return $content;
     }
     
-    function mergeConditionalTagsContent($content, $iftag='<@IF:', $elseiftag='<@ELSEIF', $elsetag='<@ELSE>', $endiftag='<@ENDIF>')
+    function mergeConditionalTagsContent($content, $iftag='<@IF:', $elseiftag='<@ELSEIF:', $elsetag='<@ELSE>', $endiftag='<@ENDIF>')
     {
         if ($this->debug) $fstart = $this->getMicroTime();
         
-        if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content);
+        if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content); // for jp
         if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
         if(strpos($content,$iftag)===false)          return $content;
-        if(strpos($content,'<!--@ELSEIF')!==false)   $content = str_replace('<!--@ELSEIF',  $elseiftag,  $content);
-        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);
-        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);
+        if(strpos($content,'<!--@ELSEIF:')!==false)  $content = str_replace('<!--@ELSEIF:', $elseiftag,  $content); // for jp
+        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);  // for jp
+        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);    // for jp
         if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);
         
-        $s = array($iftag,        '<@ELSE',            $endiftag);
-        $r = array('<!--@CONDTAG@IF:','<!--@CONDTAG@ELSE', '<!--@CONDTAG@ENDIF>');
+        $_ = '#'.md5('ConditionalTags'.$_SERVER['REQUEST_TIME']).'#';
+        $s = array('<@IF:'    ,     '<@ELSEIF:',     '<@ELSE>',     '<@ENDIF>');
+        $r = array("{$_}<@IF:", "{$_}<@ELSEIF:", "{$_}<@ELSE>", "{$_}<@ENDIF>");
         $content = str_replace($s, $r, $content);
-        $splits = explode('<!--@CONDTAG@', $content);
+        $splits = explode($_, $content);
+        unset($_);
+        
         foreach($splits as $i=>$split) {
             if($i===0) {
                 $content = $split;
-                $excute = false;
+                $excute  = false;
+                $depth = 0;
                 continue;
             }
-            if(substr($split,0,2)==='IF' || substr($split,0,6)==='ELSEIF') {
+            
+            if    (substr($split,0,5)==='<@IF:')     $scope = '@IF';
+            elseif(substr($split,0,9)==='<@ELSEIF:') $scope = '@ELSEIF';
+            elseif(substr($split,0,6)==='<@ELSE')    $scope = '@ELSE';
+            elseif(substr($split,0,7)==='<@ENDIF')   $scope = '@ENDIF';
+            else exit('Unknown error '.__LINE__);
+            
+            if($scope==='@IF')    $depth++;
+            if(1<$depth) {
+                if($scope==='@ENDIF') $depth--;
+                if($excute) $content .= $split;
+                continue;
+            }
+            if($scope==='@ENDIF') $depth--;
+            
+            if($scope==='@IF' || $scope==='@ELSEIF') {
                 if($excute) continue;
+                $_ = md5('@:>@');
+                if(strpos($split,':>')!==false) $split = str_replace(':>', ':'.$_, $split);
                 list($cmd, $text) = explode('>', $split, 2);
-                $dlen = substr($split,0,2)==='IF' ? 2 : 6;
-                
-                $cmd = rtrim(substr($cmd,$dlen+1));
-                if(substr($cmd,-$dlen)==='--') $cmd = substr($cmd,0,-$dlen);
-                // echo ' -|||' . $cmd . '|||- ';
-                $flag = substr($cmd,0,1)!=='!' ? true : false;
-                if($flag===false) $cmd = ltrim($cmd,'!');
+                $cmd = rtrim($cmd,'-');
+                if(strpos($cmd,$_)!==false)  $cmd  = str_replace($_, '>', $cmd);
+                if(strpos($text,$_)!==false) $text = str_replace($_, '>', $text);
+                $cmd = substr($cmd,strpos($cmd,':')+1);
+                $cmd = trim($cmd);
+                $reverse = substr($cmd,0,1)==='!' ? true : false;
+                if($reverse) $cmd = ltrim($cmd,'!');
                 
                 if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
-                $this->condScope = true;
-                if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
-                if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
-                if(strpos($cmd,'{{')!==false) $cmd= $this->mergeChunkContent($cmd);
-                if(strpos($cmd,'[[')!==false) $cmd= $this->evalSnippets($cmd);
-                if(strpos($cmd,'[+')!==false
-                 &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
-                $this->condScope = false;
+                $safe=0;
+                $bt2='';
+                while($safe < 20) {
+                    $bt2 = md5($cmd);
+                    if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
+                    if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
+                    if(strpos($cmd,'{{')!==false) $cmd= $this->mergeChunkContent($cmd);
+                    if(strpos($cmd,'[[')!==false) $cmd= $this->evalSnippets($cmd);
+                    if(strpos($cmd,'[+')!==false
+                     &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
+                    if($bt2===md5($cmd)) break;
+                    $safe++;
+                }
                 $cmd = ltrim($cmd);
+                $cmd = rtrim($cmd,'-');
                 $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
                 
                 if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
                     $cmd = (int) eval("return {$cmd};");
                 if($cmd < 0) $cmd = 0;
                 
-                if( ($flag===true && !empty($cmd)) || ($flag===false && empty($cmd)) ) {
+                if( (!$reverse && !empty($cmd)) || ($reverse && empty($cmd)) ) {
                     $content .= $text;
                     $excute = true;
                 }
                 else $excute = false;
             }
-            elseif(substr($split,0,4)==='ELSE') {
+            elseif($scope==='@ELSE') {
                 if($excute) continue;
                 list(, $text) = explode('>', $split, 2);
                 $content .= $text;
                 $excute = true;
             }
-            else {
+            elseif($scope==='@ENDIF') {
                 list(, $text) = explode('>', $split, 2);
                 $content .= $text;
                 $excute = false;
             }
         }
+        
+        $bt = '';
+        $i = 0;
+        while($i<10) {
+            if(strpos($content,$iftag)===false) break;
+            $bt = md5($content);
+            $content = $this->mergeConditionalTagsContent($content, $iftag, $elseiftag, $elsetag, $endiftag);
+            if($bt===md5($content)) break;
+            $i++;
+        }
+        
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         return $content;
     }
@@ -1727,30 +1826,26 @@ class DocumentParser {
         }
     }
     
-    function evalSnippet($phpcode, $params)
-    {
+    function evalSnippet($phpcode, $params) {
         $modx= & $this;
         if ($this->debug) $fstart = $this->getMicroTime();
-        if(isset($params) && is_array($params))
-        {
-            while(list($k,$v) = each($params))
-            {
+        if(isset($params) && is_array($params)) {
+            foreach($params as $k=>$v) {
+                $v = strtolower($v);
                 if($v==='false')    $params[$k] = false;
                 elseif($v==='true') $params[$k] = true;
             }
         }
         $modx->event->params = $params; // store params inside event object
-        if (is_array($params))
-        {
+        if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        $return= eval($phpcode);
-        $echo= ob_get_contents();
+        $return = eval($phpcode);
+        $echo = ob_get_contents();
         ob_end_clean();
         
-        if ((0<$this->config['error_reporting']) && $echo && isset($php_errormsg))
-        {
+        if ((0 < $this->config['error_reporting']) && $echo && isset($php_errormsg)) {
             $error_info = error_get_last();
             if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
             else                                                         $error_type = 3;
@@ -1764,26 +1859,32 @@ class DocumentParser {
                 }
             }
         }
-        unset ($modx->event->params);
+        unset($modx->event->params);
         if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
-        return $echo . $return;
+        if (is_array($return) || is_object($return)) {
+            return $return;
+        } else {
+            return $echo . $return;
+        }
     }
     
-    function evalSnippets($content,$nest=0)
+    function evalSnippets($content)
     {
         if(strpos($content,'[[')===false) return $content;
         
         if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');
+        
         if(!$matches) return $content;
         $this->snipLapCount++;
         if ($this->dumpSnippets)
-            $this->snipCode .= '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
+            $this->dumpSnippetsCode[] = '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
         
         $replace= array ();
         foreach($matches[1] as $i=>$value) {
+            $this->currentSnippetCall = $matches[0][$i];
             if(substr($value,0,2)==='$_') {
                 $replace[$i] = $this->_getSGVar($value);
                 continue;
@@ -1794,17 +1895,10 @@ class DocumentParser {
                     break;
                 }
             }
-            $this->currentSnippetCall = $matches[0][$i];
-            $value = $this->_get_snip_result($value);
-            if($this->condScope) {
-                $value = trim($value);
-                if($value!=='' && $value!='0') $value = 1;
-                else                           $value = 0;
-            }
-            $replace[$i] = $value;
+            $replace[$i] = $this->_get_snip_result($value);
         }
         
-        if($this->dumpSnippets) $this->snipCode .= '</div></fieldset>';
+        if($this->dumpSnippets) $this->dumpSnippetsCode[] = '</div></fieldset>';
         
         $content = str_replace($matches[0], $replace, $content);
         return $content;
@@ -1812,11 +1906,8 @@ class DocumentParser {
     
     function _getSGVar($value) { // Get super globals
         $key = $value;
-        if(strpos($key,':')!==false)
-            list($key,$modifiers) = explode(':', $key, 2);
-        else $modifiers = false;
+        list($key,$modifiers) = $this->splitKeyAndFilter($key);
         
-        $key = trim($key);
         $key = str_replace(array('(',')'),array("['","']"),$key);
         if(strpos($key,'$_SESSION')!==false)
         {
@@ -1826,35 +1917,27 @@ class DocumentParser {
             if(isset($_['token'])) unset($_['token']);
         }
         if(strpos($key,'[')!==false)
-            $value = eval("return {$key};");
+            $value = $key ? eval("return {$key};") : '';
         elseif(0<eval("return count({$key});"))
             $value = eval("return print_r({$key},true);");
         else $value = '';
-        if($modifiers!==false)
-        {
-            $this->loadExtension('MODIFIERS');
-            $value = $this->filter->phxFilter($key,$value,$modifiers);
-        }
+        
+        if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+        
         return $value;
     }
     private function _get_snip_result($piece)
     {
         $snip_call = $this->_split_snip_call($piece);
-        $key = $snip_call['name'];
         
-        if(strpos($key,':')!==false)
-        {
-            list($key,$modifiers) = explode(':', $key, 2);
-            $key = trim($key);
-            $snip_call['name'] = $key;
-        }
-        else $modifiers = false;
+        list($key,$modifiers) = $this->splitKeyAndFilter($snip_call['name']);
+        $snip_call['name'] = $key;
         
         $snippetObject = $this->_getSnippetObject($key);
         $this->currentSnippet = $key;
         
         // current params
-        $params = $this->_snipParamsToArray($snip_call['params']);
+        $params = $this->getParamsFromString($snip_call['params']);
         
         if(isset($snippetObject['properties']))
         {
@@ -1863,26 +1946,23 @@ class DocumentParser {
         }
         
         $value = $this->evalSnippet($snippetObject['content'], $params);
-        if($modifiers!==false)
-        {
-            $this->loadExtension('MODIFIERS');
-            $value = $this->filter->phxFilter($key,$value,$modifiers);
-        }
+        
+        if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
         
         if($this->dumpSnippets)
         {
             if($value) {
                 if(150<strlen($value)) $height = 200;
                 else                   $height = 50;
-                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, htmlspecialchars($value,ENT_NOQUOTES,$this->config['modx_charset']));
+                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, $this->htmlspecialchars($value));
             }
             else $code = 'Empty';
-            $this->snipCode .= sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $key, $code);
+            $this->dumpSnippetsCode[] = sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $key, $code);
         }
         return $value;
     }
     
-    function _snipParamsToArray($string='')
+    function getParamsFromString($string='') // _snipParamsToArray()
     {
         if(empty($string)) return array();
         
@@ -1890,6 +1970,7 @@ class DocumentParser {
         $_tmp = ltrim($_tmp, '?&');
         $temp_params = array();
         $key = '';
+        $value = null;
         while($_tmp!==''):
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
@@ -1930,14 +2011,14 @@ class DocumentParser {
             {
                 if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
                 $key=trim($key);
+                if(strpos($value,'[!')!==false) $value = str_replace(array('[!','!]'), array('[[',']]'), $value);
+                $value = $this->mergeDocumentContent($value);
+                $value = $this->mergeSettingsContent($value);
+                $value = $this->mergeChunkContent($value);
+                $value = $this->evalSnippets($value);
                 if(substr($value,0,6)!=='@CODE:')
-                {
-                    if(strpos($value,'[*')!==false) $value = $this->mergeDocumentContent($value);
-                    if(strpos($value,'[(')!==false) $value = $this->mergeSettingsContent($value);
-                    if(strpos($value,'{{')!==false) $value = $this->mergeChunkContent($value);
-                    if(strpos($value,'[[')!==false) $value = $this->evalSnippets($value);
-                    if(strpos($value,'[+')!==false) $value = $this->mergePlaceholderContent($value);
-                }
+                    $value = $this->mergePlaceholderContent($value);
+                
                 $temp_params[][$key]=$value;
                 
                 $key   = '';
@@ -1976,25 +2057,36 @@ class DocumentParser {
     }
     
     function _getSplitPosition($str) {
-        $chars = str_split($str);
-        $pass = false;
-        $i = -1;
-        $pos = false;
+        $closeOpt = false;
+        $maybePos = false;
         $inFilter = false;
-        foreach($chars as $c) {
-            $i++;
-            if($inFilter)    {
-                if    ($c===')') { $pass = false; continue; }
-                elseif($pass)    { continue; }
-                elseif($c==='(') { $pass=true; continue; }
-                elseif($c==='?') { $pos=$i; break; }
-                elseif($c===' ') { 
-                    if(strpos($str,'?')===false) {$pos = $i; break;}
-                }
+        $total = strlen($str);
+        $i=0;
+        for($i=0;$i<$total;$i++) {
+            $c  = substr($str,$i,1);
+            $cc = substr($str,$i,2);
+            if(!$inFilter) {
+                if($c===':')                  $inFilter=true;
+                elseif($c==='?')              $pos = $i;
+                elseif($c===' ')              $maybePos = $i;
+                elseif($c==='&' && $maybePos) $pos = $maybePos;
+                elseif($c==="\n")             $pos = $i;
+                else                          $pos = false;
             }
-            elseif($c===':')     { $inFilter=true; }
-            elseif($c==='?')     { $pos = $i; break; }
-            else                 $pos = false;
+            else {
+                if    ($cc==$closeOpt) $closeOpt = false;
+                elseif($c==$closeOpt)  $closeOpt = false;
+                elseif($closeOpt)      continue;
+                elseif($cc==="('")     $closeOpt = "')";
+                elseif($cc==='("')     $closeOpt = '")';
+                elseif($cc==='(`')     $closeOpt = '`)';
+                elseif($c==='(')       $closeOpt = ')';
+                elseif($c==='?')       $pos=$i;
+                elseif($c===' ' && strpos($str,'?')===false)
+                                       $pos = $i;
+                else                   $pos = false;
+            }
+            if($pos) break;
         }
         return $pos;
     }
@@ -2005,26 +2097,13 @@ class DocumentParser {
         if(strpos($call,']]>')!==false)
             $call = str_replace(']]>', "]{$spacer}]>",$call);
         
-        $pos['?']  = $this->_getSplitPosition($call);
-        $pos['&']  = strpos($call, '&');
-        $pos['=']  = strpos($call, '=');
-        $pos['lf'] = strpos($call, "\n");
+        $splitPosition  = $this->_getSplitPosition($call);
         
-        if($pos['?'] !== false)
+        if($splitPosition !== false)
         {
-            if($pos['lf']!==false && $pos['?'] < $pos['lf'])
-                list($name,$params) = explode('?',$call,2);
-            elseif($pos['lf']!==false && $pos['lf'] < $pos['?'])
-                list($name,$params) = explode("\n",$call,2);
-            else {
-                $name   = substr($call, 0, $pos['?']);
-                $params = substr($call, $pos['?']+1);
-            }
+            $name   = substr($call, 0, $splitPosition);
+            $params = substr($call, $splitPosition+1);
         }
-        elseif($pos['&'] !== false && $pos['='] !== false && $pos['?'] === false)
-            list($name,$params) = explode('&',$call,2);
-        elseif($pos['lf'] !== false)
-            list($name,$params) = explode("\n",$call,2);
         else
         {
             $name   = $call;
@@ -2035,6 +2114,7 @@ class DocumentParser {
         if(strpos($params,$spacer)!==false)
             $params = str_replace("]{$spacer}]>",']]>',$params);
         $snip['params'] = $params = ltrim($params,"?& \t\n");
+        
         return $snip;
     }
     
@@ -2094,27 +2174,6 @@ class DocumentParser {
     {
         $plugins = @include_once(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
         if($plugins) $this->pluginCache = $plugins;
-        else return false;
-    }
-    
-    function setdocumentMap()
-    {
-        $fields = 'id, parent';
-        $rs = $this->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
-        $this->documentMap = array();
-        while ($row = $this->db->getRow($rs))
-        {
-            $docid  = $row['id'];
-            $parent = $row['parent'];
-            $this->documentMap[] = array($row['parent'] => $row['id']);
-        }
-    }
-    
-    function setAliasListing()
-    {
-        if($this->aliasListing) return;
-        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
-        if($aliases) $this->aliasListing = $aliases;
         else return false;
     }
     
@@ -2210,15 +2269,10 @@ class DocumentParser {
         $docid = $documentObject['id'];
         
         // load TVs and merge with document - Orig by Apodigm - Docvars
-        $f[] = 'tv.name';
-        $f[] = "IF(tvc.value!='',tvc.value,tv.default_text) as value";
-        $f[] = 'tv.display';
-        $f[] = 'tv.display_params';
-        $f[] = 'tv.type';
-        $field = implode(',',$f);
+        $field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) AS value, tv.display, tv.display_params, tv.type";
         $from  = "[+prefix+]site_tmplvars tv ";
-        $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id ";
-        $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid = '{$docid}'";
+        $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id ";
+        $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
         if( isset($previewObject['template']) )
             $tmp = $previewObject['template'];
         else
@@ -2268,13 +2322,10 @@ class DocumentParser {
     */
     function parseDocumentSource($source)
     {
-        if(!$this->maxParserPasses) $this->maxParserPasses = 20;
         $bt = '';
         $i = 0;
-        while ($bt!=md5($source))
+        while ($i < $this->maxParserPasses)
         {
-            if($this->maxParserPasses < $i) break;
-            
             $bt = md5($source);
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
@@ -2288,22 +2339,17 @@ class DocumentParser {
             if(strpos($source,'<!--@MODX:')!==false)           $source= $this->mergeCommentedTagsContent($source);
             
             if(strpos($source,'[+@')!==false)                  $source= $this->mergeInlineFilter($source);
-            // combine template and document variables
             if(strpos($source,'[*')!==false)                   $source= $this->mergeDocumentContent($source);
-            // replace settings referenced in document
             if(strpos($source,'[(')!==false)                   $source= $this->mergeSettingsContent($source);
-            // replace HTMLSnippets in document
             if(strpos($source,'{{')!==false)                   $source= $this->mergeChunkContent($source);
-            // find and merge snippets
             if(strpos($source,'[[')!==false)                   $source= $this->evalSnippets($source);
-            // find and replace Placeholders (must be parsed last) - Added by Raymond
             if(strpos($source,'[+')!==false
              &&strpos($source,'[[')===false)                   $source= $this->mergePlaceholderContent($source);
             
             if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false)
                                                                $source = $this->rewriteUrls($source);
             
-            if($bt == md5($source))         break;
+            if($bt === md5($source))  break;
             
             $i++;
         }
@@ -2322,7 +2368,7 @@ class DocumentParser {
         while( $id && 0<$height)
         {
             $current_id = $id;
-            $id = $this->aliasListing[$id]['parent'];
+            $id = $this->getParentID($id);
             if(!$id) break;
             $parents[$current_id] = $id;
             $height--;
@@ -2330,67 +2376,42 @@ class DocumentParser {
         return $parents;
     }
     
-    function set_childrenList()
-    {
-        if($this->childrenList) return $this->childrenList;
-        $path_childrenListCache = MODX_BASE_PATH . 'assets/cache/childrenList.siteCache.idx.php';
-        if(is_file($path_childrenListCache))
-        {
-            $src = file_get_contents($path_childrenListCache);
-            $this->childrenList = unserialize($src);
-        }
-        else
-        {
-            $childrenList= array ();
-            
-            if(!$this->documentMap) $this->setdocumentMap();
-            
-            foreach ($this->documentMap as $document)
-            {
-                while(list($p, $c) = each($document))
-                {
-                    $childrenList[$p][] = $c;
-                }
-            }
-            $this->saveToFile($path_childrenListCache,serialize($childrenList));
-            $this->childrenList = $childrenList;
-        }
-        return $this->childrenList;
-    }
-
     function getChildIds($id, $depth= 10, $children= array ())
     {
         $args = print_r(func_get_args(),true);
         $cacheKey = md5($args);
         if(isset($this->functionCache['getchildids'][$cacheKey])) return $this->functionCache['getchildids'][$cacheKey];
-        
-        // Initialise a static array to index parents->children
-        if(empty($this->childrenList))
-            $childrenList = $this->set_childrenList();
-        else
-            $childrenList = $this->childrenList;
-        
-        // Get all the children for this parent node
-        if (isset($childrenList[$id]))
-        {
-            $depth--;
-            
-            foreach ($childrenList[$id] as $childId)
-            {
-                $pkey = $this->aliasListing[$childId]['alias'];
-                if(strlen($this->aliasListing[$childId]['path']))
-                {
-                    $pkey = "{$this->aliasListing[$childId]['path']}/{$pkey}";
-                }
-                
-                if (!strlen($pkey)) $pkey = $childId;
-                $children[$pkey] = $childId;
-                
-                if ($depth && isset($childrenList[$childId])) {
-                    $children += $this->getChildIds($childId, $depth);
-                }
+        if(!isset($this->tmpCache['getChildIds']['hasChildren'])) {
+            $this->tmpCache['getChildIds']['hasChildren'] = array();
+            $rs = $this->db->select('DISTINCT(parent)', '[+prefix+]site_content');
+            while($row = $this->db->getRow($rs)) {
+                extract($row);
+                $this->tmpCache['getChildIds']['hasChildren'][$parent] = true;
             }
         }
+        if(!isset($this->tmpCache['getChildIds']['hasChildren'][$id])) return array();
+        
+        $where = sprintf('deleted=0 AND parent=%s',$id);
+        $rs = $this->db->select('id', '[+prefix+]site_content', $where, 'parent, menuindex');
+        $childrenList = array();
+        while($row = $this->db->getRow($rs)) {
+            $childrenList[] = $row['id'];
+        }
+        
+        $depth--;
+        foreach ($childrenList as $childId)
+        {
+            $path  = $this->getAliasListing($childId,'path');
+            $alias = $this->getAliasListing($childId,'alias');
+            $key = trim("{$path}/{$alias}", '/');
+            $children[$key] = $childId;
+            
+            if ($depth) {
+                $subChildId = $this->getChildIds($childId, $depth);
+                if($subChildId) $children += $subChildId;
+            }
+        }
+        
         $this->functionCache['getchildids'][$cacheKey] = $children;
         return $children;
     }
@@ -2584,8 +2605,8 @@ class DocumentParser {
     {
         if($id==0) $id = $this->config['site_start'];
         elseif($id=='') $id = $this->documentIdentifier;
-        $cacheKey = "[{$id}-{$alias}-{$args}-{$scheme}]";
-        if(isset($this->functionCache['makeurl'][$cacheKey])) return $this->functionCache['makeurl'][$cacheKey];
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($this->tmpCache['makeurl'][$cacheKey])) return $this->tmpCache['makeurl'][$cacheKey];
         $makeurl= '';
         $f_url_prefix = $this->config['friendly_url_prefix'];
         $f_url_suffix = $this->config['friendly_url_suffix'];
@@ -2607,17 +2628,17 @@ class DocumentParser {
                 $id = $this->referenceListing[$id];
             }
             else {
-                $this->functionCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
+                $this->tmpCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
                 return $this->referenceListing[$id];
             }
         }
 
-        if ($this->config['friendly_urls'] == 1)
-        {
+        if ($this->config['friendly_urls'] == 0) $makeurl= "index.php?id={$id}";
+        else {
             $alPath = '';
             if(empty($alias))
             {
-                $al= $this->aliasListing[$id];
+                $al= $this->getAliasListing($id);
                 $alias = $id;
                 if ($this->config['friendly_alias_urls'] == 1)
                 {
@@ -2633,26 +2654,22 @@ class DocumentParser {
                     }
                     if ($al && $al['alias'])
                     {
-                        if($this->config['xhtml_urls']==='1') $alias = urlencode($al['alias']);
+                        if($this->config['xhtml_urls']==1) $alias = urlencode($al['alias']);
                         else                                  $alias = $al['alias'];
                     }
                     else return false;
                 }
             }
             
-            if(strpos($alias, '.') !== false && $this->config['suffix_mode']==='1')
+            if(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
             {
                 $f_url_suffix = '';
             }
-            elseif($al['isfolder']==='1' && $this->config['make_folders']==='1' && $id != $this->config['site_start'])
+            elseif($al['isfolder']==1 && $this->config['make_folders']==1 && $id != $this->config['site_start'])
             {
                 $f_url_suffix = '/';
             }
             $makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
-        }
-        else {
-            if(isset($this->aliasListing[$id])) $makeurl= "index.php?id={$id}";
-            else return false;
         }
 
         $site_url = $this->config['site_url'];
@@ -2724,7 +2741,7 @@ class DocumentParser {
         if( $url != $params['url'] )
           $url = $params['url'];
         
-        $this->functionCache['makeurl'][$cacheKey] = $url;
+        $this->tmpCache['makeurl'][$cacheKey] = $url;
         return $url;
     }
     
@@ -2752,25 +2769,26 @@ class DocumentParser {
             
             if(preg_match('/^[0-9]+$/',$key))
             {
-                $id = $key;
-                if(isset($this->referenceListing[$id]) && preg_match('/^[0-9]+$/',$this->referenceListing[$id] ))
+                $docid = $key;
+                if(isset($this->referenceListing[$docid]) && preg_match('/^[0-9]+$/',$this->referenceListing[$docid] ))
                 {
-                    $id = $this->referenceListing[$id];
+                    $docid = $this->referenceListing[$docid];
                 }
-                $replace[$i] = $this->makeUrl($id,'','','rel');
+                $replace[$i] = $this->makeUrl($docid,'','','rel');
                 if(!$replace[$i])
                 {
                     $ph['linktag']     = "[~{$key_org}~]";
                     $ph['request_uri'] = $this->decoded_request_uri;
                     $ph['docid']       = $this->documentIdentifier;
-                    $tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>';
+                    $tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>' . MODX_SITE_URL;
                     $tpl = $this->parseText($tpl,$ph);
                     $this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
                 }
             }
             else
             {
-                $replace[$i] = $key;
+                $docid = $this->getIdFromAlias($key);
+                $replace[$i] = $docid;
             }
         }
         $content = str_replace($matches[0], $replace, $content);
@@ -2841,77 +2859,35 @@ class DocumentParser {
         return $src;
     }
 
-    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]',$flag=true)
-    {
-        if(is_array($tpl)&&is_string($ph)) {list($ph,$tpl) = array($tpl,$ph);}
-        
-        if(!$ph) return $tpl;
-        if ($this->debug) $fstart = $this->getMicroTime();
-        if(strpos($tpl,$left)===false) return $tpl;
-        elseif(is_string($ph) && strpos($ph,'='))
-        {
-            if(strpos($ph,',')) $pairs   = explode(',',$ph);
-            else                $pairs[] = $ph;
-            
-            unset($ph);
-            $ph = array();
-            foreach($pairs as $pair)
-            {
-                list($k,$v) = explode('=',trim($pair));
-                $ph[$k] = $v;
-            }
-        }
-        $c=0;
-        $bt='';
-        while($bt!==md5($tpl)) {
-            $matches = $this->getTagsFromContent($tpl,$left,$right);
-            if(!$matches) break;
-            $bt = md5($tpl);
-            $replace= array ();
-            foreach($matches[1] as $i=>$key) {
-                if(strpos($key,':')!==false)
-                    list($key,$modifiers) = explode(':', $key, 2);
-                else
-                    $modifiers = false;
-                
-                $key = trim($key);
-                if($flag=='hasModifier' && !isset($ph[$key])) $ph[$key] = '';
-                
-                if(isset($ph[$key])) {
-                    $value = $ph[$key];
-                    if($modifiers!==false) {
-                        $this->loadExtension('MODIFIERS');
-                        $value = $this->filter->phxFilter($key,$value,$modifiers);
-                    }
-                    $replace[$i]= $value;
-                }
-                elseif($flag) $replace[$i] = '';
-                else                                     $replace[$i] = $matches[0][$i];
-            }
-            $tpl= str_replace($matches[0], $replace, $tpl);
-            if(md5($tpl)===$bt) break;
-            $c++;
-            $flag = false;
-            if(20<$c) $this->messageQuit('parseText parse over');
-        }
-        if ($this->debug)
-        {
-            $_ = join(', ', $matches[0]);
-            $this->addLogEntry('$modx->'.__FUNCTION__ . "({$_})",$fstart);
-        }
-        return $tpl;
-    }
-    
-    function parseTextSimple($tpl='', $ph=array(), $left= '[+', $right= '+]')
+    function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
     {
         if(!$ph)  return $tpl;
         if(!$tpl) return $tpl;
         
-        foreach($ph as $k=>$v) {
-            $k = "{$left}{$k}{$right}";
-            if(strpos($tpl,$k)!==false) $tpl = str_replace($k,$v,$tpl);
+        if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
+        
+        $matches = $this->getTagsFromContent($tpl,$left,$right);
+        if(!$matches) return $tpl;
+        
+        $replace= array ();
+        foreach($matches[1] as $i=>$key) {
+            
+            if(strpos($key,':')!==false && $execModifier)
+                list($key,$modifiers)=$this->splitKeyAndFilter($key);
+            else $modifiers = false;
+            
+            if(isset($ph[$key])) $value = $ph[$key];
+            elseif($modifiers)   $value = '';
+            else                 $value = $matches[0][$i];
+            
+            if($modifiers!==false) {
+                if(strpos($modifiers,$left)!==false) $modifiers=$this->parseText($modifiers,$ph,$left,$right);
+                $value = $this->applyFilter($value,$modifiers,$key);
+            }
+            $replace[$i] = $value;
         }
-        return $tpl;
+        
+        return str_replace($matches[0], $replace, $tpl);
     }
     
     function toDateFormat($timestamp = 0, $mode = '')
@@ -3026,7 +3002,7 @@ class DocumentParser {
         if ($idname == '') return false;
         else
         {
-            $result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', ''); //remove sorting for speed
+            $result= $this->getTemplateVars(array($idname), $fields, $docid, $published, '', '');
             return ($result != false) ? $result['0'] : false;
         }
     }
@@ -3062,8 +3038,8 @@ class DocumentParser {
             $sort= ($sort == '')     ? ''     : $this->join(',',explode(',',$sort),'tv.');
             
             if ($idnames === '*') $where= 'tv.id<>0';
-            elseif (preg_match('@^[0-9]+$@',$idnames['0']))
-                $where= "tv.id='{$idnames['0']}'";
+            elseif (preg_match('@^[1-9][0-9]*$@',$idnames[0]))
+                $where= "tv.id='{$idnames[0]}'";
             else
             {
                 $i = 0;
@@ -3073,7 +3049,7 @@ class DocumentParser {
                     $i++;
                 }
                 $tvnames = "'" . join("','", $idnames) . "'";
-                $where = (preg_match('@^[1-9][0-9]*$@',$idnames['0'])) ? 'tv.id' : "tv.name IN ({$tvnames})";
+                $where = (preg_match('@^[1-9][0-9]*$@',$idnames[0])) ? 'tv.id' : "tv.name IN ({$tvnames})";
             }
             if ($docgrp= $this->getUserDocGroups())
                 $docgrp= implode(',', $docgrp);
@@ -3096,10 +3072,8 @@ class DocumentParser {
             
             // get default/built-in template variables
             ksort($resource);
-            while(list($key, $value) = each($resource))
-            {
-                if ($idnames == '*' || in_array($key, $idnames))
-                {
+            foreach($resource as $key=>$value) {
+                if ($idnames == '*' || in_array($key, $idnames)) {
                     $result[] = array ('name'=>$key,'value'=>$value);
                 }
             }
@@ -3285,10 +3259,11 @@ class DocumentParser {
     {
         if($this->debug)     $fstart = $this->getMicroTime();
         $return = true;
-        if ($this->safeMode)                       $return = false;
-        if (!$evtName)                             $return = false;
-        if (!isset($this->pluginEvent[$evtName]))  $return = false;
-        if(count($this->pluginEvent[$evtName])==0) $return = array();
+        if($this->safeMode)                      $return = false;
+        if(!$evtName)                            $return = false;
+        if(!isset($this->pluginEvent[$evtName])) $return = false;
+        if(isset($this->pluginEvent[$evtName])
+         && count($this->pluginEvent[$evtName])==0)  $return = array();
         if(empty($return)) {
             if($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__ . "({$evtName})", $fstart);
             return $return;
@@ -3514,6 +3489,34 @@ class DocumentParser {
         return $o;
     }
     
+    function applyFilter($value='', $modifiers=false, $key='') {
+        if($modifiers===false || $modifiers=='raw') return $value;
+        if($modifiers!==false) $modifiers = trim($modifiers);
+        
+        $this->loadExtension('MODIFIERS');
+        return $this->filter->phxFilter($key,$value,$modifiers);
+    }
+    
+    function addSnippet($name, $phpCode) {
+        $this->snippetCache['#'.$name] = $phpCode;
+    }
+    
+    function addChunk($name, $text) {
+        $this->chunkCache['#'.$name] = $text;
+    }
+    
+    function cleanUpMODXTags($content='') {
+        $_ = array('[* *]','[( )]','{{ }}','[[ ]]','[+ +]');
+        foreach($_ as $brackets) {
+            list($left,$right) = explode(' ', $brackets);
+            if(strpos($content,$left)!==false) {
+                $matches = $this->getTagsFromContent($content,$left,$right);
+                $content= str_replace($matches[0], '', $content);
+            }
+        }
+        return $content;
+    }
+    
     // - deprecated db functions
     function dbConnect()                 {$this->db->connect();$this->rs= $this->db->conn;}
     function dbQuery($sql)               {return $this->db->query($sql);}
@@ -3609,12 +3612,7 @@ class DocumentParser {
         return round($size,2).' '.$a[$pos];
     }
     
-    function getDocumentListing($str)
-    {
-        return $this->getIdFromAlias($str);
-    }
-    
-    function getIdFromAlias($aliasPath)
+    function getIdFromAlias($aliasPath='')
     {
         if(isset($this->aliasCache[__FUNCTION__][$aliasPath]))
             return $this->aliasCache[__FUNCTION__][$aliasPath];
@@ -3636,9 +3634,9 @@ class DocumentParser {
                 if($id===false) break;
                 if( empty($alias) ){ continue; }
                 $alias = $this->db->escape($alias);
-                $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and alias='{$alias}'");
+                $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND alias REGEXP '^{$alias}$'");
                 if($this->db->getRecordCount($rs)==0)
-                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and parent='{$id}' and id='{$alias}'");
+                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND id REGEXP '^{$alias}$'");
                 $row = $this->db->getRow($rs);
                 
                 if($row) $id = $row['id'];
@@ -3705,10 +3703,11 @@ class DocumentParser {
      */
     function setBaseTime($t=''){
         if( empty($t) ){
-            if( !empty($_REQUEST['baseTime']) && $this->isLoggedin() ){
-                $t=$_REQUEST['baseTime'];
+            $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
+            if( !empty($baseTime) && $this->isLoggedin() ){
+                $t=$baseTime;
             }else{
-                $this->baseTime = time();
+                $this->baseTime = $_SERVER['REQUEST_TIME'];
                 return true;
             }
         }
@@ -3759,8 +3758,8 @@ class DocumentParser {
     }
     
     function gotoSetup() {
-        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false) return;
-        elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return;
+        if(strpos($_SERVER['SCRIPT_NAME'],'install/index.php')!==false)       return false;
+        elseif(strpos($_SERVER['SCRIPT_NAME'],'install/connection.')!==false) return false;
         
         if(is_file(MODX_BASE_PATH . 'install/index.php')) {
             header('Location: install/index.php?action=mode');
@@ -3768,26 +3767,23 @@ class DocumentParser {
         } else exit('Not installed.');
     }
     
-    function setConfig($config_path='manager/includes/config.inc.php') {
-        
-        if(!is_file(MODX_BASE_PATH.$config_path)) $this->gotoSetup();
-        else include(MODX_BASE_PATH.$config_path);
-        
-        if (!isset($lastInstallTime) || empty($lastInstallTime)) $this->gotoSetup();
-        
-        if(!isset($database_server)) return false;
-        
-        $this->db->hostname     = $database_server;
-        $this->db->username     = $database_user;
-        $this->db->password     = $database_password;
-        $this->db->dbname       = $dbase;
-        $this->db->charset      = $database_connection_charset;
-        $this->db->table_prefix = $table_prefix;
-        $this->lastInstallTime  = $lastInstallTime;
-        
-        return true;
-    }
-    
+	function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
+	{
+		if($str=='') return '';
+		
+		if($encode=='') $encode = $this->config['modx_charset'];
+		
+		$ent_str = htmlspecialchars($str, $flags, $encode);
+		
+		if(!empty($str) && empty($ent_str))
+		{
+			$detect_order = implode(',', mb_detect_order());
+			$ent_str = mb_convert_encoding($str, $encode, $detect_order); 
+		}
+		
+		return $ent_str;
+	}
+	
     // End of class.
 }
 

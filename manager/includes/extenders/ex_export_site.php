@@ -136,7 +136,7 @@ class EXPORT_SITE
 		$pastTime = $this->getPastTime();
 		if(!empty($this->maxtime) && $this->maxtime < $pastTime)
 		{
-			$msg = $modx->parseTextSimple($_lang['export_site_exit_maxtime'], array('count'=>$this->count, 'total'=>$this->total, 'maxtime'=>$this->maxtime));
+			$msg = $modx->parseText($_lang['export_site_exit_maxtime'], array('count'=>$this->count, 'total'=>$this->total, 'maxtime'=>$this->maxtime));
 			exit($msg);
 		}
 		
@@ -158,6 +158,9 @@ class EXPORT_SITE
 		if($src !== false)
 		{
 			if($this->repl_before!==$this->repl_after) $src = str_replace($this->repl_before,$this->repl_after,$src);
+			
+			if(is_file(dirname($filepath))) return 'failed_no_open';
+			
 			$result = file_put_contents($filepath,$src);
 			if($result!==false) @chmod($filepath, $file_permission);
 			
@@ -214,13 +217,13 @@ class EXPORT_SITE
 		
 		while($row = $modx->db->getRow($rs))
 		{
-			$_ = $modx->aliasListing[$row['id']]['path'];
-			$target_base_path = $_=='' ? $this->targetDir . '/' : $this->targetDir . '/' . $_ . '/';
-			if (!is_dir($target_base_path))
-			{
-				if (is_file($target_base_path)) @unlink($target_base_path);
-				mkdir($target_base_path,$folder_permission,true);
-			}
+			$_ = $modx->getAliasListing($row['id'],'path');
+			$target_base_path = $_=='' ? sprintf('%s/',$this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
+			unset($_);
+			$_ = rtrim($target_base_path,'/');
+			if(!file_exists($_)) mkdir($_,$folder_permission,true);
+			unset($_);
+			
 			$this->count++;
 			$row['count'] = $this->count;
 			
@@ -228,6 +231,7 @@ class EXPORT_SITE
 			{ // needs writing a document
 				$docname = $this->getFileName($row['id'], $row['alias'], $prefix, $suffix);
 				$filename = $target_base_path.$docname;
+				if(is_dir($filename)) $filename = rtrim($filename,'/') . '/index.html';
 				if (!is_file($filename)||substr($filename,-10)==='index.html')
 				{
 					if($row['published']==='1')
@@ -243,12 +247,12 @@ class EXPORT_SITE
 					else $row['status'] = $msg_failed_no_retrieve;
 				}
 				else     $row['status'] = $msg_success_skip_doc;
-				$this->output[] = $modx->parseTextSimple($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
 			}
 			else
 			{
 				$row['status']  = $msg_success_skip_dir;
-				$this->output[] = $modx->parseTextSimple($_lang['export_site_exporting_document'], $row);
+				$this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
 			}
 			if ($row['isfolder']==='1' && ($modx->config['suffix_mode']!=='1' || strpos($row['alias'],'.')===false))
 			{ // needs making a folder
@@ -328,7 +332,7 @@ class EXPORT_SITE
 		else
 			$ph['msg2'] = '';
 		
-		$result = $modx->parseTextSimple($tpl,$ph);
+		$result = $modx->parseText($tpl,$ph);
 		return $result;
     }
 }

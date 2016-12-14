@@ -301,8 +301,6 @@ function isUpGrade()
 {
 	global $modx,$base_path;
 	
-	$_SESSION = array();
-	
 	$conf_path = "{$base_path}manager/includes/config.inc.php";
 	if (!is_file($conf_path)) return 0;
 	
@@ -369,7 +367,7 @@ function result($status='ok',$ph=array())
 	$ph['name']   = ($ph['name']) ? "&nbsp;&nbsp;{$ph['name']} : " : '';
 	if(!isset($ph['msg'])) $ph['msg'] = '';
 	$tpl = '<p>[+name+]<span class="[+status+]">[+msg+]</span></p>';
-	return $modx->parseTextSimple($tpl,$ph);
+	return $modx->parseText($tpl,$ph);
 }
 
 function get_langs()
@@ -394,15 +392,6 @@ function get_lang_options($lang_name)
 		$option[] = '<option value="' . $lang . '"'. (($lang == $lang_name) ? ' selected="selected"' : null) .'>' . ucwords($abrv_language[0]). '</option>';
 	}
 	return "\n" . join("\n",$option);
-}
-
-function genHash($password, $seed='1')
-{
-	$salt = md5($password . $seed);
-	$password = sha1($salt.$password);
-	$result = 'uncrypt>' . md5($salt.$password) . substr(md5($salt),0,8);
-	
-	return $result;
 }
 
 function collectTpls($path)

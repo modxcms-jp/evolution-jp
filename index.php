@@ -46,19 +46,23 @@
  */
 if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 $mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
-$base_path = str_replace('index.php','', str_replace('\\', '/',__FILE__));
+$base_path = str_replace('\\', '/',dirname(__FILE__)) . '/';
 define('MODX_BASE_PATH', $base_path);
+
+if(isset($_GET['get']) && $_GET['get']=='captcha') {
+    include_once("{$base_path}manager/media/captcha/veriword.php");
+    return;
+}
 
 $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
-if(is_file($base_path . 'assets/cache/basicConfig.php')) {
-	include_once($base_path . 'assets/cache/basicConfig.php');
-	if(isset($conditional_get)&&$conditional_get==1)
-		include_once("{$base_path}/manager/includes/conditional_get.inc.php");
-}
-if (!defined('MODX_API_MODE')
+if(is_file($base_path . 'assets/cache/basicConfig.php')) include_once($base_path . 'assets/cache/basicConfig.php');
+	
+if(isset($conditional_get)&&$conditional_get==1)
+	include_once("{$base_path}/manager/includes/conditional_get.inc.php");
+elseif(!defined('MODX_API_MODE')
     && $cache_type == 2
     && $site_status != 0
     && count($_POST) < 1
@@ -68,7 +72,9 @@ if (!defined('MODX_API_MODE')
     session_start();
     if (!isset($_SESSION['mgrValidated'])) {
         session_write_close();
-        $target = $base_path . 'assets/cache/pages/' . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
+        $uri_parent_dir = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
+        $uri_parent_dir = ltrim($uri_parent_dir,'/');
+        $target = $base_path . 'assets/cache/pages/' . $uri_parent_dir . md5($_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));
@@ -76,8 +82,8 @@ if (!defined('MODX_API_MODE')
             list($head,$output) = explode('<!--__MODxCacheSpliter__-->',$output,2);
             if(strpos($head,'"text/html";')===false)
             {
-            	$type=unserialize($head);
-            	header('Content-Type:' . $type . '; charset=utf-8');
+                $type=unserialize($head);
+                header('Content-Type:' . $type . '; charset=utf-8');
             }
             else header('Content-Type:text/html; charset=utf-8');
             $mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
@@ -106,16 +112,11 @@ if (!defined('MODX_API_MODE')
 if (!isset($loaded_autoload) && is_file("{$base_path}autoload.php"))
     include_once("{$base_path}autoload.php");
 
-if(isset($_GET['get']) && $_GET['get']=='captcha') {
-    include_once("{$base_path}manager/media/captcha/veriword.php");
-    return;
-}
-
 // initiate a new document parser
 include_once('manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
-$modx->mstart = $mstart;
+$modx->mstart           = $mstart;
 $modx->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) $modx->error_reporting = $error_reporting;
 

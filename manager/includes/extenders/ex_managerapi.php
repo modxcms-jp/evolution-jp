@@ -17,6 +17,10 @@ class ManagerAPI {
 	function __construct(){
 		global $action;
 		$this->action = $action; // set action directive
+		if(isset($_POST['token'])||isset($_GET['token'])) {
+			$rs = $this->checkToken();
+			if(!$rs) exit('unvalid token');
+		}
 	}
 	
 	function initPageViewState($id=0)
@@ -228,7 +232,6 @@ class ManagerAPI {
 	{
 		global $modx;
 		
-		if($flag!=1) return;
         if(isset($_GET['frame']) && $_GET['frame']==='main')
         {
         	switch($modx->manager->action)
@@ -294,7 +297,8 @@ class ManagerAPI {
             	default :
         	}
         }
-
+        
+		if($flag!=1) return;
 		$referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 		
 		if(empty($referer))
@@ -310,22 +314,26 @@ class ManagerAPI {
 	
 	function checkToken()
 	{
-		if(isset($_POST['token']) && !empty($_POST['token']))    $token = $_POST['token'];
-		elseif(isset($_GET['token']) && !empty($_GET['token']))  $token = $_GET['token'];
-		else                                                     $token = false;
+		if(isset($_POST['token']) && !empty($_POST['token']))    $clientToken = $_POST['token'];
+		elseif(isset($_GET['token']) && !empty($_GET['token']))  $clientToken = $_GET['token'];
+		else                                                     $clientToken = false;
 		
-		if(isset($_SESSION['token']) && !empty($_SESSION['token']) && $_SESSION['token']===$token)
-		{
-			$rs =true;
-		}
-		else $rs = false;
+		if(isset($_SESSION['token']) && !empty($_SESSION['token'])) $serverToken = $_SESSION['token'];
+		else                                                        $serverToken = false;
+		
+		if($clientToken===false)            $rs = false;
+		elseif($clientToken===$serverToken) $rs = true;
+		else                                $rs = false;
+		
 		$_SESSION['token'] = '';
 		return $rs;
 	}
 	
 	function makeToken()
 	{
-		$newToken = uniqid('');
+		global $modx;
+		
+		$newToken = $modx->genTokenString();
 		$_SESSION['token'] = $newToken;
 		return $newToken;
 	}
@@ -347,7 +355,15 @@ class ManagerAPI {
 		$modx->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
 	}
 	
-	function genHash($password, $seed='1')
+	function getHashType($db_value='') { // md5 | v1 | phpass
+		$c = substr($db_value,0,1);
+		if($c==='$')                                      return 'phpass';
+		elseif(strlen($db_value)===32)                    return 'md5';
+		elseif($c!=='$' && strpos($db_value,'>')!==false) return 'v1';
+		else                                              return 'unknown';
+	}
+	
+	function genV1Hash($password, $seed='1')
 	{ // $seed is user_id basically
 		global $modx;
 		
@@ -389,7 +405,7 @@ class ManagerAPI {
 		return $result;
 	}
 	
-	function getUserHashAlgorithm($uid)
+	function getV1UserHashAlgorithm($uid)
 	{
 		global $modx;
 		
@@ -455,7 +471,7 @@ class ManagerAPI {
     	$tpl = '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     	$ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
     	$ph['class'] = $ph['label']==$_lang['cancel'] ? 'class="mutate"' : '';
-    	return $modx->parseTextSimple($tpl,$ph);
+    	return $modx->parseText($tpl,$ph);
     }
     
 	//Helper functions for categories
@@ -551,7 +567,7 @@ class ManagerAPI {
 		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl');
 		$ph['alerts'] = $modx->db->escape($sysMsgs);
 		$ph['title']  = $_lang['sys_alert'];
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function getMessageCount() {
@@ -689,7 +705,7 @@ class ManagerAPI {
 		if(!isset($ph['tab-pages'])) $ph['tab-pages'] = 'content';
 		elseif(is_array($ph['tab-pages'])) join("\n", $ph['tab-pages']);
 		
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderTabPage($ph) {
@@ -705,7 +721,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderSection($ph) {
@@ -721,7 +737,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function renderTr($ph) {
@@ -737,7 +753,7 @@ class ManagerAPI {
 		if(!isset($ph['id']))      $ph['id']      = 'id'.uniqid('id');
 		if(!isset($ph['title']))   $ph['title']   = 'title';
 		if(!isset($ph['content'])) $ph['content'] = 'content';
-		return $modx->parseTextSimple($tpl,$ph);
+		return $modx->parseText($tpl,$ph);
 	}
 	
 	function isAllowed($id)

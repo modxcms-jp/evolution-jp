@@ -102,14 +102,14 @@ class synccache {
 		
 		$filesincache = 0;
 		
-		if($target==='pageCache')
-			$pattern = realpath($this->cachePath) . '/*/*.pageCache.php';
-		else
-			$pattern = realpath($this->cachePath) . '/*.php';
+		if($target==='pageCache') $pattern = '@\.pageCache\.php$@';
+		else                      $pattern = '@\.php$@';
 		
-		$pattern = str_replace('\\','/',$pattern);
-		$files = glob($pattern,GLOB_NOCHECK);
+		$files = $this->getFileList($this->cachePath, $pattern);
+		$files = array_reverse($files);
+		
 		$filesincache = ($files[0] !== $pattern) ? count($files) : 0;
+		
 		$deletedfiles = array();
 		if(0 < $filesincache)
 		{
@@ -119,8 +119,9 @@ class synccache {
 				$name = substr($file_path,$cachedir_len);
 				if (!in_array($name, $deletedfiles))
 				{
-					$deletedfiles[] = $name;
-					if(is_file($file_path)) unlink($file_path);
+					if    (is_file($file_path)) $rs = @unlink($file_path);
+					elseif(is_dir($file_path))  $rs = @rmdir($file_path);
+					if($rs) $deletedfiles[] = $name;
 				}
 			}
 		}
@@ -133,14 +134,15 @@ class synccache {
 		list($filesincache,$deletedfilesincache,$deletedfiles) = $info;
 		// finished cache stuff.
 		global $_lang;
-		printf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
-		$limit = count($deletedfiles);
-		if($limit > 0)
-		{
+		if(0<$filesincache)
+			echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
+		else echo '削除対象のページキャッシュはありません。';
+		
+		if(0<count($deletedfiles)) {
 			echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
-			for($i=0;$i<$limit; $i++)
+			foreach($deletedfiles as $i=>$deletedfile)
 			{
-				echo '<li>',$deletedfiles[$i],'</li>';
+				echo '<li>',$deletedfile,'</li>';
 			}
 			echo '</ul>';
 		}
@@ -253,8 +255,9 @@ class synccache {
 		
 		// SETTINGS & DOCUMENT LISTINGS CACHE
 		
-		$this->_get_settings(); // get settings
-		$this->_get_aliases();  // get aliases modx: support for alias path
+		$config = $this->_get_settings(); // get settings
+		if($modx->config['legacy_cache']) 
+			$this->_get_aliases();  // get aliases modx: support for alias path
 		$content .= $this->_get_content_types(); // get content types
 		$this->_get_chunks();   // WRITE Chunks to cache file
 		$this->_get_snippets(); // WRITE snippets to cache file
@@ -273,7 +276,7 @@ class synccache {
 			exit('siteCache.idx.php - '.$_lang['file_not_saved']);
 		}
 		
-		$this->cache_put_contents('config.siteCache.idx.php'      , $this->config);
+		$this->cache_put_contents('config.siteCache.idx.php'      , $config);
 		$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
 		$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
 		$this->cache_put_contents('chunk.siteCache.idx.php'       , $modx->chunkCache);
@@ -313,7 +316,7 @@ class synccache {
 			if(defined('IN_MANAGER_MODE')) {
 				header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
 				$params = array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme']);
-				echo $modx->parseTextSimple('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
+				echo $modx->parseText('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
 				$msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
 			}
 			exit($msg);
@@ -325,13 +328,13 @@ class synccache {
 		global $modx;
 		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
-		$row = array();
+		$config = array();
 		while($row = $modx->db->getRow($rs))
 		{
-			$setting_name  = $row['setting_name'];
-			$setting_value = $row['setting_value'];
-			$this->config[$setting_name] = $setting_value;
+			extract($row);
+			$config[$setting_name] = $setting_value;
 		}
+		return $config;
 	}
 	
 	function _get_aliases()
@@ -347,6 +350,7 @@ class synccache {
 		$row = array();
 		$path = '';
 		$modx->aliasListing = array();
+		$modx->documentMap  = array();
 		while ($row = $modx->db->getRow($rs))
 		{
 			if($use_alias_path==='1')     $path = $this->getParents($row['parent']);
@@ -469,4 +473,19 @@ class synccache {
 		$modx->db->optimize('[+prefix+]event_log');
 		$modx->db->optimize('[+prefix+]site_htmlsnippets');
 	}
+	
+    function getFileList($dir, $pattern='@\.php$@') {
+        $dir = rtrim($dir, '/');
+        $files = glob($dir . '/*');
+        $list = array();
+        foreach ($files as $obj) {
+            if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
+        	elseif (is_dir($obj))  {
+        		$list[] = $obj;
+        		$_ = $this->getFileList($obj, $pattern);
+        		$list = array_merge($list, $_);
+        	}
+        }
+        return $list;
+    }
 }

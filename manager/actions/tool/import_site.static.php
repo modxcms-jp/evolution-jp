@@ -126,6 +126,7 @@ function run()
 		$tbl_site_content = $modx->getFullTableName('site_content');
 		$modx->db->delete('[+prefix+]site_content');
 		$modx->db->query("ALTER TABLE {$tbl_site_content} AUTO_INCREMENT = 1");
+		$modx->db->update(array('setting_value'=>''), '[+prefix+]system_settings', "setting_name='error_page'");
 	}
 	
 	$parent = intval($_POST['parent']);
@@ -426,6 +427,7 @@ function convertLink()
 	$lenBaseUrl = strlen($modx->config['base_url']);
 	$lenSiteUrl = strlen($site_url);
 	$alias = array();
+	$linkList = array();
 	while($row=$modx->db->getRow($rs))
 	{
 		$id = $row['id'];
@@ -439,39 +441,49 @@ function convertLink()
 			else continue;
 			
 			$bv = $v;
-			switch($v)
-			{
-				case '/':
-				case $site_url:
-				case "{$site_url}index.html":
-				case "{$site_url}index.htm":
-					$v = '[(site_url)]';
-					break;
-				default:
-					if(substr($v,-11)==='/index.html')    $v = substr($v,0,-11);
-					elseif(substr($v,-10)==='/index.htm') $v = substr($v,0,-10);
-					elseif(substr($v,-5)==='.html')       $v = substr($v,0,-5);
-					elseif(substr($v,-4)==='.htm')        $v = substr($v,0,-4);
-					
-					if(substr($v,0,$lenBaseUrl)===$modx->config['base_url'])
-						$v = substr($v,$lenBaseUrl);
-					elseif(substr($v,0,$lenSiteUrl)===$site_url)
-						$v = substr($v,$lenSiteUrl);
-					
-					$v = trim($v,'/');
-					if(isset($alias[$v])) $docid = $alias[$v];
-					else                  $docid = $alias[$v] = $modx->getIdFromAlias($v);
-					
-					if($docid)
-					{
-						if($docid==$modx->config['site_start'])
-							$v = '[(site_url)]';
-						else
-							$v = "[~{$docid}~]";
-					}
+			if(isset($linkList[$bv])) $rv = $linkList[$bv];
+			else {
+    			switch($v) {
+    				case '/':
+    				case $site_url:
+    				case "{$site_url}index.html":
+    				case "{$site_url}index.htm":
+    					$v = '[(site_url)]';
+    					break;
+    				default:
+    					if(isset($linkList[$bv])) {
+    						$rv = $linkList[$bv];
+    						break;
+    					}
+    					if(substr($v,-11)==='/index.html')    $v = substr($v,0,-11);
+    					elseif(substr($v,-10)==='/index.htm') $v = substr($v,0,-10);
+    					elseif(substr($v,-5)==='.html')       $v = substr($v,0,-5);
+    					elseif(substr($v,-4)==='.htm')        $v = substr($v,0,-4);
+    					
+    					if(substr($v,0,$lenBaseUrl)===$modx->config['base_url'])
+    						$v = substr($v,$lenBaseUrl);
+    					elseif(substr($v,0,$lenSiteUrl)===$site_url)
+    						$v = substr($v,$lenSiteUrl);
+    					
+    					$v = trim($v,'/');
+    					if(isset($alias[$v])) $docid = $alias[$v];
+    					else                  $docid = $alias[$v] = $modx->getIdFromAlias($v);
+    					
+    					if($docid)
+    					{
+    						if($docid==$modx->config['site_start'])
+    							$rv = '[(site_url)]';
+    						else
+    							$rv = "[~{$docid}~]";
+    					}
+    					else $rv = false;
+    			}
 			}
-			$s[$i] = sprintf('<a href="%s"',$bv);
-			$r[$i] = sprintf('<a href="%s"',$v);
+			if($rv) {
+    			$s[$i] = sprintf('<a href="%s"',$bv);
+    			$r[$i] = sprintf('<a href="%s"',$rv);
+			}
+			if(!isset($linkList[$bv])) $linkList[$bv] = $rv;
 			$i++;
 		}
 		$f['content'] = str_replace($s,$r,$row['content']);

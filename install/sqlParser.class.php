@@ -23,7 +23,8 @@ class SqlParser {
 	
 	function file_get_sql_contents($filename) {
 		// check to make sure file exists
-		$path = "{$this->base_path}install/sql/{$filename}";
+		if(strpos($filename,'/')===false) $path = "{$this->base_path}install/sql/{$filename}";
+		else                              $path = "{$this->base_path}{$filename}";
 		if (!is_file($path)) {
 			$this->mysqlErrors[] = array("error" => "File '{$path}' not found");
 			$this->installFailed = true ;
@@ -50,30 +51,31 @@ class SqlParser {
 		$ph = array();
 		$ph['PREFIX']            = $this->prefix;
 		$ph['ADMINNAME']         = $this->adminname;
-		$ph['ADMINPASS']         = genHash($this->adminpass, '1');
+		$ph['ADMINPASS']         = md5($this->adminpass);
 		$ph['ADMINEMAIL']        = $this->adminemail;
 		$ph['ADMINFULLNAME']     = substr($this->adminemail,0,strpos($this->adminemail,'@'));
 		$ph['MANAGERLANGUAGE']   = $this->managerlanguage;
 		$ph['DATE_NOW']          = time();
-		$idata = $modx->parseTextSimple($idata,$ph,'{','}');
+		$idata = $modx->parseText($idata,$ph,'{','}',false);
 		
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 		
-		foreach($sql_array as $sql)
+		foreach($sql_array as $i=>$sql)
 		{
 			$sql = trim($sql, "\r\n; ");
 			if ($sql) $modx->db->query($sql,false);
-			if($modx->db->getLastError())
-			{
-				// Ignore duplicate and drop errors - Raymond
-				if (!$this->showSqlErrors)
-				{
-					$errno = $modx->db->getLastErrorNo();
-					if ($errno == 1060 || $errno == 1061 || $errno == 1091 || $errno == 1054) continue;
-				}
-				// End Ignore duplicate
-				$this->mysqlErrors[] = array("error" => $modx->db->getLastError(), "sql" => $sql);
-				$this->installFailed = true;
+			$error_no = $modx->db->getLastErrorNo();
+			if(!$error_no) continue;
+			switch($error_no) {
+				case 1060:
+				case 1061:
+				case 1091:
+				case 1054:
+				case 1064:
+					continue;break;
+				default:
+    				$this->mysqlErrors[] = array("error" => $modx->db->getLastError(), "sql" => $sql);
+    				$this->installFailed = true;
 			}
 		}
 	}

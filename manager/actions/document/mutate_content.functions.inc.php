@@ -223,14 +223,15 @@ function get_alias_path($id)
 	if($modx->config['use_alias_path']==='0') $path = '';
 	elseif($pid)
 	{
-		if($modx->aliasListing[$pid]['path'])
+		if($modx->getAliasListing($pid,'path'))
 		{
-			$path = $modx->aliasListing[$pid]['path'] . '/' . $modx->aliasListing[$pid]['alias'];
+			$path = $modx->getAliasListing($pid,'path') . '/' . $modx->getAliasListing($pid,'alias');
 		}
-		else $path = $modx->aliasListing[$pid]['alias'];
+		else $path = $modx->getAliasListing($pid,'alias');
 	}
-	elseif($id) $path = $modx->aliasListing[$id]['path'];
+	elseif($id) $path = $modx->getAliasListing($id,'path');
 	else        $path = '';
+	
 	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
 	else           $path = $modx->config['base_url'];
 	
@@ -974,17 +975,14 @@ function fieldsTV() {
 		endif;
 		
 		// post back value
-		if(array_key_exists($tvid, $form_v)){
+		if(isset($form_v[$tvid])){
 			switch( $tv['type'] ){
 			case 'listbox-multiple':
 				$tvPBV = implode('||', $form_v[$tvid]);
 				break;
 			case 'url':
-				if( $form_v[$tvid.'_prefix'] == 'DocID' ){
-					$tvPBV = '[~' . $form_v[$tvid] . '~]';
-				}else{
-					$tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
-				}
+				if( $form_v[$tvid.'_prefix'] == 'DocID' ) $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
+				else                                      $tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
 				break;
 			default:
 				$tvPBV = $form_v[$tvid];

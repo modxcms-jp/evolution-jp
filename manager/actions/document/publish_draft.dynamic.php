@@ -27,7 +27,7 @@ $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
 $ph['fieldDraftPub_date']  = fieldDraftPub_date($docid);
 $ph['id'] = $docid;
 
-echo $modx->parseTextSimple($tpl,$ph);
+echo $modx->parseText($tpl,$ph);
 
 
 
@@ -54,7 +54,7 @@ function fieldDraftPub_date($docid) {
 	$ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
 	$ph['remove_date']      = $_lang['remove_date'];
 	$ph['datetime_format']  = $modx->config['datetime_format'];
-	$body = $modx->parseTextSimple($tpl,$ph);
+	$body = $modx->parseText($tpl,$ph);
 	$body = renderTr($_lang['draft_data_publishdate'],$body);
 	$tpl = <<< EOT
 <tr>
@@ -62,7 +62,7 @@ function fieldDraftPub_date($docid) {
 	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
 </tr>
 EOT;
-	$body .= $modx->parseTextSimple($tpl,$ph);
+	$body .= $modx->parseText($tpl,$ph);
 	return $body;
 }
 

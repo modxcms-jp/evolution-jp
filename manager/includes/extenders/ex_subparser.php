@@ -250,7 +250,7 @@ class SubParser {
         
         $codetpl = '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">[+code+]</div></td></tr>';
         
-        if (!empty ($query)) $str .= $modx->parseTextSimple($codetpl,array('code'=>$query));
+        if (!empty ($query)) $str .= $modx->parseText($codetpl,array('code'=>$query));
 
         $errortype= array (
             E_ERROR             => "ERROR",
@@ -274,16 +274,16 @@ class SubParser {
         if(!empty($nr) || !empty($file))
         {
             $str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
-            if ($text != '') $str .= $modx->parseTextSimple($codetpl,array('code'=>"Error : {$text}"));
-            if($output!='')  $str .= $modx->parseTextSimple($codetpl,array('code'=>$output));
+            if ($text != '') $str .= $modx->parseText($codetpl,array('code'=>"Error : {$text}"));
+            if($output!='')  $str .= $modx->parseText($codetpl,array('code'=>$output));
             if(!isset($errortype[$nr])) $errortype[$nr] = '';
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'ErrorType[num] : ','right'=>$errortype[$nr]."[{$nr}]"));
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'File : ','right'=>$file));
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Line : ','right'=>$line));
+            $str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>$errortype[$nr]."[{$nr}]"));
+            $str .= $modx->parseText($tpl,array('left'=>'File : ','right'=>$file));
+            $str .= $modx->parseText($tpl,array('left'=>'Line : ','right'=>$line));
         }
         
         if ($source != '')
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Source : ','right'=>$source));
+            $str .= $modx->parseText($tpl,array('left'=>'Source : ','right'=>$source));
 
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
@@ -299,7 +299,7 @@ class SubParser {
             global $action_list;
             if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
             else $actionName = '';
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Manager action : ','right'=>"{$action}{$actionName}"));
+            $str .= $modx->parseText($tpl,array('left'=>'Manager action : ','right'=>"{$action}{$actionName}"));
         }
         
         if(preg_match('@^[0-9]+@',$modx->documentIdentifier))
@@ -307,25 +307,25 @@ class SubParser {
             $resource  = $modx->getDocumentObject('id',$modx->documentIdentifier);
             $url = $modx->makeUrl($modx->documentIdentifier,'','','full');
             $link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Resource : ','right'=>"[{$modx->documentIdentifier}]{$link}"));
+            $str .= $modx->parseText($tpl,array('left'=>'Resource : ','right'=>"[{$modx->documentIdentifier}]{$link}"));
         }
 
         if(!empty($modx->currentSnippet))
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Current Snippet : ','right'=>$modx->currentSnippet));
+            $str .= $modx->parseText($tpl,array('left'=>'Current Snippet : ','right'=>$modx->currentSnippet));
 
         if(!empty($modx->event->activePlugin))
-            $str .= $modx->parseTextSimple($tpl,array('left'=>'Current Plugin : ', 'right'=>"{$modx->event->activePlugin}({$modx->event->name})"));
+            $str .= $modx->parseText($tpl,array('left'=>'Current Plugin : ', 'right'=>"{$modx->event->activePlugin}({$modx->event->name})"));
 
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'Referer : '    , 'right'=>$referer));
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'User Agent : ' , 'right'=>$ua));
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'IP : '         , 'right'=>$_SERVER['REMOTE_ADDR']));
+        $str .= $modx->parseText($tpl,array('left'=>'Referer : '    , 'right'=>$referer));
+        $str .= $modx->parseText($tpl,array('left'=>'User Agent : ' , 'right'=>$ua));
+        $str .= $modx->parseText($tpl,array('left'=>'IP : '         , 'right'=>$_SERVER['REMOTE_ADDR']));
 
         $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'MySQL : '  , 'right'=>'[^qt^] ([^q^] Requests)'));
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'PHP : '    , 'right'=>'[^p^]'));
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'Total : '  , 'right'=>'[^t^]'));
-        $str .= $modx->parseTextSimple($tpl,array('left'=>'Memory : ' , 'right'=>'[^m^]'));
+        $str .= $modx->parseText($tpl,array('left'=>'MySQL : '  , 'right'=>'[^qt^] ([^q^] Requests)'));
+        $str .= $modx->parseText($tpl,array('left'=>'PHP : '    , 'right'=>'[^p^]'));
+        $str .= $modx->parseText($tpl,array('left'=>'Total : '  , 'right'=>'[^t^]'));
+        $str .= $modx->parseText($tpl,array('left'=>'Memory : ' , 'right'=>'[^m^]'));
         
         $str .= "</table>\n";
 
@@ -933,7 +933,7 @@ class SubParser {
                     'prefix' => $modx->db->config['table_prefix'],
                     'PREFIX' => $modx->db->config['table_prefix']
                 );
-                $param = $modx->parseTextSimple($param,$ph);
+                $param = $modx->parseText($param,$ph);
                 $rs = $modx->db->query("SELECT {$param}");
                 if($modx->db->getRecordCount($rs)==0) return;
                 $output = $rs;
@@ -1097,9 +1097,12 @@ class SubParser {
         switch (strtolower($field_type)) {
 
             case "text":    // handler for regular text boxes
-            case "rawtext"; // non-htmlentity converted text boxes
+            case "rawtext": // non-htmlentity converted text boxes
             case "email":   // handles email input fields
             case "number":  // handles the input of numbers
+            case "zipcode": // handles the input of numbers
+            case "tel":     // handles the input of numbers
+            case "url": // handles url input fields
                 $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php');
                 if($field_type=='text')       $class = 'text';
                 elseif($field_type=='number') $class = 'text imeoff';
@@ -1110,7 +1113,7 @@ class SubParser {
                 $ph['value']  = htmlspecialchars($field_value);
                 $ph['style']  = $field_style;
                 $ph['tvtype'] = $field_type;
-                $field_html =  $modx->parseTextSimple($tpl,$ph);
+                $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "textarea":     // handler for textarea boxes
             case "rawtextarea":  // non-htmlentity convertex textarea boxes
@@ -1124,7 +1127,7 @@ class SubParser {
                 $ph['style']  = $field_style;
                 $ph['tvtype'] = $field_type;
                 $ph['rows']   = $field_type==='textareamini' ? '5' : '15';
-                $field_html =  $modx->parseTextSimple($tpl,$ph);
+                $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "date":
             case "dateonly":
@@ -1138,7 +1141,7 @@ class SubParser {
                 $ph['cal_nodate']      = $_style['icons_cal_nodate'];
                 $ph['yearOffset']      = $modx->config['datepicker_offset'];
                 $ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
-                $field_html =  $modx->parseTextSimple($tpl,$ph);
+                $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "dropdown": // handler for select boxes
             case "listbox":  // handler for select boxes
@@ -1156,7 +1159,7 @@ class SubParser {
                     $ph2['label']    = $label;
                     $ph2['value']    =  htmlspecialchars($value);
                     $ph2['selected'] = in_array($value,$field_values) ? 'selected="selected"':'';
-                    $options[] = $modx->parseTextSimple($tpl2, $ph2);
+                    $options[] = $modx->parseText($tpl2, $ph2);
                 }
                 $ph['options'] = join("\n",$options);
                 $ph['id']      = "tv{$field_id}";
@@ -1165,32 +1168,7 @@ class SubParser {
                 $ph['extra'] = '';
                 if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
                 elseif($field_type==='dropdown')     $ph['size']   = '1';
-                $field_html =  $modx->parseTextSimple($tpl,$ph);
-                break;
-            case "url": // handles url input fields
-                $field_html ='<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv'.$field_id.'_prefix" name="tv'.$field_id.'_prefix">';
-                $urls= array(''=>'--', 'DocID'=>'DocID', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
-                $tpl = '<option value="[+value+]" [+selected+]>[+name+]</option>';
-                $option = array();
-                foreach($urls as $k => $v)
-                {
-                  if( $k == 'DocID' )
-                  {
-                    $tmp = preg_replace('/\A\[~([0-9]+)~\]\z/','$1',$field_value);
-                    $selected = ($tmp != $field_value) ? 'selected' : '';
-                    $field_value = $tmp;
-                  }
-                  else
-                  {
-                    $selected = (strpos($field_value,$v)!==false) ? 'selected' : '';
-                    if(strpos($field_value,$v)!==false)
-                      $field_value = str_replace($v,'',$field_value);
-                  }
-                  $option[] = $modx->parseTextSimple($tpl,array('name'=>$k,'value'=>$v,'selected'=>$selected));
-                }
-                $field_html .= join("\n", $option) . "\n";
-                $field_html .='</select></td><td>';
-                $field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" width="100" '.$field_style.' /></td></tr></table>';
+                $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "checkbox": // handles check boxes
                 $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
@@ -1208,7 +1186,7 @@ class SubParser {
                     $ph['tvtype']  = $field_type;
                     $ph['label']   = $label;
                     $ph['checked'] = $checked;
-                    $field_html .=  $modx->parseTextSimple($tpl,$ph);
+                    $field_html .=  $modx->parseText($tpl,$ph);
                     $i++;
                 }
                 break;
@@ -1242,19 +1220,25 @@ class SubParser {
                 $custom_output = '';
                 /* If we are loading a file */
                 if(substr($field_elements, 0, 5) == '@FILE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 6));
-                    if( !is_file($file_name) ) {
-                        $custom_output = $file_name . ' does not exist';
-                    } else {
-                        $custom_output = file_get_contents($file_name);
-                    }
-                } elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
-                    $file_name = MODX_BASE_PATH . trim(substr($field_elements, 9));
-                    if( !is_file($file_name) ) {
-                        $custom_output = $file_name . ' does not exist';
-                    } else {
+                    $path_str = substr($field_elements, 6);
+                    $lfpos = strpos($path_str,"\n");
+                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
+                    $path_str = MODX_BASE_PATH . trim($path_str);
+                    if(!is_file($path_str)) $custom_output = $path_str . ' does not exist';
+                    else                    $custom_output = file_get_contents($path_str);
+                }
+                elseif(substr($field_elements, 0, 8) == '@INCLUDE') {
+                    $path_str = substr($field_elements, 9);
+                    $lfpos = strpos($path_str,"\n");
+                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
+                    $path_str = trim($path_str);
+                    if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
+                    elseif(is_file( MODX_BASE_PATH.$path_str))          $path = MODX_BASE_PATH . $path_str;
+                    else                                                $path = false;
+                    if(!$path) $custom_output = $path_str . ' does not exist';
+                    else {
                         ob_start();
-                        include($file_name);
+                        include($path);
                         $custom_output = ob_get_contents();
                         ob_end_clean();
                     }
@@ -1337,6 +1321,8 @@ class SubParser {
             $v = trim($v);
             if(strpos($v,'||')===false && strpos(trim($v),"\n")!==false)
                 $v = str_replace("\n",'||',$v);
+            elseif(strpos($v,'||')===false && strpos(trim($v),"\n")===false && strpos(trim($v),',')!==false)
+                $v = str_replace(',','||',$v);
             $a = explode('||', $v);
         }
         return $a;
@@ -1560,6 +1546,9 @@ class SubParser {
     {
         global $modx;
         
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
+        
         // modify field names to use sc. table reference
         $fields= $modx->join(',', explode(',',$fields),'sc.');
         $sort  = $modx->join(',', explode(',',$sort),'sc.');
@@ -1585,12 +1574,17 @@ class SubParser {
         {
             $resourceArray[] = $row;
         }
+        
+        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
+        
         return $resourceArray;
     }
     
-    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle')
-    {
+    function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
         global $modx;
+        
+        $cacheKey = md5(print_r(func_get_args(),true));
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
         
         // get document groups for current user
         if ($docgrp= $modx->getUserDocGroups())
@@ -1604,6 +1598,8 @@ class SubParser {
         $where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
         
         $resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
+        
+        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
         
         return $resourceArray;
     }
@@ -1788,8 +1784,8 @@ class SubParser {
         $k= array_keys($_GET);
         unset ($_GET[$k['0']]);
         unset ($_REQUEST[$k['0']]); // remove 404,405 entry
-        $_SERVER['QUERY_STRING']= $qp['query'];
         $qp= parse_url(str_replace($modx->config['site_url'], '', substr($url, 4)));
+        $_SERVER['QUERY_STRING']= $qp['query'];
         if (!empty ($qp['query']))
         {
             parse_str($qp['query'], $qv);
@@ -1802,11 +1798,13 @@ class SubParser {
         return $qp['path'];
     }
     
-    function genToken() {
+    function genTokenString() {
         global $modx;
+        if(isset($modx->tmpCache['tokenString'])) return $modx->tmpCache['tokenString'];
         $key = md5(mt_rand());
         $key = base_convert($key,16,36);
         $key = substr($key,0,12);
+        $modx->tmpCache['tokenString'] = $key;
         return $key;
     }
 
@@ -1982,7 +1980,10 @@ class SubParser {
         {
             $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
         }
+        
+        $modx->getSettings();
     }
+    
     function mergeInlineFilter($content)
     {
         global $modx;
@@ -2048,5 +2049,30 @@ class SubParser {
             $modx->doc->update($draft,$row['elmid']);
         }
         $modx->db->delete('[+prefix+]site_revision', "pub_date!=0 AND pub_date<{$now}");
+    }
+    
+    function setdocumentMap()
+    {
+        global $modx;
+        
+        $fields = 'id, parent';
+        $rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
+        $modx->documentMap = array();
+        while ($row = $modx->db->getRow($rs))
+        {
+            $docid  = $row['id'];
+            $parent = $row['parent'];
+            $modx->documentMap[] = array($row['parent'] => $row['id']);
+        }
+    }
+    
+    function setAliasListing()
+    {
+        global $modx;
+        
+        if($modx->aliasListing) return;
+        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+        if($aliases) $modx->aliasListing = $aliases;
+        else return false;
     }
 }

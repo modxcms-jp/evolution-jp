@@ -110,7 +110,7 @@ class DBAPI {
         $totaltime = $tend - $tstart;
         if ($modx->dumpSQL) {
             $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+            $modx->dumpSQLCode[] = '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
         }
         $modx->queryTime += $totaltime;
         return true;
@@ -205,9 +205,9 @@ $s = '';
                         $function .= sprintf('(%s)',$modx->currentSnippet);
                     $bt .= "{$function} - {$file}[{$line}]<br />";
                 }
-                $modx->queryCode .= '<fieldset style="text-align:left">';
-                $modx->queryCode .= '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>';
-                $modx->queryCode .= "{$sql}<br />{$bt}</fieldset>";
+                $modx->dumpSQLCode[] = '<fieldset style="text-align:left">';
+                $modx->dumpSQLCode[] = '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s", $totaltime) . '</legend>';
+                $modx->dumpSQLCode[] = "{$sql}<br />{$bt}</fieldset>";
             }
             $modx->executedQueries = $modx->executedQueries + 1;
             return $result;
@@ -237,9 +237,14 @@ $s = '';
     */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
         global $modx;
+        
+        if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
+        if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
+        
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
         } else {
+            $fields = $this->replaceFullTableName($fields);
             $from = $this->replaceFullTableName($from);
             if($where !== '')   $where   = "WHERE {$where}";
             if($orderby !== '') $orderby = "ORDER BY {$orderby}";
@@ -355,8 +360,9 @@ $s = '';
     * @name:  freeResult
     *
     */
-    function freeResult($rs) {
-        mysql_free_result($rs);
+    function freeResult($conn=null) {
+        if(!is_resource($conn)) $conn =& $this->conn;
+        mysql_free_result($conn);
     }
     
     /**
@@ -774,6 +780,10 @@ $s = '';
         return $rs;
     }
     
+    function dataSeek($result, $row_number) {
+        return mysql_data_seek($result, $row_number);
+    }
+    
     function numFields($ds) {
         return mysql_num_fields($ds);
     }
@@ -828,5 +838,25 @@ $s = '';
                 $Collation = $row['Collation'];
         }
         return $Collation;
+    }
+    
+    function _getFieldsStringFromArray($fields=array()) {
+        
+        if(empty($fields)) return '*';
+        
+        $_ = array();
+        foreach($fields as $k=>$v) {
+            if($k!==$v) $_[] = "{$v} as {$k}";
+            else        $_[] = $v;
+        }
+        return join(',', $_);
+    }
+    
+    function _getFromStringFromArray($tables=array()) {
+        $_ = array();
+        foreach($tables as $k=>$v) {
+            $_[] = $v;
+        }
+        return join(' ', $_);
     }
 }

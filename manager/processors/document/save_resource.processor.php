@@ -86,7 +86,7 @@ switch ($actionToTake) {
 
 		// set publishedon and publishedby
 		$form_v['published']   = checkPublished($db_v);
-		$form_v['pub_date']	= checkPub_date($db_v);
+		$form_v['pub_date']    = checkPub_date($db_v);
 		$form_v['unpub_date']  = checkUnpub_date($db_v);
 		$form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
 		$form_v['publishedby'] = checkPublishedby($db_v);
@@ -176,15 +176,17 @@ function get_tmplvars($id=0)
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
-		if(!isset($form_v[$tvid]) && $row['type']!=='checkbox' && $row['type']!=='listbox-multiple')
-			continue;
+    	if(!isset($form_v[$tvid])) {
+    		$multi_type = array('checkbox','listbox-multiple','custom_tv');
+    		if(!in_array($row['type'], $multi_type)) continue;
+    	}
 		
 		if($row['type']==='url') {
 			if( $form_v["{$tvid}_prefix"] === 'DocID' ){
-		$value = $form_v[$tvid];
-		if( preg_match('/\A[0-9]+\z/',$value) ) 
-		  $value = '[~' . $value . '~]';
-	  }elseif($form_v["{$tvid}_prefix"] !== '--') {
+        		$value = $form_v[$tvid];
+        		if( preg_match('/\A[0-9]+\z/',$value) ) 
+        		    $value = '[~' . $value . '~]';
+        	} elseif($form_v["{$tvid}_prefix"] !== '--') {
 				$value = str_replace(array ('feed://','ftp://','http://','https://','mailto:'), '', $form_v[$tvid]);
 				$value = $form_v["{$tvid}_prefix"] . $value;
 			}

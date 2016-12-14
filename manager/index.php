@@ -84,6 +84,8 @@ include_once('includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
+$modx->loadExtension('ManagerAPI');
+
 if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
 {
     if($modx->hasPermission('save_role')) $modx->safeMode = 1;

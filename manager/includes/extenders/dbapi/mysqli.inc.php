@@ -52,8 +52,6 @@ class DBAPI {
         if($pwd)   $this->password = $pwd;
         if($dbase) $this->dbname   = $dbase;
         
-        if(!$this->hostname || !$this->username) if(!$modx->setConfig()) return false;
-        
         if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
             $hostname = '127.0.0.1';
         else $hostname = $this->hostname;
@@ -104,7 +102,7 @@ class DBAPI {
         $totaltime = $tend - $tstart;
         if ($modx->dumpSQL) {
             $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-            $modx->queryCode .= '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+            $modx->dumpSQLCode[] = '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
         }
         $modx->queryTime += $totaltime;
         return true;
@@ -174,7 +172,8 @@ $s = '';
         $result = $this->conn->query($sql);
         if (!$result) {
             if(!$watchError) return;
-            switch($this->conn->connect_errno) {
+            switch($this->conn->errno) {
+                case 1064:
                 case 1054:
                 case 1060:
                 case 1061:
@@ -193,15 +192,18 @@ $s = '';
                 $debug_path = array();
                 foreach ($backtraces as $line) $debug_path[] = $line['function'];
                 $debug_path = implode(' > ', array_reverse($debug_path));
-                $modx->queryCode .= "<fieldset style='text-align:left'><legend>Query " . ($modx->executedQueries + 1) . " - " . sprintf("%2.2f ms", $totaltime*1000) . "</legend>";
-                $modx->queryCode .= $sql . '<br><br>';
-                if ($modx->event->name) $modx->queryCode .= 'Current Event  => ' . $modx->event->name . '<br>';
-                if ($modx->event->activePlugin) $modx->queryCode .= 'Current Plugin => ' . $modx->event->activePlugin . '<br>';
-                if ($modx->currentSnippet) $modx->queryCode .= 'Current Snippet => ' . $modx->currentSnippet . '<br>';
-                if (stripos($sql, 'select')===0) $modx->queryCode .= 'Record Count => ' . $this->getRecordCount($result) . '<br>';
-                else $modx->queryCode .= 'Affected Rows => ' . $this->getAffectedRows() . '<br>';
-                $modx->queryCode .= 'Functions Path => ' . $debug_path . '<br>';
-                $modx->queryCode .= "</fieldset><br />";
+                $totaltime = sprintf('%2.2f ms', $totaltime*1000);
+                $_ = array();
+                $_[] = '<fieldset style="text-align:left"><legend>Query ' . ($modx->executedQueries + 1) . ' - ' . $totaltime . '</legend>';
+                $_[] = $sql . '<br><br>';
+                if ($modx->event->name)          $_[] = 'Current Event  => '  . $modx->event->name . '<br>';
+                if ($modx->event->activePlugin)  $_[] = 'Current Plugin => '  . $modx->event->activePlugin . '<br>';
+                if ($modx->currentSnippet)       $_[] = 'Current Snippet => ' . $modx->currentSnippet . '<br>';
+                if (stripos($sql, 'select')===0) $_[] = 'Record Count => '    . $this->getRecordCount($result) . '<br>';
+                else                             $_[] = 'Affected Rows => '   . $this->getAffectedRows() . '<br>';
+                $_[]                                  = 'Functions Path => '  . $debug_path . '<br>';
+                $_[]                                  = '</fieldset><br />';
+                $modx->dumpSQLCode[] = join("\n", $_);
             }
             $modx->executedQueries = $modx->executedQueries + 1;
             return $result;
@@ -231,9 +233,14 @@ $s = '';
     */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
         global $modx;
+        
+        if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
+        if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
+        
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
         } else {
+            $fields = $this->replaceFullTableName($fields);
             $from = $this->replaceFullTableName($from);
             if($where !== '')   $where   = "WHERE {$where}";
             if($orderby !== '') $orderby = "ORDER BY {$orderby}";
@@ -405,7 +412,7 @@ $s = '';
     
     function getLastErrorNo($conn=NULL) {
         if (!is_object($conn)) $conn =& $this->conn;
-        return $conn->connect_errno;
+        return $conn->errno;
     }
     
     /**
@@ -781,6 +788,10 @@ $s = '';
         return $rs;
     }
     
+    function dataSeek($result, $row_number) {
+        return $result->data_seek($row_number);
+    }
+
     function numFields($rs) {
         return $rs->field_count;
     }
@@ -839,5 +850,25 @@ $s = '';
                 $Collation = $row['Collation'];
         }
         return $Collation;
+    }
+    
+    function _getFieldsStringFromArray($fields=array()) {
+        
+        if(empty($fields)) return '*';
+        
+        $_ = array();
+        foreach($fields as $k=>$v) {
+            if($k!==$v) $_[] = "{$v} as {$k}";
+            else        $_[] = $v;
+        }
+        return join(',', $_);
+    }
+    
+    function _getFromStringFromArray($tables=array()) {
+        $_ = array();
+        foreach($tables as $k=>$v) {
+            $_[] = $v;
+        }
+        return join(' ', $_);
     }
 }

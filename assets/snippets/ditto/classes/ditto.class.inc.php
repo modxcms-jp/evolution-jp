@@ -330,7 +330,15 @@ class ditto {
 		unset($PHs);
 		if($modifier_mode==='normal')
 		{
-            $output = $modx->parseText($template,$placeholders,'[+','+]',false);
+			$bt = '';
+			$i = 0;
+			$output = $template;
+			while($i<20) {
+				$bt = $output;
+				$output = $modx->parseText($output,$placeholders);
+				if($bt===$output) break;
+				$i++;
+			}
 		}
 		elseif($modifier_mode==='phx')
 		{
@@ -688,24 +696,19 @@ class ditto {
 		
 	function getParentList() {
 		global $modx;
-		$kids = array();
-		if(method_exists($modx, 'setdocumentMap') && empty($modx->documentMap))
-		{
-			$modx->setdocumentMap();
-		}
 		
-		foreach ($modx->documentMap as $null => $document) {
-			foreach ($document as $parent => $id) {
-				$kids[$parent][] = $id;
-			}
-		}
+        $rs = $modx->db->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        $kids = array();
+        while($row = $this->db->getRow($rs)) {
+            $kids[] = $row['parent'];
+        }
 		$parents = array();
-		foreach ($kids as $item => $value)
-		{
-			if ($item != 0)  $pInfo = $modx->getPageInfo($item,0,'published');
-			else             $pInfo["published"] = '1';
-			
-			$parents[$item] = $pInfo['published'];
+		foreach ($kids as $parent) {
+			if ($parent == 0)   $parents[$parent] = '1';
+			else {
+				$pInfo = $modx->getPageInfo($parent,0,'published');
+				$parents[$parent] = $pInfo['published'];
+			}
 		}
 		return $parents;
 	}
@@ -1041,7 +1044,7 @@ class ditto {
 	// Paginate the documents
 	// ---------------------------------------------------
 		
-	function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter) {
+	function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter,$maxPaginate=10) {
 		global $modx, $dittoID,$ditto_lang;
 
 		if ($stop == 0 || $total == 0 || $summarize==0) {
@@ -1095,7 +1098,7 @@ class ditto {
 		}
 		$totalpages = ceil($total / $summarize);
 		
-		$max_paginate = 10;
+		$max_paginate = $maxPaginate;
 		$max_previous = 5;
 		$cur_x = floor($start / $summarize);
 		$min_x = $cur_x - $max_previous;
@@ -1120,6 +1123,7 @@ class ditto {
 				$modx->setPlaceholder($dittoID."currentPage", $display);
 				$pages .= $modx->parseText(array('page'=>$display),$tplPaginateCurrentPage);
 			}
+			if($x < $max_x) $pages .= $paginateSplitterCharacter;
 		}
 		if ($totalpages>1 || $paginateAlwaysShowLinks==1){
 			$modx->setPlaceholder($dittoID."next", $nextplaceholder);

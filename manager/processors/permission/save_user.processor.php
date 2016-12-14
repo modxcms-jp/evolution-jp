@@ -5,6 +5,8 @@ if (!$modx->hasPermission('save_user')) {
 	$e->dumpError();
 }
 
+$modx->loadExtension('phpass');
+
 if(isset($_POST['userid']) && preg_match('@^[0-9]+$@',$_POST['userid'])) $id = $_POST['userid'];
 $mode = $_POST['mode'];
 $oldusername = $_POST['oldusername'];
@@ -133,7 +135,7 @@ switch ($mode) {
 			webAlert("An error occurred while attempting to save the user.");
 			exit;
 		}
-		$field['password'] = $modx->manager->genHash($newpassword, $internalKey);
+		$field['password'] = $modx->phpass->HashPassword($newpassword);
 		$modx->db->update($field,'[+prefix+]manager_users',"id='{$internalKey}'");
 		
 		$field = array();
@@ -256,7 +258,7 @@ switch ($mode) {
 				webAlert("No password generation method specified!");
 				exit;
 			}
-			$hashed_password = $modx->manager->genHash($newpassword, $id);
+			$hashed_password = $modx->phpass->HashPassword($newpassword);
 		}
 
 		// check if the username already exist
@@ -456,7 +458,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 	$site_url       = $modx->config['site_url'];
 	$ph['site_url'] = $site_url;
 	$ph['surl']     = "{$site_url}manager/";
-	$message = $modx->parseTextSimple($modx->config['signupemail_message'],$ph);
+	$message = $modx->parseText($modx->config['signupemail_message'],$ph);
 	$message = $modx->mergeSettingsContent($message);
 
 	$rs = $modx->sendmail($email,$message);

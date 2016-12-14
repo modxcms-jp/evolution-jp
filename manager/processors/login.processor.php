@@ -144,7 +144,7 @@ if ($user_settings['allowed_days']) {
 }
 
 $modx->loadExtension('ManagerAPI');
-
+$modx->loadExtension('phpass');
 // invoke OnManagerAuthentication event
 $info = array();
 $info['userid']        = $dbv_internalKey;
@@ -159,45 +159,17 @@ $rt = $modx->invokeEvent('OnManagerAuthentication', $info);
 if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
-	$hashed_password = $modx->manager->genHash($formv_password, $dbv_internalKey);
-	if(strpos($dbv_password,'>')!==false)
-	{
-		if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo']))
-			$modx->config['pwd_hash_algo'] = 'UNCRYPT';
-		
-		$user_algo = $modx->manager->getUserHashAlgorithm($dbv_internalKey);
-		
-		if($user_algo !== $modx->config['pwd_hash_algo'])
-		{
-			$bk_pwd_hash_algo = $modx->config['pwd_hash_algo'];
-			$modx->config['pwd_hash_algo'] = $user_algo;
-		}
-		
-		if($dbv_password != $hashed_password)
-		{
-			jsAlert($e->errors[901]);
-			failedLogin($dbv_internalKey,$dbv_failedlogincount);
-			return;
-		}
-		elseif(isset($bk_pwd_hash_algo))
-		{
-			$modx->config['pwd_hash_algo'] = $bk_pwd_hash_algo;
-			$modx->db->update(array('password'=>$hashed_password), '[+prefix+]manager_users', "username='{$formv_username}'");
-		}
-	}
-	else
-	{
-		if($dbv_password != md5($formv_password))
-		{
-			jsAlert($e->errors[901]);
-			failedLogin($dbv_internalKey,$dbv_failedlogincount);
-			return;
-		}
-		else
-		{
-			$modx->db->update(array('password'=>$hashed_password), '[+prefix+]manager_users', "username='{$formv_username}'");
-		}
-	}
+	$hashType = $modx->manager->getHashType($dbv_password);
+	if($hashType=='phpass')  $matchPassword = login($formv_username,$formv_password,$dbv_password);
+	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
+	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
+	else                     $matchPassword = false;
+}
+
+if(!$matchPassword) {
+	jsAlert($e->errors[901]);
+	failedLogin($dbv_internalKey,$dbv_failedlogincount);
+	return;
 }
 
 if($modx->config['use_captcha']==1) {
@@ -211,6 +183,8 @@ if($modx->config['use_captcha']==1) {
         return;
     }
 }
+
+session_regenerate_id(true);
 
 $_SESSION['usertype'] = 'manager'; // user is a backend user
 
@@ -336,4 +310,47 @@ function failedLogin($dbv_internalKey,$dbv_failedlogincount)
     }
 	@session_destroy();
 	session_unset();
+}
+
+function login($username,$givenPassword,$dbasePassword) {
+	global $modx;
+	return $modx->phpass->CheckPassword($givenPassword, $dbasePassword);
+}
+
+function loginV1($internalKey,$givenPassword,$dbasePassword,$username) {
+	global $modx;
+	
+	$user_algo = $modx->manager->getV1UserHashAlgorithm($internalKey);
+	
+	if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo']))
+		$modx->config['pwd_hash_algo'] = 'UNCRYPT';
+	
+	if($user_algo !== $modx->config['pwd_hash_algo']) {
+		$bk_pwd_hash_algo = $modx->config['pwd_hash_algo'];
+		$modx->config['pwd_hash_algo'] = $user_algo;
+	}
+	
+	if($dbasePassword != $modx->manager->genV1Hash($givenPassword, $internalKey)) {
+		return false;
+	}
+	
+	updateNewHash($username,$givenPassword);
+	
+	return true;
+}
+
+function loginMD5($internalKey,$givenPassword,$dbasePassword,$username) {
+	global $modx;
+	
+	if($dbasePassword != md5($givenPassword)) return false;
+	updateNewHash($username,$givenPassword);
+	return true;
+}
+
+function updateNewHash($username,$password) {
+	global $modx;
+	
+	$field = array();
+	$field['password'] = $modx->phpass->HashPassword($password);
+	$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
 }

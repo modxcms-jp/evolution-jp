@@ -39,7 +39,7 @@ if(!$rs) {
     includeLang($lang_name);
     $ph = $_lang;
     $tpl = file_get_contents("{$base_path}install/tpl/session_problem.tpl");
-    echo $modx->parseTextSimple($tpl,$ph);
+    echo $modx->parseText($tpl,$ph);
     exit;
 }
 
@@ -85,4 +85,4 @@ $ph['content'] = ob_get_contents();
 ob_end_clean();
 
 $tpl = file_get_contents("{$base_path}install/tpl/template.tpl");
-echo $modx->parseTextSimple($tpl,$ph);
+echo $modx->parseText($tpl,$ph);

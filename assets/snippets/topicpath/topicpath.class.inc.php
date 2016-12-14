@@ -95,7 +95,7 @@ class TopicPath
 		{
 			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
 			$rs = join($tpl['Separator'],$topics);
-			$rs = $this->parseText($tpl['Outer'],array('topics'=>$rs));
+			$rs = $modx->parseText($tpl['Outer'],array('topics'=>$rs));
 		}
 		else $rs = '';
 		
@@ -203,10 +203,10 @@ class TopicPath
 			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
 			
 			if($i===$c-1&&$doc['id']==$modx->documentIdentifier)
-				           $topics[$i] = $this->parseText($tpl['CurrentTopic'],$ph);
-			elseif($i===0) $topics[$i] = $this->parseText($tpl['HomeTopic'],$ph);
-			elseif($isRf)  $topics[$i] = $this->parseText($tpl['ReferenceTopic'],$ph);
-			else           $topics[$i] = $this->parseText($tpl['OtherTopic'],$ph);
+				           $topics[$i] = $modx->parseText($tpl['CurrentTopic'],$ph);
+			elseif($i===0) $topics[$i] = $modx->parseText($tpl['HomeTopic'],$ph);
+			elseif($isRf)  $topics[$i] = $modx->parseText($tpl['ReferenceTopic'],$ph);
+			else           $topics[$i] = $modx->parseText($tpl['OtherTopic'],$ph);
 			
 			$i++;
 		}
@@ -226,31 +226,5 @@ class TopicPath
 			$hidden[] = $id;
 		}
 		return array_merge($this->disabledOn,$hidden);
-	}
-	
-	function parseText($tpl='',$ph=array())
-	{
-		global $modx;
-		
-		foreach($ph as $k=>$v)
-		{
-			$k = "[+{$k}+]";
-			$tpl = str_replace($k,$v,$tpl);
-		}
-		
-		$modx->loadExtension('MODIFIERS');
-		$modx->filter->setPlaceholders($ph);
-        $i=0;
-        $bt = '';
-        while($bt !== $tpl)
-        {
-            $bt = $tpl;
-            $tpl = $modx->parseText($tpl,$modx->filter->placeholders,'[+','+]',false);
-            if($bt===$tpl) break;
-            $i++;
-            if(1000<$i) $modx->messageQuit('TopicPath parse over');
-        }
-		
-		return $tpl;
 	}
 }
