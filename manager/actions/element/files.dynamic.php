@@ -252,7 +252,7 @@ else
 	$topic_path = join(' / ', $pieces);
 }
 
-?> <b><?php echo $topic_path; ?></b>
+?> <b><?php echo mb_convert_encoding($topic_path,$modx_manager_charset,'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'); ?></b>
 <?php
 // check to see user isn't trying to move below the document_root
 if(substr(strtolower(str_replace('//','/',$startpath."/")), 0, $len)!=strtolower(str_replace('//','/',$filemanager_path.'/'))) {
@@ -481,6 +481,7 @@ function ls($curpath)
 			if($file==='..'||$file==='.') continue;
 			elseif(!in_array($file, $excludes) && !in_array($newpath,$proteted_path))
 			{
+				$file = mb_convert_encoding($file,$modx_manager_charset,'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
 				$dirs_array[$dircounter]['text'] = '<img src="' . $_style['tree_folder'].'" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path='.urlencode($newpath).'"><b>'.$file.'</b></a>';
 				
 				$dfiles = scandir($newpath);
