@@ -1352,7 +1352,7 @@ class DocumentParser {
             list($key,$modifiers) = $this->splitKeyAndFilter($key);
             list($key,$context)   = explode('@',$key,2);
             
-            if(!isset($ph[$key])) {
+            if(!isset($ph[$key]) && !$context) {
                 $content= str_replace($matches[0][$i], '', $content);
                 continue;
             }
