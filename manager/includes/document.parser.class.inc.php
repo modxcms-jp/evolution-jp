@@ -1929,6 +1929,8 @@ class DocumentParser {
     }
     private function _get_snip_result($piece)
     {
+        if(ltrim($piece)!==$piece) return '';
+        
         $snip_call = $this->_split_snip_call($piece);
         
         list($key,$modifiers) = $this->splitKeyAndFilter($snip_call['name']);
