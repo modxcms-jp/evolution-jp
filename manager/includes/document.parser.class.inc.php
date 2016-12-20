@@ -1869,29 +1869,24 @@ class DocumentParser {
         $matches = $this->getTagsFromContent($content,'[[',']]');
         
         if(!$matches) return $content;
+        
         $this->snipLapCount++;
         if ($this->dumpSnippets)
             $this->dumpSnippetsCode[] = '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
         
-        $replace= array ();
-        foreach($matches[1] as $i=>$value) {
-            $this->currentSnippetCall = $matches[0][$i];
-            if(substr($value,0,2)==='$_') {
-                $replace[$i] = $this->_getSGVar($value);
+        foreach($matches[1] as $i=>$call) {
+            if(substr($call,0,2)==='$_') {
+                if(strpos($content,'_PHX_INTERNAL_')===false) $value = $this->_getSGVar($call);
+                else                                          $value = $matches[0][$i];
+                $content = str_replace($matches[0][$i], $value, $content);
                 continue;
             }
-            foreach($matches[0] as $find=>$tag) {
-                if(isset($replace[$find]) && strpos($value,$tag)!==false) {
-                    $value = str_replace($tag,$replace[$find],$value);
-                    break;
-                }
-            }
-            $replace[$i] = $this->_get_snip_result($value);
+            $value = $this->_get_snip_result($call);
+            $content = str_replace($matches[0][$i], $value, $content);
         }
         
-        if($this->dumpSnippets) $this->dumpSnippetsCode[] = '</div></fieldset>';
+        if ($this->dumpSnippets) $this->dumpSnippetsCode[] = '</div></fieldset>';
         
-        $content = str_replace($matches[0], $replace, $content);
         return $content;
     }
     
