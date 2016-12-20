@@ -1179,16 +1179,6 @@ class DocumentParser {
         }
         if(!$tags) return array();
         
-        foreach($tags as $tag) {
-            if(strpos($tag,$left)!==false) {
-//                http://forum.modx.jp/viewtopic.php?f=32&t=1604
-//                $pos = strpos($tag,':');
-//                if($pos) $tag = substr($tag,0,$pos);
-                $innerTags = $this->_getTagsFromContent($tag,$left,$right);
-                $tags = array_merge($innerTags,$tags);
-            }
-        }
-        
         foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
         }
