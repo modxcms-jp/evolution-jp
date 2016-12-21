@@ -1011,6 +1011,7 @@ class MODIFIERS {
                                               $content = $modx->mergeDocumentContent($content);
             if(strpos($content,'[(')!==false) $content = $modx->mergeSettingsContent($content);
             if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
+            if(strpos($content,'[!')!==false) $content = str_replace(array('[!','!]'),array('[[',']]'),$content);
             if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
             
             if($content===$bt)              break;
