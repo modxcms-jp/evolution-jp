@@ -84,13 +84,7 @@ class template{
 	// Find al the template variables in the template
 	// ---------------------------------------------------
 	function findTemplateVars($tpl) {
-		global $modx;
-		
-		if(method_exists($modx, 'getTagsFromContent'))
-			$matches = $modx->getTagsFromContent($tpl);
-		else
-			preg_match_all('~\[\+(.*?)\+\]~', $tpl, $matches);
-		
+		$matches = $this->getTagsFromContent($tpl);
 		$TVs = array();
 		foreach($matches[1] as $tv) {
 			$match = explode(":", $tv);
@@ -101,6 +95,20 @@ class template{
 		} else {
 			return false;
 		}
+	}
+	
+	function getTagsFromContent($tpl) {
+		global $modx;
+		
+		$matches = $modx->getTagsFromContent($tpl,'[+','+]');
+		foreach($matches[1] as $v) {
+			if(strpos($v,'[+')!=false) {
+				$pair = $this->getTagsFromContent($v);
+    			$matches[0] = array_merge($matches[0],$pair[0]);
+    			$matches[1] = array_merge($matches[1],$pair[1]);
+			}
+		}
+		return $matches;
 	}
 
 	// ---------------------------------------------------
