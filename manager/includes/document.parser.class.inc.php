@@ -1972,18 +1972,12 @@ class DocumentParser {
                 {
                     list($null, $value, $_tmp) = explode($delim, $_tmp, 3);
                     $i=0;
-                    while(substr(trim($_tmp),0,1)!=='&' && 1<substr_count($_tmp,'`')) {
-                        $bqtpos = strpos($_tmp,'`');
-                        $andpos = strpos($_tmp,'&');
-                        if($andpos==false) {
-                            $value = '`'.$_tmp;
-                            $_tmp = '';
-                            break;
-                        }
-                        elseif($andpos < $bqtpos) break;
-                        
+                    while($delim==='`' && substr(trim($_tmp),0,1)!=='&' && 1<substr_count($_tmp,'`')) {
                         list($inner, $outer, $_tmp) = explode('`', $_tmp, 3);
                         $value .= "`{$inner}`{$outer}";
+                        if(strpos($_tmp,'&')===false) $value .= $_tmp;
+                        $value = rtrim($value,'`');
+                        $_tmp = '';
                         $i++;
                         if(10<$i) exit('Nesting level too deep');
                     }
