@@ -1959,7 +1959,7 @@ class DocumentParser {
         $temp_params = array();
         $key = '';
         $value = null;
-        while($_tmp!==''):
+        while($_tmp!=='') {
             $bt = $_tmp;
             $char = substr($_tmp,0,1);
             $_tmp = substr($_tmp,1);
@@ -2018,7 +2018,6 @@ class DocumentParser {
                     $value = $this->mergePlaceholderContent($value);
                 
                 $temp_params[][$key]=$value;
-                
                 $key   = '';
                 $value = null;
 
@@ -2032,7 +2031,7 @@ class DocumentParser {
                 if($key!=='') $temp_params[][$key] = '';
                 break;
             }
-        endwhile;
+        }
         // スニペットコールのパラメータを配列にも対応
         foreach($temp_params as $p)
         {
