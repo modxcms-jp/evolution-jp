@@ -1976,12 +1976,10 @@ class DocumentParser {
                     while($delim==='`' && substr(trim($_tmp),0,1)!=='&' && 1<substr_count($_tmp,'`')) {
                         list($inner, $outer, $_tmp) = explode('`', $_tmp, 3);
                         $value .= "`{$inner}`{$outer}";
-                        if(strpos($_tmp,'&')===false) $value .= $_tmp;
-                        $value = rtrim($value,'`');
-                        $_tmp = '';
                         $i++;
-                        if(10<$i) exit('Nesting level too deep');
+                        if(20<$i) exit('The nest of values are hard to read. Please use three different quotes.');
                     }
+                    if($i&&$delim==='`') $value = rtrim($value, '`');
                 }
                 elseif(strpos($_tmp,'&')!==false)
                 {
