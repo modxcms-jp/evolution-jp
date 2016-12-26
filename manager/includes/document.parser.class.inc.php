@@ -2864,6 +2864,8 @@ class DocumentParser {
                 list($key,$modifiers)=$this->splitKeyAndFilter($key);
             else $modifiers = false;
             
+            if($key==='') $key = 'value';
+            
             if(!isset($ph[$key])) continue;
             
             $value = $ph[$key];
