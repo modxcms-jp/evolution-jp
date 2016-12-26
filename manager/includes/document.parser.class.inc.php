@@ -2365,29 +2365,23 @@ class DocumentParser {
     
     function getChildIds($id, $depth= 10, $children= array ())
     {
-        $args = print_r(func_get_args(),true);
-        $cacheKey = md5($args);
-        if(isset($this->functionCache['getchildids'][$cacheKey])) return $this->functionCache['getchildids'][$cacheKey];
-        if(!isset($this->tmpCache['getChildIds']['hasChildren'])) {
-            $this->tmpCache['getChildIds']['hasChildren'] = array();
+        $cacheKey = $id;
+        if(isset($this->tmpCache['getchildids'][$cacheKey])) return $this->tmpCache['getchildids'][$cacheKey];
+        if(!isset($this->tmpCache['getChildIds_hasChildren'])) {
+            $this->tmpCache['getChildIds_hasChildren'] = array();
             $rs = $this->db->select('DISTINCT(parent)', '[+prefix+]site_content');
             while($row = $this->db->getRow($rs)) {
-                extract($row);
-                $this->tmpCache['getChildIds']['hasChildren'][$parent] = true;
+                $this->tmpCache['getChildIds_hasChildren'][$row['parent']] = true;
             }
         }
-        if(!isset($this->tmpCache['getChildIds']['hasChildren'][$id])) return array();
+        if(!isset($this->tmpCache['getChildIds_hasChildren'][$id])) return array();
         
         $where = sprintf('deleted=0 AND parent=%s',$id);
         $rs = $this->db->select('id', '[+prefix+]site_content', $where, 'parent, menuindex');
         $childrenList = array();
-        while($row = $this->db->getRow($rs)) {
-            $childrenList[] = $row['id'];
-        }
-        
         $depth--;
-        foreach ($childrenList as $childId)
-        {
+        while($row = $this->db->getRow($rs)) {
+            $childId = $row['id'];
             $path  = $this->getAliasListing($childId,'path');
             $alias = $this->getAliasListing($childId,'alias');
             $key = trim("{$path}/{$alias}", '/');
@@ -2399,7 +2393,7 @@ class DocumentParser {
             }
         }
         
-        $this->functionCache['getchildids'][$cacheKey] = $children;
+        $this->tmpCache['getchildids'][$cacheKey] = $children;
         return $children;
     }
 
