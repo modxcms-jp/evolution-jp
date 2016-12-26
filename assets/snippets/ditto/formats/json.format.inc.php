@@ -7,7 +7,7 @@
 */
 
 if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
-
+$modx->documentObject['contentType'] = 'application/json';
 // set json placeholders
 $json_placeholders['json_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
 /*
