@@ -1044,10 +1044,7 @@ function fieldPub_date($id=0) {
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
 	$tpl[] = tooltip($_lang['page_data_publishdate_help']);
 	$tpl[] = <<< EOT
-<tr>
-	<td></td>
-	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
-</tr>
+<div style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</div>
 EOT;
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']     = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
@@ -1068,10 +1065,7 @@ function fieldUnpub_date($id) {
 	$tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
 	$tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
 	$tpl[] = <<< EOT
-<tr>
-	<td></td>
-	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
-</tr>
+	<div style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</div>
 EOT;
 	$tpl = implode("\n",$tpl);
 	$ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
