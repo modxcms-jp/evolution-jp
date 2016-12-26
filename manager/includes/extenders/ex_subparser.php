@@ -1081,6 +1081,16 @@ class SubParser {
     function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
         global $modx,$_style,$_lang,$content;
         
+        if(isset($content['id'])) {
+            global $docObject;
+            if($docObject)
+                $modx->documentObject = $docObject;
+            elseif(!isset($modx->documentObject))
+                $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
+            
+            if(!isset($modx->documentIdentifier)) $modx->documentIdentifier = $content['id'];
+        }
+        
         if(substr($field_elements, 0, 5) === '<?php')  $field_elements = "@EVAL:\n".substr($field_elements,6);
         if(substr($field_elements, 0, 6) === '@@EVAL') $field_elements = "@EVAL:\n".substr($field_elements,7);
         if(substr($default_text, 0, 5) === '<?php')    $default_text   = "@@EVAL:\n".substr($default_text,6);
@@ -1270,15 +1280,6 @@ class SubParser {
                         '[+value+]'        => htmlspecialchars($field_value),
                         '[+field_style+]'  => $field_style,
                         );
-                if(isset($content['id']))
-                {
-                    global $docObject;
-                    if($docObject) $modx->documentObject = $docObject;
-                    elseif(!isset($modx->getDocumentObject))
-                        $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
-                    if(!isset($modx->documentIdentifier))
-                        $modx->documentIdentifier = $content['id'];
-                }
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 $field_html .= $custom_output;
                 break;
