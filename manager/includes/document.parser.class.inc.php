@@ -224,8 +224,10 @@ class DocumentParser {
         $this->updatePublishStatus();
         
         $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
-        $this->uri_parent_dir = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
-        $this->uri_parent_dir = ltrim($this->uri_parent_dir,'/');
+        $_ = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
+        $_ = ltrim($_,'/');
+        if(strpos($_,'?')!==false) $_ = substr($_,0,strpos($_,'?'));
+        $this->uri_parent_dir = $_;
         
         if(0 < count($_POST)) $this->config['cache_type'] = 0;
         
