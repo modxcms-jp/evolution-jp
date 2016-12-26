@@ -1249,7 +1249,7 @@ class SubParser {
                         $custom_output = $_lang['chunk_no_exist']
                             . '(' . $_lang['htmlsnippet_name']
                             . ':' . $chunk_name . ')';
-                } else {
+                    } else {
                         $custom_output = $chunk_body;
                     }
                 } elseif(substr($field_elements, 0, 5) == "@EVAL") {
