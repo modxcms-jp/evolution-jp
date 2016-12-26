@@ -1256,7 +1256,9 @@ class SubParser {
                     $eval_str = trim(substr($field_elements, 6));
                     $custom_output = eval($eval_str);
                 } else {
-                    $custom_output = $field_elements;
+                    if(substr($field_elements, 0, 1) === '@') 
+                        $custom_output = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+                    else $custom_output = $field_elements;
                 }
                     $replacements = array(
                         '[+field_type+]'   => $field_type,
@@ -1277,7 +1279,6 @@ class SubParser {
                     if(!isset($modx->documentIdentifier))
                         $modx->documentIdentifier = $content['id'];
                 }
-                $custom_output = $modx->parseDocumentSource($custom_output);
                 $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
                 $field_html .= $custom_output;
                 break;
