@@ -2,7 +2,7 @@
 
 function to_safestr($str)
 {
-	return htmlspecialchars(stripslashes($str));
+	return htmlspecialchars($str);
 }
 
 function input_text($name,$value,$other='',$maxlength='255')
