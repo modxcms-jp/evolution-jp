@@ -1945,6 +1945,15 @@ class DocumentParser {
     {
         if(empty($string)) return array();
         
+        if(strpos($string,'&_PHX_INTERNAL_')!==false)
+            $string = str_replace(array('&_PHX_INTERNAL_091_&','&_PHX_INTERNAL_093_&'), array('[',']'), $string);
+        
+        $_ = $this->documentOutput;
+        $this->documentOutput = $string;
+        $this->invokeEvent('OnParseDocument');
+        $string = $this->documentOutput;
+        $this->documentOutput = $_;
+        
         $_tmp = $string;
         $_tmp = ltrim($_tmp, '?&');
         $temp_params = array();
