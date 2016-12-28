@@ -1181,6 +1181,13 @@ class DocumentParser {
         }
         if(!$tags) return array();
         
+        foreach($tags as $tag) {
+            if(strpos($tag,$left)!==false) {
+                $innerTags = $this->_getTagsFromContent($tag,$left,$right);
+                $tags = array_merge($innerTags,$tags);
+            }
+        }
+        
         foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
         }
