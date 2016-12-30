@@ -117,7 +117,7 @@ function changeRTE() {
 	else newEditor = '';
 
 	documentDirty=false;
-	document.mutate.a.value = <?php echo $action?>;
+	document.mutate.a.value = <?php echo $modx->manager->action; ?>;
 	document.mutate.which_editor.value = newEditor;
 	document.mutate.changeMode.value = newEditor;
 	document.mutate.submit();
