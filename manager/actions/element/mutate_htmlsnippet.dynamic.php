@@ -76,33 +76,6 @@ elseif(!isset($content['editor_type']) || empty($content['editor_type']))
 // Print RTE Javascript function
 ?>
 <script language="javascript" type="text/javascript">
-jQuery(function(){
-	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
-	if(readonly==1) {
-		jQuery('textarea,input[type=text]').prop('readonly',true);
-		jQuery('select').addClass('readonly');
-		jQuery('#save').hide();
-    	jQuery('input[name="locked"]').click(function(){
-    		jQuery('#save').toggle();
-    	});
-	}
-	jQuery('input[name="locked"]').click(function(){
-		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
-		jQuery('select').toggleClass('readonly');
-	});
-	jQuery('select[name="categoryid"]').change(function(){
-		if(jQuery(this).val()=='-1') {
-			jQuery('#newcategry').fadeIn();
-		} else {
-			jQuery('#newcategry').fadeOut();
-			jQuery('input[name="newcategory"]').val('');
-		}
-	});
-	jQuery('#save a').click(function(){
-    	documentDirty=false;
-    	jQuery('#mutate').submit();
-	});
-});
 // Added for RTE selection
 function changeRTE() {
 	var whichEditor = document.getElementById('which_editor');
@@ -317,6 +290,33 @@ if ($ds) {
 </script>
 </form>
 </div>
+<script>
+	var readonly = <?php echo ($content['locked'] === '1' || $content['locked'] === 'on') ? '1': '0'; ?>;
+	if(readonly==1) {
+		jQuery('textarea,input[type=text]').prop('readonly',true);
+		jQuery('select').addClass('readonly');
+		jQuery('#save').hide();
+    	jQuery('input[name="locked"]').click(function(){
+    		jQuery('#save').toggle();
+    	});
+	}
+	jQuery('input[name="locked"]').click(function(){
+		jQuery('textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
+		jQuery('select').toggleClass('readonly');
+	});
+	jQuery('select[name="categoryid"]').change(function(){
+		if(jQuery(this).val()=='-1') {
+			jQuery('#newcategry').fadeIn();
+		} else {
+			jQuery('#newcategry').fadeOut();
+			jQuery('input[name="newcategory"]').val('');
+		}
+	});
+	jQuery('#save a').click(function(){
+    	documentDirty=false;
+    	jQuery('#mutate').submit();
+	});
+</script>
 <?php
 // invoke OnRichTextEditorInit event
 if ($use_editor == 1) {
