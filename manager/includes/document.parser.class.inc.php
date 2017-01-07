@@ -1181,13 +1181,6 @@ class DocumentParser {
         }
         if(!$tags) return array();
         
-        foreach($tags as $tag) {
-            if(strpos($tag,$left)!==false) {
-                $innerTags = $this->_getTagsFromContent($tag,$left,$right);
-                $tags = array_merge($innerTags,$tags);
-            }
-        }
-        
         foreach($tags as $i=>$tag) {
             if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
         }
@@ -2068,11 +2061,13 @@ class DocumentParser {
         for($i=0;$i<$total;$i++) {
             $c  = substr($str,$i,1);
             $cc = substr($str,$i,2);
+            $qpos = strpos($str,'?');
             if(!$inFilter) {
                 if($c===':')                  $inFilter=true;
                 elseif($c==='?')              $pos = $i;
                 elseif($c===' ')              $maybePos = $i;
                 elseif($c==='&' && $maybePos) $pos = $maybePos;
+                elseif($c==='&' && !$qpos)    $pos = $i;
                 elseif($c==="\n")             $pos = $i;
                 else                          $pos = false;
             }
