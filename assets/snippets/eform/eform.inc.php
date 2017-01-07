@@ -1156,7 +1156,7 @@ function filterEformValue($value,$param){
         $tpl = '';
         if(substr($key, 0, 5) == '@FILE')
         {
-            $path = substr($tpl, 6);
+            $path = substr($key, 6);
             $path = trim($path);
             $path = ltrim($path,'/');
             $path = MODX_BASE_PATH . $path;
