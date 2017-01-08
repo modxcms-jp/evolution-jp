@@ -2746,7 +2746,6 @@ class DocumentParser {
             $this->referenceListing = $this->_getReferenceListing();
         }
         
-        $replace= array ();
         $matches = $this->getTagsFromContent($content,'[~','~]');
         if(!$matches) return $content;
         
@@ -2759,15 +2758,16 @@ class DocumentParser {
             $key = $this->mergeChunkContent($key);
             $key = $this->evalSnippets($key);
             
-            if(preg_match('/^[0-9]+$/',$key))
+            if($key==='') $value = '';
+            elseif(preg_match('/^[0-9]+$/',$key))
             {
                 $docid = $key;
                 if(isset($this->referenceListing[$docid]) && preg_match('/^[0-9]+$/',$this->referenceListing[$docid] ))
                 {
                     $docid = $this->referenceListing[$docid];
                 }
-                $replace[$i] = $this->makeUrl($docid,'','','rel');
-                if(!$replace[$i])
+                $value = $this->makeUrl($docid,'','','rel');
+                if(!$value)
                 {
                     $ph['linktag']     = "[~{$key_org}~]";
                     $ph['request_uri'] = $this->decoded_request_uri;
@@ -2780,10 +2780,11 @@ class DocumentParser {
             else
             {
                 $docid = $this->getIdFromAlias($key);
-                $replace[$i] = $docid;
+                if(!$docid) $value='';
+                else $value = $docid;
             }
+            $content = str_replace($matches[0][$i], $value, $content);
         }
-        $content = str_replace($matches[0], $replace, $content);
         return $content;
     }
     
