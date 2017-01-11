@@ -1863,7 +1863,7 @@ class DocumentParser {
         
         $this->snipLapCount++;
         if ($this->dumpSnippets)
-            $this->dumpSnippetsCode[] = '<fieldset style="margin-bottom:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
+            $this->dumpSnippetsCode[] = '<fieldset style="margin:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
         
         foreach($matches[1] as $i=>$call) {
             if(substr($call,0,2)==='$_') {
@@ -1930,13 +1930,12 @@ class DocumentParser {
         
         if($this->dumpSnippets)
         {
-            if($value) {
-                if(150<strlen($value)) $height = 200;
-                else                   $height = 50;
-                $code = sprintf('<textarea style="width:90%%;height:%spx">%s</textarea>', $height, $this->htmlspecialchars($value));
-            }
-            else $code = 'Empty';
-            $this->dumpSnippetsCode[] = sprintf('<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s</fieldset>', $key, $code);
+            $tpl = '<div style="background-color:#fff;padding:1em;border:1px solid #ccc;border-radius:8px;margin-bottom:1em;">%s</div>';
+            $piece  = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars('[['.$piece.']]'))));
+            $params = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars(print_r($params,true)))));
+            $code = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars($value))));
+            $tpl = '<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s%s%s</fieldset>';
+            $this->dumpSnippetsCode[] = sprintf($tpl, $key, $piece, $params, $code);
         }
         return $value;
     }
