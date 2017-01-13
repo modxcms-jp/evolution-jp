@@ -1279,6 +1279,7 @@ class SubParser {
                 $ph['value']        = htmlspecialchars($field_value);
                 $ph['field_style']  = $field_style;
                 $custom_output = $modx->parseText($custom_output, $ph);
+                $custom_output = $modx->mergeDocumentContent($custom_output);
                 
                 $field_html .= $custom_output;
                 break;
