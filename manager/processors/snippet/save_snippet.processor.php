@@ -4,7 +4,7 @@ if(!$modx->hasPermission('save_snippet')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
+$id = (isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) ? $_POST['id'] : 0;
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $locked = $_POST['locked']=='on' ? 1 : 0 ;
@@ -40,6 +40,18 @@ else
 
 if($name=='') $name = 'Untitled snippet';
 
+// disallow duplicate names
+$where = "name='{$name}'";
+if($id) $where .= ' AND id!='.$id;
+$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_snippets', $where);
+$count = $modx->db->getValue($rs);
+if ($count > 0) {
+    $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name);
+    $modx->manager->saveFormValues(23);
+    $modx->webAlertAndQuit($msg, 'index.php?a=23');
+    exit;
+}
+
 switch ($_POST['mode'])
 {
 	case '23':
@@ -49,33 +61,7 @@ switch ($_POST['mode'])
 									'id'	=> ''
     );
 		$modx->invokeEvent('OnBeforeSnipFormSave',$tmp);
-								
-		// disallow duplicate names for new snippets
-		$rs = $modx->db->select('COUNT(id)', $tbl_site_snippets, "name = '{$name}'");
-		$count = $modx->db->getValue($rs);
-		if($count > 0)
-		{
-			$modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name));
-			
-			// prepare a few variables prior to redisplaying form...
-			$_REQUEST['id'] = 0;
-			$_REQUEST['a'] = '23';
-			$_GET['a'] = '23';
-			$content = array();
-			$content['id'] = 0;
-			$content = array_merge($content, $_POST);
-			$content['locked'] = $content['locked'] == 'on' ? 1: 0;
-			$content['category'] = $_POST['categoryid'];
-			$content['snippet'] = preg_replace("/^\s*\<\?php/m", '', $_POST['post']);
-			$content['snippet'] = preg_replace("/\?\>\s*/m", '', $content['snippet']);
-
-			include(MODX_MANAGER_PATH . 'actions/header.inc.php');
-			include(MODX_MANAGER_PATH . 'actions/element/mutate_snippet.dynamic.php');
-			include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-			
-			exit;
-		}
-
+		
 		//do stuff to save the new doc
 		$field=array();
 		$field['name']        = $name;
