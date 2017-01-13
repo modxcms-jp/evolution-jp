@@ -85,6 +85,7 @@ class template{
 	// ---------------------------------------------------
 	function findTemplateVars($tpl) {
 		$matches = $this->getTagsFromContent($tpl);
+		if(!$matches) return $tpl;
 		$TVs = array();
 		foreach($matches[1] as $tv) {
 			$match = explode(":", $tv);
@@ -101,6 +102,7 @@ class template{
 		global $modx;
 		
 		$matches = $modx->getTagsFromContent($tpl,'[+','+]');
+		if(!$matches) return false;
 		foreach($matches[1] as $v) {
 			if(strpos($v,'[+')!=false) {
 				$pair = $this->getTagsFromContent($v);
