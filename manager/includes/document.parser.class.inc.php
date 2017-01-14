@@ -899,6 +899,7 @@ class DocumentParser {
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
         if($this->config['legacy_cache']) $this->setAliasListing();
+        $this->setSnippetCache();
         return $this->config;
     }
     
@@ -1856,7 +1857,6 @@ class DocumentParser {
     {
         if(strpos($content,'[[')===false) return $content;
         
-        if(!$this->snippetCache) $this->setSnippetCache();
         $matches = $this->getTagsFromContent($content,'[[',']]');
         
         if(!$matches) return $content;
@@ -2132,26 +2132,8 @@ class DocumentParser {
         }
         else
         {
-            $where = sprintf("name='%s'",$this->db->escape($snip_name));
-            $rs= $this->db->select('name,snippet,properties','[+prefix+]site_snippets',$where);
-            $count = $this->db->getRecordCount($rs);
-            if(1<$count) exit('Error $modx->_getSnippetObject()'.$snip_name);
-            if($count)
-            {
-                $row = $this->db->getRow($rs);
-                $snip_content = $row['snippet'];
-                $snip_prop    = $row['properties'];
-            }
-            else
-            {
-                $snip_content = 'return false;';
-                $snip_prop    = '';
-            }
-            $snippetObject['name']       = $snip_name;
-            $snippetObject['content']    = $snip_content;
-            $snippetObject['properties'] = $snip_prop;
-            $this->snippetCache[$snip_name]          = $snip_content;
-            $this->snippetCache["{$snip_name}Props"] = $snip_prop;
+            $snip_content = 'return false;';
+            $snip_prop    = '';
         }
         return $snippetObject;
     }
@@ -2166,9 +2148,12 @@ class DocumentParser {
     
     function setSnippetCache()
     {
-        $snippets = @include_once(MODX_BASE_PATH . 'assets/cache/snippet.siteCache.idx.php');
-        if($snippets) $this->snippetCache = $snippets;
-        else return false;
+        $rs= $this->db->select('name,snippet,properties','[+prefix+]site_snippets');
+        while($row = $this->db->getRow($rs)) {
+            $name = $row['name'];
+            $this->snippetCache[$name]          = $row['snippet'];
+            $this->snippetCache["{$name}Props"] = $row['properties'];
+        }
     }
     
     function getPluginCache()
