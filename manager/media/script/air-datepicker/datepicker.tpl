@@ -29,13 +29,23 @@ jQuery(function(){
         }
     };
     
-    jQuery('.DatePicker').datepicker(options);
-    jQuery('.DatePicker').each(function(i, elm){
+    jQuery('input.DatePicker').datepicker(options);
+    jQuery('input.DatePicker').each(function(i, elm){
         var v=jQuery(elm).val();
-    	if(v) {
-    		jQuery(elm).data('datepicker').selectDate(new Date(v));
-    	}
-    	documentDirty = false;
+        if(v) {
+            jQuery(elm).data('datepicker').selectDate(new Date(v));
+        }
+        documentDirty = false;
+    });
+    jQuery('input.ddAddButton').on('click',function(){
+        jQuery('input.DatePicker').datepicker(options);
+        jQuery('input.DatePicker').each(function(i, elm){
+            var v=jQuery(elm).val();
+            if(v) {
+                jQuery(elm).data('datepicker').selectDate(new Date(v));
+            }
+            documentDirty = false;
+        });
     });
 });
 
