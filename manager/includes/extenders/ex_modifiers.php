@@ -202,12 +202,10 @@ class MODIFIERS {
             $cmd = 'id';
         }
         
-        if(!$modx->chunkCache) $modx->setChunkCache();
-        
         if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
         elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
-        elseif(isset($modx->chunkCache["phx:{$cmd}"])) $this->elmName = "phx:{$cmd}";
-        elseif(isset($modx->chunkCache[$cmd])&&strpos($modx->chunkCache[$cmd],'[+value+]')!==false)
+        elseif($modx->getChunk("phx:{$cmd}"))          $this->elmName = "phx:{$cmd}";
+        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
                                                        $this->elmName = $cmd;
         else                                           $this->elmName = '';
         
