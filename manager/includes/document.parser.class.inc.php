@@ -382,7 +382,6 @@ class DocumentParser {
 
         if ($this->documentContent == '')
         {
-            $this->setChunkCache();
             // get document object
             $this->documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
             
@@ -895,7 +894,6 @@ class DocumentParser {
         if(!isset($this->config['modx_charset']) || !$this->config['modx_charset'])
             $this->config['modx_charset'] = 'utf-8';
         
-        if(!defined('IN_PARSER_MODE')) $this->setChunkCache();
         if($this->lastInstallTime) $this->config['lastInstallTime'] = $this->lastInstallTime;
         $this->invokeEvent('OnGetConfig');
         if($this->config['legacy_cache']) $this->setAliasListing();
@@ -1098,8 +1096,6 @@ class DocumentParser {
         // clear the cache
         $this->clearCache();
 
-        unset($this->chunkCache);
-        $this->setChunkCache();
         if($this->config['legacy_cache']) $this->setAliasListing();
 
         //invoke events
@@ -2136,14 +2132,6 @@ class DocumentParser {
             $snip_prop    = '';
         }
         return $snippetObject;
-    }
-    
-    function setChunkCache()
-    {
-        if(isset($this->chunkCache)) return;
-        $chunk = @include_once(MODX_BASE_PATH . 'assets/cache/chunk.siteCache.idx.php');
-        if(is_array($chunk)) $this->chunkCache = $chunk;
-        else $this->chunkCache = array();
     }
     
     function setSnippetCache()
