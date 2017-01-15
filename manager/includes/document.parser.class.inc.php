@@ -3475,6 +3475,10 @@ class DocumentParser {
         $this->chunkCache['#'.$name] = $text;
     }
     
+    function addFilter($name, $phpCode) {
+        $this->snippetCache['phx:'.$name] = $phpCode;
+    }
+    
     function cleanUpMODXTags($content='') {
         $_ = array('[* *]','[( )]','{{ }}','[[ ]]','[+ +]');
         foreach($_ as $brackets) {
