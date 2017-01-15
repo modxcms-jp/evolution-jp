@@ -240,6 +240,7 @@ $s = '';
         
         if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
         if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
+        if(is_array($where))  $where  = join(' ', $where);
         
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
