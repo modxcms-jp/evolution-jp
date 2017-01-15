@@ -28,6 +28,7 @@ class DocumentParser {
     var $documentObject;
     var $templateObject;
     var $snippetObjects;
+    var $moduleObject;
     var $stopOnNotice;
     var $executedQueries;
     var $queryTime;

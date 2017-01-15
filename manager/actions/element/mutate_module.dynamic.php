@@ -52,7 +52,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
 	$_SESSION['itemname'] = 'New Module';
 	$content['wrap'] = '1';
 }
-
+$modx->moduleObject = $content;
 ?>
 <script type="text/javascript">
 var docid = <?php echo $_REQUEST['id'];?>;

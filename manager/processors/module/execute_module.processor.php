@@ -76,6 +76,7 @@ if($limit<1) {
 	exit;
 }
 $content = $modx->db->getRow($rs);
+$modx->moduleObject = $content;
 if($content['disabled']) {
 	echo "<script type='text/javascript'>" .
 			"function jsalert(){ alert('This module is disabled and cannot be executed.');" .
