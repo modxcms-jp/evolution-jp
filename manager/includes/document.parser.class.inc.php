@@ -2352,7 +2352,7 @@ class DocumentParser {
     
     function getChildIds($id, $depth= 10, $children= array ())
     {
-        $cacheKey = $id;
+        $cacheKey = md5(print_r(func_get_args(),true));
         if(isset($this->tmpCache['getchildids'][$cacheKey])) return $this->tmpCache['getchildids'][$cacheKey];
         if(!isset($this->tmpCache['getChildIds_hasChildren'])) {
             $this->tmpCache['getChildIds_hasChildren'] = array();
