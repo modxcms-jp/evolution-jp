@@ -1821,7 +1821,8 @@ class DocumentParser {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        $return = eval($phpcode);
+        if(strpos($phpcode,';')!==false) $return = eval($phpcode);
+        else                             $return = call_user_func_array($phpcode,$params);
         $echo = ob_get_contents();
         ob_end_clean();
         
