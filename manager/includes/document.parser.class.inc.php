@@ -2478,19 +2478,25 @@ class DocumentParser {
             $docid = $this->getIdFromAlias($docid);
         
         if(empty($docid)) return false;
-        $webInternalKey = isset($_SESSION['webInternalKey']) ? $_SESSION['webInternalKey'] : '0';
-        $cacheKey = "[{$field}-{$docid}-{$webInternalKey}]";
-        if(isset($this->functionCache['getfield'][$cacheKey]))
-            return $this->functionCache['getfield'][$cacheKey];
         
-        $doc = $this->getDocumentObject('id', $docid);
+        if(isset($this->tmpCache['getfield'][$docid][$field]) && !is_array($this->tmpCache['getfield'][$docid][$field]))
+            return $this->tmpCache['getfield'][$docid][$field];
+        
+        if(!isset($doc[$field])) $doc = $this->getDocumentObject('id', $docid);
+        
         if(is_array($doc[$field]))
         {
-            $tvs= $this->getTemplateVarOutput($field, $docid,null);
-            $this->functionCache['getfield'][$cacheKey] = $tvs[$field];
-            return $tvs[$field];
+            $doc[$field] = $this->tvProcessor($doc[$field]);
+            if(isset($this->tmpCache['getfield'][$docid]))
+                $this->tmpCache['getfield'][$docid] = array_merge($this->tmpCache['getfield'][$docid],$doc);
+            else
+                $this->tmpCache['getfield'][$docid] = $doc;
+            return $doc[$field];
         }
-        $this->functionCache['getfield'][$cacheKey] = $doc[$field];
+        if(isset($this->tmpCache['getfield'][$docid]))
+            $this->tmpCache['getfield'][$docid] = array_merge($this->tmpCache['getfield'][$docid],$doc);
+        else
+            $this->tmpCache['getfield'][$docid] = $doc;
         return $doc[$field];
     }
     
