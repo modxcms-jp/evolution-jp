@@ -44,7 +44,7 @@ class DocumentParser {
     var $contentTypes;
     var $dumpSQLCode = array();
     var $ph;
-    var $placeholders;
+    var $placeholders = array();
     var $sjscripts = array();
     var $jscripts = array();
     var $loadedjscripts = array();
