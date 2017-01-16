@@ -1344,7 +1344,7 @@ class DocumentParser {
             list($key,$context)   = explode('@',$key,2);
             
             if(!isset($ph[$key]) && !$context) continue;
-            elseif($context) $value = $this->_contextValue("{$key}@{$context}");
+            elseif($context) $value = $this->_contextValue("{$key}@{$context}",$this->documentObject['parent']);
             else             $value = $ph[$key];
             
             if (is_array($value)) {
@@ -1396,7 +1396,7 @@ class DocumentParser {
         return $value;
     }
     
-    function _contextValue($key) {
+    function _contextValue($key,$parent=false) {
         if(preg_match('/@\d+\/u/',$key))
         $key = str_replace(array('@','/u'),array('@u(',')'),$key);
         list($key,$str) = explode('@',$key,2);
@@ -1412,7 +1412,7 @@ class DocumentParser {
                 break;
             case 'parent':
             case 'p':
-                $docid = $this->documentObject['parent'];
+                $docid = $parent;
                 if($docid==0) $docid = $this->config['site_start'];
                 break;
             case 'ultimateparent':
@@ -1435,7 +1435,7 @@ class DocumentParser {
                 if(!$option) $option = 'menuindex,ASC';
                 elseif(strpos($option, ',')===false) $option .= ',ASC';
                 list($by,$dir) = explode(',', $option, 2);
-                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
+                $children = $this->getActiveChildren($parent, $by, $dir);
                 $find = false;
                 $prev = false;
                 foreach($children as $row) {
@@ -1455,7 +1455,7 @@ class DocumentParser {
                 if(!$option) $option = 'menuindex,ASC';
                 elseif(strpos($option, ',')===false) $option .= ',ASC';
                 list($by,$dir) = explode(',', $option, 2);
-                $children = $this->getActiveChildren($this->documentObject['parent'], $by, $dir);
+                $children = $this->getActiveChildren($parent, $by, $dir);
                 $find = false;
                 $next = false;
                 foreach($children as $row) {
@@ -2845,11 +2845,14 @@ class DocumentParser {
                 list($key,$modifiers)=$this->splitKeyAndFilter($key);
             else $modifiers = false;
             
+            list($key,$context)   = explode('@',$key,2);
+            if(!isset($ph['parent'])) $ph['parent'] = false;
+            
             if($key==='') $key = 'value';
             
-            if(!isset($ph[$key])) continue;
-            
-            $value = $ph[$key];
+            if(!isset($ph[$key]) && !$context) continue;
+            elseif($context) $value = $this->_contextValue("{$key}@{$context}",$ph['parent']);
+            else             $value = $ph[$key];
             
             if($modifiers!==false) {
                 if(strpos($modifiers,$left)!==false) $modifiers=$this->parseText($modifiers,$ph,$left,$right);
