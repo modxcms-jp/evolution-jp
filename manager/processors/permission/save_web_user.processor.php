@@ -41,10 +41,9 @@ if ($passwordgenmethod == 'spec' && $_POST['specifiedpassword'] != $_POST['confi
 }
 
 // verify email
-$modx->config['reg_email_wuser'] = 0;
-if(!isset($modx->config['reg_email_wuser'])) $modx->config['reg_email_wuser'] = 0;
+if(!isset($modx->config['required_email_wuser'])) $modx->config['required_email_wuser'] = 1;
 
-if($modx->config['reg_email_wuser']) {
+if($modx->config['required_email_wuser']) {
     if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", $email)) {
     	webAlert("E-mail address doesn't seem to be valid!");
     	exit;
@@ -70,7 +69,7 @@ switch ($_POST['mode']) {
 		}
 
 		// check if the email address already exist
-		if($modx->config['reg_email_wuser']) {
+		if($modx->config['required_email_wuser']) {
     		if (!$rs = $modx->db->select('id',$tbl_web_user_attributes,"email='{$email}'"))
     		{
     			webAlert("An error occurred while attempting to retrieve all users with email {$email}.");
@@ -180,7 +179,7 @@ switch ($_POST['mode']) {
 		}
 		// end of user_groups stuff!
 
-		if ($modx->config['reg_email_wuser'] && $passwordnotifymethod == 'e') {
+		if ($modx->config['required_email_wuser'] && $passwordnotifymethod == 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id={$id}" : '87';
@@ -244,7 +243,7 @@ switch ($_POST['mode']) {
 			}
 			$updatepasswordsql = ", password=MD5('".$modx->db->escape($newpassword)."') ";
 		}
-		if ($modx->config['reg_email_wuser'] && $passwordnotifymethod == 'e') {
+		if ($modx->config['required_email_wuser'] && $passwordnotifymethod == 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 		}
 
@@ -264,7 +263,7 @@ switch ($_POST['mode']) {
 		}
 
 		// check if the email address already exists
-		if($modx->config['reg_email_wuser']) {
+		if($modx->config['required_email_wuser']) {
     		if (!$rs = $modx->db->select('internalKey',$tbl_web_user_attributes,"email='{$email}'")) {
     			webAlert("An error occurred while attempting to retrieve all users with email $email.");
     			exit;
