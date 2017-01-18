@@ -1822,7 +1822,7 @@ class DocumentParser {
         }
         ob_start();
         if(strpos($phpcode,';')!==false) $return = eval($phpcode);
-        else                             $return = call_user_func_array($phpcode,$params);
+        else                             $return = call_user_func_array($phpcode,array($params));
         $echo = ob_get_contents();
         ob_end_clean();
         
