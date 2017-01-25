@@ -1807,6 +1807,8 @@ class DocumentParser {
     }
     
     function evalSnippet($phpcode, $params) {
+        $phpcode = trim($phpcode);
+        if(empty($phpcode)) return;
         $modx= & $this;
         if ($this->debug) $fstart = $this->getMicroTime();
         if(isset($params) && is_array($params)) {
