@@ -423,6 +423,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					}
 					$fields[$name] = $value;
 				}
+				if(is_array($value)) $fields[$name] = join(', ', $value);
 			}
 			# set postdate
 			$fields['postdate'] = strftime($modx->toDateFormat(null, 'formatOnly') . " %H:%M:%S",time());
