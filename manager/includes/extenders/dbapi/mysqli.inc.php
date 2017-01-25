@@ -168,6 +168,9 @@ $s = '';
         }
         
         $tstart = $modx->getMicroTime();
+        
+        if(is_array($sql)) $sql = join("\n", $sql);
+        
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {

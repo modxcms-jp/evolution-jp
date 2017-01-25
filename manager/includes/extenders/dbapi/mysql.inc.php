@@ -176,6 +176,9 @@ $s = '';
             if(!$rs) return false;
         }
         $tstart = $modx->getMicroTime();
+        
+        if(is_array($sql)) $sql = join("\n", $sql);
+        
         $this->lastQuery = $sql;
         $result = @ mysql_query($sql, $this->conn);
         if (!$result) {
