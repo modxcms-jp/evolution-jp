@@ -1,10 +1,12 @@
 <?php
 if(!isset($modx))
 {
-	define('MODX_API_MODE',true);
-	include_once($base_path.'manager/includes/document.parser.class.inc.php');
-	$modx = new DocumentParser;
-	$modx->getSettings();
+    define('MODX_API_MODE', true);
+    $self = 'manager/media/captcha/veriword.php';
+    $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+    include_once('manager/includes/document.parser.class.inc.php');
+    $modx = new DocumentParser;
+    $modx->getSettings();
 }
 
 $vword = new VeriWord();
