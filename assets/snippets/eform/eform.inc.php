@@ -423,6 +423,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 					}
 					$fields[$name] = $value;
 				}
+				if(is_array($value)) $fields[$name] = join(', ', $value);
 			}
 			# set postdate
 			$fields['postdate'] = strftime($modx->toDateFormat(null, 'formatOnly') . " %H:%M:%S",time());
@@ -1156,7 +1157,7 @@ function filterEformValue($value,$param){
         $tpl = '';
         if(substr($key, 0, 5) == '@FILE')
         {
-            $path = substr($tpl, 6);
+            $path = substr($key, 6);
             $path = trim($path);
             $path = ltrim($path,'/');
             $path = MODX_BASE_PATH . $path;

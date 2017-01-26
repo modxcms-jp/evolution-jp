@@ -29,6 +29,7 @@ class MODIFIERS {
     function phxFilter($key,$value,$modifiers)
     {
         global $modx;
+        if(substr($modifiers,0,3)!=='id(') $value = $this->parseDocumentSource($value);
         $this->srcValue = $value;
         $modifiers = trim($modifiers);
         $modifiers = ':'.trim($modifiers,':');
@@ -152,7 +153,7 @@ class MODIFIERS {
         foreach($result as $i=>$a)
         {
             $a['opt'] = $this->parseDocumentSource($a['opt']);
-            $result[$i]['opt'] = $modx->mergePlaceholderContent($a['opt'],$this->placeholders);
+            $result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders);
         }
         
         return $result;
@@ -201,13 +202,10 @@ class MODIFIERS {
             $cmd = 'id';
         }
         
-        if(!$modx->snippetCache)  $modx->setSnippetCache();
-        if(!$modx->chunkCache) $modx->setChunkCache();
-        
         if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
         elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
-        elseif(isset($modx->chunkCache["phx:{$cmd}"])) $this->elmName = "phx:{$cmd}";
-        elseif(isset($modx->chunkCache[$cmd])&&strpos($modx->chunkCache[$cmd],'[+value+]')!==false)
+        elseif($modx->getChunk("phx:{$cmd}"))          $this->elmName = "phx:{$cmd}";
+        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
                                                        $this->elmName = $cmd;
         else                                           $this->elmName = '';
         
@@ -422,6 +420,8 @@ class MODIFIERS {
             case 'base64_encode':
             case 'md5':
             case 'sha1':
+            case 'json_encode':
+            case 'json_decode':
                 return $cmd($value);
             
             #####  String Modifiers
@@ -737,6 +737,10 @@ class MODIFIERS {
             case 'fullurl':
                 if(!is_numeric($value)) return $value;
                 return $modx->makeUrl($value);
+            case 'makeurl':
+                if(!is_numeric($value)) return $value;
+                if(!$opt) $opt = 'full';
+                return $modx->makeUrl($value,'','',$opt);
                 
             #####  File system
             case 'getimageinfo':
@@ -1011,6 +1015,7 @@ class MODIFIERS {
                                               $content = $modx->mergeDocumentContent($content);
             if(strpos($content,'[(')!==false) $content = $modx->mergeSettingsContent($content);
             if(strpos($content,'{{')!==false) $content = $modx->mergeChunkContent($content);
+            if(strpos($content,'[!')!==false) $content = str_replace(array('[!','!]'),array('[[',']]'),$content);
             if(strpos($content,'[[')!==false) $content = $modx->evalSnippets($content);
             
             if($content===$bt)              break;

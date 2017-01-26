@@ -354,7 +354,7 @@ class Wayfinder {
         elseif(strtolower(substr($this->_config['id'],0,1))==='i')
             $this->_config['id'] = $this->getIndexID($modx->documentIdentifier);
         elseif(!preg_match('@^[0-9]+$@',$this->_config['id']))
-            exit('Wayfinder &startId error');
+            exit(sprintf('# %s # Wayfinder &startId error',$this->_config['id']));
         
         if (!$this->_config['hideSubMenus']) {
             $ids = $modx->getChildIds($this->_config['id'],$depth);
@@ -378,8 +378,9 @@ class Wayfinder {
                 //remove parents lower than level of startId + level depth
                 $parents = array_slice(array_reverse($parents), 0, $depth-1);
 
-                foreach($parents as $p)
-                    $ids = $modx->getChildIds($p, 1, $ids);
+                foreach($parents as $p) {
+                    $ids += $modx->getChildIds($p, 1, $ids);
+                }
             }
         }
         //Get all of the ids for processing

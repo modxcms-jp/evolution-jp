@@ -328,26 +328,25 @@ class ditto {
 			$placeholders[$key] = str_replace( array_keys( $contentVars ), array_values( $contentVars ), $output );
 		}
 		unset($PHs);
-		if($modifier_mode==='normal')
-		{
-			$bt = '';
+		
+		$output = $template;
+		unset($template);
+		if($modifier_mode==='normal') {
 			$i = 0;
-			$output = $template;
-			while($i<20) {
-				$bt = $output;
+			while($i<10) {
+				$_ = $output;
 				$output = $modx->parseText($output,$placeholders);
-				if($bt===$output) break;
+				if($_===$output) break;
 				$i++;
 			}
 		}
-		elseif($modifier_mode==='phx')
-		{
-			$phx = new prePHx($template);
+		elseif($modifier_mode==='phx') {
+			$phx = new prePHx($output);
 			$phx->setPlaceholders($placeholders);
 			$output = $phx->output();
 		}
 		else {
-		 	$output = $this->template->replace($placeholders,$template);
+		 	$output = $this->template->replace($placeholders,$output);
 			$output = $this->template->replace($contentVars,$output);
 		}
 		

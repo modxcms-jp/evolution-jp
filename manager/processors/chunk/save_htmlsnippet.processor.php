@@ -162,7 +162,7 @@ switch ($_POST['mode']) {
     default:
 }
 
-function check_exist_name($name) { // disallow duplicate names for new chunks
+function check_exist_name($name) { // disallow duplicate names for edit chunks
     global $modx;
     $where = "name='{$name}'";
     if ($_POST['mode'] == 78) {

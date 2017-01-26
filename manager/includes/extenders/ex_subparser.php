@@ -77,6 +77,12 @@ class SubParser {
                 $modx->mail->AddBCC($address,$name);
             }
         }
+        if(isset($p['replyto']))
+        {
+            list($name, $address) = $modx->mail->address_split($p['replyto']);
+            $modx->mail->addReplyTo($address,$name);
+        }
+        
         if(isset($p['from']) && strpos($p['from'],'<')!==false && substr($p['from'],-1)==='>')
             list($p['fromname'],$p['from']) = $modx->mail->address_split($p['from']);
         $modx->mail->From     = (!isset($p['from']))  ? $modx->config['emailsender']  : $p['from'];
@@ -1081,6 +1087,16 @@ class SubParser {
     function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
         global $modx,$_style,$_lang,$content;
         
+        if(isset($content['id'])) {
+            global $docObject;
+            if($docObject)
+                $modx->documentObject = $docObject;
+            elseif(!isset($modx->documentObject))
+                $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
+            
+            if(!isset($modx->documentIdentifier)) $modx->documentIdentifier = $content['id'];
+        }
+        
         if(substr($field_elements, 0, 5) === '<?php')  $field_elements = "@EVAL:\n".substr($field_elements,6);
         if(substr($field_elements, 0, 6) === '@@EVAL') $field_elements = "@EVAL:\n".substr($field_elements,7);
         if(substr($default_text, 0, 5) === '<?php')    $default_text   = "@@EVAL:\n".substr($default_text,6);
@@ -1249,36 +1265,28 @@ class SubParser {
                         $custom_output = $_lang['chunk_no_exist']
                             . '(' . $_lang['htmlsnippet_name']
                             . ':' . $chunk_name . ')';
-                } else {
+                    } else {
                         $custom_output = $chunk_body;
                     }
                 } elseif(substr($field_elements, 0, 5) == "@EVAL") {
                     $eval_str = trim(substr($field_elements, 6));
                     $custom_output = eval($eval_str);
                 } else {
-                    $custom_output = $field_elements;
+                    if(substr($field_elements, 0, 1) === '@') 
+                        $custom_output = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+                    else $custom_output = $field_elements;
                 }
-                    $replacements = array(
-                        '[+field_type+]'   => $field_type,
-                        '[+field_id+]'     => $field_id,
-                        '[+field_name+]'   => "tv{$field_id}",
-                        '[+name+]'         => "tv{$field_id}",
-                        '[+default_text+]' => $default_text,
-                        '[+field_value+]'  => htmlspecialchars($field_value),
-                        '[+value+]'        => htmlspecialchars($field_value),
-                        '[+field_style+]'  => $field_style,
-                        );
-                if(isset($content['id']))
-                {
-                    global $docObject;
-                    if($docObject) $modx->documentObject = $docObject;
-                    elseif(!isset($modx->getDocumentObject))
-                        $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
-                    if(!isset($modx->documentIdentifier))
-                        $modx->documentIdentifier = $content['id'];
-                }
-                $custom_output = $modx->parseDocumentSource($custom_output);
-                $custom_output = str_replace(array_keys($replacements), $replacements, $custom_output);
+                $ph['field_type']   = $field_type;
+                $ph['field_id']     = $field_id;
+                $ph['field_name']   = "tv{$field_id}";
+                $ph['name']         = "tv{$field_id}";
+                $ph['default_text'] = $default_text;
+                $ph['field_value']  = htmlspecialchars($field_value);
+                $ph['value']        = htmlspecialchars($field_value);
+                $ph['field_style']  = $field_style;
+                $custom_output = $modx->parseText($custom_output, $ph);
+                $custom_output = $modx->mergeDocumentContent($custom_output);
+                
                 $field_html .= $custom_output;
                 break;
             

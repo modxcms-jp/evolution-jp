@@ -41,7 +41,7 @@ if($limit>1) {
 }
 // end check for lock
 
-
+$content = array();
 if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 	$rs = $modx->db->select('*','[+prefix+]site_snippets',"id='{$id}'");
 	$limit = $modx->db->getRecordCount($rs);
@@ -57,6 +57,14 @@ if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 } else {
 	$_SESSION['itemname']="New snippet";
 }
+// restore saved form
+$formRestored = false;
+if ($modx->manager->hasFormValues()) {
+	$form_v = $modx->manager->loadFormValues();
+	$formRestored = true;
+}
+
+if($formRestored) $content = array_merge($content, $form_v);
 ?>
 <script type="text/javascript">
 function duplicaterecord(){
@@ -308,7 +316,12 @@ function decode(s){
 		    	<span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines'];?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
 		  	</div>
-			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo trim(htmlspecialchars($content['snippet']));?></textarea>
+<?php
+	if(isset($content['snippet']))  $code = trim(htmlspecialchars($content['snippet']));
+    elseif(isset($content['post'])) $code = trim(htmlspecialchars($content['post']));
+    else $code = '';
+?>
+			<textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"><?php echo $code;?></textarea>
 		</div>
 		<!-- PHP text editor end -->
 	</div>

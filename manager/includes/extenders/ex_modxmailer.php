@@ -259,4 +259,23 @@ class MODxMailer extends PHPMailer
 		$result = array($name,$address);
 		return $result;
 	}
+	
+    public static function validateAddress($address, $patternselect = null) {
+		global $modx;
+		
+		if(!isset($modx->config['validate_emailaddr'])) $modx->config['validate_emailaddr'] = 'deny_quoted_string';
+		$address = trim($address);
+		$localPart = substr($address,0,strrpos($address,'@'));
+		$isQuotedString = (substr($localPart,0,1)==='"' && substr($localPart,-1)==='"');
+		switch($modx->config['validate_emailaddr']) {
+			case 'deny_quoted_string':
+				if($isQuotedString) return false;
+    			break;
+			case 'allow_quoted_string':
+				if(strpos($localPart,   ' -X')!==false)  return false;
+				elseif(strpos($localPart, '\\')!==false) return false;
+				break;
+		}
+		return parent::validateAddress($address, $patternselect);
+	}
 }

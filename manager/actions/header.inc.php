@@ -17,6 +17,7 @@ $textdir = $modx_textdir==='rtl' ? 'rtl' : 'ltr';
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 if(!isset($modx->config['tree_pane_open_default'])) $modx->config['tree_pane_open_default'] = 1;
+if(!isset($modx->config['mgr_jquery_path']))  $modx->config['mgr_jquery_path'] = 'media/script/jquery/jquery.min.js';
 if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_picker_path']   = 'media/script/air-datepicker/datepicker.inc.php';
 
 ?>
@@ -31,7 +32,7 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php if(is_array($evtOut)) echo implode("\n", $evtOut); ?>
     <?php echo $modx->config['manager_inline_style']; ?>
-    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+    <?php echo sprintf('<script src="%s" type="text/javascript"></script>', $modx->config['mgr_jquery_path']); ?>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>

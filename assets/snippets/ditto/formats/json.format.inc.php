@@ -7,7 +7,7 @@
 */
 
 if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
-
+$modx->documentObject['contentType'] = 'application/json';
 // set json placeholders
 $json_placeholders['json_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
 /*
@@ -64,7 +64,8 @@ if(!function_exists("json_parameters")) {
 			$value = addslashes(htmlspecialchars($value,ENT_QUOTES, $modx->config['modx_charset']));
 			if($name=='date' && !preg_match('@^[0-9]+$@',$value))
 				$value = $modx->getUnixtimeFromDateString($value);
-			$jsonArr["json_{$name}"] = str_replace(array("\r\n","\n", "\r"), '\n', $value);
+			$value = str_replace(array("\r\n","\n", "\r"), '\n', $value);
+			$jsonArr["json_{$name}"] = str_replace("\t", '\t', $value);
 		}
 		$placeholders = array_merge($jsonArr,$placeholders);
 		return $placeholders;

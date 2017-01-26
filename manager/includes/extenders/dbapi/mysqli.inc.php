@@ -168,6 +168,9 @@ $s = '';
         }
         
         $tstart = $modx->getMicroTime();
+        
+        if(is_array($sql)) $sql = join("\n", $sql);
+        
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {
@@ -236,6 +239,7 @@ $s = '';
         
         if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
         if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
+        if(is_array($where))  $where  = join(' ', $where);
         
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
