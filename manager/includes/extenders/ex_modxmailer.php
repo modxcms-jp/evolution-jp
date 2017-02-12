@@ -33,6 +33,7 @@ class MODxMailer extends PHPMailer
 		switch($modx->config['email_method'])
 		{
 		    case 'smtp':
+                include_once(MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php');
                 $this->IsSMTP();
                 $this->Host       = $modx->config['smtp_host'] . ':' . $modx->config['smtp_port'];
                 $this->SMTPAuth   = $modx->config['smtp_auth']==='1' ? true : false;
