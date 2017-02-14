@@ -1,5 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!$modx->hasPermission('move_document'))   {$e->setError(3);$e->dumpError();}
 if(!$modx->hasPermission('edit_document'))   {$e->setError(3);$e->dumpError();}
 
 if($_REQUEST['id']==$_REQUEST['new_parent']) {$e->setError(600); $e->dumpError();}

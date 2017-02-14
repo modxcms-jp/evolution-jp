@@ -778,6 +778,7 @@ $_lang["role_new_user"] = 'Create new users';
 $_lang["role_new_web_user"] = 'Create new web users';
 $_lang["role_plugin_management"] = 'Plugin management';
 $_lang["role_publish_doc"] = 'Publish Resources';
+$_lang["role_move_doc"] = 'Move Resources';
 $_lang["role_remove_locks"] = 'Remove Locks';
 $_lang["role_role_management"] = 'Roles';
 $_lang["role_run_module"] = 'Run Module';

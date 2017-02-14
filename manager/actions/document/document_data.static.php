@@ -98,7 +98,7 @@ foreach($content as $k=>$v)
 <?php if($modx->hasPermission('save_document')):?>
 	<li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a></li>
 <?php endif; ?>
-<?php if($modx->hasPermission('save_document')):?>
+<?php if($modx->hasPermission('save_document') && $modx->hasPermission('move_document')):?>
 	<li id="Button2" class="mutate"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move']?></a></li>
 <?php endif; ?>
 <?php if($modx->hasPermission('new_document')&&$modx->hasPermission('save_document')):?>

@@ -677,7 +677,8 @@ EOT;
 	elseif ($id != $config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
-    		$ph['moveButton']                                     = ab_move();
+    		if($modx->hasPermission('move_document'))
+    			$ph['moveButton']                                 = ab_move();
     		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
     		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
 		}

@@ -138,6 +138,7 @@ function update_tbl_user_roles()
 	
 	$f['view_unpublished'] = '1';
 	$f['publish_document'] = '1';
+	$f['move_document']    = '1';
 	$f['edit_chunk']       = '1';
 	$f['new_chunk']        = '1';
 	$f['save_chunk']       = '1';
@@ -147,7 +148,7 @@ function update_tbl_user_roles()
 	$f['empty_trash']      = '1';
 	$f['remove_locks']     = '1';
 	$f['view_schedule']    = '1';
-	$modx->db->update($f, '[+prefix+]user_roles', "`id`='1'");
+	$modx->db->update($f, '[+prefix+]user_roles', "`save_role`='1'");
 }
 
 function update_tbl_system_settings()

@@ -345,6 +345,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles` (
   `view_document` int(1) NOT NULL DEFAULT '0',
   `new_document` int(1) NOT NULL DEFAULT '0',
   `save_document` int(1) NOT NULL DEFAULT '0',
+  `move_document` int(1) NOT NULL DEFAULT '0',
   `publish_document` int(1) NOT NULL DEFAULT '0',
   `delete_document` int(1) NOT NULL DEFAULT '0',
   `empty_trash` int(1) NOT NULL DEFAULT '0',

@@ -744,6 +744,7 @@ function itemNewDoc() {
 function itemMoveDoc() {
 	global $modx,$_style,$_lang;
 	
+	if(!$modx->hasPermission('move_document')) return '';
 	if(!$modx->hasPermission('save_document')) return '';
 	$tpl = tplMenuItem();
 	$ph['action'] = '51';

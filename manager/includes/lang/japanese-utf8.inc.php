@@ -780,6 +780,7 @@ $_lang["role_new_user"] = 'ユーザーを作成';
 $_lang["role_new_web_user"] = 'ウェブユーザーを作成';
 $_lang["role_plugin_management"] = 'プラグイン管理';
 $_lang["role_publish_doc"] = 'リソースの公開';
+$_lang["role_move_doc"] = 'リソースの移動';
 $_lang["role_remove_locks"] = 'ロックの解除';
 $_lang["role_role_management"] = 'ロール管理';
 $_lang["role_run_module"] = 'モジュールの実行';

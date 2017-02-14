@@ -218,7 +218,8 @@ if ($numRecords > 0)
 	if($id) $qs .= "&id={$id}";
 	$pageNavBlock = $modx->table->renderPagingNavigation($numRecords,$qs);
 	$children_output = $pageNavBlock . $modx->table->renderTable($docs,$header) . $pageNavBlock;
-	$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
+	if($modx->hasPermission('move_document'))
+		$children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
 }
 else
 {
@@ -254,7 +255,7 @@ else
 	$tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
 	if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
-	if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
+	if($modx->hasPermission('move_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
 	if($modx->doc->canCopyDoc() && $id!=0 && $modx->manager->isAllowed($id))
 		echo sprintf($tpl,'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"], $_lang['duplicate']);
@@ -458,7 +459,7 @@ function getContextMenu($cm)
 		$cm->addItem($lang_edit_resource,       "js:menuAction(27)",$icons_edit_document);
 	if($modx->hasPermission('new_document'))
 		$cm->addItem($lang_create_resource_here,"js:menuAction(4)",$icons_new_document);
-	if($modx->hasPermission('save_document')&&$modx->hasPermission('publish_document'))
+	if($modx->hasPermission('move_document')&&$modx->hasPermission('save_document')&&$modx->hasPermission('publish_document'))
 		$cm->addItem($lang_move_resource,       "js:menuAction(51)",$icons_move_document);
 	if($modx->hasPermission('new_document'))
 		$cm->addItem($lang_resource_duplicate,  "js:menuAction(94)",$icons_resource_duplicate);

@@ -1,6 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
+if(!$modx->hasPermission('move_document') || !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
     $e->setError(3);
     $e->dumpError();
 }

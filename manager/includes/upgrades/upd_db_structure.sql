@@ -48,6 +48,8 @@ ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFA
 
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `publish_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
 
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `move_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
+
 ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `street` varchar(255) NOT NULL DEFAULT '' AFTER `country`;
 
 ALTER TABLE `{PREFIX}web_user_attributes` ADD COLUMN `city` varchar(255) NOT NULL DEFAULT '' AFTER `street`;
