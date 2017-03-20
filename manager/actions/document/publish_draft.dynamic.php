@@ -26,6 +26,8 @@ $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
 $ph['fieldDraftPub_date']  = fieldDraftPub_date($docid);
 $ph['id'] = $docid;
+$ph['token'] = $modx->genTokenString();
+$_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理はコアで統一して管理する
 
 echo $modx->parseText($tpl,$ph);
 
