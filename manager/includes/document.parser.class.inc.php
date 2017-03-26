@@ -1818,9 +1818,11 @@ class DocumentParser {
         if ($this->debug) $fstart = $this->getMicroTime();
         if(isset($params) && is_array($params)) {
             foreach($params as $k=>$v) {
-                $v = strtolower($v);
-                if($v==='false')    $params[$k] = false;
-                elseif($v==='true') $params[$k] = true;
+                if(is_string($v)){
+                    $v = strtolower($v);
+                    if($v==='false')    $params[$k] = false;
+                    elseif($v==='true') $params[$k] = true;
+                }
             }
         }
         $modx->event->params = $params; // store params inside event object
