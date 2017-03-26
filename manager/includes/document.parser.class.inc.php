@@ -1332,7 +1332,12 @@ class DocumentParser {
         
         if ($this->debug) $fstart = $this->getMicroTime();
         
-        if(!$ph) $ph = $this->documentObject;
+        if(!$ph){
+            $ph = $this->documentObject;
+            // dummy phx
+            $ph['phx'] = '';
+            $ph['dummy'] = '';
+        }
         
         $matches = $this->getTagsFromContent($content,'[*','*]');
         if(!$matches) return $content;
