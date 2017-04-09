@@ -2254,15 +2254,20 @@ class DocumentParser {
         $docid = $documentObject['id'];
         
         // load TVs and merge with document - Orig by Apodigm - Docvars
-        $field = "tv.name, IF(tvc.value!='',tvc.value,tv.default_text) AS value, tv.display, tv.display_params, tv.type";
-        $from  = "[+prefix+]site_tmplvars tv ";
-        $from .= "INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id ";
-        $from .= "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
-        if( isset($previewObject['template']) )
-            $tmp = $previewObject['template'];
-        else
-            $tmp = $documentObject['template'];
-        $where = "tvtpl.templateid = '{$tmp}'";
+        $field = array();
+        $field['tv.name']           = 'tv.name';
+        $field['value']             = "IF(tvc.value!='',tvc.value,tv.default_text)";
+        $field['tv.display']        = 'tv.display';
+        $field['tv.display_params'] = 'tv.display_params';
+        $field['tv.type']           = 'tv.type';
+        $from = array();
+        $from[] = '[+prefix+]site_tmplvars tv';
+        $from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id';
+        $from[] = sprintf("LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'", $docid);
+        
+        if( isset($previewObject['template']) ) $tmp = $previewObject['template'];
+        else                                    $tmp = $documentObject['template'];
+        $where = sprintf("tvtpl.templateid='%s'", $tmp);
 
         $rs = $this->db->select($field,$from,$where);
         $rowCount= $this->db->getRecordCount($rs);
