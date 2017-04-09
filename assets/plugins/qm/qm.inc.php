@@ -126,9 +126,9 @@ class Qm {
 					}
 					
 					// Redirect to clearer page which refreshes parent window and closes modal box frame
-					$url = $this->modx->makeUrl($id,'','','full');
-					$delim = (strpos($url,'?')!==false) ? '&' : '?';
-					$this->modx->sendRedirect("{$url}{$delim}quickmanagerclose=1", 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
+					$this->modx->config['xhtml_urls'] = 0;
+					$url = $this->modx->makeUrl($id,'','quickmanagerclose=1','full');
+					$this->modx->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
 				}
 				break;
 				
