@@ -22,6 +22,8 @@ class MODIFIERS {
     {
         global $modx;
         
+        if(!$modx->config) $modx->config = $modx->getSiteCache();
+        
         if (function_exists('mb_internal_encoding')) mb_internal_encoding($modx->config['modx_charset']);
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
