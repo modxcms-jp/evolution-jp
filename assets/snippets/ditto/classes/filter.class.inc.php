@@ -160,7 +160,7 @@ class filter {
 					break;
 				case 'regex':
 				case 'preg':
-					if (preg_match($options[$this->array_key], $this->filterValue)!==FALSE)
+					if (preg_match($options[$this->array_key], $this->filterValue)===FALSE)
 						$unset = 0;
 					break;
 		}
