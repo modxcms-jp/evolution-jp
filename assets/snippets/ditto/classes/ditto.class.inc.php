@@ -192,7 +192,6 @@ class ditto {
 	// Check the advSortString
 	// ---------------------------------------------------
 	function checkAdvSort($sortBy,$sortDir='asc') {
-		$advSort = array ("editedon","deletedon","publishedon");
 		$type = $this->getDocVarType($sortBy);
 		switch($type) {
 			case "tv:prefix":
@@ -203,6 +202,7 @@ class ditto {
 				$this->advSort = true;
 			break;
 			case "db":
+				$advSort = array ("editedon","deletedon","publishedon");
 				if (in_array($sortBy, $advSort)) {
 					$this->advSort = true;
 					$this->customReset[] = $sortBy;
