@@ -81,6 +81,7 @@ class filter {
 	
 	function basicFilter ($options) {
 			$unset = 1;
+			$this->filterValue = trim($this->filterValue);
 			switch ($this->filtertype) {
 				case '!=' :
 				case '<>' :
