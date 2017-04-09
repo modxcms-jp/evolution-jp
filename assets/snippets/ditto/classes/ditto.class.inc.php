@@ -192,7 +192,7 @@ class ditto {
 	// Check the advSortString
 	// ---------------------------------------------------
 	function checkAdvSort($sortBy,$sortDir='asc') {
-		$advSort = array ("pub_date","unpub_date","editedon","deletedon","publishedon");
+		$advSort = array ("editedon","deletedon","publishedon");
 		$type = $this->getDocVarType($sortBy);
 		switch($type) {
 			case "tv:prefix":
