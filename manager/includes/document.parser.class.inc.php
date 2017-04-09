@@ -593,11 +593,11 @@ class DocumentParser {
             $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
         }
         
-        if ($this->dumpSQL)
+        if (0<count($this->dumpSQL))
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
-        if ($this->dumpSnippets)
+        if (0<count($this->dumpSnippets))
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
