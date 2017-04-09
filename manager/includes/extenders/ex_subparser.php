@@ -1702,23 +1702,31 @@ class SubParser {
     }
     
     function loadLexicon($target='manager') {
-        global $modx, $_lang;
+        global $modx;
         
         if (!isset($modx->config['manager_language'])) {
-            $lang = 'japanese-utf8';
+            $langname = 'english';
         }
         else $langname = $modx->config['manager_language'];
-        if($target==='manager') {
-            global $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
-            $target = MODX_CORE_PATH . 'lang/';
-            $modx_manager_charset = 'utf-8';
-            $modx_lang_attribute = 'ja';
-            $modx_textdir = 'ltr';
-        }
-        $target = rtrim($target, '/') . '/';
         
-        $_lang = array();
-        include_once("{$target}{$langname}.inc.php");
+        if($target==='manager') {
+            global $_lang, $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
+            $path = MODX_CORE_PATH . 'lang/';
+            $modx_manager_charset = 'utf-8';
+            $modx_lang_attribute = 'en';
+            $modx_textdir = 'ltr';
+            $_lang = array();
+        }
+        elseif($target==='locale') {
+            global $_lc;
+            $path = MODX_CORE_PATH . 'lang/locale/';
+        }
+        else $path = $target;
+        
+        $path = rtrim($path, '/') . '/';
+        
+        $file_path = "{$path}{$langname}.inc.php";
+        if(is_file($file_path)) include_once($file_path);
     }
     
     function snapshot($filename='', $target='') {

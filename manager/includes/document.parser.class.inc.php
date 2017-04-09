@@ -2957,8 +2957,12 @@ class DocumentParser {
     
     function mb_strftime($format='%Y/%m/%d', $timestamp='')
     {
-        $a = array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
-        $A = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+        global $modx, $_lc;
+        
+        if(stripos($format,'%a')!==false) $modx->loadLexicon('locale');
+        
+        $a = !isset($_lc['days.short']) ? explode(',', 'Sun, Mon, Tue, Wed, Thu, Fri, Sat')                        : explode(',', $_lc['days.short']);
+        $A = !isset($_lc['days.wide'])  ? explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday') : explode(',', $_lc['days.short']);
         $w         = strftime('%w', $timestamp);
         $p = array('am'=>'AM', 'pm'=>'PM');
         $P = array('am'=>'am', 'pm'=>'pm');
