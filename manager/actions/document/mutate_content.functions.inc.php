@@ -803,7 +803,7 @@ function fieldParent() {
 	return renderTr($_lang['resource_parent'],$body);
 }
 
-function getTmplvars($id,$template,$docgrp) {
+function getTmplvars($docid,$template,$docgrp) {
 	global $modx;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
@@ -815,7 +815,7 @@ function getTmplvars($id,$template,$docgrp) {
 	$from = "
 		[+prefix+]site_tmplvars                         AS tv 
 		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 
-		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
+		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$docid}'
 		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
 		";
 	$where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";
