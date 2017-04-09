@@ -162,8 +162,6 @@ function get_tmplvars($id=0)
 	
 	$from[] = '[+prefix+]site_tmplvars AS tv';
 	$from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id';
-	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id';
-	if($id) $from[] = "AND tvc.contentid = '{$id}'";
 	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id';
 	$tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
 	$where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
