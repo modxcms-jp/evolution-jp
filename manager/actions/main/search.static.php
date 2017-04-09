@@ -71,12 +71,12 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 <?php
 if(isset($_REQUEST['submitok'])) {
     $searchid = ($_REQUEST['searchid']!=='') ? intval($_REQUEST['searchid']) : '0';
-    $searchtitle = htmlentities($_POST['pagetitle'], ENT_QUOTES, $modx_manager_charset);
-    $search_alias = $modx->db->escape($_REQUEST['alias']);
+    $searchtitle = htmlentities(trim($_POST['pagetitle']), ENT_QUOTES, $modx_manager_charset);
+    $search_alias = $modx->db->escape(trim($_REQUEST['alias']));
     $searchcontent = $modx->db->escape($_REQUEST['content']);
-    $searchlongtitle = $modx->db->escape($_REQUEST['longtitle']);
+    $searchlongtitle = $modx->db->escape(trim($_REQUEST['longtitle']));
     if(isset($_REQUEST['url']) && $_REQUEST['url']!=='') {
-        $url = $modx->db->escape($_REQUEST['url']);
+        $url = $modx->db->escape(trim($_REQUEST['url']));
         $friendly_url_suffix = $modx->config['friendly_url_suffix'];
         $base_url = $modx->config['base_url'];
         $site_url = $modx->config['site_url'];
