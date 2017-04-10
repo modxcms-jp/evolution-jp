@@ -1157,6 +1157,7 @@ class SubParser {
                 $ph['cal_nodate']      = $_style['icons_cal_nodate'];
                 $ph['yearOffset']      = $modx->config['datepicker_offset'];
                 $ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
+                $ph['timepicker']      = strtolower($field_type)==='date' ? 'true' : 'false';
                 $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "dropdown": // handler for select boxes
