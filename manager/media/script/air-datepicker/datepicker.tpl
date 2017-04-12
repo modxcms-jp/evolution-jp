@@ -12,6 +12,7 @@ jQuery(function(){
     
     var options = {
         language      : '[(lang_code)]',
+        timepicker    : true,
         todayButton   : isIE11 ? false : new Date(),
         keyboardNav   : false,
         startDate     : start,
