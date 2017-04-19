@@ -134,7 +134,7 @@ function deletedocument() {
   </tr>
   <tr>
     <td><?php echo $_lang['resource_description']; ?>:</td>
-    <td><input name="description" type="text" maxlength="255" value="<?php echo $roledata['description'] ; ?>" size="60"></td>
+    <td><textarea name="description"><?php echo $roledata['description'] ; ?></textarea></td>
   </tr>
 </table>
 </fieldset>
