@@ -24,7 +24,7 @@ $_ = preg_split('@('.$p.')@u', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
 $content='';
 foreach($_ as $i=>$v) {
     $isToken = preg_match('@('.$p.')@u', $v) ? 1 : 0;
-
+    
     if($modx->filter->strlen($content.$v)<$limit || $isToken) $content .= $v;
     else                                       break;
 }

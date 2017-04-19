@@ -9,7 +9,7 @@ if($opt==='')
     $_ = explode(',', $opt);
     foreach($images[2] as $i=>$ext) {
         if(in_array($ext,$_)) return $images[1][$i];
-}
+    }
 } else {
     foreach($images[0] as $i=>$image) {
         if(preg_match($opt,$image)) return $images[1][$i];
