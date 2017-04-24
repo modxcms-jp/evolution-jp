@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   `category` int(11) NOT NULL DEFAULT '0' COMMENT 'category id',
   `icon` varchar(255) NOT NULL DEFAULT '' COMMENT 'url to icon file',
   `template_type` int(11) NOT NULL DEFAULT '0' COMMENT '0-page,1-content',
-  `content` mediumtext,
+  `content` mediumtext NOT NULL,
   `parent` int(10) NOT NULL DEFAULT '0',
   `locked` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
