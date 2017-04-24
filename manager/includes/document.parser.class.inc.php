@@ -959,10 +959,10 @@ class DocumentParser {
         
         if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
         
-        if(isset($this->config['cache_expire']) && !empty($this->config['cache_expire']) && is_file($cacheFile))
+        if(isset($this->config['cache_ttl']) && !empty($this->config['cache_ttl']) && is_file($cacheFile))
         {
             $timestamp = filemtime($cacheFile);
-            $timestamp += $this->config['cache_expire'];
+            $timestamp += $this->config['cache_ttl'];
             if($timestamp < $_SERVER['REQUEST_TIME'])
             {
                 @unlink($cacheFile);
