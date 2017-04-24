@@ -173,6 +173,54 @@ ALTER TABLE `{PREFIX}web_user_attributes`
 ALTER TABLE `{PREFIX}webgroup_names`
  MODIFY COLUMN `name` varchar(245) NOT NULL DEFAULT '',
 
+ALTER TABLE `{PREFIX}site_content`  DROP INDEX `content_ft_idx`;
+
+ALTER TABLE `{PREFIX}site_content` ADD INDEX `typeidx` (`type`);
+
+ALTER TABLE `{PREFIX}site_plugin_events` DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}site_plugin_events` ADD PRIMARY KEY (`pluginid`, `evtid`);
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_tmplvarid`;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_templateid`;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD PRIMARY KEY (`tmplvarid`, `templateid`);
+
+ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `target` `element` varchar(32) NOT NULL DEFAULT 'resource';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `docid` `elmid` int(10) NOT NULL DEFAULT '0';
+
+ALTER TABLE `{PREFIX}site_revision` CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0';
+
+ALTER TABLE `{PREFIX}site_revision` DROP INDEX `idx_revision`;
+
+ALTER TABLE `{PREFIX}site_revision`  ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
+
+ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
+
+ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
+
+ALTER TABLE `{PREFIX}user_settings` DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}user_settings` ADD PRIMARY KEY (`user`, `setting_name`);
+
+ALTER TABLE `{PREFIX}web_user_settings`  DROP PRIMARY KEY;
+
+ALTER TABLE `{PREFIX}web_user_settings` ADD PRIMARY KEY (`webuser`, `setting_name`);
+
+ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
+
+ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
+
 UPDATE `{PREFIX}site_content` SET `type`='reference', `contentType`='text/html' WHERE `type`='' AND `content` REGEXP '^https?://([-\w\.]+)+(:\d+)?/?';
 
 UPDATE `{PREFIX}site_content` SET `type`='document', `contentType`='text/xml' WHERE `type`='' AND `alias` REGEXP '\.(rss|xml)$';
@@ -190,52 +238,4 @@ UPDATE {PREFIX}documentgroup_names AS dgn
       dgn.private_webgroup = (wga.webgroup IS NOT NULL);
 
 UPDATE `{PREFIX}site_plugins` SET disabled='1' WHERE `name`='ダッシュボード・あなたの情報' OR `name`='ダッシュボード・オンライン情報';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `target` `element` varchar(32) NOT NULL DEFAULT 'resource';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `id` `elmid` int(10) NOT NULL DEFAULT '0';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `docid` `elmid` int(10) NOT NULL DEFAULT '0';
-
-ALTER TABLE `{PREFIX}site_revision` CHANGE `revision` `version` int(10) NOT NULL DEFAULT '0';
-
-ALTER TABLE `{PREFIX}user_settings` DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}user_settings` ADD PRIMARY KEY (`user`, `setting_name`);
-
-ALTER TABLE `{PREFIX}web_user_settings`  DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}web_user_settings` ADD PRIMARY KEY (`webuser`, `setting_name`);
-
-ALTER TABLE `{PREFIX}site_plugin_events` DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}site_plugin_events` ADD PRIMARY KEY (`pluginid`, `evtid`);
-
-ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_tmplvarid`;
-
-ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_templateid`;
-
-ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}site_tmplvar_templates` ADD PRIMARY KEY (`tmplvarid`, `templateid`);
-
-ALTER TABLE `{PREFIX}member_groups` ADD UNIQUE INDEX `ix_group_member` (`user_group`,`member`);
-
-ALTER TABLE `{PREFIX}web_groups` ADD UNIQUE INDEX `ix_group_user` (`webgroup`,`webuser`);
-
-ALTER TABLE `{PREFIX}system_settings` DROP PRIMARY KEY;
-
-ALTER TABLE `{PREFIX}system_settings` DROP INDEX `setting_name`;
-
-ALTER TABLE `{PREFIX}system_settings` ADD PRIMARY KEY (`setting_name`);
-
-ALTER TABLE `{PREFIX}site_revision` DROP INDEX `idx_revision`;
-
-ALTER TABLE `{PREFIX}site_revision`  ADD UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`);
-
-ALTER TABLE `{PREFIX}site_content`  DROP INDEX `content_ft_idx`;
-
-ALTER TABLE `{PREFIX}site_content` ADD INDEX `typeidx` (`type`);
-
-ALTER TABLE `{PREFIX}site_tmplvar_contentvalues` ADD FULLTEXT `value_ft_idx` (`value`);
 
