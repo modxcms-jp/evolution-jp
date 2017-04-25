@@ -221,6 +221,8 @@ class template{
 				$template = file_get_contents($path);
 		} elseif(substr($tpl, 0, 5) == '@CODE') {
 			$template = substr($tpl, 6);
+		} elseif(strpos($tpl, '[+') !==false) {
+			$template = $tpl;
 		} elseif(substr($tpl, 0, 9) == '@DOCUMENT') {
 			$docid = trim(substr($tpl, 10));
 			if(preg_match('@^[1-9][0-9]*$@',$docid))
