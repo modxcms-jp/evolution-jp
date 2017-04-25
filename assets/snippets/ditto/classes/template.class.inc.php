@@ -134,7 +134,7 @@ class template{
 			"unknown" => array()
 		);
 		
-		$custom = array("author","date","url","title","ditto_iteration");
+		$custom = array("author","date","url","title","ditto_iteration","class");
 
 		foreach ($fieldList as $field) {
 			if (substr($field, 0, 4) == "rss_") {

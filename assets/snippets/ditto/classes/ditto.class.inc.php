@@ -340,6 +340,10 @@ class ditto {
 		if (in_array('title',$custom_v))           $placeholders['title']           = $resource['pagetitle'];// set title placeholder
 		if (in_array('ditto_iteration',$custom_v)) $placeholders['ditto_iteration'] = $x; // set sequence placeholder
 		
+		if (in_array('class',$custom_v)) {
+			$placeholders['class'] = $modx->documentIdentifier==$resource['id'] ? 'active' : '';
+		}
+		
 		// set url placeholder
 		if (in_array('url',$custom_v)) {
 			if($resource['id']==$modx->config['site_start']) $placeholders['url'] = $modx->config['site_url'];
