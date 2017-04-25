@@ -270,37 +270,7 @@ class ditto {
 			$contentVars["[*{$name}*]"] = $value;
 		}
 
-		// set author placeholder
-		if (in_array("author",$this->fields["display"]["custom"])) {
-			$placeholders['author'] = $this->getAuthor($resource['createdby']);
-		}
-
-		// set title placeholder
-		if (in_array("title",$this->fields["display"]["custom"])) {
-			$placeholders['title'] = $resource['pagetitle'];
-		}
-
-		// set sequence placeholder
-		if (in_array("ditto_iteration",$this->fields["display"]["custom"])) {
-			$placeholders['ditto_iteration'] = $x;
-		}
-		
-		// set url placeholder
-		if (in_array("url",$this->fields["display"]["custom"])) {
-			if($resource['id']==$modx->config['site_start'])
-				$placeholders['url'] = $modx->config['site_url'];
-			else
-				$placeholders['url'] = $modx->makeURL($resource['id'],'','','full');
-		}
-
-		if (in_array("date",$this->fields["display"]["custom"])) {
-			$timestamp = ($resource[$dateSource] != "0") ? $resource[$dateSource] : $resource["createdon"];
-			if (is_array($timestamp)) {
-			    $timestamp[1] = is_int($timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
-                $timestamp = $timestamp[1] + $timestamp[0];
-            }
-			$placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
-		}
+		$placeholders = $this->setCustomVar($placeholders,$resource);
 		
 		if (in_array("content",$this->fields["display"]["db"]) && $this->format != "html") {
             $placeholders['content'] = $this->relToAbs($resource['content'], $modx->config['site_url']);
@@ -359,6 +329,33 @@ class ditto {
 		}
 
 		return $output;
+	}
+	
+	function setCustomVar($placeholders,$resource) {
+		global $modx;
+		
+		$custom_v = & $this->fields['display']['custom'];
+		
+		if (in_array('author',$custom_v))          $placeholders['author'] = $this->getAuthor($resource['createdby']); // set author placeholder
+		if (in_array('title',$custom_v))           $placeholders['title']           = $resource['pagetitle'];// set title placeholder
+		if (in_array('ditto_iteration',$custom_v)) $placeholders['ditto_iteration'] = $x; // set sequence placeholder
+		
+		// set url placeholder
+		if (in_array('url',$custom_v)) {
+			if($resource['id']==$modx->config['site_start']) $placeholders['url'] = $modx->config['site_url'];
+			else                                             $placeholders['url'] = $modx->makeURL($resource['id'],'','','full');
+		}
+
+		if (in_array('date',$custom_v)) {
+			$timestamp = ($resource[$dateSource] != '0') ? $resource[$dateSource] : $resource['createdon'];
+			if (is_array($timestamp)) {
+			    $timestamp[1] = is_int($timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
+                $timestamp = $timestamp[1] + $timestamp[0];
+            }
+			$placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
+		}
+		
+        return $placeholders;
 	}
 	
 	function parseFields($placeholders,$seeThruUnpub,$dateSource,$randomize) {
