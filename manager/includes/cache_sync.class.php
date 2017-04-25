@@ -93,6 +93,9 @@ class synccache {
 			$this->buildCache();
 		}
 		$this->publishBasicConfig();
+		
+		$modx->purgeDBCache();
+		
 		if(isset($result) && $this->showReport==true) $this->showReport($result);
 	}
 	

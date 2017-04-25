@@ -281,18 +281,47 @@ class DocumentParser {
     
     function getDocumentIdentifier($uri) {
         
-        $getId = isset($_GET['id']) ? $_GET['id'] : 0;
-        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
-        
         $pos = strpos($uri,'?');
         if($pos!==false) $uri = substr($uri,0,$pos);
+        
+        $docid = $this->getDBCache('docid_by_uri',$uri);
+        
+    	if($docid) return $docid;
+        
+        $getId = isset($_GET['id']) ? $_GET['id'] : 0;
+        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
         
         if(preg_match('@^[1-9][0-9]*$@',$getId)) $docid = $getId;
         elseif ($this->config['base_url']==$uri) $docid = $this->config['site_start'];
         elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
-        else                                     $docid = false;
+        else                                     $docid = 0;
+        
+        if($docid) $this->setDBCache('docid_by_uri',$uri,$docid);
         
         return $docid;
+    }
+    
+    function setDBCache($category,$key,$value) {
+        $where = sprintf("cache_category='%s' AND cache_key='%s'", $this->db->escape($category), $this->db->escape($key));
+        $rs = $this->db->delete('[+prefix+]system_cache', $where);
+        $f['cache_category']  = $category;
+        $f['cache_key']       = $key;
+        $f['cache_value']     = $value;
+        $f['cache_timestamp'] = $_SERVER['REQUEST_TIME'];
+        return $this->db->insert($this->db->escape($f), '[+prefix+]system_cache');
+    }
+    
+    function getDBCache($category,$key) {
+        $where = sprintf("cache_category='%s' AND cache_key='%s'", $category, $key);
+        $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
+        
+        if(!$rs) return false;
+        
+        return $this->db->getValue($rs);
+    }
+    
+    function purgeDBCache() {
+        return $this->db->truncate('[+prefix+]system_cache');
     }
     
     function _treatAliasPath($q) {
