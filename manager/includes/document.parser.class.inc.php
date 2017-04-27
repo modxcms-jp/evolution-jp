@@ -2780,6 +2780,9 @@ class DocumentParser {
             $key = $this->mergeChunkContent($key);
             $key = $this->evalSnippets($key);
             
+            if(strpos($key,'?')===false) $args = '';
+            else                         list($key,$args) = explode('?',$key,2);
+            
             if($key==='') $value = '';
             elseif(preg_match('/^[0-9]+$/',$key))
             {
@@ -2788,7 +2791,8 @@ class DocumentParser {
                 {
                     $docid = $this->referenceListing[$docid];
                 }
-                $value = $this->makeUrl($docid,'','','rel');
+                
+                $value = $this->makeUrl($docid,'',$args,'rel');
                 if(!$value)
                 {
                     $ph['linktag']     = "[~{$key_org}~]";
