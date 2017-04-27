@@ -270,7 +270,7 @@ class ditto {
 			$contentVars["[*{$name}*]"] = $value;
 		}
 
-		$placeholders = $this->setCustomVar($placeholders,$resource);
+		$placeholders = $this->setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x);
 		
 		if (in_array("content",$this->fields["display"]["db"]) && $this->format != "html") {
             $placeholders['content'] = $this->relToAbs($resource['content'], $modx->config['site_url']);
@@ -331,7 +331,7 @@ class ditto {
 		return $output;
 	}
 	
-	function setCustomVar($placeholders,$resource) {
+	function setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x) {
 		global $modx;
 		
 		$custom_v = & $this->fields['display']['custom'];
