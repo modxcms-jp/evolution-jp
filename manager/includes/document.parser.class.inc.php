@@ -224,7 +224,7 @@ class DocumentParser {
         
         $this->updatePublishStatus();
         
-        $this->decoded_request_uri = urldecode($_SERVER['REQUEST_URI']);
+        $this->decoded_request_uri = urldecode($this->treatRequestUri($_SERVER['REQUEST_URI']));
         $_ = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
         $_ = ltrim($_,'/');
         if(strpos($_,'?')!==false) $_ = substr($_,0,strpos($_,'?'));
@@ -244,6 +244,17 @@ class DocumentParser {
         
         $result = $this->prepareResponse();
         return $result;
+    }
+    
+    function treatRequestUri($uri) {
+        $pos = strpos($uri,'?');
+        if($pos!==false) {
+            $qs = $_GET;
+            $uri = substr($uri,0,$pos);
+            ksort($qs);
+            $uri .= '?' . http_build_query($qs);
+        }
+        return $uri;
     }
     
     function executeParserDirect($id='')
