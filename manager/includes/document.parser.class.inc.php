@@ -2727,6 +2727,7 @@ class DocumentParser {
         }
         
         $url = "{$site_url}{$base_url}{$makeurl}";
+        if(is_array($args)) $args = http_build_query($args);
         if($args!=='')
         {
             $args = ltrim($args,'?&');
