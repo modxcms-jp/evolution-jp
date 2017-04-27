@@ -454,68 +454,8 @@ class DocumentParser {
             if($this->documentObject['donthit'] == 1) $this->config['track_visitors']= 0;
             
             // get the template and start parsing!
-            if(!$this->documentObject['template']) $this->documentContent= '[*content*]'; // use blank template
-            else
-            {
-                $template= $this->db->getObject('site_templates',"id='{$this->documentObject['template']}'");
-                
-                if(substr($template->content,0,5)==='@FILE')
-                    $template->content = $this->atBindFile($template->content);
-                elseif(substr($template->content,0,4)==='@URL')
-                    $template->content = $this->atBindUrl($template->content);
-                elseif(substr($template->content,0,8)==='@INCLUDE')
-                    $template->content = $this->atBindInclude($template->content);
-                
-                if($template->id)
-                {
-                    if(!empty($template->parent))
-                    {
-                        $parent = $this->db->getObject('site_templates',"id='{$template->parent}'");
-                        $loopcount = 0;
-                        $check = array();
-                        while($loopcount<20)
-                        {
-                            $loopcount++;
-                            if(array_search($parent->id,$check)===false) $check[] = $parent->id;
-                            else $this->messageQuit('Template recursive reference parent error.');
-                            
-                            if($template->id !== $parent->id)
-                            {
-                                if(substr($parent->content,0,5)==='@FILE')
-                                    $parent->content = $this->atBindFile($parent->content);
-                                elseif(substr($parent->content,0,4)==='@URL')
-                                    $parent->content = $this->atBindUrl($parent->content);
-                                elseif(substr($parent->content,0,8)==='@INCLUDE')
-                                    $parent->content = $this->atBindInclude($parent->content);
-                                
-                                if(strpos($parent->content,'[*content*]')!==false)
-                                    $template->content = str_replace('[*content*]', $template->content, $parent->content);
-                                elseif(strpos($parent->content,'[*#content*]')!==false)
-                                    $template->content = str_replace('[*#content*]', $template->content, $parent->content);
-                                elseif(strpos($parent->content,'[*content:')!==false)
-                                {
-                                    $matches = $this->getTagsFromContent($parent->content,'[*content:','*]');
-                                    if($matches[0])
-                                    {
-                                        $modifier = $matches[1][0];
-                                        $template->content = str_replace($matches[0][0], $template->content, $parent->content);
-                                        $template->content = str_replace('[*content*]',"[*content:{$modifier}*]",$template->content);
-                                    }
-                                }
-                                if(!empty($parent->parent)) $parent = $this->db->getObject('site_templates',"id='{$parent->parent}'");
-                                else break;
-                            }
-                            else break;
-                        }
-                    }
-                    
-                    $this->documentContent = $template->content;
-                }
-                else
-                {
-                    $this->messageQuit('Template does not exist. Or it was deleted.');
-                }
-            }
+            $this->documentContent = $this->_getTemplateCode($this->documentObject);
+            
             // invoke OnLoadWebDocument event
             $this->invokeEvent('OnLoadWebDocument');
             
@@ -531,6 +471,49 @@ class DocumentParser {
         }
         $result = $this->outputContent();
         return $result;
+    }
+    
+    function _getTemplateCode($documentObject) {
+        if(!$documentObject['template']) return '[*content*]'; // use blank template
+        
+        $rs = $this->db->select('id,parent,content','[+prefix+]site_templates');
+        $_ = array();
+        while($row = $this->db->getRow($rs)) {
+            $_[$row['id']] = $row;
+        }
+        
+        $parentIds = array();
+        $template_id = $documentObject['template'];
+        while($i<10) {
+            $parentIds[] = $template_id;
+            $template_id = $_[$template_id]['parent'];
+            $i++;
+            if($template_id==0) break;
+        }
+        $parentIds = array_reverse($parentIds);
+        $parents = array();
+        foreach($parentIds as $template_id) {
+            $content = $_[$template_id]['content'];
+            if(substr($content,0,1)==='@') $content = $this->atBind($content);
+            $parents[] = $content;
+        }
+        $content = array_shift($parents);
+        if(count($parents)==0) return $content;
+        
+        while($child_content = array_shift($parents)) {
+            if(strpos($content,'[*content*]')!==false)  $content = str_replace('[*content*]' , $child_content, $content);
+            if(strpos($content,'[*#content*]')!==false) $content = str_replace('[*#content*]', $child_content, $content);
+            if(strpos($content,'[*content:')!==false) {
+                $matches = $this->getTagsFromContent($content,'[*content:','*]');
+                if($matches[0]) {
+                    $modifier = $matches[1][0];
+                    $content = str_replace($matches[0][0], $child_content, $content);
+                    $content = str_replace('[*content*]',"[*content:{$modifier}*]",$child_content);
+                }
+            }
+        }
+        
+        return $content;
     }
     
     function outputContent($noEvent= false)
