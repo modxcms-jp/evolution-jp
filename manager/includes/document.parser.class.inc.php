@@ -292,12 +292,12 @@ class DocumentParser {
     
     function getDocumentIdentifier($uri) {
         
-        $pos = strpos($uri,'?');
-        if($pos!==false) $uri = substr($uri,0,$pos);
-        
         $docid = $this->getDBCache('docid_by_uri',$uri);
         
     	if($docid) return $docid;
+        
+        $pos = strpos($uri,'?');
+        if($pos!==false) $uri = substr($uri,0,$pos);
         
         $getId = isset($_GET['id']) ? $_GET['id'] : 0;
         $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
