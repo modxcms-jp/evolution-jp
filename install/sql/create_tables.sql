@@ -236,7 +236,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM COMMENT='Contains the site templates.';
 
-CREATE TABLE `{PREFIX}system_cache` (
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_cache` (
   `cache_id` int(20) NOT NULL AUTO_INCREMENT,
   `cache_category` varchar(245) NOT NULL DEFAULT '',
   `cache_key` varchar(245) NOT NULL DEFAULT '',
