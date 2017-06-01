@@ -147,7 +147,7 @@ class DocumentParser {
         @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
-        if($this->checkSession()===false && !defined('MODX_API_MODE')) @ini_set('display_errors','0');
+        if($this->isLoggedin()===false && !defined('MODX_API_MODE')) @ini_set('display_errors','0');
         
         if(!isset($this->tstart)) {
             $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
@@ -941,7 +941,7 @@ class DocumentParser {
 
     function checkPreview()
     {
-        if($this->checkSession()!=true) return false;
+        if($this->isLoggedin()!=true) return false;
         
         if(isset($_REQUEST['z']) && $_REQUEST['z']=='manprev') return true;
         else                                                   return false;
@@ -951,7 +951,7 @@ class DocumentParser {
     function checkSiteStatus()
     {
         if($this->config['site_status'] == 1) return true; // site online
-        elseif($this->checkSession())         return true; // site offline but launched via the manager
+        elseif($this->isLoggedin())           return true; // site offline but launched via the manager
         else                                  return false; // site is offline
     }
     
