@@ -24,11 +24,12 @@ if(strpos($decoded_uri,"'")!==false) {
 if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
+$modx->config['login_by'] = 'username,email';
+
 $formv_password     = $modx->db->escape($_POST['password']);
 $formv_captcha_code = (isset($_POST['captcha_code'])) ? $_POST['captcha_code'] : '';
 $formv_rememberme   = (isset($_POST['rememberme']))   ? $_POST['rememberme']   : '';
 $formv_username = $_POST['username'] ? $_POST['username'] : $_GET['username'];
-$formv_username = $modx->db->escape($formv_username);
 if(strpos($formv_username,':safemode')!==false)
 {
 	$_SESSION['safeMode'] = 1;
@@ -60,10 +61,18 @@ include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
 $field = 'mu.*, ua.*';
-$from = '[+prefix+]manager_users mu,[+prefix+]user_attributes ua';
-$where = "BINARY mu.username='{$formv_username}' and ua.internalKey=mu.id";
+$from[] = '[+prefix+]manager_users mu';
+$from[] = 'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id';
+$where = sprintf("BINARY mu.username='%s'", $modx->db->escape($formv_username));
 $rs = $modx->db->select($field, $from, $where);
 $total = $modx->db->getRecordCount($rs);
+
+if(!$total && $modx->config['login_by']!=='username' && strpos($formv_username,'@')!==false) {
+    $where = sprintf("BINARY ua.email='%s'", $modx->db->escape($formv_username));
+    $rs = $modx->db->select($field, $from, $where);
+    $total = $modx->db->getRecordCount($rs);
+}
+
 if($total!=1) {
     jsAlert($e->errors[900]);
     return;
@@ -72,6 +81,7 @@ if($total!=1) {
 $row = $modx->db->getRow($rs);
 
 $dbv_internalKey      = $row['internalKey'];
+$dbv_username         = $row['username'];
 $dbv_password         = $row['password'];
 $dbv_failedlogincount = $row['failedlogincount'];
 $dbv_blocked          = $row['blocked'];
@@ -148,7 +158,7 @@ $modx->loadExtension('phpass');
 // invoke OnManagerAuthentication event
 $info = array();
 $info['userid']        = $dbv_internalKey;
-$info['username']      = $formv_username;
+$info['username']      = $dbv_username;
 $info['userpassword']  = $formv_password;
 $info['savedpassword'] = $dbv_password;
 $info['rememberme']    = $formv_rememberme;
@@ -160,9 +170,9 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
 	$hashType = $modx->manager->getHashType($dbv_password);
-	if($hashType=='phpass')  $matchPassword = login($formv_username,$formv_password,$dbv_password);
-	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
-	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$formv_username);
+	if($hashType=='phpass')  $matchPassword = login($dbv_username,$formv_password,$dbv_password);
+	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
+	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
 	else                     $matchPassword = false;
 	
     if(!$matchPassword) {
@@ -189,7 +199,7 @@ session_regenerate_id(true);
 $_SESSION['usertype'] = 'manager'; // user is a backend user
 
 // get permissions
-$_SESSION['mgrShortname']    = $formv_username;
+$_SESSION['mgrShortname']    = $dbv_username;
 $_SESSION['mgrFullname']     = $dbv_fullname;
 $_SESSION['mgrEmail']        = $dbv_email;
 $_SESSION['mgrValidated']    = 1;
@@ -231,9 +241,9 @@ if($formv_rememberme == '1'):
 	$path = $modx->config['base_url'];
 	$secure = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == $https_port) ? true : false;
 	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $formv_username, $expire, $path, '; HttpOnly' , $secure );
+		setcookie('modx_remember_manager', $dbv_username, $expire, $path, '; HttpOnly' , $secure );
 	} else {
-		setcookie('modx_remember_manager', $formv_username, $expire, $path, NULL,          $secure, true);
+		setcookie('modx_remember_manager', $dbv_username, $expire, $path, NULL,          $secure, true);
 	}
 else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
@@ -246,12 +256,12 @@ endif;
 if($modx->hasPermission('remove_locks')) $modx->manager->remove_locks();
 
 $log = new logHandler;
-$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $formv_username, '58', '-', 'MODX');
+$log->initAndWriteLog("Logged in", $modx->getLoginUserID(), $dbv_username, '58', '-', 'MODX');
 
 // invoke OnManagerLogin event
 $info = array();
 $info['userid']       = $dbv_internalKey;
-$info['username']     = $formv_username;
+$info['username']     = $dbv_username;
 $info['userpassword'] = $formv_password;
 $info['rememberme']   = $formv_rememberme;
 $modx->invokeEvent('OnManagerLogin', $info);
