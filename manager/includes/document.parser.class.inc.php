@@ -323,7 +323,7 @@ class DocumentParser {
     }
     
     function getDBCache($category,$key) {
-        $where = sprintf("cache_category='%s' AND cache_key='%s'", $category, $key);
+        $where = sprintf("cache_category='%s' AND cache_key='%s'", $category, $this->db->escape($key));
         $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
         
         if(!$rs) return false;
