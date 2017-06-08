@@ -500,8 +500,7 @@ class SubParser {
         if    ($type === 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
         elseif($type === 'REDIRECT_META') {
             $header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-            echo $header;
-            exit;
+            exit($header);
         }
         else {
             // check if url has /$base_url
@@ -519,20 +518,12 @@ class SubParser {
             return file_get_contents($url);
         }
         
-        if (!empty($responseCode)) {
-            if    (strpos($responseCode, '301') !== false) $responseCode = 301;
-            elseif(strpos($responseCode, '302') !== false) $responseCode = 302;
-            elseif(strpos($responseCode, '303') !== false) $responseCode = 303;
-            elseif(strpos($responseCode, '307') !== false) $responseCode = 307;
-            else $responseCode = '';
-            if(!empty($responseCode))
-            {
-                header($header, true, $responseCode);
-                exit;
-            }
-        }
-        header($header);
-        exit();
+        if    (strpos($responseCode, '301') !== false) {header($header, true, 301);exit;}
+        elseif(strpos($responseCode, '302') !== false) {header($header, true, 302);exit;}
+        elseif(strpos($responseCode, '303') !== false) {header($header, true, 303);exit;}
+        elseif(strpos($responseCode, '307') !== false) {header($header, true, 307);exit;}
+        elseif(!empty($responseCode))                  {header($header, true, $responseCode);exit;}
+        else                                           {header($header);exit;}
     }
     
     function sendForward($id, $responseCode= '')
