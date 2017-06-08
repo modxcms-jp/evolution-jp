@@ -263,25 +263,25 @@ $s = '';
         global $modx;
         if (!$table) {
             $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
-        } else {
-            $table = $this->replaceFullTableName($table);
-            if (!is_array($fields)) $pairs = $fields;
-            else {
-                foreach ($fields as $key => $value) {
-                    if(is_null($value) || strtolower($value) === 'null'){
-                        $value = 'NULL';
-                    }else{
-                        $value = "'{$value}'";
-                    }
-                    $pair[$key] = "`{$key}`={$value}";
-                }
-                $pairs = join(',',$pair);
-            }
-            if($where != '') $where = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit !== '')   $limit   = "LIMIT {$limit}";
-            return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
+            exit;
         }
+        $table = $this->replaceFullTableName($table);
+        if (!is_array($fields)) $pairs = $fields;
+        else {
+            foreach ($fields as $key => $value) {
+                if(is_null($value) || strtolower($value) === 'null'){
+                    $value = 'NULL';
+                }else{
+                    $value = "'{$value}'";
+                }
+                $pair[$key] = "`{$key}`={$value}";
+            }
+            $pairs = join(',',$pair);
+        }
+        if($where != '')    $where = "WHERE {$where}";
+        if($orderby !== '') $orderby = "ORDER BY {$orderby}";
+        if($limit !== '')   $limit   = "LIMIT {$limit}";
+        return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
     }
     
     /**
