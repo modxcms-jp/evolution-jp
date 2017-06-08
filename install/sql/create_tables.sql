@@ -523,3 +523,15 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`),
   KEY `status` (`status`)
 ) ENGINE=MyISAM COMMENT='Contains revision data.';
+
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_cache` (
+  `cache_id` int(20) NOT NULL AUTO_INCREMENT,
+  `cache_section` varchar(245) NOT NULL DEFAULT '',
+  `cache_key` varchar(245) NOT NULL DEFAULT '',
+  `cache_value` mediumtext NOT NULL,
+  `cache_timestamp` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`cache_id`),
+  KEY `cache_section` (`cache_section`),
+  KEY `cache_key` (`cache_key`)
+) ENGINE=MyISAM;
+
