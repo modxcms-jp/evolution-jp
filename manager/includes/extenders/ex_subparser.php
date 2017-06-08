@@ -1843,6 +1843,7 @@ class SubParser {
         global $modx;
         
         if(strpos($str,'@FILE')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         
@@ -1887,6 +1888,7 @@ class SubParser {
     function atBindUrl($str='')
     {
         if(strpos($str,'@URL')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         
@@ -1902,6 +1904,7 @@ class SubParser {
     function atBindInclude($str='')
     {
         if(strpos($str,'@INCLUDE')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         
