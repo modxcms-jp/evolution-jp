@@ -394,7 +394,7 @@ $s = '';
     *
     */
     function getInsertId($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->insert_id;
     }
     
@@ -403,7 +403,7 @@ $s = '';
     *
     */
     function getAffectedRows($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->affected_rows;
     }
     
@@ -412,12 +412,12 @@ $s = '';
     *
     */
     function getLastError($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->error;
     }
     
     function getLastErrorNo($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->errno;
     }
     
@@ -842,7 +842,7 @@ $s = '';
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && is_object($this->conn)) return true;
+        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
         else                                                return false;
     }
     

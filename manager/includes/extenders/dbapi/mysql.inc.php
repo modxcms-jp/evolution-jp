@@ -365,7 +365,7 @@ $s = '';
     *
     */
     function freeResult($conn=null) {
-        if(!is_resource($conn)) $conn =& $this->conn;
+        if(!$this->isResult($conn)) $conn =& $this->conn;
         mysql_free_result($conn);
     }
     
@@ -390,7 +390,7 @@ $s = '';
     *
     */
     function getInsertId($conn=NULL) {
-        if(!is_resource($conn)) $conn =& $this->conn;
+        if(!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_insert_id($conn);
     }
     
@@ -399,7 +399,7 @@ $s = '';
     *
     */
     function getAffectedRows($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_affected_rows($conn);
     }
     
@@ -408,12 +408,12 @@ $s = '';
     *
     */
     function getLastError($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_error($conn);
     }
 
     function getLastErrorNo($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_errno();
     }
     /**
@@ -421,7 +421,7 @@ $s = '';
     *
     */
     function getRecordCount($ds) {
-        return (is_resource($ds)) ? mysql_num_rows($ds) : 0;
+        return ($this->isResult($ds)) ? mysql_num_rows($ds) : 0;
     }
     
     /**
@@ -431,7 +431,7 @@ $s = '';
     *
     */
     function getRow($ds, $mode = 'assoc') {
-        if (is_resource($ds)) {
+        if ($this->isResult($ds)) {
             switch($mode) {
                 case 'assoc' :return mysql_fetch_assoc($ds);             break;
                 case 'num'   :return mysql_fetch_row($ds);               break;
@@ -450,7 +450,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumn($name, $dsq) {
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) $dsq = $this->query($dsq);
         if ($dsq) {
             $col = array ();
             while ($row = $this->getRow($dsq)) {
@@ -467,7 +467,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumnNames($dsq) {
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) $dsq = $this->query($dsq);
         if ($dsq) {
             $names = array ();
             $limit = mysql_num_fields($dsq);
@@ -489,8 +489,8 @@ $s = '';
             $rs = $this->getObject($from,$where);
             if(isset($rs->$dsq)) return $rs->$dsq;
         }
-        elseif (!is_resource($dsq)) $dsq = $this->query($dsq);
-        if (is_resource($dsq)) {
+        elseif (!$this->isResult($dsq)) $dsq = $this->query($dsq);
+        if ($this->isResult($dsq)) {
             $r = $this->getRow($dsq, 'num');
             return $r[0];
         }
@@ -828,7 +828,7 @@ $s = '';
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && is_resource($this->conn)) return true;
+        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
         else                                                  return false;
     }
     
