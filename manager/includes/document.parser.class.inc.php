@@ -294,7 +294,7 @@ class DocumentParser {
         
         $docid = $this->getDBCache('docid_by_uri',$uri);
         
-    	if($docid) return $docid;
+        if($docid) return $docid;
         
         $pos = strpos($uri,'?');
         if($pos!==false) $uri = substr($uri,0,$pos);
@@ -315,6 +315,7 @@ class DocumentParser {
     function setDBCache($category,$key,$value) {
         $where = sprintf("cache_section='%s' AND cache_key='%s'", $this->db->escape($category), $this->db->escape($key));
         $rs = $this->db->delete('[+prefix+]system_cache', $where);
+        $f['cache_section']   = $category;
         $f['cache_key']       = $key;
         $f['cache_value']     = $value;
         $f['cache_timestamp'] = $_SERVER['REQUEST_TIME'];
@@ -3796,23 +3797,23 @@ class DocumentParser {
         } else exit('Not installed.');
     }
     
-	function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
-	{
-		if($str=='') return '';
-		
-		if($encode=='') $encode = $this->config['modx_charset'];
-		
-		$ent_str = htmlspecialchars($str, $flags, $encode);
-		
-		if(!empty($str) && empty($ent_str))
-		{
-			$detect_order = implode(',', mb_detect_order());
-			$ent_str = mb_convert_encoding($str, $encode, $detect_order); 
-		}
-		
-		return $ent_str;
-	}
-	
+    function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
+    {
+        if($str=='') return '';
+        
+        if($encode=='') $encode = $this->config['modx_charset'];
+        
+        $ent_str = htmlspecialchars($str, $flags, $encode);
+        
+        if(!empty($str) && empty($ent_str))
+        {
+            $detect_order = implode(',', mb_detect_order());
+            $ent_str = mb_convert_encoding($str, $encode, $detect_order); 
+        }
+        
+        return $ent_str;
+    }
+    
     // End of class.
 }
 
