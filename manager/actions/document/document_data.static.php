@@ -142,7 +142,7 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 				<td>[*id*]</td>
 			</tr>
 			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
-				<td><?php echo $templatename ?></td>
+				<td><?php echo sprintf('%s(id:%s)',$templatename,$content['template']) ?></td>
 				<td>[*template*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['resource_title']?>: </td>
@@ -214,10 +214,6 @@ h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
 			<tr><td><?php echo $_lang['page_data_mgr_access']?>: </td>
 				<td><?php echo $content['privatemgr']==0 ? $_lang['public'] : '<b style="color: #821517">'.$_lang['private'].'</b> <img src="media/style/' . $modx->config['manager_theme'] .'/images/icons/secured.gif" align="absmiddle" />'?></td>
 				<td>[*privatemgr*]</td>
-			</tr>
-			<tr><td width="200"><?php echo $_lang['page_data_template']?>: </td>
-				<td><?php echo $templatename ?></td>
-				<td>[*template*]</td>
 			</tr>
 			<tr><td><?php echo $_lang['page_data_editor']?>: </td>
 				<td><?php echo $content['richtext']==0 ? $_lang['no'] : $_lang['yes']?></td>
