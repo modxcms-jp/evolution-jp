@@ -420,8 +420,14 @@ $s = '';
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($ds) {
-        return ($this->isResult($ds)) ? mysql_num_rows($ds) : 0;
+    function getRecordCount($ds, $where='') {
+        if($this->isResult($ds)) return mysql_num_rows($ds);
+        elseif(is_string($ds) && !empty($where)) {
+            $from = $ds;
+            $ds = $this->select('*',$from,$where);
+            return $this->getRecordCount($ds);
+        }
+        else return 0;
     }
     
     /**

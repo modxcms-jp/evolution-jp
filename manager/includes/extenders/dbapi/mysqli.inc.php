@@ -425,8 +425,14 @@ $s = '';
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($ds) {
-        return ($this->isResult($ds)) ? $ds->num_rows : 0;
+    function getRecordCount($ds, $where='') {
+        if($this->isResult($ds)) return $ds->num_rows;
+        elseif(is_string($ds) && !empty($where)) {
+            $from = $ds;
+            $ds = $this->select('*',$from,$where);
+            return $this->getRecordCount($ds);
+        }
+        else return 0;
     }
     
     /**
