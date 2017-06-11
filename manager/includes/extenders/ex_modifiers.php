@@ -204,20 +204,117 @@ class MODIFIERS {
             $cmd = 'id';
         }
         
-        if(isset($modx->snippetCache["phx:{$cmd}"]))   $this->elmName = "phx:{$cmd}";
-        elseif(isset($modx->snippetCache[$cmd]))       $this->elmName = $cmd;
-        elseif($modx->getChunk("phx:{$cmd}"))          $this->elmName = "phx:{$cmd}";
-        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
-                                                       $this->elmName = $cmd;
-        else                                           $this->elmName = '';
-        
         $cmd = strtolower($cmd);
-        if($this->elmName!=='')
-            $value = $this->getValueFromElement($key, $value, $cmd, $opt);
-        else
-            $value = $this->getValueFromPreset($key, $value, $cmd, $opt);
+        
+        if($this->snippet_exists($cmd))   $value = $this->getValueFromPHP($key, $value, $cmd, $opt);
+        elseif($this->chunk_exists($cmd)) $value = $this->getValueFromHTML($key, $value, $cmd, $opt);
+        else                              $value = $this->getValueFromPreset($key, $value, $cmd, $opt);
         
         $value = str_replace('[+key+]', $key, $value);
+        
+        return $value;
+    }
+    
+    function snippet_exists($cmd) {
+        global $modx;
+        
+        if(isset($modx->snippetCache["phx:{$cmd}"]) && $modx->snippetCache["phx:{$cmd}"]) return 1;
+        elseif(isset($modx->snippetCache[$cmd])     && $modx->snippetCache[$cmd])         return 1;
+        else {
+            $rs = $this->setSnippetFromDB($cmd);
+            if(!$rs) $rs = $this->setSnippetFromFile($cmd);
+            
+            return $rs;
+        }
+    }
+    
+    function chunk_exists($cmd) {
+        global $modx;
+        
+        if($modx->getChunk("phx:{$cmd}")) return 1;
+        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
+                                          return 1;
+        else                              return 0;
+    }
+    
+    function getValueFromPHP($key, $value, $cmd, $opt) {
+        global $modx;
+        
+        if($modx->snippetCache["phx:{$cmd}"]) $code = $modx->snippetCache["phx:{$cmd}"];
+        elseif($modx->snippetCache[$cmd])     $code = $modx->snippetCache[$cmd];
+        
+        ob_start();
+        $options = $opt;
+        $output = $value;
+        $name   = $key;
+        $this->bt = $value;
+        $this->vars['value']   = & $value;
+        $this->vars['input']   = & $value;
+        $this->vars['option']  = & $opt;
+        $this->vars['options'] = & $opt;
+        if(strpos($code,';')!==false) $return = eval($code);
+        else                          $return = call_user_func_array($code,array($value,$opt));
+        $msg = ob_get_contents();
+        if($value===$this->bt) $value = $msg . $return;
+        ob_end_clean();
+        
+        return $value;
+    }
+    
+    function setSnippetFromDB($cmd) {
+        global $modx;
+        
+        $where = sprintf("name='phx:%s'", $modx->db->escape($cmd));
+        $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where);
+        if(!$modx->db->getRecordCount($rs)) {
+            $where = sprintf("name='%s'", $modx->db->escape($cmd));
+            $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where);
+        }
+        
+        if(!$modx->db->getRecordCount($rs)) $code = false;
+        else                                $code = $modx->db->getValue($rs);
+        
+        $modx->snippetCache["phx:{$cmd}"] = $code;
+        if($code) $modx->snippetCache["phx:{$cmd}Props"] = '';
+        
+        return $code;
+    }
+    
+    function setSnippetFromFile($cmd) {
+        global $modx;
+        
+        $assets_mdf_path = MODX_BASE_PATH . 'assets/modifiers/';
+        $phx_mdf_path    = MODX_BASE_PATH . 'assets/plugins/phx/modifiers/';
+        $core_mdf_path   = MODX_CORE_PATH . 'extenders/modifiers/';
+        
+        if(is_file("{$assets_mdf_path}/mdf_{$cmd}.inc.php"))  $mdf_path = "{$assets_mdf_path}/mdf_{$cmd}.inc.php";
+        elseif(is_file("{$phx_mdf_path}{$cmd}.phx.php"))      $mdf_path = "{$phx_mdf_path}{$cmd}.phx.php";
+        elseif(is_file("{$core_mdf_path}mdf_{$cmd}.inc.php")) $mdf_path = "{$core_mdf_path}mdf_{$cmd}.inc.php";
+        else                                                  $mdf_path = false;
+        
+        if($mdf_path) {
+            $code = @file_get_contents($mdf_path);
+            $code = trim($code);
+            if(substr($code,0,5)==='<?php') $code = substr($code,6);
+            if(substr($code,0,2)==='<?')    $code = substr($code,3);
+            if(substr($code,-2)==='?>')     $code = substr($code,0,-2);
+        }
+        else $code = false;
+        
+        $modx->snippetCache["phx:{$cmd}"] = $code;
+        if($code) $modx->snippetCache["phx:{$cmd}Props"] = '';
+        
+        return $code;
+    }
+    
+    function getValueFromHTML($key, $value, $cmd, $opt) {
+        if($modx->getChunk("phx:{$cmd}")) $html = $modx->getChunk("phx:{$cmd}");
+        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
+                                          $html = $modx->getChunk($cmd);
+        else return false;
+        
+        $html = str_replace(array('[+value+]','[+output+]'), $value, $html);
+        $value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
         
         return $value;
     }
