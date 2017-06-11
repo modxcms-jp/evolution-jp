@@ -3806,9 +3806,19 @@ class DocumentParser {
         } else exit('Not installed.');
     }
     
-    function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='')
+    function htmlspecialchars($str='', $flags = ENT_COMPAT, $encode='') {
+        return $this->hsc($str, $flags, $encode);
+    }
+    
+    function hsc($str='', $flags = ENT_COMPAT, $encode='')
     {
-        if($str=='') return '';
+        if($str==='') return '';
+        if(is_array($str)) {
+            foreach($str as $k=>$v) {
+                $str[$k] = $this->hsc($v, $flags, $encode);
+            }
+            return $str;
+        }
         
         if($encode=='') $encode = $this->config['modx_charset'];
         
