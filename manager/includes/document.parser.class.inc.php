@@ -2168,13 +2168,9 @@ class DocumentParser {
             {
                 $snippetObject['properties'] = $this->snippetCache["{$snip_name}Props"];
             }
+            return $snippetObject;
         }
-        else
-        {
-            $snip_content = 'return false;';
-            $snip_prop    = '';
-        }
-        return $snippetObject;
+        else return false;
     }
     
     function setSnippetCache()
