@@ -2924,6 +2924,17 @@ class DocumentParser {
         return $tpl;
     }
     
+    function parseList($tpl='', $multiPH=array()) {
+        
+        if(empty($multiPH) || empty($tpl)) return $tpl;
+        if(substr($tpl,0,1)==='@') $tpl = $this->atBind($tpl);
+        
+        foreach($multiPH as $ph) {
+            $_[] = $this->parseText($tpl,$ph);
+        }
+        return join("\n",$_);
+    }
+    
     function toDateFormat($timestamp = 0, $mode = '')
     {
         if($timestamp==0&&$mode==='') return '';
