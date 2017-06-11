@@ -856,8 +856,9 @@ $s = '';
         
         $_ = array();
         foreach($fields as $k=>$v) {
-            if($k!==$v) $_[] = "{$v} as {$k}";
-            else        $_[] = $v;
+            if(preg_match('@^[0-9]+$@',$k)) $_[] = $v;
+            elseif($k!==$v)                 $_[] = "{$v} as {$k}";
+            else                            $_[] = $v;
         }
         return join(',', $_);
     }
