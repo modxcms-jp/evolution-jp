@@ -1732,6 +1732,8 @@ class DocumentParser {
                 $cmd = ltrim($cmd);
                 $cmd = rtrim($cmd,'-');
                 $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
+                $cmd = trim($cmd);
+                if(!$cmd) $cmd = 0;
                 
                 if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
                     $cmd = (int) eval("return {$cmd};");
