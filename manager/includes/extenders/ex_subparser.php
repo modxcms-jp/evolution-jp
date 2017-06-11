@@ -474,17 +474,29 @@ class SubParser {
         return $str;
     }
 
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
+    function sendRedirect($url='', $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
         global $modx;
-        if($modx->debug)
-        {
-            register_shutdown_function(array (& $modx,'recDebugInfo'));
-        }
         
-        if (empty($url)) return false;
+        if($modx->debug) register_shutdown_function(array (& $modx,'recDebugInfo'));
+        
+        if($type==='REDIRECT_HEADER') $modx->config['xhtml_urls'] = 0;
+        
+        if(empty($url)) $url = $modx->makeUrl($modx->documentIdentifier,'','','full');
         elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
             $url = $modx->makeUrl($url,'','','full');
+        }
+        else {
+            if(strpos($url,'[')!==false || strpos($url,'{{')!==false) $url=$modx->parseDocumentSource($url);
+            if(substr($url,0,1)==='?') {
+                $args = ltrim($url,'?');
+                $url = $modx->documentIdentifier;
+            }
+            elseif(strpos($url,'?')!==false) list($url,$args) = explode('?',$url,2);
+            else $args = '';
+            
+            if(strpos($url,'[~')!==false) $url = $modx->rewriteUrls($url);
+            $url = $modx->makeUrl($url,'',$args,'full');
         }
         
         if ($count_attempts == 1) {
