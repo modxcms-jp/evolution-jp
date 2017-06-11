@@ -1385,6 +1385,8 @@ class DocumentParser {
                 else                   $value= $this->tvProcessor($value);
             }
             
+            if(substr($value,0,1)==='@') $value = $this->atBind($value);
+            
             if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
             elseif($convertValue)  $value = $this->getReadableValue($key,$value);
             
