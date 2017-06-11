@@ -536,8 +536,8 @@ class MODIFIERS {
                 return $this->includeMdfFile('summary');
             case 'replace':
             case 'str_replace':
-                if(empty($opt) || strpos($opt,',')===false) break;
-                if    (substr_count($opt, ',') ==1) $delim = ',';
+                if(empty($opt)) break;
+                if    (substr_count($opt, ',') ==1 && $this->substr($opt,0,1)!==',') $delim = ',';
                 elseif(substr_count($opt, '|') ==1) $delim = '|';
                 elseif(substr_count($opt, '=>')==1) $delim = '=>';
                 elseif(substr_count($opt, '/') ==1) $delim = '/';
@@ -550,7 +550,9 @@ class MODIFIERS {
                 if($value!=='') return str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
                 break;
             case 'eachtpl':
-                $value = explode('||',$value);
+                if(strpos($value,'||')!==false) $delim = '||';
+                else                            $delim = ',';
+                $value = explode($delim,$value);
                 $_ = array();
                 foreach($value as $v) {
                     $_[] = str_replace(array('[+value+]','[+output+]','{value}','%s'),$v,$opt);
