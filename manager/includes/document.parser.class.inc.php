@@ -2890,6 +2890,8 @@ class DocumentParser {
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
     {
+        if(substr($tpl,0,1)==='@') $tpl = $this->atBind($tpl);
+        
         if(!$ph)  return $tpl;
         if(!$tpl) return $tpl;
         
