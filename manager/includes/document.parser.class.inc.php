@@ -2836,8 +2836,7 @@ class DocumentParser {
     function getChunk($key)
     {
         if($key==='') return false;
-        $onCache = true;
-
+        
         if( isset($this->chunkCache[$key]) ){
             $isCache = true;
             $value = $this->chunkCache[$key];
@@ -2845,27 +2844,26 @@ class DocumentParser {
         elseif(substr($key,0,5)==='@FILE') {
             $value = $this->atBindFile($key);
             $this->chunkCache[$key] = $value;
-        }else{
-            $isCache = false;
-            $where = "`name`='%s' AND (`published`='1' OR 
-                                       (`pub_date` <> 0 AND `pub_date` < %d AND ( `unpub_date` = 0 OR `unpub_date` > %d) )
-                                      )";
+        } else {
+            $where = "`name`='%s' AND (`published`=1 OR (`pub_date`<>0 AND `pub_date`<%d AND (`unpub_date`=0 OR `unpub_date`>%d)))";
             $where = sprintf($where,  $this->db->escape($key), $this->baseTime,$this->baseTime);
-            $rs    = $this->db->select('snippet,published','[+prefix+]site_htmlsnippets',$where);
-            if ($this->db->getRecordCount($rs)==1){
-                $row= $this->db->getRow($rs);
-                $value = $row['snippet'];
-                if( $row['published'] == 0 ){ //publishedが0じゃないものはキャッシュしない
-                    $onCache = false;
+            $rs    = $this->db->select('name,snippet,published','[+prefix+]site_htmlsnippets',$where);
+            $_ = array();
+            if ($this->db->getRecordCount($rs)){
+                while($row = $this->db->getRow($rs)) {
+                    $name = $row['name'];
+                    $_[$name] = $row;
+                    if($row['published']!=0 && !isset($this->chunkCache[$name]))
+                        $this->chunkCache[$name] = $row['snippet'];
                 }
             }
-            else $value = '';
-
-            if( $onCache )
-                $this->chunkCache[$key] = $value;
-
+            if(isset($_[$key]['snippet'])) $value = $_[$key]['snippet'];
+            else                           $value = '';
+            
+            if(!isset($_[$key]['published']) || $_[$key]['published']!=0) $this->chunkCache[$key] = $value;
         }
-
+        
+        if(!isset($isCache)) $isCache = false;
         $params = array('name' => $key ,'value' => $value , 'isCache' => $isCache);
         $this->invokeEvent('OnCallChunk',$params);
 
