@@ -464,6 +464,22 @@ $s = '';
         }
     }
     
+    function getRows($rs,$mode='assoc') {
+        
+        if(is_string($rs)) {
+            if($where) return $this->getRows($this->select($rs,$mode,$where,$orderby,$limit),'assoc');
+            else       return $this->getRows($this->query($rs),$mode);
+        }
+        elseif(!$this->isResult($rs)) return false;
+        
+        if(!$this->getRecordCount($rs)) return array();
+        $_ = array();
+        while($row = $this->getRow($rs,$mode)) {
+            $_[] = $row;
+        }
+        return $_;
+    }
+    
     /**
     * @name:  getColumn
     * @desc:  returns an array of the values found on colun $name
