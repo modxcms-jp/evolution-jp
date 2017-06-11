@@ -343,13 +343,19 @@ class MODIFIERS {
             case 'then':
                 $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if ($isvalid)  return $opt;
+                if ($isvalid)  {
+                    $opt = str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
+                    return $opt;
+                }
                 else           return NULL;
                 break;
             case 'else':
                 $conditional = implode(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
-                if (!$isvalid) return $opt;
+                if (!$isvalid)  {
+                    $opt = str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
+                    return $opt;
+                }
                 break;
             case 'select':
             case 'switch':
@@ -537,7 +543,7 @@ class MODIFIERS {
                 break;
             case 'replace_to':
             case 'tpl':
-                if($value!=='') return str_replace(array('[+value+]','[+output+]','{value}'),$value,$opt);
+                if($value!=='') return str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
                 break;
             case 'eachtpl':
                 $value = explode('||',$value);
@@ -638,7 +644,7 @@ class MODIFIERS {
             case 'calc':
                 $value = (int)$value;
                 if(empty($value)) $value = '0';
-                $filter = str_replace(array('[+value+]','%s'),'?',$opt);
+                $filter = str_replace(array('[+value+]','[+output+]','{value}','%s'),'?',$opt);
                 $filter = preg_replace('@([a-zA-Z\n\r\t\s])@','',$filter);
                 if(strpos($filter,'?')===false) $filter = "?{$filter}";
                 $filter = str_replace('?',$value,$filter);
@@ -840,7 +846,11 @@ class MODIFIERS {
             case 'default':
                 if (empty($value)) return $opt; break;
             case 'ifnotempty':
-                if (!empty($value)) return $opt; break;
+                if (!empty($value)) {
+                    $opt = str_replace(array('[+output+]','{value}','%s'),'[+value+]',$opt);
+                    $opt = $modx->parseText($opt,array('value'=>$value));
+                    return $opt; break;
+                }
             case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
                 $grd = new DataGrid();
