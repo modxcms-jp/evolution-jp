@@ -2785,6 +2785,10 @@ class DocumentParser {
             if(strpos($key,'?')===false) $args = '';
             else                         list($key,$args) = explode('?',$key,2);
             
+            if(strpos($key,':')!==false)
+                list($key,$modifiers)=$this->splitKeyAndFilter($key);
+            else $modifiers = false;
+            
             if($key==='') $value = '';
             elseif(preg_match('/^[0-9]+$/',$key))
             {
@@ -2811,6 +2815,9 @@ class DocumentParser {
                 if(!$docid) $value='';
                 else $value = $docid;
             }
+            
+            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
+            
             $content = str_replace($matches[0][$i], $value, $content);
         }
         return $content;
