@@ -487,19 +487,15 @@ $s = '';
     /**
     * @name:  getValue
     * @desc:  returns the value from the first column in the set
-    * @param: $dsq - dataset or query string
+    * @param: $rs - dataset or query string
     */
-    function getValue($dsq, $from='', $where='') {
-        if($from!=='' && $where!=='') {
-            $from = str_replace('[+prefix+]', '', $from);
-            $rs = $this->getObject($from,$where);
-            if(isset($rs->$dsq)) return $rs->$dsq;
+    function getValue($rs, $from='', $where='') {
+        if (is_string($rs)) {
+            if($from && $where) $rs = $this->select($rs,$from,$where,$orderby,$limit);
+            else                $rs = $this->query($rs);
         }
-        elseif (!$this->isResult($dsq)) $dsq = $this->query($dsq);
-        if ($this->isResult($dsq)) {
-            $r = $this->getRow($dsq, 'num');
-            return $r[0];
-        }
+        $row = $this->getRow($rs, 'num');
+        return $row[0];
     }
     
     /**
