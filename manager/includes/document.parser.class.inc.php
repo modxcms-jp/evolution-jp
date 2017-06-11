@@ -1947,9 +1947,11 @@ class DocumentParser {
         $snip_call = $this->_split_snip_call($piece);
         
         list($key,$modifiers) = $this->splitKeyAndFilter($snip_call['name']);
-        $snip_call['name'] = $key;
         
         $snippetObject = $this->_getSnippetObject($key);
+        if(!$snippetObject) return false;
+        
+        $snip_call['name'] = $key;
         $this->currentSnippet = $key;
         
         // current params
