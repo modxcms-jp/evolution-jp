@@ -63,7 +63,6 @@ class DocumentParser {
     var $pluginCache;
     var $aliasListing = array();
     var $SystemAlertMsgQueque;
-    var $functionCache = array();
     var $uaType;
     var $functionLog = array();
     var $currentSnippetCall;
@@ -1144,7 +1143,7 @@ class DocumentParser {
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
         $key = md5("{$content}{$left}{$right}");
-        if(isset($this->functionCache['gettagsfromcontent'][$key])) return $this->functionCache['gettagsfromcontent'][$key];
+        if(isset($this->tmpCache['gettagsfromcontent'][$key])) return $this->tmpCache['gettagsfromcontent'][$key];
         $_ = $this->_getTagsFromContent($content,$left,$right);
         if(empty($_)) return array();
         foreach($_ as $v)
@@ -1152,7 +1151,7 @@ class DocumentParser {
             $tags[0][] = "{$left}{$v}{$right}";
             $tags[1][] = $v;
         }
-        $this->functionCache['gettagsfromcontent'][$key] = $tags;
+        $this->tmpCache['gettagsfromcontent'][$key] = $tags;
         return $tags;
     }
     
