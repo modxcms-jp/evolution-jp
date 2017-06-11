@@ -466,6 +466,9 @@ class DocumentParser {
             // check if we should not hit this document
             if($this->documentObject['donthit'] == 1) $this->config['track_visitors']= 0;
             
+            if(is_file(MODX_BASE_PATH.'assets/templates/autoload.php'))
+                include_once(MODX_BASE_PATH.'assets/templates/autoload.php');
+            
             // get the template and start parsing!
             $this->documentContent = $this->_getTemplateCode($this->documentObject);
             
