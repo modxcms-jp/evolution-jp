@@ -3848,6 +3848,13 @@ class DocumentParser {
         
         return $ent_str;
     }
+
+    function reload() {
+        $url = $this->makeUrl($this->docid);
+        $this->sendRedirect($url);
+        exit;
+    }
+    }
     
     function move_uploaded_file($tmp_path,$target_path) {
         global $image_limit_width;
