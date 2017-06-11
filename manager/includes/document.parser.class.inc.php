@@ -3531,6 +3531,7 @@ class DocumentParser {
     }
     
     function addSnippet($name, $phpCode) {
+        if(substr($phpCode,0,1)==='@') $phpCode = $this->atBind($phpCode);
         $this->snippetCache['#'.$name] = $phpCode;
     }
     
