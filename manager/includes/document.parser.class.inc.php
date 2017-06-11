@@ -1910,6 +1910,7 @@ class DocumentParser {
                 continue;
             }
             $value = $this->_get_snip_result($call);
+            if($value===false) continue;
             $content = str_replace($matches[0][$i], $value, $content);
         }
         
