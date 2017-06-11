@@ -3854,7 +3854,6 @@ class DocumentParser {
         $this->sendRedirect($url);
         exit;
     }
-    }
     
     function move_uploaded_file($tmp_path,$target_path) {
         global $image_limit_width;
