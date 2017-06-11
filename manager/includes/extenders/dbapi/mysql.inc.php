@@ -436,17 +436,21 @@ $s = '';
     * @param: $dsq - dataset
     *
     */
-    function getRow($ds, $mode = 'assoc') {
-        if ($this->isResult($ds)) {
-            switch($mode) {
-                case 'assoc' :return mysql_fetch_assoc($ds);             break;
-                case 'num'   :return mysql_fetch_row($ds);               break;
-                case 'object':return mysql_fetch_object($ds);           break;
-                case 'both'  :return mysql_fetch_array($ds, MYSQL_BOTH); break;
-                default      :
-                    global $modx;
-                    $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
-            }
+    function getRow($ds, $mode='assoc', $where = '', $orderby = '', $limit = '') {
+        if(is_string($ds)) {
+            if($where) return $this->getRow($this->select($ds,$mode,$where,$orderby,$limit));
+            else       return $this->getRow($this->query($ds),$mode);
+        }
+        elseif(!$this->isResult($ds)) return false;
+        
+        switch($mode) {
+            case 'assoc' :return mysql_fetch_assoc($ds);             break;
+            case 'num'   :return mysql_fetch_row($ds);               break;
+            case 'object':return mysql_fetch_object($ds);            break;
+            case 'both'  :return mysql_fetch_array($ds, MYSQL_BOTH); break;
+            default      :
+                global $modx;
+                $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
         }
     }
     
