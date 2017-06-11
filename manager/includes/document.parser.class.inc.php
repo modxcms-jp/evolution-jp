@@ -77,6 +77,8 @@ class DocumentParser {
     var $parentlist = array();
     var $aliasPath = array();
     var $tmpCache = array();
+    var $docid;
+    var $docObj;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -134,6 +136,8 @@ class DocumentParser {
         $this->event= new SystemEvent();
         $this->Event= & $this->event; //alias for backward compatibility
         $this->ph = & $this->placeholders;
+        $this->docid  = & $this->documentIdentifier;
+        $this->docObj = & $this->documentObject;
         
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
         $this->debug        = false;
