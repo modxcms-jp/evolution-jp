@@ -448,21 +448,21 @@ $s = '';
     /**
     * @name:  getRow
     * @desc:  returns an array of column values
-    * @param: $dsq - dataset
+    * @param: $rs - dataset
     *
     */
-    function getRow($ds, $mode='assoc', $where = '', $orderby = '', $limit = '') {
-        if(is_string($ds)) {
-            if($where) return $this->getRow($this->select($ds,$mode,$where,$orderby,$limit));
-            else       return $this->getRow($this->query($ds),$mode);
+    function getRow($rs, $mode='assoc', $where = '', $orderby = '', $limit = '') {
+        if(is_string($rs)) {
+            if($where) return $this->getRow($this->select($rs,$mode,$where,$orderby,$limit),'assoc');
+            else       return $this->getRow($this->query($rs),$mode);
         }
-        elseif(!$this->isResult($ds)) return false;
+        elseif(!$this->isResult($rs)) return false;
         
         switch($mode) {
-            case 'assoc' :return $ds->fetch_assoc();
-            case 'num'   :return $ds->fetch_row();
-            case 'object':return $ds->fetch_object();
-            case 'both'  :return $ds->fetch_array(MYSQLI_BOTH);
+            case 'assoc' :return $rs->fetch_assoc();
+            case 'num'   :return $rs->fetch_row();
+            case 'object':return $rs->fetch_object();
+            case 'both'  :return $rs->fetch_array(MYSQLI_BOTH);
             default      :
                 global $modx;
                 $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
