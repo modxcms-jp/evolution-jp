@@ -3536,6 +3536,7 @@ class DocumentParser {
     }
     
     function addChunk($name, $text) {
+        if(substr($text,0,1)==='@') $text = $this->atBind($text);
         $this->chunkCache['#'.$name] = $text;
     }
     
