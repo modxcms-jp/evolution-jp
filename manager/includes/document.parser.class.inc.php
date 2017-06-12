@@ -126,6 +126,7 @@ class DocumentParser {
     // constructor
     function __construct()
     {
+        if($this->isLoggedIn()) ini_set('display_errors', 1);
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
