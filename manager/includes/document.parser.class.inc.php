@@ -623,6 +623,8 @@ class DocumentParser {
             $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
         }
         
+        if(strpos($this->documentOutput,'\{\{')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
+        
         if (0<count($this->dumpSQL))
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
@@ -650,6 +652,11 @@ class DocumentParser {
         $echo = ob_get_clean();
         if($this->debug) $this->recDebugInfo();
         return $echo;
+    }
+    
+    function RecoveryEscapedTags($contents) {
+        $contents = str_replace(array('\{\{','\}\}'),array('{{','}}'),$contents);
+        return $contents;
     }
     
     function postProcess()
