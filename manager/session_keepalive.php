@@ -18,7 +18,7 @@ if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
 {
 	$modx->updatePublishStatus();
 	$uid = $_SESSION['mgrInternalKey'];
-	$timestamp = time();
+	$timestamp = $_SERVER['REQUEST_TIME'];
 	$modx->db->update("lasthit={$timestamp}", '[+prefix+]active_users', "internalKey='{$uid}'");
 	echo '{"status":"ok"}';
 }
