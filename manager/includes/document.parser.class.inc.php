@@ -1563,6 +1563,8 @@ class DocumentParser {
     }
     
     function mergeChunkContent($content,$ph=false) {
+        if(strpos($content,'{{ ')!==false) $content = str_replace(array('{{ ',' }}'),array('\{\{ ',' \}\}'),$content);
+        if(strpos($content,'<@LITERAL>')!==false) $content= $this->escapeLiteralTagsContent($content);
         if(strpos($content,'{{')===false) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
@@ -1668,6 +1670,19 @@ class DocumentParser {
             $content = str_replace($addBreakMatches,'',$content);
             if(strpos($content,$left)!==false)
                 $content = str_replace($matches[0],'',$content);
+        }
+        return $content;
+    }
+    
+    function escapeLiteralTagsContent($content, $left='<@LITERAL>', $right='<@ENDLITERAL>') {
+        if(strpos($content,$left)===false) return $content;
+        
+        $matches = $this->getTagsFromContent($content,$left,$right);
+        if(!empty($matches)) {
+            foreach($matches[1] as $i=>$v) {
+                $v = str_replace(array('{{','}}'),array('\{\{','\}\}'),$v);
+                $content = str_replace($matches[0][$i],$v,$content);
+            }
         }
         return $content;
     }
