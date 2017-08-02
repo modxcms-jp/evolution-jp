@@ -488,15 +488,16 @@ class SubParser {
         }
         else {
             if(strpos($url,'[')!==false || strpos($url,'{{')!==false) $url=$modx->parseDocumentSource($url);
-            if(substr($url,0,1)==='?') {
-                $args = ltrim($url,'?');
-                $url = $modx->documentIdentifier;
+            
+            if(substr($url,0,1)==='?')                 $url = $modx->makeUrl($modx->documentIdentifier,'',$url,'full');
+            elseif(preg_match('@^[1-9][0-9]*$@',$url)) $url = $modx->makeUrl($url,'',$args,'full');
+            elseif(preg_match('@^[1-9][0-9]*\?@',$url)) {
+                list($url,$args) = explode('?',$url,2);
+                $url = $modx->makeUrl($url,'',$args,'full');
             }
-            elseif(strpos($url,'?')!==false) list($url,$args) = explode('?',$url,2);
-            else $args = '';
             
             if(strpos($url,'[~')!==false) $url = $modx->rewriteUrls($url);
-            $url = $modx->makeUrl($url,'',$args,'full');
+            
         }
         
         if ($count_attempts == 1) {
