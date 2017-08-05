@@ -51,8 +51,6 @@ class SubParser {
         }
         elseif(is_string($msg) && 0<strlen($msg)) $p['body'] = $msg;
         
-        if(substr($p['body'], 0, 1)==='@') $p['body'] = $this->atBind($p['body']);
-        
         $modx->loadExtension('MODxMailer');
         $sendto = (!isset($p['to']))   ? $modx->config['emailsender']  : $p['to'];
         $sendto = explode(',',$sendto);
