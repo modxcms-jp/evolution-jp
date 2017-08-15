@@ -134,9 +134,9 @@ class DocumentParser {
         if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
         // events
-        $this->event= new SystemEvent();
-        $this->Event= & $this->event; //alias for backward compatibility
-        $this->ph = & $this->placeholders;
+        $this->event = new SystemEvent();
+        $this->Event  = & $this->event; //alias for backward compatibility
+        $this->ph     = & $this->placeholders;
         $this->docid  = & $this->documentIdentifier;
         $this->docObj = & $this->documentObject;
         
@@ -161,11 +161,6 @@ class DocumentParser {
             $this->mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
     }
 
-    function __destruct(){
-        if(!defined('IN_PARSER_MODE') || $this->directParse) return;
-        $this->postProcess();
-    }
-    
     /*
      * loads an extension from the extenders folder
      *
@@ -484,6 +479,13 @@ class DocumentParser {
             
             // Parse document source
             $this->documentContent= $this->parseDocumentSource($this->documentContent);
+        }
+        if($this->directParse==0)
+        {
+            register_shutdown_function(array (
+            & $this,
+            'postProcess'
+            )); // tell PHP to call postProcess when it shuts down
         }
         $result = $this->outputContent();
         return $result;
