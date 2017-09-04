@@ -231,7 +231,7 @@ class REVISION
     		$f['status']     = $status;
     		$f['content']    = $revision_content;
     		$f['element']     = 'resource';
-    		$f['editedon']   = time();
+    		$f['editedon']   = $_SERVER['REQUEST_TIME'];
     		$f['editedby']   = $modx->getLoginUserID();
     //		$f['pub_date']   = $pub_date;
     //		$f['unpub_date'] = $unpub_datey;
