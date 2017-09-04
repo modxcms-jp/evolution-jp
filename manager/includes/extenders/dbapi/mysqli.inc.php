@@ -452,12 +452,15 @@ $s = '';
     * @param: $rs - dataset
     *
     */
-    function getRow($rs, $mode='assoc', $where = '', $orderby = '', $limit = '') {
-        if(is_string($rs)) {
-            if($where) return $this->getRow($this->select($rs,$mode,$where,$orderby,$limit),'assoc');
-            else       return $this->getRow($this->query($rs),$mode);
+    function getRow($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
+        if(is_string($param1)) {
+            if($where) return $this->getRow($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
+            else       return $this->getRow($this->query($param1),$param2);
         }
-        elseif(!$this->isResult($rs)) return false;
+        elseif(!$this->isResult($param1)) return false;
+        
+        $rs   = $param1;
+        $mode = $param2;
         
         switch($mode) {
             case 'assoc' :return $rs->fetch_assoc();
@@ -470,13 +473,16 @@ $s = '';
         }
     }
     
-    function getRows($rs, $mode='assoc', $where = '', $orderby = '', $limit = '') {
+    function getRows($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
         
-        if(is_string($rs)) {
-            if($where) return $this->getRows($this->select($rs,$mode,$where,$orderby,$limit),'assoc');
-            else       return $this->getRows($this->query($rs),$mode);
+        if(is_string($param1)) {
+            if($where) return $this->getRows($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
+            else       return $this->getRows($this->query($param1),$param2);
         }
-        elseif(!$this->isResult($rs)) return false;
+        elseif(!$this->isResult($param1)) return false;
+        
+        $rs   = $param1;
+        $mode = $param2;
         
         if(!$this->getRecordCount($rs)) return array();
         $_ = array();
