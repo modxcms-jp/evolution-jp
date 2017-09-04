@@ -1691,9 +1691,12 @@ class DocumentParser {
         if(strpos($content,$left)===false) return $content;
         
         $matches = $this->getTagsFromContent($content,$left,$right);
+        $tags = '{{,}},[[,]],[!,!],[*,*],[(,)],[+,+],[~,~],[^,^]';
+        $tags = explode(',',$tags);
+        $rTags = $this->_getEscapedTags($tags);
         if(!empty($matches)) {
             foreach($matches[1] as $i=>$v) {
-                $v = str_replace(array('{{','}}'),array('\{\{','\}\}'),$v);
+                $v = str_replace($tags,$rTags,$v);
                 $content = str_replace($matches[0][$i],$v,$content);
             }
         }
