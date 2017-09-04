@@ -1789,6 +1789,16 @@ class DocumentParser {
         
         if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
             $cmd = (int) eval("return {$cmd};");
+        else {
+            $_ = explode(',', '[*,[(,{{,[[,[!,[+');
+            foreach($_ as $left) {
+                if(strpos($cmd,$left)!==false) {
+                    $cmd = 0;
+                    break;
+                }
+            }
+            $cmd = (int) $cmd;
+        }
         if($cmd < 0) $cmd = 0;
         if($reverse) $cmd = !$cmd;
         return $cmd;
