@@ -57,18 +57,19 @@ $baseurl = $rb_base_url;
 $rb_base_url_parse = parse_url($rb_base_url);
 if(empty($rb_base_url_parse['host'])){
     $base_url_parse = parse_url($base_url);
-    if($rb_base_url!=='/') $rb_base_url = str_replace($base_url_parse['path'], "", $rb_base_url);
-    $rb_base_url = (substr($rb_base_url, 0, 1) == "/" ? substr($rb_base_url, 1) : $rb_base_url);  
+    if($rb_base_url!=='/' && $base_url_parse['path']!=='/')
+        $rb_base_url = str_replace($base_url_parse['path'], '', $rb_base_url);
+    $rb_base_url = ltrim($rb_base_url,'/');  
     if($_GET['editor'] == 'fckeditor2' && $strip_image_paths == 1){
-    	$baseurl = $base_url.$rb_base_url;     
+    	$baseurl = $base_url.$rb_base_url;
     } else if(($_GET['editor'] == 'tinymce3' || $_GET['editor'] == 'tinymce') && $strip_image_paths != 1){
-    	$baseurl = $site_url.$rb_base_url;        
+    	$baseurl = $site_url.$rb_base_url;
     }
 }
 
 /* The physical path to the document root, Set manually if not using apache	*/
 
-$fckphp_config['basedir'] = rtrim($rb_base_dir,'/');
+$fckphp_config['basedir'] = rtrim($rb_base_dir,'/').'/';
 
 
 
