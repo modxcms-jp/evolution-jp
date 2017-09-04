@@ -947,6 +947,10 @@ class DocumentParser {
         $this->invokeEvent('OnGetConfig');
         if($this->config['legacy_cache']) $this->setAliasListing();
         $this->setSnippetCache();
+        
+        if($this->config['disable_cache_at_login'] && $this->isLoggedIn('mgr'))
+            $this->config['cache_type'] = 0;
+        
         return $this->config;
     }
     

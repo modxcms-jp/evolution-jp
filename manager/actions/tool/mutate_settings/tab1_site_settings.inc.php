@@ -180,6 +180,14 @@
 	</td>
 </tr>
 <tr>
+	<th><?php echo $_lang['setting_disable_cache_at_login'] ?></th>
+	<td>
+		<?php echo wrap_label($_lang['enabled'] ,form_radio('disable_cache_at_login','1',$disable_cache_at_login=='1'));?><br />
+		<?php echo wrap_label($_lang['disabled'],form_radio('disable_cache_at_login','0',$disable_cache_at_login=='0'));?><br />
+		<?php echo $_lang["setting_disable_cache_at_login_desc"] ?>
+	</td>
+</tr>
+<tr>
 	<th><?php echo $_lang['setting_individual_cache'] ?></th>
 	<td>
 		<?php echo wrap_label($_lang['enabled'] ,form_radio('individual_cache','1',$individual_cache=='1'));?><br />
