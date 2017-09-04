@@ -2890,18 +2890,13 @@ class DocumentParser {
 
     }
     
-    function parseChunk($chunkName, $chunkArr, $prefix= '{', $suffix= '}',$mode='chunk')
+    function parseChunk($chunkName, $ph, $left= '{{', $right= '}}',$mode='chunk')
     {
-        if (!is_array($chunkArr)) return false;
+        if (!is_array($ph)) return false;
         
-        if($mode==='chunk') $src= $this->getChunk($chunkName);
-        else                $src = $chunkName;
-        
-        while(list($key, $value) = each($chunkArr))
-        {
-            $src= str_replace("{$prefix}{$key}{$suffix}", $value, $src);
-        }
-        return $src;
+        if($mode==='chunk') $tpl = $this->getChunk($chunkName);
+        else                $tpl = $chunkName;
+        return $this->parseText($tpl, $ph);
     }
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
