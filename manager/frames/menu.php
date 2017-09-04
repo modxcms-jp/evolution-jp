@@ -361,7 +361,7 @@ if (!empty($reportsmenu))
 function item($name, $href, $display=1, $attrib='target="main"')
 {
 	if($display==0) return false;
-	if(is_int($href)) $href = "index.php?a={$href}";
+	if(preg_match('@^[1-9][0-9]*$@',$href)) $href = "index.php?a={$href}";
 	return sprintf('<li><a onclick="this.blur();" href="%s" %s>%s</a></li>', $href,$attrib,$name);
 }
 
