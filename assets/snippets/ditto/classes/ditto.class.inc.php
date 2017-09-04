@@ -9,6 +9,7 @@
 
 class ditto {
 	var $template,$resource,$format,$debug,$advSort,$sqlOrderBy,$customReset,$fields,$constantFields,$prefetch,$sortOrder,$customPlaceholdersMap;
+	var $tmpCache = array();
 
 	function __construct($dittoID,$format,$language,$debug) {
 		$this->format = $format;
@@ -36,6 +37,9 @@ class ditto {
 		
 	function getTVList() {
 		global $modx;
+		
+		if(isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
+		
 		$table = $modx->getFullTableName("site_tmplvars");
 		$tvs = $modx->db->select("name", $table);
 			// TODO: make it so that it only pulls those that apply to the current template
@@ -44,6 +48,7 @@ class ditto {
 		{
 			$dbfields[] = $dbfield['name'];
 		}
+		$this->tmpCache['getTVList'] = $dbfields;
 		return $dbfields;
 	}
 	
