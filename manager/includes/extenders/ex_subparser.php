@@ -629,7 +629,7 @@ class SubParser {
         
         if (isset ($modx->snippetCache[$snippetName]))
         {
-            $snippet= $modx->snippetCache[$snippetName];
+            $phpCode= $modx->snippetCache[$snippetName];
             $properties= $modx->snippetCache["{$snippetName}Props"];
         }
         else
@@ -639,12 +639,12 @@ class SubParser {
             if ($modx->db->getRecordCount($result) == 1)
             {
                 $row = $modx->db->getRow($result);
-                $snippet= $modx->snippetCache[$snippetName]= $row['snippet'];
+                $phpCode= $modx->snippetCache[$snippetName]= $row['snippet'];
                 $properties= $modx->snippetCache["{$snippetName}Props"]= $row['properties'];
             }
             else
             {
-                $snippet= $modx->snippetCache[$snippetName]= "return false;";
+                $phpCode= $modx->snippetCache[$snippetName]= "return false;";
                 $properties= '';
             }
         }
@@ -652,7 +652,7 @@ class SubParser {
         $parameters= $modx->parseProperties($properties);
         $parameters= array_merge($parameters, $params);
         // run snippet
-        return $modx->evalSnippet($snippet, $parameters);
+        return $modx->evalSnippet($phpCode, $parameters);
     }
     
     # Change current web user's password - returns true if successful, oterhwise return error message
