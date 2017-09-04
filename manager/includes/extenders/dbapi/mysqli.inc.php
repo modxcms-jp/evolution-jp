@@ -333,10 +333,10 @@ $s = '';
             else
             {
                 $keys = array_keys($fields);
-                $keys = implode(',', $keys) ;
+                $keys = implode('`,`', $keys) ;
                 $values = array_values($fields);
                 $values = implode("','", $values);
-                if (!$fromtable && $values) $pairs = "({$keys}) VALUES('{$values}')";
+                if (!$fromtable && $values) $pairs = "(`{$keys}`) VALUES('{$values}')";
             }
             if($fromtable)
             {
