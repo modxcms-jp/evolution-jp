@@ -115,7 +115,7 @@ class MODIFIERS {
             $c = substr($modifiers,0,1);
             $modifiers = substr($modifiers,1);
             
-            if(preg_match('@^:(!?[<>=]{1,2})@', $c.$modifiers, $match)) { // :=, :!=, :<=, :>=, :!<=, :!>=
+            if($c===':' && preg_match('@^(!?[<>=]{1,2})@', $modifiers, $match)) { // :=, :!=, :<=, :>=, :!<=, :!>=
                 $c = substr($modifiers,strlen($match[1]),1);
                 $debuginfo = "#i=0 #c=[{$c}] #m=[{$modifiers}]";
                 if($c==='(') $modifiers = substr($modifiers,strlen($match[1])+1);
@@ -123,16 +123,21 @@ class MODIFIERS {
                 
                 $delim     = $this->_getDelim($c,$modifiers);
                 $opt       = $this->_getOpt($c,$delim,$modifiers);
-                $modifiers = $this->_getRemainModifiers($c,$delim,$modifiers);
+                $modifiers = trim($this->_getRemainModifiers($c,$delim,$modifiers));
                 
                 $result[]=array('cmd'=>trim($match[1]),'opt'=>$opt,'debuginfo'=>$debuginfo);
+                $cmd = '';
+            }
+            elseif(in_array($c,array('+','-','*','/')) && preg_match('@^[0-9]+@', $modifiers, $match)) { // :+3, :-3, :*3 ...
+                $modifiers = substr($modifiers,strlen($match[0]));
+                $result[]=array('cmd'=>'math','opt'=>'%s'.$c.$match[0]);
                 $cmd = '';
             }
             elseif($c==='(' || $c==='=') {
                 $modifiers = $m1 = trim($modifiers);
                 $delim     = $this->_getDelim($c,$modifiers);
                 $opt       = $this->_getOpt($c,$delim,$modifiers);
-                $modifiers = $this->_getRemainModifiers($c,$delim,$modifiers);
+                $modifiers = trim($this->_getRemainModifiers($c,$delim,$modifiers));
                 $debuginfo = "#i=1 #c=[{$c}] #delim=[{$delim}] #m1=[{$m1}] remainMdf=[{$modifiers}]";
                 
                 $result[]=array('cmd'=>trim($cmd),'opt'=>$opt,'debuginfo'=>$debuginfo);
