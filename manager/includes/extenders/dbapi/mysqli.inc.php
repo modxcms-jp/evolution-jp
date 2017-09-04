@@ -191,13 +191,14 @@ $s = '';
             $tend = $modx->getMicroTime();
             $totaltime = $tend - $tstart;
             $modx->queryTime = $modx->queryTime + $totaltime;
+            $totaltime = $totaltime*1000;
             if ($modx->dumpSQL) {
                 $backtraces = debug_backtrace();
                 array_shift($backtraces);    
                 $debug_path = array();
                 foreach ($backtraces as $line) $debug_path[] = $line['function'];
-                $debug_path = implode(' > ', array_reverse($debug_path));
-                $totaltime = sprintf('%2.2f ms', $totaltime*1000);
+                $debug_path = join(' &gt; ', array_reverse($debug_path));
+                $totaltime = sprintf('%2.2f ms', $totaltime);
                 $_ = array();
                 $_[] = '<fieldset style="text-align:left"><legend>Query ' . ($modx->executedQueries + 1) . ' - ' . $totaltime . '</legend>';
                 $_[] = $sql . '<br><br>';
