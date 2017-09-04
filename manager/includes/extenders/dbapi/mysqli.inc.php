@@ -245,14 +245,15 @@ $s = '';
         
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
-        } else {
-            $fields = $this->replaceFullTableName($fields);
-            $from = $this->replaceFullTableName($from);
-            if($where !== '')   $where   = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit !== '')   $limit   = "LIMIT {$limit}";
-            return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
+            exit;
         }
+        
+        $fields = $this->replaceFullTableName($fields);
+        $from = $this->replaceFullTableName($from);
+        if(trim($where) !== '')   $where   = "WHERE {$where}";
+        if(trim($orderby) !== '') $orderby = "ORDER BY {$orderby}";
+        if(trim($limit) !== '')   $limit   = "LIMIT {$limit}";
+        return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
     }
     
     /**
