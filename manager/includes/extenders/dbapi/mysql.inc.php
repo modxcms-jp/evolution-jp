@@ -431,12 +431,11 @@ $s = '';
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($ds, $where='') {
-        if($this->isResult($ds)) return mysql_num_rows($ds);
-        elseif(is_string($ds) && !empty($where)) {
-            $from = $ds;
-            $ds = $this->select('*',$from,$where);
-            return $this->getRecordCount($ds);
+    function getRecordCount($rs, $from='', $where='') {
+        if($this->isResult($rs)) return mysql_num_rows($rs);
+        elseif(is_string($rs) && !empty($where)) {
+            $rs = $this->select('*',$from,$where);
+            return $this->getRecordCount($rs);
         }
         else return 0;
     }
