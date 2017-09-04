@@ -153,8 +153,10 @@ class SubParser {
         $fields['source']      = $title;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
+        $_ = $modx->db->lastQuery;
         if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
         else $title = 'DB connect error';
+        $modx->db->lastQuery = $_;
         if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
         {
             if($modx->config['send_errormail'] <= $type)
@@ -290,6 +292,9 @@ class SubParser {
         
         if ($source != '')
             $str .= $modx->parseText($tpl,array('left'=>'Source : ','right'=>$source));
+
+        if ($modx->db->lastQuery)
+            $str .= $modx->parseText($tpl,array('left'=>'LastQuery : ','right'=>$modx->hsc($modx->db->lastQuery)));
 
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
