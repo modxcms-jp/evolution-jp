@@ -606,7 +606,8 @@ class DocumentParser {
             $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
         }
         
-        if(strpos($this->documentOutput,'\{\{')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
+        if    (strpos($this->documentOutput,'\{')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
+        if(strpos($this->documentOutput,'\[')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
         
         if (0<count($this->dumpSQL))
         {
@@ -638,8 +639,19 @@ class DocumentParser {
     }
     
     function RecoveryEscapedTags($contents) {
-        $contents = str_replace(array('\{\{','\}\}'),array('{{','}}'),$contents);
+        $tags = '{{,}},[[,]],[!,!],[*,*],[(,)],[+,+],[~,~],[^,^]';
+        $tags = explode(',',$tags);
+        $rTags = $this->_getEscapedTags($tags);
+        $contents = str_replace($rTags,$tags,$contents);
         return $contents;
+    }
+    
+    function _getEscapedTags($tags) {
+        $rTags = array();
+        foreach($tags as $tag) {
+            $rTags[] = '\\'.$tag[0].'\\'.$tag[1];
+        }
+        return $rTags;
     }
     
     function parseNonCachedSnippets($contents) {
