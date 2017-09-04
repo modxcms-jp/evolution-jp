@@ -1760,7 +1760,7 @@ class SubParser {
         else $snapshot_path = $modx->config['snapshot_path'];
         
         if($filename==='') {
-            $today = $modx->toDateFormat(time());
+            $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
             $today = str_replace(array('/',' '), '-', $today);
             $today = str_replace(':', '', $today);
             $today = strtolower($today);
