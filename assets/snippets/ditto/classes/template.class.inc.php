@@ -230,7 +230,10 @@ class template{
 		} else {
 			$template = $modx->getChunk($tpl);
 		}
-		if($template===''||$template===false)
+		
+		if(strpos($template,'[!')!==false)
+			$template = str_replace(array('[!','!]'),array('[[',']]'),$template);
+		elseif($template===''||$template===false)
 			$template = $this->language['missing_placeholders_tpl'];
 		return $template;
 	}
