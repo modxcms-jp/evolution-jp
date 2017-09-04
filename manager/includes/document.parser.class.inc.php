@@ -1373,6 +1373,7 @@ class DocumentParser {
     }
     // mod by Raymond
     function mergeDocumentContent($content,$ph=false,$convertValue=true) {
+        if(strpos($content,'<@LITERAL>')!==false) $content= $this->escapeLiteralTagsContent($content);
         if (strpos($content, '[*') === false)
             return $content;
         if(!isset($this->documentIdentifier)) return $content;
@@ -1547,6 +1548,7 @@ class DocumentParser {
     }
     
     function mergeSettingsContent($content,$ph=false) {
+        if(strpos($content,'<@LITERAL>')!==false) $content= $this->escapeLiteralTagsContent($content);
         if (strpos($content, '[(') === false)
             return $content;
         
@@ -1620,6 +1622,7 @@ class DocumentParser {
     // Added by Raymond
     function mergePlaceholderContent($content,$ph=false) {
         
+        if(strpos($content,'<@LITERAL>')!==false) $content= $this->escapeLiteralTagsContent($content);
         if(strpos($content,'[+')===false) return $content;
         
         if ($this->debug) $fstart = $this->getMicroTime();
@@ -2908,6 +2911,7 @@ class DocumentParser {
         
         if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
         
+        if(strpos($tpl,'<@LITERAL>')!==false) $tpl= $this->escapeLiteralTagsContent($tpl);
         $matches = $this->getTagsFromContent($tpl,$left,$right);
         if(!$matches) return $tpl;
         
