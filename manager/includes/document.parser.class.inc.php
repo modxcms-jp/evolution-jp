@@ -550,24 +550,7 @@ class DocumentParser {
         
         // check for non-cached snippet output
         if (strpos($this->documentOutput, '[!') !== false)
-        {
-            if($this->config['cache_type']==2) $this->config['cache_type'] = 1;
-            
-            // Parse document source
-            $bt = '';
-            $i=0;
-            while($i < $this->maxParserPasses)
-            {
-                if(strpos($this->documentOutput, '[!')===false) break;
-                $bt = md5($this->documentOutput);
-                $this->documentOutput = str_replace(array('[!','!]'), array('[[',']]'), $this->documentOutput);
-                $this->documentOutput = $this->parseDocumentSource($this->documentOutput);
-                
-                if($bt==md5($this->documentOutput)) break;
-                
-                $i++;
-            }
-        }
+            $this->documentOutput = $this->parseNonCachedSnippets($this->documentOutput);
         
         // Moved from prepareResponse() by sirlancelot
         if ($this->sjscripts && $js= $this->getRegisteredClientStartupScripts())
@@ -656,6 +639,22 @@ class DocumentParser {
     
     function RecoveryEscapedTags($contents) {
         $contents = str_replace(array('\{\{','\}\}'),array('{{','}}'),$contents);
+        return $contents;
+    }
+    
+    function parseNonCachedSnippets($contents) {
+        if($this->config['cache_type']==2) $this->config['cache_type'] = 1;
+        
+        $bt = '';
+        $i=0;
+        while($i < $this->maxParserPasses) {
+            if(strpos($contents, '[!')===false) break;
+            $bt = md5($contents);
+            $contents = str_replace(array('[!','!]'), array('[[',']]'), $contents);
+            $contents = $this->parseDocumentSource($contents);
+            if($bt==md5($contents)) break;
+            $i++;
+        }
         return $contents;
     }
     
