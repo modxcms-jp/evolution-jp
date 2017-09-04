@@ -353,7 +353,7 @@ class ditto {
 		if (in_array('date',$custom_v)) {
 			$timestamp = ($resource[$dateSource] != '0') ? $resource[$dateSource] : $resource['createdon'];
 			if (is_array($timestamp)) {
-			    $timestamp[1] = is_int($timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
+			    $timestamp[1] = preg_match('@^[1-9][0-9]*$@',$timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
                 $timestamp = $timestamp[1] + $timestamp[0];
             }
 			$placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
@@ -870,7 +870,7 @@ class ditto {
     	while($row = $modx->db->getRow($rs)) {
     		$docid = $row['id'];
     		if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
-    			$dateValue = (is_int($row[$dateSource]) !== true) ? $row[$dateSource] : strtotime($row[$dateSource]);
+    			$dateValue = (preg_match('@^[1-9][0-9]*$@',$row[$dateSource]) !== true) ? $row[$dateSource] : strtotime($row[$dateSource]);
     			$row[$dateSource] = $dateValue + $modx->config['server_offset_time'];
     		}
     		if($keywords) $row = $this->appendKeywords($row);
