@@ -502,6 +502,7 @@ class DocumentParser {
         
         $parentIds = array();
         $template_id = $documentObject['template'];
+        $i = 0;
         while($i<10) {
             $parentIds[] = $template_id;
             $template_id = $_[$template_id]['parent'];
@@ -2934,7 +2935,9 @@ class DocumentParser {
                 list($key,$modifiers)=$this->splitKeyAndFilter($key);
             else $modifiers = false;
             
-            list($key,$context)   = explode('@',$key,2);
+            if(strpos($key,'@')!==false) list($key,$context) = explode('@',$key,2);
+            else                         list($key,$context) = array($key,'');
+            
             if(!isset($ph['parent'])) $ph['parent'] = false;
             
             if($key==='') $key = 'value';
