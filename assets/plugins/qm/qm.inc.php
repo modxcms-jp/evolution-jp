@@ -164,17 +164,7 @@ class Qm {
 				{
 					// Set url to refresh
 					$url = $this->modx->makeUrl($docID, '', '', 'full');
-					$output = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title></title>
-</head>
-<body onload="javascript: parent.location.href = \'' . $url . '\';">
-</body>
-</html>
-';
+					exit(sprintf("<script>parent.location.href='%s';</script>",$url));
 					break;
 				}
 				

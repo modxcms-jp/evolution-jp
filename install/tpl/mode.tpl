@@ -19,7 +19,7 @@
 </p>
 </form>
 
-<script type="text/javascript">
+<script>
 	var installmode = [+installmode+];
 	jQuery('a.next').click(function(){
 		if(installmode==1) jQuery('#install input[name=action]').val('options');
