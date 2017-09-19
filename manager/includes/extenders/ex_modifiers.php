@@ -472,10 +472,11 @@ class MODIFIERS {
                 $map = array();
                 $c = count($raw);
                 for($m=0; $m<$c; $m++) {
-                    $mi = explode('=',$raw[$m]);
+                    $mi = explode('=',$raw[$m],2);
                     $map[$mi[0]] = $mi[1];
                 }
-                return $map[$value];
+                if(isset($map[$value])) return $map[$value];
+                else                    return '';
             ##### End of Conditional Modifiers
             
             #####  Encode / Decode / Hash / Escape
