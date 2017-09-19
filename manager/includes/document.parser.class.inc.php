@@ -42,12 +42,12 @@ class DocumentParser {
     var $chunkCache;
     var $snippetCache;
     var $contentTypes;
-    var $dumpSQLCode = array();
+    var $dumpSQLCode      = array();
     var $ph;
-    var $placeholders = array();
-    var $sjscripts = array();
-    var $jscripts = array();
-    var $loadedjscripts = array();
+    var $placeholders     = array();
+    var $sjscripts        = array();
+    var $jscripts         = array();
+    var $loadedjscripts   = array();
     var $documentMap;
     var $forwards= 3;
     var $referenceListing;
@@ -61,21 +61,21 @@ class DocumentParser {
     var $decoded_request_uri;
     var $dbConfig;
     var $pluginCache;
-    var $aliasListing = array();
+    var $aliasListing  = array();
     var $SystemAlertMsgQueque;
     var $uaType;
-    var $functionLog = array();
+    var $functionLog   = array();
     var $currentSnippetCall;
-    var $aliasCache = array();
+    var $aliasCache    = array();
     var $previewObject = ''; //プレビュー用のPOSTデータを保存
     var $snipLapCount;
     var $chunkieCache;
     var $template_path;
     var $lastInstallTime;
-    var $aliaslist = array();
-    var $parentlist = array();
-    var $aliasPath = array();
-    var $tmpCache = array();
+    var $aliaslist     = array();
+    var $parentlist    = array();
+    var $aliasPath     = array();
+    var $tmpCache      = array();
     var $docid;
     var $docObj;
 
