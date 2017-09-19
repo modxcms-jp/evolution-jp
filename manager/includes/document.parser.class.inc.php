@@ -609,7 +609,7 @@ class DocumentParser {
         }
         
         if    (strpos($this->documentOutput,'\{')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
-        if(strpos($this->documentOutput,'\[')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
+        elseif(strpos($this->documentOutput,'\[')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
         
         if (0<count($this->dumpSQL))
         {
