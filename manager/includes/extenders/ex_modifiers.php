@@ -456,7 +456,6 @@ class MODIFIERS {
                     $opt = str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
                     return $opt;
                 }
-                else           return NULL;
                 break;
             case 'else':
                 $conditional = join(' ',$this->condition);
