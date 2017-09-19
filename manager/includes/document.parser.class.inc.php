@@ -364,7 +364,7 @@ class DocumentParser {
         else {
             $q = substr($uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
-            if($q=='index.php')        $q = '';
+            if($q=='index.php')        $q = '/';
         }
         
         return $q;
