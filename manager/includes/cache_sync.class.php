@@ -481,7 +481,7 @@ class synccache {
         $dir = rtrim($dir, '/');
         $files = glob($dir . '/*');
         $list = array();
-        foreach ($files as $obj) {
+        foreach ((array)$files as $obj) {
             if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
         	elseif (is_dir($obj))  {
         		$list[] = $obj;
