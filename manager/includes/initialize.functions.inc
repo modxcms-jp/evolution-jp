@@ -24,8 +24,13 @@ function startCMSSession() {
     else                                         $cookieExpiration = $_SERVER['REQUEST_TIME']+$lifetime;
     
     setcookie($site_sessionname, session_id(), $cookieExpiration, MODX_BASE_URL);
-    
-    if(!isset($_SESSION['modx.session.created.time'])) $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+
+    if(!isset($_SESSION['modx.session.created.time'])) {
+        if(isset($_SESSION['mgrLastlogin']))
+            $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
+        else
+            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+    }
 }
 
 function set_parser_mode() {
