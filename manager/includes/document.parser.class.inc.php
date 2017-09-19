@@ -1054,7 +1054,7 @@ class DocumentParser {
         
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
-        if(!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1) 
+        if(!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1)
             && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
             
             $pass = false;
