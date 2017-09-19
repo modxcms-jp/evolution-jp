@@ -795,6 +795,8 @@ class DocumentParser {
         elseif(strpos($ua, 'softbank')!==false)  $type = 'mobile';
         elseif(strpos($ua, 'up.browser')!==false)
                                                  $type = 'mobile';
+        elseif(stripos($ua, 'bot')!==false)      $type = 'bot';
+        elseif(stripos($ua, 'spider')!==false)   $type = 'bot';
         else                                     $type = 'pc';
         
         return $type;
