@@ -3578,9 +3578,10 @@ class DocumentParser {
         return $this->filter->phxFilter($key,$value,$modifiers);
     }
     
-    function addSnippet($name, $phpCode) {
+    function addSnippet($name, $phpCode, $params=array()) {
         if(substr($phpCode,0,1)==='@') $phpCode = $this->atBind($phpCode);
-        $this->snippetCache['#'.$name] = $phpCode;
+        $this->snippetCache["#{$name}"]      = $phpCode;
+        $this->snippetCache["#{$name}Props"] = $params;
     }
     
     function addChunk($name, $text) {
