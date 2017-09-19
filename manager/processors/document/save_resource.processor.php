@@ -157,7 +157,7 @@ function get_tmplvars($id=0)
 	// get document groups for current user
 	if ($_SESSION['mgrDocgroups'])
 	{
-		$docgrp = implode(',', $_SESSION['mgrDocgroups']);
+		$docgrp = join(',', $_SESSION['mgrDocgroups']);
 	}
 	
 	$from[] = '[+prefix+]site_tmplvars AS tv';
@@ -194,7 +194,7 @@ function get_tmplvars($id=0)
 		else {
 			if(is_array($form_v[$tvid])) {
 				// handles checkboxes & multiple selects elements
-				$value = implode('||', $form_v[$tvid]);
+				$value = join('||', $form_v[$tvid]);
 			}
 			elseif(isset($form_v[$tvid])) $value = $form_v[$tvid];
 			else						  $value = '';
@@ -287,7 +287,7 @@ function checkDocPermission($id,$document_groups=array()) {
 	// ensure that user has not made this document inaccessible to themselves
 	if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 	{
-		$document_group_list = implode(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
+		$document_group_list = join(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
 		if(!empty($document_group_list))
 		{
 			$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
@@ -513,7 +513,7 @@ function update_tmplvars($docid,$tmplvars) {
 	}
 	
 	if (!empty($tvDeletions)) {
-		$where = 'id IN('.implode(',', $tvDeletions).')';
+		$where = 'id IN('.join(',', $tvDeletions).')';
 		$rs = $modx->db->delete('[+prefix+]site_tmplvar_contentvalues', $where);
 	}
 	if (!empty($tvAdded)) {
@@ -551,7 +551,7 @@ function setDocPermissionsNew($document_groups,$newid) {
 		$saved = true;
 		if (!empty($new_groups))
 		{
-			$sql = 'INSERT INTO '.$tbl_document_groups.' (document_group, document) VALUES '. implode(',', $new_groups);
+			$sql = 'INSERT INTO '.$tbl_document_groups.' (document_group, document) VALUES '. join(',', $new_groups);
 			$saved = $modx->db->query($sql) ? $saved : false;
 			$docgrp_save_attempt = true;
 		}
@@ -651,12 +651,12 @@ function setDocPermissionsEdit($document_groups,$id) {
 	if (!empty($insertions))
 	{
 		$tbl_document_groups = $modx->getFullTableName('document_groups');
-		$sql_insert = 'INSERT INTO '.$tbl_document_groups.' (document_group, document) VALUES '.implode(',', $insertions);
+		$sql_insert = 'INSERT INTO '.$tbl_document_groups.' (document_group, document) VALUES '.join(',', $insertions);
 		$saved = $modx->db->query($sql_insert) ? $saved : false;
 	}
 	if (!empty($old_groups))
 	{
-		$where = 'id IN (' . implode(',', $old_groups) . ')';
+		$where = 'id IN (' . join(',', $old_groups) . ')';
 		$saved = $modx->db->delete('[+prefix+]document_groups',$where) ? $saved : false;
 	}
 	// necessary to remove all permissions as document is public
