@@ -152,7 +152,8 @@ class DocumentParser {
         @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
-        if($this->isLoggedin()===false && !defined('MODX_API_MODE')) @ini_set('display_errors','0');
+        if($this->isLoggedIn())           ini_set('display_errors', '1');
+        elseif(!defined('MODX_API_MODE')) ini_set('display_errors', '0');
         
         if(!isset($this->tstart)) {
             $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
