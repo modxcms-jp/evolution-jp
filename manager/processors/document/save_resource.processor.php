@@ -330,9 +330,22 @@ function checkDocPermission($id,$document_groups=array()) {
 			$modx->manager->saveFormValues();
 			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $form_v['alias']), $url);
 		}
-	}
+    } elseif(!isAllowroot()) {
+        $e->setError(3);
+        $e->dumpError();
+    } elseif(!$modx->hasPermission('new_document')) {
+        $e->setError(3);
+        $e->dumpError();
+    }
 }
 
+function isAllowroot() {
+    global $modx;
+    if($_POST['parent']!=='0')             return 1;
+    if($modx->hasPermission('save_role'))  return 1;
+    if($modx->config['udperms_allowroot']) return 1;
+    else                                   return 0;
+}
 
 function getInputValues($id=0,$mode='new') {
 	global $modx,$form_v;
