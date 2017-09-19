@@ -526,9 +526,9 @@ class DocumentParser {
             if(strpos($content,'[*content:')!==false) {
                 $matches = $this->getTagsFromContent($content,'[*content:','*]');
                 if($matches[0]) {
-                    $modifier = $matches[1][0];
+                    $modifiers = $matches[1][0];
                     $content = str_replace($matches[0][0], $child_content, $content);
-                    $content = str_replace('[*content*]',"[*content:{$modifier}*]",$child_content);
+                    $content = str_replace('[*content*]',"[*content:{$modifiers}*]",$child_content);
                 }
             }
         }
