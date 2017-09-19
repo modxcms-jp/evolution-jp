@@ -7,7 +7,7 @@ $limit = intval($limit);
 
 $content = $modx->filter->parseDocumentSource($value);
 
-$content = strip_tags($content);
+$content = $this->strip_tags($content);
 $content = str_replace('&nbsp;', ' ', $content);
 $content = str_replace('　', ' ', $content);
 $content = str_replace( "\xc2\xa0", " ", $content );
