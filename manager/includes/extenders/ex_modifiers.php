@@ -229,15 +229,35 @@ class MODIFIERS {
     
     function snippet_exists($cmd) {
         global $modx;
+
+        if(!$cmd) return 0;
         
-        if(isset($modx->snippetCache["phx:{$cmd}"]) && $modx->snippetCache["phx:{$cmd}"]) return 1;
-        elseif(isset($modx->snippetCache[$cmd])     && $modx->snippetCache[$cmd])         return 1;
-        else {
-            $rs = $this->setSnippetFromDB($cmd);
-            if(!$rs) $rs = $this->setSnippetFromFile($cmd);
-            
-            return $rs;
+        if(isset($modx->snippetCache["phx:{$cmd}"])) {
+            if($modx->snippetCache["phx:{$cmd}"]) return 1;
+            else                                  return 0;
         }
+        
+        if(isset($modx->snippetCache[$cmd])) {
+            if($modx->snippetCache[$cmd])         return 1;
+            else                                  return 0;
+        }
+            
+        $code = $this->getSnippetFromDB($cmd);
+        if($code) {
+            $modx->snippetCache["phx:{$cmd}"] = $code;
+            $modx->snippetCache["phx:{$cmd}Props"] = '';
+            return 1;
+        }
+
+        $code = $this->getSnippetFromFile($cmd);
+        if($code) {
+            $modx->snippetCache["phx:{$cmd}"] = $code;
+            $modx->snippetCache["phx:{$cmd}Props"] = '';
+            return 1;
+        }
+
+        $modx->snippetCache["phx:{$cmd}"] = false;
+        return 0;
     }
     
     function chunk_exists($cmd) {
@@ -273,48 +293,35 @@ class MODIFIERS {
         return $value;
     }
     
-    function setSnippetFromDB($cmd) {
+    function getSnippetFromDB($cmd) {
         global $modx;
         
-        $where = sprintf("name='phx:%s'", $modx->db->escape($cmd));
-        $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where);
-        if(!$modx->db->getRecordCount($rs)) {
-            $where = sprintf("name='%s'", $modx->db->escape($cmd));
-            $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where);
-        }
-        
-        if(!$modx->db->getRecordCount($rs)) $code = false;
-        else                                $code = $modx->db->getValue($rs);
-        
-        $modx->snippetCache["phx:{$cmd}"] = $code;
-        if($code) $modx->snippetCache["phx:{$cmd}Props"] = '';
-        
-        return $code;
+        $where = sprintf('name=\'phx:%1$s\' OR name=\'%1$s\'', $modx->db->escape($cmd));
+        $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where, '', 1);
+        if(!$modx->db->getRecordCount($rs)) return false;
+
+        return $modx->db->getValue($rs);
     }
     
-    function setSnippetFromFile($cmd) {
+    function getSnippetFromFile($cmd) {
         global $modx;
         
-        $assets_mdf_path = MODX_BASE_PATH . 'assets/modifiers/';
-        $phx_mdf_path    = MODX_BASE_PATH . 'assets/plugins/phx/modifiers/';
-        $core_mdf_path   = MODX_CORE_PATH . 'extenders/modifiers/';
-        
-        if(is_file("{$assets_mdf_path}/mdf_{$cmd}.inc.php"))  $mdf_path = "{$assets_mdf_path}/mdf_{$cmd}.inc.php";
-        elseif(is_file("{$phx_mdf_path}{$cmd}.phx.php"))      $mdf_path = "{$phx_mdf_path}{$cmd}.phx.php";
-        elseif(is_file("{$core_mdf_path}mdf_{$cmd}.inc.php")) $mdf_path = "{$core_mdf_path}mdf_{$cmd}.inc.php";
-        else                                                  $mdf_path = false;
-        
-        if($mdf_path) {
-            $code = @file_get_contents($mdf_path);
-            $code = trim($code);
-            if(substr($code,0,5)==='<?php') $code = substr($code,6);
-            if(substr($code,0,2)==='<?')    $code = substr($code,3);
-            if(substr($code,-2)==='?>')     $code = substr($code,0,-2);
+        $_ = array();
+        $_[] = MODX_BASE_PATH . "assets/modifiers/mdf_{$cmd}.inc.php";
+        $_[] = MODX_BASE_PATH . "assets/plugins/phx/modifiers{$cmd}.phx.php";
+        $_[] = MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php";
+        foreach($_ as $mdf_path) {
+            if(is_file($mdf_path)) break;
+            else $mdf_path = false;
         }
-        else $code = false;
         
-        $modx->snippetCache["phx:{$cmd}"] = $code;
-        if($code) $modx->snippetCache["phx:{$cmd}Props"] = '';
+        if(!$mdf_path) return false;
+
+        $code = @file_get_contents($mdf_path);
+        $code = trim($code);
+        if(substr($code,0,5)==='<?php') $code = substr($code,6);
+        if(substr($code,0,2)==='<?')    $code = substr($code,3);
+        if(substr($code,-2)==='?>')     $code = substr($code,0,-2);
         
         return $code;
     }
