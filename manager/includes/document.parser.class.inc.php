@@ -298,7 +298,7 @@ class DocumentParser {
     
     function getDocumentIdentifier($uri) {
         
-        $docid = $this->getDBCache('docid_by_uri',$uri);
+        $docid = $this->getDBCache('docid_by_uri',md5($uri));
         
         if($docid) return $docid;
         
@@ -310,7 +310,7 @@ class DocumentParser {
         elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
         else                                     $docid = 0;
         
-        if($docid) $this->setDBCache('docid_by_uri',$uri,$docid);
+        if($docid) $this->setDBCache('docid_by_uri',md5($uri),$docid);
         
         return $docid;
     }
