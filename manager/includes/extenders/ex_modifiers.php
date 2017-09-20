@@ -1039,7 +1039,8 @@ class MODIFIERS {
                 
             // If we haven't yet found the modifier, let's look elsewhere
             default:
-                $value = $this->getValueFromElement($key, $value, $cmd, $opt);
+                $_ = compact('key','value','cmd', 'opt');
+                $modx->addLog('unparsed modifire',$_,2);
         }
         return $value;
     }
@@ -1051,88 +1052,7 @@ class MODIFIERS {
         $opt    = $this->opt;
         return include(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php");
     }
-    
-    function getValueFromElement($key, $value, $cmd, $opt)
-    {
-        global $modx;
-        if( isset($modx->snippetCache[$this->elmName]) )
-        {
-            $php = $modx->snippetCache[$this->elmName];
-        }
-        else
-        {
-            $esc_elmName = $modx->db->escape($this->elmName);
-            $result = $modx->db->select('snippet','[+prefix+]site_snippets',"name='{$esc_elmName}'");
-            $total = $modx->db->getRecordCount($result);
-            if($total == 1)
-            {
-                $row = $modx->db->getRow($result);
-                $php = $row['snippet'];
-            }
-            elseif($total == 0)
-            {
-                $assets_path = MODX_BASE_PATH.'assets/';
-                if(is_file($assets_path."modifiers/mdf_{$cmd}.inc.php"))
-                    $modifiers_path = $assets_path."modifiers/mdf_{$cmd}.inc.php";
-                elseif(is_file($assets_path."plugins/phx/modifiers/{$cmd}.phx.php"))
-                    $modifiers_path = $assets_path."plugins/phx/modifiers/{$cmd}.phx.php";
-                elseif(is_file(MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php"))
-                    $modifiers_path = MODX_CORE_PATH."extenders/modifiers/mdf_{$cmd}.inc.php";
-                else $modifiers_path = false;
-                
-                if($modifiers_path) {
-                    $php = @file_get_contents($modifiers_path);
-                    $php = trim($php);
-                    if(substr($php,0,5)==='<?php') $php = substr($php,6);
-                    if(substr($php,0,2)==='<?')    $php = substr($php,3);
-                    if(substr($php,-2)==='?>')     $php = substr($php,0,-2);
-                    if($this->elmName!=='')
-                        $modx->snippetCache[$this->elmName.'Props'] = '';
-                }
-                else
-                    $php = false;
-            }
-            else $php = false;
-            if($this->elmName!=='') $modx->snippetCache[$this->elmName]= $php;
-        }
-        if($php==='') $php=false;
         
-        if($php===false) $html = $modx->getChunk($this->elmName);
-        else             $html = false;
-
-        $self = '[+output+]';
-        
-        if($php !== false)
-        {
-            ob_start();
-            $options = $opt;
-            $output = $value;
-            $name   = $key;
-            $this->bt = $value;
-            $this->vars['value']   = & $value;
-            $this->vars['input']   = & $value;
-            $this->vars['option']  = & $opt;
-            $this->vars['options'] = & $opt;
-            $custom = eval($php);
-            $msg = ob_get_contents();
-            if($value===$this->bt) $value = $msg . $custom;
-            ob_end_clean();
-        }
-        elseif($html!==false && isset($value) && $value!=='')
-        {
-            $html = str_replace(array($self,'[+value+]'), $value, $html);
-            $value = str_replace(array('[+options+]','[+param+]'), $opt, $html);
-        }
-        else return false;
-        
-        if($php===false && $html===false && $value!==''
-           && (strpos($cmd,'[+value+]')!==false || strpos($cmd,$self)!==false))
-        {
-            $value = str_replace(array('[+value+]',$self),$value,$cmd);
-        }
-        return $value;
-    }
-    
     function parseDocumentSource($content='')
     {
         global $modx;
