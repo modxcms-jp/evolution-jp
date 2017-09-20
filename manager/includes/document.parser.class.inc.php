@@ -1996,7 +1996,10 @@ class DocumentParser {
         
         if(isset($snippetObject['properties']))
         {
-            $default_params = $this->parseProperties($snippetObject['properties']);
+            if(is_array($snippetObject['properties']))
+                $default_params = $snippetObject['properties'];
+            else
+                $default_params = $this->parseProperties($snippetObject['properties']);
             $params = array_merge($default_params,$params);
         }
         
