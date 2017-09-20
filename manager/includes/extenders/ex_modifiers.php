@@ -963,11 +963,10 @@ class MODIFIERS {
             case 'default':
                 if (empty($value)) return $opt; break;
             case 'ifnotempty':
-                if (!empty($value)) {
-                    $opt = str_replace(array('[+output+]','{value}','%s'),'[+value+]',$opt);
-                    $opt = $modx->parseText($opt,array('value'=>$value));
-                    return $opt; break;
-                }
+                if (empty($value)) return null;
+                $opt = str_replace(array('[+output+]','{value}','%s'),'[+value+]',$opt);
+                $opt = $modx->parseText($opt,array('value'=>$value));
+                return $opt;
             case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
                 $grd = new DataGrid();
