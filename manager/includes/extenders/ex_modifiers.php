@@ -447,8 +447,7 @@ class MODIFIERS {
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
                 if ($isvalid) return $this->srcValue;
-                else          return NULL;
-                break;
+                return NULL;
             case 'then':
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
@@ -456,7 +455,7 @@ class MODIFIERS {
                     $opt = str_replace(array('[+value+]','[+output+]','{value}','%s'),$value,$opt);
                     return $opt;
                 }
-                break;
+                return null;
             case 'else':
                 $conditional = join(' ',$this->condition);
                 $isvalid = intval(eval("return ({$conditional});"));
@@ -667,13 +666,11 @@ class MODIFIERS {
                     $_[] = str_replace(array('[+value+]','[+output+]','{value}','%s'),$v,$opt);
                 }
                 return join("\n", $_);
-                break;
             case 'array_pop':
             case 'array_shift':
                 if(strpos($value,'||')!==false) $delim = '||';
                 else                            $delim = ',';
                 return $cmd(explode($delim,$value));
-                break;
             case 'preg_replace':
             case 'regex_replace':
                 if(empty($opt) || strpos($opt,',')===false) break;
@@ -859,7 +856,7 @@ class MODIFIERS {
                 $where = join(' AND ', $where);
                 $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
                 $result = array();
-                foreach((array)$children as $child){ // $children が null だった時にエラーになるため型キャスト
+                foreach((array)$children as $child){
                     $result[] = $child['id'];
                 }
                 return join(',', $result);
@@ -927,7 +924,6 @@ class MODIFIERS {
                     return $size;
                 }
                 else return '';
-                break;
             #####  User info
             case 'username':
             case 'fullname':
@@ -1038,7 +1034,6 @@ class MODIFIERS {
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $value = $this->getValueFromElement($key, $value, $cmd, $opt);
-                break;
         }
         return $value;
     }
