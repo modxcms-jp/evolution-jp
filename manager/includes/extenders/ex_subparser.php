@@ -1851,9 +1851,11 @@ class SubParser {
         
         if(substr($str,0,1)!=='@') return $str;
         
-        if(substr($str,0,5)==='@FILE')        return $this->atBindFile($str);
-        elseif(substr($str,0,4)==='@URL')     return $this->atBindUrl($str);
-        elseif(substr($str,0,8)==='@INCLUDE') return $this->atBindInclude($str);
+        if(substr($str,0,5)==='@FILE')    return $this->atBindFile($str);
+        if(substr($str,0,4)==='@URL')     return $this->atBindUrl($str);
+        if(substr($str,0,8)==='@INCLUDE') return $this->atBindInclude($str);
+        
+        return $str;
     }
     
     function atBindFile($str='')
