@@ -2388,7 +2388,7 @@ class DocumentParser {
         $i = 0;
         while ($i < $this->maxParserPasses)
         {
-            $bt = md5($source);
+            $bt = $source;
             // invoke OnParseDocument event
             $this->documentOutput= $source; // store source code so plugins can
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
@@ -2411,7 +2411,7 @@ class DocumentParser {
             if(strpos($source,'[~')!==false && strpos($source,'[~[+')===false)
                                                                $source = $this->rewriteUrls($source);
             
-            if($bt === md5($source))  break;
+            if($bt === $source)  break;
             
             $i++;
         }
