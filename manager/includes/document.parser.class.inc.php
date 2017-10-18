@@ -3057,7 +3057,7 @@ class DocumentParser {
     {
         global $modx, $_lc;
         
-        if(stripos($format,'%a')!==false) $modx->loadLexicon('locale');
+        if(strpos(strtolower($format),'%a')!==false) $modx->loadLexicon('locale');
         
         $a = !isset($_lc['days.short']) ? explode(',', 'Sun, Mon, Tue, Wed, Thu, Fri, Sat')                        : explode(',', $_lc['days.short']);
         $A = !isset($_lc['days.wide'])  ? explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday') : explode(',', $_lc['days.short']);
