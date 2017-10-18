@@ -530,8 +530,8 @@ class DocumentParser {
                 $matches = $this->getTagsFromContent($content,'[*content:','*]');
                 if($matches[0]) {
                     $modifiers = $matches[1][0];
+                    $child_content = $this->applyFilter($child_content,$modifiers);
                     $content = str_replace($matches[0][0], $child_content, $content);
-                    $content = str_replace('[*content*]',"[*content:{$modifiers}*]",$child_content);
                 }
             }
         }
