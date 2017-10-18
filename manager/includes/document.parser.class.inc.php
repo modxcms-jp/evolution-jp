@@ -1214,6 +1214,7 @@ class DocumentParser {
         $lc=0;
         $rc=0;
         $fetch = '';
+        $tags = array();
         foreach($piece as $v) {
             if($v===$left) {
                 if(0<$lc) $fetch .= $left;
