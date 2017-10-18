@@ -518,6 +518,7 @@ class DocumentParser {
             $parents[] = $content;
         }
         $content = array_shift($parents);
+        if(strpos($content,'<@IF:')!==false) $content = $this->mergeConditionalTagsContent($content);
         if(count($parents)==0) return $content;
         
         while($child_content = array_shift($parents)) {
