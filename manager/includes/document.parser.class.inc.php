@@ -1774,41 +1774,59 @@ class DocumentParser {
     }
     
     private function _parseCTagCMD($cmd) {
-        $cmd = trim($cmd);
-        $reverse = substr($cmd,0,1)==='!' ? true : false;
-        if($reverse) $cmd = ltrim($cmd,'!');
-        if(strpos($cmd,'[!')!==false) $cmd = str_replace(array('[!','!]'),array('[[',']]'),$cmd);
-        $safe=0;
-        $bt='';
-        while($safe < 20) {
-            $bt = md5($cmd);
-            if(strpos($cmd,'[*')!==false) $cmd= $this->mergeDocumentContent($cmd);
-            if(strpos($cmd,'[(')!==false) $cmd= $this->mergeSettingsContent($cmd);
-            if(strpos($cmd,'{{')!==false) $cmd= $this->mergeChunkContent($cmd);
-            if(strpos($cmd,'[[')!==false) $cmd= $this->evalSnippets($cmd);
-            if(strpos($cmd,'[+')!==false
-             &&strpos($cmd,'[[')===false) $cmd= $this->mergePlaceholderContent($cmd);
-            if($bt===md5($cmd)) break;
+        if (strpos($cmd, '[!') !== false) {
+            $cmd = str_replace(array('[!', '!]'), array('[[', ']]'), $cmd);
+        }
+        $safe = 0;
+        while ($safe < 20) {
+            $bt = $cmd;
+            if (strpos($cmd, '[*') !== false) {
+                $cmd = $this->mergeDocumentContent($cmd);
+            }
+            if (strpos($cmd, '[(') !== false) {
+                $cmd = $this->mergeSettingsContent($cmd);
+            }
+            if (strpos($cmd, '{{') !== false) {
+                $cmd = $this->mergeChunkContent($cmd);
+            }
+            if (strpos($cmd, '[[') !== false) {
+                $cmd = $this->evalSnippets($cmd);
+            }
+            if (strpos($cmd, '[+') !== false && strpos($cmd, '[[') === false) {
+                $cmd = $this->mergePlaceholderContent($cmd);
+            }
+            if ($bt === $cmd) {
+                break;
+            }
             $safe++;
         }
-        $cmd = ltrim($cmd);
-        $cmd = rtrim($cmd,'-');
-        $cmd = str_ireplace(array(' and ',' or '),array('&&','||'),$cmd);
-        
-        if(!preg_match('@^[0-9]*$@', $cmd) && preg_match('@^[0-9<= \-\+\*/\(\)%!&|]*$@', $cmd))
-            $cmd = (int) eval("return {$cmd};");
-        else {
-            $_ = explode(',', '[*,[(,{{,[[,[!,[+');
-            foreach($_ as $left) {
-                if(strpos($cmd,$left)!==false) {
-                    $cmd = 0;
-                    break;
+        $cmd = trim($cmd);
+        $cmd = rtrim($cmd, '-');
+        $cmd = str_replace(array(' and ', ' or '), array('&&', '||'), strtolower($cmd));
+        $token = preg_split('@(\&\&|\|\|)@',$cmd,NULL,PREG_SPLIT_DELIM_CAPTURE);
+        $cmd  = array();
+        foreach($token as $i=>$v) {
+            $v = trim($v);
+            if($i%2==0) {
+                if($reverse = substr($v, 0, 1)==='!') $v = ltrim($v, '!');
+                
+                if (empty($v))                         $v = 0;
+                elseif(preg_match('@^-?[0-9]+$@', $v)) $v = (int)$v;
+                elseif(preg_match('@^[0-9<>=/ \-\+\*\(\)%]*$@', $v)) {
+                    $v = eval("return {$v};");
                 }
+                elseif(trim($v,"' ")=='') $v = 0;
+                elseif(trim($v,'" ')=='') $v = 0;
+                else                      $v = 1;
+                
+                if ($reverse) $v = (int)!$v;
+                $v = 0<$v ? '1' : '0';
             }
-            $cmd = (int) $cmd;
+            $cmd[] = $v;
         }
-        if($cmd < 0) $cmd = 0;
-        if($reverse) $cmd = !$cmd;
+        $cmd = join('', $cmd);
+        $cmd = (int)eval("return {$cmd};");
+
         return $cmd;
     }
     
