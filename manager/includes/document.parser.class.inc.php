@@ -1188,10 +1188,10 @@ class DocumentParser {
     function _getTagsFromContent($content, $left='[+',$right='+]') {
         if(strpos($content,$left)===false) return array();
         $spacer = md5('<<<MODX>>>');
-        if(strpos($content,';}}')!==false)  $content = str_replace(';}}', ";}{$spacer}}",$content);
-        if(strpos($content,'{{}}')!==false) $content = str_replace('{{}}',"{{$spacer}{}{$spacer}}",$content);
-        if(strpos($content,']]]]')!==false) $content = str_replace(']]]]',"]]{$spacer}]]",$content);
-        if(strpos($content,']]]')!==false)  $content = str_replace(']]]',"]{$spacer}]]",$content);
+        if($left==='{{' && strpos($content,';}}')!==false)  $content = str_replace(';}}', sprintf(';}%s}',$spacer),$content);
+        if($left==='{{' && strpos($content,'{{}}')!==false) $content = str_replace('{{}}',sprintf('{%s{}%s}',$spacer,$spacer),$content);
+        if($left==='[[' && strpos($content,']]]]')!==false) $content = str_replace(']]]]',sprintf(']]%s]]',$spacer),$content);
+        if($left==='[[' && strpos($content,']]]')!==false)  $content = str_replace(']]]', sprintf(']%s]]',$spacer),$content);
         
         $pos['<![CDATA[']                 = strpos($content,'<![CDATA[');
         if($pos['<![CDATA[']) $pos[']]>'] = strpos($content,']]>');
