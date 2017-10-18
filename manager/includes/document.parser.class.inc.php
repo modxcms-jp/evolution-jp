@@ -1800,6 +1800,7 @@ class DocumentParser {
             }
             $safe++;
         }
+        $cmd = $this->cleanUpMODXTags($cmd);
         $cmd = trim($cmd);
         $cmd = rtrim($cmd, '-');
         $cmd = str_replace(array(' and ', ' or '), array('&&', '||'), strtolower($cmd));
