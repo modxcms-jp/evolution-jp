@@ -666,10 +666,10 @@ class DocumentParser {
         $i=0;
         while($i < $this->maxParserPasses) {
             if(strpos($contents, '[!')===false) break;
-            $bt = md5($contents);
+            $bt = $contents;
             $contents = str_replace(array('[!','!]'), array('[[',']]'), $contents);
             $contents = $this->parseDocumentSource($contents);
-            if($bt==md5($contents)) break;
+            if($bt==$contents) break;
             $i++;
         }
         return $contents;
