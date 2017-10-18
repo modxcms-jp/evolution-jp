@@ -2143,12 +2143,11 @@ class DocumentParser {
         $closeOpt = false;
         $maybePos = false;
         $inFilter = false;
-        $total = strlen($str);
-        $i=0;
-        for($i=0;$i<$total;$i++) {
+        $qpos     = strpos($str,'?');
+        $strlen   = strlen($str);
+        for($i=0;$i<$strlen;$i++) {
             $c  = substr($str,$i,1);
             $cc = substr($str,$i,2);
-            $qpos = strpos($str,'?');
             if(!$inFilter) {
                 if($c===':')                  $inFilter=true;
                 elseif($c==='?')              $pos = $i;
@@ -2159,17 +2158,17 @@ class DocumentParser {
                 else                          $pos = false;
             }
             else {
-                if    ($cc==$closeOpt) $closeOpt = false;
-                elseif($c==$closeOpt)  $closeOpt = false;
-                elseif($closeOpt)      continue;
-                elseif($cc==="('")     $closeOpt = "')";
-                elseif($cc==='("')     $closeOpt = '")';
-                elseif($cc==='(`')     $closeOpt = '`)';
-                elseif($c==='(')       $closeOpt = ')';
-                elseif($c==='?')       $pos=$i;
-                elseif($c===' ' && strpos($str,'?')===false)
-                                       $pos = $i;
-                else                   $pos = false;
+                if    ($cc==$closeOpt)        $closeOpt = false;
+                elseif($c==$closeOpt)         $closeOpt = false;
+                elseif($closeOpt)             continue;
+                elseif($cc==="('")            $closeOpt = "')";
+                elseif($cc==='("')            $closeOpt = '")';
+                elseif($cc==='(`')            $closeOpt = '`)';
+                elseif($c==='(')              $closeOpt = ')';
+                elseif($c==='?')              $pos=$i;
+                elseif($c===' '
+                            && $qpos===false) $pos = $i;
+                else                          $pos = false;
             }
             if($pos) break;
         }
