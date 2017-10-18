@@ -1937,8 +1937,11 @@ class DocumentParser {
         if(!$matches) return $content;
         
         $this->snipLapCount++;
-        if ($this->dumpSnippets)
-            $this->dumpSnippetsCode[] = '<fieldset style="margin:1em;"><legend><b style="color: #821517;">PARSE LAP ' . ($this->snipLapCount) . '</b></legend><div style="width:100%;text-align:left;">';
+        if ($this->dumpSnippets) {
+            $tpl = '<legend><b style="color: #821517;">PARSE LAP %s</b></legend>';
+            $tpl = '<fieldset style="margin:1em;">' . $tpl . '<div style="width:100%;text-align:left;">';
+            $this->dumpSnippetsCode[] = sprintf($tpl,$this->snipLapCount);
+        }
         
         foreach($matches[1] as $i=>$call) {
             if(substr($call,0,2)==='$_') {
