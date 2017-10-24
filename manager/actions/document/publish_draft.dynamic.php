@@ -116,7 +116,7 @@ function getTplDraft()
         </div>
 	<ul class="actionButtons">
         <li class="primary">
-        <a href="javascript:void(0)" onclick="document.mutate.submit();">
+        <a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
         採用する
         </a>
         </li>
