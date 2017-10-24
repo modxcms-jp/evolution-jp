@@ -114,13 +114,13 @@ function getTplDraft()
         		[+fieldDraftPub_date+]
         	</table>
         </div>
-	<ul class="actionButtons">
-        <li class="primary">
-        <a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
-        採用する
-        </a>
-        </li>
-	</ul>
+    	<ul class="actionButtons">
+            <li class="primary" id="save">
+            <a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
+            採用する
+            </a>
+            </li>
+    	</ul>
     </div>
     </div>
 </form>
