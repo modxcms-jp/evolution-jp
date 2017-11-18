@@ -1198,7 +1198,7 @@ class DocumentParser {
         $pos['<![CDATA[']                 = strpos($content,'<![CDATA[');
         if($pos['<![CDATA[']) $pos[']]>'] = strpos($content,']]>');
         if($pos['<![CDATA[']!==false && $pos[']]>']!==false)
-            $content = substr($content,0,$pos['<![CDATA[']) . substr($content,$pos['<![CDATA[']+9,$pos[']]>']) . substr($content,$pos[']]>']+3);
+            $content = substr($content,0,$pos['<![CDATA[']) . substr($content,$pos['<![CDATA[']+9,$pos[']]>']-($pos['<![CDATA[']+9)) . substr($content,$pos[']]>']+3);
         
         $lp = explode($left,$content);
         $piece = array();
