@@ -1752,6 +1752,7 @@ class DocumentParser {
         }            
         
         $content = str_replace(array('<@ELSE>','<@ENDIF>'), array('<?php else:?>','<?php endif;?>'), $content);
+        if(strpos($content,'<?xml')!==false) $content = str_replace('<?xml', '<?php echo "<?xml";?>', $content);
         ob_start();
         $content = eval('?>'.$content);
         $content = ob_get_clean();
