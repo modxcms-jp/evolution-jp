@@ -59,7 +59,9 @@ class DBAPI {
         $tstart = $modx->getMicroTime();
         $safe_count = 0;
         do {
-            $this->conn = new mysqli($hostname, $this->username, $this->password);
+            if(strpos($hostname,':')!==false) list($hostname,$port) = explode(':',$hostname);
+            if(!isset($port)) $this->conn = new mysqli($hostname, $this->username, $this->password);
+            else              $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
             if ($this->conn->connect_error) {
                 $this->conn = null;
                 if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
@@ -189,13 +191,14 @@ $s = '';
             $tend = $modx->getMicroTime();
             $totaltime = $tend - $tstart;
             $modx->queryTime = $modx->queryTime + $totaltime;
+            $totaltime = $totaltime*1000;
             if ($modx->dumpSQL) {
                 $backtraces = debug_backtrace();
                 array_shift($backtraces);    
                 $debug_path = array();
                 foreach ($backtraces as $line) $debug_path[] = $line['function'];
-                $debug_path = implode(' > ', array_reverse($debug_path));
-                $totaltime = sprintf('%2.2f ms', $totaltime*1000);
+                $debug_path = join(' &gt; ', array_reverse($debug_path));
+                $totaltime = sprintf('%2.2f ms', $totaltime);
                 $_ = array();
                 $_[] = '<fieldset style="text-align:left"><legend>Query ' . ($modx->executedQueries + 1) . ' - ' . $totaltime . '</legend>';
                 $_[] = $sql . '<br><br>';
@@ -243,14 +246,15 @@ $s = '';
         
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
-        } else {
-            $fields = $this->replaceFullTableName($fields);
-            $from = $this->replaceFullTableName($from);
-            if($where !== '')   $where   = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit !== '')   $limit   = "LIMIT {$limit}";
-            return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
+            exit;
         }
+        
+        $fields = $this->replaceFullTableName($fields);
+        $from = $this->replaceFullTableName($from);
+        if(trim($where) !== '')   $where   = "WHERE {$where}";
+        if(trim($orderby) !== '') $orderby = "ORDER BY {$orderby}";
+        if(trim($limit) !== '')   $limit   = "LIMIT {$limit}";
+        return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
     }
     
     /**
@@ -261,25 +265,25 @@ $s = '';
         global $modx;
         if (!$table) {
             $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
-        } else {
-            $table = $this->replaceFullTableName($table);
-            if (!is_array($fields)) $pairs = $fields;
-            else {
-                foreach ($fields as $key => $value) {
-                    if(is_null($value) || strtolower($value) === 'null'){
-                        $value = 'NULL';
-                    }else{
-                        $value = "'{$value}'";
-                    }
-                    $pair[$key] = "`{$key}`={$value}";
-                }
-                $pairs = join(',',$pair);
-            }
-            if($where != '') $where = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit !== '')   $limit   = "LIMIT {$limit}";
-            return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
+            exit;
         }
+        $table = $this->replaceFullTableName($table);
+        if (!is_array($fields)) $pairs = $fields;
+        else {
+            foreach ($fields as $key => $value) {
+                if(is_null($value) || strtolower($value) === 'null'){
+                    $value = 'NULL';
+                }else{
+                    $value = "'{$value}'";
+                }
+                $pair[$key] = "`{$key}`={$value}";
+            }
+            $pairs = join(',',$pair);
+        }
+        if($where != '')    $where = "WHERE {$where}";
+        if($orderby !== '') $orderby = "ORDER BY {$orderby}";
+        if($limit !== '')   $limit   = "LIMIT {$limit}";
+        return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
     }
     
     /**
@@ -306,6 +310,16 @@ $s = '';
         return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
     
+    function save($fields, $table, $where='') {
+        
+        if($where === '')                                                  $mode = 'insert';
+        elseif($this->getRecordCount($this->select('*',$table,$where))==0) $mode = 'insert';
+        else                                                               $mode = 'update';
+        
+        if($mode==='insert') return $this->insert($fields, $table);
+        else                 return $this->update($fields, $table, $where);
+    }
+    
     private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
         global $modx;
         if (!$intotable) {
@@ -320,10 +334,10 @@ $s = '';
             else
             {
                 $keys = array_keys($fields);
-                $keys = implode(',', $keys) ;
+                $keys = implode('`,`', $keys) ;
                 $values = array_values($fields);
                 $values = implode("','", $values);
-                if (!$fromtable && $values) $pairs = "({$keys}) VALUES('{$values}')";
+                if (!$fromtable && $values) $pairs = "(`{$keys}`) VALUES('{$values}')";
             }
             if($fromtable)
             {
@@ -392,7 +406,7 @@ $s = '';
     *
     */
     function getInsertId($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->insert_id;
     }
     
@@ -401,7 +415,7 @@ $s = '';
     *
     */
     function getAffectedRows($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->affected_rows;
     }
     
@@ -410,12 +424,12 @@ $s = '';
     *
     */
     function getLastError($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->error;
     }
     
     function getLastErrorNo($conn=NULL) {
-        if (!is_object($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return $conn->errno;
     }
     
@@ -423,28 +437,59 @@ $s = '';
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($ds) {
-        return ($this->isResult($ds)) ? $ds->num_rows : 0;
+    function getRecordCount($rs, $from='', $where='') {
+        if($this->isResult($rs)) return $rs->num_rows;
+        elseif(is_string($rs) && !empty($where)) {
+            $rs = $this->select('*',$from,$where);
+            return $this->getRecordCount($rs);
+        }
+        else return 0;
     }
     
     /**
     * @name:  getRow
     * @desc:  returns an array of column values
-    * @param: $dsq - dataset
+    * @param: $rs - dataset
     *
     */
-    function getRow($ds, $mode = 'assoc') {
-        if ($this->isResult($ds)) {
-            switch($mode) {
-                case 'assoc' :return $ds->fetch_assoc();
-                case 'num'   :return $ds->fetch_row();
-                case 'object':return $ds->fetch_object();
-                case 'both'  :return $ds->fetch_array(MYSQLI_BOTH);
-                default      :
-                    global $modx;
-                    $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
-            }
+    function getRow($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
+        if(is_string($param1)) {
+            if($where) return $this->getRow($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
+            else       return $this->getRow($this->query($param1),$param2);
         }
+        elseif(!$this->isResult($param1)) return false;
+        
+        $rs   = $param1;
+        $mode = $param2;
+        
+        switch($mode) {
+            case 'assoc' :return $rs->fetch_assoc();
+            case 'num'   :return $rs->fetch_row();
+            case 'object':return $rs->fetch_object();
+            case 'both'  :return $rs->fetch_array(MYSQLI_BOTH);
+            default      :
+                global $modx;
+                $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
+        }
+    }
+    
+    function getRows($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
+        
+        if(is_string($param1)) {
+            if($where) return $this->getRows($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
+            else       return $this->getRows($this->query($param1),$param2);
+        }
+        elseif(!$this->isResult($param1)) return false;
+        
+        $rs   = $param1;
+        $mode = $param2;
+        
+        if(!$this->getRecordCount($rs)) return array();
+        $_ = array();
+        while($row = $this->getRow($rs,$mode)) {
+            $_[] = $row;
+        }
+        return $_;
     }
     
     /**
@@ -488,21 +533,15 @@ $s = '';
     /**
     * @name:  getValue
     * @desc:  returns the value from the first column in the set
-    * @param: $dsq - dataset or query string
+    * @param: $rs - dataset or query string
     */
-    function getValue($dsq, $from='', $where='') {
-        if($from!=='' && $where!=='') {
-            $from = str_replace('[+prefix+]', '', $from);
-            $rs = $this->getObject($from,$where);
-            if(isset($rs->$dsq)) return $rs->$dsq;
+    function getValue($rs, $from='', $where='', $orderby = '', $limit = '') {
+        if (is_string($rs)) {
+            if($from && $where) $rs = $this->select($rs,$from,$where,$orderby,$limit);
+            else                $rs = $this->query($rs);
         }
-        elseif (!$this->isResult($dsq)) {
-            $dsq = $this->query($dsq);
-        }
-        if ($this->isResult($dsq)) {
-            $r = $this->getRow($dsq, 'num');
-            return $r[0];
-        }
+        $row = $this->getRow($rs, 'num');
+        return $row[0];
     }
     
     /**
@@ -840,7 +879,7 @@ $s = '';
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && is_object($this->conn)) return true;
+        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
         else                                                return false;
     }
     
@@ -862,8 +901,9 @@ $s = '';
         
         $_ = array();
         foreach($fields as $k=>$v) {
-            if($k!==$v) $_[] = "{$v} as {$k}";
-            else        $_[] = $v;
+            if(preg_match('@^[0-9]+$@',$k)) $_[] = $v;
+            elseif($k!==$v)                 $_[] = "{$v} as {$k}";
+            else                            $_[] = $v;
         }
         return join(',', $_);
     }

@@ -5,6 +5,7 @@
 
 // set error reporting
 error_reporting(E_ALL & ~E_NOTICE);
+ini_set('display_errors',1);
 
 if (!defined('E_DEPRECATED'))      define('E_DEPRECATED',       8192);
 if (!defined('E_USER_DEPRECATED')) define('E_USER_DEPRECATED', 16384);

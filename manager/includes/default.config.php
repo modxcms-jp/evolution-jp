@@ -8,6 +8,7 @@ $default_config['auto_template_logic']      = 'system';
 $default_config['automatic_alias']          = '2';
 $default_config['blocked_minutes']          = '10';
 $default_config['cache_default']            = '1';
+$default_config['disable_cache_at_login']   = '1';
 $default_config['cache_type']               = '1';
 $default_config['individual_cache']         = '0';
 $default_config['legacy_cache']             = '0';

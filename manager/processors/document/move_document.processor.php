@@ -1,5 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!$modx->hasPermission('move_document'))   {$e->setError(3);$e->dumpError();}
 if(!$modx->hasPermission('edit_document'))   {$e->setError(3);$e->dumpError();}
 
 if($_REQUEST['id']==$_REQUEST['new_parent']) {$e->setError(600); $e->dumpError();}
@@ -90,7 +91,7 @@ else
 if(!isset($alert))
 {
 	$modx->clearCache();
-	if($new_parent!==0) $header="Location: index.php?a=120&id={$new_parent}&r=1";
+	if($new_parent!==0) $header="Location: index.php?a=120&id={$current_parent}&r=1";
 	else                $header="Location: index.php?a=2&r=1";
 	header($header);
 }

@@ -153,8 +153,10 @@ class SubParser {
         $fields['source']      = $title;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
+        $_ = $modx->db->lastQuery;
         if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
         else $title = 'DB connect error';
+        $modx->db->lastQuery = $_;
         if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
         {
             if($modx->config['send_errormail'] <= $type)
@@ -290,6 +292,9 @@ class SubParser {
         
         if ($source != '')
             $str .= $modx->parseText($tpl,array('left'=>'Source : ','right'=>$source));
+
+        if ($modx->db->lastQuery)
+            $str .= $modx->parseText($tpl,array('left'=>'LastQuery : ','right'=>$modx->hsc($modx->db->lastQuery)));
 
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
@@ -472,17 +477,30 @@ class SubParser {
         return $str;
     }
 
-    function sendRedirect($url, $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
+    function sendRedirect($url='', $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
     {
         global $modx;
-        if($modx->debug)
-        {
-            register_shutdown_function(array (& $modx,'recDebugInfo'));
-        }
         
-        if (empty($url)) return false;
+        if($modx->debug) register_shutdown_function(array (& $modx,'recDebugInfo'));
+        
+        if($type==='REDIRECT_HEADER') $modx->config['xhtml_urls'] = 0;
+        
+        if(empty($url)) $url = $modx->makeUrl($modx->documentIdentifier,'','','full');
         elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
             $url = $modx->makeUrl($url,'','','full');
+        }
+        else {
+            if(strpos($url,'[')!==false || strpos($url,'{{')!==false) $url=$modx->parseDocumentSource($url);
+            
+            if(substr($url,0,1)==='?')                 $url = $modx->makeUrl($modx->documentIdentifier,'',$url,'full');
+            elseif(preg_match('@^[1-9][0-9]*$@',$url)) $url = $modx->makeUrl($url,'',$args,'full');
+            elseif(preg_match('@^[1-9][0-9]*\?@',$url)) {
+                list($url,$args) = explode('?',$url,2);
+                $url = $modx->makeUrl($url,'',$args,'full');
+            }
+            
+            if(strpos($url,'[~')!==false) $url = $modx->rewriteUrls($url);
+            
         }
         
         if ($count_attempts == 1) {
@@ -500,13 +518,12 @@ class SubParser {
         if    ($type === 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
         elseif($type === 'REDIRECT_META') {
             $header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-            echo $header;
-            exit;
+            exit($header);
         }
         else {
             // check if url has /$base_url
             global $base_url, $site_url;
-            if (substr($url, 0, strlen($base_url)) == $base_url) {
+            if (substr($url,0,2)!=='//' && substr($url, 0, strlen($base_url)) == $base_url) {
                 // append $site_url to make it work with Location:
                 $url= $site_url . substr($url, strlen($base_url));
             }
@@ -519,20 +536,12 @@ class SubParser {
             return file_get_contents($url);
         }
         
-        if (!empty($responseCode)) {
-            if    (strpos($responseCode, '301') !== false) $responseCode = 301;
-            elseif(strpos($responseCode, '302') !== false) $responseCode = 302;
-            elseif(strpos($responseCode, '303') !== false) $responseCode = 303;
-            elseif(strpos($responseCode, '307') !== false) $responseCode = 307;
-            else $responseCode = '';
-            if(!empty($responseCode))
-            {
-                header($header, true, $responseCode);
-                exit;
-            }
-        }
-        header($header);
-        exit();
+        if    (strpos($responseCode, '301') !== false) {header($header, true, 301);exit;}
+        elseif(strpos($responseCode, '302') !== false) {header($header, true, 302);exit;}
+        elseif(strpos($responseCode, '303') !== false) {header($header, true, 303);exit;}
+        elseif(strpos($responseCode, '307') !== false) {header($header, true, 307);exit;}
+        elseif(!empty($responseCode))                  {header($header, true, $responseCode);exit;}
+        else                                           {header($header);exit;}
     }
     
     function sendForward($id, $responseCode= '')
@@ -625,7 +634,7 @@ class SubParser {
         
         if (isset ($modx->snippetCache[$snippetName]))
         {
-            $snippet= $modx->snippetCache[$snippetName];
+            $phpCode= $modx->snippetCache[$snippetName];
             $properties= $modx->snippetCache["{$snippetName}Props"];
         }
         else
@@ -635,12 +644,12 @@ class SubParser {
             if ($modx->db->getRecordCount($result) == 1)
             {
                 $row = $modx->db->getRow($result);
-                $snippet= $modx->snippetCache[$snippetName]= $row['snippet'];
+                $phpCode= $modx->snippetCache[$snippetName]= $row['snippet'];
                 $properties= $modx->snippetCache["{$snippetName}Props"]= $row['properties'];
             }
             else
             {
-                $snippet= $modx->snippetCache[$snippetName]= "return false;";
+                $phpCode= $modx->snippetCache[$snippetName]= "return false;";
                 $properties= '';
             }
         }
@@ -648,7 +657,7 @@ class SubParser {
         $parameters= $modx->parseProperties($properties);
         $parameters= array_merge($parameters, $params);
         // run snippet
-        return $modx->evalSnippet($snippet, $parameters);
+        return $modx->evalSnippet($phpCode, $parameters);
     }
     
     # Change current web user's password - returns true if successful, oterhwise return error message
@@ -1157,6 +1166,7 @@ class SubParser {
                 $ph['cal_nodate']      = $_style['icons_cal_nodate'];
                 $ph['yearOffset']      = $modx->config['datepicker_offset'];
                 $ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
+                $ph['timepicker']      = strtolower($field_type)==='date' ? 'true' : 'false';
                 $field_html =  $modx->parseText($tpl,$ph);
                 break;
             case "dropdown": // handler for select boxes
@@ -1702,23 +1712,31 @@ class SubParser {
     }
     
     function loadLexicon($target='manager') {
-        global $modx, $_lang;
+        global $modx;
         
         if (!isset($modx->config['manager_language'])) {
-            $lang = 'japanese-utf8';
+            $langname = 'english';
         }
         else $langname = $modx->config['manager_language'];
-        if($target==='manager') {
-            global $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
-            $target = MODX_CORE_PATH . 'lang/';
-            $modx_manager_charset = 'utf-8';
-            $modx_lang_attribute = 'ja';
-            $modx_textdir = 'ltr';
-        }
-        $target = rtrim($target, '/') . '/';
         
-        $_lang = array();
-        include_once("{$target}{$langname}.inc.php");
+        if($target==='manager') {
+            global $_lang, $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
+            $path = MODX_CORE_PATH . 'lang/';
+            $modx_manager_charset = 'utf-8';
+            $modx_lang_attribute = 'en';
+            $modx_textdir = 'ltr';
+            $_lang = array();
+        }
+        elseif($target==='locale') {
+            global $_lc;
+            $path = MODX_CORE_PATH . 'lang/locale/';
+        }
+        else $path = $target;
+        
+        $path = rtrim($path, '/') . '/';
+        
+        $file_path = "{$path}{$langname}.inc.php";
+        if(is_file($file_path)) include_once($file_path);
     }
     
     function snapshot($filename='', $target='') {
@@ -1742,7 +1760,7 @@ class SubParser {
         else $snapshot_path = $modx->config['snapshot_path'];
         
         if($filename==='') {
-            $today = $modx->toDateFormat(time());
+            $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
             $today = str_replace(array('/',' '), '-', $today);
             $today = str_replace(':', '', $today);
             $today = strtolower($today);
@@ -1828,11 +1846,24 @@ class SubParser {
         $cache->publishBasicConfig($unixtime);
     }
     
+    function atBind($str='') {
+        global $modx;
+        
+        if(substr($str,0,1)!=='@') return $str;
+        
+        if(substr($str,0,5)==='@FILE')    return $this->atBindFile($str);
+        if(substr($str,0,4)==='@URL')     return $this->atBindUrl($str);
+        if(substr($str,0,8)==='@INCLUDE') return $this->atBindInclude($str);
+        
+        return $str;
+    }
+    
     function atBindFile($str='')
     {
         global $modx;
         
         if(strpos($str,'@FILE')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         
@@ -1877,6 +1908,7 @@ class SubParser {
     function atBindUrl($str='')
     {
         if(strpos($str,'@URL')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         
@@ -1892,6 +1924,7 @@ class SubParser {
     function atBindInclude($str='')
     {
         if(strpos($str,'@INCLUDE')!==0) return $str;
+        $str = trim($str);
         if(strpos($str,"\n")!==false)
             $str = substr($str,0,strpos("\n",$str));
         

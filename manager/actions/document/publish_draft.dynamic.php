@@ -26,6 +26,8 @@ $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
 $ph['fieldDraftPub_date']  = fieldDraftPub_date($docid);
 $ph['id'] = $docid;
+$ph['token'] = $modx->genTokenString();
+$_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理はコアで統一して管理する
 
 echo $modx->parseText($tpl,$ph);
 
@@ -112,13 +114,13 @@ function getTplDraft()
         		[+fieldDraftPub_date+]
         	</table>
         </div>
-	<ul class="actionButtons">
-        <li class="primary">
-        <a href="javascript:void(0)" onclick="document.mutate.submit();">
-        採用する
-        </a>
-        </li>
-	</ul>
+    	<ul class="actionButtons">
+            <li class="primary" id="save">
+            <a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
+            採用する
+            </a>
+            </li>
+    	</ul>
     </div>
     </div>
 </form>

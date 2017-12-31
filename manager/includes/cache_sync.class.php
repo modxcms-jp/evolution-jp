@@ -93,6 +93,9 @@ class synccache {
 			$this->buildCache();
 		}
 		$this->publishBasicConfig();
+		
+		$modx->purgeDBCache();
+		
 		if(isset($result) && $this->showReport==true) $this->showReport($result);
 	}
 	
@@ -341,9 +344,9 @@ class synccache {
 	{
 		global $modx;
 		
-	    $friendly_urls = $modx->db->getValue('setting_value','system_settings',"setting_name='friendly_urls'");
+	    $friendly_urls = $modx->db->getValue('setting_value','[+prefix+]system_settings',"setting_name='friendly_urls'");
 		if($friendly_urls==1)
-		    $use_alias_path = $modx->db->getValue('setting_value','system_settings',"setting_name='use_alias_path'");
+		    $use_alias_path = $modx->db->getValue('setting_value','[+prefix+]system_settings',"setting_name='use_alias_path'");
 		else $use_alias_path = '';
 		$fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
 		$rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
@@ -478,7 +481,7 @@ class synccache {
         $dir = rtrim($dir, '/');
         $files = glob($dir . '/*');
         $list = array();
-        foreach ($files as $obj) {
+        foreach ((array)$files as $obj) {
             if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
         	elseif (is_dir($obj))  {
         		$list[] = $obj;

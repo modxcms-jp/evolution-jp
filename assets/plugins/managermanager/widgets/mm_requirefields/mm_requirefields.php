@@ -89,6 +89,10 @@ function mm_requireFields($fields, $roles='', $templates=''){
 							$selector = "input[type=text][name=$fieldname]";
 						break;
 						
+						case 'select':
+							$selector = "select[name=$fieldname]";
+						break;
+						
 						default:  // all other input types, do nothing
 							$selector = '';
 						break;

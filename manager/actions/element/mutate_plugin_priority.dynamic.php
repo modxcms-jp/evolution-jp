@@ -5,10 +5,6 @@ if(!$modx->hasPermission('save_plugin')) {
 	$e->dumpError();
 }
 
-$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
-$tbl_system_eventnames  = $modx->getFullTableName('system_eventnames');
-$tbl_site_plugins       = $modx->getFullTableName('site_plugins');
-
 $updateMsg = '';
 
 if(isset($_POST['listSubmitted']))
@@ -19,7 +15,7 @@ if(isset($_POST['listSubmitted']))
 	{
 		if ($listName == 'listSubmitted') continue;
 		$orderArray = explode(',', $listValue);
-		$listName = ltrim($listName, 'list_');
+		if(substr($listName,0,5)==='list_') $listName = substr($listName,5);
 		if (count($orderArray) > 0)
 		{
 			foreach($orderArray as $key => $item)
@@ -27,7 +23,7 @@ if(isset($_POST['listSubmitted']))
 				if ($item == '') continue;
 				$pluginId = ltrim($item, 'item_');
 				$field['priority'] = $key;
-				$modx->db->update($field,$tbl_site_plugin_events,"pluginid={$pluginId} and evtid={$listName}");
+				$modx->db->update($field,'[+prefix+]site_plugin_events',"pluginid={$pluginId} AND evtid='{$listName}'");
 			}
 		}
 	}
@@ -35,39 +31,36 @@ if(isset($_POST['listSubmitted']))
 	$modx->clearCache(); // first empty the cache
 }
 
-$field = "sysevt.name as 'evtname', sysevt.id as 'evtid', pe.pluginid, plugs.name, pe.priority";
-$from  = "$tbl_system_eventnames sysevt";
-$from .= " INNER JOIN {$tbl_site_plugin_events} pe ON pe.evtid = sysevt.id";
-$from .= " INNER JOIN {$tbl_site_plugins} plugs ON plugs.id = pe.pluginid";
-$rs = $modx->db->select($field,$from,'plugs.disabled=0','sysevt.name,pe.priority');
-$total = $modx->db->getRecordCount($rs);
+$f['evtname'] = 'sysevt.name';
+$f['evtid']   = 'sysevt.id';
+$f[]          = 'pe.pluginid';
+$f[]          = 'plugs.name';
+$f[]          = 'pe.priority';
+$from[] = '[+prefix+]system_eventnames sysevt';
+$from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
+$from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
+$rs = $modx->db->select($f,$from,'plugs.disabled=0','sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
 $evtLists = '';
 $sortables = array();
-if($total>1)
-{
-	for ($i=0;$i<$total;$i++)
+while ($row = $modx->db->getRow($rs)) {
+	if ($preEvt !== $row['evtid'])
 	{
-		$plugins = $modx->db->getRow($rs);
-		if ($preEvt !== $plugins['evtid'])
-		{
-			$sortables[] = $plugins['evtid'];
-			$evtLists .= $insideUl? '</ul><br />': '';
-			$evtLists .= '<strong>'.$plugins['evtname'].'</strong><br /><ul id="'.$plugins['evtid'].'" class="sortableList">';
-			$insideUl = 1;
-		}
-		$evtLists .= '<li id="item_'.$plugins['pluginid'].'">'.$plugins['name'].'</li>';
-		$preEvt = $plugins['evtid'];
+		$sortables[] = $row['evtid'];
+		$evtLists .= $insideUl ? '</ul><br />': '';
+		$evtLists .= '<strong>'.$row['evtname'].'</strong><br /><ul id="'.$row['evtid'].'" class="sortableList">';
+		$insideUl = 1;
 	}
+	$evtLists .= '<li id="item_'.$row['pluginid'].'">'.$row['name'].'</li>';
+	$preEvt = $row['evtid'];
 }
 
 $evtLists .= '</ul>';
 
 $header = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<!doctype html>
 <head>
 	<title>MODX</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />

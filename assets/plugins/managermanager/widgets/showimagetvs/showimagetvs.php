@@ -54,7 +54,7 @@ $j("#tv'.$tv['id'].'").addClass("imageField").bind("change load", function(){
 	$this.addClass("imageField");
 	var url = $j(this).val();
 	url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
-				url = (url != "" && url.search(/http:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$site.'" + url) : url;
+				url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$site.'" + url) : url;
 			';
 			
 			// If we have a PHPThumb URL

@@ -159,8 +159,7 @@ hr {
 }
 #tocText {
 	position: absolute;
-	left: 3px;
-	top: 50px;
+	top: 37px;
 	z-index: 1000;
 }
 	.rtl #tocText {

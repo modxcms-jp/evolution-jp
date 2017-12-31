@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_templates` (
   `category` int(11) NOT NULL DEFAULT '0' COMMENT 'category id',
   `icon` varchar(255) NOT NULL DEFAULT '' COMMENT 'url to icon file',
   `template_type` int(11) NOT NULL DEFAULT '0' COMMENT '0-page,1-content',
-  `content` mediumtext,
+  `content` mediumtext NOT NULL,
   `parent` int(10) NOT NULL DEFAULT '0',
   `locked` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
@@ -345,6 +345,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}user_roles` (
   `view_document` int(1) NOT NULL DEFAULT '0',
   `new_document` int(1) NOT NULL DEFAULT '0',
   `save_document` int(1) NOT NULL DEFAULT '0',
+  `move_document` int(1) NOT NULL DEFAULT '0',
   `publish_document` int(1) NOT NULL DEFAULT '0',
   `delete_document` int(1) NOT NULL DEFAULT '0',
   `empty_trash` int(1) NOT NULL DEFAULT '0',
@@ -511,3 +512,15 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision` (
   UNIQUE KEY `idx_revision` (`element`,`elmid`,`version`),
   KEY `status` (`status`)
 ) ENGINE=MyISAM COMMENT='Contains revision data.';
+
+CREATE TABLE IF NOT EXISTS `{PREFIX}system_cache` (
+  `cache_id` int(20) NOT NULL AUTO_INCREMENT,
+  `cache_section` varchar(245) NOT NULL DEFAULT '',
+  `cache_key` varchar(245) NOT NULL DEFAULT '',
+  `cache_value` mediumtext NOT NULL,
+  `cache_timestamp` int(20) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`cache_id`),
+  KEY `cache_section` (`cache_section`),
+  KEY `cache_key` (`cache_key`)
+) ENGINE=MyISAM;
+

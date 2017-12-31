@@ -247,14 +247,15 @@ $s = '';
         
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
-        } else {
-            $fields = $this->replaceFullTableName($fields);
-            $from = $this->replaceFullTableName($from);
-            if($where !== '')   $where   = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit !== '')   $limit   = "LIMIT {$limit}";
-            return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
+            exit;
         }
+        
+        $fields = $this->replaceFullTableName($fields);
+        $from = $this->replaceFullTableName($from);
+        if(trim($where) !== '')   $where   = "WHERE {$where}";
+        if(trim($orderby) !== '') $orderby = "ORDER BY {$orderby}";
+        if(trim($limit) !== '')   $limit   = "LIMIT {$limit}";
+        return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
     }
     
     /**
@@ -305,6 +306,16 @@ $s = '';
         return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
     
+    function save($fields, $table, $where='') {
+        
+        if($where === '')                                                  $mode = 'insert';
+        elseif($this->getRecordCount($this->select('*',$table,$where))==0) $mode = 'insert';
+        else                                                               $mode = 'update';
+        
+        if($mode==='insert') return $this->insert($fields, $table);
+        else                 return $this->update($fields, $table, $where);
+    }
+    
     private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
         global $modx;
         if (!$intotable) {
@@ -319,10 +330,10 @@ $s = '';
             else
             {
                 $keys = array_keys($fields);
-                $keys = implode(',', $keys) ;
+                $keys = implode('`,`', $keys) ;
                 $values = array_values($fields);
                 $values = implode("','", $values);
-                if (!$fromtable && $values) $pairs = "({$keys}) VALUES('{$values}')";
+                if (!$fromtable && $values) $pairs = "(`{$keys}`) VALUES('{$values}')";
             }
             if($fromtable)
             {
@@ -365,7 +376,7 @@ $s = '';
     *
     */
     function freeResult($conn=null) {
-        if(!is_resource($conn)) $conn =& $this->conn;
+        if(!$this->isResult($conn)) $conn =& $this->conn;
         mysql_free_result($conn);
     }
     
@@ -390,7 +401,7 @@ $s = '';
     *
     */
     function getInsertId($conn=NULL) {
-        if(!is_resource($conn)) $conn =& $this->conn;
+        if(!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_insert_id($conn);
     }
     
@@ -399,7 +410,7 @@ $s = '';
     *
     */
     function getAffectedRows($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_affected_rows($conn);
     }
     
@@ -408,20 +419,25 @@ $s = '';
     *
     */
     function getLastError($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_error($conn);
     }
 
     function getLastErrorNo($conn=NULL) {
-        if (!is_resource($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) $conn =& $this->conn;
         return mysql_errno();
     }
     /**
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($ds) {
-        return (is_resource($ds)) ? mysql_num_rows($ds) : 0;
+    function getRecordCount($rs, $from='', $where='') {
+        if($this->isResult($rs)) return mysql_num_rows($rs);
+        elseif(is_string($rs) && !empty($where)) {
+            $rs = $this->select('*',$from,$where);
+            return $this->getRecordCount($rs);
+        }
+        else return 0;
     }
     
     /**
@@ -430,18 +446,38 @@ $s = '';
     * @param: $dsq - dataset
     *
     */
-    function getRow($ds, $mode = 'assoc') {
-        if (is_resource($ds)) {
-            switch($mode) {
-                case 'assoc' :return mysql_fetch_assoc($ds);             break;
-                case 'num'   :return mysql_fetch_row($ds);               break;
-                case 'object':return mysql_fetch_object($ds);           break;
-                case 'both'  :return mysql_fetch_array($ds, MYSQL_BOTH); break;
-                default      :
-                    global $modx;
-                    $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
-            }
+    function getRow($ds, $mode='assoc', $where = '', $orderby = '', $limit = '') {
+        if(is_string($ds)) {
+            if($where) return $this->getRow($this->select($ds,$mode,$where,$orderby,$limit));
+            else       return $this->getRow($this->query($ds),$mode);
         }
+        elseif(!$this->isResult($ds)) return false;
+        
+        switch($mode) {
+            case 'assoc' :return mysql_fetch_assoc($ds);             break;
+            case 'num'   :return mysql_fetch_row($ds);               break;
+            case 'object':return mysql_fetch_object($ds);            break;
+            case 'both'  :return mysql_fetch_array($ds, MYSQL_BOTH); break;
+            default      :
+                global $modx;
+                $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
+        }
+    }
+    
+    function getRows($rs,$mode='assoc') {
+        
+        if(is_string($rs)) {
+            if($where) return $this->getRows($this->select($rs,$mode,$where,$orderby,$limit),'assoc');
+            else       return $this->getRows($this->query($rs),$mode);
+        }
+        elseif(!$this->isResult($rs)) return false;
+        
+        if(!$this->getRecordCount($rs)) return array();
+        $_ = array();
+        while($row = $this->getRow($rs,$mode)) {
+            $_[] = $row;
+        }
+        return $_;
     }
     
     /**
@@ -450,7 +486,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumn($name, $dsq) {
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) $dsq = $this->query($dsq);
         if ($dsq) {
             $col = array ();
             while ($row = $this->getRow($dsq)) {
@@ -467,7 +503,7 @@ $s = '';
     * @param: $dsq - dataset or query string
     */
     function getColumnNames($dsq) {
-        if (!is_resource($dsq)) $dsq = $this->query($dsq);
+        if (!$this->isResult($dsq)) $dsq = $this->query($dsq);
         if ($dsq) {
             $names = array ();
             $limit = mysql_num_fields($dsq);
@@ -481,19 +517,15 @@ $s = '';
     /**
     * @name:  getValue
     * @desc:  returns the value from the first column in the set
-    * @param: $dsq - dataset or query string
+    * @param: $rs - dataset or query string
     */
-    function getValue($dsq, $from='', $where='') {
-        if($from!=='' && $where!=='') {
-            $from = str_replace('[+prefix+]', '', $from);
-            $rs = $this->getObject($from,$where);
-            if(isset($rs->$dsq)) return $rs->$dsq;
+    function getValue($rs, $from='', $where='') {
+        if (is_string($rs)) {
+            if($from && $where) $rs = $this->select($rs,$from,$where,$orderby,$limit);
+            else                $rs = $this->query($rs);
         }
-        elseif (!is_resource($dsq)) $dsq = $this->query($dsq);
-        if (is_resource($dsq)) {
-            $r = $this->getRow($dsq, 'num');
-            return $r[0];
-        }
+        $row = $this->getRow($rs, 'num');
+        return $row[0];
     }
     
     /**
@@ -828,7 +860,7 @@ $s = '';
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && is_resource($this->conn)) return true;
+        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
         else                                                  return false;
     }
     
@@ -850,8 +882,9 @@ $s = '';
         
         $_ = array();
         foreach($fields as $k=>$v) {
-            if($k!==$v) $_[] = "{$v} as {$k}";
-            else        $_[] = $v;
+            if(preg_match('@^[0-9]+$@',$k)) $_[] = $v;
+            elseif($k!==$v)                 $_[] = "{$v} as {$k}";
+            else                            $_[] = $v;
         }
         return join(',', $_);
     }

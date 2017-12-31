@@ -134,7 +134,7 @@ function deletedocument() {
   </tr>
   <tr>
     <td><?php echo $_lang['resource_description']; ?>:</td>
-    <td><input name="description" type="text" maxlength="255" value="<?php echo $roledata['description'] ; ?>" size="60"></td>
+    <td><textarea name="description"><?php echo $roledata['description'] ; ?></textarea></td>
   </tr>
 </table>
 </fieldset>
@@ -172,6 +172,7 @@ table td {vertical-align:top;}
 	echo render_form('edit_document',     $_lang['role_edit_doc']);
 	echo render_form('save_document',     $_lang['role_save_doc']);
 	echo render_form('publish_document',  $_lang['role_publish_doc']);
+	echo render_form('move_document',     $_lang['role_move_doc']);
 	echo render_form('delete_document',   $_lang['role_delete_doc']);
 	echo render_form('empty_trash',       $_lang['role_empty_trash']);
 	echo render_form('empty_cache',       $_lang['role_cache_refresh']);

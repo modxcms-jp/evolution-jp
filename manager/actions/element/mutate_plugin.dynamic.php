@@ -572,23 +572,24 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
     else {
         $g = 0;
+        $srvID = '';
+        $grpName = '';
         while($row = $modx->db->getRow($rs)) {
             // display records
-            $s = $row['service'];
-            if($srv!=$row['service']) {
+            if($srvID!=$row['service']) {
                 $g++;
-                $srv=$row['service'];
+                $srvID=$row['service'];
                 if(count($evtnames)>0) echoEventRows($evtnames);
-                 echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
-                echo '<tr><td colspan="2"><b>'."[{$g}] " . $services[$srv-1].'</b></td></tr>';
+                    echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
+                echo '<tr><td colspan="2"><b>'."[{$g}] " . $services[$srvID-1].'</b></td></tr>';
             }
             // display group name
-            if($grp!=$row['groupname']) {
+            if($grpName!=$row['groupname']) {
                 $g++;
-                $grp=$row['groupname'];
                 if(count($evtnames)>0) echoEventRows($evtnames);
                 echo '<tr><td colspan="2"><div class="split" style="margin:10px 0;"></div></td></tr>';
                 echo '<tr><td colspan="2"><b>'."[{$g}] ".$row['groupname'].'</b></td></tr>';
+                $grpName=$row['groupname'];
             }
             $evtid = $row['id'];
             $evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row[id],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name']. '"' . bold(in_array($row[id],$evts)) . '>'."[{$evtid}] ". $row['name'].'</label>'."\n";
@@ -598,7 +599,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     if(count($evtnames)>0) echoEventRows($evtnames);
 
     function echoEventRows(&$evtnames) {
-        echo "<tr><td>".implode("</td><td>",$evtnames)."</td></tr>";
+        echo "<tr><td>".join("</td><td>",$evtnames)."</td></tr>";
         $evtnames = array();
     }
 ?>

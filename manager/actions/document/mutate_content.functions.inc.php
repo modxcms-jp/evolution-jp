@@ -677,7 +677,8 @@ EOT;
 	elseif ($id != $config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
-    		$ph['moveButton']                                     = ab_move();
+    		if($modx->hasPermission('move_document'))
+    			$ph['moveButton']                                 = ab_move();
     		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
     		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
 		}
@@ -728,21 +729,23 @@ function fieldAlias($id) {
 	global $modx,$config,$_lang;
 	
 	$body = '';
-	$onkeyup = '';
-	if($config['suffix_mode']==1)
-	{
-		$onkeyup = 'onkeyup="change_url_suffix();" ';
-	}
-	
+
 	if($config['friendly_urls']==='1' && $modx->documentObject['type']==='document')
 	{
 		$body .= get_alias_path($id);
-		$body .= input_text('alias',to_safestr($modx->documentObject['alias']), $onkeyup . 'size="20" style="width:120px;"','50');
-		$suffix = '';
-		if($config['friendly_urls']==1) {
+		$other[] = 'size="20"';
+		$other[] = 'style="width:120px;"';
+		$other[] = sprintf('placeholder="%s"', $modx->documentObject['id']);
+		if($config['suffix_mode']==1) $other[] = 'onkeyup="change_url_suffix();"';
+
+		$body .= input_text('alias',to_safestr($modx->documentObject['alias']), join(' ', $other),'50');
+
+		if($modx->documentObject['isfolder']) $suffix = '/';
+		elseif($config['friendly_urls']==1) {
 			if($config['suffix_mode']!=1 || strpos($modx->documentObject['alias'],'.')===false)
 				$suffix = $config['friendly_url_suffix'];
 		}
+		else $suffix = '';
 		$body .= '<span id="url_suffix">' . $suffix . '</span>';
 	}
 	else
@@ -802,7 +805,7 @@ function fieldParent() {
 	return renderTr($_lang['resource_parent'],$body);
 }
 
-function getTmplvars($id,$template,$docgrp) {
+function getTmplvars($docid,$template,$docgrp) {
 	global $modx;
 	
 	$session_mgrRole = $_SESSION['mgrRole'];
@@ -814,7 +817,7 @@ function getTmplvars($id,$template,$docgrp) {
 	$from = "
 		[+prefix+]site_tmplvars                         AS tv 
 		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 
-		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$id}'
+		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$docid}'
 		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
 		";
 	$where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";

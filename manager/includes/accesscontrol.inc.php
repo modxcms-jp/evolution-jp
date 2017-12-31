@@ -17,7 +17,7 @@ if (is_file($instcheck_path))
 {
 	include_once($instcheck_path);
 	if (isset($installStartTime)) {
-		if ((time() - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
+		if (($_SERVER['REQUEST_TIME'] - $installStartTime) > 5 * 60) { // if install flag older than 5 minutes, discard
 			unset($installStartTime);
 			@ chmod($instcheck_path, 0755);
 			unlink($instcheck_path);
@@ -68,7 +68,7 @@ if(!isset($_SESSION['mgrValidated']))
 
 	global $tpl;
 	
-    if(is_file($touch_path) && time() < filemtime($touch_path)+300)
+    if(is_file($touch_path) && $_SERVER['REQUEST_TIME'] < filemtime($touch_path)+300)
     {
         $modx->safeMode = 1;
         $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
@@ -192,7 +192,7 @@ else
 	
 	$fields['internalKey'] = $modx->getLoginUserID();
 	$fields['username']    = $_SESSION['mgrShortname'];
-	$fields['lasthit']     = time();
+	$fields['lasthit']     = $_SERVER['REQUEST_TIME'];
 	$fields['action']      = $modx->manager->action;
 	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 	$fields['ip']          = $ip;

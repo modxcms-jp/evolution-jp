@@ -134,7 +134,7 @@ class template{
 			"unknown" => array()
 		);
 		
-		$custom = array("author","date","url","title","ditto_iteration");
+		$custom = array("author","date","url","title","ditto_iteration","class");
 
 		foreach ($fieldList as $field) {
 			if (substr($field, 0, 4) == "rss_") {
@@ -221,6 +221,8 @@ class template{
 				$template = file_get_contents($path);
 		} elseif(substr($tpl, 0, 5) == '@CODE') {
 			$template = substr($tpl, 6);
+		} elseif(strpos($tpl, '[+') !==false) {
+			$template = $tpl;
 		} elseif(substr($tpl, 0, 9) == '@DOCUMENT') {
 			$docid = trim(substr($tpl, 10));
 			if(preg_match('@^[1-9][0-9]*$@',$docid))
@@ -228,7 +230,10 @@ class template{
 		} else {
 			$template = $modx->getChunk($tpl);
 		}
-		if($template===''||$template===false)
+		
+		if(strpos($template,'[!')!==false)
+			$template = str_replace(array('[!','!]'),array('[[',']]'),$template);
+		elseif($template===''||$template===false)
 			$template = $this->language['missing_placeholders_tpl'];
 		return $template;
 	}

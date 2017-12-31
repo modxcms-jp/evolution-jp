@@ -21,10 +21,12 @@ ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `view_schedule` int(1) NOT NULL DEFA
 
 ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `publish_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
 
+ALTER TABLE `{PREFIX}user_roles` ADD COLUMN `move_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
+
 
 REPLACE INTO `{PREFIX}user_roles` 
-(id,name,description,frames,home,view_document,new_document,save_document,publish_document,delete_document,empty_trash,action_ok,logout,help,messages,new_user,edit_user,logs,edit_parser,save_parser,edit_template,settings,credits,new_template,save_template,delete_template,edit_snippet,new_snippet,save_snippet,delete_snippet,edit_chunk,new_chunk,save_chunk,delete_chunk,empty_cache,edit_document,change_password,error_dialog,about,file_manager,save_user,delete_user,save_password,edit_role,save_role,delete_role,new_role,access_permissions,bk_manager,new_plugin,edit_plugin,save_plugin,delete_plugin,new_module,edit_module,save_module,exec_module,delete_module,view_eventlog,delete_eventlog,manage_metatags,edit_doc_metatags,new_web_user,edit_web_user,save_web_user,delete_web_user,web_access_permissions,view_unpublished,import_static,export_static,remove_locks,view_schedule) VALUES 
-(1, 'Administrator', 'Site administrators have full access to all functions',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+(id,name,description,frames,home,view_document,new_document,save_document,move_document,publish_document,delete_document,empty_trash,action_ok,logout,help,messages,new_user,edit_user,logs,edit_parser,save_parser,edit_template,settings,credits,new_template,save_template,delete_template,edit_snippet,new_snippet,save_snippet,delete_snippet,edit_chunk,new_chunk,save_chunk,delete_chunk,empty_cache,edit_document,change_password,error_dialog,about,file_manager,save_user,delete_user,save_password,edit_role,save_role,delete_role,new_role,access_permissions,bk_manager,new_plugin,edit_plugin,save_plugin,delete_plugin,new_module,edit_module,save_module,exec_module,delete_module,view_eventlog,delete_eventlog,manage_metatags,edit_doc_metatags,new_web_user,edit_web_user,save_web_user,delete_web_user,web_access_permissions,view_unpublished,import_static,export_static,remove_locks,view_schedule) VALUES 
+(1, 'Administrator', 'Site administrators have full access to all functions',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
 
 
 # 1 - "Parser Service Events", 2 -  "Manager Access Events", 3 - "Web Access Service Events", 4 - "Cache Service Events", 5 - "Template Service Events", 6 - Custom Events
@@ -59,6 +61,8 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('26','OnBeforeChunkFormDelete','1','Chunks'),
 ('27','OnChunkFormDelete','1','Chunks'),
 ('28','OnDocFormPrerender','1','Documents'),
+('215','OnDocListRender','1','Documents'),
+('216','OnDocListPrerender','1','Documents'),
 ('29','OnDocFormRender','1','Documents'),
 ('30','OnBeforeDocFormSave','1','Documents'),
 ('31','OnDocFormSave','1','Documents'),
@@ -121,6 +125,7 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('88','OnRichTextEditorInit','1','RichText Editor'),
 ('89','OnManagerPageInit','2',''),
 ('90','OnWebPageInit','5',''),
+('104','OnBeforeGetDocID','5',''),
 ('101','OnLoadDocumentObject','5',''),
 ('91','OnLoadWebDocument','5',''),
 ('92','OnParseDocument','5',''),

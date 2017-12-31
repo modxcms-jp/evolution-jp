@@ -236,6 +236,7 @@ class Mysqldumper {
     	$sql_array = preg_split('@;[ \t]*\n@', $source);
     	foreach($sql_array as $sql_entry)
     	{
+    		$sql_entry = trim($sql_entry);
     		if(empty($sql_entry)) continue;
     		$rs = $modx->db->query($sql_entry);
     	}

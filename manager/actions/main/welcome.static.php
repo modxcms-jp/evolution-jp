@@ -255,7 +255,7 @@ echo $welcome_tpl;
 
 function get_icon($title,$action,$icon_path,$alt='')
 {
-	if(is_int($action)) $action = 'index.php?a=' . $action;
+	if(preg_match('@^[1-9][0-9]*$@',$action)) $action = 'index.php?a=' . $action;
 	$icon = '<a class="hometblink" href="'.$action.'" alt="'.$alt.'"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
 	return '<span class="wm_button" style="border:0">' . $icon . '</span>';
 }
