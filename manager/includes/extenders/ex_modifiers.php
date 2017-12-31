@@ -327,6 +327,7 @@ class MODIFIERS {
     }
     
     function getValueFromHTML($key, $value, $cmd, $opt) {
+        global $modx;
         if($modx->getChunk("phx:{$cmd}")) $html = $modx->getChunk("phx:{$cmd}");
         elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
                                           $html = $modx->getChunk($cmd);
