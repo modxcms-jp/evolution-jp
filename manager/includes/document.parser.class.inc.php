@@ -2950,12 +2950,12 @@ class DocumentParser {
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
     {
+        if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
+        
         if(substr($tpl,0,1)==='@') $tpl = $this->atBind($tpl);
         
         if(!$ph)  return $tpl;
         if(!$tpl) return $tpl;
-        
-        if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
         
         if(strpos($tpl,'<@LITERAL>')!==false) $tpl= $this->escapeLiteralTagsContent($tpl);
         $matches = $this->getTagsFromContent($tpl,$left,$right);
