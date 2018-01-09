@@ -1780,6 +1780,7 @@ class DocumentParser {
         }
         $safe = 0;
         while ($safe < 20) {
+            if (strpos($cmd, '[') === false && strpos($cmd, '{') === false) break;
             $bt = $cmd;
             if (strpos($cmd, '[*') !== false) {
                 $cmd = $this->mergeDocumentContent($cmd);
