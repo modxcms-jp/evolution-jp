@@ -280,8 +280,10 @@ class synccache {
 		}
 		
 		$this->cache_put_contents('config.siteCache.idx.php'      , $config);
-		$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
-		$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+		if($modx->config['legacy_cache']) {
+			$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
+			$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+		}
 		$this->cache_put_contents('chunk.siteCache.idx.php'       , $modx->chunkCache);
 		$this->cache_put_contents('snippet.siteCache.idx.php'     , $modx->snippetCache);
 		$this->cache_put_contents('plugin.siteCache.idx.php'      , $modx->pluginCache);
