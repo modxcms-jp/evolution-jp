@@ -159,7 +159,7 @@ class DocumentParser {
             $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
         }
         if(!isset($this->mstart))
-            $this->mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
+            $this->mstart = memory_get_usage();
     }
 
     /*
@@ -1848,7 +1848,7 @@ class DocumentParser {
         $phpTime= sprintf("%2.4f s", $phpTime);
         $source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-        $mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage()  : memory_get_usage() ;
+        $mem = memory_get_peak_usage();
         $total_mem = $this->nicesize($mem - $this->mstart);
         $incs = get_included_files();
         
