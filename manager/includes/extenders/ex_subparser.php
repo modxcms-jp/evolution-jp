@@ -1878,7 +1878,7 @@ class SubParser {
                 $file_path = false;
             elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
                 $file_path = $str;
-            elseif(MODX_BASE_PATH . trim($file_path,'/'))
+            elseif(is_file(MODX_BASE_PATH . trim($file_path,'/')))
                 $file_path = MODX_BASE_PATH . trim($file_path,'/');
             else $file_path = false;
         }
