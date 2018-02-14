@@ -256,13 +256,13 @@ window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
 		global $modx;
 		
 		if (is_uploaded_file($tmp_name)):
-			if($modx->manager->modx_move_uploaded_file($tmp_name,$target))
-				return @chmod($target,$modx->config['new_file_permissions']);
+			if($modx->modx_move_uploaded_file($tmp_name,$target))
+				return true;
 			else
 				return false;
 		else:
 			if(rename($tmp_name,($target)))
-				return @chmod($target,$modx->config['new_file_permissions']);
+				return true;
 			else
 				return false;
 		endif;
