@@ -429,7 +429,7 @@ class DocumentParser {
             // get document object
             if($this->documentObject) $_ = $this->documentObject;
             $this->documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
-            if(isset($_)) $this->documentObject = array_merge($this->documentObject,$_);
+            if(isset($_)) $this->documentObject = array_merge($_,$this->documentObject);
 
             // validation routines
             if($this->checkSiteStatus()===false)
