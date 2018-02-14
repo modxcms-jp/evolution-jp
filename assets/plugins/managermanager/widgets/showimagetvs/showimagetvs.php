@@ -20,7 +20,7 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
 		
-		$site = $modx->config['site_url'];
+		$base_url = $modx->config['base_url'];
 		
 		if (isset($w) || isset($h)){
 			$w = isset($w) ? $w : 300;
@@ -54,7 +54,7 @@ $j("#tv'.$tv['id'].'").addClass("imageField").bind("change load", function(){
 	$this.addClass("imageField");
 	var url = $j(this).val();
 	url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
-				url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$site.'" + url) : url;
+				url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$base_url.'" + url) : url;
 			';
 			
 			// If we have a PHPThumb URL

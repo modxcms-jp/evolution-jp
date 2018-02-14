@@ -17,7 +17,7 @@ function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
 
-		$site = $modx->config['site_url'];
+		$base_url = $modx->config['base_url'];
 		
 		// Which template is this page using?
 		if (isset($content['template'])) {
@@ -49,8 +49,8 @@ function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
 
 		$output .= "// ---------------- mm_ddMaxLength :: Begin ------------- \n";
 		//General functions
-		$output .= includeJs($site.'assets/plugins/managermanager/widgets/ddmaxlength/jquery.ddmaxlength-1.0.min.js');
-		$output .= includeCss($site.'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.css');
+		$output .= includeJs($base_url.'assets/plugins/managermanager/widgets/ddmaxlength/jquery.ddmaxlength-1.0.min.js');
+		$output .= includeCss($base_url.'assets/plugins/managermanager/widgets/ddmaxlength/ddmaxlength.css');
 
 		foreach ($tvs as $tv){
 			$output .= '
