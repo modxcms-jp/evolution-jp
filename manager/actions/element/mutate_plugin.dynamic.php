@@ -22,9 +22,10 @@ switch((int) $_REQUEST['a']) {
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the plugin editor isn't locked
-$active_user = $modx->db->getObject('active_users',"action='102' AND id='{$id}'");
-if(1<count($active_user) && $active_user->internalKey!=$modx->getLoginUserID()) {
-    $msg = sprintf($_lang['lock_msg'],$active_user->username,$_lang['plugin']);
+$rs = $modx->db->select('*','[+prefix+]active_users',"action='102' AND id='{$id}'");
+$row = $modx->db->getRow($rs);
+if(1<$modx->db->getRecordCount($rs) && $row['internalKey']!=$modx->getLoginUserID()) {
+    $msg = sprintf($_lang['lock_msg'],$row['username'],$_lang['plugin']);
     $e->setError(5, $msg);
     $e->dumpError();
 }
@@ -32,9 +33,10 @@ if(1<count($active_user) && $active_user->internalKey!=$modx->getLoginUserID()) 
 
 if(isset($_GET['id'])&&preg_match('@^[1-9][0-9]*$@',$_GET['id']))
 {
-    $pluginObject = $modx->db->getObject('site_plugins',"id='{$id}'");
+    $rs = $modx->db->select('*','[+prefix+]site_plugins',"id='{$id}'");
+    $total = $modx->db->getRecordCount($rs);
+    $pluginObject = (object)$modx->db->getRow($rs);
     
-    $total = count($pluginObject);
     if(1<$total):
         echo "Multiple plugins sharing same unique id. Not good.<p>";
         exit;

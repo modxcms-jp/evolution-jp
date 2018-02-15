@@ -702,8 +702,9 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 # Form Merge
 function formMerge($docText, $docFields, $vClasses='') {
-	global $formats, $lastitems;
-	$lastitems = (array) $lastitems;
+	global $formats;
+	static $lastitems = array();
+	
     if(!$docText) return '';
 
     preg_match_all('~\[\+(.*?)\+\]~', $docText, $matches);

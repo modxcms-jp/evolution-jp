@@ -614,11 +614,11 @@ class DocumentParser {
         if    (strpos($this->documentOutput,'\{')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
         elseif(strpos($this->documentOutput,'\[')!==false) $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
         
-        if (0<count($this->dumpSQL))
+        if (0<count($this->dumpSQLCode))
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
-        if (0<count($this->dumpSnippets))
+        if (0<count($this->dumpSnippetsCode))
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
