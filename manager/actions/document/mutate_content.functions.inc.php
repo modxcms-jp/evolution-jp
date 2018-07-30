@@ -980,6 +980,7 @@ function fieldsTV() {
 		// post back value
 		if(isset($form_v[$tvid])){
 			switch( $tv['type'] ){
+			case 'checkbox':
 			case 'listbox-multiple':
 				$tvPBV = implode('||', $form_v[$tvid]);
 				break;
