@@ -594,7 +594,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
                 $grpName=$row['groupname'];
             }
             $evtid = $row['id'];
-            $evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row[id],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name']. '"' . bold(in_array($row[id],$evts)) . '>'."[{$evtid}] ". $row['name'].'</label>'."\n";
+            $evtnames[] = '<input name="sysevents[]" type="checkbox"'. checked(in_array($row['id'],$evts)) . ' class="inputBox" value="'.$row['id'].'" id="'.$row['name'].'"/><label for="'.$row['name']. '"' . bold(in_array($row['id'],$evts)) . '>'."[{$evtid}] ". $row['name'].'</label>'."\n";
             if(count($evtnames)==2) echoEventRows($evtnames);
         }
     }
