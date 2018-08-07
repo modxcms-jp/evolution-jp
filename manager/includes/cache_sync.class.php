@@ -481,7 +481,12 @@ class synccache {
 	
     function getFileList($dir, $pattern='@\.php$@') {
         $dir = rtrim($dir, '/');
-        $files = glob($dir . '/*');
+	$tmp = array_diff(scandir($dir),['..','.']);
+	$files = [];
+	foreach($tmp as $val){
+		$files[] = $dir . '/' . $val;
+        }
+
         $list = array();
         foreach ((array)$files as $obj) {
             if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
