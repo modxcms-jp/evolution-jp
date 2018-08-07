@@ -291,7 +291,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
 	
-	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == on) ? '1': '0'; ?>;
+	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == 'on') ? '1': '0'; ?>;
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
 		jQuery('select').addClass('readonly');
