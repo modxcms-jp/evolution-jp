@@ -623,6 +623,10 @@ class DocumentParser {
         {
             $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
+        $unstrict_url = $this->config['site_url'].$this->makeUrl($this->config['site_start'],'','','rel');
+        if(strpos($this->documentOutput,$unstrict_url)!==false) {
+            $this->documentOutput = str_replace($unstrict_url,$this->config['site_url'],$this->documentOutput);
+        }
         
         // invoke OnLogPageView event
         if ($this->config['track_visitors'] == 1)
