@@ -481,10 +481,10 @@ class synccache {
 	
     function getFileList($dir, $pattern='@\.php$@') {
         $dir = rtrim($dir, '/');
-	$tmp = array_diff(scandir($dir),['..','.']);
-	$files = [];
-	foreach($tmp as $val){
-		$files[] = $dir . '/' . $val;
+    	$tmp = array_diff(scandir($dir),array('..','.'));
+    	$files = array();
+    	foreach($tmp as $val){
+    		$files[] = $dir . '/' . $val;
         }
 
         $list = array();
