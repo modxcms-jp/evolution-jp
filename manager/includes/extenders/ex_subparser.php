@@ -1824,11 +1824,16 @@ class SubParser {
         return $qp['path'];
     }
     
-    function genTokenString() {
+    function genTokenString($seed='') {
         global $modx;
         if(isset($modx->tmpCache['tokenString'])) return $modx->tmpCache['tokenString'];
-        $key = md5(mt_rand());
-        $key = base_convert($key,16,36);
+        if(!$seed) $seed = md5(mt_rand());
+        $_ = str_split($seed,5);
+        $p = array();
+        foreach($_ as $v) {
+            $p[] = base_convert($v,16,36);
+        }
+        $key = join('',$p);
         $key = substr($key,0,12);
         $modx->tmpCache['tokenString'] = $key;
         return $key;
