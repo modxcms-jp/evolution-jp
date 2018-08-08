@@ -78,6 +78,7 @@ class DocumentParser {
     var $tmpCache      = array();
     var $docid;
     var $doc;
+    var $uri_parent_dir;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
