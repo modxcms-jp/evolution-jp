@@ -130,6 +130,7 @@ if($modx->hasPermission('settings')) {
 }
 
 // setup modules
+$modulemenu = array();
 if($modx->hasPermission('exec_module')) {
 	// Each module
 	if ($_SESSION['mgrRole'] != 1)
