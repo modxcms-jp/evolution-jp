@@ -4014,6 +4014,12 @@ class DocumentParser {
         if($rs) @chmod($target_path, $new_file_permissions);
         return $rs;
     }
+    
+    public function input_get($key, $default=null, $filter='') {
+        if(!$filter) $filter = FILTER_DEFAULT;
+        return filter_input(INPUT_GET, $key, $filter);
+    }
+    
     // End of class.
 }
 
