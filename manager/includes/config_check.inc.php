@@ -4,6 +4,7 @@ if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 $base_path = MODX_BASE_PATH;
 
 $rs = checkAjaxSearch();
+$warnings = array();
 if($rs) $warnings[] = 'configcheck_danger_ajaxsearch';
 
 if (is_writable(MODX_CORE_PATH . 'config.inc.php')) @chmod(MODX_CORE_PATH . 'config.inc.php', 0444);
