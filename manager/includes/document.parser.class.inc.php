@@ -4025,6 +4025,11 @@ class DocumentParser {
         return filter_input(INPUT_POST, $key, $filter);
     }
     
+    public function input_cookie($key, $default=null, $filter='') {
+        if(!$filter) $filter = FILTER_DEFAULT;
+        return filter_input(INPUT_COOKIE, $key, $filter);
+    }
+    
     public function session_var($key, $default=null) {
         if(!isset($_SESSION[$key])) return $default;
         return $_SESSION[$key];
