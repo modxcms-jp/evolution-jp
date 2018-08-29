@@ -4030,6 +4030,14 @@ class DocumentParser {
         return filter_input(INPUT_COOKIE, $key, $filter);
     }
     
+    public function input_any($key, $default=null, $filter='') {
+        return filter_input(INPUT_COOKIE, $key, $filter);
+        if($rs = $this->input_post($key, $default, $filter))   return $rs;
+        if($rs = $this->input_get($key, $default, $filter))    return $rs;
+        if($rs = $this->input_cookie($key, $default, $filter)) return $rs;
+        return $default;
+    }
+    
     public function session_var($key, $default=null) {
         if(!isset($_SESSION[$key])) return $default;
         return $_SESSION[$key];
