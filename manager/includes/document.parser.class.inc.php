@@ -4015,6 +4015,34 @@ class DocumentParser {
         if($rs) @chmod($target_path, $new_file_permissions);
         return $rs;
     }
+    
+    public function input_get($key, $default=null, $filter='') {
+        if(!$filter) $filter = FILTER_DEFAULT;
+        return filter_input(INPUT_GET, $key, $filter);
+    }
+    
+    public function input_post($key, $default=null, $filter='') {
+        if(!$filter) $filter = FILTER_DEFAULT;
+        return filter_input(INPUT_POST, $key, $filter);
+    }
+    
+    public function input_cookie($key, $default=null, $filter='') {
+        if(!$filter) $filter = FILTER_DEFAULT;
+        return filter_input(INPUT_COOKIE, $key, $filter);
+    }
+    
+    public function input_any($key, $default=null, $filter='') {
+        if($rs = $this->input_post($key, $default, $filter))   return $rs;
+        if($rs = $this->input_get($key, $default, $filter))    return $rs;
+        if($rs = $this->input_cookie($key, $default, $filter)) return $rs;
+        return $default;
+    }
+    
+    public function session_var($key, $default=null) {
+        if(!isset($_SESSION[$key])) return $default;
+        return $_SESSION[$key];
+    }
+    
     // End of class.
 }
 
