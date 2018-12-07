@@ -1363,6 +1363,7 @@ class DocumentParser {
         
         $parent = $docid;
         $i=0;
+        $_ = array();
         while($parent!=0) {
             $_[] = $this->getAliasFromID($parent);
             $parent = $this->getParentID($parent);
@@ -2002,7 +2003,7 @@ class DocumentParser {
         }
         if(strpos($key,'[')!==false)
             $value = $key ? eval("return {$key};") : '';
-        elseif(0<eval("return count({$key});"))
+        elseif(0<eval("return is_array($key) ? count({$key}) : 0;"))
             $value = eval("return print_r({$key},true);");
         else $value = '';
         
