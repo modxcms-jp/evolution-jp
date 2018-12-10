@@ -2660,45 +2660,60 @@ class DocumentParser {
         return true;
     }
     
-    function getDocuments($ids= array(), $published= 1, $deleted= 0, $fields= '*', $where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
+    function getDocuments($ids= array(), $published= 1, $deleted= 0, $fields= '*', $extra_where= '', $sort= 'menuindex', $dir= 'ASC', $limit= '')
     {
-        if (count($ids) == 0 || empty($ids)) return false;
-        
-        if(is_string($ids))
-        {
-            $ids = explode(',',$ids);
-            while(list($i,$id) = each($ids))
-            {
-                $ids[$i] = trim($id);
-            }
+        if (!$ids) {
+            return false;
         }
         
-        // modify field names to use sc. table reference
-        $fields = $this->join(',', explode(',',$fields),'sc.');
-        
-        if($sort !== '')  $sort = $this->join(',', explode(',',$sort),'sc.');
-        if ($where != '') $where= "AND {$where}";
-        // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups()) $docgrp= implode(',', $docgrp);
-        $context = ($this->isFrontend()) ? 'web' : 'mgr';
-        $cond = $docgrp ? "OR dg.document_group IN ({$docgrp})" : '';
-        
-        $fields = "DISTINCT {$fields}";
-        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $ids_str = implode(',',$ids);
-        if(!is_null($published)) $published = (string)$published;
-        if($published==='1' || $published==='0')
-            $where_published = "AND sc.published='{$published}'";
-        else
-            $where_published = '';
+        if(is_string($ids)) {
+            $ids = explode(',',$ids);
+        }
+        foreach ($ids as $i=>$id) {
+            $ids[$i] = trim($id);
+        }
 
-        $tmp = isset($_SESSION['mgrRole']) ? $_SESSION['mgrRole'] : '';
-        $where = "(sc.id IN ({$ids_str}) {$where_published} AND sc.deleted={$deleted} {$where}) AND (sc.private{$context}=0 {$cond} OR 1='{$tmp}') GROUP BY sc.id";
-        $orderby = ($sort) ? "{$sort} {$dir}" : '';
+        $where = array();
+        $where[] = '(';
+            $where[] = sprintf('sc.id IN (%s)', join(',',$ids));
+            if(!is_null($published)) $published = (string)$published;
+            if($published==='1' || $published==='0') {
+                $where[] = "AND sc.published='{$published}'";
+            }
+            $where[] = sprintf('AND sc.deleted=%s', $deleted);
+            if ($extra_where) {
+                $where[] = "AND {$extra_where}";
+            }
+        $where[] = ')';
+
+        // get document groups for current user
+        if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole']!=1) {
+            $context = ($this->isFrontend()) ? 'privateweb' : 'privatemgr';
+            $docgrp= $this->getUserDocGroups();
+            if($docgrp) {
+                $docgrp= join(',', $docgrp);
+                $where[] = 'AND (';
+                    $where[] = sprintf('sc.%s=0 OR dg.document_group IN (%s)', $context, $docgrp);
+                $where[] = ')';
+            } else {
+                $where[] = sprintf('AND sc.%s=0', $context);
+            }
+        }
+        $where[] = 'GROUP BY sc.id';
+
+        if($sort) {
+            $sort = $this->join(',', explode(',',$sort),'sc.');
+            $orderby = "{$sort} {$dir}";
+        } else {
+            $orderby = '';
+        }
+
+        // modify field names to use sc. table reference
+        $fields = 'DISTINCT ' . $this->join(',', explode(',',$fields),'sc.');
+        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
         $result= $this->db->select($fields,$from,$where,$orderby,$limit);
         $resourceArray= array ();
-        while ($row = $this->db->getRow($result))
-        {
+        while ($row = $this->db->getRow($result)) {
             $resourceArray[] = $row;
         }
         return $resourceArray;
