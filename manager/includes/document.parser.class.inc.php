@@ -449,7 +449,7 @@ class DocumentParser {
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
                     $content = $this->parseText($tpl,$this->config);
                     header('Content-Length: '.strlen($content));
-                    exit($this->parseText($tpl, $content));
+                    exit($content);
                 }
             }
             
