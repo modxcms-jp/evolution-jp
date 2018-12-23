@@ -50,6 +50,7 @@ $_lang["checking_sessions"] = 'セッション情報が正常に構成される�
 $_lang["checking_table_prefix"] = 'Tableプレフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';
 $_lang["config_permissions_note"] = '<span class="mono">config.inc.php</span>という名前の空ファイルを作って<span class="mono">/manager/includes/</span>ディレクトリに転送するか、すでに転送済みのconfig.inc.php.blankをリネームするなどし、パーミッションを606などに設定してください。';
+$_lang["config_permissions_upg_note"] = '<span class="mono">/manager/includes/config.inc.php</span>のパーミッションを書き込み可能(606など)に設定してください。';
 $_lang["connection_screen_collation"] = 'コレーション(照合順序):';
 $_lang["connection_screen_connection_method"] = '接続時の文字セットの扱い:';
 $_lang["connection_screen_database_connection_information"] = '利用するデータベースとTableプレフィックスの設定';
