@@ -201,6 +201,13 @@ class synccache {
 		$rs = $modx->saveToFile($cache_path, join("\n",$content));
 		
 		if (!$rs) exit("Cannot open file ({$cache_path})");
+		
+		$f = array('setting_value'=>$recent_update, 'setting_name'=>'recent_update');
+		if(isset($setting['recent_update'])) {
+			$modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
+		} else {
+			$modx->db->insert($f, '[+prefix+]system_settings');
+		}
 	}
 	
 	function getCacheRefreshTime()
