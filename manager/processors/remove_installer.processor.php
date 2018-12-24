@@ -27,18 +27,22 @@ if(isset($_GET['rminstall']))
 echo "<script>window.location='../index.php?a=2';</script>";
 
 // rmdirRecursive - detects symbollic links on unix
-function rmdirRecursive($path,$followLinks=false)
+function rmdirRecursive($path)
 {
 	$files = scandir($path) ;
 	foreach ($files as $entry)
 	{
-		if (is_file("{$path}/{$entry}") || ((!$followLinks) && is_link("{$path}/{$entry}")))
+		if ($entry==='.')  continue;
+		if ($entry==='..') continue;
+
+		$target = $path . '/' . $entry;
+		if (is_file($target))
 		{
-			@unlink( "{$path}/{$entry}" );
+			@unlink( $target );
 		}
-		elseif (is_dir("{$path}/{$entry}") && $entry!='.' && $entry!='..')
+		elseif (is_dir($target))
 		{
-			rmdirRecursive("{$path}/{$entry}"); // recursive
+			rmdirRecursive($target);
 		}
 	}
 	return @rmdir($path);
