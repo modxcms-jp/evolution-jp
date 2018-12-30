@@ -4,7 +4,6 @@ if(!$modx->hasPermission('file_manager')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$token_check = $modx->manager->checkToken();
 $newToken = $modx->manager->makeToken();
 
 // settings
@@ -285,7 +284,7 @@ if (is_writable($startpath))
 	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='deletefolder')
 	{
 		$folder = $_REQUEST['folderpath'];
-		if(!$token_check || !@rrmdir($folder))
+		if(!!@rrmdir($folder))
 		{
 			echo '<span class="warning"><b>'.$_lang['file_folder_not_deleted'].'</b></span><br /><br />';
 		}
@@ -623,9 +622,7 @@ function logFileChange($type, $filename)
 // by patrick_allaert - php user notes
 function unzip($file, $path)
 {
-	global $newfolderaccessmode, $token_check;
-	
-	if(!$token_check) return false;
+	global $newfolderaccessmode;
 	
 	// added by Raymond
 	if (!extension_loaded('zip')) return 0;
@@ -717,7 +714,7 @@ function fileupload()
 		}
 		else
 		{
-			if(@$modx->move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
+			if($modx->move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
 			{
 				$msg .=  '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
 				
@@ -790,12 +787,12 @@ function textsave()
 
 function delete_file()
 {
-	global $_lang, $token_check;
+	global $_lang;
 	
 	$msg = sprintf($_lang['deleting_file'], str_replace('\\', '/', $_REQUEST['path']));
 	
 	$file = $_REQUEST['path'];
-	if(!$token_check || !@unlink($file))
+	if(!unlink($file))
 	{
 		$msg .= '<span class="warning"><b>'.$_lang['file_not_deleted'].'</b></span><br /><br />';
 	}
