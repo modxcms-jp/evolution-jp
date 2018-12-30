@@ -49,7 +49,7 @@ class CreateFolder {
 	function run()
 	{
 		global $modx;
-		$folder_permissions = octdec($modx->config['new_folder_permissions']);
+		$folder_permissions = $modx->config['new_folder_permissions'];
 		
 		header ("content-type: text/xml");
 		echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";

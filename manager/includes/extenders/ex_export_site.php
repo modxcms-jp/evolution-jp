@@ -140,7 +140,7 @@ class EXPORT_SITE
 			exit($msg);
 		}
 		
-		$file_permission = octdec($modx->config['new_file_permissions']);
+		$file_permission = $modx->config['new_file_permissions'];
 		if($this->generate_mode==='direct')
 		{
 			$back_lang = $_lang;
@@ -202,7 +202,7 @@ class EXPORT_SITE
 		
 		$ph = array();
 		$ph['total'] = $this->total;
-		$folder_permission = octdec($modx->config['new_folder_permissions']);
+		$folder_permission = $modx->config['new_folder_permissions'];
 		
 		$msg_failed_no_write    = $this->makeMsg('failed_no_write'   ,'fail');
 		$msg_failed_no_open     = $this->makeMsg('failed_no_open'    ,'fail');

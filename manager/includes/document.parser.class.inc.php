@@ -4075,7 +4075,7 @@ class DocumentParser {
         global $image_limit_width;
         
         $target_path = str_replace('\\','/', $target_path);
-        $new_file_permissions = octdec($this->config['new_file_permissions']);
+        $new_file_permissions = $this->config['new_file_permissions'];
         
         if(strpos($target_path, $this->config['filemanager_path'])!==0)
         {

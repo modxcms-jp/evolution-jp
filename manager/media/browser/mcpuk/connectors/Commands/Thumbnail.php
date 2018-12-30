@@ -47,8 +47,8 @@ class Thumbnail {
 		//$mimeIcon=getMimeIcon($mime);
 		$fullfile=$this->real_cwd.'/'.$this->filename;
 		$thumbfile=$this->real_cwd.'/.thumb/'.$this->filename;
-		$file_permissions   = octdec($modx->config['new_file_permissions']);
-		$folder_permissions = octdec($modx->config['new_folder_permissions']);
+		$file_permissions   = $modx->config['new_file_permissions'];
+		$folder_permissions = $modx->config['new_folder_permissions'];
 		$icon=false;
 		
 		if (is_file($thumbfile)) {
