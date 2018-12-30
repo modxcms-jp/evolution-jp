@@ -2398,7 +2398,7 @@ class DocumentParser {
         
         if(isset($_SESSION['mgrValidated'])
                 && $mode==='prepareResponse'
-                && isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])
+                && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
             )
         {
             if(!isset($_POST['token']) || !isset($_SESSION['token']) || $_POST['token']!==$_SESSION['token']) {
