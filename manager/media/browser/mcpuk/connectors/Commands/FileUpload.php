@@ -76,7 +76,6 @@ class FileUpload {
 	function run()
 	{
 		global $modx;
-		$modx->config['new_file_permissions'] = octdec($modx->config['new_file_permissions']);
 		
 		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
 		

@@ -44,8 +44,8 @@ if($_SESSION['mgrRole']!=1)
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = $new_folder_permissions ? octdec($new_folder_permissions) : 0777;
-$new_file_permissions = $new_file_permissions ? octdec($new_file_permissions) : 0666;
+$newfolderaccessmode = $new_folder_permissions ? $new_folder_permissions : 0777;
+$new_file_permissions = $new_file_permissions ? $new_file_permissions : 0666;
 // End Mod -  by Raymond
 // make arrays from the file upload settings
 $upload_files = explode(',',$upload_files);
@@ -98,7 +98,7 @@ else $webstart_path = '../'.$webstart_path;
 <h1><?php echo $_lang['manage_files']?></h1>
 
 <div id="actions">
-  <ul class="actionButtons">
+	<ul class="actionButtons">
 <?php
 if(isset($_GET['mode'])&&$_GET['mode']!=='drill') $href= 'a=31&path=' . urlencode($_REQUEST['path']);
 else $href='a=2';
@@ -129,8 +129,8 @@ if (is_writable($startpath))
 	echo $_;
 }
 ?>
-      <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?<?php echo $href;?>';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-  </ul>
+		<li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?<?php echo $href;?>';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+	</ul>
 </div>
 
 <div class="section">
@@ -444,9 +444,9 @@ if(!empty($buffer) && empty($ent_buffer))
 <input type="hidden" name="mode" value="save" />
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
-  <tr>
+	<tr>
     <td><textarea dir="ltr" style="width:100%; height:370px;" name="content" class="phptextarea"><?php echo $ent_buffer; ?></textarea></td>
-  </tr>
+	</tr>
 </table>
 </form>
 </div>
@@ -567,7 +567,7 @@ function removeLastPath($string) {
 	$pos = strrpos($string, '/');
 	if($pos!==false)
 	{
-	   $path = substr($string,0,$pos);
+		$path = substr($string,0,$pos);
 	}
 	else $path = false;
 	return $path;
@@ -577,8 +577,8 @@ function getExtension($string) {
 	$pos = strrpos($string, '.');
 	if($pos!==false)
 	{
-	   $ext = substr($string,$pos);
-	   $ext = strtolower($ext);
+		$ext = substr($string,$pos);
+		$ext = strtolower($ext);
 	}
 	else $ext = false;
 	return $ext;
@@ -717,12 +717,8 @@ function fileupload()
 		}
 		else
 		{
-			if(@move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
+			if(@$modx->move_uploaded_file($userfile['tmp_name'], $_POST['path'].'/'.$userfile['name']))
 			{
-				// Ryan: Repair broken permissions issue with file manager
-				if (strtoupper(substr(PHP_OS, 0, 3)) != 'WIN')
-					@chmod($_POST['path']."/".$userfile['name'], $new_file_permissions);
-				// Ryan: End
 				$msg .=  '<p><span class="success">'.$_lang['files_upload_ok'].'</span></p>';
 				
 				// invoke OnFileManagerUpload event
