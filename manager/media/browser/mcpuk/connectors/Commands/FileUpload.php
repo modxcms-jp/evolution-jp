@@ -76,6 +76,7 @@ class FileUpload {
 	function run()
 	{
 		global $modx;
+		$modx->config['new_file_permissions'] = octdec($modx->config['new_file_permissions']);
 		
 		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
 		
@@ -255,7 +256,7 @@ window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>) ;
 		global $modx;
 		
 		if (is_uploaded_file($tmp_name)):
-			if($modx->move_uploaded_file($tmp_name,$target))
+			if($modx->modx_move_uploaded_file($tmp_name,$target))
 				return true;
 			else
 				return false;
