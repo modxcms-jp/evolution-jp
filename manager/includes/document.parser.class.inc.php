@@ -2733,33 +2733,19 @@ class DocumentParser {
 
     function getField($field='content', $docid='')
     {
-        static $cache = array();
-
-        if(empty($docid) && isset($this->documentIdentifier))
+        if($docid==='' && isset($this->documentIdentifier))
             $docid = $this->documentIdentifier;
         elseif(!preg_match('@^[0-9]+$@',$docid))
             $docid = $this->getIdFromAlias($docid);
         
-        if(empty($docid)) return false;
+        if(!$docid) return false;
         
-        if(isset($cache['getfield'][$docid][$field]) && !is_array($cache['getfield'][$docid][$field]))
-            return $cache['getfield'][$docid][$field];
-        
-        if(!isset($doc[$field])) $doc = $this->getDocumentObject('id', $docid);
+        $doc = $this->getDocumentObject('id', $docid);
         
         if(is_array($doc[$field]))
         {
-            $doc[$field] = $this->tvProcessor($doc[$field]);
-            if(isset($cache['getfield'][$docid]))
-                $cache['getfield'][$docid] = array_merge($cache['getfield'][$docid],$doc);
-            else
-                $cache['getfield'][$docid] = $doc;
-            return $doc[$field];
+            return $this->tvProcessor($doc[$field]);
         }
-        if(isset($cache['getfield'][$docid]))
-            $cache['getfield'][$docid] = array_merge($cache['getfield'][$docid],$doc);
-        else
-            $cache['getfield'][$docid] = $doc;
         return $doc[$field];
     }
     
