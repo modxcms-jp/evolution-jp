@@ -33,8 +33,8 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
 
-		$site = $modx->config['site_url'];
-		$widgetDir = $site.'assets/plugins/managermanager/widgets/ddmultiplefields/';
+		$base_url = $modx->config['base_url'];
+		$widgetDir = $base_url.'assets/plugins/managermanager/widgets/ddmultiplefields/';
 		
 		if ($columnsData){
 			$columnsDataTemp = explode('||', $columnsData);
@@ -343,7 +343,7 @@ var ddMultiple = {
 		jQuery(".ddField", fieldCol).on("change.ddEvents load.ddEvents", function(){
 			var $this = jQuery(this), url = $this.val();
 
-			url = (url != "" && url.search(/http:\/\//i) == -1) ? ("'.$site.'" + url) : url;
+			url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$base_url.'" + url) : url;
 
 			//If field not empty
 			if (url != ""){

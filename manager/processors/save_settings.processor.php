@@ -8,6 +8,7 @@ $form_v = $_POST;
 // lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
 unset($_POST);
 
+$warnings = array();
 if($form_v['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')===false)
 {
 	$htaccess        = $modx->config['base_path'] . '.htaccess';

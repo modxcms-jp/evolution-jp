@@ -62,26 +62,27 @@ class MODIFIERS {
     
     function _getOpt($mode,$delim,$modifiers) {
         if($delim) {
-            if($mode=='(') return substr($modifiers,1,strpos($modifiers, $delim . ')' )-1);
-            
+            if($mode=='(') {
+                return substr($modifiers,1,strpos($modifiers, $delim . ')' )-1);
+            }
             return substr($modifiers,1,strpos($modifiers,$delim,1)-1);
         }
-        else {
-            if($mode=='(') return substr($modifiers,0,strpos($modifiers, ')') );
-            
-            $chars = str_split($modifiers);
-            $opt='';
-            foreach($chars as $c) {
-                if($c==':' || $c==')') break;
-                $opt .=$c;
-            }
-            return $opt;
+        
+        if($mode=='(') return substr($modifiers,0,strpos($modifiers, ')') );
+        
+        $chars = str_split($modifiers);
+        $opt='';
+        foreach($chars as $c) {
+            if($c==':' || $c==')') break;
+            $opt .=$c;
         }
+        return $opt;
     }
     function _getRemainModifiers($mode,$delim,$modifiers) {
         if($delim) {
-            if($mode=='(')
+            if($mode=='(') {
                 return $this->_fetchContent($modifiers, $delim . ')');
+            }
             else {
                 $modifiers = trim($modifiers);
                 $modifiers = substr($modifiers,1);

@@ -419,7 +419,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     setTimeout('showParameters();',10);
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpSnippet = new WebFXTabPane( document.getElementById( "snipetPane"), tpstatus );
-	var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == on) ? '1': '0'; ?>;
+	var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == 'on') ? '1': '0'; ?>;
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
 		jQuery('select').addClass('readonly');

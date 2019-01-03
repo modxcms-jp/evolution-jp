@@ -162,7 +162,7 @@ class EXPORT_SITE
 			if(is_file(dirname($filepath))) return 'failed_no_open';
 			
 			$result = file_put_contents($filepath,$src);
-			if($result!==false) @chmod($filepath, $file_permission);
+			if($result!==false) @chmod($filepath, 0666);
 			
 			if($result !== false) return 'success';
 			else                  return 'failed_no_write';
@@ -215,13 +215,16 @@ class EXPORT_SITE
 			$this->removeDirectoryAll($this->targetDir);
 		touch($this->lock_file_path);
 		
+		$mask = umask();
 		while($row = $modx->db->getRow($rs))
 		{
 			$_ = $modx->getAliasListing($row['id'],'path');
 			$target_base_path = $_=='' ? sprintf('%s/',$this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
 			unset($_);
 			$_ = rtrim($target_base_path,'/');
-			if(!file_exists($_)) mkdir($_,$folder_permission,true);
+			umask(000);
+			if(!file_exists($_)) mkdir($_,0777,true);
+			umask($mask);
 			unset($_);
 			
 			$this->count++;
@@ -262,7 +265,9 @@ class EXPORT_SITE
 				if (!is_dir($folder_path))
 				{
 					if (is_file($folder_path)) @unlink($folder_path);
-					mkdir($folder_path,$folder_permission);
+					umask(000);
+					mkdir($folder_path,0777);
+					umask($mask);
 				}
 				
 				if($modx->config['make_folders']==='1' && $row['published']==='1')

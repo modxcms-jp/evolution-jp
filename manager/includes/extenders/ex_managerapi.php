@@ -231,19 +231,18 @@ class ManagerAPI {
 	
 	function checkToken()
 	{
-		if(isset($_POST['token']) && !empty($_POST['token']))    $clientToken = $_POST['token'];
-		elseif(isset($_GET['token']) && !empty($_GET['token']))  $clientToken = $_GET['token'];
-		else                                                     $clientToken = false;
+		global $modx;
 		
-		if(isset($_SESSION['token']) && !empty($_SESSION['token'])) $serverToken = $_SESSION['token'];
-		else                                                        $serverToken = false;
-		
-		if($clientToken===false)            $rs = false;
-		elseif($clientToken===$serverToken) $rs = true;
-		else                                $rs = false;
+		$clientToken = $modx->input_any('token', false);
+		$serverToken = $modx->session_var('token', false);
 		
 		$_SESSION['token'] = '';
-		return $rs;
+		
+		if(!$clientToken)               return false;
+		if(!$serverToken)               return false;
+		if($clientToken!==$serverToken) return false;
+		
+		return true;
 	}
 	
 	function makeToken()

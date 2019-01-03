@@ -45,8 +45,8 @@ if(!empty($id))
 
 $templateObject = array();
 if(!empty($id)) {
-	$templateObject = $modx->db->getObject('site_templates',"id='{$id}'");
-	$total = count($templateObject);
+	$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$id}'");
+	$total = $modx->db->getRecordCount($rs);
 	if($total > 1)
 	{
 		echo "Oops, something went terribly wrong...<p>";
@@ -59,7 +59,8 @@ if(!empty($id)) {
 		echo "No database record has been found for this template. <p>Aborting.";
 		exit;
 	}
-	$_SESSION['itemname']=$templateObject->templatename;
+	$templateObject = $modx->db->getRow($rs);
+	$_SESSION['itemname']=$templateObject['templatename'];
 }
 else
 {
@@ -290,7 +291,7 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
 	
-	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == on) ? '1': '0'; ?>;
+	var readonly = <?php echo ($templateObject->locked == 1 || $templateObject->locked == 'on') ? '1': '0'; ?>;
 	if(readonly==1) {
 		jQuery('textarea,input[type=text]').prop('readonly',true);
 		jQuery('select').addClass('readonly');
@@ -326,11 +327,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 function getParentValues($parent) {
 	global $modx;
 	
-	$p = $modx->db->getObject('site_templates',"id='{$parent}'");
-	if(count($p)==1) {
+	$rs = $modx->db->select('*','[+prefix+]site_templates',"id='{$parent}'");
+	$total = $modx->db->getRecordCount($rs);
+	$p = (object)$modx->db->getRow($rs);
+	if($total==1) {
     	if(strpos($p->content,'[*#content*]')!==false) $p->content = str_replace('[*#content*]','[*content*]',$p->content);
 	}
-	if(count($p)==1 && strpos($p->content,'[*content*]')!==false) {
+	if($total==1 && strpos($p->content,'[*content*]')!==false) {
 		$content = explode('[*content*]',$p->content,2);
 		$divstyle = "border:1px solid #C3C3C3;padding:1em;background-color:#f7f7f7;";
 		$prestyle = "white-space: pre-wrap;display:block;width:auto; font-family: 'Courier New','Courier', monospace;";

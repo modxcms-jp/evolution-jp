@@ -211,10 +211,9 @@ class SubParser {
                 $page_cache_path = MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php";
                 if(is_file($page_cache_path)) unlink($page_cache_path);
             }
-            // $modx->config['cache_type'] = '0';
-            return;
         }
-        elseif(is_string($params) && $params==='full')
+
+        if(is_string($params) && $params==='full')
         {
             $params = array();
             $params['showReport'] = false;
@@ -234,7 +233,7 @@ class SubParser {
             $sync->emptyCache(); // first empty the cache
             return true;
         }
-        else return false;
+        return false;
     }
     
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='') {
@@ -367,7 +366,9 @@ class SubParser {
                 $error_level = 3;
         }
         $modx->logEvent(0, $error_level, $str,$source);
-        if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) return true;
+        if($modx->error_reporting==='99' && !isset($_SESSION['mgrValidated'])) {
+            return true;
+        }
 
         // Set 500 response header
         if(2 < $error_level && $modx->event->name!=='OnWebPageComplete')
@@ -676,27 +677,25 @@ class SubParser {
         if ($row['password'] == md5($oldPwd))
         {
             if (strlen($newPwd) < 6) return 'Password is too short!';
-            elseif ($newPwd == '')   return "You didn't specify a password for this user!";
-            else
-            {
-                $f = array();
-                $f['password'] = md5($newPwd);
-                $f['cachepwd'] = '';
-                $f = $modx->db->escape($f);
-                $modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
-                $modx->db->update("blockeduntil='0'", '[+prefix+]web_user_attributes', "internalKey='{$uid}'");
-                // invoke OnWebChangePassword event
-                $tmp = array
-                (
-                    'userid' => $row['id'],
-                    'username' => $row['username'],
-                    'userpassword' => $newPwd
-                );
-                $modx->invokeEvent('OnWebChangePassword',$tmp);
-                return true;
-            }
+            if ($newPwd == '')       return "You didn't specify a password for this user!";
+
+            $f = array();
+            $f['password'] = md5($newPwd);
+            $f['cachepwd'] = '';
+            $f = $modx->db->escape($f);
+            $modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
+            $modx->db->update("blockeduntil='0'", '[+prefix+]web_user_attributes', "internalKey='{$uid}'");
+            // invoke OnWebChangePassword event
+            $tmp = array(
+                'userid' => $row['id'],
+                'username' => $row['username'],
+                'userpassword' => $newPwd
+            );
+            $modx->invokeEvent('OnWebChangePassword',$tmp);
+            return true;
         }
-        else return 'Incorrect password.';
+
+        return 'Incorrect password.';
     }
     
     # add an event listner to a plugin - only for use within the current execution cycle
@@ -706,8 +705,7 @@ class SubParser {
         
         if(!$evtName || !$pluginName) return false;
         
-        if (!isset($modx->pluginEvent[$evtName]))
-        {
+        if (!isset($modx->pluginEvent[$evtName])) {
             $modx->pluginEvent[$evtName] = array();
         }
         
@@ -722,17 +720,19 @@ class SubParser {
         
         if (!$evtName)
             return false;
-        if ( $pluginName == '' ){
+        
+        if ( $pluginName == '' ) {
             unset ($modx->pluginEvent[$evtName]);
             return true;
-        }else{
-            foreach($modx->pluginEvent[$evtName] as $key => $val){
-                if ($modx->pluginEvent[$evtName][$key] == $pluginName){
-                    unset ($modx->pluginEvent[$evtName][$key]);
-                    return true;
-                }
+        }
+
+        foreach($modx->pluginEvent[$evtName] as $key => $val){
+            if ($modx->pluginEvent[$evtName][$key] == $pluginName){
+                unset ($modx->pluginEvent[$evtName][$key]);
+                return true;
             }
         }
+
         return false;
     }
 
@@ -759,7 +759,7 @@ class SubParser {
         }
     }
 
-     # Registers Client-side JavaScript     - these scripts are loaded at the end of the page unless $startup is true
+    # Registers Client-side JavaScript     - these scripts are loaded at the end of the page unless $startup is true
     function regClientScript($src, $options= array('name'=>'', 'version'=>'0', 'plaintext'=>false), $startup= false)
     {
         global $modx;
@@ -896,7 +896,7 @@ class SubParser {
         $total = $modx->db->getRecordCount($rs);
         
         if ($total == 1) return true;
-        else             return false;
+        return false;
     }
     
     /*
@@ -1062,7 +1062,7 @@ class SubParser {
         {
             // must be a text
             if($type=='array') return explode($delim,$src);
-            else               return $src;
+            return $src;
         }
     }
 
@@ -1448,7 +1448,7 @@ class SubParser {
         {
             $uid = $modx->getLoginUserID();
             $from  = '[+prefix+]webgroup_names wgn' .
-                     " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
+                    " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
             $rs = $modx->db->select('wgn.name', $from);
             $grpNames= $modx->db->getColumn('name', $rs);
             
@@ -1501,29 +1501,33 @@ class SubParser {
     # Returns current user name
     function getLoginUserName($context= '') {
         global $modx;
+
         if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
             return $_SESSION[$context . 'Shortname'];
         }
-        elseif ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
+
+        if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             return $_SESSION['webShortname'];
         }
-        elseif ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+
+        if ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return $_SESSION['mgrShortname'];
         }
-        else return false;
+        return false;
     }
 
     # Returns current login user type - web or manager
     function getLoginUserType() {
         global $modx;
+
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             return 'web';
         }
-        elseif ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+
+        if ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return 'manager';
-        } else {
-            return '';
         }
+        return '';
     }
     
     function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
@@ -1532,14 +1536,11 @@ class SubParser {
         
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
         if (!$docs) return false;
-        else
-        {
-            foreach($docs as $doc)
-            {
-                $result[] = $modx->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
-            }
-            return $result;
+
+        foreach($docs as $doc) {
+            $result[] = $modx->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
         }
+        return $result;
     }
         
     function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
@@ -1548,16 +1549,13 @@ class SubParser {
         
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
         if (!$docs) return false;
-        else
-        {
-            $result= array ();
-            foreach($docs as $doc)
-            {
-                $tvs= $modx->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
-                if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
-            }
-            return $result;
+        
+        $result= array ();
+        foreach($docs as $doc) {
+            $tvs= $modx->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
+            if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
         }
+        return $result;
     }
     
     function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
@@ -1690,10 +1688,10 @@ class SubParser {
                 $name = $tvname[$k];
                 if( isset($input["{$k}_prefix"]) )
                 {
-                  if( $input["{$k}_prefix"] != 'DocID' )
-                    $v = $input["{$k}_prefix"] . $v;
-                  elseif( preg_match('/\A[0-9]+\z/',$v) )
-                    $v = '[~' . $v . '~]';
+                    if( $input["{$k}_prefix"] != 'DocID' )
+                        $v = $input["{$k}_prefix"] . $v;
+                    elseif( preg_match('/\A[0-9]+\z/',$v) )
+                        $v = '[~' . $v . '~]';
                 }
                 $input[$name] = $v;
             }
@@ -1708,6 +1706,7 @@ class SubParser {
         if($input['publishedon']==='') $input['publishedon'] = '0';
 
         $modx->previewObject = $input;
+        
         return $modx->previewObject;
     }
     
@@ -1780,7 +1779,7 @@ class SubParser {
      *
      * @return array
      */
-   
+    
     function getVersionData($data=null) {
         global $modx;
         $out=array();
@@ -1824,11 +1823,16 @@ class SubParser {
         return $qp['path'];
     }
     
-    function genTokenString() {
+    function genTokenString($seed='') {
         global $modx;
         if(isset($modx->tmpCache['tokenString'])) return $modx->tmpCache['tokenString'];
-        $key = md5(mt_rand());
-        $key = base_convert($key,16,36);
+        if(!$seed) $seed = md5(mt_rand());
+        $_ = str_split($seed,5);
+        $p = array();
+        foreach($_ as $v) {
+            $p[] = base_convert($v,16,36);
+        }
+        $key = join('',$p);
         $key = substr($key,0,12);
         $modx->tmpCache['tokenString'] = $key;
         return $key;
@@ -1878,7 +1882,7 @@ class SubParser {
                 $file_path = false;
             elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
                 $file_path = $str;
-            elseif(MODX_BASE_PATH . trim($file_path,'/'))
+            elseif(is_file(MODX_BASE_PATH . trim($file_path,'/')))
                 $file_path = MODX_BASE_PATH . trim($file_path,'/');
             else $file_path = false;
         }
@@ -2114,6 +2118,6 @@ class SubParser {
         if($modx->aliasListing) return;
         $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
         if($aliases) $modx->aliasListing = $aliases;
-        else return false;
+        return false;
     }
 }

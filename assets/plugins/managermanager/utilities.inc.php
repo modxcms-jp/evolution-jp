@@ -47,10 +47,6 @@ function useThisRule($roles='', $templates='') {
 	return false;
 }
 
-
-
-
-
 // Makes a commas separated list into an array
 function makeArray($csv) {
 	
@@ -69,10 +65,6 @@ function makeArray($csv) {
 	array_walk( $return, create_function('$v, $k', 'return trim($v);'));	// Remove any whitespace
 	return $return;
 }
-
-
-
-
 
 // Make an output JS safe
 function jsSafe($str) {
@@ -101,7 +93,9 @@ function jsSafe($str) {
 function tplUseTvs($tpl_id, $tvs='', $types='') {
 	
 	// If it's a blank template, it can't have TVs
-	if($tpl_id == 0){return false;}
+	if($tpl_id == 0) {
+		return false;
+	}
 	
 	global $modx;
 	
@@ -109,21 +103,19 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 	$fields = makeArray($tvs); 
 	$types = makeArray($types); 
 	
-	// Get the DB table names
-	$tv_table = $modx->getFullTableName('site_tmplvars');	
-	$rel_table = $modx->getFullTableName('site_tmplvar_templates');
-	
-	// Are we looking at specific TVs, or all?
-	$tvs_sql = !empty($fields) ? ' AND tvs.name IN ' . makeSqlList($fields) : '';
-	
-	// Are we looking at specific TV types, or all?
-	$types_sql = !empty($types) ? ' AND type IN ' . makeSqlList($types) : '';
-	
-	// Make the SQL for this template
-	$cur_tpl = !empty($tpl_id) ? ' AND rel.templateid = ' . $tpl_id : '';
-		
-	// Do the SQL query	
-	$result = $modx->db->query("SELECT id FROM $tv_table tvs LEFT JOIN $rel_table rel ON rel.tmplvarid = tvs.id WHERE 1=1  $cur_tpl $tvs_sql $types_sql");
+	// Do the SQL query
+	$from = '[+prefix+]site_tmplvars tvs LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid=tvs.id';
+
+	$where[] = 'rel.templateid = ' . $tpl_id;
+
+	if(!empty($fields)) {
+		$where[] = 'type IN ' . makeSqlList($types);
+	}
+	if(!empty($types)) {
+		$where[] = 'type IN ' . makeSqlList($types);
+	}
+
+	$result = $modx->db->select('id', $from, join(' AND ', $where));
 
 	// If we have results, return them, otherwise return false
 	if ( $modx->db->getRecordCount($result) == 0) {
@@ -132,10 +124,6 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 		return $modx->db->makeArray($result);
 	}
 }
-
-
-
-
 
 // Create a MySQL-safe list from an array
 function makeSqlList($arr) {
@@ -147,9 +135,6 @@ function makeSqlList($arr) {
 	$sql = " (".implode(',',$arr).") ";
 	return $sql;
 }
-
-
-
 
 // Generates the code needed to include an external script file. 
 // $url is the URL of the external script
@@ -166,8 +151,6 @@ function includeJs($url, $output_type='js') {
 	
 	
 }
-
-
 
 // Generates the code needed to include an external CSS file. 
 // $url is any URL

@@ -45,7 +45,7 @@
  * -----------------------------
  */
 if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
-$mstart = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
+$mstart = memory_get_usage();
 $base_path = str_replace('\\', '/',dirname(__FILE__)) . '/';
 define('MODX_BASE_PATH', $base_path);
 
@@ -86,8 +86,7 @@ elseif(!defined('MODX_API_MODE')
                 header('Content-Type:' . $type . '; charset=utf-8');
             }
             else header('Content-Type:text/html; charset=utf-8');
-            $mem = (function_exists('memory_get_peak_usage')) ? memory_get_peak_usage() : memory_get_usage();
-            $msize = $mem - $mstart;
+            $msize = memory_get_peak_usage() - $mstart;
             $units = array('B', 'KB', 'MB');
             $pos = 0;
             while ($msize >= 1024) {

@@ -334,9 +334,9 @@ $s = '';
             else
             {
                 $keys = array_keys($fields);
-                $keys = implode('`,`', $keys) ;
+                $keys = join('`,`', $keys) ;
                 $values = array_values($fields);
-                $values = implode("','", $values);
+                $values = join("','", $values);
                 if (!$fromtable && $values) $pairs = "(`{$keys}`) VALUES('{$values}')";
             }
             if($fromtable)
@@ -345,7 +345,7 @@ $s = '';
                 if (is_array($fields))
                 {
                     $keys   = array_keys($fields);
-                    $fields = implode(',', $keys);
+                    $fields = join(',', $keys);
                 }
                 if ($where !== '') $where = "WHERE {$where}";
                 if ($limit !== '') $limit = "LIMIT {$limit}";

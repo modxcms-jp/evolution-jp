@@ -181,7 +181,11 @@ if (!is_file($config_path)) {
 @chmod($config_path, 0666);
 $isWriteable = is_writable($config_path);
 if (!$isWriteable) {
-    $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
+    if($_SESSION['installmode']==0) {
+        $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
+    } else {
+        $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_upg_note']."</strong>";
+    }
     $errors += 1;
 }
 else  $_ = echo_ok();

@@ -49,7 +49,8 @@ $_lang["checking_registerglobals_note"] = 'This configuration makes your site mu
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
-$_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create a blank file named <span class="mono">config.inc.php</span> in the <span class="mono">/manager/includes/</span> directory with file permissions set to 0666.';
+$_lang["config_permissions_note"] = 'For new Linux/Unix installs, please create a blank file named <span class="mono">config.inc.php</span> in the <span class="mono">manager/includes/</span> directory with file permissions set to 0666.';
+$_lang["config_permissions_upg_note"] = 'Please set <span class="mono">manager/includes/config.inc.php</span> permission to writeable (eg 0606).';
 $_lang["connection_screen_collation"] = 'Collation:';
 $_lang["connection_screen_connection_method"] = 'Connection method:';
 $_lang["connection_screen_database_connection_information"] = 'Database information';

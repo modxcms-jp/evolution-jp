@@ -201,6 +201,13 @@ class synccache {
 		$rs = $modx->saveToFile($cache_path, join("\n",$content));
 		
 		if (!$rs) exit("Cannot open file ({$cache_path})");
+		
+		$f = array('setting_value'=>$recent_update, 'setting_name'=>'recent_update');
+		if(isset($setting['recent_update'])) {
+			$modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
+		} else {
+			$modx->db->insert($f, '[+prefix+]system_settings');
+		}
 	}
 	
 	function getCacheRefreshTime()
@@ -280,8 +287,10 @@ class synccache {
 		}
 		
 		$this->cache_put_contents('config.siteCache.idx.php'      , $config);
-		$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
-		$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+		if($modx->config['legacy_cache']) {
+			$this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
+			$this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+		}
 		$this->cache_put_contents('chunk.siteCache.idx.php'       , $modx->chunkCache);
 		$this->cache_put_contents('snippet.siteCache.idx.php'     , $modx->snippetCache);
 		$this->cache_put_contents('plugin.siteCache.idx.php'      , $modx->pluginCache);
@@ -479,7 +488,12 @@ class synccache {
 	
     function getFileList($dir, $pattern='@\.php$@') {
         $dir = rtrim($dir, '/');
-        $files = glob($dir . '/*');
+    	$tmp = array_diff(scandir($dir),array('..','.'));
+    	$files = array();
+    	foreach($tmp as $val){
+    		$files[] = $dir . '/' . $val;
+        }
+
         $list = array();
         foreach ((array)$files as $obj) {
             if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
