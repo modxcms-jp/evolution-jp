@@ -1,5 +1,5 @@
 <?php
-include_once('initialize.functions.inc');
+include_once(__DIR__.'/initialize.functions.inc');
 $init = new MODX_INIT;
 
 $init->fix_favicon_req();

@@ -5,7 +5,7 @@
  *
  */
 
-require_once('initialize.inc.php');
+require_once(__DIR__.'/initialize.inc.php');
 
 class DocumentParser {
     var $db; // db object
