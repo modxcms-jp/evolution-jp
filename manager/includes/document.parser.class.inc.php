@@ -4167,10 +4167,10 @@ class DocumentParser {
         return $_COOKIE[$key];
     }
     
-    public function input_any($key, $default=null, $filter='') {
-        if($rs = $this->input_post($key, $default, $filter))   return $rs;
-        if($rs = $this->input_get($key, $default, $filter))    return $rs;
-        if($rs = $this->input_cookie($key, $default, $filter)) return $rs;
+    public function input_any($key, $default=null) {
+        if($rs = $this->input_post($key, $default))   return $rs;
+        if($rs = $this->input_get($key, $default))    return $rs;
+        if($rs = $this->input_cookie($key, $default)) return $rs;
         return $default;
     }
     
