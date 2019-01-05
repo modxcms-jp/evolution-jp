@@ -4151,9 +4151,11 @@ class DocumentParser {
         return filter_input(INPUT_GET, $key, $filter);
     }
     
-    public function input_post($key, $default=null, $filter='') {
-        if(!$filter) $filter = FILTER_DEFAULT;
-        return filter_input(INPUT_POST, $key, $filter);
+    public function input_post($key, $default=null) {
+        if(!isset($_POST[$key])) {
+            return $default;
+        }
+        return $_POST[$key];
     }
     
     public function input_cookie($key, $default=null, $filter='') {
