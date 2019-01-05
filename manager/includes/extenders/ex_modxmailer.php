@@ -98,19 +98,13 @@ class MODxMailer extends PHPMailer
 	
 	function EncodeHeader($str, $position = 'text')
 	{
-		global $modx, $sanitize_seed;
-		if(strpos($str, $sanitize_seed)!==false) $str = str_replace($sanitize_seed, '', $str);
+		global $modx;
 		if($this->encode_header_method=='mb_encode_mimeheader')
 			return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
 		else return parent::EncodeHeader($str, $position);
 	}
 	
     public function Send() {
-		global $sanitize_seed;
-		
-		if(strpos($this->Body, $sanitize_seed)!==false)    $this->Body = str_replace($sanitize_seed, '', $this->Body);
-		if(strpos($this->Subject, $sanitize_seed)!==false) $this->Subject = str_replace($sanitize_seed, '', $this->Subject);
-		
 		$target = array(
 					"sanitized_by_modx& #039"=>"'",
 					"sanitized_by_modx& #145"=>"'",
