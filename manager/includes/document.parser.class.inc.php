@@ -4160,9 +4160,11 @@ class DocumentParser {
         return $_POST[$key];
     }
     
-    public function input_cookie($key, $default=null, $filter='') {
-        if(!$filter) $filter = FILTER_DEFAULT;
-        return filter_input(INPUT_COOKIE, $key, $filter);
+    public function input_cookie($key, $default=null) {
+        if(!isset($_COOKIE[$key])) {
+            return $default;
+        }
+        return $_COOKIE[$key];
     }
     
     public function input_any($key, $default=null, $filter='') {
