@@ -396,14 +396,13 @@ $_SESSION['webnrlogins']       = $nrlogins;
 $_SESSION['webUserGroupNames'] = ''; // reset user group names
 
 // get user's document groups
-$dg=array();
-$i=0;
-$tbl_web_groups      = $modx->getFullTableName('web_groups');
 $tbl_webgroup_access = $modx->getFullTableName('webgroup_access');
-$tbl_webgroup_names  = $this->getFullTableName('webgroup_names');
 
-$from = "{$tbl_web_groups} ug INNER JOIN {$tbl_webgroup_access} uga ON uga.webgroup=ug.webgroup";
+$from = array('[+prefix+]web_groups ug');
+$from[] = 'INNER JOIN [+prefix+]webgroup_access uga ON uga.webgroup=ug.webgroup';
 $ds = $modx->db->select('uga.documentgroup',$from,"ug.webuser='{$internalKey}'");
+$i=0;
+$dg=array();
 while ($row = $modx->db->getRow($ds,'num'))
 {
 	$i++;
@@ -411,7 +410,8 @@ while ($row = $modx->db->getRow($ds,'num'))
 }
 $_SESSION['webDocgroups'] = $dg;
 
-$from = "{$tbl_webgroup_names} wgn INNER JOIN {$tbl_web_groups} wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
+$from = array('[+prefix+]webgroup_names wgn');
+$from[] = "INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
 $grpNames= $this->db->getColumn('name', $this->db->select('wgn.name',$from)); 
 $_SESSION['webUserGroupNames']= $grpNames;
 
