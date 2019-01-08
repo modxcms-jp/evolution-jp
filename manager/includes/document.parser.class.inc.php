@@ -4149,7 +4149,7 @@ class DocumentParser {
         return $rs;
     }
     
-    public function input_get($key, $default=null, $filter='') {
+    public function input_get($key, $default=null) {
         if(!isset($_GET[$key])) {
             return $default;
         }
