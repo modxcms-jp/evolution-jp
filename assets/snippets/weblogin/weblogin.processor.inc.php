@@ -396,7 +396,7 @@ $_SESSION['webnrlogins']       = $nrlogins;
 $_SESSION['webUserGroupNames'] = ''; // reset user group names
 
 // get user's document groups
-$dg='';
+$dg=array();
 $i=0;
 $tbl_web_groups      = $modx->getFullTableName('web_groups');
 $tbl_webgroup_access = $modx->getFullTableName('webgroup_access');
@@ -406,7 +406,8 @@ $from = "{$tbl_web_groups} ug INNER JOIN {$tbl_webgroup_access} uga ON uga.webgr
 $ds = $modx->db->select('uga.documentgroup',$from,"ug.webuser='{$internalKey}'");
 while ($row = $modx->db->getRow($ds,'num'))
 {
-	$dg[$i++]=$row[0];
+	$i++;
+	$dg[$i]=$row[0];
 }
 $_SESSION['webDocgroups'] = $dg;
 
