@@ -2760,7 +2760,8 @@ class DocumentParser {
         $published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
         
         // get document groups for current user
-        if($docgrp= $this->getUserDocGroups())
+        $docgrp = $this->getUserDocGroups();
+        if($docgrp)
         {
             $docgrp= join(',', $docgrp);
         }
@@ -3439,24 +3440,24 @@ class DocumentParser {
     {
         $dg  = array(); // add so
         $dgn = array();
-        if($this->isFrontend() && isset($_SESSION['webDocgroups']) && !empty($_SESSION['webDocgroups']) && isset($_SESSION['webValidated']))
+
+        if($this->session_var('webDocgroups')&& $this->session_var('webValidated')
+            && $this->isFrontend())
         {
-            $dg = $_SESSION['webDocgroups'];
-            if(isset($_SESSION['webDocgrpNames']))
+            $dg = $this->session_var('webDocgroups');
+            if($this->session_var('webDocgrpNames'))
             {
-                $dgn = $_SESSION['webDocgrpNames']; //add so
+                $dgn = $this->session_var('webDocgrpNames'); //add so
             }
         }
 
-        if(isset($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups']) && isset($_SESSION['mgrValidated']))
+        if($this->session_var('mgrDocgroups') && $this->session_var('mgrValidated')
+            && ($this->isBackend() || $this->config['allow_mgr2web']==='1'))
         {
-            if($this->config['allow_mgr2web']==='1' || $this->isBackend())
+            $dg = array_merge($dg, $this->session_var('mgrDocgroups',array()));
+            if($this->session_var('mgrDocgrpNames'))
             {
-                $dg = array_merge($dg, $_SESSION['mgrDocgroups']);
-                if(isset($_SESSION['mgrDocgrpNames']))
-                {
-                    $dgn = array_merge($dgn, $_SESSION['mgrDocgrpNames']);
-                }
+                $dgn = array_merge($dgn, $this->session_var('mgrDocgrpNames',array()));
             }
         }
 
@@ -3465,25 +3466,27 @@ class DocumentParser {
             return $dg;
         }
 
-        if(!empty($dgn) || empty($dg))
-        {
+        if(!$dg || $dgn) {
             return $dgn; // add so
         }
 
-        if(is_array($dg))
-        {
-            // resolve ids to names
-            $dgn = array ();
-            $ds = $this->db->select('name', '[+prefix+]documentgroup_names', sprintf('id IN (%s)', join(',', $dg)));
-            while ($row = $this->db->getRow($ds))
-            {
-                $dgn[count($dgn)] = $row['name'];
-            }
-            // cache docgroup names to session
-            if($this->isFrontend()) $_SESSION['webDocgrpNames'] = $dgn;
-            else                    $_SESSION['mgrDocgrpNames'] = $dgn;
-            return $dgn;
+        if(!$dg || !is_array($dg)) {
+            return;
         }
+
+        // resolve ids to names
+        $dgn = array ();
+        $where = sprintf('id IN (%s)', join(',', $dg));
+        $ds = $this->db->select('name', '[+prefix+]documentgroup_names', $where);
+        while ($row = $this->db->getRow($ds))
+        {
+            $total = count($dgn);
+            $dgn[$total] = $row['name'];
+        }
+        // cache docgroup names to session
+        if($this->isFrontend()) $_SESSION['webDocgrpNames'] = $dgn;
+        else                    $_SESSION['mgrDocgrpNames'] = $dgn;
+        return $dgn;
     }
     
     # Remove unwanted html tags and snippet, settings and tags
