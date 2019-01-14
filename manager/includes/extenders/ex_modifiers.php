@@ -508,11 +508,11 @@ class MODIFIERS {
                 return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
             case 'spam_protect':
                 return str_replace(array('@','.'),array('&#64;','&#46;'),$value);
-            case 'strip':
-                if($opt==='') $opt = ' ';
-                return preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'strip_linefeeds':
                 return str_replace(array("\n","\r"), '', $value);
+            case 'strip':
+                if($opt==='') $opt = ' ';
+                $value = preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'notags':
             case 'strip_tags':
             case 'remove_html':
