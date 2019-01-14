@@ -83,15 +83,15 @@ if(is_file("{$ditto_base}configs/default.config.php"))
 
 if(substr($config, 0, 6) === '@CHUNK')
 {
-	eval('?>' . $modx->getChunk(trim(substr($config, 7))));
+    eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 }
 elseif(substr($config, 0, 5) === '@FILE')
 {
-	@include($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
+    @include($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
 }
 elseif($config !== 'default')
 {
-	@include("{$ditto_base}configs/{$config}.config.php");
+    @include("{$ditto_base}configs/{$config}.config.php");
 }
 
 /*
@@ -128,8 +128,8 @@ $debug = isset($debug)? $debug : 0;
     - <debug>
 */
 if(!isset($modifier_mode)&&isset($phx)) {
-	if($phx==1) $modifier_mode = 'phx';
-	else        $modifier_mode = 'none';
+    if($phx==1) $modifier_mode = 'phx';
+    else        $modifier_mode = 'none';
 }
 else            $modifier_mode = 'normal';
 /*
@@ -248,59 +248,59 @@ else
 //---Initiate Extenders---------------------------------------------- //
 if (isset($tagData))
 {
-	$extenders[] = "tagging";
+    $extenders[] = "tagging";
 }
 if(count($extenders) > 0)
 {
-	$extenders = array_unique($extenders);
-	foreach ($extenders as $extender)
-	{
-		$extender = trim($extender);
-		$extender = str_replace('\\','/',$extender);
-		$rs = false;
-		if(substr($extender, 0, 6) === '@CHUNK')
-		{
-			$chunk = $modx->getChunk(trim(substr($extender, 7)));
-			if(!empty($chunk)) {
-				eval($chunk);
-				$rs = true;
-			}
-		}
-		elseif(substr($extender, 0, 5) === '@FILE')
-		{
-			$extender_path = trim(substr($extender,6));
-			$extender_path = trim($extender_path,'/');
-			$extender_path = $modx->config['base_path'] . $extender_path;
-			if(  strpos($extender_path,'../')===false
-			  && strpos($extender_path,'manager/')!==0
-			  && is_file($extender_path)) {
-				include($extender_path);
-				$rs = true;
-			}
-		}
-		else
-		{
-			$chunk = $modx->getChunk($extender);
-			if(!empty($chunk))
-			{
-				eval($chunk);
-				$rs = true;
-			}
-		}
-		
-		$extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
-		if($rs===false && is_file($extender_path))
-		{
-			include($extender_path);
-			$rs = true;
-		}
-		
-		if($rs===false)
-		{
-			$modx->logEvent(1, 3, "{$extender} " . $_lang['extender_does_not_exist'], "Ditto {$ditto_version}");
-			return $extender . " " . $_lang['extender_does_not_exist'];
-		}
-	}
+    $extenders = array_unique($extenders);
+    foreach ($extenders as $extender)
+    {
+        $extender = trim($extender);
+        $extender = str_replace('\\','/',$extender);
+        $rs = false;
+        if(substr($extender, 0, 6) === '@CHUNK')
+        {
+            $chunk = $modx->getChunk(trim(substr($extender, 7)));
+            if(!empty($chunk)) {
+                eval($chunk);
+                $rs = true;
+            }
+        }
+        elseif(substr($extender, 0, 5) === '@FILE')
+        {
+            $extender_path = trim(substr($extender,6));
+            $extender_path = trim($extender_path,'/');
+            $extender_path = $modx->config['base_path'] . $extender_path;
+            if(  strpos($extender_path,'../')===false
+                && strpos($extender_path,'manager/')!==0
+                && is_file($extender_path)) {
+                include($extender_path);
+                $rs = true;
+            }
+        }
+        else
+        {
+            $chunk = $modx->getChunk($extender);
+            if(!empty($chunk))
+            {
+                eval($chunk);
+                $rs = true;
+            }
+        }
+        
+        $extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
+        if($rs===false && is_file($extender_path))
+        {
+            include($extender_path);
+            $rs = true;
+        }
+        
+        if($rs===false)
+        {
+            $modx->logEvent(1, 3, "{$extender} " . $_lang['extender_does_not_exist'], "Ditto {$ditto_version}");
+            return $extender . " " . $_lang['extender_does_not_exist'];
+        }
+    }
 }
 
 //---Parameters------------------------------------------------------- /*
@@ -1153,13 +1153,13 @@ if ($debug == 1) {
 // outerTpl by Dmi3yy & Jako
 if(isset($tplOuter)) $outerTpl = $tplOuter;
 if(isset($outerTpl) && !empty($outerTpl)) { 
-  if(!$resource) $output = '';
-  elseif(substr($outerTpl, 0, 5) == '@CODE')
-    $outerTpl = trim(substr($outerTpl, 6));
-  elseif ($modx->getChunk($outerTpl) != '')
-    $outerTpl = $modx->getChunk($outerTpl);
-  
-  if($output)
+    if(!$resource) $output = '';
+    elseif(substr($outerTpl, 0, 5) == '@CODE')
+        $outerTpl = trim(substr($outerTpl, 6));
+    elseif ($modx->getChunk($outerTpl) != '')
+        $outerTpl = $modx->getChunk($outerTpl);
+
+    if($output)
     $output = str_replace(array('[+ditto+]','[+documents+]','[+docs+]'),$output,$outerTpl);
 }
 

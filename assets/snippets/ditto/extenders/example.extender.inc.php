@@ -16,7 +16,7 @@ $param = isset($param) ? $param : "default";
 	Param: param
 
 	Purpose:
- 	The purpose of your parameter goes here
+	The purpose of your parameter goes here
 
 	Options:
 	Any options that your parameter can have go here

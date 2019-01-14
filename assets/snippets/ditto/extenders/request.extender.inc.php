@@ -79,7 +79,7 @@ extract($variables);
 // Accepts ditto_filter, ditto_filter_2, with continuous numbering				 //
 // Note: For complex filtering start with ditto_filter_1 (with one as number)!   //
 // ------------------------------------------------------------------------------//
-  
+
 if (isset($filter) && isset($filter_2)) {
 		$i = 2;
 		while (isset(${'filter_'.$i})) {
@@ -94,5 +94,3 @@ if (isset($filter) && isset($filter_2)) {
 			$i++;
 		}
 }
-
-?>

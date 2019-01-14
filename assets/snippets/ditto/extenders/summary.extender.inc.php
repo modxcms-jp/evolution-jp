@@ -141,89 +141,89 @@ if (!class_exists("truncate")) {
 
 		function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars=false) {
 
-		   // $minimum_length:
-		   // The approximate length you want the concatenated text to be
+			// $minimum_length:
+			// The approximate length you want the concatenated text to be
 
 
-		   // $length_offset:
-		   // The variation in how long the text can be in this example text
-		   // length will be between 200 and 200-20=180 characters and the
-		   // character where the last tag ends
+			// $length_offset:
+			// The variation in how long the text can be in this example text
+			// length will be between 200 and 200-20=180 characters and the
+			// character where the last tag ends
 
-		   // Reset tag counter & quote checker
-		   $tag_counter = 0;
-		   $quotes_on = FALSE;
-		   // Check if the text is too long
-		   if (mb_strlen($posttext) > $minimum_length && $truncChars != 1) {
+			// Reset tag counter & quote checker
+			$tag_counter = 0;
+			$quotes_on = FALSE;
+			// Check if the text is too long
+			if (mb_strlen($posttext) > $minimum_length && $truncChars != 1) {
 
-		       // Reset the tag_counter and pass through (part of) the entire text
-		       $c = 0;
-		       for ($i = 0; $i < mb_strlen($posttext); $i++) {
-		           // Load the current character and the next one
-		           // if the string has not arrived at the last character
-		           $current_char = mb_substr($posttext,$i,1);
-		           if ($i < strlen($posttext) - 1) {
-		               $next_char = mb_substr($posttext,$i + 1,1);
-		           }
-		           else {
-		               $next_char = "";
-		           }
-		           // First check if quotes are on
-		           if (!$quotes_on) {
-		               // Check if it's a tag
-		               // On a "<" add 3 if it's an opening tag (like <a href...)
-		               // or add only 1 if it's an ending tag (like </a>)
-		               if ($current_char == '<') {
-		                   if ($next_char == '/') {
-		                       $tag_counter += 1;
-		                   }
-		                   else {
-		                       $tag_counter += 3;
-		                   }
-		               }
-		               // Slash signifies an ending (like </a> or ... />)
-		               // substract 2
-		               if ($current_char == '/' && $tag_counter <> 0) $tag_counter -= 2;
-		               // On a ">" substract 1
-		               if ($current_char == '>') $tag_counter -= 1;
-		               // If quotes are encountered, start ignoring the tags
-		               // (for directory slashes)
-		               if ($current_char == '"') $quotes_on = TRUE;
-		           }
-		           else {
-		               // IF quotes are encountered again, turn it back off
-		               if ($current_char == '"') $quotes_on = FALSE;
-		           }
+				// Reset the tag_counter and pass through (part of) the entire text
+				$c = 0;
+				for ($i = 0; $i < mb_strlen($posttext); $i++) {
+					// Load the current character and the next one
+					// if the string has not arrived at the last character
+					$current_char = mb_substr($posttext,$i,1);
+					if ($i < strlen($posttext) - 1) {
+						$next_char = mb_substr($posttext,$i + 1,1);
+					}
+					else {
+						$next_char = "";
+					}
+					// First check if quotes are on
+					if (!$quotes_on) {
+						// Check if it's a tag
+						// On a "<" add 3 if it's an opening tag (like <a href...)
+						// or add only 1 if it's an ending tag (like </a>)
+						if ($current_char == '<') {
+							if ($next_char == '/') {
+								$tag_counter += 1;
+							}
+							else {
+								$tag_counter += 3;
+							}
+						}
+						// Slash signifies an ending (like </a> or ... />)
+						// substract 2
+						if ($current_char == '/' && $tag_counter <> 0) $tag_counter -= 2;
+						// On a ">" substract 1
+						if ($current_char == '>') $tag_counter -= 1;
+						// If quotes are encountered, start ignoring the tags
+						// (for directory slashes)
+						if ($current_char == '"') $quotes_on = TRUE;
+					}
+					else {
+						// IF quotes are encountered again, turn it back off
+						if ($current_char == '"') $quotes_on = FALSE;
+					}
 
-		           // Count only the chars outside html tags
-		           if($tag_counter == 2 || $tag_counter == 0){
-		               $c++;
-		           }
+					// Count only the chars outside html tags
+					if($tag_counter == 2 || $tag_counter == 0){
+						$c++;
+					}
 
-		           // Check if the counter has reached the minimum length yet,
-		           // then wait for the tag_counter to become 0, and chop the string there
-		           if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
-		               $posttext = mb_substr($posttext,0,$i + 1);
-		               return $posttext;
-		           }
-		       }
-		   }  return $this->textTrunc($posttext, $minimum_length + $length_offset);
+					// Check if the counter has reached the minimum length yet,
+					// then wait for the tag_counter to become 0, and chop the string there
+					if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
+						$posttext = mb_substr($posttext,0,$i + 1);
+						return $posttext;
+					}
+				}
+			}  return $this->textTrunc($posttext, $minimum_length + $length_offset);
 		}
 
 		function textTrunc($string, $limit, $break="。") {
 			global $modx;
-	  	// Original PHP code from The Art of Web: www.the-art-of-web.com
-		    mb_internal_encoding($modx->config['modx_charset']);
-	    // return with no change if string is shorter than $limit
-		    if(mb_strwidth($string) <= $limit) return $string;
+			// Original PHP code from The Art of Web: www.the-art-of-web.com
+			mb_internal_encoding($modx->config['modx_charset']);
+		// return with no change if string is shorter than $limit
+			if(mb_strwidth($string) <= $limit) return $string;
 
 		    $string = mb_strimwidth($string, 0, $limit);
-	    if(false !== ($breakpoint = mb_strrpos($string, $break))) {
-	      $string = mb_substr($string, 0, $breakpoint+1);
-	    }
+			if(false !== ($breakpoint = mb_strrpos($string, $break))) {
+				$string = mb_substr($string, 0, $breakpoint+1);
+			}
 
-	    return $string;
-	  }
+			return $string;
+		}
 
 		function closeTags($text) {
 			global $debug;
@@ -327,4 +327,3 @@ if (!class_exists("truncate")) {
 		}
 	}
 }
-?>

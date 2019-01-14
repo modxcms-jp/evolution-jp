@@ -226,5 +226,3 @@ if ($year || ($year && $month) || ($year && $month && $day)) {
 	$dateFilterOject = new dateFilter($month,$year,$day,$dateSource);
 	$filters["custom"]["dateFilter"] = array($dateSource,array($dateFilterOject,"execute"));
 }
-
-?>

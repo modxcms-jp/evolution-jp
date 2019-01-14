@@ -138,5 +138,3 @@ $footer = isset($footer) ? $footer : $xml_footer;
 
 // set emptytext
 $noResults = "      ";
-
-?>

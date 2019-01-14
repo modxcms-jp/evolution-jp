@@ -84,8 +84,8 @@ if(!function_exists("atom_placeholders")) {
 $atom_header = <<<TPL
 <?xml version="1.0" encoding="[+atom_charset+]"?>
 <feed xmlns="http://www.w3.org/2005/Atom"
-      xml:lang="[+atom_lang+]"
-      xml:base="[(site_url)]">
+    xml:lang="[+atom_lang+]"
+    xml:base="[(site_url)]">
 	<id>[(site_url)][~[*id*]~]</id>
 	<title>[*pagetitle*]</title>
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
@@ -122,5 +122,3 @@ $footer = isset($footer) ? $footer : $atom_footer;
 
 // set emptytext
 $noResults = "      ";
-
-?>

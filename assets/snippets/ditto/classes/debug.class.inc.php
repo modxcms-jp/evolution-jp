@@ -74,7 +74,7 @@ class debug extends modxDebugConsole {
 	// Create the content of the Filters tab
 	// ---------------------------------------------------
 	function prepareFilters($filter) {
- 		$output = "";
+		$output = '';
 		foreach ($filter as $name=>$value) {
 			if ($name == "custom") {
 				foreach ($value as $name=>$value) {
@@ -154,5 +154,3 @@ class debug extends modxDebugConsole {
 	}
 
 }
-
-?>
