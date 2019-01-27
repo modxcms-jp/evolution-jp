@@ -89,6 +89,11 @@ class filter {
 	function basicFilter ($options) {
 			$unset = 1;
 			$this->filterValue = trim($this->filterValue);
+			if ($modx->get_docfield_type($this->array_key)==='datetime') {
+				if (!preg_match('@^[0-9]+$@',$this->filterValue)) {
+					$this->filterValue = strtotime($this->filterValue);
+				}
+			}
 			switch ($this->filtertype) {
 				case '!=' :
 				case '<>' :
