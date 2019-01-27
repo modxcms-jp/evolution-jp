@@ -17,7 +17,7 @@ class filter {
 	function execute($resource, $filter)
 	{
 		global $modx;
-		foreach ($filter['basic'] AS $currentFilter)
+		foreach ($filter['basic'] as $currentFilter)
 		{
 			if (is_array($currentFilter) && count($currentFilter) > 0)
 			{
@@ -67,10 +67,12 @@ class filter {
 				$resource = array_filter($resource, array($this, 'basicFilter'));
 			}
 		}
-		foreach ($filter['custom'] AS $currentFilter)
+
+		foreach ($filter['custom'] as $currentFilter)
 		{
 			$resource = array_filter($resource, $currentFilter);
 		}
+
 		return $resource;
 	}
 	
@@ -135,22 +137,22 @@ class filter {
 				case 'strpos':
 				case '=~':
 				case 7 :
-					if (strpos($options[$this->array_key], $this->filterValue)===FALSE)
+					if (strpos($options[$this->array_key], $this->filterValue)===false)
 						$unset = 0;
 					break;
 				case '!~':
 				case 8 :
-					if (strpos($options[$this->array_key], $this->filterValue)!==FALSE)
+					if (strpos($options[$this->array_key], $this->filterValue)!==false)
 						$unset = 0;
 					break;
 				
 				// Cases 9-11 created by highlander
 				case 9 : // case insenstive version of #7 - exclude records that do not contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))===FALSE)
+					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))===false)
 						$unset = 0;
 					break;
 				case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))!==FALSE)
+					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))!==false)
 						$unset = 0;
 					break;
 				case 11 : // checks leading character of the field
@@ -160,7 +162,7 @@ class filter {
 					break;
 				case 'regex':
 				case 'preg':
-					if (preg_match($options[$this->array_key], $this->filterValue)===FALSE)
+					if (preg_match($options[$this->array_key], $this->filterValue)===false)
 						$unset = 0;
 					break;
 		}
