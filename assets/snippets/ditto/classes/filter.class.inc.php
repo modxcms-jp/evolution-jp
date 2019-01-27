@@ -117,10 +117,10 @@ class filter {
 		return $operator_name;
 	}
 
-    private function get_docfield_type($field_name='') {
-        if(in_array($field_name, explode(',','published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'))) {
-            return 'datetime';
-        };
-        return false;
-    }
+	private function get_docfield_type($field_name='') {
+		if(in_array($field_name, explode(',','published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'))) {
+			return 'datetime';
+		};
+		return false;
+	}
 }
