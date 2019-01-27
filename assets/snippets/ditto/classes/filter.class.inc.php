@@ -68,8 +68,11 @@ class filter {
 			{
 				$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
 			}
-			$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
-			
+			if (!isset($currentFilter['mode'])) {
+				$currentFilter['mode'] = '!=';
+			}
+			$this->filtertype = $this->get_operator_name($currentFilter['mode']);
+
 			$this->filterValue = trim($this->filterValue);
 			if ($modx->get_docfield_type($this->array_key)==='datetime') {
 				if (!preg_match('@^[0-9]+$@',$this->filterValue)) {
@@ -97,8 +100,6 @@ class filter {
 		global $modx;
 
 		$unset = 1;
-
-		$this->filtertype = $this->get_operator_name($this->filtertype);
 
 		switch ($this->filtertype) {
 			case '!=' :
