@@ -88,72 +88,74 @@ class filter {
 	
 	function basicFilter ($options) {
 		global $modx;
-			$unset = 1;
-			$this->filterValue = trim($this->filterValue);
-			if ($modx->get_docfield_type($this->array_key)==='datetime') {
-				if (!preg_match('@^[0-9]+$@',$this->filterValue)) {
-					$this->filterValue = strtotime($this->filterValue);
-				}
+
+		$unset = 1;
+		$this->filterValue = trim($this->filterValue);
+		if ($modx->get_docfield_type($this->array_key)==='datetime') {
+			if (!preg_match('@^[0-9]+$@',$this->filterValue)) {
+				$this->filterValue = strtotime($this->filterValue);
 			}
+		}
 
-			$this->filtertype = $this->get_operator_name($this->filtertype);
+		$this->filtertype = $this->get_operator_name($this->filtertype);
 
-			switch ($this->filtertype) {
-				case '!=' :
-					if (!isset ($options[$this->array_key]))
-						$unset = 0;
-					elseif($options[$this->array_key] != $this->filterValue)
-						$unset = 0;
-					break;
-				case '==' :
-					if ($options[$this->array_key] == $this->filterValue)
-						$unset = 0;
-					break;
-				case '<' :
-					if ($options[$this->array_key] < $this->filterValue)
-						$unset = 0;
-					break;
-				case '>' :
-					if ($options[$this->array_key] > $this->filterValue)
-						$unset = 0;
-					break;
-				case '>=' :
-					if ($options[$this->array_key] >= $this->filterValue)
-						$unset = 0;
-					break;
-				case '<=' :
-					if ($options[$this->array_key] <= $this->filterValue)
-						$unset = 0;
-					break;
-					
-				// Cases 7 & 8 created by MODx Testing Team Member ZAP
-				case '=~':
-					if (strpos($options[$this->array_key], $this->filterValue)===false)
-						$unset = 0;
-					break;
-				case '!~':
-					if (strpos($options[$this->array_key], $this->filterValue)!==false)
-						$unset = 0;
-					break;
+		switch ($this->filtertype) {
+			case '!=' :
+				if (!isset ($options[$this->array_key]))
+					$unset = 0;
+				elseif($options[$this->array_key] != $this->filterValue)
+					$unset = 0;
+				break;
+			case '==' :
+				if ($options[$this->array_key] == $this->filterValue)
+					$unset = 0;
+				break;
+			case '<' :
+				if ($options[$this->array_key] < $this->filterValue)
+					$unset = 0;
+				break;
+			case '>' :
+				if ($options[$this->array_key] > $this->filterValue)
+					$unset = 0;
+				break;
+			case '>=' :
+				if ($options[$this->array_key] >= $this->filterValue)
+					$unset = 0;
+				break;
+			case '<=' :
+				if ($options[$this->array_key] <= $this->filterValue)
+					$unset = 0;
+				break;
 				
-				// Cases 9-11 created by highlander
-				case 9 : // case insenstive version of #7 - exclude records that do not contain the text of the criterion
-					if (stripos($options[$this->array_key], $this->filterValue)===false)
-						$unset = 0;
-					break;
-				case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-					if (stripos($options[$this->array_key], $this->filterValue)!==false)
-						$unset = 0;
-					break;
-				case 11 : // checks leading character of the field
-					$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
-					if ($firstChr!=$this->filterValue)
-						$unset = 0;
-					break;
-				case 'regex':
-					if (preg_match($options[$this->array_key], $this->filterValue)===false)
-						$unset = 0;
-					break;
+			// Cases 7 & 8 created by MODx Testing Team Member ZAP
+			case '=~':
+				if (strpos($options[$this->array_key], $this->filterValue)===false)
+					$unset = 0;
+				break;
+			case '!~':
+				if (strpos($options[$this->array_key], $this->filterValue)!==false)
+					$unset = 0;
+				break;
+			
+			// Cases 9-11 created by highlander
+			// case insenstive version of #7 - exclude records that do not contain the text of the criterion
+			case 9 :
+				if (stripos($options[$this->array_key], $this->filterValue)===false)
+					$unset = 0;
+				break;
+			case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
+				if (stripos($options[$this->array_key], $this->filterValue)!==false)
+					$unset = 0;
+				break;
+			case 11 : // checks leading character of the field
+				$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
+				if ($firstChr!=$this->filterValue)
+					$unset = 0;
+				break;
+			case 'regex':
+				if (preg_match($options[$this->array_key], $this->filterValue)===false)
+					$unset = 0;
+				break;
 		}
 		if($this->flip_mode) $unset = $unset ? 0 : 1;
 		return $unset;
