@@ -138,11 +138,11 @@ class filter {
 				
 				// Cases 9-11 created by highlander
 				case 9 : // case insenstive version of #7 - exclude records that do not contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))===false)
+					if (stripos($options[$this->array_key], $this->filterValue)===false)
 						$unset = 0;
 					break;
 				case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-					if (strpos(strtolower($options[$this->array_key]), strtolower($this->filterValue))!==false)
+					if (stripos($options[$this->array_key], $this->filterValue)!==false)
 						$unset = 0;
 					break;
 				case 11 : // checks leading character of the field
