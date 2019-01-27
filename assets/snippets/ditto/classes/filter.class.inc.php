@@ -14,7 +14,7 @@ class filter {
 // Function: execute
 // Filter documents via either a custom filter or basic filter
 // ---------------------------------------------------
-	function execute($resource, $filter)
+	public function execute($doc, $filter)
 	{
 		global $modx;
 		foreach ($filter['basic'] as $currentFilter)
@@ -70,15 +70,15 @@ class filter {
 			}
 			$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
 			
-			$resource = array_filter($resource, array($this, 'basicFilter'));
+			$doc = array_filter($doc, array($this, 'basicFilter'));
 		}
 
 		foreach ($filter['custom'] as $currentFilter)
 		{
-			$resource = array_filter($resource, $currentFilter);
+			$doc = array_filter($doc, $currentFilter);
 		}
 
-		return $resource;
+		return $doc;
 	}
 	
 // ---------------------------------------------------
@@ -86,7 +86,7 @@ class filter {
 // Do basic comparison filtering
 // ---------------------------------------------------
 	
-	function basicFilter ($options) {
+	private function basicFilter ($doc) {
 		global $modx;
 
 		$unset = 1;
@@ -101,59 +101,59 @@ class filter {
 
 		switch ($this->filtertype) {
 			case '!=' :
-				if (!isset ($options[$this->array_key]))
+				if (!isset ($doc[$this->array_key]))
 					$unset = 0;
-				elseif($options[$this->array_key] != $this->filterValue)
+				elseif($doc[$this->array_key] != $this->filterValue)
 					$unset = 0;
 				break;
 			case '==' :
-				if ($options[$this->array_key] == $this->filterValue)
+				if ($doc[$this->array_key] == $this->filterValue)
 					$unset = 0;
 				break;
 			case '<' :
-				if ($options[$this->array_key] < $this->filterValue)
+				if ($doc[$this->array_key] < $this->filterValue)
 					$unset = 0;
 				break;
 			case '>' :
-				if ($options[$this->array_key] > $this->filterValue)
+				if ($doc[$this->array_key] > $this->filterValue)
 					$unset = 0;
 				break;
 			case '>=' :
-				if ($options[$this->array_key] >= $this->filterValue)
+				if ($doc[$this->array_key] >= $this->filterValue)
 					$unset = 0;
 				break;
 			case '<=' :
-				if ($options[$this->array_key] <= $this->filterValue)
+				if ($doc[$this->array_key] <= $this->filterValue)
 					$unset = 0;
 				break;
 				
 			// Cases 7 & 8 created by MODx Testing Team Member ZAP
 			case '=~':
-				if (strpos($options[$this->array_key], $this->filterValue)===false)
+				if (strpos($doc[$this->array_key], $this->filterValue)===false)
 					$unset = 0;
 				break;
 			case '!~':
-				if (strpos($options[$this->array_key], $this->filterValue)!==false)
+				if (strpos($doc[$this->array_key], $this->filterValue)!==false)
 					$unset = 0;
 				break;
 			
 			// Cases 9-11 created by highlander
 			// case insenstive version of #7 - exclude records that do not contain the text of the criterion
 			case 9 :
-				if (stripos($options[$this->array_key], $this->filterValue)===false)
+				if (stripos($doc[$this->array_key], $this->filterValue)===false)
 					$unset = 0;
 				break;
 			case 10 : // case insenstive version of #8 - exclude records that do contain the text of the criterion
-				if (stripos($options[$this->array_key], $this->filterValue)!==false)
+				if (stripos($doc[$this->array_key], $this->filterValue)!==false)
 					$unset = 0;
 				break;
 			case 11 : // checks leading character of the field
-				$firstChr = strtoupper(substr($options[$this->array_key], 0, 1));
+				$firstChr = strtoupper(substr($doc[$this->array_key], 0, 1));
 				if ($firstChr!=$this->filterValue)
 					$unset = 0;
 				break;
 			case 'regex':
-				if (preg_match($options[$this->array_key], $this->filterValue)===false)
+				if (preg_match($doc[$this->array_key], $this->filterValue)===false)
 					$unset = 0;
 				break;
 		}
@@ -161,7 +161,7 @@ class filter {
 		return $unset;
 	}
 
-	function get_operator_name($operator_name) {
+	private function get_operator_name($operator_name) {
 		if (in_array($operator_name, array(1,'<>','ne'))) {
 			return '!=';
 		}
