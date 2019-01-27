@@ -4182,6 +4182,29 @@ class DocumentParser {
         return $_SESSION[$key];
     }
     
+    public function get_docfield_type($field_name='') {
+        if(in_array($field_name, explode(',','published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'))) {
+            return 'datetime';
+        };
+
+        if(in_array($field_name, explode(',','pagetitle,longtitle,description,menutitle,introtext,content'))) {
+            return 'content';
+        };
+
+        if(in_array($field_name, explode(',','createdby,editedby,publishedby,deletedby'))) {
+            return 'user';
+        };
+
+        if(in_array($field_name, explode(',','haskeywords,hasmetatags'))) {
+            return 'deprecated';
+        };
+
+        if(in_array($field_name, explode(',','id,type,contentType,alias,link_attributes,parent,isfolder,richtext,template,menuindex,searchable,cacheable,deleted,donthit,privateweb,privatemgr,content_dispo,hidemenu,alias_visible'))) {
+            return '';
+        };
+
+        return false;
+    }
     // End of class.
 }
 
