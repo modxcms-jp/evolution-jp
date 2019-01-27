@@ -19,53 +19,58 @@ class filter {
 		global $modx;
 		foreach ($filter['basic'] as $currentFilter)
 		{
-			if (is_array($currentFilter) && count($currentFilter) > 0)
-			{
-				$this->array_key = $currentFilter['source'];
-				
-				$this->flip_mode  = (substr($currentFilter['mode'],0,1)==='!' && substr($currentFilter['mode'],0,2)!=='!!') ? 1 : 0;
-				if($this->flip_mode) $currentFilter['mode'] = substr($currentFilter['mode'],1);
-				
-				switch($currentFilter['value'])
-				{
-					case '>':
-					case '>=':
-					case '<':
-					case '<=':
-					case '!=':
-					case '<>':
-					case '==':
-					case '=~':
-					case '!~':
-						$t = $currentFilter['value'];
-						$currentFilter['value'] = $currentFilter['mode'];
-						$currentFilter['mode'] = $t;
-						unset($t);
-						break;
-				}
-				
-				if(substr($currentFilter['value'],0,5) === '@EVAL')
-				{
-					$eval_code = trim(substr($currentFilter['value'],6));
-					$eval_code = trim($eval_code,';') . ';';
-					if(strpos($eval_code,'return')===false)
-					{
-						$eval_code = 'return ' . $eval_code;
-					}
-					$this->filterValue = eval($eval_code);
-				}
-				else
-				{
-					$this->filterValue = $currentFilter['value'];
-				}
-				if(strpos($this->filterValue,'[+') !== false)
-				{
-					$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
-				}
-				$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
-				
-				$resource = array_filter($resource, array($this, 'basicFilter'));
+			$this->flip_mode = 0;
+
+			if (!is_array($currentFilter) || !$currentFilter) {
+				continue;
 			}
+
+			$this->array_key = $currentFilter['source'];
+			
+			if (substr($currentFilter['mode'],0,1)==='!' && substr($currentFilter['mode'],0,2)!=='!!') {
+				$this->flip_mode = 1;
+				$currentFilter['mode'] = substr($currentFilter['mode'],1);
+			}
+			
+			switch($currentFilter['value'])
+			{
+				case '>':
+				case '>=':
+				case '<':
+				case '<=':
+				case '!=':
+				case '<>':
+				case '==':
+				case '=~':
+				case '!~':
+					$t = $currentFilter['value'];
+					$currentFilter['value'] = $currentFilter['mode'];
+					$currentFilter['mode'] = $t;
+					unset($t);
+					break;
+			}
+			
+			if(substr($currentFilter['value'],0,5) === '@EVAL')
+			{
+				$eval_code = trim(substr($currentFilter['value'],6));
+				$eval_code = trim($eval_code,';') . ';';
+				if(strpos($eval_code,'return')===false)
+				{
+					$eval_code = 'return ' . $eval_code;
+				}
+				$this->filterValue = eval($eval_code);
+			}
+			else
+			{
+				$this->filterValue = $currentFilter['value'];
+			}
+			if(strpos($this->filterValue,'[+') !== false)
+			{
+				$this->filterValue = $modx->mergePlaceholderContent($this->filterValue);
+			}
+			$this->filtertype = (isset($currentFilter['mode'])) ? $currentFilter['mode'] : 1;
+			
+			$resource = array_filter($resource, array($this, 'basicFilter'));
 		}
 
 		foreach ($filter['custom'] as $currentFilter)
