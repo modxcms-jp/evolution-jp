@@ -95,60 +95,43 @@ class filter {
 					$this->filterValue = strtotime($this->filterValue);
 				}
 			}
+
+			$this->filtertype = $this->get_operator_name($this->filtertype);
+
 			switch ($this->filtertype) {
 				case '!=' :
-				case '<>' :
-				case 'ne' :
-				case 1 :
 					if (!isset ($options[$this->array_key]))
 						$unset = 0;
 					elseif($options[$this->array_key] != $this->filterValue)
 						$unset = 0;
 					break;
 				case '==' :
-				case 'eq' :
-				case 2 :
 					if ($options[$this->array_key] == $this->filterValue)
 						$unset = 0;
 					break;
 				case '<' :
-				case 'lt' :
-				case 3 :
 					if ($options[$this->array_key] < $this->filterValue)
 						$unset = 0;
 					break;
 				case '>' :
-				case 'gt' :
-				case 4 :
 					if ($options[$this->array_key] > $this->filterValue)
 						$unset = 0;
 					break;
-				case 5 :
 				case '>=' :
-				case 'gte' :
-				case 'ge' :
 					if ($options[$this->array_key] >= $this->filterValue)
 						$unset = 0;
 					break;
-				case 6 :
 				case '<=' :
-				case 'lte' :
-				case 'le' :
 					if ($options[$this->array_key] <= $this->filterValue)
 						$unset = 0;
 					break;
 					
 				// Cases 7 & 8 created by MODx Testing Team Member ZAP
-				case 'find':
-				case 'search':
-				case 'strpos':
 				case '=~':
-				case 7 :
 					if (strpos($options[$this->array_key], $this->filterValue)===false)
 						$unset = 0;
 					break;
 				case '!~':
-				case 8 :
 					if (strpos($options[$this->array_key], $this->filterValue)!==false)
 						$unset = 0;
 					break;
@@ -168,7 +151,6 @@ class filter {
 						$unset = 0;
 					break;
 				case 'regex':
-				case 'preg':
 					if (preg_match($options[$this->array_key], $this->filterValue)===false)
 						$unset = 0;
 					break;
@@ -176,5 +158,35 @@ class filter {
 		if($this->flip_mode) $unset = $unset ? 0 : 1;
 		return $unset;
 	}
-	
+
+	function get_operator_name($operator_name) {
+		if (in_array($operator_name, array(1,'<>','ne'))) {
+			return '!=';
+		}
+		if (in_array($operator_name, array(2,'eq','ne'))) {
+			return '==';
+		}
+		if (in_array($operator_name, array(3,'lt','ne'))) {
+			return '<';
+		}
+		if (in_array($operator_name, array(4,'gt'))) {
+			return '>';
+		}
+		if (in_array($operator_name, array(5,'gte','ge'))) {
+			return '>=';
+		}
+		if (in_array($operator_name, array(6,'lte','le'))) {
+			return '<=';
+		}
+		if (in_array($operator_name, array(7,'find','search','strpos'))) {
+			return '=~';
+		}
+		if ($operator_name==8) {
+			return '!~';
+		}
+		if ($operator_name=='preg') {
+			return 'regex';
+		}
+		return $operator_name;
+	}
 }
