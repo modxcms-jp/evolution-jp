@@ -87,6 +87,7 @@ class filter {
 // ---------------------------------------------------
 	
 	function basicFilter ($options) {
+		global $modx;
 			$unset = 1;
 			$this->filterValue = trim($this->filterValue);
 			if ($modx->get_docfield_type($this->array_key)==='datetime') {
