@@ -100,7 +100,9 @@ class filter {
 				case '<>' :
 				case 'ne' :
 				case 1 :
-					if (!isset ($options[$this->array_key]) || $options[$this->array_key] != $this->filterValue)
+					if (!isset ($options[$this->array_key]))
+						$unset = 0;
+					elseif($options[$this->array_key] != $this->filterValue)
 						$unset = 0;
 					break;
 				case '==' :
