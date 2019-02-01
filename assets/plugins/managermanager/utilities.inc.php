@@ -1,10 +1,10 @@
 <?php
 
 
-//---------------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 //   Utility functions
 // 
-//--------------------------------------------------------------------------------- 
+//----------------------------------------------------------------------- 
 
 
 // Pass useThisRule a comma separated list of allowed roles and templates, and it will
@@ -30,7 +30,7 @@ function useThisRule($roles='', $templates='') {
 	}
 	
 	// Make the lists into arrays
-	$roles = makeArray($roles);
+	$roles     = makeArray($roles);
 	$templates = makeArray($templates);
 	
 	// Does the current role match the conditions supplied?
@@ -70,21 +70,8 @@ function makeArray($csv) {
 function jsSafe($str) {
 	global $modx;
 	
-	// Only PHP versions > 5.2.3 allow us to prevent double_encoding
-	// If you are using an older version of PHP, and use characters which require 
-	// HTML entity encoding in new label names, etc you will have to specify the
-	// actual character, not a pre-encoded version
-	if (version_compare(PHP_VERSION, '5.2.3') >= 0) {
-		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
-	} else {
-		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset']);
-	}
+	return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
 }
-
-
-
-
-
 
 // Does the specified template use the specified TVs?
 // $tpl_id = Template ID (int)
@@ -135,10 +122,9 @@ function makeSqlList($arr) {
 	global $modx;
 	$arr = makeArray($arr);
 	foreach($arr as $k=>$tv) {
-		$arr[$k] = "'".$modx->db->escape($tv)."'"; // Escape them for MySQL
+		$arr[$k] = sprintf("'%s'", $modx->db->escape($tv)); // Escape them for MySQL
 	}
-	$sql = " (".implode(',',$arr).") ";
-	return $sql;
+	return sprintf(' (%s) ', join(',',$arr));
 }
 
 // Generates the code needed to include an external script file. 
@@ -148,13 +134,10 @@ function includeJs($url, $output_type='js') {
 	
 	if ($output_type == 'js') {
 		return '$j("head").append(\' <script src="'.$url.'" type="text/javascript"></scr\'+\'ipt> \'); ' . "\n";
-	} else if ($output_type == 'html') {
-		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
-	} else {
-		return;	
 	}
-	
-	
+	if ($output_type == 'html') {
+		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
+	}
 }
 
 // Generates the code needed to include an external CSS file. 
@@ -163,9 +146,8 @@ function includeJs($url, $output_type='js') {
 function includeCss($url, $output_type='js') {
 	if ($output_type == 'js') {
 		return  '$j("head").append(\' <link href="'.$url.'" rel="stylesheet" type="text/css" /> \'); ' . "\n";	
-	} else if ($output_type == 'html') {
+	}
+	if ($output_type == 'html') {
 		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
-	} else {
-		return;	
 	}
 }
