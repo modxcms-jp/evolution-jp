@@ -101,28 +101,33 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 	
 	// Make the TVs and field types into an array
 	$fields = makeArray($tvs); 
-	$types = makeArray($types); 
+	$types  = makeArray($types);
 	
-	// Do the SQL query
-	$from = '[+prefix+]site_tmplvars tvs LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid=tvs.id';
-
-	$where[] = 'rel.templateid = ' . $tpl_id;
-
-	if(!empty($fields)) {
-		$where[] = 'type IN ' . makeSqlList($types);
+	// Get the DB table names
+	$from = array('[+prefix+]site_tmplvars tvs');
+	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid = tvs.id';
+	
+	$where = array();
+	if ($tpl_id) {
+		$where[] = sprintf('rel.templateid=%s', $tpl_id);
 	}
-	if(!empty($types)) {
-		$where[] = 'type IN ' . makeSqlList($types);
+	if ($fields) {
+		$where[] = sprintf('tvs.name IN %s', makeSqlList($fields));
 	}
-
-	$result = $modx->db->select('id', $from, join(' AND ', $where));
-
-	// If we have results, return them, otherwise return false
-	if ( $modx->db->getRecordCount($result) == 0) {
+	if ($types) {
+		$where[] = sprintf('type IN %s', makeSqlList($types));
+	}
+	if($where) {
+		$where = join(' AND ', $where);
+	}
+	
+	// Do the SQL query	
+	$result = $modx->db->select('id', $from, $where);
+	
+	if ( !$modx->db->getRecordCount($result)) {
 		return false;	
-	} else {
-		return $modx->db->makeArray($result);
 	}
+	return $modx->db->makeArray($result);
 }
 
 // Create a MySQL-safe list from an array
