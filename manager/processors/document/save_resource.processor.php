@@ -283,7 +283,7 @@ function _check_duplicate_alias($id,$alias,$parent)
 }
 
 function checkDocPermission($id,$document_groups=array()) {
-	global $modx,$form_v,$_lang,$e;
+	global $modx,$form_v,$_lang,$e,$actionToTake;
 	// ensure that user has not made this document inaccessible to themselves
 	if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 	{
