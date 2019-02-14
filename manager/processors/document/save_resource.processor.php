@@ -6,7 +6,7 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-global $form_v;
+global $form_v, $actionToTake;
 $modx->loadExtension('DocAPI');
 $form_v = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $form_v = $modx->doc->initValue($form_v);
