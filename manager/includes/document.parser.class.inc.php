@@ -2535,6 +2535,7 @@ class DocumentParser {
     */
     function parseDocumentSource($source)
     {
+        $orgDocumentOutput = $this->documentOutput;
         $bt = '';
         $i = 0;
         while ($i < $this->maxParserPasses)
@@ -2566,6 +2567,7 @@ class DocumentParser {
             
             $i++;
         }
+        $this->documentOutput = $orgDocumentOutput; //Return to original output
         return $source;
     }
     
