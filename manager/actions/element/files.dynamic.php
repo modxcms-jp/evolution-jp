@@ -43,8 +43,8 @@ if($_SESSION['mgrRole']!=1)
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = $new_folder_permissions ? $new_folder_permissions : 0777;
-$new_file_permissions = $new_file_permissions ? $new_file_permissions : 0666;
+$newfolderaccessmode = $new_folder_permissions ? octdec($new_folder_permissions) : 0777;
+$new_file_permissions = $new_file_permissions ? octdec($new_file_permissions) : 0666;
 // End Mod -  by Raymond
 // make arrays from the file upload settings
 $upload_files = explode(',',$upload_files);
