@@ -4079,14 +4079,22 @@ class DocumentParser {
         $img = getimagesize($tmp_path);
         switch($img[2])
         {
-            case IMAGETYPE_JPEG: $ext = '.jpg'; break;
+            case IMAGETYPE_JPEG:
+                if(stripos($target_path,'.jpeg')!==false) {
+                    $ext = '.jpeg';
+                } else {
+                    $ext = '.jpg';
+                }
+                break;
             case IMAGETYPE_PNG:  $ext = '.png'; break;
             case IMAGETYPE_GIF:  $ext = '.gif'; break;
             case IMAGETYPE_BMP:  $ext = '.bmp'; break;
+            default:
+                $ext = '';
         }
-        if(isset($ext)) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
+        if($ext) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
         
-        if(!isset($ext) || $image_limit_width==='' || $img[0] <= $image_limit_width)
+        if($img[0] <= $image_limit_width || !$ext || !$image_limit_width)
         {
             $rs = move_uploaded_file($tmp_path, $target_path);
             if(!$rs)
@@ -4097,7 +4105,7 @@ class DocumentParser {
                 $msg .= '$target_path = ' . "{$target_path}\n";
                 $msg .= '$image_limit_width = ' . "{$image_limit_width}\n";
                 $msg .= '$target_is_writable = ' . "{$target_is_writable}\n";
-                if(isset($ext))
+                if($ext)
                 {
                     $msg .= 'getimagesize = ' . print_r($img,true);
                 }
