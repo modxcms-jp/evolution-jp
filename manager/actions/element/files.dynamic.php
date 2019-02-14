@@ -440,7 +440,7 @@ if(!empty($buffer) && empty($ent_buffer))
 
 <form action="index.php" method="post" name="editFile">
 <input type="hidden" name="a" value="31" />
-<input type="hidden" name="mode" value="save" />
+<input type="hidden" name="mode" value="edit" />
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
 	<tr>
