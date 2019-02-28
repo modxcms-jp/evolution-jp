@@ -1151,7 +1151,7 @@ class DocumentParser {
 
         //下書き採用(今のところリソースのみ)
         $draft_ids = array();
-        $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<{$timeNow} AND status = 'standby'");
+        $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<={$timeNow} AND status = 'standby'");
         while( $row = $this->db->getRow($rs) ){
             if( $row['element'] == 'resource' ){
                 $draft_ids[] = $row['elmid'];
