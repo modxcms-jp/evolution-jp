@@ -1164,7 +1164,7 @@ class DocumentParser {
         // now, check for documents that need publishing
         $pub_ids = array();
         $fields = "published='1', publishedon=pub_date";
-        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0 AND pub_date >= unpub_date";
         $rs = $this->db->select('id','[+prefix+]site_content',$where);
         while( $row = $this->db->getRow($rs) ) {
             $pub_ids[] = $row['id'];
@@ -1176,7 +1176,7 @@ class DocumentParser {
         // now, check for documents that need un-publishing
         $unpub_ids = array();
         $fields = "published='0', publishedon='0'";
-        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1 AND pub_date < unpub_date";
         $rs = $this->db->select('id','[+prefix+]site_content',$where);
         while( $row = $this->db->getRow($rs) ){ $unpub_ids[] = $row['id']; }
         if( !empty($unpub_ids) ){
@@ -1185,12 +1185,12 @@ class DocumentParser {
     
         // now, check for chunks that need publishing
         $fields = "published='1'";
-        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0";
+        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0 AND pub_date >= unpub_date";
         $rs = $this->db->update($fields,'[+prefix+]site_htmlsnippets',$where);
         
         // now, check for chunks that need un-publishing
         $fields = "published='0'";
-        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1";
+        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1 AND pub_date < unpub_date";
         $rs = $this->db->update($fields,'[+prefix+]site_htmlsnippets',$where);
     
         // clear the cache
