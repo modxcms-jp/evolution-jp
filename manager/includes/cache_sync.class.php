@@ -216,25 +216,24 @@ class synccache {
 		
 		// update publish time file
 		$timesArr = array();
-		$current_time = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
 		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "{$current_time} < pub_date");
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "0 < pub_date and published = 0 and pub_date >= unpub_date");
 		if(!$rs) echo "Couldn't determine next publish event!";
 		$minpub_content = $modx->db->getValue($rs);
 		
-		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "{$current_time} < unpub_date");
+		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "0 < unpub_date and published = 1 and pub_date < unpub_date");
 		if(!$rs) echo "Couldn't determine next unpublish event!";
 		$minunpub_content = $modx->db->getValue($rs);
 		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "{$current_time} < pub_date");
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "0 < pub_date and published = 0 and pub_date >= unpub_date");
 		if(!$rs) echo "Couldn't determine next publish event!";
 		$minpub_chunk = $modx->db->getValue($rs);
 		
-		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "{$current_time} < unpub_date");
+		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "0 < unpub_date and published = 1 and pub_date < unpub_date");
 		if(!$rs) echo "Couldn't determine next unpublish event!";
 		$minunpub_chunk = $modx->db->getValue($rs);
 		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_revision', "{$current_time} < pub_date");
+		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_revision', "0 < pub_date and status = 'standby'");
 		if(!$rs) echo "Couldn't determine next publish event!";
 		$minpub_revision = $modx->db->getValue($rs);
 		
