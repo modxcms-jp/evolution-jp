@@ -45,7 +45,7 @@ if($_SESSION['installmode']==0 && is_dir($tvPath) && is_readable($tvPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && (count($params)>0))
 		{
-			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params) === 'same') continue;
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$p = array();
 			$p['name']                 = $params['name'];
@@ -75,7 +75,7 @@ if($_SESSION['installmode']==0 && is_dir($chunkPath) && is_readable($chunkPath))
 		$params = parse_docblock($tpl_file_path);
 		if(is_array($params) && count($params) > 0)
 		{
-			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params) === 'same') continue;
 			$p = array();
 			$p['name']          = $params['name'];
 			$p['description']   = $params['description'];
@@ -97,7 +97,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 		$params = parse_docblock($tplfile);
 		if(is_array($params) && count($params) > 0)
 		{
-			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params) === 'same') continue;
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			$p = array();
 		    $p['name']        = $params['name'];
@@ -125,7 +125,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 		
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params) === 'same') continue;
 			$p['name']          = $params['name'];
 			$p['description']   = $params['description'];
 			$p['tpl_file_path'] = $tplfile;
@@ -152,14 +152,14 @@ if(is_dir($modulePath) && is_readable($modulePath))
 		{
 			if(!empty($params['version'])) $params['description'] = "<strong>{$params['version']}</strong> {$params['description']}";
 			
-			if($_SESSION['installmode']==1 && compare_check($params)=='same') continue;
+			if($_SESSION['installmode']==1 && compare_check($params) === 'same') continue;
 			$p = array();
 		    $p['name']          = $params['name'];
 		    $p['description']   = $params['description'];
 		    $p['tpl_file_path'] = $tplfile;
 		    $p['properties']    = $params['properties'];
 		    $p['guid']          = $params['guid'];
-		    $p['shareparams']   = intval($params['shareparams']);
+		    $p['shareparams']   = (int)$params['shareparams'];
 		    $p['category']      = $params['modx_category'];
 		    $p['installset']    = array_key_exists('installset', $params) ? preg_split("/\s*,\s*/", $params['installset']) : array();
 			$tplModules[] = $p;
