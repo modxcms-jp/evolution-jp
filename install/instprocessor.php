@@ -159,10 +159,7 @@ if ($_SESSION['installmode'] == 0 && $installdata==1)
 		echo "<p>{$lang_some_tables_not_updated}</p>";
 		return;
 	}
-	else
-	{
-		printf('<span class="ok">%s</span></p>', $lang_ok);
-	}
+    printf('<span class="ok">%s</span></p>', $lang_ok);
 }
 
 // call back function
