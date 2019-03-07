@@ -4,7 +4,7 @@ if(!$modx->hasPermission('delete_template')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-$id=intval($_GET['id']);
+$id= (int)$_GET['id'];
 $tbl_site_content           = $modx->getFullTableName('site_content');
 $tbl_site_templates         = $modx->getFullTableName('site_templates');
 $tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');

@@ -6,7 +6,7 @@ if(!$modx->hasPermission('delete_document'))
 	$e->dumpError();
 }
 
-$id = intval($_REQUEST['id']);
+$id = (int)$_REQUEST['id'];
 
 // check permissions on the document
 if(!$modx->checkPermissions($id)) disp_access_permission_denied();
