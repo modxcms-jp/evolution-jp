@@ -241,11 +241,7 @@ if($formv_rememberme == '1'):
 	$expire = $_SERVER['REQUEST_TIME']+60*60*24*365;
 	$path = $modx->config['base_url'];
 	$secure = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == $https_port) ? true : false;
-	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $dbv_username, $expire, $path, '; HttpOnly' , $secure );
-	} else {
-		setcookie('modx_remember_manager', $dbv_username, $expire, $path, NULL,          $secure, true);
-	}
+    setcookie('modx_remember_manager', $dbv_username, $expire, $path, NULL, $secure, true);
 else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
