@@ -35,7 +35,7 @@ $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
 $setupPath = realpath(getcwd());
-$callBackFnc = include_once("{$setupPath}/setup.info.php");
+$callBackFnc = include("{$setupPath}/setup.info.php");
 include_once("{$setupPath}/sqlParser.class.php");
 $sqlParser = new SqlParser();
 $sqlParser->prefix     = $_SESSION['table_prefix'];
