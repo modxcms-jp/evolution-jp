@@ -47,7 +47,7 @@ if($form_v['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')==
 		}
 	}
 }
-$default_config = include_once(MODX_CORE_PATH . 'default.config.php');
+$default_config = include(MODX_CORE_PATH . 'default.config.php');
 
 $form_v['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['filemanager_path']);
 $form_v['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['rb_base_dir']);
