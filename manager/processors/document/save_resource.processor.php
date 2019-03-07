@@ -296,7 +296,7 @@ function checkDocPermission($id,$document_groups=array()) {
 			$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
 			if($count == 0)
 			{
-				if ($actionToTake == 'new') $url = 'index.php?a=4';
+				if ($actionToTake === 'new') $url = 'index.php?a=4';
 				else						$url = "index.php?a=27&id={$id}";
 				
 				$modx->manager->saveFormValues();
@@ -325,7 +325,7 @@ function checkDocPermission($id,$document_groups=array()) {
 		if ($existingDocument['parent'] == $form_v['parent']) return;
 		
 		if (!$modx->checkPermissions($form_v['parent'])) {
-			if ($actionToTake == 'new') $url = "index.php?a=4";
+			if ($actionToTake === 'new') $url = "index.php?a=4";
 			else						$url = "index.php?a=27&id={$id}";
 			$modx->manager->saveFormValues();
 			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $form_v['alias']), $url);
@@ -655,7 +655,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 			unset($old_groups[$group]);
 			continue;
 		}
-		elseif ($link_id == 'new')
+		elseif ($link_id === 'new')
 		{
 			$insertions[] = "({$group},{$id})";
 		}
@@ -673,7 +673,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 		$saved = $modx->db->delete('[+prefix+]document_groups',$where) ? $saved : false;
 	}
 	// necessary to remove all permissions as document is public
-	if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on'))
+	if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] === 'on'))
 	{
 		$saved = $modx->db->delete('[+prefix+]document_groups',"document='{$id}'") ? $saved : false;
 	}

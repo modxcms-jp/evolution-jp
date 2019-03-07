@@ -14,7 +14,7 @@ if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['i
 $snippet = $modx->db->escape($post);
 $name = (isset($name) && $name !== '') ? $modx->db->escape(trim($name)) : 'Untitled chunk';
 $description = $modx->db->escape($description);
-$locked      = $locked == 'on'     ? 1 : 0;
+$locked      = $locked === 'on'     ? 1 : 0;
 $editor_type = $editor_type == '1' ? 1 : 0;
 $published   = $published == '1'   ? 1 : 0;
 

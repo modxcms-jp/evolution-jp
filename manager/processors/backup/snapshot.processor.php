@@ -1,5 +1,5 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!isset($modx) || !$modx->isLoggedIn()) exit;
 if(!$modx->hasPermission('bk_manager')) {
 	$e->setError(3);
 	$e->dumpError();
@@ -32,8 +32,7 @@ if(!is_writable(rtrim($snapshot_path,'/')))
 if(!$_POST['file_name'])
 {
     $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
-    $today = str_replace(array('/',' '), '-', $today);
-    $today = str_replace(':', '', $today);
+    $today = str_replace(array('/', ' ', ':'), array('-', '-', ''), $today);
     $today = strtolower($today);
     global $path,$settings_version;
     $filename = "{$today}-{$settings_version}.sql";

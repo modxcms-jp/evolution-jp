@@ -7,8 +7,6 @@ function to_safestr($str)
 
 function input_text($name,$value,$other='',$maxlength='255')
 {
-	global $modx;
-	
 	$ph['name']      = $name;
 	$ph['value']     = $value;
 	$ph['maxlength'] = $maxlength;
@@ -32,7 +30,7 @@ function input_checkbox($name,$checked,$other='')
 	$ph['name']    = $name;
 	$ph['checked'] = ($checked) ? 'checked="checked"' : '';
 	$ph['other']   = $other;
-	$ph['resetpubdate'] = ($name == 'published') ? 'resetpubdate();' : '';
+	$ph['resetpubdate'] = ($name === 'published') ? 'resetpubdate();' : '';
 	if($name === 'published')
 	{
 		$id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
@@ -58,7 +56,7 @@ function disabled($cond=false)
 
 function tooltip($msg)
 {
-	global $modx,$_style;
+	global $_style;
 	
 	$ph['icons_tooltip'] = "'{$_style['icons_tooltip']}'";
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
@@ -69,8 +67,6 @@ function tooltip($msg)
 
 function input_hidden($name,$cond=true)
 {
-	global $modx;
-	
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
 	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
@@ -79,7 +75,7 @@ function input_hidden($name,$cond=true)
 
 function ab_preview($id=0)
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	$tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
@@ -100,12 +96,12 @@ function ab_save()
 	$saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
 	$selected = array('new'=>'', 'stay'=>'', 'close'=>'');
 	if ($modx->hasPermission('new_document')
-		&& $saveAfter=='new')    $selected['new']   = 'selected';
-	elseif($saveAfter=='stay')   $selected['stay']  = 'selected';
-	elseif($saveAfter=='close')  $selected['close'] = 'selected';
+		&& $saveAfter === 'new')    $selected['new']   = 'selected';
+	elseif($saveAfter === 'stay')   $selected['stay']  = 'selected';
+	elseif($saveAfter === 'close')  $selected['close'] = 'selected';
 	else                         $selected['close'] = 'selected';
 	
-	if ($modx->doc->mode!='draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
+	if ($modx->doc->mode !== 'draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
 		$option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
 	
 	$option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
@@ -218,7 +214,7 @@ function get_alias_path($id)
 {
 	global $modx;
 
-	$pid = intval($_REQUEST['pid']);
+	$pid = (int)$_REQUEST['pid'];
 	
 	if($modx->config['use_alias_path']==='0') $path = '';
 	elseif($pid)
@@ -451,8 +447,8 @@ function checkViewUnpubDocPerm($published,$editedby) {
 	$userid = $modx->getLoginUserID();
 	if ($userid != $editedby) {
 		$modx->config['remember_last_tab'] = 0;
-		$e->setError(3);
-		$e->dumpError();
+		$modx->event->setError(3);
+        $modx->event->dumpError();
 	}
 }
 
@@ -674,7 +670,7 @@ EOT;
 		if($modx->revision->hasDraft||$modx->revision->hasStandby)
 			$ph['deleteButton']    = ab_delete_draft();
 	}
-	elseif ($id != $config['site_start']) {
+	elseif ($id != $modx->config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
     		if($modx->hasPermission('move_document'))
@@ -1122,7 +1118,8 @@ function fieldLink_attributes() {
 }
 
 function fieldIsfolder() {
-	global $modx,$_lang,$docObject;
+	global $id,$modx,$_lang,$docObject;
+    $id = getDocId();
 	$cond = ($docObject['isfolder']==1);
 	$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
 	$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';

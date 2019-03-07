@@ -58,21 +58,20 @@ if(0 < count($children)) {
 $rs = $modx->db->update($field,'[+prefix+]site_content',"id='{$id}'");
 if(!$rs) {
 	exit('Something went wrong while trying to set the document to deleted status...');
-} else {
-	// invoke OnDocFormDelete event
-	$params['id']       = $id;
-	$params['children'] = $children; //array()
-	$modx->invokeEvent("OnDocFormDelete",$params);
-
-	// empty cache
-	$modx->clearCache();
-	$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
-	$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
-	if($pid!=='0') $url = "index.php?r=1&a=120&id={$pid}";
-	else           $url = 'index.php?a=2&r=1';
-	header("Location: {$url}");
 }
 
+// invoke OnDocFormDelete event
+$params['id']       = $id;
+$params['children'] = $children; //array()
+$modx->invokeEvent("OnDocFormDelete",$params);
+
+// empty cache
+$modx->clearCache();
+$pid = $modx->db->getValue($modx->db->select('parent','[+prefix+]site_content',"id='{$id}'"));
+$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
+if($pid!=='0') $url = "index.php?r=1&a=120&id={$pid}";
+else           $url = 'index.php?a=2&r=1';
+header("Location: {$url}");
 
 
 function getChildren($parent)

@@ -153,7 +153,7 @@ function confirmDelete() {
 }
 
 function confirmDeleteFolder(status) {
-	if(status!='file_exists')
+	if(status!=='file_exists')
 		return confirm("<?php echo $_lang['confirm_delete_dir']; ?>");
 	else
 		return confirm("<?php echo $_lang['confirm_delete_dir_recursive']; ?>");
@@ -516,7 +516,7 @@ function ls($curpath)
 			$files_array[$filecounter]['view'] = (in_array($type, $viewablefiles)) ?
 			'<span style="cursor:pointer; width:20px;" onclick="viewfile(\''.$webstart_path.substr($newpath, $len, strlen($newpath)).'\');"><img src="'.$style_path.'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ' : (($enablefiledownload && in_array($type, $uploadablefiles))? '<a href="'.$webstart_path.implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len, strlen($newpath))))).'" style="cursor:pointer; width:20px;"><img src="'.$style_path . 'misc/ed_save.gif" align="absmiddle" alt="'.$_lang['file_download_file'].'" title="'.$_lang['file_download_file'].'" /></a> ':'<span class="disabledImage"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ');
 			$files_array[$filecounter]['view'] = (in_array($type, $inlineviewablefiles)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=view&path='.urlencode($newpath).'"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></a></span> ' : $files_array[$filecounter]['view'] ;
-			$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type=='.zip') ? '<span style="width:20px;"><a href="javascript:unzipFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/unzip.gif" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span> ' : '' ;
+			$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type === '.zip') ? '<span style="width:20px;"><a href="javascript:unzipFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/unzip.gif" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span> ' : '' ;
 			$files_array[$filecounter]['edit'] = (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path='.urlencode($newpath).'#file_editfile"><img src="'.$_style['icons_edit_document'] . '" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></a></span> ' : '<span class="disabledImage"><img src="'.$_style['icons_edit_document'] . '" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></span> ';
             $files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath) ? '<span style="width:20px;"><a href="javascript:deleteFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/delete.gif" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></a></span> ' : '<span class="disabledImage"><img src="'.$style_path . 'icons/delete.gif" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></span> ';
 

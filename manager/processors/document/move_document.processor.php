@@ -21,7 +21,7 @@ if(!$rs) {
 	exit("An error occured while attempting to find the resource's current parent.");
 }
 $current_parent = $modx->db->getValue($rs);
-$new_parent = intval($_REQUEST['new_parent']);
+$new_parent = (int)$_REQUEST['new_parent'];
 
 // check user has permission to move resource to chosen location
 if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
@@ -56,7 +56,7 @@ else
 		$alert = "An error occured while attempting to change the new parent to a folder.";
 
 	// increase menu index
-	if (is_null($modx->config['auto_menuindex']) || $modx->config['auto_menuindex'])
+	if ($modx->config['auto_menuindex'] === null || $modx->config['auto_menuindex'])
 	{
 		$menuindex = $modx->db->getValue($modx->db->select('max(menuindex)',$tbl_site_content,"parent='{$new_parent}'"))+1;
 	}
@@ -80,7 +80,7 @@ else
 	$row = $modx->db->getRow($rs);
 	$limit = $row['count(id)'];
 
-	if(!$limit>0)
+	if((!$limit) > 0)
 	{
 		$rs = $modx->db->update('isfolder=0',$tbl_site_content,"id='{$current_parent}'");
 		if(!$rs)
@@ -114,20 +114,19 @@ function allChildren($docid)
 	{
 		exit("An error occured while attempting to find all of the resource's children.");
 	}
-	else
-	{
-		if ($numChildren= $modx->db->getRecordCount($rs))
-		{
-			while ($child= $modx->db->getRow($rs))
-			{
-				$children[]= $child['id'];
-				$nextgen= array();
-				$nextgen= allChildren($child['id']);
-				$children= array_merge($children, $nextgen);
-			}
-		}
-	}
-	return $children;
+
+    if ($numChildren= $modx->db->getRecordCount($rs))
+    {
+        while ($child= $modx->db->getRow($rs))
+        {
+            $children[]= $child['id'];
+            $nextgen= allChildren($child['id']);
+            foreach($nextgen as $k=>$v) {
+                $children[$k] = $v;
+            }
+        }
+    }
+    return $children;
 }
 
 function update_parentid($doc_id,$new_parent,$user_id,$menuindex)

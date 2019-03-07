@@ -7,7 +7,7 @@ if(!$modx->hasPermission('move_document') || !$modx->hasPermission('save_documen
 
 if(isset($_REQUEST['id']))
 {
-	$id = intval($_REQUEST['id']);
+	$id = (int)$_REQUEST['id'];
 }
 elseif(isset($_REQUEST['batch']))
 {
