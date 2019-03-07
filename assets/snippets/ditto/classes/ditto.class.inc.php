@@ -124,7 +124,7 @@ class ditto {
     
     function setDisplayFields($fields,$hiddenFields) {
         $this->fields["display"] = $fields;
-        if (count($this->fields["display"]['qe']) > 0) {
+        if ($this->fields["display"]['qe']) {
             $this->addField("pagetitle","display","db");
         }
         if ($hiddenFields) {
@@ -227,7 +227,7 @@ class ditto {
     function parseFilters($filter=false,$cFilters=false,$pFilters = false,$globalDelimiter,$localDelimiter) {
         $parsedFilters = array("basic"=>array(),"custom"=>array());
         $filters = explode($globalDelimiter, $filter);
-        if ($filter && count($filters) > 0) {
+        if ($filter) {
             foreach ($filters as $filter) {
                 if (!empty($filter)) {
                     $filterArray = explode($localDelimiter, $filter);
@@ -545,7 +545,7 @@ class ditto {
         
     function determineIDs($IDs, $IDType, $TVs, $orderBy, $depth, $showPublishedOnly, $seeThruUnpub, $hideFolders, $hidePrivate, $showInMenuOnly, $myWhere, $keywords, $dateSource, $limit, $summarize, $filter, $paginate, $randomize) {
         global $modx;
-        if (($summarize == 0 && $summarize != "all") || count($IDs) == 0 || ($IDs == false && $IDs != "0")) {
+        if (($summarize == 0 && $summarize != "all") || !$IDs || ($IDs == false && $IDs != "0")) {
             return array();
         }
         
@@ -587,7 +587,7 @@ class ditto {
         $customReset = $this->customReset;
         if ($keywords) {$this->addField("haskeywords","*","db");$this->addField("hasmetatags","*","db");}
         if ($this->debug) {$this->addField("pagetitle","backend","db");}
-        if (count($customReset) > 0) {$this->addField("createdon","backend","db");}
+        if ($customReset) {$this->addField("createdon","backend","db");}
         $resource = $this->getDocuments($documentIDs,$this->fields["backend"]["db"],$TVs,$orderBy,$showPublishedOnly,0,$hidePrivate,$where,$limit,$keywords,$randomize,$dateSource);
         if ($resource !== false)
         {
@@ -608,7 +608,7 @@ class ditto {
                     if ($published == "0")
                         unset ($resource[$i]);
                 }
-                if (count($customReset) > 0) {
+                if ($customReset) {
                     foreach ($customReset as $field) {
                         if ($resource[$i][$field] === "0") {
                             $resource[$i][$field] = $resource[$i]["createdon"];
@@ -623,11 +623,11 @@ class ditto {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
             }
-            if (count($resource) < 1) return array();
+            if (!$resource) return array();
             if ($this->advSort == true && $randomize==0) {
                 $resource = $this->multiSort($resource,$orderBy);
             }
-            if (count($orderBy['custom']) > 0) {
+            if ($orderBy['custom']) {
                 $resource = $this->userSort($resource,$orderBy);
             }
             
@@ -661,7 +661,7 @@ class ditto {
                 $this->prefetch["dbg_IDs_pre"] = $documentIDs;
                 $this->prefetch["dbg_IDs_post"] = $processedIDs;
             }
-            if (count($processedIDs) > 0) {
+            if ($processedIDs) {
                 if ($randomize != 0) {shuffle($processedIDs);}
                 $this->sortOrder = array_flip($processedIDs);
                     // saves the order of the documents for use later
@@ -831,7 +831,7 @@ class ditto {
     function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $public= 1, $where= '', $limit= "",$keywords=0,$randomize=0,$dateSource=false) {
         global $modx;
     
-        if (count($ids) == 0) return false;
+        if (!$ids) return false;
         
         sort($ids);
         $limit= ($limit != "") ? "LIMIT $limit" : ""; // LIMIT capabilities - rad14701
@@ -886,14 +886,14 @@ class ditto {
             $TVIDs[] = $docid;
             $x = "#{$docid}";
             $resourceArray[$x] = $row;
-            if (count($this->prefetch['resource']) > 0) {
+            if ($this->prefetch['resource']) {
                 $resourceArray[$x] = array_merge($row,$this->prefetch['resource'][$x]);
                     // merge the prefetch array and the normal array
             }
         }
         
         $TVs = array_unique($TVs);
-        if (0<count($TVs)) {
+        if ($TVs) {
             foreach($TVs as $tv){
                 $TVData = array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
             }
@@ -914,7 +914,7 @@ class ditto {
     
     function getDocumentsIDs($ids= array (), $published= 1) {
         global $modx;
-        if (count($ids) == 0) return false;
+        if (!$ids) return false;
         
         $tblsc= $modx->getFullTableName("site_content");
         $tbldg= $modx->getFullTableName("document_groups");

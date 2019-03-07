@@ -180,7 +180,7 @@ if(!class_exists("tagging")) {
 	class tagging {
 		var $delimiter,$source,$landing,$mode,$format,$givenTags,$caseSensitive, $displayDelimiter, $sort, $displayMode, $tpl, $callback;
 
-		function tagging($delimiter,$source,$mode,$landing,$givenTags,$format,$caseSensitive, $displayDelimiter, $callback, $sort, $displayMode, $tpl) {
+		function __construct($delimiter,$source,$mode,$landing,$givenTags,$format,$caseSensitive, $displayDelimiter, $callback, $sort, $displayMode, $tpl) {
 			$this->delimiter = $delimiter;
 			$this->source = $this->parseTagData($source);
 			$this->mode = $mode;
@@ -235,9 +235,9 @@ if(!class_exists("tagging")) {
 				$filterTags =$this->combineTags($this->source, $value,true);
 			}
 			$compare = array_intersect($filterTags, $documentTags);
-			$commonTags = count($compare);
-			$totalTags = count($filterTags);
-			$docTags = count($documentTags);
+			$commonTags = count((array)$compare);
+			$totalTags = count((array)$filterTags);
+			$docTags = count((array)$documentTags);
 			$unset = 1;
 
 			switch ($this->mode) {
@@ -295,9 +295,9 @@ if(!class_exists("tagging")) {
 
 		function tagLinks($tags, $tagDelimiter, $tagID=false, $format="html") {
 			global $ditto_lang,$modx;
-			if(count($tags) == 0 && $format=="html") {
+			if(!$tags && $format=="html") {
 				return $ditto_lang['none'];
-			} else if (count($tags) == 0 && ($format=="rss" || $format=="xml" || $format == "xml"))
+			} else if (!$tags && ($format=="rss" || $format=="xml" || $format == "xml"))
 			{
 				return "<category>".$ditto_lang['none']."</category>";
 			}
@@ -373,7 +373,7 @@ if(!class_exists("tagging")) {
 
 $tags = new tagging($delimiter,$source,$mode,$landing,$givenTags,$format,$caseSensitive,$displayDelimiter, $callback, $sort, $displayMode,$tplTagLinks);
 
-if (count($tags->givenTags) > 0) {
+if ($tags->givenTags) {
 	$filters["custom"]["tagging"] = array($source,array($tags,"tagFilter"));
 		// set tagging custom filter
 }
