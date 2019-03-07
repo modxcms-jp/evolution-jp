@@ -84,7 +84,8 @@ function compare_check($params) {
         return sprintf('An error occurred while executing a query: <div>%s</div><div>%s</div>',$sql,$modx->db->getLastError());
     else
     {
-        if($modx->db->getRecordCount($rs)==1)
+        $count = $modx->db->getRecordCount($rs);
+        if($count==1)
         {
             $row = $modx->db->getRow($rs);
             $new_version_str = ($new_version) ? '<strong>' . $new_version . '</strong> ':'';
