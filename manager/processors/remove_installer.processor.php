@@ -29,7 +29,7 @@ echo "<script>window.location='../index.php?a=2';</script>";
 // rmdirRecursive - detects symbollic links on unix
 function rmdirRecursive($path)
 {
-	$files = scandir($path) ;
+	$files = scandir($path, SCANDIR_SORT_NONE);
 	foreach ($files as $entry)
 	{
 		if ($entry==='.')  continue;
