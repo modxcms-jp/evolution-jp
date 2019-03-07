@@ -170,9 +170,9 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
 	$hashType = $modx->manager->getHashType($dbv_password);
-	if($hashType=='phpass')  $matchPassword = login($dbv_username,$formv_password,$dbv_password);
-	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
-	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
+	if($hashType === 'phpass')  $matchPassword = login($dbv_username,$formv_password,$dbv_password);
+	elseif($hashType === 'md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
+	elseif($hashType === 'v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
 	else                     $matchPassword = false;
 	
     if(!$matchPassword) {
@@ -182,11 +182,12 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
     }
     
     if($modx->config['use_captcha']==1) {
-    	if (!isset ($_SESSION['veriword'])) {
-    		jsAlert('Captcha is not configured properly.');
-    		return;
-    	}
-    	elseif ($_SESSION['veriword'] != $formv_captcha_code) {
+        if (!isset ($_SESSION['veriword'])) {
+            jsAlert('Captcha is not configured properly.');
+            return;
+        }
+
+        if ($_SESSION['veriword'] != $formv_captcha_code) {
             jsAlert($e->errors[905]);
             failedLogin($dbv_internalKey,$dbv_failedlogincount);
             return;
@@ -350,8 +351,6 @@ function loginV1($internalKey,$givenPassword,$dbasePassword,$username) {
 }
 
 function loginMD5($internalKey,$givenPassword,$dbasePassword,$username) {
-	global $modx;
-	
 	if($dbasePassword != md5($givenPassword)) return false;
 	updateNewHash($username,$givenPassword);
 	return true;
