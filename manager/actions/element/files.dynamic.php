@@ -622,8 +622,6 @@ function logFileChange($type, $filename)
 // by patrick_allaert - php user notes
 function unzip($file, $path)
 {
-	global $newfolderaccessmode;
-	
 	// added by Raymond
 	if (!extension_loaded('zip')) return 0;
 	// end mod

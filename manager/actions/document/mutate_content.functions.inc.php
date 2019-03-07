@@ -120,7 +120,7 @@ function ab_save()
 
 function ab_open_draft($id)
 {
-	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
@@ -131,11 +131,11 @@ function ab_open_draft($id)
 
 function ab_create_draft($id)
 {
-	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	global $modx, $_style, $_lang;
 	
-	if(!$modx->config['enable_draft']) return;
+	if(!$modx->config['enable_draft']) return false;
 	
-	if(!$modx->hasPermission('edit_document')) return;
+	if(!$modx->hasPermission('edit_document')) return false;
 	
 	$tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
@@ -147,7 +147,7 @@ function ab_create_draft($id)
 
 function ab_cancel($id)
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
@@ -158,7 +158,7 @@ function ab_cancel($id)
 
 function ab_move()
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
@@ -168,7 +168,7 @@ function ab_move()
 
 function ab_duplicate()
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_resource_duplicate"];
@@ -179,7 +179,7 @@ function ab_duplicate()
 
 function ab_delete()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_delete_document"];
@@ -190,7 +190,7 @@ function ab_delete()
 
 function ab_undelete()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_undelete_resource"];
@@ -201,7 +201,7 @@ function ab_undelete()
 
 function ab_delete_draft()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_delete_document"];
@@ -237,8 +237,6 @@ function get_alias_path($id)
 
 function renderTr($head, $body,$rowstyle='')
 {
-	global $modx;
-	
 	if(!is_array($head)) {
 		$ph['head'] = $head;
 		$ph['extra_head'] = '';
@@ -473,7 +471,7 @@ function getAliasAtNew() {
 }
 
 function getJScripts($docid) {
-	global $modx,$_lang,$_style,$action, $docObject;
+	global $modx,$_lang,$_style, $docObject;
 	
 	$base_url = $modx->config['base_url'];
 	if(!isset($modx->config['imanager_url']))
@@ -541,7 +539,7 @@ function get_template_options() {
 }
 
 function menuindex() {
-	global $modx, $docObject, $_lang;
+	global $docObject, $_lang;
 	
 	$tpl = <<< EOT
 <table cellpadding="0" cellspacing="0" style="width:333px;">
@@ -612,7 +610,7 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-	global $modx,$docObject,$_lang,$_style;
+	global $docObject,$_lang,$_style;
 	
 	$tpl = <<< EOT
 &nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
@@ -629,7 +627,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-	global $modx, $saveTarget, $docObject;
+	global $modx, $docObject;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -831,7 +829,7 @@ function getTmplvars($docid,$template,$docgrp) {
 }
 
 function rteContent($htmlcontent,$editors) {
-	global $modx, $_lang;
+	global $_lang;
 	$tpl = <<< EOT
 	<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;">[+content+]</textarea>
 	<span class="warning">[+_lang_which_editor_title+]</span>
@@ -852,7 +850,7 @@ function parseText($tpl,$ph) {
 }
 
 function getEditors($editors) {
-	global $modx,$_lang,$selected_editor;
+	global $_lang,$selected_editor;
 	if (!is_array($editors)) return '';
 	
 	$rs = '';
@@ -941,7 +939,7 @@ EOT;
 }
 
 function sectionTV() {
-	global $modx, $_lang;
+	global $_lang;
 	$tpl = getTplSectionTV();
 	$ph = array();
 	$ph['header'] = $_lang['settings_templvars'];
@@ -950,7 +948,7 @@ function sectionTV() {
 }
 
 function fieldsTV() {
-	global $modx, $_lang, $tmplVars, $rte_field;
+	global $modx, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
@@ -1111,7 +1109,7 @@ function getInitialValues() {
 }
 
 function fieldLink_attributes() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$body  = input_text('link_attributes',to_safestr($docObject['link_attributes']));
 	$body .= tooltip($_lang['link_attributes_help']);
 	return renderTr($_lang['link_attributes'],$body);
@@ -1140,7 +1138,7 @@ function fieldRichtext() {
 }
 
 function fieldDonthit() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$cond = ($docObject['donthit']!=1);
 	$body = input_checkbox('donthit',$cond);
 	$body .= input_hidden('donthit',!$cond);
@@ -1150,7 +1148,7 @@ function fieldDonthit() {
 
 
 function fieldSearchable() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$cond = ($docObject['searchable']==1);
 	$body = input_checkbox('searchable',$cond);
 	$body .= input_hidden('searchable',$cond);
@@ -1178,7 +1176,7 @@ function fieldSyncsite() {
 }
 
 function fieldType() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	
 	$tpl = <<< EOT
 <select name="type" class="inputBox" style="width:200px">
@@ -1219,7 +1217,7 @@ EOT;
 }
 
 function fieldContent_dispo() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	
 	if($docObject['type'] === 'reference') return;
 	$tpl = <<< EOT

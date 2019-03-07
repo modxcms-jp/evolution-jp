@@ -36,7 +36,7 @@ if( isset($_REQUEST['newtemplate']) && preg_match('/\A[0-9]+\z/',$_REQUEST['newt
   $docObject['template'] = $_REQUEST['newtemplate'];
 
 $tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
-$docObject = $docObject + $tmplVars;
+$docObject += $tmplVars;
 
 if($id && $modx->manager->action==131)
 {
