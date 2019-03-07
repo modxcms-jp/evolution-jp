@@ -65,11 +65,11 @@ if(!$modx->hasPermission('delete_template')) {
 	if(!$rs) {
 		echo "Something went wrong while trying to delete the field...";
 		exit;
-	} else {
-		header("Location: index.php?a=76");
 	}
 
-	// delete variable's content values
+    header("Location: index.php?a=76");
+
+// delete variable's content values
 	$modx->db->delete($tbl_site_tmplvar_contentvalues, "tmplvarid='{$id}'");
 	
 	// delete variable's template access

@@ -4,7 +4,7 @@ if (!$modx->hasPermission('save_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-
+global $_style;
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : 'New User';
@@ -92,12 +92,10 @@ switch ($_POST['mode']) {
 				webAlert('Password is too short!');
 				exit;
 			}
-			else
-			{
-				$newpassword = $specifiedpassword;
-			}
-		}
-		elseif ($specifiedpassword == '' && $passwordgenmethod == 'spec')
+
+            $newpassword = $specifiedpassword;
+        }
+		elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec')
 		{
 			webAlert("You didn't specify a password for this user!");
 			exit;
@@ -226,11 +224,11 @@ switch ($_POST['mode']) {
 				if (strlen($specifiedpassword) < 6) {
 					webAlert("Password is too short!");
 					exit;
-				} else {
-					$newpassword = $specifiedpassword;
 				}
-			}
-			elseif ($specifiedpassword == '' && $passwordgenmethod == 'spec') {
+
+                $newpassword = $specifiedpassword;
+            }
+			elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec') {
 				webAlert("You didn't specify a password for this user!");
 				exit;
 			}
@@ -340,9 +338,9 @@ switch ($_POST['mode']) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
-			if ($user_groups) {
-				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . intval($user_groups[$i]) . "', '$id')";
+			if (user_groups) {
+				for ($i = 0, $iMax = count($user_groups); $i < $iMax; $i++) {
+					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . (int)$user_groups[$i] . "', '$id')";
 					$rs = $modx->db->query($sql);
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.<br />$sql;");
@@ -401,7 +399,7 @@ switch ($_POST['mode']) {
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn) {
 	global $modx,$websignupemail_message;
-	global $emailsubject, $emailsender;
+	global $emailsender;
 	global $site_name, $site_start, $site_url;
 	$message = sprintf($websignupemail_message, $uid, $pwd); // use old method
 	// replace placeholders

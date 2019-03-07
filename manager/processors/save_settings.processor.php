@@ -54,7 +54,7 @@ $form_v['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v
 if(!is_dir($form_v['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
 if(!is_dir($form_v['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
-if(0< count($warnings))
+if($warnings)
 {
 	$modx->manager->saveFormValues('17');
 	$msg = join("\n",$warnings);
@@ -62,7 +62,7 @@ if(0< count($warnings))
 	exit;
 }
 
-if (isset($form_v) && count($form_v) > 0) {
+if (isset($form_v) && $form_v) {
 	$savethese = array();
 	foreach ($form_v as $k => $v) {
 		switch ($k) {

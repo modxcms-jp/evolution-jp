@@ -37,16 +37,14 @@ if(!$rs)
 	echo "Something went wrong while trying to delete the template...";
 	exit;
 }
-else
-{
-	$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
-	
-	// invoke OnTempFormDelete event
-  $tmp = array('id' => $id);
-	$modx->invokeEvent('OnTempFormDelete',$tmp);
 
-	// empty cache
-	$modx->clearCache();
-	
-	header('Location: index.php?a=76');
-}
+$rs = $modx->db->delete($tbl_site_tmplvar_templates,"templateid='{$id}'");
+
+// invoke OnTempFormDelete event
+$tmp = array('id' => $id);
+$modx->invokeEvent('OnTempFormDelete',$tmp);
+
+// empty cache
+$modx->clearCache();
+
+header('Location: index.php?a=76');

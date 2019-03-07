@@ -90,7 +90,7 @@ if($content['disabled']) {
 $parameter = array();
 if(!empty($content["properties"])){
 	$tmpParams = explode("&",$content["properties"]);
-	for($x=0; $x<count($tmpParams); $x++) {
+	for($x=0, $xMax = count($tmpParams); $x< $xMax; $x++) {
 		$pTmp = explode("=", $tmpParams[$x]);
 		$pvTmp = explode(";", trim($pTmp[1]));
 		if ($pvTmp[1]=='list' && $pvTmp[3]!="") $parameter[$pTmp[0]] = $pvTmp[3]; //list default

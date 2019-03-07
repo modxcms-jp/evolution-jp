@@ -175,11 +175,11 @@ function saveTemplateAccess() {
         return;
     }
     $total = count($templates);
-    for ($i = 0; $i < $total; $i++) {
-        $setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
+    foreach ($templates as $iValue) {
+        $setRank = ($getRankArray[$iValue]) ? $getRankArray[$iValue] : 0;
         $field = array();
         $field['tmplvarid'] = $id;
-        $field['templateid'] = $templates[$i];
+        $field['templateid'] = $iValue;
         $field['rank'] = $setRank;
         $modx->db->insert($field, '[+prefix+]site_tmplvar_templates');
     }

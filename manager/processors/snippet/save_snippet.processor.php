@@ -122,29 +122,27 @@ switch ($_POST['mode'])
 			echo '$rs not set! Edited snippet not saved!';
 			exit;
 		}
-		else
-		{
-			// invoke OnSnipFormSave event
-      $tmp = array(
-										'mode'	=> 'upd',
-										'id'	=> $id
-      );
-			$modx->invokeEvent('OnSnipFormSave',$tmp);
-			// empty cache
-			$modx->clearCache(); // first empty the cache
-			//if($_POST['runsnippet']) run_snippet($snippet);
-			// finished emptying cache - redirect
-			if($_POST['stay']!='')
-			{
-				$a = ($_POST['stay']=='2') ? "22&id={$id}":'23';
-				$header="Location: index.php?a={$a}&stay={$_POST['stay']}";
-			}
-			else
-			{
-				$header='Location: index.php?a=76';
-			}
-			header($header);
-		}
-		break;
+
+// invoke OnSnipFormSave event
+        $tmp = array(
+                                          'mode'	=> 'upd',
+                                          'id'	=> $id
+        );
+        $modx->invokeEvent('OnSnipFormSave',$tmp);
+        // empty cache
+        $modx->clearCache(); // first empty the cache
+        //if($_POST['runsnippet']) run_snippet($snippet);
+        // finished emptying cache - redirect
+        if($_POST['stay']!='')
+        {
+            $a = ($_POST['stay']=='2') ? "22&id={$id}":'23';
+            $header="Location: index.php?a={$a}&stay={$_POST['stay']}";
+        }
+        else
+        {
+            $header='Location: index.php?a=76';
+        }
+        header($header);
+        break;
 	default:
 }

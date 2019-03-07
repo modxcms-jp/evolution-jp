@@ -178,7 +178,7 @@ function saveEventListeners($id,$sysevents,$mode) {
     // save selected system events
     $tblSitePluginEvents = $modx->getFullTableName('site_plugin_events');
     $sql = "INSERT INTO {$tblSitePluginEvents} (pluginid,evtid,priority) VALUES ";
-    for($i=0;$i<count($sysevents);$i++){
+    for($i=0, $iMax = count($sysevents); $i< $iMax; $i++){
         $event = $sysevents[$i];
         if( !preg_match('/^[0-9]+\z/',$event) ){ continue; } //ignore invalid data
 

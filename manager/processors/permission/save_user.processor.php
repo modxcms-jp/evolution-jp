@@ -106,11 +106,11 @@ switch ($mode) {
 			if (strlen($specifiedpassword) < 6) {
 				webAlert("Password is too short!");
 				exit;
-			} else {
-				$newpassword = $specifiedpassword;
 			}
-		}
-		elseif ($specifiedpassword == '' && $passwordgenmethod == "spec") {
+
+            $newpassword = $specifiedpassword;
+        }
+		elseif ($specifiedpassword == '' && $passwordgenmethod === "spec") {
 			webAlert("You didn't specify a password for this user!");
 			exit;
 		}
@@ -197,43 +197,44 @@ switch ($mode) {
 			}
 			header($header);
 			exit;
-		} else {
-			if ($_POST['stay'] != '') {
-				$a = ($_POST['stay'] == '2') ? "{$mode}&id={$internalKey}" : "11";
-				$stayUrl = "index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
-			} elseif($mode==='74') {
-				$stayUrl = "index.php?r=3&a=2";
-			} else {
-				$stayUrl = "index.php?r=3&a=75";
-			}
-			
-			include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-?>
-			<h1><?php echo $_lang['user_title']; ?></h1>
-
-			<div id="actions">
-			<ul class="actionButtons">
-				<li class="mutate"><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['close']; ?></a></li>
-			</ul>
-			</div>
-
-			<div class="section">
-			<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
-			<div class="sectionBody">
-			<div id="disp">
-			<p>
-			<?php
-				echo sprintf($_lang["password_msg"], $newusername, $newpassword);
-			?>
-			</p>
-			</div>
-			</div>
-			</div>
-		<?php
-
-			include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 		}
-		break;
+
+        if ($_POST['stay'] != '') {
+            $a = ($_POST['stay'] == '2') ? "{$mode}&id={$internalKey}" : "11";
+            $stayUrl = "index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
+        } elseif($mode==='74') {
+            $stayUrl = "index.php?r=3&a=2";
+        } else {
+            $stayUrl = "index.php?r=3&a=75";
+        }
+
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
+        ?>
+        <h1><?php echo $_lang['user_title']; ?></h1>
+
+        <div id="actions">
+        <ul class="actionButtons">
+            <li class="mutate"><a href="<?php echo $stayUrl ?>"><img src="<?php echo $_style['icons_save'] ?>" /> <?php echo $_lang['close']; ?>
+                    </a></li>
+</ul>
+</div>
+
+<div class="section">
+<div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
+<div class="sectionBody">
+<div id="disp">
+<p>
+<?php
+                echo sprintf($_lang["password_msg"], $newusername, $newpassword);
+                ?>
+            </p>
+                </div>
+                </div>
+                </div>
+<?php
+
+        include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+        break;
 
 	case '12' : // edit user
 	case '74' : // edit user profile
@@ -243,10 +244,10 @@ switch ($mode) {
 				if (strlen($specifiedpassword) < 6) {
 					webAlert("Password is too short!");
 					exit;
-				} else {
-					$newpassword = $specifiedpassword;
 				}
-			}
+
+                $newpassword = $specifiedpassword;
+            }
 			elseif ($specifiedpassword == '' && $passwordgenmethod == "spec") {
 				webAlert("You didn't specify a password for this user!");
 				exit;
@@ -335,7 +336,7 @@ switch ($mode) {
 			);
 			$modx->invokeEvent("OnManagerChangePassword", $tmp);
 
-		if ($passwordnotifymethod == 'e' && $genpassword == 1) {
+		if ($passwordnotifymethod === 'e' && $genpassword == 1) {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 		}
 

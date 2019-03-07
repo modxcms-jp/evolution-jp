@@ -19,22 +19,18 @@ if(!$rs)
 	echo "Something went wrong while trying to delete the plugin...";
 	exit;
 }
-else
+
+// delete the plugin events.
+$rs = $modx->db->delete('[+prefix+]site_plugin_events',"pluginid='{$id}'");
+if(!$rs)
 {
-	// delete the plugin events.
-	$rs = $modx->db->delete('[+prefix+]site_plugin_events',"pluginid='{$id}'");
-	if(!$rs)
-	{
-		echo "Something went wrong while trying to delete the plugin events...";
-		exit;
-	}
-	else
-	{
-		// invoke OnPluginFormDelete event
-    $tmp = array('id' => $id);
-		$modx->invokeEvent('OnPluginFormDelete',$tmp);
-		// empty cache
-		$modx->clearCache();
-		header('Location: index.php?a=76');
-	}
+    echo "Something went wrong while trying to delete the plugin events...";
+    exit;
 }
+
+// invoke OnPluginFormDelete event
+$tmp = array('id' => $id);
+$modx->invokeEvent('OnPluginFormDelete',$tmp);
+// empty cache
+$modx->clearCache();
+header('Location: index.php?a=76');

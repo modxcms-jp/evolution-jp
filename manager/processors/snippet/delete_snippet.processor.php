@@ -18,14 +18,12 @@ if(!$rs)
 	echo "Something went wrong while trying to delete the snippet...";
 	exit;
 }
-else
-{
-	// invoke OnSnipFormDelete event
-  $tmp = array("id"	=> $id);
-	$modx->invokeEvent('OnSnipFormDelete',$tmp);
 
-	// empty cache
-	$modx->clearCache();
+// invoke OnSnipFormDelete event
+$tmp = array("id"	=> $id);
+$modx->invokeEvent('OnSnipFormDelete',$tmp);
 
-	header('Location: index.php?a=76');
-}
+// empty cache
+$modx->clearCache();
+
+header('Location: index.php?a=76');

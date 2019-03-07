@@ -6,8 +6,8 @@ $username = $_SESSION['mgrShortname'];
 
 // invoke OnBeforeManagerLogout event
 $tmp = array(
-							"userid"		=> $internalKey,
-							"username"		=> $username
+                'userid' => $internalKey,
+                'username' => $username
 );
 $modx->invokeEvent("OnBeforeManagerLogout",$tmp);
 
@@ -22,8 +22,8 @@ if (isset($_COOKIE[session_name()])) {
 
 // invoke OnManagerLogout event
 $tmp = array(
-							"userid"		=> $internalKey,
-							"username"		=> $username
+                'userid' => $internalKey,
+                'username' => $username
 );
 $modx->invokeEvent("OnManagerLogout",$tmp);
 
