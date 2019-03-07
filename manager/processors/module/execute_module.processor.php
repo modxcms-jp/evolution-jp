@@ -6,7 +6,7 @@ if(!$modx->hasPermission('exec_module')) {
 }
 
 if(isset($_REQUEST['id'])) {
-	$id = intval($_REQUEST['id']);
+	$id = (int)$_REQUEST['id'];
 } else {
 	$id=0;
 }

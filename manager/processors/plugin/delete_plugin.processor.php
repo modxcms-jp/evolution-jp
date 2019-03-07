@@ -6,7 +6,7 @@ if(!$modx->hasPermission('delete_plugin')) {
 	$e->dumpError();
 }
 
-$id=intval($_GET['id']);
+$id= (int)$_GET['id'];
 
 // invoke OnBeforePluginFormDelete event
 $tmp = array('id' => $id);

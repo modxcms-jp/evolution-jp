@@ -37,7 +37,7 @@ $blockeduntil = !empty ($_POST['blockeduntil']) ? $modx->toTimeStamp($_POST['blo
 $blockedafter = !empty ($_POST['blockedafter']) ? $modx->toTimeStamp($_POST['blockedafter']) : 0;
 
 // verify password
-if ($passwordgenmethod == "spec" && $_POST['specifiedpassword'] != $_POST['confirmpassword']) {
+if ($passwordgenmethod === 'spec' && $_POST['specifiedpassword'] != $_POST['confirmpassword']) {
 	webAlert("Password typed is mismatched");
 	exit;
 }
@@ -102,7 +102,7 @@ switch ($mode) {
 				exit;
 		}
 		// generate a new password for this user
-		if ($specifiedpassword != '' && $passwordgenmethod == "spec") {
+		if ($specifiedpassword != '' && $passwordgenmethod === "spec") {
 			if (strlen($specifiedpassword) < 6) {
 				webAlert("Password is too short!");
 				exit;
@@ -114,7 +114,7 @@ switch ($mode) {
 			webAlert("You didn't specify a password for this user!");
 			exit;
 		}
-		elseif ($passwordgenmethod == 'g') {
+		elseif ($passwordgenmethod === 'g') {
 			$newpassword = generate_password(8);
 		} else {
 			webAlert("No password generation method specified!");
@@ -138,7 +138,6 @@ switch ($mode) {
 		$field['password'] = $modx->phpass->HashPassword($newpassword);
 		$modx->db->update($field,'[+prefix+]manager_users',"id='{$internalKey}'");
 		
-		$field = array();
 		$field = compact('internalKey','fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
 		$rs = $modx->db->insert($field,'[+prefix+]user_attributes');
 		if (!$rs) {
@@ -175,7 +174,7 @@ switch ($mode) {
 			$user_groups = $_POST['user_groups'];
 			if ($user_groups):
 				foreach ($user_groups as $user_group):
-					$user_group = intval($user_group);
+					$user_group = (int)$user_group;
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$internalKey),'[+prefix+]member_groups');
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.");
@@ -186,7 +185,7 @@ switch ($mode) {
 		}
 		// end of user_groups stuff!
 
-		if ($passwordnotifymethod == 'e') {
+		if ($passwordnotifymethod === 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "{$mode}&id=$id" : "11";
@@ -354,13 +353,13 @@ switch ($mode) {
 			// as this is an existing user, delete his/ her entries in the groups before saving the new groups
 			$rs = $modx->db->delete('[+prefix+]member_groups', "member='{$id}'");
 			if (!$rs) {
-				webAlert("An error occurred while attempting to delete previous user_groups entries.");
+				webAlert('An error occurred while attempting to delete previous user_groups entries.');
 				exit;
 			}
 			$user_groups = $_POST['user_groups'];
 			if ($user_groups):
 				foreach ($user_groups as $user_group):
-					$user_group = intval($user_group);
+					$user_group = (int)$user_group;
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$id),'[+prefix+]member_groups');
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.");
@@ -529,8 +528,6 @@ function saveUserSettings($id)
 	{
 		if(is_array($v)) $v = implode(',', $v);
 		if(in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
-
-		//if ($config[$n] == $v) continue; // ignore commonalities in base config
 
 		$settings[$n] = $v; // this value should be saved
 	}
