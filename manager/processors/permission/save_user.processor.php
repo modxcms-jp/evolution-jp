@@ -173,7 +173,7 @@ switch ($mode) {
 		// first, check that up_perms are switched on!
 		if ($modx->config['use_udperms'] == 1) {
 			$user_groups = $_POST['user_groups'];
-			if (0 < count($user_groups)):
+			if ($user_groups):
 				foreach ($user_groups as $user_group):
 					$user_group = intval($user_group);
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$internalKey),'[+prefix+]member_groups');
@@ -358,7 +358,7 @@ switch ($mode) {
 				exit;
 			}
 			$user_groups = $_POST['user_groups'];
-			if (0 < count($user_groups)):
+			if ($user_groups):
 				foreach ($user_groups as $user_group):
 					$user_group = intval($user_group);
 					$rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$id),'[+prefix+]member_groups');

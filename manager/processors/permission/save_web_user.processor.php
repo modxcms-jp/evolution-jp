@@ -161,7 +161,7 @@ switch ($_POST['mode']) {
 		// first, check that up_perms are switched on!
 		if ($modx->config['use_udperms'] == 1)
 		{
-			if (count($user_groups) > 0)
+			if ($user_groups)
 			{
 				$field = array();
 				foreach($user_groups as $user_group)
@@ -342,7 +342,7 @@ switch ($_POST['mode']) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
-			if (count($user_groups) > 0) {
+			if ($user_groups) {
 				for ($i = 0; $i < count($user_groups); $i++) {
 					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . intval($user_groups[$i]) . "', '$id')";
 					$rs = $modx->db->query($sql);
