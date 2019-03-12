@@ -322,7 +322,7 @@ function getFiles($directory,$listing = array(), $count = 0)
 		foreach($files as $file)
 		{
 			if ($file==='.' || $file==='..') continue;
-			elseif (is_dir("{$directory}{$file}/"))
+			elseif (is_dir("{$directory}{$file}"))
 			{
 				$count = -1;
 				$listing["d#{$file}"] = getFiles("{$directory}{$file}/",array(), $count + 1);
