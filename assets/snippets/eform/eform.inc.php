@@ -62,59 +62,59 @@ $from   = (isset($from)) ? $from : $modx->config['emailsender'];
 $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode: '';
 $params = array (
-   // Snippet Path
-   'snipPath' => $snipPath, //includes $snip_dir
-     'snipFolder' => $snip_dir,
+    //                       Snippet Path
+    'snipPath'               => $snipPath,//includes@$snip_dir
+    'snipFolder'             => $snip_dir,
 
-// eForm Params
-   'vericode' => $vericode,
-   'formid' => $formid,
-   'from' => $from,
-   'fromname' => isset($fromname)? $fromname:$modx->config['site_name'],
-   'to' => isset($to)? $to:$modx->config['emailsender'],
-   'cc' => isset($cc)? $cc:'',
-   'bcc' => isset($bcc)? $bcc:'',
-   'subject' => isset($subject)? $subject:'',
-   'ccsender' => isset($ccsender)? $ccsender:0,
-   'sendirect' => isset($sendirect)? $sendirect:0,
-   'mselector' => isset($mailselector)? $mailselector:0,
-   'mobile' => isset($mobile)? $mobile:'',
-   'mobiletext' => isset($mobiletext)? $mobiletext:'',
-   'autosender' => isset($autosender)? $autosender:$from,
-   'autotext' => isset($automessage)? $automessage:'',
-   'category' => isset($category)? $category:0,
-   'keywords' => isset($keywords)? $keywords:'',
-   'gid' => isset($gotoid)? $gotoid:$modx->documentIdentifier,
-   'noemail' => isset($noemail)? ($noemail):false,
-   'saveform' => isset($saveform)? ($saveform? true:false):true,
-   'tpl' => isset($tpl)? $tpl:'',
-   'report' => isset($report)? $report:'',
-   'allowhtml' => isset($allowhtml)? $allowhtml:0,
-   //Added by JJ
-   'replyto' => isset($replyto)? $replyto:'',
-   'language' => isset($language)? $language:$modx->config['manager_language'],
-   'thankyou' => isset($thankyou)? $thankyou:'',
-   'isDebug' => isset($debug)? $debug:0,
-   'reportAbuse' => isset($reportAbuse)? $reportAbuse:false,
-   'disclaimer' => isset($disclaimer)?$disclaimer:'',
-   'sendAsHtml' => isset($sendAsHtml)?$sendAsHtml:false,
-   'sendAsText' => isset($sendAsText)?$sendAsText:false,
-   'sessionVars' => isset($sessionVars)?$sessionVars:false,
-   'postOverides' => isset($postOverides)?$postOverides:0,
-   'eFormOnBeforeMailSent' => isset($eFormOnBeforeMailSent)?$eFormOnBeforeMailSent:'',
-   'eFormOnMailSent' => isset($eFormOnMailSent)?$eFormOnMailSent:'',
-   'eFormOnValidate' => isset($eFormOnValidate)?$eFormOnValidate:'',
-   'eFormOnBeforeFormMerge' => isset($eFormOnBeforeFormMerge)?$eFormOnBeforeFormMerge:'',
-   'eFormOnBeforeFormParse' => isset($eFormOnBeforeFormParse)?$eFormOnBeforeFormParse:'',
-   'cssStyle' => isset($cssStyle)?$cssStyle:'',
-   'jScript' => isset($jScript)?$jScript:'',
-   'submitLimit' => (isset($submitLimit) &&  is_numeric($submitLimit))?$submitLimit*60:0,
-   'protectSubmit' => isset($protectSubmit)?$protectSubmit:1,
-   'requiredClass' => isset($requiredClass)?$requiredClass:"required",
-   'invalidClass' => isset($invalidClass)?$invalidClass:"invalid",
-   'runSnippet' => ( isset($runSnippet) && !is_numeric($runSnippet) )?$runSnippet:'',
-   'autoSenderName' => isset($autoSenderName)?$autoSenderName:'',
-   'version' => isset($version) ? $version : '1.4.4.7'
+    //                       eForm   Params
+    'vericode'               => $vericode,
+    'formid'                 => $formid,
+    'from'                   => $from,
+    'fromname'               => isset($fromname)?$fromname:$modx->config['site_name'],
+    'to'                     => isset($to)?$to:$modx->config['emailsender'],
+    'cc'                     => isset($cc)?$cc:'',
+    'bcc'                    => isset($bcc)?$bcc:'',
+    'subject'                => isset($subject)?$subject:'',
+    'ccsender'               => isset($ccsender)?$ccsender:0,
+    'sendirect'              => isset($sendirect)?$sendirect:0,
+    'mselector'              => isset($mailselector)?$mailselector:0,
+    'mobile'                 => isset($mobile)?$mobile:'',
+    'mobiletext'             => isset($mobiletext)?$mobiletext:'',
+    'autosender'             => isset($autosender)?$autosender:$from,
+    'autotext'               => isset($automessage)?$automessage:'',
+    'category'               => isset($category)?$category:0,
+    'keywords'               => isset($keywords)?$keywords:'',
+    'gid'                    => isset($gotoid)?$gotoid:$modx->documentIdentifier,
+    'noemail'                => isset($noemail)?($noemail):false,
+    'saveform'               => isset($saveform)?($saveform?true:false):true,
+    'tpl'                    => isset($tpl)?$tpl:'',
+    'report'                 => isset($report)?$report:'',
+    'allowhtml'              => isset($allowhtml)?$allowhtml:0,
+    //Added                  by      JJ
+    'replyto'                => isset($replyto)?$replyto:'',
+    'language'               => isset($language)?$language:$modx->config['manager_language'],
+    'thankyou'               => isset($thankyou)?$thankyou:'',
+    'isDebug'                => isset($debug)?$debug:0,
+    'reportAbuse'            => isset($reportAbuse)?$reportAbuse:false,
+    'disclaimer'             => isset($disclaimer)?$disclaimer:'',
+    'sendAsHtml'             => isset($sendAsHtml)?$sendAsHtml:false,
+    'sendAsText'             => isset($sendAsText)?$sendAsText:false,
+    'sessionVars'            => isset($sessionVars)?$sessionVars:false,
+    'postOverides'           => isset($postOverides)?$postOverides:0,
+    'eFormOnBeforeMailSent'  => isset($eFormOnBeforeMailSent)?$eFormOnBeforeMailSent:'',
+    'eFormOnMailSent'        => isset($eFormOnMailSent)?$eFormOnMailSent:'',
+    'eFormOnValidate'        => isset($eFormOnValidate)?$eFormOnValidate:'',
+    'eFormOnBeforeFormMerge' => isset($eFormOnBeforeFormMerge)?$eFormOnBeforeFormMerge:'',
+    'eFormOnBeforeFormParse' => isset($eFormOnBeforeFormParse)?$eFormOnBeforeFormParse:'',
+    'cssStyle'               => isset($cssStyle)?$cssStyle:'',
+    'jScript'                => isset($jScript)?$jScript:'',
+    'submitLimit'            => (isset($submitLimit)&&is_numeric($submitLimit))?$submitLimit*60:0,
+    'protectSubmit'          => isset($protectSubmit)?$protectSubmit:1,
+    'requiredClass'          => isset($requiredClass)?$requiredClass:"required",
+    'invalidClass'           => isset($invalidClass)?$invalidClass:"invalid",
+    'runSnippet'             => (isset($runSnippet)&&!is_numeric($runSnippet) )?$runSnippet:'',
+    'autoSenderName'         => isset($autoSenderName)?$autoSenderName:'',
+    'version'                => isset($version)?$version:'1.4.4.7'
 );
 
 // pixelchutes PHx workaround
@@ -175,7 +175,10 @@ $_dfnMaxlength = 6;
     //check for <input type='hidden name='formid'...>
     if( !preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i',$tpl) ){
             //insert hidden formid field
-            $tpl = str_replace('</form>',"<input type=\"hidden\" name=\"formid\" value=\"$formid\" /></form>",$tpl);
+            $tpl = str_replace('</form>', sprintf(
+                '<input type="hidden" name="formid" value="%s" /></form>'
+                , $formid
+            ),$tpl);
     }
 
     $validFormId = (isset($_POST['formid']) && $formid==$_POST['formid'])?1:0;
@@ -233,7 +236,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         foreach($formats as $k => $discard)
             if(!isset($fields[$k])) $fields[$k] = ""; // store dummy value inside $fields
 
-         $disclaimer = (($tmp=efLoadTemplate($disclaimer))!==false )? $tmp:'';
+        $disclaimer = (($tmp=efLoadTemplate($disclaimer))!==false )? $tmp:'';
 
         //error message containers
         $vMsg = $rMsg = $rClass = array();
@@ -278,7 +281,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
                 $isRequired = $fld[3];
 
                 if ($isRequired==1 && $value=="" && $datatype!="file"){
-                    $rMsg[count($rMsg)]="$desc";
+                    $rMsg[count($rMsg)]= (string)$desc;
                     $rClass[$name]=$requiredClass;
 
                 }elseif( !empty($fld[5]) && $value!="" && $datatype!="file" ) {
@@ -537,15 +540,15 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 				//set reply-to address
 				//$replyto snippet parameter must contain email or fieldname
-				if(!strstr($replyto,'@'))
-					$replyto = ( $fields[$replyto] && strstr($fields[$replyto],'@') )?$fields[$replyto]:$from;
+				if(strpos($replyto, '@') === false)
+					$replyto = ( $fields[$replyto] && strpos($fields[$replyto], '@') !== false)?$fields[$replyto]:$from;
 
 				# include PHP Mailer
 				$modx->loadExtension('MODxMailer');
 
 				# send form
 				//defaults to html so only test sendasText
-				$isHtml = ($sendAsText==1 || strstr($sendAsText,'report'))?false:true;
+				$isHtml = !($sendAsText == 1 || strpos($sendAsText, 'report') !== false);
 
 				if(!$noemail)
 				{
@@ -593,7 +596,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				}
 
 				//defaults to text - test for sendAsHtml
-				$isHTML = ($sendAsHTML==1 || strstr($sendAsHtml,'mobile'))?true:false;
+				$isHTML = ($sendAsHTML == 1 || strpos($sendAsHtml, 'mobile') !== false);
 				# send mobile email
 				if ($mobile && $mobiletext) {
 					$mobiletext = formMerge($mobiletext,$fields);
@@ -608,11 +611,11 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 				}
 
 			}//end test nomail
-			 # added in 1.4.2 - Protection against multiple submit with same form data
-			 if($protectSubmit) $_SESSION[$formid.'_hash'] = $hash; //hash is set earlier
+            # added in 1.4.2 - Protection against multiple submit with same form data
+            if($protectSubmit) $_SESSION[$formid.'_hash'] = $hash; //hash is set earlier
 
-			 # added in 1.4.2 - Limit the time between form submissions
-			 if($submitLimit>0) $_SESSION[$formid.'_limit'] = time();
+            # added in 1.4.2 - Limit the time between form submissions
+            if($submitLimit>0) $_SESSION[$formid.'_limit'] = time();
 
 				# invoke OnMailSent event set by another script
 				if ($eFormOnMailSent) {
@@ -624,7 +627,16 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 
 			if($isDebug){
-				$debugText .="<strong>Mail Headers:</strong><br />From: $from ($fromname)<br />Reply-to:$replyto<br />To: $to<br />Subject: $subject<br />CC: $cc<br /> BCC:$bcc<br />";
+				$debugText .= sprintf(
+				    '<strong>Mail Headers:</strong><br />From: %s (%s)<br />Reply-to:%s<br />To: %s<br />Subject: %s<br />CC: %s<br /> BCC:%s<br />'
+                    , $from
+                    , $fromname
+                    , $replyto
+                    , $to
+                    , $subject
+                    , $cc
+                    , $bcc
+                );
 			if($isDebug>1){
 				$debugText .= "<br /><strong>Formats array:</strong><pre>". var_export($formats,true).'</pre>';
 				$debugText .= "<br /><strong>Fields array:</strong><pre>". var_export($fields,true).'</pre>';
@@ -636,11 +648,11 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			if ($gid==$modx->documentIdentifier){
 
 				if(!empty($thankyou) ){
-					if($isDebug && !strstr($thankyou,'[+debug+]')) $thankyou .= '[+debug+]';
+					if($isDebug && strpos($thankyou, '[+debug+]') === false) $thankyou .= '[+debug+]';
 					if( isset($startupSource) ) efRegisterStartupBlock($startupSource,true);	//skip scripts
 					if( $sendAsText ){
 						foreach($formats as $key => $fmt)
-							if($fmt[2]=='html') $fields[$key] = str_replace("\n",'<br />',$fields[$key]);
+							if($fmt[2] === 'html') $fields[$key] = str_replace("\n",'<br />',$fields[$key]);
 					}
 					$thankyou = formMerge($thankyou,$fields);
 					return $thankyou;
@@ -694,7 +706,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 	# build form
 	if($isDebug && !$fields['debug']) $fields['debug'] = $debugText;
-	if($isDebug && !strstr($tpl,'[+debug+]')) $tpl .= '[+debug+]';
+	if($isDebug && strpos($tpl, '[+debug+]') === false) $tpl .= '[+debug+]';
 	//register css and/or javascript
 	if( isset($startupSource) ) efRegisterStartupBlock($startupSource);
 	return formMerge($tpl,$fields);
@@ -708,9 +720,11 @@ function formMerge($docText, $docFields, $vClasses='') {
     if(!$docText) return '';
 
     preg_match_all('~\[\+(.*?)\+\]~', $docText, $matches);
-    for($i=0;$i<count($matches[1]);$i++) {
+    for($i=0, $iMax = count($matches[1]); $i< $iMax; $i++) {
         $name = $matches[1][$i];
-        if(strpos($name,':')!==false) list($listName,$listValue) = explode(':',$name);
+        if(strpos($name,':')!==false) {
+            list($listName,$listValue) = explode(':',$name);
+        }
         else $listName = $name;
         $value = isset($docFields[$listName])? $docFields[$listName]:'';
 
@@ -732,6 +746,7 @@ function formMerge($docText, $docFields, $vClasses='') {
                 if(($datatype=="checkbox"||$datatype=="radio") && $listValue==$docFields[$listName]) $docText = str_replace("[+$listName:$listValue+]","checked='checked'",$docText);
             }
         }
+
         if(strpos($name,":")===false) $docText = str_replace("[+$name+]",$value,$docText);
         else {
             // this might be a listbox item.
@@ -909,7 +924,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
                 break;
             default: //all the rest, ie. "input"
                 $newTag = buildTagPlaceholder($type,$tagAttributes,$name);
-                  $fieldType = stripTagQuotes($tagAttributes['type']);
+                $fieldType = stripTagQuotes($tagAttributes['type']);
                     //validate on maxlength...
                     if( $fieldType=='text' && isset($tagAttributes['maxlength']) && $tagAttributes['maxlength'] ){
                         $formats[$name][$_dfnMaxlength] == $tagAttributes['maxlength'];
@@ -1048,8 +1063,8 @@ function validateField($value,$fld,&$vMsg,$isDebug=false){
                 } //changes to make sure embedded commma's in values are recognized
 
                 if( $isDebug && count($vlist)==1 && empty($vlist[0])  ){
-                     //if debugging bail out big time
-                     $modx->messageQuit('Error in validating form field!', '',$false,E_USER_WARNING,__FILE__,'','#LIST rule declared but no list values supplied: '.$fld[5],__LINE__);
+                    //if debugging bail out big time
+                    $modx->messageQuit('Error in validating form field!', '',$false,E_USER_WARNING,__FILE__,'','#LIST rule declared but no list values supplied: '.$fld[5],__LINE__);
                 }elseif(!in_array(strtolower($value),$vlist))
                     $errMsg = ($fld[2]=='file')? $_lang["ef_failed_upload"]: $_lang['ef_failed_list'];
                 break;
@@ -1201,7 +1216,7 @@ function efRegisterStartupBlock($src_array,$noScript=false){
                 $src = $tmp;
         $src=trim($src);
 
-         if ( $type=='css' )
+        if ( $type=='css' )
             $modx->regClientCSS($src);
         elseif ( $type == 'javascript' )
             $modx->regClientStartupScript($src);
@@ -1227,7 +1242,7 @@ function hasMailHeaders( &$fields ){
     $injectionAttempt = false;
     $re = "/(%0A|%0D|\n+|\r+)(Content-Transfer-Encoding:|MIME-Version:|content-type:|to:|cc:|bcc:)/i";
     foreach($fields as $fld => $text){
-         if( ($match = preg_replace($re,'\\[\2]\\', $text))!=$text ){
+        if( ($match = preg_replace($re,'\\[\2]\\', $text))!=$text ){
             $injectionAttempt = true;
             $fields[$fld]=$match; //replace with 'disabled' version
         }
