@@ -3298,7 +3298,7 @@ class DocumentParser {
         $from[] = "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
 
         if (is_array($idnames)) {
-            $idnames = "'" . join("','", $this->db->escape($idnames)) . "'";
+            $idnames = join("','", $this->db->escape($idnames));
         }
 
         if ($idnames === '*') {
