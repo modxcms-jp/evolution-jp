@@ -122,7 +122,7 @@ class Wayfinder {
         $ph['wf.level']      = $level;
         
         //Determine which wrapper template to use
-        if ($this->_templates['innerTpl'] && $wrapperClass=='innercls') $tpl = $this->_templates['innerTpl'];
+        if ($this->_templates['innerTpl'] && $wrapperClass === 'innercls') $tpl = $this->_templates['innerTpl'];
         else                                                            $tpl = $this->_templates['outerTpl'];
         
         //Process the wrapper
@@ -149,8 +149,8 @@ class Wayfinder {
         $refid = $resource['id'];
 
         // Determine fields for use from referenced resource
-        if ($this->_config['useReferenced'] && $resource['type'] == 'reference' && preg_match('@^[1-9][0-9]*$@',$resource['content'])) {
-            if ($this->_config['useReferenced'] == 'id') {
+        if ($this->_config['useReferenced'] && $resource['type'] === 'reference' && preg_match('@^[1-9][0-9]*$@',$resource['content'])) {
+            if ($this->_config['useReferenced'] === 'id') {
                 // if id only, do not need get referenced data
                 $resource['id'] = $resource['content'];
             } elseif ($referenced = $modx->getDocument($resource['content'])) {
@@ -292,7 +292,7 @@ class Wayfinder {
                 
                 if(!empty($class['here'])    && $this->isHere($docId))     $classNames[]=$class['here'];              //Set here class
                 if(!empty($class['self'])    && $docId==$config['hereId']) $classNames[]=$class['self'];              //Set self class
-                if(!empty($class['weblink']) && $type=='reference')        $classNames[]=$class['weblink'];           //Set class for weblink
+                if(!empty($class['weblink']) && $type === 'reference')        $classNames[]=$class['weblink'];           //Set class for weblink
                 
                 if($isFolder && !empty($class['parent'])) {
                   if($level < $config['level'] || $config['level']==0) {
@@ -391,9 +391,9 @@ class Wayfinder {
             //Setup the fields for the query
             $fields = explode(',','id,menutitle,pagetitle,introtext,menuindex,published,hidemenu,parent,isfolder,description,alias,longtitle,type,content,template,link_attributes');
             foreach($fields as $i=>$v) {
-                if    ($v=='alias')   $fields[$i] = "IF(sc.alias='', sc.id, sc.alias) AS alias";
-                elseif($v=='content') $fields[$i] = "IF(sc.type='reference',sc.content,'') AS content";
-                else                  $fields[$i] = 'sc.'.$v;
+                if    ($v === 'alias')   $fields[$i] = "IF(sc.alias='', sc.id, sc.alias) AS alias";
+                elseif($v === 'content') $fields[$i] = "IF(sc.type='reference',sc.content,'') AS content";
+                else                     $fields[$i] = 'sc.'.$v;
             }
             $fields = join(',', $fields);
             
@@ -421,7 +421,9 @@ class Wayfinder {
                 $access = sprintf("1='%s' OR sc.privatemgr=0", $_SESSION['mgrRole']);
                 if($docgrp) $access .= sprintf(' OR dg.document_group IN (%s)', $docgrp);
             }
-            if($access) $access = "AND({$access})";
+            if($access) {
+                $access = "AND({$access})";
+            }
             
             //Add the ignore hidden option to the where clause
             if ($this->_config['ignoreHidden'])  $menuWhere = '';
@@ -463,7 +465,7 @@ class Wayfinder {
                 $resultIds[] = $row['id'];
                 //Create the link
                 $linkScheme = $this->_config['fullLink'] ? 'full' : '';
-                if ($this->_config['useWeblinkUrl'] && $row['type'] == 'reference') {
+                if ($this->_config['useWeblinkUrl'] && $row['type'] === 'reference') {
                     if (preg_match('@^[1-9][0-9]*$@',$row['content'])) $row['link'] = $modx->makeUrl(intval($row['content']),'','',$linkScheme);
                     else                                               $row['link'] = $row['content'];
                 }
@@ -585,7 +587,7 @@ class Wayfinder {
                     case 'outerTpl'    : $_ = $outerTpl;    break;
                     case 'rowTpl'      : $_ = $rowTpl;      break;
                     case 'startItemTpl': $_ = $startItemTpl;break;
-                    default:$_ = FALSE;
+                    default:$_ = false;
                 }
                 $this->_templates[$n] = $_;
                 if ($this->_config['debug']) {
@@ -641,9 +643,9 @@ class Wayfinder {
 
         if (count($tvnames) >= 1) {
             return array_unique($tvnames);
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     function addDebugInfo($group,$groupkey,$header,$message,$info) {
@@ -654,29 +656,29 @@ class Wayfinder {
 
         foreach ($info as $key => $value) {
             $key = $this->modxPrep($key);
-            if ($value === TRUE || $value === FALSE) {
+            if ($value === true || $value === FALSE) {
                 $value = $value ? 'true' : 'false';
                 $value = sprintf('<span class="bool %s">%s</span>',$value,$value);
             } else {
-                if($key=='nl') {
+                if($key === 'nl') {
                     $key = 'removeNewLines';
                     $value = str_replace("\n",'\\n',$value);
                 }
-                elseif($key=='id') $key='startId';
+                elseif($key === 'id') $key='startId';
                 $value = $this->modxPrep($value);
                 $value = str_replace(array(' ',"\n"),array('&nbsp;',"<br />\n"),$value);
             }
             if ($count == 2) { $infoString .= '</tr>'; $count = 0; }
             if ($count == 0) { $infoString .= '<tr>'; }
             $value = $value=='' ? '&nbsp;' : $value;
-            if($key!='-' && ($group=='settings'||$group=='template')) $key = '&'.$key;
+            if($key!='-' && ($group === 'settings'||$group === 'template')) $key = '&'.$key;
             $infoString .= "<th>{$key}</th><td>{$value}</td>";
             $count++;
         }
         $infoString .= '</tr></table>';
 
         $message = $this->modxPrep($message);
-        if($group=='row') $message = "<div>{$message}</div>";
+        if($group === 'row') $message = "<div>{$message}</div>";
         $this->debugInfo[$group][$groupkey] = array(
             'header' => $this->modxPrep($header),
             'message' =>  $message,
@@ -743,7 +745,7 @@ class Wayfinder {
     
     function modxPrep($value) {
         global $modx;
-        $value = (strpos($value,'<') !== FALSE) ? htmlentities($value,ENT_NOQUOTES,$modx->config['modx_charset']) : $value;
+        $value = (strpos($value,'<') !== false) ? htmlentities($value,ENT_NOQUOTES,$modx->config['modx_charset']) : $value;
         $s = array('[', ']', '{', '}');
         $r = array('&#091;', '&#093;', '&#123;', '&#125;');
         $value = str_replace($s, $r, $value);

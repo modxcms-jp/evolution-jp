@@ -31,9 +31,9 @@ if(is_file("{$conf_path}default.config.php"))
 $config = (!isset($config)) ? 'default' : trim($config);
 $config = ltrim($config,'/');
 
-if(substr($config, 0, 6) == '@CHUNK')               eval('?>' . $modx->getChunk(trim(substr($config, 7))));
+if(substr($config, 0, 6) === '@CHUNK')               eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 elseif(substr($config, 0, 5) == '@FILE')            include($modx->config['base_path'] . trim(substr($config, 6)));
-elseif($config!='default'&&is_file("{$conf_path}{$config}.config.php"))
+elseif($config !== 'default'&&is_file("{$conf_path}{$config}.config.php"))
                                                     include("{$conf_path}{$config}.config.php");
 elseif(is_file("{$conf_path}{$config}"))            include("{$conf_path}{$config}");
 elseif(is_file($modx->config['base_path'].$config)) include($modx->config['base_path'] . $config);
@@ -45,7 +45,7 @@ else                           return 'error: Wayfinder class not found';
 
 $wf->_config = array(
 	'id' => isset($startId) ? $startId : $modx->documentIdentifier,
-	'level' => isset($level) ? intval($level) : 0,
+	'level' => isset($level) ? (int)$level : 0,
 	'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
 	'excludeDocs' => isset($excludeDocs) ? $excludeDocs : 0,
 	'where' => isset($where) ? $where : '',
@@ -69,7 +69,7 @@ $wf->_config = array(
 	'entityEncode' => isset($entityEncode) ? $entityEncode : FALSE,
 	// for local references - use original document fields separated by comma (useful for set active if it is current, titles, link attr, etc)
 	'useReferenced' => isset($useReferenced) ? $useReferenced: "id", 
-	'hereId' => isset($hereId) ? intval($hereId) : $modx->documentIdentifier
+	'hereId' => isset($hereId) ? (int)$hereId : $modx->documentIdentifier
 );
 
 //get user class definitions
@@ -115,6 +115,6 @@ if ($wf->_config['debug'] && $modx->isLoggedin()) {
 if ($wf->_config['ph']) {
     $modx->setPlaceholder($wf->_config['ph'],$output);
     return;
-} else {
-    return $output;
 }
+
+return $output;
