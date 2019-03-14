@@ -3359,15 +3359,15 @@ class DocumentParser {
             if( !empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier ) //Load preview
                 $row['value'] = $this->previewObject[$row['name']];
 
-            if (!$row['id'])
+            if (!is_array($row['value']))
             {
                 $output[$row['name']] = $row['value'];
             }
             else
             {
-                $row['docid'] = $docid;
-                $row['sep']   = $sep;
-                $output[$row['name']] = $this->tvProcessor($row);
+                $row['value']['docid'] = $docid;
+                $row['value']['sep']   = $sep;
+                $output[$row['name']] = $this->tvProcessor($row['value']);
             }
         }
         return $output;
