@@ -45,15 +45,15 @@ class Wayfinder {
         if (!empty($this->docs)) {
             ksort($this->docs);                   //Sort documents by level for proper wrapper substitution
             return $this->buildMenu(); //build the menu
-        } else {
-            $noneReturn = $this->_config['debug'] ? '<p style="color:red">No documents found for menu.</p>' : '';
-            return $noneReturn;
         }
+
+        $noneReturn = $this->_config['debug'] ? '<p style="color:#f00">No documents found for menu.</p>' : '';
+        return $noneReturn;
     }
     
     function buildMenu() {
-        global $modx;
         //Loop through all of the menu levels
+        $output = '';
         foreach ($this->docs as $level => $subParents) {
             //Loop through each document group (grouped by parent doc)
             foreach ($subParents as $parentId => $subDocs) {
@@ -270,8 +270,6 @@ class Wayfinder {
     
     //determine style class for current item being processed
     function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document') {
-        global $modx;
-        
         $classNames = array();
         $class  = &$this->_css;
         $config = &$this->_config;
@@ -300,11 +298,12 @@ class Wayfinder {
                   }
                 }
                 break;
-            default:
-                return;
         }
 
-        if($classNames) return join(' ', $classNames);
+        if($classNames) {
+            return join(' ', $classNames);
+        }
+        return '';
     }
 
     //determine "you are here"
