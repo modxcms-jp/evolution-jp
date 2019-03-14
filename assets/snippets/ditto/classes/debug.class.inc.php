@@ -6,8 +6,6 @@
  *  	The Debug class contains all functions relating to Ditto's
  * 		implimentation of the MODX debug console
 */
-
-
 if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
 class debug extends modxDebugConsole {
 	var $debug;

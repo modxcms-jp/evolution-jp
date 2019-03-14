@@ -43,7 +43,7 @@ class filter {
 			list($param['value'], $rs['op']) = array($rs['op'], $param['value']);
 		}
 		
-		if(substr($param['value'],0,5) === '@EVAL') {
+		if(strpos($param['value'], '@EVAL') === 0) {
 			$eval_code = trim(substr($param['value'],6));
 			$eval_code = trim($eval_code,';') . ';';
 			if(strpos($eval_code,'return')===false) {
@@ -70,7 +70,7 @@ class filter {
 
 		$rs['field_name'] = $param['source'];
 
-		if (substr($rs['op'],0,1)==='!' && substr($rs['op'],0,2)!=='!!') {
+		if (strpos($rs['op'], '!') === 0 && substr($rs['op'],0,2)!=='!!') {
 			$rs['flip_mode'] = 1;
 			$rs['op'] = substr($rs['op'],1);
 		} else {
@@ -112,7 +112,7 @@ class filter {
 		if (in_array($operator_name, array(4,'gt')))       return '>';
 		if (in_array($operator_name, array(5,'gte','ge'))) return '>=';
 		if ($operator_name==8)                             return '!~';
-		if ($operator_name=='preg')                        return 'regex';
+		if ($operator_name === 'preg')                     return 'regex';
 		if (in_array($operator_name, array(7,'find','search','strpos'))) return '=~';
 		return $operator_name;
 	}
