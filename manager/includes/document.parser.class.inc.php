@@ -3346,7 +3346,9 @@ class DocumentParser {
 
         if(is_string($idnames)&&strpos($idnames,',')!==false) $idnames = explode(',', $idnames);
         $vars   = ($idnames == '*' || is_array($idnames)) ? $idnames : array ($idnames);
-        $docid  = intval($docid) ? intval($docid) : $this->documentIdentifier;
+        if (!preg_match('@^[1-9][0-9]*$@',$docid)) {
+            $docid = $this->documentIdentifier;
+        }
         $result = $this->getTemplateVars($vars, '*', $docid, $published, '', ''); // remove sort for speed
         
         if ($result == false) return false;
