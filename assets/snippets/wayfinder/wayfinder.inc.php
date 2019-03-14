@@ -622,12 +622,10 @@ class Wayfinder {
     function fetch($tpl){
         global $modx;
         
-        if    (substr($tpl,0,5) == '@FILE') $template = file_get_contents(substr($tpl, 6));
-        elseif(substr($tpl,0,5) == '@CODE') $template = substr($tpl, 6);
-        elseif($modx->getChunk($tpl) != '') $template = $modx->getChunk($tpl);
-        else                                $template = FALSE;
-        
-        return $template;
+        if(substr($tpl,0,5) == '@FILE') return file_get_contents(substr($tpl, 6));
+        if(substr($tpl,0,5) == '@CODE') return substr($tpl, 6);
+        if($modx->getChunk($tpl) != '') return $modx->getChunk($tpl);
+        return $tpl;
     }
 
 
