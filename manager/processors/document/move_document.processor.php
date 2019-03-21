@@ -41,6 +41,7 @@ if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
 	}
 }
 $children= allChildren($doc_id);
+$alert = '';
 if($current_parent == $new_parent)
 {
 	$alert = $_lang["move_resource_new_parent"];
@@ -73,35 +74,39 @@ else
 	}
 
 	// finished moving the resource, now check to see if the old_parent should no longer be a folder.
-	$rs = $modx->db->select('count(id)',$tbl_site_content,"parent='{$current_parent}'");
+	$rs = $modx->db->select('count(*) as count',$tbl_site_content,"parent='{$current_parent}'");
 	if(!$rs)
 		$alert = "An error occured while attempting to find the old parents' children.";
 	
 	$row = $modx->db->getRow($rs);
-	$limit = $row['count(id)'];
 
-	if((!$limit) > 0)
+	if($row['count'])
 	{
-		$rs = $modx->db->update('isfolder=0',$tbl_site_content,"id='{$current_parent}'");
+		$rs = $modx->db->update('isfolder=0','[+prefix+]site_content',"id='{$current_parent}'");
 		if(!$rs)
 			$alert = 'An error occured while attempting to change the old parent to a regular resource.';
 	}
 }
 
-if(!isset($alert))
+if($alert)
 {
-	$modx->clearCache();
-	if($new_parent!==0) $header="Location: index.php?a=120&id={$current_parent}&r=1";
-	else                $header="Location: index.php?a=2&r=1";
-	header($header);
-}
-else
-{
-	$url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id={$doc_id}';";
-	$modx->webAlertAndQuit($alert, $url);
+	$modx->webAlertAndQuit(
+		$alert
+		, "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id={$doc_id}';"
+		);
 	exit;
 }
 
+$modx->clearCache();
+
+if($new_parent!==0) {
+	header("Location: index.php?a=120&id={$current_parent}&r=1");
+	exit;
+}
+
+header("Location: index.php?a=2&r=1");
+
+exit;
 
 
 function allChildren($docid)
