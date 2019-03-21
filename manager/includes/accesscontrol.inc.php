@@ -94,8 +94,8 @@ if(!isset($_SESSION['mgrValidated']))
 	{
 		switch ($installGoingOn)
 		{
-		 case 1 : $login_message = $_lang["login_cancelled_install_in_progress"]; break;
-		 case 2 : $login_message = $_lang["login_cancelled_site_was_updated"]   ; break;
+			case 1 : $login_message = $_lang["login_cancelled_install_in_progress"]; break;
+			case 2 : $login_message = $_lang["login_cancelled_site_was_updated"]   ; break;
 		}
 		$modx->setPlaceholder('login_message','<p><span class="fail">'.$login_message.'</p><p>'.$_lang["login_message"].'</p>');
 	}
