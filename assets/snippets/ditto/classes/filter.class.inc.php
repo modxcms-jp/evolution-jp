@@ -10,7 +10,7 @@ class filter {
 	public function __construct() {
 	}
 
-	public function execute($docs, $filter) {
+    public function execute($docs, $filter) {
 		foreach ($filter['basic'] as $current_filter) {
 			if (!is_array($current_filter) || !$current_filter) {
 				continue;
@@ -42,7 +42,6 @@ class filter {
 
 		$rs = array();
 		$rs['op'] = isset($param['mode']) ? $param['mode'] : '!=';
-
 		if (in_array($param['value'], array('>','>=','<','<=','!=','<>','==','=~','!~') )) {
 			list($param['value'], $rs['op']) = array($rs['op'], $param['value']);
 		}
