@@ -1286,7 +1286,9 @@ class DocumentParser {
         if(!$tags) return array();
         
         foreach($tags as $i=>$tag) {
-            if(strpos($tag,"$spacer")!==false) $tags[$i] = str_replace("$spacer", '', $tag);
+            if(strpos($tag, $spacer)!==false) {
+                $tags[$i] = str_replace($spacer, '', $tag);
+            }
         }
         return $tags;
     }
@@ -1374,8 +1376,7 @@ class DocumentParser {
         if(!$rs) return false;
         
         while($row = $this->db->getRow($rs)) {
-            extract($row);
-            $this->aliaslist[$id]  = $alias;
+            $this->aliaslist[$row['id']]  = $row['alias'];
         }
         return $this->aliaslist[$docid];
     }
@@ -1407,8 +1408,7 @@ class DocumentParser {
         if(!$rs) return false;
         
         while($row = $this->db->getRow($rs)) {
-            extract($row);
-            $this->parentlist[$id] = $parent;
+            $this->parentlist[$row['id']] = $parent;
         }
         $this->tmpCache['setParentIDByParent'][$parent] = true;
     }
@@ -2082,7 +2082,7 @@ class DocumentParser {
         }
         
         foreach($matches[1] as $i=>$call) {
-            if(substr($call,0,2)==='$_') {
+            if(strpos($call, '$_') === 0) {
                 if(strpos($content,'_PHX_INTERNAL_')===false) $value = $this->_getSGVar($call);
                 else                                          $value = $matches[0][$i];
                 $content = str_replace($matches[0][$i], $value, $content);
@@ -2810,8 +2810,7 @@ class DocumentParser {
         }
         foreach($rows as $row)
         {
-            extract($row);
-            $content = trim($content);
+            $content = trim($row['content']);
             if((strpos($content,'[')!==false || strpos($content,'{')!==false) && strpos($content,'[~')===false)
             {
                 $content = $this->parseDocumentSource($content);
@@ -2824,7 +2823,7 @@ class DocumentParser {
                     $content = $this->parseDocumentSource($content);
                 }
             }
-            $referenceListing[$id] = $content;
+            $referenceListing[$row['id']] = $content;
         }
         
         $this->referenceListing = $referenceListing;
