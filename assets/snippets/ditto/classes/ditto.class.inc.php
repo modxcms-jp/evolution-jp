@@ -172,7 +172,7 @@ class ditto {
             $this->checkAdvSort($item[0]);
         }
 
-        if (!is_null($orderBy['unparsed'])) {
+        if ($orderBy['unparsed'] !== null) {
             $inputs = explode(',',$orderBy['unparsed']);
             foreach ($inputs as $input) {
                 $input = trim($input);
@@ -232,26 +232,26 @@ class ditto {
                 if (!empty($filter)) {
                     $filterArray = explode($localDelimiter, $filter);
                     $source = $filterArray[0];
-                    $this->addField($source,"backend");
+                    $this->addField($source, 'backend');
                     $value = $filterArray[1];
-                    $mode = (isset ($filterArray[2])) ? $filterArray[2] : 1;
-                    $parsedFilters["basic"][] = array("source"=>$source,"value"=>$value,"mode"=>$mode);
+                    $mode = isset ($filterArray[2]) ? $filterArray[2] : 1;
+                    $parsedFilters['basic'][] = array('source' =>$source, 'value' =>$value, 'mode' =>$mode);
                 }
             }
         }
         if ($cFilters) {
             foreach ($cFilters as $name=>$value) {
                 if (!empty($name) && !empty($value)) {
-                    $parsedFilters["custom"][$name] = $value[1];
-                    $this->addFields($value[0],"backend");
+                    $parsedFilters['custom'][$name] = $value[1];
+                    $this->addFields($value[0], 'backend');
                 }
             }    // TODO: Replace addField with addFields with callback
         }
         if($pFilters) {
             foreach ($pFilters as $filter) {
                 foreach ($filter as $name=>$value) {
-                    $parsedFilters["basic"][] = $value;
-                    $this->addFields($value["source"],"backend");
+                    $parsedFilters['basic'][] = $value;
+                    $this->addFields($value['source'],"backend");
                 }
             }    // TODO: Replace addField with addFields with callback
         }
@@ -437,7 +437,7 @@ class ditto {
                 }
             }
 
-            if (is_null($qe)) {
+            if ($qe === null) {
                 return;
             }
             $this->customPlaceholdersMap[$name] = array('qe',$qe);
@@ -494,11 +494,11 @@ class ditto {
         }
 
         $code = "";
-        for ($c = 0; $c < count($sortfields); $c++)
+        for ($c = 0, $cMax = count($sortfields); $c < $cMax; $c++)
             $code .= "\$retval = strnatcmp(\$a['$sortfields[$c]'], \$b['$sortfields[$c]']); if(\$retval) return \$retval; ";
         $code .= "return \$retval;";
 
-        $params = ($order == 'ASC') ? '$a,$b' : '$b,$a';
+        $params = ($order === 'ASC') ? '$a,$b' : '$b,$a';
         uasort($data, create_function($params, $code));
         return $data;
     }
@@ -543,43 +543,61 @@ class ditto {
     // Get Document IDs for future use
     // ---------------------------------------------------
         
-    function determineIDs($IDs, $IDType, $TVs, $orderBy, $depth, $showPublishedOnly, $seeThruUnpub, $hideFolders, $hidePrivate, $showInMenuOnly, $myWhere, $keywords, $dateSource, $limit, $summarize, $filter, $paginate, $randomize) {
+    function determineIDs(
+        $IDs
+        , $IDType
+        , $TVs
+        , $orderBy
+        , $depth
+        , $showPublishedOnly
+        , $seeThruUnpub
+        , $hideFolders
+        , $hidePrivate
+        , $showInMenuOnly
+        , $myWhere
+        , $keywords
+        , $dateSource
+        , $limit
+        , $summarize
+        , $filter
+        , $paginate
+        , $randomize
+    ) {
         global $modx;
-        if (($summarize == 0 && $summarize != "all") || !$IDs || ($IDs == false && $IDs != "0")) {
+        if (($summarize == 0 && $summarize !== 'all') || !$IDs || ($IDs == false && $IDs != "0")) {
             return array();
         }
         
         // Get starting IDs;
         switch($IDType) {
-            case "parents":
-                $IDs = explode(",",$IDs);
+            case 'parents':
+                $IDs = explode(',', $IDs);
                 $documentIDs = $this->getChildIDs($IDs, $depth);
             break;
-            case "documents":
-                $documentIDs = explode(",",$IDs);
+            case 'documents':
+                $documentIDs = explode(',', $IDs);
             break;
         }
         
-        if ($this->advSort == false && $hideFolders==0 && $showInMenuOnly==0 && $myWhere == "" && $filter == false && $hidePrivate == 1 && $keywords==0) { 
+        if ($this->advSort == false && $hideFolders==0 && $showInMenuOnly==0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $keywords==0) {
             $this->prefetch = false;
-                $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
-                $documentIDs = array();
-                if ($documents) {
-                    foreach ($documents as $null=>$doc) {
-                        $documentIDs[] = $doc["id"];
-                    }
+            $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
+            $documentIDs = array();
+            if ($documents) {
+                foreach ($documents as $null=>$doc) {
+                    $documentIDs[] = $doc["id"];
                 }
+            }
             return $documentIDs;
-        } else {
-            $this->prefetch = true;
         }
+
+        $this->prefetch = true;
 
         // Create where clause
         $where = array ();
         if ($hideFolders)    $where[] = 'isfolder = 0';
         if ($showInMenuOnly) $where[] = 'hidemenu = 0';
         if ($myWhere != '')  $where[] = $myWhere;
-        
         // set limit
         $where = implode(' AND ', $where);
         $limit = ($limit == 0) ? '' : $limit;
@@ -601,17 +619,16 @@ class ditto {
                 $parentList = $this->getParentList();
                     // get parent list
             }
-            for ($i = 0; $i < $recordCount; $i++)
-            {
+            foreach ($resource as $i => $iValue) {
                 if (!$seeThruUnpub) {
-                    $published = $parentList[$resource[$i]["parent"]];
-                    if ($published == "0")
+                    $published = $parentList[$iValue["parent"]];
+                    if ($published == '0')
                         unset ($resource[$i]);
                 }
                 if ($customReset) {
                     foreach ($customReset as $field) {
-                        if ($resource[$i][$field] === "0") {
-                            $resource[$i][$field] = $resource[$i]["createdon"];
+                        if ($iValue[$field] === "0") {
+                            $iValue[$field] = $iValue["createdon"];
                         }
                     }
                 }
@@ -619,7 +636,7 @@ class ditto {
             if ($this->debug) {
                 $dbg_resource = $resource;
             }
-            if ($filter != false) {
+            if ($filter !== false) {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
             }
@@ -646,7 +663,7 @@ class ditto {
                     if (in_array($key,$readyFields)) {
                         $keep[$iKey][$key] = $v;
                     }
-                    if ($this->getDocVarType($key) == "tv:prefix")
+                    if ($this->getDocVarType($key) === "tv:prefix")
                     {
                         if (in_array(substr($key,2),$readyFields)) {
                             $keep[$iKey][$key] = $v;
@@ -668,9 +685,9 @@ class ditto {
             }
             
             return $processedIDs;
-        } else {
-            return array();
         }
+
+        return array();
     }
 
     // ---------------------------------------------------
@@ -680,7 +697,7 @@ class ditto {
 
     function weightedRandom($resource,$field,$show) {
         $type = $this->getDocVarType($field);
-        if ($type == "unknown") {
+        if ($type === 'unknown') {
             return $resource;
                 // handle vad field passed
         }
@@ -724,7 +741,7 @@ class ditto {
     // Apeend a TV to the documents array
     // ---------------------------------------------------
         
-    function appendTV($tvname="",$docIDs){
+    function appendTV($tvname= '', $docIDs){
         global $modx;
         
         include_once MODX_CORE_PATH . 'tmplvars.format.inc.php';
@@ -735,7 +752,7 @@ class ditto {
 
         $query = "SELECT stv.name,stc.tmplvarid,stc.contentid,stv.type,stv.display,stv.display_params,stc.value";
         $query .= " FROM ".$tb1." stc LEFT JOIN ".$tb2." stv ON stv.id=stc.tmplvarid ";
-        $query .= " WHERE stv.name='".$tvname."' AND stc.contentid IN (".implode($docIDs,",").") ORDER BY stc.contentid ASC;";
+        $query .= " WHERE stv.name='".$tvname."' AND stc.contentid IN (".implode(',', $docIDs).") ORDER BY stc.contentid ASC;";
         $rs = $modx->db->query($query);
         $tot = $modx->db->getRecordCount($rs);
         $resourceArray = array();
@@ -778,7 +795,7 @@ class ditto {
         
     function appendKeywords($resource) {
         $keys = $this->fetchKeywords($resource);
-        $resource["keywords"] = "$keys";
+        $resource["keywords"] = (string)$keys;
         return $resource;
     }
 
@@ -812,7 +829,7 @@ class ditto {
 
     function getChildIDs($IDs, $depth) {
         global $modx;
-        $depth = intval($depth);
+        $depth = (int)$depth;
         $kids = array();
         $docIDs = array();
         //    RedCat
@@ -855,7 +872,7 @@ class ditto {
             (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
         }
         
-        $published = ($published) ? "AND sc.published=1" : "";
+        $published = ($published) ? 'AND sc.published=1' : '';
         
         if ($randomize != 0) $sort = 'RAND()';
         else                 $sort = $orderBy['sql'];
@@ -918,7 +935,7 @@ class ditto {
         
         $tblsc= $modx->getFullTableName("site_content");
         $tbldg= $modx->getFullTableName("document_groups");
-        $published = ($published) ? 'AND sc.published=1' : '';
+        $published = $published ? 'AND sc.published=1' : '';
         if ($docgrp= $modx->getUserDocGroups())
             $docgrp= sprintf(' OR dg.document_group IN ({%s})', implode(',', $docgrp));
         else $docgrp = '';
@@ -987,7 +1004,7 @@ class ditto {
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = array();
         foreach ($_GET as $param=>$value) {
-            if ($param != 'id' && $param != 'q') {
+            if ($param !== 'id' && $param !== 'q') {
                 $clean_param = htmlspecialchars($param, ENT_QUOTES);
                 if(is_array($value)) {
                     //$query[$param] = $value;
@@ -1012,7 +1029,7 @@ class ditto {
         $queryString = '';
         foreach ($query as $param=>$value) {
             if(!is_array($value)){
-                if($param=="{$dittoID}start" && $value==0) continue;
+                if($param === "{$dittoID}start" && $value==0) continue;
                 $queryString .= "&{$param}={$value}";
             } else {
                 foreach ($value as $key=>$val) {
@@ -1033,7 +1050,7 @@ class ditto {
     function getParam($param,$langString){
         // get a parameter value and if it is not set get the default language string value
         global $modx,$ditto_lang;
-        $output = "";
+
         if (substr($param,0,1)==='@') {
             $output = $this->template->fetch($param);
         } else if(!empty($param)) {
@@ -1116,7 +1133,7 @@ class ditto {
             $max_x = $totalpages - 1;
             $min_x = $max_x - $max_paginate + 1;
         }
-        
+        $pages = '';
         for ($x = 0; $x <= $totalpages -1; $x++) {
             $inc = $x * $summarize;
             $display = $x +1;
