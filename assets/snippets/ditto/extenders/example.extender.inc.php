@@ -11,7 +11,7 @@
 // Define any parameters needed in the extender or to override Ditto defaults
 // ---------------------------------------------------
 
-$param = isset($param) ? $param : "default";
+$param = isset($param) ? $param : 'default';
 /*
 	Param: param
 
@@ -30,7 +30,7 @@ $param = isset($param) ? $param : "default";
 // Defin the values of custom placeholders for access in the tpl like so [+phname+]
 // ---------------------------------------------------
 
-$placeholders['example'] = array(array("pagetitle","*"),"exampleFunction","pagetitle");
+$placeholders['example'] = array(array('pagetitle', '*'), 'exampleFunction', 'pagetitle');
 	// Variable: $placeholders['example']
 	// Add the placeholder example to the custom placeholders list 
 	// with the source pagetitle in both display and backend using the 
@@ -39,7 +39,7 @@ $placeholders['example'] = array(array("pagetitle","*"),"exampleFunction","paget
 	// use "pagetitle"  as the first value of the array. If the callback 
 	// was in a class use the array($initialized_class,"member") method.
 
-if (!function_exists("exampleFunction")) {
+if (!function_exists('exampleFunction')) {
 	// wrap functions in !functino_exists statements to ensure that they are not defined twice
 	
 	// ---------------------------------------------------
@@ -59,13 +59,13 @@ if (!function_exists("exampleFunction")) {
 // Define custom or basic filters within the extender to expand Ditto's filtering capabilities
 // ---------------------------------------------------
 
-$filters["custom"]["exampleFilter"] = array("pagetitle","exampleFilter"); 
+$filters['custom']['exampleFilter'] = array('pagetitle', 'exampleFilter');
 	// Variable: $filters["custom"]["exampleFilter"]
 	// Add the filter exampleFilter to the custom filters 
 	// list with the source pagetitle and the callback
 	// exampleFilter
 
-if (!function_exists("exampleFilter")) {
+if (!function_exists('exampleFilter')) {
 	// wrap functions in !functino_exists statements to ensure that they are not defined twice
 	
 	// ---------------------------------------------------
@@ -78,19 +78,15 @@ if (!function_exists("exampleFilter")) {
 	// is foo, it is removed while all other documents are shown
 	// ---------------------------------------------------
 	function exampleFilter($resource) {
-		if (strtolower($resource['pagetitle']) == "foo") {
+		if (strtolower($resource['pagetitle']) === "foo") {
 			return 1;
-		} else {
-			return 0;
 		}
-	}
+
+        return 0;
+    }
 }
 
-$filters["parsed"][] = array('exampleFilter' => array("source"=>"id","value"=>"9239423942","mode"=>"2"));
+$filters['parsed'][] = array('exampleFilter' => array('source' => 'id', 'value' => '9239423942', 'mode' => '2'));
 	// Variable: $filters["parsed"][]
 	// Add the pre-parsed filter to the parsed filters list with the
 	// source as id, the value of 9239423942 and the mode 2
-
-
-
-?>

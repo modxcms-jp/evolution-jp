@@ -255,7 +255,5 @@ class modxDebugConsole{
 	    } else {
 	        return $table;
 	    }
-	}	
+	}
 }
-
-?>

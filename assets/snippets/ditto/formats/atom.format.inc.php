@@ -50,12 +50,12 @@ $placeholders['atom_author'] = array("createdby","atomCreatedBy");
 
 if(!function_exists("atomCreatedDate")) {
 	function atomCreatedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', intval($resource["createdon"]) + $modx->config["server_offset_time"]);
+		return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
 	}
 }
 if(!function_exists("atomEditedDate")) {
 	function atomEditedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', intval($resource["editedon"]) + $modx->config["server_offset_time"]);
+		return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
 	}
 }
 if(!function_exists("atomCreatedBy")) { 
@@ -116,9 +116,9 @@ TPL;
 
 $header = isset($header) ? $header : template::replace($atom_placeholders,$atom_header);
 
-$tpl = isset($tpl) ? $tpl : "@CODE:".$atom_tpl;
+$tpl = isset($tpl) ? $tpl : '@CODE:' .$atom_tpl;
 
 $footer = isset($footer) ? $footer : $atom_footer;
 
 // set emptytext
-$noResults = "      ";
+$noResults = '      ';

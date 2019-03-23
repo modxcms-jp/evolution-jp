@@ -37,4 +37,3 @@ $noResults = isset($emptyText) ? $emptyText : $noResults;
 
 $extenders[] = "summary";
 	// load the summary extender
-?>

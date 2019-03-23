@@ -16,9 +16,9 @@ function determineLink($resource) {
 			$source = '<a href="[+url+]" title="[+text+]">[+text+]</a>';
 		}
 		return $ditto_object->template->replace($parameters,$source);
-	} else {
-		return '';
 	}
+
+    return '';
 }
 function determineSummary($resource) {
 	global $ditto_summary_params;

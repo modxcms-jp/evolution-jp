@@ -683,8 +683,8 @@ $localFilterDelimiter = isset($localFilterDelimiter) ? $localFilterDelimiter : "
     - <filter>
     - <parseFilters>
 */
-$filters["custom"] = isset($cFilters) ? array_merge($filters["custom"],$cFilters) : $filters["custom"];
-$filters["parsed"] = isset($parsedFilters) ? array_merge($filters["parsed"],$parsedFilters) : $filters["parsed"];
+$filters['custom'] = isset($cFilters) ? array_merge($filters['custom'],$cFilters) : $filters['custom'];
+$filters['parsed'] = isset($parsedFilters) ? array_merge($filters['parsed'],$parsedFilters) : $filters['parsed'];
     // handle 2.0.0 compatibility
 $filter = (isset($filter) || ($filters["custom"] != false) || ($filters["parsed"] != false)) ? $ditto->parseFilters($filter,$filters["custom"],$filters["parsed"],$globalFilterDelimiter,$localFilterDelimiter) : false;
 /*

@@ -765,10 +765,10 @@ function AddAddressToMailer(&$mail,$type,$addr){
 	$a = explode(',', $addr);
 	foreach($a as $_)
 	{
-		if     ($type=='to')      $mail->AddAddress($_);
-		elseif ($type=='cc')      $mail->AddCC($_);
-		elseif ($type=='bcc')     $mail->AddBCC($_);
-		elseif ($type=='replyto') $mail->AddReplyTo($_);
+		if     ($type === 'to')      $mail->AddAddress($_);
+		elseif ($type === 'cc')      $mail->AddCC($_);
+		elseif ($type === 'bcc')     $mail->AddBCC($_);
+		elseif ($type === 'replyto') $mail->AddReplyTo($_);
 	}
 }
 
@@ -836,7 +836,7 @@ function  eFormParseTemplate($tpl, $isDebug=false ){
 
         #skip vericode field - updated in 1.4.4
         #special case. We need to set the class placeholder but forget about the rest
-        if($name=="vericode"){
+        if($name === 'vericode'){
             if(isset($tagAttributes['class'])){
                 $fields[$name.'_class'] = substr($tagAttributes['class'],1,-1);
             }
