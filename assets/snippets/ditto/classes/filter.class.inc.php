@@ -6,6 +6,10 @@
 */
 
 class filter {
+
+	public function __construct() {
+	}
+
 	public function execute($docs, $filter) {
 		foreach ($filter['basic'] as $current_filter) {
 			if (!is_array($current_filter) || !$current_filter) {
