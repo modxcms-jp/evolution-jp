@@ -1078,7 +1078,7 @@ class DocumentParser {
         
         $this->documentGenerated = 0;
         
-        if(substr($flContent,0,5)==='<?php') $flContent = substr($flContent, strpos($flContent,'?>')+2);
+        if(strpos($flContent, '<?php') === 0) $flContent = substr($flContent, strpos($flContent,'?>')+2);
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
         if(count($a) == 1) {
             return $a[0];
@@ -1228,10 +1228,18 @@ class DocumentParser {
     function _getTagsFromContent($content, $left='[+',$right='+]') {
         if(strpos($content,$left)===false) return array();
         $spacer = md5('<<<MODX>>>');
-        if($left==='{{' && strpos($content,';}}')!==false)  $content = str_replace(';}}', sprintf(';}%s}',$spacer),$content);
-        if($left==='{{' && strpos($content,'{{}}')!==false) $content = str_replace('{{}}',sprintf('{%s{}%s}',$spacer,$spacer),$content);
-        if($left==='[[' && strpos($content,']]]]')!==false) $content = str_replace(']]]]',sprintf(']]%s]]',$spacer),$content);
-        if($left==='[[' && strpos($content,']]]')!==false)  $content = str_replace(']]]', sprintf(']%s]]',$spacer),$content);
+        if($left==='{{' && strpos($content,';}}')!==false) {
+            $content = str_replace(';}}', sprintf(';}%s}', $spacer), $content);
+        }
+        if($left==='{{' && strpos($content,'{{}}')!==false) {
+            $content = str_replace('{{}}', sprintf('{%s{}%s}', $spacer, $spacer), $content);
+        }
+        if($left==='[[' && strpos($content,']]]]')!==false) {
+            $content = str_replace(']]]]', sprintf(']]%s]]', $spacer), $content);
+        }
+        if($left==='[[' && strpos($content,']]]')!==false) {
+            $content = str_replace(']]]', sprintf(']%s]]', $spacer), $content);
+        }
         
         $pos['<![CDATA[']                 = strpos($content,'<![CDATA[');
         if($pos['<![CDATA[']) $pos[']]>'] = strpos($content,']]>');
