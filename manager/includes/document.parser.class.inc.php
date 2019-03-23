@@ -246,17 +246,15 @@ class DocumentParser {
         if(0 < count($_POST)) $this->config['cache_type'] = 0;
         
         $rs = $this->get_static_pages($this->decoded_request_uri);
-        if($rs=='complete') exit;
-        
+        if($rs === 'complete') exit;
         $this->documentIdentifier = $this->getDocumentIdentifier($this->decoded_request_uri);
         
         if(!$this->documentIdentifier) $this->sendErrorPage();
         
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
-        
-        $result = $this->prepareResponse();
-        return $result;
+
+        return $this->prepareResponse();
     }
     
     function treatRequestUri($uri) {
@@ -298,9 +296,8 @@ class DocumentParser {
         
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
-        
-        $result = $this->prepareResponse();
-        return $result;
+
+        return $this->prepareResponse();
     }
     
     function getDocumentIdentifier($uri) {
@@ -310,8 +307,7 @@ class DocumentParser {
         if($docid) return $docid;
         
         $getId = isset($_GET['id']) ? $_GET['id'] : 0;
-        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri); // Instead of $_GET['q']
-        
+        $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri);
         if(preg_match('@^[1-9][0-9]*$@',$getId)) $docid = $getId;
         elseif ($this->config['base_url']==$uri) $docid = $this->config['site_start'];
         elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
@@ -374,7 +370,7 @@ class DocumentParser {
         else {
             $q = substr($uri,strlen($this->config['base_url']));
             if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
-            if($q=='index.php')        $q = '/';
+            if($q === 'index.php')     $q = '/';
         }
         
         return $q;
@@ -503,8 +499,7 @@ class DocumentParser {
             'postProcess'
             )); // tell PHP to call postProcess when it shuts down
         }
-        $result = $this->outputContent();
-        return $result;
+        return $this->outputContent();
     }
     
     function _getTemplateCode($documentObject) {
@@ -559,7 +554,7 @@ class DocumentParser {
         
         if ($this->documentGenerated           == 1
             && $this->documentObject['cacheable'] == 1
-            && $this->documentObject['type']      == 'document'
+            && $this->documentObject['type'] === 'document'
             && $this->documentObject['published'] == 1)
         {
             if (!empty($this->sjscripts)) $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
@@ -633,7 +628,7 @@ class DocumentParser {
         }
         if (0<count($this->dumpSnippetsCode))
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace('@(</body>)@i', join("\n",$this->dumpSnippetsCode) . "\n\\1", $this->documentOutput);
         }
         $unstrict_url = $this->config['site_url'].$this->makeUrl($this->config['site_start'],'','','rel');
         if(strpos($this->documentOutput,$unstrict_url)!==false) {
@@ -698,7 +693,7 @@ class DocumentParser {
         // if the current document was generated, cache it!
         if ($this->documentGenerated              == 1
             && $this->documentObject['cacheable'] == 1
-            && $this->documentObject['type']      == 'document'
+            && $this->documentObject['type']      === 'document'
             && $this->documentObject['published'] == 1)
         {
             $docid = $this->documentIdentifier;
@@ -831,9 +826,7 @@ class DocumentParser {
         {
             $array[$i] = $prefix . trim($v);
         }
-        $str = join($delim,$array);
-        
-        return $str;
+        return join($delim,$array);
     }
     
     function getMicroTime()
@@ -1154,7 +1147,7 @@ class DocumentParser {
         $draft_ids = array();
         $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<={$timeNow} AND status = 'standby'");
         while( $row = $this->db->getRow($rs) ){
-            if( $row['element'] == 'resource' ){
+            if( $row['element'] === 'resource' ){
                 $draft_ids[] = $row['elmid'];
             }
         }
@@ -1950,9 +1943,9 @@ class DocumentParser {
         $queryTime= $this->queryTime;
         $phpTime= $totalTime - $queryTime;
         
-        $queryTime= sprintf("%2.4f s", $queryTime);
-        $totalTime= sprintf("%2.4f s", $totalTime);
-        $phpTime= sprintf("%2.4f s", $phpTime);
+        $queryTime= sprintf('%2.4f s', $queryTime);
+        $totalTime= sprintf('%2.4f s', $totalTime);
+        $phpTime= sprintf('%2.4f s', $phpTime);
         $source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
         $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
         $mem = memory_get_peak_usage();
@@ -2055,9 +2048,9 @@ class DocumentParser {
         $this->currentSnippet = '';
         if (is_array($return) || is_object($return)) {
             return $return;
-        } else {
-            return $echo . $return;
         }
+
+        return $echo . $return;
     }
     
     function evalSnippets($content)
@@ -2960,7 +2953,6 @@ class DocumentParser {
         $params['url']         = & $url;
         $params['type']        = $type; // document or reference
         $params['orgId']       = $orgId;
-        $this->event->vars = array();
         $this->event->vars = $params;
         $rs = $this->invokeEvent('OnMakeUrl',$params);
         $this->event->vars = array();
@@ -4013,10 +4005,10 @@ class DocumentParser {
         if( !preg_match('/\A[0-9]+\z/', $param) ){
             return false;
         }
-        if( !is_null($min) && preg_match('/\A[0-9]+\z/', $min) && $param < $min ){
+        if( $min !== null && preg_match('/\A[0-9]+\z/', $min) && $param < $min ){
             return false;
         }
-        if( !is_null($max) && preg_match('/\A[0-9]+\z/', $max) && $param > $max ){
+        if( $max !== null && preg_match('/\A[0-9]+\z/', $max) && $param > $max ){
             return false;
         }
         return true;
