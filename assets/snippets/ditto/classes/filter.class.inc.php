@@ -76,6 +76,9 @@ class filter {
 		if (strpos($rs['op'], '!') === 0 && substr($rs['op'],0,2)!=='!!') {
 			$rs['flip_mode'] = 1;
 			$rs['op'] = substr($rs['op'],1);
+			if($rs['op']==='=') {
+				$rs['op'] = '==';
+			}
 		} else {
 			$rs['flip_mode'] = 0;
 		}
