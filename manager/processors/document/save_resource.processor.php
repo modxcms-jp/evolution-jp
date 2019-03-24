@@ -386,7 +386,7 @@ function checkParentID($id,$return_url) {
 	global $modx,$form_v;
 
 	if ($form_v['parent'] == $id) {
-		$modx->webAlertAndQuit("Document can not be it's own parent!",$url);
+		$modx->webAlertAndQuit("Document can not be it's own parent!",$return_url);
 	}
 	else return $form_v['parent'];
 }
