@@ -170,7 +170,7 @@ function get_tmplvars($id=0)
 	$rs = $modx->db->select('DISTINCT tv.*',$from,$where,$orderby);
 	
 	$tmplvars = array ();
-	while ($row = $modx->db->getRow($rs)):
+	while ($row = $modx->db->getRow($rs)) {
 		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
@@ -209,7 +209,7 @@ function get_tmplvars($id=0)
 			$tmplvars[$row['id']] = $value;
 		}
 		else $tmplvars[$row['id']] = false; // Mark the variable for deletion
-	endwhile;
+    }
 	return $tmplvars;
 }
 
