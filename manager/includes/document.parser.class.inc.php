@@ -932,46 +932,9 @@ class DocumentParser {
         if(empty($this->config['unauthorized_page']))
             $this->config['unauthorized_page'] = $this->config['error_page'];
         
-        // load user setting if user is logged in
-        $usrSettings= array();
-        $uid= $this->getLoginUserID('web');
-        if (!empty($uid))
-        {
-            if (isset ($_SESSION['webUsrConfigSet']) && 0 < count($_SESSION['webUsrConfigSet']))
-                $usrSettings= & $_SESSION['webUsrConfigSet'];
-            else
-            {
-                $result= $this->db->select('setting_name, setting_value', '[+prefix+]web_user_settings', "webuser='{$uid}'");
-                if($result) {
-                    while ($row= $this->db->getRow($result))
-                    {
-                        $usrSettings[$row['setting_name']]= $row['setting_value'];
-                    }
-                    $_SESSION['webUsrConfigSet']= $usrSettings;
-                }
-            }
-        }
-        $uid= $this->getLoginUserID('mgr');
-        if(!empty($uid))
-        {
-            if($this->isBackend()) $this->invokeEvent('OnBeforeManagerPageInit');
-            $musrSettings= array ();
-            if(isset ($_SESSION['mgrUsrConfigSet']) && is_array($_SESSION['mgrUsrConfigSet']))
-                $musrSettings= & $_SESSION['mgrUsrConfigSet'];
-            else
-            {
-                $result= $this->db->select('setting_name, setting_value','[+prefix+]user_settings',"user='{$uid}'");
-                if($result) {
-                    while ($row= $this->db->getRow($result))
-                    {
-                        $musrSettings[$row['setting_name']]= $row['setting_value'];
-                    }
-                    $_SESSION['mgrUsrConfigSet']= $musrSettings;
-                }
-            }
-            $usrSettings= array_merge($musrSettings, $usrSettings);
-        }
-        if(!empty($usrSettings)) $this->config= array_merge($this->config, $usrSettings);
+        $this->config = $this->getWebUserSettings($this->config);
+        $this->config = $this->mergeMgrUserConfig($this->config);
+
         if(strpos($this->config['filemanager_path'],'[(')!==false)
             $this->config['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$this->config['filemanager_path']);
         if(strpos($this->config['rb_base_dir'],'[(')!==false)
@@ -989,7 +952,54 @@ class DocumentParser {
         $this->invokeEvent('OnGetConfig');
         return $this->config;
     }
-    
+
+    private function getWebUserSettings($config) {
+        $uid= $this->getLoginUserID('web');
+        if (!$uid) {
+            return $config;
+        }
+        $result= $this->db->select(
+            'setting_name, setting_value'
+            , '[+prefix+]web_user_settings'
+            , "webuser='{$uid}'"
+        );
+
+        if (!$result) {
+            return $config;
+        }
+
+        while ($row= $this->db->getRow($result)) {
+            $config[$row['setting_name']]= $row['setting_value'];
+        }
+        return $config;
+    }
+
+    private function mergeMgrUserConfig($config) {
+        $uid= $this->getLoginUserID('mgr');
+        if (!$uid) {
+            return $config;
+        }
+
+        if ($this->isBackend()) {
+            $this->invokeEvent('OnBeforeManagerPageInit');
+        }
+
+        $result= $this->db->select(
+            'setting_name, setting_value'
+            ,'[+prefix+]user_settings'
+            ,"user='{$uid}'"
+        );
+
+        if (!$result) {
+            return $config;
+        }
+
+        while ($row= $this->db->getRow($result)) {
+            $config[$row['setting_name']]= $row['setting_value'];
+        }
+        return $config;
+    }
+
     // check for manager login session
     function isLoggedIn($context='mgr')
     {

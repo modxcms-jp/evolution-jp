@@ -382,7 +382,6 @@ switch ($mode) {
 		<?php
 			exit;
 		}
-		unset($_SESSION['mgrUsrConfigSet']);
 		$modx->getSettings();
 		if ($id == $modx->getLoginUserID() && $_SESSION['mgrRole'] !== $role)
 		{

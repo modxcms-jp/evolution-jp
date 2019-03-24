@@ -181,7 +181,6 @@ if ($isLogOut==1)
 		unset($_SESSION['webFailedlogins']);
 		unset($_SESSION['webLastlogin']);
 		unset($_SESSION['webnrlogins']);
-		unset($_SESSION['webUsrConfigSet']);
 		unset($_SESSION['webUserGroupNames']);
 		unset($_SESSION['webDocgroups']);
 	}
