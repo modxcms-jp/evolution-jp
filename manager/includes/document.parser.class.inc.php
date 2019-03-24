@@ -105,7 +105,7 @@ class DocumentParser {
         if(method_exists($this->old,$method_name)) $error_type=1;
         else                                       $error_type=3;
         
-        if(!isset($this->config)) $this->config = $this->getSettings();
+        if(!isset($this->config) || !$this->config) $this->config = $this->getSettings();
         
         if(!isset($this->config['error_reporting'])||1<$this->config['error_reporting']) {
             if($error_type==1) {
@@ -226,7 +226,9 @@ class DocumentParser {
         $this->directParse = 0;
         
         // get the settings
-        if(!isset($this->config)) $this->config = $this->getSettings();
+        if(!isset($this->config) || !$this->config) {
+            $this->config = $this->getSettings();
+        }
 
         $this->setBaseTime();
         $this->sanitizeVars();
@@ -277,7 +279,7 @@ class DocumentParser {
         $this->directParse = 1;
         
         // get the settings
-        if(!isset($this->config)) $this->config = $this->getSettings();
+        if(!isset($this->config) || !$this->config) $this->config = $this->getSettings();
 
         $this->setBaseTime();
         $this->sanitizeVars();
