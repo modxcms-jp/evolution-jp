@@ -521,11 +521,11 @@ class Wayfinder {
                 else                       $resourceArray[$row['level']][$row['parent']][] = $row;
             }
             //Process the tvs
-            if (!empty($this->tvList) && !empty($resultIds)) {
+            if ($this->tvList && !empty($resultIds)) {
                 $tvValues = array();
                 //loop through all tvs and get their values for each document
                 foreach ($this->tvList as $tvName) {
-                    $tvValues = array_merge_recursive($this->appendTV($tvName,$resultIds),$tvValues);
+                    $tvValues = $this->array_merge_recursive($this->appendTV($tvName,$resultIds),$tvValues);
                 }
                 //loop through the document array and add the tvar values to each document
                 foreach ($tempResults as $tempDocInfo) {
@@ -572,7 +572,6 @@ class Wayfinder {
 
     //debugging to check for valid chunks
     function checkTemplates() {
-        global $modx;
         $nonWayfinderFields = array();
 
         $outerTpl     = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
@@ -596,7 +595,8 @@ class Wayfinder {
                 $this->_templates[$n] = $templateCheck;
                 $check = $this->findTemplateVars($templateCheck);
                 if (is_array($check)) {
-                    $nonWayfinderFields = array_merge($check, $nonWayfinderFields);
+                    $check = $this->array_merge($check,$nonWayfinderFields);
+                    $nonWayfinderFields = $check;
                 }
                 if ($this->_config['debug']) {
                     $this->addDebugInfo('template',$n,$n,'Template Found.',array($n => $this->_templates[$n]));
@@ -619,11 +619,32 @@ class Wayfinder {
         }
     }
 
+    private function array_merge($arr1, $arr2) {
+        foreach($arr2 as $k=>$v) {
+            $arr1[$k] = $v;
+        }
+        return $arr1;
+    }
+
+    private function array_merge_recursive($arr1, $arr2) {
+        foreach($arr2 as $key=>$value) {
+            if(!is_array($arr1)) {
+                $arr1 = array($arr1);
+            }
+            if(is_array($value)) {
+                $arr1[$key] = $this->array_merge_recursive($arr1[$key], $value);
+            } else {
+                $arr1[$key] = $value;
+            }
+        }
+        return $arr1;
+    }
+
     function fetch($tpl){
         global $modx;
         
-        if(substr($tpl,0,5) == '@FILE') return file_get_contents(substr($tpl, 6));
-        if(substr($tpl,0,5) == '@CODE') return substr($tpl, 6);
+        if(substr($tpl,0,5) === '@FILE') return file_get_contents(substr($tpl, 6));
+        if(substr($tpl,0,5) === '@CODE') return substr($tpl, 6);
         if($modx->getChunk($tpl) != '') return $modx->getChunk($tpl);
         return $tpl;
     }
