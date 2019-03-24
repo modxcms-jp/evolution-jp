@@ -630,8 +630,6 @@ class ditto {
         {
             $resource = array_values($resource);
                 // remove #'s from keys
-            $recordCount = count($resource);
-                // count number of records
 
             if (!$seeThruUnpub)
             {
