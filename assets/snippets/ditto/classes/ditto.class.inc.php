@@ -570,7 +570,7 @@ class ditto {
         , $randomize
     ) {
         global $modx;
-        if (($summarize == 0 && $summarize !== 'all') || !$IDs || ($IDs == false && $IDs != "0")) {
+        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || ($IDs === false)) {
             return array();
         }
         
