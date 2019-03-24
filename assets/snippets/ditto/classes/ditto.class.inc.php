@@ -224,10 +224,16 @@ class ditto {
     // Split up the filters into an array and add the required fields to the fields array
     // ---------------------------------------------------
 
-    function parseFilters($filter=false,$cFilters=false,$pFilters = false,$globalDelimiter,$localDelimiter) {
-        $parsedFilters = array("basic"=>array(),"custom"=>array());
-        $filters = explode($globalDelimiter, $filter);
-        if ($filter) {
+    public function parseFilters(
+        $filter_params = false
+        ,$cFilters     = false
+        ,$pFilters     = false
+        ,$globalDelimiter
+        ,$localDelimiter
+        ) {
+        $parsedFilters = array('basic' =>array(), 'custom' =>array());
+        $filters = explode($globalDelimiter, $filter_params);
+        if ($filter_params) {
             foreach ($filters as $filter) {
                 if (!empty($filter)) {
                     $filterArray = explode($localDelimiter, $filter);
@@ -606,7 +612,20 @@ class ditto {
         if ($keywords) {$this->addField("haskeywords","*","db");$this->addField("hasmetatags","*","db");}
         if ($this->debug) {$this->addField("pagetitle","backend","db");}
         if ($customReset) {$this->addField("createdon","backend","db");}
-        $resource = $this->getDocuments($documentIDs,$this->fields["backend"]["db"],$TVs,$orderBy,$showPublishedOnly,0,$hidePrivate,$where,$limit,$keywords,$randomize,$dateSource);
+        $resource = $this->getDocuments(
+            $documentIDs
+            ,$this->fields['backend']['db']
+            ,$TVs
+            ,$orderBy
+            ,$showPublishedOnly
+            ,0
+            ,$hidePrivate
+            ,$where
+            ,$limit
+            ,$keywords
+            ,$randomize
+            ,$dateSource
+        );
         if ($resource !== false)
         {
             $resource = array_values($resource);
