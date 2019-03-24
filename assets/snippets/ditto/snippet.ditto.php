@@ -169,14 +169,6 @@ $placeholders = array();
     // Variable: placeholders
     // Initialize custom placeholders array for configs or extenders to add to
 
-$filters = array('custom'=>array(),'parsed'=>array());
-    // Variable: filters
-    // Holds both the custom filters array for configs or extenders to add to
-    // and the parsed filters array. To add to this array, use the following format
-    // (code)
-    // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
-    // $filters["custom"][] = array("source","callback_function");
-
 $orderBy = (isset($orderBy))? trim($orderBy) : null;
 if(substr(strtolower($orderBy),-2)!=='sc') $orderBy .= ' desc';
 $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
@@ -683,10 +675,21 @@ $localFilterDelimiter = isset($localFilterDelimiter) ? $localFilterDelimiter : "
     - <filter>
     - <parseFilters>
 */
+$filters = array('custom'=>array(),'parsed'=>array());
+    // Variable: filters
+    // Holds both the custom filters array for configs or extenders to add to
+    // and the parsed filters array. To add to this array, use the following format
+    // (code)
+    // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
+    // $filters["custom"][] = array("source","callback_function");
 $filters['custom'] = isset($cFilters) ? array_merge($filters['custom'],$cFilters) : $filters['custom'];
 $filters['parsed'] = isset($parsedFilters) ? array_merge($filters['parsed'],$parsedFilters) : $filters['parsed'];
     // handle 2.0.0 compatibility
-$filter = (isset($filter) || ($filters["custom"] != false) || ($filters["parsed"] != false)) ? $ditto->parseFilters($filter,$filters["custom"],$filters["parsed"],$globalFilterDelimiter,$localFilterDelimiter) : false;
+if (isset($filter) || $filters['custom'] !== false || $filters['parsed'] !== false) {
+    $filter = $ditto->parseFilters($filter, $filters['custom'], $filters['parsed'], $globalFilterDelimiter, $localFilterDelimiter);
+} else {
+    $filter = false;
+}
 /*
     Param: filter
 
@@ -873,8 +876,27 @@ $ditto->setDisplayFields($ditto->template->fields,$hiddenFields);
     
 $ditto->parseFields($placeholders,$seeThruUnpub,$dateSource,$randomize);
     // parse the fields into the field array
-    
-$documentIDs = $ditto->determineIDs($IDs, $idType, $ditto->fields["backend"]["tv"], $orderBy, $depth, $showPublishedOnly, $seeThruUnpub, $hideFolders, $hidePrivate, $showInMenuOnly, $where, $keywords, $dateSource, $queryLimit, $display, $filter,$paginate, $randomize);
+$documentIDs = $ditto->determineIDs(
+    $IDs
+    , $idType
+    , $ditto->fields['backend']['tv']
+    , $orderBy
+    , $depth
+    , $showPublishedOnly
+    , $seeThruUnpub
+    , $hideFolders
+    , $hidePrivate
+    , $showInMenuOnly
+    , $where
+    , $keywords
+    , $dateSource
+    , $queryLimit
+    , $display
+    , $filter
+    , $paginate
+    , $randomize
+);
+
     // retrieves a list of document IDs that meet the criteria and populates the $resources array with them
 $count = count($documentIDs);
     // count the number of documents to be retrieved
