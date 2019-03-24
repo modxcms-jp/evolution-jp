@@ -854,7 +854,9 @@ class ditto {
         //    RedCat
         foreach($IDs as $id) {
             $kids   = $modx->getChildIds($id,$depth);
-            $docIDs = array_merge($docIDs,$kids);
+            foreach ($kids as $k=>$v) {
+                $docIDs[$k] = $v;
+            }
         }
         return array_unique($docIDs);
     }
