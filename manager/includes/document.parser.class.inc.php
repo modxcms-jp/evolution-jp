@@ -626,7 +626,9 @@ class DocumentParser {
         
         if (0<count($this->dumpSQLCode))
         {
-            $this->documentOutput = preg_replace("@(</body>)@i", join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
+            $this->documentOutput = preg_replace(
+                '@(</body>)@i'
+                , join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
         if (0<count($this->dumpSnippetsCode))
         {
@@ -1962,14 +1964,10 @@ class DocumentParser {
         $mem = memory_get_peak_usage();
         $total_mem = $this->nicesize($mem - $this->mstart);
         $incs = get_included_files();
-        
-        $content= str_replace('[^q^]', $queries, $content);
-        $content= str_replace('[^qt^]', $queryTime, $content);
-        $content= str_replace('[^p^]', $phpTime, $content);
-        $content= str_replace('[^t^]', $totalTime, $content);
-        $content= str_replace('[^s^]', $source, $content);
-        $content= str_replace('[^m^]', $total_mem, $content);
-        $content= str_replace('[^f^]', count($incs), $content);
+
+        $s = array('[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]', '[^f^]');
+        $r = array($queries, $queryTime, $phpTime, $totalTime, $source, $total_mem, count($incs));
+        $content= str_replace($s, $r, $content);
         
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
         
@@ -2054,7 +2052,9 @@ class DocumentParser {
             }
         }
         unset($modx->event->params);
-        if ($this->debug) $this->addLogEntry($this->currentSnippetCall,$fstart);
+        if ($this->debug) {
+            $this->addLogEntry($this->currentSnippetCall,$fstart);
+        }
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
         if (is_array($return) || is_object($return)) {
@@ -3551,7 +3551,11 @@ class DocumentParser {
             
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
-            if (!empty($extParams)) $parameter= array_merge($parameter, $extParams);
+            if (!empty($extParams)) {
+                foreach ($extParams as $k=>$v) {
+                    $parameter[$k] = $v;
+                }
+            }
 
             // eval plugin
             $this->event->activePlugin= $pluginName;
