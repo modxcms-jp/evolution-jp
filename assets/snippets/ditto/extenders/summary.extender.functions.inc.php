@@ -6,8 +6,8 @@ function determineLink($resource) {
 	global $ditto_object,$ditto_summary_params,$ditto_summary_link;
 	if ($ditto_summary_link !== false) {
 		$parameters = array(
-		"url" => $ditto_summary_link,
-		"text" => $ditto_summary_params["text"],
+			"url" => $ditto_summary_link,
+			"text" => $ditto_summary_params["text"],
 		);
 		$tplTrunc = $ditto_summary_params["trunc_tpl"];
 		if ($tplTrunc !== false) {
@@ -49,13 +49,13 @@ class truncate{
 
 		// Reset tag counter & quote checker
 		$tag_counter = 0;
-		$quotes_on = FALSE;
+		$quotes_on = false;
 		// Check if the text is too long
 		if (mb_strlen($posttext) > $minimum_length && $truncChars != 1) {
 
 			// Reset the tag_counter and pass through (part of) the entire text
 			$c = 0;
-			for ($i = 0; $i < mb_strlen($posttext); $i++) {
+			for ($i = 0, $iMax = mb_strlen($posttext); $i < $iMax; $i++) {
 				// Load the current character and the next one
 				// if the string has not arrived at the last character
 				$current_char = mb_substr($posttext,$i,1);
@@ -63,15 +63,15 @@ class truncate{
 					$next_char = mb_substr($posttext,$i + 1,1);
 				}
 				else {
-					$next_char = "";
+					$next_char = '';
 				}
 				// First check if quotes are on
 				if (!$quotes_on) {
 					// Check if it's a tag
 					// On a "<" add 3 if it's an opening tag (like <a href...)
 					// or add only 1 if it's an ending tag (like </a>)
-					if ($current_char == '<') {
-						if ($next_char == '/') {
+					if ($current_char === '<') {
+						if ($next_char === '/') {
 							$tag_counter += 1;
 						}
 						else {
@@ -80,16 +80,16 @@ class truncate{
 					}
 					// Slash signifies an ending (like </a> or ... />)
 					// substract 2
-					if ($current_char == '/' && $tag_counter <> 0) $tag_counter -= 2;
+					if ($current_char === '/' && $tag_counter <> 0) $tag_counter -= 2;
 					// On a ">" substract 1
-					if ($current_char == '>') $tag_counter -= 1;
+					if ($current_char === '>') $tag_counter -= 1;
 					// If quotes are encountered, start ignoring the tags
 					// (for directory slashes)
-					if ($current_char == '"') $quotes_on = TRUE;
+					if ($current_char === '"') $quotes_on = true;
 				}
 				else {
 					// IF quotes are encountered again, turn it back off
-					if ($current_char == '"') $quotes_on = FALSE;
+					if ($current_char === '"') $quotes_on = false;
 				}
 
 				// Count only the chars outside html tags
@@ -110,9 +110,8 @@ class truncate{
 
 	function textTrunc($string, $limit, $break="。") {
 		global $modx;
-		// Original PHP code from The Art of Web: www.the-art-of-web.com
+		
 		mb_internal_encoding($modx->config['modx_charset']);
-	// return with no change if string is shorter than $limit
 		if(mb_strwidth($string) <= $limit) return $string;
 
 		$string = mb_strimwidth($string, 0, $limit);
@@ -127,8 +126,6 @@ class truncate{
 		global $debug;
 		$openPattern = "/<([^\/].*?)>/";
 		$closePattern = "/<\/(.*?)>/";
-		$endOpenPattern = "/<([^\/].*?)$/";
-		$endClosePattern = "/<(\/.*?[^>])$/";
 		$endTags = '';
 
 		preg_match_all($openPattern, $text, $openTags);
@@ -146,7 +143,7 @@ class truncate{
 			while ($i < count($openTags[1])) {
 				$tag = trim($openTags[1][$i]);
 
-				if (strstr($tag, ' ')) {
+				if (strpos($tag, ' ') !== false) {
 					$tag = substr($tag, 0, strpos($tag, ' '));
 				}
 				if ($debug == 1) {
@@ -170,10 +167,10 @@ class truncate{
 			foreach ($results as $tag) {
 				$tag = trim($tag);
 
-				if (strstr($tag, ' ')) {
+				if (strpos($tag, ' ') !== false) {
 					$tag = substr($tag, 0, strpos($tag, ' '));
 				}
-				if (!stristr($tag, 'br') && !stristr($tag, 'img') && !empty ($tag)) {
+				if (stripos($tag, 'br') === false && stripos($tag, 'img') === false && !empty ($tag)) {
 					$endTags .= '</' . $tag . '>';
 				}
 			}
@@ -182,16 +179,13 @@ class truncate{
 	}
 
 	function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars) {
-		$summary = '';
 		$this->summaryType = "content";
 		$this->link = false;
 		$closeTags = true;
 		// summary is turned off
 		
-		if ((strstr($resource['content'], $splitter)) && $truncsplit) {
-			$summary = array ();
-
-			// HTMLarea/XINHA encloses it in paragraph's
+		if ((strpos($resource['content'], $splitter) !== false) && $truncsplit) {
+		    // HTMLarea/XINHA encloses it in paragraph's
 			$summary = explode('<p>' . $splitter . '</p>', $resource['content']);
 
 			// For TinyMCE or if it isn't wrapped inside paragraph tags
@@ -205,7 +199,7 @@ class truncate{
 		} else if (mb_strlen($resource['introtext']) > 0) {
 				$summary = $resource['introtext'];
 				$this->link = '[~' . $resource['id'] . '~]';
-				$this->summaryType = "introtext";
+				$this->summaryType = 'introtext';
 				$closeTags = false;
 				// fall back to the summary text count of characters
 		} else if (strlen($resource['content']) > $truncLen && $trunc == 1) {
@@ -215,7 +209,7 @@ class truncate{
 				// and back to where we started if all else fails (short post)
 		} else {
 			$summary = $resource['content'];
-			$this->summaryType = "content";
+			$this->summaryType = 'content';
 			$this->link = false;
 		}
 
