@@ -80,7 +80,7 @@ else
 	
 	$row = $modx->db->getRow($rs);
 
-	if($row['count'])
+	if(!$row['count'])
 	{
 		$rs = $modx->db->update('isfolder=0','[+prefix+]site_content',"id='{$current_parent}'");
 		if(!$rs)
