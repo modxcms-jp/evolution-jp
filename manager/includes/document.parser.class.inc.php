@@ -2393,7 +2393,7 @@ class DocumentParser {
     
     function getPluginCache()
     {
-        $plugins = @include_once(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
+        $plugins = @include(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
         
         if($plugins) $this->pluginCache = $plugins;
 
