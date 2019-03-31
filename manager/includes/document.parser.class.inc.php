@@ -4239,23 +4239,23 @@ class DocumentParser {
     }
     
     public function get_docfield_type($field_name='') {
-        if(in_array($field_name, explode(',','published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'))) {
+        if(in_array($field_name, explode(',', 'published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'), true)) {
             return 'datetime';
         };
 
-        if(in_array($field_name, explode(',','pagetitle,longtitle,description,menutitle,introtext,content'))) {
+        if(in_array($field_name, explode(',', 'pagetitle,longtitle,description,menutitle,introtext,content'), true)) {
             return 'content';
         };
 
-        if(in_array($field_name, explode(',','createdby,editedby,publishedby,deletedby'))) {
+        if(in_array($field_name, explode(',', 'createdby,editedby,publishedby,deletedby'), true)) {
             return 'user';
         };
 
-        if(in_array($field_name, explode(',','haskeywords,hasmetatags'))) {
+        if(in_array($field_name, explode(',', 'haskeywords,hasmetatags'), true)) {
             return 'deprecated';
         };
 
-        if(in_array($field_name, explode(',','id,type,contentType,alias,link_attributes,parent,isfolder,richtext,template,menuindex,searchable,cacheable,deleted,donthit,privateweb,privatemgr,content_dispo,hidemenu,alias_visible'))) {
+        if(in_array($field_name, explode(',', 'id,type,contentType,alias,link_attributes,parent,isfolder,richtext,template,menuindex,searchable,cacheable,deleted,donthit,privateweb,privatemgr,content_dispo,hidemenu,alias_visible'), true)) {
             return '';
         };
 
