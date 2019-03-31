@@ -2690,54 +2690,77 @@ class DocumentParser {
         if(is_string($ids)) {
             $ids = explode(',',$ids);
         }
+
         foreach ($ids as $i=>$id) {
             $ids[$i] = trim($id);
         }
 
         $where = array();
-        $where[] = '(';
+        if($this->getUserDocGroups()) {
             $where[] = sprintf('sc.id IN (%s)', join(',',$ids));
-            if(!is_null($published)) $published = (string)$published;
-            if($published==='1' || $published==='0') {
-                $where[] = "AND sc.published='{$published}'";
+            if ($published!==null) {
+                $where[] = sprintf('AND sc.published=%d', $published);
             }
-            $where[] = sprintf('AND sc.deleted=%s', $deleted);
+            $where[] = sprintf('AND sc.deleted=%d', $deleted);
+
+            if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole']!=1) {
+                if ($this->isFrontend()) {
+                    $where[] = sprintf(
+                        'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
+                        , join(',', $this->getUserDocGroups())
+                    );
+                } else {
+                    $where[] = sprintf(
+                        'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
+                        , join(',', $this->getUserDocGroups())
+                    );
+                }
+            }
             if ($extra_where) {
-                $where[] = "AND {$extra_where}";
+                $where[] = sprintf('AND %s', $extra_where);
             }
-        $where[] = ')';
+            $where[] = 'GROUP BY sc.id';
 
-        // get document groups for current user
-        if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole']!=1) {
-            $context = ($this->isFrontend()) ? 'privateweb' : 'privatemgr';
-            $docgrp= $this->getUserDocGroups();
-            if($docgrp) {
-                $docgrp= join(',', $docgrp);
-                $where[] = 'AND (';
-                    $where[] = sprintf('sc.%s=0 OR dg.document_group IN (%s)', $context, $docgrp);
-                $where[] = ')';
-            } else {
-                $where[] = sprintf('AND sc.%s=0', $context);
-            }
-        }
-        $where[] = 'GROUP BY sc.id';
-
-        if($sort) {
-            $sort = $this->join(',', explode(',',$sort),'sc.');
-            $orderby = "{$sort} {$dir}";
+            $result= $this->db->select(
+                'DISTINCT ' . $this->join(',', explode(',',$fields),'sc.')
+                , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
+                , $where
+                , $sort ? sprintf('sc.%s %s', $sort, $dir) : ''
+                , $limit
+            );
         } else {
-            $orderby = '';
+            $where[] = sprintf('id IN (%s)', join(',',$ids));
+            if ($published!==null) {
+                $where[] = sprintf('AND published=%d', $published);
+            }
+            $where[] = sprintf('AND deleted=%d', $deleted);
+
+            if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole']!=1) {
+                if ($this->isFrontend()) {
+                    $where[] = 'AND privateweb=0';
+                } else {
+                    $where[] = 'AND privatemgr=0';
+                }
+            }
+            if ($extra_where) {
+                $where[] = sprintf('AND %s', $extra_where);
+            }
+            $where[] = 'GROUP BY id';
+
+            $result= $this->db->select(
+                'DISTINCT ' . $fields
+                , '[+prefix+]site_content'
+                , $where
+                , $sort ? sprintf('%s %s', $sort, $dir) : ''
+                , $limit
+            );
         }
 
-        // modify field names to use sc. table reference
-        $fields = 'DISTINCT ' . $this->join(',', explode(',',$fields),'sc.');
-        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $result= $this->db->select($fields,$from,$where,$orderby,$limit);
-        $resourceArray= array ();
+        $docs= array ();
         while ($row = $this->db->getRow($result)) {
-            $resourceArray[] = $row;
+            $docs[] = $row;
         }
-        return $resourceArray;
+        return $docs;
     }
 
     function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
