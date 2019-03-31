@@ -1936,7 +1936,8 @@ class DocumentParser {
         foreach($token as $i=>$v) {
             $v = trim($v);
             if($i%2==0) {
-                if($reverse = substr($v, 0, 1)==='!') $v = ltrim($v, '!');
+                $reverse = (strpos($v, '!') === 0);
+                if($reverse) $v = ltrim($v, '!');
                 
                 if (empty($v))                         $v = 0;
                 elseif(preg_match('@^-?[0-9]+$@', $v)) $v = (int)$v;
