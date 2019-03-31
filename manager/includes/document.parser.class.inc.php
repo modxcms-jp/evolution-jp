@@ -2799,7 +2799,7 @@ class DocumentParser {
         if($docid === 0 || !preg_match('/^[0-9]+$/',$docid)) return false;
         
         // modify field names to use sc. table reference
-        $fields = preg_replace("/\s/i", '',$fields);
+        $fields = preg_replace("/\s/", '',$fields);
         $fields = $this->join(',',explode(',',$fields),'sc.');
         
         $published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
