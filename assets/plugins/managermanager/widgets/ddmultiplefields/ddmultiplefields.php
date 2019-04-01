@@ -30,7 +30,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 	global $modx, $mm_current_page, $_lang;
 	$e = &$modx->Event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name === 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
 
 		$base_url = $modx->config['base_url'];

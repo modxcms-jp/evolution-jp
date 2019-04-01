@@ -4,7 +4,7 @@ class ForgotManagerPassword {
 	
 	function __construct()
 	{
-		$this->fmp_path = str_replace('\\','/', dirname(__FILE__)) . '/';
+		$this->fmp_path = str_replace('\\','/', __DIR__) . '/';
 		$this->errors = array();
 		$this->checkLang();
 	}
