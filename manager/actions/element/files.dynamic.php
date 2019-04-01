@@ -43,7 +43,7 @@ if($_SESSION['mgrRole']!=1)
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = $new_folder_permissions ? octdec($new_folder_permissions) : 0777;
+$newfolderaccessmode = $modx->config['new_folder_permissions'] ? octdec($modx->config['new_folder_permissions']) : 0777;
 $new_file_permissions = $new_file_permissions ? octdec($new_file_permissions) : 0666;
 // End Mod -  by Raymond
 // make arrays from the file upload settings
@@ -52,16 +52,14 @@ $upload_images = explode(',',$upload_images);
 $upload_media = explode(',',$upload_media);
 $upload_flash = explode(',',$upload_flash);
 // now merge them
-$uploadablefiles = array();
 $uploadablefiles = array_merge($upload_files,$upload_images,$upload_media,$upload_flash);
 $uploadablefiles = add_dot($uploadablefiles);
 function add_dot($array)
 {
-	$count = count($array);
-	for($i=0; $i<$count; $i++) {
-		$array[$i] = '.'.strtolower(trim($array[$i])); // add a dot :)
-	}
-	return $array;
+    foreach ($array as $i => $iValue) {
+        $array[$i] = '.'.strtolower(trim($iValue)); // add a dot :)
+    }
+    return $array;
 }
 // end settings
 
@@ -73,7 +71,7 @@ if(isset($_REQUEST['path']) && !empty($_REQUEST['path']))
 }
 else
 {
-	$startpath = $filemanager_path;
+	$startpath = $modx->config['filemanager_path'];
 }
 $startpath = rtrim($startpath,'/');
 
@@ -84,7 +82,7 @@ if(!is_readable($startpath))
 }
 
 // Raymond: get web start path for showing pictures
-$rf = realpath($filemanager_path);
+$rf = realpath($modx->config['filemanager_path']);
 $rw = realpath('../');
 $webstart_path = str_replace('\\','/',str_replace($rw,'',$rf));
 if(substr($webstart_path,0,1)=='/') $webstart_path = '..'.$webstart_path;
@@ -203,8 +201,8 @@ function deleteFile(file) {
 </script>
 <?php
 if(!empty($_FILES['userfile'])) $information = fileupload();
-elseif(isset($_POST['mode']) && $_POST['mode']=='save')      echo textsave();
-elseif(isset($_REQUEST['mode']) && $_REQUEST['mode']=='delete') echo delete_file();
+elseif(isset($_POST['mode']) && $_POST['mode'] === 'save')      echo textsave();
+elseif(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'delete') echo delete_file();
 
 if(in_array($startpath,$proteted_path))
 {
@@ -295,10 +293,10 @@ if (is_writable($startpath))
 	}
 
 	// Create folder here
-	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfolder')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'newfolder')
 	{
 		$old_umask = umask(0);
-		$foldername = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
+		$foldername = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
 		if(!mkdirs("{$startpath}/{$foldername}",0777))
 		{
 			echo '<span class="warning"><b>',$_lang['file_folder_not_created'],'</b></span><br /><br />';
@@ -317,10 +315,10 @@ if (is_writable($startpath))
 		umask($old_umask);
 	}
 	// Create file here
-	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfile')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'newfile')
 	{
 		$old_umask = umask(0);
-		$filename = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
+		$filename = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
 		$filename = $modx->db->escape($filename);
 		
 		if(!checkExtension($filename))
