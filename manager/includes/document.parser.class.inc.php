@@ -2475,15 +2475,18 @@ class DocumentParser {
         $result= $this->db->select('sc.*',$from,$where,'',1);
         if ($this->db->getRecordCount($result) < 1)
         {
-            if ($this->isBackend()||$mode==='direct') {
+            if ($this->isBackend() || $mode === 'direct') {
                 return false;
             }
             
             // check if file is not public
             $rs = $this->db->select('id','[+prefix+]document_groups',"document='{$identifier}'",'',1);
-            $total= $this->db->getRecordCount($rs);
-            if ($total > 0) $this->sendUnauthorizedPage();
-            else            $this->sendErrorPage();
+            if ($this->db->getRecordCount($rs) > 0) {
+                $this->sendUnauthorizedPage();
+            }
+            else {
+                $this->sendErrorPage();
+            }
         }
         
         # this is now the document :) #
@@ -3436,8 +3439,7 @@ class DocumentParser {
             $ph= get_object_vars($ph);
         }
         if (is_array($ph)) {
-            foreach($ph as $key=>$value)
-            {
+            foreach($ph as $key=>$value) {
                 $this->toPlaceholder($key, $value, $prefix);
             }
         }
