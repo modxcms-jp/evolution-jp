@@ -66,8 +66,12 @@ if (isset($form_v) && $form_v) {
 	$savethese = array();
 	foreach ($form_v as $k => $v) {
 		switch ($k) {
+            case 'base_url':
+                if($v !== '' && $v !== '/') {
+                    $v = '/' . trim($v,'/') . '/';
+                }
+                break;
 			case 'site_url':
-			case 'base_url':
 			case 'rb_base_dir':
 			case 'rb_base_url':
 			case 'filemanager_path':
