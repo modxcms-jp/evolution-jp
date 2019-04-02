@@ -675,7 +675,9 @@ $localFilterDelimiter = isset($localFilterDelimiter) ? $localFilterDelimiter : "
     - <filter>
     - <parseFilters>
 */
-$filters = array('custom'=>array(),'parsed'=>array());
+if(!$filters) {
+    $filters = array('custom'=>array(),'parsed'=>array());
+}
     // Variable: filters
     // Holds both the custom filters array for configs or extenders to add to
     // and the parsed filters array. To add to this array, use the following format
