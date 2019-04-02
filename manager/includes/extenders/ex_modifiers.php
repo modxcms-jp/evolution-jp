@@ -740,6 +740,7 @@ class MODIFIERS {
             case 'strftime':
             case 'date':
             case 'dateformat':
+                if(!$value) return '';
                 if(empty($opt)) $opt = $modx->toDateFormat(null, 'formatOnly');
                 if(!preg_match('@^[0-9]+$@',$value)) $value = strtotime($value);
                 if(strpos($opt,'%')!==false)
