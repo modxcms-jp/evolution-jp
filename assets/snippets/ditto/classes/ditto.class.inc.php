@@ -364,15 +364,25 @@ class ditto {
         }
 
         // set url placeholder
-        if (in_array('url',$custom_v)) {
-            if($resource['id']==$modx->config['site_start']) $placeholders['url'] = $modx->config['site_url'];
-            else                                             $placeholders['url'] = $modx->makeURL($resource['id'],'','','full');
+        if (in_array('url', $custom_v, true)) {
+            if($resource['id']==$modx->config['site_start']) {
+                $placeholders['url'] = $modx->config['site_url'];
+            }
+            else {
+                $placeholders['url'] = $modx->makeURL($resource['id'], '', '', 'full');
+            }
         }
 
-        if (in_array('date',$custom_v)) {
-            $timestamp = ($resource[$dateSource] != '0') ? $resource[$dateSource] : $resource['createdon'];
+        if (in_array('date', $custom_v, true)) {
+            if ($resource[$dateSource] != '0') {
+                $timestamp = $resource[$dateSource];
+            } else {
+                $timestamp = $resource['createdon'];
+            }
             if (is_array($timestamp)) {
-                $timestamp[1] = preg_match('@^[1-9][0-9]*$@',$timestamp[1]) ? $timestamp[1] : strtotime($timestamp[1]);
+                if (!preg_match('@^[1-9][0-9]*$@', $timestamp[1])) {
+                    $timestamp[1] = strtotime($timestamp[1]);
+                }
                 $timestamp = $timestamp[1] + $timestamp[0];
             }
             $placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
@@ -676,7 +686,9 @@ class ditto {
             $fields = array_intersect($this->fields['backend'],$this->fields['display']);
             $readyFields = array();
             foreach ($fields as $field) {
-                $readyFields = array_merge($readyFields,$field);
+                foreach($field as $k=>$v) {
+                    $readyFields[$k] = $v;
+                }
             }
             $processedIDs = array ();
             $keep = array();
