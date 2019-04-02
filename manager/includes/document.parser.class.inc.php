@@ -1720,7 +1720,7 @@ class DocumentParser {
             
             if(!isset($ph[$key])) $ph[$key] = $this->getChunk($key);
             $value = $ph[$key];
-            if(is_null($value)) continue;
+            if($value === null) continue;
             
             $value = $this->mergePlaceholderContent($value,$params);
             $value = $this->mergeConditionalTagsContent($value);
@@ -2253,7 +2253,7 @@ class DocumentParser {
             }
             elseif($key!==''||trim($char)!=='') $key .= $char;
             
-            if(isset($value) && !is_null($value))
+            if(isset($value) && $value !== null)
             {
                 if(strpos($key,'amp;')!==false) $key = str_replace('amp;', '', $key);
                 $key=trim($key);
@@ -2270,7 +2270,9 @@ class DocumentParser {
                 $value = null;
 
                 $_tmp = ltrim($_tmp, " ,\t");
-                if(substr($_tmp, 0, 2)==='//') $_tmp = strstr($_tmp, "\n");
+                if(strpos($_tmp, '//') === 0) {
+                    $_tmp = strstr($_tmp, "\n");
+                }
             }
             
             if($_tmp===$bt)
@@ -2295,8 +2297,9 @@ class DocumentParser {
                 $subk = substr($subk,0,-1);
                 $params[$k][$subk] = current($p);
             }
-            else
+            else {
                 $params[$k] = current($p);
+            }
         }
         
         return $params;
@@ -2543,7 +2546,10 @@ class DocumentParser {
                 if(!isset($previewObject[$k])) continue;
                 if(!is_array($documentObject[$k]))
                 {
-                    if( $snapObject[$k] !=  $documentObject[$k] ) continue; // Priority is higher changing on OnLoadDocumentObject event.
+                    // Priority is higher changing on OnLoadDocumentObject event.
+                    if( $snapObject[$k] !=  $documentObject[$k] ) {
+                        continue;
+                    }
                     $documentObject[$k] = $previewObject[$k];
                 }
                 else $documentObject[$k]['value'] = $previewObject[$k];
