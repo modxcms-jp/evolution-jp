@@ -46,7 +46,7 @@ if($current_parent == $new_parent)
 {
 	$alert = $_lang["move_resource_new_parent"];
 }
-elseif (array_search($new_parent, $children)!==false)
+elseif (in_array($new_parent, $children))
 {
 	$alert = $_lang["move_resource_cant_myself"];
 }
