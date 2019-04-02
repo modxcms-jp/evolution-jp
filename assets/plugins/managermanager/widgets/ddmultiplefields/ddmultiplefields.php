@@ -32,9 +32,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 	
 	if ($e->name === 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
-
-		$base_url = $modx->config['base_url'];
-		$widgetDir = $base_url.'assets/plugins/managermanager/widgets/ddmultiplefields/';
+		$widgetDir = MODX_BASE_URL.'assets/plugins/managermanager/widgets/ddmultiplefields/';
 		
 		if ($columnsData){
 			$columnsDataTemp = explode('||', $columnsData);
@@ -64,13 +62,13 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 		// Does this page's template use any image or file or text TVs?
 		$types = explode(',', 'image,file,text,textarea');
 		foreach($types as $type) {
-    		$tvsTemp = tplUseTvs($page_template, $tvs, $type);
-    		if ($tvsTemp){
-    			foreach($tvsTemp as $v){
-    				$v['type'] = $type;
-    				array_push($tvsMas,$v);
-    			}
-    		}
+			$tvsTemp = tplUseTvs($page_template, $tvs, $type);
+			if ($tvsTemp){
+				foreach($tvsTemp as $v){
+					$v['type'] = $type;
+					$tvsMas[] = $v;
+				}
+			}
 		}
 
 		if (count($tvsMas) == 0){
@@ -343,7 +341,7 @@ var ddMultiple = {
 		jQuery(".ddField", fieldCol).on("change.ddEvents load.ddEvents", function(){
 			var $this = jQuery(this), url = $this.val();
 
-			url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$base_url.'" + url) : url;
+			url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.MODX_BASE_URL.'" + url) : url;
 
 			//If field not empty
 			if (url != ""){
@@ -414,10 +412,10 @@ jQuery(function(){
 ';
 
 		foreach ($tvsMas as $tv){
-			if ($tv['type'] == 'image'){
+			if ($tv['type'] === 'image'){
 				$browseFuntion = 'BrowseServer';
 				$makeFieldFunction = 'makeImage';
-			}else if($tv['type'] == 'file'){
+			}else if($tv['type'] === 'file'){
 				$browseFuntion = 'BrowseFileServer';
 				$makeFieldFunction = 'makeNull';
 			}else{
@@ -473,5 +471,3 @@ jQuery("#tv'.$tv['id'].'").on("load.ddEvents", function(event){
 		$e->output($output . "\n");
 	}
 } // end of widget
-
-?>
