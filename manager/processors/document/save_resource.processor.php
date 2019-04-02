@@ -171,7 +171,6 @@ function get_tmplvars($id=0)
 	
 	$tmplvars = array ();
 	while ($row = $modx->db->getRow($rs)) {
-		$tmplvar = '';
 		$tvid = "tv{$row['id']}";
 		
     	if(!isset($form_v[$tvid])) {
