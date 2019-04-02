@@ -5,7 +5,7 @@ if(!$modx->hasPermission('file_manager')) {
 	$e->dumpError();
 }
 $newToken = $modx->manager->makeToken();
-
+global $_style;
 // settings
 $style_path = $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/images/';
 $excludes = array('.', '..', '.svn');
@@ -585,7 +585,7 @@ function checkExtension($path='')
 {
 	global $uploadablefiles;
 	
-	if(in_array(getExtension($path), $uploadablefiles)) return true;
+	if(in_array(getExtension($path), $uploadablefiles, true)) return true;
 	else                                                return false;
 }
 
@@ -630,27 +630,27 @@ function unzip($file, $path)
 		$path = rtrim($path,'/') . '/';
 		while ($zip_entry = zip_read($zip))
 		{
-			if (zip_entry_filesize($zip_entry) > 0)
-			{
-				// str_replace must be used under windows to convert "/" into "\"
-				$zip_entry_name = zip_entry_name($zip_entry);
-				$complete_path = $path.str_replace('\\', '/', dirname($zip_entry_name));
-				$complete_name = $path.str_replace('\\', '/', $zip_entry_name);
-				if(!is_dir($complete_path))
-				{
-					$tmp = '';
-					foreach(explode('/', $complete_path) AS $k)
-					{
-						$tmp .= $k.'/';
-						if(!is_dir($tmp)) mkdir($tmp, 0777);
-					}
-				}
-				if (zip_entry_open($zip, $zip_entry, 'r'))
-				{
-					file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-					zip_entry_close($zip_entry);
-				}
-			}
+			if (zip_entry_filesize($zip_entry) <= 0) {
+                continue;
+            }
+            // str_replace must be used under windows to convert "/" into "\"
+            $zip_entry_name = zip_entry_name($zip_entry);
+            $complete_path = $path.str_replace('\\', '/', dirname($zip_entry_name));
+            $complete_name = $path.str_replace('\\', '/', $zip_entry_name);
+            if(!is_dir($complete_path))
+            {
+                $tmp = '';
+                foreach(explode('/', $complete_path) AS $k)
+                {
+                    $tmp .= $k.'/';
+                    if(!is_dir($tmp)) mkdir($tmp, 0777);
+                }
+            }
+            if (zip_entry_open($zip, $zip_entry, 'r'))
+            {
+                file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
+                zip_entry_close($zip_entry);
+            }
 		}
 		umask($old_umask);
 		zip_close($zip);
@@ -671,7 +671,7 @@ function rrmdir($dir)
 
 function fileupload()
 {
-	global $modx,$_lang,$startpath, $filemanager_path, $uploadablefiles, $new_file_permissions;
+	global $modx,$_lang,$startpath, $filemanager_path;
 	$msg = '';
 	
 	if(!empty($_FILES['userfile']['tmp_name']))
