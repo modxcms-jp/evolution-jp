@@ -225,7 +225,11 @@ class Mysqldumper {
     }
     
     function snapshot($path,&$dumpstring) {
-    	return @file_put_contents($path,$dumpstring);
+    	$rs = @file_put_contents($path,$dumpstring);
+    	if($rs) {
+    		@chmod($path, 0666);
+    	}
+    	return $rs;
     }
     
     function import_sql($source)
