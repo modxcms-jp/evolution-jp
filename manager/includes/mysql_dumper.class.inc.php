@@ -34,8 +34,8 @@ class Mysqldumper {
 	}
 
 	function setDBtables($dbtables=false) {
-		if($dbtables===false) $this->_dbtables = $this->getTableNames();
-		else                  $this->_dbtables = $dbtables;
+		if($dbtables) $this->_dbtables = $dbtables;
+		else          $this->_dbtables = $this->getTableNames();
 	}
 
 	// If set to true, it will generate 'DROP TABLE IF EXISTS'-statements for each table.
