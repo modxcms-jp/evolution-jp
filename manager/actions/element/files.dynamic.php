@@ -464,7 +464,7 @@ function ls($curpath)
 		echo 'Invalid path "',$curpath,'"<br />';
 		return;
 	}
-	$dir = scandir($curpath, SCANDIR_SORT_NONE);
+	$dir = scandir($curpath, SCANDIR_SORT_ASCENDING);
 
 	// first, get info
 	foreach ($dir as $file)
@@ -481,7 +481,7 @@ function ls($curpath)
 				$file = mb_convert_encoding($file,$modx_manager_charset,'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
 				$dirs_array[$dircounter]['text'] = '<img src="' . $_style['tree_folder'].'" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path='.urlencode($newpath).'"><b>'.$file.'</b></a>';
 				
-				$dfiles = scandir($newpath, SCANDIR_SORT_NONE);
+				$dfiles = scandir($newpath, SCANDIR_SORT_ASCENDING);
 				foreach($dfiles as $i=>$infile)
 				{
 					switch($infile)
