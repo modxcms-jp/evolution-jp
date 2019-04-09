@@ -300,10 +300,11 @@ class ditto {
         $customPlaceholders = $ph;
         // set custom placeholder
         foreach ($ph as $name=>$value) {
-            if ($name !== '*') {
-                $placeholders[$name] = call_user_func($value[1],$resource);
-                unset($customPlaceholders[$name]);
+            if ($name === '*') {
+                continue;
             }
+            $placeholders[$name] = call_user_func($value[1],$resource);
+            unset($customPlaceholders[$name]);
         }
 
         foreach ($customPlaceholders as $name=>$value) {
@@ -948,7 +949,7 @@ class ditto {
                     // merge the prefetch array and the normal array
             }
         }
-        
+
         $TVs = array_unique($TVs);
         if ($TVs) {
             foreach($TVs as $tv){
@@ -1023,12 +1024,8 @@ class ditto {
 
     function formatDate($dateUnixTime, $dateFormat) {
         global $modx;
-        if(method_exists('modx', 'toDateFormat'))
-        {
-            $dt = $modx->toDateFormat($dateUnixTime, $dateFormat);
-        }
-        else $dt = strftime($dateFormat, (intval($dateUnixTime) + $modx->config["server_offset_time"]));
-        if ($modx->config["modx_charset"] == "UTF-8") {
+        $dt = $modx->toDateFormat($dateUnixTime, $dateFormat);
+        if ($modx->config['modx_charset'] === 'UTF-8') {
             $dt = utf8_encode($dt);
         }
         return $dt;
