@@ -59,7 +59,7 @@ class TopicPath
 				$tpl['Separator']       = "\n";
 				break;
 			case 'bootstrap':
-				$tpl['Outer']           = '<ol class="topicpath">[+topics+]</ol>';
+				$tpl['Outer']           = '<ol class="breadcrumb">[+topics+]</ol>';
 				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]">[+title+]</a></li>';
 				$tpl['CurrentTopic']    = '<li class="active">[+title+]</li>';
 				$tpl['ReferenceTopic']  = '<li>[+title+]</li>';
