@@ -129,8 +129,8 @@ class SubParser {
         global $modx;
         
         if(!$modx->config) $modx->getSettings();
-        $evtid= intval($evtid);
-        $type = intval($type);
+        $evtid= (int)$evtid;
+        $type = (int)$type;
         if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
         if (3 < $type) $type= 3;
         if($modx->db->isConnected()) $msg= $modx->db->escape($msg);
@@ -182,10 +182,10 @@ class SubParser {
         }
         if (!isset($insert_id) || !$insert_id) exit('Error while inserting event log into database.');
         else {
-            $trim  = (isset($modx->config['event_log_trim']))  ? intval($modx->config['event_log_trim']) : 100;
+            $trim  = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
             if(($insert_id % $trim) == 0)
             {
-                $limit = (isset($modx->config['event_log_limit'])) ? intval($modx->config['event_log_limit']) : 2000;
+                $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
                 $modx->rotate_log('event_log',$limit,$trim);
             }
         }
@@ -536,7 +536,7 @@ class SubParser {
             if($_SERVER['HTTP_USER_AGENT']) ini_set('user_agent', $_SERVER['HTTP_USER_AGENT']);
             return file_get_contents($url);
         }
-        
+
         if    (strpos($responseCode, '301') !== false) {header($header, true, 301);exit;}
         elseif(strpos($responseCode, '302') !== false) {header($header, true, 302);exit;}
         elseif(strpos($responseCode, '303') !== false) {header($header, true, 303);exit;}
@@ -906,7 +906,7 @@ class SubParser {
 
     function ProcessTVCommand($input, $name = '', $docid = '', $src='docform') {
         global $modx;
-        $docid = intval($docid) ? intval($docid) : $modx->documentIdentifier;
+        $docid = (int)$docid ? (int)$docid : $modx->documentIdentifier;
         $input = trim($input);
         
         if(substr($input,0,1)==='@' && $modx->config['enable_bindings']!=1 && $src==='docform')

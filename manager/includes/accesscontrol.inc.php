@@ -21,7 +21,7 @@ if (is_file($instcheck_path))
 			unset($installStartTime);
 			@ chmod($instcheck_path, 0755);
 			unlink($instcheck_path);
-		} elseif ($_SERVER['REQUEST_METHOD'] != 'POST') {
+		} elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 			if (isset($_COOKIE[session_name()])) {
 				session_unset();
 				@session_destroy();
@@ -36,7 +36,7 @@ if (isset($_GET['installGoingOn'])) $installGoingOn = $_GET['installGoingOn'];
 if (isset($lastInstallTime) && isset($_SESSION['modx.session.created.time']) && isset($_SESSION['mgrValidated'])) {
 	if (
 		($_SESSION['modx.session.created.time'] < $lastInstallTime)
-		&& $_SERVER['REQUEST_METHOD'] != 'POST'
+		&& $_SERVER['REQUEST_METHOD'] !== 'POST'
 		)
 	{
 		if (isset($_COOKIE[session_name()])) {
