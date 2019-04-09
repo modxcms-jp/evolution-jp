@@ -2262,8 +2262,11 @@ class DocumentParser {
                 $value = $this->mergeSettingsContent($value);
                 $value = $this->mergeChunkContent($value);
                 $value = $this->evalSnippets($value);
-                if(substr($value,0,6)!=='@CODE:')
+                if(strpos($value, '@CODE:') === 0) {
+                    $value = trim(substr($value,6));
+                } else {
                     $value = $this->mergePlaceholderContent($value);
+                }
                 
                 $temp_params[][$key]=$value;
                 $key   = '';
