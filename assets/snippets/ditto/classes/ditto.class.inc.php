@@ -505,28 +505,6 @@ class ditto {
         return ($user['fullname'] != "") ? $user['fullname'] : $user['username'];
     }
     
-    // ---------------------------------------------------
-    // Function: customSort
-    // Sort resource array if advanced sorting is needed
-    // ---------------------------------------------------
-
-    function customSort($data, $fields, $order) {
-        // Covert $fields string to array
-        // user contributed
-        foreach (explode(',', $fields) as $s)
-        {
-            $sortfields[] = trim($s);
-        }
-
-        $code = "";
-        for ($c = 0, $cMax = count($sortfields); $c < $cMax; $c++)
-            $code .= "\$retval = strnatcmp(\$a['$sortfields[$c]'], \$b['$sortfields[$c]']); if(\$retval) return \$retval; ";
-        $code .= "return \$retval;";
-
-        $params = ($order === 'ASC') ? '$a,$b' : '$b,$a';
-        uasort($data, create_function($params, $code));
-        return $data;
-    }
 
     // ---------------------------------------------------
     // Function: userSort
@@ -958,8 +936,10 @@ class ditto {
         }
 
         $resourceArray = array_merge_recursive($resourceArray,$TVData);
-        if ($this->prefetch == true && $this->sortOrder !== false) {
-            $resourceArray = $this->customSort($resourceArray,'ditto_sort','ASC');
+        if ($this->prefetch && $this->sortOrder) {
+            uasort($resourceArray, function($a,$b){
+                return strnatcmp($a['ditto_sort'],$b['ditto_sort']);
+            });
         }
 
         return $resourceArray;
