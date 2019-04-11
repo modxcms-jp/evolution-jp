@@ -1261,27 +1261,43 @@ class ditto {
             if (($x < $min_x) || ($x > $max_x)) continue;
 
             if ($inc != $start) {
-                $pages .= $modx->parseText(array('url'=>$this->buildURL("start={$inc}"),'page'=>$display),$tplPaginatePage);
+                $pages .= $modx->parseText(
+                    $tplPaginatePage
+                    , array('url'=> self::buildURL('start=' . $inc),'page'=>$display)
+                );
             } else {
-                $modx->setPlaceholder($dittoID."currentPage", $display);
-                $pages .= $modx->parseText(array('page'=>$display),$tplPaginateCurrentPage);
+                $modx->setPlaceholder($dittoID. 'currentPage', $display);
+                $pages .= $modx->parseText(
+                    $tplPaginateCurrentPage
+                    , array('page'=>$display)
+                );
             }
             if($x < $max_x) $pages .= $paginateSplitterCharacter;
         }
-        if ($totalpages>1 || $paginateAlwaysShowLinks==1){
-            $modx->setPlaceholder($dittoID."next", $nextplaceholder);
-            $modx->setPlaceholder($dittoID."previous", $previousplaceholder);
-            $modx->setPlaceholder($dittoID."prev", $previousplaceholder);
-            $modx->setPlaceholder($dittoID."pages", $pages);
+        if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
+            $modx->toPlaceholders(
+                array(
+                    'next'       => $nextplaceholder
+                    , 'previous' => $previousplaceholder
+                    , 'prev'     => $previousplaceholder
+                    , 'pages'    => $pages
+                )
+                ,$dittoID
+            );
         }
-        $modx->setPlaceholder($dittoID."splitter", $split);
-        $modx->setPlaceholder($dittoID."start", $start +1);
-        $modx->setPlaceholder($dittoID."urlStart", $start);
-        $modx->setPlaceholder($dittoID."stop", $limiter);
-        $modx->setPlaceholder($dittoID."total", $total);
-        $modx->setPlaceholder($dittoID."perPage", $summarize);
-        $modx->setPlaceholder($dittoID."totalPages", $totalpages);
-        $modx->setPlaceholder($dittoID."ditto_pagination_set", true);
+        $modx->toPlaceholders(
+            array(
+                'splitter' => $split
+                , 'start' => ($start +1)
+                , 'urlStart' => $start
+                , 'stop'=> $limiter
+                , 'total'=> $total
+                , 'perPage', $summarize
+                , 'totalPages'=> $totalpages
+                , 'ditto_pagination_set'=> true
+            )
+            ,$dittoID
+        );
     }
 
     // ---------------------------------------------------
