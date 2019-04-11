@@ -231,11 +231,11 @@ class ditto {
 
     public function parseFilters(
         $filter_params = false
-        ,$cFilters     = false
-        ,$pFilters     = false
-        ,$globalDelimiter
-        ,$localDelimiter
-        ) {
+        , $cFilters    = false
+        , $pFilters    = false
+        , $globalDelimiter
+        , $localDelimiter
+    ) {
         $parsedFilters = array('basic' =>array(), 'custom' =>array());
         $filters = explode($globalDelimiter, $filter_params);
         if ($filter_params) {
@@ -501,10 +501,9 @@ class ditto {
         else               $user = $modx->getWebUserInfo(abs($createdby));
 
         if ($user === false) $user = $modx->getUserInfo(1);// get admin user name
-        
-        return ($user['fullname'] != "") ? $user['fullname'] : $user['username'];
+
+        return ($user['fullname'] != '') ? $user['fullname'] : $user['username'];
     }
-    
 
     // ---------------------------------------------------
     // Function: userSort
@@ -745,7 +744,9 @@ class ditto {
         }
         $parents = array();
         foreach ($kids as $parent) {
-            if ($parent == 0)   $parents[$parent] = '1';
+            if ($parent == 0) {
+                $parents[0] = '1';
+            }
             else {
                 $pInfo = $modx->getPageInfo($parent,0,'published');
                 $parents[$parent] = $pInfo['published'];
