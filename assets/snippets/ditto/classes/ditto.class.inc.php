@@ -1002,6 +1002,16 @@ class ditto {
         return $docs;
     }
 
+    public function array_merge_recursive($org, $override) {
+        foreach($override as $k=>$v) {
+            if (is_array($v)) {
+                $org[$k] = $this->array_merge_recursive($org[$k],$v);
+            } else {
+                $org[$k] = $v;
+            }
+        }
+        return $org;
+    }
     // ---------------------------------------------------
     // Function: getDocumentsLite
     // Get an array of documents
