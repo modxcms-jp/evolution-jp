@@ -1019,23 +1019,60 @@ class ditto {
 
     function getDocumentsIDs($ids= array (), $published= 1) {
         global $modx;
-        if (!$ids) return false;
-        
-        $tblsc= $modx->getFullTableName("site_content");
-        $tbldg= $modx->getFullTableName("document_groups");
-        $published = $published ? 'AND sc.published=1' : '';
-        if ($docgrp= $modx->getUserDocGroups())
-            $docgrp= sprintf(' OR dg.document_group IN ({%s})', implode(',', $docgrp));
-        else $docgrp = '';
-        $access= $modx->isFrontend() ? "sc.privateweb=0" : sprintf("1='%s' OR sc.privatemgr=0",$_SESSION['mgrRole']) . $docgrp;
-        $from  = "{$tblsc} sc LEFT JOIN $tbldg dg on dg.document = sc.id";
-        $where = sprintf('(sc.id IN (%s) %s AND sc.deleted=0) AND (%s) GROUP BY sc.id', join($ids, ','), $published, $access);
-        $result= $modx->db->select('DISTINCT sc.id', $from, $where);
-        $resourceArray= array ();
-        while($row = $modx->db->getRow($result)) {
-            $resourceArray[] = $row;
+
+        if (!$ids) {
+            return false;
         }
-        return $resourceArray;
+
+        $where = array();
+        $docGroup = $modx->getUserDocGroups();
+        if ($docGroup) {
+            $where[] = sprintf('sc.id IN (%s)', join($ids, ','));
+            $where[] = 'AND sc.deleted=0';
+            if ($modx->isFrontend()) {
+                $where[] = sprintf(
+                    'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
+                    , join(',', $docGroup)
+                );
+            } elseif($_SESSION['mgrRole']!=1) {
+                $where[] = sprintf(
+                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
+                    , join(',', $docGroup)
+                );
+            }
+            if($published) {
+                $where[] = 'AND sc.published=1';
+            }
+            $where[] = 'GROUP BY sc.id';
+            $rs= $modx->db->select(
+                'DISTINCT sc.id'
+                , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
+                , $where
+            );
+        } else {
+            $where[] = sprintf('id IN (%s)', join($ids, ','));
+            $where[] = 'AND deleted=0';
+            if ($modx->isFrontend()) {
+                $where[] = 'AND privateweb=0';
+            } elseif ($_SESSION['mgrRole']!=1) {
+                $where[] = 'AND privatemgr=0';
+            }
+            if($published) {
+                $where[] = 'AND published=1';
+            }
+            $where[] = 'GROUP BY id';
+            $rs= $modx->db->select(
+                'DISTINCT id'
+                , '[+prefix+]site_content'
+                , $where
+            );
+        }
+
+        $docs= array ();
+        while($row = $modx->db->getRow($rs)) {
+            $docs[] = $row;
+        }
+        return $docs;
     }
 
     // ---------------------------------------------------
