@@ -842,7 +842,7 @@ class ditto {
 
     function appendKeywords($resource) {
         $keys = $this->fetchKeywords($resource);
-        $resource['keywords'] = (string)$keys;
+        $resource['keywords'] = $keys;
         return $resource;
     }
 
@@ -861,7 +861,6 @@ class ditto {
             // insert meta tags
             $tags = $modx->getMETATags($resource['id']);
             foreach ($tags as $n=>$col) {
-                $tag = strtolower($col['tag']);
                 $metas.= ',' .$col['tagvalue'];
             }
         }
