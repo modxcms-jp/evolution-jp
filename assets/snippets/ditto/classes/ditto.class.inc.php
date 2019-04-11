@@ -355,13 +355,24 @@ class ditto {
         global $modx;
 
         $custom_v = & $this->fields['display']['custom'];
-        
-        if (in_array('author',$custom_v))          $placeholders['author'] = $this->getAuthor($resource['createdby']); // set author placeholder
-        if (in_array('title',$custom_v))           $placeholders['title']           = $resource['pagetitle'];// set title placeholder
-        if (in_array('ditto_iteration',$custom_v)) $placeholders['ditto_iteration'] = $x; // set sequence placeholder
-        
-        if (in_array('class',$custom_v)) {
-            $placeholders['class'] = $modx->documentIdentifier==$resource['id'] ? 'active' : '';
+
+        if (in_array('author', $custom_v, true)) {
+            $placeholders['author'] = self::getAuthor($resource['createdby']);
+        } // set author placeholder
+        if (in_array('title', $custom_v, true)) {
+            $placeholders['title'] = $resource['pagetitle'];
+        }// set title placeholder
+        if (in_array('ditto_iteration', $custom_v, true)) {
+            $placeholders['ditto_iteration'] = $x;
+        } // set sequence placeholder
+
+        if (!in_array('class', $custom_v, true)) {
+        } else {
+            if ($modx->documentIdentifier == $resource['id']) {
+                $placeholders['class'] = 'active';
+            } else {
+                $placeholders['class'] = '';
+            }
         }
 
         // set url placeholder
