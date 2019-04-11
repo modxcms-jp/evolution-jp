@@ -231,8 +231,8 @@ class ditto {
 
     public function parseFilters(
         $filter_params = false
-        , $cFilters    = false
-        , $pFilters    = false
+        , $cFilters    = array()
+        , $pFilters    = array()
         , $globalDelimiter
         , $localDelimiter
     ) {
