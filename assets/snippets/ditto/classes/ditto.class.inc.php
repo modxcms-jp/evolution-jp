@@ -307,8 +307,8 @@ class ditto {
             unset($customPlaceholders[$name]);
         }
 
-        foreach ($customPlaceholders as $name=>$value) {
-            $placeholders = call_user_func($value,$placeholders);
+        foreach ($customPlaceholders as $name=>$cmd) {
+            $placeholders = $cmd($placeholders);
         }
 
         $PHs = $placeholders;
