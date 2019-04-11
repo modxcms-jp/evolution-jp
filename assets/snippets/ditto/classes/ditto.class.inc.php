@@ -774,48 +774,65 @@ class ditto {
     function appendTV($tvname= '', $docIDs){
         global $modx;
 
-        include_once MODX_CORE_PATH . 'tmplvars.format.inc.php';
-        include_once MODX_CORE_PATH . 'tmplvars.commands.inc.php';
-
-        $tb1 = $modx->getFullTableName('site_tmplvar_contentvalues');
-        $tb2 = $modx->getFullTableName('site_tmplvars');
-
-        $query = "SELECT stv.name,stc.tmplvarid,stc.contentid,stv.type,stv.display,stv.display_params,stc.value";
-        $query .= " FROM ".$tb1." stc LEFT JOIN ".$tb2." stv ON stv.id=stc.tmplvarid ";
-        $query .= " WHERE stv.name='".$tvname."' AND stc.contentid IN (".implode(',', $docIDs).") ORDER BY stc.contentid ASC;";
-        $rs = $modx->db->query($query);
-        $tot = $modx->db->getRecordCount($rs);
-        $resourceArray = array();
-        for($i=0;$i<$tot;$i++)  {
-            $row = @$modx->db->getRow($rs);
-            $resourceArray['#' .$row['contentid']][$row['name']] = getTVDisplayFormat($row['name'], $row['value'], $row['display'], $row['display_params'], $row['type'],$row['contentid']);
-            $resourceArray['#' .$row['contentid']]['tv' .$row['name']] = $resourceArray['#' .$row['contentid']][$row['name']];
+        $rs = $modx->db->select(
+            'stv.*, stc.*'
+            , array(
+                '[+prefix+]site_tmplvar_contentvalues stc'
+                , 'LEFT JOIN [+prefix+]site_tmplvars stv ON stv.id=stc.tmplvarid'
+            )
+            , sprintf(
+                "stv.name='%s' AND stc.contentid IN (%s)"
+                , $tvname
+                , implode(',', $docIDs)
+            )
+            , 'stc.contentid ASC'
+        );
+        $total = $modx->db->getRecordCount($rs);
+        $docs = array();
+        while($row = $modx->db->getRow($rs))  {
+            $k = '#' .$row['contentid'];
+            $v = $modx->tvProcessor($row);
+            $docs[$k][$row['name']]       = $v;
+            $docs[$k]['tv' .$row['name']] = $v;
         }
-        if ($tot != count($docIDs)) {
-            $query = 'SELECT name,type,display,display_params,default_text';
-            $query .= " FROM $tb2";
-            $query .= " WHERE name='".$tvname."' LIMIT 1";
-            $rs = $modx->db->query($query);
-            $row = @$modx->db->getRow($rs);
-            if (strtoupper($row['default_text']) === '@INHERIT') {
-                foreach ($docIDs as $id) {
-                    $defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type'], $id);
-                    if (!isset($resourceArray['#' .$id])) {
-                        $resourceArray["#$id"][$tvname] = $defaultOutput;
-                        $resourceArray["#$id"]['tv' .$tvname] = $resourceArray["#$id"][$tvname];
-                    }
-                }
-            } else {
-                $defaultOutput = getTVDisplayFormat($row['name'], $row['default_text'], $row['display'], $row['display_params'], $row['type']);
-                foreach ($docIDs as $id) {
-                    if (!isset($resourceArray['#' .$id])) {
-                        $resourceArray["#$id"][$tvname] = $defaultOutput;
-                        $resourceArray["#$id"]['tv' .$tvname] = $resourceArray["#$id"][$tvname];
-                    }
+
+        if ($total == count($docIDs)) {
+            return $docs;
+        }
+
+        $rs = $modx->db->select(
+            '*'
+            , '[+prefix+]site_tmplvars'
+            , sprintf("name='%s'", $tvname)
+            , ''
+            , 1
+        );
+        $row = @$modx->db->getRow($rs);
+        if (strtoupper($row['default_text']) === '@INHERIT') {
+            $row['value'] = '@INHERIT';
+            foreach ($docIDs as $id) {
+                $k = '#' .$id;
+                if (!isset($docs[$k])) {
+                    $row['contentid'] = $id;
+                    $v = $modx->tvProcessor($row);
+                    $docs[$k][$tvname] = $v;
+                    $docs[$k]['tv' .$tvname] = $v;
                 }
             }
+            return $docs;
         }
-        return $resourceArray;
+
+        $row['contentid'] = '';
+        $row['value'] = $row['default_text'];
+        foreach ($docIDs as $id) {
+            $k = '#' .$id;
+            if (!isset($docs[$k])) {
+                $v = $modx->tvProcessor($row);
+                $docs[$k][$tvname] = $v;
+                $docs[$k]['tv' .$tvname] = $v;
+            }
+        }
+        return $docs;
     }
 
     // ---------------------------------------------------
