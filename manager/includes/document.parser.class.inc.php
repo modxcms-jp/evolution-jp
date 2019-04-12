@@ -3091,12 +3091,13 @@ class DocumentParser {
     
     function getConfig($name= '', $default='')
     {
-        if(!isset($this->config[$name]))
-        {
-            if($default==='') return false;
-            else              return $default;
+        if(!isset($this->config[$name])) {
+            if($default==='') {
+                return false;
+            }
+            return $default;
         }
-        else                  return $this->config[$name];
+        return $this->config[$name];
     }
     
     function getChunk($key)
