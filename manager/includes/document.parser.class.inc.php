@@ -3166,11 +3166,11 @@ class DocumentParser {
             $this->chunkCache[$chunk_name] = $value;
         }
         
-        $params = array('name' => $chunk_name ,'value' => $value , 'isCache' => false);
-        $this->invokeEvent('OnCallChunk',$params);
-
-        return $params['value'];
-
+        return $this->_return_chunk_value(
+            $chunk_name
+            , $value
+            , false
+        );
     }
     
     private function _return_chunk_value($chunk_name, $value, $isCache) {
