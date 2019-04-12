@@ -98,12 +98,24 @@ if(!isset($dateFilterDefault)) $dateFilterDefault = 0;
 	Default:
 	0
 */
-if ($source == 'get') {
-	$year = (!empty($_GET[$dittoID.'year']) && $_GET[$dittoID.'year'] != 'false') ? (int)$_GET[$dittoID . 'year'] : 0;
-	$month = (!empty($_GET[$dittoID.'month']) && $_GET[$dittoID.'month'] != 'false') ? (int)$_GET[$dittoID . 'month'] : 0;
-	$day = (!empty($_GET[$dittoID.'day']) && $_GET[$dittoID.'day'] != 'false') ? (int)$_GET[$dittoID . 'day'] : 0;
-} else if ($source == 'params'){
-	$month = isset($month) ? (int)$month : 0;
+if ($source === 'get') {
+    if (!empty($_GET[$dittoID . 'year']) && $_GET[$dittoID . 'year'] != 'false') {
+        $year = (int)$_GET[$dittoID . 'year'];
+    } else {
+        $year = 0;
+    }
+    if (!empty($_GET[$dittoID . 'month']) && $_GET[$dittoID . 'month'] != 'false') {
+        $month = (int)$_GET[$dittoID . 'month'];
+    } else {
+        $month = 0;
+    }
+    if (!empty($_GET[$dittoID . 'day']) && $_GET[$dittoID . 'day'] != 'false') {
+        $day = (int)$_GET[$dittoID . 'day'];
+    } else {
+        $day = 0;
+    }
+} elseif ($source === 'params'){
+	$month = isset($month) ? (int) $month : 0;
 	/*
 		Param: month
 
