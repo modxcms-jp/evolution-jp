@@ -3100,41 +3100,83 @@ class DocumentParser {
         return $this->config[$name];
     }
     
-    function getChunk($key)
+    function getChunk($chunk_name)
     {
-        if($key==='') return false;
-        
-        if( isset($this->chunkCache[$key]) ){
-            $isCache = true;
-            $value = $this->chunkCache[$key];
+        if($chunk_name==='') {
+            return false;
         }
-        elseif(substr($key,0,5)==='@FILE') {
-            $value = $this->atBindFile($key);
-            $this->chunkCache[$key] = $value;
-        } else {
-            $where = "`name`='%s' AND (`published`=1 OR (`pub_date`<>0 AND `pub_date`<%d AND (`unpub_date`=0 OR `unpub_date`>%d)))";
-            $where = sprintf($where,  $this->db->escape($key), $this->baseTime,$this->baseTime);
-            $rs    = $this->db->select('name,snippet,published','[+prefix+]site_htmlsnippets',$where);
-            $_ = array();
-            if ($this->db->getRecordCount($rs)){
+
+        if (isset($this->chunkCache[$chunk_name])) {
+            return $this->_return_chunk_value(
+                $chunk_name
+                , $this->chunkCache[$chunk_name]
+                , true
+            );
+        }
+
+        if(strpos($chunk_name, '@FILE') === 0) {
+            return $this->_return_chunk_value(
+                $chunk_name
+                , $this->atBindFile($chunk_name)
+                , false
+            );
+        }
+
+        $where = array();
+        $where[] = sprintf(
+            "`name`='%s'"
+            , $this->db->escape($chunk_name)
+        );
+        $where[] = sprintf(
+            'AND (published=1 OR (pub_date <> 0 AND pub_date < %d AND (unpub_date=0 OR unpub_date > %d)))'
+            , $this->baseTime
+            , $this->baseTime
+        );
+
+        $rs = $this->db->select(
+            'name,snippet,published'
+            , '[+prefix+]site_htmlsnippets'
+            , $where
+        );
+        
+        if (!$this->db->getRecordCount($rs)){
+            return $this->_return_chunk_value(
+                $chunk_name
+                , ''
+                , false
+            );
+        }
+        
+        $db = array();
                 while($row = $this->db->getRow($rs)) {
                     $name = $row['name'];
-                    $_[$name] = $row;
-                    if($row['published']!=0 && !isset($this->chunkCache[$name]))
+            $db[$name] = $row;
+            if($row['published'] && !isset($this->chunkCache[$name])) {
                         $this->chunkCache[$name] = $row['snippet'];
                 }
             }
-            if(isset($_[$key]['snippet'])) $value = $_[$key]['snippet'];
-            else                           $value = '';
             
-            if(!isset($_[$key]['published']) || $_[$key]['published']!=0) $this->chunkCache[$key] = $value;
+        if(isset($db[$chunk_name]['snippet'])) {
+            $value = $db[$chunk_name]['snippet'];
+        } else {
+            $value = '';
         }
         
-        if(!isset($isCache)) $isCache = false;
-        $params = array('name' => $key ,'value' => $value , 'isCache' => $isCache);
+        if(!isset($db[$chunk_name]['published']) || $db[$chunk_name]['published']!=0) {
+            $this->chunkCache[$chunk_name] = $value;
+        }
+        
+        $params = array('name' => $chunk_name ,'value' => $value , 'isCache' => false);
         $this->invokeEvent('OnCallChunk',$params);
 
         return $params['value'];
+
+    }
+    
+    private function _return_chunk_value($chunk_name, $value, $isCache) {
+        $params = array('name' => $chunk_name, 'value' => $value, 'isCache' => $isCache);
+        $this->invokeEvent('OnCallChunk', $params);
+        return $value;
 
     }
     
