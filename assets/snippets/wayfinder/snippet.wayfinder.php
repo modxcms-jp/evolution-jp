@@ -25,23 +25,32 @@ $wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
 $conf_path = "{$wf_base_path}configs/";
 
 //Include a custom config file if specified
-if(is_file("{$conf_path}default.config.php"))
-    include("{$conf_path}default.config.php");
+if(is_file($conf_path . 'default.config.php')) {
+    include $conf_path . 'default.config.php';
+}
 
-$config = (!isset($config)) ? 'default' : trim($config);
+$config = !isset($config) ? 'default' : trim($config);
 $config = ltrim($config,'/');
 
-if(substr($config, 0, 6) === '@CHUNK')               eval('?>' . $modx->getChunk(trim(substr($config, 7))));
-elseif(substr($config, 0, 5) == '@FILE')            include($modx->config['base_path'] . trim(substr($config, 6)));
-elseif($config !== 'default'&&is_file("{$conf_path}{$config}.config.php"))
-                                                    include("{$conf_path}{$config}.config.php");
-elseif(is_file("{$conf_path}{$config}"))            include("{$conf_path}{$config}");
-elseif(is_file($modx->config['base_path'].$config)) include($modx->config['base_path'] . $config);
+if(strpos($config, '@CHUNK') === 0) {
+    eval('?>' . $modx->getChunk(trim(substr($config, 7))));
+} elseif(strpos($config, '@FILE') === 0) {
+    include $modx->config['base_path'] . trim(substr($config, 6));
+} elseif($config !== 'default' && is_file($conf_path . $config . '.config.php')) {
+    include $conf_path . $config . '.config.php';
+} elseif(is_file($conf_path . $config)) {
+    include $conf_path . $config;
+} elseif(is_file($modx->config['base_path'].$config)) {
+    include($modx->config['base_path'] . $config);
+}
 
-include_once("{$wf_base_path}wayfinder.inc.php");
+include_once $wf_base_path . 'wayfinder.inc.php';
 
-if (class_exists('Wayfinder')) $wf = new Wayfinder();
-else                           return 'error: Wayfinder class not found';
+if (class_exists('Wayfinder')) {
+    $wf = new Wayfinder();
+} else {
+    return 'error: Wayfinder class not found';
+}
 
 $wf->_config = array(
 	'id' => isset($startId) ? $startId : $modx->documentIdentifier,
