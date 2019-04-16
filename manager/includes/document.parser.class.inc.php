@@ -1877,12 +1877,14 @@ class DocumentParser {
             $cmd = str_replace("'","\'",$cmd);
             $content .= "<?php elseif(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
             $content .= $text;
-        }            
+        }
         
         $content = str_replace(array('<@ELSE>','<@ENDIF>'), array('<?php else:?>','<?php endif;?>'), $content);
-        if(strpos($content,'<?xml')!==false) $content = str_replace('<?xml', '<?php echo "<?xml";?>', $content);
+        if(strpos($content,'<?xml')!==false) {
+            $content = str_replace('<?xml', '<?php echo "<?xml";?>', $content);
+        }
         ob_start();
-        $content = eval('?>'.$content);
+        eval('?>'.$content);
         $content = ob_get_clean();
         $content = str_replace(array("{$sp}b","{$sp}e"),array('<?php','?>'),$content);
         if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
@@ -1890,13 +1892,27 @@ class DocumentParser {
     }
     
     private function _prepareCTag($content, $iftag='<@IF:', $elseiftag='<@ELSEIF:', $elsetag='<@ELSE>', $endiftag='<@ENDIF>') {
-        if(strpos($content,'<!--@IF ')!==false)      $content = str_replace('<!--@IF ',$iftag,$content); // for jp
-        if(strpos($content,'<!--@IF:')!==false)      $content = str_replace('<!--@IF:',$iftag,$content);
-        if(strpos($content,$iftag)===false)          return $content;
-        if(strpos($content,'<!--@ELSEIF:')!==false)  $content = str_replace('<!--@ELSEIF:', $elseiftag,  $content); // for jp
-        if(strpos($content,'<!--@ELSE-->')!==false)  $content = str_replace('<!--@ELSE-->', $elsetag,   $content);  // for jp
-        if(strpos($content,'<!--@ENDIF-->')!==false) $content = str_replace('<!--@ENDIF-->',$endiftag,$content);    // for jp
-        if(strpos($content,'<@ENDIF-->')!==false)    $content = str_replace('<@ENDIF-->',$endiftag,$content);
+        if(strpos($content,'<!--@IF ')!==false) {
+            $content = str_replace('<!--@IF ', $iftag, $content);
+        } // for jp
+        if(strpos($content,'<!--@IF:')!==false) {
+            $content = str_replace('<!--@IF:', $iftag, $content);
+        }
+        if(strpos($content,$iftag)===false) {
+            return $content;
+        }
+        if(strpos($content,'<!--@ELSEIF:')!==false) {
+            $content = str_replace('<!--@ELSEIF:', $elseiftag, $content);
+        } // for jp
+        if(strpos($content,'<!--@ELSE-->')!==false) {
+            $content = str_replace('<!--@ELSE-->', $elsetag, $content);
+        }  // for jp
+        if(strpos($content,'<!--@ENDIF-->')!==false) {
+            $content = str_replace('<!--@ENDIF-->', $endiftag, $content);
+        }    // for jp
+        if(strpos($content,'<@ENDIF-->')!==false) {
+            $content = str_replace('<@ENDIF-->', $endiftag, $content);
+        }
         $tags = array($iftag, $elseiftag, $elsetag, $endiftag);
         $content = str_ireplace($tags,$tags,$content); // Change to capital letters
         return $content;
@@ -2013,13 +2029,26 @@ class DocumentParser {
         }
 
         $error_info = error_get_last();
-        if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
-        else                                                         $error_type = 3;
+        if($error_info['type']===2048 || $error_info['type']===8192) {
+            $error_type = 2;
+        }
+        else {
+            $error_type = 3;
+        }
         if(1<$this->config['error_reporting'] || 2<$error_type)
         {
-            extract($error_info);
             if($echo===false) $echo = 'ob_get_contents() error';
-            $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Plugin', $text, $line, $echo);
+            $this->messageQuit(
+                'PHP Parse Error'
+                , ''
+                , true
+                , $error_info['type']
+                , $error_info['file']
+                , 'Plugin'
+                , $error_info['text']
+                , $error_info['line']
+                , $echo
+            );
             if ($this->isBackend())
             {
                 $this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$echo}</p>");
@@ -2057,12 +2086,25 @@ class DocumentParser {
         
         if ((0 < $this->config['error_reporting']) && $echo && isset($php_errormsg)) {
             $error_info = error_get_last();
-            if($error_info['type']===2048 || $error_info['type']===8192) $error_type = 2;
-            else                                                         $error_type = 3;
+            if($error_info['type']===2048 || $error_info['type']===8192) {
+                $error_type = 2;
+            }
+            else {
+                $error_type = 3;
+            }
             if(1<$this->config['error_reporting'] || 2<$error_type)
             {
-                extract($error_info);
-                $result = $this->messageQuit('PHP Parse Error', '', true, $type, $file, 'Snippet', $text, $line, $echo);
+                $this->messageQuit(
+                    'PHP Parse Error'
+                    , ''
+                    , true
+                    , $error_info['type']
+                    , $error_info['file']
+                    , 'Snippet'
+                    , $error_info['text']
+                    , $error_info['line']
+                    , $echo
+                );
                 if ($this->isBackend())
                 {
                     $this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$echo}</p>");
@@ -3149,7 +3191,7 @@ class DocumentParser {
                 , false
             );
         }
-        
+
         $db = array();
                 while($row = $this->db->getRow($rs)) {
                     $name = $row['name'];
@@ -3164,7 +3206,7 @@ class DocumentParser {
         } else {
             $value = '';
         }
-        
+
         if(!isset($db[$chunk_name]['published']) || $db[$chunk_name]['published']!=0) {
             $this->chunkCache[$chunk_name] = $value;
         }
