@@ -11,7 +11,7 @@ class ditto {
     var $template,$resource,$format,$debug,$advSort,$sqlOrderBy,$customReset,$fields,$constantFields,$prefetch,$sortOrder,$customPlaceholdersMap;
     var $tmpCache = array();
 
-    function __construct($dittoID,$format,$language,$debug) {
+    function __construct($format,$language,$debug) {
         $this->format = $format;
         $GLOBALS['ditto_lang'] = $language;
         $this->prefetch = false;
@@ -573,7 +573,6 @@ class ditto {
         , $limit
         , $summarize
         , $filter
-        , $paginate
         , $randomize
     ) {
         global $modx;

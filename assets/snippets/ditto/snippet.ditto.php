@@ -935,7 +935,6 @@ $documentIDs = $ditto->determineIDs(
     , $queryLimit
     , $display
     , $filter
-    , $paginate
     , $randomize
 );
 
