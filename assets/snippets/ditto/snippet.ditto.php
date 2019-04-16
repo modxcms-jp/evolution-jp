@@ -11,10 +11,10 @@ if(!defined('MODX_BASE_PATH')) {die('What are you doing? Get out of here!');}
 
 //---Core Settings---------------------------------------------------- //
 
-$ditto_version = "2.1.4";
+$ditto_version = '2.1.4';
     // Ditto version being executed
 
-$ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_base,'/') : $modx->config['base_path']."assets/snippets/ditto/";
+$ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_base,'/') : $modx->config['base_path']. 'assets/snippets/ditto/';
 /*
     Param: ditto_base
     
@@ -27,8 +27,8 @@ $ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_bas
     Default:
     [(base_path)]assets/snippets/ditto/
 */
-$dittoID = (!isset($id)) ? "" : $id."_";
-$GLOBALS["dittoID"] = $dittoID;
+$dittoID = (!isset($id)) ? '' : $id. '_';
+$GLOBALS['dittoID'] = $dittoID;
 /*
     Param: id
 
@@ -45,8 +45,8 @@ $GLOBALS["dittoID"] = $dittoID;
     "" - blank
 */
 $language = (isset($language))? $language : $modx->config['manager_language'];
-if (!is_file("{$ditto_base}lang/{$language}.inc.php")) {
-    $language ="english";
+if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
+    $language = 'english';
 }
 /*
     Param: language
@@ -60,7 +60,7 @@ if (!is_file("{$ditto_base}lang/{$language}.inc.php")) {
     Default:
     "english"
 */
-$format = (isset($format)) ? strtolower($format) : "html" ;
+$format = (isset($format)) ? strtolower($format) : 'html';
 /*
     Param: format
 
@@ -77,9 +77,9 @@ $format = (isset($format)) ? strtolower($format) : "html" ;
     Default:
     "html"
 */
-$config = (isset($config)) ? $config : "default";
-if(is_file("{$ditto_base}configs/default.config.php"))
-    include("{$ditto_base}configs/default.config.php");
+$config = isset($config) ? $config : 'default';
+if(is_file($ditto_base . 'configs/default.config.php'))
+    include $ditto_base . 'configs/default.config.php';
 
 if(substr($config, 0, 6) === '@CHUNK')
 {
@@ -91,7 +91,7 @@ elseif(substr($config, 0, 5) === '@FILE')
 }
 elseif($config !== 'default')
 {
-    @include("{$ditto_base}configs/{$config}.config.php");
+    @include $ditto_base . 'configs/' . $config . '.config.php';
 }
 
 /*
@@ -146,7 +146,7 @@ else            $modifier_mode = 'normal';
     Default:
     normal
 */
-$extenders = isset($extenders) ? explode(",",$extenders) : array();
+$extenders = isset($extenders) ? explode(',', $extenders) : array();
 /*
     Param: extenders
 
@@ -182,23 +182,23 @@ $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
 //---Includes-------------------------------------------------------- //
 
 $files = array (
-    "language"       => "{$ditto_base}lang/{$language}.inc.php",
-    "main_class"     => "{$ditto_base}classes/ditto.class.inc.php",
-    "template_class" => "{$ditto_base}classes/template.class.inc.php",
-    "filter_class"   => "{$ditto_base}classes/filter.class.inc.php",
-    "format"         => "{$ditto_base}formats/{$format}.format.inc.php"
+    'language'       => sprintf('%slang/%s.inc.php', $ditto_base, $language),
+    'main_class'     => sprintf('%sclasses/ditto.class.inc.php', $ditto_base),
+    'template_class' => sprintf('%sclasses/template.class.inc.php', $ditto_base),
+    'filter_class'   => sprintf('%sclasses/filter.class.inc.php', $ditto_base),
+    'format'         => sprintf('%sformats/%s.format.inc.php', $ditto_base, $format)
 );
 
 if ($modifier_mode==='phx') {
-    $files["prePHx_class"]     = "{$ditto_base}classes/phx.pre.class.inc.php";
+    $files['prePHx_class']     = $ditto_base . 'classes/phx.pre.class.inc.php';
 }
 if (isset($randomize)) {
-    $files["randomize_class"]  = "{$ditto_base}classes/random.class.inc.php";
+    $files['randomize_class']  = $ditto_base . 'classes/random.class.inc.php';
 }
 if ($debug == 1) {
-    $files["modx_debug_class"] = "{$ditto_base}debug/modxDebugConsole.class.php";
-    $files["debug_class"]      = "{$ditto_base}classes/debug.class.inc.php";
-    $files["debug_templates"]  = "{$ditto_base}debug/debug.templates.php";
+    $files['modx_debug_class'] = $ditto_base . 'debug/modxDebugConsole.class.php';
+    $files['debug_class']      = $ditto_base . 'classes/debug.class.inc.php';
+    $files['debug_templates']  = $ditto_base . 'debug/debug.templates.php';
 }
 
 $files = array_unique($files);
@@ -212,35 +212,59 @@ foreach ($files as $filename => $filevalue)
     {
         @include($filevalue);
     }
-    elseif($filename == "language")
+    elseif($filename === 'language')
     {
-        $modx->logEvent(1, 3, "Language file does not exist Please check: {$filevalue}", "Ditto {$ditto_version}");
-        return "Language file does not exist Please check: " . $filevalue;
+        $modx->logEvent(
+            1
+            , 3
+            , sprintf(
+                'Language file does not exist Please check: %s'
+                , $filevalue
+            ),
+            'Ditto ' . $ditto_version
+        );
+        return sprintf('Language file does not exist Please check: %s', $filevalue);
     }
     else
     {
-        $modx->logEvent(1, 3, "{$filevalue} " . $_lang['file_does_not_exist'], "Ditto {$ditto_version}");
-        return "{$filevalue} " . $_lang['file_does_not_exist'];
+        $modx->logEvent(
+            1
+            , 3
+            , sprintf(
+                '%s %s'
+                , $filevalue
+                , $_lang['file_does_not_exist']
+            )
+            , 'Ditto ' . $ditto_version
+        );
+        return sprintf(
+            '%s %s'
+            , $filevalue
+            , $_lang['file_does_not_exist']
+        );
     }
 }
 
 //---Initiate Class-------------------------------------------------- //
-$dbg_templates = (isset($dbg_templates)) ? $dbg_templates : NULL;
-if(class_exists('ditto'))
-{
+$dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
+if(class_exists('ditto')) {
     $ditto = new ditto($dittoID,$format,$_lang,$dbg_templates);
-        // create a new Ditto instance in the specified format and language with the requested debug level
 }
 else
 {
-    $modx->logEvent(1,3,$_lang['invalid_class'],"Ditto ".$ditto_version);
+    $modx->logEvent(
+        1
+        , 3
+        , $_lang['invalid_class']
+        , 'Ditto ' .$ditto_version
+    );
     return $_lang['invalid_class'];
 }
 
 //---Initiate Extenders---------------------------------------------- //
 if (isset($tagData))
 {
-    $extenders[] = "tagging";
+    $extenders[] = 'tagging';
 }
 if(count($extenders) > 0)
 {
@@ -250,7 +274,7 @@ if(count($extenders) > 0)
         $extender = trim($extender);
         $extender = str_replace('\\','/',$extender);
         $rs = false;
-        if(substr($extender, 0, 6) === '@CHUNK')
+        if(strpos($extender, '@CHUNK') === 0)
         {
             $chunk = $modx->getChunk(trim(substr($extender, 7)));
             if(!empty($chunk)) {
@@ -258,7 +282,7 @@ if(count($extenders) > 0)
                 $rs = true;
             }
         }
-        elseif(substr($extender, 0, 5) === '@FILE')
+        elseif(strpos($extender, '@FILE') === 0)
         {
             $extender_path = trim(substr($extender,6));
             $extender_path = trim($extender_path,'/');
@@ -280,7 +304,11 @@ if(count($extenders) > 0)
             }
         }
         
-        $extender_path = "{$ditto_base}extenders/{$extender}.extender.inc.php";
+        $extender_path = sprintf(
+            '%sextenders/%s.extender.inc.php'
+            , $ditto_base
+            , $extender
+        );
         if($rs===false && is_file($extender_path))
         {
             include($extender_path);
@@ -908,10 +936,10 @@ $count = $count-$offset;
 if ($count > 0) {
     // if documents are returned continue with execution
     
-    $total = ($total == "all") ? $count : min($total,$count);
+    $total = ($total === 'all') ? $count : min($total,$count);
         // set total equal to count if all documents are to be included
     
-    $display = ($display == "all") ? min($count,$total) : min($display,$total);
+    $display = ($display === 'all') ? min($count,$total) : min($display,$total);
         // allow show to use all option
 
     $stop = ($save != "1") ? min($total-$start,$display) : min($count,$total);
@@ -1075,9 +1103,9 @@ if ($count > 0) {
             // generate the pagination placeholders
     }
 
-    $dbFields = $ditto->fields["display"]["db"];
+    $dbFields = $ditto->fields['display']['db'];
         // get the database fields
-    $TVs = $ditto->fields["display"]["tv"];
+    $TVs = $ditto->fields['display']['tv'];
         // get the TVs
     
     switch($orderBy['parsed'][0][1]) {
