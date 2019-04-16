@@ -135,7 +135,7 @@ class DocumentParser {
         if($this->isLoggedIn()) ini_set('display_errors', 1);
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         mb_internal_encoding('utf-8');
-        $this->loadExtension('DBAPI') or die('Could not load DBAPI class.'); // load DBAPI class
+        $this->loadExtension('DBAPI'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
         if($this->isBackend()) $this->loadExtension('ManagerAPI');
         
@@ -191,16 +191,19 @@ class DocumentParser {
             case 'subparser'   :
             case 'revision'    :
             case 'phpass'      :
-                return require_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
+                require_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
+                return;
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
                 Document::$modx=$this;
                 return;
             case 'modifiers' : //Modfires
             case 'phx' :
-                return include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
+                include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
+                return;
             case 'deprecatedapi':
-                return include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
+                include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
+                return;
             case 'modxmailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
