@@ -3231,7 +3231,7 @@ class DocumentParser {
         
         if($mode==='chunk') $tpl = $this->getChunk($chunkName);
         else                $tpl = $chunkName;
-        return $this->parseText($tpl, $ph);
+        return $this->parseText($tpl, $ph, $left, $right);
     }
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
