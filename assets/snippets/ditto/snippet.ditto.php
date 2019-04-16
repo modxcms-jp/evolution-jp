@@ -14,7 +14,11 @@ if(!defined('MODX_BASE_PATH')) {die('What are you doing? Get out of here!');}
 $ditto_version = '2.1.4';
     // Ditto version being executed
 
-$ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_base,'/') : $modx->config['base_path']. 'assets/snippets/ditto/';
+if (isset($ditto_base)) {
+    $ditto_base = MODX_BASE_PATH . ltrim($ditto_base, '/');
+} else {
+    $ditto_base = str_replace('\\','/',__DIR__) . '/';
+}
 /*
     Param: ditto_base
     
@@ -27,7 +31,11 @@ $ditto_base = isset($ditto_base) ? $modx->config['base_path'] . ltrim($ditto_bas
     Default:
     [(base_path)]assets/snippets/ditto/
 */
-$dittoID = (!isset($id)) ? '' : $id. '_';
+if (isset($id)) {
+    $dittoID = $id . '_';
+} else {
+    $dittoID = '';
+}
 $GLOBALS['dittoID'] = $dittoID;
 /*
     Param: id
@@ -87,7 +95,7 @@ if(substr($config, 0, 6) === '@CHUNK')
 }
 elseif(substr($config, 0, 5) === '@FILE')
 {
-    @include($modx->config['base_path'] . ltrim(trim(substr($config, 6)),'/'));
+    @include(MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/'));
 }
 elseif($config !== 'default')
 {
@@ -128,10 +136,14 @@ $debug = isset($debug)? $debug : 0;
     - <debug>
 */
 if(!isset($modifier_mode)&&isset($phx)) {
-    if($phx==1) $modifier_mode = 'phx';
-    else        $modifier_mode = 'none';
+    if($phx==1) {
+        $modifier_mode = 'phx';
+    } else {
+        $modifier_mode = 'none';
+    }
+} else {
+    $modifier_mode = 'normal';
 }
-else            $modifier_mode = 'normal';
 /*
     Param: modifier_mode
 
@@ -248,7 +260,7 @@ foreach ($files as $filename => $filevalue)
 //---Initiate Class-------------------------------------------------- //
 $dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
 if(class_exists('ditto')) {
-    $ditto = new ditto($dittoID,$format,$_lang,$dbg_templates);
+    $ditto = new ditto($format,$_lang,$dbg_templates);
 }
 else
 {
@@ -286,7 +298,7 @@ if(count($extenders) > 0)
         {
             $extender_path = trim(substr($extender,6));
             $extender_path = trim($extender_path,'/');
-            $extender_path = $modx->config['base_path'] . $extender_path;
+            $extender_path = MODX_BASE_PATH . $extender_path;
             if(  strpos($extender_path,'../')===false
                 && strpos($extender_path,'manager/')!==0
                 && is_file($extender_path)) {
@@ -653,7 +665,7 @@ $hiddenFields = isset($hiddenFields) ? explode(",",$hiddenFields) : false;
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-$start = (isset($_GET[$dittoID.'start'])) ? intval($_GET[$dittoID.'start']) : 0;
+$start = (isset($_GET[$dittoID.'start'])) ? (int)$_GET[$dittoID . 'start'] : 0;
 /*
     Param: start
 
@@ -964,7 +976,9 @@ if ($count > 0) {
             - <paginate>
             - <paginateSplitterCharacter>
         */
-        $paginateSplitterCharacter = isset($paginateSplitterCharacter)? $paginateSplitterCharacter : $_lang['button_splitter'];
+        if (!isset($paginateSplitterCharacter)) {
+            $paginateSplitterCharacter = $_lang['button_splitter'];
+        }
         /*
             Param: paginateSplitterCharacter
 
@@ -981,7 +995,11 @@ if ($count > 0) {
             - <paginate>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePrevious = isset($tplPaginatePrevious)? $ditto->template->fetch($tplPaginatePrevious) : '<a href="[+url+]" class="ditto_previous_link">[+lang:previous+]</a>';
+        if (isset($tplPaginatePrevious)) {
+            $tplPaginatePrevious = $ditto->template->fetch($tplPaginatePrevious);
+        } else {
+            $tplPaginatePrevious = '<a href="[+url+]" class="ditto_previous_link">[+lang:previous+]</a>';
+        }
         /*
             Param: tplPaginatePrevious
 

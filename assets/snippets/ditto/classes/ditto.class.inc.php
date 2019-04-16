@@ -1149,11 +1149,11 @@ class ditto {
         $queryString = '';
         foreach ($query as $param=>$value) {
             if(!is_array($value)){
-                if($param === "{$dittoID}start" && $value==0) continue;
-                $queryString .= "&{$param}={$value}";
+                if($param === $dittoID . 'start' && $value==0) continue;
+                $queryString .= '&' . $param . '=' . $value;
             } else {
                 foreach ($value as $key=>$val) {
-                    $queryString .= "&{$param}[]{$val}";
+                    $queryString .= '&' . $param . '[]' . $val;
                 }
             }
         }
@@ -1198,15 +1198,15 @@ class ditto {
             $tplPaginateNext = str_replace('lang:next','lang%next',$tplPaginateNext);
         if(strpos($tplPaginatePrevious,'lang:previous')!==false)
             $tplPaginatePrevious = str_replace('lang:previous','lang%previous',$tplPaginatePrevious);
-        $rNext =  $modx->parseText(array('url'=> self::buildURL("start={$next}"),'lang%next'=>$ditto_lang['next']),$tplPaginateNext);
+        $rNext =  $modx->parseText(array('url'=> self::buildURL('start=' . $next),'lang%next'=>$ditto_lang['next']),$tplPaginateNext);
         $previous = $start - $summarize;
-        if($previous!=0) $prevUrl = self::buildURL("start={$previous}");
+        if($previous!=0) $prevUrl = self::buildURL('start=' . $previous);
         else {
             $args = $_GET;
-            if(isset($args["{$dittoID}start"])) unset($args["{$dittoID}start"]);
+            if(isset($args[$dittoID . 'start'])) unset($args[$dittoID . 'start']);
             if(is_array($args)) {
                 foreach($args as $k=>$v) {
-                    $args[$k] = "{$k}={$v}";
+                    $args[$k] = sprintf('%s=%s', $k, $v);
                 }
                 $args = join('&',$args);
             }
@@ -1226,18 +1226,22 @@ class ditto {
             $nextplaceholder = '';
         }
         $split = '';
-        if ($previous > -1 && $next < $total)
+        if ($previous > -1 && $next < $total) {
             $split = $paginateSplitterCharacter;
-        if ($previous > -1)
+        }
+        if ($previous > -1) {
             $previousplaceholder = $rPrevious;
-        if ($next < $total)
+        }
+        if ($next < $total) {
             $nextplaceholder = $rNext;
-        if ($start < $total)
+        }
+        if ($start < $total) {
             $stop = $limten;
-        if ($limten > $total) {
-            $limiter = $total;
-        } else {
+        }
+        if ($limten <= $total) {
             $limiter = $limten;
+        } else {
+            $limiter = $total;
         }
         $totalpages = ceil($total / $summarize);
 
