@@ -178,8 +178,6 @@ class DocumentParser {
      */
     function loadExtension($extname)
     {
-        global $database_type;
-        
         $extname = strtolower($extname);
         
         switch ($extname)

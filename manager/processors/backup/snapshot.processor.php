@@ -59,7 +59,7 @@ while(10 < $total && $limit < 50)
 	$limit++;
 }
 
-if(!empty($output))
+if($output)
 {
 	$_SESSION['result_msg'] = 'snapshot_ok';
 	header('Location: index.php?a=93');
