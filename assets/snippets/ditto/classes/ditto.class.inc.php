@@ -8,8 +8,8 @@
 */
 
 class ditto {
-    var $template,$resource,$format,$debug,$advSort,$sqlOrderBy,$customReset,$fields,$constantFields,$prefetch,$sortOrder,$customPlaceholdersMap;
-    var $tmpCache = array();
+    public $template,$resource,$format,$debug,$advSort,$sqlOrderBy,$customReset,$fields,$constantFields,$prefetch,$sortOrder,$customPlaceholdersMap;
+    public $tmpCache = array();
 
     function __construct($format,$language,$debug) {
         $this->format = $format;
