@@ -4442,4 +4442,14 @@ class SystemEvent {
         $this->_propagate= true;
         $this->activated= false;
     }
+
+    public function getParam($key, $default=null) {
+        if(!isset($this->params[$key])) {
+            return $default;
+        }
+        if(strtolower($this->params[$key]) === 'false') {
+            $this->params[$key] = false;
+        }
+        return $this->params[$key];
+    }
 }
