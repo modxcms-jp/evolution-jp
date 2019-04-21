@@ -4364,15 +4364,15 @@ class DocumentParser {
 
 // SystemEvent Class
 class SystemEvent {
-    var $name;
-    var $_propagate;
-    var $_output;
-    var $_globalVariables;
-    var $activated;
-    var $activePlugin;
-    var $params = array();
-    var $vars = array();
-    var $cm = null;
+    public $name;
+    public $_propagate;
+    public $_output;
+    public $_globalVariables;
+    public $activated;
+    public $activePlugin;
+    public $params = array();
+    public $vars = array();
+    public $cm = null;
 
     function __construct($name= '') {
         $this->_resetEventObject();
