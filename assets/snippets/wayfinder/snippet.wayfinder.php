@@ -52,8 +52,18 @@ if (class_exists('Wayfinder')) {
     return 'error: Wayfinder class not found';
 }
 
+if (!isset($startId)) {
+    $startId = $modx->documentIdentifier;
+} elseif(stripos($startId, 'p') === 0) {
+    $startId = $wf->getParentID($modx->documentIdentifier);
+} elseif(stripos($startId, 'i') === 0) {
+    $startId = $wf->getIndexID($modx->documentIdentifier);
+} elseif(!preg_match('@^[0-9]+$@', $startId)) {
+    exit(sprintf('# %s # Wayfinder &startId error', $startId));
+}
+
 $wf->_config = array(
-	'id' => isset($startId) ? $startId : $modx->documentIdentifier,
+	'id' => $startId,
 	'level' => isset($level) ? $level : 0,
 	'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
 	'excludeDocs' => isset($excludeDocs) ? $excludeDocs : 0,

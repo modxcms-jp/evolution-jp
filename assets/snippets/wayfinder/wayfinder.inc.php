@@ -426,16 +426,6 @@ class Wayfinder {
 
         $ids = array();
 
-        if(stripos($this->_config['id'], 'p') === 0) {
-            $this->_config['id'] = $this->getParentID($modx->documentIdentifier);
-        }
-        elseif(stripos($this->_config['id'], 'i') === 0) {
-            $this->_config['id'] = $this->getIndexID($modx->documentIdentifier);
-        }
-        elseif(!preg_match('@^[0-9]+$@',$this->_config['id'])) {
-            exit(sprintf('# %s # Wayfinder &startId error', $this->_config['id']));
-        }
-        
         if (!$this->_config['hideSubMenus']) {
             $ids = $modx->getChildIds(
                 $this->_config['id']
