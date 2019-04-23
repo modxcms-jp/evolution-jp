@@ -21,7 +21,7 @@
  */
 if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
 
-$wf_base_path = $modx->config['base_path'] . 'assets/snippets/wayfinder/';
+$wf_base_path = str_replace('\\','/',__DIR__) . '/';
 $conf_path = "{$wf_base_path}configs/";
 
 //Include a custom config file if specified
