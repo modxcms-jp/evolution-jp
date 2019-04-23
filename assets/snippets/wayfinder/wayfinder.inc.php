@@ -53,25 +53,28 @@ class Wayfinder {
 
     function buildMenu() {
         $output = '';
-        foreach ($this->docs as $level => $subParents) {
-            foreach ($subParents as $parentId => $subDocs) {
+        foreach ($this->docs as $level => $parents) {
+            foreach ($parents as $parentId => $children) {
                 if ($this->_config['hideSubMenus'] && !$this->isHere($parentId) && 1<$level) {
                     continue;
                 }
 
-                $menuPart = $this->buildSubMenu($subDocs,$level);
-                //If we are at the top of the menu start the output, otherwise replace the wrapper with the submenu
-                if($level==1 && (!$this->_config['displayStart'] || $this->_config['id']==0)) {
-                    $output = $menuPart;
-                } elseif($level==0 && $this->_config['displayStart']) {
-                    $output = $menuPart;
-                } else {
+                $subMenu = $this->buildSubMenu($children, $level);
+                if ($level==1 && (!$this->_config['displayStart'] || $this->_config['id']==0)) {
+                    $output = $subMenu;
+                    continue;
+                }
+
+                if($level==0 && $this->_config['displayStart']) {
+                    $output = $subMenu;
+                    continue;
+                }
+
+                $wrapper_text = sprintf('[+wf.wrapper.%s+]', $parentId);
+                if(strpos($output,$wrapper_text)!==false) {
                     $output = str_replace(
-                        sprintf(
-                            '[+wf.wrapper.%s+]'
-                            , $parentId
-                        )
-                        , $menuPart
+                        $wrapper_text
+                        , $subMenu
                         , $output
                     );
                 }
