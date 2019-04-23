@@ -697,22 +697,16 @@ class Wayfinder {
 
     //debugging to check for valid chunks
     function checkTemplates() {
-        $nonWayfinderFields = array();
+        $default['outerTpl'] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
+        $default['rowTpl'] = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
+        $default['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
 
-        $outerTpl = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
-        $rowTpl = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
-        $startItemTpl = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
-        
-        foreach ($this->_templates as $n => $v) {
-            $templateCheck = $this->fetch($v);
-            if (empty($v) || !$templateCheck) {
-                switch($n) {
-                    case 'outerTpl'    : $_ = $outerTpl;    break;
-                    case 'rowTpl'      : $_ = $rowTpl;      break;
-                    case 'startItemTpl': $_ = $startItemTpl;break;
-                    default:$_ = false;
-                }
-                $this->_templates[$n] = $_;
+        $find_fields = array();
+
+        foreach ($this->_templates as $name => $string) {
+            $fetched_tpl = $string ? $this->fetch($string) : false;
+            if (!$string || !$fetched_tpl) {
+                $this->_templates[$name] = isset($default[$name]) ? $default[$name] : false;
                 if ($this->_config['debug']) {
                     $this->addDebugInfo(
                         'template'
@@ -725,11 +719,10 @@ class Wayfinder {
                 continue;
             }
 
-            $this->_templates[$n] = $templateCheck;
-            $check = $this->findTemplateVars($templateCheck);
-            if (is_array($check)) {
-                $check = $this->array_merge($check,$nonWayfinderFields);
-                $nonWayfinderFields = $check;
+            $this->_templates[$name] = $fetched_tpl;
+            $tv = $this->findTemplateVars($fetched_tpl);
+            foreach ($tv as $k) {
+                $find_fields[] = $k;
             }
 
             if ($this->_config['debug']) {
@@ -742,27 +735,26 @@ class Wayfinder {
                 );
             }
         }
-        
-        if ($nonWayfinderFields) {
-            $nonWayfinderFields = array_unique($nonWayfinderFields);
+
+        if ($find_fields) {
+            $find_fields = array_unique($find_fields);
             $allTvars = $this->getTVList();
-            
-            foreach ($nonWayfinderFields as $field) {
+
+            foreach ($find_fields as $field) {
                 if (in_array($field, $allTvars, true)) {
                     $this->tvList[] = $field;
                 }
             }
             if ($this->_config['debug']) {
-                $this->addDebugInfo('tvars','tvs','Template Variables','The following template variables were found in your templates.',$this->tvList);
+                $this->addDebugInfo(
+                    'tvars'
+                    , 'tvs'
+                    , 'Template Variables'
+                    , 'The following template variables were found in your templates.'
+                    , $this->tvList
+                );
             }
         }
-    }
-
-    private function array_merge($arr1, $arr2) {
-        foreach($arr2 as $k=>$v) {
-            $arr1[$k] = $v;
-        }
-        return $arr1;
     }
 
     private function array_merge_recursive($arr1, $arr2) {
