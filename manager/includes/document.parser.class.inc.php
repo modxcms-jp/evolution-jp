@@ -2058,7 +2058,7 @@ class DocumentParser {
     {
         $phpcode = trim($phpcode);
         if(empty($phpcode)) {
-            return;
+            return '';
         }
 
         $modx= & $this;
