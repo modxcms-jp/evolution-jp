@@ -2062,13 +2062,18 @@ class DocumentParser {
         }
 
         $modx= & $this;
-        if ($this->debug) $fstart = $this->getMicroTime();
+        if ($this->debug) {
+            $fstart = $this->getMicroTime();
+        }
         if(isset($params) && is_array($params)) {
             foreach($params as $k=>$v) {
                 if(is_string($v)){
                     $v = strtolower($v);
-                    if($v==='false')    $params[$k] = false;
-                    elseif($v==='true') $params[$k] = true;
+                    if ($v==='false') {
+                        $params[$k] = false;
+                    } elseif($v==='true') {
+                        $params[$k] = true;
+                    }
                 }
             }
         }
@@ -2077,11 +2082,13 @@ class DocumentParser {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        if(strpos($phpcode,';')!==false) $return = eval($phpcode);
-        else                             $return = call_user_func_array($phpcode,array($params));
-        $echo = ob_get_contents();
-        ob_end_clean();
-        
+        if(strpos($phpcode,';')!==false) {
+            $return = eval($phpcode);
+        } else {
+            $return = $phpcode($params);
+        }
+        $echo = ob_get_clean();
+
         if ((0 < $this->config['error_reporting']) && $echo && isset($php_errormsg)) {
             $error_info = error_get_last();
             if($error_info['type']===2048 || $error_info['type']===8192) {
@@ -2105,7 +2112,9 @@ class DocumentParser {
                 );
                 if ($this->isBackend())
                 {
-                    $this->event->alert("An error occurred while loading. Please see the event log for more information<p>{$echo}</p>");
+                    $this->event->alert(
+                        'An error occurred while loading. Please see the event log for more information<p>' . $echo . '</p>'
+                    );
                 }
             }
         }
@@ -2652,7 +2661,9 @@ class DocumentParser {
 
     function getParentIds($id='', $height= 10)
     {
-        if($id==='') $id = $this->documentIdentifier;
+        if($id==='') {
+            $id = $this->documentIdentifier;
+        }
         $parents= array ();
         
         while( $id && 0<$height)
@@ -4444,7 +4455,7 @@ class SystemEvent {
     }
 
     public function getParam($key, $default=null) {
-        if(!isset($this->params[$key])) {
+        if (!isset($this->params[$key])) {
             return $default;
         }
         if(strtolower($this->params[$key]) === 'false') {
