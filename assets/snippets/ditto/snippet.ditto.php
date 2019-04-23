@@ -52,7 +52,9 @@ $GLOBALS['dittoID'] = $dittoID;
     Default:
     "" - blank
 */
-$language = (isset($language))? $language : $modx->config['manager_language'];
+if (!isset($language)) {
+    $language = $modx->config['manager_language'];
+}
 if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
     $language = 'english';
 }
@@ -68,7 +70,7 @@ if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
     Default:
     "english"
 */
-$format = (isset($format)) ? strtolower($format) : 'html';
+$format = isset($format) ? strtolower($format) : 'html';
 /*
     Param: format
 
@@ -85,17 +87,20 @@ $format = (isset($format)) ? strtolower($format) : 'html';
     Default:
     "html"
 */
-$config = isset($config) ? $config : 'default';
+if (!isset($config)) {
+    $config = 'default';
+}
+
 if(is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
 
-if(substr($config, 0, 6) === '@CHUNK')
+if(strpos($config, '@CHUNK') === 0)
 {
     eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 }
-elseif(substr($config, 0, 5) === '@FILE')
+elseif(strpos($config, '@FILE') === 0)
 {
-    @include(MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/'));
+    @include MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/');
 }
 elseif($config !== 'default')
 {
@@ -158,7 +163,11 @@ if(!isset($modifier_mode)&&isset($phx)) {
     Default:
     normal
 */
-$extenders = isset($extenders) ? explode(',', $extenders) : array();
+if (isset($extenders)) {
+    $extenders = explode(',', $extenders);
+} else {
+    $extenders = array();
+}
 /*
     Param: extenders
 
@@ -181,8 +190,15 @@ $placeholders = array();
     // Variable: placeholders
     // Initialize custom placeholders array for configs or extenders to add to
 
-$orderBy = (isset($orderBy))? trim($orderBy) : null;
-if(substr(strtolower($orderBy),-2)!=='sc') $orderBy .= ' desc';
+if (isset($orderBy)) {
+    $orderBy = trim($orderBy);
+} else {
+    $orderBy = null;
+}
+
+if(substr(strtolower($orderBy),-2)!=='sc') {
+    $orderBy .= ' desc';
+}
 $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
     // Variable: orderBy
     // An array that holds all criteria to sort the result set by.
@@ -278,6 +294,7 @@ if (isset($tagData))
 {
     $extenders[] = 'tagging';
 }
+
 if(count($extenders) > 0)
 {
     $extenders = array_unique($extenders);
@@ -296,9 +313,11 @@ if(count($extenders) > 0)
         }
         elseif(strpos($extender, '@FILE') === 0)
         {
-            $extender_path = trim(substr($extender,6));
-            $extender_path = trim($extender_path,'/');
-            $extender_path = MODX_BASE_PATH . $extender_path;
+            $extender_path = MODX_BASE_PATH . trim(
+                trim(
+                    substr($extender, 6))
+                , '/'
+                );
             if(  strpos($extender_path,'../')===false
                 && strpos($extender_path,'manager/')!==0
                 && is_file($extender_path)) {
@@ -321,6 +340,7 @@ if(count($extenders) > 0)
             , $ditto_base
             , $extender
         );
+
         if($rs===false && is_file($extender_path))
         {
             include($extender_path);
@@ -336,21 +356,35 @@ if(count($extenders) > 0)
 }
 
 //---Parameters------------------------------------------------------- /*
-if (isset($startID)) {$parents = $startID;}
-if (isset($summarize)) {$display = $summarize;}
-if (isset($limit)) {$queryLimit = $limit;}
-if (isset($sortBy) || isset($sortDir) || is_null($orderBy['unparsed'])) {
+if (isset($startID)) {
+    $parents = $startID;
+}
+if (isset($summarize)) {
+    $display = $summarize;
+}
+if (isset($limit)) {
+    $queryLimit = $limit;
+}
+if (isset($sortBy) || isset($sortDir) || $orderBy['unparsed'] === null) {
     $sortDir = isset($sortDir) ? strtoupper($sortDir) : 'DESC';
     $sortBy = isset($sortBy) ? $sortBy : "createdon";
     $orderBy['parsed'][]=array($sortBy,$sortDir);
 }
     // Allow backwards compatibility
 
-$idType = isset($documents) ? "documents" : "parents";
+if (isset($documents)) {
+    $idType = 'documents';
+} else {
+    $idType = 'parents';
+}
     // Variable: idType
     // type of IDs provided; can be either parents or documents
 
-$parents = isset($parents) ? $ditto->cleanIDs($parents) : $modx->documentIdentifier;
+if (isset($parents)) {
+    $parents = $ditto->cleanIDs($parents);
+} else {
+    $parents = $modx->documentIdentifier;
+}
 
 /*
     Param: parents
@@ -368,7 +402,11 @@ $parents = isset($parents) ? $ditto->cleanIDs($parents) : $modx->documentIdentif
     - <documents>
     - <depth>
 */
-$documents = isset($documents) ? $ditto->cleanIDs($documents) : false;
+if (isset($documents)) {
+    $documents = $ditto->cleanIDs($documents);
+} else {
+    $documents = false;
+}
 /*
     Param: documents
 
@@ -385,11 +423,19 @@ $documents = isset($documents) ? $ditto->cleanIDs($documents) : false;
     - <parents>
 */
 
-$IDs = ($idType == "parents") ? $parents : $documents;
+if (($idType === 'parents')) {
+    $IDs = $parents;
+} else {
+    $IDs = $documents;
+}
     // Variable: IDs
     // Internal variable which holds the set of IDs for Ditto to fetch
 
-$depth = isset($depth) ? $depth : 1;
+if (isset($depth)) {
+    $depth = $depth;
+} else {
+    $depth = 1;
+}
 /*
     Param: depth
 
@@ -406,7 +452,9 @@ $depth = isset($depth) ? $depth : 1;
     Related:
     - <seeThruUnpub>
 */
-$paginate = isset($paginate)? $paginate : 0;
+if (!isset($paginate)) {
+    $paginate = 0;
+}
 /*
     Param: paginate
 
@@ -426,7 +474,9 @@ $paginate = isset($paginate)? $paginate : 0;
     - <paginateSplitterCharacter>
     - <display>
 */
-$dateSource = isset($dateSource) ? $dateSource : "createdon";
+if (!isset($dateSource)) {
+    $dateSource = 'createdon';
+}
 /*
     Param: dateSource
 
@@ -442,7 +492,9 @@ $dateSource = isset($dateSource) ? $dateSource : "createdon";
     Related:
     - <dateFormat>
 */
-$dateFormat = isset($dateFormat)? $dateFormat : $_lang["dateFormat"];
+if (!isset($dateFormat)) {
+    $dateFormat = $_lang['dateFormat'];
+}
 /*
     Param: dateFormat
 
@@ -458,7 +510,9 @@ $dateFormat = isset($dateFormat)? $dateFormat : $_lang["dateFormat"];
     Related:
     - <dateSource>
 */
-$display = isset($display) ? $display : "all";
+if (!isset($display)) {
+    $display = 'all';
+}
 /*
     Param: display
 
@@ -476,7 +530,9 @@ $display = isset($display) ? $display : "all";
     - <queryLimit>
     - <total>
 */
-$total = isset($total) ? $total : "all";
+if (!isset($total)) {
+    $total = 'all';
+}
 /*
     Param: total
 
@@ -494,7 +550,9 @@ $total = isset($total) ? $total : "all";
     - <display>
     - <queryLimit>
 */
-$showPublishedOnly = isset($showPublishedOnly) ? $showPublishedOnly : 1;
+if (!isset($showPublishedOnly)) {
+    $showPublishedOnly = 1;
+}
 /*
     Param: showPublishedOnly
 
@@ -514,7 +572,9 @@ $showPublishedOnly = isset($showPublishedOnly) ? $showPublishedOnly : 1;
     - <showPublishedOnly>
     - <where>
 */
-$showInMenuOnly = isset($showInMenuOnly) ? $showInMenuOnly : 0;
+if (!isset($showInMenuOnly)) {
+    $showInMenuOnly = 0;
+}
 /*
     Param: showInMenuOnly
 
@@ -533,7 +593,9 @@ $showInMenuOnly = isset($showInMenuOnly) ? $showInMenuOnly : 0;
     - <hideFolders>
     - <where>
 */
-$hideFolders = isset($hideFolders)? $hideFolders : 0;
+if (!isset($hideFolders)) {
+    $hideFolders = 0;
+}
 /*
     Param: hideFolders
 
@@ -552,7 +614,9 @@ $hideFolders = isset($hideFolders)? $hideFolders : 0;
     - <showInMenuOnly>
     - <where>
 */
-$hidePrivate = isset($hidePrivate)? $hidePrivate : 1;
+if (!isset($hidePrivate)) {
+    $hidePrivate = 1;
+}
 /*
     Param: hidePrivate
 
@@ -571,7 +635,9 @@ $hidePrivate = isset($hidePrivate)? $hidePrivate : 1;
     - <showInMenuOnly>
     - <where>
 */
-$seeThruUnpub = (isset($seeThruUnpub))? $seeThruUnpub : 1 ;
+if (!isset($seeThruUnpub)) {
+    $seeThruUnpub = 1;
+}
 /*
     Param: seeThruUnpub
 
@@ -591,7 +657,9 @@ $seeThruUnpub = (isset($seeThruUnpub))? $seeThruUnpub : 1 ;
     - <showInMenuOnly>
     - <where>
 */
-$queryLimit = (isset($queryLimit))? $queryLimit : 0;
+if (!isset($queryLimit)) {
+    $queryLimit = 0;
+}
 /*
     Param: queryLimit
 
@@ -608,7 +676,9 @@ $queryLimit = (isset($queryLimit))? $queryLimit : 0;
     Related:
     - <where>
 */
-$where = (isset($where))? $where : "";
+if (!isset($where)) {
+    $where = '';
+}
 /*
     Param: where
 
@@ -624,7 +694,11 @@ $where = (isset($where))? $where : "";
     Related:
     - <queryLimit>
 */
-$noResults = isset($noResults)? $ditto->getParam($noResults,"no_documents") : $_lang['no_documents'];
+if (isset($noResults)) {
+    $noResults = $ditto->getParam($noResults, 'no_documents');
+} else {
+    $noResults = $_lang['no_documents'];
+}
 /*
     Param: noResults
 
@@ -637,7 +711,11 @@ $noResults = isset($noResults)? $ditto->getParam($noResults,"no_documents") : $_
     Default:
     [LANG]
 */
-$removeChunk = isset($removeChunk) ? explode(",",$removeChunk) : false;
+if (isset($removeChunk)) {
+    $removeChunk = explode(',', $removeChunk);
+} else {
+    $removeChunk = false;
+}
 /*
     Param: removeChunk
 
@@ -651,7 +729,11 @@ $removeChunk = isset($removeChunk) ? explode(",",$removeChunk) : false;
     Default:
     [NULL]
 */
-$hiddenFields = isset($hiddenFields) ? explode(",",$hiddenFields) : false;
+if (isset($hiddenFields)) {
+    $hiddenFields = explode(',', $hiddenFields);
+} else {
+    $hiddenFields = false;
+}
 /*
     Param: hiddenFields
 
@@ -665,7 +747,11 @@ $hiddenFields = isset($hiddenFields) ? explode(",",$hiddenFields) : false;
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-$start = (isset($_GET[$dittoID.'start'])) ? (int)$_GET[$dittoID . 'start'] : 0;
+if (isset($_GET[$dittoID . 'start'])) {
+    $start = (int)$_GET[$dittoID . 'start'];
+} else {
+    $start = 0;
+}
 /*
     Param: start
 
@@ -678,7 +764,9 @@ $start = (isset($_GET[$dittoID.'start'])) ? (int)$_GET[$dittoID . 'start'] : 0;
     Default:
     0
 */
-$globalFilterDelimiter = isset($globalFilterDelimiter) ? $globalFilterDelimiter : "|";
+if (!isset($globalFilterDelimiter)) {
+    $globalFilterDelimiter = '|';
+}
 /*
     Param: globalFilterDelimiter
 
@@ -696,8 +784,10 @@ $globalFilterDelimiter = isset($globalFilterDelimiter) ? $globalFilterDelimiter 
     - <filter>
     - <parseFilters>
 */
-    
-$localFilterDelimiter = isset($localFilterDelimiter) ? $localFilterDelimiter : ",";
+
+if (!isset($localFilterDelimiter)) {
+    $localFilterDelimiter = ',';
+}
 /*
     Param: localFilterDelimiter
 
@@ -715,8 +805,8 @@ $localFilterDelimiter = isset($localFilterDelimiter) ? $localFilterDelimiter : "
     - <filter>
     - <parseFilters>
 */
-if(!$filters) {
-    $filters = array('custom'=>array(),'parsed'=>array());
+if(!isset($filters)) {
+    $filters = array('custom'=>array(), 'parsed'=>array());
 }
     // Variable: filters
     // Holds both the custom filters array for configs or extenders to add to
@@ -724,8 +814,13 @@ if(!$filters) {
     // (code)
     // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
     // $filters["custom"][] = array("source","callback_function");
-$filters['custom'] = isset($cFilters) ? array_merge($filters['custom'],$cFilters) : $filters['custom'];
-$filters['parsed'] = isset($parsedFilters) ? array_merge($filters['parsed'],$parsedFilters) : $filters['parsed'];
+if (isset($cFilters)) {
+    $filters['custom'] = array_merge($filters['custom'], $cFilters);
+}
+
+if (isset($parsedFilters)) {
+    $filters['parsed'] = array_merge($filters['parsed'], $parsedFilters);
+}
     // handle 2.0.0 compatibility
 if (isset($filter) || $filters['custom'] !== false || $filters['parsed'] !== false) {
     $filter = $ditto->parseFilters($filter, $filters['custom'], $filters['parsed'], $globalFilterDelimiter, $localFilterDelimiter);
@@ -766,7 +861,9 @@ if (isset($filter) || $filters['custom'] !== false || $filters['parsed'] !== fal
     - <globalFilterDelimiter>
     - <parseFilters>
 */
-$keywords = (isset($keywords))? $keywords : 0;
+if (!isset($keywords)) {
+    $keywords = 0;
+}
 /*
     Param: keywords
     
@@ -782,7 +879,9 @@ $keywords = (isset($keywords))? $keywords : 0;
     0 - off
 */
 
-$randomize = (isset($randomize))? $randomize : 0;
+if (!isset($randomize)) {
+    $randomize = 0;
+}
 /*
     Param: randomize
     
@@ -797,7 +896,9 @@ $randomize = (isset($randomize))? $randomize : 0;
     Default:
     0 - off
 */
-$save = (isset($save))? $save : 0;
+if (!isset($save)) {
+    $save = 0;
+}
 /*
     Param: save
 
@@ -814,17 +915,25 @@ $save = (isset($save))? $save : 0;
     Default:
         0 - off; returns output
 */
-if(!isset($tplAlt))             $tplAlt = '';
-if(!isset($tplFirst))           $tplFirst = '';
-if(!isset($tplLast))            $tplLast = '';
-if(!isset($tplCurrentDocument)) $tplCurrentDocument = '';
+if(!isset($tplAlt)) {
+    $tplAlt = '';
+}
+if(!isset($tplFirst)) {
+    $tplFirst = '';
+}
+if(!isset($tplLast)) {
+    $tplLast = '';
+}
+if(!isset($tplCurrentDocument)) {
+    $tplCurrentDocument = '';
+}
 $templates = array(
-    "default" => "@CODE ".$_lang['default_template'],
-    "base" => $tpl,
-    "alt" => $tplAlt,
-    "first" => $tplFirst,
-    "last" => $tplLast,
-    "current" => $tplCurrentDocument
+    'default' => '@CODE ' .$_lang['default_template'],
+    'base' => $tpl,
+    'alt' => $tplAlt,
+    'first' => $tplFirst,
+    'last' => $tplLast,
+    'current' => $tplCurrentDocument
 );
 /*
     Param: tpl
@@ -939,21 +1048,32 @@ $documentIDs = $ditto->determineIDs(
 );
 
     // retrieves a list of document IDs that meet the criteria and populates the $resources array with them
-$count = count($documentIDs);
     // count the number of documents to be retrieved
-$count = $count-$offset;
+$count = count($documentIDs)-$offset;
     // handle the offset
 
 if ($count > 0) {
     // if documents are returned continue with execution
-    
-    $total = ($total === 'all') ? $count : min($total,$count);
+
+    if ($total === 'all') {
+        $total = $count;
+    } else {
+        $total = min($total, $count);
+    }
         // set total equal to count if all documents are to be included
-    
-    $display = ($display === 'all') ? min($count,$total) : min($display,$total);
+
+    if ($display === 'all') {
+        $display = min($count, $total);
+    } else {
+        $display = min($display, $total);
+    }
         // allow show to use all option
 
-    $stop = ($save != "1") ? min($total-$start,$display) : min($count,$total);
+    if (($save != '1')) {
+        $stop = min($total - $start, $display);
+    } else {
+        $stop = min($count, $total);
+    }
         // set initial stop count
 
     if($paginate == 1) {
@@ -1116,7 +1236,20 @@ if ($count > 0) {
             - <paginateSplitterCharacter>
         */
         
-        $ditto->paginate($start, $stop, $total, $display, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter);
+        $ditto->paginate(
+            $start
+            , $stop
+            , $total
+            , $display
+            , $tplPaginateNext
+            , $tplPaginatePrevious
+            , $tplPaginateNextOff
+            , $tplPaginatePreviousOff
+            , $tplPaginatePage
+            , $tplPaginateCurrentPage
+            , $paginateAlwaysShowLinks
+            , $paginateSplitterCharacter
+        );
             // generate the pagination placeholders
     }
 
@@ -1126,11 +1259,11 @@ if ($count > 0) {
         // get the TVs
     
     switch($orderBy['parsed'][0][1]) {
-        case "DESC":
+        case 'DESC':
             $stop = ($ditto->prefetch === false) ? $stop + $start + $offset : $stop + $offset;
             $start += $offset;
         break;
-        case "ASC":
+        case 'ASC':
             $start += $offset;
             $stop += $start;
         break;
@@ -1138,17 +1271,19 @@ if ($count > 0) {
 
     if ($ditto->prefetch !== false) {
         $documentIDs = array_slice($documentIDs,$start,$stop);
-            // set the document IDs equal to the trimmed array
-        $dbFields = array_diff($dbFields,$ditto->prefetch["fields"]["db"]);
-            // calculate the difference between the database fields and those already prefetched
-        $dbFields[] = "id";
-            // append id to the db fields array
-        $TVs = array_diff($TVs,$ditto->prefetch["fields"]["tv"]);
+        // set the document IDs equal to the trimmed array
+        $dbFields = array_diff($dbFields,$ditto->prefetch['fields']['db']);
+        // calculate the difference between the database fields and those already prefetched
+        $dbFields[] = 'id';
+        // append id to the db fields array
+        $TVs = array_diff($TVs,$ditto->prefetch['fields']['tv']);
             // calculate the difference between the tv fields and those already prefetched
         $start = 0;
         $stop = min($display,($queryLimit != 0) ? $queryLimit : $display,count($documentIDs));
     } else {
-        $queryLimit = ($queryLimit == 0) ? "" : $queryLimit;
+        if (($queryLimit == 0)) {
+            $queryLimit = '';
+        }
     }
     
     $resource = $ditto->getDocuments($documentIDs, $dbFields, $TVs, $orderBy, $showPublishedOnly, 0, $hidePrivate, $where, $queryLimit, $keywords, $randomize, $dateSource);
@@ -1157,7 +1292,7 @@ if ($count > 0) {
         // initialize the output variable and send the header
 
     if ($resource) {
-        if ($randomize != "0" && $randomize != "1") {
+        if ($randomize != '0' && $randomize != '1') {
             $resource = $ditto->weightedRandom($resource,$randomize,$stop);
                 // randomize the documents
         }
@@ -1165,9 +1300,25 @@ if ($count > 0) {
         $resource = array_values($resource);
 
         for ($x=$start;$x<$stop;$x++) {
-            $template = $ditto->template->determine($templates,$x,0,$stop,$resource[$x]["id"]);
+            $template = $ditto->template->determine(
+                $templates
+                ,$x
+                ,0
+                ,$stop
+                ,$resource[$x]['id']
+            );
                 // choose the template to use and set the code of that template to the template variable
-            $renderedOutput = $ditto->render($resource[$x], $template, $removeChunk, $dateSource, $dateFormat, $placeholders,$modifier_mode,abs($start-$x),$stop);
+            $renderedOutput = $ditto->render(
+                $resource[$x]
+                , $template
+                , $removeChunk
+                , $dateSource
+                , $dateFormat
+                , $placeholders
+                ,$modifier_mode
+                ,abs($start-$x)
+                ,$stop
+            );
                 // render the output using the correct template, in the correct format and language
             $modx->setPlaceholder($dittoID."item[".abs($start-$x)."]",$renderedOutput);
             /*
