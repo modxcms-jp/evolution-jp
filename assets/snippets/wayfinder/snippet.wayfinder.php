@@ -22,7 +22,7 @@
 if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
 
 $wf_base_path = str_replace('\\','/',__DIR__) . '/';
-$conf_path = "{$wf_base_path}configs/";
+$conf_path = $wf_base_path . 'configs/';
 
 //Include a custom config file if specified
 if(is_file($conf_path . 'default.config.php')) {
@@ -35,13 +35,13 @@ $config = ltrim($config,'/');
 if(strpos($config, '@CHUNK') === 0) {
     eval('?>' . $modx->getChunk(trim(substr($config, 7))));
 } elseif(strpos($config, '@FILE') === 0) {
-    include $modx->config['base_path'] . trim(substr($config, 6));
+    include MODX_BASE_PATH . trim(substr($config, 6));
 } elseif($config !== 'default' && is_file($conf_path . $config . '.config.php')) {
     include $conf_path . $config . '.config.php';
 } elseif(is_file($conf_path . $config)) {
     include $conf_path . $config;
-} elseif(is_file($modx->config['base_path'].$config)) {
-    include($modx->config['base_path'] . $config);
+} elseif(is_file(MODX_BASE_PATH.$config)) {
+    include(MODX_BASE_PATH . $config);
 }
 
 include_once $wf_base_path . 'wayfinder.inc.php';
@@ -54,7 +54,7 @@ if (class_exists('Wayfinder')) {
 
 $wf->_config = array(
 	'id' => isset($startId) ? $startId : $modx->documentIdentifier,
-	'level' => isset($level) ? (int)$level : 0,
+	'level' => isset($level) ? $level : 0,
 	'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
 	'excludeDocs' => isset($excludeDocs) ? $excludeDocs : 0,
 	'where' => isset($where) ? $where : '',
