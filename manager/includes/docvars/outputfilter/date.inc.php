@@ -5,7 +5,7 @@
 	{
 		$timestamp = $this->getUnixtimeFromDateString($value);
 		$p = $params['dateformat'] ? $params['dateformat'] : $this->toDateFormat(null, 'formatOnly');
-		if(strpos($p,'%')!==false) $o = strftime($p,$timestamp);
+		if(strpos($p,'%')!==false) $o = $modx->mb_strftime($p,$timestamp);
 		else                       $o = date($p,$timestamp);
 	}
 	else $o = '';
