@@ -985,7 +985,12 @@ class ditto {
             }
             $docs[$x] = $row;
         }
-
+        foreach($this->fields['display']['tv'] as $tv) {
+            $TVs[] = $tv;
+        }
+        foreach($this->fields['backend']['tv'] as $tv) {
+            $TVs[] = $tv;
+        }
         $TVs = array_unique($TVs);
         if ($TVs) {
             foreach($TVs as $tv){
