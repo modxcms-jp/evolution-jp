@@ -22,7 +22,12 @@ class ditto {
         $this->constantFields['db'] = array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu');
         $this->constantFields['tv'] = $this->getTVList();
         $GLOBALS['ditto_constantFields'] = $this->constantFields;
-        $this->fields = array('display' =>array(), 'backend' =>array('tv' =>array(), 'db' =>array('id', 'published')));
+        $this->fields = array(
+            'display' =>array(),
+            'backend' =>array(
+                'tv' =>array(),
+                'db' =>array('id', 'published'))
+        );
         $this->sortOrder = false;
         $this->customPlaceholdersMap = array();
         $this->template = new template();
@@ -670,7 +675,6 @@ class ditto {
             if ($orderBy['custom']) {
                 $resource = $this->userSort($resource,$orderBy);
             }
-
             $fields = array_intersect($this->fields['backend'],$this->fields['display']);
             $readyFields = array();
             foreach ($fields as $field) {
@@ -794,7 +798,6 @@ class ditto {
             $docs[$k][$row['name']]       = $v;
             $docs[$k]['tv' .$row['name']] = $v;
         }
-
         if ($total == count($docIDs)) {
             return $docs;
         }
