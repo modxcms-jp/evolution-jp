@@ -91,7 +91,7 @@ class template{
             $match = explode(':', $tv);
             $TVs[strtolower($match[0])] = $match[0];
         }
-        if (count($TVs) >= 1) {
+        if ($TVs) {
             return array_values($TVs);
         }
 
