@@ -254,14 +254,14 @@ class Wayfinder {
         $ph['wf.classnames']   = $classNames;
         $ph['wf.link']         = $resource['link'];
         $ph['url']             = $resource['link'];
-        $ph['wf.title']        = !$this->_config['entityEncode'] ? $resource['title']       : $this->hsc($resource['title']);
-        $ph['wf.linktext']     = !$this->_config['entityEncode'] ? $resource['linktext']    : $this->hsc($resource['linktext']);
+        $ph['wf.title']        = !$this->_config['entityEncode'] ? $resource['title']       : $modx->hsc($resource['title']);
+        $ph['wf.linktext']     = !$this->_config['entityEncode'] ? $resource['linktext']    : $modx->hsc($resource['linktext']);
         $ph['wf.id']           = $useId;
         $ph['wf.alias']        = $resource['alias'];
         $ph['wf.attributes']   = $resource['link_attributes'];
         $ph['wf.docid']        = $resource['id'];
-        $ph['wf.introtext']    = !$this->_config['entityEncode'] ? $resource['introtext']   : $this->hsc($resource['introtext']);
-        $ph['wf.description']  = !$this->_config['entityEncode'] ? $resource['description'] : $this->hsc($resource['description']);
+        $ph['wf.introtext']    = !$this->_config['entityEncode'] ? $resource['introtext']   : $modx->hsc($resource['introtext']);
+        $ph['wf.description']  = !$this->_config['entityEncode'] ? $resource['description'] : $modx->hsc($resource['description']);
         $ph['wf.subitemcount'] = $numChildren;
         $ph['wf.refid']        = $refid;
         $ph['wf.menuindex']    = $resource['menuindex'];
@@ -919,11 +919,6 @@ class Wayfinder {
         $r = array('&#091;', '&#093;', '&#123;', '&#125;');
         $value = str_replace($s, $r, $value);
         return $value;
-    }
-
-    function hsc($string) {
-        global $modx;
-        return htmlspecialchars($string, ENT_COMPAT, $modx->config['modx_charset']);
     }
 
     function getIndexID($id)
