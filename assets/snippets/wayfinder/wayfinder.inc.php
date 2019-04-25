@@ -795,7 +795,7 @@ class Wayfinder {
             $tvnames[] = $tv;
         }
 
-        if (count($tvnames) >= 1) {
+        if ($tvnames) {
             return array_unique($tvnames);
         }
 
@@ -805,7 +805,7 @@ class Wayfinder {
     function addDebugInfo($group,$groupkey,$header,$message,$info) {
         $infoString = '<table class="wfdebug" style="margin-bottom:1em;">';
         $total = count($info);
-        if($total!=1 && $total%2!=0) {
+        if($total!=1 && $total%2 != 0) {
             $info['-'] = '';
         }
         $count = 0;
