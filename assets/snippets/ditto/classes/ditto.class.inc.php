@@ -1001,7 +1001,7 @@ class ditto {
 
         $docs = $this->array_merge_recursive($docs,$TVData);
         if ($this->prefetch && $this->sortOrder) {
-            uasort($docs, function($a,$b){
+            uasort($docs, static function($a, $b){
                 return strnatcmp($a['ditto_sort'],$b['ditto_sort']);
             });
         }
