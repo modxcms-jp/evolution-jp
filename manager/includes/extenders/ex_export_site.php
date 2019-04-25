@@ -18,7 +18,7 @@ class EXPORT_SITE
 	{
 		global $modx;
 		
-		if(!defined('MODX_BASE_PATH'))  return false;
+		if(!defined('MODX_BASE_PATH')) return;
 		$this->exportstart = $this->get_mtime();
 		$this->count = 0;
 		$this->setUrlMode();
