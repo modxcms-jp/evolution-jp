@@ -63,7 +63,7 @@ $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode: '';
 $params = array (
     //                       Snippet Path
-    'snipPath'               => $snipPath,//includes@$snip_dir
+    'snipPath'               => $snipPath,//includes $snip_dir
     'snipFolder'             => $snip_dir,
 
     //                       eForm   Params
