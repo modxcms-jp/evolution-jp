@@ -286,7 +286,7 @@ function checkDocPermission($id,$document_groups=array()) {
 	// ensure that user has not made this document inaccessible to themselves
 	if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 	{
-		$document_group_list = join(',', array_filter(explode(',',$document_groups), 'is_numeric'));
+		$document_group_list = join(',', array_filter($document_groups, 'is_numeric'));
 		if(!empty($document_group_list))
 		{
 			$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
