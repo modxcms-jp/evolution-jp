@@ -207,6 +207,7 @@ class ditto {
     // Check the advSortString
     // ---------------------------------------------------
     function checkAdvSort($sortBy,$sortDir='asc') {
+        $advSort = array ('pub_date','unpub_date',"editedon","deletedon","publishedon");
         $type = $this->getDocVarType($sortBy);
         switch($type) {
             case 'tv:prefix':
@@ -217,7 +218,6 @@ class ditto {
                 $this->advSort = true;
                 break;
             case 'db':
-                $advSort = array ('editedon', 'deletedon', 'publishedon');
                 if (in_array($sortBy, $advSort)) {
                     $this->advSort = true;
                     $this->customReset[] = $sortBy;
@@ -512,7 +512,6 @@ class ditto {
     static function getAuthor($createdby) {
         global $modx;
 
-        $user = false;
         if($createdby > 0) $user = $modx->getUserInfo($createdby);
         else               $user = $modx->getWebUserInfo(abs($createdby));
 
@@ -580,7 +579,6 @@ class ditto {
         , $filter
         , $randomize
     ) {
-        global $modx;
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || ($IDs === false)) {
             return array();
         }
@@ -656,7 +654,7 @@ class ditto {
                 if ($customReset) {
                     foreach ($customReset as $field) {
                         if ($iValue[$field] === '0') {
-                            $iValue[$field] = $iValue['createdon'];
+                            $resource[$i][$field] = $iValue['createdon'];
                         }
                     }
                 }
@@ -894,62 +892,46 @@ class ditto {
     // Get documents and append TVs + Prefetch Data, and sort
     // ---------------------------------------------------
 
-    function getDocuments($ids= array(), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $public= 1, $extraWhere= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
+    function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $public= 1, $where= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
         global $modx;
 
         if (!$ids) return false;
 
         sort($ids);
-        $where = array();
-        $docGroups = $modx->getUserDocGroups();
-        if($docGroups) {
+        $limit= ($limit != '') ? "LIMIT $limit" : ''; // LIMIT capabilities - rad14701
+        $tblsc= $modx->getFullTableName('site_content');
+        $tbldg= $modx->getFullTableName('document_groups');
+        // modify field names to use sc. table reference
+        $fields= 'sc.' .implode(',sc.',$fields);
 
-        }
-        $where[] = sprintf('sc.id IN (%s)', join($ids, ','));
-        if ($published) {
-            $where[] = 'AND sc.published=1';
-        }
-        $where[] = sprintf('AND sc.deleted=%s', $deleted);
-        if($extraWhere) {
-            $_ = explode('AND', $extraWhere);
+        if($where!=='') {
+            $_ = explode('AND', $where);
             foreach($_ as $i=>$v) {
                 $_[$i] = trim($v);
             }
-            $where[] = 'AND sc.' . join(' AND sc.', $_);
+            $where = 'AND sc.' . join(' AND sc.', $_);
         }
 
         if ($public) {
-            if ($modx->isFrontend()) {
-                if($modx->getUserDocGroups()) {
-                    $where[] = sprintf(
-                        'AND (sc.privateweb=0 OR dg.document_group IN (%s) )'
-                        , implode(',', $modx->getUserDocGroups()));
-                } else {
-                    $where[] = 'AND sc.privateweb=0';
+            // get document groups for current user
+            if ($docgrp= $modx->getUserDocGroups())
+            $docgrp= implode(",", $docgrp);
+            $access= ($modx->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
+            (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
                 }
-            } elseif($_SESSION['mgrRole']!=1) {
-                if($modx->getUserDocGroups()) {
-                    $where[] = sprintf(
-                        'AND (sc.privatemgr=0 OR dg.document_group IN (%s) )'
-                        , implode(',', $modx->getUserDocGroups()));
-                } else {
-                    $where[] = 'AND sc.privatemgr=0';
-                }
-            }
-        }
-        $where[] = 'GROUP BY sc.id';
 
-        $sort = $randomize ? 'RAND()' : $orderBy['sql'];
-        if(!$limit) {
-            $limit = '';
-        }
-        $rs= $modx->db->select(
-            'DISTINCT sc.' .implode(',sc.',$fields)
-            , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id'
-            , $where
-            , trim($sort)
-            , trim($limit)
-        );
+        $published = ($published) ? 'AND sc.published=1' : '';
+        
+        if ($randomize != 0) $sort = 'RAND()';
+        else                 $sort = $orderBy['sql'];
+        
+        $sql = "SELECT DISTINCT $fields FROM $tblsc sc
+        LEFT JOIN $tbldg dg on dg.document = sc.id
+        WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
+        ".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
+        ($sort ? " ORDER BY $sort" : "") . " $limit ";
+    
+        $rs= $modx->db->query($sql);
         if (!$modx->db->getRecordCount($rs)) return false;
         $docs= array ();
         $TVData = array();
@@ -957,34 +939,24 @@ class ditto {
 
         while($row = $modx->db->getRow($rs)) {
             $docid = $row['id'];
-            if ($dateSource) {
-                if (preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
-                    $dateValue = $row[$dateSource];
-                } else {
-                    $dateValue = strtotime($row[$dateSource]);
-                }
-                if ($modx->config['server_offset_time']) {
-                    $dateValue += $modx->config['server_offset_time'];
-                }
-                $row[$dateSource] = $dateValue;
+            if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
+                $dateValue = (preg_match('@^[1-9][0-9]*$@',$row[$dateSource])) ? $row[$dateSource] : strtotime($row[$dateSource]);
+                $row[$dateSource] = $dateValue + $modx->config['server_offset_time'];
             }
-            if($keywords) {
-                $row = $this->appendKeywords($row);
-            }
+            if($keywords) $row = $this->appendKeywords($row);
 
-            if ($this->prefetch && $this->sortOrder) {
+            if ($this->prefetch == true && $this->sortOrder !== false)
                 $row['ditto_sort'] = $this->sortOrder[$docid];
-            }
 
             $TVIDs[] = $docid;
-            $x = '#' . $docid;
+            $x = "#{$docid}";
+            $docs[$x] = $row;
             if ($this->prefetch['resource']) {
-                foreach($this->prefetch['resource'][$x] as $k=>$v) {
-                    $row[$k] = $v;
+                $docs[$x] = array_merge($row,$this->prefetch['resource'][$x]);
+                    // merge the prefetch array and the normal array
                 }
             }
-            $docs[$x] = $row;
-        }
+
         foreach($this->fields['display']['tv'] as $tv) {
             $TVs[] = $tv;
         }
@@ -994,21 +966,20 @@ class ditto {
         $TVs = array_unique($TVs);
         if ($TVs) {
             foreach($TVs as $tv){
-                $appended = $this->appendTV($tv,$TVIDs);
-                $TVData = $this->array_merge_recursive($appended,$TVData);
+                $TVData = $this->array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
             }
         }
 
         $docs = $this->array_merge_recursive($docs,$TVData);
         if ($this->prefetch && $this->sortOrder) {
-            uasort($docs, static function($a, $b){
+            uasort($docs, function($a,$b){
                 return strnatcmp($a['ditto_sort'],$b['ditto_sort']);
             });
         }
 
         return $docs;
     }
-
+    
     public function array_merge_recursive($org, $override) {
         foreach($override as $k=>$v) {
             if (is_array($v)) {
