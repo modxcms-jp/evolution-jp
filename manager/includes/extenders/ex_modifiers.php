@@ -227,7 +227,9 @@ class MODIFIERS {
         if($this->snippet_exists($cmd)) {
             $value = $this->getValueFromPHP($key, $value, $cmd, $opt);
         } elseif($this->chunk_exists($cmd)) {
-            $value = $this->getValueFromHTML($key, $value, $cmd, $opt);
+            if (strlen(trim($value))) {
+                $value = $this->getValueFromHTML($key, $value, $cmd, $opt);
+            }
         } else {
             $value = $this->getValueFromPreset($key, $value, $cmd, $opt);
         }
