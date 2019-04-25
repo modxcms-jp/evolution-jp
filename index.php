@@ -46,7 +46,7 @@
  */
 if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 $mstart = memory_get_usage();
-$base_path = str_replace('\\', '/',dirname(__FILE__)) . '/';
+$base_path = str_replace('\\', '/', __DIR__) . '/';
 define('MODX_BASE_PATH', $base_path);
 
 if(isset($_GET['get']) && $_GET['get'] === 'captcha') {
