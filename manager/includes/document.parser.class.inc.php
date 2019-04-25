@@ -3373,25 +3373,37 @@ class DocumentParser {
     {
         global $modx, $_lc;
         
-        if(strpos(strtolower($format),'%a')!==false) $modx->loadLexicon('locale');
-        
-        $a = !isset($_lc['days.short']) ? explode(',', 'Sun, Mon, Tue, Wed, Thu, Fri, Sat')                        : explode(',', $_lc['days.short']);
-        $A = !isset($_lc['days.wide'])  ? explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday') : explode(',', $_lc['days.short']);
-        $w         = strftime('%w', $timestamp);
+        if(stripos($format, '%a') !==false) {
+            $modx->loadLexicon('locale');
+        }
+
+        if (isset($_lc['days.short'])) {
+            $a = explode(',', $_lc['days.short']);
+        } else {
+            $a = explode(',', 'Sun, Mon, Tue, Wed, Thu, Fri, Sat');
+        }
+        if (isset($_lc['days.wide'])) {
+            $A = explode(',', $_lc['days.short']);
+        } else {
+            $A = explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
+        }
+        $w = strftime('%w', $timestamp);
         $p = array('am'=>'AM', 'pm'=>'PM');
         $P = array('am'=>'am', 'pm'=>'pm');
         $ampm = (strftime('%H', $timestamp) < 12) ? 'am' : 'pm';
         if($timestamp==='') return '';
-        if(substr(PHP_OS,0,3) == 'WIN') $format = str_replace('%-', '%#', $format);
-        $pieces    = preg_split('@(%[\-#]?[a-zA-Z%])@',$format,null,PREG_SPLIT_DELIM_CAPTURE);
+        if(strpos(PHP_OS, 'WIN') === 0) {
+            $format = str_replace('%-', '%#', $format);
+        }
+        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, null, PREG_SPLIT_DELIM_CAPTURE);
         
         $str = '';
         foreach($pieces as $v)
         {
-            if    ($v == '%a')             $str .= $a[$w];
-            elseif($v == '%A')             $str .= $A[$w];
-            elseif($v == '%p')             $str .= $p[$ampm];
-            elseif($v == '%P')             $str .= $P[$ampm];
+            if    ($v === '%a')            $str .= $a[$w];
+            elseif($v === '%A')            $str .= $A[$w];
+            elseif($v === '%p')            $str .= $p[$ampm];
+            elseif($v === '%P')            $str .= $P[$ampm];
             elseif(strpos($v,'%')!==false) $str .= strftime($v, $timestamp);
             else                           $str .= $v;
         }
