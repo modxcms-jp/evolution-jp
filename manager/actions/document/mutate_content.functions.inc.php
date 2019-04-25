@@ -228,8 +228,8 @@ function get_alias_path($id)
 	elseif($id) $path = $modx->getAliasListing($id,'path');
 	else        $path = '';
 	
-	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
-	else           $path = $modx->config['base_url'];
+	if($path!=='') $path = MODX_BASE_URL . $path . '/';
+	else           $path = MODX_BASE_URL;
 	
 	if(30 < strlen($path)) $path .= '<br />';
 	return $path;
@@ -473,7 +473,7 @@ function getAliasAtNew() {
 function getJScripts($docid) {
 	global $modx,$_lang,$_style, $docObject;
 	
-	$base_url = $modx->config['base_url'];
+	$base_url = MODX_BASE_URL;
 	if(!isset($modx->config['imanager_url']))
 		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
 	
