@@ -4096,7 +4096,7 @@ class DocumentParser {
             if(strpos($aliasPath,'/')!==false) {
                 $_a = explode('/', $aliasPath);
             } else {
-                $_a[] = array($aliasPath);
+                $_a = array($aliasPath);
             }
 
             $parent= 0;
