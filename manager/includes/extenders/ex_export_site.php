@@ -160,7 +160,7 @@ class EXPORT_SITE
 			if($this->repl_before!==$this->repl_after) $src = str_replace($this->repl_before,$this->repl_after,$src);
 			
 			if(is_file(dirname($filepath))) return 'failed_no_open';
-			
+
 			$result = file_put_contents($filepath,$src);
 			if($result!==false) @chmod($filepath, 0666);
 			
@@ -289,7 +289,7 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_FAILONERROR, true );
-        if(ini_get('open_basedir')=='' && ini_get('safe_mode')=='Off')
+        if(ini_get('open_basedir')=='' && ini_get('safe_mode') === 'Off')
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_MAXREDIRS,3);
         if(defined('CURLOPT_AUTOREFERER'))
@@ -336,9 +336,8 @@ class EXPORT_SITE
 			$ph['msg2'] = $_lang['export_site_success_skip_dir'];
 		else
 			$ph['msg2'] = '';
-		
-		$result = $modx->parseText($tpl,$ph);
-		return $result;
+
+        return $modx->parseText($tpl,$ph);
     }
 }
 
