@@ -3853,13 +3853,13 @@ class DocumentParser {
             case 'option':
                 $src = $tvtype;
                 $values = explode('||',$value);
-                $i = 0;
                 foreach($values as $i=>$v)
                 {
-                    if(substr($v, 0, 5) === '<?php') $v = "@@EVAL\n".substr($v,6);
-                    if(substr($v,0,1)==='@')
+                    if(strpos($v, '<?php') === 0) {
+                        $v = "@@EVAL\n" . substr($v, 6);
+                    }
+                    if(strpos($v, '@') === 0)
                         $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
-                    $i++;
                 }
                 $value = join('||', $values);
                 break;
