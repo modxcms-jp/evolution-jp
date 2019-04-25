@@ -3156,6 +3156,7 @@ class DocumentParser {
     
     function getChunk($chunk_name)
     {
+        $chunk_name = trim($chunk_name);
         if($chunk_name==='') {
             return false;
         }
@@ -3178,11 +3179,7 @@ class DocumentParser {
 
         $where = array();
         $where[] = sprintf(
-            "`name`='%s'"
-            , $this->db->escape($chunk_name)
-        );
-        $where[] = sprintf(
-            'AND (published=1 OR (pub_date <> 0 AND pub_date < %d AND (unpub_date=0 OR unpub_date > %d)))'
+            'published=1 OR (pub_date != 0 AND pub_date < %s AND (unpub_date=0 OR unpub_date > %s))'
             , $this->baseTime
             , $this->baseTime
         );
@@ -3202,13 +3199,13 @@ class DocumentParser {
         }
 
         $db = array();
-                while($row = $this->db->getRow($rs)) {
-                    $name = $row['name'];
+        while($row = $this->db->getRow($rs)) {
+            $name = $row['name'];
             $db[$name] = $row;
             if($row['published'] && !isset($this->chunkCache[$name])) {
-                        $this->chunkCache[$name] = $row['snippet'];
-                }
+                $this->chunkCache[$name] = $row['snippet'];
             }
+        }
             
         if(isset($db[$chunk_name]['snippet'])) {
             $value = $db[$chunk_name]['snippet'];
