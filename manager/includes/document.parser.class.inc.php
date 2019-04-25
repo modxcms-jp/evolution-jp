@@ -3242,21 +3242,32 @@ class DocumentParser {
 
     function parseText($tpl='', $ph=array(), $left= '[+', $right= '+]', $execModifier=true)
     {
-        if(is_array($tpl) && !is_array($ph)) list($tpl,$ph) = array($ph,$tpl); // ditto->paginate()
+        if(is_array($tpl) && !is_array($ph)) {
+            list($tpl, $ph) = array($ph, $tpl);
+        } // ditto->paginate()
         
-        if(substr($tpl,0,1)==='@') $tpl = $this->atBind($tpl);
+        if(strpos($tpl, '@') === 0) {
+            $tpl = $this->atBind($tpl);
+        }
         
-        if(!$ph)  return $tpl;
-        if(!$tpl) return $tpl;
-        
-        if(strpos($tpl,'<@LITERAL>')!==false) $tpl= $this->escapeLiteralTagsContent($tpl);
+        if(!$ph || !$tpl) {
+            return $tpl;
+        }
+
+        if(strpos($tpl,'<@LITERAL>')!==false) {
+            $tpl = $this->escapeLiteralTagsContent($tpl);
+        }
         $matches = $this->getTagsFromContent($tpl,$left,$right);
-        if(!$matches) return $tpl;
+        if(!$matches) {
+            return $tpl;
+        }
         
         foreach($matches[1] as $i=>$key) {
-            if(strpos($key,':')!==false && $execModifier)
-                list($key,$modifiers)=$this->splitKeyAndFilter($key);
-            else $modifiers = false;
+            if(strpos($key,':')!==false && $execModifier) {
+                list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            } else {
+                $modifiers = false;
+            }
             
             if(strpos($key,'@')!==false) list($key,$context) = explode('@',$key,2);
             else                         list($key,$context) = array($key,'');
@@ -3270,7 +3281,9 @@ class DocumentParser {
             else             $value = $ph[$key];
             
             if($modifiers!==false) {
-                if(strpos($modifiers,$left)!==false) $modifiers=$this->parseText($modifiers,$ph,$left,$right);
+                if(strpos($modifiers,$left)!==false) {
+                    $modifiers = $this->parseText($modifiers, $ph, $left, $right);
+                }
                 $value = $this->applyFilter($value,$modifiers,$key);
             }
             $tpl = str_replace($matches[0][$i], $value, $tpl);
@@ -3281,8 +3294,12 @@ class DocumentParser {
     
     function parseList($tpl='', $multiPH=array()) {
         
-        if(empty($multiPH) || empty($tpl)) return $tpl;
-        if(substr($tpl,0,1)==='@') $tpl = $this->atBind($tpl);
+        if(empty($multiPH) || empty($tpl)) {
+            return $tpl;
+        }
+        if(strpos($tpl, '@') === 0) {
+            $tpl = $this->atBind($tpl);
+        }
         
         foreach($multiPH as $ph) {
             $_[] = $this->parseText($tpl,$ph);
@@ -3292,10 +3309,12 @@ class DocumentParser {
     
     function toDateFormat($timestamp = 0, $mode = '')
     {
-        if($timestamp==0&&$mode==='') return '';
+        if($timestamp == 0 && $mode === '') {
+            return '';
+        }
         
         $timestamp = trim($timestamp);
-        $timestamp = intval($timestamp) + $this->config['server_offset_time'];
+        $timestamp = (int)$timestamp + $this->config['server_offset_time'];
         
         switch($this->config['datetime_format'])
         {
@@ -3362,7 +3381,7 @@ class DocumentParser {
             $S = 0;
         }
         $timeStamp = mktime($H, $M, $S, $m, $d, $Y);
-        $timeStamp = intval($timeStamp);
+        $timeStamp = (int)$timeStamp;
         return $timeStamp;
     }
     
@@ -3824,7 +3843,7 @@ class DocumentParser {
             $value       = $value['value'];
         }
         // process any TV commands in value
-        $docid= intval($docid) ? intval($docid) : $this->documentIdentifier;
+        $docid= (int)$docid ? (int)$docid : $this->documentIdentifier;
         switch($tvtype)
         {
             case 'dropdown':
@@ -3846,8 +3865,9 @@ class DocumentParser {
                 break;
             default:
                 $src = 'docform';
-                if(substr($value,0,1)==='@')
+                if(strpos($value, '@') === 0) {
                     $value = $this->ProcessTVCommand($value, $name, $docid, $src);
+                }
         }
         
         $params = array();
@@ -3870,10 +3890,13 @@ class DocumentParser {
 
         if(empty($value))
         {
-            if($format!=='custom_widget' && $format!=='richtext' && $format!=='datagrid')
+            if ($format!=='custom_widget' && $format!=='richtext' && $format!=='datagrid') {
                 return $value;
-            elseif($format==='datagrid' && $params['egmsg']==='')
+            }
+
+            if($format==='datagrid' && $params['egmsg']==='') {
                 return '';
+            }
         }
         
         $id = "tv{$name}";
@@ -3892,11 +3915,13 @@ class DocumentParser {
             case 'datagrid':
             case 'htmlentities':
             case 'custom_widget':
-                $o = include(MODX_CORE_PATH . "docvars/outputfilter/{$format}.inc.php");
+                $o = include MODX_CORE_PATH . 'docvars/outputfilter/' . $format . '.inc.php';
                 break;
             default:
-                if($this->db->isResult($value)) $value = $this->parseInput($value);
-                if($tvtype=='checkbox'||$tvtype=='listbox-multiple')
+                if($this->db->isResult($value)) {
+                    $value = $this->parseInput($value);
+                }
+                if($tvtype === 'checkbox' || $tvtype === 'listbox-multiple')
                 {
                     // add separator
                     $value = explode('||',$value);
@@ -3909,21 +3934,29 @@ class DocumentParser {
     }
     
     function applyFilter($value='', $modifiers=false, $key='') {
-        if($modifiers===false || $modifiers=='raw') return $value;
-        if($modifiers!==false) $modifiers = trim($modifiers);
+        if($modifiers===false || $modifiers === 'raw') {
+            return $value;
+        }
+        if($modifiers!==false) {
+            $modifiers = trim($modifiers);
+        }
         
         $this->loadExtension('MODIFIERS');
         return $this->filter->phxFilter($key,$value,$modifiers);
     }
     
     function addSnippet($name, $phpCode, $params=array()) {
-        if(substr($phpCode,0,1)==='@') $phpCode = $this->atBind($phpCode);
+        if(strpos($phpCode, '@') === 0) {
+            $phpCode = $this->atBind($phpCode);
+        }
         $this->snippetCache["#{$name}"]      = $phpCode;
         $this->snippetCache["#{$name}Props"] = $params;
     }
     
     function addChunk($name, $text) {
-        if(substr($text,0,1)==='@') $text = $this->atBind($text);
+        if(strpos($text, '@') === 0) {
+            $text = $this->atBind($text);
+        }
         $this->chunkCache['#'.$name] = $text;
     }
     
@@ -4022,10 +4055,16 @@ class DocumentParser {
         $_ = $alias;
         $results = $this->invokeEvent('OnStripAlias', $params);
         $this->event->vars = array();
-        if($alias!==$_) $this->event->output($alias);
-        
-        if (!empty($results)) return end($results);//if multiple plugins are registered, only the last one is used
-        else                  return strip_tags($alias);
+        if($alias!==$_) {
+            $this->event->output($alias);
+        }
+
+        //if multiple plugins are registered, only the last one is used
+        if (!empty($results)) {
+            return end($results);
+        }
+
+        return strip_tags($alias);
     }
     
     function nicesize($size) {
@@ -4319,7 +4358,9 @@ class DocumentParser {
             imagedestroy($tmp_image);
             imagedestroy($new_image);
         }
-        if($rs) @chmod($target_path, $new_file_permissions);
+        if($rs) {
+            @chmod($target_path, $new_file_permissions);
+        }
         return $rs;
     }
     
