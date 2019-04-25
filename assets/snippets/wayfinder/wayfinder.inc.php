@@ -273,7 +273,7 @@ class Wayfinder {
         }
 
         //If tvs are used add them to the placeholder array
-        if (!empty($this->tvList)) {
+        if ($this->tvList) {
             foreach ($this->tvList as $tvName) {
                 $ph[$tvName] = $resource[$tvName];
             }
@@ -639,7 +639,7 @@ class Wayfinder {
             $row['title'] = $row[$useTitleField];
 
             //If tvs were specified keep array flat otherwise array becomes level->parent->doc
-            if (!empty($this->tvList)) {
+            if ($this->tvList) {
                 $tempResults[] = $row;
             }
             else {
@@ -691,8 +691,7 @@ class Wayfinder {
         global $modx;
         $tvs = $modx->db->select('name', '[+prefix+]site_tmplvars');
             // TODO: make it so that it only pulls those that apply to the current template
-        $dbfields = $modx->db->getColumn('name', $tvs);
-        return $dbfields;
+        return $modx->db->getColumn('name', $tvs);
     }
 
     //debugging to check for valid chunks
@@ -800,7 +799,7 @@ class Wayfinder {
             return array_unique($tvnames);
         }
 
-        return false;
+        return array();
     }
 
     function addDebugInfo($group,$groupkey,$header,$message,$info) {
@@ -813,7 +812,7 @@ class Wayfinder {
 
         foreach ($info as $key => $value) {
             $key = $this->modxPrep($key);
-            if ($value === true || $value === FALSE) {
+            if ($value === true || $value === false) {
                 $value = $value ? 'true' : 'false';
                 $value = sprintf('<span class="bool %s">%s</span>',$value,$value);
             } else {
@@ -914,7 +913,9 @@ class Wayfinder {
 
     function modxPrep($value) {
         global $modx;
-        $value = (strpos($value,'<') !== false) ? htmlentities($value,ENT_NOQUOTES,$modx->config['modx_charset']) : $value;
+        if (strpos($value, '<') !== false) {
+            $value = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
+        }
         $s = array('[', ']', '{', '}');
         $r = array('&#091;', '&#093;', '&#123;', '&#125;');
         $value = str_replace($s, $r, $value);
@@ -924,16 +925,27 @@ class Wayfinder {
     function getIndexID($id)
     {
         global $modx;
-        if($modx->documentObject['parent']==0)   return $id;
-        $where = "parent='{$id}' AND hidemenu=0";
-        $rs = $modx->db->select('*','[+prefix+]site_content',$where);
-        $total = $modx->db->getRecordCount($rs);
-        if(0<$total) return $id;
-        else return $modx->documentObject['parent'];
+
+        if($modx->documentObject['parent']==0) {
+            return $id;
+        }
+
+        $rs = $modx->db->select('*','[+prefix+]site_content',"parent='{$id}' AND hidemenu=0");
+
+        if($modx->db->getRecordCount($rs)) {
+            return $id;
+        }
+
+        return $modx->documentObject['parent'];
     }
+
     function getParentID($id) {
         global $modx;
-        if($modx->documentObject['parent']==0)   return $id;
+
+        if($modx->documentObject['parent']==0) {
+            return $id;
+        }
+
         return $modx->documentObject['parent'];
     }
 }
