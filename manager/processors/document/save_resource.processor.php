@@ -289,14 +289,22 @@ function checkDocPermission($id,$document_groups=array()) {
 		$document_group_list = join(',', array_filter($document_groups, 'is_numeric'));
 		if(!empty($document_group_list))
 		{
-			$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
-			$mgrInternalKey = $_SESSION['mgrInternalKey'];
-			$where = "mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
-			$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
-			if($count == 0)
-			{
-				if ($actionToTake === 'new') $url = 'index.php?a=4';
-				else						 $url = "index.php?a=27&id={$id}";
+			$count = $modx->db->getValue(
+			    $modx->db->select(
+			        'COUNT(mg.id)'
+                    , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
+                    , sprintf(
+                        "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'"
+                        , $document_group_list
+                        , $_SESSION['mgrInternalKey']
+                ))
+            );
+			if(!$count) {
+				if ($actionToTake === 'new') {
+                    $url = 'index.php?a=4';
+                } else {
+                    $url = 'index.php?a=27&id=' . $id;
+                }
 				
 				$modx->manager->saveFormValues();
 				$modx->webAlertAndQuit(sprintf($_lang['resource_permissions_error']), $url);
