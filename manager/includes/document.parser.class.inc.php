@@ -66,7 +66,6 @@ class DocumentParser {
     public $uaType;
     public $functionLog   = array();
     public $currentSnippetCall;
-    public $aliasCache    = array();
     public $previewObject = ''; //プレビュー用のPOSTデータを保存
     public $snipLapCount;
     public $chunkieCache;
@@ -4079,51 +4078,81 @@ class DocumentParser {
     
     function getIdFromAlias($aliasPath='')
     {
-        if(isset($this->aliasCache[__FUNCTION__][$aliasPath]))
-            return $this->aliasCache[__FUNCTION__][$aliasPath];
-        
+        static $aliasCache = array();
+
+        if(isset($aliasCache[$aliasPath])) {
+            return $aliasCache[$aliasPath];
+        }
+
+        $aliasCache[$aliasPath] = false;
+
         $aliasPath = trim($aliasPath,'/');
         
-        if(empty($aliasPath)) return $this->config['site_start'];
+        if(empty($aliasPath)) {
+            return $this->config['site_start'];
+        }
         
-        $children = array();
-        
-        if($this->config['use_alias_path']==1)
-        {
-            if(strpos($aliasPath,'/')!==false) $_a = explode('/', $aliasPath);
-            else                               $_a[] = $aliasPath;
-            $id= 0;
-            
-            foreach($_a as $alias)
-            {
-                if($id===false) break;
-                if( empty($alias) ){ continue; }
+        if($this->config['use_alias_path']) {
+            if(strpos($aliasPath,'/')!==false) {
+                $_a = explode('/', $aliasPath);
+            } else {
+                $_a[] = array($aliasPath);
+            }
+
+            $parent= 0;
+            foreach($_a as $alias) {
                 $alias = $this->db->escape($alias);
-                $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND alias = BINARY '{$alias}'");
-                if($this->db->getRecordCount($rs)==0)
-                    $rs  = $this->db->select('id', '[+prefix+]site_content', "deleted=0 AND parent='{$id}' AND id = BINARY '{$alias}'");
+                $rs  = $this->db->select(
+                    'id'
+                    , '[+prefix+]site_content'
+                    , sprintf("deleted=0 AND parent='%s' AND alias=BINARY '%s'", $parent, $alias)
+                );
+                if(!$this->db->getRecordCount($rs)) {
+                    if (!preg_match('@^[1-9][0-9]*$@', $alias)) {
+                        return false;
+                    }
+                    $rs = $this->db->select(
+                        'id'
+                        , '[+prefix+]site_content'
+                        , sprintf("deleted=0 AND parent='%s' AND id='%s'", $parent, $alias)
+                    );
+                }
                 $row = $this->db->getRow($rs);
-                
-                if($row) $id = $row['id'];
-                else     $id = false;
+                if(!$row) {
+                    return false;
+                }
+                $parent = $row['id'];
             }
+            $aliasCache[$aliasPath] = $parent;
+            return $parent;
         }
-        else
+
+        $alias = $this->db->escape($aliasPath);
+        $rs = $this->db->select(
+            'id'
+            , '[+prefix+]site_content'
+            , sprintf("deleted=0 and alias='%s'", $alias)
+            , 'parent, menuindex'
+        );
+        $row = $this->db->getRow($rs);
+        if(!$row)
         {
-            $alias = $this->db->escape($aliasPath);
-            $rs = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and alias='{$alias}'", 'parent, menuindex');
-            $row = $this->db->getRow($rs);
-            
-            if(!$row && preg_match('@^[1-9][0-9]*$@',$alias))
-            {
-                $rs = $this->db->select('id', '[+prefix+]site_content', "deleted=0 and id='{$alias}'");
-                $row = $this->db->getRow($rs);
+            if (!preg_match('@^[1-9][0-9]*$@', $alias)) {
+                return false;
             }
-            if($row) $id = $row['id'];
-            else     $id = false;
+            $rs = $this->db->select(
+                'id'
+                , '[+prefix+]site_content'
+                , sprintf("deleted=0 and id='%s'", $alias)
+            );
+            $row = $this->db->getRow($rs);
         }
-        $this->aliasCache[__FUNCTION__][$aliasPath] = $id;
-        return $id;
+        if (!$row) {
+            return false;
+        }
+
+        $aliasCache[$aliasPath] = $row['id'];
+        return $row['id'];
     }
 
     /*
