@@ -950,9 +950,11 @@ class ditto {
         $TVIDs = array();
         while($row = $modx->db->getRow($rs)) {
             $docid = $row['id'];
-            if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
-                $dateValue = (preg_match('@^[1-9][0-9]*$@',$row[$dateSource])) ? $row[$dateSource] : strtotime($row[$dateSource]);
-                $row[$dateSource] = $dateValue + $modx->config['server_offset_time'];
+            if ($dateSource && $row[$dateSource]) {
+                if (!preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
+                    $row[$dateSource] = strtotime($row[$dateSource]);
+                }
+                $row[$dateSource] += $modx->config['server_offset_time'];
             }
             if($keywords) $row = $this->appendKeywords($row);
 
