@@ -907,7 +907,7 @@ class ditto {
                     'sc.privateweb=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
-            } elseif(!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole'] != 1) {
+            } elseif($modx->session_var('mgrRole') != 1) {
                 $access = sprintf(
                     'sc.privatemgr=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
