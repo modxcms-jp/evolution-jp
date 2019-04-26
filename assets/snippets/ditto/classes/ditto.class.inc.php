@@ -778,8 +778,8 @@ class ditto {
         $rs = $modx->db->select(
             'stv.*, stc.*'
             , array(
-                '[+prefix+]site_tmplvar_contentvalues stc'
-                , 'LEFT JOIN [+prefix+]site_tmplvars stv ON stv.id=stc.tmplvarid'
+                '[+prefix+]site_tmplvar_contentvalues stc',
+                'LEFT JOIN [+prefix+]site_tmplvars stv ON stv.id=stc.tmplvarid'
             )
             , sprintf(
                 "stv.name='%s' AND stc.contentid IN (%s)"
@@ -892,51 +892,62 @@ class ditto {
     // Get documents and append TVs + Prefetch Data, and sort
     // ---------------------------------------------------
 
-    function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $public= 1, $where= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
+    function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $publicOnly= 1, $extraWhere= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
         global $modx;
 
         if (!$ids) return false;
 
         sort($ids);
-        $limit= ($limit != '') ? "LIMIT $limit" : ''; // LIMIT capabilities - rad14701
-        $tblsc= $modx->getFullTableName('site_content');
-        $tbldg= $modx->getFullTableName('document_groups');
-        // modify field names to use sc. table reference
-        $fields= 'sc.' .implode(',sc.',$fields);
 
-        if($where!=='') {
-            $_ = explode('AND', $where);
+        if ($publicOnly) {
+            // get document groups for current user
+            $docgrp= $modx->getUserDocGroups();
+            if ($modx->isFrontend()) {
+                $access = sprintf(
+                    'sc.privateweb=0 %s'
+                    , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
+                );
+            } elseif(!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole'] != 1) {
+                $access = sprintf(
+                    'sc.privatemgr=0 %s'
+                    , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
+                );
+            }
+        }
+
+        if($extraWhere!=='') {
+            $_ = explode('AND', $extraWhere);
             foreach($_ as $i=>$v) {
                 $_[$i] = trim($v);
             }
             $where = 'AND sc.' . join(' AND sc.', $_);
         }
 
-        if ($public) {
-            // get document groups for current user
-            if ($docgrp= $modx->getUserDocGroups())
-            $docgrp= implode(",", $docgrp);
-            $access= ($modx->isFrontend() ? "sc.privateweb=0" : "1='" . $_SESSION['mgrRole'] . "' OR sc.privatemgr=0") .
-            (!$docgrp ? "" : " OR dg.document_group IN ($docgrp)");
-                }
-
-        $published = ($published) ? 'AND sc.published=1' : '';
-        
         if ($randomize != 0) $sort = 'RAND()';
         else                 $sort = $orderBy['sql'];
-        
-        $sql = "SELECT DISTINCT $fields FROM $tblsc sc
-        LEFT JOIN $tbldg dg on dg.document = sc.id
-        WHERE sc.id IN (" . join($ids, ",") . ") $published AND sc.deleted=$deleted $where
-        ".($public ? 'AND ('.$access.')' : '')." GROUP BY sc.id" .
-        ($sort ? " ORDER BY $sort" : "") . " $limit ";
-    
+
+        $sql = sprintf(
+            "SELECT DISTINCT %s FROM %s sc
+                LEFT JOIN %s dg on dg.document = sc.id
+                WHERE sc.id IN (%s) %s AND sc.deleted=%d %s
+                %s GROUP BY sc.id%s %s"
+            , 'sc.' .implode(',sc.',$fields)
+            , $modx->getFullTableName('site_content')
+            , $modx->getFullTableName('document_groups')
+            , join($ids, ',')
+            , $published ? 'AND sc.published=1' : ''
+            , $deleted
+            , $where
+            , $publicOnly ? sprintf('AND (%s)', $access) : ''
+            , $sort ? ' ORDER BY ' . $sort : ''
+            , ($limit != '') ? 'LIMIT ' . $limit : ''
+        );
+
         $rs= $modx->db->query($sql);
         if (!$modx->db->getRecordCount($rs)) return false;
         $docs= array ();
-        $TVData = array();
-        $TVIDs = array();
 
+        $TVIDs = array();
         while($row = $modx->db->getRow($rs)) {
             $docid = $row['id'];
             if ($modx->config['server_offset_time'] != 0 && $dateSource !== false) {
@@ -945,17 +956,18 @@ class ditto {
             }
             if($keywords) $row = $this->appendKeywords($row);
 
-            if ($this->prefetch == true && $this->sortOrder !== false)
+            if ($this->prefetch == true && $this->sortOrder !== false) {
                 $row['ditto_sort'] = $this->sortOrder[$docid];
+            }
 
             $TVIDs[] = $docid;
-            $x = "#{$docid}";
+            $x = '#' . $docid;
             $docs[$x] = $row;
             if ($this->prefetch['resource']) {
                 $docs[$x] = array_merge($row,$this->prefetch['resource'][$x]);
-                    // merge the prefetch array and the normal array
-                }
+                // merge the prefetch array and the normal array
             }
+        }
 
         foreach($this->fields['display']['tv'] as $tv) {
             $TVs[] = $tv;
@@ -963,10 +975,15 @@ class ditto {
         foreach($this->fields['backend']['tv'] as $tv) {
             $TVs[] = $tv;
         }
+
         $TVs = array_unique($TVs);
+        $TVData = array();
         if ($TVs) {
             foreach($TVs as $tv){
-                $TVData = $this->array_merge_recursive($this->appendTV($tv,$TVIDs),$TVData);
+                $TVData = $this->array_merge_recursive(
+                    $this->appendTV($tv,$TVIDs)
+                    ,$TVData
+                );
             }
         }
 
@@ -979,7 +996,7 @@ class ditto {
 
         return $docs;
     }
-    
+
     public function array_merge_recursive($org, $override) {
         foreach($override as $k=>$v) {
             if (is_array($v)) {
@@ -1259,24 +1276,24 @@ class ditto {
         if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
             $modx->toPlaceholders(
                 array(
-                    'next'       => $nextplaceholder
-                    , 'previous' => $previousplaceholder
-                    , 'prev'     => $previousplaceholder
-                    , 'pages'    => $pages
+                    'next'       => $nextplaceholder,
+                    'previous' => $previousplaceholder,
+                    'prev'     => $previousplaceholder,
+                    'pages'    => $pages
                 )
                 ,$dittoID
             );
         }
         $modx->toPlaceholders(
             array(
-                'splitter' => $split
-                , 'start' => ($start +1)
-                , 'urlStart' => $start
-                , 'stop'=> $limiter
-                , 'total'=> $total
-                , 'perPage', $summarize
-                , 'totalPages'=> $totalpages
-                , 'ditto_pagination_set'=> true
+                'splitter' => $split,
+                'start' => ($start +1),
+                'urlStart' => $start,
+                'stop'=> $limiter,
+                'total'=> $total,
+                'perPage', $summarize,
+                'totalPages'=> $totalpages,
+                'ditto_pagination_set'=> true
             )
             ,$dittoID
         );
@@ -1319,13 +1336,15 @@ class ditto {
     {
         global $modx;
 
-        if(empty($format)) $format = $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';
-
-        if(method_exists($modx,'mb_strftime'))
-        {
-            $str = $modx->mb_strftime($format,$timestamp);
+        if (empty($format)) {
+            $format = $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';
         }
-        else $str = strftime($format,$timestamp);
+
+        if (method_exists($modx,'mb_strftime')) {
+            $str = $modx->mb_strftime($format,$timestamp);
+        } else {
+            $str = strftime($format, $timestamp);
+        }
         return $str;
     }
 }
