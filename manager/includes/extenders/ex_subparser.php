@@ -929,7 +929,7 @@ class SubParser {
             case '@FILE' :
                 if($modx->getExtention($param)==='.php') $output = 'Could not retrieve PHP file.';
                 else                                     $output = @file_get_contents($param);
-                if($output===false) $output = " Could not retrieve document '{$file}'.";
+                if($output===false) $output = " Could not retrieve document '{$param}'.";
                 break;
             case '@CHUNK' : // retrieve a chunk and process it's content
                 $output = $modx->getChunk(trim($param));
