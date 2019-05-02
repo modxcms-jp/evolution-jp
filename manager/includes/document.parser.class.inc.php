@@ -8,6 +8,7 @@
 require_once(__DIR__.'/initialize.inc.php');
 
 class DocumentParser {
+    public $version = '0.0.0';
     public $db; // db object
     public $event, $Event; // event object
     public $pluginEvent = array();
