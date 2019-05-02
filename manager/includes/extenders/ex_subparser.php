@@ -494,7 +494,7 @@ class SubParser {
             if(strpos($url,'[')!==false || strpos($url,'{{')!==false) $url=$modx->parseDocumentSource($url);
             
             if(substr($url,0,1)==='?')                 $url = $modx->makeUrl($modx->documentIdentifier,'',$url,'full');
-            elseif(preg_match('@^[1-9][0-9]*$@',$url)) $url = $modx->makeUrl($url,'',$args,'full');
+            elseif(preg_match('@^[1-9][0-9]*$@',$url)) $url = $modx->makeUrl($url);
             elseif(preg_match('@^[1-9][0-9]*\?@',$url)) {
                 list($url,$args) = explode('?',$url,2);
                 $url = $modx->makeUrl($url,'',$args,'full');
