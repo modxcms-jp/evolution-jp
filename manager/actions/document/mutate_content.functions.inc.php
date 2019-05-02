@@ -503,7 +503,7 @@ function getJScripts($docid) {
 	
 	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	
-	return $date_picker . parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function get_template_options() {
@@ -960,7 +960,7 @@ function fieldsTV() {
 	$hidden = array();
 	$output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
 	$splitLine = renderSplit();
-	foreach($tmplVars as $tv):
+	foreach($tmplVars as $tv) {
 		$tvid = 'tv' . $tv['id'];
 		// Go through and display all Template Variables
 		if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
@@ -989,28 +989,44 @@ function fieldsTV() {
 			$tvPBV = $tv['value'];
 		}
 		
-		if($tv['type']!=='hidden')
+		if($tv['type']==='hidden')
+		{
+			$formElement = $modx->renderFormElement(
+				'hidden'
+				, $tv['id']
+				, $tv['default_text']
+				, $tv['elements']
+				, $tvPBV
+				, ''
+				, $tv
+				);
+			$hidden[] = $formElement;
+		}
+		else
 		{
 			$ph = array();
-			$ph['caption']     = htmlspecialchars($tv['caption'], ENT_QUOTES, $modx->config['modx_charset']);
+			$ph['caption']     = $modx->hsc($tv['caption']);
 			$ph['description'] = $tv['description'];
 			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+			$ph['FormElement'] = $modx->renderFormElement(
+				$tv['type']
+				, $tv['id']
+				, $tv['default_text']
+				, $tv['elements']
+				, $tvPBV
+				, ''
+				, $tv
+				);
 			if($ph['FormElement']!=='')
 			{
 				$output[] = parseText($tpl,$ph);
 				if ($i < $total) $output[] = $splitLine;
 			}
 		}
-		else
-		{
-			$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-			$hidden[] = $formElement;
-		}
 		$i++;
-	endforeach;
+	}
 	
-	if(!empty($output) && $output[$total+1]===$splitLine) array_pop($output);
+	if($output && $output[$total+1]===$splitLine) array_pop($output);
 	
 	$output[] = '</table>';
 	
