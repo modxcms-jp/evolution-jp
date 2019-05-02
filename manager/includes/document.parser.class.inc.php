@@ -4206,7 +4206,7 @@ class DocumentParser {
                 return true;
             }
         }
-        if( $this->isInt($t,1) ){
+        if( self::isInt($t,1) ){
             $this->baseTime = $t;
         }else{
             $tmp = $this->toTimeStamp($t);

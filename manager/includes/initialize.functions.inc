@@ -9,36 +9,51 @@ function startCMSSession() {
     session_name($site_sessionname);
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
-    
-    if    (isset($_SESSION['mgrValidated'])) $ctx = 'mgr';
-    elseif(isset($_SESSION['webValidated'])) $ctx = 'web';
+
+    if    (isset($_SESSION['mgrValidated'])) {
+        $ctx = 'mgr';
+    }
+    elseif(isset($_SESSION['webValidated'])) {
+        $ctx = 'web';
+    }
     else {
         setcookie($site_sessionname, session_id(), 0, MODX_BASE_URL);
         return;
     }
     
-    $key = "modx.{$ctx}.session.cookie.lifetime";
+    $key = sprintf('modx.%s.session.cookie.lifetime', $ctx);
     $lifetime = !isset($_SESSION[$key]) ? 0 : $_SESSION[$key];
     
-    if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) $cookieExpiration = 0;
-    else                                         $cookieExpiration = $_SERVER['REQUEST_TIME']+$lifetime;
+    if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) {
+        $cookieExpiration = 0;
+    } else {
+        $cookieExpiration = $_SERVER['REQUEST_TIME'] + $lifetime;
+    }
     
     setcookie($site_sessionname, session_id(), $cookieExpiration, MODX_BASE_URL);
 
-    if(!isset($_SESSION['modx.session.created.time'])) {
-        if(isset($_SESSION['mgrLastlogin']))
-            $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
-        else
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+    if(isset($_SESSION['modx.session.created.time'])) {
+        return;
+    }
+
+    if(isset($_SESSION['mgrLastlogin'])) {
+        $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
+    } else {
+        $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
     }
 }
 
 function set_parser_mode() {
-    if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == true) return;
+    if(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == true) {
+        return;
+    }
     define('IN_PARSER_MODE', 'true');
     define('IN_MANAGER_MODE', 'false');
     
-    if (!defined('MODX_API_MODE')) define('MODX_API_MODE', false);
+    if (!defined('MODX_API_MODE')) {
+        define('MODX_API_MODE', false);
+    }
+
     // set some settings, and address some IE issues
     @ini_set('url_rewriter.tags', '');
     @ini_set('session.use_trans_sid', 0);
@@ -54,48 +69,55 @@ class MODX_INIT {
     
     function init_mgr() {
         // send anti caching headers
-        header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-        header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-        header("Cache-Control: no-store, no-cache, must-revalidate");
-        header("Cache-Control: post-check=0, pre-check=0", false);
-        header("Pragma: no-cache");
-        header("X-UA-Compatible: IE=edge;FF=3;OtherUA=4");
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . " GMT");
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Cache-Control: post-check=0, pre-check=0', false);
+        header('Pragma: no-cache');
+        header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
     
     function get_base_path() {
         $self = 'manager/includes/initialize.functions.inc';
-        $base_path = str_replace($self,'',str_replace('\\', '/', __FILE__));
-        return $base_path;
+        return str_replace(array('\\', $self), array('/', ''), __FILE__);
     }
     
     function get_base_url($base_path) {
         $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
         if(defined('IN_MANAGER_MODE')) {
-            if(strpos($SCRIPT_NAME,'/manager/')!==false)
-                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/manager/')+1);
+            if(strpos($SCRIPT_NAME,'/manager/')!==false) {
+                return substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/manager/') + 1);
+            }
             elseif(strpos($SCRIPT_NAME,'/assets/')!==false)
                 return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/assets/')+1);
         }
         
-        if(strpos($SCRIPT_NAME,'/install/')!==false) 
-            return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/install/')+1);
+        if(strpos($SCRIPT_NAME,'/install/')!==false) {
+            return substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/install/') + 1);
+        }
         
-        if(substr($SCRIPT_NAME,0,2)==='/~' && substr($SCRIPT_NAME,-9)==='index.php') {
+        if(strpos($SCRIPT_NAME, '/~') === 0 && substr($SCRIPT_NAME,-9)==='index.php') {
             $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/'));
             $pos = strrpos($dir,'/',-1);
-            if($pos) $dir = substr($dir,$pos);
+            if($pos) {
+                $dir = substr($dir, $pos);
+            }
             return $dir.'/';
-        } else {
-            $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/')+1);
-            $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
-            if(substr($SCRIPT_NAME,0,2)==='/~') $dir = '/~' . substr($dir,1);
-            $dir = rtrim($dir, '/') . '/';
-            return $dir;
         }
+
+        $dir = substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/')+1);
+        $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
+        if(strpos($SCRIPT_NAME, '/~') === 0) {
+            $dir = '/~' . substr($dir, 1);
+        }
+        $dir = rtrim($dir, '/') . '/';
+        return $dir;
     }
     
     function get_host_name() {
-        if(!isset($_SERVER['HTTP_HOST'])) return "";
+        if(!isset($_SERVER['HTTP_HOST'])) {
+            return '';
+        }
         $host = $_SERVER['HTTP_HOST'];
         $pos = strpos($host,':');
         if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || $this->is_ssl())) {
@@ -114,17 +136,32 @@ class MODX_INIT {
     function is_ssl() {
         global $https_port;
         
-        if(!isset($_SERVER['SERVER_PORT'])) return false;
-        if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') || $_SERVER['SERVER_PORT'] == $https_port) {
+        if(!isset($_SERVER['SERVER_PORT'])) {
+            return false;
+        }
+
+        if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') || $_SERVER['SERVER_PORT'] == $https_port) {
             return true;
         }
-        else return false;
+
+        return false;
     }
     
     // set the document_root :|
     function fix_document_root() {
-        if (isset($_SERVER['PATH_INFO']) && (!isset($_SERVER['DOCUMENT_ROOT']) || empty($_SERVER['DOCUMENT_ROOT']))) {
-            $_SERVER['DOCUMENT_ROOT'] = str_replace($_SERVER['PATH_INFO'], '', str_replace('\\', '/', $_SERVER['PATH_TRANSLATED'])).'/';
+        if (
+            isset($_SERVER['PATH_INFO'])
+            &&
+            (!isset($_SERVER['DOCUMENT_ROOT']) || !$_SERVER['DOCUMENT_ROOT'])
+        ) {
+            $_SERVER['DOCUMENT_ROOT'] = str_replace(
+            $_SERVER['PATH_INFO']
+            , ''
+            , str_replace(
+                '\\'
+                , '/'
+                , $_SERVER['PATH_TRANSLATED'])
+            ).'/';
         }
     }
     
@@ -144,34 +181,45 @@ class MODX_INIT {
     }
     
     function fix_request_time() {
-        if(!isset($_SERVER['REQUEST_TIME'])) $_SERVER['REQUEST_TIME'] = time();
+        if(!isset($_SERVER['REQUEST_TIME'])) {
+            $_SERVER['REQUEST_TIME'] = time();
+        }
     }
     
     function fix_server_addr() {
-        if(!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR']))
+        if(!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR'])) {
             $_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
-        if(isset($_SERVER['HTTP_X_REMOTE_ADDR']))
+        }
+        if(isset($_SERVER['HTTP_X_REMOTE_ADDR'])) {
             $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REMOTE_ADDR'];
-        if($_SERVER['REMOTE_ADDR']==='::1')
+        }
+        if($_SERVER['REMOTE_ADDR']==='::1') {
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        }
     }
     
     function fix_ssl() {
-        if(isset($_SERVER['HTTP_HTTPS']))
+        if(isset($_SERVER['HTTP_HTTPS'])) {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
-        elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS']))
+        } elseif(isset($_SERVER['HTTP_X_SAKURA_HTTPS'])) {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
-        elseif(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'on' && $this->is_ssl())
+        } elseif(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'on' && $this->is_ssl()) {
             $_SERVER['HTTPS'] = 'on';
+        }
         if(isset($_SERVER['HTTPS'])) {
-            if($_SERVER['HTTPS']==1) $_SERVER['HTTPS'] = 'on';
-            elseif($_SERVER['HTTPS']==='off') unset($_SERVER['HTTPS']);
+            if($_SERVER['HTTPS']==1) {
+                $_SERVER['HTTPS'] = 'on';
+            } elseif($_SERVER['HTTPS']==='off') {
+                unset($_SERVER['HTTPS']);
+            }
         }
     }
     
     function fix_favicon_req() {
         // From WordPress wp_favicon_request() load.php
-        if(!isset($_SERVER['REQUEST_URI'])) return;
+        if(!isset($_SERVER['REQUEST_URI'])) {
+            return;
+        }
         if($_SERVER['REQUEST_URI']==='/favicon.ico') {
             header('Content-Type: image/vnd.microsoft.icon');
             header('Content-Length: 0');
