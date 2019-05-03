@@ -4427,6 +4427,11 @@ class DocumentParser {
         return $_SESSION[$key];
     }
     
+    public function conf_var($key, $default=null) {
+        if(!isset($this->config[$key])) return $default;
+        return $this->config[$key];
+    }
+    
     public function get_docfield_type($field_name='') {
         if(in_array($field_name, explode(',', 'published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'), true)) {
             return 'datetime';
