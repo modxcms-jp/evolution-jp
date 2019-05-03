@@ -1,12 +1,12 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
 
+global $_PAGE;
 if(!($modx->hasPermission('new_module')||$modx->hasPermission('edit_module')||$modx->hasPermission('exec_module'))) {
 	$e->setError(3);
 	$e->dumpError();
 }
 
-// initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 
 // get and save search string

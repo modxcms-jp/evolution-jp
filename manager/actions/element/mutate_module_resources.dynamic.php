@@ -15,7 +15,6 @@ $tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
 $tbl_site_plugins       = $modx->getFullTableName('site_plugins');
 $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 
-// initialize page view state - the $_PAGE object
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked

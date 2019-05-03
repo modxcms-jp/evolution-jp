@@ -6,7 +6,7 @@ if(!$modx->hasPermission('edit_user')) {
 	$e->dumpError();
 }
 
-// initialize page view state - the $_PAGE object
+global $_PAGE;
 $modx->manager->initPageViewState();
 // get and save search string
 if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset')
