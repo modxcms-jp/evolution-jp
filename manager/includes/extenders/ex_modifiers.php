@@ -1142,7 +1142,7 @@ class MODIFIERS {
     }
     
     //mbstring
-    function substr($str, $s, $l = null) {
+    private function substr($str, $s, $l = null) {
         global $modx;
         if($l === null) $l = $this->strlen($str);
         if (function_exists('mb_substr')) {
@@ -1153,65 +1153,63 @@ class MODIFIERS {
         }
         return substr($str, $s, $l);
     }
-    function strpos($haystack,$needle,$offset=0) {
+    private function strpos($haystack, $needle, $offset=0) {
         global $modx;
         if (function_exists('mb_strpos')) {
             return mb_strpos($haystack, $needle, $offset, $modx->config['modx_charset']);
         }
         return strpos($haystack,$needle,$offset);
     }
-    function strlen($str) {
+    private function strlen($str) {
         global $modx;
         if (function_exists('mb_strlen')) {
             return mb_strlen(str_replace("\r\n", "\n", $str), $modx->config['modx_charset']);
         }
         return strlen($str);
     }
-    function strtolower($str) {
+    private function strtolower($str) {
         if (function_exists('mb_strtolower')) {
             return mb_strtolower($str);
         }
         return strtolower($str);
     }
-    function strtoupper($str) {
+    private function strtoupper($str) {
         if (function_exists('mb_strtoupper')) {
             return mb_strtoupper($str);
         }
         return strtoupper($str);
     }
-    function ucfirst($str) {
+    private function ucfirst($str) {
         if (function_exists('mb_strtoupper')) {
             return mb_strtoupper($this->substr($str, 0, 1)) . $this->substr($str, 1, $this->strlen($str));
         }
         return ucfirst($str);
     }
-    function lcfirst($str) {
+    private function lcfirst($str) {
         if (function_exists('mb_strtolower')) {
             return mb_strtolower($this->substr($str, 0, 1)) . $this->substr($str, 1, $this->strlen($str));
         }
         return lcfirst($str);
     }
-    function ucwords($str) {
+    private function ucwords($str) {
         if (function_exists('mb_convert_case')) {
             return mb_convert_case($str, MB_CASE_TITLE);
         }
         return ucwords($str);
     }
-    function strrev($str) {
+    private function strrev($str) {
         preg_match_all('/./us', $str, $ar);
         return join(array_reverse($ar[0]));
     }
-    function str_shuffle($str) {
+    private function str_shuffle($str) {
         preg_match_all('/./us', $str, $ar);
         shuffle($ar[0]);
         return join($ar[0]);
     }
-    function str_word_count($str) {
+    private function str_word_count($str) {
         return count(preg_split('~[^\p{L}\p{N}\']+~u',$str));
     }
-    function strip_tags($value,$params='') {
-        global $modx;
-
+    private function strip_tags($value, $params='') {
         if(stripos($params,'style')===false && stripos($value,'</style>')!==false) {
             $value = preg_replace('#<style.*?>.*?</style>#is', '', $value);
         }
