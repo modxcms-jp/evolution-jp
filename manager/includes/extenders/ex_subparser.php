@@ -3,12 +3,14 @@
 $this->sub = new SubParser();
 
 class SubParser {
-    function __construct()
+    public function __construct()
     {
     }
+
     function sendmail($params=array(), $msg='')
     {
         global $modx;
+        $p = array();
         if(isset($params) && is_string($params))
         {
             if(strpos($params,'=')===false)
@@ -22,15 +24,13 @@ class SubParser {
                 foreach($params_array as $k=>$v)
                 {
                     $k = trim($k);
-                    $v = trim($v);
-                    $p[$k] = $v;
+                    $p[$k] = trim($v);
                 }
             }
         }
         else
         {
             $p = $params;
-            unset($params);
         }
         if(isset($p['sendto'])) $p['to'] = $p['sendto'];
         
@@ -52,7 +52,7 @@ class SubParser {
         elseif(is_string($msg) && 0<strlen($msg)) $p['body'] = $msg;
         
         $modx->loadExtension('MODxMailer');
-        $sendto = (!isset($p['to']))   ? $modx->config['emailsender']  : $p['to'];
+        $sendto = !isset($p['to']) ? $modx->config['emailsender']  : $p['to'];
         $sendto = explode(',',$sendto);
         foreach($sendto as $address)
         {
@@ -83,15 +83,17 @@ class SubParser {
             $modx->mail->addReplyTo($address,$name);
         }
         
-        if(isset($p['from']) && strpos($p['from'],'<')!==false && substr($p['from'],-1)==='>')
-            list($p['fromname'],$p['from']) = $modx->mail->address_split($p['from']);
-        $modx->mail->From     = (!isset($p['from']))  ? $modx->config['emailsender']  : $p['from'];
-        $modx->mail->FromName = (!isset($p['fromname'])) ? $modx->config['site_name'] : $p['fromname'];
-        $modx->mail->Subject  = (!isset($p['subject']))  ? $modx->config['emailsubject'] : $p['subject'];
+        if(isset($p['from']) && strpos($p['from'],'<')!==false && substr($p['from'],-1)==='>') {
+            list($p['fromname'], $p['from']) = $modx->mail->address_split($p['from']);
+        }
+        $modx->mail->From     = !isset($p['from']) ? $modx->config['emailsender']  : $p['from'];
+        $modx->mail->FromName = !isset($p['fromname']) ? $modx->config['site_name'] : $p['fromname'];
+        $modx->mail->Subject  = !isset($p['subject']) ? $modx->config['emailsubject'] : $p['subject'];
         $modx->mail->Body     = $p['body'];
-        if (isset($p['type']) && $p['type'] == 'text') $this->mail->IsHTML(false);
-        $rs = $modx->mail->send();
-        return $rs;
+        if (isset($p['type']) && $p['type'] === 'text') {
+            $this->mail->IsHTML(false);
+        }
+        return $modx->mail->send();
     }
     
     function rotate_log($target='event_log',$limit=2000, $trim=100)
@@ -119,75 +121,86 @@ class SubParser {
     function addLog($title='no title',$msg='',$type=1)
     {
         if($title==='') $title = 'no title';
-        if(is_array($msg)) $msg = '<pre>'.print_r($msg,true).'</pre>';
-        if($msg==='')   $msg   = $_SERVER['REQUEST_URI'];
-        $this->logEvent(0, $type, $msg, $title);
+        if(is_array($msg)) {
+            $msg = sprintf('<pre>%s</pre>', print_r($msg, true));
+        }
+        $this->logEvent(
+            0
+            , $type
+            , $msg ? $msg : $_SERVER['REQUEST_URI']
+            , $title
+        );
     }
     
     function logEvent($evtid, $type, $msg, $title= 'Parser')
     {
         global $modx;
-        
+
+        if(!$modx->db->isConnected()) {
+            exit('DB connect error');
+        }
+
         if(!$modx->config) $modx->getSettings();
-        $evtid= (int)$evtid;
+
         $type = (int)$type;
         if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
         if (3 < $type) $type= 3;
-        if($modx->db->isConnected()) $msg= $modx->db->escape($msg);
-        $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
-        if($modx->db->isConnected()) $title= $modx->db->escape($title);
-        if (function_exists('mb_substr'))
-        {
-            $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
-        }
-        else
-        {
-            $title = substr($title, 0, 50);
-        }
-        $LoginUserID = $modx->getLoginUserID();
-        if (empty($LoginUserID)) $LoginUserID = '0';
-        
-        $fields['eventid']     = $evtid;
-        $fields['type']        = $type;
-        $fields['createdon']   = $_SERVER['REQUEST_TIME'];
-        $fields['source']      = $title;
-        $fields['description'] = $msg;
-        $fields['user']        = $LoginUserID;
-        $_ = $modx->db->lastQuery;
-        if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
-        else $title = 'DB connect error';
-        $modx->db->lastQuery = $_;
-        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
-        {
-            if($modx->config['send_errormail'] <= $type)
-            {
-                $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
-                $body['Source'] = $fields['source'];
-                $body['IP'] = $_SERVER['REMOTE_ADDR'];
-                if(!empty($_SERVER['REMOTE_ADDR'])) $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-                if(!empty($hostname))
-                    $body['Host name'] = $hostname;
-                if(!empty($modx->event->activePlugin))
-                    $body['Plugin'] = $modx->event->activePlugin;
-                if(!empty($modx->currentSnippet))
-                    $body['Snippet'] = $modx->currentSnippet;
-                $subject = 'Error mail from ' . $modx->config['site_name'];
-                foreach($body as $k=>$v)
-                {
-                    $mailbody[] = "[{$k}] {$v}";
-                }
-                $mailbody = join("\n",$mailbody);
-                $modx->sendmail($subject,$mailbody);
+
+        $saved = $modx->db->lastQuery;
+        $insert_id = $modx->db->insert(
+            array(
+                'eventid'     => (int)$evtid,
+                'type'        => $type,
+                'createdon'   => $_SERVER['REQUEST_TIME'],
+                'source'      => $modx->db->escape(
+                    function_exists('mb_substr') ?
+                        mb_substr($modx->hsc($title), 0, 50 , $modx->config['modx_charset'])
+                        : substr($modx->hsc($title), 0, 50)
+                ),
+                'description' => $modx->db->escape($msg),
+                'user'        => (int) $modx->getLoginUserID()
+            )
+            , '[+prefix+]event_log'
+        );
+        $modx->db->lastQuery = $saved;
+
+        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] <= $type) {
+            $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
+            $body['Source'] = $title;
+            $body['IP'] = $_SERVER['REMOTE_ADDR'];
+            if(!empty($_SERVER['REMOTE_ADDR'])) {
+                $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
             }
-        }
-        if (!isset($insert_id) || !$insert_id) exit('Error while inserting event log into database.');
-        else {
-            $trim  = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
-            if(($insert_id % $trim) == 0)
-            {
-                $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
-                $modx->rotate_log('event_log',$limit,$trim);
+            if(!empty($hostname)) {
+                $body['Host name'] = $hostname;
             }
+            if(!empty($modx->event->activePlugin)) {
+                $body['Plugin'] = $modx->event->activePlugin;
+            }
+            if(!empty($modx->currentSnippet)) {
+                $body['Snippet'] = $modx->currentSnippet;
+            }
+            $subject = 'Error mail from ' . $modx->config['site_name'];
+            foreach($body as $k=>$v)
+            {
+                $mailbody[] = "[{$k}] {$v}";
+            }
+            $mailbody = join("\n",$mailbody);
+            $modx->sendmail($subject,$mailbody);
+        }
+
+        if (!isset($insert_id) || !$insert_id) {
+            exit('Error while inserting event log into database.');
+        }
+
+        $trim  = isset($modx->config['event_log_trim']) ? (int)$modx->config['event_log_trim'] : 100;
+        if(($insert_id % $trim) == 0)
+        {
+            $modx->rotate_log(
+                'event_log'
+                , isset($modx->config['event_log_limit']) ? (int)$modx->config['event_log_limit'] : 2000
+                , $trim
+            );
         }
     }
     
@@ -305,7 +318,7 @@ class SubParser {
         elseif(isset($_POST['a'])) $action = $_POST['a'];
         if(isset($action) && !empty($action))
         {
-            include_once($modx->config['core_path'] . 'actionlist.inc.php');
+            include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
             if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
             else $actionName = '';
@@ -315,7 +328,7 @@ class SubParser {
         if(preg_match('@^[0-9]+@',$modx->documentIdentifier))
         {
             $resource  = $modx->getDocumentObject('id',$modx->documentIdentifier);
-            $url = $modx->makeUrl($modx->documentIdentifier,'','','full');
+            $url = $modx->makeUrl($modx->documentIdentifier);
             $link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
             $str .= $modx->parseText($tpl,array('left'=>'Resource : ','right'=>"[{$modx->documentIdentifier}]{$link}"));
         }
@@ -969,7 +982,7 @@ class SubParser {
                     $doc = $modx->getPageInfo($doc['parent'], 0, 'id,parent');
                     $tv = $modx->getTemplateVar($name, '*', $doc['id'], null);
                     $value = (string) $tv['value'];
-                    if ($value !== '' && substr($value,0,8)!=='@INHERIT') {
+                    if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
                         $output = $value;
                         break 2;
                     }
@@ -979,12 +992,12 @@ class SubParser {
             case '@DIR' :
                 $files = array ();
                 $param = trim($param,'/');
-                $path = $modx->config['base_path'] . $param;
+                $path = MODX_BASE_PATH . $param;
                 if (!is_dir($path)) exit($path);
                 
                 $dir = dir($path);
                 while (($file = $dir->read()) !== false) {
-                    if (substr($file, 0, 1) != '.') {
+                    if (strpos($file, '.') !== 0) {
                         $files[] = "{$file}=={$param}{$file}";
                     }
                 }
@@ -1000,7 +1013,7 @@ class SubParser {
                 break;
         }
         // support for nested bindings
-        if(is_string($output) && substr($output,0,1)==='@' && $output != $input)
+        if(is_string($output) && strpos($output, '@') === 0 && $output != $input)
             $output = $this->ProcessTVCommand($output, $name, $docid, $src);
         
         return $output;
@@ -1009,10 +1022,12 @@ class SubParser {
     // separate @ cmd from params
     function splitTVCommand($binding_string)
     {
-        if(substr($binding_string,0,1)!=='@')      return array();
+        if(strpos($binding_string, '@') !== 0)      return array();
         if(strpos($binding_string,'@INHERIT')===0) return array('INHERIT','');
         
-        if(strpos($binding_string,'@@EVAL')===0) $binding_string = substr($binding_string,1);
+        if(strpos($binding_string,'@@EVAL')===0) {
+            $binding_string = substr($binding_string, 1);
+        }
         
         $BINDINGS = explode(',', 'PARSE,MODX,FILE,CHUNK,DOCUMENT,DOC,SELECT,EVAL,INHERIT,DIRECTORY,DIR,NULL,NONE');
         $binding_array = array();
@@ -1187,7 +1202,7 @@ class SubParser {
                 {
                     list($label,$value) = $this->splitOption($item);
                     $ph2['label']    = $label;
-                    $ph2['value']    =  htmlspecialchars($value);
+                    $ph2['value']    =  $modx->hsc($value);
                     $ph2['selected'] = in_array($value,$field_values) ? 'selected="selected"':'';
                     $options[] = $modx->parseText($tpl2, $ph2);
                 }
@@ -1212,7 +1227,7 @@ class SubParser {
                     $checked = ($this->isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
                     $ph['id']      = "tv{$field_id}_{$i}";
                     $ph['name']    = "tv{$field_id}[]";
-                    $ph['value']   = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+                    $ph['value']   = $modx->hsc($value);
                     $ph['tvtype']  = $field_type;
                     $ph['label']   = $label;
                     $ph['checked'] = $checked;
@@ -1228,7 +1243,7 @@ class SubParser {
                 {
                     list($label,$value) = $this->splitOption($item);
                     $checked = ($this->isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
-                    $value = htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']);
+                    $value = $modx->hsc($value);
                     $field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
                     $i++;
                 }
@@ -1243,7 +1258,7 @@ class SubParser {
                 break;
             case 'hidden':
                 $field_type = 'hidden';
-                $field_html .=  '<input type="hidden" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value). '" tvtype="' . $field_type.'" />';
+                $field_html .=  '<input type="hidden" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.$modx->hsc($field_value). '" tvtype="' . $field_type.'" />';
                 break;
 
             case 'custom_tv':
@@ -1274,7 +1289,7 @@ class SubParser {
                 } elseif(strpos($field_elements, '@CHUNK') === 0) {
                     $chunk_name = trim(substr($field_elements, 7));
                     $chunk_body = $modx->getChunk($chunk_name);
-                    if($chunk_body == false) {
+                    if($chunk_body === false) {
                         $custom_output = $_lang['chunk_no_exist']
                             . '(' . $_lang['htmlsnippet_name']
                             . ':' . $chunk_name . ')';
@@ -1294,8 +1309,8 @@ class SubParser {
                 $ph['field_name']   = "tv{$field_id}";
                 $ph['name']         = "tv{$field_id}";
                 $ph['default_text'] = $default_text;
-                $ph['field_value']  = htmlspecialchars($field_value);
-                $ph['value']        = htmlspecialchars($field_value);
+                $ph['field_value']  = $modx->hsc($field_value);
+                $ph['value']        = $modx->hsc($field_value);
                 $ph['field_style']  = $field_style;
                 $custom_output = $modx->parseText($custom_output, $ph);
                 $custom_output = $modx->mergeDocumentContent($custom_output);
@@ -1304,7 +1319,6 @@ class SubParser {
                 break;
             
             default: // the default handler -- for errors, mostly
-                $sname = strtolower($field_type);
                 if(strpos($field_elements, '@EVAL') === 0)
                 {
                     $eval_str = trim(substr($field_elements, 6));
@@ -1321,10 +1335,17 @@ class SubParser {
                         $eval_str = eval($modx->db->getValue($result));
                     }
                 }
-                if(isset($eval_str))
-                    $field_html .= eval($eval_str);
-                else
-                    $field_html .=  '<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.htmlspecialchars($field_value).'" '.$field_style.' />';
+                if(isset($eval_str)) {
+                    return $field_html .eval($eval_str);
+                }
+
+                return $field_html . sprintf(
+                    '<input type="text" id="tv%s" name="tv%s" value="%s" %s />'
+                    , $field_id
+                    , $field_id
+                    , $modx->hsc($field_value)
+                    , $field_style
+                );
         } // end switch statement
         return trim($field_html);
     }
@@ -1332,25 +1353,31 @@ class SubParser {
     function ParseInputOptions($v)
     {
         global $modx;
-        $a = array();
-        if(is_array($v)) $a = $v;
-        elseif($modx->db->isResult($v))
-        {
+        if (is_array($v)) {
+            return $v;
+        }
+
+        if($modx->db->isResult($v)) {
+            $a = array();
             while ($cols = $modx->db->getRow($v,'num'))
             {
                 $a[] = $cols;
             }
+            return $a;
         }
-        else
-        {
-            $v = trim($v);
-            if(strpos($v,'||')===false && strpos(trim($v),"\n")!==false)
-                $v = str_replace("\n",'||',$v);
-            elseif(strpos($v,'||')===false && strpos(trim($v),"\n")===false && strpos(trim($v),',')!==false)
-                $v = str_replace(',','||',$v);
-            $a = explode('||', $v);
+
+        $v = trim($v);
+        if (strpos($v,'||')!==false) {
+            return explode('||', $v);
         }
-        return $a;
+
+        if(strpos($v,"\n")!==false) {
+            $v = str_replace("\n", '||', $v);
+        } elseif(strpos($v,',')!==false) {
+            $v = str_replace(',', '||', $v);
+        }
+
+        return explode('||', $v);
     }
     
     function splitOption($value)
@@ -1362,34 +1389,36 @@ class SubParser {
         }
         else
         {
-            if(strpos($value,'==')===false)
+            if(strpos($value,'==')===false) {
                 $label = $value;
-            else
-                list($label,$value) = explode('==',$value,2);
+            } else {
+                list($label, $value) = explode('==', $value, 2);
+            }
         }
-        $label = trim($label);
-        $value = trim($value);
-        return array($label,$value);
+        return array(trim($label),trim($value));
     }
     
     function isSelected($label,$value,$item,$field_value)
     {
-        if(is_array($item)) $item = $item['0'];
+        if(is_array($item)) {
+            $item = $item['0'];
+        }
+
         if(strpos($item,'==')!==false && strlen($value)==0)
         {
-            if(is_array($field_value))
-            {
+            if(is_array($field_value)) {
                 $rs = in_array($label,$field_value);
+            } else {
+                $rs = ($label === $field_value);
             }
-            else $rs = ($label===$field_value);
         }
         else
         {
-            if(is_array($field_value))
-            {
+            if(is_array($field_value)) {
                 $rs = in_array($value,$field_value);
+            } else {
+                $rs = ($value === $field_value);
             }
-            else $rs = ($value===$field_value);
         }
         
         return $rs;
@@ -1402,12 +1431,12 @@ class SubParser {
      */
     function webAlertAndQuit($msg, $url= "") {
         global $modx,$modx_manager_charset;
-        if (substr(strtolower($url), 0, 11) == "javascript:") {
+        if (strpos(strtolower($url), 'javascript:') === 0) {
             $fnc = substr($url, 11);
         } elseif ($url) {
             $fnc = "window.location.href='" . addslashes($url) . "';";
         } elseif(isset($_SESSION['previous_request_uri'])) {
-            $fnc = "window.location.href='" . $_SESSION['previous_request_uri'] . "';";
+            $fnc = sprintf("window.location.href='%s';", $_SESSION['previous_request_uri']);
         } else {
             $fnc = "history.back(-1);";
         }
@@ -1434,12 +1463,24 @@ class SubParser {
         $fp = fopen($filepath, 'rb');
         $head= fread($fp, 2); fclose($fp);
         $head = mb_convert_encoding($head, '8BIT');
-        if($head==='BM')                    $mime_type = 'image/bmp';
-        elseif($head==='GI')                $mime_type = 'image/gif';
-        elseif($head===chr(0xFF).chr(0xd8)) $mime_type = 'image/jpeg';
-        elseif($head===chr(0x89).'P')       $mime_type = 'image/png';
-        else $mime_type = false;
-        return $mime_type;
+
+        if ($head==='BM') {
+            return 'image/bmp';
+        }
+
+        if ($head==='GI') {
+            return 'image/gif';
+        }
+
+        if ($head===chr(0xFF).chr(0xd8)) {
+            return 'image/jpeg';
+        }
+
+        if($head===chr(0x89).'P') {
+            return 'image/png';
+        }
+
+        return false;
     }
     
     # returns true if the current web user is a member the specified groups
@@ -1447,7 +1488,9 @@ class SubParser {
     {
         global $modx;
         
-        if (!is_array($groupNames)) return false;
+        if (!is_array($groupNames)) {
+            return false;
+        }
         
         // check cache
         $grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
@@ -1464,7 +1507,9 @@ class SubParser {
         }
         foreach ($groupNames as $k => $v)
         {
-            if (in_array(trim($v), $grpNames)) return true;
+            if (in_array(trim($v), $grpNames, true)) {
+                return true;
+            }
         }
         return false;
     }
@@ -1509,7 +1554,7 @@ class SubParser {
     function getLoginUserName($context= '') {
         global $modx;
 
-        if (!empty($context) && isset ($_SESSION[$context . 'Validated'])) {
+        if ($context && isset ($_SESSION[$context . 'Validated'])) {
             return $_SESSION[$context . 'Shortname'];
         }
 
@@ -1542,7 +1587,9 @@ class SubParser {
         global $modx;
         
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs) return false;
+        if (!$docs) {
+            return false;
+        }
 
         foreach($docs as $doc) {
             $result[] = $modx->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
@@ -1555,12 +1602,16 @@ class SubParser {
         global $modx;
         
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
-        if (!$docs) return false;
+        if (!$docs) {
+            return false;
+        }
         
         $result= array ();
         foreach($docs as $doc) {
             $tvs= $modx->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
-            if ($tvs) $result[$doc['id']]= $tvs; // Use docid as key - netnoise 2006/08/14
+            if ($tvs) {
+                $result[$doc['id']] = $tvs;
+            } // Use docid as key - netnoise 2006/08/14
         }
         return $result;
     }
@@ -1581,12 +1632,12 @@ class SubParser {
         if($where===false)
         {
             // get document groups for current user
-            if ($docgrp= $modx->getUserDocGroups())
-            {
-                $docgrp= implode(',', $docgrp);
+            if ($modx->getUserDocGroups()) {
+                $docgrp= implode(',', $modx->getUserDocGroups());
                 $cond = "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'";
+            } else {
+                $cond = '';
             }
-            else $cond = '';
             $context = ($modx->isFrontend() ? 'web' : 'mgr');
             $where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
         }
@@ -1607,18 +1658,33 @@ class SubParser {
         global $modx;
         
         $cacheKey = md5(print_r(func_get_args(),true));
-        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
-        
-        // get document groups for current user
-        if ($docgrp= $modx->getUserDocGroups())
-        {
-            $docgrp= implode(',', $docgrp);
-            $cond = " OR dg.document_group IN ({$docgrp})";
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
+            return $modx->tmpCache[__FUNCTION__][$cacheKey];
         }
-        else $cond = '';
-        if($modx->isFrontend()) $context = 'sc.privateweb=0';
-        else                    $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-        $where = "sc.parent = '{$id}' AND sc.published=1 AND sc.deleted=0 AND ({$context} {$cond}) GROUP BY sc.id";
+        $where = array();
+        $where[] = "sc.parent = '{$id}'";
+        $where[] = "AND sc.published=1";
+        $where[] = "AND sc.deleted=0";
+        if($modx->isFrontend()) {
+            if ($modx->getUserDocGroups()) {
+                $where[] = sprintf(
+                    "AND (sc.privateweb=0 OR dg.document_group IN (%s))"
+                    , implode(',', $modx->getUserDocGroups())
+                );
+            } else {
+                $where[] = 'AND sc.privateweb=0';
+            }
+        } elseif($_SESSION['mgrRole']!=1) {
+            if ($modx->getUserDocGroups()) {
+                $where[] = sprintf(
+                    "AND (sc.privatemgr=0 OR dg.document_group IN (%s))"
+                    , implode(',', $modx->getUserDocGroups())
+                );
+            } else {
+                $where[] = 'AND sc.privatemgr=0';
+            }
+        }
+        $where[] = "GROUP BY sc.id";
         
         $resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
         
@@ -1799,7 +1865,7 @@ class SubParser {
             $modx->version['full_appname']= isset($modx_full_appname) ? $modx_full_appname : '';
             $modx->version['new_version'] = isset($modx->config['newversiontext']) ? $modx->config['newversiontext'] : '';
         }
-        return (!is_null($data) && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
+        return ($data !== null && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
     }
     
     function _IIS_furl_fix()
@@ -1846,9 +1912,9 @@ class SubParser {
 
     function setCacheRefreshTime($unixtime=0)
     {
-        global $modx;
-        
-        if($unixtime==0) return;
+        if($unixtime==0) {
+            return;
+        }
         
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $cache = new synccache();
@@ -1857,13 +1923,11 @@ class SubParser {
     }
     
     function atBind($str='') {
-        global $modx;
+        if(strpos($str, '@') !== 0) return $str;
         
-        if(substr($str,0,1)!=='@') return $str;
-        
-        if(substr($str,0,5)==='@FILE')    return $this->atBindFile($str);
-        if(substr($str,0,4)==='@URL')     return $this->atBindUrl($str);
-        if(substr($str,0,8)==='@INCLUDE') return $this->atBindInclude($str);
+        if(strpos($str, '@FILE') === 0)    return $this->atBindFile($str);
+        if(strpos($str, '@URL') === 0)     return $this->atBindUrl($str);
+        if(strpos($str, '@INCLUDE') === 0) return $this->atBindInclude($str);
         
         return $str;
     }
@@ -1884,9 +1948,9 @@ class SubParser {
         
         if(substr($str,0,1)==='/')
         {
-            if(is_file($str) && MODX_MANAGER_PATH===substr($str,0,strlen(MODX_MANAGER_PATH)))
+            if(is_file($str) && strpos($str, MODX_MANAGER_PATH) === 0)
                 $file_path = false;
-            elseif(is_file($str) && MODX_BASE_PATH===substr($str,0,strlen(MODX_BASE_PATH)))
+            elseif(is_file($str) && strpos($str, MODX_BASE_PATH) === 0)
                 $file_path = $str;
             elseif(is_file(MODX_BASE_PATH . trim($str,'/')))
                 $file_path = MODX_BASE_PATH . trim($str,'/');
@@ -1894,14 +1958,16 @@ class SubParser {
         }
         elseif(is_file(MODX_BASE_PATH . $str))
             $file_path = MODX_BASE_PATH . $str;
-        elseif(is_file(MODX_BASE_PATH . "{$template_path}{$str}"))
-            $file_path = MODX_BASE_PATH . "{$template_path}{$str}";
+        elseif(is_file(MODX_BASE_PATH . $template_path . $str))
+            $file_path = MODX_BASE_PATH . $template_path . $str;
         else
             $file_path = false;
         
         if(!$file_path) return false;
         
-        if($modx->getExtention($file_path)==='.php') return 'Could not retrieve PHP file.';
+        if($modx->getExtention($file_path)==='.php') {
+            return 'Could not retrieve PHP file.';
+        }
         
         $content = file_get_contents($file_path);
         if(! $content)return '';
@@ -1917,18 +1983,23 @@ class SubParser {
     
     function atBindUrl($str='')
     {
-        if(strpos($str,'@URL')!==0) return $str;
+        if(strpos($str,'@URL')!==0) {
+            return $str;
+        }
+
         $str = trim($str);
-        if(strpos($str,"\n")!==false)
-            $str = substr($str,0,strpos("\n",$str));
+        $pos = strpos($str, "\n");
+        if($pos) {
+            $str = substr($str, 0, $pos);
+        }
         
         $str = substr($str,5);
         $str = trim($str);
-        if(strpos($str,'http')!==0) return 'Error @URL';
-        
-        $content = file_get_contents($str);
-        
-        return $content;
+        if(strpos($str,'http')!==0) {
+            return 'Error @URL';
+        }
+
+        return file_get_contents($str);
     }
     
     function atBindInclude($str='')
@@ -2111,8 +2182,6 @@ class SubParser {
         $modx->documentMap = array();
         while ($row = $modx->db->getRow($rs))
         {
-            $docid  = $row['id'];
-            $parent = $row['parent'];
             $modx->documentMap[] = array($row['parent'] => $row['id']);
         }
     }
