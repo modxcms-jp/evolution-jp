@@ -25,10 +25,9 @@ class ManagerAPI {
 
     function initPageViewState($id=0)
     {
-        global $_PAGE;
-        $vsid = isset($_SESSION['mgrPageViewSID']) ? $_SESSION['mgrPageViewSID'] : '';
-        if($vsid!=$this->action)
-        {
+        global $modx, $_PAGE;
+
+        if($modx->session_var('mgrPageViewSID', '') != $this->action) {
             $_SESSION['mgrPageViewSDATA'] = array(); // new view state
             $_SESSION['mgrPageViewSID']   = ($id > 0) ? $id : $this->action; // set id
         }
@@ -38,13 +37,15 @@ class ManagerAPI {
     // save page view state - not really necessary,
     function savePageViewState($id=0)
     {
+        global $_PAGE;
         $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
         $_SESSION['mgrPageViewSID']   = ($id > 0) ? $id : $this->action;
     }
 
     // check for saved form
     function hasFormValues() {
-        if(isset($_SESSION['mgrFormValueId']) && isset($_SESSION['mgrFormValues']) && !empty($_SESSION['mgrFormValues']))
+        global $modx;
+        if(isset($_SESSION['mgrFormValueId']) && $modx->session_var('mgrFormValues'))
         {
             if($this->action==$_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues']))
             {
@@ -293,10 +294,19 @@ class ManagerAPI {
 
     function getHashType($db_value='') { // md5 | v1 | phpass
         $c = substr($db_value,0,1);
-        if($c==='$')                                      return 'phpass';
-        elseif(strlen($db_value)===32)                    return 'md5';
-        elseif($c!=='$' && strpos($db_value,'>')!==false) return 'v1';
-        else                                              return 'unknown';
+        if ($c==='$') {
+            return 'phpass';
+        }
+
+        if (strlen($db_value)===32) {
+            return 'md5';
+        }
+
+        if($c!=='$' && strpos($db_value,'>')!==false) {
+            return 'v1';
+        }
+
+        return 'unknown';
     }
 
     function genV1Hash($password, $seed='1')
@@ -335,10 +345,16 @@ class ManagerAPI {
         if($algorithm!=='UNCRYPT')
         {
             $password = sha1($password) . crypt($password,$salt);
+        } else {
+            $password = sha1($salt . $password);
         }
-        else $password = sha1($salt.$password);
 
-        $result = strtolower($algorithm) . '>' . md5($salt.$password) . substr(md5($salt),0,8);
+        $result = sprintf(
+            '%s>%s%s'
+            , strtolower($algorithm)
+            , md5($salt . $password)
+            , substr(md5($salt), 0, 8)
+        );
 
         return $result;
     }
@@ -349,14 +365,17 @@ class ManagerAPI {
 
         $user = $modx->db->getObject('manager_users',"id='{$uid}'");
 
-        if(strpos($user->password,'>')===false) {
-            $algo = 'NOSALT';
+        if(strpos($user->password, '>')===false) {
+            return 'NOSALT';
         }
-        else
-        {
-            $algo = substr($user->password,0,strpos($user->password,'>'));
-        }
-        return strtoupper($algo);
+
+        return strtoupper(
+            substr(
+                $user->password
+                , 0
+                , strpos($user->password, '>')
+            )
+        );
     }
 
     function checkHashAlgorithm($algorithm='')
@@ -408,10 +427,12 @@ class ManagerAPI {
     {
         global $modx, $_lang;
 
-        $tpl = '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-        $ph['alt']     = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
+        $ph['alt']   = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
         $ph['class'] = $ph['label']==$_lang['cancel'] ? 'class="mutate"' : '';
-        return $modx->parseText($tpl,$ph);
+        return $modx->parseText(
+            '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>'
+            , $ph
+        );
     }
 
     //Helper functions for categories
@@ -421,10 +442,14 @@ class ManagerAPI {
     function newCategory($newCat)
     {
         global $modx;
-        $field['category'] = $modx->db->escape($newCat);
-        $newCatid = $modx->db->insert($field,'[+prefix+]categories');
+
+        $newCatid = $modx->db->insert(
+            array('category' => $modx->db->escape($newCat))
+            , '[+prefix+]categories'
+        );
+
         if(!$newCatid) {
-            $newCatid = 0;
+            return 0;
         }
         return $newCatid;
     }
@@ -433,14 +458,20 @@ class ManagerAPI {
     function checkCategory($newCat = '')
     {
         global $modx;
-        $rs = $modx->db->select('id,category','[+prefix+]categories','','category');
+
+        $rs = $modx->db->select(
+            'id,category'
+            , '[+prefix+]categories'
+            , ''
+            , 'category'
+        );
+
         if(!$rs) {
             return 0;
         }
-        while($row = $modx->db->getRow($rs))
-        {
-            if ($row['category'] == $newCat)
-            {
+
+        while($row = $modx->db->getRow($rs)) {
+            if ($row['category'] == $newCat) {
                 return $row['id'];
             }
         }
@@ -451,14 +482,25 @@ class ManagerAPI {
     function getCategories()
     {
         global $modx;
-        $cats = $modx->db->select('id, category', '[+prefix+]categories', '', 'category');
-        $resourceArray = array();
-        if($cats)
+        $rs = $modx->db->select(
+            'id, category'
+            , '[+prefix+]categories'
+            , ''
+            , 'category'
+        );
+
+        if(!$rs)
         {
-            while($row = $modx->db->getRow($cats)) // pixelchutes
-            {
-                $resourceArray[] = array('id' => $row['id'], 'category' => stripslashes( $row['category'] ));
-            }
+            return array();
+        }
+
+        $resourceArray = array();
+        while($row = $modx->db->getRow($rs)) // pixelchutes
+        {
+            $resourceArray[] = array(
+                'id'       => $row['id'],
+                'category' => stripslashes($row['category'])
+            );
         }
         return $resourceArray;
     }
@@ -467,16 +509,32 @@ class ManagerAPI {
     function deleteCategory($catId=0)
     {
         global $modx;
-        if ($catId)
-        {
-            $resetTables = array('site_plugins', 'site_snippets', 'site_htmlsnippets', 'site_templates', 'site_tmplvars', 'site_modules');
-            foreach ($resetTables as $n=>$v)
-            {
-                $field['category'] = '0';
-                $modx->db->update($field, "[+prefix+]{$v}", "category='{$catId}'");
-            }
-            $modx->db->delete('[+prefix+]categories',"id='{$catId}'");
+
+        if (!$catId) {
+            return;
         }
+
+        $resetTables = array(
+            'site_plugins',
+            'site_snippets',
+            'site_htmlsnippets',
+            'site_templates',
+            'site_tmplvars',
+            'site_modules'
+        );
+
+        foreach ($resetTables as $table_name) {
+            $modx->db->update(
+                array('category'=>'0')
+                , '[+prefix+]' . $table_name
+                , sprintf("category='%d'", $catId)
+            );
+        }
+
+        $modx->db->delete(
+            '[+prefix+]categories'
+            , sprintf("id='%d'", $catId)
+        );
     }
 
     /**
@@ -490,40 +548,58 @@ class ManagerAPI {
     function sysAlert($sysAlertMsgQueque='') {
         global $modx,$_lang;
 
-        if(empty($sysAlertMsgQueque))
+        if(!$sysAlertMsgQueque) {
             $sysAlertMsgQueque = $modx->SystemAlertMsgQueque;
-        if(empty($sysAlertMsgQueque)) return '';
-        if(!is_array($sysAlertMsgQueque)) $sysAlertMsgQueque = array($sysAlertMsgQueque);
+            if(!$sysAlertMsgQueque) {
+                return '';
+            }
+        }
+
+        if(!is_array($sysAlertMsgQueque)) {
+            $sysAlertMsgQueque = array($sysAlertMsgQueque);
+        }
+
+        unset($_SESSION['SystemAlertMsgQueque']);
+        $_SESSION['SystemAlertMsgQueque'] = array();
 
         $alerts = array();
         foreach($sysAlertMsgQueque as $_) {
             $alerts[] = $_;
         }
-        $sysMsgs = implode('<hr />',$alerts);
 
-        // reset message queque
-        unset($_SESSION['SystemAlertMsgQueque']);
-        $_SESSION['SystemAlertMsgQueque'] = array();
-        $sysAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
-
-        $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl');
-        $ph['alerts'] = $modx->db->escape($sysMsgs);
-        $ph['title']  = $_lang['sys_alert'];
-        return $modx->parseText($tpl,$ph);
+        return $modx->parseText(
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
+            , array(
+                'alerts' => $modx->db->escape(implode('<hr />',$alerts)),
+                'title'  => $_lang['sys_alert']
+            )
+        );
     }
 
     function getMessageCount() {
         global $modx;
 
-        if(!$modx->hasPermission('messages')) return;
+        if(!$modx->hasPermission('messages')) {
+            return false;
+        }
 
         $uid = $modx->getLoginUserID();
 
-        $rs = $modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}' and messageread=0");
-        $new = $modx->db->getValue($rs);
+        $new = $modx->db->getValue(
+            $modx->db->select(
+                'count(id)'
+                , '[+prefix+]user_messages'
+                , sprintf("recipient='%s' and messageread=0", $uid)
+            )
+        );
 
-        $rs = $modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}'");
-        $total = $modx->db->getValue($rs);
+        $total = $modx->db->getValue(
+            $modx->db->select(
+                'count(id)'
+                , '[+prefix+]user_messages'
+                , sprintf("recipient='%s'", $uid)
+            )
+        );
 
         // ajax response
         if (isset($_POST['updateMsgCount'])) {
@@ -536,38 +612,56 @@ class ManagerAPI {
     // get user's document groups
     function getMgrDocgroups($uid=0) {
         global $modx;
-        if(empty($uid)) $uid=$modx->getLoginUserID();
-        $field ='uga.documentgroup as documentgroup';
-        $from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group';
-        $rs = $modx->db->select($field,$from,"ug.member='{$uid}'");
+
+        if(!$uid) {
+            $uid = $modx->getLoginUserID();
+        }
+
+        $rs = $modx->db->select(
+            'uga.documentgroup as documentgroup'
+            , array(
+                '[+prefix+]member_groups ug',
+                'INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group'
+            )
+            , sprintf("ug.member='%s'", $uid)
+        );
+
+        if(!$modx->db->getRecordCount($rs)) {
+            return array();
+        }
+
         $documentgroup = array();
-        if(0<$modx->db->getRecordCount($rs)) {
-            while ($row = $modx->db->getRow($rs)) {
-                $documentgroup[]=$row['documentgroup'];
-            }
+        while ($row = $modx->db->getRow($rs)) {
+            $documentgroup[] = $row['documentgroup'];
         }
         return $documentgroup;
     }
 
     function getMemberGroups($uid=0) {
         global $modx;
+
         if(!$uid) {
             $uid = $modx->getLoginUserID();
         }
-        $field ='user_group,name';
-        if(preg_match('@^[1-9][0-9]*$@',$uid))
-        {
-            $where = "ug.member='{$uid}'";
+
+        $rs = $modx->db->select(
+            'user_group,name'
+            , array(
+                '[+prefix+]member_groups ug',
+                'INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id'
+            )
+            , preg_match('@^[1-9][0-9]*$@',$uid) ? sprintf("ug.member='%d'", $uid) : ''
+        );
+
+        if(!$modx->db->getRecordCount($rs)) {
+            return array();
         }
-        else $where = '';
-        $from = '[+prefix+]member_groups ug INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id';
-        $rs = $modx->db->select($field,$from,$where);
+
         $group = array();
-        if(0<$modx->db->getRecordCount($rs)) {
-            while ($row = $modx->db->getRow($rs)) {
-                $group[$row['user_group']]=$row['name'];
-            }
+        while ($row = $modx->db->getRow($rs)) {
+            $group[$row['user_group']]=$row['name'];
         }
+
         return $group;
     }
     /**
@@ -581,30 +675,33 @@ class ManagerAPI {
     function setMgrDocsAsPrivate($docid='') {
         global $modx;
 
-        if($docid>0) {
-            $where = "id='{$docid}'";
-        } else {
-            $where = 'privatemgr=1';
-        }
-        $modx->db->update(array('privatemgr'=>0), '[+prefix+]site_content', $where);
+        $modx->db->update(
+            array('privatemgr'=>0)
+            , '[+prefix+]site_content'
+            , $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
+        );
 
-        $field = 'sc.id';
-        $from  = '[+prefix+]site_content sc'
-            .' LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id'
-            .' LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group';
-        if($docid>0) {
-            $where = "sc.id='{$docid}' AND mga.id > 0";
-        } else {
-            $where = 'mga.id > 0';
-        }
-        $rs = $modx->db->select($field,$from,$where);
+        $rs = $modx->db->select(
+            'sc.id'
+            , array('[+prefix+]site_content sc',
+                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
+                'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
+            )
+            , $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
+        );
+
         $ids = $modx->db->getColumn('id',$rs);
-        if(count($ids)>0) {
-            $ids = implode(',', $ids);
-            $modx->db->update(array('privatemgr'=>1),'[+prefix+]site_content', "id IN ({$ids})");
-        } else {
-            $ids = '';
+
+        if(!$ids) {
+            return '';
         }
+
+        $ids = implode(',', $ids);
+        $modx->db->update(
+            array('privatemgr'=>1)
+            , '[+prefix+]site_content'
+            , sprintf('id IN (%s)', $ids)
+        );
         return $ids;
     }
 
@@ -619,30 +716,34 @@ class ManagerAPI {
     function setWebDocsAsPrivate($docid='') {
         global $modx;
 
-        if($docid>0) {
-            $where = "id='{$docid}'";
-        } else {
-            $where = 'privateweb=1';
-        }
-        $modx->db->update(array('privateweb'=>0), '[+prefix+]site_content', $where);
+        $modx->db->update(
+            array('privateweb'=>0)
+            , '[+prefix+]site_content'
+            , $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
+        );
 
-        $field = 'DISTINCT sc.id';
-        $from  = '[+prefix+]site_content sc'
-            .' LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id'
-            .' LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group';
-        if($docid>0) {
-            $where = "sc.id='{$docid}' AND wga.id > 0";
-        } else {
-            $where = 'wga.id > 0';
-        }
-        $rs = $modx->db->select($field,$from,$where);
+        $rs = $modx->db->select(
+            'DISTINCT sc.id'
+            , array(
+                '[+prefix+]site_content sc',
+                'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
+                'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
+            )
+            , $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
+        );
+
         $ids = $modx->db->getColumn('id',$rs);
-        if(count($ids)>0) {
-            $ids = implode(',', $ids);
-            $modx->db->update(array('privateweb'=>1),'[+prefix+]site_content', "id IN ({$ids})");
-        } else {
-            $ids = '';
+
+        if($ids) {
+            return '';
         }
+
+        $ids = implode(',', $ids);
+        $modx->db->update(
+            array('privateweb'=>1)
+            , '[+prefix+]site_content'
+            , sprintf("id IN (%s)", $ids)
+        );
         return $ids;
     }
 
@@ -653,63 +754,64 @@ class ManagerAPI {
     function renderTabPane($ph) {
         global $modx;
 
-        $style_path = $this->getStylePath();
+        $style_path = $this->getStylePath() . 'common/block_tabpane.tpl';
 
-        if(is_file("{$style_path}common/block_tabpane.tpl")) {
-            $tpl = file_get_contents("{$style_path}common/block_tabpane.tpl");
-        } else {
+        if(!is_file($style_path)) {
             return '';
         }
 
-        if(!isset($ph['id']))        $ph['id']        = 'tab'.uniqid('id');
-        if(!isset($ph['tab-pages'])) $ph['tab-pages'] = 'content';
-        elseif(is_array($ph['tab-pages'])) join("\n", $ph['tab-pages']);
+        if(!isset($ph['id'])) {
+            $ph['id'] = 'tab' . substr(uniqid('id', true), 0, 13);
+        }
+        if(!isset($ph['tab-pages'])) {
+            $ph['tab-pages'] = 'content';
+        } elseif(is_array($ph['tab-pages'])) {
+            $ph['tab-pages'] = join("\n", $ph['tab-pages']);
+        }
 
-        return $modx->parseText($tpl,$ph);
+        return $modx->parseText(
+            file_get_contents($style_path)
+            , $ph
+        );
     }
 
     function renderTabPage($ph) {
         global $modx;
 
-        $style_path = $this->getStylePath();
+        $style_path = $this->getStylePath() . 'common/block_tabpage.tpl';
 
-        if(is_file("{$style_path}common/block_tabpage.tpl")) {
-            $tpl = file_get_contents("{$style_path}common/block_tabpage.tpl");
-        } else {
-            $tpl = false;
-        }
-
-        if(!$tpl) {
+        if(!is_file($style_path)) {
             return '';
         }
+
         if(!isset($ph['id'])) {
-            $ph['id'] = 'id' . uniqid('id');
+            $ph['id'] = 'id' . substr(uniqid('id', true),0,13);
         }
         if(!isset($ph['title'])) {
             $ph['title'] = 'title';
         }
+
         if(!isset($ph['content'])) {
             $ph['content'] = 'content';
         }
-        return $modx->parseText($tpl,$ph);
+
+        return $modx->parseText(
+            file_get_contents($style_path)
+            , $ph
+        );
     }
 
     function renderSection($ph) {
         global $modx;
 
-        $style_path = $this->getStylePath();
+        $style_path = $this->getStylePath() . 'common/block_section.tpl';
 
-        if(is_file("{$style_path}common/block_section.tpl")) {
-            $tpl = file_get_contents("{$style_path}common/block_section.tpl");
-        } else {
-            $tpl = false;
-        }
-
-        if(!$tpl) {
+        if(!is_file($style_path)) {
             return '';
         }
+
         if(!isset($ph['id'])) {
-            $ph['id'] = 'id' . uniqid('id');
+            $ph['id'] = 'id' . substr(uniqid('id', true),0,13);
         }
         if(!isset($ph['title'])) {
             $ph['title'] = 'title';
@@ -717,25 +819,25 @@ class ManagerAPI {
         if(!isset($ph['content'])) {
             $ph['content'] = 'content';
         }
-        return $modx->parseText($tpl,$ph);
+
+        return $modx->parseText(
+            file_get_contents($style_path)
+            , $ph
+        );
     }
 
     function renderTr($ph) {
         global $modx;
 
-        $style_path = $this->getStylePath();
+        $style_path = $this->getStylePath() . 'common/block_tr.tpl';
 
-        if(is_file("{$style_path}common/block_tr.tpl")) {
-            $tpl = file_get_contents("{$style_path}common/block_tr.tpl");
-        } else {
-            $tpl = false;
-        }
-
-        if(!$tpl) {
+        if(!is_file($style_path)) {
             return '';
         }
+
+
         if(!isset($ph['id'])) {
-            $ph['id'] = 'id' . uniqid('id');
+            $ph['id'] = 'id' . substr(uniqid('id', true),0,13);
         }
         if(!isset($ph['title'])) {
             $ph['title'] = 'title';
@@ -743,7 +845,10 @@ class ManagerAPI {
         if(!isset($ph['content'])) {
             $ph['content'] = 'content';
         }
-        return $modx->parseText($tpl,$ph);
+
+        return $modx->parseText(
+            file_get_contents($style_path)
+            , $ph);
     }
 
     function isAllowed($id)
@@ -752,11 +857,14 @@ class ManagerAPI {
 
         if(!$id)
         {
-            if($_REQUEST['pid']) $id = $_REQUEST['pid'];
-            else return true;
+            if(!$modx->input_any('pid')) {
+                return true;
+            }
+
+            $id = $modx->input_any('pid');
         }
 
-        if(!isset($modx->config['allowed_parents']) || empty($modx->config['allowed_parents'])) {
+        if(!$modx->conf_var('allowed_parents')) {
             return true;
         }
 
@@ -764,7 +872,7 @@ class ManagerAPI {
             $modx->user_allowed_docs = $this->getUserAllowedDocs();
         }
 
-        if(!in_array($id,$modx->user_allowed_docs)) {
+        if(!in_array($id, $modx->user_allowed_docs)) {
             return false;
         }
 
@@ -798,18 +906,30 @@ class ManagerAPI {
         global $modx;
 
         $modx->user_allowed_docs = array();
-        $allowed_parents = trim($modx->config['allowed_parents']);
-        $allowed_parents = preg_replace('@\s+@', ' ', $allowed_parents);
-        $allowed_parents = str_replace(array(' ','|'), ',', $allowed_parents);
-        $allowed_parents = explode(',', $allowed_parents);
-        if(empty($allowed_parents)) return '';
+        $allowed_parents = explode(
+            ','
+            , str_replace(
+                array(' ','|')
+                , ','
+                , preg_replace(
+                    '@\s+@'
+                    , ' '
+                    , trim($modx->config['allowed_parents'])
+                )
+            )
+        );
 
-        foreach($allowed_parents as $parent)
-        {
+        if(!$allowed_parents) {
+            return '';
+        }
+
+        foreach($allowed_parents as $parent) {
             $parent = trim($parent);
             $allowed_docs = $modx->getChildIds($parent);
             $allowed_docs[] = $parent;
-            $modx->user_allowed_docs = array_merge($modx->user_allowed_docs,$allowed_docs);
+            foreach($allowed_docs as $k=>$v) {
+                $modx->user_allowed_docs[$k] = $v;
+            }
         }
         return $modx->user_allowed_docs;
     }
@@ -833,7 +953,6 @@ class ManagerAPI {
 
     function getTplModule()
     {
-        global $modx;
         ob_start();
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         echo '[+content+]';
