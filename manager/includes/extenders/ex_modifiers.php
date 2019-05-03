@@ -618,9 +618,7 @@ class MODIFIERS {
                 return $this->strpos($value, $opt);
             case 'wordwrap':
                 // default: 70
-                  $wrapat = intval($opt) ? intval($opt) : 70;
-                if (version_compare(PHP_VERSION, '5.3.0') >= 0) return $this->includeMdfFile('wordwrap');
-                else return preg_replace("@(\b\w+\b)@e","wordwrap('\\1',\$wrapat,' ',1)",$value);
+                return $this->includeMdfFile('wordwrap');
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/',$opt) ? $opt : 70;
                 if($modx->config['manager_language']==='japanese-utf8') {
