@@ -3603,16 +3603,16 @@ class DocumentParser {
     {
         if ($context && isset($_SESSION["{$context}Validated"]))
             return $_SESSION["{$context}InternalKey"];
-        
-        if ($this->isFrontend() && isset ($_SESSION['webValidated']))
-        {
+
+        if ($this->isFrontend() && isset ($_SESSION['webValidated'])) {
             return $_SESSION['webInternalKey'];
         }
-        elseif ($this->isBackend() && isset ($_SESSION['mgrValidated']))
-        {
+
+        if ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
             return $_SESSION['mgrInternalKey'];
         }
-        else return false;
+
+        return false;
     }
 
     # Returns an array of document groups that current user is assigned to.
@@ -3624,8 +3624,7 @@ class DocumentParser {
         $dgn = array();
 
         if($this->session_var('webDocgroups')&& $this->session_var('webValidated')
-            && $this->isFrontend())
-        {
+            && $this->isFrontend()) {
             $dg = $this->session_var('webDocgroups');
             if($this->session_var('webDocgrpNames'))
             {
