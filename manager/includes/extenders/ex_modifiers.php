@@ -750,7 +750,7 @@ class MODIFIERS {
             case 'ucfirst':
             case 'lcfirst':
             case 'ucwords':
-                return $cmd($value);
+                return $this->$cmd($value);
             
             #####  Date time format
             case 'strftime':
