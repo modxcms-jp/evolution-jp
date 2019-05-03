@@ -80,6 +80,7 @@ class DocumentParser {
     public $doc;
     public $uri_parent_dir;
     public $manager;
+    public $user_allowed_docs;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
