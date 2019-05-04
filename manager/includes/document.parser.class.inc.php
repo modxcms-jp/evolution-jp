@@ -3652,21 +3652,30 @@ class DocumentParser {
         }
 
         if(!$dg || !is_array($dg)) {
-            return;
+            return false;
         }
 
-        // resolve ids to names
+        $ds = $this->db->select(
+            'name'
+            , '[+prefix+]documentgroup_names'
+            , sprintf(
+                'id IN (%s)'
+                , join(',', $dg)
+            )
+        );
+
         $dgn = array ();
-        $where = sprintf('id IN (%s)', join(',', $dg));
-        $ds = $this->db->select('name', '[+prefix+]documentgroup_names', $where);
-        while ($row = $this->db->getRow($ds))
-        {
-            $total = count($dgn);
-            $dgn[$total] = $row['name'];
+        $i = 1;
+        while ($row = $this->db->getRow($ds)) {
+            $dgn[$i] = $row['name'];
+            $i++;
         }
         // cache docgroup names to session
-        if($this->isFrontend()) $_SESSION['webDocgrpNames'] = $dgn;
-        else                    $_SESSION['mgrDocgrpNames'] = $dgn;
+        if($this->isFrontend()) {
+            $_SESSION['webDocgrpNames'] = $dgn;
+        } else {
+            $_SESSION['mgrDocgrpNames'] = $dgn;
+        }
         return $dgn;
     }
     
