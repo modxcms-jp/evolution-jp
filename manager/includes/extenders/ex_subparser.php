@@ -1117,18 +1117,29 @@ class SubParser {
         
         if(isset($content['id'])) {
             global $docObject;
-            if($docObject)
+            if($docObject) {
                 $modx->documentObject = $docObject;
-            elseif(!isset($modx->documentObject))
-                $modx->documentObject = $modx->getDocumentObject('id',$content['id']);
+            } elseif(!isset($modx->documentObject)) {
+                $modx->documentObject = $modx->getDocumentObject('id', $content['id']);
+            }
             
-            if(!isset($modx->documentIdentifier)) $modx->documentIdentifier = $content['id'];
+            if(!isset($modx->documentIdentifier)) {
+                $modx->documentIdentifier = $content['id'];
+            }
         }
         
-        if(strpos($field_elements, '<?php') === 0)  $field_elements = "@EVAL:\n".substr($field_elements,6);
-        if(strpos($field_elements, '@@EVAL') === 0) $field_elements = "@EVAL:\n".substr($field_elements,7);
-        if(strpos($default_text, '<?php') === 0)    $default_text   = "@@EVAL:\n".substr($default_text,6);
-        if(strpos($field_value, '<?php') === 0)     $field_value    = "@@EVAL:\n".substr($field_value,6);
+        if(strpos($field_elements, '<?php') === 0) {
+            $field_elements = "@EVAL:\n" . substr($field_elements, 6);
+        }
+        if(strpos($field_elements, '@@EVAL') === 0) {
+            $field_elements = "@EVAL:\n" . substr($field_elements, 7);
+        }
+        if(strpos($default_text, '<?php') === 0) {
+            $default_text = "@@EVAL:\n" . substr($default_text, 6);
+        }
+        if(strpos($field_value, '<?php') === 0) {
+            $field_value = "@@EVAL:\n" . substr($field_value, 6);
+        }
         
         if(strpos($default_text, '@@EVAL') === 0 && $field_value===$default_text) {
             $eval_str = trim(substr($default_text, 7));
