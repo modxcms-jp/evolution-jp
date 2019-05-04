@@ -1151,7 +1151,7 @@ class SubParser {
                 $class = "text {$field_type}";
             }
             return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php')
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_text.tpl')
                 , array(
                     'class'  => $class,
                     'id'     => 'tv' . $field_id,
@@ -1165,7 +1165,7 @@ class SubParser {
 
         if(in_array(strtolower($field_type),array('textarea','rawtextarea','htmlarea','richtext','textareamini'))) {
             return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/textarea.inc.php')
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_textarea.tpl')
                 , array(
                     'id'     => 'tv' . $field_id,
                     'name'   => 'tv' . $field_id,
@@ -1182,7 +1182,7 @@ class SubParser {
                 $format .= ' hh:mm:00';
             }
             return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/date.inc.php')
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_date.tpl')
                 , array(
                 'id' => sprintf(
                     'tv%s'
@@ -1199,9 +1199,10 @@ class SubParser {
             ));
         }
         if(in_array(strtolower($field_type),array('dropdown','listbox','listbox-multiple'))) {
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/list.inc.php');
-            if($field_type==='listbox-multiple')
-                $tpl = str_replace('[+name+]','[+name+][]',$tpl);
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_list.tpl');
+            if($field_type==='listbox-multiple') {
+                $tpl = str_replace('[+name+]', '[+name+][]', $tpl);
+            }
             $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
             $index_list = $this->ParseInputOptions($rs);
             $tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
@@ -1229,7 +1230,7 @@ class SubParser {
             }
             $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
             $index_list = $this->ParseInputOptions($rs);
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_checkbox.tpl');
             $field_html = '';
             $i=0;
             foreach ($index_list as $item) {
@@ -1251,7 +1252,7 @@ class SubParser {
             $index_list = $this->ParseInputOptions($rs);
             $i=0;
             $field_html = '';
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/radio.inc.php');
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
             foreach ($index_list as $item)
             {
                 list($label,$value) = $this->splitOption($item);
@@ -1272,7 +1273,7 @@ class SubParser {
         }
         if(strtolower($field_type)==='image') {
             return sprintf(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/image.inc.php')
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl')
                 , $field_id
                 , $field_id
                 , $field_value
@@ -1283,7 +1284,7 @@ class SubParser {
         }
         if(strtolower($field_type)==='file') {
             return sprintf(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/file.inc.php')
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl')
                 , $field_id
                 , $field_id
                 , $field_value
