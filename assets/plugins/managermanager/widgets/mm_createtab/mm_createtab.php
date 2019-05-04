@@ -20,7 +20,7 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
 	if (($e->name == 'OnDocFormRender' || $e->name == 'OnPluginFormRender') && useThisRule($roles, $templates)){
 	
 		// Plugin page tabs use a differen name for the tab object
-		$js_tab_object = ($e->name == 'OnPluginFormRender') ? 'tpSnippet' : 'tpSettings';
+		$js_tab_object = ($e->name == 'OnPluginFormRender') ? 'tp' : 'tpSettings';
 		
 		$output = "//  -------------- mm_createTab :: Begin ------------- \n";
 		
