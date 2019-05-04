@@ -138,6 +138,7 @@ function includeJs($url, $output_type='js') {
 	if ($output_type == 'html') {
 		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
 	}
+	return '';
 }
 
 // Generates the code needed to include an external CSS file. 
@@ -150,4 +151,5 @@ function includeCss($url, $output_type='js') {
 	if ($output_type == 'html') {
 		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
 	}
+    return '';
 }
