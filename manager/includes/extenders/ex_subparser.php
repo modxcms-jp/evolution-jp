@@ -1146,219 +1146,271 @@ class SubParser {
             $default_text = eval($eval_str);
             $field_value = $default_text;
         }
-        
-        $field_html = '';
 
-        switch (strtolower($field_type)) {
+        if (in_array(strtolower($field_type),array('text','rawtext','email','number','zipcode','tel','url'))) {
+            if($field_type === 'text') {
+                $class = 'text';
+            } elseif($field_type === 'number') {
+                $class = 'text imeoff';
+            } else {
+                $class = "text {$field_type}";
+            }
+            return $modx->parseText(
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php')
+                , array(
+                    'class'  => $class,
+                    'id'     => 'tv' . $field_id,
+                    'name'   => 'tv' . $field_id,
+                    'value'  => $modx->hsc($field_value),
+                    'style'  => $field_style,
+                    'tvtype' => $field_type
+                )
+            );
+        }
 
-            case 'text':    // handler for regular text boxes
-            case 'rawtext': // non-htmlentity converted text boxes
-            case 'email':   // handles email input fields
-            case 'number':  // handles the input of numbers
-            case 'zipcode': // handles the input of numbers
-            case 'tel':     // handles the input of numbers
-            case 'url': // handles url input fields
-                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/text.inc.php');
-                if($field_type === 'text')       $class = 'text';
-                elseif($field_type === 'number') $class = 'text imeoff';
-                else                          $class = "text {$field_type}";
-                $ph['class']  = $class;
-                $ph['id']     = "tv{$field_id}";
-                $ph['name']   = "tv{$field_id}";
-                $ph['value']  = htmlspecialchars($field_value);
-                $ph['style']  = $field_style;
-                $ph['tvtype'] = $field_type;
-                $field_html =  $modx->parseText($tpl,$ph);
-                break;
-            case 'textarea':     // handler for textarea boxes
-            case 'rawtextarea':  // non-htmlentity convertex textarea boxes
-            case 'htmlarea':     // handler for textarea boxes (deprecated)
-            case 'richtext':     // handler for textarea boxes
-            case 'textareamini': // handler for textarea mini boxes
-                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/textarea.inc.php');
-                $ph['id']     = "tv{$field_id}";
-                $ph['name']   = "tv{$field_id}";
-                $ph['value']  = htmlspecialchars($field_value);
-                $ph['style']  = $field_style;
-                $ph['tvtype'] = $field_type;
-                $ph['rows']   = $field_type==='textareamini' ? '5' : '15';
-                $field_html =  $modx->parseText($tpl,$ph);
-                break;
-            case 'date':
-            case 'dateonly':
-                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/date.inc.php');
-                $ph['class']           = 'DatePicker';
-                $ph['id']              = 'tv' . str_replace(array('-', '.'),'_', urldecode($field_id));    ;
-                $ph['name']            = "tv{$field_id}";
-                $ph['value']           = $field_value==0 || !isset($field_value) ? '' : htmlspecialchars($field_value);
-                $ph['style']           = $field_style;
-                $ph['tvtype']          = $field_type;
-                $ph['cal_nodate']      = $_style['icons_cal_nodate'];
-                $ph['yearOffset']      = $modx->config['datepicker_offset'];
-                $ph['datetime_format'] = $modx->config['datetime_format'] . ($field_type==='date' ? ' hh:mm:00' : '');
-                $ph['timepicker']      = strtolower($field_type)==='date' ? 'true' : 'false';
-                $field_html =  $modx->parseText($tpl,$ph);
-                break;
-            case 'dropdown': // handler for select boxes
-            case 'listbox':  // handler for select boxes
-            case 'listbox-multiple': // handler for select boxes where you can choose multiple items
-                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/list.inc.php');
-                if($field_type==='listbox-multiple')
-                    $tpl = str_replace('[+name+]','[+name+][]',$tpl);
-                $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-                $index_list = $this->ParseInputOptions($rs);
-                $tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
-                $field_values = explode('||',$field_value);
-                foreach ($index_list as $label=>$item)
-                {
-                    list($label,$value) = $this->splitOption($item);
-                    $ph2['label']    = $label;
-                    $ph2['value']    =  $modx->hsc($value);
-                    $ph2['selected'] = in_array($value,$field_values) ? 'selected="selected"':'';
-                    $options[] = $modx->parseText($tpl2, $ph2);
-                }
-                $ph['options'] = join("\n",$options);
-                $ph['id']      = "tv{$field_id}";
-                $ph['name']    = "tv{$field_id}";
-                $ph['size']   = (count($index_list)<8) ? count($index_list) : 8;
-                $ph['extra'] = '';
-                if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
-                elseif($field_type==='dropdown')     $ph['size']   = '1';
-                $field_html =  $modx->parseText($tpl,$ph);
-                break;
-            case 'checkbox': // handles check boxes
-                $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
-                if(!is_array($field_value)) $field_value = explode('||',$field_value);
-                $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-                $index_list = $this->ParseInputOptions($rs);
-                static $i=0;
-                foreach ($index_list as $item)
-                {
-                    list($label,$value) = $this->splitOption($item);
-                    $checked = ($this->isSelected($label,$value,$item,$field_value)) ? ' checked="checked"':'';
-                    $ph['id']      = "tv{$field_id}_{$i}";
-                    $ph['name']    = "tv{$field_id}[]";
-                    $ph['value']   = $modx->hsc($value);
-                    $ph['tvtype']  = $field_type;
-                    $ph['label']   = $label;
-                    $ph['checked'] = $checked;
-                    $field_html .=  $modx->parseText($tpl,$ph);
-                    $i++;
-                }
-                break;
-            case 'option': // handles radio buttons
-                $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-                $index_list = $this->ParseInputOptions($rs);
-                static $i=0;
-                foreach ($index_list as $item)
-                {
-                    list($label,$value) = $this->splitOption($item);
-                    $checked = ($this->isSelected($label,$value,$item,$field_value)) ?'checked="checked"':'';
-                    $value = $modx->hsc($value);
-                    $field_html .=  '<label for="tv_'.$i.'"><input type="radio" value="'.$value.'" id="tv_'.$i.'" name="tv'.$field_id.'" '. $checked .' />'.$label.'</label>';
-                    $i++;
-                }
-                break;
-            case 'image':    // handles image fields using htmlarea image manager
-                $field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseServer(\'tv'.$field_id.'\')" />';
-                break;
-            case 'file': // handles the input of file uploads
-            /* Modified by Timon for use with resource browser */
-                $field_html .='<input type="text" id="tv'.$field_id.'" name="tv'.$field_id.'"  value="'.$field_value .'" '.$field_style.' />&nbsp;<input type="button" value="'.$_lang['insert'].'" onclick="BrowseFileServer(\'tv'.$field_id.'\')" />';
-                
-                break;
-            case 'hidden':
-                $field_type = 'hidden';
-                $field_html .=  '<input type="hidden" id="tv'.$field_id.'" name="tv'.$field_id.'" value="'.$modx->hsc($field_value). '" tvtype="' . $field_type.'" />';
-                break;
-
-            case 'custom_tv':
-                $custom_output = '';
-                /* If we are loading a file */
-                if(strpos($field_elements, '@FILE') === 0) {
-                    $path_str = substr($field_elements, 6);
-                    $lfpos = strpos($path_str,"\n");
-                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
-                    $path_str = MODX_BASE_PATH . trim($path_str);
-                    if(!is_file($path_str)) $custom_output = $path_str . ' does not exist';
-                    else                    $custom_output = file_get_contents($path_str);
-                }
-                elseif(strpos($field_elements, '@INCLUDE') === 0) {
-                    $path_str = substr($field_elements, 9);
-                    $lfpos = strpos($path_str,"\n");
-                    if($lfpos!==false) $path_str = substr($path_str,0,$lfpos);
-                    $path_str = trim($path_str);
-                    if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
-                    elseif(is_file( MODX_BASE_PATH.$path_str))          $path = MODX_BASE_PATH . $path_str;
-                    else                                                $path = false;
-                    if(!$path) $custom_output = $path_str . ' does not exist';
-                    else {
-                        ob_start();
-                        include($path);
-                        $custom_output = ob_get_clean();
-                    }
-                } elseif(strpos($field_elements, '@CHUNK') === 0) {
-                    $chunk_name = trim(substr($field_elements, 7));
-                    $chunk_body = $modx->getChunk($chunk_name);
-                    if($chunk_body === false) {
-                        $custom_output = $_lang['chunk_no_exist']
-                            . '(' . $_lang['htmlsnippet_name']
-                            . ':' . $chunk_name . ')';
-                    } else {
-                        $custom_output = $chunk_body;
-                    }
-                } elseif(strpos($field_elements, '@EVAL') === 0) {
-                    $eval_str = trim(substr($field_elements, 6));
-                    $custom_output = eval($eval_str);
-                } else {
-                    if(strpos($field_elements, '@') === 0)
-                        $custom_output = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-                    else $custom_output = $field_elements;
-                }
-                $ph['field_type']   = $field_type;
-                $ph['field_id']     = $field_id;
-                $ph['field_name']   = "tv{$field_id}";
-                $ph['name']         = "tv{$field_id}";
-                $ph['default_text'] = $default_text;
-                $ph['field_value']  = $modx->hsc($field_value);
-                $ph['value']        = $modx->hsc($field_value);
-                $ph['field_style']  = $field_style;
-                $custom_output = $modx->parseText($custom_output, $ph);
-                $custom_output = $modx->mergeDocumentContent($custom_output);
-                
-                $field_html .= $custom_output;
-                break;
-            
-            default: // the default handler -- for errors, mostly
-                if(strpos($field_elements, '@EVAL') === 0)
-                {
-                    $eval_str = trim(substr($field_elements, 6));
-                }
-                else
-                {
-                    $result = $modx->db->select(
-                        'snippet'
-                        ,'[+prefix+]site_snippets'
-                        ,"name='input:{$field_type}'"
-                    );
-                    if($modx->db->getRecordCount($result)==1)
-                    {
-                        $eval_str = eval($modx->db->getValue($result));
-                    }
-                }
-                if(isset($eval_str)) {
-                    return $field_html .eval($eval_str);
-                }
-
-                return $field_html . sprintf(
-                    '<input type="text" id="tv%s" name="tv%s" value="%s" %s />'
+        if(in_array(strtolower($field_type),array('textarea','rawtextarea','htmlarea','richtext','textareamini'))) {
+            return $modx->parseText(
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/textarea.inc.php')
+                , array(
+                    'id'     => 'tv' . $field_id,
+                    'name'   => 'tv' . $field_id,
+                    'value'  => $modx->hsc($field_value),
+                    'style'  => $field_style,
+                    'tvtype' => $field_type,
+                    'rows'   => $field_type==='textareamini' ? '5' : '15'
+                )
+            );
+        }
+        if(in_array(strtolower($field_type),array('date','dateonly'))) {
+            $format = $modx->config['datetime_format'];
+            if($field_type === 'date') {
+                $format .= ' hh:mm:00';
+            }
+            return $modx->parseText(
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/date.inc.php')
+                , array(
+                'id' => sprintf(
+                    'tv%s'
+                    , str_replace(array('-', '.'), '_', urldecode($field_id))
+                ),
+                'name'            => 'tv' . $field_id,
+                'value'           => $field_value ? $modx->hsc($field_value) : '',
+                'style'           => $field_style,
+                'tvtype'          => $field_type,
+                'cal_nodate'      => $_style['icons_cal_nodate'],
+                'yearOffset'      => $modx->config['datepicker_offset'],
+                'datetime_format' => $format,
+                'timepicker'      => strtolower($field_type)==='date' ? 'true' : 'false'
+            ));
+        }
+        if(in_array(strtolower($field_type),array('dropdown','listbox','listbox-multiple'))) {
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/list.inc.php');
+            if($field_type==='listbox-multiple')
+                $tpl = str_replace('[+name+]','[+name+][]',$tpl);
+            $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+            $index_list = $this->ParseInputOptions($rs);
+            $tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
+            $field_values = explode('||',$field_value);
+            foreach ($index_list as $label=>$item)
+            {
+                list($label,$value) = $this->splitOption($item);
+                $ph2['label']    = $label;
+                $ph2['value']    =  $modx->hsc($value);
+                $ph2['selected'] = in_array($value,$field_values) ? 'selected="selected"':'';
+                $options[] = $modx->parseText($tpl2, $ph2);
+            }
+            $ph['options'] = join("\n",$options);
+            $ph['id']      = 'tv' . $field_id;
+            $ph['name']    = 'tv' . $field_id;
+            $ph['size']   = count($index_list)<8 ? count($index_list) : 8;
+            $ph['extra'] = '';
+            if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
+            elseif($field_type==='dropdown')     $ph['size']   = '1';
+            return $modx->parseText($tpl,$ph);
+        }
+        if(strtolower($field_type)==='checkbox') {
+            if(!is_array($field_value)) {
+                $field_value = explode('||', $field_value);
+            }
+            $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+            $index_list = $this->ParseInputOptions($rs);
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/checkbox.inc.php');
+            $field_html = '';
+            $i=0;
+            foreach ($index_list as $item) {
+                list($label,$value) = $this->splitOption($item);
+                $field_html .=  $modx->parseText($tpl,array(
+                    'id'      => 'tv' . $field_id . '_' . $i,
+                    'name'    => 'tv' . $field_id . '[]',
+                    'value'   => $modx->hsc($value),
+                    'tvtype'  => $field_type,
+                    'label'   => $label,
+                    'checked' => $this->isSelected($label,$value,$item,$field_value) ? ' checked':''
+                ));
+                $i++;
+            }
+            return trim($field_html);
+        }
+        if(strtolower($field_type)==='option') {
+            $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
+            $index_list = $this->ParseInputOptions($rs);
+            $i=0;
+            $field_html = '';
+            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/radio.inc.php');
+            foreach ($index_list as $item)
+            {
+                list($label,$value) = $this->splitOption($item);
+                $checked = $this->isSelected($label,$value,$item,$field_value) ?'checked="checked"':'';
+                $value = $modx->hsc($value);
+                $field_html .= sprintf(
+                    $tpl
+                    , $i
+                    , $value
+                    , $i
                     , $field_id
-                    , $field_id
-                    , $modx->hsc($field_value)
-                    , $field_style
+                    , $checked
+                    , $label
                 );
-        } // end switch statement
-        return trim($field_html);
+                $i++;
+            }
+            return $field_html;
+        }
+        if(strtolower($field_type)==='image') {
+            return sprintf(
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/image.inc.php')
+                , $field_id
+                , $field_id
+                , $field_value
+                , $field_style
+                , $_lang['insert']
+                , $field_id
+            );
+        }
+        if(strtolower($field_type)==='file') {
+            return sprintf(
+                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/file.inc.php')
+                , $field_id
+                , $field_id
+                , $field_value
+                , $field_style
+                , $_lang['insert']
+                , $field_id
+            );
+        }
+        if(strtolower($field_type)==='hidden') {
+            $field_type = 'hidden';
+            return sprintf(
+                '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />'
+                , $field_id
+                , $field_id
+                , $modx->hsc($field_value)
+                , $field_type
+            );
+        }
+        if(strtolower($field_type)==='custom_tv') {
+            if(strpos($field_elements, '@FILE') === 0) {
+                $path_str = trim(substr($field_elements, 6));
+                $lfpos = strpos($path_str,"\n");
+                if($lfpos!==false) {
+                    $path_str = substr($path_str, 0, $lfpos);
+                }
+                $path_str = MODX_BASE_PATH . trim($path_str);
+
+                if(!is_file($path_str)) {
+                    $tpl = $path_str . ' does not exist';
+                } else {
+                    $tpl = file_get_contents($path_str);
+                }
+            }
+            elseif(strpos($field_elements, '@INCLUDE') === 0) {
+                $path_str = substr($field_elements, 9);
+                $lfpos = strpos($path_str,"\n");
+                if($lfpos!==false) {
+                    $path_str = substr($path_str, 0, $lfpos);
+                }
+                $path_str = trim($path_str);
+                if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) {
+                    $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
+                } elseif(is_file( MODX_BASE_PATH.$path_str)) {
+                    $path = MODX_BASE_PATH . $path_str;
+                } else {
+                    $path = false;
+                }
+
+                if(!$path) {
+                    $tpl = $path_str . ' does not exist';
+                }
+                else {
+                    ob_start();
+                    include($path);
+                    $tpl = ob_get_clean();
+                }
+            } elseif(strpos($field_elements, '@CHUNK') === 0) {
+                $chunk_name = trim(substr($field_elements, 7));
+                $tpl = $modx->getChunk($chunk_name);
+                if($tpl === false) {
+                    $tpl = sprintf(
+                        '%s(%s:%s)'
+                        , $_lang['chunk_no_exist']
+                        , $_lang['htmlsnippet_name']
+                        , $chunk_name
+                    );
+                }
+            } elseif(strpos($field_elements, '@EVAL') === 0) {
+                $tpl = eval(
+                trim(substr($field_elements, 6))
+                );
+            } else {
+                if(strpos($field_elements, '@') === 0) {
+                    $tpl = $this->ProcessTVCommand(
+                        $field_elements
+                        , $field_id
+                        , ''
+                        , 'tvform'
+                    );
+                }
+                else {
+                    $tpl = $field_elements;
+                }
+            }
+            $ph['field_type']   = $field_type;
+            $ph['field_id']     = $field_id;
+            $ph['field_name']   = "tv{$field_id}";
+            $ph['name']         = "tv{$field_id}";
+            $ph['default_text'] = $default_text;
+            $ph['field_value']  = $modx->hsc($field_value);
+            $ph['value']        = $modx->hsc($field_value);
+            $ph['field_style']  = $field_style;
+            $tpl = $modx->parseText($tpl, $ph);
+            return $modx->mergeDocumentContent($tpl);
+        }
+
+        // the default handler -- for errors, mostly
+        if(strpos($field_elements, '@EVAL') === 0) {
+            $eval_str = trim(substr($field_elements, 6));
+        } else {
+            $result = $modx->db->select(
+                'snippet'
+                , '[+prefix+]site_snippets'
+                , sprintf("name='input:%s'", $field_type)
+            );
+            if($modx->db->getRecordCount($result)==1) {
+                $eval_str = $modx->db->getValue($result);
+            } else {
+                $eval_str = false;
+            }
+        }
+        if($eval_str) {
+            return eval($eval_str);
+        }
+
+        return sprintf(
+            '<input type="text" id="tv%s" name="tv%s" value="%s" %s />'
+            , $field_id
+            , $field_id
+            , $modx->hsc($field_value)
+            , $field_style
+        );
     }
 
     function ParseInputOptions($v)
