@@ -323,7 +323,11 @@ class DocumentParser {
     }
     
     function setDBCache($category,$key,$value) {
-        $where = sprintf("cache_section='%s' AND cache_key='%s'", $this->db->escape($category), $this->db->escape($key));
+        $where = sprintf(
+            "cache_section='%s' AND cache_key='%s'"
+            , $this->db->escape($category)
+            , $this->db->escape($key)
+        );
         $rs = $this->db->delete('[+prefix+]system_cache', $where);
         $f['cache_section']   = $category;
         $f['cache_key']       = $key;
@@ -333,7 +337,11 @@ class DocumentParser {
     }
     
     function getDBCache($category,$key) {
-        $where = sprintf("cache_section='%s' AND cache_key='%s'", $category, $this->db->escape($key));
+        $where = sprintf(
+            "cache_section='%s' AND cache_key='%s'"
+            , $category
+            , $this->db->escape($key)
+        );
         $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
         
         if(!$rs) return false;
@@ -2231,8 +2239,13 @@ class DocumentParser {
             $piece  = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars('[['.$piece.']]'))));
             $params = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars(print_r($params,true)))));
             $code = sprintf($tpl, nl2br(str_replace(' ','&nbsp;',$this->htmlspecialchars($value))));
-            $tpl = '<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s%s%s</fieldset>';
-            $this->dumpSnippetsCode[] = sprintf($tpl, $key, $piece, $params, $code);
+            $this->dumpSnippetsCode[] = sprintf(
+                '<fieldset style="margin-bottom:1em;"><legend><b>Output of %s</b></legend>%s%s%s</fieldset>'
+                , $key
+                , $piece
+                , $params
+                , $code
+            );
         }
         return $value;
     }
