@@ -3180,7 +3180,7 @@ class DocumentParser {
 
         $where = array();
         $where[] = sprintf(
-            'published=1 OR (pub_date != 0 AND pub_date < %s AND (unpub_date=0 OR unpub_date > %s))'
+            'published=1 OR (pub_date != 0 AND pub_date < %d AND (unpub_date=0 OR unpub_date > %d))'
             , $this->baseTime
             , $this->baseTime
         );
