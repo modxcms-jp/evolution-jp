@@ -1330,7 +1330,7 @@ class DocumentParser {
             return $this->aliasListing[$id];
         }
 
-        $where = sprintf('id=%s', (int)$id);
+        $where = sprintf('id=%d', (int)$id);
         $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
         
         if(!$this->db->getRecordCount($rs)) return false;
@@ -1364,7 +1364,7 @@ class DocumentParser {
             return;
         }
 
-        $where = sprintf('parent=%s', (int)$parent_id);
+        $where = sprintf('parent=%d', (int)$parent_id);
         $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
         
         if(!$this->db->getRecordCount($rs)) return false;
@@ -1399,7 +1399,7 @@ class DocumentParser {
         
         $fields = "id, IF(alias='', id, alias) AS alias";
         $parent_id = $this->getParentID($docid);
-        $where = sprintf("parent='%s'", $parent_id);
+        $where = sprintf('parent=%d', $parent_id);
         $rs = $this->db->select($fields,'[+prefix+]site_content', $where);
         if(!$rs) return false;
         
@@ -1419,7 +1419,7 @@ class DocumentParser {
             return 0;
         }
         
-        $where = sprintf("id='%s'", $docid);
+        $where = sprintf('id=%d', (int)$docid);
         $rs = $this->db->select('parent','[+prefix+]site_content', $where);
         if(!$rs) return false;
         
@@ -1431,7 +1431,7 @@ class DocumentParser {
     
     function setParentIDByParent($parent) {
         if(isset($this->tmpCache['setParentIDByParent'][$parent])) return;
-        $where = sprintf("parent='%s'", $parent);
+        $where = sprintf('parent=%d', (int)$parent);
         $rs = $this->db->select('id','[+prefix+]site_content', $where);
         if(!$rs) return false;
         
@@ -2536,15 +2536,29 @@ class DocumentParser {
         
         // get document (add so)
         $_ = array();
-        if($this->isFrontend())         $_[] = 'sc.privateweb=0';
-        else                            $_[] = 'sc.privatemgr=0';
-        if($docgrp)                     $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
-        if(isset($_SESSION['mgrRole'])) $_[] = sprintf("1='%s'", $_SESSION['mgrRole']);
+        if($this->isFrontend()) {
+            $_[] = 'sc.privateweb=0';
+        } else {
+            $_[] = 'sc.privatemgr=0';
+        }
+        if($docgrp) {
+            $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
+        }
+        if(isset($_SESSION['mgrRole'])) {
+            $_[] = sprintf('1=%d', (int)$_SESSION['mgrRole']);
+        }
         $access = join(' OR ', $_);
         
-        $from = "[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id";
-        $where ="sc.id='{$identifier}' AND ($access)";
-        $result= $this->db->select('sc.*',$from,$where,'',1);
+        $where = sprintf("sc.id=%d AND (%s)", (int)$identifier, $access);
+        $result= $this->db->select(
+            'sc.*'
+            , array(
+                '[+prefix+]site_content sc',
+                'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
+            )
+            , $where
+            , ''
+            , 1);
         if ($this->db->getRecordCount($result) < 1)
         {
             if ($this->isBackend() || $mode === 'direct') {
@@ -2581,8 +2595,11 @@ class DocumentParser {
         $from = array();
         $from[] = '[+prefix+]site_tmplvars tv';
         $from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id';
-        $from[] = sprintf("LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'", $docid);
-        
+        $from[] = sprintf(
+            'LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid=%d'
+            , (int)$docid
+        );
+
         if( isset($previewObject['template']) ) $tmp = $previewObject['template'];
         else                                    $tmp = $documentObject['template'];
         $where = sprintf("tvtpl.templateid='%s'", $tmp);
