@@ -31,8 +31,12 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 		}
 		
         // Does this page's template use any image TVs? If not, quit now!
-		$tvs = tplUseTvs($mm_current_page['template'], $tvs, 'image');
-		if ($tvs == false){
+		if($tvs) {
+			$tvs = tplUseTvs($mm_current_page['template'], $tvs);
+		} else {
+			$tvs = tplUseTvs($mm_current_page['template'], $tvs, 'image');
+		}
+		if (!$tvs){
 			return;
 		}
 		
