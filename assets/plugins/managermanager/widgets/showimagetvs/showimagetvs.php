@@ -16,8 +16,8 @@
 function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = ''){
 	global $modx, $mm_current_page;
 	$e = &$modx->event;
-	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+
+	if ($e->name === 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = '';
 		
 		$base_url = $modx->config['base_url'];
@@ -27,7 +27,7 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 			$h = isset($h) ? $h : 100;
 			$style = "'max-width:{$w}px; max-height:{$h}px; margin: 4px 0; cursor: pointer;'";
 		}else{
- 			$style = '';
+			$style = '';
 		}
 		
         // Does this page's template use any image TVs? If not, quit now!
@@ -40,8 +40,6 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 		
 		// Go through each TV
 		foreach ($tvs as $tv){
-			$new_html = '';
-			
 			$output .= '
 // Adding preview for tv'.$tv['id'].'
 $j("#tv'.$tv['id'].'").addClass("imageField").bind("change load", function(){
@@ -73,7 +71,7 @@ $j("#tv'.$tv['id'].'").addClass("imageField").bind("change load", function(){
 		// Attach a browse event to the picture, so it can trigger too
 		$j("#tv'.$tv['id'].'Preview").click(function(){
 			BrowseServer("tv'.$tv['id'].'");
-		 });
+		});
 	}
 }).trigger("load"); // Trigger a change event on load
 
@@ -101,4 +99,3 @@ setInterval ("checkImageTVupdates();", 250);
 		$e->output($output . "\n");
 	}
 }
-?>
