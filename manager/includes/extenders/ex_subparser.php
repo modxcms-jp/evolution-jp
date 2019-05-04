@@ -135,72 +135,67 @@ class SubParser {
     function logEvent($evtid, $type, $msg, $title= 'Parser')
     {
         global $modx;
-
-        if(!$modx->db->isConnected()) {
-            exit('DB connect error');
-        }
-
+        
         if(!$modx->config) $modx->getSettings();
-
+        $evtid= (int)$evtid;
         $type = (int)$type;
         if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
         if (3 < $type) $type= 3;
-
-        $saved = $modx->db->lastQuery;
-        $insert_id = $modx->db->insert(
-            array(
-                'eventid'     => (int)$evtid,
-                'type'        => $type,
-                'createdon'   => $_SERVER['REQUEST_TIME'],
-                'source'      => $modx->db->escape(
-                    function_exists('mb_substr') ?
-                        mb_substr($modx->hsc($title), 0, 50 , $modx->config['modx_charset'])
-                        : substr($modx->hsc($title), 0, 50)
-                ),
-                'description' => $modx->db->escape($msg),
-                'user'        => (int) $modx->getLoginUserID()
-            )
-            , '[+prefix+]event_log'
-        );
-        $modx->db->lastQuery = $saved;
-
-        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] <= $type) {
-            $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
-            $body['Source'] = $title;
-            $body['IP'] = $_SERVER['REMOTE_ADDR'];
-            if(!empty($_SERVER['REMOTE_ADDR'])) {
-                $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-            }
-            if(!empty($hostname)) {
-                $body['Host name'] = $hostname;
-            }
-            if(!empty($modx->event->activePlugin)) {
-                $body['Plugin'] = $modx->event->activePlugin;
-            }
-            if(!empty($modx->currentSnippet)) {
-                $body['Snippet'] = $modx->currentSnippet;
-            }
-            $subject = 'Error mail from ' . $modx->config['site_name'];
-            foreach($body as $k=>$v)
-            {
-                $mailbody[] = "[{$k}] {$v}";
-            }
-            $mailbody = join("\n",$mailbody);
-            $modx->sendmail($subject,$mailbody);
-        }
-
-        if (!isset($insert_id) || !$insert_id) {
-            exit('Error while inserting event log into database.');
-        }
-
-        $trim  = isset($modx->config['event_log_trim']) ? (int)$modx->config['event_log_trim'] : 100;
-        if(($insert_id % $trim) == 0)
+        if($modx->db->isConnected()) $msg= $modx->db->escape($msg);
+        $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
+        if($modx->db->isConnected()) $title= $modx->db->escape($title);
+        if (function_exists('mb_substr'))
         {
-            $modx->rotate_log(
-                'event_log'
-                , isset($modx->config['event_log_limit']) ? (int)$modx->config['event_log_limit'] : 2000
-                , $trim
-            );
+            $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
+        }
+        else
+        {
+            $title = substr($title, 0, 50);
+        }
+        $LoginUserID = $modx->getLoginUserID();
+        if (empty($LoginUserID)) $LoginUserID = '0';
+        
+        $fields['eventid']     = $evtid;
+        $fields['type']        = $type;
+        $fields['createdon']   = $_SERVER['REQUEST_TIME'];
+        $fields['source']      = $title;
+        $fields['description'] = $msg;
+        $fields['user']        = $LoginUserID;
+        $_ = $modx->db->lastQuery;
+        if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
+        else $title = 'DB connect error';
+        $modx->db->lastQuery = $_;
+        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
+        {
+            if($modx->config['send_errormail'] <= $type)
+            {
+                $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
+                $body['Source'] = $fields['source'];
+                $body['IP'] = $_SERVER['REMOTE_ADDR'];
+                if(!empty($_SERVER['REMOTE_ADDR'])) $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
+                if(!empty($hostname))
+                    $body['Host name'] = $hostname;
+                if(!empty($modx->event->activePlugin))
+                    $body['Plugin'] = $modx->event->activePlugin;
+                if(!empty($modx->currentSnippet))
+                    $body['Snippet'] = $modx->currentSnippet;
+                $subject = 'Error mail from ' . $modx->config['site_name'];
+                foreach($body as $k=>$v)
+                {
+                    $mailbody[] = "[{$k}] {$v}";
+                }
+                $mailbody = join("\n",$mailbody);
+                $modx->sendmail($subject,$mailbody);
+            }
+        }
+        if (!isset($insert_id) || !$insert_id) exit('Error while inserting event log into database.');
+        else {
+            $trim  = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
+            if(($insert_id % $trim) == 0)
+            {
+                $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
+                $modx->rotate_log('event_log',$limit,$trim);
+            }
         }
     }
     
