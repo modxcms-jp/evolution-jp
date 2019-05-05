@@ -237,23 +237,31 @@ class DocumentParser {
         $this->uaType  = $this->setUaType();
         $this->qs_hash = $this->genQsHash();
         
-        if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
+        if($this->checkSiteStatus()===false) {
+            $this->sendUnavailablePage();
+        }
         
         $this->updatePublishStatus();
         
         $this->decoded_request_uri = urldecode($this->treatRequestUri($_SERVER['REQUEST_URI']));
         $_ = substr($_SERVER['REQUEST_URI'],0,strrpos($_SERVER['REQUEST_URI'],'/')) . '/';
         $_ = ltrim($_,'/');
-        if(strpos($_,'?')!==false) $_ = substr($_,0,strpos($_,'?'));
+        if(strpos($_,'?')!==false) {
+            $_ = substr($_, 0, strpos($_, '?'));
+        }
         $this->uri_parent_dir = $_;
         
-        if(0 < count($_POST)) $this->config['cache_type'] = 0;
+        if(0 < count($_POST)) {
+            $this->config['cache_type'] = 0;
+        }
         
         $rs = $this->get_static_pages($this->decoded_request_uri);
         if($rs === 'complete') exit;
         $this->documentIdentifier = $this->getDocumentIdentifier($this->decoded_request_uri);
         
-        if(!$this->documentIdentifier) $this->sendErrorPage();
+        if(!$this->documentIdentifier) {
+            $this->sendErrorPage();
+        }
         
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
@@ -281,14 +289,18 @@ class DocumentParser {
         $this->directParse = 1;
         
         // get the settings
-        if(!isset($this->config) || !$this->config) $this->config = $this->getSettings();
+        if(!isset($this->config) || !$this->config) {
+            $this->config = $this->getSettings();
+        }
 
         $this->setBaseTime();
         $this->sanitizeVars();
         $this->uaType  = $this->setUaType();
         $this->qs_hash = '';
         
-        if($this->checkSiteStatus()===false) $this->sendUnavailablePage();
+        if($this->checkSiteStatus()===false) {
+            $this->sendUnavailablePage();
+        }
         
         $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
         $this->uri_parent_dir = '';
@@ -432,23 +444,24 @@ class DocumentParser {
     {
         // we now know the method and identifier, let's check the cache
         $this->documentContent= $this->getCache($this->documentIdentifier);
-        if ($this->documentContent != '')
-        {
+        if ($this->documentContent != '') {
             $params = array('useCache' => true);
             $this->invokeEvent('OnLoadWebPageCache',$params); // invoke OnLoadWebPageCache  event
-            if( $params['useCache'] != true ) //no use cache
-            {
+            if( $params['useCache'] != true ) {  //no use cache
                 $this->config['cache_type'] = 0;
                 $this->documentContent = '';
             }
         }
 
-        if ($this->documentContent == '')
-        {
+        if ($this->documentContent == '') {
             // get document object
-            if($this->documentObject) $_ = $this->documentObject;
+            if($this->documentObject) {
+                $_ = $this->documentObject;
+            }
             $this->documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
-            if(isset($_)) $this->documentObject = array_merge($_,$this->documentObject);
+            if(isset($_)) {
+                $this->documentObject = array_merge($_, $this->documentObject);
+            }
 
             // validation routines
             if($this->checkSiteStatus()===false)
@@ -504,8 +517,7 @@ class DocumentParser {
             // Parse document source
             $this->documentContent= $this->parseDocumentSource($this->documentContent);
         }
-        if($this->directParse==0)
-        {
+        if($this->directParse==0) {
             register_shutdown_function(array (
             & $this,
             'postProcess'
@@ -515,7 +527,9 @@ class DocumentParser {
     }
     
     function _getTemplateCode($documentObject) {
-        if(!$documentObject['template']) return '[*content*]'; // use blank template
+        if(!$documentObject['template']) {
+            return '[*content*]';
+        } // use blank template
         
         $rs = $this->db->select('id,parent,content','[+prefix+]site_templates');
         $_ = array();
@@ -530,22 +544,34 @@ class DocumentParser {
             $parentIds[] = $template_id;
             $template_id = $_[$template_id]['parent'];
             $i++;
-            if($template_id==0) break;
+            if(!$template_id) {
+                break;
+            }
         }
         $parentIds = array_reverse($parentIds);
         $parents = array();
         foreach($parentIds as $template_id) {
             $content = $_[$template_id]['content'];
-            if(substr($content,0,1)==='@') $content = $this->atBind($content);
+            if(strpos($content, '@') === 0) {
+                $content = $this->atBind($content);
+            }
             $parents[] = $content;
         }
         $content = array_shift($parents);
-        if(strpos($content,'<@IF:')!==false) $content = $this->mergeConditionalTagsContent($content);
-        if(count($parents)==0) return $content;
+        if(strpos($content,'<@IF:')!==false) {
+            $content = $this->mergeConditionalTagsContent($content);
+        }
+        if(!$parents) {
+            return $content;
+        }
         
         while($child_content = array_shift($parents)) {
-            if(strpos($content,'[*content*]')!==false)  $content = str_replace('[*content*]' , $child_content, $content);
-            if(strpos($content,'[*#content*]')!==false) $content = str_replace('[*#content*]', $child_content, $content);
+            if(strpos($content,'[*content*]')!==false) {
+                $content = str_replace('[*content*]', $child_content, $content);
+            }
+            if(strpos($content,'[*#content*]')!==false) {
+                $content = str_replace('[*#content*]', $child_content, $content);
+            }
             if(strpos($content,'[*content:')!==false) {
                 $matches = $this->getTagsFromContent($content,'[*content:','*]');
                 if($matches[0]) {
@@ -564,33 +590,31 @@ class DocumentParser {
         
         $this->documentOutput= $this->documentContent;
         
-        if ($this->documentGenerated           == 1
+        if ($this->documentGenerated              == 1
             && $this->documentObject['cacheable'] == 1
-            && $this->documentObject['type'] === 'document'
+            && $this->documentObject['type']      === 'document'
             && $this->documentObject['published'] == 1)
         {
-            if (!empty($this->sjscripts)) $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
-            if (!empty($this->jscripts))  $this->documentObject['__MODxJScripts__'] = $this->jscripts;
+            if ($this->sjscripts) {
+                $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
+            }
+            if ($this->jscripts) {
+                $this->documentObject['__MODxJScripts__'] = $this->jscripts;
+            }
         }
         
-        // check for non-cached snippet output
-        if (strpos($this->documentOutput, '[!') !== false)
+        if (strpos($this->documentOutput, '[!') !== false) {
             $this->documentOutput = $this->parseNonCachedSnippets($this->documentOutput);
+        }
         
-        // Moved from prepareResponse() by sirlancelot
-        if ($this->sjscripts && $js= $this->getRegisteredClientStartupScripts())
-        {
+        if ($this->sjscripts && $js= $this->getRegisteredClientStartupScripts()) {
             $this->documentOutput= str_ireplace('</head>', "{$js}\n</head>", $this->documentOutput);
         }
         
-        // Insert jscripts & html block into template - template must have a </body> tag
-        if ($this->jscripts && $js= $this->getRegisteredClientScripts())
-        {
+        if ($this->jscripts && $js= $this->getRegisteredClientScripts()) {
             $this->documentOutput= str_ireplace('</body>', "{$js}\n</body>", $this->documentOutput);
         }
-        // End fix by sirlancelot
-        
-        // remove all unused placeholders
+
         $this->documentOutput = $this->cleanUpMODXTags($this->documentOutput);
         
         if(strpos($this->documentOutput,'[~')!==false) $this->documentOutput = $this->rewriteUrls($this->documentOutput);
@@ -3100,7 +3124,7 @@ class DocumentParser {
             , 'orgId'  => $orgId
         );
         $this->event->vars = $params;
-        $rs = $this->invokeEvent('OnMakeUrl',$params);
+        $rs = $this->invokeEvent('OnMakeUrl', $params);
         $this->event->vars = array();
         if ($rs) {
             $url = end($rs);
@@ -3116,10 +3140,11 @@ class DocumentParser {
     
     function rewriteUrls($content)
     {
-        if(strpos($content,'[~')===false) return $content;
+        if(strpos($content,'[~')===false) {
+            return $content;
+        }
         
-        if(!isset($this->referenceListing))
-        {
+        if(!isset($this->referenceListing)) {
             $this->referenceListing = $this->_getReferenceListing();
         }
         
