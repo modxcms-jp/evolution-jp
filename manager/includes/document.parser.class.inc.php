@@ -1423,7 +1423,7 @@ class DocumentParser {
         
         $fields = "id, IF(alias='', id, alias) AS alias";
         $parent_id = $this->getParentID($docid);
-        $where = sprintf('parent=%d', $parent_id);
+        $where = sprintf('parent=%d', (int)$parent_id);
         $rs = $this->db->select($fields,'[+prefix+]site_content', $where);
         if(!$rs) return false;
         
