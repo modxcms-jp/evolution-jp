@@ -2970,15 +2970,22 @@ class DocumentParser {
     
     function makeUrl($id='', $alias= '', $args= '', $scheme= 'full', $ignoreReference=false)
     {
-        if($id==0) $id = $this->config['site_start'];
-        elseif($id=='') $id = $this->documentIdentifier;
+        static $cached = array();
+
         $cacheKey = md5(print_r(func_get_args(),true));
-        if(isset($this->tmpCache['makeurl'][$cacheKey])) return $this->tmpCache['makeurl'][$cacheKey];
-        $makeurl= '';
-        $f_url_prefix = $this->config['friendly_url_prefix'];
-        $f_url_suffix = $this->config['friendly_url_suffix'];
-        if (!preg_match('@^[0-9]+$@',$id))
-        {
+        if(isset($cached[$cacheKey])) {
+            return $cached[$cacheKey];
+        }
+
+        $cached[$cacheKey] = false;
+
+        if ($id==0) {
+            $id = $this->conf_var('site_start');
+        } elseif ($id=='') {
+            $id = $this->documentIdentifier;
+        }
+
+        if (!preg_match('@^[0-9]+$@',$id)) {
             $this->messageQuit("'{$id}' is not numeric and may not be passed to makeUrl()");
         }
         
@@ -2986,129 +2993,111 @@ class DocumentParser {
 
         $type='document';
         $orgId=0;
-        if(isset($this->referenceListing[$id]) && !$ignoreReference)
-        {
+        if(isset($this->referenceListing[$id]) && !$ignoreReference) {
             $type='reference';
-            if(preg_match('/^[0-9]+$/',$this->referenceListing[$id]))
-            {
-                $orgId=$id;
-                $id = $this->referenceListing[$id];
-            }
-            else {
-                $this->tmpCache['makeurl'][$cacheKey] = $this->referenceListing[$id];
+            if(!preg_match('/^[0-9]+$/', $this->referenceListing[$id])) {
+                $cached[$cacheKey] = $this->referenceListing[$id];
                 return $this->referenceListing[$id];
             }
+            $orgId = $id;
+            $id = $this->referenceListing[$id];
         }
 
-        if ($this->config['friendly_urls'] == 0) $makeurl= "index.php?id={$id}";
-        else {
+        if($id==$this->conf_var('site_start') && (strpos($scheme,'f')===0 || strpos($scheme,'a')===0)) {
+            $makeurl = '';
+        } elseif (!$this->conf_var('friendly_urls')) {
+            $makeurl = "index.php?id={$id}";
+        } else {
             $alPath = '';
-            if(empty($alias))
-            {
+            if(!$alias) {
                 $al= $this->getAliasListing($id);
                 $alias = $id;
-                if ($this->config['friendly_alias_urls'] == 1)
-                {
-                    $alPath = ($al && !empty($al['path'])) ? $al['path'] . '/' : '';
-                    if(!empty($alPath))
-                    {
+                if ($this->conf_var('friendly_alias_urls')) {
+                    if (!$al || !$al['alias']) {
+                        return false;
+                    }
+                    $alPath = $al['path'] ? $al['path'] . '/' : '';
+                    if($al['path']) {
                         $_ = explode('/', $alPath);
-                        foreach($_ as $i=>$v)
-                        {
+                        foreach($_ as $i=>$v) {
                             $_[$i] = urlencode($v);
                         }
                         $alPath = join('/', $_);
                     }
-                    if ($al && $al['alias'])
-                    {
-                        if($this->config['xhtml_urls']==1) $alias = urlencode($al['alias']);
-                        else                                  $alias = $al['alias'];
+                    if ($this->conf_var('xhtml_urls')) {
+                        $alias = urlencode($al['alias']);
+                    } else {
+                        $alias = $al['alias'];
                     }
-                    else return false;
                 }
             }
             
-            if(strpos($alias, '.') !== false && $this->config['suffix_mode']==1)
-            {
+            if(strpos($alias, '.') !== false && $this->conf_var('suffix_mode')) {
                 $f_url_suffix = '';
-            }
-            elseif($al['isfolder']==1 && $this->config['make_folders']==1 && $id != $this->config['site_start'])
-            {
+            } elseif($al['isfolder']==1 && $this->conf_var('make_folders') && $id != $this->conf_var('site_start')) {
                 $f_url_suffix = '/';
+            } else {
+                $f_url_suffix = $this->conf_var('friendly_url_suffix');
             }
-            $makeurl = $alPath . $f_url_prefix . $alias . $f_url_suffix;
+            $makeurl = $alPath . $this->conf_var('friendly_url_prefix') . $alias . $f_url_suffix;
         }
 
-        $site_url = $this->config['site_url'];
-        $base_url = $this->config['base_url'];
-        switch($scheme)
-        {
-            case 'full':
-            case 'f':
-                $site_url = $this->config['site_url'];
-                $base_url = '';
-                if($id==$this->config['site_start'])
-                    $makeurl = '';
-                break;
-            case 'http':
-            case '0':
-                if(strpos($site_url,'http://')!==0)
-                    $site_url = 'http' . substr($site_url,strpos($site_url,':'));
-                $base_url = '';
-                break;
-            case 'https':
-            case 'ssl':
-            case '1':
-                if(strpos($site_url,'https://')!==0)
-                    $site_url = 'https' . substr($site_url,strpos($site_url,':'));
-                $base_url = '';
-                break;
-            case 'absolute':
-            case 'abs':
-            case 'a':
-                $site_url = '';
-                $base_url = $this->config['base_url'];
-                if($id==$this->config['site_start'])
-                    $makeurl = '';
-                break;
-            case 'relative':
-            case 'rel':
-            case 'r':
-            case '-1':
-            default:
-                $site_url = '';
-                $base_url = '';
+        if (strpos($scheme,'f')===0) {
+            $url = $this->conf_var('site_url') . $makeurl;
+        } elseif(in_array($scheme, array('http', '0'))) {
+            $site_url = $this->conf_var('site_url');
+            if(strpos($site_url,'http://')!==0) {
+                $url = 'http' . substr($site_url, strpos($site_url, ':')) . $makeurl;
+            } else {
+                $url = $site_url . $makeurl;
+            }
+        } elseif(in_array($scheme, array('https', 'ssl', '1'))) {
+            $site_url = $this->conf_var('site_url');
+            if(strpos($site_url,'https://')!==0) {
+                $site_url = 'https' . substr($site_url, strpos($site_url, ':'));
+            }
+            $url = "{$site_url}{$makeurl}";
+        } elseif(strpos($scheme,'a')===0) {
+            $url = $this->conf_var('base_url') . $makeurl;
+        } else {
+            $url = $makeurl;
+        }
+
+        if($args) {
+            if(is_array($args)) {
+                $args = http_build_query($args);
+            }
+            $url .= sprintf(
+                '%s%s'
+                , (strpos($url, '?') === false) ? '?' : '&'
+                , ltrim($args,'?&')
+            );
         }
         
-        $url = "{$site_url}{$base_url}{$makeurl}";
-        if(is_array($args)) $args = http_build_query($args);
-        if($args!=='')
-        {
-            $args = ltrim($args,'?&');
-            if(strpos($url,'?')===false) $url .= "?{$args}";
-            else                         $url .= "&{$args}";
+        if($this->conf_var('xhtml_urls')) {
+            $url = preg_replace('/&(?!amp;)/', '&amp;', $url);
         }
-        
-        if($this->config['xhtml_urls']) $url = preg_replace("/&(?!amp;)/",'&amp;', $url);
-        $params = array();
-        $params['id']          = $id;
-        $params['alias']       = $alias;
-        $params['args']        = $args;
-        $params['scheme']      = $scheme;
-        $params['url']         = & $url;
-        $params['type']        = $type; // document or reference
-        $params['orgId']       = $orgId;
+        $params = array(
+            'id'      => $id
+            , 'alias'  => $alias
+            , 'args'   => $args
+            , 'scheme' => $scheme
+            , 'url'    => & $url
+            , 'type'   => $type // document or reference
+            , 'orgId'  => $orgId
+        );
         $this->event->vars = $params;
         $rs = $this->invokeEvent('OnMakeUrl',$params);
         $this->event->vars = array();
-        if (!empty($rs))
-        {
+        if ($rs) {
             $url = end($rs);
         }
-        if( $url != $params['url'] )
+        if( $url != $params['url'] ) {
             $url = $params['url'];
-        
-        $this->tmpCache['makeurl'][$cacheKey] = $url;
+        }
+
+        $cached[$cacheKey] = $url;
+
         return $url;
     }
     
