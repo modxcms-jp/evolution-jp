@@ -91,6 +91,7 @@ class DocumentParser {
         }
 
         $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
+        return '';
     }
     
     function __call($method_name, $arguments)
@@ -129,6 +130,7 @@ class DocumentParser {
         if(method_exists($this->old,$method_name)) {
             return call_user_func_array(array($this->old,$method_name),$arguments);
         }
+        return '';
     }
     // constructor
     function __construct()
@@ -191,26 +193,26 @@ class DocumentParser {
             case 'revision'    :
             case 'phpass'      :
                 require_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
-                return;
+                return '';
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
                 Document::$modx=$this;
-                return;
+                return '';
             case 'modifiers' : //Modfires
             case 'phx' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
-                return;
+                return '';
             case 'deprecatedapi':
                 include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
-                return;
+                return '';
             case 'modxmailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
-                return;
+                return '';
             case 'maketable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
                 $this->table= new MakeTable;
-                return;
+                return '';
             case 'configmediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
