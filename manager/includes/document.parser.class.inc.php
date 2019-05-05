@@ -4531,24 +4531,51 @@ class DocumentParser {
     }
 
     public function get_docfield_type($field_name='') {
-        if(in_array($field_name, explode(',', 'published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'), true)) {
+        $type = array();
+        $type['datetime']   = 'published,createdon,editedon,publishedon,deletedon,pub_date,unpub_date';
+        $type['title']      = 'pagetitle,longtitle,menutitle';
+        $type['content']    = 'content,description,introtext';
+        $type['user']       = 'createdby,editedby,publishedby,deletedby';
+        $type['permission'] = 'privateweb,privatemgr';
+        $type['navi']       = 'alias,menuindex,hidemenu,link_attributes,alias_visible';
+        $type['document']   = 'id,parent,isfolder,template,type,contentType,content_dispo';
+        $type['status']     = 'richtext,searchable,cacheable,deleted,donthit';
+        $type['deprecated'] = 'haskeywords,hasmetatags';
+
+        if(in_array($field_name, explode(',', $type['datetime']), true)) {
             return 'datetime';
         };
 
-        if(in_array($field_name, explode(',', 'pagetitle,longtitle,description,menutitle,introtext,content'), true)) {
+        if(in_array($field_name, explode(',', $type['title']), true)) {
+            return 'title';
+        };
+
+        if(in_array($field_name, explode(',', $type['content']), true)) {
             return 'content';
         };
 
-        if(in_array($field_name, explode(',', 'createdby,editedby,publishedby,deletedby'), true)) {
+        if(in_array($field_name, explode(',', $type['user']), true)) {
             return 'user';
         };
 
-        if(in_array($field_name, explode(',', 'haskeywords,hasmetatags'), true)) {
-            return 'deprecated';
+        if(in_array($field_name, explode(',', $type['permission']), true)) {
+            return 'permission';
         };
 
-        if(in_array($field_name, explode(',', 'id,type,contentType,alias,link_attributes,parent,isfolder,richtext,template,menuindex,searchable,cacheable,deleted,donthit,privateweb,privatemgr,content_dispo,hidemenu,alias_visible'), true)) {
-            return '';
+        if(in_array($field_name, explode(',', $type['navi']), true)) {
+            return 'navi';
+        };
+
+        if(in_array($field_name, explode(',', $type['document']), true)) {
+            return 'document';
+        };
+
+        if(in_array($field_name, explode(',', $type['status']), true)) {
+            return 'status';
+        };
+
+        if(in_array($field_name, explode(',', $type['deprecated']), true)) {
+            return 'deprecated';
         };
 
         return false;
