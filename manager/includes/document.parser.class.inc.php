@@ -4486,24 +4486,15 @@ class DocumentParser {
     }
     
     public function input_get($key, $default=null) {
-        if(!isset($_GET[$key])) {
-            return $default;
-        }
-        return $_GET[$key];
+        return $this->array_get($_GET, $key, $default);
     }
     
     public function input_post($key, $default=null) {
-        if(!isset($_POST[$key])) {
-            return $default;
-        }
-        return $_POST[$key];
+        return $this->array_get($_POST, $key, $default);
     }
     
     public function input_cookie($key, $default=null) {
-        if(!isset($_COOKIE[$key])) {
-            return $default;
-        }
-        return $_COOKIE[$key];
+        return $this->array_get($_COOKIE, $key, $default);
     }
     
     public function input_any($key, $default=null) {
@@ -4514,13 +4505,11 @@ class DocumentParser {
     }
     
     public function session_var($key, $default=null) {
-        if(!isset($_SESSION[$key])) return $default;
-        return $_SESSION[$key];
+        return $this->array_get($_SESSION, $key, $default);
     }
     
     public function conf_var($key, $default=null) {
-        if(!isset($this->config[$key])) return $default;
-        return $this->config[$key];
+        return $this->array_get($this->config, $key, $default);
     }
 
     function array_get($array, $key, $default = null)
