@@ -3149,55 +3149,76 @@ class DocumentParser {
         }
         
         $matches = $this->getTagsFromContent($content,'[~','~]');
-        if(!$matches) return $content;
-        
-        foreach($matches[1] as $i=>$key)
-        {
+        if(!$matches) {
+            return $content;
+        }
+
+        $replace = array();
+        foreach($matches[1] as $i=>$key) {
             $key_org = $key;
-            $key = trim($key);
-            $key = $this->mergeDocumentContent($key);
-            $key = $this->mergeSettingsContent($key);
-            $key = $this->mergeChunkContent($key);
-            $key = $this->evalSnippets($key);
+            $key = $this->evalSnippets(
+                $this->mergeChunkContent(
+                    $this->mergeSettingsContent(
+                        $this->mergeDocumentContent(
+                            trim($key)
+                        )
+                    )
+                )
+            );
             
-            if(strpos($key,'?')===false) $args = '';
-            else                         list($key,$args) = explode('?',$key,2);
+            if(strpos($key,'?')===false) {
+                $args = '';
+            } else {
+                list($key, $args) = explode('?', $key, 2);
+            }
             
-            if(strpos($key,':')!==false)
-                list($key,$modifiers)=$this->splitKeyAndFilter($key);
-            else $modifiers = false;
+            if(strpos($key,':')!==false) {
+                list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            } else {
+                $modifiers = false;
+            }
             
-            if($key==='') $value = '';
-            elseif(preg_match('/^[0-9]+$/',$key))
-            {
-                $docid = $key;
-                if(isset($this->referenceListing[$docid]) && preg_match('/^[0-9]+$/',$this->referenceListing[$docid] ))
-                {
-                    $docid = $this->referenceListing[$docid];
+            if($key==='') {
+                $value = '';
+            } elseif(preg_match('/^[0-9]+$/',$key)) {
+                if(isset($this->referenceListing[$key]) && preg_match('/^[0-9]+$/',$this->referenceListing[$key] )) {
+                    $docid = $this->referenceListing[$key];
+                } else {
+                    $docid = $key;
                 }
                 
                 $value = $this->makeUrl($docid,'',$args,'rel');
-                if(!$value)
-                {
-                    $ph['linktag']     = "[~{$key_org}~]";
-                    $ph['request_uri'] = $this->decoded_request_uri;
-                    $ph['docid']       = $this->documentIdentifier;
-                    $tpl = 'Can not parse linktag [+linktag+] <a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>' . MODX_SITE_URL;
-                    $tpl = $this->parseText($tpl,$ph);
-                    $this->logEvent(0,'1',$tpl, "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
+                if(!$value) {
+                    $this->logEvent(
+                        0
+                        ,'1'
+                        , $this->parseText(
+                            array(
+                                'Can not parse linktag [+linktag+]',
+                                '<a href="index.php?a=27&id=[+docid+]">[+request_uri+]</a>',
+                                MODX_SITE_URL
+                            )
+                            , array(
+                                'linktag'    => sprintf('[~%s~]', $key_org),
+                                'request_uri'=> $this->decoded_request_uri,
+                                'docid'      => $this->documentIdentifier
+                            )
+                        )
+                        , "Missing parse link tag(ResourceID:{$this->documentIdentifier})");
+                }
+            } else {
+                $value = $this->getIdFromAlias($key);
+                if(!$value) {
+                    $value = '';
                 }
             }
-            else
-            {
-                $docid = $this->getIdFromAlias($key);
-                if(!$docid) $value='';
-                else $value = $docid;
+            
+            if($modifiers!==false) {
+                $value = $this->applyFilter($value, $modifiers, $key);
             }
-            
-            if($modifiers!==false) $value = $this->applyFilter($value,$modifiers,$key);
-            
-            $content = str_replace($matches[0][$i], $value, $content);
+            $replace[$i] = $value;
         }
+        $content = str_replace($matches[0], $replace, $content);
         return $content;
     }
     
