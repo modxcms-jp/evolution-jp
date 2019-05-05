@@ -3303,6 +3303,10 @@ class DocumentParser {
         if(is_array($tpl) && !is_array($ph)) {
             list($tpl, $ph) = array($ph, $tpl);
         } // ditto->paginate()
+
+        if(is_array($tpl)) {
+            $tpl = join('',$tpl);
+        }
         
         if(strpos($tpl, '@') === 0) {
             $tpl = $this->atBind($tpl);
