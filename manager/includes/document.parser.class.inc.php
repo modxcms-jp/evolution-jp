@@ -4522,7 +4522,25 @@ class DocumentParser {
         if(!isset($this->config[$key])) return $default;
         return $this->config[$key];
     }
-    
+
+    function array_get($array, $key, $default = null)
+    {
+        if ($key === null || trim($key) == '') {
+            return $array;
+        }
+        if (isset($array[$key])) {
+            return $array[$key];
+        }
+        $segments = explode('.', $key);
+        foreach ($segments as $segment) {
+            if (! is_array($array) || ! isset($array[$segment])) {
+                return $default;
+            }
+            $array = $array[$segment];
+        }
+        return $array;
+    }
+
     public function get_docfield_type($field_name='') {
         if(in_array($field_name, explode(',', 'published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'), true)) {
             return 'datetime';
