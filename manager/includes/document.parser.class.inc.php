@@ -1218,8 +1218,12 @@ class DocumentParser {
         }
         
         // Grab the Scripts
-        if(isset($docObj['__MODxSJScripts__'])) $this->sjscripts = $docObj['__MODxSJScripts__'];
-        if(isset($docObj['__MODxJScripts__']))  $this->jscripts  = $docObj['__MODxJScripts__'];
+        if(isset($docObj['__MODxSJScripts__'])) {
+            $this->sjscripts = $docObj['__MODxSJScripts__'];
+        }
+        if(isset($docObj['__MODxJScripts__'])) {
+            $this->jscripts = $docObj['__MODxJScripts__'];
+        }
         
         $this->documentObject = $docObj;
         return $a['1']; // return document content
