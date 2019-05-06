@@ -479,14 +479,12 @@ class DocumentParser {
             
             if($this->http_status_code == '200') {
                 if ($this->documentObject['published'] == 0) {
-                    if (!$this->hasPermission('view_unpublished')) {
+                    if (!$this->hasPermission('view_unpublished') || !$this->checkPermissions($this->documentIdentifier)) {
                         $this->sendErrorPage();
                     }
-                    if (!$this->checkPermissions($this->documentIdentifier)) {
-                        $this->sendErrorPage();
-                }
-                elseif ($this->documentObject['deleted'] == 1)
+                } elseif ($this->documentObject['deleted'] == 1) {
                     $this->sendErrorPage();
+                }
             }
             // check whether it's a reference
             if($this->documentObject['type'] === 'reference') {
