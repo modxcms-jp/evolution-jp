@@ -805,13 +805,25 @@ class DocumentParser {
                     break;
             }
             
-            if(!is_dir(MODX_BASE_PATH . 'assets/cache')) mkdir(MODX_BASE_PATH . 'assets/cache');
-            if(!is_dir("{$base_path}assets/cache/{$this->uaType}"))
-                mkdir("{$base_path}assets/cache/{$this->uaType}",0777);
-            if(!is_dir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}"))
-                mkdir("{$base_path}assets/cache/{$this->uaType}/{$this->uri_parent_dir}",0777, true);
-            $page_cache_path = "{$base_path}assets/cache/{$this->uaType}/{$filename}.pageCache.php";
-            $this->saveToFile($page_cache_path, $cacheContent);
+            if(!is_dir(MODX_BASE_PATH . 'assets/cache')) {
+                mkdir(MODX_BASE_PATH . 'assets/cache');
+            }
+            if(!is_dir(MODX_BASE_PATH. 'assets/cache/' . $this->uaType)) {
+                mkdir(MODX_BASE_PATH . 'assets/cache/' . $this->uaType, 0777);
+            }
+            $path = sprintf("%sassets/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
+            if(!is_dir($path)) {
+                mkdir($path, 0777, true);
+            }
+            $this->saveToFile(
+                sprintf(
+                    '%sassets/cache/%s/%s.pageCache.php'
+                    , MODX_BASE_PATH
+                    , $this->uaType
+                    , $filename
+                )
+                , $cacheContent
+            );
         }
         // Useful for example to external page counters/stats packages
         $this->invokeEvent('OnWebPageComplete');
