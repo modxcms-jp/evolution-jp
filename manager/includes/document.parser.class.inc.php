@@ -1541,14 +1541,22 @@ class DocumentParser {
             return 0;
         }
         
-        $where = sprintf('id=%d', (int)$docid);
-        $rs = $this->db->select('parent','[+prefix+]site_content', $where);
-        if(!$rs) return false;
-        
-        $row = $this->db->getRow($rs);
-        $this->parentlist[$docid] = $row['parent'];
-        $this->setParentIDByParent($row['parent']);
-        return $row['parent'];
+        $rs = $this->db->select(
+            'parent'
+            , '[+prefix+]site_content'
+            , sprintf('id=%d', (int)$docid)
+        );
+
+        if(!$rs) {
+            return false;
+        }
+
+        $parent = $this->db->getValue($rs);
+
+        $this->parentlist[$docid] = $parent;
+        $this->setParentIDByParent($parent);
+
+        return $parent;
     }
     
     function setParentIDByParent($parent) {
