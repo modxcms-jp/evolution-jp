@@ -2136,28 +2136,25 @@ class DocumentParser {
             return $content;
         }
         
-        if ($this->debug) $fstart = $this->getMicroTime();
-        
-        $totalTime= ($this->getMicroTime() - $this->tstart);
-        $queryTime= $this->queryTime;
-        $phpTime= $totalTime - $queryTime;
-        
-        $queryTime= sprintf('%2.4f s', $queryTime);
-        $totalTime= sprintf('%2.4f s', $totalTime);
-        $phpTime= sprintf('%2.4f s', $phpTime);
-        $source= ($this->documentGenerated == 1 || $this->config['cache_type'] ==0) ? 'database' : 'full_cache';
-        $queries= isset ($this->executedQueries) ? $this->executedQueries : 0;
-        $mem = memory_get_peak_usage();
-        $total_mem = $this->nicesize($mem - $this->mstart);
-        $incs = get_included_files();
+        if ($this->debug) {
+            $this->addLogEntry('$modx->' . __FUNCTION__, $this->getMicroTime());
+        }
 
-        $s = array('[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]', '[^f^]');
-        $r = array($queries, $queryTime, $phpTime, $totalTime, $source, $total_mem, count($incs));
-        $content= str_replace($s, $r, $content);
-        
-        if ($this->debug) $this->addLogEntry('$modx->'.__FUNCTION__,$fstart);
-        
-        return $content;
+        $totalTime= ($this->getMicroTime() - $this->tstart);
+
+        return str_replace(
+            array('[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]', '[^f^]')
+            , array(
+                isset($this->executedQueries) ? $this->executedQueries : 0,
+                sprintf('%2.4f s', $this->queryTime),
+                sprintf('%2.4f s', ($totalTime - $this->queryTime)),
+                sprintf('%2.4f s', $totalTime),
+                ($this->documentGenerated || !$this->config['cache_type']) ? 'database' : 'full_cache',
+                $this->nicesize(memory_get_peak_usage() - $this->mstart),
+                count(get_included_files())
+            )
+            , $content
+        );
     }
     
     // evalPlugin
