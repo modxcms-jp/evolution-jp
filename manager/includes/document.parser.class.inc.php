@@ -1702,20 +1702,12 @@ class DocumentParser {
     }
     
     function getReadableValue($key,$value) {
-        switch($key) {
-            case 'createdon':
-            case 'editedon':
-            case 'publishedon':
-            case 'pub_date':
-            case 'unpub_date':
-                $value = $this->toDateFormat($value);
-                break;
-            case 'createdby':
-            case 'editedby':
-            case 'publishedby':
-                $_ = $this->getUserInfo($value);
-                $value = $_['username'];
-                break;
+        if($this->get_docfield_type($key)==='datetime') {
+            return $this->toDateFormat($value);
+        }
+        if($this->get_docfield_type($key)==='user') {
+            $user = $this->getUserInfo($value);
+            return $user['username'];
         }
         return $value;
     }
