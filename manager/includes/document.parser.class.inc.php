@@ -477,33 +477,41 @@ class DocumentParser {
                 }
             }
             
-            if($this->http_status_code == '200')
-            {
-                if ($this->documentObject['published'] == 0)
-                {
-                    if (!$this->hasPermission('view_unpublished') || !$this->checkPermissions($this->documentIdentifier))
+            if($this->http_status_code == '200') {
+                if ($this->documentObject['published'] == 0) {
+                    if (!$this->hasPermission('view_unpublished')) {
+                        $this->sendErrorPage();
+                    }
+                    if (!$this->checkPermissions($this->documentIdentifier)) {
                         $this->sendErrorPage();
                 }
                 elseif ($this->documentObject['deleted'] == 1)
                     $this->sendErrorPage();
             }
             // check whether it's a reference
-            if($this->documentObject['type'] === 'reference')
-            {
-                if(preg_match('@^[0-9]+$@',$this->documentObject['content']))
-                {
+            if($this->documentObject['type'] === 'reference') {
+                if(preg_match('@^[0-9]+$@', $this->documentObject['content'])) {
                     // if it's a bare document id
                     $this->documentObject['content']= $this->makeUrl($this->documentObject['content']);
                 }
                 $this->documentObject['content']= $this->parseDocumentSource($this->documentObject['content']);
-                if( !empty($this->previewObject) ){
+                if($this->previewObject){
                     $this->directParse = 0;
                 }
-                $rs = $this->sendRedirect($this->documentObject['content'], 0, '', 'HTTP/1.0 301 Moved Permanently');
-                if($this->directParse==1) return $rs;
+                $rs = $this->sendRedirect(
+                    $this->documentObject['content']
+                    , 0
+                    , ''
+                    , 'HTTP/1.0 301 Moved Permanently'
+                );
+                if($this->directParse==1) {
+                    return $rs;
+                }
             }
             // check if we should not hit this document
-            if($this->documentObject['donthit'] == 1) $this->config['track_visitors']= 0;
+            if($this->documentObject['donthit'] == 1) {
+                $this->config['track_visitors'] = 0;
+            }
             
             if(is_file(MODX_BASE_PATH.'assets/templates/autoload.php')) {
                 $modx =& $this;
