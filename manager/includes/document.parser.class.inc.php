@@ -2572,18 +2572,17 @@ class DocumentParser {
     
     private function _getSnippetObject($snip_name)
     {
-        if(isset($this->snippetCache[$snip_name]))
-        {
-            $snippetObject['name']    = $snip_name;
-            $snippetObject['content'] = $this->snippetCache[$snip_name];
-            if(isset($this->snippetCache["{$snip_name}Props"]))
-            {
-                $snippetObject['properties'] = $this->snippetCache["{$snip_name}Props"];
-            }
-            return $snippetObject;
+        if(!isset($this->snippetCache[$snip_name])) {
+            return false;
+        }
+        $snippetObject['name']    = $snip_name;
+        $snippetObject['content'] = $this->snippetCache[$snip_name];
+
+        if(isset($this->snippetCache[$snip_name . 'Props'])) {
+            $snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'];
         }
 
-        return false;
+        return $snippetObject;
     }
     
     function setSnippetCache()
