@@ -1315,9 +1315,11 @@ class DocumentParser {
     }
     
     function getTagsFromContent($content,$left='[+',$right='+]') {
-        $key = md5("{$content}{$left}{$right}");
-        if(isset($this->tmpCache['gettagsfromcontent'][$key])) {
-            return $this->tmpCache['gettagsfromcontent'][$key];
+        static $cached = array();
+
+        $key = md5($content . '|'. $left . '|'. $right);
+        if(isset($cached[$key])) {
+            return $cached[$key];
         }
         $_ = $this->_getTagsFromContent($content,$left,$right);
         if(empty($_)) return array();
@@ -1326,7 +1328,7 @@ class DocumentParser {
             $tags[0][] = "{$left}{$v}{$right}";
             $tags[1][] = $v;
         }
-        $this->tmpCache['gettagsfromcontent'][$key] = $tags;
+        $cached[$key] = $tags;
         return $tags;
     }
     
@@ -1395,13 +1397,19 @@ class DocumentParser {
                     $lc=0;
                     $rc=0;
                 }
-                else $fetch .= $right;
+                else {
+                    $fetch .= $right;
+                }
+            } else if(0<$lc) {
+                $fetch .= $v;
             } else {
-                if(0<$lc) $fetch .= $v;
-                else continue;
+                continue;
             }
         }
-        if(!$tags) return array();
+
+        if(!$tags) {
+            return array();
+        }
         
         foreach($tags as $i=>$tag) {
             if(strpos($tag, $spacer)!==false) {
