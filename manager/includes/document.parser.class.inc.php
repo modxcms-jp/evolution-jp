@@ -193,26 +193,26 @@ class DocumentParser {
             case 'revision'    :
             case 'phpass'      :
                 require_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
-                return '';
+                return true;
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
                 Document::$modx=$this;
-                return '';
+                return true;
             case 'modifiers' : //Modfires
             case 'phx' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
-                return '';
+                return true;
             case 'deprecatedapi':
                 include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
                 return '';
             case 'modxmailer' : // PHPMailer
                 include_once(MODX_CORE_PATH . 'extenders/ex_modxmailer.php');
                 $this->mail= new MODxMailer;
-                return '';
+                return true;
             case 'maketable' :
                 include_once(MODX_CORE_PATH . 'extenders/ex_maketable.php');
                 $this->table= new MakeTable;
-                return '';
+                return true;
             case 'configmediation':
                 include_once(MODX_CORE_PATH . 'extenders/ex_configmediation.php');
                 return new CONFIG_MEDIATION($this);
