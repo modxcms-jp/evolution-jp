@@ -1692,13 +1692,13 @@ class DocumentParser {
     
     function splitKeyAndFilter($key) {
         
-        if(strpos($key,':')!==false) list($key,$modifiers) = explode(':', $key, 2);
-        else                         $modifiers = false;
-        
-        $key = trim($key);
-        if($modifiers!==false) $modifiers = trim($modifiers);
-        
-        return array($key,$modifiers);
+        if(strpos($key, ':') === false) {
+            return array(trim($key), false);
+        }
+
+        list($key, $modifiers) = explode(':', $key, 2);
+
+        return array(trim($key),trim($modifiers));
     }
     
     function getReadableValue($key,$value) {
