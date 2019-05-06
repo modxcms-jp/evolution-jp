@@ -2845,41 +2845,51 @@ class DocumentParser {
     
     function getChildIds($id, $depth= 10, $children= array ())
     {
+        static $cached = array();
         $cacheKey = md5(print_r(func_get_args(),true));
-
-        if(isset($this->tmpCache['getchildids'][$cacheKey])) {
-            return $this->tmpCache['getchildids'][$cacheKey];
+        if(isset($cached[$cacheKey])) {
+            return $cached[$cacheKey];
         }
+        $cached[$cacheKey] = array();
 
-        if(!isset($this->tmpCache['getChildIds_hasChildren'])) {
-            $this->tmpCache['getChildIds_hasChildren'] = array();
-            $rs = $this->db->select('DISTINCT(parent)', '[+prefix+]site_content');
+        static $hasChildren = array();
+
+        if(!$hasChildren) {
+            $rs = $this->db->select('DISTINCT(parent)', '[+prefix+]site_content', 'deleted=0');
             while($row = $this->db->getRow($rs)) {
-                $this->tmpCache['getChildIds_hasChildren'][$row['parent']] = true;
+                $hasChildren[$row['parent']] = true;
             }
         }
-        if(!isset($this->tmpCache['getChildIds_hasChildren'][$id])) {
+
+        if(!isset($hasChildren[$id])) {
             return array();
         }
         
-        $where = sprintf('deleted=0 AND parent=%s',$id);
-        $rs = $this->db->select('id', '[+prefix+]site_content', $where, 'parent, menuindex');
-        $childrenList = array();
+        $rs = $this->db->select(
+            'id'
+            , '[+prefix+]site_content'
+            , sprintf('deleted=0 AND parent=%s',$id)
+            , 'parent, menuindex'
+        );
         $depth--;
         while($row = $this->db->getRow($rs)) {
-            $childId = $row['id'];
-            $path  = $this->getAliasListing($childId,'path');
-            $alias = $this->getAliasListing($childId,'alias');
-            $key = trim("{$path}/{$alias}", '/');
-            $children[$key] = $childId;
+            $key = trim(
+                sprintf(
+                    '%s/%s'
+                    , $this->getAliasListing($row['id'], 'path')
+                    , $this->getAliasListing($row['id'], 'alias')
+                )
+                , '/'
+            );
+            $children[$key] = $row['id'];
             
             if ($depth) {
-                $subChildId = $this->getChildIds($childId, $depth);
+                $subChildId = $this->getChildIds($row['id'], $depth);
                 if($subChildId) $children += $subChildId;
             }
         }
-        
-        $this->tmpCache['getchildids'][$cacheKey] = $children;
+
+        $cached[$cacheKey] = $children;
         return $children;
     }
 
