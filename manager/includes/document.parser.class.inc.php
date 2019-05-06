@@ -1560,15 +1560,29 @@ class DocumentParser {
     }
     
     function setParentIDByParent($parent) {
-        if(isset($this->tmpCache['setParentIDByParent'][$parent])) return;
-        $where = sprintf('parent=%d', (int)$parent);
-        $rs = $this->db->select('id','[+prefix+]site_content', $where);
-        if(!$rs) return false;
+        static $cached = array();
+        if(isset($cached[$parent])) {
+            return true;
+        }
+        $cached[$parent] = false;
+
+        $rs = $this->db->select(
+            'id'
+            ,'[+prefix+]site_content'
+            , sprintf('parent=%d', (int)$parent)
+        );
+
+        if(!$rs) {
+            return false;
+        }
         
         while($row = $this->db->getRow($rs)) {
             $this->parentlist[$row['id']] = $parent;
         }
-        $this->tmpCache['setParentIDByParent'][$parent] = true;
+
+        $cached[$parent] = true;
+
+        return true;
     }
     
     function getAliasPath($docid) {
