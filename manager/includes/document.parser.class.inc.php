@@ -1428,8 +1428,11 @@ class DocumentParser {
             return $this->aliasListing[$id];
         }
 
-        $where = sprintf('id=%d', (int)$id);
-        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        $rs = $this->db->select(
+            'id,alias,isfolder,parent'
+            , '[+prefix+]site_content'
+            , sprintf('id=%d', (int)$id)
+        );
         
         if(!$this->db->getRecordCount($rs)) {
             return false;
@@ -1445,11 +1448,15 @@ class DocumentParser {
         $pathInfo['path'] = '';
         if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
             $_ = $this->getAliasListing((int)$row['parent']);
-            if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
-            else                                 $pathInfo['path'] = $_['alias'];
+            if(0<$_['parent'] && $_['path']!='') {
+                $pathInfo['path'] = sprintf('%s/%s', $_['path'], $_['alias']);
+            } else {
+                $pathInfo['path'] = $_['alias'];
+            }
         }
-        if(!isset($this->tmpCache['setAliasListingByParent'][$row['parent']]))
-            $this->setAliasListingByParent($row['parent'],$pathInfo['alias']);
+        if(!isset($this->tmpCache['aliasListingByParent'][$row['parent']])) {
+            $this->setAliasListingByParent($row['parent']);
+        }
         $this->aliasListing[$id] = $pathInfo;
         
         if($key) {
@@ -1458,37 +1465,49 @@ class DocumentParser {
         return $pathInfo;
     }
     
-    function setAliasListingByParent($parent_id,$path){
+    function setAliasListingByParent($parent_id){
 
-        if(isset($this->tmpCache['setAliasListingByParent'][$parent_id])) {
-            return;
+        if(isset($this->tmpCache['aliasListingByParent'][$parent_id])) {
+            return true;
         }
 
-        $where = sprintf('parent=%d', (int)$parent_id);
-        $rs = $this->db->select('id,alias,isfolder,parent','[+prefix+]site_content',$where);
+        $rs = $this->db->select(
+            'id,alias,isfolder,parent'
+            , '[+prefix+]site_content'
+            , sprintf('parent=%d', (int)$parent_id)
+        );
         
-        if(!$this->db->getRecordCount($rs)) return false;
+        if(!$this->db->getRecordCount($rs)) {
+            return false;
+        }
         
         while($row = $this->db->getRow($rs)) {
             $docid = (int)$row['id'];
-            if(isset($this->aliasListing[$docid])) continue;
+            if(isset($this->aliasListing[$docid])) {
+                continue;
+            }
             
-            $pathInfo =  array(
+            if((int)$row['parent'] && $this->conf_var('use_alias_path')) {
+                $_ = $this->getAliasListing($row['parent']);
+                if($_['parent'] && $_['path']!='') {
+                    $path = $_['path'] . '/' . $_['alias'];
+                } else {
+                    $path = $_['alias'];
+                }
+            } else {
+                $path = '';
+            }
+            
+            $this->aliasListing[$docid] = array(
                 'id'       => $docid,
                 'alias'    => $row['alias']=='' ? $docid : $row['alias'],
                 'parent'   => (int)$row['parent'],
-                'isfolder' => (int)$row['isfolder']
+                'isfolder' => (int)$row['isfolder'],
+                'path'     => $path
             );
-            if(0<$pathInfo['parent'] && $this->config['use_alias_path']=='1'){
-                $_ = $this->getAliasListing((int)$row['parent']);
-                if(0<$_['parent'] && $_['path']!='') $pathInfo['path'] = $_['path'] . '/' . $_['alias'];
-                else                                 $pathInfo['path'] = $_['alias'];
-            }
-            else $pathInfo['path'] = '';
-            
-            $this->aliasListing[$docid] = $pathInfo;
         }
-        $this->tmpCache['setAliasListingByParent'][$parent_id] = true;
+        $this->tmpCache['aliasListingByParent'][$parent_id] = true;
+        return true;
     }
     
     function getAliasFromID($docid) {
