@@ -1231,30 +1231,34 @@ class DocumentParser {
     
     function updatePublishStatus()
     {
-        $cache_path= "{$this->config['base_path']}assets/cache/basicConfig.php";
-        if($this->cacheRefreshTime=='')
-        {
-            if(is_file($cache_path))
-            {
+        $cache_path= MODX_BASE_PATH . 'assets/cache/basicConfig.php';
+        if($this->cacheRefreshTime=='') {
+            if(is_file($cache_path)) {
                 global $cacheRefreshTime;
                 include_once($cache_path);
                 $this->cacheRefreshTime = $cacheRefreshTime;
+            } else {
+                $this->cacheRefreshTime = 0;
             }
-            else $this->cacheRefreshTime = 0;
         }
         $timeNow= $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'];
         
-        if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) return;
+        if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) {
+            return;
+        }
 
-        //下書き採用(今のところリソースのみ)
+        $rs = $this->db->select(
+            'element,elmid'
+            ,'[+prefix+]site_revision'
+            , sprintf("pub_date<=%d AND status='standby'", (int)$timeNow)
+        );
         $draft_ids = array();
-        $rs = $this->db->select('element,elmid','[+prefix+]site_revision', "pub_date<={$timeNow} AND status = 'standby'");
-        while( $row = $this->db->getRow($rs) ){
+        while($row = $this->db->getRow($rs)) {
             if( $row['element'] === 'resource' ){
                 $draft_ids[] = $row['elmid'];
             }
         }
-        if( !empty($draft_ids) ){
+        if( $draft_ids ){
             $this->updateDraft();
         }
         
