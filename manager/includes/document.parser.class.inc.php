@@ -3017,7 +3017,7 @@ class DocumentParser {
             }
             return $cached[$docid][$field];
         }
-        $cached[$docid][$field] = false;
+        $cached[$docid] = false;
 
         if($docid==='' && isset($this->documentIdentifier)) {
             $docid = $this->documentIdentifier;
