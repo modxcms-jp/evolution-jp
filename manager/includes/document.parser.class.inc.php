@@ -2465,9 +2465,7 @@ class DocumentParser {
                 $value = $this->mergeSettingsContent($value);
                 $value = $this->mergeChunkContent($value);
                 $value = $this->evalSnippets($value);
-                if (strpos($value, '@CODE:') === 0) {
-                    $value = trim(substr($value,6));
-                } else {
+                if (strpos($value, '@CODE:') === false) {
                     $value = $this->mergePlaceholderContent($value);
                 }
 
