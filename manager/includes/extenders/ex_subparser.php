@@ -1916,7 +1916,7 @@ class SubParser {
         global $modx;
         if(!$modx->version || !is_array($modx->version)){
             //include for compatibility modx version < 1.0.10
-            include '../version.inc.php';
+            include MODX_CORE_PATH . 'version.inc.php';
             $modx->version=array();
             $modx->version['version']= isset($modx_version) ? $modx_version : '';
             $modx->version['branch']= isset($modx_branch) ? $modx_branch : '';
