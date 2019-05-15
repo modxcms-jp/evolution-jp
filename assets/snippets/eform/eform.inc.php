@@ -184,7 +184,7 @@ $_dfnMaxlength = 6;
     $validFormId = (isset($_POST['formid']) && $formid==$_POST['formid'])?1:0;
 
     # check if postback mode
-    $efPostBack = ($validFormId && count($_POST)>0 && ( strpos($_SERVER["HTTP_REFERER"], $modx->config["site_url"]) !== FALSE ) )? true:false; //retain old variable?
+    $efPostBack = ($validFormId && $_POST && ( strpos($_SERVER["HTTP_REFERER"], $modx->config["site_url"]) !== FALSE ) )? true:false; //retain old variable?
 
 
     if($efPostBack){
@@ -349,7 +349,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
     }
 
 
-    if(count($vMsg)>0 || count($rMsg)>0){
+    if($vMsg || $rMsg){
 
         //New in 1.4.2 - classes are set in labels and form elements for invalid fields
         foreach($rClass as $n => $class){
@@ -375,7 +375,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         }
 
             #set validation message
-            $tmp = (count($rMsg)>0)?str_replace("{fields}", implode(", ",$rMsg),$_lang['ef_required_message']):"";
+            $tmp = ($rMsg)?str_replace("{fields}", implode(", ",$rMsg),$_lang['ef_required_message']):"";
             $tmp .= implode("<br />",$vMsg);
             if(!strstr($tpl,'[+validationmessage+]'))
                 $modx->setPlaceholder('validationmessage',str_replace('[+ef_wrapper+]', $tmp, $_lang['ef_validation_message']));
@@ -774,7 +774,7 @@ function AddAddressToMailer(&$mail,$type,$addr){
 
 # Attach Files to Mailer
 function AttachFilesToMailer(&$mail,&$attachFiles) {
-    if(count($attachFiles)>0){
+    if($attachFiles){
         foreach($attachFiles as $attachFile){
             if(!file_exists($attachFile)) continue;
             $FileName = $attachFile;
