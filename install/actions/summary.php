@@ -18,7 +18,7 @@ $errors = 0;
 
 // check PHP version
 
-if (version_compare(phpversion(), '5.0.0') < 0) {
+if (version_compare(phpversion(), '5.3.0') < 0) {
 	$_ = echo_failed().$_lang['you_running_php'] . phpversion() . $_lang['modx_requires_php'];
 	$errors += 1;
 }
