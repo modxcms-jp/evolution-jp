@@ -165,12 +165,12 @@ $_dfnMaxlength = 6;
 
     // try to get formid from <form> tag id
     if(preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches))
-    	$formid = $matches[1];
+        $formid = $matches[1];
     elseif(preg_match('/<input[^>]*?name=[\'"]formid[\'"][^>]*?>/i',$tpl,$matches)) {
-    	$_ = $matches[0];
-    	if(preg_match('@value=[\'"]([^\'"]*?)[\'"]@',$_,$matches)) {
-    		$formid = $matches[1];
-    	}
+        $_ = $matches[0];
+        if(preg_match('@value=[\'"]([^\'"]*?)[\'"]@',$_,$matches)) {
+            $formid = $matches[1];
+        }
     }
     //check for <input type='hidden name='formid'...>
     if( !preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i',$tpl) ){
@@ -516,9 +516,9 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 			}
 			$fields['subject'] = $subject; //make subject available in report & thank you page
 			if($report) {
-    			$report	= $modx->mergeConditionalTagsContent($report);
-    			$report	= $modx->parseText($report,$fields);
-    			$report	= formMerge($report,$fields);
+                $report	= $modx->mergeConditionalTagsContent($report);
+                $report	= $modx->parseText($report,$fields);
+                $report	= formMerge($report,$fields);
 			}
 			else $report = '';
 			
@@ -628,7 +628,7 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 
 			if($isDebug){
 				$debugText .= sprintf(
-				    '<strong>Mail Headers:</strong><br />From: %s (%s)<br />Reply-to:%s<br />To: %s<br />Subject: %s<br />CC: %s<br /> BCC:%s<br />'
+                    '<strong>Mail Headers:</strong><br />From: %s (%s)<br />Reply-to:%s<br />To: %s<br />Subject: %s<br />CC: %s<br /> BCC:%s<br />'
                     , $from
                     , $fromname
                     , $replyto
