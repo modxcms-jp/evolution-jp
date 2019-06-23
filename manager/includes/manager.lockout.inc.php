@@ -22,40 +22,40 @@ if($_REQUEST['a']!='8' && isset($_SESSION['mgrValidated'])){
 
     // load template
     if(!isset($modx->config['manager_lockout_tpl']) || empty($modx->config['manager_lockout_tpl'])) {
-    	$modx->config['manager_lockout_tpl'] = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl'; 
+        $modx->config['manager_lockout_tpl'] = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl'; 
     }
     
     $target = $modx->config['manager_lockout_tpl'];
     if(substr($target,0,1)==='@') {
-    	if(substr($target,0,6)==='@CHUNK') {
-    		$target = trim(substr($target,7));
-    		$lockout_tpl = $modx->getChunk($target);
-    	}
-    	elseif(substr($target,0,5)==='@FILE') {
-    		$target = trim(substr($target,6));
-    		$lockout_tpl = file_get_contents($target);
-    	}
+        if(substr($target,0,6)==='@CHUNK') {
+            $target = trim(substr($target,7));
+            $lockout_tpl = $modx->getChunk($target);
+        }
+        elseif(substr($target,0,5)==='@FILE') {
+            $target = trim(substr($target,6));
+            $lockout_tpl = file_get_contents($target);
+        }
     } else {
-    	$chunk = $modx->getChunk($target);
-    	if($chunk!==false && !empty($chunk)) {
-    		$lockout_tpl = $chunk;
-    	}
-    	elseif(is_file(MODX_BASE_PATH . $target)) {
-    		$target = MODX_BASE_PATH . $target;
-    		$lockout_tpl = file_get_contents($target);
-    	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl')) {
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl';
-    		$lockout_tpl = file_get_contents($target);
-    	}
-    	elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html')) { // ClipperCMS compatible
-    		$target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html';
-    		$lockout_tpl = file_get_contents($target);
-    	}
-    	else {
-    		$target = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
-    		$lockout_tpl = file_get_contents($target);
-    	}
+        $chunk = $modx->getChunk($target);
+        if($chunk!==false && !empty($chunk)) {
+            $lockout_tpl = $chunk;
+        }
+        elseif(is_file(MODX_BASE_PATH . $target)) {
+            $target = MODX_BASE_PATH . $target;
+            $lockout_tpl = file_get_contents($target);
+        }
+        elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl')) {
+            $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl';
+            $lockout_tpl = file_get_contents($target);
+        }
+        elseif(is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html')) { // ClipperCMS compatible
+            $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html';
+            $lockout_tpl = file_get_contents($target);
+        }
+        else {
+            $target = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
+            $lockout_tpl = file_get_contents($target);
+        }
     }
 
     // merge placeholders
@@ -67,5 +67,3 @@ if($_REQUEST['a']!='8' && isset($_SESSION['mgrValidated'])){
     
     exit;
 }
-
-?>

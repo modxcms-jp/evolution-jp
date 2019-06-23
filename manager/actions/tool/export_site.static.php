@@ -25,7 +25,7 @@ if(!$modx->hasPermission('export_static'))
 
 if(isset($_POST['export']))
 {
-	$rs = include_once(MODX_MANAGER_PATH . 'processors/export_site.processor.php');
+	$rs = include(MODX_MANAGER_PATH . 'processors/export_site.processor.php');
 	echo $rs;
 }
 else

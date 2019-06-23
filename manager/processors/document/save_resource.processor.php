@@ -6,7 +6,7 @@ if (!$modx->hasPermission('save_document')) {
 	$e->dumpError();
 }
 
-global $form_v;
+global $form_v, $actionToTake;
 $modx->loadExtension('DocAPI');
 $form_v = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
 $form_v = $modx->doc->initValue($form_v);
@@ -143,7 +143,7 @@ switch ($actionToTake) {
 		goNextAction($id);
 		break;
 	default :
-		header("Location: index.php?a=7");
+		header('Location: index.php?a=7');
 }
 
 function get_tmplvars($id=0)
@@ -170,8 +170,7 @@ function get_tmplvars($id=0)
 	$rs = $modx->db->select('DISTINCT tv.*',$from,$where,$orderby);
 	
 	$tmplvars = array ();
-	while ($row = $modx->db->getRow($rs)):
-		$tmplvar = '';
+	while ($row = $modx->db->getRow($rs)) {
 		$tvid = "tv{$row['id']}";
 		
     	if(!isset($form_v[$tvid])) {
@@ -209,7 +208,7 @@ function get_tmplvars($id=0)
 			$tmplvars[$row['id']] = $value;
 		}
 		else $tmplvars[$row['id']] = false; // Mark the variable for deletion
-	endwhile;
+    }
 	return $tmplvars;
 }
 
@@ -277,30 +276,38 @@ function _check_duplicate_alias($id,$alias,$parent)
 		
 		if($_REQUEST['stay']) $url .= '&stay=' . $_REQUEST['stay'];
 		
-		$modx->webAlertAndQuit(sprintf($_lang["duplicate_alias_found"], $docid, $alias), $url);
+		$modx->webAlertAndQuit(sprintf($_lang['duplicate_alias_found'], $docid, $alias), $url);
 	}
 	return $alias;
 }
 
 function checkDocPermission($id,$document_groups=array()) {
-	global $modx,$form_v,$_lang,$e;
+	global $modx,$form_v,$_lang,$e,$actionToTake;
 	// ensure that user has not made this document inaccessible to themselves
 	if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && !empty($document_groups))
 	{
-		$document_group_list = join(',', array_filter(explode(',',$document_group_list), 'is_numeric'));
+		$document_group_list = join(',', array_filter($document_groups, 'is_numeric'));
 		if(!empty($document_group_list))
 		{
-			$from='[+prefix+]membergroup_access mga, [+prefix+]member_groups mg';
-			$mgrInternalKey = $_SESSION['mgrInternalKey'];
-			$where = "mga.membergroup = mg.user_group AND mga.documentgroup IN({$document_group_list}) AND mg.member='{$mgrInternalKey}'";
-			$count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
-			if($count == 0)
-			{
-				if ($actionToTake == 'new') $url = 'index.php?a=4';
-				else						$url = "index.php?a=27&id={$id}";
+			$count = $modx->db->getValue(
+			    $modx->db->select(
+			        'COUNT(mg.id)'
+                    , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
+                    , sprintf(
+                        "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'"
+                        , $document_group_list
+                        , $_SESSION['mgrInternalKey']
+                ))
+            );
+			if(!$count) {
+				if ($actionToTake === 'new') {
+                    $url = 'index.php?a=4';
+                } else {
+                    $url = 'index.php?a=27&id=' . $id;
+                }
 				
 				$modx->manager->saveFormValues();
-				$modx->webAlertAndQuit(sprintf($_lang["resource_permissions_error"]), $url);
+				$modx->webAlertAndQuit(sprintf($_lang['resource_permissions_error']), $url);
 			}
 		}
 	}
@@ -325,8 +332,8 @@ function checkDocPermission($id,$document_groups=array()) {
 		if ($existingDocument['parent'] == $form_v['parent']) return;
 		
 		if (!$modx->checkPermissions($form_v['parent'])) {
-			if ($actionToTake == 'new') $url = "index.php?a=4";
-			else						$url = "index.php?a=27&id={$id}";
+			if ($actionToTake === 'new') $url = 'index.php?a=4';
+			else						 $url = "index.php?a=27&id={$id}";
 			$modx->manager->saveFormValues();
 			$modx->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $form_v['alias']), $url);
 		}
@@ -376,7 +383,7 @@ function checkStartDoc($id,$return_url) {
 		$unpub_date = $form_v['unpub_date'];
 		if($published == 0) {
 			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot be unpublished!',$return_url);
-		} elseif (($pub_date > $_SERVER['REQUEST_TIME'] || $unpub_date != "0")) {
+		} elseif ($pub_date > $_SERVER['REQUEST_TIME'] || $unpub_date != '0') {
 			$modx->webAlertAndQuit('Document is linked to site_start variable and cannot have publish or unpublish dates set!',$return_url);
 		}
 	}
@@ -386,7 +393,7 @@ function checkParentID($id,$return_url) {
 	global $modx,$form_v;
 
 	if ($form_v['parent'] == $id) {
-		$modx->webAlertAndQuit("Document can not be it's own parent!",$url);
+		$modx->webAlertAndQuit("Document can not be it's own parent!",$return_url);
 	}
 	else return $form_v['parent'];
 }
@@ -401,7 +408,7 @@ function checkFolderStatus($id) {
 		$row = $modx->db->getRow($rs);
 		if ($row['count'] > 0) $isfolder = '1';
 	} else {
-		$modx->webAlertAndQuit("An error occured while attempting to find the document's children.",$url);
+		$modx->webAlertAndQuit("An error occured while attempting to find the document's children.");
 	}
 	return $isfolder;
 }
@@ -558,7 +565,7 @@ function setDocPermissionsNew($document_groups,$newid) {
 		foreach ($document_groups as $value_pair)
 		{
 			// first, split the pair (this is a new document, so ignore the second value
-			$group = intval(substr($value_pair,0,strpos($value_pair,',')));
+			$group = (int)substr($value_pair, 0, strpos($value_pair, ','));
 			$new_groups[] = "({$group},{$newid})";
 		}
 		$saved = true;
@@ -635,8 +642,8 @@ function setDocPermissionsEdit($document_groups,$id) {
 	}
 
 	// grab the current set of permissions on this document the user can access
-	$isManager = intval($modx->hasPermission('access_permissions'));
-	$isWeb	 = intval($modx->hasPermission('web_access_permissions'));
+	$isManager = (int)$modx->hasPermission('access_permissions');
+	$isWeb	 = (int)$modx->hasPermission('web_access_permissions');
 	$fields = 'groups.id, groups.document_group';
 	$from   = '[+prefix+]document_groups AS groups LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = groups.document_group';
 	$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
@@ -649,13 +656,13 @@ function setDocPermissionsEdit($document_groups,$id) {
 	$insertions = $deletions = array();
 	foreach ($new_groups as $group => $link_id)
 	{
-		$group = intval($group);
+		$group = (int)$group;
 		if (array_key_exists($group, $old_groups))
 		{
 			unset($old_groups[$group]);
 			continue;
 		}
-		elseif ($link_id == 'new')
+		elseif ($link_id === 'new')
 		{
 			$insertions[] = "({$group},{$id})";
 		}
@@ -673,7 +680,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 		$saved = $modx->db->delete('[+prefix+]document_groups',$where) ? $saved : false;
 	}
 	// necessary to remove all permissions as document is public
-	if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] == 'on'))
+	if ((isset($_POST['chkalldocs']) && $_POST['chkalldocs'] === 'on'))
 	{
 		$saved = $modx->db->delete('[+prefix+]document_groups',"document='{$id}'") ? $saved : false;
 	}
@@ -693,7 +700,7 @@ function folder2doc($parent) {
 	if ($row['COUNT(id)'] == 0) {
 		$rs = $modx->db->update('isfolder = 0', '[+prefix+]site_content', "id='{$parent}'");
 		if (!$rs)
-			echo "An error occured while attempting to change the old parent to a regular document.";
+			echo 'An error occured while attempting to change the old parent to a regular document.';
 	}
 }
 

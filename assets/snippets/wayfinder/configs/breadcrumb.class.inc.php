@@ -8,16 +8,15 @@ class WFBC
 	function fetch($tpl)
 	{
 		global $modx;
-		$template = '';
-		if(substr($tpl, 0, 5) == "@FILE")
+		if(strpos($tpl, '@FILE') === 0)
 		{
 			$template = file_get_contents(ltrim(substr($tpl, 6)));
 		}
-		elseif(substr($tpl, 0, 5) == "@CODE")
+		elseif(strpos($tpl, '@CODE') === 0)
 		{
 			$template = substr($tpl, 6);
 		}
-		elseif ($modx->getChunk($tpl) != "")
+		elseif ($modx->getChunk($tpl) != '')
 		{
 			$template = $modx->getChunk($tpl);
 		}

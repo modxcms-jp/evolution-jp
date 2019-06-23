@@ -9,7 +9,7 @@ if($modx->hasPermission('save_plugin') ||
 }
 
 if ($hasPermission) {
-    $catId = intval($_GET['catId']);
+    $catId = (int)$_GET['catId'];
     $modx->manager->deleteCategory($catId);
 }
 header("Location: index.php?a=76");

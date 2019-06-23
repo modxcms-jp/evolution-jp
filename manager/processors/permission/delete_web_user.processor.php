@@ -39,20 +39,20 @@ $rs = $modx->db->delete($tbl_web_user_attributes,"internalKey='{$id}'");
 if(!$rs) {
 	echo "Something went wrong while trying to delete the web user attributes...";
 	exit;
-} else {
-	//Delete user settings
-	$modx->db->delete('[+prefix+]web_user_settings',"webuser='{$id}'");
-	
-	// invoke OnWebDeleteUser event
-  $tmp = array(
-							"userid"		=> $id,
-							"username"		=> $username
-  );
-	$modx->invokeEvent("OnWebDeleteUser",$tmp);
-
-	// invoke OnWUsrFormDelete event
-  $tmp = array("id"	=> $id);
-	$modx->invokeEvent("OnWUsrFormDelete",$tmp);
-
-	header("Location: index.php?a=99");
 }
+
+//Delete user settings
+$modx->db->delete('[+prefix+]web_user_settings',"webuser='{$id}'");
+
+// invoke OnWebDeleteUser event
+$tmp = array(
+                          "userid"		=> $id,
+                          "username"		=> $username
+);
+$modx->invokeEvent("OnWebDeleteUser",$tmp);
+
+// invoke OnWUsrFormDelete event
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnWUsrFormDelete",$tmp);
+
+header("Location: index.php?a=99");

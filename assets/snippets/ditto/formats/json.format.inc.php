@@ -89,32 +89,32 @@ $json_header = '
 
 $json_tpl = <<<TPL
 	{
-	 "title":"[+json_pagetitle+]",
-	 "link":"[(site_url)][~[+id+]~]",
-	 "date":"[+json_date+]",
-	 "guid":"[(site_url)][~[+id+]~]",
-	 "author":"[+json_author+]",
-	 "description":"[+json_description+]",
-	 "introtext":"[+json_introtext+]"
+		"title":"[+json_pagetitle+]",
+		"link":"[(site_url)][~[+id+]~]",
+		"date":"[+json_date+]",
+		"guid":"[(site_url)][~[+id+]~]",
+		"author":"[+json_author+]",
+		"description":"[+json_description+]",
+		"introtext":"[+json_introtext+]"
 	},
 
 TPL;
 
 $json_tpl_last = <<<TPL
 	{
-	 "title":"[+json_pagetitle+]",
-	 "link":"[(site_url)][~[+id+]~]",
-	 "date":"[+json_date+]",
-	 "guid":"[(site_url)][~[+id+]~]",
-	 "author":"[+json_author+]",
-	 "description":"[+json_description+]",
-	 "introtext":"[+json_introtext+]"
+		"title":"[+json_pagetitle+]",
+		"link":"[(site_url)][~[+id+]~]",
+		"date":"[+json_date+]",
+		"guid":"[(site_url)][~[+id+]~]",
+		"author":"[+json_author+]",
+		"description":"[+json_description+]",
+		"introtext":"[+json_introtext+]"
 	}
 TPL;
 
 $json_footer = <<<TPL
 
- ]
+]
 }
 TPL;
 

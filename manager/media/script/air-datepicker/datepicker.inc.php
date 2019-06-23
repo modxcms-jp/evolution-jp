@@ -10,7 +10,7 @@ class DATEPICKER {
         return $modx->mergeSettingsContent($load_script);
     }
     function getLangCode() {
-        global $modx, $modx_lang_attribute;
+        global $modx_lang_attribute;
         
         if(!$modx_lang_attribute) return 'en';
         

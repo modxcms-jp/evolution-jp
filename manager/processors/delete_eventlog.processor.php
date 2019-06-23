@@ -5,7 +5,7 @@ if(!$modx->hasPermission('delete_eventlog')) {
 	$e->dumpError();
 }
 
-$id=intval($_GET['id']);
+$id= (int)$_GET['id'];
 
 // delete event log
 if(isset($_GET['cls']) && $_GET['cls']==1)
@@ -21,6 +21,6 @@ else {
 
 if(!$rs) {
 	exit('Something went wrong while trying to delete the event log...');
-} else {
-	header('Location: index.php?a=114');
 }
+
+header('Location: index.php?a=114');

@@ -4,7 +4,7 @@ if (!$modx->hasPermission('save_web_user')) {
 	$e->setError(3);
 	$e->dumpError();
 }
-
+global $_style;
 if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
 $oldusername = $_POST['oldusername'];
 $newusername = !empty ($_POST['newusername']) ? trim($_POST['newusername']) : 'New User';
@@ -35,7 +35,7 @@ $blockedafter = !empty($_POST['blockedafter']) ? $modx->toTimeStamp($_POST['bloc
 $user_groups = $_POST['user_groups'];
 
 // verify password
-if ($passwordgenmethod == 'spec' && $_POST['specifiedpassword'] != $_POST['confirmpassword']) {
+if ($passwordgenmethod === 'spec' && $_POST['specifiedpassword'] != $_POST['confirmpassword']) {
 	webAlert('Password typed is mismatched');
 	exit;
 }
@@ -85,24 +85,22 @@ switch ($_POST['mode']) {
 		}
 
 		// generate a new password for this user
-		if ($specifiedpassword != '' && $passwordgenmethod == 'spec')
+		if ($specifiedpassword != '' && $passwordgenmethod === 'spec')
 		{
 			if (strlen($specifiedpassword) < 6)
 			{
 				webAlert('Password is too short!');
 				exit;
 			}
-			else
-			{
-				$newpassword = $specifiedpassword;
-			}
-		}
-		elseif ($specifiedpassword == '' && $passwordgenmethod == 'spec')
+
+            $newpassword = $specifiedpassword;
+        }
+		elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec')
 		{
 			webAlert("You didn't specify a password for this user!");
 			exit;
 		}
-		elseif ($passwordgenmethod == 'g') {
+		elseif ($passwordgenmethod === 'g') {
 			$newpassword = generate_password(8);
 		} else {
 			webAlert("No password generation method specified!");
@@ -126,7 +124,6 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		
-		$fields = array();
 		$fields = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street','city','state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
 		$rs = $modx->db->insert($fields,$tbl_web_user_attributes);
 		if (!$rs)
@@ -161,12 +158,12 @@ switch ($_POST['mode']) {
 		// first, check that up_perms are switched on!
 		if ($modx->config['use_udperms'] == 1)
 		{
-			if (count($user_groups) > 0)
+			if ($user_groups)
 			{
 				$field = array();
 				foreach($user_groups as $user_group)
 				{
-					$field['webgroup'] = intval($user_group);
+					$field['webgroup'] = (int)$user_group;
 					$field['webuser'] = $internalKey;
 					$rs = $modx->db->insert($field,$tbl_web_groups);
 					if (!$rs)
@@ -179,7 +176,7 @@ switch ($_POST['mode']) {
 		}
 		// end of user_groups stuff!
 
-		if ($modx->config['required_email_wuser'] && $passwordnotifymethod == 'e') {
+		if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id={$id}" : '87';
@@ -223,19 +220,19 @@ switch ($_POST['mode']) {
 	case '88' : // edit user
 		// generate a new password for this user
 		if ($genpassword == 1) {
-			if ($specifiedpassword != '' && $passwordgenmethod == 'spec') {
+			if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
 				if (strlen($specifiedpassword) < 6) {
 					webAlert("Password is too short!");
 					exit;
-				} else {
-					$newpassword = $specifiedpassword;
 				}
-			}
-			elseif ($specifiedpassword == '' && $passwordgenmethod == 'spec') {
+
+                $newpassword = $specifiedpassword;
+            }
+			elseif ($specifiedpassword == '' && $passwordgenmethod === 'spec') {
 				webAlert("You didn't specify a password for this user!");
 				exit;
 			}
-			elseif ($passwordgenmethod == 'g') {
+			elseif ($passwordgenmethod === 'g') {
 				$newpassword = generate_password(8);
 			} else {
 				webAlert("No password generation method specified!");
@@ -243,7 +240,7 @@ switch ($_POST['mode']) {
 			}
 			$updatepasswordsql = ", password=MD5('".$modx->db->escape($newpassword)."') ";
 		}
-		if ($modx->config['required_email_wuser'] && $passwordnotifymethod == 'e') {
+		if ($modx->config['required_email_wuser'] && $passwordnotifymethod === 'e') {
 			sendMailMessage($email, $newusername, $newpassword, $fullname);
 		}
 
@@ -292,7 +289,6 @@ switch ($_POST['mode']) {
 			exit;
 		}
 		
-		$fields = array();
 		$fields = compact('fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country',
 		'gender','dob','photo','comment','failedlogincount','blocked','blockeduntil','blockedafter');
 		if (!$rs = $modx->db->update($fields,$tbl_web_user_attributes,"internalKey='{$id}'"))
@@ -342,9 +338,9 @@ switch ($_POST['mode']) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
-			if (count($user_groups) > 0) {
-				for ($i = 0; $i < count($user_groups); $i++) {
-					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . intval($user_groups[$i]) . "', '$id')";
+			if (user_groups) {
+				for ($i = 0, $iMax = count($user_groups); $i < $iMax; $i++) {
+					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . (int)$user_groups[$i] . "', '$id')";
 					$rs = $modx->db->query($sql);
 					if (!$rs) {
 						webAlert("An error occurred while attempting to add the user to a user_group.<br />$sql;");
@@ -356,7 +352,7 @@ switch ($_POST['mode']) {
 		// end of user_groups stuff!
 		/*******************************************************************************/
 
-		if ($genpassword == 1 && $passwordnotifymethod == 's') {
+		if ($genpassword == 1 && $passwordnotifymethod === 's') {
 			if ($_POST['stay'] != '') {
 				$a = ($_POST['stay'] == '2') ? "88&id={$id}" : "87";
 				$stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
@@ -403,7 +399,7 @@ switch ($_POST['mode']) {
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn) {
 	global $modx,$websignupemail_message;
-	global $emailsubject, $emailsender;
+	global $emailsender;
 	global $site_name, $site_start, $site_url;
 	$message = sprintf($websignupemail_message, $uid, $pwd); // use old method
 	// replace placeholders

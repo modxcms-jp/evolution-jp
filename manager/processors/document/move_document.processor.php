@@ -21,7 +21,7 @@ if(!$rs) {
 	exit("An error occured while attempting to find the resource's current parent.");
 }
 $current_parent = $modx->db->getValue($rs);
-$new_parent = intval($_REQUEST['new_parent']);
+$new_parent = (int)$_REQUEST['new_parent'];
 
 // check user has permission to move resource to chosen location
 if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
@@ -41,11 +41,12 @@ if ($modx->config['use_udperms'] == 1 && $current_parent != $new_parent)
 	}
 }
 $children= allChildren($doc_id);
+$alert = '';
 if($current_parent == $new_parent)
 {
 	$alert = $_lang["move_resource_new_parent"];
 }
-elseif (array_search($new_parent, $children)!==false)
+elseif (in_array($new_parent, $children))
 {
 	$alert = $_lang["move_resource_cant_myself"];
 }
@@ -56,7 +57,7 @@ else
 		$alert = "An error occured while attempting to change the new parent to a folder.";
 
 	// increase menu index
-	if (is_null($modx->config['auto_menuindex']) || $modx->config['auto_menuindex'])
+	if ($modx->config['auto_menuindex'] === null || $modx->config['auto_menuindex'])
 	{
 		$menuindex = $modx->db->getValue($modx->db->select('max(menuindex)',$tbl_site_content,"parent='{$new_parent}'"))+1;
 	}
@@ -73,35 +74,39 @@ else
 	}
 
 	// finished moving the resource, now check to see if the old_parent should no longer be a folder.
-	$rs = $modx->db->select('count(id)',$tbl_site_content,"parent='{$current_parent}'");
+	$rs = $modx->db->select('count(*) as count',$tbl_site_content,"parent='{$current_parent}'");
 	if(!$rs)
 		$alert = "An error occured while attempting to find the old parents' children.";
 	
 	$row = $modx->db->getRow($rs);
-	$limit = $row['count(id)'];
 
-	if(!$limit>0)
+	if(!$row['count'])
 	{
-		$rs = $modx->db->update('isfolder=0',$tbl_site_content,"id='{$current_parent}'");
+		$rs = $modx->db->update('isfolder=0','[+prefix+]site_content',"id='{$current_parent}'");
 		if(!$rs)
 			$alert = 'An error occured while attempting to change the old parent to a regular resource.';
 	}
 }
 
-if(!isset($alert))
+if($alert)
 {
-	$modx->clearCache();
-	if($new_parent!==0) $header="Location: index.php?a=120&id={$current_parent}&r=1";
-	else                $header="Location: index.php?a=2&r=1";
-	header($header);
-}
-else
-{
-	$url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id={$doc_id}';";
-	$modx->webAlertAndQuit($alert, $url);
+	$modx->webAlertAndQuit(
+		$alert
+		, "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id={$doc_id}';"
+		);
 	exit;
 }
 
+$modx->clearCache();
+
+if($new_parent!==0) {
+	header("Location: index.php?a=120&id={$current_parent}&r=1");
+	exit;
+}
+
+header("Location: index.php?a=2&r=1");
+
+exit;
 
 
 function allChildren($docid)
@@ -114,20 +119,19 @@ function allChildren($docid)
 	{
 		exit("An error occured while attempting to find all of the resource's children.");
 	}
-	else
-	{
-		if ($numChildren= $modx->db->getRecordCount($rs))
-		{
-			while ($child= $modx->db->getRow($rs))
-			{
-				$children[]= $child['id'];
-				$nextgen= array();
-				$nextgen= allChildren($child['id']);
-				$children= array_merge($children, $nextgen);
-			}
-		}
-	}
-	return $children;
+
+    if ($numChildren= $modx->db->getRecordCount($rs))
+    {
+        while ($child= $modx->db->getRow($rs))
+        {
+            $children[]= $child['id'];
+            $nextgen= allChildren($child['id']);
+            foreach($nextgen as $k=>$v) {
+                $children[$k] = $v;
+            }
+        }
+    }
+    return $children;
 }
 
 function update_parentid($doc_id,$new_parent,$user_id,$menuindex)

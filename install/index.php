@@ -10,12 +10,6 @@ ini_set('display_errors',1);
 if (!defined('E_DEPRECATED'))      define('E_DEPRECATED',       8192);
 if (!defined('E_USER_DEPRECATED')) define('E_USER_DEPRECATED', 16384);
 
-// do a little bit of environment cleanup if possible
-if (version_compare(phpversion(), "5.3") < 0) {
-    @ ini_set('magic_quotes_runtime', 0);
-    @ ini_set('magic_quotes_sybase', 0);
-}
-
 header("Content-Type: text/html; charset=utf-8");
 
 define('MODX_API_MODE', true);
@@ -78,7 +72,7 @@ $ph = array_merge($ph,$_lang);
 $ph['install_language'] = $lang_name;
 
 ob_start();
-if (!@include_once ("{$installer_path}actions/{$action}.php"))
+if (!@include("{$installer_path}actions/{$action}.php"))
 {
     die ('Invalid install action attempted. [action=' . $action . ']');
 }

@@ -52,7 +52,7 @@ $good = isset($good) ? explode(",",$good) : false;
 foreach ($_REQUEST as $name=>$value) {
 	$saneName = str_replace($dittoID, "", substr($name, 6));
 	$dID = ($dittoID == "") ? true : strpos($name, $dittoID);
-	if ((substr($name, 0, 6) == "ditto_" && $dID) && !in_array($saneName,$bad) && ($good == false || in_array($saneName,$good)) && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)){
+	if ((strpos($name, "ditto_") === 0 && $dID) && !in_array($saneName,$bad) && ($good == false || in_array($saneName,$good)) && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)){
 		if ($stripTags) $var = $modx->stripTags($value);
 		$variables[$saneName] = trim($value);
 	}
@@ -79,7 +79,7 @@ extract($variables);
 // Accepts ditto_filter, ditto_filter_2, with continuous numbering				 //
 // Note: For complex filtering start with ditto_filter_1 (with one as number)!   //
 // ------------------------------------------------------------------------------//
-  
+
 if (isset($filter) && isset($filter_2)) {
 		$i = 2;
 		while (isset(${'filter_'.$i})) {
@@ -94,5 +94,3 @@ if (isset($filter) && isset($filter_2)) {
 			$i++;
 		}
 }
-
-?>

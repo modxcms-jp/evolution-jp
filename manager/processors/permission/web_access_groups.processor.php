@@ -57,7 +57,7 @@ switch ($operation)
 		break;
 	case 'delete_user_group' :
 		$updategroupaccess = true;
-		$usergroup = intval($_REQUEST['usergroup']);
+		$usergroup = (int)$_REQUEST['usergroup'];
 		if(empty($usergroup)) exit("No user group name specified for deletion");
 		else
 		{
@@ -76,7 +76,7 @@ switch ($operation)
 		}
 		break;
 	case 'delete_document_group' :
-		$group = intval($_REQUEST['documentgroup']);
+		$group = (int)$_REQUEST['documentgroup'];
 		if(empty($group)) exit("No document group name specified for deletion");
 		else
 		{
@@ -108,7 +108,7 @@ switch ($operation)
 	case 'rename_document_group' :
 		$newgroupname = $modx->db->escape($_REQUEST['newgroupname']);
 		if(empty($_REQUEST['newgroupname'])) exit("no group name specified");
-		$groupid = intval($_REQUEST['groupid']);
+		$groupid = (int)$_REQUEST['groupid'];
 		if(empty($groupid)) exit("No group id specified");
 		$f['name'] = $modx->db->escape($_REQUEST['newgroupname']);
 		if(!$rs = $modx->db->update($f,$tbl_documentgroup_names,"id='{$groupid}'",'',1))
@@ -118,8 +118,8 @@ switch ($operation)
 		break;
 	case 'add_document_group_to_user_group' :
 		$updategroupaccess = true;
-		$usergroup = intval($_REQUEST['usergroup']);
-		$docgroup  = intval($_REQUEST['docgroup']);
+		$usergroup = (int)$_REQUEST['usergroup'];
+		$docgroup  = (int)$_REQUEST['docgroup'];
 		$where = "webgroup='{$usergroup}' AND documentgroup='{$docgroup}'";
 		$total = $modx->db->getValue($modx->db->select('count(*)', $tbl_webgroup_access, $where));
 		if($total<=0)
@@ -134,7 +134,7 @@ switch ($operation)
 		break;
 	case 'remove_document_group_from_user_group' :
 		$updategroupaccess = true;
-		$coupling = intval($_REQUEST['coupling']);
+		$coupling = (int)$_REQUEST['coupling'];
 		if(!$rs = $modx->db->delete($tbl_webgroup_access,"id='{$coupling}'"))
 		{
 			exit("Failed to remove document group from user group");

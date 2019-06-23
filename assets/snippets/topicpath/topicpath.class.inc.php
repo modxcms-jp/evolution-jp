@@ -1,7 +1,10 @@
 <?php
 class TopicPath
 {
-	function __construct()
+    private $stopIds;
+    private $pathThruUnPub;
+
+    function __construct()
 	{
 		global $modx;
 		if($modx->event->params) extract($modx->event->params);
@@ -87,13 +90,13 @@ class TopicPath
 		}
 		
 		$docs   = $this->getDocs($id);
-		$topics = $this->setTopics($docs,$tpl);
+		$topics = $this->setTopics($docs, $tpl);
 		
 		if($this->limit < count($topics)) $topics = $this->trimTopics($topics);
 		
-		if(count($topics) > 1 || count($topics) == 1 && $this->showAtLeastOneTopic)
+		if(count($topics) > 1 || (count($topics) == 1 && $this->showAtLeastOneTopic))
 		{
-			if(substr($this->order,0,1)==='r') $topics = array_reverse($topics);
+			if(strpos($this->order, 'r') === 0) $topics = array_reverse($topics);
 			$rs = join($tpl['Separator'],$topics);
 			$rs = $modx->parseText($tpl['Outer'],array('topics'=>$rs));
 		}
@@ -133,7 +136,7 @@ class TopicPath
 		return $rs;
 	}
 	
-	function getDocs($docid)
+	private function getDocs($docid)
 	{
 		global $modx;
 		
@@ -143,8 +146,12 @@ class TopicPath
 		while ($docid !== $this->homeId  && $c < 1000 )
 		{
 			$doc = $modx->getPageInfo($docid,0,'*');
-			if($doc['id'] == $modx->documentIdentifier) $doc['hidemenu'] = false;
-			if($this->isEnable($doc)) $docs[] = $doc;
+			if($doc['id'] == $modx->documentIdentifier) {
+                $doc['hidemenu'] = false;
+            }
+			if($this->isEnable($doc)) {
+                $docs[] = $doc;
+            }
 			$docid = $doc['parent'];
 			if($docid==='0') $docid = $this->homeId ;
 			$c++;
@@ -153,7 +160,7 @@ class TopicPath
 		return $docs;
 	}
 	
-	function setTopics($docs,$tpl)
+	private function setTopics($docs, $tpl)
 	{
 		global $modx;
 		$topics = array();
@@ -202,18 +209,25 @@ class TopicPath
 			$ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
 			$ph['desc']  = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
 			
-			if($i===$c-1&&$doc['id']==$modx->documentIdentifier)
-				           $topics[$i] = $modx->parseText($tpl['CurrentTopic'],$ph);
-			elseif($i===0) $topics[$i] = $modx->parseText($tpl['HomeTopic'],$ph);
-			elseif($isRf)  $topics[$i] = $modx->parseText($tpl['ReferenceTopic'],$ph);
-			else           $topics[$i] = $modx->parseText($tpl['OtherTopic'],$ph);
+			if($i===$c-1&&$doc['id']==$modx->documentIdentifier) {
+                $topics[$i] = $modx->parseText($tpl['CurrentTopic'], $ph);
+            }
+			elseif($i===0) {
+                $topics[$i] = $modx->parseText($tpl['HomeTopic'], $ph);
+            }
+			elseif($isRf) {
+                $topics[$i] = $modx->parseText($tpl['ReferenceTopic'], $ph);
+            }
+			else {
+                $topics[$i] = $modx->parseText($tpl['OtherTopic'], $ph);
+            }
 			
 			$i++;
 		}
 		return $topics;
 	}
 	
-	function getDisableDocs()
+	private function getDisableDocs()
 	{
 		global $modx;
 		$tbl_site_content = $modx->getFullTableName('site_content');

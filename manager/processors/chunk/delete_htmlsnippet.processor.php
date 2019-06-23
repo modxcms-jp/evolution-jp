@@ -14,13 +14,13 @@ $modx->invokeEvent("OnBeforeChunkFormDelete",$tmp);
 $rs = $modx->db->delete('[+prefix+]site_htmlsnippets',"id='{$id}'");
 if(!$rs) {
 	exit('Something went wrong while trying to delete the htmlsnippet...');
-} else {
-	// invoke OnChunkFormDelete event
-    $tmp = array("id"	=> $id);
-	$modx->invokeEvent("OnChunkFormDelete",$tmp);
-
-	// empty cache
-	$modx->clearCache(); // first empty the cache
-	// finished emptying cache - redirect
-	header("Location: index.php?a=76");
 }
+
+// invoke OnChunkFormDelete event
+$tmp = array("id"	=> $id);
+$modx->invokeEvent("OnChunkFormDelete",$tmp);
+
+// empty cache
+$modx->clearCache(); // first empty the cache
+// finished emptying cache - redirect
+header("Location: index.php?a=76");

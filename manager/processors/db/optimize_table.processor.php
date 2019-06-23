@@ -16,5 +16,5 @@ elseif (isset($_REQUEST['u'])) $sql = sprintf('TRUNCATE TABLE `%s`', $modx->db->
 
 if($sql) $rs = $modx->db->query($sql);
 
-$mode = intval($_REQUEST['mode']);
+$mode = (int)$_REQUEST['mode'];
 header("Location: index.php?a={$mode}&s=4");

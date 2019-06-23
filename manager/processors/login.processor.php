@@ -2,7 +2,7 @@
 if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 	header('HTTP/1.0 404 Not Found');exit;
 }
-
+global $_style;
 $self = 'manager/processors/login.processor.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 define('IN_MANAGER_MODE', 'true');
@@ -170,9 +170,9 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 {
 	// check user password - local authentication
 	$hashType = $modx->manager->getHashType($dbv_password);
-	if($hashType=='phpass')  $matchPassword = login($dbv_username,$formv_password,$dbv_password);
-	elseif($hashType=='md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
-	elseif($hashType=='v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
+	if($hashType === 'phpass')  $matchPassword = login($dbv_username,$formv_password,$dbv_password);
+	elseif($hashType === 'md5') $matchPassword = loginMD5($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
+	elseif($hashType === 'v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
 	else                     $matchPassword = false;
 	
     if(!$matchPassword) {
@@ -182,11 +182,12 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
     }
     
     if($modx->config['use_captcha']==1) {
-    	if (!isset ($_SESSION['veriword'])) {
-    		jsAlert('Captcha is not configured properly.');
-    		return;
-    	}
-    	elseif ($_SESSION['veriword'] != $formv_captcha_code) {
+        if (!isset ($_SESSION['veriword'])) {
+            jsAlert('Captcha is not configured properly.');
+            return;
+        }
+
+        if ($_SESSION['veriword'] != $formv_captcha_code) {
             jsAlert($e->errors[905]);
             failedLogin($dbv_internalKey,$dbv_failedlogincount);
             return;
@@ -240,11 +241,7 @@ if($formv_rememberme == '1'):
 	$expire = $_SERVER['REQUEST_TIME']+60*60*24*365;
 	$path = $modx->config['base_url'];
 	$secure = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == $https_port) ? true : false;
-	if ( version_compare(PHP_VERSION, '5.2', '<') ) {
-		setcookie('modx_remember_manager', $dbv_username, $expire, $path, '; HttpOnly' , $secure );
-	} else {
-		setcookie('modx_remember_manager', $dbv_username, $expire, $path, NULL,          $secure, true);
-	}
+    setcookie('modx_remember_manager', $dbv_username, $expire, $path, NULL, $secure, true);
 else:
     $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
 	
@@ -350,8 +347,6 @@ function loginV1($internalKey,$givenPassword,$dbasePassword,$username) {
 }
 
 function loginMD5($internalKey,$givenPassword,$dbasePassword,$username) {
-	global $modx;
-	
 	if($dbasePassword != md5($givenPassword)) return false;
 	updateNewHash($username,$givenPassword);
 	return true;

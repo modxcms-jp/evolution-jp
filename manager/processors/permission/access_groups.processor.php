@@ -63,7 +63,7 @@ switch ($_REQUEST['operation'])
 		break;
 	case "delete_user_group" :
 		$updategroupaccess = true;
-		$usergroup = intval($_REQUEST['usergroup']);
+		$usergroup = (int)$_REQUEST['usergroup'];
 		if(empty($usergroup))
 		{
 			warning("No user group name specified for deletion");
@@ -85,7 +85,7 @@ switch ($_REQUEST['operation'])
 		}
 		break;
 	case "delete_document_group" :
-		$group = intval($_REQUEST['documentgroup']);
+		$group = (int)$_REQUEST['documentgroup'];
 		if(empty($group))
 		{
 			warning("No document group name specified for deletion");
@@ -110,7 +110,7 @@ switch ($_REQUEST['operation'])
 		$newgroupname = $modx->db->escape($_REQUEST['newgroupname']);
 		if(empty($newgroupname)) warning("no group name specified");
 		
-		$groupid = intval($_REQUEST['groupid']);
+		$groupid = (int)$_REQUEST['groupid'];
 		if(empty($groupid))      warning("No group id specified");
 		
 		$f['name'] = $newgroupname;
@@ -123,7 +123,7 @@ switch ($_REQUEST['operation'])
 		$newgroupname = $modx->db->escape($_REQUEST['newgroupname']);
 		if(empty($newgroupname)) warning("no group name specified");
 		
-		$groupid = intval($_REQUEST['groupid']);
+		$groupid = (int)$_REQUEST['groupid'];
 		if(empty($groupid))      warning("No group id specified");
 		$f['name'] = $newgroupname;
 		if(!$modx->db->update($f,$tbl_documentgroup_names,"id='{$groupid}'", '', '1'))
@@ -133,8 +133,8 @@ switch ($_REQUEST['operation'])
 		break;
 	case "add_document_group_to_user_group" :
 		$updategroupaccess = true;
-		$usergroup = intval($_REQUEST['usergroup']);
-		$docgroup = intval($_REQUEST['docgroup']);
+		$usergroup = (int)$_REQUEST['usergroup'];
+		$docgroup = (int)$_REQUEST['docgroup'];
 		$where = "membergroup='{$usergroup}' AND documentgroup='{$docgroup}'";
 		$limit = $modx->db->getValue($modx->db->select('count(*)',$tbl_membergroup_access,$where));
 		if($limit<=0) {
@@ -153,7 +153,7 @@ switch ($_REQUEST['operation'])
 		break;
 	case "remove_document_group_from_user_group" :
 		$updategroupaccess = true;
-		$coupling = intval($_REQUEST['coupling']);
+		$coupling = (int)$_REQUEST['coupling'];
 		if(!$modx->db->delete($tbl_membergroup_access,"id='{$coupling}'"))
 		{
 			warning("Failed to remove document group from user group");

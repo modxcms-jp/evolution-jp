@@ -120,13 +120,12 @@ function parse_docblock($fullpath) {
     while(!feof($tpl))
     {
         $line = fgets($tpl);
-        if(!$docblock_start_found)
-        {    // find docblock start
+        if (!$docblock_start_found) {    // find docblock start
             if(strpos($line, '/**') !== false) $docblock_start_found = true;
             continue;
         }
-        elseif(!$name_found)
-        {    // find name
+
+        if (!$name_found) {    // find name
             $ma = null;
             if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
             {
@@ -135,8 +134,8 @@ function parse_docblock($fullpath) {
             }
             continue;
         }
-        elseif(!$description_found)
-        {    // find description
+
+        if(!$description_found) {    // find description
             $ma = null;
             if(preg_match("/^\s+\*\s+(.+)/", $line, $ma))
             {
@@ -145,32 +144,30 @@ function parse_docblock($fullpath) {
             }
             continue;
         }
-        else
+
+        $ma = null;
+        if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma))
         {
-            $ma = null;
-            if(preg_match("/^\s+\*\s+\@([^\s]+)\s+(.+)/", $line, $ma))
+            $param = trim($ma[1]);
+            $val   = trim($ma[2]);
+            if(!empty($param) && !empty($val))
             {
-                $param = trim($ma[1]);
-                $val   = trim($ma[2]);
-                if(!empty($param) && !empty($val))
+                if($param === 'internal')
                 {
-                    if($param == 'internal')
+                    $ma = null;
+                    if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma))
                     {
-                        $ma = null;
-                        if(preg_match("/\@([^\s]+)\s+(.+)/", $val, $ma))
-                        {
-                            $param = trim($ma[1]);
-                            $val = trim($ma[2]);
-                        }
-                        if(empty($param)) continue;
+                        $param = trim($ma[1]);
+                        $val = trim($ma[2]);
                     }
-                    $params[$param] = $val;
+                    if(empty($param)) continue;
                 }
+                $params[$param] = $val;
             }
-            elseif(preg_match("/^\s*\*\/\s*$/", $line))
-            {
-                break;
-            }
+        }
+        elseif(preg_match("/^\s*\*\/\s*$/", $line))
+        {
+            break;
         }
     }
     @fclose($tpl);
@@ -263,6 +260,7 @@ function propUpdate($new,$old)
     $returnArr = array_unique($returnArr);
     
     // Build new string for new properties value
+    $return = '';
     foreach ($returnArr as $k => $v)
     {
         $return .= "&{$k}={$v} ";
@@ -340,17 +338,16 @@ function parseProperties($propertyString)
     if (!empty($propertyString))
     {
         $tmpParams= explode('&', $propertyString);
-        for ($x= 0; $x < count($tmpParams); $x++)
-        {
-            if (strpos($tmpParams[$x], '=', 0))
+        foreach ($tmpParams as $xValue) {
+            if (strpos($xValue, '=', 0))
             {
-                $pTmp= explode('=', $tmpParams[$x]);
+                $pTmp= explode('=', $xValue);
                 $pvTmp= explode(';', trim($pTmp[1]));
-                if ($pvTmp[1] == 'list' && $pvTmp[3] != '')
+                if ($pvTmp[1] === 'list' && $pvTmp[3] != '')
                 {
                     $parameter[trim($pTmp[0])]= $pvTmp[3]; //list default
                 }
-                elseif ($pvTmp[1] != 'list' && $pvTmp[2] != '')
+                elseif ($pvTmp[1] !== 'list' && $pvTmp[2] != '')
                 {
                     $parameter[trim($pTmp[0])]= $pvTmp[2];
                 }

@@ -35,7 +35,7 @@ $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
 $setupPath = realpath(getcwd());
-$callBackFnc = include_once("{$setupPath}/setup.info.php");
+$callBackFnc = include("{$setupPath}/setup.info.php");
 include_once("{$setupPath}/sqlParser.class.php");
 $sqlParser = new SqlParser();
 $sqlParser->prefix     = $_SESSION['table_prefix'];
@@ -159,10 +159,7 @@ if ($_SESSION['installmode'] == 0 && $installdata==1)
 		echo "<p>{$lang_some_tables_not_updated}</p>";
 		return;
 	}
-	else
-	{
-		printf('<span class="ok">%s</span></p>', $lang_ok);
-	}
+    printf('<span class="ok">%s</span></p>', $lang_ok);
 }
 
 // call back function

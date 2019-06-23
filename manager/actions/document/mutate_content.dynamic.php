@@ -8,7 +8,7 @@ $modx->loadExtension('DocAPI');
 
 $id = getDocId(); // New is '0'
 if($modx->manager->action==132||$modx->manager->action==131)
-	$modx->doc->mode = 'draft';
+    $modx->doc->mode = 'draft';
 else $modx->doc->mode = 'normal';
 
 checkPermissions($id);
@@ -33,10 +33,10 @@ if($id && $modx->config['enable_draft']) {
 else $modx->revisionObject = array();
 
 if( isset($_REQUEST['newtemplate']) && preg_match('/\A[0-9]+\z/',$_REQUEST['newtemplate']) )
-  $docObject['template'] = $_REQUEST['newtemplate'];
+    $docObject['template'] = $_REQUEST['newtemplate'];
 
 $tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
-$docObject = $docObject + $tmplVars;
+$docObject += $tmplVars;
 
 if($id && $modx->manager->action==131)
 {
@@ -48,8 +48,9 @@ if($id && $modx->manager->action==131)
 }
 
 $modx->manager->saveFormValues();
-if($_POST)
+if($_POST) {
     $docObject = mergeReloadValues($docObject);
+}
 
 $content = $docObject; //Be compatible with old plugins
 $modx->documentObject = & $docObject;
@@ -85,15 +86,17 @@ $ph['mode'] = $modx->manager->action;
 $ph['a'] = ($modx->doc->mode==='normal'&&$modx->hasPermission('save_document')) ? '5' : '128' ;
 // 5:save_resource.processor.php 128:save_draft_content.processor.php
 
-if(!$_REQUEST['pid'])
-	$tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />','',$tpl['head']);
-else $ph['pid'] = $_REQUEST['pid'];
+if(!$_REQUEST['pid']) {
+    $tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $tpl['head']);
+} else {
+    $ph['pid'] = $_REQUEST['pid'];
+}
 
 if($modx->doc->mode==='normal') {
-	$ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
-	$ph['class'] = '';
+    $ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+    $ph['class'] = '';
 } else {
-	$ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
+    $ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
     $ph['class'] = 'draft';
 }
 
@@ -122,35 +125,38 @@ $ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
 echo parseText($tpl['tab-page']['general'],$ph);
 
 
-if($modx->config['tvs_below_content']==0&&0<count($tmplVars)) {
-	$ph['TVFields'] = fieldsTV();
-	$ph['_lang_tv'] = $_lang['tmplvars'];
-	echo parseText($tpl['tab-page']['tv'],$ph);
+if($modx->config['tvs_below_content']==0 && 0<count($tmplVars)) {
+    $ph['TVFields'] = fieldsTV();
+    $ph['_lang_tv'] = $_lang['tmplvars'];
+    echo parseText($tpl['tab-page']['tv'],$ph);
 }
 $ph = array();
 $ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
 
-if($modx->doc->mode==='normal') $ph['fieldPublished'] = fieldPublished();
-else                            $ph['fieldPublished'] = '';
+if($modx->doc->mode==='normal') {
+    $ph['fieldPublished'] = fieldPublished();
+} else {
+    $ph['fieldPublished'] = '';
+}
 
 $ph['fieldPub_date']   = fieldPub_date($id);
 $ph['fieldUnpub_date'] = fieldUnpub_date($id);
 
 //下書きでかつ採用日の指定がない場合はSplit1は表示しない
 if( empty($ph['fieldPub_date']) ){
-	$ph['renderSplit1'] = '';
+    $ph['renderSplit1'] = '';
 }else{
-	$ph['renderSplit1'] = renderSplit();
+    $ph['renderSplit1'] = renderSplit();
 }
 $ph['renderSplit2'] = renderSplit();
 
 $ph['fieldType'] = fieldType();
 if($docObject['type'] !== 'reference') {
-	$ph['fieldContentType']   = fieldContentType();
-	$ph['fieldContent_dispo'] = fieldContent_dispo();
+    $ph['fieldContentType']   = fieldContentType();
+    $ph['fieldContent_dispo'] = fieldContent_dispo();
 } else {
-	$ph['fieldContentType']   = sprintf('<input type="hidden" name="contentType" value="%s" />',$docObject['contentType']);
-	$ph['fieldContent_dispo'] = sprintf('<input type="hidden" name="content_dispo" value="%s" />',$docObject['content_dispo']);
+    $ph['fieldContentType']   = sprintf('<input type="hidden" name="contentType" value="%s" />',$docObject['contentType']);
+    $ph['fieldContent_dispo'] = sprintf('<input type="hidden" name="content_dispo" value="%s" />',$docObject['content_dispo']);
 }
 $ph['fieldLink_attributes'] = fieldLink_attributes();
 $ph['fieldIsfolder']   = fieldIsfolder();
@@ -167,21 +173,25 @@ echo parseText($tpl['tab-page']['settings'],$ph);
  * Document Access Permissions */
 if ($modx->config['use_udperms'] == 1)
 {
-	global $permissions_yes, $permissions_no;
-	$permissions = getUDGroups($id);
-	
-	// See if the Access Permissions section is worth displaying...
-	if (!empty($permissions)):
-		$ph = array();
-		$ph['_lang_access_permissions'] = $_lang['access_permissions'];
-		$ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
-		$ph['UDGroups'] = implode("\n", $permissions);
-		echo parseText($tpl['tab-page']['access'],$ph);
-	elseif($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0)
-           && ($_SESSION['mgrPermissions']['access_permissions'] == 1
-           || $_SESSION['mgrPermissions']['web_access_permissions'] == 1)):
-		echo '<p>' . $_lang["access_permissions_docs_collision"] . '</p>';
-	endif;
+    global $permissions_yes, $permissions_no;
+    $permissions = getUDGroups($id);
+
+    // See if the Access Permissions section is worth displaying...
+    if (!empty($permissions)) {
+        $ph = array();
+        $ph['_lang_access_permissions'] = $_lang['access_permissions'];
+        $ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
+        $ph['UDGroups'] = implode("\n", $permissions);
+        echo parseText($tpl['tab-page']['access'],$ph);
+    } elseif($_SESSION['mgrRole'] != 1 && $permissions_yes == 0 && $permissions_no > 0
+        && (
+            $_SESSION['mgrPermissions']['access_permissions'] == 1
+            ||
+            $_SESSION['mgrPermissions']['web_access_permissions'] == 1
+        )
+        ) {
+        echo '<p>' . $_lang["access_permissions_docs_collision"] . '</p>';
+    }
 }
 /* End Document Access Permissions *
  ***********************************/
@@ -191,18 +201,25 @@ $tmp = array('id' => $id);
 $OnDocFormRender = $modx->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
+global $rte_field;
 if($modx->config['use_editor'] === '1') {
-	if(is_array($rte_field) && 0<count($rte_field)) {
-		// invoke OnRichTextEditorInit event
-    $tmp = array(
-			'editor' => $selected_editor,
-			'elements' => $rte_field
-		);
-		$evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
-		if (is_array($evtOut)) $OnRichTextEditorInit = implode('', $evtOut);
-	}
+    if (is_array($rte_field) && 0<count($rte_field)) {
+        // invoke OnRichTextEditorInit event
+        $tmp = array(
+            'editor' => $selected_editor,
+            'elements' => $rte_field
+        );
+        $evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
+        if (is_array($evtOut)) {
+            $OnRichTextEditorInit = implode('', $evtOut);
+        }
+    }
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
-$ph['remember_last_tab'] = ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') ? 'true' : 'false';
+if ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') {
+    $ph['remember_last_tab'] = 'true';
+} else {
+    $ph['remember_last_tab'] = 'false';
+}
 echo parseText($tpl['foot'],$ph);

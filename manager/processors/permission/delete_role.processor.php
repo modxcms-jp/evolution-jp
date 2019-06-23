@@ -39,6 +39,6 @@ $rs = $modx->db->delete($tb_user_roles,"id={$id}");
 if(!$rs) {
 	echo "Something went wrong while trying to delete the role...";
 	exit;
-} else {
-	header("Location: index.php?a=86");
 }
+
+header("Location: index.php?a=86");

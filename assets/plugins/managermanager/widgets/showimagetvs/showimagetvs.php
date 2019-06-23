@@ -14,78 +14,94 @@
  */
 
 function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = ''){
-	global $modx, $mm_current_page;
-	$e = &$modx->event;
-	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
-		$output = '';
-		
-		$base_url = $modx->config['base_url'];
-		
-		if (isset($w) || isset($h)){
-			$w = isset($w) ? $w : 300;
-			$h = isset($h) ? $h : 100;
-			$style = "'max-width:{$w}px; max-height:{$h}px; margin: 4px 0; cursor: pointer;'";
-		}else{
- 			$style = '';
-		}
-		
-        // Does this page's template use any image TVs? If not, quit now!
-		$tvs = tplUseTvs($mm_current_page['template'], $tvs, 'image');
-		if ($tvs == false){
-			return;
-		}
-		
-		$output .= "//  -------------- mm_widget_showimagetvs :: Begin ------------- \n";
-		
-		// Go through each TV
-		foreach ($tvs as $tv){
-			$new_html = '';
-			
-			$output .= '
-// Adding preview for tv'.$tv['id'].'
-$j("#tv'.$tv['id'].'").addClass("imageField").bind("change load", function(){
-	var $this = $j(this),
+    global $modx, $mm_current_page;
+    $e = &$modx->event;
+
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
+    $output = '';
+
+    if ($w || $h){
+        if(!$w) $w = 300;
+        if(!$h) $h = (int) $w * 0.3;
+        $style = sprintf(
+            "'float:left;max-width:%dpx; max-height:%dpx; margin: 4px 0; cursor: pointer;'"
+            , $w
+            , $h
+        );
+    }else{
+        $style = '';
+    }
+
+    // Does this page's template use any image TVs? If not, quit now!
+    if($tvs) {
+        $tvs = tplUseTvs($mm_current_page['template'], $tvs);
+    } else {
+        $tvs = tplUseTvs($mm_current_page['template'], $tvs, 'image');
+    }
+    if (!$tvs){
+        return;
+    }
+
+    $output .= "//  -------------- mm_widget_showimagetvs :: Begin ------------- \n";
+
+    $tpl1 = '
+// Adding preview for tv[+id+]
+jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
+	var $this = jQuery(this),
 		// Get the new URL
 		url = $this.val();
 	
 	$this.data("lastvalue", url);
 	
 	$this.addClass("imageField");
-	var url = $j(this).val();
+	var url = jQuery(this).val();
 	url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
-				url = (url != "" && url.search(/https?:\/\//i) == -1 && url.search(/^\//i) == -1) ? ("'.$base_url.'" + url) : url;
-			';
-			
-			// If we have a PHPThumb URL
-			if (!empty($thumbnailerUrl)){
-				$output .= 'url = "'.$thumbnailerUrl.'?src="+escape(url)+"&w='.$w.'&h='.$h.'"; ' . "\n";
-			}
-			
-			$output .= '
-	// Remove the old preview tv'.$tv['id'].'
-	$j("#tv'.$tv['id'].'PreviewContainer").remove();
+	url = (url != "" && url.search(/https?:\\/\\//i) == -1 && url.search(/^\\//i) == -1) ? ("[+base_url+]" + url) : url;'."\n";
+
+    $tpl2 = '
+	// Remove the old preview tv[+id+]
+	jQuery("#tv[+id+]PreviewContainer").remove();
 	
 	if (url != ""){
 		// Create a new preview
-		$j("#tv'.$tv['id'].'").parents("td").append("<div class=\"tvimage\" id=\"tv'.$tv['id'].'PreviewContainer\"><img src=\""+url+"\" style=\""+'.$style.'+"\" id=\"tv'.$tv['id'].'Preview\"/></div>");
+		jQuery("#tv[+id+]").parents("td").append(\'<div class="tvimage" id="tv[+id+]PreviewContainer"><img src="\'+url+\'" style="\'+[+style+]+\'" id="tv[+id+]Preview"/></div>\');
 		
 		// Attach a browse event to the picture, so it can trigger too
-		$j("#tv'.$tv['id'].'Preview").click(function(){
-			BrowseServer("tv'.$tv['id'].'");
-		 });
+		jQuery("#tv[+id+]Preview").click(function(){
+			BrowseServer("tv[+id+]");
+		});
 	}
 }).trigger("load"); // Trigger a change event on load
 
-			';
-		}
-		
-		$output .= '
+			'."\n";
+    // Go through each TV
+    $ph = array('base_url' => $modx->config['base_url']);
+    $ph['thumbnailerUrl'] = $thumbnailerUrl;
+    $ph['w'] = $w;
+    $ph['h'] = $h;
+    foreach ($tvs as $tv) {
+        $ph['id'] = $tv['id'];
+        $output .= $modx->parseText($tpl1, $ph);
+
+        if ($thumbnailerUrl){
+            $output .= $modx->parseText(
+                'url = "%s?src="+escape(url)+"&w=%d&h=%d";'."\n"
+                , $ph
+            );
+        }
+        $ph['style'] = $style;
+        $output .= $modx->parseText($tpl2, $ph);
+    }
+
+    $output .= '
 		
 // Monitor the image TVs for changes
 checkImageTVupdates = function(){
-	$j(".imageField").each(function(){
-		var $this = $j(this);
+	jQuery(".imageField").each(function(){
+		var $this = jQuery(this);
 		if ($this.val() != $this.data("lastvalue")){
 			$this.trigger("change");
 		}
@@ -94,11 +110,8 @@ checkImageTVupdates = function(){
 
 setInterval ("checkImageTVupdates();", 250);
 
-		';
-		
-		$output .= "//  -------------- mm_widget_showimagetvs :: End ------------- \n";
-		
-		$e->output($output . "\n");
-	}
+//  -------------- mm_widget_showimagetvs :: End -------------
+
+';
+    $e->output($output . "\n");
 }
-?>

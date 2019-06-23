@@ -6,7 +6,6 @@
 	$tagid = $params['tagid'];
 	$tagname = ($params['tagname']) ? $params['tagname'] : 'div';
 	// Loop through a list of tags
-	$count = count($value);
 	$i = 0;
 	foreach ($values as $value) {
 		$tagvalue = is_array($value) ? implode(' ', $value) : $value;

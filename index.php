@@ -46,11 +46,11 @@
  */
 if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 $mstart = memory_get_usage();
-$base_path = str_replace('\\', '/',dirname(__FILE__)) . '/';
+$base_path = str_replace('\\', '/', __DIR__) . '/';
 define('MODX_BASE_PATH', $base_path);
 
-if(isset($_GET['get']) && $_GET['get']=='captcha') {
-    include_once("{$base_path}manager/media/captcha/veriword.php");
+if(isset($_GET['get']) && $_GET['get'] === 'captcha') {
+    include_once $base_path . 'manager/media/captcha/veriword.php';
     return;
 }
 
@@ -100,7 +100,7 @@ elseif(!defined('MODX_API_MODE')
             $r = array('[^q^]'=>'0','[^qt^]'=>'0s','[^p^]'=>$totalTime,'[^t^]'=>$totalTime,'[^s^]'=>'bypass_cache','[^m^]'=>$msize,'[^f^]'=>count($incs));
             $output = strtr($output,$r);
             if (is_file("{$base_path}autoload.php"))
-                $loaded_autoload = include_once("{$base_path}autoload.php");
+                $loaded_autoload = include $base_path . 'autoload.php';
             if ($output !== false) {
                 echo $output;
                 exit;

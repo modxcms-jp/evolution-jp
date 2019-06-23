@@ -79,7 +79,6 @@ switch ($_POST['mode']) {
 
 		// save the new module
 		
-		$f = array();
 		$f = compact('name','description','icon','enable_resource','resourcefile',
 		             'disabled','wrap','locked','category','enable_sharedparams',
 		             'guid','modulecode','properties','editedon','createdon');
@@ -88,30 +87,28 @@ switch ($_POST['mode']) {
 			echo '$newid not set! New module not saved!';
 			exit;
 		}
-		else
-		{
-			// save user group access permissions
-			saveUserGroupAccessPermissons();
-			
-			// invoke OnModFormSave event
-      $tmp = array(
-									'mode'	=> 'new',
-									'id'	=> $newid
-      );
-			$modx->invokeEvent("OnModFormSave",$tmp);
-			if($_POST['stay']!='')
-			{
-				$stay = $_POST['stay'];
-				$a = ($stay=='2') ? "108&id={$newid}":'107';
-				$header="Location: index.php?a={$a}&r=2&stay={$stay}";
-			}
-			else
-			{
-				$header="Location: index.php?a=106&r=2";
-			}
-			if($enable_sharedparams!==0) $modx->clearCache();
-			header($header);
-		}
+
+// save user group access permissions
+        saveUserGroupAccessPermissons();
+
+        // invoke OnModFormSave event
+        $tmp = array(
+                                      'mode'	=> 'new',
+                                      'id'	=> $newid
+        );
+        $modx->invokeEvent("OnModFormSave",$tmp);
+        if($_POST['stay']!='')
+        {
+            $stay = $_POST['stay'];
+            $a = ($stay=='2') ? "108&id={$newid}":'107';
+            $header="Location: index.php?a={$a}&r=2&stay={$stay}";
+        }
+        else
+        {
+            $header="Location: index.php?a=106&r=2";
+        }
+        if($enable_sharedparams!==0) $modx->clearCache();
+        header($header);
         break;
     case '108':
 		// invoke OnBeforeModFormSave event
@@ -122,7 +119,6 @@ switch ($_POST['mode']) {
 		$modx->invokeEvent('OnBeforeModFormSave',$tmp);
 							
 		// save the edited module
-		$f = array();
 		$f = compact('name','description','icon','enable_resource','resourcefile',
 		             'disabled','wrap','locked','category','enable_sharedparams',
 		             'guid','modulecode','properties','editedon');
@@ -131,25 +127,24 @@ switch ($_POST['mode']) {
 			echo '$rs not set! Edited module not saved!'.$modx->db->getLastError();
 			exit;
 		}
-		else {
-			// save user group access permissions
-			saveUserGroupAccessPermissons();
-				
-			// invoke OnModFormSave event
-      $tmp = array(
-									'mode'	=> 'upd',
-									'id'	=> $id
-      );
-			$modx->invokeEvent('OnModFormSave',$tmp);
-			if($_POST['stay']!='') {
-				$a = ($_POST['stay']=='2') ? "108&id=$id":"107";
-				$header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
-			} else {
-				$header='Location: index.php?a=106&r=2';
-			}
-			if($enable_sharedparams!==0) $modx->clearCache();
-			header($header);
-		}
+
+// save user group access permissions
+        saveUserGroupAccessPermissons();
+
+        // invoke OnModFormSave event
+        $tmp = array(
+                                      'mode'	=> 'upd',
+                                      'id'	=> $id
+        );
+        $modx->invokeEvent('OnModFormSave',$tmp);
+        if($_POST['stay']!='') {
+            $a = ($_POST['stay']=='2') ? "108&id=$id":"107";
+            $header="Location: index.php?a=".$a."&r=2&stay=".$_POST['stay'];
+        } else {
+            $header='Location: index.php?a=106&r=2';
+        }
+        if($enable_sharedparams!==0) $modx->clearCache();
+        header($header);
         break;
     default:
     	// redirect to view modules
@@ -172,24 +167,22 @@ function saveUserGroupAccessPermissons(){
 		// delete old permissions on the module
 		
 		$rs = $modx->db->delete($tbl_site_module_access, "module='{$id}'");
-		if(!$rs)
-		{
-			echo "An error occured while attempting to delete previous module user access permission entries.";
-			exit;
-		}
-		elseif(is_array($usrgroups))
-		{
-			foreach ($usrgroups as $ugkey=>$value)
-			{
-				$f['module']    = $id;
-				$f['usergroup'] = $modx->db->escape($value);
-				$rs = $modx->db->insert($f,$tbl_site_module_access);
-				if(!$rs)
-				{
-					echo "An error occured while attempting to save module user acess permissions.";
-					exit;
-				}
-			}
-		}
-	}
+        if (!$rs) {
+            echo "An error occured while attempting to delete previous module user access permission entries.";
+            exit;
+        }
+
+        if(is_array($usrgroups)) {
+            foreach ($usrgroups as $ugkey=>$value) {
+                $f['module']    = $id;
+                $f['usergroup'] = $modx->db->escape($value);
+                $rs = $modx->db->insert($f,$tbl_site_module_access);
+                if(!$rs)
+                {
+                    echo "An error occured while attempting to save module user acess permissions.";
+                    exit;
+                }
+            }
+        }
+    }
 }

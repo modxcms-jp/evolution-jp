@@ -1,10 +1,10 @@
 <?php
 
 
-//---------------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 //   Utility functions
 // 
-//--------------------------------------------------------------------------------- 
+//----------------------------------------------------------------------- 
 
 
 // Pass useThisRule a comma separated list of allowed roles and templates, and it will
@@ -30,7 +30,7 @@ function useThisRule($roles='', $templates='') {
 	}
 	
 	// Make the lists into arrays
-	$roles = makeArray($roles);
+	$roles     = makeArray($roles);
 	$templates = makeArray($templates);
 	
 	// Does the current role match the conditions supplied?
@@ -70,21 +70,8 @@ function makeArray($csv) {
 function jsSafe($str) {
 	global $modx;
 	
-	// Only PHP versions > 5.2.3 allow us to prevent double_encoding
-	// If you are using an older version of PHP, and use characters which require 
-	// HTML entity encoding in new label names, etc you will have to specify the
-	// actual character, not a pre-encoded version
-	if (version_compare(PHP_VERSION, '5.2.3') >= 0) {
-		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
-	} else {
-		return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset']);
-	}
+	return htmlentities($str, ENT_QUOTES, $modx->config['modx_charset'], false);
 }
-
-
-
-
-
 
 // Does the specified template use the specified TVs?
 // $tpl_id = Template ID (int)
@@ -101,28 +88,33 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
 	
 	// Make the TVs and field types into an array
 	$fields = makeArray($tvs); 
-	$types = makeArray($types); 
+	$types  = makeArray($types);
 	
-	// Do the SQL query
-	$from = '[+prefix+]site_tmplvars tvs LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid=tvs.id';
-
-	$where[] = 'rel.templateid = ' . $tpl_id;
-
-	if(!empty($fields)) {
-		$where[] = 'type IN ' . makeSqlList($types);
+	// Get the DB table names
+	$from = array('[+prefix+]site_tmplvars tvs');
+	$from[] = 'LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid = tvs.id';
+	
+	$where = array();
+	if ($tpl_id) {
+		$where[] = sprintf('rel.templateid=%s', $tpl_id);
 	}
-	if(!empty($types)) {
-		$where[] = 'type IN ' . makeSqlList($types);
+	if ($fields) {
+		$where[] = sprintf('tvs.name IN %s', makeSqlList($fields));
 	}
-
-	$result = $modx->db->select('id', $from, join(' AND ', $where));
-
-	// If we have results, return them, otherwise return false
-	if ( $modx->db->getRecordCount($result) == 0) {
+	if ($types) {
+		$where[] = sprintf('type IN %s', makeSqlList($types));
+	}
+	if($where) {
+		$where = join(' AND ', $where);
+	}
+	
+	// Do the SQL query	
+	$result = $modx->db->select('id', $from, $where);
+	
+	if ( !$modx->db->getRecordCount($result)) {
 		return false;	
-	} else {
-		return $modx->db->makeArray($result);
 	}
+	return $modx->db->makeArray($result);
 }
 
 // Create a MySQL-safe list from an array
@@ -130,10 +122,9 @@ function makeSqlList($arr) {
 	global $modx;
 	$arr = makeArray($arr);
 	foreach($arr as $k=>$tv) {
-		$arr[$k] = "'".$modx->db->escape($tv)."'"; // Escape them for MySQL
+		$arr[$k] = sprintf("'%s'", $modx->db->escape($tv)); // Escape them for MySQL
 	}
-	$sql = " (".implode(',',$arr).") ";
-	return $sql;
+	return sprintf(' (%s) ', join(',',$arr));
 }
 
 // Generates the code needed to include an external script file. 
@@ -143,13 +134,11 @@ function includeJs($url, $output_type='js') {
 	
 	if ($output_type == 'js') {
 		return '$j("head").append(\' <script src="'.$url.'" type="text/javascript"></scr\'+\'ipt> \'); ' . "\n";
-	} else if ($output_type == 'html') {
-		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
-	} else {
-		return;	
 	}
-	
-	
+	if ($output_type == 'html') {
+		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
+	}
+	return '';
 }
 
 // Generates the code needed to include an external CSS file. 
@@ -158,9 +147,9 @@ function includeJs($url, $output_type='js') {
 function includeCss($url, $output_type='js') {
 	if ($output_type == 'js') {
 		return  '$j("head").append(\' <link href="'.$url.'" rel="stylesheet" type="text/css" /> \'); ' . "\n";	
-	} else if ($output_type == 'html') {
-		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
-	} else {
-		return;	
 	}
+	if ($output_type == 'html') {
+		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
+	}
+    return '';
 }

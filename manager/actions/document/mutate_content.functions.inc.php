@@ -7,8 +7,6 @@ function to_safestr($str)
 
 function input_text($name,$value,$other='',$maxlength='255')
 {
-	global $modx;
-	
 	$ph['name']      = $name;
 	$ph['value']     = $value;
 	$ph['maxlength'] = $maxlength;
@@ -32,7 +30,7 @@ function input_checkbox($name,$checked,$other='')
 	$ph['name']    = $name;
 	$ph['checked'] = ($checked) ? 'checked="checked"' : '';
 	$ph['other']   = $other;
-	$ph['resetpubdate'] = ($name == 'published') ? 'resetpubdate();' : '';
+	$ph['resetpubdate'] = ($name === 'published') ? 'resetpubdate();' : '';
 	if($name === 'published')
 	{
 		$id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
@@ -58,7 +56,7 @@ function disabled($cond=false)
 
 function tooltip($msg)
 {
-	global $modx,$_style;
+	global $_style;
 	
 	$ph['icons_tooltip'] = "'{$_style['icons_tooltip']}'";
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
@@ -69,8 +67,6 @@ function tooltip($msg)
 
 function input_hidden($name,$cond=true)
 {
-	global $modx;
-	
 	$ph['name']  = $name;
 	$ph['value'] = ($cond) ? '1' : '0';
 	$tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
@@ -79,7 +75,7 @@ function input_hidden($name,$cond=true)
 
 function ab_preview($id=0)
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	$tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_preview_resource"];
 	$ph['alt'] = 'preview resource';
@@ -100,12 +96,12 @@ function ab_save()
 	$saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
 	$selected = array('new'=>'', 'stay'=>'', 'close'=>'');
 	if ($modx->hasPermission('new_document')
-		&& $saveAfter=='new')    $selected['new']   = 'selected';
-	elseif($saveAfter=='stay')   $selected['stay']  = 'selected';
-	elseif($saveAfter=='close')  $selected['close'] = 'selected';
+		&& $saveAfter === 'new')    $selected['new']   = 'selected';
+	elseif($saveAfter === 'stay')   $selected['stay']  = 'selected';
+	elseif($saveAfter === 'close')  $selected['close'] = 'selected';
 	else                         $selected['close'] = 'selected';
 	
-	if ($modx->doc->mode!='draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
+	if ($modx->doc->mode !== 'draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
 		$option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
 	
 	$option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
@@ -124,7 +120,7 @@ function ab_save()
 
 function ab_open_draft($id)
 {
-	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
@@ -135,11 +131,11 @@ function ab_open_draft($id)
 
 function ab_create_draft($id)
 {
-	global $modx, $_style, $_lang, $docObject,$saveTarget;
+	global $modx, $_style, $_lang;
 	
-	if(!$modx->config['enable_draft']) return;
+	if(!$modx->config['enable_draft']) return false;
 	
-	if(!$modx->hasPermission('edit_document')) return;
+	if(!$modx->hasPermission('edit_document')) return false;
 	
 	$tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_save"];
@@ -151,7 +147,7 @@ function ab_create_draft($id)
 
 function ab_cancel($id)
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_cancel"];
@@ -162,7 +158,7 @@ function ab_cancel($id)
 
 function ab_move()
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_move_document"];
@@ -172,7 +168,7 @@ function ab_move()
 
 function ab_duplicate()
 {
-	global $modx, $_style, $_lang;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_resource_duplicate"];
@@ -183,7 +179,7 @@ function ab_duplicate()
 
 function ab_delete()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_delete_document"];
@@ -194,7 +190,7 @@ function ab_delete()
 
 function ab_undelete()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_undelete_resource"];
@@ -205,7 +201,7 @@ function ab_undelete()
 
 function ab_delete_draft()
 {
-	global $modx, $_style, $_lang, $docObject;
+	global $_style, $_lang;
 	
 	$tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
 	$ph['icon'] = $_style["icons_delete_document"];
@@ -218,7 +214,7 @@ function get_alias_path($id)
 {
 	global $modx;
 
-	$pid = intval($_REQUEST['pid']);
+	$pid = (int)$_REQUEST['pid'];
 	
 	if($modx->config['use_alias_path']==='0') $path = '';
 	elseif($pid)
@@ -232,8 +228,8 @@ function get_alias_path($id)
 	elseif($id) $path = $modx->getAliasListing($id,'path');
 	else        $path = '';
 	
-	if($path!=='') $path = $modx->config['base_url'] . $path . '/';
-	else           $path = $modx->config['base_url'];
+	if($path!=='') $path = MODX_BASE_URL . $path . '/';
+	else           $path = MODX_BASE_URL;
 	
 	if(30 < strlen($path)) $path .= '<br />';
 	return $path;
@@ -241,8 +237,6 @@ function get_alias_path($id)
 
 function renderTr($head, $body,$rowstyle='')
 {
-	global $modx;
-	
 	if(!is_array($head)) {
 		$ph['head'] = $head;
 		$ph['extra_head'] = '';
@@ -451,8 +445,8 @@ function checkViewUnpubDocPerm($published,$editedby) {
 	$userid = $modx->getLoginUserID();
 	if ($userid != $editedby) {
 		$modx->config['remember_last_tab'] = 0;
-		$e->setError(3);
-		$e->dumpError();
+		$modx->event->setError(3);
+        $modx->event->dumpError();
 	}
 }
 
@@ -477,9 +471,9 @@ function getAliasAtNew() {
 }
 
 function getJScripts($docid) {
-	global $modx,$_lang,$_style,$action, $docObject;
+	global $modx,$_lang,$_style, $docObject;
 	
-	$base_url = $modx->config['base_url'];
+	$base_url = MODX_BASE_URL;
 	if(!isset($modx->config['imanager_url']))
 		$modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
 	
@@ -509,7 +503,7 @@ function getJScripts($docid) {
 	
 	$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
 	
-	return $date_picker . parseText($tpl,$ph);
+	return parseText($tpl,$ph);
 }
 
 function get_template_options() {
@@ -545,7 +539,7 @@ function get_template_options() {
 }
 
 function menuindex() {
-	global $modx, $docObject, $_lang;
+	global $docObject, $_lang;
 	
 	$tpl = <<< EOT
 <table cellpadding="0" cellspacing="0" style="width:333px;">
@@ -616,7 +610,7 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-	global $modx,$docObject,$_lang,$_style;
+	global $docObject,$_lang,$_style;
 	
 	$tpl = <<< EOT
 &nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
@@ -633,7 +627,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-	global $modx, $saveTarget, $docObject;
+	global $modx, $docObject;
 	
 	$tpl = <<< EOT
 <div id="actions">
@@ -674,7 +668,7 @@ EOT;
 		if($modx->revision->hasDraft||$modx->revision->hasStandby)
 			$ph['deleteButton']    = ab_delete_draft();
 	}
-	elseif ($id != $config['site_start']) {
+	elseif ($id != $modx->config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
     		if($modx->hasPermission('move_document'))
@@ -835,7 +829,7 @@ function getTmplvars($docid,$template,$docgrp) {
 }
 
 function rteContent($htmlcontent,$editors) {
-	global $modx, $_lang;
+	global $_lang;
 	$tpl = <<< EOT
 	<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;">[+content+]</textarea>
 	<span class="warning">[+_lang_which_editor_title+]</span>
@@ -856,7 +850,7 @@ function parseText($tpl,$ph) {
 }
 
 function getEditors($editors) {
-	global $modx,$_lang,$selected_editor;
+	global $_lang,$selected_editor;
 	if (!is_array($editors)) return '';
 	
 	$rs = '';
@@ -945,7 +939,7 @@ EOT;
 }
 
 function sectionTV() {
-	global $modx, $_lang;
+	global $_lang;
 	$tpl = getTplSectionTV();
 	$ph = array();
 	$ph['header'] = $_lang['settings_templvars'];
@@ -954,7 +948,7 @@ function sectionTV() {
 }
 
 function fieldsTV() {
-	global $modx, $_lang, $tmplVars, $rte_field;
+	global $modx, $tmplVars, $rte_field;
 	
 	$tpl = getTplTVRow();
 	$total = count($tmplVars);
@@ -966,7 +960,7 @@ function fieldsTV() {
 	$hidden = array();
 	$output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
 	$splitLine = renderSplit();
-	foreach($tmplVars as $tv):
+	foreach($tmplVars as $tv) {
 		$tvid = 'tv' . $tv['id'];
 		// Go through and display all Template Variables
 		if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
@@ -995,28 +989,44 @@ function fieldsTV() {
 			$tvPBV = $tv['value'];
 		}
 		
-		if($tv['type']!=='hidden')
+		if($tv['type']==='hidden')
+		{
+			$formElement = $modx->renderFormElement(
+				'hidden'
+				, $tv['id']
+				, $tv['default_text']
+				, $tv['elements']
+				, $tvPBV
+				, ''
+				, $tv
+				);
+			$hidden[] = $formElement;
+		}
+		else
 		{
 			$ph = array();
-			$ph['caption']     = htmlspecialchars($tv['caption'], ENT_QUOTES, $modx->config['modx_charset']);
+			$ph['caption']     = $modx->hsc($tv['caption']);
 			$ph['description'] = $tv['description'];
 			$ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-			$ph['FormElement'] = $modx->renderFormElement($tv['type'], $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
+			$ph['FormElement'] = $modx->renderFormElement(
+				$tv['type']
+				, $tv['id']
+				, $tv['default_text']
+				, $tv['elements']
+				, $tvPBV
+				, ''
+				, $tv
+				);
 			if($ph['FormElement']!=='')
 			{
 				$output[] = parseText($tpl,$ph);
 				if ($i < $total) $output[] = $splitLine;
 			}
 		}
-		else
-		{
-			$formElement = $modx->renderFormElement('hidden', $tv['id'], $tv['default_text'], $tv['elements'], $tvPBV, '', $tv);
-			$hidden[] = $formElement;
-		}
 		$i++;
-	endforeach;
+	}
 	
-	if(!empty($output) && $output[$total+1]===$splitLine) array_pop($output);
+	if($output && $output[$total+1]===$splitLine) array_pop($output);
 	
 	$output[] = '</table>';
 	
@@ -1115,14 +1125,15 @@ function getInitialValues() {
 }
 
 function fieldLink_attributes() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$body  = input_text('link_attributes',to_safestr($docObject['link_attributes']));
 	$body .= tooltip($_lang['link_attributes_help']);
 	return renderTr($_lang['link_attributes'],$body);
 }
 
 function fieldIsfolder() {
-	global $modx,$_lang,$docObject;
+	global $id,$modx,$_lang,$docObject;
+    $id = getDocId();
 	$cond = ($docObject['isfolder']==1);
 	$haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
 	$disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
@@ -1143,7 +1154,7 @@ function fieldRichtext() {
 }
 
 function fieldDonthit() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$cond = ($docObject['donthit']!=1);
 	$body = input_checkbox('donthit',$cond);
 	$body .= input_hidden('donthit',!$cond);
@@ -1153,7 +1164,7 @@ function fieldDonthit() {
 
 
 function fieldSearchable() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	$cond = ($docObject['searchable']==1);
 	$body = input_checkbox('searchable',$cond);
 	$body .= input_hidden('searchable',$cond);
@@ -1181,7 +1192,7 @@ function fieldSyncsite() {
 }
 
 function fieldType() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	
 	$tpl = <<< EOT
 <select name="type" class="inputBox" style="width:200px">
@@ -1222,7 +1233,7 @@ EOT;
 }
 
 function fieldContent_dispo() {
-	global $modx,$_lang,$docObject;
+	global $_lang,$docObject;
 	
 	if($docObject['type'] === 'reference') return;
 	$tpl = <<< EOT

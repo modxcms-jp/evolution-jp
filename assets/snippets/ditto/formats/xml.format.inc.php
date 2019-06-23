@@ -137,6 +137,4 @@ $tpl = isset($tpl) ? $tpl : "@CODE:".$xml_tpl;
 $footer = isset($footer) ? $footer : $xml_footer;
 
 // set emptytext
-$noResults = "      ";
-
-?>
+$noResults = '      ';

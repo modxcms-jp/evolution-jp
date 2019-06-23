@@ -101,7 +101,7 @@ class Qm {
 			// Save document
 			case 'OnDocFormSave':
 				// Saving process for Qm only
-				if(intval($_REQUEST['quickmanager']) == 1)
+				if((int)$_REQUEST['quickmanager'] == 1)
 				{
 					$id = $e->params['id'];
 					$key = $id;
@@ -122,7 +122,7 @@ class Qm {
 					// Different doc to be refreshed than the one we are editing?
 					if (isset($_POST['qmrefresh']))
 					{
-						$id = intval($_POST['qmrefresh']);
+						$id = (int)$_POST['qmrefresh'];
 					}
 					
 					// Redirect to clearer page which refreshes parent window and closes modal box frame
@@ -169,9 +169,9 @@ class Qm {
 				}
 				
 				// QM+ TV edit
-				if(isset($_GET['quickmanagertv'] ) && intval($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
+				if(isset($_GET['quickmanagertv'] ) && (int)($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
 				{
-					$output = include_once('edit_tv.inc');
+					$output = include('edit_tv.inc');
 				}
 			
 			// QM+ with toolbar
@@ -351,16 +351,6 @@ class Qm {
 					{
 						$head .= '
 <link type="text/css" media="screen" rel="stylesheet" href="'.$this->modx->config['site_url'].'assets/plugins/qm/css/colorbox.css" />
-<style type="text/css">
-	.cboxIE #cboxTopLeft{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderTopLeft.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxTopCenter{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderTopCenter.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxTopRight{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderTopRight.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxBottomLeft{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderBottomLeft.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxBottomCenter{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderBottomCenter.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxBottomRight{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderBottomRight.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxMiddleLeft{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderMiddleLeft.png, sizingMethod=\'scale\');}
-	.cboxIE #cboxMiddleRight{background:transparent; filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='.$this->modx->config['site_url'].'assets/plugins/qm/css/images/internet_explorer/borderMiddleRight.png, sizingMethod=\'scale\');}
-</style>
 <script type="text/javascript" src="'.$this->modx->config['site_url'].'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
 ';
 					}
@@ -462,18 +452,18 @@ function getCookie(cookieName)
 			// Edit document in ThickBox frame (MODx manager frame)
 			case 'OnDocFormPrerender':
 				// If there is Qm call, add control buttons and modify to edit document page
-				if (isset($_REQUEST['quickmanager']) && intval($_REQUEST['quickmanager']) == 1)
+				if (isset($_REQUEST['quickmanager']) && (int)$_REQUEST['quickmanager'] == 1)
 				{
 					global $docObject;
 					
 					// Set template for new document, action = 4
-					if(intval($_GET['a']) == 4)
+					if((int)$_GET['a'] == 4)
 					{
 						// Custom add button
 						if (isset($_GET['customaddtplid']))
 						{
 							// Set template
-							$docObject['template'] = intval($_GET['customaddtplid']);
+							$docObject['template'] = (int)$_GET['customaddtplid'];
 						}
 						else
 						{
@@ -483,7 +473,7 @@ function getCookie(cookieName)
 							{
 								case 'parent': // Template type is parent
 									// Get parent document id
-									$pid = $docObject['parent'] ? $docObject['parent'] : intval($_REQUEST['pid']);
+									$pid = $docObject['parent'] ? $docObject['parent'] : (int)$_REQUEST['pid'];
 									
 									// Get parent document
 									$parent = $this->modx->getDocument($pid);
@@ -498,7 +488,7 @@ function getCookie(cookieName)
 								case 'selected': // Template is inherited by Inherit Selected Template plugin
 								case 'sibling':
 									// Get parent document id
-									$pid = $docObject['parent'] ? $docObject['parent'] : intval($_REQUEST['pid']);
+									$pid = $docObject['parent'] ? $docObject['parent'] : (int)$_REQUEST['pid'];
 									
 									if ($this->modx->config['auto_template_logic'] === 'sibling') {
 										// Eoler: template_autologic in Evolution 1.0.5+
@@ -597,7 +587,7 @@ function getCookie(cookieName)
 					// Different doc to be refreshed?
 					if (isset($_REQUEST['qmrefresh']))
 					{
-						$hiddenFields .= '<input type="hidden" name="qmrefresh" value="'.intval($_REQUEST['qmrefresh']).'" />';
+						$hiddenFields .= '<input type="hidden" name="qmrefresh" value="'. (int)$_REQUEST['qmrefresh'] .'" />';
 					}
 					
 					// Output

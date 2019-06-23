@@ -37,7 +37,7 @@ $modx->db->delete($tbl_user_settings,"user='{$id}'")
 
 // delete the attributes
 $modx->db->delete($tbl_user_attributes,"internalKey='{$id}'")
-	or exit("Something went wrong while trying to delete the user attributes...");
+	or exit('Something went wrong while trying to delete the user attributes...');
 
 // invoke OnManagerDeleteUser event
 $tmp = array(
@@ -47,7 +47,7 @@ $tmp = array(
 $modx->invokeEvent("OnManagerDeleteUser",$tmp);
 
 // invoke OnUserFormDelete event
-$tmp = array("id"	=> $id);
+$tmp = array('id' => $id);
 $modx->invokeEvent("OnUserFormDelete",$tmp);
 
-header("Location: index.php?a=75");
+header('Location: index.php?a=75');

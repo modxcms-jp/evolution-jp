@@ -47,14 +47,14 @@ if($form_v['friendly_urls']==='1' && strpos($_SERVER['SERVER_SOFTWARE'],'IIS')==
 		}
 	}
 }
-$default_config = include_once(MODX_CORE_PATH . 'default.config.php');
+$default_config = include(MODX_CORE_PATH . 'default.config.php');
 
 $form_v['filemanager_path'] = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['filemanager_path']);
 $form_v['rb_base_dir']      = str_replace('[(base_path)]',MODX_BASE_PATH,$form_v['rb_base_dir']);
 if(!is_dir($form_v['filemanager_path'])) $warnings[] = $_lang["configcheck_filemanager_path"];
 if(!is_dir($form_v['rb_base_dir']))      $warnings[] = $_lang["configcheck_rb_base_dir"] ;
 
-if(0< count($warnings))
+if($warnings)
 {
 	$modx->manager->saveFormValues('17');
 	$msg = join("\n",$warnings);
@@ -62,12 +62,16 @@ if(0< count($warnings))
 	exit;
 }
 
-if (isset($form_v) && count($form_v) > 0) {
+if (isset($form_v) && $form_v) {
 	$savethese = array();
 	foreach ($form_v as $k => $v) {
 		switch ($k) {
+            case 'base_url':
+                if($v !== '' && $v !== '/') {
+                    $v = '/' . trim($v,'/') . '/';
+                }
+                break;
 			case 'site_url':
-			case 'base_url':
 			case 'rb_base_dir':
 			case 'rb_base_url':
 			case 'filemanager_path':

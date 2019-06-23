@@ -50,12 +50,12 @@ $placeholders['atom_author'] = array("createdby","atomCreatedBy");
 
 if(!function_exists("atomCreatedDate")) {
 	function atomCreatedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', intval($resource["createdon"]) + $modx->config["server_offset_time"]);
+		return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
 	}
 }
 if(!function_exists("atomEditedDate")) {
 	function atomEditedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', intval($resource["editedon"]) + $modx->config["server_offset_time"]);
+		return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
 	}
 }
 if(!function_exists("atomCreatedBy")) { 
@@ -84,8 +84,8 @@ if(!function_exists("atom_placeholders")) {
 $atom_header = <<<TPL
 <?xml version="1.0" encoding="[+atom_charset+]"?>
 <feed xmlns="http://www.w3.org/2005/Atom"
-      xml:lang="[+atom_lang+]"
-      xml:base="[(site_url)]">
+    xml:lang="[+atom_lang+]"
+    xml:base="[(site_url)]">
 	<id>[(site_url)][~[*id*]~]</id>
 	<title>[*pagetitle*]</title>
 	<link rel="self" type="text/xml" href="[+atom_link+]" />
@@ -116,11 +116,9 @@ TPL;
 
 $header = isset($header) ? $header : template::replace($atom_placeholders,$atom_header);
 
-$tpl = isset($tpl) ? $tpl : "@CODE:".$atom_tpl;
+$tpl = isset($tpl) ? $tpl : '@CODE:' .$atom_tpl;
 
 $footer = isset($footer) ? $footer : $atom_footer;
 
 // set emptytext
-$noResults = "      ";
-
-?>
+$noResults = '      ';

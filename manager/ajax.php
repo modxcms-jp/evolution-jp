@@ -4,7 +4,7 @@ if($modx->getLoginUserType() !== 'manager') exit('Not Logged In!');
 
 switch ($_REQUEST['ajaxa']) {
     case 16:
-        $rs = include_once(MODX_MANAGER_PATH . 'actions/element/ajax/mutate_templates.php');break;
+        $rs = include(MODX_MANAGER_PATH . 'actions/element/ajax/mutate_templates.php');break;
 }
 
 echo $rs;

@@ -35,7 +35,7 @@ if($sendto=='u') {
 	send_pm($fields, $from);
 }
 
-if($sendto=='g') {
+if($sendto === 'g') {
 	if($groupid==0) {
 		$e->setError(14);
 		$e->dumpError();
@@ -50,7 +50,7 @@ if($sendto=='g') {
 	}
 }
 
-if($sendto=='a') {
+if($sendto === 'a') {
 	$rs = $modx->db->select('id','[+prefix+]manager_users');
 	$private = 0;
 	while($row=$modx->db->getRow($rs))

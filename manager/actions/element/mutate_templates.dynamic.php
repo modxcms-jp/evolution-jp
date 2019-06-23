@@ -286,7 +286,6 @@ $tmp = array('id' => $id);
 $evtOut = $modx->invokeEvent("OnTempFormRender",$tmp);
 if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
-</form>
 <script>
 	var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2 )) ? 'true' : 'false'; ?>;
 	tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
@@ -322,6 +321,8 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 	});
 </script>
 </div>
+</div>
+</form>
 
 <?php
 function getParentValues($parent) {

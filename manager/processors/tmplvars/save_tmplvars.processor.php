@@ -159,8 +159,6 @@ function saveTemplateAccess() {
 
     if ($newid)
         $id = $newid;
-    $templates = $_POST['template']; // get muli-templates based on S.BRENNAN mod
-    // update template selections
 
     $getRankArray = array();
 
@@ -170,11 +168,18 @@ function saveTemplateAccess() {
         $getRankArray[$row['templateid']] = $row['rank'];
     }
     $modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
-    for ($i = 0; $i < count($templates); $i++) {
-        $setRank = ($getRankArray[$templates[$i]]) ? $getRankArray[$templates[$i]] : 0;
+    
+    // update template selections
+    $templates = $modx->input_post('template'); // get muli-templates based on S.BRENNAN mod
+    if(!$templates) {
+        return;
+    }
+    $total = count($templates);
+    foreach ($templates as $iValue) {
+        $setRank = ($getRankArray[$iValue]) ? $getRankArray[$iValue] : 0;
         $field = array();
         $field['tmplvarid'] = $id;
-        $field['templateid'] = $templates[$i];
+        $field['templateid'] = $iValue;
         $field['rank'] = $setRank;
         $modx->db->insert($field, '[+prefix+]site_tmplvar_templates');
     }

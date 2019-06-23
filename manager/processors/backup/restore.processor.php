@@ -10,7 +10,7 @@ if(!$modx->hasPermission('bk_manager')) {
 $mode = isset($_POST['mode']) ? $_POST['mode'] : '';
 
 $source = '';
-if ($mode=='restore1')
+if ($mode === 'restore1')
 {
 	if(isset($_POST['textarea']) && !empty($_POST['textarea']))
 	{
@@ -20,7 +20,7 @@ if ($mode=='restore1')
 	else
 		$source = file_get_contents($_FILES['sqlfile']['tmp_name']);
 }
-elseif ($mode=='restore2')
+elseif ($mode === 'restore2')
 {
 	$base_path = MODX_BASE_PATH;
 	if(!isset($modx->config['snapshot_path'])||strpos($modx->config['snapshot_path'],MODX_BASE_PATH)===false)

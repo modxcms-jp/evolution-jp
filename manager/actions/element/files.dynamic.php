@@ -5,7 +5,7 @@ if(!$modx->hasPermission('file_manager')) {
 	$e->dumpError();
 }
 $newToken = $modx->manager->makeToken();
-
+global $_style;
 // settings
 $style_path = $modx->config['site_url'] . 'manager/media/style/' . $modx->config['manager_theme'] . '/images/';
 $excludes = array('.', '..', '.svn');
@@ -43,8 +43,8 @@ if($_SESSION['mgrRole']!=1)
 // Mod added by Raymond
 $enablefileunzip = true;
 $enablefiledownload = true;
-$newfolderaccessmode = $new_folder_permissions ? $new_folder_permissions : 0777;
-$new_file_permissions = $new_file_permissions ? $new_file_permissions : 0666;
+$newfolderaccessmode = $modx->config['new_folder_permissions'] ? octdec($modx->config['new_folder_permissions']) : 0777;
+$new_file_permissions = $new_file_permissions ? octdec($new_file_permissions) : 0666;
 // End Mod -  by Raymond
 // make arrays from the file upload settings
 $upload_files = explode(',',$upload_files);
@@ -52,16 +52,14 @@ $upload_images = explode(',',$upload_images);
 $upload_media = explode(',',$upload_media);
 $upload_flash = explode(',',$upload_flash);
 // now merge them
-$uploadablefiles = array();
 $uploadablefiles = array_merge($upload_files,$upload_images,$upload_media,$upload_flash);
 $uploadablefiles = add_dot($uploadablefiles);
 function add_dot($array)
 {
-	$count = count($array);
-	for($i=0; $i<$count; $i++) {
-		$array[$i] = '.'.strtolower(trim($array[$i])); // add a dot :)
-	}
-	return $array;
+    foreach ($array as $i => $iValue) {
+        $array[$i] = '.'.strtolower(trim($iValue)); // add a dot :)
+    }
+    return $array;
 }
 // end settings
 
@@ -73,7 +71,7 @@ if(isset($_REQUEST['path']) && !empty($_REQUEST['path']))
 }
 else
 {
-	$startpath = $filemanager_path;
+	$startpath = $modx->config['filemanager_path'];
 }
 $startpath = rtrim($startpath,'/');
 
@@ -84,7 +82,7 @@ if(!is_readable($startpath))
 }
 
 // Raymond: get web start path for showing pictures
-$rf = realpath($filemanager_path);
+$rf = realpath($modx->config['filemanager_path']);
 $rw = realpath('../');
 $webstart_path = str_replace('\\','/',str_replace($rw,'',$rf));
 if(substr($webstart_path,0,1)=='/') $webstart_path = '..'.$webstart_path;
@@ -153,7 +151,7 @@ function confirmDelete() {
 }
 
 function confirmDeleteFolder(status) {
-	if(status!='file_exists')
+	if(status!=='file_exists')
 		return confirm("<?php echo $_lang['confirm_delete_dir']; ?>");
 	else
 		return confirm("<?php echo $_lang['confirm_delete_dir_recursive']; ?>");
@@ -203,8 +201,8 @@ function deleteFile(file) {
 </script>
 <?php
 if(!empty($_FILES['userfile'])) $information = fileupload();
-elseif(isset($_POST['mode']) && $_POST['mode']=='save')      echo textsave();
-elseif(isset($_REQUEST['mode']) && $_REQUEST['mode']=='delete') echo delete_file();
+elseif(isset($_POST['mode']) && $_POST['mode'] === 'save')      echo textsave();
+elseif(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'delete') echo delete_file();
 
 if(in_array($startpath,$proteted_path))
 {
@@ -295,10 +293,10 @@ if (is_writable($startpath))
 	}
 
 	// Create folder here
-	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfolder')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'newfolder')
 	{
 		$old_umask = umask(0);
-		$foldername = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
+		$foldername = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
 		if(!mkdirs("{$startpath}/{$foldername}",0777))
 		{
 			echo '<span class="warning"><b>',$_lang['file_folder_not_created'],'</b></span><br /><br />';
@@ -317,10 +315,10 @@ if (is_writable($startpath))
 		umask($old_umask);
 	}
 	// Create file here
-	if(isset($_REQUEST['mode']) && $_REQUEST['mode']=='newfile')
+	if(isset($_REQUEST['mode']) && $_REQUEST['mode'] === 'newfile')
 	{
 		$old_umask = umask(0);
-		$filename = str_replace('..\\','',str_replace('../','',$_REQUEST['name']));
+		$filename = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
 		$filename = $modx->db->escape($filename);
 		
 		if(!checkExtension($filename))
@@ -440,7 +438,7 @@ if(!empty($buffer) && empty($ent_buffer))
 
 <form action="index.php" method="post" name="editFile">
 <input type="hidden" name="a" value="31" />
-<input type="hidden" name="mode" value="save" />
+<input type="hidden" name="mode" value="edit" />
 <input type="hidden" name="path" value="<?php echo $_REQUEST['path']?>" />
 <table width="100%"  border="0" cellspacing="0" cellpadding="0">
 	<tr>
@@ -466,7 +464,7 @@ function ls($curpath)
 		echo 'Invalid path "',$curpath,'"<br />';
 		return;
 	}
-	$dir = scandir($curpath);
+	$dir = scandir($curpath, SCANDIR_SORT_ASCENDING);
 
 	// first, get info
 	foreach ($dir as $file)
@@ -483,7 +481,7 @@ function ls($curpath)
 				$file = mb_convert_encoding($file,$modx_manager_charset,'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
 				$dirs_array[$dircounter]['text'] = '<img src="' . $_style['tree_folder'].'" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path='.urlencode($newpath).'"><b>'.$file.'</b></a>';
 				
-				$dfiles = scandir($newpath);
+				$dfiles = scandir($newpath, SCANDIR_SORT_ASCENDING);
 				foreach($dfiles as $i=>$infile)
 				{
 					switch($infile)
@@ -516,7 +514,7 @@ function ls($curpath)
 			$files_array[$filecounter]['view'] = (in_array($type, $viewablefiles)) ?
 			'<span style="cursor:pointer; width:20px;" onclick="viewfile(\''.$webstart_path.substr($newpath, $len, strlen($newpath)).'\');"><img src="'.$style_path.'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ' : (($enablefiledownload && in_array($type, $uploadablefiles))? '<a href="'.$webstart_path.implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len, strlen($newpath))))).'" style="cursor:pointer; width:20px;"><img src="'.$style_path . 'misc/ed_save.gif" align="absmiddle" alt="'.$_lang['file_download_file'].'" title="'.$_lang['file_download_file'].'" /></a> ':'<span class="disabledImage"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></span> ');
 			$files_array[$filecounter]['view'] = (in_array($type, $inlineviewablefiles)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=view&path='.urlencode($newpath).'"><img src="'.$style_path . 'icons/context_view.gif" align="absmiddle" alt="'.$_lang['files_viewfile'].'" title="'.$_lang['files_viewfile'].'" /></a></span> ' : $files_array[$filecounter]['view'] ;
-			$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type=='.zip') ? '<span style="width:20px;"><a href="javascript:unzipFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/unzip.gif" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span> ' : '' ;
+			$files_array[$filecounter]['unzip'] = ($enablefileunzip && $type === '.zip') ? '<span style="width:20px;"><a href="javascript:unzipFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/unzip.gif" align="absmiddle" alt="'.$_lang['file_download_unzip'].'" title="'.$_lang['file_download_unzip'].'" /></a></span> ' : '' ;
 			$files_array[$filecounter]['edit'] = (in_array($type, $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path='.urlencode($newpath).'#file_editfile"><img src="'.$_style['icons_edit_document'] . '" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></a></span> ' : '<span class="disabledImage"><img src="'.$_style['icons_edit_document'] . '" align="absmiddle" alt="'.$_lang['files_editfile'].'" title="'.$_lang['files_editfile'].'" /></span> ';
             $files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath) ? '<span style="width:20px;"><a href="javascript:deleteFile(\''.urlencode($file).'\');"><img src="'.$style_path . 'icons/delete.gif" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></a></span> ' : '<span class="disabledImage"><img src="'.$style_path . 'icons/delete.gif" align="absmiddle" alt="'.$_lang['file_delete_file'].'" title="'.$_lang['file_delete_file'].'" /></span> ';
 
@@ -587,7 +585,7 @@ function checkExtension($path='')
 {
 	global $uploadablefiles;
 	
-	if(in_array(getExtension($path), $uploadablefiles)) return true;
+	if(in_array(getExtension($path), $uploadablefiles, true)) return true;
 	else                                                return false;
 }
 
@@ -622,8 +620,6 @@ function logFileChange($type, $filename)
 // by patrick_allaert - php user notes
 function unzip($file, $path)
 {
-	global $newfolderaccessmode;
-	
 	// added by Raymond
 	if (!extension_loaded('zip')) return 0;
 	// end mod
@@ -634,27 +630,27 @@ function unzip($file, $path)
 		$path = rtrim($path,'/') . '/';
 		while ($zip_entry = zip_read($zip))
 		{
-			if (zip_entry_filesize($zip_entry) > 0)
-			{
-				// str_replace must be used under windows to convert "/" into "\"
-				$zip_entry_name = zip_entry_name($zip_entry);
-				$complete_path = $path.str_replace('\\', '/', dirname($zip_entry_name));
-				$complete_name = $path.str_replace('\\', '/', $zip_entry_name);
-				if(!is_dir($complete_path))
-				{
-					$tmp = '';
-					foreach(explode('/', $complete_path) AS $k)
-					{
-						$tmp .= $k.'/';
-						if(!is_dir($tmp)) mkdir($tmp, 0777);
-					}
-				}
-				if (zip_entry_open($zip, $zip_entry, 'r'))
-				{
-					file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-					zip_entry_close($zip_entry);
-				}
-			}
+			if (zip_entry_filesize($zip_entry) <= 0) {
+                continue;
+            }
+            // str_replace must be used under windows to convert "/" into "\"
+            $zip_entry_name = zip_entry_name($zip_entry);
+            $complete_path = $path.str_replace('\\', '/', dirname($zip_entry_name));
+            $complete_name = $path.str_replace('\\', '/', $zip_entry_name);
+            if(!is_dir($complete_path))
+            {
+                $tmp = '';
+                foreach(explode('/', $complete_path) AS $k)
+                {
+                    $tmp .= $k.'/';
+                    if(!is_dir($tmp)) mkdir($tmp, 0777);
+                }
+            }
+            if (zip_entry_open($zip, $zip_entry, 'r'))
+            {
+                file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
+                zip_entry_close($zip_entry);
+            }
 		}
 		umask($old_umask);
 		zip_close($zip);
@@ -675,7 +671,7 @@ function rrmdir($dir)
 
 function fileupload()
 {
-	global $modx,$_lang,$startpath, $filemanager_path, $uploadablefiles, $new_file_permissions;
+	global $modx,$_lang,$startpath, $filemanager_path;
 	$msg = '';
 	
 	if(!empty($_FILES['userfile']['tmp_name']))

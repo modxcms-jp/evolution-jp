@@ -33,15 +33,14 @@ $where = "sc.id ='{$id}' AND ({$access})";
 $rs = $modx->db->select('DISTINCT sc.*',$from,$where);
 $content = $modx->db->getRow($rs);
 $total = $modx->db->getRecordCount($rs);
-if ($total > 1)
-{
+if ($total > 1) {
 	echo "<p>Internal System Error...</p>",
 	     "<p>More results returned than expected. </p>",
 	     "<p><strong>Aborting...</strong></p>";
 	exit;
 }
-elseif ($total == 0)
-{
+
+if ($total == 0) {
 	$e->setError(3);
 	$e->dumpError();
 }

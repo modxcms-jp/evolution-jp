@@ -9,9 +9,9 @@ or there is any bugs. I will fix them as soon as possible.
 *********************************/
     
 class random{
-    var $data = array();
+    public $data = array();
     
-    function add($string,$weight=1){
+    public function add($string, $weight=1){
         $this->data[] = array('s' => $string, 'w' => $weight);
     }
     
@@ -26,7 +26,7 @@ class random{
         }
     }
     
-    function select($amount=1){
+    public function select($amount=1){
         if($amount == 1){
             $rand = array_rand($this->data);
             $result = $this->data[$rand]['s'];
@@ -40,7 +40,7 @@ class random{
         return $result;
     }
     
-    function select_unique($amount=1){
+    public function select_unique($amount=1){
         if($amount == 1){
             $rand = array_rand($this->data);
             $result = $this->data[$rand]['s'];
@@ -53,7 +53,7 @@ class random{
         return $result;
     }
     
-    function select_weighted($amount=1){
+    private function select_weighted($amount=1){
         $count = count($this->data);
         $i = 0;
         $max = -1;
@@ -91,7 +91,7 @@ class random{
         return $key;
     }
     
-    function select_weighted_unique($amount=1){
+    public function select_weighted_unique($amount=1){
         $count = count($this->data);
         $i = 0;
         if($amount >= $count){
@@ -100,31 +100,31 @@ class random{
                 ++$i;
             }
             return $return;
-        }else{
-            $max = -1;
-            while($i < $count){
-                $max += $this->data[$i]['w'];
-                ++$i;
-            }
-            
-            $i = 0;
-            while($i < $amount){
-                $max -= $sub;
-                $w = 0;
-                $n = 0;
-                $num = mt_rand(0,$max);
-                while($w <= $num){
-                    $w += $this->data[$n]['w'];
-                    ++$n;
-                }
-                $sub = $this->data[$n-1]['w'];
-                $key[] = $this->data[$n-1]['s'];
-                
-                unset($this->data[$n-1]);
-                $this->data = array_merge($this->data);
-                ++$i;
-            }
-            return $key;
         }
+
+        $max = -1;
+        while($i < $count){
+            $max += $this->data[$i]['w'];
+            ++$i;
+        }
+
+        $i = 0;
+        while($i < $amount){
+            $max -= $sub;
+            $w = 0;
+            $n = 0;
+            $num = mt_rand(0,$max);
+            while($w <= $num){
+                $w += $this->data[$n]['w'];
+                ++$n;
+            }
+            $sub = $this->data[$n-1]['w'];
+            $key[] = $this->data[$n-1]['s'];
+
+            unset($this->data[$n-1]);
+            $this->data = array_merge($this->data);
+            ++$i;
+        }
+        return $key;
     }
 }
