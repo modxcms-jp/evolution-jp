@@ -3721,8 +3721,10 @@ class DocumentParser {
         $output= array ();
         foreach($result as $row)
         {
-            if( !empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier ) //Load preview
+            if( !empty($this->previewObject[$row['name']]) && $docid == $this->documentIdentifier ) {
+                //Load preview
                 $row['value'] = $this->previewObject[$row['name']];
+            }
 
             if (!is_array($row['value']))
             {
