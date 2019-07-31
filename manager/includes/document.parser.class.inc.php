@@ -2648,6 +2648,7 @@ class DocumentParser {
                 //tvのkeyをtv名に変更
                 $tmp=array();
                 foreach( $previewObject as $k => $v ){
+                    $mt = array();
                     if( preg_match('/^tv([0-9]+)$/',$k,$mt) ){
                         $row = $this->db->getRow($this->db->select('name', '[+prefix+]site_tmplvars', "id='{$mt[1]}'"));
                         $k = $row['name'];
