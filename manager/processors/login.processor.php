@@ -3,6 +3,7 @@ if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 	header('HTTP/1.0 404 Not Found');exit;
 }
 global $_style;
+
 $self = 'manager/processors/login.processor.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 define('IN_MANAGER_MODE', 'true');
@@ -41,6 +42,8 @@ if(strpos($formv_username,':roleid=')!==false)
 {
 	list($formv_username,$forceRole) = explode(':roleid=',$formv_username,2);
 	if(!preg_match('@^[0-9]+$@',$forceRole)) $forceRole = 1;
+} else {
+	$forceRole = false;
 }
 
 // invoke OnBeforeManagerLogin event
@@ -59,26 +62,11 @@ include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
 // include_once the error handler
 include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
-
-$field = 'mu.*, ua.*';
-$from[] = '[+prefix+]manager_users mu';
-$from[] = 'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id';
-$where = sprintf("BINARY mu.username='%s'", $modx->db->escape($formv_username));
-$rs = $modx->db->select($field, $from, $where);
-$total = $modx->db->getRecordCount($rs);
-
-if(!$total && $modx->config['login_by']!=='username' && strpos($formv_username,'@')!==false) {
-    $where = sprintf("BINARY ua.email='%s'", $modx->db->escape($formv_username));
-    $rs = $modx->db->select($field, $from, $where);
-    $total = $modx->db->getRecordCount($rs);
-}
-
-if($total!=1) {
+$row = getUser($formv_username);
+if(!$row) {
     jsAlert($e->errors[900]);
     return;
 }
-
-$row = $modx->db->getRow($rs);
 
 $dbv_internalKey      = $row['internalKey'];
 $dbv_username         = $row['username'];
@@ -86,7 +74,7 @@ $dbv_password         = $row['password'];
 $dbv_failedlogincount = $row['failedlogincount'];
 $dbv_blocked          = $row['blocked'];
 $dbv_blockeduntil     = $row['blockeduntil'];
-$dbv_role             = ($row['role']==1 && isset($forceRole)) ? $forceRole : $row['role'];
+$dbv_role             = ($row['role']==1 && $forceRole) ? $forceRole : $row['role'];
 $dbv_logincount       = $row['logincount'];
 $dbv_fullname         = $row['fullname'];
 $dbv_email            = $row['email'];
@@ -96,11 +84,11 @@ if($_SERVER['REQUEST_TIME']<$dbv_blockeduntil)
 {
 	if($modx->config['failed_login_attempts']<=$dbv_failedlogincount)
 	{
-	    $modx->db->update('blocked=1','[+prefix+]user_attributes',"internalKey='{$dbv_internalKey}'");
-	    @session_destroy();
-	    session_unset();
-	    jsAlert($e->errors[902]);
-	    return;
+		$modx->db->update('blocked=1','[+prefix+]user_attributes',"internalKey='{$dbv_internalKey}'");
+		@session_destroy();
+		session_unset();
+		jsAlert($e->errors[902]);
+		return;
 	}
 }
 elseif($dbv_blocked==1)
@@ -175,24 +163,24 @@ if (!isset($rt) || !$rt || (is_array($rt) && !in_array(TRUE,$rt)))
 	elseif($hashType === 'v1')  $matchPassword = loginV1($dbv_internalKey,$formv_password,$dbv_password,$dbv_username);
 	else                     $matchPassword = false;
 	
-    if(!$matchPassword) {
-    	jsAlert($e->errors[901]);
-    	failedLogin($dbv_internalKey,$dbv_failedlogincount);
-    	return;
-    }
-    
-    if($modx->config['use_captcha']==1) {
-        if (!isset ($_SESSION['veriword'])) {
-            jsAlert('Captcha is not configured properly.');
-            return;
-        }
+	if(!$matchPassword) {
+		jsAlert($e->errors[901]);
+		failedLogin($dbv_internalKey,$dbv_failedlogincount);
+		return;
+	}
 
-        if ($_SESSION['veriword'] != $formv_captcha_code) {
-            jsAlert($e->errors[905]);
-            failedLogin($dbv_internalKey,$dbv_failedlogincount);
-            return;
-        }
-    }
+	if($modx->config['use_captcha']==1) {
+		if (!isset ($_SESSION['veriword'])) {
+			jsAlert('Captcha is not configured properly.');
+			return;
+		}
+
+		if ($_SESSION['veriword'] != $formv_captcha_code) {
+			jsAlert($e->errors[905]);
+			failedLogin($dbv_internalKey,$dbv_failedlogincount);
+			return;
+		}
+	}
 }
 
 session_regenerate_id(true);
@@ -288,13 +276,13 @@ else
 function jsAlert($msg){
 	global $modx, $modx_manager_charset;
 	header('Content-Type: text/html; charset='.$modx_manager_charset);
-    if($_POST['ajax']==1) echo $msg;
-    else {
-    	$msg = $modx->db->escape($msg);
-        echo "<script>alert('{$msg}');";
-        echo "history.go(-1);";
-        echo "</script>";
-    }
+	if($_POST['ajax']==1) echo $msg;
+	else {
+		$msg = $modx->db->escape($msg);
+		echo "<script>alert('{$msg}');";
+		echo "history.go(-1);";
+		echo "</script>";
+	}
 }
 
 function failedLogin($dbv_internalKey,$dbv_failedlogincount)
@@ -302,10 +290,10 @@ function failedLogin($dbv_internalKey,$dbv_failedlogincount)
 	global $modx;
 	
 	//increment the failed login counter
-    $dbv_failedlogincount += 1;
-    $f = array('failedlogincount'=>$dbv_failedlogincount);
-    $rs = $modx->db->update($f, '[+prefix+]user_attributes', "internalKey='{$dbv_internalKey}'");
-    if($modx->config['failed_login_attempts']<=$dbv_failedlogincount) {
+	$dbv_failedlogincount += 1;
+	$f = array('failedlogincount'=>$dbv_failedlogincount);
+	$rs = $modx->db->update($f, '[+prefix+]user_attributes', "internalKey='{$dbv_internalKey}'");
+	if($modx->config['failed_login_attempts']<=$dbv_failedlogincount) {
 		//block user for too many fail attempts
 		$blockeduntil = $_SERVER['REQUEST_TIME']+($modx->config['blocked_minutes']*60);
         $rs = $modx->db->update(array('blockeduntil'=>$blockeduntil), '[+prefix+]user_attributes', "internalKey='{$dbv_internalKey}'");
@@ -358,4 +346,26 @@ function updateNewHash($username,$password) {
 	$field = array();
 	$field['password'] = $modx->phpass->HashPassword($password);
 	$modx->db->update($field, '[+prefix+]manager_users', "username='{$username}'");
+}
+
+function getUser($user_name) {
+	global $modx;
+	$field = 'mu.*, ua.*';
+	$from[] = '[+prefix+]manager_users mu';
+	$from[] = 'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id';
+	$where = sprintf("BINARY mu.username='%s'", $modx->db->escape($user_name));
+	$rs = $modx->db->select($field, $from, $where);
+	$total = $modx->db->getRecordCount($rs);
+
+	if(!$total && $modx->config['login_by']!=='username' && strpos($user_name,'@')!==false) {
+		$where = sprintf("BINARY ua.email='%s'", $modx->db->escape($user_name));
+		$rs = $modx->db->select($field, $from, $where);
+		$total = $modx->db->getRecordCount($rs);
+	}
+	
+	if($total!=1) {
+		return false;
+	}
+
+	return $modx->db->getRow($rs);
 }
