@@ -3728,7 +3728,11 @@ class DocumentParser {
 
             if (!is_array($row['value']))
             {
-                $output[$row['name']] = $row['value'];
+                $row['docid'] = $docid;
+                if(isset($row['sep'])) {
+                    $row['sep'] = $row['sep'];
+                }
+                $output[$row['name']] = $this->tvProcessor($row);
             }
             else
             {
