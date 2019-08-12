@@ -2,7 +2,7 @@
 // start cms session
 function startCMSSession() {
     global $site_sessionname;
-    $_ = crc32(__FILE__);
+    $_ = hash('crc32b', __FILE__);
     $_ = sprintf('%u', $_);
     $_ = base_convert($_,10,36);
     $site_sessionname = 'evo' . $_;

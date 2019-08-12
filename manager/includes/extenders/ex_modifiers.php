@@ -182,7 +182,7 @@ class MODIFIERS {
     function parsePhx($key,$value,$modifiers)
     {
         global $modx;
-        $cacheKey = md5(sprintf('parsePhx#%s#%s#%s',$key,$value,print_r($modifiers,true)));
+        $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s',$key,$value,print_r($modifiers,true)));
         if(isset($this->tmpCache[$cacheKey])) return $this->tmpCache[$cacheKey];
         if(empty($modifiers)) return '';
         
