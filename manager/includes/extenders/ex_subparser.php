@@ -1313,8 +1313,19 @@ class SubParser {
             $ph['field_value']  = $modx->hsc($field_value);
             $ph['value']        = $modx->hsc($field_value);
             $ph['field_style']  = $field_style;
-            $tpl = $modx->parseText($tpl, $ph);
-            return $modx->mergeDocumentContent($tpl);
+            $tpl =$modx->evalSnippets(
+                $modx->mergeChunkContent(
+                    $modx->mergeSettingsContent(
+                        $modx->mergeDocumentContent(
+                            $modx->parseText(
+                                $tpl
+                                , $ph
+                            )
+                        )
+                    )
+                )
+            );
+            return $tpl;
         }
 
         // the default handler -- for errors, mostly
