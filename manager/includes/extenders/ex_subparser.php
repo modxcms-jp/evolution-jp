@@ -1304,71 +1304,7 @@ class SubParser {
             );
         }
         if(strtolower($field_type)==='custom_tv') {
-            if(strpos($field_elements, '@FILE') === 0) {
-                $path_str = trim(substr($field_elements, 6));
-                $lfpos = strpos($path_str,"\n");
-                if($lfpos!==false) {
-                    $path_str = substr($path_str, 0, $lfpos);
-                }
-                $path_str = MODX_BASE_PATH . trim($path_str);
-
-                if(!is_file($path_str)) {
-                    $tpl = $path_str . ' does not exist';
-                } else {
-                    $tpl = file_get_contents($path_str);
-                }
-            }
-            elseif(strpos($field_elements, '@INCLUDE') === 0) {
-                $path_str = substr($field_elements, 9);
-                $lfpos = strpos($path_str,"\n");
-                if($lfpos!==false) {
-                    $path_str = substr($path_str, 0, $lfpos);
-                }
-                $path_str = trim($path_str);
-                if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) {
-                    $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
-                } elseif(is_file( MODX_BASE_PATH.$path_str)) {
-                    $path = MODX_BASE_PATH . $path_str;
-                } else {
-                    $path = false;
-                }
-
-                if(!$path) {
-                    $tpl = $path_str . ' does not exist';
-                }
-                else {
-                    ob_start();
-                    include($path);
-                    $tpl = ob_get_clean();
-                }
-            } elseif(strpos($field_elements, '@CHUNK') === 0) {
-                $chunk_name = trim(substr($field_elements, 7));
-                $tpl = $modx->getChunk($chunk_name);
-                if($tpl === false) {
-                    $tpl = sprintf(
-                        '%s(%s:%s)'
-                        , $_lang['chunk_no_exist']
-                        , $_lang['htmlsnippet_name']
-                        , $chunk_name
-                    );
-                }
-            } elseif(strpos($field_elements, '@EVAL') === 0) {
-                $tpl = eval(
-                trim(substr($field_elements, 6))
-                );
-            } else {
-                if(strpos($field_elements, '@') === 0) {
-                    $tpl = $this->ProcessTVCommand(
-                        $field_elements
-                        , $field_id
-                        , ''
-                        , 'tvform'
-                    );
-                }
-                else {
-                    $tpl = $field_elements;
-                }
-            }
+            $tpl = $this->custom_tv_tpl($field_id,$field_elements);
             $ph['field_type']   = $field_type;
             $ph['field_id']     = $field_id;
             $ph['field_name']   = "tv{$field_id}";
@@ -1409,6 +1345,77 @@ class SubParser {
         );
     }
 
+    private function custom_tv_tpl($field_id,$field_elements) {
+        global $modx, $_lang;
+        if (strpos($field_elements, '@FILE') === 0) {
+            $path_str = trim(substr($field_elements, 6));
+            $lfpos = strpos($path_str,"\n");
+            if($lfpos!==false) {
+                $path_str = substr($path_str, 0, $lfpos);
+            }
+            $path_str = MODX_BASE_PATH . trim($path_str);
+
+            if(!is_file($path_str)) {
+                return $path_str . ' does not exist';
+            }
+
+            return file_get_contents($path_str);
+        }
+
+        if (strpos($field_elements, '@INCLUDE') === 0) {
+            $path_str = substr($field_elements, 9);
+            $lfpos = strpos($path_str,"\n");
+            if($lfpos!==false) {
+                $path_str = substr($path_str, 0, $lfpos);
+            }
+            $path_str = trim($path_str);
+            if(is_file(MODX_BASE_PATH.'assets/tvs/'.$path_str)) {
+                $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
+            } elseif(is_file( MODX_BASE_PATH.$path_str)) {
+                $path = MODX_BASE_PATH . $path_str;
+            } else {
+                $path = false;
+            }
+
+            if(!$path) {
+                return $path_str . ' does not exist';
+            }
+
+            ob_start();
+            include($path);
+            return ob_get_clean();
+        }
+
+        if (strpos($field_elements, '@CHUNK') === 0) {
+            $chunk_name = trim(substr($field_elements, 7));
+            $tpl = $modx->getChunk($chunk_name);
+            if($tpl !== false) {
+                return $tpl;
+            }
+            return sprintf(
+                '%s(%s:%s)'
+                , $_lang['chunk_no_exist']
+                , $_lang['htmlsnippet_name']
+                , $chunk_name
+            );
+        }
+
+        if(strpos($field_elements, '@EVAL') === 0) {
+            return eval(
+            trim(substr($field_elements, 6))
+            );
+        }
+
+        if(strpos($field_elements, '@') === 0) {
+            return $this->ProcessTVCommand(
+                $field_elements
+                , $field_id
+                , ''
+                , 'tvform'
+            );
+        }
+        return $field_elements;
+    }
     function ParseInputOptions($v)
     {
         global $modx;
