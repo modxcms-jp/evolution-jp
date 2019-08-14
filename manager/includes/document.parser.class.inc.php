@@ -340,11 +340,11 @@ class DocumentParser {
         $where = sprintf(
             "cache_section='%s' AND cache_key='%s'"
             , $this->db->escape($category)
-            , $this->db->escape($key)
+            , $this->db->escape(hash('crc32b', $key))
         );
         $rs = $this->db->delete('[+prefix+]system_cache', $where);
         $f['cache_section']   = $category;
-        $f['cache_key']       = $key;
+        $f['cache_key']       = hash('crc32b', $key);
         $f['cache_value']     = $value;
         $f['cache_timestamp'] = $_SERVER['REQUEST_TIME'];
         return $this->db->insert($this->db->escape($f), '[+prefix+]system_cache');
@@ -354,7 +354,7 @@ class DocumentParser {
         $where = sprintf(
             "cache_section='%s' AND cache_key='%s'"
             , $category
-            , $this->db->escape($key)
+            , $this->db->escape(hash('crc32b', $key))
         );
         $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
         
@@ -431,11 +431,11 @@ class DocumentParser {
             if(isset($qs['id'])) unset($qs['id']);
             if(0 < count($qs)) {
                 ksort($qs);
-                $qs_hash = '_' . md5(http_build_query($qs));
+                $qs_hash = '_' . hash('crc32b', http_build_query($qs));
             }
             else $qs_hash = '';
             $userID = $this->getLoginUserID('web');
-            if($userID) $qs_hash = md5($qs_hash."^{$userID}^");
+            if($userID) $qs_hash = hash('crc32b', $qs_hash."^{$userID}^");
         }
         else $qs_hash = '';
         
@@ -786,7 +786,7 @@ class DocumentParser {
                 case '2':
                     $cacheContent  = serialize($this->documentObject['contentType']);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-                    $filename = $this->uri_parent_dir.md5($this->decoded_request_uri);
+                    $filename = $this->uri_parent_dir . hash('crc32b', $this->decoded_request_uri);
                     break;
             }
             
@@ -1315,7 +1315,7 @@ class DocumentParser {
     function getTagsFromContent($content,$left='[+',$right='+]') {
         static $cached = array();
 
-        $key = md5($content . '|'. $left . '|'. $right);
+        $key = hash('crc32b', $content . '|'. $left . '|'. $right);
         if(isset($cached[$key])) {
             return $cached[$key];
         }
@@ -1334,7 +1334,7 @@ class DocumentParser {
         if(strpos($content,$left)===false) {
             return array();
         }
-        $spacer = md5('<<<MODX>>>');
+        $spacer = hash('crc32b', '<<<MODX>>>');
         if($left==='{{' && strpos($content,';}}')!==false) {
             $content = str_replace(';}}', sprintf(';}%s}', $spacer), $content);
         }
@@ -2001,7 +2001,7 @@ class DocumentParser {
             return $content;
         }
         
-        $sp = '#'.md5('ConditionalTags'.$_SERVER['REQUEST_TIME']).'#';
+        $sp = '#'.hash('crc32b', 'ConditionalTags'.$_SERVER['REQUEST_TIME']).'#';
         $content = str_replace(array('<?php','?>'),array("{$sp}b","{$sp}e"),$content);
         
         $pieces = explode('<@IF:', $content);
@@ -2545,7 +2545,7 @@ class DocumentParser {
     
     private function _split_snip_call($call)
     {
-        $spacer = md5('dummy');
+        $spacer = hash('crc32b', 'dummy');
         if(strpos($call,']]>')!==false)
             $call = str_replace(']]>', "]{$spacer}]>",$call);
         
@@ -2845,7 +2845,7 @@ class DocumentParser {
     function getChildIds($id, $depth= 10, $children= array ())
     {
         static $cached = array();
-        $cacheKey = md5(print_r(func_get_args(),true));
+        $cacheKey = hash('crc32b', print_r(func_get_args(),true));
         if(isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
         }
@@ -3113,7 +3113,7 @@ class DocumentParser {
     {
         static $cached = array();
 
-        $cacheKey = md5(print_r(func_get_args(),true));
+        $cacheKey = hash('crc32b', print_r(func_get_args(),true));
         if(isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
         }

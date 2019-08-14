@@ -208,7 +208,7 @@ class SubParser {
             if($modx->config['cache_type']==='2')
             {
                 $url = $modx->config['base_url'] . $modx->makeUrl($docid,'','','root_rel');
-                $filename = md5($url);
+                $filename = hash('crc32b', $url);
             }
             else
                 $filename = "docid_{$docid}";
@@ -1697,7 +1697,7 @@ class SubParser {
     {
         global $modx;
         
-        $cacheKey = md5(print_r(func_get_args(),true));
+        $cacheKey = hash('crc32b', print_r(func_get_args(),true));
         if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
         
         // modify field names to use sc. table reference
@@ -1734,7 +1734,7 @@ class SubParser {
     function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
         global $modx;
         
-        $cacheKey = md5(print_r(func_get_args(),true));
+        $cacheKey = hash('crc32b', print_r(func_get_args(),true));
         if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
             return $modx->tmpCache[__FUNCTION__][$cacheKey];
         }
@@ -2205,12 +2205,12 @@ class SubParser {
                     if(substr_count($key,$delim)==1) break;
                     $key = substr($key,1);
                     list($body,$remain) = explode($delim,$key,2);
-                    $key = str_replace(':', md5(':'),$body) . $remain;
+                    $key = str_replace(':', hash('crc32b', ':'),$body) . $remain;
             }
             if(strpos($key,':')!==false)
                 list($key,$modifiers) = explode(':', $key, 2);
             else $modifiers = false;
-            if(strpos($key,md5(':'))!==false) $key = str_replace(md5(':'),':',$key);
+            if(strpos($key,hash('crc32b', ':'))!==false) $key = str_replace(hash('crc32b', ':'),':',$key);
             $value = $key;
             if($modifiers!==false)
             {
