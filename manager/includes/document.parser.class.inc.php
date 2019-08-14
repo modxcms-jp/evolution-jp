@@ -340,11 +340,11 @@ class DocumentParser {
         $where = sprintf(
             "cache_section='%s' AND cache_key='%s'"
             , $this->db->escape($category)
-            , $this->db->escape(hash('crc32b', $key))
+            , $this->db->escape($key)
         );
         $rs = $this->db->delete('[+prefix+]system_cache', $where);
         $f['cache_section']   = $category;
-        $f['cache_key']       = hash('crc32b', $key);
+        $f['cache_key']       = $key;
         $f['cache_value']     = $value;
         $f['cache_timestamp'] = $_SERVER['REQUEST_TIME'];
         return $this->db->insert($this->db->escape($f), '[+prefix+]system_cache');
@@ -354,7 +354,7 @@ class DocumentParser {
         $where = sprintf(
             "cache_section='%s' AND cache_key='%s'"
             , $category
-            , $this->db->escape(hash('crc32b', $key))
+            , $this->db->escape($key)
         );
         $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
         
