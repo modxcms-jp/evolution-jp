@@ -1,5 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
+global $_style;
 if(!$modx->hasPermission('messages')) {
     $e->setError(3);
     $e->dumpError();
@@ -66,7 +67,7 @@ if($limit!=1) {
   </tr>
   <tr>
     <td><b><?php echo $_lang['messages_sent']; ?>:</b></td>
-    <td><?php echo $modx->toDateFormat($message['postdate']+$server_offset_time); ?></td>
+    <td><?php echo $modx->toDateFormat($message['postdate']+$modx->config['server_offset_time']); ?></td>
   </tr>
   <tr>
     <td><b><?php echo $_lang['messages_subject']; ?>:</b></td>
@@ -121,7 +122,7 @@ if( !isset( $_REQUEST['int_cur_position'] ) || $_REQUEST['int_cur_position'] == 
 }
 
 // Number of result to display on the page, will be in the LIMIT of the sql query also
-$int_num_result = $number_of_messages;
+$int_num_result = $modx->config['number_of_messages'];
 
 
 $extargv =  "&a=10"; // extra argv here (could be anything depending on your page)
@@ -139,16 +140,18 @@ $pager .= $_lang['showing']." ". $array_paging['lower'];
 $pager .=  " ".$_lang['to']." ". $array_paging['upper'];
 $pager .=  " (". $array_paging['total']." ".$_lang['total'].")";
 $pager .=  "<br />". $array_paging['previous_link'] ."&lt;&lt;" . (isset($array_paging['previous_link']) ? "</a> " : " ");
-for( $i=0; $i<sizeof($array_row_paging); $i++ ){
+for($i=0, $iMax = count($array_row_paging); $i< $iMax; $i++ ){
   $pager .=  $array_row_paging[$i] ."&nbsp;";
 }
 $pager .=  $array_paging['next_link'] ."&gt;&gt;". (isset($array_paging['next_link']) ? "</a>" : "");
 
-// The above exemple print somethings like:
-// Results 1 to 20 of 597  <<< 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 >>>
-// Of course you can now play with array_row_paging in order to print
-// only the results you would like...
-$rs = $modx->db->select('*', '[+prefix+]user_messages', "recipient='{$uid}'", 'postdate DESC', "{$int_cur_position}, {$int_num_result}");
+$rs = $modx->db->select(
+        '*'
+        , '[+prefix+]user_messages'
+        , sprintf("recipient='%s'", $uid)
+        , 'postdate DESC'
+        , sprintf('%d, %s', $int_cur_position, $int_num_result)
+);
 $limit = $modx->db->getRecordCount($rs);
 if($limit<1):
     echo $_lang['messages_no_messages'];
@@ -183,11 +186,13 @@ $dotablestuff = 1;
             $messagestyle = $message['messageread']==0 ? "messageUnread" : "messageRead";
 ?>
     <tr>
-      <td ><?php echo $message['messageread']==0 ? "<img src=\"media/style/{$manager_theme}/images/icons/new1-09.gif\">" : ''; ?></td>
+      <td ><?php if (($message['messageread'] == 0)) {
+              echo sprintf('<img src="media/style/%s/images/icons/new1-09.gif">', $modx->config['manager_theme']);
+          } ?></td>
       <td class="<?php echo $messagestyle; ?>" style="cursor: pointer; text-decoration: underline;" onclick="document.location.href='index.php?a=10&id=<?php echo $message['id']; ?>&m=r';"><?php echo $message['subject']; ?></td>
       <td ><?php echo $sendername; ?></td>
       <td ><?php echo $message['private']==0 ? $_lang['no'] : $_lang['yes'] ; ?></td>
-      <td ><?php echo $modx->toDateFormat($message['postdate']+$server_offset_time); ?></td>
+      <td ><?php echo $modx->toDateFormat($message['postdate']+$modx->config['server_offset_time']); ?></td>
     </tr>
     <?php
         endwhile;
@@ -203,7 +208,7 @@ if($dotablestuff==1) { ?>
 <div class="sectionHeader"><?php echo $_lang['messages_compose']; ?></div>
 <div class="sectionBody">
 <?php
-if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($msgid)) {
+if(($_REQUEST['m'] === 'rp' || $_REQUEST['m'] === 'f') && isset($msgid)) {
     $rs = $modx->db->select('*','[+prefix+]user_messages',"id='{$msgid}'");
     $limit = $modx->db->getRecordCount($rs);
     if($limit!=1) {
@@ -227,7 +232,7 @@ if(($_REQUEST['m']=='rp' || $_REQUEST['m']=='f') && isset($msgid)) {
             }
             $subjecttext = $_REQUEST['m']=='rp' ? "Re: " : "Fwd: ";
             $subjecttext .= $message['subject'];
-            $messagetext = "\n\n\n-----\n".$_lang['messages_from'].": $sendername\n".$_lang['messages_sent'].": ".$modx->toDateFormat($message['postdate']+$server_offset_time)."\n".$_lang['messages_subject'].": ".$message['subject']."\n\n".$message['message'];
+            $messagetext = "\n\n\n-----\n".$_lang['messages_from'].": $sendername\n".$_lang['messages_sent'].": ".$modx->toDateFormat($message['postdate']+$modx->config['server_offset_time'])."\n".$_lang['messages_subject'].": ".$message['subject']."\n\n".$message['message'];
             if($_REQUEST['m']=='rp') {
                 $recipientindex = $message['sender'];
             }
