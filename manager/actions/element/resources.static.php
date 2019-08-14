@@ -180,8 +180,8 @@ function getArray($element_name,$action,$nameField = 'name')
 	$f[] = "if(isnull({$tbl_categories}.category),'{$_lang['no_category']}',{$tbl_categories}.category) as category";
 	$fields = implode(',', $f);
 	$from   ="{$tbl_element_name} left join {$tbl_categories} on {$tbl_element_name}.category = {$tbl_categories}.id";
-	if($element_name=='site_tmplvars') $orderby = 'category,rank ASC,name';
-	else                               $orderby = 'category,name';
+	if($element_name=='site_tmplvars') $orderby = "category ASC, {$tbl_element_name}.rank ASC, name ASC";
+	else                               $orderby = 'category ASC, name ASC';
 
 	$rs = $modx->db->select($fields,$from,'',$orderby);
 	$limit = $modx->db->getRecordCount($rs);
