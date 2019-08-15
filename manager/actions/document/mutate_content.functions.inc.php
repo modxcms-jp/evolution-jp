@@ -1279,7 +1279,7 @@ function getUDGroups($id) {
 		// Load up the current permissions and names
 		$field = 'dgn.*, groups.id AS link_id';
 		$from[] = '[+prefix+]documentgroup_names AS dgn';
-		$from[] = "LEFT JOIN [+prefix+]document_groups AS groups ON groups.document_group = dgn.id AND groups.document = {$docid}";
+		$from[] = "LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group = dgn.id AND groups.document = {$docid}";
 		$from = implode(' ', $from);
 	}
 	else

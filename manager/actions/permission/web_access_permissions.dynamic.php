@@ -75,10 +75,10 @@ else
 <?php
 	$tbl_web_groups = $modx->getFullTableName('web_groups');
 	$tbl_web_users  = $modx->getFullTableName('web_users');
-	$field = 'groupnames.*, users.id AS user_id, users.username user_name';
+	$field = 'groupnames.*, users.id AS user_id, `users`.username user_name';
 	$from  = "{$tbl_webgroup_names} AS groupnames";
-	$from .= " LEFT JOIN {$tbl_web_groups} AS groups ON groups.webgroup = groupnames.id";
-	$from .= " LEFT JOIN {$tbl_web_users}  AS users ON users.id = groups.webuser";
+	$from .= " LEFT JOIN {$tbl_web_groups} AS `groups` ON `groups`.webgroup = groupnames.id";
+	$from .= " LEFT JOIN {$tbl_web_users}  AS `users` ON `users`.id = `groups`.webuser";
 	$rs = $modx->db->select($field,$from,'','groupnames.name');
 	if ($modx->db->getRecordCount($rs) < 1)
 	{

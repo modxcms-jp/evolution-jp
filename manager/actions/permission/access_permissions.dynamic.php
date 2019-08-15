@@ -63,10 +63,10 @@ if ($modx->db->getRecordCount($rs) < 1) {
 	</table>
 	<br />
 <?php
-	$field = 'groupnames.*, users.id AS user_id, users.username user_name';
-	$from  = "[+prefix+]membergroup_names AS groupnames";
-	$from .= " LEFT JOIN [+prefix+]member_groups AS groups ON groups.user_group = groupnames.id";
-	$from .= " LEFT JOIN [+prefix+]manager_users AS users ON users.id = groups.member";
+	$field = 'groupnames.*, `users`.id AS user_id, `users`.username user_name';
+	$from  = "[+prefix+]membergroup_names AS `groupnames`";
+	$from .= " LEFT JOIN [+prefix+]member_groups AS `groups` ON `groups`.`user_group` = `groupnames`.`id`";
+	$from .= " LEFT JOIN [+prefix+]manager_users AS `users` ON `users`.`id` = `groups`.`member`";
 	$orderby = 'groupnames.name';
 	$rs = $modx->db->select($field,$from,'',$orderby);
 	if ($modx->db->getRecordCount($rs) < 1)

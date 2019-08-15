@@ -645,7 +645,7 @@ function setDocPermissionsEdit($document_groups,$id) {
 	$isManager = (int)$modx->hasPermission('access_permissions');
 	$isWeb	 = (int)$modx->hasPermission('web_access_permissions');
 	$fields = 'groups.id, groups.document_group';
-	$from   = '[+prefix+]document_groups AS groups LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = groups.document_group';
+	$from   = '[+prefix+]document_groups AS `groups` LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id = `groups`.document_group';
 	$where  = "((1={$isManager} AND dgn.private_memgroup) OR (1={$isWeb} AND dgn.private_webgroup)) AND groups.document = '{$id}'";
 	$rs = $modx->db->select($fields,$from,$where);
 	$old_groups = array();
