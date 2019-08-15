@@ -9,13 +9,14 @@ class synccache {
 	var $parents = array();
 	var $target;
 	var $config = array();
-	var $cacheRefreshTime;
+	var $cacheRefreshTime = null;
 
 	function __construct()
 	{
-		if(empty($this->target))      $this->target = 'pagecache,sitecache';
+		if(!$this->target) {
+			$this->target = 'pagecache,sitecache';
+		}
 		if(defined('MODX_BASE_PATH')) $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
-		$this->cacheRefreshTime = '';
 	}
 	
 	function setTarget($target)
@@ -154,18 +155,11 @@ class synccache {
 	/****************************************************************************/
 	/*  PUBLISH TIME FILE                                                       */
 	/****************************************************************************/
-	function publishBasicConfig($cacheRefreshTime=0)
+	function publishBasicConfig()
 	{
 		global $modx,$site_sessionname;
-		$cacheRefreshTimeFromDB = $this->getCacheRefreshTime();
-		if(!preg_match('@^[1-9][0-9]*$@',$cacheRefreshTime))
-			$cacheRefreshTime = 0;
-		
-		if(0 < $cacheRefreshTimeFromDB)
-		{
-			if($cacheRefreshTime==0 || $cacheRefreshTimeFromDB < $cacheRefreshTime)
-				$cacheRefreshTime = $cacheRefreshTimeFromDB;
-		}
+
+		$cacheRefreshTime = $this->getCacheRefreshTime();
 		
 		$rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
 		while($row = $modx->db->getRow($rs))
@@ -189,13 +183,13 @@ class synccache {
 		$content[] = sprintf('$site_status = %s;',      $setting['site_status']);
 		$content[] = sprintf('$error_reporting = "%s";',$setting['error_reporting']);
 		
-		if(isset($setting['site_url']) && !empty($setting['site_url']) && strpos($setting['site_url'],'[(')===false)
+		if($modx->array_get($setting,'site_url') && strpos($setting['site_url'],'[(')===false)
 			$content[] = sprintf('$site_url = "%s";',   $setting['site_url']);
 		
-		if(isset($setting['base_url']) && !empty($setting['base_url']) && strpos($setting['base_url'],'[(')===false)
+		if($modx->array_get($setting,'base_url') && strpos($setting['base_url'],'[(')===false)
 			$content[] = sprintf('$base_url = "%s";',   $setting['base_url']);
 		
-		if(isset($setting['conditional_get']) && !empty($setting['conditional_get']))
+		if($modx->array_get($setting,'conditional_get'))
 			$content[] = sprintf('$conditional_get = "%s";', $setting['conditional_get']);
 		
 		$rs = $modx->saveToFile($cache_path, join("\n",$content));
@@ -210,46 +204,72 @@ class synccache {
 		}
 	}
 	
-	function getCacheRefreshTime()
-	{
-		global $modx;
+	function setCacheRefreshTime($unixtime) {
+		$this->cacheRefreshTime = $unixtime;
+	}
+
+	function getCacheRefreshTime() {
+		$time = array($this->cacheRefreshTime);
 		
-		// update publish time file
-		$timesArr = array();
+		$time[] = $this->minTime(
+			'site_content'
+			, 'pub_date'
+			, '0 < pub_date and published=0 and pub_date<=unpub_date'
+		);
 		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_content', "0 < pub_date and published = 0 and pub_date >= unpub_date");
-		if(!$rs) echo "Couldn't determine next publish event!";
-		$minpub_content = $modx->db->getValue($rs);
+		$time[] = $this->minTime(
+			'site_content'
+			, 'unpub_date'
+			, '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
+		);
 		
-		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_content', "0 < unpub_date and published = 1 and pub_date < unpub_date");
-		if(!$rs) echo "Couldn't determine next unpublish event!";
-		$minunpub_content = $modx->db->getValue($rs);
+		$time[] = $this->minTime(
+			'site_htmlsnippets'
+			, 'pub_date'
+			, '0 < pub_date AND published=0 AND pub_date<=unpub_date'
+		);
 		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_htmlsnippets', "0 < pub_date and published = 0 and pub_date >= unpub_date");
-		if(!$rs) echo "Couldn't determine next publish event!";
-		$minpub_chunk = $modx->db->getValue($rs);
+		$time[] = $this->minTime(
+			'site_htmlsnippets'
+			, 'unpub_date'
+			, '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
+		);
 		
-		$rs = $modx->db->select('MIN(unpub_date) AS minunpub','[+prefix+]site_htmlsnippets', "0 < unpub_date and published = 1 and pub_date < unpub_date");
-		if(!$rs) echo "Couldn't determine next unpublish event!";
-		$minunpub_chunk = $modx->db->getValue($rs);
-		
-		$rs = $modx->db->select('MIN(pub_date) AS minpub','[+prefix+]site_revision', "0 < pub_date and status = 'standby'");
-		if(!$rs) echo "Couldn't determine next publish event!";
-		$minpub_revision = $modx->db->getValue($rs);
-		
-		if(!empty($this->cacheRefreshTime))
-			                        $timesArr[] = $this->cacheRefreshTime;
-		if($minpub_content!=NULL)   $timesArr[] = $minpub_content;
-		if($minunpub_content!=NULL) $timesArr[] = $minunpub_content;
-		if($minpub_chunk!=NULL)     $timesArr[] = $minpub_chunk;
-		if($minunpub_chunk!=NULL)   $timesArr[] = $minunpub_chunk;
-		if($minpub_revision!=NULL)  $timesArr[] = $minpub_revision;
-		
-		if(0<count($timesArr)) $cacheRefreshTime = min($timesArr);
-		else                   $cacheRefreshTime = 0;
-		return $cacheRefreshTime;
+		$time[] = $this->minTime(
+			'site_revision'
+			, 'pub_date'
+			, "0 < pub_date AND status = 'standby'"
+		);
+		foreach ($time as $i=>$v) {
+			if(!$v) {
+				unset($time[$i]);
+			}
+		}
+		$min = min($time);
+		if(!preg_match('@^[1-9][0-9]*$@',$min)) {
+			return 0;
+		}
+		if($this->cacheRefreshTime==0) {
+			return $min;
+		}
+		if ($min < $this->cacheRefreshTime) {
+			return $min;
+		}
 	}
 	
+	private function minTime($table_name, $field_name, $where) {
+		global $modx;
+		$rs = $modx->db->select(
+			sprintf('MIN(%s) AS result', $field_name)
+			,'[+prefix+]' . $table_name
+			, sprintf('%s AND UNIX_TIMESTAMP()<%s', $where, $field_name)
+			);
+		if(!$rs) {
+			return 0;
+		}
+		return $modx->db->getValue($rs);
+	}
+
 	/**
 	* build siteCache file
 	* @param  DocumentParser $modx

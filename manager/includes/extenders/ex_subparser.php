@@ -1995,8 +1995,8 @@ class SubParser {
         
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $cache = new synccache();
-        $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-        $cache->publishBasicConfig($unixtime);
+        $cache->setCacheRefreshTime($unixtime);
+        $cache->publishBasicConfig();
     }
     
     function atBind($str='') {
@@ -2234,8 +2234,15 @@ class SubParser {
         
         $now = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
         
-        $rs = $modx->db->select('*','[+prefix+]site_revision', "pub_date!=0 AND pub_date<{$now}");
-        if(!$modx->db->getRecordCount($rs)) return;
+        $rs = $modx->db->select(
+            '*'
+            , '[+prefix+]site_revision'
+            , sprintf('pub_date!=0 AND pub_date<%s', $now)
+        );
+
+        if(!$modx->db->getRecordCount($rs)) {
+            return;
+        }
         
         $modx->loadExtension('REVISION');
         $modx->loadExtension('DocAPI');
@@ -2247,7 +2254,10 @@ class SubParser {
             
             $modx->doc->update($draft,$row['elmid']);
         }
-        $modx->db->delete('[+prefix+]site_revision', "pub_date!=0 AND pub_date<{$now}");
+        $modx->db->delete(
+            '[+prefix+]site_revision'
+            , sprintf("pub_date!=0 AND pub_date<%s", $now)
+        );
     }
     
     function setdocumentMap()

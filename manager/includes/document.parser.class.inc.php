@@ -1248,7 +1248,7 @@ class DocumentParser {
         $rs = $this->db->select(
             'element,elmid'
             ,'[+prefix+]site_revision'
-            , sprintf("pub_date<=%d AND status='standby'", (int)$timeNow)
+            , sprintf("pub_date<=%s AND status='standby'", $timeNow)
         );
         $draft_ids = array();
         while($row = $this->db->getRow($rs)) {
@@ -1262,35 +1262,65 @@ class DocumentParser {
         
         // now, check for documents that need publishing
         $pub_ids = array();
-        $fields = "published='1', publishedon=pub_date";
-        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0 AND pub_date >= unpub_date";
-        $rs = $this->db->select('id','[+prefix+]site_content',$where);
+        $rs = $this->db->select(
+            'id'
+            ,'[+prefix+]site_content'
+            , sprintf(
+                'published=0 AND pub_date!=0 AND pub_date<=%s AND (unpub_date=0 OR pub_date<=unpub_date)'
+                , $timeNow
+            )
+        );
         while( $row = $this->db->getRow($rs) ) {
             $pub_ids[] = $row['id'];
         }
-        if( !empty($pub_ids) ){
-            $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        if( $pub_ids ){
+            $rs = $this->db->update(
+                'published=1, publishedon=pub_date'
+                ,'[+prefix+]site_content'
+                , sprintf('id in (%s)', join(',', $pub_ids))
+            );
         }
         
         // now, check for documents that need un-publishing
         $unpub_ids = array();
-        $fields = "published='0', publishedon='0'";
-        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1 AND pub_date < unpub_date";
-        $rs = $this->db->select('id','[+prefix+]site_content',$where);
-        while( $row = $this->db->getRow($rs) ){ $unpub_ids[] = $row['id']; }
-        if( !empty($unpub_ids) ){
-            $rs = $this->db->update($fields,'[+prefix+]site_content',$where);
+        $rs = $this->db->select(
+            'id'
+            ,'[+prefix+]site_content'
+            , sprintf(
+                'published=1 AND unpub_date!=0 AND unpub_date<=%s AND (pub_date=0 OR pub_date<=unpub_date)'
+                , $timeNow
+            )
+        );
+        while( $row = $this->db->getRow($rs) ){
+            $unpub_ids[] = $row['id'];
+        }
+        if( $unpub_ids ){
+            $rs = $this->db->update(
+                'published=0, publishedon=0'
+                , '[+prefix+]site_content'
+                , sprintf('id in (%s)', join(',', $unpub_ids))
+            );
         }
     
         // now, check for chunks that need publishing
-        $fields = "published='1'";
-        $where = "pub_date <= {$timeNow} AND pub_date!=0 AND published=0 AND pub_date >= unpub_date";
-        $rs = $this->db->update($fields,'[+prefix+]site_htmlsnippets',$where);
+        $rs = $this->db->update(
+            'published=1'
+            , '[+prefix+]site_htmlsnippets'
+            , sprintf(
+                'published=0 AND pub_date!=0AND pub_date <= %s AND (unpub_date=0 OR pub_date<=unpub_date)'
+                , $timeNow
+            )
+        );
         
         // now, check for chunks that need un-publishing
-        $fields = "published='0'";
-        $where = "unpub_date <= {$timeNow} AND unpub_date!=0 AND published=1 AND pub_date < unpub_date";
-        $rs = $this->db->update($fields,'[+prefix+]site_htmlsnippets',$where);
+        $rs = $this->db->update(
+            'published=0'
+            , '[+prefix+]site_htmlsnippets'
+            , sprintf(
+                'published=1 AND unpub_date!=0 AND unpub_date<=%s AND (pub_date=0 OR pub_date<=unpub_date)'
+                , $timeNow  
+            )
+        );
     
         $this->clearCache();
 
