@@ -207,25 +207,25 @@ class synccache {
         $time['content_pub_date'] = $this->minTime(
             'site_content'
             , 'pub_date'
-            , '0 < pub_date and published=0 and pub_date<=unpub_date'
+            , '0 < pub_date and published=0 and (unpub_date=0 OR pub_date<=unpub_date)'
         );
         
         $time['content_unpub_date'] = $this->minTime(
             'site_content'
             , 'unpub_date'
-            , '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
+            , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
         
         $time['chunk_pub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'pub_date'
-            , '0 < pub_date AND published=0 AND pub_date<=unpub_date'
+            , '0 < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)'
         );
         
         $time['chunk_unpub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'unpub_date'
-            , '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
+            , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
         
         $time['revision_standby'] = $this->minTime(
