@@ -2,31 +2,32 @@
 // cache & synchronise class
 
 class synccache {
-    var $cachePath;
-    var $showReport;
-    var $deletedfiles = array();
-    var $aliases = array();
-    var $parents = array();
-    var $target;
-    var $config = array();
-    var $cacheRefreshTime = null;
+    public $cachePath;
+    public $showReport;
+    public $aliases = array();
+    public $parents = array();
+    public $target;
+    public $config = array();
+    public $cacheRefreshTime = null;
 
-    function __construct() {
+    public function __construct() {
         if(!$this->target) {
             $this->target = 'pagecache,sitecache';
         }
-        if(defined('MODX_BASE_PATH')) $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
+        if(defined('MODX_BASE_PATH')) {
+            $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
+        }
     }
     
-    function setTarget($target) {
+    public function setTarget($target) {
         $this->target = $target;
     }
     
-    function setCachepath($path) {
+    public function setCachepath($path) {
         $this->cachePath = rtrim($path,'/') . '/';
     }
 
-    function setReport($bool) {
+    public function setReport($bool) {
         $this->showReport = $bool;
     }
 
@@ -36,46 +37,42 @@ class synccache {
         return str_replace($q1,$q2,$s);
     }
 
-    function escapeSingleQuotes($s) {
+    private function escapeSingleQuotes($s) {
         $q1 = array("\\","'");
         $q2 = array("\\\\","\\'");
         return str_replace($q1,$q2,$s);
     }
 
-    function getParents($id, $path = '') { // modx:returns child's parent
+    private function getParents($id, $path = '') { // modx:returns child's parent
         global $modx;
-        if(empty($this->aliases))
-        {
+        if(empty($this->aliases)) {
             $fields = "id, IF(alias='', id, alias) AS alias, parent";
             $qh = $modx->db->select($fields,'[+prefix+]site_content');
-            if ($qh && $modx->db->getRecordCount($qh) > 0)
-            {
-                while ($row = $modx->db->getRow($qh))
-                {
+            if ($qh && $modx->db->getRecordCount($qh)) {
+                while ($row = $modx->db->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
                     $this->parents[$row['id']] = $row['parent'];
                 }
             }
         }
-        if (isset($this->aliases[$id]))
-        {
-            if($path !== '')
-            {
-                $path = $this->aliases[$id] . '/' . $path;
-            }
-            else $path = $this->aliases[$id];
-            
-            return $this->getParents($this->parents[$id], $path);
+
+        if (!isset($this->aliases[$id])) {
+            return $path;
         }
-        return $path;
+
+        if ($path !== '') {
+            $path = $this->aliases[$id] . '/' . $path;
+        } else {
+            $path = $this->aliases[$id];
+        }
+        return $this->getParents($this->parents[$id], $path);
     }
 
-    function emptyCache() {
+    public function emptyCache() {
         global $modx;
         
         $instance_name = '';
-        if(is_object($modx))
-        {
+        if(is_object($modx)) {
             $instance_name = get_class($modx);
         }
         $instance_name = strtolower($instance_name);
@@ -85,8 +82,7 @@ class synccache {
         
         if(strpos($this->target,'pagecache')!==false)
             $result = $this->purgeCacheFiles('pageCache');
-        if(strpos($this->target,'sitecache')!==false)
-        {
+        if(strpos($this->target,'sitecache')!==false) {
             $this->purgeCacheFiles('siteCache');
             $this->buildCache();
         }
@@ -94,77 +90,86 @@ class synccache {
         
         $modx->purgeDBCache();
         
-        if(isset($result) && $this->showReport==true) $this->showReport($result);
+        if(!isset($result) || $this->showReport != true) {
+            return;
+        }
+        $this->showReport($result);
     }
     
-    function purgeCacheFiles($target='pageCache') {
-        if(strpos($this->cachePath,MODX_BASE_PATH)!==0) return;
+    private function purgeCacheFiles($target='pageCache') {
+        if(strpos($this->cachePath,MODX_BASE_PATH)!==0) {
+            return false;
+        }
         
-        $filesincache = 0;
-        
-        if($target==='pageCache') $pattern = '@\.pageCache\.php$@';
-        else                      $pattern = '@\.php$@';
+        if($target==='pageCache') {
+            $pattern = '@\.pageCache\.php$@';
+        } else {
+            $pattern = '@\.php$@';
+        }
         
         $files = $this->getFileList($this->cachePath, $pattern);
         $files = array_reverse($files);
         
         $filesincache = ($files[0] !== $pattern) ? count($files) : 0;
         
+        if(!$filesincache) {
+            return array(0, 0, array());
+        }
         $deletedfiles = array();
-        if(0 < $filesincache)
-        {
-            $cachedir_len = strlen($this->cachePath);
-            while ($file_path = array_shift($files))
-            {
-                $name = substr($file_path,$cachedir_len);
-                if (!in_array($name, $deletedfiles))
-                {
-                    if    (is_file($file_path)) $rs = @unlink($file_path);
-                    elseif(is_dir($file_path))  $rs = @rmdir($file_path);
-                    if($rs) $deletedfiles[] = $name;
+        $cachedir_len = strlen($this->cachePath);
+        while ($file_path = array_shift($files)) {
+            $name = substr($file_path, $cachedir_len);
+            if (!in_array($name, $deletedfiles)) {
+                $rs = null;
+                if (is_file($file_path)) {
+                    $rs = @unlink($file_path);
+                } elseif (is_dir($file_path)) {
+                    $rs = @rmdir($file_path);
+                }
+                if ($rs) {
+                    $deletedfiles[] = $name;
                 }
             }
         }
-        $deletedfilesincache = count($deletedfiles);
-        return array($filesincache,$deletedfilesincache,$deletedfiles);
+        return array($filesincache,count($deletedfiles),$deletedfiles);
     }
 
-    function showReport($info) {
+    public function showReport($info) {
+        global $_lang;
         list($filesincache,$deletedfilesincache,$deletedfiles) = $info;
         // finished cache stuff.
-        global $_lang;
-        if(0<$filesincache)
+        if(0<$filesincache) {
             echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
-        else echo '削除対象のページキャッシュはありません。';
-        
-        if(0<count($deletedfiles)) {
-            echo '<p>'.$_lang['cache_files_deleted'].'</p><ul>';
-            foreach($deletedfiles as $i=>$deletedfile)
-            {
-                echo '<li>',$deletedfile,'</li>';
-            }
-            echo '</ul>';
+        } else {
+            echo '削除対象のページキャッシュはありません。';
         }
+        
+        if(!$deletedfiles) {
+            return;
+        }
+        echo '<p>' . $_lang['cache_files_deleted'] . '</p><ul>';
+        foreach ($deletedfiles as $i => $deletedfile) {
+            echo '<li>', $deletedfile, '</li>';
+        }
+        echo '</ul>';
     }
     
     /****************************************************************************/
     /*  PUBLISH TIME FILE                                                       */
     /****************************************************************************/
-    function publishBasicConfig() {
+    public function publishBasicConfig() {
         global $modx,$site_sessionname;
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
         
         $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
             $name  = $row['setting_name'];
             $value = $row['setting_value'];
             $setting[$name] = $value;
         }
         
         // write the file
-        $cache_path = $this->cachePath . 'basicConfig.php';
         $content = array();
         $content[] = '<?php';
         $recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
@@ -185,10 +190,10 @@ class synccache {
         
         if($modx->array_get($setting,'conditional_get'))
             $content[] = sprintf('$conditional_get = "%s";', $setting['conditional_get']);
-        
-        $rs = $modx->saveToFile($cache_path, join("\n",$content));
-        
-        if (!$rs) exit("Cannot open file ({$cache_path})");
+
+        if (!$modx->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
+            exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
+        }
         
         $f = array('setting_value'=>$recent_update, 'setting_name'=>'recent_update');
         if(isset($setting['recent_update'])) {
@@ -198,38 +203,38 @@ class synccache {
         }
     }
     
-    function setCacheRefreshTime($unixtime) {
+    public function setCacheRefreshTime($unixtime) {
         $this->cacheRefreshTime = $unixtime;
     }
 
-    function getCacheRefreshTime() {
-        $time = array($this->cacheRefreshTime);
+    private function getCacheRefreshTime() {
+        $time = array('cacheRefreshTime'=>$this->cacheRefreshTime);
         
-        $time[] = $this->minTime(
+        $time['content_pub_date'] = $this->minTime(
             'site_content'
             , 'pub_date'
             , '0 < pub_date and published=0 and pub_date<=unpub_date'
         );
         
-        $time[] = $this->minTime(
+        $time['content_unpub_date'] = $this->minTime(
             'site_content'
             , 'unpub_date'
             , '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
         );
         
-        $time[] = $this->minTime(
+        $time['chunk_pub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'pub_date'
             , '0 < pub_date AND published=0 AND pub_date<=unpub_date'
         );
         
-        $time[] = $this->minTime(
+        $time['chunk_unpub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'unpub_date'
             , '0 < unpub_date AND published=1 AND pub_date<=unpub_date'
         );
         
-        $time[] = $this->minTime(
+        $time['revision_standby'] = $this->minTime(
             'site_revision'
             , 'pub_date'
             , "0 < pub_date AND status = 'standby'"
@@ -249,6 +254,7 @@ class synccache {
         if ($min < $this->cacheRefreshTime) {
             return $min;
         }
+        return false;
     }
     
     private function minTime($table_name, $field_name, $where) {
@@ -265,11 +271,10 @@ class synccache {
     }
 
     /**
-    * build siteCache file
-    * @param  DocumentParser $modx
-    * @return boolean success
-    */
-    function buildCache() {
+     * build siteCache file
+     * @return boolean success
+     */
+    public function buildCache() {
         global $modx,$_lang;
         
         $content = "<?php\n";
@@ -291,41 +296,46 @@ class synccache {
         $content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
         
         // invoke OnBeforeCacheUpdate event
-        if ($modx) $modx->invokeEvent('OnBeforeCacheUpdate');
+        if ($modx) {
+            $modx->invokeEvent('OnBeforeCacheUpdate');
+        }
         
-        if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content))
-        {
+        if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
             exit('siteCache.idx.php - '.$_lang['file_not_saved']);
         }
         
-        $this->cache_put_contents('config.siteCache.idx.php'      , $config);
+        $this->cache_put_contents('config.siteCache.idx.php', $config);
         if($modx->config['legacy_cache']) {
             $this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
-            $this->cache_put_contents('documentMap.siteCache.idx.php' , $modx->documentMap);
+            $this->cache_put_contents('documentMap.siteCache.idx.php', $modx->documentMap);
         }
-        $this->cache_put_contents('chunk.siteCache.idx.php'       , $modx->chunkCache);
-        $this->cache_put_contents('snippet.siteCache.idx.php'     , $modx->snippetCache);
-        $this->cache_put_contents('plugin.siteCache.idx.php'      , $modx->pluginCache);
+        $this->cache_put_contents('chunk.siteCache.idx.php', $modx->chunkCache);
+        $this->cache_put_contents('snippet.siteCache.idx.php', $modx->snippetCache);
+        $this->cache_put_contents('plugin.siteCache.idx.php', $modx->pluginCache);
         
-        if(!is_file($this->cachePath . '.htaccess'))
-        {
+        if(!is_file($this->cachePath . '.htaccess')) {
             $modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
         }
         // invoke OnCacheUpdate event
-        if ($modx) $modx->invokeEvent('OnCacheUpdate');
+        if ($modx) {
+            $modx->invokeEvent('OnCacheUpdate');
+        }
         
         return true;
     }
     
-    function cache_put_contents($filename,$content) {
+    private function cache_put_contents($filename, $content) {
         global $modx,$_lang;
         if(empty($content)) return;
         if(is_array($content)) {
             $content = var_export($content, 'true');
             if(strpos($filename,'documentMap')!==false)
             {
-                $content = str_replace("\n", ''    , $content);
-                $content = str_replace('),', "),\n", $content);
+                $content = str_replace(
+                    array("\n", '),')
+                    , array('', "),\n")
+                    , $content
+                );
             }
             $br = "\n";
             $content = "<?php{$br}return {$content};";
@@ -336,56 +346,74 @@ class synccache {
         $cache_path = $this->cachePath .$filename;
 
         if( ! $modx->saveToFile($cache_path, $content) ) {
-            $msg = "{$cache_path} - ".$_lang['file_not_saved'];
+            $msg = sprintf('%s - %s', $cache_path, $_lang['file_not_saved']);
             if(defined('IN_MANAGER_MODE')) {
                 header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
-                $params = array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme']);
-                echo $modx->parseText('<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',$params);
+                echo $modx->parseText(
+                    '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
+                    , array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme'])
+                );
                 $msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
             }
             exit($msg);
         }
     }
     
-    function _get_settings() {
+    private function _get_settings() {
         global $modx;
         
         $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
         $config = array();
         while($row = $modx->db->getRow($rs))
         {
-            extract($row);
-            $config[$setting_name] = $setting_value;
+            $config[$row['setting_name']] = $row['setting_value'];
         }
         return $config;
     }
     
-    function _get_aliases() {
+    private function _get_aliases() {
         global $modx;
         
-        $friendly_urls = $modx->db->getValue('setting_value','[+prefix+]system_settings',"setting_name='friendly_urls'");
-        if($friendly_urls==1)
-            $use_alias_path = $modx->db->getValue('setting_value','[+prefix+]system_settings',"setting_name='use_alias_path'");
-        else $use_alias_path = '';
+        $friendly_urls = $modx->db->getValue(
+            'setting_value'
+            , '[+prefix+]system_settings'
+            , "setting_name='friendly_urls'"
+        );
+        if($friendly_urls==1) {
+            $use_alias_path = $modx->db->getValue(
+                'setting_value'
+                , '[+prefix+]system_settings'
+                , "setting_name='use_alias_path'"
+            );
+        } else {
+            $use_alias_path = '';
+        }
         $fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
         $rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
-        $row = array();
-        $path = '';
         $modx->aliasListing = array();
         $modx->documentMap  = array();
         while ($row = $modx->db->getRow($rs))
         {
-            if($use_alias_path==='1')     $path = $this->getParents($row['parent']);
-            elseif($use_alias_path==='0') $path = '';
-            else                          $path = $row['parent'];
-            
+            if($use_alias_path==='1') {
+                $path = $this->getParents($row['parent']);
+            } elseif($use_alias_path==='0') {
+                $path = '';
+            } else {
+                $path = $row['parent'];
+            }
             $docid = $row['id'];
-            $modx->aliasListing[$docid] = array('id'=>$docid, 'alias'=>$row['alias'], 'path'=>$path, 'parent'=>$row['parent'], 'isfolder'=>$row['isfolder']);
+            $modx->aliasListing[$docid] = array(
+                'id'       => $docid,
+                'alias'    => $row['alias'],
+                'path'     => $path,
+                'parent'   => $row['parent'],
+                'isfolder' => $row['isfolder']
+            );
             $modx->documentMap[] = array($row['parent'] => $docid);
         }
     }
     
-    function _get_content_types() {
+    private function _get_content_types() {
         global $modx;
         
         $rs = $modx->db->select('id, contentType','[+prefix+]site_content',"contentType != 'text/html'");
@@ -393,13 +421,12 @@ class synccache {
         $row = array();
         while ($row = $modx->db->getRow($rs))
         {
-            extract($row);
-            $_[] = '$c' . "[{$id}] = '{$contentType}';";
+            $_[] = sprintf('$c[%s] = \'%s\';', $row['id'], $row['contentType']);
         }
         return join("\n", $_) . "\n";
     }
     
-    function _get_chunks() {
+    private function _get_chunks() {
         global $modx;
         
         $rs = $modx->db->select('name,snippet','[+prefix+]site_htmlsnippets', "`published`='1'");
@@ -412,7 +439,7 @@ class synccache {
         }
     }
     
-    function _get_snippets() {
+    private function _get_snippets() {
         global $modx;
         
         $fields = 'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`';
@@ -432,7 +459,7 @@ class synccache {
         }
     }
     
-    function _get_plugins() {
+    private function _get_plugins() {
         global $modx;
         
         $fields = 'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`';
@@ -452,7 +479,7 @@ class synccache {
         }
     }
     
-    function _get_events() {
+    private function _get_events() {
         global $modx;
         
         $fields  = 'sysevt.name as `evtname`, plugs.name as plgname';
@@ -490,7 +517,7 @@ class synccache {
         $modx->db->optimize('[+prefix+]site_htmlsnippets');
     }
     
-    function getFileList($dir, $pattern='@\.php$@') {
+    private function getFileList($dir, $pattern='@\.php$@') {
         $dir = rtrim($dir, '/');
         $tmp = array_diff(scandir($dir),array('..','.'));
         $files = array();
@@ -499,12 +526,14 @@ class synccache {
         }
 
         $list = array();
-        foreach ((array)$files as $obj) {
+        foreach ($files as $obj) {
             if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
             elseif (is_dir($obj))  {
                 $list[] = $obj;
                 $_ = $this->getFileList($obj, $pattern);
-                $list = array_merge($list, $_);
+                foreach ($_ as $k=>$v) {
+                    $list[$k] = $v;
+                }
             }
         }
         return $list;
