@@ -31,12 +31,6 @@ class synccache {
         $this->showReport = $bool;
     }
 
-    function escapeDoubleQuotes($s) {
-        $q1 = array("\\","\"","\r","\n","\$");
-        $q2 = array("\\\\","\\\"","\\r","\\n","\\$");
-        return str_replace($q1,$q2,$s);
-    }
-
     private function escapeSingleQuotes($s) {
         $q1 = array("\\","'");
         $q2 = array("\\\\","\\'");
@@ -505,16 +499,6 @@ class synccache {
             $_[] = sprintf("\$e['%s'] = array('%s');", $evtname, $pluginnames);
         }
         return join("\n",$_) . "\n";
-    }
-    
-    function tableOpt() {
-        global $modx;
-        
-        $modx->db->optimize('[+prefix+]site_content');
-        $modx->db->optimize('[+prefix+]active_users');
-        $modx->db->optimize('[+prefix+]manager_log');
-        $modx->db->optimize('[+prefix+]event_log');
-        $modx->db->optimize('[+prefix+]site_htmlsnippets');
     }
     
     private function getFileList($dir, $pattern='@\.php$@') {
