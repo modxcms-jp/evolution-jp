@@ -3390,17 +3390,14 @@ class DocumentParser {
             );
         }
 
-        $where = array();
-        $where[] = sprintf(
-            'published=1 OR (pub_date != 0 AND pub_date < %d AND (unpub_date=0 OR unpub_date > %d))'
-            , $this->baseTime
-            , $this->baseTime
-        );
-
         $rs = $this->db->select(
             'name,snippet,published'
             , '[+prefix+]site_htmlsnippets'
-            , $where
+            , sprintf(
+                'published=1'
+                , $this->baseTime
+                , $this->baseTime
+            )
         );
         
         if (!$this->db->getRecordCount($rs)){

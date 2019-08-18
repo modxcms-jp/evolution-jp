@@ -46,12 +46,18 @@ function input_checkbox($name,$checked,$other='')
 
 function checked($cond=false)
 {
-	if($cond) return ' checked="checked"';
+	if($cond) {
+        return ' checked="checked"';
+    }
+	return '';
 }
 
 function disabled($cond=false)
 {
-	if($cond) return ' disabled="disabled"';
+	if($cond) {
+        return ' disabled="disabled"';
+    }
+    return '';
 }
 
 function tooltip($msg)
@@ -61,8 +67,10 @@ function tooltip($msg)
 	$ph['icons_tooltip'] = "'{$_style['icons_tooltip']}'";
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
 	$ph['msg'] = $msg;
-	$tpl = '&nbsp;&nbsp;<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />';
-	return parseText($tpl,$ph);
+	return parseText(
+	    '<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />'
+        , $ph
+    );
 }
 
 function input_hidden($name,$cond=true)
@@ -588,12 +596,15 @@ function getParentName(&$v_parent) {
 		if ($v_parent != 0)            $parentlookup = $v_parent;
 	}
 	elseif(isset($_REQUEST['pid'])) {
-		if($_REQUEST['pid'] != 0)      $parentlookup = $_REQUEST['pid'];
+		if($_REQUEST['pid'] != 0) {
+            $parentlookup = $_REQUEST['pid'];
+        }
 	}
 	elseif(isset($v_parent)) {
 		if($v_parent != 0)             $parentlookup = $v_parent;
-	}
-	else                                $v_parent = 0;
+	} else {
+        $v_parent = 0;
+    }
 	
 	if($parentlookup !== false && preg_match('@^[1-9][0-9]*$@', $parentlookup)):
 		$rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
@@ -965,10 +976,11 @@ function fieldsTV() {
 		// Go through and display all Template Variables
 		if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea'):
 			// Add richtext editor to the list
-			if (is_array($rte_field))
-				$rte_field = array_merge($rte_field, array($tvid));
-			else
-				$rte_field = array($tvid);
+			if (is_array($rte_field)) {
+                $rte_field = array_merge($rte_field, array($tvid));
+            } else {
+                $rte_field = array($tvid);
+            }
 		endif;
 		
 		// post back value

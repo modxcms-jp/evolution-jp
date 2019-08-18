@@ -42,8 +42,8 @@ switch ($actionToTake) {
 			$tmplvars = array();
 
 		$param = array('mode'  => 'new',
-					   'doc_vars' => $values,
-					   'tv_vars'  => $tmplvars);
+					'doc_vars' => $values,
+					'tv_vars'  => $tmplvars);
 
 		$modx->invokeEvent('OnBeforeDocFormSave', $param);
 
