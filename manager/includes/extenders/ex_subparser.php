@@ -2276,10 +2276,14 @@ class SubParser {
     function setAliasListing()
     {
         global $modx;
-        
-        if($modx->aliasListing) return;
-        $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
-        if($aliases) $modx->aliasListing = $aliases;
+        if(!$modx->aliasListing) {
+            $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+            if($aliases) $modx->aliasListing = $aliases;
+        }
+        if(!$modx->documentMap) {
+            $documentMap = @include(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+            if($documentMap) $modx->documentMap = $documentMap;
+        }
         return false;
     }
 }
