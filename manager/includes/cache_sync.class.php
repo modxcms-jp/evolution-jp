@@ -107,7 +107,7 @@ class synccache {
         if($target==='pageCache') {
             $pattern = '@\.pageCache\.php$@';
         } else {
-            $pattern = '@\.php$@';
+            $pattern = '@\.*$@';
         }
         
         $files = $this->getFileList($this->cachePath, $pattern);
@@ -484,19 +484,12 @@ class synccache {
     
     private function _get_snippets() {
         global $modx;
-        $rs = $modx->db->select(
-            'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`'
-            , '[+prefix+]site_snippets ss LEFT JOIN [+prefix+]site_modules sm on sm.guid=ss.moduleguid'
-        );
+        $rs = $modx->db->select('*', '[+prefix+]site_snippets');
         $modx->snippetCache = array();
         while ($row = $modx->db->getRow($rs)) {
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
-            $modx->snippetCache[$name . 'Props'] = sprintf(
-                '%s %s'
-                , $row['properties']
-                , $row['sharedproperties']
-            );
+            $modx->snippetCache[$name . 'Props'] = $row['properties'];
         }
         return $modx->snippetCache;
     }
@@ -504,20 +497,12 @@ class synccache {
     private function _get_plugins() {
         global $modx;
         
-        $rs = $modx->db->select(
-            'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`'
-            ,'[+prefix+]site_plugins sp LEFT JOIN [+prefix+]site_modules sm on sm.guid=sp.moduleguid'
-            ,'sp.disabled=0'
-        );
+        $rs = $modx->db->select('*', '[+prefix+]site_plugins', 'disabled=0');
         $modx->pluginCache = array();
         while ($row = $modx->db->getRow($rs)) {
             $name = $modx->db->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
-            $modx->pluginCache[$name . 'Props'] = sprintf(
-                '%s %s'
-                , $row['properties']
-                , $row['sharedproperties']
-            );
+            $modx->pluginCache[$name . 'Props'] = $row['properties'];
         }
         return $modx->pluginCache;
     }
@@ -557,7 +542,7 @@ class synccache {
         return join("\n",$_) . "\n";
     }
     
-    private function getFileList($dir, $pattern='@\.php$@') {
+    private function getFileList($dir, $pattern='@\.*$@') {
         $dir = rtrim($dir, '/');
         $tmp = array_diff(scandir($dir),array('..','.'));
         $files = array();
