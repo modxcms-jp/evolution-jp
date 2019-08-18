@@ -1,10 +1,5 @@
 <?php
 
-function to_safestr($str)
-{
-	return htmlspecialchars($str);
-}
-
 function input_text($name,$value,$other='',$maxlength='255')
 {
 	$ph['name']      = $name;
@@ -68,7 +63,7 @@ function tooltip($msg)
 	$ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
 	$ph['msg'] = $msg;
 	return parseText(
-	    '<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />'
+		'<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />'
         , $ph
     );
 }
@@ -588,7 +583,7 @@ EOT;
 }
 
 function getParentName(&$v_parent) {
-	global $modx;
+	global $e,$modx;
 	
 	$parentlookup = false;
 	$parentname   = $modx->config['site_name'];
@@ -657,19 +652,19 @@ EOT;
 	{
 		case '4':
 		case '72':
-    	    if($modx->hasPermission('new_document'))
-    		$ph['saveButton'] = ab_save();
-    	    break;
+			if($modx->hasPermission('new_document'))
+			$ph['saveButton'] = ab_save();
+			break;
 		case '27':
-    	    if($modx->hasPermission('save_document'))
-    		$ph['saveButton'] = ab_save();
-        	break;
+			if($modx->hasPermission('save_document'))
+			$ph['saveButton'] = ab_save();
+			break;
 		case '132':
 		case '131':
 			$ph['saveButton'] = ab_save();
-        	break;
+			break;
 		default:
-		    $ph['saveButton'] = '';
+			$ph['saveButton'] = '';
 	}
 	
 	$ph['moveButton']      = '';
@@ -682,10 +677,10 @@ EOT;
 	elseif ($id != $modx->config['site_start']) {
 		if($modx->manager->action==27 && $modx->doc->canSaveDoc())
 		{
-    		if($modx->hasPermission('move_document'))
-    			$ph['moveButton']                                 = ab_move();
-    		if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
-    		if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
+			if($modx->hasPermission('move_document'))
+				$ph['moveButton']                                 = ab_move();
+			if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
+			if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
 		}
 	}
 	
@@ -710,21 +705,21 @@ EOT;
 
 function fieldPagetitle() {
 	global $modx,$_lang;
-	$body  = input_text('pagetitle',to_safestr($modx->documentObject['pagetitle']),'spellcheck="true"');
+	$body  = input_text('pagetitle',$modx->hsc($modx->documentObject['pagetitle']),'spellcheck="true"');
 	$body .= tooltip($_lang['resource_title_help']);
 	return renderTr($_lang['resource_title'],$body);
 }
 
 function fieldLongtitle() {
 	global $modx,$_lang;
-	$body  = input_text('longtitle',to_safestr($modx->documentObject['longtitle']),'spellcheck="true"');
+	$body  = input_text('longtitle',$modx->hsc($modx->documentObject['longtitle']),'spellcheck="true"');
 	$body .= tooltip($_lang['resource_long_title_help']);
 	return renderTr($_lang['long_title'],$body);
 }
 
 function fieldDescription() {
 	global $modx,$_lang;
-	$description = to_safestr($modx->documentObject['description']);
+	$description = $modx->hsc($modx->documentObject['description']);
 	$body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . $description . '</textarea>';
 	$body .= tooltip($_lang['resource_description_help']);
 	return  renderTr($_lang['resource_description'],$body,'vertical-align:top;');
@@ -734,7 +729,6 @@ function fieldAlias($id) {
 	global $modx,$config,$_lang;
 	
 	$body = '';
-
 	if($config['friendly_urls']==='1' && $modx->documentObject['type']==='document')
 	{
 		$body .= get_alias_path($id);
@@ -743,7 +737,7 @@ function fieldAlias($id) {
 		$other[] = sprintf('placeholder="%s"', $modx->documentObject['id']);
 		if($config['suffix_mode']==1) $other[] = 'onkeyup="change_url_suffix();"';
 
-		$body .= input_text('alias',to_safestr($modx->documentObject['alias']), join(' ', $other),'50');
+		$body .= input_text('alias',$modx->hsc($modx->documentObject['alias']), join(' ', $other),'50');
 
 		if($modx->documentObject['isfolder']) $suffix = '/';
 		elseif($config['friendly_urls']==1) {
@@ -755,7 +749,7 @@ function fieldAlias($id) {
 	}
 	else
 	{
-		$body .= input_text('alias',to_safestr($modx->documentObject['alias']),'','100');
+		$body .= input_text('alias',$modx->hsc($modx->documentObject['alias']),'','100');
 	}
 	$body .= tooltip($_lang['resource_alias_help']);
 	return renderTr($_lang['resource_alias'],$body);
@@ -774,8 +768,8 @@ function fieldWeblink() {
 }
 
 function fieldIntrotext() {
-	global $docObject,$_lang;
-	$introtext = to_safestr($docObject['introtext']);
+	global $modx,$docObject,$_lang;
+	$introtext = $modx->hsc($docObject['introtext']);
 	$body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.$introtext.'</textarea>';
 	$body .= tooltip($_lang['resource_summary_help']);
 	return renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
@@ -791,8 +785,8 @@ function fieldTemplate() {
 }
 
 function fieldMenutitle() {
-	global $docObject,$_lang;
-	$body = input_text('menutitle',to_safestr($docObject['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
+	global $modx,$docObject,$_lang;
+	$body = input_text('menutitle',$modx->hsc($docObject['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
 	return renderTr($_lang['resource_opt_menu_title'],$body);
 }
 
@@ -1137,8 +1131,8 @@ function getInitialValues() {
 }
 
 function fieldLink_attributes() {
-	global $_lang,$docObject;
-	$body  = input_text('link_attributes',to_safestr($docObject['link_attributes']));
+	global $modx,$_lang,$docObject;
+	$body  = input_text('link_attributes',$modx->hsc($docObject['link_attributes']));
 	$body .= tooltip($_lang['link_attributes_help']);
 	return renderTr($_lang['link_attributes'],$body);
 }

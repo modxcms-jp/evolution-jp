@@ -68,7 +68,7 @@ $selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : $
 
 checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
 
-$_SESSION['itemname'] = to_safestr($docObject['pagetitle']);
+$_SESSION['itemname'] = $modx->hsc($docObject['pagetitle']);
 
 $tpl['head'] = getTplHead();
 $tpl['foot'] = getTplFoot();
@@ -93,12 +93,13 @@ if(!$_REQUEST['pid']) {
 }
 
 if($modx->doc->mode==='normal') {
-    $ph['title'] = $id!=0 ? "{$_lang['edit_resource_title']}(ID:{$id})" : $_lang['create_resource_title'];
+    $ph['title'] = $_lang['create_resource_title'];
     $ph['class'] = '';
 } else {
-    $ph['title'] = $id!=0 ? "{$_lang['edit_draft_title']}(ID:{$id})" : $_lang['create_draft_title'];
+    $ph['title'] = $_lang['create_draft_title'];
     $ph['class'] = 'draft';
 }
+$ph['(ID:%s)'] = $id == 0 ? '' : sprintf('(ID:%s)', $id);
 
 $ph['actionButtons'] = getActionButtons($id);
 $ph['token'] = $modx->manager->makeToken();
