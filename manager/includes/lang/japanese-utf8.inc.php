@@ -661,7 +661,7 @@ $_lang["rb_webuser_title"] = 'ウェブユーザーの<br />ファイルブラ�
 $_lang["recent_docs"] = '最近のリソース';
 $_lang["recommend_setting_change_title"] = '設定を確認してください。';
 $_lang["recommend_setting_change_description"] = 'リファラチェック設定が無効になっているため、意図しない管理画面操作による<a href="http://www.google.com/search?hl=ja&q=csrf" target="_blank">CSRF攻撃 (Cross Site Request Forgery attack)</a>を受ける恐れがあります。グローバル設定をご確認ください。ただしこの設定により管理画面にアクセスできなくなる可能性があります。その場合はパソコン側のセキュリティソフトの設定をチェックするか、他のパソコンからのアクセスを試してみてください。';
-$_lang["refresh_cache"] = 'キャッシュディレクトリに <strong>%s</strong>個のページキャッシュが見つかりました。<strong>%d</strong>個のページキャッシュが削除されました。<p>ページがリクエストされた時点で、新しいページキャッシュが生成されます。';
+$_lang["refresh_cache"] = 'キャッシュディレクトリに <strong>%s</strong>個のキャッシュオブジェクトが見つかりました。<strong>%d</strong>個のキャッシュオブジェクトが削除されました。';
 $_lang["refresh_published"] = '<strong>%s</strong>件のリソースが公開されました。';
 $_lang["refresh_site"] = 'サイトをリフレッシュ';
 $_lang["refresh_title"] = 'サイトをリフレッシュ';
