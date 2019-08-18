@@ -15,53 +15,55 @@ class DocAPI {
         global $modx, $_lang;
         $f = $this->correctResourceFields($f);
 
-        $f['pagetitle'] = (!$f['pagetitle']) ? $_lang['untitled_resource'] : $f['pagetitle'];
-        $f['createdon'] = (!$f['createdon']) ? time() : $f['createdon'];
-        $f['createdby'] = (!$f['createdby']) ? $modx->getLoginUserID() : $f['createdby'];
+        if ((!$f['pagetitle'])) {
+            $f['pagetitle'] = $_lang['untitled_resource'];
+        }
+        if ((!$f['createdon'])) {
+            $f['createdon'] = time();
+        }
+        if ((!$f['createdby'])) {
+            $f['createdby'] = $modx->getLoginUserID();
+        }
         $f['editedon']  = $f['createdon'];
         $f['editedby']  = $f['createdby'];
-        if(isset($f['published']) && $f['published']==1 && !isset($f['publishedon']))
+        if(isset($f['published']) && $f['published']==1 && !isset($f['publishedon'])) {
             $f['publishedon'] = $f['createdon'];
-        if(!$f['template'])
+        }
+        if(!$f['template']) {
             $f['template'] = $modx->config['default_template'];
-        if (!empty($groups))
+        }
+        if ($groups) {
             $f['privatemgr'] = 1;
+        }
 
 //		$f = $this->setPubStatus($f);
 
-        switch($modx->config['docid_incrmnt_method'])
-        {
-            case '1':
-                $from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
-                $where = "T1.id IS NULL";
-                $rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-                $docid = $modx->db->getValue($rs);
-                break;
-            case '2':
-                $rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
-                $docid = $modx->db->getValue($rs);
-                break;
-            default:
-                $docid = '';
+        $newdocid = $this->getNewDocID();
+        if($newdocid) {
+            $f['id'] = $newdocid;
         }
-
-        if(!empty($docid)) $f['id'] = $docid;
 
         $id = $modx->db->insert($f, '[+prefix+]site_content');
-        $this->replaceTVs($f,$id);
-        if(isset($f['parent']) && preg_match('@^[1-9][0-9]*$@',$f['parent']))
-        {
+        $this->saveTVs($f,$id);
+        if(isset($f['parent']) && preg_match('@^[1-9][0-9]*$@',$f['parent'])) {
             $parent = $f['parent'];
-            $modx->db->update(array('isfolder'=>'1'), '[+prefix+]site_content', "id='{$parent}'");
+            $modx->db->update(
+                array('isfolder'=>'1')
+                , '[+prefix+]site_content'
+                , sprintf("id='%s'", $parent));
         }
 
-        if (!empty($groups) && $id)
-        {
+        if ($groups && $id) {
             foreach ($groups as $group) {
-                $modx->db->insert(array('document_group' => $group, 'document' => $id), '[+prefix+]document_groups');
+                $modx->db->insert(
+                    array('document_group' => $group, 'document' => $id)
+                    , '[+prefix+]document_groups'
+                );
             }
         }
-        if($id!==false) $modx->clearCache();
+        if($id!==false) {
+            $modx->clearCache();
+        }
         return $id;
     }
 
@@ -91,7 +93,7 @@ class DocAPI {
             $f['template'] = $modx->getField('template', $id);
         }
 
-        $rs = $this->replaceTVs($f,$id);
+        $this->saveTVs($f,$id);
 
 //		$f = $this->setPubStatus($f);
 
@@ -152,144 +154,83 @@ class DocAPI {
         return $f;
     }
 
-    function correctResourceFields($f)
-    {
-        $fnames = $this->getResourceNames();
-        $rfields = array();
-        foreach($f as $k=>$v)
-        {
-            if(isset($fnames[$k])) $rfields[$k] = $v;
-        }
-        return $rfields;
-    }
-
-    function getResourceNames()
-    {
-        $fname = array();
-
-        $fname['content']     = '1';
-        $fname['pagetitle']   = '1';
-        $fname['longtitle']   = '1';
-        $fname['menutitle']   = '1';
-        $fname['description'] = '1';
-        $fname['introtext']   = '1';
-
-        $fname['template']  = '1';
-        $fname['parent']    = '1';
-        $fname['alias']     = '1';
-        $fname['isfolder']  = '1';
-        $fname['hidemenu']  = '1';
-        $fname['menuindex'] = '1';
-
-        $fname['createdon']   = '1';
-        $fname['editedon']    = '1';
-        $fname['publishedon'] = '1';
-        $fname['deletedon']   = '1';
-        $fname['pub_date']    = '1';
-        $fname['unpub_date']  = '1';
-
-        $fname['published'] = '1';
-        $fname['deleted']   = '1';
-
-        $fname['createdby']   = '1';
-        $fname['editedby']    = '1';
-        $fname['deletedby']   = '1';
-        $fname['publishedby'] = '1';
-
-        $fname['type']          = '1';
-        $fname['contentType']   = '1';
-        $fname['content_dispo'] = '1';
-
-        $fname['link_attributes'] = '1';
-        $fname['searchable']      = '1';
-        $fname['cacheable']       = '1';
-        $fname['donthit']         = '1';
-
-        $fname['richtext'] = '1';
-
-        $fname['privateweb']  = '1';
-        $fname['privatemgr']  = '1';
-        $fname['haskeywords'] = '1';
-        $fname['hasmetatags'] = '1';
-
-        return $fname;
-    }
-
-    function replaceTVs(&$inputFields=array(), $id)
+    function correctResourceFields($fields)
     {
         global $modx;
-        $rs = $modx->db->select('id,name', '[+prefix+]site_tmplvars');
-        while($row = $modx->db->getRow($rs))
-        {
-            $tvname = $row['name'];
-            $tvid   = $row['id'];
-            $alltmplvarids[$tvname]    = $tvid;
-            $alltmplvarids['tv'.$tvid] = $tvid;
-        }
-        foreach($inputFields as $name=>$v)
-        {
-            if(array_key_exists($name, $alltmplvarids))
-            {
-                $tmplvarids[$name] = $alltmplvarids[$name];
+        foreach($fields as $k=>$v) {
+            if(!$modx->get_docfield_type($k)) {
+                unset($fields[$k]);
             }
         }
+        return $fields;
+    }
 
-        $result = false;
-        if(!isset($tmplvarids) || !$tmplvarids) {
-            return false;
-        }
-
-        foreach($tmplvarids as $tmplvarname=>$tmplvarid) {
-            $template = $inputFields['template'];
-            $rs = $modx->db->select(
-                '*'
-                , '[+prefix+]site_tmplvar_templates'
-                , sprintf(
-                    "tmplvarid='%s' AND templateid='%s'"
-                    , $tmplvarid
-                    , $template
-                )
-            );
-            if($modx->db->getRecordCount($rs)==1) {
-                $value = $modx->db->escape($inputFields[$tmplvarname]);
-                $key = false;
-                $rs = $modx->db->select(
-                    '*'
+    function saveTVs($inputFields=array(), $doc_id)
+    {
+        global $modx;
+        $tmplvars = $this->tmplVars($inputFields['template']);
+        foreach($tmplvars as $name=>$tmplvarid) {
+            $fields = array('value' => $modx->db->escape($inputFields[$name]));
+            if ($this->hasTmplvar($tmplvarid, $doc_id)) {
+                $modx->db->update(
+                    $fields
                     , '[+prefix+]site_tmplvar_contentvalues'
                     , sprintf(
                         "tmplvarid='%s' AND contentid='%s'"
                         , $tmplvarid
-                        , $id
+                        , $doc_id
                     )
                 );
-                if($modx->db->getRecordCount($rs)==0)
-                {
-                    $key = $modx->db->insert(
-                        array('value'=>$value,'tmplvarid'=>$tmplvarid,'contentid'=>$id)
-                        , '[+prefix+]site_tmplvar_contentvalues'
-                    );
-                }
-                else
-                {
-                    $key = $modx->db->update(
-                        array('value'=>$value)
-                        , '[+prefix+]site_tmplvar_contentvalues'
-                        , sprintf(
-                            "tmplvarid='%s' AND contentid='%s'"
-                            , $tmplvarid
-                            , $id
-                        )
-                    );
-                }
-                if($key) {
-                    unset($inputFields[$tmplvarname]);
-                }
+            } else {
+                $fields['tmplvarid'] = $tmplvarid;
+                $fields['contentid'] = $doc_id;
+                $modx->db->insert($fields, '[+prefix+]site_tmplvar_contentvalues');
             }
         }
-
-        return $result;
     }
 
+    private function tmplVars($template_id) {
+        global $modx;
+        $rs = $modx->db->select('id,name', '[+prefix+]site_tmplvars');
+        $tmplvars = array();
+        while($row = $modx->db->getRow($rs)) {
+            if(!$this->hasTmplvarRelation($row['id'],$template_id)) {
+                continue;
+            }
+            $tmplvars[$row['name']]    = $row['id'];
+            $tmplvars['tv'.$row['id']] = $row['id'];
+        }
+        return $tmplvars;
+    }
+
+    private function hasTmplvar($tmplvarid,$doc_id)
+    {
+        global $modx;
+        $rs = $modx->db->select(
+            '*'
+            , '[+prefix+]site_tmplvar_contentvalues'
+            , sprintf(
+                "tmplvarid='%s' AND contentid='%s'"
+                , $tmplvarid
+                , $doc_id
+            )
+        );
+        return $modx->db->getRecordCount($rs);
+    }
+
+    private function hasTmplvarRelation($tmplvarid,$template_id) {
+        global $modx;
+        $rs = $modx->db->select(
+            '*'
+            , '[+prefix+]site_tmplvar_templates'
+            , sprintf(
+                "tmplvarid='%s' AND templateid='%s'"
+                , $modx->db->escape($tmplvarid)
+                , $modx->db->escape($template_id)
+            )
+        );
+        return $modx->db->getRecordCount($rs) == 1;
+    }
     function initValue($form_v)
     {
         global $modx;
@@ -436,7 +377,6 @@ class DocAPI {
 
             $form_v['createdby'] = $modx->getLoginUserID();
             $form_v['createdon'] = $_SERVER['REQUEST_TIME'];
-        } else {
         }
         return $form_v;
     }
@@ -445,21 +385,23 @@ class DocAPI {
     {
         global $modx;
 
-        switch($modx->config['docid_incrmnt_method']) {
-            case '1':
-                $from = '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id';
-                $where = "T1.id IS NULL";
-                $rs = $modx->db->select('MIN(T0.id)+1', $from, "T1.id IS NULL");
-                $newid = $modx->db->getValue($rs);
-                break;
-            case '2':
-                $rs = $modx->db->select('MAX(id)+1','[+prefix+]site_content');
-                $newid = $modx->db->getValue($rs);
-                break;
-            default:
-                $newid = '';
+        if($modx->config['docid_incrmnt_method']==1) {
+            $rs = $modx->db->select(
+                'MIN(T0.id)+1'
+                , '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id'
+                , 'T1.id IS NULL'
+            );
+            return $modx->db->getValue($rs);
         }
-        return $newid;
+
+        if($modx->config['docid_incrmnt_method']==2) {
+            $rs = $modx->db->select(
+                'MAX(id)+1'
+                , '[+prefix+]site_content'
+            );
+            return $modx->db->getValue($rs);
+        }
+        return false;
     }
 
     function fixPubStatus($f) // published, pub_date, unpub_date
