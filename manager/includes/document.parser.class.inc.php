@@ -1307,7 +1307,7 @@ class DocumentParser {
             'published=1'
             , '[+prefix+]site_htmlsnippets'
             , sprintf(
-                'published=0 AND pub_date!=0AND pub_date <= %s AND (unpub_date=0 OR pub_date<=unpub_date)'
+                'published=0 AND pub_date!=0 AND pub_date<=%s AND (unpub_date=0 OR pub_date<=unpub_date)'
                 , $timeNow
             )
         );
