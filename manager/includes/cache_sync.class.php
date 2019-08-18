@@ -516,9 +516,6 @@ class synccache {
         while ($row = $modx->db->getRow($rs)) {
             $name = $modx->db->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
-            if ($row['properties'] == '' && $row['sharedproperties'] == '') {
-                continue;
-            }
             $modx->pluginCache[$name . 'Props'] = sprintf(
                 '%s %s'
                 , $row['properties']
