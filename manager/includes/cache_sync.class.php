@@ -8,7 +8,7 @@ class synccache {
     public $parents = array();
     public $target;
     public $config = array();
-    public $cacheRefreshTime = null;
+    public $cacheRefreshTime;
 
     public function __construct() {
         if(!$this->target) {
@@ -31,17 +31,13 @@ class synccache {
         $this->showReport = $bool;
     }
 
-    private function escapeSingleQuotes($s) {
-        $q1 = array("\\","'");
-        $q2 = array("\\\\","\\'");
-        return str_replace($q1,$q2,$s);
-    }
-
     private function getParents($id, $path = '') { // modx:returns child's parent
         global $modx;
         if(empty($this->aliases)) {
-            $fields = "id, IF(alias='', id, alias) AS alias, parent";
-            $qh = $modx->db->select($fields,'[+prefix+]site_content');
+            $qh = $modx->db->select(
+                "id, IF(alias='', id, alias) AS alias, parent"
+                ,'[+prefix+]site_content'
+            );
             if ($qh && $modx->db->getRecordCount($qh)) {
                 while ($row = $modx->db->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
@@ -54,28 +50,38 @@ class synccache {
             return $path;
         }
 
-        if ($path !== '') {
-            $path = $this->aliases[$id] . '/' . $path;
-        } else {
-            $path = $this->aliases[$id];
+        if ($path === '') {
+            return $this->getParents($this->parents[$id], $this->aliases[$id]);
         }
-        return $this->getParents($this->parents[$id], $path);
+
+        return $this->getParents(
+            $this->parents[$id]
+            , sprintf(
+                '%s/%s'
+                , $this->aliases[$id]
+                , $path
+            )
+        );
     }
 
     public function emptyCache() {
         global $modx;
-        
+
+        if(!isset($this->cachePath)) {
+            exit('Cache path not set.');
+        }
+
         $instance_name = '';
         if(is_object($modx)) {
             $instance_name = get_class($modx);
         }
-        $instance_name = strtolower($instance_name);
-        if($instance_name!=='documentparser') global $modx;
-        
-        if(!isset($this->cachePath)) exit('Cache path not set.');
-        
-        if(strpos($this->target,'pagecache')!==false)
-            $result = $this->purgeCacheFiles('pageCache');
+        if(strtolower($instance_name)!=='documentparser') {
+            global $modx;
+        }
+
+        if(strpos($this->target,'pagecache')!==false) {
+            $result = $this->purgeCacheFiles();
+        }
         if(strpos($this->target,'sitecache')!==false) {
             $this->purgeCacheFiles('siteCache');
             $this->buildCache();
@@ -91,6 +97,9 @@ class synccache {
     }
     
     private function purgeCacheFiles($target='pageCache') {
+        if(!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
+            return false;
+        }
         if(strpos($this->cachePath,MODX_BASE_PATH)!==0) {
             return false;
         }
@@ -113,16 +122,17 @@ class synccache {
         $cachedir_len = strlen($this->cachePath);
         while ($file_path = array_shift($files)) {
             $name = substr($file_path, $cachedir_len);
-            if (!in_array($name, $deletedfiles)) {
-                $rs = null;
-                if (is_file($file_path)) {
-                    $rs = @unlink($file_path);
-                } elseif (is_dir($file_path)) {
-                    $rs = @rmdir($file_path);
-                }
-                if ($rs) {
-                    $deletedfiles[] = $name;
-                }
+            if (in_array($name, $deletedfiles)) {
+                continue;
+            }
+            $rs = null;
+            if (is_file($file_path)) {
+                $rs = @unlink($file_path);
+            } elseif (is_dir($file_path)) {
+                $rs = @rmdir($file_path);
+            }
+            if ($rs) {
+                $deletedfiles[] = $name;
             }
         }
         return array($filesincache,count($deletedfiles),$deletedfiles);
@@ -141,9 +151,9 @@ class synccache {
         if(!$deletedfiles) {
             return;
         }
-        echo '<p>' . $_lang['cache_files_deleted'] . '</p><ul>';
+        echo sprintf('<p>%s</p><ul>', $_lang['cache_files_deleted']);
         foreach ($deletedfiles as $i => $deletedfile) {
-            echo '<li>', $deletedfile, '</li>';
+            echo sprintf('<li>%s</li>', $deletedfile);
         }
         echo '</ul>';
     }
@@ -167,29 +177,65 @@ class synccache {
         $content = array();
         $content[] = '<?php';
         $recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
-        $content[] = sprintf('$recent_update = %s; // %s'   , $recent_update, date('Y-m-d H:i:s',$recent_update));
-        $content[] = sprintf('$cacheRefreshTime = %s; // %s', $cacheRefreshTime, date('Y-m-d H:i:s',$cacheRefreshTime));
-        $content[] = sprintf('$cache_type = %s;',       $setting['cache_type']);
-        if(isset($site_sessionname) && !empty($site_sessionname))
-            $content[] = sprintf('$site_sessionname = "%s";', $site_sessionname);
+        $content[] = sprintf(
+            '$recent_update = %s; // %s' ,
+            $recent_update,
+            date('Y-m-d H:i:s',$recent_update)
+        );
+        $content[] = sprintf(
+            '$cacheRefreshTime = %s; // %s'
+            , $cacheRefreshTime
+            , date('Y-m-d H:i:s', $cacheRefreshTime)
+        );
+        $content[] = sprintf(
+            '$cache_type = %s;'
+            , $setting['cache_type']
+        );
+        if(isset($site_sessionname) && $site_sessionname) {
+            $content[] = sprintf(
+                '$site_sessionname = "%s";'
+                , $site_sessionname
+            );
+        }
         
-        $content[] = sprintf('$site_status = %s;',      $setting['site_status']);
-        $content[] = sprintf('$error_reporting = "%s";',$setting['error_reporting']);
+        $content[] = sprintf(
+            '$site_status = %s;'
+            , $setting['site_status']
+        );
+        $content[] = sprintf(
+            '$error_reporting = "%s";'
+            , $setting['error_reporting']
+        );
         
-        if($modx->array_get($setting,'site_url') && strpos($setting['site_url'],'[(')===false)
-            $content[] = sprintf('$site_url = "%s";',   $setting['site_url']);
+        if($modx->array_get($setting,'site_url') && strpos($setting['site_url'],'[(')===false) {
+            $content[] = sprintf(
+                '$site_url = "%s";'
+                , $setting['site_url']
+            );
+        }
         
-        if($modx->array_get($setting,'base_url') && strpos($setting['base_url'],'[(')===false)
-            $content[] = sprintf('$base_url = "%s";',   $setting['base_url']);
+        if($modx->array_get($setting,'base_url') && strpos($setting['base_url'],'[(')===false) {
+            $content[] = sprintf(
+                '$base_url = "%s";'
+                , $setting['base_url']
+            );
+        }
         
-        if($modx->array_get($setting,'conditional_get'))
-            $content[] = sprintf('$conditional_get = "%s";', $setting['conditional_get']);
+        if($modx->array_get($setting,'conditional_get')) {
+            $content[] = sprintf(
+                '$conditional_get = "%s";'
+                , $setting['conditional_get']
+            );
+        }
 
         if (!$modx->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
         
-        $f = array('setting_value'=>$recent_update, 'setting_name'=>'recent_update');
+        $f = array(
+            'setting_value'=>$recent_update,
+            'setting_name'=>'recent_update'
+        );
         if(isset($setting['recent_update'])) {
             $modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
         } else {
@@ -269,42 +315,38 @@ class synccache {
      * @return boolean success
      */
     public function buildCache() {
-        global $modx,$_lang;
+        global $modx, $_lang;
         
         $content = "<?php\n";
         $content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
         
         // SETTINGS & DOCUMENT LISTINGS CACHE
-        
         $config = $this->_get_settings(); // get settings
-        if($modx->config['legacy_cache']) 
-            $this->_get_aliases();  // get aliases modx: support for alias path
+        foreach($config as $k=>$v) {
+            $modx->config[$k] = $v;
+        }
         $content .= $this->_get_content_types(); // get content types
-        $this->_get_chunks();   // WRITE Chunks to cache file
-        $this->_get_snippets(); // WRITE snippets to cache file
-        $this->_get_plugins();  // WRITE plugins to cache file
         $content .= $this->_get_events();   // WRITE system event triggers
-        
-        // close and write the file
         $content .= "\n";
         $content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
         
         // invoke OnBeforeCacheUpdate event
-        if ($modx) {
-            $modx->invokeEvent('OnBeforeCacheUpdate');
-        }
+        $modx->invokeEvent('OnBeforeCacheUpdate');
         
         if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
-            exit('siteCache.idx.php - '.$_lang['file_not_saved']);
+            exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
         }
         
         $this->cache_put_contents('config.siteCache.idx.php', $config);
         if($modx->config['legacy_cache']) {
+            $this->_legacy_cache();
             $this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
             $this->cache_put_contents('documentMap.siteCache.idx.php', $modx->documentMap);
         }
-        $this->cache_put_contents('chunk.siteCache.idx.php', $modx->chunkCache);
+        $this->cache_put_contents('chunk.siteCache.idx.php', $this->_get_chunks());
+        $this->_get_snippets(); // WRITE snippets to cache file
         $this->cache_put_contents('snippet.siteCache.idx.php', $modx->snippetCache);
+        $this->_get_plugins();  // WRITE plugins to cache file
         $this->cache_put_contents('plugin.siteCache.idx.php', $modx->pluginCache);
         
         if(!is_file($this->cachePath . '.htaccess')) {
@@ -320,7 +362,9 @@ class synccache {
     
     private function cache_put_contents($filename, $content) {
         global $modx,$_lang;
-        if(empty($content)) return;
+        if(empty($content)) {
+            return;
+        }
         if(is_array($content)) {
             $content = var_export($content, 'true');
             if(strpos($filename,'documentMap')!==false)
@@ -339,83 +383,87 @@ class synccache {
         
         $cache_path = $this->cachePath .$filename;
 
-        if( ! $modx->saveToFile($cache_path, $content) ) {
-            $msg = sprintf('%s - %s', $cache_path, $_lang['file_not_saved']);
-            if(defined('IN_MANAGER_MODE')) {
-                header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
-                echo $modx->parseText(
-                    '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
-                    , array('manager_url'=>MODX_MANAGER_URL,'theme'=>$modx->config['manager_theme'])
-                );
-                $msg = '<div class="section"><div class="sectionBody">'.$msg.'</div></div>';
-            }
-            exit($msg);
+        if($modx->saveToFile($cache_path, $content)) {
+            return;
         }
+
+        if (!defined('IN_MANAGER_MODE')) {
+            exit(sprintf('%s - %s', $cache_path, $_lang['file_not_saved']));
+        }
+
+        header('Content-Type: text/html; charset=' . $modx->config['modx_charset']);
+        echo $modx->parseText(
+            '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
+            , array(
+                'manager_url' => MODX_MANAGER_URL,
+                'theme' => $modx->config['manager_theme']
+            )
+        );
+        exit(sprintf(
+            '<div class="section"><div class="sectionBody">%s - %s</div></div>'
+            , $cache_path
+            , $_lang['file_not_saved'])
+        );
     }
-    
+
     private function _get_settings() {
         global $modx;
-        
+
         $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
         $config = array();
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
             $config[$row['setting_name']] = $row['setting_value'];
         }
         return $config;
     }
-    
-    private function _get_aliases() {
+
+    private function _legacy_cache() {
         global $modx;
         
-        $friendly_urls = $modx->db->getValue(
-            'setting_value'
-            , '[+prefix+]system_settings'
-            , "setting_name='friendly_urls'"
+        $rs = $modx->db->select(
+            "IF(alias='', id, alias) AS alias, id, parent, isfolder"
+            , '[+prefix+]site_content'
+            , 'deleted=0'
+            , 'parent, menuindex'
         );
-        if($friendly_urls==1) {
-            $use_alias_path = $modx->db->getValue(
-                'setting_value'
-                , '[+prefix+]system_settings'
-                , "setting_name='use_alias_path'"
-            );
-        } else {
-            $use_alias_path = '';
-        }
-        $fields = "IF(alias='', id, alias) AS alias, id, parent, isfolder";
-        $rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
         $modx->aliasListing = array();
         $modx->documentMap  = array();
-        while ($row = $modx->db->getRow($rs))
-        {
-            if($use_alias_path==='1') {
-                $path = $this->getParents($row['parent']);
-            } elseif($use_alias_path==='0') {
-                $path = '';
-            } else {
-                $path = $row['parent'];
-            }
-            $docid = $row['id'];
-            $modx->aliasListing[$docid] = array(
-                'id'       => $docid,
+        while ($row = $modx->db->getRow($rs)) {
+            $modx->aliasListing[$row['id']] = array(
+                'id'       => $row['id'],
                 'alias'    => $row['alias'],
-                'path'     => $path,
+                'path'     => $this->alias_path($row['parent']),
                 'parent'   => $row['parent'],
                 'isfolder' => $row['isfolder']
             );
-            $modx->documentMap[] = array($row['parent'] => $docid);
+            $modx->documentMap[] = array($row['parent'] => $row['id']);
         }
+    }
+    private function alias_path($parent_id) {
+        global $modx;
+        if(!$modx->config['friendly_urls']) {
+            return $parent_id;
+        }
+        if ($modx->config['use_alias_path']) {
+            return $this->getParents($parent_id);
+        }
+        return '';
     }
     
     private function _get_content_types() {
         global $modx;
         
-        $rs = $modx->db->select('id, contentType','[+prefix+]site_content',"contentType != 'text/html'");
-        $_[] = '$c = &$this->contentTypes;';
-        $row = array();
-        while ($row = $modx->db->getRow($rs))
-        {
-            $_[] = sprintf('$c[%s] = \'%s\';', $row['id'], $row['contentType']);
+        $rs = $modx->db->select(
+            'id, contentType','[+prefix+]site_content'
+            , "contentType != 'text/html'"
+        );
+        $_ = array('$c = &$this->contentTypes;');
+        while ($row = $modx->db->getRow($rs)) {
+            $_[] = sprintf(
+                '$c[%s] = \'%s\';'
+                , $row['id']
+                , $row['contentType']
+            );
         }
         return join("\n", $_) . "\n";
     }
@@ -423,53 +471,59 @@ class synccache {
     private function _get_chunks() {
         global $modx;
         
-        $rs = $modx->db->select('name,snippet','[+prefix+]site_htmlsnippets', "`published`='1'");
-        $row = array();
+        $rs = $modx->db->select(
+            'name,snippet'
+            , '[+prefix+]site_htmlsnippets', "`published`='1'"
+        );
         $modx->chunkCache = array();
-        while ($row = $modx->db->getRow($rs))
-        {
+        while ($row = $modx->db->getRow($rs)) {
             $name = $modx->db->escape($row['name']);
             $modx->chunkCache[$name] = $row['snippet'];
         }
+        return $modx->chunkCache;
     }
     
     private function _get_snippets() {
         global $modx;
-        
-        $fields = 'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`';
-        $from = "[+prefix+]site_snippets ss LEFT JOIN [+prefix+]site_modules sm on sm.guid=ss.moduleguid";
-        $rs = $modx->db->select($fields,$from);
-        $row = array();
-        while ($row = $modx->db->getRow($rs))
-        {
+        $rs = $modx->db->select(
+            'ss.name,ss.snippet,ss.properties,sm.properties as `sharedproperties`'
+            , '[+prefix+]site_snippets ss LEFT JOIN [+prefix+]site_modules sm on sm.guid=ss.moduleguid'
+        );
+        $modx->snippetCache = array();
+        while ($row = $modx->db->getRow($rs)) {
             $name = $row['name'];
-            $snippet = $row['snippet'];
-            $modx->snippetCache[$name] = $snippet;
-            if ($row['properties'] != '' || $row['sharedproperties'] != '')
-            {
-                $properties = $row['properties'] . ' ' . $row['sharedproperties'];
-                $modx->snippetCache["{$name}Props"] = $properties;
+            $modx->snippetCache[$name] = $row['snippet'];
+            if ($row['properties'] == '' && $row['sharedproperties'] == '') {
+                continue;
             }
+            $modx->snippetCache[$name . 'Props'] = sprintf(
+                '%s %s'
+                , $row['properties']
+                , $row['sharedproperties']
+            );
         }
+        return $modx->snippetCache;
     }
     
     private function _get_plugins() {
         global $modx;
         
-        $fields = 'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`';
-        $from = "[+prefix+]site_plugins sp LEFT JOIN [+prefix+]site_modules sm on sm.guid=sp.moduleguid";
-        $rs = $modx->db->select($fields,$from,'sp.disabled=0');
-        $row = array();
-        while ($row = $modx->db->getRow($rs))
-        {
+        $rs = $modx->db->select(
+            'sp.name,sp.plugincode,sp.properties,sm.properties as `sharedproperties`'
+            ,'[+prefix+]site_plugins sp LEFT JOIN [+prefix+]site_modules sm on sm.guid=sp.moduleguid'
+            ,'sp.disabled=0'
+        );
+        while ($row = $modx->db->getRow($rs)) {
             $name = $modx->db->escape($row['name']);
-            $plugincode = $row['plugincode'];
-            $properties = $row['properties'].' '.$row['sharedproperties'];
-            $modx->pluginCache[$name]          = $plugincode;
-            if ($row['properties']!='' || $row['sharedproperties']!='')
-            {
-                $modx->pluginCache["{$name}Props"] = $properties;
+            $modx->pluginCache[$name] = $row['plugincode'];
+            if ($row['properties'] == '' && $row['sharedproperties'] == '') {
+                continue;
             }
+            $modx->pluginCache[$name . 'Props'] = sprintf(
+                '%s %s'
+                , $row['properties']
+                , $row['sharedproperties']
+            );
         }
     }
     
@@ -484,19 +538,26 @@ class synccache {
         $where   = 'plugs.disabled=0';
         $orderby = 'sysevt.name,pe.priority';
         $rs = $modx->db->select($fields,$from,$where,$orderby);
-        $_[] = '$e = &$this->pluginEvent;';
+        $_ = array('$e = &$this->pluginEvent;');
         $events = array();
-        $row = array();
-        while ($row = $modx->db->getRow($rs))
-        {
+        while ($row = $modx->db->getRow($rs)) {
             $evtname = $row['evtname'];
-            if(!isset($events[$evtname])) $events[$evtname] = array();
-            $events[$evtname][] = $row['plgname'];
+            if(!isset($events[$evtname])) {
+                $events[$evtname] = array($row['plgname']);
+            } else {
+                $events[$evtname][] = $row['plgname'];
+            }
         }
-        foreach($events as $evtname => $pluginnames)
-        {
-            $pluginnames = implode("','",$this->escapeSingleQuotes($pluginnames));
-            $_[] = sprintf("\$e['%s'] = array('%s');", $evtname, $pluginnames);
+        foreach($events as $evtname => $pluginnames) {
+            $_[] = sprintf(
+                "\$e['%s'] = array('%s');"
+                , $evtname
+                , implode("','",str_replace(
+                    array("\\","'")
+                    ,array("\\\\","\\'")
+                    , $pluginnames)
+                )
+            );
         }
         return join("\n",$_) . "\n";
     }
@@ -511,8 +572,9 @@ class synccache {
 
         $list = array();
         foreach ($files as $obj) {
-            if (is_file($obj) && preg_match($pattern,$obj)) $list[] = $obj;
-            elseif (is_dir($obj))  {
+            if (is_file($obj) && preg_match($pattern,$obj)) {
+                $list[] = $obj;
+            } elseif (is_dir($obj))  {
                 $list[] = $obj;
                 $_ = $this->getFileList($obj, $pattern);
                 foreach ($_ as $k=>$v) {
