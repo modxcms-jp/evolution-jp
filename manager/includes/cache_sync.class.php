@@ -317,14 +317,11 @@ class synccache {
     public function buildCache() {
         global $modx, $_lang;
         
+        $config = $this->_get_settings(); // get settings
+        $this->cache_put_contents('config.siteCache.idx.php', $config);
+
         $content = "<?php\n";
         $content .= "if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;\n";
-        
-        // SETTINGS & DOCUMENT LISTINGS CACHE
-        $config = $this->_get_settings(); // get settings
-        foreach($config as $k=>$v) {
-            $modx->config[$k] = $v;
-        }
         $content .= $this->_get_content_types(); // get content types
         $content .= $this->_get_events();   // WRITE system event triggers
         $content .= "\n";
@@ -337,7 +334,6 @@ class synccache {
             exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
         }
         
-        $this->cache_put_contents('config.siteCache.idx.php', $config);
         if($modx->config['legacy_cache']) {
             $this->_legacy_cache();
             $this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
@@ -413,6 +409,9 @@ class synccache {
         $config = array();
         while($row = $modx->db->getRow($rs)) {
             $config[$row['setting_name']] = $row['setting_value'];
+        }
+        foreach($config as $k=>$v) {
+            $modx->config[$k] = $v;
         }
         return $config;
     }
@@ -513,6 +512,7 @@ class synccache {
             ,'[+prefix+]site_plugins sp LEFT JOIN [+prefix+]site_modules sm on sm.guid=sp.moduleguid'
             ,'sp.disabled=0'
         );
+        $modx->pluginCache = array();
         while ($row = $modx->db->getRow($rs)) {
             $name = $modx->db->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
@@ -525,6 +525,7 @@ class synccache {
                 , $row['sharedproperties']
             );
         }
+        return $modx->pluginCache;
     }
     
     private function _get_events() {
