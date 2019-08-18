@@ -492,9 +492,6 @@ class synccache {
         while ($row = $modx->db->getRow($rs)) {
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
-            if ($row['properties'] == '' && $row['sharedproperties'] == '') {
-                continue;
-            }
             $modx->snippetCache[$name . 'Props'] = sprintf(
                 '%s %s'
                 , $row['properties']
