@@ -316,7 +316,10 @@ class synccache {
      */
     public function buildCache() {
         global $modx, $_lang;
-        
+
+        // invoke OnBeforeCacheUpdate event
+        $modx->invokeEvent('OnBeforeCacheUpdate');
+
         $config = $this->_get_settings(); // get settings
         $this->cache_put_contents('config.siteCache.idx.php', $config);
 
@@ -327,9 +330,7 @@ class synccache {
         $content .= "\n";
         $content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
         
-        // invoke OnBeforeCacheUpdate event
-        $modx->invokeEvent('OnBeforeCacheUpdate');
-        
+
         if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
             exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
         }
@@ -349,9 +350,7 @@ class synccache {
             $modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
         }
         // invoke OnCacheUpdate event
-        if ($modx) {
-            $modx->invokeEvent('OnCacheUpdate');
-        }
+        $modx->invokeEvent('OnCacheUpdate');
         
         return true;
     }
