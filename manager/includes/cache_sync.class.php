@@ -145,43 +145,61 @@ class synccache {
         if(0<$filesincache) {
             echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
         } else {
-            echo '削除対象のページキャッシュはありません。';
+            echo '<p>削除対象のページキャッシュはありません。</p>';
         }
         
         if(!$deletedfiles) {
             return;
         }
-        echo sprintf('<p>%s</p><ul>', $_lang['cache_files_deleted']);
+        echo sprintf('<p>%s</p><ul style="margin-bottom:1em;">', $_lang['cache_files_deleted']);
         foreach ($deletedfiles as $i => $deletedfile) {
             echo sprintf('<li>%s</li>', $deletedfile);
         }
         echo '</ul>';
     }
-    
-    /****************************************************************************/
-    /*  PUBLISH TIME FILE                                                       */
-    /****************************************************************************/
+
+    private function recent_update() {
+        global $modx;
+        static $recent_update = null;
+
+        if($recent_update) {
+            return $recent_update;
+        }
+
+        $recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
+
+        $f = array(
+            'setting_value'=>$recent_update,
+            'setting_name'=>'recent_update'
+        );
+        $rs = $modx->db->select(
+            'setting_name,setting_value'
+            , '[+prefix+]system_settings'
+            , "setting_name='recent_update'"
+        );
+        if($modx->db->getRecordCount($rs)) {
+            $modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
+        } else {
+            $modx->db->insert($f, '[+prefix+]system_settings');
+        }
+        return $recent_update;
+    }
+
     public function publishBasicConfig() {
         global $modx,$site_sessionname;
 
-        $cacheRefreshTime = $this->getCacheRefreshTime();
-        
-        $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
-        while($row = $modx->db->getRow($rs)) {
-            $name  = $row['setting_name'];
-            $value = $row['setting_value'];
-            $setting[$name] = $value;
-        }
-        
-        // write the file
+        $this->recent_update();
+        $config = $this->_get_settings();
+
         $content = array();
         $content[] = '<?php';
-        $recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
         $content[] = sprintf(
             '$recent_update = %s; // %s' ,
-            $recent_update,
-            date('Y-m-d H:i:s',$recent_update)
+            $modx->conf_var('recent_update'),
+            date('Y-m-d H:i:s',$modx->conf_var('recent_update'))
         );
+
+        $cacheRefreshTime = $this->getCacheRefreshTime();
         $content[] = sprintf(
             '$cacheRefreshTime = %s; // %s'
             , $cacheRefreshTime
@@ -189,7 +207,7 @@ class synccache {
         );
         $content[] = sprintf(
             '$cache_type = %s;'
-            , $setting['cache_type']
+            , $modx->conf_var('cache_type',1)
         );
         if(isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
@@ -200,46 +218,36 @@ class synccache {
         
         $content[] = sprintf(
             '$site_status = %s;'
-            , $setting['site_status']
+            , $modx->conf_var('site_status',1)
         );
         $content[] = sprintf(
             '$error_reporting = "%s";'
-            , $setting['error_reporting']
+            , $modx->conf_var('error_reporting',1)
         );
         
-        if($modx->array_get($setting,'site_url') && strpos($setting['site_url'],'[(')===false) {
+        if($modx->array_get($config,'site_url') && strpos($modx->array_get($config,'site_url'),'[(')===false) {
             $content[] = sprintf(
                 '$site_url = "%s";'
-                , $setting['site_url']
+                , $modx->array_get($config,'site_url')
             );
         }
         
-        if($modx->array_get($setting,'base_url') && strpos($setting['base_url'],'[(')===false) {
+        if($modx->array_get($config,'base_url') && strpos($modx->array_get($config,'base_url'),'[(')===false) {
             $content[] = sprintf(
                 '$base_url = "%s";'
-                , $setting['base_url']
+                , $modx->array_get($config,'base_url')
             );
         }
         
-        if($modx->array_get($setting,'conditional_get')) {
+        if($modx->conf_var('conditional_get')) {
             $content[] = sprintf(
                 '$conditional_get = "%s";'
-                , $setting['conditional_get']
+                , $modx->conf_var('conditional_get')
             );
         }
 
         if (!$modx->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
-        }
-        
-        $f = array(
-            'setting_value'=>$recent_update,
-            'setting_name'=>'recent_update'
-        );
-        if(isset($setting['recent_update'])) {
-            $modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
-        } else {
-            $modx->db->insert($f, '[+prefix+]system_settings');
         }
     }
     
@@ -341,14 +349,11 @@ class synccache {
             $this->cache_put_contents('documentMap.siteCache.idx.php', $modx->documentMap);
         }
         $this->cache_put_contents('chunk.siteCache.idx.php', $this->_get_chunks());
-        $this->_get_snippets(); // WRITE snippets to cache file
-        $this->cache_put_contents('snippet.siteCache.idx.php', $modx->snippetCache);
-        $this->_get_plugins();  // WRITE plugins to cache file
-        $this->cache_put_contents('plugin.siteCache.idx.php', $modx->pluginCache);
-        
-        if(!is_file($this->cachePath . '.htaccess')) {
-            $modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
-        }
+        $this->cache_put_contents('snippet.siteCache.idx.php', $this->_get_snippets());
+        $this->cache_put_contents('plugin.siteCache.idx.php', $this->_get_plugins());
+
+        $modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
+
         // invoke OnCacheUpdate event
         $modx->invokeEvent('OnCacheUpdate');
         
@@ -403,6 +408,10 @@ class synccache {
 
     private function _get_settings() {
         global $modx;
+        static $config = null;
+        if($config) {
+            return $config;
+        }
 
         $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
         $config = array();
