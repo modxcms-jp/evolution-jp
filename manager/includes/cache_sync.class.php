@@ -565,9 +565,7 @@ class synccache {
             } elseif (is_dir($obj))  {
                 $list[] = $obj;
                 $_ = $this->getFileList($obj, $pattern);
-                foreach ($_ as $k=>$v) {
-                    $list[$k] = $v;
-                }
+                $list = array_merge($list, $_);
             }
         }
         return $list;
