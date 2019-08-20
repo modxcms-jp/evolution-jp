@@ -338,7 +338,7 @@ switch ($_POST['mode']) {
 				webAlert("An error occurred while attempting to delete previous user_groups entries.");
 				exit;
 			}
-			if (user_groups) {
+			if ($user_groups) {
 				for ($i = 0, $iMax = count($user_groups); $i < $iMax; $i++) {
 					$sql = "INSERT INTO $tbl_web_groups (webgroup, webuser) VALUES('" . (int)$user_groups[$i] . "', '$id')";
 					$rs = $modx->db->query($sql);
