@@ -1,6 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-
+global $_style;
 switch((int) $_REQUEST['a']) {
     case 12:
         if (!$modx->hasPermission('edit_user')) {
@@ -19,7 +19,7 @@ switch((int) $_REQUEST['a']) {
         $e->dumpError();
 }
 
-$userid = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$userid = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : 0;
 
 // check to see the snippet editor isn't locked
 $rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='12' AND id='{$userid}'");
@@ -101,8 +101,8 @@ if ($modx->manager->hasFormValues()) {
 // include the country list language file
 $_country_lang = array();
 include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
-if($manager_language!="english" && is_file(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php")){
-    include_once(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php");
+if($modx->config['manager_language']!="english" && is_file(MODX_CORE_PATH . "lang/country/{$modx->config['manager_language']}_country.inc.php")){
+    include_once(MODX_CORE_PATH . "lang/country/{$modx->config['manager_language']}_country.inc.php");
 }
 
 $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
@@ -225,11 +225,12 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                 if ($_REQUEST['a'] == '12' && $modx->getLoginUserID()!= $userid)
                 {
                     $params = array('onclick'=>'deleteuser();','icon'=>$_style['icons_delete_document'],'label'=>$_lang['delete']);
-                    if($modx->hasPermission('delete_user'))
+                    if($modx->hasPermission('delete_user')) {
                         echo $modx->manager->ab($params);
+                    }
                 }
-                $params = array('onclick'=>"document.location.href='index.php?a=75';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
-                echo $modx->manager->ab($params);
+                $params2 = array('onclick'=>"document.location.href='index.php?a=75';",'icon'=>$_style['icons_cancel'],'label'=>$_lang['cancel']);
+                echo $modx->manager->ab($params2);
                 ?>
             </ul>
         </div>
@@ -396,7 +397,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                             <th><?php echo $_lang['user_dob']; ?>:</th>
                             <td>
                                 <input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo ($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],'dateOnly'):""); ?>" onblur="documentDirty=true;">
-                                <a onclick="document.userform.dob.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif"  border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
+                                <a onclick="document.userform.dob.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif"  border="0" alt="<?php echo $_lang['remove_date']; ?>"></a>
                             </td>
                         </tr>
                         <tr>
@@ -464,7 +465,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                             <?php
                             if(!empty($userdata['lastlogin']))
                             {
-                                $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$server_offset_time);
+                                $lastlogin = $modx->toDateFormat($userdata['lastlogin']+$modx->config['server_offset_time']);
                             }
                             else $lastlogin = '-';
                             ?>
@@ -486,14 +487,14 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                                 <th><?php echo $_lang['user_blockedafter']; ?>:</th>
                                 <td>
                                     <input type="text" id="blockedafter" name="blockedafter" class="DatePicker" value="<?php echo ($userdata['blockedafter'] ? $modx->toDateFormat($userdata['blockedafter']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
-                                    <a onclick="document.userform.blockedafter.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
+                                    <a onclick="document.userform.blockedafter.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
                                 </td>
                             </tr>
                             <tr>
                                 <th><?php echo $_lang['user_blockeduntil']; ?>:</th>
                                 <td>
                                     <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo ($userdata['blockeduntil'] ? $modx->toDateFormat($userdata['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
-                                    <a onclick="document.userform.blockeduntil.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
+                                    <a onclick="document.userform.blockeduntil.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif" border="0" alt="<?php echo $_lang['remove_date']; ?>" /></a>
                                 </td>
                             </tr>
                         <?php endif;?>
@@ -546,7 +547,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                         <tr>
                             <th><?php echo $_lang["a17_manager_inline_style_title"]?></th>
                             <td>
-                                <textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br />
+                                <textarea name="manager_inline_style" id="manager_inline_style" style="width:95%; height: 9em;"><?php echo $modx->config['manager_inline_style']; ?></textarea><br />
                                 &nbsp;&nbsp; <label><input type="checkbox" name="default_manager_inline_style" value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked' ; ?>  /> <?php echo $_lang["user_use_config"]; ?></label>
                                 <div><?php echo $_lang["a17_manager_inline_style_message"];?></div>
                             </td>
@@ -582,7 +583,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                                 <div><?php echo $_lang["language_message"]; ?></div>
                             </td>
                         </tr>
-                        <tr id='editorRow0' style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+                        <tr id='editorRow0' style="display: <?php echo $modx->config['use_editor']==1 ? $displayStyle : 'none' ; ?>">
                             <th><?php echo $_lang["which_editor_title"]?></th>
                             <td>
                                 <select name="which_editor" class="inputBox">
@@ -593,9 +594,8 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                                     $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
                                     echo "<option value='none'" . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
                                     if (is_array($evtOut))
-                                        for ($i = 0; $i < count($evtOut); $i++)
-                                        {
-                                            $editor = $evtOut[$i];
+                                        foreach ($evtOut as $iValue) {
+                                            $editor = $iValue;
                                             echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
                                         }
                                     ?>
@@ -603,7 +603,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                                 <div><?php echo $_lang["which_editor_message"]?></div>
                             </td>
                         </tr>
-                        <tr id='editorRow14' class="row3" style="display: <?php echo $use_editor==1 ? $displayStyle : 'none' ; ?>">
+                        <tr id='editorRow14' class="row3" style="display: <?php echo $modx->config['use_editor']==1 ? $displayStyle : 'none' ; ?>">
                             <th><?php echo $_lang["editor_css_path_title"]?></th>
                             <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path" value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ; ?>" />
                                 <div><?php echo $_lang["editor_css_path_message"]?></div>
@@ -670,13 +670,13 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
                                 <div><?php echo sprintf($_lang["upload_maxsize_message"],$modx->manager->getUploadMaxsize())?></div>
                             </td>
                         </tr>
-                        <tr id='rbRow1' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+                        <tr id='rbRow1' class='row3' style="display: <?php echo $modx->config['use_browser']==1 ? $displayStyle : 'none' ; ?>">
                             <th><?php echo $_lang["rb_base_dir_title"]?></th>
                             <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_dir" value="<?php echo isset($usersettings["rb_base_dir"]) ? $usersettings["rb_base_dir"]:""; ?>" />
                                 <div><?php echo $_lang["rb_base_dir_message"]?></div>
                             </td>
                         </tr>
-                        <tr id='rbRow4' class='row3' style="display: <?php echo $use_browser==1 ? $displayStyle : 'none' ; ?>">
+                        <tr id='rbRow4' class='row3' style="display: <?php echo $modx->config['use_browser']==1 ? $displayStyle : 'none' ; ?>">
                             <th><?php echo $_lang["rb_base_url_title"]?></th>
                             <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_url" value="<?php echo isset($usersettings["rb_base_url"]) ? $usersettings["rb_base_url"]:""; ?>" />
                                 <div><?php echo $_lang["rb_base_url_message"]?></div>
