@@ -6,7 +6,7 @@ if(!$modx->hasPermission('edit_user')) {
     $e->dumpError();
 }
 
-global $_PAGE;
+global $_PAGE, $_style;
 $modx->manager->initPageViewState();
 // get and save search string
 if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset')
@@ -31,7 +31,6 @@ $cm = new ContextMenu('cntxm', 150);
 $cm->addItem($_lang['edit'],   'js:menuAction(1)', $_style['icons_edit_document'],(!$modx->hasPermission('edit_user') ? 1:0));
 $cm->addItem($_lang['delete'], 'js:menuAction(2)', $_style['icons_delete'] ,(!$modx->hasPermission('delete_user') ? 1:0));
 echo $cm->render();
-
 ?>
 <script language="JavaScript" type="text/javascript">
     function searchResource(){
@@ -70,7 +69,7 @@ echo $cm->render();
                 window.location.href='index.php?a=12&id='+id;
                 break;
             case 2:		// delete
-                if(confirm("<?php echo $_lang['confirm_delete_user']; ?>")==true) {
+                if(confirm("<?php echo $_lang['confirm_delete_user']; ?>")) {
                     window.location.href='index.php?a=33&id='+id;
                 }
                 break;
@@ -125,24 +124,17 @@ echo $cm->render();
             $from  = "{$tbl_manager_users} AS mu";
             $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
             $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
-            if ($_SESSION['mgrRole'] != 1)
-            {
-                if(!empty($keyword))
-                {
+            if ($_SESSION['mgrRole'] == 1) {
+                if ($keyword) {
+                    $where = "(mu.username LIKE '" . $keyword . "%') OR (mua.fullname LIKE '%" . $keyword . "%') OR (mua.email LIKE '" . $keyword . "%')";
+                } else $where = '';
+            }
+            else {
+                if ($keyword) {
                     $where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) AND mua.role != 1";
-                }
-                else
-                {
+                } else {
                     $where = 'mua.role != 1';
                 }
-            }
-            else
-            {
-                if(!empty($keyword))
-                {
-                    $where = "(mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')";
-                }
-                else $where = '';
             }
             $orderby = 'mua.blocked ASC, mua.thislogin DESC';
             $ds = $modx->db->select($field,$from,$where,$orderby);
