@@ -62,23 +62,13 @@ if (!verifyPermission()) {
 switch ($mode) {
     case '11' : // new user
         // check if this user name already exist
-        $rs = $modx->db->select(
-            'id'
-            , '[+prefix+]manager_users'
-            , sprintf("username='%s'", $modx->db->escape($newusername))
-        );
-        if ($modx->db->getRecordCount($rs)) {
+        if (userid_byname($newusername)) {
             webAlert('User name is already in use!');
             exit;
         }
 
         // check if the email address already exist
-        $rs = $modx->db->select(
-                'id'
-                , '[+prefix+]user_attributes'
-                , sprintf("email='%s'", $email)
-        );
-        if ($modx->db->getRecordCount($rs)) {
+        if (userid_byemail($email)) {
             webAlert('Email is already in use!');
             exit;
         }
@@ -150,7 +140,6 @@ switch ($mode) {
         );
         $modx->invokeEvent('OnUserFormSave', $tmp);
 
-        /*******************************************************************************/
         // put the user in the user_groups he/ she should be in
         // first, check that up_perms are switched on!
         if ($modx->config['use_udperms'] == 1) {
@@ -224,20 +213,22 @@ switch ($mode) {
 
     case '12' : // edit user
     case '74' : // edit user profile
-        if ($modx->session_var('mgrRole') != 1) {
-            $rs = $modx->db->select('role','[+prefix+]user_attributes', "internalKey='" . $modx->input_post('id') . "'");
-            if ($modx->db->getRecordCount($rs)) {
-                $row = $modx->db->getRow($rs);
-                if ($row['role'] == 1) {
-                    webAlert('You cannot alter an administrative user.');
-                    exit;
-                }
-            }
+        // check if the username already exist
+        if (userid_byname($newusername) != $id) {
+            webAlert('User name is already in use!');
+            exit;
         }
+
+        // check if the email address already exists
+        if (userid_byemail($email) != $id) {
+            webAlert('Email is already in use!');
+            exit;
+        }
+
         // generate a new password for this user
         if ($genpassword == 1) {
-            if ($specifiedpassword != '' && $passwordgenmethod === "spec") {
-                if(!$specifiedpassword) {
+            if ($passwordgenmethod === 'spec') {
+                if (!$specifiedpassword) {
                     webAlert("You didn't specify a password for this user!");
                     exit;
                 }
@@ -246,43 +237,18 @@ switch ($mode) {
                     exit;
                 }
                 $newpassword = $specifiedpassword;
-            } elseif ($passwordgenmethod == 'g') {
+            } elseif ($passwordgenmethod === 'g') {
                 $newpassword = generate_password(8);
             } else {
                 webAlert('No password generation method specified!');
                 exit;
             }
-            $hashed_password = $modx->phpass->HashPassword($newpassword);
         }
 
-        // check if the username already exist
-        $rs = $modx->db->select(
-            'id'
-            , '[+prefix+]manager_users'
-            , sprintf("username='%s'", $modx->db->escape($newusername))
-        );
-        if ($modx->db->getRecordCount($rs)) {
-            $row = $modx->db->getRow($rs);
-            if ($row['id'] != $id) {
-                webAlert('User name is already in use!');
-                exit;
-            }
-        }
-
-        // check if the email address already exists
-        $rs = $modx->db->select('internalKey','[+prefix+]user_attributes', "email='" . $email . "'");
-        if (!$rs) {
-            webAlert(sprintf('An error occurred while attempting to retrieve all users with email %s.', $email));
+        if ($modx->session_var('mgrRole') != 1 && role_byuserid($modx->input_post('id')) == 1) {
+            webAlert('You cannot alter an administrative user.');
             exit;
         }
-        if ($modx->db->getRecordCount($rs)) {
-            $row = $modx->db->getRow($rs);
-            if ($row['internalKey'] != $id) {
-                webAlert('Email is already in use!');
-                exit;
-            }
-        }
-
         // invoke OnBeforeUserFormSave event
         $tmp = array (
             'mode' => 'upd',
@@ -293,7 +259,7 @@ switch ($mode) {
         // update user name and password
         $field = array('username'=>$modx->db->escape($newusername));
         if($genpassword==1) {
-            $field['password'] = $hashed_password;
+            $field['password'] = $modx->phpass->HashPassword($newpassword);
         }
         $rs = $modx->db->update($field,'[+prefix+]manager_users', sprintf("id='%s'", $id));
         if (!$rs) {
@@ -346,7 +312,6 @@ switch ($mode) {
         );
         $modx->invokeEvent('OnUserFormSave', $tmp);
         $modx->clearCache();
-        /*******************************************************************************/
         // put the user in the user_groups he/ she should be in
         // first, check that up_perms are switched on!
         if ($modx->config['use_udperms'] == 1) {
@@ -369,7 +334,6 @@ switch ($mode) {
             }
         }
         // end of user_groups stuff!
-        /*******************************************************************************/
         if ($id == $modx->getLoginUserID() && ($genpassword !==1 && $passwordnotifymethod !='s')) {
             ?>
             <body bgcolor='#efefef'>
@@ -589,4 +553,41 @@ function verifyPermission() {
         return false;
     }
     return true;
+}
+
+function userid_byname($newusername) {
+    global $modx;
+    $rs = $modx->db->select(
+        'id'
+        , '[+prefix+]manager_users'
+        , sprintf("username='%s'", $modx->db->escape($newusername))
+    );
+    if (!$modx->db->getRecordCount($rs)) {
+        return false;
+    }
+    return $modx->db->getValue($rs);
+}
+function userid_byemail($email){
+    global $modx;
+    $rs = $modx->db->select(
+        'internalKey'
+        , '[+prefix+]user_attributes'
+        , sprintf("email='%s'", $email)
+    );
+    if (!$modx->db->getRecordCount($rs)) {
+        return false;
+    }
+    return $modx->db->getValue($rs);
+}
+function role_byuserid($userid){
+    global $modx;
+    $rs = $modx->db->select(
+        'role'
+        , '[+prefix+]user_attributes'
+        , sprintf('internalKey=%s', $userid)
+    );
+    if (!$modx->db->getRecordCount($rs)) {
+        return false;
+    }
+    return $modx->db->getValue($rs);
 }
