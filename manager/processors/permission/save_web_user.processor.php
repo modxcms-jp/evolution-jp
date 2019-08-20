@@ -103,7 +103,7 @@ switch ($_POST['mode']) {
         // invoke OnBeforeWUsrFormSave event
         $tmp = array (
             'mode' => 'new',
-            'id'   => false
+            'id'   => null
         );
         $modx->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
