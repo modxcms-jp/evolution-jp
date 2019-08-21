@@ -8,6 +8,7 @@ if (!$modx->hasPermission('save_user')) {
 global $_style;
 
 $modx->loadExtension('phpass');
+include(__DIR__ . '/save_user.functions.php');
 
 if(isset($_POST['userid']) && preg_match('@^[0-9]+$@',$_POST['userid'])) {
     $id = $_POST['userid'];
@@ -55,7 +56,7 @@ if ($email == '' || !preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", 
 // verify admin security
 if (!verifyPermission()) {
     // Check to see if user tried to spoof a "1" (admin) role
-    webAlert("Illegal attempt to create/modify administrator by non-administrator!");
+    webAlert('Illegal attempt to create/modify administrator by non-administrator!');
     exit;
 }
 
@@ -160,27 +161,19 @@ switch ($mode) {
         }
         // end of user_groups stuff!
 
-        if ($passwordnotifymethod === 'e') {
-            sendMailMessage($email, $newusername, $newpassword, $fullname);
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? $mode . "&id=" . $internalKey : "11";
-                $header = "Location: index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
-            } elseif($mode==='74') {
-                $header = "Location: index.php?r=3&a=2";
-            } else {
-                $header = "Location: index.php?r=3&a=75";
+        if ($_POST['stay'] != '') {
+            $stayUrl = 'index.php?r=3&a=11&stay=' . $_POST['stay'];
+            if ($_POST['stay'] == '2') {
+                $stayUrl .= '&id=' . $internalKey;
             }
-            header($header);
-            exit;
+        } else {
+            $stayUrl = 'index.php?r=3&a=75';
         }
 
-        if ($_POST['stay'] != '') {
-            $a = ($_POST['stay'] == '2') ? $mode . "&id=" . $internalKey : "11";
-            $stayUrl = "index.php?r=3&a=" . $a . "&stay=" . $_POST['stay'];
-        } elseif($mode==='74') {
-            $stayUrl = "index.php?r=3&a=2";
-        } else {
-            $stayUrl = "index.php?r=3&a=75";
+        if ($passwordnotifymethod === 'e') {
+            sendMailMessage($email, $newusername, $newpassword, $fullname);
+            header('Location: ' . $stayUrl);
+            exit;
         }
 
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
@@ -249,6 +242,7 @@ switch ($mode) {
             webAlert('You cannot alter an administrative user.');
             exit;
         }
+
         // invoke OnBeforeUserFormSave event
         $tmp = array (
             'mode' => 'upd',
@@ -298,8 +292,8 @@ switch ($mode) {
                 'username' => $newusername,
                 'userpassword' => $newpassword
             );
+            $modx->invokeEvent('OnManagerChangePassword', $tmp);
         }
-        $modx->invokeEvent('OnManagerChangePassword', $tmp);
 
         if ($passwordnotifymethod === 'e' && $genpassword == 1) {
             sendMailMessage($email, $newusername, $newpassword, $fullname);
@@ -316,7 +310,7 @@ switch ($mode) {
         // first, check that up_perms are switched on!
         if ($modx->config['use_udperms'] == 1) {
             // as this is an existing user, delete his/ her entries in the groups before saving the new groups
-            $rs = $modx->db->delete('[+prefix+]member_groups', "member='" . $id . "'");
+            $rs = $modx->db->delete($modx->getFullTableName('member_groups'), sprintf("member='%s'", $id));
             if (!$rs) {
                 webAlert('An error occurred while attempting to delete previous user_groups entries.');
                 exit;
@@ -325,16 +319,19 @@ switch ($mode) {
             if ($user_groups){
                 foreach ($user_groups as $user_group){
                     $user_group = (int)$user_group;
-                    $rs = $modx->db->insert(array('user_group'=>$user_group,'member'=>$id),'[+prefix+]member_groups');
+                    $rs = $modx->db->insert(
+                            array('user_group'=>$user_group,'member'=>$id)
+                            , '[+prefix+]member_groups'
+                    );
                     if (!$rs) {
-                        webAlert("An error occurred while attempting to add the user to a user_group.");
+                        webAlert('An error occurred while attempting to add the user to a user_group.');
                         exit;
                     }
                 }
             }
         }
         // end of user_groups stuff!
-        if ($id == $modx->getLoginUserID() && ($genpassword !==1 && $passwordnotifymethod !='s')) {
+        if ($id == $modx->getLoginUserID() && $genpassword !==1 && $passwordnotifymethod !='s') {
             ?>
             <body bgcolor='#efefef'>
             <script language="JavaScript">
@@ -351,243 +348,58 @@ switch ($mode) {
             $modx->webAlertAndQuit($_lang['save_user.processor.php1'],'index.php?a=75');
             exit;
         }
-        if ($genpassword == 1 && $passwordnotifymethod == 's') {
+        if ($genpassword != 1 || $passwordnotifymethod != 's') {
             if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? $mode . "&id=" . $id : "11";
-                $stayUrl = "index.php?a=" . $a . "&stay=" . $_POST['stay'];
+                if ($_POST['stay'] == '2') {
+                    $url = sprintf('index.php?a=%s&id=%s', $mode, $id);
+                } else {
+                    $url = 'index.php?a=11';
+                }
+                $url .= sprintf('&r=3&stay=%s', $_POST['stay']);
+            } elseif ($mode === '74') {
+                $url = 'index.php?r=3&a=2';
             } else {
-                $stayUrl = "index.php?a=75";
+                $url = 'index.php?a=75&r=3';
             }
-
-            include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            ?>
-            <h1><?php echo $_lang['user_title']; ?></h1>
-
-            <div id="actions">
-                <ul class="actionButtons">
-                    <li class="mutate"><a href="<?php echo ($id == $modx->getLoginUserID()) ? 'index.php?a=8' : $stayUrl; ?>"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo ($id == $modx->getLoginUserID()) ? $_lang['logout'] : $_lang['close']; ?></a></li>
-                </ul>
-            </div>
-
-            <div class="section">
-                <div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
-                <div class="sectionBody">
-                    <div id="disp">
-                        <p>
-                            <?php echo sprintf($_lang["password_msg"], $newusername, $newpassword).(($id == $modx->getLoginUserID()) ? ' '.$_lang['user_changeddata'] : ''); ?>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <?php
-
-            include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        } else {
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? $mode . "&id=" . $id : "11";
-                $header = "Location: index.php?a=" . $a . "&r=3&stay=" . $_POST['stay'];
-            } elseif($mode==='74') {
-                $header = "Location: index.php?r=3&a=2";
-            } else {
-                $header = "Location: index.php?a=75&r=3";
-            }
-            header($header);
+            header('Location: ' . $url);
+            exit;
         }
+
+        if ($_POST['stay'] != '') {
+            $a = ($_POST['stay'] == '2') ? $mode . '&id=' . $id : '11';
+            $stayUrl = 'index.php?a=' . $a . '&stay=' . $_POST['stay'];
+        } else {
+            $stayUrl = 'index.php?a=75';
+        }
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
+    ?>
+    <h1><?php echo $_lang['user_title']; ?></h1>
+
+    <div id="actions">
+        <ul class="actionButtons">
+            <li class="mutate"><a
+                        href="<?php echo ($id == $modx->getLoginUserID()) ? 'index.php?a=8' : $stayUrl; ?>"><img
+                            src="<?php echo $_style["icons_save"] ?>"/> <?php echo ($id == $modx->getLoginUserID()) ? $_lang['logout'] : $_lang['close']; ?>
+                        </a></li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <div class="sectionHeader"><?php echo $_lang['user_title']; ?></div>
+        <div class="sectionBody">
+            <div id="disp">
+                <p>
+                    <?php echo sprintf($_lang["password_msg"], $newusername, $newpassword) . (($id == $modx->getLoginUserID()) ? ' ' . $_lang['user_changeddata'] : ''); ?>
+                        </p>
+            </div>
+        </div>
+    </div>
+<?php
+
+        include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         break;
     default :
         webAlert('Unauthorized access');
         exit;
 }
 
-// Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn)
-{
-    global $modx,$_lang;
-    $ph['username'] = $uid;
-    $ph['uid']      = $uid;
-    $ph['password'] = $pwd;
-    $ph['pwd']      = $pwd;
-    $ph['fullname'] = $ufn;
-    $ph['ufn']      = $ufn;
-    $site_name      = $modx->config['site_name'];
-    $ph['site_name'] = $site_name;
-    $ph['sname']    = $site_name;
-    $admin_email    = $modx->config['emailsender'];
-    $ph['manager_email'] = $admin_email;
-    $ph['saddr']    = $admin_email;
-    $ph['semail']   = $admin_email;
-    $site_url       = $modx->config['site_url'];
-    $ph['site_url'] = $site_url;
-    $ph['surl']     = $site_url . 'manager/';
-    $message = $modx->parseText($modx->config['signupemail_message'],$ph);
-    $message = $modx->mergeSettingsContent($message);
-
-    $rs = $modx->sendmail($email,$message);
-    if ($rs === false) //ignore mail errors in this cas
-    {
-        webAlert($email . " - " . $_lang['error_sending_email']);
-        exit;
-    }
-}
-
-// Save User Settings
-function saveUserSettings($id)
-{
-    global $modx;
-
-    // array of post values to ignore in this function
-    $ignore = array(
-        'id',
-        'oldusername',
-        'oldemail',
-        'newusername',
-        'fullname',
-        'newpassword',
-        'newpasswordcheck',
-        'passwordgenmethod',
-        'passwordnotifymethod',
-        'specifiedpassword',
-        'confirmpassword',
-        'email',
-        'phone',
-        'mobilephone',
-        'fax',
-        'dob',
-        'country',
-        'street',
-        'city',
-        'state',
-        'zip',
-        'gender',
-        'photo',
-        'comment',
-        'role',
-        'failedlogincount',
-        'blocked',
-        'blockeduntil',
-        'blockedafter',
-        'user_groups',
-        'mode',
-        'blockedmode',
-        'stay',
-        'save',
-        'theme_refresher',
-        'userid'
-    );
-
-    // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
-    $defaults = array(
-        'manager_inline_style',
-        'upload_images',
-        'upload_media',
-        'upload_flash',
-        'upload_files'
-    );
-
-    // get user setting field names
-    $settings= array ();
-    foreach ($_POST as $n => $v)
-    {
-        if(is_array($v)) $v = implode(',', $v);
-        if(in_array($n, $ignore) || (!in_array($n, $defaults) && trim($v) == '')) continue; // ignore blacklist and empties
-
-        $settings[$n] = $v; // this value should be saved
-    }
-    foreach ($defaults as $k)
-    {
-        if (isset($settings['default_' . $k]) && $settings['default_' . $k] == '1')
-        {
-            unset($settings[$k]);
-        }
-        unset($settings['default_' . $k]);
-    }
-
-    $modx->db->delete($modx->getFullTableName('user_settings'), "user='" . $id . "'");
-    $savethese = array();
-    foreach ($settings as $k => $v)
-    {
-        $v = $modx->db->escape($v);
-        $savethese[] = "(" . $id . ", '" . $k . "', '" . $v . "')";
-    }
-    if(empty($savethese)) return;
-    $values = implode(', ', $savethese);
-    $sql = sprintf(
-            'INSERT INTO %s (user, setting_name, setting_value) VALUES %s'
-            , $modx->getFullTableName('user_settings')
-            , $values
-    );
-    $rs = $modx->db->query($sql);
-    if (!$rs) {
-        exit('Failed to update user settings!');
-    }
-    unset($_SESSION['openedArray']);
-}
-
-// Web alert -  sends an alert to web browser
-function webAlert($msg) {
-    global $id, $modx;
-    $mode = $_POST['mode'];
-    $url = 'index.php?a=' . $mode . ($mode == '12' ? "&id=" . $id : '');
-    $modx->manager->saveFormValues($mode);
-    $modx->webAlertAndQuit($msg, $url);
-}
-
-// Generate password
-function generate_password($length = 10) {
-    return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
-}
-
-function verifyPermission() {
-    global $modx;
-    if($_SESSION['mgrRole']==1) {
-        return true;
-    }
-    if($modx->input_post('role')!=1) {
-        return true;
-    }
-    if(!$modx->hasPermission('edit_role')
-        || !$modx->hasPermission('save_role')
-        || !$modx->hasPermission('delete_role')
-        || !$modx->hasPermission('new_role')
-    ) {
-        return false;
-    }
-    return true;
-}
-
-function userid_byname($newusername) {
-    global $modx;
-    $rs = $modx->db->select(
-        'id'
-        , '[+prefix+]manager_users'
-        , sprintf("username='%s'", $modx->db->escape($newusername))
-    );
-    if (!$modx->db->getRecordCount($rs)) {
-        return false;
-    }
-    return $modx->db->getValue($rs);
-}
-function userid_byemail($email){
-    global $modx;
-    $rs = $modx->db->select(
-        'internalKey'
-        , '[+prefix+]user_attributes'
-        , sprintf("email='%s'", $email)
-    );
-    if (!$modx->db->getRecordCount($rs)) {
-        return false;
-    }
-    return $modx->db->getValue($rs);
-}
-function role_byuserid($userid){
-    global $modx;
-    $rs = $modx->db->select(
-        'role'
-        , '[+prefix+]user_attributes'
-        , sprintf('internalKey=%s', $userid)
-    );
-    if (!$modx->db->getRecordCount($rs)) {
-        return false;
-    }
-    return $modx->db->getValue($rs);
-}
