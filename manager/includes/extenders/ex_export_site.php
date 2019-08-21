@@ -303,7 +303,7 @@ class EXPORT_SITE
         $result = curl_exec($ch);
         if(!$result) {
     		$i = 0;
-    		while($i<3)
+    		while($i<2)
         	{
                 usleep(300000);
         		$result = curl_exec($ch);
