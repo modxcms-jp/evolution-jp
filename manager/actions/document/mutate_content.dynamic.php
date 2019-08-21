@@ -190,7 +190,7 @@ if ($modx->config['use_udperms'] == 1)
             ||
             $_SESSION['mgrPermissions']['web_access_permissions'] == 1
         )
-        ) {
+    ) {
         echo '<p>' . $_lang["access_permissions_docs_collision"] . '</p>';
     }
 }
