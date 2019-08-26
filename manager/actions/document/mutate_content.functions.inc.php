@@ -127,60 +127,87 @@ function fieldIntrotext() {
 }
 
 function fieldTemplate() {
-    global $_lang;
-    $body = '<select id="template" name="template" class="inputBox" style="width:308px">';
-    $body .= '<option value="0">(blank)</option>';
-    $body .= get_template_options();
-    $body .= '</select>' . tooltip($_lang['page_data_template_help']);
-    return renderTr($_lang['page_data_template'],$body);
+    return renderTr(
+        lang('page_data_template')
+        , select_tag(
+            array(
+                'id'   => 'template',
+                'name' => 'template',
+                'style'=> 'width:308px'
+            )
+            , get_template_options()
+        )
+        . tooltip(lang('page_data_template_help'))
+    );
 }
 
 function fieldMenutitle() {
-    global $modx,$docObject,$_lang;
-    $body = input_text('menutitle',$modx->hsc($docObject['menutitle'])) . tooltip($_lang['resource_opt_menu_title_help']);
-    return renderTr($_lang['resource_opt_menu_title'],$body);
+    return renderTr(
+        lang('resource_opt_menu_title')
+        , input_text_tag(
+            array(
+                'name' => 'menutitle',
+                doc('menutitle|hsc')
+            )
+        )
+        . tooltip(lang('resource_opt_menu_title_help'))
+    );
 }
 
 function fieldMenuindex() {
-    global $_lang;
-    $body = menuindex();
-    return renderTr($_lang['resource_opt_menu_index'],$body);
+    return renderTr(
+        lang('resource_opt_menu_index')
+        , menuindex()
+    );
 }
 
 function fieldParent() {
-    global $docObject, $_lang;
-
-    $parentname = getParentName($docObject['parent']);
-    $body = getParentForm($parentname);
-    return renderTr($_lang['resource_parent'],$body);
+    return renderTr(
+        lang('resource_parent')
+        , getParentForm(
+            getParentName(
+                doc('parent')
+            )
+        )
+    );
 }
 
 function getTmplvars($docid,$template,$docgrp) {
     global $modx;
 
-    $session_mgrRole = $_SESSION['mgrRole'];
-    $where_docgrp = empty($docgrp) ? '' : " OR tva.documentgroup IN ({$docgrp})";
-
-    if(empty($template)) return array();
-
-    $fields = "DISTINCT tv.*, tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-    $from = "
-		[+prefix+]site_tmplvars                         AS tv 
-		INNER JOIN [+prefix+]site_tmplvar_templates     AS tvtpl ON tvtpl.tmplvarid = tv.id 
-		LEFT  JOIN [+prefix+]site_tmplvar_contentvalues AS tvc   ON tvc.tmplvarid   = tv.id AND tvc.contentid='{$docid}'
-		LEFT  JOIN [+prefix+]site_tmplvar_access        AS tva   ON tva.tmplvarid   = tv.id
-		";
-    $where = "tvtpl.templateid='{$template}' AND (1='{$session_mgrRole}' OR ISNULL(tva.documentgroup) {$where_docgrp})";
-
-    $rs = $modx->db->select($fields,$from,$where,'tvtpl.rank,tv.rank, tv.id');
-    if(0<$modx->db->getRecordCount($rs))
-    {
-        while($row = $modx->db->getRow($rs))
-        {
-            $tmplVars[$row['name']] = $row;
-        }
+    if(!$template) {
+        return array();
     }
-    else $tmplVars = array();
+
+    $rs = $modx->db->select(
+        array(
+            'DISTINCT tv.*',
+            'value' => "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
+        )
+        , array(
+            '[+prefix+]site_tmplvars AS tv',
+            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
+            sprintf(
+                "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
+                , $docid
+            ),
+            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+        )
+        , sprintf(
+            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
+            , $template
+            , $_SESSION['mgrRole']
+            , $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
+        )
+        , 'tvtpl.rank,tv.rank, tv.id'
+    );
+
+    if(!$modx->db->getRecordCount($rs)) {
+        return array();
+    }
+    while ($row = $modx->db->getRow($rs)) {
+        $tmplVars[$row['name']] = $row;
+    }
     return $tmplVars;
 }
 
@@ -274,10 +301,11 @@ function sectionContent() {
     if ($modx->config['use_editor'] == 1 && $docObject['richtext'] == 1) {
         // invoke OnRichTextEditorRegister event
         $editors = $modx->invokeEvent('OnRichTextEditorRegister');
-        if(!empty($editors))
-            $ph['body'] = rteContent($htmlcontent,$editors);
-        else
+        if($editors) {
+            $ph['body'] = rteContent($htmlcontent, $editors);
+        } else {
             $ph['body'] = $planetpl;
+        }
         $rte_field = array('ta');
     } else {
         $ph['body'] = $planetpl;
@@ -626,39 +654,41 @@ function getGroups($docid) {
     return $groupsarray;
 }
 
-function getUDGroups($id) {
-    global $modx,$_lang,$docObject,$permissions_yes, $permissions_no;
+function getUDGroups($id)
+{
+    global $modx, $docObject, $permissions_yes, $permissions_no;
 
     $form_v = $_POST;
     $groupsarray = array();
 
-    if($modx->manager->action == 27) $docid = $id;
-    elseif(!empty($_REQUEST['pid'])) $docid = $_REQUEST['pid'];
-    else                             $docid = $docObject['parent'];
+    if ($modx->manager->action == 27) {
+        $docid = $id;
+    } elseif (!empty($_REQUEST['pid'])) {
+        $docid = $_REQUEST['pid'];
+    } else {
+        $docid = $docObject['parent'];
+    }
 
-    if (0<$docid)
-    {
+    if (0 < $docid) {
         $groupsarray = getGroups($docid);
         // Load up the current permissions and names
         $field = 'dgn.*, groups.id AS link_id';
         $from[] = '[+prefix+]documentgroup_names AS dgn';
         $from[] = "LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group = dgn.id AND groups.document = {$docid}";
         $from = implode(' ', $from);
-    }
-    else
-    {
+    } else {
         // Just load up the names, we're starting clean
         $field = '*, NULL AS link_id';
-        $from  = '[+prefix+]documentgroup_names';
+        $from = '[+prefix+]documentgroup_names';
     }
 
     $isManager = $modx->hasPermission('access_permissions');
-    $isWeb     = $modx->hasPermission('web_access_permissions');
+    $isWeb = $modx->hasPermission('web_access_permissions');
 
     // Setup Basic attributes for each Input box
-    $inputAttributes['type']    = 'checkbox';
-    $inputAttributes['class']   = 'checkbox';
-    $inputAttributes['name']    = 'docgroups[]';
+    $inputAttributes['type'] = 'checkbox';
+    $inputAttributes['class'] = 'checkbox';
+    $inputAttributes['name'] = 'docgroups[]';
     $inputAttributes['onclick'] = 'makePublic(false)';
 
     $permissions = array(); // New Permissions array list (this contains the HTML)
@@ -670,54 +700,66 @@ function getUDGroups($id) {
         $groupsarray = array_merge($groupsarray, $form_v['docgroups']);
 
     // Query the permissions and names from above
-    $rs = $modx->db->select($field,$from,'','name');
+    $rs = $modx->db->select($field, $from, '', 'name');
 
     // Loop through the permissions list
-    while($row = $modx->db->getRow($rs)):
+    while ($row = $modx->db->getRow($rs)) {
         // Create an inputValue pair (group ID and group link (if it exists))
-        $inputValue = $row['id'].','.($row['link_id'] ? $row['link_id'] : 'new');
-        $inputId    = 'group-'.$row['id'];
+        $inputValue = $row['id'] . ',' . ($row['link_id'] ? $row['link_id'] : 'new');
+        $inputId = 'group-' . $row['id'];
 
-        $checked    = in_array($inputValue, $groupsarray);
-        if ($checked) $notPublic = true; // Mark as private access (either web or manager)
+        $checked = in_array($inputValue, $groupsarray);
+        if ($checked) {
+            $notPublic = true;
+        } // Mark as private access (either web or manager)
 
         // Skip the access permission if the user doesn't have access...
-        if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1'))
+        if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1')) {
             continue;
+        }
 
         // Setup attributes for this Input box
-        $inputAttributes['id']    = $inputId;
+        $inputAttributes['id'] = $inputId;
         $inputAttributes['value'] = $inputValue;
-        if ($checked)
+        if ($checked) {
             $inputAttributes['checked'] = 'checked';
-        else    unset($inputAttributes['checked']);
+        } else {
+            unset($inputAttributes['checked']);
+        }
 
         // Create attribute string list
         $inputString = array();
-        foreach ($inputAttributes as $k => $v)
-        {
-            $inputString[] = $k.'="'.$v.'"';
+        foreach ($inputAttributes as $k => $v) {
+            $inputString[] = $k . '="' . $v . '"';
         }
 
         // Make the <input> HTML
-        $inputHTML = '<input '.implode(' ', $inputString).' />' . "\n";
+        $inputHTML = '<input ' . implode(' ', $inputString) . ' />' . "\n";
 
         // does user have this permission?
         $from = "[+prefix+]membergroup_access mga, [+prefix+]member_groups mg";
         $where = "mga.membergroup = mg.user_group AND mga.documentgroup = {$row['id']} AND mg.member = {$_SESSION['mgrInternalKey']}";
-        $count = $modx->db->getValue($modx->db->select('COUNT(mg.id)',$from,$where));
+        $count = $modx->db->getValue($modx->db->select('COUNT(mg.id)', $from, $where));
 
-        if($count > 0) ++$permissions_yes;
-        else           ++$permissions_no;
+        if ($count > 0) {
+            ++$permissions_yes;
+        } else {
+            ++$permissions_no;
+        }
 
-        $permissions[] = "\t\t".'<li>'.$inputHTML.'<label for="'.$inputId.'">'.$row['name'].'</label></li>';
-    endwhile;
+        $permissions[] = "\t\t"
+            . html_tag(
+                '<li>'
+                , array()
+                , $inputHTML . html_tag('<label>', array('for'=>$inputId), $row['name'])
+            );
+    }
 
     if(!empty($permissions)) {
         // Add the "All Document Groups" item if we have rights in both contexts
         if ($isManager && $isWeb)
         {
-            array_unshift($permissions,"\t\t".'<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . checked(!$notPublic) . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . $_lang['all_doc_groups'] . '</label></li>');
+            array_unshift($permissions,"\t\t".'<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . checked(!$notPublic) . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . lang('all_doc_groups') . '</label></li>');
             // Output the permissions list...
         }
     }
@@ -1432,6 +1474,13 @@ function get_template_options() {
         $rows[$row['category']][] = $row;
     }
     $option_tags = function($templates) {
+        $options = array(
+            html_tag(
+                '<option>'
+                , array('value'=>0)
+                , '(blank)'
+            )
+        );
         foreach($templates as $template) {
             $options[] = html_tag(
                 '<option>'
@@ -1439,7 +1488,7 @@ function get_template_options() {
                     'value'    => $template['id'],
                     'selected' => $template['id']==doc('template') ? null : ''
                 )
-                , $template['templatename']
+                , hsc($template['templatename'])
             );
         }
         return implode("\n", $options);
@@ -1447,7 +1496,7 @@ function get_template_options() {
     foreach ($rows as $category=>$templates) {
         $optgroups[] = html_tag(
             '<optgroup>'
-            , array('label'=>$category)
+            , array('label'=>hsc($category))
             , $option_tags($templates)
         );
     }
@@ -1476,7 +1525,14 @@ function menuindex() {
 </table>
 EOT;
     $ph = array();
-    $ph['menuindex'] = input_text('menuindex',$docObject['menuindex'],'style="width:62px;"','8');
+    $ph['menuindex'] = input_text_tag(
+        array(
+            'name'      => 'menuindex',
+            'value'     => doc('menuindex'),
+            'style'     => 'width:62px;',
+            'maxlength' => 8
+        )
+    );
     $ph['resource_opt_menu_index_help'] = tooltip(lang('resource_opt_menu_index_help'));
     $ph['resource_opt_show_menu'] = lang('resource_opt_show_menu');
     $cond = ($docObject['hidemenu']!=1);
@@ -1662,14 +1718,14 @@ function input_text_tag($preps=array()) {
 
 function textarea_tag($preps=array(), $content) {
     global $modx;
-    $preps['class']     = $modx->array_get($preps,'class','inputBox');
-    foreach($preps as $k=>$v) {
-        if($v===false) {
-            unset($preps[$k]);
-        }
-    }
+    $preps['class'] = $modx->array_get($preps,'class','inputBox');
     return html_tag('textarea', $preps, $content);
+}
 
+function select_tag($preps=array(), $options='') {
+    global $modx;
+    $preps['class'] = $modx->array_get($preps,'class','inputBox');
+    return html_tag('select', $preps, $options);
 }
 
 function textarea($preps=array(), $content) {
