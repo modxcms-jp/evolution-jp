@@ -185,14 +185,13 @@ function getTmplvars($docid,$template,$docgrp) {
 }
 
 function rteContent($htmlcontent,$editors) {
-    global $_lang;
     $tpl = <<< EOT
 	<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;">[+content+]</textarea>
 	<span class="warning">[+_lang_which_editor_title+]</span>
 	[+editorSelecter+]
 EOT;
     $ph['content'] = $htmlcontent;
-    $ph['_lang_which_editor_title'] = $_lang['which_editor_title'];
+    $ph['_lang_which_editor_title'] = lang('which_editor_title');
     $ph['editorSelecter'] = getEditors($editors);
     return parseText($tpl,$ph);
 }
@@ -214,7 +213,7 @@ function parseLang($tpl) {
     return $tpl;
 }
 function getEditors($editors) {
-    global $_lang,$selected_editor;
+    global $selected_editor;
     if (!is_array($editors)) return '';
 
     $rs = '';
@@ -235,7 +234,7 @@ function getEditors($editors) {
 </select>
 EOT;
         $ph = array();
-        $ph['_lang_none'] = $_lang['none'];
+        $ph['_lang_none'] = lang('none');
         $ph['options'] = implode("\n", $options);
         $rs = parseText($tpl, $ph);
     }
@@ -263,14 +262,14 @@ EOT;
 }
 
 function sectionContent() {
-    global $modx, $_lang, $docObject, $rte_field;
+    global $modx, $docObject, $rte_field;
     if ($docObject['type'] !== 'document')
         return '';
 
     $tpl = getTplSectionContent();
     $htmlcontent = htmlspecialchars($docObject['content']);
 
-    $ph['header'] = $_lang['resource_content'];
+    $ph['header'] = lang('resource_content');
     $planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
     if ($modx->config['use_editor'] == 1 && $docObject['richtext'] == 1) {
         // invoke OnRichTextEditorRegister event
@@ -303,10 +302,9 @@ EOT;
 }
 
 function sectionTV() {
-    global $_lang;
     $tpl = getTplSectionTV();
     $ph = array();
-    $ph['header'] = $_lang['settings_templvars'];
+    $ph['header'] = lang('settings_templvars');
     $ph['body'] = fieldsTV();
     return parseText($tpl,$ph);
 }
@@ -399,7 +397,7 @@ function fieldsTV() {
 }
 
 function fieldPublished() {
-    global $modx,$_lang;
+    global $modx;
     if(!$modx->hasPermission('publish_document'))
     {
         if($modx->manager->action==27)
@@ -411,17 +409,17 @@ function fieldPublished() {
 
     $body = input_checkbox('published',$published==1);
     $body .= input_hidden('published',$published==1);
-    $body .= tooltip($_lang['resource_opt_published_help']);
-    return renderTr($_lang['resource_opt_published'],$body);
+    $body .= tooltip(lang('resource_opt_published_help'));
+    return renderTr(lang('resource_opt_published'),$body);
 }
 
 function fieldPub_date($id=0) {
-    global $modx,$_lang,$_style,$config,$docObject;
+    global $modx,$_style,$config,$docObject;
 
     $tpl[] = '<input type="text" id="pub_date" [+disabled+] name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
     $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
-    $tpl[] = tooltip($_lang['page_data_publishdate_help']);
+    $tpl[] = tooltip(lang('page_data_publishdate_help'));
     $tpl[] = <<< EOT
 <div style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</div>
 EOT;
@@ -430,19 +428,19 @@ EOT;
 
     $ph['pub_date']         = $modx->toDateFormat($docObject['pub_date']);
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
-    $ph['remove_date']      = $_lang['remove_date'];
+    $ph['remove_date']      = lang('remove_date');
     $ph['datetime_format']  = $config['datetime_format'];
     $body = parseText($tpl,$ph);
-    return renderTr($_lang['page_data_publishdate'],$body);
+    return renderTr(lang('page_data_publishdate'),$body);
 }
 
 function fieldUnpub_date($id) {
-    global $modx,$_lang,$_style,$config,$docObject;
+    global $modx,$_style,$config,$docObject;
     if(!$modx->hasPermission('publish_document')) return '';
     $tpl[] = '<input type="text" id="unpub_date" [+disabled+] name="unpub_date" class="DatePicker imeoff" value="[+unpub_date+]" onblur="documentDirty=true;" />';
     $tpl[] = '<a style="cursor:pointer; cursor:hand">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
-    $tpl[] = tooltip($_lang['page_data_unpublishdate_help']);
+    $tpl[] = tooltip(lang('page_data_unpublishdate_help'));
     $tpl[] = <<< EOT
 	<div style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</div>
 EOT;
@@ -450,10 +448,10 @@ EOT;
     $ph['disabled']         = disabled(!$modx->hasPermission('publish_document') || $id==$config['site_start']);
     $ph['unpub_date']       = $modx->toDateFormat($docObject['unpub_date']);
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
-    $ph['remove_date']      = $_lang['remove_date'];
+    $ph['remove_date']      = lang('remove_date');
     $ph['datetime_format']  = $config['datetime_format'];
     $body = parseText($tpl,$ph);
-    return renderTr($_lang['page_data_unpublishdate'],$body);
+    return renderTr(lang('page_data_unpublishdate'),$body);
 }
 
 function getDocId() {
@@ -490,74 +488,74 @@ function getInitialValues() {
 }
 
 function fieldLink_attributes() {
-    global $modx,$_lang,$docObject;
+    global $modx,$docObject;
     $body  = input_text('link_attributes',$modx->hsc($docObject['link_attributes']));
-    $body .= tooltip($_lang['link_attributes_help']);
-    return renderTr($_lang['link_attributes'],$body);
+    $body .= tooltip(lang('link_attributes_help'));
+    return renderTr(lang('link_attributes'),$body);
 }
 
 function fieldIsfolder() {
-    global $id,$modx,$_lang,$docObject;
+    global $id,$modx,$docObject;
     $id = getDocId();
     $cond = ($docObject['isfolder']==1);
     $haschildren = $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$id}'"));
     $disabled = $id!=0&&0<$haschildren ? 'disabled' : '';
     $body = input_checkbox('isfolder',$cond,$disabled);
     $body .= input_hidden('isfolder',$cond);
-    $body .= tooltip($_lang['resource_opt_folder_help']);
-    return renderTr($_lang['resource_opt_folder'],$body);
+    $body .= tooltip(lang('resource_opt_folder_help'));
+    return renderTr(lang('resource_opt_folder'),$body);
 }
 
 function fieldRichtext() {
-    global $modx,$_lang;
+    global $modx;
     $disabled = ($modx->config['use_editor']!=1) ? ' disabled="disabled"' : '';
     $cond = (!isset($modx->documentObject['richtext']) || $modx->documentObject['richtext']!=0);
     $body = input_checkbox('richtext',$cond,$disabled);
     $body .= input_hidden('richtext',$cond);
-    $body .= tooltip($_lang['resource_opt_richtext_help']);
-    return renderTr($_lang['resource_opt_richtext'],$body);
+    $body .= tooltip(lang('resource_opt_richtext_help'));
+    return renderTr(lang('resource_opt_richtext'),$body);
 }
 
 function fieldDonthit() {
-    global $_lang,$docObject;
+    global $docObject;
     $cond = ($docObject['donthit']!=1);
     $body = input_checkbox('donthit',$cond);
     $body .= input_hidden('donthit',!$cond);
-    $body .= tooltip($_lang['resource_opt_trackvisit_help']);
-    return renderTr($_lang['track_visitors_title'],$body);
+    $body .= tooltip(lang('resource_opt_trackvisit_help'));
+    return renderTr(lang('track_visitors_title'),$body);
 }
 
 
 function fieldSearchable() {
-    global $_lang,$docObject;
+    global $docObject;
     $cond = ($docObject['searchable']==1);
     $body = input_checkbox('searchable',$cond);
     $body .= input_hidden('searchable',$cond);
-    $body .= tooltip($_lang['page_data_searchable_help']);
-    return renderTr($_lang['page_data_searchable'],$body);
+    $body .= tooltip(lang('page_data_searchable_help'));
+    return renderTr(lang('page_data_searchable'),$body);
 }
 
 function fieldCacheable() {
-    global $modx,$_lang,$docObject;
+    global $modx,$docObject;
     $cond = ($docObject['cacheable']==1);
     $disabled = ($modx->config['cache_type']==='0') ? ' disabled' : '';
     $body = input_checkbox('cacheable',$cond,$disabled);
     $body .= input_hidden('cacheable',$cond);
-    $body .= tooltip($_lang['page_data_cacheable_help']);
-    return renderTr($_lang['page_data_cacheable'],$body);
+    $body .= tooltip(lang('page_data_cacheable_help'));
+    return renderTr(lang('page_data_cacheable'),$body);
 }
 
 function fieldSyncsite() {
-    global $modx,$_lang;
+    global $modx;
     $disabled = ($modx->config['cache_type']==0) ? ' disabled' : '';
     $body = input_checkbox('syncsite',true,$disabled);
     $body .= input_hidden('syncsite');
-    $body .= tooltip($_lang['resource_opt_emptycache_help']);
-    return renderTr($_lang['resource_opt_emptycache'],$body);
+    $body .= tooltip(lang('resource_opt_emptycache_help'));
+    return renderTr(lang('resource_opt_emptycache'),$body);
 }
 
 function fieldType() {
-    global $_lang,$docObject;
+    global $docObject;
 
     $tpl = <<< EOT
 <select name="type" class="inputBox" style="width:200px">
@@ -568,14 +566,14 @@ EOT;
     $ph = array();
     $ph['selected_ref'] = ($docObject['type']==='reference') ? 'selected' : '';
     $ph['selected_doc'] = empty($ph['selected_ref']) ? 'selected' : '';
-    $ph['resource_type_webpage'] = $_lang["resource_type_webpage"];
-    $ph['resource_type_weblink'] = $_lang["resource_type_weblink"];
-    $body = parseText($tpl, $ph).tooltip($_lang['resource_type_message']);
-    return renderTr($_lang['resource_type'],$body);
+    $ph['resource_type_webpage'] = lang('resource_type_webpage');
+    $ph['resource_type_weblink'] = lang('resource_type_weblink');
+    $body = parseText($tpl, $ph).tooltip(lang('resource_type_message'));
+    return renderTr(lang('resource_type'),$body);
 }
 
 function fieldContentType() {
-    global $modx,$_lang,$docObject;
+    global $modx,$docObject;
 
     if($docObject['type'] === 'reference') return;
     $tpl = <<< EOT
@@ -593,12 +591,12 @@ EOT;
     }
     $ph = array();
     $ph['option'] = join("\n", $option);
-    $body = parseText($tpl,$ph) . tooltip($_lang['page_data_contentType_help']);
-    return renderTr($_lang['page_data_contentType'],$body);
+    $body = parseText($tpl,$ph) . tooltip(lang('page_data_contentType_help'));
+    return renderTr(lang('page_data_contentType'),$body);
 }
 
 function fieldContent_dispo() {
-    global $_lang,$docObject;
+    global $docObject;
 
     if($docObject['type'] === 'reference') return;
     $tpl = <<< EOT
@@ -610,10 +608,10 @@ EOT;
     $ph = array();
     $ph['sel_attachment'] = $docObject['content_dispo']==1 ? 'selected' : '';
     $ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
-    $ph['inline']     = $_lang['inline'];
-    $ph['attachment'] = $_lang['attachment'];
+    $ph['inline']     = lang('inline');
+    $ph['attachment'] = lang('attachment');
     $body = parseText($tpl,$ph);
-    return renderTr($_lang['resource_opt_contentdispo'],$body);
+    return renderTr(lang('resource_opt_contentdispo'),$body);
 }
 
 function getGroups($docid) {
@@ -977,22 +975,22 @@ function input_hidden($name,$cond=true)
 
 function ab_preview($id=0)
 {
-    global $_style, $_lang;
+    global $_style;
     $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_preview_resource"];
     $ph['alt'] = 'preview resource';
-    $ph['label'] = $_lang['preview'];
+    $ph['label'] = lang('preview');
     return parseText($tpl,$ph);
 }
 
 function ab_save()
 {
-    global $modx, $_style, $_lang;
+    global $modx, $_style;
 
     $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
     $ph['icon'] = $_style["icons_save"];
     $ph['alt'] = 'icons_save';
-    $ph['label'] = $_lang['update'];
+    $ph['label'] = lang('update');
 
     $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
     $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
@@ -1004,16 +1002,16 @@ function ab_save()
     else                         $selected['close'] = 'selected';
 
     if ($modx->doc->mode !== 'draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
-        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
+        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], lang('stay_new'));
 
-    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
+    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], lang('stay'));
     if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document')) {
         if($modx->revision->hasStandby)
             $option[] = sprintf('<option id="stay4" value="save_standby">%s</option>'     , '下書採用日時を再指定');
         else
             $option[] = sprintf('<option id="stay4" value="save_draft">%s</option>'     , '下書きを採用');
     }
-    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], $_lang['close']);
+    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], lang('close'));
 
     $ph['select'] = sprintf($ph['select'], join("\n", $option));
 
@@ -1022,18 +1020,18 @@ function ab_save()
 
 function ab_open_draft($id)
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_save"];
     $ph['alt'] = 'icons_draft';
-    $ph['label'] = $_lang["open_draft"];
+    $ph['label'] = lang('open_draft');
     return parseText($tpl,$ph);
 }
 
 function ab_create_draft($id)
 {
-    global $modx, $_style, $_lang;
+    global $modx, $_style;
 
     if(!$modx->config['enable_draft']) return false;
 
@@ -1042,73 +1040,73 @@ function ab_create_draft($id)
     $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_save"];
     $ph['alt'] = 'icons_draft';
-    $ph['label'] = $_lang['create_draft'];
+    $ph['label'] = lang('create_draft');
 
     return parseText($tpl,$ph);
 }
 
 function ab_cancel($id)
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_cancel"];
     $ph['alt'] = 'icons_cancel';
-    $ph['label'] = $_lang['cancel'];
+    $ph['label'] = lang('cancel');
     return parseText($tpl,$ph);
 }
 
 function ab_move()
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_move_document"];
-    $ph['label'] = $_lang['move'];
+    $ph['label'] = lang('move');
     return parseText($tpl,$ph);
 }
 
 function ab_duplicate()
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_resource_duplicate"];
     $ph['alt'] = 'icons_resource_duplicate';
-    $ph['label'] = $_lang['duplicate'];
+    $ph['label'] = lang('duplicate');
     return parseText($tpl,$ph);
 }
 
 function ab_delete()
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_delete_document"];
     $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = $_lang['delete'];
+    $ph['label'] = lang('delete');
     return parseText($tpl,$ph);
 }
 
 function ab_undelete()
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_undelete_resource"];
     $ph['alt'] = 'icons_undelete_document';
-    $ph['label'] = $_lang['undelete_resource'];
+    $ph['label'] = lang('undelete_resource');
     return parseText($tpl,$ph);
 }
 
 function ab_delete_draft()
 {
-    global $_style, $_lang;
+    global $_style;
 
     $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_delete_document"];
     $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = $_lang['delete_draft'];
+    $ph['label'] = lang('delete_draft');
     return parseText($tpl,$ph);
 }
 
@@ -1206,7 +1204,7 @@ function getDefaultTemplate()
 
 // check permissions
 function checkPermissions($id) {
-    global $modx, $_lang, $e;
+    global $modx, $e;
 
     $isAllowed = $modx->manager->isAllowed($id);
     if (!isset($_GET['pid'])&&!$isAllowed)
@@ -1257,9 +1255,9 @@ function checkPermissions($id) {
         $_ = array();
         $_[] = '<br /><br />';
         $_[] = '<div class="section">';
-        $_[] = sprintf('<div class="sectionHeader">%s</div>',$_lang['access_permissions']);
+        $_[] = sprintf('<div class="sectionHeader">%s</div>',lang('access_permissions'));
         $_[] = '<div class="sectionBody">';
-        $_[] = sprintf('	<p>%s</p>',$_lang['access_permission_denied']);
+        $_[] = sprintf('	<p>%s</p>',lang('access_permission_denied'));
         $_[] = '</div>';
         $_[] = '</div>';
         echo join("\n",$_);
@@ -1269,7 +1267,7 @@ function checkPermissions($id) {
 }
 
 function checkDocLock($id) {
-    global $modx, $_lang, $e;
+    global $modx, $e;
 
     // Check to see the document isn't locked
     $action = $modx->manager->action;
@@ -1280,7 +1278,7 @@ function checkDocLock($id) {
         {
             if ($row['internalKey'] != $modx->getLoginUserID())
             {
-                $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['resource']);
+                $msg = sprintf(lang('lock_msg'), $row['username'], lang('resource'));
                 $e->setError(5, $msg);
                 $e->dumpError();
             }
@@ -1382,7 +1380,7 @@ function getAliasAtNew() {
 }
 
 function getJScripts($docid) {
-    global $modx,$_lang,$_style, $docObject;
+    global $modx,$_style, $docObject;
 
     $base_url = MODX_BASE_URL;
     if(!isset($modx->config['imanager_url']))
@@ -1395,20 +1393,20 @@ function getJScripts($docid) {
     $ph['fmanager_url'] = $modx->config['fmanager_url'];
     $ph['preview_url']  = $modx->makeUrl($docid,'','','full',true);
     $ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
-    $ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
-    $ph['lang_confirm_delete_draft_resource'] = $_lang['confirm_delete_draft_resource'];
-    $ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
+    $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
+    $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
+    $ph['lang_confirm_undelete'] = lang('confirm_undelete');
     $ph['id'] = $docid;
     $ph['docParent']   = $docObject['parent'];
     $ph['docIsFolder'] = $docObject['isfolder'];
     $ph['docMode'] = $modx->doc->mode;
-    $ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
+    $ph['lang_mutate_content.dynamic.php1'] = lang('mutate_content.dynamic.php1');
     $ph['style_tree_folder'] = $_style["tree_folder"];
     $ph['style_icons_set_parent'] = $_style["icons_set_parent"];
     $ph['style_tree_folder'] = $_style["tree_folder"];
-    $ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
-    $ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
-    $ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
+    $ph['lang_confirm_resource_duplicate'] = lang('confirm_resource_duplicate');
+    $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
+    $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = $modx->manager->action;
     $ph['suffix'] = $modx->config['friendly_url_suffix'];
 
@@ -1457,7 +1455,7 @@ function get_template_options() {
 }
 
 function menuindex() {
-    global $docObject, $_lang;
+    global $docObject;
 
     $tpl = <<< EOT
 <table cellpadding="0" cellspacing="0" style="width:333px;">
@@ -1479,12 +1477,12 @@ function menuindex() {
 EOT;
     $ph = array();
     $ph['menuindex'] = input_text('menuindex',$docObject['menuindex'],'style="width:62px;"','8');
-    $ph['resource_opt_menu_index_help'] = tooltip($_lang['resource_opt_menu_index_help']);
-    $ph['resource_opt_show_menu'] = $_lang['resource_opt_show_menu'];
+    $ph['resource_opt_menu_index_help'] = tooltip(lang('resource_opt_menu_index_help'));
+    $ph['resource_opt_show_menu'] = lang('resource_opt_show_menu');
     $cond = ($docObject['hidemenu']!=1);
     $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
     $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
-    $ph['resource_opt_show_menu_help'] = tooltip($_lang['resource_opt_show_menu_help']);
+    $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
     return parseText($tpl, $ph);
 }
 
@@ -1531,7 +1529,7 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-    global $docObject,$_lang,$_style;
+    global $docObject,$_style;
 
     $tpl = <<< EOT
 &nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
@@ -1542,7 +1540,7 @@ function getParentForm($pname) {
 EOT;
     $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $docObject['parent'];
     $ph['pname'] = $pname;
-    $ph['tooltip'] = tooltip($_lang['resource_parent_help']);
+    $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = $_style['tree_folder'];
     return parseText($tpl,$ph);
 }
