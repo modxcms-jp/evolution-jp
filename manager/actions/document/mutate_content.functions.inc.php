@@ -1,780 +1,129 @@
 <?php
 
-function input_text($name,$value,$other='',$maxlength='255')
-{
-    $ph['name']      = $name;
-    $ph['value']     = $value;
-    $ph['maxlength'] = $maxlength;
-    $ph['other']     = $other;
-    $ph['class']     = 'inputBox';
-    switch($name)
-    {
-        case 'menuindex':
-            $ph['class'] .= ' number imeoff';
-            break;
-    }
-
-    $tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
-    return parseText($tpl,$ph);
-}
-
-}
-
-function input_checkbox($name,$checked,$other='')
-{
-    global $modx;
-
-    $ph['name']    = $name;
-    $ph['checked'] = ($checked) ? 'checked="checked"' : '';
-    $ph['other']   = $other;
-    $ph['resetpubdate'] = ($name === 'published') ? 'resetpubdate();' : '';
-    if($name === 'published')
-    {
-        $id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
-
-        if(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start'])
-        {
-            $ph['other'] = 'disabled="disabled"';
-        }
-    }
-    $tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
-    return parseText($tpl,$ph);
-}
-
-function checked($cond=false)
-{
-    if($cond) {
-        return ' checked="checked"';
-    }
-    return '';
-}
-
-function disabled($cond=false)
-{
-    if($cond) {
-        return ' disabled="disabled"';
-    }
-    return '';
-}
-
-function tooltip($msg)
-{
-    global $_style;
-
-    $ph['icons_tooltip'] = "'{$_style['icons_tooltip']}'";
-    $ph['icons_tooltip_over'] = $_style['icons_tooltip_over'];
-    $ph['msg'] = $msg;
-    return parseText(
-        '<img src="[+icons_tooltip_over+]" alt="[+msg+]" title="[+msg+]" onclick="alert(this.alt);" style="cursor:help;" class="tooltip" />'
-        , $ph
+function fieldPagetitle() {
+    return renderTr(
+        lang('resource_title')
+        , input_text_tag(
+            array(
+                'name'=>'pagetitle',
+                'value'=>doc('pagetitle')
+            )
+        ) . tooltip(lang('resource_title_help'))
     );
 }
 
-function input_hidden($name,$cond=true)
-{
-    $ph['name']  = $name;
-    $ph['value'] = ($cond) ? '1' : '0';
-    $tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
-    return parseText($tpl,$ph);
-}
-
-function ab_preview($id=0)
-{
-    global $_style, $_lang;
-    $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_preview_resource"];
-    $ph['alt'] = 'preview resource';
-    $ph['label'] = $_lang['preview'];
-    return parseText($tpl,$ph);
-}
-
-function ab_save()
-{
-    global $modx, $_style, $_lang;
-
-    $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-    $ph['icon'] = $_style["icons_save"];
-    $ph['alt'] = 'icons_save';
-    $ph['label'] = $_lang['update'];
-
-    $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
-    $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
-    $selected = array('new'=>'', 'stay'=>'', 'close'=>'');
-    if ($modx->hasPermission('new_document')
-        && $saveAfter === 'new')    $selected['new']   = 'selected';
-    elseif($saveAfter === 'stay')   $selected['stay']  = 'selected';
-    elseif($saveAfter === 'close')  $selected['close'] = 'selected';
-    else                         $selected['close'] = 'selected';
-
-    if ($modx->doc->mode !== 'draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
-        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
-
-    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
-    if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document')) {
-        if($modx->revision->hasStandby)
-            $option[] = sprintf('<option id="stay4" value="save_standby">%s</option>'     , '下書採用日時を再指定');
-        else
-            $option[] = sprintf('<option id="stay4" value="save_draft">%s</option>'     , '下書きを採用');
-    }
-    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], $_lang['close']);
-
-    $ph['select'] = sprintf($ph['select'], join("\n", $option));
-
-    return parseText($tpl,$ph);
-}
-
-function ab_open_draft($id)
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_save"];
-    $ph['alt'] = 'icons_draft';
-    $ph['label'] = $_lang["open_draft"];
-    return parseText($tpl,$ph);
-}
-
-function ab_create_draft($id)
-{
-    global $modx, $_style, $_lang;
-
-    if(!$modx->config['enable_draft']) return false;
-
-    if(!$modx->hasPermission('edit_document')) return false;
-
-    $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_save"];
-    $ph['alt'] = 'icons_draft';
-    $ph['label'] = $_lang['create_draft'];
-
-    return parseText($tpl,$ph);
-}
-
-function ab_cancel($id)
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_cancel"];
-    $ph['alt'] = 'icons_cancel';
-    $ph['label'] = $_lang['cancel'];
-    return parseText($tpl,$ph);
-}
-
-function ab_move()
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_move_document"];
-    $ph['label'] = $_lang['move'];
-    return parseText($tpl,$ph);
-}
-
-function ab_duplicate()
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_resource_duplicate"];
-    $ph['alt'] = 'icons_resource_duplicate';
-    $ph['label'] = $_lang['duplicate'];
-    return parseText($tpl,$ph);
-}
-
-function ab_delete()
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_delete_document"];
-    $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = $_lang['delete'];
-    return parseText($tpl,$ph);
-}
-
-function ab_undelete()
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_undelete_resource"];
-    $ph['alt'] = 'icons_undelete_document';
-    $ph['label'] = $_lang['undelete_resource'];
-    return parseText($tpl,$ph);
-}
-
-function ab_delete_draft()
-{
-    global $_style, $_lang;
-
-    $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_delete_document"];
-    $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = $_lang['delete_draft'];
-    return parseText($tpl,$ph);
-}
-
-function get_alias_path($id)
-{
-    global $modx;
-
-    $pid = (int)$_REQUEST['pid'];
-
-    if($modx->config['use_alias_path']==='0') $path = '';
-    elseif($pid)
-    {
-        if($modx->getAliasListing($pid,'path'))
-        {
-            $path = $modx->getAliasListing($pid,'path') . '/' . $modx->getAliasListing($pid,'alias');
-        }
-        else $path = $modx->getAliasListing($pid,'alias');
-    }
-    elseif($id) $path = $modx->getAliasListing($id,'path');
-    else        $path = '';
-
-    if($path!=='') $path = MODX_BASE_URL . $path . '/';
-    else           $path = MODX_BASE_URL;
-
-    if(30 < strlen($path)) $path .= '<br />';
-    return $path;
-}
-
-function renderTr($head, $body,$rowstyle='')
-{
-    if(!is_array($head)) {
-        $ph['head'] = $head;
-        $ph['extra_head'] = '';
-    }
-    else {
-        $i = 0;
-        foreach($head as $v) {
-            if($i===0) $ph['head'] = $v;
-            else $extra_head[] = $v;
-            $i++;
-        }
-        $ph['extra_head'] = join("\n", $extra_head);
-    }
-    if(is_array($body)) $body = join("\n", $body);
-    $ph['body'] = $body;
-    $ph['rowstyle'] = $rowstyle;
-
-    $tpl =<<< EOT
-	<tr style="height: 24px;[+rowstyle+]">
-		<td width="120" align="left">
-			<span class="warning">[+head+]</span>[+extra_head+]
-		</td>
-		<td>
-			[+body+]
-		</td>
-	</tr>
-EOT;
-    return parseText($tpl, $ph);
-}
-
-function getDefaultTemplate()
-{
-    global $modx;
-
-    $pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
-    $site_start = $modx->config['site_start'];
-
-    if($modx->config['auto_template_logic']==='sibling') :
-        $where = "id!='{$site_start}' AND isfolder=0 AND parent='{$pid}'";
-        $orderby = 'published DESC,menuindex ASC';
-        $rs = $modx->db->select('template', '[+prefix+]site_content', $where, $orderby, '1');
-    elseif($modx->config['auto_template_logic']==='parent' && $pid!=0) :
-        $rs = $modx->db->select('template','[+prefix+]site_content',"id='{$pid}'");
-    endif;
-
-    if(isset($rs)&&$modx->db->getRecordCount($rs)==1) {
-        $row = $modx->db->getRow($rs);
-        $default_template = $row['template'];
-    }
-
-    if(!isset($default_template))
-        $default_template = $modx->config['default_template']; // default_template is already set
-
-    return $default_template;
-}
-
-// check permissions
-function checkPermissions($id) {
-    global $modx, $_lang, $e;
-
-    $isAllowed = $modx->manager->isAllowed($id);
-    if (!isset($_GET['pid'])&&!$isAllowed)
-    {
-        $e->setError(3);
-        $e->dumpError();
-    }
-
-    switch ($modx->manager->action) {
-        case 27:
-            if (!$modx->hasPermission('view_document')) {
-                $modx->config['remember_last_tab'] = 0;
-                $e->setError(3);
-                $e->dumpError();
-            }
-            $modx->manager->remove_locks('27');
-            break;
-        case 72:
-        case 4:
-            if (!$modx->hasPermission('new_document')) {
-                $e->setError(3);
-                $e->dumpError();
-            } elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
-                // check user has permissions for parent
-                $targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
-                if (!$modx->checkPermissions($targetpid)) {
-                    $e->setError(3);
-                    $e->dumpError();
-                }
-            }
-            break;
-        case 132:
-        case 131:
-            if (!$modx->hasPermission('view_document')) {
-                $e->setError(3);
-                $e->dumpError();
-            }
-            break;
-        default:
-            $e->setError(3);
-            $e->dumpError();
-    }
-
-    if ($modx->manager->action == 27 && !$modx->checkPermissions($id))
-    {
-        //editing an existing document
-        // check permissions on the document
-        $_ = array();
-        $_[] = '<br /><br />';
-        $_[] = '<div class="section">';
-        $_[] = sprintf('<div class="sectionHeader">%s</div>',$_lang['access_permissions']);
-        $_[] = '<div class="sectionBody">';
-        $_[] = sprintf('	<p>%s</p>',$_lang['access_permission_denied']);
-        $_[] = '</div>';
-        $_[] = '</div>';
-        echo join("\n",$_);
-        include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        exit;
-    }
-}
-
-function checkDocLock($id) {
-    global $modx, $_lang, $e;
-
-    // Check to see the document isn't locked
-    $action = $modx->manager->action;
-    $rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='{$action}' AND id='{$id}'");
-    if (1 < $modx->db->getRecordCount($rs))
-    {
-        while($row = $modx->db->getRow($rs))
-        {
-            if ($row['internalKey'] != $modx->getLoginUserID())
-            {
-                $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['resource']);
-                $e->setError(5, $msg);
-                $e->dumpError();
-            }
-        }
-    }
-}
-
-// get document groups for current user
-function getDocgrp() {
-    if (isset($_SESSION['mgrDocgroups'])||!empty($_SESSION['mgrDocgroups']))
-        return implode(',', $_SESSION['mgrDocgroups']);
-    else return '';
-}
-
-function getValuesFromDB($id,$docgrp) {
-    global $modx,$e;
-
-    if($id==='0') return array();
-
-    $access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-    $access .= empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
-    $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
-    $rs = $modx->db->select('DISTINCT sc.*', $from, "sc.id='{$id}' AND ({$access})");
-    $limit = $modx->db->getRecordCount($rs);
-    if ($limit > 1)
-    {
-        $e->setError(6);
-        $e->dumpError();
-    }
-    if ($limit < 1)
-    {
-        $e->setError(3);
-        $e->dumpError();
-    }
-    return $modx->db->getRow($rs);
-}
-
-// restore saved form
-function mergeReloadValues($docObject) {
-    global $modx;
-
-    if ($modx->manager->hasFormValues())
-        $restore_v = $modx->manager->loadFormValues();
-
-    if ($restore_v != false)
-    {
-        $docObject = array_merge($docObject, $restore_v);
-        if(isset($restore_v['ta'])) $docObject['content'] = $restore_v['ta'];
-    }
-
-    if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
-        $docObject['pub_date'] = '';
-    else
-        $docObject['pub_date'] = $modx->toTimeStamp($docObject['pub_date']);
-
-    if (!isset($docObject['unpub_date'])||empty($docObject['unpub_date']))
-        $docObject['unpub_date'] = '';
-    else
-        $docObject['unpub_date'] = $modx->toTimeStamp($docObject['unpub_date']);
-
-    if(isset ($_POST['which_editor'])) $docObject['which_editor'] = $_POST['which_editor'];
-
-    return $docObject;
-}
-
-function checkViewUnpubDocPerm($published,$editedby) {
-    global $modx;
-
-    if($modx->manager->action!=27) return;
-    if($modx->hasPermission('view_unpublished')) return;
-    if($published!=='0')                         return;
-
-    $userid = $modx->getLoginUserID();
-    if ($userid != $editedby) {
-        $modx->config['remember_last_tab'] = 0;
-        $modx->event->setError(3);
-        $modx->event->dumpError();
-    }
-}
-
-// increase menu index if this is a new document
-function getMenuIndexAtNew() {
-    global $modx;
-    if ($modx->config['auto_menuindex']==='1')
-    {
-        $pid = isset($_REQUEST['pid']) ? intval($_REQUEST['pid']) : 0;
-        return $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
-    }
-    else return '0';
-}
-
-function getAliasAtNew() {
-    global $modx;
-
-    $pid = $_REQUEST['pid'] ? $_REQUEST['pid'] : '0';
-    if($modx->config['automatic_alias'] === '2')
-        return $modx->manager->get_alias_num_in_folder(0,$pid);
-    else return '';
-}
-
-function getJScripts($docid) {
-    global $modx,$_lang,$_style, $docObject;
-
-    $base_url = MODX_BASE_URL;
-    if(!isset($modx->config['imanager_url']))
-        $modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
-
-    if(!isset($modx->config['fmanager_url']))
-        $modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files";
-
-    $ph['imanager_url'] = $modx->config['imanager_url'];
-    $ph['fmanager_url'] = $modx->config['fmanager_url'];
-    $ph['preview_url']  = $modx->makeUrl($docid,'','','full',true);
-    $ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
-    $ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
-    $ph['lang_confirm_delete_draft_resource'] = $_lang['confirm_delete_draft_resource'];
-    $ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
-    $ph['id'] = $docid;
-    $ph['docParent']   = $docObject['parent'];
-    $ph['docIsFolder'] = $docObject['isfolder'];
-    $ph['docMode'] = $modx->doc->mode;
-    $ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
-    $ph['style_tree_folder'] = $_style["tree_folder"];
-    $ph['style_icons_set_parent'] = $_style["icons_set_parent"];
-    $ph['style_tree_folder'] = $_style["tree_folder"];
-    $ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
-    $ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
-    $ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
-    $ph['action'] = $modx->manager->action;
-    $ph['suffix'] = $modx->config['friendly_url_suffix'];
-
-    $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
-
-    return parseText($tpl,$ph);
-}
-
-function get_template_options() {
-    global $modx, $_lang, $docObject;
-
-    $options = '';
-    $from = '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id';
-    $field = sprintf("t.templatename, t.id, IFNULL(c.category,'%s') AS category", $_lang['no_category']);
-    $rs = $modx->db->select($field, $from,'', 'c.category, t.templatename ASC');
-
-    $currentCategory = '';
-    $closeOptGroup = false;
-
-    while ($row = $modx->db->getRow($rs))
-    {
-        $each_category = $row['category'];
-
-        if($each_category != $currentCategory)
-        {
-            if($closeOptGroup) $options .= "</optgroup>\n";
-
-            $options .= sprintf('<optgroup label="%s">',$each_category);
-            $closeOptGroup = true;
-        }
-        else $closeOptGroup = true;
-
-        $selected = ($row['id']==$docObject['template']) ? ' selected' : '';
-        $options .= sprintf('<option value="%s" %s>%s</option>',$row['id'],$selected,$row['templatename']);
-        $currentCategory = $each_category;
-    }
-    if($each_category != '') $options .= "</optgroup>\n";
-    return $options;
-}
-
-function menuindex() {
-    global $docObject, $_lang;
-
-    $tpl = <<< EOT
-<table cellpadding="0" cellspacing="0" style="width:333px;">
-	<tr>
-		<td style="white-space:nowrap;">
-			[+menuindex+]
-			<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
-			<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
-			[+resource_opt_menu_index_help+]
-		</td>
-		<td style="text-align:right;">
-			<span class="warning">[+resource_opt_show_menu+]</span>&nbsp;
-			[+hidemenu+]
-			[+hidemenu_hidden+]
-			[+resource_opt_show_menu_help+]
-		</td>
-	</tr>
-</table>
-EOT;
-    $ph = array();
-    $ph['menuindex'] = input_text('menuindex',$docObject['menuindex'],'style="width:62px;"','8');
-    $ph['resource_opt_menu_index_help'] = tooltip($_lang['resource_opt_menu_index_help']);
-    $ph['resource_opt_show_menu'] = $_lang['resource_opt_show_menu'];
-    $cond = ($docObject['hidemenu']!=1);
-    $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
-    $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
-    $ph['resource_opt_show_menu_help'] = tooltip($_lang['resource_opt_show_menu_help']);
-    return parseText($tpl, $ph);
-}
-
-function renderSplit() {
-    $tpl = <<< EOT
-<tr>
-	<td colspan="2"><div class="split"></div></td>
-</tr>
-EOT;
-    return $tpl;
-}
-
-function getParentName(&$v_parent) {
-    global $e,$modx;
-
-    $parentlookup = false;
-    $parentname   = $modx->config['site_name'];
-    if (isset($_REQUEST['id'])) {
-        if ($v_parent != 0)            $parentlookup = $v_parent;
-    }
-    elseif(isset($_REQUEST['pid'])) {
-        if($_REQUEST['pid'] != 0) {
-            $parentlookup = $_REQUEST['pid'];
-        }
-    }
-    elseif(isset($v_parent)) {
-        if($v_parent != 0)             $parentlookup = $v_parent;
-    } else {
-        $v_parent = 0;
-    }
-
-    if($parentlookup !== false && preg_match('@^[1-9][0-9]*$@', $parentlookup)):
-        $rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
-        $limit = $modx->db->getRecordCount($rs);
-        if ($limit != 1):
-            $e->setError(8);
-            $e->dumpError();
-        endif;
-        $parentrs = $modx->db->getRow($rs);
-        $parentname = $parentrs['pagetitle'];
-    endif;
-
-    return $parentname;
-}
-
-function getParentForm($pname) {
-    global $docObject,$_lang,$_style;
-
-    $tpl = <<< EOT
-&nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
-<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
-[+pid+] ([+pname+])</span></b>
-[+tooltip+]
-<input type="hidden" name="parent" value="[+pid+]" />
-EOT;
-    $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $docObject['parent'];
-    $ph['pname'] = $pname;
-    $ph['tooltip'] = tooltip($_lang['resource_parent_help']);
-    $ph['icon_tree_folder'] = $_style['tree_folder'];
-    return parseText($tpl,$ph);
-}
-
-function getActionButtons($id) {
-    global $modx, $docObject;
-
-    $tpl = <<< EOT
-<div id="actions">
-	<ul class="actionButtons">
-		[+saveButton+]
-		[+moveButton+]
-		[+duplicateButton+]
-		[+deleteButton+]
-		[+draftButton+]
-		[+previewButton+]
-		[+cancelButton+]
-	</ul>
-</div>
-EOT;
-    switch($modx->manager->action)
-    {
-        case '4':
-        case '72':
-            if($modx->hasPermission('new_document'))
-                $ph['saveButton'] = ab_save();
-            break;
-        case '27':
-            if($modx->hasPermission('save_document'))
-                $ph['saveButton'] = ab_save();
-            break;
-        case '132':
-        case '131':
-            $ph['saveButton'] = ab_save();
-            break;
-        default:
-            $ph['saveButton'] = '';
-    }
-
-    $ph['moveButton']      = '';
-    $ph['duplicateButton'] = '';
-    $ph['deleteButton']    = '';
-    if($modx->doc->mode==='draft') {
-        if($modx->revision->hasDraft||$modx->revision->hasStandby)
-            $ph['deleteButton']    = ab_delete_draft();
-    }
-    elseif ($id != $modx->config['site_start']) {
-        if($modx->manager->action==27 && $modx->doc->canSaveDoc())
-        {
-            if($modx->hasPermission('move_document'))
-                $ph['moveButton']                                 = ab_move();
-            if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
-            if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
-        }
-    }
-
-    if ($modx->manager->action == 27)
-    {
-        if($modx->revision->hasDraft||$modx->revision->hasStandby)
-            $ph['draftButton'] = ab_open_draft($id);
-        else
-            $ph['draftButton'] = ab_create_draft($id);
-
-    }
-    else $ph['draftButton']    = '';
-
-    $ph['previewButton']   = ab_preview($id);
-
-    $ph['cancelButton']    = ab_cancel($id);
-
-    $rs = parseText($tpl,$ph);
-
-    return preg_replace('@\[\+[^\]]+\+\]@','',$rs);
-}
-
-function fieldPagetitle() {
-    global $modx,$_lang;
-    $body  = input_text('pagetitle',$modx->hsc($modx->documentObject['pagetitle']),'spellcheck="true"');
-    $body .= tooltip($_lang['resource_title_help']);
-    return renderTr($_lang['resource_title'],$body);
-}
-
 function fieldLongtitle() {
-    global $modx,$_lang;
-    $body  = input_text('longtitle',$modx->hsc($modx->documentObject['longtitle']),'spellcheck="true"');
-    $body .= tooltip($_lang['resource_long_title_help']);
-    return renderTr($_lang['long_title'],$body);
+    return renderTr(
+        lang('longtitle')
+        , input_text_tag(
+            array(
+                'name'=>'longtitle',
+                'value'=>doc('longtitle')
+            )
+        ) . tooltip(lang('resource_long_title_help'))
+    );
 }
 
 function fieldDescription() {
-    global $modx,$_lang;
-    $description = $modx->hsc($modx->documentObject['description']);
-    $body  = '<textarea name="description" class="inputBox" style="height:43px;" rows="2" cols="">' . $description . '</textarea>';
-    $body .= tooltip($_lang['resource_description_help']);
-    return  renderTr($_lang['resource_description'],$body,'vertical-align:top;');
+    return  renderTr(
+        lang('resource_description')
+        , textarea_tag(
+            array(
+                'name'  => 'description',
+                'class' => 'inputBox',
+                'style' => 'height:43px;',
+                'rows'  => '2'
+            )
+            , doc('description')
+        )
+        . tooltip(lang('resource_description_help'))
+        , 'vertical-align:top;'
+    );
 }
 
 function fieldAlias($id) {
-    global $modx,$config,$_lang;
-
-    $body = '';
-    if($config['friendly_urls']==='1' && $modx->documentObject['type']==='document')
-    {
-        $body .= get_alias_path($id);
-        $other[] = 'size="20"';
-        $other[] = 'style="width:120px;"';
-        $other[] = sprintf('placeholder="%s"', $modx->documentObject['id']);
-        if($config['suffix_mode']==1) $other[] = 'onkeyup="change_url_suffix();"';
-
-        $body .= input_text('alias',$modx->hsc($modx->documentObject['alias']), join(' ', $other),'50');
-
-        if($modx->documentObject['isfolder']) $suffix = '/';
-        elseif($config['friendly_urls']==1) {
-            if($config['suffix_mode']!=1 || strpos($modx->documentObject['alias'],'.')===false)
-                $suffix = $config['friendly_url_suffix'];
-        }
-        else $suffix = '';
-        $body .= '<span id="url_suffix">' . $suffix . '</span>';
+    $props = array(
+        'name'  => 'alias',
+        'value' => doc('alias')
+    );
+    if(!config('friendly_urls') || doc('type') !== 'document') {
+        $props['maxlength'] = 100;
+        return renderTr(
+            lang('resource_alias')
+            , input_text_tag($props) . tooltip(lang('resource_alias_help')));
     }
-    else
-    {
-        $body .= input_text('alias',$modx->hsc($modx->documentObject['alias']),'','100');
+
+    $props['size']      = 20;
+    $props['style']     = 'width:120px;';
+    $props['maxlength'] = 50;
+    if (config('suffix_mode')) {
+        $props['onkeyup'] = 'change_url_suffix();';
     }
-    $body .= tooltip($_lang['resource_alias_help']);
-    return renderTr($_lang['resource_alias'],$body);
+    $props['placeholder'] = doc('id');
+    $body = get_alias_path($id)
+        . input_text_tag($props)
+        . html_tag(
+            'span'
+            , array('id'=>"url_suffix")
+            , call_user_func(function () {
+                if (doc('isfolder')) {
+                    return '/';
+                }
+                if (!config('friendly_urls') || !config('suffix_mode')) {
+                    return '';
+                }
+                if (!str_contains(doc('alias'), '.')) {
+                    return config('friendly_url_suffix');
+                }
+                return '';
+            })
+        )
+        . tooltip(lang('resource_alias_help'));
+    return renderTr(lang('resource_alias'), $body);
 }
 
 // Web Link specific
 function fieldWeblink() {
-    global $docObject, $_lang,$_style;
-    $head[] = $_lang['weblink'];
-    $head[] = '<img name="llock" src="' . $_style['tree_folder'] . '" alt="tree_folder" onclick="enableLinkSelection(!allowLinkSelection);" style="cursor:pointer;" />';
-    $weblink = !empty($docObject['content']) ? strip_tags(stripslashes($docObject['content'])) : 'http://';
-    $body[] = input_text('ta',$weblink);
-    $body[] = '<input type="button" onclick="BrowseFileServer(\'field_ta\')" value="' . $_lang['insert'] . '">';
-    $body[] = tooltip($_lang['resource_weblink_help']);
-    return renderTr($head, $body);
+    return renderTr(
+        lang('weblink') . html_tag(
+            'img'
+            , array(
+                'name'    => 'llock',
+                'src'     => style('tree_folder'),
+                'alt'     => 'tree_folder',
+                'onclick' => 'enableLinkSelection(!allowLinkSelection);',
+                'style'   => 'cursor:pointer;'
+            )
+        )
+        , input_text_tag(
+            array(
+                'name'  => 'ta',
+                'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type'    => 'button',
+                'onclick' => "BrowseFileServer('field_ta')",
+                'value'   => lang('insert')
+            )
+        )
+        . tooltip(lang('resource_weblink_help'))
+    );
 }
 
 function fieldIntrotext() {
-    global $modx,$docObject,$_lang;
-    $introtext = $modx->hsc($docObject['introtext']);
-    $body = '<textarea name="introtext" class="inputBox" style="height:60px;" rows="3" cols="">'.$introtext.'</textarea>';
-    $body .= tooltip($_lang['resource_summary_help']);
-    return renderTr($_lang['resource_summary'],$body,'vertical-align:top;');
+    $body = textarea_tag(
+        array(
+            'name'=>"introtext",
+            'class'=>"inputBox",
+            'style'=>"height:60px;",
+            'rows'=>"3"
+        )
+        , doc('introtext')
+    ) . tooltip(lang('resource_summary_help'));
+    return renderTr(lang('resource_summary'),$body,'vertical-align:top;');
 }
 
 function fieldTemplate() {
@@ -1546,3 +895,818 @@ function mergeDraft($id,$content)
     return $content;
 }
 
+function input_text($name,$value,$other='',$maxlength='255')
+{
+    $ph['name']      = $name;
+    $ph['value']     = $value;
+    $ph['maxlength'] = $maxlength;
+    $ph['other']     = $other;
+    $ph['class']     = 'inputBox';
+    switch($name)
+    {
+        case 'menuindex':
+            $ph['class'] .= ' number imeoff';
+            break;
+    }
+
+    $tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
+    return parseText($tpl,$ph);
+}
+
+function input_checkbox($name,$checked,$other='')
+{
+    global $modx;
+
+    $ph['name']    = $name;
+    $ph['checked'] = ($checked) ? 'checked="checked"' : '';
+    $ph['other']   = $other;
+    $ph['resetpubdate'] = ($name === 'published') ? 'resetpubdate();' : '';
+    if($name === 'published')
+    {
+        $id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+
+        if(!$modx->hasPermission('publish_document') || $id===$modx->config['site_start'])
+        {
+            $ph['other'] = 'disabled="disabled"';
+        }
+    }
+    $tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
+    return parseText($tpl,$ph);
+}
+
+function checked($cond=false)
+{
+    if($cond) {
+        return ' checked="checked"';
+    }
+    return '';
+}
+
+function disabled($cond=false)
+{
+    if($cond) {
+        return ' disabled="disabled"';
+    }
+    return '';
+}
+
+function tooltip($msg)
+{
+    global $_style;
+
+    return html_tag(
+        'img'
+        , array(
+            'src'     => $_style['icons_tooltip_over'],
+            'title'   => $msg,
+            'alt'     => $msg,
+            'onclick' => 'alert(this.alt);',
+            'style'   => 'cursor:help;',
+            'class'   => 'tooltip'
+        )
+    );
+}
+
+function input_hidden($name,$cond=true)
+{
+    $ph['name']  = $name;
+    $ph['value'] = ($cond) ? '1' : '0';
+    $tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
+    return parseText($tpl,$ph);
+}
+
+function ab_preview($id=0)
+{
+    global $_style, $_lang;
+    $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_preview_resource"];
+    $ph['alt'] = 'preview resource';
+    $ph['label'] = $_lang['preview'];
+    return parseText($tpl,$ph);
+}
+
+function ab_save()
+{
+    global $modx, $_style, $_lang;
+
+    $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
+    $ph['icon'] = $_style["icons_save"];
+    $ph['alt'] = 'icons_save';
+    $ph['label'] = $_lang['update'];
+
+    $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
+    $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
+    $selected = array('new'=>'', 'stay'=>'', 'close'=>'');
+    if ($modx->hasPermission('new_document')
+        && $saveAfter === 'new')    $selected['new']   = 'selected';
+    elseif($saveAfter === 'stay')   $selected['stay']  = 'selected';
+    elseif($saveAfter === 'close')  $selected['close'] = 'selected';
+    else                         $selected['close'] = 'selected';
+
+    if ($modx->doc->mode !== 'draft'&&$modx->hasPermission('new_document')&&$modx->hasPermission('save_document'))
+        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], $_lang['stay_new']);
+
+    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], $_lang['stay']);
+    if($modx->doc->mode==='draft' && $modx->hasPermission('publish_document')) {
+        if($modx->revision->hasStandby)
+            $option[] = sprintf('<option id="stay4" value="save_standby">%s</option>'     , '下書採用日時を再指定');
+        else
+            $option[] = sprintf('<option id="stay4" value="save_draft">%s</option>'     , '下書きを採用');
+    }
+    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], $_lang['close']);
+
+    $ph['select'] = sprintf($ph['select'], join("\n", $option));
+
+    return parseText($tpl,$ph);
+}
+
+function ab_open_draft($id)
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_save"];
+    $ph['alt'] = 'icons_draft';
+    $ph['label'] = $_lang["open_draft"];
+    return parseText($tpl,$ph);
+}
+
+function ab_create_draft($id)
+{
+    global $modx, $_style, $_lang;
+
+    if(!$modx->config['enable_draft']) return false;
+
+    if(!$modx->hasPermission('edit_document')) return false;
+
+    $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_save"];
+    $ph['alt'] = 'icons_draft';
+    $ph['label'] = $_lang['create_draft'];
+
+    return parseText($tpl,$ph);
+}
+
+function ab_cancel($id)
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_cancel"];
+    $ph['alt'] = 'icons_cancel';
+    $ph['label'] = $_lang['cancel'];
+    return parseText($tpl,$ph);
+}
+
+function ab_move()
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_move_document"];
+    $ph['label'] = $_lang['move'];
+    return parseText($tpl,$ph);
+}
+
+function ab_duplicate()
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_resource_duplicate"];
+    $ph['alt'] = 'icons_resource_duplicate';
+    $ph['label'] = $_lang['duplicate'];
+    return parseText($tpl,$ph);
+}
+
+function ab_delete()
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_delete_document"];
+    $ph['alt'] = 'icons_delete_document';
+    $ph['label'] = $_lang['delete'];
+    return parseText($tpl,$ph);
+}
+
+function ab_undelete()
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_undelete_resource"];
+    $ph['alt'] = 'icons_undelete_document';
+    $ph['label'] = $_lang['undelete_resource'];
+    return parseText($tpl,$ph);
+}
+
+function ab_delete_draft()
+{
+    global $_style, $_lang;
+
+    $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
+    $ph['icon'] = $_style["icons_delete_document"];
+    $ph['alt'] = 'icons_delete_document';
+    $ph['label'] = $_lang['delete_draft'];
+    return parseText($tpl,$ph);
+}
+
+function get_alias_path($id)
+{
+    global $modx;
+
+    $pid = (int)$_REQUEST['pid'];
+
+    if ($modx->config['use_alias_path']==='0') {
+        return MODX_BASE_URL;
+    }
+
+    if ($pid) {
+        if ($modx->getAliasListing($pid, 'path')) {
+            $path = $modx->getAliasListing($pid, 'path') . '/' . $modx->getAliasListing($pid, 'alias');
+        } else {
+            $path = $modx->getAliasListing($pid, 'alias');
+        }
+    } elseif (!$id) {
+        return MODX_BASE_URL;
+    } else {
+        $path = $modx->getAliasListing($id, 'path');
+    }
+
+    if($path === '') {
+        $path = MODX_BASE_URL;
+    } else {
+        $path = MODX_BASE_URL . $path . '/';
+    }
+
+    if(30 < strlen($path)) {
+        $path .= '<br />';
+    }
+    return $path;
+}
+
+function renderTr($head, $body,$rowstyle='')
+{
+    if(!is_array($head)) {
+        $ph['head'] = $head;
+        $ph['extra_head'] = '';
+    }
+    else {
+        $i = 0;
+        foreach($head as $v) {
+            if($i===0) $ph['head'] = $v;
+            else $extra_head[] = $v;
+            $i++;
+        }
+        $ph['extra_head'] = join("\n", $extra_head);
+    }
+    if(is_array($body)) $body = join("\n", $body);
+    $ph['body'] = $body;
+    $ph['rowstyle'] = $rowstyle;
+
+    $tpl =<<< EOT
+	<tr style="height: 24px;[+rowstyle+]">
+		<td width="120" align="left">
+			<span class="warning">[+head+]</span>[+extra_head+]
+		</td>
+		<td>
+			[+body+]
+		</td>
+	</tr>
+EOT;
+    return parseText($tpl, $ph);
+}
+
+function getDefaultTemplate()
+{
+    global $modx;
+
+    $pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
+    $site_start = $modx->config['site_start'];
+
+    if($modx->config['auto_template_logic']==='sibling') :
+        $where = "id!='{$site_start}' AND isfolder=0 AND parent='{$pid}'";
+        $orderby = 'published DESC,menuindex ASC';
+        $rs = $modx->db->select('template', '[+prefix+]site_content', $where, $orderby, '1');
+    elseif($modx->config['auto_template_logic']==='parent' && $pid!=0) :
+        $rs = $modx->db->select('template','[+prefix+]site_content',"id='{$pid}'");
+    endif;
+
+    if(isset($rs)&&$modx->db->getRecordCount($rs)==1) {
+        $row = $modx->db->getRow($rs);
+        $default_template = $row['template'];
+    }
+
+    if(!isset($default_template))
+        $default_template = $modx->config['default_template']; // default_template is already set
+
+    return $default_template;
+}
+
+// check permissions
+function checkPermissions($id) {
+    global $modx, $_lang, $e;
+
+    $isAllowed = $modx->manager->isAllowed($id);
+    if (!isset($_GET['pid'])&&!$isAllowed)
+    {
+        $e->setError(3);
+        $e->dumpError();
+    }
+
+    switch ($modx->manager->action) {
+        case 27:
+            if (!$modx->hasPermission('view_document')) {
+                $modx->config['remember_last_tab'] = 0;
+                $e->setError(3);
+                $e->dumpError();
+            }
+            $modx->manager->remove_locks('27');
+            break;
+        case 72:
+        case 4:
+            if (!$modx->hasPermission('new_document')) {
+                $e->setError(3);
+                $e->dumpError();
+            } elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
+                // check user has permissions for parent
+                $targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
+                if (!$modx->checkPermissions($targetpid)) {
+                    $e->setError(3);
+                    $e->dumpError();
+                }
+            }
+            break;
+        case 132:
+        case 131:
+            if (!$modx->hasPermission('view_document')) {
+                $e->setError(3);
+                $e->dumpError();
+            }
+            break;
+        default:
+            $e->setError(3);
+            $e->dumpError();
+    }
+
+    if ($modx->manager->action == 27 && !$modx->checkPermissions($id))
+    {
+        //editing an existing document
+        // check permissions on the document
+        $_ = array();
+        $_[] = '<br /><br />';
+        $_[] = '<div class="section">';
+        $_[] = sprintf('<div class="sectionHeader">%s</div>',$_lang['access_permissions']);
+        $_[] = '<div class="sectionBody">';
+        $_[] = sprintf('	<p>%s</p>',$_lang['access_permission_denied']);
+        $_[] = '</div>';
+        $_[] = '</div>';
+        echo join("\n",$_);
+        include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+        exit;
+    }
+}
+
+function checkDocLock($id) {
+    global $modx, $_lang, $e;
+
+    // Check to see the document isn't locked
+    $action = $modx->manager->action;
+    $rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action='{$action}' AND id='{$id}'");
+    if (1 < $modx->db->getRecordCount($rs))
+    {
+        while($row = $modx->db->getRow($rs))
+        {
+            if ($row['internalKey'] != $modx->getLoginUserID())
+            {
+                $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['resource']);
+                $e->setError(5, $msg);
+                $e->dumpError();
+            }
+        }
+    }
+}
+
+// get document groups for current user
+function getDocgrp() {
+    if (isset($_SESSION['mgrDocgroups'])||!empty($_SESSION['mgrDocgroups']))
+        return implode(',', $_SESSION['mgrDocgroups']);
+    else return '';
+}
+
+function getValuesFromDB($id,$docgrp) {
+    global $modx,$e;
+
+    if($id==='0') return array();
+
+    $access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
+    $access .= empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
+    $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
+    $rs = $modx->db->select('DISTINCT sc.*', $from, "sc.id='{$id}' AND ({$access})");
+    $limit = $modx->db->getRecordCount($rs);
+    if ($limit > 1)
+    {
+        $e->setError(6);
+        $e->dumpError();
+    }
+    if ($limit < 1)
+    {
+        $e->setError(3);
+        $e->dumpError();
+    }
+    return $modx->db->getRow($rs);
+}
+
+// restore saved form
+function mergeReloadValues($docObject) {
+    global $modx;
+
+    if ($modx->manager->hasFormValues())
+        $restore_v = $modx->manager->loadFormValues();
+
+    if ($restore_v != false)
+    {
+        $docObject = array_merge($docObject, $restore_v);
+        if(isset($restore_v['ta'])) $docObject['content'] = $restore_v['ta'];
+    }
+
+    if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
+        $docObject['pub_date'] = '';
+    else
+        $docObject['pub_date'] = $modx->toTimeStamp($docObject['pub_date']);
+
+    if (!isset($docObject['unpub_date'])||empty($docObject['unpub_date']))
+        $docObject['unpub_date'] = '';
+    else
+        $docObject['unpub_date'] = $modx->toTimeStamp($docObject['unpub_date']);
+
+    if(isset ($_POST['which_editor'])) $docObject['which_editor'] = $_POST['which_editor'];
+
+    return $docObject;
+}
+
+function checkViewUnpubDocPerm($published,$editedby) {
+    global $modx;
+
+    if($modx->manager->action!=27) return;
+    if($modx->hasPermission('view_unpublished')) return;
+    if($published!=='0')                         return;
+
+    $userid = $modx->getLoginUserID();
+    if ($userid != $editedby) {
+        $modx->config['remember_last_tab'] = 0;
+        $modx->event->setError(3);
+        $modx->event->dumpError();
+    }
+}
+
+// increase menu index if this is a new document
+function getMenuIndexAtNew() {
+    global $modx;
+    if ($modx->config['auto_menuindex']==='1')
+    {
+        $pid = isset($_REQUEST['pid']) ? intval($_REQUEST['pid']) : 0;
+        return $modx->db->getValue($modx->db->select('count(id)','[+prefix+]site_content',"parent='{$pid}'")) + 1;
+    }
+    else return '0';
+}
+
+function getAliasAtNew() {
+    global $modx;
+
+    $pid = $_REQUEST['pid'] ? $_REQUEST['pid'] : '0';
+    if($modx->config['automatic_alias'] === '2')
+        return $modx->manager->get_alias_num_in_folder(0,$pid);
+    else return '';
+}
+
+function getJScripts($docid) {
+    global $modx,$_lang,$_style, $docObject;
+
+    $base_url = MODX_BASE_URL;
+    if(!isset($modx->config['imanager_url']))
+        $modx->config['imanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=images";
+
+    if(!isset($modx->config['fmanager_url']))
+        $modx->config['fmanager_url'] = "{$base_url}manager/media/browser/mcpuk/browser.php?Type=files";
+
+    $ph['imanager_url'] = $modx->config['imanager_url'];
+    $ph['fmanager_url'] = $modx->config['fmanager_url'];
+    $ph['preview_url']  = $modx->makeUrl($docid,'','','full',true);
+    $ph['preview_mode'] = $modx->config['preview_mode'] ? $modx->config['preview_mode'] : '0';
+    $ph['lang_confirm_delete_resource'] = $_lang['confirm_delete_resource'];
+    $ph['lang_confirm_delete_draft_resource'] = $_lang['confirm_delete_draft_resource'];
+    $ph['lang_confirm_undelete'] = $_lang['confirm_undelete'];
+    $ph['id'] = $docid;
+    $ph['docParent']   = $docObject['parent'];
+    $ph['docIsFolder'] = $docObject['isfolder'];
+    $ph['docMode'] = $modx->doc->mode;
+    $ph['lang_mutate_content.dynamic.php1'] = $_lang['mutate_content.dynamic.php1'];
+    $ph['style_tree_folder'] = $_style["tree_folder"];
+    $ph['style_icons_set_parent'] = $_style["icons_set_parent"];
+    $ph['style_tree_folder'] = $_style["tree_folder"];
+    $ph['lang_confirm_resource_duplicate'] = $_lang['confirm_resource_duplicate'];
+    $ph['lang_illegal_parent_self'] = $_lang['illegal_parent_self'];
+    $ph['lang_illegal_parent_child'] = $_lang['illegal_parent_child'];
+    $ph['action'] = $modx->manager->action;
+    $ph['suffix'] = $modx->config['friendly_url_suffix'];
+
+    $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl');
+
+    return parseText($tpl,$ph);
+}
+
+function get_template_options() {
+    global $modx;
+
+    $rs = $modx->db->select(
+        sprintf(
+            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
+            , lang('no_category')
+        )
+        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+        , ''
+        , 'c.category, t.templatename ASC'
+    );
+
+    while ($row = $modx->db->getRow($rs)) {
+        $rows[$row['category']][] = $row;
+    }
+    $option_tags = function($templates) {
+        foreach($templates as $template) {
+            $options[] = html_tag(
+                'option'
+                ,array(
+                    'value'    => $template['id'],
+                    'selected' => $template['id']==doc('template') ? null : ''
+                )
+                , $template['templatename']
+            );
+        }
+        return implode("\n", $options);
+    };
+    foreach ($rows as $category=>$templates) {
+        $optgroups[] = html_tag(
+            'optgroup'
+            , array('label'=>$category)
+            , $option_tags($templates)
+        );
+    }
+    return implode("\n", $optgroups);
+}
+
+function menuindex() {
+    global $docObject, $_lang;
+
+    $tpl = <<< EOT
+<table cellpadding="0" cellspacing="0" style="width:333px;">
+	<tr>
+		<td style="white-space:nowrap;">
+			[+menuindex+]
+			<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
+			<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
+			[+resource_opt_menu_index_help+]
+		</td>
+		<td style="text-align:right;">
+			<span class="warning">[+resource_opt_show_menu+]</span>&nbsp;
+			[+hidemenu+]
+			[+hidemenu_hidden+]
+			[+resource_opt_show_menu_help+]
+		</td>
+	</tr>
+</table>
+EOT;
+    $ph = array();
+    $ph['menuindex'] = input_text('menuindex',$docObject['menuindex'],'style="width:62px;"','8');
+    $ph['resource_opt_menu_index_help'] = tooltip($_lang['resource_opt_menu_index_help']);
+    $ph['resource_opt_show_menu'] = $_lang['resource_opt_show_menu'];
+    $cond = ($docObject['hidemenu']!=1);
+    $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
+    $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
+    $ph['resource_opt_show_menu_help'] = tooltip($_lang['resource_opt_show_menu_help']);
+    return parseText($tpl, $ph);
+}
+
+function renderSplit() {
+    $tpl = <<< EOT
+<tr>
+	<td colspan="2"><div class="split"></div></td>
+</tr>
+EOT;
+    return $tpl;
+}
+
+function getParentName(&$v_parent) {
+    global $e,$modx;
+
+    $parentlookup = false;
+    $parentname   = $modx->config['site_name'];
+    if (isset($_REQUEST['id'])) {
+        if ($v_parent != 0)            $parentlookup = $v_parent;
+    }
+    elseif(isset($_REQUEST['pid'])) {
+        if($_REQUEST['pid'] != 0) {
+            $parentlookup = $_REQUEST['pid'];
+        }
+    }
+    elseif(isset($v_parent)) {
+        if($v_parent != 0)             $parentlookup = $v_parent;
+    } else {
+        $v_parent = 0;
+    }
+
+    if($parentlookup !== false && preg_match('@^[1-9][0-9]*$@', $parentlookup)):
+        $rs = $modx->db->select('pagetitle','[+prefix+]site_content',"id='{$parentlookup}'");
+        $limit = $modx->db->getRecordCount($rs);
+        if ($limit != 1):
+            $e->setError(8);
+            $e->dumpError();
+        endif;
+        $parentrs = $modx->db->getRow($rs);
+        $parentname = $parentrs['pagetitle'];
+    endif;
+
+    return $parentname;
+}
+
+function getParentForm($pname) {
+    global $docObject,$_lang,$_style;
+
+    $tpl = <<< EOT
+&nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
+<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
+[+pid+] ([+pname+])</span></b>
+[+tooltip+]
+<input type="hidden" name="parent" value="[+pid+]" />
+EOT;
+    $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $docObject['parent'];
+    $ph['pname'] = $pname;
+    $ph['tooltip'] = tooltip($_lang['resource_parent_help']);
+    $ph['icon_tree_folder'] = $_style['tree_folder'];
+    return parseText($tpl,$ph);
+}
+
+function getActionButtons($id) {
+    global $modx, $docObject;
+
+    $tpl = <<< EOT
+<div id="actions">
+	<ul class="actionButtons">
+		[+saveButton+]
+		[+moveButton+]
+		[+duplicateButton+]
+		[+deleteButton+]
+		[+draftButton+]
+		[+previewButton+]
+		[+cancelButton+]
+	</ul>
+</div>
+EOT;
+    switch($modx->manager->action)
+    {
+        case '4':
+        case '72':
+            if($modx->hasPermission('new_document'))
+                $ph['saveButton'] = ab_save();
+            break;
+        case '27':
+            if($modx->hasPermission('save_document'))
+                $ph['saveButton'] = ab_save();
+            break;
+        case '132':
+        case '131':
+            $ph['saveButton'] = ab_save();
+            break;
+        default:
+            $ph['saveButton'] = '';
+    }
+
+    $ph['moveButton']      = '';
+    $ph['duplicateButton'] = '';
+    $ph['deleteButton']    = '';
+    if($modx->doc->mode==='draft') {
+        if($modx->revision->hasDraft||$modx->revision->hasStandby)
+            $ph['deleteButton']    = ab_delete_draft();
+    }
+    elseif ($id != $modx->config['site_start']) {
+        if($modx->manager->action==27 && $modx->doc->canSaveDoc())
+        {
+            if($modx->hasPermission('move_document'))
+                $ph['moveButton']                                 = ab_move();
+            if($modx->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
+            if($modx->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
+        }
+    }
+
+    if ($modx->manager->action == 27)
+    {
+        if($modx->revision->hasDraft||$modx->revision->hasStandby)
+            $ph['draftButton'] = ab_open_draft($id);
+        else
+            $ph['draftButton'] = ab_create_draft($id);
+
+    }
+    else $ph['draftButton']    = '';
+
+    $ph['previewButton']   = ab_preview($id);
+
+    $ph['cancelButton']    = ab_cancel($id);
+
+    $rs = parseText($tpl,$ph);
+
+    return preg_replace('@\[\+[^\]]+\+\]@','',$rs);
+}
+
+function html_tag($tag_name, $attrib=array(), $content=null) {
+    if(!$attrib && !$content) {
+        return sprintf('<%s>', $tag_name);
+    }
+    if($attrib) {
+        foreach($attrib as $k => $v) {
+            if($v===null) {
+                $attrib[$k] = sprintf('%s', $k);
+            } elseif(is_bool($v)) {
+                $attrib[$k] = sprintf('%s="%s"', $k, (int)$v);
+            } elseif($v==='') {
+                unset($attrib[$k]);
+            } else {
+                $attrib[$k] = sprintf('%s="%s"', $k, $v);
+            }
+        }
+    }
+    if($content===null) {
+        return sprintf('<%s %s>', $tag_name, implode(' ', $attrib));
+    }
+    return sprintf(
+        '<%s%s>%s</%s>'
+        , $tag_name
+        , $attrib   ? ' ' . implode(' ', $attrib)  : ''
+        , $content
+        , $tag_name
+    );
+}
+
+function input_text_tag($preps=array()) {
+    global $modx;
+    $preps['type'] = 'text';
+    $preps['maxlength'] = $modx->array_get($preps,'maxlength',255);
+    $preps['class']     = $modx->array_get($preps,'class','inputBox');
+    foreach($preps as $k=>$v) {
+        if($v===false) {
+            unset($preps[$k]);
+        }
+    }
+    return html_tag('input', $preps);
+
+}
+
+function textarea_tag($preps=array(), $content) {
+    global $modx;
+    $preps['class']     = $modx->array_get($preps,'class','inputBox');
+    foreach($preps as $k=>$v) {
+        if($v===false) {
+            unset($preps[$k]);
+        }
+    }
+    return html_tag('textarea', $preps, $content);
+
+}
+
+function textarea($preps=array(), $content) {
+    global $modx;
+    $preps['class']     = $modx->array_get($preps,'class','inputBox');
+    foreach($preps as $k=>$v) {
+        if($v===false) {
+            unset($preps[$k]);
+        }
+    }
+    return html_tag('textarea', $preps, $content);
+
+}
+
+function config($key) {
+    global $config;
+    return $config[$key];
+}
+
+function doc($key) {
+    global $modx;
+    return $modx->array_get($modx->documentObject, $key);
+}
+
+function lang($key) {
+    global $_lang;
+    return $_lang[$key];
+}
+
+function style($key) {
+    global $_style;
+    return $_style[$key];
+}
+
+if (!function_exists('str_contains')) {
+    function str_contains($str,$needle) {
+        return strpos($str,$needle)!==false;
+    }
+}
