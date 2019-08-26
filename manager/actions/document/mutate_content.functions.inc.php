@@ -63,7 +63,7 @@ function fieldAlias($id) {
     $body = get_alias_path($id)
         . input_text_tag($props)
         . html_tag(
-            'span'
+            '<span>'
             , array('id'=>"url_suffix")
             , call_user_func(function () {
                 if (doc('isfolder')) {
@@ -86,7 +86,7 @@ function fieldAlias($id) {
 function fieldWeblink() {
     return renderTr(
         lang('weblink') . html_tag(
-            'img'
+            '<img>'
             , array(
                 'name'    => 'llock',
                 'src'     => style('tree_folder'),
@@ -102,7 +102,7 @@ function fieldWeblink() {
             )
         )
         . html_tag(
-            'input'
+            '<input>'
             , array(
                 'type'    => 'button',
                 'onclick' => "BrowseFileServer('field_ta')",
@@ -955,7 +955,7 @@ function tooltip($msg)
     global $_style;
 
     return html_tag(
-        'img'
+        '<img>'
         , array(
             'src'     => $_style['icons_tooltip_over'],
             'title'   => $msg,
@@ -1436,7 +1436,7 @@ function get_template_options() {
     $option_tags = function($templates) {
         foreach($templates as $template) {
             $options[] = html_tag(
-                'option'
+                '<option>'
                 ,array(
                     'value'    => $template['id'],
                     'selected' => $template['id']==doc('template') ? null : ''
@@ -1448,7 +1448,7 @@ function get_template_options() {
     };
     foreach ($rows as $category=>$templates) {
         $optgroups[] = html_tag(
-            'optgroup'
+            '<optgroup>'
             , array('label'=>$category)
             , $option_tags($templates)
         );
@@ -1619,6 +1619,7 @@ EOT;
 }
 
 function html_tag($tag_name, $attrib=array(), $content=null) {
+    $tag_name = trim($tag_name,'<>');
     if(!$attrib && !$content) {
         return sprintf('<%s>', $tag_name);
     }
