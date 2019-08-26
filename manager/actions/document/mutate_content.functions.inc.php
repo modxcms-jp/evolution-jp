@@ -6,7 +6,7 @@ function fieldPagetitle() {
         , input_text_tag(
             array(
                 'name'=>'pagetitle',
-                'value'=>doc('pagetitle')
+                'value'=>doc('pagetitle|hsc')
             )
         ) . tooltip(lang('resource_title_help'))
     );
@@ -18,7 +18,7 @@ function fieldLongtitle() {
         , input_text_tag(
             array(
                 'name'=>'longtitle',
-                'value'=>doc('longtitle')
+                'value'=>doc('longtitle|hsc')
             )
         ) . tooltip(lang('resource_long_title_help'))
     );
@@ -34,7 +34,7 @@ function fieldDescription() {
                 'style' => 'height:43px;',
                 'rows'  => '2'
             )
-            , doc('description')
+            , doc('description|hsc')
         )
         . tooltip(lang('resource_description_help'))
         , 'vertical-align:top;'
@@ -44,7 +44,7 @@ function fieldDescription() {
 function fieldAlias($id) {
     $props = array(
         'name'  => 'alias',
-        'value' => doc('alias')
+        'value' => doc('alias|hsc')
     );
     if(!config('friendly_urls') || doc('type') !== 'document') {
         $props['maxlength'] = 100;
@@ -121,7 +121,7 @@ function fieldIntrotext() {
             'style'=>"height:60px;",
             'rows'=>"3"
         )
-        , doc('introtext')
+        , doc('introtext|hsc')
     ) . tooltip(lang('resource_summary_help'));
     return renderTr(lang('resource_summary'),$body,'vertical-align:top;');
 }
@@ -1692,6 +1692,14 @@ function config($key) {
 
 function doc($key) {
     global $modx;
+    if(str_contains($key,'|hsc')) {
+        return hsc(
+            $modx->array_get(
+                $modx->documentObject
+                , str_replace('|hsc','',$key)
+            )
+        );
+    }
     return $modx->array_get($modx->documentObject, $key);
 }
 
@@ -1709,4 +1717,9 @@ if (!function_exists('str_contains')) {
     function str_contains($str,$needle) {
         return strpos($str,$needle)!==false;
     }
+}
+
+function hsc($string) {
+    global $modx;
+    return $modx->hsc($string);
 }
