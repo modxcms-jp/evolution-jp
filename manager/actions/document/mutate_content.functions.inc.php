@@ -114,16 +114,19 @@ function fieldWeblink() {
 }
 
 function fieldIntrotext() {
-    $body = textarea_tag(
-        array(
-            'name'=>"introtext",
-            'class'=>"inputBox",
-            'style'=>"height:60px;",
-            'rows'=>"3"
-        )
-        , doc('introtext|hsc')
-    ) . tooltip(lang('resource_summary_help'));
-    return renderTr(lang('resource_summary'),$body,'vertical-align:top;');
+    return renderTr(
+        lang('resource_summary')
+        , textarea_tag(
+            array(
+                'name'=>"introtext",
+                'class'=>"inputBox",
+                'style'=>"height:60px;",
+                'rows'=>"3"
+            )
+            , doc('introtext|hsc')
+        ) . tooltip(lang('resource_summary_help'))
+        , 'vertical-align:top;'
+    );
 }
 
 function fieldTemplate() {
@@ -212,60 +215,46 @@ function getTmplvars($docid,$template,$docgrp) {
 }
 
 function rteContent($htmlcontent,$editors) {
-    $tpl = <<< EOT
-	<textarea id="ta" name="ta" cols="" rows="" style="width:100%; height: 350px;">[+content+]</textarea>
-	<span class="warning">[+_lang_which_editor_title+]</span>
-	[+editorSelecter+]
-EOT;
-    $ph['content'] = $htmlcontent;
-    $ph['_lang_which_editor_title'] = lang('which_editor_title');
-    $ph['editorSelecter'] = getEditors($editors);
-    return parseText($tpl,$ph);
+    return textarea_tag(
+            array(
+                'id'    => 'ta',
+                'name'  => 'ta',
+                'style' => 'width:100%;height:350px;'
+            )
+            , $htmlcontent
+        )
+        . html_tag('<span>', array('class'=>'warning'), lang('which_editor_title'))
+        . getEditors($editors)
+        ;
 }
 
-function parseText($tpl,$ph) {
-    foreach($ph as $k=>$v) {
-        $k = "[+{$k}+]";
-        $tpl = str_replace($k,$v,$tpl);
-    }
-    return $tpl;
-}
-
-function parseLang($tpl) {
-    global $_lang;
-    foreach($_lang as $k=>$v) {
-        $k = "[%{$k}%]";
-        $tpl = str_replace($k,$v,$tpl);
-    }
-    return $tpl;
-}
 function getEditors($editors) {
     global $selected_editor;
     if (!is_array($editors)) return '';
 
-    $rs = '';
-    $tpl = '<option value="[+editor+]" [+selected+]>[+editor+]</option>';
-    $options = array();
-    foreach ($editors as $editor) {
-        $ph = array();
-        $ph['editor']   = $editor;
-        $ph['selected'] = ($selected_editor === $editor) ? 'selected' : '';
-        $options[] = parseText($tpl, $ph);
+    if(!$editors) {
+        return '';
     }
 
-    if(!empty($options)) {
-        $tpl = <<< EOT
-<select id="which_editor" name="which_editor">
-	<option value="none">[+_lang_none+]</option>
-	[+options+]
-</select>
-EOT;
-        $ph = array();
-        $ph['_lang_none'] = lang('none');
-        $ph['options'] = implode("\n", $options);
-        $rs = parseText($tpl, $ph);
+    $options = array(
+        html_tag('<option>', array('value'=>'none'), lang('none'))
+    );
+    foreach ($editors as $editor) {
+        $options[] = html_tag(
+            '<option>'
+            , array(
+                'value'    => $editor,
+                'selected' => $selected_editor === $editor ? null : ''
+            )
+            , $editor
+        );
     }
-    return $rs;
+    return select_tag(array(
+            'id'   => 'which_editor',
+            'name' => 'which_editor'
+        )
+        , implode("\n", $options)
+    );
 }
 
 function getTplSectionContent() {
@@ -353,7 +342,7 @@ function fieldsTV() {
     foreach($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
-        if ($tv['type'] == 'richtext' || $tv['type'] == 'htmlarea') {
+        if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
             // Add richtext editor to the list
             if (is_array($rte_field)) {
                 $rte_field[] = $tvid;
@@ -370,18 +359,20 @@ function fieldsTV() {
                     $tvPBV = implode('||', $form_v[$tvid]);
                     break;
                 case 'url':
-                    if( $form_v[$tvid.'_prefix'] == 'DocID' ) $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
-                    else                                      $tvPBV = $form_v[$tvid.'_prefix'] . $form_v[$tvid];
+                    if( $form_v[$tvid.'_prefix'] === 'DocID' ) {
+                        $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
+                    } else {
+                        $tvPBV = $form_v[$tvid . '_prefix'] . $form_v[$tvid];
+                    }
                     break;
                 default:
                     $tvPBV = $form_v[$tvid];
             }
-        }else{
+        } else {
             $tvPBV = $tv['value'];
         }
 
-        if($tv['type']==='hidden')
-        {
+        if($tv['type']==='hidden') {
             $formElement = $modx->renderFormElement(
                 'hidden'
                 , $tv['id']
@@ -392,9 +383,7 @@ function fieldsTV() {
                 , $tv
             );
             $hidden[] = $formElement;
-        }
-        else
-        {
+        } else {
             $ph = array();
             $ph['caption']     = $modx->hsc($tv['caption']);
             $ph['description'] = $tv['description'];
@@ -421,19 +410,20 @@ function fieldsTV() {
 
     $output[] = '</table>';
 
-    return join("\n",$output) . join("\n", $hidden);
+    return implode("\n",$output) . join("\n", $hidden);
 }
 
 function fieldPublished() {
     global $modx;
-    if(!$modx->hasPermission('publish_document'))
-    {
-        if($modx->manager->action==27)
-            $published = $modx->documentObject['published'];
-        else
+    if(!$modx->hasPermission('publish_document')) {
+        if($modx->manager->action==27) {
+            $published = doc('published');
+        } else {
             $published = 0;
+        }
+    } else {
+        $published = $modx->documentObject['published'];
     }
-    else $published = $modx->documentObject['published'];
 
     $body = input_checkbox('published',$published==1);
     $body .= input_hidden('published',$published==1);
@@ -1777,4 +1767,21 @@ if (!function_exists('str_contains')) {
 function hsc($string) {
     global $modx;
     return $modx->hsc($string);
+}
+
+function parseText($tpl,$ph) {
+    foreach($ph as $k=>$v) {
+        $k = "[+{$k}+]";
+        $tpl = str_replace($k,$v,$tpl);
+    }
+    return $tpl;
+}
+
+function parseLang($tpl) {
+    global $_lang;
+    foreach($_lang as $k=>$v) {
+        $k = "[%{$k}%]";
+        $tpl = str_replace($k,$v,$tpl);
+    }
+    return $tpl;
 }
