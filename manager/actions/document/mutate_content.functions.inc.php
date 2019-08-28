@@ -969,23 +969,6 @@ function mergeDraft($id,$content) {
     return $content;
 }
 
-function input_text($name,$value,$other='',$maxlength='255') {
-    $ph['name']      = $name;
-    $ph['value']     = $value;
-    $ph['maxlength'] = $maxlength;
-    $ph['other']     = $other;
-    $ph['class']     = 'inputBox';
-    switch($name)
-    {
-        case 'menuindex':
-            $ph['class'] .= ' number imeoff';
-            break;
-    }
-
-    $tpl = '<input name="[+name+]" id="field_[+name+]" type="text" maxlength="[+maxlength+]" value="[+value+]" class="[+class+]" [+other+] />';
-    return parseText($tpl,$ph);
-}
-
 function input_checkbox($name,$checked,$other='') {
     $ph['name']    = $name;
     $ph['checked'] = ($checked) ? 'checked="checked"' : '';
@@ -1700,15 +1683,6 @@ function hsc($string) {
 function parseText($tpl,$ph) {
     foreach($ph as $k=>$v) {
         $k = "[+{$k}+]";
-        $tpl = str_replace($k,$v,$tpl);
-    }
-    return $tpl;
-}
-
-function parseLang($tpl) {
-    global $_lang;
-    foreach($_lang as $k=>$v) {
-        $k = "[%{$k}%]";
         $tpl = str_replace($k,$v,$tpl);
     }
     return $tpl;
