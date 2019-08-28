@@ -409,7 +409,7 @@ function fieldPublished() {
             $published = 0;
         }
     } else {
-        $published = evo()->documentObject['published'];
+        $published = doc('published');
     }
 
     $body = input_checkbox('published',$published==1);
@@ -551,7 +551,7 @@ function fieldIsfolder() {
                 'type'     => 'checkbox',
                 'name'     => 'isfoldercheck',
                 'checked'  => doc('isfolder')==1 ? null : '',
-                'disabled' => input_any('id')!=0 && 0<$haschildren ? null : '',
+                'disabled' => input_any('id') && $haschildren ? null : '',
                 'class'    => 'checkbox',
                 'onclick'  => 'changestate(document.mutate.isfolder);'
             )
@@ -578,8 +578,7 @@ function fieldRichtext() {
 }
 
 function fieldDonthit() {
-    global $docObject;
-    $cond = ($docObject['donthit']!=1);
+    $cond = (doc('donthit')!=1);
     $body = input_checkbox('donthit',$cond);
     $body .= input_hidden('donthit',!$cond);
     $body .= tooltip(lang('resource_opt_trackvisit_help'));
@@ -588,8 +587,7 @@ function fieldDonthit() {
 
 
 function fieldSearchable() {
-    global $docObject;
-    $cond = ($docObject['searchable']==1);
+    $cond = (doc('searchable')==1);
     $body = input_checkbox('searchable',$cond);
     $body .= input_hidden('searchable',$cond);
     $body .= tooltip(lang('page_data_searchable_help'));
@@ -597,8 +595,7 @@ function fieldSearchable() {
 }
 
 function fieldCacheable() {
-    global $docObject;
-    $cond = ($docObject['cacheable']==1);
+    $cond = (doc('cacheable')==1);
     $disabled = (evo()->config['cache_type']==='0') ? ' disabled' : '';
     $body = input_checkbox('cacheable',$cond,$disabled);
     $body .= input_hidden('cacheable',$cond);
@@ -643,9 +640,7 @@ function fieldType() {
 }
 
 function fieldContentType() {
-    global $docObject;
-
-    if($docObject['type'] === 'reference') {
+    if(doc('type') === 'reference') {
         return '';
     }
     $tpl = <<< EOT
@@ -657,7 +652,7 @@ EOT;
     $option = array();
     foreach ($ct as $value)
     {
-        $ph['selected'] = $docObject['contentType'] === $value ? ' selected' : '';
+        $ph['selected'] = doc('contentType') === $value ? ' selected' : '';
         $ph['value'] = $value;
         $option[] = parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
     }
@@ -668,9 +663,7 @@ EOT;
 }
 
 function fieldContent_dispo() {
-    global $docObject;
-
-    if($docObject['type'] === 'reference') return;
+    if(doc('type') === 'reference') return;
     $tpl = <<< EOT
 <select name="content_dispo" size="1" style="width:200px">
 	<option value="0" [+sel_inline+]>[+inline+]</option>
@@ -678,7 +671,7 @@ function fieldContent_dispo() {
 </select>
 EOT;
     $ph = array();
-    $ph['sel_attachment'] = $docObject['content_dispo']==1 ? 'selected' : '';
+    $ph['sel_attachment'] = doc('content_dispo')==1 ? 'selected' : '';
     $ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
     $ph['inline']     = lang('inline');
     $ph['attachment'] = lang('attachment');
@@ -698,7 +691,7 @@ function getGroups($docid) {
 }
 
 function getUDGroups($id) {
-    global $docObject, $permissions_yes, $permissions_no;
+    global $permissions_yes, $permissions_no;
 
     $form_v = $_POST;
     $groupsarray = array();
@@ -708,7 +701,7 @@ function getUDGroups($id) {
     } elseif (!empty($_REQUEST['pid'])) {
         $docid = $_REQUEST['pid'];
     } else {
-        $docid = $docObject['parent'];
+        $docid = doc('parent');
     }
 
     if (0 < $docid) {
@@ -1040,10 +1033,15 @@ function ab_save() {
     $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
     $selected = array('new'=>'', 'stay'=>'', 'close'=>'');
     if (evo()->hasPermission('new_document')
-        && $saveAfter === 'new')    $selected['new']   = 'selected';
-    elseif($saveAfter === 'stay')   $selected['stay']  = 'selected';
-    elseif($saveAfter === 'close')  $selected['close'] = 'selected';
-    else                         $selected['close'] = 'selected';
+        && $saveAfter === 'new') {
+        $selected['new'] = 'selected';
+    } elseif($saveAfter === 'stay') {
+        $selected['stay'] = 'selected';
+    } elseif($saveAfter === 'close') {
+        $selected['close'] = 'selected';
+    } else {
+        $selected['close'] = 'selected';
+    }
 
     if (evo()->doc->mode !== 'draft'&&evo()->hasPermission('new_document')&&evo()->hasPermission('save_document'))
         $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], lang('stay_new'));
@@ -1220,8 +1218,7 @@ function checkPermissions($id) {
     global $e;
 
     $isAllowed = evo()->manager->isAllowed($id);
-    if (!isset($_GET['pid'])&&!$isAllowed)
-    {
+    if (!isset($_GET['pid'])&&!$isAllowed) {
         $e->setError(3);
         $e->dumpError();
     }
@@ -1240,7 +1237,7 @@ function checkPermissions($id) {
             if (!evo()->hasPermission('new_document')) {
                 $e->setError(3);
                 $e->dumpError();
-            } elseif(isset($_REQUEST['pid']) && $_REQUEST['pid'] != '0') {
+            } elseif(evo()->input_any('pid')) {
                 // check user has permissions for parent
                 $targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
                 if (!evo()->checkPermissions($targetpid)) {
@@ -1333,27 +1330,30 @@ function getValuesFromDB($id,$docgrp) {
 
 // restore saved form
 function mergeReloadValues($docObject) {
-    if (evo()->manager->hasFormValues())
-        $restore_v = evo()->manager->loadFormValues();
-
-    if ($restore_v != false)
-    {
-        $docObject = array_merge($docObject, $restore_v);
-        if(isset($restore_v['ta'])) $docObject['content'] = $restore_v['ta'];
+    if (evo()->manager->hasFormValues()) {
+        $populate = evo()->manager->loadFormValues();
+        if ($populate) {
+            $docObject = array_merge($docObject, $populate);
+            if(evo()->array_get($populate,'ta')) {
+                $docObject['content'] = $populate['ta'];
+            }
+            if(evo()->array_get($populate,'which_editor')) {
+                $docObject['which_editor'] = $populate['which_editor'];
+            }
+        }
     }
 
-    if (!isset($docObject['pub_date'])||empty($docObject['pub_date']))
-        $docObject['pub_date'] = '';
-    else
+    if (evo()->array_get($docObject, 'pub_date')) {
         $docObject['pub_date'] = evo()->toTimeStamp($docObject['pub_date']);
+    } else {
+        $docObject['pub_date'] = '';
+    }
 
-    if (!isset($docObject['unpub_date'])||empty($docObject['unpub_date']))
-        $docObject['unpub_date'] = '';
-    else
+    if (evo()->array_get($docObject, 'unpub_date')) {
         $docObject['unpub_date'] = evo()->toTimeStamp($docObject['unpub_date']);
-
-    if(isset ($_POST['which_editor'])) $docObject['which_editor'] = $_POST['which_editor'];
-
+    } else {
+        $docObject['unpub_date'] = '';
+    }
     return $docObject;
 }
 
@@ -1425,9 +1425,7 @@ function getJScripts($docid) {
 }
 
 function get_template_options() {
-    global $modx;
-
-    $rs = $modx->db->select(
+    $rs = db()->select(
         sprintf(
             "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
             , lang('no_category')
@@ -1437,7 +1435,7 @@ function get_template_options() {
         , 'c.category, t.templatename ASC'
     );
 
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $rows[$row['category']][] = $row;
     }
     $option_tags = function($templates) {
@@ -1471,8 +1469,6 @@ function get_template_options() {
 }
 
 function menuindex() {
-    global $docObject;
-
     $tpl = <<< EOT
 <table cellpadding="0" cellspacing="0" style="width:333px;">
 	<tr>
@@ -1502,7 +1498,7 @@ EOT;
     );
     $ph['resource_opt_menu_index_help'] = tooltip(lang('resource_opt_menu_index_help'));
     $ph['resource_opt_show_menu'] = lang('resource_opt_show_menu');
-    $cond = ($docObject['hidemenu']!=1);
+    $cond = (doc('hidemenu')!=1);
     $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
     $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
     $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
@@ -1566,8 +1562,6 @@ EOT;
 }
 
 function getActionButtons($id) {
-    global $modx, $docObject;
-
     $tpl = <<< EOT
 <div id="actions">
 	<ul class="actionButtons">
@@ -1617,7 +1611,7 @@ EOT;
                 $ph['duplicateButton'] = ab_duplicate();
             }
             if(evo()->doc->canDeleteDoc()) {
-                if ($docObject['deleted'] == 0) {
+                if (doc('deleted') == 0) {
                     $ph['deleteButton'] = ab_delete();
                 } else {
                     $ph['deleteButton'] = ab_undelete();
@@ -1697,7 +1691,8 @@ function db() {
     return evo()->db;
 }
 
-function html_tag($tag_name, $attrib=array(), $content=null) {return evo()->html_tag($tag_name, $attrib, $content);
+function html_tag($tag_name, $attrib=array(), $content=null) {
+    return evo()->html_tag($tag_name, $attrib, $content);
 }
 
 function input_text_tag($props=array()) {
