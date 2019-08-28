@@ -1,21 +1,28 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!isset($modx->config['preview_mode']))      $modx->config['preview_mode'] = '1';
-if(!isset($modx->config['tvs_below_content'])) $modx->config['tvs_below_content'] = '0';
+if(!isset($modx->config['preview_mode'])) {
+    $modx->config['preview_mode'] = '1';
+}
+if(!isset($modx->config['tvs_below_content'])) {
+    $modx->config['tvs_below_content'] = '0';
+}
 
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
 $modx->loadExtension('DocAPI');
 
 $id = getDocId(); // New is '0'
-if($modx->manager->action==132||$modx->manager->action==131)
+if($modx->manager->action==132||$modx->manager->action==131) {
     $modx->doc->mode = 'draft';
-else $modx->doc->mode = 'normal';
+} else {
+    $modx->doc->mode = 'normal';
+}
 
 checkPermissions($id);
-if($id) checkDocLock($id);
+if($id) {
+    checkDocLock($id);
+}
 
-global $config, $docObject;
-$config = & $modx->config;
+global $docObject;
 $docgrp = getDocgrp();
 
 global $default_template; // For plugins (ManagerManager etc...)
@@ -25,7 +32,7 @@ if($id) $docObject = getValuesFromDB($id,$docgrp);
 else    $docObject = getInitialValues();
 
 $modx->loadExtension('REVISION');
-if($id && $modx->config['enable_draft']) {
+if($id && config('enable_draft')) {
     $modx->revisionObject = $modx->revision->getRevisionObject($id,'resource','template');
     if( $id && $modx->manager->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
         $docObject['template'] = $modx->revisionObject['template'];
@@ -64,7 +71,7 @@ $modx->event->vars = array();
 global $template; // For plugins (ManagerManager etc...)
 $template = $docObject['template'];
 
-$selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : $config['which_editor'];
+$selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : config('which_editor');
 
 checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
 
@@ -81,7 +88,7 @@ $ph = array();
 $ph['JScripts'] = getJScripts($id);
 $ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
 $ph['id'] = $id;
-$ph['upload_maxsize'] = $modx->config['upload_maxsize'] ? $modx->config['upload_maxsize'] : 3145728;
+$ph['upload_maxsize'] = config('upload_maxsize') ? config('upload_maxsize') : 3145728;
 $ph['mode'] = $modx->manager->action;
 $ph['a'] = ($modx->doc->mode==='normal'&&$modx->hasPermission('save_document')) ? '5' : '128' ;
 // 5:save_resource.processor.php 128:save_draft_content.processor.php
@@ -121,12 +128,12 @@ $ph['renderSplit']      = renderSplit();
 $ph['fieldParent']      = fieldParent();
 
 $ph['sectionContent'] =  sectionContent();
-$ph['sectionTV']      =  $modx->config['tvs_below_content'] ? sectionTV() : '';
+$ph['sectionTV']      =  config('tvs_below_content') ? sectionTV() : '';
 
 echo parseText($tpl['tab-page']['general'],$ph);
 
 
-if($modx->config['tvs_below_content']==0 && 0<count($tmplVars)) {
+if(config('tvs_below_content')==0 && 0<count($tmplVars)) {
     $ph['TVFields'] = fieldsTV();
     $ph['_lang_tv'] = $_lang['tmplvars'];
     echo parseText($tpl['tab-page']['tv'],$ph);
@@ -162,7 +169,7 @@ if($docObject['type'] !== 'reference') {
 $ph['fieldLink_attributes'] = fieldLink_attributes();
 $ph['fieldIsfolder']   = fieldIsfolder();
 $ph['fieldRichtext']   = fieldRichtext();
-$ph['fieldDonthit']    = $modx->config['track_visitors']==='1' ? fieldDonthit() : '';
+$ph['fieldDonthit']    = config('track_visitors')==='1' ? fieldDonthit() : '';
 $ph['fieldSearchable'] = fieldSearchable();
 $ph['fieldCacheable']  = $docObject['type'] === 'document' ? fieldCacheable() : '';
 $ph['fieldSyncsite']   = fieldSyncsite();
@@ -172,7 +179,7 @@ echo parseText($tpl['tab-page']['settings'],$ph);
 
 /*******************************
  * Document Access Permissions */
-if ($modx->config['use_udperms'] == 1)
+if (config('use_udperms') == 1)
 {
     global $permissions_yes, $permissions_no;
     $permissions = getUDGroups($id);

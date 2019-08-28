@@ -284,7 +284,7 @@ function sectionContent() {
 
     $ph['header'] = lang('resource_content');
     $planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
-    if (evo()->config['use_editor'] == 1 && doc('richtext') == 1) {
+    if (config('use_editor') == 1 && doc('richtext') == 1) {
         // invoke OnRichTextEditorRegister event
         $editors = evo()->invokeEvent('OnRichTextEditorRegister');
         if($editors) {
@@ -310,7 +310,7 @@ function sectionTV() {
 
 function rte_fields() {
     $rte_fields = array();
-    if (evo()->config['use_editor'] == 1 && doc('richtext') == 1) {
+    if (config('use_editor')== 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
 }
@@ -498,13 +498,13 @@ function getInitialValues() {
 
     $init_v['menuindex'] = getMenuIndexAtNew();
     $init_v['alias']     = getAliasAtNew();
-    $init_v['richtext']  = evo()->config['use_editor'];
-    $init_v['published'] = evo()->config['publish_default'];
+    $init_v['richtext']  = config('use_editor');
+    $init_v['published'] = config('publish_default');
     $init_v['contentType'] = 'text/html';
     $init_v['content_dispo'] = '0';
-    $init_v['which_editor'] = evo()->config['which_editor'];
-    $init_v['searchable'] = evo()->config['search_default'];
-    $init_v['cacheable'] = evo()->config['cache_default'];
+    $init_v['which_editor'] = config('which_editor');
+    $init_v['searchable'] = config('search_default');
+    $init_v['cacheable'] = config('cache_default');
 
     if(evo()->manager->action==4) {
         $init_v['type'] = 'document';
@@ -569,7 +569,7 @@ function fieldIsfolder() {
 }
 
 function fieldRichtext() {
-    $disabled = (evo()->config['use_editor']!=1) ? ' disabled="disabled"' : '';
+    $disabled = (config('use_editor')!=1) ? ' disabled="disabled"' : '';
     $cond = (!isset(evo()->documentObject['richtext']) || evo()->documentObject['richtext']!=0);
     $body = input_checkbox('richtext',$cond,$disabled);
     $body .= input_hidden('richtext',$cond);
@@ -596,7 +596,7 @@ function fieldSearchable() {
 
 function fieldCacheable() {
     $cond = (doc('cacheable')==1);
-    $disabled = (evo()->config['cache_type']==='0') ? ' disabled' : '';
+    $disabled = (config('cache_type')==='0') ? ' disabled' : '';
     $body = input_checkbox('cacheable',$cond,$disabled);
     $body .= input_hidden('cacheable',$cond);
     $body .= tooltip(lang('page_data_cacheable_help'));
@@ -604,7 +604,7 @@ function fieldCacheable() {
 }
 
 function fieldSyncsite() {
-    $disabled = (evo()->config['cache_type']==0) ? ' disabled' : '';
+    $disabled = (config('cache_type')==0) ? ' disabled' : '';
     $body = input_checkbox('syncsite',true,$disabled);
     $body .= input_hidden('syncsite');
     $body .= tooltip(lang('resource_opt_emptycache_help'));
@@ -648,7 +648,7 @@ function fieldContentType() {
 	[+option+]
 </select>
 EOT;
-    $ct = explode(',', evo()->config['custom_contenttype']);
+    $ct = explode(',', config('custom_contenttype'));
     $option = array();
     foreach ($ct as $value)
     {
@@ -971,7 +971,7 @@ function input_checkbox($name,$checked,$other='') {
     {
         $id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
 
-        if(!evo()->hasPermission('publish_document') || $id===evo()->config['site_start'])
+        if(!evo()->hasPermission('publish_document') || $id===config('site_start'))
         {
             $ph['other'] = 'disabled="disabled"';
         }
@@ -1069,9 +1069,13 @@ function ab_open_draft($id) {
 }
 
 function ab_create_draft($id) {
-    if(!evo()->config['enable_draft']) return false;
+    if(!config('enable_draft')) {
+        return false;
+    }
 
-    if(!evo()->hasPermission('edit_document')) return false;
+    if(!evo()->hasPermission('edit_document')) {
+        return false;
+    }
 
     $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_save");
@@ -1131,7 +1135,7 @@ function ab_delete_draft() {
 function get_alias_path($id) {
     $pid = (int)$_REQUEST['pid'];
 
-    if (evo()->config['use_alias_path']==='0') {
+    if (config('use_alias_path')==='0') {
         return MODX_BASE_URL;
     }
 
@@ -1192,13 +1196,13 @@ EOT;
 
 function getDefaultTemplate() {
     $pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
-    $site_start = evo()->config['site_start'];
+    $site_start = config('site_start');
 
-    if(evo()->config['auto_template_logic']==='sibling') :
+    if(config('auto_template_logic')==='sibling') :
         $where = "id!='{$site_start}' AND isfolder=0 AND parent='{$pid}'";
         $orderby = 'published DESC,menuindex ASC';
         $rs = db()->select('template', '[+prefix+]site_content', $where, $orderby, '1');
-    elseif(evo()->config['auto_template_logic']==='parent' && $pid!=0) :
+    elseif(config('auto_template_logic')==='parent' && $pid!=0) :
         $rs = db()->select('template','[+prefix+]site_content',"id='{$pid}'");
     endif;
 
@@ -1208,14 +1212,14 @@ function getDefaultTemplate() {
     }
 
     if(!isset($default_template))
-        $default_template = evo()->config['default_template']; // default_template is already set
+        $default_template = config('default_template'); // default_template is already set
 
     return $default_template;
 }
 
 // check permissions
 function checkPermissions($id) {
-    global $e;
+    global $modx,$e;
 
     $isAllowed = evo()->manager->isAllowed($id);
     if (!isset($_GET['pid'])&&!$isAllowed) {
@@ -1226,7 +1230,7 @@ function checkPermissions($id) {
     switch (evo()->manager->action) {
         case 27:
             if (!evo()->hasPermission('view_document')) {
-                evo()->config['remember_last_tab'] = 0;
+                $modx->config['remember_last_tab'] = 0;
                 $e->setError(3);
                 $e->dumpError();
             }
@@ -1364,7 +1368,8 @@ function checkViewUnpubDocPerm($published,$editedby) {
 
     $userid = evo()->getLoginUserID();
     if ($userid != $editedby) {
-        evo()->config['remember_last_tab'] = 0;
+        global $modx;
+        $modx->config['remember_last_tab'] = 0;
         evo()->event->setError(3);
         evo()->event->dumpError();
     }
@@ -1372,7 +1377,7 @@ function checkViewUnpubDocPerm($published,$editedby) {
 
 // increase menu index if this is a new document
 function getMenuIndexAtNew() {
-    if (evo()->config['auto_menuindex']==1) {
+    if (config('auto_menuindex')==1) {
         return db()->getValue(
                 db()->select(
                     'count(id)'
@@ -1385,7 +1390,7 @@ function getMenuIndexAtNew() {
 }
 
 function getAliasAtNew() {
-    if(evo()->config['automatic_alias'] === '2') {
+    if(config('automatic_alias') === '2') {
         return evo()->manager->get_alias_num_in_folder(
             0
             , evo()->input_any('pid',0)
@@ -1400,7 +1405,7 @@ function getJScripts($docid) {
     $ph['imanager_url'] = evo()->conf_var('imanager_url', $browser_url . '?Type=images');
     $ph['fmanager_url'] = evo()->conf_var('fmanager_url', $browser_url . '?Type=files');
     $ph['preview_url']  = evo()->makeUrl($docid,'','','full',true);
-    $ph['preview_mode'] = evo()->config['preview_mode'] ? evo()->config['preview_mode'] : '0';
+    $ph['preview_mode'] = config('preview_mode') ? config('preview_mode') : '0';
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
@@ -1416,7 +1421,7 @@ function getJScripts($docid) {
     $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
     $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
     $ph['action'] = evo()->manager->action;
-    $ph['suffix'] = evo()->config['friendly_url_suffix'];
+    $ph['suffix'] = config('friendly_url_suffix');
 
     return parseText(
         file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl')
@@ -1541,7 +1546,7 @@ function getParentName(&$v_parent) {
         return $parentrs['pagetitle'];
     }
 
-    return evo()->config['site_name'];
+    return config('site_name');
 }
 
 function getParentForm($pname) {
@@ -1602,7 +1607,7 @@ EOT;
             $ph['deleteButton'] = ab_delete_draft();
         }
     }
-    elseif ($id != evo()->config['site_start']) {
+    elseif ($id != config('site_start')) {
         if(evo()->manager->action==27 && evo()->doc->canSaveDoc()) {
             if(evo()->hasPermission('move_document')) {
                 $ph['moveButton'] = ab_move();
@@ -1638,8 +1643,7 @@ EOT;
 }
 
 function config($key) {
-    global $config;
-    return $config[$key];
+    return evo()->config[$key];
 }
 
 function doc($key) {
