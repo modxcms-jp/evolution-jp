@@ -213,13 +213,13 @@ $tmp = array('id' => $id);
 $OnDocFormRender = $modx->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
-global $rte_field;
 if($modx->config['use_editor'] === '1') {
-    if (is_array($rte_field) && 0<count($rte_field)) {
+    $rte_fields = rte_fields();
+    if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = array(
             'editor' => $selected_editor,
-            'elements' => $rte_field
+            'elements' => $rte_fields
         );
         $evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
         if (is_array($evtOut)) {

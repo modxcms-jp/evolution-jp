@@ -274,7 +274,6 @@ function getTplTVRow() {
 }
 
 function sectionContent() {
-    global $rte_field;
     if (doc('type') !== 'document') {
         return '';
     }
@@ -292,7 +291,6 @@ function sectionContent() {
         } else {
             $ph['body'] = $planetpl;
         }
-        $rte_field = array('ta');
     } else {
         $ph['body'] = $planetpl;
     }
@@ -309,19 +307,34 @@ function sectionTV() {
 }
 
 function rte_fields() {
+    static $rte_fields = null;
+    if($rte_fields!==null) {
+        return $rte_fields;
+    }
     $rte_fields = array();
     if (config('use_editor')== 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
+    $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());
+    foreach($tmplVars as $tv) {
+        $tvid = 'tv' . $tv['id'];
+        // Go through and display all Template Variables
+        if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
+            $rte_fields[] = 'tv' . $tv['id'];
+        }
+    }
+    return $rte_fields;
 }
+
 function fieldsTV() {
-    global $tmplVars, $rte_field;
+    $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());
+    $total = count($tmplVars);
+    if(!$total) {
+        return '';
+    }
 
     $tpl = getTplTVRow();
-    $total = count($tmplVars);
     $form_v = $_POST ? $_POST : array();
-    if(empty($total)) return '';
-
     $i = 0;
     $output = array();
     $hidden = array();
@@ -330,15 +343,6 @@ function fieldsTV() {
     foreach($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
-        if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
-            // Add richtext editor to the list
-            if (is_array($rte_field)) {
-                $rte_field[] = $tvid;
-            } else {
-                $rte_field = array($tvid);
-            }
-        }
-
         // post back value
         if(isset($form_v[$tvid])){
             switch( $tv['type'] ){
