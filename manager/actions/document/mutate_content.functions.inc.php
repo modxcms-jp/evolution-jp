@@ -491,33 +491,21 @@ function input_any($key) {
 }
 
 function getInitialValues() {
-    $init_v['menuindex'] = getMenuIndexAtNew();
-    $init_v['alias']     = getAliasAtNew();
-    $init_v['richtext']  = config('use_editor');
-    $init_v['published'] = config('publish_default');
-    $init_v['contentType'] = 'text/html';
-    $init_v['content_dispo'] = '0';
-    $init_v['which_editor'] = config('which_editor');
-    $init_v['searchable'] = config('search_default');
-    $init_v['cacheable'] = config('cache_default');
-
-    if(evo()->manager->action==4) {
-        $init_v['type'] = 'document';
-    } elseif(evo()->manager->action==72) {
-        $init_v['type'] = 'reference';
-    }
-
-    if(isset($_GET['pid'])) {
-        $init_v['parent'] = $_GET['pid'];
-    }
-
-    if(isset ($_REQUEST['newtemplate'])) {
-        $init_v['template'] = $_REQUEST['newtemplate'];
-    } else {
-        $init_v['template'] = getDefaultTemplate();
-    }
-
-    return $init_v;
+    return array(
+        'menuindex'     => getMenuIndexAtNew(),
+        'alias'         => getAliasAtNew(),
+        'richtext'      => config('use_editor'),
+        'published'     => config('publish_default'),
+        'contentType'   => 'text/html',
+        'content_dispo' => '0',
+        'which_editor'  => config('which_editor'),
+        'searchable'    => config('search_default'),
+        'cacheable'     => config('cache_default'),
+        'type'          => evo()->manager->action==72 ? 'reference' : 'document',
+        'richtext'      => evo()->manager->action==72 ? 0 : 1,
+        'parent'        => evo()->input_get('pid',0),
+        'template'      => input_any('newtemplate') ? input_any('newtemplate') : getDefaultTemplate()
+    );
 }
 
 function fieldLink_attributes() {
