@@ -10,7 +10,7 @@ if(!isset($modx->config['tvs_below_content'])) {
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
 $modx->loadExtension('DocAPI');
 
-$id = getDocId(); // New is '0'
+$id = input_any('id'); // New is '0'
 if($modx->manager->action==132||$modx->manager->action==131) {
     $modx->doc->mode = 'draft';
 } else {
@@ -28,21 +28,25 @@ $docgrp = getDocgrp();
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
-if($id) $docObject = getValuesFromDB($id,$docgrp);
-else    $docObject = getInitialValues();
+if($id) {
+    $docObject = getValuesFromDB($id, $docgrp);
+} else {
+    $docObject = getInitialValues();
+}
 
 $modx->loadExtension('REVISION');
 if($id && config('enable_draft')) {
     $modx->revisionObject = $modx->revision->getRevisionObject($id,'resource','template');
     if( $id && $modx->manager->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
         $docObject['template'] = $modx->revisionObject['template'];
+} else {
+    $modx->revisionObject = array();
 }
-else $modx->revisionObject = array();
 
 if( isset($_REQUEST['newtemplate']) && preg_match('/\A[0-9]+\z/',$_REQUEST['newtemplate']) )
     $docObject['template'] = $_REQUEST['newtemplate'];
 
-$tmplVars  = getTmplvars($id,$docObject['template'],$docgrp);
+$tmplVars  = getTmplvars(input_any('id'),doc('template'),$docgrp);
 $docObject += $tmplVars;
 
 if($id && $modx->manager->action==131)

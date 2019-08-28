@@ -681,7 +681,11 @@ EOT;
 
 function getGroups($docid) {
     // Load up, the permissions from the parent (if new document) or existing document
-    $rs = db()->select('id, document_group','[+prefix+]document_groups',"document='{$docid}'");
+    $rs = db()->select(
+        'id, document_group'
+        ,'[+prefix+]document_groups'
+        , sprintf("document='%s'", $docid)
+    );
     $groupsarray = array();
     while ($row = db()->getRow($rs))
     {
@@ -1647,15 +1651,16 @@ function config($key) {
 }
 
 function doc($key) {
+    global $docObject;
     if(str_contains($key,'|hsc')) {
         return hsc(
             evo()->array_get(
-                evo()->documentObject
+                $docObject
                 , str_replace('|hsc','',$key)
             )
         );
     }
-    return evo()->array_get(evo()->documentObject, $key);
+    return evo()->array_get($docObject, $key);
 }
 
 function lang($key) {
