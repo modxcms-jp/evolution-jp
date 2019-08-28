@@ -4714,6 +4714,38 @@ class DocumentParser {
         return false;
     }
     // End of class.
+    public function html_tag($tag_name, $attrib=array(), $content=null) {
+        $tag_name = trim($tag_name,'<>');
+        if(!$attrib && !$content) {
+            return sprintf('<%s>', $tag_name);
+        }
+        if($attrib) {
+            foreach($attrib as $k => $v) {
+                if($v===null) {
+                    $attrib[$k] = sprintf('%s', $k);
+                } elseif(is_bool($v)) {
+                    $attrib[$k] = sprintf('%s="%s"', $k, (int)$v);
+                } elseif($v==='') {
+                    unset($attrib[$k]);
+                } else {
+                    $attrib[$k] = sprintf('%s="%s"', $k, $v);
+                }
+            }
+        }
+        if($content===null) {
+            return sprintf('<%s %s>', $tag_name, implode(' ', $attrib));
+        }
+        if(is_array($content)) {
+            $content = implode("\n", $content);
+        }
+        return sprintf(
+            '<%s%s>%s</%s>'
+            , $tag_name
+            , $attrib   ? ' ' . implode(' ', $attrib)  : ''
+            , $content
+            , $tag_name
+        );
+    }
 }
 
 // SystemEvent Class
