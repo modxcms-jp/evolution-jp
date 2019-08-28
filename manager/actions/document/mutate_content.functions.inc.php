@@ -275,8 +275,9 @@ function getTplTVRow() {
 
 function sectionContent() {
     global $rte_field;
-    if (doc('type') !== 'document')
+    if (doc('type') !== 'document') {
         return '';
+    }
 
     $tpl = getTplSectionContent();
     $htmlcontent = htmlspecialchars(doc('content'));
@@ -696,8 +697,7 @@ function getGroups($docid) {
     return $groupsarray;
 }
 
-function getUDGroups($id)
-{
+function getUDGroups($id) {
     global $docObject, $permissions_yes, $permissions_no;
 
     $form_v = $_POST;
@@ -814,8 +814,7 @@ function getUDGroups($id)
     return $permissions;
 }
 
-function getTplHead()
-{
+function getTplHead() {
     $tpl = <<< EOT
 [+JScripts+]
 <form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
@@ -840,8 +839,7 @@ EOT;
     return $tpl;
 }
 
-function getTplFoot()
-{
+function getTplFoot() {
     $tpl = <<< EOT
 		[+OnDocFormRender+]
 	</div><!--div class="tab-pane" id="documentPane"-->
@@ -856,8 +854,7 @@ EOT;
     return $tpl;
 }
 
-function getTplTabGeneral()
-{
+function getTplTabGeneral() {
     $tpl = <<< EOT
 <!-- start main wrapper -->
 	<!-- General -->
@@ -883,8 +880,7 @@ EOT;
     return $tpl;
 }
 
-function getTplTabTV()
-{
+function getTplTabTV() {
     $tpl = <<< EOT
 <!-- TVs -->
 <div class="tab-page" id="tabTVs">
@@ -895,8 +891,7 @@ EOT;
     return $tpl;
 }
 
-function getTplTabSettings()
-{
+function getTplTabSettings() {
     $tpl = <<< EOT
 	<!-- Settings -->
 	<div class="tab-page" id="tabSettings">
