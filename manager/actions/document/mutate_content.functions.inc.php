@@ -401,7 +401,6 @@ function fieldsTV() {
 }
 
 function fieldPublished() {
-    global $modx;
     if(!evo()->hasPermission('publish_document')) {
         if(evo()->manager->action==27) {
             $published = doc('published');
@@ -419,8 +418,6 @@ function fieldPublished() {
 }
 
 function fieldPub_date($id=0) {
-    global $modx;
-
     $body = input_text_tag(
             array(
                 'name'  => 'pub_date',
@@ -452,7 +449,6 @@ function fieldPub_date($id=0) {
 }
 
 function fieldUnpub_date($id) {
-    global $modx;
     if(!evo()->hasPermission('publish_document')) {
         return '';
     }
@@ -483,7 +479,6 @@ function fieldUnpub_date($id) {
 }
 
 function getDocId() {
-    global $modx;
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any('id'))) {
         return evo()->input_any('id');
     }
@@ -491,7 +486,6 @@ function getDocId() {
 }
 
 function input_any($key) {
-    global $modx;
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
     }
@@ -499,7 +493,7 @@ function input_any($key) {
 }
 
 function getInitialValues() {
-    global $modx,$default_template;
+    global $default_template;
 
     $init_v['menuindex'] = getMenuIndexAtNew();
     $init_v['alias']     = getAliasAtNew();
@@ -574,7 +568,6 @@ function fieldIsfolder() {
 }
 
 function fieldRichtext() {
-    global $modx;
     $disabled = (evo()->config['use_editor']!=1) ? ' disabled="disabled"' : '';
     $cond = (!isset(evo()->documentObject['richtext']) || evo()->documentObject['richtext']!=0);
     $body = input_checkbox('richtext',$cond,$disabled);
@@ -603,7 +596,7 @@ function fieldSearchable() {
 }
 
 function fieldCacheable() {
-    global $modx,$docObject;
+    global $docObject;
     $cond = ($docObject['cacheable']==1);
     $disabled = (evo()->config['cache_type']==='0') ? ' disabled' : '';
     $body = input_checkbox('cacheable',$cond,$disabled);
@@ -613,7 +606,6 @@ function fieldCacheable() {
 }
 
 function fieldSyncsite() {
-    global $modx;
     $disabled = (evo()->config['cache_type']==0) ? ' disabled' : '';
     $body = input_checkbox('syncsite',true,$disabled);
     $body .= input_hidden('syncsite');
@@ -650,7 +642,7 @@ function fieldType() {
 }
 
 function fieldContentType() {
-    global $modx,$docObject;
+    global $docObject;
 
     if($docObject['type'] === 'reference') {
         return '';
@@ -694,7 +686,6 @@ EOT;
 }
 
 function getGroups($docid) {
-    global $modx;
     // Load up, the permissions from the parent (if new document) or existing document
     $rs = db()->select('id, document_group','[+prefix+]document_groups',"document='{$docid}'");
     $groupsarray = array();
@@ -707,7 +698,7 @@ function getGroups($docid) {
 
 function getUDGroups($id)
 {
-    global $modx, $docObject, $permissions_yes, $permissions_no;
+    global $docObject, $permissions_yes, $permissions_no;
 
     $form_v = $_POST;
     $groupsarray = array();
@@ -932,8 +923,7 @@ EOT;
     return $tpl;
 }
 
-function getTplTabAccess()
-{
+function getTplTabAccess() {
     $tpl = <<< EOT
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
@@ -969,9 +959,7 @@ EOT;
     return $tpl;
 }
 
-function mergeDraft($id,$content)
-{
-    global $modx;
+function mergeDraft($id,$content) {
     $revision_content = evo()->revision->getDraft($id);
     foreach($content as $k=>$v) {
         if(!is_array($v)) continue;
@@ -986,8 +974,7 @@ function mergeDraft($id,$content)
     return $content;
 }
 
-function input_text($name,$value,$other='',$maxlength='255')
-{
+function input_text($name,$value,$other='',$maxlength='255') {
     $ph['name']      = $name;
     $ph['value']     = $value;
     $ph['maxlength'] = $maxlength;
@@ -1004,10 +991,7 @@ function input_text($name,$value,$other='',$maxlength='255')
     return parseText($tpl,$ph);
 }
 
-function input_checkbox($name,$checked,$other='')
-{
-    global $modx;
-
+function input_checkbox($name,$checked,$other='') {
     $ph['name']    = $name;
     $ph['checked'] = ($checked) ? 'checked="checked"' : '';
     $ph['other']   = $other;
@@ -1025,24 +1009,21 @@ function input_checkbox($name,$checked,$other='')
     return parseText($tpl,$ph);
 }
 
-function checked($cond=false)
-{
+function checked($cond=false) {
     if($cond) {
         return ' checked="checked"';
     }
     return '';
 }
 
-function disabled($cond=false)
-{
+function disabled($cond=false) {
     if($cond) {
         return ' disabled="disabled"';
     }
     return '';
 }
 
-function tooltip($msg)
-{
+function tooltip($msg) {
     global $_style;
 
     return html_tag(
@@ -1058,16 +1039,14 @@ function tooltip($msg)
     );
 }
 
-function input_hidden($name,$cond=true)
-{
+function input_hidden($name,$cond=true) {
     $ph['name']  = $name;
     $ph['value'] = ($cond) ? '1' : '0';
     $tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
     return parseText($tpl,$ph);
 }
 
-function ab_preview($id=0)
-{
+function ab_preview($id=0) {
     global $_style;
     $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = $_style["icons_preview_resource"];
@@ -1076,9 +1055,8 @@ function ab_preview($id=0)
     return parseText($tpl,$ph);
 }
 
-function ab_save()
-{
-    global $modx, $_style;
+function ab_save() {
+    global $_style;
 
     $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
     $ph['icon'] = $_style["icons_save"];
@@ -1111,8 +1089,7 @@ function ab_save()
     return parseText($tpl,$ph);
 }
 
-function ab_open_draft($id)
-{
+function ab_open_draft($id) {
     global $_style;
 
     $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1122,9 +1099,8 @@ function ab_open_draft($id)
     return parseText($tpl,$ph);
 }
 
-function ab_create_draft($id)
-{
-    global $modx, $_style;
+function ab_create_draft($id) {
+    global $_style;
 
     if(!evo()->config['enable_draft']) return false;
 
@@ -1138,8 +1114,7 @@ function ab_create_draft($id)
     return parseText($tpl,$ph);
 }
 
-function ab_cancel($id)
-{
+function ab_cancel($id) {
     global $_style;
 
     $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1149,8 +1124,7 @@ function ab_cancel($id)
     return parseText($tpl,$ph);
 }
 
-function ab_move()
-{
+function ab_move() {
     global $_style;
 
     $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
@@ -1159,8 +1133,7 @@ function ab_move()
     return parseText($tpl,$ph);
 }
 
-function ab_duplicate()
-{
+function ab_duplicate() {
     global $_style;
 
     $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1170,8 +1143,7 @@ function ab_duplicate()
     return parseText($tpl,$ph);
 }
 
-function ab_delete()
-{
+function ab_delete() {
     global $_style;
 
     $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1181,8 +1153,7 @@ function ab_delete()
     return parseText($tpl,$ph);
 }
 
-function ab_undelete()
-{
+function ab_undelete() {
     global $_style;
 
     $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1192,8 +1163,7 @@ function ab_undelete()
     return parseText($tpl,$ph);
 }
 
-function ab_delete_draft()
-{
+function ab_delete_draft() {
     global $_style;
 
     $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
@@ -1203,10 +1173,7 @@ function ab_delete_draft()
     return parseText($tpl,$ph);
 }
 
-function get_alias_path($id)
-{
-    global $modx;
-
+function get_alias_path($id) {
     $pid = (int)$_REQUEST['pid'];
 
     if (evo()->config['use_alias_path']==='0') {
@@ -1237,8 +1204,7 @@ function get_alias_path($id)
     return $path;
 }
 
-function renderTr($head, $body,$rowstyle='')
-{
+function renderTr($head, $body,$rowstyle='') {
     if(!is_array($head)) {
         $ph['head'] = $head;
         $ph['extra_head'] = '';
@@ -1269,10 +1235,7 @@ EOT;
     return parseText($tpl, $ph);
 }
 
-function getDefaultTemplate()
-{
-    global $modx;
-
+function getDefaultTemplate() {
     $pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
     $site_start = evo()->config['site_start'];
 
@@ -1357,7 +1320,7 @@ function checkPermissions($id) {
 }
 
 function checkDocLock($id) {
-    global $modx, $e;
+    global $e;
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'
@@ -1389,7 +1352,7 @@ function getDocgrp() {
 }
 
 function getValuesFromDB($id,$docgrp) {
-    global $modx,$e;
+    global $e;
 
     if($id==='0') return array();
 
@@ -1413,8 +1376,6 @@ function getValuesFromDB($id,$docgrp) {
 
 // restore saved form
 function mergeReloadValues($docObject) {
-    global $modx;
-
     if (evo()->manager->hasFormValues())
         $restore_v = evo()->manager->loadFormValues();
 
@@ -1440,8 +1401,6 @@ function mergeReloadValues($docObject) {
 }
 
 function checkViewUnpubDocPerm($published,$editedby) {
-    global $modx;
-
     if(evo()->manager->action!=27) return;
     if(evo()->hasPermission('view_unpublished')) return;
     if($published!=='0')                         return;
@@ -1456,7 +1415,6 @@ function checkViewUnpubDocPerm($published,$editedby) {
 
 // increase menu index if this is a new document
 function getMenuIndexAtNew() {
-    global $modx;
     if (evo()->config['auto_menuindex']==1) {
         return db()->getValue(
                 db()->select(
@@ -1470,8 +1428,6 @@ function getMenuIndexAtNew() {
 }
 
 function getAliasAtNew() {
-    global $modx;
-
     if(evo()->config['automatic_alias'] === '2') {
         return evo()->manager->get_alias_num_in_folder(
             0
@@ -1482,8 +1438,6 @@ function getAliasAtNew() {
 }
 
 function getJScripts($docid) {
-    global $modx;
-
     $ph = array();
     $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
     $ph['imanager_url'] = evo()->conf_var('imanager_url', $browser_url . '?Type=images');
@@ -1606,9 +1560,8 @@ function renderSplit() {
 EOT;
 }
 
-function getParentName(&$v_parent)
-{
-    global $e, $modx;
+function getParentName(&$v_parent) {
+    global $e;
 
     $parentlookup = false;
     if (isset($_REQUEST['id'])) {
@@ -1699,12 +1652,20 @@ EOT;
         }
     }
     elseif ($id != evo()->config['site_start']) {
-        if(evo()->manager->action==27 && evo()->doc->canSaveDoc())
-        {
-            if(evo()->hasPermission('move_document'))
-                $ph['moveButton']                                 = ab_move();
-            if(evo()->doc->canCreateDoc()) $ph['duplicateButton'] = ab_duplicate();
-            if(evo()->doc->canDeleteDoc()) $ph['deleteButton']    = $docObject['deleted']==0 ? ab_delete() : ab_undelete();
+        if(evo()->manager->action==27 && evo()->doc->canSaveDoc()) {
+            if(evo()->hasPermission('move_document')) {
+                $ph['moveButton'] = ab_move();
+            }
+            if(evo()->doc->canCreateDoc()) {
+                $ph['duplicateButton'] = ab_duplicate();
+            }
+            if(evo()->doc->canDeleteDoc()) {
+                if ($docObject['deleted'] == 0) {
+                    $ph['deleteButton'] = ab_delete();
+                } else {
+                    $ph['deleteButton'] = ab_undelete();
+                }
+            }
         }
     }
 
