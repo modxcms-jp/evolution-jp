@@ -1303,7 +1303,7 @@ class DocumentParser {
         }
     
         // now, check for chunks that need publishing
-        $rs = $this->db->update(
+        $this->db->update(
             'published=1'
             , '[+prefix+]site_htmlsnippets'
             , sprintf(
@@ -3393,11 +3393,7 @@ class DocumentParser {
         $rs = $this->db->select(
             'name,snippet,published'
             , '[+prefix+]site_htmlsnippets'
-            , sprintf(
-                'published=1'
-                , $this->baseTime
-                , $this->baseTime
-            )
+            , 'published=1'
         );
         
         if (!$this->db->getRecordCount($rs)){
