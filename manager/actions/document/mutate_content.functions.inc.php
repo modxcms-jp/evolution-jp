@@ -483,13 +483,6 @@ function fieldUnpub_date($id) {
     return renderTr(lang('page_data_unpublishdate'),$body);
 }
 
-function getDocId() {
-    if (preg_match('@^[1-9][0-9]*$@', evo()->input_any('id'))) {
-        return evo()->input_any('id');
-    }
-    return '0';
-}
-
 function input_any($key) {
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
@@ -498,8 +491,6 @@ function input_any($key) {
 }
 
 function getInitialValues() {
-    global $default_template;
-
     $init_v['menuindex'] = getMenuIndexAtNew();
     $init_v['alias']     = getAliasAtNew();
     $init_v['richtext']  = config('use_editor');
@@ -523,7 +514,7 @@ function getInitialValues() {
     if(isset ($_REQUEST['newtemplate'])) {
         $init_v['template'] = $_REQUEST['newtemplate'];
     } else {
-        $init_v['template'] = $default_template;
+        $init_v['template'] = getDefaultTemplate();
     }
 
     return $init_v;
@@ -1203,25 +1194,40 @@ EOT;
 }
 
 function getDefaultTemplate() {
-    $pid = (isset($_REQUEST['pid']) && !empty($_REQUEST['pid'])) ? $_REQUEST['pid'] : '0';
-    $site_start = config('site_start');
-
-    if(config('auto_template_logic')==='sibling') :
-        $where = "id!='{$site_start}' AND isfolder=0 AND parent='{$pid}'";
-        $orderby = 'published DESC,menuindex ASC';
-        $rs = db()->select('template', '[+prefix+]site_content', $where, $orderby, '1');
-    elseif(config('auto_template_logic')==='parent' && $pid!=0) :
-        $rs = db()->select('template','[+prefix+]site_content',"id='{$pid}'");
-    endif;
-
-    if(isset($rs)&&db()->getRecordCount($rs)==1) {
-        $row = db()->getRow($rs);
-        $default_template = $row['template'];
+    static $default_template = null;
+    if($default_template!==null) {
+        return $default_template;
     }
 
-    if(!isset($default_template))
-        $default_template = config('default_template'); // default_template is already set
+    $default_template = config('default_template');
 
+    if(!input_any('pid')) {
+        return $default_template;
+    }
+
+    if (config('auto_template_logic') === 'sibling') {
+        $rs = db()->select(
+            'template'
+            , '[+prefix+]site_content'
+            , sprintf("id!='%s' AND isfolder=0 AND parent='%s'", config('site_start'), input_any('pid'))
+            , 'published DESC,menuindex ASC'
+            , 1
+        );
+    } elseif (config('auto_template_logic') === 'parent') {
+        $rs = db()->select(
+            'template'
+            , '[+prefix+]site_content'
+            , sprintf("id='%s'", input_any('pid'))
+        );
+    } else {
+        $default_template = config('default_template');
+        return $default_template;
+    }
+
+    $default_template = db()->getValue($rs);
+    if (!$default_template) {
+        $default_template = config('default_template');
+    }
     return $default_template;
 }
 
@@ -1558,8 +1564,6 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-    global $docObject;
-
     $tpl = <<< EOT
 &nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
 <b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
@@ -1567,7 +1571,7 @@ function getParentForm($pname) {
 [+tooltip+]
 <input type="hidden" name="parent" value="[+pid+]" />
 EOT;
-    $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $docObject['parent'];
+    $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : doc('parent');
     $ph['pname'] = $pname;
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');

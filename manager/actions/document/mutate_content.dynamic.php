@@ -73,13 +73,13 @@ $evtOut = $modx->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = array();
 
 global $template; // For plugins (ManagerManager etc...)
-$template = $docObject['template'];
+$template = doc('template');
 
 $selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : config('which_editor');
 
-checkViewUnpubDocPerm($docObject['published'],$docObject['editedby']);// Only a=27
+checkViewUnpubDocPerm(doc('published'),doc('editedby'));// Only a=27
 
-$_SESSION['itemname'] = $modx->hsc($docObject['pagetitle']);
+$_SESSION['itemname'] = $modx->hsc(doc('pagetitle'));
 
 $tpl['head'] = getTplHead();
 $tpl['foot'] = getTplFoot();
@@ -123,7 +123,7 @@ $ph['fieldPagetitle']   = fieldPagetitle();
 $ph['fieldLongtitle']   = fieldLongtitle();
 $ph['fieldDescription'] = fieldDescription();
 $ph['fieldAlias']       = fieldAlias($id);
-$ph['fieldWeblink']     = ($docObject['type']==='reference') ? fieldWeblink() : '';
+$ph['fieldWeblink']     = doc('type')==='reference' ? fieldWeblink() : '';
 $ph['fieldIntrotext']   = fieldIntrotext();
 $ph['fieldTemplate']    = fieldTemplate();
 $ph['fieldMenutitle']   = fieldMenutitle();
@@ -163,19 +163,33 @@ if( empty($ph['fieldPub_date']) ){
 $ph['renderSplit2'] = renderSplit();
 
 $ph['fieldType'] = fieldType();
-if($docObject['type'] !== 'reference') {
+if(doc('type') !== 'reference') {
     $ph['fieldContentType']   = fieldContentType();
     $ph['fieldContent_dispo'] = fieldContent_dispo();
 } else {
-    $ph['fieldContentType']   = sprintf('<input type="hidden" name="contentType" value="%s" />',$docObject['contentType']);
-    $ph['fieldContent_dispo'] = sprintf('<input type="hidden" name="content_dispo" value="%s" />',$docObject['content_dispo']);
+    $ph['fieldContentType']   = html_tag(
+        '<input>'
+        , array(
+            'type'  => 'hidden',
+            'name'  => 'contentType',
+            'value' => doc('contentType')
+        )
+    );
+    $ph['fieldContent_dispo']   = html_tag(
+        '<input>'
+        , array(
+            'type'  => 'hidden',
+            'name'  => 'content_dispo',
+            'value' => doc('content_dispo')
+        )
+    );
 }
 $ph['fieldLink_attributes'] = fieldLink_attributes();
 $ph['fieldIsfolder']   = fieldIsfolder();
 $ph['fieldRichtext']   = fieldRichtext();
 $ph['fieldDonthit']    = config('track_visitors')==='1' ? fieldDonthit() : '';
 $ph['fieldSearchable'] = fieldSearchable();
-$ph['fieldCacheable']  = $docObject['type'] === 'document' ? fieldCacheable() : '';
+$ph['fieldCacheable']  = doc('type') === 'document' ? fieldCacheable() : '';
 $ph['fieldSyncsite']   = fieldSyncsite();
 echo parseText($tpl['tab-page']['settings'],$ph);
 
