@@ -1019,12 +1019,10 @@ function disabled($cond=false) {
 }
 
 function tooltip($msg) {
-    global $_style;
-
     return html_tag(
         '<img>'
         , array(
-            'src'     => $_style['icons_tooltip_over'],
+            'src'     => style('icons_tooltip_over'),
             'title'   => $msg,
             'alt'     => $msg,
             'onclick' => 'alert(this.alt);',
@@ -1042,19 +1040,16 @@ function input_hidden($name,$cond=true) {
 }
 
 function ab_preview($id=0) {
-    global $_style;
     $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_preview_resource"];
+    $ph['icon'] = style('icons_preview_resource');
     $ph['alt'] = 'preview resource';
     $ph['label'] = lang('preview');
     return parseText($tpl,$ph);
 }
 
 function ab_save() {
-    global $_style;
-
     $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-    $ph['icon'] = $_style["icons_save"];
+    $ph['icon'] = style('icons_save');
     $ph['alt'] = 'icons_save';
     $ph['label'] = lang('update');
 
@@ -1085,24 +1080,20 @@ function ab_save() {
 }
 
 function ab_open_draft($id) {
-    global $_style;
-
     $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_save"];
+    $ph['icon'] = style("icons_save");
     $ph['alt'] = 'icons_draft';
     $ph['label'] = lang('open_draft');
     return parseText($tpl,$ph);
 }
 
 function ab_create_draft($id) {
-    global $_style;
-
     if(!evo()->config['enable_draft']) return false;
 
     if(!evo()->hasPermission('edit_document')) return false;
 
     $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_save"];
+    $ph['icon'] = style("icons_save");
     $ph['alt'] = 'icons_draft';
     $ph['label'] = lang('create_draft');
 
@@ -1110,59 +1101,47 @@ function ab_create_draft($id) {
 }
 
 function ab_cancel($id) {
-    global $_style;
-
     $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_cancel"];
+    $ph['icon'] = style("icons_cancel");
     $ph['alt'] = 'icons_cancel';
     $ph['label'] = lang('cancel');
     return parseText($tpl,$ph);
 }
 
 function ab_move() {
-    global $_style;
-
     $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_move_document"];
+    $ph['icon'] = style("icons_move_document");
     $ph['label'] = lang('move');
     return parseText($tpl,$ph);
 }
 
 function ab_duplicate() {
-    global $_style;
-
     $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_resource_duplicate"];
+    $ph['icon'] = style("icons_resource_duplicate");
     $ph['alt'] = 'icons_resource_duplicate';
     $ph['label'] = lang('duplicate');
     return parseText($tpl,$ph);
 }
 
 function ab_delete() {
-    global $_style;
-
     $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_delete_document"];
+    $ph['icon'] = style("icons_delete_document");
     $ph['alt'] = 'icons_delete_document';
     $ph['label'] = lang('delete');
     return parseText($tpl,$ph);
 }
 
 function ab_undelete() {
-    global $_style;
-
     $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_undelete_resource"];
+    $ph['icon'] = style("icons_undelete_resource");
     $ph['alt'] = 'icons_undelete_document';
     $ph['label'] = lang('undelete_resource');
     return parseText($tpl,$ph);
 }
 
 function ab_delete_draft() {
-    global $_style;
-
     $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = $_style["icons_delete_document"];
+    $ph['icon'] = style("icons_delete_document");
     $ph['alt'] = 'icons_delete_document';
     $ph['label'] = lang('delete_draft');
     return parseText($tpl,$ph);
@@ -1587,7 +1566,7 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-    global $docObject,$_style;
+    global $docObject;
 
     $tpl = <<< EOT
 &nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
@@ -1599,7 +1578,7 @@ EOT;
     $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $docObject['parent'];
     $ph['pname'] = $pname;
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
-    $ph['icon_tree_folder'] = $_style['tree_folder'];
+    $ph['icon_tree_folder'] = style('tree_folder');
     return parseText($tpl,$ph);
 }
 
