@@ -88,3 +88,17 @@ function alert() {
     global $e;
     return $e;
 }
+
+function array_get($array, $key=null, $default=0) {
+    if (preg_match('@^[1-9][0-9]*$@', evo()->array_get($array,$key))) {
+        return evo()->array_get($array,$key);
+    }
+    return $default;
+}
+
+function input_any($key, $default=0) {
+    if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
+        return evo()->input_any($key);
+    }
+    return $default;
+}

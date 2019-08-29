@@ -142,16 +142,9 @@ function rte_fields() {
     return $rte_fields;
 }
 
-function input_any($key, $default=0) {
-    if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
-        return evo()->input_any($key);
-    }
-    return $default;
-}
-
-function getInitialValues() {
+function getInitialValues($parent_id,$new_template_id) {
     return array(
-        'menuindex'     => getMenuIndexAtNew(),
+        'menuindex'     => getMenuIndexAtNew($parent_id),
         'alias'         => getAliasAtNew(),
         'richtext'      => config('use_editor'),
         'published'     => config('publish_default'),
@@ -162,8 +155,8 @@ function getInitialValues() {
         'cacheable'     => config('cache_default'),
         'type'          => manager()->action==72 ? 'reference' : 'document',
         'richtext'      => manager()->action==72 ? 0 : 1,
-        'parent'        => evo()->input_get('pid',0),
-        'template'      => input_any('newtemplate') ? input_any('newtemplate') : getDefaultTemplate()
+        'parent'        => $parent_id,
+        'template'      => $new_template_id ? $new_template_id : getDefaultTemplate()
     );
 }
 
@@ -598,13 +591,13 @@ function checkViewUnpubDocPerm($published,$editedby) {
 }
 
 // increase menu index if this is a new document
-function getMenuIndexAtNew() {
+function getMenuIndexAtNew($parent_id) {
     if (config('auto_menuindex')==1) {
         return db()->getValue(
                 db()->select(
                     'count(id)'
                     , '[+prefix+]site_content'
-                    , sprintf("parent='%s'", evo()->input_any('pid', 0))
+                    , sprintf("parent='%s'", $parent_id)
                 )
             ) + 1;
     }
@@ -615,7 +608,7 @@ function getAliasAtNew() {
     if(config('automatic_alias') === '2') {
         return manager()->get_alias_num_in_folder(
             0
-            , evo()->input_any('pid',0)
+            , input_any('pid')
         );
     }
     return '';
@@ -683,13 +676,13 @@ function file_get_tpl ($path) {
 
 function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit) {
     return array(
-        'JScripts' => getJScripts(input_any('id')),
+        'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
-        'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
+        'upload_maxsize' => config('upload_maxsize', 3145728),
         'mode' => manager()->action,
         'a' =>  (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
-        'pid' => evo()->input_any('pid',0),
+        'pid' => input_any('pid'),
         'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
@@ -701,13 +694,13 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
     );
 }
 
-function collect_tab_general_ph() {
+function collect_tab_general_ph($docid) {
     return array(
         '_lang_settings_general' => lang('settings_general'),
         'fieldPagetitle'   => fieldPagetitle(),
         'fieldLongtitle'   => fieldLongtitle(),
         'fieldDescription' => fieldDescription(),
-        'fieldAlias'       => fieldAlias(input_any('id')),
+        'fieldAlias'       => fieldAlias($docid),
         'fieldWeblink'     => doc('type')==='reference' ? fieldWeblink() : '',
         'fieldIntrotext'   => fieldIntrotext(),
         'fieldTemplate'    => fieldTemplate(),
@@ -728,12 +721,12 @@ function collect_tab_tv_ph() {
     );
 }
 
-function collect_tab_settings_ph() {
+function collect_tab_settings_ph($docid) {
     $ph = array();
     $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
     $ph['fieldPublished'] = (evo()->doc->mode==='normal') ? fieldPublished() : '';
-    $ph['fieldPub_date']   = fieldPub_date(input_any('id'));
-    $ph['fieldUnpub_date'] = fieldUnpub_date(input_any('id'));
+    $ph['fieldPub_date']   = fieldPub_date($docid);
+    $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
 
     $ph['renderSplit1'] = $ph['fieldPub_date'] ? renderSplit() : '';
     $ph['renderSplit2'] = renderSplit();

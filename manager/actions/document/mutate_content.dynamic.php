@@ -33,7 +33,7 @@ global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
-$docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getInitialValues();
+$docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getInitialValues(input_any('pid'),input_any('newtemplate'));
 
 evo()->loadExtension('REVISION');
 if(input_any('id') && config('enable_draft')) {
@@ -44,8 +44,8 @@ if(input_any('id') && config('enable_draft')) {
     $modx->revisionObject = array();
 }
 
-if(preg_match('/[1-9][0-9]*/', evo()->input_any('newtemplate')) ) {
-    $docObject['template'] = evo()->input_any('newtemplate');
+if(preg_match('/[1-9][0-9]*/', input_any('newtemplate')) ) {
+    $docObject['template'] = input_any('newtemplate');
 }
 
 $tmplVars  = getTmplvars(input_any('id'),doc('template'),$docgrp);
@@ -82,7 +82,7 @@ $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 $body = array();
 $body[] = parseText(
     file_get_tpl('tab_general.tpl')
-    , collect_tab_general_ph()
+    , collect_tab_general_ph(input_any('id'))
 );
 
 if(config('tvs_below_content')==0 && $tmplVars) {
@@ -94,7 +94,7 @@ if(config('tvs_below_content')==0 && $tmplVars) {
 
 $body[] = parseText(
     file_get_tpl('tab_settings.tpl')
-    , collect_tab_settings_ph()
+    , collect_tab_settings_ph(input_any('id'))
 );
 
 if (config('use_udperms') == 1) {

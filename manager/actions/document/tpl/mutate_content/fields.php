@@ -223,8 +223,10 @@ function menuindex() {
         'input'
         , array(
             'type' => 'checkbox',
-            'name' => 'hidemenu',
-            'checked' => doc('hidemenu')!=1 ? null : ''
+            'name' => 'hidemenucheck',
+            'class' => 'checkbox',
+            'checked' => doc('hidemenu')!=1 ? null : '',
+            'onclick'  => 'changestate(document.mutate.hidemenu);'
         )
     );
     $ph['hidemenu_hidden'] = html_tag(
@@ -233,7 +235,7 @@ function menuindex() {
             'type' => 'hidden',
             'name' => 'hidemenu',
             'class'=> 'hidden',
-            'value' => doc('hidemenu')!=1 ? 1 : 0
+            'value' => doc('hidemenu')==1 ? 1 : 0
         )
     );
     $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
@@ -249,8 +251,8 @@ function fieldParent() {
         ,'[+prefix+]site_content'
         , sprintf('id=%s', doc('parent',0))
     );
-    $ph['pid'] = $parent['id'];
-    $ph['pname'] = $parent ? $parent['pagetitle'] : '';
+    $ph['pid'] = array_get($parent,'id');
+    $ph['pname'] = $parent ? $parent['pagetitle'] : config('site_name');
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
     return renderTr(
