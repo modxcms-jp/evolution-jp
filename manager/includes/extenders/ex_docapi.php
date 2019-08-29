@@ -235,9 +235,13 @@ class DocAPI {
     {
         global $modx;
 
-        $fields = 'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext';
-        $fields = explode(',',$fields);
-        if(isset($form_v['ta'])) $form_v['content'] = $form_v['ta'];
+        $fields = explode(
+            ','
+            , 'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext'
+        );
+        if(isset($form_v['ta'])) {
+            $form_v['content'] = $form_v['ta'];
+        }
         foreach($fields as $key) {
             if(!isset($form_v[$key])) $form_v[$key] = '';
             $value = trim($form_v[$key]);
@@ -299,11 +303,14 @@ class DocAPI {
 
     function setValue($form_v) {
         global $modx,$_lang;
-
-        $id = $form_v['id'];
         $mode = $_POST['mode'];
 
-        $form_v['alias'] = get_alias($id,$form_v['alias'],$form_v['parent'],$form_v['pagetitle']);
+        $form_v['alias'] = get_alias(
+            $modx->array_get($form_v, 'id')
+            ,$modx->array_get($form_v, 'alias')
+            ,$modx->array_get($form_v, 'parent')
+            ,$modx->array_get($form_v, 'pagetitle')
+            );
         if($form_v['type']!=='reference' && $form_v['contentType'] !== 'text/html')
             $form_v['richtext'] = 0;
 
@@ -324,10 +331,7 @@ class DocAPI {
         }
 
         if($form_v['pagetitle']==='') {
-            if ($form_v['type'] === 'reference')
-                $form_v['pagetitle'] = $_lang['untitled_weblink'];
-            else
-                $form_v['pagetitle'] = $_lang['untitled_resource'];
+            $form_v['pagetitle'] =  ($form_v['type'] === 'reference') ? $_lang['untitled_weblink'] :  $_lang['untitled_resource'];
         }
 
         if(substr($form_v['alias'],-1)==='/') {
@@ -342,7 +346,9 @@ class DocAPI {
             {
                 $modx->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
-                if($id) $url.= "&id={$id}";
+                if($modx->array_get($form_v, 'id')) {
+                    $url .= "&id={$modx->array_get($form_v, 'id')}";
+                }
                 $modx->webAlertAndQuit($_lang['mgrlog_dateinvalid'],$url);
             }
             elseif($form_v['pub_date'] < $_SERVER['REQUEST_TIME']) $form_v['published'] = 1;
@@ -355,29 +361,29 @@ class DocAPI {
             {
                 $modx->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
-                if($id) $url.= "&id={$id}";
+                if($modx->array_get($form_v, 'id')) {
+                    $url .= "&id={$modx->array_get($form_v, 'id')}";
+                }
                 $modx->webAlertAndQuit($_lang['mgrlog_dateinvalid'],$url);
             }
             elseif($form_v['unpub_date'] < $_SERVER['REQUEST_TIME']) $form_v['published'] = 0;
         }
 
-        if($_POST['mode'] == '27') $actionToTake = 'edit';
-        else                       $actionToTake = 'new';
-
         // deny publishing if not permitted
-        if ($actionToTake==='new') {
-            if (!$modx->hasPermission('publish_document'))
-            {
-                $form_v['pub_date'] = 0;
-                $form_v['unpub_date'] = 0;
-                $form_v['published'] = 0;
-            }
-            $form_v['publishedon'] = ($form_v['published'] ? $_SERVER['REQUEST_TIME'] : 0);
-            $form_v['publishedby'] = ($form_v['published'] ? $modx->getLoginUserID() : 0);
-
-            $form_v['createdby'] = $modx->getLoginUserID();
-            $form_v['createdon'] = $_SERVER['REQUEST_TIME'];
+        if ($modx->array_get('mode') != 27) {
+            return $form_v;
         }
+
+        if (!$modx->hasPermission('publish_document')) {
+            $form_v['pub_date'] = 0;
+            $form_v['unpub_date'] = 0;
+            $form_v['published'] = 0;
+        }
+        $form_v['publishedon'] = $form_v['published'] ? $_SERVER['REQUEST_TIME'] : 0;
+        $form_v['publishedby'] = $form_v['published'] ? $modx->getLoginUserID() : 0;
+
+        $form_v['createdby'] = $modx->getLoginUserID();
+        $form_v['createdon'] = $_SERVER['REQUEST_TIME'];
         return $form_v;
     }
 
