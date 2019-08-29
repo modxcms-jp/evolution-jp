@@ -2622,7 +2622,10 @@ class DocumentParser {
 
         return false;
     }
-    
+
+    private function is_int($string) {
+        return preg_match('@^[1-9][0-9]*$@', $string);
+    }
     /**
     * name: getDocumentObject  - used by parser
     * desc: returns a document object - $method: alias, id
@@ -2635,12 +2638,8 @@ class DocumentParser {
             }
         }
         
-        if(isset($_SESSION['mgrValidated'])
-                && $mode==='prepareResponse'
-                && isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])
-            )
-        {
-            if(!isset($_POST['token']) || !isset($_SESSION['token']) || $_POST['token']!==$_SESSION['token']) {
+        if($this->isLoggedIn() && $mode==='prepareResponse' && $this->is_int($this->input_post('id'))) {
+            if(!$this->input_post('token') || !$this->session_var('token') || $_POST['token']!==$_SESSION['token']) {
                 exit('Can not preview');
             }
 
