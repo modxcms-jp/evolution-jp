@@ -2662,8 +2662,14 @@ class DocumentParser {
                 $tmp=array();
                 foreach( $previewObject as $k => $v ){
                     $mt = array();
-                    if( preg_match('/^tv([0-9]+)$/',$k,$mt) ){
-                        $row = $this->db->getRow($this->db->select('name', '[+prefix+]site_tmplvars', "id='{$mt[1]}'"));
+                    if( preg_match('/^tv([0-9]+)$/', $k, $mt) ){
+                        $row = $this->db->getRow(
+                            $this->db->select(
+                                'name'
+                                , '[+prefix+]site_tmplvars'
+                                , sprintf("id='%s'", $mt[1])
+                            )
+                        );
                         $k = $row['name'];
                     }
                     $tmp[$k] = $v;
@@ -2698,25 +2704,30 @@ class DocumentParser {
         }
         $access = join(' OR ', $_);
         
-        $where = sprintf("sc.id=%d AND (%s)", (int)$identifier, $access);
         $result= $this->db->select(
             'sc.*'
             , array(
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
             )
-            , $where
+            , sprintf("sc.id=%d AND (%s)", (int)$identifier, $access)
             , ''
-            , 1);
-        if ($this->db->getRecordCount($result) < 1)
-        {
+            , 1
+        );
+        if (!$this->db->getRecordCount($result)) {
             if ($this->isBackend() || $mode === 'direct') {
                 return false;
             }
             
             // check if file is not public
-            $rs = $this->db->select('id','[+prefix+]document_groups',"document='{$identifier}'",'',1);
-            if ($this->db->getRecordCount($rs) > 0) {
+            $rs = $this->db->select(
+                'id'
+                , '[+prefix+]document_groups'
+                , sprintf("document='%d'", $identifier)
+                , ''
+                , 1
+            );
+            if ($this->db->getRecordCount($rs)) {
                 $this->sendUnauthorizedPage();
             } else {
                 $this->sendErrorPage();
@@ -2747,8 +2758,11 @@ class DocumentParser {
             , (int)$docid
         );
 
-        if( isset($previewObject['template']) ) $tmp = $previewObject['template'];
-        else                                    $tmp = $documentObject['template'];
+        if( isset($previewObject['template']) ) {
+            $tmp = $previewObject['template'];
+        } else {
+            $tmp = $documentObject['template'];
+        }
         $where = sprintf("tvtpl.templateid='%s'", $tmp);
 
         $rs = $this->db->select($field,$from,$where);
