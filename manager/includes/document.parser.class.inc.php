@@ -892,8 +892,7 @@ class DocumentParser {
         return 'tablet';
     }
     
-    function join($delim=',', $array, $prefix='')
-    {
+    private function join($delim=',', $array, $prefix='') {
         foreach($array as $i=>$v) {
             $array[$i] = $prefix . trim($v);
         }
