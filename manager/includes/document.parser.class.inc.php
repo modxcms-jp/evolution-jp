@@ -978,25 +978,38 @@ class DocumentParser {
         // store base_url and base_path inside config array
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
-        if(empty($this->config['base_url']))
-            $this->config['base_url']= MODX_BASE_URL;
-        if(empty($this->config['site_url']))
-            $this->config['site_url']= MODX_SITE_URL;
-        if(empty($this->config['error_page']))
+
+        if(!$this->conf_var('base_url')) {
+            $this->config['base_url'] = MODX_BASE_URL;
+        }
+        if(!$this->conf_var('site_url')) {
+            $this->config['site_url'] = MODX_SITE_URL;
+        }
+        if(!$this->conf_var('error_page')) {
             $this->config['error_page'] = $this->config['start_page'];
-        if(empty($this->config['unauthorized_page']))
+        }
+        if(!$this->conf_var('unauthorized_page')) {
             $this->config['unauthorized_page'] = $this->config['error_page'];
+        }
         
         $this->config = $this->getWebUserSettings($this->config);
         $this->config = $this->mergeMgrUserConfig($this->config);
 
         if(strpos($this->config['filemanager_path'],'[(')!==false) {
-            $this->config['filemanager_path'] = str_replace('[(base_path)]', MODX_BASE_PATH, $this->config['filemanager_path']);
+            $this->config['filemanager_path'] = str_replace(
+                '[(base_path)]'
+                , MODX_BASE_PATH
+                , $this->config['filemanager_path']
+            );
         }
         if(strpos($this->config['rb_base_dir'],'[(')!==false) {
-            $this->config['rb_base_dir'] = str_replace('[(base_path)]', MODX_BASE_PATH, $this->config['rb_base_dir']);
+            $this->config['rb_base_dir'] = str_replace(
+                '[(base_path)]'
+                , MODX_BASE_PATH
+                , $this->config['rb_base_dir']
+            );
         }
-        if(!isset($this->config['modx_charset']) || !$this->config['modx_charset']) {
+        if(!$this->conf_var('modx_charset')) {
             $this->config['modx_charset'] = 'utf-8';
         }
         
