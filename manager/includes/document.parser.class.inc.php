@@ -859,30 +859,30 @@ class DocumentParser {
     }
     
     function getUaType() {
-        if(!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT']))
+        if(!$this->server_var('http_user_agent')) {
             $_SERVER['HTTP_USER_AGENT'] = 'pc';
-        
-        $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
-        
-        if(strpos($ua, 'ipad')!==false)             $type = 'tablet';
-        elseif(strpos($ua, 'iphone')!==false)       $type = 'smartphone';
-        elseif(strpos($ua, 'ipod')!==false)         $type = 'smartphone';
-        elseif(strpos($ua, 'android')!==false)
-        {
-            if(strpos($ua, 'mobile')!==false)       $type = 'smartphone';
-            else                                    $type = 'tablet';
+            return 'pc';
         }
-        elseif(strpos($ua, 'windows phone')!==false)
-                                                    $type = 'smartphone';
-        elseif(strpos($ua, 'docomo')!==false)       $type = 'mobile';
-        elseif(strpos($ua, 'softbank')!==false)     $type = 'mobile';
-        elseif(strpos($ua, 'up.browser')!==false)
-                                                    $type = 'mobile';
-        elseif(strpos($ua, 'bot')!==false)          $type = 'bot';
-        elseif(strpos($ua, 'spider')!==false)       $type = 'bot';
-        else                                        $type = 'pc';
         
-        return $type;
+        $ua = strtolower($this->server_var('http_user_agent'));
+
+        if (strpos($ua, 'ipad')   !== false) return 'tablet';
+        if (strpos($ua, 'iphone') !== false) return 'smartphone';
+        if (strpos($ua, 'ipod')   !== false) return 'smartphone';
+
+        if (strpos($ua, 'android') === false) {
+            if (strpos($ua, 'windows phone') !== false) return 'smartphone';
+            if (strpos($ua, 'docomo')        !== false) return 'mobile';
+            if (strpos($ua, 'softbank')      !== false) return 'mobile';
+            if (strpos($ua, 'up.browser')    !== false) return 'mobile';
+            if (strpos($ua, 'bot')           !== false) return 'bot';
+            if (strpos($ua, 'spider')        !== false) return 'bot';
+            return 'pc';
+        }
+
+        if (strpos($ua, 'mobile') !== false) return 'smartphone';
+
+        return 'tablet';
     }
     
     function join($delim=',', $array, $prefix='')
