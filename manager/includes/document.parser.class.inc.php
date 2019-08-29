@@ -887,21 +887,18 @@ class DocumentParser {
     
     function join($delim=',', $array, $prefix='')
     {
-        foreach($array as $i=>$v)
-        {
+        foreach($array as $i=>$v) {
             $array[$i] = $prefix . trim($v);
         }
         return join($delim,$array);
     }
     
-    function getMicroTime()
-    {
+    function getMicroTime() {
         list ($usec, $sec)= explode(' ', microtime());
         return ((float) $usec + (float) $sec);
     }
     
-    function get_static_pages($filepath)
-    {
+    function get_static_pages($filepath) {
         if(strpos($filepath,'?')!==false) {
             $filepath = strstr($filepath, '?', true);
         }
@@ -910,7 +907,9 @@ class DocumentParser {
             $filepath .= 'index.html';
         }
         $filepath = MODX_BASE_PATH . "temp/public_html/{$filepath}";
-        if(is_file($filepath)===false) return false;
+        if(is_file($filepath)===false) {
+            return false;
+        }
         
         $ext = strtolower(substr($filepath,strrpos($filepath,'.')));
         switch($ext)
