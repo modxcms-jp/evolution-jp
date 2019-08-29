@@ -234,7 +234,10 @@ function rteContent($htmlcontent,$editors) {
 
 function getEditors($editors) {
     global $selected_editor;
-    if (!is_array($editors)) return '';
+
+    if (!is_array($editors)) {
+        return '';
+    }
 
     if(!$editors) {
         return '';
@@ -530,21 +533,21 @@ function fieldIsfolder() {
     );
     $body = html_tag(
             'input'
-            ,array(
-                'type'     => 'checkbox',
+            , array(
                 'name'     => 'isfoldercheck',
-                'checked'  => doc('isfolder')==1 ? null : '',
-                'disabled' => input_any('id') && $haschildren ? null : '',
+                'type'     => 'checkbox',
                 'class'    => 'checkbox',
+                'checked'  => doc('isfolder') ? null : '',
+                'disabled' => input_any('id') && $haschildren ? null : '',
                 'onclick'  => 'changestate(document.mutate.isfolder);'
             )
         )
         . html_tag(
             'input'
-            ,array(
+            , array(
                 'type' => 'hidden',
                 'name' =>'isfolder',
-                'value'=> doc('isfolder')==1 ? 1 : 0
+                'value'=> doc('isfolder') ? 1 : 0
             )
         )
         . tooltip(lang('resource_opt_folder_help'));
@@ -552,74 +555,159 @@ function fieldIsfolder() {
 }
 
 function fieldRichtext() {
-    $disabled = (config('use_editor')!=1) ? ' disabled="disabled"' : '';
-    $cond = (!isset(evo()->documentObject['richtext']) || evo()->documentObject['richtext']!=0);
-    $body = input_checkbox('richtext',$cond,$disabled);
-    $body .= input_hidden('richtext',$cond);
-    $body .= tooltip(lang('resource_opt_richtext_help'));
+    $body = html_tag(
+            'input'
+            , array(
+                'name'     => 'richtextcheck',
+                'type'     => 'checkbox',
+                'class'    => 'checkbox',
+                'checked'  => doc('richtext') ? null : '',
+                'disabled' => !config('use_editor') ? null : '',
+                'onclick'  => 'changestate(document.mutate.richtext);'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type' => 'hidden',
+                'name' =>'richtext',
+                'value'=> doc('richtext') ? 1 : 0
+            )
+        )
+        . tooltip(lang('resource_opt_richtext_help'));
     return renderTr(lang('resource_opt_richtext'),$body);
 }
 
 function fieldDonthit() {
-    $cond = (doc('donthit')!=1);
-    $body = input_checkbox('donthit',$cond);
-    $body .= input_hidden('donthit',!$cond);
-    $body .= tooltip(lang('resource_opt_trackvisit_help'));
+    $body = html_tag(
+            'input'
+            , array(
+                'name'     => 'donthitcheck',
+                'type'     => 'checkbox',
+                'class'    => 'checkbox',
+                'checked'  => !doc('donthit') ? null : '',
+                'disabled' => !config('track_visitors') ? null : '',
+                'onclick'  => 'changestate(document.mutate.donthit);'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type' => 'hidden',
+                'name' =>'donthit',
+                'value'=> !doc('donthit') ? 1 : 0
+            )
+        )
+        . tooltip(lang('resource_opt_trackvisit_help'));
     return renderTr(lang('track_visitors_title'),$body);
 }
 
 
 function fieldSearchable() {
-    $cond = (doc('searchable')==1);
-    $body = input_checkbox('searchable',$cond);
-    $body .= input_hidden('searchable',$cond);
-    $body .= tooltip(lang('page_data_searchable_help'));
+    $body = html_tag(
+            'input'
+            , array(
+                'name'     => 'searchablecheck',
+                'type'     => 'checkbox',
+                'class'    => 'checkbox',
+                'checked'  => doc('searchable') ? null : '',
+                'onclick'  => 'changestate(document.mutate.searchable);'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type' => 'hidden',
+                'name' =>'searchable',
+                'value'=> doc('searchable') ? 1 : 0
+            )
+        )
+        . tooltip(lang('resource_opt_trackvisit_help'));
     return renderTr(lang('page_data_searchable'),$body);
 }
 
 function fieldCacheable() {
-    $cond = (doc('cacheable')==1);
-    $disabled = (config('cache_type')==='0') ? ' disabled' : '';
-    $body = input_checkbox('cacheable',$cond,$disabled);
-    $body .= input_hidden('cacheable',$cond);
-    $body .= tooltip(lang('page_data_cacheable_help'));
+    $body = html_tag(
+            'input'
+            , array(
+                'name'     => 'cacheablecheck',
+                'type'     => 'checkbox',
+                'class'    => 'checkbox',
+                'checked'  => doc('cacheable') ? null : '',
+                'disabled' => !config('cache_type') ? null : '',
+                'onclick'  => 'changestate(document.mutate.cacheable);'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type' => 'hidden',
+                'name' =>'cacheable',
+                'value'=> doc('cacheable') ? 1 : 0
+            )
+        )
+        . tooltip(lang('page_data_cacheable_help'));
     return renderTr(lang('page_data_cacheable'),$body);
 }
 
 function fieldSyncsite() {
-    $disabled = (config('cache_type')==0) ? ' disabled' : '';
-    $body = input_checkbox('syncsite',true,$disabled);
-    $body .= input_hidden('syncsite');
-    $body .= tooltip(lang('resource_opt_emptycache_help'));
+
+    $cache_type = db()->getValue(
+        'setting_value'
+        , '[+prefix+]system_settings'
+        , "setting_name='cache_type'"
+    );
+    $body = html_tag(
+            'input'
+            , array(
+                'name'     => 'syncsitecheck',
+                'type'     => 'checkbox',
+                'class'    => 'checkbox',
+                'checked'  => null,
+                'disabled' => !$cache_type ? null : '',
+                'onclick'  => 'changestate(document.mutate.syncsite);'
+            )
+        )
+        . html_tag(
+            'input'
+            , array(
+                'type' => 'hidden',
+                'name' =>'syncsite',
+                'value'=> 1
+            )
+        )
+        . tooltip(lang('resource_opt_emptycache_help'));
     return renderTr(lang('resource_opt_emptycache'),$body);
 }
 
 function fieldType() {
-    $body = select_tag(array(
+    return renderTr(
+        lang('resource_type')
+        ,select_tag(
+            array(
                 'name'  => 'type',
-                'class' => 'inputBox',
                 'style' => 'width:200px'
             )
             , array(
                 html_tag(
                     '<option>'
                     , array(
-                        'value'=>'document',
-                        'selected' => (doc('type')!=='reference') ? null : ''
+                        'value'    => 'document',
+                        'selected' => doc('type')!=='reference' ? null : ''
                     )
-                    ,lang('resource_type_webpage')),
+                    ,lang('resource_type_webpage')
+                ),
                 html_tag(
                     '<option>'
                     , array(
-                        'value'=>'reference',
-                        'selected' => (doc('type')==='reference') ? null : ''
+                        'value'    => 'reference',
+                        'selected' => doc('type')==='reference' ? null : ''
                     )
-                    ,lang('resource_type_weblink'))
+                    ,lang('resource_type_weblink')
+                )
             )
         )
-        .tooltip(lang('resource_type_message'))
-    ;
-    return renderTr(lang('resource_type'),$body);
+        .tooltip(lang('resource_type_message')));
 }
 
 function fieldContentType() {
@@ -646,20 +734,37 @@ EOT;
 }
 
 function fieldContent_dispo() {
-    if(doc('type') === 'reference') return;
-    $tpl = <<< EOT
-<select name="content_dispo" size="1" style="width:200px">
-	<option value="0" [+sel_inline+]>[+inline+]</option>
-	<option value="1" [+sel_attachment+]>[+attachment+]</option>
-</select>
-EOT;
-    $ph = array();
-    $ph['sel_attachment'] = doc('content_dispo')==1 ? 'selected' : '';
-    $ph['sel_inline'] = $ph['sel_attachment']==='' ? 'selected' : '';
-    $ph['inline']     = lang('inline');
-    $ph['attachment'] = lang('attachment');
-    $body = parseText($tpl,$ph);
-    return renderTr(lang('resource_opt_contentdispo'),$body);
+    if(doc('type') === 'reference') {
+        return '';
+    }
+    return renderTr(
+        lang('resource_opt_contentdispo')
+        ,select_tag(
+            array(
+                'name'  => 'content_dispo',
+                'style' => 'width:200px',
+                'size'  => 1
+            )
+            , array(
+                html_tag(
+                    '<option>'
+                    , array(
+                        'value'    => 0,
+                        'selected' => !doc('content_dispo') ? null : ''
+                    )
+                    ,lang('inline')
+                ),
+                html_tag(
+                    '<option>'
+                    , array(
+                        'value'    => 1,
+                        'selected' => doc('content_dispo') ? null : ''
+                    )
+                    ,lang('attachment')
+                )
+            )
+        )
+        .tooltip(lang('resource_opt_contentdispo_help')));
 }
 
 function getGroups($docid) {
@@ -1432,26 +1537,9 @@ function getJScripts($docid) {
 }
 
 function get_template_options() {
-    $rs = db()->select(
-        sprintf(
-            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
-            , lang('no_category')
-        )
-        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
-        , ''
-        , 'c.category, t.templatename ASC'
-    );
-
-    while ($row = db()->getRow($rs)) {
-        $rows[$row['category']][] = $row;
-    }
     $option_tags = function($templates) {
         $options = array(
-            html_tag(
-                '<option>'
-                , array('value'=>0)
-                , '(blank)'
-            )
+            html_tag('<option>', array('value'=>0), '(blank)')
         );
         foreach($templates as $template) {
             $options[] = html_tag(
@@ -1463,13 +1551,25 @@ function get_template_options() {
                 , hsc($template['templatename'])
             );
         }
-        return implode("\n", $options);
+        return $options;
     };
+    $rs = db()->select(
+        sprintf(
+            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
+            , lang('no_category')
+        )
+        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+        , ''
+        , 'c.category, t.templatename ASC'
+    );
+    while ($row = db()->getRow($rs)) {
+        $rows[$row['category']][] = $row;
+    }
     foreach ($rows as $category=>$templates) {
         $optgroups[] = html_tag(
             '<optgroup>'
             , array('label'=>hsc($category))
-            , $option_tags($templates)
+            , implode("\n", $option_tags($templates))
         );
     }
     return implode("\n", $optgroups);
