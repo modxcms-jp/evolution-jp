@@ -8,6 +8,11 @@ function db() {
     return evo()->db;
 }
 
+function manager() {
+    global $modx;
+    return $modx->manager;
+}
+
 function config($key, $default=null) {
     return evo()->conf_var($key, $default);
 }

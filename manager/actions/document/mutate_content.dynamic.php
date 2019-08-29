@@ -2,6 +2,8 @@
 if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 include_once(MODX_CORE_PATH . 'helpers.php');
+include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
+include_once(tpl_base_dir().'fields.php');
 
 if(config('preview_mode')===null) {
     $modx->config['preview_mode'] = '1';
@@ -11,10 +13,9 @@ if(config('tvs_below_content')===null) {
     $modx->config['tvs_below_content'] = '0';
 }
 
-include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
 evo()->loadExtension('DocAPI');
 
-if(evo()->manager->action==132||evo()->manager->action==131) {
+if(manager()->action==132||manager()->action==131) {
     $modx->doc->mode = 'draft';
 } else {
     $modx->doc->mode = 'normal';
@@ -36,7 +37,7 @@ $docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getIn
 evo()->loadExtension('REVISION');
 if(input_any('id') && config('enable_draft')) {
     $modx->revisionObject = evo()->revision->getRevisionObject(input_any('id'),'resource','template');
-    if( input_any('id') && evo()->manager->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
+    if( input_any('id') && manager()->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
         $docObject['template'] = evo()->revisionObject['template'];
 } else {
     $modx->revisionObject = array();
@@ -49,14 +50,14 @@ if(preg_match('/[1-9][0-9]*/', evo()->input_any('newtemplate')) ) {
 $tmplVars  = getTmplvars(input_any('id'),doc('template'),$docgrp);
 $docObject += $tmplVars;
 
-if(input_any('id') && evo()->manager->action==131) {
+if(input_any('id') && manager()->action==131) {
     $docObject = mergeDraft(input_any('id'), $docObject);
     foreach($tmplVars as $k=>$v) {
         $tmplVars[$k] = $docObject[$k];
     }
 }
 
-evo()->manager->saveFormValues();
+manager()->saveFormValues();
 if(evo()->input_post()) {
     $docObject = mergeReloadValues($docObject);
 }

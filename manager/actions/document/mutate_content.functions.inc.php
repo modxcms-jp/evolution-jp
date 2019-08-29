@@ -1,190 +1,4 @@
 <?php
-
-function fieldPagetitle() {
-    return renderTr(
-        lang('resource_title')
-        , input_text_tag(
-            array(
-                'name'=>'pagetitle',
-                'value'=>doc('pagetitle|hsc')
-            )
-        ) . tooltip(lang('resource_title_help'))
-    );
-}
-
-function fieldLongtitle() {
-    return renderTr(
-        lang('long_title')
-        , input_text_tag(
-            array(
-                'name'=>'longtitle',
-                'value'=>doc('longtitle|hsc')
-            )
-        ) . tooltip(lang('resource_long_title_help'))
-    );
-}
-
-function fieldDescription() {
-    return  renderTr(
-        lang('resource_description')
-        , textarea_tag(
-            array(
-                'name'  => 'description',
-                'class' => 'inputBox',
-                'style' => 'height:43px;',
-                'rows'  => '2'
-            )
-            , doc('description|hsc')
-        )
-        . tooltip(lang('resource_description_help'))
-        , 'vertical-align:top;'
-    );
-}
-
-function fieldAlias($id) {
-    if(!config('friendly_urls') || doc('type') !== 'document') {
-        return renderTr(
-            lang('resource_alias')
-            , input_text_tag(array(
-                    'name'      => 'alias',
-                    'value'     => doc('alias|hsc'),
-                    'maxlength' => 100
-                )
-            )
-            . tooltip(lang('resource_alias_help')));
-    }
-    return renderTr(
-        lang('resource_alias')
-        , get_alias_path($id)
-        . input_text_tag(
-            array(
-                'name'        => 'alias',
-                'value'       => doc('alias|hsc'),
-                'size'        => 20,
-                'style'       => 'width:120px;',
-                'maxlength'   => 50,
-                'onkeyup'     => config('suffix_mode') ? 'change_url_suffix();' : '',
-                'placeholder' => doc('id')
-            )
-        )
-        . html_tag(
-            '<span>'
-            , array('id'=>"url_suffix")
-            , call_user_func(function () {
-                if (doc('isfolder')) {
-                    return '/';
-                }
-                if (!config('friendly_urls') || !config('suffix_mode')) {
-                    return '';
-                }
-                if (!str_contains(doc('alias'), '.')) {
-                    return config('friendly_url_suffix');
-                }
-                return '';
-            })
-        )
-        . tooltip(lang('resource_alias_help'))
-    );
-}
-
-// Web Link specific
-function fieldWeblink() {
-    return renderTr(
-        lang('weblink') . html_tag(
-            '<img>'
-            , array(
-                'name'    => 'llock',
-                'src'     => style('tree_folder'),
-                'alt'     => 'tree_folder',
-                'onclick' => 'enableLinkSelection(!allowLinkSelection);',
-                'style'   => 'cursor:pointer;'
-            )
-        )
-        , input_text_tag(
-            array(
-                'name'  => 'ta',
-                'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
-            )
-        )
-        . html_tag(
-            '<input>'
-            , array(
-                'type'    => 'button',
-                'onclick' => "BrowseFileServer('field_ta')",
-                'value'   => lang('insert')
-            )
-        )
-        . tooltip(lang('resource_weblink_help'))
-    );
-}
-
-function fieldIntrotext() {
-    return renderTr(
-        lang('resource_summary')
-        , textarea_tag(
-            array(
-                'name'=>"introtext",
-                'class'=>"inputBox",
-                'style'=>"height:60px;",
-                'rows'=>"3"
-            )
-            , doc('introtext|hsc')
-        ) . tooltip(lang('resource_summary_help'))
-        , 'vertical-align:top;'
-    );
-}
-
-function fieldTemplate() {
-    return renderTr(
-        lang('page_data_template')
-        , select_tag(
-            array(
-                'id'   => 'template',
-                'name' => 'template',
-                'style'=> 'width:308px'
-            )
-            , get_template_options()
-        )
-        . tooltip(lang('page_data_template_help'))
-    );
-}
-
-function fieldMenutitle() {
-    return renderTr(
-        lang('resource_opt_menu_title')
-        , input_text_tag(
-            array(
-                'name' => 'menutitle',
-                doc('menutitle|hsc')
-            )
-        )
-        . tooltip(lang('resource_opt_menu_title_help'))
-    );
-}
-
-function fieldMenuindex() {
-    return renderTr(
-        lang('resource_opt_menu_index')
-        , menuindex()
-    );
-}
-
-function fieldParent() {
-    $parent = db()->getRow(
-        'id,pagetitle'
-        ,'[+prefix+]site_content'
-        , sprintf('id=%s', doc('parent',0))
-    );
-    $ph['pid'] = $parent['id'];
-    $ph['pname'] = $parent ? $parent['pagetitle'] : '';
-    $ph['tooltip'] = tooltip(lang('resource_parent_help'));
-    $ph['icon_tree_folder'] = style('tree_folder');
-    return renderTr(
-        lang('resource_parent')
-        , parseText(file_get_tpl('field_parent_form.tpl'),$ph)
-    );
-}
-
 function getTmplvars($docid,$template_id,$docgrp) {
     if(!$docid || !$template_id) {
         return array();
@@ -328,163 +142,6 @@ function rte_fields() {
     return $rte_fields;
 }
 
-function fieldsTV() {
-    $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());
-    $total = count($tmplVars);
-    if(!$total) {
-        return '';
-    }
-
-    $form_v = $_POST ? $_POST : array();
-    $i = 0;
-    $output = array();
-    $hidden = array();
-    $output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
-    $splitLine = renderSplit();
-    foreach($tmplVars as $tv) {
-        $tvid = 'tv' . $tv['id'];
-        // Go through and display all Template Variables
-        // post back value
-        if(isset($form_v[$tvid])){
-            switch( $tv['type'] ){
-                case 'checkbox':
-                case 'listbox-multiple':
-                    $tvPBV = implode('||', $form_v[$tvid]);
-                    break;
-                case 'url':
-                    if( $form_v[$tvid.'_prefix'] === 'DocID' ) {
-                        $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
-                    } else {
-                        $tvPBV = $form_v[$tvid . '_prefix'] . $form_v[$tvid];
-                    }
-                    break;
-                default:
-                    $tvPBV = $form_v[$tvid];
-            }
-        } else {
-            $tvPBV = $tv['value'];
-        }
-
-        if($tv['type']==='hidden') {
-            $formElement = evo()->renderFormElement(
-                'hidden'
-                , $tv['id']
-                , $tv['default_text']
-                , $tv['elements']
-                , $tvPBV
-                , ''
-                , $tv
-            );
-            $hidden[] = $formElement;
-        } else {
-            $ph = array();
-            $ph['caption']     = evo()->hsc($tv['caption']);
-            $ph['description'] = $tv['description'];
-            $ph['zindex']      = ($tv['type'] === 'date') ? 'z-index:100;' : '';
-            $ph['FormElement'] = evo()->renderFormElement(
-                $tv['type']
-                , $tv['id']
-                , $tv['default_text']
-                , $tv['elements']
-                , $tvPBV
-                , ''
-                , $tv
-            );
-            if($ph['FormElement']!=='') {
-                $output[] = parseText(file_get_tpl('tv_row.tpl'),$ph);
-                if ($i < $total) {
-                    $output[] = $splitLine;
-                }
-            }
-        }
-        $i++;
-    }
-
-    if($output && $output[$total+1]===$splitLine) array_pop($output);
-
-    $output[] = '</table>';
-
-    return implode("\n",$output) . join("\n", $hidden);
-}
-
-function fieldPublished() {
-    if(!evo()->hasPermission('publish_document')) {
-        if(evo()->manager->action==27) {
-            $published = doc('published');
-        } else {
-            $published = 0;
-        }
-    } else {
-        $published = doc('published');
-    }
-
-    $body = input_checkbox('published',$published==1);
-    $body .= input_hidden('published',$published==1);
-    $body .= tooltip(lang('resource_opt_published_help'));
-    return renderTr(lang('resource_opt_published'),$body);
-}
-
-function fieldPub_date($id=0) {
-    $body = input_text_tag(
-            array(
-                'name'  => 'pub_date',
-                'id'    => 'pub_date',
-                'value' => evo()->toDateFormat(doc('pub_date')),
-                'class' => 'DatePicker imeoff',
-                'disabled' => (!evo()->hasPermission('publish_document') || $id==config('site_start')) ? null : ''
-            )
-        )
-        . html_tag(
-            '<a>'
-            , array('style'=>"cursor:pointer; cursor:hand;")
-            , img_tag(
-                style('icons_cal_nodate')
-                , array(
-                    'alt' => lang('remove_date')
-                )
-            )
-        )
-        . tooltip(lang('page_data_publishdate_help'))
-        . html_tag(
-            '<div>'
-            , array(
-                'style'=>'line-height:1;margin:0;color: #555;font-size:10px'
-            )
-            , config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_publishdate'), $body);
-}
-
-function fieldUnpub_date($id) {
-    if(!evo()->hasPermission('publish_document')) {
-        return '';
-    }
-    $body = input_text_tag(
-            array(
-                'id'       => 'unpub_date',
-                'name'     => 'unpub_date',
-                'class'    => 'DatePicker imeoff',
-                'value'    => evo()->toDateFormat(doc('unpub_date')),
-                'onblur'   => 'documentDirty=true;',
-                'disabled' => (!evo()->hasPermission('publish_document') || $id==config('site_start')) ? null : ''
-            )
-        )
-        . html_tag(
-            '<a>'
-            , array('style' => 'cursor:pointer; cursor:hand')
-            , img_tag(style('icons_cal_nodate'), array('alt'=>lang('remove_date')))
-        )
-        . tooltip(lang('page_data_unpublishdate_help'))
-        . html_tag(
-            '<div>'
-            , array(
-                'style' => 'line-height:1;margin:0;color: #555;font-size:10px'
-            )
-            , config('datetime_format') . ' HH:MM:SS'
-        );
-    return renderTr(lang('page_data_unpublishdate'),$body);
-}
-
 function input_any($key, $default=0) {
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
@@ -503,270 +160,11 @@ function getInitialValues() {
         'which_editor'  => config('which_editor'),
         'searchable'    => config('search_default'),
         'cacheable'     => config('cache_default'),
-        'type'          => evo()->manager->action==72 ? 'reference' : 'document',
-        'richtext'      => evo()->manager->action==72 ? 0 : 1,
+        'type'          => manager()->action==72 ? 'reference' : 'document',
+        'richtext'      => manager()->action==72 ? 0 : 1,
         'parent'        => evo()->input_get('pid',0),
         'template'      => input_any('newtemplate') ? input_any('newtemplate') : getDefaultTemplate()
     );
-}
-
-function fieldLink_attributes() {
-    $body  = input_text_tag(
-            array(
-                'name'=>'link_attributes',
-                'value'=>doc('link_attributes|hsc')
-            )
-        )
-        . tooltip(lang('link_attributes_help'))
-    ;
-    return renderTr(lang('link_attributes'),$body);
-}
-
-function fieldIsfolder() {
-    $haschildren = db()->getValue(
-        db()->select(
-            'count(id)'
-            ,'[+prefix+]site_content'
-            , sprintf("parent='%s'", input_any('id'))
-        )
-    );
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'isfoldercheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => doc('isfolder') ? null : '',
-                'disabled' => input_any('id') && $haschildren ? null : '',
-                'onclick'  => 'changestate(document.mutate.isfolder);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'isfolder',
-                'value'=> doc('isfolder') ? 1 : 0
-            )
-        )
-        . tooltip(lang('resource_opt_folder_help'));
-    return renderTr(lang('resource_opt_folder'),$body);
-}
-
-function fieldRichtext() {
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'richtextcheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => doc('richtext') ? null : '',
-                'disabled' => !config('use_editor') ? null : '',
-                'onclick'  => 'changestate(document.mutate.richtext);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'richtext',
-                'value'=> doc('richtext') ? 1 : 0
-            )
-        )
-        . tooltip(lang('resource_opt_richtext_help'));
-    return renderTr(lang('resource_opt_richtext'),$body);
-}
-
-function fieldDonthit() {
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'donthitcheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => !doc('donthit') ? null : '',
-                'disabled' => !config('track_visitors') ? null : '',
-                'onclick'  => 'changestate(document.mutate.donthit);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'donthit',
-                'value'=> !doc('donthit') ? 1 : 0
-            )
-        )
-        . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('track_visitors_title'),$body);
-}
-
-
-function fieldSearchable() {
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'searchablecheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => doc('searchable') ? null : '',
-                'onclick'  => 'changestate(document.mutate.searchable);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'searchable',
-                'value'=> doc('searchable') ? 1 : 0
-            )
-        )
-        . tooltip(lang('resource_opt_trackvisit_help'));
-    return renderTr(lang('page_data_searchable'),$body);
-}
-
-function fieldCacheable() {
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'cacheablecheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => doc('cacheable') ? null : '',
-                'disabled' => !config('cache_type') ? null : '',
-                'onclick'  => 'changestate(document.mutate.cacheable);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'cacheable',
-                'value'=> doc('cacheable') ? 1 : 0
-            )
-        )
-        . tooltip(lang('page_data_cacheable_help'));
-    return renderTr(lang('page_data_cacheable'),$body);
-}
-
-function fieldSyncsite() {
-
-    $cache_type = db()->getValue(
-        'setting_value'
-        , '[+prefix+]system_settings'
-        , "setting_name='cache_type'"
-    );
-    $body = html_tag(
-            'input'
-            , array(
-                'name'     => 'syncsitecheck',
-                'type'     => 'checkbox',
-                'class'    => 'checkbox',
-                'checked'  => null,
-                'disabled' => !$cache_type ? null : '',
-                'onclick'  => 'changestate(document.mutate.syncsite);'
-            )
-        )
-        . html_tag(
-            'input'
-            , array(
-                'type' => 'hidden',
-                'name' =>'syncsite',
-                'value'=> 1
-            )
-        )
-        . tooltip(lang('resource_opt_emptycache_help'));
-    return renderTr(lang('resource_opt_emptycache'),$body);
-}
-
-function fieldType() {
-    return renderTr(
-        lang('resource_type')
-        ,select_tag(
-            array(
-                'name'  => 'type',
-                'style' => 'width:200px'
-            )
-            , array(
-                html_tag(
-                    '<option>'
-                    , array(
-                        'value'    => 'document',
-                        'selected' => doc('type')!=='reference' ? null : ''
-                    )
-                    ,lang('resource_type_webpage')
-                ),
-                html_tag(
-                    '<option>'
-                    , array(
-                        'value'    => 'reference',
-                        'selected' => doc('type')==='reference' ? null : ''
-                    )
-                    ,lang('resource_type_weblink')
-                )
-            )
-        )
-        .tooltip(lang('resource_type_message')));
-}
-
-function fieldContentType() {
-    if(doc('type') === 'reference') {
-        return '';
-    }
-    $ct = explode(',', config('custom_contenttype'));
-    $option = array();
-    foreach ($ct as $value) {
-        $option[] = html_tag(
-            '<option>'
-            , array(
-                'value'    => $value,
-                'selected' => doc('contentType') === $value ? null : ''
-            )
-            ,$value
-        );
-    }
-    $body = parseText(
-            file_get_tpl('field_content_type.tpl')
-            , array(
-                'option' => join("\n", $option)
-            )
-        )
-        . tooltip(lang('page_data_contentType_help'));
-    return renderTr(lang('page_data_contentType'),$body);
-}
-
-function fieldContent_dispo() {
-    if(doc('type') === 'reference') {
-        return '';
-    }
-    return renderTr(
-        lang('resource_opt_contentdispo')
-        ,select_tag(
-            array(
-                'name'  => 'content_dispo',
-                'style' => 'width:200px',
-                'size'  => 1
-            )
-            , array(
-                html_tag(
-                    '<option>'
-                    , array(
-                        'value'    => 0,
-                        'selected' => !doc('content_dispo') ? null : ''
-                    )
-                    ,lang('inline')
-                ),
-                html_tag(
-                    '<option>'
-                    , array(
-                        'value'    => 1,
-                        'selected' => doc('content_dispo') ? null : ''
-                    )
-                    ,lang('attachment')
-                )
-            )
-        )
-        .tooltip(lang('resource_opt_contentdispo_help')));
 }
 
 function getGroups($docid) {
@@ -789,7 +187,7 @@ function getUDGroups($id) {
     $form_v = $_POST;
     $groupsarray = array();
 
-    if (evo()->manager->action == 27) {
+    if (manager()->action == 27) {
         $docid = $id;
     } elseif (!empty($_REQUEST['pid'])) {
         $docid = $_REQUEST['pid'];
@@ -891,7 +289,7 @@ function getUDGroups($id) {
             );
     }
 
-    if(!empty($permissions)) {
+    if($permissions) {
         // Add the "All Document Groups" item if we have rights in both contexts
         if ($isManager && $isWeb) {
             array_unshift(
@@ -1192,20 +590,20 @@ function getDefaultTemplate() {
 function checkPermissions($id) {
     global $modx;
 
-    $isAllowed = evo()->manager->isAllowed($id);
+    $isAllowed = manager()->isAllowed($id);
     if (!isset($_GET['pid'])&&!$isAllowed) {
         alert()->setError(3);
         alert()->dumpError();
     }
 
-    switch (evo()->manager->action) {
+    switch (manager()->action) {
         case 27:
             if (!evo()->hasPermission('view_document')) {
                 $modx->config['remember_last_tab'] = 0;
                 alert()->setError(3);
                 alert()->dumpError();
             }
-            evo()->manager->remove_locks('27');
+            manager()->remove_locks('27');
             break;
         case 72:
         case 4:
@@ -1233,7 +631,7 @@ function checkPermissions($id) {
             alert()->dumpError();
     }
 
-    if (evo()->manager->action == 27 && !evo()->checkPermissions($id)) {
+    if (manager()->action == 27 && !evo()->checkPermissions($id)) {
         $_ = array();
         $_[] = '<br /><br />';
         $_[] = '<div class="section">';
@@ -1254,7 +652,7 @@ function checkDocLock($id) {
         , '[+prefix+]active_users'
         , sprintf(
             "acstion='%s' AND id='%s'"
-            , evo()->manager->action
+            , manager()->action
             , $id
         )
     );
@@ -1284,10 +682,14 @@ function getValuesFromDB($id,$docgrp) {
         return array();
     }
 
-    $access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
-    $access .= empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
-    $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id";
-    $rs = db()->select('DISTINCT sc.*', $from, "sc.id='{$id}' AND ({$access})");
+    $access  = sprintf("1='%s' OR sc.privatemgr=0", $_SESSION['mgrRole']);
+    $access .= !$docgrp ? '' : sprintf(' OR dg.document_group IN (%s)', $docgrp);
+    $from = '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id';
+    $rs = db()->select(
+        'DISTINCT sc.*'
+        , '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
+        , sprintf("sc.id='%s' AND (%s)", $id, $access)
+    );
     $limit = db()->getRecordCount($rs);
     if ($limit > 1)
     {
@@ -1304,8 +706,8 @@ function getValuesFromDB($id,$docgrp) {
 
 // restore saved form
 function mergeReloadValues($docObject) {
-    if (evo()->manager->hasFormValues()) {
-        $populate = evo()->manager->loadFormValues();
+    if (manager()->hasFormValues()) {
+        $populate = manager()->loadFormValues();
         if ($populate) {
             $docObject = array_merge($docObject, $populate);
             if(evo()->array_get($populate,'ta')) {
@@ -1332,7 +734,7 @@ function mergeReloadValues($docObject) {
 }
 
 function checkViewUnpubDocPerm($published,$editedby) {
-    if(evo()->manager->action!=27) return;
+    if(manager()->action!=27) return;
     if(evo()->hasPermission('view_unpublished')) return;
     if($published!=='0')                         return;
 
@@ -1361,7 +763,7 @@ function getMenuIndexAtNew() {
 
 function getAliasAtNew() {
     if(config('automatic_alias') === '2') {
-        return evo()->manager->get_alias_num_in_folder(
+        return manager()->get_alias_num_in_folder(
             0
             , evo()->input_any('pid',0)
         );
@@ -1390,7 +792,7 @@ function getJScripts($docid) {
     $ph['lang_confirm_resource_duplicate'] = lang('confirm_resource_duplicate');
     $ph['lang_illegal_parent_self'] = lang('illegal_parent_self');
     $ph['lang_illegal_parent_child'] = lang('illegal_parent_child');
-    $ph['action'] = evo()->manager->action;
+    $ph['action'] = manager()->action;
     $ph['suffix'] = config('friendly_url_suffix');
 
     return parseText(
@@ -1506,7 +908,7 @@ function getParentForm($pname) {
 }
 
 function getActionButtons($id) {
-    switch(evo()->manager->action) {
+    switch(manager()->action) {
         case '4':
         case '72':
             if(evo()->hasPermission('new_document'))
@@ -1532,7 +934,7 @@ function getActionButtons($id) {
             $ph['deleteButton'] = ab_delete_draft();
         }
     } elseif ($id != config('site_start')) {
-        if(evo()->manager->action==27 && evo()->doc->canSaveDoc()) {
+        if(manager()->action==27 && evo()->doc->canSaveDoc()) {
             if(evo()->hasPermission('move_document')) {
                 $ph['moveButton'] = ab_move();
             }
@@ -1549,7 +951,7 @@ function getActionButtons($id) {
         }
     }
 
-    if (evo()->manager->action == 27) {
+    if (manager()->action == 27) {
         if(evo()->revision->hasDraft||evo()->revision->hasStandby) {
             $ph['draftButton'] = ab_open_draft($id);
         } else {
@@ -1593,14 +995,14 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
         'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
-        'mode' => evo()->manager->action,
+        'mode' => manager()->action,
         'a' =>  (evo()->doc->mode === 'normal' && evo()->hasPermission('save_document')) ? 5 : 128,
         'pid' => evo()->input_any('pid',0),
         'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
         'actionButtons' => getActionButtons($id),
-        'token' => evo()->manager->makeToken(),
+        'token' => manager()->makeToken(),
         'OnDocFormRender'      => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
         'remember_last_tab' =>  (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
