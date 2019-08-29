@@ -4603,34 +4603,38 @@ class DocumentParser {
         return $rs;
     }
     
-    public function input_get($key, $default=null) {
+    public function input_get($key=null, $default=null) {
         return $this->array_get($_GET, $key, $default);
     }
     
-    public function input_post($key, $default=null) {
+    public function input_post($key=null, $default=null) {
         return $this->array_get($_POST, $key, $default);
     }
     
-    public function input_cookie($key, $default=null) {
+    public function input_cookie($key=null, $default=null) {
         return $this->array_get($_COOKIE, $key, $default);
     }
     
-    public function input_any($key, $default=null) {
+    public function input_any($key=null, $default=null) {
         if($rs = $this->input_post($key, $default))   return $rs;
         if($rs = $this->input_get($key, $default))    return $rs;
         if($rs = $this->input_cookie($key, $default)) return $rs;
         return $default;
     }
-    
-    public function session_var($key, $default=null) {
+
+    public function server_var($key=null, $default=null) {
+        return $this->array_get($_SERVER, strtoupper($key), $default);
+    }
+
+    public function session_var($key=null, $default=null) {
         return $this->array_get($_SESSION, $key, $default);
     }
     
-    public function conf_var($key, $default=null) {
+    public function conf_var($key=null, $default=null) {
         return $this->array_get($this->config, $key, $default);
     }
 
-    function array_get($array, $key, $default = null)
+    function array_get($array, $key=null, $default = null)
     {
         if ($key === null || trim($key) == '') {
             return $array;
