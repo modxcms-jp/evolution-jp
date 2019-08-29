@@ -287,11 +287,6 @@ class synccache {
             , 'pub_date'
             , "0 < pub_date AND status = 'standby'"
         );
-        foreach ($time as $i=>$v) {
-            if(!$v) {
-                unset($time[$i]);
-            }
-        }
         $min = min($time);
         if(!preg_match('@^[1-9][0-9]*$@',$min)) {
             return 0;
