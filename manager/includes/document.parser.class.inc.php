@@ -913,35 +913,28 @@ class DocumentParser {
         if(substr($filepath,-1)==='/' || $filepath==='') {
             $filepath .= 'index.html';
         }
-        $filepath = MODX_BASE_PATH . "temp/public_html/{$filepath}";
+        $filepath = sprintf("%stemp/public_html/%s", MODX_BASE_PATH, $filepath);
         if(is_file($filepath)===false) {
             return false;
         }
         
         $ext = strtolower(substr($filepath,strrpos($filepath,'.')));
-        switch($ext)
-        {
-            case '.html': case '.htm':
-                $mime_type = 'text/html'; break;
-            case '.xml':
-            case '.rdf':
-                $mime_type = 'text/xml'; break;
-            case '.css':
-                $mime_type = 'text/css'; break;
-            case '.js':
-                $mime_type = 'text/javascript'; break;
-            case '.txt':
-                $mime_type = 'text/plain'; break;
-            case '.ico': case '.jpg': case '.jpeg': case '.png': case '.gif':
-                if($ext==='.ico') $mime_type = 'image/x-icon';
-                else              $mime_type = $this->getMimeType($filepath);
-                break;
-            default:
-                exit;
-        }
-        
-        if(!$mime_type) $this->sendErrorPage();
-        
+        $get_mime_type = function($ext) use($filepath) {
+            if(in_array($ext, array('.html', '.htm'))) return 'text/html';
+            if(in_array($ext, array('.xml', '.rdf')))  return 'text/xml';
+            if($ext === 'css')                         return 'text/css';
+            if($ext === 'js')                          return 'text/javascript';
+            if($ext === 'txt')                         return 'text/plain';
+            if(in_array($ext, array('.jpg', '.jpeg', '.png', '.gif'))) {
+                return $this->getMimeType($filepath);
+            }
+            if($ext === 'ico')                         return 'image/x-icon';
+
+            return 'text/html';
+        };
+
+        $mime_type = $get_mime_type($ext);
+
         $content = file_get_contents($filepath);
         if($content) {
             $this->documentOutput = $this->parseDocumentSource($content);
