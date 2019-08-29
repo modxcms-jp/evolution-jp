@@ -1377,8 +1377,8 @@ function getAliasAtNew() {
 function getJScripts($docid) {
     $ph = array();
     $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
-    $ph['imanager_url'] = evo()->conf_var('imanager_url', $browser_url . '?Type=images');
-    $ph['fmanager_url'] = evo()->conf_var('fmanager_url', $browser_url . '?Type=files');
+    $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
+    $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?Type=files');
     $ph['preview_url']  = evo()->makeUrl($docid,'','','full',true);
     $ph['preview_mode'] = config('preview_mode') ? config('preview_mode') : '0';
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
@@ -1593,8 +1593,8 @@ function getActionButtons($id) {
     return preg_replace('@\[\+[^]]+\+]@', '', parseText(file_get_tpl('action_buttons.tpl'),$ph));
 }
 
-function config($key) {
-    return evo()->config[$key];
+function config($key, $default=null) {
+    return evo()->conf_var($key, $default);
 }
 
 function doc($key) {
@@ -1694,10 +1694,10 @@ function file_get_tpl ($path) {
     return file_get_contents(tpl_base_dir() . $path);
 }
 
-function collect_header_ph($id, $evtOut) {
+function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit) {
     return array(
         'JScripts' => getJScripts(input_any('id')),
-        'OnDocFormPrerender' => is_array($evtOut) ? implode("\n", $evtOut) : '',
+        'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
         'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
         'mode' => evo()->manager->action,
@@ -1707,7 +1707,10 @@ function collect_header_ph($id, $evtOut) {
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
         'actionButtons' => getActionButtons($id),
-        'token' => evo()->manager->makeToken()
+        'token' => evo()->manager->makeToken(),
+        'OnDocFormRender'      => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
+        'OnRichTextEditorInit' => $OnRichTextEditorInit,
+        'remember_last_tab' =>  (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
     );
 }
 

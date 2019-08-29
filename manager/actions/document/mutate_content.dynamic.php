@@ -119,7 +119,7 @@ $tmp = array('id' => input_any('id'));
 $OnDocFormRender = evo()->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
-if(evo()->config['use_editor'] === '1') {
+if(config('use_editor') === '1') {
     $rte_fields = rte_fields();
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
@@ -138,9 +138,6 @@ $template = file_get_tpl('_template.tpl');
 if(evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
-$ph = collect_header_ph(input_any('id'), $OnDocFormPrerender);
-$ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
-$ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
-$ph['remember_last_tab'] =  (evo()->config['remember_last_tab'] === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false';
+$ph = collect_template_ph(input_any('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);
 $ph['content'] = implode("\n", $body);
 echo parseText($template, $ph);
