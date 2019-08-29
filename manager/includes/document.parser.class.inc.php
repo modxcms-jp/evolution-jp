@@ -4488,8 +4488,7 @@ class DocumentParser {
         return $this->hsc($str, $flags, $encode);
     }
     
-    function hsc($str='', $flags = ENT_COMPAT, $encode='')
-    {
+    function hsc($str='', $flags = ENT_COMPAT, $encode='') {
         if($str==='') return '';
         if(is_array($str)) {
             foreach($str as $k=>$v) {
@@ -4498,12 +4497,11 @@ class DocumentParser {
             return $str;
         }
         
-        if($encode=='') $encode = $this->config['modx_charset'];
+        if(!$encode) $encode = $this->config['modx_charset'];
         
         $ent_str = htmlspecialchars($str, $flags, $encode);
         
-        if(!empty($str) && empty($ent_str))
-        {
+        if($str && $ent_str=='') {
             $detect_order = join(',', mb_detect_order());
             $ent_str = mb_convert_encoding($str, $encode, $detect_order); 
         }
