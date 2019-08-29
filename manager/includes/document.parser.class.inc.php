@@ -90,7 +90,14 @@ class DocumentParser {
             return $this->config[$property_name];
         }
 
-        $this->logEvent(0, 1, "\$modx-&gt;{$property_name} is undefined property", 'Call undefined property');
+        $this->logEvent(
+            0
+            , 1
+            , '$modx-&gt;{$property_name} is undefined property', 'Call undefined property'
+        );
+        return '';
+    }
+
         return '';
     }
     
