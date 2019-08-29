@@ -212,15 +212,16 @@ function get_tmplvars($id=0)
 	return $tmplvars;
 }
 
-function get_alias($id,$alias,$parent,$pagetitle)
-{
+function get_alias($id,$alias,$parent,$pagetitle) {
 	global $modx;
-	
-	if($alias) $alias = $modx->stripAlias($alias);
+	if($alias) {
+        $alias = $modx->stripAlias($alias);
+    }
 	// friendly url alias checks
-	if ($modx->config['friendly_urls'])
-	{
-		if(!$parent) $parent = '0';
+	if ($modx->config['friendly_urls']) {
+		if(!$parent) {
+            $parent = '0';
+        }
 		if ($alias && !$modx->config['allow_duplicate_alias'])
 		{ // check for duplicate alias name if not allowed
 			$alias = _check_duplicate_alias($id,$alias,$parent);
@@ -245,36 +246,49 @@ function get_alias($id,$alias,$parent,$pagetitle)
 function _check_duplicate_alias($id,$alias,$parent)
 {
 	global $modx,$_lang;
-	
-	if ($modx->config['use_alias_path']==1)
-	{ // only check for duplicates on the same level if alias_path is on
-		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' AND parent={$parent} LIMIT 1");
-		$docid = $modx->db->getValue($rs);
-		if($docid < 1)
-		{
-			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias='' AND parent='{$parent}'");
-			$docid = $modx->db->getValue($rs);
+	if ($modx->config['use_alias_path']==1) { // only check for duplicates on the same level if alias_path is on
+        $docid = $modx->db->getValue(
+		    'id'
+            , '[+prefix+]site_content'
+            , sprintf(
+                "id<>'%s' AND alias='%s' AND parent=%s LIMIT 1"
+                , $id
+                , $alias
+                , $parent
+            )
+        );
+		if($docid < 1) {
+            $docid = $modx->db->getValue(
+                'id'
+                ,'[+prefix+]site_content'
+                , sprintf(
+                    "id='%s' AND alias='' AND parent='%s'"
+                    , $alias
+                    , $parent)
+            );
 		}
-	}
-	else
-	{
+	} else {
 		$rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}' LIMIT 1");
 		$docid = $modx->db->getValue($rs);
-		if($docid < 1)
-		{
+		if($docid < 1) {
 			$rs = $modx->db->select('id','[+prefix+]site_content',"id='{$alias}' AND alias=''");
 			$docid = $modx->db->getValue($rs);
 		}
 	}
-	if ($docid > 0)
-	{
+	if ($docid) {
 		$modx->manager->saveFormValues($_POST['mode']);
 		
-		$url = 'index.php?a=' . $_POST['mode'];
-		if ($_POST['mode'] == '27') $url .= "&id={$id}";
-		elseif($_REQUEST['pid'])	$url .= '&pid=' . $_REQUEST['pid'];
+		$url = sprintf('index.php?a=%s', $_POST['mode']);
+		if ($_POST['mode'] == '27') {
+            $url .= sprintf('&id=%s', $id);
+        }
+		elseif($_REQUEST['pid']) {
+            $url .= sprintf('&pid=%s', $_REQUEST['pid']);
+        }
 		
-		if($_REQUEST['stay']) $url .= '&stay=' . $_REQUEST['stay'];
+		if($_REQUEST['stay']) {
+            $url .= '&stay=' . $_REQUEST['stay'];
+        }
 		
 		$modx->webAlertAndQuit(sprintf($_lang['duplicate_alias_found'], $docid, $alias), $url);
 	}
