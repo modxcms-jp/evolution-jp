@@ -179,12 +179,10 @@ class DocumentParser {
      * @return bool or Object
      * 
      */
-    function loadExtension($extname)
-    {
+    function loadExtension($extname){
         $extname = strtolower($extname);
         
-        switch ($extname)
-        {
+        switch ($extname) {
             case 'dbapi'       : // Database API
             case 'managerapi'  : // Manager API
             case 'docapi'      : // Resource API
@@ -833,27 +831,23 @@ class DocumentParser {
             return array();
         }
         $_ = join('',$target);
-        if(strpos($_,'[')===false&&strpos($_,'<')===false&&strpos($_,'#')===false) return;
+        if(strpos($_,'[')===false&&strpos($_,'<')===false&&strpos($_,'#')===false) {
+            return '';
+        }
         
         $s = array('[[',']]','[!','!]','[*','*]','[(',')]','{{','}}','[+','+]','[~','~]','[^','^]');
-        foreach($s as $_)
-        {
+        foreach($s as $_) {
             $r[] = " {$_['0']} {$_['1']} ";
         }
-        foreach ($target as $key => $value)
-        {
-            if (is_array($value))
-            {
+        foreach ($target as $key => $value) {
+            if (is_array($value)) {
                 $count++;
-                if(10 < $count)
-                {
+                if(10 < $count) {
                     echo 'too many nested array';
                     exit;
                 }
                 $this->sanitize_gpc($value, $count);
-            }
-            else
-            {
+            } else {
                 $value = str_replace($s,$r,$value);
                 $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
                 $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
@@ -864,8 +858,7 @@ class DocumentParser {
         return $target;
     }
     
-    function getUaType()
-    {
+    function getUaType() {
         if(!isset($_SERVER['HTTP_USER_AGENT']) || empty($_SERVER['HTTP_USER_AGENT']))
             $_SERVER['HTTP_USER_AGENT'] = 'pc';
         
@@ -957,14 +950,12 @@ class DocumentParser {
         return false;
     }
     
-    function getSiteCache()
-    {
+    function getSiteCache() {
         $cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
         
         if(is_file($cache_path)) $config= include($cache_path);
         
-        if(!isset($config)||!$config)
-        {
+        if(!isset($config)||!$config) {
             include_once MODX_CORE_PATH . 'cache_sync.class.php';
             $cache = new synccache();
             $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
@@ -978,8 +969,7 @@ class DocumentParser {
         return $config;
     }
     
-    function getSettings()
-    {
+    function getSettings() {
         $this->config = $this->getSiteCache();
         $cache_path = MODX_BASE_PATH . 'assets/cache/';
         if(is_file($cache_path.'siteCache.idx.php')) {
@@ -2638,15 +2628,12 @@ class DocumentParser {
     * name: getDocumentObject  - used by parser
     * desc: returns a document object - $method: alias, id
     */
-    function getDocumentObject($method='id', $identifier='', $mode='direct')
-    {
-        if($method === 'alias')
-        {
+    public function getDocumentObject($method='id', $identifier='', $mode='direct'){
+        if($method === 'alias') {
             $identifier = $this->getIdFromAlias($identifier);
             if($identifier===false) {
                 return false;
             }
-            $method = 'id';
         }
         
         if(isset($_SESSION['mgrValidated'])
@@ -2662,18 +2649,15 @@ class DocumentParser {
             $this->directParse = 1;
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
-        }
-        elseif(isset($_GET['revision']))
-        {
-            if(!isset($_SESSION['mgrValidated']))
-            {
+        } elseif($this->input_get('revision')) {
+            if(!$this->isLoggedIn()) {
                 $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
                 header('location:'.MODX_MANAGER_URL);
                 exit;
             }
 
             $this->loadExtension('REVISION');
-            if( empty($this->previewObject) ){
+            if(!$this->previewObject){
                 $previewObject = $this->revision->getDraft($identifier);
                 //tvのkeyをtv名に変更
                 $tmp=array();
@@ -2691,11 +2675,14 @@ class DocumentParser {
                 $previewObject = $this->previewObject;
             }
             $this->config['cache_type'] = 0;
+        } else {
+            $previewObject = false;
         }
-        else $previewObject = false;
         
         // get document groups for current user
-        if ($docgrp= $this->getUserDocGroups()) $docgrp= join(',', $docgrp);
+        if ($docgrp= $this->getUserDocGroups()) {
+            $docgrp = implode(',', $docgrp);
+        }
         
         // get document (add so)
         $_ = array();
@@ -2732,16 +2719,14 @@ class DocumentParser {
             $rs = $this->db->select('id','[+prefix+]document_groups',"document='{$identifier}'",'',1);
             if ($this->db->getRecordCount($rs) > 0) {
                 $this->sendUnauthorizedPage();
-            }
-            else {
+            } else {
                 $this->sendErrorPage();
             }
         }
         
         # this is now the document :) #
         $documentObject= $this->db->getRow($result);
-        if( $previewObject )
-        {
+        if( $previewObject ) {
             $snapObject = $documentObject;
         }
         if($mode==='prepareResponse') $this->documentObject = & $documentObject;
@@ -2769,10 +2754,8 @@ class DocumentParser {
 
         $rs = $this->db->select($field,$from,$where);
         $rowCount= $this->db->getRecordCount($rs);
-        if ($rowCount > 0)
-        {
-            while ($row= $this->db->getRow($rs))
-            {
+        if ($rowCount > 0) {
+            while ($row= $this->db->getRow($rs)) {
                 $name = $row['name'];
                 if(isset($documentObject[$name])) continue;
                 $tmplvars[$name][]       = $row['name'];
@@ -2788,20 +2771,20 @@ class DocumentParser {
             }
             $documentObject= array_merge($documentObject, $tmplvars);
         }
-        if($previewObject)
-        {
-            foreach($documentObject as $k=>$v)
-            {
-                if(!isset($previewObject[$k])) continue;
-                if(!is_array($documentObject[$k]))
-                {
+        if($previewObject) {
+            foreach($documentObject as $k=>$v) {
+                if(!isset($previewObject[$k])) {
+                    continue;
+                }
+                if(!is_array($documentObject[$k])) {
                     // Priority is higher changing on OnLoadDocumentObject event.
                     if( $snapObject[$k] !=  $documentObject[$k] ) {
                         continue;
                     }
                     $documentObject[$k] = $previewObject[$k];
+                } else {
+                    $documentObject[$k]['value'] = $previewObject[$k];
                 }
-                else $documentObject[$k]['value'] = $previewObject[$k];
             }
         }
 
@@ -3027,7 +3010,9 @@ class DocumentParser {
 
     function getDocument($id= 0, $fields= '*', $published= 1, $deleted= 0)
     {
-        if (!$id) return false;
+        if (!$id) {
+            return false;
+        }
         
         $docs= $this->getDocuments(array($id), $published, $deleted, $fields, '', '', '', 1);
         
