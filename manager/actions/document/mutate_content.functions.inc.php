@@ -170,13 +170,18 @@ function fieldMenuindex() {
 }
 
 function fieldParent() {
+    $parent = db()->getRow(
+        'id,pagetitle'
+        ,'[+prefix+]site_content'
+        , sprintf('id=%s', doc('parent',0))
+    );
+    $ph['pid'] = $parent['id'];
+    $ph['pname'] = $parent ? $parent['pagetitle'] : '';
+    $ph['tooltip'] = tooltip(lang('resource_parent_help'));
+    $ph['icon_tree_folder'] = style('tree_folder');
     return renderTr(
         lang('resource_parent')
-        , getParentForm(
-            getParentName(
-                doc('parent')
-            )
-        )
+        , parseText(file_get_tpl('field_parent_form.tpl'),$ph)
     );
 }
 
@@ -1142,17 +1147,7 @@ function renderTr($head, $body,$rowstyle='') {
     $ph['body'] = $body;
     $ph['rowstyle'] = $rowstyle;
 
-    $tpl =<<< EOT
-	<tr style="height: 24px;[+rowstyle+]">
-		<td width="120" align="left">
-			<span class="warning">[+head+]</span>[+extra_head+]
-		</td>
-		<td>
-			[+body+]
-		</td>
-	</tr>
-EOT;
-    return parseText($tpl, $ph);
+    return parseText(file_get_tpl('render_tr.tpl'), $ph);
 }
 
 function getDefaultTemplate() {
@@ -1444,24 +1439,6 @@ function get_template_options() {
 }
 
 function menuindex() {
-    $tpl = <<< EOT
-<table cellpadding="0" cellspacing="0" style="width:333px;">
-	<tr>
-		<td style="white-space:nowrap;">
-			[+menuindex+]
-			<input type="button" value="&lt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')-1;elm.value=v>0? v:0;elm.focus();" />
-			<input type="button" value="&gt;" onclick="var elm = document.mutate.menuindex;var v=parseInt(elm.value+'')+1;elm.value=v>0? v:0;elm.focus();" />
-			[+resource_opt_menu_index_help+]
-		</td>
-		<td style="text-align:right;">
-			<span class="warning">[+resource_opt_show_menu+]</span>&nbsp;
-			[+hidemenu+]
-			[+hidemenu_hidden+]
-			[+resource_opt_show_menu_help+]
-		</td>
-	</tr>
-</table>
-EOT;
     $ph = array();
     $ph['menuindex'] = input_text_tag(
         array(
@@ -1477,7 +1454,10 @@ EOT;
     $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
     $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
     $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
-    return parseText($tpl, $ph);
+    return parseText(
+        file_get_tpl('field_menuindex.tpl')
+        , $ph
+    );
 }
 
 function renderSplit() {
@@ -1518,18 +1498,11 @@ function getParentName(&$v_parent) {
 }
 
 function getParentForm($pname) {
-    $tpl = <<< EOT
-&nbsp;<img alt="tree_folder" name="plock" src="[+icon_tree_folder+]" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" />
-<b><span id="parentName" onclick="enableParentSelection(!allowParentSelection);" style="cursor:pointer;" >
-[+pid+] ([+pname+])</span></b>
-[+tooltip+]
-<input type="hidden" name="parent" value="[+pid+]" />
-EOT;
     $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : doc('parent');
     $ph['pname'] = $pname;
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
-    return parseText($tpl,$ph);
+    return parseText(file_get_tpl('field_parent_form.tpl'),$ph);
 }
 
 function getActionButtons($id) {
