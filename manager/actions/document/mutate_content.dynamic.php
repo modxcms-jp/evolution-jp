@@ -8,58 +8,52 @@ if(!isset($modx->config['tvs_below_content'])) {
 }
 
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
-$modx->loadExtension('DocAPI');
+evo()->loadExtension('DocAPI');
 
-$id = input_any('id'); // New is '0'
-if($modx->manager->action==132||$modx->manager->action==131) {
+if(evo()->manager->action==132||evo()->manager->action==131) {
     $modx->doc->mode = 'draft';
 } else {
     $modx->doc->mode = 'normal';
 }
 
-checkPermissions($id);
-if($id) {
-    checkDocLock($id);
+checkPermissions(input_any('id'));
+if(input_any('id')) {
+    checkDocLock(input_any('id'));
 }
 
-global $docObject;
 $docgrp = getDocgrp();
 
 global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
-if($id) {
-    $docObject = getValuesFromDB($id, $docgrp);
-} else {
-    $docObject = getInitialValues();
-}
+global $docObject;
+$docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getInitialValues();
 
-$modx->loadExtension('REVISION');
-if($id && config('enable_draft')) {
-    $modx->revisionObject = $modx->revision->getRevisionObject($id,'resource','template');
-    if( $id && $modx->manager->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
-        $docObject['template'] = $modx->revisionObject['template'];
+evo()->loadExtension('REVISION');
+if(input_any('id') && config('enable_draft')) {
+    $modx->revisionObject = evo()->revision->getRevisionObject(input_any('id'),'resource','template');
+    if( input_any('id') && evo()->manager->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
+        $docObject['template'] = evo()->revisionObject['template'];
 } else {
     $modx->revisionObject = array();
 }
 
-if( isset($_REQUEST['newtemplate']) && preg_match('/\A[0-9]+\z/',$_REQUEST['newtemplate']) )
-    $docObject['template'] = $_REQUEST['newtemplate'];
+if(preg_match('/[1-9][0-9]*/', evo()->input_any('newtemplate')) ) {
+    $docObject['template'] = evo()->input_any('newtemplate');
+}
 
 $tmplVars  = getTmplvars(input_any('id'),doc('template'),$docgrp);
 $docObject += $tmplVars;
 
-if($id && $modx->manager->action==131)
-{
-    $docObject = mergeDraft($id, $docObject);
-    foreach($tmplVars as $k=>$v)
-    {
+if(input_any('id') && evo()->manager->action==131) {
+    $docObject = mergeDraft(input_any('id'), $docObject);
+    foreach($tmplVars as $k=>$v) {
         $tmplVars[$k] = $docObject[$k];
     }
 }
 
-$modx->manager->saveFormValues();
-if($_POST) {
+evo()->manager->saveFormValues();
+if(evo()->input_post()) {
     $docObject = mergeReloadValues($docObject);
 }
 
@@ -68,174 +62,85 @@ $modx->documentObject = & $docObject;
 
 $modx->event->vars['documentObject'] = & $docObject;
 // invoke OnDocFormPrerender event
-$tmp = array('id' => $id);
-$evtOut = $modx->invokeEvent('OnDocFormPrerender', $tmp);
+$tmp = array('id' => input_any('id'));
+$evtOut = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = array();
 
 global $template; // For plugins (ManagerManager etc...)
 $template = doc('template');
 
-$selected_editor = (isset ($_POST['which_editor'])) ? $_POST['which_editor'] : config('which_editor');
-
 checkViewUnpubDocPerm(doc('published'),doc('editedby'));// Only a=27
 
-$_SESSION['itemname'] = $modx->hsc(doc('pagetitle'));
+$_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
-$tpl['head'] = getTplHead();
-$tpl['foot'] = getTplFoot();
-$tpl['tab-page']['general']  = getTplTabGeneral();
-$tpl['tab-page']['tv']       = getTplTabTV();
-$tpl['tab-page']['settings'] = getTplTabSettings();
-$tpl['tab-page']['access']   = getTplTabAccess();
+$tpl['header']       = file_get_tpl('_header.tpl');
+$tpl['footer']       = file_get_tpl('_footer.tpl');
+$tpl['tab_general']  = file_get_tpl('tab_general.tpl');
+$tpl['tab_tv']       = file_get_tpl('tab_tv.tpl');
+$tpl['tab_settings'] = file_get_tpl('tab_settings.tpl');
+$tpl['tab_access']   = file_get_tpl('tab_access.tpl');
 
-$ph = array();
-$ph['JScripts'] = getJScripts($id);
-$ph['OnDocFormPrerender']  = is_array($evtOut) ? implode("\n", $evtOut) : '';
-$ph['id'] = $id;
-$ph['upload_maxsize'] = config('upload_maxsize') ? config('upload_maxsize') : 3145728;
-$ph['mode'] = $modx->manager->action;
-$ph['a'] = ($modx->doc->mode==='normal'&&$modx->hasPermission('save_document')) ? '5' : '128' ;
-// 5:save_resource.processor.php 128:save_draft_content.processor.php
-
-if(!$_REQUEST['pid']) {
-    $tpl['head'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $tpl['head']);
-} else {
-    $ph['pid'] = $_REQUEST['pid'];
+if(evo()->input_any('pid')) {
+    $tpl['header'] = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $tpl['header']);
 }
+echo parseText(
+    $tpl['header']
+    , collect_header_ph(input_any('id'), $evtOut)
+);
 
-if($modx->doc->mode==='normal') {
-    $ph['title'] = $_lang['create_resource_title'];
-    $ph['class'] = '';
-} else {
-    $ph['title'] = $_lang['create_draft_title'];
-    $ph['class'] = 'draft';
-}
-$ph['(ID:%s)'] = $id == 0 ? '' : sprintf('(ID:%s)', $id);
+echo parseText(
+    $tpl['tab_general']
+    , collect_tab_general_ph()
+);
 
-$ph['actionButtons'] = getActionButtons($id);
-$ph['token'] = $modx->manager->makeToken();
-
-echo parseText($tpl['head'],$ph);
-
-$ph = array();
-$ph['_lang_settings_general'] = $_lang['settings_general'];
-$ph['fieldPagetitle']   = fieldPagetitle();
-$ph['fieldLongtitle']   = fieldLongtitle();
-$ph['fieldDescription'] = fieldDescription();
-$ph['fieldAlias']       = fieldAlias($id);
-$ph['fieldWeblink']     = doc('type')==='reference' ? fieldWeblink() : '';
-$ph['fieldIntrotext']   = fieldIntrotext();
-$ph['fieldTemplate']    = fieldTemplate();
-$ph['fieldMenutitle']   = fieldMenutitle();
-$ph['fieldMenuindex']   = fieldMenuindex();
-$ph['renderSplit']      = renderSplit();
-$ph['fieldParent']      = fieldParent();
-
-$ph['sectionContent'] =  sectionContent();
-$ph['sectionTV']      =  config('tvs_below_content') ? sectionTV() : '';
-
-echo parseText($tpl['tab-page']['general'],$ph);
-
-
-if(config('tvs_below_content')==0 && 0<count($tmplVars)) {
-    $ph['TVFields'] = fieldsTV();
-    $ph['_lang_tv'] = $_lang['tmplvars'];
-    echo parseText($tpl['tab-page']['tv'],$ph);
-}
-$ph = array();
-$ph['_lang_settings_page_settings'] = $_lang['settings_page_settings'];
-
-if($modx->doc->mode==='normal') {
-    $ph['fieldPublished'] = fieldPublished();
-} else {
-    $ph['fieldPublished'] = '';
-}
-
-$ph['fieldPub_date']   = fieldPub_date($id);
-$ph['fieldUnpub_date'] = fieldUnpub_date($id);
-
-//下書きでかつ採用日の指定がない場合はSplit1は表示しない
-if( empty($ph['fieldPub_date']) ){
-    $ph['renderSplit1'] = '';
-}else{
-    $ph['renderSplit1'] = renderSplit();
-}
-$ph['renderSplit2'] = renderSplit();
-
-$ph['fieldType'] = fieldType();
-if(doc('type') !== 'reference') {
-    $ph['fieldContentType']   = fieldContentType();
-    $ph['fieldContent_dispo'] = fieldContent_dispo();
-} else {
-    $ph['fieldContentType']   = html_tag(
-        '<input>'
-        , array(
-            'type'  => 'hidden',
-            'name'  => 'contentType',
-            'value' => doc('contentType')
-        )
-    );
-    $ph['fieldContent_dispo']   = html_tag(
-        '<input>'
-        , array(
-            'type'  => 'hidden',
-            'name'  => 'content_dispo',
-            'value' => doc('content_dispo')
-        )
+if(config('tvs_below_content')==0 && $tmplVars) {
+    echo parseText(
+        $tpl['tab_tv']
+        , collect_tab_tv_ph()
     );
 }
-$ph['fieldLink_attributes'] = fieldLink_attributes();
-$ph['fieldIsfolder']   = fieldIsfolder();
-$ph['fieldRichtext']   = fieldRichtext();
-$ph['fieldDonthit']    = config('track_visitors')==='1' ? fieldDonthit() : '';
-$ph['fieldSearchable'] = fieldSearchable();
-$ph['fieldCacheable']  = doc('type') === 'document' ? fieldCacheable() : '';
-$ph['fieldSyncsite']   = fieldSyncsite();
-echo parseText($tpl['tab-page']['settings'],$ph);
 
+echo parseText(
+    $tpl['tab_settings']
+    , collect_tab_settings_ph()
+);
 
-
-/*******************************
- * Document Access Permissions */
-if (config('use_udperms') == 1)
-{
+if (config('use_udperms') == 1) {
     global $permissions_yes, $permissions_no;
-    $permissions = getUDGroups($id);
+    $permissions = getUDGroups(input_any('id'));
 
     // See if the Access Permissions section is worth displaying...
-    if (!empty($permissions)) {
+    if ($permissions) {
         $ph = array();
-        $ph['_lang_access_permissions'] = $_lang['access_permissions'];
-        $ph['_lang_access_permissions_docs_message'] = $_lang['access_permissions_docs_message'];
+        $ph['_lang_access_permissions'] = lang('access_permissions');
+        $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
-        echo parseText($tpl['tab-page']['access'],$ph);
-    } elseif($_SESSION['mgrRole'] != 1 && $permissions_yes == 0 && $permissions_no > 0
+        echo parseText($tpl['tab_access'],$ph);
+    } elseif(evo()->session_var('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
         && (
-            $_SESSION['mgrPermissions']['access_permissions'] == 1
+            evo()->session_var('mgrPermissions.access_permissions') == 1
             ||
-            $_SESSION['mgrPermissions']['web_access_permissions'] == 1
+            evo()->session_var('mgrPermissions.web_access_permissions') == 1
         )
     ) {
-        echo '<p>' . $_lang["access_permissions_docs_collision"] . '</p>';
+        echo '<p>' . lang('access_permissions_docs_collision') . '</p>';
     }
 }
-/* End Document Access Permissions *
- ***********************************/
 
 // invoke OnDocFormRender event
-$tmp = array('id' => $id);
-$OnDocFormRender = $modx->invokeEvent('OnDocFormRender', $tmp);
+$tmp = array('id' => input_any('id'));
+$OnDocFormRender = evo()->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
-if($modx->config['use_editor'] === '1') {
+if(evo()->config['use_editor'] === '1') {
     $rte_fields = rte_fields();
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = array(
-            'editor' => $selected_editor,
+            'editor' => evo()->input_post('which_editor',config('which_editor')),
             'elements' => $rte_fields
         );
-        $evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
+        $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
         if (is_array($evtOut)) {
             $OnRichTextEditorInit = implode('', $evtOut);
         }
@@ -243,9 +148,9 @@ if($modx->config['use_editor'] === '1') {
 }
 $ph['OnDocFormRender']      = is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '';
 $ph['OnRichTextEditorInit'] = $OnRichTextEditorInit;
-if ($modx->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') {
+if (evo()->config['remember_last_tab'] === '2' || $_GET['stay'] === '2') {
     $ph['remember_last_tab'] = 'true';
 } else {
     $ph['remember_last_tab'] = 'false';
 }
-echo parseText($tpl['foot'],$ph);
+echo parseText($tpl['footer'],$ph);

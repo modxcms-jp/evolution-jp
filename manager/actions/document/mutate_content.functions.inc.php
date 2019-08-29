@@ -42,26 +42,31 @@ function fieldDescription() {
 }
 
 function fieldAlias($id) {
-    $props = array(
-        'name'  => 'alias',
-        'value' => doc('alias|hsc')
-    );
     if(!config('friendly_urls') || doc('type') !== 'document') {
-        $props['maxlength'] = 100;
         return renderTr(
             lang('resource_alias')
-            , input_text_tag($props) . tooltip(lang('resource_alias_help')));
+            , input_text_tag(array(
+                    'name'      => 'alias',
+                    'value'     => doc('alias|hsc'),
+                    'maxlength' => 100
+                )
+            )
+            . tooltip(lang('resource_alias_help')));
     }
-
-    $props['size']      = 20;
-    $props['style']     = 'width:120px;';
-    $props['maxlength'] = 50;
-    if (config('suffix_mode')) {
-        $props['onkeyup'] = 'change_url_suffix();';
-    }
-    $props['placeholder'] = doc('id');
-    $body = get_alias_path($id)
-        . input_text_tag($props)
+    return renderTr(
+        lang('resource_alias')
+        , get_alias_path($id)
+        . input_text_tag(
+            array(
+                'name'        => 'alias',
+                'value'       => doc('alias|hsc'),
+                'size'        => 20,
+                'style'       => 'width:120px;',
+                'maxlength'   => 50,
+                'onkeyup'     => config('suffix_mode') ? 'change_url_suffix();' : '',
+                'placeholder' => doc('id')
+            )
+        )
         . html_tag(
             '<span>'
             , array('id'=>"url_suffix")
@@ -78,8 +83,8 @@ function fieldAlias($id) {
                 return '';
             })
         )
-        . tooltip(lang('resource_alias_help'));
-    return renderTr(lang('resource_alias'), $body);
+        . tooltip(lang('resource_alias_help'))
+    );
 }
 
 // Web Link specific
@@ -233,8 +238,6 @@ function rteContent($htmlcontent,$editors) {
 }
 
 function getEditors($editors) {
-    global $selected_editor;
-
     if (!is_array($editors)) {
         return '';
     }
@@ -251,7 +254,7 @@ function getEditors($editors) {
             '<option>'
             , array(
                 'value'    => $editor,
-                'selected' => $selected_editor === $editor ? null : ''
+                'selected' => evo()->input_post('which_editor',config('which_editor')) === $editor ? null : ''
             )
             , $editor
         );
@@ -264,49 +267,40 @@ function getEditors($editors) {
     );
 }
 
-function getTplSectionContent() {
-    return file_get_contents(__DIR__ . '/tpl/mutate_content/section_content.tpl');
-}
-
-function getTplSectionTV() {
-    return file_get_contents(__DIR__ . '/tpl/mutate_content/section_tv.tpl');
-}
-
-function getTplTVRow() {
-    return file_get_contents(__DIR__ . '/tpl/mutate_content/tv_row.tpl');
+function tpl_base_dir() {
+    return str_replace('\\', '/', __DIR__) . '/tpl/mutate_content/';
 }
 
 function sectionContent() {
     if (doc('type') !== 'document') {
         return '';
     }
-
-    $tpl = getTplSectionContent();
-    $htmlcontent = htmlspecialchars(doc('content'));
-
     $ph['header'] = lang('resource_content');
-    $planetpl = '<textarea class="phptextarea" id="ta" name="ta" style="width:100%; height: 400px;">'.$htmlcontent.'</textarea>';
-    if (config('use_editor') == 1 && doc('richtext') == 1) {
-        // invoke OnRichTextEditorRegister event
+    $planetpl = function($content) {
+        return sprintf(
+            '<textarea class="phptextarea" id="ta" name="ta" style="width:100%%; height: 400px;">%s</textarea>'
+            , $content
+        );
+    };
+    if (config('use_editor') && doc('richtext')) {
         $editors = evo()->invokeEvent('OnRichTextEditorRegister');
         if($editors) {
-            $ph['body'] = rteContent($htmlcontent, $editors);
+            $ph['body'] = rteContent(doc('content|hsc'), $editors);
         } else {
-            $ph['body'] = $planetpl;
+            $ph['body'] = $planetpl(doc('content|hsc'));
         }
     } else {
-        $ph['body'] = $planetpl;
+        $ph['body'] = $planetpl(doc('content|hsc'));
     }
 
-    return parseText($tpl,$ph);
+    return parseText(file_get_tpl('section_content.tpl'),$ph);
 }
 
 function sectionTV() {
-    $tpl = getTplSectionTV();
     $ph = array();
     $ph['header'] = lang('settings_templvars');
     $ph['body'] = fieldsTV();
-    return parseText($tpl,$ph);
+    return parseText(file_get_tpl('section_tv.tpl'),$ph);
 }
 
 function rte_fields() {
@@ -336,7 +330,6 @@ function fieldsTV() {
         return '';
     }
 
-    $tpl = getTplTVRow();
     $form_v = $_POST ? $_POST : array();
     $i = 0;
     $output = array();
@@ -392,10 +385,11 @@ function fieldsTV() {
                 , ''
                 , $tv
             );
-            if($ph['FormElement']!=='')
-            {
-                $output[] = parseText($tpl,$ph);
-                if ($i < $total) $output[] = $splitLine;
+            if($ph['FormElement']!=='') {
+                $output[] = parseText(file_get_tpl('tv_row.tpl'),$ph);
+                if ($i < $total) {
+                    $output[] = $splitLine;
+                }
             }
         }
         $i++;
@@ -486,11 +480,11 @@ function fieldUnpub_date($id) {
     return renderTr(lang('page_data_unpublishdate'),$body);
 }
 
-function input_any($key) {
+function input_any($key, $default=0) {
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
     }
-    return '0';
+    return $default;
 }
 
 function getInitialValues() {
@@ -714,22 +708,25 @@ function fieldContentType() {
     if(doc('type') === 'reference') {
         return '';
     }
-    $tpl = <<< EOT
-<select name="contentType" class="inputBox" style="width:200px">
-	[+option+]
-</select>
-EOT;
     $ct = explode(',', config('custom_contenttype'));
     $option = array();
-    foreach ($ct as $value)
-    {
-        $ph['selected'] = doc('contentType') === $value ? ' selected' : '';
-        $ph['value'] = $value;
-        $option[] = parseText('<option value="[+value+]" [+selected+]>[+value+]</option>',$ph);
+    foreach ($ct as $value) {
+        $option[] = html_tag(
+            '<option>'
+            , array(
+                'value'    => $value,
+                'selected' => doc('contentType') === $value ? null : ''
+            )
+            ,$value
+        );
     }
-    $ph = array();
-    $ph['option'] = join("\n", $option);
-    $body = parseText($tpl,$ph) . tooltip(lang('page_data_contentType_help'));
+    $body = parseText(
+            file_get_tpl('field_content_type.tpl')
+            , array(
+                'option' => join("\n", $option)
+            )
+        )
+        . tooltip(lang('page_data_contentType_help'));
     return renderTr(lang('page_data_contentType'),$body);
 }
 
@@ -774,12 +771,11 @@ function getGroups($docid) {
         ,'[+prefix+]document_groups'
         , sprintf("document='%s'", $docid)
     );
-    $groupsarray = array();
-    while ($row = db()->getRow($rs))
-    {
-        $groupsarray[] = $row['document_group'].','.$row['id'];
+    $groups = array();
+    while ($row = db()->getRow($rs)) {
+        $groups[] = sprintf('%s,%s', $row['document_group'], $row['id']);
     }
-    return $groupsarray;
+    return $groups;
 }
 
 function getUDGroups($id) {
@@ -864,9 +860,17 @@ function getUDGroups($id) {
         $inputHTML = '<input ' . implode(' ', $inputString) . ' />' . "\n";
 
         // does user have this permission?
-        $from = "[+prefix+]membergroup_access mga, [+prefix+]member_groups mg";
-        $where = "mga.membergroup = mg.user_group AND mga.documentgroup = {$row['id']} AND mg.member = {$_SESSION['mgrInternalKey']}";
-        $count = db()->getValue(db()->select('COUNT(mg.id)', $from, $where));
+        $count = db()->getValue(
+            db()->select(
+                'COUNT(mg.id)'
+                , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
+                , sprintf(
+                    'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s'
+                    , $row['id']
+                    , $_SESSION['mgrInternalKey']
+                )
+            )
+        );
 
         if ($count > 0) {
             ++$permissions_yes;
@@ -884,159 +888,24 @@ function getUDGroups($id) {
 
     if(!empty($permissions)) {
         // Add the "All Document Groups" item if we have rights in both contexts
-        if ($isManager && $isWeb)
-        {
-            array_unshift($permissions,"\t\t".'<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"' . checked(!$notPublic) . ' onclick="makePublic(true);" /><label for="groupall" class="warning">' . lang('all_doc_groups') . '</label></li>');
+        if ($isManager && $isWeb) {
+            array_unshift(
+                $permissions
+                , sprintf(
+                    '		<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"%s onclick="makePublic(true);" /><label for="groupall" class="warning">%s</label></li>'
+                    , checked(!$notPublic)
+                    , lang('all_doc_groups')
+                )
+            );
             // Output the permissions list...
         }
     }
 
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if($_SESSION['mgrRole'] != 1 && ($permissions_yes == 0 && $permissions_no > 0))
-    {
+    if($_SESSION['mgrRole'] != 1 && (!$permissions_yes && $permissions_no)) {
         $permissions = array();
     }
     return $permissions;
-}
-
-function getTplHead() {
-    $tpl = <<< EOT
-[+JScripts+]
-<form name="mutate" id="mutate" class="content" method="post" enctype="multipart/form-data" action="index.php" onsubmit="documentDirty=false;">
-	<input type="hidden" name="a" value="[+a+]" />
-	<input type="hidden" name="id" value="[+id+]" />
-	<input type="hidden" name="mode" value="[+mode+]" />
-	<input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]" />
-	<input type="hidden" name="newtemplate" value="" />
-	<input type="hidden" name="pid" value="[+pid+]" />
-	<input type="hidden" name="token" value="[+token+]" />
-	<input type="submit" name="save" style="display:none" />
-	[+OnDocFormPrerender+]
-	
-	<fieldset id="create_edit">
-	<h1 class="[+class+]">[+title+]</h1>
-
-	[+actionButtons+]
-
-	<div class="sectionBody">
-	<div class="tab-pane" id="documentPane">
-EOT;
-    return $tpl;
-}
-
-function getTplFoot() {
-    $tpl = <<< EOT
-		[+OnDocFormRender+]
-	</div><!--div class="tab-pane" id="documentPane"-->
-	</div><!--div class="sectionBody"-->
-	</fieldset>
-	<script>
-		tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+] );
-	</script>
-</form>
-[+OnRichTextEditorInit+]
-EOT;
-    return $tpl;
-}
-
-function getTplTabGeneral() {
-    $tpl = <<< EOT
-<!-- start main wrapper -->
-	<!-- General -->
-	<div class="tab-page" id="tabGeneral">
-		<h2 class="tab" id="tabGeneralHeader">[+_lang_settings_general+]</h2>
-		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-			[+fieldPagetitle+]
-			[+fieldLongtitle+]
-			[+fieldDescription+]
-			[+fieldAlias+]
-			[+fieldWeblink+]
-			[+fieldIntrotext+]
-			[+fieldTemplate+]
-			[+fieldMenutitle+]
-			[+fieldMenuindex+]
-			[+renderSplit+]
-			[+fieldParent+]
-		</table>
-		[+sectionContent+]
-		[+sectionTV+]
-	</div><!-- end #tabGeneral -->
-EOT;
-    return $tpl;
-}
-
-function getTplTabTV() {
-    $tpl = <<< EOT
-<!-- TVs -->
-<div class="tab-page" id="tabTVs">
-	<h2 class="tab" id="tabTVsHeader">[+_lang_tv+]</h2>
-	[+TVFields+]
-</div>
-EOT;
-    return $tpl;
-}
-
-function getTplTabSettings() {
-    $tpl = <<< EOT
-	<!-- Settings -->
-	<div class="tab-page" id="tabSettings">
-		<h2 class="tab" id="tabSettingsHeader">[+_lang_settings_page_settings+]</h2>
-		<table width="99%" border="0" cellspacing="5" cellpadding="0">
-			[+fieldPublished+]
-			[+fieldPub_date+]
-			[+fieldUnpub_date+]
-			[+renderSplit1+]
-			[+fieldType+]
-			[+fieldContentType+]
-			[+fieldContent_dispo+]
-			[+renderSplit2+]
-			[+fieldLink_attributes+]
-			[+fieldIsfolder+]
-			[+fieldRichtext+]
-			[+fieldDonthit+]
-			[+fieldSearchable+]
-			[+fieldCacheable+]
-			[+fieldSyncsite+]
-		</table>
-	</div><!-- end #tabSettings -->
-EOT;
-    return $tpl;
-}
-
-function getTplTabAccess() {
-    $tpl = <<< EOT
-<!-- Access Permissions -->
-<div class="tab-page" id="tabAccess">
-	<h2 class="tab" id="tabAccessHeader">[+_lang_access_permissions+]</h2>
-	<script type="text/javascript">
-		/* <![CDATA[ */
-		function makePublic(b) {
-			var notPublic = false;
-			var f = document.forms['mutate'];
-			var chkpub = f['chkalldocs'];
-			var chks = f['docgroups[]'];
-			if (!chks && chkpub) {
-				chkpub.checked=true;
-				return false;
-			} else if (!b && chkpub) {
-				if (!chks.length) notPublic = chks.checked;
-				else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
-				chkpub.checked = !notPublic;
-			} else {
-				if (!chks.length) chks.checked = (b) ? false : chks.checked;
-				else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
-				chkpub.checked = true;
-			}
-		}
-		/* ]]> */
-	</script>
-	<p>[+_lang_access_permissions_docs_message+]</p>
-	<ul>
-		[+UDGroups+]
-	</ul>
-</div><!-- end #tabAccess -->
-EOT;
-    return $tpl;
 }
 
 function mergeDraft($id,$content) {
@@ -1326,47 +1195,47 @@ function getDefaultTemplate() {
 
 // check permissions
 function checkPermissions($id) {
-    global $modx,$e;
+    global $modx;
 
     $isAllowed = evo()->manager->isAllowed($id);
     if (!isset($_GET['pid'])&&!$isAllowed) {
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
 
     switch (evo()->manager->action) {
         case 27:
             if (!evo()->hasPermission('view_document')) {
                 $modx->config['remember_last_tab'] = 0;
-                $e->setError(3);
-                $e->dumpError();
+                alert()->setError(3);
+                alert()->dumpError();
             }
             evo()->manager->remove_locks('27');
             break;
         case 72:
         case 4:
             if (!evo()->hasPermission('new_document')) {
-                $e->setError(3);
-                $e->dumpError();
+                alert()->setError(3);
+                alert()->dumpError();
             } elseif(evo()->input_any('pid')) {
                 // check user has permissions for parent
                 $targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
                 if (!evo()->checkPermissions($targetpid)) {
-                    $e->setError(3);
-                    $e->dumpError();
+                    alert()->setError(3);
+                    alert()->dumpError();
                 }
             }
             break;
         case 132:
         case 131:
             if (!evo()->hasPermission('view_document')) {
-                $e->setError(3);
-                $e->dumpError();
+                alert()->setError(3);
+                alert()->dumpError();
             }
             break;
         default:
-            $e->setError(3);
-            $e->dumpError();
+            alert()->setError(3);
+            alert()->dumpError();
     }
 
     if (evo()->manager->action == 27 && !evo()->checkPermissions($id)) {
@@ -1378,14 +1247,13 @@ function checkPermissions($id) {
         $_[] = sprintf('	<p>%s</p>',lang('access_permission_denied'));
         $_[] = '</div>';
         $_[] = '</div>';
-        echo join("\n",$_);
+        echo implode("\n",$_);
         include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         exit;
     }
 }
 
 function checkDocLock($id) {
-    global $e;
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'
@@ -1403,8 +1271,8 @@ function checkDocLock($id) {
             continue;
         }
         $msg = sprintf(lang('lock_msg'), $row['username'], lang('resource'));
-        $e->setError(5, $msg);
-        $e->dumpError();
+        alert()->setError(5, $msg);
+        alert()->dumpError();
     }
 }
 
@@ -1417,9 +1285,9 @@ function getDocgrp() {
 }
 
 function getValuesFromDB($id,$docgrp) {
-    global $e;
-
-    if($id==='0') return array();
+    if($id==='0') {
+        return array();
+    }
 
     $access  = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0";
     $access .= empty($docgrp) ? '' : " OR dg.document_group IN ({$docgrp})";
@@ -1428,13 +1296,13 @@ function getValuesFromDB($id,$docgrp) {
     $limit = db()->getRecordCount($rs);
     if ($limit > 1)
     {
-        $e->setError(6);
-        $e->dumpError();
+        alert()->setError(6);
+        alert()->dumpError();
     }
     if ($limit < 1)
     {
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
     return db()->getRow($rs);
 }
@@ -1621,8 +1489,6 @@ EOT;
 }
 
 function getParentName(&$v_parent) {
-    global $e;
-
     $parentlookup = false;
     if (isset($_REQUEST['id'])) {
         if ($v_parent != 0) {
@@ -1641,8 +1507,8 @@ function getParentName(&$v_parent) {
     if (preg_match('@^[1-9][0-9]*$@', $parentlookup)) {
         $rs = db()->select('*', '[+prefix+]site_content', sprintf("id='%s'", $parentlookup));
         if (db()->getRecordCount($rs) != 1) {
-            $e->setError(8);
-            $e->dumpError();
+            alert()->setError(8);
+            alert()->dumpError();
         }
         $parentrs = db()->getRow($rs);
         return $parentrs['pagetitle'];
@@ -1840,4 +1706,94 @@ function img_tag($src,$props=array()) {
 function a_tag($href,$props=array(),$string) {
     $props['href'] = $href;
     return html_tag('img', $props, $string);
+}
+
+function alert() {
+    global $e;
+    return $e;
+}
+
+function file_get_tpl ($path) {
+    return file_get_contents(tpl_base_dir() . $path);
+}
+
+function collect_header_ph($id, $evtOut) {
+    return array(
+        'JScripts' => getJScripts(input_any('id')),
+        'OnDocFormPrerender' => is_array($evtOut) ? implode("\n", $evtOut) : '',
+        'id' => $id,
+        'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
+        'mode' => evo()->manager->action,
+        'a' =>  (evo()->doc->mode === 'normal' && evo()->hasPermission('save_document')) ? 5 : 128,
+        'pid' => evo()->input_any('pid'),
+        'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
+        'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
+        '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
+        'actionButtons' => getActionButtons($id),
+        'token' => evo()->manager->makeToken()
+    );
+}
+
+function collect_tab_general_ph() {
+    return array(
+        '_lang_settings_general' => lang('settings_general'),
+        'fieldPagetitle'   => fieldPagetitle(),
+        'fieldLongtitle'   => fieldLongtitle(),
+        'fieldDescription' => fieldDescription(),
+        'fieldAlias'       => fieldAlias(input_any('id')),
+        'fieldWeblink'     => doc('type')==='reference' ? fieldWeblink() : '',
+        'fieldIntrotext'   => fieldIntrotext(),
+        'fieldTemplate'    => fieldTemplate(),
+        'fieldMenutitle'   => fieldMenutitle(),
+        'fieldMenuindex'   => fieldMenuindex(),
+        'renderSplit'      => renderSplit(),
+        'fieldParent'      => fieldParent(),
+
+        'sectionContent' =>  sectionContent(),
+        'sectionTV'      =>  config('tvs_below_content') ? sectionTV() : ''
+    );
+}
+
+function collect_tab_tv_ph() {
+    return array(
+        'TVFields' => fieldsTV(),
+        '_lang_tv' => lang('tmplvars')
+    );
+}
+
+function collect_tab_settings_ph() {
+    $ph = array();
+    $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
+    $ph['fieldPublished'] = (evo()->doc->mode==='normal') ? fieldPublished() : '';
+    $ph['fieldPub_date']   = fieldPub_date(input_any('id'));
+    $ph['fieldUnpub_date'] = fieldUnpub_date(input_any('id'));
+
+    $ph['renderSplit1'] = $ph['fieldPub_date'] ? renderSplit() : '';
+    $ph['renderSplit2'] = renderSplit();
+
+    $ph['fieldType'] = fieldType();
+    $ph['fieldContentType'] = (doc('type') === 'reference') ? html_tag(
+        '<input>'
+        , array(
+            'type' => 'hidden',
+            'name' => 'contentType',
+            'value' => doc('contentType')
+        )
+    ) : fieldContentType();
+    $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
+        '<input>'
+        , array(
+            'type' => 'hidden',
+            'name' => 'content_dispo',
+            'value' => doc('content_dispo')
+        )
+    ) : fieldContent_dispo();
+    $ph['fieldLink_attributes'] = fieldLink_attributes();
+    $ph['fieldIsfolder']   = fieldIsfolder();
+    $ph['fieldRichtext']   = fieldRichtext();
+    $ph['fieldDonthit']    = config('track_visitors')==='1' ? fieldDonthit() : '';
+    $ph['fieldSearchable'] = fieldSearchable();
+    $ph['fieldCacheable']  = doc('type') === 'document' ? fieldCacheable() : '';
+    $ph['fieldSyncsite']   = fieldSyncsite();
+    return $ph;
 }
