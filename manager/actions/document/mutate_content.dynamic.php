@@ -4,6 +4,7 @@ if(!isset($modx) || !$modx->isLoggedin()) exit;
 include_once(MODX_CORE_PATH . 'helpers.php');
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
 include_once(tpl_base_dir().'fields.php');
+include_once(tpl_base_dir().'action_buttons.php');
 
 if(config('preview_mode')===null) {
     $modx->config['preview_mode'] = '1';

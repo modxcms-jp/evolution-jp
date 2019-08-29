@@ -148,6 +148,45 @@ function fieldTemplate() {
     );
 }
 
+function get_template_options() {
+    $option_tags = function($templates) {
+        $options = array(
+            html_tag('<option>', array('value'=>0), '(blank)')
+        );
+        foreach($templates as $template) {
+            $options[] = html_tag(
+                '<option>'
+                ,array(
+                    'value'    => $template['id'],
+                    'selected' => $template['id']==doc('template') ? null : ''
+                )
+                , hsc($template['templatename'])
+            );
+        }
+        return $options;
+    };
+    $rs = db()->select(
+        sprintf(
+            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
+            , lang('no_category')
+        )
+        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+        , ''
+        , 'c.category, t.templatename ASC'
+    );
+    while ($row = db()->getRow($rs)) {
+        $rows[$row['category']][] = $row;
+    }
+    foreach ($rows as $category=>$templates) {
+        $optgroups[] = html_tag(
+            '<optgroup>'
+            , array('label'=>hsc($category))
+            , implode("\n", $option_tags($templates))
+        );
+    }
+    return implode("\n", $optgroups);
+}
+
 function fieldMenutitle() {
     return renderTr(
         lang('resource_opt_menu_title')
@@ -165,6 +204,42 @@ function fieldMenuindex() {
     return renderTr(
         lang('resource_opt_menu_index')
         , menuindex()
+    );
+}
+
+function menuindex() {
+    $ph = array();
+    $ph['menuindex'] = input_text_tag(
+        array(
+            'name'      => 'menuindex',
+            'value'     => doc('menuindex'),
+            'style'     => 'width:62px;',
+            'maxlength' => 8
+        )
+    );
+    $ph['resource_opt_menu_index_help'] = tooltip(lang('resource_opt_menu_index_help'));
+    $ph['resource_opt_show_menu'] = lang('resource_opt_show_menu');
+    $ph['hidemenu'] = html_tag(
+        'input'
+        , array(
+            'type' => 'checkbox',
+            'name' => 'hidemenu',
+            'checked' => doc('hidemenu')!=1 ? null : ''
+        )
+    );
+    $ph['hidemenu_hidden'] = html_tag(
+        '<input>'
+        , array(
+            'type' => 'hidden',
+            'name' => 'hidemenu',
+            'class'=> 'hidden',
+            'value' => doc('hidemenu')!=1 ? 1 : 0
+        )
+    );
+    $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
+    return parseText(
+        file_get_tpl('field_menuindex.tpl')
+        , $ph
     );
 }
 
@@ -274,8 +349,24 @@ function fieldPublished() {
         $published = doc('published');
     }
 
-    $body = input_checkbox('published',$published==1);
-    $body .= input_hidden('published',$published==1);
+    $body = html_tag('input'
+        , array(
+            'type'=>'checkbox',
+            'class'=>'checkbox',
+            'name'=>'publishedcheck',
+            'value'=> $published==1 ? 1 : 0,
+            'onclick'  => 'changestate(document.mutate.published);resetpubdate();',
+            'disabled'=>(!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
+        )
+    );
+    $body .= html_tag(
+        'input'
+        ,array(
+            'name'  => 'published',
+            'class' => 'hidden',
+            'value' => $published==1 ? 1 : 0
+        )
+    );
     $body .= tooltip(lang('resource_opt_published_help'));
     return renderTr(lang('resource_opt_published'),$body);
 }

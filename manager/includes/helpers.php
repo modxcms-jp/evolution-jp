@@ -13,6 +13,10 @@ function manager() {
     return $modx->manager;
 }
 
+function hasPermission($permission) {
+    return evo()->hasPermission($permission);
+}
+
 function config($key, $default=null) {
     return evo()->conf_var($key, $default);
 }

@@ -208,9 +208,6 @@ function getUDGroups($id) {
         $from = '[+prefix+]documentgroup_names';
     }
 
-    $isManager = evo()->hasPermission('access_permissions');
-    $isWeb = evo()->hasPermission('web_access_permissions');
-
     // Setup Basic attributes for each Input box
     $inputAttributes['type'] = 'checkbox';
     $inputAttributes['class'] = 'checkbox';
@@ -240,7 +237,7 @@ function getUDGroups($id) {
         } // Mark as private access (either web or manager)
 
         // Skip the access permission if the user doesn't have access...
-        if ((!$isManager && $row['private_memgroup'] == '1') || (!$isWeb && $row['private_webgroup'] == '1')) {
+        if ((!hasPermission('access_permissions') && $row['private_memgroup'] == '1') || (!hasPermission('web_access_permissions') && $row['private_webgroup'] == '1')) {
             continue;
         }
 
@@ -289,25 +286,38 @@ function getUDGroups($id) {
             );
     }
 
+    // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
+    if($_SESSION['mgrRole'] != 1 && !$permissions_yes && $permissions_no) {
+        return array();
+    }
+
     if($permissions) {
         // Add the "All Document Groups" item if we have rights in both contexts
-        if ($isManager && $isWeb) {
+        if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
             array_unshift(
                 $permissions
-                , sprintf(
-                    '		<li><input type="checkbox" class="checkbox" name="chkalldocs" id="groupall"%s onclick="makePublic(true);" /><label for="groupall" class="warning">%s</label></li>'
-                    , checked(!$notPublic)
-                    , lang('all_doc_groups')
-                )
+                , html_tag(
+                    '<li>'
+                    , array(),
+                    html_tag('<input>',array(
+                            'type'=> 'checkbox',
+                            'class'=> 'checkbox',
+                            'name'=> 'chkalldocs',
+                            'id'=>'groupall',
+                            'checked' => !$notPublic ? null : '',
+                            'onclick'=> 'makePublic(true);'
+                        )
+                    )
+                    . html_tag('label', array(
+                            'for'=> 'groupall',
+                            'class'=> 'warning'
+                        )
+                        , lang('all_doc_groups')))
             );
             // Output the permissions list...
         }
     }
 
-    // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if($_SESSION['mgrRole'] != 1 && (!$permissions_yes && $permissions_no)) {
-        $permissions = array();
-    }
     return $permissions;
 }
 
@@ -322,40 +332,8 @@ function mergeDraft($id,$content) {
         }
     }
     $content = array_merge($content, $revision_content);
-    if(!evo()->hasPermission('publish_document')) $content['published'] = '0';
+    if(!hasPermission('publish_document')) $content['published'] = '0';
     return $content;
-}
-
-function input_checkbox($name,$checked,$other='') {
-    $ph['name']    = $name;
-    $ph['checked'] = ($checked) ? 'checked="checked"' : '';
-    $ph['other']   = $other;
-    $ph['resetpubdate'] = ($name === 'published') ? 'resetpubdate();' : '';
-    if($name === 'published')
-    {
-        $id = (isset($_REQUEST['id'])&&preg_match('@^[1-9][0-9]*$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
-
-        if(!evo()->hasPermission('publish_document') || $id===config('site_start'))
-        {
-            $ph['other'] = 'disabled="disabled"';
-        }
-    }
-    $tpl = '<input name="[+name+]check" type="checkbox" class="checkbox" [+checked+] onclick="changestate(document.mutate.[+name+]);[+resetpubdate+]" [+other+] />';
-    return parseText($tpl,$ph);
-}
-
-function checked($cond=false) {
-    if($cond) {
-        return ' checked="checked"';
-    }
-    return '';
-}
-
-function disabled($cond=false) {
-    if($cond) {
-        return ' disabled="disabled"';
-    }
-    return '';
 }
 
 function tooltip($msg) {
@@ -370,130 +348,6 @@ function tooltip($msg) {
             'class'   => 'tooltip'
         )
     );
-}
-
-function input_hidden($name,$cond=true) {
-    $ph['name']  = $name;
-    $ph['value'] = ($cond) ? '1' : '0';
-    $tpl = '<input type="hidden" name="[+name+]" class="hidden" value="[+value+]" />';
-    return parseText($tpl,$ph);
-}
-
-function ab_preview($id=0) {
-    $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style('icons_preview_resource');
-    $ph['alt'] = 'preview resource';
-    $ph['label'] = lang('preview');
-    return parseText($tpl,$ph);
-}
-
-function ab_save() {
-    $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
-    $ph['icon'] = style('icons_save');
-    $ph['alt'] = 'icons_save';
-    $ph['label'] = lang('update');
-
-    $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
-    $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
-    $selected = array('new'=>'', 'stay'=>'', 'close'=>'');
-    if (evo()->hasPermission('new_document')
-        && $saveAfter === 'new') {
-        $selected['new'] = 'selected';
-    } elseif($saveAfter === 'stay') {
-        $selected['stay'] = 'selected';
-    } elseif($saveAfter === 'close') {
-        $selected['close'] = 'selected';
-    } else {
-        $selected['close'] = 'selected';
-    }
-
-    if (evo()->doc->mode !== 'draft'&&evo()->hasPermission('new_document')&&evo()->hasPermission('save_document'))
-        $option[] = sprintf('<option id="stay1" value="new" %s >%s</option>', $selected['new'], lang('stay_new'));
-
-    $option[] = sprintf('<option id="stay2" value="stay" %s >%s</option>'    , $selected['stay'], lang('stay'));
-    if(evo()->doc->mode==='draft' && evo()->hasPermission('publish_document')) {
-        if(evo()->revision->hasStandby)
-            $option[] = sprintf('<option id="stay4" value="save_standby">%s</option>'     , '下書採用日時を再指定');
-        else
-            $option[] = sprintf('<option id="stay4" value="save_draft">%s</option>'     , '下書きを採用');
-    }
-    $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>'     , $selected['close'], lang('close'));
-
-    $ph['select'] = sprintf($ph['select'], join("\n", $option));
-
-    return parseText($tpl,$ph);
-}
-
-function ab_open_draft($id) {
-    $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_save");
-    $ph['alt'] = 'icons_draft';
-    $ph['label'] = lang('open_draft');
-    return parseText($tpl,$ph);
-}
-
-function ab_create_draft($id) {
-    if(!config('enable_draft')) {
-        return false;
-    }
-
-    if(!evo()->hasPermission('edit_document')) {
-        return false;
-    }
-
-    $tpl = '<li id="createdraft" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_save");
-    $ph['alt'] = 'icons_draft';
-    $ph['label'] = lang('create_draft');
-
-    return parseText($tpl,$ph);
-}
-
-function ab_cancel($id) {
-    $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_cancel");
-    $ph['alt'] = 'icons_cancel';
-    $ph['label'] = lang('cancel');
-    return parseText($tpl,$ph);
-}
-
-function ab_move() {
-    $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_move_document");
-    $ph['label'] = lang('move');
-    return parseText($tpl,$ph);
-}
-
-function ab_duplicate() {
-    $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_resource_duplicate");
-    $ph['alt'] = 'icons_resource_duplicate';
-    $ph['label'] = lang('duplicate');
-    return parseText($tpl,$ph);
-}
-
-function ab_delete() {
-    $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_delete_document");
-    $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = lang('delete');
-    return parseText($tpl,$ph);
-}
-
-function ab_undelete() {
-    $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_undelete_resource");
-    $ph['alt'] = 'icons_undelete_document';
-    $ph['label'] = lang('undelete_resource');
-    return parseText($tpl,$ph);
-}
-
-function ab_delete_draft() {
-    $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
-    $ph['icon'] = style("icons_delete_document");
-    $ph['alt'] = 'icons_delete_document';
-    $ph['label'] = lang('delete_draft');
-    return parseText($tpl,$ph);
 }
 
 function get_alias_path($id) {
@@ -598,7 +452,7 @@ function checkPermissions($id) {
 
     switch (manager()->action) {
         case 27:
-            if (!evo()->hasPermission('view_document')) {
+            if (!hasPermission('view_document')) {
                 $modx->config['remember_last_tab'] = 0;
                 alert()->setError(3);
                 alert()->dumpError();
@@ -607,7 +461,7 @@ function checkPermissions($id) {
             break;
         case 72:
         case 4:
-            if (!evo()->hasPermission('new_document')) {
+            if (!hasPermission('new_document')) {
                 alert()->setError(3);
                 alert()->dumpError();
             } elseif(evo()->input_any('pid')) {
@@ -621,7 +475,7 @@ function checkPermissions($id) {
             break;
         case 132:
         case 131:
-            if (!evo()->hasPermission('view_document')) {
+            if (!hasPermission('view_document')) {
                 alert()->setError(3);
                 alert()->dumpError();
             }
@@ -684,20 +538,17 @@ function getValuesFromDB($id,$docgrp) {
 
     $access  = sprintf("1='%s' OR sc.privatemgr=0", $_SESSION['mgrRole']);
     $access .= !$docgrp ? '' : sprintf(' OR dg.document_group IN (%s)', $docgrp);
-    $from = '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id';
     $rs = db()->select(
         'DISTINCT sc.*'
         , '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
         , sprintf("sc.id='%s' AND (%s)", $id, $access)
     );
     $limit = db()->getRecordCount($rs);
-    if ($limit > 1)
-    {
+    if ($limit > 1) {
         alert()->setError(6);
         alert()->dumpError();
     }
-    if ($limit < 1)
-    {
+    if ($limit < 1) {
         alert()->setError(3);
         alert()->dumpError();
     }
@@ -734,12 +585,11 @@ function mergeReloadValues($docObject) {
 }
 
 function checkViewUnpubDocPerm($published,$editedby) {
-    if(manager()->action!=27) return;
-    if(evo()->hasPermission('view_unpublished')) return;
-    if($published!=='0')                         return;
+    if(manager()->action!=27 || hasPermission('view_unpublished') || $published) {
+        return;
+    }
 
-    $userid = evo()->getLoginUserID();
-    if ($userid != $editedby) {
+    if (evo()->getLoginUserID() != $editedby) {
         global $modx;
         $modx->config['remember_last_tab'] = 0;
         evo()->event->setError(3);
@@ -801,66 +651,6 @@ function getJScripts($docid) {
     );
 }
 
-function get_template_options() {
-    $option_tags = function($templates) {
-        $options = array(
-            html_tag('<option>', array('value'=>0), '(blank)')
-        );
-        foreach($templates as $template) {
-            $options[] = html_tag(
-                '<option>'
-                ,array(
-                    'value'    => $template['id'],
-                    'selected' => $template['id']==doc('template') ? null : ''
-                )
-                , hsc($template['templatename'])
-            );
-        }
-        return $options;
-    };
-    $rs = db()->select(
-        sprintf(
-            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
-            , lang('no_category')
-        )
-        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
-        , ''
-        , 'c.category, t.templatename ASC'
-    );
-    while ($row = db()->getRow($rs)) {
-        $rows[$row['category']][] = $row;
-    }
-    foreach ($rows as $category=>$templates) {
-        $optgroups[] = html_tag(
-            '<optgroup>'
-            , array('label'=>hsc($category))
-            , implode("\n", $option_tags($templates))
-        );
-    }
-    return implode("\n", $optgroups);
-}
-
-function menuindex() {
-    $ph = array();
-    $ph['menuindex'] = input_text_tag(
-        array(
-            'name'      => 'menuindex',
-            'value'     => doc('menuindex'),
-            'style'     => 'width:62px;',
-            'maxlength' => 8
-        )
-    );
-    $ph['resource_opt_menu_index_help'] = tooltip(lang('resource_opt_menu_index_help'));
-    $ph['resource_opt_show_menu'] = lang('resource_opt_show_menu');
-    $cond = (doc('hidemenu')!=1);
-    $ph['hidemenu'] = input_checkbox('hidemenu',$cond);
-    $ph['hidemenu_hidden'] = input_hidden('hidemenu',!$cond);
-    $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
-    return parseText(
-        file_get_tpl('field_menuindex.tpl')
-        , $ph
-    );
-}
 
 function renderSplit() {
     return <<< EOT
@@ -868,104 +658,6 @@ function renderSplit() {
 	<td colspan="2"><div class="split"></div></td>
 </tr>
 EOT;
-}
-
-function getParentName(&$v_parent) {
-    $parentlookup = false;
-    if (isset($_REQUEST['id'])) {
-        if ($v_parent != 0) {
-            $parentlookup = $v_parent;
-        }
-    } elseif (isset($_REQUEST['pid'])) {
-        if ($_REQUEST['pid'] != 0) {
-            $parentlookup = $_REQUEST['pid'];
-        }
-    } elseif (isset($v_parent)) {
-        if ($v_parent != 0) {
-            $parentlookup = $v_parent;
-        }
-    }
-
-    if (preg_match('@^[1-9][0-9]*$@', $parentlookup)) {
-        $rs = db()->select('*', '[+prefix+]site_content', sprintf("id='%s'", $parentlookup));
-        if (db()->getRecordCount($rs) != 1) {
-            alert()->setError(8);
-            alert()->dumpError();
-        }
-        $parentrs = db()->getRow($rs);
-        return $parentrs['pagetitle'];
-    }
-
-    return config('site_name');
-}
-
-function getParentForm($pname) {
-    $ph['pid'] = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : doc('parent');
-    $ph['pname'] = $pname;
-    $ph['tooltip'] = tooltip(lang('resource_parent_help'));
-    $ph['icon_tree_folder'] = style('tree_folder');
-    return parseText(file_get_tpl('field_parent_form.tpl'),$ph);
-}
-
-function getActionButtons($id) {
-    switch(manager()->action) {
-        case '4':
-        case '72':
-            if(evo()->hasPermission('new_document'))
-                $ph['saveButton'] = ab_save();
-            break;
-        case '27':
-            if(evo()->hasPermission('save_document'))
-                $ph['saveButton'] = ab_save();
-            break;
-        case '132':
-        case '131':
-            $ph['saveButton'] = ab_save();
-            break;
-        default:
-            $ph['saveButton'] = '';
-    }
-
-    $ph['moveButton']      = '';
-    $ph['duplicateButton'] = '';
-    $ph['deleteButton']    = '';
-    if(evo()->doc->mode==='draft') {
-        if(evo()->revision->hasDraft||evo()->revision->hasStandby) {
-            $ph['deleteButton'] = ab_delete_draft();
-        }
-    } elseif ($id != config('site_start')) {
-        if(manager()->action==27 && evo()->doc->canSaveDoc()) {
-            if(evo()->hasPermission('move_document')) {
-                $ph['moveButton'] = ab_move();
-            }
-            if(evo()->doc->canCreateDoc()) {
-                $ph['duplicateButton'] = ab_duplicate();
-            }
-            if(evo()->doc->canDeleteDoc()) {
-                if (doc('deleted') == 0) {
-                    $ph['deleteButton'] = ab_delete();
-                } else {
-                    $ph['deleteButton'] = ab_undelete();
-                }
-            }
-        }
-    }
-
-    if (manager()->action == 27) {
-        if(evo()->revision->hasDraft||evo()->revision->hasStandby) {
-            $ph['draftButton'] = ab_open_draft($id);
-        } else {
-            $ph['draftButton'] = ab_create_draft($id);
-        }
-
-    } else {
-        $ph['draftButton'] = '';
-    }
-
-    $ph['previewButton'] = ab_preview($id);
-    $ph['cancelButton']  = ab_cancel($id);
-
-    return preg_replace('@\[\+[^]]+\+]@', '', parseText(file_get_tpl('action_buttons.tpl'),$ph));
 }
 
 function doc($key) {
@@ -996,7 +688,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'id' => $id,
         'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
         'mode' => manager()->action,
-        'a' =>  (evo()->doc->mode === 'normal' && evo()->hasPermission('save_document')) ? 5 : 128,
+        'a' =>  (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => evo()->input_any('pid',0),
         'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
