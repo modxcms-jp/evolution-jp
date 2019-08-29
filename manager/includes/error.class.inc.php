@@ -41,8 +41,9 @@ class errorHandler{
 	}
 
 	function setError($errorcode, $custommessage= ''){
+        global $modx;
 		$this->errorcode=$errorcode;
-		$this->errormessage=$this->errors[$errorcode];
+		$this->errormessage = $modx->array_get($this->errors, $errorcode, $errorcode);
 		if($custommessage!= '') {
 			$this->errormessage=$custommessage;
 		}

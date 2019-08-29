@@ -1533,21 +1533,7 @@ EOT;
 }
 
 function getActionButtons($id) {
-    $tpl = <<< EOT
-<div id="actions">
-	<ul class="actionButtons">
-		[+saveButton+]
-		[+moveButton+]
-		[+duplicateButton+]
-		[+deleteButton+]
-		[+draftButton+]
-		[+previewButton+]
-		[+cancelButton+]
-	</ul>
-</div>
-EOT;
-    switch(evo()->manager->action)
-    {
+    switch(evo()->manager->action) {
         case '4':
         case '72':
             if(evo()->hasPermission('new_document'))
@@ -1572,8 +1558,7 @@ EOT;
         if(evo()->revision->hasDraft||evo()->revision->hasStandby) {
             $ph['deleteButton'] = ab_delete_draft();
         }
-    }
-    elseif ($id != config('site_start')) {
+    } elseif ($id != config('site_start')) {
         if(evo()->manager->action==27 && evo()->doc->canSaveDoc()) {
             if(evo()->hasPermission('move_document')) {
                 $ph['moveButton'] = ab_move();
@@ -1605,7 +1590,7 @@ EOT;
     $ph['previewButton'] = ab_preview($id);
     $ph['cancelButton']  = ab_cancel($id);
 
-    return preg_replace('@\[\+[^\]]+\+\]@', '', parseText($tpl,$ph));
+    return preg_replace('@\[\+[^]]+\+]@', '', parseText(file_get_tpl('action_buttons.tpl'),$ph));
 }
 
 function config($key) {
@@ -1692,20 +1677,9 @@ function select_tag($props=array(), $options) {
     return html_tag('select', $props, $options);
 }
 
-function textarea($props=array(), $content) {
-    $props['class'] = evo()->array_get($props,'class','inputBox');
-    return html_tag('textarea', $props, $content);
-
-}
-
 function img_tag($src,$props=array()) {
     $props['src'] = $src;
     return html_tag('img', $props);
-}
-
-function a_tag($href,$props=array(),$string) {
-    $props['href'] = $href;
-    return html_tag('img', $props, $string);
 }
 
 function alert() {
@@ -1714,6 +1688,9 @@ function alert() {
 }
 
 function file_get_tpl ($path) {
+    if(is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
+        return file_get_contents(MODX_BASE_PATH . config('custom_tpl_dir') . $path);
+    }
     return file_get_contents(tpl_base_dir() . $path);
 }
 
@@ -1725,7 +1702,7 @@ function collect_header_ph($id, $evtOut) {
         'upload_maxsize' => config('upload_maxsize') ? config('upload_maxsize') : 3145728,
         'mode' => evo()->manager->action,
         'a' =>  (evo()->doc->mode === 'normal' && evo()->hasPermission('save_document')) ? 5 : 128,
-        'pid' => evo()->input_any('pid'),
+        'pid' => evo()->input_any('pid',0),
         'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
