@@ -97,9 +97,6 @@ class DocumentParser {
         );
         return '';
     }
-
-        return '';
-    }
     
     function __call($method_name, $arguments)
     {
