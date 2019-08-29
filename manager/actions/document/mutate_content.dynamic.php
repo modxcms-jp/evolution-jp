@@ -1,10 +1,13 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!isset($modx->config['preview_mode'])) {
+
+include_once(MODX_CORE_PATH . 'helpers.php');
+
+if(config('preview_mode')===null) {
     $modx->config['preview_mode'] = '1';
 }
-// $modx->config['custom_tpl_dir'] = 'manager/actions/document/tpl/mutate_content/test/';
-if(!isset($modx->config['tvs_below_content'])) {
+$modx->config['custom_tpl_dir'] = 'manager/actions/document/tpl/mutate_content/test/';
+if(config('tvs_below_content')===null) {
     $modx->config['tvs_below_content'] = '0';
 }
 
