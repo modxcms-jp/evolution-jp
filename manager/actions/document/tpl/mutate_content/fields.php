@@ -356,7 +356,7 @@ function fieldPublished() {
             'type'=>'checkbox',
             'class'=>'checkbox',
             'name'=>'publishedcheck',
-            'value'=> $published==1 ? 1 : 0,
+            'checked'=> $published ? null : '',
             'onclick'  => 'changestate(document.mutate.published);resetpubdate();',
             'disabled'=>(!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
         )
