@@ -142,24 +142,6 @@ function rte_fields() {
     return $rte_fields;
 }
 
-function getInitialValues($parent_id,$new_template_id) {
-    return array(
-        'menuindex'     => getMenuIndexAtNew($parent_id),
-        'alias'         => getAliasAtNew(),
-        'richtext'      => config('use_editor'),
-        'published'     => config('publish_default'),
-        'contentType'   => 'text/html',
-        'content_dispo' => '0',
-        'which_editor'  => config('which_editor'),
-        'searchable'    => config('search_default'),
-        'cacheable'     => config('cache_default'),
-        'type'          => manager()->action==72 ? 'reference' : 'document',
-        'richtext'      => manager()->action==72 ? 0 : 1,
-        'parent'        => $parent_id,
-        'template'      => $new_template_id ? $new_template_id : getDefaultTemplate()
-    );
-}
-
 function getGroups($docid) {
     // Load up, the permissions from the parent (if new document) or existing document
     $rs = db()->select(
@@ -524,17 +506,19 @@ function getDocgrp() {
     else return '';
 }
 
-function getValuesFromDB($id,$docgrp) {
+function db_value($id,$docgrp) {
     if($id==='0') {
         return array();
     }
 
-    $access  = sprintf("1='%s' OR sc.privatemgr=0", $_SESSION['mgrRole']);
-    $access .= !$docgrp ? '' : sprintf(' OR dg.document_group IN (%s)', $docgrp);
     $rs = db()->select(
         'DISTINCT sc.*'
         , '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
-        , sprintf("sc.id='%s' AND (%s)", $id, $access)
+        , sprintf(
+            "sc.id='%s' %s"
+            , $id
+            , ($_SESSION['mgrRole']==1 || !$docgrp) ? '' : sprintf('AND (sc.privatemgr=0 OR dg.document_group IN (%s))', $docgrp)
+        )
     );
     $limit = db()->getRecordCount($rs);
     if ($limit > 1) {
@@ -546,6 +530,24 @@ function getValuesFromDB($id,$docgrp) {
         alert()->dumpError();
     }
     return db()->getRow($rs);
+}
+
+function default_value($parent_id,$new_template_id) {
+    return array(
+        'menuindex'     => getMenuIndexAtNew($parent_id),
+        'alias'         => getAliasAtNew(),
+        'richtext'      => config('use_editor'),
+        'published'     => config('publish_default'),
+        'contentType'   => 'text/html',
+        'content_dispo' => '0',
+        'which_editor'  => config('which_editor'),
+        'searchable'    => config('search_default'),
+        'cacheable'     => config('cache_default'),
+        'type'          => manager()->action==72 ? 'reference' : 'document',
+        'richtext'      => manager()->action==72 ? 0 : 1,
+        'parent'        => $parent_id,
+        'template'      => $new_template_id ? $new_template_id : getDefaultTemplate()
+    );
 }
 
 // restore saved form

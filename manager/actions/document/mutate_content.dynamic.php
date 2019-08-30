@@ -33,7 +33,7 @@ global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
-$docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getInitialValues(input_any('pid'),input_any('newtemplate'));
+$docObject = input_any('id') ? db_value(input_any('id'), $docgrp) : default_value(input_any('pid'),input_any('newtemplate'));
 
 evo()->loadExtension('REVISION');
 if(input_any('id') && config('enable_draft')) {
