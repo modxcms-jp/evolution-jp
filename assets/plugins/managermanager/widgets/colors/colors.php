@@ -13,7 +13,7 @@
  */
 
 function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates = ''){
-	global $modx, $mm_fields, $mm_current_page;
+	global $modx, $mm_fields, $mm_current_page, $content;
 	$e = &$modx->event;
 	
 	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
