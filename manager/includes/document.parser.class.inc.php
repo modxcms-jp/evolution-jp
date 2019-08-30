@@ -4309,16 +4309,16 @@ class DocumentParser {
     
     function getIdFromAlias($aliasPath='')
     {
-        static $aliasCache = array();
-
-        if(isset($aliasCache[$aliasPath])) {
-            return $aliasCache[$aliasPath];
-        }
-
-        $aliasCache[$aliasPath] = false;
+        static $cache = array();
 
         $aliasPath = trim($aliasPath,'/');
-        
+
+        if(isset($cache[$aliasPath])) {
+            return $cache[$aliasPath];
+        }
+
+        $cache[$aliasPath] = false;
+
         if(empty($aliasPath)) {
             return $this->config['site_start'];
         }
@@ -4332,20 +4332,27 @@ class DocumentParser {
 
             $parent= 0;
             foreach($_a as $alias) {
-                $alias = $this->db->escape($alias);
                 $rs  = $this->db->select(
                     'id'
                     , '[+prefix+]site_content'
-                    , sprintf("deleted=0 AND parent='%s' AND alias=BINARY '%s'", $parent, $alias)
+                    , sprintf(
+                        "deleted=0 AND parent='%s' AND alias=BINARY '%s'"
+                        , $parent
+                        , $this->db->escape($alias)
+                    )
                 );
                 if(!$this->db->getRecordCount($rs)) {
-                    if (!preg_match('@^[1-9][0-9]*$@', $alias)) {
+                    if (!preg_match('@^[1-9][0-9]*$@', $this->db->escape($alias))) {
                         return false;
                     }
                     $rs = $this->db->select(
                         'id'
                         , '[+prefix+]site_content'
-                        , sprintf("deleted=0 AND parent='%s' AND id='%s'", $parent, $alias)
+                        , sprintf(
+                            "deleted=0 AND parent='%s' AND id='%s'"
+                            , $parent
+                            , $this->db->escape($alias)
+                        )
                     );
                 }
                 $row = $this->db->getRow($rs);
@@ -4354,27 +4361,32 @@ class DocumentParser {
                 }
                 $parent = $row['id'];
             }
-            $aliasCache[$aliasPath] = $parent;
+            $cache[$aliasPath] = $parent;
             return $parent;
         }
 
-        $alias = $this->db->escape($aliasPath);
         $rs = $this->db->select(
             'id'
             , '[+prefix+]site_content'
-            , sprintf("deleted=0 and alias='%s'", $alias)
+            , sprintf(
+                "deleted=0 and alias='%s'"
+                , $this->db->escape($aliasPath)
+            )
             , 'parent, menuindex'
         );
         $row = $this->db->getRow($rs);
         if(!$row)
         {
-            if (!preg_match('@^[1-9][0-9]*$@', $alias)) {
+            if (!preg_match('@^[1-9][0-9]*$@', $this->db->escape($aliasPath))) {
                 return false;
             }
             $rs = $this->db->select(
                 'id'
                 , '[+prefix+]site_content'
-                , sprintf("deleted=0 and id='%s'", $alias)
+                , sprintf(
+                    "deleted=0 and id='%s'"
+                    , $this->db->escape($aliasPath)
+                )
             );
             $row = $this->db->getRow($rs);
         }
@@ -4382,7 +4394,7 @@ class DocumentParser {
             return false;
         }
 
-        $aliasCache[$aliasPath] = $row['id'];
+        $cache[$aliasPath] = $row['id'];
         return $row['id'];
     }
 
