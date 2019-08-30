@@ -25,11 +25,7 @@
 
 	<div class="sectionBody">
 	<div class="tab-pane" id="documentPane">
-		[+tab_general+]
-		[+tab_tv+]
-		[+tab_settings+]
-		[+tab_access+]
-		[+access_permissions_docs_collision+]
+		[+content+]
 		[+OnDocFormRender+]
 	</div><!--div class="tab-pane" id="documentPane"-->
 	</div><!--div class="sectionBody"-->

@@ -33,7 +33,7 @@ global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
-$docObject = input_any('id') ? db_value(input_any('id'), $docgrp) : default_value(input_any('pid'),input_any('newtemplate'));
+$docObject = input_any('id') ? getValuesFromDB(input_any('id'), $docgrp) : getInitialValues(input_any('pid'),input_any('newtemplate'));
 
 evo()->loadExtension('REVISION');
 if(input_any('id') && config('enable_draft')) {
@@ -80,19 +80,19 @@ checkViewUnpubDocPerm(doc('published'),doc('editedby'));// Only a=27
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
 $body = array();
-$body['tab_general'] = parseText(
+$body[] = parseText(
     file_get_tpl('tab_general.tpl')
     , collect_tab_general_ph(input_any('id'))
 );
 
-$body['tab_tv'] = (!config('tvs_below_content') && $tmplVars) ?
-    parseText(
+if(config('tvs_below_content')==0 && $tmplVars) {
+    $body[] = parseText(
         file_get_tpl('tab_tv.tpl')
         , collect_tab_tv_ph()
-    )
-    : '';
+    );
+}
 
-$body['tab_settings'] = parseText(
+$body[] = parseText(
     file_get_tpl('tab_settings.tpl')
     , collect_tab_settings_ph(input_any('id'))
 );
@@ -107,7 +107,7 @@ if (config('use_udperms') == 1) {
         $ph['_lang_access_permissions'] = lang('access_permissions');
         $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
-        $body['tab_access'] = parseText(file_get_tpl('tab_access.tpl'),$ph);
+        $body[] = parseText(file_get_tpl('tab_access.tpl'),$ph);
     } elseif(evo()->session_var('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
         && (
             evo()->session_var('mgrPermissions.access_permissions') == 1
@@ -115,11 +115,9 @@ if (config('use_udperms') == 1) {
             evo()->session_var('mgrPermissions.web_access_permissions') == 1
         )
     ) {
-        $body['access_permissions_docs_collision'] = '<p>' . lang('access_permissions_docs_collision') . '</p>';
+        $body[] = '<p>' . lang('access_permissions_docs_collision') . '</p>';
     }
 }
-if(!isset($body['tab_access'])) $body['tab_access'] = '';
-if(!isset($body['access_permissions_docs_collision'])) $body['access_permissions_docs_collision'] = '';
 
 // invoke OnDocFormRender event
 $tmp = array('id' => input_any('id'));
@@ -146,7 +144,5 @@ if(evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
 $ph = collect_template_ph(input_any('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);
-$template = parseText($template, $ph);
-$template = parseText($template, $body);
-echo $template;
-
+$ph['content'] = implode("\n", $body);
+echo parseText($template, $ph);

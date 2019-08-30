@@ -225,7 +225,7 @@ function menuindex() {
             'type' => 'checkbox',
             'name' => 'hidemenucheck',
             'class' => 'checkbox',
-            'checked' => !doc('hidemenu') ? null : '',
+            'checked' => doc('hidemenu')!=1 ? null : '',
             'onclick'  => 'changestate(document.mutate.hidemenu);'
         )
     );
@@ -235,7 +235,7 @@ function menuindex() {
             'type' => 'hidden',
             'name' => 'hidemenu',
             'class'=> 'hidden',
-            'value' => doc('hidemenu') ? 1 : 0
+            'value' => doc('hidemenu')==1 ? 1 : 0
         )
     );
     $ph['resource_opt_show_menu_help'] = tooltip(lang('resource_opt_show_menu_help'));
@@ -356,7 +356,7 @@ function fieldPublished() {
             'type'=>'checkbox',
             'class'=>'checkbox',
             'name'=>'publishedcheck',
-            'value'=> $published==1 ? 1 : 0,
+            'checked'=> $published ? null : '',
             'onclick'  => 'changestate(document.mutate.published);resetpubdate();',
             'disabled'=>(!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
         )
@@ -366,7 +366,7 @@ function fieldPublished() {
         ,array(
             'name'  => 'published',
             'class' => 'hidden',
-            'value' => $published ? 1 : 0
+            'value' => $published==1 ? 1 : 0
         )
     );
     $body .= tooltip(lang('resource_opt_published_help'));
