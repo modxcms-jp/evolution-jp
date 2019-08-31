@@ -16,14 +16,17 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
 	global $modx, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+    if ($e->name != 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 		
 		// if we've been supplied with a string, convert it into an array
 		$fields = makeArray($fields);
 		
 		// And likewise for the data source (if supplied)
-		$source = (empty($source) ? $fields : makeArray($source));
+    $source = $source ? makeArray($source) : $fields;
 		
 		// Does this page's template use any of these TVs? If not, quit.
 		$field_tvs = tplUseTvs($mm_current_page['template'], $fields);
@@ -55,9 +58,11 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
 			$sql_sources = implode(',', $source_tvs[0]);
 			
 			// Get the list of current values for this TV
-				$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-				$where = "tmplvarid IN ('{$sql_sources}')";
-				$result= $modx->db->select('value',$tbl_site_tmplvar_contentvalues,$where);
+        $result = $modx->db->select(
+            'value'
+            , $modx->getFullTableName('site_tmplvar_contentvalues')
+            , sprintf("tmplvarid IN ('%s')", $sql_sources)
+        );
 			$all_docs = $modx->db->makeArray($result);
 			
 			$foundTags = array();
@@ -73,21 +78,34 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
 			
 			$lis = '';
 			foreach($foundTags as $t => $c){
-				$lis .= '<li title="Used '.$c.' times">'.jsSafe($t).($display_count?' ('.$c.')':'').'</li>';
+            $lis .= sprintf(
+                '<li title="Used %s times">%s%s</li>'
+                , $c
+                , jsSafe($t)
+                , $display_count ? sprintf(' (%s)', $c) : ''
+            );
 			}
 			
-			$html_list = '<ul class="mmTagList" id="'.$tv_id.'_tagList">'.$lis.'</ul>';
+        $html_list = sprintf(
+            '<ul class="mmTagList" id="%s_tagList">%s</ul>'
+            , $tv_id
+            , $lis
+        );
 			
 			// Insert the list of tags after the field
-			$output .= '
-			//  -------------- Tag widget for '.$targetTv.' ('.$tv_id.') --------------
-			$j("#'.$tv_id.'").after(\''.$html_list.'\');
-			';
+        $output .= sprintf("
+        //  -------------- Tag widget for %s (%s) --------------
+        jQuery('#%s').after('%s');
+        ", $targetTv, $tv_id, $tv_id, $html_list);
 			
 			// Initiate the tagCompleter class for this field
-			$output .= 'var '.$tv_id.'_tags = new TagCompleter("'.$tv_id.'", "'.$tv_id.'_tagList", "'.$delimiter.'"); ';
+        $output .= $modx->parseText(
+            'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]]"); '
+            , array(
+                'tv_id' => $tv_id,
+                'delim' => $delimiter
+            )
+        ) . "\n";
 		}
 		$e->output($output . "\n");
 	}
-}
-?>

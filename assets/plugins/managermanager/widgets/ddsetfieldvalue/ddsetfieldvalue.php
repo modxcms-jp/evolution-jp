@@ -24,7 +24,9 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 	global $modx, $content, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
 		
 		$output = " // ----------- mm_ddSetFieldValue :: Begin -------------- \n";
 		
@@ -45,13 +47,17 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 		switch ($field){
 			//Дата публикации
 			case 'pub_date':
-				$value = ($value == '') ? date("$date_format H:i:s") : $value;
+            if ($value == '') {
+                $value = date($date_format . ' H:i:s');
+            }
 				$output .= '$j("input[name=pub_date]").val("'.jsSafe($value).'"); '."\n";
 			break;
 			
 			//Дата отмены публикации
 			case 'unpub_date':
-				$value = ($value=='') ? date("$date_format H:i:s") : $value;
+            if ($value == '') {
+                $value = date($date_format . ' H:i:s');
+            }
 				$output .= '$j("input[name=unpub_date]").val("'.jsSafe($value).'"); '."\n";
 			break;
 			
@@ -195,5 +201,3 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
 		
 		$e->output($output . "\n");
 	} 
-}
-?>

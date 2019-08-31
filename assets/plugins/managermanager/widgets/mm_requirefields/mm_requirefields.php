@@ -20,7 +20,10 @@ function mm_requireFields($fields, $roles='', $templates=''){
 	$e = &$modx->event;
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 	// if we've been supplied with a string, convert it into an array
 		$fields = makeArray($fields);
 		
@@ -29,7 +32,7 @@ function mm_requireFields($fields, $roles='', $templates=''){
 		$output = "//  -------------- mm_requireFields :: Begin ------------- \n";
 		
 		$output .= '
-		$j("head").append("<style>.mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }</style>");
+    jQuery("head").append("<style>.mmRequired { background-image: none !important; background-color: #ff9999 !important; } .requiredIcon { color: #ff0000; font-weight: bold; margin-left: 3px; cursor: help; }</style>");
 		var requiredHTML = "<span class=\"requiredIcon\" title=\"Required\">*</span>";
 		';
 		
@@ -56,7 +59,6 @@ function mm_requireFields($fields, $roles='', $templates=''){
 				case 'clear_cache':
 				case 'content_type':
 				case 'content_dispo':
-				case 'which_editor':
 					$output .='';
 				break;
 
@@ -64,7 +66,7 @@ function mm_requireFields($fields, $roles='', $templates=''){
 				case 'pub_date':
 				case 'unpub_date':
 					$load_js .= '
-					$j("#pub_date, #unpub_date").each(function() { this.type = "text";  }); // Cant use jQuery attr function as datepicker class clashes with jQuery methods
+                jQuery("#pub_date, #unpub_date").each(function() { this.type = "text";  }); // Cant use jQuery attr function as datepicker class clashes with jQuery methods
 					';
 				// no break, because we want to do the things below too.
 
@@ -103,13 +105,13 @@ function mm_requireFields($fields, $roles='', $templates=''){
 						$submit_js .= '
 
 // The element we are targetting ('.$fieldname.')
-var $sel = $j("'.$selector.'");
+var $sel = jQuery("' . $selector . '");
 
 // Check if its valid
-if($j.trim($sel.val()) == ""){  // If it is empty
+if(jQuery.trim($sel.val()) == ""){  // If it is empty
 
 // Find the label (this will be easier in Evo 1.1 with more semantic code)
-var lbl = $sel.parent("td").prev("td").children("span.warning").text().replace($j(requiredHTML).text(), "");
+var lbl = $sel.parent("td").prev("td").children("span.warning").text().replace(jQuery(requiredHTML).text(), "");
 	
 // Add the label to the errors array. Would be nice to say which tab it is on, but no
 // easy way of doing this in 1.0.x as no semantic link between tabs and tab body
@@ -117,7 +119,7 @@ errors.push(lbl);
 	
 // Add an event so the hilight is removed upon focussing
 $sel.addClass("mmRequired").focus(function(){
-$j(this).removeClass("mmRequired");
+jQuery(this).removeClass("mmRequired");
 });
 }
 						';
@@ -125,7 +127,7 @@ $j(this).removeClass("mmRequired");
 						$load_js .= '
 
 // Add an indicator this is required ('.$fieldname.')
-var $sel = $j("'.$selector.'");
+var $sel = jQuery("' . $selector . '");
 
 // Find the label (this will be easier in Evo 1.1 with more semantic code)
 var $lbl = $sel.parent("td").prev("td").children("span.warning").append(requiredHTML);
@@ -137,7 +139,7 @@ var $lbl = $sel.parent("td").prev("td").children("span.warning").append(required
 		}
 		
 		$output .= $load_js.'
-$j("#mutate").submit(function(){
+jQuery("#mutate").submit(function(){
 	var errors = [];
 	//TODO: The local variable msg is never read
 	var msg = "";
@@ -164,5 +166,3 @@ $j("#mutate").submit(function(){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

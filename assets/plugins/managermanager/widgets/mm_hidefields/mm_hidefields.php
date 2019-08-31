@@ -20,7 +20,10 @@ function mm_hideFields($fields, $roles='', $templates=''){
 	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = "//  -------------- mm_hideFields :: Begin ------------- \n";
 		
 		foreach ($fields as $field){
@@ -68,5 +71,3 @@ function mm_hideFields($fields, $roles='', $templates=''){
 			$e->output($output . "\n");
 		}
 	}
-}
-?>

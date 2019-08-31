@@ -18,11 +18,11 @@ function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
         	
         	$e = &$modx->event;
 	
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
 	$tplIds = makeArray($tplIds);
-	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
 		$output = "//  -------------- mm_hideTemplates :: Begin ------------- \n";
-		
 		foreach ($tplIds as $tpl){
 			$output .= 'if ($j("select#template").val() != '.$tpl. '){ '."\n";
 			$output .= '$j("select#template option[value='.$tpl.']").remove();'."\n";
@@ -33,5 +33,3 @@ function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

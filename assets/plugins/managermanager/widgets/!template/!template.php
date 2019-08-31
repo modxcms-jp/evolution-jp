@@ -16,7 +16,10 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
 	global $modx, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		// Your output should be stored in a string, which is outputted at the end
 		// It will be inserted as a Javascript block (with jQuery), which is executed on document ready
 		// We always put a JS comment, which makes debugging much easier
@@ -51,5 +54,3 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
 		// Send the output to the browser
 		$e->output($output . "\n");
 	}
-}
-?>

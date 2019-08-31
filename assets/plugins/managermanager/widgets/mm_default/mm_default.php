@@ -27,7 +27,10 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 		return;
 	}
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		// What's the new value, and does it include PHP?
 		$new_value = ($eval) ? eval($value) : $value;
 		
@@ -39,105 +42,110 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 		switch ($field){
 			case 'pub_date':
 			case 'unpub_date':
-				if($new_value=='') $new_value = strftime("{$date_format} %H:%M:%S");
-				$output .= sprintf('$j("input[name=%s]").val("%s"); '."\n", $field, jsSafe($new_value));
+            if ($new_value == '') {
+                $new_value = strftime($date_format . ' %H:%M:%S');
+            }
+            $output .= sprintf(
+                'jQuery("input[name=%s]").val("%s"); ' . "\n"
+                , $field
+                , jsSafe($new_value)
+            );
 			break;
 			
 			case 'published':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=published]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=published]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= sprintf('$j("input[name=%scheck]").prop("checked", true); '."\n", $field);
+                $output .= sprintf('jQuery("input[name=%scheck]").prop("checked", true); ' . "\n", $field);
 				}else{
-					$output .= '$j("input[name=publishedcheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=publishedcheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'hide_menu':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=hidemenu]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=hidemenu]").val("' . $new_value . '"); ' . "\n";
 				
 				if (!$value){
-					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=hidemenucheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=hidemenucheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'show_in_menu':
 				$new_value = ($value) ? '0' : '1'; // Note these are reversed from what you'd think
-				$output .= '$j("input[name=hidemenu]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=hidemenu]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=hidemenucheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=hidemenucheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=hidemenucheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=hidemenucheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'searchable':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=searchable]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=searchable]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=searchablecheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=searchablecheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=searchablecheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=searchablecheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'cacheable':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=cacheable]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=cacheable]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=cacheablecheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=cacheablecheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=cacheablecheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=cacheablecheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'clear_cache':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=syncsite]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=syncsite]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=syncsitecheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=syncsitecheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=syncsitecheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=syncsitecheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'container':
 			case 'is_folder':
 				$new_value = ($value) ? '1' : '0';
-				$output .= '$j("input[name=isfolder]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=isfolder]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=isfoldercheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=isfoldercheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=isfoldercheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=isfoldercheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'is_richtext':
 			case 'richtext':
 				$new_value = ($value) ? '1' : '0';
-				$output .= 'var originalRichtextValue = $j("#which_editor:first").val(); '."\n";
-				$output .= '$j("input[name=richtext]").val("'.$new_value.'"); '."\n";
+            $output .= 'var originalRichtextValue = jQuery("#which_editor:first").val(); ' . "\n";
+            $output .= 'jQuery("input[name=richtext]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=richtextcheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=richtextcheck]").prop("checked", true); ' . "\n";
 				}else{
 					$output .= '
-					$j("input[name=richtextcheck]").removeAttr("checked");
+                jQuery("input[name=richtextcheck]").removeAttr("checked");
 					// Make the RTE displayed match the default value that has been set here
 					if (originalRichtextValue&&originalRichtextValue != "none") {
-						$j("#which_editor").val("none");
+                    jQuery("#which_editor").val("none");
 						changeRTE();
 					}				
-					
 					';
 					
 					$output .= ''."\n";
@@ -146,21 +154,21 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 			
 			case 'log':
 				$new_value = ($value) ? '0' : '1';	// Note these are reversed from what you'd think
-				$output .= '$j("input[name=donthit]").val("'.$new_value.'"); '."\n";
+            $output .= 'jQuery("input[name=donthit]").val("' . $new_value . '"); ' . "\n";
 				
 				if ($value){
-					$output .= '$j("input[name=donthitcheck]").prop("checked", true); '."\n";
+                $output .= 'jQuery("input[name=donthitcheck]").prop("checked", true); ' . "\n";
 				}else{
-					$output .= '$j("input[name=donthitcheck]").removeAttr("checked"); '."\n";
+                $output .= 'jQuery("input[name=donthitcheck]").removeAttr("checked"); ' . "\n";
 				}
 			break;
 			
 			case 'content_type':
-				$output .= '$j("select[name=contentType]").val("'.$new_value.'");' . "\n";
+            $output .= 'jQuery("select[name=contentType]").val("' . $new_value . '");' . "\n";
 			break;
 			
 			default:
-				$output .= '$j("*[name='.$field.']").val("'.$new_value.'");' . "\n"; //return;
+            $output .= 'jQuery("*[name=' . $field . ']").val("' . $new_value . '");' . "\n"; //return;
 			break;
 		}
 		
@@ -168,5 +176,3 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

@@ -6,33 +6,32 @@
 //--------------------------------------------------------------------------------- 
 function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', $templates='') {
 	
-	global $modx, $mm_fields,$mm_current_page,$modx_lang_attribute;
+	global $modx, $mm_fields,$mm_current_page;
 	$e = &$modx->event;
 	
-	if ($e->name==='OnDocFormRender'&&useThisRule($roles, $templates))
-	{
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 		$callBack ='';
 		
 		$fields = makeArray($fields);
 		$count = tplUseTvs($mm_current_page['template'], $fields);
-		if ($count == false)
-		{
+    if ($count == false) {
 			return;
 		}
 		
 		$output .= "//  -------------- googlemap widget ------------- \n";
-		$output .= includeJs($modx->config['base_url'] .'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
+    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/googlemap/googlemap.js');
 
-		foreach ($fields as $targetTv)
-		{
+    foreach ($fields as $targetTv) {
 			$tv_id = $mm_fields[$targetTv]['fieldname'];
 			$callBack .= "googlemap('$tv_id','$default');";
 		}
 
   $params='';
-  if(!empty($googleApiKey))
-  {
+    if (!empty($googleApiKey)) {
     $params = 'key=' . trim($googleApiKey);
   }
 
@@ -49,5 +48,4 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 		});
 		";
 		$e->output($output . "\n");	// Send the output to the browser
-	}
 }

@@ -20,7 +20,10 @@ function mm_hideSections($sections, $roles = '', $templates = ''){
 	$sections = makeArray($sections);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)){
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = "//  -------------- mm_hideSections :: Begin ------------- \n";
 		
 		foreach($sections as $section){
@@ -51,5 +54,3 @@ function mm_hideSections($sections, $roles = '', $templates = ''){
 			$e->output($output . "\n");
 		}
 	}
-}
-?>

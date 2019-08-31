@@ -14,7 +14,10 @@ function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
 	global $modx, $content;
 	$e = &$modx->Event;
 
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 
 		$base_url = $modx->config['base_url'];
@@ -90,6 +93,4 @@ $j("#mutate").submit(function(){
 		$output .= "\n// ---------------- mm_ddMaxLength :: End -------------";
 
 		$e->output($output . "\n");
-	}
 } // end of widget
-?>

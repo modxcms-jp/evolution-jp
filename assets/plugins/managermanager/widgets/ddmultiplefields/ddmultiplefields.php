@@ -30,7 +30,10 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 	global $modx, $mm_current_page, $_lang;
 	$e = &$modx->Event;
 	
-	if ($e->name === 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 		$widgetDir = MODX_BASE_URL.'assets/plugins/managermanager/widgets/ddmultiplefields/';
 		
@@ -469,5 +472,4 @@ jQuery("#tv'.$tv['id'].'").on("load.ddEvents", function(event){
 		$output .= "\n// ---------------- mm_ddMultipleFields :: End -------------";
 
 		$e->output($output . "\n");
-	}
 } // end of widget

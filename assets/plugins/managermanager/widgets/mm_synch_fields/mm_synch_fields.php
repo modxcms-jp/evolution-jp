@@ -25,7 +25,10 @@ function mm_synch_fields($fields, $roles = '', $templates = ''){
 	}
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = "//  -------------- mm_synch_fields :: Begin ------------- \n";
 		
 		$output .= '
@@ -46,7 +49,7 @@ function mm_synch_fields($fields, $roles = '', $templates = ''){
 				
 				// Add this field to the array of fields being synched
 				$output .= '
-				synch_field[mm_sync_field_count].push($j("'.$fieldtype.'[name='.$fieldname.']"));
+            synch_field[mm_sync_field_count].push(jQuery("' . $fieldtype . '[name=' . $fieldname . ']"));
 				';
 				
 			// Or we don't recognise it
@@ -57,11 +60,11 @@ function mm_synch_fields($fields, $roles = '', $templates = ''){
 		
 		// Output some javascript to sync these fields
 		$output .= '
-$j.each(synch_field[mm_sync_field_count], function(i, n){
-	$j.each(synch_field[mm_sync_field_count], function(j, m){
+jQuery.each(synch_field[mm_sync_field_count], function(i, n){
+jQuery.each(synch_field[mm_sync_field_count], function(j, m){
 		if (i != j){
 			n.keyup(function(){
-				m.val($j(this).val());
+            m.val(jQuery(this).val());
 			});
 		}
 	});
@@ -74,5 +77,3 @@ mm_sync_field_count++;
 		
 		$e->output($output . "\n");
 	}
-}
-?>

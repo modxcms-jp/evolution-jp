@@ -21,10 +21,13 @@
  */
 
 function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true){
-	global $modx, $content, $mm_fields, $modx_lang_attribute;
+	global $modx, $content, $modx_lang_attribute;
 	$e = &$modx->Event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 		
 		// if we've been supplied with a string, convert it into an array
@@ -121,5 +124,3 @@ $j(window).on("load.ddEvents", function(){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

@@ -13,34 +13,25 @@
  */
 
 function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates = ''){
-	global $modx, $mm_fields, $mm_current_page, $content;
+	global $modx, $mm_fields, $mm_current_page;
 	$e = &$modx->event;
 	
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = '';
 		
 		// if we've been supplied with a string, convert it into an array
 		$fields = makeArray($fields);
 		
-		// Which template is this page using?
-		if (isset($content['template'])){
-			$page_template = $content['template'];
-		}else{
-			// If no content is set, it's likely we're adding a new page at top level.
-			// So use the site default template. This may need some work as it might interfere with a default template set by MM?
-			$page_template = $modx->config['default_template'];
-		}
-		
 		// Does this page's template use any of these TVs? If not, quit.
-        $tv_count = tplUseTvs($mm_current_page['template'], $fields);
-		
-		if ($tv_count === false){
+    if (!tplUseTvs($mm_current_page['template'], $fields)) {
 			return;
 		}
 		
 		// Insert some JS
-		$output .= '<!--[if IE]><script type="text/javascript" src="http://explorercanvas.googlecode.com/svn/tags/m3/excanvas.compiled.js"></script><![endif]-->'."\n";
-		$output .= includeJs($modx->config['base_url'] .'assets/plugins/managermanager/widgets/colors/farbtastic.js');
+    $output .= includeJs(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/colors/farbtastic.js');
 		
 		// Go through each of the fields supplied
 		foreach ($fields as $tv){
@@ -63,5 +54,4 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
 		}
 		
 		$e->output($output . "\n");
-	}
 }

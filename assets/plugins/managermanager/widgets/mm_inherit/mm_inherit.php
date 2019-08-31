@@ -16,36 +16,45 @@ function mm_inherit($fields, $roles = '', $templates = ''){
 	global $mm_fields, $modx;
 	$e = &$modx->event;
 	
-	// if we've been supplied with a string, convert it into an array
-	$fields = makeArray($fields);
-	
 	// if we aren't creating a new document or folder, we don't want to do this
 	if (!($modx->manager->action == '85' || $modx->manager->action == '4')){
 		return;
 	}
 	
 	// Are we using this rule?
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		// Get the parent info
 		if (isset($_REQUEST['pid']) && is_numeric($_REQUEST['pid'])){
-			$parentID = intval($_REQUEST['pid']);
+        $parentID = (int)$_REQUEST['pid'];
 		} else if (isset($_REQUEST['parent']) && is_numeric($_REQUEST['parent'])){
-			$parentID = intval($_REQUEST['parent']);
+        $parentID = (int)$_REQUEST['parent'];
 		}else{
-			$parentID = 0;
+        return;
 		}
 		
-		if($parentID==0) return;
+    if ($parentID == 0) {
+        return;
+    }
 		
 		$output = "//  -------------- mm_inherit (from page $parentID) :: Begin ------------- \n";
 		
+    // if we've been supplied with a string, convert it into an array
+    $fields = makeArray($fields);
 		foreach ($fields as $field){
 			// get some info about the field we are being asked to use
-			if (isset($mm_fields[$field]['dbname'])){
+        if (!isset($mm_fields[$field]['dbname'])) {
+            break;     // If it's not something stored in the database, don't get the value
+        }
+
 				$fieldtype = $mm_fields[$field]['fieldtype'];
 				$fieldname = $mm_fields[$field]['fieldname'];
 				$dbname = $mm_fields[$field]['dbname'];
-				if(!empty($mm_fields[$field]['tv'])) $dbname = $field;
+        if ($mm_fields[$field]['tv']) {
+            $dbname = $field;
+        }
 				
 				// Get this field data from the parent
 				$newArray = $modx->getTemplateVarOutput($dbname, $parentID);
@@ -53,11 +62,9 @@ function mm_inherit($fields, $roles = '', $templates = ''){
 					$newArray = $modx->getTemplateVarOutput($dbname, $parentID, 0);
 				}
 				$newvalue = $newArray[$dbname];
-			}else{
-				break;	 // If it's not something stored in the database, don't get the value
+        if (empty($newvalue)) {
+            continue;
 			}
-			
-			if(empty($newvalue)) continue;
 			
 			$output .= "
 			// fieldtype $fieldtype
@@ -105,5 +112,3 @@ function mm_inherit($fields, $roles = '', $templates = ''){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

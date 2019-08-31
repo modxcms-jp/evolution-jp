@@ -18,7 +18,9 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 	$e = &$modx->event;
 		
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)) {
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
 	
 	$output = " // ----------- Rename field -------------- \n";
 		
@@ -59,8 +61,6 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
 			// If new help has been supplied, do that too
 			if ($newhelp != '') {
 				mm_changeFieldHelp($field, $newhelp, $roles, $templates);
-			}
-			
 	} // end if
 } // end function
 

@@ -21,7 +21,10 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
 	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = "//  -------------- mm_moveFieldsToTab :: Begin ------------- \n";
 		
 		// If it's one of the default tabs, we need to get the capitalisation right
@@ -36,11 +39,11 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
 		
 		// Make sure the new tab exists in the DOM
 		$output .= "if ( \$j('#tab".$newtab."').length > 0) { \n";
-		if(isset($splitter) && $splitter==='none')
-		{
+    if (isset($splitter) && $splitter === 'none') {
 			 $output .= "var ruleHtml = ''; ";
+    } else {
+        $output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
 		}
-		else $output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
 		
 		// Try and identify any URL type TVs
 		$output .= '$j("select[id$=_prefix]").each( function() { $j(this).parents("tr:first").addClass("urltv"); }  ); ';
@@ -104,5 +107,3 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
 		
 		$e->output($output . "\n");
 	}
-}
-?>

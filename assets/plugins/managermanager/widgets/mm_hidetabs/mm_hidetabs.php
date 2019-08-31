@@ -20,7 +20,10 @@ function mm_hideTabs($tabs, $roles = '', $templates = ''){
 	$tabs = makeArray($tabs);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name == 'OnDocFormRender' && useThisRule($roles, $templates)){
+	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
 		$output = "//  -------------- mm_hideTabs :: Begin ------------- \n";
 		
 		foreach($tabs as $tab){
@@ -48,5 +51,3 @@ function mm_hideTabs($tabs, $roles = '', $templates = ''){
 			$e->output($output . "\n");
 		}
 	}
-}
-?>
