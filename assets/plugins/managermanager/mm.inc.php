@@ -20,15 +20,12 @@
  * @copyright 2012
  */
 
-class MANAGERMANAGER
-{
+class MANAGERMANAGER {
 
-    function __construct()
-    {
+    function __construct() {
     }
     
-    function run()
-    {
+    function run() {
         global $modx;
         
         extract($modx->event->params);
@@ -46,7 +43,7 @@ class MANAGERMANAGER
         // We look for a PHP file with the same name as the directory - e.g.
         // /widgets/widgetname/widgetname.php
         $widget_dir = $pluginDir.'widgets';
-        if ($handle = opendir($widget_dir)){
+        if ($handle = opendir($widget_dir)) {
             while (($file = readdir($handle)) !== false){
                 if ($file === '..') {
                     continue;
@@ -60,13 +57,18 @@ class MANAGERMANAGER
         }
         
         // Set variables
-        global $content,$default_template, $mm_current_page, $mm_fields, $splitter;
+        global $content,$default_template, $mm_current_page, $mm_fields;
         $mm_current_page = array();
         
-        if    (isset($_POST['template']))   $mm_current_page['template'] = $_POST['template'];
-        elseif(isset($_GET['newtemplate'])) $mm_current_page['template'] = $_GET['newtemplate'];
-        elseif(isset($content['template'])) $mm_current_page['template'] = $content['template'];
-        else                                $mm_current_page['template'] = $default_template;
+        if (isset($_POST['template'])) {
+            $mm_current_page['template'] = $_POST['template'];
+        } elseif(isset($_GET['newtemplate'])) {
+            $mm_current_page['template'] = $_GET['newtemplate'];
+        } elseif(isset($content['template'])) {
+            $mm_current_page['template'] = $content['template'];
+        } else {
+            $mm_current_page['template'] = $default_template;
+        }
         
         $mm_current_page['role'] = $_SESSION['mgrRole'];
         
@@ -100,8 +102,7 @@ class MANAGERMANAGER
         $field['metatags']        = array('select', 'metatags[]', '');
         $field['which_editor']    = array('select', 'which_editor','');
         $field['resource_type']   = array('select', 'type', 'isfolder');
-        foreach($field as $k=>$a)
-        {
+        foreach($field as $k=>$a) {
             $mm_fields[$k]['fieldtype'] = $a[0];
             $mm_fields[$k]['fieldname'] = $a[1];
             $mm_fields[$k]['dbname']    = $a[2];
@@ -148,28 +149,25 @@ class MANAGERMANAGER
                 break;
                 
                 case 'custom_tv':
-                    if(strpos($thisTv['elements'],'tvtype="text"')!==false)
+                    if(strpos($thisTv['elements'],'tvtype="text"')!==false) {
                         $t = 'input';
-                    elseif(strpos($thisTv['elements'],'tvtype="textarea"')!==false)
+                    } elseif(strpos($thisTv['elements'],'tvtype="textarea"')!==false) {
                         $t = 'textarea';
-                    elseif(strpos($thisTv['elements'],'tvtype="select"')!==false)
+                    } elseif(strpos($thisTv['elements'],'tvtype="select"')!==false) {
                         $t = 'select';
-                    elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false)
-                    {
+                    } elseif(strpos($thisTv['elements'],'tvtype="checkbox"')!==false) {
                         $t = 'input';
                         $fieldname_suffix = '\\\\[\\\\]';
-                    }
-                    elseif(strpos($thisTv['elements'],'<textarea')!==false)
+                    } elseif(strpos($thisTv['elements'],'<textarea')!==false) {
                         $t = 'textarea';
-                    elseif(strpos($thisTv['elements'],'<select')!==false)
+                    } elseif(strpos($thisTv['elements'],'<select')!==false) {
                         $t = 'select';
-                    elseif(strpos($thisTv['elements'],'"checkbox"')!==false)
-                    {
+                    } elseif(strpos($thisTv['elements'],'"checkbox"')!==false) {
                         $t = 'input';
                         $fieldname_suffix = '\\\\[\\\\]';
-                    }
-                    else
+                    } else {
                         $t = 'input';
+                    }
                 break;
                 
                 case 'tags':
@@ -184,10 +182,20 @@ class MANAGERMANAGER
             
             // check if there are any name clashes between TVs and default field names? If there is, preserve the default field
             if (!isset($mm_fields[ $n ])) {
-                $mm_fields[ $n ] = array('fieldtype'=>$t, 'fieldname'=>'tv'.$thisTv['id'].$fieldname_suffix, 'dbname'=>'', 'tv'=>true);
+                $mm_fields[ $n ] = array(
+                    'fieldtype' => $t,
+                    'fieldname' => sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix),
+                    'dbname' => '',
+                    'tv' => true
+                );
             }
             
-            $mm_fields[ 'tv'.$n ] = array('fieldtype'=>$t, 'fieldname'=>'tv'.$thisTv['id'].$fieldname_suffix, 'dbname'=>'', 'tv'=>true);
+            $mm_fields[ 'tv'.$n ] = array(
+                'fieldtype' => $t,
+                'fieldname' => 'tv'.$thisTv['id'].$fieldname_suffix,
+                'dbname'    => '',
+                'tv'        => true
+            );
         }
         
         
@@ -222,8 +230,7 @@ class MANAGERMANAGER
         case 'OnManagerMainFrameHeaderHTMLBlock':
             global $action;
             if(empty($action) && isset($_GET['a'])) $action = $_GET['a'];
-            switch($action)
-            {
+            switch($action) {
                 case '4':
                 case '27':
                 case '72':
@@ -248,12 +255,12 @@ class MANAGERMANAGER
         
         // See if there is any chunk output (e.g. it exists, and is not empty)
         $chunk_output = $modx->getChunk($chunk);
-        if (!empty($chunk_output)){
+        if ($chunk_output){
             eval($chunk_output); // If there is, run it.
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
-        if (is_readable($config_file)){    // If there's no chunk output, read in the file.
+        if (is_readable($config_file)) {    // If there's no chunk output, read in the file.
             include($config_file);
             return "// Getting rules from file: $config_file \n\n";
         }
@@ -261,19 +268,21 @@ class MANAGERMANAGER
         return "// No rules found \n\n";
     }
 
-    function rule_exists($chunk_name)
-    {
+    function rule_exists($chunk_name) {
         global $modx;
-        $rt = $modx->getChunk($chunk_name);
-        $config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
-        if(!empty($rt)) return true;
-        elseif(is_readable($config_file))
-        {
-            $src = file_get_contents($config_file);
-            $src = trim($src);
-            if(!empty($src))      return true;
-            else                  return false;
+        if ($modx->getChunk($chunk_name)) {
+            return true;
         }
-        else                      return false;
+
+        $config_file = __DIR__ . '/mm_rules.inc.php';
+        if(is_file($config_file) && !is_readable($config_file)) {
+            return false;
+        }
+
+        if (trim(file_get_contents($config_file))) {
+            return true;
+        }
+
+        return false;
     }
 }
