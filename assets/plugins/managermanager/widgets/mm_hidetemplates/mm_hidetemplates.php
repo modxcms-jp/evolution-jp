@@ -14,22 +14,23 @@
  */
 
 function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
-	global  $modx;
-        	
-        	$e = &$modx->event;
-	
+    global  $modx;
+
+    $e = &$modx->event;
+
     if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
-	$tplIds = makeArray($tplIds);
-		$output = "//  -------------- mm_hideTemplates :: Begin ------------- \n";
-		foreach ($tplIds as $tpl){
-			$output .= 'if ($j("select#template").val() != '.$tpl. '){ '."\n";
-			$output .= '$j("select#template option[value='.$tpl.']").remove();'."\n";
-			$output .= '}' . "\n";
-		}
-		
-		$output .= "//  -------------- mm_hideTemplates :: End ------------- \n";
-		
-		$e->output($output . "\n");
-	}
+
+    $tplIds = makeArray($tplIds);
+    $output = "//  -------------- mm_hideTemplates :: Begin ------------- \n";
+    foreach ($tplIds as $tpl) {
+        $output .= 'if ($j("select#template").val() != ' . $tpl . '){ ' . "\n";
+        $output .= '$j("select#template option[value=' . $tpl . ']").remove();' . "\n";
+        $output .= '}' . "\n";
+    }
+
+    $output .= "//  -------------- mm_hideTemplates :: End ------------- \n";
+
+    $e->output($output . "\n");
+}

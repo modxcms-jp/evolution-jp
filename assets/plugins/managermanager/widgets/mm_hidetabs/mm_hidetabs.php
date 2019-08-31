@@ -24,30 +24,30 @@ function mm_hideTabs($tabs, $roles = '', $templates = ''){
         return;
     }
 
-		$output = "//  -------------- mm_hideTabs :: Begin ------------- \n";
-		
-		foreach($tabs as $tab){
-			switch ($tab){
-				case 'general':
-					$output .= '$j("#tabGeneralHeader").hide();';
-					$output .= '$j("#tabGeneral").hide();';
-					break;
-				case 'settings':
-					$output .= '$j("#tabSettingsHeader").hide();';
-					$output .= '$j("#tabSettings").hide();';
-					break;
-				case 'tv':
-					$output .= '$j("#tabTVsHeader").hide();';
-					$output .= '$j("#tabTVs").hide();';
-					break;
-				case 'access':
-					$output .= '$j("#tabAccessHeader").hide();';
-					$output .= '$j("#tabAccess").hide();';
-					break;
-			}
-			
-			$output .= "//  -------------- mm_hideTabs :: End ------------- \n";
-			
-			$e->output($output . "\n");
-		}
-	}
+    $output = "//  -------------- mm_hideTabs :: Begin ------------- \n";
+
+    foreach ($tabs as $tab) {
+        switch ($tab) {
+            case 'general':
+                $output .= '$j("#tabGeneralHeader").hide();';
+                $output .= '$j("#tabGeneral").hide();';
+                break;
+            case 'settings':
+                $output .= '$j("#tabSettingsHeader").hide();';
+                $output .= '$j("#tabSettings").hide();';
+                break;
+            case 'tv':
+                $output .= '$j("#tabTVsHeader").hide();';
+                $output .= '$j("#tabTVs").hide();';
+                break;
+            case 'access':
+                $output .= '$j("#tabAccessHeader").hide();';
+                $output .= '$j("#tabAccess").hide();';
+                break;
+        }
+
+        $output .= "//  -------------- mm_hideTabs :: End ------------- \n";
+
+        $e->output($output . "\n");
+    }
+}

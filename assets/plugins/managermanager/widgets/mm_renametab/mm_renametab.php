@@ -21,32 +21,32 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = ''){
         return;
     }
 
-		$output = "//  -------------- mm_renameTab :: Begin ------------- \n";
-		
-		switch ($tab){
-			case 'general':
-				$output .= '$j("div#documentPane h2:nth-child(1) span").empty().prepend("'.jsSafe($newname).'");' . "\n";
-			break;
-			
-			case 'settings':
-				$output .= '$j("div#documentPane h2:nth-child(2) span").empty().prepend("'.jsSafe($newname).'");' . "\n";
-			break;
-			
-			// This is =<1.0.0 only
-			case 'meta':
-				if ($modx->hasPermission('edit_doc_metatags')  && $modx->config['show_meta'] != "0"){
-					$output .= '$j("div#documentPane h2:nth-child(3) span").empty().prepend("'.jsSafe($newname).'");' . "\n";
-				}
-			break;
-			
-			// This is 1.0.1 specific
-			case 'access':
-				$access_index = ($modx->config['show_meta'] == "0") ? 3 : 4;
-				$output .= '$j("div#documentPane h2:nth-child('.$access_index .') span").empty().prepend("'.jsSafe($newname).'");' . "\n";
-			break;
-		}
-		
-		$output .= "//  -------------- mm_renameTab :: End ------------- \n";
-		
-		$e->output($output . "\n");
-	}
+    $output = "//  -------------- mm_renameTab :: Begin ------------- \n";
+
+    switch ($tab) {
+        case 'general':
+            $output .= '$j("div#documentPane h2:nth-child(1) span").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            break;
+
+        case 'settings':
+            $output .= '$j("div#documentPane h2:nth-child(2) span").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            break;
+
+        // This is =<1.0.0 only
+        case 'meta':
+            if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'] != "0") {
+                $output .= '$j("div#documentPane h2:nth-child(3) span").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            }
+            break;
+
+        // This is 1.0.1 specific
+        case 'access':
+            $access_index = ($modx->config['show_meta'] == "0") ? 3 : 4;
+            $output .= '$j("div#documentPane h2:nth-child(' . $access_index . ') span").empty().prepend("' . jsSafe($newname) . '");' . "\n";
+            break;
+    }
+
+    $output .= "//  -------------- mm_renameTab :: End ------------- \n";
+
+    $e->output($output . "\n");
+}

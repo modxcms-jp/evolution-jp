@@ -24,33 +24,33 @@ function mm_hideSections($sections, $roles = '', $templates = ''){
         return;
     }
 
-		$output = "//  -------------- mm_hideSections :: Begin ------------- \n";
-		
-		foreach($sections as $section){
-			switch ($section){
-				case 'content':
-					$output .= '
-					$j("#content_header").hide();
-					$j("#content_body").hide();
-					';
-				break;
-				
-				case 'tvs':
-					$output .= '
-					$j("#tv_header").hide();
-					$j("#tv_body").hide();
-					';
-				break;
-				
-				case 'access': // These have moved to tabs in 1.0.1
-					$output .= '
-					$j("#sectionAccessHeader").hide();
-					$j("#sectionAccessBody").hide();';
-				break;
-			}
-			
-			$output .= "//  -------------- mm_hideSections :: End ------------- \n";
-			
-			$e->output($output . "\n");
-		}
-	}
+    $output = "//  -------------- mm_hideSections :: Begin ------------- \n";
+
+    foreach ($sections as $section) {
+        switch ($section) {
+            case 'content':
+                $output .= '
+                $j("#content_header").hide();
+                $j("#content_body").hide();
+                ';
+                break;
+
+            case 'tvs':
+                $output .= '
+                $j("#tv_header").hide();
+                $j("#tv_body").hide();
+                ';
+                break;
+
+            case 'access': // These have moved to tabs in 1.0.1
+                $output .= '
+                $j("#sectionAccessHeader").hide();
+                $j("#sectionAccessBody").hide();';
+                break;
+        }
+
+        $output .= "//  -------------- mm_hideSections :: End ------------- \n";
+
+        $e->output($output . "\n");
+    }
+}

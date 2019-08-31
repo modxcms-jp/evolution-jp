@@ -50,7 +50,7 @@ class MANAGERMANAGER
             while (($file = readdir($handle)) !== false){
                 if ($file === '..') {
                     continue;
-                        }
+                }
                 if (in_array(substr($file, 0, 1), $ignore_first_chars) || !is_dir($widget_dir . '/' . $file)) {
                     continue;
                 }
@@ -258,7 +258,7 @@ class MANAGERMANAGER
             return "// Getting rules from file: $config_file \n\n";
         }
 
-            return "// No rules found \n\n";
+        return "// No rules found \n\n";
     }
 
     function rule_exists($chunk_name)

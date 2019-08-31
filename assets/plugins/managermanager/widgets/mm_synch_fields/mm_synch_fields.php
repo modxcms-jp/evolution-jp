@@ -29,51 +29,51 @@ function mm_synch_fields($fields, $roles = '', $templates = ''){
         return;
     }
 
-		$output = "//  -------------- mm_synch_fields :: Begin ------------- \n";
-		
-		$output .= '
-		synch_field[mm_sync_field_count] = new Array();
-		';
-		
-		foreach ($fields as $field){
-			if (isset($mm_fields[$field])){
-				$fieldtype = $mm_fields[$field]['fieldtype'];
-				$fieldname = $mm_fields[$field]['fieldname'];
-				
-				$valid_fieldtypes = array('input', 'textarea');
-				
-				// Make sure we're dealing with an input
-				if (!in_array($fieldtype, $valid_fieldtypes)){
-					break;
-				}
-				
-				// Add this field to the array of fields being synched
-				$output .= '
+    $output = "//  -------------- mm_synch_fields :: Begin ------------- \n";
+
+    $output .= '
+    synch_field[mm_sync_field_count] = new Array();
+    ';
+
+    foreach ($fields as $field) {
+        if (isset($mm_fields[$field])) {
+            $fieldtype = $mm_fields[$field]['fieldtype'];
+            $fieldname = $mm_fields[$field]['fieldname'];
+
+            $valid_fieldtypes = array('input', 'textarea');
+
+            // Make sure we're dealing with an input
+            if (!in_array($fieldtype, $valid_fieldtypes)) {
+                break;
+            }
+
+            // Add this field to the array of fields being synched
+            $output .= '
             synch_field[mm_sync_field_count].push(jQuery("' . $fieldtype . '[name=' . $fieldname . ']"));
-				';
-				
-			// Or we don't recognise it
-			}else{
-				break;
-			}
-		}
-		
-		// Output some javascript to sync these fields
-		$output .= '
+            ';
+
+            // Or we don't recognise it
+        } else {
+            break;
+        }
+    }
+
+    // Output some javascript to sync these fields
+    $output .= '
 jQuery.each(synch_field[mm_sync_field_count], function(i, n){
 jQuery.each(synch_field[mm_sync_field_count], function(j, m){
-		if (i != j){
-			n.keyup(function(){
+    if (i != j){
+        n.keyup(function(){
             m.val(jQuery(this).val());
-			});
-		}
-	});
+        });
+    }
+});
 });
 
 mm_sync_field_count++;
-		';
-		
-		$output .= "//  -------------- mm_synch_fields :: End ------------- \n";
-		
-		$e->output($output . "\n");
-	}
+    ';
+
+    $output .= "//  -------------- mm_synch_fields :: End ------------- \n";
+
+    $e->output($output . "\n");
+}

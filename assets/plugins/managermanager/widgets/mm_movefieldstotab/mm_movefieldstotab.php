@@ -25,85 +25,85 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
         return;
     }
 
-		$output = "//  -------------- mm_moveFieldsToTab :: Begin ------------- \n";
-		
-		// If it's one of the default tabs, we need to get the capitalisation right
-		switch ($newtab){
-			case 'general':
-			case 'settings':
-			case 'access':
-			case 'meta': // version 1.0.0 only, removed in 1.0.1
-				$newtab = ucfirst($newtab);
-			break;
-		}
-		
-		// Make sure the new tab exists in the DOM
-		$output .= "if ( \$j('#tab".$newtab."').length > 0) { \n";
+    $output = "//  -------------- mm_moveFieldsToTab :: Begin ------------- \n";
+
+    // If it's one of the default tabs, we need to get the capitalisation right
+    switch ($newtab) {
+        case 'general':
+        case 'settings':
+        case 'access':
+        case 'meta': // version 1.0.0 only, removed in 1.0.1
+            $newtab = ucfirst($newtab);
+            break;
+    }
+
+    // Make sure the new tab exists in the DOM
+    $output .= "if ( \$j('#tab" . $newtab . "').length > 0) { \n";
     if (isset($splitter) && $splitter === 'none') {
-			 $output .= "var ruleHtml = ''; ";
+        $output .= "var ruleHtml = ''; ";
     } else {
         $output .= 'var ruleHtml = \'<tr style="height: 10px"><td colspan="2"><div class="split"></div></td></tr>\'; ';
-		}
-		
-		// Try and identify any URL type TVs
-		$output .= '$j("select[id$=_prefix]").each( function() { $j(this).parents("tr:first").addClass("urltv"); }  ); ';
-		
-		// Go through each field that has been supplied
-		foreach ($fields as $field){
-			switch ($field){
-				case 'content':
-					$output .= '$j("#content_body").appendTo("#tab'.$newtab.'");'. "\n";
-					$output .= '$j("#content_header").hide();' . "\n";
-				break;
-				
-				// We can't move these fields because they belong in a particular place
-				case 'keywords':
-				case 'metatags':
-				case 'which_editor':
-					// Do nothing
-				break;
-				
-				case 'menuindex':
-				case 'hidemenu':
-				case 'show_in_menu':
-					$output .= '$j("input[name=menuindex]").closest("table").closest("tr").next("tr").remove(); ' . "\n";
-					$output .= 'var helpline = $j("input[name=menuindex]").closest("table").closest("tr").appendTo("#tab'.$newtab.'>table:first"); ' . "\n";
-					$output .= 'helpline.after(ruleHtml); '. "\n";
-				break;
-				case 'pub_date':
-					$output .= 'var helpline = $j("input[name=pub_date]").parents("tr").next("tr").appendTo("#tab'.$newtab.'>table:first"); ' . "\n";
-					$output .= '$j(helpline).before($j("input[name=pub_date]").parents("tr")); ' . "\n";
-					$output .= 'helpline.after(ruleHtml); '. "\n";
-				break;
-				
-				case 'unpub_date':
-					$output .= 'var helpline = $j("input[name=unpub_date]").parents("tr").next("tr").appendTo("#tab'.$newtab.'>table:first"); ' . "\n";
-					$output .= '$j(helpline).before($j("input[name=unpub_date]").parents("tr")); ' . "\n";
-					$output .= 'helpline.after(ruleHtml); '. "\n";
-				break;
-				
-				default:
-					// What type is this field?
-					if (isset($mm_fields[$field])){
-						$fieldtype = $mm_fields[$field]['fieldtype'];
-						$fieldname = $mm_fields[$field]['fieldname'];
-						$output .= '
-						var toMove = $j(\''.$fieldtype.'[name="'.$fieldname.'"]\').parents("tr:not(.urltv)"); // Identify the table row to move
-						toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
-						var movedTV = toMove.appendTo("#tab'.$newtab.'>table:first"); // Move the table row
-						movedTV.after(ruleHtml); // Insert a rule after
-						movedTV.find("td[width]").prop("width","");  // Remove widths from label column
-						$j("[name^=\"'.$fieldname.'\"]:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
-						';
-					}
-					
-				break;
-			}
-		}
-		
-		$output .= "}";
-		
-		$output .= "//  -------------- mm_moveFieldsToTab :: End ------------- \n";
-		
-		$e->output($output . "\n");
-	}
+    }
+
+    // Try and identify any URL type TVs
+    $output .= '$j("select[id$=_prefix]").each( function() { $j(this).parents("tr:first").addClass("urltv"); }  ); ';
+
+    // Go through each field that has been supplied
+    foreach ($fields as $field) {
+        switch ($field) {
+            case 'content':
+                $output .= '$j("#content_body").appendTo("#tab' . $newtab . '");' . "\n";
+                $output .= '$j("#content_header").hide();' . "\n";
+                break;
+
+            // We can't move these fields because they belong in a particular place
+            case 'keywords':
+            case 'metatags':
+            case 'which_editor':
+                // Do nothing
+                break;
+
+            case 'menuindex':
+            case 'hidemenu':
+            case 'show_in_menu':
+                $output .= '$j("input[name=menuindex]").closest("table").closest("tr").next("tr").remove(); ' . "\n";
+                $output .= 'var helpline = $j("input[name=menuindex]").closest("table").closest("tr").appendTo("#tab' . $newtab . '>table:first"); ' . "\n";
+                $output .= 'helpline.after(ruleHtml); ' . "\n";
+                break;
+            case 'pub_date':
+                $output .= 'var helpline = $j("input[name=pub_date]").parents("tr").next("tr").appendTo("#tab' . $newtab . '>table:first"); ' . "\n";
+                $output .= '$j(helpline).before($j("input[name=pub_date]").parents("tr")); ' . "\n";
+                $output .= 'helpline.after(ruleHtml); ' . "\n";
+                break;
+
+            case 'unpub_date':
+                $output .= 'var helpline = $j("input[name=unpub_date]").parents("tr").next("tr").appendTo("#tab' . $newtab . '>table:first"); ' . "\n";
+                $output .= '$j(helpline).before($j("input[name=unpub_date]").parents("tr")); ' . "\n";
+                $output .= 'helpline.after(ruleHtml); ' . "\n";
+                break;
+
+            default:
+                // What type is this field?
+                if (isset($mm_fields[$field])) {
+                    $fieldtype = $mm_fields[$field]['fieldtype'];
+                    $fieldname = $mm_fields[$field]['fieldname'];
+                    $output .= '
+                    var toMove = $j(\'' . $fieldtype . '[name="' . $fieldname . '"]\').parents("tr:not(.urltv)"); // Identify the table row to move
+                    toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
+                    var movedTV = toMove.appendTo("#tab' . $newtab . '>table:first"); // Move the table row
+                    movedTV.after(ruleHtml); // Insert a rule after
+                    movedTV.find("td[width]").prop("width","");  // Remove widths from label column
+                    $j("[name^=\"' . $fieldname . '\"]:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
+                    ';
+                }
+
+                break;
+        }
+    }
+
+    $output .= "}";
+
+    $output .= "//  -------------- mm_moveFieldsToTab :: End ------------- \n";
+
+    $e->output($output . "\n");
+}

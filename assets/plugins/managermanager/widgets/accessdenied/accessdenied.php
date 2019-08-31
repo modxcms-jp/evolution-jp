@@ -25,16 +25,16 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
         return;
     }
 
-		$output = "//  -------------- accessdenied widget include ------------- \n";
-            if (!$message) {
-                $message = '<span>Access denied</span>Access to current document closed for security reasons.';
-            }
-			$output .= includeCss( __DIR__ . '/accessdenied.css');
-			
-			$output .= '
-			$j("input, div, form[name=mutate]").remove(); // Remove all content from the page
-			$j("body").prepend(\'<div id="aback"><div id="amessage">'.$message.'</div></div>\');
-			$j("#aback").css({height: $j("body").height()} );';
+    $output = "//  -------------- accessdenied widget include ------------- \n";
+    if (!$message) {
+        $message = '<span>Access denied</span>Access to current document closed for security reasons.';
+    }
+    $output .= includeCss(__DIR__ . '/accessdenied.css');
 
-        $modx->event->output($output . "\n");
+    $output .= '
+    $j("input, div, form[name=mutate]").remove(); // Remove all content from the page
+    $j("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
+    $j("#aback").css({height: $j("body").height()} );';
+
+    $modx->event->output($output . "\n");
 }
