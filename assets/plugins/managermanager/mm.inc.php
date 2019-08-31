@@ -47,10 +47,14 @@ class MANAGERMANAGER
         // /widgets/widgetname/widgetname.php
         $widget_dir = $pluginDir.'widgets';
         if ($handle = opendir($widget_dir)){
-            while (false !== ($file = readdir($handle))){
-                if (!in_array(substr($file, 0, 1), $ignore_first_chars)  && $file != ".."  && is_dir($widget_dir.'/'.$file)){
-                            include_once("{$widget_dir}/{$file}/{$file}.php");
+            while (($file = readdir($handle)) !== false){
+                if ($file === '..') {
+                    continue;
                         }
+                if (in_array(substr($file, 0, 1), $ignore_first_chars) || !is_dir($widget_dir . '/' . $file)) {
+                    continue;
+                }
+                include_once sprintf('%s/%s/%s.php', $widget_dir, $file, $file);
             }
             closedir($handle);
         }
@@ -106,7 +110,14 @@ class MANAGERMANAGER
         unset($field);
         
         // Add in TVs to the list of available fields
-        $all_tvs = $modx->db->makeArray( $modx->db->select('name,type,id,elements', $modx->getFullTableName('site_tmplvars'), '', 'name ASC')   );
+        $all_tvs = $modx->db->makeArray(
+            $modx->db->select(
+                'name,type,id,elements'
+                , $modx->getFullTableName('site_tmplvars')
+                , ''
+                , 'name ASC'
+            )
+        );
         foreach ($all_tvs as $thisTv) {
             $n = $thisTv['name']; // What is the field name?
         
@@ -240,12 +251,14 @@ class MANAGERMANAGER
         if (!empty($chunk_output)){
             eval($chunk_output); // If there is, run it.
             return "// Getting rules from chunk: $chunk \n\n";
-        }else if (is_readable($config_file)){    // If there's no chunk output, read in the file.
+        }
+
+        if (is_readable($config_file)){    // If there's no chunk output, read in the file.
             include($config_file);
             return "// Getting rules from file: $config_file \n\n";
-        }else{
-            return "// No rules found \n\n";
         }
+
+            return "// No rules found \n\n";
     }
 
     function rule_exists($chunk_name)
