@@ -273,15 +273,14 @@ class DocumentParser {
         return $this->prepareResponse();
     }
     
-    function treatRequestUri($uri) {
+    private function treatRequestUri($uri) {
         $pos = strpos($uri,'?');
-        if($pos!==false) {
-            $qs = $_GET;
-            $uri = substr($uri,0,$pos);
-            ksort($qs);
-            $uri .= '?' . http_build_query($qs);
+        if($pos === false) {
+            return $uri;
         }
-        return $uri;
+        $qs = $_GET;
+        ksort($qs);
+        return substr($uri, 0, $pos) . '?' . http_build_query($qs);
     }
     
     function executeParserDirect($id='')
@@ -4438,7 +4437,7 @@ class DocumentParser {
      *
      */
     function setBaseTime($t=''){
-        if( empty($t) ){
+        if( !$t ){
             $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
             if( !empty($baseTime) && $this->isLoggedin() ){
                 $t=$baseTime;
