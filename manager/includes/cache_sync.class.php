@@ -288,7 +288,12 @@ class synccache {
             , "0 < pub_date AND status = 'standby'"
         );
         foreach($time as $k=>$v) {
-            $time[$k] = (int)$v;
+            if(!$v) {
+                unset($time[$k]);
+            }
+        }
+        if(!$time) {
+            return 0;
         }
         return min($time);
     }
