@@ -287,17 +287,10 @@ class synccache {
             , 'pub_date'
             , "0 < pub_date AND status = 'standby'"
         );
-        $min = min($time);
-        if(!preg_match('@^[1-9][0-9]*$@',$min)) {
-            return 0;
+        foreach($time as $k=>$v) {
+            $time[$k] = (int)$v;
         }
-        if($this->cacheRefreshTime==0) {
-            return $min;
-        }
-        if ($min < $this->cacheRefreshTime) {
-            return $min;
-        }
-        return false;
+        return min($time);
     }
     
     private function minTime($table_name, $field_name, $where) {
