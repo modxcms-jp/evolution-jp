@@ -4534,24 +4534,16 @@ class DocumentParser {
     }
     
     function move_uploaded_file($tmp_path,$target_path) {
-        global $image_limit_width;
-        
         $target_path = str_replace('\\','/', $target_path);
         $new_file_permissions = octdec(ltrim($this->config['new_file_permissions'],'0'));
         
-        if(strpos($target_path, $this->config['filemanager_path'])!==0)
-        {
+        if(strpos($target_path, $this->config['filemanager_path'])!==0) {
             $msg = "Can't upload to '{$target_path}'.";
             $this->logEvent(1,3,$msg,'move_uploaded_file');
         }
-        
-        if(isset($this->config['image_limit_width']))
-            $image_limit_width = $this->config['image_limit_width'];
-        else $image_limit_width = '';
-        
+
         $img = getimagesize($tmp_path);
-        switch($img[2])
-        {
+        switch($img[2]) {
             case IMAGETYPE_JPEG:
                 if(stripos($target_path,'.jpeg')!==false) {
                     $ext = '.jpeg';
@@ -4565,73 +4557,131 @@ class DocumentParser {
             default:
                 $ext = '';
         }
-        if($ext) $target_path = substr($target_path,0,strrpos($target_path,'.')) . $ext;
-        
-        if($img[0] <= $image_limit_width || !$ext || !$image_limit_width)
-        {
-            $rs = move_uploaded_file($tmp_path, $target_path);
-            if(!$rs)
-            {
-                $target_is_writable = (is_writable(dirname($target_path))) ? 'true' : 'false';
-                
-                $msg  = '$tmp_path = ' . "{$tmp_path}\n";
-                $msg .= '$target_path = ' . "{$target_path}\n";
-                $msg .= '$image_limit_width = ' . "{$image_limit_width}\n";
-                $msg .= '$target_is_writable = ' . "{$target_is_writable}\n";
-                if($ext)
-                {
-                    $msg .= 'getimagesize = ' . print_r($img,true);
-                }
-                
-                $msg = str_replace("\n","<br />\n",$msg);
-                $this->logEvent(1,3,$msg,'move_uploaded_file');
+        if($ext) {
+            $target_path = substr($target_path, 0, strrpos($target_path, '.')) . $ext;
+        }
+
+        $limit_width = $this->conf_var('image_limit_width');
+        if(!$limit_width || $img[0] <= $limit_width || !$ext) {
+            if(move_uploaded_file($tmp_path, $target_path)) {
+                @chmod($target_path, octdec($this->config['new_file_permissions']));
+                return true;
             }
-            else @chmod($target_path, octdec($this->config['new_file_permissions']));
-            return $rs;
+            $msg = array();
+            $msg[] = '$tmp_path = ' . $tmp_path;
+            $msg[] = '$target_path = ' . $target_path;
+            $msg[] = '$image_limit_width = ' . $this->conf_var('image_limit_width', '- not set -');
+            $msg[] = '$target_is_writable = ' . (is_writable(dirname($target_path)) ? 'true' : 'false');
+            $msg[] = 'getimagesize = ' . print_r($img, true);
+            $this->logEvent(1, 3, implode("<br>\n", $msg), 'move_uploaded_file');
+            return false;
         }
         
-        $new_width = $image_limit_width;
-        $new_height = (int)( ($img[1]/$img[0]) * $new_width);
-        
-        switch($img[2])
-        {
+        $limit_height = (int)( ($img[1]/$img[0]) * $limit_width);
+        $new_image = imagecreatetruecolor($limit_width, $limit_height);
+        switch($img[2]) {
             case IMAGETYPE_JPEG:
-                $tmp_image = imagecreatefromjpeg($tmp_path);
-                $new_image = imagecreatetruecolor($new_width, $new_height);
-                $rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
-                if($rs) $rs = imagejpeg($new_image, $target_path, 85);
+                $rs = imagecopyresampled(
+                    $new_image
+                    , imagecreatefromjpeg($tmp_path)
+                    , 0
+                    , 0
+                    , 0
+                    , 0
+                    , $limit_width
+                    , $limit_height
+                    , $img[0]
+                    , $img[1]
+                );
+                if(!$rs) {
+                    return false;
+                }
+                $rs = imagejpeg($new_image, $target_path, 83);
                 break;
             case IMAGETYPE_PNG:
-                $tmp_image = imagecreatefrompng($tmp_path);
-                $new_image = imagecreatetruecolor($new_width, $new_height);
-//                imagealphablending($new_image,false);
-//                imagesavealpha($new_image,true);
-                $rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
-                if($rs) $rs = imagepng($new_image, $target_path);
+                $rs = imagecopyresampled(
+                    $new_image
+                    , imagecreatefrompng($tmp_path)
+                    , 0
+                    , 0
+                    , 0
+                    , 0
+                    , $limit_width
+                    , $limit_height
+                    , $img[0]
+                    , $img[1]
+                );
+                if(!$rs) {
+                    return false;
+                }
+                $rs = imagepng($new_image, $target_path);
                 break;
-            case IMAGETYPE_GIF: 
+            case IMAGETYPE_GIF:
+                $rs = imagecopyresampled(
+                    $new_image
+                    , imagecreatefromgif($tmp_path)
+                    , 0
+                    , 0
+                    , 0
+                    , 0
+                    , $limit_width
+                    , $limit_height
+                    , $img[0]
+                    , $img[1]
+                );
+                if(!$rs) {
+                    return false;
+                }
+                $rs = imagepng($new_image, $target_path);
+                break;
             case IMAGETYPE_BMP:
-                if($img[2]==IMAGETYPE_GIF)
-                    $tmp_image = imagecreatefromgif($tmp_path);
-                if($img[2]==IMAGETYPE_BMP)
-                    $tmp_image = imagecreatefromwbmp($tmp_path);
-                $new_image = imagecreatetruecolor($new_width, $new_height);
-                $rs = imagecopyresampled($new_image,$tmp_image,0,0,0,0,$new_width,$new_height,$img[0],$img[1]);
-                if($rs) $rs = imagepng($new_image, $target_path);
+                $rs = imagecopyresampled(
+                    $new_image
+                    , imagecreatefromwbmp($tmp_path)
+                    , 0
+                    , 0
+                    , 0
+                    , 0
+                    , $limit_width
+                    , $limit_height
+                    , $img[0]
+                    , $img[1]
+                );
+                if(!$rs) {
+                    return false;
+                }
+                $rs = imagepng($new_image, $target_path);
                 break;
             default:
         }
-        if($new_image)
-        {
-            imagedestroy($tmp_image);
-            imagedestroy($new_image);
-        }
+        imagedestroy($new_image);
         if($rs) {
             @chmod($target_path, $new_file_permissions);
+            return $rs;
         }
-        return $rs;
+        return false;
     }
-    
+
+    private function save_jpg($save_path, $limit_width, $limit_height) {
+        $new_image = imagecreatetruecolor($limit_width, $limit_height);
+        $rs = imagecopyresampled(
+            $new_image
+            , imagecreatefromjpeg($tmp_path)
+            , 0
+            , 0
+            , 0
+            , 0
+            , $limit_width
+            , $limit_height
+            , $img[0]
+            , $img[1]
+        );
+        if(!$rs) {
+            return false;
+        }
+        $rs = imagejpeg($new_image, $target_path, 83);
+    }
+
     public function input_get($key=null, $default=null) {
         return $this->array_get($_GET, $key, $default);
     }
