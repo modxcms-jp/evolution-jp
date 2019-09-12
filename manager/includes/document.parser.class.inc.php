@@ -1084,6 +1084,36 @@ class DocumentParser {
         return false;
     }
 
+    public function getUserFromName($username) {
+        $field = 'mu.*, ua.*';
+        $from = array(
+            '[+prefix+]manager_users mu',
+            'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
+        );
+        $rs = $this->db->select(
+            $field
+            , $from
+            , sprintf("BINARY mu.username='%s'", $this->db->escape($username))
+        );
+
+        $total = $this->db->getRecordCount($rs);
+
+        if(!$total && $this->config['login_by']!=='username' && strpos($username,'@')!==false) {
+            $rs = $this->db->select(
+                $field
+                , $from
+                , sprintf("BINARY ua.email='%s'", $this->db->escape($username))
+            );
+            $total = $this->db->getRecordCount($rs);
+        }
+
+        if($total!=1) {
+            return false;
+        }
+
+        return $this->db->getRow($rs);
+    }
+
     function checkSession() {
         return $this->isLoggedin();
     }
