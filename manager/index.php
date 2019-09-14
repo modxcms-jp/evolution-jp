@@ -34,7 +34,7 @@ if (@is_file(MODX_BASE_PATH . 'autoload.php')) {
 }
 
 // initiate the content manager class
-include_once(MODX_BASE_PATH.'includes/document.parser.class.inc.php');
+include_once(MODX_BASE_PATH.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
