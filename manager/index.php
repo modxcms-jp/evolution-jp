@@ -1,102 +1,58 @@
 <?php
-/*
-*************************************************************************
-    MODx Content Management System and PHP Application Framework
-    Managed and maintained by Raymond Irving, Ryan Thrash and the
-    MODx community
-*************************************************************************
-    MODx is an opensource PHP/MySQL content management system and content
-    management framework that is flexible, adaptable, supports XHTML/CSS
-    layouts, and works with most web browsers, including Safari.
-
-    MODx is distributed under the GNU General Public License
-*************************************************************************
-
-    MODx CMS and Application Framework ("MODx")
-    Copyright 2005 and forever thereafter by Raymond Irving & Ryan Thrash.
-    All rights reserved.
-
-    This file and all related or dependant files distributed with this filie
-    are considered as a whole to make up MODx.
-
-    MODx is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    MODx is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with MODx (located in "/assets/docs/"); if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
-
-    For more information on MODX please visit http://modx.com/
-
-**************************************************************************
-    Originally based on Etomite by Alex Butter
-**************************************************************************
-*/
-
-
-/**
- *  Filename: manager/index.php
- *  Function: This file is the main root file for MODx. It is
- *          only file that will be directly requested, and
- *          depending on the request, will branch different
- *          content
- */
-
-// get start time
-if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
+    $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
+}
 $mstart = memory_get_usage();
 
+define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through the manager instead of seperately.
+define('MODX_MANAGER_PATH', str_replace('\\', '/', __DIR__) . '/');
+
+include_once('../index.php');
 $self_path      = str_replace('\\','/',__FILE__);
 $self_dir  = str_replace('/index.php','',$self_path);
 $mgr_dir   = substr($self_dir,strrpos($self_dir,'/')+1);
-$base_path = str_replace($mgr_dir . '/index.php','',$self_path);
-if(!is_dir("{$base_path}assets/cache")) mkdir("{$base_path}assets/cache");
-$site_mgr_path = $base_path . 'assets/cache/siteManager.php';
+if(!is_dir(MODX_BASE_PATH . 'assets/cache')) {
+    mkdir(MODX_BASE_PATH . 'assets/cache');
+}
+$site_mgr_path = MODX_BASE_PATH . 'assets/cache/siteManager.php';
 
-if( !is_file($site_mgr_path) )
-{
+if( !is_file($site_mgr_path) ) {
 	$src = "<?php\n";
 	$src .= "define('MGR_DIR', '{$mgr_dir}');\n";
 	$rs = file_put_contents($site_mgr_path,$src);
 	if(!$rs) exit('siteManager.php write error');
 	define('MGR_DIR', $mgr_dir);
+} else {
+    include_once($site_mgr_path);
 }
-else include_once($site_mgr_path);
 
-define('IN_MANAGER_MODE', 'true');  // we use this to make sure files are accessed through the manager instead of seperately.
-
-$core_path = "{$base_path}manager/includes/";
+$core_path = MODX_BASE_PATH . 'manager/includes/';
 $incPath = $core_path;
 
-if (@is_file("{$base_path}autoload.php")) {
-    include_once("{$base_path}autoload.php");
+if (@is_file(MODX_BASE_PATH . 'autoload.php')) {
+    include_once MODX_BASE_PATH . 'autoload.php';
 }
 
 // initiate the content manager class
-include_once('includes/document.parser.class.inc.php');
+include_once(MODX_BASE_PATH.'includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
 $modx->loadExtension('ManagerAPI');
 
-if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1)
-{
-    if($modx->hasPermission('save_role')) $modx->safeMode = 1;
-    else                                  $modx->safeMode = $_SESSION['safeMode'] = 0;
+if(isset($_SESSION['safeMode']) && $_SESSION['safeMode']==1) {
+    if($modx->hasPermission('save_role')) {
+        $modx->safeMode = 1;
+    } else {
+        $modx->safeMode = $_SESSION['safeMode'] = 0;
+    }
 }
 
 $modx->getSettings();
 
 extract($modx->config);
 
-if (isset($_POST['updateMsgCount']) && $modx->hasPermission('messages')) {
+if ($modx->input_post('updateMsgCount') && $modx->hasPermission('messages')) {
     $modx->manager->getMessageCount();
 }
 
@@ -112,7 +68,9 @@ $modx->manager->action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
 
 // double check the session
-if (!isset($_SESSION['mgrValidated'])) exit('Not Logged In!');
+if (!isset($_SESSION['mgrValidated'])) {
+    exit('Not Logged In!');
+}
 
 switch ($modx->manager->action) {
     case 5:
@@ -126,23 +84,23 @@ switch ($modx->manager->action) {
     case 86:
         break;
     default:
-        $cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
-        if(is_file($cache_path))
-        {
-            $role = unserialize(file_get_contents($cache_path));
-            if($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']])
-            {
+        if(is_file(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php')) {
+            $content = file_get_contents(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php');
+            $role = unserialize($content);
+            if($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']]) {
                 @session_destroy();
                 session_unset();
-                header("Location: {$modx->config['site_url']}manager/");
+                header("Location: " . $modx->config['site_url'] . "manager/");
                 exit;
             }
         }
 }
 
 // include_once the style variables file
-$theme_dir = "media/style/{$manager_theme}/";
-if(is_file("{$theme_dir}style.php")) include_once("{$theme_dir}style.php");
+$theme_dir = MODX_BASE_PATH . 'manager/media/style/' . $modx->conf_var('manager_theme') . '/';
+if(is_file($theme_dir . 'style.php')) {
+    include_once $theme_dir . 'style.php';
+}
 
 // check if user is allowed to access manager interface
 if (isset($allow_manager_access) && $allow_manager_access==0) {
@@ -154,7 +112,9 @@ include_once(MODX_CORE_PATH . 'error.class.inc.php');
 $e = new errorHandler;
 
 // Initialize System Alert Message Queque
-if (!isset($_SESSION['SystemAlertMsgQueque'])) $_SESSION['SystemAlertMsgQueque'] = array();
+if (!isset($_SESSION['SystemAlertMsgQueque'])) {
+    $_SESSION['SystemAlertMsgQueque'] = array();
+}
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // first we check to see if this is a frameset request
@@ -168,13 +128,12 @@ if (!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($
 if (isset($_GET['a']) && isset($_POST['a'])) {
     $e->setError(100);
     $e->dumpError();
-    // set $e to a corresponding errorcode
-    // we know that if an error occurs here, something's wrong,
-    // so we dump the error, thereby stopping the script.
-
 } else {
-    if(isset($_REQUEST['a'])) $modx->manager->action= (int) $_REQUEST['a'];
-    else                      $modx->manager->action = '';
+    if(isset($_REQUEST['a'])) {
+        $modx->manager->action = (int)$_REQUEST['a'];
+    } else {
+        $modx->manager->action = '';
+    }
 }
 
 // attempt to foil some simple types of CSRF attacks
@@ -182,7 +141,9 @@ $modx->manager->validate_referer($modx->config['validate_referer']);
 
 $modx->manager->setView($modx->manager->action);
 
-if(isset($_POST['stay'])&&$_POST['stay']!=='new') $_SESSION['saveAfter'] = $_POST['stay'];
+if(isset($_POST['stay'])&&$_POST['stay']!=='new') {
+    $_SESSION['saveAfter'] = $_POST['stay'];
+}
 
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
@@ -195,16 +156,19 @@ $prc_path    = MODX_MANAGER_PATH . 'processors/';
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 
-if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,22,23,78,77,18,26,106,107,108,113,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998)))
-    include_once($action_path.'header.inc.php');
+if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,22,23,78,77,18,26,106,107,108,113,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998))) {
+    include_once($action_path . 'header.inc.php');
+}
 
 switch ($modx->manager->action) {
     case 1 : //frame management - show the requested frame  
         // get the requested frame
         if(isset($_REQUEST['f'])) {
             $frame = $_REQUEST['f'];
-            if($frame!=='tree'&&$frame!=='menu'&&$frame!=='nodes') return;
-            include_once(MODX_MANAGER_PATH . "frames/{$frame}.php");
+            if($frame!=='tree'&&$frame!=='menu'&&$frame!=='nodes') {
+                return;
+            }
+            include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
         }
         elseif(isset($_REQUEST['ajaxa']))
             include(MODX_MANAGER_PATH . 'ajax.php'); // ajax-action
