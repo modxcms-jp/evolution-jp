@@ -4732,10 +4732,16 @@ class DocumentParser {
     }
 
     public function server_var($key=null, $default=null) {
+        if(!isset($_SERVER)) {
+            return $default;
+        }
         return $this->array_get($_SERVER, strtoupper($key), $default);
     }
 
     public function session_var($key=null, $default=null) {
+        if(!isset($_SESSION)) {
+            return $default;
+        }
         return $this->array_get($_SESSION, $key, $default);
     }
     
