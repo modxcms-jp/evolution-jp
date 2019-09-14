@@ -20,7 +20,7 @@ function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '',
         return;
     }
 
-// Your output should be stored in a string, which is outputted at the end
+    // Your output should be stored in a string, which is outputted at the end
     // It will be inserted as a Javascript block (with jQuery), which is executed on document ready
     // We always put a JS comment, which makes debugging much easier
     $output = "//  -------------- mm_widget_template :: Begin ------------- \n";

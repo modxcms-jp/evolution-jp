@@ -37,20 +37,24 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
     foreach ($fields as $tv) {
         $tv_id = $mm_fields[$tv]['fieldname'];
 
-        $output .= '
-            // ----------- Color widget for  ' . $tv_id . '  --------------
-            $j("#' . $tv_id . '").css("background-image","none");
-            $j("#' . $tv_id . '").after(\'<div id="colorpicker' . $tv_id . '"></div>\');
-            if ($j("#' . $tv_id . '").val() == ""){
-                $j("#' . $tv_id . '").val("' . $default . '");
+        $output .= parseText('
+            // ----------- Color widget for  [+tv_id+]  --------------
+            jQuery("#[+tv_id+]").css("background-image","none");
+            jQuery("#[+tv_id+]").after(\'<div id="colorpicker[+tv_id+]"></div>\');
+            if (jQuery("#[+tv_id+]").val() == ""){
+                jQuery("#[+tv_id+]").val("[+default+]");
             }
-            $j("#colorpicker' . $tv_id . '").farbtastic("#' . $tv_id . '");
-            $j("#colorpicker' . $tv_id . '").mouseup(function(){
+            jQuery("#colorpicker[+tv_id+]").farbtastic("#[+tv_id+]");
+            jQuery("#colorpicker[+tv_id+]").mouseup(function() {
                 // mark the document as dirty, or the value wont be saved
-                $j("#' . $tv_id . '").trigger("change");
+                jQuery("#[+tv_id+]").trigger("change");
             });
             documentDirty = false;
-            ';
+            ', array(
+                'tv_id'   => $tv_id,
+                'default' => $default
+            )
+        );
     }
 
     $e->output($output . "\n");

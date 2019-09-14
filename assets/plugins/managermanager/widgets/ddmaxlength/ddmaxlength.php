@@ -31,20 +31,8 @@ function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
         $page_template = $modx->config['default_template'];
     }
 
-// 		$tvsMas = array();
     // Does this page's template use any image or file or text TVs?
     $tvs = tplUseTvs($page_template, $tvs, 'text,textarea');
-// 		$tvsTemp = tplUseTvs($page_template, $tvs, 'text');
-// 		if ($tvsTemp){
-// 			foreach($tvsTemp as $v){
-// 				$v['type'] = 'text';
-// 				array_push($tvsMas,$v);
-// 			}
-// 		}
-
-// 		if (count($tvsMas) == 0){
-// 			return;
-// 		}
     if ($tvs == false) {
         return;
     }
@@ -57,8 +45,8 @@ function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
 
     foreach ($tvs as $tv) {
         $output .= '
-$j("#tv' . $tv['id'] . '").addClass("ddMaxLengthField").each(function(){
-$j(this).parent().append("<div class=\"ddMaxLengthCount\"><span></span></div>");
+jQuery("#tv' . $tv['id'] . '").addClass("ddMaxLengthField").each(function(){
+jQuery(this).parent().append("<div class=\"ddMaxLengthCount\"><span></span></div>");
 }).ddMaxLength({
 max: ' . $length . ',
 containerSelector: "div.ddMaxLengthCount span",
@@ -68,10 +56,10 @@ warningClass: "maxLenghtWarning"
     }
 
     $output .= '
-$j("#mutate").submit(function(){
+jQuery("#mutate").submit(function(){
 var ddErrors = new Array();
-$j("div.ddMaxLengthCount span").each(function(){
-    var $this = $j(this), field = $this.parents(".ddMaxLengthCount:first").parent().find(".ddMaxLengthField");
+jQuery("div.ddMaxLengthCount span").each(function(){
+    var $this = jQuery(this), field = $this.parents(".ddMaxLengthCount:first").parent().find(".ddMaxLengthField");
     if (parseInt($this.text()) < 0){
         field.addClass("maxLenghtErrorField").focus(function(){
             field.removeClass("maxLenghtErrorField");

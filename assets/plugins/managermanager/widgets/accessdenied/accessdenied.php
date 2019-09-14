@@ -29,12 +29,12 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
     if (!$message) {
         $message = '<span>Access denied</span>Access to current document closed for security reasons.';
     }
-    $output .= includeCss(__DIR__ . '/accessdenied.css');
+    $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css');
 
     $output .= '
-    $j("input, div, form[name=mutate]").remove(); // Remove all content from the page
-    $j("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
-    $j("#aback").css({height: $j("body").height()} );';
+    jQuery("input, div, form[name=mutate]").remove(); // Remove all content from the page
+    jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
+    jQuery("#aback").css({height: jQuery("body").height()} );';
 
     $modx->event->output($output . "\n");
 }

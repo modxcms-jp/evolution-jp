@@ -76,7 +76,7 @@ var $sectionConteiner = $j("<div class=\"sectionHeader\">" + sectionName + "</di
 $coordinatesField.parents(".tab-page:first").append($sectionConteiner);
 
 //Если скрывать не надо, засовываем перед картой
-if (!' . intval($hideField) . '){
+if (!' . (int)$hideField . '){
 $coordinatesField.insertBefore(".ddGMap" + coordFieldId);
 }
 
