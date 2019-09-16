@@ -13,6 +13,7 @@ class DocumentParser {
     public $event, $Event; // event object
     public $pluginEvent = array();
     public $config = array();
+    public $userConfig = array();
     public $rs;
     public $result;
     public $sql;
@@ -991,7 +992,10 @@ class DocumentParser {
         }
         
         $this->config = $this->getWebUserSettings($this->config);
-        $this->config = $this->mergeMgrUserConfig($this->config);
+        $this->userConfig = $this->getUserConfig();
+        foreach($this->userConfig as $k=>$v) {
+            $this->config[$k] = $v;
+        }
 
         if(strpos($this->config['filemanager_path'],'[(')!==false) {
             $this->config['filemanager_path'] = str_replace(
@@ -1048,10 +1052,12 @@ class DocumentParser {
         return $config;
     }
 
-    private function mergeMgrUserConfig($config) {
-        $uid= $this->getLoginUserID('mgr');
+    private function getUserConfig($uid=null) {
+        if(!$uid) {
+            $uid= $this->getLoginUserID('mgr');
+        }
         if (!$uid) {
-            return $config;
+            return array();
         }
 
         if ($this->isBackend()) {
@@ -1065,9 +1071,10 @@ class DocumentParser {
         );
 
         if (!$result) {
-            return $config;
+            return array();
         }
 
+        $config = array();
         while ($row= $this->db->getRow($result)) {
             $config[$row['setting_name']]= $row['setting_value'];
         }
@@ -1078,9 +1085,7 @@ class DocumentParser {
     function isLoggedIn($context='mgr')
     {
         if (strpos($context, 'm') === 0) {
-            if ($this->session_var('mgrValidated')) {
                 return true;
-            }
         } else if ($this->session_var('webValidated')) {
             return true;
         }
