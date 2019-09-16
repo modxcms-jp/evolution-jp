@@ -966,8 +966,114 @@ class DocumentParser {
         
         return $config;
     }
-    
+
+    private function token_auth() {
+        if (!$this->input_get('auth_token')) {
+            return;
+        }
+        if(!$this->db) {
+            $this->loadExtension('DBAPI');
+        }
+        $rs= $this->db->select(
+            'user'
+            , '[+prefix+]user_settings'
+            , sprintf("setting_name='auth_token' AND setting_value='%s'", $this->input_get('auth_token'))
+        );
+        if (!$rs) {
+            return false;
+        }
+        $userid = $this->db->getValue($rs);
+        $user = $this->getUserConfig($userid);
+
+        session_regenerate_id(true);
+
+        $_SESSION['usertype'] = 'manager'; // user is a backend user
+
+        // get permissions
+        $_SESSION['mgrShortname']    = $user['username'];
+        $_SESSION['mgrFullname']     = $user['fullname'];
+        $_SESSION['mgrEmail']        = $user['email'];
+        $_SESSION['mgrValidated']    = 1;
+        $_SESSION['mgrInternalKey']  = $userid;
+        $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
+        $_SESSION['mgrLogincount']   = $user['logincount']; // login count
+        $_SESSION['mgrRole']         = $user['role'];
+        $rs = $this->db->select(
+            '*'
+            , '[+prefix+]user_roles'
+            , sprintf("id='%d'", $user['role'])
+        );
+        $row = $this->db->getRow($rs);
+
+        $_SESSION['mgrPermissions'] = $row;
+
+        if($this->session_var('mgrPermissions.messages')==1) {
+            $rs = $this->db->select('*', '[+prefix+]manager_users');
+            $total = $this->db->getRecordCount($rs);
+            if($total==1) {
+                $_SESSION['mgrPermissions']['messages'] = '0';
+            }
+        }
+    // successful login so reset fail count and update key values
+        $this->db->update(
+            array(
+                'failedlogincount'=>0,
+                'logincount' => $user['logincount']+1,
+                'lastlogin' => $user['thislogin'],
+                'thislogin' => $this->server_var('REQUEST_TIME'),
+                'sessionid' => session_id()
+            )
+            , $this->getFullTableName('user_attributes')
+            , 'internalKey=' . $userid
+        );
+
+        $_SESSION['mgrLastlogin'] = $this->server_var('REQUEST_TIME');
+        if(!$this->manager) {
+            $this->loadExtension('ManagerAPI');
+        }
+        $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
+
+        if($this->input_any('rememberme')) {
+            $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$this->config['session.cookie.lifetime'];
+            global $https_port;
+            setcookie(
+                'modx_remember_manager'
+                , $user['username']
+                , $this->server_var('REQUEST_TIME') + strtotime('+1 year')
+                , MODX_BASE_URL
+                , NULL
+                , ($this->server_var('HTTPS') || $this->server_var('SERVER_PORT') == $https_port) ? true : false
+                , true
+            );
+        } else {
+            $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
+            setcookie (
+                'modx_remember_manager'
+                , ''
+                , ($this->server_var('REQUEST_TIME') - 3600)
+                , MODX_BASE_URL
+            );
+        }
+
+        if($this->hasPermission('remove_locks')) {
+            $this->manager->remove_locks();
+        }
+
+        // include_once(MODX_CORE_PATH . 'log.class.inc.php');
+        // $log = new logHandler;
+        // $log->initAndWriteLog(
+        //     'Logged in by auth token'
+        //     , $userid
+        //     , $user['username']
+        //     , '0'
+        //     , '-'
+        //     , 'MODX'
+        // );
+        // exit('test');
+    }
+
     function getSettings() {
+        $this->token_auth();
         $this->config = $this->getSiteCache();
         $cache_path = MODX_BASE_PATH . 'assets/cache/';
         if(is_file($cache_path.'siteCache.idx.php')) {
