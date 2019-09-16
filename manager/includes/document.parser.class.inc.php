@@ -165,8 +165,11 @@ class DocumentParser {
         @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
-        if($this->isLoggedIn())           ini_set('display_errors', '1');
-        elseif(!defined('MODX_API_MODE')) ini_set('display_errors', '0');
+        if($this->isLoggedIn()) {
+            ini_set('display_errors', '1');
+        } elseif(!defined('MODX_API_MODE')) {
+            ini_set('display_errors', '0');
+        }
         
         if(!isset($this->tstart)) {
             $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
@@ -458,11 +461,12 @@ class DocumentParser {
 
         if ($this->documentContent == '') {
             // get document object
-            $documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
             if($this->documentObject) {
-                $this->documentObject = array_merge($this->documentObject, $documentObject);
-            } else {
-                $this->documentObject = $documentObject;
+                $_ = $this->documentObject;
+            }
+            $this->documentObject= $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
+            if(isset($_)) {
+                $this->documentObject = array_merge($_, $this->documentObject);
             }
 
             // validation routines
@@ -1056,8 +1060,8 @@ class DocumentParser {
 
         $result= $this->db->select(
             'setting_name, setting_value'
-            ,'[+prefix+]user_settings'
-            ,"user='{$uid}'"
+            , '[+prefix+]user_settings'
+            , "user='" . $uid . "'"
         );
 
         if (!$result) {
