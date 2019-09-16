@@ -2,7 +2,14 @@
 if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     header('HTTP/1.0 404 Not Found');exit;
 }
-// show javascript alert
+
+function checkSafedUri() {
+    if(strpos(urldecode(evo()->server_var('REQUEST_URI')), "'") === false) {
+        return;
+    }
+    jsAlert('This is illegal login.');
+}
+
 function jsAlert($msg){
     global $modx, $modx_manager_charset;
     header('Content-Type: text/html; charset='.$modx_manager_charset);
@@ -26,10 +33,10 @@ function failedLogin() {
         , '[+prefix+]user_attributes'
         , sprintf("internalKey='%s'", user('internalKey'))
     );
-    if($modx->conf_var('failed_login_attempts',0)<=$failedlogincount) {
+    if(config('failed_login_attempts',0)<=$failedlogincount) {
         $modx->db->update(
             array(
-                'blockeduntil' => $_SERVER['REQUEST_TIME']+($modx->config['blocked_minutes']*60)
+                'blockeduntil' => $_SERVER['REQUEST_TIME']+(config('blocked_minutes')*60)
             )
             , '[+prefix+]user_attributes'
             , sprintf("internalKey='%s'", user('internalKey'))
@@ -39,21 +46,20 @@ function failedLogin() {
     session_unset();
 }
 
-function login($givenPassword,$dbasePassword) {
+function loginPhpass($givenPassword,$dbasePassword) {
     global $modx;
     return $modx->phpass->CheckPassword($givenPassword, $dbasePassword);
 }
 
-function loginV1($internalKey,$givenPassword,$dbasePassword,$username) {
+function loginV1($givenPassword,$dbasePassword,$internalKey) {
     global $modx;
 
     $user_algo = $modx->manager->getV1UserHashAlgorithm($internalKey);
 
-    if(!isset($modx->config['pwd_hash_algo']) || empty($modx->config['pwd_hash_algo']))
+    if(!config('pwd_hash_algo'))
         $modx->config['pwd_hash_algo'] = 'UNCRYPT';
 
     if($user_algo !== $modx->config['pwd_hash_algo']) {
-        $bk_pwd_hash_algo = $modx->config['pwd_hash_algo'];
         $modx->config['pwd_hash_algo'] = $user_algo;
     }
 
@@ -61,18 +67,20 @@ function loginV1($internalKey,$givenPassword,$dbasePassword,$username) {
         return false;
     }
 
-    updateNewHash($username,$givenPassword);
+    updateNewHash($internalKey,$givenPassword);
 
     return true;
 }
 
-function loginMD5($givenPassword,$dbasePassword,$username) {
-    if($dbasePassword != md5($givenPassword)) return false;
-    updateNewHash($username,$givenPassword);
+function loginMD5($givenPassword,$dbasePassword,$internalKey) {
+    if($dbasePassword != md5($givenPassword)) {
+        return false;
+    }
+    updateNewHash($internalKey,$givenPassword);
     return true;
 }
 
-function updateNewHash($username,$password) {
+function updateNewHash($internalKey,$password) {
     global $modx;
 
     $field = array();
@@ -82,11 +90,11 @@ function updateNewHash($username,$password) {
     $modx->db->update(
         $field
         , '[+prefix+]manager_users'
-        , sprintf("username='%s'", $username)
+        , sprintf("internalKey='%s'", $internalKey)
     );
 }
 
-function user_conf($key, $default=null) {
+function user_config($key, $default=null) {
     global $modx;
     static $conf = null;
     if(isset($conf[$key])) {
@@ -158,7 +166,7 @@ function user($key, $default=null) {
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
-    if ($modx->array_get($user,'blockeduntil',0) < $modx->server_var('REQUEST_TIME') && $modx->array_get($user,'blocked')==1) {
+    if ($modx->array_get($user,'blockeduntil') && $modx->array_get($user,'blockeduntil') < time()) {
         $user['failedlogincount'] = '0';
         $user['blocked']          = '0';
     }
@@ -178,42 +186,31 @@ function OnBeforeManagerLogin() {
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
-function checkBlockedUser() {
-    if (evo()->server_var('REQUEST_TIME') < user('blockeduntil',0)) {
-        if(evo()->conf_var('failed_login_attempts',0) > user('failedlogincount',0)) {
-            return true;
-        }
-        evo()->db->update(
-            'blocked=1'
-            , '[+prefix+]user_attributes'
-            , sprintf(
-                "internalKey='%s'"
-                , user('internalKey')
-            )
-        );
-        @session_destroy();
-        session_unset();
-        jsAlert(alert()->errors[902]);
+function isBlockedUser() {
+    if(!user('blocked')) {
         return false;
     }
-    if(user('blocked') != 1) {
+    if (evo()->server_var('REQUEST_TIME') < user('blockeduntil',0)) {
         return true;
+    }
+    if(config('failed_login_attempts',0) < user('failedlogincount',0)) {
+        if (evo()->server_var('REQUEST_TIME') < user('blockeduntil',0)) {
+            return true;
+        }
     }
     evo()->db->update(
         array(
             'failedlogincount' => 0,
-            'blocked' => 0,
-            'blockedafter' => 0,
-            'blockeduntil' => 0
+            'blocked' => 0
         )
         , '[+prefix+]user_attributes'
         , sprintf("internalKey='%s'", user('internalKey'))
     );
-    return true;
+    return false;
 }
 
 function checkAllowedIp() {
-    if (!user_conf('allowed_ip')) {
+    if (!user_config('allowed_ip')) {
         return true;
     }
 
@@ -226,7 +223,7 @@ function checkAllowedIp() {
     }
     $allowed_ip = explode(
         ','
-        , str_replace(' ', '', user_conf('allowed_ip'))
+        , str_replace(' ', '', user_config('allowed_ip'))
     );
     if (in_array(evo()->server_var('REMOTE_ADDR'), $allowed_ip)) {
         return true;
@@ -262,7 +259,7 @@ function OnManagerLogin() {
 }
 
 function checkCaptcha() {
-    if(evo()->conf_var('use_captcha') != 1) {
+    if(config('use_captcha') != 1) {
         return true;
     }
 
@@ -280,31 +277,55 @@ function checkCaptcha() {
 }
 
 function checkAllowedDays() {
-    if (!user_conf('allowed_days')) {
+    if (!user_config('allowed_days')) {
         return true;
     }
 
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos(user_conf('allowed_days'), (string)$day) !== false) {
+    if (strpos(user_config('allowed_days'), (string)$day) !== false) {
         return true;
     }
     jsAlert("You are not allowed to login at this time. Please try again later.");
     return false;
 }
 
-function loginByForm() {
+function validPassword($inputPassword='',$savedPassword='') {
     evo()->loadExtension('phpass');
-    switch(evo()->manager->getHashType(user('password'))) {
+    switch(evo()->manager->getHashType($savedPassword)) {
         case 'phpass':
-            return login(input('password'), user('password'));
+            return loginPhpass($inputPassword, $savedPassword);
         case 'md5':
-            return loginMD5(input('password'), user('password'), user('username'));
+            return loginMD5($inputPassword, $savedPassword, user('internalKey'));
         case 'v1':
-            return loginV1(user('internalKey'), input('password'), user('password'), user('username'));
+            return loginV1($inputPassword, $savedPassword, user('internalKey'));
         default:
             return false;
     }
+}
+
+function redirectAfterLogin() {
+// check if we should redirect user to a web page
+    if(user_config('manager_login_startup',0)) {
+        $header = 'Location: '.evo()->makeUrl(user_config('manager_login_startup',0));
+        if(evo()->input_post('ajax')) {
+            exit($header);
+        }
+        header($header);
+        return;
+    }
+
+    if(evo()->session_var('save_uri')) {
+        $uri = evo()->session_var('save_uri');
+        unset($_SESSION['save_uri']);
+    } else {
+        $uri = MODX_MANAGER_URL;
+    }
+    $header = 'Location: ' . $uri;
+    if(evo()->input_post('ajax')==1) {
+        exit($header);
+    }
+    header($header);
 }
 
 function managerLogin() {
@@ -340,21 +361,22 @@ function managerLogin() {
         }
     }
 // successful login so reset fail count and update key values
-    $tpl = "update %s SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin='%s', sessionid='%s' where internalKey='%s'";
-    $modx->db->query(
-        sprintf(
-            $tpl
-            , $modx->getFullTableName('user_attributes')
-            , $modx->server_var('REQUEST_TIME')
-            , session_id()
-            , user('internalKey')
+    $modx->db->update(
+        array(
+            'failedlogincount'=>0,
+            'logincount' => user('logincount')+1,
+            'lastlogin' => user('thislogin'),
+            'thislogin' => $modx->server_var('REQUEST_TIME'),
+            'sessionid' => session_id()
         )
+        , $modx->getFullTableName('user_attributes')
+        , 'internalKey=' . user('internalKey')
     );
 
     $_SESSION['mgrLastlogin'] = $modx->server_var('REQUEST_TIME');
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
-    if($modx->input_any('rememberme') == 1) {
+    if($modx->input_any('rememberme')) {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config['session.cookie.lifetime'];
         global $https_port;
         setcookie(
