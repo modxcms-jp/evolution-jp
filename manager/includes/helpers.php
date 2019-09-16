@@ -113,3 +113,7 @@ function input_any($key, $default=0) {
     }
     return $default;
 }
+
+function event_param($key, $default=null) {
+    return array_get(evo()->event->params, $key, $default);
+}
