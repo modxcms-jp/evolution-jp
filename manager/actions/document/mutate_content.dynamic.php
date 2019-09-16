@@ -6,13 +6,7 @@ include_once(__DIR__ . '/mutate_content/functions.php');
 include_once(tpl_base_dir().'fields.php');
 include_once(tpl_base_dir().'action_buttons.php');
 
-if(config('preview_mode')===null) {
-    $modx->config['preview_mode'] = '1';
-}
 $modx->config['custom_tpl_dir'] = 'manager/actions/document/mutate_content/test/';
-if(config('tvs_below_content')===null) {
-    $modx->config['tvs_below_content'] = '0';
-}
 
 evo()->loadExtension('DocAPI');
 
@@ -85,7 +79,7 @@ $body[] = parseText(
     , collect_tab_general_ph(input_any('id'))
 );
 
-if(config('tvs_below_content')==0 && $tmplVars) {
+if(config('tvs_below_content',1)==0 && $tmplVars) {
     $body[] = parseText(
         file_get_tpl('tab_tv.tpl')
         , collect_tab_tv_ph()

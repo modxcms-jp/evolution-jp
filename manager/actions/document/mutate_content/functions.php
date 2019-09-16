@@ -622,7 +622,7 @@ function getJScripts($docid) {
     $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
     $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?Type=files');
     $ph['preview_url']  = evo()->makeUrl($docid,'','','full',true);
-    $ph['preview_mode'] = config('preview_mode') ? config('preview_mode') : '0';
+    $ph['preview_mode'] = config('preview_mode',1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
@@ -712,7 +712,7 @@ function collect_tab_general_ph($docid) {
         'fieldParent'      => fieldParent(),
 
         'sectionContent' =>  sectionContent(),
-        'sectionTV'      =>  config('tvs_below_content') ? sectionTV() : ''
+        'sectionTV'      =>  config('tvs_below_content',1) ? sectionTV() : ''
     );
 }
 
