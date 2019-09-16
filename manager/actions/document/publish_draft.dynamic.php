@@ -17,7 +17,7 @@ else {
 }
 
 include_once(MODX_CORE_PATH . 'helpers.php');
-include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content.functions.inc.php');
+include_once(MODX_MANAGER_PATH . 'actions/document/functions.php');
 
 $ph['id'] = $docid;
 $ph['style_icons_cancel'] = $_style['icons_cancel'];

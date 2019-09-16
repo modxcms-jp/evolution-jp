@@ -87,7 +87,7 @@ function getEditors($editors) {
 }
 
 function tpl_base_dir() {
-    return str_replace('\\', '/', __DIR__) . '/tpl/mutate_content/';
+    return str_replace('\\', '/', __DIR__) . '/';
 }
 
 function sectionContent() {
@@ -128,7 +128,7 @@ function rte_fields() {
         return $rte_fields;
     }
     $rte_fields = array();
-    if (doc('type')=='document' && config('use_editor')== 1 && doc('richtext') == 1) {
+    if (config('use_editor')== 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
     $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());

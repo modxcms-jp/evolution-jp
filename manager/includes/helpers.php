@@ -22,8 +22,14 @@ function config($key, $default=null) {
 }
 
 function lang($key) {
-    global $_lang;
-    return $_lang[$key];
+    global $modx, $_lang;
+    if(!$_lang) {
+        include_once MODX_CORE_PATH . sprintf(
+                'lang/%s.inc.php'
+                , $modx->conf_var('manager_language', 'english')
+            );
+    }
+    return $modx->array_get($_lang, $key, $key);
 }
 
 function style($key) {
@@ -62,13 +68,13 @@ function input_text_tag($props=array()) {
             unset($props[$k]);
         }
     }
-    return html_tag('input', $props);
+    return evo()->html_tag('input', $props);
 
 }
 
 function textarea_tag($props=array(), $content) {
     $props['class'] = evo()->array_get($props,'class','inputBox');
-    return html_tag('textarea', $props, $content);
+    return evo()->html_tag('textarea', $props, $content);
 }
 
 function select_tag($props=array(), $options) {
@@ -76,16 +82,21 @@ function select_tag($props=array(), $options) {
     if(is_array($options)) {
         $options = implode("\n", $options);
     }
-    return html_tag('select', $props, $options);
+    return evo()->html_tag('select', $props, $options);
 }
 
 function img_tag($src,$props=array()) {
     $props['src'] = $src;
-    return html_tag('img', $props);
+    return evo()->html_tag('img', $props);
 }
 
 function alert() {
-    global $e;
+    static $e=null;
+    if($e) {
+        return $e;
+    }
+    include_once(MODX_CORE_PATH . 'error.class.inc.php');
+    $e = new errorHandler;
     return $e;
 }
 
