@@ -655,17 +655,27 @@ function renderSplit() {
 EOT;
 }
 
-function doc($key) {
+/**
+ * @param string $key
+ * @param null $default
+ * @return array|mixed|string|null
+ */
+function doc($key, $default=null) {
     global $docObject;
+    if(strpos($key, '*') === 0) {
+        $value = $default;
+        $docObject[substr($key,1)] = $value;
+        return $value;
+    }
     if(str_contains($key,'|hsc')) {
         return hsc(
             evo()->array_get(
                 $docObject
-                , str_replace('|hsc','',$key)
+                , str_replace('|hsc','',$key, $default)
             )
         );
     }
-    return evo()->array_get($docObject, $key);
+    return evo()->array_get($docObject, $key, $default);
 }
 
 
