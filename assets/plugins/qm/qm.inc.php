@@ -255,13 +255,14 @@ class Qm {
 								$buttonRoles = explode(",", $buttonParams[4]); // Roles are divided by ','
 								
 								// Check if user role is found
-								foreach($buttonRoles as $key => $field)
+								foreach($buttonRoles as $mgrRole)
 								{
-									if ($field == $_SESSION['mgrRole'])
-									{
-										$showButton = TRUE;
-									}
-								}
+									if ($mgrRole != $_SESSION['mgrRole']) {
+                                        continue;
+                                    }
+                                    $showButton = TRUE;
+                                    break;
+                                }
 							}
 						
 							// Show custom button
@@ -542,7 +543,7 @@ function getCookie(cookieName)
 					
 					// Add action buttons
 					$url = $this->modx->makeUrl($doc_id,'','','full');
-					$mc->addLine('var controls = "<div style=\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\" id=\"qmcontrols\" class=\"actionButtons\"><ul><li class=\"primary\"><a href=\"#\" onclick=\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/save.png\" />'.$_lang['save'].'</a></li><li><a href=\"#\" onclick=\"parent.location.href=\''.$url.'\'; return false;\"><img src=\"media/style/'.$qm_theme.'/images/icons/stop.png\"/>'.$_lang['cancel'].'</a></li></ul></div>";');
+					$mc->addLine(sprintf('var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.%s.fn.colorbox.close();return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";', $qm_theme, $_lang['save'], $jq_mode, $qm_theme, $_lang['cancel']));
 					
 					// Modify head
 					$mc->head = '<script type="text/javascript">document.body.style.display="none";</script>';
