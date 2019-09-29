@@ -16,9 +16,9 @@ if(manager()->action==132||manager()->action==131) {
     $modx->doc->mode = 'normal';
 }
 
-checkPermissions(input_any('id'));
-if(input_any('id')) {
-    checkDocLock(input_any('id'));
+checkPermissions(request_intvar('id'));
+if(request_intvar('id')) {
+    checkDocLock(request_intvar('id'));
 }
 
 $docgrp = getDocgrp();
@@ -27,26 +27,26 @@ global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
-$docObject = input_any('id') ? db_value(input_any('id'), $docgrp) : default_value(input_any('pid'),input_any('newtemplate'));
+$docObject = request_intvar('id') ? db_value(request_intvar('id'), $docgrp) : default_value(request_intvar('pid'),request_intvar('newtemplate'));
 
 evo()->loadExtension('REVISION');
-if(input_any('id') && config('enable_draft')) {
-    $modx->revisionObject = evo()->revision->getRevisionObject(input_any('id'),'resource','template');
-    if( input_any('id') && manager()->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
+if(request_intvar('id') && config('enable_draft')) {
+    $modx->revisionObject = evo()->revision->getRevisionObject(request_intvar('id'),'resource','template');
+    if( request_intvar('id') && manager()->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
         $docObject['template'] = evo()->revisionObject['template'];
 } else {
     $modx->revisionObject = array();
 }
 
-if(preg_match('/[1-9][0-9]*/', input_any('newtemplate')) ) {
-    $docObject['template'] = input_any('newtemplate');
+if(preg_match('/[1-9][0-9]*/', request_intvar('newtemplate')) ) {
+    $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars  = getTmplvars(input_any('id'),doc('template'),$docgrp);
+$tmplVars  = getTmplvars(request_intvar('id'),doc('template'),$docgrp);
 $docObject += $tmplVars;
 
-if(input_any('id') && manager()->action==131) {
-    $docObject = mergeDraft(input_any('id'), $docObject);
+if(request_intvar('id') && manager()->action==131) {
+    $docObject = mergeDraft(request_intvar('id'), $docObject);
     foreach($tmplVars as $k=>$v) {
         $tmplVars[$k] = $docObject[$k];
     }
@@ -62,7 +62,7 @@ $modx->documentObject = & $docObject;
 
 $modx->event->vars['documentObject'] = & $docObject;
 // invoke OnDocFormPrerender event
-$tmp = array('id' => input_any('id'));
+$tmp = array('id' => request_intvar('id'));
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = array();
 
@@ -76,7 +76,7 @@ $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 $body = array();
 $body[] = parseText(
     file_get_tpl('tab_general.tpl')
-    , collect_tab_general_ph(input_any('id'))
+    , collect_tab_general_ph(request_intvar('id'))
 );
 
 if(config('tvs_below_content',1)==0 && $tmplVars) {
@@ -88,12 +88,12 @@ if(config('tvs_below_content',1)==0 && $tmplVars) {
 
 $body[] = parseText(
     file_get_tpl('tab_settings.tpl')
-    , collect_tab_settings_ph(input_any('id'))
+    , collect_tab_settings_ph(request_intvar('id'))
 );
 
 if (config('use_udperms') == 1) {
     global $permissions_yes, $permissions_no;
-    $permissions = getUDGroups(input_any('id'));
+    $permissions = getUDGroups(request_intvar('id'));
 
     // See if the Access Permissions section is worth displaying...
     if ($permissions) {
@@ -114,7 +114,7 @@ if (config('use_udperms') == 1) {
 }
 
 // invoke OnDocFormRender event
-$tmp = array('id' => input_any('id'));
+$tmp = array('id' => request_intvar('id'));
 $OnDocFormRender = evo()->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
@@ -137,6 +137,6 @@ $template = file_get_tpl('_template.tpl');
 if(evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
-$ph = collect_template_ph(input_any('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);
+$ph = collect_template_ph(request_intvar('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);
 $ph['content'] = implode("\n", $body);
 echo parseText($template, $ph);

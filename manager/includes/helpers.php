@@ -100,20 +100,17 @@ function alert() {
     return $e;
 }
 
-function array_get($array, $key=null, $default=0) {
-    if (preg_match('@^[1-9][0-9]*$@', evo()->array_get($array,$key))) {
-        return evo()->array_get($array,$key);
-    }
-    return $default;
+function array_get($array, $key=null, $default=null) {
+    return evo()->array_get($array,$key, $default);
 }
 
-function input_any($key, $default=0) {
+function request_intvar($key) {
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
     }
-    return $default;
+    return 0;
 }
 
-function event_param($key, $default=null) {
-    return array_get(evo()->event->params, $key, $default);
+function event() {
+    return evo()->event;
 }

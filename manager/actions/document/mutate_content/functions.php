@@ -131,7 +131,7 @@ function rte_fields() {
     if (config('use_editor')== 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
-    $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());
+    $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
     foreach($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
@@ -385,7 +385,7 @@ function getDefaultTemplate() {
 
     $default_template = config('default_template');
 
-    if(!input_any('pid')) {
+    if(!request_intvar('pid')) {
         return $default_template;
     }
 
@@ -393,7 +393,7 @@ function getDefaultTemplate() {
         $rs = db()->select(
             'template'
             , '[+prefix+]site_content'
-            , sprintf("id!='%s' AND isfolder=0 AND parent='%s'", config('site_start'), input_any('pid'))
+            , sprintf("id!='%s' AND isfolder=0 AND parent='%s'", config('site_start'), request_intvar('pid'))
             , 'published DESC,menuindex ASC'
             , 1
         );
@@ -401,7 +401,7 @@ function getDefaultTemplate() {
         $rs = db()->select(
             'template'
             , '[+prefix+]site_content'
-            , sprintf("id='%s'", input_any('pid'))
+            , sprintf("id='%s'", request_intvar('pid'))
         );
     } else {
         $default_template = config('default_template');
@@ -610,7 +610,7 @@ function getAliasAtNew() {
     if(config('automatic_alias') === '2') {
         return manager()->get_alias_num_in_folder(
             0
-            , input_any('pid')
+            , request_intvar('pid')
         );
     }
     return '';
@@ -694,7 +694,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'upload_maxsize' => config('upload_maxsize', 3145728),
         'mode' => manager()->action,
         'a' =>  (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
-        'pid' => input_any('pid'),
+        'pid' => request_intvar('pid'),
         'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
         'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',

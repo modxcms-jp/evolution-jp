@@ -255,7 +255,7 @@ function fieldParent() {
         ,'[+prefix+]site_content'
         , sprintf('id=%s', doc('parent',0))
     );
-    $ph['pid'] = array_get($parent,'id');
+    $ph['pid'] = array_get($parent,'id',0);
     $ph['pname'] = $parent ? $parent['pagetitle'] : config('site_name');
     $ph['tooltip'] = tooltip(lang('resource_parent_help'));
     $ph['icon_tree_folder'] = style('tree_folder');
@@ -266,7 +266,7 @@ function fieldParent() {
 }
 
 function fieldsTV() {
-    $tmplVars = getTmplvars(input_any('id'),doc('template'),getDocgrp());
+    $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
     $total = count($tmplVars);
     if(!$total) {
         return '';
@@ -454,7 +454,7 @@ function fieldIsfolder() {
         db()->select(
             'count(id)'
             ,'[+prefix+]site_content'
-            , sprintf("parent='%s'", input_any('id'))
+            , sprintf("parent='%s'", request_intvar('id'))
         )
     );
     $body = html_tag(
@@ -464,7 +464,7 @@ function fieldIsfolder() {
                 'type'     => 'checkbox',
                 'class'    => 'checkbox',
                 'checked'  => doc('isfolder') ? null : '',
-                'disabled' => input_any('id') && $haschildren ? null : '',
+                'disabled' => request_intvar('id') && $haschildren ? null : '',
                 'onclick'  => 'changestate(document.mutate.isfolder);'
             )
         )

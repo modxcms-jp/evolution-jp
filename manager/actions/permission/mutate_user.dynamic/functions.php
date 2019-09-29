@@ -125,7 +125,7 @@ function saveOptions() {
         , array(
             'id'=>'stay1',
             'value'=>1,
-            'selected'=> input_any('stay')=='1' ? null : ''
+            'selected'=> request_intvar('stay')=='1' ? null : ''
         )
         , lang('stay_new')
     );
@@ -134,7 +134,7 @@ function saveOptions() {
         , array(
             'id'=>'stay2',
             'value'=>2,
-            'selected'=> input_any('stay')=='2' ? null : ''
+            'selected'=> request_intvar('stay')=='2' ? null : ''
         )
         , lang('stay')
     );
@@ -143,7 +143,7 @@ function saveOptions() {
         , array(
             'id'=>'stay3',
             'value'=>'',
-            'selected'=> input_any('stay','')=='' ? null : ''
+            'selected'=> request_intvar('stay','')=='' ? null : ''
         )
         , lang('close')
     );
@@ -189,7 +189,7 @@ function aButtonSave() {
 }
 
 function aButtonDelete($userid) {
-    if (input_any('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
+    if (request_intvar('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
         return '';
     }
 

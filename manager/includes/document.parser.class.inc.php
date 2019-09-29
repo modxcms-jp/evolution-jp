@@ -6,6 +6,7 @@
  */
 
 require_once(__DIR__.'/initialize.inc.php');
+require_once(__DIR__.'/helpers.php');
 
 class DocumentParser {
     public $version;
@@ -4987,13 +4988,19 @@ class SystemEvent {
 
     // used for displaying a message to the user
     function alert($msg) {
-        if ($msg == '')
+        if ($msg == '' || !is_array($this->SystemAlertMsgQueque)) {
             return;
-        if (is_array($this->SystemAlertMsgQueque)) {
-            if ($this->name && $this->activePlugin)
-                $title= "<div><b>" . $this->activePlugin . "</b> - <span style='color:maroon;'>" . $this->name . "</span></div>";
-            $this->SystemAlertMsgQueque[]= "$title<div style='margin-left:10px;margin-top:3px;'>$msg</div>";
         }
+        $alert = array();
+        if ($this->name && $this->activePlugin) {
+            $alert[] = sprintf(
+                '<div><b>%s</b> - <span style="color:maroon;">%s</span></div>'
+                , $this->activePlugin
+                , $this->name
+            );
+        }
+        $alert[] = sprintf('<div style="margin-left:10px;margin-top:3px;">%s</div>', $msg);
+        $this->SystemAlertMsgQueque[] = implode('', $alert);
     }
 
     // used for rendering an out on the screen
@@ -5028,7 +5035,9 @@ class SystemEvent {
 
     // set all global variables
     function setAllGlobalVariables() {
-        if ( empty( $this->_globalVariables ) ) { return false; }
+        if ( empty( $this->_globalVariables ) ) {
+            return false;
+        }
         foreach ( $this->_globalVariables as $key => $val )
         {
             $GLOBALS[$key] = $val;
@@ -5056,5 +5065,9 @@ class SystemEvent {
             $this->params[$key] = false;
         }
         return $this->params[$key];
+    }
+
+    function params($key, $default=null) {
+        return array_get($this->params, $key, $default);
     }
 }

@@ -91,7 +91,7 @@ if($user['blocked']==1 || ($user['blockeduntil']>time() && $user['blockeduntil']
             );
             $options = array();
             while ($row = $modx->db->getRow($rs)) {
-                if (input_any('a') == 11) {
+                if (request_intvar('a') == 11) {
                     $selected = ($row['id'] == evo()->config['default_role']);
                 } else {
                     $selected = ($row['id'] == $user['role']);

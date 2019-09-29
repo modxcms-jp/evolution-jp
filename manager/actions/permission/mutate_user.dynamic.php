@@ -5,7 +5,7 @@ global $_style;
 include_once MODX_CORE_PATH . 'helpers.php';
 include_once __DIR__ . '/mutate_user.dynamic/functions.php';
 
-if(!hasUserPermission(input_any('a'))) {
+if(!hasUserPermission(request_intvar('a'))) {
     alert()->setError(3);
     alert()->dumpError();
     return;
