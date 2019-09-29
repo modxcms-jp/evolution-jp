@@ -325,6 +325,7 @@ class MODIFIERS {
         
         $_ = array();
         $_[] = MODX_BASE_PATH . "assets/modifiers/mdf_{$cmd}.inc.php";
+        $_[] = MODX_BASE_PATH . "assets/modifiers/{$cmd}.php";
         $_[] = MODX_BASE_PATH . "assets/plugins/phx/modifiers{$cmd}.phx.php";
         $_[] = MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php";
         foreach($_ as $mdf_path) {
