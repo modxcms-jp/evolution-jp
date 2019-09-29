@@ -3070,13 +3070,13 @@ class DocumentParser {
     }
 
     # Returns true if user has the currect permission
-    function hasPermission($pm) {
+    function hasPermission($key) {
         
-        if (isset($_SESSION['mgrPermissions']) && !empty($_SESSION['mgrPermissions']))
-            $state= ($_SESSION['mgrPermissions'][$pm] == 1);
-        else $state= false;
+        if ($this->session_var('mgrPermissions')) {
+            return ($_SESSION['mgrPermissions'][$key] == 1);
+        }
         
-        return $state;
+        return false;
     }
     
     # Returns true if parser is executed in backend (manager) mode

@@ -4,8 +4,9 @@ function fieldPagetitle() {
         lang('resource_title')
         , input_text_tag(
             array(
-                'name'=>'pagetitle',
-                'value'=>doc('pagetitle|hsc')
+                'id'    => 'field_pagetitle',
+                'name'  => 'pagetitle',
+                'value' => doc('pagetitle|hsc')
             )
         ) . tooltip(lang('resource_title_help'))
     );
@@ -16,8 +17,9 @@ function fieldLongtitle() {
         lang('long_title')
         , input_text_tag(
             array(
-                'name'=>'longtitle',
-                'value'=>doc('longtitle|hsc')
+                'id'   => 'field_longtitle',
+                'name' => 'longtitle',
+                'value'=> doc('longtitle|hsc')
             )
         ) . tooltip(lang('resource_long_title_help'))
     );
@@ -28,6 +30,7 @@ function fieldDescription() {
         lang('resource_description')
         , textarea_tag(
             array(
+                'id'    => 'field_description',
                 'name'  => 'description',
                 'class' => 'inputBox',
                 'style' => 'height:43px;',
@@ -57,6 +60,7 @@ function fieldAlias($id) {
         , get_alias_path($id)
         . input_text_tag(
             array(
+                'id'          => 'field_alias',
                 'name'        => 'alias',
                 'value'       => doc('alias|hsc'),
                 'size'        => 20,
@@ -138,7 +142,7 @@ function fieldTemplate() {
         lang('page_data_template')
         , select_tag(
             array(
-                'id'   => 'template',
+                'id'   => 'field_template',
                 'name' => 'template',
                 'style'=> 'width:308px'
             )

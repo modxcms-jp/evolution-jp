@@ -6,7 +6,7 @@ include_once(__DIR__ . '/mutate_content/functions.php');
 include_once(tpl_base_dir().'fields.php');
 include_once(tpl_base_dir().'action_buttons.php');
 
-$modx->config['custom_tpl_dir'] = 'manager/actions/document/mutate_content/test/';
+// $modx->config['custom_tpl_dir'] = 'manager/actions/document/mutate_content/test/';
 
 evo()->loadExtension('DocAPI');
 
