@@ -1162,11 +1162,17 @@ class DocumentParser {
     private function getUserConfig($uid=null) {
         if(!$uid) {
             $uid= $this->getLoginUserID('mgr');
-        }
-        if (!$uid) {
-            return array();
+            if (!$uid) {
+                return array();
+            }
         }
 
+        static $cache = array();
+        if (isset($cache[$uid])) {
+            return $cache[$uid];
+        }
+        $cache[$uid] = false;
+        
         if ($this->isBackend()) {
             $this->invokeEvent('OnBeforeManagerPageInit');
         }
@@ -1185,6 +1191,7 @@ class DocumentParser {
         while ($row= $this->db->getRow($result)) {
             $config[$row['setting_name']]= $row['setting_value'];
         }
+        $cache[$uid] = $config;
         return $config;
     }
 
