@@ -3,7 +3,7 @@ if(!isset($modx) || !$modx->isLoggedin()) exit;
 global $_style;
 
 include_once MODX_CORE_PATH . 'helpers.php';
-include_once __DIR__ . '/mutate_user.dynamic/functions.php';
+include_once __DIR__ . '/mutate_user/functions.php';
 
 if(!hasUserPermission(request_intvar('a'))) {
     alert()->setError(3);
@@ -59,5 +59,5 @@ $evtOut = $modx->invokeEvent("OnUserFormPrerender", $tmp);
 if (is_array($evtOut)) {
     echo implode("", $evtOut);
 }
-include_once __DIR__ . './mutate_user.dynamic/tpl/javascript.php';
-include_once __DIR__ . './mutate_user.dynamic/tpl/form.php';
+include_once __DIR__ . '/mutate_user/tpl/javascript.php';
+include_once __DIR__ . '/mutate_user/tpl/form.php';
