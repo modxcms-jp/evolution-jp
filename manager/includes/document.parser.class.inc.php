@@ -970,7 +970,7 @@ class DocumentParser {
 
     private function token_auth() {
         if (!$this->input_get('auth_token')) {
-            return;
+            return null;
         }
         if(!$this->db) {
             $this->loadExtension('DBAPI');
@@ -984,7 +984,7 @@ class DocumentParser {
             return false;
         }
         $userid = $this->db->getValue($rs);
-        $user = $this->getUserConfig($userid);
+        $user = $this->getUserINfo($userid);
 
         session_regenerate_id(true);
 
@@ -1020,9 +1020,9 @@ class DocumentParser {
             array(
                 'failedlogincount'=>0,
                 'logincount' => $user['logincount']+1,
-                'lastlogin' => $user['thislogin'],
-                'thislogin' => $this->server_var('REQUEST_TIME'),
-                'sessionid' => session_id()
+                'lastlogin'  => $user['thislogin'],
+                'thislogin'  => $this->server_var('REQUEST_TIME'),
+                'sessionid'  => session_id()
             )
             , $this->getFullTableName('user_attributes')
             , 'internalKey=' . $userid
