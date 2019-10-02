@@ -667,15 +667,23 @@ function doc($key, $default=null) {
         $docObject[substr($key,1)] = $value;
         return $value;
     }
+    if(str_contains($key,'@parent')) {
+        $a = evo()->getDocumentObject('id', doc('parent'));
+        $key = str_replace('@parent', '', $key);
+    } else {
+        $a = $docObject;
+    }
     if(str_contains($key,'|hsc')) {
-        return hsc(
+        $v = hsc(
             evo()->array_get(
-                $docObject
+                $a
                 , str_replace('|hsc','',$key, $default)
             )
         );
+    } else {
+        $v = evo()->array_get($a, $key, $default);
     }
-    return evo()->array_get($docObject, $key, $default);
+    return $v;
 }
 
 
