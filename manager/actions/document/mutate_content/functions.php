@@ -674,18 +674,15 @@ function doc($key, $default=null) {
         $a = $docObject;
     }
     if(str_contains($key,'|hsc')) {
-        $v = hsc(
+        return hsc(
             evo()->array_get(
                 $a
                 , str_replace('|hsc','',$key, $default)
             )
         );
-    } else {
-        $v = evo()->array_get($a, $key, $default);
     }
-    return $v;
+    return evo()->array_get($a, $key, $default);
 }
-
 
 function file_get_tpl ($path) {
     if(is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
