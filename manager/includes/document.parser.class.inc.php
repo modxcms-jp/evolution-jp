@@ -1892,14 +1892,20 @@ class DocumentParser {
     }
     
     function _contextValue($key,$parent=false) {
-        if(preg_match('/@\d+\/u/',$key))
-        $key = str_replace(array('@','/u'),array('@u(',')'),$key);
+        if(preg_match('/@\d+\/u/',$key)) {
+            $key = str_replace(array('@', '/u'), array('@u(', ')'), $key);
+        }
         list($key,$str) = explode('@',$key,2);
         
-        if(strpos($str,'(')) list($context,$option) = explode('(', $str, 2);
-        else                 list($context,$option) = array($str, false);
+        if(strpos($str,'(')) {
+            list($context, $option) = explode('(', $str, 2);
+        } else {
+            list($context, $option) = array($str, false);
+        }
         
-        if($option) $option = trim($option, ')(\'"`');
+        if($option) {
+            $option = trim($option, ')(\'"`');
+        }
         
         switch(strtolower($context)) {
             case 'site_start':
@@ -1908,17 +1914,25 @@ class DocumentParser {
             case 'parent':
             case 'p':
                 $docid = $parent;
-                if($docid==0) $docid = $this->config['site_start'];
+                if($docid==0) {
+                    $docid = $this->config['site_start'];
+                }
                 break;
             case 'ultimateparent':
             case 'uparent':
             case 'up':
             case 'u':
                 if(strpos($str,'(')!==false) {
-                    $top = substr($str,strpos($str,'('));
-                    $top = trim($top,'()"\'');
+                    $top = trim(
+                        substr(
+                            $str
+                            , strpos($str,'(')
+                        )
+                        , '()"\''
+                    );
+                } else {
+                    $top = 0;
                 }
-                else $top = 0;
                 $docid = $this->getUltimateParentId($this->documentIdentifier,$top);
                 break;
             case 'alias':
