@@ -145,6 +145,8 @@ if(isset($_POST['stay'])&&$_POST['stay']!=='new') {
     $_SESSION['saveAfter'] = $_POST['stay'];
 }
 
+include_once(MODX_CORE_PATH . 'helpers.php');
+
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
