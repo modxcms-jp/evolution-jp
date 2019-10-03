@@ -114,3 +114,7 @@ function request_intvar($key) {
 function event() {
     return evo()->event;
 }
+
+function post($key, $default=null) {
+    return evo()->input_post($key, $default);
+}
