@@ -1613,18 +1613,25 @@ class SubParser {
     function getUserInfo($uid)
     {
         global $modx;
-        
-        $field = 'mu.username, mu.password, mua.*';
-        $from  = '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id';
-        $rs= $modx->db->select($field,$from,"mu.id = '$uid'");
-        $limit= $modx->db->getRecordCount($rs);
-        if ($limit == 1)
-        {
+        $rs = $this->db->select(
+            'mu.username, mu.password, mua.*'
+            , array(
+                '[+prefix+]manager_users mu',
+                'INNER JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
+            )
+            , sprintf("mu.id='%s'", $this->db->escape($uid))
+        );
+        if ($modx->db->getRecordCount($rs) == 1) {
             $row= $modx->db->getRow($rs);
-            if (!$row['usertype']) $row['usertype']= 'manager';
+            if (!isset($row['usertype'])) {
+                $row['usertype'] = 'manager';
+            }
+            if(!isset($user['failedlogins']) ) {
+                $user['failedlogins'] = 0;
+            }
             return $row;
         }
-        else return false;
+        return false;
     }
     
     # Returns current user name
