@@ -139,9 +139,9 @@ $array_row_paging = $p->getPagingRowArray();
 $pager .= $_lang['showing']." ". $array_paging['lower'];
 $pager .=  " ".$_lang['to']." ". $array_paging['upper'];
 $pager .=  " (". $array_paging['total']." ".$_lang['total'].")";
-$pager .=  "<br />". $array_paging['previous_link'] ."&lt;&lt;" . (isset($array_paging['previous_link']) ? "</a> " : " ");
-for($i=0, $iMax = count($array_row_paging); $i< $iMax; $i++ ){
-  $pager .=  $array_row_paging[$i] ."&nbsp;";
+$pager .=  "<br />". $array_paging['previous_link'] . '&lt;&lt;' . (isset($array_paging['previous_link']) ? "</a> " : " ");
+foreach($array_row_paging as $v) {
+    $pager .=  $v . '&nbsp;';
 }
 $pager .=  $array_paging['next_link'] ."&gt;&gt;". (isset($array_paging['next_link']) ? "</a>" : "");
 
