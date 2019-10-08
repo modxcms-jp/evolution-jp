@@ -82,7 +82,7 @@ class Paging {
 
   // This function returns an array of string (href link with the page number)
   function getPagingRowArray(){
-
+      $array_all_page = array();
     for( $i=0; $i<$this->getNumberOfPage(); $i++ ){
       // if current page, do not make a link
       if( $i == $this->getCurrentPage() ){
