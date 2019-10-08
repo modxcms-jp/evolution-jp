@@ -19,7 +19,7 @@ if ($userid && !activeUserCheck($userid)) {
 }
 
 if ($_REQUEST['a'] == 12) {
-    $user = user($userid);
+    $user = getUser($userid);
     if(!$user) {
         exit('No user returned while getting username!<p>');
     }

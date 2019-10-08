@@ -35,7 +35,7 @@ function checked($cond=false)
     return '';
 }
 
-function user($userid) {
+function getUser($userid) {
     $field = 'mu.*, ua.*';
     $from = array(
         '[+prefix+]manager_users mu',
