@@ -41,26 +41,36 @@ if($user['blocked']==1 || ($user['blockeduntil']>time() && $user['blockeduntil']
             <?php endif; ?>
             <input type="hidden" name="newpassword" value="<?php echo $_REQUEST['a']=="11" ? 1 : 0 ; ?>" />
             <span style="display:<?php echo $_REQUEST['a']=="11" ? "block": "none" ; ?>" id="passwordBlock">
-<fieldset style="width:300px;padding:0;">
-<label><input type=radio name="passwordgenmethod" value="g" <?php echo $_POST['passwordgenmethod']=="spec" ? "" : 'checked="checked"'; ?> /><?php echo lang('password_gen_gen'); ?></label><br />
-<label><input type=radio name="passwordgenmethod" value="spec" <?php echo $_POST['passwordgenmethod']=="spec" ? 'checked="checked"' : ""; ?>><?php echo lang('password_gen_specify'); ?></label><br />
-<div style="padding-left:20px">
-<label for="specifiedpassword" style="width:120px"><?php echo lang('change_password_new'); ?>:</label>
-<input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
-<label for="confirmpassword" style="width:120px"><?php echo lang('change_password_confirm'); ?>:</label>
-<input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
-<span class="warning" style="font-weight:normal"><?php echo lang('password_gen_length'); ?></span>
-</div>
-</fieldset>
-<fieldset style="width:300px;padding:0;">
-<label>
-<input type="radio" name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo lang('password_method_email'); ?>
-</label><br />
-<label>
-<input type="radio" name="passwordnotifymethod" value="s" <?php echo $_POST['passwordnotifymethod']=="e" ? "" : 'checked="checked"'; ?> /><?php echo lang('password_method_screen'); ?>
-</label>
-</fieldset>
-</span>
+                <fieldset style="width:300px;padding:0;">
+                    <label>
+                        <input type=radio name="passwordgenmethod" value="g" <?php echo $_POST['passwordgenmethod']=="spec" ? "" : 'checked="checked"'; ?> />
+                        <?php echo lang('password_gen_gen'); ?>
+                    </label><br />
+                    <label>
+                        <input type=radio name="passwordgenmethod" value="spec" <?php echo $_POST['passwordgenmethod']=="spec" ? 'checked="checked"' : ""; ?>>
+                        <?php echo lang('password_gen_specify'); ?>
+                    </label><br />
+                    <div style="padding-left:20px">
+                        <label for="specifiedpassword" style="width:120px">
+                            <?php echo lang('change_password_new'); ?>:
+                        </label>
+                        <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
+                        <label for="confirmpassword" style="width:120px">
+                            <?php echo lang('change_password_confirm'); ?>:
+                        </label>
+                        <input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;" size="20" autocomplete="off" /><br />
+                        <span class="warning" style="font-weight:normal"><?php echo lang('password_gen_length'); ?></span>
+                    </div>
+                </fieldset>
+                <fieldset style="width:300px;padding:0;">
+                    <label>
+                        <input type="radio" name="passwordnotifymethod" value="e" <?php echo $_POST['passwordnotifymethod']=="e" ? 'checked="checked"' : ""; ?> /><?php echo lang('password_method_email'); ?>
+                    </label><br />
+                    <label>
+                        <input type="radio" name="passwordnotifymethod" value="s" <?php echo $_POST['passwordnotifymethod']=="e" ? "" : 'checked="checked"'; ?> /><?php echo lang('password_method_screen'); ?>
+                    </label>
+                </fieldset>
+            </span>
         </td>
     </tr>
     <tr>
