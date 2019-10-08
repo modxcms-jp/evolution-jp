@@ -490,13 +490,13 @@ function updateUser() {
         exit;
     }
     if (post('newpassword') != 1 || post('passwordnotifymethod') !== 's') {
-        if (post('stay') != '') {
-            if (post('stay') == '2') {
+        if (post('save_action') != 'close') {
+            if (post('save_action') == 'stay') {
                 $url = sprintf('index.php?a=%s&id=%s', post('mode'), post('userid'));
             } else {
                 $url = 'index.php?a=11';
             }
-            $url .= sprintf('&r=3&stay=%s', post('stay'));
+            $url .= sprintf('&r=3&save_action=%s', post('save_action'));
         } elseif (post('mode') === '74') {
             $url = 'index.php?r=3&a=2';
         } else {
@@ -508,12 +508,12 @@ function updateUser() {
 
     if(post('userid') == evo()->getLoginUserID()) {
         $stayUrl = 'index.php?a=8';
-    } elseif (post('stay') != '') {
-        $a = (post('stay') == '2') ? post('mode') . '&id=' . post('userid') : '11';
+    } elseif (post('save_action') != 'close') {
+        $a = (post('save_action') == 'stay') ? post('mode') . '&id=' . post('userid') : '11';
         $stayUrl = sprintf(
-            'index.php?a=%s&stay=%s'
+            'index.php?a=%s&save_action=%s'
             , $a
-            , post('stay')
+            , post('save_action')
         );
     } else {
         $stayUrl = 'index.php?a=75';

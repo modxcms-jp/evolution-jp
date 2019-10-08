@@ -123,27 +123,24 @@ function saveOptions() {
     $option[] = html_tag(
         'option'
         , array(
-            'id'=>'stay1',
-            'value'=>1,
-            'selected'=> request_intvar('stay')=='1' ? null : ''
+            'value'=>'next',
+            'selected'=> evo()->input_any('stay')=='next' ? null : ''
         )
         , lang('stay_new')
     );
     $option[] =  html_tag(
         'option'
         , array(
-            'id'=>'stay2',
-            'value'=>2,
-            'selected'=> request_intvar('stay')=='2' ? null : ''
+            'value'=>'stay',
+            'selected'=> evo()->input_any('stay')=='stay' ? null : ''
         )
         , lang('stay')
     );
     $option[] = html_tag(
         'option'
         , array(
-            'id'=>'stay3',
-            'value'=>'',
-            'selected'=> request_intvar('stay','')=='' ? null : ''
+            'value'=>'close',
+            'selected'=> evo()->input_any('stay','close')=='close' ? null : ''
         )
         , lang('close')
     );
@@ -181,7 +178,7 @@ function aButtonSave() {
             'select'
             , array(
                 'id'   => 'stay',
-                'name' => 'stay'
+                'name' => 'save_action'
             )
             , implode("\n", saveOptions())
         )
