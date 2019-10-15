@@ -2,13 +2,14 @@
 /**
  * Filename:       includes/lang/japanese-utf8.inc.php
  * Function:       Japanese language file.
- * Encoding:       UTF8
+ * Encoding:       UTF-8
+ * Author:         Mitsuhiro Yoshida https://mitstek.com/ (Since Etomite CMS 2004-)
  * Author:         eastbind
- * Author:         MEGU              - http://modx.liolion.net/
- * Author:         yamamoto          - http://kyms.jp
- * Date:           2011/08/28
+ * Author:         MEGU
+ * Author:         yamamoto https://kyms.jp
+ * Date:           2019/10/15
  * Version:        2.0.5
- * MODX version:   Evolution 1.0.0 - 1.0.6J
+ * MODX version:   Evolution 1.0.0 - 1.0.23J
 */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
