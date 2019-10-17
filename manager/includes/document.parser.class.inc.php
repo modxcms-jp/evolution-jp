@@ -28,10 +28,10 @@ class DocumentParser {
     public $tstart;
     public $mstart;
     public $maxParserPasses;
-    public $documentObject;
-    public $templateObject;
-    public $snippetObjects;
-    public $moduleObject;
+    public $documentObject = array();
+    public $templateObject = array();
+    public $snippetObjects = array();
+    public $moduleObject = array();
     public $stopOnNotice;
     public $executedQueries;
     public $queryTime;
@@ -51,7 +51,7 @@ class DocumentParser {
     public $sjscripts        = array();
     public $jscripts         = array();
     public $loadedjscripts   = array();
-    public $documentMap;
+    public $documentMap = array();
     public $forwards= 3;
     public $referenceListing;
     public $childrenList = array();
@@ -79,7 +79,7 @@ class DocumentParser {
     public $aliasPath     = array();
     public $tmpCache      = array();
     public $docid;
-    public $doc;
+    public $doc = array();
     public $uri_parent_dir;
     public $manager;
     public $user_allowed_docs;
