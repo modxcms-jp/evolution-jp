@@ -1198,12 +1198,11 @@ class DocumentParser {
     // check for manager login session
     function isLoggedIn($context='mgr')
     {
-        if (strpos($context, 'm') === 0) {
-                return true;
-        } else if ($this->session_var('webValidated')) {
-            return true;
+        if (stripos($context, 'm') === 0) {
+            return $this->session_var('mgrValidated');
+        } elseif (stripos($context, 'w') === 0) {
+            return $this->session_var('webValidated');
         }
-
         return false;
     }
 
