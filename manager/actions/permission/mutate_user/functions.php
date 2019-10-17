@@ -207,3 +207,8 @@ function aButtonCancel() {
         )
     );
 }
+
+function user($key, $default=null) {
+    global $user;
+    return evo()->array_get($user, $key, $default);
+}

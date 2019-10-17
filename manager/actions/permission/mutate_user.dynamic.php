@@ -18,6 +18,7 @@ if ($userid && !activeUserCheck($userid)) {
     return;
 }
 
+global $user;
 if ($_REQUEST['a'] == 12) {
     $user = getUser($userid);
     if(!$user) {
