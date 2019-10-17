@@ -413,7 +413,14 @@ class TinyMCE
 		$ph['entity_encoding']         = $params['entity_encoding'];
 		$ph['onchange_callback']       = "'myCustomOnChangeHandler'";
 		$ph['terminate']               = (!empty($params['customparams'])) ? ',' : '';
-		$ph['customparams']            = rtrim($params['customparams'], ',');
+		$ph['customparams'] = rtrim(
+				evo()->parseText(
+					$params['customparams']
+					, evo()->documentObject
+					, '[*'
+					, '*]'
+				),
+			',');
 		$content_css[] = "{$mce_url}style/content.css";
 		if     (preg_match('@^/@', $params['editor_css_path']))
 		{
