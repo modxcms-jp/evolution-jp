@@ -3615,6 +3615,9 @@ class DocumentParser {
         
         $tpl = ($mode==='chunk') ? $this->getChunk($chunkName) : $chunkName;
 
+        if(strpos($tpl,'{{')!==false) {
+            return $this->parseText($tpl, $ph, '{{', '}}');
+        }
         return $this->parseText($tpl, $ph, $left, $right);
     }
 
