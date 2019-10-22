@@ -3607,12 +3607,14 @@ class DocumentParser {
 
     }
     
-    function parseChunk($chunkName, $ph, $left= '{{', $right= '}}',$mode='chunk')
+    function parseChunk($chunkName, $ph, $left= '{', $right= '}',$mode='chunk')
     {
-        if (!is_array($ph)) return false;
+        if (!is_array($ph)) {
+            return false;
+        }
         
-        if($mode==='chunk') $tpl = $this->getChunk($chunkName);
-        else                $tpl = $chunkName;
+        $tpl = ($mode==='chunk') ? $this->getChunk($chunkName) : $chunkName;
+
         return $this->parseText($tpl, $ph, $left, $right);
     }
 
