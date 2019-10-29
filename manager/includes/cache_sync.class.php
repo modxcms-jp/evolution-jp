@@ -195,7 +195,7 @@ class synccache {
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s' ,
-            $modx->conf_var('recent_update'),
+            $modx->conf_var('recent_update', 0),
             date('Y-m-d H:i:s',$modx->conf_var('recent_update'))
         );
 
