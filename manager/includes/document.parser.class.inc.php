@@ -4881,6 +4881,11 @@ class DocumentParser {
     }
 
     public function session_var($key=null, $default=null) {
+        if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
+            $value = $default;
+            $this->array_set($_SESSION, $key, $value);
+            return $value;
+        }
         if(!isset($_SESSION)) {
             return $default;
         }
