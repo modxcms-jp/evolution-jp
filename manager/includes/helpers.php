@@ -22,14 +22,14 @@ function config($key, $default=null) {
 }
 
 function lang($key) {
-    global $modx, $_lang;
+    global $_lang;
     if(!$_lang) {
-        include_once MODX_CORE_PATH . sprintf(
+        include MODX_CORE_PATH . sprintf(
                 'lang/%s.inc.php'
-                , $modx->conf_var('manager_language', 'english')
+                , evo()->conf_var('manager_language', 'english')
             );
     }
-    return $modx->array_get($_lang, $key, $key);
+    return evo()->array_get($_lang, $key, $key);
 }
 
 function style($key) {
