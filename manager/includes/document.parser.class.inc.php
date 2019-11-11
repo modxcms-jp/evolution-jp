@@ -126,8 +126,8 @@ class DocumentParser {
             }
             $info = debug_backtrace();
             $m[] = $msg;
-            if($this->currentSnippet)          $m[] = 'Snippet - ' . $this->currentSnippet;
-            elseif($this->event->activePlugin) $m[] = 'Plugin - '  . $this->event->activePlugin;
+            if(!empty($this->currentSnippet))          $m[] = 'Snippet - ' . $this->currentSnippet;
+            elseif(!empty($this->event->activePlugin)) $m[] = 'Plugin - '  . $this->event->activePlugin;
             $m[] = $this->decoded_request_uri;
             $m[] = str_replace('\\','/',$info[0]['file']) . '(line:' . $info[0]['line'] . ')';
             $msg = join('<br />', $m);
