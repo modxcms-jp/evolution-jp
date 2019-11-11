@@ -1,15 +1,23 @@
 <?php
 class ForgotManagerPassword {
-	var $fmp_path;
+	public $fmp_path;
+	private $lang;
 	
 	function __construct()
 	{
 		$this->fmp_path = str_replace('\\','/', __DIR__) . '/';
 		$this->errors = array();
-		$this->checkLang();
+		$this->setLang();
 	}
 	
-	function checkLang()
+	private function lang($key, $default=null) {
+		if(!isset($this->lang[$key])) {
+			return $default;
+		}
+		return $this->lang[$key];
+	}
+
+	private function setLang()
 	{
 		global $_lang;
 		
@@ -27,15 +35,17 @@ class ForgotManagerPassword {
 		$en['user_doesnt_exist']                  = 'User does not exist';
 		$en['email_sent']                         = 'Email sent';
 		
-		foreach($en as $key=>$value)
-		{
-			if(empty($_lang[$key])) $_lang[$key] = $value;
+		foreach($en as $key=>$value) {
+			if(lang($key)) {
+				$this->lang = lang($key);
+			}
+			$this->lang = $value;
 		}
 	}
 	
 	function run()
 	{
-		global $modx,$_lang;
+		global $modx;
 		
 		$action = $this->getVar('action');
 		$to     = $this->getVar('email');
@@ -69,7 +79,9 @@ class ForgotManagerPassword {
 	function redirectLoginProcessor($key)
 	{
 		global $modx;
-		if(empty($key)) return;
+		if(!$key) {
+			return;
+		}
 		
 		$user = $this->getUser($key);
 		$username = $user['username'];
@@ -84,12 +96,10 @@ class ForgotManagerPassword {
 	
 	function showPrompt($action,$to)
 	{
-		global $_lang;
-		
-		$link = '<a href="index.php?action=show_form" id="ForgotManagerPassword-show_form">' . $_lang['forgot_your_password'] . '</a>';
+		$link = '<a href="index.php?action=show_form" id="ForgotManagerPassword-show_form">' . $this->lang('forgot_your_password') . '</a>';
 		if($action==='show_form') $output = $this->getForm();
 		elseif($action==='send_email') {
-			if($this->sendEmail($to)) $output = $_lang['email_sent'];
+			if($this->sendEmail($to)) $output = $this->lang('email_sent');
 			else                      $output = $this->getErrorOutput() . $link;
 		}
 		else                          $output = $link;
@@ -105,12 +115,12 @@ class ForgotManagerPassword {
 	
 	function unBlock($key)
 	{
-		global $modx, $_lang;
+		global $modx;
 		
-		if(empty($key)) return;
+		if(!$key) return;
 		
 		$user = $this->getUser($key);
-		if(!isset($user['id'])) $this->errors[] = $_lang['user_doesnt_exist'];
+		if(!isset($user['id'])) $this->errors[] = $this->lang('user_doesnt_exist');
 		elseif(!$this->errors)
     		$modx->db->update('blocked=0,blockeduntil=0,failedlogincount=0', $modx->getFullTableName('user_attributes'), "internalKey='{$user['id']}'");
 		else return false;
@@ -133,12 +143,10 @@ class ForgotManagerPassword {
 	
 	function getForm()
 	{
-		global $_lang;
-		
 		$form = <<< EOD
-<label id="FMP-email_label">{$_lang['account_email']}:
+<label id="FMP-email_label">{$this->lang('account_email')}:
 <input id="FMP-email" type="text" /></label>
-<button id="FMP-email_button" type="button" onclick="window.location = 'index.php?action=send_email&email='+document.getElementById('FMP-email').value;">{$_lang['send']}</button>
+<button id="FMP-email_button" type="button" onclick="window.location = 'index.php?action=send_email&email='+document.getElementById('FMP-email').value;">{$this->lang('send')}</button>
 EOD;
 		return $form;
 	}
@@ -146,14 +154,12 @@ EOD;
 	/* Get user info including a hash unique to this user, password, and day */
 	function getUser($key='',$target='key')
 	{
-		global $modx, $_lang;
+		global $modx;
 		
 		$tbl_manager_users   = $modx->getFullTableName('manager_users');
 		$tbl_user_attributes = $modx->getFullTableName('user_attributes');
 		
-		$site_id = $modx->config['site_id'];
 		$user = null;
-		
 		$key = $modx->db->escape($key);
 		
 		switch($target)
@@ -169,15 +175,15 @@ EOD;
 		}
 		
 		$user = array();
-		if(!empty($key) && is_string($key))
+		if($key && is_string($key))
 		{
 			$field = "usr.id, usr.username, attr.email, MD5(CONCAT(attr.lastlogin,usr.password)) AS `key`";
 			$from[] = "{$tbl_manager_users} usr";
 			$from[] = "INNER JOIN {$tbl_user_attributes} attr ON usr.id = attr.internalKey";
-		    $result = $modx->db->select($field, join(' ',$from), $where,'',1);
+			$result = $modx->db->select($field, join(' ', $from), $where,'',1);
 			if($result) $user = $modx->db->getRow($result);
 		}
-		if(empty($user)) $this->errors[] = $_lang['could_not_find_user'];
+		if(!$user) $this->errors[] = $this->lang('could_not_find_user');
 		
 		return $user;
 	}
@@ -185,7 +191,7 @@ EOD;
 	/* Send an email with a link to login */
 	function sendEmail($to)
 	{
-		global $modx, $_lang;
+		global $modx;
 		
 		$user = $this->getUser($to,'email');
 		if(is_null($user)) return;
@@ -193,29 +199,30 @@ EOD;
 		if($modx->config['use_captcha']==='1') $captcha = '&captcha_code=ignore';
 		else                                   $captcha = '';
 		
-		$ph['intro']        = $_lang['forgot_password_email_intro'];
+		$ph['intro']        = $this->lang('forgot_password_email_intro');
 		$ph['fmpkey']       = $user['key'] . $captcha;
-		$ph['link']         = $_lang['forgot_password_email_link'];
-		$ph['instructions'] = $_lang['forgot_password_email_instructions'];
-		$ph['fine_print']   = $_lang['forgot_password_email_fine_print'];
+		$ph['link']         = $this->lang('forgot_password_email_link');
+		$ph['instructions'] = $this->lang('forgot_password_email_instructions');
+		$ph['fine_print']   = $this->lang('forgot_password_email_fine_print');
 		
 		$tpl = file_get_contents($this->fmp_path . 'sendmail.tpl');
 		$body = $modx->parseText($tpl,$ph);
 		$body = $modx->parseDocumentSource($body);
 		
-		$mail['subject'] = $_lang['password_change_request'];
+		$mail['subject'] = $this->lang('password_change_request');
 		$mail['sendto'] = $to;
 		
 		$result = $modx->sendmail($mail,$body);
 		
-		if(!$result) $this->errors[] = $_lang['error_sending_email'];
+		if(!$result) $this->errors[] = $this->lang('error_sending_email');
 		return $result;
 	}
 	
 	function getVar($varName)
 	{
-		if(isset($_GET[$varName]) && !empty($_GET[$varName]) && is_string($_GET[$varName]))
-		     return trim($_GET[$varName]);
-		else return false;
+		if(!is_string(evo()->input_get($varName))) {
+			return false;
+		}
+		return trim(evo()->input_get($varName));
 	}
 }
