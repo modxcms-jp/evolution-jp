@@ -224,13 +224,13 @@ $s = '';
         global $modx;
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::delete().");
-        } else {
-            $from = $this->replaceFullTableName($from);
-            if($where != '') $where = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit != '') $limit = "LIMIT {$limit}";
-            return $this->query("DELETE FROM {$from} {$where} {$orderby} {$limit}");
+            return;
         }
+        $from = $this->replaceFullTableName($from);
+        if($where != '') $where = "WHERE {$where}";
+        if($orderby !== '') $orderby = "ORDER BY {$orderby}";
+        if($limit != '') $limit = "LIMIT {$limit}";
+        return $this->query("DELETE FROM {$from} {$where} {$orderby} {$limit}");
     }
     
     /**
