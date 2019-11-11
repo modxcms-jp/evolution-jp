@@ -4892,6 +4892,18 @@ class DocumentParser {
         return $this->array_get($_SESSION, $key, $default);
     }
     
+    public function global_var($key=null, $default=null) {
+        if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
+            $value = $default;
+            $this->array_set($GLOBALS, $key, $value);
+            return $value;
+        }
+        if(!isset($GLOBALS)) {
+            return $default;
+        }
+        return $this->array_get($GLOBALS, $key, $default);
+    }
+    
     public function conf_var($key=null, $default=null) {
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
