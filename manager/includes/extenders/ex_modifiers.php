@@ -1057,6 +1057,7 @@ class MODIFIERS {
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $_ = compact('key','value','cmd', 'opt');
+                $_['url'] = $_SERVER['REQUEST_URI'];
                 $modx->addLog('unparsed modifire',$_,2);
         }
         return $value;
