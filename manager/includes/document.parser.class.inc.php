@@ -2350,9 +2350,7 @@ class DocumentParser {
         );
     }
     
-    // evalPlugin
-    function evalPlugin($pluginCode, $params)
-    {
+    public function evalPlugin($pluginCode, $params) {
         $modx= & $this;
         $modx->event->params = $params; // store params inside event object
         if (is_array($params)) {
@@ -2362,23 +2360,21 @@ class DocumentParser {
         ob_start();
         $return = eval($pluginCode);
         unset ($modx->event->params);
-        $echo = ob_get_contents();
-        ob_end_clean();
-        if (!$echo || !isset ($php_errormsg))
-        {
+        $echo = ob_get_clean();
+        if (!$echo || !isset ($php_errormsg)) {
             return $echo . $return;
         }
 
         $error_info = error_get_last();
         if($error_info['type']===2048 || $error_info['type']===8192) {
             $error_type = 2;
-        }
-        else {
+        } else {
             $error_type = 3;
         }
-        if(1<$this->config['error_reporting'] || 2<$error_type)
-        {
-            if($echo===false) $echo = 'ob_get_contents() error';
+        if(1<$this->config['error_reporting'] || 2<$error_type) {
+            if($echo===false) {
+                $echo = 'ob_get_contents() error';
+        }
             $this->messageQuit(
                 'PHP Parse Error'
                 , ''
@@ -2390,15 +2386,19 @@ class DocumentParser {
                 , $error_info['line']
                 , $echo
             );
-            if ($this->isBackend())
-            {
-                $this->event->alert("An error occurred while loading. Please see the event log for more information.<p>{$echo}</p>");
+            if ($this->isBackend()) {
+                $this->event->alert(
+                    sprintf(
+                        'An error occurred while loading. Please see the event log for more information.<p>%s</p>'
+                        , $echo
+                    )
+                );
             }
         }
+        return '';
     }
     
-    function evalSnippet($phpcode, $params)
-    {
+    public function evalSnippet($phpcode, $params) {
         $phpcode = trim($phpcode);
         if(empty($phpcode)) {
             return '';
@@ -3602,7 +3602,11 @@ class DocumentParser {
     }
     
     private function _return_chunk_value($chunk_name, $value, $isCache) {
-        $params = array('name' => $chunk_name, 'value' => $value, 'isCache' => $isCache);
+        $params = array(
+            'name' => $chunk_name,
+            'value' => $value,
+            'isCache' => $isCache
+        );
         $this->invokeEvent('OnCallChunk', $params);
         return $value;
 
@@ -3690,7 +3694,7 @@ class DocumentParser {
         foreach($multiPH as $ph) {
             $_[] = $this->parseText($tpl,$ph);
         }
-        return join("\n",$_);
+        return implode("\n",$_);
     }
     
     function toDateFormat($timestamp = 0, $mode = '')
@@ -4177,14 +4181,11 @@ class DocumentParser {
             return;
         }
         $result= $this->db->select('*','[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
-        if ($this->db->getRecordCount($result) == 1)
-        {
+        if ($this->db->getRecordCount($result) == 1) {
             $row = $this->db->getRow($result);
             $code       = $row['plugincode'];
             $properties = $row['properties'];
-        }
-        else
-        {
+        } else {
             $code       = 'return false;';
             $properties = '';
         }
@@ -4199,18 +4200,13 @@ class DocumentParser {
         
         $parameter= array ();
         $tmpParams= explode('&', $propertyString);
-        foreach ($tmpParams as $tmpParam)
-        {
-            if (strpos($tmpParam, '=') !== false)
-            {
+        foreach ($tmpParams as $tmpParam) {
+            if (strpos($tmpParam, '=') !== false) {
                 $pTmp  = explode('=', $tmpParam);
                 $pvTmp = explode(';', trim($pTmp['1']));
-                if ($pvTmp['1'] == 'list' && $pvTmp['3'] != '')
-                {
+                if ($pvTmp['1'] == 'list' && $pvTmp['3'] != '') {
                     $parameter[trim($pTmp['0'])]= $pvTmp['3']; //list default
-                }
-                elseif ($pvTmp['1'] != 'list' && $pvTmp['2'] != '')
-                {
+                } elseif ($pvTmp['1'] != 'list' && $pvTmp['2'] != '') {
                     $parameter[trim($pTmp['0'])]= $pvTmp['2'];
                 }
             }
@@ -4228,12 +4224,10 @@ class DocumentParser {
     * Created by Raymond Irving Feb, 2005
     */
     // Added by Raymond 20-Jan-2005
-    function tvProcessor($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='')
-    {
+    function tvProcessor($value,$format='',$paramstring='',$name='',$tvtype='',$docid='', $sep='') {
         $modx = & $this;
         
-        if(is_array($value))
-        {
+        if(is_array($value)) {
             if(isset($value['docid'])) $docid = $value['docid'];
             if(isset($value['sep']))   $sep   = $value['sep'];
             $format      = $value['display'];
@@ -4244,8 +4238,7 @@ class DocumentParser {
         }
         // process any TV commands in value
         $docid= (int)$docid ? (int)$docid : $this->documentIdentifier;
-        switch($tvtype)
-        {
+        switch($tvtype) {
             case 'dropdown':
             case 'listbox':
             case 'listbox-multiple':
@@ -4253,8 +4246,7 @@ class DocumentParser {
             case 'option':
                 $src = $tvtype;
                 $values = explode('||',$value);
-                foreach($values as $i=>$v)
-                {
+                foreach($values as $i=>$v) {
                     if(strpos($v, '<?php') === 0) {
                         $v = "@@EVAL\n" . substr($v, 6);
                     }
@@ -4271,21 +4263,19 @@ class DocumentParser {
         }
         
         $params = array();
-        if($paramstring)
-        {
+        if($paramstring) {
             $cp = explode('&',$paramstring);
-            foreach($cp as $v)
-            {
+            foreach($cp as $v) {
                 $v = trim($v); // trim
                 $ar = explode('=',$v);
-                if (is_array($ar) && count($ar)==2)
-                {
-                    if(strpos($ar[1],'%')!==false)
+                if (is_array($ar) && count($ar)==2) {
+                    if(strpos($ar[1],'%')!==false) {
                         $params[$ar[0]] = $this->decodeParamValue($ar[1]);
-                    else
+                    } else {
                         $params[$ar[0]] = $ar[1];
                 }
             }
+        }
         }
 
         if(empty($value))
@@ -4301,8 +4291,7 @@ class DocumentParser {
         
         $id = "tv{$name}";
         $o = '';
-        switch($format)
-        {
+        switch($format) {
             case 'image':
             case 'delim': // display as delimitted list
             case 'string':
@@ -4321,8 +4310,7 @@ class DocumentParser {
                 if($this->db->isResult($value)) {
                     $value = $this->parseInput($value);
                 }
-                if($tvtype === 'checkbox' || $tvtype === 'listbox-multiple')
-                {
+                if($tvtype === 'checkbox' || $tvtype === 'listbox-multiple') {
                     // add separator
                     $value = explode('||',$value);
                     $value = join($sep,$value);
@@ -4396,16 +4384,12 @@ class DocumentParser {
     /* End of API functions                                       */
     /***************************************************************************************/
 
-    function phpError($nr, $text, $file, $line)
-    {
-        if (error_reporting() == 0 || $nr == 0)
-        {
+    function phpError($nr, $text, $file, $line) {
+        if (error_reporting() == 0 || $nr == 0) {
             return true;
         }
-        if($this->stopOnNotice == false)
-        {
-            switch($nr)
-            {
+        if($this->stopOnNotice == false) {
+            switch($nr) {
                 case E_NOTICE:
                 case E_USER_NOTICE :
                     if($this->error_reporting <= 2) return true;
@@ -4420,17 +4404,16 @@ class DocumentParser {
             }
         }
         
-        if (is_readable($file))
-        {
+        if (is_readable($file)) {
             $source= file($file);
             $source= $source[$line -1];
-        }
-        else
-        {
+        } else {
             $source= '';
         } //Error $nr in $file at $line: <div><code>$source</code></div>
         $result = $this->messageQuit('PHP Parse Error', '', true, $nr, $file, $source, $text, $line);
-        if($result===false) exit();
+        if($result===false) {
+            exit();
+        }
         return $result;
     }
 
