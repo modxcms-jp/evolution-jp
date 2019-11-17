@@ -178,40 +178,47 @@ if(!isset($_SESSION['mgrValidated']))
     exit;
 
 }
-else
+
+// log the user action
+if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+    $ip = $_SERVER['HTTP_CLIENT_IP'];
+} elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} elseif(isset($_SERVER['REMOTE_ADDR'])) {
+    $ip = $_SERVER['REMOTE_ADDR'];
+} else {
+    $ip = 'UNKNOWN';
+}
+
+$_SESSION['ip'] = $ip;
+
+$fields['internalKey'] = $modx->getLoginUserID();
+$fields['username']    = $_SESSION['mgrShortname'];
+$fields['lasthit']     = $_SERVER['REQUEST_TIME'];
+$fields['action']      = $modx->manager->action;
+$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
+$fields['ip']          = $ip;
+if( $modx->manager->action !== 1)
 {
-	// log the user action
-	if    (isset($_SERVER['HTTP_CLIENT_IP']))       $ip = $_SERVER['HTTP_CLIENT_IP'];
-	elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	elseif(isset($_SERVER['REMOTE_ADDR']))          $ip = $_SERVER['REMOTE_ADDR'];
-	else                                            $ip = 'UNKNOWN';
-	
-	$_SESSION['ip'] = $ip;
-	
-	$fields['internalKey'] = $modx->getLoginUserID();
-	$fields['username']    = $_SESSION['mgrShortname'];
-	$fields['lasthit']     = $_SERVER['REQUEST_TIME'];
-	$fields['action']      = $modx->manager->action;
-	$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
-	$fields['ip']          = $ip;
-	if( $modx->manager->action !== 1)
-	{
-		foreach($fields as $k=>$v)
-		{
-			$keys[]   = $k;
-			$values[] = $v;
-		}
-		$join_key   = join(',', $keys);
-		$join_value = "'" . join("','", $values) . "'";
-		
-		$tbl_active_users = $modx->getFullTableName('active_users');
-		$sql = "REPLACE INTO {$tbl_active_users} ({$join_key}) VALUES ({$join_value})";
-		if(!$rs = $modx->db->query($sql))
-		{
-			echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
-			exit;
-		}
-		$_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($modx->getLoginUserID());
-	}
-    if(is_file($touch_path)) unlink($touch_path);
+    foreach($fields as $k=>$v)
+    {
+        $keys[]   = $k;
+        $values[] = $v;
+    }
+
+    $sql = sprintf(
+        "REPLACE INTO %s (%s) VALUES ('%s')"
+        , $modx->getFullTableName('active_users')
+        , implode(',', $keys)
+        , implode("','", $values)
+    );
+    $rs = $modx->db->query($sql);
+    if(!$rs) {
+        echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
+        exit;
+    }
+    $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($modx->getLoginUserID());
+}
+if(is_file($touch_path)) {
+    unlink($touch_path);
 }
