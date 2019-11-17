@@ -100,12 +100,7 @@ else
 {
 	$output= '';
 	
-	if ($_SERVER['HTTP_CLIENT_IP'])          $ip = $_SERVER['HTTP_CLIENT_IP'];
-	elseif($_SERVER['HTTP_X_FORWARDED_FOR']) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	elseif($_SERVER['REMOTE_ADDR'])          $ip = $_SERVER['REMOTE_ADDR'];
-	else                                     $ip = 'unknown';
-	
-	$_SESSION['ip'] = $ip;
+	$_SESSION['ip'] = $modx->real_ip();
 	
 	$itemid = (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? $_REQUEST['id'] : 'NULL';
 	$lasthittime = time();

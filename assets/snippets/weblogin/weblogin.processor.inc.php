@@ -448,11 +448,7 @@ if (!$ok) // check if a login home id page was set
 // update active users list if redirectinq to another page
 if($id!=$modx->documentIdentifier)
 {
-	if($_SERVER['HTTP_CLIENT_IP'])           $ip = $_SERVER['HTTP_CLIENT_IP'];
-	elseif($_SERVER['HTTP_X_FORWARDED_FOR']) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	elseif($_SERVER['REMOTE_ADDR'])          $ip = $_SERVER['REMOTE_ADDR'];
-	else                                     $ip = 'UNKNOWN';
-	$_SESSION['ip'] = $ip;
+	$_SESSION['ip'] = $modx->real_ip();
 	$itemid = isset($_REQUEST['id']) ? $_REQUEST['id'] : 'NULL' ;
 	$lasthittime = time();
 	$a = 998;

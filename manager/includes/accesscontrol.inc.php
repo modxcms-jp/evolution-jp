@@ -180,17 +180,7 @@ if(!isset($_SESSION['mgrValidated']))
 }
 
 // log the user action
-if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-    $ip = $_SERVER['HTTP_CLIENT_IP'];
-} elseif(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-} elseif(isset($_SERVER['REMOTE_ADDR'])) {
-    $ip = $_SERVER['REMOTE_ADDR'];
-} else {
-    $ip = 'UNKNOWN';
-}
-
-$_SESSION['ip'] = $ip;
+$_SESSION['ip'] = $modx->real_ip();
 
 $fields['internalKey'] = $modx->getLoginUserID();
 $fields['username']    = $_SESSION['mgrShortname'];
