@@ -5019,4 +5019,8 @@ class DocumentParser {
             , $tag_name
         );
     }
+    
+    public function real_ip() {
+        return init::real_ip();
+    }
 }
