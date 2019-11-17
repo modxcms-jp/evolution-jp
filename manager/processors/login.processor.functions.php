@@ -332,7 +332,7 @@ function managerLogin() {
     global $modx;
 
     session_regenerate_id(true);
-
+    
     $_SESSION['usertype'] = 'manager'; // user is a backend user
 
     // get permissions
@@ -360,7 +360,7 @@ function managerLogin() {
             $_SESSION['mgrPermissions']['messages'] = '0';
         }
     }
-// successful login so reset fail count and update key values
+    // successful login so reset fail count and update key values
     $modx->db->update(
         array(
             'failedlogincount'=>0,

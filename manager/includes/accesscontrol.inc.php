@@ -6,8 +6,7 @@ if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 	exit;
 }
 
-if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!=='manager')
-{
+if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!=='manager') {
 	@session_destroy();
 }
 
@@ -37,8 +36,7 @@ if (isset($lastInstallTime) && isset($_SESSION['modx.session.created.time']) && 
 	if (
 		($_SESSION['modx.session.created.time'] < $lastInstallTime)
 		&& $_SERVER['REQUEST_METHOD'] !== 'POST'
-		)
-	{
+		) {
 		if (isset($_COOKIE[session_name()])) {
 			session_unset();
 			@session_destroy();
