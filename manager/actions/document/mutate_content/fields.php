@@ -106,6 +106,7 @@ function fieldWeblink() {
         , input_text_tag(
             array(
                 'name'  => 'content',
+                'id'    => 'field_weblink',
                 'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
             )
         )
@@ -113,7 +114,7 @@ function fieldWeblink() {
             '<input>'
             , array(
                 'type'    => 'button',
-                'onclick' => "BrowseFileServer('field_ta')",
+                'onclick' => "BrowseFileServer('field_weblink')",
                 'value'   => lang('insert')
             )
         )
