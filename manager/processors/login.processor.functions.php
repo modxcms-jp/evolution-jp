@@ -331,8 +331,6 @@ function redirectAfterLogin() {
 function managerLogin() {
     global $modx;
 
-    session_regenerate_id(true);
-    
     $_SESSION['usertype'] = 'manager'; // user is a backend user
 
     // get permissions
