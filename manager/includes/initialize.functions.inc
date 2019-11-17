@@ -9,6 +9,12 @@ function startCMSSession() {
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
 
+    if(!init::check_session()) {
+        session_regenerate_id(true);
+        $_SESSION['evo_sid_hash'] = md5(session_id());
+        $_SESSION['evo_ip_hash']  = md5(init::real_ip());
+    }
+
     if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
         setcookie(
             $site_sessionname
@@ -254,5 +260,15 @@ class init {
             return $_SERVER['REMOTE_ADDR'];
         }
         return 'UNKNOWN';
+    }
+
+    public static function check_session() {
+        if(static::session('evo_sid_hash') !== md5(session_id())) {
+            return false;
+        }
+        if(static::session('evo_ip_hash') !== md5(init::real_ip())) {
+            return false;
+        }
+        return true;
     }
 }
