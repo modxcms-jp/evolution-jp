@@ -20,55 +20,53 @@ if ($isPWDActivate==1)
 		$output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
 		return;
 	}
-	else
-	{
-		$row = $modx->db->getRow($rs);
-		$username = $row['username'];
-		list($newpwd, $token, $requestedon) = explode('|',$row['cachepwd']);
-		$past = time()-$requestedon;
-		if(!isset($expireTime)) $expireTime = 60*60*24;
-		if($token !== $_REQUEST['token'])
-		{
-			if(!$actInvalidKey)
-			$output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
-			else $modx->sendRedirect($actInvalidKey);
-			return;
-		}
-		elseif($expireTime<$past)
-		{
-			if(!$actExpire)
-				$output = webLoginAlert("It was over expiration time");
-			else
-				$modx->sendRedirect($actExpire);
-			return;
-		}
-		// activate new password
-		$f = array();
-		$f['password'] = md5($newpwd);
-		$f['cachepwd'] = '';
-		$rs = $modx->db->update($f,$tbl_web_users,"id='{$uid}'");
-		
-		// unblock user by resetting "blockeduntil"
-		$rs2 = $modx->db->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
-		
-		// invoke OnWebChangePassword event
+    $row = $modx->db->getRow($rs);
+    $username = $row['username'];
+    list($newpwd, $token, $requestedon) = explode('|',$row['cachepwd']);
+    $past = time()-$requestedon;
+    if(!isset($expireTime)) {
+        $expireTime = 60 * 60 * 24;
+    }
+    if ($token !== $_REQUEST['token']) {
+        if(!$actInvalidKey)
+        $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
+        else $modx->sendRedirect($actInvalidKey);
+        return;
+    }
+
+    if($expireTime<$past) {
+        if(!$actExpire)
+            $output = webLoginAlert("It was over expiration time");
+        else
+            $modx->sendRedirect($actExpire);
+        return;
+    }
+    // activate new password
+    $f = array();
+    $f['password'] = md5($newpwd);
+    $f['cachepwd'] = '';
+    $rs = $modx->db->update($f,$tbl_web_users,"id='{$uid}'");
+
+    // unblock user by resetting "blockeduntil"
+    $rs2 = $modx->db->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
+
+    // invoke OnWebChangePassword event
     $tmp = array(
 		'userid'       => $uid,
 		'username'     => $username,
 		'userpassword' => $newpwd
 		);
-		$modx->invokeEvent('OnWebChangePassword',$tmp);
-		
-		if(!$rs || !$rs2)  $output = webLoginAlert("Error while activating password.");
-		elseif(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
-		else
-		{
-			// redirect to password activation notification page
-			$url = $modx->makeURL($pwdActId,'',"uid={$uid}",'full');
-			$modx->sendRedirect($url,0,'REDIRECT_REFRESH');
-		}
-	}
-	return;
+    $modx->invokeEvent('OnWebChangePassword',$tmp);
+
+    if(!$rs || !$rs2)  $output = webLoginAlert("Error while activating password.");
+    elseif(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
+    else
+    {
+        // redirect to password activation notification page
+        $url = $modx->makeURL($pwdActId,'',"uid={$uid}",'full');
+        $modx->sendRedirect($url,0,'REDIRECT_REFRESH');
+    }
+    return;
 }
 
 # process password reminder
