@@ -10,16 +10,19 @@ $self = 'manager/session_keepalive.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-$modx->getSettings();
 
 // Keep it alive
 header('Content-type: application/json');
-if(isset($_GET['tok']) && $_GET['tok'] == md5(session_id()))
-{
-	$modx->updatePublishStatus();
-	$uid = $_SESSION['mgrInternalKey'];
-	$timestamp = $_SERVER['REQUEST_TIME'];
-	$modx->db->update("lasthit={$timestamp}", '[+prefix+]active_users', "internalKey='{$uid}'");
-	echo '{"status":"ok"}';
+
+if($modx->input_get('tok') !== md5(session_id())) {
+    exit('{"status":null}');
 }
-else echo '{"status":null}';
+
+$modx->updatePublishStatus();
+$uid = $_SESSION['mgrInternalKey'];
+$modx->db->update(
+    "lasthit=" . $_SERVER['REQUEST_TIME']
+    , '[+prefix+]active_users'
+    , "internalKey='" . $_SESSION['mgrInternalKey'] . "'"
+);
+echo '{"status":"ok"}';
