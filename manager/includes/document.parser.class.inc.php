@@ -2374,7 +2374,7 @@ class DocumentParser {
         if(1<$this->config['error_reporting'] || 2<$error_type) {
             if($echo===false) {
                 $echo = 'ob_get_contents() error';
-        }
+            }
             $this->messageQuit(
                 'PHP Parse Error'
                 , ''
@@ -4126,7 +4126,7 @@ class DocumentParser {
             // get plugin code and properties
             $pluginCode       = $this->getPluginCode($pluginName);
             $pluginProperties = $this->getPluginProperties($pluginName);
-            
+
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
             if (!empty($extParams)) {
@@ -4173,7 +4173,7 @@ class DocumentParser {
             $this->setPluginCache($pluginName);
         return $this->pluginCache["{$pluginName}Props"];
     }
-    
+
     function setPluginCache($pluginName)
     {
         if(isset($this->pluginCache[$pluginName])) {
@@ -4273,9 +4273,9 @@ class DocumentParser {
                         $params[$ar[0]] = $this->decodeParamValue($ar[1]);
                     } else {
                         $params[$ar[0]] = $ar[1];
+                    }
                 }
             }
-        }
         }
 
         if(empty($value))
