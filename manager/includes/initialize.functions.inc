@@ -9,19 +9,26 @@ function startCMSSession() {
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
 
-    if    (isset($_SESSION['mgrValidated'])) {
-        $ctx = 'mgr';
-    }
-    elseif(isset($_SESSION['webValidated'])) {
-        $ctx = 'web';
-    }
-    else {
-        setcookie($site_sessionname, session_id(), 0, MODX_BASE_URL);
+    if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
+        setcookie(
+            $site_sessionname
+            , session_id()
+            , 0
+            , MODX_BASE_URL
+            , ''
+            , false
+            , false
+        );
         return;
     }
+
+    if (isset($_SESSION['mgrValidated'])) {
+        $key = 'modx.mgr.session.cookie.lifetime';
+    } else {
+        $key = 'modx.web.session.cookie.lifetime';
+    }
     
-    $key = sprintf('modx.%s.session.cookie.lifetime', $ctx);
-    $lifetime = !isset($_SESSION[$key]) ? 0 : $_SESSION[$key];
+    $lifetime = init::session($key, 0);
     
     if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) {
         $cookieExpiration = 0;
@@ -29,7 +36,15 @@ function startCMSSession() {
         $cookieExpiration = $_SERVER['REQUEST_TIME'] + $lifetime;
     }
     
-    setcookie($site_sessionname, session_id(), $cookieExpiration, MODX_BASE_URL);
+    setcookie(
+        $site_sessionname
+        , session_id()
+        , $cookieExpiration
+        , MODX_BASE_URL
+        , ''
+        , false
+        , false
+    );
 
     if(isset($_SESSION['modx.session.created.time'])) {
         return;
