@@ -105,7 +105,7 @@ function fieldWeblink() {
         )
         , input_text_tag(
             array(
-                'name'  => 'ta',
+                'name'  => 'content',
                 'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
             )
         )
