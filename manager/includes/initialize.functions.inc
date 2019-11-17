@@ -23,7 +23,7 @@ function startCMSSession() {
             , MODX_BASE_URL
             , ''
             , false
-            , false
+            , true
         );
         return;
     }
@@ -49,7 +49,7 @@ function startCMSSession() {
         , MODX_BASE_URL
         , ''
         , false
-        , false
+        , true
     );
 
     if(isset($_SESSION['modx.session.created.time'])) {
