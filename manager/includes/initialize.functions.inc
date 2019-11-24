@@ -2,9 +2,8 @@
 // start cms session
 function startCMSSession() {
     global $site_sessionname;
-    $_ = hash('crc32b', __FILE__);
-    $_ = base_convert($_,16,36);
-    $site_sessionname = 'evo' . $_;
+    
+    $site_sessionname = 'evo' . base_convert(hash('crc32b', __FILE__), 16, 36);
     session_name($site_sessionname);
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
@@ -15,52 +14,28 @@ function startCMSSession() {
         $_SESSION['evo_ip_hash']  = md5(init::real_ip());
     }
 
-    if (!isset($_SESSION['mgrValidated']) && !isset($_SESSION['webValidated'])) {
+    if (isset($_SESSION['mgrValidated']) || isset($_SESSION['webValidated'])) {
         setcookie(
             $site_sessionname
             , session_id()
-            , 0
+            , init::cookieExpiration()
             , MODX_BASE_URL
             , ''
             , false
             , true
         );
+        init::set_session_create_time();
         return;
     }
-
-    if (isset($_SESSION['mgrValidated'])) {
-        $key = 'modx.mgr.session.cookie.lifetime';
-    } else {
-        $key = 'modx.web.session.cookie.lifetime';
-    }
-    
-    $lifetime = init::session($key, 0);
-    
-    if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) {
-        $cookieExpiration = 0;
-    } else {
-        $cookieExpiration = $_SERVER['REQUEST_TIME'] + $lifetime;
-    }
-    
     setcookie(
         $site_sessionname
         , session_id()
-        , $cookieExpiration
+        , 0
         , MODX_BASE_URL
         , ''
         , false
         , true
     );
-
-    if(isset($_SESSION['modx.session.created.time'])) {
-        return;
-    }
-
-    if(isset($_SESSION['mgrLastlogin'])) {
-        $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
-    } else {
-        $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
-    }
 }
 
 function set_parser_mode() {
@@ -270,5 +245,29 @@ class init {
             return false;
         }
         return true;
+    }
+
+    public static function set_session_create_time() {
+        if(isset($_SESSION['modx.session.created.time'])) {
+            return;
+        }
+
+        if(isset($_SESSION['mgrLastlogin'])) {
+            $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
+        } else {
+            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+        }
+    }
+    public static function cookieExpiration() {
+        if (isset($_SESSION['mgrValidated'])) {
+            $key = 'modx.mgr.session.cookie.lifetime';
+        } else {
+            $key = 'modx.web.session.cookie.lifetime';
+        }
+        $lifetime = init::session($key, 0);
+        if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) {
+            return 0;
+        }
+        return $_SERVER['REQUEST_TIME'] + $lifetime;
     }
 }

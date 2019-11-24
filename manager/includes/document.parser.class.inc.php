@@ -839,8 +839,8 @@ class DocumentParser {
         if(!$target) {
             return array();
         }
-        $_ = join('',$target);
-        if(strpos($_,'[')===false&&strpos($_,'<')===false&&strpos($_,'#')===false) {
+        $_ = implode('',$target);
+        if(strpos($_,'[')===false && strpos($_,'<')===false && strpos($_,'#')===false) {
             return '';
         }
         

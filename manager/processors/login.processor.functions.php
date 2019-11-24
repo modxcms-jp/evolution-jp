@@ -377,7 +377,7 @@ function managerLogin() {
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
     if($modx->input_any('rememberme')) {
-        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config['session.cookie.lifetime'];
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->conf_var('session.cookie.lifetime',0);
         global $https_port;
         setcookie(
             'modx_remember_manager'
