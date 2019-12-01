@@ -161,15 +161,10 @@ class MODxMailer extends PHPMailer
             $modx->logEvent(1, 1, $log, 'MODxMailer debug information');
             //return true;
         }
-        switch($mode)
-        {
-            case 'normal':
-                return parent::MailSend($header, $body);
-                break;
-            case 'mb':
-                return $this->mbMailSend($header, $body);
-                break;
+        if($mode === 'normal') {
+            return parent::MailSend($header, $body);
         }
+        return $this->mbMailSend($header, $body);
     }
 
     function mbMailSend($header, $body)
@@ -179,7 +174,9 @@ class MODxMailer extends PHPMailer
         $to = '';
         for($i = 0; $i < count($this->to); $i++)
         {
-            if($i != 0) { $to .= ', '; }
+            if($i != 0) {
+                $to .= ', ';
+            }
             $to .= $this->AddrFormat($this->to[$i]);
         }
 
