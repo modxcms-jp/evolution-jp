@@ -923,14 +923,17 @@ class ManagerAPI {
             return '';
         }
 
-        foreach($allowed_parents as $parent) {
+        $_ = array();
+        foreach($allowed_parents as $parent)
+        {
             $parent = trim($parent);
-            $allowed_docs = $modx->getChildIds($parent);
-            $allowed_docs[] = $parent;
-            foreach($allowed_docs as $k=>$v) {
-                $modx->user_allowed_docs[$k] = $v;
+            $children = $modx->getChildIds($parent);
+            $_[] = $parent;
+            foreach($children as $child) {
+                $_[] = $child;
             }
         }
+        $modx->user_allowed_docs = $_;
         return $modx->user_allowed_docs;
     }
 
