@@ -1612,17 +1612,16 @@ class SubParser {
     # Returns a record for the manager user
     function getUserInfo($uid)
     {
-        global $modx;
-        $rs = $this->db->select(
-            'mu.username, mu.password, mua.*'
+        $rs = db()->select(
+            'user.username, user.password, attrib.*'
             , array(
-                '[+prefix+]manager_users mu',
-                'INNER JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
+                '[+prefix+]manager_users user',
+                'INNER JOIN [+prefix+]user_attributes attrib ON ua.internalKey=user.id'
             )
-            , sprintf("mu.id='%s'", $this->db->escape($uid))
+            , sprintf("user.id='%s'", db()->escape($uid))
         );
-        if ($modx->db->getRecordCount($rs) == 1) {
-            $row= $modx->db->getRow($rs);
+        if (db()->getRecordCount($rs) == 1) {
+            $row= db()->getRow($rs);
             if (!isset($row['usertype'])) {
                 $row['usertype'] = 'manager';
             }
