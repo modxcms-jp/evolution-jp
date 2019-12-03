@@ -115,6 +115,6 @@ function event() {
     return evo()->event;
 }
 
-function post($key, $default=null) {
+function post($key=null, $default=null) {
     return evo()->input_post($key, $default);
 }
