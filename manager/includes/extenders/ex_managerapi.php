@@ -416,7 +416,7 @@ class ManagerAPI {
     function setView($action)
     {
         $actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
-        if(in_array($action,$actions))
+        if(in_array($action,(array)$actions))
         {
             if(isset($_SESSION['current_request_uri'])) $_SESSION['previous_request_uri'] = $_SESSION['current_request_uri'];
             $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
@@ -872,7 +872,7 @@ class ManagerAPI {
             $modx->user_allowed_docs = $this->getUserAllowedDocs();
         }
 
-        if(!in_array($id, $modx->user_allowed_docs)) {
+        if(!in_array($id, (array)$modx->user_allowed_docs)) {
             return false;
         }
 
