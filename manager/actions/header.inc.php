@@ -39,7 +39,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript">
-		/* <![CDATA[ */
 		var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
 		if(treeopen==0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 		
@@ -110,8 +109,6 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
                 vv = window.setTimeout('doRefresh(' + r + ')',200);
             }
         }
-        
-		/* ]]> */
     </script>
 </head>
 <body id="<?php echo $bodyid;?>" ondragstart="return false"<?php echo $modx_textdir==='rtl' ? ' class="rtl"':''?>>
