@@ -141,7 +141,12 @@ function webAlert($msg) {
 
 // Generate password
 function generate_password($length = 10) {
-    return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
+    static $password=null;
+    if($password) {
+        return $password;
+    }
+    $password = substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
+    return $password;
 }
 
 function verifyPermission() {
