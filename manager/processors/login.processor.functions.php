@@ -24,17 +24,15 @@ function jsAlert($msg){
 }
 
 function failedLogin() {
-    global $modx;
-
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
-    $modx->db->update(
+    db()->update(
         array('failedlogincount'=>$failedlogincount)
         , '[+prefix+]user_attributes'
         , sprintf("internalKey='%s'", user('internalKey'))
     );
     if(config('failed_login_attempts',0)<=$failedlogincount) {
-        $modx->db->update(
+        db()->update(
             array(
                 'blockeduntil' => $_SERVER['REQUEST_TIME']+(config('blocked_minutes')*60)
             )
@@ -81,14 +79,12 @@ function loginMD5($givenPassword,$dbasePassword,$internalKey) {
 }
 
 function updateNewHash($internalKey,$password) {
-    global $modx;
-
-    $field = array();
-    $field['password'] = $modx->db->escape(
-        $modx->phpass->HashPassword($password)
-    );
-    $modx->db->update(
-        $field
+    $rs = db()->update(
+        array(
+            'password' => db()->escape(
+                evo()->phpass->HashPassword($password)
+            )
+        )
         , '[+prefix+]manager_users'
         , sprintf("internalKey='%s'", $internalKey)
     );
