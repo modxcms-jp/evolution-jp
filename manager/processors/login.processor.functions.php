@@ -86,7 +86,7 @@ function updateNewHash($internalKey,$password) {
             )
         )
         , '[+prefix+]manager_users'
-        , sprintf("internalKey='%s'", $internalKey)
+        , sprintf("id='%s'", $internalKey)
     );
 }
 
