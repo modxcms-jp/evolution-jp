@@ -1514,43 +1514,22 @@ class DocumentParser {
         if(!$_) {
             return array();
         }
-        foreach($_ as $v)
-        {
-            $tags[0][] = "{$left}{$v}{$right}";
+        foreach($_ as $v) {
+            $tags[0][] = $left . $v . $right;
             $tags[1][] = $v;
         }
         $cached[$key] = $tags;
         return $tags;
     }
     
-    function _getTagsFromContent($content, $left='[+',$right='+]') {
+    private function _getTagsFromContent($content, $left='[+',$right='+]') {
         if(strpos($content,$left)===false) {
             return array();
         }
+
         $spacer = hash('crc32b', '<<<MODX>>>');
-        if($left==='{{' && strpos($content,';}}')!==false) {
-            $content = str_replace(';}}', sprintf(';}%s}', $spacer), $content);
-        }
-        if($left==='{{' && strpos($content,'{{}}')!==false) {
-            $content = str_replace('{{}}', sprintf('{%s{}%s}', $spacer, $spacer), $content);
-        }
-        if($left==='[[' && strpos($content,']]]]')!==false) {
-            $content = str_replace(']]]]', sprintf(']]%s]]', $spacer), $content);
-        }
-        if($left==='[[' && strpos($content,']]]')!==false) {
-            $content = str_replace(']]]', sprintf(']%s]]', $spacer), $content);
-        }
-        
-        $pos['<![CDATA['] = strpos($content,'<![CDATA[');
-        if($pos['<![CDATA[']) {
-            $pos[']]>'] = strpos($content, ']]>');
-        }
-        if($pos['<![CDATA[']!==false && $pos[']]>']!==false) {
-            $content = substr($content, 0, $pos['<![CDATA['])
-                . substr($content, $pos['<![CDATA['] + 9, $pos[']]>'] - ($pos['<![CDATA['] + 9))
-                . substr($content, $pos[']]>'] + 3);
-        }
-        
+        $content = $this->escaped_content($content,$left,$spacer);
+
         $lp = explode($left,$content);
         $piece = array();
         foreach($lp as $lc=>$lv) {
@@ -1559,13 +1538,12 @@ class DocumentParser {
             }
             if(strpos($lv,$right)===false) {
                 $piece[] = $lv;
+                continue;
             }
-            else {
-                $rp = explode($right,$lv);
-                foreach($rp as $rc=>$rv) {
-                    if($rc!==0) $piece[] = $right;
-                    $piece[] = $rv;
-                }
+            $rp = explode($right,$lv);
+            foreach($rp as $rc=> $rv) {
+                if($rc!==0) $piece[] = $right;
+                $piece[] = $rv;
             }
         }
         $lc=0;
@@ -1573,27 +1551,31 @@ class DocumentParser {
         $fetch = '';
         $tags = array();
         foreach($piece as $v) {
-            if($v===$left) {
-                if(0<$lc) {
+            if ($v===$left) {
+                if($lc) {
                     $fetch .= $left;
                 }
                 $lc++;
+                continue;
             }
-            elseif($v===$right) {
-                if($lc===0) continue;
+
+            if ($v===$right) {
+                if($lc===0) {
+                    continue;
+                }
                 $rc++;
-                if($lc===$rc) {
-                    $tags[] = $fetch; // Fetch and reset
-                    $fetch = '';
-                    $lc=0;
-                    $rc=0;
-                }
-                else {
+                if($lc !== $rc) {
                     $fetch .= $right;
+                    continue;
                 }
-            } else if(0<$lc) {
+                $tags[] = $fetch; // Fetch and reset
+                $fetch = '';
+                $lc = 0;
+                $rc = 0;
+                continue;
+            }
+            if(0<$lc) {
                 $fetch .= $v;
-            } else {
                 continue;
             }
         }
@@ -1603,14 +1585,45 @@ class DocumentParser {
         }
         
         foreach($tags as $i=>$tag) {
-            if(strpos($tag, $spacer)!==false) {
-                $tags[$i] = str_replace($spacer, '', $tag);
+            if(strpos($tag, $spacer) === false) {
+                continue;
             }
+            $tags[$i] = str_replace($spacer, '', $tag);
         }
         return $tags;
     }
-    
-    function getAliasListing($id,$key=false){
+
+    private function escaped_content($content,$left,$spacer) {
+        if($left==='{{') {
+            if(strpos($content,';}}')!==false) {
+                $content = str_replace(';}}', sprintf(';}%s}', $spacer), $content);
+            }
+            if(strpos($content,'{{}}')!==false) {
+                $content = str_replace('{{}}', sprintf('{%s{}%s}', $spacer, $spacer), $content);
+            }
+        }
+        if($left==='[[') {
+            if(strpos($content,']]]]')!==false) {
+                $content = str_replace(']]]]', sprintf(']]%s]]', $spacer), $content);
+            }
+            if(strpos($content,']]]')!==false) {
+                $content = str_replace(']]]', sprintf(']%s]]', $spacer), $content);
+            }
+        }
+
+        $pos['<![CDATA['] = strpos($content,'<![CDATA[');
+        if($pos['<![CDATA[']) {
+            $pos[']]>'] = strpos($content, ']]>');
+        }
+        if($pos['<![CDATA[']!==false && $pos[']]>']!==false) {
+            $content = substr($content, 0, $pos['<![CDATA['])
+                . substr($content, $pos['<![CDATA['] + 9, $pos[']]>'] - ($pos['<![CDATA['] + 9))
+                . substr($content, $pos[']]>'] + 3);
+        }
+        return $content;
+    }
+
+    public function getAliasListing($id, $key=false){
         
         if(isset($this->aliasListing[$id])) {
             if($key) {
