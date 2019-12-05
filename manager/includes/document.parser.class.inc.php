@@ -111,10 +111,15 @@ class DocumentParser {
         }
         
         $this->loadExtension('DeprecatedAPI');
-        if(method_exists($this->old,$method_name)) $error_type=1;
-        else                                       $error_type=3;
+        if(method_exists($this->old,$method_name)) {
+            $error_type = 1;
+        } else {
+            $error_type = 3;
+        }
         
-        if(!isset($this->config) || !$this->config) $this->config = $this->getSettings();
+        if(!isset($this->config) || !$this->config) {
+            $this->config = $this->getSettings();
+        }
         
         if(!isset($this->config['error_reporting'])||1<$this->config['error_reporting']) {
             if($error_type==1) {
@@ -126,11 +131,14 @@ class DocumentParser {
             }
             $info = debug_backtrace();
             $m[] = $msg;
-            if(!empty($this->currentSnippet))          $m[] = 'Snippet - ' . $this->currentSnippet;
-            elseif(!empty($this->event->activePlugin)) $m[] = 'Plugin - '  . $this->event->activePlugin;
+            if($this->currentSnippet) {
+                $m[] = 'Snippet - ' . $this->currentSnippet;
+            } elseif(!empty($this->event->activePlugin)) {
+                $m[] = 'Plugin - ' . $this->event->activePlugin;
+            }
             $m[] = $this->decoded_request_uri;
             $m[] = str_replace('\\','/',$info[0]['file']) . '(line:' . $info[0]['line'] . ')';
-            $msg = join('<br />', $m);
+            $msg = implode('<br />', $m);
             $this->logEvent(0, $error_type, $msg, $title);
         }
 
@@ -142,12 +150,16 @@ class DocumentParser {
     // constructor
     function __construct()
     {
-        if($this->isLoggedIn()) ini_set('display_errors', 1);
+        if($this->isLoggedIn()) {
+            ini_set('display_errors', 1);
+        }
         set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
-        if($this->isBackend()) $this->loadExtension('ManagerAPI');
+        if($this->isBackend()) {
+            $this->loadExtension('ManagerAPI');
+        }
         
         // events
         $this->event = new SystemEvent();
@@ -1481,7 +1493,7 @@ class DocumentParser {
             $tmp = array('docid'=>$pub_ids,'type'=>'scheduled');
             $this->invokeEvent('OnDocPublished',$tmp);
         }
-        if( !empty($draft_ids) ){
+        if( $draft_ids ){
             $tmp = array('docid'=>$draft_ids,'type'=>'draftScheduled');
             $this->invokeEvent('OnDocPublished',$tmp);
         }
@@ -1499,7 +1511,9 @@ class DocumentParser {
             return $cached[$key];
         }
         $_ = $this->_getTagsFromContent($content,$left,$right);
-        if(empty($_)) return array();
+        if(!$_) {
+            return array();
+        }
         foreach($_ as $v)
         {
             $tags[0][] = "{$left}{$v}{$right}";
@@ -1777,18 +1791,17 @@ class DocumentParser {
             $_[] = $this->getAliasFromID($parent);
             $parent = $this->getParentID($parent);
             $i++;
-            if(20<$i) break;
+            if(20<$i) {
+                break;
+            }
         }
 
         if($_) {
-            $aliasPath = join('/', array_reverse($_));
+            $this->aliasPath[$docid] = implode('/', array_reverse($_));
         } else {
-            $aliasPath = '';
+            $this->aliasPath[$docid] = '';
         }
-        
-        $this->aliasPath[$docid] = $aliasPath;
-        
-        return $aliasPath;
+        return $this->aliasPath[$docid];
     }
     
     function getUltimateParentId($docid,$top=0) {
