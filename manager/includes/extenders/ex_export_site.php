@@ -218,7 +218,7 @@ class EXPORT_SITE
 		$mask = umask();
 		while($row = $modx->db->getRow($rs))
 		{
-			$_ = $modx->getAliasListing($row['id'],'path');
+			$_ = $modx->getAliasListing($row['id'], 'path');
 			$target_base_path = $_=='' ? sprintf('%s/',$this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
 			unset($_);
 			$_ = rtrim($target_base_path,'/');
