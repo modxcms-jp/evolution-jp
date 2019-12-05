@@ -101,10 +101,10 @@ class DocumentParser {
         return '';
     }
     
-    function __call($method_name, $arguments)
+    public function __call($method_name, $arguments)
     {
         $_ = explode(',', 'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBind,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
-        if(in_array($method_name, $_)) {
+        if(in_array($method_name, $_, true)) {
             $this->loadExtension('SubParser');
             if(method_exists($this->sub,$method_name))
                 return call_user_func_array(array($this->sub,$method_name),$arguments);
@@ -1474,7 +1474,7 @@ class DocumentParser {
         );
         
         // now, check for chunks that need un-publishing
-        $rs = $this->db->update(
+        $this->db->update(
             'published=0'
             , '[+prefix+]site_htmlsnippets'
             , sprintf(
@@ -1738,15 +1738,15 @@ class DocumentParser {
     }
     
     function getParentID($docid) {
-        
+
+        if(!$docid) {
+            return 0;
+        }
+
         if(isset($this->parentlist[$docid])) {
             return $this->parentlist[$docid];
         }
 
-        if($docid==0) {
-            return 0;
-        }
-        
         $rs = $this->db->select(
             'parent'
             , '[+prefix+]site_content'
