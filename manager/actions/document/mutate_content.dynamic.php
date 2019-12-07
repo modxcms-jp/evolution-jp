@@ -1,7 +1,6 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
 
-include_once(MODX_CORE_PATH . 'helpers.php');
 include_once(__DIR__ . '/mutate_content/functions.php');
 include_once(tpl_base_dir().'fields.php');
 include_once(tpl_base_dir().'action_buttons.php');
@@ -27,13 +26,22 @@ global $default_template; // For plugins (ManagerManager etc...)
 $default_template = getDefaultTemplate();
 
 global $docObject;
-$docObject = request_intvar('id') ? db_value(request_intvar('id'), $docgrp) : default_value(request_intvar('pid'),request_intvar('newtemplate'));
+if (request_intvar('id')) {
+    $docObject = db_value(request_intvar('id'), $docgrp);
+} else {
+    $docObject = default_value(request_intvar('pid'), request_intvar('newtemplate'));
+}
 
 evo()->loadExtension('REVISION');
 if(request_intvar('id') && config('enable_draft')) {
-    $modx->revisionObject = evo()->revision->getRevisionObject(request_intvar('id'),'resource','template');
-    if( request_intvar('id') && manager()->action==131 && isset($modx->revisionObject['template']) ) //下書きのテンプレートに変更
+    $modx->revisionObject = evo()->revision->getRevisionObject(
+        request_intvar('id')
+        , 'resource'
+        , 'template'
+    );
+    if(manager()->action==131 && isset(evo()->revisionObject['template'])) {
         $docObject['template'] = evo()->revisionObject['template'];
+    }
 } else {
     $modx->revisionObject = array();
 }
@@ -42,7 +50,8 @@ if(preg_match('/[1-9][0-9]*/', request_intvar('newtemplate')) ) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars  = getTmplvars(request_intvar('id'),doc('template'),$docgrp);
+$tmplVars = getTmplvars(request_intvar('id'),doc('template'),$docgrp);
+
 $docObject += $tmplVars;
 
 if(request_intvar('id') && manager()->action==131) {

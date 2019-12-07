@@ -95,7 +95,7 @@ function alert() {
     if($e) {
         return $e;
     }
-    include_once(MODX_CORE_PATH . 'error.class.inc.php');
+    include_once(__DIR__ . '/error.class.inc.php');
     $e = new errorHandler;
     return $e;
 }

@@ -1,29 +1,40 @@
 <?php
 function getTmplvars($docid,$template_id,$docgrp) {
-    if(!$docid || !$template_id) {
+    
+    if(!$template_id) {
         return array();
     }
-
+    
     static $tmplVars = null;
     if($tmplVars!==null) {
         return $tmplVars;
     }
+
     $tmplVars = array();
 
-    $rs = db()->select(
-        array(
-            'DISTINCT tv.*',
-            'value' => "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
-        )
-        , array(
-            '[+prefix+]site_tmplvars AS tv',
-            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
+    $from = array(
+        '[+prefix+]site_tmplvars AS tv',
+        'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
+        $docid ?
             sprintf(
                 "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
                 , $docid
-            ),
-            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+            )
+            :
+            '',
+        'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+    );
+    
+    $rs = db()->select(
+        array(
+            'DISTINCT tv.*',
+            'value'
+                => $docid ?
+                    "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
+                    :
+                    'tv.default_text'
         )
+        , $from
         , sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
             , $template_id
@@ -312,14 +323,13 @@ function mergeDraft($id,$content) {
 }
 
 function tooltip($msg) {
-    return html_tag(
-        '<img>'
+    return img_tag(
+        style('icons_tooltip')
         , array(
-            'src'     => style('icons_tooltip_over'),
-            'title'   => $msg,
             'alt'     => $msg,
+            'title'   => $msg,
             'onclick' => 'alert(this.alt);',
-            'style'   => 'cursor:help;',
+            'style'   => 'cursor:help;margin-left:5px;',
             'class'   => 'tooltip'
         )
     );
@@ -425,53 +435,41 @@ function checkPermissions($id) {
         alert()->dumpError();
     }
 
-    switch (manager()->action) {
-        case 27:
-            if (!hasPermission('view_document')) {
-                $modx->config['remember_last_tab'] = 0;
-                alert()->setError(3);
-                alert()->dumpError();
-            }
-            manager()->remove_locks('27');
-            break;
-        case 72:
-        case 4:
-            if (!hasPermission('new_document')) {
-                alert()->setError(3);
-                alert()->dumpError();
-            } elseif(evo()->input_any('pid')) {
-                // check user has permissions for parent
-                $targetpid = empty($_REQUEST['pid']) ? 0 : $_REQUEST['pid'];
-                if (!evo()->checkPermissions($targetpid)) {
-                    alert()->setError(3);
-                    alert()->dumpError();
-                }
-            }
-            break;
-        case 132:
-        case 131:
-            if (!hasPermission('view_document')) {
-                alert()->setError(3);
-                alert()->dumpError();
-            }
-            break;
-        default:
+    $i = manager()->action;
+    if ($i == 27) {
+        if (!hasPermission('view_document')) {
+            $modx->config['remember_last_tab'] = 0;
             alert()->setError(3);
             alert()->dumpError();
-    }
-
-    if (manager()->action == 27 && !evo()->checkPermissions($id)) {
-        $_ = array();
-        $_[] = '<br /><br />';
-        $_[] = '<div class="section">';
-        $_[] = sprintf('<div class="sectionHeader">%s</div>',lang('access_permissions'));
-        $_[] = '<div class="sectionBody">';
-        $_[] = sprintf('	<p>%s</p>',lang('access_permission_denied'));
-        $_[] = '</div>';
-        $_[] = '</div>';
-        echo implode("\n",$_);
-        include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-        exit;
+        }
+        manager()->remove_locks('27');
+        if (!evo()->checkPermissions($id)) {
+            $_ = array();
+            $_[] = '<br /><br /><div class="section">';
+            $_[] = sprintf('<div class="sectionHeader">%s</div>',lang('access_permissions'));
+            $_[] = '<div class="sectionBody">';
+            $_[] = sprintf('<p>%s</p></div></div>',lang('access_permission_denied'));
+            echo implode("\n",$_);
+        }
+    } elseif ($i == 72 || $i == 4) {
+        if (!hasPermission('new_document')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+        if (evo()->input_any('pid')) {
+            if (!evo()->checkPermissions(evo()->input_any('pid',0))) {
+                alert()->setError(3);
+                alert()->dumpError();
+            }
+        }
+    } elseif ($i == 132 || $i == 131) {
+        if (!hasPermission('view_document')) {
+            alert()->setError(3);
+            alert()->dumpError();
+        }
+    } else {
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 

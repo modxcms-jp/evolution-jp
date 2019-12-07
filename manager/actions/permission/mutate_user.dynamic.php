@@ -2,7 +2,6 @@
 if(!isset($modx) || !$modx->isLoggedin()) exit;
 global $_style;
 
-include_once MODX_CORE_PATH . 'helpers.php';
 include_once __DIR__ . '/mutate_user/functions.php';
 
 if(!hasUserPermission(request_intvar('a'))) {

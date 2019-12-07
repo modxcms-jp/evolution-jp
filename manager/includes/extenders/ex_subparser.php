@@ -486,8 +486,7 @@ class SubParser {
         return $str;
     }
 
-    function sendRedirect($url='', $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='')
-    {
+    function sendRedirect($url='', $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='') {
         global $modx;
         
         if($modx->debug) register_shutdown_function(array (& $modx,'recDebugInfo'));

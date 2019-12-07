@@ -10,7 +10,6 @@ ini_set('display_errors', '1');
 include_once '../../index.php';
 include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-include_once(MODX_CORE_PATH . 'helpers.php');
 include_once(__DIR__ . '/login.processor.functions.php');
 $modx->config['login_by'] = 'username,email';
 

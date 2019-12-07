@@ -81,17 +81,24 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 				case 102:
 				case 300:
 				case 301:
-					jQuery('input,textarea,select:not(#template,#which_editor,#stay)').change(function() {documentDirty=true;});
+					jQuery('input,textarea,select:not(#template,#which_editor,#stay)')
+						.change(
+							function() {
+								documentDirty=true;
+							}
+						);
 					gotosave=false;
 				break;
 			}
-            <?php if(isset($_REQUEST['r'])) echo sprintf("doRefresh(%s);\n",$_REQUEST['r']); ?>
+			<?php if(isset($_REQUEST['r']))
+				echo sprintf("doRefresh(%s);\n",$_REQUEST['r']);
+			?>
 			jQuery('.tooltip').powerTip({'fadeInTime':'0','placement':'e'});
 		});
 		
-        jQuery(function(){
-            jQuery('#preLoader').hide();
-        });
+		jQuery(function(){
+			jQuery('#preLoader').hide();
+		});
         
 		jQuery(window).on('beforeunload', function(){
 			if(documentDirty) return '<?php echo addslashes($_lang['warning_not_saved']);?>';

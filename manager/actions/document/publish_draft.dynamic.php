@@ -16,7 +16,6 @@ else {
 	$e->dumpError();
 }
 
-include_once(MODX_CORE_PATH . 'helpers.php');
 include_once(MODX_MANAGER_PATH . 'actions/document/functions.php');
 
 $ph['id'] = $docid;

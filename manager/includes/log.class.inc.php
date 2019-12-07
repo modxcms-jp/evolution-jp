@@ -10,7 +10,7 @@ class logHandler {
     function logError($msg) {
         include_once MODX_CORE_PATH . 'error.class.inc.php';
         $e = new errorHandler;
-        $e->setError(9, "Logging error: ".$msg);
+        $e->setError(9, "Logging error: " . $msg);
         $e->dumpError();
     }
 

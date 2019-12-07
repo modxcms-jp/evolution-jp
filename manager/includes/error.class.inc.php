@@ -2,12 +2,12 @@
 // this is the old error handler. Here for legacy, until i replace all the old errors.
 class errorHandler{
 
-	public $errorcode;
-	public $errors = array();
-	
-	function __construct()
-	{
-		$this->errors = array(
+    public $errorcode = null;
+    public $errors = array();
+    private $errormessage;
+
+    public function __construct() {
+        $this->errors = array(
             0 =>   lang('No errors occured.'),
             1 =>   lang('An error occured!'),
             2 =>   lang("Document's ID not passed in request!"),
@@ -38,44 +38,50 @@ class errorHandler{
         );
 	}
 
-	function setError($errorcode, $custommessage= ''){
+	public function setError($errorcode, $message= ''){
 		$this->errorcode=$errorcode;
-		$this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
-		if($custommessage!= '') {
-			$this->errormessage=$custommessage;
-		}
-	}
-	
-	function getError() {
-		return $this->errorcode;
-	}
-	
-	function dumpError() {
-		if(!isset($_GET['count_attempts']))
-		{
-			if(preg_match('/[&\?]count_attempts/', $_SESSION['previous_request_uri'])) {
-                $previous_request_uri = $_SESSION['previous_request_uri'];
-
-            } else {
-                    $previous_request_uri = sprintf(
-                        '%s%scount_attempts=1'
-                        , $_SESSION['previous_request_uri']
-                        , strpos($_SESSION['previous_request_uri'],'?')===false ? '?' : '&'
-                    );
-            }
-		} else {
-            $previous_request_uri = 'index.php?a=2';
+        if($message) {
+            $this->errormessage = $message;
+            return;
         }
-		
-		$tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl');
-		$ph['message']  = db()->escape($this->errormessage);
-		$ph['warning']  = lang('warning');
-		$ph['url']      = $previous_request_uri;
-		$scr = evo()->parseText($tpl,$ph);
-
-        include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
-		echo $scr;
-		include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
-		exit;
+		$this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
 	}
+
+    public function hasError() {
+        return $this->errorcode;
+    }
+
+    public function dumpError() {
+        include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
+        echo evo()->parseText(
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl')
+            , array(
+                'message' => db()->escape($this->errormessage),
+                'warning' => lang('warning'),
+                'url'     => $this->prev()
+            )
+        );
+        include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
+        exit;
+    }
+
+    private function prev() {
+        if(isset($_GET['count_attempts'])) {
+            return 'index.php?a=2';
+        }
+
+        if (preg_match('/[&?]count_attempts/', $_SESSION['previous_request_uri'])) {
+            return $_SESSION['previous_request_uri'];
+        }
+
+        return sprintf(
+            '%s%scount_attempts=1'
+            , $_SESSION['previous_request_uri']
+            , strpos($_SESSION['previous_request_uri'], '?') === false ? '?' : '&'
+        );
+    }
+
+    private function getError() {
+        return $this->errorcode;
+    }
 }

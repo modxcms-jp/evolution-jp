@@ -118,8 +118,7 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // first we check to see if this is a frameset request
-if (!isset($_POST['a']) && !isset($_GET['a']) && ($e->getError()==0) && !isset($_POST['updateMsgCount'])) {
-    // this looks to be a top-level frameset request, so let's serve up a frameset
+if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCount'])) {
     include_once(MODX_MANAGER_PATH . 'frames/1.php');
     exit;
 }
@@ -144,8 +143,6 @@ $modx->manager->setView($modx->manager->action);
 if(isset($_POST['stay'])&&$_POST['stay']!=='new') {
     $_SESSION['saveAfter'] = $_POST['stay'];
 }
-
-include_once(MODX_CORE_PATH . 'helpers.php');
 
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 

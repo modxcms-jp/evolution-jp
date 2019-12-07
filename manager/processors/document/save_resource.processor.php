@@ -7,7 +7,6 @@ if (!$modx->hasPermission('save_document')) {
 }
 
 global $form_v, $actionToTake;
-include_once(MODX_CORE_PATH . 'helpers.php');
 include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
 $modx->loadExtension('DocAPI');
 $form_v = $modx->doc->fixTvNest('ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes',$_POST);
