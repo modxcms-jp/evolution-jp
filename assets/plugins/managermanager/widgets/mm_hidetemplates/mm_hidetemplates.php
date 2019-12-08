@@ -25,8 +25,8 @@ function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
     $tplIds = makeArray($tplIds);
     $output = "//  -------------- mm_hideTemplates :: Begin ------------- \n";
     foreach ($tplIds as $tpl) {
-        $output .= 'if ($j("select#template").val() != ' . $tpl . '){ ' . "\n";
-        $output .= '$j("select#template option[value=' . $tpl . ']").remove();' . "\n";
+        $output .= 'if ($j("select#field_template").val() != ' . $tpl . '){ ' . "\n";
+        $output .= '$j("select#field_template option[value=' . $tpl . ']").remove();' . "\n";
         $output .= '}' . "\n";
     }
 

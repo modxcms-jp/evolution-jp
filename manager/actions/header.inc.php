@@ -81,7 +81,7 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 				case 102:
 				case 300:
 				case 301:
-					jQuery('input,textarea,select:not(#template,#which_editor,#stay)')
+					jQuery('input,textarea,select:not(#field_template,#which_editor,#stay)')
 						.change(
 							function() {
 								documentDirty=true;

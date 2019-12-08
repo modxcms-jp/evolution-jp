@@ -61,7 +61,7 @@ if(!class_exists('Mcc')) {
         // Template
         //_______________________________________________________
         function hideTemplate($tpl) {
-            $this->addLine('$("select#template option[value='.$tpl.']").remove();');
+            $this->addLine('$("select#field_template option[value='.$tpl.']").remove();');
         }
         
         //_______________________________________________________
