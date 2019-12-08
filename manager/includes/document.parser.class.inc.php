@@ -5022,7 +5022,7 @@ class DocumentParser {
         if(!$attrib && !$content) {
             return sprintf('<%s>', $tag_name);
         }
-        if($attrib) {
+        if(is_array($attrib)) {
             foreach($attrib as $k => $v) {
                 if($v===null) {
                     $attrib[$k] = sprintf('%s', $k);
