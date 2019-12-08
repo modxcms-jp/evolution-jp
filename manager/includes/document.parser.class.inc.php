@@ -4913,13 +4913,17 @@ class DocumentParser {
         return $this->array_get($GLOBALS, $key, $default);
     }
     
-    public function conf_var($key=null, $default=null) {
+    public function config($key=null, $default=null) {
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
             $this->array_set($this->config, $key, $value);
             return $value;
         }
         return $this->array_get($this->config, $key, $default);
+    }
+
+    public function conf_var($key=null, $default=null) {
+        return $this->config($key, $default);
     }
 
     function array_get($array, $key=null, $default = null)
