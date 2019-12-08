@@ -97,25 +97,31 @@ class ManagerAPI {
         if($pagetitle!=='') {
             $alias = strtolower($modx->stripAlias($pagetitle));
         }
-        return '';
 
-        if(!$modx->config['allow_duplicate_alias'])
-        {
-            $rs = $modx->db->select('id','[+prefix+]site_content',"id<>'{$id}' AND alias='{$alias}'");
-            if(0 < $modx->db->getRecordCount($rs))
-            {
-                $c = 2;
-                $_ = $alias;
-                while(0 < $modx->db->getRecordCount($modx->db->select('id','[+prefix+]site_content',"id!='{$id}' AND alias='{$_}'")))
-                {
-                    $_  = $alias;
-                    $_ .= "_{$c}";
-                    $c++;
-                }
-                $alias = $_;
-            }
+        if($modx->config['allow_duplicate_alias']) {
+            return '';
         }
-        else $alias = '';
+
+        $rs = db()->select(
+            'id'
+            , '[+prefix+]site_content'
+            , sprintf("id<>'%s' AND alias='%s'", $id, $alias)
+        );
+        if (db()->getRecordCount($rs)) {
+            $c = 2;
+            $_ = $alias;
+            while (0 < db()->getRecordCount(
+                    db()->select('id',
+                        '[+prefix+]site_content',
+                        sprintf("id!='%s' AND alias='%s'", $id, $_)
+                    ))
+            ) {
+                $_ = $alias;
+                $_ .= '_' . $c;
+                $c++;
+            }
+            $alias = $_;
+        }
 
         return $alias;
     }
@@ -124,7 +130,7 @@ class ManagerAPI {
     {
         global $modx;
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'MAX(cast(alias as SIGNED))'
             ,'[+prefix+]site_content'
             , sprintf(
@@ -133,14 +139,14 @@ class ManagerAPI {
                 , (int)$parent
             )
         );
-        $_ = $modx->db->getValue($rs);
+        $_ = db()->getValue($rs);
         if(empty($_)) {
             $_ = 0;
         }
         $_++;
         while(!isset($noduplex))
         {
-            $rs = $modx->db->select(
+            $rs = db()->select(
                 'id'
                 ,'[+prefix+]site_content'
                 , sprintf(
@@ -149,7 +155,7 @@ class ManagerAPI {
                     , (int)$parent
                 )
             );
-            if($modx->db->getRecordCount($rs)==0) {
+            if(db()->getRecordCount($rs)==0) {
                 $noduplex = true;
             } else {
                 $_++;
@@ -289,7 +295,7 @@ class ManagerAPI {
             $action = (int)$action;
             $action = "action={$action} and";
         }
-        $modx->db->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
+        db()->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
     }
 
     function getHashType($db_value='') { // md5 | v1 | phpass
@@ -363,7 +369,7 @@ class ManagerAPI {
     {
         global $modx;
 
-        $user = $modx->db->getObject('manager_users',"id='{$uid}'");
+        $user = db()->getObject('manager_users',"id='{$uid}'");
 
         if(strpos($user->password, '>')===false) {
             return 'NOSALT';
@@ -418,8 +424,8 @@ class ManagerAPI {
         $actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
         if(in_array($action, $actions))
         {
-            if(isset($_SESSION['current_request_uri'])) {
-                $_SESSION['previous_request_uri'] = $_SESSION['current_request_uri'];
+            if(evo()->session_var('current_request_uri')) {
+                $_SESSION['previous_request_uri'] = evo()->session_var('current_request_uri');
             }
             $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
         }
@@ -427,26 +433,31 @@ class ManagerAPI {
 
     function ab($ph)
     {
-        global $modx, $_lang;
-
-        $ph['alt']   = isset($ph['alt']) ? $ph['alt'] : $ph['label'];
-        $ph['class'] = $ph['label']==$_lang['cancel'] ? 'class="mutate"' : '';
-        return $modx->parseText(
-            '<li [+class+]><a href="#" onclick="[+onclick+]"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>'
-            , $ph
+        return html_tag(
+            '<li>'
+            , array('class'=> $ph['label']==lang('cancel') ? 'class="mutate"' : ''),
+            html_tag(
+                '<a>',
+                array(
+                    'href'    => '#',
+                    'onclick' => $ph['onclick']
+                )
+                , img_tag(
+                    $ph['icon'],
+                    array(
+                        'alt' => $ph['alt']
+                    )
+                ) . $ph['label']
+            )
         );
     }
 
-    //Helper functions for categories
-    //Kyle Jaebker - 08/07/06
-
-    //Create a new category
     function newCategory($newCat)
     {
         global $modx;
 
-        $newCatid = $modx->db->insert(
-            array('category' => $modx->db->escape($newCat))
+        $newCatid = db()->insert(
+            array('category' => db()->escape($newCat))
             , '[+prefix+]categories'
         );
 
@@ -461,7 +472,7 @@ class ManagerAPI {
     {
         global $modx;
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'id,category'
             , '[+prefix+]categories'
             , ''
@@ -472,7 +483,7 @@ class ManagerAPI {
             return 0;
         }
 
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             if ($row['category'] == $newCat) {
                 return $row['id'];
             }
@@ -484,7 +495,7 @@ class ManagerAPI {
     function getCategories()
     {
         global $modx;
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'id, category'
             , '[+prefix+]categories'
             , ''
@@ -497,7 +508,7 @@ class ManagerAPI {
         }
 
         $resourceArray = array();
-        while($row = $modx->db->getRow($rs)) // pixelchutes
+        while($row = db()->getRow($rs)) // pixelchutes
         {
             $resourceArray[] = array(
                 'id'       => $row['id'],
@@ -526,14 +537,14 @@ class ManagerAPI {
         );
 
         foreach ($resetTables as $table_name) {
-            $modx->db->update(
+            db()->update(
                 array('category'=>'0')
                 , '[+prefix+]' . $table_name
                 , sprintf("category='%d'", $catId)
             );
         }
 
-        $modx->db->delete(
+        db()->delete(
             '[+prefix+]categories'
             , sprintf("id='%d'", $catId)
         );
@@ -572,7 +583,7 @@ class ManagerAPI {
         return $modx->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
             , array(
-                'alerts' => $modx->db->escape(implode('<hr />',$alerts)),
+                'alerts' => db()->escape(implode('<hr />',$alerts)),
                 'title'  => $_lang['sys_alert']
             )
         );
@@ -587,16 +598,16 @@ class ManagerAPI {
 
         $uid = $modx->getLoginUserID();
 
-        $new = $modx->db->getValue(
-            $modx->db->select(
+        $new = db()->getValue(
+            db()->select(
                 'count(id)'
                 , '[+prefix+]user_messages'
                 , sprintf("recipient='%s' and messageread=0", $uid)
             )
         );
 
-        $total = $modx->db->getValue(
-            $modx->db->select(
+        $total = db()->getValue(
+            db()->select(
                 'count(id)'
                 , '[+prefix+]user_messages'
                 , sprintf("recipient='%s'", $uid)
@@ -619,7 +630,7 @@ class ManagerAPI {
             $uid = $modx->getLoginUserID();
         }
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'uga.documentgroup as documentgroup'
             , array(
                 '[+prefix+]member_groups ug',
@@ -628,12 +639,12 @@ class ManagerAPI {
             , sprintf("ug.member='%s'", $uid)
         );
 
-        if(!$modx->db->getRecordCount($rs)) {
+        if(!db()->getRecordCount($rs)) {
             return array();
         }
 
         $documentgroup = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $documentgroup[] = $row['documentgroup'];
         }
         return $documentgroup;
@@ -646,7 +657,7 @@ class ManagerAPI {
             $uid = $modx->getLoginUserID();
         }
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'user_group,name'
             , array(
                 '[+prefix+]member_groups ug',
@@ -655,12 +666,12 @@ class ManagerAPI {
             , preg_match('@^[1-9][0-9]*$@',$uid) ? sprintf("ug.member='%d'", $uid) : ''
         );
 
-        if(!$modx->db->getRecordCount($rs)) {
+        if(!db()->getRecordCount($rs)) {
             return array();
         }
 
         $group = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $group[$row['user_group']]=$row['name'];
         }
 
@@ -677,13 +688,13 @@ class ManagerAPI {
     function setMgrDocsAsPrivate($docid='') {
         global $modx;
 
-        $modx->db->update(
+        db()->update(
             array('privatemgr'=>0)
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
         );
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'sc.id'
             , array('[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
@@ -692,14 +703,14 @@ class ManagerAPI {
             , $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
         );
 
-        $ids = $modx->db->getColumn('id',$rs);
+        $ids = db()->getColumn('id',$rs);
 
         if(!$ids) {
             return '';
         }
 
         $ids = implode(',', $ids);
-        $modx->db->update(
+        db()->update(
             array('privatemgr'=>1)
             , '[+prefix+]site_content'
             , sprintf('id IN (%s)', $ids)
@@ -718,13 +729,13 @@ class ManagerAPI {
     function setWebDocsAsPrivate($docid='') {
         global $modx;
 
-        $modx->db->update(
+        db()->update(
             array('privateweb'=>0)
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
         );
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'DISTINCT sc.id'
             , array(
                 '[+prefix+]site_content sc',
@@ -734,14 +745,14 @@ class ManagerAPI {
             , $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
         );
 
-        $ids = $modx->db->getColumn('id',$rs);
+        $ids = db()->getColumn('id',$rs);
 
         if($ids) {
             return '';
         }
 
         $ids = implode(',', $ids);
-        $modx->db->update(
+        db()->update(
             array('privateweb'=>1)
             , '[+prefix+]site_content'
             , sprintf("id IN (%s)", $ids)
