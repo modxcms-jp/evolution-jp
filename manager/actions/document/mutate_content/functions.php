@@ -739,7 +739,7 @@ function collect_tab_tv_ph() {
 function collect_tab_settings_ph($docid) {
     $ph = array();
     $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
-    $ph['fieldPublished'] = (evo()->doc->mode==='normal') ? fieldPublished() : '';
+    $ph['fieldPublished']  = evo()->doc->mode==='normal' ? fieldPublished() : '';
     $ph['fieldPub_date']   = fieldPub_date($docid);
     $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
 

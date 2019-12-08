@@ -48,6 +48,7 @@ function fieldAlias($id) {
         return renderTr(
             lang('resource_alias')
             , input_text_tag(array(
+                    'id'        => 'field_alias',
                     'name'      => 'alias',
                     'value'     => doc('alias|hsc'),
                     'maxlength' => 100
@@ -105,8 +106,8 @@ function fieldWeblink() {
         )
         , input_text_tag(
             array(
-                'name'  => 'content',
                 'id'    => 'field_weblink',
+                'name'  => 'content',
                 'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
             )
         )
@@ -127,10 +128,11 @@ function fieldIntrotext() {
         lang('resource_summary')
         , textarea_tag(
             array(
-                'name'=>"introtext",
-                'class'=>"inputBox",
-                'style'=>"height:60px;",
-                'rows'=>"3"
+                'id'    => 'field_introtext',
+                'name'  => 'introtext',
+                'class' => 'inputBox',
+                'style' => 'height:60px;',
+                'rows'  => '3'
             )
             , doc('introtext|hsc')
         ) . tooltip(lang('resource_summary_help'))
@@ -197,8 +199,9 @@ function fieldMenutitle() {
         lang('resource_opt_menu_title')
         , input_text_tag(
             array(
-                'name' => 'menutitle',
-                doc('menutitle|hsc')
+                'id'    => 'field_menutitle',
+                'name'  => 'menutitle',
+                'value' => doc('menutitle|hsc')
             )
         )
         . tooltip(lang('resource_opt_menu_title_help'))
@@ -358,17 +361,17 @@ function fieldPublished() {
 
     $body = html_tag('input'
         , array(
-            'type'=>'checkbox',
-            'class'=>'checkbox',
-            'name'=>'publishedcheck',
-            'checked'=> $published ? null : '',
+            'type'     => 'checkbox',
+            'class'    => 'checkbox',
+            'name'     => 'publishedcheck',
+            'checked'  => $published ? null : '',
             'onclick'  => 'changestate(document.mutate.published);resetpubdate();',
-            'disabled'=>(!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
+            'disabled' => (!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
         )
     );
     $body .= html_tag(
         'input'
-        ,array(
+        , array(
             'name'  => 'published',
             'class' => 'hidden',
             'value' => $published ? 1 : 0
@@ -381,10 +384,10 @@ function fieldPublished() {
 function fieldPub_date($id=0) {
     $body = input_text_tag(
             array(
-                'name'  => 'pub_date',
-                'id'    => 'pub_date',
-                'value' => evo()->toDateFormat(doc('pub_date')),
-                'class' => 'DatePicker imeoff',
+                'name'     => 'pub_date',
+                'id'       => 'pub_date',
+                'value'    => evo()->toDateFormat(doc('pub_date')),
+                'class'    => 'DatePicker imeoff',
                 'disabled' => (!evo()->hasPermission('publish_document') || $id==config('site_start')) ? null : ''
             )
         )
@@ -438,6 +441,7 @@ function fieldUnpub_date($id) {
         );
     return renderTr(lang('page_data_unpublishdate'),$body);
 }
+
 function fieldLink_attributes() {
     $body  = input_text_tag(
             array(
