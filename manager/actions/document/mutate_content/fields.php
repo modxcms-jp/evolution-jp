@@ -345,26 +345,22 @@ function fieldsTV() {
 
     $output[] = '</table>';
 
-    return implode("\n",$output) . join("\n", $hidden);
+    return implode("\n",$output) . implode("\n", $hidden);
 }
 
 function fieldPublished() {
-    if(!evo()->hasPermission('publish_document')) {
-        if(evo()->manager->action==27) {
-            $published = doc('published');
-        } else {
-            $published = 0;
+    $published = function() {
+        if(evo()->hasPermission('publish_document') || evo()->manager->action == 27) {
+            return doc('published');
         }
-    } else {
-        $published = doc('published');
-    }
-
+        return 0;
+    };
     $body = html_tag('input'
         , array(
             'type'     => 'checkbox',
             'class'    => 'checkbox',
             'name'     => 'publishedcheck',
-            'checked'  => $published ? null : '',
+            'checked'  => $published() ? null : '',
             'onclick'  => 'changestate(document.mutate.published);resetpubdate();',
             'disabled' => (!evo()->hasPermission('publish_document') || evo()->input_any('id')===config('site_start')) ? null : ''
         )
@@ -374,7 +370,7 @@ function fieldPublished() {
         , array(
             'name'  => 'published',
             'class' => 'hidden',
-            'value' => $published ? 1 : 0
+            'value' => $published() ? 1 : 0
         )
     );
     $body .= tooltip(lang('resource_opt_published_help'));
