@@ -8,10 +8,9 @@ function startCMSSession() {
     session_set_cookie_params(0,MODX_BASE_URL);
     session_start();
 
-    if(!init::check_session()) {
+    if(init::session('evo_sid_hash') !== md5(session_id())) {
         session_regenerate_id(true);
         $_SESSION['evo_sid_hash'] = md5(session_id());
-        $_SESSION['evo_ip_hash']  = md5(init::real_ip());
     }
 
     if (isset($_SESSION['mgrValidated']) || isset($_SESSION['webValidated'])) {
@@ -237,16 +236,6 @@ class init {
         return 'UNKNOWN';
     }
 
-    public static function check_session() {
-        if(static::session('evo_sid_hash') !== md5(session_id())) {
-            return false;
-        }
-        if(static::session('evo_ip_hash') !== md5(init::real_ip())) {
-            return false;
-        }
-        return true;
-    }
-
     public static function set_session_create_time() {
         if(isset($_SESSION['modx.session.created.time'])) {
             return;
@@ -258,6 +247,7 @@ class init {
             $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
         }
     }
+    
     public static function cookieExpiration() {
         if (isset($_SESSION['mgrValidated'])) {
             $key = 'modx.mgr.session.cookie.lifetime';
