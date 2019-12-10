@@ -682,8 +682,7 @@ class DBAPI {
     */
     function getVersion() {
         if (!$this->isConnected()) {
-            $rs = $this->connect();
-            if(!$rs) {
+            if(!$this->connect()) {
                 return false;
             }
         }
@@ -961,7 +960,9 @@ class DBAPI {
     function optimize($table_name) {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
         $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
-        if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
+        if($rs) {
+            $rs = $this->query("ALTER TABLE `{$table_name}`");
+        }
         return $rs;
     }
 
@@ -994,11 +995,12 @@ class DBAPI {
             }
             $source .= $v . "\n";
         }
-        $source = str_replace('{PREFIX}',$this->table_prefix,$source);
-        $sql_array = preg_split('@;[ \t]*\n@', $source);
+        $sql_array = preg_split(
+            '@;[ \t]*\n@'
+            , str_replace('{PREFIX}',$this->table_prefix,$source)
+        );
         foreach($sql_array as $sql) {
-            $sql = trim($sql);
-            if(!$sql) {
+            if(!trim($sql)) {
                 continue;
             }
             $this->query($sql,$watchError);
@@ -1006,22 +1008,31 @@ class DBAPI {
     }
     
     function table_exists($table_name) {
-        $dbname = trim($this->dbname,'`');
-        $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
-        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $dbname, $table_name);
-        $rs = $this->query($sql);
+        $sql = sprintf(
+            "SHOW TABLES FROM `%s` LIKE '%s'"
+            , trim($this->dbname,'`')
+            , str_replace('[+prefix+]', $this->table_prefix, $table_name)
+        );
         
-        return 0<$this->getRecordCount($rs) ? 1 : 0;
+        return 0<$this->getRecordCount($this->query($sql)) ? 1 : 0;
     }
     
     function field_exists($field_name,$table_name) {
         $table_name = $this->replaceFullTableName($table_name);
         
-        if(!$this->table_exists($table_name)) return 0;
+        if(!$this->table_exists($table_name)) {
+            return 0;
+        }
         
-        $rs = $this->query("DESCRIBE {$table_name} {$field_name}");
-        
-        return $this->getRow($rs) ? 1 : 0;
+        return $this->getRow(
+            $this->query(
+                sprintf(
+                    'DESCRIBE %s %s'
+                    , $table_name
+                    , $field_name
+                )
+            )
+        ) ? 1 : 0;
     }
     
     function isConnected() {
