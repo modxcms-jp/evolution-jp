@@ -2453,7 +2453,7 @@ class DocumentParser {
             extract($params, EXTR_SKIP);
         }
         ob_start();
-        if(strpos($phpcode,';')!==false) {
+        if(strpos($phpcode,';')!==false || strpos(trim($phpcode),"\n")!==false) {
             $return = eval($phpcode);
         } else {
             $return = $phpcode($params);
