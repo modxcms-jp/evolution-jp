@@ -4914,6 +4914,9 @@ class DocumentParser {
     }
     
     public function config($key=null, $default=null) {
+        if(!isset($this->config['site_url'])) {
+            $this->getSettings();
+        }
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
             $this->array_set($this->config, $key, $value);
