@@ -15,8 +15,7 @@ class filter {
             if (!is_array($current_filter) || !$current_filter) {
                 continue;
             }
-            $param = $this->_getParams($current_filter);
-            $docs = $this->_basicFilter($docs, $param);
+            $docs = $this->_basicFilter($docs, $this->_getParams($current_filter));
         }
         foreach ($filter['custom'] as $current_filter) {
             $docs = array_filter($docs, $current_filter);
@@ -28,7 +27,7 @@ class filter {
         foreach($docs as $i=>$doc) {
             $unset = $this->isTrue($doc, $param);
             if($param['flip_mode']) {
-                $unset = $unset ? 0 : 1;
+                $unset = !$unset;
             }
             if($unset) {
                 unset($docs[$i]);
@@ -41,10 +40,16 @@ class filter {
         global $modx;
 
         $rs = array();
-        $rs['op'] = isset($param['mode']) ? $param['mode'] : '!=';
-        if (in_array($param['value'], array('>','>=','<','<=','!=','<>','==','=~','!~') )) {
-            list($param['value'], $rs['op']) = array($rs['op'], $param['value']);
+        $op = $this->_get_operator_name($param['mode']);
+        if(!$op) {
+            $op = $this->_get_operator_name($param['value']);
+            if($op) {
+                $param['value'] = $param['mode'];
+            } else {
+                $op = '9';
+            }
         }
+        $rs['op'] = $op;
 
         if(strpos($param['value'], '@EVAL') === 0) {
             $eval_code = trim(substr($param['value'],6));
@@ -61,8 +66,6 @@ class filter {
             $rs['creteria'] = $modx->mergePlaceholderContent($rs['creteria']);
         }
 
-        $rs['op'] = $this->_get_operator_name($rs['op']);
-
         $rs['creteria'] = trim($rs['creteria']);
 
         if ($this->get_docfield_type($param['source'])==='datetime') {
@@ -73,14 +76,14 @@ class filter {
 
         $rs['field_name'] = $param['source'];
 
-        if (strpos($rs['op'], '!') === 0 && substr($rs['op'],0,2)!=='!!') {
-            $rs['flip_mode'] = 1;
-            $rs['op'] = substr($rs['op'],1);
-            if($rs['op']==='=') {
-                $rs['op'] = '==';
-            }
-        } else {
+        if (strpos($rs['op'], '!') !== 0 || strpos($rs['op'], '!!') === 0) {
             $rs['flip_mode'] = 0;
+            return $rs;
+        }
+        $rs['flip_mode'] = 1;
+        $rs['op'] = substr($rs['op'], 1);
+        if ($rs['op'] === '=') {
+            $rs['op'] = '==';
         }
 
         return $rs;
@@ -111,16 +114,16 @@ class filter {
     }
 
     private function _get_operator_name($operator_name) {
-        if (in_array($operator_name, array(1,'<>','ne')))  return '!=';
-        if (in_array($operator_name, array(2,'eq','ne')))  return '==';
-        if (in_array($operator_name, array(3,'lt','ne')))  return '<';
-        if (in_array($operator_name, array(6,'lte','le'))) return '<=';
-        if (in_array($operator_name, array(4,'gt')))       return '>';
-        if (in_array($operator_name, array(5,'gte','ge'))) return '>=';
-        if ($operator_name==8)                             return '!~';
-        if ($operator_name === 'preg')                     return 'regex';
-        if (in_array($operator_name, array(7,'find','search','strpos'))) return '=~';
-        return $operator_name;
+        if (in_array($operator_name, array('!=','1','<>','ne'),true))  return '!=';
+        if (in_array($operator_name, array('==',2,'eq')))       return '==';
+        if (in_array($operator_name, array('<',3,'lt')))        return '<';
+        if (in_array($operator_name, array('<=',6,'lte','le'))) return '<=';
+        if (in_array($operator_name, array('>',4,'gt')))        return '>';
+        if (in_array($operator_name, array('>=',5,'gte','ge'))) return '>=';
+        if (in_array($operator_name, array('regex','preg')))    return 'regex';
+        if (in_array($operator_name, array('=~',7,'find','search','strpos'))) return '=~';
+        if (in_array($operator_name, array('!=~',8,'!find','!search','!strpos'))) return '!=~';
+        return false;
     }
 
     private function get_docfield_type($field_name='') {
