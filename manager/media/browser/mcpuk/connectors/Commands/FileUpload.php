@@ -2,18 +2,18 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *
  * For further information visit:
  * 		http://www.fckeditor.net/
- * 
+ *
  * File Name: FileUpload.php
  * 	Implements the FileUpload command,
- * 	Checks the file uploaded is allowed, 
- * 	then moves it to the user data area. 
- * 
+ * 	Checks the file uploaded is allowed,
+ * 	then moves it to the user data area.
+ *
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  *
@@ -28,9 +28,9 @@
  * 		(*4) add invoking event `OnFileManagerUpload`
  */
 class FileUpload {
-	var $fckphp_config;
-	var $type;
-	
+    public $fckphp_config;
+    public $type;
+
 	function __construct($fckphp_config,$type,$cwd)
 	{
 		global $modx;

@@ -2,44 +2,38 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *   http://www.opensource.org/licenses/lgpl-license.php
+ *
  * For further information visit:
- * 		http://www.fckeditor.net/
+ *   http://www.fckeditor.net/
  *
  * "Support Open Source software. What about a donation today?"
- * 
+ *
  * File Name: config.php
- * 	Configuration file
- * 
+ *  Configuration file
+ *
  * File Authors:
- * 		Grant French (grant@mcpuk.net)
+ *   Grant French (grant@mcpuk.net)
  */
 
 // ** START FOR MODX
 $self = 'manager/media/browser/mcpuk/connectors/config.php';
-$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 
 // load configuration file
 // initialize the variables prior to grabbing the config file
 if(!isset($_SESSION['mgrValidated'])) {
-	if(!isset($_SESSION['webValidated'])){
-		die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
-	}
+    if(!isset($_SESSION['webValidated'])) {
+        die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
+    }
 }
 
-/**
- * Security check user MUST be logged into manager 
- * before being able to run this script
- */
-
-// Override system settings with user settings
 extract($modx->config);
 $settings = &$modx->config;
 if($settings['use_browser'] != 1){
-	die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
+    die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
 }
 
 // make arrays from the file upload settings
@@ -48,10 +42,11 @@ $upload_images = explode(',',strtolower($upload_images));
 $upload_media  = explode(',',strtolower($upload_media));
 $upload_flash  = explode(',',strtolower($upload_flash));
 
-/* HTTP over SSL Detection (shouldnt require changing)				*/
-if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS']!=='on')
-	$fckphp_config['prot'] = 'http://';
-else $fckphp_config['prot'] = 'https://';
+if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS']!=='on') {
+    $fckphp_config['prot'] = 'http://';
+} else {
+    $fckphp_config['prot'] = 'https://';
+}
 
 $baseurl = $rb_base_url;
 $rb_base_url_parse = parse_url($rb_base_url);
@@ -59,23 +54,16 @@ if(empty($rb_base_url_parse['host'])){
     $base_url_parse = parse_url($base_url);
     if($rb_base_url!=='/' && $base_url_parse['path']!=='/')
         $rb_base_url = str_replace($base_url_parse['path'], '', $rb_base_url);
-    $rb_base_url = ltrim($rb_base_url,'/');  
+    $rb_base_url = ltrim($rb_base_url,'/');
     if($_GET['editor'] == 'fckeditor2' && $strip_image_paths == 1){
-    	$baseurl = $base_url.$rb_base_url;
-    } else if(($_GET['editor'] == 'tinymce3' || $_GET['editor'] == 'tinymce') && $strip_image_paths != 1){
-    	$baseurl = $site_url.$rb_base_url;
+        $baseurl = $base_url.$rb_base_url;
+    } elseif(($_GET['editor'] == 'tinymce3' || $_GET['editor'] == 'tinymce') && $strip_image_paths != 1){
+        $baseurl = $site_url.$rb_base_url;
     }
 }
 
-/* The physical path to the document root, Set manually if not using apache	*/
-
 $fckphp_config['basedir'] = rtrim($rb_base_dir,'/').'/';
 
-
-
-/* Prefix added to image path before sending back to editor			*/
-
-//$fckphp_config['urlprefix']=$fckphp_config['prot'].$_SERVER['SERVER_NAME'];
 if ($strip_image_paths == 1) {
 	$fckphp_config['urlprefix'] = (substr($baseurl,-1)=="/") ? str_replace($site_url,'',substr($baseurl,0,-1)):$baseurl;
 } else {

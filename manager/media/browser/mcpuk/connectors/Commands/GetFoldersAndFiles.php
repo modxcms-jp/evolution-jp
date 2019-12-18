@@ -2,32 +2,32 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *
  * For further information visit:
  * 		http://www.fckeditor.net/
- * 
+ *
  * File Name: GetFoldersAndFiles.php
  * 	Implements the GetFoldersAndFiles command, to list
  * 	files and folders in the current directory.
  * 	Output is in XML
- * 
+ *
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  */
 class GetFoldersAndFiles {
-	var $fckphp_config;
-	var $type;
-	var $cwd;
-	var $actual_cwd;
-	var $enable_imgedit;
-	
-	function __construct($fckphp_config,$type,$cwd) {
-		$this->fckphp_config=$fckphp_config;
-		$this->type=$type;
-		$this->raw_cwd=$cwd;
+    public $fckphp_config;
+    public $type;
+    public $cwd;
+    public $actual_cwd;
+    public $enable_imgedit;
+
+    function __construct($fckphp_config,$type,$cwd) {
+        $this->fckphp_config=$fckphp_config;
+        $this->type=$type;
+        $this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
 		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
 		$self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';

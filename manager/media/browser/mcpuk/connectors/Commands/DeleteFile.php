@@ -17,12 +17,11 @@
  * 		Grant French (grant@mcpuk.net)
  */
 class DeleteFile {
-	var $fckphp_config;
-	var $type;
-	var $cwd;
-	var $actual_cwd;
-	var $newfolder;
-	
+	public $fckphp_config;
+	public $type;
+	public $cwd;
+	public $actual_cwd;
+
 	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
@@ -33,21 +32,24 @@ class DeleteFile {
 	}
 	
 	function run() {
-		$result1=false;
 		$result2=true;
 		
-		$thumb=$this->real_cwd.'/.thumb/'.$this->filename;
-		$result1=unlink($this->real_cwd.'/'.$this->filename);
-		if (is_file($thumb)) $result2=unlink($thumb);
-		
-		header ("content-type: text/xml");
+		$thumb = $this->real_cwd.'/.thumb/'.$this->filename;
+		$result1 = unlink($this->real_cwd.'/'.$this->filename);
+		if (is_file($thumb)) {
+            $result2 = unlink($thumb);
+        }
+		header ('content-type: text/xml');
 		echo '<?xml version="1.0" encoding="utf-8" ?>'."\n";
 		?>
 <Connector command="DeleteFile" resourceType="<?php echo $this->type; ?>">
 	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
 	<?php
-		if ($result1&&$result2) $err_no=0;
-		 else                   $err_no=302;
+		if ($result1 && $result2) {
+            $err_no = 0;
+        } else {
+             $err_no = 302;
+		}
 	?>
 	<Error number="<?php echo ''.$err_no; ?>" />
 </Connector>
