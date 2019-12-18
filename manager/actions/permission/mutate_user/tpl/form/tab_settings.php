@@ -51,7 +51,12 @@
         <tr>
             <th><?php echo lang('user_blockeduntil'); ?>:</th>
             <td>
-                <input type="text" id="blockeduntil" name="blockeduntil" class="DatePicker" value="<?php echo ($user['blockeduntil'] ? $modx->toDateFormat($user['blockeduntil']):""); ?>" onblur='documentDirty=true;' readonly="readonly">
+                <input
+                    type="text"
+                    id="blockeduntil"
+                    name="blockeduntil"
+                    class="DatePicker"
+                    value="<?php echo ($user['blockeduntil'] ? $modx->toDateFormat($user['blockeduntil']):''); ?>" onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockeduntil.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif" border="0" alt="<?php echo lang('remove_date'); ?>" /></a>
             </td>
         </tr>

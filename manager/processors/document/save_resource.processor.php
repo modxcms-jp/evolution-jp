@@ -2,8 +2,8 @@
 if(!isset($modx) || !evo()->isLoggedin()) exit;
 
 if (!evo()->hasPermission('save_document')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 global $form_v, $actionToTake;
@@ -19,8 +19,8 @@ $form_v = evo()->doc->setValue($form_v);
 // preprocess POST values
 $id = $form_v['id'];
 if(!preg_match('@^[0-9]*$@',$id) || ($_POST['mode'] == '27' && empty($id))) {
-    $e->setError(2);
-    $e->dumpError();
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 if($_POST['mode'] == '27') {

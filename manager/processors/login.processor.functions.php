@@ -91,12 +91,11 @@ function updateNewHash($internalKey,$password) {
 }
 
 function user_config($key, $default=null) {
-    global $modx;
     static $conf = null;
     if(isset($conf[$key])) {
         return $conf[$key];
     }
-    $rs = $modx->db->select(
+    $rs = db()->select(
         'setting_name, setting_value'
         , '[+prefix+]user_settings'
         , sprintf(
@@ -104,7 +103,7 @@ function user_config($key, $default=null) {
             , user('internalKey')
         )
     );
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $conf[$row['setting_name']] = $row['setting_value'];
     }
     if(isset($conf[$key])) {
@@ -301,9 +300,8 @@ function validPassword($inputPassword='',$savedPassword='') {
 }
 
 function redirectAfterLogin() {
-// check if we should redirect user to a web page
-    if(user_config('manager_login_startup',0)) {
-        $header = 'Location: '.evo()->makeUrl(user_config('manager_login_startup',0));
+    if(user_config('manager_login_startup')) {
+        $header = 'Location: '.evo()->makeUrl(user_config('manager_login_startup'));
         if(evo()->input_post('ajax')) {
             exit($header);
         }
