@@ -515,18 +515,21 @@ class DBAPI {
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($rs, $from='', $where='') {
+    function count($rs, $from='', $where='') {
         if ($this->isResult($rs)) {
             return $rs->num_rows;
         }
         if(is_string($rs) && $where) {
-            return $this->getRecordCount(
+            return $this->count(
                 $this->select('*', $from, $where)
             );
         }
         return 0;
     }
-    
+
+    function getRecordCount($rs, $from='', $where='') {
+        return $this->count($rs, $from, $where);
+    }
     /**
     * @name:  getRow
     * @desc:  returns an array of column values
