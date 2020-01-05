@@ -4882,14 +4882,18 @@ class DocumentParser {
         return $default;
     }
 
-    public function server_var($key=null, $default=null) {
+    public function server($key=null, $default=null) {
         if(!isset($_SERVER)) {
             return $default;
         }
         return $this->array_get($_SERVER, strtoupper($key), $default);
     }
 
-    public function session_var($key=null, $default=null) {
+    public function server_var($key=null, $default=null) {
+        return $this->server($key, $default);
+    }
+
+    public function session($key=null, $default=null) {
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
             $this->array_set($_SESSION, $key, $value);
@@ -4900,7 +4904,11 @@ class DocumentParser {
         }
         return $this->array_get($_SESSION, $key, $default);
     }
-    
+
+    public function session_var($key=null, $default=null) {
+        return $this->session($key, $default);
+    }
+
     public function global_var($key=null, $default=null) {
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
