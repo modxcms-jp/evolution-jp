@@ -122,7 +122,7 @@ class filter {
         if (in_array($operator_name, array('>=',5,'gte','ge'))) return '>=';
         if (in_array($operator_name, array('regex','preg')))    return 'regex';
         if (in_array($operator_name, array('=~',7,'find','search','strpos'))) return '=~';
-        if (in_array($operator_name, array('!=~',8,'!find','!search','!strpos'))) return '!=~';
+        if (in_array($operator_name, array('!=~',8,'!~','!find','!search','!strpos'))) return '!=~';
         return false;
     }
 
