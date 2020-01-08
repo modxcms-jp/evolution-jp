@@ -1143,7 +1143,7 @@ class DocumentParser {
         }
         $this->setSnippetCache();
         
-        if($this->config['disable_cache_at_login'] && $this->isLoggedIn('mgr')) {
+        if($this->config['disable_cache_at_login'] && $this->isFrontEnd() && $this->isLoggedIn('mgr')) {
             $this->config['cache_type'] = 0;
         }
         
