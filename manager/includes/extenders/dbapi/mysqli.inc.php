@@ -39,10 +39,9 @@ class DBAPI {
     *
     */
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
-        global $modx;
-        if($this->conn) {
-            return false;
-        }
+        // if($this->isConnected()) {
+        //     return true;
+        // }
         
         if($host)  $this->hostname = $host;
         if($uid)   $this->username = $uid;
@@ -1039,8 +1038,9 @@ class DBAPI {
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
-        else                                                return false;
+        if (!$this->conn)                  return false;
+        if (!$this->isResult($this->conn)) return false;
+        return true;
     }
     
     function getCollation($table='[+prefix+]site_content',$field='content') {
