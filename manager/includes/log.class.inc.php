@@ -15,7 +15,7 @@ class logHandler {
     }
 
     public function initAndWriteLog($msg='', $internalKey='', $username='', $action='', $itemid='', $itemname='') {
-        $this->setEntry($msg, $internalKey, $username, $action, $itemid, $itemname);
+        $this->setEntry($msg, $internalKey, $username, $itemname);
         $this->writeToLog();
     }
 
@@ -26,26 +26,22 @@ class logHandler {
             $this->logError('internalKey not set.');
             return;
         }
-        if(!$this->entry['action']) {
-            $this->logError('action not set.');
-            return;
-        }
         if($this->entry['msg'] == '') {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
-            $this->entry['msg'] = getAction($this->entry['action'], $this->entry['itemId']);
+            $this->entry['msg'] = getAction(evo()->input_any('a',0), $this->entry['itemId']);
             if($this->entry['msg'] == '') {
                 $this->logError("couldn't find message to write to log.");
                 return;
             }
         }
 
-        $insert_id = $modx->db->insert(
+        $insert_id = db()->insert(
             array(
                 'timestamp'   => time(),
                 'internalKey' => $modx->db->escape($this->entry['internalKey']),
                 'username'    => $modx->db->escape($this->entry['username']),
-                'action'      => $this->entry['action'],
-                'itemid'      => $this->entry['itemId'],
+                'action'      => evo()->input_any('a',0),
+                'itemid'      => evo()->input_any('id', 'x'),
                 'itemname'    => $modx->db->escape($this->entry['itemName']),
                 'message'     => $modx->db->escape($this->entry['msg'])
             )
@@ -67,16 +63,10 @@ class logHandler {
         );
     }
 
-    private function setEntry($msg='', $internalKey='', $username='', $action='', $itemid='', $itemname='') {
+    private function setEntry($msg='', $internalKey='', $username='', $itemname='') {
         global $modx;
 
         $this->entry['msg'] = $msg;	// writes testmessage to the object
-
-        if ($action) {
-            $this->entry['action'] = $action;
-        } else {
-            $this->entry['action'] = (int)$modx->input_any('a');
-        }    // writes the action to the object
 
         // User Credentials
         if ($internalKey != '') {
@@ -90,16 +80,10 @@ class logHandler {
             $this->entry['username'] = $modx->getLoginUserName();
         }
 
-        if ($itemid) {
-            $this->entry['itemId'] = $itemid;
-        } else {
-            $this->entry['itemId'] = (int) $modx->input_any('id','-');
-        }
-
         if ($itemname != '') {
             $this->entry['itemName'] = $itemname;
         } else {
-            $this->entry['itemName'] = $modx->session_var('itemname', '-');
+            $this->entry['itemName'] = evo()->session_var('itemname', '-');
         }    // writes the id to the object
     }
 }
