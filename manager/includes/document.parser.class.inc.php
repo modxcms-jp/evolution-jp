@@ -4876,9 +4876,9 @@ class DocumentParser {
     }
     
     public function input_any($key=null, $default=null) {
-        if($rs = $this->input_post($key, $default))   return $rs;
-        if($rs = $this->input_get($key, $default))    return $rs;
-        if($rs = $this->input_cookie($key, $default)) return $rs;
+        if($rs = $this->input_post($key))   return $rs;
+        if($rs = $this->input_get($key))    return $rs;
+        if($rs = $this->input_cookie($key)) return $rs;
         return $default;
     }
 
