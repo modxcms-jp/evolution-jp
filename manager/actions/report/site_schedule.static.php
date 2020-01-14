@@ -5,25 +5,33 @@ if(!$modx->hasPermission('view_schedule')) {
 	$e->dumpError();
 }
 ?>
-
 <script type="text/javascript" src="media/script/tablesort.js"></script>
-<h1><?php echo $_lang["site_schedule"]?></h1>
-
+<h1><?php echo lang('site_schedule')?></h1>
 <div id="actions">
-  <ul class="actionButtons">
-      <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-  </ul>
+    <ul class="actionButtons">
+        <li
+            id="Button5"
+            class="mutate"><a
+              href="#"
+              onclick="documentDirty=false;document.location.href='index.php?a=2';"
+            ><img
+              alt="icons_cancel"
+              src="<?php echo style('icons_cancel') ?>"
+            /> <?php echo lang('cancel')?></a></li>
+    </ul>
 </div>
 
 <div class="section">
 <div class="sectionHeader"><?php echo $_lang["publish_events"]?></div>
 <div class="sectionBody" id="lyr1">
 <?php
-$field = 'id, pagetitle, pub_date';
-$where = 'pub_date > ' . $_SERVER['REQUEST_TIME'];
-$orderby = 'pub_date ASC';
-$rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select(
+    'id, pagetitle, pub_date'
+    , '[+prefix+]site_content'
+    , 'pub_date > ' . $_SERVER['REQUEST_TIME']
+    , 'pub_date ASC'
+);
+$total = db()->getRecordCount($rs);
 if($total<1) {
 	echo "<p>".$_lang["no_docs_pending_publishing"]."</p>";
 } else {
@@ -38,10 +46,10 @@ if($total<1) {
     </thead>
     <tbody>
 <?php
-	while ($row = $modx->db->getRow($rs)) {
+	while ($row = db()->getRow($rs)) {
 ?>
     <tr>
-	  <td><?php echo $row['id'] ;?></td>
+    <td><?php echo $row['id'] ;?></td>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle']?></a></td>
       <td><?php echo $modx->toDateFormat($row['pub_date']+$server_offset_time)?></td>
     </tr>
@@ -63,8 +71,8 @@ if($total<1) {
 $field = 'id, pagetitle, unpub_date';
 $where = 'unpub_date > ' . $_SERVER['REQUEST_TIME'];
 $orderby = 'unpub_date ASC';
-$rs = $modx->db->select($field,'[+prefix+]site_content',$where,$orderby);
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select($field,'[+prefix+]site_content',$where,$orderby);
+$total = db()->getRecordCount($rs);
 if($total<1) {
 	echo "<p>".$_lang["no_docs_pending_unpublishing"]."</p>";
 } else {
@@ -79,10 +87,10 @@ if($total<1) {
     </thead>
     <tbody>
 <?php
-	while ($row = $modx->db->getRow($rs)) {
+	while ($row = db()->getRow($rs)) {
 ?>
     <tr>
-	  <td><?php echo $row['id'] ;?></td>
+    <td><?php echo $row['id'] ;?></td>
       <td><a href="index.php?a=3&id=<?php echo $row['id'] ;?>"><?php echo $row['pagetitle'] ;?></a></td>
       <td><?php echo $modx->toDateFormat($row['unpub_date']+$server_offset_time) ;?></td>
     </tr>
@@ -104,8 +112,8 @@ if($total<1) {
 $field = 'rv.*, sc.*, rv.pub_date AS pub_date';
 $where = '0<rv.pub_date AND rv.status=\'standby\' ';
 $orderby = 'rv.pub_date ASC';
-$rs = $modx->db->select($field,'[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',$where,$orderby);
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select($field,'[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',$where,$orderby);
+$total = db()->getRecordCount($rs);
 if($total<1) {
 	echo "<p>更新を予定している下書きリソースはありません。</p>";
 } else {
@@ -121,7 +129,7 @@ if($total<1) {
     </thead>
     <tbody>
 <?php
-	while ($row = $modx->db->getRow($rs)) {
+	while ($row = db()->getRow($rs)) {
         $editLink = 'index.php?a=131&id=' . $row['elmid'];
         $prevLink = $modx->makeUrl($row['elmid']).'?revision='.$row['version'];
 ?>
@@ -146,9 +154,7 @@ if($total<1) {
 			return false;
 		}
 	});
-
   </script>
-
 <?php
 }
 ?>
