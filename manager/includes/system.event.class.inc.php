@@ -98,7 +98,10 @@ class SystemEvent {
         return $this->params[$key];
     }
 
-    function params($key, $default=null) {
+    function param($key, $default=null) {
+        if(!$this->params) {
+            return $default;
+        }
         return array_get($this->params, $key, $default);
     }
 }
