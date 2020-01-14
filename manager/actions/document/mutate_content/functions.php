@@ -659,17 +659,22 @@ EOT;
  * @return array|mixed|string|null
  */
 function doc($key, $default=null) {
-    global $docObject;
+    global $modx,$docObject;
+    if(isset($docObject)) {
+        $doc = $docObject;
+    } elseif(isset($modx->documntObject)) {
+        $doc = &$modx->documntObject;
+    }
     if(strpos($key, '*') === 0) {
         $value = $default;
-        $docObject[substr($key,1)] = $value;
+        $doc[substr($key,1)] = $value;
         return $value;
     }
     if(str_contains($key,'@parent')) {
         $a = evo()->getDocumentObject('id', doc('parent'));
         $key = str_replace('@parent', '', $key);
     } else {
-        $a = $docObject;
+        $a = $doc;
     }
     if(str_contains($key,'|hsc')) {
         return hsc(
