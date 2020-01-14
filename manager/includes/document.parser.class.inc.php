@@ -4945,6 +4945,13 @@ class DocumentParser {
         return $this->array_get($this->documentObject, $key, $default);
     }
 
+    public function output($string=null) {
+        if($string!==null) {
+            $this->documentOutput = $string;
+        }
+        return $this->documentOutput;
+    }
+
     public function conf_var($key=null, $default=null) {
         return $this->config($key, $default);
     }
