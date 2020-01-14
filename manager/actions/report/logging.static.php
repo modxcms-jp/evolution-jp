@@ -1,205 +1,265 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('logs')) {
-    $e->setError(3);
-    $e->dumpError();
+if(!isset($modx) || !evo()->isLoggedin()) exit;
+if(!evo()->hasPermission('logs')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$rs = $modx->db->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
+$rs = db()->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
 $logs = array();
-while ($row = $modx->db->getRow($rs))
-{
+while ($row = db()->getRow($rs)) {
     $logs[] = $row;
 }
-$form_v = $_REQUEST;
 ?>
-    <script type="text/javascript">
-    </script>
-    <h1><?php echo $_lang["mgrlog_view"]?></h1>
-
+    <h1><?php echo lang('mgrlog_view')?></h1>
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-        </ul>
+            <li
+                id="Button5"
+                class="mutate"
+            ><a
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+            ><img
+                alt="icons_cancel"
+                src="<?php echo style('icons_cancel') ?>"
+            /> <?php echo lang('cancel')?></a
+        ></li
+        ></ul>
     </div>
-
     <div class="sectionBody">
-        <form action="index.php?a=13" name="logging" class="mutate" method="POST">
+        <form action="index.php" name="logging" class="mutate" method="GET">
+            <input type="hidden" name="a" value="13">
             <div class="tab-pane" id="logPane">
                 <div class="tab-page" id="tabGeneral">
-                    <h2 class="tab"><?php echo $_lang['general'];?></h2>
+                    <h2 class="tab"><?php echo lang('general');?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr style="background-color:#fff;">
-                            <td style="width:120px;"><b><?php echo $_lang["mgrlog_msg"]; ?></b></td>
+                            <td
+                                style="width:120px;"
+                            ><b><?php echo lang('mgrlog_msg'); ?></b></td>
                             <td align="right">
-                                <input type="text" name="message" class="inputbox" style="width:240px" value="<?php echo $form_v['message']; ?>" />
+                                <input
+                                    type="text"
+                                    name="message"
+                                    class="inputbox"
+                                    style="width:240px"
+                                    value="<?php echo getv('message'); ?>"
+                                />
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang["mgrlog_user"]?></b></td>
+                            <td><b><?php echo lang('mgrlog_user')?></b></td>
                             <td align="right">
                                 <select name="searchuser" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo $_lang["mgrlog_anyall"]?></option>
+                                    <option value="0"><?php echo lang('mgrlog_anyall')?></option>
                                     <?php
                                     // get all users currently in the log
                                     $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
                                     foreach ($logs_user as $row) {
-                                        $selectedtext = $row['internalKey'] == $form_v['searchuser'] ? 'selected="selected"' : '';
-                                        echo sprintf('<option value="%s" %s>%s</option>', $row['internalKey'],$selectedtext,$row['username'])."\n";
+                                        if ($row['internalKey'] == getv('searchuser')) {
+                                            $selectedtext = 'selected="selected"';
+                                        } else {
+                                            $selectedtext = '';
+                                        }
+                                    echo sprintf(
+                                        '<option value="%s" %s>%s</option>'
+                                        , $row['internalKey']
+                                        , $selectedtext
+                                        , $row['username']
+                                    ) . "\n";
                                     }
-                                    ?>	</select>
+                                    ?></select>
                             </td>
                         </tr>
                     </table>
                 </div>
                 <div class="tab-page" id="tabSettings">
-                    <h2 class="tab"><?php echo $_lang['option'];?></h2>
+                    <h2 class="tab"><?php echo lang('option');?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr>
-                            <td><b><?php echo $_lang["mgrlog_action"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_action'); ?></b></td>
                             <td align="right">
                                 <select name="action" class="inputBox" style="width:240px;">
-                                    <option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
                                     <?php
                                     // get all available actions in the log
                                     include_once(MODX_CORE_PATH . 'actionlist.inc.php');
                                     $logs_actions = record_sort(array_unique_multi($logs, 'action'), 'action');
                                     foreach ($logs_actions as $row) {
                                         $action = getAction($row['action']);
-                                        if ($action == 'Idle') continue;
-                                        $selectedtext = $row['action'] == $form_v['action'] ? 'selected="selected"' : '';
-                                        echo sprintf('<option value="%s" %s>%s - %s</option>', $row['action'],$selectedtext,$row['action'],$action)."\n";
+                                        if ($action == 'Idle') {
+                                            continue;
+                                        }
+                                        if ($row['action'] == getv('action')) {
+                                            $selectedtext = 'selected="selected"';
+                                        } else {
+                                            $selectedtext = '';
+                                        }
+                                        echo sprintf(
+                                                '<option value="%s" %s>%s - %s</option>'
+                                                , $row['action']
+                                                , $selectedtext
+                                                , $row['action']
+                                                , $action
+                                            ) . "\n";
                                     }
-                                    ?>	</select>
+                                    ?></select>
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
-                            <td><b><?php echo $_lang["mgrlog_itemid"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_itemid'); ?></b></td>
                             <td align="right">
                                 <select name="itemid" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
                                     <?php
                                     // get all itemid currently in logging
                                     $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
                                     foreach ($logs_items as $row) {
-                                        $selectedtext = $row['itemid'] == $form_v['itemid'] ? ' selected="selected"' : '';
+                                        $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
                                         echo '<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
                                     }
                                     ?>	</select>
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang["mgrlog_itemname"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_itemname'); ?></b></td>
                             <td align="right">
                                 <select name="itemname" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo $_lang["mgrlog_anyall"]; ?></option>
+                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
                                     <?php
                                     // get all itemname currently in logging
                                     $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
                                     foreach ($logs_names as $row) {
-                                        $selectedtext = $row['itemname'] == $form_v['itemname'] ? ' selected="selected"' : '';
+                                        $selectedtext = $row['itemname'] == getv('itemname') ? ' selected="selected"' : '';
                                         echo '<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
                                     }
                                     ?>	</select>
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang["mgrlog_datefr"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_datefr'); ?></b></td>
                             <td align="right">
-                                <input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo isset($form_v['datefrom']) ? $form_v['datefrom'] : "" ; ?>" />
-                                <a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+                                <input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo getv('datefrom','') ; ?>" />
+                                <a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
-                            <td><b><?php echo $_lang["mgrlog_dateto"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_dateto'); ?></b></td>
                             <td align="right">
-                                <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo isset($form_v['dateto']) ? $form_v['dateto'] : "" ; ?>" />
-                                <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+                                <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo getv('dateto', '') ; ?>" />
+                                <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang["mgrlog_results"]; ?></b></td>
+                            <td><b><?php echo lang('mgrlog_results'); ?></b></td>
                             <td align="right">
-                                <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo isset($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs; ?>" /><img src="<?php echo $_style['tx']; ?>" border="0" />
+                                <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo getv('nrresults', config('number_of_logs')) ; ?>" /><img src="<?php echo style('tx'); ?>" border="0" />
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
-                    <li><a href="#" class="default" onclick="documentDirty=false;document.logging.log_submit.click();"><img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['search']; ?></a></li>
-                    <li><a href="index.php?a=2" onclick="documentDirty=false;"><img src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']; ?></a></li>
+                    <li><a href="#" class="default" onclick="documentDirty=false;document.logging.log_submit.click();"><img src="<?php echo style('icons_save') ?>" /> <?php echo lang('search'); ?></a></li>
+                    <li><a href="index.php?a=2" onclick="documentDirty=false;"><img src="<?php echo style('icons_cancel') ?>" /> <?php echo lang('cancel'); ?></a></li>
                 </ul>
-                <input type="submit" name="log_submit" value="<?php echo $_lang["mgrlog_searchlogs"]?>" style="display:none;" />
+                <input type="submit" name="log_submit" value="<?php echo lang('mgrlog_searchlogs')?>" style="display:none;" />
             </div>
+        </form>
     </div>
     <script>
         tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
     </script>
-    </form>
 
-<?php if(isset($_POST['log_submit'])||isset($_GET['log_submit'])) :?>
+<?php if(isset($_GET['log_submit'])) :?>
     <div class="section">
-    <div class="sectionHeader"><?php echo $_lang["mgrlog_qresults"]; ?></div>
+    <div class="sectionHeader"><?php echo lang('mgrlog_qresults'); ?></div>
     <div class="sectionBody" id="lyr2">
     <?php
-    if(isset($form_v['log_submit'])) {
+    if(getv('log_submit')) {
         // get the selections the user made.
-        $sqladd = array();
-        $form_v = $modx->db->escape($form_v);
-        if($form_v['searchuser']!=0) $sqladd[] = "internalKey='".intval($form_v['searchuser'])."'";
-        if($form_v['action']!=0)     $sqladd[] = "action=".intval($form_v['action']);
-        if($form_v['itemid']!=0 || $form_v['itemid']=="-")
-            $sqladd[] = "itemid='".$form_v['itemid']."'";
-        if($form_v['itemname']!='0') $sqladd[] = "itemname='".$form_v['itemname']."'";
-        if($form_v['message']!="")   $sqladd[] = "message LIKE '%".$form_v['message']."%'";
+        $where = array();
+        if(getv('searchuser')) {
+            $where[] = "internalKey='" . (int)getv('searchuser') . "'";
+        }
+        if(getv('action')) {
+            $where[] = "action=" . (int)getv('action');
+        }
+        if(getv('itemid') || getv('itemid')== '-') {
+            $where[] = "itemid='" . getv('itemid') . "'";
+        }
+        if(getv('itemname')) {
+            $where[] = "itemname='" . getv('itemname') . "'";
+        }
+        if(getv('message')) {
+            $where[] = "message LIKE '%" . getv('message') . "%'";
+        }
         // date stuff
-        if($form_v['datefrom']!="")  $sqladd[] = "timestamp>".convertdate($form_v['datefrom']);
-        if($form_v['dateto']!="")    $sqladd[] = "timestamp<".convertdate($form_v['dateto']);
-
-        // If current position is not set, set it to zero
-        if( !isset( $form_v['int_cur_position'] ) || $form_v['int_cur_position'] == 0 ){
-            $int_cur_position = 0;
-        } else {
-            $int_cur_position = $form_v['int_cur_position'];
+        if(getv('datefrom')) {
+            $where[] = "timestamp>" . evo()->toTimeStamp(getv('datefrom'));
+        }
+        if(getv('dateto')) {
+            $where[] = "timestamp<" . evo()->toTimeStamp(getv('dateto'));
         }
 
         // Number of result to display on the page, will be in the LIMIT of the sql query also
-        $int_num_result = is_numeric($form_v['nrresults']) ? $form_v['nrresults'] : $number_of_logs;
-
-        $extargv = "&a=13&searchuser=".$form_v['searchuser']."&action=".$form_v['action'].
-            "&itemid=".$form_v['itemid']."&itemname=".$form_v['itemname']."&message=".
-            $form_v['message']."&dateto=".$form_v['dateto']."&datefrom=".
-            $form_v['datefrom']."&nrresults=".$int_num_result."&log_submit=".$form_v['log_submit']; // extra argv here (could be anything depending on your page)
+        $int_num_result = is_numeric(getv('nrresults')) ? getv('nrresults') : config('number_of_logs');
 
         // build the sql
-        $where = (!empty($sqladd)) ? implode(' AND ', $sqladd) : '';
-        $total = $modx->db->getValue($modx->db->select('COUNT(id)','[+prefix+]manager_log',$where));
+        $total = db()->getValue(
+            db()->select('COUNT(id)'
+                , '[+prefix+]manager_log'
+                , implode(' AND ', $where)
+            )
+        );
         $orderby = 'timestamp DESC, id DESC';
-        $limit = "{$int_cur_position}, {$int_num_result}";
-        $rs = $modx->db->select('*','[+prefix+]manager_log',$where,$orderby,$limit);
+        $rs = db()->select(
+            '*'
+            , '[+prefix+]manager_log'
+            , implode(' AND ', $where)
+            , $orderby
+            , sprintf('%s, %s', evo()->input_get('int_cur_position',0), $int_num_result)
+        );
     if($total<1) {
-        echo '<p>'.$_lang["mgrlog_emptysrch"].'</p>';
+        echo '<p>'.lang('mgrlog_emptysrch').'</p>';
     } else {
-        echo '<p>'.$_lang["mgrlog_sortinst"].'</p>';
+        echo '<p>'.lang('mgrlog_sortinst').'</p>';
 
         include_once(MODX_CORE_PATH . 'paginate.inc.php');
         // New instance of the Paging class, you can modify the color and the width of the html table
-        $p = new Paging( $total, $int_cur_position, $int_num_result, $extargv );
+        $extargv = sprintf(
+            '&a=13&searchuser=%s&action=%s&itemid=%s&itemname=%s&message=%s&dateto=%s&datefrom=%s&nrresults=%s&log_submit=%s'
+            , getv('searchuser')
+            , getv('action')
+            , getv('itemid')
+            , getv('itemname')
+            , getv('message')
+            , getv('dateto')
+            , getv('datefrom')
+            , $int_num_result
+            , getv('log_submit')
+        );
+        $p = new Paging( $total, evo()->input_get('int_cur_position',0), $int_num_result, $extargv );
 
         // Load up the 2 array in order to display result
         $array_paging = $p->getPagingArray();
         $array_row_paging = $p->getPagingRowArray();
-        $current_row = $int_cur_position/$int_num_result;
+        $current_row = evo()->input_get('int_cur_position',0)/$int_num_result;
 
         // Display the result as you like...
-        echo "<p>". $_lang["paging_showing"]." ". $array_paging['lower'];
-        echo " ". $_lang["paging_to"] . " ". $array_paging['upper'];
-        echo " (". $array_paging['total'] . " " . $_lang["paging_total"] . ")<br />";
-        $paging = $array_paging['first_link'] . $_lang["paging_first"] . (isset($array_paging['first_link']) ? "</a> " : " ");
-        $paging .= $array_paging['previous_link'] . $_lang["paging_prev"] . (isset($array_paging['previous_link']) ? "</a> " : " ");
+        echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);
+        echo sprintf(' %s %s', lang('paging_to'), $array_paging['upper']);
+        echo sprintf(' (%s %s)<br />', $array_paging['total'], lang('paging_total'));
+        $paging = sprintf(
+            '%s%s%s'
+            , $array_paging['first_link']
+            , lang('paging_first')
+            , isset($array_paging['first_link']) ? '</a> ' : ' '
+        );
+        $paging .= $array_paging['previous_link'] . lang('paging_prev') . (isset($array_paging['previous_link']) ? "</a> " : " ");
         $pagesfound = sizeof($array_row_paging);
         if($pagesfound>6) {
             $paging .= $array_row_paging[$current_row-2];
@@ -212,17 +272,27 @@ $form_v = $_REQUEST;
                 $paging .= $array_row_paging[$i] ."&nbsp;";
             }
         }
-        $paging .= $array_paging['next_link'] . $_lang["paging_next"] . (isset($array_paging['next_link']) ? "</a> " : " ") . " ";
-        $paging .= $array_paging['last_link'] . $_lang["paging_last"] . (isset($array_paging['last_link']) ? "</a> " : " ") . "</p>";
+        $paging .= sprintf(
+            '%s%s%s '
+            , $array_paging['next_link']
+            , lang('paging_next')
+            , isset($array_paging['next_link']) ? '</a> ' : ' '
+        );
+        $paging .= sprintf(
+            '%s%s%s</p>'
+            , $array_paging['last_link']
+            , lang('paging_last')
+            , isset($array_paging['last_link']) ? '</a> ' : ' '
+        );
         echo $paging;
         ?>
         <script type="text/javascript" src="media/script/tablesort.js"></script>
         <table class="sortabletable rowstyle-even" id="table-1">
             <thead><tr>
-                <th class="sortable"><b><?php echo $_lang["mgrlog_time"]; ?></b></th>
-                <th class="sortable"><b><?php echo $_lang["mgrlog_action"]; ?></b></th>
-                <th class="sortable"><b><?php echo $_lang["mgrlog_itemid"]; ?></b></th>
-                <th class="sortable"><b><?php echo $_lang["mgrlog_username"]; ?></b></th>
+                <th class="sortable"><b><?php echo lang('mgrlog_time'); ?></b></th>
+                <th class="sortable"><b><?php echo lang('mgrlog_action'); ?></b></th>
+                <th class="sortable"><b><?php echo lang('mgrlog_itemid'); ?></b></th>
+                <th class="sortable"><b><?php echo lang('mgrlog_username'); ?></b></th>
             </tr></thead>
             <tbody>
             <?php
@@ -237,19 +307,23 @@ $form_v = $_REQUEST;
 EOT;
             $logentries = array();
             $i = 0;
-            while ($row = $modx->db->getRow($rs)):
-                $row['itemname'] = htmlspecialchars($row['itemname'],ENT_QUOTES,$modx->config['modx_charset']);
-                if(!preg_match('/^[0-9]+$/', $row['itemid']))
+            while ($row = db()->getRow($rs)) {
+                $row['itemname'] = evo()->hsc($row['itemname']);
+                if(!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                     $row['title'] = '<div style="text-align:center;">-</div>';
-                elseif($row['action']==3||$row['action']==27||$row['action']==5)
-                    $row['title'] = $modx->parseText('<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]][+itemname+]</a>',$row);
-                else
-                    $row['title'] = $modx->parseText('[[+itemid+]] [+itemname+]',$row);
-                $row['class'] = $i % 2 ? 'even' : '';
-                $row['datetime'] = $modx->toDateFormat($row['timestamp']+$server_offset_time);
-                echo $modx->parseText($tpl,$row);
+                } elseif($row['action']==3||$row['action']==27||$row['action']==5) {
+                    $row['title'] = evo()->parseText(
+                        '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>'
+                        , $row
+                    );
+                } else {
+                    $row['title'] = evo()->parseText('[[+itemid+]] [+itemname+]', $row);
+                }
+                $row['class'] = ($i % 2) ? 'even' : '';
+                $row['datetime'] = evo()->toDateFormat($row['timestamp']+config('server_offset_time'));
+                echo evo()->parseText($tpl,$row);
                 $i++;
-            endwhile;
+            }
             ?>
             </tbody>
         </table>
@@ -262,7 +336,7 @@ EOT;
         <?php
         global $action; $action = 1;
     } else {
-        echo $_lang["mgrlog_noquery"];
+        echo lang('mgrlog_noquery');
     }
 endif;
 
@@ -294,9 +368,8 @@ function record_sort($array, $key) {
     return $records;
 }
 
-// function to check date and convert to us date
-function convertdate($date) {
-    global $_lang, $modx;
-    $timestamp = $modx->toTimeStamp($date);
-    return $timestamp;
+function getv($key,$default=null) {
+    return db()->escape(
+        evo()->input_get($key, $default)
+    );
 }
