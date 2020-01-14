@@ -4933,6 +4933,18 @@ class DocumentParser {
         return $this->array_get($this->config, $key, $default);
     }
 
+    public function doc($key=null, $default=null) {
+        if(!$this->documentObject) {
+            return $default;
+        }
+        if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
+            $value = $default;
+            $this->array_set($this->documentObject, $key, $value);
+            return $value;
+        }
+        return $this->array_get($this->documentObject, $key, $default);
+    }
+
     public function conf_var($key=null, $default=null) {
         return $this->config($key, $default);
     }
