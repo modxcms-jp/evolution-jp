@@ -18,7 +18,7 @@ function hasPermission($permission) {
 }
 
 function config($key, $default=null) {
-    return evo()->conf_var($key, $default);
+    return evo()->config($key, $default);
 }
 
 function lang($key) {
@@ -26,7 +26,7 @@ function lang($key) {
     if(!$_lang) {
         include MODX_CORE_PATH . sprintf(
                 'lang/%s.inc.php'
-                , evo()->conf_var('manager_language', 'english')
+                , evo()->config('manager_language', 'english')
             );
     }
     return evo()->array_get($_lang, $key, $key);
@@ -117,4 +117,58 @@ function event() {
 
 function post($key=null, $default=null) {
     return evo()->input_post($key, $default);
+}
+
+function parent($id) {
+    static $cache = null;
+    if(isset($cache[$id])) {
+        return $cache[$id];
+    }
+    echo $id;
+    $cache[$id] = db()->getValue(
+        db()->select(
+            'parent'
+            , '[+prefix+]site_content'
+            , sprintf("id='%s'", $id))
+    );
+    return $cache[$id];
+}
+
+function str_format() {
+    $args = func_get_args();
+    $args[0] = str_replace('@{%([0-9]+)}@','%$1s',$args[0]);
+    return call_user_func_array(
+        'sprintf'
+        , $args
+    );
+}
+
+function getv($key=null,$default=null) {
+    return evo()->input_get($key,$default);
+}
+
+function postv($key=null,$default=null) {
+    return evo()->input_post($key,$default);
+}
+
+function anyv($key=null,$default=null) {
+    return evo()->input_any($key,$default);
+}
+
+function sessionv($key=null,$default=null) {
+    return evo()->session($key,$default);
+}
+
+function checked($cond) {
+    if($cond) {
+        return 'checked';
+    }
+    return '';
+}
+
+function selected($cond) {
+    if($cond) {
+        return 'selected';
+    }
+    return '';
 }
