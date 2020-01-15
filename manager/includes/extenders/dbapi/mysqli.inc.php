@@ -39,9 +39,10 @@ class DBAPI {
     *
     */
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
-        // if($this->isConnected()) {
-        //     return true;
-        // }
+        global $modx;
+        if($this->isConnected()) {
+            return true;
+        }
         
         if($host)  $this->hostname = $host;
         if($uid)   $this->username = $uid;
