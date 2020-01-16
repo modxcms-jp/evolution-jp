@@ -6,7 +6,7 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-global $form_v, $actionToTake;
+global $form_v;
 include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
 evo()->loadExtension('DocAPI');
 $form_v = evo()->doc->fixTvNest(
@@ -18,15 +18,9 @@ $form_v = evo()->doc->setValue($form_v);
 
 // preprocess POST values
 $id = $form_v['id'];
-if(!preg_match('@^[0-9]*$@',$id) || ($_POST['mode'] == '27' && empty($id))) {
+if(!preg_match('@^[0-9]*$@',$id) || (mode() === 'edit' && !$id)) {
     alert()->setError(2);
     alert()->dumpError();
-}
-
-if($_POST['mode'] == '27') {
-    $actionToTake = 'edit';
-} else {
-    $actionToTake = 'new';
 }
 
 $document_groups = getDocGroups();
@@ -35,7 +29,7 @@ checkDocPermission($id,$document_groups);
 
 evo()->manager->saveFormValues();
 
-if ($actionToTake === 'new') {
+if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
     $param = array(
         'mode'     => 'new',
@@ -77,7 +71,7 @@ if ($actionToTake === 'new') {
     return;
 }
 
-if ($actionToTake === 'edit') {
+if (mode() === 'edit') {
     if ($id == evo()->config['site_start']) {
         checkStartDoc($id, $form_v['published'], $form_v['pub_date'], $form_v['unpub_date']);
     }
@@ -97,7 +91,10 @@ if ($actionToTake === 'edit') {
     $form_v['unpub_date']  = checkUnpub_date($db_v);
     $form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
     $form_v['publishedby'] = checkPublishedby($db_v);
-
+    $len = strlen(evo()->conf_var('friendly_url_suffix'));
+    if(substr($form_v['alias'], -$len) === evo()->conf_var('friendly_url_suffix')) {
+        $form_v['alias'] = substr($form_v['alias'], 0, -$len);
+    }
     // invoke OnBeforeDocFormSave event
     $values = getInputValues($id, 'edit');
     $param = array(
@@ -138,7 +135,7 @@ if ($actionToTake === 'edit') {
         evo()->manager->setMgrDocsAsPrivate($id);
     }
 
-    if ($form_v['syncsite'] === '1') {
+    if ($form_v['syncsite']) {
         if ($form_v['published'] != $db_v['published'] || $form_v['alias'] != $db_v['alias']) {
             evo()->clearCache(array('target' => 'sitecache'));
         } elseif($form_v['parent'] != $db_v['parent']) {
@@ -158,68 +155,82 @@ if ($actionToTake === 'edit') {
 header('Location: index.php?a=7');
 
 
-function get_tmplvars($id=0)
-{
+function get_tmplvars($id=0) {
     global $form_v;
 
     $template = $form_v['template'];
     
-    if(empty($template)) return array();
-    
-    // get document groups for current user
-    if ($_SESSION['mgrDocgroups'])
-    {
-        $docgrp = join(',', $_SESSION['mgrDocgroups']);
+    if(empty($template)) {
+        return array();
     }
     
-    $from[] = '[+prefix+]site_tmplvars AS tv';
-    $from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id';
-    $from[] = 'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id';
-    $tva_docgrp = ($docgrp) ? "OR tva.documentgroup IN ({$docgrp})" : '';
-    $where = "tvtpl.templateid = '{$template}' AND (1='{$_SESSION['mgrRole']}' OR ISNULL(tva.documentgroup) {$tva_docgrp})";
-    $orderby = 'tv.rank';
-    $from = join(' ', $from);
-    $rs = db()->select('DISTINCT tv.*',$from,$where,$orderby);
+    // get document groups for current user
+    if ($_SESSION['mgrDocgroups']) {
+        $docgrp = implode(',', $_SESSION['mgrDocgroups']);
+    }
+
+    $rs = db()->select(
+        'DISTINCT tv.*'
+        , array(
+            '[+prefix+]site_tmplvars AS tv',
+            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
+            'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
+        )
+        , sprintf(
+            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
+            , $template
+            , $_SESSION['mgrRole']
+            , $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
+        )
+        ,'tv.rank'
+    );
     
     $tmplvars = array ();
     while ($row = db()->getRow($rs)) {
-        $tvid = "tv{$row['id']}";
+        $tvid = 'tv' . $row['id'];
         
         if(!isset($form_v[$tvid])) {
             $multi_type = array('checkbox','listbox-multiple','custom_tv');
-            if(!in_array($row['type'], $multi_type)) continue;
+            if(!in_array($row['type'], $multi_type)) {
+                continue;
+            }
         }
         
         if($row['type']==='url') {
-            if( $form_v["{$tvid}_prefix"] === 'DocID' ){
+            if( $form_v[$tvid . '_prefix'] === 'DocID' ){
                 $value = $form_v[$tvid];
-                if( preg_match('/\A[0-9]+\z/',$value) ) 
+                if( preg_match('/\A[0-9]+\z/',$value) ) {
                     $value = '[~' . $value . '~]';
-            } elseif($form_v["{$tvid}_prefix"] !== '--') {
+                }
+            } elseif($form_v[$tvid . '_prefix'] !== '--') {
                 $value = $form_v[$tvid];
-                $value = $form_v["{$tvid}_prefix"] . $value;
+                $value = $form_v[$tvid . '_prefix'] . $value;
             }
-            else $value = $form_v[$tvid];
-        }
-        elseif($row['type']==='file')	$value = $form_v[$tvid];
-        else {
+            else {
+                $value = $form_v[$tvid];
+            }
+        } elseif($row['type']==='file') {
+            $value = $form_v[$tvid];
+        } else {
             if(is_array($form_v[$tvid])) {
                 // handles checkboxes & multiple selects elements
                 $value = join('||', $form_v[$tvid]);
+            } elseif(isset($form_v[$tvid])) {
+                $value = $form_v[$tvid];
+            } else {
+                $value = '';
             }
-            elseif(isset($form_v[$tvid])) $value = $form_v[$tvid];
-            else						  $value = '';
         }
         // save value if it was modified
         if(substr($row['default_text'], 0, 6) === '@@EVAL') {
             $eval_str = trim(substr($row['default_text'], 7));
             $row['default_text'] = eval($eval_str);
         }
-        if (strlen($value) > 0 && $value != $row['default_text'])
-        {
+        if (strlen($value) > 0 && $value != $row['default_text']) {
             $tmplvars[$row['id']] = $value;
+        } else {
+            $tmplvars[$row['id']] = false;
         }
-        else $tmplvars[$row['id']] = false; // Mark the variable for deletion
     }
     return $tmplvars;
 }
@@ -298,10 +309,10 @@ function _check_duplicate_alias($id,$alias,$parent) {
     }
 
     if ($docid) {
-        evo()->manager->saveFormValues($_POST['mode']);
+        evo()->manager->saveFormValues(postv('mode'));
         
-        $url = sprintf('index.php?a=%s', $_POST['mode']);
-        if ($_POST['mode'] == '27') {
+        $url = sprintf('index.php?a=%s', postv('mode'));
+        if (mode() === 'edit') {
             $url .= sprintf('&id=%s', $id);
         }
         elseif($_REQUEST['pid']) {
@@ -312,13 +323,19 @@ function _check_duplicate_alias($id,$alias,$parent) {
             $url .= '&stay=' . $_REQUEST['stay'];
         }
 
-        evo()->webAlertAndQuit(sprintf(lang('duplicate_alias_found'), $docid, $alias), $url);
+        evo()->webAlertAndQuit(
+            sprintf(lang('duplicate_alias_found')
+                , $docid
+                , $alias
+            )
+            , $url
+        );
     }
     return $alias;
 }
 
 function checkDocPermission($id,$document_groups=array()) {
-    global $form_v,$_lang,$e,$actionToTake;
+    global $form_v;
     // ensure that user has not made this document inaccessible to themselves
     if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && $document_groups) {
         $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
@@ -334,29 +351,29 @@ function checkDocPermission($id,$document_groups=array()) {
                 ))
             );
             if(!$count) {
-                if ($actionToTake === 'new') {
+                if (mode() === 'new') {
                     $url = 'index.php?a=4';
                 } else {
                     $url = 'index.php?a=27&id=' . $id;
                 }
                 
                 evo()->manager->saveFormValues();
-                evo()->webAlertAndQuit(sprintf($_lang['resource_permissions_error']), $url);
+                evo()->webAlertAndQuit(sprintf(lang('resource_permissions_error')), $url);
             }
         }
     }
     
     // get the document, but only if it already exists
-    if ($_POST['mode'] === '27')
+    if (mode() === 'edit')
     {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
         $total = db()->getRecordCount($rs);
         if ($total > 1) {
-            $e->setError(6);
-            $e->dumpError();
+            alert()->setError(6);
+            alert()->dumpError();
         } elseif ($total < 1) {
-            $e->setError(7);
-            $e->dumpError();
+            alert()->setError(7);
+            alert()->dumpError();
         }
         if (evo()->config['use_udperms'] !== 1) return;
         $existingDocument = db()->getRow($rs);
@@ -365,20 +382,20 @@ function checkDocPermission($id,$document_groups=array()) {
         if ($existingDocument['parent'] == $form_v['parent']) return;
         
         if (!evo()->checkPermissions($form_v['parent'])) {
-            if ($actionToTake === 'new') {
+            if (mode() === 'new') {
                 $url = 'index.php?a=4';
             } else {
                 $url = "index.php?a=27&id={$id}";
             }
             evo()->manager->saveFormValues();
-            evo()->webAlertAndQuit(sprintf($_lang['access_permission_parent_denied'], $id, $form_v['alias']), $url);
+            evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, $form_v['alias']), $url);
         }
     } elseif(!isAllowroot()) {
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     } elseif(!evo()->hasPermission('new_document')) {
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
@@ -745,7 +762,7 @@ function setDocPermissionsEdit($document_groups,$id) {
         }
     }
     // necessary to remove all permissions as document is public
-    if (evo()->input_post('chkalldocs') === 'on') {
+    if (postv('chkalldocs') === 'on') {
         $rs = db()->delete(
             '[+prefix+]document_groups'
             , sprintf("document='%s'", $id)
@@ -782,8 +799,15 @@ function folder2doc($parent) {
 }
 
 function getDocGroups(){
-    if (evo()->input_post('chkalldocs') === 'on') {
+    if (postv('chkalldocs') === 'on') {
         return array();
     }
-    return evo()->input_post('docgroups', array());
+    return postv('docgroups', array());
+}
+
+function mode() {
+    if(postv('mode') == 27) {
+        return 'edit';
+    }
+    return 'new';
 }
