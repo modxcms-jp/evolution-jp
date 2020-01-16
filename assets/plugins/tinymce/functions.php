@@ -37,7 +37,7 @@ class TinyMCE
 			case '12':
 			case '74':
 				$selected = $this->selected(empty($params['mce_editor_skin']));
-				$option[] = '<option value="' . $value . '"' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
+				$option[] = '<option value=""' . $selected . '>' . "{$_lang['mce_theme_global_settings']}</option>";
 				break;
 		}
 		foreach(glob("{$skin_dir}*",GLOB_ONLYDIR) as $dir)
@@ -235,16 +235,16 @@ class TinyMCE
 			$frontend_language = isset($modx->config['fe_editor_lang']) ? $modx->config['fe_editor_lang']:'';
 			$webuser = (isset($modx->config['rb_webuser']) ? $modx->config['rb_webuser'] : null);
 			
-			$params['theme']           = $webtheme;
+			$params['theme']           = $params['webtheme'];
 			$params['webuser']         = $webuser;
 			$params['language']        = $this->get_lang($frontend_language);
 			$params['frontend']        = true;
-			$params['custom_plugins']  = $webPlugins;
-			$params['custom_buttons1'] = $webButtons1;
-			$params['custom_buttons2'] = $webButtons2;
-			$params['custom_buttons3'] = $webButtons3;
-			$params['custom_buttons4'] = $webButtons4;
-			$params['toolbar_align']   = $webAlign;
+			$params['custom_plugins']  = $params['webPlugins'];
+			$params['custom_buttons1'] = $params['webButtons1'];
+			$params['custom_buttons2'] = $params['webButtons2'];
+			$params['custom_buttons3'] = $params['webButtons3'];
+			$params['custom_buttons4'] = $params['webButtons4'];
+			$params['toolbar_align']   = $params['webAlign'];
 			
 		}
 		
