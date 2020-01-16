@@ -367,9 +367,3 @@ function record_sort($array, $key) {
 
     return $records;
 }
-
-function getv($key,$default=null) {
-    return db()->escape(
-        evo()->input_get($key, $default)
-    );
-}

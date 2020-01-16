@@ -4,10 +4,18 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 ?>
 
     <h1><?php echo lang('search_criteria'); ?></h1>
-
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo style('icons_cancel') ?>" /> <?php echo lang('cancel')?></a></li>
+            <li
+                id="Button5"
+                class="mutate"
+            ><a
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+            ><img
+                alt="icons_cancel"
+                src="<?php echo style('icons_cancel') ?>"
+            /> <?php echo lang('cancel')?></a></li>
         </ul>
     </div>
     <div class="section">
@@ -152,7 +160,8 @@ if(getv('submitok')) {
     }
     ?>
     <div class="section">
-        <div class="sectionHeader"><?php echo lang('search_results'); ?></div><div class="sectionBody">
+        <div class="sectionHeader"><?php echo lang('search_results'); ?></div>
+        <div class="sectionBody">
             <?php
             if($limit<1) {
                 echo lang('search_empty');
@@ -246,8 +255,4 @@ if(getv('submitok')) {
         </div>
     </div>
     <?php
-}
-
-function getv($key,$default=null) {
-    return evo()->input_get($key,$default);
 }
