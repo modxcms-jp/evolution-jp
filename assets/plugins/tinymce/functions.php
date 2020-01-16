@@ -26,7 +26,7 @@ class TinyMCE
 	
 	function get_skin_names()
 	{
-		global $modx, $_lang, $usersettings, $settings;
+		global $modx, $_lang;
 		$params = $this->params;
 		$mce_path = $params['mce_path'];
 		
@@ -87,40 +87,40 @@ class TinyMCE
 		global $modx, $_lang, $usersettings, $settings;
 		$params = & $this->params;
 		$mce_path = $params['mce_path'];
-		
+
 		switch ($modx->manager->action)
 		{
-    		case 11:
-        		$mce_settings = array();
-        		break;
-    		case 12:
-    		case 74:
-        		$mce_settings = $usersettings;
-    			if(!empty($usersettings['tinymce_editor_theme']))
-    			{
-    				$usersettings['tinymce_editor_theme'] = $settings['tinymce_editor_theme'];
-    			}
-        		break;
-    		case 17:
-        		$mce_settings = $settings;
-        		break;
-    		default:
-        		$mce_settings = $settings;
-        		break;
-    	}
-		$params['theme']              = $mce_settings['tinymce_editor_theme'];
-		$params['mce_editor_skin']    = $mce_settings['mce_editor_skin'];
-		$params['mce_entermode']      = $mce_settings['mce_entermode'];
-		$params['mce_element_format'] = $mce_settings['mce_element_format'];
-		$params['mce_schema']         = $mce_settings['mce_schema'];
-		$params['css_selectors']      = $mce_settings['tinymce_css_selectors'];
-		$params['custom_plugins']     = $mce_settings['tinymce_custom_plugins'];
-		$params['custom_buttons1']    = $mce_settings['tinymce_custom_buttons1'];
-		$params['custom_buttons2']    = $mce_settings['tinymce_custom_buttons2'];
-		$params['custom_buttons3']    = $mce_settings['tinymce_custom_buttons3'];
-		$params['custom_buttons4']    = $mce_settings['tinymce_custom_buttons4'];
-		$params['mce_template_docs']  = $mce_settings['mce_template_docs'];
-		$params['mce_template_chunks']= $mce_settings['mce_template_chunks'];
+			case 11:
+				$config = array();
+				break;
+			case 12:
+			case 74:
+				$config = $usersettings;
+				if($usersettings['tinymce_editor_theme'])
+				{
+					$usersettings['tinymce_editor_theme'] = $settings['tinymce_editor_theme'];
+				}
+				break;
+			case 17:
+				$config = $settings;
+				break;
+			default:
+				$config = $settings;
+				break;
+		}
+		$params['theme']              = $config['tinymce_editor_theme'];
+		$params['mce_editor_skin']    = $config['mce_editor_skin'];
+		$params['mce_entermode']      = $config['mce_entermode'];
+		$params['mce_element_format'] = $config['mce_element_format'];
+		$params['mce_schema']         = $config['mce_schema'];
+		$params['css_selectors']      = $config['tinymce_css_selectors'];
+		$params['custom_plugins']     = $config['tinymce_custom_plugins'];
+		$params['custom_buttons1']    = $config['tinymce_custom_buttons1'];
+		$params['custom_buttons2']    = $config['tinymce_custom_buttons2'];
+		$params['custom_buttons3']    = $config['tinymce_custom_buttons3'];
+		$params['custom_buttons4']    = $config['tinymce_custom_buttons4'];
+		$params['mce_template_docs']  = $config['mce_template_docs'];
+		$params['mce_template_chunks']= $config['mce_template_chunks'];
 		
 		// language settings
 		if (! @include_once("{$mce_path}lang/".$modx->config['manager_language'].'.inc.php'))
@@ -206,7 +206,7 @@ class TinyMCE
 	
 	function get_mce_script()
 	{
-		global $modx, $_lang;
+		global $modx;
 		$params = & $this->params;
 		$mce_path = $params['mce_path'];
 		$mce_url  = $params['mce_url'];
@@ -253,58 +253,58 @@ class TinyMCE
 		$theme = $params['theme'];
 		switch($theme)
 		{
-    		case 'custom':
-    			$plugins  = $params['custom_plugins'];
-    			$buttons1 = $params['custom_buttons1'];
-    			$buttons2 = $params['custom_buttons2'];
-    			$buttons3 = $params['custom_buttons3'];
-    			$buttons4 = $params['custom_buttons4'];
-    			break;
-    		case 'simple':
-    		case 'creative':
-    		case 'logic':
-    		case 'legacy':
-    		case 'advanced':
-    		case 'full':
-    		case 'default':
-    		case 'editor':
-    		default:
-    			include_once("{$mce_path}settings/toolbar.settings.inc.php");
-    			if(empty($theme) || $theme==='editor') $theme = 'default';
-    			$plugins  = $set[$theme]['p'];
-    			$buttons1 = $set[$theme]['b1'];
-    			$buttons2 = $set[$theme]['b2'];
-    			$buttons3 = $set[$theme]['b3'];
-    			$buttons4 = $set[$theme]['b4'];
-    			if(is_dir("{$mce_path}tiny_mce/plugins/quickupload"))
-    			{
-    				$plugins = 'quickupload,'. $plugins;
-    				$buttons2 = 'quickupload,'. $buttons2;
-    			}
-    			if($modx->manager->action=='4' || $modx->manager->action=='27' || $modx->manager->action=='78')
-    			{
-    				global $content;
-    				if(isset($content['template']) && $content['template']==='0')
-    				{
-    					$plugins = str_replace('autosave', '', $plugins);
-    					if(strpos($plugins,'fullpage')===false) $plugins .= ',fullpage';
-    					if(strpos($buttons1.$buttons2.$buttons3.$buttons4, 'fullpage')===false)
-    					{
-    						if(!empty($buttons2)) $buttons2 = 'fullpage,' . $buttons2;
-    						else                  $buttons1 .= ',fullpage';
-    					}
-    				}
-    				if(empty($modx->config['mce_template_docs']) && empty($modx->config['mce_template_chunks']))
-    				{
-    					$plugins = str_replace('template', '', $plugins);
-    					$plugins = str_replace(',,', ',', $plugins);
-    					$buttons1 = str_replace(',template', '', $buttons1);
-    					$buttons2 = str_replace(',template', '', $buttons2);
-    					$buttons3 = str_replace(',template', '', $buttons3);
-    					$buttons4 = str_replace(',template', '', $buttons4);
-    				}
-    			}
-		    }
+			case 'custom':
+				$plugins  = $params['custom_plugins'];
+				$buttons1 = $params['custom_buttons1'];
+				$buttons2 = $params['custom_buttons2'];
+				$buttons3 = $params['custom_buttons3'];
+				$buttons4 = $params['custom_buttons4'];
+				break;
+			case 'simple':
+			case 'creative':
+			case 'logic':
+			case 'legacy':
+			case 'advanced':
+			case 'full':
+			case 'default':
+			case 'editor':
+			default:
+				include_once("{$mce_path}settings/toolbar.settings.inc.php");
+				if(empty($theme) || $theme==='editor') $theme = 'default';
+				$plugins  = $set[$theme]['p'];
+				$buttons1 = $set[$theme]['b1'];
+				$buttons2 = $set[$theme]['b2'];
+				$buttons3 = $set[$theme]['b3'];
+				$buttons4 = $set[$theme]['b4'];
+				if(is_dir("{$mce_path}tiny_mce/plugins/quickupload"))
+				{
+					$plugins = 'quickupload,'. $plugins;
+					$buttons2 = 'quickupload,'. $buttons2;
+				}
+				if($modx->manager->action=='4' || $modx->manager->action=='27' || $modx->manager->action=='78')
+				{
+					global $content;
+					if(isset($content['template']) && $content['template']==='0')
+					{
+						$plugins = str_replace('autosave', '', $plugins);
+						if(strpos($plugins,'fullpage')===false) $plugins .= ',fullpage';
+						if(strpos($buttons1.$buttons2.$buttons3.$buttons4, 'fullpage')===false)
+						{
+							if(!empty($buttons2)) $buttons2 = 'fullpage,' . $buttons2;
+							else                  $buttons1 .= ',fullpage';
+						}
+					}
+					if(empty($modx->config['mce_template_docs']) && empty($modx->config['mce_template_chunks']))
+					{
+						$plugins = str_replace('template', '', $plugins);
+						$plugins = str_replace(',,', ',', $plugins);
+						$buttons1 = str_replace(',template', '', $buttons1);
+						$buttons2 = str_replace(',template', '', $buttons2);
+						$buttons3 = str_replace(',template', '', $buttons3);
+						$buttons4 = str_replace(',template', '', $buttons4);
+					}
+				}
+		}
 		
 		$str .= $this->build_mce_init($plugins,$buttons1,$buttons2,$buttons3,$buttons4) . "\n";
 		$str .= $this->build_tiny_callback();
@@ -312,7 +312,6 @@ class TinyMCE
 		{
 			$str .= '<script language="javascript" type="text/javascript" src="' . $mce_url . 'js/tinymce.linklist.php"></script>' . "\n";
 		}
-
 		
 		return $str;
 	}
@@ -451,10 +450,8 @@ class TinyMCE
 	
 	function build_tiny_callback()
 	{
-		global $modx;
 		$params = $this->params;
 		$mce_path = $params['mce_path'];
-		$mce_url  = $params['mce_url'];
 		
 		$ph['cmsurl']  = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php?editor=tinymce';
 		$modx_fb = file_get_contents("{$mce_path}js/modx_fb.js.inc");
