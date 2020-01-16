@@ -243,6 +243,7 @@ input[type='text'][readonly]:focus,
 .readonly {
 	background-color:#eee !important;
 	text-shadow:1px 1px #fff !important;
+	cursor:not-allowed;
 }
 optgroup {
 	font-style:normal;
