@@ -51,9 +51,11 @@ class filter {
         }
         $rs['op'] = $op;
 
-        if(strpos($param['value'], '@EVAL') === 0) {
-            $eval_code = trim(substr($param['value'],6));
-            $eval_code = trim($eval_code,';') . ';';
+        if(stripos($param['value'], '@EVAL') === 0) {
+            $eval_code = trim(
+                substr($param['value'],6)
+                , ';'
+            ) . ';';
             if(strpos($eval_code,'return')===false) {
                 $eval_code = 'return ' . $eval_code;
             }
@@ -68,7 +70,7 @@ class filter {
 
         $rs['creteria'] = trim($rs['creteria']);
 
-        if ($this->get_docfield_type($param['source'])==='datetime') {
+        if ($this->is_datetime_field($param['source'])) {
             if (!preg_match('@^[0-9]+$@',$rs['creteria'])) {
                 $rs['creteria'] = strtotime($rs['creteria']);
             }
@@ -113,22 +115,25 @@ class filter {
         return false;
     }
 
-    private function _get_operator_name($operator_name) {
-        if (in_array($operator_name, array('!=','1','<>','ne'),true))  return '!=';
-        if (in_array($operator_name, array('==',2,'eq')))       return '==';
-        if (in_array($operator_name, array('<',3,'lt')))        return '<';
-        if (in_array($operator_name, array('<=',6,'lte','le'))) return '<=';
-        if (in_array($operator_name, array('>',4,'gt')))        return '>';
-        if (in_array($operator_name, array('>=',5,'gte','ge'))) return '>=';
-        if (in_array($operator_name, array('regex','preg')))    return 'regex';
-        if (in_array($operator_name, array('=~',7,'find','search','strpos'))) return '=~';
-        if (in_array($operator_name, array('!=~',8,'!~','!find','!search','!strpos'))) return '!=~';
+    private function _get_operator_name($op) {
+        if (in_array($op, array('!=','1','<>','ne'),true))  return '!=';
+        if (in_array($op, array('==',2,'eq')))       return '==';
+        if (in_array($op, array('<',3,'lt')))        return '<';
+        if (in_array($op, array('<=',6,'lte','le'))) return '<=';
+        if (in_array($op, array('>',4,'gt')))        return '>';
+        if (in_array($op, array('>=',5,'gte','ge'))) return '>=';
+        if (in_array($op, array('regex','preg')))    return 'regex';
+        if (in_array($op, array('=~',7,'find','search','strpos'))) return '=~';
+        if (in_array($op, array('!=~',8,'!~','!find','!search','!strpos'))) return '!=~';
         return false;
     }
 
-    private function get_docfield_type($field_name='') {
-        if(in_array($field_name, explode(',','published,pub_date,unpub_date,createdon,editedon,publishedon,deletedon'))) {
-            return 'datetime';
+    private function is_datetime_field($field_name='') {
+        if(in_array($field_name, explode(',','pub_date,unpub_date'))) {
+            return true;
+        };
+        if(in_array($field_name, explode(',','published,createdon,editedon,publishedon,deletedon'))) {
+            return true;
         };
         return false;
     }
