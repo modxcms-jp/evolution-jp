@@ -60,7 +60,7 @@ if ($modx->input_post('updateMsgCount') && $modx->hasPermission('messages')) {
 $modx->loadLexicon('manager');
 
 // send the charset header
-header(sprintf('Content-Type: text/html; charset=%s',$modx->config['modx_manager_charset']));
+header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset','utf-8')));
 
 $modx->manager->action = isset($_REQUEST['a']) ? (int) $_REQUEST['a'] : 1;
 
