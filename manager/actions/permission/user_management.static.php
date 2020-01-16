@@ -17,7 +17,7 @@ if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset')
 else
 {
     $query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
-    $keyword = $modx->db->escape($query);
+    $keyword = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
@@ -137,7 +137,7 @@ echo $cm->render();
                 }
             }
             $orderby = 'mua.blocked ASC, mua.thislogin DESC';
-            $ds = $modx->db->select($field,$from,$where,$orderby);
+            $ds = db()->select($field,$from,$where,$orderby);
 
             include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 

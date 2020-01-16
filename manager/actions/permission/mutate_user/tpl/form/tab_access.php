@@ -4,12 +4,12 @@
     <?php
     $groupsarray = array();
     if (evo()->input_get('a') == 12) { // only do this bit if the user is being edited
-        $rs = $modx->db->select(
+        $rs = db()->select(
             '*'
             , '[+prefix+]member_groups'
             , sprintf("member='%s'", evo()->input_get('id'))
         );
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $groupsarray[] = $row['user_group'];
         }
     }
@@ -21,12 +21,12 @@
         }
     }
     echo "<p>" . lang('access_permissions_user_message') . "</p>";
-    $rs = $modx->db->select('name, id','[+prefix+]membergroup_names','','name');
-    if(!$modx->db->getRecordCount($rs)) {
+    $rs = db()->select('name, id','[+prefix+]membergroup_names','','name');
+    if(!db()->getRecordCount($rs)) {
         echo '<div class="actionButtons"><a href="index.php?a=40" class="primary">Create user group</a></div>';
     } else {
         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $src = $tpl;
             $ph = array();
             $ph['id'] = $row['id'];

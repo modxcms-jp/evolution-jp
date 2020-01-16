@@ -25,13 +25,13 @@ $from = '[+prefix+]event_log el'.
 		' LEFT JOIN [+prefix+]manager_users mu ON mu.id=el.user AND el.usertype=0'.
 		' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1';
 $where = "el.id='{$id}'";
-$ds = $modx->db->select($field,$from,$where);
+$ds = db()->select($field,$from,$where);
 if(!$ds) {
 	echo "Error while load event log";
 	exit;
 }
 else{
-	$content = $modx->db->getRow($ds);
+	$content = db()->getRow($ds);
 }
 
 ?>

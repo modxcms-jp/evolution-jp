@@ -15,8 +15,8 @@ $modx->updatePublishStatus();
 
 if(!$id) $current = array();
 else {
-    $rs = $modx->db->select('*','[+prefix+]site_content',"id='{$id}'");
-    $current = $modx->db->getRow($rs);
+    $rs = db()->select('*','[+prefix+]site_content',"id='{$id}'");
+    $current = db()->getRow($rs);
     
     // Set the item name for logging
     $_SESSION['itemname'] = $current['pagetitle'];
@@ -44,8 +44,8 @@ $where = array();
 $where[] = "sc.parent='{$id}'";
 if($_SESSION['mgrRole']!=1 && !$modx->config['tree_show_protected'])
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
-$rs = $modx->db->select('DISTINCT sc.id',$from,$where);
-$numRecords = $modx->db->getRecordCount($rs);
+$rs = db()->select('DISTINCT sc.id',$from,$where);
+$numRecords = db()->getRecordCount($rs);
 
 if (!$numRecords) $children_output = "<p>".$_lang['resources_in_container_no']."</p>";
 else {
@@ -68,9 +68,9 @@ else {
         $offset =  $_GET['page'] - 1;
     else $offset = 0;
     $limit = sprintf('%s,%s', ($offset*$modx->config['number_of_results']), $modx->config['number_of_results']);
-    $rs = $modx->db->select($f,$from,$where,$orderby,$limit);
+    $rs = db()->select($f,$from,$where,$orderby,$limit);
     $docs = array();
-    while($row = $modx->db->getRow($rs)) {
+    while($row = db()->getRow($rs)) {
         $docid = $row['id'];
         $docs[$docid] = $row;
     }
@@ -156,7 +156,7 @@ echo get_jscript($id,$cm);
     <h1><?php echo $_lang['view_child_resources_in_container']?></h1>
     
     <div id="actions">
-      <ul class="actionButtons">
+        <ul class="actionButtons">
 <?php
     $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
     if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
@@ -175,7 +175,7 @@ echo get_jscript($id,$cm);
     $action = "documentDirty=false;document.location.href='{$action}'";
     echo sprintf($tpl,'Button5', $action, $_style["icons_cancel"], $_lang['cancel']);
 ?>
-      </ul>
+        </ul>
     </div>
 
 <div class="section">
@@ -442,8 +442,8 @@ function getTopicPath($id)
     
     foreach($parents as $topic)
     {
-        $rs = $modx->db->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$topic}'");
-        $doc = $modx->db->getRow($rs);
+        $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$topic}'");
+        $doc = db()->getRow($rs);
         if($topic==$modx->config['site_start'])
             $topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
         elseif($topic==$id)

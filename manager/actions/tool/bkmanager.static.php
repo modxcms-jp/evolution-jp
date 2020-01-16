@@ -398,10 +398,3 @@ else
 
 <?php
 	include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php'); // send footer
-
-
-
-function checked($cond)
-{
-	if($cond) return ' checked';
-}

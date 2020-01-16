@@ -37,20 +37,20 @@ global $database_connection_method,$lastInstallTime;
 		<?php echo render_tr($_lang['servertime'],strftime('%H:%M:%S', time()));?>
 		<?php echo render_tr($_lang['localtime'],strftime('%H:%M:%S', time()+$server_offset_time));?>
 		<?php echo render_tr($_lang['serveroffset'],$server_offset_time/(60*60) . ' h');?>
-		<?php echo render_tr($_lang['database_name'],$modx->db->dbname);?>
-		<?php echo render_tr($_lang['database_server'],$modx->db->hostname);?>
-		<?php echo render_tr($_lang['database_version'],$modx->db->getVersion());?>
+		<?php echo render_tr($_lang['database_name'],db()->dbname);?>
+		<?php echo render_tr($_lang['database_server'],db()->hostname);?>
+		<?php echo render_tr($_lang['database_version'],db()->getVersion());?>
 		<?php
-			$rs = $modx->db->query("show variables like 'character_set_database'");
-			$charset = $modx->db->getRow($rs, 'num');
+			$rs = db()->query("show variables like 'character_set_database'");
+			$charset = db()->getRow($rs, 'num');
 			echo render_tr($_lang['database_charset'],$charset[1]);
 		?>
 		<?php
-			$rs = $modx->db->query("SHOW variables LIKE 'collation_database'");
-			$collation = $modx->db->getRow($rs, 'num');
+			$rs = db()->query("SHOW variables LIKE 'collation_database'");
+			$collation = db()->getRow($rs, 'num');
 			echo render_tr($_lang['database_collation'],$collation[1]);
 		?>
-		<?php echo render_tr($_lang['table_prefix'],$modx->db->table_prefix);?>
+		<?php echo render_tr($_lang['table_prefix'],db()->table_prefix);?>
 		<?php echo render_tr($_lang['cfg_base_path'],MODX_BASE_PATH);?>
 		<?php echo render_tr($_lang['cfg_base_url'],MODX_BASE_URL);?>
 		<?php echo render_tr($_lang['cfg_manager_url'],MODX_MANAGER_URL);?>
@@ -75,8 +75,8 @@ $info = array(
               'PHPのバージョン' => PHP_VERSION,
               'セーフモード'  => (ini_get('safe_mode') ==0) ? 'off' : 'on',
               'php_sapi_name'  => php_sapi_name(),
-              'MySQLのバージョン'=>$modx->db->server_info(),
-              'MySQLホスト情報' => $modx->db->host_info(),
+              'MySQLのバージョン'=>db()->server_info(),
+              'MySQLホスト情報' => db()->host_info(),
               'MODXのバージョン' => $settings_version,
               'サイトのURL'  => $modx->config['site_url'],
               'ホスト名' => gethostbyaddr($_SERVER['SERVER_ADDR']),
@@ -116,13 +116,13 @@ echo '</table>' . "\n";
 //Mysql char set
 echo '<h4>MySQLの文字コード情報</h4>' . "\n" . "\n";
 echo '<table style="margin-bottom:20px;">';
-$res = $modx->db->query("SHOW VARIABLES LIKE 'collation_database';");
-$collation = $modx->db->getRow($res, 'num');
+$res = db()->query("SHOW VARIABLES LIKE 'collation_database';");
+$collation = db()->getRow($res, 'num');
 
 echo '<tr><td style="padding-right:30px;">接続メソッド</td><td>' . $database_connection_method . '</td></tr>' . "\n";
 echo '<tr><td style="padding-right:30px;">文字セット照合順序</td><td>' . $collation[1] . '</td></tr>' . "\n";
-$rs = $modx->db->query("SHOW VARIABLES LIKE 'char%';");
-while ($row = $modx->db->getRow($rs)){
+$rs = db()->query("SHOW VARIABLES LIKE 'char%';");
+while ($row = db()->getRow($rs)){
   echo '<tr><td style="padding-right:30px;">' . $row['Variable_name'] . '</td><td>' . $row['Value'] . '</td></tr>' . "\n";
 }
 echo '</table>' . "\n";
@@ -159,8 +159,8 @@ echo '</table>' . "\n";
 		<?php
 		$field = 'id, pagetitle, editedby, editedon';
 		$tbl_site_content = $modx->getFullTableName('site_content');
-		$rs = $modx->db->select($field,$tbl_site_content,'deleted=0','editedon DESC',20);
-		$limit = $modx->db->getRecordCount($rs);
+		$rs = db()->select($field,$tbl_site_content,'deleted=0','editedon DESC',20);
+		$limit = db()->getRecordCount($rs);
 		if($limit<1)
 		{
 			echo "<p>{$_lang['no_edits_creates']}</p>";
@@ -170,16 +170,16 @@ echo '</table>' . "\n";
 			$tbl_manager_users = $modx->getFullTableName('manager_users');
 			$i = 0;
 			$where = '';
-			while($content = $modx->db->getRow($rs))
+			while($content = db()->getRow($rs))
 			{
 				if($where !== "id={$content['editedby']}")
 				{
 					$where = "id={$content['editedby']}";
-					$rs2 = $modx->db->select('username',$tbl_manager_users,$where);
-					if($modx->db->getRecordCount($rs2)==0) $user = '-';
+					$rs2 = db()->select('username',$tbl_manager_users,$where);
+					if(db()->getRecordCount($rs2)==0) $user = '-';
 					else
 					{
-						$r = $modx->db->getRow($rs2);
+						$r = db()->getRow($rs2);
 						$user = $r['username'];
 					}
 				}
@@ -214,10 +214,10 @@ echo '</table>' . "\n";
 		  </thead>
 		  <tbody>
 <?php
-	$rs = $modx->db->query("SHOW TABLE STATUS FROM `{$modx->db->dbname}` LIKE '{$modx->db->table_prefix}%'");
-	$limit = $modx->db->getRecordCount($rs);
+	$rs = db()->query("SHOW TABLE STATUS FROM `{db()->dbname}` LIKE '{db()->table_prefix}%'");
+	$limit = db()->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
-		$log_status = $modx->db->getRow($rs);
+		$log_status = db()->getRow($rs);
 		$bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 ?>
 		  <tr bgcolor="<?php echo $bgcolor; ?>" title="<?php echo $log_status['Comment']; ?>" style="cursor:default">
@@ -286,12 +286,12 @@ echo '</table>' . "\n";
 		include_once($modx->config['core_path'] . 'actionlist.inc.php');
 		$tbl_active_users = $modx->getFullTableName('active_users');
 		
-		$rs = $modx->db->select('*',$tbl_active_users,"lasthit>{$timetocheck}",'username ASC');
-		$limit = $modx->db->getRecordCount($rs);
+		$rs = db()->select('*',$tbl_active_users,"lasthit>{$timetocheck}",'username ASC');
+		$limit = db()->getRecordCount($rs);
 		if($limit<1) {
 			$html = "<p>".$_lang['no_active_users_found']."</p>";
 		} else {
-			while($activeusers = $modx->db->getRow($rs))
+			while($activeusers = db()->getRow($rs))
 			{
 				$currentaction = getAction($activeusers['action'], $activeusers['id']);
 				$webicon = ($activeusers['internalKey']<0)? "<img align='absmiddle' src='media/style/{$manager_theme}/images/tree/globe.png' alt='Web user'>":"";

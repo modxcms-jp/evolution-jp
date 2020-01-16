@@ -22,11 +22,11 @@ switch ((int) $_REQUEST['a']) {
 $id = preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
 // Check to see the editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
+$total = db()->getRecordCount($rs);
 if ($total > 1) {
 	for ($i = 0; $i < $total; $i++) {
-		$lock = $modx->db->getRow($rs);
+		$lock = db()->getRow($rs);
 		if ($lock['internalKey'] != $modx->getLoginUserID()) {
 			$msg = sprintf($_lang['lock_msg'], $lock['username'], 'module');
 			$e->setError(5, $msg);
@@ -40,13 +40,13 @@ if ($total > 1) {
 if (!is_numeric($id)) exit('Passed ID is NaN!');
 
 if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
-	$rs = $modx->db->select('*','[+prefix+]site_modules',"id='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]site_modules',"id='{$id}'");
+	$total = db()->getRecordCount($rs);
 	if ($total > 1)
 		exit('<p>Multiple modules sharing same unique id. Not good.<p>');
 	if ($total < 1)
 		exit('<p>No record found for id: '.$id.'.</p>');
-	$content = $modx->db->getRow($rs);
+	$content = db()->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
 } else {
 	$_SESSION['itemname'] = 'New Module';
@@ -464,7 +464,7 @@ $display = ($content['enable_sharedparams']!=1) ? 'style="display:none;"' : '';
 	       'LEFT JOIN [+prefix+]site_snippets AS ss ON ss.id = smd.resource AND smd.type = 40 '.
 	       'LEFT JOIN [+prefix+]site_templates AS st ON st.id = smd.resource AND smd.type = 50 '.
 	       'LEFT JOIN [+prefix+]site_tmplvars AS sv ON sv.id = smd.resource AND smd.type = 60 ';
-$ds = $modx->db->select($field, $from, "smd.module='{$id}' ORDER BY smd.type,name");
+$ds = db()->select($field, $from, "smd.module='{$id}' ORDER BY smd.type,name");
 if (!$ds) {
 	echo "An error occured while loading module dependencies.";
 } else {
@@ -492,11 +492,11 @@ if ($modx->config['use_udperms'] == 1)
 <?php
 	// fetch user access permissions for the module
 	$groupsarray = array();
-	$rs = $modx->db->select('*','[+prefix+]site_module_access',"module='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]site_module_access',"module='{$id}'");
+	$total = db()->getRecordCount($rs);
 	for ($i = 0; $i < $total; $i++)
 	{
-		$currentgroup = $modx->db->getRow($rs);
+		$currentgroup = db()->getRow($rs);
 		$groupsarray[$i] = $currentgroup['usergroup'];
 	}
 
@@ -527,11 +527,11 @@ if ($modx->config['use_udperms'] == 1)
 <?php
 	}
 	$chk = '';
-	$rs = $modx->db->select('name, id','[+prefix+]membergroup_names');
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('name, id','[+prefix+]membergroup_names');
+	$total = db()->getRecordCount($rs);
 	for ($i = 0; $i < $total; $i++)
 	{
-		$row = $modx->db->getRow($rs);
+		$row = db()->getRow($rs);
 		$groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
 		$checked = in_array($row['id'], $groupsarray);
 		if($modx->hasPermission('access_permissions'))

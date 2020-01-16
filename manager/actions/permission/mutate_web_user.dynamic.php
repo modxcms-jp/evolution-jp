@@ -30,11 +30,11 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
 // check to see the snippet editor isn't locked
-$rs = $modx->db->select('internalKey, username',$tbl_active_users,"action='88' AND id='{$user}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username',$tbl_active_users,"action='88' AND id='{$user}'");
+$limit = db()->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$lock = $modx->db->getRow($rs);
+		$lock = db()->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],"web user");
 			$e->setError(5, $msg);
@@ -46,8 +46,8 @@ if($limit>1) {
 
 if($_REQUEST['a']=='88') {
 	// get user attributes
-	$rs = $modx->db->select('*',$tbl_web_user_attributes,"internalKey='{$user}'");
-	$limit = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*',$tbl_web_user_attributes,"internalKey='{$user}'");
+	$limit = db()->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned!<p>";
 		exit;
@@ -56,20 +56,20 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned!<p>";
 		exit;
 	}
-	$userdata = $modx->db->getRow($rs);
+	$userdata = db()->getRow($rs);
 
 	// get user settings
-	$rs = $modx->db->select('*',$tbl_web_user_settings,"webuser='{$user}'");
+	$rs = db()->select('*',$tbl_web_user_settings,"webuser='{$user}'");
 	$usersettings = array();
-	while($row = $modx->db->getRow($rs))
+	while($row = db()->getRow($rs))
 	{
 		$usersettings[$row['setting_name']]=$row['setting_value'];
 	}
 	extract($usersettings, EXTR_OVERWRITE);
 
 	// get user name
-	$rs = $modx->db->select('*',$tbl_web_users,"id='{$user}'");
-	$limit = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*',$tbl_web_users,"id='{$user}'");
+	$limit = db()->getRecordCount($rs);
 	if($limit>1) {
 		echo "More than one user returned while getting username!<p>";
 		exit;
@@ -78,7 +78,7 @@ if($_REQUEST['a']=='88') {
 		echo "No user returned while getting username!<p>";
 		exit;
 	}
-	$usernamedata = $modx->db->getRow($rs);
+	$usernamedata = db()->getRow($rs);
 	$_SESSION['itemname']=$usernamedata['username'];
 } else {
 	$userdata = array();
@@ -477,11 +477,11 @@ if($modx->config['use_udperms']==1)
 	if($_GET['a']=='88')
 	{ // only do this bit if the user is being edited
 		$uid = intval($_GET['id']);
-		$rs = $modx->db->select('*',$tbl_web_groups,"webuser='{$uid}'");
-		$limit = $modx->db->getRecordCount($rs);
+		$rs = db()->select('*',$tbl_web_groups,"webuser='{$uid}'");
+		$limit = db()->getRecordCount($rs);
 		for ($i = 0; $i < $limit; $i++)
 		{
-			$currentgroup=$modx->db->getRow($rs);
+			$currentgroup=db()->getRow($rs);
 			$groupsarray[$i] = $currentgroup['webgroup'];
 		}
 	}
@@ -498,9 +498,9 @@ if($modx->config['use_udperms']==1)
 		<div class="sectionBody">
 <?php
 	echo "<p>" . $_lang['access_permissions_user_message'] . "</p>";
-	$rs = $modx->db->select('name,id',$tbl_webgroup_names,'','name');
+	$rs = db()->select('name,id',$tbl_webgroup_names,'','name');
 	$tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
-	while($row=$modx->db->getRow($rs))
+	while($row=db()->getRow($rs))
 	{
 		$echo = $tpl;
 		$echo = str_replace('[+id+]',$row['id'],$echo);

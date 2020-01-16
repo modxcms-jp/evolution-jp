@@ -24,7 +24,7 @@ if(isset($_POST['listSubmitted'])) {
 		foreach($orderArray as $key => $item) {
 			if (strlen($item) == 0) continue;
 			$tmplvar = ltrim($item, 'item_');
-			$modx->db->update(array('rank'=>$key),'[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
+			db()->update(array('rank'=>$key),'[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
 		}
 	}
 	// empty cache
@@ -38,12 +38,12 @@ $from  .= ' INNER JOIN [+prefix+]site_templates tm ON tr.templateid = tm.id';
 $where  = "tr.templateid='{$id}'";
 $orderby = 'tr.rank, tv.rank, tv.id';
 
-$rs = $modx->db->select($field,$from,$where,$orderby);
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select($field,$from,$where,$orderby);
+$limit = db()->getRecordCount($rs);
 
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++) {
-		$row = $modx->db->getRow($rs);
+		$row = db()->getRow($rs);
 		if ($i == 0) $evtLists .= '<strong>'.$row['templatename'].'</strong><br /><ul id="sortlist" class="sortableList">';
 		$evtLists .= '<li id="item_'.$row['id'].'" class="sort">'.$row['name'].'</li>';
 	}

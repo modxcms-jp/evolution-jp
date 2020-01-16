@@ -183,13 +183,13 @@ function getArray($element_name,$action,$nameField = 'name')
 	if($element_name=='site_tmplvars') $orderby = "category ASC, {$tbl_element_name}.rank ASC, name ASC";
 	else                               $orderby = 'category ASC, name ASC';
 
-	$rs = $modx->db->select($fields,$from,'',$orderby);
-	$limit = $modx->db->getRecordCount($rs);
+	$rs = db()->select($fields,$from,'',$orderby);
+	$limit = db()->getRecordCount($rs);
 	if($limit<1)
 		return $_lang['no_results'];
 	
 	$rows = array();
-	while($row = $modx->db->getRow($rs)) {
+	while($row = db()->getRow($rs)) {
 		$rows[$row['id']] = $row;
 	}
 	return $rows;
@@ -255,11 +255,11 @@ function createCategoryList()
 			
 			$from = "{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
 			$orderby = ($v['table'] == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
-			$rs = $modx->db->select($fields,$from,'',$orderby);
-			$limit = $modx->db->getRecordCount($rs);
+			$rs = db()->select($fields,$from,'',$orderby);
+			$limit = db()->getRecordCount($rs);
 			if($limit>0)
 			{
-				while($row = $modx->db->getRow($rs))
+				while($row = db()->getRow($rs))
 				{
 					$row['type'] = $v['name'];
 					$row['action'] = $v['action'];

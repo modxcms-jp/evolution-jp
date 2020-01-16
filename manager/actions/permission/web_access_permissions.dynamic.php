@@ -8,30 +8,30 @@ if(!$modx->hasPermission('web_access_permissions') || $modx->config['use_udperms
 $tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
 $tbl_webgroup_names      = $modx->getFullTableName('webgroup_names');
 // find all document groups, for the select :)
-$rs = $modx->db->select('id,name',$tbl_documentgroup_names,'','name');
-if ($modx->db->getRecordCount($rs) < 1)
+$rs = db()->select('id,name',$tbl_documentgroup_names,'','name');
+if (db()->getRecordCount($rs) < 1)
 {
 	$docgroupselector = "[no groups to add]";
 }
 else
 {
 	$docgroupselector = '<select name="docgroup">'."\n";
-	while ($row = $modx->db->getRow($rs))
+	while ($row = db()->getRow($rs))
 	{
 		$docgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
 	}
 	$docgroupselector .= "</select>\n";
 }
 
-$rs = $modx->db->select('id,name',$tbl_webgroup_names,'','name');
-if ($modx->db->getRecordCount($rs) < 1)
+$rs = db()->select('id,name',$tbl_webgroup_names,'','name');
+if (db()->getRecordCount($rs) < 1)
 {
 	$usrgroupselector = '[no user groups]';
 }
 else
 {
 	$usrgroupselector = '<select name="usergroup">'."\n";
-	while ($row = $modx->db->getRow($rs))
+	while ($row = db()->getRow($rs))
 	{
 		$usrgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
 	}
@@ -79,8 +79,8 @@ else
 	$from  = "{$tbl_webgroup_names} AS groupnames";
 	$from .= " LEFT JOIN {$tbl_web_groups} AS `groups` ON `groups`.webgroup = groupnames.id";
 	$from .= " LEFT JOIN {$tbl_web_users}  AS `users` ON `users`.id = `groups`.webuser";
-	$rs = $modx->db->select($field,$from,'','groupnames.name');
-	if ($modx->db->getRecordCount($rs) < 1)
+	$rs = db()->select($field,$from,'','groupnames.name');
+	if (db()->getRecordCount($rs) < 1)
 	{
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	}
@@ -88,7 +88,7 @@ else
 	{
 		echo "<ul>\n";
 		$pid = '';
-		while ($row = $modx->db->getRow($rs)) {
+		while ($row = db()->getRow($rs)) {
 			if ($row['id'] !== $pid) {
 				if ($pid != '') echo "</li></ul></li>\n"; // close previous one
 
@@ -154,8 +154,8 @@ else
 	</table>
 	<br />
 <?php
-	$rs = $modx->db->query($sql);
-	if ($modx->db->getRecordCount($rs) < 1) {
+	$rs = db()->query($sql);
+	if (db()->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
 	} else {
 		echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">'."\n".
@@ -163,7 +163,7 @@ else
 		'	<tr><td><b>'.$_lang['access_permissions_resource_groups'].'</b></td></tr>'."\n".
 		'	</thead>'."\n";
 		$pid = '';
-		while ($row = $modx->db->getRow($rs)) {
+		while ($row = db()->getRow($rs)) {
 			if ($row['id'] !== $pid) {
 				if ($pid != '') echo "</td></tr>\n"; // close previous one
 
@@ -209,8 +209,8 @@ else
 		"LEFT JOIN ".$modx->getFullTableName('webgroup_access')." AS groupacc ON groupacc.webgroup = groupnames.id ".
 		"LEFT JOIN ".$tbl_documentgroup_names." AS dgnames ON dgnames.id = groupacc.documentgroup ".
 		"ORDER BY name";
-	$rs = $modx->db->query($sql);
-	if ($modx->db->getRecordCount($rs) < 1) {
+	$rs = db()->query($sql);
+	if (db()->getRecordCount($rs) < 1) {
 		echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
 	} else {
 		?>
@@ -236,7 +236,7 @@ else
 		<?php
 		echo "<ul>\n";
 		$pid = '';
-		while ($row = $modx->db->getRow($rs)) {
+		while ($row = db()->getRow($rs)) {
 			if ($row['id'] != $pid) {
 				if ($pid != '') echo "</ul></li>\n"; // close previous one
 				echo '<li><b>'.$row['name'].'</b>';

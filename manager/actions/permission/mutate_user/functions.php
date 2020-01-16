@@ -1,13 +1,5 @@
 <?php
 
-function selected($cond=false)
-{
-    if($cond) {
-        return ' selected="selected"';
-    }
-    return '';
-}
-
 // converts date format dd-mm-yyyy to php date
 function ConvertDate($date) {
     global $modx;
@@ -25,14 +17,6 @@ function checkbox($name,$value,$label,$cond) {
     $ph['label'] = $label;
     $ph['checked'] = checked($cond);
     return $modx->parseText($tpl,$ph);
-}
-
-function checked($cond=false)
-{
-    if($cond===true) {
-        return 'checked="checked"';
-    }
-    return '';
 }
 
 function getUser($userid) {
@@ -84,7 +68,7 @@ function hasUserPermission($action) {
     return false;
 }
 
-function  activeUserCheck($userid){
+function activeUserCheck($userid){
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'

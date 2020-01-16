@@ -144,14 +144,14 @@ if($modx->hasPermission('exec_module')) {
 		$from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
 		$from .= " LEFT JOIN {$tbl_member_groups} AS mg ON sma.usergroup = mg.user_group";
 		$where = "(mg.member IS NULL OR mg.member={$uid}) AND sm.disabled != 1";
-		$rs = $modx->db->select($field,$from,$where,'sm.editedon DESC');
+		$rs = db()->select($field,$from,$where,'sm.editedon DESC');
 	}
 	else
 	{
 		// Admins get the entire list
-		$rs = $modx->db->select('id,name,icon', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+		$rs = db()->select('id,name,icon', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
 	}
-	while ($content = $modx->db->getRow($rs))
+	while ($content = db()->getRow($rs))
 	{
 		if(empty($content['icon'])) $content['icon'] = $_style['icons_modules'];
 		$action = 'index.php?a=112&amp;id='.$content['id'];

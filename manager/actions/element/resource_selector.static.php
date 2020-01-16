@@ -38,7 +38,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
 	// get search string
 	$query = $_REQUEST['search'];
-	$sqlQuery = $modx->db->escape($query);
+	$sqlQuery = db()->escape($query);
 
 	// select SQL
 	switch($rt){
@@ -176,7 +176,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 	  <tr>
 		<td valign="top" align="left">
 		<?php
-			$ds = $modx->db->query($sql);
+			$ds = db()->query($sql);
 			if (!$ds){
 				echo "An error occured while loading records.";
 				exit;

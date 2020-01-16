@@ -319,7 +319,7 @@ if (is_writable($startpath))
 	{
 		$old_umask = umask(0);
 		$filename = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
-		$filename = $modx->db->escape($filename);
+		$filename = db()->escape($filename);
 		
 		if(!checkExtension($filename))
 		{

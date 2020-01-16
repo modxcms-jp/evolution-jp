@@ -6,23 +6,23 @@ if(!$modx->hasPermission('access_permissions')) {
 }
 
 // find all document groups, for the select :)
-$rs = $modx->db->select('*','[+prefix+]documentgroup_names','','name');
-if ($modx->db->getRecordCount($rs) < 1) {
+$rs = db()->select('*','[+prefix+]documentgroup_names','','name');
+if (db()->getRecordCount($rs) < 1) {
     $docgroupselector = '[no groups to add]';
 } else {
     $docgroupselector = '<select name="docgroup">'."\n";
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $docgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
     }
     $docgroupselector .= "</select>\n";
 }
 
-$rs = $modx->db->select('*','[+prefix+]membergroup_names','','name');
-if ($modx->db->getRecordCount($rs) < 1) {
+$rs = db()->select('*','[+prefix+]membergroup_names','','name');
+if (db()->getRecordCount($rs) < 1) {
     $usrgroupselector = '[no user groups]';
 } else {
     $usrgroupselector = '<select name="usergroup">'."\n";
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $usrgroupselector .= "\t".'<option value="'.$row['id'].'">'.$row['name']."</option>\n";
     }
     $usrgroupselector .= "</select>\n";
@@ -68,8 +68,8 @@ if ($modx->db->getRecordCount($rs) < 1) {
     $from .= " LEFT JOIN [+prefix+]member_groups AS `groups` ON `groups`.`user_group` = `groupnames`.`id`";
     $from .= " LEFT JOIN [+prefix+]manager_users AS `users` ON `users`.`id` = `groups`.`member`";
     $orderby = 'groupnames.name';
-    $rs = $modx->db->select($field,$from,'',$orderby);
-    if ($modx->db->getRecordCount($rs) < 1)
+    $rs = db()->select($field,$from,'',$orderby);
+    if (db()->getRecordCount($rs) < 1)
     {
         echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
     }
@@ -77,7 +77,7 @@ if ($modx->db->getRecordCount($rs) < 1) {
     {
         echo "<ul>\n";
         $pid = '';
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             if ($row['id'] !== $pid) {
                 if ($pid != '') echo "</li></ul></li>\n"; // close previous one
 
@@ -138,8 +138,8 @@ if ($modx->db->getRecordCount($rs) < 1) {
     $from .= " LEFT JOIN [+prefix+]document_groups AS dg ON dg.document_group = dgnames.id";
     $from .= " LEFT JOIN [+prefix+]site_content AS sc ON sc.id = dg.document";
     $orderby = 'dgnames.name, sc.id';
-    $rs = $modx->db->select($field,$from,'',$orderby);
-    if ($modx->db->getRecordCount($rs) < 1) {
+    $rs = db()->select($field,$from,'',$orderby);
+    if (db()->getRecordCount($rs) < 1) {
         echo '<span class="warning">'.$_lang['no_groups_found'].'</span>';
     } else {
         echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">'."\n".
@@ -147,7 +147,7 @@ if ($modx->db->getRecordCount($rs) < 1) {
             '<tr><td><b>'.$_lang['access_permissions_resource_groups'].'</b></td></tr>'."\n".
             '</thead>'."\n";
         $pid = '';
-        while ($row = $modx->db->getRow($rs))
+        while ($row = db()->getRow($rs))
         {
             if ($row['id'] !== $pid)
             {
@@ -191,8 +191,8 @@ if ($modx->db->getRecordCount($rs) < 1) {
     $from  = "[+prefix+]membergroup_names AS groupnames";
     $from .= " LEFT JOIN [+prefix+]membergroup_access AS groupacc ON groupacc.membergroup = groupnames.id";
     $from .= " LEFT JOIN [+prefix+]documentgroup_names AS dgnames ON dgnames.id = groupacc.documentgroup";
-    $rs = $modx->db->select($field,$from,'','name');
-    if ($modx->db->getRecordCount($rs) < 1)
+    $rs = db()->select($field,$from,'','name');
+    if (db()->getRecordCount($rs) < 1)
     {
         echo '<span class="warning">'.$_lang['no_groups_found'].'</span><br />';
     }
@@ -219,7 +219,7 @@ if ($modx->db->getRecordCount($rs) < 1) {
         <?php
         echo "<ul>\n";
         $pid = '';
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             if ($row['id'] != $pid) {
                 if ($pid != '') echo "</ul></li>\n"; // close previous one
                 echo '<li><b>'.$row['name'].'</b>';

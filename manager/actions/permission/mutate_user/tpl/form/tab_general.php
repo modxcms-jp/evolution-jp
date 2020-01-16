@@ -93,14 +93,14 @@ if($user['blocked']==1 || ($user['blockeduntil']>time() && $user['blockeduntil']
             } else {
                 $where = '';
             }
-            $rs = $modx->db->select(
+            $rs = db()->select(
                 'name, id'
                 , '[+prefix+]user_roles'
                 , $where
                 , 'save_role DESC, new_role DESC, id ASC'
             );
             $options = array();
-            while ($row = $modx->db->getRow($rs)) {
+            while ($row = db()->getRow($rs)) {
                 if (request_intvar('a') == 11) {
                     $selected = ($row['id'] == evo()->config['default_role']);
                 } else {

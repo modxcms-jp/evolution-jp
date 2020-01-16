@@ -68,11 +68,11 @@ function batch_move()
 	global $modx;
 	foreach($_REQUEST['batch'] as $v)
 	{
-		$ids[] = sprintf("id='%s'",$modx->db->escape($v));
+		$ids[] = sprintf("id='%s'",db()->escape($v));
 	}
 	$where = join(' OR ', $ids);
-	$rs = $modx->db->select('pagetitle', '[+prefix+]site_content', $where);
-	while($row=$modx->db->getRow($rs))
+	$rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
+	while($row=db()->getRow($rs))
 	{
 		echo $row['pagetitle'] . '<br />';
 	}
@@ -134,8 +134,7 @@ EOT;
 
 function get_parentid($id)
 {
-	global $modx;
 	if(strpos($id,',')) $id = substr($id,0,strpos($id,','));
-	$rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'");
-	return $modx->db->getValue($rs);
+	$rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
+	return db()->getValue($rs);
 }

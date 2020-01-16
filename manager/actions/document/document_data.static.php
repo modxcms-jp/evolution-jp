@@ -30,13 +30,13 @@ $access = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr=0 {$in_docgrp}";
 // Get the document content
 $from = "[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document = sc.id";
 $where = "sc.id ='{$id}' AND ({$access})";
-$rs = $modx->db->select('DISTINCT sc.*',$from,$where);
-$content = $modx->db->getRow($rs);
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('DISTINCT sc.*',$from,$where);
+$content = db()->getRow($rs);
+$total = db()->getRecordCount($rs);
 if ($total > 1) {
-	echo "<p>Internal System Error...</p>",
-	     "<p>More results returned than expected. </p>",
-	     "<p><strong>Aborting...</strong></p>";
+	echo "<p>Internal System Error...</p>"
+		. "<p>More results returned than expected. </p>"
+		. "<p><strong>Aborting...</strong></p>";
 	exit;
 }
 
@@ -49,18 +49,18 @@ if ($total == 0) {
  * "General" tab setup
  */
 // Get Creator's username
-$rs = $modx->db->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
-if ($row = $modx->db->getRow($rs))
+$rs = db()->select('username', '[+prefix+]manager_users',"id='{$content['createdby']}'");
+if ($row = db()->getRow($rs))
 	$createdbyname = $row['username'];
 
 // Get Editor's username
-$rs = $modx->db->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
-if ($row = $modx->db->getRow($rs))
+$rs = db()->select('username', '[+prefix+]manager_users', "id='{$content['editedby']}'");
+if ($row = db()->getRow($rs))
 	$editedbyname = $row['username'];
 
 // Get Template name
-$rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
-if ($row = $modx->db->getRow($rs))
+$rs = db()->select('templatename', '[+prefix+]site_templates', "id='{$content['template']}'");
+if ($row = db()->getRow($rs))
 	$templatename = $row['templatename'];
 
 // Set the item name for logging
@@ -93,7 +93,7 @@ foreach($content as $k=>$v)
 <h1><?php echo $_lang['doc_data_title']?></h1>
 
 <div id="actions">
-  <ul class="actionButtons">
+	<ul class="actionButtons">
 <?php if($modx->hasPermission('save_document')):?>
 	<li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit']?></a></li>
 <?php endif; ?>
@@ -108,21 +108,21 @@ foreach($content as $k=>$v)
 <?php endif; ?>
 	<li id="Button6"><a href="#" onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('".$modx->makeUrl($id)."','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"]?>" /> <?php echo $_lang['view_resource']?></a></li>
     <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;<?php
-          	 if(isset($content['parent']) && $content['parent']!=='0')
-          	 {
-          		echo "document.location.href='index.php?a=120&id={$content['parent']}';";
-          	 }
-          	 elseif($_GET['pid'])
-          	 {
-          	 	$_GET['pid'] = intval($_GET['pid']);
-          		echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
-          	 }
-          	 else
-          	 {
-          		echo "document.location.href='index.php?a=2';";
-          	 }
-          	?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
-  </ul>
+			if(isset($content['parent']) && $content['parent']!=='0')
+			{
+			echo "document.location.href='index.php?a=120&id={$content['parent']}';";
+			}
+			elseif($_GET['pid'])
+			{
+			$_GET['pid'] = intval($_GET['pid']);
+			echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
+			}
+			else
+			{
+			echo "document.location.href='index.php?a=2';";
+			}
+		?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel']?></a></li>
+</ul>
 </div>
 
 <div class="sectionBody">

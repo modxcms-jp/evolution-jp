@@ -23,12 +23,12 @@ $uid = $modx->getLoginUserID();
 <div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div>
 <div class="sectionBody" id="lyr3">
 <?php
-$rs = $modx->db->select('*','[+prefix+]user_messages',"id='{$msgid}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('*','[+prefix+]user_messages',"id='{$msgid}'");
+$limit = db()->getRecordCount($rs);
 if($limit!=1) {
     echo "Wrong number of messages returned!";
 } else {
-    $message=$modx->db->getRow($rs);
+    $message=db()->getRow($rs);
     $message['subject'] = decrypt($message['subject']);
     $message['message'] = decrypt($message['message']);
     if($message['recipient']!=$uid) {
@@ -40,8 +40,8 @@ if($limit!=1) {
         if($sender==0) {
             $sendername = $_lang['messages_system_user'];
         } else {
-            $rs2 = $modx->db->select('username', '[+prefix+]manager_users', "id={$sender}");
-            $row2 = $modx->db->getRow($rs2);
+            $rs2 = db()->select('username', '[+prefix+]manager_users', "id={$sender}");
+            $row2 = db()->getRow($rs2);
             $sendername = $row2['username'];
         }
 ?>
@@ -90,7 +90,7 @@ if($limit!=1) {
 </table>
 <?php
         // mark the message as read
-        $rs = $modx->db->update('messageread=1', '[+prefix+]user_messages', "id='{$msgid}'");
+        $rs = db()->update('messageread=1', '[+prefix+]user_messages', "id='{$msgid}'");
     }
 }
 ?>
@@ -105,8 +105,8 @@ if($limit!=1) {
 <?php
 
 // Get  number of rows
-$rs=$modx->db->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}'");
-$num_rows = $modx->db->getValue($rs);
+$rs=db()->select('count(id)', '[+prefix+]user_messages', "recipient='{$uid}'");
+$num_rows = db()->getValue($rs);
 
 // ==============================================================
 // Exemple Usage
@@ -145,14 +145,14 @@ foreach($array_row_paging as $v) {
 }
 $pager .=  $array_paging['next_link'] ."&gt;&gt;". (isset($array_paging['next_link']) ? "</a>" : "");
 
-$rs = $modx->db->select(
+$rs = db()->select(
         '*'
         , '[+prefix+]user_messages'
         , sprintf("recipient='%s'", $uid)
         , 'postdate DESC'
         , sprintf('%d, %s', $int_cur_position, $int_num_result)
 );
-$limit = $modx->db->getRecordCount($rs);
+$limit = db()->getRecordCount($rs);
 if($limit<1):
     echo $_lang['messages_no_messages'];
 else:
@@ -172,15 +172,15 @@ $dotablestuff = 1;
     </thead>
     <tbody>
 <?php
-        while($message = $modx->db->getRow($rs)) :
+        while($message = db()->getRow($rs)) :
 			$message['subject'] = decrypt($message['subject']);
 			$message['message'] = decrypt($message['message']);
             $sender = $message['sender'];
             if($sender==0):
                 $sendername = "[System]";
             else:
-                $rs2 = $modx->db->select('username', '[+prefix+]manager_users', "id='{$sender}'");
-                $row2 = $modx->db->getRow($rs2);
+                $rs2 = db()->select('username', '[+prefix+]manager_users', "id='{$sender}'");
+                $row2 = db()->getRow($rs2);
                 $sendername = $row2['username'];
             endif;
             $messagestyle = $message['messageread']==0 ? "messageUnread" : "messageRead";
@@ -209,12 +209,12 @@ if($dotablestuff==1) { ?>
 <div class="sectionBody">
 <?php
 if(($_REQUEST['m'] === 'rp' || $_REQUEST['m'] === 'f') && isset($msgid)) {
-    $rs = $modx->db->select('*','[+prefix+]user_messages',"id='{$msgid}'");
-    $limit = $modx->db->getRecordCount($rs);
+    $rs = db()->select('*','[+prefix+]user_messages',"id='{$msgid}'");
+    $limit = db()->getRecordCount($rs);
     if($limit!=1) {
         echo "Wrong number of messages returned!";
     } else {
-        $message=$modx->db->getRow($rs);
+        $message=db()->getRow($rs);
 	    $message['subject'] = decrypt($message['subject']);
 	    $message['message'] = decrypt($message['message']);
         if($message['recipient']!=$uid) {
@@ -226,8 +226,8 @@ if(($_REQUEST['m'] === 'rp' || $_REQUEST['m'] === 'f') && isset($msgid)) {
             if($sender==0) {
                 $sendername = "[System]";
             } else {
-                $rs2 = $modx->db->select('username', '[+prefix+]manager_users', "id={$sender}");
-                $row2 = $modx->db->getRow($rs2);
+                $rs2 = db()->select('username', '[+prefix+]manager_users', "id={$sender}");
+                $row2 = db()->getRow($rs2);
                 $sendername = $row2['username'];
             }
             $subjecttext = $_REQUEST['m']=='rp' ? "Re: " : "Fwd: ";
@@ -269,11 +269,11 @@ function hideSpans(showSpan) {
 <span id='userspan' style="display:block;"> <?php echo $_lang['messages_select_user']; ?>:&nbsp;
     <?php
     // get all usernames
-    $rs = $modx->db->select('mu.username,mu.id', '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id', "mua.blocked='0'");
+    $rs = db()->select('mu.username,mu.id', '[+prefix+]manager_users mu INNER JOIN [+prefix+]user_attributes mua ON mua.internalkey=mu.id', "mua.blocked='0'");
     ?>
     <select name="user" class="inputBox" style="width:150px">
     <?php
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             ?>
             <option value="<?php echo $row['id']; ?>" ><?php echo $row['username']; ?></option>
             <?php
@@ -284,11 +284,11 @@ function hideSpans(showSpan) {
 <span id='groupspan' style="display:none;"> <?php echo $_lang['messages_select_group']; ?>:&nbsp;
     <?php
     // get all usernames
-    $rs = $modx->db->select('name, id', '[+prefix+]user_roles');
+    $rs = db()->select('name, id', '[+prefix+]user_roles');
     ?>
     <select name="group" class="inputBox" style="width:150px">
     <?php
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         ?>
         <option value="<?php echo $row['id']; ?>" ><?php echo $row['name']; ?></option>
         <?php
@@ -334,10 +334,10 @@ function hideSpans(showSpan) {
 </div>
 <?php
 // count messages again, as any action on the messages page may have altered the message count
-$rs = $modx->db->select('count(*)','[+prefix+]user_messages',"recipient='{$uid}' AND messageread=0");
-$_SESSION['nrnewmessages'] = $modx->db->getValue($rs);
-$rs = $modx->db->select('count(*)','[+prefix+]user_messages',"recipient='{$uid}'");
-$_SESSION['nrtotalmessages'] = $modx->db->getValue($rs);
+$rs = db()->select('count(*)','[+prefix+]user_messages',"recipient='{$uid}' AND messageread=0");
+$_SESSION['nrnewmessages'] = db()->getValue($rs);
+$rs = db()->select('count(*)','[+prefix+]user_messages',"recipient='{$uid}'");
+$_SESSION['nrtotalmessages'] = db()->getValue($rs);
 $messagesallowed = $modx->hasPermission('messages');
 ?>
 <script type="text/javascript">

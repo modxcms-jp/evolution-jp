@@ -32,14 +32,13 @@ class synccache {
     }
 
     private function getParents($id, $path = '') { // modx:returns child's parent
-        global $modx;
         if(empty($this->aliases)) {
-            $qh = $modx->db->select(
+            $qh = db()->select(
                 "id, IF(alias='', id, alias) AS alias, parent"
                 ,'[+prefix+]site_content'
             );
-            if ($qh && $modx->db->getRecordCount($qh)) {
-                while ($row = $modx->db->getRow($qh)) {
+            if ($qh && db()->getRecordCount($qh)) {
+                while ($row = db()->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
                     $this->parents[$row['id']] = $row['parent'];
                 }
@@ -172,15 +171,15 @@ class synccache {
             'setting_value'=>$recent_update,
             'setting_name'=>'recent_update'
         );
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'setting_name,setting_value'
             , '[+prefix+]system_settings'
             , "setting_name='recent_update'"
         );
-        if($modx->db->getRecordCount($rs)) {
-            $modx->db->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
+        if(db()->getRecordCount($rs)) {
+            db()->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
         } else {
-            $modx->db->insert($f, '[+prefix+]system_settings');
+            db()->insert($f, '[+prefix+]system_settings');
         }
         return $recent_update;
     }
@@ -299,8 +298,7 @@ class synccache {
     }
     
     private function minTime($table_name, $field_name, $where) {
-        global $modx;
-        $rs = $modx->db->select(
+        $rs = db()->select(
             sprintf('MIN(%s) AS result', $field_name)
             ,'[+prefix+]' . $table_name
             , sprintf('%s AND UNIX_TIMESTAMP()<%s', $where, $field_name)
@@ -308,7 +306,7 @@ class synccache {
         if(!$rs) {
             return 0;
         }
-        return $modx->db->getValue($rs);
+        return db()->getValue($rs);
     }
 
     /**
@@ -406,9 +404,9 @@ class synccache {
             return $config;
         }
 
-        $rs = $modx->db->select('setting_name,setting_value','[+prefix+]system_settings');
+        $rs = db()->select('setting_name,setting_value','[+prefix+]system_settings');
         $config = array();
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $config[$row['setting_name']] = $row['setting_value'];
         }
         foreach($config as $k=>$v) {
@@ -420,7 +418,7 @@ class synccache {
     private function _legacy_cache() {
         global $modx;
         
-        $rs = $modx->db->select(
+        $rs = db()->select(
             "IF(alias='', id, alias) AS alias, id, parent, isfolder"
             , '[+prefix+]site_content'
             , 'deleted=0'
@@ -428,7 +426,7 @@ class synccache {
         );
         $modx->aliasListing = array();
         $modx->documentMap  = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $modx->aliasListing[$row['id']] = array(
                 'id'       => $row['id'],
                 'alias'    => $row['alias'],
@@ -451,14 +449,12 @@ class synccache {
     }
     
     private function _get_content_types() {
-        global $modx;
-        
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'id, contentType','[+prefix+]site_content'
             , "contentType != 'text/html'"
         );
         $_ = array('$c = &$this->contentTypes;');
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $_[] = sprintf(
                 '$c[%s] = \'%s\';'
                 , $row['id']
@@ -471,13 +467,13 @@ class synccache {
     private function _get_chunks() {
         global $modx;
         
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'name,snippet'
             , '[+prefix+]site_htmlsnippets', "`published`='1'"
         );
         $modx->chunkCache = array();
-        while ($row = $modx->db->getRow($rs)) {
-            $name = $modx->db->escape($row['name']);
+        while ($row = db()->getRow($rs)) {
+            $name = db()->escape($row['name']);
             $modx->chunkCache[$name] = $row['snippet'];
         }
         return $modx->chunkCache;
@@ -485,9 +481,9 @@ class synccache {
     
     private function _get_snippets() {
         global $modx;
-        $rs = $modx->db->select('*', '[+prefix+]site_snippets');
+        $rs = db()->select('*', '[+prefix+]site_snippets');
         $modx->snippetCache = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
             $modx->snippetCache[$name . 'Props'] = $row['properties'];
@@ -498,10 +494,10 @@ class synccache {
     private function _get_plugins() {
         global $modx;
         
-        $rs = $modx->db->select('*', '[+prefix+]site_plugins', 'disabled=0');
+        $rs = db()->select('*', '[+prefix+]site_plugins', 'disabled=0');
         $modx->pluginCache = array();
-        while ($row = $modx->db->getRow($rs)) {
-            $name = $modx->db->escape($row['name']);
+        while ($row = db()->getRow($rs)) {
+            $name = db()->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
             $modx->pluginCache[$name . 'Props'] = $row['properties'];
         }
@@ -509,8 +505,6 @@ class synccache {
     }
     
     private function _get_events() {
-        global $modx;
-        
         $fields  = 'sysevt.name as `evtname`, plugs.name as plgname';
         $from[] = '[+prefix+]system_eventnames sysevt';
         $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
@@ -518,10 +512,10 @@ class synccache {
         $from = join(' ', $from);
         $where   = 'plugs.disabled=0';
         $orderby = 'sysevt.name,pe.priority';
-        $rs = $modx->db->select($fields,$from,$where,$orderby);
+        $rs = db()->select($fields,$from,$where,$orderby);
         $_ = array('$e = &$this->pluginEvent;');
         $events = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $evtname = $row['evtname'];
             if(!isset($events[$evtname])) {
                 $events[$evtname] = array($row['plgname']);

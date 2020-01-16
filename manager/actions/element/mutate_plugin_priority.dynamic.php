@@ -23,7 +23,7 @@ if(isset($_POST['listSubmitted']))
 				if ($item == '') continue;
 				$pluginId = ltrim($item, 'item_');
 				$field['priority'] = $key;
-				$modx->db->update($field,'[+prefix+]site_plugin_events',"pluginid={$pluginId} AND evtid='{$listName}'");
+				db()->update($field,'[+prefix+]site_plugin_events',"pluginid={$pluginId} AND evtid='{$listName}'");
 			}
 		}
 	}
@@ -39,13 +39,13 @@ $f[]          = 'pe.priority';
 $from[] = '[+prefix+]system_eventnames sysevt';
 $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
 $from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
-$rs = $modx->db->select($f,$from,'plugs.disabled=0','sysevt.name,pe.priority');
+$rs = db()->select($f,$from,'plugs.disabled=0','sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
 $evtLists = '';
 $sortables = array();
-while ($row = $modx->db->getRow($rs)) {
+while ($row = db()->getRow($rs)) {
 	if ($preEvt !== $row['evtid'])
 	{
 		$sortables[] = $row['evtid'];

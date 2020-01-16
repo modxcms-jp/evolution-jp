@@ -39,8 +39,8 @@ function fieldDraftPub_date($docid) {
 	$pub_date = 0;
 	if( !empty($docid) && ($docid = intval($docid)) != 0 ){
 		//statusはdraft/standbyでも気にしない
-        $rs = $modx->db->select('pub_date', '[+prefix+]site_revision', "element = 'resource' AND elmid='{$docid}'");
-		if( ($row = $modx->db->getRow($rs)) && !empty($row['pub_date']) ){
+        $rs = db()->select('pub_date', '[+prefix+]site_revision', "element = 'resource' AND elmid='{$docid}'");
+		if( ($row = db()->getRow($rs)) && !empty($row['pub_date']) ){
 			$pub_date = $modx->toDateFormat($row['pub_date']);
 		}
 	}
@@ -82,7 +82,7 @@ function getTplDraft()
 				jQuery('#pubdate').fadeOut();
 			}
 			else jQuery('#pubdate').fadeIn();
-    	});
+		});
 	});
 </script>
 <form name="mutate" id="mutate" method="post" enctype="multipart/form-data" action="index.php" target="main" onsubmit="documentDirty=false;">
@@ -104,23 +104,23 @@ function getTplDraft()
 	<p class="okmsg">
 	下書きを保存しました。
 	</p>
-    	<div style="margin-bottom:1em;">
-    		<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
-    		<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
-    		<label style="color:#ccc;"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
-    	</div>
-    	<div id="pubdate" style="display:none;">
-        	<table width="99%" border="0" cellspacing="5" cellpadding="0">
-        		[+fieldDraftPub_date+]
-        	</table>
-        </div>
-    	<ul class="actionButtons">
-            <li class="primary" id="save">
-            <a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
-            採用する
-            </a>
-            </li>
-    	</ul>
+		<div style="margin-bottom:1em;">
+			<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
+			<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
+			<label style="color:#ccc;"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
+		</div>
+		<div id="pubdate" style="display:none;">
+			<table width="99%" border="0" cellspacing="5" cellpadding="0">
+				[+fieldDraftPub_date+]
+			</table>
+		</div>
+		<ul class="actionButtons">
+			<li class="primary" id="save">
+			<a href="javascript:void(0)" onclick="documentDirty=false;document.mutate.submit();">
+			採用する
+			</a>
+			</li>
+		</ul>
     </div>
     </div>
 </form>

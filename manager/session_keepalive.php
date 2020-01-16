@@ -19,8 +19,7 @@ if($modx->input_get('tok') !== md5(session_id())) {
 }
 
 $modx->updatePublishStatus();
-$uid = $_SESSION['mgrInternalKey'];
-$modx->db->update(
+db()->update(
     "lasthit=" . $_SERVER['REQUEST_TIME']
     , '[+prefix+]active_users'
     , "internalKey='" . $_SESSION['mgrInternalKey'] . "'"
