@@ -453,7 +453,7 @@ if(!empty($buffer) && empty($ent_buffer))
 
 function ls($curpath)
 {
-	global $_lang,$style_path,$_style;
+	global $_lang,$style_path,$_style,$modx_manager_charset;
 	global $excludes, $proteted_path, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $modx;
 	$dircounter = 0;
 	$filecounter = 0;

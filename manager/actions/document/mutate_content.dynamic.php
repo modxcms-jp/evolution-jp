@@ -62,7 +62,7 @@ if(request_intvar('id') && manager()->action==131) {
 }
 
 manager()->saveFormValues();
-if(evo()->input_post()) {
+if(postv()) {
     $docObject = mergeReloadValues($docObject);
 }
 
