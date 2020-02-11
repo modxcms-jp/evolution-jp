@@ -2,19 +2,18 @@
 //:: MODx Installer Setup file 
 //:::::::::::::::::::::::::::::::::::::::::
 
-$chunkPath    = "{$base_path}assets/chunks/";
-$snippetPath  = "{$base_path}assets/snippets/";
-$pluginPath   = "{$base_path}assets/plugins/";
-$modulePath   = "{$base_path}assets/modules/";
-$templatePath = "{$base_path}assets/templates/";
-$tvPath       = "{$base_path}assets/tvs/";
+$chunkPath    = $base_path . "assets/chunks/";
+$snippetPath  = $base_path . "assets/snippets/";
+$pluginPath   = $base_path . "assets/plugins/";
+$modulePath   = $base_path . "assets/modules/";
+$templatePath = $base_path . "assets/templates/";
+$tvPath       = $base_path . "assets/tvs/";
 
 global $_lang;
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
 $tplTemplates = array();
-if($_SESSION['installmode']==0 && is_dir($templatePath) && is_readable($templatePath))
-{
+if($_SESSION['installmode']==0 && is_dir($templatePath) && is_readable($templatePath)) {
 	$files = collectTpls($templatePath);
 	foreach ($files as $tplfile) {
 		$params = parse_docblock($tplfile);
@@ -39,8 +38,7 @@ if($_SESSION['installmode']==0 && is_dir($templatePath) && is_readable($template
 
 // setup Template Variable template files
 $tplTVs = array();
-if($_SESSION['installmode']==0 && is_dir($tvPath) && is_readable($tvPath))
-{
+if($_SESSION['installmode']==0 && is_dir($tvPath) && is_readable($tvPath)) {
 	$files = collectTpls($tvPath);
 	foreach ($files as $tplfile) {
 		$params = parse_docblock($tplfile);
@@ -70,8 +68,7 @@ if($_SESSION['installmode']==0 && is_dir($tvPath) && is_readable($tvPath))
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
 $tplChunks = array();
-if($_SESSION['installmode']==0 && is_dir($chunkPath) && is_readable($chunkPath))
-{
+if($_SESSION['installmode']==0 && is_dir($chunkPath) && is_readable($chunkPath)) {
 	$files = collectTpls($chunkPath);
 	foreach ($files as $tpl_file_path) {
 		$params = parse_docblock($tpl_file_path);
@@ -91,8 +88,7 @@ if($_SESSION['installmode']==0 && is_dir($chunkPath) && is_readable($chunkPath))
 
 // setup snippets template files - array : name, description, type - 0:file or 1:content, file or content,properties
 $tplSnippets = array();
-if(is_dir($snippetPath) && is_readable($snippetPath))
-{
+if(is_dir($snippetPath) && is_readable($snippetPath)) {
 	$files = collectTpls($snippetPath);
 	foreach ($files as $tplfile) {
 		$params = parse_docblock($tplfile);
@@ -118,11 +114,9 @@ if(is_dir($snippetPath) && is_readable($snippetPath))
 
 // setup plugins template files - array : name, description, type - 0:file or 1:content, file or content,properties
 $tplPlugins = array();
-if(is_dir($pluginPath) && is_readable($pluginPath))
-{
+if(is_dir($pluginPath) && is_readable($pluginPath)) {
 	$files = collectTpls($pluginPath);
-	foreach ($files as $tplfile)
-	{
+	foreach ($files as $tplfile) {
 		if(strpos($tplfile,'/mgr_custom/')!==false) {
             continue;
         } //Ignore
@@ -154,11 +148,9 @@ if(is_dir($pluginPath) && is_readable($pluginPath))
 
 // setup modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid,enable_sharedparams
 $tplModules = array();
-if(is_dir($modulePath) && is_readable($modulePath))
-{
+if(is_dir($modulePath) && is_readable($modulePath)) {
 	$files = collectTpls($modulePath);
-	foreach ($files as $tplfile)
-	{
+	foreach ($files as $tplfile) {
 		$params = parse_docblock($tplfile);
         if(!is_array($params) || !$params) {
             continue;

@@ -1,25 +1,33 @@
 <?php
 
-//back from next
 if($_SESSION['prevAction']==='options') {
-	$_SESSION['installdata'] = $_POST['installdata'] ? $_POST['installdata'] : '';
-	$_SESSION['template']    = $_POST['template']    ? $_POST['template']    : array();
-	$_SESSION['tv']          = $_POST['tv']          ? $_POST['tv']          : array();
-	$_SESSION['chunk']       = $_POST['chunk']       ? $_POST['chunk']       : array();
-	$_SESSION['snippet']     = $_POST['snippet']     ? $_POST['snippet']     : array();
-	$_SESSION['plugin']      = $_POST['plugin']      ? $_POST['plugin']      : array();
-	$_SESSION['module']      = $_POST['module']      ? $_POST['module']      : array();
+    $_SESSION['installdata'] = postv('installdata', '');
+    $_SESSION['template']    = postv('template', array());
+    $_SESSION['tv']          = postv('tv', array());
+    $_SESSION['chunk']       = postv('chunk', array());
+    $_SESSION['snippet']     = postv('snippet', array());
+    $_SESSION['plugin']      = postv('plugin', array());
+    $_SESSION['module']      = postv('module', array());
 }
 
-$_ = explode(',', 'adminname,adminemail,adminpass,adminpassconfirm,database_server,database_user,database_password,dbase,table_prefix');
-$ph['installmode'] = $_SESSION['installmode'];
-foreach($_ as $k) {
-	if(isset($_SESSION[$k]))       $ph[$k] = $_SESSION[$k];
-	elseif($k==='adminname')       $ph[$k] = 'admin';
-	elseif($k==='database_server') $ph[$k] = 'localhost';
-	elseif($k==='table_prefix')    $ph[$k] = 'modx_';
-	else                           $ph[$k] = '';
+$ph = array(
+    'adminname'         => 'admin',
+    'database_server'   => 'localhost',
+    'table_prefix'      => 'modx_',
+    'installmode'       => evo()->session('installmode'),
+    'adminemail'        => evo()->session('adminemail', ''),
+    'adminpass'         => evo()->session('adminpass', ''),
+    'adminpassconfirm'  => evo()->session('adminpassconfirm', ''),
+    'database_user'     => evo()->session('database_user', ''),
+    'database_password' => evo()->session('database_password', ''),
+    'dbase'             => evo()->session('adminemail', ''),
+);
+if($ph['database_server'] === '127.0.0.1') {
+    $ph['database_server'] = 'localhost';
 }
-if($ph['database_server'] == '127.0.0.1') $ph['database_server'] = 'localhost';
-$src = file_get_contents("{$base_path}install/tpl/connection.tpl");
-echo  $modx->parseText($src,$ph);
+echo  $modx->parseText(
+    file_get_contents(
+        MODX_BASE_PATH . 'install/tpl/connection.tpl'
+    )
+    , $ph
+);

@@ -1,11 +1,11 @@
 <?php
 $self = 'install/connection.databasetest.php';
 $base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-include_once("{$base_path}manager/includes/document.parser.class.inc.php");
+include_once($base_path . "manager/includes/document.parser.class.inc.php");
 $modx = new DocumentParser;
 
-require_once("{$base_path}manager/includes/default.config.php");
-require_once("{$base_path}install/functions.php");
+require_once($base_path . "manager/includes/default.config.php");
+require_once($base_path . "install/functions.php");
 
 includeLang(getOption('install_language'));
 

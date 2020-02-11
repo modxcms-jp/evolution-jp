@@ -21,8 +21,9 @@ $errors = 0;
 if (version_compare(phpversion(), '5.3.0') < 0) {
 	$_ = echo_failed().$_lang['you_running_php'] . phpversion() . $_lang['modx_requires_php'];
 	$errors += 1;
+} else {
+    $_ = echo_ok();
 }
-else $_ = echo_ok();
 echo p($_ . $_lang['checking_php_version'] );
 // check php register globals off
 
@@ -40,37 +41,37 @@ if ($_SESSION['test'] != 1) {
 
 // check directories
 // cache exists?
-if (!is_dir("{$base_path}assets/cache")) {
+if (!is_dir($base_path . 'assets/cache')) {
 	echo p(echo_failed() . $_lang['checking_if_cache_exist']);
 	$errors += 1;
 }
 
 // cache writable?
-if (!is_writable("{$base_path}assets/cache")) {
+if (!is_writable($base_path . 'assets/cache')) {
 	$_ = echo_failed();
 	$errors += 1;
 } else {
 	$_ = echo_ok();
-	mkd("{$base_path}assets/cache/rss");
+	mkd($base_path . 'assets/cache/rss');
 }
 echo p($_ . $_lang['checking_if_cache_writable']);
 
-if (is_writable("{$base_path}assets/cache")) {
+if (is_writable($base_path . 'assets/cache')) {
 	// cache files writable?
-	if (!is_file("{$base_path}assets/cache/siteCache.idx.php")) {
+	if (!is_file($base_path . 'assets/cache/siteCache.idx.php')) {
 	    // make an attempt to create the file
-	    file_put_contents("{$base_path}assets/cache/siteCache.idx.php",'<?php //MODX site cache file ?>');
+	    file_put_contents($base_path . 'assets/cache/siteCache.idx.php','<?php //MODX site cache file ?>');
 	}
-	if (!is_writable("{$base_path}assets/cache/siteCache.idx.php")) {
+	if (!is_writable($base_path . 'assets/cache/siteCache.idx.php')) {
 	    $_ =  echo_failed();
 	    $errors += 1;
 	}
 	else $_ =  echo_ok();
 	echo p($_ . $_lang['checking_if_cache_file_writable']);
 	
-    file_put_contents("{$base_path}assets/cache/basicConfig.php",'<?php $cacheRefreshTime=0; ?>');
+    file_put_contents($base_path . 'assets/cache/basicConfig.php','<?php $cacheRefreshTime=0; ?>');
 	
-	if (!is_writable("{$base_path}assets/cache/basicConfig.php")) {
+	if (!is_writable($base_path . 'assets/cache/basicConfig.php')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
@@ -78,19 +79,19 @@ if (is_writable("{$base_path}assets/cache")) {
 	echo p($_ . $_lang['checking_if_cache_file2_writable']);
 }
 
-if(!is_dir("{$base_path}assets/images")) {
-	if (!is_dir("{$base_path}content")) {
+if(!is_dir($base_path . 'assets/images')) {
+	if (!is_dir($base_path . 'content')) {
 		echo p(echo_failed() . $_lang['checking_if_content_exists']);
 		$errors += 1;
 	}
 	
 	// cache writable?
-	$dir_images = "{$base_path}content/images";
-	$dir_files  = "{$base_path}content/files";
-	$dir_flash  = "{$base_path}content/flash";
-	$dir_media  = "{$base_path}content/media";
+	$dir_images = $base_path . 'content/images';
+	$dir_files  = $base_path . 'content/files';
+	$dir_flash  = $base_path . 'content/flash';
+	$dir_media  = $base_path . 'content/media';
 	
-	if (!is_writable("{$base_path}content")) {
+	if (!is_writable($base_path . 'content')) {
 	    $_ = echo_failed();
 	    $errors += 1;
 	} else {
@@ -102,9 +103,7 @@ if(!is_dir("{$base_path}assets/images")) {
 	}
 	echo p($_ . $_lang['checking_if_content_writable']);
 	
-	if (is_writable("{$base_path}content"))
-	{
-		// File Browser directories exists?
+	if (is_writable($base_path . 'content')) {
 		if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_flash) || !is_dir($dir_media)) {
 			echo p(echo_failed() . $_lang['checking_if_images_exist']);
 			$errors += 1;
@@ -121,33 +120,34 @@ if(!is_dir("{$base_path}assets/images")) {
 	}
 }
 
-if (!is_dir("{$base_path}temp")) {
+if (!is_dir($base_path . 'temp')) {
 	echo p(echo_failed() . $_lang['checking_if_temp_exists']);
 	$errors += 1;
 }
 
 // cache writable?
 
-if (!is_writable("{$base_path}temp")) {
+if (!is_writable($base_path . 'temp')) {
     $_ = echo_failed();
     $errors += 1;
 } else {
     $_ = echo_ok();
-	mkd("{$base_path}temp/export");
-	mkd("{$base_path}temp/backup");
-	if(is_dir("{$base_path}temp/backup")) @file_put_contents("{$base_path}temp/backup/.htaccess","order deny,allow\ndeny from all");
+	mkd($base_path . 'temp/export');
+	mkd($base_path . 'temp/backup');
+	if(is_dir($base_path . 'temp/backup')) {
+        @file_put_contents($base_path . 'temp/backup/.htaccess', "order deny,allow\ndeny from all");
+    }
 }
 echo p($_ . $_lang['checking_if_temp_writable']);
 
-if (is_writable("{$base_path}temp")) {
-	// export exists?
-	if (!is_dir("{$base_path}temp/export")) {
+if (is_writable($base_path . 'temp')) {
+	if (!is_dir($base_path . 'temp/export')) {
 		echo p(echo_failed() . $_lang['checking_if_export_exists']);
 		$errors += 1;
 	}
 	
 	// export writable?
-	if (!is_writable("{$base_path}temp/export")) {
+	if (!is_writable($base_path . 'temp/export')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
@@ -155,13 +155,13 @@ if (is_writable("{$base_path}temp")) {
 	echo p($_ . $_lang['checking_if_export_writable']);
 	
 	// backup exists?
-	if (!is_dir("{$base_path}temp/backup")) {
+	if (!is_dir($base_path . 'temp/backup')) {
 		$errors += 1;
 		echo p(echo_failed() . $_lang['checking_if_backup_exists']);
 	}
 	
 	// backup writable?
-	if (!is_writable("{$base_path}temp/backup")) {
+	if (!is_writable($base_path . 'temp/backup')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
@@ -170,7 +170,7 @@ if (is_writable("{$base_path}temp")) {
 }
 
 // config.inc.php writable?
-$config_path = "{$base_path}manager/includes/config.inc.php";
+$config_path = $base_path . 'manager/includes/config.inc.php';
 
 if (!is_file($config_path)) {
 	// make an attempt to create the file
@@ -182,32 +182,38 @@ if (!is_file($config_path)) {
 $isWriteable = is_writable($config_path);
 if (!$isWriteable) {
     if($_SESSION['installmode']==0) {
-        $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_note']."</strong>";
+        $_ = echo_failed() . '</p><p><strong>' .$_lang['config_permissions_note']. '</strong>';
     } else {
-        $_ = echo_failed() . "</p><p><strong>".$_lang['config_permissions_upg_note']."</strong>";
+        $_ = echo_failed() . '</p><p><strong>' .$_lang['config_permissions_upg_note']. '</strong>';
     }
     $errors += 1;
 }
 else  $_ = echo_ok();
 echo p($_ . $_lang['checking_if_config_exist_and_writable']);
 
-echo sprintf('<p>%s %s <strong>%s%s </strong></p>', echo_ok(), $_lang['checking_sql_version'], $_lang['sql_version_is'], $modx->db->getVersion());
+echo sprintf(
+    '<p>%s %s <strong>%s%s </strong></p>'
+    , echo_ok()
+    , $_lang['checking_sql_version']
+    , $_lang['sql_version_is']
+    , $modx->db->getVersion()
+);
 
 // Version and strict mode check end
 
 // andrazk 20070416 - add install flag and disable manager login
 // assets/cache writable?
 
-if (is_writable("../assets/cache")) {
+if (is_writable('../assets/cache')) {
     // make an attempt to create the file
-    file_put_contents("{$base_path}assets/cache/installProc.inc.php",'<?php $installStartTime = '.time().'; ?>');
+    file_put_contents($base_path . 'assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
 }
 
 if ($errors > 0) {
 ?>
       <p>
 <?php
-	echo "<strong>{$_lang['setup_cannot_continue']}</strong>";
+	echo '<strong>' . $_lang['setup_cannot_continue'] . '</strong>';
 	if ($errors > 1) {
 		echo $errors . ' ';
 		echo $_lang['errors'];
@@ -229,7 +235,7 @@ echo p('&nbsp;');
 $nextAction= $errors > 0 ? 'summary' : 'install';
 $nextButton= $errors > 0 ? $_lang['retry'] : $_lang['install'];
 $nextVisibility= $errors > 0 || $chkagree ? 'visible' : 'hidden';
-$agreeToggle= $errors > 0 ? '' : ' onclick="if(document.getElementById(\'chkagree\').checked){document.getElementById(\'nextbutton\').style.visibility=\'visible\';}else{document.getElementById(\'nextbutton\').style.visibility=\'hidden\';}"';
+$agreeToggle= $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
 ?>
 <form id="install" action="index.php" method="POST">
   <div>
@@ -265,7 +271,9 @@ function echo_ok() {
 
 function echo_failed($msg=NULL) {
 	global $_lang;
-	if(is_null($msg)) $msg = $_lang['failed'];
+	if($msg === null) {
+        $msg = $_lang['failed'];
+    }
 	return '<span class="notok">' . $msg . '</span>';
 }
 
@@ -275,15 +283,15 @@ function mkd($path) {
 		if($rs) $rs = @chmod($path, 0777);
 	}
 	
-	if(!is_file("{$path}/index.html")) {
-		$rs = @file_put_contents("{$path}/index.html",'');
-		if($rs) @chmod("{$path}/index.html", 0666);
-		if(!is_writable("{$path}/index.html")) echo echo_failed($path);
+	if(!is_file($path . '/index.html')) {
+		$rs = @file_put_contents($path . '/index.html','');
+		if($rs) @chmod($path . '/index.html', 0666);
+		if(!is_writable($path . '/index.html')) echo echo_failed($path);
 	}
 	
 	return $rs;
 }
 
 function p($str) {
-	return "<p>{$str}</p>";
+	return '<p>' . $str . '</p>';
 }

@@ -4,10 +4,10 @@
 // SNUFFKIN/ Alex 2004
 
 class SqlParser {
-	var $prefix, $mysqlErrors;
-	var $installFailed, $adminname, $adminemail, $adminpass, $managerlanguage;
-    var $connection_charset, $connection_collation, $showSqlErrors;
-    var $base_path;
+	public $prefix, $mysqlErrors;
+	public $installFailed, $adminname, $adminemail, $adminpass, $managerlanguage;
+    public $connection_charset, $connection_collation, $showSqlErrors;
+    public $base_path;
 
 	function __construct() {
 		$this->base_path = str_replace('\\','/', dirname(getcwd())).'/';
@@ -23,8 +23,11 @@ class SqlParser {
 	
 	function file_get_sql_contents($filename) {
 		// check to make sure file exists
-		if(strpos($filename,'/')===false) $path = "{$this->base_path}install/sql/{$filename}";
-		else                              $path = "{$this->base_path}{$filename}";
+		if(strpos($filename,'/')===false) {
+            $path = "{$this->base_path}install/sql/{$filename}";
+        } else {
+            $path = "{$this->base_path}{$filename}";
+        }
 		if (!is_file($path)) {
 			$this->mysqlErrors[] = array("error" => "File '{$path}' not found");
 			$this->installFailed = true ;
@@ -37,12 +40,13 @@ class SqlParser {
 	    global $modx;
 		
 		$idata = $this->file_get_sql_contents($filename);
-		if(!$idata) return false;
+		if(!$idata) {
+            return false;
+        }
 		
 		$dbVersion = (float) $modx->db->getVersion();
 		
-		if(version_compare($dbVersion,'4.1.0', '>='))
-		{
+		if(version_compare($dbVersion,'4.1.0', '>=')) {
 			$char_collate = "DEFAULT CHARSET={$this->connection_charset} COLLATE {$this->connection_collation}";
 			$idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
 		}
@@ -60,12 +64,15 @@ class SqlParser {
 		
 		$sql_array = preg_split('@;[ \t]*\n@', $idata);
 		
-		foreach($sql_array as $i=>$sql)
-		{
+		foreach($sql_array as $i=>$sql) {
 			$sql = trim($sql, "\r\n; ");
-			if ($sql) $modx->db->query($sql,false);
+			if ($sql) {
+                $modx->db->query($sql, false);
+            }
 			$error_no = $modx->db->getLastErrorNo();
-			if(!$error_no) continue;
+			if(!$error_no) {
+                continue;
+            }
 			switch($error_no) {
 				case 1060:
 				case 1061:

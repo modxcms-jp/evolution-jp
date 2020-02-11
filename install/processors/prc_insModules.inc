@@ -2,21 +2,23 @@
 
 if (empty($formvModules) && empty($installdata)) return;
 
-echo "<h3>{$lang_modules}:</h3>";
+echo "<h3>" . $lang_modules . ":</h3>";
 
-foreach ($tplModules as $i=>$tplInfo)
-{
-	if(in_array('sample', $tplInfo['installset']) && $installdata == 1)
-		$installSample = true;
-	else $installSample = false;
+foreach ($tplModules as $i=>$tplInfo) {
+	if(in_array('sample', $tplInfo['installset']) && $installdata == 1) {
+        $installSample = true;
+    } else {
+        $installSample = false;
+    }
 	
-	if(!in_array($i, $formvModules) && !$installSample) continue;
+	if(!in_array($i, $formvModules) && !$installSample) {
+        continue;
+    }
 	
 	$name = $tplInfo['name'];
 	$tpl_file_path = $tplInfo['tpl_file_path'];
-	if (!is_file($tpl_file_path))
-	{
-		echo ng($name,"{$lang_unable_install_module} '{$tpl_file_path}' {$lang_not_found}");
+	if (!is_file($tpl_file_path)) {
+		echo ng($name, sprintf("%s '%s' %s", $lang_unable_install_module, $tpl_file_path, $lang_not_found));
 		continue;
 	}
 	
@@ -29,25 +31,20 @@ foreach ($tplModules as $i=>$tplInfo)
 	$f = $modx->db->escape($f);
 	
 	$name = $modx->db->escape($name);
-	$dbv_module = $modx->db->getObject('site_modules', "name='{$name}'");
-	if ($dbv_module)
-	{
+	$dbv_module = $modx->db->getObject('site_modules', "name='" . $name . "'");
+	if ($dbv_module) {
 		$props = propUpdate($properties,$dbv_module->properties);
-		if (!@ $modx->db->update($f, '[+prefix+]site_modules', "name='{$name}'"))
-		{
+		if (!@ $modx->db->update($f, '[+prefix+]site_modules', "name='" . $name . "'")) {
 			$errors += 1;
 			showError();
 			return;
 		}
 		echo ok($name,$lang_upgraded);
-	}
-	else
-	{
+	} else {
 		$f['name']     = $name;
 		$f['guid']     = $modx->db->escape($tplInfo['guid']);
 		$f['category'] = getCreateDbCategory($tplInfo['category']);
-		if (!@ $modx->db->insert($f, '[+prefix+]site_modules'))
-		{
+		if (!@ $modx->db->insert($f, '[+prefix+]site_modules')) {
 			$errors += 1;
 			showError();
 			return;
