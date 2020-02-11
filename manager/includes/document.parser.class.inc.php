@@ -1098,16 +1098,16 @@ class DocumentParser {
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
 
-        if(!$this->conf_var('base_url')) {
+        if(!$this->config('base_url')) {
             $this->config['base_url'] = MODX_BASE_URL;
         }
-        if(!$this->conf_var('site_url')) {
+        if(!$this->config('site_url')) {
             $this->config['site_url'] = MODX_SITE_URL;
         }
-        if(!$this->conf_var('error_page')) {
+        if(!$this->config('error_page')) {
             $this->config['error_page'] = $this->config['start_page'];
         }
-        if(!$this->conf_var('unauthorized_page')) {
+        if(!$this->config('unauthorized_page')) {
             $this->config['unauthorized_page'] = $this->config['error_page'];
         }
         
@@ -1131,7 +1131,7 @@ class DocumentParser {
                 , $this->config['rb_base_dir']
             );
         }
-        if(!$this->conf_var('modx_charset')) {
+        if(!$this->config('modx_charset')) {
             $this->config['modx_charset'] = 'utf-8';
         }
         
@@ -1691,7 +1691,7 @@ class DocumentParser {
                 continue;
             }
             
-            if((int)$row['parent'] && $this->conf_var('use_alias_path')) {
+            if((int)$row['parent'] && $this->config('use_alias_path')) {
                 $_ = $this->getAliasListing($row['parent']);
                 if($_['parent'] && $_['path']!='') {
                     $path = $_['path'] . '/' . $_['alias'];
@@ -3348,7 +3348,7 @@ class DocumentParser {
         $cached[$cacheKey] = false;
 
         if ($id==0) {
-            $id = $this->conf_var('site_start');
+            $id = $this->config('site_start');
         } elseif ($id=='') {
             $id = $this->documentIdentifier;
         }
@@ -3371,16 +3371,16 @@ class DocumentParser {
             $id = $this->referenceListing[$id];
         }
 
-        if($id==$this->conf_var('site_start') && (strpos($scheme,'f')===0 || strpos($scheme,'a')===0)) {
+        if($id==$this->config('site_start') && (strpos($scheme,'f')===0 || strpos($scheme,'a')===0)) {
             $makeurl = '';
-        } elseif (!$this->conf_var('friendly_urls')) {
+        } elseif (!$this->config('friendly_urls')) {
             $makeurl = "index.php?id={$id}";
         } else {
             $alPath = '';
             if(!$alias) {
                 $al= $this->getAliasListing($id);
                 $alias = $id;
-                if ($this->conf_var('friendly_alias_urls')) {
+                if ($this->config('friendly_alias_urls')) {
                     if (!$al || !$al['alias']) {
                         return false;
                     }
@@ -3392,7 +3392,7 @@ class DocumentParser {
                         }
                         $alPath = join('/', $_);
                     }
-                    if ($this->conf_var('xhtml_urls')) {
+                    if ($this->config('xhtml_urls')) {
                         $alias = urlencode($al['alias']);
                     } else {
                         $alias = $al['alias'];
@@ -3400,33 +3400,33 @@ class DocumentParser {
                 }
             }
             
-            if(strpos($alias, '.') !== false && $this->conf_var('suffix_mode')) {
+            if(strpos($alias, '.') !== false && $this->config('suffix_mode')) {
                 $f_url_suffix = '';
-            } elseif($al['isfolder']==1 && $this->conf_var('make_folders') && $id != $this->conf_var('site_start')) {
+            } elseif($al['isfolder']==1 && $this->config('make_folders') && $id != $this->config('site_start')) {
                 $f_url_suffix = '/';
             } else {
-                $f_url_suffix = $this->conf_var('friendly_url_suffix');
+                $f_url_suffix = $this->config('friendly_url_suffix');
             }
-            $makeurl = $alPath . $this->conf_var('friendly_url_prefix') . $alias . $f_url_suffix;
+            $makeurl = $alPath . $this->config('friendly_url_prefix') . $alias . $f_url_suffix;
         }
 
         if (strpos($scheme,'f')===0) {
-            $url = $this->conf_var('site_url') . $makeurl;
+            $url = $this->config('site_url') . $makeurl;
         } elseif(in_array($scheme, array('http', '0'))) {
-            $site_url = $this->conf_var('site_url');
+            $site_url = $this->config('site_url');
             if(strpos($site_url,'http://')!==0) {
                 $url = 'http' . substr($site_url, strpos($site_url, ':')) . $makeurl;
             } else {
                 $url = $site_url . $makeurl;
             }
         } elseif(in_array($scheme, array('https', 'ssl', '1'))) {
-            $site_url = $this->conf_var('site_url');
+            $site_url = $this->config('site_url');
             if(strpos($site_url,'https://')!==0) {
                 $site_url = 'https' . substr($site_url, strpos($site_url, ':'));
             }
             $url = "{$site_url}{$makeurl}";
         } elseif(strpos($scheme,'a')===0) {
-            $url = $this->conf_var('base_url') . $makeurl;
+            $url = $this->config('base_url') . $makeurl;
         } else {
             $url = $makeurl;
         }
@@ -3442,7 +3442,7 @@ class DocumentParser {
             );
         }
         
-        if($this->conf_var('xhtml_urls')) {
+        if($this->config('xhtml_urls')) {
             $url = preg_replace('/&(?!amp;)/', '&amp;', $url);
         }
         $params = array(
@@ -4742,7 +4742,7 @@ class DocumentParser {
             $target_path = substr($target_path, 0, strrpos($target_path, '.')) . $ext;
         }
 
-        $limit_width = $this->conf_var('image_limit_width');
+        $limit_width = $this->config('image_limit_width');
         if(!$limit_width || $img[0] <= $limit_width || !$ext) {
             if(move_uploaded_file($tmp_path, $target_path)) {
                 @chmod($target_path, octdec($this->config['new_file_permissions']));
@@ -4751,7 +4751,7 @@ class DocumentParser {
             $msg = array();
             $msg[] = '$tmp_path = ' . $tmp_path;
             $msg[] = '$target_path = ' . $target_path;
-            $msg[] = '$image_limit_width = ' . $this->conf_var('image_limit_width', '- not set -');
+            $msg[] = '$image_limit_width = ' . $this->config('image_limit_width', '- not set -');
             $msg[] = '$target_is_writable = ' . (is_writable(dirname($target_path)) ? 'true' : 'false');
             $msg[] = 'getimagesize = ' . print_r($img, true);
             $this->logEvent(1, 3, implode("<br>\n", $msg), 'move_uploaded_file');
