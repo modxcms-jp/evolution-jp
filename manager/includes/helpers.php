@@ -155,6 +155,10 @@ function anyv($key=null,$default=null) {
     return evo()->input_any($key,$default);
 }
 
+function serverv($key=null,$default=null) {
+    return evo()->server($key,$default);
+}
+
 function sessionv($key=null,$default=null) {
     return evo()->session($key,$default);
 }
