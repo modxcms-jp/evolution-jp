@@ -1,20 +1,21 @@
 <?php
-if($_SESSION['installmode']==1) {
-    return;
-}
-if (empty($formvTvs) && empty($installdata)) {
+if(sessionv('is_upgradeable')) {
     return;
 }
 
-echo "<h3>" . $lang_tvs . ":</h3> ";
+if (!sessionv('tv') && !sessionv('installdata')) {
+    return;
+}
+
+echo "<h3>" . lang('tvs') . ":</h3> ";
 foreach ($tplTVs as $i=>$tplInfo) {
-    if(in_array('sample', $tplInfo['installset']) && $installdata == 1) {
+    if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
         $installSample = true;
     } else {
         $installSample = false;
     }
 
-    if(!in_array($i, $formvTvs) && !$installSample) {
+    if(!in_array($i, sessionv('tv')) && !$installSample) {
         continue;
     }
 
@@ -41,7 +42,7 @@ foreach ($tplTVs as $i=>$tplInfo) {
             return;
         }
         db()->delete('[+prefix+]site_tmplvar_templates', "tmplvarid='" . $dbv_tmplvar->id . "'");
-        echo ok($name,$lang_upgraded);
+        echo ok($name,lang('upgraded'));
     } else {
         $f['name'] = $name;
         $tmplvarid = db()->insert($f, '[+prefix+]site_tmplvars');
@@ -50,7 +51,7 @@ foreach ($tplTVs as $i=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name, $lang_installed);
+        echo ok($name, lang('installed'));
     }
 
     // add template assignments

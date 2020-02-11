@@ -7,10 +7,8 @@ class SqlParser {
 	public $prefix, $mysqlErrors;
 	public $installFailed, $adminname, $adminemail, $adminpass, $managerlanguage;
     public $connection_charset, $connection_collation, $showSqlErrors;
-    public $base_path;
 
 	function __construct() {
-		$this->base_path = str_replace('\\','/', dirname(getcwd())).'/';
 		$this->prefix               = 'modx_';
 		$this->adminname            = 'admin';
 		$this->adminpass            = 'password';
@@ -24,9 +22,9 @@ class SqlParser {
 	function file_get_sql_contents($filename) {
 		// check to make sure file exists
 		if(strpos($filename,'/')===false) {
-            $path = "{$this->base_path}install/sql/{$filename}";
+            $path = MODX_BASE_PATH."install/sql/{$filename}";
         } else {
-            $path = "{$this->base_path}{$filename}";
+            $path = MODX_BASE_PATH."{$filename}";
         }
 		if (!is_file($path)) {
 			$this->mysqlErrors[] = array("error" => "File '{$path}' not found");

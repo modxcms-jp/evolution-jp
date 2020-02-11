@@ -1,9 +1,9 @@
 <?php
-if (empty($formvSnippets) && empty($installdata)) return;
+if (empty($formvSnippets) && empty(sessionv('installdata'))) return;
 
-echo "<h3>" . $lang_snippets . ":</h3>";
+echo '<h3>' . lang('snippets') . ':</h3>';
 foreach ($tplSnippets as $k=>$tplInfo) {
-    if(in_array('sample', $tplInfo['installset']) && $installdata == 1) {
+    if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
         $installSample = true;
     } else {
         $installSample = false;
@@ -16,7 +16,12 @@ foreach ($tplSnippets as $k=>$tplInfo) {
     $name = db()->escape($tplInfo['name']);
     $tpl_file_path = $tplInfo['tpl_file_path'];
     if (!is_file($tpl_file_path)) {
-        echo ng($name, sprintf("%s '%s' %s", $lang_unable_install_snippet, $tpl_file_path, $lang_not_found));
+        echo ng($name, sprintf(
+            "%s '%s' %s"
+            , lang('unable_install_snippet')
+            , $tpl_file_path
+            , lang('not_found')
+        ));
         continue;
     }
 
@@ -29,13 +34,13 @@ foreach ($tplSnippets as $k=>$tplInfo) {
 
     $dbv_snippet = db()->getObject('site_snippets', "name='{$name}'");
     if ($dbv_snippet) {
-        $props = propUpdate($properties,$dbv_snippet->properties);
+        $props = propUpdate($tplInfo['properties'],$dbv_snippet->properties);
         if (!@ db()->update($f, '[+prefix+]site_snippets', "name='{$name}'")) {
             $errors += 1;
             showError();
             return;
         }
-        echo ok($name,$lang_upgraded);
+        echo ok($name, lang('upgraded'));
     } else {
         $f['name']     = $name;
         $f['category'] = getCreateDbCategory($tplInfo['category']);
@@ -44,6 +49,6 @@ foreach ($tplSnippets as $k=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name,$lang_installed);
+        echo ok($name, lang('installed'));
     }
 }

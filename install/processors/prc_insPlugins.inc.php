@@ -1,24 +1,31 @@
 <?php
 
-if (empty($formvPlugins) && empty($installdata)) return;
+if (!sessionv('plugin') && !sessionv('installdata')) {
+    return;
+}
 
-echo "<h3>{$lang_plugins}:</h3>";
+echo '<h3>' . lang('plugins') . ':</h3>';
 
 foreach ($tplPlugins as $i=>$tplInfo) {
-    if(in_array('sample', $tplInfo['installset']) && $installdata == 1) {
+    if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
         $installSample = true;
     } else {
         $installSample = false;
     }
 
-    if(!in_array($i, $formvPlugins) && !$installSample) {
+    if(!in_array($i, sessionv('plugin')) && !$installSample) {
         continue;
     }
 
     $name        = $tplInfo['name'];
     $tpl_file_path = $tplInfo['tpl_file_path'];
     if(!is_file($tpl_file_path)) {
-        echo ng($name, sprintf("%s '%s' %s", $lang_unable_install_plugin, $tpl_file_path, $lang_not_found));
+        echo ng($name, sprintf(
+            "%s '%s' %s"
+            , lang('unable_install_plugin')
+            , $tpl_file_path
+            , lang('not_found')
+        ));
         continue;
     }
 
@@ -66,7 +73,7 @@ foreach ($tplPlugins as $i=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name, $lang_upgraded);
+        echo ok($name, lang('upgraded'));
     } else {
         $f['category']    = getCreateDbCategory($tplInfo['category']);
         $pluginId = db()->insert($f, '[+prefix+]site_plugins');
@@ -75,7 +82,7 @@ foreach ($tplPlugins as $i=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name,$lang_installed);
+        echo ok($name, lang('installed'));
     }
 
     // add system events

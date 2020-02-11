@@ -1,6 +1,6 @@
 <?php
 
-if($_SESSION['prevAction']==='options') {
+if(sessionv('prevAction')==='options') {
     $_SESSION['installdata'] = postv('installdata', '');
     $_SESSION['template']    = postv('template', array());
     $_SESSION['tv']          = postv('tv', array());
@@ -14,13 +14,13 @@ $ph = array(
     'adminname'         => 'admin',
     'database_server'   => 'localhost',
     'table_prefix'      => 'modx_',
-    'installmode'       => evo()->session('installmode'),
-    'adminemail'        => evo()->session('adminemail', ''),
-    'adminpass'         => evo()->session('adminpass', ''),
-    'adminpassconfirm'  => evo()->session('adminpassconfirm', ''),
-    'database_user'     => evo()->session('database_user', ''),
-    'database_password' => evo()->session('database_password', ''),
-    'dbase'             => evo()->session('adminemail', ''),
+    'is_upgradeable'    => sessionv('is_upgradeable'),
+    'adminemail'        => sessionv('adminemail', ''),
+    'adminpass'         => sessionv('adminpass', ''),
+    'adminpassconfirm'  => sessionv('adminpassconfirm', ''),
+    'database_user'     => sessionv('database_user', ''),
+    'database_password' => sessionv('database_password', ''),
+    'dbase'             => sessionv('adminemail', ''),
 );
 if($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';

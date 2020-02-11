@@ -1,21 +1,21 @@
 <?php
-if($_SESSION['installmode']==1) {
+if(sessionv('is_upgradeable')) {
     return;
 }
-if(empty($formvTemplates) && empty($installdata)) {
+if(!sessionv('template') && !sessionv('installdata')) {
     return;
 }
 
-echo "<h3>" . $lang_templates . ":</h3>";
+echo "<h3>" . lang('templates') . ":</h3>";
 
 foreach ($tplTemplates as $i=>$tplInfo) {
-	if(in_array('sample', $tplInfo['installset']) && $installdata == 1) {
+	if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
         $installSample = true;
     } else {
         $installSample = false;
     }
 	
-	if(!in_array($i, $formvTemplates) && !$installSample) {
+	if(!in_array($i, sessionv('template')) && !$installSample) {
         continue;
     }
 	
@@ -23,7 +23,12 @@ foreach ($tplTemplates as $i=>$tplInfo) {
 	$tpl_file_path = $tplInfo['tpl_file_path'];
 	
 	if (!is_file($tpl_file_path)) {
-		echo ng($templatename, sprintf("%s '%s' %s", $lang_unable_install_template, $tpl_file_path, $lang_not_found));
+		echo ng($templatename, sprintf(
+		    "%s '%s' %s"
+            , lang('unable_install_template')
+            , $tpl_file_path
+            , lang('not_found')
+        ));
 		continue;
 	}
 	
@@ -44,7 +49,7 @@ foreach ($tplTemplates as $i=>$tplInfo) {
 			showError();
 			return;
 		}
-		else echo ok($templatename,$lang_upgraded);
+		else echo ok($templatename,lang('upgraded'));
 	} else {
 		$f['templatename'] = $templatename;
 		if (! db()->insert($f, '[+prefix+]site_templates')) {
@@ -52,6 +57,6 @@ foreach ($tplTemplates as $i=>$tplInfo) {
 			showError();
 			return;
 		}
-        echo ok($templatename, $lang_installed);
+        echo ok($templatename, lang('installed'));
     }
 }

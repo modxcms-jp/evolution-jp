@@ -1,7 +1,7 @@
 <form id="install" action="index.php" method="POST">
 <input type="hidden" name="action" value="connection" />
 <input type="hidden" name="prev_action" value="mode" />
-<input type="hidden" name="installmode" value="[+installmode+]" />
+<input type="hidden" name="is_upgradeable" value="[+is_upgradeable+]" />
 <h2>[+welcome_title+]</h2>
 <p style="margin-bottom:3em;">[+welcome_text+]</p>
 <div>
@@ -20,9 +20,9 @@
 </form>
 
 <script>
-	var installmode = [+installmode+];
+	var is_upgradeable = [+is_upgradeable+];
 	jQuery('a.next').click(function(){
-		if(installmode==1) jQuery('#install input[name=action]').val('options');
+		if(is_upgradeable==1) jQuery('#install input[name=action]').val('options');
 		jQuery('#install').submit();
 	});
 </script>

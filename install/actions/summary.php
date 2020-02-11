@@ -1,97 +1,97 @@
 <?php
-if(isset($_POST['chkagree']))        $chkagree = $_POST['chkagree'];
-elseif(isset($_SESSION['chkagree'])) $chkagree = $_SESSION['chkagree'];
 
-if($_SESSION['prevAction'] ==='options'){
-   $_SESSION['installdata'] = isset($_POST['installdata']) ? $_POST['installdata'] : '';
-   $_SESSION['template']    = isset($_POST['template'])    ? $_POST['template']    : array();
-   $_SESSION['tv']          = isset($_POST['tv'])          ? $_POST['tv']          : array();
-   $_SESSION['chunk']       = isset($_POST['chunk'])       ? $_POST['chunk']       : array();
-   $_SESSION['snippet']     = isset($_POST['snippet'])     ? $_POST['snippet']     : array();
-   $_SESSION['plugin']      = isset($_POST['plugin'])      ? $_POST['plugin']      : array();
-   $_SESSION['module']      = isset($_POST['module'])      ? $_POST['module']      : array();
+$chkagree = postv('chkagree',sessionv('chkagree'));
+
+if(sessionv('prevAction') ==='options'){
+   $_SESSION['installdata'] = postv('installdata','');
+   $_SESSION['template']    = postv('template',array());
+   $_SESSION['tv']          = postv('tv',array());
+   $_SESSION['chunk']       = postv('chunk',array());
+   $_SESSION['snippet']     = postv('snippet',array());
+   $_SESSION['plugin']      = postv('plugin',array());
+   $_SESSION['module']      = postv('module',array());
 }
 
-echo '<h2>' . $_lang['preinstall_validation'] . '</h2>';
-echo '<h3>' . $_lang['summary_setup_check'] . '</h3>';
+echo '<h2>' . lang('preinstall_validation') . '</h2>';
+echo '<h3>' . lang('summary_setup_check') . '</h3>';
 $errors = 0;
 
 // check PHP version
 
 if (version_compare(phpversion(), '5.3.0') < 0) {
-	$_ = echo_failed().$_lang['you_running_php'] . phpversion() . $_lang['modx_requires_php'];
+	$_ = echo_failed().lang('you_running_php') . phpversion() . lang('modx_requires_php');
 	$errors += 1;
 } else {
     $_ = echo_ok();
 }
-echo p($_ . $_lang['checking_php_version'] );
-// check php register globals off
+echo p($_ . lang('checking_php_version') );
 
+// check php register globals off
 $register_globals = (int) ini_get('register_globals');
 if ($register_globals == '1') {
-    echo p(echo_failed() . $_lang['checking_registerglobals']);
-    echo p('<strong>' . $_lang['checking_registerglobals_note'] . '</strong>');
+    echo p(echo_failed() . lang('checking_registerglobals'));
+    echo p('<strong>' . lang('checking_registerglobals_note') . '</strong>');
 }
 
 // check sessions
-if ($_SESSION['test'] != 1) {
-	echo p(echo_failed() . $_lang['checking_sessions']);
+if (sessionv('test') != 1) {
+	echo p(echo_failed() . lang('checking_sessions'));
 	$errors += 1;
 }
 
 // check directories
 // cache exists?
-if (!is_dir($base_path . 'assets/cache')) {
-	echo p(echo_failed() . $_lang['checking_if_cache_exist']);
+if (!is_dir(MODX_BASE_PATH . 'assets/cache')) {
+	echo p(echo_failed() . lang('checking_if_cache_exist'));
 	$errors += 1;
 }
 
 // cache writable?
-if (!is_writable($base_path . 'assets/cache')) {
+if (!is_writable(MODX_BASE_PATH . 'assets/cache')) {
 	$_ = echo_failed();
 	$errors += 1;
 } else {
 	$_ = echo_ok();
-	mkd($base_path . 'assets/cache/rss');
+	mkd(MODX_BASE_PATH . 'assets/cache/rss');
 }
-echo p($_ . $_lang['checking_if_cache_writable']);
+echo p($_ . lang('checking_if_cache_writable'));
 
-if (is_writable($base_path . 'assets/cache')) {
+if (is_writable(MODX_BASE_PATH . 'assets/cache')) {
 	// cache files writable?
-	if (!is_file($base_path . 'assets/cache/siteCache.idx.php')) {
+	if (!is_file(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
 	    // make an attempt to create the file
-	    file_put_contents($base_path . 'assets/cache/siteCache.idx.php','<?php //MODX site cache file ?>');
+	    file_put_contents(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php','<?php //MODX site cache file ?>');
 	}
-	if (!is_writable($base_path . 'assets/cache/siteCache.idx.php')) {
+	if (!is_writable(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
 	    $_ =  echo_failed();
 	    $errors += 1;
 	}
 	else $_ =  echo_ok();
-	echo p($_ . $_lang['checking_if_cache_file_writable']);
+	echo p($_ . lang('checking_if_cache_file_writable'));
 	
-    file_put_contents($base_path . 'assets/cache/basicConfig.php','<?php $cacheRefreshTime=0; ?>');
+    file_put_contents(MODX_BASE_PATH . 'assets/cache/basicConfig.php','<?php $cacheRefreshTime=0; ?>');
 	
-	if (!is_writable($base_path . 'assets/cache/basicConfig.php')) {
+	if (!is_writable(MODX_BASE_PATH . 'assets/cache/basicConfig.php')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
 	else $_ = echo_ok();
-	echo p($_ . $_lang['checking_if_cache_file2_writable']);
+	echo p($_ . lang('checking_if_cache_file2_writable'));
 }
 
-if(!is_dir($base_path . 'assets/images')) {
-	if (!is_dir($base_path . 'content')) {
-		echo p(echo_failed() . $_lang['checking_if_content_exists']);
+if(!is_dir(MODX_BASE_PATH . 'assets/images')) {
+	if (!is_dir(MODX_BASE_PATH . 'content')) {
+		echo p(echo_failed() . lang('checking_if_content_exists'));
 		$errors += 1;
 	}
 	
 	// cache writable?
-	$dir_images = $base_path . 'content/images';
-	$dir_files  = $base_path . 'content/files';
-	$dir_flash  = $base_path . 'content/flash';
-	$dir_media  = $base_path . 'content/media';
+	$dir_images = MODX_BASE_PATH . 'content/images';
+	$dir_files  = MODX_BASE_PATH . 'content/files';
+	$dir_flash  = MODX_BASE_PATH . 'content/flash';
+	$dir_media  = MODX_BASE_PATH . 'content/media';
 	
-	if (!is_writable($base_path . 'content')) {
+	if (!is_writable(MODX_BASE_PATH . 'content')) {
 	    $_ = echo_failed();
 	    $errors += 1;
 	} else {
@@ -101,11 +101,11 @@ if(!is_dir($base_path . 'assets/images')) {
 		mkd($dir_flash);
 		mkd($dir_media);
 	}
-	echo p($_ . $_lang['checking_if_content_writable']);
+	echo p($_ . lang('checking_if_content_writable'));
 	
-	if (is_writable($base_path . 'content')) {
+	if (is_writable(MODX_BASE_PATH . 'content')) {
 		if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_flash) || !is_dir($dir_media)) {
-			echo p(echo_failed() . $_lang['checking_if_images_exist']);
+			echo p(echo_failed() . lang('checking_if_images_exist'));
 			$errors += 1;
 		} else {
 			// File Browser directories writable?
@@ -115,62 +115,62 @@ if(!is_dir($base_path . 'assets/images')) {
 			} else {
 				$_ = echo_ok();
 			}
-			echo p($_ . $_lang['checking_if_images_writable']);
+			echo p($_ . lang('checking_if_images_writable'));
 		}
 	}
 }
 
-if (!is_dir($base_path . 'temp')) {
-	echo p(echo_failed() . $_lang['checking_if_temp_exists']);
+if (!is_dir(MODX_BASE_PATH . 'temp')) {
+	echo p(echo_failed() . lang('checking_if_temp_exists'));
 	$errors += 1;
 }
 
 // cache writable?
 
-if (!is_writable($base_path . 'temp')) {
+if (!is_writable(MODX_BASE_PATH . 'temp')) {
     $_ = echo_failed();
     $errors += 1;
 } else {
     $_ = echo_ok();
-	mkd($base_path . 'temp/export');
-	mkd($base_path . 'temp/backup');
-	if(is_dir($base_path . 'temp/backup')) {
-        @file_put_contents($base_path . 'temp/backup/.htaccess', "order deny,allow\ndeny from all");
+	mkd(MODX_BASE_PATH . 'temp/export');
+	mkd(MODX_BASE_PATH . 'temp/backup');
+	if(is_dir(MODX_BASE_PATH . 'temp/backup')) {
+        @file_put_contents(MODX_BASE_PATH . 'temp/backup/.htaccess', "order deny,allow\ndeny from all");
     }
 }
-echo p($_ . $_lang['checking_if_temp_writable']);
+echo p($_ . lang('checking_if_temp_writable'));
 
-if (is_writable($base_path . 'temp')) {
-	if (!is_dir($base_path . 'temp/export')) {
-		echo p(echo_failed() . $_lang['checking_if_export_exists']);
+if (is_writable(MODX_BASE_PATH . 'temp')) {
+	if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
+		echo p(echo_failed() . lang('checking_if_export_exists'));
 		$errors += 1;
 	}
 	
 	// export writable?
-	if (!is_writable($base_path . 'temp/export')) {
+	if (!is_writable(MODX_BASE_PATH . 'temp/export')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
 	else $_ =  echo_ok();
-	echo p($_ . $_lang['checking_if_export_writable']);
+	echo p($_ . lang('checking_if_export_writable'));
 	
 	// backup exists?
-	if (!is_dir($base_path . 'temp/backup')) {
+	if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
 		$errors += 1;
-		echo p(echo_failed() . $_lang['checking_if_backup_exists']);
+		echo p(echo_failed() . lang('checking_if_backup_exists'));
 	}
 	
 	// backup writable?
-	if (!is_writable($base_path . 'temp/backup')) {
+	if (!is_writable(MODX_BASE_PATH . 'temp/backup')) {
 		$_ = echo_failed();
 		$errors += 1;
 	}
 	else $_ = echo_ok();
-	echo p($_ . $_lang['checking_if_backup_writable']);
+	echo p($_ . lang('checking_if_backup_writable'));
 }
 
 // config.inc.php writable?
-$config_path = $base_path . 'manager/includes/config.inc.php';
+$config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
 
 if (!is_file($config_path)) {
 	// make an attempt to create the file
@@ -181,21 +181,21 @@ if (!is_file($config_path)) {
 @chmod($config_path, 0666);
 $isWriteable = is_writable($config_path);
 if (!$isWriteable) {
-    if($_SESSION['installmode']==0) {
-        $_ = echo_failed() . '</p><p><strong>' .$_lang['config_permissions_note']. '</strong>';
+    if($_SESSION['is_upgradeable']==0) {
+        $_ = echo_failed() . '</p><p><strong>' .lang('config_permissions_note'). '</strong>';
     } else {
-        $_ = echo_failed() . '</p><p><strong>' .$_lang['config_permissions_upg_note']. '</strong>';
+        $_ = echo_failed() . '</p><p><strong>' .lang('config_permissions_upg_note'). '</strong>';
     }
     $errors += 1;
 }
 else  $_ = echo_ok();
-echo p($_ . $_lang['checking_if_config_exist_and_writable']);
+echo p($_ . lang('checking_if_config_exist_and_writable'));
 
 echo sprintf(
     '<p>%s %s <strong>%s%s </strong></p>'
     , echo_ok()
-    , $_lang['checking_sql_version']
-    , $_lang['sql_version_is']
+    , lang('checking_sql_version')
+    , lang('sql_version_is')
     , $modx->db->getVersion()
 );
 
@@ -206,25 +206,25 @@ echo sprintf(
 
 if (is_writable('../assets/cache')) {
     // make an attempt to create the file
-    file_put_contents($base_path . 'assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
+    file_put_contents(MODX_BASE_PATH . 'assets/cache/installProc.inc.php','<?php $installStartTime = '.time().'; ?>');
 }
 
 if ($errors > 0) {
 ?>
-      <p>
+    <p>
 <?php
-	echo '<strong>' . $_lang['setup_cannot_continue'] . '</strong>';
+	echo '<strong>' . lang('setup_cannot_continue') . '</strong>';
 	if ($errors > 1) {
 		echo $errors . ' ';
-		echo $_lang['errors'];
-		echo $_lang['please_correct_errors'];
-		echo $_lang['and_try_again_plural'];
+		echo lang('errors');
+		echo lang('please_correct_errors');
+		echo lang('and_try_again_plural');
 	} else {
-		echo $_lang['error'];
-		echo $_lang['please_correct_error'];
-		echo $_lang['and_try_again'];
+		echo lang('error');
+		echo lang('please_correct_error');
+		echo lang('and_try_again');
 	}
-	echo $_lang['visit_forum'];
+	echo lang('visit_forum');
 ?>
       </p>
 <?php
@@ -232,8 +232,8 @@ if ($errors > 0) {
 
 echo p('&nbsp;');
 
-$nextAction= $errors > 0 ? 'summary' : 'install';
-$nextButton= $errors > 0 ? $_lang['retry'] : $_lang['install'];
+$nextAction= $errors ? 'summary' : 'install';
+$nextButton= $errors ? lang('retry') : lang('install');
 $nextVisibility= $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle= $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
 ?>
@@ -244,12 +244,12 @@ $agreeToggle= $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagre
     <input type="hidden" name="prev_action" value="summary" />
 </div>
 
-<h2><?php echo $_lang['agree_to_terms'];?></h2>
+<h2><?php echo lang('agree_to_terms');?></h2>
 <p>
-<input type="checkbox" value="1" id="chkagree" name="chkagree" style="line-height:18px" <?php echo $chkagree ? 'checked="checked" ':""; ?><?php echo $agreeToggle;?>/><label for="chkagree" style="display:inline;float:none;line-height:18px;"> <?php echo $_lang['iagree_box']?> </label>
+<input type="checkbox" value="1" id="chkagree" name="chkagree" style="line-height:18px" <?php echo $chkagree ? 'checked="checked" ':""; ?><?php echo $agreeToggle;?>/><label for="chkagree" style="display:inline;float:none;line-height:18px;"> <?php echo lang('iagree_box')?> </label>
 </p>
     <p class="buttonlinks">
-        <a href="javascript:void(0);" class="prev" title="<?php echo $_lang['btnback_value']?>"><span><?php echo $_lang['btnback_value']?></span></a>
+        <a href="javascript:void(0);" class="prev" title="<?php echo lang('btnback_value')?>"><span><?php echo lang('btnback_value')?></span></a>
         <a href="javascript:void(0);" class="next" id="nextbutton" title="<?php echo $nextButton ?>" style="visibility:<?php echo $nextVisibility;?>"><span><?php echo $nextButton ?></span></a>
     </p>
 </form>
@@ -265,14 +265,12 @@ jQuery('a.next').click(function(){
 
 <?php
 function echo_ok() {
-	global $_lang;
-	return '<span class="ok">' . $_lang['ok'] . '</span>';
+	return '<span class="ok">' . lang('ok') . '</span>';
 }
 
 function echo_failed($msg=NULL) {
-	global $_lang;
 	if($msg === null) {
-        $msg = $_lang['failed'];
+        $msg = lang('failed');
     }
 	return '<span class="notok">' . $msg . '</span>';
 }
@@ -280,7 +278,9 @@ function echo_failed($msg=NULL) {
 function mkd($path) {
 	if(!is_dir($path)) {
 		$rs = @mkdir($path, 0777, true);
-		if($rs) $rs = @chmod($path, 0777);
+		if($rs) {
+            $rs = @chmod($path, 0777);
+        }
 	}
 	
 	if(!is_file($path . '/index.html')) {

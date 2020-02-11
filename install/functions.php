@@ -21,11 +21,11 @@ function getOption($fieldName) {
     return false;
 }
 
-function autoDetectLang() {
-    if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) || empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+function browser_lang() {
+    if(!serverv('HTTP_ACCEPT_LANGUAGE')) {
         return 'english';
     }
-    $lc = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+    $lc = substr(serverv('HTTP_ACCEPT_LANGUAGE'), 0, 2);
     if ($lc === 'ja') {
         return 'japanese-utf8';
     }
@@ -41,14 +41,15 @@ function includeLang($lang_name, $dir='langs/') {
     $_lang = array ();
     $lang_name = str_replace('\\','/',$lang_name);
     if(strpos($lang_name,'/')!==false) {
-         require_once(MODX_SETUP_PATH . 'langs/english.inc.php');
+        require_once(MODX_SETUP_PATH . 'langs/english.inc.php');
     }
     elseif(is_file(MODX_SETUP_PATH . $dir . $lang_name . '.inc.php')) {
-         require_once(MODX_SETUP_PATH . $dir . $lang_name . '.inc.php');
+        require_once(MODX_SETUP_PATH . $dir . $lang_name . '.inc.php');
     }
     else {
         require_once(MODX_SETUP_PATH . $dir . 'english.inc.php');
     }
+    return $_lang;
 }
 
 function key_field($category='') {
@@ -178,14 +179,14 @@ function parse_docblock($fullpath) {
         if(preg_match("/^\s+\*\s+@([^\s]+)\s+(.+)/", $line, $ma)) {
             $param = trim($ma[1]);
             $val   = trim($ma[2]);
-            if(!empty($param) && !empty($val)) {
+            if($param && $val) {
                 if($param === 'internal') {
                     $ma = null;
                     if(preg_match("/@([^\s]+)\s+(.+)/", $val, $ma)) {
                         $param = trim($ma[1]);
                         $val = trim($ma[2]);
                     }
-                    if(empty($param)) {
+                    if(!$param) {
                         continue;
                     }
                 }
@@ -284,7 +285,7 @@ function propUpdate($new,$old) {
         }
     }
     foreach ($oldArr as $k => $v) {
-        if(!empty($v)) {
+        if($v) {
             $tempArr = explode('=',trim($v));
             $returnArr[$tempArr[0]] = $tempArr[1];
         }
@@ -327,39 +328,51 @@ function is_iis(){
     return strpos($_SERVER['SERVER_SOFTWARE'],'IIS') ? true : false;
 }
 
-function isUpGrade() {
-    global $base_path;
-    
-    $conf_path = $base_path . 'manager/includes/config.inc.php';
+function isUpGradeable() {
+    static $is_upGradeable = null;
+    if($is_upGradeable !== null) {
+        return $is_upGradeable;
+    }
+
+    $is_upGradeable = 0;
+
+    error_reporting(E_ALL & ~E_NOTICE);
+    $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
     if (!is_file($conf_path)) {
         return 0;
     }
-    
+
+    $dbase             = null;
+    $database_server   = null;
+    $database_user     = null;
+    $database_password = null;
+    $table_prefix      = null;
+    $database_connection_charset = null;
     include($conf_path);
-    error_reporting(E_ALL & ~E_NOTICE);
-    
-    if(!isset($dbase) || empty($dbase)) {
+
+    if(!$dbase) {
         return 0;
     }
     
     db()->hostname     = $database_server;
     db()->username     = $database_user;
     db()->password     = $database_password;
-    db()->dbname       = $dbase;
+    db()->dbname       = trim($dbase,'`');
     db()->charset      = $database_connection_charset;
     db()->table_prefix = $table_prefix;
     db()->connect();
     
     if(db()->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
+        $_SESSION['database_server']            = db()->hostname;
+        $_SESSION['database_user']              = db()->username;
+        $_SESSION['database_password']          = db()->password;
+        $_SESSION['dbase']                      = db()->dbname;
+        $_SESSION['table_prefix']               = db()->table_prefix;
         $collation = db()->getCollation();
-        $_SESSION['database_server']            = $database_server;
-        $_SESSION['database_user']              = $database_user;
-        $_SESSION['database_password']          = $database_password;
-        $_SESSION['dbase']                      = trim($dbase,'`');
         $_SESSION['database_charset']           = substr($collation,0,strpos($collation,'_'));
         $_SESSION['database_collation']         = $collation;
         $_SESSION['database_connection_method'] = 'SET CHARACTER SET';
-        $_SESSION['table_prefix']               = $table_prefix;
+        $is_upGradeable = 1;
         return 1;
     }
     return 0;
@@ -437,22 +450,22 @@ function collectTpls($path) {
 }
 
 function ph() {
-    global $_lang,$cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
+    global $cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
 
-    $ph['pagetitle']     = $_lang['modx_install'];
+    $ph['pagetitle']     = lang('modx_install');
     $ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
-    $ph['help_link']     = $_SESSION['installmode'] == 0 ? $_lang['help_link_new'] : $_lang['help_link_upd'];
+    $ph['help_link']     = !sessionv('is_upgradeable') ? lang('help_link_new') : lang('help_link_upd');
     $ph['version']       = $cmsName.' '.$cmsVersion;
     $ph['release_date']  = ($modx_textdir && $modx_textdir==='rtl' ? '&rlm;':'') . $modx_release_date;
-    $ph['footer1']       = str_replace('[+year+]', date('Y'), $_lang['modx_footer1']);
-    $ph['footer2']       = $_lang['modx_footer2'];
+    $ph['footer1']       = str_replace('[+year+]', date('Y'), lang('modx_footer1'));
+    $ph['footer2']       = lang('modx_footer2');
     return $ph;
 }
 
 function install_sessionCheck()
 {
     $_SESSION['test'] = 1;
-    
+
     if(!isset($_SESSION['test']) || $_SESSION['test']!=1) {
         return false;
     }
@@ -462,4 +475,13 @@ function install_sessionCheck()
 function getLast($array=array()) {
     $array = (array) $array;
     return end($array);
+}
+
+function lang_name() {
+    if (postv('install_language')) {
+        sessionv('*install_language', postv('install_language'));
+        return postv('install_language');
+    }
+
+    return sessionv('install_language', browser_lang());
 }

@@ -15,9 +15,9 @@
 
 </form>
 <script type="text/javascript">
-	var installmode = [+installmode+];
+	var is_upgradeable = [+is_upgradeable+];
 	jQuery('a.prev').click(function(){
-		var target = (installmode==1) ? 'mode' : 'connection';
+		var target = (is_upgradeable==1) ? 'mode' : 'connection';
 		jQuery('#install input[name=action]').val(target);
 		jQuery('#install').submit();
 	});

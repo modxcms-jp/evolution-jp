@@ -1,24 +1,24 @@
 <?php
-if (!$formvChunks && !$installdata) {
+if (!sessionv('chunk') && !sessionv('installdata')) {
     return;
 }
 
 echo '<h3>' . lang('chunks') . ':</h3>';
 foreach ($tplChunks as $i=>$tplInfo) {
-    if(!$installdata || !in_array('sample', $tplInfo['installset'])) {
+    if(!sessionv('installdata') || !in_array('sample', $tplInfo['installset'])) {
         $installSample = false;
     } else {
         $installSample = true;
     }
 
-    if(!in_array($i, $formvChunks) && !$installSample) {
+    if(!in_array($i, sessionv('chunk')) && !$installSample) {
         continue;
     }
 
     $name = db()->escape($tplInfo['name']);
 
     if (!is_file($tplInfo['tpl_file_path'])) {
-        echo ng($name, sprintf("%s '%s' %s", $lang_unable_install_chunk, $tplInfo['tpl_file_path'], $lang_not_found));
+        echo ng($name, sprintf("%s '%s' %s", lang('unable_install_chunk'), $tplInfo['tpl_file_path'], lang('not_found')));
         continue;
     }
 
@@ -53,7 +53,7 @@ foreach ($tplChunks as $i=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name,$lang_upgraded);
+        echo ok($name, lang('upgraded'));
     } else {
         $field['name'] = $name;
         if (!@ db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
@@ -61,6 +61,6 @@ foreach ($tplChunks as $i=>$tplInfo) {
             showError();
             return;
         }
-        echo ok($name,$lang_installed);
+        echo ok($name, lang('installed'));
     }
 }

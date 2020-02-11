@@ -19,15 +19,15 @@ if(isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = $_POST['adminpassconfirm'];
 }
 
-$_SESSION['managerlanguage'] = $_SESSION['install_language'];
+$_SESSION['managerlanguage'] = sessionv('install_language');
 include_once MODX_SETUP_PATH . 'setup.info.php';
 
-$ph['installmode'] = $_SESSION['installmode'];
+$ph['is_upgradeable'] = sessionv('is_upgradeable');
 
-if ($_SESSION['installmode'] == 0) {
-    $ph['install_sample_site'] = block_install_sample_site($ph) . "\n";
-} else {
+if (sessionv('is_upgradeable')) {
     $ph['install_sample_site'] = '';
+} else {
+    $ph['install_sample_site'] = block_install_sample_site($ph) . "\n";
 }
 $ph['block_templates'] = block_templates($tplTemplates,$ph);
 $ph['block_tvs']       = block_tvs(      $tplTVs,            $ph);
@@ -39,7 +39,7 @@ $ph['block_snippets']  = block_snippets( $tplSnippets, $ph);
 $ph['object_list'] = show_object_list($ph) . "\n";
 
 echo  evo()->parseText(
-    file_get_contents($base_path . 'install/tpl/options.tpl')
+    file_get_contents(MODX_BASE_PATH . 'install/tpl/options.tpl')
     ,$ph
 );
 
@@ -78,7 +78,7 @@ function block_install_sample_site($ph) {
 </p>
 <p><em>&nbsp;[+sample_web_site_note+]</em></p>
 TPL;
-    $ph['checked'] = evo()->session('installdata', false)==1 ? 'checked' : '';
+    $ph['checked'] = sessionv('installdata', false)==1 ? 'checked' : '';
 	return evo()->parseText($tpl,$ph);
 }
 
@@ -93,7 +93,7 @@ function block_templates($tplTemplates,$ph) {
             '<label><input type="checkbox" name="template[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('template', false), $i) ? 'checked':''
+            , is_check(sessionv('template', false), $i) ? 'checked':''
             , $v['templatename']
             , $v['description']
         );
@@ -112,7 +112,7 @@ function block_tvs($tplTVs,$ph) {
             '<label><input type="checkbox" name="tv[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('tv', false), $i) ? 'checked':''
+            , is_check(sessionv('tv', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
@@ -131,7 +131,7 @@ function block_chunks($tplChunks,$ph) {
             '<label><input type="checkbox" name="chunk[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('chunk', false), $i) ? 'checked':''
+            , is_check(sessionv('chunk', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
@@ -150,7 +150,7 @@ function block_modules($tplModules,$ph) {
             '<label><input type="checkbox" name="module[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('module', false), $i) ? 'checked':''
+            , is_check(sessionv('module', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
@@ -169,7 +169,7 @@ function block_plugins($tplPlugins, $ph) {
             '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('plugin', false), $i) ? 'checked':''
+            , is_check(sessionv('plugin', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
@@ -187,7 +187,7 @@ function block_snippets($tplSnippets, $ph) {
             '<label><input type="checkbox" name="snippet[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check(evo()->session('snippet', false), $i) ? 'checked':''
+            , is_check(sessionv('snippet', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
             );

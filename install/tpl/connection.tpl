@@ -114,7 +114,7 @@ jQuery('#databasetest').click(function(){
 			'database_collation': jQuery('#collation').val(),
 			'database_connection_method': 'SET CHARACTER SET',
 			'language': language,
-			'installMode': installMode
+			'is_upgradeable': is_upgradeable
 		};
 		jQuery.post(url, pars, function(data) {
 			jQuery('#databasestatus').html(data).fadeIn();
@@ -140,5 +140,5 @@ jQuery('#databasetest').click(function(){
 			jQuery('#install').submit();
 	});
 	var language ='[+install_language+]';
-	var installMode ='[+installmode+]';
+	var is_upgradeable ='[+is_upgradeable+]';
 </script>

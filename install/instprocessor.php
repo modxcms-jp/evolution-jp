@@ -1,6 +1,6 @@
 <?php
 
-if(!evo()->session('database_server')) {
+if(!sessionv('database_server')) {
     exit('go to first step');
 }
 
@@ -17,13 +17,6 @@ global $errors;
 
 require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
 
-$installdata      = evo()->session('installdata');
-$formvTemplates   = evo()->session('template');
-$formvTvs         = evo()->session('tv');
-$formvChunks      = evo()->session('chunk');
-$formvPlugins     = evo()->session('plugin');
-$formvModules     = evo()->session('module');
-
 extract($_lang, EXTR_PREFIX_ALL, 'lang');
 
 echo "<p>" . lang('setup_database') . "</p>\n";
@@ -35,14 +28,14 @@ $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 $callBackFnc = include(MODX_SETUP_PATH . 'setup.info.php');
 include_once(MODX_SETUP_PATH . 'sqlParser.class.php');
 $sqlParser = new SqlParser();
-$sqlParser->prefix     = evo()->session('table_prefix');
-$sqlParser->adminname  = evo()->session('adminname');
-$sqlParser->adminpass  = evo()->session('adminpass');
-$sqlParser->adminemail = evo()->session('adminemail');
-$sqlParser->connection_charset = evo()->session('database_charset');
-$sqlParser->connection_collation = evo()->session('database_collation');
-$sqlParser->connection_method = evo()->session('database_connection_method');
-$sqlParser->managerlanguage = evo()->session('managerlanguage');
+$sqlParser->prefix     = sessionv('table_prefix');
+$sqlParser->adminname  = sessionv('adminname');
+$sqlParser->adminpass  = sessionv('adminpass');
+$sqlParser->adminemail = sessionv('adminemail');
+$sqlParser->connection_charset = sessionv('database_charset');
+$sqlParser->connection_collation = sessionv('database_collation');
+$sqlParser->connection_method = sessionv('database_connection_method');
+$sqlParser->managerlanguage = sessionv('managerlanguage');
 $sqlParser->manager_theme = $default_config['manager_theme'];
 $sqlParser->base_path = MODX_BASE_PATH;
 $sqlParser->showSqlErrors = false;
@@ -52,7 +45,7 @@ echo "<p>" . lang('setup_database_creating_tables');
 
 $sqlParser->intoDB('create_tables.sql');
 
-if(evo()->session('installmode')==0) {
+if(sessionv('is_upgradeable')==0) {
     $sqlParser->intoDB('default_settings.sql');
     if(is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql'))
         $sqlParser->intoDB('default_settings_custom.sql');
@@ -77,13 +70,13 @@ if ($sqlParser->installFailed == true)
 printf('<span class="ok">%s</span></p>', lang('ok'));
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
 $ph['database_type']               = $database_type;
-$ph['database_server']             = evo()->session('database_server');
-$ph['database_user']               = db()->escape(evo()->session('database_user'));
-$ph['database_password']           = db()->escape(evo()->session('database_password'));
-$ph['database_connection_charset'] = evo()->session('database_charset');
-$ph['database_connection_method']  = evo()->session('database_connection_method');
-$ph['dbase']                       = trim(evo()->session('dbase'),'`');
-$ph['table_prefix']                = evo()->session('table_prefix');
+$ph['database_server']             = sessionv('database_server');
+$ph['database_user']               = db()->escape(sessionv('database_user'));
+$ph['database_password']           = db()->escape(sessionv('database_password'));
+$ph['database_connection_charset'] = sessionv('database_charset');
+$ph['database_connection_method']  = sessionv('database_connection_method');
+$ph['dbase']                       = trim(sessionv('dbase'),'`');
+$ph['table_prefix']                = sessionv('table_prefix');
 $ph['lastInstallTime']             = time();
 $ph['https_port']                  = '443';
 
@@ -109,7 +102,7 @@ if ($config_saved === false) {
     printf('<span class="ok">%s</span></p>', lang('ok'));
 }
 
-if (evo()->session('installmode') == 0) {
+if (sessionv('is_upgradeable') == 0) {
     $query = str_replace(
         '[+prefix+]'
         , db()->table_prefix
@@ -137,15 +130,15 @@ if (evo()->session('installmode') == 0) {
     }
 }
 
-include_once('processors/prc_insTemplates.inc'); // Install Templates
-include_once('processors/prc_insTVs.inc');       // Install Template Variables
-include_once('processors/prc_insChunks.inc');    // Install Chunks
-include_once('processors/prc_insModules.inc');   // Install Modules
-include_once('processors/prc_insPlugins.inc');   // Install Plugins
-include_once('processors/prc_insSnippets.inc');  // Install Snippets
+include_once('processors/prc_insTemplates.inc.php'); // Install Templates
+include_once('processors/prc_insTVs.inc.php');       // Install Template Variables
+include_once('processors/prc_insChunks.inc.php');    // Install Chunks
+include_once('processors/prc_insModules.inc.php');   // Install Modules
+include_once('processors/prc_insPlugins.inc.php');   // Install Plugins
+include_once('processors/prc_insSnippets.inc.php');  // Install Snippets
 
 // install data
-if (evo()->session('installmode') == 0 && evo()->session('installdata')==1) {
+if (sessionv('is_upgradeable') == 0 && sessionv('installdata')==1) {
     echo "<p>" . lang('installing_demo_site');
     $sqlParser->intoDB('sample_data.sql');
     if ($sqlParser->installFailed == true) {
@@ -200,7 +193,7 @@ echo "<p><b>" . lang('installation_successful') . "</b></p>";
 echo "<p>" . lang('to_log_into_content_manager') . "</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
 
-if(evo()->session('installmode') == 0) {
+if(sessionv('is_upgradeable') == 0) {
     echo lang('installation_note');
 } else {
     echo lang('upgrade_note');
