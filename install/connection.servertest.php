@@ -1,57 +1,52 @@
 <?php
 define('MODX_API_MODE', true);
 define('MODX_BASE_PATH', str_replace('\\','/', dirname(__DIR__)).'/');
+define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
 include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-require_once(MODX_BASE_PATH.'manager/includes/default.config.php');
 require_once(MODX_BASE_PATH . 'install/functions.php');
+$_lang = includeLang(sessionv('install_language', 'english'));
+$modx->db->hostname = postv('host','localhost');
+$modx->db->username = postv('uid','root');
+$modx->db->password = postv('pwd','passwford');
+db()->connect();
 
-$language = sessionv('install_language', 'english');
-includeLang($language);
-
-$modx->db->hostname = postv('host','');
-$modx->db->username = postv('uid','');
-$modx->db->password = postv('pwd','');
-$modx->db->connect();
-
-if (!$modx->db->isConnected()) {
-    $output = sprintf(
-        '<span id="server_fail" style="color:#FF0000;">%s</span>'
+if (!db()->isConnected()) {
+    exit( sprintf(
+        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s</span></div>'
         , lang('status_failed')
-    );
-    $bgcolor = '#ffe6eb';
+    ));
 }
-    
-else {
-    $output = sprintf(
-        '<span id="server_pass" style="color:#388000;">%s</span>'
-        , lang('status_passed_server')
-    );
-    $bgcolor = '#e6ffeb';
-    sessionv('*database_server', db()->hostname);
-    sessionv('*database_user', db()->username);
-    sessionv('*database_password', db()->password);
-}
+
+$output = sprintf(
+    '<span id="server_pass" style="color:#388000;">%s</span>'
+    , lang('status_passed_server')
+);
+sessionv('*database_server', db()->hostname);
+sessionv('*database_user', db()->username);
+sessionv('*database_password', db()->password);
 
 echo sprintf(
-    '<div style="background: %s;padding:8px;border-radius:5px;">%s</div>'
-    , $bgcolor
+    '<div style="background: #e6ffeb;padding:8px;border-radius:5px;">%s</div>'
     , lang('status_connecting') . $output
 );
 
-$script = "<script>
-    let opt;
-    let characters = {%s}
-    let sel = jQuery('#collation');
+$script = '<script>
+    var characters = {' . getCollation() . "},
+    sel = jQuery('#collation'),
+    opt,
+    isSelected;
 
 jQuery.each(characters, function (value, name) {
     isSelected = (value === 'utf8_general_ci');
-    opt = jQuery('option').val(value).text(name)
+    opt = jQuery('<option>')
+        .val(value)
+        .text(name)
         .prop('selected', isSelected);
     sel.append(opt);
 });
 </script>";
-echo sprintf($script, getCollation());
+echo $script;
 
 function getCollation() {
     $rs = db()->query("SHOW COLLATION LIKE 'utf8%'");

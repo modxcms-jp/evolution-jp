@@ -17,7 +17,7 @@
 
 <!-- connection test action/status message -->
   <div class="clickHere">
-	&rarr; <a id="servertest" href="#footer">[+connection_screen_server_test_connection+]</a>
+	&rarr; <a id="servertest" href="javascript:void()">[+connection_screen_server_test_connection+]</a>
   </div>
   <div class="status" id="serverstatus" style="display:none;"></div>
 <!-- end connection test action/status message -->
@@ -86,6 +86,9 @@ jQuery('#databasetest').click(function(){
 
 <script type="text/javascript">
 	jQuery('#servertest').click(function() {
+    jQuery('#serverstatus').fadeOut();
+    jQuery('#setCollation').fadeOut();
+    jQuery('#AUH').fadeOut();
 		var url = 'connection.servertest.php';
 		var pars = {
 			q: url,
@@ -103,6 +106,7 @@ jQuery('#databasetest').click(function(){
 	
 	// database test
 	jQuery('#databasetest').click(function() {
+    jQuery('#databasetest').fadeOut();
 		var url = 'connection.databasetest.php';
 		var pars = {
 			'q': url,

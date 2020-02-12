@@ -153,7 +153,9 @@ class DocumentParser {
         if($this->isLoggedIn()) {
             ini_set('display_errors', 1);
         }
-        set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
+        if(!defined('MODX_SETUP_PATH')) {
+            set_error_handler(array(& $this,'phpError'), E_ALL); //error_reporting(0);
+        }
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
@@ -652,7 +654,7 @@ class DocumentParser {
         }
         
         // send out content-type and content-disposition headers
-        if (IN_PARSER_MODE == 'true')
+        if (defined('IN_PARSER_MODE') && constant('IN_PARSER_MODE') == 'true')
         {
             $type = $this->documentObject['contentType'];
             if(empty($type)) $type = 'text/html';
@@ -964,18 +966,20 @@ class DocumentParser {
     
     function getSiteCache() {
         $cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
-        
+        $config = array();
         if(is_file($cache_path)) $config= include($cache_path);
         
         if(!isset($config)||!$config) {
-            include_once MODX_CORE_PATH . 'cache_sync.class.php';
-            $cache = new synccache();
-            $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-            $cache->setReport(false);
-            $rebuilt = $cache->buildCache($this);
-            
-            if($rebuilt && is_file($cache_path)) $config = include($cache_path);
-            else $config = false;
+            if($this->db->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
+                include_once MODX_CORE_PATH . 'cache_sync.class.php';
+                $cache = new synccache();
+                $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+                $cache->setReport(false);
+                $rebuilt = $cache->buildCache($this);
+                
+                if($rebuilt && is_file($cache_path)) $config = include($cache_path);
+                else $config = false;
+            }
         }
         
         return $config;
@@ -1098,16 +1102,16 @@ class DocumentParser {
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
 
-        if(!$this->config('base_url')) {
+        if(!isset($this->config['base_url'])) {
             $this->config['base_url'] = MODX_BASE_URL;
         }
-        if(!$this->config('site_url')) {
+        if(!isset($this->config['site_url'])) {
             $this->config['site_url'] = MODX_SITE_URL;
         }
-        if(!$this->config('error_page')) {
+        if(!isset($this->config['error_page'])) {
             $this->config['error_page'] = $this->config['start_page'];
         }
-        if(!$this->config('unauthorized_page')) {
+        if(!isset($this->config['unauthorized_page'])) {
             $this->config['unauthorized_page'] = $this->config['error_page'];
         }
         
@@ -1131,7 +1135,7 @@ class DocumentParser {
                 , $this->config['rb_base_dir']
             );
         }
-        if(!$this->config('modx_charset')) {
+        if(!isset($this->config['modx_charset'])) {
             $this->config['modx_charset'] = 'utf-8';
         }
         
@@ -4921,7 +4925,7 @@ class DocumentParser {
     }
     
     public function config($key=null, $default=null) {
-        if(!isset($this->config['site_url'])) {
+        if(!isset($this->config['site_url']) && !defined('MODX_SETUP_PATH')) {
             $this->getSettings();
         }
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {

@@ -1,7 +1,7 @@
 <?php
 class DBAPI {
 
-    public $conn;
+    public $conn = null;
     public $config;
     public $lastQuery;
     public $hostname;
@@ -39,7 +39,6 @@ class DBAPI {
     *
     */
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
-        global $modx;
         if($this->isConnected()) {
             return true;
         }
@@ -54,46 +53,44 @@ class DBAPI {
         } else {
             $hostname = $this->hostname;
         }
-        
-        $tstart = evo()->getMicroTime();
-        $safe_count = 0;
-        do {
-            if(strpos($hostname,':')!==false) {
-                list($hostname, $port) = explode(':', $hostname);
-            }
-            if(!isset($port)) {
-                $this->conn = new mysqli($hostname, $this->username, $this->password);
-            } else {
-                $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
-            }
-            if ($this->conn->connect_error) {
-                $this->conn = null;
-                if(!$safe_count && evo()->conf_var('send_errormail') && evo()->conf_var('send_errormail') < 3) {
-                    evo()->sendmail(
-                        'Missing to create the database connection! from ' . evo()->conf_var('site_name')
-                        , sprintf(
-                            "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s"
-                            , 'Failed to create the database connection!'
-                            , evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES)
-                            , evo()->hsc(evo()->server_var('HTTP_USER_AGENT'), ENT_QUOTES)
-                            , evo()->server_var('REMOTE_ADDR')
-                            , evo()->server_var('REMOTE_HOST') ? evo()->server_var('REMOTE_HOST').'(REMOTE_HOST)'."\n" : ''
-                            , gethostbyaddr(evo()->server_var('REMOTE_ADDR'))
-                            , evo()->hsc(evo()->server_var('HTTP_REFERER'), ENT_QUOTES)
-                            , date('Y-m-d H:i:s')
-                        )
-                    );
-                }
-                sleep(1);
-                $safe_count++;
-            }
-        } while (!$this->conn && $safe_count<3);
-        
-        if(!$this->conn) {
-            evo()->messageQuit('Failed to create the database connection!');
-            exit;
+        if (!$this->hostname || !$this->username) {
+            return false;
         }
         
+        $tstart = evo()->getMicroTime();
+        if(strpos($hostname,':')!==false) {
+            list($hostname, $port) = explode(':', $hostname);
+            $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
+        } else {
+            $this->conn = new mysqli($hostname, $this->username, $this->password);
+        }
+        if(!$this->conn) {
+            return false;
+        }
+        if (isset($this->conn->connect_error) && $this->conn->connect_error) {
+            $this->conn = null;
+            if (evo()->config('send_errormail') && evo()->config('send_errormail') < 3) {
+                evo()->sendmail(
+                    'Missing to create the database connection! from ' . evo()->config('site_name')
+                    , sprintf(
+                        "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s"
+                        , 'Failed to create the database connection!'
+                        , evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES)
+                        , evo()->hsc(evo()->server('HTTP_USER_AGENT'), ENT_QUOTES)
+                        , evo()->server('REMOTE_ADDR')
+                        , evo()->server('REMOTE_HOST') ? evo()->server('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : ''
+                        , gethostbyaddr(evo()->server('REMOTE_ADDR'))
+                        , evo()->hsc(evo()->server('HTTP_REFERER'), ENT_QUOTES)
+                        , date('Y-m-d H:i:s')
+                    )
+                );
+            }
+            return false;
+        }
+        if(!$this->isConnected()) {
+            return false;
+        }
+
         if($this->dbname) {
             $this->dbname = trim($this->dbname, '` '); // remove the `` chars
             $rs = $this->select_db($this->dbname);
@@ -104,7 +101,7 @@ class DBAPI {
                         , $this->dbname
                     )
                 );
-                exit;
+                return false;
             }
             $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
             $this->conn->set_charset($this->charset);
@@ -190,10 +187,7 @@ class DBAPI {
     function query($sql,$watchError=true) {
         global $modx;
         if (!$this->isConnected()) {
-            $rs = $this->connect();
-            if(!$rs) {
-                return false;
-            }
+            return false;
         }
         
         $tstart = $modx->getMicroTime();

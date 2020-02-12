@@ -135,7 +135,9 @@ class SubParser {
     function logEvent($evtid, $type, $msg, $title= 'Parser')
     {
         global $modx;
-        
+        if(!$modx->db->isConnected()) {
+            return;
+        }
         if(!$modx->config) $modx->getSettings();
         $evtid= (int)$evtid;
         $type = (int)$type;
@@ -249,8 +251,8 @@ class SubParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
         $release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES, $modx->config['modx_charset']);
-        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES, $modx->config['modx_charset']);
+        $ua          = $modx->hsc($_SERVER['HTTP_USER_AGENT']);
+        $referer     = $modx->hsc($_SERVER['HTTP_REFERER']);
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
@@ -1997,7 +1999,9 @@ class SubParser {
         if($unixtime==0) {
             return;
         }
-        
+        if(!$this->db->isConnected() || !db()->table_exists('[+prefix+]system_settings')) {
+            return;
+        }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $cache = new synccache();
         $cache->setCacheRefreshTime($unixtime);
