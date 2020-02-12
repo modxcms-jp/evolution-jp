@@ -1,15 +1,13 @@
 <?php
-if (empty($formvSnippets) && empty(sessionv('installdata'))) return;
+
+if (!sessionv('snippet') && !sessionv('installdata')) {
+    return;
+}
 
 echo '<h3>' . lang('snippets') . ':</h3>';
-foreach ($tplSnippets as $k=>$tplInfo) {
-    if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
-        $installSample = true;
-    } else {
-        $installSample = false;
-    }
 
-    if(!in_array($k, $formvSnippets) && !$installSample) {
+foreach ($tplSnippets as $k=>$tplInfo) {
+    if(!in_array($k, sessionv('snippet')) && !withSample($tplInfo['installset'])) {
         continue;
     }
 
@@ -31,7 +29,6 @@ foreach ($tplSnippets as $k=>$tplInfo) {
     $f['description'] = $tplInfo['description'];
     $f['properties']  = $tplInfo['properties'];
     $f = db()->escape($f);
-
     $dbv_snippet = db()->getObject('site_snippets', "name='{$name}'");
     if ($dbv_snippet) {
         $props = propUpdate($tplInfo['properties'],$dbv_snippet->properties);

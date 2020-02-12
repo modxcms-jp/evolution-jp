@@ -21,11 +21,11 @@ foreach ($tplModules as $i=>$tplInfo) {
 	$tpl_file_path = $tplInfo['tpl_file_path'];
 	if (!is_file($tpl_file_path)) {
 		echo ng($name, sprintf(
-		    "%s '%s' %s"
-            , lang('unable_install_module')
-            , $tpl_file_path
-            , lang('not_found')
-        ));
+			"%s '%s' %s"
+			, lang('unable_install_module')
+			, $tpl_file_path
+			, lang('not_found')
+		));
 		continue;
 	}
 	

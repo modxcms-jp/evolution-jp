@@ -3,13 +3,13 @@
 $chkagree = postv('chkagree',sessionv('chkagree'));
 
 if(sessionv('prevAction') ==='options'){
-   $_SESSION['installdata'] = postv('installdata','');
-   $_SESSION['template']    = postv('template',array());
-   $_SESSION['tv']          = postv('tv',array());
-   $_SESSION['chunk']       = postv('chunk',array());
-   $_SESSION['snippet']     = postv('snippet',array());
-   $_SESSION['plugin']      = postv('plugin',array());
-   $_SESSION['module']      = postv('module',array());
+	$_SESSION['installdata'] = postv('installdata','');
+	$_SESSION['template']    = postv('template',array());
+	$_SESSION['tv']          = postv('tv',array());
+	$_SESSION['chunk']       = postv('chunk',array());
+	$_SESSION['snippet']     = postv('snippet',array());
+	$_SESSION['plugin']      = postv('plugin',array());
+	$_SESSION['module']      = postv('module',array());
 }
 
 echo '<h2>' . lang('preinstall_validation') . '</h2>';

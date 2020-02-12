@@ -88,7 +88,7 @@ if(is_dir($snippetPath) && is_readable($snippetPath)) {
         if(!is_array($params) || !$params) {
             continue;
         }
-        if($_SESSION['is_upgradeable'] && compare_check($params) === 'same') {
+        if(sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
         if($params['version']) {
