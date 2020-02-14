@@ -280,7 +280,9 @@ class DocumentParser {
         }
         
         $rs = $this->get_static_pages($this->decoded_request_uri);
-        if($rs === 'complete') exit;
+        if($rs === 'complete') {
+            exit;
+        }
         $this->documentIdentifier = $this->getDocumentIdentifier($this->decoded_request_uri);
         
         if(!$this->documentIdentifier) {
@@ -343,16 +345,25 @@ class DocumentParser {
         
         $docid = $this->getDBCache('docid_by_uri',md5($uri));
         
-        if($docid) return $docid;
+        if($docid) {
+            return $docid;
+        }
         
         $getId = isset($_GET['id']) ? $_GET['id'] : 0;
         $getQ  = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri);
-        if(preg_match('@^[1-9][0-9]*$@',$getId)) $docid = $getId;
-        elseif ($this->config['base_url']==$uri) $docid = $this->config['site_start'];
-        elseif ($getQ!==false)                   $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
-        else                                     $docid = 0;
+        if(preg_match('@^[1-9][0-9]*$@',$getId)) {
+            $docid = $getId;
+        } elseif ($this->config['base_url']==$uri) {
+            $docid = $this->config['site_start'];
+        } elseif ($getQ!==false) {
+            $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
+        } else {
+            $docid = 0;
+        }
         
-        if($docid) $this->setDBCache('docid_by_uri',md5($uri),$docid);
+        if($docid) {
+            $this->setDBCache('docid_by_uri', md5($uri), $docid);
+        }
         
         return $docid;
     }
@@ -379,7 +390,9 @@ class DocumentParser {
         );
         $rs = $this->db->select('cache_value', '[+prefix+]system_cache', $where);
         
-        if(!$rs) return false;
+        if(!$rs) {
+            return false;
+        }
         
         return $this->db->getValue($rs);
     }
@@ -401,8 +414,12 @@ class DocumentParser {
         
         $prefix = $this->config['friendly_url_prefix'];
         $suffix = $this->config['friendly_url_suffix'];
-        if(!empty($prefix) && strpos($q,$prefix)!==false) $alias = preg_replace("@^{$prefix}@",  '', $alias);
-        if(!empty($suffix) && strpos($q,$suffix)!==false) $alias = preg_replace("@{$suffix}".'$@', '', $alias);
+        if($prefix && strpos($q,$prefix)!==false) {
+            $alias = preg_replace("@^{$prefix}@", '', $alias);
+        }
+        if($suffix && strpos($q,$suffix)!==false) {
+            $alias = preg_replace("@{$suffix}" . '$@', '', $alias);
+        }
         
         if($pos) {
             return "{$path}/{$alias}";
@@ -416,50 +433,68 @@ class DocumentParser {
             $q = $this->_IIS_furl_fix();
         else {
             $q = substr($uri,strlen($this->config['base_url']));
-            if(strpos($q,'?')!==false) $q = substr($q,0,strpos($q,'?'));
-            if($q === 'index.php')     $q = '/';
+            if(strpos($q,'?')!==false) {
+                $q = substr($q, 0, strpos($q, '?'));
+            }
+            if($q === 'index.php') {
+                $q = '/';
+            }
         }
         
         return $q;
     }
     
     function sanitizeVars() {
-        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false)
+        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false) {
             exit();
+        }
         
         foreach (array ('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
-            $_SERVER[$key] = isset ($_SERVER[$key]) ? $this->htmlspecialchars($_SERVER[$key]) : null;
+            if (isset ($_SERVER[$key])) {
+                $_SERVER[$key] = $this->htmlspecialchars($_SERVER[$key]);
+            } else {
+                $_SERVER[$key] = null;
+            }
         }
         $this->sanitize_gpc($_GET);
         if($this->isBackend()) {
-            if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) $this->sanitize_gpc($_POST);
+            if(session_id()==='' || $_SESSION['mgrPermissions']['save_document']!=1) {
+                $this->sanitize_gpc($_POST);
+            }
         }
         $this->sanitize_gpc($_COOKIE);
         $this->sanitize_gpc($_REQUEST);
     }
     
     function setUaType() {
-        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2)
+        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2) {
             $uaType = $this->getUaType();
-        else $uaType = 'pages';
+        } else {
+            $uaType = 'pages';
+        }
         return $uaType;
     }
     
     function genQsHash() {
-        if(!empty($_SERVER['QUERY_STRING']))
-        {
-            $qs = $_GET;
-            if(isset($qs['id'])) unset($qs['id']);
-            if(0 < count($qs)) {
-                ksort($qs);
-                $qs_hash = '_' . hash('crc32b', http_build_query($qs));
-            }
-            else $qs_hash = '';
-            $userID = $this->getLoginUserID('web');
-            if($userID) $qs_hash = hash('crc32b', $qs_hash."^{$userID}^");
+        if(empty($_SERVER['QUERY_STRING'])) {
+            return '';
         }
-        else $qs_hash = '';
-        
+
+        $qs = $_GET;
+        if (isset($qs['id'])) {
+            unset($qs['id']);
+        }
+        if (0 < count($qs)) {
+            ksort($qs);
+            $qs_hash = '_' . hash('crc32b', http_build_query($qs));
+        } else {
+            $qs_hash = '';
+        }
+        $userID = $this->getLoginUserID('web');
+        if ($userID) {
+            $qs_hash = hash('crc32b', $qs_hash . "^{$userID}^");
+        }
+
         return $qs_hash;
     }
     
@@ -487,8 +522,7 @@ class DocumentParser {
             }
 
             // validation routines
-            if($this->checkSiteStatus()===false)
-            {
+            if($this->checkSiteStatus()===false) {
                 if (!$this->config['site_unavailable_page']) {
                     header("Content-Type: text/html; charset={$this->config['modx_charset']}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
@@ -660,10 +694,7 @@ class DocumentParser {
             if(empty($type)) $type = 'text/html';
             
             header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
-            //            if (($this->documentIdentifier == $this->config['error_page']) || $redirect_error)
-            //                header('HTTP/1.0 404 Not Found');
-            if ($this->documentObject['content_dispo'] == 1)
-            {
+            if ($this->documentObject['content_dispo'] == 1) {
                 if ($this->documentObject['alias']) {
                     $name= $this->documentObject['alias'];
                 } else {
@@ -678,29 +709,27 @@ class DocumentParser {
                 header('Content-Disposition: attachment; filename=' . $name);
             }
         }
-        if($this->config['cache_type'] !=2&&strpos($this->documentOutput,'^]')!==false)
-        {
+        if($this->config['cache_type'] !=2&&strpos($this->documentOutput,'^]')!==false) {
             $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
         }
 
         if (strpos($this->documentOutput,'\{')!==false) {
             $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
-        }
-        elseif (strpos($this->documentOutput,'\[')!==false) {
+        } elseif (strpos($this->documentOutput,'\[')!==false) {
             $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
         }
         
-        if ($this->dumpSQLCode)
-        {
+        if ($this->dumpSQLCode) {
             $this->documentOutput = preg_replace(
                 '@(</body>)@i'
-                , join("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
+                , implode("\n",$this->dumpSQLCode) . "\n\\1", $this->documentOutput);
         }
+
         if ($this->dumpSnippetsCode)
         {
             $this->documentOutput = preg_replace(
                 '@(</body>)@i'
-                , join("\n",$this->dumpSnippetsCode) . "\n\\1"
+                , implode("\n",$this->dumpSnippetsCode) . "\n\\1"
                 , $this->documentOutput
             );
         }
@@ -749,7 +778,9 @@ class DocumentParser {
     }
     
     function parseNonCachedSnippets($contents) {
-        if($this->config['cache_type']==2) $this->config['cache_type'] = 1;
+        if($this->config['cache_type']==2) {
+            $this->config['cache_type'] = 1;
+        }
         
         $i=0;
         while($i < $this->maxParserPasses) {
@@ -1092,12 +1123,12 @@ class DocumentParser {
 
     function getSettings() {
         $this->token_auth();
+        
         $this->config = $this->getSiteCache();
         $cache_path = MODX_BASE_PATH . 'assets/cache/';
         if(is_file($cache_path.'siteCache.idx.php')) {
             include_once($cache_path . 'siteCache.idx.php');
         }
-        
         // store base_url and base_path inside config array
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
