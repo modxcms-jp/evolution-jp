@@ -4951,8 +4951,10 @@ class DocumentParser {
     }
     
     public function config($key=null, $default=null) {
-        if(!isset($this->config['site_url']) && !defined('MODX_SETUP_PATH')) {
-            $this->getSettings();
+        if(!defined('MODX_SETUP_PATH')) {
+            if(!isset($this->config['site_url']) || !$this->config['site_url']) {
+                $this->getSettings();
+            }
         }
         if(strpos($key,'*')===0 || strpos($key,'.*')!==false) {
             $value = $default;
