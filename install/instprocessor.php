@@ -41,6 +41,16 @@ $sqlParser->base_path = MODX_BASE_PATH;
 $sqlParser->showSqlErrors = false;
 
 // install/update database
+
+if(!db()->field_exists('elmid', '[+prefix+]site_revision')) {
+    db()->query(
+        str_replace(
+            '[+prefix+]'
+            , sessionv('table_prefix')
+            , 'DROP TABLE IF EXISTS `[+prefix+]site_revision`')
+    );
+}
+
 echo "<p>" . lang('setup_database_creating_tables');
 
 $sqlParser->intoDB('create_tables.sql');
