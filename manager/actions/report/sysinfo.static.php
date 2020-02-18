@@ -214,7 +214,12 @@ echo '</table>' . "\n";
 		  </thead>
 		  <tbody>
 <?php
-	$rs = db()->query("SHOW TABLE STATUS FROM `{db()->dbname}` LIKE '{db()->table_prefix}%'");
+	$rs = db()->query(
+	        sprintf("SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
+				, db()->dbname
+				, db()->table_prefix
+			)
+    );
 	$limit = db()->getRecordCount($rs);
 	for ($i = 0; $i < $limit; $i++) {
 		$log_status = db()->getRow($rs);
