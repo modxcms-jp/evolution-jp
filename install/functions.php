@@ -353,21 +353,22 @@ function isUpGradeable() {
     if(!$dbase) {
         return 0;
     }
-    
-    db()->hostname     = $database_server;
-    db()->username     = $database_user;
-    db()->password     = $database_password;
-    db()->dbname       = trim($dbase,'`');
-    db()->charset      = $database_connection_charset;
-    db()->table_prefix = $table_prefix;
+
+    global $modx;
+    $modx->db->hostname     = $database_server;
+    $modx->db->username     = $database_user;
+    $modx->db->password     = $database_password;
+    $modx->db->dbname       = trim($dbase,'`');
+    $modx->db->charset      = $database_connection_charset;
+    $modx->db->table_prefix = $table_prefix;
     db()->connect();
     
     if(db()->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
-        $_SESSION['database_server']            = db()->hostname;
-        $_SESSION['database_user']              = db()->username;
-        $_SESSION['database_password']          = db()->password;
-        $_SESSION['dbase']                      = db()->dbname;
-        $_SESSION['table_prefix']               = db()->table_prefix;
+        $_SESSION['database_server']            = $database_server;
+        $_SESSION['database_user']              = $database_user;
+        $_SESSION['database_password']          = $database_password;
+        $_SESSION['dbase']                      = $modx->db->dbname;
+        $_SESSION['table_prefix']               = $table_prefix;
         $collation = db()->getCollation();
         $_SESSION['database_charset']           = substr($collation,0,strpos($collation,'_'));
         $_SESSION['database_collation']         = $collation;
