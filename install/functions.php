@@ -329,12 +329,11 @@ function is_iis(){
 }
 
 function isUpGradeable() {
-    static $is_upGradeable = null;
-    if($is_upGradeable !== null) {
-        return $is_upGradeable;
+    if(sessionv('is_upgradeable') !== null) {
+        return sessionv('is_upgradeable');
     }
 
-    $is_upGradeable = 0;
+    sessionv('*is_upgradeable', 0);
 
     error_reporting(E_ALL & ~E_NOTICE);
     $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
@@ -364,16 +363,16 @@ function isUpGradeable() {
     db()->connect();
     
     if(db()->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
-        $_SESSION['database_server']            = $database_server;
-        $_SESSION['database_user']              = $database_user;
-        $_SESSION['database_password']          = $database_password;
-        $_SESSION['dbase']                      = $modx->db->dbname;
-        $_SESSION['table_prefix']               = $table_prefix;
+        sessionv('*database_server', $database_server);
+        sessionv('*database_user', $database_user);
+        sessionv('*database_password', $database_password);
+        sessionv('*dbase', $modx->db->dbname);
+        sessionv('*table_prefix', $table_prefix);
         $collation = db()->getCollation();
-        $_SESSION['database_charset']           = substr($collation,0,strpos($collation,'_'));
-        $_SESSION['database_collation']         = $collation;
-        $_SESSION['database_connection_method'] = 'SET CHARACTER SET';
-        $is_upGradeable = 1;
+        sessionv('*database_charset', substr($collation,0,strpos($collation,'_')));
+        sessionv('*database_collation', $collation);
+        sessionv('*database_connection_method', 'SET CHARACTER SET');
+        sessionv('*is_upgradeable', 1);
         return 1;
     }
     return 0;
