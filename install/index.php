@@ -40,12 +40,6 @@ if($action==='mode') {
     $_SESSION['is_upgradeable'] = isUpGradeable();
 }
 
-if(isset($_SESSION['database_server']))   $modx->db->hostname     = $_SESSION['database_server'];
-if(isset($_SESSION['database_user']))     $modx->db->username     = $_SESSION['database_user'];
-if(isset($_SESSION['database_password'])) $modx->db->password     = $_SESSION['database_password'];
-if(isset($_SESSION['dbase']))             $modx->db->dbname       = $_SESSION['dbase'];
-if(isset($_SESSION['database_charset']))  $modx->db->charset      = $_SESSION['database_charset'];
-if(isset($_SESSION['table_prefix']))      $modx->db->table_prefix = $_SESSION['table_prefix'];
 if(isset($_SESSION['database_server']))   $modx->db->connect();
 
 $_lang = includeLang(lang_name());
