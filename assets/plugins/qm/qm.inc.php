@@ -544,7 +544,29 @@ function getCookie(cookieName)
 
                     // Add action buttons
                     $url = evo()->makeUrl($doc_id,'','','full');
-                    $mc->addLine(sprintf('var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.%s.fn.colorbox.close();return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";', $qm_theme, $_lang['save'], $jq_mode, $qm_theme, $_lang['cancel']));
+                    if($this->conf('prop_loadtb')) {
+                        $mc->addLine(
+                            sprintf(
+                                'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";'
+                                , $qm_theme
+                                , $_lang['save']
+                                , $url
+                                , $qm_theme
+                                , $_lang['cancel']
+                            )
+                        );
+                    } else {
+                        $mc->addLine(
+                            sprintf(
+                                'var controls = "<div style=\\"padding:4px 0;position:fixed;top:10px;right:-10px;z-index:1000\\" id=\\"qmcontrols\\" class=\\"actionButtons\\"><ul><li class=\\"primary\\"><a href=\\"#\\" onclick=\\"documentDirty=false;gotosave=true;document.mutate.save.click();return false;\\"><img src=\\"media/style/%s/images/icons/save.png\\" />%s</a></li><li><a href=\\"#\\" id=\\"cancel\\" onclick=\\"parent.location.href=\'%s\';return false;\\"><img src=\\"media/style/%s/images/icons/stop.png\\"/>%s</a></li></ul></div>";'
+                                , $qm_theme
+                                , $_lang['save']
+                                , $url
+                                , $qm_theme
+                                , $_lang['cancel']
+                            )
+                        );
+                    }
 
                     // Modify head
                     $mc->head = '<script>document.body.style.display="none";</script>';
