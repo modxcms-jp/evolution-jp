@@ -1,7 +1,4 @@
 <?php
-$_SESSION['database_server']            = '';
-$_SESSION['database_user']              = '';
-$_SESSION['database_password']          = '';
 
 //back from next
 if(postv('adminemail')!==null) {
