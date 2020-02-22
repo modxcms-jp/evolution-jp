@@ -18,7 +18,11 @@ class synccache {
             $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
         }
     }
-    
+
+    public function setConfig($config) {
+        $this->config = $config;
+    }
+
     public function setTarget($target) {
         $this->target = $target;
     }
@@ -402,6 +406,9 @@ class synccache {
         static $config = null;
         if($config) {
             return $config;
+        }
+        if($this->config) {
+            return $this->config;
         }
 
         $rs = db()->select('setting_name,setting_value','[+prefix+]system_settings');

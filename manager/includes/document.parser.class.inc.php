@@ -995,25 +995,28 @@ class DocumentParser {
         return false;
     }
     
-    function getSiteCache() {
+    private function getSiteCache() {
         $cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
-        $config = array();
-        if(is_file($cache_path)) $config= include($cache_path);
-        
-        if(!isset($config)||!$config) {
-            if($this->db->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
-                include_once MODX_CORE_PATH . 'cache_sync.class.php';
-                $cache = new synccache();
-                $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
-                $cache->setReport(false);
-                $rebuilt = $cache->buildCache($this);
-                
-                if($rebuilt && is_file($cache_path)) $config = include($cache_path);
-                else $config = false;
-            }
+        if(is_file($cache_path)) {
+            $config = include($cache_path);
         }
         
-        return $config;
+        if(isset($config) && $config) {
+            return $config;
+        }
+        return false;
+    }
+
+    private function setSiteCache($config) {
+        if (!$this->db->isConnected() || !db()->table_exists('[+prefix+]system_settings')) {
+            return;
+        }
+        include_once MODX_CORE_PATH . 'cache_sync.class.php';
+        $cache = new synccache();
+        $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+        $cache->setReport(false);
+        $cache->setConfig($config);
+        $cache->buildCache($this);
     }
 
     private function token_auth() {
@@ -1124,12 +1127,22 @@ class DocumentParser {
     function getSettings() {
         $this->token_auth();
         
-        $this->config = $this->getSiteCache();
+        $config = $this->getSiteCache();
+        if(!$config) {
+            $rs = db()->select('setting_name,setting_value','[+prefix+]system_settings');
+            $config = array();
+            while($row = db()->getRow($rs)) {
+                $config[$row['setting_name']] = $row['setting_value'];
+            }
+            $this->setSiteCache($config);
+        }
+        $this->config = $config;
+
         $cache_path = MODX_BASE_PATH . 'assets/cache/';
         if(is_file($cache_path.'siteCache.idx.php')) {
             include_once($cache_path . 'siteCache.idx.php');
         }
-        // store base_url and base_path inside config array
+
         $this->config['base_path']= MODX_BASE_PATH;
         $this->config['core_path']= MODX_CORE_PATH;
         $this->config['base_url'] = MODX_BASE_URL;
