@@ -1060,7 +1060,7 @@ class DBAPI {
             if(preg_match('@^[0-9]+$@',$k)) {
                 $_[] = $v;
             } elseif($k!==$v) {
-                $_[] = sprintf('%s as %s', $v, $k);
+                $_[] = sprintf("%s as '%s'", $v, $k);
             } else {
                 $_[] = $v;
             }
