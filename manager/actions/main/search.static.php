@@ -77,7 +77,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                                 <li><a
                                         class="default"
                                         href="#"
-                                        onclick="document.searchform.submitok.click();"
+                                        onclick="jQuery('#submitok').click();"
                                     ><img
                                         src="<?php echo style('icons_save') ?>"
                                     /> <?php echo lang('search') ?></a
@@ -93,7 +93,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                     </tr>
                 </table>
 
-                <input type="submit" value="Search" name="submitok" style="display:none" />
+                <input type="submit" id="submitok" value="Search" name="submitok" style="display:none" />
             </form>
         </div>
     </div>
