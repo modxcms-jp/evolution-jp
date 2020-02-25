@@ -419,6 +419,8 @@ function getInputValues($id=0,$mode='new') {
     }
     $fields['editedby'] = evo()->getLoginUserID();
     if($mode==='new') {
+        $fields['createdon'] = $_SERVER['REQUEST_TIME'];
+        $fields['createdby'] = evo()->getLoginUserID();
         $fields['publishedon'] = checkPublishedon(0);
     } elseif($mode==='edit') {
         unset($fields['createdby']);
