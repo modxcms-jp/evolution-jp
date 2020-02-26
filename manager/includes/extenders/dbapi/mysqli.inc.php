@@ -33,7 +33,26 @@ class DBAPI {
         $this->connection_method  = &$this->config['connection_method'];
         $this->dbconnectionmethod = &$this->config['connection_method'];
     }
-    
+
+    public function set($prop_name, $value=null) {
+        $this->$prop_name = $value;
+        return $value;
+    }
+
+    public function get($prop_name, $default=null) {
+        if(isset($this->$prop_name)) {
+            return $this->$prop_name;
+        }
+        return $default;
+    }
+
+    public function prop($prop_name, $value=null) {
+        if(strpos($prop_name, '*')===0) {
+            return $this->set(ltrim($prop_name,'*'), $value);
+        }
+        return $this->get($prop_name, $value);
+    }
+
     /**
     * @name:  connect
     *
