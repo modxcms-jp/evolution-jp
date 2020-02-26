@@ -12,7 +12,6 @@ global $tplModules;
 global $tplTVs;
 global $errors;
 
-// set timout limit
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
 require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
@@ -34,37 +33,35 @@ $sqlParser->adminpass  = sessionv('adminpass');
 $sqlParser->adminemail = sessionv('adminemail');
 $sqlParser->connection_charset = sessionv('database_charset');
 $sqlParser->connection_collation = sessionv('database_collation');
-$sqlParser->connection_method = sessionv('database_connection_method');
 $sqlParser->managerlanguage = sessionv('managerlanguage');
-$sqlParser->manager_theme = $default_config['manager_theme'];
-$sqlParser->base_path = MODX_BASE_PATH;
-$sqlParser->showSqlErrors = false;
 
 // install/update database
 
-if(!db()->field_exists('elmid', '[+prefix+]site_revision')) {
-    db()->query(
-        str_replace(
-            '[+prefix+]'
-            , sessionv('table_prefix')
-            , 'DROP TABLE IF EXISTS `[+prefix+]site_revision`')
-    );
+if(sessionv('is_upgradeable') && db()->table_exists('[+prefix+]site_revision')) {
+    if(!db()->field_exists('elmid', '[+prefix+]site_revision')) {
+        db()->query(
+            str_replace(
+                '[+prefix+]'
+                , sessionv('table_prefix')
+                , 'DROP TABLE IF EXISTS `[+prefix+]site_revision`')
+        );
+    }
 }
 
 echo "<p>" . lang('setup_database_creating_tables');
 
 $sqlParser->intoDB('create_tables.sql');
 
-if(sessionv('is_upgradeable')==0) {
+if(!sessionv('is_upgradeable')) {
     $sqlParser->intoDB('default_settings.sql');
-    if(is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql'))
+    if(is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql')) {
         $sqlParser->intoDB('default_settings_custom.sql');
+    }
 }
 
 $sqlParser->intoDB('fix_settings.sql');
 // display database results
-if ($sqlParser->installFailed == true)
-{
+if ($sqlParser->installFailed == true) {
     $errors += 1;
     printf('<span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
     printf('<p>%s</p>',                                lang('setup_couldnt_install'));

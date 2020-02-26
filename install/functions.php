@@ -307,13 +307,17 @@ function getCreateDbCategory($category) {
         return 0;
     }
 
-    $category = db()->escape($category);
-    $dbv_category = db()->getObject('categories', "category='" . $category . "'");
+    $dbv_category = db()->getObject(
+        'categories'
+        , sprintf("category='%s'", db()->escape($category))
+    );
     if ($dbv_category) {
         return $dbv_category->id;
     }
-
-    $category_id = db()->insert(array('category' => $category), '[+prefix+]categories');
+    $category_id = db()->insert(
+        array('category' => db()->escape($category))
+        , '[+prefix+]categories')
+    ;
     if (!$category_id) {
         exit('Get category id error');
     }

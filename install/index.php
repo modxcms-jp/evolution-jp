@@ -17,7 +17,7 @@ include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
 require_once(MODX_BASE_PATH . 'manager/includes/version.inc.php');
-$cmsName = "MODX";
+$cmsName = 'MODX';
 $cmsVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 
@@ -32,15 +32,25 @@ if(!$rs) {
     exit;
 }
 
-$action = isset($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
-$_SESSION['prevAction']    = isset($_SESSION['currentAction']) ? $_SESSION['currentAction'] : '';
-$_SESSION['currentAction'] = $action;
+sessionv('*prevAction', sessionv('currentAction',''));
+$action = anyv('action', 'mode');
+sessionv('*currentAction', $action);
 
 if($action==='mode') {
-    $_SESSION['is_upgradeable'] = isUpGradeable();
+    sessionv('*is_upgradeable', isUpGradeable());
 }
 
-if(isset($_SESSION['database_server']))   $modx->db->connect();
+if(sessionv('database_server')) {
+    db()->prop('*dbname', sessionv('dbase'));
+    db()->prop('*table_prefix', sessionv('table_prefix', 'modx_'));
+    db()->prop('*connection_method', sessionv('database_connection_method'));
+    db()->prop('*charset', sessionv('database_charset', 'utf8'));
+    db()->connect(
+        sessionv('database_server')
+        , sessionv('database_user')
+        , sessionv('database_password')
+    );
+}
 
 $_lang = includeLang(lang_name());
 

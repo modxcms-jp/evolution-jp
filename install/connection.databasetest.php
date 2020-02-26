@@ -10,11 +10,11 @@ require_once(MODX_BASE_PATH . 'install/functions.php');
 
 includeLang(getOption('install_language'));
 
-$modx->db->hostname = sessionv('database_server');
-$modx->db->username = sessionv('database_user');
-$modx->db->password = sessionv('database_password');
-
-db()->connect();
+db()->connect(
+    sessionv('database_server')
+    , sessionv('database_user')
+    , sessionv('database_password')
+);
 if(!db()->isConnected()) {
     exit(
         lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed'))
@@ -52,11 +52,11 @@ if (db()->select_db(db()->escape($db_name))) {
     $msg = lang('status_passed_database_created');
 }
 
-$_SESSION['dbase']                      = $db_name;
-$_SESSION['table_prefix']               = $table_prefix;
-$_SESSION['database_collation']         = $db_collation;
-$_SESSION['database_connection_method'] = $db_connection_method;
-$_SESSION['database_charset']           = $db_charset;
+sessionv('*dbase', $db_name);
+sessionv('*table_prefix', $table_prefix);
+sessionv('*database_collation', $db_collation);
+sessionv('*database_connection_method', $db_connection_method);
+sessionv('*database_charset', $db_charset);
 
 echo lang('status_checking_database') . span_pass('#e6ffeb', $msg);
 
