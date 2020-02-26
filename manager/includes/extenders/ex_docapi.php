@@ -241,9 +241,12 @@ class DocAPI {
         );
         if(isset($form_v['ta'])) {
             $form_v['content'] = $form_v['ta'];
+            unset($form_v['ta']);
         }
         foreach($fields as $key) {
-            if(!isset($form_v[$key])) $form_v[$key] = '';
+            if(!isset($form_v[$key])) {
+                $form_v[$key] = '';
+            }
             $value = trim($form_v[$key]);
             switch($key) {
                 case 'id': // auto_increment
@@ -437,20 +440,25 @@ class DocAPI {
         return $f;
     }
 
-    function fixTvNest($target,$form_v)
+    function fixTvNest($form_v)
     {
-        foreach(explode(',',$target) as $name)
-        {
-            $tv = ($name === 'ta') ? 'content' : $name;
-            $s = "[*{$tv}*]";
-            $r = "[ *{$tv}* ]";
-            if(strpos($form_v[$name],$s)===false) continue;
-            $form_v[$name] = str_replace($s,$r,$form_v[$name]);
-        }
-        if(isset($form_v['ta']))
-        {
+        if(isset($form_v['ta'])) {
             $form_v['content'] = $form_v['ta'];
             unset($form_v['ta']);
+        }
+        $target = explode(
+            ','
+            , 'ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes'
+        );
+        foreach($target as $key) {
+            if(strpos($form_v[$key], '[*' . $key . '*]')===false) {
+                continue;
+            }
+            $form_v[$key] = str_replace(
+                '[*' . $key . '*]'
+                , '[ *' . $key . '* ]'
+                , $form_v[$key]
+            );
         }
         return $form_v;
     }

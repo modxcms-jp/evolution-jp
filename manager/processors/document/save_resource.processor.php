@@ -9,10 +9,7 @@ if (!evo()->hasPermission('save_document')) {
 global $form_v;
 include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
 evo()->loadExtension('DocAPI');
-$form_v = evo()->doc->fixTvNest(
-    'ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes'
-    , $_POST
-);
+$form_v = evo()->doc->fixTvNest($_POST);
 $form_v = evo()->doc->initValue($form_v);
 $form_v = evo()->doc->setValue($form_v);
 
@@ -414,12 +411,14 @@ function getInputValues($id=0,$mode='new') {
         $fields['id'] = $id;
     }
     foreach($db_v_names as $key) {
-        if(!isset($form_v[$key])) $form_v[$key] = '';
+        if(!isset($form_v[$key])) {
+            $form_v[$key] = '';
+        }
         $fields[$key] = $form_v[$key];
     }
     $fields['editedby'] = evo()->getLoginUserID();
     if($mode==='new') {
-        $fields['createdon'] = $_SERVER['REQUEST_TIME'];
+        $fields['createdon'] = serverv('REQUEST_TIME');
         $fields['createdby'] = evo()->getLoginUserID();
         $fields['publishedon'] = checkPublishedon(0);
     } elseif($mode==='edit') {
@@ -437,7 +436,7 @@ function checkStartDoc($id, $published, $pub_date, $unpub_date) {
         );
         exit;
     }
-    if ($pub_date > evo()->server_var('REQUEST_TIME') || $unpub_date) {
+    if ($pub_date > serverv('REQUEST_TIME') || $unpub_date) {
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot have publish or unpublish dates set!'
             , sprintf('index.php?a=27&id=%s', $id)
@@ -483,21 +482,23 @@ function checkUnpub_date($db_v) {
 function checkPublishedon($timestamp) {
     global $form_v;
     
-    if(!evo()->hasPermission('publish_document'))
+    if(!evo()->hasPermission('publish_document')) {
         return $timestamp;
-    else
-    {
-        // if it was changed from unpublished to published
-        if(!empty($form_v['pub_date']) && $form_v['pub_date']<=$_SERVER['REQUEST_TIME'] && $form_v['published'])
-            $publishedon = $form_v['pub_date'];
-        elseif (0<$timestamp && $form_v['published'])
-            $publishedon = $timestamp;
-        elseif(!$form_v['published'])
-            $publishedon = 0;
-        else
-            $publishedon = $_SERVER['REQUEST_TIME'];
-        return $publishedon;
     }
+
+    if ($form_v['published'] && $form_v['pub_date'] && $form_v['pub_date']<=serverv('REQUEST_TIME')) {
+        return $form_v['pub_date'];
+    }
+
+    if (0<$timestamp && $form_v['published']) {
+        return $timestamp;
+    }
+
+    if(!$form_v['published']) {
+        return 0;
+    }
+
+    return serverv('REQUEST_TIME');
 }
 
 function checkPublishedby($db_v) {
