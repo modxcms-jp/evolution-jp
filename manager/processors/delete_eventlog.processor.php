@@ -1,26 +1,22 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('delete_eventlog')) {
-	$e->setError(3);
-	$e->dumpError();
+if(!evo()->hasPermission('delete_eventlog')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$id= (int)$_GET['id'];
-
-// delete event log
-if(isset($_GET['cls']) && $_GET['cls']==1)
-	$rs = $modx->db->truncate('[+prefix+]event_log');
-else {
-	$rs = $modx->db->delete('[+prefix+]event_log',"id='{$id}'");
-	if($rs) {
-		$rs = $modx->db->select('*', '[+prefix+]event_log');
-		$total = $modx->db->getRecordCount($rs);
-		if(empty($total)) $modx->db->truncate('[+prefix+]event_log');
-	}
-}
-
-if(!$rs) {
-	exit('Something went wrong while trying to delete the event log...');
+if(getv('cls')==1) {
+    $rs = db()->truncate('[+prefix+]event_log');
+} elseif((int)getv('id')) {
+    $rs = db()->delete(
+        '[+prefix+]event_log'
+        , sprintf("id='%d'", (int)getv('id'))
+    );
+    if($rs) {
+        if(!db()->select('*', '[+prefix+]event_log')) {
+            db()->truncate('[+prefix+]event_log');
+        }
+    }
 }
 
 header('Location: index.php?a=114');

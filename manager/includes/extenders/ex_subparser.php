@@ -2136,29 +2136,27 @@ class SubParser {
         
         $option= $default;
         
-        if(strpos($key,',')!==false) $key = explode(',',$key);
-        if (is_array($key))
-        {
-            if (!is_array($option))
-            {
+        if(strpos($key,',')!==false) {
+            $key = explode(',', $key);
+        }
+        if (is_array($key)) {
+            if (!is_array($option)) {
                 $default= $option;
                 $option= array();
             }
-            foreach ($key as $k)
-            {
+            foreach ($key as $k) {
                 $k = trim($k);
                 $option[$k]= $this->getOption($k, $default, $options);
             }
+            return $option;
         }
-        elseif (is_string($key) && !empty($key))
-        {
-            if (is_array($options) && !empty($options) && array_key_exists($key, $options) && (!$skipEmpty || ($skipEmpty && $options[$key] !== '')))
-            {
-                $option= $options[$key];
+
+        if (is_string($key) && $key) {
+            if (is_array($options) && array_key_exists($key, $options) && (!$skipEmpty || ($skipEmpty && $options[$key] !== ''))) {
+                return $options[$key];
             }
-            elseif(is_array($modx->config) && !empty($modx->config) && array_key_exists($key, $modx->config) && (!$skipEmpty || ($skipEmpty && $modx->config[$key] !== '')))
-            {
-                $option= $modx->config[$key];
+            if (is_array($modx->config) && array_key_exists($key, $modx->config) && (!$skipEmpty || ($skipEmpty && $modx->config[$key] !== ''))) {
+                return $modx->config[$key];
             }
         }
         return $option;

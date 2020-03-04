@@ -13,8 +13,7 @@ if(!isset($modx) || !$modx->isLoggedin()) exit;
     <div class="tab-pane" id="helpPane">
 <?php
 $help_dir = MODX_BASE_PATH . 'assets/templates/help';
-if(is_dir($help_dir)==false)
-{
+if(is_dir($help_dir)==false) {
 	echo '<h3>' . $_lang["credits"] . '</h3>';
 	echo '<div>' . $_lang["about_msg"] . '</div>';
 	echo '<h3>' . $_lang["help"] . '</h3>';
@@ -22,24 +21,18 @@ if(is_dir($help_dir)==false)
 	exit;
 }
 
-if ($files = scandir($help_dir))
-{
-	foreach ($files as $file)
-	{
-		if ($file != "." && $file != ".." && $file != ".svn")
-		{
+if ($files = scandir($help_dir)) {
+	foreach ($files as $file) {
+		if ($file !== '.' && $file !== '..' && $file !== '.svn') {
 			$help[] = $file;
 		}
 	}
 }
-
-
 natcasesort($help);
 
 foreach($help as $k=>$v) {
 
     $helpname =  substr($v, 0, strrpos($v, '.'));
-
     $prefix = substr($helpname, 0, 2);
     if(is_numeric($prefix)) {
         $helpname =  substr($helpname, 2, strlen($helpname)-1 );
