@@ -19,8 +19,6 @@ require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
 extract($_lang, EXTR_PREFIX_ALL, 'lang');
 
 echo "<p>" . lang('setup_database') . "</p>\n";
-// get base path and url
-define('MODX_API_MODE', true);
 $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
