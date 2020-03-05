@@ -1192,15 +1192,16 @@ class SubParser {
         return $binding_array;
     }
 
-    function getExtention($str)
-    {
+    function getExtention($str) {
         $str = trim($str);
         $str = strtolower($str);
         $pos = strrpos($str,'.');
-        if($pos===false) return false;
+        if($pos===false) {
+            return false;
+        }
         return substr($str,$pos);
     }
-    
+
     function decodeParamValue($s)
     {
         $s = str_replace(
