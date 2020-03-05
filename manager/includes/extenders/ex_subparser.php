@@ -776,27 +776,19 @@ class SubParser {
         return $modx->currentSnippet;
     }
 
-    function runSnippet($snippetName, $params= array ())
-    {
+    function runSnippet($snippetName, $params= array ()){
         global $modx;
-        
-        if (isset ($modx->snippetCache[$snippetName]))
-        {
+        if (isset ($modx->snippetCache[$snippetName])) {
             $phpCode= $modx->snippetCache[$snippetName];
             $properties= $modx->snippetCache["{$snippetName}Props"];
-        }
-        else
-        { // not in cache so let's check the db
+        } else { // not in cache so let's check the db
             $esc_name = $modx->db->escape($snippetName);
             $result= $modx->db->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_name}'");
-            if ($modx->db->getRecordCount($result) == 1)
-            {
+            if ($modx->db->getRecordCount($result) == 1) {
                 $row = $modx->db->getRow($result);
                 $phpCode= $modx->snippetCache[$snippetName]= $row['snippet'];
                 $properties= $modx->snippetCache["{$snippetName}Props"]= $row['properties'];
-            }
-            else
-            {
+            } else {
                 $phpCode= $modx->snippetCache[$snippetName]= "return false;";
                 $properties= '';
             }
@@ -807,7 +799,7 @@ class SubParser {
         // run snippet
         return $modx->evalSnippet($phpCode, $parameters);
     }
-    
+
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
