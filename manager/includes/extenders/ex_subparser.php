@@ -107,10 +107,11 @@ class SubParser {
             }
         }
     }
-    
-    function addLog($title='no title',$msg='',$type=1)
-    {
-        if($title==='') $title = 'no title';
+
+    function addLog($title='no title',$msg='',$type=1){
+        if($title==='') {
+            $title = 'no title';
+        }
         if(is_array($msg)) {
             $msg = sprintf('<pre>%s</pre>', print_r($msg, true));
         }
@@ -121,7 +122,7 @@ class SubParser {
             , $title
         );
     }
-    
+
     function logEvent($evtid, $type, $msg, $title= 'Parser')
     {
         global $modx;
