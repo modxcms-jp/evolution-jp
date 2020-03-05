@@ -205,38 +205,33 @@ class SubParser {
 
     function clearCache($params=array()) {
         global $modx;
-        
-        if(!is_array($params) && preg_match('@^[1-9][0-9]*$@',$params))
-        {
+
+        if(!is_array($params) && preg_match('@^[1-9][0-9]*$@',$params)) {
             $docid = $params;
-            if($modx->config['cache_type']==='2')
-            {
+            if($modx->config['cache_type']==='2') {
                 $url = $modx->config['base_url'] . $modx->makeUrl($docid,'','','root_rel');
                 $filename = hash('crc32b', $url);
-            }
-            else
+            } else {
                 $filename = "docid_{$docid}";
-            
+            }
+
             $_ = array('pages','pc','smartphone','tablet','mobile');
-            foreach($_ as $uaType)
-            {
+            foreach($_ as $uaType) {
                 $page_cache_path = MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php";
                 if(is_file($page_cache_path)) unlink($page_cache_path);
             }
         }
 
-        if(is_string($params) && $params==='full')
-        {
+        if(is_string($params) && $params==='full') {
             $params = array();
             $params['showReport'] = false;
             $params['target'] = 'pagecache,sitecache';
         }
-        
-        if(opendir(MODX_BASE_PATH . 'assets/cache')!==false)
-        {
+
+        if(opendir(MODX_BASE_PATH . 'assets/cache')!==false) {
             $showReport = ($params['showReport']) ? $params['showReport'] : false;
             $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
-            
+
             include_once MODX_CORE_PATH . 'cache_sync.class.php';
             $sync = new synccache();
             $sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
@@ -247,7 +242,7 @@ class SubParser {
         }
         return false;
     }
-    
+
     function messageQuit($msg= 'unspecified error', $query= '', $is_error= true, $nr= '', $file= '', $source= '', $text= '', $line= '', $output='') {
         global $modx;
 
