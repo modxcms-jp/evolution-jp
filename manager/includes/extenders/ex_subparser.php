@@ -1951,32 +1951,30 @@ class SubParser {
             return $modx->previewObject;
         }
 
-        if(!isset($input['id'])||empty($input['id']))
+        if(!isset($input['id'])||empty($input['id'])) {
             $input['id'] = $modx->config['site_start'];
+        }
 
         $modx->documentIdentifier = $input['id'];
-        
+
         $rs = $modx->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
             $tvid = 'tv' . $row['id'];
             $tvname[$tvid] = $row['name'];
         }
-        foreach($input as $k=>$v)
-        {
-            if(isset($tvname[$k]))
-            {
+        foreach($input as $k=>$v) {
+            if(isset($tvname[$k])) {
                 if(is_array($v)) {
                     $v = implode('||', $v);
                 }
                 unset($input[$k]);
                 $name = $tvname[$k];
-                if( isset($input["{$k}_prefix"]) )
-                {
-                    if( $input["{$k}_prefix"] != 'DocID' )
+                if( isset($input["{$k}_prefix"]) ) {
+                    if( $input[$k . '_prefix'] !== 'DocID' ) {
                         $v = $input["{$k}_prefix"] . $v;
-                    elseif( preg_match('/\A[0-9]+\z/',$v) )
+                    } elseif( preg_match('/\A[0-9]+\z/',$v) ) {
                         $v = '[~' . $v . '~]';
+                    }
                 }
                 $input[$name] = $v;
             }
@@ -1986,15 +1984,21 @@ class SubParser {
                 unset($input['ta']);
             }
         }
-        if($input['pub_date']==='')    $input['pub_date']    = '0';
-        if($input['unpub_date']==='')  $input['unpub_date']  = '0';
-        if($input['publishedon']==='') $input['publishedon'] = '0';
+        if($input['pub_date']==='') {
+            $input['pub_date'] = '0';
+        }
+        if($input['unpub_date']==='') {
+            $input['unpub_date'] = '0';
+        }
+        if($input['publishedon']==='') {
+            $input['publishedon'] = '0';
+        }
 
         $modx->previewObject = $input;
-        
+
         return $modx->previewObject;
     }
-    
+
     function loadLexicon($target='manager') {
         global $modx;
         
