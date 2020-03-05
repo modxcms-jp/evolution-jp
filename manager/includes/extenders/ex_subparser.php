@@ -1618,29 +1618,24 @@ class SubParser {
         return array(trim($label),trim($value));
     }
 
-    function isSelected($label,$value,$item,$field_value)
-    {
+    function isSelected($label,$value,$item,$field_value) {
         if(is_array($item)) {
             $item = $item['0'];
         }
 
-        if(strpos($item,'==')!==false && strlen($value)==0)
-        {
+        if(strpos($item,'==')!==false && strlen($value)==0) {
             if(is_array($field_value)) {
                 $rs = in_array($label,$field_value);
             } else {
                 $rs = ($label === $field_value);
             }
-        }
-        else
-        {
+        } else {
             if(is_array($field_value)) {
                 $rs = in_array($value,$field_value);
             } else {
                 $rs = ($value === $field_value);
             }
         }
-        
         return $rs;
     }
     /**
