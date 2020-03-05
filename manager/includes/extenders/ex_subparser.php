@@ -980,27 +980,24 @@ class SubParser {
         $modx->loadedjscripts[$key]['pos']= $pos;
     }
 
-    function regClientStartupHTMLBlock($html) // Registers Client-side Startup HTML block
-    {
+    function regClientStartupHTMLBlock($html) { // Registers Client-side Startup HTML block
         $options = array('plaintext'=>true);
         $startup = true;
         $this->regClientScript($html, $options, $startup);
     }
-    
-    function regClientHTMLBlock($html) // Registers Client-side HTML block
-    {
+
+    function regClientHTMLBlock($html) { // Registers Client-side HTML block
         $options = array('plaintext'=>true);
         $startup = false;
         $this->regClientScript($html, $options, $startup);
     }
-    
+
     # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-    function regClientStartupScript($src, $options=array('name'=>'', 'version'=>'0', 'plaintext'=>false))
-    {
+    function regClientStartupScript($src, $options=array('name'=>'', 'version'=>'0', 'plaintext'=>false)) {
         $startup = true;
         $this->regClientScript($src, $options, $startup);
     }
-    
+
     function checkPermissions($docid=false,$duplicateDoc = false) {
         global $modx;
         
