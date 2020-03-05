@@ -2180,57 +2180,66 @@ class SubParser {
         return $str;
     }
 
-    function atBindFile($str='')
-    {
+    function atBindFile($str='') {
         global $modx;
-        
-        if(strpos($str,'@FILE')!==0) return $str;
+
+        if(strpos($str,'@FILE')!==0) {
+            return $str;
+        }
         $str = trim($str);
-        if(strpos($str,"\n")!==false)
-            $str = substr($str,0,strpos("\n",$str));
-        
+        if(strpos($str,"\n")!==false) {
+            $str = substr($str, 0, strpos("\n", $str));
+        }
+
         $str = substr($str,6);
         $str = trim($str);
         $str = str_replace('\\','/',$str);
         $template_path = 'assets/templates/';
-        
-        if(substr($str,0,1)==='/')
-        {
-            if(is_file($str) && strpos($str, MODX_MANAGER_PATH) === 0)
+
+        if(strpos($str, '/') === 0) {
+            if(is_file($str) && strpos($str, MODX_MANAGER_PATH) === 0) {
                 $file_path = false;
-            elseif(is_file($str) && strpos($str, MODX_BASE_PATH) === 0)
+            } elseif(is_file($str) && strpos($str, MODX_BASE_PATH) === 0) {
                 $file_path = $str;
-            elseif(is_file(MODX_BASE_PATH . trim($str,'/')))
-                $file_path = MODX_BASE_PATH . trim($str,'/');
-            else $file_path = false;
+            } elseif(is_file(MODX_BASE_PATH . trim($str,'/'))) {
+                $file_path = MODX_BASE_PATH . trim($str, '/');
+            } else {
+                $file_path = false;
+            }
         }
-        elseif(is_file(MODX_BASE_PATH . $str))
+        elseif(is_file(MODX_BASE_PATH . $str)) {
             $file_path = MODX_BASE_PATH . $str;
-        elseif(is_file(MODX_BASE_PATH . $template_path . $str))
+        } elseif(is_file(MODX_BASE_PATH . $template_path . $str)) {
             $file_path = MODX_BASE_PATH . $template_path . $str;
-        else
+        } else {
             $file_path = false;
-        
-        if(!$file_path) return false;
-        
+        }
+
+        if(!$file_path) {
+            return false;
+        }
+
         if($modx->getExtention($file_path)==='.php') {
             return 'Could not retrieve PHP file.';
         }
-        
+
         $content = file_get_contents($file_path);
-        if(! $content)return '';
-        
+        if(! $content) {
+            return '';
+        }
+
         global $recent_update;
-        if($recent_update < filemtime($file_path))
+        if($recent_update < filemtime($file_path)) {
             $modx->clearCache();
-        if(!$modx->template_path && strpos($file_path,MODX_BASE_PATH.'assets/templates/')===0)
+        }
+        if(!$modx->template_path && strpos($file_path,MODX_BASE_PATH.'assets/templates/')===0) {
             $modx->template_path = $file_path . '/';
-        
+        }
+
         return $content;
     }
-    
-    function atBindUrl($str='')
-    {
+
+    function atBindUrl($str='') {
         if(strpos($str,'@URL')!==0) {
             return $str;
         }
@@ -2240,7 +2249,7 @@ class SubParser {
         if($pos) {
             $str = substr($str, 0, $pos);
         }
-        
+
         $str = substr($str,5);
         $str = trim($str);
         if(strpos($str,'http')!==0) {
@@ -2249,44 +2258,61 @@ class SubParser {
 
         return file_get_contents($str);
     }
-    
-    function atBindInclude($str='')
-    {
-        if(strpos($str,'@INCLUDE')!==0) return $str;
+
+    function atBindInclude($str='') {
+        if(strpos($str,'@INCLUDE')!==0) {
+            return $str;
+        }
         $str = trim($str);
-        if(strpos($str,"\n")!==false)
-            $str = substr($str,0,strpos("\n",$str));
-        
+        if(strpos($str,"\n")!==false) {
+            $str = substr($str, 0, strpos("\n", $str));
+        }
+
         $str = substr($str,9);
         $str = trim($str);
         $str = str_replace('\\','/',$str);
-        
+
         $tpl_dir = 'assets/templates/';
-        
-        if(substr($str,0,1)==='/')
-        {
+
+        if(strpos($str, '/') === 0) {
             $vpath = MODX_BASE_PATH . ltrim($str,'/');
-            if(is_file($str) && strpos($str,MODX_MANAGER_PATH)===0)         $file_path = false;
-            elseif(is_file($vpath) && strpos($vpath,MODX_MANAGER_PATH)===0) $file_path = false;
-            elseif(is_file($str) && strpos($str,MODX_BASE_PATH)===0)        $file_path = $str;
-            elseif(is_file($vpath))                                         $file_path = $vpath;
-            else                                                            $file_path = false;
+            if(is_file($str) && strpos($str,MODX_MANAGER_PATH)===0) {
+                $file_path = false;
+            } elseif(is_file($vpath) && strpos($vpath,MODX_MANAGER_PATH)===0) {
+                $file_path = false;
+            } elseif(is_file($str) && strpos($str,MODX_BASE_PATH)===0) {
+                $file_path = $str;
+            } elseif(is_file($vpath)) {
+                $file_path = $vpath;
+            } else {
+                $file_path = false;
+            }
         }
-        elseif(is_file(MODX_BASE_PATH . $str))                              $file_path = MODX_BASE_PATH.$str;
-        elseif(is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}"))                $file_path = MODX_BASE_PATH.$tpl_dir.$str;
-        else                                                                $file_path = false;
-        
-        if(!$file_path || !is_file($file_path)) return false;
-        
+        elseif(is_file(MODX_BASE_PATH . $str)) {
+            $file_path = MODX_BASE_PATH . $str;
+        } elseif(is_file(MODX_BASE_PATH . "{$tpl_dir}{$str}")) {
+            $file_path = MODX_BASE_PATH . $tpl_dir . $str;
+        } else {
+            $file_path = false;
+        }
+
+        if(!$file_path || !is_file($file_path)) {
+            return false;
+        }
+
         ob_start();
         global $modx;
         $result = include($file_path);
-        if($result===1) $result = '';
+        if($result===1) {
+            $result = '';
+        }
         $content = ob_get_clean();
-        if(!$content && $result) $content = $result;
+        if(!$content && $result) {
+            $content = $result;
+        }
         return $content;
     }
-    
+
     function setOption($key, $value='')
     {
         $this->config[$key] = $value;
