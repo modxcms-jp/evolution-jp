@@ -1202,14 +1202,12 @@ class SubParser {
         return substr($str,$pos);
     }
 
-    function decodeParamValue($s)
-    {
+    function decodeParamValue($s) {
         $s = str_replace(
             array('%3B', '%3D', '%26', '%2C', '%5C')
             , array(';', '=', '&', ',', '\\')
             , $s
         );
-
         return $s;
     }
 
