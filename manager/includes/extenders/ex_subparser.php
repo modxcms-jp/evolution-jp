@@ -261,10 +261,12 @@ class SubParser {
                     <tr><td colspan="2">The MODX parser recieved the following debug/ stop message:</td></tr>
                     <tr><td colspan="2"><b style="color:#003399;">&laquo; ' . $msg . ' &raquo;</b></td></tr>';
         }
-        
+
         $codetpl = '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">[+code+]</div></td></tr>';
-        
-        if (!empty ($query)) $str .= $modx->parseText($codetpl,array('code'=>$query));
+
+        if (!empty ($query)) {
+            $str .= $modx->parseText($codetpl, array('code' => $query));
+        }
 
         $errortype= array (
             E_ERROR             => "ERROR",
@@ -285,53 +287,118 @@ class SubParser {
         );
 
         $tpl = '<tr><td valign="top">[+left+]</td><td>[+right+]</td></tr>';
-        if(!empty($nr) || !empty($file))
-        {
+        if($nr || $file) {
             $str .= '<tr><td colspan="2"><b>PHP error debug</b></td></tr>';
-            if ($text != '') $str .= $modx->parseText($codetpl,array('code'=>"Error : {$text}"));
-            if($output!='')  $str .= $modx->parseText($codetpl,array('code'=>$output));
-            if(!isset($errortype[$nr])) $errortype[$nr] = '';
-            $str .= $modx->parseText($tpl,array('left'=>'ErrorType[num] : ','right'=>$errortype[$nr]."[{$nr}]"));
-            $str .= $modx->parseText($tpl,array('left'=>'File : ','right'=>$file));
-            $str .= $modx->parseText($tpl,array('left'=>'Line : ','right'=>$line));
+            if ($text != '') {
+                $str .= $modx->parseText($codetpl, array('code' => "Error : {$text}"));
+            }
+            if($output!='') {
+                $str .= $modx->parseText($codetpl, array('code' => $output));
+            }
+            if(!isset($errortype[$nr])) {
+                $errortype[$nr] = '';
+            }
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left'=>'ErrorType[num] : ',
+                    'right'=> sprintf('%s[%s]', $errortype[$nr], $nr)
+                )
+            );
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left'=>'File : ',
+                    'right'=>$file
+                )
+            );
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left'=>'Line : ',
+                    'right'=>$line
+                )
+            );
         }
-        
-        if ($source != '')
-            $str .= $modx->parseText($tpl,array('left'=>'Source : ','right'=>$source));
 
-        if ($modx->db->lastQuery)
-            $str .= $modx->parseText($tpl,array('left'=>'LastQuery : ','right'=>$modx->hsc($modx->db->lastQuery)));
+        if ($source != '') {
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left' => 'Source : ',
+                    'right' => $source)
+            );
+        }
+
+        if ($modx->db->lastQuery) {
+            $str .= $modx->parseText(
+                $tpl, array(
+                    'left' => 'LastQuery : ',
+                    'right' => $modx->hsc($modx->db->lastQuery)
+                )
+            );
+        }
 
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
         $str .= '<tr><td valign="top" style="white-space:nowrap;">REQUEST_URI : </td>';
         $str .= sprintf('<td>%s</td>', htmlspecialchars(urldecode($_SERVER['REQUEST_URI']), ENT_QUOTES, $modx->config['modx_charset']));
         $str .= '</tr>';
-        
-        if(isset($_GET['a']))      $action = $_GET['a'];
-        elseif(isset($_POST['a'])) $action = $_POST['a'];
-        if(isset($action) && !empty($action))
-        {
+
+        if(isset($_GET['a'])) {
+            $action = $_GET['a'];
+        } elseif(isset($_POST['a'])) {
+            $action = $_POST['a'];
+        }
+        if(isset($action) && !empty($action)) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
-            if(isset($action_list[$action])) $actionName = " - {$action_list[$action]}";
-            else $actionName = '';
-            $str .= $modx->parseText($tpl,array('left'=>'Manager action : ','right'=>"{$action}{$actionName}"));
+            if(isset($action_list[$action])) {
+                $actionName = " - {$action_list[$action]}";
+            } else {
+                $actionName = '';
+            }
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left'=>'Manager action : ',
+                    'right'=> $action . $actionName
+                )
+            );
         }
-        
-        if(preg_match('@^[0-9]+@',$modx->documentIdentifier))
-        {
+
+        if(preg_match('@^[0-9]+@',$modx->documentIdentifier)) {
             $resource  = $modx->getDocumentObject('id',$modx->documentIdentifier);
             $url = $modx->makeUrl($modx->documentIdentifier);
             $link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
-            $str .= $modx->parseText($tpl,array('left'=>'Resource : ','right'=>"[{$modx->documentIdentifier}]{$link}"));
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left'=>'Resource : ',
+                    'right'=> sprintf('[%s]%s', $modx->documentIdentifier, $link)
+                )
+            );
         }
 
-        if(!empty($modx->currentSnippet))
-            $str .= $modx->parseText($tpl,array('left'=>'Current Snippet : ','right'=>$modx->currentSnippet));
+        if($modx->currentSnippet) {
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left' => 'Current Snippet : ',
+                    'right' => $modx->currentSnippet
+                )
+            );
+        }
 
-        if(!empty($modx->event->activePlugin))
-            $str .= $modx->parseText($tpl,array('left'=>'Current Plugin : ', 'right'=>"{$modx->event->activePlugin}({$modx->event->name})"));
+        if($modx->event->activePlugin) {
+            $str .= $modx->parseText(
+                $tpl
+                , array(
+                    'left' => 'Current Plugin : ',
+                    'right' => sprintf('%s(%s)', $modx->event->activePlugin, $modx->event->name)
+                )
+            );
+        }
 
         $str .= $modx->parseText($tpl,array('left'=>'Referer : '    , 'right'=>$referer));
         $str .= $modx->parseText($tpl,array('left'=>'User Agent : ' , 'right'=>$ua));
@@ -339,29 +406,62 @@ class SubParser {
 
         $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
-        $str .= $modx->parseText($tpl,array('left'=>'MySQL : '  , 'right'=>'[^qt^] ([^q^] Requests)'));
-        $str .= $modx->parseText($tpl,array('left'=>'PHP : '    , 'right'=>'[^p^]'));
-        $str .= $modx->parseText($tpl,array('left'=>'Total : '  , 'right'=>'[^t^]'));
-        $str .= $modx->parseText($tpl,array('left'=>'Memory : ' , 'right'=>'[^m^]'));
-        
+        $str .= $modx->parseText(
+            $tpl
+            , array(
+                'left'=>'MySQL : ',
+                'right'=>'[^qt^] ([^q^] Requests)'
+            )
+        );
+        $str .= $modx->parseText(
+            $tpl
+            , array(
+                'left'=>'PHP : ',
+                'right'=>'[^p^]'
+            )
+        );
+        $str .= $modx->parseText(
+            $tpl
+            , array(
+                'left'=>'Total : ',
+                'right'=>'[^t^]'
+            )
+        );
+        $str .= $modx->parseText(
+            $tpl
+            , array(
+                'left'=>'Memory : ',
+                'right'=>'[^m^]'
+            )
+        );
+
         $str .= "</table>\n";
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        if(isset($php_errormsg) && !empty($php_errormsg)) $str = "<b>{$php_errormsg}</b><br />\n{$str}";
+        if(isset($php_errormsg) && !empty($php_errormsg)) {
+            $str = "<b>{$php_errormsg}</b><br />\n{$str}";
+        }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
-        
+
 
         // Log error
-        if(!empty($modx->currentSnippet))          $source = 'Snippet - ' . $modx->currentSnippet;
-        elseif(!empty($modx->event->activePlugin)) $source = 'Plugin - '  . $modx->event->activePlugin;
-        elseif($source!=='')                       $source = 'Parser - '  . $source;
-        elseif($query!=='')                        $source = 'SQL Query';
-        else                                       $source = 'Parser';
-        
-        if(isset($actionName) && !empty($actionName)) $source .= $actionName;
-        switch($nr)
-        {
+        if($modx->currentSnippet) {
+            $source = 'Snippet - ' . $modx->currentSnippet;
+        } elseif($modx->event->activePlugin) {
+            $source = 'Plugin - ' . $modx->event->activePlugin;
+        } elseif($source!=='') {
+            $source = 'Parser - ' . $source;
+        } elseif($query!=='') {
+            $source = 'SQL Query';
+        } else {
+            $source = 'Parser';
+        }
+
+        if(isset($actionName) && !empty($actionName)) {
+            $source .= $actionName;
+        }
+        switch($nr) {
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
             case E_STRICT :
@@ -378,12 +478,12 @@ class SubParser {
         }
 
         // Set 500 response header
-        if(2 < $error_level && $modx->event->name!=='OnWebPageComplete')
+        if(2 < $error_level && $modx->event->name!=='OnWebPageComplete') {
             header('HTTP/1.1 500 Internal Server Error');
+        }
 
         // Display error
-        if ($modx->isLoggedin())
-        {
+        if ($modx->isLoggedin()) {
             if($modx->event->name!=='OnWebPageComplete') {
                 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
@@ -395,13 +495,14 @@ class SubParser {
             echo '<div style="text-align:left;">'.$str.'</div>';
             if($modx->event->name!=='OnWebPageComplete')
                 echo '</body></html>';
+        } else {
+            echo 'Error';
         }
-        else  echo 'Error';
         ob_end_flush();
 
         exit;
     }
-    
+
     function recDebugInfo()
     {
         global $modx;
