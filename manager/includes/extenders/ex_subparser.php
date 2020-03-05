@@ -801,29 +801,39 @@ class SubParser {
     }
 
     # Change current web user's password - returns true if successful, oterhwise return error message
-    function changeWebUserPassword($oldPwd, $newPwd)
-    {
+    function changeWebUserPassword($oldPwd, $newPwd){
         global $modx;
-        
-        if ($_SESSION['webValidated'] != 1) return false;
-        
+
+        if ($_SESSION['webValidated'] != 1) {
+            return false;
+        }
+
         $uid = $modx->getLoginUserID();
         $ds = $modx->db->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
         $total = $modx->db->getRecordCount($ds);
-        if ($total != 1) return false;
-        
+        if ($total != 1) {
+            return false;
+        }
+
         $row= $modx->db->getRow($ds);
-        if ($row['password'] == md5($oldPwd))
-        {
-            if (strlen($newPwd) < 6) return 'Password is too short!';
-            if ($newPwd == '')       return "You didn't specify a password for this user!";
+        if ($row['password'] == md5($oldPwd)) {
+            if (strlen($newPwd) < 6) {
+                return 'Password is too short!';
+            }
+            if ($newPwd == '') {
+                return "You didn't specify a password for this user!";
+            }
 
             $f = array();
             $f['password'] = md5($newPwd);
             $f['cachepwd'] = '';
             $f = $modx->db->escape($f);
             $modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
-            $modx->db->update("blockeduntil='0'", '[+prefix+]web_user_attributes', "internalKey='{$uid}'");
+            $modx->db->update(
+                "blockeduntil='0'"
+                , '[+prefix+]web_user_attributes'
+                , "internalKey='" . $uid . "'"
+            );
             // invoke OnWebChangePassword event
             $tmp = array(
                 'userid' => $row['id'],
@@ -836,7 +846,7 @@ class SubParser {
 
         return 'Incorrect password.';
     }
-    
+
     # add an event listner to a plugin - only for use within the current execution cycle
     function addEventListener($evtName, $pluginName)
     {
