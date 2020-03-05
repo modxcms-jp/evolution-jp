@@ -741,18 +741,19 @@ class SubParser {
         $modx->sendForward($dist, $_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
     }
 
-    function sendUnauthorizedPage()
-    {
+    function sendUnauthorizedPage(){
         global $modx;
-        
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         $modx->invokeEvent('OnPageUnauthorized');
-        
-        if($modx->config['unauthorized_page']) $dist = $modx->config['unauthorized_page'];
-        elseif($modx->config['error_page'])    $dist = $modx->config['error_page'];
-        else                                   $dist = $modx->config['site_start'];
-        
+
+        if($modx->config['unauthorized_page']) {
+            $dist = $modx->config['unauthorized_page'];
+        } elseif($modx->config['error_page']) {
+            $dist = $modx->config['error_page'];
+        } else {
+            $dist = $modx->config['site_start'];
+        }
         $modx->http_status_code = '403';
         $modx->sendForward($dist , 'HTTP/1.1 403 Forbidden');
     }
