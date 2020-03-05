@@ -1256,7 +1256,7 @@ class SubParser {
     // DISPLAY FORM ELEMENTS
     function renderFormElement($field_type, $field_id, $default_text='', $field_elements, $field_value, $field_style='', $row = array()) {
         global $modx,$_style,$_lang,$content;
-        
+
         if(isset($content['id'])) {
             global $docObject;
             if($docObject) {
@@ -1264,12 +1264,12 @@ class SubParser {
             } elseif(!isset($modx->documentObject)) {
                 $modx->documentObject = $modx->getDocumentObject('id', $content['id']);
             }
-            
+
             if(!isset($modx->documentIdentifier)) {
                 $modx->documentIdentifier = $content['id'];
             }
         }
-        
+
         if(strpos($field_elements, '<?php') === 0) {
             $field_elements = "@EVAL:\n" . substr($field_elements, 6);
         }
@@ -1282,7 +1282,7 @@ class SubParser {
         if(strpos($field_value, '<?php') === 0) {
             $field_value = "@@EVAL:\n" . substr($field_value, 6);
         }
-        
+
         if(strpos($default_text, '@@EVAL') === 0 && $field_value===$default_text) {
             $eval_str = trim(substr($default_text, 7));
             $default_text = eval($eval_str);
@@ -1354,8 +1354,7 @@ class SubParser {
             $index_list = $this->ParseInputOptions($rs);
             $tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
             $field_values = explode('||',$field_value);
-            foreach ($index_list as $label=>$item)
-            {
+            foreach ($index_list as $label=>$item) {
                 list($label,$value) = $this->splitOption($item);
                 $ph2['label']    = $label;
                 $ph2['value']    =  $modx->hsc($value);
@@ -1367,8 +1366,11 @@ class SubParser {
             $ph['name']    = 'tv' . $field_id;
             $ph['size']   = count($index_list)<8 ? count($index_list) : 8;
             $ph['extra'] = '';
-            if($field_type==='listbox-multiple') $ph['extra'] = 'multiple';
-            elseif($field_type==='dropdown')     $ph['size']   = '1';
+            if($field_type==='listbox-multiple') {
+                $ph['extra'] = 'multiple';
+            } elseif($field_type==='dropdown') {
+                $ph['size'] = '1';
+            }
             return $modx->parseText($tpl,$ph);
         }
         if(strtolower($field_type)==='checkbox') {
@@ -1400,8 +1402,7 @@ class SubParser {
             $i=0;
             $field_html = '';
             $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
-            foreach ($index_list as $item)
-            {
+            foreach ($index_list as $item) {
                 list($label,$value) = $this->splitOption($item);
                 $checked = $this->isSelected($label,$value,$item,$field_value) ?'checked="checked"':'';
                 $value = $modx->hsc($value);
