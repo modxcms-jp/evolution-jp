@@ -2032,24 +2032,37 @@ class SubParser {
 
     function snapshot($filename='', $target='') {
         global $modx, $settings_version;
-        
+
         if(is_array($filename)) {
-            if(!isset($filename['filename'])) $filename = '';
-            else                              $filename = $filename['filename'];
-            if(!isset($filename['target'])) $target = '';
-            else                              $target = $filename['target'];
+            if(!isset($filename['filename'])) {
+                $filename = '';
+            } else {
+                $filename = $filename['filename'];
+            }
+            if(!isset($filename['target'])) {
+                $target = '';
+            } else {
+                $target = $filename['target'];
+            }
         }
-        
-        if(strpos($filename,'/')!==false) return;
-        if(strpos($filename,'\\')!==false) return;
-        if($target!=='') $target = substr(strtolower($target),0,1);
-        
+
+        if(strpos($filename,'/')!==false) {
+            return;
+        }
+        if(strpos($filename,'\\')!==false) {
+            return;
+        }
+        if($target!=='') {
+            $target = substr(strtolower($target), 0, 1);
+        }
+
         if(!isset($modx->config['snapshot_path'])||empty($modx->config['snapshot_path'])) {
             if(is_dir(MODX_BASE_PATH . 'temp/backup')) $snapshot_path = MODX_BASE_PATH . 'temp/backup/';
             elseif(is_dir(MODX_BASE_PATH . 'assets/backup')) $snapshot_path = MODX_BASE_PATH . 'assets/backup/';
+        } else {
+            $snapshot_path = $modx->config['snapshot_path'];
         }
-        else $snapshot_path = $modx->config['snapshot_path'];
-        
+
         if($filename==='') {
             $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
             $today = str_replace(array('/',' '), '-', $today);
@@ -2057,21 +2070,23 @@ class SubParser {
             $today = strtolower($today);
             $filename = "{$today}-{$settings_version}.sql";
         }
-        
+
         include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
         $dumper = new Mysqldumper();
         $dumper->mode = 'snapshot';
-        if($target==='c') $dumper->contentsOnly = true;
+        if($target==='c') {
+            $dumper->contentsOnly = true;
+        }
         $output = $dumper->createDump();
         return $dumper->snapshot($snapshot_path.$filename,$output);
     }
-    
+
     /**
      * Returns the MODX version information as version, branch, release date and full application name.
      *
      * @return array
      */
-    
+
     function getVersionData($data=null) {
         global $modx;
         if(!$modx->version || !is_array($modx->version)){
