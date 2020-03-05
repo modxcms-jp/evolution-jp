@@ -758,20 +758,19 @@ class SubParser {
         $modx->sendForward($dist , 'HTTP/1.1 403 Forbidden');
     }
 
-    function getSnippetId()
-    {
+    function getSnippetId(){
         global $modx;
-        
-        if ($modx->currentSnippet)
-        {
+        if ($modx->currentSnippet) {
             $snip = $modx->db->escape($modx->currentSnippet);
             $rs= $modx->db->select('id', '[+prefix+]site_snippets', "name='{$snip}'",'',1);
             $row= @ $modx->db->getRow($rs);
-            if ($row['id']) return $row['id'];
+            if ($row['id']) {
+                return $row['id'];
+            }
         }
         return 0;
     }
-    
+
     function getSnippetName()
     {
         global $modx;
