@@ -7,82 +7,71 @@ class SubParser {
     {
     }
 
-    function sendmail($params=array(), $msg='')
-    {
+    function sendmail($params=array(), $msg='') {
         global $modx;
         $p = array();
-        if(isset($params) && is_string($params))
-        {
-            if(strpos($params,'=')===false)
-            {
-                if(strpos($params,'@')!==false) $p['to']      = $params;
-                else                            $p['subject'] = $params;
-            }
-            else
-            {
+        if(isset($params) && is_string($params)) {
+            if(strpos($params,'=')===false) {
+                if(strpos($params,'@')!==false) {
+                    $p['to'] = $params;
+                } else {
+                    $p['subject'] = $params;
+                }
+            } else {
                 $params_array = explode(',',$params);
-                foreach($params_array as $k=>$v)
-                {
+                foreach($params_array as $k=>$v) {
                     $k = trim($k);
                     $p[$k] = trim($v);
                 }
             }
-        }
-        else
-        {
+        } else {
             $p = $params;
         }
-        if(isset($p['sendto'])) $p['to'] = $p['sendto'];
-        
-        if(isset($p['to']) && preg_match('@^[0-9]+$@',$p['to']))
-        {
+        if(isset($p['sendto'])) {
+            $p['to'] = $p['sendto'];
+        }
+
+        if(isset($p['to']) && preg_match('@^[0-9]+$@',$p['to'])) {
             $userinfo = $modx->getUserInfo($p['to']);
             $p['to'] = $userinfo['email'];
         }
-        if(isset($p['from']) && preg_match('@^[0-9]+$@',$p['from']))
-        {
+        if(isset($p['from']) && preg_match('@^[0-9]+$@',$p['from'])) {
             $userinfo = $modx->getUserInfo($p['from']);
             $p['from']     = $userinfo['email'];
             $p['fromname'] = $userinfo['username'];
         }
-        if($msg==='' && !isset($p['body']))
-        {
+        if($msg==='' && !isset($p['body'])) {
             $p['body'] = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
+        } elseif(is_string($msg) && 0<strlen($msg)) {
+            $p['body'] = $msg;
         }
-        elseif(is_string($msg) && 0<strlen($msg)) $p['body'] = $msg;
-        
+
         $modx->loadExtension('MODxMailer');
         $sendto = !isset($p['to']) ? $modx->config['emailsender']  : $p['to'];
         $sendto = explode(',',$sendto);
-        foreach($sendto as $address)
-        {
+        foreach($sendto as $address) {
             list($name, $address) = $modx->mail->address_split($address);
             $modx->mail->AddAddress($address,$name);
         }
-        if(isset($p['cc']))
-        {
+        if(isset($p['cc'])) {
             $p['cc'] = explode(',',$p['cc']);
-            foreach($p['cc'] as $address)
-            {
+            foreach($p['cc'] as $address) {
                 list($name, $address) = $modx->mail->address_split($address);
                 $modx->mail->AddCC($address,$name);
             }
         }
-        if(isset($p['bcc']))
-        {
+        if(isset($p['bcc'])) {
             $p['bcc'] = explode(',',$p['bcc']);
-            foreach($p['bcc'] as $address)
-            {
+            foreach($p['bcc'] as $address) {
                 list($name, $address) = $modx->mail->address_split($address);
                 $modx->mail->AddBCC($address,$name);
             }
         }
-        if(isset($p['replyto']))
-        {
+        if(isset($p['replyto'])) {
             list($name, $address) = $modx->mail->address_split($p['replyto']);
             $modx->mail->addReplyTo($address,$name);
         }
-        
+
         if(isset($p['from']) && strpos($p['from'],'<')!==false && substr($p['from'],-1)==='>') {
             list($p['fromname'], $p['from']) = $modx->mail->address_split($p['from']);
         }
