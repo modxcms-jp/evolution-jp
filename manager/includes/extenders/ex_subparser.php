@@ -2313,17 +2313,15 @@ class SubParser {
         return $content;
     }
 
-    function setOption($key, $value='')
-    {
+    function setOption($key, $value='') {
         $this->config[$key] = $value;
     }
-    
-    function getOption($key, $default = null, $options = null, $skipEmpty = false)
-    {
+
+    function getOption($key, $default = null, $options = null, $skipEmpty = false) {
         global $modx;
-        
+
         $option= $default;
-        
+
         if(strpos($key,',')!==false) {
             $key = explode(',', $key);
         }
@@ -2349,51 +2347,50 @@ class SubParser {
         }
         return $option;
     }
-    
-    function regOption($key, $value='')
-    {
+
+    function regOption($key, $value='') {
         global $modx;
-        
+
         $modx->config[$key] = $value;
         $f['setting_name']  = $key;
         $f['setting_value'] = $modx->db->escape($value);
         $key = $modx->db->escape($key);
         $rs = $modx->db->select('*','[+prefix+]system_settings', "setting_name='{$key}'");
-        
-        if($modx->db->getRecordCount($rs)==0)
-        {
+
+        if($modx->db->getRecordCount($rs)==0) {
             $modx->db->insert($f,'[+prefix+]system_settings');
             $diff = $modx->db->getAffectedRows();
-            if(!$diff)
-            {
+            if(!$diff) {
                 $modx->messageQuit('Error while inserting new option into database.', $modx->db->lastQuery);
                 exit();
             }
-        }
-        else
-        {
+        } else {
             $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
         }
-        
+
         $modx->getSettings();
     }
-    
-    function mergeInlineFilter($content)
-    {
+
+    function mergeInlineFilter($content) {
         global $modx;
-        
-        if(strpos($content,'[+@')===false) return $content;
-        
-        if ($modx->debug) $fstart = $modx->getMicroTime();
-        
+
+        if(strpos($content,'[+@')===false) {
+            return $content;
+        }
+
+        if ($modx->debug) {
+            $fstart = $modx->getMicroTime();
+        }
+
         $matches = $modx->getTagsFromContent($content,'[+@','+]');
-        if(!$matches) return $content;
-        
+        if(!$matches) {
+            return $content;
+        }
+
         $replace= array ();
         foreach($matches['1'] as $i=>$key) {
             $delim = substr($key,0,1);
-            switch($delim)
-            {
+            switch($delim) {
                 case '"':
                 case '`':
                 case "'":
@@ -2402,23 +2399,25 @@ class SubParser {
                     list($body,$remain) = explode($delim,$key,2);
                     $key = str_replace(':', hash('crc32b', ':'),$body) . $remain;
             }
-            if(strpos($key,':')!==false)
-                list($key,$modifiers) = explode(':', $key, 2);
-            else $modifiers = false;
-            if(strpos($key,hash('crc32b', ':'))!==false) $key = str_replace(hash('crc32b', ':'),':',$key);
+            if(strpos($key,':')!==false) {
+                list($key, $modifiers) = explode(':', $key, 2);
+            } else {
+                $modifiers = false;
+            }
+            if(strpos($key,hash('crc32b', ':'))!==false) {
+                $key = str_replace(hash('crc32b', ':'), ':', $key);
+            }
             $value = $key;
-            if($modifiers!==false)
-            {
+            if($modifiers!==false) {
                 $modx->loadExtension('MODIFIERS');
                 $value = $modx->filter->phxFilter($key,$value,$modifiers);
             }
             $replace[$i] = $value;
         }
-        
+
         $content= str_replace($matches['0'], $replace, $content);
-        if ($modx->debug)
-        {
-            $_ = join(', ', $matches['0']);
+        if ($modx->debug) {
+            $_ = implode(', ', $matches['0']);
             $modx->addLogEntry('$modx->'.__FUNCTION__ . "[{$_}]",$fstart);
         }
         return $content;
@@ -2426,9 +2425,9 @@ class SubParser {
     function updateDraft()
     {
         global $modx;
-        
+
         $now = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
-        
+
         $rs = $modx->db->select(
             '*'
             , '[+prefix+]site_revision'
@@ -2438,15 +2437,14 @@ class SubParser {
         if(!$modx->db->getRecordCount($rs)) {
             return;
         }
-        
+
         $modx->loadExtension('REVISION');
         $modx->loadExtension('DocAPI');
-        while($row = $modx->db->getRow($rs))
-        {
+        while($row = $modx->db->getRow($rs)) {
             $draft = $modx->revision->getDraft($row['elmid']);
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
-            
+
             $modx->doc->update($draft,$row['elmid']);
         }
         $modx->db->delete(
@@ -2454,22 +2452,19 @@ class SubParser {
             , sprintf("pub_date!=0 AND pub_date<%s", $now)
         );
     }
-    
-    function setdocumentMap()
-    {
+
+    function setdocumentMap() {
         global $modx;
-        
+
         $fields = 'id, parent';
         $rs = $modx->db->select($fields,'[+prefix+]site_content','deleted=0','parent, menuindex');
         $modx->documentMap = array();
-        while ($row = $modx->db->getRow($rs))
-        {
+        while ($row = $modx->db->getRow($rs)) {
             $modx->documentMap[] = array($row['parent'] => $row['id']);
         }
     }
-    
-    function setAliasListing()
-    {
+
+    function setAliasListing() {
         global $modx;
         if(!$modx->aliasListing) {
             $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
