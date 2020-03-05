@@ -700,26 +700,22 @@ class SubParser {
         exit;
     }
 
-    function sendForward($id, $responseCode= '')
-    {
+    function sendForward($id, $responseCode= ''){
         global $modx;
-        
-        if ($modx->forwards > 0)
-        {
+
+        if ($modx->forwards) {
             $modx->forwards--;
             $modx->documentIdentifier= $id;
             if($responseCode) header($responseCode);
             echo $modx->prepareResponse();
+            exit;
         }
-        else
-        {
-            $modx->messageQuit("Internal Server Error id={$id}");
-            header('HTTP/1.0 500 Internal Server Error');
-            echo '<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>';
-        }
+        $modx->messageQuit("Internal Server Error id={$id}");
+        header('HTTP/1.0 500 Internal Server Error');
+        echo '<h1>ERROR: Too many forward attempts!</h1><p>The request could not be completed due to too many unsuccessful forward attempts.</p>';
         exit;
     }
-    
+
     function sendUnavailablePage()
     {
         global $modx;
