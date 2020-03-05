@@ -1168,15 +1168,18 @@ class SubParser {
     }
 
     // separate @ cmd from params
-    function splitTVCommand($binding_string)
-    {
-        if(strpos($binding_string, '@') !== 0)      return array();
-        if(strpos($binding_string,'@INHERIT')===0) return array('INHERIT','');
-        
+    function splitTVCommand($binding_string){
+        if(strpos($binding_string, '@') !== 0) {
+            return array();
+        }
+        if(strpos($binding_string,'@INHERIT')===0) {
+            return array('INHERIT', '');
+        }
+
         if(strpos($binding_string,'@@EVAL')===0) {
             $binding_string = substr($binding_string, 1);
         }
-        
+
         $BINDINGS = explode(',', 'PARSE,MODX,FILE,CHUNK,DOCUMENT,DOC,SELECT,EVAL,INHERIT,DIRECTORY,DIR,NULL,NONE');
         $binding_array = array();
         foreach($BINDINGS as $CMD) {
