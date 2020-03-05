@@ -503,49 +503,50 @@ class SubParser {
         exit;
     }
 
-    function recDebugInfo()
-    {
+    function recDebugInfo(){
         global $modx;
-        
+
         $incs = get_included_files();
         $backtrace = array_reverse(debug_backtrace());
         $i=0;
-        foreach($incs as $v)
-        {
+        foreach($incs as $v) {
             $incs[$i] = str_replace('\\','/',$v);
             $i++;
         }
         $i=0;
-        foreach($backtrace as $v)
-        {
-            if(isset($v['object'])) unset($backtrace[$i]['object']);
-            if(isset($v['file'])) $backtrace[$i]['file'] = str_replace('\\','/',$v['file']);
-            if(isset($v['args'])&&empty($v['args'])) unset($backtrace[$i]['args']);
-            if($v['class']==='DocumentParser'&&$v['type']==='->')
-            {
+        foreach($backtrace as $v) {
+            if(isset($v['object'])) {
+                unset($backtrace[$i]['object']);
+            }
+            if(isset($v['file'])) {
+                $backtrace[$i]['file'] = str_replace('\\', '/', $v['file']);
+            }
+            if(isset($v['args'])&&empty($v['args'])) {
+                unset($backtrace[$i]['args']);
+            }
+            if($v['class']==='DocumentParser'&&$v['type']==='->') {
                 unset($backtrace[$i]['file']);
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
                 $backtrace[$i]['function'] = '$modx->'.$v['function'] . '()';
-            }
-            elseif(isset($v['class']))
-            {
-                if(strpos($v['file'],'document.parser.class.inc.php')!==false)
+            } elseif(isset($v['class'])) {
+                if(strpos($v['file'],'document.parser.class.inc.php')!==false) {
                     unset($backtrace[$i]['file']);
+                }
                 unset($backtrace[$i]['class']);
                 unset($backtrace[$i]['type']);
                 $backtrace[$i]['function'] = $v['class'] . $v['type'] .$v['function'] . '()';
             }
-            
             $i++;
         }
-        
+
         $tend = $modx->getMicroTime();
         $totaltime = $tend - $modx->tstart;
         $totaltimemsg = sprintf('Total time %2.4f s',$totaltime);
         $info['request_uri']    = $modx->decoded_request_uri;
-        if(isset($modx->documentIdentifier))
-            $info['docid']      = $modx->documentIdentifier;
+        if(isset($modx->documentIdentifier)) {
+            $info['docid'] = $modx->documentIdentifier;
+        }
         $info['Total time']     = $totaltimemsg;
         $info['included_files'] = print_r($incs,true);
         $info['backtrace']      = print_r($backtrace,true);
@@ -553,7 +554,7 @@ class SubParser {
         $msg = '<pre>' . print_r($info,true) .'</pre>';
         $this->addLog('Debug log',$msg,1);
     }
-    
+
     function get_backtrace()
     {
         global $modx;
