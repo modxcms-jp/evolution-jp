@@ -123,31 +123,39 @@ class SubParser {
         );
     }
 
-    function logEvent($evtid, $type, $msg, $title= 'Parser')
-    {
+    function logEvent($evtid, $type, $msg, $title= 'Parser'){
         global $modx;
         if(!$modx->db->isConnected()) {
             return;
         }
-        if(!$modx->config) $modx->getSettings();
+        if(!$modx->config) {
+            $modx->getSettings();
+        }
         $evtid= (int)$evtid;
         $type = (int)$type;
-        if ($type < 1) $type= 1; // Types: 1 = information, 2 = warning, 3 = error
-        if (3 < $type) $type= 3;
-        if($modx->db->isConnected()) $msg= $modx->db->escape($msg);
-        $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
-        if($modx->db->isConnected()) $title= $modx->db->escape($title);
-        if (function_exists('mb_substr'))
-        {
-            $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
+        if ($type < 1) {
+            $type = 1;
+        } // Types: 1 = information, 2 = warning, 3 = error
+        if (3 < $type) {
+            $type = 3;
         }
-        else
-        {
+        if($modx->db->isConnected()) {
+            $msg = $modx->db->escape($msg);
+        }
+        $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
+        if($modx->db->isConnected()) {
+            $title = $modx->db->escape($title);
+        }
+        if (function_exists('mb_substr')) {
+            $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
+        } else {
             $title = substr($title, 0, 50);
         }
         $LoginUserID = $modx->getLoginUserID();
-        if (empty($LoginUserID)) $LoginUserID = '0';
-        
+        if (!$LoginUserID) {
+            $LoginUserID = '0';
+        }
+
         $fields['eventid']     = $evtid;
         $fields['type']        = $type;
         $fields['createdon']   = $_SERVER['REQUEST_TIME'];
@@ -155,43 +163,46 @@ class SubParser {
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
         $_ = $modx->db->lastQuery;
-        if($modx->db->isConnected()) $insert_id = $modx->db->insert($fields,'[+prefix+]event_log');
-        else $title = 'DB connect error';
+        if($modx->db->isConnected()) {
+            $insert_id = $modx->db->insert($fields, '[+prefix+]event_log');
+        } else {
+            $title = 'DB connect error';
+        }
         $modx->db->lastQuery = $_;
-        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0')
-        {
-            if($modx->config['send_errormail'] <= $type)
-            {
+        if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
+            if($modx->config['send_errormail'] <= $type) {
                 $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
                 $body['Source'] = $fields['source'];
                 $body['IP'] = $_SERVER['REMOTE_ADDR'];
                 if(!empty($_SERVER['REMOTE_ADDR'])) $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-                if(!empty($hostname))
+                if(!empty($hostname)) {
                     $body['Host name'] = $hostname;
-                if(!empty($modx->event->activePlugin))
-                    $body['Plugin'] = $modx->event->activePlugin;
-                if(!empty($modx->currentSnippet))
-                    $body['Snippet'] = $modx->currentSnippet;
-                $subject = 'Error mail from ' . $modx->config['site_name'];
-                foreach($body as $k=>$v)
-                {
-                    $mailbody[] = "[{$k}] {$v}";
                 }
-                $mailbody = join("\n",$mailbody);
+                if(!empty($modx->event->activePlugin)) {
+                    $body['Plugin'] = $modx->event->activePlugin;
+                }
+                if(!empty($modx->currentSnippet)) {
+                    $body['Snippet'] = $modx->currentSnippet;
+                }
+                $subject = 'Error mail from ' . $modx->config['site_name'];
+                foreach($body as $k=>$v) {
+                    $mailbody[] = sprintf('[%s] %s', $k, $v);
+                }
+                $mailbody = implode("\n",$mailbody);
                 $modx->sendmail($subject,$mailbody);
             }
         }
-        if (!isset($insert_id) || !$insert_id) exit('Error while inserting event log into database.');
-        else {
-            $trim  = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
-            if(($insert_id % $trim) == 0)
-            {
-                $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
-                $modx->rotate_log('event_log',$limit,$trim);
-            }
+        if (!isset($insert_id) || !$insert_id) {
+            exit('Error while inserting event log into database.');
+        }
+
+        $trim = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
+        if(($insert_id % $trim) == 0) {
+            $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
+            $modx->rotate_log('event_log',$limit,$trim);
         }
     }
-    
+
     function clearCache($params=array()) {
         global $modx;
         
