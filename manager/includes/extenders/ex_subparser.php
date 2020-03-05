@@ -863,10 +863,11 @@ class SubParser {
     # remove event listner - only for use within the current execution cycle
     function removeEventListener($evtName, $pluginName='') {
         global $modx;
-        
-        if (!$evtName)
+
+        if (!$evtName) {
             return false;
-        
+        }
+
         if ( $pluginName == '' ) {
             unset ($modx->pluginEvent[$evtName]);
             return true;
