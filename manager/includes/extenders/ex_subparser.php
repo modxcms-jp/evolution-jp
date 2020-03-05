@@ -555,21 +555,24 @@ class SubParser {
         $this->addLog('Debug log',$msg,1);
     }
 
-    function get_backtrace()
-    {
+    function get_backtrace(){
         global $modx;
         $str = "<p><b>Backtrace</b></p>\n";
         $str  .= '<table>';
         $backtrace = array_reverse(debug_backtrace());
-        foreach ($backtrace as $key => $val)
-        {
+        foreach ($backtrace as $key => $val) {
             $key++;
-            if(substr($val['function'],0,11)==='messageQuit') break;
-            elseif(substr($val['function'],0,8)==='phpError') break;
+            if (substr($val['function'],0,11)==='messageQuit') {
+                break;
+            }
+            if(substr($val['function'],0,8)==='phpError') {
+                break;
+            }
             $path = str_replace('\\','/',$val['file']);
-            if(strpos($path,MODX_BASE_PATH)===0) $path = substr($path,strlen(MODX_BASE_PATH));
-            switch($val['type'])
-            {
+            if(strpos($path,MODX_BASE_PATH)===0) {
+                $path = substr($path, strlen(MODX_BASE_PATH));
+            }
+            switch($val['type']) {
                 case '->':
                 case '::':
                     if($val['class']==='DocumentParser'&&$val['type']==='->')
@@ -579,9 +582,16 @@ class SubParser {
                 default:
                     $functionName = $val['function'];
             }
-            if($functionName==='evalSnippet'&&!empty($modx->currentSnippet)) $functionName .= sprintf('(%s)',$modx->currentSnippet);
-            $str .= "<tr><td valign=\"top\">{$key}</td>";
-            $str .= "<td>{$functionName}()<br />{$path} on line {$val['line']}</td>";
+            if($functionName==='evalSnippet' && $modx->currentSnippet) {
+                $functionName .= sprintf('(%s)', $modx->currentSnippet);
+            }
+            $str .= '<tr><td valign="top">' . $key . "</td>";
+            $str .= sprintf(
+                '<td>%s()<br />%s on line %s</td>'
+                , $functionName
+                , $path
+                , $val['line']
+            );
         }
         $str .= '</table>';
         return $str;
