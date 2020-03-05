@@ -1220,7 +1220,6 @@ class SubParser {
             $rows = array();
             $nc = $modx->db->numFields($src);
             while ($cols = $modx->db->getRow($src,'num')) {
-            {
                 $rows[] = ($columns)? $cols : implode(' ',$cols);
             }
             return ($type=='array')? $rows : implode($delim,$rows);
@@ -1670,11 +1669,10 @@ class SubParser {
             </script>
             </head><body>
             </body></html>";
-            exit;
+        exit;
     }
-    
-    function getMimeType($filepath='')
-    {
+
+    function getMimeType($filepath='') {
         $fp = fopen($filepath, 'rb');
         $head= fread($fp, 2); fclose($fp);
         $head = mb_convert_encoding($head, '8BIT');
@@ -1697,59 +1695,55 @@ class SubParser {
 
         return false;
     }
-    
+
     # returns true if the current web user is a member the specified groups
-    function isMemberOfWebGroup($groupNames= array ())
-    {
+    function isMemberOfWebGroup($groupNames= array ()) {
         global $modx;
-        
+
         if (!is_array($groupNames)) {
             return false;
         }
-        
+
         // check cache
         $grpNames= isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
-        if (!is_array($grpNames))
-        {
+        if (!is_array($grpNames)) {
             $uid = $modx->getLoginUserID();
             $from  = '[+prefix+]webgroup_names wgn' .
-                    " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
+                " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
             $rs = $modx->db->select('wgn.name', $from);
             $grpNames= $modx->db->getColumn('name', $rs);
-            
+
             // save to cache
             $_SESSION['webUserGroupNames']= $grpNames;
         }
-        foreach ($groupNames as $k => $v)
-        {
+        foreach ($groupNames as $k => $v) {
             if (in_array(trim($v), $grpNames, true)) {
                 return true;
             }
         }
         return false;
     }
-    
+
     # Returns a record for the web user
-    function getWebUserInfo($uid)
-    {
+    function getWebUserInfo($uid) {
         global $modx;
-        
+
         $field = 'wu.username, wu.password, wua.*';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
         $rs= $modx->db->select($field,$from,"wu.id='$uid'");
         $limit= $modx->db->getRecordCount($rs);
-        if ($limit == 1)
-        {
+        if ($limit == 1) {
             $row= $modx->db->getRow($rs);
-            if (!$row['usertype']) $row['usertype']= 'web';
+            if (!$row['usertype']) {
+                $row['usertype'] = 'web';
+            }
             return $row;
         }
-        else return false;
+        return false;
     }
-    
+
     # Returns a record for the manager user
-    function getUserInfo($uid)
-    {
+    function getUserInfo($uid) {
         $rs = db()->select(
             'user.username, user.password, attrib.*'
             , array(
@@ -1770,7 +1764,7 @@ class SubParser {
         }
         return false;
     }
-    
+
     # Returns current user name
     function getLoginUserName($context= '') {
         global $modx;
@@ -1802,11 +1796,11 @@ class SubParser {
         }
         return '';
     }
-    
+
     function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
     {
         global $modx;
-        
+
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
         if (!$docs) {
             return false;
@@ -1817,16 +1811,15 @@ class SubParser {
         }
         return $result;
     }
-        
-    function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC')
-    {
+
+    function getDocumentChildrenTVarOutput($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC') {
         global $modx;
-        
+
         $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
         if (!$docs) {
             return false;
         }
-        
+
         $result= array ();
         foreach($docs as $doc) {
             $tvs= $modx->getTemplateVarOutput($tvidnames, $doc['id'], $published, '', '');
@@ -1836,22 +1829,22 @@ class SubParser {
         }
         return $result;
     }
-    
-    function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false)
-    {
+
+    function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false) {
         global $modx;
-        
+
         $cacheKey = hash('crc32b', print_r(func_get_args(),true));
-        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) return $modx->tmpCache[__FUNCTION__][$cacheKey];
-        
+        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
+            return $modx->tmpCache[__FUNCTION__][$cacheKey];
+        }
+
         // modify field names to use sc. table reference
         $fields= $modx->join(',', explode(',',$fields),'sc.');
         $sort  = $modx->join(',', explode(',',$sort),'sc.');
-        
+
         // build query
         $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        if($where===false)
-        {
+        if($where===false) {
             // get document groups for current user
             if ($modx->getUserDocGroups()) {
                 $docgrp= implode(',', $modx->getUserDocGroups());
@@ -1865,19 +1858,18 @@ class SubParser {
         $orderby = "{$sort} {$dir}";
         $result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby);
         $resourceArray= array ();
-        while ($row = $modx->db->getRow($result))
-        {
+        while ($row = $modx->db->getRow($result)) {
             $resourceArray[] = $row;
         }
-        
+
         $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
-        
+
         return $resourceArray;
     }
-    
+
     function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
         global $modx;
-        
+
         $cacheKey = hash('crc32b', print_r(func_get_args(),true));
         if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
             return $modx->tmpCache[__FUNCTION__][$cacheKey];
@@ -1906,23 +1898,22 @@ class SubParser {
             }
         }
         $where[] = "GROUP BY sc.id";
-        
+
         $resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
-        
+
         $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
-        
+
         return $resourceArray;
     }
-    
-    function getDocumentChildren($parentid=0, $published=1, $deleted=0, $fields='*', $customWhere='', $sort='menuindex', $dir='ASC', $limit='')
-    {
+
+    function getDocumentChildren($parentid=0, $published=1, $deleted=0, $fields='*', $customWhere='', $sort='menuindex', $dir='ASC', $limit='') {
         global $modx;
-        
+
         // modify field names to use sc. table reference
         $fields = $modx->join(',', explode(',',$fields),'sc.');
-        
+
         $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        
+
         $access = '';
         if($modx->isFrontend())         $access = 'sc.privateweb=0';
         elseif($_SESSION['mgrRole']!=1) $access = 'sc.privatemgr=0';
@@ -1930,7 +1921,7 @@ class SubParser {
             if($access!=='') $access .= ' OR';
             $access .= sprintf(' dg.document_group IN (%s)', join(',', $docgrp));
         }
-        
+
         $_ = array();
         $_[] = "sc.parent='{$parentid}'";
         $_[] = "sc.published={$published}";
@@ -1938,21 +1929,21 @@ class SubParser {
         if($customWhere != '') $_[] = $customWhere;
         if($access!='')        $_[] = "({$access})";
         $where = join(' AND ', $_) . ' GROUP BY sc.id';
-        
-        if(strpos($sort,',')!==false)
-            $orderby = $modx->join(',', explode(',',$sort),'sc.');
-        else
+
+        if(strpos($sort,',')!==false) {
+            $orderby = $modx->join(',', explode(',', $sort), 'sc.');
+        } else {
             $orderby = "{$sort} {$dir}";
-        
+        }
+
         $result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
         $resourceArray= array ();
-        while ($row = $modx->db->getRow($result))
-        {
+        while ($row = $modx->db->getRow($result)) {
             $resourceArray[] = $row;
         }
         return $resourceArray;
     }
-    
+
     function getPreviewObject($input=array()) {
         global $modx;
 
