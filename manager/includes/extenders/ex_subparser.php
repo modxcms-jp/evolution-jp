@@ -1064,9 +1064,10 @@ class SubParser {
         global $modx;
         $docid = (int)$docid ? (int)$docid : $modx->documentIdentifier;
         $input = trim($input);
-        
-        if(substr($input,0,1)==='@' && $modx->config['enable_bindings']!=1 && $src==='docform')
+
+        if(strpos($input, '@') === 0 && $modx->config['enable_bindings']!=1 && $src==='docform') {
             return '@Bindings is disabled.';
+        }
 
         list ($CMD, $param) = $this->splitTVCommand($input);
         $CMD = '@'.trim($CMD);
@@ -1118,8 +1119,11 @@ class SubParser {
                 break;
             case '@INHERIT' :
                 $output = $param;
-                if(empty($docid) && isset($_REQUEST['pid'])) $doc['parent'] = $_REQUEST['pid'];
-                else                                         $doc = $modx->getPageInfo($docid, 0, 'id,parent');
+                if(empty($docid) && isset($_REQUEST['pid'])) {
+                    $doc['parent'] = $_REQUEST['pid'];
+                } else {
+                    $doc = $modx->getPageInfo($docid, 0, 'id,parent');
+                }
 
                 while ($doc['parent'] != 0) {
                     $doc = $modx->getPageInfo($doc['parent'], 0, 'id,parent');
@@ -1137,7 +1141,7 @@ class SubParser {
                 $param = trim($param,'/');
                 $path = MODX_BASE_PATH . $param;
                 if (!is_dir($path)) exit($path);
-                
+
                 $dir = dir($path);
                 while (($file = $dir->read()) !== false) {
                     if (strpos($file, '.') !== 0) {
@@ -1156,9 +1160,10 @@ class SubParser {
                 break;
         }
         // support for nested bindings
-        if(is_string($output) && strpos($output, '@') === 0 && $output != $input)
+        if(is_string($output) && strpos($output, '@') === 0 && $output != $input) {
             $output = $this->ProcessTVCommand($output, $name, $docid, $src);
-        
+        }
+
         return $output;
     }
 
