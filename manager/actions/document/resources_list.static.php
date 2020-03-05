@@ -4,29 +4,37 @@ if (!$modx->hasPermission('view_document')) {
     $e->setError(3);
     $e->dumpError();
 }
-if (preg_match('@^[1-9][0-9]*$@',$_GET['id'])) $id = $_GET['id'];
-else                                           $id = 0;
+if (preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
+    $id = $_GET['id'];
+} else {
+    $id = 0;
+}
 
-if (isset($_GET['pid']))    $_GET['pid'] = intval($_GET['pid']);
+if (isset($_GET['pid'])) {
+    $_GET['pid'] = intval($_GET['pid']);
+}
 
 $modx->loadExtension('DocAPI');
 
 $modx->updatePublishStatus();
 
-if(!$id) $current = array();
-else {
+if(!$id) {
+    $current = array();
+} else {
     $rs = db()->select('*','[+prefix+]site_content',"id='{$id}'");
     $current = db()->getRow($rs);
-    
+
     // Set the item name for logging
     $_SESSION['itemname'] = $current['pagetitle'];
-    
+
     foreach($current as $k=>$v) {
         $current[$k] = $modx->hsc($v);
     }
 }
 
-if(!isset($current['id'])) $current['id']=0;
+if(!isset($current['id'])) {
+    $current['id'] = 0;
+}
 /**
  * "View Children" tab setup
  */
@@ -47,8 +55,9 @@ if($_SESSION['mgrRole']!=1 && !$modx->config['tree_show_protected'])
 $rs = db()->select('DISTINCT sc.id',$from,$where);
 $numRecords = db()->getRecordCount($rs);
 
-if (!$numRecords) $children_output = "<p>".$_lang['resources_in_container_no']."</p>";
-else {
+if (!$numRecords) {
+    $children_output = "<p>" . $_lang['resources_in_container_no'] . "</p>";
+} else {
     $children_output = '';
     $f[] = 'DISTINCT sc.*';
     if($_SESSION['mgrRole']!=1)
@@ -74,22 +83,22 @@ else {
         $docid = $row['id'];
         $docs[$docid] = $row;
     }
-    
+
     $rows = array();
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
     foreach($docs as $docid=>$doc) {
-        
+
         if(!$modx->manager->isContainAllowed($docid)) continue;
-        
+
         if($_SESSION['mgrRole']==1) $doc['has_access'] = 1;
         $doc = $modx->hsc($doc);
-        
+
         $doc['icon']        = getIcon($doc);
         $doc['statusIcon']  = getStatusIcon($doc['status']);
         $doc['link'] = $doc['isfolder'] ? "index.php?a=120&amp;id={$docid}" : "index.php?a=27&amp;id={$docid}";
         $doc['title']       = getTitle($doc);
         $doc['description'] = getDescription($doc);
-        
+
         $col = array();
         $col['checkbox']    = sprintf('<input type="checkbox" name="batch[]" value="%s" />',$docid);
         $col['docid']       = $docid;
@@ -99,9 +108,9 @@ else {
         $col['status']      = getStatus($doc);
         $rows[] = $col;
     }
-    
+
     $modx->loadExtension('MakeTable');
-    
+
     // CSS style for table
     $modx->table->setTableClass('grid');
     $modx->table->setRowHeaderClass('gridHeader');
@@ -109,7 +118,7 @@ else {
     $modx->table->setRowAlternateClass('gridAltItem');
     $modx->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
     $modx->table->setPageLimit($modx->config['number_of_results']);
-    
+
     // Table header
     $header['checkbox']    = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
     $header['docid']       = $_lang['id'];
@@ -135,62 +144,62 @@ echo get_jscript($id,$cm);
 
 ?>
     <script type="text/javascript">
-    function duplicatedocument(){
-        if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
-            document.location.href="index.php?id=<?php echo $id;?>&a=94";
+        function duplicatedocument(){
+            if(confirm("<?php echo $_lang['confirm_resource_duplicate'];?>")==true) {
+                document.location.href="index.php?id=<?php echo $id;?>&a=94";
+            }
         }
-    }
-    function deletedocument() {
-        if(confirm("<?php echo $_lang['confirm_delete_resource'];?>")==true) {
-            document.location.href="index.php?id=<?php echo $id;?>&a=6";
+        function deletedocument() {
+            if(confirm("<?php echo $_lang['confirm_delete_resource'];?>")==true) {
+                document.location.href="index.php?id=<?php echo $id;?>&a=6";
+            }
         }
-    }
-    function editdocument() {
-        document.location.href="index.php?id=<?php echo $id;?>&a=27";
-    }
-    function movedocument() {
-        document.location.href="index.php?id=<?php echo $id;?>&a=51";
-    }
+        function editdocument() {
+            document.location.href="index.php?id=<?php echo $id;?>&a=27";
+        }
+        function movedocument() {
+            document.location.href="index.php?id=<?php echo $id;?>&a=51";
+        }
     </script>
     <script type="text/javascript" src="media/script/tablesort.js"></script>
     <h1><?php echo $_lang['view_child_resources_in_container']?></h1>
-    
+
     <div id="actions">
         <ul class="actionButtons">
-<?php
-    $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
-    if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
-        echo sprintf($tpl,'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
-    if($modx->hasPermission('move_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
-        echo sprintf($tpl,'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
-    if($modx->doc->canCopyDoc() && $id!=0 && $modx->manager->isAllowed($id))
-        echo sprintf($tpl,'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"], $_lang['duplicate']);
-    if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
-        echo sprintf($tpl,'Button3', 'deletedocument();', $_style["icons_delete_document"], $_lang['delete']);
-    
-    $url = $modx->makeUrl($id);
-    $prev = "window.open('{$url}','previeWin')";
-    echo sprintf($tpl,'Button6', $prev, $_style["icons_preview_resource"], $id==0 ? $_lang["view_site"] : $_lang['view_resource']);
-    $action = getReturnAction($current);
-    $action = "documentDirty=false;document.location.href='{$action}'";
-    echo sprintf($tpl,'Button5', $action, $_style["icons_cancel"], $_lang['cancel']);
-?>
+            <?php
+            $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
+            if($modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
+                echo sprintf($tpl,'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
+            if($modx->hasPermission('move_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
+                echo sprintf($tpl,'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
+            if($modx->doc->canCopyDoc() && $id!=0 && $modx->manager->isAllowed($id))
+                echo sprintf($tpl,'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"], $_lang['duplicate']);
+            if($modx->hasPermission('delete_document') && $modx->hasPermission('save_document') && $id!=0 && $modx->manager->isAllowed($id))
+                echo sprintf($tpl,'Button3', 'deletedocument();', $_style["icons_delete_document"], $_lang['delete']);
+
+            $url = $modx->makeUrl($id);
+            $prev = "window.open('{$url}','previeWin')";
+            echo sprintf($tpl,'Button6', $prev, $_style["icons_preview_resource"], $id==0 ? $_lang["view_site"] : $_lang['view_resource']);
+            $action = getReturnAction($current);
+            $action = "documentDirty=false;document.location.href='{$action}'";
+            echo sprintf($tpl,'Button5', $action, $_style["icons_cancel"], $_lang['cancel']);
+            ?>
         </ul>
     </div>
 
-<div class="section">
-<div class="sectionBody">
-    <!-- View Children -->
-<?php if ($modx->hasPermission('new_document')) { ?>
-    
-            <ul class="actionButtons">
-                <li class="mutate"><a href="index.php?a=4&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
-                <li class="mutate"><a href="index.php?a=72&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
-            </ul>
-<?php }
-    if ($numRecords > 0)
-        $topicPath = getTopicPath($id);
-        echo <<< EOT
+    <div class="section">
+        <div class="sectionBody">
+            <!-- View Children -->
+            <?php if ($modx->hasPermission('new_document')) { ?>
+
+                <ul class="actionButtons">
+                    <li class="mutate"><a href="index.php?a=4&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_document"]; ?>" align="absmiddle" /> <?php echo $_lang['create_resource_here']?></a></li>
+                    <li class="mutate"><a href="index.php?a=72&amp;pid=<?php echo $id?>"><img src="<?php echo $_style["icons_new_weblink"]; ?>" align="absmiddle" /> <?php echo $_lang['create_weblink_here']?></a></li>
+                </ul>
+            <?php }
+            if ($numRecords > 0)
+                $topicPath = getTopicPath($id);
+            echo <<< EOT
 <script type="text/javascript">
     function selectAll() {
         var f = document.forms['mutate'];
@@ -206,22 +215,22 @@ echo get_jscript($id,$cm);
 {$children_output}
 </form>
 EOT;
-?>
-<style type="text/css">
-h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
-div.title {float:left;}
-div.title a:link, div.title a:visited {
-    overflow:hidden;display:block;color:#333;
-}
-</style>
+            ?>
+            <style type="text/css">
+                h3 {font-size:1em;padding-bottom:0;margin-bottom:0;}
+                div.title {float:left;}
+                div.title a:link, div.title a:visited {
+                    overflow:hidden;display:block;color:#333;
+                }
+            </style>
 
-</div>
-</div>
+        </div>
+    </div>
 
 <?php
 function getTitle($doc) {
     global $modx,$_style;
-    
+
     $doc['class'] = _getClasses($doc);
     $tpl = '<span [+class+] oncontextmenu="document.getElementById(\'icon[+id+]\').onclick(event);return false;">[+pagetitle+]</span>';
     $title = $modx->parseText($tpl,$doc);
@@ -231,16 +240,16 @@ function getTitle($doc) {
 
 function getIcon($doc) {
     global $modx;
-    
+
     $doc['iconpath'] = _getIconPath($doc);
-    
+
     $tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
     return $modx->parseText($tpl,$doc);
 }
 
 function getDescription($doc) {
     global $modx;
-    
+
     $len = mb_strlen($doc['pagetitle'].$doc['description'], $modx->config['modx_charset']);
     $tpl = '<span style="color:#777;">%s</span>';
     if($len < 50) {
@@ -252,36 +261,44 @@ function getDescription($doc) {
 }
 
 function _getClasses($doc) {
-    global $modx;
-    
     $classes = array();
     $classes[] = 'withmenu';
     if($doc['deleted']==='1')    $classes[] = 'deletedNode';
     if($doc['has_access']==='0') $classes[] = 'protectedNode';
     if($doc['published']==='0')  $classes[] = 'unpublishedNode';
-    return ' class="' . join(' ',$classes) . '"';
+    return ' class="' . implode(' ',$classes) . '"';
 }
 
 function getPublishedOn($doc) {
     global $modx;
-    
-    if($doc['publishedon']!=='0')    return sprintf('<span class="nowrap">%s</span>',$modx->toDateFormat($doc['publishedon']));
-    elseif(!empty($doc['pub_date'])) return sprintf('<span class="nowrap disable">%s</span>',$modx->toDateFormat($doc['pub_date']));
-    else                             return '-';
+
+    if ($doc['publishedon']) {
+        return sprintf('<span class="nowrap">%s</span>', $modx->toDateFormat($doc['publishedon']));
+    }
+
+    if($doc['pub_date']) {
+        return sprintf('<span class="nowrap disable">%s</span>', $modx->toDateFormat($doc['pub_date']));
+    }
+
+    return '-';
 }
 
 function getEditedon($editedon) {
     global $modx;
-    
-    if($editedon!=='0') return sprintf('<span class="nowrap">%s</span>',$modx->toDateFormat($editedon));
-    else                return '-';
+
+    if($editedon) {
+        return sprintf('<span class="nowrap">%s</span>', $modx->toDateFormat($editedon));
+    }
+    return '-';
 }
 
 function getStatusIcon($status) {
     global $modx,$_style;
-    
-    if(!$modx->config['enable_draft']) return '';
-    
+
+    if(!$modx->config['enable_draft']) {
+        return '';
+    }
+
     $tpl = '&nbsp;<img src="%s">&nbsp;';
     switch($status) {
         case 'draft'   : return sprintf($tpl,$_style['tree_draft']);
@@ -292,23 +309,23 @@ function getStatusIcon($status) {
 
 function getStatus($doc) {
     global $modx, $_lang;
-    
-    if($doc['published'] == 0 && ($_SERVER['REQUEST_TIME'] < $doc['pub_date'] || $doc['unpub_date'] < $_SERVER['REQUEST_TIME']))
-        return $modx->parseText('<span class="unpublishedDoc">[+page_data_unpublished+]</span>',$_lang);
-    else
-        return $modx->parseText('<span class="publishedDoc">[+page_data_published+]</span>',$_lang);
+
+    if(!$doc['published'] && ($_SERVER['REQUEST_TIME'] < $doc['pub_date'] || $doc['unpub_date'] < $_SERVER['REQUEST_TIME'])) {
+        return $modx->parseText('<span class="unpublishedDoc">[+page_data_unpublished+]</span>', $_lang);
+    }
+    return $modx->parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);
 }
 
 function _getIconPath($doc) {
     global $modx, $_style;
-    
+
     switch($doc['id']) {
         case $modx->config['site_start']           : return $_style['tree_page_home'];
         case $modx->config['error_page']           : return $_style['tree_page_404'];
         case $modx->config['unauthorized_page']    : return $_style['tree_page_info'];
         case $modx->config['site_unavailable_page']: return $_style['tree_page_hourglass'];
     }
-    
+
     if($doc['isfolder'] == 0) {
         if($doc['privatemgr']==1) return $_style['tree_page_html_secure'];
         else                      return $_style['tree_page_html'];
@@ -320,11 +337,11 @@ function _getIconPath($doc) {
 function get_jscript($id,$cm)
 {
     global $modx, $_lang, $modx_textdir;
-    
+
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir==='rtl' ? '-190' : '';
     $page = (isset($_GET['page'])) ? " + '&page={$_GET['page']}'" : '';
-    
+
     $block = <<< EOT
 <style type="text/css">
 a span.withmenu {border:1px solid transparent;}
@@ -413,33 +430,33 @@ EOT;
 function getReturnAction($current)
 {
     global $modx;
-    
+
     if(isset($current['parent'])) $parent = $current['parent'];
     else $parent = 'root';
-    
+
     if($parent!=='root')
     {
         $isAllowed = $modx->manager->isAllowed($parent);
         if(!$isAllowed) $parent = 0;
     }
-    
+
     if($parent==='root') $a = 'a=2';
     elseif($parent==0)   $a = 'a=120';
     else                 $a = "a=120&id={$parent}";
-        
+
     return 'index.php?' . $a;
 }
 
 function getTopicPath($id)
 {
     global $modx;
-    
+
     if($id==0) return;
     $parents[] = $modx->config['site_start'];
     $parents = array_merge($parents,array_reverse($modx->getParentIds($id)));
-    
+
     $parents[] = $id;
-    
+
     foreach($parents as $topic)
     {
         $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$topic}'");
@@ -459,10 +476,10 @@ function getTopicPath($id)
 function getContextMenu($cm)
 {
     global $modx, $_lang, $_style;
-    
+
     extract($_lang, EXTR_PREFIX_ALL, 'lang');
     extract($_style);
-    
+
     // $cm->addSeparator();
     if($modx->hasPermission('edit_document'))
         $cm->addItem($lang_edit_resource,       "js:menuAction(27)",$icons_edit_document);
