@@ -599,70 +599,107 @@ class SubParser {
 
     function sendRedirect($url='', $count_attempts= 0, $type= 'REDIRECT_HEADER',$responseCode='') {
         global $modx;
-        
-        if($modx->debug) register_shutdown_function(array (& $modx,'recDebugInfo'));
-        
-        if($type==='REDIRECT_HEADER') $modx->config['xhtml_urls'] = 0;
-        
-        if(empty($url)) $url = $modx->makeUrl($modx->documentIdentifier,'','','full');
-        elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
-            $url = $modx->makeUrl($url,'','','full');
+
+        if($modx->debug) {
+            register_shutdown_function(array(& $modx, 'recDebugInfo'));
         }
-        else {
-            if(strpos($url,'[')!==false || strpos($url,'{{')!==false) $url=$modx->parseDocumentSource($url);
-            
-            if(substr($url,0,1)==='?')                 $url = $modx->makeUrl($modx->documentIdentifier,'',$url,'full');
-            elseif(preg_match('@^[1-9][0-9]*$@',$url)) $url = $modx->makeUrl($url);
-            elseif(preg_match('@^[1-9][0-9]*\?@',$url)) {
+
+        if($type==='REDIRECT_HEADER') {
+            $modx->config['xhtml_urls'] = 0;
+        }
+
+        if(empty($url)) {
+            $url = $modx->makeUrl($modx->documentIdentifier, '', '', 'full');
+        } elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
+            $url = $modx->makeUrl($url,'','','full');
+        } else {
+            if(strpos($url,'[')!==false || strpos($url,'{{')!==false) {
+                $url = $modx->parseDocumentSource($url);
+            }
+
+            if(strpos($url, '?') === 0) {
+                $url = $modx->makeUrl($modx->documentIdentifier, '', $url, 'full');
+            } elseif(preg_match('@^[1-9][0-9]*$@',$url)) {
+                $url = $modx->makeUrl($url);
+            } elseif(preg_match('@^[1-9][0-9]*\?@',$url)) {
                 list($url,$args) = explode('?',$url,2);
                 $url = $modx->makeUrl($url,'',$args,'full');
             }
-            
-            if(strpos($url,'[~')!==false) $url = $modx->rewriteUrls($url);
-            
+
+            if(strpos($url,'[~')!==false) {
+                $url = $modx->rewriteUrls($url);
+            }
+
         }
-        
+
         if ($count_attempts == 1) {
             // append the redirect count string to the url
             $currentNumberOfRedirects= isset ($_REQUEST['err']) ? $_REQUEST['err'] : 0;
             if ($currentNumberOfRedirects > 3) {
-                $modx->messageQuit("Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>");
-            } else {
-                $currentNumberOfRedirects += 1;
-                if (strpos($url, '?') > 0) $url .= '&';
-                else                       $url .= '?';
-                $url .= "err={$currentNumberOfRedirects}";
+                $modx->messageQuit(
+                    "Redirection attempt failed - please ensure the document you're trying to redirect to exists. <p>Redirection URL: <i>{$url}</i></p>"
+                );
+                exit;
             }
+
+            $currentNumberOfRedirects += 1;
+            if (strpos($url, '?') > 0) {
+                $url .= '&';
+            } else {
+                $url .= '?';
+            }
+            $url .= "err={$currentNumberOfRedirects}";
         }
-        if    ($type === 'REDIRECT_REFRESH') $header= "Refresh: 0;URL={$url}";
-        elseif($type === 'REDIRECT_META') {
-            $header= '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
-            exit($header);
-        }
-        else {
+        if ($type === 'REDIRECT_REFRESH') {
+            $header = "Refresh: 0;URL={$url}";
+        } elseif ($type !== 'REDIRECT_META') {
             // check if url has /$base_url
             global $base_url, $site_url;
-            if (substr($url,0,2)!=='//' && substr($url, 0, strlen($base_url)) == $base_url) {
+            if (substr($url, 0, 2) !== '//' && substr($url, 0, strlen($base_url)) == $base_url) {
                 // append $site_url to make it work with Location:
-                $url= $site_url . substr($url, strlen($base_url));
+                $url = $site_url . substr($url, strlen($base_url));
             }
-            if (strpos($url, "\n") === false) $header= 'Location: ' . $url;
-            else $modx->messageQuit('No newline allowed in redirect url.');
+            if (strpos($url, "\n") === false) {
+                $header = 'Location: ' . $url;
+            } else {
+                $modx->messageQuit('No newline allowed in redirect url.');
+            }
+        } else {
+            echo '<META HTTP-EQUIV="Refresh" CONTENT="0; URL=' . $url . '" />';
+            exit;
         }
-        
+
         if($modx->directParse==1) {
-            if($_SERVER['HTTP_USER_AGENT']) ini_set('user_agent', $_SERVER['HTTP_USER_AGENT']);
+            if($_SERVER['HTTP_USER_AGENT']) {
+                ini_set('user_agent', $_SERVER['HTTP_USER_AGENT']);
+            }
             return file_get_contents($url);
         }
 
-        if    (strpos($responseCode, '301') !== false) {header($header, true, 301);exit;}
-        elseif(strpos($responseCode, '302') !== false) {header($header, true, 302);exit;}
-        elseif(strpos($responseCode, '303') !== false) {header($header, true, 303);exit;}
-        elseif(strpos($responseCode, '307') !== false) {header($header, true, 307);exit;}
-        elseif(!empty($responseCode))                  {header($header, true, $responseCode);exit;}
-        else                                           {header($header);exit;}
+        if (strpos($responseCode, '301') !== false) {
+            header($header, true, 301);
+            exit;
+        }
+        if (strpos($responseCode, '302') !== false) {
+            header($header, true, 302);
+            exit;
+        }
+        if (strpos($responseCode, '303') !== false) {
+            header($header, true, 303);
+            exit;
+        }
+        if (strpos($responseCode, '307') !== false) {
+            header($header, true, 307);
+            exit;
+        }
+        if($responseCode) {
+            header($header, true, $responseCode);
+            exit;
+        }
+        header($header);
+        exit;
     }
-    
+
     function sendForward($id, $responseCode= '')
     {
         global $modx;
