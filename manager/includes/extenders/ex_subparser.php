@@ -883,26 +883,27 @@ class SubParser {
         return false;
     }
 
-    function regClientCSS($src, $media='')
-    {
+    function regClientCSS($src, $media='') {
         global $modx;
-        
-        if (empty($src) || isset ($modx->loadedjscripts[$src])) return '';
-        
+
+        if (empty($src) || isset ($modx->loadedjscripts[$src])) {
+            return;
+        }
+
         $nextpos = max(array_merge(array(0),array_keys($modx->sjscripts)))+1;
-        
+
         $modx->loadedjscripts[$src]['startup'] = true;
         $modx->loadedjscripts[$src]['version'] = '0';
         $modx->loadedjscripts[$src]['pos']     = $nextpos;
-        
-        if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false)
-        {
+
+        if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false) {
             $modx->sjscripts[$nextpos]= $src;
-        }
-        else
-        {
-            $media = $media ? 'media="' . $media . '" ' : '';
-            $modx->sjscripts[$nextpos] = "\t" . '<link rel="stylesheet" type="text/css" href="'.$src.'" '.$media.'/>';
+        } else {
+            $modx->sjscripts[$nextpos] = sprintf(
+                '<link rel="stylesheet" type="text/css" href="%s" %s/>'
+                , $src
+                , $media ? sprintf('media="%s" ', $media) : ''
+            );
         }
     }
 
