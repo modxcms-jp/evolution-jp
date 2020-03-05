@@ -771,13 +771,11 @@ class SubParser {
         return 0;
     }
 
-    function getSnippetName()
-    {
+    function getSnippetName(){
         global $modx;
-        
         return $modx->currentSnippet;
     }
-    
+
     function runSnippet($snippetName, $params= array ())
     {
         global $modx;
