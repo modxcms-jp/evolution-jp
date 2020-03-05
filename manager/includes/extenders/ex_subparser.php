@@ -2101,38 +2101,43 @@ class SubParser {
         }
         return ($data !== null && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
     }
-    
-    function _IIS_furl_fix()
-    {
+
+    function _IIS_furl_fix() {
         global $modx;
-        
-        if($modx->config['friendly_urls'] != 1) return;
-        
+
+        if($modx->config['friendly_urls'] != 1) {
+            return;
+        }
+
         $url= $_SERVER['QUERY_STRING'];
         $err= substr($url, 0, 3);
-        if ($err !== '404' && $err !== '405') return;
-        
+        if ($err !== '404' && $err !== '405') {
+            return;
+        }
+
         $k= array_keys($_GET);
         unset ($_GET[$k['0']]);
         unset ($_REQUEST[$k['0']]); // remove 404,405 entry
         $qp= parse_url(str_replace($modx->config['site_url'], '', substr($url, 4)));
         $_SERVER['QUERY_STRING']= $qp['query'];
-        if (!empty ($qp['query']))
-        {
+        if (!empty ($qp['query'])) {
             parse_str($qp['query'], $qv);
-            foreach ($qv as $n => $v)
-            {
+            foreach ($qv as $n => $v) {
                 $_REQUEST[$n]= $_GET[$n]= $v;
             }
         }
         $_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
         return $qp['path'];
     }
-    
+
     function genTokenString($seed='') {
         global $modx;
-        if(isset($modx->tmpCache['tokenString'])) return $modx->tmpCache['tokenString'];
-        if(!$seed) $seed = md5(mt_rand());
+        if(isset($modx->tmpCache['tokenString'])) {
+            return $modx->tmpCache['tokenString'];
+        }
+        if(!$seed) {
+            $seed = md5(mt_rand());
+        }
         $_ = str_split($seed,5);
         $p = array();
         foreach($_ as $v) {
@@ -2144,8 +2149,7 @@ class SubParser {
         return $key;
     }
 
-    function setCacheRefreshTime($unixtime=0)
-    {
+    function setCacheRefreshTime($unixtime=0) {
         if($unixtime==0) {
             return;
         }
@@ -2157,17 +2161,25 @@ class SubParser {
         $cache->setCacheRefreshTime($unixtime);
         $cache->publishBasicConfig();
     }
-    
+
     function atBind($str='') {
-        if(strpos($str, '@') !== 0) return $str;
-        
-        if(strpos($str, '@FILE') === 0)    return $this->atBindFile($str);
-        if(strpos($str, '@URL') === 0)     return $this->atBindUrl($str);
-        if(strpos($str, '@INCLUDE') === 0) return $this->atBindInclude($str);
-        
+        if(strpos($str, '@') !== 0) {
+            return $str;
+        }
+
+        if(strpos($str, '@FILE') === 0) {
+            return $this->atBindFile($str);
+        }
+        if(strpos($str, '@URL') === 0) {
+            return $this->atBindUrl($str);
+        }
+        if(strpos($str, '@INCLUDE') === 0) {
+            return $this->atBindInclude($str);
+        }
+
         return $str;
     }
-    
+
     function atBindFile($str='')
     {
         global $modx;
