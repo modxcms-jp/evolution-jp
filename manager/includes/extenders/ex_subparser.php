@@ -1584,8 +1584,7 @@ class SubParser {
 
         if($modx->db->isResult($v)) {
             $a = array();
-            while ($cols = $modx->db->getRow($v,'num'))
-            {
+            while ($cols = $modx->db->getRow($v,'num')) {
                 $a[] = $cols;
             }
             return $a;
@@ -1604,7 +1603,7 @@ class SubParser {
 
         return explode('||', $v);
     }
-    
+
     function splitOption($value)
     {
         if(is_array($value))
