@@ -848,21 +848,18 @@ class SubParser {
     }
 
     # add an event listner to a plugin - only for use within the current execution cycle
-    function addEventListener($evtName, $pluginName)
-    {
+    function addEventListener($evtName, $pluginName){
         global $modx;
-        
-        if(!$evtName || !$pluginName) return false;
-        
+        if(!$evtName || !$pluginName) {
+            return false;
+        }
+
         if (!isset($modx->pluginEvent[$evtName])) {
             $modx->pluginEvent[$evtName] = array();
         }
-        
-        $result = array_push($modx->pluginEvent[$evtName], $pluginName);
-        
-        return $result; // return array count
+        return array_push($modx->pluginEvent[$evtName], $pluginName); // return array count
     }
-    
+
     # remove event listner - only for use within the current execution cycle
     function removeEventListener($evtName, $pluginName='') {
         global $modx;
