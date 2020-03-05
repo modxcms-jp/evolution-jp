@@ -2001,12 +2001,13 @@ class SubParser {
 
     function loadLexicon($target='manager') {
         global $modx;
-        
+
         if (!isset($modx->config['manager_language'])) {
             $langname = 'english';
+        } else {
+            $langname = $modx->config['manager_language'];
         }
-        else $langname = $modx->config['manager_language'];
-        
+
         if($target==='manager') {
             global $_lang, $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
             $path = MODX_CORE_PATH . 'lang/';
@@ -2014,19 +2015,21 @@ class SubParser {
             $modx_lang_attribute = 'en';
             $modx_textdir = 'ltr';
             $_lang = array();
-        }
-        elseif($target==='locale') {
+        } elseif($target==='locale') {
             global $_lc;
             $path = MODX_CORE_PATH . 'lang/locale/';
+        } else {
+            $path = $target;
         }
-        else $path = $target;
-        
+
         $path = rtrim($path, '/') . '/';
-        
+
         $file_path = "{$path}{$langname}.inc.php";
-        if(is_file($file_path)) include_once($file_path);
+        if(is_file($file_path)) {
+            include_once($file_path);
+        }
     }
-    
+
     function snapshot($filename='', $target='') {
         global $modx, $settings_version;
         
