@@ -1212,16 +1212,14 @@ class SubParser {
     }
 
     // returns an array if a delimiter is present. returns array is a recordset is present
-    function parseInput($src, $delim='||', $type='string', $columns=true)
-    { // type can be: string, array
+    function parseInput($src, $delim='||', $type='string', $columns=true) { // type can be: string, array
         global $modx;
-        
-        if ($modx->db->isResult($src))
-        {
+
+        if ($modx->db->isResult($src)) {
             // must be a recordset
             $rows = array();
             $nc = $modx->db->numFields($src);
-            while ($cols = $modx->db->getRow($src,'num'))
+            while ($cols = $modx->db->getRow($src,'num')) {
             {
                 $rows[] = ($columns)? $cols : implode(' ',$cols);
             }
