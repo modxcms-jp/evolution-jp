@@ -1604,15 +1604,11 @@ class SubParser {
         return explode('||', $v);
     }
 
-    function splitOption($value)
-    {
-        if(is_array($value))
-        {
+    function splitOption($value) {
+        if(is_array($value)) {
             $label=$value[0];
             $value= isset($value[1]) ? $value[1] : $value[0];
-        }
-        else
-        {
+        } else {
             if(strpos($value,'==')===false) {
                 $label = $value;
             } else {
@@ -1621,7 +1617,7 @@ class SubParser {
         }
         return array(trim($label),trim($value));
     }
-    
+
     function isSelected($label,$value,$item,$field_value)
     {
         if(is_array($item)) {
