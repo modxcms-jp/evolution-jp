@@ -84,27 +84,28 @@ class SubParser {
         }
         return $modx->mail->send();
     }
-    
-    function rotate_log($target='event_log',$limit=2000, $trim=100)
-    {
+
+    function rotate_log($target='event_log',$limit=2000, $trim=100) {
         global $modx;
-        
-        if($limit < $trim) $trim = $limit;
-        
+
+        if($limit < $trim) {
+            $trim = $limit;
+        }
+
         $count = $modx->db->getValue($modx->db->select('COUNT(id)',"[+prefix+]{$target}"));
         $over = $count - $limit;
-        if(0 < $over)
-        {
+        if(0 < $over) {
             $trim = ($over + $trim);
             $modx->db->delete("[+prefix+]{$target}",'','',$trim);
         }
-		if( isset($modx->config['automatic_optimize']) && $modx->config['automatic_optimize'] == 1 ){
-			$result = $modx->db->query(sprintf('SHOW TABLE STATUS FROM `%s`',trim($modx->db->dbname,'`')));
-			while ($row = $modx->db->getRow($result))
-			{
-				$modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
-			}
-		}
+        if( config('automatic_optimize') == 1 ){
+            $rs = $modx->db->query(
+                sprintf('SHOW TABLE STATUS FROM `%s`',trim($modx->db->dbname,'`'))
+            );
+            while ($row = $modx->db->getRow($rs)) {
+                $modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
+            }
+        }
     }
     
     function addLog($title='no title',$msg='',$type=1)
