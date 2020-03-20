@@ -402,7 +402,7 @@ function getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias,$isfold
 			$rs = $pagetitle;
 	}
 	
-	return htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), ' ', strip_tags($rs)));
+	return evo()->hsc(str_replace(array("\r\n", "\n", "\r"), ' ', $rs));
 }
 
 function getIcon($id, $contenttype, $isfolder='0') {
