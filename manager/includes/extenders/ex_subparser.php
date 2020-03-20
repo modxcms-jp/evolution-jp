@@ -1396,23 +1396,23 @@ class SubParser {
             return trim($field_html);
         }
         if(strtolower($field_type)==='option') {
-            $rs = $this->ProcessTVCommand($field_elements, $field_id,'','tvform');
-            $index_list = $this->ParseInputOptions($rs);
+            $index_list = $this->ParseInputOptions(
+                $this->ProcessTVCommand($field_elements, $field_id,'','tvform')
+            );
             $i=0;
             $field_html = '';
             $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
             foreach ($index_list as $item) {
                 list($label,$value) = $this->splitOption($item);
-                $checked = $this->isSelected($label,$value,$item,$field_value) ?'checked="checked"':'';
-                $value = $modx->hsc($value);
-                $field_html .= sprintf(
+                $field_html .= evo()->parseText(
                     $tpl
-                    , $i
-                    , $value
-                    , $i
-                    , $field_id
-                    , $checked
-                    , $label
+                    , array(
+                        'i'       => $i,
+                        'value'   => $modx->hsc($value),
+                        'id'      => $field_id,
+                        'checked' => $this->isSelected($label,$value,$item,$field_value) ?'checked="checked"':'',
+                        'label'   => $label
+                    )
                 );
                 $i++;
             }
