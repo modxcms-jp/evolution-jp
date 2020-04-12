@@ -425,13 +425,13 @@ class TinyMCE
 		{
 			$content_css[] = $params['editor_css_path'];
 		}
-		elseif (preg_match('@^http://@', $params['editor_css_path']))
+		elseif (preg_match('@^https?://@', $params['editor_css_path']))
 		{
 			$content_css[] = $params['editor_css_path'];
 		}
 		elseif ($params['editor_css_path']!=='')
 		{
-			$content_css[] = MODX_SITE_URL . $params['editor_css_path'];
+			$content_css[] = MODX_BASE_URL . $params['editor_css_path'];
 		}
 		$ph['content_css']             = join(',', $content_css);
 		$ph['link_list']               = ($params['link_list']=='enabled') ? "'{$mce_url}js/tinymce.linklist.php'" : 'false';
