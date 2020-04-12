@@ -4,46 +4,65 @@
  *
  * @author      Mikko Lammi, www.maagit.fi
  * @license     GNU General Public License (GPL), http://www.gnu.org/copyleft/gpl.html
- * @version     1.5.5r5 updated 12/01/2011
+ * @version     1.5.6 updated 12/01/2011
  */
 
 // Replace [*#tv*] with QM+ edit TV button placeholders
-if (($tvbuttons == 'true') && ($modx->event->name == 'OnParseDocument'))
-{
+if ($tvbuttons == 'true' && $modx->event->name == 'OnParseDocument') {
     $output = &$modx->documentOutput;
-    if(strpos($output,'[*#')===false) $m = false;
-    else                              $m = $modx->getTagsFromContent($output,'[*#','*]');
-    if(!empty($m)) {
+    if(strpos($output,'[*#')===false) {
+        $m = false;
+    } else {
+        $m = $modx->getTagsFromContent(
+            $output
+            , '[*#', '*]'
+        );
+    }
+    if($m) {
         foreach($m[1] as $i=>$v) {
-            $s = $m[0][$i];
-            if(strpos($v,':')!==false) $v = substr($v,0,strpos($v,':'));
-            $output = str_replace($s,"<!-- {$tvbclass} {$v} -->{$s}", $output);
+            $output = str_replace(
+                $m[0][$i]
+                , sprintf(
+                    '<!-- %s %s -->%s'
+                    , $tvbclass
+                    , (strpos($v,':')!==false) ? substr($v, 0, strpos($v, ':')) : $v
+                    , $m[0][$i]
+                )
+                , $output
+            );
         }
     }
 }
 
-if(class_exists('Qm')) return;
+if(class_exists('Qm')) {
+    return;
+}
 
 class Qm {
     public $modx;
     public $jqpath = '';
 
-    function __construct(&$modx, $params=array())
-    {
-        if(isset($_GET['a']) && $_GET['a']==='83') return;
+    function __construct() {
+    }
 
+    private function init() {
+        global $modx;
+        if(getv('a')==83) {
+            return;
+        }
+
+        $params = event()->params;
         $this->modx = $modx;
-        if(!$params)
-        {
+        if(!$params) {
             $modx->documentOutput = 'QuickManagerをインストールし直してください。';
             return;
         }
         extract($params);
-
-        if (isset($disabled) && $disabled  != '')
-        {
-            $arr = explode(',', $disabled );
-            if (in_array($modx->documentIdentifier, $arr)) return;
+        if ($this->config('disabled')) {
+            $arr = explode(',', $this->config('disabled') );
+            if (in_array($modx->documentIdentifier, $arr)) {
+                return false;
+            }
         }
 
         // Get plugin parameters
@@ -70,21 +89,21 @@ class Qm {
         $this->tvbuttons = $tvbuttons;
         $this->tvbclass = $tvbclass;
 
-        if(!isset($version) || version_compare($version,'1.5.5r5','<'))
-        {
+        if(!isset($version) || version_compare($version,'1.5.5r5','<')) {
             $modx->documentOutput = 'QuickManagerをアップデートしてください。';
-            return;
+            return false;
         }
 
         // Includes
         include_once(MODX_BASE_PATH.'assets/plugins/qm/mcc.class.php');
-
-        // Run plugin
-        $this->Run();
+        return true;
     }
 
-    //_______________________________________________________
     function Run() {
+        $rs = $this->init();
+        if(!$rs) {
+            return;
+        }
         // Include MODx manager language file
         global $modx, $_lang;
 
@@ -95,13 +114,11 @@ class Qm {
         $e = &evo()->event;
 
         // Run plugin based on event
-        switch ($e->name)
-        {
+        switch ($e->name) {
             // Save document
             case 'OnDocFormSave':
                 // Saving process for Qm only
-                if((int)$_REQUEST['quickmanager'] == 1)
-                {
+                if((int)anyv('quickmanager') == 1) {
                     $id = $e->params['id'];
                     $key = $id;
                     include_once(MODX_CORE_PATH . 'secure_web_documents.inc.php');
@@ -114,8 +131,7 @@ class Qm {
                     $this->clearCache();
 
                     // Different doc to be refreshed than the one we are editing?
-                    if (isset($_POST['qmrefresh']))
-                    {
+                    if (isset($_POST['qmrefresh'])) {
                         $id = (int)$_POST['qmrefresh'];
                     }
 
@@ -139,18 +155,7 @@ class Qm {
                 }
 
                 // Include_once the language file
-                if(!isset($manager_language) || !is_file(MODX_CORE_PATH . 'lang/' . $manager_language . '.inc.php'))
-                {
-                    $manager_language = 'english'; // if not set, get the english language file.
-                }
-                // Include default language
-                include_once(MODX_CORE_PATH . 'lang/english.inc.php');
-
-                // Include user language
-                if($manager_language !== "english" && is_file(MODX_CORE_PATH . "lang/{$manager_language}.inc.php"))
-                {
-                    include_once(MODX_CORE_PATH . "lang/{$manager_language}.inc.php");
-                }
+                include_once(MODX_CORE_PATH . 'lang/' . $manager_language . '.inc.php');
 
                 // Get document id
                 $docID = evo()->documentIdentifier;
@@ -159,8 +164,7 @@ class Qm {
                 $output = &evo()->documentOutput;
 
                 // Close modal box after saving (previously close.php)
-                if (isset($_GET['quickmanagerclose']))
-                {
+                if (getv('quickmanagerclose')) {
                     // Set url to refresh
                     $url = evo()->makeUrl($docID, '', '', 'full');
                     exit(sprintf("<script>parent.location.href='%s';</script>",$url));
@@ -168,19 +172,15 @@ class Qm {
                 }
 
                 // QM+ TV edit
-                if(isset($_GET['quickmanagertv'] ) && (int)($_GET['quickmanagertv'] == 1) && $_GET['tvname'] != '' && $this->tvbuttons == 'true')
-                {
+                if(getv('quickmanagertv') == 1 && getv('tvname') != '' && $this->tvbuttons == 'true') {
                     $output = include('edit_tv.inc');
                 }
 
                 // QM+ with toolbar
-                else
-                {
-                    if(isset($_SESSION['mgrValidated']) && (!isset($_REQUEST['z']) || $_REQUEST['z'] !== 'manprev'))
-                    {
+                else {
+                    if(sessionv('mgrValidated') && anyv('z') !== 'manprev') {
                         // If logout break here
-                        if(isset($_REQUEST['logout']))
-                        {
+                        if(anyv('logout')) {
                             $this->Logout();
                             break;
                         }
@@ -197,11 +197,12 @@ class Qm {
                         $access = $this->checkAccess();
 
                         // Does user have permissions to edit document
-                        if(!isset($controls)) $controls = '';
-                        if($access) $controls .= $editButton;
+                        $controls = '';
+                        if($access) {
+                            $controls .= $editButton;
+                        }
 
-                        if ($this->addbutton == 'true' && $access)
-                        {
+                        if ($this->addbutton == 'true' && $access) {
                             // Add button
                             $addButton = '
 <li class="qmAdd">
@@ -210,12 +211,13 @@ class Qm {
 ';
 
                             // Does user have permissions to add document
-                            if(evo()->hasPermission('new_document')) $controls .= $addButton;
+                            if(evo()->hasPermission('new_document')) {
+                                $controls .= $addButton;
+                            }
                         }
 
                         // Custom add buttons if not empty and enough permissions
-                        if ($this->custombutton != '')
-                        {
+                        if ($this->custombutton != '') {
                             $this->custombutton = evo()->mergeDocumentContent($this->custombutton);
                             $this->custombutton = evo()->mergeSettingsContent($this->custombutton);
                             $this->custombutton = evo()->mergeChunkContent($this->custombutton);
@@ -229,8 +231,7 @@ class Qm {
                             $i = 0;
 
                             // Parse buttons
-                            foreach($buttons as $key => $field)
-                            {
+                            foreach($buttons as $key => $field) {
                                 $i++;
 
                                 $field = substr($field, 1, -1); // Trim "'" from beginning and from end
@@ -242,20 +243,16 @@ class Qm {
                                 $buttonTplId = $buttonParams[3];
 
                                 // Button visible for all
-                                if ($buttonParams[4] == '')
-                                {
+                                if ($buttonParams[4] == '') {
                                     $showButton = TRUE;
-                                }
-                                else
-                                {
+                                } else {
                                     // Button is visible for specific user roles
                                     $showButton = FALSE;
                                     // Get user roles the button is visible for
                                     $buttonRoles = explode(",", $buttonParams[4]); // Roles are divided by ','
 
                                     // Check if user role is found
-                                    foreach($buttonRoles as $mgrRole)
-                                    {
+                                    foreach($buttonRoles as $mgrRole) {
                                         if ($mgrRole != $_SESSION['mgrRole']) {
                                             continue;
                                         }
@@ -265,10 +262,8 @@ class Qm {
                                 }
 
                                 // Show custom button
-                                if ($showButton)
-                                {
-                                    switch ($buttonAction)
-                                    {
+                                if ($showButton) {
+                                    switch ($buttonAction) {
                                         case 'new':
                                             $customButton = '
 <li class="qm-custom-'.$i.' qmCustom">
@@ -297,8 +292,7 @@ class Qm {
                         }
 
                         // Go to Manager button
-                        if ($this->managerbutton == 'true')
-                        {
+                        if ($this->managerbutton == 'true') {
                             $managerButton  = '
 <li class="qmManager">
 <a class="qmButton qmManager" title="'.$_lang['manager'].'" href="'.evo()->config['site_url'].'manager/" ><span>'.$_lang['manager'].'</span></a>
@@ -332,8 +326,7 @@ class Qm {
 ';
 
                         // Autohide toolbar? Default: true
-                        if ($this->autohide == 'false')
-                        {
+                        if ($this->autohide == 'false') {
                             $css .= '
 <style type="text/css">
 #qmEditor, #qmEditorClosed { top: 0px; }
@@ -342,15 +335,11 @@ class Qm {
                         }
 
                         // Insert jQuery and ColorBox in head if needed
-                        if ($this->loadfrontendjq == 'true')
-                        {
-                            if(!isset($head)) {
-                                $head = '';
-                            }
+                        $head = '';
+                        if ($this->loadfrontendjq == 'true') {
                             $head .= '<script src="'.evo()->config['site_url'].$this->jqpath.'" type="text/javascript"></script>';
                         }
-                        if ($this->loadtb == 'true')
-                        {
+                        if ($this->loadtb == 'true') {
                             $head .= '
 <link type="text/css" media="screen" rel="stylesheet" href="'.evo()->config['site_url'].'assets/plugins/qm/css/colorbox.css" />
 <script type="text/javascript" src="'.evo()->config['site_url'].'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
@@ -360,16 +349,13 @@ class Qm {
                         $head .= '<script type="text/javascript">';
 
                         // jQuery in noConflict mode
-                        if ($this->noconflictjq == 'true')
-                        {
+                        if ($this->noconflictjq == 'true') {
                             $head .= '
 						var $j = jQuery.noConflict();
 						$j(function()
 						';
                             $jvar = 'j';
-                        }
-                        else
-                        {
+                        } else {
                             // jQuery in normal mode
                             $head .= '$(function()';
                             $jvar = '';
@@ -425,20 +411,17 @@ function getCookie(cookieName)
                         $output = preg_replace('~(<body[^>]*>)~i', '\1' . $editor, $output);
 
                         // Search and create edit buttons in to the content
-                        if ($this->editbuttons == 'true' && $access)
-                        {
+                        if ($this->editbuttons == 'true' && $access) {
                             $output = preg_replace('/<!-- '.$this->editbclass.' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="'.$this->editbclass.'"><a class="colorbox" href="'.evo()->config['site_url'].'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh='.$docID.'"><span>$3</span></a></span>', $output);
                         }
 
                         // Search and create new document buttons in to the content
-                        if ($this->newbuttons == 'true' && $access)
-                        {
+                        if ($this->newbuttons == 'true' && $access) {
                             $output = preg_replace('/<!-- '.$this->newbclass.' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="'.$this->newbclass.'"><a class="colorbox" href="'.evo()->config['site_url'].'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
                         }
 
                         // Search and create new document buttons in to the content
-                        if ($this->tvbuttons == 'true' && $access)
-                        {
+                        if ($this->tvbuttons == 'true' && $access) {
                             // Set and get user doc groups for TV permissions
                             $this->docGroup = '';
                             $mrgDocGroups = $_SESSION['mgrDocgroups'];
@@ -454,28 +437,21 @@ function getCookie(cookieName)
             // Edit document in ThickBox frame (MODx manager frame)
             case 'OnDocFormPrerender':
                 // If there is Qm call, add control buttons and modify to edit document page
-                if (isset($_REQUEST['quickmanager']) && (int)$_REQUEST['quickmanager'] == 1)
-                {
+                if ((int)anyv('quickmanager') == 1) {
                     global $docObject;
 
                     // Set template for new document, action = 4
-                    if((int)$_GET['a'] == 4)
-                    {
+                    if(getv('a') == 4) {
                         // Custom add button
-                        if (isset($_GET['customaddtplid']))
-                        {
-                            // Set template
-                            $docObject['template'] = (int)$_GET['customaddtplid'];
-                        }
-                        else
-                        {
+                        if (getv('customaddtplid')) {
+                            $docObject['template'] = (int)getv('customaddtplid');
+                        } else {
                             // Normal add button
                             if($this->tpltype==='config') $this->tpltype = evo()->config['auto_template_logic'];
-                            switch ($this->tpltype)
-                            {
+                            switch ($this->tpltype) {
                                 case 'parent': // Template type is parent
                                     // Get parent document id
-                                    $pid = $docObject['parent'] ? $docObject['parent'] : (int)$_REQUEST['pid'];
+                                    $pid = $docObject['parent'] ? $docObject['parent'] : (int)anyv('pid');
 
                                     // Get parent document
                                     $parent = evo()->getDocument($pid);
@@ -490,31 +466,32 @@ function getCookie(cookieName)
                                 case 'selected': // Template is inherited by Inherit Selected Template plugin
                                 case 'sibling':
                                     // Get parent document id
-                                    $pid = $docObject['parent'] ? $docObject['parent'] : (int)$_REQUEST['pid'];
+                                    $pid = $docObject['parent'] ? $docObject['parent'] : (int)anyv('pid');
 
                                     if (evo()->config['auto_template_logic'] === 'sibling') {
                                         // Eoler: template_autologic in Evolution 1.0.5+
                                         // http://tracker.modx.com/issues/9586
                                         $tv = array();
                                         $sibl = evo()->getDocumentChildren($pid, 1, 0, 'template', '', 'menuindex', 'ASC', 1);
-                                        if(empty($sibl)) {
+                                        if(!$sibl) {
                                             $sibl = evo()->getDocumentChildren($pid, 0, 0, 'template', '', 'menuindex', 'ASC', 1);
                                         }
                                         if(!empty($sibl)) {
                                             $tv['value'] = $sibl[0]['template'];
                                         }
                                         else $tv['value'] = ''; // Added by yama
-                                    }
-                                    else
-                                    {
+                                    } else {
                                         // Get inheritTpl TV
                                         $tv = evo()->getTemplateVar('inheritTpl', '', $pid);
                                     }
 
 
                                     // Set template to inherit
-                                    if ($tv['value'] != '') $docObject['template'] = $tv['value'];
-                                    else                    $docObject['template'] = evo()->config['default_template'];
+                                    if ($tv['value'] != '') {
+                                        $docObject['template'] = $tv['value'];
+                                    } else {
+                                        $docObject['template'] = evo()->config['default_template'];
+                                    }
                                     break;
                                 case 'system':
                                     $docObject['template'] = evo()->config['default_template'];
@@ -528,8 +505,11 @@ function getCookie(cookieName)
                     $mc->noconflictjq = 'true';
 
                     // Get jQuery conflict mode
-                    if ($this->noconflictjq == 'true') $jq_mode = '$j';
-                    else                               $jq_mode = '$';
+                    if ($this->noconflictjq == 'true') {
+                        $jq_mode = '$j';
+                    } else {
+                        $jq_mode = '$';
+                    }
 
                     // Hide default manager action buttons
                     $mc->addLine($jq_mode . '("#actions").hide();');
@@ -538,9 +518,13 @@ function getCookie(cookieName)
                     $qm_theme = evo()->config['manager_theme'];
 
                     // Get doc id
-                    if    (isset($_REQUEST['id']))  $doc_id = (int)$_REQUEST['id'];
-                    elseif(isset($_REQUEST['pid'])) $doc_id = (int)$_REQUEST['pid'];
-                    else $doc_id = 0;
+                    if    (anyv('id')) {
+                        $doc_id = (int)anyv('id');
+                    } elseif(anyv('pid')) {
+                        $doc_id = (int)anyv('pid');
+                    } else {
+                        $doc_id = 0;
+                    }
 
                     // Add action buttons
                     $url = evo()->makeUrl($doc_id,'','','full');
@@ -575,32 +559,26 @@ function getCookie(cookieName)
                     $mc->addLine($jq_mode . '("body").prepend(controls);');
 
                     // Hide fields to from front-end editors
-                    if ($this->hidefields != '')
-                    {
+                    if ($this->hidefields != '') {
                         $hideFields = explode(",", $this->hidefields);
-                        foreach($hideFields as $key => $field)
-                        {
+                        foreach($hideFields as $key => $field) {
                             $mc->hideField($field);
                         }
                     }
                     // Hide tabs to from front-end editors
-                    if ($this->hidetabs != '')
-                    {
+                    if ($this->hidetabs != '') {
                         $hideTabs = explode(",", $this->hidetabs);
 
-                        foreach($hideTabs as $key => $field)
-                        {
+                        foreach($hideTabs as $key => $field) {
                             $mc->hideTab($field);
                         }
                     }
 
                     // Hide sections from front-end editors
-                    if ($this->hidesections != '')
-                    {
+                    if ($this->hidesections != '') {
                         $hideSections = explode(",", $this->hidesections);
 
-                        foreach($hideSections as $key => $field)
-                        {
+                        foreach($hideSections as $key => $field) {
                             $mc->hideSection($field);
                         }
                     }
@@ -609,9 +587,8 @@ function getCookie(cookieName)
                     $hiddenFields = '<input type="hidden" name="quickmanager" value="1" />';
 
                     // Different doc to be refreshed?
-                    if (isset($_REQUEST['qmrefresh']))
-                    {
-                        $hiddenFields .= '<input type="hidden" name="qmrefresh" value="'. (int)$_REQUEST['qmrefresh'] .'" />';
+                    if (anyv('qmrefresh')) {
+                        $hiddenFields .= '<input type="hidden" name="qmrefresh" value="'. (int)anyv('qmrefresh') .'" />';
                     }
 
                     // Output
@@ -620,12 +597,10 @@ function getCookie(cookieName)
                 break;
             case 'OnManagerLogout': // Where to logout
                 // Only if cancel editing the document and QuickManager is in use
-                if ($_REQUEST['quickmanager'] == 'logout')
-                {
+                if (anyv('quickmanager') === 'logout') {
                     // Redirect to document id
-                    if ($this->logout != 'manager')
-                    {
-                        $url = evo()->makeUrl($_REQUEST['logoutid'],'','','full');
+                    if ($this->logout != 'manager') {
+                        $url = evo()->makeUrl(anyv('logoutid'),'','','full');
                         evo()->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
                     }
                 }
@@ -652,69 +627,65 @@ function getCookie(cookieName)
 
     }
 
-    function checkAccess()
-    {
-        $access = FALSE;
-
+    function checkAccess() {
         // If user is admin (role = 1)
-        if ($_SESSION['mgrRole'] == 1) $access = TRUE;
-        elseif(!isset(evo()->documentIdentifier) || empty(evo()->documentIdentifier))
-        {
-            $access = FALSE;
+        if (sessionv('mgrRole') == 1) {
+            return true;
         }
-        else
-        {
-            $docID = evo()->documentIdentifier;
 
-            // Database table
-            $table= evo()->getFullTableName("document_groups");
-
-            // Check if current document is assigned to one or more doc groups
-            $result= evo()->db->select('id',$table,"document='{$docID}'");
-            $rowCount= evo()->db->getRecordCount($result);
-
-            // If document is assigned to one or more doc groups, check access
-            if ($rowCount >= 1)
-            {
-                // Get document groups for current user
-                $mrgDocGroups = $_SESSION['mgrDocgroups'];
-                if (!empty($mrgDocGroups))
-                {
-                    $docGroup = implode(",", $mrgDocGroups);
-
-                    // Check if user has access to current document
-                    $result= evo()->db->select('id',$table,"document = {$docID} AND document_group IN ({$docGroup})");
-                    $rowCount = evo()->db->getRecordCount($result);
-
-                    if ($rowCount >= 1) $access = TRUE;
-                }
-                else $access = FALSE;
-            }
-            else $access = TRUE;
+        if (!isset(evo()->documentIdentifier) || !evo()->documentIdentifier) {
+            return false;
         }
-        return $access;
+
+        $result= db()->select(
+            'id'
+            , evo()->getFullTableName('document_groups')
+            , sprintf(
+                "document='%s'"
+                , evo()->documentIdentifier
+            )
+        );
+        if (!db()->getRecordCount($result)) {
+            return true;
+        }
+
+        $docGroup = implode(',', sessionv('mgrDocgroups', array()));
+        if (!$docGroup) {
+            return false;
+        }
+
+        $result = db()->select(
+            'id'
+            , evo()->getFullTableName('document_groups')
+            , sprintf(
+                'document=%s AND document_group IN (%s)'
+                , evo()->documentIdentifier
+                , $docGroup
+            )
+        );
+        if (db()->getRecordCount($result)) {
+            return true;
+        }
+        return false;
     }
 
     // Function from: manager/processors/cache_sync.class.processor.php
     //_____________________________________________________
-    function getParents($id, $path = '')
-    {
-        // modx:returns child's parent
+    function getParents($id, $path = ''){
         global $modx;
-        if(empty($this->aliases))
-        {
-            $qh = $modx->db->select("id, IF(alias='', id, alias) AS alias, parent",$modx->getFullTableName('site_content'));
-            if ($qh && $modx->db->getRecordCount($qh) > 0)
-            {
-                while ($row = $modx->db->getRow($qh))
-                {
+        if(!$this->aliases) {
+            $qh = $modx->db->select(
+                "id, IF(alias='', id, alias) AS alias, parent"
+                , $modx->getFullTableName('site_content')
+            );
+            if ($qh && $modx->db->getRecordCount($qh) > 0) {
+                while ($row = $modx->db->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
                     $this->parents[$row['id']] = $row['parent'];
                 }
             }
         }
-        if (isset($this->aliases[$id]))
-        {
+        if (isset($this->aliases[$id])) {
             $path = $this->aliases[$id] . ($path != '' ? '/' : '') . $path;
             return $this->getParents($this->parents[$id], $path);
         }
@@ -723,10 +694,7 @@ function getCookie(cookieName)
 
     // Create TV buttons if user has permissions to TV
     //_____________________________________________________
-    function createTvButtons($matches)
-    {
-        $access = FALSE;
-        $table = evo()->getFullTableName('site_tmplvar_access');
+    function createTvButtons($matches) {
         $docID = evo()->documentIdentifier;
 
         // Get TV caption for button title
@@ -734,64 +702,70 @@ function getCookie(cookieName)
         $caption = $tv['caption'];
 
         // If caption is empty this must be a "build-in-tv-field" like pagetitle etc.
-        if ($caption == '')
-        {
-            // Allowed for all
+        if ($caption == '') {
             $access = TRUE;
-
-            // Resolve caption
             $caption = $this->getDefaultTvCaption($matches[1]);
-        }
-        else
-        {
-            // Check TV access
+        } else {
             $access = $this->checkTvAccess($tv['id']);
         }
 
         // Return TV button link if access
-        if ($access && $caption != '')
-        {
+        if ($access && $caption != '') {
             $tvname = urlencode($matches[1]);
-            return '<span class="'.$this->tvbclass.'"><a class="colorbox" href="'.evo()->config['site_url'].'index.php?id='.$docID.'&amp;quickmanagertv=1&amp;tvname='.$tvname.'"><span>'.$caption.'</span></a></span>';
+            return sprintf(
+                '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>'
+                , $this->tvbclass
+                , evo()->config['site_url']
+                , $docID
+                , $tvname
+                , $caption
+            );
         }
     }
 
     // Check user access to TV
     //_____________________________________________________
-    function checkTvAccess($tvId)
-    {
+    function checkTvAccess($tvId){
         $access = FALSE;
         $table = evo()->getFullTableName('site_tmplvar_access');
 
         // If user is admin (role = 1)
-        if ($_SESSION['mgrRole'] == 1 && !$access) { $access = TRUE; }
+        if ($_SESSION['mgrRole'] == 1 && !$access) {
+            $access = true;
+        }
 
         // Check permission to TV, is TV in document group?
-        if (!$access)
-        {
-            $result = evo()->db->select('id',$table,"tmplvarid = {$tvId}");
-            $rowCount = evo()->db->getRecordCount($result);
+        if (!$access) {
+            $result = db()->select('id',$table, 'tmplvarid = ' . $tvId);
+            $rowCount = db()->getRecordCount($result);
             // TV is not in any document group
             if ($rowCount == 0) { $access = TRUE; }
         }
         // Check permission to TV, TV is in document group
-        if (!$access && $this->docGroup != '')
-        {
-            $result = evo()->db->select('id',$table,"tmplvarid = {$tvId} AND documentgroup IN ({$this->docGroup})");
-            $rowCount = evo()->db->getRecordCount($result);
-            if ($rowCount >= 1) { $access = TRUE; }
+        if (!$access && $this->docGroup != '') {
+            $result = db()->select(
+                'id'
+                , $table
+                , sprintf(
+                    'tmplvarid = %s AND documentgroup IN (%s)'
+                    , $tvId
+                    , $this->docGroup
+                )
+            );
+            $rowCount = db()->getRecordCount($result);
+            if ($rowCount >= 1) {
+                $access = TRUE;
+            }
         }
         return $access;
     }
 
     // Get default TV ("build-in" TVs) captions
     //_____________________________________________________
-    function getDefaultTvCaption($name)
-    {
+    function getDefaultTvCaption($name){
         global $_lang;
         $caption = '';
-        switch ($name)
-        {
+        switch ($name) {
             case 'pagetitle'    : $caption = $_lang['resource_title']; break;
             case 'longtitle'    : $caption = $_lang['long_title']; break;
             case 'description'  : $caption = $_lang['resource_description']; break;
@@ -804,17 +778,15 @@ function getCookie(cookieName)
 
     // Check that a document isn't locked for editing
     //_____________________________________________________
-    function checkLocked()
-    {
+    function checkLocked(){
         $tbl_active_users = evo()->getFullTableName('active_users');
         $pageId = evo()->documentIdentifier;
         $locked = TRUE;
         $userId = $_SESSION['mgrInternalKey'];
         $where = "(`action` = 27) AND `internalKey` != '{$userId}' AND `id` = '{$pageId}'";
-        $result = evo()->db->select('internalKey',$tbl_active_users,$where);
+        $result = db()->select('internalKey',$tbl_active_users,$where);
 
-        if (evo()->db->getRecordCount($result) === 0)
-        {
+        if (!db()->getRecordCount($result)) {
             $locked = FALSE;
         }
 
@@ -823,32 +795,27 @@ function getCookie(cookieName)
 
     // Set document locked on/off
     //_____________________________________________________
-    function setLocked($locked)
-    {
+    function setLocked($locked) {
         $tbl_active_users = evo()->getFullTableName('active_users');
         $pageId = evo()->documentIdentifier;
         $userId = $_SESSION['mgrInternalKey'];
 
         // Set document locked
-        if ($locked == 1)
-        {
+        if ($locked == 1) {
             $fields['id']     = $pageId;
             $fields['action'] = 27;
-        }
-        else
-        {
+        } else {
             // Set document unlocked
             $fields['id'] = 'NULL';
             $fields['action'] = 2;
         }
         $where = "internalKey = '{$userId}'";
-        $result = evo()->db->update($fields, $tbl_active_users, $where);
+        $result = db()->update($fields, $tbl_active_users, $where);
     }
 
     // Save TV
     //_____________________________________________________
-    function saveTv($tvName)
-    {
+    function saveTv($tvName){
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $tbl_site_content = evo()->getFullTableName('site_content');
         $pageId = evo()->documentIdentifier;
@@ -856,23 +823,24 @@ function getCookie(cookieName)
         $time = time();
         $user = $_SESSION['mgrInternalKey'];
         $tvId = isset($_POST['tvid'])&&preg_match('@^[1-9][0-9]*$@',$_POST['tvid']) ? $_POST['tvid'] : 0;
-        if($tvId) $tvContent = isset($_POST['tv'.$tvId])   ? $_POST['tv'.$tvId]   : '';
-        else      $tvContent = isset($_POST['tv'.$tvName]) ? $_POST['tv'.$tvName] : '';
+        if($tvId) {
+            $tvContent = postv('tv' . $tvId, '');
+        } else {
+            $tvContent = postv('tv' . $tvName, '');
+        }
         $tvContentTemp = '';
 
         // Escape TV content
-        $tvName = evo()->db->escape($tvName);
-        $tvContent = evo()->db->escape($tvContent);
+        $tvName = db()->escape($tvName);
+        $tvContent = db()->escape($tvContent);
 
         // Invoke OnBeforeDocFormSave event
         $tmp = array('mode'=>'upd', 'id'=>$pageId);
         evo()->invokeEvent('OnBeforeDocFormSave', $tmp);
 
         // Handle checkboxes and other arrays, TV to be saved must be e.g. value1||value2||value3
-        if (is_array($tvContent))
-        {
-            foreach($tvContent as $key => $value)
-            {
+        if (is_array($tvContent)) {
+            foreach($tvContent as $key => $value) {
                 $tvContentTemp .= $value . '||';
             }
             $tvContentTemp = substr($tvContentTemp, 0, -2);  // Remove last ||
@@ -880,48 +848,63 @@ function getCookie(cookieName)
         }
 
         // Save TV
-        if ($tvId)
-        {
+        if ($tvId) {
             $where = "`tmplvarid` = '{$tvId}' AND `contentid` = '{$pageId}'";
-            $result = evo()->db->select('id',$tbl_site_tmplvar_contentvalues,$where);
+            $result = db()->select('id',$tbl_site_tmplvar_contentvalues,$where);
 
             // TV exists, update TV
-            if(evo()->db->getRecordCount($result))
-            {
-                $sql = "UPDATE {$tbl_site_tmplvar_contentvalues}
-				SET `value` = '{$tvContent}'
-				WHERE `tmplvarid` = '{$tvId}'
-				AND `contentid` = '{$pageId}';";
-            }
-            else
-            {
+            if(db()->getRecordCount($result)) {
+                $sql = sprintf("UPDATE %s SET `value`='%s' WHERE `tmplvarid`='%s' AND `contentid`='%s'"
+                    , $tbl_site_tmplvar_contentvalues
+                    , $tvContent
+                    , $tvId
+                    , $pageId
+                );
+            } else {
                 // TV does not exist, create new TV
-                $sql = "INSERT INTO {$tbl_site_tmplvar_contentvalues} (tmplvarid, contentid, value)
-				VALUES('{$tvId}', '{$pageId}', '{$tvContent}');";
+                $sql = sprintf(
+                    "INSERT INTO %s (tmplvarid, contentid, value) VALUES('%s', '%s', '%s')"
+                    , $tbl_site_tmplvar_contentvalues
+                    , $tvId
+                    , $pageId
+                    , $tvContent
+                );
             }
 
             // Page edited by
-            evo()->db->update(array('editedon'=>$time, 'editedby'=>$user), $tbl_site_content, 'id = "' . $pageId . '"');
-        }
-        else
-        {
+            db()->update(
+                array('editedon'=>$time, 'editedby'=>$user)
+                , $tbl_site_content
+                , 'id = "' . $pageId . '"'
+            );
+        } else {
             // Save default field, e.g. pagetitle
-            $sql = "UPDATE {$tbl_site_content}
-			SET
-			`{$tvName}` = '{$tvContent}',
-			`editedon` = '{$time}',
-			`editedby` = '{$user}'
-			WHERE `id` = '{$pageId}';";
+            $sql = sprintf(
+                "UPDATE %s SET `%s`='%s', `editedon`='%s', `editedby`='%s' WHERE `id`='%s'"
+                , $tbl_site_content
+                , $tvName
+                , $tvContent
+                , $time
+                , $user
+                , $pageId
+            );
         }
         // Update TV
-        if($sql) { $result = evo()->db->query($sql); }
-        // Log possible errors
-        if(!$result)
-        {
-            evo()->logEvent(0, 0, "<p>Save failed!</p><strong>SQL:</strong><pre>{$sql}</pre>", 'QuickManager+');
+        if($sql) {
+            $result = db()->query($sql);
         }
-        else
-        {
+        // Log possible errors
+        if(!$result) {
+            evo()->logEvent(
+                0
+                , 0
+                , sprintf(
+                    '<p>Save failed!</p><strong>SQL:</strong><pre>%s</pre>'
+                    , $sql
+                )
+                , 'QuickManager+'
+            );
+        } else {
             // No errors
             // Invoke OnDocFormSave event
             $tmp = array('mode'=>'upd', 'id'=>$pageId);
@@ -933,16 +916,17 @@ function getCookie(cookieName)
 
     // Clear cache
     //_____________________________________________________
-    function clearCache()
-    {
+    function clearCache(){
         // Clear cache
         evo()->clearCache();
     }
 
-    function get_img_prev_src()
-    {
-        if ($this->noconflictjq == 'true') $jq_mode = '$j';
-        else                               $jq_mode = '$';
+    function get_img_prev_src(){
+        if ($this->noconflictjq == 'true') {
+            $jq_mode = '$j';
+        } else {
+            $jq_mode = '$';
+        }
 
         $src = <<< EOT
 <div id="qm-tv-image-preview"><img class="qm-tv-image-preview-drskip qm-tv-image-preview-skip" src="[+site_url+][tv_value+]" alt="" /></div>
@@ -974,5 +958,26 @@ function getCookie(cookieName)
 </script>
 EOT;
         return $src;
+    }
+
+    private function config($key, $default=null) {
+        $conf = evo()->event->params;
+        if(!isset($conf[$key])) {
+            if ($key === 'jqpath') {
+                if ($this->jqpath) {
+                    return $this->jqpath;
+                }
+                return 'manager/media/script/jquery/jquery.min.js';
+            }
+            return $default;
+        }
+        if($conf[$key]==='true') {
+            $conf[$key] = true;
+        }
+        if($conf[$key]==='false') {
+            $conf[$key] = false;
+        }
+        return $conf[$key];
+
     }
 }
