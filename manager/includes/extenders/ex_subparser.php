@@ -31,7 +31,7 @@ class SubParser {
             $p['to'] = $p['sendto'];
         }
 
-        if(isset($p['to']) && preg_match('@^[0-9]+$@',$p['to'])) {
+        if(isset($p['to']) && preg_match('@^[1-9][0-9]*$@',$p['to'])) {
             $userinfo = $modx->getUserInfo($p['to']);
             $p['to'] = $userinfo['email'];
         }
