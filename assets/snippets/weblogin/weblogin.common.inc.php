@@ -29,7 +29,7 @@ function webLoginAlert($msg, $ph=array()) {
     global $modx;
     return sprintf(
         '<script>window.setTimeout("alert(\'%s\')",10);</script>'
-        , addslashes($modx->db->escape(lang($msg,$ph)))
+        , addslashes($modx->db->escape(fmplang($msg,$ph)))
     );
 }
 
@@ -91,7 +91,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
 	return $modx->makeUrl($docid, $alias, $url,'full');
 }
 
-function lang($key,$ph=array()) {
+function fmplang($key,$ph=array()) {
     $_lang = array(
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',
         'Your new password was successfully activated.' => 'アクティベーションしました。新しいパスワードでログインできます。',
