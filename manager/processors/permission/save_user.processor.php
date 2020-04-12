@@ -64,7 +64,7 @@ if (in_array(post('mode'), array('12','74'))) {
     }
 
     // check if the email address already exists
-    if (userid_byemail(post('email')) != post('userid')) {
+    if (userid_byemail(post('email'))) {
         webAlert('Email is already in use!');
         exit;
     }
