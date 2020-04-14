@@ -25,9 +25,9 @@ class ManagerAPI {
 
     function initPageViewState($id=0)
     {
-        global $modx, $_PAGE;
+        global $_PAGE;
 
-        if($modx->session_var('mgrPageViewSID', '') != $this->action) {
+        if(evo()->session_var('mgrPageViewSID', '') != $this->action) {
             $_SESSION['mgrPageViewSDATA'] = array(); // new view state
             $_SESSION['mgrPageViewSID']   = ($id > 0) ? $id : $this->action; // set id
         }
@@ -35,8 +35,7 @@ class ManagerAPI {
     }
 
     // save page view state - not really necessary,
-    function savePageViewState($id=0)
-    {
+    function savePageViewState($id=0) {
         global $_PAGE;
         $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
         $_SESSION['mgrPageViewSID']   = ($id > 0) ? $id : $this->action;
@@ -44,11 +43,8 @@ class ManagerAPI {
 
     // check for saved form
     function hasFormValues() {
-        global $modx;
-        if(isset($_SESSION['mgrFormValueId']) && $modx->session_var('mgrFormValues'))
-        {
-            if($this->action==$_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues']))
-            {
+        if(isset($_SESSION['mgrFormValueId']) && evo()->session_var('mgrFormValues')) {
+            if($this->action==$_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues'])) {
                 return true;
             }
 
@@ -57,48 +53,42 @@ class ManagerAPI {
         return false;
     }
     // saved form post from $_POST
-    function saveFormValues($id=0)
-    {
-        if(!$_POST) return false;
+    function saveFormValues($id=0) {
+        if(!$_POST) {
+            return false;
+        }
         $_SESSION['mgrFormValues']  = $_POST;
         $_SESSION['mgrFormValueId'] = ($id > 0) ? $id : $this->action;
         return true;
     }
     // load saved form values into $_POST
-    function loadFormValues()
-    {
-        if($this->hasFormValues())
-        {
-            $p = $_SESSION['mgrFormValues'];
-            foreach($p as $k=>$v)
-            {
-                $_POST[$k]=$v;
-            }
-            $this->clearSavedFormValues();
-            return $_POST;
+    function loadFormValues() {
+        if(!$this->hasFormValues()) {
+            return false;
         }
-
-        return false;
+        $p = $_SESSION['mgrFormValues'];
+        foreach ($p as $k => $v) {
+            $_POST[$k] = $v;
+        }
+        $this->clearSavedFormValues();
+        return $_POST;
     }
     // clear form post
-    function clearSavedFormValues()
-    {
+    function clearSavedFormValues() {
         unset($_SESSION['mgrFormValues'], $_SESSION['mgrFormValueId']);
     }
 
-    function get_alias_from_title($id=0,$pagetitle='')
-    {
-        global $modx;
+    function get_alias_from_title($id=0,$pagetitle='') {
         if($id==='') {
             $id = 0;
         }
 
         $pagetitle = trim($pagetitle);
         if($pagetitle!=='') {
-            $alias = strtolower($modx->stripAlias($pagetitle));
+            $alias = strtolower(evo()->stripAlias($pagetitle));
         }
 
-        if($modx->config['allow_duplicate_alias']) {
+        if(evo()->config['allow_duplicate_alias']) {
             return '';
         }
 
@@ -126,10 +116,7 @@ class ManagerAPI {
         return $alias;
     }
 
-    function get_alias_num_in_folder($id='0', $parent='0')
-    {
-        global $modx;
-
+    function get_alias_num_in_folder($id='0', $parent='0') {
         $rs = db()->select(
             'MAX(cast(alias as SIGNED))'
             ,'[+prefix+]site_content'
@@ -144,8 +131,7 @@ class ManagerAPI {
             $_ = 0;
         }
         $_++;
-        while(!isset($noduplex))
-        {
+        while(!isset($noduplex)) {
             $rs = db()->select(
                 'id'
                 ,'[+prefix+]site_content'
@@ -165,20 +151,13 @@ class ManagerAPI {
     }
 
     function modx_move_uploaded_file($tmp_path,$target_path) {
-        global $modx;
-
-        return $modx->move_uploaded_file($tmp_path,$target_path);
+        return evo()->move_uploaded_file($tmp_path,$target_path);
 
     }
 
-    function validate_referer($flag)
-    {
-        global $modx;
-
-        if(isset($_GET['frame']) && $_GET['frame']==='main')
-        {
-            switch($modx->manager->action)
-            {
+    function validate_referer($flag) {
+        if(getv('frame')==='main') {
+            switch(evo()->manager->action) {
                 case '3' :
                 case '120' :
                 case '4' :
@@ -247,55 +226,53 @@ class ManagerAPI {
         $referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
 
         if(empty($referer)) {
-            exit("A possible CSRF attempt was detected. No referer was provided by the server.");
+            exit('A possible CSRF attempt was detected. No referer was provided by the server.');
         }
 
         $referer  = str_replace(array('http://', 'https://'), '//', $referer);
         $site_url = str_replace(array('http://', 'https://'), '//', MODX_SITE_URL);
-        if(stripos($referer, $site_url)!==0)
+        if(stripos($referer, $site_url)!==0) {
             exit("A possible CSRF attempt was detected from referer: {$referer}.");
+        }
     }
 
-    function checkToken()
-    {
-        global $modx;
-
-        $clientToken = $modx->input_any('token', false);
-        $serverToken = $modx->session_var('token', false);
+    function checkToken() {
+        $clientToken = evo()->input_any('token', false);
+        $serverToken = evo()->session_var('token', false);
 
         $_SESSION['token'] = '';
 
-        if(!$clientToken)               return false;
-        if(!$serverToken)               return false;
-        if($clientToken!==$serverToken) return false;
+        if(!$clientToken) {
+            return false;
+        }
+        if(!$serverToken) {
+            return false;
+        }
+        if($clientToken!==$serverToken) {
+            return false;
+        }
 
         return true;
     }
 
-    function makeToken()
-    {
-        global $modx;
-
-        $newToken = $modx->genTokenString();
+    function makeToken() {
+        $newToken = evo()->genTokenString();
         $_SESSION['token'] = $newToken;
         return $newToken;
     }
 
-    function remove_locks($action='all',$limit_time=120)
-    {
-        global $modx;
-
+    function remove_locks($action='all',$limit_time=120) {
         $limit_time = time() - $limit_time;
-        if($action === 'all')
-        {
+        if($action === 'all') {
             $action = '';
-        }
-        else
-        {
+        } else {
             $action = (int)$action;
             $action = "action={$action} and";
         }
-        db()->delete('[+prefix+]active_users',"{$action} lasthit < {$limit_time}");
+        db()->delete(
+            '[+prefix+]active_users'
+            , sprintf('%s lasthit < %s', $action, $limit_time)
+        );
     }
 
     function getHashType($db_value='') { // md5 | v1 | phpass
@@ -315,20 +292,16 @@ class ManagerAPI {
         return 'unknown';
     }
 
-    function genV1Hash($password, $seed='1')
-    { // $seed is user_id basically
-        global $modx;
-
-        if(isset($modx->config['pwd_hash_algo']) && !empty($modx->config['pwd_hash_algo'])) {
-            $algorithm = $modx->config['pwd_hash_algo'];
+    function genV1Hash($password, $seed='1') { // $seed is user_id basically
+        if(isset(evo()->config['pwd_hash_algo']) && !empty(evo()->config['pwd_hash_algo'])) {
+            $algorithm = evo()->config['pwd_hash_algo'];
         } else {
             $algorithm = 'UNCRYPT';
         }
 
         $salt = md5($password . $seed);
 
-        switch($algorithm)
-        {
+        switch($algorithm) {
             case 'BLOWFISH_Y':
                 $salt = '$2y$07$' . substr($salt,0,22);
                 break;
@@ -348,8 +321,7 @@ class ManagerAPI {
                 break;
         }
 
-        if($algorithm!=='UNCRYPT')
-        {
+        if($algorithm!=='UNCRYPT') {
             $password = sha1($password) . crypt($password,$salt);
         } else {
             $password = sha1($salt . $password);
@@ -365,10 +337,7 @@ class ManagerAPI {
         return $result;
     }
 
-    function getV1UserHashAlgorithm($uid)
-    {
-        global $modx;
-
+    function getV1UserHashAlgorithm($uid) {
         $user = db()->getObject('manager_users',"id='{$uid}'");
 
         if(strpos($user->password, '>')===false) {
@@ -384,15 +353,14 @@ class ManagerAPI {
         );
     }
 
-    function checkHashAlgorithm($algorithm='')
-    {
-        if(empty($algorithm)) return '';
+    function checkHashAlgorithm($algorithm='') {
+        if(!$algorithm) {
+            return '';
+        }
 
-        switch($algorithm)
-        {
+        switch($algorithm) {
             case 'BLOWFISH_Y':
-                if(defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1)
-                {
+                if(defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1) {
                     if(version_compare('5.3.7', PHP_VERSION) <= 0) $result = true;
                 }
                 break;
@@ -419,8 +387,7 @@ class ManagerAPI {
         return $result;
     }
 
-    function setView($action)
-    {
+    function setView($action) {
         $actions = explode(',', '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
         if(in_array($action, $actions))
         {
@@ -431,8 +398,7 @@ class ManagerAPI {
         }
     }
 
-    function ab($ph)
-    {
+    function ab($ph) {
         return html_tag(
             '<li>'
             , array('class'=> $ph['label']==lang('cancel') ? 'class="mutate"' : ''),
@@ -452,10 +418,7 @@ class ManagerAPI {
         );
     }
 
-    function newCategory($newCat)
-    {
-        global $modx;
-
+    function newCategory($newCat) {
         $newCatid = db()->insert(
             array('category' => db()->escape($newCat))
             , '[+prefix+]categories'
@@ -468,10 +431,7 @@ class ManagerAPI {
     }
 
     //check if new category already exists
-    function checkCategory($newCat = '')
-    {
-        global $modx;
-
+    function checkCategory($newCat = '') {
         $rs = db()->select(
             'id,category'
             , '[+prefix+]categories'
@@ -492,9 +452,7 @@ class ManagerAPI {
     }
 
     //Get all categories
-    function getCategories()
-    {
-        global $modx;
+    function getCategories() {
         $rs = db()->select(
             'id, category'
             , '[+prefix+]categories'
@@ -508,8 +466,8 @@ class ManagerAPI {
         }
 
         $resourceArray = array();
-        while($row = db()->getRow($rs)) // pixelchutes
-        {
+        // pixelchutes
+        while($row = db()->getRow($rs)) {
             $resourceArray[] = array(
                 'id'       => $row['id'],
                 'category' => stripslashes($row['category'])
@@ -519,10 +477,7 @@ class ManagerAPI {
     }
 
     //Delete category & associations
-    function deleteCategory($catId=0)
-    {
-        global $modx;
-
+    function deleteCategory($catId=0) {
         if (!$catId) {
             return;
         }
@@ -559,10 +514,10 @@ class ManagerAPI {
      */
 
     function sysAlert($sysAlertMsgQueque='') {
-        global $modx,$_lang;
+        global $_lang;
 
         if(!$sysAlertMsgQueque) {
-            $sysAlertMsgQueque = $modx->SystemAlertMsgQueque;
+            $sysAlertMsgQueque = evo()->SystemAlertMsgQueque;
             if(!$sysAlertMsgQueque) {
                 return '';
             }
@@ -580,7 +535,7 @@ class ManagerAPI {
             $alerts[] = $_;
         }
 
-        return $modx->parseText(
+        return evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
             , array(
                 'alerts' => db()->escape(implode('<hr />',$alerts)),
@@ -590,13 +545,11 @@ class ManagerAPI {
     }
 
     function getMessageCount() {
-        global $modx;
-
-        if(!$modx->hasPermission('messages')) {
+        if(!evo()->hasPermission('messages')) {
             return false;
         }
 
-        $uid = $modx->getLoginUserID();
+        $uid = evo()->getLoginUserID();
 
         $new = db()->getValue(
             db()->select(
@@ -624,10 +577,8 @@ class ManagerAPI {
 
     // get user's document groups
     function getMgrDocgroups($uid=0) {
-        global $modx;
-
         if(!$uid) {
-            $uid = $modx->getLoginUserID();
+            $uid = evo()->getLoginUserID();
         }
 
         $rs = db()->select(
@@ -651,10 +602,8 @@ class ManagerAPI {
     }
 
     function getMemberGroups($uid=0) {
-        global $modx;
-
         if(!$uid) {
-            $uid = $modx->getLoginUserID();
+            $uid = evo()->getLoginUserID();
         }
 
         $rs = db()->select(
@@ -686,8 +635,6 @@ class ManagerAPI {
      *
      */
     function setMgrDocsAsPrivate($docid='') {
-        global $modx;
-
         db()->update(
             array('privatemgr'=>0)
             , '[+prefix+]site_content'
@@ -727,8 +674,6 @@ class ManagerAPI {
      *
      */
     function setWebDocsAsPrivate($docid='') {
-        global $modx;
-
         db()->update(
             array('privateweb'=>0)
             , '[+prefix+]site_content'
@@ -765,8 +710,6 @@ class ManagerAPI {
     }
 
     function renderTabPane($ph) {
-        global $modx;
-
         $style_path = $this->getStylePath() . 'common/block_tabpane.tpl';
 
         if(!is_file($style_path)) {
@@ -782,15 +725,13 @@ class ManagerAPI {
             $ph['tab-pages'] = join("\n", $ph['tab-pages']);
         }
 
-        return $modx->parseText(
+        return evo()->parseText(
             file_get_contents($style_path)
             , $ph
         );
     }
 
     function renderTabPage($ph) {
-        global $modx;
-
         $style_path = $this->getStylePath() . 'common/block_tabpage.tpl';
 
         if(!is_file($style_path)) {
@@ -808,15 +749,13 @@ class ManagerAPI {
             $ph['content'] = 'content';
         }
 
-        return $modx->parseText(
+        return evo()->parseText(
             file_get_contents($style_path)
             , $ph
         );
     }
 
     function renderSection($ph) {
-        global $modx;
-
         $style_path = $this->getStylePath() . 'common/block_section.tpl';
 
         if(!is_file($style_path)) {
@@ -833,15 +772,13 @@ class ManagerAPI {
             $ph['content'] = 'content';
         }
 
-        return $modx->parseText(
+        return evo()->parseText(
             file_get_contents($style_path)
             , $ph
         );
     }
 
     function renderTr($ph) {
-        global $modx;
-
         $style_path = $this->getStylePath() . 'common/block_tr.tpl';
 
         if(!is_file($style_path)) {
@@ -859,63 +796,56 @@ class ManagerAPI {
             $ph['content'] = 'content';
         }
 
-        return $modx->parseText(
+        return evo()->parseText(
             file_get_contents($style_path)
             , $ph);
     }
 
-    function isAllowed($id)
-    {
+    function isAllowed($id) {
         global $modx;
 
-        if(!$id)
-        {
-            if(!$modx->input_any('pid')) {
+        if(!$id) {
+            if(!evo()->input_any('pid')) {
                 return true;
             }
 
-            $id = $modx->input_any('pid');
+            $id = evo()->input_any('pid');
         }
 
-        if(!$modx->conf_var('allowed_parents')) {
+        if(!evo()->conf_var('allowed_parents')) {
             return true;
         }
 
-        if(!isset($modx->user_allowed_docs)) {
-            $modx->user_allowed_docs = $this->getUserAllowedDocs();
+        if(!isset(evo()->user_allowed_docs)) {
+            evo()->user_allowed_docs = $this->getUserAllowedDocs();
         }
 
-        if(!in_array($id, (array)$modx->user_allowed_docs)) {
+        if(!in_array($id, (array)evo()->user_allowed_docs)) {
             return false;
         }
 
         return true;
     }
 
-    function isContainAllowed($id)
-    {
-        global $modx;
+    function isContainAllowed($id) {
         if($this->isAllowed($id)) {
             return true;
         }
 
-        $childlen = $modx->getChildIds($id);
-        if(empty($childlen)) {
+        $childlen = evo()->getChildIds($id);
+        if(!$childlen) {
             return false;
         }
 
-        foreach($childlen as $child)
-        {
-            if(in_array($child,$modx->user_allowed_docs))
-            {
+        foreach($childlen as $child) {
+            if(in_array($child, evo()->user_allowed_docs)) {
                 return true;
             }
         }
         return false;
     }
 
-    function getUserAllowedDocs()
-    {
+    function getUserAllowedDocs() {
         global $modx;
 
         $modx->user_allowed_docs = array();
@@ -937,10 +867,9 @@ class ManagerAPI {
         }
 
         $_ = array();
-        foreach($allowed_parents as $parent)
-        {
+        foreach($allowed_parents as $parent) {
             $parent = trim($parent);
-            $children = $modx->getChildIds($parent);
+            $children = evo()->getChildIds($parent);
             $_[] = $parent;
             foreach($children as $child) {
                 $_[] = $child;
@@ -950,8 +879,7 @@ class ManagerAPI {
         return $modx->user_allowed_docs;
     }
 
-    function getUploadMaxsize()
-    {
+    function getUploadMaxsize() {
         $upload_max_filesize = ini_get('upload_max_filesize');
         $post_max_size       = ini_get('post_max_size');
         $memory_limit        = ini_get('memory_limit');
@@ -967,8 +895,7 @@ class ManagerAPI {
         return $limit_size;
     }
 
-    function getTplModule()
-    {
+    function getTplModule() {
         ob_start();
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         echo '[+content+]';
@@ -977,9 +904,8 @@ class ManagerAPI {
     }
 
     function loadDatePicker($path) {
-        global $modx;
         include_once($path);
         $dp = new DATEPICKER();
-        return $modx->mergeSettingsContent($dp->getDP());
+        return evo()->mergeSettingsContent($dp->getDP());
     }
 }
