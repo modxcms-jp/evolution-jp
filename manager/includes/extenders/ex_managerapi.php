@@ -747,7 +747,7 @@ class ManagerAPI {
 
         $ids = db()->getColumn('id',$rs);
 
-        if($ids) {
+        if(!$ids) {
             return '';
         }
 
