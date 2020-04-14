@@ -857,7 +857,7 @@ class ManagerAPI {
                 , preg_replace(
                     '@\s+@'
                     , ' '
-                    , trim($modx->config['allowed_parents'])
+                    , trim(evo()->config['allowed_parents'])
                 )
             )
         );
