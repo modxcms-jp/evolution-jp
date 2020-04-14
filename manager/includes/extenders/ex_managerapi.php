@@ -880,19 +880,11 @@ class ManagerAPI {
     }
 
     function getUploadMaxsize() {
-        $upload_max_filesize = ini_get('upload_max_filesize');
-        $post_max_size       = ini_get('post_max_size');
-        $memory_limit        = ini_get('memory_limit');
-        if(version_compare($upload_max_filesize, $post_max_size,'<')) {
-            $limit_size = $upload_max_filesize;
-        } else {
-            $limit_size = $post_max_size;
-        }
-
-        if(version_compare($memory_limit, $limit_size,'<')) {
-            $limit_size = $memory_limit;
-        }
-        return $limit_size;
+        return max(
+            ini_get('upload_max_filesize')
+            , ini_get('post_max_size')
+            , ini_get('memory_limit')
+        );
     }
 
     function getTplModule() {
