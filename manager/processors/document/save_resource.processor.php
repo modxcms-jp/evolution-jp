@@ -125,7 +125,9 @@ if (mode() === 'edit') {
     updateParentStatus($form_v['parent']);
 
     // finished moving the document, now check to see if the old_parent should no longer be a folder
-    if ($db_v['parent'] !== '0') folder2doc($db_v['parent']);
+    if ($db_v['parent'] != 0) {
+        folder2doc($db_v['parent']);
+    }
 
     if (evo()->config['use_udperms'] === '1') {
         evo()->manager->setWebDocsAsPrivate($id);
@@ -244,7 +246,8 @@ function get_alias($id,$alias,$parent,$pagetitle) {
     if (!$parent) {
         $parent = '0';
     }
-    if ($alias && !evo()->config('allow_duplicate_alias')) { // check for duplicate alias name if not allowed
+    if ($alias && !evo()->config('allow_duplicate_alias')) {
+        // check for duplicate alias name if not allowed
         return _check_duplicate_alias($id, $alias, $parent);
     }
 
@@ -361,8 +364,7 @@ function checkDocPermission($id,$document_groups=array()) {
     }
     
     // get the document, but only if it already exists
-    if (mode() === 'edit')
-    {
+    if (mode() === 'edit') {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
         $total = db()->getRecordCount($rs);
         if ($total > 1) {
@@ -372,11 +374,15 @@ function checkDocPermission($id,$document_groups=array()) {
             alert()->setError(7);
             alert()->dumpError();
         }
-        if (evo()->config['use_udperms'] !== 1) return;
+        if (evo()->config['use_udperms'] != 1) {
+            return;
+        }
         $existingDocument = db()->getRow($rs);
         
         // check to see if the user is allowed to save the document in the place he wants to save it in
-        if ($existingDocument['parent'] == $form_v['parent']) return;
+        if ($existingDocument['parent'] == $form_v['parent']) {
+            return;
+        }
         
         if (!evo()->checkPermissions($form_v['parent'])) {
             if (mode() === 'new') {
@@ -397,9 +403,15 @@ function checkDocPermission($id,$document_groups=array()) {
 }
 
 function isAllowroot() {
-    if($_POST['parent']!=='0')             return 1;
-    if(evo()->hasPermission('save_role'))  return 1;
-    if(evo()->config['udperms_allowroot']) return 1;
+    if($_POST['parent']!=0) {
+        return 1;
+    }
+    if(evo()->hasPermission('save_role')) {
+        return 1;
+    }
+    if(evo()->config['udperms_allowroot']) {
+        return 1;
+    }
     else                                   return 0;
 }
 
