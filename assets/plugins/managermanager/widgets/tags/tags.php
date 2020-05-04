@@ -100,7 +100,7 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
 
         // Initiate the tagCompleter class for this field
         $output .= $modx->parseText(
-            'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]]"); '
+            'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
             , array(
                 'tv_id' => $tv_id,
                 'delim' => $delimiter
