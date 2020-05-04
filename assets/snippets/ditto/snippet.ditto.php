@@ -381,7 +381,7 @@ if (isset($documents)) {
 // type of IDs provided; can be either parents or documents
 
 if (isset($parents)) {
-    $parents = $ditto->cleanIDs($parents);
+    $parents = trim(preg_replace('`(,)+`', ',', $parents), ',');
 } else {
     $parents = $modx->documentIdentifier;
 }
@@ -403,7 +403,7 @@ if (isset($parents)) {
     - <depth>
 */
 if (isset($documents)) {
-    $documents = $ditto->cleanIDs($documents);
+    $documents = trim(preg_replace('`(,)+`', ',', $documents), ',');
 } else {
     $documents = false;
 }

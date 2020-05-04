@@ -1073,32 +1073,6 @@ class ditto {
     }
 
     // ---------------------------------------------------
-    // Function: cleanIDs
-    // Clean the IDs of any dangerous characters
-    // ---------------------------------------------------
-
-    function cleanIDs($IDs) {
-        //Define the pattern to search for
-        $pattern = array (
-            '`(,)+`', //Multiple commas
-            '`^(,)`', //Comma on first position
-            '`(,)$`' //Comma on last position
-        );
-
-        //Define replacement parameters
-        $replace = array (
-            ',',
-            '',
-            ''
-        );
-
-        //Clean startID (all chars except commas and numbers are removed)
-        $IDs = preg_replace($pattern, $replace, $IDs);
-
-        return $IDs;
-    }
-
-    // ---------------------------------------------------
     // Function: formatDate
     // Render the date in the proper format and encoding
     // ---------------------------------------------------
