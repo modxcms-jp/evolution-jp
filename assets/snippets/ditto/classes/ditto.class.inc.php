@@ -189,9 +189,11 @@ class ditto {
                 $position = strrpos($input,' ');
                 // find last space
                 $sortBy = substr($input,0,$position);
-                $sortBy = !empty($sortBy) ? $sortBy : 'id';
+                if(!$sortBy) {
+                    $sortBy = 'id';
+                }
                 $sortDir = substr($input,$position);
-                $sortDir = !empty($sortDir) ? trim($sortDir) : 'asc';
+                $sortDir = $sortDir ? trim($sortDir) : 'asc';
                 $sortBy = $this->checkAdvSort($sortBy,$sortDir);
                 $this->addField($sortBy, 'backend');
                 $orderBy['parsed'][] = array($sortBy,strtoupper($sortDir));
@@ -579,7 +581,7 @@ class ditto {
         , $filter
         , $randomize
     ) {
-        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || ($IDs === false)) {
+        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
             return array();
         }
 
@@ -599,7 +601,7 @@ class ditto {
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
             $documentIDs = array();
             if ($documents) {
-                foreach ($documents as $null=>$doc) {
+                foreach ($documents as $doc) {
                     $documentIDs[] = $doc['id'];
                 }
             }
@@ -635,13 +637,11 @@ class ditto {
             ,$randomize
             ,$dateSource
         );
-        if ($resource !== false)
-        {
+        if ($resource) {
             $resource = array_values($resource);
             // remove #'s from keys
 
-            if (!$seeThruUnpub)
-            {
+            if (!$seeThruUnpub) {
                 $parentList = $this->getParentList();
                 // get parent list
             }
@@ -662,12 +662,12 @@ class ditto {
             if ($this->debug) {
                 $dbg_resource = $resource;
             }
-            if ($filter !== false) {
+            if ($filter) {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
             }
             if (!$resource) return array();
-            if ($this->advSort == true && $randomize==0) {
+            if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource,$orderBy);
             }
             if ($orderBy['custom']) {

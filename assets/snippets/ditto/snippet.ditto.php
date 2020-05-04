@@ -423,7 +423,7 @@ if (isset($documents)) {
     - <parents>
 */
 
-if (($idType === 'parents')) {
+if ($idType === 'parents') {
     $IDs = $parents;
 } else {
     $IDs = $documents;
