@@ -669,6 +669,11 @@ class ditto {
             if (!$resource) return array();
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource,$orderBy);
+            } elseif(event()->param('documents') && !event()->param('orderBy')) {
+                $resource = $this->unsort(
+                    $resource
+                    , event()->param('documents')
+                );
             }
             if ($orderBy['custom']) {
                 $resource = $this->userSort($resource,$orderBy);
@@ -719,6 +724,18 @@ class ditto {
         return array();
     }
 
+    private function unsort($docs,$ids) {
+        $rs = array();
+        foreach($docs as $doc) {
+            $docs_tmp[$doc['id']] = $doc;
+        }
+        $ids = explode(',', $ids);
+        $rs = array();
+        foreach ($ids as $id) {
+            $rs[] = $docs_tmp[$id];
+        }
+        return $rs;
+    }
     // ---------------------------------------------------
     // Function: weightedRandom
     // Execute a random order sort
