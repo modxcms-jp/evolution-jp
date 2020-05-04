@@ -923,8 +923,8 @@ class ditto {
             $where = 'AND sc.' . join(' AND sc.', $_);
         }
 
-        if ($randomize != 0) $sort = 'RAND()';
-        else                 $sort = $orderBy['sql'];
+        if ($randomize) $sort = 'RAND()';
+        else            $sort = $orderBy['sql'];
 
         $sql = sprintf(
             "SELECT DISTINCT %s FROM %s sc
