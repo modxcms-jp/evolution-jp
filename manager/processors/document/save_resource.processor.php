@@ -41,7 +41,7 @@ if (mode() === 'new') {
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
-        evo()->webAlertAndQuit($msg, 'index.php?a=' . $_GET['a']);
+        evo()->webAlertAndQuit($msg, 'index.php?a=' . getv('a'));
     }
 
     if (!empty($param['tv_vars'])) {
@@ -51,7 +51,7 @@ if (mode() === 'new') {
     setDocPermissionsNew($document_groups, $newid);
     updateParentStatus($form_v['parent']);
 
-    if (evo()->config['use_udperms']) {
+    if (evo()->config('use_udperms')) {
         evo()->manager->setWebDocsAsPrivate($newid);
         evo()->manager->setMgrDocsAsPrivate($newid);
     }
@@ -69,7 +69,7 @@ if (mode() === 'new') {
 }
 
 if (mode() === 'edit') {
-    if ($id == evo()->config['site_start']) {
+    if ($id == evo()->config('site_start')) {
         checkStartDoc($id, $form_v['published'], $form_v['pub_date'], $form_v['unpub_date']);
     }
     if($id == $form_v['parent']) {
@@ -129,7 +129,7 @@ if (mode() === 'edit') {
         folder2doc($db_v['parent']);
     }
 
-    if (evo()->config['use_udperms'] === '1') {
+    if (evo()->config('use_udperms') == 1) {
         evo()->manager->setWebDocsAsPrivate($id);
         evo()->manager->setMgrDocsAsPrivate($id);
     }
@@ -164,8 +164,8 @@ function get_tmplvars($id=0) {
     }
     
     // get document groups for current user
-    if ($_SESSION['mgrDocgroups']) {
-        $docgrp = implode(',', $_SESSION['mgrDocgroups']);
+    if (sessionv('mgrDocgroups')) {
+        $docgrp = implode(',', sessionv('mgrDocgroups'));
     }
 
     $rs = db()->select(
@@ -178,7 +178,7 @@ function get_tmplvars($id=0) {
         , sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
             , $template
-            , $_SESSION['mgrRole']
+            , sessionv('mgrRole')
             , $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
         )
         ,'tv.rank'
@@ -265,7 +265,7 @@ function get_alias($id,$alias,$parent,$pagetitle) {
 
 function _check_duplicate_alias($id,$alias,$parent) {
     // only check for duplicates on the same level if alias_path is on
-    if (evo()->config['use_alias_path']) {
+    if (evo()->config('use_alias_path')) {
         $docid = db()->getValue(
             'id'
             , '[+prefix+]site_content'
@@ -315,12 +315,12 @@ function _check_duplicate_alias($id,$alias,$parent) {
         if (mode() === 'edit') {
             $url .= sprintf('&id=%s', $id);
         }
-        elseif($_REQUEST['pid']) {
-            $url .= sprintf('&pid=%s', $_REQUEST['pid']);
+        elseif(anyv('pid')) {
+            $url .= sprintf('&pid=%s', anyv('pid'));
         }
         
-        if($_REQUEST['stay']) {
-            $url .= '&stay=' . $_REQUEST['stay'];
+        if(anyv('stay')) {
+            $url .= '&stay=' . anyv('stay');
         }
 
         evo()->webAlertAndQuit(
@@ -337,7 +337,7 @@ function _check_duplicate_alias($id,$alias,$parent) {
 function checkDocPermission($id,$document_groups=array()) {
     global $form_v;
     // ensure that user has not made this document inaccessible to themselves
-    if($_SESSION['mgrRole'] != 1 && is_array($document_groups) && $document_groups) {
+    if(sessionv('mgrRole') != 1 && is_array($document_groups) && $document_groups) {
         $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
         if($document_group_list) {
             $count = db()->getValue(
@@ -347,7 +347,7 @@ function checkDocPermission($id,$document_groups=array()) {
                     , sprintf(
                         "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'"
                         , $document_group_list
-                        , $_SESSION['mgrInternalKey']
+                        , sessionv('mgrInternalKey')
                 ))
             );
             if(!$count) {
@@ -374,7 +374,7 @@ function checkDocPermission($id,$document_groups=array()) {
             alert()->setError(7);
             alert()->dumpError();
         }
-        if (evo()->config['use_udperms'] != 1) {
+        if (evo()->config('use_udperms') != 1) {
             return;
         }
         $existingDocument = db()->getRow($rs);
@@ -403,13 +403,13 @@ function checkDocPermission($id,$document_groups=array()) {
 }
 
 function isAllowroot() {
-    if($_POST['parent']!=0) {
+    if(postv('parent')!=0) {
         return 1;
     }
     if(evo()->hasPermission('save_role')) {
         return 1;
     }
-    if(evo()->config['udperms_allowroot']) {
+    if(evo()->config('udperms_allowroot')) {
         return 1;
     }
     else                                   return 0;
@@ -474,9 +474,10 @@ function checkFolderStatus($id) {
 // keep original publish state, if change is not permitted
 function getPublishPermission($field_name,$db_v) {
     global $form_v;
-    if (!evo()->hasPermission('publish_document'))
+    if (!evo()->hasPermission('publish_document')) {
         return $db_v[$field_name];
-    else return $form_v[$field_name];
+    }
+    return $form_v[$field_name];
 }
 
 function checkPublished($db_v) {
@@ -516,21 +517,24 @@ function checkPublishedon($timestamp) {
 function checkPublishedby($db_v) {
     global $form_v;
     
-    if(!evo()->hasPermission('publish_document'))
+    if(!evo()->hasPermission('publish_document')) {
         return $db_v['publishedon'];
-    else
-    {
-        // if it was changed from unpublished to published
-        if(!empty($form_v['pub_date']) && $form_v['pub_date']<=$_SERVER['REQUEST_TIME'] && $form_v['published'])
-            $publishedby = $db_v['publishedby'];
-        elseif (0<$db_v['publishedon'] && $form_v['published'])
-            $publishedby = $db_v['publishedby'];
-        elseif(!$form_v['published'])
-            $publishedby = 0;
-        else
-            $publishedby = evo()->getLoginUserID();
-        return $publishedby;
     }
+
+    // if it was changed from unpublished to published
+    if ($form_v['published'] && $form_v['pub_date']<=serverv('REQUEST_TIME')) {
+        return $db_v['publishedby'];
+    }
+
+    if (0<$db_v['publishedon'] && $form_v['published']) {
+        return $db_v['publishedby'];
+    }
+
+    if(!$form_v['published']) {
+        return 0;
+    }
+
+    return evo()->getLoginUserID();
 }
 
 function getExistsValues($id) {
@@ -547,17 +551,19 @@ function getExistsValues($id) {
 }
 
 function insert_tmplvars($docid,$tmplvars) {
-    if(empty($tmplvars)) return;
+    if(!$tmplvars) {
+        return;
+    }
     $tvChanges = array();
     $tv['contentid'] = $docid;
     foreach ($tmplvars as $tmplvarid=>$value) {
         if ($value!==false) {
             $tv['tmplvarid'] = $tmplvarid;
-            $tv['value']	 = $value;
+            $tv['value']     = $value;
             $tvChanges[] = $tv;
         }
     }
-    if(!empty($tvChanges)) {
+    if($tvChanges) {
         foreach ($tvChanges as $tv) {
             $tv = db()->escape($tv);
             db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
@@ -566,7 +572,9 @@ function insert_tmplvars($docid,$tmplvars) {
 }
 
 function update_tmplvars($docid,$tmplvars) {
-    if(empty($tmplvars)) return;
+    if(!$tmplvars) {
+        return;
+    }
     $tvChanges   = array();
     $tvAdded	 = array();
     $tvDeletions = array();
@@ -654,7 +662,7 @@ function setDocPermissionsNew($document_groups,$newid) {
         }
     } else {
         // inherit document access permissions
-        if(evo()->config['use_udperms']==1 && isPublic() && $parent) {
+        if(evo()->config('use_udperms')==1 && isPublic() && $parent) {
             $sql = sprintf(
                 "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'"
                 , $tbl_document_groups
@@ -698,26 +706,35 @@ function updateParentStatus($parent) {
 function goNextAction($id,$parent,$next,$type) {
     if ($next === 'new') {
         if ($type === 'document') {
-            header("Location: index.php?a=4&pid=" . $parent . "&r=1&stay=new");
+            header(
+                sprintf('Location: index.php?a=4&pid=%s&r=1&stay=new', $parent)
+            );
             return;
         }
-        header("Location: index.php?a=72&pid=" . $parent . "&r=1&stay=new");
+        header(
+            sprintf('Location: index.php?a=72&pid=%s&r=1&stay=new', $parent)
+        );
         return;
     }
     if ($next === 'stay') {
-        header("Location: index.php?a=27&id=" . $id . "&r=1&stay=stay");
+        header(
+            sprintf('Location: index.php?a=27&id=%s&r=1&stay=stay', $id)
+        );
         return;
     }
     if ($parent) {
-        header("Location: index.php?a=120&id=" . $parent . "&r=1");
+        header(
+            sprintf('Location: index.php?a=120&id=%s&r=1', $parent)
+        );
         return;
     }
     header("Location: index.php?a=3&id=" . $id . "&r=1");
 }
 
 function setDocPermissionsEdit($document_groups,$id) {
-    if (evo()->config['use_udperms'] != 1 || !is_array($document_groups))
+    if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
         return;
+    }
 
     // grab the current set of permissions on this document the user can access
     $rs = db()->select(
@@ -733,9 +750,9 @@ function setDocPermissionsEdit($document_groups,$id) {
             , $id
         )
     );
-    $old_groups = array();
+    $exists_groups = array();
     while ($row = db()->getRow($rs)) {
-        $old_groups[$row['document_group']] = $row['id'];
+        $exists_groups[$row['document_group']] = $row['id'];
     }
     // update the permissions in the database
     $new_groups = array();
@@ -747,8 +764,8 @@ function setDocPermissionsEdit($document_groups,$id) {
     $insertions = array();
     foreach ($new_groups as $group_id => $link_id) {
         $group_id = (int)$group_id;
-        if (array_key_exists($group_id, $old_groups)) {
-            unset($old_groups[$group_id]);
+        if (isset($exists_groups[$group_id])) {
+            unset($exists_groups[$group_id]);
             continue;
         }
         if ($link_id === 'new') {
@@ -767,10 +784,10 @@ function setDocPermissionsEdit($document_groups,$id) {
             $saved = false;
         }
     }
-    if ($old_groups) {
+    if ($exists_groups) {
         $rs = db()->delete(
             '[+prefix+]document_groups'
-            , sprintf('id IN (%s)', implode(',', $old_groups))
+            , sprintf('id IN (%s)', implode(',', $exists_groups))
         );
         if(!$rs) {
             $saved = false;
