@@ -133,7 +133,7 @@ $info = array(
     'max_execution_time' => ini_get('max_execution_time') . '秒(PHP処理の制限時間。スクリプト暴走の継続を防止します)',
     'max_input_time' => ini_get('max_input_time') . '秒(POST・GET・ファイルアップロードなどの入力を処理する制限時間。回線の太さの影響を受けることもあります)',
     'session.save_path' => ini_get('session.save_path') . '(セッションデータを保存するディレクトリ。CGI版PHPの場合はユーザの違いが原因でここに書き込み権限がない場合があるため、注意が必要です)',
-    'magic_quotes_gpc' => get_magic_quotes_gpc() ? 'On':'Off' . '(クォート文字を自動的にエスケープします。トラブルの元になりやすいためOffを推奨します)',
+    'magic_quotes_gpc' => version_compare(PHP_VERSION, '5.4') < 0 && get_magic_quotes_gpc() ? 'On':'Off' . '(クォート文字を自動的にエスケープします。トラブルの元になりやすいためOffを推奨します)',
 );
 
 echo '<p>'.getenv('SERVER_SOFTWARE') .'</p>'. "\n" . "\n";

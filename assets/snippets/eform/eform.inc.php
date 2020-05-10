@@ -247,7 +247,9 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
                 //remove empty values
                 $fields[$name] = array_filter($value, create_function('$v','return (!empty($v));'));
             } else {
-                if(get_magic_quotes_gpc())                     $value = stripslashes($value);
+                if((version_compare(PHP_VERSION, '5.4') < 0) && get_magic_quotes_gpc()) {
+                    $value = stripslashes($value);
+                }
                 if (!$allowhtml || $formats[$name][2]!='html') $value = strip_tags($value);
                 else                                           $value = $modx->htmlspecialchars($value);
                 $fields[$name] = $value;

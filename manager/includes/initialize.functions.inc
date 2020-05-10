@@ -168,10 +168,13 @@ class init {
     }
     
     public static function fix_magic_quotes() {
-        if (version_compare(PHP_VERSION, '5.4') < 0) @set_magic_quotes_runtime(0);
-        
-        // include_once the magic_quotes_gpc workaround
-        if (get_magic_quotes_gpc()) include_once __DIR__ . '/quotes_stripper.inc.php';
+        if (version_compare(PHP_VERSION, '5.4') < 0) {
+            set_magic_quotes_runtime(0);
+            // include_once the magic_quotes_gpc workaround
+            if (get_magic_quotes_gpc()) {
+                include_once __DIR__ . '/quotes_stripper.inc.php';
+            }
+        }
     }
     
     public static function fix_request_time() {
