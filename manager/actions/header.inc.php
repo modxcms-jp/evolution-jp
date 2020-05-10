@@ -98,6 +98,7 @@ if(!isset($modx->config['mgr_date_picker_path']))   $modx->config['mgr_date_pick
 		
 		jQuery(function(){
 			jQuery('#preLoader').hide();
+			jQuery('input.DatePicker').attr('autocomplete','off');
 		});
         
 		jQuery(window).on('beforeunload', function(){
