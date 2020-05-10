@@ -92,18 +92,18 @@ class SubParser {
             $trim = $limit;
         }
 
-        $count = $modx->db->getValue($modx->db->select('COUNT(id)',"[+prefix+]{$target}"));
+        $count = db()->getValue(db()->select('COUNT(id)',"[+prefix+]{$target}"));
         $over = $count - $limit;
         if(0 < $over) {
             $trim = ($over + $trim);
-            $modx->db->delete("[+prefix+]{$target}",'','',$trim);
+            db()->delete("[+prefix+]{$target}",'','',$trim);
         }
         if( config('automatic_optimize') == 1 ){
-            $rs = $modx->db->query(
-                sprintf('SHOW TABLE STATUS FROM `%s`',trim($modx->db->dbname,'`'))
+            $rs = db()->query(
+                sprintf('SHOW TABLE STATUS FROM `%s`',trim(db()->dbname,'`'))
             );
-            while ($row = $modx->db->getRow($rs)) {
-                $modx->db->query('OPTIMIZE TABLE ' . $row['Name']);
+            while ($row = db()->getRow($rs)) {
+                db()->query('OPTIMIZE TABLE ' . $row['Name']);
             }
         }
     }
@@ -125,7 +125,7 @@ class SubParser {
 
     function logEvent($evtid, $type, $msg, $title= 'Parser'){
         global $modx;
-        if(!$modx->db->isConnected()) {
+        if(!db()->isConnected()) {
             return;
         }
         if(!$modx->config) {
@@ -139,15 +139,15 @@ class SubParser {
         if (3 < $type) {
             $type = 3;
         }
-        if($modx->db->isConnected()) {
-            $msg = $modx->db->escape($msg);
+        if(db()->isConnected()) {
+            $msg = db()->escape($msg);
         }
-        $title = htmlspecialchars($title, ENT_QUOTES, $modx->config['modx_charset']);
-        if($modx->db->isConnected()) {
-            $title = $modx->db->escape($title);
+        $title = hsc($title);
+        if(db()->isConnected()) {
+            $title = db()->escape($title);
         }
         if (function_exists('mb_substr')) {
-            $title = mb_substr($title, 0, 50 , $modx->config['modx_charset']);
+            $title = mb_substr($title, 0, 50 , $modx->config('modx_charset','utf-8'));
         } else {
             $title = substr($title, 0, 50);
         }
@@ -162,9 +162,9 @@ class SubParser {
         $fields['source']      = $title;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
-        $_ = $modx->db->lastQuery;
-        if($modx->db->isConnected()) {
-            $insert_id = $modx->db->insert($fields, '[+prefix+]event_log');
+        $_ = db()->lastQuery;
+        if(db()->isConnected()) {
+            $insert_id = db()->insert($fields, '[+prefix+]event_log');
         } else {
             $title = 'DB connect error';
         }
@@ -330,11 +330,11 @@ class SubParser {
             );
         }
 
-        if ($modx->db->lastQuery) {
+        if (db()->lastQuery) {
             $str .= $modx->parseText(
                 $tpl, array(
                     'left' => 'LastQuery : ',
-                    'right' => $modx->hsc($modx->db->lastQuery)
+                    'right' => $modx->hsc(db()->lastQuery)
                 )
             );
         }
@@ -761,9 +761,9 @@ class SubParser {
     function getSnippetId(){
         global $modx;
         if ($modx->currentSnippet) {
-            $snip = $modx->db->escape($modx->currentSnippet);
-            $rs= $modx->db->select('id', '[+prefix+]site_snippets', "name='{$snip}'",'',1);
-            $row= @ $modx->db->getRow($rs);
+            $snip = db()->escape($modx->currentSnippet);
+            $rs= db()->select('id', '[+prefix+]site_snippets', "name='{$snip}'",'',1);
+            $row= @ db()->getRow($rs);
             if ($row['id']) {
                 return $row['id'];
             }
@@ -782,10 +782,10 @@ class SubParser {
             $phpCode= $modx->snippetCache[$snippetName];
             $properties= $modx->snippetCache["{$snippetName}Props"];
         } else { // not in cache so let's check the db
-            $esc_name = $modx->db->escape($snippetName);
-            $result= $modx->db->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_name}'");
-            if ($modx->db->getRecordCount($result) == 1) {
-                $row = $modx->db->getRow($result);
+            $esc_name = db()->escape($snippetName);
+            $result= db()->select('name,snippet,properties','[+prefix+]site_snippets',"name='{$esc_name}'");
+            if (db()->getRecordCount($result) == 1) {
+                $row = db()->getRow($result);
                 $phpCode= $modx->snippetCache[$snippetName]= $row['snippet'];
                 $properties= $modx->snippetCache["{$snippetName}Props"]= $row['properties'];
             } else {
@@ -809,13 +809,13 @@ class SubParser {
         }
 
         $uid = $modx->getLoginUserID();
-        $ds = $modx->db->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
-        $total = $modx->db->getRecordCount($ds);
+        $ds = db()->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
+        $total = db()->getRecordCount($ds);
         if ($total != 1) {
             return false;
         }
 
-        $row= $modx->db->getRow($ds);
+        $row= db()->getRow($ds);
         if ($row['password'] == md5($oldPwd)) {
             if (strlen($newPwd) < 6) {
                 return 'Password is too short!';
@@ -827,9 +827,9 @@ class SubParser {
             $f = array();
             $f['password'] = md5($newPwd);
             $f['cachepwd'] = '';
-            $f = $modx->db->escape($f);
-            $modx->db->update($f, '[+prefix+]web_users', "id='{$uid}'");
-            $modx->db->update(
+            $f = db()->escape($f);
+            db()->update($f, '[+prefix+]web_users', "id='{$uid}'");
+            db()->update(
                 "blockeduntil='0'"
                 , '[+prefix+]web_user_attributes'
                 , "internalKey='" . $uid . "'"
@@ -1023,8 +1023,8 @@ class SubParser {
             return false;
         }
 
-        $rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$docid}'");
-        $parent = $modx->db->getValue($rs);
+        $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
+        $parent = db()->getValue($rs);
         if ($this->duplicateDoc == true && $parent == 0 && $allowroot == 0) {
             return false; // deny duplicate document at root if Allow Root is No
         }
@@ -1046,8 +1046,8 @@ class SubParser {
         $from  .= ' LEFT JOIN [+prefix+]documentgroup_names dgn ON dgn.id = dg.document_group';
         $where = "sc.id='{$docid}' AND {$where_docgrp}";
 
-        $rs = $modx->db->select($field, $from, $where);
-        $total = $modx->db->getRecordCount($rs);
+        $rs = db()->select($field, $from, $where);
+        $total = db()->getRecordCount($rs);
 
         if ($total == 1) {
             return true;
@@ -1104,14 +1104,14 @@ class SubParser {
                 break;
             case '@SELECT' : // selects a record from the cms database
                 $ph = array (
-                    'dbase' => $modx->db->config['dbase'],
-                    'DBASE' => $modx->db->config['dbase'],
-                    'prefix' => $modx->db->config['table_prefix'],
-                    'PREFIX' => $modx->db->config['table_prefix']
+                    'dbase' => db()->config['dbase'],
+                    'DBASE' => db()->config['dbase'],
+                    'prefix' => db()->config['table_prefix'],
+                    'PREFIX' => db()->config['table_prefix']
                 );
                 $param = $modx->parseText($param,$ph);
-                $rs = $modx->db->query("SELECT {$param}");
-                if($modx->db->getRecordCount($rs)==0) return;
+                $rs = db()->query("SELECT {$param}");
+                if(db()->getRecordCount($rs)==0) return;
                 $output = $rs;
                 break;
             case '@EVAL' : // evaluates text as php codes return the results
@@ -1215,11 +1215,11 @@ class SubParser {
     function parseInput($src, $delim='||', $type='string', $columns=true) { // type can be: string, array
         global $modx;
 
-        if ($modx->db->isResult($src)) {
+        if (db()->isResult($src)) {
             // must be a recordset
             $rows = array();
-            $nc = $modx->db->numFields($src);
-            while ($cols = $modx->db->getRow($src,'num')) {
+            $nc = db()->numFields($src);
+            while ($cols = db()->getRow($src,'num')) {
                 $rows[] = ($columns)? $cols : implode(' ',$cols);
             }
             return ($type=='array')? $rows : implode($delim,$rows);
@@ -1479,13 +1479,13 @@ class SubParser {
         if(strpos($field_elements, '@EVAL') === 0) {
             $eval_str = trim(substr($field_elements, 6));
         } else {
-            $result = $modx->db->select(
+            $result = db()->select(
                 'snippet'
                 , '[+prefix+]site_snippets'
                 , sprintf("name='input:%s'", $field_type)
             );
-            if($modx->db->getRecordCount($result)==1) {
-                $eval_str = $modx->db->getValue($result);
+            if(db()->getRecordCount($result)==1) {
+                $eval_str = db()->getValue($result);
             } else {
                 $eval_str = false;
             }
@@ -1581,9 +1581,9 @@ class SubParser {
             return $v;
         }
 
-        if($modx->db->isResult($v)) {
+        if(db()->isResult($v)) {
             $a = array();
-            while ($cols = $modx->db->getRow($v,'num')) {
+            while ($cols = db()->getRow($v,'num')) {
                 $a[] = $cols;
             }
             return $a;
@@ -1710,8 +1710,8 @@ class SubParser {
             $uid = $modx->getLoginUserID();
             $from  = '[+prefix+]webgroup_names wgn' .
                 " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
-            $rs = $modx->db->select('wgn.name', $from);
-            $grpNames= $modx->db->getColumn('name', $rs);
+            $rs = db()->select('wgn.name', $from);
+            $grpNames= db()->getColumn('name', $rs);
 
             // save to cache
             $_SESSION['webUserGroupNames']= $grpNames;
@@ -1730,10 +1730,10 @@ class SubParser {
 
         $field = 'wu.username, wu.password, wua.*';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
-        $rs= $modx->db->select($field,$from,"wu.id='$uid'");
-        $limit= $modx->db->getRecordCount($rs);
+        $rs= db()->select($field,$from,"wu.id='$uid'");
+        $limit= db()->getRecordCount($rs);
         if ($limit == 1) {
-            $row= $modx->db->getRow($rs);
+            $row= db()->getRow($rs);
             if (!$row['usertype']) {
                 $row['usertype'] = 'web';
             }
@@ -1797,11 +1797,28 @@ class SubParser {
         return '';
     }
 
-    function getDocumentChildrenTVars($parentid= 0, $tvidnames= '*', $published= 1, $docsort= 'menuindex', $docsortdir= 'ASC', $tvfields= '*', $tvsort= 'rank', $tvsortdir= 'ASC')
+    function getDocumentChildrenTVars(
+        $parentid= 0
+        , $tvidnames= '*'
+        , $published= 1
+        , $docsort= 'menuindex'
+        , $docsortdir= 'ASC'
+        , $tvfields= '*'
+        , $tvsort= 'rank'
+        , $tvsortdir= 'ASC'
+    )
     {
         global $modx;
 
-        $docs= $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
+        $docs= $modx->getDocumentChildren(
+            $parentid
+            , $published
+            , 0
+            , '*'
+            , ''
+            , $docsort
+            , $docsortdir
+        );
         if (!$docs) {
             return false;
         }
@@ -1848,17 +1865,26 @@ class SubParser {
             // get document groups for current user
             if ($modx->getUserDocGroups()) {
                 $docgrp= implode(',', $modx->getUserDocGroups());
-                $cond = "OR dg.document_group IN ({$docgrp}) OR 1='{$_SESSION['mgrRole']}'";
+                $cond = sprintf(
+                    "OR dg.document_group IN (%s) OR 1='%s'"
+                    , $docgrp
+                    , $_SESSION['mgrRole']
+                );
             } else {
                 $cond = '';
             }
             $context = ($modx->isFrontend() ? 'web' : 'mgr');
-            $where = "sc.parent = '{$id}' AND (sc.private{$context}=0 {$cond}) GROUP BY sc.id";
+            $where = sprintf(
+                "sc.parent = '%s' AND (sc.private%s=0 %s) GROUP BY sc.id"
+                , $id
+                , $context
+                , $cond
+            );
         }
         $orderby = "{$sort} {$dir}";
-        $result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby);
+        $result= db()->select("DISTINCT {$fields}",$from,$where,$orderby);
         $resourceArray= array ();
-        while ($row = $modx->db->getRow($result)) {
+        while ($row = db()->getRow($result)) {
             $resourceArray[] = $row;
         }
 
@@ -1874,10 +1900,11 @@ class SubParser {
         if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
             return $modx->tmpCache[__FUNCTION__][$cacheKey];
         }
-        $where = array();
-        $where[] = "sc.parent = '{$id}'";
-        $where[] = "AND sc.published=1";
-        $where[] = "AND sc.deleted=0";
+        $where = array(
+            sprintf("sc.parent = '%s'", $id),
+            'AND sc.published=1',
+            'AND sc.deleted=0'
+        );
         if($modx->isFrontend()) {
             if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
@@ -1938,7 +1965,7 @@ class SubParser {
 
         $result= $modx->db->select("DISTINCT {$fields}",$from,$where,$orderby,$limit);
         $resourceArray= array ();
-        while ($row = $modx->db->getRow($result)) {
+        while ($row = evo()->db->getRow($result)) {
             $resourceArray[] = $row;
         }
         return $resourceArray;
@@ -1957,8 +1984,11 @@ class SubParser {
 
         $modx->documentIdentifier = $input['id'];
 
-        $rs = $modx->db->select('id,name,type,display,display_params','[+prefix+]site_tmplvars');
-        while($row = $modx->db->getRow($rs)) {
+        $rs = db()->select(
+            'id,name,type,display,display_params'
+            ,'[+prefix+]site_tmplvars'
+        );
+        while($row = db()->getRow($rs)) {
             $tvid = 'tv' . $row['id'];
             $tvname[$tvid] = $row['name'];
         }
@@ -2103,9 +2133,7 @@ class SubParser {
     }
 
     function _IIS_furl_fix() {
-        global $modx;
-
-        if($modx->config['friendly_urls'] != 1) {
+        if(evo()->config['friendly_urls'] != 1) {
             return;
         }
 
@@ -2118,7 +2146,7 @@ class SubParser {
         $k= array_keys($_GET);
         unset ($_GET[$k['0']]);
         unset ($_REQUEST[$k['0']]); // remove 404,405 entry
-        $qp= parse_url(str_replace($modx->config['site_url'], '', substr($url, 4)));
+        $qp= parse_url(str_replace(evo()->config['site_url'], '', substr($url, 4)));
         $_SERVER['QUERY_STRING']= $qp['query'];
         if (!empty ($qp['query'])) {
             parse_str($qp['query'], $qv);
@@ -2126,7 +2154,7 @@ class SubParser {
                 $_REQUEST[$n]= $_GET[$n]= $v;
             }
         }
-        $_SERVER['PHP_SELF']= $modx->config['base_url'] . $qp['path'];
+        $_SERVER['PHP_SELF']= evo()->config['base_url'] . $qp['path'];
         return $qp['path'];
     }
 
@@ -2143,7 +2171,7 @@ class SubParser {
         foreach($_ as $v) {
             $p[] = base_convert($v,16,36);
         }
-        $key = join('',$p);
+        $key = implode('',$p);
         $key = substr($key,0,12);
         $modx->tmpCache['tokenString'] = $key;
         return $key;
@@ -2181,8 +2209,6 @@ class SubParser {
     }
 
     function atBindFile($str='') {
-        global $modx;
-
         if(strpos($str,'@FILE')!==0) {
             return $str;
         }
@@ -2219,7 +2245,7 @@ class SubParser {
             return false;
         }
 
-        if($modx->getExtention($file_path)==='.php') {
+        if(evo()->getExtention($file_path)==='.php') {
             return 'Could not retrieve PHP file.';
         }
 
@@ -2230,10 +2256,10 @@ class SubParser {
 
         global $recent_update;
         if($recent_update < filemtime($file_path)) {
-            $modx->clearCache();
+            evo()->clearCache();
         }
-        if(!$modx->template_path && strpos($file_path,MODX_BASE_PATH.'assets/templates/')===0) {
-            $modx->template_path = $file_path . '/';
+        if(!evo()->template_path && strpos($file_path,MODX_BASE_PATH.'assets/templates/')===0) {
+            evo()->template_path = $file_path . '/';
         }
 
         return $content;
@@ -2365,7 +2391,7 @@ class SubParser {
                 exit();
             }
         } else {
-            $modx->db->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
+            db()->update($f,'[+prefix+]system_settings', "setting_name='{$key}'");
         }
 
         $modx->getSettings();
@@ -2428,26 +2454,26 @@ class SubParser {
 
         $now = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
             , sprintf('pub_date!=0 AND pub_date<%s', $now)
         );
 
-        if(!$modx->db->getRecordCount($rs)) {
+        if(!db()->getRecordCount($rs)) {
             return;
         }
 
         $modx->loadExtension('REVISION');
         $modx->loadExtension('DocAPI');
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $draft = $modx->revision->getDraft($row['elmid']);
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
 
             $modx->doc->update($draft,$row['elmid']);
         }
-        $modx->db->delete(
+        db()->delete(
             '[+prefix+]site_revision'
             , sprintf("pub_date!=0 AND pub_date<%s", $now)
         );
