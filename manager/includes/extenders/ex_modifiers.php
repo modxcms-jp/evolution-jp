@@ -863,9 +863,13 @@ class MODIFIERS {
                 return $modx->getField($opt,$value);
             case 'children':
             case 'childids':
-                if($value=='') $value = 0; // 値がない場合はルートと見なす
+                if($value=='') {
+                    $value = 0;
+                } // 値がない場合はルートと見なす
                 $published = 1;
-                if($opt=='') $opt = 'page';
+                if($opt=='') {
+                    $opt = 'page';
+                }
                 $options = explode(',',$opt);
                 $where = array();
                 foreach($options as $option) {
@@ -884,7 +888,7 @@ class MODIFIERS {
                 foreach((array)$children as $child){
                     $result[] = $child['id'];
                 }
-                return join(',', $result);
+                return implode(',', $result);
             case 'fullurl':
                 if(!is_numeric($value)) return $value;
                 return $modx->makeUrl($value);
