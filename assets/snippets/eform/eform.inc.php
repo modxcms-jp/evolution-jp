@@ -245,7 +245,9 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         foreach ($_POST as $name => $value){
             if (is_array($value)){
                 //remove empty values
-                $fields[$name] = array_filter($value, create_function('$v','return (!empty($v));'));
+                $fields[$name] = array_filter($value, function($v){
+                    return $v ? true : false;
+                });
             } else {
                 if((version_compare(PHP_VERSION, '5.4') < 0) && get_magic_quotes_gpc()) {
                     $value = stripslashes($value);

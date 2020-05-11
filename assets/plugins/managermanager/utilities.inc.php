@@ -60,10 +60,12 @@ function makeArray($csv) {
 		return array();
 	}
 	
-	// Otherwise, turn it into an array
-	$return = explode(',',$csv);
-	array_walk( $return, create_function('$v, $k', 'return trim($v);'));	// Remove any whitespace
-	return $return;
+    // Otherwise, turn it into an array
+    $return = explode(',',$csv);
+    foreach ($return as $i=>$v) {
+        $return[$i] = trim($v);
+    }
+    return $return;
 }
 
 // Make an output JS safe
