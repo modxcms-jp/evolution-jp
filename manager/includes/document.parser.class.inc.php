@@ -5030,7 +5030,7 @@ class DocumentParser {
             $key = array_shift($keys);
             $key = ltrim('*', $key);
             if (! isset($array[$key]) || ! is_array($array[$key])) {
-                $array[$key] = [];
+                $array[$key] = array();
             }
             $array = &$array[$key];
         }
