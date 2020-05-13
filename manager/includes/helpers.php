@@ -1,6 +1,9 @@
 <?php
 function evo() {
     global $modx;
+    if(!$modx) {
+        return false;
+    }
     return $modx;
 }
 
@@ -101,7 +104,13 @@ function alert() {
 }
 
 function array_get($array, $key=null, $default=null) {
-    return evo()->array_get($array,$key, $default);
+    if(evo()) {
+        return evo()->array_get($array,$key, $default);
+    }
+    if(!isset($array[$key])) {
+        return $default;
+    }
+    return $array[$key];
 }
 
 function request_intvar($key) {
@@ -115,26 +124,13 @@ function event() {
     return evo()->event;
 }
 
-function post($key=null, $default=null) {
-    return evo()->input_post($key, $default);
-}
-
 function parent($id) {
-    static $cache = null;
-    if(isset($cache[$id])) {
-        return $cache[$id];
+    if(evo()) {
+        return evo()->getParentID($id);
     }
-    echo $id;
-    $cache[$id] = db()->getValue(
-        db()->select(
-            'parent'
-            , '[+prefix+]site_content'
-            , sprintf("id='%s'", $id))
-    );
-    return $cache[$id];
 }
 
-function str_format() {
+function exprintf() {
     $args = func_get_args();
     $args[0] = str_replace('@{%([0-9]+)}@','%$1s',$args[0]);
     return call_user_func_array(
@@ -144,23 +140,42 @@ function str_format() {
 }
 
 function getv($key=null,$default=null) {
-    return evo()->input_get($key,$default);
+    if(evo()) {
+        return evo()->input_get($key,$default);
+    }
+    return array_get($_GET, $key, $default);
+}
+
+function post($key=null, $default=null) {
+    return postv($key, $default);
 }
 
 function postv($key=null,$default=null) {
-    return evo()->input_post($key,$default);
+    if(evo()) {
+        return evo()->input_post($key,$default);
+    }
+    return array_get($_POST, $key, $default);
 }
 
 function anyv($key=null,$default=null) {
-    return evo()->input_any($key,$default);
+    if(evo()) {
+        return evo()->input_any($key,$default);
+    }
+    return array_get($_REQUEST, $key, $default);
 }
 
 function serverv($key=null,$default=null) {
-    return evo()->server($key,$default);
+    if(evo()) {
+        return evo()->server($key,$default);
+    }
+    return array_get($_SERVER, $key, $default);
 }
 
 function sessionv($key=null,$default=null) {
-    return evo()->session($key,$default);
+    if(evo()) {
+        return evo()->session($key,$default);
+    }
+    return array_get($_SESSION, $key, $default);
 }
 
 function checked($cond) {
