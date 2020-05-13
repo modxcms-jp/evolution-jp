@@ -201,18 +201,18 @@ function role_byuserid($userid){
 }
 
 function hasOldUserName() {
-    return (post('oldusername') != post('newusername', 'New User'));
+    return (postv('oldusername') != postv('newusername', 'New User'));
 }
 
 function hasOldUserEmail() {
-    return (post('oldemail') != post('email'));
+    return (postv('oldemail') != postv('email'));
 }
 
 function newPassword() {
-    if (post('passwordgenmethod') === 'spec') {
-        return post('specifiedpassword');
+    if (postv('passwordgenmethod') === 'spec') {
+        return postv('specifiedpassword');
     }
-    if (post('passwordgenmethod') === 'g') {
+    if (postv('passwordgenmethod') === 'g') {
         return generate_password(8);
     }
     webAlert('No password generation method specified!');
@@ -220,20 +220,20 @@ function newPassword() {
 }
 
 function confirmPassword() {
-    if (post('passwordgenmethod') !== 'spec') {
+    if (postv('passwordgenmethod') !== 'spec') {
         return true;
     }
-    if(post('specifiedpassword') == post('confirmpassword')) {
+    if(postv('specifiedpassword') == postv('confirmpassword')) {
         return true;
     }
     return false;
 }
 
 function validEmail() {
-    if (!post('email')) {
+    if (!postv('email')) {
         return false;
     }
-    if(!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", post('email'))) {
+    if(!preg_match("/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,20}$/i", postv('email'))) {
         return false;
     }
     return true;
@@ -243,7 +243,7 @@ function field() {
     $fields = array('fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
     $rs = array();
     foreach ($fields as $field) {
-        $rs[$field] = post($field);
+        $rs[$field] = postv($field);
     }
     return $rs;
 }
@@ -258,7 +258,7 @@ function newUser() {
 
     // build the SQL
     $internalKey = db()->insert(
-        array('username'=>db()->escape(post('newusername', 'New User')))
+        array('username'=>db()->escape(postv('newusername', 'New User')))
         , '[+prefix+]manager_users'
     );
     if (!$internalKey) {
@@ -289,11 +289,11 @@ function newUser() {
     $tmp = array (
         'mode'         => 'new',
         'userid'       => $internalKey,
-        'username'     => post('newusername', 'New User'),
+        'username'     => postv('newusername', 'New User'),
         'userpassword' => newPassword(),
-        'useremail'    => post('email'),
-        'userfullname' => post('fullname'),
-        'userroleid'   => post('role', 0)
+        'useremail'    => postv('email'),
+        'userfullname' => postv('fullname'),
+        'userroleid'   => postv('role', 0)
     );
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
@@ -307,7 +307,7 @@ function newUser() {
     // put the user in the user_groups he/ she should be in
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
-        $user_groups = post('user_groups');
+        $user_groups = postv('user_groups');
         if ($user_groups) {
             foreach ($user_groups as $user_group){
                 $user_group = (int)$user_group;
@@ -324,15 +324,15 @@ function newUser() {
     }
     // end of user_groups stuff!
 
-    if (post('stay') != '') {
+    if (postv('stay') != '') {
         $stayUrl = sprintf(
             'index.php?r=3&a=11&stay=%s'
-            , post('stay')
+            , postv('stay')
         );
-        if (post('stay') == '2') {
+        if (postv('stay') == '2') {
             $stayUrl = sprintf(
                 'index.php?r=3&a=11&stay=%s&id=%s'
-                , post('stay')
+                , postv('stay')
                 , $internalKey
             );
         }
@@ -340,12 +340,12 @@ function newUser() {
         $stayUrl = 'index.php?r=3&a=75';
     }
 
-    if (post('passwordnotifymethod') === 'e') {
+    if (postv('passwordnotifymethod') === 'e') {
         sendMailMessage(
-            post('email')
-            , post('newusername', 'New User')
+            postv('email')
+            , postv('newusername', 'New User')
             , newPassword()
-            , post('fullname')
+            , postv('fullname')
         );
         header('Location: ' . $stayUrl);
         exit;
@@ -368,7 +368,7 @@ function newUser() {
             <div id="disp">
                 <p>
                     <?php
-                    echo sprintf(lang('password_msg'), post('newusername', 'New User'), newPassword());
+                    echo sprintf(lang('password_msg'), postv('newusername', 'New User'), newPassword());
                     ?>
                 </p>
             </div>
@@ -383,19 +383,19 @@ function updateUser() {
     // invoke OnBeforeUserFormSave event
     $tmp = array (
         'mode' => 'upd',
-        'id'   => post('userid')
+        'id'   => postv('userid')
     );
     evo()->invokeEvent('OnBeforeUserFormSave', $tmp);
 
     // update user name and password
-    $field = array('username' => post('newusername', 'New User'));
-    if(post('newpassword')==1) {
+    $field = array('username' => postv('newusername', 'New User'));
+    if(postv('newpassword')==1) {
         $field['password'] = evo()->phpass->HashPassword(newPassword());
     }
     $rs = db()->update(
         db()->escape($field)
         , '[+prefix+]manager_users'
-        , sprintf("id='%s'", post('userid'))
+        , sprintf("id='%s'", postv('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's data.");
@@ -403,11 +403,11 @@ function updateUser() {
     }
 
     $field = field();
-    $field['failedlogincount'] = post('failedlogincount');
+    $field['failedlogincount'] = postv('failedlogincount');
     $rs = db()->update(
         db()->escape($field)
         , '[+prefix+]user_attributes'
-        , sprintf("internalKey='%s'", post('userid'))
+        , sprintf("internalKey='%s'", postv('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's attributes.");
@@ -415,40 +415,40 @@ function updateUser() {
     }
 
     // Save user settings
-    saveUserSettings(post('userid'));
+    saveUserSettings(postv('userid'));
 
     // invoke OnManagerSaveUser event
     $tmp = array (
         'mode'         => 'upd',
-        'userid'       => post('userid'),
-        'username'     => post('newusername', 'New User'),
+        'userid'       => postv('userid'),
+        'username'     => postv('newusername', 'New User'),
         'userpassword' => newPassword(),
-        'useremail'    => post('email'),
-        'userfullname' => post('fullname'),
-        'userroleid'   => post('role', 0),
-        'oldusername'  => hasOldUserName()  ? post('oldusername') : '',
-        'olduseremail' => hasOldUserEmail() ? post('oldemail')    : ''
+        'useremail'    => postv('email'),
+        'userfullname' => postv('fullname'),
+        'userroleid'   => postv('role', 0),
+        'oldusername'  => hasOldUserName()  ? postv('oldusername') : '',
+        'olduseremail' => hasOldUserEmail() ? postv('oldemail')    : ''
     );
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
     // invoke OnManagerChangePassword event
-    if (post('newpassword')==1) {
+    if (postv('newpassword')==1) {
         $tmp = array(
-            'userid' => post('userid'),
-            'username' => post('newusername', 'New User'),
+            'userid' => postv('userid'),
+            'username' => postv('newusername', 'New User'),
             'userpassword' => newPassword()
         );
         evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 
-    if (post('passwordnotifymethod') === 'e' && post('newpassword') == 1) {
-        sendMailMessage(post('email'), post('newusername', 'New User'), newPassword(), post('fullname'));
+    if (postv('passwordnotifymethod') === 'e' && postv('newpassword') == 1) {
+        sendMailMessage(postv('email'), postv('newusername', 'New User'), newPassword(), postv('fullname'));
     }
 
     // invoke OnUserFormSave event
     $tmp = array (
         'mode' => 'upd',
-        'id' => post('userid')
+        'id' => postv('userid')
     );
     evo()->invokeEvent('OnUserFormSave', $tmp);
     evo()->clearCache();
@@ -456,17 +456,17 @@ function updateUser() {
     // first, check that up_perms are switched on!
     if (evo()->config['use_udperms'] == 1) {
         // as this is an existing user, delete his/ her entries in the groups before saving the new groups
-        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%s'", post('userid')));
+        $rs = db()->delete(evo()->getFullTableName('member_groups'), sprintf("member='%s'", postv('userid')));
         if (!$rs) {
             webAlert('An error occurred while attempting to delete previous user_groups entries.');
             exit;
         }
-        $user_groups = post('user_groups');
+        $user_groups = postv('user_groups');
         if ($user_groups){
             foreach ($user_groups as $user_group){
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    array('user_group'=>$user_group,'member'=>post('userid'))
+                    array('user_group'=>$user_group,'member'=>postv('userid'))
                     , '[+prefix+]member_groups'
                 );
                 if (!$rs) {
@@ -477,7 +477,7 @@ function updateUser() {
         }
     }
     // end of user_groups stuff!
-    if (post('userid') == evo()->getLoginUserID() && post('newpassword') !==1 && post('passwordnotifymethod') !='s') {
+    if (postv('userid') == evo()->getLoginUserID() && postv('newpassword') !==1 && postv('passwordnotifymethod') !='s') {
         ?>
         <body bgcolor='#efefef'>
         <script language="JavaScript">
@@ -489,20 +489,20 @@ function updateUser() {
         exit;
     }
     evo()->getSettings();
-    if (post('userid') == evo()->getLoginUserID() && $_SESSION['mgrRole'] !== post('role', 0)) {
-        $_SESSION['mgrRole'] = post('role', 0);
+    if (postv('userid') == evo()->getLoginUserID() && $_SESSION['mgrRole'] !== postv('role', 0)) {
+        $_SESSION['mgrRole'] = postv('role', 0);
         evo()->webAlertAndQuit(lang('save_user.processor.php1'),'index.php?a=75');
         exit;
     }
-    if (post('newpassword') != 1 || post('passwordnotifymethod') !== 's') {
-        if (post('save_action') != 'close') {
-            if (post('save_action') == 'stay') {
-                $url = sprintf('index.php?a=%s&id=%s', post('mode'), post('userid'));
+    if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {
+        if (postv('save_action') != 'close') {
+            if (postv('save_action') == 'stay') {
+                $url = sprintf('index.php?a=%s&id=%s', postv('mode'), postv('userid'));
             } else {
                 $url = 'index.php?a=11';
             }
-            $url .= sprintf('&r=3&save_action=%s', post('save_action'));
-        } elseif (post('mode') === '74') {
+            $url .= sprintf('&r=3&save_action=%s', postv('save_action'));
+        } elseif (postv('mode') === '74') {
             $url = 'index.php?r=3&a=2';
         } else {
             $url = 'index.php?a=75&r=3';
@@ -511,14 +511,14 @@ function updateUser() {
         exit;
     }
 
-    if(post('userid') == evo()->getLoginUserID()) {
+    if(postv('userid') == evo()->getLoginUserID()) {
         $stayUrl = 'index.php?a=8';
-    } elseif (post('save_action') != 'close') {
-        $a = (post('save_action') == 'stay') ? post('mode') . '&id=' . post('userid') : '11';
+    } elseif (postv('save_action') != 'close') {
+        $a = (postv('save_action') == 'stay') ? postv('mode') . '&id=' . postv('userid') : '11';
         $stayUrl = sprintf(
             'index.php?a=%s&save_action=%s'
             , $a
-            , post('save_action')
+            , postv('save_action')
         );
     } else {
         $stayUrl = 'index.php?a=75';
@@ -530,7 +530,7 @@ function updateUser() {
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate">
-                <a href="<?php echo $stayUrl; ?>"><img src="<?php echo style('icons_save') ?>"/> <?php echo (post('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close'); ?></a>
+                <a href="<?php echo $stayUrl; ?>"><img src="<?php echo style('icons_save') ?>"/> <?php echo (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close'); ?></a>
             </li>
         </ul>
     </div>
@@ -542,9 +542,9 @@ function updateUser() {
                 <p>
                     <?php echo sprintf(
                             lang('password_msg')
-                            , post('newusername', 'New User')
+                            , postv('newusername', 'New User')
                             , newPassword()
-                        ) . ((post('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
+                        ) . ((postv('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
                 </p>
             </div>
         </div>

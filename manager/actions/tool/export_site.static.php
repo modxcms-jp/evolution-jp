@@ -31,7 +31,7 @@ if(!$modx->hasPermission('export_static'))
         <div class="tab-page" id="tabMain">
             <h2 class="tab"><?php echo lang('export_site')?></h2>
             <?php
-            if(post('export')) {
+            if(postv('export')) {
                 $rs = include(MODX_MANAGER_PATH . 'processors/export_site.processor.php');
                 echo $rs;
             } else {

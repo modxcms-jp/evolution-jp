@@ -27,25 +27,25 @@ if (!verifyPermission()) {
     exit;
 }
 
-if (post('mode') == '11') { // new user
-    if (userid_byname(post('newusername', 'New User'))) {
+if (postv('mode') == '11') { // new user
+    if (userid_byname(postv('newusername', 'New User'))) {
         webAlert('User name is already in use!');
         exit;
     }
-    if (userid_byemail(post('email'))) {
+    if (userid_byemail(postv('email'))) {
         webAlert('Email is already in use!');
         exit;
     }
-    if (post('passwordgenmethod') === 'spec') {
-        if (!post('specifiedpassword')) {
+    if (postv('passwordgenmethod') === 'spec') {
+        if (!postv('specifiedpassword')) {
             webAlert("You didn't specify a password for this user!");
             exit;
         }
-        if (strlen(post('specifiedpassword')) < 6) {
+        if (strlen(postv('specifiedpassword')) < 6) {
             webAlert('Password is too short!');
             exit;
         }
-    } elseif (post('passwordgenmethod') !== 'g') {
+    } elseif (postv('passwordgenmethod') !== 'g') {
         webAlert('No password generation method specified!');
         exit;
     }
@@ -53,39 +53,39 @@ if (post('mode') == '11') { // new user
     return;
 }
 
-if (in_array(post('mode'), array('12','74'))) {
-    if(!preg_match('@^[1-9][0-9]*$@', post('userid'))) {
+if (in_array(postv('mode'), array('12','74'))) {
+    if(!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
         webAlert('Missing user id!');
     }
     // check if the username already exist
-    if (userid_byname(post('newusername', 'New User')) != post('userid')) {
+    if (userid_byname(postv('newusername', 'New User')) != postv('userid')) {
         webAlert('User name is already in use!');
         exit;
     }
 
     // check if the email address already exists
-    if (userid_byemail(post('email')) != post('userid')) {
+    if (userid_byemail(postv('email')) != postv('userid')) {
         webAlert('Email is already in use!');
         exit;
     }
 
     // generate a new password for this user
-    if (post('newpassword') == 1) {
-        if (post('passwordgenmethod') === 'spec') {
-            if (!post('specifiedpassword')) {
+    if (postv('newpassword') == 1) {
+        if (postv('passwordgenmethod') === 'spec') {
+            if (!postv('specifiedpassword')) {
                 webAlert("You didn't specify a password for this user!");
                 exit;
             }
-            if (strlen(post('specifiedpassword')) < 6) {
+            if (strlen(postv('specifiedpassword')) < 6) {
                 webAlert('Password is too short!');
                 exit;
             }
-        } elseif (post('passwordgenmethod') !== 'g') {
+        } elseif (postv('passwordgenmethod') !== 'g') {
             webAlert('No password generation method specified!');
             exit;
         }
     }
-    if (evo()->session_var('mgrRole') != 1 && role_byuserid(post('id')) == 1) {
+    if (evo()->session_var('mgrRole') != 1 && role_byuserid(postv('id')) == 1) {
         webAlert('You cannot alter an administrative user.');
         exit;
     }
