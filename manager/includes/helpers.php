@@ -43,7 +43,7 @@ function lang($key) {
                 , evo()->config('manager_language', 'english')
             );
     }
-    return evo()->array_get($_lang, $key, $key);
+    return array_get($_lang, $key, $key);
 }
 
 function style($key) {
@@ -61,9 +61,9 @@ function hsc($string) {
     return evo()->hsc($string);
 }
 
-function parseText($tpl,$ph) {
+function parseText($tpl, $ph, $left='[+', $right='+]', $execModifier=false) {
     if(evo()) {
-        return evo()->parseText($tpl,$ph);
+        return evo()->parseText($tpl,$ph,$left, $right, $execModifier);
     }
     foreach($ph as $k=>$v) {
         $k = sprintf('[+%s+]', $k);

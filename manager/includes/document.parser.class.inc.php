@@ -3161,9 +3161,12 @@ class DocumentParser {
     }
 
     # Returns true if user has the currect permission
-    function hasPermission($key) {
+    function hasPermission($key=null) {
         
         if ($this->session_var('mgrPermissions')) {
+            if(!$key) {
+                return print_r($_SESSION['mgrPermissions'], true);
+            }
             return ($_SESSION['mgrPermissions'][$key] == 1);
         }
         
