@@ -121,14 +121,14 @@ $params = array (
 foreach( $params as $key=>$val ) $params[ $key ] = str_replace( array('((','))'), array('[+','+]'), $val );
 
 function eForm($modx,$params) {
-global $_lang;
-global $debugText;
-global $formats,$fields,$efPostBack;
+    global $_lang;
+    global $debugText;
+    global $formats,$fields,$efPostBack;
 
-$fields = array(); //reset fields array - needed in case of multiple forms
+    $fields = array(); //reset fields array - needed in case of multiple forms
 
-// define some variables used as array index
-$_dfnMaxlength = 6;
+    // define some variables used as array index
+    $_dfnMaxlength = 6;
 
     extract($params,EXTR_SKIP); // extract params into variables
 
@@ -138,30 +138,45 @@ $_dfnMaxlength = 6;
     #include other language file if set.
     $form_language = isset($language) ? $language : $modx->config['manager_language'];
     if($form_language!="english" && $form_language!='') {
-        if(file_exists("{$snipPath}lang/{$form_language}.inc.php"))
+        if(file_exists("{$snipPath}lang/{$form_language}.inc.php")) {
             include_once("{$snipPath}lang/{$form_language}.inc.php");
-        else
-            if( $isDebug ) $debugText .= "<strong>Language file '{$form_language}.inc.php' not found!</strong><br />"; //always in english!
+        } else {
+            if ($isDebug) {
+                $debugText .= sprintf(
+                    '<strong>Language file "%s.inc.php" not found!</strong><br />'
+                    , $form_language
+                );
+            }
+        } //always in english!
     }
 
     # add debug warning - moved again...
-    if( $isDebug ) $debugText .= $_lang['ef_debug_warning'];
+    if( $isDebug ) {
+        $debugText .= $_lang['ef_debug_warning'];
+    }
 
     # check for valid form key - moved to below fetching form template to allow id coming from form template
 
     $nomail = $noemail; //adjust variable name confusion
     # activate nomail if missing $to
-    if (!$to) $nomail = 1;
+    if (!$to) {
+        $nomail = 1;
+    }
 
 
     # load templates
-    if($tpl==$modx->documentIdentifier) return $_lang['ef_is_own_id']."'$tpl'";
+    if($tpl==$modx->documentIdentifier) {
+        return sprintf("%s'%s'", $_lang['ef_is_own_id'], $tpl);
+    }
 
     //required
-    if(empty($tpl)){
+    if(!$tpl){
         $tpl = get_default_tpl();
+    } elseif( $tmp=efLoadTemplate($tpl) ) {
+        $tpl = $tmp;
+    } else {
+        return $_lang['ef_no_doc'] . " '$tpl'";
     }
-    elseif( $tmp=efLoadTemplate($tpl) ) $tpl = $tmp; else return $_lang['ef_no_doc'] . " '$tpl'";
 
     // try to get formid from <form> tag id
     if(preg_match('/<form[^>]*?id=[\'"]([^\'"]*?)[\'"]/i',$tpl,$matches))
@@ -188,22 +203,49 @@ $_dfnMaxlength = 6;
 
 
     if($efPostBack){
-        if(empty($report)) $report = get_default_report();
-        else
-        {
-            $report = (($tmp=efLoadTemplate($report))!==false)?$tmp:$_lang['ef_no_doc'] . " '$report'";
+        if(empty($report)) {
+            $report = get_default_report();
+        } else {
+            $tmp = efLoadTemplate($report)
+            if ($tmp !== false) {
+                $report = $tmp;
+            } else {
+                $report = sprintf("%s '%s'", $_lang['ef_no_doc'], $report);
+            }
         }
-        if($thankyou) $thankyou = (($tmp=efLoadTemplate($thankyou))!==false )?$tmp:$_lang['ef_no_doc'] . " '$thankyou'";
-        if($autotext) $autotext = (($tmp=efLoadTemplate($autotext))!==false )?$tmp:$_lang['ef_no_doc'] . " '$autotext'";
+        if($thankyou) {
+            $tmp = efLoadTemplate($thankyou);
+            if ($tmp !== false) {
+                $thankyou = $tmp;
+            } else {
+                $thankyou = sprintf("%s '%s'", $_lang['ef_no_doc'], $thankyou);
+            }
+        }
+        if($autotext) {
+            $tmp = efLoadTemplate($autotext);
+            if ($tmp !== false) {
+                $autotext = $tmp;
+            } else {
+                $autotext = sprintf("%s '%s'", $_lang['ef_no_doc'], $autotext);
+            }
+        }
     }
 
     //these will be added to the HEAD section of the document when the form is displayed!
     if($cssStyle){
-        $cssStyle = ( strpos($cssStyle,',') && strpos($cssStyle,'<style')===false ) ? explode(',',$cssStyle) : array($cssStyle);
+        if ((strpos($cssStyle, ',') && strpos($cssStyle, '<style') === false)) {
+            $cssStyle = explode(',', $cssStyle);
+        } else {
+            $cssStyle = array($cssStyle);
+        }
         foreach( $cssStyle as $tmp ) $startupSource[]= array($tmp,'css');
     }
     if($jScript){
-        $jScript = ( strpos($jScript,',') && strpos($jScript,'<script')===false ) ? explode(',',$jScript) : array($jScript);
+        if ((strpos($jScript, ',') && strpos($jScript, '<script') === false)) {
+            $jScript = explode(',', $jScript);
+        } else {
+            $jScript = array($jScript);
+        }
         foreach( $jScript as $tmp )
         $startupSource[]= array($tmp,'javascript');
     }
