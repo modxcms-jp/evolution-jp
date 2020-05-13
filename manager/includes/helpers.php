@@ -16,12 +16,23 @@ function manager() {
     return $modx->manager;
 }
 
-function hasPermission($permission) {
-    return evo()->hasPermission($permission);
+function hasPermission($key=null) {
+    return evo()->hasPermission($key);
 }
 
 function config($key, $default=null) {
     return evo()->config($key, $default);
+}
+
+function docid() {
+    return evo()->documentIdentifier;
+}
+
+function base_path() {
+    if(defined('MODX_BASE_PATH')) {
+        return constant('MODX_BASE_PATH');
+    }
+    exit('base_path not defined.');
 }
 
 function lang($key) {
@@ -37,7 +48,7 @@ function lang($key) {
 
 function style($key) {
     global $_style;
-    return $_style[$key];
+    return array_get($_style,$key);
 }
 
 if (!function_exists('str_contains')) {
@@ -51,6 +62,9 @@ function hsc($string) {
 }
 
 function parseText($tpl,$ph) {
+    if(evo()) {
+        return evo()->parseText($tpl,$ph);
+    }
     foreach($ph as $k=>$v) {
         $k = sprintf('[+%s+]', $k);
         $tpl = str_replace($k,$v,$tpl);
@@ -72,7 +86,6 @@ function input_text_tag($props=array()) {
         }
     }
     return evo()->html_tag('input', $props);
-
 }
 
 function textarea_tag($props=array(), $content) {
@@ -155,6 +168,13 @@ function postv($key=null,$default=null) {
         return evo()->input_post($key,$default);
     }
     return array_get($_POST, $key, $default);
+}
+
+function cookiev($key=null,$default=null) {
+    if(evo()) {
+        return evo()->input_cookie($key,$default);
+    }
+    return array_get($_COOKIE, $key, $default);
 }
 
 function anyv($key=null,$default=null) {
