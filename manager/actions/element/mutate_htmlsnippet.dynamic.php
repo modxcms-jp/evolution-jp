@@ -24,9 +24,9 @@ $id = preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']) ? $_REQUEST['id'] : 0;
 // Get table names (alphabetical)
 
 // Check to see the snippet editor isn't locked
-$rs = $modx->db->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
-if ($modx->db->getRecordCount($rs) > 1) {
-	while ($row = $modx->db->getRow($rs)) {
+$rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
+if (db()->getRecordCount($rs) > 1) {
+	while ($row = db()->getRow($rs)) {
 		if ($row['internalKey'] != $modx->getLoginUserID()) {
 			$msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['chunk']);
 			$e->setError(5, $msg);
@@ -37,15 +37,15 @@ if ($modx->db->getRecordCount($rs) > 1) {
 
 $content = array();
 if (isset($_REQUEST['id']) && $_REQUEST['id']!='' && is_numeric($_REQUEST['id'])) {
-	$rs = $modx->db->select('*','[+prefix+]site_htmlsnippets',"id='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]site_htmlsnippets',"id='{$id}'");
+	$total = db()->getRecordCount($rs);
 	if ($total > 1) {
 		exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
 	}
 	if ($total < 1) {
 		exit('<p>Chunk doesn\'t exist.</p>');
 	}
-	$content = $modx->db->getRow($rs);
+	$content = db()->getRow($rs);
 	$_SESSION['itemname'] = $content['name'];
 }
 else $_SESSION['itemname'] = 'New Chunk';

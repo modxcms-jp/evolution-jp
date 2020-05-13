@@ -20,36 +20,37 @@ function mm_hideSections($sections, $roles = '', $templates = ''){
 	$sections = makeArray($sections);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (useThisRule($roles, $templates)){
-		$output = "//  -------------- mm_hideSections :: Begin ------------- \n";
-		
-		foreach($sections as $section){
-			switch ($section){
-				case 'content':
-					$output .= '
-					$j("#content_header").hide();
-					$j("#content_body").hide();
-					';
-				break;
-				
-				case 'tvs':
-					$output .= '
-					$j("#tv_header").hide();
-					$j("#tv_body").hide();
-					';
-				break;
-				
-				case 'access': // These have moved to tabs in 1.0.1
-					$output .= '
-					$j("#sectionAccessHeader").hide();
-					$j("#sectionAccessBody").hide();';
-				break;
-			}
-			
-			$output .= "//  -------------- mm_hideSections :: End ------------- \n";
-			
-			$e->output($output . "\n");
-		}
-	}
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+        return;
+    }
+
+    $output = "//  -------------- mm_hideSections :: Begin ------------- \n";
+
+    foreach ($sections as $section) {
+        switch ($section) {
+            case 'content':
+                $output .= '
+                $j("#content_header").hide();
+                $j("#content_body").hide();
+                ';
+                break;
+
+            case 'tvs':
+                $output .= '
+                $j("#tv_header").hide();
+                $j("#tv_body").hide();
+                ';
+                break;
+
+            case 'access': // These have moved to tabs in 1.0.1
+                $output .= '
+                $j("#sectionAccessHeader").hide();
+                $j("#sectionAccessBody").hide();';
+                break;
+        }
+
+        $output .= "//  -------------- mm_hideSections :: End ------------- \n";
+
+        $e->output($output . "\n");
+    }
 }
-?>

@@ -52,8 +52,7 @@ $cwd     = (isset($_GET['CurrentFolder']) && $_GET['CurrentFolder']!='') ? $_GET
 $cwd     = str_replace('..', '', $cwd);
 $extra   = (isset($_GET['ExtraParams']) && $_GET['ExtraParams']!='')     ? $_GET['ExtraParams']   : '';
 
-if ($fckphp_config['Debug']===true)
-{
+if ($fckphp_config['Debug']===true) {
 	$msg  = '$command=' . "{$command}\n";
 	$msg .= '$type='    . $type . "\n";
 	$msg .= '$cwd='     . $cwd . "\n";
@@ -72,11 +71,9 @@ if ($fckphp_config['Debug']===true)
 	$modx->logEvent(0,1,$msg,'mcpuk connector');
 }
 
-if (in_array($command,$valid_commands))
-{
+if (in_array($command,$valid_commands)) {
 	//bit of validation
-	if (!in_array($type,$valid_resource_types))
-	{
+	if (!in_array($type,$valid_resource_types)) {
 		$modx->logEvent(0,3,'Invalid resource type.');
 		exit(0);
 	}
@@ -85,9 +82,7 @@ if (in_array($command,$valid_commands))
 
 	$action=new $command($fckphp_config,$type,$cwd);
 	$action->run();
-}
-else
-{
+} else {
 	$modx->logEvent(0,3,'Invalid command.(No reason for me to be here)');
 	exit(0);
 }

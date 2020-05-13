@@ -2,26 +2,26 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *
  * For further information visit:
  * 		http://www.fckeditor.net/
- * 
+ *
  * File Name: DeleteFolder.php
  * 	Implements the DeleteFolder command to delete a folder
  * 	in the current directory. Output is in XML.
- * 
+ *
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  */
 class DeleteFolder {
-	var $fckphp_config;
-	var $type;
-	var $cwd;
-	var $actual_cwd;
-	var $newfolder;
+    public $fckphp_config;
+    public $type;
+    public $cwd;
+    public $actual_cwd;
+
 	
 	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;

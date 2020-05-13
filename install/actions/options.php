@@ -2,23 +2,9 @@
 
 global $tplTemplates, $tplTVs, $tplChunks, $tplModules, $tplPlugins, $tplSnippets;
 
-if(in_array($_SESSION['prevAction'], array('connection', 'mode')) && !isset($_SESSION['installdata'])) {
-    $selDefault = 'all';
-} else {
-    $selDefault = false;
-}
-
 if(isset($_POST['chkagree'])) {
     $_SESSION['chkagree'] = $_POST['chkagree'];
 }
-
-$installdata   = !isset($_SESSION['installdata']) ? false : $_SESSION['installdata'];
-$formTemplates = !isset($_SESSION['template'])    ? false : $_SESSION['template'];
-$formTvs       = !isset($_SESSION['tv'])          ? false : $_SESSION['tv'];
-$formChunks    = !isset($_SESSION['chunk'])       ? false : $_SESSION['chunk'];
-$formModules   = !isset($_SESSION['module'])      ? false : $_SESSION['module'];
-$formPlugins   = !isset($_SESSION['plugin'])      ? false : $_SESSION['plugin'];
-$formSnippets  = !isset($_SESSION['snippet'])     ? false : $_SESSION['snippet'];
 
 if(isset($_POST['adminname'])) {
     $_SESSION['adminname'] = $_POST['adminname'];
@@ -33,40 +19,38 @@ if(isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = $_POST['adminpassconfirm'];
 }
 
-$_SESSION['managerlanguage'] = $_SESSION['install_language'];
-include_once $installer_path . 'setup.info.php';
+$_SESSION['managerlanguage'] = sessionv('install_language');
+include_once MODX_SETUP_PATH . 'setup.info.php';
 
-$ph['installmode'] = $_SESSION['installmode'];
+$ph['is_upgradeable'] = sessionv('is_upgradeable');
 
-if ($_SESSION['installmode'] == 0) {
-    $ph['install_sample_site'] = block_install_sample_site($installdata, $ph) . "\n";
-} else {
+if (sessionv('is_upgradeable')) {
     $ph['install_sample_site'] = '';
+} else {
+    $ph['install_sample_site'] = block_install_sample_site($ph) . "\n";
 }
-$ph['block_templates'] = block_templates($tplTemplates,$formTemplates,$ph);
-$ph['block_tvs']       = block_tvs(      $tplTVs,      $formTvs,      $ph);
-$ph['block_chunks']    = block_chunks(   $tplChunks,   $formChunks,   $ph);
-$ph['block_modules']   = block_modules(  $tplModules,  $formModules,  $ph);
-$ph['block_plugins']   = block_plugins(  $tplPlugins,  $formPlugins,  $ph);
-$ph['block_snippets']  = block_snippets( $tplSnippets, $formSnippets, $ph);
+$ph['block_templates'] = block_templates($tplTemplates,$ph);
+$ph['block_tvs']       = block_tvs(      $tplTVs,            $ph);
+$ph['block_chunks']    = block_chunks(   $tplChunks,      $ph);
+$ph['block_modules']   = block_modules(  $tplModules,  $ph);
+$ph['block_plugins']   = block_plugins(  $tplPlugins,  $ph);
+$ph['block_snippets']  = block_snippets( $tplSnippets, $ph);
 
 $ph['object_list'] = show_object_list($ph) . "\n";
 
-echo  $modx->parseText(
-    file_get_contents($base_path . 'install/tpl/options.tpl')
+echo  evo()->parseText(
+    file_get_contents(MODX_BASE_PATH . 'install/tpl/options.tpl')
     ,$ph
 );
 
 
 
 function show_object_list($ph) {
-	global $modx;
-	
-	$objects = join(
+	$objects = implode(
         "\n"
         , array($ph['block_templates'],$ph['block_tvs'],$ph['block_chunks'],$ph['block_modules'],$ph['block_plugins'],$ph['block_snippets']));
 	if(trim($objects)==='') {
-        return $modx->parseText('<strong>[+no_update_options+]</strong>',$ph);
+        return evo()->parseText('<strong>[+no_update_options+]</strong>',$ph);
     }
 
     $tpl = <<< TPL
@@ -81,12 +65,10 @@ function show_object_list($ph) {
 </div>
 TPL;
     $ph['objects'] = $objects;
-    return $modx->parseText($tpl,$ph);
+    return evo()->parseText($tpl,$ph);
 }
 
-function block_install_sample_site($installdata='', $ph) {
-	global $modx;
-	
+function block_install_sample_site($ph) {
 	$tpl = <<< TPL
 <img src="img/sample_site.png" class="options" alt="Sample Data" />
 <h3>[+sample_web_site+]</h3>
@@ -96,13 +78,11 @@ function block_install_sample_site($installdata='', $ph) {
 </p>
 <p><em>&nbsp;[+sample_web_site_note+]</em></p>
 TPL;
-    $ph['checked'] = $installdata==1 ? 'checked' : '';
-	return $modx->parseText($tpl,$ph);
+    $ph['checked'] = sessionv('installdata', false)==1 ? 'checked' : '';
+	return evo()->parseText($tpl,$ph);
 }
 
-function block_templates($tplTemplates,$formTemplates,$ph) {
-	global $modx,$selDefault;
-	
+function block_templates($tplTemplates,$ph) {
 	if(!$tplTemplates) {
         return '';
     }
@@ -113,17 +93,15 @@ function block_templates($tplTemplates,$formTemplates,$ph) {
             '<label><input type="checkbox" name="template[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formTemplates, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('template', false), $i) ? 'checked':''
             , $v['templatename']
             , $v['description']
         );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(join("<br />\n", $_), $ph);
 }
 
-function block_tvs($tplTVs,$formTvs,$ph) {
-	global $modx,$selDefault;
-	
+function block_tvs($tplTVs,$ph) {
     if (!$tplTVs) {
         return '';
     }
@@ -134,17 +112,15 @@ function block_tvs($tplTVs,$formTvs,$ph) {
             '<label><input type="checkbox" name="tv[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formTvs, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('tv', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(join("<br />\n", $_), $ph);
 }
 
-function block_chunks($tplChunks,$formChunks,$ph) {
-	global $modx,$selDefault;
-	
+function block_chunks($tplChunks,$ph) {
     if (!$tplChunks) {
         return '';
     }
@@ -155,17 +131,15 @@ function block_chunks($tplChunks,$formChunks,$ph) {
             '<label><input type="checkbox" name="chunk[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formChunks, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('chunk', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(join("<br />\n", $_), $ph);
 }
 
-function block_modules($tplModules,$formModules,$ph) {
-	global $modx,$selDefault;
-	
+function block_modules($tplModules,$ph) {
     if (!$tplModules) {
         return '';
     }
@@ -176,17 +150,15 @@ function block_modules($tplModules,$formModules,$ph) {
             '<label><input type="checkbox" name="module[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formModules, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('module', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(join("<br />\n", $_), $ph);
 }
 
-function block_plugins($tplPlugins, $formPlugins, $ph) {
-	global $modx,$selDefault;
-	
+function block_plugins($tplPlugins, $ph) {
     if (!$tplPlugins) {
         return '';
     }
@@ -197,17 +169,15 @@ function block_plugins($tplPlugins, $formPlugins, $ph) {
             '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formPlugins, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('plugin', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
         );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
-function block_snippets($tplSnippets,$formSnippets,$ph) {
-	global $modx,$selDefault;
-	
+function block_snippets($tplSnippets, $ph) {
     if (!$tplSnippets) {
         return '';
     }
@@ -217,12 +187,12 @@ function block_snippets($tplSnippets,$formSnippets,$ph) {
             '<label><input type="checkbox" name="snippet[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>'
             , $i
             , is_demo($v) ? 'toggle' : 'toggle demo'
-            , is_check($formSnippets, $i, $selDefault) ? 'checked':''
+            , is_check(sessionv('snippet', false), $i) ? 'checked':''
             , $v['name']
             , $v['description']
             );
     }
-    return $modx->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
 function is_demo($option) {
@@ -232,9 +202,11 @@ function is_demo($option) {
     return is_array($option['installset']) && !in_array('sample', $option['installset'], true);
 }
 
-function is_check($elements, $num, $selDefault) {
-    if($selDefault==='all') {
-        return true;
+function is_check($elements, $num) {
+    if(in_array($_SESSION['prevAction'], array('connection', 'mode'))) {
+        if(!isset($_SESSION['installdata'])) {
+            return true;
+        }
     }
     if(!is_array($elements) || !$elements) {
         return false;

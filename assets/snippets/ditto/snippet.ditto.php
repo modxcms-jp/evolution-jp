@@ -381,7 +381,7 @@ if (isset($documents)) {
 // type of IDs provided; can be either parents or documents
 
 if (isset($parents)) {
-    $parents = $ditto->cleanIDs($parents);
+    $parents = trim(preg_replace('`(,)+`', ',', $parents), ',');
 } else {
     $parents = $modx->documentIdentifier;
 }
@@ -403,7 +403,7 @@ if (isset($parents)) {
     - <depth>
 */
 if (isset($documents)) {
-    $documents = $ditto->cleanIDs($documents);
+    $documents = trim(preg_replace('`(,)+`', ',', $documents), ',');
 } else {
     $documents = false;
 }
@@ -423,7 +423,7 @@ if (isset($documents)) {
     - <parents>
 */
 
-if (($idType === 'parents')) {
+if ($idType === 'parents') {
     $IDs = $parents;
 } else {
     $IDs = $documents;
@@ -747,7 +747,7 @@ if (isset($hiddenFields)) {
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-if (isset($_GET[$dittoID . 'start'])) {
+if (evo()->array_get(event()->params, 'paginate') && evo()->input_get($dittoID . 'start')) {
     $start = (int)$_GET[$dittoID . 'start'];
 } else {
     $start = 0;

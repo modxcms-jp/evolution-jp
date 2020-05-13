@@ -13,11 +13,11 @@ if(isset($_REQUEST['id'])) $id = (int) $_REQUEST['id'];
 else                       $id = 0;
 
 // check to see the variable editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=301 AND id='{$id}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username','[+prefix+]active_users',"action=301 AND id='{$id}'");
+$total = db()->getRecordCount($rs);
 if($total>1)
 {
-	while($row = $modx->db->getRow($rs))
+	while($row = db()->getRow($rs))
 	{
 		if($row['internalKey']!=$modx->getLoginUserID())
 		{
@@ -40,8 +40,8 @@ global $content;
 $content = array();
 if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id']))
 {
-	$rs = $modx->db->select('*','[+prefix+]site_tmplvars',"id={$id}");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]site_tmplvars',"id={$id}");
+	$total = db()->getRecordCount($rs);
 	if($total>1)
 	{
 		echo 'Oops, Multiple variables sharing same unique id. Not good.';
@@ -51,7 +51,7 @@ if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id']))
 	{
 		header("Location: /index.php?id={$site_start}");
 	}
-	$content = $modx->db->getRow($rs);
+	$content = db()->getRow($rs);
 	$_SESSION['itemname'] = $content['caption'];
 }
 else
@@ -343,19 +343,19 @@ setTimeout('showParameters()',10);
 	$option['date']         = 'DateTime';
 	$option['dateonly']     = 'DateOnly';
 	$option['hidden']       = 'Hidden';
-	$result = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
-	if(0 < $modx->db->getRecordCount($result))
+	$result = db()->select('name','[+prefix+]site_snippets',"name like'input:%'");
+	if(0 < db()->getRecordCount($result))
 	{
-		while($row = $modx->db->getRow($result))
+		while($row = db()->getRow($result))
 		{
 			$input_name = trim(substr($row['name'],6));
 			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
 		}
 	}
-	$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
-	if(0 < $modx->db->getRecordCount($result))
+	$result = db()->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+	if(0 < db()->getRecordCount($result))
 	{
-		while($row = $modx->db->getRow($result))
+		while($row = db()->getRow($result))
 		{
 			$input_name = trim(substr($row['name'],6));
 			$option[strtolower($input_name)] = ucwords(strtolower($input_name));
@@ -387,10 +387,10 @@ switch($content['type'])
 		break;
 	default: $display = 'style="display:none;"';
 }
-$res1 = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
-$name1 = strtolower(substr($modx->db->getValue($res1),6));
-$res2 = $modx->db->select('name','[+prefix+]site_snippets',"name like'input:%'");
-$name2 = strtolower(substr($modx->db->getValue($res2),6));
+$res1 = db()->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+$name1 = strtolower(substr(db()->getValue($res1),6));
+$res2 = db()->select('name','[+prefix+]site_snippets',"name like'input:%'");
+$name2 = strtolower(substr(db()->getValue($res2),6));
 if($name1 == $content['type'] || $name2 == $content['type']) $display = '';
 ?>
   <tr id="inputoption" <?php echo $display;?>>
@@ -402,26 +402,19 @@ if($name1 == $content['type'] || $name2 == $content['type']) $display = '';
     <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?php echo htmlspecialchars($content['default_text']);?></textarea><?php echo $tooltip_tv_binding;?></td>
   </tr>
   <tr>
-<?php
-function selected($target='')
-{
-	global $content;
-	return ($content['display'] === $target) ? 'selected="selected"' : '';
-}
-?>
     <th align="left"><?php echo $_lang['tmplvars_widget']; ?></th>
     <td align="left">
         <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
-            <option value="" <?php echo selected(); ?>>&nbsp;</option>
-            <option value="custom_widget" <?php echo selected('custom_widget'); ?>>Custom Processor</option>
-            <option value="image" <?php        echo selected('image'); ?>>Image</option>
-            <option value="hyperlink" <?php    echo selected('hyperlink'); ?>>Hyperlink</option>
-            <option value="htmltag" <?php      echo selected('htmltag'); ?>>HTML Generic Tag</option>
-            <option value="string" <?php       echo selected('string'); ?>>String Formatter</option>
-            <option value="date" <?php         echo selected('date'); ?>>Date Formatter</option>
-            <option value="unixtime" <?php     echo selected('unixtime'); ?>>Unixtime</option>
-            <option value="delim" <?php        echo selected('delim'); ?>>Delimited List</option>
-            <option value="datagrid" <?php      echo selected('datagrid'); ?>>Data Grid</option>
+            <option value="" <?php echo selected($content['display']==''); ?>>&nbsp;</option>
+            <option value="custom_widget" <?php echo selected($content['display']==='custom_widget'); ?>>Custom Processor</option>
+            <option value="image" <?php        echo selected($content['display']==='image'); ?>>Image</option>
+            <option value="hyperlink" <?php    echo selected($content['display']==='hyperlink'); ?>>Hyperlink</option>
+            <option value="htmltag" <?php      echo selected($content['display']==='htmltag'); ?>>HTML Generic Tag</option>
+            <option value="string" <?php       echo selected($content['display']==='string'); ?>>String Formatter</option>
+            <option value="date" <?php         echo selected($content['display']==='date'); ?>>Date Formatter</option>
+            <option value="unixtime" <?php     echo selected($content['display']==='unixtime'); ?>>Unixtime</option>
+            <option value="delim" <?php        echo selected($content['display']==='delim'); ?>>Delimited List</option>
+            <option value="datagrid" <?php      echo selected($content['display']==='datagrid'); ?>>Data Grid</option>
 	        </select>
     </td>
   </tr>
@@ -443,13 +436,13 @@ function selected($target='')
 	<?php
 	    $from  = '[+prefix+]site_templates as tpl';
 		$from .= " LEFT JOIN [+prefix+]site_tmplvar_templates as stt ON stt.templateid=tpl.id AND stt.tmplvarid='{$id}'";
-	    $rs = $modx->db->select('id,templatename,tmplvarid',$from);
+	    $rs = db()->select('id,templatename,tmplvarid',$from);
 ?>
   <tr>
     <td>
 <?php
-	if(0<$modx->db->getRecordCount($rs)):
-	    while ($row = $modx->db->getRow($rs)):
+	if(0<db()->getRecordCount($rs)):
+	    while ($row = db()->getRow($rs)):
 	    	if($_REQUEST['a']=='300' && $modx->config['default_template']==$row['id'])
 	    		$checked = true;
 	    	elseif(isset($_GET['tpl']) && $_GET['tpl'] == $row['id'])
@@ -517,8 +510,8 @@ function selected($target='')
 		$groupsarray = array();
 		
 		// fetch permissions for the variable
-		$rs = $modx->db->select('documentgroup','[+prefix+]site_tmplvar_access',"tmplvarid='{$id}'");
-		while($row = $modx->db->getRow($rs))
+		$rs = db()->select('documentgroup','[+prefix+]site_tmplvar_access',"tmplvarid='{$id}'");
+		while($row = db()->getRow($rs))
 		{
 			$groupsarray[] = $row['documentgroup'];
 		}
@@ -553,13 +546,13 @@ function selected($target='')
 <?php
 		}
 		$chk ='';
-		$rs = $modx->db->select('name, id','[+prefix+]documentgroup_names');
+		$rs = db()->select('name, id','[+prefix+]documentgroup_names');
 		if(empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id']))
 		{
 			$groupsarray = $_POST['docgroups'];
 		}
 		$number_of_g = 0;
-		while($row=$modx->db->getRow($rs))
+		while($row=db()->getRow($rs))
 		{
 		    $checked = in_array($row['id'], $groupsarray);
 		    if($modx->hasPermission('access_permissions'))
@@ -634,8 +627,8 @@ function selected($target='')
 			case 'option':
 			case 'custom_tv':
 <?php
-$result = $modx->db->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
-while($row = $modx->db->getRow($result)){
+$result = db()->select('name','[+prefix+]site_plugins',"name like'input:%' and disabled!=1");
+while($row = db()->getRow($result)){
 $type = strtolower(str_replace("input:","",$row["name"]));
 echo "\t\t\tcase '".$type."':\n";
 }

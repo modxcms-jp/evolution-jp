@@ -18,10 +18,10 @@ $tbl_site_snippets      = $modx->getFullTableName('site_snippets');
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username','[+prefix+]active_users',"action=108 AND id='{$id}'");
+$limit = db()->getRecordCount($rs);
 if($limit>1) {
-	while($lock = $modx->db->getRow($rs))
+	while($lock = db()->getRow($rs))
 	{
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
@@ -60,11 +60,11 @@ switch ($_REQUEST['op']) {
 			}
 			$values = join(',', $v);
 			$del_opids = join(',', $opids);
-			$modx->db->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
-			$ds = $modx->db->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
+			db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
+			$ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
 			if(!$ds){
 				echo '<script type="text/javascript">'.
-				     'function jsalert(){ alert(\'An error occured while trying to update the database. \''.$modx->db->getLastError().');'.
+				     'function jsalert(){ alert(\'An error occured while trying to update the database. \''.db()->getLastError().');'.
 				     'setTimeout(\'jsalert()\',100)'.
 				     '</script>';
 			}
@@ -76,18 +76,18 @@ switch ($_REQUEST['op']) {
 			$opids[$i]=intval($opids[$i]); // convert ids to numbers
 		}
 		// get resources that needs to be removed
-		$ds = $modx->db->query("SELECT * FROM ".$tbl_site_module_depobj." WHERE id IN (".implode(",",$opids).")");
+		$ds = db()->query("SELECT * FROM ".$tbl_site_module_depobj." WHERE id IN (".implode(",",$opids).")");
 		if ($ds) {
 			// loop through resources and look for plugins and snippets
 			$i=0; $plids=array(); $snid=array();
-			while ($row=$modx->db->getRow($ds)){
+			while ($row=db()->getRow($ds)){
 				if($row['type']=='30') $plids[$i]=$row['resource'];
 				if($row['type']=='40') $snids[$i]=$row['resource'];
 			}
 			// get guid
-			$ds = $modx->db->select('*', '[+prefix+]site_modules', "id='{$id}'");
+			$ds = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
 			if($ds) {
-				$row = $modx->db->getRow($ds);
+				$row = db()->getRow($ds);
 				$guid = $row['guid'];
 			}
 			// reset moduleguid for deleted resources
@@ -95,20 +95,20 @@ switch ($_REQUEST['op']) {
 			{
 				$plids = join(',', $plids);
 				$snids = join(',', $snids);
-				if ($cp) $modx->db->update("moduleguid=''", $tbl_site_plugins,  "id IN ({$plids}) AND moduleguid='{$guid}'");
-				if ($cs) $modx->db->update("moduleguid=''", $tbl_site_snippets, "id IN ({$snids}) AND moduleguid='{$guid}'");
+				if ($cp) db()->update("moduleguid=''", $tbl_site_plugins,  "id IN ({$plids}) AND moduleguid='{$guid}'");
+				if ($cs) db()->update("moduleguid=''", $tbl_site_snippets, "id IN ({$snids}) AND moduleguid='{$guid}'");
 				// reset cache
 				$modx->clearCache();
 			}
 		}
 		$opids = join(',', $opids);
-		$modx->db->delete($tbl_site_module_depobj,"id IN ({$opids})");
+		db()->delete($tbl_site_module_depobj,"id IN ({$opids})");
 		break;
 }
 
 // load record
-$rs = $modx->db->select('*','[+prefix+]site_modules',"id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('*','[+prefix+]site_modules',"id='{$id}'");
+$limit = db()->getRecordCount($rs);
 if($limit>1) {
 	echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
 	exit;
@@ -117,7 +117,7 @@ elseif($limit<1) {
 	echo "<p>Module not found for id '$id'.</p>";
 	exit;
 }
-$content = $modx->db->getRow($rs);
+$content = db()->getRow($rs);
 $_SESSION['itemname']=$content['name'];
 if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 	$e->setError(3);
@@ -220,7 +220,7 @@ if($content['locked']==1 && $_SESSION['mgrRole']!=1) {
 					"LEFT JOIN ".$tbl_site_plugins." sp ON sp.id = smd.resource AND smd.type = '30' ".
 					"LEFT JOIN ".$tbl_site_snippets." ss ON ss.id = smd.resource AND smd.type = '40' ".
 					"WHERE smd.module=$id ORDER BY smd.type,name ";
-			$ds = $modx->db->query($sql);
+			$ds = db()->query($sql);
 			if (!$ds){
 				echo "An error occured while loading module dependencies.";
 			}

@@ -43,34 +43,41 @@ $esc_request = $modx->db->escape($_REQUEST);
 
     var openedArray = new Array();
 <?php
-	if(!isset($_SESSION['openedArray']) && $modx->config['allowed_parents'])
-    {
-    	$allowed_parents = explode(',', $modx->config['allowed_parents']);
-		foreach($allowed_parents as $allowed_parent)
-		{
-			$_ = $modx->getParentIds($allowed_parent);
-			if(!$_) break;
-			foreach($_ as $v)
-			{
-				$openedArray[] = $v;
-			}
-		}
-		if($openedArray) $_SESSION['openedArray'] = join('|',$openedArray);
-	}
-	
-	if(isset($_SESSION['openedArray']))      $openedArray = explode('|', $_SESSION['openedArray']);
-	else $openedArray = false;
-	
-    if ($openedArray) {
-    	foreach($openedArray as $i=>$v) {
-    		$openedArray[$i] = (int) $v;
-    	}
-            $opened = array_filter($openedArray);
-
-            foreach ($opened as $item) {
-                 printf("openedArray[%d] = 1;\n", $item);
-            }
+function openedArray($allowed_parents) {
+    $allowed_parents = explode(',', evo()->conf_var('allowed_parents'));
+    foreach($allowed_parents as $allowed_parent) {
+        $_ = evo()->getParentIds($allowed_parent);
+        if(!$_) {
+            continue;
+        }
+        // $openedArray[] = $allowed_parent;
+        foreach($_ as $v) {
+            $openedArray[] = $v;
+        }
     }
+    return $openedArray;
+}
+if(evo()->conf_var('allowed_parents') && !evo()->session_var('openedArray')) {
+    $openedArray = openedArray(evo()->conf_var('allowed_parents'));
+    if($openedArray) {
+        $_SESSION['openedArray'] = implode('|', $openedArray);
+    }
+}
+
+if(isset($_SESSION['openedArray'])) {
+    $openedArray = explode('|', $_SESSION['openedArray']);
+} else {
+    $openedArray = false;
+}
+if ($openedArray) {
+    foreach($openedArray as $i=>$v) {
+        $openedArray[$i] = (int) $v;
+    }
+    $opened = array_filter($openedArray);
+    foreach ($opened as $item) {
+        echo sprintf("openedArray[%d] = 1;\n", $item);
+    }
+}
 ?>
 
     // return window dimensions in array

@@ -7,8 +7,8 @@ if(preg_match('@^[1-9][0-9]*$@',$_REQUEST['id']))
 function get_resources_byajax($id) {
 	global $modx,$_lang;
 	
-	$rs = $modx->db->select('pagetitle,id', $modx->getFullTableName('site_content'), "template='{$id}'");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('pagetitle,id', $modx->getFullTableName('site_content'), "template='{$id}'");
+	$total = db()->getRecordCount($rs);
 	if($modx->config['limit_by_container'] < $total)
 		$result = $_lang['a16_many_resources'];
 	elseif($total===0)
@@ -16,7 +16,7 @@ function get_resources_byajax($id) {
 	else {
 		$tpl = '<a href="index.php?a=27&id=[+id+]">[+pagetitle+]([+id+])</a>';
 		$items = array();
-		while($ph = $modx->db->getRow($rs)) {
+		while($ph = db()->getRow($rs)) {
 			$items[] = $modx->parseText($tpl,$ph);
 		}
 		$result = join(', ', $items);

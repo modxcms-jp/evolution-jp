@@ -402,7 +402,7 @@ function getNodeTitle($node_name_source,$id,$pagetitle,$menutitle,$alias,$isfold
 			$rs = $pagetitle;
 	}
 	
-	return htmlspecialchars(str_replace(array("\r\n", "\n", "\r"), ' ', strip_tags($rs)));
+	return evo()->hsc(str_replace(array("\r\n", "\n", "\r"), ' ', $rs));
 }
 
 function getIcon($id, $contenttype, $isfolder='0') {
@@ -490,7 +490,7 @@ function parseNode($tpl,$param,$id) {
 
 	$_tmp = $modx->config['limit_by_container'];
 	$modx->config['limit_by_container'] = '';
-	if($modx->manager->isAllowed($id)===false) return;
+	if($modx->manager->isContainAllowed($id)===false) return;
 	$modx->config['limit_by_container'] = $_tmp;
 	$modx->event->vars = array();
     $modx->event->vars = & $param;

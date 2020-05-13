@@ -1,34 +1,29 @@
 <?php
 class DBAPI {
 
-    var $conn;
-    var $config;
-    var $lastQuery;
-    var $hostname;
-    var $dbname;
-    var $username;
-    var $password;
-    var $table_prefix;
-    var $charset;
-    var $connection_method;
+    public $conn = null;
+    public $config;
+    public $lastQuery;
+    public $hostname;
+    public $dbname;
+    public $username;
+    public $password;
+    public $table_prefix;
+    public $charset;
+    public $connection_method;
     
     /**
     * @name:  DBAPI
     *
     */
-    function __construct($host='',$dbase='',$uid='',$pwd='',$prefix=NULL,$charset='',$connection_method='SET CHARACTER SET') {
-        global $table_prefix;
-        if(!isset($GLOBALS['database_server']))   $GLOBALS['database_server'] = '';
-        if(!isset($GLOBALS['dbase']))             $GLOBALS['dbase'] = '';
-        if(!isset($GLOBALS['database_user']))     $GLOBALS['database_user'] = '';
-        if(!isset($GLOBALS['database_password'])) $GLOBALS['database_password'] = '';
-        $this->config['host']    = $host    ? $host    : $GLOBALS['database_server'];
-        $this->config['dbase']   = $dbase   ? $dbase : $GLOBALS['dbase'];
-        $this->config['user']    = $uid ? $uid : $GLOBALS['database_user'];
-        $this->config['pass']    = $pwd ? $pwd : $GLOBALS['database_password'];
-        $this->config['table_prefix'] = ($prefix !== NULL) ? $prefix : $GLOBALS['table_prefix'];
-        $this->config['charset'] = $charset ? $charset : $GLOBALS['database_connection_charset'];
-        $this->config['connection_method'] = isset($GLOBALS['database_connection_method']) ? $GLOBALS['database_connection_method'] : $connection_method;
+    function __construct($host='',$dbase='',$user='',$pwd='',$prefix=null,$charset='utf8',$connection_method='SET CHARACTER SET') {
+        $this->config['host']  = $host  ? $host  : evo()->global_var('database_server','');
+        $this->config['dbase'] = $dbase ? $dbase : evo()->global_var('dbase','');
+        $this->config['user']  = $user  ? $user  : evo()->global_var('database_user','');
+        $this->config['pass']  = $pwd   ? $pwd   : evo()->global_var('database_password','');
+        $this->config['table_prefix'] = ($prefix !== null) ? $prefix : evo()->global_var('table_prefix');
+        $this->config['charset'] = $charset ? $charset : evo()->global_var('database_connection_charset');
+        $this->config['connection_method'] = evo()->global_var('database_connection_method',$connection_method);
         $this->hostname           = &$this->config['host'];
         $this->dbname             = &$this->config['dbase'];
         $this->username           = &$this->config['user'];
@@ -38,80 +33,116 @@ class DBAPI {
         $this->connection_method  = &$this->config['connection_method'];
         $this->dbconnectionmethod = &$this->config['connection_method'];
     }
-    
+
+    public function set($prop_name, $value=null) {
+        $this->$prop_name = $value;
+        return $value;
+    }
+
+    public function get($prop_name, $default=null) {
+        if(isset($this->$prop_name)) {
+            return $this->$prop_name;
+        }
+        return $default;
+    }
+
+    public function prop($prop_name, $value=null) {
+        if(strpos($prop_name, '*')===0) {
+            return $this->set(ltrim($prop_name,'*'), $value);
+        }
+        return $this->get($prop_name, $value);
+    }
+
     /**
     * @name:  connect
     *
     */
     function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
-        global $modx;
-        if($this->conn) return;
+        if($this->isConnected()) {
+            return true;
+        }
         
         if($host)  $this->hostname = $host;
         if($uid)   $this->username = $uid;
         if($pwd)   $this->password = $pwd;
         if($dbase) $this->dbname   = $dbase;
         
-        if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost')
+        if(substr(PHP_OS,0,3) === 'WIN' && $this->hostname==='localhost') {
             $hostname = '127.0.0.1';
-        else $hostname = $this->hostname;
-        
-        $tstart = $modx->getMicroTime();
-        $safe_count = 0;
-        do {
-            if(strpos($hostname,':')!==false) list($hostname,$port) = explode(':',$hostname);
-            if(!isset($port)) $this->conn = new mysqli($hostname, $this->username, $this->password);
-            else              $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
-            if ($this->conn->connect_error) {
-                $this->conn = null;
-                if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
-                    if($modx->config['send_errormail'] <= 2) {
-                        $logtitle    = 'Failed to create the database connection!';
-                        $request_uri = htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES);
-                        $ua          = htmlspecialchars($_SERVER['HTTP_USER_AGENT'], ENT_QUOTES);
-                        $referer     = htmlspecialchars($_SERVER['HTTP_REFERER'], ENT_QUOTES);
-                        $ip          = $_SERVER['REMOTE_ADDR'];
-                        $remote_host = $_SERVER['REMOTE_HOST'] ? $_SERVER['REMOTE_HOST'].'(REMOTE_HOST)'."\n" : '';
-                        $remote_hostname    = gethostbyaddr($ip);
-                        $time = date('Y-m-d H:i:s');
-                        $subject = 'Missing to create the database connection! from ' . $modx->config['site_name'];
-                        $msg = "{$logtitle}\n{$request_uri}\n{$ua}\n{$ip}\n{$remote_host}{$remote_hostname}(hostname)\n{$referer}\n{$time}";
-                        $modx->sendmail($subject,$msg);
-                    }
-                }
-                sleep(1);
-                $safe_count++;
-            }
-        } while (!$this->conn && $safe_count<3);
-        
-        if(!$this->conn) {
-            $modx->messageQuit('Failed to create the database connection!');
-            exit;
+        } else {
+            $hostname = $this->hostname;
+        }
+        if (!$this->hostname || !$this->username) {
+            return false;
         }
         
+        $tstart = evo()->getMicroTime();
+        if(strpos($hostname,':')!==false) {
+            list($hostname, $port) = explode(':', $hostname);
+            $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
+        } else {
+            $this->conn = new mysqli($hostname, $this->username, $this->password);
+        }
+        if(!$this->conn) {
+            return false;
+        }
+        if (isset($this->conn->connect_error) && $this->conn->connect_error) {
+            $this->conn = null;
+            if (evo()->config('send_errormail') && evo()->config('send_errormail') < 3) {
+                evo()->sendmail(
+                    'Missing to create the database connection! from ' . evo()->config('site_name')
+                    , sprintf(
+                        "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s"
+                        , 'Failed to create the database connection!'
+                        , evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES)
+                        , evo()->hsc(evo()->server('HTTP_USER_AGENT'), ENT_QUOTES)
+                        , evo()->server('REMOTE_ADDR')
+                        , evo()->server('REMOTE_HOST') ? evo()->server('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : ''
+                        , gethostbyaddr(evo()->server('REMOTE_ADDR'))
+                        , evo()->hsc(evo()->server('HTTP_REFERER'), ENT_QUOTES)
+                        , date('Y-m-d H:i:s')
+                    )
+                );
+            }
+            return false;
+        }
+        if(!$this->isConnected()) {
+            return false;
+        }
+
         if($this->dbname) {
             $this->dbname = trim($this->dbname, '` '); // remove the `` chars
             $rs = $this->select_db($this->dbname);
             if (!$rs) {
-                $modx->messageQuit("Failed to select the database '{$this->dbname}'!");
-                exit;
+                evo()->messageQuit(
+                    sprintf(
+                        "Failed to select the database '%s'!"
+                        , $this->dbname
+                    )
+                );
+                return false;
             }
-            $this->conn->query("{$this->connection_method} {$this->charset}");
+            $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
             $this->conn->set_charset($this->charset);
         }
         
-        $tend = $modx->getMicroTime();
+        $tend = evo()->getMicroTime();
         $totaltime = $tend - $tstart;
-        if ($modx->dumpSQL) {
-            $msg = sprintf("Database connection was created in %2.4f s", $totaltime);
-            $modx->dumpSQLCode[] = '<fieldset style="text-align:left;"><legend>Database connection</legend>' . "{$msg}</fieldset>";
+        if (evo()->dumpSQL) {
+            evo()->dumpSQLCode[] = sprintf(
+                '<fieldset style="text-align:left;"><legend>Database connection</legend>%s</fieldset>'
+                , sprintf("Database connection was created in %2.4f s", $totaltime)
+            );
         }
-        $modx->queryTime += $totaltime;
-        return true;
+        evo()->queryTime += $totaltime;
+        return $this->conn;
     }
     
     function select_db($dbase='') {
-        if($dbase) return $this->conn->select_db($dbase);
+        if($dbase) {
+            return $this->conn->select_db($dbase);
+        }
+        return false;
     }
     
     /**
@@ -125,36 +156,46 @@ class DBAPI {
     
     function escape($s, $safecount=0) {
         $safecount++;
-        if(1000<$safecount) exit("Too many loops '{$safecount}'");
-        if (!$this->isConnected()) {
-            $rs = $this->connect();
-            if(!$rs) return false;
+        if(1000<$safecount) {
+            exit(sprintf("Too many loops '%d'", $safecount));
         }
-        
-        if(is_array($s)) {
-            if(count($s) === 0) {
-$s = '';
-            } else {
-                foreach($s as $i=>$v) {
-                  $s[$i] = $this->escape($v,$safecount);
-                }
+
+        if (!$this->isConnected()) {
+            if(!$this->connect()) {
+                return false;
             }
         }
-        elseif (function_exists('mysqli_set_charset') && $this->conn)
-        {
-            $s = $this->conn->real_escape_string($s);
+
+        if (is_array($s)) {
+            if(!$s) {
+                return '';
+            }
+
+            foreach($s as $i=>$v) {
+                $s[$i] = $this->escape($v,$safecount);
+            }
+            return $s;
         }
-        elseif ($this->charset=='utf8' && $this->conn)
-        {
-            $s = mb_convert_encoding($s, 'eucjp-win', 'utf-8');
-            $s = $this->conn->real_escape_string($s);
-            $s = mb_convert_encoding($s, 'utf-8', 'eucjp-win');
+
+        if (function_exists('mysqli_set_charset')) {
+            return $this->conn->real_escape_string($s);
         }
-        else
-        {
-            $s = $this->conn->escape_string($s);
+
+        if($this->charset==='utf8') {
+            return mb_convert_encoding(
+                $this->conn->real_escape_string(
+                    mb_convert_encoding(
+                        $s
+                        , 'eucjp-win'
+                        , 'utf-8'
+                    )
+                )
+                , 'utf-8'
+                , 'eucjp-win'
+            );
         }
-        return $s;
+
+        return $this->conn->escape_string($s);
     }
     
     /**
@@ -165,57 +206,77 @@ $s = '';
     function query($sql,$watchError=true) {
         global $modx;
         if (!$this->isConnected()) {
-            $rs = $this->connect();
-            if(!$rs) return false;
+            return false;
         }
         
         $tstart = $modx->getMicroTime();
         
-        if(is_array($sql)) $sql = join("\n", $sql);
+        if(is_array($sql)) {
+            $sql = implode("\n", $sql);
+        }
         
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {
-            if(!$watchError) return;
-            switch($this->conn->errno) {
-                case 1064:
-                case 1054:
-                case 1060:
-                case 1061:
-                case 1091:
-                    break;
-                default:
-                    $modx->messageQuit('Execution of a query to the database failed - ' . $this->getLastError(), $sql);
+            if(!$watchError) {
+                return false;
             }
-        } else {
-            $tend = $modx->getMicroTime();
-            $totaltime = $tend - $tstart;
-            $modx->queryTime = $modx->queryTime + $totaltime;
-            $totaltime = $totaltime*1000;
-            if ($modx->dumpSQL) {
-                $backtraces = debug_backtrace();
-                array_shift($backtraces);    
-                $debug_path = array();
-                foreach ($backtraces as $line) $debug_path[] = $line['function'];
-                $debug_path = join(' &gt; ', array_reverse($debug_path));
-                $totaltime = sprintf('%2.2f ms', $totaltime);
-                $_ = array();
-                $_[] = '<fieldset style="text-align:left"><legend>Query ' . ($modx->executedQueries + 1) . ' - ' . $totaltime . '</legend>';
-                $_[] = $sql . '<br><br>';
-                if ($modx->event->name)          $_[] = 'Current Event  => '  . $modx->event->name . '<br>';
-                if ($modx->event->activePlugin)  $_[] = 'Current Plugin => '  . $modx->event->activePlugin . '<br>';
-                if ($modx->currentSnippet)       $_[] = 'Current Snippet => ' . $modx->currentSnippet . '<br>';
-                if (stripos($sql, 'select')===0) $_[] = 'Record Count => '    . $this->getRecordCount($result) . '<br>';
-                else                             $_[] = 'Affected Rows => '   . $this->getAffectedRows() . '<br>';
-                $_[]                                  = 'Functions Path => '  . $debug_path . '<br>';
-                $_[]                                  = '</fieldset><br />';
-                $modx->dumpSQLCode[] = join("\n", $_);
+            if(!in_array($this->conn->errno, array(1064,1054,1060,1061,1091))) {
+                $modx->messageQuit(
+                    sprintf(
+                        'Execution of a query to the database failed - %s'
+                        , $this->getLastError()
+                    )
+                    , $sql
+                );
+                return false;
             }
-            $modx->executedQueries = $modx->executedQueries + 1;
-            return $result;
+            return true;
         }
+
+        $totaltime = $modx->getMicroTime() - $tstart;
+        $modx->queryTime = $modx->queryTime + $totaltime;
+        $totaltime = $totaltime*1000;
+        if ($modx->dumpSQL) {
+            $backtraces = debug_backtrace();
+            array_shift($backtraces);
+            $debug_path = array();
+            foreach ($backtraces as $line) {
+                $debug_path[] = $line['function'];
+            }
+            $_ = array();
+            $_[] = sprintf(
+                '<fieldset style="text-align:left"><legend>Query %d - %s</legend>'
+                , $modx->executedQueries + 1
+                , sprintf('%2.2f ms', $totaltime)
+            );
+            $_[] = $sql . '<br><br>';
+            if ($modx->event->name) {
+                $_[] = 'Current Event  => ' . $modx->event->name . '<br>';
+            }
+            if ($modx->event->activePlugin) {
+                $_[] = 'Current Plugin => ' . $modx->event->activePlugin . '<br>';
+            }
+            if ($modx->currentSnippet) {
+                $_[] = 'Current Snippet => ' . $modx->currentSnippet . '<br>';
+            }
+            if (stripos($sql, 'select')===0) {
+                $_[] = 'Record Count => ' . $this->getRecordCount($result) . '<br>';
+            } else {
+                $_[] = 'Affected Rows => ' . $this->getAffectedRows() . '<br>';
+            }
+            $_[] = 'Functions Path => '  . implode(' &gt; ', array_reverse($debug_path)) . '<br>';
+            $_[] = '</fieldset><br />';
+            $modx->dumpSQLCode[] = implode("\n", $_);
+        }
+        $modx->executedQueries = $modx->executedQueries + 1;
+        return $result;
     }
-    
+
+    public function lastQuery() {
+        return $this->lastQuery;
+    }
+
     /**
     * @name:  delete
     *
@@ -223,14 +284,18 @@ $s = '';
     function delete($from,$where='',$orderby='', $limit = '') {
         global $modx;
         if (!$from) {
-            $modx->messageQuit("Empty \$from parameters in DBAPI::delete().");
-        } else {
-            $from = $this->replaceFullTableName($from);
-            if($where != '') $where = "WHERE {$where}";
-            if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-            if($limit != '') $limit = "LIMIT {$limit}";
-            return $this->query("DELETE FROM {$from} {$where} {$orderby} {$limit}");
+            $modx->messageQuit('Empty $from parameters in DBAPI::delete().');
+            return false;
         }
+        return $this->query(
+            sprintf(
+                'DELETE FROM %s %s %s %s'
+                , $this->replaceFullTableName($from)
+                , $where ? 'WHERE ' . $where : ''
+                , $orderby ? 'ORDER BY ' . $orderby : ''
+                , $limit!=='' ? 'LIMIT ' . $limit : ''
+            )
+        );
     }
     
     /**
@@ -239,22 +304,32 @@ $s = '';
     */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
         global $modx;
-        
-        if(is_array($fields)) $fields = $this->_getFieldsStringFromArray($fields);
-        if(is_array($from))   $from   = $this->_getFromStringFromArray($from);
-        if(is_array($where))  $where  = join(' ', $where);
-        
+
         if (!$from) {
-            $modx->messageQuit("Empty \$from parameters in DBAPI::select().");
+            $modx->messageQuit('Empty $from parameters in DBAPI::select().');
             exit;
         }
-        
-        $fields = $this->replaceFullTableName($fields);
-        $from = $this->replaceFullTableName($from);
-        if(trim($where) !== '')   $where   = "WHERE {$where}";
-        if(trim($orderby) !== '') $orderby = "ORDER BY {$orderby}";
-        if(trim($limit) !== '')   $limit   = "LIMIT {$limit}";
-        return $this->query("SELECT {$fields} FROM {$from} {$where} {$orderby} {$limit}");
+
+        if(is_array($fields)) {
+            $fields = $this->_getFieldsStringFromArray($fields);
+        }
+        if(is_array($from)) {
+            $from = $this->_getFromStringFromArray($from);
+        }
+        if(is_array($where)) {
+            $where = implode(' ', $where);
+        }
+
+        return $this->query(
+            sprintf(
+                'SELECT %s FROM %s %s %s %s'
+                , $this->replaceFullTableName($fields)
+                , $this->replaceFullTableName($from)
+                , trim($where)   ? sprintf('WHERE %s', $where)      : ''
+                , trim($orderby) ? sprintf('ORDER BY %s', $orderby) : ''
+                , trim($limit)   ? sprintf('LIMIT %s', $limit)      : ''
+            )
+        );
     }
     
     /**
@@ -267,23 +342,29 @@ $s = '';
             $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
             exit;
         }
-        $table = $this->replaceFullTableName($table);
-        if (!is_array($fields)) $pairs = $fields;
-        else {
+        if (!is_array($fields)) {
+            $pairs = $fields;
+        } else {
             foreach ($fields as $key => $value) {
-                if(is_null($value) || strtolower($value) === 'null'){
+                if($value === null || strtolower($value) === 'null'){
                     $value = 'NULL';
                 }else{
-                    $value = "'{$value}'";
+                    $value = sprintf("'%s'", $value);
                 }
-                $pair[$key] = "`{$key}`={$value}";
+                $pair[$key] = sprintf('`%s`=%s', $key, $value);
             }
-            $pairs = join(',',$pair);
+            $pairs = implode(',',$pair);
         }
-        if($where != '')    $where = "WHERE {$where}";
-        if($orderby !== '') $orderby = "ORDER BY {$orderby}";
-        if($limit !== '')   $limit   = "LIMIT {$limit}";
-        return $this->query("UPDATE {$table} SET {$pairs} {$where} {$orderby} {$limit}");
+        return $this->query(
+            sprintf(
+                'UPDATE %s SET %s %s %s %s'
+                , $this->replaceFullTableName($table)
+                , $pairs
+                , $where ? 'WHERE ' . $where : ''
+                , $orderby ? 'ORDER BY ' . $orderby : ''
+                , $limit!=='' ? 'LIMIT ' . $limit : ''
+            )
+        );
     }
     
     /**
@@ -312,67 +393,69 @@ $s = '';
     
     function save($fields, $table, $where='') {
         
-        if($where === '')                                                  $mode = 'insert';
-        elseif($this->getRecordCount($this->select('*',$table,$where))==0) $mode = 'insert';
-        else                                                               $mode = 'update';
+        if(!$where || !$this->getRecordCount($this->select('*',$table,$where))) {
+            $mode = 'insert';
+        } else {
+            $mode = 'update';
+        }
         
-        if($mode==='insert') return $this->insert($fields, $table);
-        else                 return $this->update($fields, $table, $where);
+        if($mode==='insert') {
+            return $this->insert($fields, $table);
+        }
+        return $this->update($fields, $table, $where);
     }
     
-    private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    private function __insert($insert_method='INSERT INTO', $fields, $intotable, $fromfields='*', $fromtable='', $where='', $limit='') {
         global $modx;
         if (!$intotable) {
             $modx->messageQuit('Empty $intotable parameters in DBAPI::insert().');
+            return false;
+        }
+
+        $intotable = $this->replaceFullTableName($intotable);
+        if($fromtable) {
+            $query = sprintf(
+                '%s %s (%s) SELECT %s FROM %s %s %s'
+                , $insert_method
+                , $intotable
+                , is_array($fields) ? implode(',', array_keys($fields)) : $fields
+                , $fromfields ? $fromfields : $intotable
+                , $this->replaceFullTableName($fromtable)
+                , $where ? 'WHERE ' . $where : ''
+                , $limit!=='' ? 'LIMIT ' . $limit : ''
+            );
         } else {
-            $intotable = $this->replaceFullTableName($intotable);
-            $fromtable = $this->replaceFullTableName($fromtable);
-            if (!is_array($fields))
-            {
+            if (is_array($fields)) {
+                if (!$fromtable) {
+                    $pairs = sprintf(
+                        "(`%s`) VALUES('%s')"
+                        , implode('`,`', array_keys($fields))
+                        , implode("','", array_values($fields))
+                    );
+                }
+            } else {
                 $pairs = $fields;
             }
-            else
-            {
-                $keys = array_keys($fields);
-                $keys = join('`,`', $keys) ;
-                $values = array_values($fields);
-                $values = join("','", $values);
-                if (!$fromtable && $values) $pairs = "(`{$keys}`) VALUES('{$values}')";
-            }
-            if($fromtable)
-            {
-                if(empty($fromfields)) $fromfields = $intotable;
-                if (is_array($fields))
-                {
-                    $keys   = array_keys($fields);
-                    $fields = join(',', $keys);
-                }
-                if ($where !== '') $where = "WHERE {$where}";
-                if ($limit !== '') $limit = "LIMIT {$limit}";
-                
-                $query = "{$insert_method} {$intotable} ({$fields}) SELECT {$fromfields} FROM {$fromtable} {$where} {$limit}";
-            }
-            else $query = "{$insert_method} {$intotable} {$pairs}";
-            
-            $rt = $this->query($query);
-            if($rt===false) $result = false;
-            else
-            {
-                switch($insert_method)
-                {
-                    case 'INSERT IGNORE':
-                    case 'REPLACE INTO':
-                        $diff = $this->getAffectedRows();
-                        if($diff==1) $result = $this->getInsertId();
-                        else         $result = false;
-                        break;
-                    case 'INSERT INTO':
-                    default:
-                        $result = $this->getInsertId();
-                }
+            $query = sprintf('%s %s %s', $insert_method, $intotable, $pairs);
+        }
+
+        $rt = $this->query($query);
+        if($rt===false) {
+            $result = false;
+        } else {
+            switch($insert_method) {
+                case 'INSERT IGNORE':
+                case 'REPLACE INTO':
+                    $result = $this->getAffectedRows()==1 ? $this->getInsertId() : false;
+                    break;
+                case 'INSERT INTO':
+                default:
+                    $result = $this->getInsertId();
             }
         }
-        if (($lid = $this->getInsertId())===false) $modx->messageQuit("Couldn't get last insert key!");
+        if ($this->getInsertId()===false) {
+            $modx->messageQuit("Couldn't get last insert key!");
+        }
         return $result;
     } // __insert
     
@@ -406,7 +489,9 @@ $s = '';
     *
     */
     function getInsertId($conn=NULL) {
-        if (!$this->isResult($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) {
+            $conn =& $this->conn;
+        }
         return $conn->insert_id;
     }
     
@@ -415,7 +500,9 @@ $s = '';
     *
     */
     function getAffectedRows($conn=NULL) {
-        if (!$this->isResult($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) {
+            $conn =& $this->conn;
+        }
         return $conn->affected_rows;
     }
     
@@ -424,12 +511,16 @@ $s = '';
     *
     */
     function getLastError($conn=NULL) {
-        if (!$this->isResult($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) {
+            $conn =& $this->conn;
+        }
         return $conn->error;
     }
     
     function getLastErrorNo($conn=NULL) {
-        if (!$this->isResult($conn)) $conn =& $this->conn;
+        if (!$this->isResult($conn)) {
+            $conn =& $this->conn;
+        }
         return $conn->errno;
     }
     
@@ -437,15 +528,21 @@ $s = '';
     * @name:  getRecordCount
     *
     */
-    function getRecordCount($rs, $from='', $where='') {
-        if($this->isResult($rs)) return $rs->num_rows;
-        elseif(is_string($rs) && !empty($where)) {
-            $rs = $this->select('*',$from,$where);
-            return $this->getRecordCount($rs);
+    function count($rs, $from='', $where='') {
+        if ($this->isResult($rs)) {
+            return $rs->num_rows;
         }
-        else return 0;
+        if(is_string($rs) && $where) {
+            return $this->count(
+                $this->select('*', $from, $where)
+            );
+        }
+        return 0;
     }
-    
+
+    function getRecordCount($rs, $from='', $where='') {
+        return $this->count($rs, $from, $where);
+    }
     /**
     * @name:  getRow
     * @desc:  returns an array of column values
@@ -453,38 +550,64 @@ $s = '';
     *
     */
     function getRow($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
-        if(is_string($param1)) {
-            if($where) return $this->getRow($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
-            else       return $this->getRow($this->query($param1),$param2);
+        if (is_string($param1)) {
+            if($where) {
+                return $this->getRow(
+                    $this->select($param1, $param2, $where, $orderby, $limit)
+                    , 'assoc'
+                );
+            }
+            return $this->getRow($this->query($param1), $param2);
         }
-        elseif(!$this->isResult($param1)) return false;
-        
-        $rs   = $param1;
-        $mode = $param2;
-        
-        switch($mode) {
-            case 'assoc' :return $rs->fetch_assoc();
-            case 'num'   :return $rs->fetch_row();
-            case 'object':return $rs->fetch_object();
-            case 'both'  :return $rs->fetch_array(MYSQLI_BOTH);
-            default      :
-                global $modx;
-                $modx->messageQuit("Unknown get type ({$mode}) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.");
+
+        if(!$this->isResult($param1)) {
+            return false;
         }
+
+        if($param2==='assoc') {
+            return $param1->fetch_assoc();
+        }
+        if($param2==='num') {
+            return $param1->fetch_row();
+        }
+        if($param2==='object') {
+            return $param1->fetch_object();
+        }
+        if($param2==='both') {
+            return $param1->fetch_array(MYSQLI_BOTH);
+        }
+        global $modx;
+        $modx->messageQuit(
+            sprintf(
+                "Unknown get type (%s) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'."
+                , $param2
+            )
+        );
+        return false;
     }
-    
+
     function getRows($param1, $param2='assoc', $where = '', $orderby = '', $limit = '') {
-        
-        if(is_string($param1)) {
-            if($where) return $this->getRows($this->select($param1,$param2,$where,$orderby,$limit),'assoc');
-            else       return $this->getRows($this->query($param1),$param2);
+
+        if (is_string($param1)) {
+            if($where) {
+                return $this->getRows(
+                    $this->select($param1, $param2, $where, $orderby, $limit)
+                    , 'assoc'
+                );
+            }
+            return $this->getRows($this->query($param1), $param2);
         }
-        elseif(!$this->isResult($param1)) return false;
-        
+
+        if(!$this->isResult($param1)) {
+            return false;
+        }
+
         $rs   = $param1;
         $mode = $param2;
         
-        if(!$this->getRecordCount($rs)) return array();
+        if(!$this->getRecordCount($rs)) {
+            return array();
+        }
         $_ = array();
         while($row = $this->getRow($rs,$mode)) {
             $_[] = $row;
@@ -508,7 +631,7 @@ $s = '';
             }
             return $col;
         }
-        else return array ();
+        return array();
     }
     
     /**
@@ -520,14 +643,15 @@ $s = '';
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        if ($dsq) {
-            $names = array ();
-            $limit = $this->numFields($dsq);
-            for ($i = 0; $i < $limit; $i++) {
-                $names[] = $this->fieldName($dsq, $i);
-            }
-            return $names;
+        if (!$dsq) {
+            return false;
         }
+        $names = array();
+        $limit = $this->numFields($dsq);
+        for ($i = 0; $i < $limit; $i++) {
+            $names[] = $this->fieldName($dsq, $i);
+        }
+        return $names;
     }
         
     /**
@@ -537,8 +661,11 @@ $s = '';
     */
     function getValue($rs, $from='', $where='', $orderby = '', $limit = '') {
         if (is_string($rs)) {
-            if($from && $where) $rs = $this->select($rs,$from,$where,$orderby,$limit);
-            else                $rs = $this->query($rs);
+            if($from && $where) {
+                $rs = $this->select($rs, $from, $where, $orderby, $limit);
+            } else {
+                $rs = $this->query($rs);
+            }
         }
         $row = $this->getRow($rs, 'num');
         return $row[0];
@@ -553,7 +680,9 @@ $s = '';
     * @param: $rs Recordset to be packaged into an array
     */
     function makeArray($rs='') {
-        if(!$rs) return false;
+        if(!$rs) {
+            return false;
+        }
         $rsArray = array();
         while ($row = $this->getRow($rs)) {
             $rsArray[] = $row;
@@ -569,8 +698,9 @@ $s = '';
     */
     function getVersion() {
         if (!$this->isConnected()) {
-            $rs = $this->connect();
-            if(!$rs) return false;
+            if(!$this->connect()) {
+                return false;
+            }
         }
         return $this->conn->server_info;
     }
@@ -591,12 +721,19 @@ $s = '';
      * @param string $table
      * @param string $where
      * @param string $orderby
-     * @return an object of row from query, or return false if empty query    
+     * @return array|bool|false|object|stdClass
      */
     function getObject($table,$where,$orderby=''){
-        $table = $this->replaceFullTableName($table,'force');
-        $rs = $this->select('*', $table, $where, $orderby, 1);
-        if ($this->getRecordCount($rs)==0) return false;
+        $rs = $this->select(
+            '*'
+            , $this->replaceFullTableName($table,'force')
+            , $where
+            , $orderby
+            , 1
+        );
+        if ($this->getRecordCount($rs)==0) {
+            return false;
+        }
         return $this->getRow($rs,'object');
     }
 
@@ -605,11 +742,13 @@ $s = '';
      * @desc  get row as object from sql query
      * 
      * @param string $sql
-     * @return an object of row from query, or return false if empty query     
+     * @return array|bool|false|object|stdClass
      */
     function getObjectSql($sql){
         $rs = $this->query($sql);
-        if ($this->getRecordCount($rs)==0) return false;
+        if ($this->getRecordCount($rs)==0) {
+            return false;
+        }
         return $this->getRow($rs,'object');
     }
     
@@ -624,18 +763,20 @@ $s = '';
      * @param type $where
      * @param type $orderby
      * @param type $limit
-     * @return type 
+     * @return array
      */
     function getObjects($sql_or_table,$where='',$orderby='',$limit=0){
         $sql_or_table = trim($sql_or_table);
-        if ((stripos($sql_or_table, 'select')===0)||(stripos($sql_or_table, 'show')===0)){
+        if (stripos($sql_or_table, 'select')===0 || stripos($sql_or_table, 'show')===0){
             $sql = $sql_or_table;
         }else{
-            $where = empty($where) ? '' : " WHERE {$where}";
-            $orderby = empty($orderby)?"":" ORDER BY {$orderby}";
-            $limit = empty($limit)?"": "LIMIT {$limit}";
-            $sql_or_table = $this->replaceFullTableName($sql_or_table,'force');
-            $sql = "SELECT * from {$sql_or_table} {$where} {$orderby} {$limit}";
+            $sql = sprintf(
+                'SELECT * from %s %s %s %s'
+                , $this->replaceFullTableName($sql_or_table,'force')
+                , $where ? ' WHERE ' . $where : ''
+                , $orderby ? ' ORDER BY ' . $orderby : ''
+                , $limit!=='' ? 'LIMIT ' . $limit : ''
+            );
         }
 
         $rs = $this->query($sql);
@@ -652,8 +793,12 @@ $s = '';
     }
 
     function getFullTableName($table_name) {
-        $dbase = trim($this->dbname,'`');
-        return "`{$dbase}`.`{$this->table_prefix}{$table_name}`";
+        return sprintf(
+            '`%s`.`%s%s`'
+            , trim($this->dbname,'`')
+            , $this->table_prefix
+            , $table_name
+        );
     }
     
     /**
@@ -664,18 +809,28 @@ $s = '';
      * @return string 
      */
     function replaceFullTableName($table_name,$force=null) {
-        $table_name = trim($table_name);
-        $dbase  = trim($this->dbname,'`');
-        $prefix = $this->table_prefix;
-        if(!empty($force)) {
-            $table_name = str_replace('[+prefix+]','',$table_name);
-            $result = "`{$dbase}`.`{$prefix}{$table_name}`";
-        } elseif(strpos($table_name,'[+prefix+]')!==false) {
-            $result = preg_replace('@\[\+prefix\+\]([0-9a-zA-Z_]+)@', "`{$dbase}`.`{$prefix}$1`", $table_name);
+        if ($force) {
+            return sprintf(
+                '`%s`.`%s%s`'
+                , trim($this->dbname,'`')
+                , $this->table_prefix
+                , str_replace('[+prefix+]','',$table_name)
+            );
         }
-        else $result = $table_name;
-        
-        return $result;
+
+        if(strpos(trim($table_name),'[+prefix+]')!==false) {
+            return preg_replace(
+                '@\[\+prefix\+]([0-9a-zA-Z_]+)@'
+                , sprintf(
+                    '`%s`.`%s$1`'
+                    , trim($this->dbname,'`')
+                    , $this->table_prefix
+                )
+                , $table_name
+            );
+        }
+
+        return $table_name;
     }
     
     /**
@@ -707,15 +862,17 @@ $s = '';
     * @param: $table: the full name of the database table
     */
     function getTableMetaData($table) {
-        $metadata = false;
-        if (!empty ($table)) {
-            $sql = "SHOW FIELDS FROM {$table}";
-            if ($ds = $this->query($sql)) {
-                while ($row = $this->getRow($ds)) {
-                    $fieldName = $row['Field'];
-                    $metadata[$fieldName] = $row;
-                }
-            }
+        if (!$table) {
+            return false;
+        }
+
+        $ds = $this->query(sprintf('SHOW FIELDS FROM %s', $table));
+        if (!$ds) {
+            return false;
+        }
+        while ($row = $this->getRow($ds)) {
+            $fieldName = $row['Field'];
+            $metadata[$fieldName] = $row;
         }
         return $metadata;
     }
@@ -729,25 +886,23 @@ $s = '';
     *         (in MySQL, you have DATE, TIME, YEAR, and DATETIME)
     */
     function prepareDate($timestamp, $fieldType = 'DATETIME') {
-        $date = '';
-        if ($timestamp !== false && $timestamp > 0) {
-            switch ($fieldType) {
-                case 'DATE' :
-                $date = date('Y-m-d', $timestamp);
-                break;
-                case 'TIME' :
-                $date = date('H:i:s', $timestamp);
-                break;
-                case 'YEAR' :
-                $date = date('Y', $timestamp);
-                break;
-                case 'DATETIME' :
-                default :
-                $date = date('Y-m-d H:i:s', $timestamp);
-                break;
-            }
+        if (!preg_match('@^[1-9][0-9]*$@', $timestamp)) {
+            return '';
         }
-        return $date;
+
+        if ($fieldType === 'DATE') {
+            return date('Y-m-d', $timestamp);
+        }
+
+        if ($fieldType === 'TIME') {
+            return date('H:i:s', $timestamp);
+        }
+
+        if ($fieldType === 'YEAR') {
+            return date('Y', $timestamp);
+        }
+
+        return date('Y-m-d H:i:s', $timestamp);
     }
     
     /**
@@ -821,14 +976,15 @@ $s = '';
     function optimize($table_name) {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
         $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
-        if($rs) $rs = $this->query("ALTER TABLE `{$table_name}`");
+        if($rs) {
+            $rs = $this->query("ALTER TABLE `{$table_name}`");
+        }
         return $rs;
     }
 
     function truncate($table_name) {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        $rs = $this->query("TRUNCATE TABLE `{$table_name}`");
-        return $rs;
+        return $this->query("TRUNCATE TABLE `{$table_name}`");
     }
     
     function dataSeek($result, $row_number) {
@@ -840,47 +996,65 @@ $s = '';
     }
 
     function importSql($source,$watchError=true) {
-        if(is_file($source)) $source = file_get_contents($source);
+        if(is_file($source)) {
+            $source = file_get_contents($source);
+        }
         
-        if(strpos($source, "\r")!==false) $source = str_replace(array("\r\n","\r"),"\n",$source);
+        if(strpos($source, "\r")!==false) {
+            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+        }
         $_ = explode("\n",$source);
         $source = '';
         foreach($_ as $v) {
-            if(substr($v,0,1)=='#') continue;
+            if(strpos($v, '#') === 0) {
+                continue;
+            }
             $source .= $v . "\n";
         }
-        $source = str_replace('{PREFIX}',$this->table_prefix,$source);
-        $sql_array = preg_split('@;[ \t]*\n@', $source);
-        foreach($sql_array as $sql)
-        {
-            $sql = trim($sql);
-            if(empty($sql)) continue;
+        $sql_array = preg_split(
+            '@;[ \t]*\n@'
+            , str_replace('{PREFIX}',$this->table_prefix,$source)
+        );
+        foreach($sql_array as $sql) {
+            if(!trim($sql)) {
+                continue;
+            }
             $this->query($sql,$watchError);
         }
     }
     
     function table_exists($table_name) {
-        $dbname = trim($this->dbname,'`');
-        $table_name = str_replace('[+prefix+]',$this->table_prefix,$table_name);
-        $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $dbname, $table_name);
-        $rs = $this->query($sql);
+        $sql = sprintf(
+            "SHOW TABLES FROM `%s` LIKE '%s'"
+            , trim($this->dbname,'`')
+            , str_replace('[+prefix+]', $this->table_prefix, $table_name)
+        );
         
-        return 0<$this->getRecordCount($rs) ? 1 : 0;
+        return 0<$this->getRecordCount($this->query($sql)) ? 1 : 0;
     }
     
     function field_exists($field_name,$table_name) {
         $table_name = $this->replaceFullTableName($table_name);
         
-        if(!$this->table_exists($table_name)) return 0;
+        if(!$this->table_exists($table_name)) {
+            return 0;
+        }
         
-        $rs = $this->query("DESCRIBE {$table_name} {$field_name}");
-        
-        return $this->getRow($rs) ? 1 : 0;
+        return $this->getRow(
+            $this->query(
+                sprintf(
+                    'DESCRIBE %s %s'
+                    , $table_name
+                    , $field_name
+                )
+            )
+        ) ? 1 : 0;
     }
     
     function isConnected() {
-        if (!empty ($this->conn) && $this->isResult($this->conn)) return true;
-        else                                                return false;
+        if (!$this->conn)                  return false;
+        if (!$this->isResult($this->conn)) return false;
+        return true;
     }
     
     function getCollation($table='[+prefix+]site_content',$field='content') {
@@ -889,8 +1063,9 @@ $s = '';
         $rs = $this->query($sql);
         $Collation = 'utf8_general_ci';
         while ($row = $this->getRow($rs)) {
-            if($row['Field']==$field && isset($row['Collation']))
+            if($row['Field']==$field && isset($row['Collation'])) {
                 $Collation = $row['Collation'];
+            }
         }
         return $Collation;
     }
@@ -901,11 +1076,15 @@ $s = '';
         
         $_ = array();
         foreach($fields as $k=>$v) {
-            if(preg_match('@^[0-9]+$@',$k)) $_[] = $v;
-            elseif($k!==$v)                 $_[] = "{$v} as {$k}";
-            else                            $_[] = $v;
+            if(preg_match('@^[0-9]+$@',$k)) {
+                $_[] = $v;
+            } elseif($k!==$v) {
+                $_[] = sprintf("%s as '%s'", $v, $k);
+            } else {
+                $_[] = $v;
+            }
         }
-        return join(',', $_);
+        return implode(',', $_);
     }
     
     function _getFromStringFromArray($tables=array()) {
@@ -913,6 +1092,6 @@ $s = '';
         foreach($tables as $k=>$v) {
             $_[] = $v;
         }
-        return join(' ', $_);
+        return implode(' ', $_);
     }
 }

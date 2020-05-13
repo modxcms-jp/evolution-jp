@@ -15,7 +15,7 @@ if(isset($_REQUEST['op']) && $_REQUEST['op']=='reset') {
 }
 else {
 	$search = $query = isset($_REQUEST['search'])? $_REQUEST['search']:$_PAGE['vs']['search'];
-	if(!is_numeric($search)) $search = $modx->db->escape($query);
+	if(!is_numeric($search)) $search = db()->escape($query);
 	$_PAGE['vs']['search'] = $query;
 }
 
@@ -127,7 +127,7 @@ echo $cm->render();
 		$where .= "(source LIKE '%{$search}%') OR (description LIKE '%{$search}%')";
 	}
 	$orderby = 'el.id DESC';
-	$ds = $modx->db->select($field,$from,$where,$orderby);
+	$ds = db()->select($field,$from,$where,$orderby);
 	include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
 	$grd = new DataGrid('',$ds,$number_of_results); // set page size to 0 t show all items
 	$grd->noRecordMsg = $_lang['no_records_found'];

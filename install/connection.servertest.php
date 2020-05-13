@@ -1,31 +1,35 @@
 <?php
 define('MODX_API_MODE', true);
-include_once('../manager/includes/document.parser.class.inc.php');
+define('MODX_BASE_PATH', str_replace('\\','/', dirname(__DIR__)).'/');
+define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
+include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-require_once('../manager/includes/default.config.php');
-require_once('functions.php');
-$language = $_SESSION['install_language'] ? $_SESSION['install_language'] : 'english';
-includeLang($language);
+require_once(MODX_BASE_PATH . 'install/functions.php');
+$_lang = includeLang(sessionv('install_language', 'english'));
+$modx->db->hostname = postv('host','localhost');
+$modx->db->username = postv('uid','root');
+$modx->db->password = postv('pwd','passwford');
+db()->connect();
 
-$modx->db->hostname = $host = !isset($_POST['host']) ? '' : $_POST['host'];
-$modx->db->username = !isset($_POST['uid']) ?  '' : $_POST['uid'];
-$modx->db->password = !isset($_POST['pwd']) ?  '' : $_POST['pwd'];
-$modx->db->connect();
-
-if (!$modx->db->isConnected()) {
-    $output = sprintf('<span id="server_fail" style="color:#FF0000;">%s</span>',$_lang['status_failed']);
-    $bgcolor = '#ffe6eb';
-}
-    
-else {
-    $output = sprintf('<span id="server_pass" style="color:#388000;">%s</span>',$_lang['status_passed_server']);
-    $bgcolor = '#e6ffeb';
-    $_SESSION['database_server']   = $host;
-    $_SESSION['database_user']     = $modx->db->username;
-    $_SESSION['database_password'] = $modx->db->password;
+if (!db()->isConnected()) {
+    exit( sprintf(
+        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s</span></div>'
+        , lang('status_failed')
+    ));
 }
 
-echo sprintf('<div style="background: %s;padding:8px;border-radius:5px;">%s</div>', $bgcolor, $_lang["status_connecting"] . $output);
+$output = sprintf(
+    '<span id="server_pass" style="color:#388000;">%s</span>'
+    , lang('status_passed_server')
+);
+sessionv('*database_server', db()->hostname);
+sessionv('*database_user', db()->username);
+sessionv('*database_password', db()->password);
+
+echo sprintf(
+    '<div style="background: #e6ffeb;padding:8px;border-radius:5px;">%s</div>'
+    , lang('status_connecting') . $output
+);
 
 $script = '<script>
     var characters = {' . getCollation() . "},
@@ -45,18 +49,28 @@ jQuery.each(characters, function (value, name) {
 echo $script;
 
 function getCollation() {
-    global $modx;
-    $rs = $modx->db->query("SHOW COLLATION LIKE 'utf8%'");
-    while($row=$modx->db->getRow($rs)) {
-        if(isSafeCollation($row['Collation'])) $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
+    $rs = db()->query("SHOW COLLATION LIKE 'utf8%'");
+    while($row=db()->getRow($rs)) {
+        if(isSafeCollation($row['Collation'])) {
+            $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
+        }
         //$row['Charset'];
     }
-    return join(',', $_);
+    return implode(',', $_);
 }
 
 function isSafeCollation($collation) {
-    if    (strpos($collation,'_general_c')!==false) return true;
-    elseif(strpos($collation,'_unicode_c')!==false) return true;
-    elseif(strpos($collation,'_bin')!==false)     return true;
-    else                                          return false;
+    if (strpos($collation,'_general_c')!==false) {
+        return true;
+    }
+
+    if (strpos($collation,'_unicode_c')!==false) {
+        return true;
+    }
+
+    if (strpos($collation,'_bin')!==false) {
+        return true;
+    }
+
+    return false;
 }

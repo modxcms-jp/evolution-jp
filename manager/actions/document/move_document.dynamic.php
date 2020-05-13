@@ -5,24 +5,18 @@ if(!$modx->hasPermission('move_document') || !$modx->hasPermission('save_documen
     $e->dumpError();
 }
 
-if(isset($_REQUEST['id']))
-{
-	$id = (int)$_REQUEST['id'];
-}
-elseif(isset($_REQUEST['batch']))
-{
-	$id = join(',',$_REQUEST['batch']);
-}
-else
-{
-	$e->setError(2);
-	$e->dumpError();
+if(isset($_REQUEST['id'])) {
+    $id = (int)$_REQUEST['id'];
+} elseif(isset($_REQUEST['batch'])) {
+    $id = join(',',$_REQUEST['batch']);
+} else {
+    $e->setError(2);
+    $e->dumpError();
 }
 
 // check permissions on the document
-if(!$modx->checkPermissions($id))
-{
-	show_perm_error();
+if(!$modx->checkPermissions($id)) {
+    show_perm_error();
     exit;
 }
 
@@ -32,11 +26,10 @@ echo get_src_content($id,$parent);
 
 
 
-function get_src_content($id,$parent)
-{
-	global $_lang,$_style;
-	$redirect = $parent==0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
-	$src = <<< EOT
+function get_src_content($id,$parent) {
+    global $_lang,$_style;
+    $redirect = $parent==0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
+    $src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">
 	<ul class="actionButtons">
@@ -60,28 +53,23 @@ function get_src_content($id,$parent)
 </div>
 </div>
 EOT;
-	return $src;
+    return $src;
 }
 
-function batch_move()
-{
-	global $modx;
-	foreach($_REQUEST['batch'] as $v)
-	{
-		$ids[] = sprintf("id='%s'",$modx->db->escape($v));
-	}
-	$where = join(' OR ', $ids);
-	$rs = $modx->db->select('pagetitle', '[+prefix+]site_content', $where);
-	while($row=$modx->db->getRow($rs))
-	{
-		echo $row['pagetitle'] . '<br />';
-	}
+function batch_move() {
+    foreach($_REQUEST['batch'] as $v) {
+        $ids[] = sprintf("id='%s'",db()->escape($v));
+    }
+    $where = implode(' OR ', $ids);
+    $rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
+    while($row=db()->getRow($rs)) {
+        echo $row['pagetitle'] . '<br />';
+    }
 }
 
-function get_src_js()
-{
-	global $_lang;
-	$src = <<< EOT
+function get_src_js() {
+    global $_lang;
+    $src = <<< EOT
 <script language="javascript">
 top.mainMenu.defaultTreeFrame();
 parent.tree.ca = "move";
@@ -117,25 +105,22 @@ function checkParentChildRelation(pId, pName) {
 </script>
 
 EOT;
-	return $src;
+    return $src;
 }
 
-function show_perm_error()
-{
-	global $_lang;
-	$src = <<< EOT
+function show_perm_error() {
+    global $_lang;
+    $src = <<< EOT
 <br /><br /><div class="section"><div class="sectionHeader">{$_lang['access_permissions']}</div><div class="sectionBody">
 <p>{$_lang['access_permission_denied']}</p>
 </div></div>
 EOT;
-	echo $src;
+    echo $src;
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
-function get_parentid($id)
-{
-	global $modx;
-	if(strpos($id,',')) $id = substr($id,0,strpos($id,','));
-	$rs = $modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'");
-	return $modx->db->getValue($rs);
+function get_parentid($id) {
+    if(strpos($id,',')) $id = substr($id,0,strpos($id,','));
+    $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
+    return db()->getValue($rs);
 }

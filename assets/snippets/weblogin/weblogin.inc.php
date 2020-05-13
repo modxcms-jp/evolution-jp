@@ -6,9 +6,15 @@
 defined('IN_PARSER_MODE') or die();
 
 # load tpl
-if(is_numeric($tpl)) $code = ($doc=$modx->getDocument($tpl)) ? $doc['content'] : "Document '{$tpl}' not found.";
-elseif($tpl)         $code = ($chunk=$modx->getChunk($tpl))  ? $chunk : "Chunk '{$tpl}' not found.";
-else                 $code = getWebLogintpl();
+if(is_numeric($tpl)) {
+    $doc = $modx->getDocument($tpl);
+    $code = ($doc) ? $doc['content'] : sprintf("Document '%d' not found.", $tpl);
+} elseif($tpl) {
+    $chunk = $modx->getChunk($tpl);
+    $code = ($chunk) ? $chunk : sprintf("Chunk '%s' not found.", $tpl);
+} else {
+    $code = getWebLogintpl();
+}
 
 // extract declarations
 $declare = webLoginExtractDeclarations($code);
@@ -20,15 +26,14 @@ if(!isset($tplLogin))    $tplLogin      = $tpls[0];
 if(!isset($tplReminder)) $tplReminder   = (isset($tpls[2])) ? $tpls[2] : '';
 if(!isset($tplLogout))   $tplLogout     = $tpls[1];
 
-if(!isset($_SESSION['webValidated']))
-{
+if(!isset($_SESSION['webValidated'])) {
 	$username = isset($_POST['username'])? $modx->db->escape(htmlspecialchars(trim($_POST['username']), ENT_QUOTES)):'';
 	$form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
         function getElementById(id){
             var o, d=document;
-            if (d.layers) {o=d.layers[id];if(o) o.style=o};
+            if (d.layers) {o=d.layers[id];if(o) o.style=o}
             if (!o && d.getElementById) o=d.getElementById(id);
             if (!o && d.all) o = d.all[id];
             return o;
@@ -47,7 +52,7 @@ if(!isset($_SESSION['webValidated']))
                 b.style.display="block";
                 document.forms['loginreminder'].txtpwdrem.value = 1;
             }
-        };
+        }
         function webLoginCheckRemember () {
             if(document.loginfrm.rememberme.value==1) {
                 document.loginfrm.rememberme.value=0;
@@ -74,7 +79,7 @@ if(!isset($_SESSION['webValidated']))
 EOT;
 	if(isset($uid))
 	{
-		$rs = $modx->db->select('*', $tbl_web_users, "id='{$uid}'");
+		$rs = $modx->db->select('*', '[+prefix+]web_users', "id='{$uid}'");
 		$row = $modx->db->getRow($rs);
 		$username = $row['username'];
 	}
@@ -100,23 +105,25 @@ else
 {
 	$output= '';
 	
-	if ($_SERVER['HTTP_CLIENT_IP'])          $ip = $_SERVER['HTTP_CLIENT_IP'];
-	elseif($_SERVER['HTTP_X_FORWARDED_FOR']) $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	elseif($_SERVER['REMOTE_ADDR'])          $ip = $_SERVER['REMOTE_ADDR'];
-	else                                     $ip = 'unknown';
-	
-	$_SESSION['ip'] = $ip;
-	
-	$itemid = (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) ? $_REQUEST['id'] : 'NULL';
-	$lasthittime = time();
-	$tbl_active_users = $modx->getFullTableName('active_users');
-	$sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-".$_SESSION['webInternalKey'].", '".$_SESSION['webShortname']."', '{$lasthittime}', '998', {$itemid}, '{$ip}')";
-	if(!$rs = $modx->db->query($sql))
-	{
+	$_SESSION['ip'] = $modx->real_ip();
+
+    if (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
+        $itemid = $_REQUEST['id'];
+    } else {
+        $itemid = 'NULL';
+    }
+	$sql = sprintf(
+        "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')"
+        , $modx->getFullTableName('active_users')
+        , $_SESSION['webInternalKey']
+        , $_SESSION['webShortname']
+        , time()
+        , $itemid
+        , $ip
+    );
+	if(!$rs = $modx->db->query($sql)) {
 		$output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
-	}
-	else
-	{
+	} else {
 		// display logout
 		$url = preserveUrl($modx->documentObject['id']);
 		$url = $url.((strpos($url,'?')===false) ? '?':'&amp;') . 'webloginmode=lo';

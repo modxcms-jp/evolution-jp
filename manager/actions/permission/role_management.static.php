@@ -27,8 +27,8 @@ if(!$modx->hasPermission('edit_role')) {
 <?php
 
 $tbl_user_roles = $modx->getFullTableName('user_roles');
-$rs = $modx->db->select('name, id, description',$tbl_user_roles,'','name');
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('name, id, description',$tbl_user_roles,'','name');
+$total = db()->getRecordCount($rs);
 if($total<1){
 	echo "The request returned no roles!</div>";
 	exit;
@@ -40,7 +40,7 @@ if($total<1){
 li span {width: 200px;}
 </style>
 <?php
-while($row = $modx->db->getRow($rs))
+while($row = db()->getRow($rs))
 {
 	if($row['id']==1)
 	{

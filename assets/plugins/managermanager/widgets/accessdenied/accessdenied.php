@@ -17,22 +17,24 @@
 function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
 	global $modx;
 
-	if ($modx->event->name === 'OnDocFormRender' && useThisRule($roles)){
+	if ($modx->event->name !== 'OnDocFormRender' || !useThisRule($roles)) {
+        return;
+    }
 
-		$output = "//  -------------- accessdenied widget include ------------- \n";
-		
-		if (in_array((int)$_GET['id'], makeArray($ids))){
-            if (!$message) {
-                $message = '<span>Access denied</span>Access to current document closed for security reasons.';
-            }
-			$output .= includeCss( __DIR__ . '/accessdenied.css');
-			
-			$output .= '
-			$j("input, div, form[name=mutate]").remove(); // Remove all content from the page
-			$j("body").prepend(\'<div id="aback"><div id="amessage">'.$message.'</div></div>\');
-			$j("#aback").css({height: $j("body").height()} );';
-		}
+	if (!in_array((int)$_GET['id'], makeArray($ids))) {
+        return;
+    }
 
-        $modx->event->output($output . "\n");
-	}
+    $output = "//  -------------- accessdenied widget include ------------- \n";
+    if (!$message) {
+        $message = '<span>Access denied</span>Access to current document closed for security reasons.';
+    }
+    $output .= includeCss(MODX_BASE_URL . 'assets/plugins/managermanager/widgets/accessdenied/accessdenied.css');
+
+    $output .= '
+    jQuery("input, div, form[name=mutate]").remove(); // Remove all content from the page
+    jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
+    jQuery("#aback").css({height: jQuery("body").height()} );';
+
+    $modx->event->output($output . "\n");
 }

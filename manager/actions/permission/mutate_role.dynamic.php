@@ -25,11 +25,11 @@ switch((int) $_REQUEST['a'])
 $role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the role editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=35 and id='{$role}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username','[+prefix+]active_users',"action=35 and id='{$role}'");
+$total = db()->getRecordCount($rs);
 if($total>1) {
 	for ($i=0;$i<$total;$i++) {
-		$lock = $modx->db->getRow($rs);
+		$lock = db()->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID()) {
 			$msg = sprintf($_lang["lock_msg"],$lock['username'],$_lang['role']);
 			$e->setError(5, $msg);
@@ -43,8 +43,8 @@ if($total>1) {
 
 if($_REQUEST['a']=='35')
 {
-	$rs = $modx->db->select('*','[+prefix+]user_roles',"id='{$role}'");
-	$total = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]user_roles',"id='{$role}'");
+	$total = db()->getRecordCount($rs);
 	if($total>1) {
 		echo "More than one role returned!<p>";
 		exit;
@@ -53,7 +53,7 @@ if($_REQUEST['a']=='35')
 		echo "No role returned!<p>";
 		exit;
 	}
-	$roledata = $modx->db->getRow($rs);
+	$roledata = db()->getRow($rs);
 	$_SESSION['itemname']=$roledata['name'];
 } else {
 	$roledata = 0;

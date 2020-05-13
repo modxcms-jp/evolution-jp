@@ -56,7 +56,7 @@ function disableOldCarbonTheme() {
 	$old_manager_dir= MODX_BASE_PATH . "manager/media/style/{$old_manager_theme}/";
 	
 	if(
-		 is_dir("{$old_manager_dir}manager")
+		is_dir("{$old_manager_dir}manager")
 	||  is_file("{$old_manager_dir}sysalert_style.php")
 	|| !is_file("{$old_manager_dir}style.php")
 	|| ($old_manager_theme==='MODxCarbon' && !is_dir(MODX_MANAGER_PATH . 'media/style/MODxCarbon/images/icons/32x'))
@@ -174,8 +174,8 @@ function delete_actionphp()
 		if(strpos($src,'if(strpos($path,MODX_MANAGER_PATH)!==0)')===false)
 		{
 			@unlink($modx->config['base_path'] . 'action.php');
-        	$msg = "脆弱性を持つaction.phpを削除しました";
-        	$modx->logEvent(0,1,$msg,$msg);
+			$msg = "脆弱性を持つaction.phpを削除しました";
+			$modx->logEvent(0,1,$msg,$msg);
 		}
 	}
 }

@@ -7,77 +7,65 @@
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors',1);
 
-if (!defined('E_DEPRECATED'))      define('E_DEPRECATED',       8192);
-if (!defined('E_USER_DEPRECATED')) define('E_USER_DEPRECATED', 16384);
-
 header("Content-Type: text/html; charset=utf-8");
 
 define('MODX_API_MODE', true);
-$base_path      = str_replace('\\','/', dirname(getcwd())).'/';
+define('MODX_BASE_PATH', str_replace('\\','/', dirname(__DIR__)).'/');
+define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
 
-include_once("{$base_path}manager/includes/document.parser.class.inc.php");
+include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
-$installer_path = "{$base_path}install/";
-
-require_once("{$base_path}manager/includes/version.inc.php");
-$cmsName = "MODX";
+require_once(MODX_BASE_PATH . 'manager/includes/version.inc.php');
+$cmsName = 'MODX';
 $cmsVersion = $modx_branch.' '.$modx_version;
 $moduleRelease = $modx_release_date;
 
-require_once("{$base_path}manager/includes/default.config.php");
-require_once("{$installer_path}functions.php");
+require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
+require_once(MODX_SETUP_PATH . 'functions.php');
 
-$lang_name = autoDetectLang();
 $rs = install_sessionCheck();
 if(!$rs) {
-    includeLang($lang_name);
-    $ph = $_lang;
-    $tpl = file_get_contents("{$base_path}install/tpl/session_problem.tpl");
+    $ph = includeLang(lang_name());
+    $tpl = file_get_contents(MODX_BASE_PATH . 'install/tpl/session_problem.tpl');
     echo $modx->parseText($tpl,$ph);
     exit;
 }
 
-$action = isset($_REQUEST['action']) ? trim(strip_tags($_REQUEST['action'])) : 'mode';
-$_SESSION['prevAction']    = isset($_SESSION['currentAction']) ? $_SESSION['currentAction'] : '';
-$_SESSION['currentAction'] = $action;
+sessionv('*prevAction', sessionv('currentAction',''));
+$action = anyv('action', 'mode');
+sessionv('*currentAction', $action);
 
-if($action==='mode') $_SESSION['installmode'] = isUpGrade();
-
-if(isset($_SESSION['database_server']))   $modx->db->hostname     = $_SESSION['database_server'];
-if(isset($_SESSION['database_user']))     $modx->db->username     = $_SESSION['database_user'];
-if(isset($_SESSION['database_password'])) $modx->db->password     = $_SESSION['database_password'];
-if(isset($_SESSION['dbase']))             $modx->db->dbname       = $_SESSION['dbase'];
-if(isset($_SESSION['database_charset']))  $modx->db->charset      = $_SESSION['database_charset'];
-if(isset($_SESSION['table_prefix']))      $modx->db->table_prefix = $_SESSION['table_prefix'];
-if(isset($_SESSION['database_server']))   $modx->db->connect();
-
-if(isset($_POST['install_language']) && !empty($_POST['install_language'])) {
-	$lang_name = $_POST['install_language'];
-	$_SESSION['install_language'] = $_POST['install_language'];
-}
-elseif(isset($_SESSION['install_language']) && !empty($_SESSION['install_language']))
-	$lang_name = $_SESSION['install_language'];
-else {
-	$_SESSION['install_language'] = $lang_name;
+if($action==='mode') {
+    sessionv('*is_upgradeable', isUpGradeable());
 }
 
-//echo $lang_name;exit;
-includeLang($lang_name);
+if(sessionv('database_server')) {
+    db()->prop('*dbname', sessionv('dbase'));
+    db()->prop('*table_prefix', sessionv('table_prefix', 'modx_'));
+    db()->prop('*connection_method', sessionv('database_connection_method'));
+    db()->prop('*charset', sessionv('database_charset', 'utf8'));
+    db()->connect(
+        sessionv('database_server')
+        , sessionv('database_user')
+        , sessionv('database_password')
+    );
+}
+
+$_lang = includeLang(lang_name());
 
 $errors= 0;
 
 $ph = ph();
 $ph = array_merge($ph,$_lang);
-$ph['install_language'] = $lang_name;
+$ph['install_language'] = lang_name();
 
 ob_start();
-if (!@include("{$installer_path}actions/{$action}.php"))
-{
+if (!@include(MODX_SETUP_PATH . "actions/" . $action . ".php")) {
     die ('Invalid install action attempted. [action=' . $action . ']');
 }
 $ph['content'] = ob_get_contents();
 ob_end_clean();
 
-$tpl = file_get_contents("{$base_path}install/tpl/template.tpl");
+$tpl = file_get_contents(MODX_BASE_PATH . 'install/tpl/template.tpl');
 echo $modx->parseText($tpl,$ph);

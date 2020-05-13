@@ -2,24 +2,24 @@
 if(!isset($modx) || !$modx->isLoggedin()) exit;
 
 if ($_REQUEST['a']!=='74' || !$modx->hasPermission('change_password')) {
-  $e->setError(3);
-  $e->dumpError();
+	alert()->setError(3);
+	alert()->dumpError();
 }
 
 $userid = $modx->getLoginUserID();
 
 // get user attribute
-$rs = $modx->db->select('*','[+prefix+]user_attributes',"internalKey='{$userid}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('*','[+prefix+]user_attributes',"internalKey='{$userid}'");
+$total = db()->getRecordCount($rs);
 if($total > 1)     exit('More than one user returned!<p>');
 elseif($total < 1) exit('No user returned!<p>');
 
-$userdata = $modx->db->getRow($rs);
+$userdata = db()->getRow($rs);
 
 // get user settings
-$rs = $modx->db->select('*','[+prefix+]user_settings',"user='{$userid}'");
+$rs = db()->select('*','[+prefix+]user_settings',"user='{$userid}'");
 $usersettings = array ();
-while ($row = $modx->db->getRow($rs)) {
+while ($row = db()->getRow($rs)) {
 	$usersettings[$row['setting_name']] = $row['setting_value'];
 }
 
@@ -35,12 +35,12 @@ foreach ($usersettings as $k => $v) {
 }
 
 // get user name
-$rs = $modx->db->select('*','[+prefix+]manager_users',"id='{$userid}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select('*','[+prefix+]manager_users',"id='{$userid}'");
+$total = db()->getRecordCount($rs);
 if($total > 1)     exit('More than one user returned while getting username!<p>');
 elseif($total < 1) exit('No user returned while getting username!<p>');
 
-$usernamedata = $modx->db->getRow($rs);
+$usernamedata = db()->getRow($rs);
 
 $_SESSION['itemname'] = $usernamedata['username'];
 
@@ -420,11 +420,6 @@ if (is_array($evtOut))
 </script>
 <?php
 
-function selected($cond=false)
-{
-	if($cond) return ' selected="selected"';
-}
-
 // converts date format dd-mm-yyyy to php date
 function ConvertDate($date) {
 	global $modx;
@@ -441,9 +436,4 @@ function checkbox($name,$value,$label,$cond)
 	$ph['label'] = $label;
 	$ph['checked'] = checked($cond);
 	return $modx->parseText($tpl,$ph);
-}
-
-function checked($cond=false)
-{
-	if($cond===true) return 'checked="checked"';
 }

@@ -182,7 +182,7 @@ class MODIFIERS {
     function parsePhx($key,$value,$modifiers)
     {
         global $modx;
-        $cacheKey = md5(sprintf('parsePhx#%s#%s#%s',$key,$value,print_r($modifiers,true)));
+        $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s',$key,$value,print_r($modifiers,true)));
         if(isset($this->tmpCache[$cacheKey])) return $this->tmpCache[$cacheKey];
         if(empty($modifiers)) return '';
         
@@ -325,6 +325,7 @@ class MODIFIERS {
         
         $_ = array();
         $_[] = MODX_BASE_PATH . "assets/modifiers/mdf_{$cmd}.inc.php";
+        $_[] = MODX_BASE_PATH . "assets/modifiers/{$cmd}.php";
         $_[] = MODX_BASE_PATH . "assets/plugins/phx/modifiers{$cmd}.phx.php";
         $_[] = MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php";
         foreach($_ as $mdf_path) {
@@ -862,9 +863,13 @@ class MODIFIERS {
                 return $modx->getField($opt,$value);
             case 'children':
             case 'childids':
-                if($value=='') $value = 0; // 値がない場合はルートと見なす
+                if($value=='') {
+                    $value = 0;
+                } // 値がない場合はルートと見なす
                 $published = 1;
-                if($opt=='') $opt = 'page';
+                if($opt=='') {
+                    $opt = 'page';
+                }
                 $options = explode(',',$opt);
                 $where = array();
                 foreach($options as $option) {
@@ -883,7 +888,7 @@ class MODIFIERS {
                 foreach((array)$children as $child){
                     $result[] = $child['id'];
                 }
-                return join(',', $result);
+                return implode(',', $result);
             case 'fullurl':
                 if(!is_numeric($value)) return $value;
                 return $modx->makeUrl($value);
@@ -1056,6 +1061,7 @@ class MODIFIERS {
             // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $_ = compact('key','value','cmd', 'opt');
+                $_['url'] = $_SERVER['REQUEST_URI'];
                 $modx->addLog('unparsed modifire',$_,2);
         }
         return $value;

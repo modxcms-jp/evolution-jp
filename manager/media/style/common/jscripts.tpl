@@ -75,9 +75,9 @@ jQuery(function(){
 		documentDirty=true;
 		return true;
 	});
-	curTemplate = jQuery('#template').val();
-	jQuery('#template').change(function(){
-		newTemplate = jQuery('#template').val();
+	curTemplate = jQuery('#field_template').val();
+	jQuery('#field_template').change(function(){
+		newTemplate = jQuery('#field_template').val();
 		if (curTemplate != newTemplate) {
         	documentDirty=false;
         	jQuery('#mutate input[name="a"]').val([+action+]);
@@ -86,7 +86,7 @@ jQuery(function(){
 		}
 	});
 	jQuery('#which_editor').change(function(){
-		newTemplate = jQuery('#template').val();
+		newTemplate = jQuery('#field_template').val();
 		newEditor   = jQuery('#which_editor').val();
     	documentDirty=false;
     	jQuery('#mutate input[name="a"]').val([+action+]);

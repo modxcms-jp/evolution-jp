@@ -218,7 +218,7 @@ class EXPORT_SITE
 		$mask = umask();
 		while($row = $modx->db->getRow($rs))
 		{
-			$_ = $modx->getAliasListing($row['id'],'path');
+			$_ = $modx->getAliasListing($row['id'], 'path');
 			$target_base_path = $_=='' ? sprintf('%s/',$this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
 			unset($_);
 			$_ = rtrim($target_base_path,'/');
@@ -289,19 +289,21 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt($ch, CURLOPT_FAILONERROR, true );
-        if(ini_get('open_basedir')=='' && ini_get('safe_mode') === 'Off')
+        if(ini_get('open_basedir')=='' && ini_get('safe_mode') === 'Off') {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        }
         curl_setopt($ch, CURLOPT_MAXREDIRS,3);
-        if(defined('CURLOPT_AUTOREFERER'))
-        	curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        if(defined('CURLOPT_AUTOREFERER')) {
+            curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        }
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        if($_SERVER['HTTP_USER_AGENT'])
+        if($_SERVER['HTTP_USER_AGENT']) {
             curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
+        }
         $result = curl_exec($ch);
-        if(!$result)
-    	{
+        if(!$result) {
     		$i = 0;
-    		while($i<3)
+    		while($i<2)
         	{
                 usleep(300000);
         		$result = curl_exec($ch);

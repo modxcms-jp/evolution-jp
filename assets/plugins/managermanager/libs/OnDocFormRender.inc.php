@@ -32,7 +32,7 @@ $j(function(){
             }
             
             // If template category is empty, hide the optgroup
-        $j("#template optgroup").each( function(){
+        $j("#field_template optgroup").each( function(){
                 var $this = $j(this),
                 visibleOptions = 0;
                 $this.find("option").each( function() {

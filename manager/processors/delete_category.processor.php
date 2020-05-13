@@ -1,15 +1,9 @@
 <?php
 if(!isset($modx) || !$modx->isLoggedin()) exit;
-$hasPermission = 0;
-if($modx->hasPermission('save_plugin') ||
-   $modx->hasPermission('save_snippet') ||
-   $modx->hasPermission('save_template') ||
-   $modx->hasPermission('save_module')) {
-    $hasPermission = 1;
+if(!hasPermission('save_plugin') && !hasPermission('save_snippet') && !hasPermission('save_template') && !hasPermission('save_module')) {
+    header('Location: index.php?a=76');
+    return;
 }
 
-if ($hasPermission) {
-    $catId = (int)$_GET['catId'];
-    $modx->manager->deleteCategory($catId);
-}
-header("Location: index.php?a=76");
+manager()->deleteCategory((int)getv('catId'));
+header('Location: index.php?a=76');

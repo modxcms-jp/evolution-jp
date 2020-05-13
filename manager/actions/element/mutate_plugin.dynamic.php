@@ -22,9 +22,9 @@ switch((int) $_REQUEST['a']) {
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the plugin editor isn't locked
-$rs = $modx->db->select('*','[+prefix+]active_users',"action='102' AND id='{$id}'");
-$row = $modx->db->getRow($rs);
-if(1<$modx->db->getRecordCount($rs) && $row['internalKey']!=$modx->getLoginUserID()) {
+$rs = db()->select('*','[+prefix+]active_users',"action='102' AND id='{$id}'");
+$row = db()->getRow($rs);
+if(1<db()->getRecordCount($rs) && $row['internalKey']!=$modx->getLoginUserID()) {
     $msg = sprintf($_lang['lock_msg'],$row['username'],$_lang['plugin']);
     $e->setError(5, $msg);
     $e->dumpError();
@@ -33,9 +33,9 @@ if(1<$modx->db->getRecordCount($rs) && $row['internalKey']!=$modx->getLoginUserI
 
 if(isset($_GET['id'])&&preg_match('@^[1-9][0-9]*$@',$_GET['id']))
 {
-    $rs = $modx->db->select('*','[+prefix+]site_plugins',"id='{$id}'");
-    $total = $modx->db->getRecordCount($rs);
-    $pluginObject = (object)$modx->db->getRow($rs);
+    $rs = db()->select('*','[+prefix+]site_plugins',"id='{$id}'");
+    $total = db()->getRecordCount($rs);
+    $pluginObject = (object)db()->getRow($rs);
     
     if(1<$total):
         echo "Multiple plugins sharing same unique id. Not good.<p>";
@@ -492,12 +492,12 @@ if(is_array($evtOut)) echo implode("",$evtOut);
             'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
             'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
     $where = "smd.resource='$id' AND sm.enable_sharedparams='1'";
-    $ds = $modx->db->select($field,$from,$where,'sm.name');
-    $guid_total = $modx->db->getRecordCount($ds);
+    $ds = db()->select($field,$from,$where,'sm.name');
+    $guid_total = db()->getRecordCount($ds);
     if($guid_total > 0)
     {
         $options = '';
-        while($row = $modx->db->getRow($ds))
+        while($row = db()->getRow($ds))
         {
             $options .= "<option value='".$row['guid']."'". selected($pluginObject->moduleguid==$row["guid"]) . ">".htmlspecialchars($row["name"])."</option>";
         }
@@ -546,8 +546,8 @@ if(is_array($evtOut)) echo implode("",$evtOut);
     // get selected events
     if(is_numeric($id) && $id > 0) {
         $evts = array();
-        $rs = $modx->db->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
-        while($row = $modx->db->getRow($rs)) {
+        $rs = db()->select('*','[+prefix+]site_plugin_events',"pluginid='{$id}'");
+        while($row = db()->getRow($rs)) {
            $evts[] = $row['evtid'];
         }
     }
@@ -570,13 +570,13 @@ if(is_array($evtOut)) echo implode("",$evtOut);
         "Template Service Events",
         "User Defined Events"
     );
-    $rs = $modx->db->select('*','[+prefix+]system_eventnames','','service DESC, groupname, name');
-    if($modx->db->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
+    $rs = db()->select('*','[+prefix+]system_eventnames','','service DESC, groupname, name');
+    if(db()->getRecordCount($rs)==0) echo '<tr><td>&nbsp;</td></tr>';
     else {
         $g = 0;
         $srvID = '';
         $grpName = '';
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             // display records
             if($srvID!=$row['service']) {
                 $g++;
@@ -658,17 +658,6 @@ if(is_array($evtOut)) echo implode("",$evtOut);
 ?>
 </form>
 <?php
-function selected($cond=false)
-{
-    if($cond!==false) return ' selected="selected"';
-    else return;
-}
-
-function checked($cond=false)
-{
-    if($cond!==false) return ' checked="checked"';
-    else return;
-}
 
 function bold($cond=false)
 {

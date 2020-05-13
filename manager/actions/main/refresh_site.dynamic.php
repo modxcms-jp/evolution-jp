@@ -4,12 +4,12 @@ if(!isset($modx) || !$modx->isLoggedin()) exit;
 $now = $_SERVER['REQUEST_TIME'];
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
-$rs = $modx->db->update(array('published'=>'1'),'[+prefix+]site_content',$where);
-$num_rows_pub = $modx->db->getAffectedRows();
+$rs = db()->update(array('published'=>'1'),'[+prefix+]site_content',$where);
+$num_rows_pub = db()->getAffectedRows();
 
 $where = "unpub_date < {$now} AND unpub_date!=0 AND published=1";
-$rs = $modx->db->update(array('published'=>'0'),'[+prefix+]site_content',$where);
-$num_rows_unpub = $modx->db->getAffectedRows();
+$rs = db()->update(array('published'=>'0'),'[+prefix+]site_content',$where);
+$num_rows_unpub = db()->getAffectedRows();
 
 ?>
 

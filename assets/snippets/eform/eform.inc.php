@@ -245,9 +245,13 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         foreach ($_POST as $name => $value){
             if (is_array($value)){
                 //remove empty values
-                $fields[$name] = array_filter($value, create_function('$v','return (!empty($v));'));
+                $fields[$name] = array_filter($value, function($v){
+                    return $v ? true : false;
+                });
             } else {
-                if(get_magic_quotes_gpc())                     $value = stripslashes($value);
+                if((version_compare(PHP_VERSION, '5.4') < 0) && get_magic_quotes_gpc()) {
+                    $value = stripslashes($value);
+                }
                 if (!$allowhtml || $formats[$name][2]!='html') $value = strip_tags($value);
                 else                                           $value = $modx->htmlspecialchars($value);
                 $fields[$name] = $value;
@@ -366,9 +370,9 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
         if($isDebug){
             ksort($fields);
             if($isDebug>1){
-                $debugText .= "<br /><strong>Formats array:</strong><pre>". var_export($formats,true).'</pre>';
-                $debugText .= "<br /><strong>Fields array:</strong><pre>". var_export($fields,true).'</pre>';
-                $debugText .= "<br /><strong>Classes parsed :</strong><pre>" . var_export($rClass,true) ."</pre>";
+                $debugText .= '<br /><strong>Formats array:</strong><pre>' . var_export($formats,true).'</pre>';
+                $debugText .= '<br /><strong>Fields array:</strong><pre>' . var_export($fields,true).'</pre>';
+                $debugText .= '<br /><strong>Classes parsed :</strong><pre>' . var_export($rClass,true) ."</pre>";
             }
             $debugText .= "<br /><strong>eForm configuration:</strong><pre>\n". var_export($params,true).'</pre>';
             $fields['debug']=$debugText;
@@ -377,7 +381,7 @@ $tpl = eFormParseTemplate($tpl,$isDebug);
             #set validation message
             $tmp = ($rMsg)?str_replace("{fields}", implode(", ",$rMsg),$_lang['ef_required_message']):"";
             $tmp .= implode("<br />",$vMsg);
-            if(!strstr($tpl,'[+validationmessage+]'))
+            if(strpos($tpl, '[+validationmessage+]') === false)
                 $modx->setPlaceholder('validationmessage',str_replace('[+ef_wrapper+]', $tmp, $_lang['ef_validation_message']));
             else
             {
@@ -474,9 +478,9 @@ $debugText .= 'Locale<pre>'.var_export($localeInfo,true).'</pre>';
 						//register css and/or javascript
 						if( isset($startupSource) ) efRegisterStartupBlock($startupSource);
 						return formMerge($tpl,$fields);
-					}
-					else
-						return;
+					} else {
+                        return;
+                    }
 				}
 			}
 

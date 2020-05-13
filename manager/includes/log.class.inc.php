@@ -1,94 +1,89 @@
 <?php
 
-// logger class.
-/*
-
-Usage:
-
-include_once(MODX_CORE_PATH . 'log.class.inc.php'); // include_once the class
-$log = new logHandler;	// create the object
-$log->initAndWriteLog($msg); // write $msg to log, and populate all other fields as best as possible
-$log->initAndWriteLog($msg, $internalKey, $username, $action, $id, $itemname); // write $msg and other data to log
-
-*/
-
 class logHandler {
 	// Single variable for a log entry
-	var $entry = array();
-	
-	function __construct() {
-	}
-	
-	function logError($msg) {
-		include_once MODX_CORE_PATH . 'error.class.inc.php';
-		$e = new errorHandler;
-		$e->setError(9, "Logging error: ".$msg);
-		$e->dumpError();
-		return;
-	}
+	public $entry = array();
 
-	function initAndWriteLog($msg="", $internalKey="", $username="", $action="", $itemid="", $itemname='') {
-		global $modx;
-		$this->entry['msg'] = $msg;	// writes testmessage to the object
-        $this->entry['action'] = empty($action)? (int) $_REQUEST['a'] : $action;    // writes the action to the object
+    public function __construct() {
+    }
 
-		// User Credentials
-		$this->entry['internalKey'] = $internalKey == "" ? $modx->getLoginUserID() : $internalKey;
-		$this->entry['username'] = $username == "" ? $modx->getLoginUserName() : $username;
+    function logError($msg) {
+        include_once MODX_CORE_PATH . 'error.class.inc.php';
+        $e = new errorHandler;
+        $e->setError(9, "Logging error: " . $msg);
+        $e->dumpError();
+    }
 
-        $this->entry['itemId'] = empty($itemid) ? (int) $_REQUEST['id'] : $itemid;  // writes the id to the object
-		if($this->entry['itemId'] == 0) $this->entry['itemId'] = "-"; // to stop items having id 0
+    public function initAndWriteLog($msg='', $internalKey='', $username='', $action='', $itemid='', $itemname='') {
+        $this->setEntry($msg, $internalKey, $username, $itemname);
+        $this->writeToLog();
+    }
 
-		$this->entry['itemName'] = $itemname == "" ? $_SESSION['itemname'] : $itemname;	// writes the id to the object
-		if($this->entry['itemName'] == "") $this->entry['itemName'] = "-"; // to stop item name being empty
+    public function writeToLog() {
+        global $modx;
 
-		$this->writeToLog();
-		return;
-	}
+        if($this->entry['internalKey'] == '') {
+            $this->logError('internalKey not set.');
+            return;
+        }
+        if($this->entry['msg'] == '') {
+            include_once(MODX_CORE_PATH . 'actionlist.inc.php');
+            $this->entry['msg'] = getAction(evo()->input_any('a',0), $this->entry['itemId']);
+            if($this->entry['msg'] == '') {
+                $this->logError("couldn't find message to write to log.");
+                return;
+            }
+        }
 
-	// function to write to the log
-	// collects all required info, and
-	// writes it to the logging table
-	function writeToLog() {
-		global $modx;
-		
-		if($this->entry['internalKey'] == "") {
-			$this->logError("internalKey not set.");
-			return;
-		}
-        if(empty($this->entry['action'])) {
-			$this->logError("action not set.");
-			return;
-		}
-		if($this->entry['msg'] == "") {
-			include_once($modx->config['core_path'] . 'actionlist.inc.php');
-			$this->entry['msg'] = getAction($this->entry['action'], $this->entry['itemId']);
-			if($this->entry['msg'] == "") {
-				$this->logError("couldn't find message to write to log.");
-				return;
-			}
-		}
-		
-		$fields['timestamp']   = time();
-		$fields['internalKey'] = $modx->db->escape($this->entry['internalKey']);
-		$fields['username']    = $modx->db->escape($this->entry['username']);
-		$fields['action']      = $this->entry['action'];
-		$fields['itemid']      = $this->entry['itemId'];
-		$fields['itemname']    = $modx->db->escape($this->entry['itemName']);
-		$fields['message']     = $modx->db->escape($this->entry['msg']);
-		
-		if(!$insert_id = $modx->db->insert($fields,'[+prefix+]manager_log')) {
-			$this->logError("Couldn't save log to table! ".$modx->db->getLastError());
-			return true;
-		}
-		else
-		{
-			$limit = (isset($modx->config['manager_log_limit'])) ? intval($modx->config['manager_log_limit']) : 2000;
-			$trim  = (isset($modx->config['manager_log_trim']))  ? intval($modx->config['manager_log_trim']) : 100;
-			if(($insert_id % $trim) === 0)
-			{
-				$modx->rotate_log('manager_log',$limit,$trim);
-			}
-		}
-	}
+        $insert_id = db()->insert(
+            array(
+                'timestamp'   => time(),
+                'internalKey' => $modx->db->escape($this->entry['internalKey']),
+                'username'    => $modx->db->escape($this->entry['username']),
+                'action'      => evo()->input_any('a',0),
+                'itemid'      => evo()->input_any('id', 'x'),
+                'itemname'    => $modx->db->escape($this->entry['itemName']),
+                'message'     => $modx->db->escape($this->entry['msg'])
+            )
+            , '[+prefix+]manager_log'
+        );
+        if(!$insert_id) {
+            $this->logError("Couldn't save log to table! ".$modx->db->getLastError());
+            return;
+        }
+
+        if(($insert_id % (int)$modx->conf_var('manager_log_trim', 100)) !== 0) {
+            return;
+        }
+
+        $modx->rotate_log(
+            'manager_log'
+            , (int)$modx->conf_var('manager_log_limit', 2000)
+            , (int)$modx->conf_var('manager_log_trim', 100)
+        );
+    }
+
+    private function setEntry($msg='', $internalKey='', $username='', $itemname='') {
+        global $modx;
+
+        $this->entry['msg'] = $msg;	// writes testmessage to the object
+
+        // User Credentials
+        if ($internalKey != '') {
+            $this->entry['internalKey'] = $internalKey;
+        } else {
+            $this->entry['internalKey'] = $modx->getLoginUserID();
+        }
+        if ($username != '') {
+            $this->entry['username'] = $username;
+        } else {
+            $this->entry['username'] = $modx->getLoginUserName();
+        }
+
+        if ($itemname != '') {
+            $this->entry['itemName'] = $itemname;
+        } else {
+            $this->entry['itemName'] = evo()->session_var('itemname', '-');
+        }    // writes the id to the object
+    }
 }

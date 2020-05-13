@@ -18,13 +18,13 @@ function useThisRule($roles='', $templates='') {
 	$exclude_templates = false;
 	
 	// Are they negative roles?
-	if (substr($roles, 0, 1) == '!') {
+	if (substr($roles, 0, 1) === '!') {
 		$roles = substr($roles, 1);
 		$exclude_roles = true;
 	}
 	
 	// Are they negative templates?
-	if (substr($templates, 0, 1) == '!') {
+	if (substr($templates, 0, 1) === '!') {
 		$templates = substr($templates, 1);
 		$exclude_templates = true;
 	}
@@ -42,8 +42,8 @@ function useThisRule($roles='', $templates='') {
 	// If we've matched either list in any way, return true	
 	if ( ($match_role_list || count($roles)==0) && ($match_template_list || count($templates)==0) ) {
 		return true;
-	} 
-	
+	}
+
 	return false;
 }
 
@@ -60,10 +60,12 @@ function makeArray($csv) {
 		return array();
 	}
 	
-	// Otherwise, turn it into an array
-	$return = explode(',',$csv);
-	array_walk( $return, create_function('$v, $k', 'return trim($v);'));	// Remove any whitespace
-	return $return;
+    // Otherwise, turn it into an array
+    $return = explode(',',$csv);
+    foreach ($return as $i=>$v) {
+        $return[$i] = trim($v);
+    }
+    return $return;
 }
 
 // Make an output JS safe
@@ -124,7 +126,7 @@ function makeSqlList($arr) {
 	foreach($arr as $k=>$tv) {
 		$arr[$k] = sprintf("'%s'", $modx->db->escape($tv)); // Escape them for MySQL
 	}
-	return sprintf(' (%s) ', join(',',$arr));
+	return sprintf(' (%s) ', implode(',',$arr));
 }
 
 // Generates the code needed to include an external script file. 
@@ -132,10 +134,10 @@ function makeSqlList($arr) {
 // $output_type is either js or html - depending on where the output is appearing
 function includeJs($url, $output_type='js') {
 	
-	if ($output_type == 'js') {
-		return '$j("head").append(\' <script src="'.$url.'" type="text/javascript"></scr\'+\'ipt> \'); ' . "\n";
+	if ($output_type === 'js') {
+		return 'jQuery("head").append(\' <script src="'.$url.'" type="text/javascript"></scr\'+\'ipt> \'); ' . "\n";
 	}
-	if ($output_type == 'html') {
+	if ($output_type === 'html') {
 		return '<script src="'.$url.'" type="text/javascript"></script>' . "\n";
 	}
 	return '';
@@ -145,10 +147,10 @@ function includeJs($url, $output_type='js') {
 // $url is any URL
 // $output_type is either js or html - depending on where the output is appearing
 function includeCss($url, $output_type='js') {
-	if ($output_type == 'js') {
+	if ($output_type === 'js') {
 		return  '$j("head").append(\' <link href="'.$url.'" rel="stylesheet" type="text/css" /> \'); ' . "\n";	
 	}
-	if ($output_type == 'html') {
+	if ($output_type === 'html') {
 		return  '<link href="'.$url.'" rel="stylesheet" type="text/css" />' . "\n";	
 	}
     return '';

@@ -319,7 +319,7 @@ if (is_writable($startpath))
 	{
 		$old_umask = umask(0);
 		$filename = str_replace(array('../', '..\\'), '', $_REQUEST['name']);
-		$filename = $modx->db->escape($filename);
+		$filename = db()->escape($filename);
 		
 		if(!checkExtension($filename))
 		{
@@ -453,7 +453,11 @@ if(!empty($buffer) && empty($ent_buffer))
 
 function ls($curpath)
 {
-	global $_lang,$style_path,$_style;
+	if(!defined('SCANDIR_SORT_ASCENDING')) {
+		define('SCANDIR_SORT_ASCENDING', 0);
+		define('SCANDIR_SORT_DESCENDING', 1);
+	}
+	global $_lang,$style_path,$_style,$modx_manager_charset;
 	global $excludes, $proteted_path, $editablefiles, $inlineviewablefiles, $viewablefiles, $enablefileunzip, $enablefiledownload, $uploadablefiles, $folders, $files, $filesizes, $len, $dirs_array, $files_array, $webstart_path, $modx;
 	$dircounter = 0;
 	$filecounter = 0;

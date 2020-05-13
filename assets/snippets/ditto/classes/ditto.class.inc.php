@@ -189,9 +189,11 @@ class ditto {
                 $position = strrpos($input,' ');
                 // find last space
                 $sortBy = substr($input,0,$position);
-                $sortBy = !empty($sortBy) ? $sortBy : 'id';
+                if(!$sortBy) {
+                    $sortBy = 'id';
+                }
                 $sortDir = substr($input,$position);
-                $sortDir = !empty($sortDir) ? trim($sortDir) : 'asc';
+                $sortDir = $sortDir ? trim($sortDir) : 'asc';
                 $sortBy = $this->checkAdvSort($sortBy,$sortDir);
                 $this->addField($sortBy, 'backend');
                 $orderBy['parsed'][] = array($sortBy,strtoupper($sortDir));
@@ -579,7 +581,7 @@ class ditto {
         , $filter
         , $randomize
     ) {
-        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || ($IDs === false)) {
+        if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
             return array();
         }
 
@@ -599,7 +601,7 @@ class ditto {
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
             $documentIDs = array();
             if ($documents) {
-                foreach ($documents as $null=>$doc) {
+                foreach ($documents as $doc) {
                     $documentIDs[] = $doc['id'];
                 }
             }
@@ -635,13 +637,11 @@ class ditto {
             ,$randomize
             ,$dateSource
         );
-        if ($resource !== false)
-        {
+        if ($resource) {
             $resource = array_values($resource);
             // remove #'s from keys
 
-            if (!$seeThruUnpub)
-            {
+            if (!$seeThruUnpub) {
                 $parentList = $this->getParentList();
                 // get parent list
             }
@@ -662,13 +662,18 @@ class ditto {
             if ($this->debug) {
                 $dbg_resource = $resource;
             }
-            if ($filter !== false) {
+            if ($filter) {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
             }
             if (!$resource) return array();
-            if ($this->advSort == true && $randomize==0) {
+            if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource,$orderBy);
+            } elseif(event()->param('documents') && !event()->param('orderBy')) {
+                $resource = $this->unsort(
+                    $resource
+                    , event()->param('documents')
+                );
             }
             if ($orderBy['custom']) {
                 $resource = $this->userSort($resource,$orderBy);
@@ -719,6 +724,18 @@ class ditto {
         return array();
     }
 
+    private function unsort($docs,$ids) {
+        $rs = array();
+        foreach($docs as $doc) {
+            $docs_tmp[$doc['id']] = $doc;
+        }
+        $ids = explode(',', $ids);
+        $rs = array();
+        foreach ($ids as $id) {
+            $rs[] = $docs_tmp[$id];
+        }
+        return $rs;
+    }
     // ---------------------------------------------------
     // Function: weightedRandom
     // Execute a random order sort
@@ -923,8 +940,8 @@ class ditto {
             $where = 'AND sc.' . join(' AND sc.', $_);
         }
 
-        if ($randomize != 0) $sort = 'RAND()';
-        else                 $sort = $orderBy['sql'];
+        if ($randomize) $sort = 'RAND()';
+        else            $sort = $orderBy['sql'];
 
         $sql = sprintf(
             "SELECT DISTINCT %s FROM %s sc
@@ -1070,32 +1087,6 @@ class ditto {
             $docs[] = $row;
         }
         return $docs;
-    }
-
-    // ---------------------------------------------------
-    // Function: cleanIDs
-    // Clean the IDs of any dangerous characters
-    // ---------------------------------------------------
-
-    function cleanIDs($IDs) {
-        //Define the pattern to search for
-        $pattern = array (
-            '`(,)+`', //Multiple commas
-            '`^(,)`', //Comma on first position
-            '`(,)$`' //Comma on last position
-        );
-
-        //Define replacement parameters
-        $replace = array (
-            ',',
-            '',
-            ''
-        );
-
-        //Clean startID (all chars except commas and numbers are removed)
-        $IDs = preg_replace($pattern, $replace, $IDs);
-
-        return $IDs;
     }
 
     // ---------------------------------------------------

@@ -25,12 +25,12 @@ switch((int) $_REQUEST['a'])
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
-$rs = $modx->db->select('internalKey, username','[+prefix+]active_users',"action=22 AND id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('internalKey, username','[+prefix+]active_users',"action=22 AND id='{$id}'");
+$limit = db()->getRecordCount($rs);
 if($limit>1) {
 	for ($i=0;$i<$limit;$i++)
 	{
-		$lock = $modx->db->getRow($rs);
+		$lock = db()->getRow($rs);
 		if($lock['internalKey']!=$modx->getLoginUserID())
 		{
 			$msg = sprintf($_lang['lock_msg'],$lock['username'],$_lang['snippet']);
@@ -43,8 +43,8 @@ if($limit>1) {
 
 $content = array();
 if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
-	$rs = $modx->db->select('*','[+prefix+]site_snippets',"id='{$id}'");
-	$limit = $modx->db->getRecordCount($rs);
+	$rs = db()->select('*','[+prefix+]site_snippets',"id='{$id}'");
+	$limit = db()->getRecordCount($rs);
 	if($limit>1) {
 		echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
 		exit;
@@ -52,7 +52,7 @@ if(isset($_GET['id'])&&preg_match('@^[0-9]+$@',$_GET['id'])) {
 	if($limit<1) {
 		header("Location: /index.php?id=".$site_start);
 	}
-	$content = $modx->db->getRow($rs);
+	$content = db()->getRow($rs);
 	$_SESSION['itemname']=$content['name'];
 } else {
 	$_SESSION['itemname']="New snippet";
@@ -364,12 +364,12 @@ function decode(s){
 		$from = "[+prefix+]site_modules AS sm ".
 		       "INNER JOIN [+prefix+]site_module_depobj AS smd ON smd.module=sm.id AND smd.type=40 ".
 		       "INNER JOIN [+prefix+]site_snippets AS ss ON ss.id=smd.resource ";
-		$ds = $modx->db->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
-		$guid_total = $modx->db->getRecordCount($ds);
+		$ds = db()->select('sm.id,sm.name,sm.guid',$from,"smd.resource='{$id}' AND sm.enable_sharedparams='1'",'sm.name');
+		$guid_total = db()->getRecordCount($ds);
 		if($guid_total > 0)
 		{
 			$options = '';
-			while($row = $modx->db->getRow($ds))
+			while($row = db()->getRow($ds))
 			{
 				$options .= "<option value='".$row['guid']."'".($content['moduleguid']==$row['guid']? " selected='selected'":"").">".htmlspecialchars($row['name'])."</option>";
 			}
