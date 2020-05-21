@@ -42,7 +42,7 @@ class Thumbnail {
         }
         $this->real_cwd = $this->fckphp_config['basedir'].$this->actual_cwd;
         $this->real_cwd = rtrim($this->real_cwd,'/');
-        $this->filename=str_replace(array('..','/'),'',$_GET['FileName']);
+        $this->filename=str_replace(array('../','/'),'',getv('FileName'));
     }
 
     function run() {

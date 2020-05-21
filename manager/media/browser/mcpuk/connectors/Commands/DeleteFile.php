@@ -28,7 +28,7 @@ class DeleteFile {
 		$this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace('//','/',($this->fckphp_config['UserFilesPath']."/{$type}/".$this->raw_cwd));
 		$this->real_cwd=str_replace('//','/',($this->fckphp_config['basedir'].'/'.$this->actual_cwd));
-		$this->filename=str_replace(array('..','/'), '', $_GET['FileName']);
+		$this->filename=str_replace(array('../','/'), '', $_GET['FileName']);
 	}
 	
 	function run() {
