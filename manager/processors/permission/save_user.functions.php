@@ -239,11 +239,17 @@ function validEmail() {
     return true;
 }
 
-function field() {
+function validate() {
     $fields = array('fullname','role','email','phone','mobilephone','fax','zip','street','city','state','country','gender','dob','photo','comment','blocked','blockeduntil','blockedafter');
     $rs = array();
     foreach ($fields as $field) {
-        $rs[$field] = postv($field);
+        if (!postv($field)) {
+            if(in_array($field, array('dob','gender','blocked'))) {
+                $rs[$field] = 0;
+            }
+        } else {
+            $rs[$field] = postv($field);
+        }
     }
     return $rs;
 }
@@ -271,7 +277,7 @@ function newUser() {
         , sprintf("id='%s'", $internalKey)
     );
 
-    $field = field();
+    $field = validate();
     $field['internalKey'] = $internalKey;
     $rs = db()->insert(
         db()->escape($field)
@@ -402,7 +408,7 @@ function updateUser() {
         exit;
     }
 
-    $field = field();
+    $field = validate();
     $field['failedlogincount'] = postv('failedlogincount');
     $rs = db()->update(
         db()->escape($field)
