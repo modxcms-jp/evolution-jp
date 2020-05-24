@@ -21,8 +21,7 @@ class RenameFile {
     public $type;
     public $cwd;
     public $actual_cwd;
-	var $newfolder;
-	
+
 	function __construct($fckphp_config,$type,$cwd) {
 		$this->fckphp_config=$fckphp_config;
 		$this->type=$type;
@@ -35,7 +34,7 @@ class RenameFile {
 	
 	function checkName($name) {
 		$newName="";
-		for ($i=0;$i<strlen($name);$i++) {
+		for ($i=0, $iMax = strlen($name); $i< $iMax; $i++) {
 			if (in_array($name[$i],$this->fckphp_config['FileNameAllowedChars'])) $newName.=$name[$i];
 		}
 		return $newName;

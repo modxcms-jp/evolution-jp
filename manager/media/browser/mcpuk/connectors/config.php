@@ -18,10 +18,6 @@
  *   Grant French (grant@mcpuk.net)
  */
 
-// ** START FOR MODX
-$self = 'manager/media/browser/mcpuk/connectors/config.php';
-$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
-
 // load configuration file
 // initialize the variables prior to grabbing the config file
 if(!isset($_SESSION['mgrValidated'])) {
@@ -31,41 +27,43 @@ if(!isset($_SESSION['mgrValidated'])) {
 }
 
 extract($modx->config);
-$settings = &$modx->config;
-if($settings['use_browser'] != 1){
-    die("<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!");
+if(evo()->config('use_browser') != 1){
+    die('<b>PERMISSION DENIED</b><br /><br />You do not have permission to access this file!');
 }
 
-// make arrays from the file upload settings
-$upload_files  = explode(',',strtolower($upload_files));
-$upload_images = explode(',',strtolower($upload_images));
-$upload_media  = explode(',',strtolower($upload_media));
-$upload_flash  = explode(',',strtolower($upload_flash));
-
-if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS']!=='on') {
+if(serverv('HTTPS')!=='on') {
     $fckphp_config['prot'] = 'http://';
 } else {
     $fckphp_config['prot'] = 'https://';
 }
 
-$baseurl = $rb_base_url;
-$rb_base_url_parse = parse_url($rb_base_url);
+$baseurl = evo()->config('rb_base_url');
+$rb_base_url_parse = parse_url(evo()->config('rb_base_url'));
 if(empty($rb_base_url_parse['host'])){
     $base_url_parse = parse_url($base_url);
-    if($rb_base_url!=='/' && $base_url_parse['path']!=='/')
-        $rb_base_url = str_replace($base_url_parse['path'], '', $rb_base_url);
+    if(evo()->config('rb_base_url')!=='/' && $base_url_parse['path']!=='/') {
+        $rb_base_url = str_replace($base_url_parse['path'], '', evo()->config('rb_base_url'));
+    }
     $rb_base_url = ltrim($rb_base_url,'/');
-    if($_GET['editor'] == 'fckeditor2' && $strip_image_paths == 1){
+    if(getv('editor') === 'fckeditor2' && evo()->config('strip_image_paths') == 1) {
         $baseurl = $base_url.$rb_base_url;
-    } elseif(($_GET['editor'] == 'tinymce3' || $_GET['editor'] == 'tinymce') && $strip_image_paths != 1){
+    } elseif(
+        (getv('editor') === 'tinymce3' || getv('editor') === 'tinymce')
+        &&
+        evo()->config('strip_image_paths') != 1
+    ){
         $baseurl = $site_url.$rb_base_url;
     }
 }
 
-$fckphp_config['basedir'] = rtrim($rb_base_dir,'/').'/';
+$fckphp_config['basedir'] = rtrim(evo()->config('rb_base_dir'),'/').'/';
 
-if ($strip_image_paths == 1) {
-	$fckphp_config['urlprefix'] = (substr($baseurl,-1)=="/") ? str_replace($site_url,'',substr($baseurl,0,-1)):$baseurl;
+if (evo()->config('strip_image_paths') == 1) {
+    if ((substr($baseurl, -1) === '/')) {
+        $fckphp_config['urlprefix'] = str_replace($site_url, '', substr($baseurl, 0, -1));
+    } else {
+        $fckphp_config['urlprefix'] = $baseurl;
+    }
 } else {
 	$fckphp_config['urlprefix'] = rtrim($baseurl,'/');
 }
@@ -109,7 +107,7 @@ if(empty($upload_maxsize)) $upload_maxsize = 5000000;
 $fckphp_config['ResourceAreas']['files'] =array(
 	
 	//Files(identified by extension) that may be uploaded to this area
-	'AllowedExtensions'	=>	$upload_files,
+	'AllowedExtensions'	=>	explode(',',strtolower(evo()->config('upload_files'))),
 	
 	//Not implemented yet
 	'AllowedMIME'		=>	array(),
@@ -132,7 +130,7 @@ $fckphp_config['ResourceAreas']['files'] =array(
 
 //Image area
 $fckphp_config['ResourceAreas']['images'] =array(
-	'AllowedExtensions'	=> $upload_images,
+	'AllowedExtensions'	=> explode(',',strtolower(evo()->config('upload_images'))),
 	'AllowedMIME'		=>	array(),
 	'MaxSize'		=>	$upload_maxsize,
 	'DiskQuota'		=>	-1,
@@ -140,10 +138,9 @@ $fckphp_config['ResourceAreas']['images'] =array(
 	'HideFiles'		=>	array("^\."),
 	'AllowImageEditing'	=>	true //Not yet complete, but you can take a look and see
 	);
-
 //Flash area
 $fckphp_config['ResourceAreas']['flash'] =array(
-	'AllowedExtensions'	=>	$upload_flash,
+	'AllowedExtensions'	=>	explode(',',strtolower(evo()->config('upload_flash'))),
 	'AllowedMIME'		=>	array(),
 	'MaxSize'		=>	$upload_maxsize,
 	'DiskQuota'		=>	-1,
@@ -154,7 +151,7 @@ $fckphp_config['ResourceAreas']['flash'] =array(
 	
 //Media area
 $fckphp_config['ResourceAreas']['media'] =array(
-	'AllowedExtensions'	=>	$upload_media,
+	'AllowedExtensions'	=>	explode(',',strtolower(evo()->config('upload_media'))),
 	'AllowedMIME'		=>	array(),
 	'MaxSize'		=>	$upload_maxsize,
 	'DiskQuota'		=>	-1,
@@ -179,19 +176,25 @@ $fckphp_config['MaxDirNameLength']=25;
 
 $fckphp_config['DirNameAllowedChars']=array();
 
-	//Allow numbers
-	for($i=48;$i<58;$i++) array_push($fckphp_config['DirNameAllowedChars'],chr($i));
+//Allow numbers
+for($i=48;$i<58;$i++) {
+    $fckphp_config['DirNameAllowedChars'][] = chr($i);
+}
+
+//Allow lowercase letters
+for($i=97;$i<123;$i++) {
+    $fckphp_config['DirNameAllowedChars'][] = chr($i);
+}
+
+//Allow uppercase letters
+for($i=65;$i<91;$i++) {
+    $fckphp_config['DirNameAllowedChars'][] = chr($i);
+}
 	
-	//Allow lowercase letters
-	for($i=97;$i<123;$i++) array_push($fckphp_config['DirNameAllowedChars'],chr($i));
+//Allow space,dash,underscore,dot
+array_push($fckphp_config['DirNameAllowedChars'],' ','-','_','.');
 	
-	//Allow uppercase letters
-	for($i=65;$i<91;$i++) array_push($fckphp_config['DirNameAllowedChars'],chr($i));
-	
-	//Allow space,dash,underscore,dot
-	array_push($fckphp_config['DirNameAllowedChars'],' ','-','_','.');
-	
-$fckphp_config['FileNameAllowedChars']=$fckphp_config['DirNameAllowedChars'];
+$fckphp_config['FileNameAllowedChars'] = $fckphp_config['DirNameAllowedChars'];
 array_push($fckphp_config['FileNameAllowedChars'],')','(','[',']','~');
 
 
@@ -226,16 +229,15 @@ $fckphp_config['Debug_Output']=false;
 /*	Commands :: Array of valid commands accepted by the connector		*/
 
 $fckphp_config['ResourceTypes'] = array('files','images','flash','media');
-$fckphp_config['Commands']
-= array(
-'CreateFolder',
-'GetFolders',
-'GetFoldersAndFiles',
-'FileUpload',
-'Thumbnail',
-'DeleteFile',
-'DeleteFolder',
-'GetUploadProgress',
-'RenameFile',
-'RenameFolder'
+$fckphp_config['Commands']= array(
+	'CreateFolder',
+	'GetFolders',
+	'GetFoldersAndFiles',
+	'FileUpload',
+	'Thumbnail',
+	'DeleteFile',
+	'DeleteFolder',
+	'GetUploadProgress',
+	'RenameFile',
+	'RenameFolder'
 );

@@ -34,7 +34,6 @@ class FileUpload {
 	function __construct($fckphp_config,$type,$cwd)
 	{
 		global $modx;
-		
 		if(!defined('IN_MANAGER_MODE'))
 		{
 			define('IN_MANAGER_MODE', 'true');
@@ -77,7 +76,7 @@ class FileUpload {
 	{
 		global $modx;
 		
-		$typeconfig=$this->fckphp_config['ResourceAreas'][$this->type];
+		$typeconfig = $this->fckphp_config['ResourceAreas'][$this->type];
 		
 		if(count($_FILES) < 1) exit(0);
 		
@@ -113,7 +112,7 @@ class FileUpload {
 		}
 		elseif (!in_array($ext,$typeconfig['AllowedExtensions']))
 		{
-			$disp = "202,'アップロードできない種類のファイルです。'";//Disallowed file extension
+			$disp = "202,'" . $ext . "はアップロードできない種類のファイルです。'";//Disallowed file extension
 		}
 		else
 		{
