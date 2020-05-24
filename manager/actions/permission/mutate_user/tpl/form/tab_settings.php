@@ -39,7 +39,23 @@
         </tr>
         <tr>
             <th><?php echo lang('user_block'); ?>:</th>
-            <td><label><input name="blockedcheck" type="checkbox" onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"<?php echo ($user['blocked']==1||($user['blockeduntil']>time() && $user['blockeduntil']!=0)) ? " checked": "" ; ?>><input type="hidden" name="blocked" value="<?php echo ($user['blocked']==1||($user['blockeduntil']>time() && $user['blockeduntil']!=0))?1:0; ?>"></label></td>
+            <td>
+                <?php $blocked = (user('blocked') || (user('blockeduntil', 0) > time() && user('blockeduntil')));?>
+                <label>
+                    <input
+                        name="blockedcheck"
+                        type="checkbox"
+                        onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"
+                        <?php
+                            if ($blocked) {
+                            echo "checked";
+                        } ?>
+                    >
+                    <input
+                        type="hidden"
+                        name="blocked"
+                        value="<?php echo $blocked ? 1 : 0; ?>">
+                </label></td>
         </tr>
         <tr>
             <th><?php echo lang('user_blockedafter'); ?>:</th>
