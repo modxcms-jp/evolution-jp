@@ -5008,7 +5008,15 @@ class DocumentParser {
         if ($key === null || trim($key) == '') {
             return $array;
         }
+
+        static $cache = array();
+        $cachekey = md5(print_r(func_get_args(),true));
+        if(isset($cache[$cachekey]) && $cache[$cachekey]!==null) {
+            return $cache[$cachekey];
+        }
+
         if (isset($array[$key])) {
+            $cache[$cachekey] = $array[$key];
             return $array[$key];
         }
         $segments = explode('.', $key);
