@@ -4076,7 +4076,7 @@ class DocumentParser {
         }
 
         if ($this->isBackend() && isset ($_SESSION['mgrValidated'])) {
-            return $_SESSION['mgrInternalKey'];
+            return sessionv('mgrInternalKey', 0);
         }
 
         return false;
