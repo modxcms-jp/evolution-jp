@@ -3,7 +3,12 @@ $this->revision = new REVISION;
 
 class REVISION {
     public $hasDraft;
-    
+    public $hasInherit;
+    public $hasPending;
+    public $hasAutoDraft;
+    public $hasStandby;
+    public $hasPrivate;
+
     public function __construct() {
     }
     
@@ -251,9 +256,7 @@ class REVISION {
     }
     
     public function getFormFromDraft($id) {
-        $data = $this->getDraft($id);
-        $resource  = $this->getCurrentResource($id);
-        $data = $data + $resource;
+        $data = $this->getDraft($id) + $this->getCurrentResource($id);
         $form = array();
         foreach($data as $k=>$v) {
             $form[] = evo()->parseText(
@@ -289,28 +292,28 @@ class REVISION {
     public function convertTvid2Tvname($input) {
         $rs = db()->select('id,name','[+prefix+]site_tmplvars');
         while($row = db()->getRow($rs)) {
-            $tvid = 'tv' . $row['id'];
-            $tvname[$tvid] = $row['name'];
+            $tvname['tv' . $row['id']] = $row['name'];
         }
         
         foreach($input as $k=>$v) {
-            if(isset($tvname[$k])) {
-                unset($input[$k]);
-                $k = $tvname[$k];
-                $input[$k] = $v;
-            } elseif($k==='ta') {
-                $input['content'] = $v;
-                unset($input['ta']);
+            if(!isset($tvname[$k])) {
+                continue;
             }
+            unset($input[$k]);
+            $input[$tvname[$k]] = $v;
+        }
+        if(isset($input['ta'])) {
+            $input['content'] = $input['ta'];
+            unset($input['ta']);
         }
         return $input;
     }
 
     public function publishDraft($fields) {
         evo()->loadExtension('DocAPI');
-        
-        $fields = evo()->doc->fixTvNest($fields);
-        $fields = evo()->doc->fixPubStatus($fields);
+        $fields = evo()->doc->fixPubStatus(
+            evo()->doc->fixTvNest($fields)
+        );
         
         if(severv('REQUEST_TIME') < array_get($fields, 'pub_date', 0)) {
             $this->save($fields['id'], $fields, 'standby');
