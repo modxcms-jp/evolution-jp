@@ -4,13 +4,10 @@ $this->revision = new REVISION;
 class REVISION {
     public $hasDraft;
     
-    function __construct() {
-        if(!defined('MODX_BASE_PATH')) {
-            exit('undefined MODX_BASE_PATH');
-        }
+    public function __construct() {
     }
     
-    function getRevision($elmid) {
+    public function getRevision($elmid) {
         $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
@@ -18,7 +15,7 @@ class REVISION {
         );
         while($row = db()->getRow($rs)) {
             if($row['version']==='inherit') {
-                $rev[$row['version']] = unserialize($row['content']);
+                $rev['inherit'] = unserialize($row['content']);
             } else {
                 $rev[$row['status']] = unserialize($row['content']);
             }
@@ -26,20 +23,13 @@ class REVISION {
         return $rev;
     }
     
-    function getRevisionObject($elmid,$elm='resource',$addContent='') {
+    public function getRevisionObject($elmid,$elm='resource',$addContent='') {
         $rs = $this->_setStatus($elmid,$elm);
         if(!$rs) {
             return false;
         }
         if( $addContent && !is_array($addContent) ){
             $addContent = explode(',',$addContent);
-        }
-        if( is_array($addContent) ){
-            $tmp = array();
-            foreach( $addContent as $val ){
-                $tmp[] = trim($val);
-            }
-            $addContent = $tmp;
         }
         
         $rs = db()->select(
@@ -69,40 +59,7 @@ class REVISION {
         return $obj;
     }
     
-    function _setStatus($elmid, $elm='resource') {
-        $rs = db()->select(
-            '*'
-            , '[+prefix+]site_revision'
-            , sprintf("elmid='%s' AND element='%s'", $elmid, $elm));
-        if(!$rs) {
-            return false;
-        }
-        
-        $this->hasDraft     = 0;
-        $this->hasInherit   = 0;
-        $this->hasPending   = 0;
-        $this->hasAutoDraft = 0;
-        $this->hasStandby   = 0;
-        $this->hasPrivate   = 0;
-        while($row = db()->getRow($rs)) {
-            if ($row['status'] === 'draft') {
-                $this->hasDraft = 1;
-            } elseif ($row['status'] === 'inherit') {
-                $this->hasInherit = 1;
-            } elseif ($row['status'] === 'pending') {
-                $this->hasPending = 1;
-            } elseif ($row['status'] === 'auto-draft') {
-                $this->hasAutoDraft = 1;
-            } elseif ($row['status'] === 'standby') {
-                $this->hasStandby = 1;
-            } elseif ($row['status'] === 'private') {
-                $this->hasPrivate = 1;
-            }
-        }
-        return true;
-    }
-    
-    function getDraft($elmid) {
+    public function getDraft($elmid) {
         $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
@@ -116,12 +73,64 @@ class REVISION {
         if(!$data) {
             return array();
         }
-
-        $data = $data + $this->getCurrentResource($elmid);
-        return $data;
+        return $data + $this->getCurrentResource($elmid);
     }
     
-    function getRevisionStatus($elmid) {
+    public function save($elmid='',$resource=array(), $status='inherit') {
+        if(!$elmid) {
+            return '';
+        }
+
+        $input = $this->convertData($resource);
+        $input['status'] = $status;
+        
+        $rs = db()->select(
+            '*'
+            , '[+prefix+]site_revision'
+            , sprintf("elmid='%s'", $elmid)
+            , 'version DESC'
+        );
+        $exists_data = db()->getRow($rs);
+        $total = db()->getRecordCount($rs);
+        $revision_content = serialize($input);
+        $checksum = hash('crc32b', $revision_content);
+        if($total && $exists_data['checksum'] === $checksum && $exists_data['status'] == $status) {
+            return 'nochange';
+        }
+        $f = array(
+            'elmid'    => $elmid,
+            'status'   => $status,
+            'content'  => db()->escape($revision_content),
+            'element'  => 'resource',
+            'editedon' => serverv('REQUEST_TIME'),
+            'editedby' => evo()->getLoginUserID(),
+            'checksum' => $checksum,
+            'version'  => ($status === 'inherit') ? $total + 1 : 0
+        );
+
+        if ($total) {
+            db()->update($f, '[+prefix+]site_revision', sprintf("elmid='%s'", $elmid));
+        } else {
+            db()->insert($f, '[+prefix+]site_revision');
+        }
+        return $total ? 'upd' : 'new';
+    }
+    
+    public function delete($elmid='', $status='*') {
+        if(!$elmid) {
+            return 0;
+        }
+        return db()->delete(
+            '[+prefix+]site_revision'
+            , $status === '*'
+                ?
+                sprintf("elmid='%s'", $elmid)
+                :
+                sprintf("elmid='%s' AND status='%s'", $elmid, $status)
+        );
+    }
+
+    public function getRevisionStatus($elmid) {
         $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
@@ -137,7 +146,7 @@ class REVISION {
         return 'nodraft';
     }
     
-    function getFormFromDraft($id) {
+    public function getFormFromDraft($id) {
         $data = $this->getDraft($id);
         $resource  = $this->getCurrentResource($id);
         $data = $data + $resource;
@@ -154,17 +163,16 @@ class REVISION {
         return implode("\n", $form);
     }
     
-    function getCurrentResource($docid) {
-        $rs = evo()->getTemplateVars('*', '*', $docid);
-        if(empty($rs)) {
+    private function getCurrentResource($docid) {
+        $vars = evo()->getTemplateVars('*', '*', $docid);
+        if(!$vars) {
             return array();
         }
-        foreach($rs as $i=>$v) {
-            if(isset($v['id'])) $name = 'tv' . $v['id'];
-            else                $name = $v['name'];
+        foreach($vars as $i=>$v) {
+            $name = isset($v['id']) ? 'tv' . $v['id'] : $v['name'];
             $doc[$name] = $v['value'];
         }
-        
+
         $doc = $this->convertData($doc);
         if(!$doc) {
             return false;
@@ -172,7 +180,7 @@ class REVISION {
         return $doc;
     }
 
-    function convertData($resource=array()) {
+    private function convertData($resource=array()) {
         $input = array(
             'content' => array_get(
                 $resource
@@ -226,67 +234,44 @@ class REVISION {
         return $input;
     }
     
-    function save($elmid='',$resource=array(), $status='inherit') {
-        if(!$elmid) {
-            return '';
-        }
-        
-        $input = $this->convertData($resource);
-        $input['status'] = $status;
-        
+    private function _setStatus($elmid, $elm='resource') {
         $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
-            , sprintf("elmid='%s'", $elmid)
-            , 'version DESC'
-        );
-        $exists_data = db()->getRow($rs);
-        $total = db()->getRecordCount($rs);
+            , sprintf("elmid='%s' AND element='%s'", $elmid, $elm));
+        if(!$rs) {
+            return false;
+        }
         
-        $revision_content = serialize($input);
-        $revision_content = db()->escape($revision_content);
-        $checksum = hash('crc32b', $revision_content);
-        if($total && $exists_data['checksum'] === $checksum && $exists_data['status'] == $status) {
-            return 'nochange';
+        $this->hasDraft     = 0;
+        $this->hasInherit   = 0;
+        $this->hasPending   = 0;
+        $this->hasAutoDraft = 0;
+        $this->hasStandby   = 0;
+        $this->hasPrivate   = 0;
+        while($row = db()->getRow($rs)) {
+            if ($row['status'] === 'draft') {
+                $this->hasDraft = 1;
+            } elseif ($row['status'] === 'inherit') {
+                $this->hasInherit = 1;
+            } elseif ($row['status'] === 'pending') {
+                $this->hasPending = 1;
+            } elseif ($row['status'] === 'auto-draft') {
+                $this->hasAutoDraft = 1;
+            } elseif ($row['status'] === 'standby') {
+                $this->hasStandby = 1;
+            } elseif ($row['status'] === 'private') {
+                $this->hasPrivate = 1;
+            }
         }
-        $f = array(
-            'elmid'    => $elmid,
-            'status'   => $status,
-            'content'  => $revision_content,
-            'element'  => 'resource',
-            'editedon' => serverv('REQUEST_TIME'),
-            'editedby' => evo()->getLoginUserID(),
-            'checksum' => $checksum,
-            'version'  => ($status === 'inherit') ? $total + 1 : 0
-        );
-
-        if ($total) {
-            db()->update($f, '[+prefix+]site_revision', "elmid='{$elmid}'");
-        } else {
-            db()->insert($f, '[+prefix+]site_revision');
-        }
-        return $total ? 'upd' : 'new';
+        return true;
     }
     
-    function delete($elmid='', $status='*') {
-        if(!$elmid) {
-            return 0;
-        }
-        return db()->delete(
-            '[+prefix+]site_revision'
-            , $status === '*'
-                ?
-                sprintf("elmid='%s'", $elmid)
-                :
-                sprintf("elmid='%s' AND status='%s'", $elmid, $status)
-        );
-    }
-
     /*
     *  公開予定から下書きに変更
     *  (複数公開/複数下書きの仕様は未考慮)
     */
-    function chStandbytoDraft($elmid, $type='resource') {
+    public function chStandbytoDraft($elmid, $type='resource') {
         if(!$elmid) {
             return false;
         }
@@ -301,7 +286,7 @@ class REVISION {
         );
     }
     
-    function convertTvid2Tvname($input) {
+    public function convertTvid2Tvname($input) {
         $rs = db()->select('id,name','[+prefix+]site_tmplvars');
         while($row = db()->getRow($rs)) {
             $tvid = 'tv' . $row['id'];
@@ -321,7 +306,7 @@ class REVISION {
         return $input;
     }
 
-    function publishDraft($fields) {
+    public function publishDraft($fields) {
         evo()->loadExtension('DocAPI');
         
         $fields = evo()->doc->fixTvNest($fields);
