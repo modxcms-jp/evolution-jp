@@ -130,39 +130,6 @@ class REVISION {
         );
     }
 
-    public function getRevisionStatus($elmid) {
-        $rs = db()->select(
-            '*'
-            , '[+prefix+]site_revision'
-            , sprintf(
-                "elmid='%s' AND version='0'"
-                , $elmid
-            )
-        );
-        $row = db()->getRow($rs);
-        if(array_get($row, 'status')) {
-            return $row['status'];
-        }
-        return 'nodraft';
-    }
-    
-    public function getFormFromDraft($id) {
-        $data = $this->getDraft($id);
-        $resource  = $this->getCurrentResource($id);
-        $data = $data + $resource;
-        $form = array();
-        foreach($data as $k=>$v) {
-            $form[] = evo()->parseText(
-                '<input type="hidden" name="[+name+]" value="[+value+]" />'
-                , array(
-                    'name'  => $k,
-                    'value' => hsc($v)
-                )
-            );
-        }
-        return implode("\n", $form);
-    }
-    
     private function getCurrentResource($docid) {
         $vars = evo()->getTemplateVars('*', '*', $docid);
         if(!$vars) {
@@ -265,6 +232,39 @@ class REVISION {
             }
         }
         return true;
+    }
+    
+    public function getRevisionStatus($elmid) {
+        $rs = db()->select(
+            '*'
+            , '[+prefix+]site_revision'
+            , sprintf(
+                "elmid='%s' AND version='0'"
+                , $elmid
+            )
+        );
+        $row = db()->getRow($rs);
+        if(array_get($row, 'status')) {
+            return $row['status'];
+        }
+        return 'nodraft';
+    }
+    
+    public function getFormFromDraft($id) {
+        $data = $this->getDraft($id);
+        $resource  = $this->getCurrentResource($id);
+        $data = $data + $resource;
+        $form = array();
+        foreach($data as $k=>$v) {
+            $form[] = evo()->parseText(
+                '<input type="hidden" name="[+name+]" value="[+value+]" />'
+                , array(
+                    'name'  => $k,
+                    'value' => hsc($v)
+                )
+            );
+        }
+        return implode("\n", $form);
     }
     
     /*
