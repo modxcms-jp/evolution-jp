@@ -230,3 +230,7 @@ function selected($cond) {
     }
     return '';
 }
+
+function prex($array) {
+    exit ('<pre>' . print_r($array, true). '</pre>');
+}
