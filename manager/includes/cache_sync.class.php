@@ -91,7 +91,7 @@ class synccache {
         }
         $this->publishBasicConfig();
         
-        $modx->purgeDBCache();
+        evo()->purgeDBCache();
         
         if(!isset($result) || $this->showReport != true) {
             return;
@@ -169,7 +169,7 @@ class synccache {
             return $recent_update;
         }
 
-        $recent_update = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
+        $recent_update = serverv('REQUEST_TIME',0) + config('server_offset_time',0);
 
         $f = array(
             'setting_value'=>$recent_update,
@@ -198,8 +198,8 @@ class synccache {
         $content[] = '<?php';
         $content[] = sprintf(
             '$recent_update = %s; // %s' ,
-            $modx->conf_var('recent_update', 0),
-            date('Y-m-d H:i:s',$modx->conf_var('recent_update'))
+            config('recent_update', 0),
+            date('Y-m-d H:i:s',config('recent_update',0))
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
@@ -210,7 +210,7 @@ class synccache {
         );
         $content[] = sprintf(
             '$cache_type = %s;'
-            , $modx->conf_var('cache_type',1)
+            , config('cache_type',1)
         );
         if(isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
@@ -221,35 +221,35 @@ class synccache {
         
         $content[] = sprintf(
             '$site_status = %s;'
-            , $modx->conf_var('site_status',1)
+            , config('site_status',1)
         );
         $content[] = sprintf(
             '$error_reporting = "%s";'
-            , $modx->conf_var('error_reporting',1)
+            , config('error_reporting',1)
         );
         
-        if($modx->array_get($config,'site_url') && strpos($modx->array_get($config,'site_url'),'[(')===false) {
+        if(evo()->array_get($config,'site_url') && strpos(evo()->array_get($config,'site_url'),'[(')===false) {
             $content[] = sprintf(
                 '$site_url = "%s";'
-                , $modx->array_get($config,'site_url')
+                , evo()->array_get($config,'site_url')
             );
         }
         
-        if($modx->array_get($config,'base_url') && strpos($modx->array_get($config,'base_url'),'[(')===false) {
+        if(evo()->array_get($config,'base_url') && strpos(evo()->array_get($config,'base_url'),'[(')===false) {
             $content[] = sprintf(
                 '$base_url = "%s";'
-                , $modx->array_get($config,'base_url')
+                , evo()->array_get($config,'base_url')
             );
         }
         
-        if($modx->conf_var('conditional_get')) {
+        if(config('conditional_get')) {
             $content[] = sprintf(
                 '$conditional_get = "%s";'
-                , $modx->conf_var('conditional_get')
+                , config('conditional_get')
             );
         }
 
-        if (!$modx->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
+        if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
     }
@@ -291,7 +291,7 @@ class synccache {
             , "0 < pub_date AND status = 'standby'"
         );
         foreach($time as $k=>$v) {
-            if(!$v) {
+            if(!$v || $v < serverv('REQUEST_TIME',0)) {
                 unset($time[$k]);
             }
         }
@@ -321,7 +321,7 @@ class synccache {
         global $modx, $_lang;
 
         // invoke OnBeforeCacheUpdate event
-        $modx->invokeEvent('OnBeforeCacheUpdate');
+        evo()->invokeEvent('OnBeforeCacheUpdate');
 
         $config = $this->_get_settings(); // get settings
         $this->cache_put_contents('config.siteCache.idx.php', $config);
@@ -334,11 +334,11 @@ class synccache {
         $content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
         
 
-        if( !$modx->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
+        if( !evo()->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
             exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
         }
         
-        if($modx->config['legacy_cache']) {
+        if(evo()->config('legacy_cache')) {
             $this->_legacy_cache();
             $this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
             $this->cache_put_contents('documentMap.siteCache.idx.php', $modx->documentMap);
@@ -347,10 +347,10 @@ class synccache {
         $this->cache_put_contents('snippet.siteCache.idx.php', $this->_get_snippets());
         $this->cache_put_contents('plugin.siteCache.idx.php', $this->_get_plugins());
 
-        $modx->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
+        evo()->saveToFile($this->cachePath . '.htaccess', "order deny,allow\ndeny from all\n");
 
         // invoke OnCacheUpdate event
-        $modx->invokeEvent('OnCacheUpdate');
+        evo()->invokeEvent('OnCacheUpdate');
         
         return true;
     }
@@ -378,7 +378,7 @@ class synccache {
         
         $cache_path = $this->cachePath .$filename;
 
-        if($modx->saveToFile($cache_path, $content)) {
+        if(evo()->saveToFile($cache_path, $content)) {
             return;
         }
 
@@ -386,12 +386,12 @@ class synccache {
             exit(sprintf('%s - %s', $cache_path, $_lang['file_not_saved']));
         }
 
-        header('Content-Type: text/html; charset=' . $modx->config['modx_charset']);
-        echo $modx->parseText(
+        header('Content-Type: text/html; charset=' . evo()->config('modx_charset','utf-8'));
+        echo evo()->parseText(
             '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
             , array(
                 'manager_url' => MODX_MANAGER_URL,
-                'theme' => $modx->config['manager_theme']
+                'theme' => evo()->config('manager_theme')
             )
         );
         exit(sprintf(
@@ -446,10 +446,10 @@ class synccache {
     }
     private function alias_path($parent_id) {
         global $modx;
-        if(!$modx->config['friendly_urls']) {
+        if(!evo()->config('friendly_urls')) {
             return $parent_id;
         }
-        if ($modx->config['use_alias_path']) {
+        if (evo()->config('use_alias_path')) {
             return $this->getParents($parent_id);
         }
         return '';
