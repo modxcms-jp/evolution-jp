@@ -48,7 +48,7 @@ function getTmplvars($docid,$template_id,$docgrp) {
         return array();
     }
     while ($row = db()->getRow($rs)) {
-        $tmplVars[$row['name']] = $row;
+        $tmplVars['tv'.$row['id']] = $row;
     }
     return $tmplVars;
 }
@@ -126,11 +126,11 @@ function sectionContent() {
     return parseText(file_get_tpl('section_content.tpl'),$ph);
 }
 
-function sectionTV() {
+function sectionTV($tpl, $fields) {
     $ph = array();
     $ph['header'] = lang('settings_templvars');
-    $ph['body'] = fieldsTV();
-    return parseText(file_get_tpl('section_tv.tpl'),$ph);
+    $ph['body'] = $fields;
+    return parseText($tpl, $ph);
 }
 
 function rte_fields() {
@@ -170,28 +170,12 @@ function getGroups($docid) {
 function getUDGroups($id) {
     global $permissions_yes, $permissions_no;
 
-    $form_v = $_POST;
-    $groupsarray = array();
-
     if (manager()->action == 27) {
         $docid = $id;
-    } elseif (!empty($_REQUEST['pid'])) {
-        $docid = $_REQUEST['pid'];
+    } elseif (anyv('pid')) {
+        $docid = anyv('pid');
     } else {
         $docid = doc('parent');
-    }
-
-    if (0 < $docid) {
-        $groupsarray = getGroups($docid);
-        // Load up the current permissions and names
-        $field = 'dgn.*, groups.id AS link_id';
-        $from[] = '[+prefix+]documentgroup_names AS dgn';
-        $from[] = "LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group = dgn.id AND groups.document = {$docid}";
-        $from = implode(' ', $from);
-    } else {
-        // Just load up the names, we're starting clean
-        $field = '*, NULL AS link_id';
-        $from = '[+prefix+]documentgroup_names';
     }
 
     // Setup Basic attributes for each Input box
@@ -204,18 +188,45 @@ function getUDGroups($id) {
     $permissions_yes = 0; // count permissions the current mgr user has
     $permissions_no = 0; // count permissions the current mgr user doesn't have
 
-    // retain selected doc groups between post
-    if (isset($form_v['docgroups']))
-        $groupsarray = array_merge($groupsarray, $form_v['docgroups']);
-
     // Query the permissions and names from above
-    $rs = db()->select($field, $from, '', 'name');
+    if ($docid) {
+        $rs = db()->select(
+            'dgn.*, groups.id AS link_id'
+            , array(
+                '[+prefix+]documentgroup_names AS dgn',
+                sprintf(
+                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND groups.document=%s'
+                    , $docid
+                )
+            )
+            , ''
+            , 'name'
+        );
+    } else {
+        $rs = db()->select(
+            '*, NULL AS link_id'
+            , '[+prefix+]documentgroup_names'
+            , ''
+            , 'name'
+        );
+    }
 
+    // retain selected doc groups between post
+    if ($docid && postv('docgroups')) {
+        $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
+    } elseif($docid) {
+        $groupsarray = getGroups($docid);
+    } else {
+        $groupsarray = postv('docgroups');
+    }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
         // Create an inputValue pair (group ID and group link (if it exists))
-        $inputValue = $row['id'] . ',' . ($row['link_id'] ? $row['link_id'] : 'new');
-        $inputId = 'group-' . $row['id'];
+        $inputValue = sprintf(
+            '%s,%s'
+            , $row['id']
+            , $row['link_id'] ? $row['link_id'] : 'new'
+        );
 
         $checked = in_array($inputValue, $groupsarray);
         if ($checked) {
@@ -223,12 +234,16 @@ function getUDGroups($id) {
         } // Mark as private access (either web or manager)
 
         // Skip the access permission if the user doesn't have access...
-        if ((!hasPermission('access_permissions') && $row['private_memgroup'] == '1') || (!hasPermission('web_access_permissions') && $row['private_webgroup'] == '1')) {
+        if (
+            (!hasPermission('access_permissions') && $row['private_memgroup'] == 1)
+            ||
+            (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1)
+        ) {
             continue;
         }
 
         // Setup attributes for this Input box
-        $inputAttributes['id'] = $inputId;
+        $inputAttributes['id'] = 'group-' . $row['id'];
         $inputAttributes['value'] = $inputValue;
         if ($checked) {
             $inputAttributes['checked'] = 'checked';
@@ -239,11 +254,8 @@ function getUDGroups($id) {
         // Create attribute string list
         $inputString = array();
         foreach ($inputAttributes as $k => $v) {
-            $inputString[] = $k . '="' . $v . '"';
+            $inputString[] = sprintf('%s="%s"', $k, $v);
         }
-
-        // Make the <input> HTML
-        $inputHTML = '<input ' . implode(' ', $inputString) . ' />' . "\n";
 
         // does user have this permission?
         $count = db()->getValue(
@@ -268,12 +280,17 @@ function getUDGroups($id) {
             . html_tag(
                 '<li>'
                 , array()
-                , $inputHTML . html_tag('<label>', array('for'=>$inputId), $row['name'])
+                , sprintf("<input %s />\n", implode(' ', $inputString))
+                . html_tag(
+                    'label'
+                    , array('for'=>'group-' . $row['id'])
+                    , $row['name']
+                )
             );
     }
 
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if($_SESSION['mgrRole'] != 1 && !$permissions_yes && $permissions_no) {
+    if(sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
         return array();
     }
 
@@ -308,17 +325,21 @@ function getUDGroups($id) {
 }
 
 function mergeDraft($id,$content) {
-    $revision_content = evo()->revision->getDraft($id);
+    $draft = evo()->revision->getDraft($id);
     foreach($content as $k=>$v) {
-        if(!is_array($v)) continue;
-        $tvid = 'tv'.$v['id'];
-        if(isset($revision_content[$tvid])) {
-            $content[$k]['value'] = $revision_content[$tvid];
-            unset($revision_content[$tvid]);
+        if(!is_array($v)) {
+            continue;
+        }
+        $tvid = 'tv' . $v['id'];
+        if(isset($draft[$tvid])) {
+            $content[$k]['value'] = $draft[$tvid];
+            unset($draft[$tvid]);
         }
     }
-    $content = array_merge($content, $revision_content);
-    if(!hasPermission('publish_document')) $content['published'] = '0';
+    $content = array_merge($content, $draft);
+    if(!hasPermission('publish_document')) {
+        $content['published'] = '0';
+    }
     return $content;
 }
 
@@ -374,13 +395,18 @@ function renderTr($head, $body,$rowstyle='') {
     else {
         $i = 0;
         foreach($head as $v) {
-            if($i===0) $ph['head'] = $v;
-            else $extra_head[] = $v;
+            if($i===0) {
+                $ph['head'] = $v;
+            } else {
+                $extra_head[] = $v;
+            }
             $i++;
         }
         $ph['extra_head'] = join("\n", $extra_head);
     }
-    if(is_array($body)) $body = join("\n", $body);
+    if(is_array($body)) {
+        $body = join("\n", $body);
+    }
     $ph['body'] = $body;
     $ph['rowstyle'] = $rowstyle;
 
@@ -728,9 +754,9 @@ function collect_tab_general_ph($docid) {
         'fieldMenuindex'   => fieldMenuindex(),
         'renderSplit'      => renderSplit(),
         'fieldParent'      => fieldParent(),
-
         'sectionContent' =>  sectionContent(),
-        'sectionTV'      =>  config('tvs_below_content',1) ? sectionTV() : ''
+        'sectionTV'      =>  config('tvs_below_content',1)
+            ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
     );
 }
 

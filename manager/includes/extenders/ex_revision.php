@@ -71,14 +71,23 @@ class REVISION {
             , sprintf("elmid='%s' AND version='0'", $elmid)
         );
         $row = db()->getRow($rs);
-        $data = array();
-        if(isset($row['content'])) {
-            $data = unserialize($row['content']);
-        }
-        if(!$data) {
+
+        $draft = array_get($row, 'content') ? unserialize($row['content']) : array();
+        if(!$draft) {
             return array();
         }
-        return $data + $this->getCurrentResource($elmid);
+        $doc = $this->getCurrentResource($elmid);
+        foreach($draft as $k=>$v) {
+            if(!isset($doc[$k])) {
+                unset($draft[$k]);
+                continue;
+            }
+            if(!is_array($v)) {
+                continue;
+            }
+            $draft[$k] = implode('||',$v);
+        }
+        return $draft;
     }
     
     public function save($elmid='',$resource=array(), $status='inherit') {
@@ -141,46 +150,48 @@ class REVISION {
             return array();
         }
         foreach($vars as $i=>$v) {
-            $name = isset($v['id']) ? 'tv' . $v['id'] : $v['name'];
-            $doc[$name] = $v['value'];
+            if (isset($v['id'])) {
+                $doc[sprintf('tv%s', $v['id'])] = $v['value'];
+            } else {
+                $doc[$v['name']] = $v['value'];
+            }
         }
-
-        $doc = $this->convertData($doc);
+//        $doc = $this->convertData($doc);
         if(!$doc) {
             return false;
         }
         return $doc;
     }
 
-    private function convertData($resource=array()) {
+    private function convertData($doc=array()) {
         $input = array(
             'content' => array_get(
-                $resource
+                $doc
                 , 'content'
-                , array_get($resource, 'ta', '')
+                , array_get($doc, 'ta', '')
             ),
-            'pagetitle'       => array_get($resource, 'pagetitle', ''),
-            'longtitle'       => array_get($resource, 'longtitle', ''),
-            'menutitle'       => array_get($resource, 'menutitle', ''),
-            'description'     => array_get($resource, 'description', ''),
-            'introtext'       => array_get($resource, 'introtext', ''),
-            'type'            => array_get($resource, 'type', 'document'),
-            'alias'           => array_get($resource, 'alias', ''),
-            'link_attributes' => array_get($resource, 'link_attributes', ''),
-            'isfolder'        => array_get($resource, 'isfolder', 0),
-            'richtext'        => array_get($resource, 'richtext', 1),
-            'parent'          => array_get($resource, 'parent', 0),
-            'template'        => array_get($resource, 'template', 0),
-            'menuindex'       => array_get($resource, 'menuindex', 0),
-            'searchable'      => array_get($resource, 'searchable', 1),
-            'cacheable'       => array_get($resource, 'cacheable', 1),
-            'contentType'     => array_get($resource, 'contentType', 'text/html'),
-            'content_dispo'   => array_get($resource, 'content_dispo', ''),
-            'hidemenu'        => array_get($resource, 'hidemenu', ''),
-            'pub_date'        => array_get($resource, 'pub_date', 0),
-            'unpub_date'      => array_get($resource, 'unpub_date', 0),
+            'pagetitle'       => array_get($doc, 'pagetitle', ''),
+            'longtitle'       => array_get($doc, 'longtitle', ''),
+            'menutitle'       => array_get($doc, 'menutitle', ''),
+            'description'     => array_get($doc, 'description', ''),
+            'introtext'       => array_get($doc, 'introtext', ''),
+            'type'            => array_get($doc, 'type', 'document'),
+            'alias'           => array_get($doc, 'alias', ''),
+            'link_attributes' => array_get($doc, 'link_attributes', ''),
+            'isfolder'        => array_get($doc, 'isfolder', 0),
+            'richtext'        => array_get($doc, 'richtext', 1),
+            'parent'          => array_get($doc, 'parent', 0),
+            'template'        => array_get($doc, 'template', 0),
+            'menuindex'       => array_get($doc, 'menuindex', 0),
+            'searchable'      => array_get($doc, 'searchable', 1),
+            'cacheable'       => array_get($doc, 'cacheable', 1),
+            'contentType'     => array_get($doc, 'contentType', 'text/html'),
+            'content_dispo'   => array_get($doc, 'content_dispo', ''),
+            'hidemenu'        => array_get($doc, 'hidemenu', ''),
+            'pub_date'        => array_get($doc, 'pub_date', 0),
+            'unpub_date'      => array_get($doc, 'unpub_date', 0),
             'published' => array_get(
-                $resource
+                $doc
                 , 'published'
                 , evo()->config(
                     'publish_default'
@@ -188,20 +199,20 @@ class REVISION {
                 )
             ),
         );
-        foreach($resource as $k=>$v) {
+        foreach($doc as $k=>$v) {
             if(strpos($k, 'tv') !== 0) {
                 continue;
             }
-            if (!isset($resource[$k . '_prefix'])) {
+            if (array_get($doc,$k . '_prefix')===null) {
                 $input[$k] = $v;
                 continue;
             }
-            if ($resource[$k . '_prefix'] === 'DocID') {
+            if ($doc[$k . '_prefix'] === 'DocID') {
                 //tvがリンクの時の例外処理
                 $input[$k] = '[~' . $v . '~]';
                 continue;
             }
-            $input[$k] = $resource[$k . '_prefix'] . $v;
+            $input[$k] = $doc[$k . '_prefix'] . $v;
         }
         return $input;
     }
@@ -256,7 +267,7 @@ class REVISION {
     }
     
     public function getFormFromDraft($id) {
-        $data = $this->getDraft($id) + $this->getCurrentResource($id);
+        $data = $this->getDraft($id);
         $form = array();
         foreach($data as $k=>$v) {
             $form[] = evo()->parseText(

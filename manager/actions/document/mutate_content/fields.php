@@ -270,7 +270,8 @@ function fieldParent() {
 }
 
 function fieldsTV() {
-    $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
+    global $tmplVars;
+    // $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
     $total = count($tmplVars);
     if(!$total) {
         return '';

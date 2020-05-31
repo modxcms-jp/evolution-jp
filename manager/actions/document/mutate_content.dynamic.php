@@ -51,9 +51,7 @@ if(preg_match('/[1-9][0-9]*/', request_intvar('newtemplate')) ) {
 }
 
 $tmplVars = getTmplvars(request_intvar('id'),doc('template'),$docgrp);
-
 $docObject += $tmplVars;
-
 if(request_intvar('id') && manager()->action==131) {
     $docObject = mergeDraft(request_intvar('id'), $docObject);
     foreach($tmplVars as $k=>$v) {

@@ -3912,7 +3912,7 @@ class DocumentParser {
             $docid = $this->documentIdentifier;
         }
 
-        if(isset($this->previewObject['template']) && $this->previewObject['template']) {
+        if($this->array_get($this->previewObject, 'template')) {
             $resource = $this->getDocument($docid, '*',null); //Ignore published when the preview.
             $resource['template'] = $this->previewObject['template'];
         } elseif ($docid == $this->documentIdentifier) {
@@ -3928,17 +3928,17 @@ class DocumentParser {
         if ($fields==='*' || $fields==='') {
             $fields  = "tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
         } else {
-            $fields = array_map(function($v) {return 'tv.'.$v;}, explode(',',$fields));
-            $fields  = "{$fields}, IF(tvc.value!='',tvc.value,tv.default_text) as value";
+            $fields  = sprintf(
+                "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value"
+                , array_map(
+                    function($v) {return 'tv.'.$v;}
+                    , explode(',',$fields)
+                )
+            );
         }
         
-        $from = array();
-        $from[] = '[+prefix+]site_tmplvars tv';
-        $from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id';
-        $from[] = "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='{$docid}'";
-
         if (is_array($idnames)) {
-            $idnames = join("','", $this->db->escape($idnames));
+            $idnames = implode("','", $this->db->escape($idnames));
         }
 
         if ($idnames === '*') {
@@ -3951,17 +3951,23 @@ class DocumentParser {
             $where= sprintf("tv.name='%s'", $idnames);
         }
 
-        $where  = "{$where} AND tvtpl.templateid=" . $resource['template'];
-        
-        if ($sort) {
-            $sort = $this->join(',',explode(',',$sort),'tv.');
-            $orderby = "{$sort} {$dir}";
-        } else {
-            $orderby = '';
-        }
-        
         $result = array ();
-        $rs= $this->db->select($fields,$from,$where,$orderby);
+        $rs= $this->db->select(
+            $fields
+            , array(
+                '[+prefix+]site_tmplvars tv',
+                'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id',
+                sprintf(
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
+                    , $docid
+                )
+            )
+            , sprintf('%s AND tvtpl.templateid=%s', $where, $resource['template'])
+            , $sort ?
+                sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
+                :
+                ''
+        );
         while($row = $this->db->getRow($rs)) {
             $result[] = $row;
         }
@@ -3969,7 +3975,7 @@ class DocumentParser {
         // get default/built-in template variables
         ksort($resource);
         foreach($resource as $key=>$value) {
-            if ($idnames == '*' || in_array($key, explode(',', $idnames))) {
+            if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
                 $result[] = array ('name'=>$key,'value'=>$value);
             }
         }
