@@ -19,6 +19,11 @@ function checkbox($name,$value,$label,$cond) {
     return $modx->parseText($tpl,$ph);
 }
 
+function user($key, $default=null) {
+    global $user;
+    return evo()->array_get($user, $key, $default);
+}
+
 function getUser($userid) {
     $field = 'mu.*, ua.*';
     $from = array(
@@ -190,9 +195,4 @@ function aButtonCancel() {
             'icon'    => style('icons_cancel'),'label'=>lang('cancel')
         )
     );
-}
-
-function user($key, $default=null) {
-    global $user;
-    return evo()->array_get($user, $key, $default);
 }

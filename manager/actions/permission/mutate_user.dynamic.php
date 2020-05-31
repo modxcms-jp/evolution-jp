@@ -26,7 +26,7 @@ if ($_REQUEST['a'] == 12) {
     $_SESSION['itemname'] = $user['username'];
 } else {
     $user = array ();
-    $_SESSION['itemname'] = "New user";
+    $_SESSION['itemname'] = 'New user';
 }
 
 // restore saved form
@@ -57,7 +57,7 @@ $displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
 $tmp = array ('id' => $userid);
 $evtOut = $modx->invokeEvent("OnUserFormPrerender", $tmp);
 if (is_array($evtOut)) {
-    echo implode("", $evtOut);
+    echo implode('', $evtOut);
 }
 include_once __DIR__ . '/mutate_user/tpl/javascript.php';
 include_once __DIR__ . '/mutate_user/tpl/form.php';

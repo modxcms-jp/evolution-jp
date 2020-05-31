@@ -51,7 +51,7 @@
             );
             $evtOut = $modx->invokeEvent('OnUserFormRender', $tmp);
             if (is_array($evtOut))
-                echo implode("", $evtOut);
+                echo implode('', $evtOut);
             ?>
         </div>
     </div>
