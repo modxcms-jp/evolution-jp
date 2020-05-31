@@ -1757,8 +1757,8 @@ class SubParser {
             if (!isset($row['usertype'])) {
                 $row['usertype'] = 'manager';
             }
-            if(!isset($user['failedlogins']) ) {
-                $user['failedlogins'] = 0;
+            if(!isset($row['failedlogins']) ) {
+                $row['failedlogins'] = 0;
             }
             return $row;
         }
