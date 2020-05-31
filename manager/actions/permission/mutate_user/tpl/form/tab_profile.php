@@ -51,7 +51,7 @@
     <tr>
         <th><?php echo lang('user_dob'); ?>:</th>
         <td>
-            <input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo (user('dob') ? evo()->toDateFormat(user('dob'),'dateOnly'):'0'); ?>" onblur="documentDirty=true;">
+            <input type="text" id="dob" name="dob" class="DatePicker" value="<?php echo (user('dob') ? evo()->toDateFormat(user('dob'),'dateOnly'):''); ?>" onblur="documentDirty=true;">
             <a onclick="document.userform.dob.value=''; return true;" style="cursor:pointer; cursor:hand"><img align="absmiddle" src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif"  border="0" alt="<?php echo lang('remove_date'); ?>"></a>
         </td>
     </tr>
