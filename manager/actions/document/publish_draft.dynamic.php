@@ -16,11 +16,11 @@ if(isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])) {
     $e->dumpError();
 }
 
-include_once(MODX_MANAGER_PATH . 'actions/document/functions.php');
+include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content/functions.php');
 
 $ph['id'] = $docid;
-$ph['style_icons_cancel'] = $_style['icons_cancel'];
-$ph['lang_cancel']        = $_lang['cancel'];
+$ph['style_icons_cancel'] = style('icons_cancel');
+$ph['lang_cancel']        = lang('cancel');
 
 $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
@@ -36,23 +36,21 @@ echo $modx->parseText($tpl,$ph);
 function fieldDraftPub_date($docid) {
     global $modx,$_lang,$_style;
 
-    $pub_date = 0;
-    if( !empty($docid) && ($docid = intval($docid)) != 0 ){
-        //statusはdraft/standbyでも気にしない
-        $rs = db()->select('pub_date', '[+prefix+]site_revision', "element = 'resource' AND elmid='{$docid}'");
-        if( ($row = db()->getRow($rs)) && !empty($row['pub_date']) ){
-            $pub_date = $modx->toDateFormat($row['pub_date']);
-        }
-    }
-    if( empty($pub_date) ){
-        $pub_date = $modx->toDateFormat(time());
-    }
-
+    //statusはdraft/standbyでも気にしない
+    $rs = db()->select(
+        'pub_date'
+        , '[+prefix+]site_revision'
+        , sprintf("(status='draft') AND element='resource' AND elmid='%s'"
+            , $docid
+        ),
+        1
+    );
+    $pub_date = db()->getValue($rs);
     $tpl[] = '<input type="text" id="pub_date" name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
     $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
     $tpl = implode("\n",$tpl);
-    $ph['pub_date']         = $pub_date;
+    $ph['pub_date']         = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
     $ph['remove_date']      = $_lang['remove_date'];
     $ph['datetime_format']  = $modx->config['datetime_format'];
