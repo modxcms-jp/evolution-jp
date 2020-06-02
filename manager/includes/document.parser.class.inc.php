@@ -1453,7 +1453,7 @@ class DocumentParser {
                 $this->cacheRefreshTime = 0;
             }
         }
-        $timeNow= $_SERVER['REQUEST_TIME'] + $this->config['server_offset_time'];
+        $timeNow= $this->server('REQUEST_TIME',0) + $this->config('server_offset_time',0);
         
         if ($timeNow < $this->cacheRefreshTime || $this->cacheRefreshTime == 0) {
             return;
@@ -1462,7 +1462,10 @@ class DocumentParser {
         $rs = $this->db->select(
             'element,elmid'
             ,'[+prefix+]site_revision'
-            , sprintf("pub_date<=%s AND status='standby'", $timeNow)
+            , sprintf(
+                "pub_date<=%s AND status='standby'"
+                , $timeNow
+            )
         );
         $draft_ids = array();
         while($row = $this->db->getRow($rs)) {
@@ -1491,7 +1494,7 @@ class DocumentParser {
             $rs = $this->db->update(
                 'published=1, publishedon=pub_date'
                 ,'[+prefix+]site_content'
-                , sprintf('id in (%s)', join(',', $pub_ids))
+                , sprintf('id in (%s)', implode(',', $pub_ids))
             );
         }
         
@@ -1550,7 +1553,7 @@ class DocumentParser {
             $tmp = array('docid'=>$draft_ids,'type'=>'draftScheduled');
             $this->invokeEvent('OnDocPublished',$tmp);
         }
-        if( !empty($unpub_ids) ){
+        if( $unpub_ids ){
             $tmp = array('docid'=>$unpub_ids,'type'=>'scheduled');
             $this->invokeEvent('OnDocUnPublished',$tmp);
         }
