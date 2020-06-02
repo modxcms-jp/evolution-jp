@@ -182,53 +182,61 @@
             , ''
             , 'c.category, t.templatename ASC'
     );
-	$currentCategory = '';
+	$options = array();
 	while ($row = db()->getRow($rs)) {
-		if($row['category'] == null) {
-            $row['category'] = lang('no_category');
-		}
-		if($row['category'] != $currentCategory) {
-			if($closeOptGroup) {
-				echo '</optgroup>';
-			}
-			echo sprintf('<optgroup label="%s">', $row['category']);
-			$closeOptGroup = true;
-		} else {
-			$closeOptGroup = false;
-		}
-		$selectedtext = $row['id'] == config('default_template') ? ' selected="selected"' : '';
-		if ($selectedtext) {
-			$oldTmpId = $row['id'];
-			$oldTmpName = $row['templatename'];
-		}
-		echo sprintf(
-            '<option value="%s"%s>%s</option>'
-            , $row['id']
-            , $selectedtext
-            , $row['templatename']
+        $options[
+                $row['category'] == null ? lang('no_category') : $row['category']
+        ][] = array(
+            'id'       => $row['id'],
+            'name'     => $row['templatename'],
+            'selected' => (config('default_template')==$row['id'])
         );
-		$currentCategory = $row['category'];
 	}
-	if($row['category'] != '')
-	{
-		echo "\t\t\t\t\t</optgroup>\n";
-	}
+	$echo = array();
+	foreach($options as $category=>$templates) {
+        $group = array();
+	    foreach($templates as $template) {
+            $group[] = sprintf(
+                '<option value="%s"%s>%s</option>'
+                , $template['id']
+                , $template['selected'] ? ' selected' : ''
+                , $template['name']
+            );
+        }
+        $echo[] = sprintf(
+            '<optgroup label="%s">%s</optgroup>'
+            , $category
+            , implode("\n", $group)
+        );
+    }
+	echo implode("\n", $echo);
+	echo '</select><br />';
+    foreach($options as $category=>$templates) {
+        foreach ($templates as $template) {
+            if(!($template['selected'])) {
+                continue;
+            }
+            $savedTmpId   = $template['id'];
+            $savedTmpName = $template['name'];
+            break;
+        }
+    }
 ?>
-		</select><br />
 		<div id="template_reset_options_wrapper" style="display:none;">
 			<?php echo wrap_label(
                 lang('template_reset_all')
                 , form_radio('reset_template','1')
-            );?><br />
+            );
+			?><br />
 			<?php echo wrap_label(
 			        sprintf(
                         lang('template_reset_specific')
-                        , $oldTmpName
+                        , $savedTmpName
                     )
                     ,form_radio('reset_template', 2)
             );?>
 		</div>
-		<input type="hidden" name="old_template" value="<?php echo $oldTmpId; ?>" />
+		<input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>" />
 		<?php echo lang('defaulttemplate_message') ?>
 	</td>
 </tr>
