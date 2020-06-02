@@ -1329,14 +1329,12 @@ class DocumentParser {
         return $this->getCache($id);
     }
     
-    function getCache($id)
-    {
-        if($this->config['cache_type'] == 0) { // jp-edition only
+    function getCache($id) {
+        if(!$this->config('cache_type')) { // jp-edition only
             return '';
         }
 
-        switch($this->http_status_code)
-        {
+        switch($this->http_status_code) {
             case '404':
                 $filename = 'error404';
                 break;
@@ -1350,56 +1348,58 @@ class DocumentParser {
                 $filename = "{$this->uri_parent_dir}docid_{$id}{$this->qs_hash}";
         }
         
-        $cacheFile = MODX_BASE_PATH . "assets/cache/" . $this->uaType . "/" . $filename . ".pageCache.php";
+        $cacheFile = sprintf(
+            '%sassets/cache/%s/%s.pageCache.php'
+            , MODX_BASE_PATH
+            , $this->uaType
+            , $filename
+        );
         
-        if(isset($_SESSION['mgrValidated']) || 0 < count($_POST)) $this->config['cache_type'] = '1';
+        if($this->session('mgrValidated') || 0 < $this->input_post()) {
+            $this->config['cache_type'] = '1';
+        }
         
-        if(isset($this->config['cache_ttl']) && !empty($this->config['cache_ttl']) && is_file($cacheFile))
-        {
+        if($this->config('cache_ttl') && is_file($cacheFile)) {
             $timestamp = filemtime($cacheFile);
             $timestamp += $this->config['cache_ttl'];
-            if($timestamp < $_SERVER['REQUEST_TIME'])
-            {
+            if($timestamp < $this->server('REQUEST_TIME')) {
                 @unlink($cacheFile);
                 $this->documentGenerated = 1;
                 return '';
             }
         }
         
-        if($this->config['cache_type'] == 2 && $this->http_status_code != 404)
-        {
+        if($this->config('cache_type') == 2 && $this->http_status_code != 404) {
             $this->documentGenerated = 1;
             return '';
         }
 
-        if(is_file($cacheFile))
-        {
+        if(is_file($cacheFile)) {
             $flContent = file_get_contents($cacheFile, false);
         }
         
-        if(!is_file($cacheFile) || empty($flContent))
-        {
+        if(!is_file($cacheFile) || !$flContent) {
             $this->documentGenerated = 1;
             return '';
         }
         
         $this->documentGenerated = 0;
         
-        if(strpos($flContent, '<?php') === 0) $flContent = substr($flContent, strpos($flContent,'?>')+2);
+        if(strpos($flContent, '<?php') === 0) {
+            $flContent = substr($flContent, strpos($flContent, '?>') + 2);
+        }
         $a = explode('<!--__MODxCacheSpliter__-->', $flContent, 2);
         if(count($a) == 1) {
             return $a[0];
         }
 
-        if($this->config['cache_type']!=0 && $this->http_status_code==404) {
+        if($this->config('cache_type') && $this->http_status_code==404) {
             return $a[1];
         }
         
         $docObj = unserialize(trim($a['0'])); // rebuild document object
         // add so - check page security(admin(mgrRole=1) is pass)
-        if(!(isset($_SESSION['mgrRole']) && $_SESSION['mgrRole'] == 1)
-            && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
-            
+        if($this->session('mgrRole') != 1 && $docObj['privateweb'] && isset ($docObj['__MODxDocGroups__'])) {
             $pass = false;
             $usrGrps = $this->getUserDocGroups();
             $docGrps = explode(',',$docObj['__MODxDocGroups__']);
@@ -1421,8 +1421,11 @@ class DocumentParser {
                     $total = $this->db->getRecordCount($rs);
                 }
                 
-                if(0 < $total) $this->sendUnauthorizedPage();
-                else           $this->sendErrorPage();
+                if(0 < $total) {
+                    $this->sendUnauthorizedPage();
+                } else {
+                    $this->sendErrorPage();
+                }
             }
         }
         
@@ -1435,7 +1438,7 @@ class DocumentParser {
         }
         
         $this->documentObject = $docObj;
-        return $a['1']; // return document content
+        return $a[1]; // return document content
     }
     
     function updatePublishStatus()
