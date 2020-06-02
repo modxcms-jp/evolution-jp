@@ -1310,20 +1310,19 @@ class DocumentParser {
     }
     
     // check if site is offline
-    function checkSiteStatus()
-    {
+    function checkSiteStatus() {
+        // site online
         if ($this->config('site_status')) {
-            // site online
             return true;
         }
 
+        // site offline but launched via the manager
         if($this->isLoggedin()) {
-            // site offline but launched via the manager
             return true;
         }
 
         // site is offline
-        return true;
+        return false;
     }
     
     function checkCache($id)
