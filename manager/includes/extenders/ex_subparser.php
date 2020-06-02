@@ -41,7 +41,7 @@ class SubParser {
             $p['fromname'] = $userinfo['username'];
         }
         if($msg==='' && !isset($p['body'])) {
-            $p['body'] = $_SERVER['REQUEST_URI'] . "\n" . $_SERVER['HTTP_USER_AGENT'] . "\n" . $_SERVER['HTTP_REFERER'];
+            $p['body'] = evo()->server('REQUEST_URI') . "\n" . evo()->server('HTTP_USER_AGENT') . "\n" . evo()->server('HTTP_REFERER');
         } elseif(is_string($msg) && 0<strlen($msg)) {
             $p['body'] = $msg;
         }
@@ -118,7 +118,7 @@ class SubParser {
         $this->logEvent(
             0
             , $type
-            , $msg ? $msg : $_SERVER['REQUEST_URI']
+            , $msg ? $msg : evo()->server('REQUEST_URI')
             , $title
         );
     }
@@ -158,7 +158,7 @@ class SubParser {
 
         $fields['eventid']     = $evtid;
         $fields['type']        = $type;
-        $fields['createdon']   = $_SERVER['REQUEST_TIME'];
+        $fields['createdon']   = evo()->server('REQUEST_TIME');
         $fields['source']      = $title;
         $fields['description'] = $msg;
         $fields['user']        = $LoginUserID;
@@ -171,17 +171,19 @@ class SubParser {
         $modx->db->lastQuery = $_;
         if(isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
             if($modx->config['send_errormail'] <= $type) {
-                $body['URL'] = $modx->config['site_url'] . ltrim($_SERVER['REQUEST_URI'],'/');
+                $body['URL'] = $modx->config['site_url'] . ltrim(evo()->server('REQUEST_URI'),'/');
                 $body['Source'] = $fields['source'];
-                $body['IP'] = $_SERVER['REMOTE_ADDR'];
-                if(!empty($_SERVER['REMOTE_ADDR'])) $hostname = gethostbyaddr($_SERVER['REMOTE_ADDR']);
-                if(!empty($hostname)) {
+                $body['IP'] = evo()->server('REMOTE_ADDR');
+                if(evo()->server('REMOTE_ADDR')) {
+                    $hostname = gethostbyaddr(evo()->server['REMOTE_ADDR']);
+                }
+                if($hostname) {
                     $body['Host name'] = $hostname;
                 }
-                if(!empty($modx->event->activePlugin)) {
+                if($modx->event->activePlugin) {
                     $body['Plugin'] = $modx->event->activePlugin;
                 }
-                if(!empty($modx->currentSnippet)) {
+                if($modx->currentSnippet) {
                     $body['Snippet'] = $modx->currentSnippet;
                 }
                 $subject = 'Error mail from ' . $modx->config['site_name'];
@@ -196,7 +198,7 @@ class SubParser {
             exit('Error while inserting event log into database.');
         }
 
-        $trim = (isset($modx->config['event_log_trim']))  ? (int)$modx->config['event_log_trim'] : 100;
+        $trim = isset($modx->config['event_log_trim']) ? (int)$modx->config['event_log_trim'] : 100;
         if(($insert_id % $trim) == 0) {
             $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
             $modx->rotate_log('event_log',$limit,$trim);
@@ -248,8 +250,8 @@ class SubParser {
 
         $version= isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
         $release_date= isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $ua          = $modx->hsc($_SERVER['HTTP_USER_AGENT']);
-        $referer     = $modx->hsc($_SERVER['HTTP_REFERER']);
+        $ua          = $modx->hsc(evo()->server('HTTP_USER_AGENT'));
+        $referer     = $modx->hsc(evo()->server('HTTP_REFERER'));
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
@@ -264,7 +266,7 @@ class SubParser {
 
         $codetpl = '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">[+code+]</div></td></tr>';
 
-        if (!empty ($query)) {
+        if ($query) {
             $str .= $modx->parseText($codetpl, array('code' => $query));
         }
 
@@ -342,7 +344,7 @@ class SubParser {
         $str .= '<tr><td colspan="2"><b>Basic info</b></td></tr>';
 
         $str .= '<tr><td valign="top" style="white-space:nowrap;">REQUEST_URI : </td>';
-        $str .= sprintf('<td>%s</td>', htmlspecialchars(urldecode($_SERVER['REQUEST_URI']), ENT_QUOTES, $modx->config['modx_charset']));
+        $str .= sprintf('<td>%s</td>', hsc(urldecode(evo()->server('REQUEST_URI'))));
         $str .= '</tr>';
 
         if(isset($_GET['a'])) {
@@ -350,7 +352,7 @@ class SubParser {
         } elseif(isset($_POST['a'])) {
             $action = $_POST['a'];
         }
-        if(isset($action) && !empty($action)) {
+        if(isset($action) && $action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
             if(isset($action_list[$action])) {
@@ -439,7 +441,7 @@ class SubParser {
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        if(isset($php_errormsg) && !empty($php_errormsg)) {
+        if(isset($php_errormsg) && $php_errormsg) {
             $str = "<b>{$php_errormsg}</b><br />\n{$str}";
         }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
@@ -458,7 +460,7 @@ class SubParser {
             $source = 'Parser';
         }
 
-        if(isset($actionName) && !empty($actionName)) {
+        if(isset($actionName) && $actionName) {
             $source .= $actionName;
         }
         switch($nr) {
@@ -670,8 +672,8 @@ class SubParser {
         }
 
         if($modx->directParse==1) {
-            if($_SERVER['HTTP_USER_AGENT']) {
-                ini_set('user_agent', $_SERVER['HTTP_USER_AGENT']);
+            if(evo()->server('HTTP_USER_AGENT')) {
+                ini_set('user_agent', evo()->server('HTTP_USER_AGENT'));
             }
             return file_get_contents($url);
         }
@@ -738,7 +740,7 @@ class SubParser {
             $dist = $modx->config['site_start'];
         }
         $modx->http_status_code = '404';
-        $modx->sendForward($dist, $_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
+        $modx->sendForward($dist, evo()->server('SERVER_PROTOCOL','') . ' 404 Not Found');
     }
 
     function sendUnauthorizedPage(){
@@ -1030,7 +1032,7 @@ class SubParser {
         }
 
         // get document groups for current user
-        if (isset($_SESSION['mgrDocgroups']) && !empty($_SESSION['mgrDocgroups'])) {
+        if (evo()->session('mgrDocgroups')) {
             foreach($_SESSION['mgrDocgroups'] as $v) {
                 $docgrp[] = "dg.document_group='{$v}'";
             }
@@ -1576,7 +1578,6 @@ class SubParser {
     }
     function ParseInputOptions($v)
     {
-        global $modx;
         if (is_array($v)) {
             return $v;
         }
@@ -1767,33 +1768,31 @@ class SubParser {
 
     # Returns current user name
     function getLoginUserName($context= '') {
-        global $modx;
-
-        if ($context && isset ($_SESSION[$context . 'Validated'])) {
-            return $_SESSION[$context . 'Shortname'];
+        if ($context && evo()->session($context . 'Validated')) {
+            return evo()->session($context . 'Shortname');
         }
 
-        if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
-            return $_SESSION['webShortname'];
+        if (evo()->isFrontend() && evo()->session('webValidated')) {
+            return evo()->session('webShortname');
         }
 
-        if ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
-            return $_SESSION['mgrShortname'];
+        if (evo()->isBackend() && evo()->session('mgrValidated')) {
+            return evo()->session('mgrShortname');
         }
+
         return false;
     }
 
     # Returns current login user type - web or manager
     function getLoginUserType() {
-        global $modx;
-
-        if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
+        if (evo()->isFrontend() && evo()->session('webValidated')) {
             return 'web';
         }
 
-        if ($modx->isBackend() && isset ($_SESSION['mgrValidated'])) {
+        if (evo()->isBackend() && evo()->session('mgrValidated')) {
             return 'manager';
         }
+
         return '';
     }
 
@@ -1824,7 +1823,12 @@ class SubParser {
         }
 
         foreach($docs as $doc) {
-            $result[] = $modx->getTemplateVars($tvidnames, $tvfields, $doc['id'],$published);
+            $result[] = $modx->getTemplateVars(
+                $tvidnames
+                , $tvfields
+                , $doc['id']
+                , $published
+            );
         }
         return $result;
     }
@@ -1849,10 +1853,11 @@ class SubParser {
 
     function getAllChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle',$where=false) {
         global $modx;
+        static $cache=array();
 
         $cacheKey = hash('crc32b', print_r(func_get_args(),true));
-        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
-            return $modx->tmpCache[__FUNCTION__][$cacheKey];
+        if(isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
         }
 
         // modify field names to use sc. table reference
@@ -1888,17 +1893,18 @@ class SubParser {
             $resourceArray[] = $row;
         }
 
-        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
+        $cache[$cacheKey] = $resourceArray;
 
         return $resourceArray;
     }
 
     function getActiveChildren($id= 0, $sort= 'menuindex', $dir= 'ASC', $fields= 'id, pagetitle, description, parent, alias, menutitle') {
         global $modx;
+        static $cache= array();
 
         $cacheKey = hash('crc32b', print_r(func_get_args(),true));
-        if(isset($modx->tmpCache[__FUNCTION__][$cacheKey])) {
-            return $modx->tmpCache[__FUNCTION__][$cacheKey];
+        if(isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
         }
         $where = array(
             sprintf("sc.parent = '%s'", $id),
@@ -1928,7 +1934,7 @@ class SubParser {
 
         $resourceArray = $modx->getAllChildren($id, $sort, $dir, $fields,$where);
 
-        $modx->tmpCache[__FUNCTION__][$cacheKey] = $resourceArray;
+        $cache[$cacheKey] = $resourceArray;
 
         return $resourceArray;
     }
@@ -1974,7 +1980,7 @@ class SubParser {
     function getPreviewObject($input=array()) {
         global $modx;
 
-        if( !empty($modx->previewObject) ){
+        if( $modx->previewObject ){
             return $modx->previewObject;
         }
 
@@ -2095,8 +2101,11 @@ class SubParser {
 
         if($filename==='') {
             $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
-            $today = str_replace(array('/',' '), '-', $today);
-            $today = str_replace(':', '', $today);
+            $today = str_replace(
+                array('/', ' ', ':')
+                , array('-', '-', '')
+                , $today
+            );
             $today = strtolower($today);
             $filename = "{$today}-{$settings_version}.sql";
         }
@@ -2148,7 +2157,7 @@ class SubParser {
         unset ($_REQUEST[$k['0']]); // remove 404,405 entry
         $qp= parse_url(str_replace(evo()->config['site_url'], '', substr($url, 4)));
         $_SERVER['QUERY_STRING']= $qp['query'];
-        if (!empty ($qp['query'])) {
+        if ($qp['query']) {
             parse_str($qp['query'], $qv);
             foreach ($qv as $n => $v) {
                 $_REQUEST[$n]= $_GET[$n]= $v;
@@ -2159,9 +2168,9 @@ class SubParser {
     }
 
     function genTokenString($seed='') {
-        global $modx;
-        if(isset($modx->tmpCache['tokenString'])) {
-            return $modx->tmpCache['tokenString'];
+        static $tokenString = null;
+        if($tokenString) {
+            return $tokenString;
         }
         if(!$seed) {
             $seed = md5(mt_rand());
@@ -2171,10 +2180,11 @@ class SubParser {
         foreach($_ as $v) {
             $p[] = base_convert($v,16,36);
         }
-        $key = implode('',$p);
-        $key = substr($key,0,12);
-        $modx->tmpCache['tokenString'] = $key;
-        return $key;
+        $tokenString = substr(
+            implode('',$p)
+            ,0,12
+        );
+        return $tokenString;
     }
 
     function setCacheRefreshTime($unixtime=0) {
@@ -2448,11 +2458,11 @@ class SubParser {
         }
         return $content;
     }
-    function updateDraft()
-    {
+
+    function updateDraft() {
         global $modx;
 
-        $now = $_SERVER['REQUEST_TIME'] + $modx->config['server_offset_time'];
+        $now = evo()->server('REQUEST_TIME',0) + evo()->config('server_offset_time',0);
 
         $rs = db()->select(
             '*'
