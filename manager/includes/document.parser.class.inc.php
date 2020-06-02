@@ -1325,8 +1325,7 @@ class DocumentParser {
         return false;
     }
     
-    function checkCache($id)
-    {
+    function checkCache($id) {
         return $this->getCache($id);
     }
     
