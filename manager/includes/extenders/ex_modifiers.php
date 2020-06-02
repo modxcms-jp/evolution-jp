@@ -8,7 +8,6 @@ class MODIFIERS {
     
     public $placeholders = array();
     public $vars = array();
-    public $tmpCache = array();
     public $bt;
     public $srcValue;
     public $condition = array();
@@ -18,8 +17,7 @@ class MODIFIERS {
     public $value;
     public $opt;
     
-    public function __construct()
-    {
+    public function __construct() {
         global $modx;
         
         if(!$modx->config) {
@@ -33,9 +31,7 @@ class MODIFIERS {
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
     
-    function phxFilter($key,$value,$modifiers)
-    {
-        global $modx;
+    function phxFilter($key,$value,$modifiers) {
         if(strpos($modifiers, 'id(') !== 0) {
             $value = $this->parseDocumentSource($value);
         }
@@ -56,7 +52,9 @@ class MODIFIERS {
     
     function _getDelim($mode,$modifiers) {
         $c = substr($modifiers,0,1);
-        if(!in_array($c, array('"', "'", '`')) ) return false;
+        if(!in_array($c, array('"', "'", '`')) ) {
+            return false;
+        }
         
         $modifiers = substr($modifiers,1);
         $closure = $mode === '(' ? "{$c})" : $c;
@@ -73,12 +71,16 @@ class MODIFIERS {
             return substr($modifiers,1,strpos($modifiers,$delim,1)-1);
         }
         
-        if($mode === '(') return substr($modifiers,0,strpos($modifiers, ')') );
+        if($mode === '(') {
+            return substr($modifiers, 0, strpos($modifiers, ')'));
+        }
         
         $chars = str_split($modifiers);
         $opt='';
         foreach($chars as $c) {
-            if($c === ':' || $c === ')') break;
+            if($c === ':' || $c === ')') {
+                break;
+            }
             $opt .=$c;
         }
         return $opt;
@@ -89,16 +91,19 @@ class MODIFIERS {
                 return $this->_fetchContent($modifiers, $delim . ')');
             }
 
-            $modifiers = trim($modifiers);
-            $modifiers = substr($modifiers,1);
-            return $this->_fetchContent($modifiers, $delim);
+            return $this->_fetchContent(
+                substr(trim($modifiers),1)
+                , $delim
+            );
         }
 
         if($mode === '(') return $this->_fetchContent($modifiers, ')');
         $chars = str_split($modifiers);
         foreach($chars as $c) {
-            if($c === ':') return $modifiers;
-            else $modifiers = substr($modifiers,1);
+            if($c === ':') {
+                return $modifiers;
+            }
+            $modifiers = substr($modifiers, 1);
         }
         return $modifiers;
     }
@@ -123,8 +128,11 @@ class MODIFIERS {
                 // :=, :!=, :<=, :>=, :!<=, :!>=
                 $c = substr($modifiers,strlen($match[1]),1);
                 $debuginfo = "#i=0 #c=[{$c}] #m=[{$modifiers}]";
-                if($c==='(') $modifiers = substr($modifiers,strlen($match[1])+1);
-                else         $modifiers = substr($modifiers,strlen($match[1]));
+                if($c==='(') {
+                    $modifiers = substr($modifiers, strlen($match[1]) + 1);
+                } else {
+                    $modifiers = substr($modifiers, strlen($match[1]));
+                }
                 
                 $delim     = $this->_getDelim($c,$modifiers);
                 $opt       = $this->_getOpt($c,$delim,$modifiers);
@@ -152,7 +160,9 @@ class MODIFIERS {
             }
             elseif($c === ':') {
                 $debuginfo = "#i=2 #c=[{$c}] #m=[{$modifiers}]";
-                if($cmd!=='') $result[]=array('cmd'=>trim($cmd),'opt'=>'','debuginfo'=>$debuginfo);
+                if($cmd!=='') {
+                    $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
+                }
                 
                 $cmd = '';
             }
@@ -160,7 +170,6 @@ class MODIFIERS {
                 $debuginfo = "#i=3 #c=[{$c}] #m=[{$modifiers}]";
                 $cmd .= $c;
                 $result[]=array('cmd'=>trim($cmd),'opt'=>'','debuginfo'=>$debuginfo);
-                
                 break;
             }
             else {
@@ -168,10 +177,11 @@ class MODIFIERS {
             }
         }
         
-        if(empty($result)) return array();
+        if(empty($result)) {
+            return array();
+        }
         
-        foreach($result as $i=>$a)
-        {
+        foreach($result as $i=>$a) {
             $a['opt'] = $this->parseDocumentSource($a['opt']);
             $result[$i]['opt'] = $modx->parseText($a['opt'],$this->placeholders);
         }
@@ -179,31 +189,43 @@ class MODIFIERS {
         return $result;
     }
     
-    function parsePhx($key,$value,$modifiers)
-    {
+    function parsePhx($key,$value,$modifiers) {
         global $modx;
+        static $cache = array();
         $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s',$key,$value,print_r($modifiers,true)));
-        if(isset($this->tmpCache[$cacheKey])) return $this->tmpCache[$cacheKey];
-        if(empty($modifiers)) return '';
+        if(isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+        if(empty($modifiers)) {
+            return '';
+        }
         
-        foreach($modifiers as $m)
-        {
+        foreach($modifiers as $m) {
             $lastKey = strtolower($m['cmd']);
         }
+
         $_ = explode(',',$this->condModifiers);
-        if(in_array($lastKey,$_))
-        {
+        if(in_array($lastKey,$_)) {
             $modifiers[] = array('cmd'=>'then','opt'=>'1');
             $modifiers[] = array('cmd'=>'else','opt'=>'0');
         }
         
-        foreach($modifiers as $i=>$a)
-        {
-            if ($modx->debug) $fstart = $modx->getMicroTime();
+        foreach($modifiers as $i=>$a) {
+            if ($modx->debug) {
+                $fstart = $modx->getMicroTime();
+            }
             $value = $this->Filter($key,$value, $a['cmd'], $a['opt']);
-            if ($modx->debug) $modx->addLogEntry('$modx->filter->'.__FUNCTION__."(:{$a['cmd']})",$fstart);
+            if ($modx->debug) {
+                $modx->addLogEntry(
+                    sprintf('$modx->filter->%s(:%s)'
+                        , __FUNCTION__
+                        , $a['cmd']
+                    )
+                    , $fstart
+                );
+            }
         }
-        $this->tmpCache[$cacheKey] = $value;
+        $cache[$cacheKey] = $value;
         return $value;
     }
     
@@ -214,10 +236,10 @@ class MODIFIERS {
         
         if($key==='documentObject') $value = $modx->documentIdentifier;
         $cmd = $this->parseDocumentSource($cmd);
-        if(preg_match('@^[1-9][/0-9]*$@',$cmd))
-        {
-            if(strpos($cmd,'/')!==false)
+        if(preg_match('@^[1-9][/0-9]*$@',$cmd)) {
+            if(strpos($cmd,'/')!==false) {
                 $cmd = $this->substr($cmd, strrpos($cmd, '/') + 1);
+            }
             $opt = $cmd;
             $cmd = 'id';
         }
@@ -242,50 +264,64 @@ class MODIFIERS {
     function snippet_exists($cmd) {
         global $modx;
 
-        if(!$cmd) return 0;
+        if(!$cmd) {
+            return 0;
+        }
         
         if(isset($modx->snippetCache["phx:{$cmd}"])) {
-            if($modx->snippetCache["phx:{$cmd}"]) return 1;
-            else                                  return 0;
+            if($modx->snippetCache["phx:{$cmd}"]) {
+                return 1;
+            }
+            return 0;
         }
         
         if(isset($modx->snippetCache[$cmd])) {
-            if($modx->snippetCache[$cmd])         return 1;
-            else                                  return 0;
+            if($modx->snippetCache[$cmd]) {
+                return 1;
+            }
+            return 0;
         }
             
         $code = $this->getSnippetFromDB($cmd);
         if($code) {
-            $modx->snippetCache["phx:{$cmd}"] = $code;
-            $modx->snippetCache["phx:{$cmd}Props"] = '';
+            $modx->snippetCache['phx:' . $cmd] = $code;
+            $modx->snippetCache['phx:' . $cmd . 'Props'] = '';
             return 1;
         }
 
         $code = $this->getSnippetFromFile($cmd);
         if($code) {
-            $modx->snippetCache["phx:{$cmd}"] = $code;
-            $modx->snippetCache["phx:{$cmd}Props"] = '';
+            $modx->snippetCache['phx:' . $cmd] = $code;
+            $modx->snippetCache['phx:' . $cmd . 'Props'] = '';
             return 1;
         }
 
-        $modx->snippetCache["phx:{$cmd}"] = false;
+        $modx->snippetCache['phx:' . $cmd] = false;
         return 0;
     }
     
     function chunk_exists($cmd) {
         global $modx;
-        
-        if($modx->getChunk("phx:{$cmd}")) return 1;
-        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
-                                          return 1;
-        else                              return 0;
+
+        if ($modx->getChunk('phx:' . $cmd)) {
+            return 1;
+        }
+
+        if($modx->getChunk($cmd) && strpos($modx->getChunk($cmd),'[+value+]')!==false) {
+            return 1;
+        }
+
+        return 0;
     }
     
     function getValueFromPHP($key, $value, $cmd, $opt) {
         global $modx;
         
-        if($modx->snippetCache["phx:{$cmd}"]) $code = $modx->snippetCache["phx:{$cmd}"];
-        elseif($modx->snippetCache[$cmd])     $code = $modx->snippetCache[$cmd];
+        if($modx->snippetCache['phx:' . $cmd]) {
+            $code = $modx->snippetCache['phx:' . $cmd];
+        } elseif($modx->snippetCache[$cmd]) {
+            $code = $modx->snippetCache[$cmd];
+        }
         
         ob_start();
         $options = $opt;
@@ -304,7 +340,9 @@ class MODIFIERS {
         }
 
         $msg = ob_get_contents();
-        if($value===$this->bt) $value = $msg . $return;
+        if($value===$this->bt) {
+            $value = $msg . $return;
+        }
         ob_end_clean();
         
         return $value;
@@ -313,9 +351,16 @@ class MODIFIERS {
     function getSnippetFromDB($cmd) {
         global $modx;
         
-        $where = sprintf('name=\'phx:%1$s\' OR name=\'%1$s\'', $modx->db->escape($cmd));
-        $rs = $modx->db->select('snippet','[+prefix+]site_snippets',$where, '', 1);
-        if(!$modx->db->getRecordCount($rs)) return false;
+        $rs = $modx->db->select(
+            'snippet'
+            , '[+prefix+]site_snippets'
+            , sprintf('name=\'phx:%1$s\' OR name=\'%1$s\'', $modx->db->escape($cmd))
+            , ''
+            , 1
+        );
+        if(!$modx->db->getRecordCount($rs)) {
+            return false;
+        }
 
         return $modx->db->getValue($rs);
     }
@@ -329,26 +374,38 @@ class MODIFIERS {
         $_[] = MODX_BASE_PATH . "assets/plugins/phx/modifiers{$cmd}.phx.php";
         $_[] = MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php";
         foreach($_ as $mdf_path) {
-            if(is_file($mdf_path)) break;
-            else $mdf_path = false;
+            if(is_file($mdf_path)) {
+                break;
+            }
+            $mdf_path = false;
         }
         
-        if(!$mdf_path) return false;
+        if(!$mdf_path) {
+            return false;
+        }
 
         $code = @file_get_contents($mdf_path);
         $code = trim($code);
-        if(substr($code,0,5)==='<?php') $code = substr($code,6);
-        if(substr($code,0,2)==='<?')    $code = substr($code,3);
-        if(substr($code,-2)==='?>')     $code = substr($code,0,-2);
+        if(substr($code,0,5)==='<?php') {
+            $code = substr($code, 6);
+        }
+        if(substr($code,0,2)==='<?') {
+            $code = substr($code, 3);
+        }
+        if(substr($code,-2)==='?>') {
+            $code = substr($code, 0, -2);
+        }
         
         return $code;
     }
     
     function getValueFromHTML($key, $value, $cmd, $opt) {
         global $modx;
-        if($modx->getChunk("phx:{$cmd}")) $html = $modx->getChunk("phx:{$cmd}");
-        elseif($modx->getChunk($cmd)&&strpos($modx->getChunk($cmd),'[+value+]')!==false)
-                                          $html = $modx->getChunk($cmd);
+        if($modx->getChunk("phx:" . $cmd)) {
+            $html = $modx->getChunk("phx:{$cmd}");
+        } elseif($modx->getChunk($cmd) && strpos($modx->getChunk($cmd),'[+value+]')!==false) {
+            $html = $modx->getChunk($cmd);
+        }
         else return false;
         
         $html = str_replace(array('[+value+]','[+output+]'), $value, $html);
@@ -357,31 +414,39 @@ class MODIFIERS {
         return $value;
     }
     
-    function isEmpty($cmd,$value)
-    {
-        if($value!=='') return false;
+    function isEmpty($cmd,$value) {
+        if($value!=='') {
+            return false;
+        }
         
-        $_ = explode(',', $this->condModifiers . ',_default,default,if,input,or,and,show,this,select,switch,then,else,id,ifempty,smart_desc,smart_description,summary');
-        if(in_array($cmd,$_)) return false;
-        else                  return true;
+        $_ = explode(
+            ','
+            , $this->condModifiers . ',_default,default,if,input,or,and,show,this,select,switch,then,else,id,ifempty,smart_desc,smart_description,summary'
+        );
+        if(in_array($cmd,$_)) {
+            return false;
+        }
+        return true;
     }
     
-    function getValueFromPreset($key, $value, $cmd, $opt)
-    {
+    function getValueFromPreset($key, $value, $cmd, $opt) {
         global $modx;
         
-        if($this->isEmpty($cmd,$value)) return '';
+        if($this->isEmpty($cmd,$value)) {
+            return '';
+        }
         
         $this->key = $key;
         $this->value  = $value;
         $this->opt    = $opt;
         
-        switch ($cmd)
-        {
+        switch ($cmd) {
             #####  Conditional Modifiers 
             case 'input':
             case 'if':
-                if(!$opt) return $value;
+                if(!$opt) {
+                    return $value;
+                }
                 return $opt;
             case '=':
             case 'eq':
