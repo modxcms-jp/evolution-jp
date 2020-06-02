@@ -10,7 +10,7 @@ if(!hasUserPermission(request_intvar('a'))) {
     return;
 }
 
-$userid = $modx->input_any('id', 0);
+$userid = evo()->input_any('id', 0);
 
 if ($userid && !activeUserCheck($userid)) {
     alert()->dumpError();
@@ -18,7 +18,7 @@ if ($userid && !activeUserCheck($userid)) {
 }
 
 global $user;
-if ($_REQUEST['a'] == 12) {
+if (anyv('a') == 12) {
     $user = getUser($userid);
     if(!$user) {
         exit('No user returned while getting username!<p>');
@@ -31,8 +31,8 @@ if ($_REQUEST['a'] == 12) {
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
-    $form_v = $modx->manager->loadFormValues();
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
     // restore post values
     $user = array_merge($user, $form_v);
     $user['dob'] = ConvertDate($user['dob']);
@@ -47,15 +47,18 @@ if ($modx->manager->hasFormValues()) {
 // include the country list language file
 $_country_lang = array();
 include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
-$countries_path = MODX_CORE_PATH . sprintf('lang/country/%s_country.inc.php', $modx->config['manager_language']);
-if($modx->config['manager_language'] !== 'english' && is_file($countries_path)){
+$countries_path = MODX_CORE_PATH . sprintf(
+        'lang/country/%s_country.inc.php'
+        , evo()->config('manager_language')
+    );
+if(evo()->config('manager_language') !== 'english' && is_file($countries_path)){
     include_once $countries_path;
 }
 
-$displayStyle = ($_SESSION['browser'] ==='modern') ? 'table-row' : 'block';
+$displayStyle = (sessionv('browser') ==='modern') ? 'table-row' : 'block';
 // invoke OnUserFormPrerender event
 $tmp = array ('id' => $userid);
-$evtOut = $modx->invokeEvent("OnUserFormPrerender", $tmp);
+$evtOut = evo()->invokeEvent('OnUserFormPrerender', $tmp);
 if (is_array($evtOut)) {
     echo implode('', $evtOut);
 }

@@ -13,7 +13,7 @@ function checkSafedUri() {
 function jsAlert($msg){
     global $modx, $modx_manager_charset;
     header('Content-Type: text/html; charset='.$modx_manager_charset);
-    if($modx->input_post('ajax')==1) {
+    if(postv('ajax')==1) {
         echo $msg;
     } else {
         echo sprintf(
@@ -113,17 +113,18 @@ function user_config($key, $default=null) {
 }
 
 function input($key,$default=null) {
-    global $modx;
     static $input = array();
 
     if (isset($input[$key])) {
         return $input[$key];
     }
 
-    $input['password']     = $modx->input_post('password');
-    $input['captcha_code'] = $modx->input_post('captcha_code', '');
-    $input['rememberme']   = $modx->input_post('rememberme', '');
-    $input['username']     = $modx->input_post('username', $modx->input_get('username'));
+    $input = array(
+        'username'     => postv('username', getv('username')),
+        'password'     => postv('password'),
+        'captcha_code' => postv('captcha_code', ''),
+        'rememberme'   => postv('rememberme', '')
+    );
     if(strpos($input['username'],':safemode')!==false) {
         $input['username'] = str_replace(':safemode', '', $input['username']);
         $input['safeMode'] = 1;
@@ -138,19 +139,17 @@ function input($key,$default=null) {
     } else {
         $input['forceRole'] = false;
     }
-
-    return $modx->array_get($input, $key, $default);
+    return array_get($input, $key, $default);
 }
 
 function user($key, $default=null) {
-    global $modx;
     static $user = array();
 
     if (isset($user[$key])) {
         return $user[$key];
     }
 
-    $user = $modx->getUserFromName(input('username'));
+    $user = evo()->getUserFromName(input('username'));
     if(!$user) {
         include_once(MODX_CORE_PATH . 'error.class.inc.php');
         $e = new errorHandler;
@@ -161,7 +160,7 @@ function user($key, $default=null) {
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
-    if ($modx->array_get($user,'blockeduntil') && $modx->array_get($user,'blockeduntil') < time()) {
+    if (array_get($user,'blockeduntil') && array_get($user,'blockeduntil') < time()) {
         $user['failedlogincount'] = '0';
         $user['blocked']          = '0';
     }
@@ -169,7 +168,7 @@ function user($key, $default=null) {
     if (isset($user[$key])) {
         return $user[$key];
     }
-    return $modx->array_get($user, $key, $default);
+    return array_get($user, $key, $default);
 }
 
 function OnBeforeManagerLogin() {

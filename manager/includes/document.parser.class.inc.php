@@ -1312,9 +1312,18 @@ class DocumentParser {
     // check if site is offline
     function checkSiteStatus()
     {
-        if($this->config['site_status'] == 1) return true; // site online
-        elseif($this->isLoggedin())           return true; // site offline but launched via the manager
-        else                                  return false; // site is offline
+        if ($this->config('site_status')) {
+            // site online
+            return true;
+        }
+
+        if($this->isLoggedin()) {
+            // site offline but launched via the manager
+            return true;
+        }
+
+        // site is offline
+        return true;
     }
     
     function checkCache($id)
