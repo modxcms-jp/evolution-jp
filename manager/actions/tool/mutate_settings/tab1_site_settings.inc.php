@@ -176,21 +176,22 @@
         >
 		<option value="">(blank)</option>
 <?php
-	$field = 't.templatename, t.id, c.category';
-	$from = "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id";
-	$orderby = 'c.category, t.templatename ASC';
-	$rs = db()->select($field,$from,'',$orderby);
+	$rs = db()->select(
+	        't.templatename, t.id, c.category'
+            , "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id"
+            , ''
+            , 'c.category, t.templatename ASC'
+    );
 	$currentCategory = '';
 	while ($row = db()->getRow($rs)) {
-		$thisCategory = $row['category'];
-		if($thisCategory == null) {
-			$thisCategory = lang('no_category');
+		if($row['category'] == null) {
+            $row['category'] = lang('no_category');
 		}
-		if($thisCategory != $currentCategory) {
+		if($row['category'] != $currentCategory) {
 			if($closeOptGroup) {
 				echo '</optgroup>';
 			}
-			echo sprintf('<optgroup label="%s">', $thisCategory);
+			echo sprintf('<optgroup label="%s">', $row['category']);
 			$closeOptGroup = true;
 		} else {
 			$closeOptGroup = false;
@@ -206,9 +207,9 @@
             , $selectedtext
             , $row['templatename']
         );
-		$currentCategory = $thisCategory;
+		$currentCategory = $row['category'];
 	}
-	if($thisCategory != '')
+	if($row['category'] != '')
 	{
 		echo "\t\t\t\t\t</optgroup>\n";
 	}
@@ -500,22 +501,38 @@
 	<th><?php echo lang('custom_contenttype_title') ?></th>
 	<td>
 		<?php echo form_text('txt_custom_contenttype',100,'style="width:200px;"');?>
-		<input type="button" value="<?php echo lang('add'); ?>" onclick='addContentType()' /><br />
+		<input
+            type="button"
+            value="<?php echo lang('add'); ?>"
+            onclick='addContentType()'
+        /><br />
 		<table>
 			<tr>
 			<td valign="top">
-			<select name="lst_custom_contenttype" style="width:200px;" size="5">
+			<select
+                name="lst_custom_contenttype"
+                style="width:200px;"
+                size="5"
+            >
 <?php
-	foreach(explode(',',config('custom_contenttype')) as $v)
-	{
+	foreach(explode(',',config('custom_contenttype')) as $v) {
 		echo '<option value="'.$v.'">'.$v."</option>\n";
 	}
 ?>
 			</select>
-			<input name="custom_contenttype" type="hidden" value="<?php echo config('custom_contenttype'); ?>" />
+			<input
+                name="custom_contenttype"
+                type="hidden"
+                value="<?php echo config('custom_contenttype'); ?>"
+            />
 			</td>
 			<td valign="top">
-				&nbsp;<input name="removecontenttype" type="button" value="<?php echo lang('remove'); ?>" onclick='removeContentType()' />
+				&nbsp;<input
+                    name="removecontenttype"
+                    type="button"
+                    value="<?php echo lang('remove'); ?>"
+                    onclick='removeContentType()'
+                />
 			</td>
 			</tr>
 		</table><br />
