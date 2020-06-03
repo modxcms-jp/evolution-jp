@@ -1,189 +1,188 @@
-<?php
-	$site_unavailable_message_view = isset($site_unavailable_message) ? $site_unavailable_message : lang('siteunavailable_message_default');
-?>
 <!-- Site Settings -->
 <div class="tab-page" id="tabPage2">
 <h2 class="tab"><?php echo lang('settings_site') ?></h2>
 <style type="text/css">
-	table.settings {border-collapse:collapse;width:100%;}
-	table.settings tr {border-bottom:1px dotted #ccc;}
-	table.settings th {font-size:inherit;vertical-align:top;text-align:left;}
-	table.settings th,table.settings td {padding:5px;}
-	table.settings td input[type=text] {width:250px;}
+    table.settings {border-collapse:collapse;width:100%;}
+    table.settings tr {border-bottom:1px dotted #ccc;}
+    table.settings th {font-size:inherit;vertical-align:top;text-align:left;}
+    table.settings th,table.settings td {padding:5px;}
+    table.settings td input[type=text] {width:250px;}
 </style>
 <table class="settings">
 <tr>
-	<th><?php echo lang('sitestatus_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('online')
+    <th><?php echo lang('sitestatus_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('online')
                 , form_radio(
                     'site_status'
                     , 1
                     , config('site_status')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('offline')
+        <?php echo wrap_label(
+                lang('offline')
                 , form_radio(
                     'site_status'
                     , 0
                     ,config('site_status')==0
                 )
         );?><br />
-		<?php echo lang('sitestatus_message') ?>
-	</td>
+        <?php echo lang('sitestatus_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('sitename_title') ?></th>
-	<td>
-		<?php echo form_text('site_name');?><br />
-		<?php echo lang('sitename_message') ?>
-	</td>
+    <th><?php echo lang('sitename_title') ?></th>
+    <td>
+        <?php echo form_text('site_name');?><br />
+        <?php echo lang('sitename_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('site_slogan_title') ?></th>
-	<td>
-		<textarea
+    <th><?php echo lang('site_slogan_title') ?></th>
+    <td>
+        <textarea
             name="site_slogan"
             id="site_slogan"
             style="display:block;width:300px;height:4em;"
         ><?php echo config('site_slogan'); ?></textarea>
-		<?php echo lang('site_slogan_message') ?>
-	</td>
+        <?php echo lang('site_slogan_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('site_url_title') ?></th>
-	<td>
-		<?php echo form_text('site_url');?><br />
-		<?php echo evo()->parseText(
-		        lang('site_url_message')
+    <th><?php echo lang('site_url_title') ?></th>
+    <td>
+        <?php echo form_text('site_url');?><br />
+        <?php echo evo()->parseText(
+                lang('site_url_message')
                 , array('MODX_SITE_URL'=>MODX_SITE_URL))
         ?>
-	</td>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('base_url_title') ?></th>
-	<td>
-		<?php echo form_text('base_url');?><br />
-		<?php
+    <th><?php echo lang('base_url_title') ?></th>
+    <td>
+        <?php echo form_text('base_url');?><br />
+        <?php
             echo evo()->parseText(
                     lang('base_url_message')
                     , array('MODX_BASE_URL'=>MODX_BASE_URL)
             )
         ?>
-	</td>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('charset_title')?></th>
-	<td>
-		<select
+    <th><?php echo lang('charset_title')?></th>
+    <td>
+        <select
             name="modx_charset"
             size="1"
             class="inputBox"
             style="display:block;width:250px;"
         >
-		<?php include(MODX_CORE_PATH . 'charsets.php'); ?>
-		</select>
-		<?php echo lang('charset_message')?>
-	</td>
+        <?php include(MODX_CORE_PATH . 'charsets.php'); ?>
+        </select>
+        <?php echo lang('charset_message')?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('xhtml_urls_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('xhtml_urls_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                     'xhtml_urls'
                     , 1
                     , config('xhtml_urls')
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                     'xhtml_urls'
                     , 0
                     , !config('xhtml_urls')
                 )
         );?><br />
-		<?php echo lang('xhtml_urls_message') ?>
-	</td>
+        <?php echo lang('xhtml_urls_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('sitestart_title') ?></th>
-	<td>
-		<?php echo form_text('site_start',10);?><br />
-		<?php echo lang('sitestart_message') ?></td>
+    <th><?php echo lang('sitestart_title') ?></th>
+    <td>
+        <?php echo form_text('site_start',10);?><br />
+        <?php echo lang('sitestart_message') ?></td>
 </tr>
 <tr>
-	<th><?php echo lang('errorpage_title') ?></th>
-	<td>
-		<?php echo form_text('error_page',10);?><br />
-		<?php echo lang('errorpage_message') ?>
-	</td>
+    <th><?php echo lang('errorpage_title') ?></th>
+    <td>
+        <?php echo form_text('error_page',10);?><br />
+        <?php echo lang('errorpage_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('unauthorizedpage_title') ?></th>
-	<td>
-		<?php echo form_text('unauthorized_page',10);?><br />
-		<?php echo lang('unauthorizedpage_message') ?>
-	</td>
+    <th><?php echo lang('unauthorizedpage_title') ?></th>
+    <td>
+        <?php echo form_text('unauthorized_page',10);?><br />
+        <?php echo lang('unauthorizedpage_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('siteunavailable_page_title') ?></th>
-	<td>
-		<?php echo form_text('site_unavailable_page',10);?><br />
-		<?php echo lang('siteunavailable_page_message') ?>
-	</td>
+    <th><?php echo lang('siteunavailable_page_title') ?></th>
+    <td>
+        <?php echo form_text('site_unavailable_page',10);?><br />
+        <?php echo lang('siteunavailable_page_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('siteunavailable_title') ?><br />
-	<p>
-		<?php echo lang('update_settings_from_language'); ?>
-	</p>
-		<select
+    <th><?php echo lang('siteunavailable_title') ?><br />
+    <p>
+        <?php echo lang('update_settings_from_language'); ?>
+    </p>
+        <select
             name="reload_site_unavailable"
             id="reload_site_unavailable_select"
             onchange="confirmLangChange(this, 'siteunavailable_message_default', 'site_unavailable_message_textarea');"
         >
-			<?php echo get_lang_options('siteunavailable_message_default');?>
-		</select>
-	</th>
-	<td>
-		<textarea
+            <?php echo get_lang_options('siteunavailable_message_default');?>
+        </select>
+    </th>
+    <td>
+        <textarea
             name="site_unavailable_message"
             id="site_unavailable_message_textarea"
             style="width:100%; height: 120px;display:block;"
-        ><?php echo $site_unavailable_message_view; ?></textarea>
-		<input
+        ><?php
+            echo config('site_unavailable_message', lang('siteunavailable_message_default'));
+            ?></textarea>
+        <input
             type="hidden"
             name="siteunavailable_message_default"
             id="siteunavailable_message_default_hidden"
             value="<?php echo addslashes(lang('siteunavailable_message_default'));?>"
         />
-		<?php echo lang('siteunavailable_message');?>
-	</td>
+        <?php echo lang('siteunavailable_message');?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('defaulttemplate_title') ?></th>
-	<td>
-		<select
+    <th><?php echo lang('defaulttemplate_title') ?></th>
+    <td>
+        <select
             name="default_template"
             class="inputBox"
             onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo config('default_template');?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
             style="width:150px"
         >
-		<option value="">(blank)</option>
+        <option value="">(blank)</option>
 <?php
-	$rs = db()->select(
-	        't.templatename, t.id, c.category'
+    $rs = db()->select(
+            't.templatename, t.id, c.category'
             , "[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category = c.id"
             , ''
             , 'c.category, t.templatename ASC'
     );
-	$options = array();
-	while ($row = db()->getRow($rs)) {
+    $options = array();
+    while ($row = db()->getRow($rs)) {
         $options[
                 $row['category'] == null ? lang('no_category') : $row['category']
         ][] = array(
@@ -191,11 +190,11 @@
             'name'     => $row['templatename'],
             'selected' => (config('default_template')==$row['id'])
         );
-	}
-	$echo = array();
-	foreach($options as $category=>$templates) {
+    }
+    $echo = array();
+    foreach($options as $category=>$templates) {
         $group = array();
-	    foreach($templates as $template) {
+        foreach($templates as $template) {
             $group[] = sprintf(
                 '<option value="%s"%s>%s</option>'
                 , $template['id']
@@ -209,8 +208,8 @@
             , implode("\n", $group)
         );
     }
-	echo implode("\n", $echo);
-	echo '</select><br />';
+    echo implode("\n", $echo);
+    echo '</select><br />';
     foreach($options as $category=>$templates) {
         foreach ($templates as $template) {
             if(!($template['selected'])) {
@@ -222,27 +221,27 @@
         }
     }
 ?>
-		<div id="template_reset_options_wrapper" style="display:none;">
-			<?php echo wrap_label(
+        <div id="template_reset_options_wrapper" style="display:none;">
+            <?php echo wrap_label(
                 lang('template_reset_all')
                 , form_radio('reset_template','1')
             );
-			?><br />
-			<?php echo wrap_label(
-			        sprintf(
+            ?><br />
+            <?php echo wrap_label(
+                    sprintf(
                         lang('template_reset_specific')
                         , $savedTmpName
                     )
                     ,form_radio('reset_template', 2)
             );?>
-		</div>
-		<input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>" />
-		<?php echo lang('defaulttemplate_message') ?>
-	</td>
+        </div>
+        <input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>" />
+        <?php echo lang('defaulttemplate_message') ?>
+    </td>
 </tr>
 <tr>
 <th><?php echo lang('defaulttemplate_logic_title');?></th>
-	<td>
+    <td>
 <?php echo wrap_label(
         lang('defaulttemplate_logic_system_message')
         ,form_radio(
@@ -267,13 +266,13 @@
             , config('auto_template_logic') === 'sibling'
         )
 );?><br />
-	<?php echo lang('defaulttemplate_logic_general_message');?>
-	</td>
+    <?php echo lang('defaulttemplate_logic_general_message');?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('setting_cache_type') ?></th>
-	<td>
-		<?php echo wrap_label(
+    <th><?php echo lang('setting_cache_type') ?></th>
+    <td>
+        <?php echo wrap_label(
             lang('mutate_settings.dynamic.php1')
             , form_radio(
                 'cache_type'
@@ -281,349 +280,349 @@
                 , config('cache_type')==1
             )
         );?><br />
-		<?php echo wrap_label(
-		        lang('mutate_settings.dynamic.php2')
+        <?php echo wrap_label(
+                lang('mutate_settings.dynamic.php2')
                 , form_radio(
                     'cache_type'
                     , 2
                     , config('cache_type')==2
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('mutate_settings.dynamic.php3')
+        <?php echo wrap_label(
+                lang('mutate_settings.dynamic.php3')
                 , form_radio(
                     'cache_type'
                     , 0
                     , config('cache_type')==0
                 )
         );?><br />
-		<?php echo lang('setting_cache_type_desc') ?>
-	</td>
+        <?php echo lang('setting_cache_type_desc') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('setting_disable_cache_at_login') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('enabled')
+    <th><?php echo lang('setting_disable_cache_at_login') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('enabled')
                 , form_radio(
                     'disable_cache_at_login'
                     , 0
                     , config('disable_cache_at_login')==0
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('disabled')
+        <?php echo wrap_label(
+                lang('disabled')
                 , form_radio(
                     'disable_cache_at_login'
                     , 1
                     , config('disable_cache_at_login')==1
                 )
         );?><br />
-		<?php echo lang('setting_disable_cache_at_login_desc') ?>
-	</td>
+        <?php echo lang('setting_disable_cache_at_login_desc') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('setting_individual_cache') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('enabled')
+    <th><?php echo lang('setting_individual_cache') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('enabled')
                 , form_radio(
                     'individual_cache'
                     , 1
                     , config('individual_cache')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('disabled')
+        <?php echo wrap_label(
+                lang('disabled')
                 , form_radio(
                     'individual_cache'
                     , 0
                     , config('individual_cache')==0
                 )
         );?><br />
-		<?php echo lang('setting_individual_cache_desc') ?>
-	</td>
+        <?php echo lang('setting_individual_cache_desc') ?>
+    </td>
 </tr>
 <tr>
-	<th>旧式のキャッシュ機構</th>
-	<td>
-		<?php echo wrap_label(
-		        lang('enabled')
+    <th>旧式のキャッシュ機構</th>
+    <td>
+        <?php echo wrap_label(
+                lang('enabled')
                 , form_radio(
                         'legacy_cache'
                         , 1
                         , config('legacy_cache')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('disabled')
+        <?php echo wrap_label(
+                lang('disabled')
                 , form_radio(
                         'legacy_cache'
                         , 0
                         , config('legacy_cache')==0
                 )
         );?><br />
-		古いスニペット・プラグインは<a href="https://www.google.co.jp/search?q=modx+aliasListing+ddocumentMap+ocumentListing" target="_blank">旧式のキャッシュ機構</a>が有効でないと動作しないことがあります。その場合はこの設定を有効にしてください。このキャッシュ機構はサイトの規模が大きくなると負荷が高くなるため注意が必要です。
-	</td>
+        古いスニペット・プラグインは<a href="https://www.google.co.jp/search?q=modx+aliasListing+ddocumentMap+ocumentListing" target="_blank">旧式のキャッシュ機構</a>が有効でないと動作しないことがあります。その場合はこの設定を有効にしてください。このキャッシュ機構はサイトの規模が大きくなると負荷が高くなるため注意が必要です。
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('setting_conditional_get') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('enabled')
+    <th><?php echo lang('setting_conditional_get') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('enabled')
                 , form_radio(
                     'conditional_get'
                     , 1
                     , config('conditional_get')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('disabled')
+        <?php echo wrap_label(
+                lang('disabled')
                 , form_radio(
                     'conditional_get'
                     , 0
                     , config('conditional_get')==0
                 )
         );?><br />
-		<?php echo lang('setting_conditional_get_desc') ?>
-	</td>
+        <?php echo lang('setting_conditional_get_desc') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('defaultcache_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('defaultcache_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                         'cache_default'
                         , 1
                         , config('cache_default')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                         'cache_default'
                         , 0
                         , config('cache_default')==0
                 )
         );?><br />
-		<?php echo lang('defaultcache_message') ?>
-	</td>
+        <?php echo lang('defaultcache_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('defaultpublish_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('defaultpublish_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                         'publish_default'
                         , 1
                         , config('publish_default')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                         'publish_default'
                         , 0
                         , config('publish_default')==0
                 )
         );?><br />
-		<?php echo lang('defaultpublish_message') ?>
-	</td>
+        <?php echo lang('defaultpublish_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('defaultsearch_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('defaultsearch_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                     'search_default'
                     , 1
                     , config('search_default')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                     'search_default'
                     , 0
                     , config('search_default')==0
                 )
         );?><br />
-		<?php echo lang('defaultsearch_message') ?></td>
+        <?php echo lang('defaultsearch_message') ?></td>
 </tr>
 <tr>
-	<th><?php echo lang('defaultmenuindex_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('defaultmenuindex_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                         'auto_menuindex'
                         , 1
                         , config('auto_menuindex')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                     'auto_menuindex'
                     , 0
                     , config('auto_menuindex')==0
                 )
         );?><br />
-		<?php echo lang('defaultmenuindex_message') ?>
-	</td>
+        <?php echo lang('defaultmenuindex_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('docid_incrmnt_method_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('docid_incrmnt_method_0')
+    <th><?php echo lang('docid_incrmnt_method_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('docid_incrmnt_method_0')
                 , form_radio(
                     'docid_incrmnt_method'
                     , 0
                     , config('docid_incrmnt_method')==0
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('docid_incrmnt_method_1')
+        <?php echo wrap_label(
+                lang('docid_incrmnt_method_1')
                 , form_radio(
                     'docid_incrmnt_method'
-                     , 1
+                    , 1
                     , config('docid_incrmnt_method')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('docid_incrmnt_method_2')
+        <?php echo wrap_label(
+                lang('docid_incrmnt_method_2')
                 , form_radio(
                     'docid_incrmnt_method'
                     , 2
                     , config('docid_incrmnt_method')==2
                 )
         );?><br />
-		<?php echo lang('docid_incrmnt_method_message') ?>
-	</td>
+        <?php echo lang('docid_incrmnt_method_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('custom_contenttype_title') ?></th>
-	<td>
-		<?php echo form_text('txt_custom_contenttype',100,'style="width:200px;"');?>
-		<input
+    <th><?php echo lang('custom_contenttype_title') ?></th>
+    <td>
+        <?php echo form_text('txt_custom_contenttype',100,'style="width:200px;"');?>
+        <input
             type="button"
             value="<?php echo lang('add'); ?>"
             onclick='addContentType()'
         /><br />
-		<table>
-			<tr>
-			<td valign="top">
-			<select
+        <table>
+            <tr>
+            <td valign="top">
+            <select
                 name="lst_custom_contenttype"
                 style="width:200px;"
                 size="5"
             >
 <?php
-	foreach(explode(',',config('custom_contenttype')) as $v) {
-		echo '<option value="'.$v.'">'.$v."</option>\n";
-	}
+    foreach(explode(',',config('custom_contenttype')) as $v) {
+        echo '<option value="'.$v.'">'.$v."</option>\n";
+    }
 ?>
-			</select>
-			<input
+            </select>
+            <input
                 name="custom_contenttype"
                 type="hidden"
                 value="<?php echo config('custom_contenttype'); ?>"
             />
-			</td>
-			<td valign="top">
-				&nbsp;<input
+            </td>
+            <td valign="top">
+                &nbsp;<input
                     name="removecontenttype"
                     type="button"
                     value="<?php echo lang('remove'); ?>"
                     onclick='removeContentType()'
                 />
-			</td>
-			</tr>
-		</table><br />
-		<?php echo lang('custom_contenttype_message') ?>
-	</td>
+            </td>
+            </tr>
+        </table><br />
+        <?php echo lang('custom_contenttype_message') ?>
+    </td>
 </tr>
 
 <tr>
-	<th><?php echo lang('serveroffset_title') ?></th>
-	<td>
-		<select name="server_offset_time" size="1" class="inputBox">
+    <th><?php echo lang('serveroffset_title') ?></th>
+    <td>
+        <select name="server_offset_time" size="1" class="inputBox">
 <?php
-	for($i=-24; $i<25; $i++) {
-		$seconds = $i*60*60;
-		echo sprintf(
-		        '<option value="%s" %s>%s</option>'
+    for($i=-24; $i<25; $i++) {
+        $seconds = $i*60*60;
+        echo sprintf(
+                '<option value="%s" %s>%s</option>'
                 , $seconds
                 , $seconds==config('server_offset_time') ? "selected='selected'" : ''
             , $i
         );
-	}
+    }
 ?>
-		</select><br />
-		<?php printf(
-		        lang('serveroffset_message')
+        </select><br />
+        <?php printf(
+                lang('serveroffset_message')
                 , strftime('%H:%M:%S', time())
                 , strftime('%H:%M:%S', time()+config('server_offset_time')
                 )
         ); ?>
-	</td>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('server_protocol_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('server_protocol_http')
+    <th><?php echo lang('server_protocol_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('server_protocol_http')
                 , form_radio(
                     'server_protocol'
                     , 'http'
                     , config('server_protocol') === 'http'
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('server_protocol_https')
+        <?php echo wrap_label(
+                lang('server_protocol_https')
                 , form_radio(
                     'server_protocol'
                     , 'https'
                     , config('server_protocol') === 'https'
                 )
         );?><br />
-		<?php echo lang('server_protocol_message') ?>
-	</td>
+        <?php echo lang('server_protocol_message') ?>
+    </td>
 </tr>
 <tr>
-	<th><?php echo lang('track_visitors_title') ?></th>
-	<td>
-		<?php echo wrap_label(
-		        lang('yes')
+    <th><?php echo lang('track_visitors_title') ?></th>
+    <td>
+        <?php echo wrap_label(
+                lang('yes')
                 , form_radio(
                         'track_visitors'
                         , 1
                         , config('track_visitors')==1
                 )
         );?><br />
-		<?php echo wrap_label(
-		        lang('no')
+        <?php echo wrap_label(
+                lang('no')
                 , form_radio(
                     'track_visitors'
                     , 0
                     , config('track_visitors')==0));?><br />
-		<?php echo lang('track_visitors_message') ?>
-	</td>
+        <?php echo lang('track_visitors_message') ?>
+    </td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
-	<td colspan="2" style="padding:0;">
+    <td colspan="2" style="padding:0;">
 <?php
-	// invoke OnSiteSettingsRender event
-	$evtOut = evo()->invokeEvent('OnSiteSettingsRender');
-	if(is_array($evtOut)) {
+    // invoke OnSiteSettingsRender event
+    $evtOut = evo()->invokeEvent('OnSiteSettingsRender');
+    if(is_array($evtOut)) {
         echo implode('', $evtOut);
     }
 ?>
-	</td>
+    </td>
 </tr>
 </table>
 </div>
