@@ -232,12 +232,6 @@ class init {
             exit;
         }
     }
-    public static function session($key,$default=null) {
-        if(!isset($_SESSION[$key])) {
-            return $default;
-        }
-        return $_SESSION[$key];
-    }
     public static function real_ip() {
         if(isset($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
