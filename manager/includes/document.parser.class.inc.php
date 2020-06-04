@@ -5,8 +5,8 @@
  *
  */
 
-require_once(__DIR__.'/initialize.inc.php');
 require_once(__DIR__.'/helpers.php');
+require_once(__DIR__.'/initialize.inc.php');
 require_once(__DIR__.'/system.event.class.inc.php');
 
 class DocumentParser {
