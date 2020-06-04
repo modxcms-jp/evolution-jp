@@ -125,15 +125,15 @@ class init {
     }
     
     public static function get_host_name() {
-        if(!isset($_SERVER['HTTP_HOST'])) {
+        $host_name = serverv('server_name', serverv('HTTP_HOST'));
+        if(!$host_name) {
             return '';
         }
-        $host = $_SERVER['HTTP_HOST'];
-        $pos = strpos($host,':');
-        if($pos!==false && ($_SERVER['SERVER_PORT'] == 80 || static::is_ssl())) {
-            $host= substr($host,0,$pos);
+        $pos = strpos($host_name, ':');
+        if($pos!==false && (serverv('SERVER_PORT') == 80 || static::is_ssl())) {
+            return substr($host_name, 0, $pos);
         }
-        return $host;
+        return $host_name;
     }
     
     public static function get_site_url($base_url) {
