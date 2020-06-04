@@ -1,39 +1,20 @@
 <?php
 if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
 
-if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+if(!serverv('HTTP_ACCEPT_LANGUAGE')) {
     header('HTTP/1.0 404 Not Found');
     exit;
 }
 
-if (isset($_SESSION['mgrValidated']) && $_SESSION['usertype']!=='manager') {
+if (sessionv('mgrValidated') && sessionv('usertype')!=='manager') {
     @session_destroy();
 }
 
-$instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
-if (is_file($instcheck_path)) {
-    include_once($instcheck_path);
-    if (isset($installStartTime)) {
-        if (($_SERVER['REQUEST_TIME'] - $installStartTime) > 5 * 60) {
-            unlink($instcheck_path);
-        } elseif ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            if (isset($_COOKIE[session_name()])) {
-                session_unset();
-                @session_destroy();
-            }
-            $installGoingOn = 1;
-        }
-    }
-}
-if (isset($_GET['installGoingOn'])) {
-    $installGoingOn = $_GET['installGoingOn'];
-}
-
 // andrazk 20070416 - if session started before install and was not destroyed yet
-if (isset($lastInstallTime) && isset($_SESSION['modx.session.created.time']) && isset($_SESSION['mgrValidated'])) {
+if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
     if (
         ($_SESSION['modx.session.created.time'] < $lastInstallTime)
-        && $_SERVER['REQUEST_METHOD'] !== 'POST'
+        && sessionv('REQUEST_METHOD') !== 'POST'
     ) {
         if (isset($_COOKIE[session_name()])) {
             session_unset();
@@ -45,18 +26,18 @@ if (isset($lastInstallTime) && isset($_SESSION['modx.session.created.time']) && 
 }
 
 $style_path = MODX_MANAGER_PATH . 'media/style/';
-$theme_path = $style_path . $modx->conf_var('manager_theme') . "/";
+$theme_path = $style_path . evo()->config('manager_theme') . '/';
 $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
-if(!isset($_SESSION['mgrValidated']))
-{
-    if(isset($_GET['frame']) && !empty($_GET['frame'])) $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
-
+if(!sessionv('mgrValidated')) {
+    if(getv('frame')) {
+        $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+    }
     // include localized overrides
     include_once(
     sprintf(
         '%slang/%s.inc.php'
         , MODX_CORE_PATH
-        , $modx->conf_var('manager_language', 'english')
+        , evo()->conffig('manager_language', 'english')
     )
     );
 
@@ -98,14 +79,18 @@ if(!isset($_SESSION['mgrValidated']))
     $modx->setPlaceholder('year',date('Y'));
 
     // andrazk 20070416 - notify user of install/update
-    if (isset($installGoingOn)) {
-        switch ($installGoingOn) {
-            case 1 : $login_message = $_lang["login_cancelled_install_in_progress"]; break;
-            case 2 : $login_message = $_lang["login_cancelled_site_was_updated"]   ; break;
-        }
+    if (installGoingOn()) {
+        $login_message = array(
+            1 => $_lang['login_cancelled_install_in_progress'],
+            2 => $_lang['login_cancelled_site_was_updated']
+        );
         $modx->setPlaceholder(
             'login_message'
-            ,'<p><span class="fail">'.$login_message.'</p><p>'.$_lang["login_message"].'</p>'
+            , sprintf(
+                '<p><span class="fail">%s</span>span></p><p>%s</p>'
+                , $login_message[installGoingOn()]
+                , $_lang['login_message']
+            )
         );
     }
 
@@ -149,19 +134,22 @@ if(!isset($_SESSION['mgrValidated']))
     $modx->setPlaceholder('password',$_lang["password"]);
 
     // remember me
-    $html =  isset($_COOKIE['modx_remember_manager']) ? 'checked="checked"' :'';
-    $modx->setPlaceholder('remember_me',$html);
+    $modx->setPlaceholder(
+        'remember_me'
+        , cookiev('modx_remember_manager') ? 'checked="checked"' :''
+    );
     $modx->setPlaceholder('remember_username',$_lang["remember_username"]);
     $modx->setPlaceholder('login_button',$_lang["login_button"]);
 
     // load template
-    if(!isset($modx->config['manager_login_tpl']) || empty($modx->config['manager_login_tpl'])) {
-        $modx->config['manager_login_tpl'] = "{$style_path}common/login.tpl";
+    if(!evo()->config('manager_login_tpl')) {
+        $modx->config['manager_login_tpl'] = $style_path . 'common/login.tpl';
     }
 
-    $target = $modx->config['manager_login_tpl'];
-    if(isset($tpl) && !empty($tpl)) $login_tpl = $tpl;
-    elseif(substr($target,0,1)==='@') {
+    $target = evo()->config('manager_login_tpl');
+    if(isset($tpl) && !empty($tpl)) {
+        $login_tpl = $tpl;
+    } elseif(substr($target,0,1)==='@') {
         if(substr($target,0,6)==='@CHUNK') {
             $target = trim(substr($target,7));
             $login_tpl = $modx->getChunk($target);
@@ -196,8 +184,15 @@ if(!isset($_SESSION['mgrValidated']))
 
     // invoke OnManagerLoginFormRender event
     $evtOut = $modx->invokeEvent('OnManagerLoginFormRender');
-    $html = is_array($evtOut) ? '<div id="onManagerLoginFormRender">'.implode('',$evtOut).'</div>' : '';
-    $modx->setPlaceholder('OnManagerLoginFormRender',$html);
+    $modx->setPlaceholder(
+        'OnManagerLoginFormRender'
+        , is_array($evtOut)
+            ? sprintf(
+                '<div id="onManagerLoginFormRender">%s</div>'
+                , implode('', $evtOut)
+            )
+            : ''
+    );
 
     // merge placeholders
     $modx->output = $modx->parseDocumentSource($modx->output);
@@ -222,12 +217,10 @@ $fields['internalKey'] = $modx->getLoginUserID();
 $fields['username']    = $_SESSION['mgrShortname'];
 $fields['lasthit']     = $_SERVER['REQUEST_TIME'];
 $fields['action']      = $modx->manager->action;
-$fields['id']          = (isset($_REQUEST['id']) && preg_match('@^[0-9]+$@',$_REQUEST['id'])) ? $_REQUEST['id'] : 0;
-$fields['ip']          = $ip;
-if( $modx->manager->action !== 1)
-{
-    foreach($fields as $k=>$v)
-    {
+$fields['id']          = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? $_REQUEST['id'] : 0;
+$fields['ip']          = $modx->real_ip();
+if( $modx->manager->action != 1) {
+    foreach($fields as $k=>$v) {
         $keys[]   = $k;
         $values[] = $v;
     }
@@ -247,4 +240,27 @@ if( $modx->manager->action !== 1)
 }
 if(is_file($touch_path)) {
     unlink($touch_path);
+}
+
+function installGoingOn () {
+    global $installStartTime;
+    $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
+    if (is_file($instcheck_path)) {
+        include_once($instcheck_path);
+        if (isset($installStartTime)) {
+            if ((serverv('REQUEST_TIME') - $installStartTime) > 5 * 60) {
+                unlink($instcheck_path);
+            } elseif (serverv('REQUEST_METHOD') !== 'POST') {
+                if (isset($_COOKIE[session_name()])) {
+                    session_unset();
+                    @session_destroy();
+                }
+                return 1;
+            }
+        }
+    }
+    if (getv('installGoingOn')) {
+        return $_GET['installGoingOn'];
+    }
+    return false;
 }
