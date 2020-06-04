@@ -2,13 +2,13 @@
 // start cms session
 function startCMSSession() {
     global $site_sessionname;
-    
+
     $site_sessionname = 'evo' . base_convert(hash('crc32b', __FILE__), 16, 36);
     session_name($site_sessionname);
-    session_set_cookie_params(0,MODX_BASE_URL);
+    session_set_cookie_params(0, MODX_BASE_URL);
     session_start();
 
-    if(init::session('evo_sid_hash') !== md5(session_id())) {
+    if (sessionv('evo_sid_hash') !== md5(session_id())) {
         session_regenerate_id(true);
         $_SESSION['evo_sid_hash'] = md5(session_id());
     }
@@ -73,17 +73,22 @@ class init {
     
     public static function get_base_path() {
         $self = 'manager/includes/initialize.functions.inc';
-        return str_replace(array('\\', $self), array('/', ''), __FILE__);
+        return str_replace(
+            array('\\', $self)
+            , array('/', '')
+            , __FILE__
+        );
     }
     
     public static function get_base_url($base_path) {
         $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
         if(defined('IN_MANAGER_MODE')) {
-            if(strpos($SCRIPT_NAME,'/manager/')!==false) {
+            if (strpos($SCRIPT_NAME,'/manager/')!==false) {
                 return substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/manager/') + 1);
             }
-            elseif(strpos($SCRIPT_NAME,'/assets/')!==false)
-                return substr($SCRIPT_NAME,0,strrpos($SCRIPT_NAME,'/assets/')+1);
+            if(strpos($SCRIPT_NAME,'/assets/')!==false) {
+                return substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/assets/') + 1);
+            }
         }
         
         if(strpos($SCRIPT_NAME,'/install/')!==false) {
@@ -121,10 +126,12 @@ class init {
     }
     
     public static function get_site_url($base_url) {
-        $scheme = static::is_ssl() ? 'https://' : 'http://';
-        $host = static::get_host_name();
-        $site_url = "{$scheme}{$host}{$base_url}";
-        return rtrim($site_url,'/') . '/';
+        return sprintf(
+            '%s%s%s/'
+            , static::is_ssl() ? 'https://' : 'http://'
+            , static::get_host_name()
+            , rtrim($base_url, '/')
+        );
     }
     
     public static function is_ssl() {
@@ -134,7 +141,7 @@ class init {
             return false;
         }
 
-        if((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) === 'on') || $_SERVER['SERVER_PORT'] == $https_port) {
+        if(strtolower(serverv('HTTPS')) === 'on' || serverv('SERVER_PORT') == $https_port) {
             return true;
         }
 
@@ -143,18 +150,14 @@ class init {
     
     // set the document_root :|
     public static function fix_document_root() {
-        if (
-            isset($_SERVER['PATH_INFO'])
-            &&
-            (!isset($_SERVER['DOCUMENT_ROOT']) || !$_SERVER['DOCUMENT_ROOT'])
-        ) {
+        if (serverv('PATH_INFO') && !serverv('DOCUMENT_ROOT')) {
             $_SERVER['DOCUMENT_ROOT'] = str_replace(
             $_SERVER['PATH_INFO']
             , ''
             , str_replace(
                 '\\'
                 , '/'
-                , $_SERVER['PATH_TRANSLATED'])
+                , serverv('PATH_TRANSLATED'))
             ).'/';
         }
     }
@@ -212,11 +215,7 @@ class init {
     }
     
     public static function fix_favicon_req() {
-        // From WordPress wp_favicon_request() load.php
-        if(!isset($_SERVER['REQUEST_URI'])) {
-            return;
-        }
-        if($_SERVER['REQUEST_URI']==='/favicon.ico') {
+        if(serverv('REQUEST_URI')==='/favicon.ico') {
             header('Content-Type: image/vnd.microsoft.icon');
             header('Content-Length: 0');
             exit;
@@ -246,7 +245,7 @@ class init {
             return;
         }
 
-        if(isset($_SESSION['mgrLastlogin'])) {
+        if(sessionv('mgrLastlogin')) {
             $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
         } else {
             $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
@@ -254,15 +253,16 @@ class init {
     }
     
     public static function cookieExpiration() {
-        if (isset($_SESSION['mgrValidated'])) {
-            $key = 'modx.mgr.session.cookie.lifetime';
-        } else {
-            $key = 'modx.web.session.cookie.lifetime';
-        }
-        $lifetime = init::session($key, 0);
+        $lifetime = sessionv(
+            sprintf(
+                'modx.%s.session.cookie.lifetime'
+                , sessionv('mgrValidated') ? 'mgr' : 'web'
+            )
+            , 0
+        );
         if(!preg_match('@^[1-9][0-9]+$@',$lifetime)) {
             return 0;
         }
-        return $_SERVER['REQUEST_TIME'] + $lifetime;
+        return serverv('REQUEST_TIME',0) + $lifetime;
     }
 }
