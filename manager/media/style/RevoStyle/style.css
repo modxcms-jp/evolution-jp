@@ -326,14 +326,14 @@ input[type="submit"] {
 	margin-left: 5px;
 	-webkit-appearance: button;
 	background:-o-linear-gradient(#f5f5f5, #DDDDDD);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD); zoom:1;
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD);
 	border-radius:3px;
 }
 input[type="button"]:hover,
 input[type="submit"] {
 	border-color: green;
 	background:-o-linear-gradient(#FFFFFF, #EEEEEE);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFFFFF,endColorstr=#EEEEEE); zoom:1;
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFFFFF,endColorstr=#EEEEEE);
 }
 input.checkbox,
 input.radio,
@@ -506,7 +506,7 @@ ime-mode:disabled;
 .sectionHeader {
 	padding: 5px 9px 5px 15px;
 	background:-o-linear-gradient(#f5f5f5, #DDDDDD);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD); zoom:1;
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5,endColorstr=#DDDDDD);
 	background:-webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#DDDDDD));
 	background:linear-gradient(#f5f5f5, #DDDDDD);
 	-webkit-box-shadow:0px 1px 0px #fff inset;
@@ -929,7 +929,6 @@ a.hometblink:hover {
 #nav li.active ul.subnav a:hover {
 	color: #fff;
 	text-shadow: 0 0 2px #FFF;
-	zoom:1;
 	-ms-filter:"progid:DXImageTransform.Microsoft.DropShadow(color=#ffffff,offx=0,offy=0)";
 }
 #nav li.active ul.subnav a:active {
@@ -939,9 +938,8 @@ a.hometblink:hover {
 #nav li.active ul.subnav a {
 	background-color: #626262;
 	background:-o-linear-gradient(#626262, #444444);
-	filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#626262,endColorstr=#444444); zoom:1;
+	filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#626262,endColorstr=#444444);
 	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#626262,endColorstr=#444444, GradientType=0)";
-zoom:1;
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
@@ -1010,8 +1008,8 @@ zoom:1;
 	background-repeat:repeat-x;
 	background: none repeat scroll 0 0 #66901b;
 	text-shadow: 0px -1px 0px #222;
-			background:-o-linear-gradient(#8aae4b, #66901b);
-			filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#8aae4b,endColorstr=#66901b); zoom:1;
+	background:-o-linear-gradient(#8aae4b, #66901b);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#8aae4b,endColorstr=#66901b); 
 }
 #mx_contextmenu .seperator {
 	font-size: 0;
@@ -1361,7 +1359,6 @@ ul.actionButtons {
 	background:linear-gradient(#FAFAFA,#D2D2D2);
 	background:-o-linear-gradient(#FAFAFA,#D2D2D2);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#FAFAFA,endColorstr=#D2D2D2);
-	zoom:1;
 }
 
 .actionButtons a img {
@@ -1372,14 +1369,12 @@ ul.actionButtons {
 	border-color:#fff;
 	background:-o-linear-gradient(#fff,#E5E5E5);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff,endColorstr=#E5E5E5);
-	zoom:1;
 }
 
 .actionButtons a:active {
 	border-color:#F0F0F0;
 	background:-o-linear-gradient(#F0F0F0,#CECECE);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#F0F0F0,endColorstr=#CECECE);
-	zoom:1;
 }
 
 .actionButtons a.disabled {
