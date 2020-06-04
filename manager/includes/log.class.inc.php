@@ -16,10 +16,10 @@ class logHandler {
 
     public function initAndWriteLog($msg='', $internalKey='', $username='', $action='', $itemid='', $itemname='') {
         $this->setEntry($msg, $internalKey, $username, $itemname);
-        $this->writeToLog();
+        $this->writeToLog(evo()->input_any('a',0),evo()->input_any('id', 'x'));
     }
 
-    public function writeToLog() {
+    public function writeToLog($action_id=0, $item_id='x') {
         global $modx;
 
         if($this->entry['internalKey'] == '') {
@@ -28,7 +28,7 @@ class logHandler {
         }
         if($this->entry['msg'] == '') {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
-            $this->entry['msg'] = getAction(evo()->input_any('a',0), $this->entry['itemId']);
+            $this->entry['msg'] = getAction($action_id, $this->entry['itemId']);
             if($this->entry['msg'] == '') {
                 $this->logError("couldn't find message to write to log.");
                 return;
@@ -40,8 +40,8 @@ class logHandler {
                 'timestamp'   => time(),
                 'internalKey' => $modx->db->escape($this->entry['internalKey']),
                 'username'    => $modx->db->escape($this->entry['username']),
-                'action'      => evo()->input_any('a',0),
-                'itemid'      => evo()->input_any('id', 'x'),
+                'action'      => $action_id,
+                'itemid'      => $item_id,
                 'itemname'    => $modx->db->escape($this->entry['itemName']),
                 'message'     => $modx->db->escape($this->entry['msg'])
             )
