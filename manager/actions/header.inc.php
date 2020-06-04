@@ -7,8 +7,26 @@ global $manager_language,$modx_version;
 
 if($modx->config['remember_last_tab']!=='2')
 {
-	$tab = (isset($_GET['tab'])) ? intval($_GET['tab']) : '1';
-	setcookie('webfxtab_childPane', $tab, time()+3600, MODX_BASE_URL);
+	if(70300 <= PHP_VERSION_ID) {
+		setcookie(
+			'webfxtab_childPane'
+			, getv('tab', 1)
+			, [
+				'expires' => time()+3600,
+				'path' => MODX_BASE_URL,
+				'secure' => true,
+				'httponly' => true,
+				'samesite' => 'Lax',
+			]
+		);
+	} else {
+		setcookie(
+			'webfxtab_childPane'
+			, getv('tab', 1)
+			, time()+3600
+			, MODX_BASE_URL
+		);
+	}
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
