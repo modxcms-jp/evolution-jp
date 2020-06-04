@@ -28,29 +28,29 @@
                     ,config('site_status')==0
                 )
         );?><br />
-        <?php echo lang('sitestatus_message') ?>
+        <?php echo lang('sitestatus_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('sitename_title') ?></th>
+    <th><?php echo lang('sitename_title');?></th>
     <td>
         <?php echo form_text('site_name');?><br />
-        <?php echo lang('sitename_message') ?>
+        <?php echo lang('sitename_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('site_slogan_title') ?></th>
+    <th><?php echo lang('site_slogan_title');?></th>
     <td>
         <textarea
             name="site_slogan"
             id="site_slogan"
             style="display:block;width:300px;height:4em;"
         ><?php echo config('site_slogan'); ?></textarea>
-        <?php echo lang('site_slogan_message') ?>
+        <?php echo lang('site_slogan_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('site_url_title') ?></th>
+    <th><?php echo lang('site_url_title');?></th>
     <td>
         <?php echo form_text('site_url');?><br />
         <?php echo evo()->parseText(
@@ -60,7 +60,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('base_url_title') ?></th>
+    <th><?php echo lang('base_url_title');?></th>
     <td>
         <?php echo form_text('base_url');?><br />
         <?php
@@ -72,7 +72,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('charset_title')?></th>
+    <th><?php echo lang('charset_title');?></th>
     <td>
         <select
             name="modx_charset"
@@ -82,11 +82,11 @@
         >
         <?php include(MODX_CORE_PATH . 'charsets.php'); ?>
         </select>
-        <?php echo lang('charset_message')?>
+        <?php echo lang('charset_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('xhtml_urls_title') ?></th>
+    <th><?php echo lang('xhtml_urls_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -104,38 +104,38 @@
                     , !config('xhtml_urls')
                 )
         );?><br />
-        <?php echo lang('xhtml_urls_message') ?>
+        <?php echo lang('xhtml_urls_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('sitestart_title') ?></th>
+    <th><?php echo lang('sitestart_title');?></th>
     <td>
         <?php echo form_text('site_start',10);?><br />
-        <?php echo lang('sitestart_message') ?></td>
+        <?php echo lang('sitestart_message');?></td>
 </tr>
 <tr>
-    <th><?php echo lang('errorpage_title') ?></th>
+    <th><?php echo lang('errorpage_title');?></th>
     <td>
         <?php echo form_text('error_page',10);?><br />
-        <?php echo lang('errorpage_message') ?>
+        <?php echo lang('errorpage_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('unauthorizedpage_title') ?></th>
+    <th><?php echo lang('unauthorizedpage_title');?></th>
     <td>
         <?php echo form_text('unauthorized_page',10);?><br />
-        <?php echo lang('unauthorizedpage_message') ?>
+        <?php echo lang('unauthorizedpage_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('siteunavailable_page_title') ?></th>
+    <th><?php echo lang('siteunavailable_page_title');?></th>
     <td>
         <?php echo form_text('site_unavailable_page',10);?><br />
-        <?php echo lang('siteunavailable_page_message') ?>
+        <?php echo lang('siteunavailable_page_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('siteunavailable_title') ?><br />
+    <th><?php echo lang('siteunavailable_title');?><br />
     <p>
         <?php echo lang('update_settings_from_language'); ?>
     </p>
@@ -165,7 +165,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('defaulttemplate_title') ?></th>
+    <th><?php echo lang('defaulttemplate_title');?></th>
     <td>
         <select
             name="default_template"
@@ -236,7 +236,7 @@
             );?>
         </div>
         <input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>" />
-        <?php echo lang('defaulttemplate_message') ?>
+        <?php echo lang('defaulttemplate_message');?>
     </td>
 </tr>
 <tr>
@@ -270,7 +270,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('setting_cache_type') ?></th>
+    <th><?php echo lang('setting_cache_type');?></th>
     <td>
         <?php echo wrap_label(
             lang('mutate_settings.dynamic.php1')
@@ -296,11 +296,11 @@
                     , config('cache_type')==0
                 )
         );?><br />
-        <?php echo lang('setting_cache_type_desc') ?>
+        <?php echo lang('setting_cache_type_desc');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('setting_disable_cache_at_login') ?></th>
+    <th><?php echo lang('setting_disable_cache_at_login');?></th>
     <td>
         <?php echo wrap_label(
                 lang('enabled')
@@ -318,11 +318,11 @@
                     , config('disable_cache_at_login')==1
                 )
         );?><br />
-        <?php echo lang('setting_disable_cache_at_login_desc') ?>
+        <?php echo lang('setting_disable_cache_at_login_desc');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('setting_individual_cache') ?></th>
+    <th><?php echo lang('setting_individual_cache');?></th>
     <td>
         <?php echo wrap_label(
                 lang('enabled')
@@ -340,7 +340,7 @@
                     , config('individual_cache')==0
                 )
         );?><br />
-        <?php echo lang('setting_individual_cache_desc') ?>
+        <?php echo lang('setting_individual_cache_desc');?>
     </td>
 </tr>
 <tr>
@@ -366,7 +366,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('setting_conditional_get') ?></th>
+    <th><?php echo lang('setting_conditional_get');?></th>
     <td>
         <?php echo wrap_label(
                 lang('enabled')
@@ -384,11 +384,11 @@
                     , config('conditional_get')==0
                 )
         );?><br />
-        <?php echo lang('setting_conditional_get_desc') ?>
+        <?php echo lang('setting_conditional_get_desc');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('defaultcache_title') ?></th>
+    <th><?php echo lang('defaultcache_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -406,11 +406,11 @@
                         , config('cache_default')==0
                 )
         );?><br />
-        <?php echo lang('defaultcache_message') ?>
+        <?php echo lang('defaultcache_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('defaultpublish_title') ?></th>
+    <th><?php echo lang('defaultpublish_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -428,11 +428,11 @@
                         , config('publish_default')==0
                 )
         );?><br />
-        <?php echo lang('defaultpublish_message') ?>
+        <?php echo lang('defaultpublish_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('defaultsearch_title') ?></th>
+    <th><?php echo lang('defaultsearch_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -450,10 +450,10 @@
                     , config('search_default')==0
                 )
         );?><br />
-        <?php echo lang('defaultsearch_message') ?></td>
+        <?php echo lang('defaultsearch_message');?></td>
 </tr>
 <tr>
-    <th><?php echo lang('defaultmenuindex_title') ?></th>
+    <th><?php echo lang('defaultmenuindex_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -471,11 +471,11 @@
                     , config('auto_menuindex')==0
                 )
         );?><br />
-        <?php echo lang('defaultmenuindex_message') ?>
+        <?php echo lang('defaultmenuindex_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('docid_incrmnt_method_title') ?></th>
+    <th><?php echo lang('docid_incrmnt_method_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('docid_incrmnt_method_0')
@@ -501,11 +501,11 @@
                     , config('docid_incrmnt_method')==2
                 )
         );?><br />
-        <?php echo lang('docid_incrmnt_method_message') ?>
+        <?php echo lang('docid_incrmnt_method_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('custom_contenttype_title') ?></th>
+    <th><?php echo lang('custom_contenttype_title');?></th>
     <td>
         <?php echo form_text('txt_custom_contenttype',100,'style="width:200px;"');?>
         <input
@@ -543,12 +543,12 @@
             </td>
             </tr>
         </table><br />
-        <?php echo lang('custom_contenttype_message') ?>
+        <?php echo lang('custom_contenttype_message');?>
     </td>
 </tr>
 
 <tr>
-    <th><?php echo lang('serveroffset_title') ?></th>
+    <th><?php echo lang('serveroffset_title');?></th>
     <td>
         <select name="server_offset_time" size="1" class="inputBox">
 <?php
@@ -572,7 +572,7 @@
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('server_protocol_title') ?></th>
+    <th><?php echo lang('server_protocol_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('server_protocol_http')
@@ -590,11 +590,11 @@
                     , config('server_protocol') === 'https'
                 )
         );?><br />
-        <?php echo lang('server_protocol_message') ?>
+        <?php echo lang('server_protocol_message');?>
     </td>
 </tr>
 <tr>
-    <th><?php echo lang('track_visitors_title') ?></th>
+    <th><?php echo lang('track_visitors_title');?></th>
     <td>
         <?php echo wrap_label(
                 lang('yes')
@@ -610,7 +610,7 @@
                     'track_visitors'
                     , 0
                     , config('track_visitors')==0));?><br />
-        <?php echo lang('track_visitors_message') ?>
+        <?php echo lang('track_visitors_message');?>
     </td>
 </tr>
 <tr class="row1" style="border-bottom:none;">
