@@ -12,29 +12,12 @@ function startCMSSession() {
         session_regenerate_id(true);
         $_SESSION['evo_sid_hash'] = md5(session_id());
     }
-
-    if (isset($_SESSION['mgrValidated']) || isset($_SESSION['webValidated'])) {
-        setcookie(
-            $site_sessionname
-            , session_id()
-            , init::cookieExpiration()
-            , MODX_BASE_URL
-            , ''
-            , false
-            , true
-        );
+    if (sessionv('mgrValidated') || sessionv('webValidated')) {
+        init::secure_setcookie(init::cookieExpiration());
         init::set_session_create_time();
         return;
     }
-    setcookie(
-        $site_sessionname
-        , session_id()
-        , 0
-        , MODX_BASE_URL
-        , ''
-        , false
-        , true
-    );
+    init::secure_setcookie(0);
 }
 
 function set_parser_mode() {
@@ -70,7 +53,35 @@ class init {
         header('Pragma: no-cache');
         header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
-    
+
+    public static function secure_setcookie($expires) {
+        global $site_sessionname;
+        if(70300 <= PHP_VERSION_ID) {
+            setcookie(
+                $site_sessionname
+                , session_id()
+                , [
+                    'expires' => $expires,
+                    'path' => MODX_BASE_URL,
+                    'secure' => init::is_ssl() ? true : false,
+                    'domain' => init::get_host_name(),
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]
+            );
+            return;
+        }
+        setcookie(
+            $site_sessionname
+            , session_id()
+            , $expires
+            , MODX_BASE_URL
+            , ''
+            , init::is_ssl() ? true : false
+            , true
+        );
+    }
+
     public static function get_base_path() {
         $self = 'manager/includes/initialize.functions.inc';
         return str_replace(
