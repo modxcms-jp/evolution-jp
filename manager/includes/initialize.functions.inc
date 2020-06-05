@@ -75,7 +75,7 @@ class init {
             $site_sessionname
             , session_id()
             , $expires
-            , MODX_BASE_URL
+            , MODX_BASE_URL . '; SameSite=Lax'
             , ''
             , init::is_ssl() ? true : false
             , true
