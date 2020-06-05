@@ -1,34 +1,35 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('move_document') || !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
+if (!$modx->hasPermission('move_document') || !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
     $e->setError(3);
     $e->dumpError();
 }
 
-if(isset($_REQUEST['id'])) {
+if (isset($_REQUEST['id'])) {
     $id = (int)$_REQUEST['id'];
-} elseif(isset($_REQUEST['batch'])) {
-    $id = join(',',$_REQUEST['batch']);
+} elseif (isset($_REQUEST['batch'])) {
+    $id = join(',', $_REQUEST['batch']);
 } else {
     $e->setError(2);
     $e->dumpError();
 }
 
 // check permissions on the document
-if(!$modx->checkPermissions($id)) {
+if (!$modx->checkPermissions($id)) {
     show_perm_error();
     exit;
 }
 
 echo get_src_js();
 $parent = get_parentid($id);
-echo get_src_content($id,$parent);
+echo get_src_content($id, $parent);
 
 
-
-function get_src_content($id,$parent) {
-    global $_lang,$_style;
-    $redirect = $parent==0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
+function get_src_content($id, $parent) {
+    global $_lang, $_style;
+    $redirect = $parent == 0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
     $src = <<< EOT
 <h1>{$_lang['move_resource_title']}</h1>
 <div id="actions">
@@ -57,12 +58,12 @@ EOT;
 }
 
 function batch_move() {
-    foreach($_REQUEST['batch'] as $v) {
-        $ids[] = sprintf("id='%s'",db()->escape($v));
+    foreach ($_REQUEST['batch'] as $v) {
+        $ids[] = sprintf("id='%s'", db()->escape($v));
     }
     $where = implode(' OR ', $ids);
     $rs = db()->select('pagetitle', '[+prefix+]site_content', $where);
-    while($row=db()->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         echo $row['pagetitle'] . '<br />';
     }
 }
@@ -120,7 +121,9 @@ EOT;
 }
 
 function get_parentid($id) {
-    if(strpos($id,',')) $id = substr($id,0,strpos($id,','));
+    if (strpos($id, ',')) {
+        $id = substr($id, 0, strpos($id, ','));
+    }
     $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
     return db()->getValue($rs);
 }

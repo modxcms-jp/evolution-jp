@@ -1,12 +1,12 @@
 <?php
-function getTmplvars($docid,$template_id,$docgrp) {
-    
-    if(!$template_id) {
+function getTmplvars($docid, $template_id, $docgrp) {
+
+    if (!$template_id) {
         return array();
     }
-    
+
     static $tmplVars = null;
-    if($tmplVars!==null) {
+    if ($tmplVars !== null) {
         return $tmplVars;
     }
 
@@ -24,15 +24,15 @@ function getTmplvars($docid,$template_id,$docgrp) {
             '',
         'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
     );
-    
+
     $rs = db()->select(
         array(
             'DISTINCT tv.*',
             'value'
-                => $docid ?
-                    "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
-                    :
-                    'tv.default_text'
+            => $docid ?
+                "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
+                :
+                'tv.default_text'
         )
         , $from
         , sprintf(
@@ -44,27 +44,26 @@ function getTmplvars($docid,$template_id,$docgrp) {
         , 'tvtpl.rank,tv.rank, tv.id'
     );
 
-    if(!db()->getRecordCount($rs)) {
+    if (!db()->getRecordCount($rs)) {
         return array();
     }
     while ($row = db()->getRow($rs)) {
-        $tmplVars['tv'.$row['id']] = $row;
+        $tmplVars['tv' . $row['id']] = $row;
     }
     return $tmplVars;
 }
 
-function rteContent($htmlcontent,$editors) {
+function rteContent($htmlcontent, $editors) {
     return textarea_tag(
             array(
-                'id'    => 'ta',
-                'name'  => 'ta',
+                'id' => 'ta',
+                'name' => 'ta',
                 'style' => 'width:100%;height:350px;'
             )
             , $htmlcontent
         )
-        . html_tag('<span>', array('class'=>'warning'), lang('which_editor_title'))
-        . getEditors($editors)
-        ;
+        . html_tag('<span>', array('class' => 'warning'), lang('which_editor_title'))
+        . getEditors($editors);
 }
 
 function getEditors($editors) {
@@ -72,25 +71,25 @@ function getEditors($editors) {
         return '';
     }
 
-    if(!$editors) {
+    if (!$editors) {
         return '';
     }
 
     $options = array(
-        html_tag('<option>', array('value'=>'none'), lang('none'))
+        html_tag('<option>', array('value' => 'none'), lang('none'))
     );
     foreach ($editors as $editor) {
         $options[] = html_tag(
             '<option>'
             , array(
-                'value'    => $editor,
-                'selected' => evo()->input_post('which_editor',config('which_editor')) === $editor ? null : ''
+                'value' => $editor,
+                'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
             )
             , $editor
         );
     }
     return select_tag(array(
-            'id'   => 'which_editor',
+            'id' => 'which_editor',
             'name' => 'which_editor'
         )
         , implode("\n", $options)
@@ -106,7 +105,7 @@ function sectionContent() {
         return '';
     }
     $ph['header'] = lang('resource_content');
-    $planetpl = function($content) {
+    $planetpl = function ($content) {
         return sprintf(
             '<textarea class="phptextarea" id="ta" name="ta" style="width:100%%; height: 400px;">%s</textarea>'
             , $content
@@ -114,7 +113,7 @@ function sectionContent() {
     };
     if (config('use_editor') && doc('richtext')) {
         $editors = evo()->invokeEvent('OnRichTextEditorRegister');
-        if($editors) {
+        if ($editors) {
             $ph['body'] = rteContent(doc('content|hsc'), $editors);
         } else {
             $ph['body'] = $planetpl(doc('content|hsc'));
@@ -123,7 +122,7 @@ function sectionContent() {
         $ph['body'] = $planetpl(doc('content|hsc'));
     }
 
-    return parseText(file_get_tpl('section_content.tpl'),$ph);
+    return parseText(file_get_tpl('section_content.tpl'), $ph);
 }
 
 function sectionTV($tpl, $fields) {
@@ -135,15 +134,15 @@ function sectionTV($tpl, $fields) {
 
 function rte_fields() {
     static $rte_fields = null;
-    if($rte_fields!==null) {
+    if ($rte_fields !== null) {
         return $rte_fields;
     }
     $rte_fields = array();
-    if (config('use_editor')== 1 && doc('richtext') == 1) {
+    if (config('use_editor') == 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
-    $tmplVars = getTmplvars(request_intvar('id'),doc('template'),getDocgrp());
-    foreach($tmplVars as $tv) {
+    $tmplVars = getTmplvars(request_intvar('id'), doc('template'), getDocgrp());
+    foreach ($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
         if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
@@ -157,7 +156,7 @@ function getGroups($docid) {
     // Load up, the permissions from the parent (if new document) or existing document
     $rs = db()->select(
         'id, document_group'
-        ,'[+prefix+]document_groups'
+        , '[+prefix+]document_groups'
         , sprintf("document='%s'", $docid)
     );
     $groups = array();
@@ -214,7 +213,7 @@ function getUDGroups($id) {
     // retain selected doc groups between post
     if ($docid && postv('docgroups')) {
         $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
-    } elseif($docid) {
+    } elseif ($docid) {
         $groupsarray = getGroups($docid);
     } else {
         $groupsarray = postv('docgroups');
@@ -283,18 +282,18 @@ function getUDGroups($id) {
                 , sprintf("<input %s />\n", implode(' ', $inputString))
                 . html_tag(
                     'label'
-                    , array('for'=>'group-' . $row['id'])
+                    , array('for' => 'group-' . $row['id'])
                     , $row['name']
                 )
             );
     }
 
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if(sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
+    if (sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
         return array();
     }
 
-    if($permissions) {
+    if ($permissions) {
         // Add the "All Document Groups" item if we have rights in both contexts
         if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
             array_unshift(
@@ -302,18 +301,18 @@ function getUDGroups($id) {
                 , html_tag(
                     '<li>'
                     , array(),
-                    html_tag('<input>',array(
-                            'type'=> 'checkbox',
-                            'class'=> 'checkbox',
-                            'name'=> 'chkalldocs',
-                            'id'=>'groupall',
+                    html_tag('<input>', array(
+                            'type' => 'checkbox',
+                            'class' => 'checkbox',
+                            'name' => 'chkalldocs',
+                            'id' => 'groupall',
                             'checked' => !$notPublic ? null : '',
-                            'onclick'=> 'makePublic(true);'
+                            'onclick' => 'makePublic(true);'
                         )
                     )
                     . html_tag('label', array(
-                            'for'=> 'groupall',
-                            'class'=> 'warning'
+                            'for' => 'groupall',
+                            'class' => 'warning'
                         )
                         , lang('all_doc_groups')))
             );
@@ -324,20 +323,20 @@ function getUDGroups($id) {
     return $permissions;
 }
 
-function mergeDraft($id,$content) {
+function mergeDraft($id, $content) {
     $draft = evo()->revision->getDraft($id);
-    foreach($content as $k=>$v) {
-        if(!is_array($v)) {
+    foreach ($content as $k => $v) {
+        if (!is_array($v)) {
             continue;
         }
         $tvid = 'tv' . $v['id'];
-        if(isset($draft[$tvid])) {
+        if (isset($draft[$tvid])) {
             $content[$k]['value'] = $draft[$tvid];
             unset($draft[$tvid]);
         }
     }
     $content = array_merge($content, $draft);
-    if(!hasPermission('publish_document')) {
+    if (!hasPermission('publish_document')) {
         $content['published'] = '0';
     }
     return $content;
@@ -347,11 +346,11 @@ function tooltip($msg) {
     return img_tag(
         style('icons_tooltip')
         , array(
-            'alt'     => $msg,
-            'title'   => $msg,
+            'alt' => $msg,
+            'title' => $msg,
             'onclick' => 'alert(this.alt);',
-            'style'   => 'cursor:help;margin-left:5px;',
-            'class'   => 'tooltip'
+            'style' => 'cursor:help;margin-left:5px;',
+            'class' => 'tooltip'
         )
     );
 }
@@ -359,7 +358,7 @@ function tooltip($msg) {
 function get_alias_path($id) {
     $pid = (int)$_REQUEST['pid'];
 
-    if (config('use_alias_path')==='0') {
+    if (config('use_alias_path') === '0') {
         return MODX_BASE_URL;
     }
 
@@ -375,27 +374,26 @@ function get_alias_path($id) {
         $path = evo()->getAliasListing($id, 'path');
     }
 
-    if($path === '') {
+    if ($path === '') {
         $path = MODX_BASE_URL;
     } else {
         $path = MODX_BASE_URL . $path . '/';
     }
 
-    if(30 < strlen($path)) {
+    if (30 < strlen($path)) {
         $path .= '<br />';
     }
     return $path;
 }
 
-function renderTr($head, $body,$rowstyle='') {
-    if(!is_array($head)) {
+function renderTr($head, $body, $rowstyle = '') {
+    if (!is_array($head)) {
         $ph['head'] = $head;
         $ph['extra_head'] = '';
-    }
-    else {
+    } else {
         $i = 0;
-        foreach($head as $v) {
-            if($i===0) {
+        foreach ($head as $v) {
+            if ($i === 0) {
                 $ph['head'] = $v;
             } else {
                 $extra_head[] = $v;
@@ -404,7 +402,7 @@ function renderTr($head, $body,$rowstyle='') {
         }
         $ph['extra_head'] = join("\n", $extra_head);
     }
-    if(is_array($body)) {
+    if (is_array($body)) {
         $body = join("\n", $body);
     }
     $ph['body'] = $body;
@@ -415,13 +413,13 @@ function renderTr($head, $body,$rowstyle='') {
 
 function getDefaultTemplate() {
     static $default_template = null;
-    if($default_template!==null) {
+    if ($default_template !== null) {
         return $default_template;
     }
 
     $default_template = config('default_template');
 
-    if(!request_intvar('pid')) {
+    if (!request_intvar('pid')) {
         return $default_template;
     }
 
@@ -456,7 +454,7 @@ function checkPermissions($id) {
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
-    if (!isset($_GET['pid'])&&!$isAllowed) {
+    if (!isset($_GET['pid']) && !$isAllowed) {
         alert()->setError(3);
         alert()->dumpError();
     }
@@ -472,10 +470,10 @@ function checkPermissions($id) {
         if (!evo()->checkPermissions($id)) {
             $_ = array();
             $_[] = '<br /><br /><div class="section">';
-            $_[] = sprintf('<div class="sectionHeader">%s</div>',lang('access_permissions'));
+            $_[] = sprintf('<div class="sectionHeader">%s</div>', lang('access_permissions'));
             $_[] = '<div class="sectionBody">';
-            $_[] = sprintf('<p>%s</p></div></div>',lang('access_permission_denied'));
-            echo implode("\n",$_);
+            $_[] = sprintf('<p>%s</p></div></div>', lang('access_permission_denied'));
+            echo implode("\n", $_);
         }
     } elseif ($i == 72 || $i == 4) {
         if (!hasPermission('new_document')) {
@@ -483,7 +481,7 @@ function checkPermissions($id) {
             alert()->dumpError();
         }
         if (evo()->input_any('pid')) {
-            if (!evo()->checkPermissions(evo()->input_any('pid',0))) {
+            if (!evo()->checkPermissions(evo()->input_any('pid', 0))) {
                 alert()->setError(3);
                 alert()->dumpError();
             }
@@ -524,14 +522,15 @@ function checkDocLock($id) {
 
 // get document groups for current user
 function getDocgrp() {
-    if (isset($_SESSION['mgrDocgroups'])||!empty($_SESSION['mgrDocgroups'])) {
+    if (isset($_SESSION['mgrDocgroups']) || !empty($_SESSION['mgrDocgroups'])) {
         return implode(',', $_SESSION['mgrDocgroups']);
+    } else {
+        return '';
     }
-    else return '';
 }
 
-function db_value($id,$docgrp) {
-    if($id==='0') {
+function db_value($id, $docgrp) {
+    if ($id === '0') {
         return array();
     }
 
@@ -541,7 +540,9 @@ function db_value($id,$docgrp) {
         , sprintf(
             "sc.id='%s' %s"
             , $id
-            , ($_SESSION['mgrRole']==1 || !$docgrp) ? '' : sprintf('AND (sc.privatemgr=0 OR dg.document_group IN (%s))', $docgrp)
+            ,
+            ($_SESSION['mgrRole'] == 1 || !$docgrp) ? '' : sprintf('AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
+                $docgrp)
         )
     );
     $limit = db()->getRecordCount($rs);
@@ -556,21 +557,21 @@ function db_value($id,$docgrp) {
     return db()->getRow($rs);
 }
 
-function default_value($parent_id,$new_template_id) {
+function default_value($parent_id, $new_template_id) {
     return array(
-        'menuindex'     => getMenuIndexAtNew($parent_id),
-        'alias'         => getAliasAtNew(),
-        'richtext'      => config('use_editor'),
-        'published'     => config('publish_default'),
-        'contentType'   => 'text/html',
+        'menuindex' => getMenuIndexAtNew($parent_id),
+        'alias' => getAliasAtNew(),
+        'richtext' => config('use_editor'),
+        'published' => config('publish_default'),
+        'contentType' => 'text/html',
         'content_dispo' => '0',
-        'which_editor'  => config('which_editor'),
-        'searchable'    => config('search_default'),
-        'cacheable'     => config('cache_default'),
-        'type'          => manager()->action==72 ? 'reference' : 'document',
-        'richtext'      => manager()->action==72 ? 0 : 1,
-        'parent'        => $parent_id,
-        'template'      => $new_template_id ? $new_template_id : getDefaultTemplate()
+        'which_editor' => config('which_editor'),
+        'searchable' => config('search_default'),
+        'cacheable' => config('cache_default'),
+        'type' => manager()->action == 72 ? 'reference' : 'document',
+        'richtext' => manager()->action == 72 ? 0 : 1,
+        'parent' => $parent_id,
+        'template' => $new_template_id ? $new_template_id : getDefaultTemplate()
     );
 }
 
@@ -580,10 +581,10 @@ function mergeReloadValues($docObject) {
         $populate = manager()->loadFormValues();
         if ($populate) {
             $docObject = array_merge($docObject, $populate);
-            if(evo()->array_get($populate,'ta')) {
+            if (evo()->array_get($populate, 'ta')) {
                 $docObject['content'] = $populate['ta'];
             }
-            if(evo()->array_get($populate,'which_editor')) {
+            if (evo()->array_get($populate, 'which_editor')) {
                 $docObject['which_editor'] = $populate['which_editor'];
             }
         }
@@ -603,8 +604,8 @@ function mergeReloadValues($docObject) {
     return $docObject;
 }
 
-function checkViewUnpubDocPerm($published,$editedby) {
-    if(manager()->action!=27 || hasPermission('view_unpublished') || $published) {
+function checkViewUnpubDocPerm($published, $editedby) {
+    if (manager()->action != 27 || hasPermission('view_unpublished') || $published) {
         return;
     }
 
@@ -618,7 +619,7 @@ function checkViewUnpubDocPerm($published,$editedby) {
 
 // increase menu index if this is a new document
 function getMenuIndexAtNew($parent_id) {
-    if (config('auto_menuindex')==1) {
+    if (config('auto_menuindex') == 1) {
         return db()->getValue(
                 db()->select(
                     'count(id)'
@@ -631,7 +632,7 @@ function getMenuIndexAtNew($parent_id) {
 }
 
 function getAliasAtNew() {
-    if(config('automatic_alias') === '2') {
+    if (config('automatic_alias') === '2') {
         return manager()->get_alias_num_in_folder(
             0
             , request_intvar('pid')
@@ -645,13 +646,13 @@ function getJScripts($docid) {
     $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
     $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
     $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?Type=files');
-    $ph['preview_url']  = evo()->makeUrl($docid,'','','full',true);
-    $ph['preview_mode'] = config('preview_mode',1);
+    $ph['preview_url'] = evo()->makeUrl($docid, '', '', 'full', true);
+    $ph['preview_mode'] = config('preview_mode', 1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');
     $ph['lang_confirm_delete_draft_resource'] = lang('confirm_delete_draft_resource');
     $ph['lang_confirm_undelete'] = lang('confirm_undelete');
     $ph['id'] = $docid;
-    $ph['docParent']   = doc('parent');
+    $ph['docParent'] = doc('parent');
     $ph['docIsFolder'] = doc('isfolder');
     $ph['docMode'] = evo()->doc->mode;
     $ph['lang_mutate_content.dynamic.php1'] = lang('mutate_content.dynamic.php1');
@@ -684,37 +685,37 @@ EOT;
  * @param null $default
  * @return array|mixed|string|null
  */
-function doc($key, $default=null) {
-    global $modx,$docObject;
-    if(isset($docObject)) {
+function doc($key, $default = null) {
+    global $modx, $docObject;
+    if (isset($docObject)) {
         $doc = $docObject;
-    } elseif(isset($modx->documntObject)) {
+    } elseif (isset($modx->documntObject)) {
         $doc = &$modx->documntObject;
     }
-    if(strpos($key, '*') === 0) {
+    if (strpos($key, '*') === 0) {
         $value = $default;
-        $doc[substr($key,1)] = $value;
+        $doc[substr($key, 1)] = $value;
         return $value;
     }
-    if(str_contains($key,'@parent')) {
+    if (str_contains($key, '@parent')) {
         $a = evo()->getDocumentObject('id', doc('parent'));
         $key = str_replace('@parent', '', $key);
     } else {
         $a = $doc;
     }
-    if(str_contains($key,'|hsc')) {
+    if (str_contains($key, '|hsc')) {
         return hsc(
             evo()->array_get(
                 $a
-                , str_replace('|hsc','',$key, $default)
+                , str_replace('|hsc', '', $key, $default)
             )
         );
     }
     return evo()->array_get($a, $key, $default);
 }
 
-function file_get_tpl ($path) {
-    if(is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
+function file_get_tpl($path) {
+    if (is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
         return file_get_contents(MODX_BASE_PATH . config('custom_tpl_dir') . $path);
     }
     return file_get_contents(tpl_base_dir() . $path);
@@ -727,35 +728,35 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'id' => $id,
         'upload_maxsize' => config('upload_maxsize', 3145728),
         'mode' => manager()->action,
-        'a' =>  (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
+        'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),
-        'title' => (evo()->doc->mode==='normal') ? lang('create_resource_title') : lang('create_draft_title'),
-        'class' => (evo()->doc->mode==='normal') ? '' : 'draft',
+        'title' => (evo()->doc->mode === 'normal') ? lang('create_resource_title') : lang('create_draft_title'),
+        'class' => (evo()->doc->mode === 'normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
         'actionButtons' => getActionButtons($id),
         'token' => manager()->makeToken(),
-        'OnDocFormRender'      => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
+        'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
-        'remember_last_tab' =>  (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
+        'remember_last_tab' => (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
     );
 }
 
 function collect_tab_general_ph($docid) {
     return array(
         '_lang_settings_general' => lang('settings_general'),
-        'fieldPagetitle'   => fieldPagetitle(),
-        'fieldLongtitle'   => fieldLongtitle(),
+        'fieldPagetitle' => fieldPagetitle(),
+        'fieldLongtitle' => fieldLongtitle(),
         'fieldDescription' => fieldDescription(),
-        'fieldAlias'       => fieldAlias($docid),
-        'fieldWeblink'     => doc('type')==='reference' ? fieldWeblink() : '',
-        'fieldIntrotext'   => fieldIntrotext(),
-        'fieldTemplate'    => fieldTemplate(),
-        'fieldMenutitle'   => fieldMenutitle(),
-        'fieldMenuindex'   => fieldMenuindex(),
-        'renderSplit'      => renderSplit(),
-        'fieldParent'      => fieldParent(),
-        'sectionContent' =>  sectionContent(),
-        'sectionTV'      =>  config('tvs_below_content',1)
+        'fieldAlias' => fieldAlias($docid),
+        'fieldWeblink' => doc('type') === 'reference' ? fieldWeblink() : '',
+        'fieldIntrotext' => fieldIntrotext(),
+        'fieldTemplate' => fieldTemplate(),
+        'fieldMenutitle' => fieldMenutitle(),
+        'fieldMenuindex' => fieldMenuindex(),
+        'renderSplit' => renderSplit(),
+        'fieldParent' => fieldParent(),
+        'sectionContent' => sectionContent(),
+        'sectionTV' => config('tvs_below_content', 1)
             ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
     );
 }
@@ -770,8 +771,8 @@ function collect_tab_tv_ph() {
 function collect_tab_settings_ph($docid) {
     $ph = array();
     $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
-    $ph['fieldPublished']  = evo()->doc->mode==='normal' ? fieldPublished() : '';
-    $ph['fieldPub_date']   = fieldPub_date($docid);
+    $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';
+    $ph['fieldPub_date'] = fieldPub_date($docid);
     $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
 
     $ph['renderSplit1'] = $ph['fieldPub_date'] ? renderSplit() : '';
@@ -795,11 +796,11 @@ function collect_tab_settings_ph($docid) {
         )
     ) : fieldContent_dispo();
     $ph['fieldLink_attributes'] = fieldLink_attributes();
-    $ph['fieldIsfolder']   = fieldIsfolder();
-    $ph['fieldRichtext']   = fieldRichtext();
-    $ph['fieldDonthit']    = config('track_visitors')==='1' ? fieldDonthit() : '';
+    $ph['fieldIsfolder'] = fieldIsfolder();
+    $ph['fieldRichtext'] = fieldRichtext();
+    $ph['fieldDonthit'] = config('track_visitors') === '1' ? fieldDonthit() : '';
     $ph['fieldSearchable'] = fieldSearchable();
-    $ph['fieldCacheable']  = doc('type') === 'document' ? fieldCacheable() : '';
-    $ph['fieldSyncsite']   = fieldSyncsite();
+    $ph['fieldCacheable'] = doc('type') === 'document' ? fieldCacheable() : '';
+    $ph['fieldSyncsite'] = fieldSyncsite();
     return $ph;
 }

@@ -1,22 +1,24 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 
 include_once(__DIR__ . '/mutate_content/functions.php');
-include_once(tpl_base_dir().'fields.php');
-include_once(tpl_base_dir().'action_buttons.php');
+include_once(tpl_base_dir() . 'fields.php');
+include_once(tpl_base_dir() . 'action_buttons.php');
 
 // $modx->config['custom_tpl_dir'] = 'manager/actions/document/mutate_content/test/';
 
 evo()->loadExtension('DocAPI');
 
-if(manager()->action==132||manager()->action==131) {
+if (manager()->action == 132 || manager()->action == 131) {
     $modx->doc->mode = 'draft';
 } else {
     $modx->doc->mode = 'normal';
 }
 
 checkPermissions(request_intvar('id'));
-if(request_intvar('id')) {
+if (request_intvar('id')) {
     checkDocLock(request_intvar('id'));
 }
 
@@ -33,41 +35,41 @@ if (request_intvar('id')) {
 }
 
 evo()->loadExtension('REVISION');
-if(request_intvar('id') && config('enable_draft')) {
+if (request_intvar('id') && config('enable_draft')) {
     $modx->revisionObject = evo()->revision->getRevisionObject(
         request_intvar('id')
         , 'resource'
         , 'template'
     );
-    if(manager()->action==131 && isset(evo()->revisionObject['template'])) {
+    if (manager()->action == 131 && isset(evo()->revisionObject['template'])) {
         $docObject['template'] = evo()->revisionObject['template'];
     }
 } else {
     $modx->revisionObject = array();
 }
 
-if(preg_match('/[1-9][0-9]*/', request_intvar('newtemplate')) ) {
+if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
     $docObject['template'] = request_intvar('newtemplate');
 }
 
-$tmplVars = getTmplvars(request_intvar('id'),doc('template'),$docgrp);
+$tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
 $docObject += $tmplVars;
-if(request_intvar('id') && manager()->action==131) {
+if (request_intvar('id') && manager()->action == 131) {
     $docObject = mergeDraft(request_intvar('id'), $docObject);
-    foreach($tmplVars as $k=>$v) {
+    foreach ($tmplVars as $k => $v) {
         $tmplVars[$k] = $docObject[$k];
     }
 }
 
 manager()->saveFormValues();
-if(postv()) {
+if (postv()) {
     $docObject = mergeReloadValues($docObject);
 }
 
 $content = $docObject; //Be compatible with old plugins
-$modx->documentObject = & $docObject;
+$modx->documentObject = &$docObject;
 
-$modx->event->vars['documentObject'] = & $docObject;
+$modx->event->vars['documentObject'] = &$docObject;
 // invoke OnDocFormPrerender event
 $tmp = array('id' => request_intvar('id'));
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
@@ -76,7 +78,7 @@ $modx->event->vars = array();
 global $template; // For plugins (ManagerManager etc...)
 $template = doc('template');
 
-checkViewUnpubDocPerm(doc('published'),doc('editedby'));// Only a=27
+checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
@@ -86,7 +88,7 @@ $body[] = parseText(
     , collect_tab_general_ph(request_intvar('id'))
 );
 
-if(!config('tvs_below_content',1) && $tmplVars) {
+if (!config('tvs_below_content', 1) && $tmplVars) {
     $body[] = parseText(
         file_get_tpl('tab_tv.tpl')
         , collect_tab_tv_ph()
@@ -108,8 +110,8 @@ if (config('use_udperms') == 1) {
         $ph['_lang_access_permissions'] = lang('access_permissions');
         $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
-        $body[] = parseText(file_get_tpl('tab_access.tpl'),$ph);
-    } elseif(evo()->session_var('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
+        $body[] = parseText(file_get_tpl('tab_access.tpl'), $ph);
+    } elseif (evo()->session_var('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
         && (
             evo()->session_var('mgrPermissions.access_permissions') == 1
             ||
@@ -125,12 +127,12 @@ $tmp = array('id' => request_intvar('id'));
 $OnDocFormRender = evo()->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
-if(config('use_editor') === '1') {
+if (config('use_editor') === '1') {
     $rte_fields = rte_fields();
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
         $tmp = array(
-            'editor' => evo()->input_post('which_editor',config('which_editor')),
+            'editor' => evo()->input_post('which_editor', config('which_editor')),
             'elements' => $rte_fields
         );
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
@@ -141,7 +143,7 @@ if(config('use_editor') === '1') {
 }
 
 $template = file_get_tpl('_template.tpl');
-if(evo()->input_any('pid')) {
+if (evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
 $ph = collect_template_ph(request_intvar('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);

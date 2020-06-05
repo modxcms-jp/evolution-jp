@@ -1,15 +1,17 @@
 <?php
 // Action 133
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 
-if(!$modx->hasPermission('save_document')) {
+if (!$modx->hasPermission('save_document')) {
     $e->setError(3);
     $e->dumpError();
 }
 
-if(isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id'])) {
+if (isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@', $_POST['id'])) {
     $docid = $_POST['id'];
-} elseif(isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@',$_GET['id'])) {
+} elseif (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     $docid = $_GET['id'];
 } else {
     $e->setError(2);
@@ -20,49 +22,48 @@ include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content/functions.php'
 
 $ph['id'] = $docid;
 $ph['style_icons_cancel'] = style('icons_cancel');
-$ph['lang_cancel']        = lang('cancel');
+$ph['lang_cancel'] = lang('cancel');
 
 $tpl = getTplDraft();
 $ph['title'] = '下書きを採用'; // $_lang['draft_data_publishdate']
-$ph['fieldDraftPub_date']  = fieldDraftPub_date($docid);
+$ph['fieldDraftPub_date'] = fieldDraftPub_date($docid);
 $ph['id'] = $docid;
 $ph['token'] = $modx->genTokenString();
 $_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理はコアで統一して管理する
 
-echo $modx->parseText($tpl,$ph);
-
+echo $modx->parseText($tpl, $ph);
 
 
 function fieldDraftPub_date($docid) {
-    global $modx,$_lang,$_style;
+    global $modx, $_lang, $_style;
 
     //statusはdraft/standbyでも気にしない
     $rs = db()->select(
         'pub_date'
         , '[+prefix+]site_revision'
         , sprintf("(status='draft') AND element='resource' AND elmid='%s'"
-            , $docid
-        ),
+        , $docid
+    ),
         1
     );
     $pub_date = db()->getValue($rs);
     $tpl[] = '<input type="text" id="pub_date" name="pub_date" class="DatePicker imeoff" value="[+pub_date+]" />';
     $tpl[] = '<a style="cursor:pointer; cursor:hand;">';
     $tpl[] = '<img src="[+icons_cal_nodate+]" alt="[+remove_date+]" /></a>';
-    $tpl = implode("\n",$tpl);
-    $ph['pub_date']         = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
+    $tpl = implode("\n", $tpl);
+    $ph['pub_date'] = $pub_date ? evo()->toDateFormat($pub_date) : evo()->toDateFormat(time());
     $ph['icons_cal_nodate'] = $_style['icons_cal_nodate'];
-    $ph['remove_date']      = $_lang['remove_date'];
-    $ph['datetime_format']  = $modx->config['datetime_format'];
-    $body = $modx->parseText($tpl,$ph);
-    $body = renderTr($_lang['draft_data_publishdate'],$body);
+    $ph['remove_date'] = $_lang['remove_date'];
+    $ph['datetime_format'] = $modx->config['datetime_format'];
+    $body = $modx->parseText($tpl, $ph);
+    $body = renderTr($_lang['draft_data_publishdate'], $body);
     $tpl = <<< EOT
 <tr>
 	<td></td>
 	<td style="line-height:1;margin:0;color: #555;font-size:10px">[+datetime_format+] HH:MM:SS</td>
 </tr>
 EOT;
-    $body .= $modx->parseText($tpl,$ph);
+    $body .= $modx->parseText($tpl, $ph);
     return $body;
 }
 
