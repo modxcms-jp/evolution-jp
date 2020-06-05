@@ -467,16 +467,15 @@ class DocumentParser {
     }
     
     function setUaType() {
-        if($this->config['individual_cache']==1&&$this->config['cache_type']!=2) {
-            $uaType = $this->getUaType();
-        } else {
-            $uaType = 'pages';
+        if(!$this->config('individual_cache') || $this->config('cache_type') == 2) {
+            return 'pages';
         }
-        return $uaType;
+        return $this->getUaType();
+
     }
     
     function genQsHash() {
-        if(empty($_SERVER['QUERY_STRING'])) {
+        if(!$this->server('QUERY_STRING')) {
             return '';
         }
 
@@ -492,7 +491,7 @@ class DocumentParser {
         }
         $userID = $this->getLoginUserID('web');
         if ($userID) {
-            $qs_hash = hash('crc32b', $qs_hash . "^{$userID}^");
+            return hash('crc32b', sprintf('%s^%s^', $qs_hash, $userID));
         }
 
         return $qs_hash;
@@ -913,28 +912,38 @@ class DocumentParser {
     }
     
     function getUaType() {
-        if(!$this->server_var('http_user_agent')) {
-            $_SERVER['HTTP_USER_AGENT'] = 'pc';
+        if(!$this->server('http_user_agent')) {
             return 'pc';
         }
         
-        $ua = strtolower($this->server_var('http_user_agent'));
+        $ua = strtolower($this->server('http_user_agent'));
 
-        if (strpos($ua, 'ipad')   !== false) return 'tablet';
-        if (strpos($ua, 'iphone') !== false) return 'smartphone';
-        if (strpos($ua, 'ipod')   !== false) return 'smartphone';
+        if (strpos($ua, 'ipad')   !== false) {
+            return 'tablet';
+        }
+        if (strpos($ua, 'iphone') !== false || strpos($ua, 'ipod')   !== false) {
+            return 'smartphone';
+        }
 
         if (strpos($ua, 'android') === false) {
-            if (strpos($ua, 'windows phone') !== false) return 'smartphone';
-            if (strpos($ua, 'docomo')        !== false) return 'mobile';
-            if (strpos($ua, 'softbank')      !== false) return 'mobile';
-            if (strpos($ua, 'up.browser')    !== false) return 'mobile';
-            if (strpos($ua, 'bot')           !== false) return 'bot';
-            if (strpos($ua, 'spider')        !== false) return 'bot';
+            if (strpos($ua, 'windows phone') !== false) {
+                return 'smartphone';
+            }
+            if (strpos($ua, 'docomo') !== false || strpos($ua, 'softbank') !== false) {
+                return 'mobile';
+            }
+            if (strpos($ua, 'up.browser') !== false) {
+                return 'mobile';
+            }
+            if (strpos($ua, 'bot') !== false || strpos($ua, 'spider') !== false) {
+                return 'bot';
+            }
             return 'pc';
         }
 
-        if (strpos($ua, 'mobile') !== false) return 'smartphone';
+        if (strpos($ua, 'mobile') !== false) {
+            return 'smartphone';
+        }
 
         return 'tablet';
     }
@@ -943,7 +952,7 @@ class DocumentParser {
         foreach($array as $i=>$v) {
             $array[$i] = $prefix . trim($v);
         }
-        return join($delim,$array);
+        return implode($delim,$array);
     }
     
     function getMicroTime() {
@@ -966,26 +975,36 @@ class DocumentParser {
         
         $ext = strtolower(substr($filepath,strrpos($filepath,'.')));
         $get_mime_type = function($ext) use($filepath) {
-            if(in_array($ext, array('.html', '.htm'))) return 'text/html';
-            if(in_array($ext, array('.xml', '.rdf')))  return 'text/xml';
-            if($ext === 'css')                         return 'text/css';
-            if($ext === 'js')                          return 'text/javascript';
-            if($ext === 'txt')                         return 'text/plain';
+            if(in_array($ext, array('.html', '.htm'))) {
+                return 'text/html';
+            }
+            if(in_array($ext, array('.xml', '.rdf'))) {
+                return 'text/xml';
+            }
+            if($ext === '.css') {
+                return 'text/css';
+            }
+            if($ext === '.js') {
+                return 'text/javascript';
+            }
+            if($ext === '.txt') {
+                return 'text/plain';
+            }
             if(in_array($ext, array('.jpg', '.jpeg', '.png', '.gif'))) {
                 return $this->getMimeType($filepath);
             }
-            if($ext === 'ico')                         return 'image/x-icon';
+            if($ext === '.ico') {
+                return 'image/x-icon';
+            }
 
             return 'text/html';
         };
-
-        $mime_type = $get_mime_type($ext);
 
         $content = file_get_contents($filepath);
         if($content) {
             $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
-            header("Content-type: {$mime_type}");
+            header("Content-type: " . $get_mime_type($ext));
             header('Content-Length: '.strlen($this->documentOutput));
             echo $this->documentOutput;
             $this->invokeEvent('OnWebPageComplete');
@@ -1072,14 +1091,14 @@ class DocumentParser {
                 'failedlogincount'=>0,
                 'logincount' => $user['logincount']+1,
                 'lastlogin'  => $user['thislogin'],
-                'thislogin'  => $this->server_var('REQUEST_TIME'),
+                'thislogin'  => $this->server('REQUEST_TIME'),
                 'sessionid'  => session_id()
             )
             , $this->getFullTableName('user_attributes')
             , 'internalKey=' . $userid
         );
 
-        $_SESSION['mgrLastlogin'] = $this->server_var('REQUEST_TIME');
+        $_SESSION['mgrLastlogin'] = $this->server('REQUEST_TIME');
         if(!$this->manager) {
             $this->loadExtension('ManagerAPI');
         }
@@ -1091,10 +1110,10 @@ class DocumentParser {
             setcookie(
                 'modx_remember_manager'
                 , $user['username']
-                , $this->server_var('REQUEST_TIME') + strtotime('+1 year')
+                , $this->server('REQUEST_TIME') + strtotime('+1 year')
                 , MODX_BASE_URL
                 , NULL
-                , ($this->server_var('HTTPS') || $this->server_var('SERVER_PORT') == $https_port) ? true : false
+                , ($this->server('HTTPS') || $this->server('SERVER_PORT') == $https_port) ? true : false
                 , true
             );
         } else {
@@ -1102,7 +1121,7 @@ class DocumentParser {
             setcookie (
                 'modx_remember_manager'
                 , ''
-                , ($this->server_var('REQUEST_TIME') - 3600)
+                , ($this->server('REQUEST_TIME') - 3600)
                 , MODX_BASE_URL
             );
         }
