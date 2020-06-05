@@ -1106,14 +1106,13 @@ class DocumentParser {
 
         if($this->input_any('rememberme')) {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$this->config['session.cookie.lifetime'];
-            global $https_port;
             setcookie(
                 'modx_remember_manager'
                 , $user['username']
-                , $this->server('REQUEST_TIME') + strtotime('+1 year')
+                , strtotime('+1 month')
                 , MODX_BASE_URL
                 , NULL
-                , ($this->server('HTTPS') || $this->server('SERVER_PORT') == $https_port) ? true : false
+                , init::is_ssl() ? true : false
                 , true
             );
         } else {
