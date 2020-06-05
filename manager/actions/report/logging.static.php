@@ -1,59 +1,62 @@
 <?php
-if(!isset($modx) || !evo()->isLoggedin()) exit;
-if(!evo()->hasPermission('logs')) {
+if (!isset($modx) || !evo()->isLoggedin()) {
+    exit;
+}
+if (!evo()->hasPermission('logs')) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
-$rs = db()->select('DISTINCT internalKey, username, action, itemid, itemname','[+prefix+]manager_log');
+$rs = db()->select('DISTINCT internalKey, username, action, itemid, itemname', '[+prefix+]manager_log');
 $logs = array();
 while ($row = db()->getRow($rs)) {
     $logs[] = $row;
 }
 ?>
-    <h1><?php echo lang('mgrlog_view')?></h1>
+    <h1><?php echo lang('mgrlog_view') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li
-                id="Button5"
-                class="mutate"
+                    id="Button5"
+                    class="mutate"
             ><a
-                href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"
-            ><img
-                alt="icons_cancel"
-                src="<?php echo style('icons_cancel') ?>"
-            /> <?php echo lang('cancel')?></a
-        ></li
-        ></ul>
+                        href="#"
+                        onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                ><img
+                            alt="icons_cancel"
+                            src="<?php echo style('icons_cancel') ?>"
+                    /> <?php echo lang('cancel') ?></a
+                ></li
+            >
+        </ul>
     </div>
     <div class="sectionBody">
         <form action="index.php" name="logging" class="mutate" method="GET">
             <input type="hidden" name="a" value="13">
             <div class="tab-pane" id="logPane">
                 <div class="tab-page" id="tabGeneral">
-                    <h2 class="tab"><?php echo lang('general');?></h2>
+                    <h2 class="tab"><?php echo lang('general'); ?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr style="background-color:#fff;">
                             <td
-                                style="width:120px;"
+                                    style="width:120px;"
                             ><b><?php echo lang('mgrlog_msg'); ?></b></td>
                             <td align="right">
                                 <input
-                                    type="text"
-                                    name="message"
-                                    class="inputbox"
-                                    style="width:240px"
-                                    value="<?php echo getv('message'); ?>"
+                                        type="text"
+                                        name="message"
+                                        class="inputbox"
+                                        style="width:240px"
+                                        value="<?php echo getv('message'); ?>"
                                 />
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_user')?></b></td>
+                            <td><b><?php echo lang('mgrlog_user') ?></b></td>
                             <td align="right">
                                 <select name="searchuser" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo lang('mgrlog_anyall')?></option>
+                                    <option value="0"><?php echo lang('mgrlog_anyall') ?></option>
                                     <?php
                                     // get all users currently in the log
                                     $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
@@ -63,12 +66,12 @@ while ($row = db()->getRow($rs)) {
                                         } else {
                                             $selectedtext = '';
                                         }
-                                    echo sprintf(
-                                        '<option value="%s" %s>%s</option>'
-                                        , $row['internalKey']
-                                        , $selectedtext
-                                        , $row['username']
-                                    ) . "\n";
+                                        echo sprintf(
+                                                '<option value="%s" %s>%s</option>'
+                                                , $row['internalKey']
+                                                , $selectedtext
+                                                , $row['username']
+                                            ) . "\n";
                                     }
                                     ?></select>
                             </td>
@@ -76,7 +79,7 @@ while ($row = db()->getRow($rs)) {
                     </table>
                 </div>
                 <div class="tab-page" id="tabSettings">
-                    <h2 class="tab"><?php echo lang('option');?></h2>
+                    <h2 class="tab"><?php echo lang('option'); ?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr>
@@ -119,9 +122,9 @@ while ($row = db()->getRow($rs)) {
                                     $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
                                     foreach ($logs_items as $row) {
                                         $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
-                                        echo '<option value="'.$row['itemid'].'"'.$selectedtext.'>'.$row['itemid']."</option>\n";
+                                        echo '<option value="' . $row['itemid'] . '"' . $selectedtext . '>' . $row['itemid'] . "</option>\n";
                                     }
-                                    ?>	</select>
+                                    ?>    </select>
                             </td>
                         </tr>
                         <tr>
@@ -134,39 +137,53 @@ while ($row = db()->getRow($rs)) {
                                     $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
                                     foreach ($logs_names as $row) {
                                         $selectedtext = $row['itemname'] == getv('itemname') ? ' selected="selected"' : '';
-                                        echo '<option value="'.$row['itemname'].'"'.$selectedtext.'>'.$row['itemname']."</option>\n";
+                                        echo '<option value="' . $row['itemname'] . '"' . $selectedtext . '>' . $row['itemname'] . "</option>\n";
                                     }
-                                    ?>	</select>
+                                    ?>    </select>
                             </td>
                         </tr>
                         <tr>
                             <td><b><?php echo lang('mgrlog_datefr'); ?></b></td>
                             <td align="right">
-                                <input type="text" id="datefrom" name="datefrom" class="DatePicker" value="<?php echo getv('datefrom','') ; ?>" />
-                                <a onclick="document.logging.datefrom.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+                                <input type="text" id="datefrom" name="datefrom" class="DatePicker"
+                                       value="<?php echo getv('datefrom', ''); ?>"/>
+                                <a onclick="document.logging.datefrom.value=''; return true;"
+                                   style="cursor:pointer; cursor:hand"><img
+                                            src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                            border="0" alt="No date"/></a>
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
                             <td><b><?php echo lang('mgrlog_dateto'); ?></b></td>
                             <td align="right">
-                                <input type="text" id="dateto" name="dateto" class="DatePicker" value="<?php echo getv('dateto', '') ; ?>" />
-                                <a onclick="document.logging.dateto.value=''; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif" border="0" alt="No date" /></a>
+                                <input type="text" id="dateto" name="dateto" class="DatePicker"
+                                       value="<?php echo getv('dateto', ''); ?>"/>
+                                <a onclick="document.logging.dateto.value=''; return true;"
+                                   style="cursor:pointer; cursor:hand"><img
+                                            src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                            border="0" alt="No date"/></a>
                             </td>
                         </tr>
                         <tr>
                             <td><b><?php echo lang('mgrlog_results'); ?></b></td>
                             <td align="right">
-                                <input type="text" name="nrresults" class="inputbox" style="width:100px" value="<?php echo getv('nrresults', config('number_of_logs')) ; ?>" /><img src="<?php echo style('tx'); ?>" border="0" />
+                                <input type="text" name="nrresults" class="inputbox" style="width:100px"
+                                       value="<?php echo getv('nrresults', config('number_of_logs')); ?>"/><img
+                                        src="<?php echo style('tx'); ?>" border="0"/>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
-                    <li><a href="#" class="default" onclick="documentDirty=false;document.logging.log_submit.click();"><img src="<?php echo style('icons_save') ?>" /> <?php echo lang('search'); ?></a></li>
-                    <li><a href="index.php?a=2" onclick="documentDirty=false;"><img src="<?php echo style('icons_cancel') ?>" /> <?php echo lang('cancel'); ?></a></li>
+                    <li><a href="#" class="default"
+                           onclick="documentDirty=false;document.logging.log_submit.click();"><img
+                                    src="<?php echo style('icons_save') ?>"/> <?php echo lang('search'); ?></a></li>
+                    <li><a href="index.php?a=2" onclick="documentDirty=false;"><img
+                                    src="<?php echo style('icons_cancel') ?>"/> <?php echo lang('cancel'); ?></a></li>
                 </ul>
-                <input type="submit" name="log_submit" value="<?php echo lang('mgrlog_searchlogs')?>" style="display:none;" />
+                <input type="submit" name="log_submit" value="<?php echo lang('mgrlog_searchlogs') ?>"
+                       style="display:none;"/>
             </div>
         </form>
     </div>
@@ -174,34 +191,34 @@ while ($row = db()->getRow($rs)) {
         tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
     </script>
 
-<?php if(isset($_GET['log_submit'])) :?>
+<?php if (isset($_GET['log_submit'])) : ?>
     <div class="section">
     <div class="sectionHeader"><?php echo lang('mgrlog_qresults'); ?></div>
     <div class="sectionBody" id="lyr2">
     <?php
-    if(getv('log_submit')) {
+    if (getv('log_submit')) {
         // get the selections the user made.
         $where = array();
-        if(getv('searchuser')) {
+        if (getv('searchuser')) {
             $where[] = "internalKey='" . (int)getv('searchuser') . "'";
         }
-        if(getv('action')) {
+        if (getv('action')) {
             $where[] = "action=" . (int)getv('action');
         }
-        if(getv('itemid') || getv('itemid')== '-') {
+        if (getv('itemid') || getv('itemid') == '-') {
             $where[] = "itemid='" . getv('itemid') . "'";
         }
-        if(getv('itemname')) {
+        if (getv('itemname')) {
             $where[] = "itemname='" . getv('itemname') . "'";
         }
-        if(getv('message')) {
+        if (getv('message')) {
             $where[] = "message LIKE '%" . getv('message') . "%'";
         }
         // date stuff
-        if(getv('datefrom')) {
+        if (getv('datefrom')) {
             $where[] = "timestamp>" . evo()->toTimeStamp(getv('datefrom'));
         }
-        if(getv('dateto')) {
+        if (getv('dateto')) {
             $where[] = "timestamp<" . evo()->toTimeStamp(getv('dateto'));
         }
 
@@ -221,12 +238,12 @@ while ($row = db()->getRow($rs)) {
             , '[+prefix+]manager_log'
             , implode(' AND ', $where)
             , $orderby
-            , sprintf('%s, %s', evo()->input_get('int_cur_position',0), $int_num_result)
+            , sprintf('%s, %s', evo()->input_get('int_cur_position', 0), $int_num_result)
         );
-    if($total<1) {
-        echo '<p>'.lang('mgrlog_emptysrch').'</p>';
+    if ($total < 1) {
+        echo '<p>' . lang('mgrlog_emptysrch') . '</p>';
     } else {
-        echo '<p>'.lang('mgrlog_sortinst').'</p>';
+        echo '<p>' . lang('mgrlog_sortinst') . '</p>';
 
         include_once(MODX_CORE_PATH . 'paginate.inc.php');
         // New instance of the Paging class, you can modify the color and the width of the html table
@@ -242,12 +259,12 @@ while ($row = db()->getRow($rs)) {
             , $int_num_result
             , getv('log_submit')
         );
-        $p = new Paging( $total, evo()->input_get('int_cur_position',0), $int_num_result, $extargv );
+        $p = new Paging($total, evo()->input_get('int_cur_position', 0), $int_num_result, $extargv);
 
         // Load up the 2 array in order to display result
         $array_paging = $p->getPagingArray();
         $array_row_paging = $p->getPagingRowArray();
-        $current_row = evo()->input_get('int_cur_position',0)/$int_num_result;
+        $current_row = evo()->input_get('int_cur_position', 0) / $int_num_result;
 
         // Display the result as you like...
         echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);
@@ -261,15 +278,15 @@ while ($row = db()->getRow($rs)) {
         );
         $paging .= $array_paging['previous_link'] . lang('paging_prev') . (isset($array_paging['previous_link']) ? "</a> " : " ");
         $pagesfound = sizeof($array_row_paging);
-        if($pagesfound>6) {
-            $paging .= $array_row_paging[$current_row-2];
-            $paging .= $array_row_paging[$current_row-1];
+        if ($pagesfound > 6) {
+            $paging .= $array_row_paging[$current_row - 2];
+            $paging .= $array_row_paging[$current_row - 1];
             $paging .= $array_row_paging[$current_row];
-            $paging .= $array_row_paging[$current_row+1];
-            $paging .= $array_row_paging[$current_row+2];
+            $paging .= $array_row_paging[$current_row + 1];
+            $paging .= $array_row_paging[$current_row + 2];
         } else {
-            for( $i=0; $i<$pagesfound; $i++ ){
-                $paging .= $array_row_paging[$i] ."&nbsp;";
+            for ($i = 0; $i < $pagesfound; $i++) {
+                $paging .= $array_row_paging[$i] . "&nbsp;";
             }
         }
         $paging .= sprintf(
@@ -288,12 +305,14 @@ while ($row = db()->getRow($rs)) {
         ?>
         <script type="text/javascript" src="media/script/tablesort.js"></script>
         <table class="sortabletable rowstyle-even" id="table-1">
-            <thead><tr>
+            <thead>
+            <tr>
                 <th class="sortable"><b><?php echo lang('mgrlog_time'); ?></b></th>
                 <th class="sortable"><b><?php echo lang('mgrlog_action'); ?></b></th>
                 <th class="sortable"><b><?php echo lang('mgrlog_itemid'); ?></b></th>
                 <th class="sortable"><b><?php echo lang('mgrlog_username'); ?></b></th>
-            </tr></thead>
+            </tr>
+            </thead>
             <tbody>
             <?php
             // grab the entire log file...
@@ -309,9 +328,9 @@ EOT;
             $i = 0;
             while ($row = db()->getRow($rs)) {
                 $row['itemname'] = evo()->hsc($row['itemname']);
-                if(!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
+                if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                     $row['title'] = '<div style="text-align:center;">-</div>';
-                } elseif($row['action']==3||$row['action']==27||$row['action']==5) {
+                } elseif ($row['action'] == 3 || $row['action'] == 27 || $row['action'] == 5) {
                     $row['title'] = evo()->parseText(
                         '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>'
                         , $row
@@ -320,8 +339,8 @@ EOT;
                     $row['title'] = evo()->parseText('[[+itemid+]] [+itemname+]', $row);
                 }
                 $row['class'] = ($i % 2) ? 'even' : '';
-                $row['datetime'] = evo()->toDateFormat($row['timestamp']+config('server_offset_time'));
-                echo evo()->parseText($tpl,$row);
+                $row['datetime'] = evo()->toDateFormat($row['timestamp'] + config('server_offset_time'));
+                echo evo()->parseText($tpl, $row);
                 $i++;
             }
             ?>
@@ -334,7 +353,8 @@ EOT;
         </div>
         </div>
         <?php
-        global $action; $action = 1;
+        global $action;
+        $action = 1;
     } else {
         echo lang('mgrlog_noquery');
     }
@@ -342,12 +362,16 @@ endif;
 
 function array_unique_multi($array, $checkKey) {
     // Use the builtin if we're not a multi-dimensional array
-    if (!is_array(current($array)) || empty($checkKey)) return array_unique($array);
+    if (!is_array(current($array)) || empty($checkKey)) {
+        return array_unique($array);
+    }
 
     $ret = array();
     $checkValues = array(); // contains the unique key Values
     foreach ($array as $key => $current) {
-        if (in_array($current[$checkKey], $checkValues)) continue; // duplicate
+        if (in_array($current[$checkKey], $checkValues)) {
+            continue;
+        } // duplicate
 
         $checkValues[] = $current[$checkKey];
         $ret[$key] = $current;
@@ -357,13 +381,16 @@ function array_unique_multi($array, $checkKey) {
 
 function record_sort($array, $key) {
     $hash = array();
-    foreach ($array as $k => $v) $hash[$k] = $v[$key];
+    foreach ($array as $k => $v) {
+        $hash[$k] = $v[$key];
+    }
 
     natsort($hash);
 
     $records = array();
-    foreach ($hash as $k => $row)
+    foreach ($hash as $k => $row) {
         $records[$k] = $array[$k];
+    }
 
     return $records;
 }
