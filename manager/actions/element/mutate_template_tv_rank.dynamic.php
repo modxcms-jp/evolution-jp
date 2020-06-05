@@ -1,13 +1,15 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('save_template')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
+if (!$modx->hasPermission('save_template')) {
+    $e->setError(3);
+    $e->dumpError();
 }
 
 if (!is_numeric($_REQUEST['id'])) {
-	echo 'Template ID is NaN';
-	exit;
+    echo 'Template ID is NaN';
+    exit;
 }
 $id = intval($_REQUEST['id']);
 
@@ -16,37 +18,44 @@ $siteURL = $modx->config['site_url'];
 
 $updateMsg = '';
 
-if(isset($_POST['listSubmitted'])) {
-	$updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
-	foreach ($_POST as $listName=>$listValue) {
-		if ($listName == 'listSubmitted') continue;
-		$orderArray = explode(';', rtrim($listValue, ';'));
-		foreach($orderArray as $key => $item) {
-			if (strlen($item) == 0) continue;
-			$tmplvar = ltrim($item, 'item_');
-			db()->update(array('rank'=>$key),'[+prefix+]site_tmplvar_templates', "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
-		}
-	}
-	// empty cache
-	$modx->clearCache(); // first empty the cache
+if (isset($_POST['listSubmitted'])) {
+    $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
+    foreach ($_POST as $listName => $listValue) {
+        if ($listName == 'listSubmitted') {
+            continue;
+        }
+        $orderArray = explode(';', rtrim($listValue, ';'));
+        foreach ($orderArray as $key => $item) {
+            if (strlen($item) == 0) {
+                continue;
+            }
+            $tmplvar = ltrim($item, 'item_');
+            db()->update(array('rank' => $key), '[+prefix+]site_tmplvar_templates',
+                "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
+        }
+    }
+    // empty cache
+    $modx->clearCache(); // first empty the cache
 }
 
-$field  = 'tv.name AS `name`, tv.id AS `id`, tr.templateid, tr.rank, tm.templatename';
-$from   = '[+prefix+]site_tmplvar_templates tr';
-$from  .= ' INNER JOIN [+prefix+]site_tmplvars tv ON tv.id = tr.tmplvarid';
-$from  .= ' INNER JOIN [+prefix+]site_templates tm ON tr.templateid = tm.id';
-$where  = "tr.templateid='{$id}'";
+$field = 'tv.name AS `name`, tv.id AS `id`, tr.templateid, tr.rank, tm.templatename';
+$from = '[+prefix+]site_tmplvar_templates tr';
+$from .= ' INNER JOIN [+prefix+]site_tmplvars tv ON tv.id = tr.tmplvarid';
+$from .= ' INNER JOIN [+prefix+]site_templates tm ON tr.templateid = tm.id';
+$where = "tr.templateid='{$id}'";
 $orderby = 'tr.rank, tv.rank, tv.id';
 
-$rs = db()->select($field,$from,$where,$orderby);
+$rs = db()->select($field, $from, $where, $orderby);
 $limit = db()->getRecordCount($rs);
 
-if($limit>1) {
-	for ($i=0;$i<$limit;$i++) {
-		$row = db()->getRow($rs);
-		if ($i == 0) $evtLists .= '<strong>'.$row['templatename'].'</strong><br /><ul id="sortlist" class="sortableList">';
-		$evtLists .= '<li id="item_'.$row['id'].'" class="sort">'.$row['name'].'</li>';
-	}
+if ($limit > 1) {
+    for ($i = 0; $i < $limit; $i++) {
+        $row = db()->getRow($rs);
+        if ($i == 0) {
+            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList">';
+        }
+        $evtLists .= '<li id="item_' . $row['id'] . '" class="sort">' . $row['name'] . '</li>';
+    }
 }
 
 $evtLists .= '</ul>';
@@ -56,8 +65,8 @@ $header = '
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>MODx</title>
-	<meta http-equiv="Content-Type" content="text/html; charset='.$modx_manager_charset.'" />
-	<link rel="stylesheet" type="text/css" href="media/style/'.$manager_theme.'/style.css" />
+	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
 	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>';
 
 $header .= '
@@ -86,7 +95,7 @@ $header .= '
 			padding: 3px 5px;
 			margin: 4px 0px;
 			border: 1px solid #CCCCCC;
-			background-image: url("media/style/'.$manager_theme.'/images/misc/fade.gif");
+			background-image: url("media/style/' . $manager_theme . '/images/misc/fade.gif");
 			background-repeat: repeat-x;
 		}
 	</style>
@@ -125,19 +134,19 @@ $header .= '
 $header .= '</head>
 <body ondragstart="return false;">
 
-<h1>'.$_lang["template_tv_edit_title"].'</h1>
+<h1>' . $_lang["template_tv_edit_title"] . '</h1>
 
 <div id="actions">
     <ul class="actionButtons">
-        <li class="mutate"><a class="default" href="#" onclick="save();"><img src="'.$_style["icons_save"].'" /> '.$_lang['update'].'</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=16&amp;id='.$_REQUEST['id'].'\';"><img src="'.$_style["icons_cancel"].'"> '.$_lang['cancel'].'</a></li>
+        <li class="mutate"><a class="default" href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
+		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=16&amp;id=' . $_REQUEST['id'] . '\';"><img src="' . $_style["icons_cancel"] . '"> ' . $_lang['cancel'] . '</a></li>
 	</ul>
 </div>
 
 <div class="section">
-<div class="sectionHeader">'.$_lang['template_tv_edit'].'</div>
+<div class="sectionHeader">' . $_lang['template_tv_edit'] . '</div>
 <div class="sectionBody">
-<p>'.$_lang["template_tv_edit_message"].'</p>';
+<p>' . $_lang["template_tv_edit_message"] . '</p>';
 
 echo $header;
 

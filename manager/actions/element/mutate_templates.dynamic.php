@@ -1,16 +1,17 @@
 <?php
-if(!isset($modx) || !evo()->isLoggedin()) exit;
+if (!isset($modx) || !evo()->isLoggedin()) {
+    exit;
+}
 
-switch((int) anyv('a')) {
+switch ((int)anyv('a')) {
     case 16:
-        if(!evo()->hasPermission('edit_template')) {
+        if (!evo()->hasPermission('edit_template')) {
             alert()->setError(3);
             alert()->dumpError();
         }
         break;
     case 19:
-        if(!evo()->hasPermission('new_template'))
-        {
+        if (!evo()->hasPermission('new_template')) {
             alert()->setError(3);
             alert()->dumpError();
         }
@@ -20,9 +21,9 @@ switch((int) anyv('a')) {
         alert()->dumpError();
 }
 
-if(id()) {
+if (id()) {
     $username = is_locked(id());
-    if($username) {
+    if ($username) {
         alert()->setError(
             5
             , sprintf(lang('lock_msg')
@@ -36,16 +37,17 @@ if(id()) {
 
 ?>
     <script type="text/javascript">
-        function duplicaterecord(){
-            if(confirm("<?php echo lang('confirm_duplicate_record') ?>")==true) {
-                documentDirty=false;
-                document.location.href="index.php?id=<?php echo anyv('id'); ?>&a=96";
+        function duplicaterecord() {
+            if (confirm("<?php echo lang('confirm_duplicate_record') ?>") == true) {
+                documentDirty = false;
+                document.location.href = "index.php?id=<?php echo anyv('id'); ?>&a=96";
             }
         }
+
         function deletedocument() {
-            if(confirm("<?php echo lang('confirm_delete_template'); ?>")==true) {
-                documentDirty=false;
-                document.location.href="index.php?id=" + document.mutate.id.value + "&a=21";
+            if (confirm("<?php echo lang('confirm_delete_template'); ?>") == true) {
+                documentDirty = false;
+                document.location.href = "index.php?id=" + document.mutate.id.value + "&a=21";
             }
         }
     </script>
@@ -53,58 +55,61 @@ if(id()) {
     <form name="mutate" id="mutate" method="POST" action="index.php" enctype="multipart/form-data">
         <?php
         $tmp = array('id' => id());
-        $evtOut = evo()->invokeEvent('OnTempFormPrerender',$tmp);
-        if(is_array($evtOut)) {
+        $evtOut = evo()->invokeEvent('OnTempFormPrerender', $tmp);
+        if (is_array($evtOut)) {
             echo implode('', $evtOut);
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?php echo anyv('id');?>">
-        <input type="hidden" name="mode" value="<?php echo (int) anyv('a');?>">
+        <input type="hidden" name="id" value="<?php echo anyv('id'); ?>">
+        <input type="hidden" name="mode" value="<?php echo (int)anyv('a'); ?>">
 
         <h1><?php echo lang('template_title'); ?></h1>
         <div id="actions">
             <ul class="actionButtons">
-                <?php if(evo()->hasPermission('save_template')):?>
+                <?php if (evo()->hasPermission('save_template')): ?>
                     <li id="Button1" class="mutate">
                         <a
-                            href="#"
-                            onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"
-                        ><img src="<?php echo style('icons_save')?>" /> <?php echo lang('update')?>
+                                href="#"
+                                onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"
+                        ><img src="<?php echo style('icons_save') ?>"/> <?php echo lang('update') ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
-                            <option id="stay1" value="1" <?php echo selected(anyv('stay')==1);?> ><?php echo lang('stay_new')?></option>
-                            <option id="stay2" value="2" <?php echo selected(anyv('stay')==2);?> ><?php echo lang('stay')?></option>
-                            <option id="stay3" value=""  <?php echo selected(!anyv('stay'));?>  ><?php echo lang('close')?></option>
+                            <option id="stay1"
+                                    value="1" <?php echo selected(anyv('stay') == 1); ?> ><?php echo lang('stay_new') ?></option>
+                            <option id="stay2"
+                                    value="2" <?php echo selected(anyv('stay') == 2); ?> ><?php echo lang('stay') ?></option>
+                            <option id="stay3"
+                                    value="" <?php echo selected(!anyv('stay')); ?> ><?php echo lang('close') ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
                 <?php
                 if (anyv('a') == '16') {
-                    if(evo()->hasPermission('new_template')) {
+                    if (evo()->hasPermission('new_template')) {
                         echo evo()->manager->ab(
                             array(
                                 'onclick' => 'duplicaterecord();',
-                                'icon'    => style('icons_resource_duplicate'),
-                                'label'   => lang('duplicate')
+                                'icon' => style('icons_resource_duplicate'),
+                                'label' => lang('duplicate')
                             )
                         );
                     }
-                    if(evo()->hasPermission('delete_template')) {
+                    if (evo()->hasPermission('delete_template')) {
                         echo evo()->manager->ab(
                             array(
                                 'onclick' => 'deletedocument();',
-                                'icon'    => style('icons_delete_document'),
-                                'label'   => lang('delete')
+                                'icon' => style('icons_delete_document'),
+                                'label' => lang('delete')
                             )
                         );
                     }
                 }
                 echo evo()->manager->ab(array(
                     'onclick' => "document.location.href='index.php?a=76';",
-                    'icon'    => style('icons_cancel'),
-                    'label'   => lang('cancel')
+                    'icon' => style('icons_cancel'),
+                    'label' => lang('cancel')
                 ));
                 ?>
             </ul>
@@ -117,12 +122,12 @@ if(id()) {
                     <div style="margin-bottom:10px;">
                         <b><?php echo lang('template_name'); ?></b>
                         <input
-                            name="templatename"
-                            type="text"
-                            maxlength="100"
-                            value="<?php echo evo()->hsc(template('templatename'));?>"
-                            class="inputBox"
-                            style="width:200px;"
+                                name="templatename"
+                                type="text"
+                                maxlength="100"
+                                value="<?php echo evo()->hsc(template('templatename')); ?>"
+                                class="inputBox"
+                                style="width:200px;"
                         >
                         <?php
                         $rs = db()->select(
@@ -131,33 +136,33 @@ if(id()) {
                             , id() ? "parent!='" . id() . "'" : ''
                         );
                         $parent = array();
-                        while($row = db()->getRow($rs)) {
-                            if(id()==$row['id']) {
+                        while ($row = db()->getRow($rs)) {
+                            if (id() == $row['id']) {
                                 continue;
                             }
                             $parent[] = array(
-                                'id'           => $row['id'],
+                                'id' => $row['id'],
                                 'templatename' => evo()->hsc($row['templatename'])
                             );
                         }
                         $tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
                         $option = array();
-                        foreach($parent as $ph) {
-                            $ph['selected'] = template('parent')==$ph['id'] ? 'selected' : '';
+                        foreach ($parent as $ph) {
+                            $ph['selected'] = template('parent') == $ph['id'] ? 'selected' : '';
                             $option[] = evo()->parseText($tpl, $ph);
                         }
                         echo lang('template_parent');
                         ?>
                         <select name="parent">
                             <option value="0">None</option>
-                            <?php echo implode("\n", $option);?>
+                            <?php echo implode("\n", $option); ?>
                         </select>
                     </div>
                     <?php
-                    if(template('parent')!=0) {
+                    if (template('parent') != 0) {
                         $parent = getParentValues(template('parent'));
                     }
-                    if(!empty($parent)) {
+                    if (!empty($parent)) {
                         $head = $parent['head'];
                         $foot = $parent['foot'];
                     }
@@ -166,14 +171,16 @@ if(id()) {
                         <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                             <span style="float:left;font-weight:bold;"><?php echo lang('template_code'); ?></span>
                         </div>
-                        <?php if(isset($head)) echo $head;?>
+                        <?php if (isset($head)) {
+                            echo $head;
+                        } ?>
                         <textarea
-                            dir="ltr"
-                            name="content"
-                            class="phptextarea"
-                            style="width:100%; height: 370px;"
+                                dir="ltr"
+                                name="content"
+                                class="phptextarea"
+                                style="width:100%; height: 370px;"
                         ><?php echo evo()->hsc(template('content')); ?></textarea>
-                        <?php if(isset($foot)) {
+                        <?php if (isset($foot)) {
                             echo $foot;
                         } ?>
                     </div>
@@ -181,7 +188,7 @@ if(id()) {
                 </div>
 
                 <div class="tab-page" id="tabProp">
-                    <h2 class="tab"><?php echo lang('settings_properties');?></h2>
+                    <h2 class="tab"><?php echo lang('settings_properties'); ?></h2>
                     <table>
                         <tr>
                             <th><?php echo lang('existing_category'); ?>:</th>
@@ -189,13 +196,13 @@ if(id()) {
                                     <option value="0"><?php echo lang('no_category'); ?></option>
                                     <?php
                                     $ds = evo()->manager->getCategories();
-                                    if($ds) {
+                                    if ($ds) {
                                         foreach ($ds as $n => $v) {
                                             echo sprintf(
-                                                    '<option value="%s" %s>%s</option>'
-                                                    , $v['id']
-                                                    , selected(template('category') == $v['id'])
-                                                    , evo()->hsc($v['category'])
+                                                '<option value="%s" %s>%s</option>'
+                                                , $v['id']
+                                                , selected(template('category') == $v['id'])
+                                                , evo()->hsc($v['category'])
                                             );
                                         }
                                     }
@@ -207,15 +214,15 @@ if(id()) {
                         <tr id="newcategry" style="display:none;">
                             <th valign="top" style="padding-top:5px;"><?php echo lang('new_category'); ?>:</th>
                             <td
-                                valign="top"
-                                style="padding-top:5px;"
+                                    valign="top"
+                                    style="padding-top:5px;"
                             ><input
-                                    name="newcategory"
-                                    type="text"
-                                    maxlength="45"
-                                    value="<?php echo template('newcategory', '');?>"
-                                    class="inputBox"
-                                    style="width:300px;"
+                                        name="newcategory"
+                                        type="text"
+                                        maxlength="45"
+                                        value="<?php echo template('newcategory', ''); ?>"
+                                        class="inputBox"
+                                        style="width:300px;"
                                 ></td>
                         </tr>
                         <tr>
@@ -223,10 +230,10 @@ if(id()) {
                             <td><textarea
                                         name="description"
                                         style="padding:0;height:4em;"
-                                ><?php echo evo()->hsc(template('description'));?></textarea>
+                                ><?php echo evo()->hsc(template('description')); ?></textarea>
                             </td>
                         </tr>
-                        <?php if(evo()->hasPermission('save_template')==1) {?>
+                        <?php if (evo()->hasPermission('save_template') == 1) { ?>
                             <tr>
                                 <td colspan="2">
                                     <label><input
@@ -234,8 +241,10 @@ if(id()) {
                                                 name="locked"
                                                 type="checkbox"
                                                 class="inputBox"
-                                                <?php echo checked(template('locked')==1);?>
-                                        > <?php echo lang('lock_template'); ?> <span class="comment"><?php echo lang('lock_template_msg'); ?></span></label></td>
+                                            <?php echo checked(template('locked') == 1); ?>
+                                        > <?php echo lang('lock_template'); ?> <span
+                                                class="comment"><?php echo lang('lock_template_msg'); ?></span></label>
+                                </td>
                             </tr>
                         <?php } ?>
                     </table>
@@ -245,8 +254,8 @@ if(id()) {
                 if (anyv('a') == '16') {
                     $rs = db()->select(
                         array(
-                            'name'  => 'tv.name',
-                            'id'    => 'tv.id',
+                            'name' => 'tv.name',
+                            'id' => 'tv.id',
                             'tplid' => 'tpl.templateid',
                             'tpl.rank',
                             sprintf(
@@ -270,11 +279,11 @@ if(id()) {
                         <h2 class="tab"><?php echo lang('info') ?></h2>
                         <?php echo "<p>" . lang('template_tv_msg') . "</p>"; ?>
                         <div class="sectionHeader">
-                            <?php echo lang('template_assignedtv_tab');?>
+                            <?php echo lang('template_assignedtv_tab'); ?>
                         </div>
                         <div class="sectionBody">
                             <?php
-                            if($total) {
+                            if ($total) {
                                 $tvList = '<ul>';
                                 while ($row = db()->getRow($rs)) {
                                     $tvList .= sprintf(
@@ -294,64 +303,66 @@ if(id()) {
                                 <?php
                                 $query = getv('id') ? '&amp;tpl=' . (int)getv('id') : '';
                                 ?>
-                                <li><a href="index.php?&amp;a=300<?php echo $query;?>"><img src="<?php echo style('icons_add');?>" /> <?php echo lang('new_tmplvars');?></a></li>
+                                <li><a href="index.php?&amp;a=300<?php echo $query; ?>"><img
+                                                src="<?php echo style('icons_add'); ?>"/> <?php echo lang('new_tmplvars'); ?>
+                                    </a></li>
                                 <?php
-                                if(evo()->hasPermission('save_template') && $total > 1)
-                                {
+                                if (evo()->hasPermission('save_template') && $total > 1) {
                                     echo '<li><a href="index.php?a=117&amp;id=' . anyv('id') . '"><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
                         </div>
                         <div class="sectionHeader"><?php echo lang('a16_use_resources'); ?></div>
-                        <div class="sectionBody"><div id="use_resources"></div></div>
+                        <div class="sectionBody">
+                            <div id="use_resources"></div>
+                        </div>
                     </div>
                     <?php
                 }
                 ?>
                 <div class="tab-page" id="tabHelp">
                     <h2 class="tab">ヘルプ</h2>
-                    <?php echo lang('template_msg');?>
+                    <?php echo lang('template_msg'); ?>
                 </div>
                 <?php
                 // invoke OnTempFormRender event
                 $tmp = array('id' => id());
-                $evtOut = evo()->invokeEvent("OnTempFormRender",$tmp);
-                if(is_array($evtOut)) echo implode("",$evtOut);
+                $evtOut = evo()->invokeEvent("OnTempFormRender", $tmp);
+                if (is_array($evtOut)) {
+                    echo implode("", $evtOut);
+                }
                 ?>
             </div>
         </div>
     </form>
     <script>
         var tpstatus = <?php echo (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false'; ?>;
-        tpTemplates = new WebFXTabPane( document.getElementById( "templatesPane" ), tpstatus );
-        var readonly = <?php echo (template('locked') == 1 || template('locked') === 'on') ? '1': '0'; ?>;
-        if(readonly) {
-            jQuery('#templatesPane textarea,input[type=text]').prop('readonly',true);
+        tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
+        var readonly = <?php echo (template('locked') == 1 || template('locked') === 'on') ? '1' : '0'; ?>;
+        if (readonly) {
+            jQuery('#templatesPane textarea,input[type=text]').prop('readonly', true);
             jQuery('#templatesPane select').addClass('readonly');
-            jQuery('#templatesPane select').prop('disabled',true);
+            jQuery('#templatesPane select').prop('disabled', true);
             jQuery('#Button1').hide();
-            jQuery('input#locked').click(function(){
+            jQuery('input#locked').click(function () {
                 jQuery('#Button1').toggle();
             });
         }
-        jQuery('input#locked').click(function(){
-            jQuery('#templatesPane textarea,input[type=text]').prop('readonly',jQuery(this).prop('checked'));
-            jQuery('#templatesPane select').prop('disabled',true);
+        jQuery('input#locked').click(function () {
+            jQuery('#templatesPane textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
+            jQuery('#templatesPane select').prop('disabled', true);
             jQuery('#templatesPane select').toggleClass('readonly');
         });
         jQuery.get("index.php",
-            { a: "1", ajaxa: "16", target:"use_resources", id:"<?php echo id();?>" },
-            function(data){
+            {a: "1", ajaxa: "16", target: "use_resources", id: "<?php echo id();?>"},
+            function (data) {
                 jQuery('div#use_resources').html(data);
             });
-        jQuery('select#categoryid').change(function(){
-            if(jQuery(this).val()=='-1')
-            {
+        jQuery('select#categoryid').change(function () {
+            if (jQuery(this).val() == '-1') {
                 jQuery('#newcategry').fadeIn();
-            }
-            else
-            {
+            } else {
                 jQuery('#newcategry').fadeOut();
                 jQuery('input[name="newcategory"]').val('');
             }
@@ -359,15 +370,15 @@ if(id()) {
     </script>
 <?php
 function getParentValues($parent) {
-    $rs = db()->select('*','[+prefix+]site_templates', "id='" . $parent . "'");
+    $rs = db()->select('*', '[+prefix+]site_templates', "id='" . $parent . "'");
     $total = db()->getRecordCount($rs);
     $p = (object)db()->getRow($rs);
-    if($total==1) {
-        if(strpos($p->content,'[*#content*]')!==false) {
+    if ($total == 1) {
+        if (strpos($p->content, '[*#content*]') !== false) {
             $p->content = str_replace('[*#content*]', '[*content*]', $p->content);
         }
     }
-    if($total != 1 || strpos($p->content, '[*content*]') === false) {
+    if ($total != 1 || strpos($p->content, '[*content*]') === false) {
         return array();
     }
 
@@ -389,39 +400,35 @@ function getParentValues($parent) {
     return compact('head', 'foot');
 }
 
-function template($key, $default=null) {
+function template($key, $default = null) {
     static $tplObject = array();
-    if(isset($tplObject[$key])) {
+    if (isset($tplObject[$key])) {
         return $tplObject[$key];
     }
-    if(anyv('id',0)) {
-        $rs = db()->select('*','[+prefix+]site_templates', "id='" . anyv('id') . "'");
+    if (anyv('id', 0)) {
+        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . anyv('id') . "'");
         $total = db()->getRecordCount($rs);
-        if($total > 1)
-        {
+        if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";
             echo "More results returned than expected. Which sucks. <p>Aborting.";
             exit;
         }
-        if($total < 1)
-        {
+        if ($total < 1) {
             echo "Oops, something went terribly wrong...<p>";
             echo "No database record has been found for this template. <p>Aborting.";
             exit;
         }
         $tplObject = db()->getRow($rs);
-        $_SESSION['itemname']=$tplObject['templatename'];
-    }
-    else
-    {
-        $_SESSION['itemname']= 'New template';
+        $_SESSION['itemname'] = $tplObject['templatename'];
+    } else {
+        $_SESSION['itemname'] = 'New template';
     }
     $tplObject = array_merge($tplObject, $_POST);
     return evo()->array_get($tplObject, $key, $default);
 }
 
 function id() {
-    if(preg_match('@^[0-9]+$@',anyv('id'))) {
+    if (preg_match('@^[0-9]+$@', anyv('id'))) {
         return anyv('id');
     }
     return '';
@@ -433,9 +440,9 @@ function is_locked($id) {
         , '[+prefix+]active_users'
         , sprintf("action=16 AND id='%s'", $id)
     );
-    if(db()->getRecordCount($rs)>1) {
+    if (db()->getRecordCount($rs) > 1) {
         while ($row = db()->getRow($rs)) {
-            if($row['internalKey'] == evo()->getLoginUserID()) {
+            if ($row['internalKey'] == evo()->getLoginUserID()) {
                 continue;
             }
             return $row['username'];

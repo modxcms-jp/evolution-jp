@@ -1,60 +1,63 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('save_plugin')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
+if (!$modx->hasPermission('save_plugin')) {
+    $e->setError(3);
+    $e->dumpError();
 }
 
 $updateMsg = '';
 
-if(isset($_POST['listSubmitted']))
-{
-	$updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
-	
-	foreach ($_POST as $listName=>$listValue)
-	{
-		if ($listName == 'listSubmitted') continue;
-		$orderArray = explode(',', $listValue);
-		if(substr($listName,0,5)==='list_') $listName = substr($listName,5);
-		if (count($orderArray) > 0)
-		{
-			foreach($orderArray as $key => $item)
-			{
-				if ($item == '') continue;
-				$pluginId = ltrim($item, 'item_');
-				$field['priority'] = $key;
-				db()->update($field,'[+prefix+]site_plugin_events',"pluginid={$pluginId} AND evtid='{$listName}'");
-			}
-		}
-	}
-	// empty cache
-	$modx->clearCache(); // first empty the cache
+if (isset($_POST['listSubmitted'])) {
+    $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
+
+    foreach ($_POST as $listName => $listValue) {
+        if ($listName == 'listSubmitted') {
+            continue;
+        }
+        $orderArray = explode(',', $listValue);
+        if (substr($listName, 0, 5) === 'list_') {
+            $listName = substr($listName, 5);
+        }
+        if (count($orderArray) > 0) {
+            foreach ($orderArray as $key => $item) {
+                if ($item == '') {
+                    continue;
+                }
+                $pluginId = ltrim($item, 'item_');
+                $field['priority'] = $key;
+                db()->update($field, '[+prefix+]site_plugin_events', "pluginid={$pluginId} AND evtid='{$listName}'");
+            }
+        }
+    }
+    // empty cache
+    $modx->clearCache(); // first empty the cache
 }
 
 $f['evtname'] = 'sysevt.name';
-$f['evtid']   = 'sysevt.id';
-$f[]          = 'pe.pluginid';
-$f[]          = 'plugs.name';
-$f[]          = 'pe.priority';
+$f['evtid'] = 'sysevt.id';
+$f[] = 'pe.pluginid';
+$f[] = 'plugs.name';
+$f[] = 'pe.priority';
 $from[] = '[+prefix+]system_eventnames sysevt';
 $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
 $from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
-$rs = db()->select($f,$from,'plugs.disabled=0','sysevt.name,pe.priority');
+$rs = db()->select($f, $from, 'plugs.disabled=0', 'sysevt.name,pe.priority');
 
 $insideUl = 0;
 $preEvt = '';
 $evtLists = '';
 $sortables = array();
 while ($row = db()->getRow($rs)) {
-	if ($preEvt !== $row['evtid'])
-	{
-		$sortables[] = $row['evtid'];
-		$evtLists .= $insideUl ? '</ul><br />': '';
-		$evtLists .= '<strong>'.$row['evtname'].'</strong><br /><ul id="'.$row['evtid'].'" class="sortableList">';
-		$insideUl = 1;
-	}
-	$evtLists .= '<li id="item_'.$row['pluginid'].'">'.$row['name'].'</li>';
-	$preEvt = $row['evtid'];
+    if ($preEvt !== $row['evtid']) {
+        $sortables[] = $row['evtid'];
+        $evtLists .= $insideUl ? '</ul><br />' : '';
+        $evtLists .= '<strong>' . $row['evtname'] . '</strong><br /><ul id="' . $row['evtid'] . '" class="sortableList">';
+        $insideUl = 1;
+    }
+    $evtLists .= '<li id="item_' . $row['pluginid'] . '">' . $row['name'] . '</li>';
+    $preEvt = $row['evtid'];
 }
 
 $evtLists .= '</ul>';
@@ -98,11 +101,10 @@ $header = '
     	}
     	
     	window.addEvent(\'domready\', function() {';
-foreach ($sortables as $list)
-{
-	$header .= 'new Sortables($(\''.$list.'\'), {
+foreach ($sortables as $list) {
+    $header .= 'new Sortables($(\'' . $list . '\'), {
 	               initialize: function() {
-                        $$(\'#'.$list.' li\').each(function(el, i)
+                        $$(\'#' . $list . ' li\').each(function(el, i)
                         {
                             el.setStyle(\'padding\', \'3px 5px\');
                             el.setStyle(\'font-weight\', \'bold\');
@@ -119,26 +121,26 @@ foreach ($sortables as $list)
            });
            $(\'list_\' + id).value = list;
                     }
-                });' ."\n";
+                });' . "\n";
 }
-	$header .= '});
+$header .= '});
 </script>
 </head>
 <body ondragstart="return false;">
 
-<h1>'.$_lang['plugin_priority_title'].'</h1>
+<h1>' . $_lang['plugin_priority_title'] . '</h1>
 
 <div id="actions">
    <ul class="actionButtons">
-       	<li class="mutate"><a href="#" onclick="save();"><img src="'.$_style["icons_save"].'" /> '.$_lang['update'].'</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="'.$_style["icons_cancel"].'" /> '.$_lang['cancel'].'</a></li>
+       	<li class="mutate"><a href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
+		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="' . $_style["icons_cancel"] . '" /> ' . $_lang['cancel'] . '</a></li>
 	</ul>
 </div>
 
 <div class="section">
-<div class="sectionHeader">'.$_lang['plugin_priority'].'</div>
+<div class="sectionHeader">' . $_lang['plugin_priority'] . '</div>
 <div class="sectionBody">
-<p>'.$_lang['plugin_priority_instructions'].'</p>
+<p>' . $_lang['plugin_priority_instructions'] . '</p>
 ';
 
 echo $header;
@@ -149,12 +151,11 @@ echo $evtLists;
 
 echo '<form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />';
-            
-foreach ($sortables as $list)
-{
-	echo '<input type="text" id="list_'.$list.'" name="list_'.$list.'" value="" />';
+
+foreach ($sortables as $list) {
+    echo '<input type="text" id="list_' . $list . '" name="list_' . $list . '" value="" />';
 }
-            
+
 echo '	</form>
 	</div>
 </div>
