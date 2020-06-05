@@ -1274,7 +1274,8 @@ class DocumentParser {
     {
         if (stripos($context, 'm') === 0) {
             return $this->session_var('mgrValidated');
-        } elseif (stripos($context, 'w') === 0) {
+        }
+        if (stripos($context, 'w') === 0) {
             return $this->session_var('webValidated');
         }
         return false;
@@ -1433,17 +1434,19 @@ class DocumentParser {
             }
             // diplay error pages if user has no access to cached doc
             if(!$pass) {
-                if($this->config['unauthorized_page']) {
+                $total = 0;
+                if($this->config('unauthorized_page')) {
                     // check if file is not public
                     $rs = $this->db->select('id', '[+prefix+]document_groups', "document='{$id}'",'',1);
                     $total = $this->db->getRecordCount($rs);
                 }
                 
-                if(0 < $total) {
+                if($total) {
                     $this->sendUnauthorizedPage();
                 } else {
                     $this->sendErrorPage();
                 }
+                exit;
             }
         }
         
