@@ -37,7 +37,7 @@ if(!sessionv('mgrValidated')) {
     sprintf(
         '%slang/%s.inc.php'
         , MODX_CORE_PATH
-        , evo()->conffig('manager_language', 'english')
+        , evo()->config('manager_language', 'english')
     )
     );
 
