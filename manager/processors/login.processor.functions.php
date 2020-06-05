@@ -369,16 +369,15 @@ function managerLogin() {
     $_SESSION['mgrLastlogin'] = $modx->server_var('REQUEST_TIME');
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
-    if($modx->input_any('rememberme')) {
-        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->conf_var('session.cookie.lifetime',0);
-        global $https_port;
+    if(anyv('rememberme')) {
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime',0);
         setcookie(
             'modx_remember_manager'
             , user('username')
-            , $modx->server_var('REQUEST_TIME') + strtotime('+1 year')
-            , MODX_BASE_URL
-            , NULL
-            , ($modx->server_var('HTTPS') || $modx->server_var('SERVER_PORT') == $https_port) ? true : false
+            , strtotime('+1 month')
+            , MODX_BASE_URL . '; SameSite=Lax'
+            , ''
+            , init::is_ssl() ? true : false
             , true
         );
     } else {
