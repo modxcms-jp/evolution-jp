@@ -9,17 +9,17 @@ function ConvertDate($date) {
     return $modx->toTimeStamp($date);
 }
 
-function checkbox($name,$value,$label,$cond) {
+function checkbox($name, $value, $label, $cond) {
     global $modx;
     $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
     $ph['name'] = $name;
     $ph['value'] = $value;
     $ph['label'] = $label;
     $ph['checked'] = checked($cond);
-    return $modx->parseText($tpl,$ph);
+    return $modx->parseText($tpl, $ph);
 }
 
-function user($key, $default=null) {
+function user($key, $default = null) {
     global $user;
     return evo()->array_get($user, $key, $default);
 }
@@ -42,7 +42,7 @@ function getUser($userid) {
 
     $user = db()->getRow($rs);
 
-    $rs = db()->select('*','[+prefix+]user_settings', "user='" . $userid . "'");
+    $rs = db()->select('*', '[+prefix+]user_settings', "user='" . $userid . "'");
     while ($row = db()->getRow($rs)) {
         if (isset($user[$row['setting_name']])) {
             continue;
@@ -50,7 +50,7 @@ function getUser($userid) {
         $user[$row['setting_name']] = $row['setting_value'];
     }
 
-    if(!isset($user['failedlogins']) ) {
+    if (!isset($user['failedlogins'])) {
         $user['failedlogins'] = 0;
     }
 
@@ -73,14 +73,14 @@ function hasUserPermission($action) {
     return false;
 }
 
-function activeUserCheck($userid){
+function activeUserCheck($userid) {
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'
         , sprintf("action='12' AND id='%s'", $userid)
     );
     if (db()->getRecordCount($rs) > 1) {
-        while($lock = db()->getRow($rs)) {
+        while ($lock = db()->getRow($rs)) {
             if ($lock['internalKey'] == evo()->getLoginUserID()) {
                 continue;
             }
@@ -91,7 +91,7 @@ function activeUserCheck($userid){
     return true;
 }
 
-function blockedmode ($user) {
+function blockedmode($user) {
     if ($user['blocked'] == 1) {
         return '1';
     }
@@ -108,28 +108,28 @@ function blockedmode ($user) {
 }
 
 function saveOptions() {
-    $option=array();
+    $option = array();
     $option[] = html_tag(
         'option'
         , array(
-            'value'=>'next',
-            'selected'=> evo()->input_any('stay')=='next' ? null : ''
+            'value' => 'next',
+            'selected' => evo()->input_any('stay') == 'next' ? null : ''
         )
         , lang('stay_new')
     );
-    $option[] =  html_tag(
+    $option[] = html_tag(
         'option'
         , array(
-            'value'=>'stay',
-            'selected'=> evo()->input_any('stay')=='stay' ? null : ''
+            'value' => 'stay',
+            'selected' => evo()->input_any('stay') == 'stay' ? null : ''
         )
         , lang('stay')
     );
     $option[] = html_tag(
         'option'
         , array(
-            'value'=>'close',
-            'selected'=> evo()->input_any('stay','close')=='close' ? null : ''
+            'value' => 'close',
+            'selected' => evo()->input_any('stay', 'close') == 'close' ? null : ''
         )
         , lang('close')
     );
@@ -137,19 +137,19 @@ function saveOptions() {
 }
 
 function aButtonSave() {
-    if(!hasPermission('save_user')) {
+    if (!hasPermission('save_user')) {
         return '';
     }
     return html_tag(
         'li'
         , array(
-            'id'    => 'Button1',
+            'id' => 'Button1',
             'class' => 'mutate'
         )
         , html_tag(
             'a'
             , array(
-                'href'    => '#',
+                'href' => '#',
                 'onclick' => 'documentDirty=false; document.userform.save.click();'
             )
             , html_tag(
@@ -166,7 +166,7 @@ function aButtonSave() {
         . html_tag(
             'select'
             , array(
-                'id'   => 'stay',
+                'id' => 'stay',
                 'name' => 'save_action'
             )
             , implode("\n", saveOptions())
@@ -192,7 +192,8 @@ function aButtonCancel() {
     return manager()->ab(
         array(
             'onclick' => "document.location.href='index.php?a=75';",
-            'icon'    => style('icons_cancel'),'label'=>lang('cancel')
+            'icon' => style('icons_cancel'),
+            'label' => lang('cancel')
         )
     );
 }

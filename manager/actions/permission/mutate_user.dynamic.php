@@ -1,10 +1,12 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 global $_style;
 
 include_once __DIR__ . '/mutate_user/functions.php';
 
-if(!hasUserPermission(request_intvar('a'))) {
+if (!hasUserPermission(request_intvar('a'))) {
     alert()->setError(3);
     alert()->dumpError();
     return;
@@ -20,12 +22,12 @@ if ($userid && !activeUserCheck($userid)) {
 global $user;
 if (anyv('a') == 12) {
     $user = getUser($userid);
-    if(!$user) {
+    if (!$user) {
         exit('No user returned while getting username!<p>');
     }
     $_SESSION['itemname'] = $user['username'];
 } else {
-    $user = array ();
+    $user = array();
     $_SESSION['itemname'] = 'New user';
 }
 
@@ -51,13 +53,13 @@ $countries_path = MODX_CORE_PATH . sprintf(
         'lang/country/%s_country.inc.php'
         , evo()->config('manager_language')
     );
-if(evo()->config('manager_language') !== 'english' && is_file($countries_path)){
+if (evo()->config('manager_language') !== 'english' && is_file($countries_path)) {
     include_once $countries_path;
 }
 
-$displayStyle = (sessionv('browser') ==='modern') ? 'table-row' : 'block';
+$displayStyle = (sessionv('browser') === 'modern') ? 'table-row' : 'block';
 // invoke OnUserFormPrerender event
-$tmp = array ('id' => $userid);
+$tmp = array('id' => $userid);
 $evtOut = evo()->invokeEvent('OnUserFormPrerender', $tmp);
 if (is_array($evtOut)) {
     echo implode('', $evtOut);
