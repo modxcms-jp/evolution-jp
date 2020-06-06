@@ -5,19 +5,18 @@ function startCMSSession() {
 
     $site_sessionname = 'evo' . base_convert(hash('crc32b', __FILE__), 16, 36);
     session_name($site_sessionname);
-    session_set_cookie_params(0, MODX_BASE_URL);
+    init::session_set_cookie_params();
     session_start();
-
     if (sessionv('evo_sid_hash') !== md5(session_id())) {
         session_regenerate_id(true);
         $_SESSION['evo_sid_hash'] = md5(session_id());
     }
     if (sessionv('mgrValidated') || sessionv('webValidated')) {
-        init::secure_setcookie(init::cookieExpiration());
+        // init::setcookie(init::cookieExpiration());
         init::set_session_create_time();
         return;
     }
-    init::secure_setcookie(0);
+    // init::setcookie(0);
 }
 
 function set_parser_mode() {
@@ -54,7 +53,30 @@ class init {
         header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
 
-    public static function secure_setcookie($expires) {
+    public static function session_set_cookie_params($options=array()) {
+        $options += array(
+            'lifetime' => 3600*24*30,
+            'path' => MODX_BASE_URL,
+            'domain' => init::get_host_name(),
+            'secure' => init::is_ssl() ? true : false,
+            'httponly' => true,
+            'samesite' =>'Lax'
+        );
+        if(70300 <= PHP_VERSION_ID) {
+            session_set_cookie_params($options);
+        } else {
+            session_set_cookie_params (
+                $options['lifetime']
+                , $options['path'] . '; SameSite=Lax'
+                , $options['domain']
+                , $options['secure']
+                , $options['httponly']
+            );
+        }
+        
+        
+    }
+    public static function setcookie($expires) {
         global $site_sessionname;
         if(70300 <= PHP_VERSION_ID) {
             setcookie(
@@ -246,14 +268,14 @@ class init {
     }
 
     public static function set_session_create_time() {
-        if(isset($_SESSION['modx.session.created.time'])) {
+        if(sessionv('modx.session.created.time')) {
             return;
         }
 
         if(sessionv('mgrLastlogin')) {
-            $_SESSION['modx.session.created.time'] = $_SESSION['mgrLastlogin'];
+            $_SESSION['modx.session.created.time'] = sessionv('mgrLastlogin');
         } else {
-            $_SESSION['modx.session.created.time'] = $_SERVER['REQUEST_TIME'];
+            $_SESSION['modx.session.created.time'] = serverv('REQUEST_TIME');
         }
     }
     
