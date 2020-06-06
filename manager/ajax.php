@@ -1,11 +1,13 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
-if($modx->getLoginUserType() !== 'manager') exit('Not Logged In!');
-
-switch ($_REQUEST['ajaxa']) {
-    case 16:
-        $rs = include(MODX_MANAGER_PATH . 'actions/element/ajax/mutate_templates.php');break;
+if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
+    exit();
+}
+if (evo()->getLoginUserType() !== 'manager') {
+    exit('Not Logged In!');
 }
 
-echo $rs;
+if (anyv('ajaxa') == 16) {
+    echo include(MODX_MANAGER_PATH . 'actions/element/ajax/mutate_templates.php');
+}
+
 exit;
