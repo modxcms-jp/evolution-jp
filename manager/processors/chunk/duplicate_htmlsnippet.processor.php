@@ -1,11 +1,15 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('new_chunk')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
 }
-if(!preg_match('@^[0-9]+$@',$_GET['id'])) exit;
-$id=$_GET['id'];
+if (!$modx->hasPermission('new_chunk')) {
+    $e->setError(3);
+    $e->dumpError();
+}
+if (!preg_match('@^[0-9]+$@', $_GET['id'])) {
+    exit;
+}
+$id = $_GET['id'];
 
 // duplicate htmlsnippet
 $tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
@@ -15,10 +19,12 @@ $sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category
 		FROM {$tbl_site_htmlsnippets} WHERE id='{$id}'";
 $rs = $modx->db->query($sql);
 
-if($rs) $newid = $modx->db->getInsertId(); // get new id
+if ($rs) {
+    $newid = $modx->db->getInsertId();
+} // get new id
 else {
-	echo "A database error occured while trying to duplicate variable: <br /><br />".$modx->db->getLastError();
-	exit;
+    echo "A database error occured while trying to duplicate variable: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // finish duplicating - redirect to new chunk

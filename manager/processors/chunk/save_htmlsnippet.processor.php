@@ -1,5 +1,7 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 if (!$modx->hasPermission('save_chunk')) {
     $e->setError(3);
     $e->dumpError();
@@ -9,14 +11,16 @@ $input = $_POST;
 extract($input);
 unset($input);
 
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
+if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
+    $id = $_POST['id'];
+}
 
 $snippet = $modx->db->escape($post);
 $name = (isset($name) && $name !== '') ? $modx->db->escape(trim($name)) : 'Untitled chunk';
 $description = $modx->db->escape($description);
-$locked      = $locked === 'on'     ? 1 : 0;
+$locked = $locked === 'on' ? 1 : 0;
 $editor_type = $editor_type == '1' ? 1 : 0;
-$published   = $published == '1'   ? 1 : 0;
+$published = $published == '1' ? 1 : 0;
 
 // determine published status
 $currentdate = time();
@@ -29,20 +33,23 @@ if (empty($pub_date)) {
         $modx->manager->saveFormValues(78);
         $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
         exit;
+    } elseif ($pub_date < $currentdate) {
+        $published = 1;
+    } elseif ($pub_date > $currentdate) {
+        $published = 0;
     }
-    elseif ($pub_date < $currentdate) $published = 1;
-    elseif ($pub_date > $currentdate) $published = 0;
 }
-if (empty($unpub_date))
+if (empty($unpub_date)) {
     $unpub_date = 0;
-else {
+} else {
     $unpub_date = $modx->toTimeStamp($unpub_date);
     if (empty($unpub_date)) {
         $modx->manager->saveFormValues(78);
         $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
         exit;
+    } elseif ($unpub_date < $currentdate) {
+        $published = 0;
     }
-    elseif ($unpub_date < $currentdate) $published = 0;
 }
 
 //Kyle Jaebker - added category support
@@ -52,8 +59,11 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
     $category = 0;
 } else {
     $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) $category = $catCheck;
-    else           $category = $modx->manager->newCategory($_POST['newcategory']);
+    if ($catCheck) {
+        $category = $catCheck;
+    } else {
+        $category = $modx->manager->newCategory($_POST['newcategory']);
+    }
 }
 
 switch ($_POST['mode']) {
@@ -61,8 +71,8 @@ switch ($_POST['mode']) {
 
         // invoke OnBeforeChunkFormSave event
         $tmp = array(
-              'mode' => 'new',
-              'id' => ''
+            'mode' => 'new',
+            'id' => ''
         );
         $modx->invokeEvent('OnBeforeChunkFormSave', $tmp);
 
@@ -76,10 +86,13 @@ switch ($_POST['mode']) {
             exit;
         }
         //do stuff to save the new doc
-        $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
+        $field = compact(explode(',',
+            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
         $newid = $modx->db->insert($field, '[+prefix+]site_htmlsnippets');
         // get the id
-        if(!$newid) exit("Couldn't get last insert key!");
+        if (!$newid) {
+            exit("Couldn't get last insert key!");
+        }
 
         // invoke OnChunkFormSave event
         $tmp = array(
@@ -103,8 +116,8 @@ switch ($_POST['mode']) {
 
         // invoke OnBeforeChunkFormSave event
         $tmp = array(
-          "mode" => "upd",
-          "id" => $id
+            "mode" => "upd",
+            "id" => $id
         );
         $modx->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
@@ -117,7 +130,8 @@ switch ($_POST['mode']) {
 
         //do stuff to save the edited doc
         $was_name = $modx->db->getValue($modx->db->select('name', '[+prefix+]site_htmlsnippets', "id='{$id}'"));
-        $field = compact(explode(',', 'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
+        $field = compact(explode(',',
+            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
         $rs = $modx->db->update($field, '[+prefix+]site_htmlsnippets', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
@@ -127,17 +141,24 @@ switch ($_POST['mode']) {
             $was_name = str_replace("'", "''", $was_name);
             if ($name !== $was_name) {
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_content');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",
+                    '[+prefix+]site_templates');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')",
+                    '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')",
+                    '[+prefix+]site_tmplvar_contentvalues');
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_content');
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')",
+                    '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')",
+                    '[+prefix+]site_tmplvar_contentvalues');
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_content');
                 $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}?','{{{$name}?')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}?','{{{$name}?')",
+                    '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '{{{$was_name}?','{{{$name}?')",
+                    '[+prefix+]site_tmplvar_contentvalues');
             }
 
             // invoke OnChunkFormSave event
@@ -170,8 +191,9 @@ function check_exist_name($name) { // disallow duplicate names for edit chunks
     }
     $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
     $count = $modx->db->getValue($rs);
-    if ($count > 0)
+    if ($count > 0) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
