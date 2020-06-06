@@ -175,7 +175,7 @@ class SubParser {
                 $body['Source'] = $fields['source'];
                 $body['IP'] = evo()->server('REMOTE_ADDR');
                 if(evo()->server('REMOTE_ADDR')) {
-                    $hostname = gethostbyaddr(evo()->server['REMOTE_ADDR']);
+                    $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
                 }
                 if($hostname) {
                     $body['Host name'] = $hostname;
