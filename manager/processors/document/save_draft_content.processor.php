@@ -1,17 +1,19 @@
 <?php
 // 128
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-
-if(!$modx->hasPermission('save_document')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
 }
 
-if(isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@',$_POST['id']))
-	$docid = $_POST['id'];
-else {
-	$e->setError(2);
-	$e->dumpError();
+if (!$modx->hasPermission('save_document')) {
+    $e->setError(3);
+    $e->dumpError();
+}
+
+if (isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@', $_POST['id'])) {
+    $docid = $_POST['id'];
+} else {
+    $e->setError(2);
+    $e->dumpError();
 }
 
 $modx->manager->saveFormValues(4);
@@ -22,7 +24,7 @@ $modx->loadExtension('DocAPI');
 $fields = $modx->doc->fixTvNest($_POST);
 $fields = $modx->doc->fixPubStatus($fields);
 
-if(postv('stay')==='save_standby') {
+if (postv('stay') === 'save_standby') {
     $rs = $modx->revision->save($docid, $fields, 'standby');
 } else {
     $rs = $modx->revision->save($docid, $fields, 'draft');

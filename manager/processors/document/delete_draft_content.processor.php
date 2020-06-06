@@ -1,6 +1,8 @@
 <?php
 // 128 / 129
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 
 $modx->loadExtension('REVISION');
 
