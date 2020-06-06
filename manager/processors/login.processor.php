@@ -1,10 +1,11 @@
 <?php
-if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    header('HTTP/1.0 404 Not Found');exit;
+if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 define('IN_MANAGER_MODE', 'true');
-define('MODX_API_MODE',true);
+define('MODX_API_MODE', true);
 ini_set('display_errors', '1');
 
 include_once '../../index.php';
@@ -24,13 +25,13 @@ $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 OnBeforeManagerLogin();
 
-if(isBlockedUser()) {
+if (isBlockedUser()) {
     @session_destroy();
     session_unset();
     jsAlert(alert()->errors[902]);
 }
 
-if(!checkAllowedIp() || !checkAllowedDays()) {
+if (!checkAllowedIp() || !checkAllowedDays()) {
     return;
 }
 
@@ -39,12 +40,12 @@ $modx->loadExtension('ManagerAPI');
 // invoke OnManagerAuthentication event
 $rt = OnManagerAuthentication();
 if (!$rt) {
-    if(!validPassword(input('password'), user('password'))) {
+    if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
         return;
     }
-    if(!checkCaptcha()) {
+    if (!checkCaptcha()) {
         return;
     }
 }

@@ -1,6 +1,8 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!hasPermission('save_plugin') && !hasPermission('save_snippet') && !hasPermission('save_template') && !hasPermission('save_module')) {
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
+if (!hasPermission('save_plugin') && !hasPermission('save_snippet') && !hasPermission('save_template') && !hasPermission('save_module')) {
     header('Location: index.php?a=76');
     return;
 }

@@ -1,19 +1,20 @@
 <?php
-if(!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    header('HTTP/1.0 404 Not Found');exit;
+if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+    header('HTTP/1.0 404 Not Found');
+    exit;
 }
 
 function checkSafedUri() {
-    if(strpos(urldecode(evo()->server_var('REQUEST_URI')), "'") === false) {
+    if (strpos(urldecode(evo()->server_var('REQUEST_URI')), "'") === false) {
         return;
     }
     jsAlert('This is illegal login.');
 }
 
-function jsAlert($msg){
+function jsAlert($msg) {
     global $modx, $modx_manager_charset;
-    header('Content-Type: text/html; charset='.$modx_manager_charset);
-    if(postv('ajax')==1) {
+    header('Content-Type: text/html; charset=' . $modx_manager_charset);
+    if (postv('ajax') == 1) {
         echo $msg;
     } else {
         echo sprintf(
@@ -27,14 +28,14 @@ function failedLogin() {
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
     db()->update(
-        array('failedlogincount'=>$failedlogincount)
+        array('failedlogincount' => $failedlogincount)
         , '[+prefix+]user_attributes'
         , sprintf("internalKey='%s'", user('internalKey'))
     );
-    if(config('failed_login_attempts',0)<=$failedlogincount) {
+    if (config('failed_login_attempts', 0) <= $failedlogincount) {
         db()->update(
             array(
-                'blockeduntil' => $_SERVER['REQUEST_TIME']+(config('blocked_minutes')*60)
+                'blockeduntil' => $_SERVER['REQUEST_TIME'] + (config('blocked_minutes') * 60)
             )
             , '[+prefix+]user_attributes'
             , sprintf("internalKey='%s'", user('internalKey'))
@@ -44,41 +45,42 @@ function failedLogin() {
     session_unset();
 }
 
-function loginPhpass($givenPassword,$dbasePassword) {
+function loginPhpass($givenPassword, $dbasePassword) {
     global $modx;
     return $modx->phpass->CheckPassword($givenPassword, $dbasePassword);
 }
 
-function loginV1($givenPassword,$dbasePassword,$internalKey) {
+function loginV1($givenPassword, $dbasePassword, $internalKey) {
     global $modx;
 
     $user_algo = $modx->manager->getV1UserHashAlgorithm($internalKey);
 
-    if(!config('pwd_hash_algo'))
+    if (!config('pwd_hash_algo')) {
         $modx->config['pwd_hash_algo'] = 'UNCRYPT';
+    }
 
-    if($user_algo !== $modx->config['pwd_hash_algo']) {
+    if ($user_algo !== $modx->config['pwd_hash_algo']) {
         $modx->config['pwd_hash_algo'] = $user_algo;
     }
 
-    if($dbasePassword != $modx->manager->genV1Hash($givenPassword, $internalKey)) {
+    if ($dbasePassword != $modx->manager->genV1Hash($givenPassword, $internalKey)) {
         return false;
     }
 
-    updateNewHash($internalKey,$givenPassword);
+    updateNewHash($internalKey, $givenPassword);
 
     return true;
 }
 
-function loginMD5($givenPassword,$dbasePassword,$internalKey) {
-    if($dbasePassword != md5($givenPassword)) {
+function loginMD5($givenPassword, $dbasePassword, $internalKey) {
+    if ($dbasePassword != md5($givenPassword)) {
         return false;
     }
-    updateNewHash($internalKey,$givenPassword);
+    updateNewHash($internalKey, $givenPassword);
     return true;
 }
 
-function updateNewHash($internalKey,$password) {
+function updateNewHash($internalKey, $password) {
     $rs = db()->update(
         array(
             'password' => db()->escape(
@@ -90,9 +92,9 @@ function updateNewHash($internalKey,$password) {
     );
 }
 
-function user_config($key, $default=null) {
+function user_config($key, $default = null) {
     static $conf = null;
-    if(isset($conf[$key])) {
+    if (isset($conf[$key])) {
         return $conf[$key];
     }
     $rs = db()->select(
@@ -106,13 +108,13 @@ function user_config($key, $default=null) {
     while ($row = db()->getRow($rs)) {
         $conf[$row['setting_name']] = $row['setting_value'];
     }
-    if(isset($conf[$key])) {
+    if (isset($conf[$key])) {
         return $conf[$key];
     }
     return $default;
 }
 
-function input($key,$default=null) {
+function input($key, $default = null) {
     static $input = array();
 
     if (isset($input[$key])) {
@@ -120,20 +122,20 @@ function input($key,$default=null) {
     }
 
     $input = array(
-        'username'     => postv('username', getv('username')),
-        'password'     => postv('password'),
+        'username' => postv('username', getv('username')),
+        'password' => postv('password'),
         'captcha_code' => postv('captcha_code', ''),
-        'rememberme'   => postv('rememberme', '')
+        'rememberme' => postv('rememberme', '')
     );
-    if(strpos($input['username'],':safemode')!==false) {
+    if (strpos($input['username'], ':safemode') !== false) {
         $input['username'] = str_replace(':safemode', '', $input['username']);
         $input['safeMode'] = 1;
     } else {
         $input['safeMode'] = 0;
     }
-    if(strpos($input['username'],':roleid=')!==false) {
-        list($input['username'], $input['forceRole']) = explode(':roleid=', $input['username'],2);
-        if(!preg_match('@^[0-9]+$@',$input['forceRole'])) {
+    if (strpos($input['username'], ':roleid=') !== false) {
+        list($input['username'], $input['forceRole']) = explode(':roleid=', $input['username'], 2);
+        if (!preg_match('@^[0-9]+$@', $input['forceRole'])) {
             $input['forceRole'] = 1;
         }
     } else {
@@ -142,7 +144,7 @@ function input($key,$default=null) {
     return array_get($input, $key, $default);
 }
 
-function user($key, $default=null) {
+function user($key, $default = null) {
     static $user = array();
 
     if (isset($user[$key])) {
@@ -150,7 +152,7 @@ function user($key, $default=null) {
     }
 
     $user = evo()->getUserFromName(input('username'));
-    if(!$user) {
+    if (!$user) {
         include_once(MODX_CORE_PATH . 'error.class.inc.php');
         $e = new errorHandler;
         jsAlert($e->errors[900]);
@@ -160,9 +162,9 @@ function user($key, $default=null) {
     if (($user['role'] == 1 && input('forceRole'))) {
         $user['role'] = input('forceRole');
     }
-    if (array_get($user,'blockeduntil') && array_get($user,'blockeduntil') < time()) {
+    if (array_get($user, 'blockeduntil') && array_get($user, 'blockeduntil') < time()) {
         $user['failedlogincount'] = '0';
-        $user['blocked']          = '0';
+        $user['blocked'] = '0';
     }
 
     if (isset($user[$key])) {
@@ -173,22 +175,22 @@ function user($key, $default=null) {
 
 function OnBeforeManagerLogin() {
     $info = array(
-        'username'     => input('username'),
+        'username' => input('username'),
         'userpassword' => input('password'),
-        'rememberme'   => input('rememberme')
+        'rememberme' => input('rememberme')
     );
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
 function isBlockedUser() {
-    if(!user('blocked')) {
+    if (!user('blocked')) {
         return false;
     }
-    if (evo()->server_var('REQUEST_TIME') < user('blockeduntil',0)) {
+    if (evo()->server_var('REQUEST_TIME') < user('blockeduntil', 0)) {
         return true;
     }
-    if(config('failed_login_attempts',0) < user('failedlogincount',0)) {
-        if (evo()->server_var('REQUEST_TIME') < user('blockeduntil',0)) {
+    if (config('failed_login_attempts', 0) < user('failedlogincount', 0)) {
+        if (evo()->server_var('REQUEST_TIME') < user('blockeduntil', 0)) {
             return true;
         }
     }
@@ -229,14 +231,14 @@ function checkAllowedIp() {
 
 function OnManagerAuthentication() {
     $info = array(
-        'userid'        => user('internalKey'),
-        'username'      => user('username'),
-        'userpassword'  => input('password'),
+        'userid' => user('internalKey'),
+        'username' => user('username'),
+        'userpassword' => input('password'),
         'savedpassword' => user('password'),
-        'rememberme'    => input('rememberme')
+        'rememberme' => input('rememberme')
     );
     $rt = evo()->invokeEvent('OnManagerAuthentication', $info);
-    if (!$rt || (is_array($rt) && !in_array(true,$rt))) {
+    if (!$rt || (is_array($rt) && !in_array(true, $rt))) {
         return false;
     }
     return true;
@@ -244,16 +246,16 @@ function OnManagerAuthentication() {
 
 function OnManagerLogin() {
     $info = array(
-        'userid'       => user('internalKey'),
-        'username'     => user('username'),
+        'userid' => user('internalKey'),
+        'username' => user('username'),
         'userpassword' => input('password'),
-        'rememberme'   => input('rememberme')
+        'rememberme' => input('rememberme')
     );
     evo()->invokeEvent('OnManagerLogin', $info);
 }
 
 function checkCaptcha() {
-    if(config('use_captcha') != 1) {
+    if (config('use_captcha') != 1) {
         return true;
     }
 
@@ -284,9 +286,9 @@ function checkAllowedDays() {
     return false;
 }
 
-function validPassword($inputPassword='',$savedPassword='') {
+function validPassword($inputPassword = '', $savedPassword = '') {
     evo()->loadExtension('phpass');
-    switch(evo()->manager->getHashType($savedPassword)) {
+    switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':
             return loginPhpass($inputPassword, $savedPassword);
         case 'md5':
@@ -299,23 +301,23 @@ function validPassword($inputPassword='',$savedPassword='') {
 }
 
 function redirectAfterLogin() {
-    if(user_config('manager_login_startup')) {
-        $header = 'Location: '.evo()->makeUrl(user_config('manager_login_startup'));
-        if(evo()->input_post('ajax')) {
+    if (user_config('manager_login_startup')) {
+        $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
+        if (evo()->input_post('ajax')) {
             exit($header);
         }
         header($header);
         return;
     }
 
-    if(evo()->session_var('save_uri')) {
+    if (evo()->session_var('save_uri')) {
         $uri = evo()->session_var('save_uri');
         unset($_SESSION['save_uri']);
     } else {
         $uri = MODX_MANAGER_URL;
     }
     $header = 'Location: ' . $uri;
-    if(evo()->input_post('ajax')==1) {
+    if (evo()->input_post('ajax') == 1) {
         exit($header);
     }
     header($header);
@@ -325,18 +327,18 @@ function managerLogin() {
     global $modx;
 
     session_regenerate_id(true);
-    
+
     $_SESSION['usertype'] = 'manager'; // user is a backend user
 
     // get permissions
-    $_SESSION['mgrShortname']    = user('username');
-    $_SESSION['mgrFullname']     = user('fullname');
-    $_SESSION['mgrEmail']        = user('email');
-    $_SESSION['mgrValidated']    = 1;
-    $_SESSION['mgrInternalKey']  = user('internalKey');
+    $_SESSION['mgrShortname'] = user('username');
+    $_SESSION['mgrFullname'] = user('fullname');
+    $_SESSION['mgrEmail'] = user('email');
+    $_SESSION['mgrValidated'] = 1;
+    $_SESSION['mgrInternalKey'] = user('internalKey');
     $_SESSION['mgrFailedlogins'] = user('failedlogincount');
-    $_SESSION['mgrLogincount']   = user('logincount'); // login count
-    $_SESSION['mgrRole']         = user('role');
+    $_SESSION['mgrLogincount'] = user('logincount'); // login count
+    $_SESSION['mgrRole'] = user('role');
     $rs = $modx->db->select(
         '*'
         , '[+prefix+]user_roles'
@@ -346,18 +348,18 @@ function managerLogin() {
 
     $_SESSION['mgrPermissions'] = $row;
 
-    if($modx->session_var('mgrPermissions.messages')==1) {
+    if ($modx->session_var('mgrPermissions.messages') == 1) {
         $rs = $modx->db->select('*', '[+prefix+]manager_users');
         $total = $modx->db->getRecordCount($rs);
-        if($total==1) {
+        if ($total == 1) {
             $_SESSION['mgrPermissions']['messages'] = '0';
         }
     }
     // successful login so reset fail count and update key values
     $modx->db->update(
         array(
-            'failedlogincount'=>0,
-            'logincount' => user('logincount')+1,
+            'failedlogincount' => 0,
+            'logincount' => user('logincount') + 1,
             'lastlogin' => user('thislogin'),
             'thislogin' => $modx->server_var('REQUEST_TIME'),
             'sessionid' => session_id()
@@ -369,9 +371,9 @@ function managerLogin() {
     $_SESSION['mgrLastlogin'] = $modx->server_var('REQUEST_TIME');
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
-    if($modx->input_any('rememberme')) {
-        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime',0);
-        if(70300 <= PHP_VERSION_ID) {
+    if ($modx->input_any('rememberme')) {
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
+        if (70300 <= PHP_VERSION_ID) {
             setcookie(
                 'modx_remember_manager'
                 , user('username')
@@ -396,8 +398,8 @@ function managerLogin() {
             );
         }
     } else {
-        $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
-        if(70300 <= PHP_VERSION_ID) {
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
+        if (70300 <= PHP_VERSION_ID) {
             setcookie(
                 'modx_remember_manager'
                 , ''
@@ -424,7 +426,7 @@ function managerLogin() {
         }
     }
 
-    if($modx->hasPermission('remove_locks')) {
+    if ($modx->hasPermission('remove_locks')) {
         $modx->manager->remove_locks();
     }
 

@@ -1,9 +1,11 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 
-if(!$modx->hasPermission('remove_locks')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!$modx->hasPermission('remove_locks')) {
+    $e->setError(3);
+    $e->dumpError();
 }
 
 // Remove locks

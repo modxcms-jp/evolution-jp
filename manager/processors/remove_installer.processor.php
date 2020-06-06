@@ -14,12 +14,9 @@ $self = 'manager/processors/remove_installer.processor.php';
 $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 
 $install_dir = "{$base_path}install";
-if(isset($_GET['rminstall']))
-{
-    if(is_dir($install_dir))
-    {
-        if(!rmdirRecursive($install_dir))
-        {
+if (isset($_GET['rminstall'])) {
+    if (is_dir($install_dir)) {
+        if (!rmdirRecursive($install_dir)) {
             $msg = 'An error occured while attempting to remove the install folder';
             echo "<script>alert('{$msg}');</script>";
         }
@@ -28,25 +25,20 @@ if(isset($_GET['rminstall']))
 echo "<script>window.location='../index.php?a=2';</script>";
 
 // rmdirRecursive - detects symbollic links on unix
-function rmdirRecursive($path)
-{
+function rmdirRecursive($path) {
     $files = scandir($path);
-    foreach ($files as $entry)
-    {
-        if ($entry==='.') {
+    foreach ($files as $entry) {
+        if ($entry === '.') {
             continue;
         }
-        if ($entry==='..') {
+        if ($entry === '..') {
             continue;
         }
 
         $target = $path . '/' . $entry;
-        if (is_file($target))
-        {
-            @unlink( $target );
-        }
-        elseif (is_dir($target))
-        {
+        if (is_file($target)) {
+            @unlink($target);
+        } elseif (is_dir($target)) {
             rmdirRecursive($target);
         }
     }
