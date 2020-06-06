@@ -1,28 +1,31 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-if(!$modx->hasPermission('new_module')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
 }
-$id=$_GET['id'];
-if( !preg_match('/^[0-9]+\z/',$id) )
-{
-        echo 'Value of $id is invalid.';
-        exit;
+if (!$modx->hasPermission('new_module')) {
+    $e->setError(3);
+    $e->dumpError();
+}
+$id = $_GET['id'];
+if (!preg_match('/^[0-9]+\z/', $id)) {
+    echo 'Value of $id is invalid.';
+    exit;
 }
 
 // duplicate module
 $tbl_site_modules = $modx->getFullTableName('site_modules');
 $tpl = $_lang['duplicate_title_string'];
 $sql = "INSERT INTO {$tbl_site_modules} (name, description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, guid, enable_sharedparams, properties, modulecode) 
-		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, '".createGUID()."' as 'guid', enable_sharedparams, properties, modulecode 
+		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, '" . createGUID() . "' as 'guid', enable_sharedparams, properties, modulecode 
 		FROM {$tbl_site_modules} WHERE id={$id}";
 $rs = $modx->db->query($sql);
 
-if($rs) $newid = $modx->db->getInsertId(); // get new id
+if ($rs) {
+    $newid = $modx->db->getInsertId();
+} // get new id
 else {
-	echo "A database error occured while trying to duplicate module: <br /><br />".$modx->db->getLastError();
-	exit;
+    echo "A database error occured while trying to duplicate module: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // duplicate module dependencies
@@ -32,9 +35,9 @@ $sql = "INSERT INTO {$tbl_site_module_depobj} (module, resource, type)
 		FROM {$tbl_site_module_depobj} WHERE module={$id}";
 $rs = $modx->db->query($sql);
 
-if(!$rs){
-	echo "A database error occured while trying to duplicate module dependencies: <br /><br />".$modx->db->getLastError();
-	exit;
+if (!$rs) {
+    echo "A database error occured while trying to duplicate module dependencies: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // duplicate module user group access
@@ -44,20 +47,19 @@ $sql = "INSERT INTO {$tbl_site_module_access} (module, usergroup)
 		FROM {$tbl_site_module_access} WHERE module={$id}";
 $rs = $modx->db->query($sql);
 
-if(!$rs){
-	echo "A database error occured while trying to duplicate module user group access: <br /><br />".$modx->db->getLastError();
-	exit;
+if (!$rs) {
+    echo "A database error occured while trying to duplicate module user group access: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // finish duplicating - redirect to new module
 header("Location: index.php?r=2&a=108&id={$newid}");
 
 
-
 // create globally unique identifiers (guid)
-function createGUID(){
-	mt_srand((double)microtime()*1000000);
-	$r = mt_rand() ;
-	$u = uniqid(getmypid() . $r . (double)microtime()*1000000,1);
-    return md5 ($u);
+function createGUID() {
+    mt_srand((double)microtime() * 1000000);
+    $r = mt_rand();
+    $u = uniqid(getmypid() . $r . (double)microtime() * 1000000, 1);
+    return md5($u);
 }
