@@ -1,15 +1,16 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
-
-if(!$modx->hasPermission('new_plugin')) {
-	$e->setError(3);
-	$e->dumpError();
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
 }
-$id=$_GET['id'];
-if( !preg_match('/^[0-9]+\z/',$id) )
-{
-        echo 'Value of $id is invalid.';
-        exit;
+
+if (!$modx->hasPermission('new_plugin')) {
+    $e->setError(3);
+    $e->dumpError();
+}
+$id = $_GET['id'];
+if (!preg_match('/^[0-9]+\z/', $id)) {
+    echo 'Value of $id is invalid.';
+    exit;
 }
 
 // duplicate Plugin
@@ -20,10 +21,12 @@ $sql = "INSERT INTO {$tbl_site_plugins} (name, description, disabled, moduleguid
 		FROM {$tbl_site_plugins} WHERE id={$id}";
 $rs = $modx->db->query($sql);
 
-if($rs) $newid = $modx->db->getInsertId(); // get new id
+if ($rs) {
+    $newid = $modx->db->getInsertId();
+} // get new id
 else {
-	echo "A database error occured while trying to duplicate plugin: <br /><br />".$modx->db->getLastError();
-	exit;
+    echo "A database error occured while trying to duplicate plugin: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // duplicate Plugin Event Listeners
@@ -34,8 +37,8 @@ $sql = "INSERT INTO {$tbl_site_plugin_events} (pluginid,evtid,priority)
 $rs = $modx->db->query($sql);
 
 if (!$rs) {
-	echo "A database error occured while trying to duplicate plugin events: <br /><br />".$modx->db->getLastError();
-	exit;
+    echo "A database error occured while trying to duplicate plugin events: <br /><br />" . $modx->db->getLastError();
+    exit;
 }
 
 // finish duplicating - redirect to new plugin
