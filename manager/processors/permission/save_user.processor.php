@@ -1,5 +1,7 @@
 <?php
-if(!isset($modx) || !evo()->isLoggedin()) exit;
+if (!isset($modx) || !evo()->isLoggedin()) {
+    exit;
+}
 if (!evo()->hasPermission('save_user')) {
     alert()->setError(3);
     alert()->dumpError();
@@ -53,8 +55,8 @@ if (postv('mode') == '11') { // new user
     return;
 }
 
-if (in_array(postv('mode'), array('12','74'))) {
-    if(!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
+if (in_array(postv('mode'), array('12', '74'))) {
+    if (!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
         webAlert('Missing user id!');
     }
     // check if the username already exist
