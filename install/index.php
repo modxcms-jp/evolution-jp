@@ -27,7 +27,7 @@ require_once(MODX_SETUP_PATH . 'functions.php');
 $rs = install_sessionCheck();
 if(!$rs) {
     $ph = includeLang(lang_name());
-    $tpl = file_get_contents(MODX_BASE_PATH . 'install/tpl/session_problem.tpl');
+    $tpl = file_get_contents(MODX_SETUP_PATH . 'tpl/session_problem.tpl');
     echo $modx->parseText($tpl,$ph);
     exit;
 }
@@ -67,5 +67,5 @@ if (!@include(MODX_SETUP_PATH . "actions/" . $action . ".php")) {
 $ph['content'] = ob_get_contents();
 ob_end_clean();
 
-$tpl = file_get_contents(MODX_BASE_PATH . 'install/tpl/template.tpl');
+$tpl = file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl');
 echo $modx->parseText($tpl,$ph);
