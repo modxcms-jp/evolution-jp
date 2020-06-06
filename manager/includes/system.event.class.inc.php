@@ -1,4 +1,5 @@
 <?php
+
 // SystemEvent Class
 class SystemEvent {
     public $name;
@@ -11,9 +12,9 @@ class SystemEvent {
     public $vars = array();
     public $cm = null;
 
-    function __construct($name= '') {
+    function __construct($name = '') {
         $this->_resetEventObject();
-        $this->name= $name;
+        $this->name = $name;
         $this->activePlugin = '';
     }
 
@@ -36,70 +37,67 @@ class SystemEvent {
 
     // used for rendering an out on the screen
     function output($msg) {
-        if( is_object($this->cm) ) {
+        if (is_object($this->cm)) {
             $this->cm->addOutput($msg);
         }
     }
 
     // get global variables
     function getGlobalVariable($key) {
-        if( isset( $GLOBALS[$key] ) )
-        {
+        if (isset($GLOBALS[$key])) {
             return $GLOBALS[$key];
         }
         return false;
     }
 
     // set global variables
-    function setGlobalVariable($key,$val,$now=0) {
-        if (! isset( $GLOBALS[$key] ) ) { return false; }
-        if ( $now === 1 || $now === 'now' )
-        {
-            $GLOBALS[$key] = $val;
+    function setGlobalVariable($key, $val, $now = 0) {
+        if (!isset($GLOBALS[$key])) {
+            return false;
         }
-        else
-        {
-            $this->_globalVariables[$key]=$val;
+        if ($now === 1 || $now === 'now') {
+            $GLOBALS[$key] = $val;
+        } else {
+            $this->_globalVariables[$key] = $val;
         }
         return true;
     }
 
     // set all global variables
     function setAllGlobalVariables() {
-        if ( empty( $this->_globalVariables ) ) {
+        if (empty($this->_globalVariables)) {
             return false;
         }
-        foreach ( $this->_globalVariables as $key => $val )
-        {
+        foreach ($this->_globalVariables as $key => $val) {
             $GLOBALS[$key] = $val;
         }
         return true;
     }
 
     function stopPropagation() {
-        $this->_propagate= false;
+        $this->_propagate = false;
     }
 
     function _resetEventObject() {
         unset ($this->returnedValues);
-        $this->_output= '';
-        $this->_globalVariables=array();
-        $this->_propagate= true;
-        $this->activated= false;
+        $this->_output = '';
+        $this->_globalVariables = array();
+        $this->_propagate = true;
+        $this->activated = false;
     }
 
-    public function getParam($key, $default=null) {
+    public function getParam($key, $default = null) {
         if (!isset($this->params[$key])) {
             return $default;
         }
-        if(strtolower($this->params[$key]) === 'false') {
+        if (strtolower($this->params[$key]) === 'false') {
             $this->params[$key] = false;
         }
         return $this->params[$key];
     }
 
-    function param($key, $default=null) {
-        if(!$this->params) {
+    function param($key, $default = null) {
+        if (!$this->params) {
             return $default;
         }
         return array_get($this->params, $key, $default);

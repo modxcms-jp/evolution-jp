@@ -11,10 +11,10 @@ class synccache {
     public $cacheRefreshTime;
 
     public function __construct() {
-        if(!$this->target) {
+        if (!$this->target) {
             $this->target = 'pagecache,sitecache';
         }
-        if(defined('MODX_BASE_PATH')) {
+        if (defined('MODX_BASE_PATH')) {
             $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
         }
     }
@@ -26,9 +26,9 @@ class synccache {
     public function setTarget($target) {
         $this->target = $target;
     }
-    
+
     public function setCachepath($path) {
-        $this->cachePath = rtrim($path,'/') . '/';
+        $this->cachePath = rtrim($path, '/') . '/';
     }
 
     public function setReport($bool) {
@@ -36,10 +36,10 @@ class synccache {
     }
 
     private function getParents($id, $path = '') { // modx:returns child's parent
-        if(empty($this->aliases)) {
+        if (empty($this->aliases)) {
             $qh = db()->select(
                 "id, IF(alias='', id, alias) AS alias, parent"
-                ,'[+prefix+]site_content'
+                , '[+prefix+]site_content'
             );
             if ($qh && db()->getRecordCount($qh)) {
                 while ($row = db()->getRow($qh)) {
@@ -70,55 +70,55 @@ class synccache {
     public function emptyCache() {
         global $modx;
 
-        if(!isset($this->cachePath)) {
+        if (!isset($this->cachePath)) {
             exit('Cache path not set.');
         }
 
         $instance_name = '';
-        if(is_object($modx)) {
+        if (is_object($modx)) {
             $instance_name = get_class($modx);
         }
-        if(strtolower($instance_name)!=='documentparser') {
+        if (strtolower($instance_name) !== 'documentparser') {
             global $modx;
         }
 
-        if(strpos($this->target,'pagecache')!==false) {
+        if (strpos($this->target, 'pagecache') !== false) {
             $result = $this->purgeCacheFiles();
         }
-        if(strpos($this->target,'sitecache')!==false) {
+        if (strpos($this->target, 'sitecache') !== false) {
             $this->purgeCacheFiles('siteCache');
             $this->buildCache();
         }
         $this->publishBasicConfig();
-        
+
         evo()->purgeDBCache();
-        
-        if(!isset($result) || $this->showReport != true) {
+
+        if (!isset($result) || $this->showReport != true) {
             return;
         }
         $this->showReport($result);
     }
-    
-    private function purgeCacheFiles($target='pageCache') {
-        if(!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
+
+    private function purgeCacheFiles($target = 'pageCache') {
+        if (!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
             return false;
         }
-        if(strpos($this->cachePath,MODX_BASE_PATH)!==0) {
+        if (strpos($this->cachePath, MODX_BASE_PATH) !== 0) {
             return false;
         }
-        
-        if($target==='pageCache') {
+
+        if ($target === 'pageCache') {
             $pattern = '@\.pageCache\.php$@';
         } else {
             $pattern = '@\.*$@';
         }
-        
+
         $files = $this->getFileList($this->cachePath, $pattern);
         $files = array_reverse($files);
-        
+
         $filesincache = ($files[0] !== $pattern) ? count($files) : 0;
-        
-        if(!$filesincache) {
+
+        if (!$filesincache) {
             return array(0, 0, array());
         }
         $deletedfiles = array();
@@ -138,20 +138,20 @@ class synccache {
                 $deletedfiles[] = $name;
             }
         }
-        return array($filesincache,count($deletedfiles),$deletedfiles);
+        return array($filesincache, count($deletedfiles), $deletedfiles);
     }
 
     public function showReport($info) {
         global $_lang;
-        list($filesincache,$deletedfilesincache,$deletedfiles) = $info;
+        list($filesincache, $deletedfilesincache, $deletedfiles) = $info;
         // finished cache stuff.
-        if(0<$filesincache) {
+        if (0 < $filesincache) {
             echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
         } else {
             echo '<p>削除対象のページキャッシュはありません。</p>';
         }
-        
-        if(!$deletedfiles) {
+
+        if (!$deletedfiles) {
             return;
         }
         echo sprintf('<p>%s</p><ul style="margin-bottom:1em;">', $_lang['cache_files_deleted']);
@@ -165,22 +165,22 @@ class synccache {
         global $modx;
         static $recent_update = null;
 
-        if($recent_update) {
+        if ($recent_update) {
             return $recent_update;
         }
 
-        $recent_update = serverv('REQUEST_TIME',0) + config('server_offset_time',0);
+        $recent_update = serverv('REQUEST_TIME', 0) + config('server_offset_time', 0);
 
         $f = array(
-            'setting_value'=>$recent_update,
-            'setting_name'=>'recent_update'
+            'setting_value' => $recent_update,
+            'setting_name' => 'recent_update'
         );
         $rs = db()->select(
             'setting_name,setting_value'
             , '[+prefix+]system_settings'
             , "setting_name='recent_update'"
         );
-        if(db()->getRecordCount($rs)) {
+        if (db()->getRecordCount($rs)) {
             db()->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
         } else {
             db()->insert($f, '[+prefix+]system_settings');
@@ -189,7 +189,7 @@ class synccache {
     }
 
     public function publishBasicConfig() {
-        global $modx,$site_sessionname;
+        global $modx, $site_sessionname;
 
         $this->recent_update();
         $config = $this->_get_settings();
@@ -197,9 +197,9 @@ class synccache {
         $content = array();
         $content[] = '<?php';
         $content[] = sprintf(
-            '$recent_update = %s; // %s' ,
+            '$recent_update = %s; // %s',
             config('recent_update', 0),
-            date('Y-m-d H:i:s',config('recent_update',0))
+            date('Y-m-d H:i:s', config('recent_update', 0))
         );
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
@@ -210,104 +210,104 @@ class synccache {
         );
         $content[] = sprintf(
             '$cache_type = %s;'
-            , config('cache_type',1)
+            , config('cache_type', 1)
         );
-        if(isset($site_sessionname) && $site_sessionname) {
+        if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
                 '$site_sessionname = "%s";'
                 , $site_sessionname
             );
         }
-        
+
         $content[] = sprintf(
             '$site_status = %s;'
-            , config('site_status',1)
+            , config('site_status', 1)
         );
         $content[] = sprintf(
             '$error_reporting = "%s";'
-            , config('error_reporting',1)
+            , config('error_reporting', 1)
         );
-        
-        if(evo()->array_get($config,'site_url') && strpos(evo()->array_get($config,'site_url'),'[(')===false) {
+
+        if (evo()->array_get($config, 'site_url') && strpos(evo()->array_get($config, 'site_url'), '[(') === false) {
             $content[] = sprintf(
                 '$site_url = "%s";'
-                , evo()->array_get($config,'site_url')
+                , evo()->array_get($config, 'site_url')
             );
         }
-        
-        if(evo()->array_get($config,'base_url') && strpos(evo()->array_get($config,'base_url'),'[(')===false) {
+
+        if (evo()->array_get($config, 'base_url') && strpos(evo()->array_get($config, 'base_url'), '[(') === false) {
             $content[] = sprintf(
                 '$base_url = "%s";'
-                , evo()->array_get($config,'base_url')
+                , evo()->array_get($config, 'base_url')
             );
         }
-        
-        if(config('conditional_get')) {
+
+        if (config('conditional_get')) {
             $content[] = sprintf(
                 '$conditional_get = "%s";'
                 , config('conditional_get')
             );
         }
 
-        if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', join("\n",$content))) {
+        if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', join("\n", $content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
     }
-    
+
     public function setCacheRefreshTime($unixtime) {
         $this->cacheRefreshTime = $unixtime;
     }
 
     private function getCacheRefreshTime() {
-        $time = array('cacheRefreshTime'=>$this->cacheRefreshTime);
-        
+        $time = array('cacheRefreshTime' => $this->cacheRefreshTime);
+
         $time['content_pub_date'] = $this->minTime(
             'site_content'
             , 'pub_date'
             , '0 < pub_date and published=0 and (unpub_date=0 OR pub_date<=unpub_date)'
         );
-        
+
         $time['content_unpub_date'] = $this->minTime(
             'site_content'
             , 'unpub_date'
             , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
-        
+
         $time['chunk_pub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'pub_date'
             , '0 < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)'
         );
-        
+
         $time['chunk_unpub_date'] = $this->minTime(
             'site_htmlsnippets'
             , 'unpub_date'
             , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
-        
+
         $time['revision_standby'] = $this->minTime(
             'site_revision'
             , 'pub_date'
             , "0 < pub_date AND status = 'standby'"
         );
-        foreach($time as $k=>$v) {
-            if(!$v || $v < serverv('REQUEST_TIME',0)) {
+        foreach ($time as $k => $v) {
+            if (!$v || $v < serverv('REQUEST_TIME', 0)) {
                 unset($time[$k]);
             }
         }
-        if(!$time) {
+        if (!$time) {
             return 0;
         }
         return min($time);
     }
-    
+
     private function minTime($table_name, $field_name, $where) {
         $rs = db()->select(
             sprintf('MIN(%s) AS result', $field_name)
-            ,'[+prefix+]' . $table_name
+            , '[+prefix+]' . $table_name
             , sprintf('%s AND UNIX_TIMESTAMP()<%s', $where, $field_name)
-            );
-        if(!$rs) {
+        );
+        if (!$rs) {
             return 0;
         }
         return db()->getValue($rs);
@@ -332,13 +332,13 @@ class synccache {
         $content .= $this->_get_events();   // WRITE system event triggers
         $content .= "\n";
         $content = str_replace(array("\x0d\x0a", "\x0a", "\x0d"), "\x0a", $content);
-        
 
-        if( !evo()->saveToFile($this->cachePath .'siteCache.idx.php', $content)) {
+
+        if (!evo()->saveToFile($this->cachePath . 'siteCache.idx.php', $content)) {
             exit(sprintf('siteCache.idx.php - %s', $_lang['file_not_saved']));
         }
-        
-        if(evo()->config('legacy_cache')) {
+
+        if (evo()->config('legacy_cache')) {
             $this->_legacy_cache();
             $this->cache_put_contents('aliasListing.siteCache.idx.php', $modx->aliasListing);
             $this->cache_put_contents('documentMap.siteCache.idx.php', $modx->documentMap);
@@ -351,19 +351,18 @@ class synccache {
 
         // invoke OnCacheUpdate event
         evo()->invokeEvent('OnCacheUpdate');
-        
+
         return true;
     }
-    
+
     private function cache_put_contents($filename, $content) {
-        global $modx,$_lang;
-        if(empty($content)) {
+        global $modx, $_lang;
+        if (empty($content)) {
             return;
         }
-        if(is_array($content)) {
+        if (is_array($content)) {
             $content = var_export($content, 'true');
-            if(strpos($filename,'documentMap')!==false)
-            {
+            if (strpos($filename, 'documentMap') !== false) {
                 $content = str_replace(
                     array("\n", '),')
                     , array('', "),\n")
@@ -372,13 +371,14 @@ class synccache {
             }
             $br = "\n";
             $content = "<?php{$br}return {$content};";
-            if(strpos($filename,'documentMap')!==false)
+            if (strpos($filename, 'documentMap') !== false) {
                 $content = str_replace('return array (', "return array (\n", $content);
+            }
         }
-        
-        $cache_path = $this->cachePath .$filename;
 
-        if(evo()->saveToFile($cache_path, $content)) {
+        $cache_path = $this->cachePath . $filename;
+
+        if (evo()->saveToFile($cache_path, $content)) {
             return;
         }
 
@@ -386,7 +386,7 @@ class synccache {
             exit(sprintf('%s - %s', $cache_path, $_lang['file_not_saved']));
         }
 
-        header('Content-Type: text/html; charset=' . evo()->config('modx_charset','utf-8'));
+        header('Content-Type: text/html; charset=' . evo()->config('modx_charset', 'utf-8'));
         echo evo()->parseText(
             '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
             , array(
@@ -404,19 +404,19 @@ class synccache {
     private function _get_settings() {
         global $modx;
         static $config = null;
-        if($config) {
+        if ($config) {
             return $config;
         }
-        if($this->config) {
+        if ($this->config) {
             return $this->config;
         }
 
-        $rs = db()->select('setting_name,setting_value','[+prefix+]system_settings');
+        $rs = db()->select('setting_name,setting_value', '[+prefix+]system_settings');
         $config = array();
-        while($row = db()->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $config[$row['setting_name']] = $row['setting_value'];
         }
-        foreach($config as $k=>$v) {
+        foreach ($config as $k => $v) {
             $modx->config[$k] = $v;
         }
         return $config;
@@ -424,7 +424,7 @@ class synccache {
 
     private function _legacy_cache() {
         global $modx;
-        
+
         $rs = db()->select(
             "IF(alias='', id, alias) AS alias, id, parent, isfolder"
             , '[+prefix+]site_content'
@@ -432,21 +432,22 @@ class synccache {
             , 'parent, menuindex'
         );
         $modx->aliasListing = array();
-        $modx->documentMap  = array();
+        $modx->documentMap = array();
         while ($row = db()->getRow($rs)) {
             $modx->aliasListing[$row['id']] = array(
-                'id'       => $row['id'],
-                'alias'    => $row['alias'],
-                'path'     => $this->alias_path($row['parent']),
-                'parent'   => $row['parent'],
+                'id' => $row['id'],
+                'alias' => $row['alias'],
+                'path' => $this->alias_path($row['parent']),
+                'parent' => $row['parent'],
                 'isfolder' => $row['isfolder']
             );
             $modx->documentMap[] = array($row['parent'] => $row['id']);
         }
     }
+
     private function alias_path($parent_id) {
         global $modx;
-        if(!evo()->config('friendly_urls')) {
+        if (!evo()->config('friendly_urls')) {
             return $parent_id;
         }
         if (evo()->config('use_alias_path')) {
@@ -454,10 +455,10 @@ class synccache {
         }
         return '';
     }
-    
+
     private function _get_content_types() {
         $rs = db()->select(
-            'id, contentType','[+prefix+]site_content'
+            'id, contentType', '[+prefix+]site_content'
             , "contentType != 'text/html'"
         );
         $_ = array('$c = &$this->contentTypes;');
@@ -470,10 +471,10 @@ class synccache {
         }
         return join("\n", $_) . "\n";
     }
-    
+
     private function _get_chunks() {
         global $modx;
-        
+
         $rs = db()->select(
             'name,snippet'
             , '[+prefix+]site_htmlsnippets', "`published`='1'"
@@ -485,7 +486,7 @@ class synccache {
         }
         return $modx->chunkCache;
     }
-    
+
     private function _get_snippets() {
         global $modx;
         $rs = db()->select('*', '[+prefix+]site_snippets');
@@ -497,10 +498,10 @@ class synccache {
         }
         return $modx->snippetCache;
     }
-    
+
     private function _get_plugins() {
         global $modx;
-        
+
         $rs = db()->select('*', '[+prefix+]site_plugins', 'disabled=0');
         $modx->pluginCache = array();
         while ($row = db()->getRow($rs)) {
@@ -510,53 +511,53 @@ class synccache {
         }
         return $modx->pluginCache;
     }
-    
+
     private function _get_events() {
-        $fields  = 'sysevt.name as `evtname`, plugs.name as plgname';
+        $fields = 'sysevt.name as `evtname`, plugs.name as plgname';
         $from[] = '[+prefix+]system_eventnames sysevt';
         $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
         $from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
         $from = join(' ', $from);
-        $where   = 'plugs.disabled=0';
+        $where = 'plugs.disabled=0';
         $orderby = 'sysevt.name,pe.priority';
-        $rs = db()->select($fields,$from,$where,$orderby);
+        $rs = db()->select($fields, $from, $where, $orderby);
         $_ = array('$e = &$this->pluginEvent;');
         $events = array();
         while ($row = db()->getRow($rs)) {
             $evtname = $row['evtname'];
-            if(!isset($events[$evtname])) {
+            if (!isset($events[$evtname])) {
                 $events[$evtname] = array($row['plgname']);
             } else {
                 $events[$evtname][] = $row['plgname'];
             }
         }
-        foreach($events as $evtname => $pluginnames) {
+        foreach ($events as $evtname => $pluginnames) {
             $_[] = sprintf(
                 "\$e['%s'] = array('%s');"
                 , $evtname
-                , implode("','",str_replace(
-                    array("\\","'")
-                    ,array("\\\\","\\'")
-                    , $pluginnames)
+                , implode("','", str_replace(
+                        array("\\", "'")
+                        , array("\\\\", "\\'")
+                        , $pluginnames)
                 )
             );
         }
-        return join("\n",$_) . "\n";
+        return join("\n", $_) . "\n";
     }
-    
-    private function getFileList($dir, $pattern='@\.*$@') {
+
+    private function getFileList($dir, $pattern = '@\.*$@') {
         $dir = rtrim($dir, '/');
-        $tmp = array_diff(scandir($dir),array('..','.'));
+        $tmp = array_diff(scandir($dir), array('..', '.'));
         $files = array();
-        foreach($tmp as $val){
+        foreach ($tmp as $val) {
             $files[] = $dir . '/' . $val;
         }
 
         $list = array();
         foreach ($files as $obj) {
-            if (is_file($obj) && preg_match($pattern,$obj)) {
+            if (is_file($obj) && preg_match($pattern, $obj)) {
                 $list[] = $obj;
-            } elseif (is_dir($obj))  {
+            } elseif (is_dir($obj)) {
                 $list[] = $obj;
                 $_ = $this->getFileList($obj, $pattern);
                 $list = array_merge($list, $_);

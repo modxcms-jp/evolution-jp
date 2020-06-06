@@ -1,8 +1,8 @@
 <?php
 
 class logHandler {
-	// Single variable for a log entry
-	public $entry = array();
+    // Single variable for a log entry
+    public $entry = array();
 
     public function __construct() {
     }
@@ -14,22 +14,29 @@ class logHandler {
         $e->dumpError();
     }
 
-    public function initAndWriteLog($msg='', $internalKey='', $username='', $action='', $itemid='', $itemname='') {
+    public function initAndWriteLog(
+        $msg = '',
+        $internalKey = '',
+        $username = '',
+        $action = '',
+        $itemid = '',
+        $itemname = ''
+    ) {
         $this->setEntry($msg, $internalKey, $username, $itemname);
-        $this->writeToLog(evo()->input_any('a',0),evo()->input_any('id', 'x'));
+        $this->writeToLog(evo()->input_any('a', 0), evo()->input_any('id', 'x'));
     }
 
-    public function writeToLog($action_id=0, $item_id='x') {
+    public function writeToLog($action_id = 0, $item_id = 'x') {
         global $modx;
 
-        if($this->entry['internalKey'] == '') {
+        if ($this->entry['internalKey'] == '') {
             $this->logError('internalKey not set.');
             return;
         }
-        if($this->entry['msg'] == '') {
+        if ($this->entry['msg'] == '') {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             $this->entry['msg'] = getAction($action_id, $this->entry['itemId']);
-            if($this->entry['msg'] == '') {
+            if ($this->entry['msg'] == '') {
                 $this->logError("couldn't find message to write to log.");
                 return;
             }
@@ -37,22 +44,22 @@ class logHandler {
 
         $insert_id = db()->insert(
             array(
-                'timestamp'   => time(),
+                'timestamp' => time(),
                 'internalKey' => $modx->db->escape($this->entry['internalKey']),
-                'username'    => $modx->db->escape($this->entry['username']),
-                'action'      => $action_id,
-                'itemid'      => $item_id,
-                'itemname'    => $modx->db->escape($this->entry['itemName']),
-                'message'     => $modx->db->escape($this->entry['msg'])
+                'username' => $modx->db->escape($this->entry['username']),
+                'action' => $action_id,
+                'itemid' => $item_id,
+                'itemname' => $modx->db->escape($this->entry['itemName']),
+                'message' => $modx->db->escape($this->entry['msg'])
             )
             , '[+prefix+]manager_log'
         );
-        if(!$insert_id) {
-            $this->logError("Couldn't save log to table! ".$modx->db->getLastError());
+        if (!$insert_id) {
+            $this->logError("Couldn't save log to table! " . $modx->db->getLastError());
             return;
         }
 
-        if(($insert_id % (int)$modx->conf_var('manager_log_trim', 100)) !== 0) {
+        if (($insert_id % (int)$modx->conf_var('manager_log_trim', 100)) !== 0) {
             return;
         }
 
@@ -63,10 +70,10 @@ class logHandler {
         );
     }
 
-    private function setEntry($msg='', $internalKey='', $username='', $itemname='') {
+    private function setEntry($msg = '', $internalKey = '', $username = '', $itemname = '') {
         global $modx;
 
-        $this->entry['msg'] = $msg;	// writes testmessage to the object
+        $this->entry['msg'] = $msg;    // writes testmessage to the object
 
         // User Credentials
         if ($internalKey != '') {

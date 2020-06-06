@@ -1,12 +1,14 @@
 <?php
-if(!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') exit();
+if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
+    exit();
+}
 
-if(!serverv('HTTP_ACCEPT_LANGUAGE')) {
+if (!serverv('HTTP_ACCEPT_LANGUAGE')) {
     header('HTTP/1.0 404 Not Found');
     exit;
 }
 
-if (sessionv('mgrValidated') && sessionv('usertype')!=='manager') {
+if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
     @session_destroy();
 }
 
@@ -21,15 +23,15 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
             @session_destroy();
         }
         header('HTTP/1.0 307 Redirect');
-        header('Location: '. MODX_MANAGER_URL . 'index.php?installGoingOn=2');
+        header('Location: ' . MODX_MANAGER_URL . 'index.php?installGoingOn=2');
     }
 }
 
 $style_path = MODX_MANAGER_PATH . 'media/style/';
 $theme_path = $style_path . evo()->config('manager_theme') . '/';
 $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
-if(!sessionv('mgrValidated')) {
-    if(getv('frame')) {
+if (!sessionv('mgrValidated')) {
+    if (getv('frame')) {
         $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
     }
     // include localized overrides
@@ -41,13 +43,13 @@ if(!sessionv('mgrValidated')) {
     )
     );
 
-    if(is_file($theme_path)) {
+    if (is_file($theme_path)) {
         include_once($theme_path);
     }
 
-    $modx->setPlaceholder('modx_charset',$modx_manager_charset);
+    $modx->setPlaceholder('modx_charset', $modx_manager_charset);
     $modx->setPlaceholder('theme', $modx->conf_var('manager_theme'));
-    $modx->setPlaceholder('manager_theme',$modx->conf_var('manager_theme'));
+    $modx->setPlaceholder('manager_theme', $modx->conf_var('manager_theme'));
     $modx->setPlaceholder('manager_theme_url'
         , sprintf(
             '%smedia/style/%s/'
@@ -58,25 +60,26 @@ if(!sessionv('mgrValidated')) {
 
     global $tpl, $_lang;
 
-    if(is_file($touch_path) && $_SERVER['REQUEST_TIME'] < filemtime($touch_path)+300) {
+    if (is_file($touch_path) && $_SERVER['REQUEST_TIME'] < filemtime($touch_path) + 300) {
         $modx->safeMode = 1;
-        $modx->addLog($_lang['logtitle_login_disp_warning'],$_lang['logmsg_login_disp_warning'],2);
+        $modx->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
         $tpl = file_get_contents("{$style_path}common/login.tpl");
+    } else {
+        touch($touch_path);
     }
-    else touch($touch_path);
 
     // invoke OnManagerLoginFormPrerender event
     $modx->event->vars = array();
-    $modx->event->vars['tpl'] = & $tpl;
+    $modx->event->vars['tpl'] = &$tpl;
     $evtOut = $modx->invokeEvent('OnManagerLoginFormPrerender');
     $modx->event->vars = array();
-    $html = is_array($evtOut) ? implode('',$evtOut) : '';
-    $modx->setPlaceholder('OnManagerLoginFormPrerender',$html);
+    $html = is_array($evtOut) ? implode('', $evtOut) : '';
+    $modx->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
     $modx->setPlaceholder('site_name', $modx->conf_var('site_name'));
-    $modx->setPlaceholder('logo_slogan',$_lang["logo_slogan"]);
-    $modx->setPlaceholder('login_message',$_lang["login_message"]);
-    $modx->setPlaceholder('year',date('Y'));
+    $modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
+    $modx->setPlaceholder('login_message', $_lang["login_message"]);
+    $modx->setPlaceholder('year', date('Y'));
 
     // andrazk 20070416 - notify user of install/update
     if (installGoingOn()) {
@@ -94,7 +97,7 @@ if(!sessionv('mgrValidated')) {
         );
     }
 
-    if($modx->conf_var('use_captcha')==1) {
+    if ($modx->conf_var('use_captcha') == 1) {
         $modx->setPlaceholder(
             'login_captcha_message'
             , sprintf(
@@ -111,7 +114,7 @@ if(!sessionv('mgrValidated')) {
             , MODX_MANAGER_URL
             , $captcha_image
         );
-        $modx->setPlaceholder('captcha_image',"<div>{$captcha_image}</div>");
+        $modx->setPlaceholder('captcha_image', "<div>{$captcha_image}</div>");
         $modx->setPlaceholder(
             'captcha_input'
             , sprintf(
@@ -127,55 +130,50 @@ if(!sessionv('mgrValidated')) {
         , preg_replace(
             '/[^a-zA-Z0-9\-_@.]*/'
             , ''
-            , $modx->input_cookie('modx_remember_manager','')
+            , $modx->input_cookie('modx_remember_manager', '')
         )
     );
-    $modx->setPlaceholder('username',$_lang["username"]);
-    $modx->setPlaceholder('password',$_lang["password"]);
+    $modx->setPlaceholder('username', $_lang["username"]);
+    $modx->setPlaceholder('password', $_lang["password"]);
 
     // remember me
     $modx->setPlaceholder(
         'remember_me'
-        , cookiev('modx_remember_manager') ? 'checked="checked"' :''
+        , cookiev('modx_remember_manager') ? 'checked="checked"' : ''
     );
-    $modx->setPlaceholder('remember_username',$_lang["remember_username"]);
-    $modx->setPlaceholder('login_button',$_lang["login_button"]);
+    $modx->setPlaceholder('remember_username', $_lang["remember_username"]);
+    $modx->setPlaceholder('login_button', $_lang["login_button"]);
 
     // load template
-    if(!evo()->config('manager_login_tpl')) {
+    if (!evo()->config('manager_login_tpl')) {
         $modx->config['manager_login_tpl'] = $style_path . 'common/login.tpl';
     }
 
     $target = evo()->config('manager_login_tpl');
-    if(isset($tpl) && !empty($tpl)) {
+    if (isset($tpl) && !empty($tpl)) {
         $login_tpl = $tpl;
-    } elseif(substr($target,0,1)==='@') {
-        if(substr($target,0,6)==='@CHUNK') {
-            $target = trim(substr($target,7));
+    } elseif (substr($target, 0, 1) === '@') {
+        if (substr($target, 0, 6) === '@CHUNK') {
+            $target = trim(substr($target, 7));
             $login_tpl = $modx->getChunk($target);
-        }
-        elseif(substr($target,0,5)==='@FILE') {
-            $target = trim(substr($target,6));
+        } elseif (substr($target, 0, 5) === '@FILE') {
+            $target = trim(substr($target, 6));
             $login_tpl = file_get_contents($target);
         }
     } else {
         $chunk = $modx->getChunk($target);
-        if($chunk!==false && !empty($chunk)) {
+        if ($chunk !== false && !empty($chunk)) {
             $login_tpl = $chunk;
-        }
-        elseif(is_file(MODX_BASE_PATH . $target)) {
+        } elseif (is_file(MODX_BASE_PATH . $target)) {
             $target = MODX_BASE_PATH . $target;
             $login_tpl = file_get_contents($target);
-        }
-        elseif(is_file("{$theme_path}login.tpl")) {
+        } elseif (is_file("{$theme_path}login.tpl")) {
             $target = "{$theme_path}login.tpl";
             $login_tpl = file_get_contents($target);
-        }
-        elseif(is_file("{$theme_path}html/login.html")) { // ClipperCMS compatible
+        } elseif (is_file("{$theme_path}html/login.html")) { // ClipperCMS compatible
             $target = "{$theme_path}html/login.html";
             $login_tpl = file_get_contents($target);
-        }
-        else {
+        } else {
             $target = "{$style_path}common/login.tpl";
             $login_tpl = file_get_contents($target);
         }
@@ -187,21 +185,22 @@ if(!sessionv('mgrValidated')) {
     $modx->setPlaceholder(
         'OnManagerLoginFormRender'
         , is_array($evtOut)
-            ? sprintf(
-                '<div id="onManagerLoginFormRender">%s</div>'
-                , implode('', $evtOut)
-            )
-            : ''
+        ? sprintf(
+            '<div id="onManagerLoginFormRender">%s</div>'
+            , implode('', $evtOut)
+        )
+        : ''
     );
 
     // merge placeholders
     $modx->output = $modx->parseDocumentSource($modx->output);
 
-    if(is_file($touch_path) && $modx->output)
+    if (is_file($touch_path) && $modx->output) {
         unlink($touch_path);
+    }
 
     // little tweak for newer parsers
-    $regx = strpos($modx->output,'[[+')!==false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~';
+    $regx = strpos($modx->output, '[[+') !== false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~';
     $modx->output = preg_replace($regx, '', $modx->output); //cleanup
 
     echo $modx->output;
@@ -214,14 +213,14 @@ if(!sessionv('mgrValidated')) {
 $_SESSION['ip'] = $modx->real_ip();
 
 $fields['internalKey'] = $modx->getLoginUserID();
-$fields['username']    = $_SESSION['mgrShortname'];
-$fields['lasthit']     = $_SERVER['REQUEST_TIME'];
-$fields['action']      = $modx->manager->action;
-$fields['id']          = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? $_REQUEST['id'] : 0;
-$fields['ip']          = $modx->real_ip();
-if( $modx->manager->action != 1) {
-    foreach($fields as $k=>$v) {
-        $keys[]   = $k;
+$fields['username'] = $_SESSION['mgrShortname'];
+$fields['lasthit'] = $_SERVER['REQUEST_TIME'];
+$fields['action'] = $modx->manager->action;
+$fields['id'] = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? $_REQUEST['id'] : 0;
+$fields['ip'] = $modx->real_ip();
+if ($modx->manager->action != 1) {
+    foreach ($fields as $k => $v) {
+        $keys[] = $k;
         $values[] = $v;
     }
 
@@ -232,17 +231,17 @@ if( $modx->manager->action != 1) {
         , implode("','", $values)
     );
     $rs = $modx->db->query($sql);
-    if(!$rs) {
+    if (!$rs) {
         echo "error replacing into active users! SQL: {$sql}\n" . $modx->db->getLastError();
         exit;
     }
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups($modx->getLoginUserID());
 }
-if(is_file($touch_path)) {
+if (is_file($touch_path)) {
     unlink($touch_path);
 }
 
-function installGoingOn () {
+function installGoingOn() {
     global $installStartTime;
     $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
     if (is_file($instcheck_path)) {
