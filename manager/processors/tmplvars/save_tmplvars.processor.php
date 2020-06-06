@@ -1,11 +1,15 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if (!isset($modx) || !$modx->isLoggedin()) {
+    exit;
+}
 if (!$modx->hasPermission('save_template')) {
     $e->setError(3);
     $e->dumpError();
 }
 
-if(isset($_POST['id']) && preg_match('@^[0-9]+$@',$_POST['id'])) $id = $_POST['id'];
+if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
+    $id = $_POST['id'];
+}
 $name = $modx->db->escape(trim($_POST['name']));
 $description = $modx->db->escape($_POST['description']);
 $caption = $modx->db->escape($_POST['caption']);
@@ -24,18 +28,25 @@ if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
     $category = 0;
 } else {
     $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
-    if ($catCheck) $category = $catCheck;
-    else           $category = $modx->manager->newCategory($_POST['newcategory']);
+    if ($catCheck) {
+        $category = $catCheck;
+    } else {
+        $category = $modx->manager->newCategory($_POST['newcategory']);
+    }
 }
 
-if ($name == '')    $name = 'Untitled variable';
-if ($caption == '') $caption = $name;
+if ($name == '') {
+    $name = 'Untitled variable';
+}
+if ($caption == '') {
+    $caption = $name;
+}
 switch ($_POST['mode']) {
     case '300':
         // invoke OnBeforeTVFormSave event
         $tmp = array(
-          'mode' => 'new',
-          'id'=>''
+            'mode' => 'new',
+            'id' => ''
         );
         $modx->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
@@ -52,7 +63,8 @@ switch ($_POST['mode']) {
         }
 
         // Add new TV
-        $field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
+        $field = compact(explode(',',
+            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
         $newid = $modx->db->insert($field, '[+prefix+]site_tmplvars');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -74,11 +86,14 @@ switch ($_POST['mode']) {
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
         if (isset($_POST['stay']) && $_POST['stay'] != '') {
-        	switch($_POST['stay'])
-        	{
-        		case '1': $a = '300'             ;break;
-        		case '2': $a = "301&id={$newid}" ;break;
-        	}
+            switch ($_POST['stay']) {
+                case '1':
+                    $a = '300';
+                    break;
+                case '2':
+                    $a = "301&id={$newid}";
+                    break;
+            }
             $url = "index.php?a={$a}&stay={$_POST['stay']}";
         } else {
             $url = "index.php?a=76";
@@ -88,8 +103,8 @@ switch ($_POST['mode']) {
     case '301':
         // invoke OnBeforeTVFormSave event
         $tmp = array(
-          'mode' => 'upd',
-          'id' => $id
+            'mode' => 'upd',
+            'id' => $id
         );
         $modx->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
@@ -106,7 +121,8 @@ switch ($_POST['mode']) {
         }
         // update TV
         $was_name = $modx->db->getValue($modx->db->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
-        $field = compact(explode(',', 'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
+        $field = compact(explode(',',
+            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
         $rs = $modx->db->update($field, '[+prefix+]site_tmplvars', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited variable not saved!";
@@ -116,13 +132,18 @@ switch ($_POST['mode']) {
             $was_name = str_replace("'", "''", $was_name);
             if ($name !== $was_name) {
                 $modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
-                $modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
+                    '[+prefix+]site_templates');
+                $modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
+                    '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
+                    '[+prefix+]site_tmplvar_contentvalues');
                 $modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_content');
                 $modx->db->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')", '[+prefix+]site_tmplvar_contentvalues');
+                $modx->db->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
+                    '[+prefix+]site_htmlsnippets');
+                $modx->db->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
+                    '[+prefix+]site_tmplvar_contentvalues');
             }
             // save access permissions
             saveTemplateAccess();
@@ -137,11 +158,14 @@ switch ($_POST['mode']) {
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
             if (isset($_POST['stay']) && $_POST['stay'] != '') {
-            	switch($_POST['stay'])
-            	{
-            		case '1': $a = '300'             ;break;
-            		case '2': $a = "301&id={$id}" ;break;
-            	}
+                switch ($_POST['stay']) {
+                    case '1':
+                        $a = '300';
+                        break;
+                    case '2':
+                        $a = "301&id={$id}";
+                        break;
+                }
                 $url = "index.php?a={$a}&stay={$_POST['stay']}";
             } else {
                 $url = 'index.php?a=76';
@@ -157,8 +181,9 @@ function saveTemplateAccess() {
     global $id, $newid;
     global $modx;
 
-    if ($newid)
+    if ($newid) {
         $id = $newid;
+    }
 
     $getRankArray = array();
 
@@ -168,10 +193,10 @@ function saveTemplateAccess() {
         $getRankArray[$row['templateid']] = $row['rank'];
     }
     $modx->db->delete('[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
-    
+
     // update template selections
     $templates = $modx->input_post('template'); // get muli-templates based on S.BRENNAN mod
-    if(!$templates) {
+    if (!$templates) {
         return;
     }
     $total = count($templates);
@@ -188,8 +213,9 @@ function saveTemplateAccess() {
 function saveDocumentAccessPermissons() {
     global $modx, $id, $newid;
 
-    if ($newid)
+    if ($newid) {
         $id = $newid;
+    }
     $docgroups = $_POST['docgroups'];
 
     // check for permission update access
@@ -222,20 +248,22 @@ function check_exist_name($name) { // disallow duplicate names for new tvs
     }
     $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_tmplvars', $where);
     $count = $modx->db->getValue($rs);
-    if ($count > 0)
+    if ($count > 0) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
 
 function check_reserved_names($name) { // disallow reserved names
     global $modx;
 
-    $reserved_names = explode(',', 'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu');
+    $reserved_names = explode(',',
+        'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu');
     if (in_array($name, $reserved_names)) {
         $_POST['name'] = '';
         return true;
-    }
-    else
+    } else {
         return false;
+    }
 }
