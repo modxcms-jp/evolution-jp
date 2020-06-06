@@ -369,25 +369,59 @@ function managerLogin() {
     $_SESSION['mgrLastlogin'] = $modx->server_var('REQUEST_TIME');
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
-    if(anyv('rememberme')) {
+    if($modx->input_any('rememberme')) {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime',0);
-        setcookie(
-            'modx_remember_manager'
-            , user('username')
-            , strtotime('+1 month')
-            , MODX_BASE_URL . '; SameSite=Lax'
-            , ''
-            , init::is_ssl() ? true : false
-            , true
-        );
+        if(70300 <= PHP_VERSION_ID) {
+            setcookie(
+                'modx_remember_manager'
+                , user('username')
+                , [
+                    'expires' => strtotime('+1 month'),
+                    'path' => MODX_BASE_URL,
+                    'secure' => init::is_ssl() ? true : false,
+                    'domain' => init::get_host_name(),
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]
+            );
+        } else {
+            setcookie(
+                'modx_remember_manager'
+                , user('username')
+                , strtotime('+1 month')
+                , MODX_BASE_URL . '; SameSite=Lax'
+                , null
+                , init::is_ssl() ? true : false
+                , true
+            );
+        }
     } else {
         $_SESSION['modx.mgr.session.cookie.lifetime']= 0;
-        setcookie (
-            'modx_remember_manager'
-            , ''
-            , ($modx->server_var('REQUEST_TIME') - 3600)
-            , MODX_BASE_URL
-        );
+        if(70300 <= PHP_VERSION_ID) {
+            setcookie(
+                'modx_remember_manager'
+                , ''
+                , [
+                    'expires' => ($modx->server_var('REQUEST_TIME') - 3600),
+                    'path' => MODX_BASE_URL,
+                    'secure' => init::is_ssl() ? true : false,
+                    'domain' => init::get_host_name(),
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]
+            );
+            return;
+        } else {
+            setcookie(
+                'modx_remember_manager'
+                , ''
+                , ($modx->server_var('REQUEST_TIME') - 3600)
+                , MODX_BASE_URL . '; SameSite=Lax'
+                , null
+                , init::is_ssl() ? true : false
+                , true
+            );
+        }
     }
 
     if($modx->hasPermission('remove_locks')) {
