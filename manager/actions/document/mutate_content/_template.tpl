@@ -31,7 +31,7 @@
         </div><!--div class="sectionBody"-->
     </fieldset>
     <script>
-        tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab +]);
+        tpSettings = new WebFXTabPane(document.getElementById('documentPane'), [+remember_last_tab+]);
     </script>
 </form>
 [+OnRichTextEditorInit+]
