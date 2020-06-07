@@ -27,7 +27,7 @@ class MODIFIERS {
         }
 
         if (function_exists('mb_internal_encoding')) {
-            mb_internal_encoding($modx->config['modx_charset']);
+            mb_internal_encoding(evo()->config('modx_charset', 'utf-8'));
         }
 
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
@@ -59,11 +59,10 @@ class MODIFIERS {
         }
 
         $modifiers = substr($modifiers, 1);
-        $closure = $mode === '(' ? "{$c})" : $c;
+        $closure = $mode === '(' ? sprintf('%s)', $c) : $c;
         if (strpos($modifiers, $closure) === false) {
             return false;
         }
-
         return $c;
     }
 
@@ -95,7 +94,6 @@ class MODIFIERS {
             if ($mode === '(') {
                 return $this->_fetchContent($modifiers, $delim . ')');
             }
-
             return $this->_fetchContent(
                 substr(trim($modifiers), 1)
                 , $delim
@@ -134,7 +132,7 @@ class MODIFIERS {
             if ($c === ':' && preg_match('@^(!?[<>=]{1,2})@', $modifiers, $match)) {
                 // :=, :!=, :<=, :>=, :!<=, :!>=
                 $c = substr($modifiers, strlen($match[1]), 1);
-                $debuginfo = "#i=0 #c=[{$c}] #m=[{$modifiers}]";
+                $debuginfo = sprintf('#i=0 #c=[%s] #m=[%s]', $c, $modifiers);
                 if ($c === '(') {
                     $modifiers = substr($modifiers, strlen($match[1]) + 1);
                 } else {
@@ -157,20 +155,20 @@ class MODIFIERS {
                 $delim = $this->_getDelim($c, $modifiers);
                 $opt = $this->_getOpt($c, $delim, $modifiers);
                 $modifiers = trim($this->_getRemainModifiers($c, $delim, $modifiers));
-                $debuginfo = "#i=1 #c=[{$c}] #delim=[{$delim}] #m1=[{$m1}] remainMdf=[{$modifiers}]";
+                $debuginfo = sprintf('#i=1 #c=[%s] #delim=[%s] #m1=[%s] remainMdf=[%s]', $c, $delim, $m1, $modifiers);
 
                 $result[] = array('cmd' => trim($cmd), 'opt' => $opt, 'debuginfo' => $debuginfo);
 
                 $cmd = '';
             } elseif ($c === ':') {
-                $debuginfo = "#i=2 #c=[{$c}] #m=[{$modifiers}]";
+                $debuginfo = sprintf('#i=2 #c=[%s] #m=[%s]', $c, $modifiers);
                 if ($cmd !== '') {
                     $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
                 }
 
                 $cmd = '';
             } elseif (trim($modifiers) == '' && trim($cmd) !== '') {
-                $debuginfo = "#i=3 #c=[{$c}] #m=[{$modifiers}]";
+                $debuginfo = sprintf('#i=3 #c=[%s] #m=[%s]', $c, $modifiers);
                 $cmd .= $c;
                 $result[] = array('cmd' => trim($cmd), 'opt' => '', 'debuginfo' => $debuginfo);
                 break;
@@ -185,7 +183,7 @@ class MODIFIERS {
 
         foreach ($result as $i => $a) {
             $a['opt'] = $this->parseDocumentSource($a['opt']);
-            $result[$i]['opt'] = $modx->parseText($a['opt'], $this->placeholders);
+            $result[$i]['opt'] = evo()->parseText($a['opt'], $this->placeholders);
         }
 
         return $result;
@@ -213,13 +211,13 @@ class MODIFIERS {
         }
 
         foreach ($modifiers as $i => $a) {
-            if ($modx->debug) {
-                $fstart = $modx->getMicroTime();
+            if (evo()->debug) {
+                $fstart = evo()->getMicroTime();
             }
             $value = $this->Filter($key, $value, $a['cmd'], $a['opt']);
-            if ($modx->debug) {
-                $modx->addLogEntry(
-                    sprintf('$modx->filter->%s(:%s)'
+            if (evo()->debug) {
+                evo()->addLogEntry(
+                    sprintf('evo()->filter->%s(:%s)'
                         , __FUNCTION__
                         , $a['cmd']
                     )
@@ -236,7 +234,7 @@ class MODIFIERS {
         global $modx;
 
         if ($key === 'documentObject') {
-            $value = $modx->documentIdentifier;
+            $value = evo()->documentIdentifier;
         }
         $cmd = $this->parseDocumentSource($cmd);
         if (preg_match('@^[1-9][/0-9]*$@', $cmd)) {
@@ -248,6 +246,9 @@ class MODIFIERS {
         }
 
         $cmd = strtolower($cmd);
+        if ($cmd === 'encode_sha1') {
+            $cmd = 'sha1';
+        }
 
         if ($this->snippet_exists($cmd)) {
             $value = $this->getValueFromPHP($key, $value, $cmd, $opt);
@@ -271,18 +272,12 @@ class MODIFIERS {
             return 0;
         }
 
-        if (isset($modx->snippetCache["phx:{$cmd}"])) {
-            if ($modx->snippetCache["phx:{$cmd}"]) {
-                return 1;
-            }
-            return 0;
+        if (isset($modx->snippetCache[sprintf('phx:%s', $cmd)])) {
+            return (int)$modx->snippetCache['phx:' . $cmd];
         }
 
         if (isset($modx->snippetCache[$cmd])) {
-            if ($modx->snippetCache[$cmd]) {
-                return 1;
-            }
-            return 0;
+            return (int)$modx->snippetCache[$cmd];
         }
 
         $code = $this->getSnippetFromDB($cmd);
@@ -306,11 +301,11 @@ class MODIFIERS {
     function chunk_exists($cmd) {
         global $modx;
 
-        if ($modx->getChunk('phx:' . $cmd)) {
+        if (evo()->getChunk('phx:' . $cmd)) {
             return 1;
         }
 
-        if ($modx->getChunk($cmd) && strpos($modx->getChunk($cmd), '[+value+]') !== false) {
+        if (evo()->getChunk($cmd) && strpos(evo()->getChunk($cmd), '[+value+]') !== false) {
             return 1;
         }
 
@@ -320,10 +315,10 @@ class MODIFIERS {
     function getValueFromPHP($key, $value, $cmd, $opt) {
         global $modx;
 
-        if ($modx->snippetCache['phx:' . $cmd]) {
-            $code = $modx->snippetCache['phx:' . $cmd];
-        } elseif ($modx->snippetCache[$cmd]) {
-            $code = $modx->snippetCache[$cmd];
+        if (array_get($modx->snippetCache, 'phx:' . $cmd)) {
+            $code = array_get($modx->snippetCache, 'phx:' . $cmd);
+        } elseif (array_get($modx->snippetCache, $cmd)) {
+            $code = array_get($modx->snippetCache, $cmd);
         }
 
         ob_start();
@@ -352,30 +347,27 @@ class MODIFIERS {
     }
 
     function getSnippetFromDB($cmd) {
-        global $modx;
-
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'snippet'
             , '[+prefix+]site_snippets'
-            , sprintf('name=\'phx:%1$s\' OR name=\'%1$s\'', $modx->db->escape($cmd))
+            , sprintf('name=\'phx:%1$s\' OR name=\'%1$s\'', db()->escape($cmd))
             , ''
             , 1
         );
-        if (!$modx->db->getRecordCount($rs)) {
+        if (!db()->getRecordCount($rs)) {
             return false;
         }
 
-        return $modx->db->getValue($rs);
+        return db()->getValue($rs);
     }
 
     function getSnippetFromFile($cmd) {
-        global $modx;
-
-        $_ = array();
-        $_[] = MODX_BASE_PATH . "assets/modifiers/mdf_{$cmd}.inc.php";
-        $_[] = MODX_BASE_PATH . "assets/modifiers/{$cmd}.php";
-        $_[] = MODX_BASE_PATH . "assets/plugins/phx/modifiers{$cmd}.phx.php";
-        $_[] = MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php";
+        $_ = array(
+            sprintf('%sassets/modifiers/mdf_%s.inc.php', MODX_BASE_PATH, $cmd),
+            sprintf('%sassets/modifiers/%s.php', MODX_BASE_PATH, $cmd),
+            sprintf('%sassets/plugins/phx/modifiers%s.phx.php', MODX_BASE_PATH, $cmd),
+            sprintf('%sextenders/modifiers/mdf_%s.inc.php', MODX_CORE_PATH, $cmd),
+        );
         foreach ($_ as $mdf_path) {
             if (is_file($mdf_path)) {
                 break;
@@ -387,27 +379,24 @@ class MODIFIERS {
             return false;
         }
 
-        $code = @file_get_contents($mdf_path);
-        $code = trim($code);
+        $code = trim(@file_get_contents($mdf_path));
         if (substr($code, 0, 5) === '<?php') {
-            $code = substr($code, 6);
+            return substr($code, 6);
         }
         if (substr($code, 0, 2) === '<?') {
-            $code = substr($code, 3);
+            return substr($code, 3);
         }
         if (substr($code, -2) === '?>') {
-            $code = substr($code, 0, -2);
+            return substr($code, 0, -2);
         }
-
         return $code;
     }
 
     function getValueFromHTML($key, $value, $cmd, $opt) {
-        global $modx;
-        if ($modx->getChunk("phx:" . $cmd)) {
-            $html = $modx->getChunk("phx:{$cmd}");
-        } elseif ($modx->getChunk($cmd) && strpos($modx->getChunk($cmd), '[+value+]') !== false) {
-            $html = $modx->getChunk($cmd);
+        if (evo()->getChunk('phx:' . $cmd)) {
+            $html = evo()->getChunk('phx:' . $cmd);
+        } elseif (evo()->getChunk($cmd) && strpos(evo()->getChunk($cmd), '[+value+]') !== false) {
+            $html = evo()->getChunk($cmd);
         } else {
             return false;
         }
@@ -444,9 +433,8 @@ class MODIFIERS {
         $this->key = $key;
         $this->value = $value;
         $this->opt = $opt;
-
         switch ($cmd) {
-            #####  Conditional Modifiers 
+            // Conditional Modifiers
             case 'input':
             case 'if':
                 if (!$opt) {
@@ -532,7 +520,7 @@ class MODIFIERS {
                 if (strpos($path, MODX_MANAGER_PATH) !== false) {
                     exit('Can not read core path');
                 }
-                if (strpos($path, $modx->config['base_path']) === false) {
+                if (strpos($path, MODX_BASE_PATH) === false) {
                     $path = ltrim($path, '/');
                 }
                 $this->condition[] = (int)($cmd($path) !== false);
@@ -571,14 +559,14 @@ class MODIFIERS {
             case 'show':
             case 'this':
                 $conditional = join(' ', $this->condition);
-                $isvalid = (int)eval("return ({$conditional})");
+                $isvalid = (int)eval(sprintf("return (%s);", $conditional));
                 if ($isvalid) {
                     return $this->srcValue;
                 }
                 return null;
             case 'then':
                 $conditional = join(' ', $this->condition);
-                $isvalid = (int)eval("return ({$conditional})");
+                $isvalid = (int)eval(sprintf("return (%s);", $conditional));
                 if ($isvalid) {
                     $opt = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
                     return $opt;
@@ -586,7 +574,7 @@ class MODIFIERS {
                 return null;
             case 'else':
                 $conditional = join(' ', $this->condition);
-                $isvalid = (int)eval("return ({$conditional})");
+                $isvalid = (int)eval(sprintf('return (%s);', $conditional));
                 if (!$isvalid) {
                     $opt = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
                     return $opt;
@@ -603,23 +591,25 @@ class MODIFIERS {
                 }
                 if (isset($map[$value])) {
                     return $map[$value];
-                } else {
-                    return '';
                 }
-            ##### End of Conditional Modifiers
+                return '';
+            // End of Conditional Modifiers
 
-            #####  Encode / Decode / Hash / Escape
+            // Encode / Decode / Hash / Escape
             case 'htmlent':
             case 'htmlentities':
-                return htmlentities($value, ENT_QUOTES, $modx->config['modx_charset']);
+                return htmlentities($value, ENT_QUOTES, evo()->config('modx_charset', 'utf-8'));
             case 'html_entity_decode':
             case 'decode_html':
             case 'html_decode':
-                return html_entity_decode($value, ENT_QUOTES, $modx->config['modx_charset']);
+                return html_entity_decode($value, ENT_QUOTES, evo()->config('modx_charset', 'utf-8'));
             case 'esc':
             case 'escape':
-                $value = preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
+                $value = preg_replace(
+                    '/&amp;(#[0-9]+|[a-z]+);/i'
+                    , '&$1;'
+                    , evo()->hsc($value, ENT_QUOTES, $modx->config('modx_charset'))
+                );
                 return str_replace(array('[', ']', '`'), array('&#91;', '&#93;', '&#96;'), $value);
             case 'sql_escape':
             case 'encode_js':
@@ -628,8 +618,7 @@ class MODIFIERS {
             case 'hsc':
             case 'encode_html':
             case 'html_encode':
-                return preg_replace('/&amp;(#[0-9]+|[a-z]+);/i', '&$1;',
-                    htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
+                return evo()->hsc($value, ENT_QUOTES);
             case 'spam_protect':
                 return str_replace(array('@', '.'), array('&#64;', '&#46;'), $value);
             case 'strip_linefeeds':
@@ -638,7 +627,7 @@ class MODIFIERS {
                 if ($opt === '') {
                     $opt = ' ';
                 }
-                $value = preg_replace('/[\n\r\t\s]+/', $opt, $value);
+                return preg_replace('/[\n\r\t\s]+/', $opt, $value);
             case 'notags':
             case 'strip_tags':
             case 'remove_html':
@@ -646,15 +635,22 @@ class MODIFIERS {
                     $param = array();
                     foreach (explode(',', $opt) as $v) {
                         $v = trim($v, '</> ');
-                        $param[] = "<{$v}>";
+                        $param[] = "<" . $v . ">";
                     }
                     $params = join(',', $param);
                 } else {
                     $params = '';
                 }
                 if (!strpos($params, '<br>') === false) {
-                    $value = preg_replace('@(<br[ /]*>)\n@', '$1', $value);
-                    $value = preg_replace('@<br[ /]*>@', "\n", $value);
+                    $value = preg_replace(
+                        '@<br[ /]*>@'
+                        , "\n"
+                        , preg_replace(
+                            '@(<br[ /]*>)\n@'
+                            , '$1'
+                            , $value
+                        )
+                    );
                 }
                 return $this->strip_tags($value, $params);
             case 'urlencode':
@@ -668,8 +664,6 @@ class MODIFIERS {
                     $opt = false;
                 }
                 return base64_decode($value, $opt);
-            case 'encode_sha1':
-                $cmd = 'sha1';
             case 'addslashes':
             case 'urldecode':
             case 'url_decode':
@@ -681,8 +675,7 @@ class MODIFIERS {
             case 'json_encode':
             case 'json_decode':
                 return $cmd($value);
-
-            #####  String Modifiers
+            // String Modifiers
             case 'lcase':
             case 'strtolower':
             case 'lower_case':
@@ -696,17 +689,19 @@ class MODIFIERS {
                 foreach ($_ as $i => $v) {
                     $_[$i] = ucfirst($v);
                 }
-                return join(' ', $_);
+                return implode(' ', $_);
             case 'zenhan':
-                if (empty($opt)) {
-                    $opt = 'VKas';
-                }
-                return mb_convert_kana($value, $opt, $modx->config['modx_charset']);
+                return mb_convert_kana(
+                    $value
+                    , $opt ? $opt : 'VKas'
+                    , evo()->config('modx_charset', 'utf-8')
+                );
             case 'hanzen':
-                if (empty($opt)) {
-                    $opt = 'VKAS';
-                }
-                return mb_convert_kana($value, $opt, $modx->config['modx_charset']);
+                return mb_convert_kana(
+                    $value
+                    , $opt ? $opt : 'VKAS'
+                    , evo()->config('modx_charset', 'utf-8')
+                );
             case 'str_shuffle':
             case 'shuffle':
                 return $this->str_shuffle($value);
@@ -719,16 +714,22 @@ class MODIFIERS {
             case 'count_characters':
                 return $this->strlen($value);
             case 'count_words':
-                $value = trim($value);
-                return count(preg_split('/\s+/', $value));
+                return count(preg_split('/\s+/', trim($value)));
             case 'str_word_count':
             case 'word_count':
             case 'wordcount':
                 return $this->str_word_count($value);
             case 'count_paragraphs':
-                $value = trim($value);
-                $value = preg_replace('/\r/', '', $value);
-                return count(preg_split('/\n+/', $value));
+                return count(
+                    preg_split(
+                        '/\n+/'
+                        , preg_replace(
+                            '/\r/'
+                            , ''
+                            , trim($value)
+                        )
+                    )
+                );
             case 'strpos':
                 if ($opt != 0 && empty($opt)) {
                     return $value;
@@ -739,39 +740,37 @@ class MODIFIERS {
                 return $this->includeMdfFile('wordwrap');
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/', $opt) ? $opt : 70;
-                if ($modx->config['manager_language'] === 'japanese-utf8') {
-                    $chunk = array();
-                    $bt = '';
-                    while ($bt != $value) {
-                        $bt = $value;
-                        if ($this->strlen($value) < $width) {
-                            $chunk[] = $value;
-                            break;
-                        }
-                        $chunk[] = $this->substr($value, 0, $width);
-                        $value = $this->substr($value, $width);
-                    }
-                    return join("\n", $chunk);
-                } else {
+                if ($modx->config('manager_language') !== 'japanese-utf8') {
                     return wordwrap($value, $width, "\n", true);
                 }
+                $chunk = array();
+                $bt    = '';
+                while ($bt != $value) {
+                    $bt = $value;
+                    if ($this->strlen($value) < $width) {
+                        $chunk[] = $value;
+                        break;
+                    }
+                    $chunk[] = $this->substr($value, 0, $width);
+                    $value   = $this->substr($value, $width);
+                }
+                return implode("\n", $chunk);
             case 'substr':
-                if (empty($opt)) {
+                if (!$opt) {
                     break;
                 }
-                if (strpos($opt, ',') !== false) {
-                    list($b, $e) = explode(',', $opt, 2);
-                    return $this->substr($value, $b, (int)$e);
-                } else {
+                if (strpos($opt, ',') === false) {
                     return $this->substr($value, $opt);
                 }
+                list($b, $e) = explode(',', $opt, 2);
+                return $this->substr($value, $b, (int)$e);
             case 'limit':
             case 'trim_to': // http://www.movabletype.jp/documentation/appendices/modifiers/trim_to.html
-                if (strpos($opt, '+') !== false) {
-                    list($len, $str) = explode('+', $opt, 2);
-                } else {
+                if (strpos($opt, '+') === false) {
                     $len = $opt;
                     $str = '';
+                } else {
+                    list($len, $str) = explode('+', $opt, 2);
                 }
                 if ($len === '') {
                     $len = 100;
@@ -782,7 +781,7 @@ class MODIFIERS {
                 if (preg_match('/^[1-9][0-9]*$/', $len)) {
                     return $this->substr($value, 0, $len) . $str;
                 }
-                if (preg_match('/^\-[1-9][0-9]*$/', $len)) {
+                if (preg_match('/^-[1-9][0-9]*$/', $len)) {
                     return $str . $this->substr($value, $len);
                 }
                 break;
@@ -828,7 +827,7 @@ class MODIFIERS {
                 foreach ($value as $v) {
                     $_[] = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $v, $opt);
                 }
-                return join("\n", $_);
+                return implode("\n", $_);
             case 'array_pop':
             case 'array_shift':
                 if (strpos($value, '||') !== false) {
@@ -885,8 +884,7 @@ class MODIFIERS {
                     return nl2br($value);
                 }
                 if ($opt !== '') {
-                    $opt = trim($opt);
-                    $opt = strtolower($opt);
+                    $opt = strtolower(trim($opt));
                     if ($opt === 'false') {
                         $opt = false;
                     } elseif ($opt === '0') {
@@ -894,7 +892,7 @@ class MODIFIERS {
                     } else {
                         $opt = true;
                     }
-                } elseif (isset($modx->config['mce_element_format']) && $modx->config['mce_element_format'] === 'html') {
+                } elseif ($modx->config('mce_element_format') === 'html') {
                     $opt = false;
                 } else {
                     $opt = true;
@@ -905,16 +903,15 @@ class MODIFIERS {
             case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html
                 if ($opt === '') {
                     return $cmd($value);
-                } else {
-                    return $cmd($value, $opt);
                 }
+                return $cmd($value, $opt);
             // These are all straight wrappers for PHP functions
             case 'ucfirst':
             case 'lcfirst':
             case 'ucwords':
                 return $this->$cmd($value);
 
-            #####  Date time format
+            // Date time format
             case 'strftime':
             case 'date':
             case 'dateformat':
@@ -927,11 +924,10 @@ class MODIFIERS {
                 if (!preg_match('@^[0-9]+$@', $value)) {
                     $value = strtotime($value);
                 }
-                if (strpos($opt, '%') !== false) {
-                    return $modx->mb_strftime($opt, 0 + $value);
-                } else {
+                if (strpos($opt, '%') === false) {
                     return date($opt, 0 + $value);
                 }
+                return $modx->mb_strftime($opt, 0 + $value);
             case 'time':
                 if (empty($opt)) {
                     $opt = '%H:%M';
@@ -942,7 +938,7 @@ class MODIFIERS {
                 return $modx->mb_strftime($opt, 0 + $value);
             case 'strtotime':
                 return strtotime($value);
-            #####  mathematical function
+            // mathematical function
             case 'toint':
                 return (int)$value;
             case 'tofloat':
@@ -968,10 +964,10 @@ class MODIFIERS {
                 $filter = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), '?', $opt);
                 $filter = preg_replace('@([a-zA-Z\n\r\t\s])@', '', $filter);
                 if (strpos($filter, '?') === false) {
-                    $filter = "?{$filter}";
+                    $filter = "?" . $filter;
                 }
                 $filter = str_replace('?', $value, $filter);
-                return eval("return {$filter};");
+                return eval(sprintf('return %s;', $filter));
             case 'count':
                 if ($value == '') {
                     return 0;
@@ -993,7 +989,7 @@ class MODIFIERS {
                 }
                 $cmd($swap, $opt);
                 return join($delim, $swap);
-            #####  Resource fields
+            // Resource fields
             case 'id':
                 if ($opt) {
                     return $this->getDocumentObject($opt, $key);
@@ -1047,14 +1043,14 @@ class MODIFIERS {
                 $menutitle = $this->getDocumentObject($value, 'menutitle');
                 return $menutitle ? $menutitle : $pagetitle;
             case 'templatename':
-                $rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='{$value}'");
+                $rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='" . $value . "'");
                 $templateName = $modx->db->getValue($rs);
                 return !$templateName ? '(blank)' : $templateName;
             case 'getfield':
                 if (!$opt) {
                     $opt = 'content';
                 }
-                return $modx->getField($opt, $value);
+                return evo()->getField($opt, $value);
             case 'children':
             case 'childids':
                 if ($value == '') {
@@ -1093,8 +1089,8 @@ class MODIFIERS {
                             break;
                     }
                 }
-                $where = join(' AND ', $where);
-                $children = $modx->getDocumentChildren($value, $published, '0', 'id', $where);
+                $where = implode(' AND ', $where);
+                $children = evo()->getDocumentChildren($value, $published, '0', 'id', $where);
                 $result = array();
                 foreach ((array)$children as $child) {
                     $result[] = $child['id'];
@@ -1104,7 +1100,7 @@ class MODIFIERS {
                 if (!is_numeric($value)) {
                     return $value;
                 }
-                return $modx->makeUrl($value);
+                return evo()->makeUrl($value);
             case 'makeurl':
                 if (!is_numeric($value)) {
                     return $value;
@@ -1112,9 +1108,9 @@ class MODIFIERS {
                 if (!$opt) {
                     $opt = 'full';
                 }
-                return $modx->makeUrl($value, '', '', $opt);
+                return evo()->makeUrl($value, '', '', $opt);
 
-            #####  File system
+            // File system
             case 'getimageinfo':
             case 'imageinfo':
                 if (!is_file($value)) {
@@ -1185,9 +1181,8 @@ class MODIFIERS {
                 }
                 $filename = $value;
 
-                $site_url = $modx->config['site_url'];
-                if (strpos($filename, $site_url) === 0) {
-                    $filename = substr($filename, 0, strlen($site_url));
+                if (strpos($filename, MODX_SITE_URL) === 0) {
+                    $filename = substr($filename, 0, strlen(MODX_SITE_URL));
                 }
                 $filename = trim($filename, '/');
 
@@ -1203,7 +1198,7 @@ class MODIFIERS {
                     return filesize($filename);
                 }
                 return '';
-            #####  User info
+            // User info
             case 'username':
             case 'fullname':
             case 'role':
@@ -1240,7 +1235,7 @@ class MODIFIERS {
                 }
                 $this->value = -$value;
                 return $this->includeMdfFile('moduser');
-            #####  Special functions 
+            // Special functions
             case 'ifempty':
             case '_default':
             case 'default':
@@ -1295,18 +1290,24 @@ class MODIFIERS {
                 if (empty($opt)) {
                     $opt = 'border:none;width:500px;height:350px;';
                 }
-                $tpl = '<iframe style="[+style+]" src="https://maps.google.co.jp/maps?ll=[+value+]&output=embed&z=15"></iframe>';
-                $ph['style'] = $opt;
-                $ph['value'] = $value;
-                return $modx->parseText($tpl, $ph);
+                return $modx->parseText(
+                    '<iframe style="[+style+]" src="https://maps.google.com/maps?ll=[+value+]&output=embed&z=15"></iframe>'
+                    , array(
+                        'style' => $opt,
+                        'value' => $value,
+                    )
+                );
             case 'youtube':
             case 'youtube16x9':
                 if (empty($opt)) {
                     $opt = 560;
                 }
-                $h = round($opt * 0.5625);
-                $tpl = '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>';
-                return sprintf($tpl, $opt, $h, $value);
+                return sprintf(
+                    '<iframe width="%s" height="%s" src="https://www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
+                    , $opt
+                    , round($opt * 0.5625)
+                    , $value
+                );
             //case 'youtube4x3':%s*0.75＋25
             case 'setvar':
                 $modx->placeholders[$opt] = $value;
@@ -1343,7 +1344,7 @@ class MODIFIERS {
         $key = $this->key;
         $value = $this->value;
         $opt = $this->opt;
-        return include(MODX_CORE_PATH . "extenders/modifiers/mdf_{$cmd}.inc.php");
+        return include(MODX_CORE_PATH . "extenders/modifiers/mdf_" . $cmd . ".inc.php");
     }
 
     function parseDocumentSource($content = '') {
@@ -1392,7 +1393,7 @@ class MODIFIERS {
 
         $target = trim($target);
         if (empty($target)) {
-            $target = $modx->config['site_start'];
+            $target = $modx->config('site_start');
         }
         if (preg_match('@^[1-9][0-9]*$@', $target)) {
             $method = 'id';
@@ -1404,9 +1405,11 @@ class MODIFIERS {
             $this->documentObject[$target] = $modx->getDocumentObject($method, $target, 'direct');
         }
 
-        if ($this->documentObject[$target]['publishedon'] === '0') {
+        if ($this->documentObject[$target]['publishedon'] == 0) {
             return '';
-        } elseif (isset($this->documentObject[$target][$field])) {
+        }
+
+        if (isset($this->documentObject[$target][$field])) {
             if (is_array($this->documentObject[$target][$field])) {
                 $a = $modx->getTemplateVarOutput($field, $target);
                 $this->documentObject[$target][$field] = $a[$field];
@@ -1420,7 +1423,7 @@ class MODIFIERS {
 
     function setPlaceholders($value = '', $key = '', $path = '') {
         if ($path !== '') {
-            $key = "{$path}.{$key}";
+            $key = $path . "." . $key;
         }
         if (is_array($value)) {
             foreach ($value as $subkey => $subval) {
@@ -1448,23 +1451,24 @@ class MODIFIERS {
             if (strpos($str, "\r") !== false) {
                 $str = str_replace(array("\r\n", "\r"), "\n", $str);
             }
-            return mb_substr($str, $s, $l, $modx->config['modx_charset']);
+            return mb_substr($str, $s, $l, evo()->config('modx_charset', 'utf-8'));
         }
         return substr($str, $s, $l);
     }
 
     private function strpos($haystack, $needle, $offset = 0) {
-        global $modx;
         if (function_exists('mb_strpos')) {
-            return mb_strpos($haystack, $needle, $offset, $modx->config['modx_charset']);
+            return mb_strpos($haystack, $needle, $offset, evo()->config('modx_charset', 'utf-8'));
         }
         return strpos($haystack, $needle, $offset);
     }
 
     private function strlen($str) {
-        global $modx;
         if (function_exists('mb_strlen')) {
-            return mb_strlen(str_replace("\r\n", "\n", $str), $modx->config['modx_charset']);
+            return mb_strlen(
+                str_replace("\r\n", "\n", $str)
+                , evo()->config('modx_charset', 'utf-8')
+            );
         }
         return strlen($str);
     }
@@ -1485,14 +1489,26 @@ class MODIFIERS {
 
     private function ucfirst($str) {
         if (function_exists('mb_strtoupper')) {
-            return mb_strtoupper($this->substr($str, 0, 1)) . $this->substr($str, 1, $this->strlen($str));
+            return mb_strtoupper(
+                    $this->substr(
+                        $str
+                        , 0
+                        , 1
+                    )) . $this->substr($str, 1, $this->strlen($str)
+                );
         }
         return ucfirst($str);
     }
 
     private function lcfirst($str) {
         if (function_exists('mb_strtolower')) {
-            return mb_strtolower($this->substr($str, 0, 1)) . $this->substr($str, 1, $this->strlen($str));
+            return mb_strtolower(
+                    $this->substr(
+                        $str
+                        , 0
+                        , 1
+                    )) . $this->substr($str, 1, $this->strlen($str)
+                );
         }
         return lcfirst($str);
     }
