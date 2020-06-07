@@ -5,63 +5,84 @@ if (!sessionv('chunk') && !sessionv('installdata')) {
 
 echo '<h3>' . lang('chunks') . ':</h3>';
 foreach ($tplChunks as $i => $tplInfo) {
-    if (!sessionv('installdata') || !in_array('sample', $tplInfo['installset'])) {
-        $installSample = false;
-    } else {
-        $installSample = true;
-    }
-
-    if (!in_array($i, sessionv('chunk')) && !$installSample) {
+    if (
+        !in_array($i, sessionv('chunk'))
+        &&
+        (!sessionv('installdata') || !in_array('sample', $tplInfo['installset']))
+    ) {
         continue;
     }
-
-    $name = db()->escape($tplInfo['name']);
 
     if (!is_file($tplInfo['tpl_file_path'])) {
-        echo ng($name,
-            sprintf("%s '%s' %s", lang('unable_install_chunk'), $tplInfo['tpl_file_path'], lang('not_found')));
+        echo ng(
+            db()->escape($tplInfo['name'])
+            , sprintf(
+                "%s '%s' %s"
+                , lang('unable_install_chunk')
+                , $tplInfo['tpl_file_path']
+                , lang('not_found')
+            )
+        );
         continue;
     }
-
     $field = array(
+        'name' => $tplInfo['name'],
         'description' => $tplInfo['description'],
-        'snippet' => preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', file_get_contents($tplInfo['tpl_file_path']), 1),
+        'snippet' => preg_replace(
+            "@^.*?/\*\*.*?\*/\s+@s"
+            , ''
+            , file_get_contents($tplInfo['tpl_file_path'])
+            , 1
+        ),
         'category' => getCreateDbCategory($tplInfo['category'])
     );
 
-    if (db()->getObject('site_htmlsnippets', "name='" . $name . "'")) {
-        if ($tplInfo['overwrite'] === 'false') {
-            $rs = true;
+    $rs = db()->select(
+        '*'
+        , '[+prefix+]site_htmlsnippets'
+        , sprintf(
+            "name='%s'"
+            , db()->escape($tplInfo['name'])
+        )
+    );
+    if (!$rs) {
+        if(!db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
+            $errors++;
+            showError();
+            return;
+        }
+        echo ok($tplInfo['name'], lang('installed'));
+    } else {
+        if ($tplInfo['overwrite'] !== 'false') {
+            $updated = db()->update(
+                db()->escape($field)
+                , '[+prefix+]site_htmlsnippets'
+                , sprintf("name='%s'", $tplInfo['name'])
+            );
+        } else {
+            $swap_name = $tplInfo['name'] . '-' . str_replace('.', '_', $modx_version);
             $i = 0;
-            while ($rs === true) {
-                $newname = $tplInfo['name'] . '-' . str_replace('.', '_', $modx_version);
-                if (0 < $i) {
-                    sprintf('%s(%s)', $newname, $i);
+            while ($i < 100) {
+                $field['name'] = $i ? sprintf('%s(%s)', $swap_name, $i) : $swap_name;
+                $rs = db()->select(
+                    '*'
+                    , '[+prefix+]site_htmlsnippets'
+                    , sprintf(
+                        "name='%s'"
+                        , db()->escape($field['name'])
+                    )
+                );
+                if (!db()->getRecordCount($rs)) {
+                    break;
                 }
-                $newname = db()->escape($newname);
-                $rs = db()->getObject('site_htmlsnippets', "name='" . $newname . "'");
-                $name = $newname;
                 $i++;
             }
+            if(!db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
+                $errors++;
+                showError();
+                return;
+            }
         }
-        $updated = db()->update(
-            db()->escape($field)
-            , '[+prefix+]site_htmlsnippets'
-            , "name='" . $name . "'"
-        );
-        if (!$updated) {
-            $errors += 1;
-            showError();
-            return;
-        }
-        echo ok($name, lang('upgraded'));
-    } else {
-        $field['name'] = $name;
-        if (!@ db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
-            $errors += 1;
-            showError();
-            return;
-        }
-        echo ok($name, lang('installed'));
+        echo ok($tplInfo['name'], lang('upgraded'));
     }
 }

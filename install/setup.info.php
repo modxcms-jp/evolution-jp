@@ -59,21 +59,24 @@ if(!sessionv('is_upgradeable') && is_dir($tvPath) && is_readable($tvPath)) {
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
 $tplChunks = array();
-$chunkPath    = MODX_BASE_PATH . "assets/chunks/";
-if(!sessionv('is_upgradeable') && is_dir($chunkPath) && is_readable($chunkPath)) {
+$chunkPath    = MODX_BASE_PATH . 'assets/chunks/';
+if(is_dir($chunkPath) && is_readable($chunkPath)) {
 	$files = collectTpls($chunkPath);
 	foreach ($files as $tpl_file_path) {
 		$params = parse_docblock($tpl_file_path);
         if(!is_array($params) || !$params) {
             continue;
         }
+        if(sessionv('is_upgradeable') && array_get($params,'overwrite')==='false') {
+            continue;
+        }
         $tplChunks[] = array(
-            'name'            => $params['name']
-            , 'description'   => $params['description']
-            , 'tpl_file_path' => $tpl_file_path
-            , 'category'      => $params['modx_category']
-            , 'overwrite'     => array_key_exists('overwrite', $params) ? $params['overwrite'] : 'true'
-            , 'installset'    => get_installset($params)
+            'name'          => $params['name'],
+            'description'   => $params['description'],
+            'tpl_file_path' => $tpl_file_path,
+            'category'      => $params['modx_category'],
+            'overwrite'     => $params['overwrite'] ? $params['overwrite'] : 'true'
+        , 'installset'      => get_installset($params)
         );
 	}
 }
@@ -119,7 +122,7 @@ if(is_dir($pluginPath) && is_readable($pluginPath)) {
         if(!is_array($params) || !$params) {
             continue;
         }
-        if($_SESSION['is_upgradeable']==1 && compare_check($params) === 'same') {
+        if(sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
         if($params['version']) {
@@ -150,7 +153,7 @@ if(is_dir($modulePath) && is_readable($modulePath)) {
         if(!is_array($params) || !$params) {
             continue;
         }
-        if($_SESSION['is_upgradeable'] && compare_check($params) === 'same') {
+        if(sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
         if($params['version']) {
