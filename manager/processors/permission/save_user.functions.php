@@ -352,16 +352,14 @@ function newUser() {
     // end of user_groups stuff!
 
     if (postv('stay') != '') {
-        $stayUrl = sprintf(
-            'index.php?r=3&a=11&stay=%s'
-            , postv('stay')
-        );
         if (postv('stay') == '2') {
             $stayUrl = sprintf(
                 'index.php?r=3&a=11&stay=%s&id=%s'
                 , postv('stay')
                 , $internalKey
             );
+        } else {
+            $stayUrl = 'index.php?r=3&a=11&stay=' . postv('stay');
         }
     } else {
         $stayUrl = 'index.php?r=3&a=75';
@@ -505,7 +503,7 @@ function updateUser() {
         }
     }
     // end of user_groups stuff!
-    if (postv('userid') == evo()->getLoginUserID() && postv('newpassword') !== 1 && postv('passwordnotifymethod') != 's') {
+    if (postv('userid') == evo()->getLoginUserID() && postv('newpassword') !== 1 && postv('passwordnotifymethod') !== 's') {
         ?>
         <body bgcolor='#efefef'>
         <script language="JavaScript">
@@ -523,29 +521,36 @@ function updateUser() {
         exit;
     }
     if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {
-        if (postv('save_action') != 'close') {
-            if (postv('save_action') == 'stay') {
-                $url = sprintf('index.php?a=%s&id=%s', postv('mode'), postv('userid'));
-            } else {
-                $url = 'index.php?a=11';
-            }
-            $url .= sprintf('&r=3&save_action=%s', postv('save_action'));
-        } elseif (postv('mode') === '74') {
-            $url = 'index.php?r=3&a=2';
-        } else {
-            $url = 'index.php?a=75&r=3';
+        if (postv('save_action') === 'stay') {
+            header(sprintf(
+                'Location: index.php?a=%s&id=%s&r=3&save_action=%s'
+                , postv('mode')
+                , postv('userid')
+                , postv('save_action')
+            ));
+            exit;
         }
-        header('Location: ' . $url);
+        if (postv('save_action') !== 'close') {
+            header(sprintf(
+                    'Location: index.php?a=11&r=3&save_action=%s'
+                    , postv('save_action')
+            ));
+            exit;
+        }
+        if (postv('mode') === '74') {
+            header('Location: ' . 'index.php?r=3&a=2');
+            exit;
+        }
+        header('Location: ' . 'index.php?a=75&r=3');
         exit;
     }
 
     if (postv('userid') == evo()->getLoginUserID()) {
         $stayUrl = 'index.php?a=8';
-    } elseif (postv('save_action') != 'close') {
-        $a = (postv('save_action') == 'stay') ? postv('mode') . '&id=' . postv('userid') : '11';
+    } elseif (postv('save_action') !== 'close') {
         $stayUrl = sprintf(
             'index.php?a=%s&save_action=%s'
-            , $a
+            , (postv('save_action') === 'stay') ? sprintf('%s&id=%s', postv('mode'), postv('userid')) : '11'
             , postv('save_action')
         );
     } else {
