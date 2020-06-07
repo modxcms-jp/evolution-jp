@@ -6,7 +6,7 @@
  * @package MODX
  * @subpackage installer_translations
  * @version 1.0.7J-r1
- * 
+ *
  * Filename:       /install/lang/japanese-utf8/japanese-utf8.inc.php
  * Language:       Japanese
  * Encoding:       utf-8
@@ -134,7 +134,7 @@ $_lang["running_database_updates"] = '実行中のデータベースのアップ
 $_lang["sample_web_site"] = 'サンプルサイト';
 $_lang["sample_web_site_note"] = '<span style="font-style:normal;">簡易なテンプレート・新着情報一覧・ナビゲーション・パン屑リスト・問い合わせフォームの実装サンプルが含まれています。</span>';
 $_lang["session_problem"] = 'サーバーのセッション設定に問題があります。';
-$_lang["session_problem_try_again"] = '問題を修正できたら再試行'; 
+$_lang["session_problem_try_again"] = '問題を修正できたら再試行';
 $_lang["setup_cannot_continue"] = '問題点があるため、セットアップを継続できません。';
 $_lang["setup_couldnt_install"] = '選択されたテーブルをインストール/変更できませんでした。';
 $_lang["setup_database"] = 'セットアップ結果<br />';
