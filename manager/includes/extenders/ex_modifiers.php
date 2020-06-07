@@ -603,22 +603,20 @@ class MODIFIERS {
             case 'decode_html':
             case 'html_decode':
                 return html_entity_decode($value, ENT_QUOTES, evo()->config('modx_charset', 'utf-8'));
-            case 'esc':
-            case 'escape':
-                $value = preg_replace(
-                    '/&amp;(#[0-9]+|[a-z]+);/i'
-                    , '&$1;'
-                    , evo()->hsc($value, ENT_QUOTES, $modx->config('modx_charset'))
-                );
-                return str_replace(array('[', ']', '`'), array('&#91;', '&#93;', '&#96;'), $value);
-            case 'sql_escape':
-            case 'encode_js':
-                return $modx->db->escape($value);
             case 'htmlspecialchars':
             case 'hsc':
             case 'encode_html':
             case 'html_encode':
                 return evo()->hsc($value, ENT_QUOTES);
+            case 'esc':
+            case 'escape':
+                return str_replace(
+                    array('[', ']', '`')
+                    , array('&#91;', '&#93;', '&#96;')
+                    , evo()->hsc($value, ENT_QUOTES));
+            case 'sql_escape':
+            case 'encode_js':
+                return $modx->db->escape($value);
             case 'spam_protect':
                 return str_replace(array('@', '.'), array('&#64;', '&#46;'), $value);
             case 'strip_linefeeds':
