@@ -57,8 +57,8 @@ if (!function_exists('str_contains')) {
     }
 }
 
-function hsc($string) {
-    return evo()->hsc($string);
+function hsc($string = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
+    return evo()->hsc($string, $flags, $encode);
 }
 
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false) {

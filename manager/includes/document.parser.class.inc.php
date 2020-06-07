@@ -4987,11 +4987,11 @@ class DocumentParser {
         }
     }
 
-    function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '') {
-        return $this->hsc($str, $flags, $encode);
+    function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
+        return $this->hsc($str, $flags, $encode, $double_encode);
     }
 
-    function hsc($str = '', $flags = ENT_COMPAT, $encode = '') {
+    function hsc($str = '', $flags = ENT_COMPAT, $encode = null, $double_encode = false) {
         if ($str === '') {
             return '';
         }
@@ -5003,13 +5003,13 @@ class DocumentParser {
         }
 
         if (!$encode) {
-            $encode = $this->config['modx_charset'];
+            $encode = $this->config('modx_charset','utf-8');
         }
 
-        $ent_str = htmlspecialchars($str, $flags, $encode);
+        $ent_str = htmlspecialchars($str, $flags, $encode, $double_encode);
 
         if ($str && $ent_str == '') {
-            $detect_order = join(',', mb_detect_order());
+            $detect_order = implode(',', mb_detect_order());
             $ent_str = mb_convert_encoding($str, $encode, $detect_order);
         }
 
