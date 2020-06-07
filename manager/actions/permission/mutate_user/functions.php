@@ -113,7 +113,7 @@ function saveOptions() {
         'option'
         , array(
             'value' => 'next',
-            'selected' => evo()->input_any('stay') == 'next' ? null : ''
+            'selected' => evo()->input_any('save_action') == 'next' ? null : ''
         )
         , lang('stay_new')
     );
@@ -121,7 +121,7 @@ function saveOptions() {
         'option'
         , array(
             'value' => 'stay',
-            'selected' => evo()->input_any('stay') == 'stay' ? null : ''
+            'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
         )
         , lang('stay')
     );
@@ -129,7 +129,7 @@ function saveOptions() {
         'option'
         , array(
             'value' => 'close',
-            'selected' => evo()->input_any('stay', 'close') == 'close' ? null : ''
+            'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
         )
         , lang('close')
     );
