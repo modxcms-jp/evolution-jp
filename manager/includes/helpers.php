@@ -214,6 +214,10 @@ function sessionv($key = null, $default = null) {
     if (evo()) {
         return evo()->session($key, $default);
     }
+    if (strpos($key, '*') === 0) {
+        $_SESSION[ltrim($key, '*')] = $default;
+        return $default;
+    }
     return array_get($_SESSION, $key, $default);
 }
 
