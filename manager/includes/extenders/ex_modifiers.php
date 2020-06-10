@@ -616,7 +616,7 @@ class MODIFIERS {
                     , evo()->hsc($value, ENT_QUOTES));
             case 'sql_escape':
             case 'encode_js':
-                return $modx->db->escape($value);
+                return db()->escape($value);
             case 'spam_protect':
                 return str_replace(array('@', '.'), array('&#64;', '&#46;'), $value);
             case 'strip_linefeeds':
@@ -890,7 +890,7 @@ class MODIFIERS {
                     } else {
                         $opt = true;
                     }
-                } elseif ($modx->config('mce_element_format') === 'html') {
+                } elseif (evo()->config('mce_element_format') === 'html') {
                     $opt = false;
                 } else {
                     $opt = true;
@@ -917,7 +917,7 @@ class MODIFIERS {
                     return '';
                 }
                 if (empty($opt)) {
-                    $opt = $modx->toDateFormat(null, 'formatOnly');
+                    $opt = evo()->toDateFormat(null, 'formatOnly');
                 }
                 if (!preg_match('@^[0-9]+$@', $value)) {
                     $value = strtotime($value);
@@ -925,7 +925,7 @@ class MODIFIERS {
                 if (strpos($opt, '%') === false) {
                     return date($opt, 0 + $value);
                 }
-                return $modx->mb_strftime($opt, 0 + $value);
+                return evo()->mb_strftime($opt, 0 + $value);
             case 'time':
                 if (empty($opt)) {
                     $opt = '%H:%M';
@@ -933,7 +933,7 @@ class MODIFIERS {
                 if (!preg_match('@^[0-9]+$@', $value)) {
                     $value = strtotime($value);
                 }
-                return $modx->mb_strftime($opt, 0 + $value);
+                return evo()->mb_strftime($opt, 0 + $value);
             case 'strtotime':
                 return strtotime($value);
             // mathematical function
@@ -1041,8 +1041,8 @@ class MODIFIERS {
                 $menutitle = $this->getDocumentObject($value, 'menutitle');
                 return $menutitle ? $menutitle : $pagetitle;
             case 'templatename':
-                $rs = $modx->db->select('templatename', '[+prefix+]site_templates', "id='" . $value . "'");
-                $templateName = $modx->db->getValue($rs);
+                $rs = db()->select('templatename', '[+prefix+]site_templates', "id='" . $value . "'");
+                $templateName = db()->getValue($rs);
                 return !$templateName ? '(blank)' : $templateName;
             case 'getfield':
                 if (!$opt) {
@@ -1246,7 +1246,7 @@ class MODIFIERS {
                     return null;
                 }
                 $opt = str_replace(array('[+output+]', '{value}', '%s'), '[+value+]', $opt);
-                $opt = $modx->parseText($opt, array('value' => $value));
+                $opt = evo()->parseText($opt, array('value' => $value));
                 return $opt;
             case 'datagrid':
                 include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
@@ -1282,13 +1282,13 @@ class MODIFIERS {
             case 'getimage':
                 return $this->includeMdfFile('getimage');
             case 'nicesize':
-                return $modx->nicesize($value);
+                return evo()->nicesize($value);
             case 'googlemap':
             case 'googlemaps':
                 if (empty($opt)) {
                     $opt = 'border:none;width:500px;height:350px;';
                 }
-                return $modx->parseText(
+                return evo()->parseText(
                     '<iframe style="[+style+]" src="https://maps.google.com/maps?ll=[+value+]&output=embed&z=15"></iframe>'
                     , array(
                         'style' => $opt,
@@ -1311,19 +1311,19 @@ class MODIFIERS {
                 $modx->placeholders[$opt] = $value;
                 return '';
             case 'csstohead':
-                $modx->regClientCSS($value);
+                evo()->regClientCSS($value);
                 return '';
             case 'htmltohead':
-                $modx->regClientStartupHTMLBlock($value);
+                evo()->regClientStartupHTMLBlock($value);
                 return '';
             case 'htmltobottom':
-                $modx->regClientHTMLBlock($value);
+                evo()->regClientHTMLBlock($value);
                 return '';
             case 'jstohead':
-                $modx->regClientStartupScript($value);
+                evo()->regClientStartupScript($value);
                 return '';
             case 'jstobottom':
-                $modx->regClientScript($value);
+                evo()->regClientScript($value);
                 return '';
             case 'dummy':
                 return $value;
@@ -1332,7 +1332,7 @@ class MODIFIERS {
             default:
                 $_ = compact('key', 'value', 'cmd', 'opt');
                 $_['url'] = $_SERVER['REQUEST_URI'];
-                $modx->addLog('unparsed modifire', $_, 2);
+                evo()->addLog('unparsed modifire', $_, 2);
         }
         return $value;
     }
@@ -1359,7 +1359,7 @@ class MODIFIERS {
         $i = 0;
         while ($bt !== $content) {
             $bt = $content;
-            if (strpos($content, '[*') !== false && $modx->documentIdentifier) {
+            if ($modx->documentIdentifier && strpos($content, '[*') !== false) {
                 $content = $modx->mergeDocumentContent($content);
             }
             if (strpos($content, '[(') !== false) {
@@ -1387,20 +1387,17 @@ class MODIFIERS {
     }
 
     function getDocumentObject($target = '', $field = 'pagetitle') {
-        global $modx;
-
         $target = trim($target);
-        if (empty($target)) {
-            $target = $modx->config('site_start');
-        }
-        if (preg_match('@^[1-9][0-9]*$@', $target)) {
-            $method = 'id';
-        } else {
-            $method = 'alias';
+        if (! $target) {
+            $target = evo()->config('site_start');
         }
 
         if (!isset($this->documentObject[$target])) {
-            $this->documentObject[$target] = $modx->getDocumentObject($method, $target, 'direct');
+            $this->documentObject[$target] = evo()->getDocumentObject(
+                preg_match('@^[1-9][0-9]*$@', $target) ? 'id' : 'alias'
+                , $target
+                , 'direct'
+            );
         }
 
         if ($this->documentObject[$target]['publishedon'] == 0) {
@@ -1409,7 +1406,7 @@ class MODIFIERS {
 
         if (isset($this->documentObject[$target][$field])) {
             if (is_array($this->documentObject[$target][$field])) {
-                $a = $modx->getTemplateVarOutput($field, $target);
+                $a = evo()->getTemplateVarOutput($field, $target);
                 $this->documentObject[$target][$field] = $a[$field];
             }
         } else {
