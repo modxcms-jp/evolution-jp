@@ -272,12 +272,18 @@ class MODIFIERS {
             return 0;
         }
 
-        if (isset($modx->snippetCache[sprintf('phx:%s', $cmd)])) {
-            return (int)$modx->snippetCache['phx:' . $cmd];
+        if (isset($modx->snippetCache["phx:{$cmd}"])) {
+            if ($modx->snippetCache["phx:{$cmd}"]) {
+                return 1;
+            }
+            return 0;
         }
 
         if (isset($modx->snippetCache[$cmd])) {
-            return (int)$modx->snippetCache[$cmd];
+            if ($modx->snippetCache[$cmd]) {
+                return 1;
+            }
+            return 0;
         }
 
         $code = $this->getSnippetFromDB($cmd);
@@ -738,7 +744,7 @@ class MODIFIERS {
                 return $this->includeMdfFile('wordwrap');
             case 'wrap_text':
                 $width = preg_match('/^[1-9][0-9]*$/', $opt) ? $opt : 70;
-                if ($modx->config('manager_language') !== 'japanese-utf8') {
+                if (evo()->config('manager_language') !== 'japanese-utf8') {
                     return wordwrap($value, $width, "\n", true);
                 }
                 $chunk = array();
