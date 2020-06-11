@@ -488,30 +488,19 @@ EOT;
 }
 
 function getReturnAction($current) {
-    global $modx;
-
-    if (isset($current['parent'])) {
-        $parent = $current['parent'];
-    } else {
-        $parent = 'root';
+    if (!isset($current['parent'])) {
+        return 'index.php?a=2';
     }
 
-    if ($parent !== 'root') {
-        $isAllowed = $modx->manager->isAllowed($parent);
-        if (!$isAllowed) {
-            $parent = 0;
-        }
+    if (!manager()->isAllowed($current['parent'])) {
+        return 'index.php?a=120';
     }
 
-    if ($parent === 'root') {
-        $a = 'a=2';
-    } elseif ($parent == 0) {
-        $a = 'a=120';
-    } else {
-        $a = "a=120&id={$parent}";
+    if (!$current['parent']) {
+        return 'index.php?a=120';
     }
 
-    return 'index.php?' . $a;
+    return 'index.php?a=120&id='.$current['parent'];
 }
 
 function getTopicPath($id) {
