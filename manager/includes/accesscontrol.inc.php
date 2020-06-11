@@ -27,21 +27,14 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
     }
 }
 
-$style_path = MODX_MANAGER_PATH . 'media/style/';
-$theme_path = $style_path . evo()->config('manager_theme') . '/';
+$theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
 $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
 if (!sessionv('mgrValidated')) {
     if (getv('frame')) {
         $_SESSION['save_uri'] = serverv('REQUEST_URI');
     }
     // include localized overrides
-    include_once(
-    sprintf(
-        '%slang/%s.inc.php'
-        , MODX_CORE_PATH
-        , evo()->config('manager_language', 'english')
-    )
-    );
+    include_once MODX_CORE_PATH . sprintf('lang/%s.inc.php', evo()->config('manager_language', 'english'));
 
     if (is_file($theme_path)) {
         include_once($theme_path);
@@ -63,7 +56,7 @@ if (!sessionv('mgrValidated')) {
     if (is_file($touch_path) && serverv('REQUEST_TIME',time()) < filemtime($touch_path) + 300) {
         $modx->safeMode = 1;
         evo()->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
-        $tpl = file_get_contents($style_path . "common/login.tpl");
+        $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
     } else {
         touch($touch_path);
     }
@@ -146,7 +139,7 @@ if (!sessionv('mgrValidated')) {
 
     // load template
     if (!evo()->config('manager_login_tpl')) {
-        evo()->config['manager_login_tpl'] = $style_path . 'common/login.tpl';
+        evo()->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
     }
 
     $target = evo()->config('manager_login_tpl');
@@ -169,7 +162,7 @@ if (!sessionv('mgrValidated')) {
         } elseif (is_file($theme_path . "html/login.html")) { // ClipperCMS compatible
             $login_tpl = file_get_contents($theme_path . "html/login.html");
         } else {
-            $login_tpl = file_get_contents($style_path . "common/login.tpl");
+            $login_tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
         }
     }
     evo()->output = $login_tpl;
@@ -193,9 +186,7 @@ if (!sessionv('mgrValidated')) {
     // little tweak for newer parsers
     $regx = strpos(evo()->output, '[[+') !== false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~';
     $modx->output = preg_replace($regx, '', evo()->output); //cleanup
-
     echo evo()->output;
-
     exit;
 
 }

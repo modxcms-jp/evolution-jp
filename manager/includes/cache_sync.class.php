@@ -356,8 +356,8 @@ class synccache {
     }
 
     private function cache_put_contents($filename, $content) {
-        global $modx, $_lang;
-        if (empty($content)) {
+        global $_lang;
+        if (!$content) {
             return;
         }
         if (is_array($content)) {
@@ -369,8 +369,7 @@ class synccache {
                     , $content
                 );
             }
-            $br = "\n";
-            $content = "<?php{$br}return {$content};";
+            $content = sprintf("<?php \n return %s;", $content);
             if (strpos($filename, 'documentMap') !== false) {
                 $content = str_replace('return array (', "return array (\n", $content);
             }
@@ -391,7 +390,7 @@ class synccache {
             '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
             , array(
                 'manager_url' => MODX_MANAGER_URL,
-                'theme' => evo()->config('manager_theme')
+                'theme' => evo()->config('manager_theme', '')
             )
         );
         exit(sprintf(
@@ -446,7 +445,6 @@ class synccache {
     }
 
     private function alias_path($parent_id) {
-        global $modx;
         if (!evo()->config('friendly_urls')) {
             return $parent_id;
         }
@@ -469,7 +467,7 @@ class synccache {
                 , $row['contentType']
             );
         }
-        return join("\n", $_) . "\n";
+        return implode("\n", $_) . "\n";
     }
 
     private function _get_chunks() {
@@ -481,8 +479,7 @@ class synccache {
         );
         $modx->chunkCache = array();
         while ($row = db()->getRow($rs)) {
-            $name = db()->escape($row['name']);
-            $modx->chunkCache[$name] = $row['snippet'];
+            $modx->chunkCache[db()->escape($row['name'])] = $row['snippet'];
         }
         return $modx->chunkCache;
     }
@@ -513,14 +510,16 @@ class synccache {
     }
 
     private function _get_events() {
-        $fields = 'sysevt.name as `evtname`, plugs.name as plgname';
-        $from[] = '[+prefix+]system_eventnames sysevt';
-        $from[] = 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id';
-        $from[] = 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid';
-        $from = join(' ', $from);
-        $where = 'plugs.disabled=0';
-        $orderby = 'sysevt.name,pe.priority';
-        $rs = db()->select($fields, $from, $where, $orderby);
+        $rs = db()->select(
+            'sysevt.name as `evtname`, plugs.name as plgname'
+            , array(
+                '[+prefix+]system_eventnames sysevt',
+                'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id',
+                'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid'
+            )
+            , 'plugs.disabled=0'
+            , 'sysevt.name,pe.priority'
+        );
         $_ = array('$e = &$this->pluginEvent;');
         $events = array();
         while ($row = db()->getRow($rs)) {
@@ -542,7 +541,7 @@ class synccache {
                 )
             );
         }
-        return join("\n", $_) . "\n";
+        return implode("\n", $_) . "\n";
     }
 
     private function getFileList($dir, $pattern = '@\.*$@') {
