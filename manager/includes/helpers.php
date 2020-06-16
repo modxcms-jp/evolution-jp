@@ -211,7 +211,7 @@ function serverv($key = null, $default = null) {
 }
 
 function sessionv($key = null, $default = null) {
-    if (evo()) {
+    if (strpos($key,'.')!==false && evo()) {
         return evo()->session($key, $default);
     }
     if (strpos($key, '*') === 0) {
