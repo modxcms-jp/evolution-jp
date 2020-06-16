@@ -6,7 +6,6 @@ if (!$modx->hasPermission('logs')) {
     exit;
 }
 ?>
-
     <style type="text/css">
         body {
             padding: 20px;
@@ -110,21 +109,38 @@ if (!$modx->hasPermission('logs')) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=53';"><img
-                            alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+            <li
+                id="Button5"
+                class="mutate"
+            >
+                <a
+                    href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?a=53';"
+                ><img
+                    alt="icons_cancel"
+                    src="<?php echo style("icons_cancel") ?>"/> <?php echo lang('cancel') ?></a>
+            </li>
         </ul>
     </div>
 
 <?php
 ob_start();
 phpinfo();
-$pinfo = ob_get_contents();
 ob_end_clean();
-$pinfo = preg_replace('%^.*<body>(.*)</body>.*$%ms', '$1', $pinfo);
-$pinfo = str_replace('<div class="center">', '<div>', $pinfo);
-$pinfo = str_replace('width="600"', 'width="90%"', $pinfo);
-$pinfo = str_replace('src,input', 'src, input', $pinfo);
-echo $pinfo;
-?>
+echo str_replace(
+    array(
+        '<div class="center">'
+        , 'width="600"'
+        , 'src,input'
+    )
+    , array(
+        '<div>'
+        , 'width="90%"'
+        , 'src, input'
+    )
+    , preg_replace(
+            '%^.*<body>(.*)</body>.*$%ms'
+            , '$1'
+            , ob_get_contents()
+    )
+);
