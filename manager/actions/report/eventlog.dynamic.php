@@ -3,19 +3,19 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 if (!$modx->hasPermission('view_eventlog')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 global $_PAGE;
 $modx->manager->initPageViewState();
 
 // get and save search string
-if (isset($_REQUEST['op']) && $_REQUEST['op'] == 'reset') {
+if (anyv('op') === 'reset') {
     $search = $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $search = $query = isset($_REQUEST['search']) ? $_REQUEST['search'] : $_PAGE['vs']['search'];
+    $search = $query = anyv('search',$_PAGE['vs']['search']);
     if (!is_numeric($search)) {
         $search = db()->escape($query);
     }
@@ -23,15 +23,15 @@ if (isset($_REQUEST['op']) && $_REQUEST['op'] == 'reset') {
 }
 
 // get & save listmode
-$listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode'] : $_PAGE['vs']['lm'];
+$listmode = anyv('listmode',$_PAGE['vs']['lm']);
 $_PAGE['vs']['lm'] = $listmode;
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
-$cm->addItem($_lang['view_log'], "js:menuAction(1)", $_style['icons_save']);
+$cm->addItem(lang('view_log'), "js:menuAction(1)", style('icons_save'));
 $cm->addSeparator();
-$cm->addItem($_lang['delete'], "js:menuAction(2)", $_style['icons_delete'],
+$cm->addItem(lang('delete'), "js:menuAction(2)", style('icons_delete'),
     (!$modx->hasPermission('delete_eventlog') ? 1 : 0));
 echo $cm->render();
 
@@ -88,7 +88,7 @@ echo $cm->render();
     <input type="hidden" name="listmode" value="<?php echo $listmode ?>"/>
     <input type="hidden" name="op" value=""/>
 
-    <h1><?php echo $_lang['eventlog_viewer'] ?></h1>
+    <h1><?php echo lang('eventlog_viewer') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -105,26 +105,31 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td><a href="index.php?a=116&cls=1"><img src="<?php echo $_style["icons_delete_document"] ?>"
-                                                             align="absmiddle"/> <?php echo $_lang['clear_log'] ?></a>
+                    <td>
+                        <a
+                                href="index.php?a=116&cls=1"
+                        ><img
+                                    src="<?php echo $_style["icons_delete_document"] ?>"
+                                    align="absmiddle"
+                            /> <?php echo lang('clear_log') ?></a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
-                                <td><?php echo $_lang['search'] ?> </td>
+                                <td><?php echo lang('search') ?> </td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
                                            value="<?php echo $query ?>"/></td>
-                                <td><a class="primary" href="#" title="<?php echo $_lang['search'] ?>"
+                                <td><a class="primary" href="#" title="<?php echo lang('search') ?>"
                                        onclick="searchResource();return false;"><img
-                                                src="<?php echo $_style['icons_save']; ?>"/><?php echo $_lang['go'] ?>
+                                                src="<?php echo style('icons_save'); ?>"/><?php echo lang('go') ?>
                                     </a></td>
                                 <td><a href="#" title="<?php echo $_lang['reset'] ?>"
                                        onclick="resetSearch();return false;"><img
-                                                src="<?php echo $_style['icons_refresh']; ?>" style="display:inline;"/></a>
+                                                src="<?php echo style('icons_refresh'); ?>" style="display:inline;"/></a>
                                 </td>
                                 <td><a href="#" title="<?php echo $_lang['list_mode'] ?>"
                                        onclick="changeListMode();return false;"><img
-                                                src="<?php echo $_style['icons_table']; ?>"
+                                                src="<?php echo style('icons_table'); ?>"
                                                 style="display:inline;"/></a></td>
                             </tr>
                         </table>
