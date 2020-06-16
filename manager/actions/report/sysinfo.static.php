@@ -3,19 +3,23 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 if (!evo()->hasPermission('logs')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 global $database_connection_method, $lastInstallTime;
 ?>
     <h1><?php echo lang('view_sysinfo'); ?></h1>
-
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                            alt="icons_cancel" src="<?php echo style("icons_cancel") ?>"/> <?php echo lang('cancel') ?>
-                </a></li>
+            <li id="Button5" class="mutate">
+                <a href="#"
+                   onclick="documentDirty=false;document.location.href='index.php?a=2';">
+                    <img
+                            alt="icons_cancel"
+                            src="<?php echo style("icons_cancel") ?>"
+                    /> <?php echo lang('cancel') ?>
+                </a>
+            </li>
         </ul>
     </div>
 
