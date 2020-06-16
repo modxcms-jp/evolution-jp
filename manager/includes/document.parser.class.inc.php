@@ -325,7 +325,7 @@ class DocumentParser {
             $this->sendUnavailablePage();
         }
 
-        $this->decoded_request_uri = $this->config['base_url'] . "index.php?id={$id}";
+        $this->decoded_request_uri = MODX_BASE_URL . "index.php?id={$id}";
         $this->uri_parent_dir = '';
 
         $_REQUEST['id'] = $id;
@@ -351,7 +351,7 @@ class DocumentParser {
         $getQ = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri);
         if (preg_match('@^[1-9][0-9]*$@', $getId)) {
             $docid = $getId;
-        } elseif ($this->config['base_url'] == $uri) {
+        } elseif ($uri === MODX_BASE_URL) {
             $docid = $this->config['site_start'];
         } elseif ($getQ !== false) {
             $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
@@ -430,7 +430,7 @@ class DocumentParser {
         {
             $q = $this->_IIS_furl_fix();
         } else {
-            $q = substr($uri, strlen($this->config['base_url']));
+            $q = substr($uri, strlen(MODX_BASE_URL));
             if (strpos($q, '?') !== false) {
                 $q = substr($q, 0, strpos($q, '?'));
             }
@@ -727,9 +727,9 @@ class DocumentParser {
                 , $this->documentOutput
             );
         }
-        $unstrict_url = $this->config['site_url'] . $this->makeUrl($this->config['site_start'], '', '', 'rel');
+        $unstrict_url = MODX_SITE_URL . $this->makeUrl($this->config('site_start'), '', '', 'rel');
         if (strpos($this->documentOutput, $unstrict_url) !== false) {
-            $this->documentOutput = str_replace($unstrict_url, $this->config['site_url'], $this->documentOutput);
+            $this->documentOutput = str_replace($unstrict_url, MODX_SITE_URL, $this->documentOutput);
         }
 
         // invoke OnLogPageView event
@@ -3651,7 +3651,7 @@ class DocumentParser {
             }
             $url = "{$site_url}{$makeurl}";
         } elseif (strpos($scheme, 'a') === 0) {
-            $url = $this->config('base_url') . $makeurl;
+            $url = MODX_BASE_URL . $makeurl;
         } else {
             $url = $makeurl;
         }
@@ -4249,12 +4249,12 @@ class DocumentParser {
 
     # returns the virtual relative path to the manager folder
     function getManagerPath() {
-        return $this->config['base_url'] . 'manager/';
+        return MODX_BASE_URL . 'manager/';
     }
 
     # returns the virtual relative path to the cache folder
     function getCachePath() {
-        return $this->config['base_url'] . 'assets/cache/';
+        return MODX_BASE_URL . 'assets/cache/';
     }
 
     # Returns current user id
