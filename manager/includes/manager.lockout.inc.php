@@ -3,66 +3,75 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-if ($_REQUEST['a'] != '8' && isset($_SESSION['mgrValidated'])) {
+if (anyv('a') == '8' || !sessionv('mgrValidated')) {
+    return;
+}
 
-    $homeurl = $modx->makeUrl($manager_login_startup > 0 ? $manager_login_startup : $site_start);
-    $logouturl = './index.php?a=8';
+evo()->toPlaceholders(
+    array(
+        'modx_charset' => $modx_manager_charset,
+        'theme'        => evo()->config('manager_theme'),
+        'site_name'    => evo()->config('site_name'),
+        'logo_slogan'  => $_lang['logo_slogan'],
+        'manager_lockout_message' => $_lang['manager_lockout_message'],
+        'home'         => $_lang['home'],
+        'logout'       => $_lang['logout'],
+        'logouturl'    => './index.php?a=8',
+        'manager_theme_url' => sprintf('%smedia/style/%s/', MODX_MANAGER_URL, evo()->config('manager_theme')),
+        'year'         =>  date('Y')
+    )
+);
 
-    $modx->setPlaceholder('modx_charset', $modx_manager_charset);
-    $modx->setPlaceholder('theme', $manager_theme);
+if (evo()->config('manager_login_startup')) {
+    evo()->setPlaceholder('homeurl', evo()->makeUrl(evo()->config('manager_login_startup')));
+} else {
+    evo()->setPlaceholder('homeurl', evo()->makeUrl(evo()->config('site_start')));
+}
 
-    $modx->setPlaceholder('site_name', $site_name);
-    $modx->setPlaceholder('logo_slogan', $_lang["logo_slogan"]);
-    $modx->setPlaceholder('manager_lockout_message', $_lang["manager_lockout_message"]);
+// merge placeholders
+echo preg_replace(
+    '@\[\+(.*?)\+]@'
+    , ''
+    , evo()->mergePlaceholderContent(tpl_content())
+);
+exit;
 
-    $modx->setPlaceholder('home', $_lang["home"]);
-    $modx->setPlaceholder('homeurl', $homeurl);
-    $modx->setPlaceholder('logout', $_lang["logout"]);
-    $modx->setPlaceholder('logouturl', $logouturl);
-    $modx->setPlaceholder('manager_theme_url',
-        MODX_MANAGER_URL . 'media/style/' . $modx->config['manager_theme'] . '/');
-    $modx->setPlaceholder('year', date('Y'));
-
-    // load template
-    if (!isset($modx->config['manager_lockout_tpl']) || empty($modx->config['manager_lockout_tpl'])) {
-        $modx->config['manager_lockout_tpl'] = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
-    }
-
-    $target = $modx->config['manager_lockout_tpl'];
-    if (substr($target, 0, 1) === '@') {
-        if (substr($target, 0, 6) === '@CHUNK') {
-            $target = trim(substr($target, 7));
-            $lockout_tpl = $modx->getChunk($target);
-        } elseif (substr($target, 0, 5) === '@FILE') {
-            $target = trim(substr($target, 6));
-            $lockout_tpl = file_get_contents($target);
-        }
+function tpl_content () {
+    if (evo()->config('manager_lockout_tpl')) {
+        $target = evo()->config('manager_lockout_tpl');
     } else {
-        $chunk = $modx->getChunk($target);
-        if ($chunk !== false && !empty($chunk)) {
-            $lockout_tpl = $chunk;
-        } elseif (is_file(MODX_BASE_PATH . $target)) {
-            $target = MODX_BASE_PATH . $target;
-            $lockout_tpl = file_get_contents($target);
-        } elseif (is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl')) {
-            $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/manager.lockout.tpl';
-            $lockout_tpl = file_get_contents($target);
-        } elseif (is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html')) { // ClipperCMS compatible
-            $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/manager.lockout.html';
-            $lockout_tpl = file_get_contents($target);
-        } else {
-            $target = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
-            $lockout_tpl = file_get_contents($target);
-        }
+        $target = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
     }
 
-    // merge placeholders
-    $lockout_tpl = $modx->mergePlaceholderContent($lockout_tpl);
-    $regx = strpos($lockout_tpl,
-        '[[+') !== false ? '~\[\[\+(.*?)\]\]~' : '~\[\+(.*?)\+\]~'; // little tweak for newer parsers
-    $lockout_tpl = preg_replace($regx, '', $lockout_tpl); //cleanup
+    if (strpos($target, '@') === 0) {
+        if (strpos($target, '@CHUNK') === 0) {
+            return evo()->getChunk(trim(substr($target, 7)));
+        }
 
-    echo $lockout_tpl;
+        if (strpos($target, '@FILE') === 0) {
+            return file_get_contents(trim(substr($target, 6)));
+        }
+        exit('error');
+    }
 
-    exit;
+    $chunk = evo()->getChunk($target);
+    if ($chunk) {
+        return $chunk;
+    }
+
+    if (is_file(MODX_BASE_PATH . $target)) {
+        return file_get_contents(MODX_BASE_PATH . $target);
+    }
+
+    $style_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
+    if (is_file($style_path . 'manager.lockout.tpl')) {
+        return file_get_contents($style_path . 'manager.lockout.tpl');
+    }
+
+    // ClipperCMS compatible
+    if (is_file($style_path . 'html/manager.lockout.html')) {
+        return file_get_contents($style_path . 'html/manager.lockout.html');
+    }
+
+    return file_get_contents(MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl');
 }
