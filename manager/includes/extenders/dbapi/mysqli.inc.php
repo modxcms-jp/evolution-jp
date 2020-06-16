@@ -226,7 +226,7 @@ class DBAPI {
             return false;
         }
 
-        $tstart = $modx->getMicroTime();
+        $tstart = evo()->getMicroTime();
 
         if (is_array($sql)) {
             $sql = implode("\n", $sql);
@@ -239,7 +239,7 @@ class DBAPI {
                 return false;
             }
             if (!in_array($this->conn->errno, array(1064, 1054, 1060, 1061, 1091))) {
-                $modx->messageQuit(
+                evo()->messageQuit(
                     sprintf(
                         'Execution of a query to the database failed - %s'
                         , $this->getLastError()
@@ -251,10 +251,10 @@ class DBAPI {
             return true;
         }
 
-        $totaltime = $modx->getMicroTime() - $tstart;
-        $modx->queryTime = $modx->queryTime + $totaltime;
+        $totaltime = evo()->getMicroTime() - $tstart;
+        $modx->queryTime = evo()->queryTime + $totaltime;
         $totaltime = $totaltime * 1000;
-        if ($modx->dumpSQL) {
+        if (evo()->dumpSQL) {
             $backtraces = debug_backtrace();
             array_shift($backtraces);
             $debug_path = array();
@@ -264,18 +264,18 @@ class DBAPI {
             $_ = array();
             $_[] = sprintf(
                 '<fieldset style="text-align:left"><legend>Query %d - %s</legend>'
-                , $modx->executedQueries + 1
+                , evo()->executedQueries + 1
                 , sprintf('%2.2f ms', $totaltime)
             );
             $_[] = $sql . '<br><br>';
-            if ($modx->event->name) {
-                $_[] = 'Current Event  => ' . $modx->event->name . '<br>';
+            if (event()->name) {
+                $_[] = 'Current Event  => ' . event()->name . '<br>';
             }
-            if ($modx->event->activePlugin) {
-                $_[] = 'Current Plugin => ' . $modx->event->activePlugin . '<br>';
+            if (event()->activePlugin) {
+                $_[] = 'Current Plugin => ' .event()->activePlugin . '<br>';
             }
-            if ($modx->currentSnippet) {
-                $_[] = 'Current Snippet => ' . $modx->currentSnippet . '<br>';
+            if (evo()->currentSnippet) {
+                $_[] = 'Current Snippet => ' . evo()->currentSnippet . '<br>';
             }
             if (stripos($sql, 'select') === 0) {
                 $_[] = 'Record Count => ' . $this->getRecordCount($result) . '<br>';
@@ -286,7 +286,7 @@ class DBAPI {
             $_[] = '</fieldset><br />';
             $modx->dumpSQLCode[] = implode("\n", $_);
         }
-        $modx->executedQueries = $modx->executedQueries + 1;
+        $modx->executedQueries = evo()->executedQueries + 1;
         return $result;
     }
 
@@ -299,10 +299,12 @@ class DBAPI {
      *
      */
     function delete($from, $where = '', $orderby = '', $limit = '') {
-        global $modx;
         if (!$from) {
-            $modx->messageQuit('Empty $from parameters in DBAPI::delete().');
+            evo()->messageQuit('Empty $from parameters in DBAPI::delete().');
             return false;
+        }
+        if (!$where && !$limit) {
+            $this->truncate($from);
         }
         return $this->query(
             sprintf(
@@ -320,10 +322,8 @@ class DBAPI {
      *
      */
     function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
-        global $modx;
-
         if (!$from) {
-            $modx->messageQuit('Empty $from parameters in DBAPI::select().');
+            evo()->messageQuit('Empty $from parameters in DBAPI::select().');
             exit;
         }
 
@@ -354,9 +354,8 @@ class DBAPI {
      *
      */
     function update($fields, $table, $where = '', $orderby = '', $limit = '') {
-        global $modx;
         if (!$table) {
-            $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
+            evo()->messageQuit("Empty \$table parameter in DBAPI::update().");
             exit;
         }
         if (!is_array($fields)) {
@@ -389,7 +388,7 @@ class DBAPI {
      * @desc:  returns either last id inserted or the result from the query
      */
     function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-        return $this->__insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
+        return $this->_insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
     /**
@@ -397,7 +396,7 @@ class DBAPI {
      * @desc:  returns either last id inserted or the result from the query
      */
     function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-        return $this->__insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
+        return $this->_insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
     /**
@@ -405,7 +404,7 @@ class DBAPI {
      * @desc:  returns either last id inserted or the result from the query
      */
     function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
-        return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
+        return $this->_insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
     function save($fields, $table, $where = '') {
@@ -422,7 +421,7 @@ class DBAPI {
         return $this->update($fields, $table, $where);
     }
 
-    private function __insert(
+    private function _insert(
         $insert_method = 'INSERT INTO',
         $fields,
         $intotable,
@@ -431,9 +430,8 @@ class DBAPI {
         $where = '',
         $limit = ''
     ) {
-        global $modx;
         if (!$intotable) {
-            $modx->messageQuit('Empty $intotable parameters in DBAPI::insert().');
+            evo()->messageQuit('Empty $intotable parameters in DBAPI::insert().');
             return false;
         }
 
@@ -449,19 +447,18 @@ class DBAPI {
                 , $where ? 'WHERE ' . $where : ''
                 , $limit !== '' ? 'LIMIT ' . $limit : ''
             );
-        } else {
-            if (is_array($fields)) {
-                if (!$fromtable) {
-                    $pairs = sprintf(
-                        "(`%s`) VALUES('%s')"
-                        , implode('`,`', array_keys($fields))
-                        , implode("','", array_values($fields))
-                    );
-                }
-            } else {
-                $pairs = $fields;
+        } elseif (is_array($fields)) {
+            if (!$fromtable) {
+                $query = sprintf(
+                    "%s %s (`%s`) VALUES('%s')"
+                    , $insert_method
+                    , $intotable
+                    , implode('`,`', array_keys($fields))
+                    , implode("','", array_values($fields))
+                );
             }
-            $query = sprintf('%s %s %s', $insert_method, $intotable, $pairs);
+        } else {
+            $query = sprintf('%s %s %s', $insert_method, $intotable, $fields);
         }
 
         $rt = $this->query($query);
@@ -479,7 +476,7 @@ class DBAPI {
             }
         }
         if ($this->getInsertId() === false) {
-            $modx->messageQuit("Couldn't get last insert key!");
+            evo()->messageQuit("Couldn't get last insert key!");
         }
         return $result;
     } // __insert
@@ -497,8 +494,7 @@ class DBAPI {
      *
      */
     function fieldName($rs, $col = 0) {
-        $field = $rs->fetch_field_direct($col);
-        return $field->name;
+        return $rs->fetch_field_direct($col)->name;
     }
 
     /**
@@ -602,8 +598,7 @@ class DBAPI {
         if ($param2 === 'both') {
             return $param1->fetch_array(MYSQLI_BOTH);
         }
-        global $modx;
-        $modx->messageQuit(
+        evo()->messageQuit(
             sprintf(
                 "Unknown get type (%s) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'."
                 , $param2
@@ -867,18 +862,24 @@ class DBAPI {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        $xmldata = "<xml>\r\n<recordset>\r\n";
+        $xmldata = array();
         while ($row = $this->getRow($dsq, 'both')) {
-            $xmldata .= "<item>\r\n";
+            $item = array();
             for ($j = 0; $line = each($row); $j++) {
                 if ($j % 2) {
-                    $xmldata .= "<{$line[0]}>{$line[1]}</{$line[0]}>\r\n";
+                    $item[] = sprintf(
+                        "<%s>%s</%s>"
+                        , $line[0]
+                        , $line[1]
+                        , $line[0]
+                    );
                 }
             }
-            $xmldata .= "</item>\r\n";
+            if($item) {
+                $xmldata[] = "<item>\r\n" . implode("\r\n",$item) . "</item>";
+            }
         }
-        $xmldata .= "</recordset>\r\n</xml>";
-        return $xmldata;
+        return "<xml>\r\n<recordset>\r\n" . implode("\r\n", $xmldata) . "</recordset>\r\n</xml>";
     }
 
     /**
@@ -1010,7 +1011,7 @@ class DBAPI {
 
     function truncate($table_name) {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        return $this->query("TRUNCATE TABLE `{$table_name}`");
+        return $this->query("TRUNCATE TABLE `" . $table_name . "`");
     }
 
     function dataSeek($result, $row_number) {

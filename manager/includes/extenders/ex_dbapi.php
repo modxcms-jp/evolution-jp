@@ -1,10 +1,11 @@
 <?php
-if (function_exists('mysqli_connect')) {
-    $fname = 'mysqli';
-} else {
-    $fname = 'mysql';
-}
-include_once(dirname(__FILE__) . "/dbapi/{$fname}.inc.php");
+include_once(
+    sprintf(
+        '%s/dbapi/%s.inc.php'
+        , __DIR__
+        , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
+    )
+);
 global $modx;
 $modx = $this;
 $this->db = new DBAPI;
@@ -16,7 +17,7 @@ if (!is_file(MODX_BASE_PATH . $config_path)) {
     $rs = include(MODX_BASE_PATH . $config_path);
 }
 
-if (!isset($lastInstallTime) || empty($lastInstallTime)) {
+if (!isset($lastInstallTime) || !$lastInstallTime) {
     $rs = $this->gotoSetup();
 }
 if (!$rs) {
@@ -31,5 +32,9 @@ $this->db->charset = $database_connection_charset;
 $this->db->table_prefix = $table_prefix;
 $this->db->lastInstallTime = $lastInstallTime;
 
-$this->db->connect();
-$this->dbConfig = &$this->db->config; // alias for backward compatibility
+$rs = $this->db->connect();
+if(!$rs) {
+    exit('Cannot access db');
+}
+// alias for backward compatibility
+$this->dbConfig = &$this->db->config;
