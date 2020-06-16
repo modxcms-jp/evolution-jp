@@ -3375,7 +3375,7 @@ class DocumentParser {
 
         $where = array();
         if ($this->getUserDocGroups()) {
-            $where[] = sprintf('sc.id IN (%s)', join(',', $ids));
+            $where[] = sprintf('sc.id IN (%s)', implode(',', $ids));
             if ($published !== null) {
                 $where[] = sprintf('AND sc.published=%d', $published);
             }
@@ -3385,12 +3385,12 @@ class DocumentParser {
                 if ($this->isFrontend()) {
                     $where[] = sprintf(
                         'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
-                        , join(',', $this->getUserDocGroups())
+                        , implode(',', $this->getUserDocGroups())
                     );
                 } else {
                     $where[] = sprintf(
                         'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
-                        , join(',', $this->getUserDocGroups())
+                        , implode(',', $this->getUserDocGroups())
                     );
                 }
             }
@@ -4535,7 +4535,7 @@ class DocumentParser {
                         $values[$i] = $this->ProcessTVCommand($v, $name, $docid, $src);
                     }
                 }
-                $value = join('||', $values);
+                $value = implode('||', $values);
                 break;
             default:
                 $src = 'docform';
