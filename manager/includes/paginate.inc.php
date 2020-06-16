@@ -3,7 +3,7 @@
 // FILE: Paging.php
 //
 // =====================================================
-// Description: This class handles the paging from a query to be print 
+// Description: This class handles the paging from a query to be print
 //              to the browser. You can customize it to your needs.
 //
 // This is distribute as is. Free of use and free to do anything you want.
@@ -17,7 +17,7 @@
 // Date:			2001-03-25
 // Version: 2.0
 //
-// Modif: 
+// Modif:
 // Version 1.1 (2001-04-09) Remove 3 lines in getNumberOfPage() that were forgot after debugging
 // Version 1.1 (2001-04-09) Modification to the exemple
 // Version 1.1 (2001-04-10) Added more argv to the previous and next link. ( by: peliter@mail.peliter.com )
@@ -29,34 +29,19 @@
 // * Function openTable() and closeTable() removed.
 // =====================================================
 class Paging {
+    public $int_num_result;  // Number of result to show per page (decided by user)
+    public $int_nbr_row;     // Total number of items (SQL count from db)
+    public $int_cur_position;// Current position in recordset
+    public $str_ext_argv;    // Extra argv of query string
 
-    var $script_name;
-    var $int_num_result;  // Number of result to show per page (decided by user)
-    var $int_nbr_row;     // Total number of items (SQL count from db)
-    var $int_cur_position;// Current position in recordset
-    var $str_ext_argv;    // Extra argv of query string
-
-    function __construct($int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = "") {
-        $this->script_name = $_SERVER['SCRIPT_NAME'];
-        $this->int_nbr_row = $int_nbr_row;
-        $this->int_num_result = $int_num_result;
+    public function __construct($int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = '') {
+        $this->int_nbr_row      = $int_nbr_row;
+        $this->int_num_result   = $int_num_result;
         $this->int_cur_position = $int_cur_position;
-        $this->str_ext_argv = urldecode($str_ext_argv);
-    } // End constructor
-
-    // This function returns the total number of page to display.
-    function getNumberOfPage() {
-        return $this->int_nbr_row / $this->int_num_result;
+        $this->str_ext_argv     = urldecode($str_ext_argv);
     }
 
-    // This function returns the current page number.
-    function getCurrentPage() {
-        $int_cur_page = ($this->int_cur_position * $this->getNumberOfPage()) / $this->int_nbr_row;
-        return number_format($int_cur_page, 0);
-    }
-
-    function getPagingArray() {
-
+    public function getPagingArray() {
         $paging['lower'] = ($this->int_cur_position + 1);
 
         if ($this->int_cur_position + $this->int_num_result >= $this->int_nbr_row) {
@@ -68,30 +53,61 @@ class Paging {
         $paging['total'] = $this->int_nbr_row;
 
         if ($this->int_cur_position != 0) {
-            $paging['first_link'] = '<a href="' . $this->script_name . '?int_cur_position=0' . $this->str_ext_argv . '">';
-            $paging['previous_link'] = '<a href="' . $this->script_name . '?int_cur_position=' . ($this->int_cur_position - $this->int_num_result) . $this->str_ext_argv . '">';
+            $paging['first_link'] = sprintf(
+                '<a href="%s?int_cur_position=0%s">'
+                , serverv('SCRIPT_NAME')
+                , $this->str_ext_argv
+            );
+            $paging['previous_link'] = sprintf(
+                '<a href="%s?int_cur_position=%s%s">'
+                , serverv('SCRIPT_NAME')
+                , $this->int_cur_position - $this->int_num_result
+                , $this->str_ext_argv
+            );
         }
 
         if (($this->int_nbr_row - $this->int_cur_position) > $this->int_num_result) {
-            $int_new_position = $this->int_cur_position + $this->int_num_result;
-            $paging['last_link'] = '<a href="' . $this->script_name . '?int_cur_position=' . $this->int_nbr_row . $this->str_ext_argv . '">';
-            $paging['next_link'] = '<a href="' . $this->script_name . '?int_cur_position=' . $int_new_position . $this->str_ext_argv . '">';
+            $paging['last_link'] = sprintf(
+                '<a href="%s?int_cur_position=%s%s">'
+                , serverv('SCRIPT_NAME')
+                , $this->int_nbr_row
+                , $this->str_ext_argv
+            );
+            $paging['next_link'] = sprintf(
+                '<a href="%s?int_cur_position=%s%s">'
+                , serverv('SCRIPT_NAME')
+                , ($this->int_cur_position + $this->int_num_result)
+                , $this->str_ext_argv
+            );
         }
         return $paging;
     }
 
-    // This function returns an array of string (href link with the page number)
-    function getPagingRowArray() {
+    public function getPagingRowArray() {
         $array_all_page = array();
-        for ($i = 0; $i < $this->getNumberOfPage(); $i++) {
-            // if current page, do not make a link
+        $total = $this->getNumberOfPage();
+        for ($i = 0; $i < $total; $i++) {
             if ($i == $this->getCurrentPage()) {
-                $array_all_page[$i] = '<b>' . ($i + 1) . '</b>&nbsp;';
+                $array_all_page[$i] = sprintf('<b>%d</b>&nbsp;', ($i + 1));
             } else {
-                $int_new_position = ($i * $this->int_num_result);
-                $array_all_page[$i] = '<a href="' . $this->script_name . '?int_cur_position=' . $int_new_position . $this->str_ext_argv . '">' . ($i + 1) . '</a>&nbsp;';
+                $array_all_page[$i] = sprintf(
+                    '<a href="%s?int_cur_position=%d%s">%d</a>&nbsp;'
+                    , serverv('SCRIPT_NAME')
+                    , ($i * $this->int_num_result)
+                    , $this->str_ext_argv
+                    , $i + 1
+                );
             }
         }
         return $array_all_page;
+    }
+
+    private function getNumberOfPage() {
+        return $this->int_nbr_row / $this->int_num_result;
+    }
+
+    private function getCurrentPage() {
+        $int_cur_page = ($this->int_cur_position * $this->getNumberOfPage()) / $this->int_nbr_row;
+        return number_format($int_cur_page, 0);
     }
 }
