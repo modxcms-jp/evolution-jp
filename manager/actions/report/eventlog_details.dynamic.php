@@ -3,16 +3,12 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 if (!$modx->hasPermission('view_eventlog')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // get id
-if (isset($_REQUEST['id'])) {
-    $id = intval($_REQUEST['id']);
-} else {
-    $id = 0;
-}
+$id = (int)anyv('id',0);
 
 // make sure the id's a number
 if (!is_numeric($id)) {
@@ -20,19 +16,21 @@ if (!is_numeric($id)) {
     exit;
 }
 
-
-$field = "el.*, IFNULL(wu.username,mu.username) as 'username'";
-$from = '[+prefix+]event_log el' .
-    ' LEFT JOIN [+prefix+]manager_users mu ON mu.id=el.user AND el.usertype=0' .
-    ' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1';
-$where = "el.id='{$id}'";
-$ds = db()->select($field, $from, $where);
+$ds = db()->select(
+    "el.*, IFNULL(wu.username,mu.username) as 'username'"
+    , array(
+        '[+prefix+]event_log el',
+        ' LEFT JOIN [+prefix+]manager_users mu ON mu.id=el.user AND el.usertype=0',
+        ' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1'
+    )
+    , sprintf("el.id='%d'", $id)
+);
 if (!$ds) {
     echo "Error while load event log";
     exit;
-} else {
-    $content = db()->getRow($ds);
 }
+
+$content = db()->getRow($ds);
 
 ?>
 <h1><?php echo $_lang['eventlog']; ?></h1>
@@ -91,7 +89,7 @@ if (!$ds) {
 	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>
 	<tr><td>{$_lang["date"]} </td><td>$date</td></tr>
 HTML;
-            if (!empty($content["username"])) {
+            if ($content["username"]) {
                 echo '<tr><td>' . $_lang["user"] . '</td><td>' . $content["username"] . '</td></tr>';
             }
             echo <<<HTML
