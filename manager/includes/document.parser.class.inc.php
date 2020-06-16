@@ -4388,8 +4388,11 @@ class DocumentParser {
         if (!isset($this->pluginEvent[$evtName])) {
             $return = false;
         }
-        if (isset($this->pluginEvent[$evtName])
-            && count($this->pluginEvent[$evtName]) == 0) {
+        if (
+            isset($this->pluginEvent[$evtName])
+            &&
+            count($this->pluginEvent[$evtName]) == 0
+        ) {
             $return = array();
         }
         if (empty($return)) {
@@ -4505,20 +4508,19 @@ class DocumentParser {
         $parameter = array();
         $tmpParams = explode('&', $propertyString);
         foreach ($tmpParams as $tmpParam) {
-            if (strpos($tmpParam, '=') !== false) {
-                $pTmp = explode('=', $tmpParam);
-                $pvTmp = explode(';', trim($pTmp['1']));
-                if ($pvTmp['1'] == 'list' && $pvTmp['3'] != '') {
-                    $parameter[trim($pTmp['0'])] = $pvTmp['3']; //list default
-                } elseif ($pvTmp['1'] != 'list' && $pvTmp['2'] != '') {
-                    $parameter[trim($pTmp['0'])] = $pvTmp['2'];
-                }
+            if (strpos($tmpParam, '=') === false) {
+                continue;
+            }
+            $pTmp  = explode('=', $tmpParam);
+            $pvTmp = explode(';', trim($pTmp['1']));
+            if ($pvTmp['1'] === 'list' && $pvTmp['3'] != '') {
+                $parameter[trim($pTmp['0'])] = $pvTmp['3']; //list default
+            } elseif ($pvTmp['1'] !== 'list' && $pvTmp['2'] != '') {
+                $parameter[trim($pTmp['0'])] = $pvTmp['2'];
             }
         }
         foreach ($parameter as $k => $v) {
-            $v = str_replace('%3D', '=', $v);
-            $v = str_replace('%26', '&', $v);
-            $parameter[$k] = $v;
+            $parameter[$k] = str_replace(array('%3D', '%26'), array('=', '&'), $v);
         }
         return $parameter;
     }
@@ -4575,19 +4577,19 @@ class DocumentParser {
         if ($paramstring) {
             $cp = explode('&', $paramstring);
             foreach ($cp as $v) {
-                $v = trim($v); // trim
-                $ar = explode('=', $v);
-                if (is_array($ar) && count($ar) == 2) {
-                    if (strpos($ar[1], '%') !== false) {
-                        $params[$ar[0]] = $this->decodeParamValue($ar[1]);
-                    } else {
-                        $params[$ar[0]] = $ar[1];
-                    }
+                $ar = explode('=', trim($v));
+                if (!is_array($ar) || count($ar) != 2) {
+                    continue;
+                }
+                if (strpos($ar[1], '%') !== false) {
+                    $params[$ar[0]] = $this->decodeParamValue($ar[1]);
+                } else {
+                    $params[$ar[0]] = $ar[1];
                 }
             }
         }
 
-        if (empty($value)) {
+        if (!$value) {
             if ($format !== 'custom_widget' && $format !== 'richtext' && $format !== 'datagrid') {
                 return $value;
             }
@@ -4633,12 +4635,8 @@ class DocumentParser {
         if ($modifiers === false || $modifiers === 'raw') {
             return $value;
         }
-        if ($modifiers !== false) {
-            $modifiers = trim($modifiers);
-        }
-
         $this->loadExtension('MODIFIERS');
-        return $this->filter->phxFilter($key, $value, $modifiers);
+        return $this->filter->phxFilter($key, $value, trim($modifiers));
     }
 
     function addSnippet($name, $phpCode, $params = array()) {
@@ -4664,10 +4662,11 @@ class DocumentParser {
         $_ = array('[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]');
         foreach ($_ as $brackets) {
             list($left, $right) = explode(' ', $brackets);
-            if (strpos($content, $left) !== false) {
-                $matches = $this->getTagsFromContent($content, $left, $right);
-                $content = str_replace($matches[0], '', $content);
+            if (strpos($content, $left) === false) {
+                continue;
             }
+            $matches = $this->getTagsFromContent($content, $left, $right);
+            $content = str_replace($matches[0], '', $content);
         }
         return $content;
     }
@@ -4911,7 +4910,7 @@ class DocumentParser {
             return false;
         }
 
-        $tmp = MODX_BASE_PATH . 'assets/cache/.tmp_' . uniqid(getmypid() . '_');
+        $tmp = MODX_BASE_PATH . 'assets/cache/.tmp_' . md5(uniqid(getmypid() . '_', true));
         if (is_file($tmp) && !is_writable($tmp)) {
             chmod($tmp, 0666);
         }
@@ -4997,16 +4996,18 @@ class DocumentParser {
     function gotoSetup() {
         if (strpos($_SERVER['SCRIPT_NAME'], 'install/index.php') !== false) {
             return false;
-        } elseif (strpos($_SERVER['SCRIPT_NAME'], 'install/connection.') !== false) {
+        }
+
+        if (strpos($_SERVER['SCRIPT_NAME'], 'install/connection.') !== false) {
             return false;
         }
 
         if (is_file(MODX_BASE_PATH . 'install/index.php')) {
             header('Location: install/index.php?action=mode');
             exit();
-        } else {
-            exit('Not installed.');
         }
+
+        exit('Not installed.');
     }
 
     function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
@@ -5084,13 +5085,24 @@ class DocumentParser {
                 @chmod($target_path, octdec($this->config['new_file_permissions']));
                 return true;
             }
-            $msg = array();
-            $msg[] = '$tmp_path = ' . $tmp_path;
-            $msg[] = '$target_path = ' . $target_path;
-            $msg[] = '$image_limit_width = ' . $this->config('image_limit_width', '- not set -');
-            $msg[] = '$target_is_writable = ' . (is_writable(dirname($target_path)) ? 'true' : 'false');
-            $msg[] = 'getimagesize = ' . print_r($img, true);
-            $this->logEvent(1, 3, implode("<br>\n", $msg), 'move_uploaded_file');
+            $this->logEvent(
+                1
+                , 3
+                , implode("<br>\n", array(
+                    '$tmp_path = ' . $tmp_path,
+                    '$target_path = ' . $target_path,
+                    sprintf(
+                        '$image_limit_width = %s'
+                        , $this->config('image_limit_width', '- not set -')
+                    ),
+                    sprintf(
+                        '$target_is_writable = %s'
+                        , is_writable(dirname($target_path)) ? 'true' : 'false'
+                    ),
+                    'getimagesize = ' . print_r($img, true)
+                ))
+                , 'move_uploaded_file'
+            );
             return false;
         }
 
