@@ -3,8 +3,8 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 if (!$modx->hasPermission('view_schedule')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 ?>
 <script type="text/javascript" src="media/script/tablesort.js"></script>
@@ -12,19 +12,23 @@ if (!$modx->hasPermission('view_schedule')) {
 <div id="actions">
     <ul class="actionButtons">
         <li
-                id="Button5"
-                class="mutate"><a
-                    href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
-            ><img
-                        alt="icons_cancel"
-                        src="<?php echo style('icons_cancel') ?>"
-                /> <?php echo lang('cancel') ?></a></li>
+            id="Button5"
+            class="mutate">
+            <a
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+            >
+                <img
+                    alt="icons_cancel"
+                    src="<?php echo style('icons_cancel') ?>"
+                /> <?php echo lang('cancel') ?>
+            </a>
+        </li>
     </ul>
 </div>
 
 <div class="section">
-    <div class="sectionHeader"><?php echo $_lang["publish_events"] ?></div>
+    <div class="sectionHeader"><?php echo lang("publish_events") ?></div>
     <div class="sectionBody" id="lyr1">
         <?php
         $rs = db()->select(
@@ -35,16 +39,22 @@ if (!$modx->hasPermission('view_schedule')) {
         );
         $total = db()->getRecordCount($rs);
         if ($total < 1) {
-            echo "<p>" . $_lang["no_docs_pending_publishing"] . "</p>";
+            echo "<p>" . lang("no_docs_pending_publishing") . "</p>";
         } else {
             ?>
-            <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-3 rowstyle-even"
-                   id="table-1" width="100%">
+            <table
+                    border="0"
+                    cellpadding="2"
+                    cellspacing="0"
+                    class="sortabletable sortable-onload-3 rowstyle-even"
+                    id="table-1"
+                    width="100%"
+            >
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo $_lang['id']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['resource']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['publish_date']; ?></b></th>
+                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
+                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
+                    <th class="sortable"><b><?php echo lang('publish_date'); ?></b></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -55,7 +65,7 @@ if (!$modx->hasPermission('view_schedule')) {
                         <td><?php echo $row['id']; ?></td>
                         <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle'] ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + $server_offset_time) ?></td>
+                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time',0)) ?></td>
                     </tr>
                     <?php
                 }
@@ -69,25 +79,27 @@ if (!$modx->hasPermission('view_schedule')) {
 </div>
 
 <div class="section">
-    <div class="sectionHeader"><?php echo $_lang["unpublish_events"]; ?></div>
+    <div class="sectionHeader"><?php echo lang("unpublish_events"); ?></div>
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
-        $field = 'id, pagetitle, unpub_date';
-        $where = 'unpub_date > ' . $_SERVER['REQUEST_TIME'];
-        $orderby = 'unpub_date ASC';
-        $rs = db()->select($field, '[+prefix+]site_content', $where, $orderby);
+        $rs = db()->select(
+                'id, pagetitle, unpub_date'
+                , '[+prefix+]site_content'
+                , 'unpub_date > ' . serverv('REQUEST_TIME')
+                , 'unpub_date ASC'
+        );
         $total = db()->getRecordCount($rs);
         if ($total < 1) {
-            echo "<p>" . $_lang["no_docs_pending_unpublishing"] . "</p>";
+            echo "<p>" . lang("no_docs_pending_unpublishing") . "</p>";
         } else {
             ?>
             <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-3 rowstyle-even"
                    id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo $_lang['id']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['resource']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['unpublish_date']; ?></b></th>
+                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
+                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
+                    <th class="sortable"><b><?php echo lang('unpublish_date'); ?></b></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -98,7 +110,7 @@ if (!$modx->hasPermission('view_schedule')) {
                         <td><?php echo $row['id']; ?></td>
                         <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle']; ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['unpub_date'] + $server_offset_time); ?></td>
+                        <td><?php echo $modx->toDateFormat($row['unpub_date'] + config('server_offset_time',0)); ?></td>
                     </tr>
                     <?php
                 }
@@ -115,11 +127,15 @@ if (!$modx->hasPermission('view_schedule')) {
     <div class="sectionHeader">更新を予定している下書きリソースの一覧</div>
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
-        $field = 'rv.*, sc.*, rv.pub_date AS pub_date';
-        $where = '0<rv.pub_date AND rv.status=\'standby\' ';
-        $orderby = 'rv.pub_date ASC';
-        $rs = db()->select($field, '[+prefix+]site_revision rv INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id',
-            $where, $orderby);
+        $rs = db()->select(
+                'rv.*, sc.*, rv.pub_date AS pub_date'
+                , array(
+                    '[+prefix+]site_revision rv',
+                    'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
+                )
+                , "0<rv.pub_date AND rv.status='standby' "
+                , 'rv.pub_date ASC'
+        );
         $total = db()->getRecordCount($rs);
         if ($total < 1) {
             echo "<p>更新を予定している下書きリソースはありません。</p>";
@@ -129,8 +145,8 @@ if (!$modx->hasPermission('view_schedule')) {
                    id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo $_lang['id']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['resource']; ?></b></th>
+                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
+                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
                     <th class="sortable">更新予約日時</th>
                     <th class="sortable">操作</th>
                 </tr>
@@ -138,17 +154,32 @@ if (!$modx->hasPermission('view_schedule')) {
                 <tbody>
                 <?php
                 while ($row = db()->getRow($rs)) {
-                    $editLink = 'index.php?a=131&id=' . $row['elmid'];
-                    $prevLink = $modx->makeUrl($row['elmid']) . '?revision=' . $row['version'];
                     ?>
                     <tr>
                         <td><?php echo $row['elmid']; ?></td>
-                        <td><a href="<?php echo $editLink; ?>"><?php echo $row['pagetitle']; ?></a></td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + $server_offset_time); ?></td>
                         <td>
-                            <a href="<?php echo $prevLink; ?>" target="_blank">プレビュー</a>
+                            <a
+                                    href="<?php echo 'index.php?a=131&id=' . $row['elmid']; ?>"
+                            >
+                                <?php echo $row['pagetitle']; ?>
+                            </a>
+                        </td>
+                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time',0)); ?></td>
+                        <td>
+                            <a
+                                    href="<?php echo sprintf(
+                                            '%s?revision=%s'
+                                            , evo()->makeUrl($row['elmid'])
+                                            , $row['version']
+                                    ); ?>"
+                                    target="_blank"
+                            >
+                                プレビュー
+                            </a>
                             /
-                            <a href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist" class="unpub_draft">公開取り消し</a>
+                            <a
+                                    href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist"
+                                    class="unpub_draft">公開取り消し</a>
                         </td>
                     </tr>
                     <?php
