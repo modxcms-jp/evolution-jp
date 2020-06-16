@@ -3545,17 +3545,24 @@ class DocumentParser {
     }
 
     private function _getReferenceListing() {
-        $referenceListing = array();
-        $rs = $this->db->select('id,content', '[+prefix+]site_content', "type='reference'");
-        $rows = $this->db->makeArray($rs);
-        if (empty($rows)) {
+        $rs = $this->db->select(
+            'id,content'
+            , '[+prefix+]site_content'
+            , "type='reference'"
+        );
+        if (!$this->db->count($rs)) {
             $this->referenceListing = array();
             return array();
         }
+        $rows = $this->db->makeArray($rs);
+        $referenceListing = array();
         foreach ($rows as $row) {
             $content = trim($row['content']);
-            if ((strpos($content, '[') !== false || strpos($content, '{') !== false) && strpos($content,
-                    '[~') === false) {
+            if (
+                (strpos($content, '[') !== false || strpos($content, '{') !== false)
+                &&
+                strpos($content, '[~') === false
+            ) {
                 $content = $this->parseDocumentSource($content);
             } elseif (strpos($content, '[~') === 0) {
                 $content = substr($content, 2, -2);
