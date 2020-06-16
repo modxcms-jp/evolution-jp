@@ -51,7 +51,7 @@
         <tr>
             <th><?php echo lang('sitename_title'); ?></th>
             <td>
-                <?php echo form_text('site_name'); ?><br/>
+                <?php echo form_text_tag('site_name', config('site_name')); ?><br/>
                 <?php echo lang('sitename_message'); ?>
             </td>
         </tr>
