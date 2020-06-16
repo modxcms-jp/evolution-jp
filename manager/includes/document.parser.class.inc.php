@@ -274,7 +274,7 @@ class DocumentParser {
         }
         $this->uri_parent_dir = $_;
 
-        if (0 < count($_POST)) {
+        if ($_POST) {
             $this->config['cache_type'] = 0;
         }
 
@@ -684,7 +684,7 @@ class DocumentParser {
         // send out content-type and content-disposition headers
         if (defined('IN_PARSER_MODE') && constant('IN_PARSER_MODE') == 'true') {
             $type = $this->documentObject['contentType'];
-            if (empty($type)) {
+            if (!$type) {
                 $type = 'text/html';
             }
 
@@ -4473,7 +4473,7 @@ class DocumentParser {
 
     # parses a resource property string and returns the result as an array
     function parseProperties($propertyString) {
-        if (empty($propertyString)) {
+        if (!$propertyString) {
             return array();
         }
 
@@ -4763,7 +4763,7 @@ class DocumentParser {
         }
 
         //if multiple plugins are registered, only the last one is used
-        if (!empty($results)) {
+        if ($results) {
             return end($results);
         }
 
@@ -4882,7 +4882,7 @@ class DocumentParser {
      *
      */
     function saveToFile($filename, $data) {
-        if (empty($filename)) {
+        if (!$filename) {
             return false;
         }
 
