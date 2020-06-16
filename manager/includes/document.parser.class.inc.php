@@ -688,7 +688,7 @@ class DocumentParser {
                 $type = 'text/html';
             }
 
-            header("Content-Type: {$type}; charset={$this->config['modx_charset']}");
+            header(sprintf('Content-Type: %s; charset=%s', $type, $this->config('modx_charset')));
             if ($this->documentObject['content_dispo'] == 1) {
                 if ($this->documentObject['alias']) {
                     $name = $this->documentObject['alias'];
@@ -704,7 +704,7 @@ class DocumentParser {
                 header('Content-Disposition: attachment; filename=' . $name);
             }
         }
-        if ($this->config['cache_type'] != 2 && strpos($this->documentOutput, '^]') !== false) {
+        if ($this->config('cache_type') != 2 && strpos($this->documentOutput, '^]') !== false) {
             $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
         }
 
@@ -815,8 +815,6 @@ class DocumentParser {
             if (is_array($docGroups)) {
                 $this->documentObject['__MODxDocGroups__'] = join(',', $docGroups);
             }
-
-            $base_path = $this->config['base_path'];
 
             switch ($this->config['cache_type']) {
                 case '1':
