@@ -221,6 +221,17 @@ function sessionv($key = null, $default = null) {
     return array_get($_SESSION, $key, $default);
 }
 
+function globalv($key = null, $default = null) {
+    if (strpos($key,'.')!==false && evo()) {
+        return evo()->global_var($key, $default);
+    }
+    if (strpos($key, '*') === 0) {
+        $GLOBALS[ltrim($key, '*')] = $default;
+        return $default;
+    }
+    return array_get($GLOBALS, $key, $default);
+}
+
 function checked($cond) {
     if ($cond) {
         return 'checked';
