@@ -3484,33 +3484,42 @@ class DocumentParser {
     }
 
     function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias') {
-        if ($docid === 0 || !preg_match('/^[0-9]+$/', $docid)) {
+        if (!$docid || !preg_match('/^[1-9][0-9]*$/', $docid)) {
             return false;
         }
 
-        // modify field names to use sc. table reference
-        $fields = preg_replace("/\s/", '', $fields);
-        $fields = $this->join(',', explode(',', $fields), 'sc.');
-
-        $published = ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '';
-
         // get document groups for current user
         $docgrp = $this->getUserDocGroups();
-        if ($docgrp) {
-            $docgrp = join(',', $docgrp);
-        }
-        if ($this->isFrontend()) {
-            $context = "sc.privateweb='0'";
-        } else {
-            $context = "1='{$_SESSION['mgrRole']}' OR sc.privatemgr='0'";
-        }
-        $cond = ($docgrp) ? "OR dg.document_group IN ({$docgrp})" : '';
 
-        $from = '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
-        $where = "(sc.id='{$docid}' {$published}) AND ({$context} {$cond})";
-        $result = $this->db->select($fields, $from, $where, '', 1);
-        $pageInfo = $this->db->getRow($result);
-        return $pageInfo;
+        $result = $this->db->select(
+            $this->join(
+                ','
+                , explode(
+                    ','
+                    , preg_replace("/\s/", '', $fields))
+                , 'sc.'
+            )
+            , array(
+                '[+prefix+]site_content sc',
+                'LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
+            )
+            , sprintf(
+                "(sc.id='%s' %s) AND (%s %s)"
+                , $docid
+                , ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : ''
+                , $this->isFrontend() ?
+                    "sc.privateweb='0'"
+                    :
+                    sprintf(
+                        "1='%s' OR sc.privatemgr='0'"
+                        , $this->session('mgrRole')
+                    )
+                , ($docgrp) ? sprintf("OR dg.document_group IN (%s)", implode(',', $docgrp)) : ''
+            )
+            , ''
+            , 1
+        );
+        return $this->db->getRow($result);
     }
 
     function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent') {
