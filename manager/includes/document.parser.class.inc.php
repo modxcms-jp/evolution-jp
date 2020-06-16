@@ -3593,23 +3593,29 @@ class DocumentParser {
         }
 
         if (!preg_match('@^[0-9]+$@', $id)) {
-            $this->messageQuit("'{$id}' is not numeric and may not be passed to makeUrl()");
+            $this->messageQuit(
+                sprintf(
+                    "'%s' is not numeric and may not be passed to makeUrl()"
+                    , $id
+                )
+            );
         }
 
         if (!isset($this->referenceListing)) {
             $this->_getReferenceListing();
         }
 
-        $type = 'document';
-        $orgId = 0;
-        if (isset($this->referenceListing[$id]) && !$ignoreReference) {
+        if (!isset($this->referenceListing[$id]) || $ignoreReference) {
+            $orgId = 0;
+            $type  = 'document';
+        } else {
             $type = 'reference';
             if (!preg_match('/^[0-9]+$/', $this->referenceListing[$id])) {
                 $cached[$cacheKey] = $this->referenceListing[$id];
                 return $this->referenceListing[$id];
             }
             $orgId = $id;
-            $id = $this->referenceListing[$id];
+            $id    = $this->referenceListing[$id];
         }
 
         if ($id == $this->config('site_start') && (strpos($scheme, 'f') === 0 || strpos($scheme, 'a') === 0)) {
@@ -3687,19 +3693,13 @@ class DocumentParser {
             $url = preg_replace('/&(?!amp;)/', '&amp;', $url);
         }
         $params = array(
-            'id' => $id
-        ,
-            'alias' => $alias
-        ,
-            'args' => $args
-        ,
-            'scheme' => $scheme
-        ,
-            'url' => & $url
-        ,
-            'type' => $type // document or reference
-        ,
-            'orgId' => $orgId
+            'id'     => $id,
+            'alias'  => $alias,
+            'args'   => $args,
+            'scheme' => $scheme,
+            'url'    => & $url,
+            'type'   => $type,
+            'orgId'  => $orgId
         );
         $this->event->vars = $params;
         $rs = $this->invokeEvent('OnMakeUrl', $params);
