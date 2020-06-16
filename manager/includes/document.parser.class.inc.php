@@ -3523,20 +3523,25 @@ class DocumentParser {
     }
 
     function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent') {
-        if ($pid == -1) {
-            $pid = $this->documentObject['parent'];
-            return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
-        } elseif ($pid == 0) {
+        if (!$pid) {
             return false;
         }
+        if ($pid == -1) {
+            if ($this->documentObject['parent'] == 0) {
+                return false;
+            }
+            return $this->getPageInfo(
+                $this->documentObject['parent']
+                , $activeOnly
+                , $fields
+            );
+        }
 
-        // first get the child document
-        $child = $this->getPageInfo($pid, $activeOnly, "parent");
-
-        // now return the child's parent
-        $pid = ($child['parent']) ? $child['parent'] : 0;
-
-        return ($pid == 0) ? false : $this->getPageInfo($pid, $activeOnly, $fields);
+        $child = $this->getPageInfo($pid, $activeOnly, 'parent');
+        if (!$child['parent']) {
+            return false;
+        }
+        return $this->getPageInfo($child['parent'], $activeOnly, $fields);
     }
 
     private function _getReferenceListing() {
