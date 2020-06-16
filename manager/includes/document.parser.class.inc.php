@@ -4257,9 +4257,15 @@ class DocumentParser {
 
     function toPlaceholder($key, $value, $prefix = '') {
         if (is_array($value) || is_object($value)) {
-            $this->toPlaceholders($value, "{$prefix}{$key}.");
+            $this->toPlaceholders(
+                $value
+                , sprintf('%s%s.', $prefix, $key)
+            );
         } else {
-            $this->setPlaceholder("{$prefix}{$key}", $value);
+            $this->setPlaceholder(
+                sprintf('%s%s', $prefix, $key)
+                , $value
+            );
         }
     }
 
