@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('import_static')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('import_static')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // Files to upload
@@ -17,10 +17,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
         function setParent(pId, pName) {
             document.importFrm.parent.value = pId;
             document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
-            if (pId != 0)
-                document.getElementById('reset').disabled = true;
-            else
-                document.getElementById('reset').disabled = false;
+            document.getElementById('reset').disabled = pId != 0;
         }
     </script>
 
@@ -39,7 +36,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
         <div class="sectionBody">
             <?php
 
-            if (!isset($_POST['import'])) {
+            if (!postv('import')) {
                 echo "<p>" . $_lang['import_site_message'] . "</p>";
                 ?>
 
@@ -53,7 +50,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                             <tr>
                                 <td nowrap="nowrap"><b><?php echo $_lang['import_parent_resource']; ?></b></td>
                                 <td>&nbsp;</td>
-                                <td><b><span id="parentName">0 (<?php echo $site_name; ?>)</span></b></td>
+                                <td><b><span id="parentName">0 (<?php echo evo()->config('site_name'); ?>)</span></b></td>
                             </tr>
                             <tr>
                                 <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site_maxtime']; ?></b>
@@ -107,7 +104,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
             else
             {
             run();
-            $modx->clearCache();
+            evo()->clearCache();
             ?>
                 <ul class="actionButtons">
                     <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
@@ -125,10 +122,9 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
 
 <?php
 function run() {
-    global $modx;
     $output = '';
 
-    $maxtime = $_POST['maxtime'];
+    $maxtime = postv('maxtime',120);
     if (!is_numeric($maxtime)) {
         $maxtime = 30;
     }
@@ -139,14 +135,13 @@ function run() {
     $mtime = $mtime[1] + $mtime[0];
     $importstart = $mtime;
 
-    if ($_POST['reset'] == 'on') {
-        $tbl_site_content = $modx->getFullTableName('site_content');
-        $modx->db->delete('[+prefix+]site_content');
-        $modx->db->query("ALTER TABLE {$tbl_site_content} AUTO_INCREMENT = 1");
-        $modx->db->update(array('setting_value' => ''), '[+prefix+]system_settings', "setting_name='error_page'");
+    if (postv('reset') === 'on') {
+        db()->delete('[+prefix+]site_content');
+        db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
+        db()->update(array('setting_value' => ''), '[+prefix+]system_settings', "setting_name='error_page'");
     }
 
-    $parent = intval($_POST['parent']);
+    $parent = (int)postv('parent',0);
 
     if (is_dir(MODX_BASE_PATH . 'temp/import')) {
         $filedir = MODX_BASE_PATH . 'temp/import/';
@@ -156,15 +151,14 @@ function run() {
 
     $filesfound = 0;
 
-    $files = getFiles($filedir);
-    $files = pop_index($files);
+    $files = pop_index(getFiles($filedir));
 
     // no. of files to import
-    $output .= sprintf('<p>%s %s</p>', $_lang['import_files_found'], $filesfound);
+    $output .= sprintf('<p>%s %s</p>', lang('import_files_found'), $filesfound);
 
     // import files
     if (0 < count($files)) {
-        $rs = $modx->db->update(array('isfolder' => 1), '[+prefix+]site_content', "id={$parent}");
+        db()->update(array('isfolder' => 1), '[+prefix+]site_content', "id={$parent}");
         importFiles($parent, $filedir, $files, 'root');
     }
 
@@ -175,7 +169,7 @@ function run() {
     $totaltime = ($importend - $importstart);
     $output .= sprintf('<p>%s %s</p>', $_lang['import_site_time'], round($totaltime, 3));
 
-    if ($_POST['convert_link'] == 'on') {
+    if (postv('convert_link') === 'on') {
         convertLink();
     }
 
@@ -187,13 +181,12 @@ function importFiles($parent, $filedir, $files, $mode) {
     global $_lang, $allowedfiles;
     global $search_default, $cache_default, $publish_default;
 
-    $createdon = $_SERVER['REQUEST_TIME'];
-    $createdby = $modx->getLoginUserID();
+    $createdby = evo()->getLoginUserID();
     if (!is_array($files)) {
         return;
     }
-    if ($_POST['object'] == 'all') {
-        $modx->config['default_template'] = '0';
+    if (postv('object') === 'all') {
+        evo()->config('default_template') = '0';
         $richtext = '0';
     } else {
         $richtext = '1';
@@ -211,9 +204,9 @@ function importFiles($parent, $filedir, $files, $mode) {
             $field['contentType'] = 'text/html';
             $field['published'] = $publish_default;
             $field['parent'] = $parent;
-            $field['alias'] = $modx->stripAlias($alias);
+            $field['alias'] = evo()->stripAlias($alias);
             $field['richtext'] = $richtext;
-            $field['template'] = $modx->config['default_template'];
+            $field['template'] = evo()->config('default_template');
             $field['searchable'] = $search_default;
             $field['cacheable'] = $cache_default;
             $field['createdby'] = $createdby;
@@ -222,32 +215,35 @@ function importFiles($parent, $filedir, $files, $mode) {
             $find = false;
             foreach (array('index.html', 'index.htm') as $filename) {
                 $filepath = $filedir . $alias . '/' . $filename;
-                if ($find === false && is_file($filepath)) {
-                    $file = getFileContent($filepath);
-                    list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
-
-                    $date = filemtime($filepath);
-                    $field['pagetitle'] = $pagetitle;
-                    $field['longtitle'] = $pagetitle;
-                    $field['description'] = $description;
-                    $field['content'] = $modx->db->escape($content);
-                    $field['createdon'] = $date;
-                    $field['editedon'] = $date;
-                    $newid = $modx->db->insert($field, '[+prefix+]site_content');
-                    if ($newid) {
-                        $find = true;
-                        echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
-                        importFiles($newid, $filedir . $alias . '/', $value, 'sub');
-                    } else {
-                        $vs = array(
-                            $_lang['import_site_failed'],
-                            $_lang['import_site_failed_db_error'],
-                            $modx->db->getLastError()
-                        );
-                        echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
-                        exit;
-                    }
+                if ($find !== false || !is_file($filepath)) {
+                    continue;
                 }
+
+                $file = getFileContent($filepath);
+                list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
+                $field['pagetitle']   = $pagetitle;
+                $field['longtitle']   = $pagetitle;
+                $field['description'] = $description;
+                $field['content']     = db()->escape($content);
+                $date                 = filemtime($filepath);
+                $field['createdon']   = $date;
+                $field['editedon']    = $date;
+                $newid                = db()->insert($field, '[+prefix+]site_content');
+                if (!$newid) {
+                    $vs = array(
+                        $_lang['import_site_failed'],
+                        $_lang['import_site_failed_db_error'],
+                        db()->getLastError()
+                    );
+                    echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
+                    exit;
+                }
+                $find = true;
+                echo sprintf(
+                    ' - <span class="success">%s</span><br />' . "\n"
+                    , $_lang['import_site_success']
+                );
+                importFiles($newid, $filedir . $alias . '/', $value, 'sub');
             }
             if ($find === false) {
                 $date = $_SERVER['REQUEST_TIME'];
@@ -256,16 +252,15 @@ function importFiles($parent, $filedir, $files, $mode) {
                 $field['createdon'] = $date;
                 $field['editedon'] = $date;
                 $field['hidemenu'] = '1';
-                $newid = $modx->db->insert($field, '[+prefix+]site_content');
+                $newid = db()->insert($field, '[+prefix+]site_content');
                 if ($newid) {
-                    $find = true;
                     echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
                     importFiles($newid, $filedir . $alias . '/', $value, 'sub');
                 } else {
                     $vs = array(
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
-                        $modx->db->getLastError()
+                        db()->getLastError()
                     );
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
@@ -273,7 +268,7 @@ function importFiles($parent, $filedir, $files, $mode) {
             }
         } else {
             // create document
-            if ($mode == 'sub' && $value == 'index.html') {
+            if ($mode === 'sub' && $value === 'index.html') {
                 continue;
             }
             $filename = $value;
@@ -296,12 +291,12 @@ function importFiles($parent, $filedir, $files, $mode) {
                 $field['pagetitle'] = $pagetitle;
                 $field['longtitle'] = $pagetitle;
                 $field['description'] = $description;
-                $field['alias'] = $modx->stripAlias($alias);
+                $field['alias'] = evo()->stripAlias($alias);
                 $field['published'] = $publish_default;
                 $field['parent'] = $parent;
-                $field['content'] = $modx->db->escape($content);
+                $field['content'] = db()->escape($content);
                 $field['richtext'] = $richtext;
-                $field['template'] = $modx->config['default_template'];
+                $field['template'] = $modx->config('default_template');
                 $field['searchable'] = $search_default;
                 $field['cacheable'] = $cache_default;
                 $field['createdby'] = $createdby;
@@ -309,27 +304,33 @@ function importFiles($parent, $filedir, $files, $mode) {
                 $field['editedon'] = $date;
                 $field['isfolder'] = 0;
                 $field['menuindex'] = ($alias == 'index') ? 0 : 2;
-                $newid = $modx->db->insert($field, '[+prefix+]site_content');
-                if ($newid) {
-                    echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
-                } else {
+                $newid = db()->insert($field, '[+prefix+]site_content');
+                if (!$newid) {
                     $vs = array(
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
-                        $modx->db->getLastError()
+                        db()->getLastError()
                     );
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
+                echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
 
                 $is_site_start = false;
-                if ($filename == 'index.html') {
+                if ($filename === 'index.html') {
                     $is_site_start = true;
                 }
-                if ($is_site_start == true && $_POST['reset'] == 'on') {
-                    $modx->db->update("setting_value={$newid}", '[+prefix+]system_settings',
-                        "setting_name='site_start'");
-                    $modx->db->update('menuindex=0', '[+prefix+]site_content', "id='{$newid}'");
+                if ($is_site_start == true && $_POST['reset'] === 'on') {
+                    db()->update(
+                        "setting_value=" . $newid
+                        , '[+prefix+]system_settings'
+                        , "setting_name='site_start'"
+                    );
+                    db()->update(
+                        'menuindex=0'
+                        , '[+prefix+]site_content'
+                        , "id='" . $newid . "'"
+                    );
                 }
             }
         }
@@ -344,9 +345,18 @@ function getFiles($directory, $listing = array(), $count = 0) {
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') {
                 continue;
-            } elseif (is_dir("{$directory}{$file}")) {
+            }
+            if (is_dir($directory . $file)) {
                 $count = -1;
-                $listing["d#{$file}"] = getFiles("{$directory}{$file}/", array(), $count + 1);
+                $listing['d#' . $file] = getFiles(
+                    sprintf(
+                        '%s%s/'
+                        , $directory
+                        , $file
+                    )
+                    , array()
+                    , $count + 1
+                );
             } elseif (strpos($file, '.htm') !== false) {
                 $listing[$c] = $file;
                 $c++;
@@ -354,8 +364,12 @@ function getFiles($directory, $listing = array(), $count = 0) {
             }
         }
     } else {
-        $vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_open_dir'], $directory);
-        echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
+        echo sprintf(
+            '<p><span class="fail">%s</span> %s %s</p>'
+            , $_lang['import_site_failed']
+            , $_lang['import_site_failed_no_open_dir']
+            , $directory
+        );
     }
     return ($listing);
 }
@@ -369,6 +383,7 @@ function getFileContent($filepath) {
     } else {
         return $buffer;
     }
+    return '';
 }
 
 function pop_index($array) {
@@ -391,7 +406,7 @@ function pop_index($array) {
 function treatContent($src, $filename, $alias) {
     global $modx;
 
-    $src = mb_convert_encoding($src, $modx->config['modx_charset'], 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,ASCII');
+    $src = mb_convert_encoding($src, evo()->config('modx_charset'), 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,ASCII');
 
     if (preg_match("@<title>(.*)</title>@i", $src, $matches)) {
         $pagetitle = ($matches[1] !== '') ? $matches[1] : $filename;
@@ -415,26 +430,23 @@ function treatContent($src, $filename, $alias) {
     } else {
         $content = $src;
         $s = '/(<meta[^>]+charset\s*=)[^>"\'=]+(.+>)/i';
-        $r = '$1' . $modx->config['modx_charset'] . '$2';
+        $r = '$1' . evo()->config('modx_charset') . '$2';
         $content = preg_replace($s, $r, $content);
         $content = preg_replace('@<title>.*</title>@i', "<title>[*pagetitle*]</title>", $content);
     }
     $content = str_replace('[*content*]', '[ *content* ]', $content);
     $content = trim($content);
-    $pagetitle = $modx->db->escape($pagetitle);
+    $pagetitle = db()->escape($pagetitle);
     return array($pagetitle, $content, $description);
 }
 
 function convertLink() {
     global $modx;
 
-    $rs = $modx->db->select('*', '[+prefix+]site_content');
-    $site_url = $modx->config['site_url'];
-    $lenBaseUrl = strlen($modx->config['base_url']);
-    $lenSiteUrl = strlen($site_url);
+    $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
     $alias = array();
     $linkList = array();
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $id = $row['id'];
         $_ = explode('<a href="', $row['content']);
         $i = 0;
@@ -453,16 +465,12 @@ function convertLink() {
             } else {
                 switch ($v) {
                     case '/':
-                    case $site_url:
-                    case "{$site_url}index.html":
-                    case "{$site_url}index.htm":
+                    case MODX_SITE_URL:
+                    case MODX_SITE_URL.'index.html':
+                    case MODX_SITE_URL . 'index.htm':
                         $v = '[(site_url)]';
                         break;
                     default:
-                        if (isset($linkList[$bv])) {
-                            $rv = $linkList[$bv];
-                            break;
-                        }
                         if (substr($v, -11) === '/index.html') {
                             $v = substr($v, 0, -11);
                         } elseif (substr($v, -10) === '/index.htm') {
@@ -473,28 +481,28 @@ function convertLink() {
                             $v = substr($v, 0, -4);
                         }
 
-                        if (substr($v, 0, $lenBaseUrl) === $modx->config['base_url']) {
-                            $v = substr($v, $lenBaseUrl);
-                        } elseif (substr($v, 0, $lenSiteUrl) === $site_url) {
-                            $v = substr($v, $lenSiteUrl);
+                        if (substr($v, 0, strlen(MODX_BASE_URL)) === MODX_BASE_URL) {
+                            $v = substr($v, strlen(MODX_BASE_URL));
+                        } elseif (substr($v, 0, strlen(MODX_SITE_URL)) === MODX_SITE_URL) {
+                            $v = substr($v, strlen(MODX_SITE_URL));
                         }
+                }
 
-                        $v = trim($v, '/');
-                        if (isset($alias[$v])) {
-                            $docid = $alias[$v];
-                        } else {
-                            $docid = $alias[$v] = $modx->getIdFromAlias($v);
-                        }
+                $v = trim($v, '/');
+                if (isset($alias[$v])) {
+                    $docid = $alias[$v];
+                } else {
+                    $docid = $alias[$v] = evo()->getIdFromAlias($v);
+                }
 
-                        if ($docid) {
-                            if ($docid == $modx->config['site_start']) {
-                                $rv = '[(site_url)]';
-                            } else {
-                                $rv = "[~{$docid}~]";
-                            }
-                        } else {
-                            $rv = false;
-                        }
+                if ($docid) {
+                    if ($docid == evo()->config('site_start')) {
+                        $rv = '[(site_url)]';
+                    } else {
+                        $rv = "[~{$docid}~]";
+                    }
+                } else {
+                    $rv = false;
                 }
             }
             if ($rv) {
@@ -506,8 +514,12 @@ function convertLink() {
             }
             $i++;
         }
-        $f['content'] = str_replace($s, $r, $row['content']);
-        $f['content'] = $modx->db->escape($f['content']);
-        $modx->db->update($f, '[+prefix+]site_content', "id='{$id}'");
+        db()->update(
+                array(
+                        'content' => db()->escape(str_replace($s, $r, $row['content']))
+                )
+                , '[+prefix+]site_content'
+                , sprintf("id='%s'", $row['id'])
+        );
     }
 }
