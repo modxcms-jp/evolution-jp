@@ -3,8 +3,8 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 if (!$modx->hasPermission('bk_manager')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (!config('snapshot_path') || strpos(config('snapshot_path'), MODX_BASE_PATH) === false) {
@@ -38,8 +38,8 @@ if ($mode === 'backup') {
     $output = $dumper->createDump();
     $dumper->dumpSql($output);
     if (!$output) {
-        $e->setError(1, 'Unable to Backup Database');
-        $e->dumpError();
+        alert()->setError(1, 'Unable to Backup Database');
+        alert()->dumpError();
     }
     exit;
 }
@@ -99,10 +99,10 @@ include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal hea
 if (sessionv('result_msg')) {
     switch (sessionv('result_msg')) {
         case 'import_ok':
-            $ph['result_msg'] = '<div class="okmsg">' . $_lang['bkmgr_import_ok'] . '</div>';
+            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_import_ok']);
             break;
         case 'snapshot_ok':
-            $ph['result_msg'] = '<div class="okmsg">' . $_lang['bkmgr_snapshot_ok'] . '</div>';
+            $ph['result_msg'] = sprintf('<div class="okmsg">%s</div>', $_lang['bkmgr_snapshot_ok']);
             break;
     }
     $_SESSION['result_msg'] = '';
