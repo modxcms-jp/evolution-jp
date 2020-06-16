@@ -456,7 +456,7 @@ class DocumentParser {
         }
         $this->sanitize_gpc($_GET);
         if ($this->isBackend()) {
-            if (session_id() === '' || $_SESSION['mgrPermissions']['save_document'] != 1) {
+            if (session_id() === '' || $this->session('mgrPermissions.save_document') != 1) {
                 $this->sanitize_gpc($_POST);
             }
         }
@@ -1068,7 +1068,7 @@ class DocumentParser {
 
         $_SESSION['mgrPermissions'] = $row;
 
-        if ($this->session_var('mgrPermissions.messages') == 1) {
+        if ($this->session('mgrPermissions.messages') == 1) {
             $rs = $this->db->select('*', '[+prefix+]manager_users');
             $total = $this->db->getRecordCount($rs);
             if ($total == 1) {
@@ -1262,10 +1262,10 @@ class DocumentParser {
     // check for manager login session
     function isLoggedIn($context = 'mgr') {
         if (stripos($context, 'm') === 0) {
-            return $this->session_var('mgrValidated');
+            return $this->session('mgrValidated');
         }
         if (stripos($context, 'w') === 0) {
-            return $this->session_var('webValidated');
+            return $this->session('webValidated');
         }
         return false;
     }
@@ -3025,7 +3025,7 @@ class DocumentParser {
         }
 
         if ($this->isLoggedIn() && $mode === 'prepareResponse' && $this->is_int($this->input_post('id'))) {
-            if (!$this->input_post('token') || !$this->session_var('token') || $_POST['token'] !== $_SESSION['token']) {
+            if (!$this->input_post('token') || !$this->session('token') || $this->input_post('token') !== $this->session('token')) {
                 exit('Can not preview');
             }
 
@@ -3084,8 +3084,8 @@ class DocumentParser {
         if ($docgrp) {
             $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
         }
-        if (isset($_SESSION['mgrRole'])) {
-            $_[] = sprintf('1=%d', (int)$_SESSION['mgrRole']);
+        if ($this->session('mgrRole')) {
+            $_[] = sprintf('1=%d', (int)$this->session('mgrRole'));
         }
         $access = join(' OR ', $_);
 
@@ -3334,13 +3334,12 @@ class DocumentParser {
     # Returns true if user has the currect permission
     function hasPermission($key = null) {
 
-        if ($this->session_var('mgrPermissions')) {
+        if ($this->session('mgrPermissions')) {
             if (!$key) {
                 return print_r($_SESSION['mgrPermissions'], true);
             }
-            return ($_SESSION['mgrPermissions'][$key] == 1);
+            return ($this->session('mgrPermissions.'.$key) == 1);
         }
-
         return false;
     }
 
@@ -3384,7 +3383,7 @@ class DocumentParser {
             }
             $where[] = sprintf('AND sc.deleted=%d', $deleted);
 
-            if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole'] != 1) {
+            if ($this->session('mgrRole') != 1) {
                 if ($this->isFrontend()) {
                     $where[] = sprintf(
                         'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
@@ -3416,7 +3415,7 @@ class DocumentParser {
             }
             $where[] = sprintf('AND deleted=%d', $deleted);
 
-            if (!isset($_SESSION['mgrRole']) || $_SESSION['mgrRole'] != 1) {
+            if ($this->session('mgrRole') != 1) {
                 if ($this->isFrontend()) {
                     $where[] = 'AND privateweb=0';
                 } else {
@@ -3554,9 +3553,7 @@ class DocumentParser {
             }
             $referenceListing[$row['id']] = $content;
         }
-
         $this->referenceListing = $referenceListing;
-
         return $referenceListing;
     }
 
@@ -4281,19 +4278,19 @@ class DocumentParser {
         $dg = array(); // add so
         $dgn = array();
 
-        if ($this->session_var('webDocgroups') && $this->session_var('webValidated')
+        if ($this->session('webDocgroups') && $this->session('webValidated')
             && $this->isFrontend()) {
-            $dg = $this->session_var('webDocgroups');
-            if ($this->session_var('webDocgrpNames')) {
-                $dgn = $this->session_var('webDocgrpNames'); //add so
+            $dg = $this->session('webDocgroups');
+            if ($this->session('webDocgrpNames')) {
+                $dgn = $this->session('webDocgrpNames'); //add so
             }
         }
 
-        if ($this->session_var('mgrDocgroups') && $this->session_var('mgrValidated')
+        if ($this->session('mgrDocgroups') && $this->session('mgrValidated')
             && ($this->isBackend() || $this->config['allow_mgr2web'] === '1')) {
-            $dg = array_merge($dg, $this->session_var('mgrDocgroups', array()));
-            if ($this->session_var('mgrDocgrpNames')) {
-                $dgn = array_merge($dgn, $this->session_var('mgrDocgrpNames', array()));
+            $dg = array_merge($dg, $this->session('mgrDocgroups', array()));
+            if ($this->session('mgrDocgrpNames')) {
+                $dgn = array_merge($dgn, $this->session('mgrDocgrpNames', array()));
             }
         }
 
