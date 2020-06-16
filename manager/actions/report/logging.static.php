@@ -17,17 +17,18 @@ while ($row = db()->getRow($rs)) {
     <div id="actions">
         <ul class="actionButtons">
             <li
-                    id="Button5"
-                    class="mutate"
-            ><a
-                        href="#"
-                        onclick="documentDirty=false;document.location.href='index.php?a=2';"
-                ><img
-                            alt="icons_cancel"
-                            src="<?php echo style('icons_cancel') ?>"
-                    /> <?php echo lang('cancel') ?></a
-                ></li
+                id="Button5"
+                class="mutate"
             >
+                <a
+                    href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                ><img
+                        alt="icons_cancel"
+                        src="<?php echo style('icons_cancel') ?>"
+                    /> <?php echo lang('cancel') ?>
+                </a>
+            </li>
         </ul>
     </div>
     <div class="sectionBody">
@@ -61,15 +62,10 @@ while ($row = db()->getRow($rs)) {
                                     // get all users currently in the log
                                     $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
                                     foreach ($logs_user as $row) {
-                                        if ($row['internalKey'] == getv('searchuser')) {
-                                            $selectedtext = 'selected="selected"';
-                                        } else {
-                                            $selectedtext = '';
-                                        }
                                         echo sprintf(
                                                 '<option value="%s" %s>%s</option>'
                                                 , $row['internalKey']
-                                                , $selectedtext
+                                                , $row['internalKey'] == getv('searchuser') ? 'selected="selected"' : ''
                                                 , $row['username']
                                             ) . "\n";
                                     }
@@ -96,15 +92,10 @@ while ($row = db()->getRow($rs)) {
                                         if ($action == 'Idle') {
                                             continue;
                                         }
-                                        if ($row['action'] == getv('action')) {
-                                            $selectedtext = 'selected="selected"';
-                                        } else {
-                                            $selectedtext = '';
-                                        }
                                         echo sprintf(
                                                 '<option value="%s" %s>%s - %s</option>'
                                                 , $row['action']
-                                                , $selectedtext
+                                                , $row['action'] == getv('action') ? 'selected="selected"' : ''
                                                 , $row['action']
                                                 , $action
                                             ) . "\n";
@@ -122,7 +113,12 @@ while ($row = db()->getRow($rs)) {
                                     $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
                                     foreach ($logs_items as $row) {
                                         $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
-                                        echo '<option value="' . $row['itemid'] . '"' . $selectedtext . '>' . $row['itemid'] . "</option>\n";
+                                        echo sprintf(
+                                                '<option value="%s"%s>%s</option>'
+                                                , $row['itemid']
+                                                , $selectedtext
+                                                , $row['itemid']
+                                        );
                                     }
                                     ?>    </select>
                             </td>
@@ -136,8 +132,12 @@ while ($row = db()->getRow($rs)) {
                                     // get all itemname currently in logging
                                     $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
                                     foreach ($logs_names as $row) {
-                                        $selectedtext = $row['itemname'] == getv('itemname') ? ' selected="selected"' : '';
-                                        echo '<option value="' . $row['itemname'] . '"' . $selectedtext . '>' . $row['itemname'] . "</option>\n";
+                                        echo sprintf(
+                                                '<option value="%s"%s>%s</option>'
+                                                , $row['itemname']
+                                                , $row['itemname'] == getv('itemname') ? ' selected="selected"' : ''
+                                                , $row['itemname']
+                                        );
                                     }
                                     ?>    </select>
                             </td>
@@ -147,43 +147,71 @@ while ($row = db()->getRow($rs)) {
                             <td align="right">
                                 <input type="text" id="datefrom" name="datefrom" class="DatePicker"
                                        value="<?php echo getv('datefrom', ''); ?>"/>
-                                <a onclick="document.logging.datefrom.value=''; return true;"
-                                   style="cursor:pointer; cursor:hand"><img
+                                <a
+                                        onclick="document.logging.datefrom.value=''; return true;"
+                                        style="cursor:pointer; cursor:hand"><img
                                             src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
-                                            border="0" alt="No date"/></a>
+                                            border="0" alt="No date"
+                                    /></a>
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
                             <td><b><?php echo lang('mgrlog_dateto'); ?></b></td>
                             <td align="right">
-                                <input type="text" id="dateto" name="dateto" class="DatePicker"
-                                       value="<?php echo getv('dateto', ''); ?>"/>
-                                <a onclick="document.logging.dateto.value=''; return true;"
-                                   style="cursor:pointer; cursor:hand"><img
-                                            src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
-                                            border="0" alt="No date"/></a>
+                                <input
+                                    type="text"
+                                    id="dateto"
+                                    name="dateto"
+                                    class="DatePicker"
+                                    value="<?php echo getv('dateto', ''); ?>"
+                                />
+                                <a
+                                    onclick="document.logging.dateto.value=''; return true;"
+                                    style="cursor:pointer; cursor:hand"
+                                >
+                                <img
+                                    src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                    border="0"
+                                    alt="No date"
+                                />
+                                </a>
                             </td>
                         </tr>
                         <tr>
                             <td><b><?php echo lang('mgrlog_results'); ?></b></td>
                             <td align="right">
-                                <input type="text" name="nrresults" class="inputbox" style="width:100px"
-                                       value="<?php echo getv('nrresults', config('number_of_logs')); ?>"/><img
-                                        src="<?php echo style('tx'); ?>" border="0"/>
+                                <input
+                                    type="text" name="nrresults"
+                                    class="inputbox" style="width:100px"
+                                    value="<?php echo getv('nrresults', config('number_of_logs')); ?>"
+                                />
+                                <img src="<?php echo style('tx'); ?>" border="0"/>
                             </td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
                 <ul class="actionButtons" style="margin-top:1em;margin-left:5px;">
-                    <li><a href="#" class="default"
-                           onclick="documentDirty=false;document.logging.log_submit.click();"><img
-                                    src="<?php echo style('icons_save') ?>"/> <?php echo lang('search'); ?></a></li>
-                    <li><a href="index.php?a=2" onclick="documentDirty=false;"><img
-                                    src="<?php echo style('icons_cancel') ?>"/> <?php echo lang('cancel'); ?></a></li>
+                    <li><a
+                            href="#" class="default"
+                            onclick="documentDirty=false;document.logging.log_submit.click();">
+                            <img src="<?php echo style('icons_save') ?>"/>
+                            <?php echo lang('search'); ?>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.php?a=2" onclick="documentDirty=false;">
+                            <img src="<?php echo style('icons_cancel') ?>"/>
+                            <?php echo lang('cancel'); ?>
+                        </a>
+                    </li>
                 </ul>
-                <input type="submit" name="log_submit" value="<?php echo lang('mgrlog_searchlogs') ?>"
-                       style="display:none;"/>
+                <input
+                    type="submit"
+                    name="log_submit"
+                    value="<?php echo lang('mgrlog_searchlogs') ?>"
+                    style="display:none;"
+                />
             </div>
         </form>
     </div>
@@ -191,7 +219,7 @@ while ($row = db()->getRow($rs)) {
         tpMgrLogSearch = new WebFXTabPane(document.getElementById('logPane'));
     </script>
 
-<?php if (isset($_GET['log_submit'])) : ?>
+<?php if (getv('log_submit')) : ?>
     <div class="section">
     <div class="sectionHeader"><?php echo lang('mgrlog_qresults'); ?></div>
     <div class="sectionBody" id="lyr2">
@@ -200,26 +228,26 @@ while ($row = db()->getRow($rs)) {
         // get the selections the user made.
         $where = array();
         if (getv('searchuser')) {
-            $where[] = "internalKey='" . (int)getv('searchuser') . "'";
+            $where[] = sprintf("internalKey='%d'", (int)getv('searchuser'));
         }
         if (getv('action')) {
-            $where[] = "action=" . (int)getv('action');
+            $where[] = sprintf('action=%d', (int)getv('action'));
         }
         if (getv('itemid') || getv('itemid') == '-') {
-            $where[] = "itemid='" . getv('itemid') . "'";
+            $where[] = sprintf("itemid='%s'", getv('itemid'));
         }
         if (getv('itemname')) {
-            $where[] = "itemname='" . getv('itemname') . "'";
+            $where[] = sprintf("itemname='%s'", getv('itemname'));
         }
         if (getv('message')) {
-            $where[] = "message LIKE '%" . getv('message') . "%'";
+            $where[] = sprintf("message LIKE '%%%s%%'", getv('message'));
         }
         // date stuff
         if (getv('datefrom')) {
-            $where[] = "timestamp>" . evo()->toTimeStamp(getv('datefrom'));
+            $where[] = sprintf('timestamp > %s', evo()->toTimeStamp(getv('datefrom')));
         }
         if (getv('dateto')) {
-            $where[] = "timestamp<" . evo()->toTimeStamp(getv('dateto'));
+            $where[] = sprintf('timestamp < %s', evo()->toTimeStamp(getv('dateto')));
         }
 
         // Number of result to display on the page, will be in the LIMIT of the sql query also
@@ -330,7 +358,7 @@ EOT;
                 $row['itemname'] = evo()->hsc($row['itemname']);
                 if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                     $row['title'] = '<div style="text-align:center;">-</div>';
-                } elseif ($row['action'] == 3 || $row['action'] == 27 || $row['action'] == 5) {
+                } elseif (in_array($row['action'], array(3,27,5))) {
                     $row['title'] = evo()->parseText(
                         '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>'
                         , $row
@@ -361,18 +389,15 @@ EOT;
 endif;
 
 function array_unique_multi($array, $checkKey) {
-    // Use the builtin if we're not a multi-dimensional array
     if (!is_array(current($array)) || empty($checkKey)) {
         return array_unique($array);
     }
-
     $ret = array();
-    $checkValues = array(); // contains the unique key Values
+    $checkValues = array();
     foreach ($array as $key => $current) {
         if (in_array($current[$checkKey], $checkValues)) {
             continue;
-        } // duplicate
-
+        }
         $checkValues[] = $current[$checkKey];
         $ret[$key] = $current;
     }
@@ -384,13 +409,10 @@ function record_sort($array, $key) {
     foreach ($array as $k => $v) {
         $hash[$k] = $v[$key];
     }
-
     natsort($hash);
-
     $records = array();
     foreach ($hash as $k => $row) {
         $records[$k] = $array[$k];
     }
-
     return $records;
 }
