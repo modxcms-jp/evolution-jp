@@ -2,7 +2,7 @@
 if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('view_document')) {
+if (!hasPermission('view_document')) {
     $e->setError(3);
     $e->dumpError();
 }
@@ -143,7 +143,7 @@ if (!$numRecords) {
     }
     $pageNavBlock = $modx->table->renderPagingNavigation($numRecords, $qs);
     $children_output = $pageNavBlock . $modx->table->renderTable($rows, $header) . $pageNavBlock;
-    if ($modx->hasPermission('move_document')) {
+    if (hasPermission('move_document')) {
         $children_output .= '<div style="margin-top:10px;"><input type="submit" value="' . $_lang["document_data.static.php1"] . '" /></div>';
     }
 }
@@ -185,17 +185,17 @@ echo get_jscript($id, $cm);
         <ul class="actionButtons">
             <?php
             $tpl = '<li id="%s" class="mutate"><a href="#" onclick="%s"><img src="%s" /> %s</a></li>';
-            if ($modx->hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
+            if (hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
                 echo sprintf($tpl, 'Button1', 'editdocument();', $_style["icons_edit_document"], $_lang['edit']);
             }
-            if ($modx->hasPermission('move_document') && $modx->hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
+            if (hasPermission('move_document') && hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
                 echo sprintf($tpl, 'Button2', 'movedocument();', $_style["icons_move_document"], $_lang['move']);
             }
             if ($modx->doc->canCopyDoc() && $id != 0 && $modx->manager->isAllowed($id)) {
                 echo sprintf($tpl, 'Button4', 'duplicatedocument();', $_style["icons_resource_duplicate"],
                     $_lang['duplicate']);
             }
-            if ($modx->hasPermission('delete_document') && $modx->hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
+            if (hasPermission('delete_document') && hasPermission('save_document') && $id != 0 && $modx->manager->isAllowed($id)) {
                 echo sprintf($tpl, 'Button3', 'deletedocument();', $_style["icons_delete_document"], $_lang['delete']);
             }
 
@@ -213,7 +213,7 @@ echo get_jscript($id, $cm);
     <div class="section">
         <div class="sectionBody">
             <!-- View Children -->
-            <?php if ($modx->hasPermission('new_document')) { ?>
+            <?php if (hasPermission('new_document')) { ?>
 
                 <ul class="actionButtons">
                     <li class="mutate"><a href="index.php?a=4&amp;pid=<?php echo $id ?>"><img
@@ -372,27 +372,26 @@ function _getIconPath($doc) {
     global $modx, $_style;
 
     switch ($doc['id']) {
-        case $modx->config['site_start']           :
+        case $modx->config('site_start')           :
             return $_style['tree_page_home'];
-        case $modx->config['error_page']           :
+        case $modx->config('error_page',$modx->config('site_start'))           :
             return $_style['tree_page_404'];
-        case $modx->config['unauthorized_page']    :
+        case $modx->config('unauthorized_page')    :
             return $_style['tree_page_info'];
-        case $modx->config['site_unavailable_page']:
+        case $modx->config('site_unavailable_page'):
             return $_style['tree_page_hourglass'];
     }
 
-    if ($doc['isfolder'] == 0) {
+    if (!$doc['isfolder']) {
         if ($doc['privatemgr'] == 1) {
             return $_style['tree_page_html_secure'];
-        } else {
-            return $_style['tree_page_html'];
         }
-    } elseif ($doc['privatemgr'] == 1) {
-        return $_style['tree_folderopen_secure'];
-    } else {
-        return $_style['tree_folder'];
+        return $_style['tree_page_html'];
     }
+    if ($doc['privatemgr'] == 1) {
+        return $_style['tree_folderopen_secure'];
+    }
+    return $_style['tree_folder'];
 }
 
 function get_jscript($id, $cm) {
@@ -504,80 +503,81 @@ function getReturnAction($current) {
 }
 
 function getTopicPath($id) {
-    global $modx;
-
     if ($id == 0) {
-        return;
+        return '';
     }
-    $parents[] = $modx->config['site_start'];
-    $parents = array_merge($parents, array_reverse($modx->getParentIds($id)));
 
+    $parents = array_merge(
+        array(evo()->config('site_start'))
+        , array_reverse(evo()->getParentIds($id))
+    );
     $parents[] = $id;
 
     foreach ($parents as $topic) {
-        $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$topic}'");
+        $rs = db()->select(
+            "IF(alias='', id, alias) AS alias"
+            , '[+prefix+]site_content'
+            , "id='" . $topic . "'"
+        );
         $doc = db()->getRow($rs);
-        if ($topic == $modx->config['site_start']) {
+        if ($topic == evo()->config('site_start')) {
             $topics[] = sprintf('<a href="index.php?a=120">%s</a>', 'Home');
         } elseif ($topic == $id) {
             $topics[] = sprintf('%s', $doc['alias']);
-        } elseif ($modx->manager->isAllowed($topic)) {
+        } elseif (manager()->isAllowed($topic)) {
             $topics[] = sprintf('<a href="index.php?a=120&id=%s">%s</a>', $topic, $doc['alias']);
         } else {
             $topics[] = sprintf('%s', $doc['alias']);
         }
     }
-    return '<div style="margin-bottom:10px;">' . join(' / ', $topics) . '</div>';
+    return sprintf(
+        '<div style="margin-bottom:10px;">%s</div>'
+        , implode(' / ', $topics)
+    );
 }
 
 function getContextMenu($cm) {
-    global $modx, $_lang, $_style;
-
-    extract($_lang, EXTR_PREFIX_ALL, 'lang');
-    extract($_style);
-
-    // $cm->addSeparator();
-    if ($modx->hasPermission('edit_document')) {
-        $cm->addItem($lang_edit_resource, "js:menuAction(27)", $icons_edit_document);
+    if (hasPermission('edit_document')) {
+        $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
     }
-    if ($modx->hasPermission('new_document')) {
-        $cm->addItem($lang_create_resource_here, "js:menuAction(4)", $icons_new_document);
+    if (hasPermission('new_document')) {
+        $cm->addItem(lang('create_resource_here'), "js:menuAction(4)", style('icons_new_document'));
     }
-    if ($modx->hasPermission('move_document') && $modx->hasPermission('save_document') && $modx->hasPermission('publish_document')) {
-        $cm->addItem($lang_move_resource, "js:menuAction(51)", $icons_move_document);
+    if (hasPermission('move_document') && hasPermission('save_document') && hasPermission('publish_document')) {
+        $cm->addItem(lang('move_resource'), "js:menuAction(51)", style('icons_move_document'));
     }
-    if ($modx->hasPermission('new_document')) {
-        $cm->addItem($lang_resource_duplicate, "js:menuAction(94)", $icons_resource_duplicate);
+    if (hasPermission('new_document')) {
+        $cm->addItem(lang('resource_duplicate'), "js:menuAction(94)", style('icons_resource_duplicate'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
-    if ($modx->hasPermission('publish_document')) {
-        $cm->addItem($lang_publish_resource, "js:menuAction(61)", $icons_publish_document);
+    if (hasPermission('publish_document')) {
+        $cm->addItem(lang('publish_resource'), "js:menuAction(61)", style('icons_publish_document'));
     }
-    if ($modx->hasPermission('publish_document')) {
-        $cm->addItem($lang_unpublish_resource, "js:menuAction(62)", $icons_unpublish_resource);
+    if (hasPermission('publish_document')) {
+        $cm->addItem(lang('unpublish_resource'), "js:menuAction(62)", style('icons_unpublish_resource'));
     }
-    if ($modx->hasPermission('delete_document')) {
-        $cm->addItem($lang_delete_resource, "js:menuAction(6)", $icons_delete);
+    if (hasPermission('delete_document')) {
+        $cm->addItem(lang('delete_resource'), "js:menuAction(6)", style('icons_delete'));
     }
-    if ($modx->hasPermission('delete_document')) {
-        $cm->addItem($lang_undelete_resource, "js:menuAction(63)", $icons_undelete_resource);
-    }
-    if (0 < $cm->i) {
-        $cm->addSeparator();
-        $cm->i = 0;
-    }
-    if ($modx->hasPermission('new_document')) {
-        $cm->addItem($lang_create_weblink_here, "js:menuAction(72)", $icons_weblink);
+    if (hasPermission('delete_document')) {
+        $cm->addItem(lang('undelete_resource'), "js:menuAction(63)", style('icons_undelete_resource'));
     }
     if (0 < $cm->i) {
         $cm->addSeparator();
         $cm->i = 0;
     }
-    if ($modx->hasPermission('view_document')) {
-        $cm->addItem($lang_resource_overview, "js:menuAction(3)", $icons_resource_overview);
+    if (hasPermission('new_document')) {
+        $cm->addItem(lang('create_weblink_here'), "js:menuAction(72)", style('icons_weblink'));
+    }
+    if (0 < $cm->i) {
+        $cm->addSeparator();
+        $cm->i = 0;
+    }
+    if (hasPermission('view_document')) {
+        $cm->addItem(lang('resource_overview'), "js:menuAction(3)", style('icons_resource_overview'));
     }
     //$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
     return $cm->render();
