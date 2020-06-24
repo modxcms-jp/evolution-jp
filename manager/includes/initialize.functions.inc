@@ -57,7 +57,7 @@ class init {
         $options += array(
             'lifetime' => 3600 * 24 * 30,
             'path' => MODX_BASE_URL,
-            'domain' => init::get_host_name(),
+            'domain' => '',
             'secure' => init::is_ssl() ? true : false,
             'httponly' => true,
             'samesite' => 'Lax'
@@ -68,7 +68,7 @@ class init {
             session_set_cookie_params(
                 $options['lifetime']
                 , $options['path'] . '; SameSite=Lax'
-                , $options['domain']
+                , ''
                 , $options['secure']
                 , $options['httponly']
             );
