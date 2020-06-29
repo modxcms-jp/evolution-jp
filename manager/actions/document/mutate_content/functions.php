@@ -216,7 +216,7 @@ function getUDGroups($id) {
     } elseif ($docid) {
         $groupsarray = getGroups($docid);
     } else {
-        $groupsarray = postv('docgroups');
+        $groupsarray = postv('docgroups', array());
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
