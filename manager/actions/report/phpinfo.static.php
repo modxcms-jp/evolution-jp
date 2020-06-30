@@ -65,6 +65,7 @@ if (!$modx->hasPermission('logs')) {
         .p {
             text-align: left;
         }
+        h1.p {background:transparent;}
 
         .e {
             width: 150px;
@@ -105,6 +106,9 @@ if (!$modx->hasPermission('logs')) {
             height: 1px;
             color: #333333;
         }
+        ul.actionButtons li a:hover {
+            text-decoration: none;
+        }
     </style>
 
     <div id="actions">
@@ -126,7 +130,6 @@ if (!$modx->hasPermission('logs')) {
 <?php
 ob_start();
 phpinfo();
-ob_end_clean();
 echo str_replace(
     array(
         '<div class="center">'
@@ -139,8 +142,8 @@ echo str_replace(
         , 'src, input'
     )
     , preg_replace(
-            '%^.*<body>(.*)</body>.*$%ms'
-            , '$1'
-            , ob_get_contents()
+        '@.*<body>(.+)</body>.*@s'
+        , '$1'
+        , ob_get_clean()
     )
 );
