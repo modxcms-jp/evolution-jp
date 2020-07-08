@@ -502,7 +502,7 @@ function checkDocLock($id) {
         'internalKey, username'
         , '[+prefix+]active_users'
         , sprintf(
-            "acstion='%s' AND id='%s'"
+            "action='%s' AND id='%s'"
             , manager()->action
             , $id
         )
