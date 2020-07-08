@@ -145,7 +145,7 @@ class REVISION {
     }
 
     private function getCurrentResource($docid) {
-        $vars = evo()->getTemplateVars('*', '*', $docid);
+        $vars = evo()->getTemplateVars('*', '*', $docid, null);
         if (!$vars) {
             return array();
         }
