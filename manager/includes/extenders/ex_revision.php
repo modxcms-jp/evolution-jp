@@ -76,18 +76,7 @@ class REVISION {
         if (!$draft) {
             return array();
         }
-        $doc = $this->getCurrentResource($elmid);
-        foreach ($draft as $k => $v) {
-            if (!isset($doc[$k])) {
-                unset($draft[$k]);
-                continue;
-            }
-            if (!is_array($v)) {
-                continue;
-            }
-            $draft[$k] = implode('||', $v);
-        }
-        return $draft;
+        return $this->convertData($draft);
     }
 
     public function save($elmid = '', $resource = array(), $status = 'inherit') {

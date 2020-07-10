@@ -427,7 +427,11 @@ function getDefaultTemplate() {
         $rs = db()->select(
             'template'
             , '[+prefix+]site_content'
-            , sprintf("id!='%s' AND isfolder=0 AND parent='%s'", config('site_start'), request_intvar('pid'))
+            , sprintf(
+                "id!='%s' AND isfolder=0 AND parent='%s'"
+                , config('site_start')
+                , request_intvar('pid')
+            )
             , 'published DESC,menuindex ASC'
             , 1
         );

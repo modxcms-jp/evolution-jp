@@ -4124,8 +4124,16 @@ class DocumentParser {
             $resource = $this->getDocument($docid, '*', $published);
         }
 
-        if (!$resource || !$resource['template']) {
+        if (!$resource) {
             return false;
+        }
+        if (!$resource['template']) {
+            foreach ($resource as $key => $value) {
+                if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+                    $result[] = array('name' => $key, 'value' => $value);
+                }
+            }
+            return $result;
         }
 
         if ($fields === '*' || $fields === '') {

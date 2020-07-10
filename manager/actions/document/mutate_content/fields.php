@@ -156,22 +156,6 @@ function fieldTemplate() {
 }
 
 function get_template_options() {
-    $option_tags = function ($templates) {
-        $options = array(
-            html_tag('<option>', array('value' => 0), '(blank)')
-        );
-        foreach ($templates as $template) {
-            $options[] = html_tag(
-                '<option>'
-                , array(
-                    'value' => $template['id'],
-                    'selected' => $template['id'] == doc('template') ? null : ''
-                )
-                , hsc($template['templatename'])
-            );
-        }
-        return $options;
-    };
     $rs = db()->select(
         sprintf(
             "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
@@ -184,14 +168,41 @@ function get_template_options() {
     while ($row = db()->getRow($rs)) {
         $rows[$row['category']][] = $row;
     }
+    $optgroups = array(
+        html_tag(
+            '<option>'
+            , array(
+                'value' => 0,
+                'selected' => !doc('template') ? null : ''
+            )
+            ,'(blank)'
+        )
+    );
     foreach ($rows as $category => $templates) {
         $optgroups[] = html_tag(
             '<optgroup>'
             , array('label' => hsc($category))
-            , implode("\n", $option_tags($templates))
+            , implode("\n", option_tags($templates))
         );
     }
     return implode("\n", $optgroups);
+}
+
+function option_tags($templates) {
+    foreach ($templates as $template) {
+        if(!$template['id']) {
+            continue;
+        }
+        $options[] = html_tag(
+            '<option>'
+            , array(
+                'value' => $template['id'],
+                'selected' => $template['id'] == doc('template') ? null : ''
+            )
+            , hsc($template['templatename'])
+        );
+    }
+    return $options;
 }
 
 function fieldMenutitle() {

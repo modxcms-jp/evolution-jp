@@ -77,7 +77,6 @@ class DocAPI {
         if (!preg_match('@^[1-9][0-9]*$@', $id)) {
             return false;
         }
-
         if (is_string($f) && strpos($f, '=') !== false) {
             list($k, $v) = explode('=', $f, 2);
             $k = trim($k);
@@ -86,22 +85,22 @@ class DocAPI {
             $f[$k] = $v;
         }
 
-        if (!$f['template']) {
-            $f['template'] = $modx->getField('template', $id);
-        }
-
         $this->saveTVs($f, $id);
 
 //		$f = $this->setPubStatus($f);
 
         $f['editedon'] = (!$f['editedon']) ? time() : $f['editedon'];
-        if (!isset($f['editedby']) && isset($_SESSION['mgrInternalKey'])) {
+        if (!isset($f['editedby']) && sessionv('mgrInternalKey')) {
             $f['editedby'] = $_SESSION['mgrInternalKey'];
         }
 
-        $f = $this->correctResourceFields($f);
-        $f = $modx->db->escape($f);
-        $rs = $modx->db->update($f, '[+prefix+]site_content', $where . " `id`='{$id}'");
+        $rs = db()->update(
+            db()->escape(
+                $this->correctResourceFields($f)
+            )
+            , '[+prefix+]site_content'
+            , sprintf("%s `id`='%d'", $where, $id)
+        );
         if ($rs !== false) {
             $modx->clearCache();
         }

@@ -4,7 +4,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('save_document')) {
+if (!evo()->hasPermission('save_document')) {
     $e->setError(3);
     $e->dumpError();
 }
@@ -19,7 +19,6 @@ if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
 }
 
 $modx->loadExtension('REVISION');
-$modx->loadExtension('DocAPI');
 
 if (postv('publishoption') === 'reserve' && postv('pub_date')) {
     $pub_date = evo()->toTimeStamp(postv('pub_date'));
@@ -51,12 +50,23 @@ function setStandBy($docid, $pub_date) {
 }
 
 function publishDraft($docid) {
-    $rs = db()->select('*', '[+prefix+]site_content', "id='{$docid}'");
+    evo()->loadExtension('DocAPI');
+    $rs = db()->select(
+        '*'
+        , '[+prefix+]site_content'
+        , sprintf("id='%s'", $docid)
+    );
     $documentObject = db()->getRow($rs);
     $draft = evo()->revision->getDraft($docid);
     $draft['published'] = $documentObject['published'];
     evo()->doc->update($draft, $docid);
-    db()->delete('[+prefix+]site_revision', "( status='draft' OR status='standby' ) AND elmid='{$docid}'");
+    db()->delete(
+        '[+prefix+]site_revision'
+        , sprintf(
+            "( status='draft' OR status='standby' ) AND elmid='%s'"
+            , $docid
+        )
+    );
 
     evo()->clearCache();
     $tmp = array('docid' => $docid, 'type' => 'draftManual');

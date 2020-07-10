@@ -146,6 +146,11 @@ $template = file_get_tpl('_template.tpl');
 if (evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
-$ph = collect_template_ph(request_intvar('id'), $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit);
+$ph = collect_template_ph(
+    request_intvar('id')
+    , $OnDocFormPrerender
+    , $OnDocFormRender
+    , $OnRichTextEditorInit
+);
 $ph['content'] = implode("\n", $body);
 echo parseText($template, $ph);
