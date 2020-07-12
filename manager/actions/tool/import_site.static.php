@@ -10,7 +10,6 @@ if (!evo()->hasPermission('import_static')) {
 // Files to upload
 $allowedfiles = array('html', 'htm', 'shtml', 'xml');
 ?>
-
     <script type="text/javascript">
         parent.tree.ca = "parent";
 
@@ -177,7 +176,6 @@ function run() {
 }
 
 function importFiles($parent, $filedir, $files, $mode) {
-    global $modx;
     global $_lang, $allowedfiles;
     global $search_default, $cache_default, $publish_default;
 
@@ -186,7 +184,7 @@ function importFiles($parent, $filedir, $files, $mode) {
         return;
     }
     if (postv('object') === 'all') {
-        $modx->config['default_template'] = '0';
+        evo()->config('*default_template',0);
         $richtext = '0';
     } else {
         $richtext = '1';
@@ -296,7 +294,7 @@ function importFiles($parent, $filedir, $files, $mode) {
                 $field['parent'] = $parent;
                 $field['content'] = db()->escape($content);
                 $field['richtext'] = $richtext;
-                $field['template'] = $modx->config('default_template');
+                $field['template'] = evo()->config('default_template');
                 $field['searchable'] = $search_default;
                 $field['cacheable'] = $cache_default;
                 $field['createdby'] = $createdby;
@@ -404,8 +402,6 @@ function pop_index($array) {
 }
 
 function treatContent($src, $filename, $alias) {
-    global $modx;
-
     $src = mb_convert_encoding($src, evo()->config('modx_charset'), 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,ASCII');
 
     if (preg_match("@<title>(.*)</title>@i", $src, $matches)) {
@@ -441,8 +437,6 @@ function treatContent($src, $filename, $alias) {
 }
 
 function convertLink() {
-    global $modx;
-
     $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
     $alias = array();
     $linkList = array();
