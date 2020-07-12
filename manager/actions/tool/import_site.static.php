@@ -186,7 +186,7 @@ function importFiles($parent, $filedir, $files, $mode) {
         return;
     }
     if (postv('object') === 'all') {
-        evo()->config('default_template') = '0';
+        $modx->config['default_template'] = '0';
         $richtext = '0';
     } else {
         $richtext = '1';
