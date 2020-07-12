@@ -221,19 +221,25 @@ global $database_connection_method, $lastInstallTime;
                         </thead>
                         <tbody>
                         <?php
-                        $field = 'id, pagetitle, editedby, editedon';
-                        $rs = db()->select($field, evo()->getFullTableName('site_content'), 'deleted=0',
-                            'editedon DESC', 20);
-                        $limit = db()->getRecordCount($rs);
-                        if ($limit < 1) {
+                        $rs = db()->select(
+                            'id, pagetitle, editedby, editedon'
+                            , evo()->getFullTableName('site_content')
+                            , 'deleted=0'
+                            , 'editedon DESC', 20
+                        );
+                        if (!db()->getRecordCount($rs)) {
                             echo sprintf('<p>%s</p>', lang('no_edits_creates'));
                         } else {
                             $i = 0;
                             $where = '';
                             while ($content = db()->getRow($rs)) {
-                                if ($where !== "id={$content['editedby']}") {
-                                    $where = "id={$content['editedby']}";
-                                    $rs2 = db()->select('username', evo()->getFullTableName('manager_users'), $where);
+                                if ($where !== 'id=' . $content['editedby']) {
+                                    $where = 'id=' . $content['editedby'];
+                                    $rs2 = db()->select(
+                                        'username'
+                                        , evo()->getFullTableName('manager_users')
+                                        , $where
+                                    );
                                     if (db()->getRecordCount($rs2) == 0) {
                                         $user = '-';
                                     } else {
@@ -241,8 +247,15 @@ global $database_connection_method, $lastInstallTime;
                                         $user = $r['username'];
                                     }
                                 }
-                                $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
-                                echo "<tr bgcolor='$bgcolor'><td style='text-align:right;'>" . $content['id'] . "</td><td><a href='index.php?a=3&id=" . $content['id'] . "'>" . $content['pagetitle'] . "</a></td><td>" . $user . "</td><td>" . evo()->toDateFormat($content['editedon'] + config('server_offset_time')) . "</td></tr>";
+                                echo sprintf(
+                                    '<tr bgcolor="%s"><td style="text-align:right;">%s</td><td><a href="index.php?a=3&id=%s">%s</a></td><td>%s</td><td>%s</td></tr>'
+                                    , ($i % 2) ? '#EEEEEE' : '#FFFFFF'
+                                    , $content['id']
+                                    , $content['id']
+                                    , $content['pagetitle']
+                                    , $user
+                                    , evo()->toDateFormat($content['editedon'] + config('server_offset_time'))
+                                );
                                 $i++;
                             }
                         }
@@ -362,8 +375,7 @@ global $database_connection_method, $lastInstallTime;
                         , sprintf('lasthit>%s', $timetocheck)
                         , 'username ASC'
                     );
-                    $limit = db()->getRecordCount($rs);
-                    if ($limit < 1) {
+                    if (!db()->getRecordCount($rs)) {
                         $html = "<p>" . lang('no_active_users_found') . "</p>";
                     } else {
                         while ($activeusers = db()->getRow($rs)) {
@@ -376,18 +388,12 @@ global $database_connection_method, $lastInstallTime;
                             } else {
                                 $webicon = "";
                             }
-                            $html .= sprintf(
-                                '<tr bgcolor="#FFFFFF"><td><b>%s</b></td><td>%s&nbsp;%s</td><td>%s</td><td>%s</td><td>$currentaction</td><td align="right">%s</td></tr>'
-                                , $activeusers['username']
-                                , $webicon
-                                , abs($activeusers['internalKey'])
-                                , $activeusers['ip']
-                                , strftime(
+                            $html .= sprintf('<tr><td><b>%s</b></td><td>%s&nbsp;%s</td><td>%s</td><td>%s</td><td>%s</td><td align="right">%s</td></tr>',
+                                $activeusers['username'], $webicon, abs($activeusers['internalKey']),
+                                $activeusers['ip'], strftime(
                                     '%H:%M:%S'
                                     , $activeusers['lasthit'] + config('server_offset_time')
-                                )
-                                , $activeusers['action']
-                            );
+                                ), $currentaction, $activeusers['action']);
                         }
                     }
                     echo $html;
