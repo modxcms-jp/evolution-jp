@@ -106,6 +106,9 @@ class Mysqldumper {
         // Set line feed
         $lf = "\n";
         $tempfile_path = MODX_BASE_PATH . 'assets/cache/bktemp.pageCache.php';
+        if(is_file($tempfile_path)) {
+            unlink($tempfile_path);
+        }
 
         $result = $modx->db->query('SHOW TABLES');
         $tables = $this->result2Array(0, $result);
