@@ -143,7 +143,6 @@ function rte_fields() {
     }
     $tmplVars = getTmplvars(request_intvar('id'), doc('template'), getDocgrp());
     foreach ($tmplVars as $tv) {
-        $tvid = 'tv' . $tv['id'];
         // Go through and display all Template Variables
         if ($tv['type'] === 'richtext' || $tv['type'] === 'htmlarea') {
             $rte_fields[] = 'tv' . $tv['id'];
