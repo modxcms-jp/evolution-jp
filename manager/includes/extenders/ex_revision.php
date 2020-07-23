@@ -198,7 +198,7 @@ class REVISION {
                 continue;
             }
             if (array_get($doc, $k . '_prefix') === null) {
-                $input[$k] = $v;
+                $input[$k] = is_array($v) ? implode('||',$v) : $v;
                 continue;
             }
             if ($doc[$k . '_prefix'] === 'DocID') {
