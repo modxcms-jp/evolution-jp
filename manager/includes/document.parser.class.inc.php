@@ -3579,18 +3579,24 @@ class DocumentParser {
     function makeUrl($id = '', $alias = '', $args = '', $scheme = 'full', $ignoreReference = false) {
         static $cached = array();
 
-        $cacheKey = hash('crc32b', print_r(func_get_args(), true));
-        if (isset($cached[$cacheKey])) {
-            return $cached[$cacheKey];
-        }
-
-        $cached[$cacheKey] = false;
-
         if ($id == 0) {
             $id = $this->config('site_start');
         } elseif ($id == '') {
             $id = $this->documentIdentifier;
         }
+
+        $cacheKey = hash(
+            'crc32b'
+            , print_r(
+                array($id, $alias, $args, $scheme, $ignoreReference)
+                , true
+            )
+        );
+        if (isset($cached[$cacheKey])) {
+            return $cached[$cacheKey];
+        }
+
+        $cached[$cacheKey] = false;
 
         if (!preg_match('@^[0-9]+$@', $id)) {
             $this->messageQuit(
@@ -3606,7 +3612,7 @@ class DocumentParser {
         }
 
         if (!isset($this->referenceListing[$id]) || $ignoreReference) {
-            $orgId = 0;
+            $orgId = null;
             $type  = 'document';
         } else {
             $type = 'reference';
@@ -3615,29 +3621,34 @@ class DocumentParser {
                 return $this->referenceListing[$id];
             }
             $orgId = $id;
-            $id    = $this->referenceListing[$id];
+            $id = $this->referenceListing[$id];
         }
 
-        if ($id == $this->config('site_start') && (strpos($scheme, 'f') === 0 || strpos($scheme, 'a') === 0)) {
+        if (
+            $id == $this->config('site_start')
+            &&
+            (strpos($scheme, 'f') === 0 || strpos($scheme, 'a') === 0)
+        ) {
             $makeurl = '';
         } elseif (!$this->config('friendly_urls')) {
             $makeurl = "index.php?id={$id}";
         } else {
             $alPath = '';
             if (!$alias) {
-                $al = $this->getAliasListing($id);
-                $alias = $id;
+                $al = $this->getAliasListing($orgId?$orgId:$id);
+                $alias = $orgId?$orgId:$id;
                 if ($this->config('friendly_alias_urls')) {
                     if (!$al || !$al['alias']) {
                         return false;
                     }
-                    $alPath = $al['path'] ? $al['path'] . '/' : '';
                     if ($al['path']) {
-                        $_ = explode('/', $alPath);
+                        $_ = explode('/', $al['path'] . '/');
                         foreach ($_ as $i => $v) {
                             $_[$i] = urlencode($v);
                         }
                         $alPath = join('/', $_);
+                    } else {
+                        $alPath = '';
                     }
                     if ($this->config('xhtml_urls')) {
                         $alias = urlencode($al['alias']);
