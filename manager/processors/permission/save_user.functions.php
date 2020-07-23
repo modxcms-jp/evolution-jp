@@ -167,6 +167,9 @@ function verifyPermission() {
 }
 
 function userid_byname($newusername) {
+    if(!$newusername) {
+        return false;
+    }
     $rs = evo()->db->select(
         'id'
         , '[+prefix+]manager_users'
@@ -179,6 +182,9 @@ function userid_byname($newusername) {
 }
 
 function userid_byemail($email) {
+    if(!$email) {
+        return false;
+    }
     $rs = evo()->db->select(
         'internalKey'
         , '[+prefix+]user_attributes'

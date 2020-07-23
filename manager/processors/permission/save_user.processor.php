@@ -60,13 +60,13 @@ if (in_array(postv('mode'), array('12', '74'))) {
         webAlert('Missing user id!');
     }
     // check if the username already exist
-    if (userid_byname(postv('newusername', 'New User')) != postv('userid')) {
+    if (userid_byname(postv('newusername')) && userid_byname(postv('newusername')) != postv('userid')) {
         webAlert('User name is already in use!');
         exit;
     }
 
     // check if the email address already exists
-    if (userid_byemail(postv('email')) != postv('userid')) {
+    if (userid_byemail(postv('email')) && userid_byemail(postv('email')) != postv('userid')) {
         webAlert('Email is already in use!');
         exit;
     }
