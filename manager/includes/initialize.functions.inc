@@ -83,14 +83,14 @@ class init {
             setcookie(
                 $site_sessionname
                 , session_id()
-                , [
+                , array(
                     'expires' => $expires,
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                ]
+                )
             );
             return;
         }

@@ -377,14 +377,14 @@ function managerLogin() {
             setcookie(
                 'modx_remember_manager'
                 , user('username')
-                , [
+                , array(
                     'expires' => strtotime('+1 month'),
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                ]
+                )
             );
         } else {
             setcookie(
@@ -403,14 +403,14 @@ function managerLogin() {
             setcookie(
                 'modx_remember_manager'
                 , ''
-                , [
+                , array(
                     'expires' => ($modx->server_var('REQUEST_TIME') - 3600),
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                ]
+                )
             );
             return;
         } else {
