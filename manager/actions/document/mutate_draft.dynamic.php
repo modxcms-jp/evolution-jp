@@ -11,7 +11,7 @@ include_once(tpl_base_dir() . 'action_buttons.php');
 
 evo()->loadExtension('DocAPI');
 
-$modx->doc->mode = 'normal';
+$modx->doc->mode = 'draft';
 
 checkPermissions(request_intvar('id'));
 if (request_intvar('id')) {
@@ -37,6 +37,9 @@ if (request_intvar('id') && config('enable_draft')) {
         , 'resource'
         , 'template'
     );
+    if (manager()->action == 131 && isset(evo()->revisionObject['template'])) {
+        $docObject['template'] = evo()->revisionObject['template'];
+    }
 } else {
     $modx->revisionObject = array();
 }
@@ -47,6 +50,12 @@ if (preg_match('/[1-9][0-9]*/', request_intvar('newtemplate'))) {
 
 $tmplVars = getTmplvars(request_intvar('id'), doc('template'), $docgrp);
 $docObject += $tmplVars;
+if (manager()->action == 131 && request_intvar('id')) {
+    $docObject = mergeDraft(request_intvar('id'), $docObject);
+    foreach ($tmplVars as $k => $v) {
+        $tmplVars[$k] = $docObject[$k];
+    }
+}
 
 manager()->saveFormValues();
 if (postv()) {

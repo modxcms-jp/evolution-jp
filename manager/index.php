@@ -245,9 +245,11 @@ switch ($modx->manager->action) {
     case 4: // get the mutate page for adding content
     case 72: // get the weblink page
     case 27: // get the mutate page for changing content
+        include_once($action_path . 'document/mutate_content.dynamic.php');
+        break;
     case 132: // get the mutate page for changing draft content
     case 131: // get the mutate page for changing draft content
-        include_once($action_path . 'document/mutate_content.dynamic.php');
+        include_once($action_path . 'document/mutate_draft.dynamic.php');
         break;
     case 5: // get the save processor
         include_once($prc_path . 'document/save_resource.processor.php');
