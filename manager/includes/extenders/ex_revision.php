@@ -97,7 +97,12 @@ class REVISION {
         $total = db()->getRecordCount($rs);
         $revision_content = serialize($input);
         $checksum = hash('crc32b', $revision_content);
-        if ($total && $exists_data['checksum'] === $checksum && $exists_data['status'] == $status) {
+        if ($total
+            &&
+            $exists_data['checksum'] === $checksum
+            &&
+            $exists_data['status'] == $status
+        ) {
             return 'nochange';
         }
         $f = array(
@@ -159,27 +164,27 @@ class REVISION {
                 , 'content'
                 , array_get($doc, 'ta', '')
             ),
-            'pagetitle' => array_get($doc, 'pagetitle', ''),
-            'longtitle' => array_get($doc, 'longtitle', ''),
-            'menutitle' => array_get($doc, 'menutitle', ''),
-            'description' => array_get($doc, 'description', ''),
-            'introtext' => array_get($doc, 'introtext', ''),
-            'type' => array_get($doc, 'type', 'document'),
-            'alias' => array_get($doc, 'alias', ''),
+            'pagetitle'       => array_get($doc, 'pagetitle', ''),
+            'longtitle'       => array_get($doc, 'longtitle', ''),
+            'menutitle'       => array_get($doc, 'menutitle', ''),
+            'description'     => array_get($doc, 'description', ''),
+            'introtext'       => array_get($doc, 'introtext', ''),
+            'type'            => array_get($doc, 'type', 'document'),
+            'alias'           => array_get($doc, 'alias', ''),
             'link_attributes' => array_get($doc, 'link_attributes', ''),
-            'isfolder' => array_get($doc, 'isfolder', 0),
-            'richtext' => array_get($doc, 'richtext', 1),
-            'parent' => array_get($doc, 'parent', 0),
-            'template' => array_get($doc, 'template', 0),
-            'menuindex' => array_get($doc, 'menuindex', 0),
-            'searchable' => array_get($doc, 'searchable', 1),
-            'cacheable' => array_get($doc, 'cacheable', 1),
-            'contentType' => array_get($doc, 'contentType', 'text/html'),
-            'content_dispo' => array_get($doc, 'content_dispo', ''),
-            'hidemenu' => array_get($doc, 'hidemenu', ''),
-            'pub_date' => array_get($doc, 'pub_date', 0),
-            'unpub_date' => array_get($doc, 'unpub_date', 0),
-            'published' => array_get(
+            'isfolder'        => array_get($doc, 'isfolder', 0),
+            'richtext'        => array_get($doc, 'richtext', 1),
+            'parent'          => array_get($doc, 'parent', 0),
+            'template'        => array_get($doc, 'template', 0),
+            'menuindex'       => array_get($doc, 'menuindex', 0),
+            'searchable'      => array_get($doc, 'searchable', 1),
+            'cacheable'       => array_get($doc, 'cacheable', 1),
+            'contentType'     => array_get($doc, 'contentType', 'text/html'),
+            'content_dispo'   => array_get($doc, 'content_dispo', ''),
+            'hidemenu'        => array_get($doc, 'hidemenu', ''),
+            'pub_date'        => array_get($doc, 'pub_date', 0),
+            'unpub_date'      => array_get($doc, 'unpub_date', 0),
+            'published'       => array_get(
                 $doc
                 , 'published'
                 , evo()->config(
