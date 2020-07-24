@@ -322,8 +322,10 @@ function getUDGroups($id) {
     return $permissions;
 }
 
-function mergeDraft($id, $content) {
-    $draft = evo()->revision->getDraft($id);
+function mergeDraft($content, $draft) {
+    if (!hasPermission('publish_document')) {
+        $draft['published'] = '0';
+    }
     foreach ($content as $k => $v) {
         if (!is_array($v)) {
             continue;
@@ -332,12 +334,11 @@ function mergeDraft($id, $content) {
         if (isset($draft[$tvid])) {
             $content[$k]['value'] = $draft[$tvid];
             unset($draft[$tvid]);
+        } else  {
+            $content[$k]['value'] = null;
         }
     }
     $content = array_merge($content, $draft);
-    if (!hasPermission('publish_document')) {
-        $content['published'] = '0';
-    }
     return $content;
 }
 
