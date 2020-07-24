@@ -3,11 +3,8 @@ global $modx;
 if (!isset($modx) || !$modx->isLoggedin()) {
     exit;
 }
-global $_lang, $_style, $modx_textdir, $modx_lang_attribute;
-global $manager_theme, $modx_charset;
-global $manager_language, $modx_version;
 
-if ($modx->config['remember_last_tab'] !== '2') {
+if ($modx->config('remember_last_tab') !== '2') {
     if (70300 <= PHP_VERSION_ID) {
         setcookie(
             'webfxtab_childPane'
@@ -32,31 +29,18 @@ if ($modx->config['remember_last_tab'] !== '2') {
         );
     }
 }
-$mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-
-$bodyid = (isset($_GET['f'])) ? $_GET['f'] : 'mainpane';
-$textdir = $modx_textdir === 'rtl' ? 'rtl' : 'ltr';
 
 // invoke OnManagerRegClientStartupHTMLBlock event
 $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
-if (!isset($modx->config['tree_pane_open_default'])) {
-    $modx->config['tree_pane_open_default'] = 1;
-}
-if (!isset($modx->config['mgr_jquery_path'])) {
-    $modx->config['mgr_jquery_path'] = 'media/script/jquery/jquery.min.js';
-}
-if (!isset($modx->config['mgr_date_picker_path'])) {
-    $modx->config['mgr_date_picker_path'] = 'media/script/air-datepicker/datepicker.inc.php';
-}
-
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo $mxla; ?>" dir="<?php echo $textdir; ?>">
+<html lang="<?php echo globalv('modx_lang_attribute','en'); ?>" dir="<?php echo globalv('modx_textdir', 'ltr'); ?>">
 <head>
     <title>MODX</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config['modx_charset']; ?>"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config('modx_charset'); ?>"/>
     <link rel="stylesheet" type="text/css"
-          href="media/style/<?php echo $modx->config['manager_theme']; ?>/style.css?<?php echo $modx_version; ?>"/>
+          href="media/style/<?php echo $modx->config('manager_theme'); ?>/style.css?<?php echo globalv('modx_version'); ?>"
+    />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css"/>
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css"/>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
@@ -64,14 +48,18 @@ if (!isset($modx->config['mgr_date_picker_path'])) {
         echo implode("\n", $evtOut);
     } ?>
     <?php echo $modx->config['manager_inline_style']; ?>
-    <?php echo sprintf('<script src="%s" type="text/javascript"></script>', $modx->config['mgr_jquery_path']); ?>
+    <?php echo sprintf(
+            '<script src="%s" type="text/javascript"></script>'
+            , $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')
+    );
+    ?>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript">
-        var treeopen = <?php echo $modx->config['tree_pane_open_default'];?>;
-        if (treeopen == 0 && top.mainMenu) top.mainMenu.hideTreeFrame();
+        var treeopen = <?php echo $modx->config('tree_pane_open_default',1);?>;
+        if (treeopen === 0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 
         var documentDirty = false;
         var dontShowWorker = false;
@@ -120,8 +108,8 @@ if (!isset($modx->config['mgr_date_picker_path'])) {
                     gotosave = false;
                     break;
             }
-            <?php if (isset($_REQUEST['r'])) {
-            echo sprintf("doRefresh(%s);\n", $_REQUEST['r']);
+            <?php if (anyv('r')) {
+            echo sprintf("doRefresh(%s);\n", anyv('r'));
         }
             ?>
             jQuery('.tooltip').powerTip({'fadeInTime': '0', 'placement': 'e'});
@@ -133,7 +121,7 @@ if (!isset($modx->config['mgr_date_picker_path'])) {
         });
 
         jQuery(window).on('beforeunload', function () {
-            if (documentDirty) return '<?php echo addslashes($_lang['warning_not_saved']);?>';
+            if (documentDirty) return '<?php echo addslashes(lang('warning_not_saved'));?>';
             jQuery('#actions').fadeOut(100);
             jQuery('input,textarea,select').addClass('readonly');
             jQuery('#preLoader').show();
@@ -150,7 +138,13 @@ if (!isset($modx->config['mgr_date_picker_path'])) {
         }
     </script>
 </head>
-<body id="<?php echo $bodyid; ?>" ondragstart="return false"<?php echo $modx_textdir === 'rtl' ? ' class="rtl"' : '' ?>>
+<body
+    id="<?php echo getv('f', 'mainpane'); ?>"
+    ondragstart="return false"
+    <?php if (globalv('modx_textdir') === 'rtl') {?>
+    class="rtl"
+    <?php }?>
+>
 <div id="preLoader">
-    <div class="preLoaderText"><?php echo $_style['ajax_loader']; ?></div>
+    <div class="preLoaderText"><?php echo style('ajax_loader'); ?></div>
 </div>
