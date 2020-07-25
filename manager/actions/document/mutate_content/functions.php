@@ -28,6 +28,7 @@ function getTmplvars($docid, $template_id, $docgrp) {
     $rs = db()->select(
         array(
             'DISTINCT tv.*',
+            'tvtpl.rank',
             'value'
             => $docid ?
                 "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
