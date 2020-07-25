@@ -47,7 +47,7 @@ $evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <?php if (is_array($evtOut)) {
         echo implode("\n", $evtOut);
     } ?>
-    <?php echo $modx->config['manager_inline_style']; ?>
+    <?php echo $modx->config('manager_inline_style'); ?>
     <?php echo sprintf(
             '<script src="%s" type="text/javascript"></script>'
             , $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')

@@ -74,11 +74,18 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                                 </td>
                                 <td>&nbsp;</td>
                                 <td>
-                                    <label><input type="radio" name="object" value="body"
-                                                  checked="checked"/> <?php echo $_lang['import_site.static.php4']; ?>
+                                    <label><input
+                                        type="radio"
+                                        name="object"
+                                        value="body"
+                                        checked="checked"
+                                    /> <?php echo $_lang['import_site.static.php4']; ?>
                                     </label>
-                                    <label><input type="radio" name="object"
-                                                  value="all"/> <?php echo $_lang['import_site.static.php5']; ?></label>
+                                    <label><input
+                                        type="radio"
+                                        name="object"
+                                        value="all"
+                                    /> <?php echo $_lang['import_site.static.php5']; ?></label>
                                     <br/>
                                 </td>
                             </tr>
@@ -97,7 +104,6 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                         </ul>
                     </form>
                 </fieldset>
-
             <?php
             }
             else
