@@ -24,7 +24,7 @@ if ($modx->config('remember_last_tab') !== '2') {
             , time() + 3600
             , MODX_BASE_URL . '; SameSite=Lax'
             , ''
-            , init::is_ssl() ? true : false
+            , init::is_ssl()
             , true
         );
     }
