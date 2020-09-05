@@ -796,7 +796,7 @@ class DBAPI {
                 , $this->replaceFullTableName($sql_or_table, 'force')
                 , $where ? ' WHERE ' . $where : ''
                 , $orderby ? ' ORDER BY ' . $orderby : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                , $limit ? 'LIMIT ' . $limit : ''
             );
         }
 
