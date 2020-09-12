@@ -1,5 +1,4 @@
 <?php
-include_once(__DIR__ . '/helpers.php');
 // start cms session
 function startCMSSession() {
     global $site_sessionname;
