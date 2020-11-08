@@ -1593,8 +1593,9 @@ class SubParser {
             }
 
             ob_start();
-            include($path);
-            return ob_get_clean();
+            $return = ob_get_include($path);
+            $echo = ob_get_clean();
+            return $echo ?: $return;
         }
 
         if (strpos($field_elements, '@CHUNK') === 0) {
