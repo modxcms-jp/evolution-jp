@@ -430,6 +430,13 @@ function getInputValues($id = 0, $mode = 'new') {
         }
         $fields[$key] = $form_v[$key];
     }
+    if($fields['type'] === 'reference' && !preg_match('{^[1-9][0-9]+$}', $fields['content'])) {
+        $fetch_id = evo()->getIdFromUrl($fields['content']);
+        if ($fetch_id) {
+            $fields['content'] = $fetch_id;
+        }
+    }
+    
     $fields['editedby'] = evo()->getLoginUserID();
     if ($mode === 'new') {
         $fields['createdon'] = serverv('REQUEST_TIME');
