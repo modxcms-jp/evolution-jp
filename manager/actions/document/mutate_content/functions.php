@@ -412,46 +412,48 @@ function renderTr($head, $body, $rowstyle = '') {
     return parseText(file_get_tpl('render_tr.tpl'), $ph);
 }
 
-function getDefaultTemplate() {
-    static $default_template = null;
-    if ($default_template !== null) {
-        return $default_template;
-    }
+if(!function_exists('getDefaultTemplate')) {
+    function getDefaultTemplate() {
+        static $default_template = null;
+        if ($default_template !== null) {
+            return $default_template;
+        }
 
-    $default_template = config('default_template');
-
-    if (!request_intvar('pid')) {
-        return $default_template;
-    }
-
-    if (config('auto_template_logic') === 'sibling') {
-        $rs = db()->select(
-            'template'
-            , '[+prefix+]site_content'
-            , sprintf(
-                "id!='%s' AND isfolder=0 AND parent='%s'"
-                , config('site_start')
-                , request_intvar('pid')
-            )
-            , 'published DESC,menuindex ASC'
-            , 1
-        );
-    } elseif (config('auto_template_logic') === 'parent') {
-        $rs = db()->select(
-            'template'
-            , '[+prefix+]site_content'
-            , sprintf("id='%s'", request_intvar('pid'))
-        );
-    } else {
         $default_template = config('default_template');
+
+        if (!request_intvar('pid')) {
+            return $default_template;
+        }
+
+        if (config('auto_template_logic') === 'sibling') {
+            $rs = db()->select(
+                'template'
+                , '[+prefix+]site_content'
+                , sprintf(
+                    "id!='%s' AND isfolder=0 AND parent='%s'"
+                    , config('site_start')
+                    , request_intvar('pid')
+                )
+                , 'published DESC,menuindex ASC'
+                , 1
+            );
+        } elseif (config('auto_template_logic') === 'parent') {
+            $rs = db()->select(
+                'template'
+                , '[+prefix+]site_content'
+                , sprintf("id='%s'", request_intvar('pid'))
+            );
+        } else {
+            $default_template = config('default_template');
+            return $default_template;
+        }
+
+        $default_template = db()->getValue($rs);
+        if (!$default_template) {
+            $default_template = config('default_template');
+        }
         return $default_template;
     }
-
-    $default_template = db()->getValue($rs);
-    if (!$default_template) {
-        $default_template = config('default_template');
-    }
-    return $default_template;
 }
 
 // check permissions
