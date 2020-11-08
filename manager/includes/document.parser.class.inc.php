@@ -3341,7 +3341,7 @@ class DocumentParser {
         return $this->getSiblingIds($docid);
     }
 
-    function getChildIds($id, $depth = 10, $children = array()) {
+    public function getChildIds($id, $depth = 10, $children = array()) {
         static $cached = array();
         $cacheKey = hash('crc32b', print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
@@ -4886,7 +4886,7 @@ class DocumentParser {
         return round($size, 2) . ' ' . $a[$pos];
     }
 
-    function getIdFromAlias($aliasPath = '') {
+    public function getIdFromAlias($aliasPath = '') {
         static $cache = array();
 
         $aliasPath = trim($aliasPath, '/');
