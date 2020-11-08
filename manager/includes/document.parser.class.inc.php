@@ -2722,6 +2722,9 @@ class DocumentParser {
         return $content;
     }
 
+    public function getAbsolutePath($path) {
+
+    }
     function _getSGVar($value) { // Get super globals
         $key = $value;
         list($key, $modifiers) = $this->splitKeyAndFilter($key);
@@ -4217,7 +4220,7 @@ class DocumentParser {
         }
         if (!$resource['template']) {
             foreach ($resource as $key => $value) {
-                if ($idnames === '*' || (is_array($idnames) && in_array($key, explode(',', $idnames)))) {
+                if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
                     $result[] = array('name' => $key, 'value' => $value);
                 }
             }
