@@ -564,22 +564,24 @@ function db_value($id, $docgrp) {
     return db()->getRow($rs);
 }
 
-function default_value($parent_id, $new_template_id) {
-    return array(
-        'menuindex' => getMenuIndexAtNew($parent_id),
-        'alias' => getAliasAtNew(),
-        'richtext' => config('use_editor'),
-        'published' => config('publish_default'),
-        'contentType' => 'text/html',
-        'content_dispo' => '0',
-        'which_editor' => config('which_editor'),
-        'searchable' => config('search_default'),
-        'cacheable' => config('cache_default'),
-        'type' => manager()->action == 72 ? 'reference' : 'document',
-        'richtext' => manager()->action == 72 ? 0 : 1,
-        'parent' => $parent_id,
-        'template' => $new_template_id ? $new_template_id : getDefaultTemplate()
-    );
+if(!function_exists('default_value')) {
+    function default_value($parent_id, $new_template_id) {
+        return array(
+            'menuindex' => getMenuIndexAtNew($parent_id),
+            'alias' => getAliasAtNew(),
+            'richtext' => config('use_editor'),
+            'published' => config('publish_default'),
+            'contentType' => 'text/html',
+            'content_dispo' => '0',
+            'which_editor' => config('which_editor'),
+            'searchable' => config('search_default'),
+            'cacheable' => config('cache_default'),
+            'type' => manager()->action == 72 ? 'reference' : 'document',
+            'richtext' => manager()->action == 72 ? 0 : 1,
+            'parent' => $parent_id,
+            'template' => $new_template_id ? $new_template_id : getDefaultTemplate()
+        );
+    }
 }
 
 // restore saved form
