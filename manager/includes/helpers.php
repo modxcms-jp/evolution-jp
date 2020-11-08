@@ -271,33 +271,33 @@ function real_ip() {
     return 'UNKNOWN';
 }
 
-    function doc($key, $default=null) {
-        global $modx, $docObject;
-        if (isset($docObject)) {
-            $doc = $docObject;
-        } elseif (isset($modx->documntObject)) {
-            $doc = &$modx->documntObject;
-        }
-        if (strpos($key, '*') === 0) {
-            $value = $default;
-            $doc[substr($key, 1)] = $value;
-            return $value;
-        }
-        if (str_contains($key, '@parent')) {
-            $a = evo()->getDocumentObject('id', doc('parent'));
-            $key = str_replace('@parent', '', $key);
-        } elseif(evo()->isFrontEnd()) {
-            $a = evo()->documentObject;
-        } else {
-            $a = $doc;
-        }
-        if (str_contains($key, '|hsc')) {
-            return hsc(
-                evo()->array_get(
-                    $a
-                    , str_replace('|hsc', '', $key, $default)
-                )
-            );
-        }
-        return evo()->array_get($a, $key, $default);
+function doc($key, $default=null) {
+    global $modx, $docObject;
+    if (isset($docObject)) {
+        $doc = $docObject;
+    } elseif (isset($modx->documntObject)) {
+        $doc = &$modx->documntObject;
     }
+    if (strpos($key, '*') === 0) {
+        $value = $default;
+        $doc[substr($key, 1)] = $value;
+        return $value;
+    }
+    if (str_contains($key, '@parent')) {
+        $a = evo()->getDocumentObject('id', doc('parent'));
+        $key = str_replace('@parent', '', $key);
+    } elseif(evo()->isFrontEnd()) {
+        $a = evo()->documentObject;
+    } else {
+        $a = $doc;
+    }
+    if (str_contains($key, '|hsc')) {
+        return hsc(
+            evo()->array_get(
+                $a
+                , str_replace('|hsc', '', $key, $default)
+            )
+        );
+    }
+    return evo()->array_get($a, $key, $default);
+}
