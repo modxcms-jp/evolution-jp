@@ -301,3 +301,12 @@ function doc($key, $default=null) {
     }
     return evo()->array_get($a, $key, $default);
 }
+
+function ob_get_include($path) {
+    if (!is_file($path)) {
+        return false;
+    }
+    ob_start();
+    $return = eval(preg_replace('{^\s*<\?php}', '', file_get_contents($path)));
+    return ob_get_clean() ?: $return;
+}
