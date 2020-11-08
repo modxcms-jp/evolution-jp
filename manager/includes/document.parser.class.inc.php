@@ -4140,7 +4140,7 @@ class DocumentParser {
         }
         if (!$resource['template']) {
             foreach ($resource as $key => $value) {
-                if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+                if ($idnames === '*' || (is_array($idnames) && in_array($key, explode(',', $idnames)))) {
                     $result[] = array('name' => $key, 'value' => $value);
                 }
             }
