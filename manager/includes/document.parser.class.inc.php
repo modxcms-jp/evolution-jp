@@ -1884,8 +1884,10 @@ class DocumentParser {
         return $this->aliasPath[$docid];
     }
 
-    function getUltimateParentId($docid, $top = 0) {
-
+    public function getUltimateParentId($docid=null, $top = 0) {
+        if($docid===null) {
+            $docid = $this->documentIdentifier;
+        }
         $i = 0;
         while ($docid && $i < 20) {
             if ($top == $this->getParentID($docid)) {
