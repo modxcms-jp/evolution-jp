@@ -1817,7 +1817,7 @@ class DocumentParser {
         $rs = $this->db->select(
             'parent'
             , '[+prefix+]site_content'
-            , sprintf('id=%d', (int)$docid)
+            , sprintf('id=%d and deleted=0', (int)$docid)
         );
 
         if (!$rs) {
@@ -1842,7 +1842,7 @@ class DocumentParser {
         $rs = $this->db->select(
             'id'
             , '[+prefix+]site_content'
-            , sprintf('parent=%d', (int)$parent)
+            , sprintf('parent=%d and deleted=0', (int)$parent)
         );
 
         if (!$rs) {
