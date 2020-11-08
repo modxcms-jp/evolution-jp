@@ -461,20 +461,24 @@ class SubParser {
 
         // Log error
         if ($modx->currentSnippet) {
-            $source = 'Snippet - ' . $modx->currentSnippet;
+            $title = 'Snippet - ' . $modx->currentSnippet;
         } elseif ($modx->event->activePlugin) {
-            $source = 'Plugin - ' . $modx->event->activePlugin;
-        } elseif ($source !== '') {
-            $source = 'Parser - ' . $source;
+            $title = 'Plugin - ' . $modx->event->activePlugin;
+        } elseif ($title !== '') {
+            $title = 'Parser - ' . $text?:$source;
         } elseif ($query !== '') {
-            $source = 'SQL Query';
+            $title = 'SQL Query';
         } else {
-            $source = 'Parser';
+            $title = 'Parser';
         }
 
         if (isset($actionName) && $actionName) {
-            $source .= $actionName;
+            $title .= $actionName;
         }
+        if($line) {
+            $title .= ' line:'.$line;
+        }
+        
         switch ($nr) {
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
@@ -486,7 +490,7 @@ class SubParser {
             default:
                 $error_level = 3;
         }
-        $modx->logEvent(0, $error_level, $str, $source);
+        $modx->logEvent(0, $error_level, $str, $title);
         if ($modx->error_reporting === '99' && !isset($_SESSION['mgrValidated'])) {
             return true;
         }
