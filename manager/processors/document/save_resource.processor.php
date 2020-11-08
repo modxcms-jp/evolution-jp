@@ -104,9 +104,8 @@ if (mode() === 'edit') {
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
-    $values = db()->escape($param['doc_vars']);
     $rs = db()->update(
-        $values
+        db()->escape($param['doc_vars'])
         , '[+prefix+]site_content'
         , sprintf("id='%s'", $id)
     );
