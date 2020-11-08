@@ -716,24 +716,26 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
     );
 }
 
-function collect_tab_general_ph($docid) {
-    return array(
-        '_lang_settings_general' => lang('settings_general'),
-        'fieldPagetitle' => fieldPagetitle(),
-        'fieldLongtitle' => fieldLongtitle(),
-        'fieldDescription' => fieldDescription(),
-        'fieldAlias' => fieldAlias($docid),
-        'fieldWeblink' => doc('type') === 'reference' ? fieldWeblink() : '',
-        'fieldIntrotext' => fieldIntrotext(),
-        'fieldTemplate' => fieldTemplate(),
-        'fieldMenutitle' => fieldMenutitle(),
-        'fieldMenuindex' => fieldMenuindex(),
-        'renderSplit' => renderSplit(),
-        'fieldParent' => fieldParent(),
-        'sectionContent' => sectionContent(),
-        'sectionTV' => config('tvs_below_content', 1)
-            ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
-    );
+if(!function_exists('collect_tab_general_ph')) {
+    function collect_tab_general_ph($docid) {
+        return array(
+            '_lang_settings_general' => lang('settings_general'),
+            'fieldPagetitle' => fieldPagetitle(),
+            'fieldLongtitle' => fieldLongtitle(),
+            'fieldDescription' => fieldDescription(),
+            'fieldAlias' => fieldAlias($docid),
+            'fieldWeblink' => doc('type') === 'reference' ? fieldWeblink() : '',
+            'fieldIntrotext' => fieldIntrotext(),
+            'fieldTemplate' => fieldTemplate(),
+            'fieldMenutitle' => fieldMenutitle(),
+            'fieldMenuindex' => fieldMenuindex(),
+            'renderSplit' => renderSplit(),
+            'fieldParent' => fieldParent(),
+            'sectionContent' => sectionContent(),
+            'sectionTV' => config('tvs_below_content', 1)
+                ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
+        );
+    }
 }
 
 function collect_tab_tv_ph() {
