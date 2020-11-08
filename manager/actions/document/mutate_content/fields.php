@@ -466,13 +466,6 @@ function fieldLink_attributes() {
 }
 
 function fieldIsfolder() {
-    $haschildren = db()->getValue(
-        db()->select(
-            'count(id)'
-            , '[+prefix+]site_content'
-            , sprintf("parent='%s'", request_intvar('id'))
-        )
-    );
     $body = html_tag(
             'input'
             , array(
@@ -480,7 +473,7 @@ function fieldIsfolder() {
                 'type' => 'checkbox',
                 'class' => 'checkbox',
                 'checked' => doc('isfolder') ? null : '',
-                'disabled' => request_intvar('id') && $haschildren ? null : '',
+                'disabled' => request_intvar('id') && evo()->hasChildren(request_intvar('id'), '') ? null : '',
                 'onclick' => 'changestate(document.mutate.isfolder);'
             )
         )
