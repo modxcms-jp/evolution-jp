@@ -104,19 +104,7 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 if (getv('submitok')) {
 
     if (getv('url')) {
-        $url = preg_replace(
-            '@' . config('friendly_url_suffix') . '$@'
-            , ''
-            , trim(getv('url'))
-        );
-        if ($url[0] === '/') {
-            $url = preg_replace('@^' . MODX_BASE_URL . '@', '', $url);
-        }
-        if (substr($url, 0, 4) === 'http') {
-            $url = preg_replace('@^' . MODX_SITE_URL . '@', '', $url);
-        }
-        $url = trim($url, '/');
-        $searchid = evo()->getIdFromAlias($url);
+        $searchid = evo()->getIdFromUrl(getv('url'));
         if (!$searchid) {
             $searchid = 'x';
         }
