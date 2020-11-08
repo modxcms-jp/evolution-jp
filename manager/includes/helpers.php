@@ -145,6 +145,10 @@ function array_get($array, $key = null, $default = null) {
     return $array;
 }
 
+function array_set(&$array, $key, $value) {
+    $array[$key] = $value;
+}
+
 function request_intvar($key) {
     if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
         return evo()->input_any($key);
