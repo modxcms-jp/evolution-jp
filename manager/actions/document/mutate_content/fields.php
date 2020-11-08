@@ -155,37 +155,39 @@ function fieldTemplate() {
     );
 }
 
-function get_template_options() {
-    $rs = db()->select(
-        sprintf(
-            "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
-            , lang('no_category')
-        )
-        , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
-        , ''
-        , 'c.category, t.templatename ASC'
-    );
-    while ($row = db()->getRow($rs)) {
-        $rows[$row['category']][] = $row;
-    }
-    $optgroups = array(
-        html_tag(
-            '<option>'
-            , array(
-                'value' => 0,
-                'selected' => !doc('template') ? null : ''
+if(!function_exists('get_template_options')) {
+    function get_template_options() {
+        $rs = db()->select(
+            sprintf(
+                "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
+                , lang('no_category')
             )
-            ,'(blank)'
-        )
-    );
-    foreach ($rows as $category => $templates) {
-        $optgroups[] = html_tag(
-            '<optgroup>'
-            , array('label' => hsc($category))
-            , implode("\n", option_tags($templates))
+            , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+            , ''
+            , 'c.category, t.templatename ASC'
         );
+        while ($row = db()->getRow($rs)) {
+            $rows[$row['category']][] = $row;
+        }
+        $optgroups = array(
+            html_tag(
+                '<option>'
+                , array(
+                    'value' => 0,
+                    'selected' => !doc('template') ? null : ''
+                )
+                ,'(blank)'
+            )
+        );
+        foreach ($rows as $category => $templates) {
+            $optgroups[] = html_tag(
+                '<optgroup>'
+                , array('label' => hsc($category))
+                , implode("\n", option_tags($templates))
+            );
+        }
+        return implode("\n", $optgroups);
     }
-    return implode("\n", $optgroups);
 }
 
 function option_tags($templates) {
