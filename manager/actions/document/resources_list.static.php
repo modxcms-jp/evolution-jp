@@ -77,7 +77,7 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    $orderby = 'sc.isfolder DESC, sc.published ASC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
+    $orderby = 'sc.isfolder DESC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
     if (isset($_GET['page']) && preg_match('@^[1-9][0-9]*$@', $_GET['page'])) {
         $offset = $_GET['page'] - 1;
     } else {
