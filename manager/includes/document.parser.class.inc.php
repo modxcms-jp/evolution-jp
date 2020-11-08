@@ -3296,6 +3296,29 @@ class DocumentParser {
         return $parents;
     }
 
+    public function getSiblingIds($docid) {
+        static $cache  = array();
+        if (isset($cache[$docid])) {
+            return $cache[$docid];
+        }
+        $parent_id = $this->getParentID($docid);
+        $rs = db()->select(
+            'id'
+            , '[+prefix+]site_content'
+            , sprintf("parent='%s' and deleted=0", $parent_id)
+        );
+        $siblings = array();
+        while($row = db()->getRow($rs)) {
+            $siblings[] = $row['id'];
+        }
+        $cache[$docid] = $siblings;
+        return $siblings;
+    }
+
+    public function getSiblings($docid) {
+        return $this->getSiblingIds($docid);
+    }
+
     function getChildIds($id, $depth = 10, $children = array()) {
         static $cached = array();
         $cacheKey = hash('crc32b', print_r(func_get_args(), true));
