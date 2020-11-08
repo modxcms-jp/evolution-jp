@@ -19,7 +19,7 @@ if (anyv('id') == '') {
     alert()->setError(601);
     alert()->dumpError();
 }
-if (anyv('new_parent') == '') {
+if (anyv('new_parent') === null) {
     echo '<script type="text/javascript">parent.tree.ca = "open";</script>';
     alert()->setError(602);
     alert()->dumpError();
