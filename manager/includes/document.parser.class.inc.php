@@ -1936,14 +1936,27 @@ class DocumentParser {
 
         foreach ($matches[1] as $i => $key) {
             if (strpos($key, '#') === 0) {
-                $key = substr($key, 1);
-            } // remove # for QuickEdit format
-
+                $key = substr($key, 1);// remove # for QuickEdit format
+            }
+            $key_org = $key;
+            $getkey = function ($key, $ph) {
+                $keys = explode('|',$key);
+                foreach ($keys as $key) {
+                    if($ph[$key]) {
+                        break;
+                    }
+                }
+                return $key;
+            };
             list($key, $modifiers) = $this->splitKeyAndFilter($key);
             if (strpos($key, '@') !== false) {
                 list($key, $context) = explode('@', $key, 2);
             } else {
                 $context = false;
+            }
+
+            if(strpos($key,'|')!==false) {
+                $key = $getkey($key, $ph);
             }
 
             if (!isset($ph[$key]) && $modifiers) {
