@@ -3296,6 +3296,28 @@ class DocumentParser {
         return $parents;
     }
 
+    public function hasChildren($docid, $extraWhere='and deleted=0') {
+        static $cache = array();
+        if(isset($cache[$docid])) {
+            return $cache[$docid];
+        }
+        $rs = db()->getValue(
+            db()->select(
+                'id, count(id) as count'
+                , '[+prefix+]site_content'
+                , sprintf(
+                    "parent in (%s) %s"
+                    , implode(',', $this->getSiblings($docid))
+                    , $extraWhere
+                )
+            )
+        );
+        while($row = db()->getRow($rs)) {
+            $cache[$row['id']] = $row['count'];
+        }
+        return isset($cache[$docid]) ? $cache[$docid] : null;
+    }
+
     public function getSiblingIds($docid) {
         static $cache  = array();
         if (isset($cache[$docid])) {
