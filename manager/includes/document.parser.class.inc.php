@@ -2694,6 +2694,20 @@ class DocumentParser {
                 $content = str_replace($matches[0][$i], $value, $content);
                 continue;
             }
+            if (stripos($call, '@include:') === 0) {
+                $path = trim(str_ireplace('@include:','',$call));
+                if(is_file($path)) {
+                    ob_start();
+                    $return = ob_get_include($path);
+                    $echo = ob_get_clean();
+                }
+                $content = str_replace(
+                    $matches[0][$i]
+                    , $value
+                    , $echo ? $echo : $return
+                );
+                continue;
+            }
             $value = $this->_get_snip_result($call);
             if ($value === false) {
                 continue;
