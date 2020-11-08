@@ -2722,9 +2722,22 @@ class DocumentParser {
         return $content;
     }
 
-    public function getAbsolutePath($path) {
+    private function getAbsolutePath($path) {
+        if(substr($path,0,1)==='/') {
+            if (!is_file($path)) {
+                $path = MODX_BASE_PATH . ltrim($path, '/');
+            }
+        }
+        if(strpos($path, MODX_MANAGER_PATH)===0) {
+            return false;
+        }
+        if (!is_file($path)) {
+            return false;
+        }
+        return $path;
 
     }
+
     function _getSGVar($value) { // Get super globals
         $key = $value;
         list($key, $modifiers) = $this->splitKeyAndFilter($key);
