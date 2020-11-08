@@ -146,9 +146,9 @@ class SubParser {
             $title = db()->escape($title);
         }
         if (function_exists('mb_substr')) {
-            $title = mb_substr($title, 0, 50, $modx->config('modx_charset', 'utf-8'));
+            $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
         } else {
-            $title = substr($title, 0, 50);
+            $title = substr($title, 0, 100);
         }
         $LoginUserID = $modx->getLoginUserID();
         if (!$LoginUserID) {

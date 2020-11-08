@@ -61,7 +61,7 @@ ALTER TABLE `{PREFIX}documentgroup_names`
  MODIFY COLUMN `name` varchar(245) NOT NULL DEFAULT '';
 
 ALTER TABLE `{PREFIX}event_log`
-  MODIFY COLUMN `source` varchar(50) NOT NULL DEFAULT '',
+  MODIFY COLUMN `source` varchar(245) NOT NULL DEFAULT '',
   MODIFY COLUMN `description` text;
 
 ALTER TABLE `{PREFIX}categories`
