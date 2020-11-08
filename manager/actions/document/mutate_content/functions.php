@@ -745,39 +745,41 @@ function collect_tab_tv_ph() {
     );
 }
 
-function collect_tab_settings_ph($docid) {
-    $ph = array();
-    $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
-    $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';
-    $ph['fieldPub_date'] = fieldPub_date($docid);
-    $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
+if(!function_exists('collect_tab_settings_ph')) {
+    function collect_tab_settings_ph($docid) {
+        $ph = array();
+        $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
+        $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';
+        $ph['fieldPub_date'] = fieldPub_date($docid);
+        $ph['fieldUnpub_date'] = fieldUnpub_date($docid);
 
-    $ph['renderSplit1'] = $ph['fieldPub_date'] ? renderSplit() : '';
-    $ph['renderSplit2'] = renderSplit();
+        $ph['renderSplit1'] = $ph['fieldPub_date'] ? renderSplit() : '';
+        $ph['renderSplit2'] = renderSplit();
 
-    $ph['fieldType'] = fieldType();
-    $ph['fieldContentType'] = (doc('type') === 'reference') ? html_tag(
-        '<input>'
-        , array(
-            'type' => 'hidden',
-            'name' => 'contentType',
-            'value' => doc('contentType')
-        )
-    ) : fieldContentType();
-    $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
-        '<input>'
-        , array(
-            'type' => 'hidden',
-            'name' => 'content_dispo',
-            'value' => doc('content_dispo')
-        )
-    ) : fieldContent_dispo();
-    $ph['fieldLink_attributes'] = fieldLink_attributes();
-    $ph['fieldIsfolder'] = fieldIsfolder();
-    $ph['fieldRichtext'] = fieldRichtext();
-    $ph['fieldDonthit'] = config('track_visitors') === '1' ? fieldDonthit() : '';
-    $ph['fieldSearchable'] = fieldSearchable();
-    $ph['fieldCacheable'] = doc('type') === 'document' ? fieldCacheable() : '';
-    $ph['fieldSyncsite'] = fieldSyncsite();
-    return $ph;
+        $ph['fieldType'] = fieldType();
+        $ph['fieldContentType'] = (doc('type') === 'reference') ? html_tag(
+            '<input>'
+            , array(
+                'type' => 'hidden',
+                'name' => 'contentType',
+                'value' => doc('contentType')
+            )
+        ) : fieldContentType();
+        $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
+            '<input>'
+            , array(
+                'type' => 'hidden',
+                'name' => 'content_dispo',
+                'value' => doc('content_dispo')
+            )
+        ) : fieldContent_dispo();
+        $ph['fieldLink_attributes'] = fieldLink_attributes();
+        $ph['fieldIsfolder'] = fieldIsfolder();
+        $ph['fieldRichtext'] = fieldRichtext();
+        $ph['fieldDonthit'] = config('track_visitors') ? fieldDonthit() : '';
+        $ph['fieldSearchable'] = fieldSearchable();
+        $ph['fieldCacheable'] = doc('type') === 'document' ? fieldCacheable() : '';
+        $ph['fieldSyncsite'] = fieldSyncsite();
+        return $ph;
+    }
 }
