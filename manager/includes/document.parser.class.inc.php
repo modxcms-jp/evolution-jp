@@ -3336,7 +3336,7 @@ class DocumentParser {
                 'id, count(id) as count'
                 , '[+prefix+]site_content'
                 , sprintf(
-                    "parent in (%s) %s"
+                    "parent in (%s) %s GROUP BY id"
                     , implode(',', $this->getSiblings($docid))
                     , $extraWhere
                 )
