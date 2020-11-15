@@ -194,13 +194,15 @@ if (!sessionv('mgrValidated')) {
 // log the user action
 $_SESSION['ip'] = evo()->real_ip();
 
-$fields['internalKey'] = evo()->getLoginUserID();
-$fields['username'] = sessionv('mgrShortname');
-$fields['lasthit'] = serverv('REQUEST_TIME',time());
-$fields['action'] = manager()->action;
-$fields['id'] = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0;
-$fields['ip'] = evo()->real_ip();
 if (manager()->action != 1) {
+    $fields = array(
+        'internalKey' => evo()->getLoginUserID(),
+        'username' => sessionv('mgrShortname'),
+        'lasthit' => serverv('REQUEST_TIME',time()),
+        'action' => manager()->action,
+        'id' => preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0,
+        'ip' => evo()->real_ip()
+    );
     foreach ($fields as $k => $v) {
         $keys[] = $k;
         $values[] = $v;
