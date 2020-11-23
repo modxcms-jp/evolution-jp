@@ -4,40 +4,50 @@ class TopicPath
     private $stopIds;
     private $pathThruUnPub;
 
-    function __construct()
+    public function __construct()
 	{
 		global $modx;
-		if($modx->event->params) extract($modx->event->params);
-		$this->menuitemOnly = 1;
-		$this->ignoreIDs = array();
-		$this->showTopicsAtHome    = (!isset($showTopicsAtHome))    ? '0' : $showTopicsAtHome;
-		$this->showAtLeastOneTopic = (!isset($showAtLeastOneTopic)) ? '0' : $showAtLeastOneTopic;
-		$this->ignoreIDs           = (!isset($ignoreIDs))           ? array() :explode(',',$ignoreIDs);
-		$this->disabledOn          = (!isset($disabledOn))          ? array() :explode(',',$disabledOn);
-		$this->disabledUnder       = (!isset($disabledUnder))       ? '' :$disabledUnder;
-		$this->menuItemOnly        = (!isset($menuItemOnly))        ? '1' : $menuItemOnly;
-		$this->limit               = (!isset($limit))               ? 100 :$limit;
-		$this->topicGap            = (!isset($topicGap))            ? '...' :$topicGap;
-		$this->titleField          = (!isset($titleField))          ? array('menutitle','pagetitle')              :explode(',',$titleField);
-		$this->descField           = (!isset($descField))           ? array('description','longtitle','pagetitle'):explode(',',$descField);
-		$this->homeId              = (!isset($homeId))              ? $modx->config['site_start'] :$homeId;
-		$this->stopIDs             = (!isset($stopIDs))             ? array() :explode(',', $stopIDs);
-		$this->order               = (!isset($order))               ? '' : $order;
+		if(event()->params) extract($modx->event->params);
+		$this->set('showTopicsAtHome', '0');
+		$this->set('showAtLeastOneTopic', '0');
+		$this->array_set('ignoreIDs', '');
+		$this->array_set('disabledOn', '');
+		$this->set('disabledUnder', '');
+		$this->set('menuItemOnly', '1');
+		$this->set('limit', 100);
+		$this->set('topicGap', '...');
+		$this->array_set('titleField', 'menutitle,pagetitle');
+		$this->array_set('descField', 'description,longtitle,pagetitle');
+		$this->set('homeId', $modx->config['site_start']);
+		$this->array_set('stopIDs', '');
+		$this->set('order','');
 		
 		if(isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
 		if(isset($homeTopicDesc))  $this->homeTopicDesc  = $homeTopicDesc;
 		
-		$this->theme            = $theme;
+		$this->theme = $theme;
 		$this->tpl = array();
 		if(isset($tplOuter))          $this->tpl['Outer']          = $tplOuter;
 		if(isset($tplHomeTopic))      $this->tpl['HomeTopic']      = $tplHomeTopic;
 		if(isset($tplCurrentTopic))   $this->tpl['CurrentTopic']   = $tplCurrentTopic;
 		if(isset($tplOtherTopic))     $this->tpl['OtherTopic']     = $tplOtherTopic;
 		if(isset($tplReferenceTopic)) $this->tpl['ReferenceTopic'] = $tplReferenceTopic;
-		if(isset($tplSeparator))      $this->tpl['Separator']      = $tplSeparator;
+		if(isset($tplSeparator)) {
+			$this->tpl['Separator'] = $tplSeparator;
+		} elseif(isset($tplOtherTopic) && strpos(trim($tplOtherTopic),'<li')===0) {
+			$this->tpl['Separator'] = "\n";
+		}
 	}
-	
-	function getTopicPath()
+
+	private function set($key, $default=null) {
+		$this->$key = array_get(event()->params, $key, $default);
+	}
+
+	private function array_set($key, $default=null) {
+		$this->$key = explode(',', array_get(event()->params, $key, $default));
+	}
+
+	public function getTopicPath()
 	{
 		global $modx;
 		$id = $modx->documentIdentifier;
@@ -46,42 +56,21 @@ class TopicPath
 		
 		if(!$this->showTopicsAtHome && $id === $modx->config['site_start']) return;
 		elseif(in_array($id,$this->disabledOn))                             return;
-		
+		$default = include(__DIR__ . '/config/default.php');
 		switch(strtolower($this->theme))
 		{
 			case 'list':
 			case 'li':
-				$tpl['Outer']           = '<ul class="topicpath">[+topics+]</ul>';
-				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]">[+title+]</a></li>';
-				$tpl['CurrentTopic']    = '<li class="current">[+title+]</li>';
-				$tpl['ReferenceTopic']  = '<li>[+title+]</li>';
-				$tpl['OtherTopic']      = '<li><a href="[+url+]">[+title+]</a></li>';
-				$tpl['Separator']       = "\n";
+				$tpl = $default['list'];
 				break;
 			case 'bootstrap':
-				$tpl['Outer']           = '<ol class="breadcrumb">[+topics+]</ol>';
-				$tpl['HomeTopic']       = '<li class="home"><a href="[+url+]">[+title+]</a></li>';
-				$tpl['CurrentTopic']    = '<li class="active">[+title+]</li>';
-				$tpl['ReferenceTopic']  = '<li>[+title+]</li>';
-				$tpl['OtherTopic']      = '<li><a href="[+url+]">[+title+]</a></li>';
-				$tpl['Separator']       = "\n";
+				$tpl = $default['bootstrap'];
 				break;
 			case 'microdata':
-				$_ = '<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a itemprop="item" href="[+url+]"><span itemprop="name">[+title+]</span></a></li>';
-				$tpl['Outer']           = '<ul itemscope itemtype="http://schema.org/BreadcrumbList">[+topics+]</ul>';
-				$tpl['HomeTopic']       = $_;
-				$tpl['CurrentTopic']    = '<li>[+title+]</li>';
-				$tpl['ReferenceTopic']  = $_;
-				$tpl['OtherTopic']      = $_;
-				$tpl['Separator']       = "\n";
+				$tpl = $default['microdata'];
 				break;
 			default:
-				$tpl['Outer']            = '[+topics+]';
-				$tpl['HomeTopic']        = '<a href="[+url+]" class="home">[+title+]</a>';
-				$tpl['CurrentTopic']     = '[+title+]';
-				$tpl['ReferenceTopic']   = '[+title+]';
-				$tpl['OtherTopic']       = '<a href="[+url+]">[+title+]</a>';
-				$tpl['Separator']        = ' &gt; ';
+				$tpl = $default['simple'];
 		}
 		$tpl = array_merge($tpl, $this->tpl);
 		foreach($tpl as $i=>$v)
