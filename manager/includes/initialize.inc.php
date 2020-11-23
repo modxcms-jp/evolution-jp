@@ -1,4 +1,5 @@
 <?php
+include_once(__DIR__ . '/helpers.php');
 include_once(__DIR__ . '/initialize.functions.inc');
 
 init::fix_favicon_req();
