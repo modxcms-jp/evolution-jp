@@ -172,9 +172,9 @@ function event() {
     return evo()->event;
 }
 
-function parent($id) {
+function parent($docid) {
     if (evo()) {
-        return evo()->getParentID($id);
+        return evo()->getParentID($docid ? $docid : docid());
     }
 }
 
