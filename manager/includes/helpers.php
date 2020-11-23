@@ -52,8 +52,8 @@ function style($key) {
 }
 
 if (!function_exists('str_contains')) {
-    function str_contains($str, $needle) {
-        return strpos($str, $needle) !== false;
+    function str_contains($haystack, $needle) {
+        return strpos($haystack, $needle) !== false;
     }
 }
 
