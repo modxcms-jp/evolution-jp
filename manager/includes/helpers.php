@@ -57,6 +57,12 @@ if (!function_exists('str_contains')) {
     }
 }
 
+if(!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+    return strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+
 function hsc($string = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
     return evo()->hsc($string, $flags, $encode, $double_encode);
 }
