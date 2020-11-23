@@ -63,6 +63,12 @@ if(!function_exists('str_starts_with')) {
     }
 }
 
+if(!function_exists('str_ends_with')) {
+    function str_ends_with ($haystack, $needle) {
+        return substr_compare($haystack, $needle, -strlen($needle)) === 0;
+    }
+}
+
 function hsc($string = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
     return evo()->hsc($string, $flags, $encode, $double_encode);
 }
