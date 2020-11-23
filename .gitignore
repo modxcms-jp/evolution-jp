@@ -1,48 +1,26 @@
-#################
-## Eclipse
-#################
-
-*.pydevproject
+# general
 .project
-.metadata
-bin/
-tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
-local.properties
-.classpath
-.settings/
-.loadpath
 
-############
-## Windows
-############
-
-# Windows image file caches
+# Windows
 Thumbs.db
-
-# Folder config file
 Desktop.ini
 
-# Unit test / coverage reports
-.coverage
-.tox
+# Mac
+.DS_Store
 
 #Translations
 *.mo
 
-#Mr Developer
-.mr.developer.cfg
-
-# Mac crap
-.DS_Store
-
-
 #MODX-JP
 .htaccess
 assets/cache
-content
+content/
 config.inc.php
 temp
+
+#PhpStorm
+.idea
