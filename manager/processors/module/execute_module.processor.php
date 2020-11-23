@@ -131,7 +131,7 @@ function evalModule($moduleCode, $params) {
     $mod = eval($moduleCode);
     $msg = ob_get_contents();
     ob_end_clean();
-    if (isset($php_errormsg)) {
+    if (error_get_last()) {
         $error_info = error_get_last();
         switch ($error_info['type']) {
             case E_NOTICE :

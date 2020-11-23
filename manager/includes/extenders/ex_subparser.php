@@ -453,8 +453,8 @@ class SubParser {
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        if (isset($php_errormsg) && $php_errormsg) {
-            $str = "<b>{$php_errormsg}</b><br />\n{$str}";
+        if (error_get_last()) {
+            $str = "<b>".print_r(error_get_last(),true)."</b><br />\n{$str}";
         }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
 

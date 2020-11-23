@@ -182,7 +182,7 @@ class DocumentParser {
         $this->stopOnNotice = false;
         $this->safeMode = false;
         // set track_errors ini variable
-        @ ini_set('track_errors', '1'); // enable error tracking in $php_errormsg
+        @ ini_set('track_errors', '1');
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
         if ($this->isLoggedIn()) {
@@ -2551,7 +2551,7 @@ class DocumentParser {
         $return = eval($pluginCode);
         unset ($modx->event->params);
         $echo = ob_get_clean();
-        if (!$echo || !isset ($php_errormsg)) {
+        if (!$echo || !error_get_last()) {
             return $echo . $return;
         }
 
@@ -2624,7 +2624,7 @@ class DocumentParser {
         }
         $echo = ob_get_clean();
 
-        if ((0 < $this->config['error_reporting']) && $echo && isset($php_errormsg)) {
+        if ((0 < $this->config['error_reporting']) && $echo && error_get_last()) {
             $error_info = error_get_last();
             if ($error_info['type'] === 2048 || $error_info['type'] === 8192) {
                 $error_type = 2;
