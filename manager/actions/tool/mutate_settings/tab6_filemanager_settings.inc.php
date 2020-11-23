@@ -5,11 +5,16 @@
         <tr>
             <th><?php echo $_lang["filemanager_path_title"] ?></th>
             <td>
+                <?php
+                if(MODX_BASE_PATH===config('filemanager_path')) {
+                    $modx->config['filemanager_path'] = '[(base_path)]';
+                }
+                ?>
                 <?php echo $_lang['default']; ?> <span
                         id="default_filemanager_path">[(base_path)]</span> <?php echo "({$base_path})"; ?><br/>
                 <?php echo form_text('filemanager_path', 255, 'id="filemanager_path"'); ?>
                 <input type="button" onclick="jQuery('#filemanager_path').val('[(base_path)]');"
-                       value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br/>
+                    value="<?php echo $_lang["reset"]; ?>" name="reset_filemanager_path"><br/>
                 <?php echo $_lang["filemanager_path_message"] ?></td>
         </tr>
         <tr>
@@ -109,6 +114,11 @@
             <td>
                 <?php
                 $default_rb_base_dir = is_dir("{$base_path}content") ? 'content/' : 'assets/';
+                if(MODX_BASE_PATH.'content/'===config('rb_base_dir')) {
+                    $modx->config['rb_base_dir'] = '[(base_path)]content/';
+                } elseif (MODX_BASE_PATH.'assets/'===config('rb_base_dir')) {
+                    $modx->config['rb_base_dir'] = '[(base_path)]assets/';
+                }
                 ?>
                 <?php echo $_lang['default']; ?> <span
                         id="default_rb_base_dir"><?php echo "[(base_path)]{$default_rb_base_dir}"; ?></span> <?php echo "({$base_path}{$default_rb_base_dir})"; ?>
