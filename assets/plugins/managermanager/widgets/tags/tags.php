@@ -12,7 +12,7 @@
  * @copyright 2012
  */
 
-function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count = false, $roles = '', $templates = ''){
+function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count = false, $roles = '', $templates = '', $default=''){
     global $modx, $mm_fields, $mm_current_page;
     $e = &$modx->event;
 
@@ -65,6 +65,7 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
         );
         $all_docs = $modx->db->makeArray($result);
 
+        $foundTags = explode(',', $default);
         $foundTags = array();
         foreach ($all_docs as $theDoc) {
             $theTags = explode($delimiter, $theDoc['value']);
@@ -73,6 +74,13 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
             }
         }
 
+        $default = explode(',', $default);
+        foreach ($default as $k) {
+            if(!isset($foundTags[$k])) {
+                $foundTags[$k] = 0;
+            }
+        }
+        
         // Sort the TV values (case insensitively)
         uksort($foundTags, 'strcasecmp');
 
