@@ -158,7 +158,7 @@ function checkConfig($key) {
 }
 
 function settings() {
-    global $default_config;
+    global $modx,$default_config;
     $settings = array();
     $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
     while ($row = db()->getRow($rs)) {
@@ -168,6 +168,7 @@ function settings() {
         $default_config = include(MODX_CORE_PATH . 'default.config.php');
     }
     $settings = array_merge($default_config, $settings);
+    $modx->config = $settings;
 
     if (manager()->hasFormValues()) {
         $_POST = manager()->loadFormValues();
