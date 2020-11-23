@@ -178,6 +178,12 @@ function parent($docid) {
     }
 }
 
+function uparent($docid=null, $top = 0) {
+    if (evo()) {
+        return evo()->getUltimateParentId($docid ? $docid : docid(), $top);
+    }
+    
+}
 function exprintf() {
     $args = func_get_args();
     $args[0] = str_replace('@{%([0-9]+)}@', '%$1s', $args[0]);
