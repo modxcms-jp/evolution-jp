@@ -18,6 +18,7 @@ Desktop.ini
 #MODX-JP
 .htaccess
 assets/cache
+!assets/cache/index.html
 content/
 config.inc.php
 temp
