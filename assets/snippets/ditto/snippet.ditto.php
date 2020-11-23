@@ -1344,6 +1344,9 @@ if ($count > 0) {
     if($save) {
         $modx->setPlaceholder($dittoID."ditto_object", $ditto);
         $modx->setPlaceholder($dittoID."ditto_resource", ($save == "1") ? array_slice($resource,$display) : $resource);
+        if ($save==3) {
+            return $resource;
+        }
     }
 } else {
     $output = $header.$ditto->noResults($noResults,$paginate).$footer;
