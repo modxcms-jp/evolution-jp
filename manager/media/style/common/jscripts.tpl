@@ -140,7 +140,9 @@ function setLink(lId) {
 	}
 	else {
 		documentDirty=true;
-		document.mutate.ta.value=lId;
+		document.getElementById('field_weblink').value=lId;
+		document.images["llock"].src = "[+style_tree_folder+]";
+		allowLinkSelection = false;
 	}
 }
 
