@@ -129,47 +129,53 @@ function createResourceList($element_name, $action, $nameField = 'name') {
     $insideUl = 0;
     $output = '<ul>';
     $rows = getArray($element_name, $action, $nameField);
-    $tpl = '<span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">[+name+]<small>([+id+])</small></a>[+rlm+]</span>';
-    $tpl .= ' [+description+][+locked+]';
-
-    if (is_array($rows) && 0 < count($rows)):
+    if (is_array($rows) && 0 < count($rows)) {
         $ph['action'] = $action;
         $ph['rlm'] = $modx_textdir === 'rtl' ? '&rlm;' : '';
-        foreach ($rows as $row):
-            $row['category'] = stripslashes($row['category']); //pixelchutes
-            if ($preCat !== $row['category']):
+        foreach ($rows as $row) {
+            $row['category'] = hsc($row['category']);
+            if ($preCat !== $row['category']) {
                 $output .= $insideUl ? '</ul>' : '';
                 $output .= '<li><strong>' . $row['category'] . '</strong><ul>';
                 $insideUl = 1;
-            endif;
+            }
             $preCat = $row['category'];
 
-            if ($element_name === 'site_plugins') {
-                $class = $row['disabled'] ? 'class="disabledPlugin"' : '';
-            } elseif ($element_name === 'site_htmlsnippets') {
-                $class = ($row['published'] === '0') ? 'class="unpublished"' : '';
-            } else {
-                $class = '';
-            }
-
             $ph['id'] = $row['id'];
-            $ph['class'] = $class;
-            $ph['name'] = htmlspecialchars($row['name'], ENT_QUOTES, $modx->config['modx_charset']);
+            $ph['class'] = addclass($element_name, $row);
+            $ph['name'] = hsc($row['name']);
             $ph['description'] = strip_tags($row['description'], '<b><strong>');
             $ph['locked'] = $row['locked'] ? ' <em>(' . $_lang['locked'] . ')</em>' : '';
-            $src = "<li>{$tpl}</li>";
-            foreach ($ph as $k => $v):
+            $src = title($element_name);
+            foreach ($ph as $k => $v) {
                 $k = "[+{$k}+]";
                 $src = str_replace($k, $v, $src);
-            endforeach;
+            }
             $output .= $src;
-        endforeach;
-    else:
+        }
+    } else {
         $output .= $rows;
-    endif;
+    }
     $output .= $insideUl ? '</ul>' : '';
     $output .= '</ul>';
     return $output;
+}
+
+function title($element_name) {
+    return sprintf(
+        '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">%s</a>[+rlm+]</span> [+description+][+locked+]</li>'
+        , in_array($element_name, array('site_templates','site_tmplvars')) ? '[[+id+]] [+name+]' : '[+name+]'
+    );
+}
+
+function addclass($element_name, $row) {
+    if ($element_name === 'site_plugins') {
+        return $row['disabled'] ? 'class="disabledPlugin"' : '';
+    }
+    if ($element_name === 'site_htmlsnippets') {
+        return ($row['published'] === '0') ? 'class="unpublished"' : '';
+    }
+    return '';
 }
 
 function getArray($element_name, $action, $nameField = 'name') {
