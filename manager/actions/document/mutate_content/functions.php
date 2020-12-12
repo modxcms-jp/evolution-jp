@@ -33,7 +33,8 @@ function getTmplvars($docid, $template_id, $docgrp) {
             => $docid ?
                 "tvtpl.rank, IF(tvc.value!='',tvc.value,tv.default_text)"
                 :
-                'tv.default_text'
+                'tv.default_text',
+            'tvtpl.rank'
         )
         , $from
         , sprintf(
@@ -687,6 +688,42 @@ function renderSplit() {
 	<td colspan="2"><div class="split"></div></td>
 </tr>
 EOT;
+}
+
+if(!function_exists('doc')) {
+    /**
+     * @param string $key
+     * @param null $default
+     * @return array|mixed|string|null
+     */
+    function doc($key, $default = null) {
+        global $modx, $docObject;
+        if (isset($docObject)) {
+            $doc = $docObject;
+        } elseif (isset($modx->documntObject)) {
+            $doc = &$modx->documntObject;
+        }
+        if (strpos($key, '*') === 0) {
+            $value = $default;
+            $doc[substr($key, 1)] = $value;
+            return $value;
+        }
+        if (str_contains($key, '@parent')) {
+            $a = evo()->getDocumentObject('id', doc('parent'));
+            $key = str_replace('@parent', '', $key);
+        } else {
+            $a = $doc;
+        }
+        if (str_contains($key, '|hsc')) {
+            return hsc(
+                evo()->array_get(
+                    $a
+                    , str_replace('|hsc', '', $key, $default)
+                )
+            );
+        }
+        return evo()->array_get($a, $key, $default);
+    }
 }
 
 function file_get_tpl($path) {
