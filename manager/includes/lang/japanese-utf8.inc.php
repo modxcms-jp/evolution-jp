@@ -973,7 +973,7 @@ $_lang["untitled_resource"] = 'タイトルがありません';
 $_lang["untitled_weblink"] = 'タイトルがありません';
 $_lang["update_params"] = 'パラメータ表示を更新';
 $_lang["update_settings_from_language"] = '置き換え';
-$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズ。このサーバでは上限%sまで設定できます。<br />※ブラウザ側で制限をかけるための設定です。サーバ側の調整が必要な場合は.htaccessやphp.iniで設定を変更してください。';
+$_lang["upload_maxsize_message"] = '管理画面を通じてアップロード可能なファイルの最大サイズ。このサーバでは上限%sまで設定できます。<br />※ブラウザ側で制限をかけるための設定です。サーバ側の調整が必要な場合は.htaccessやphp.iniで<a href="https://www.google.com/search?q=memory_limit+upload_max_filesize+post_max_size" target="_blank">設定を変更</a>してください。';
 $_lang["upload_maxsize_title"] = 'アップロードサイズの上限';
 $_lang["uploadable_files_message"] = 'アップロードできる文書ファイルの拡張子を入力してください。カンマで区切って複数指定できます。';
 $_lang["uploadable_files_title"] = 'アップロード可能な文書ファイル';
