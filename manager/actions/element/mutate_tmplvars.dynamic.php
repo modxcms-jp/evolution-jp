@@ -518,8 +518,9 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                     $ph['checked'] = $checked ? 'checked' : '';
                                     $ph['id'] = $row['id'];
                                     $ph['templatename'] = $row['templatename'];
-                                    echo $modx->parseText('<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] />[+templatename+]</label>',
-                                        $ph);
+                                    echo $modx->parseText(
+                                        '<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] /> [[+id+]] [+templatename+]</label>'
+                                        , $ph);
                                 endwhile;
                             endif;
                             ?>

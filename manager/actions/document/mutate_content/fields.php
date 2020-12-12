@@ -201,7 +201,13 @@ function option_tags($templates) {
                 'value' => $template['id'],
                 'selected' => $template['id'] == doc('template') ? null : ''
             )
-            , hsc($template['templatename'])
+            , hsc(
+                sprintf(
+                    '[%s] %s'
+                    , $template['id']
+                    , $template['templatename']
+                )
+            )
         );
     }
     return $options;
