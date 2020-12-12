@@ -898,10 +898,25 @@ class ManagerAPI {
 
     function getUploadMaxsize() {
         return min(
-            ini_get('upload_max_filesize')
-            , ini_get('post_max_size')
-            , ini_get('memory_limit')
+            $this->byte(ini_get('upload_max_filesize'))
+            , $this->byte(ini_get('post_max_size'))
+            , $this->byte(ini_get('memory_limit'))
         );
+    }
+    function byte($value) {
+        $substr = substr($value,-1);
+        $units = array('B','K','M','T');
+        if(!in_array($substr, $units)) {
+            return $value;
+        }
+        $size = $value;
+        foreach($units as $unit) {
+            if($unit === $substr) {
+                return $size;
+            }
+            $size = $size * 1024;
+        }
+        return $size;
     }
 
     function getTplModule() {
