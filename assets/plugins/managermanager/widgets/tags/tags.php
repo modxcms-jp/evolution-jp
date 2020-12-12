@@ -20,8 +20,6 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
         return;
     }
 
-    $output = '';
-
     // if we've been supplied with a string, convert it into an array
     $fields = makeArray($fields);
 
@@ -40,50 +38,46 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
     }
 
     // Insert some JS and a style sheet into the head
+    $output = '';
     $output .= "//  -------------- Tag widget include ------------- \n";
     $output .= includeJs($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.js');
     $output .= includeCss($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.css');
 
     // Go through each of the fields supplied
     foreach ($fields as $targetTv) {
-        $tv_id = $mm_fields[$targetTv]['fieldname'];
-
-        // Make an SQL friendly list of fields to look at:
-        //$escaped_sources = array();
-        //foreach ($source as $s){
-        //	$s=substr($s,2,1);
-        //	$escaped_sources[] = "'".$s."'";
-        //}
-
-        $sql_sources = implode(',', $source_tvs[0]);
-
-        // Get the list of current values for this TV
-        $result = $modx->db->select(
-            'value'
-            , $modx->getFullTableName('site_tmplvar_contentvalues')
-            , sprintf("tmplvarid IN ('%s')", $sql_sources)
-        );
-        $all_docs = $modx->db->makeArray($result);
-
-        $foundTags = explode(',', $default);
         $foundTags = array();
+        if(strpos($default, '@fix')!==0) {
+        // Get the list of current values for this TV
+            $result = db()->select(
+            'value'
+                , '[+prefix+]site_tmplvar_contentvalues'
+                , sprintf(
+                    "tmplvarid IN ('%s')"
+                    , implode(',', $source_tvs[0])
+                )
+        );
+            $all_docs = db()->makeArray($result);
+
         foreach ($all_docs as $theDoc) {
             $theTags = explode($delimiter, $theDoc['value']);
             foreach ($theTags as $t) {
                 $foundTags[trim($t)]++;
             }
         }
+            // Sort the TV values (case insensitively)
+            uksort($foundTags, 'strcasecmp');
+        }
 
         $default = explode(',', $default);
         foreach ($default as $k) {
+            if(strpos($k, '@fix')===0) {
+                continue;
+            }
             if(!isset($foundTags[$k])) {
                 $foundTags[$k] = 0;
             }
         }
         
-        // Sort the TV values (case insensitively)
-        uksort($foundTags, 'strcasecmp');
-
         $lis = '';
         foreach ($foundTags as $t => $c) {
             $lis .= sprintf(
@@ -94,6 +88,7 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
             );
         }
 
+        $tv_id = $mm_fields[$targetTv]['fieldname'];
         $html_list = sprintf(
             '<ul class="mmTagList" id="%s_tagList">%s</ul>'
             , $tv_id
