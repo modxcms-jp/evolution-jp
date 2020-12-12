@@ -1582,6 +1582,6 @@ strong[style*='color:#EF1D1D'] {
 }
 
 .tmplvars tr {height: 24px;}
-.tvname {width:150px;}
+.tvname {width:150px;white-space:nowrap;}
 
 .okmsg {background-color:#edffee;border:2px solid #3ab63a;padding:8px;margin-bottom:8px;}
