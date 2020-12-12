@@ -45,8 +45,7 @@ class ditto {
 
         if(isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
 
-        $table = $modx->getFullTableName('site_tmplvars');
-        $tvs = $modx->db->select('name', $table);
+        $tvs = $modx->db->select('name', '[+prefix+]site_tmplvars');
         // TODO: make it so that it only pulls those that apply to the current template
         $dbfields = array();
         while ($dbfield = $modx->db->getRow($tvs))
