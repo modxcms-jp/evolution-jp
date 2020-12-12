@@ -64,7 +64,7 @@
                 }
                 ?>
                 <?php echo form_text('upload_maxsize'); ?><br/>
-                <?php echo sprintf($_lang["upload_maxsize_message"], $limit_size); ?></td>
+                <?php echo sprintf($_lang["upload_maxsize_message"], evo()->nicesize($limit_size)); ?></td>
         </tr>
         <tr>
             <th><?php echo $_lang["new_file_permissions_title"] ?></th>
