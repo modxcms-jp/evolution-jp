@@ -272,7 +272,7 @@ class MANAGERMANAGER {
         }
 
         $config_file = __DIR__ . '/mm_rules.inc.php';
-        if(is_file($config_file) && !is_readable($config_file)) {
+        if(!is_file($config_file)) {
             return false;
         }
 
