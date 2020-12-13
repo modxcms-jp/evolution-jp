@@ -250,11 +250,10 @@ class MANAGERMANAGER {
     }
     
     function make_changes($chunk){
-        global $modx;    // Global modx object
         $config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
         
         // See if there is any chunk output (e.g. it exists, and is not empty)
-        $chunk_output = $modx->getChunk($chunk);
+        $chunk_output = evo()->getChunk($chunk);
         if ($chunk_output){
             eval($chunk_output); // If there is, run it.
             return "// Getting rules from chunk: $chunk \n\n";
@@ -269,8 +268,7 @@ class MANAGERMANAGER {
     }
 
     function rule_exists($chunk_name) {
-        global $modx;
-        if ($modx->getChunk($chunk_name)) {
+        if (evo()->getChunk($chunk_name)) {
             return true;
         }
 
