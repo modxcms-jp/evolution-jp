@@ -258,7 +258,7 @@ class MANAGERMANAGER {
         }
 
         $config_file = __DIR__ . '/mm_rules.inc.php';
-        if (is_readable($config_file)) {    // If there's no chunk output, read in the file.
+        if (is_file($config_file)) {    // If there's no chunk output, read in the file.
             include($config_file);
             return "// Getting rules from file: $config_file \n\n";
         }
