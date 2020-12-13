@@ -250,8 +250,6 @@ class MANAGERMANAGER {
     }
     
     function make_changes($chunk){
-        $config_file = $modx->config['base_path'].'assets/plugins/managermanager/mm_rules.inc.php';
-        
         // See if there is any chunk output (e.g. it exists, and is not empty)
         $chunk_output = evo()->getChunk($chunk);
         if ($chunk_output){
@@ -259,6 +257,7 @@ class MANAGERMANAGER {
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
+        $config_file = __DIR__ . '/mm_rules.inc.php';
         if (is_readable($config_file)) {    // If there's no chunk output, read in the file.
             include($config_file);
             return "// Getting rules from file: $config_file \n\n";
