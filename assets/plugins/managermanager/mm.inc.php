@@ -257,12 +257,13 @@ class MANAGERMANAGER {
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
-        $config_file = __DIR__ . '/mm_rules.inc.php';
-        if (is_file($config_file)) {    // If there's no chunk output, read in the file.
-            include($config_file);
-            return "// Getting rules from file: $config_file \n\n";
+        $files = array(MODX_BASE_PATH . $chunk, __DIR__ . '/mm_rules.inc.php');
+        foreach ($files as $config_file) {
+            if (is_file($config_file)) {
+                include($config_file);
+                return "// Getting rules from file: $config_file \n\n";
+            }
         }
-
         return "// No rules found \n\n";
     }
 
@@ -271,15 +272,12 @@ class MANAGERMANAGER {
             return true;
         }
 
-        $config_file = __DIR__ . '/mm_rules.inc.php';
-        if(!is_file($config_file)) {
-            return false;
+        $files = array(MODX_BASE_PATH . $chunk_name, __DIR__ . '/mm_rules.inc.php');
+        foreach ($files as $config_file) {
+            if (is_file($config_file)) {    // If there's no chunk output, read in the file.
+                return true;
+            }
         }
-
-        if (trim(file_get_contents($config_file))) {
-            return true;
-        }
-
         return false;
     }
 }
