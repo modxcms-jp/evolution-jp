@@ -277,16 +277,16 @@ function prex($content) {
 }
 
 function real_ip() {
-    if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    }
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $_SERVER['HTTP_X_FORWARDED_FOR'];
-    }
-    if (isset($_SERVER['REMOTE_ADDR'])) {
-        return $_SERVER['REMOTE_ADDR'];
-    }
-    return 'UNKNOWN';
+    return serverv(
+        'http_client_ip'
+        , serverv(
+            'http_x_forwarded_for'
+            , serverv(
+                'remote_addr'
+                , 'UNKNOWN'
+            )
+        )
+    );
 }
 
 function doc($key, $default=null) {
