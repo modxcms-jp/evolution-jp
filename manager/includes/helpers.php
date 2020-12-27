@@ -268,12 +268,11 @@ function selected($cond) {
     return '';
 }
 
-function prex($content) {
+function pr($content) {
     if(is_array($content)) {
-        exit ('<pre>' . print_r($content, true) . '</pre>');
+        echo '<pre>' . print_r($content, true) . '</pre>';
     }
-    echo $content;exit;
-
+    echo '<pre>' . $content . '</pre>';
 }
 
 function real_ip() {
