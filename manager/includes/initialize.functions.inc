@@ -3,7 +3,7 @@
 function startCMSSession() {
     global $site_sessionname;
 
-    $site_sessionname = 'evo' . base_convert(hash('crc32b', __FILE__), 16, 36);
+    $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
     session_name($site_sessionname);
     init::session_set_cookie_params();
     session_start();
