@@ -289,6 +289,10 @@ function real_ip() {
     );
 }
 
+function user_agent() {
+    return serverv('http_user_agent', '');
+}
+
 function doc($key, $default=null) {
     global $modx, $docObject;
     if (isset($docObject)) {
