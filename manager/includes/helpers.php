@@ -328,3 +328,7 @@ function ob_get_include($path) {
     $return = eval(preg_replace('{^\s*<\?php}', '', file_get_contents($path)));
     return ob_get_clean() ?: $return;
 }
+
+function request_uri() {
+    return serverv('request_uri');
+}
