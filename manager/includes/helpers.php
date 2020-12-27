@@ -336,3 +336,23 @@ function ob_get_include($path) {
 function request_uri() {
     return serverv('request_uri');
 }
+
+function easy_hash($seed) {
+    $md5_hash = md5($seed);
+    $int = 0;
+    for ($i=0; $i<32; $i++) {
+        $int = bcadd(
+            bcmul($int, 16)
+            , base_convert($md5_hash[$i], 16, 10)
+        );
+    }
+
+    $hash = '';
+    while (0 < $int) {
+        $r = (int) bcmod($int, 36);
+        $hash = base_convert($r, 10, 36) . $hash;
+        $int = bcdiv($int, 36, 0);
+    }
+
+    return $hash;
+}
