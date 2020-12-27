@@ -471,7 +471,7 @@ class DocumentParser {
         if (!$this->config('individual_cache') || $this->config('cache_type') == 2) {
             return 'pages';
         }
-        return $this->getUaType();
+        return device();
 
     }
 
@@ -903,40 +903,7 @@ class DocumentParser {
     }
 
     function getUaType() {
-        if (!$this->server('http_user_agent')) {
-            return 'pc';
-        }
-
-        $ua = strtolower($this->server('http_user_agent'));
-
-        if (strpos($ua, 'ipad') !== false) {
-            return 'tablet';
-        }
-        if (strpos($ua, 'iphone') !== false || strpos($ua, 'ipod') !== false) {
-            return 'smartphone';
-        }
-
-        if (strpos($ua, 'android') === false) {
-            if (strpos($ua, 'windows phone') !== false) {
-                return 'smartphone';
-            }
-            if (strpos($ua, 'docomo') !== false || strpos($ua, 'softbank') !== false) {
-                return 'mobile';
-            }
-            if (strpos($ua, 'up.browser') !== false) {
-                return 'mobile';
-            }
-            if (strpos($ua, 'bot') !== false || strpos($ua, 'spider') !== false) {
-                return 'bot';
-            }
-            return 'pc';
-        }
-
-        if (strpos($ua, 'mobile') !== false) {
-            return 'smartphone';
-        }
-
-        return 'tablet';
+        return device();
     }
 
     public function join($delim = ',', $array, $prefix = '') {
