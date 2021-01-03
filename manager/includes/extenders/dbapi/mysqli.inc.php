@@ -343,7 +343,7 @@ class DBAPI {
             $where = implode(' ', $where);
         }
 
-        return $this->query(
+        $rs = $this->query(
             sprintf(
                 'SELECT %s FROM %s %s %s %s'
                 , $this->replaceFullTableName($fields)
@@ -353,6 +353,8 @@ class DBAPI {
                 , trim($limit) ? sprintf('LIMIT %s', $limit) : ''
             )
         );
+        $this->rs = $rs;
+        return $rs;
     }
 
     /**
@@ -555,7 +557,10 @@ class DBAPI {
      * @name:  getRecordCount
      *
      */
-    function count($rs, $from = '', $where = '') {
+    function count($rs=null, $from = '', $where = '') {
+        if($rs===null && $this->rs) {
+            $rs = $this->rs;
+        }
         if ($this->isResult($rs)) {
             return $rs->num_rows;
         }
@@ -567,7 +572,7 @@ class DBAPI {
         return 0;
     }
 
-    function getRecordCount($rs, $from = '', $where = '') {
+    function getRecordCount($rs=null, $from = '', $where = '') {
         return $this->count($rs, $from, $where);
     }
 
@@ -577,7 +582,10 @@ class DBAPI {
      * @param: $rs - dataset
      *
      */
-    function getRow($param1, $param2 = 'assoc', $where = '', $orderby = '', $limit = '') {
+    function getRow($param1=null, $param2 = 'assoc', $where = '', $orderby = '', $limit = '') {
+        if($param1===null && $this->rs) {
+            $param1 = $this->rs;
+        }
         if (is_string($param1)) {
             if ($where) {
                 return $this->getRow(
@@ -686,7 +694,10 @@ class DBAPI {
      * @desc:  returns the value from the first column in the set
      * @param: $rs - dataset or query string
      */
-    function getValue($rs, $from = '', $where = '', $orderby = '', $limit = '') {
+    function getValue($rs=null, $from = '', $where = '', $orderby = '', $limit = '') {
+        if($rs===null && $this->rs) {
+            $rs = $this->rs;
+        }
         if (is_string($rs)) {
             if ($from && $where) {
                 $rs = $this->select($rs, $from, $where, $orderby, $limit);
