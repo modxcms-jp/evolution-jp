@@ -536,14 +536,18 @@ class DBAPI {
     }
 
     /**
-     * @name:  getLastError
+     * @name:  lastError
      *
      */
-    function getLastError($conn = null) {
+    function lastError($conn = null) {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
         return $conn->error;
+    }
+
+    function getLastError($conn = null) {
+        return $this->lastError($conn);
     }
 
     function getLastErrorNo($conn = null) {
