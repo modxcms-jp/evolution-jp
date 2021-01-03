@@ -43,15 +43,15 @@ class logHandler {
         }
 
         $insert_id = db()->insert(
-            array(
+            db()->escape(array(
                 'timestamp' => time(),
-                'internalKey' => $modx->db->escape($this->entry['internalKey']),
-                'username' => $modx->db->escape($this->entry['username']),
+                'internalKey' => $this->entry['internalKey'],
+                'username' => $this->entry['username'],
                 'action' => $action_id,
                 'itemid' => $item_id,
-                'itemname' => $modx->db->escape($this->entry['itemName']),
-                'message' => $modx->db->escape($this->entry['msg'])
-            )
+                'itemname' => $this->entry['itemName'],
+                'message' => $this->entry['msg']
+            ))
             , '[+prefix+]manager_log'
         );
         if (!$insert_id) {
