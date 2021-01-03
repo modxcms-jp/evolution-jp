@@ -12,6 +12,8 @@ class DBAPI {
     public $table_prefix;
     public $charset;
     public $connection_method;
+    private $rs;
+    private $rawQuery=false;
 
     /**
      * @name:  DBAPI
@@ -222,6 +224,10 @@ class DBAPI {
      */
     function query($sql, $watchError = true) {
         global $modx;
+        if($this->rawQuery) {
+            echo $sql;
+            return;
+        }
         if (!$this->isConnected()) {
             return false;
         }
@@ -1126,5 +1132,8 @@ class DBAPI {
             $_[] = $v;
         }
         return implode(' ', $_);
+    }
+    public function rawQuery($flag=true) {
+        $this->rawQuery = $flag;
     }
 }
