@@ -404,12 +404,12 @@ function datetime_format($format, $timestamp = '', $default = '')
 	if (strpos($format, '%') === false) {
 		return date($format, $timestamp);
 	}
-	if (strpos($format, '%—j') === false) {
+	if (strpos($format, '%æ›œ') === false) {
 		return strftime($format, $timestamp);
 	}
-	$week = ['“ú', 'Œ', '‰Î', '…', '–Ø', '‹à', '“y'];
+	$week = ['æ—¥', 'æœˆ', 'ç«', 'æ°´', 'æœ¨', 'é‡‘', 'åœŸ'];
 	return strftime(
-		str_replace('%—j', $week[date('w', $timestamp)], $format),
+		str_replace('%æ›œ', $week[date('w', $timestamp)], $format),
 		$timestamp
 	);
 }
