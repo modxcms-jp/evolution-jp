@@ -182,7 +182,6 @@ function uparent($docid=null, $top = 0) {
     if (evo()) {
         return evo()->getUltimateParentId($docid ? $docid : docid(), $top);
     }
-    
 }
 function exprintf() {
     $args = func_get_args();
@@ -392,4 +391,25 @@ function device() {
     }
 
     return 'tablet';
+}
+
+function datetime_format($format, $timestamp = '', $default = '')
+{
+	if (!$timestamp || strpos($timestamp, '0000-00-00') === 0) {
+		return $default;
+	}
+	if (!preg_match('@^[0-9]+$@', $timestamp)) {
+		$timestamp = strtotime($timestamp);
+	}
+	if (strpos($format, '%') === false) {
+		return date($format, $timestamp);
+	}
+	if (strpos($format, '%ój') === false) {
+		return strftime($format, $timestamp);
+	}
+	$week = ['ì˙', 'åé', 'âŒ', 'êÖ', 'ñÿ', 'ã‡', 'ìy'];
+	return strftime(
+		str_replace('%ój', $week[date('w', $timestamp)], $format),
+		$timestamp
+	);
 }
