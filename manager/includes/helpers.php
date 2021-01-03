@@ -271,6 +271,7 @@ function selected($cond) {
 function pr($content) {
     if(is_array($content)) {
         echo '<pre>' . print_r($content, true) . '</pre>';
+        return;
     }
     echo '<pre>' . $content . '</pre>';
 }
