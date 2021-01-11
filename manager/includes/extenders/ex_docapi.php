@@ -4,7 +4,7 @@ $this->doc = new DocAPI;
 
 class DocAPI {
 
-    var $mode;
+    public $mode;
 
     function __construct() {
     }
@@ -41,11 +41,11 @@ class DocAPI {
             $f['id'] = $newdocid;
         }
 
-        $id = $modx->db->insert($f, '[+prefix+]site_content');
+        $id = db()->insert($f, '[+prefix+]site_content');
         $this->saveTVs($f, $id);
         if (isset($f['parent']) && preg_match('@^[1-9][0-9]*$@', $f['parent'])) {
             $parent = $f['parent'];
-            $modx->db->update(
+            db()->update(
                 array('isfolder' => '1')
                 , '[+prefix+]site_content'
                 , sprintf("id='%s'", $parent));
@@ -53,7 +53,7 @@ class DocAPI {
 
         if ($groups && $id) {
             foreach ($groups as $group) {
-                $modx->db->insert(
+                db()->insert(
                     array('document_group' => $group, 'document' => $id)
                     , '[+prefix+]document_groups'
                 );
@@ -79,17 +79,16 @@ class DocAPI {
         }
         if (is_string($f) && strpos($f, '=') !== false) {
             list($k, $v) = explode('=', $f, 2);
-            $k = trim($k);
-            $v = trim($v);
-            $f = array();
-            $f[$k] = $v;
+            $f = array(
+                trim($k) => trim($v)
+            );
         }
 
         $this->saveTVs($f, $id);
 
 //		$f = $this->setPubStatus($f);
 
-        $f['editedon'] = (!$f['editedon']) ? time() : $f['editedon'];
+        $f['editedon'] = !$f['editedon'] ? time() : $f['editedon'];
         if (!isset($f['editedby']) && sessionv('mgrInternalKey')) {
             $f['editedby'] = $_SESSION['mgrInternalKey'];
         }
@@ -127,7 +126,7 @@ class DocAPI {
         $f['pub_date'] = '';
         $f['unpub_date'] = '';
 
-        $modx->db->update($f, '[+prefix+]site_content', "id='{$id}'");
+        db()->update($f, '[+prefix+]site_content', "id='{$id}'");
     }
 
     function setPubStatus($f) {
@@ -168,13 +167,13 @@ class DocAPI {
     }
 
     function saveTVs($inputFields = array(), $doc_id) {
-        global $modx;
         $tmplvars = $this->tmplVars($inputFields['template']);
         foreach ($tmplvars as $name => $tmplvarid) {
-            $fields = array('value' => $modx->db->escape($inputFields[$name]));
             if ($this->hasTmplvar($tmplvarid, $doc_id)) {
-                $modx->db->update(
-                    $fields
+                db()->update(
+                    array(
+                        'value' => db()->escape($inputFields[$name])
+                    )
                     , '[+prefix+]site_tmplvar_contentvalues'
                     , sprintf(
                         "tmplvarid='%s' AND contentid='%s'"
@@ -183,18 +182,22 @@ class DocAPI {
                     )
                 );
             } else {
-                $fields['tmplvarid'] = $tmplvarid;
-                $fields['contentid'] = $doc_id;
-                $modx->db->insert($fields, '[+prefix+]site_tmplvar_contentvalues');
+                db()->insert(
+                    array(
+                        'tmplvarid' => $tmplvarid,
+                        'contentid' => $doc_id,
+                        'value' => db()->escape($inputFields[$name])
+                    )
+                    , '[+prefix+]site_tmplvar_contentvalues'
+                );
             }
         }
     }
 
     private function tmplVars($template_id) {
-        global $modx;
-        $rs = $modx->db->select('id,name', '[+prefix+]site_tmplvars');
+        $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
         $tmplvars = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             if (!$this->hasTmplvarRelation($row['id'], $template_id)) {
                 continue;
             }
@@ -205,8 +208,7 @@ class DocAPI {
     }
 
     private function hasTmplvar($tmplvarid, $doc_id) {
-        global $modx;
-        $rs = $modx->db->select(
+        $rs = db()->select(
             '*'
             , '[+prefix+]site_tmplvar_contentvalues'
             , sprintf(
@@ -215,21 +217,20 @@ class DocAPI {
                 , $doc_id
             )
         );
-        return $modx->db->getRecordCount($rs);
+        return db()->getRecordCount($rs);
     }
 
     private function hasTmplvarRelation($tmplvarid, $template_id) {
-        global $modx;
-        $rs = $modx->db->select(
+        $rs = db()->select(
             '*'
             , '[+prefix+]site_tmplvar_templates'
             , sprintf(
                 "tmplvarid='%s' AND templateid='%s'"
-                , $modx->db->escape($tmplvarid)
-                , $modx->db->escape($template_id)
+                , db()->escape($tmplvarid)
+                , db()->escape($template_id)
             )
         );
-        return $modx->db->getRecordCount($rs) == 1;
+        return db()->getRecordCount($rs) == 1;
     }
 
     function initValue($form_v) {
@@ -415,20 +416,20 @@ class DocAPI {
         global $modx;
 
         if ($modx->config['docid_incrmnt_method'] == 1) {
-            $rs = $modx->db->select(
+            $rs = db()->select(
                 'MIN(T0.id)+1'
                 , '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id'
                 , 'T1.id IS NULL'
             );
-            return $modx->db->getValue($rs);
+            return db()->getValue($rs);
         }
 
         if ($modx->config['docid_incrmnt_method'] == 2) {
-            $rs = $modx->db->select(
+            $rs = db()->select(
                 'MAX(id)+1'
                 , '[+prefix+]site_content'
             );
-            return $modx->db->getValue($rs);
+            return db()->getValue($rs);
         }
         return false;
     }
@@ -506,7 +507,6 @@ class DocAPI {
     }
 
     function canSaveDraft() {
-        global $modx;
         return 1;
     }
 
@@ -536,9 +536,8 @@ class DocAPI {
     }
 
     function existsDoc($id = 0) {
-        global $modx;
-        $rs = $modx->db->select('id', '[+prefix+]site_content', "id='{$id}'");
-        if ($modx->db->getRecordCount($rs) == 0) {
+        $rs = db()->select('id', '[+prefix+]site_content', "id='{$id}'");
+        if (db()->getRecordCount($rs) == 0) {
             return false;
         }
 
