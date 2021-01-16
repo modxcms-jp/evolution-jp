@@ -41,14 +41,31 @@ class DocAPI {
             $f['id'] = $newdocid;
         }
 
-        $id = db()->insert($f, '[+prefix+]site_content');
-        $this->saveTVs($f, $id);
-        if (isset($f['parent']) && preg_match('@^[1-9][0-9]*$@', $f['parent'])) {
-            $parent = $f['parent'];
+        $tvs = array();
+        $doc_fields = array();
+        foreach ($f as $k=>$v) {
+            if($this->isTv($k)) {
+                $tvs[$k] = $v;
+                continue;
+            }
+            $doc_fields[$k] = $v;
+        }
+        $id = db()->insert(db()->escape($doc_fields), '[+prefix+]site_content');
+        if(!$id) {
+            return;
+        }
+        if (isset($doc_fields['parent']) && preg_match('@^[1-9][0-9]*$@', $doc_fields['parent'])) {
+            $parent = $doc_fields['parent'];
             db()->update(
                 array('isfolder' => '1')
                 , '[+prefix+]site_content'
                 , sprintf("id='%s'", $parent));
+        }
+
+        if($tvs) {
+            foreach($tvs as $k=>$v) {
+                $this->saveTVs($id, $k, $v);
+            }
         }
 
         if ($groups && $id) {
@@ -65,16 +82,16 @@ class DocAPI {
         return $id;
     }
 
-    function update($f = array(), $id = 0, $where = '') {
+    function update($f = array(), $docid = 0, $where = '') {
         global $modx;
 
-        if (!$id) {
+        if (!$docid) {
             if (!isset($modx->documentIdentifier)) {
                 return false;
             }
-            $id = $modx->documentIdentifier;
+            $docid = $modx->documentIdentifier;
         }
-        if (!preg_match('@^[1-9][0-9]*$@', $id)) {
+        if (!preg_match('@^[1-9][0-9]*$@', $docid)) {
             return false;
         }
         if (is_string($f) && strpos($f, '=') !== false) {
@@ -83,9 +100,17 @@ class DocAPI {
                 trim($k) => trim($v)
             );
         }
-
-        $this->saveTVs($f, $id);
-
+        $docfields = [];
+        foreach ($f as $k=>$v) {
+            if ($this->isTv($k)) {
+                $this->saveTV($docid, $k, $v);
+                continue;
+            }
+            $docfields[$k] = $v;
+        }
+        if(!$docfields) {
+            return;
+        }
 //		$f = $this->setPubStatus($f);
 
         $f['editedon'] = !$f['editedon'] ? time() : $f['editedon'];
@@ -98,7 +123,7 @@ class DocAPI {
                 $this->correctResourceFields($f)
             )
             , '[+prefix+]site_content'
-            , sprintf("%s `id`='%d'", $where, $id)
+            , sprintf("%s `id`='%d'", $where, $docid)
         );
         if ($rs !== false) {
             $modx->clearCache();
@@ -165,6 +190,54 @@ class DocAPI {
         }
         return $fields;
     }
+
+    function saveTV($doc_id, $name, $value) {
+        static $tv = array();
+        if(!isset($tv[$doc_id][$name])) {
+            $rs = db()->select(
+                array(
+                    'doc_id' => 'doc.id',
+                    'tv_name' => 'var.name',
+                    'tv_id' => 'tt.tmplvarid',
+                    'template_id' => 'doc.template'
+                )
+                , array(
+                    '[+prefix+]site_content doc',
+                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.id',
+                    'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
+                )
+                , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
+            );
+            while($row = db()->getRow($rs)) {
+                $tv[$row['doc_id']][$row['tv_name']] = $row;
+            }
+        }
+        if(!isset($tv[$doc_id][$name])) {
+            return;
+        }
+        if ($this->hasTmplvar($tv[$doc_id][$name]['tv_id'], $doc_id)) {
+            db()->update(
+                array(
+                    'value' => db()->escape($name)
+                )
+                , '[+prefix+]site_tmplvar_contentvalues'
+                , sprintf(
+                    "tmplvarid='%s' AND contentid='%s'"
+                    , $tv[$doc_id][$name]['tv_id']
+                    , $doc_id
+                )
+            );
+        } else {
+            db()->insert(
+                array(
+                    'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
+                    'contentid' => $doc_id,
+                    'value' => db()->escape($name)
+                )
+                , '[+prefix+]site_tmplvar_contentvalues'
+            );
+        }
+}
 
     function saveTVs($inputFields = array(), $doc_id) {
         $tmplvars = $this->tmplVars($inputFields['template']);
@@ -233,6 +306,30 @@ class DocAPI {
         return db()->getRecordCount($rs) == 1;
     }
 
+    private function isTv($key){
+        static $tv=array();
+        if(isset($tv[$key])) {
+            return $tv[$key];
+        }
+        $doc = explode(
+            ','
+            ,
+            'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext'
+        );
+        if(isset($doc[$key])) {
+            $tv[$key] = false;
+            return false;
+        }
+        $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
+        while($row = db()->getRow($rs)) {
+            $tv[$row['name']] = $row['id'];
+        }
+        if(!isset($tv[$key])) {
+            $tv[$key] = false;
+        }
+        return $tv[$key];
+    }
+    
     function initValue($form_v) {
         global $modx;
 
