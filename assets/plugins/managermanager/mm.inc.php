@@ -257,7 +257,7 @@ class MANAGERMANAGER {
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
-        $files = array(MODX_BASE_PATH . $chunk, __DIR__ . '/mm_rules.inc.php');
+        $files = array(MODX_BASE_PATH . $chunk, str_replace('\\','/',__DIR__) . '/mm_rules.inc.php');
         foreach ($files as $config_file) {
             if (is_file($config_file)) {
                 include($config_file);
@@ -272,7 +272,7 @@ class MANAGERMANAGER {
             return true;
         }
 
-        $files = array(MODX_BASE_PATH . $chunk_name, __DIR__ . '/mm_rules.inc.php');
+        $files = array(MODX_BASE_PATH . $chunk_name, str_replace('\\','/',__DIR__) . '/mm_rules.inc.php');
         foreach ($files as $config_file) {
             if (is_file($config_file)) {    // If there's no chunk output, read in the file.
                 return true;
