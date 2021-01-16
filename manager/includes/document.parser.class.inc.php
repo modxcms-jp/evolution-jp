@@ -4221,8 +4221,8 @@ class DocumentParser {
             );
         }
 
-        if (is_array($idnames)) {
-            $idnames = implode("','", $this->db->escape($idnames));
+        if (is_array($idnames) && !empty($idnames)) {
+            $idnames = "'" . implode("','", $this->db->escape($idnames)) . "'";
         }
 
         if ($idnames === '*') {
