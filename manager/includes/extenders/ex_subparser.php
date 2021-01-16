@@ -592,7 +592,7 @@ class SubParser {
             if (strpos($path, MODX_BASE_PATH) === 0) {
                 $path = substr($path, strlen(MODX_BASE_PATH));
             }
-            switch ($val['type']) {
+            switch (array_get($val, 'type')) {
                 case '->':
                 case '::':
                     if ($val['class'] === 'DocumentParser' && $val['type'] === '->') {
