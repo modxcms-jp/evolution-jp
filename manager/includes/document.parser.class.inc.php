@@ -4221,8 +4221,11 @@ class DocumentParser {
             );
         }
 
-        if (is_array($idnames)) {
-            $idnames = implode("','", $this->db->escape($idnames));
+        if (is_array($idnames) && !empty($idnames)) {
+            $idnames = sprintf(
+                "'%s'",
+                implode("','", $this->db->escape($idnames))
+            );
         }
 
         if ($idnames === '*') {
@@ -4232,7 +4235,7 @@ class DocumentParser {
         } elseif (strpos($idnames, ',') !== false) {
             $where = sprintf("tv.name IN (%s)", $idnames);
         } else {
-            $where = sprintf("tv.name='%s'", $idnames);
+            $where = sprintf("tv.name='%s'", $this->db->escape($idnames));
         }
 
         $result = array();
