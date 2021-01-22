@@ -118,7 +118,7 @@ if (substr($webstart_path, 0, 1) == '/') {
             if (is_writable($startpath)) {
                 $ph = array();
                 $_ = '';
-                if ($_REQUEST['mode'] == 'edit') {
+                if ($_REQUEST['mode'] == 'save') {
                     $tpl = '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>';
                     $ph['icons_save'] = $_style["icons_save"];
                     $ph['lang_save'] = $_lang['save'];
@@ -408,12 +408,12 @@ if (substr($webstart_path, 0, 1) == '/') {
     </div>
 <?php
 
-if (isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'edit' || $_REQUEST['mode'] == 'view')) {
+if (isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'save' || $_REQUEST['mode'] == 'view')) {
     ?>
 
     <div class="section">
         <div class="sectionHeader"
-             id="file_editfile"><?php echo $_REQUEST['mode'] == "edit" ? $_lang['files_editfile'] : $_lang['files_viewfile'] ?></div>
+             id="file_editfile"><?php echo $_REQUEST['mode'] == "save" ? $_lang['files_editfile'] : $_lang['files_viewfile'] ?></div>
         <div class="sectionBody">
             <?php
             $filename = $_REQUEST['path'];
@@ -436,7 +436,7 @@ if (isset($_REQUEST['mode']) && ($_REQUEST['mode'] == 'edit' || $_REQUEST['mode'
 
             <form action="index.php" method="post" name="editFile">
                 <input type="hidden" name="a" value="31"/>
-                <input type="hidden" name="mode" value="edit"/>
+                <input type="hidden" name="mode" value="save"/>
                 <input type="hidden" name="path" value="<?php echo $_REQUEST['path'] ?>"/>
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
@@ -517,7 +517,7 @@ function ls($curpath) {
                 $inlineviewablefiles)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=view&path=' . urlencode($newpath) . '"><img src="' . $style_path . 'icons/context_view.gif" align="absmiddle" alt="' . $_lang['files_viewfile'] . '" title="' . $_lang['files_viewfile'] . '" /></a></span> ' : $files_array[$filecounter]['view'];
             $files_array[$filecounter]['unzip'] = ($enablefileunzip && $type === '.zip') ? '<span style="width:20px;"><a href="javascript:unzipFile(\'' . urlencode($file) . '\');"><img src="' . $style_path . 'icons/unzip.gif" align="absmiddle" alt="' . $_lang['file_download_unzip'] . '" title="' . $_lang['file_download_unzip'] . '" /></a></span> ' : '';
             $files_array[$filecounter]['edit'] = (in_array($type,
-                    $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=edit&path=' . urlencode($newpath) . '#file_editfile"><img src="' . $_style['icons_edit_document'] . '" align="absmiddle" alt="' . $_lang['files_editfile'] . '" title="' . $_lang['files_editfile'] . '" /></a></span> ' : '<span class="disabledImage"><img src="' . $_style['icons_edit_document'] . '" align="absmiddle" alt="' . $_lang['files_editfile'] . '" title="' . $_lang['files_editfile'] . '" /></span> ';
+                    $editablefiles) && is_writable($curpath) && is_writable($newpath)) ? '<span style="width:20px;"><a href="index.php?a=31&mode=save&path=' . urlencode($newpath) . '#file_editfile"><img src="' . $_style['icons_edit_document'] . '" align="absmiddle" alt="' . $_lang['files_editfile'] . '" title="' . $_lang['files_editfile'] . '" /></a></span> ' : '<span class="disabledImage"><img src="' . $_style['icons_edit_document'] . '" align="absmiddle" alt="' . $_lang['files_editfile'] . '" title="' . $_lang['files_editfile'] . '" /></span> ';
             $files_array[$filecounter]['delete'] = is_writable($curpath) && is_writable($newpath) ? '<span style="width:20px;"><a href="javascript:deleteFile(\'' . urlencode($file) . '\');"><img src="' . $style_path . 'icons/delete.gif" align="absmiddle" alt="' . $_lang['file_delete_file'] . '" title="' . $_lang['file_delete_file'] . '" /></a></span> ' : '<span class="disabledImage"><img src="' . $style_path . 'icons/delete.gif" align="absmiddle" alt="' . $_lang['file_delete_file'] . '" title="' . $_lang['file_delete_file'] . '" /></span> ';
 
             // increment the counter
@@ -768,7 +768,7 @@ function textsave() {
         $msg .= '<span class="warning"><b>' . $_lang['file_not_saved'] . '</b></span><br /><br />';
     } else {
         $msg .= '<span class="success"><b>' . $_lang['file_saved'] . '</b></span><br /><br />';
-        $_REQUEST['mode'] = 'edit';
+        $_REQUEST['mode'] = 'save';
     }
     // Log the change
     logFileChange('modify', $filename);
