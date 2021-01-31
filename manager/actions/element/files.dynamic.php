@@ -192,10 +192,10 @@ if (!is_readable($startpath)) {
             );
 
             $len = strlen(config('filemanager_path'));
-            if (substr($startpath, $len, strlen($startpath)) == '') {
+            if (substr($startpath, $len) == '') {
                 $topic_path = '/';
             } else {
-                $topic_path = substr($startpath, $len, strlen($startpath));
+                $topic_path = substr($startpath, $len);
                 $pieces = explode('/', rtrim($topic_path, '/'));
                 $path = '';
                 $count = count($pieces);
@@ -205,8 +205,11 @@ if (!is_readable($startpath)) {
                     }
                     $path .= rtrim($v, '/') . '/';
                     if (1 < $count) {
-                        $href = 'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path);
-                        $pieces[$i] = '<a href="' . $href . '">' . trim($v, '/') . '</a>';
+                        $pieces[$i] = sprintf(
+                            '<a href="%s">%s</a>',
+                            'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path),
+                            trim($v, '/')
+                        );
                     } else {
                         $pieces[$i] = trim($v, '/');
                     }
@@ -215,8 +218,11 @@ if (!is_readable($startpath)) {
                 $topic_path = join(' / ', $pieces);
             }
 
-            ?> <b><?php echo mb_convert_encoding($topic_path, $modx_manager_charset,
-                    'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'); ?></b>
+            ?> <b><?php echo mb_convert_encoding(
+                    $topic_path,
+                    $modx_manager_charset,
+                    'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'
+                ); ?></b>
             <?php
             // check to see user isn't trying to move below the document_root
             if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace('//',
@@ -764,21 +770,21 @@ function fileupload() {
     global $modx, $startpath;
     $msg = '';
 
-    if (!empty($_FILES['userfile']['tmp_name'])) {
-        $userfile['tmp_name'] = $_FILES['userfile']['tmp_name'];
-        $userfile['error'] = $_FILES['userfile']['error'];
-        $name = $_FILES['userfile']['name'];
-        if ($modx->config['clean_uploaded_filename'] == 1) {
+    if (!empty(filev('userfile.tmp_name'))) {
+        $userfile['tmp_name'] = filev('userfile.tmp_name');
+        $userfile['error'] = filev('userfile.error');
+        $name = filev('userfile.name');
+        if (evo()->config('clean_uploaded_filename') == 1) {
             $nameparts = explode('.', $name);
             $nameparts = array_map(array($modx, 'stripAlias'), $nameparts, array('file_manager'));
             $name = implode('.', $nameparts);
         }
         $userfile['name'] = $name;
-        $userfile['type'] = $_FILES['userfile']['type'];
+        $userfile['type'] = filev('userfile.type');
     }
 
     // this seems to be an upload action.
-    $path = $modx->config['site_url'] . substr($startpath, strlen(config('filemanager_path')), strlen($startpath));
+    $path = $modx->config['site_url'] . substr($startpath, strlen(config('filemanager_path')));
     $path = rtrim($path, '/') . '/' . $userfile['name'];
     $msg .= $path;
     if ($userfile['error'] == 0) {
