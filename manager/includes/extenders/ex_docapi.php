@@ -203,7 +203,7 @@ class DocAPI {
                 )
                 , array(
                     '[+prefix+]site_content doc',
-                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.parent',
+                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.template',
                     'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
                 )
                 , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
@@ -218,7 +218,7 @@ class DocAPI {
         if ($this->hasTmplvar($tv[$doc_id][$name]['tv_id'], $doc_id)) {
             db()->update(
                 array(
-                    'value' => db()->escape($name)
+                    'value' => db()->escape($value)
                 )
                 , '[+prefix+]site_tmplvar_contentvalues'
                 , sprintf(
@@ -232,7 +232,7 @@ class DocAPI {
                 array(
                     'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
                     'contentid' => $doc_id,
-                    'value' => db()->escape($name)
+                    'value' => db()->escape($value)
                 )
                 , '[+prefix+]site_tmplvar_contentvalues'
             );
