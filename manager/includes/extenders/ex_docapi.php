@@ -203,7 +203,7 @@ class DocAPI {
                 )
                 , array(
                     '[+prefix+]site_content doc',
-                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.id',
+                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.parent',
                     'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
                 )
                 , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
