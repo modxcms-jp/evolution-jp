@@ -6,69 +6,50 @@ class DocAPI {
 
     public $mode;
 
-    function __construct() {
+    public function __construct() {
     }
 
-    function create($f = array(), $groups = array()) {
-        global $modx, $_lang;
+    public function create($f = array(), $groups = array()) {
         $f = $this->correctResourceFields($f);
 
-        if ((!$f['pagetitle'])) {
-            $f['pagetitle'] = $_lang['untitled_resource'];
-        }
-        if ((!$f['createdon'])) {
-            $f['createdon'] = time();
-        }
-        if ((!$f['createdby'])) {
-            $f['createdby'] = $modx->getLoginUserID();
-        }
         $f['editedon'] = $f['createdon'];
         $f['editedby'] = $f['createdby'];
-        if (isset($f['published']) && $f['published'] == 1 && !isset($f['publishedon'])) {
-            $f['publishedon'] = $f['createdon'];
-        }
-        if (!$f['template']) {
-            $f['template'] = $modx->config['default_template'];
-        }
         if ($groups) {
             $f['privatemgr'] = 1;
         }
 
 //		$f = $this->setPubStatus($f);
-
         $newdocid = $this->getNewDocID();
         if ($newdocid) {
             $f['id'] = $newdocid;
         }
 
-        $tvs = array();
-        $doc_fields = array();
+        $fields = array();
         foreach ($f as $k=>$v) {
             if($this->isTv($k)) {
-                $tvs[$k] = $v;
+                $fields['tv'][$k] = $v;
                 continue;
             }
-            $doc_fields[$k] = $v;
+            $fields['doc'][$k] = $v;
         }
-        $id = db()->insert(db()->escape($doc_fields), '[+prefix+]site_content');
+        $id = db()->insert(db()->escape($fields['doc']), '[+prefix+]site_content');
         if(!$id) {
-            return;
+            return false;
         }
-        if (isset($doc_fields['parent']) && preg_match('@^[1-9][0-9]*$@', $doc_fields['parent'])) {
-            $parent = $doc_fields['parent'];
+        if (preg_match('@^[1-9][0-9]*$@', array_get($fields, 'doc.parent', 0))) {
             db()->update(
                 array('isfolder' => '1')
                 , '[+prefix+]site_content'
-                , sprintf("id='%s'", $parent));
+                , sprintf("id='%s'", array_get($fields, 'doc.parent')));
         }
 
-        if($tvs) {
-            foreach($tvs as $k=>$v) {
-                $this->saveTVs($id, $k, $v);
+        if(!empty($fields['tv'])) {
+            foreach($fields['tv'] as $k=>$v) {
+                $this->saveTV($id, $k, $v);
             }
         }
 
-        if ($groups && $id) {
+        if ($groups) {
             foreach ($groups as $group) {
                 db()->insert(
                     array('document_group' => $group, 'document' => $id)
@@ -76,70 +57,58 @@ class DocAPI {
                 );
             }
         }
-        if ($id !== false) {
-            $modx->clearCache();
-        }
+        evo()->clearCache();
         return $id;
     }
 
     function update($f = array(), $docid = 0, $where = '') {
-        global $modx;
-
-        if (!$docid) {
-            if (!isset($modx->documentIdentifier)) {
-                return false;
-            }
-            $docid = $modx->documentIdentifier;
-        }
-        if (!preg_match('@^[1-9][0-9]*$@', $docid)) {
+        if (!$docid || !preg_match('@^[1-9][0-9]*$@', $docid)) {
             return false;
         }
-        if (is_string($f) && strpos($f, '=') !== false) {
+        if (is_string($f) && str_contains($f, '=')) {
             list($k, $v) = explode('=', $f, 2);
             $f = array(
                 trim($k) => trim($v)
             );
         }
-        $docfields = [];
+        $f['id'] = $docid;
+        $f = $this->correctResourceFields($f);
+
+        $fields = array();
         foreach ($f as $k=>$v) {
-            if ($this->isTv($k)) {
-                $this->saveTV($docid, $k, $v);
+            if($this->isTv($k)) {
+                $fields['tv'][$k] = $v;
                 continue;
             }
-            $docfields[$k] = $v;
+            $fields['doc'][$k] = $v;
         }
-        if(!$docfields) {
-            return;
-        }
-//		$f = $this->setPubStatus($f);
+        // $f = $this->setPubStatus($f);
 
-        $f['editedon'] = !$f['editedon'] ? time() : $f['editedon'];
-        if (!isset($f['editedby']) && sessionv('mgrInternalKey')) {
-            $f['editedby'] = $_SESSION['mgrInternalKey'];
+        if (!empty($fields['doc'])) {
+            $rs = db()->update(
+                db()->escape(
+                    $fields['doc']
+                )
+                , '[+prefix+]site_content'
+                , sprintf("%s `id`='%d'", $where, $docid)
+            );
         }
-
-        $rs = db()->update(
-            db()->escape(
-                $this->correctResourceFields($f)
-            )
-            , '[+prefix+]site_content'
-            , sprintf("%s `id`='%d'", $where, $docid)
-        );
-        if ($rs !== false) {
-            $modx->clearCache();
+        if (!empty($fields['tv'])) {
+            foreach($fields['tv'] as $k=>$v) {
+                $this->saveTV($docid, $k, $v);
+            }
         }
+        evo()->clearCache();
         return $rs;
     }
 
     function delete($id = 0, $where = '') {
-        global $modx;
-
         if (!preg_match('@^[0-9]+$@', $id)) {
             return;
         }
         if (empty($id)) {
-            if (isset($modx->documentIdentifier)) {
-                $id = $modx->documentIdentifier;
+            if (evo()->documentIdentifier) {
+                $id = evo()->documentIdentifier;
             } else {
                 return;
             }
@@ -155,17 +124,13 @@ class DocAPI {
     }
 
     function setPubStatus($f) {
-        global $modx;
-
-        $currentdate = time();
-
         if (!isset($f['pub_date']) || empty($f['pub_date'])) {
             $f['pub_date'] = 0;
         } else {
-            $f['pub_date'] = $modx->toTimeStamp($f['pub_date']);
-            if ($f['pub_date'] < $currentdate) {
+            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
+            if ($f['pub_date'] < serverv('request_time')) {
                 $f['published'] = 1;
-            } elseif ($f['pub_date'] > $currentdate) {
+            } elseif ($f['pub_date'] > serverv('request_time')) {
                 $f['published'] = 0;
             }
         }
@@ -173,20 +138,43 @@ class DocAPI {
         if (empty($f['unpub_date'])) {
             $f['unpub_date'] = 0;
         } else {
-            $f['unpub_date'] = $modx->toTimeStamp($f['unpub_date']);
-            if ($f['unpub_date'] < $currentdate) {
+            $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
+            if ($f['unpub_date'] < serverv('request_time')) {
                 $f['published'] = 0;
             }
         }
         return $f;
     }
 
-    function correctResourceFields($fields) {
-        global $modx;
+    private function correctResourceFields($fields) {
         foreach ($fields as $k => $v) {
-            if (!$modx->get_docfield_type($k)) {
+            if (!evo()->get_docfield_type($k)) {
                 unset($fields[$k]);
             }
+        }
+        if(!isset($fields['published'])) {
+            $fields['published'] = evo()->config('publish_default', 0);
+        }
+        if (array_get($fields, 'pagetitle', '')==='') {
+            $fields['pagetitle'] = lang('untitled_resource');
+        }
+        if (empty($fields['createdon'])) {
+            $fields['createdon'] = serverv('request_time');
+        }
+        if (empty($fields['createdby'])) {
+            $fields['createdby'] = evo()->getLoginUserID();
+        }
+        if (empty($fields['editedon'])) {
+            $fields['editedon'] = serverv('request_time');
+        }
+        if (empty($fields['editedby'])) {
+            $fields['editedby'] = evo()->getLoginUserID();
+        }
+        if (empty($fields['publishedon']) && !empty($fields['published'])) {
+            $fields['publishedon'] = $fields['editedon'];
+        }
+        if (empty($fields['template'])) {
+            $fields['template'] = evo()->config('default_template', 0);
         }
         return $fields;
     }
@@ -203,7 +191,7 @@ class DocAPI {
                 )
                 , array(
                     '[+prefix+]site_content doc',
-                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.id',
+                    'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.template',
                     'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
                 )
                 , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
@@ -218,7 +206,7 @@ class DocAPI {
         if ($this->hasTmplvar($tv[$doc_id][$name]['tv_id'], $doc_id)) {
             db()->update(
                 array(
-                    'value' => db()->escape($name)
+                    'value' => db()->escape($value)
                 )
                 , '[+prefix+]site_tmplvar_contentvalues'
                 , sprintf(
@@ -232,42 +220,18 @@ class DocAPI {
                 array(
                     'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
                     'contentid' => $doc_id,
-                    'value' => db()->escape($name)
+                    'value' => db()->escape($value)
                 )
                 , '[+prefix+]site_tmplvar_contentvalues'
             );
         }
 }
 
-    function saveTVs($inputFields = array(), $doc_id) {
-        $tmplvars = $this->tmplVars($inputFields['template']);
-        foreach ($tmplvars as $name => $tmplvarid) {
-            if ($this->hasTmplvar($tmplvarid, $doc_id)) {
-                db()->update(
-                    array(
-                        'value' => db()->escape($inputFields[$name])
-                    )
-                    , '[+prefix+]site_tmplvar_contentvalues'
-                    , sprintf(
-                        "tmplvarid='%s' AND contentid='%s'"
-                        , $tmplvarid
-                        , $doc_id
-                    )
-                );
-            } else {
-                db()->insert(
-                    array(
-                        'tmplvarid' => $tmplvarid,
-                        'contentid' => $doc_id,
-                        'value' => db()->escape($inputFields[$name])
-                    )
-                    , '[+prefix+]site_tmplvar_contentvalues'
-                );
-            }
-        }
-    }
-
     private function tmplVars($template_id) {
+        static $tmplvars = null;
+        if($tmplvars!==null) {
+            return $tmplvars;
+        }
         $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
         $tmplvars = array();
         while ($row = db()->getRow($rs)) {
@@ -290,7 +254,7 @@ class DocAPI {
                 , $doc_id
             )
         );
-        return db()->getRecordCount($rs);
+        return db()->count($rs);
     }
 
     private function hasTmplvarRelation($tmplvarid, $template_id) {
@@ -307,32 +271,25 @@ class DocAPI {
     }
 
     private function isTv($key){
-        static $tv=array();
+        static $tv=null;
         if(isset($tv[$key])) {
             return $tv[$key];
         }
-        $doc = explode(
-            ','
-            ,
-            'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext'
-        );
-        if(isset($doc[$key])) {
-            $tv[$key] = false;
+        if($tv!==null) {
             return false;
         }
+        $tv = array();
         $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
         while($row = db()->getRow($rs)) {
             $tv[$row['name']] = $row['id'];
         }
         if(!isset($tv[$key])) {
-            $tv[$key] = false;
+            return false;
         }
         return $tv[$key];
     }
     
-    function initValue($form_v) {
-        global $modx;
-
+    public function initValue($form_v) {
         $fields = explode(
             ','
             ,
@@ -379,7 +336,7 @@ class DocAPI {
                     if ($value === '') {
                         $value = 0;
                     } else {
-                        $value = $modx->toTimeStamp($value);
+                        $value = evo()->toTimeStamp($value);
                     }
                     break;
                 case 'editedon':
@@ -387,7 +344,7 @@ class DocAPI {
                     break;
                 case 'editedby':
                     if (empty($value)) {
-                        $value = $modx->getLoginUserID('mgr');
+                        $value = evo()->getLoginUserID('mgr');
                     }
                     break;
                 case 'type':
@@ -416,14 +373,14 @@ class DocAPI {
     }
 
     function setValue($form_v) {
-        global $modx, $_lang;
+        global $_lang;
         $mode = $_POST['mode'];
 
         $form_v['alias'] = get_alias(
-            $modx->array_get($form_v, 'id')
-            , $modx->array_get($form_v, 'alias')
-            , $modx->array_get($form_v, 'parent')
-            , $modx->array_get($form_v, 'pagetitle')
+            evo()->array_get($form_v, 'id')
+            , evo()->array_get($form_v, 'alias')
+            , evo()->array_get($form_v, 'parent')
+            , evo()->array_get($form_v, 'pagetitle')
         );
         if ($form_v['type'] !== 'reference' && $form_v['contentType'] !== 'text/html') {
             $form_v['richtext'] = 0;
@@ -458,18 +415,18 @@ class DocAPI {
         if (substr($form_v['alias'], -1) === '/') {
             $form_v['alias'] = trim($form_v['alias'], '/');
             $form_v['isfolder'] = 1;
-            $form_v['alias'] = $modx->stripAlias($form_v['alias']);
+            $form_v['alias'] = evo()->stripAlias($form_v['alias']);
         }
 
         if (!empty($form_v['pub_date'])) {
-            $form_v['pub_date'] = $modx->toTimeStamp($form_v['pub_date']);
+            $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
             if (empty($form_v['pub_date'])) {
-                $modx->manager->saveFormValues($mode);
+                evo()->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
-                if ($modx->array_get($form_v, 'id')) {
-                    $url .= "&id={$modx->array_get($form_v, 'id')}";
+                if (evo()->array_get($form_v, 'id')) {
+                    $url .= "&id={evo()->array_get($form_v, 'id')}";
                 }
-                $modx->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
+                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
             } elseif ($form_v['pub_date'] < $_SERVER['REQUEST_TIME']) {
                 $form_v['published'] = 1;
             } elseif ($form_v['pub_date'] > $_SERVER['REQUEST_TIME']) {
@@ -478,41 +435,39 @@ class DocAPI {
         }
 
         if (!empty($form_v['unpub_date'])) {
-            $form_v['unpub_date'] = $modx->toTimeStamp($form_v['unpub_date']);
+            $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
             if (empty($form_v['unpub_date'])) {
-                $modx->manager->saveFormValues($mode);
+                evo()->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
-                if ($modx->array_get($form_v, 'id')) {
-                    $url .= "&id={$modx->array_get($form_v, 'id')}";
+                if (evo()->array_get($form_v, 'id')) {
+                    $url .= "&id={evo()->array_get($form_v, 'id')}";
                 }
-                $modx->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
+                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
             } elseif ($form_v['unpub_date'] < $_SERVER['REQUEST_TIME']) {
                 $form_v['published'] = 0;
             }
         }
 
         // deny publishing if not permitted
-        if ($modx->array_get('mode') != 27) {
+        if (evo()->array_get('mode') != 27) {
             return $form_v;
         }
 
-        if (!$modx->hasPermission('publish_document')) {
+        if (!evo()->hasPermission('publish_document')) {
             $form_v['pub_date'] = 0;
             $form_v['unpub_date'] = 0;
             $form_v['published'] = 0;
         }
         $form_v['publishedon'] = $form_v['published'] ? $_SERVER['REQUEST_TIME'] : 0;
-        $form_v['publishedby'] = $form_v['published'] ? $modx->getLoginUserID() : 0;
+        $form_v['publishedby'] = $form_v['published'] ? evo()->getLoginUserID() : 0;
 
-        $form_v['createdby'] = $modx->getLoginUserID();
+        $form_v['createdby'] = evo()->getLoginUserID();
         $form_v['createdon'] = $_SERVER['REQUEST_TIME'];
         return $form_v;
     }
 
     function getNewDocID() {
-        global $modx;
-
-        if ($modx->config['docid_incrmnt_method'] == 1) {
+        if (evo()->config['docid_incrmnt_method'] == 1) {
             $rs = db()->select(
                 'MIN(T0.id)+1'
                 , '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id'
@@ -521,7 +476,7 @@ class DocAPI {
             return db()->getValue($rs);
         }
 
-        if ($modx->config['docid_incrmnt_method'] == 2) {
+        if (evo()->config['docid_incrmnt_method'] == 2) {
             $rs = db()->select(
                 'MAX(id)+1'
                 , '[+prefix+]site_content'
@@ -533,14 +488,10 @@ class DocAPI {
 
     function fixPubStatus($f) // published, pub_date, unpub_date
     {
-        global $modx;
-
-        $currentdate = time();
-
         if (isset($f['pub_date']) && !empty($f['pub_date'])) {
-            $f['pub_date'] = $modx->toTimeStamp($f['pub_date']);
+            $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
 
-            if ($f['pub_date'] < $currentdate) {
+            if ($f['pub_date'] < serverv('request_time')) {
                 $f['published'] = 1;
             } else {
                 $f['published'] = 0;
@@ -550,9 +501,9 @@ class DocAPI {
         }
 
         if (isset($f['unpub_date']) && !empty($f['unpub_date'])) {
-            $f['unpub_date'] = $modx->toTimeStamp($f['unpub_date']);
+            $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
 
-            if ($f['unpub_date'] < $currentdate) {
+            if ($f['unpub_date'] < serverv('request_time')) {
                 $f['published'] = 0;
             } else {
                 $f['published'] = 1;
@@ -587,20 +538,19 @@ class DocAPI {
     }
 
     function canSaveDoc() {
-        global $modx;
-
-        return $modx->hasPermission('save_document');
+        return evo()->hasPermission('save_document');
     }
 
     function canPublishDoc() {
-        global $modx;
-        if ($modx->hasPermission('new_document')) {
+        if (evo()->hasPermission('new_document')) {
             return 1;
-        } elseif (!$modx->documentObject['published']) {
-            return 1;
-        } else {
-            return 0;
         }
+
+        if (!evo()->documentObject['published']) {
+            return 1;
+        }
+
+        return 0;
     }
 
     function canSaveDraft() {
@@ -608,28 +558,23 @@ class DocAPI {
     }
 
     function canMoveDoc() {
-        global $modx;
-        return $modx->hasPermission('save_document');
+        return evo()->hasPermission('save_document');
     }
 
     function canCopyDoc() {
-        global $modx;
-        return ($modx->hasPermission('new_document') && $modx->hasPermission('save_document'));
+        return (evo()->hasPermission('new_document') && evo()->hasPermission('save_document'));
     }
 
     function canDeleteDoc() {
-        global $modx;
-        return ($modx->hasPermission('save_document') && $modx->hasPermission('delete_document'));
+        return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
     }
 
     function canCreateDoc() {
-        global $modx;
-        return $modx->hasPermission('new_document');
+        return evo()->hasPermission('new_document');
     }
 
     function canEditDoc() {
-        global $modx;
-        return $modx->hasPermission('edit_document');
+        return evo()->hasPermission('edit_document');
     }
 
     function existsDoc($id = 0) {

@@ -242,6 +242,10 @@ function sessionv($key = null, $default = null) {
     return array_get($_SESSION, $key, $default);
 }
 
+function filev($key = null, $default = null) {
+    return array_get($_FILES, $key, $default);
+}
+
 function globalv($key = null, $default = null) {
     if (strpos($key,'.')!==false && evo()) {
         return evo()->global_var($key, $default);

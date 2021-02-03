@@ -1,4 +1,27 @@
-<!-- User settings -->
+<script>
+jQuery(function(){
+    if (jQuery('input[name="use_captcha"]:checked').val()==0) {
+        jQuery('.captchaRow').hide();
+    }
+    jQuery('input[name="use_captcha"]').change(function () {
+        if(jQuery(this).val()==1) {
+            jQuery('tr.captchaRow').fadeIn();
+        } else {
+            jQuery('tr.captchaRow').fadeOut();
+        }
+    });
+    if (jQuery('input[name="email_method"]:checked').val()=='mail') {
+        jQuery('.emailMethodRow').hide();
+    }
+    jQuery('input[name="email_method"]').change(function () {
+        if(jQuery(this).val()=='smtp') {
+            jQuery('tr.emailMethodRow').fadeIn();
+        } else {
+            jQuery('tr.emailMethodRow').fadeOut();
+        }
+    });
+});
+</script>
 <div class="tab-page" id="tabPage4">
     <h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
     <table class="settings">
@@ -130,19 +153,21 @@
                 <?php echo $_lang["captcha_message"] ?>
             </td>
         </tr>
-        <tr>
+        <tr class="captchaRow">
             <th><?php echo $_lang["captcha_words_title"]; ?>
                 <br/>
                 <p><?php echo $_lang["update_settings_from_language"]; ?></p>
-                <select name="reload_captcha_words" id="reload_captcha_words_select"
-                        onchange="confirmLangChange(this, 'captcha_words_default', 'captcha_words_input');">
+                <select
+                    name="reload_captcha_words" id="reload_captcha_words_select"
+                    onchange="confirmLangChange(this, 'captcha_words_default', 'captcha_words_input');">
                     <?php echo get_lang_options('captcha_words_default'); ?>
                 </select>
             </th>
             <td>
                 <?php echo form_text('captcha_words', 255, 'id="captcha_words_input" style="width:400px"'); ?><br/>
-                <input type="hidden" name="captcha_words_default" id="captcha_words_default_hidden"
-                       value="<?php echo addslashes($_lang["captcha_words_default"]); ?>"/><br/>
+                <input
+                    type="hidden" name="captcha_words_default" id="captcha_words_default_hidden"
+                    value="<?php echo addslashes($_lang["captcha_words_default"]); ?>"/><br/>
                 <?php echo $_lang["captcha_words_message"] ?></td>
         </tr>
         <tr>
@@ -163,7 +188,7 @@
                     form_radio('email_method', 'smtp', ($email_method == 'smtp'))); ?><br/>
             </td>
         </tr>
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_auth_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
@@ -172,28 +197,41 @@
             </td>
         </tr>
 
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_host_title"] ?></th>
-            <td><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
-                       value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com"; ?>"/></td>
+            <td><input
+                onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
+                value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com"; ?>"/>
+            </td>
         </tr>
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_port_title"] ?></th>
-            <td><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_port"
-                       value="<?php echo isset($smtp_port) ? $smtp_port : "25"; ?>"/></td>
+            <td>
+                <input
+                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" 
+                    name="smtp_port"
+                value="<?php echo isset($smtp_port) ? $smtp_port : "25"; ?>"/>
+            </td>
         </tr>
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_username_title"] ?></th>
-            <td><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
-                       name="smtp_username"
-                       value="<?php echo isset($smtp_username) ? $smtp_username : $emailsender; ?>"/></td>
+            <td>
+                <input
+                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
+                    name="smtp_username"
+                    value="<?php echo isset($smtp_username) ? $smtp_username : $emailsender; ?>"
+                />
+            </td>
         </tr>
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_password_title"] ?></th>
-            <td><input onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtppw"
-                       value="********************" autocomplete="off"/></td>
+            <td>
+                <input
+                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtppw"
+                    value="********************" autocomplete="off"/>
+            </td>
         </tr>
-        <tr>
+        <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_secure_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["none"],
@@ -202,7 +240,6 @@
                 <?php echo wrap_label("tls", form_radio('smtp_secure', 'tls', ($smtp_secure == 'tls'))); ?>
             </td>
         </tr>
-
 
         <tr>
             <th><?php echo $_lang["emailsubject_title"]; ?>
@@ -215,8 +252,9 @@
             </th>
             <td>
                 <?php echo form_text('emailsubject', null, 'id="emailsubject_field"'); ?><br/>
-                <input type="hidden" name="emailsubject_default" id="emailsubject_default_hidden"
-                       value="<?php echo addslashes($_lang['emailsubject_default']); ?>"/><br/>
+                <input
+                    type="hidden" name="emailsubject_default" id="emailsubject_default_hidden"
+                    value="<?php echo addslashes($_lang['emailsubject_default']); ?>"/><br/>
                 <?php echo $_lang["emailsubject_message"] ?></td>
         </tr>
         <tr>
@@ -228,14 +266,20 @@
                     <?php echo get_lang_options('system_email_signup'); ?>
                 </select>
             </td>
-            <td><textarea id="signupemail_message_textarea" name="signupemail_message"
-                          style="width:100%; height: 120px;"><?php echo $signupemail_message; ?></textarea>
-                <input type="hidden" name="system_email_signup_default" id="system_email_signup_hidden"
-                       value="<?php echo addslashes($_lang['system_email_signup']); ?>"/><br/>
+            <td>
+                <textarea
+                    id="signupemail_message_textarea" name="signupemail_message"
+                    style="width:100%; height: 120px;"
+                ><?php echo $signupemail_message; ?></textarea>
+                <input
+                    type="hidden" name="system_email_signup_default" id="system_email_signup_hidden"
+                    value="<?php echo addslashes($_lang['system_email_signup']); ?>"
+                /><br/>
                 <?php echo $_lang["signupemail_message"] ?></td>
         </tr>
         <tr>
-            <td nowrap class="warning" valign="top"><b><?php echo $_lang["websignupemail_title"] ?></b>
+            <td nowrap class="warning" valign="top">
+                <b><?php echo $_lang["websignupemail_title"] ?></b>
                 <br/>
                 <p><?php echo $_lang["update_settings_from_language"]; ?></p>
                 <select name="reload_websignupemail_message" id="reload_websignupemail_message_select"
@@ -243,10 +287,14 @@
                     <?php echo get_lang_options('system_email_websignup'); ?>
                 </select>
             </td>
-            <td><textarea id="websignupemail_message_textarea" name="websignupemail_message"
-                          style="width:100%; height: 120px;"><?php echo $websignupemail_message; ?></textarea>
-                <input type="hidden" name="system_email_websignup_default" id="system_email_websignup_hidden"
-                       value="<?php echo addslashes($_lang['system_email_websignup']); ?>"/><br/>
+            <td>
+                <textarea
+                    id="websignupemail_message_textarea" name="websignupemail_message"
+                    style="width:100%; height: 120px;"
+                ><?php echo $websignupemail_message; ?></textarea>
+                <input
+                    type="hidden" name="system_email_websignup_default" id="system_email_websignup_hidden"
+                    value="<?php echo addslashes($_lang['system_email_websignup']); ?>"/><br/>
                 <?php echo $_lang["websignupemail_message"] ?></td>
         </tr>
         <tr>
@@ -258,13 +306,15 @@
                     <?php echo get_lang_options('system_email_webreminder'); ?>
                 </select>
             </td>
-            <td><textarea id="system_email_webreminder_textarea" name="webpwdreminder_message"
-                          style="width:100%; height: 120px;"><?php echo $webpwdreminder_message; ?></textarea>
-                <input type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden"
-                       value="<?php echo addslashes($_lang['system_email_webreminder']); ?>"/><br/>
+            <td>
+                <textarea
+                    id="system_email_webreminder_textarea" name="webpwdreminder_message"
+                    style="width:100%; height: 120px;"><?php echo $webpwdreminder_message; ?></textarea>
+                <input
+                    type="hidden" name="system_email_webreminder_default" id="system_email_webreminder_hidden"
+                    value="<?php echo addslashes($_lang['system_email_webreminder']); ?>"/><br/>
                 <?php echo $_lang["webpwdreminder_message"] ?></td>
         </tr>
-
         <tr>
             <th><?php echo $_lang["enable_bindings_title"] ?></th>
             <td>

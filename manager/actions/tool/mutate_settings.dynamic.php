@@ -69,6 +69,26 @@ foreach ($dir as $filename) {
             </li>
         </ul>
     </div>
+    <style type="text/css">
+        table.settings {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        table.settings tr {
+            border-bottom: 1px dotted #ccc;
+        }
+        table.settings th {
+            font-size: inherit;
+            vertical-align: top;
+            text-align: left;
+        }
+        table.settings th, table.settings td {
+            padding: 5px;
+        }
+        table.settings td input[type=text] {
+            width: 250px;
+        }
+    </style>
     <div style="margin: 0 10px 0 20px">
         <input type="hidden" name="site_id" value="<?php echo $site_id; ?>"/>
         <input type="hidden" name="settings_version" value="<?php echo $modx_version; ?>"/>
@@ -83,6 +103,8 @@ foreach ($dir as $filename) {
         <div class="tab-pane" id="settingsPane">
             <?php
             include_once($inc_path . 'tab1_site_settings.inc.php');
+            include_once($inc_path . 'tab1_doc_settings.inc.php');
+            include_once($inc_path . 'tab2_cache_settings.inc.php');
             include_once($inc_path . 'tab2_furl_settings.inc.php');
             include_once($inc_path . 'tab3_user_settings.inc.php');
             include_once($inc_path . 'tab4_manager_settings.inc.php');
@@ -96,12 +118,6 @@ foreach ($dir as $filename) {
         document.getElementById("settingsPane")
         , <?php echo evo()->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?>
     );
-    jQuery('#furlRowOn').change(function () {
-        jQuery('.furlRow').fadeIn();
-    });
-    jQuery('#furlRowOff').change(function () {
-        jQuery('.furlRow').fadeOut();
-    });
     jQuery('#udPermsOn').change(function () {
         jQuery('.udPerms').slideDown();
     });
