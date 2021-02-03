@@ -24,8 +24,10 @@
         <tr>
             <th><?php echo $_lang["a17_manager_inline_style_title"] ?></th>
             <td>
-                <textarea name="manager_inline_style" id="manager_inline_style"
-                          style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br/>
+                <textarea
+                    name="manager_inline_style" id="manager_inline_style"
+                    style="width:95%; height: 9em;"
+                ><?php echo $manager_inline_style; ?></textarea><br/>
                 <?php echo $_lang["a17_manager_inline_style_message"] ?>
             </td>
         </tr>
@@ -37,15 +39,6 @@
                     <?php echo get_lang_options(null, $manager_language); ?>
                 </select><br/>
                 <?php echo $_lang["language_message"] ?>
-            </td>
-        </tr>
-        <tr>
-            <th><?php echo $_lang["enable_draft_title"] ?></th>
-            <td>
-                <?php echo wrap_label($_lang["enabled"], form_radio('enable_draft', '1', $enable_draft == '1')); ?><br/>
-                <?php echo wrap_label($_lang["disabled"], form_radio('enable_draft', '0', $enable_draft == '0')); ?>
-                <br/>
-                <?php echo $_lang["enable_draft_message"] ?>
             </td>
         </tr>
         <tr>
