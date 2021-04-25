@@ -5,25 +5,7 @@ function getTmplvars($docid, $template_id, $docgrp) {
         return array();
     }
 
-    static $tmplVars = null;
-    if ($tmplVars !== null) {
-        return $tmplVars;
-    }
-
     $tmplVars = array();
-
-    $from = array(
-        '[+prefix+]site_tmplvars AS tv',
-        'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
-        $docid ?
-            sprintf(
-                "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
-                , $docid
-            )
-            :
-            '',
-        'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
-    );
 
     $rs = db()->select(
         array(
@@ -36,7 +18,18 @@ function getTmplvars($docid, $template_id, $docgrp) {
                 'tv.default_text',
             'tvtpl.rank'
         )
-        , $from
+        , array(
+            '[+prefix+]site_tmplvars AS tv',
+            'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
+            $docid ?
+                sprintf(
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
+                    , $docid
+                )
+                :
+                '',
+            'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
+        )
         , sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
             , $template_id
