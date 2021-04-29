@@ -65,7 +65,7 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 	// Remove the old preview tv[+id+]
 	jQuery("#tv[+id+]PreviewContainer").remove();
 	
-	if (url != ""){
+	if (url != "" && !url.match("/.*::.*/")){
 		// Create a new preview
 		jQuery("#tv[+id+]").parents("td").append(\'<div class="tvimage" id="tv[+id+]PreviewContainer"><img src="\'+url+\'" style="\'+[+style+]+\'" id="tv[+id+]Preview"/></div>\');
 		
