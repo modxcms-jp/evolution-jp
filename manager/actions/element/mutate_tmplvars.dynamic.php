@@ -598,48 +598,48 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                             }
                         </script>
                         <p><?= $_lang['tmplvar_access_msg']; ?></p>
-                    <?php
-                $chk = '';
-                $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
-                if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
-                    $groupsarray = $_POST['docgroups'];
-                }
-                $number_of_g = 0;
-                while ($row = db()->getRow($rs)) {
-                    $checked = in_array($row['id'], $groupsarray);
-                    if ($modx->hasPermission('access_permissions')) {
-                        if ($checked) {
-                            $notPublic = true;
+                        <?php
+                        $chk = '';
+                        $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
+                        if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
+                            $groupsarray = $_POST['docgroups'];
                         }
-                        $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
-                        $number_of_g++;
-                    } elseif ($checked) {
-                        echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
-                    }
-                }
-                if ($modx->hasPermission('access_permissions')) {
-                    $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
-                    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
-                }
-                echo $chks;
-                    ?>
+                        $number_of_g = 0;
+                        while ($row = db()->getRow($rs)) {
+                            $checked = in_array($row['id'], $groupsarray);
+                            if ($modx->hasPermission('access_permissions')) {
+                                if ($checked) {
+                                    $notPublic = true;
+                                }
+                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
+                                $number_of_g++;
+                            } elseif ($checked) {
+                                echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
+                            }
+                        }
+                        if ($modx->hasPermission('access_permissions')) {
+                            $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
+                            $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
+                        }
+                        echo $chks;
+                        ?>
                     </div>
-                <?php
+            <?php
                 }
             }
-                ?>
-                <div class="tab-page" id="tabHelp">
-                    <h2 class="tab">ヘルプ</h2>
-                    <?= $_lang['tmplvars_msg']; ?>
-                </div>
-                <?php
-                // invoke OnTVFormRender event
-                $tmp = array('id' => $id);
-                $evtOut = $modx->invokeEvent('OnTVFormRender', $tmp);
-                if (is_array($evtOut)) {
-                    echo implode('', $evtOut);
-                }
-                ?>
+            ?>
+            <div class="tab-page" id="tabHelp">
+                <h2 class="tab">ヘルプ</h2>
+                <?= $_lang['tmplvars_msg']; ?>
+            </div>
+            <?php
+            // invoke OnTVFormRender event
+            $tmp = array('id' => $id);
+            $evtOut = $modx->invokeEvent('OnTVFormRender', $tmp);
+            if (is_array($evtOut)) {
+                echo implode('', $evtOut);
+            }
+            ?>
         </div>
     </div>
 </form>
