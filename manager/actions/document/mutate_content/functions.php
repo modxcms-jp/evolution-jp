@@ -213,8 +213,32 @@ function getUDGroups($id) {
     } else {
         $groupsarray = postv('docgroups', array());
     }
-    // Loop through the permissions list
+    function mgr_perm($private_memgroup) {
+        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+            continue;
+        }
+        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+            continue;
+        }
+    }
+    function web_perm($private_memgroup) {
+        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+            continue;
+        }
+        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+            continue;
+        }
+    }
+            // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
+        // Skip the access permission if the user doesn't have access...
+        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
+            continue;
+        }
+        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
+            continue;
+        }
+
         // Create an inputValue pair (group ID and group link (if it exists))
         $inputValue = sprintf(
             '%s,%s'
@@ -225,25 +249,14 @@ function getUDGroups($id) {
         $checked = in_array($inputValue, $groupsarray);
         if ($checked) {
             $notPublic = true;
-        } // Mark as private access (either web or manager)
-
-        // Skip the access permission if the user doesn't have access...
-        if (
-            (!hasPermission('access_permissions') && $row['private_memgroup'] == 1)
-            ||
-            (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1)
-        ) {
-            continue;
+            $inputAttributes['checked'] = 'checked';
+        } else {
+            unset($inputAttributes['checked']);
         }
 
         // Setup attributes for this Input box
         $inputAttributes['id'] = 'group-' . $row['id'];
         $inputAttributes['value'] = $inputValue;
-        if ($checked) {
-            $inputAttributes['checked'] = 'checked';
-        } else {
-            unset($inputAttributes['checked']);
-        }
 
         // Create attribute string list
         $inputString = array();
