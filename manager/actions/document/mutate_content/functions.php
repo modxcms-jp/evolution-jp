@@ -163,7 +163,7 @@ function getGroups($docid) {
 function getUDGroups($id) {
     global $permissions_yes, $permissions_no;
 
-    if (manager()->action == 27) {
+    if (manager()->action == 27 && $id) {
         $docid = $id;
     } elseif (anyv('pid')) {
         $docid = anyv('pid');
@@ -203,12 +203,13 @@ function getUDGroups($id) {
             , 'name'
         );
     }
-
     // retain selected doc groups between post
-    if ($docid && postv('docgroups')) {
-        $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
-    } elseif ($docid) {
-        $groupsarray = getGroups($docid);
+    if ($docid) {
+        if (postv('docgroups')) {
+            $groupsarray = array_merge(getGroups($docid), postv('docgroups'));
+        } else {
+            $groupsarray = getGroups($docid);
+        }
     } else {
         $groupsarray = postv('docgroups', array());
     }
@@ -251,19 +252,7 @@ function getUDGroups($id) {
         }
 
         // does user have this permission?
-        $count = db()->getValue(
-            db()->select(
-                'COUNT(mg.id)'
-                , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
-                , sprintf(
-                    'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s'
-                    , $row['id']
-                    , $_SESSION['mgrInternalKey']
-                )
-            )
-        );
-
-        if ($count > 0) {
+        if (_mgroup($row['id'])+_wgroup($row['id']) > 0) {
             ++$permissions_yes;
         } else {
             ++$permissions_no;
@@ -282,39 +271,69 @@ function getUDGroups($id) {
             );
     }
 
+    if (!$permissions) {
+        return false;
+    }
+
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
     if (sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
         return array();
     }
 
-    if ($permissions) {
-        // Add the "All Document Groups" item if we have rights in both contexts
-        if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
-            array_unshift(
-                $permissions
-                , html_tag(
-                    '<li>'
-                    , array(),
-                    html_tag('<input>', array(
-                            'type' => 'checkbox',
-                            'class' => 'checkbox',
-                            'name' => 'chkalldocs',
-                            'id' => 'groupall',
-                            'checked' => !$notPublic ? null : '',
-                            'onclick' => 'makePublic(true);'
-                        )
+// Add the "All Document Groups" item if we have rights in both contexts
+    if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
+        array_unshift(
+            $permissions
+            , html_tag(
+                '<li>'
+                , array(),
+                html_tag('<input>', array(
+                        'type' => 'checkbox',
+                        'class' => 'checkbox',
+                        'name' => 'chkalldocs',
+                        'id' => 'groupall',
+                        'checked' => !$notPublic ? null : '',
+                        'onclick' => 'makePublic(true);'
                     )
-                    . html_tag('label', array(
-                            'for' => 'groupall',
-                            'class' => 'warning'
-                        )
-                        , lang('all_doc_groups')))
-            );
-            // Output the permissions list...
-        }
+                )
+                . html_tag('label', array(
+                        'for' => 'groupall',
+                        'class' => 'warning'
+                    )
+                    , lang('all_doc_groups')))
+        );
+        // Output the permissions list...
     }
 
     return $permissions;
+}
+
+function _mgroup($group_id) {
+    return db()->getValue(
+        db()->select(
+            'COUNT(mg.id)'
+            , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
+            , sprintf(
+                'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s'
+                , $group_id
+                , $_SESSION['mgrInternalKey']
+            )
+        )
+    );
+}
+
+function _wgroup($group_id) {
+    return db()->getValue(
+        db()->select(
+            'COUNT(mg.id)'
+            , '[+prefix+]webgroup_access mga, [+prefix+]web_groups mg'
+            , sprintf(
+                'mga.webgroup=mg.webgroup AND mga.documentgroup=%s AND mg.webuser=%s'
+                , $group_id
+                , $_SESSION['mgrInternalKey']
+            )
+        )
+    );
 }
 
 function mergeDraft($content, $draft) {
