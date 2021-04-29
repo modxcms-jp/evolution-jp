@@ -599,7 +599,6 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                         </script>
                         <p><?= $_lang['tmplvar_access_msg']; ?></p>
                     <?php
-                }
                 $chk = '';
                 $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
                 if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
@@ -626,6 +625,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     ?>
                     </div>
                 <?php
+                }
             }
                 ?>
                 <div class="tab-page" id="tabHelp">
