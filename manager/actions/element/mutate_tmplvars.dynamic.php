@@ -68,7 +68,7 @@ if (is_array($evtOut)) {
     $RTEditors = implode(',', $evtOut);
 }
 
-$form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . htmlspecialchars($content['elements']) . "</textarea>\n";
+$form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc($content['elements']) . "</textarea>\n";
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
 $ph = array();
@@ -94,7 +94,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
     }
 
     // Widget Parameters
-    var widgetParams = {};          // name = description;datatype;default or list values - datatype: int, string, list : separated by comma (,)
+    var widgetParams = {}; // name = description;datatype;default or list values - datatype: int, string, list : separated by comma (,)
     widgetParams['date'] = '&dateformat=Date Format;string;%Y年%m月%d日 &default=If no value, use current date;list;Yes,No;No';
     widgetParams['string'] = '&stringformat=String Format;list;Zen-Han,Han-Zen,Upper Case,Lower Case,Sentence Case,Capitalize,nl2br,Number Format,HtmlSpecialChars,HtmlEntities';
     widgetParams['delim'] = '&delim=Delimiter;string;,';
@@ -144,10 +144,10 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
             for (p = 0; p < dp.length; p++) {
                 dp[p] = (dp[p] + '').replace(/^\s|\s$/, ""); // trim
                 ar = dp[p].split("=");
-                key = ar[0];     // param
+                key = ar[0]; // param
                 ar = (ar[1] + '').split(";");
-                desc = ar[0];   // description
-                dt = ar[1];     // data type
+                desc = ar[0]; // description
+                dt = ar[1]; // data type
                 value = decode((currentParams[key]) ? currentParams[key] : (dt == 'list') ? ar[3] : (ar[2]) ? ar[2] : '');
                 if (value != currentParams[key]) currentParams[key] = value;
                 value = (value + '').replace(/^\s|\s$/, ""); // trim
@@ -173,7 +173,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                         case 'textarea':
                             c = '<textarea class="inputBox phptextarea" name="prop_' + key + '" cols="25" style="width:320px;" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" >' + value + '</textarea>';
                             break;
-                        default:  // string
+                        default: // string
                             c = '<input type="text" name="prop_' + key + '" value="' + value + '" size="30" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" />';
                             break;
 
@@ -258,7 +258,6 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
     }
 
     setTimeout('showParameters()', 10);
-
 </script>
 
 <form name="mutate" id="mutate" method="post" action="index.php" enctype="multipart/form-data">
@@ -273,7 +272,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
     <input type="hidden" name="id" value="<?= $content['id']; ?>">
     <input type="hidden" name="a" value="302">
     <input type="hidden" name="mode" value="<?= $_GET['a']; ?>">
-    <input type="hidden" name="params" value="<?=htmlspecialchars($content['display_params']); ?>">
+    <input type="hidden" name="params" value="<?= hsc($content['display_params']); ?>">
 
     <h1><?= $_lang['tmplvars_title'];
         if ($id) {
@@ -282,19 +281,15 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
 
     <div id="actions">
         <ul class="actionButtons">
-            <?php if ($modx->hasPermission('save_template')): ?>
+            <?php if ($modx->hasPermission('save_template')) : ?>
                 <li id="Button1" class="mutate">
-                    <a href="#"
-                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                        <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
+                    <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
-                        <option id="stay1"
-                                value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?= $_lang['stay_new'] ?></option>
-                        <option id="stay2"
-                                value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?> ><?= $_lang['stay'] ?></option>
-                        <option id="stay3"
-                                value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?> ><?= $_lang['close'] ?></option>
+                        <option id="stay1" value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                        <option id="stay2" value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                        <option id="stay3" value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
@@ -334,17 +329,11 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                 <table>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_name']; ?></th>
-                        <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input
-                                    name="name" type="text" maxlength="50"
-                                    value="<?=htmlspecialchars($content['name']); ?>" class="inputBox"
-                                    style="width:300px;"><span
-                                    style="font-family:'Courier New', Courier, mono">*]</span></td>
+                        <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input name="name" type="text" maxlength="50" value="<?= hsc($content['name']); ?>" class="inputBox" style="width:300px;"><span style="font-family:'Courier New', Courier, mono">*]</span></td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_caption']; ?></th>
-                        <td align="left"><input name="caption" type="text" maxlength="80"
-                                                value="<?=htmlspecialchars($content['caption']); ?>"
-                                                class="inputBox" style="width:300px;"></td>
+                        <td align="left"><input name="caption" type="text" maxlength="80" value="<?= hsc($content['caption']); ?>" class="inputBox" style="width:300px;"></td>
                     </tr>
 
                     <tr>
@@ -380,8 +369,11 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                         $option[strtolower($input_name)] = ucwords(strtolower($input_name));
                                     }
                                 }
-                                $result = db()->select('name', '[+prefix+]site_plugins',
-                                    "name like'input:%' and disabled!=1");
+                                $result = db()->select(
+                                    'name',
+                                    '[+prefix+]site_plugins',
+                                    "name like'input:%' and disabled!=1"
+                                );
                                 if (0 < db()->getRecordCount($result)) {
                                     while ($row = db()->getRow($result)) {
                                         $input_name = trim(substr($row['name'], 6));
@@ -433,45 +425,38 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     </tr>
                     <tr>
                         <th align="left" valign="top"><?= $_lang['tmplvars_default']; ?></th>
-                        <td
-                            align="left" nowrap="nowrap"
-                        ><textarea
-                            name="default_text" type="text"
-                            class="inputBox phptextarea" rows="5"
-                            style="width:400px;"
-                        ><?=hsc($content['default_text']);?></textarea><?= $tooltip_tv_binding; ?>
+                        <td align="left" nowrap="nowrap"><textarea name="default_text" type="text" class="inputBox phptextarea" rows="5" style="width:400px;"><?= hsc($content['default_text']); ?></textarea><?= $tooltip_tv_binding; ?>
                         </td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_widget']; ?></th>
                         <td align="left">
-                            <select name="display" size="1" class="inputBox" style="width:400px;"
-                                    onchange="showParameters(this);">
-                                <option value="" <?=selected($content['display'] == ''); ?>>&nbsp;</option>
-                                <option value="custom_widget" <?=selected($content['display'] === 'custom_widget'); ?>>
+                            <select name="display" size="1" class="inputBox" style="width:400px;" onchange="showParameters(this);">
+                                <option value="" <?= selected($content['display'] == ''); ?>>&nbsp;</option>
+                                <option value="custom_widget" <?= selected($content['display'] === 'custom_widget'); ?>>
                                     Custom Processor
                                 </option>
-                                <option value="image" <?=selected($content['display'] === 'image'); ?>>Image
+                                <option value="image" <?= selected($content['display'] === 'image'); ?>>Image
                                 </option>
-                                <option value="hyperlink" <?=selected($content['display'] === 'hyperlink'); ?>>
+                                <option value="hyperlink" <?= selected($content['display'] === 'hyperlink'); ?>>
                                     Hyperlink
                                 </option>
-                                <option value="htmltag" <?=selected($content['display'] === 'htmltag'); ?>>HTML
+                                <option value="htmltag" <?= selected($content['display'] === 'htmltag'); ?>>HTML
                                     Generic Tag
                                 </option>
-                                <option value="string" <?=selected($content['display'] === 'string'); ?>>String
+                                <option value="string" <?= selected($content['display'] === 'string'); ?>>String
                                     Formatter
                                 </option>
-                                <option value="date" <?=selected($content['display'] === 'date'); ?>>Date
+                                <option value="date" <?= selected($content['display'] === 'date'); ?>>Date
                                     Formatter
                                 </option>
-                                <option value="unixtime" <?=selected($content['display'] === 'unixtime'); ?>>
+                                <option value="unixtime" <?= selected($content['display'] === 'unixtime'); ?>>
                                     Unixtime
                                 </option>
-                                <option value="delim" <?=selected($content['display'] === 'delim'); ?>>Delimited
+                                <option value="delim" <?= selected($content['display'] === 'delim'); ?>>Delimited
                                     List
                                 </option>
-                                <option value="datagrid" <?=selected($content['display'] === 'datagrid'); ?>>
+                                <option value="datagrid" <?= selected($content['display'] === 'datagrid'); ?>>
                                     Data Grid
                                 </option>
                             </select>
@@ -479,10 +464,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     </tr>
                     <tr id="displayparamrow">
                         <td valign="top" align="left"><?= $_lang['tmplvars_widget_prop']; ?>
-                            <div style="padding-top:8px;"><a href="javascript://"
-                                                             onclick="resetParameters(); return false"><img
-                                            src="<?= $_style['icons_refresh']; ?>"
-                                            alt="<?= $_lang['tmplvars_reset_params']; ?>"></a></div>
+                            <div style="padding-top:8px;"><a href="javascript://" onclick="resetParameters(); return false"><img src="<?= $_style['icons_refresh']; ?>" alt="<?= $_lang['tmplvars_reset_params']; ?>"></a></div>
                         </td>
                         <td align="left" id="displayparams">&nbsp;</td>
                     </tr>
@@ -507,8 +489,8 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     <tr>
                         <td>
                             <?php
-                            if (0 < db()->getRecordCount($rs)):
-                                while ($row = db()->getRow($rs)):
+                            if (0 < db()->getRecordCount($rs)) :
+                                while ($row = db()->getRow($rs)) :
                                     if ($_REQUEST['a'] == '300' && $modx->config['default_template'] == $row['id']) {
                                         $checked = true;
                                     } elseif (getv('tpl') == $row['id']) {
@@ -523,8 +505,9 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                     $ph['id'] = $row['id'];
                                     $ph['templatename'] = $row['templatename'];
                                     echo $modx->parseText(
-                                        '<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] /> [[+id+]] [+templatename+]</label>'
-                                        , $ph);
+                                        '<label><input type="checkbox" name="template[]" value="[+id+]" [+checked+] /> [[+id+]] [+templatename+]</label>',
+                                        $ph
+                                    );
                                 endwhile;
                             endif;
                             ?>
@@ -545,7 +528,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . htmlspecialchars($v["category"]) . "</option>";
+                                        echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . hsc($v["category"]) . "</option>";
                                     }
                                 }
                                 ?>
@@ -554,34 +537,24 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top"
-                            style="padding-top:5px;"><?= $_lang['new_category']; ?></th>
-                        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                                                                      maxlength="45" value=""
-                                                                                      class="inputBox"
-                                                                                      style="width:300px;"></td>
+                        <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category']; ?></th>
+                        <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox" style="width:300px;"></td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_description']; ?></th>
-                        <td align="left"><textarea name="description"
-                                                   style="padding:0;height:4em;"><?=htmlspecialchars($content['description']); ?></textarea>
+                        <td align="left"><textarea name="description" style="padding:0;height:4em;"><?= hsc($content['description']); ?></textarea>
                         </td>
                     </tr>
                     <?php if ($modx->hasPermission('save_template') == 1) { ?>
                         <tr>
-                            <td align="left" colspan="2"><label><input name="locked" value="on"
-                                                                       type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : ""; ?>
-                                                                       class="inputBox"/>
-                                    <b><?= $_lang['lock_tmplvars']; ?></b> <span
-                                            class="comment"><?= $_lang['lock_tmplvars_msg']; ?></span></label>
+                            <td align="left" colspan="2"><label><input name="locked" value="on" type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : ""; ?> class="inputBox" />
+                                    <b><?= $_lang['lock_tmplvars']; ?></b> <span class="comment"><?= $_lang['lock_tmplvars_msg']; ?></span></label>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_rank']; ?></th>
-                        <td align="left"><input name="rank" type="text" maxlength="4"
-                                                value="<?=(isset($content['rank'])) ? $content['rank'] : 0; ?>"
-                                                class="inputBox" style="width:300px;"></td>
+                        <td align="left"><input name="rank" type="text" maxlength="4" value="<?= (isset($content['rank'])) ? $content['rank'] : 0; ?>" class="inputBox" style="width:300px;"></td>
                     </tr>
                 </table>
             </div>
@@ -597,58 +570,62 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     $groupsarray[] = $row['documentgroup'];
                 }
                 if ($modx->hasPermission('access_permissions')) {
-                    ?>
+            ?>
                     <div class="tab-page" id="tabAccess">
-                    <h2 class="tab"><?= $_lang['access_permissions']; ?></h2>
-                    <script type="text/javascript">
-                        function makePublic(b) {
-                            var notPublic = false;
-                            var f = document.forms['mutate'];
-                            var chkpub = f['chkalldocs'];
-                            var chks = f['docgroups[]'];
-                            if (!chks && chkpub) {
-                                chkpub.checked = true;
-                                return false;
-                            } else if (!b && chkpub) {
-                                if (!chks.length) notPublic = chks.checked;
-                                else for (i = 0; i < chks.length; i++) if (chks[i].checked) notPublic = true;
-                                chkpub.checked = !notPublic;
-                            } else {
-                                if (!chks.length) chks.checked = (b) ? false : chks.checked;
-                                else for (i = 0; i < chks.length; i++) if (b) chks[i].checked = false;
-                                chkpub.checked = true;
+                        <h2 class="tab"><?= $_lang['access_permissions']; ?></h2>
+                        <script type="text/javascript">
+                            function makePublic(b) {
+                                var notPublic = false;
+                                var f = document.forms['mutate'];
+                                var chkpub = f['chkalldocs'];
+                                var chks = f['docgroups[]'];
+                                if (!chks && chkpub) {
+                                    chkpub.checked = true;
+                                    return false;
+                                } else if (!b && chkpub) {
+                                    if (!chks.length) notPublic = chks.checked;
+                                    else
+                                        for (i = 0; i < chks.length; i++)
+                                            if (chks[i].checked) notPublic = true;
+                                    chkpub.checked = !notPublic;
+                                } else {
+                                    if (!chks.length) chks.checked = (b) ? false : chks.checked;
+                                    else
+                                        for (i = 0; i < chks.length; i++)
+                                            if (b) chks[i].checked = false;
+                                    chkpub.checked = true;
+                                }
+                            }
+                        </script>
+                        <p><?= $_lang['tmplvar_access_msg']; ?></p>
+                        <?php
+                        $chk = '';
+                        $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
+                        if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
+                            $groupsarray = $_POST['docgroups'];
+                        }
+                        $number_of_g = 0;
+                        while ($row = db()->getRow($rs)) {
+                            $checked = in_array($row['id'], $groupsarray);
+                            if ($modx->hasPermission('access_permissions')) {
+                                if ($checked) {
+                                    $notPublic = true;
+                                }
+                                $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
+                                $number_of_g++;
+                            } elseif ($checked) {
+                                echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
                             }
                         }
-                    </script>
-                    <p><?= $_lang['tmplvar_access_msg']; ?></p>
-                    <?php
-                }
-                $chk = '';
-                $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
-                if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
-                    $groupsarray = $_POST['docgroups'];
-                }
-                $number_of_g = 0;
-                while ($row = db()->getRow($rs)) {
-                    $checked = in_array($row['id'], $groupsarray);
-                    if ($modx->hasPermission('access_permissions')) {
-                        if ($checked) {
-                            $notPublic = true;
+                        if ($modx->hasPermission('access_permissions')) {
+                            $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
+                            $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
                         }
-                        $chks .= '<label><input type="checkbox" name="docgroups[]" value="' . $row['id'] . '"' . ($checked ? ' checked="checked"' : '') . ' onclick="makePublic(false)" />' . $row['name'] . '</label>';
-                        $number_of_g++;
-                    } elseif ($checked) {
-                        echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
-                    }
+                        echo $chks;
+                        ?>
+                    </div>
+            <?php
                 }
-                if ($modx->hasPermission('access_permissions')) {
-                    $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
-                    $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
-                }
-                echo $chks;
-                ?>
-                </div>
-                <?php
             }
             ?>
             <div class="tab-page" id="tabHelp">
@@ -668,20 +645,20 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
 </form>
 <script>
     tpTmplvars = new WebFXTabPane(document.getElementById("tmplvarsPane"), false);
-    var readonly = <?=($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0'; ?>;
+    var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0'; ?>;
     if (readonly == 1) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');
         jQuery('#Button1').hide();
-        jQuery('input[name="locked"]').click(function () {
+        jQuery('input[name="locked"]').click(function() {
             jQuery('#Button1').toggle();
         });
     }
-    jQuery('input[name="locked"]').click(function () {
+    jQuery('input[name="locked"]').click(function() {
         jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
         jQuery('select').toggleClass('readonly');
     });
-    jQuery('select[name="categoryid"]').change(function () {
+    jQuery('select[name="categoryid"]').change(function() {
         if (jQuery(this).val() == '-1') {
             jQuery('#newcategry').fadeIn();
         } else {
@@ -690,7 +667,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
         }
     });
     var itype = jQuery('#type');
-    itype.change(function () {
+    itype.change(function() {
         switch (itype.val()) {
             case 'dropdown':
             case 'listbox':
@@ -698,13 +675,13 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
             case 'checkbox':
             case 'option':
             case 'custom_tv':
-            <?php
-            $result = db()->select('name', '[+prefix+]site_plugins', "name like'input:%' and disabled!=1");
-            while ($row = db()->getRow($result)) {
-                $type = strtolower(str_replace("input:", "", $row["name"]));
-                echo "\t\t\tcase '" . $type . "':\n";
-            }
-            ?>
+                <?php
+                $result = db()->select('name', '[+prefix+]site_plugins', "name like'input:%' and disabled!=1");
+                while ($row = db()->getRow($result)) {
+                    $type = strtolower(str_replace("input:", "", $row["name"]));
+                    echo "\t\t\tcase '" . $type . "':\n";
+                }
+                ?>
                 jQuery('#inputoption').fadeIn();
                 var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
                 if (itype.val() == 'custom_tv') {

@@ -490,7 +490,7 @@ function ls($curpath) {
                     $dirs_array[$dircounter]['delete'] = '';
                 }
             } else {
-                $file = mb_convert_encoding($file, $modx_manager_charset, 'SJIS-win,EUCJP-win,UTF-8');
+                $file = mb_convert_encoding($file, $modx_manager_charset, 'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8');
                 $dirs_array[$dircounter]['text'] = sprintf(
                     '<img src="%s" align="absmiddle" alt="" /> <a href="index.php?a=31&mode=drill&path=%s"><b>%s</b></a>',
                     $_style['tree_folder'],
