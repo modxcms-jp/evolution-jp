@@ -47,23 +47,23 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
     foreach ($fields as $targetTv) {
         $foundTags = array();
         if(strpos($default, '@fix')!==0) {
-        // Get the list of current values for this TV
+            // Get the list of current values for this TV
             $result = db()->select(
-            'value'
+                'value'
                 , '[+prefix+]site_tmplvar_contentvalues'
                 , sprintf(
                     "tmplvarid IN ('%s')"
                     , implode(',', $source_tvs[0])
                 )
-        );
+            );
             $all_docs = db()->makeArray($result);
 
-        foreach ($all_docs as $theDoc) {
-            $theTags = explode($delimiter, $theDoc['value']);
-            foreach ($theTags as $t) {
-                $foundTags[trim($t)]++;
+            foreach ($all_docs as $theDoc) {
+                $theTags = explode($delimiter, $theDoc['value']);
+                foreach ($theTags as $t) {
+                    $foundTags[trim($t)]++;
+                }
             }
-        }
             // Sort the TV values (case insensitively)
             uksort($foundTags, 'strcasecmp');
         }
