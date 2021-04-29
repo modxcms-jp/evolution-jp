@@ -109,12 +109,12 @@ function sectionContent() {
     if (config('use_editor') && doc('richtext')) {
         $editors = evo()->invokeEvent('OnRichTextEditorRegister');
         if ($editors) {
-            $ph['body'] = rteContent(doc('content|hsc'), $editors);
+            $ph['body'] = rteContent(hsc(doc('content'), ENT_COMPAT, '', true), $editors);
         } else {
-            $ph['body'] = $planetpl(doc('content|hsc'));
+            $ph['body'] = $planetpl(hsc(doc('content'), ENT_COMPAT, '', true));
         }
     } else {
-        $ph['body'] = $planetpl(doc('content|hsc'));
+        $ph['body'] = $planetpl(hsc(doc('content'), ENT_COMPAT, '', true));
     }
 
     return parseText(file_get_tpl('section_content.tpl'), $ph);
