@@ -98,11 +98,11 @@ if (config('use_udperms') == 1) {
         $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
         $body[] = parseText(file_get_tpl('tab_access.tpl'), $ph);
-    } elseif (evo()->session_var('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
+    } elseif (sessionv('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
         && (
-            evo()->session_var('mgrPermissions.access_permissions') == 1
+            sessionv('mgrPermissions.access_permissions') == 1
             ||
-            evo()->session_var('mgrPermissions.web_access_permissions') == 1
+            sessionv('mgrPermissions.web_access_permissions') == 1
         )
     ) {
         $body[] = '<p>' . lang('access_permissions_docs_collision') . '</p>';

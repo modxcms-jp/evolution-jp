@@ -7,7 +7,7 @@ if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
-    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     <html <?php if ($modx_textdir === 'rtl') {
         echo 'dir="rtl"';
     } ?>lang="<?php echo $mxla; ?>" xml:lang="<?php echo $mxla; ?>">
@@ -15,7 +15,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>"/>
         <title>nav</title>
         <link rel="stylesheet" type="text/css"
-              href="media/style/<?php echo $manager_theme ?>/style.css?<?php echo $modx_version; ?>"/>
+                href="media/style/<?php echo $manager_theme ?>/style.css?<?php echo $modx_version; ?>"/>
         <?php echo $modx->config['manager_inline_style']; ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript">
@@ -24,7 +24,6 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             var currentFrameState = 'open';
             var defaultFrameWidth = '<?php echo $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
             var userDefinedFrameWidth = '<?php echo $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
-
             var workText;
             var buildText;
             var msgcheck = <?php echo $modx->hasPermission('messages') ? 1 : 0;?>;
