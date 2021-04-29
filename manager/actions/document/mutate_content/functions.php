@@ -213,23 +213,7 @@ function getUDGroups($id) {
     } else {
         $groupsarray = postv('docgroups', array());
     }
-    function mgr_perm($private_memgroup) {
-        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
-            continue;
-        }
-        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
-            continue;
-        }
-    }
-    function web_perm($private_memgroup) {
-        if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
-            continue;
-        }
-        if (!hasPermission('web_access_permissions') && $row['private_webgroup'] == 1) {
-            continue;
-        }
-    }
-            // Loop through the permissions list
+    // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
         // Skip the access permission if the user doesn't have access...
         if (!hasPermission('access_permissions') && $row['private_memgroup'] == 1) {
