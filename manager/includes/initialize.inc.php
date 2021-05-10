@@ -1,6 +1,6 @@
 <?php
 include_once(__DIR__ . '/helpers.php');
-include_once(__DIR__ . '/initialize.functions.inc');
+include_once(__DIR__ . '/initialize.functions.inc.php');
 
 init::fix_favicon_req();
 init::check_phpvar();
