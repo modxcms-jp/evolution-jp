@@ -1311,7 +1311,7 @@ class SubParser {
     }
 
     // DISPLAY FORM ELEMENTS
-    function renderFormElement(
+    public function renderFormElement(
         $field_type,
         $field_id,
         $default_text = '',
@@ -1320,7 +1320,9 @@ class SubParser {
         $field_style = '',
         $row = array()
     ) {
-        global $modx, $_style, $_lang, $content;
+        global $modx, $_lang, $content;
+
+        $field_type = strtolower($field_type);
 
         if (isset($content['id'])) {
             global $docObject;
@@ -1335,12 +1337,6 @@ class SubParser {
             }
         }
 
-        if (strpos($field_elements, '<?php') === 0) {
-            $field_elements = "@EVAL:\n" . substr($field_elements, 6);
-        }
-        if (strpos($field_elements, '@@EVAL') === 0) {
-            $field_elements = "@EVAL:\n" . substr($field_elements, 7);
-        }
         if (strpos($default_text, '<?php') === 0) {
             $default_text = "@@EVAL:\n" . substr($default_text, 6);
         }
@@ -1349,216 +1345,70 @@ class SubParser {
         }
 
         if (strpos($default_text, '@@EVAL') === 0 && $field_value === $default_text) {
-            $eval_str = trim(substr($default_text, 7));
-            $default_text = eval($eval_str);
+            $default_text = eval(trim(substr($default_text, 7)));
             $field_value = $default_text;
         }
 
-        if (in_array(strtolower($field_type), array('text', 'rawtext', 'email', 'number', 'zipcode', 'tel', 'url'))) {
-            if ($field_type === 'text') {
-                $class = 'text';
-            } elseif ($field_type === 'number') {
-                $class = 'text imeoff';
-            } else {
-                $class = "text {$field_type}";
-            }
-            return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_text.tpl')
-                , array(
-                    'class' => $class,
-                    'id' => 'tv' . $field_id,
-                    'name' => 'tv' . $field_id,
-                    'value' => $modx->hsc($field_value),
-                    'style' => $field_style,
-                    'tvtype' => $field_type
-                )
-            );
+        if (in_array($field_type, array('text', 'rawtext', 'email', 'number', 'zipcode', 'tel', 'url'))) {
+            return $this->rendarFormText($field_type, $field_id, $field_value, $field_style);
         }
 
-        if (in_array(strtolower($field_type),
-            array('textarea', 'rawtextarea', 'htmlarea', 'richtext', 'textareamini'))) {
-            return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_textarea.tpl')
-                , array(
-                    'id' => 'tv' . $field_id,
-                    'name' => 'tv' . $field_id,
-                    'value' => $modx->hsc($field_value),
-                    'style' => $field_style,
-                    'tvtype' => $field_type,
-                    'rows' => $field_type === 'textareamini' ? '5' : '15'
-                )
+        if (in_array($field_type, array('textarea', 'rawtextarea', 'htmlarea', 'richtext', 'textareamini'))) {
+            return $this->rendarFormTextarea($field_type, $field_id, $field_value, $field_style);
+        }
+        if (in_array($field_type, array('date', 'dateonly'))) {
+            return $this->rendarFormDate($field_type, $field_id, $field_value, $field_style);
+        }
+
+        if ($field_type === 'image') {
+            return $this->rendarFormImage($field_id, $field_value, $field_style);
+        }
+        if ($field_type === 'file') {
+            return $this->rendarFormFile($field_id, $field_value, $field_style);
+        }
+        if ($field_type === 'hidden') {
+            return $this->rendarFormHidden($field_id, $field_value);
+        }
+
+        if (strpos($field_elements, '<?php') === 0) {
+            $field_elements = "@EVAL:\n" . substr($field_elements, 6);
+        }
+        if (strpos($field_elements, '@@EVAL') === 0) {
+            $field_elements = "@EVAL:\n" . substr($field_elements, 7);
+        }
+
+        if (in_array($field_type, array('dropdown', 'listbox', 'listbox-multiple'))) {
+            return $this->rendarFormSelect($field_type, $field_id, $field_value, $field_elements);
+        }
+        if ($field_type === 'checkbox') {
+            return $this->rendarFormCheckbox($field_type, $field_id, $field_value, $field_elements);
+        }
+        if ($field_type === 'option') {
+            return $this->rendarFormRadio($field_type, $field_id, $field_value, $field_elements);
+        }
+        if ($field_type === 'custom_tv') {
+            return $this->rendarFormCustom(
+                $field_type,
+                $field_id,
+                $field_value,
+                $field_style,
+                $field_elements,
+                $default_text
             );
-        }
-        if (in_array(strtolower($field_type), array('date', 'dateonly'))) {
-            $format = $modx->config['datetime_format'];
-            if ($field_type === 'date') {
-                $format .= ' hh:mm:00';
-            }
-            return $modx->parseText(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_date.tpl')
-                , array(
-                'id' => sprintf(
-                    'tv%s'
-                    , str_replace(array('-', '.'), '_', urldecode($field_id))
-                ),
-                'name' => 'tv' . $field_id,
-                'value' => $field_value ? $modx->hsc($field_value) : '',
-                'style' => $field_style,
-                'tvtype' => $field_type,
-                'cal_nodate' => $_style['icons_cal_nodate'],
-                'yearOffset' => $modx->config['datepicker_offset'],
-                'datetime_format' => $format,
-                'timepicker' => strtolower($field_type) === 'date' ? 'true' : 'false'
-            ));
-        }
-        if (in_array(strtolower($field_type), array('dropdown', 'listbox', 'listbox-multiple'))) {
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_list.tpl');
-            if ($field_type === 'listbox-multiple') {
-                $tpl = str_replace('[+name+]', '[+name+][]', $tpl);
-            }
-            $rs = $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform');
-            $index_list = $this->ParseInputOptions($rs);
-            $tpl2 = '<option value="[+value+]" [+selected+]>[+label+]</option>';
-            $field_values = explode('||', $field_value);
-            foreach ($index_list as $label => $item) {
-                list($label, $value) = $this->splitOption($item);
-                $ph2['label'] = $label;
-                $ph2['value'] = $modx->hsc($value);
-                $ph2['selected'] = in_array($value, $field_values) ? 'selected="selected"' : '';
-                $options[] = $modx->parseText($tpl2, $ph2);
-            }
-            $ph['options'] = join("\n", $options);
-            $ph['id'] = 'tv' . $field_id;
-            $ph['name'] = 'tv' . $field_id;
-            $ph['size'] = count($index_list) < 8 ? count($index_list) : 8;
-            $ph['extra'] = '';
-            if ($field_type === 'listbox-multiple') {
-                $ph['extra'] = 'multiple';
-            } elseif ($field_type === 'dropdown') {
-                $ph['size'] = '1';
-            }
-            return $modx->parseText($tpl, $ph);
-        }
-        if (strtolower($field_type) === 'checkbox') {
-            if (!is_array($field_value)) {
-                $field_value = explode('||', $field_value);
-            }
-            $rs = $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform');
-            $index_list = $this->ParseInputOptions($rs);
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_checkbox.tpl');
-            $field_html = '';
-            $i = 0;
-            foreach ($index_list as $item) {
-                list($label, $value) = $this->splitOption($item);
-                $field_html .= $modx->parseText($tpl, array(
-                    'id' => 'tv' . $field_id . '_' . $i,
-                    'name' => 'tv' . $field_id . '[]',
-                    'value' => $modx->hsc($value),
-                    'tvtype' => $field_type,
-                    'label' => $label,
-                    'checked' => $this->isSelected($label, $value, $item, $field_value) ? ' checked' : ''
-                ));
-                $i++;
-            }
-            return trim($field_html);
-        }
-        if (strtolower($field_type) === 'option') {
-            $index_list = $this->ParseInputOptions(
-                $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
-            );
-            $i = 0;
-            $field_html = '';
-            $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
-            foreach ($index_list as $item) {
-                list($label, $value) = $this->splitOption($item);
-                $field_html .= evo()->parseText(
-                    $tpl
-                    , array(
-                        'i' => $i,
-                        'value' => $modx->hsc($value),
-                        'id' => $field_id,
-                        'checked' => $this->isSelected($label, $value, $item, $field_value) ? 'checked="checked"' : '',
-                        'label' => $label
-                    )
-                );
-                $i++;
-            }
-            return $field_html;
-        }
-        if (strtolower($field_type) === 'image') {
-            return sprintf(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl')
-                , $field_id
-                , $field_id
-                , $field_value
-                , $field_style
-                , $_lang['insert']
-                , $field_id
-            );
-        }
-        if (strtolower($field_type) === 'file') {
-            return sprintf(
-                file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl')
-                , $field_id
-                , $field_id
-                , $field_value
-                , $field_style
-                , $_lang['insert']
-                , $field_id
-            );
-        }
-        if (strtolower($field_type) === 'hidden') {
-            $field_type = 'hidden';
-            return sprintf(
-                '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />'
-                , $field_id
-                , $field_id
-                , $modx->hsc($field_value)
-                , $field_type
-            );
-        }
-        if (strtolower($field_type) === 'custom_tv') {
-            $tpl = $this->custom_tv_tpl($field_id, $field_elements);
-            $ph['field_type'] = $field_type;
-            $ph['field_id'] = $field_id;
-            $ph['field_name'] = "tv{$field_id}";
-            $ph['name'] = "tv{$field_id}";
-            $ph['default_text'] = $default_text;
-            $ph['field_value'] = $modx->hsc($field_value);
-            $ph['value'] = $modx->hsc($field_value);
-            $ph['field_style'] = $field_style;
-            $tpl = $modx->evalSnippets(
-                $modx->mergeChunkContent(
-                    $modx->mergeSettingsContent(
-                        $modx->mergeDocumentContent(
-                            $modx->parseText(
-                                $tpl
-                                , $ph
-                            )
-                        )
-                    )
-                )
-            );
-            return $tpl;
         }
 
         // the default handler -- for errors, mostly
         if (strpos($field_elements, '@EVAL') === 0) {
-            $eval_str = trim(substr($field_elements, 6));
-        } else {
-            $result = db()->select(
-                'snippet'
-                , '[+prefix+]site_snippets'
-                , sprintf("name='input:%s'", $field_type)
-            );
-            if (db()->getRecordCount($result) == 1) {
-                $eval_str = db()->getValue($result);
-            } else {
-                $eval_str = false;
-            }
+            return eval(trim(substr($field_elements, 6)));
         }
-        if ($eval_str) {
-            return eval($eval_str);
+
+        $result = db()->select(
+            'snippet'
+            , '[+prefix+]site_snippets'
+            , sprintf("name='input:%s'", $field_type)
+        );
+        if (db()->getRecordCount($result) == 1) {
+            return eval(db()->getValue($result));
         }
 
         return sprintf(
@@ -1567,6 +1417,213 @@ class SubParser {
             , $field_id
             , $modx->hsc($field_value)
             , $field_style
+        );
+    }
+
+    private function rendarFormText($field_type, $field_id, $field_value, $field_style) {
+        if ($field_type === 'text') {
+            $class = 'text';
+        } elseif ($field_type === 'number') {
+            $class = 'text imeoff';
+        } else {
+            $class = 'text ' . $field_type;
+        }
+        return evo()->parseText(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_text.tpl')
+            , array(
+                'class' => $class,
+                'id' => 'tv' . $field_id,
+                'name' => 'tv' . $field_id,
+                'value' => evo()->hsc($field_value),
+                'style' => $field_style,
+                'tvtype' => $field_type
+            )
+        );
+    }
+
+    private function rendarFormTextarea($field_type, $field_id, $field_value, $field_style) {
+        return evo()->parseText(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_textarea.tpl')
+            , array(
+                'id' => 'tv' . $field_id,
+                'name' => 'tv' . $field_id,
+                'value' => evo()->hsc($field_value),
+                'style' => $field_style,
+                'tvtype' => $field_type,
+                'rows' => $field_type === 'textareamini' ? '5' : '15'
+            )
+        );
+    }
+
+    private function rendarFormDate($field_type, $field_id, $field_value, $field_style) {
+        $format = evo()->config['datetime_format'];
+        if ($field_type === 'date') {
+            $format .= ' hh:mm:00';
+        }
+        return evo()->parseText(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_date.tpl'),
+            array(
+                'id' => sprintf(
+                    'tv%s'
+                    , str_replace(array('-', '.'), '_', urldecode($field_id))
+                ),
+                'name' => 'tv' . $field_id,
+                'value' => $field_value ? evo()->hsc($field_value) : '',
+                'style' => $field_style,
+                'tvtype' => $field_type,
+                'cal_nodate' => style('icons_cal_nodate'),
+                'yearOffset' => evo()->config['datepicker_offset'],
+                'datetime_format' => $format,
+                'timepicker' => $field_type === 'date' ? 'true' : 'false'
+            )
+        );
+    }
+
+    private function rendarFormSelect($field_type, $field_id, $field_value, $field_elements) {
+        $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_list.tpl');
+        if ($field_type === 'listbox-multiple' && strpos($tpl, '[+name+][]') === false) {
+            $tpl = str_replace('[+name+]', '[+name+][]', $tpl);
+        }
+        $index_list = $this->ParseInputOptions(
+            $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
+        );
+        $field_values = explode('||', $field_value);
+        $options = array();
+        foreach ($index_list as $item) {
+            list($label, $value) = $this->splitOption($item);
+            $options[] = evo()->parseText(
+                '<option value="[+value+]" [+selected+]>[+label+]</option>',
+                array(
+                    'label' => $label,
+                    'value' => evo()->hsc($value),
+                    'selected' => in_array($value, $field_values) ? 'selected="selected"' : ''
+                )
+            );
+        }
+        if ($field_type === 'dropdown') {
+            $size = '1';
+        } else {
+            $size = count($index_list) < 8 ? count($index_list) : 8;
+        }
+        return evo()->parseText(
+            $tpl,
+            array(
+                'options' => implode("\n", $options),
+                'id'      => 'tv' . $field_id,
+                'name'    => 'tv' . $field_id,
+                'size'    => $size,
+                'extra'   => ($field_type === 'listbox-multiple') ? 'multiple' : ''
+            )
+        );
+    }
+
+    private function rendarFormCheckbox($field_type, $field_id, $field_value, $field_elements) {
+        if (!is_array($field_value)) {
+            $field_value = explode('||', $field_value);
+        }
+        $index_list = $this->ParseInputOptions(
+            $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
+        );
+        $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_checkbox.tpl');
+        $field_html = '';
+        $i = 0;
+        foreach ($index_list as $item) {
+            list($label, $value) = $this->splitOption($item);
+            $field_html .= evo()->parseText(
+                $tpl,
+                array(
+                    'id'      => 'tv' . $field_id . '_' . $i,
+                    'name'    => 'tv' . $field_id . '[]',
+                    'value'   => evo()->hsc($value),
+                    'tvtype'  => $field_type,
+                    'label'   => $label,
+                    'checked' => $this->isSelected($label, $value, $item, $field_value) ?
+                        ' checked' : ''
+                )
+            );
+            $i++;
+        }
+        return trim($field_html);
+    }
+    private function rendarFormRadio($field_type, $field_id, $field_value, $field_elements) {
+        $index_list = $this->ParseInputOptions(
+            $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
+        );
+        $i = 0;
+        $field_html = '';
+        $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
+        foreach ($index_list as $item) {
+            list($label, $value) = $this->splitOption($item);
+            $field_html .= evo()->parseText(
+                $tpl
+                , array(
+                    'i' => $i,
+                    'value' => evo()->hsc($value),
+                    'id' => $field_id,
+                    'checked' => $this->isSelected($label, $value, $item, $field_value) ?
+                        'checked="checked"' : '',
+                    'label' => $label
+                )
+            );
+            $i++;
+        }
+        return $field_html;
+    }
+
+    private function rendarFormImage($field_id, $field_value, $field_style) {
+        return sprintf(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl')
+            , $field_id
+            , $field_id
+            , $field_value
+            , $field_style
+            , lang('insert')
+            , $field_id
+        );
+    }
+
+    private function rendarFormFile($field_id, $field_value, $field_style) {
+        return sprintf(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl')
+            , $field_id
+            , $field_id
+            , $field_value
+            , $field_style
+            , lang('insert')
+            , $field_id
+        );
+    }
+
+    private function rendarFormHidden($field_id, $field_value) {
+        return sprintf(
+            '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />'
+            , $field_id
+            , $field_id
+            , evo()->hsc($field_value)
+            , 'hidden'
+        );
+    }
+
+    private function rendarFormCustom($field_type, $field_id, $field_value, $field_style, $field_elements, $default_text) {
+        $ph['field_type'] = $field_type;
+        $ph['field_id'] = $field_id;
+        $ph['field_name'] = "tv" . $field_id;
+        $ph['name'] = "tv" . $field_id;
+        $ph['default_text'] = $default_text;
+        $ph['field_value'] = evo()->hsc($field_value);
+        $ph['value'] = evo()->hsc($field_value);
+        $ph['field_style'] = $field_style;
+        return evo()->evalSnippets(
+            evo()->mergeChunkContent(
+                evo()->mergeSettingsContent(
+                    evo()->mergeDocumentContent(
+                        evo()->parseText(
+                            $this->custom_tv_tpl($field_id, $field_elements)
+                            , $ph
+                        )
+                    )
+                )
+            )
         );
     }
 
