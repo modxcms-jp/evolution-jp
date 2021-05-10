@@ -225,24 +225,39 @@ if (is_file($touch_path)) {
 }
 
 function installGoingOn() {
-    global $installStartTime;
-    $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
-    if (is_file($instcheck_path)) {
-        include_once($instcheck_path);
-        if (isset($installStartTime)) {
-            if ((serverv('REQUEST_TIME',time()) - $installStartTime) > 5 * 60) {
-                unlink($instcheck_path);
-            } elseif (serverv('REQUEST_METHOD') !== 'POST') {
-                if (cookiev(session_name())) {
-                    session_unset();
-                    @session_destroy();
-                }
-                return 1;
-            }
-        }
+    if (checkInstallProc()) {
+        return 1;
     }
     if (getv('installGoingOn')) {
         return getv('installGoingOn');
     }
     return false;
+}
+
+function checkInstallProc() {
+    $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
+    if (!is_file($instcheck_path)) {
+        return false;
+    }
+    
+    global $installStartTime;
+    include_once($instcheck_path);
+    if (!isset($installStartTime)) {
+        return false;
+    }
+
+    if ((serverv('REQUEST_TIME', time()) - $installStartTime) > 5 * 60) {
+        unlink($instcheck_path);
+        return false;
+    }
+
+    if (serverv('REQUEST_METHOD') === 'POST') {
+        return false;
+    }
+
+    if (cookiev(session_name())) {
+        session_unset();
+        @session_destroy();
+    }
+    return true;
 }
