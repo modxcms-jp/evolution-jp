@@ -1646,9 +1646,8 @@ class SubParser {
 
         if (strpos($field_elements, '@INCLUDE') === 0) {
             $path_str = substr($field_elements, 9);
-            $lfpos = strpos($path_str, "\n");
-            if ($lfpos !== false) {
-                $path_str = substr($path_str, 0, $lfpos);
+            if (strpos($path_str, "\n") !== false) {
+                $path_str = strstr($path_str, "\n", true);
             }
             $path_str = trim($path_str);
             if (is_file(MODX_BASE_PATH . 'assets/tvs/' . $path_str)) {
