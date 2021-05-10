@@ -11,15 +11,16 @@ class SystemEvent {
     public $params = array();
     public $vars = array();
     public $cm = null;
+    public $SystemAlertMsgQueque;
 
-    function __construct($name = '') {
+    public function __construct($name = '') {
         $this->_resetEventObject();
         $this->name = $name;
         $this->activePlugin = '';
     }
 
     // used for displaying a message to the user
-    function alert($msg) {
+    public function alert($msg) {
         if ($msg == '' || !is_array($this->SystemAlertMsgQueque)) {
             return;
         }
@@ -36,14 +37,15 @@ class SystemEvent {
     }
 
     // used for rendering an out on the screen
-    function output($msg) {
-        if (is_object($this->cm)) {
-            $this->cm->addOutput($msg);
+    public function output($msg) {
+        if (!is_object($this->cm)) {
+            return;
         }
+        $this->cm->addOutput($msg);
     }
 
     // get global variables
-    function getGlobalVariable($key) {
+    public function getGlobalVariable($key) {
         if (isset($GLOBALS[$key])) {
             return $GLOBALS[$key];
         }
@@ -51,7 +53,7 @@ class SystemEvent {
     }
 
     // set global variables
-    function setGlobalVariable($key, $val, $now = 0) {
+    public function setGlobalVariable($key, $val, $now = 0) {
         if (!isset($GLOBALS[$key])) {
             return false;
         }
@@ -64,7 +66,7 @@ class SystemEvent {
     }
 
     // set all global variables
-    function setAllGlobalVariables() {
+    public function setAllGlobalVariables() {
         if (empty($this->_globalVariables)) {
             return false;
         }
@@ -74,11 +76,11 @@ class SystemEvent {
         return true;
     }
 
-    function stopPropagation() {
+    public function stopPropagation() {
         $this->_propagate = false;
     }
 
-    function _resetEventObject() {
+    public function _resetEventObject() {
         unset ($this->returnedValues);
         $this->_output = '';
         $this->_globalVariables = array();
@@ -96,7 +98,7 @@ class SystemEvent {
         return $this->params[$key];
     }
 
-    function param($key, $default = null) {
+    public function param($key, $default = null) {
         if (!$this->params) {
             return $default;
         }
