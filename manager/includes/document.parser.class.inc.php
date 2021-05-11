@@ -434,18 +434,18 @@ class DocumentParser {
     function getRequestQ($uri) {
         if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) // IIS friendly url fix
         {
-            $q = $this->_IIS_furl_fix();
-        } else {
-            $q = substr($uri, strlen(MODX_BASE_URL));
-            if (strpos($q, '?') !== false) {
-                $q = substr($q, 0, strpos($q, '?'));
-            }
-            if ($q === 'index.php') {
-                $q = '/';
-            }
+            return $this->_IIS_furl_fix();
         }
 
-        return $q;
+        if (strpos($uri, '?') !== false) {
+            $uri = strstr($uri, '?', true);
+        }
+
+        if ($uri === MODX_BASE_URL . 'index.php') {
+            return '/';
+        }
+
+        return substr($uri, strlen(MODX_BASE_URL));
     }
 
     function sanitizeVars() {
