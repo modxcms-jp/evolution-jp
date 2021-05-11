@@ -171,11 +171,11 @@ class init {
     public static function is_ssl() {
         global $https_port;
 
-        if (!isset($_SERVER['SERVER_PORT'])) {
-            return false;
+        if (strtolower(serverv('HTTPS')) === 'on') {
+            return true;
         }
 
-        if (strtolower(serverv('HTTPS')) === 'on' || serverv('SERVER_PORT') == $https_port) {
+        if (serverv('SERVER_PORT') == $https_port) {
             return true;
         }
 
@@ -232,12 +232,15 @@ class init {
     }
 
     public static function fix_ssl() {
+        if (serverv('HTTPS') !== 'on' && static::is_ssl()) {
+            $_SERVER['HTTPS'] = 'on';
+            return;
+        }
+
         if (isset($_SERVER['HTTP_HTTPS'])) {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_HTTPS'];
         } elseif (isset($_SERVER['HTTP_X_SAKURA_HTTPS'])) {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
-        } elseif (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'on' && static::is_ssl()) {
-            $_SERVER['HTTPS'] = 'on';
         }
         if (isset($_SERVER['HTTPS'])) {
             if ($_SERVER['HTTPS'] == 1) {
