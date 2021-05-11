@@ -284,7 +284,21 @@ class DocumentParser {
         if ($rs === 'complete') {
             exit;
         }
-        $this->documentIdentifier = $this->getDocumentIdentifier($this->decoded_request_uri);
+        $this->documentIdentifier = $this->getDBCache(
+            'docid_by_uri',
+            md5($this->decoded_request_uri)
+        );
+        if (!$this->documentIdentifier) {
+            $this->documentIdentifier = $this->getDocumentIdentifier(
+                $this->decoded_request_uri
+            );
+            $this->setDBCache(
+                'docid_by_uri',
+                md5($this->decoded_request_uri),
+                $this->documentIdentifier
+            );
+        }
+        
 
         if (!$this->documentIdentifier) {
             $this->sendErrorPage();
@@ -341,31 +355,21 @@ class DocumentParser {
         return $this->prepareResponse();
     }
 
-    function getDocumentIdentifier($uri) {
-
-        $docid = $this->getDBCache('docid_by_uri', md5($uri));
-
-        if ($docid) {
-            return $docid;
+    private function getDocumentIdentifier($uri) {
+        if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
+            return getv('id');
         }
 
-        $getId = isset($_GET['id']) ? $_GET['id'] : 0;
-        $getQ = isset($_GET['id']) ? false : $this->getRequestQ($this->decoded_request_uri);
-        if (preg_match('@^[1-9][0-9]*$@', $getId)) {
-            $docid = $getId;
-        } elseif ($uri === MODX_BASE_URL) {
-            $docid = $this->config['site_start'];
-        } elseif ($getQ !== false) {
-            $docid = $this->getIdFromAlias($this->_treatAliasPath($getQ));
-        } else {
-            $docid = 0;
+        if ($uri === MODX_BASE_URL) {
+            return $this->config['site_start'];
         }
 
-        if ($docid) {
-            $this->setDBCache('docid_by_uri', md5($uri), $docid);
+        $getQ = $this->getRequestQ($this->decoded_request_uri);
+        if (!getv('id') && $getQ !== false) {
+            return $this->getIdFromAlias($this->_treatAliasPath($getQ));
         }
 
-        return $docid;
+        return 0;
     }
 
     function setDBCache($category, $key, $value) {
