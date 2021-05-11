@@ -232,6 +232,10 @@ class init {
     }
 
     public static function fix_ssl() {
+        if (serverv('HTTP_X_FORWARDED_PROTO')==='https') {
+            $_SERVER['HTTPS'] = 'on';
+            return;
+        }
         if (serverv('HTTPS') !== 'on' && static::is_ssl()) {
             $_SERVER['HTTPS'] = 'on';
             return;
