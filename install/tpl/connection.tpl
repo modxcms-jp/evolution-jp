@@ -1,4 +1,4 @@
-<form id="install" action="index.php" method="POST">
+<form id="install" action="[+site_url+]install/" method="POST">
 	<input type="hidden" name="action" value="options" />
 	<input type="hidden" name="prev_action" value="connection" />
 	<h2>[+connection_screen_database_info+]</h2>

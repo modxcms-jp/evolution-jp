@@ -1,4 +1,4 @@
-<form id="install" action="index.php" method="POST">
+<form id="install" action="[+site_url+]install/" method="POST">
 	<input type="hidden" name="action" value="summary" />
 	<input type="hidden" name="prev_action" value="options" />
 	<h2>[+optional_items+]</h2>

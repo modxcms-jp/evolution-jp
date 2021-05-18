@@ -456,6 +456,7 @@ function collectTpls($path) {
 function ph() {
     global $cmsName,$cmsVersion,$modx_textdir,$modx_release_date;
 
+    $ph['site_url']      = MODX_SITE_URL;
     $ph['pagetitle']     = lang('modx_install');
     $ph['textdir']       = ($modx_textdir && $modx_textdir==='rtl') ? ' id="rtl"':'';
     $ph['help_link']     = !sessionv('is_upgradeable') ? lang('help_link_new') : lang('help_link_upd');

@@ -1,4 +1,4 @@
-<form id="install" action="index.php" method="POST">
+<form id="install" action="[+site_url+]install/" method="POST">
 	<input type="hidden" name="action" value="connection" />
 	<input type="hidden" name="prev_action" value="mode" />
 	<input type="hidden" name="is_upgradeable" value="[+is_upgradeable+]" />
