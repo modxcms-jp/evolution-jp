@@ -130,7 +130,9 @@
 		});
 	});
 
-	if (jQuery('#adminpassconfirm').val() != '') jQuery('a.next').css('display', 'block');
+	if (jQuery('#adminpassconfirm').val() != '') {
+		jQuery('a.next').css('display', 'block');
+	}
 
 	jQuery('#adminpassconfirm').focus(function () {
 		jQuery('a.next').css('display', 'block');

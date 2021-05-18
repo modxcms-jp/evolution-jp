@@ -22,7 +22,9 @@
 <script>
 	var is_upgradeable = [+is_upgradeable +];
 	jQuery('a.next').click(function () {
-		if (is_upgradeable == 1) jQuery('#install input[name=action]').val('options');
+		if (is_upgradeable == 1) {
+			jQuery('#install input[name=action]').val('options');
+		}
 		jQuery('#install').submit();
 	});
 </script>
