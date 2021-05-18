@@ -15,7 +15,7 @@
 
 </form>
 <script type="text/javascript">
-	var is_upgradeable = [+is_upgradeable +];
+	var is_upgradeable = '[+is_upgradeable+]';
 	jQuery('a.prev').click(function () {
 		var target = (is_upgradeable == 1) ? 'mode' : 'connection';
 		jQuery('#install input[name=action]').val(target);
