@@ -10,27 +10,27 @@ if (!evo()->hasPermission('save_user')) {
 
 // Send an email to the user
 function sendMailMessage($email, $uid, $pwd, $ufn) {
-    $ph['username'] = $uid;
-    $ph['uid'] = $uid;
-    $ph['password'] = $pwd;
-    $ph['pwd'] = $pwd;
-    $ph['fullname'] = $ufn;
-    $ph['ufn'] = $ufn;
-    $site_name = evo()->config['site_name'];
-    $ph['site_name'] = $site_name;
-    $ph['sname'] = $site_name;
-    $admin_email = evo()->config['emailsender'];
-    $ph['manager_email'] = $admin_email;
-    $ph['saddr'] = $admin_email;
-    $ph['semail'] = $admin_email;
-    $site_url = evo()->config['site_url'];
-    $ph['site_url'] = $site_url;
-    $ph['surl'] = $site_url . 'manager/';
-    $message = evo()->parseText(evo()->config['signupemail_message'], $ph);
-    $message = evo()->mergeSettingsContent($message);
-
-    $rs = evo()->sendmail($email, $message);
-    if (!$rs) {
+    $message = evo()->mergeSettingsContent(
+        evo()->parseText(
+            evo()->config['signupemail_message'],
+            array(
+                'username' => $uid,
+                'uid'=> $uid,
+                'password'=> $pwd,
+                'pwd'=> $pwd,
+                'fullname'=> $ufn,
+                'ufn'=> $ufn,
+                'site_name'=> evo()->config['site_name'],
+                'sname'=> evo()->config['site_name'],
+                'manager_email'=> evo()->config['emailsender'],
+                'saddr'=> evo()->config['emailsender'],
+                'semail'=> evo()->config['emailsender'],
+                'site_url'=> evo()->config['site_url'],
+                'surl'=> evo()->config['site_url'] . 'manager/'
+                )
+        )
+    );
+    if (!evo()->sendmail($email, $message)) {
         webAlert(sprintf('%s - %s', $email, lang('error_sending_email')));
         exit;
     }
@@ -89,18 +89,18 @@ function saveUserSettings($id) {
     // get user setting field names
     $settings = array();
     $post = $_POST;
-    foreach ($post as $n => $v) {
-        if (in_array($n, $ignore)) {
+    foreach ($post as $k => $v) {
+        if (in_array($k, $ignore)) {
             continue;
         } // ignore blacklist and empties
-        if (!in_array($n, $defaults) && trim($v) == '') {
+        if (!in_array($k, $defaults) && trim($v) == '') {
             continue;
         } // ignore blacklist and empties
 
         if (is_array($v)) {
             $v = implode(',', $v);
         }
-        $settings[$n] = $v; // this value should be saved
+        $settings[$k] = $v; // this value should be saved
     }
     foreach ($defaults as $k) {
         if (evo()->array_get($settings, 'default_' . $k) == 1) {
@@ -109,10 +109,10 @@ function saveUserSettings($id) {
         unset($settings['default_' . $k]);
     }
 
-    evo()->db->delete(evo()->getFullTableName('user_settings'), sprintf("user='%s'", $id));
+    db()->delete(evo()->getFullTableName('user_settings'), sprintf("user='%s'", $id));
     $savethese = array();
     foreach ($settings as $k => $v) {
-        $v = evo()->db->escape($v);
+        $v = db()->escape($v);
         $savethese[] = sprintf("(%s, '%s', '%s')", $id, $k, $v);
     }
     if (empty($savethese)) {
@@ -123,8 +123,7 @@ function saveUserSettings($id) {
         , evo()->getFullTableName('user_settings')
         , implode(', ', $savethese)
     );
-    $rs = evo()->db->query($sql);
-    if (!$rs) {
+    if (!db()->query($sql)) {
         exit('Failed to update user settings!');
     }
     unset($_SESSION['openedArray']);
@@ -145,8 +144,7 @@ function generate_password($length = 10) {
     if ($password) {
         return $password;
     }
-    $password = substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
-    return $password;
+    return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
 }
 
 function verifyPermission() {
@@ -156,11 +154,10 @@ function verifyPermission() {
     if (evo()->input_post('role') != 1) {
         return true;
     }
-    if (!evo()->hasPermission('edit_role')
-        || !evo()->hasPermission('save_role')
-        || !evo()->hasPermission('delete_role')
-        || !evo()->hasPermission('new_role')
-    ) {
+    if (!evo()->hasPermission('edit_role') || !evo()->hasPermission('save_role')) {
+        return false;
+    }
+    if (!evo()->hasPermission('delete_role') || !evo()->hasPermission('new_role')) {
         return false;
     }
     return true;
@@ -170,42 +167,42 @@ function userid_byname($newusername) {
     if(!$newusername) {
         return false;
     }
-    $rs = evo()->db->select(
+    $rs = db()->select(
         'id'
         , '[+prefix+]manager_users'
-        , sprintf("username='%s'", evo()->db->escape($newusername))
+        , sprintf("username='%s'", db()->escape($newusername))
     );
-    if (!evo()->db->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         return false;
     }
-    return evo()->db->getValue($rs);
+    return db()->getValue($rs);
 }
 
 function userid_byemail($email) {
     if(!$email) {
         return false;
     }
-    $rs = evo()->db->select(
+    $rs = db()->select(
         'internalKey'
         , '[+prefix+]user_attributes'
         , sprintf("email='%s'", $email)
     );
-    if (!evo()->db->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         return false;
     }
-    return evo()->db->getValue($rs);
+    return db()->getValue($rs);
 }
 
 function role_byuserid($userid) {
-    $rs = evo()->db->select(
+    $rs = db()->select(
         'role'
         , '[+prefix+]user_attributes'
         , sprintf('internalKey=%s', $userid)
     );
-    if (!evo()->db->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         return false;
     }
-    return evo()->db->getValue($rs);
+    return db()->getValue($rs);
 }
 
 function hasOldUserName() {
