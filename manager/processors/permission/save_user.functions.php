@@ -93,13 +93,13 @@ function saveUserSettings($id) {
         if (in_array($k, $ignore)) {
             continue;
         } // ignore blacklist and empties
+        if (is_array($v)) {
+            $v = implode(',', $v);
+        }
         if (!in_array($k, $defaults) && trim($v) == '') {
             continue;
         } // ignore blacklist and empties
 
-        if (is_array($v)) {
-            $v = implode(',', $v);
-        }
         $settings[$k] = $v; // this value should be saved
     }
     foreach ($defaults as $k) {
