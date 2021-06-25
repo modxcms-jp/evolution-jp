@@ -205,7 +205,7 @@ class DocumentParser {
      * @return bool or Object
      *
      */
-    function loadExtension($extname) {
+    public function loadExtension($extname) {
         $extname = strtolower($extname);
 
         switch ($extname) {
@@ -245,7 +245,7 @@ class DocumentParser {
         }
     }
 
-    function executeParser() {
+    public function executeParser() {
         ob_start();
 
         $this->http_status_code = '200';
@@ -276,7 +276,7 @@ class DocumentParser {
         }
         $this->uri_parent_dir = $_;
 
-        if ($_POST) {
+        if (serverv('REQUEST_METHOD')==='POST') {
             $this->config['cache_type'] = 0;
         }
 
@@ -2708,7 +2708,7 @@ class DocumentParser {
 
     }
 
-    function _getSGVar($value) { // Get super globals
+    private function _getSGVar($value) { // Get super globals
         $key = $value;
         list($key, $modifiers) = $this->splitKeyAndFilter($key);
 
@@ -2800,7 +2800,7 @@ class DocumentParser {
 
         $_ = $this->documentOutput;
         $this->documentOutput = $string;
-        $this->invokeEvent('OnParseDocument');
+        // $this->invokeEvent('OnParseDocument');
         $string = $this->documentOutput;
         $this->documentOutput = $_;
 
@@ -3215,10 +3215,9 @@ class DocumentParser {
      */
     function parseDocumentSource($source) {
         $orgDocumentOutput = $this->documentOutput;
-        $bt = '';
         $i = 0;
         while ($i < $this->maxParserPasses) {
-            $bt = $source;
+            $bt = md5($source);
             // invoke OnParseDocument event
             $this->documentOutput = $source; // store source code so plugins can
             $this->invokeEvent('OnParseDocument'); // work on it via $modx->documentOutput
@@ -3264,7 +3263,7 @@ class DocumentParser {
                 $source = $this->rewriteUrls($source);
             }
 
-            if ($bt === $source) {
+            if ($bt === md5($source)) {
                 break;
             }
 
