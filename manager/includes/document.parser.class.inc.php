@@ -2800,7 +2800,7 @@ class DocumentParser {
 
         $_ = $this->documentOutput;
         $this->documentOutput = $string;
-        // $this->invokeEvent('OnParseDocument');
+        $this->invokeEvent('OnParseDocument');
         $string = $this->documentOutput;
         $this->documentOutput = $_;
 
