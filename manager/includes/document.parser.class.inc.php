@@ -4235,7 +4235,7 @@ class DocumentParser {
             $where = 'tv.id<>0';
         } elseif (preg_match('@^[1-9][0-9]*$@', $idnames)) {
             $where = sprintf('tv.id=%s', $idnames);
-        } elseif (strpos($idnames, ',') !== false) {
+        } elseif (strpos($idnames, "'") === 0) {
             $where = sprintf("tv.name IN (%s)", $idnames);
         } else {
             $where = sprintf("tv.name='%s'", db()->escape($idnames));
