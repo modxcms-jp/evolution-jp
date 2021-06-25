@@ -7,42 +7,49 @@
  * @version     1.5.6 updated 12/01/2011
  */
 
-// Replace [*#tv*] with QM+ edit TV button placeholders
-if ($tvbuttons == 'true' && $modx->event->name == 'OnParseDocument') {
-    $output = &$modx->documentOutput;
-    if(strpos($output,'[*#')===false) {
-        $m = false;
-    } else {
-        $m = $modx->getTagsFromContent(
+class Qm {
+    public $modx;
+    public $jqpath = '';
+
+    public function __construct() {
+    }
+
+    private function tv_buttons() {
+        global $modx;
+        if(!evo()->isFrontend()) {
+            return;
+        }
+        // Replace [*#tv*] with QM+ edit TV button placeholders
+        if (event()->param('tvbuttons') != 'true') {
+            return;
+        }
+        if (event()->name !== 'OnParseDocument') {
+            return;
+        }
+        $output = &$modx->documentOutput;
+        if(strpos($output,'[*#')===false) {
+            return;
+        }
+        
+        $m = evo()->getTagsFromContent(
             $output
             , '[*#', '*]'
         );
-    }
-    if($m) {
+        if(!$m) {
+            return;
+        }
         foreach($m[1] as $i=>$v) {
             $output = str_replace(
                 $m[0][$i]
                 , sprintf(
                     '<!-- %s %s -->%s'
-                    , $tvbclass
+                    , event()->param('tvbclass')
                     , (strpos($v,':')!==false) ? substr($v, 0, strpos($v, ':')) : $v
                     , $m[0][$i]
                 )
                 , $output
             );
         }
-    }
-}
-
-if(class_exists('Qm')) {
-    return;
-}
-
-class Qm {
-    public $modx;
-    public $jqpath = '';
-
-    function __construct() {
     }
 
     private function init() {
@@ -100,6 +107,9 @@ class Qm {
     }
 
     function Run() {
+
+        $this->tv_buttons();
+
         $rs = $this->init();
         if(!$rs) {
             return;
