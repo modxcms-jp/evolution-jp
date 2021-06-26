@@ -3519,13 +3519,11 @@ class DocumentParser {
     function getField($field = 'content', $docid = '') {
         static $cached = array();
         if (isset($cached[$docid][$field])) {
-            if (is_array($cached[$docid][$field])) {
-                $cached[$docid][$field] = $this->tvProcessor($cached[$docid][$field]);
-            }
             return $cached[$docid][$field];
         }
-        $cached[$docid] = false;
 
+        $cached[$docid] = false;
+        
         if ($docid === '' && isset($this->documentIdentifier)) {
             $docid = $this->documentIdentifier;
         } elseif (!preg_match('@^[0-9]+$@', $docid)) {
@@ -3539,7 +3537,7 @@ class DocumentParser {
         $doc = $this->getDocumentObject('id', $docid);
 
         if (is_array($doc[$field])) {
-            return $this->tvProcessor($doc[$field]);
+            $doc[$field] = $this->tvProcessor($doc[$field]);
         }
         $cached[$docid] = $doc;
         return $doc[$field];
