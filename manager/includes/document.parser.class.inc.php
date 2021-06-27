@@ -375,12 +375,13 @@ class DocumentParser {
     }
 
     function setDBCache($category, $key, $value) {
-        $where = sprintf(
-            "cache_section='%s' AND cache_key='%s'"
-            , db()->escape($category)
-            , db()->escape($key)
+        db()->delete(
+            '[+prefix+]system_cache',
+            array(
+                where('cache_section', $category),
+                and_where('cache_key', $key)
+            )
         );
-        $rs = db()->delete('[+prefix+]system_cache', $where);
         $f['cache_section'] = $category;
         $f['cache_key'] = $key;
         $f['cache_value'] = $value;
@@ -389,13 +390,15 @@ class DocumentParser {
     }
 
     function getDBCache($category, $key) {
-        $where = sprintf(
-            "cache_section='%s' AND cache_key='%s'"
-            , $category
-            , db()->escape($key)
+        $rs = db()->select(
+            'cache_value',
+            '[+prefix+]system_cache',
+            array(
+                where('cache_section', '=', $category),
+                'and',
+                where('cache_key', '=', $key)
+            )
         );
-        $rs = db()->select('cache_value', '[+prefix+]system_cache', $where);
-
         if (!$rs) {
             return false;
         }
@@ -816,7 +819,11 @@ class DocumentParser {
             }
 
             // get and store document groups inside document object. Document groups will be used to check security on cache pages
-            $dsq = db()->select('document_group', '[+prefix+]document_groups', "document='{$docid}'");
+            $dsq = db()->select(
+                'document_group',
+                '[+prefix+]document_groups',
+                where('document', '=', $docid)
+            );
             $docGroups = db()->getColumn('document_group', $dsq);
 
             // Attach Document Groups and Scripts
@@ -1011,7 +1018,11 @@ class DocumentParser {
         $rs = db()->select(
             'user'
             , '[+prefix+]user_settings'
-            , sprintf("setting_name='auth_token' AND setting_value='%s'", $this->input_get('auth_token'))
+            , array(
+                where('setting_name', '=', 'auth_token'),
+                'AND',
+                where('setting_value', '=', $this->input_get('auth_token'))
+            )
         );
         if (!$rs) {
             return false;
@@ -1035,7 +1046,7 @@ class DocumentParser {
         $rs = db()->select(
             '*'
             , '[+prefix+]user_roles'
-            , sprintf("id='%d'", $user['role'])
+            , where('id', '=', $user['role'])
         );
         $row = db()->getRow($rs);
 
@@ -1043,8 +1054,7 @@ class DocumentParser {
 
         if ($this->session('mgrPermissions.messages') == 1) {
             $rs = db()->select('*', '[+prefix+]manager_users');
-            $total = db()->count($rs);
-            if ($total == 1) {
+            if (db()->count($rs) == 1) {
                 $_SESSION['mgrPermissions']['messages'] = '0';
             }
         }
@@ -1054,14 +1064,14 @@ class DocumentParser {
                 'failedlogincount' => 0,
                 'logincount' => $user['logincount'] + 1,
                 'lastlogin' => $user['thislogin'],
-                'thislogin' => $this->server('REQUEST_TIME'),
+                'thislogin' => request_time(),
                 'sessionid' => session_id()
             )
             , $this->getFullTableName('user_attributes')
             , 'internalKey=' . $userid
         );
 
-        $_SESSION['mgrLastlogin'] = $this->server('REQUEST_TIME');
+        $_SESSION['mgrLastlogin'] = request_time();
         if (!$this->manager) {
             $this->loadExtension('ManagerAPI');
         }
@@ -1083,7 +1093,7 @@ class DocumentParser {
             setcookie(
                 'modx_remember_manager'
                 , ''
-                , ($this->server('REQUEST_TIME') - 3600)
+                , (request_time() - 3600)
                 , MODX_BASE_URL
             );
         }
@@ -1091,18 +1101,6 @@ class DocumentParser {
         if ($this->hasPermission('remove_locks')) {
             $this->manager->remove_locks();
         }
-
-        // include_once(MODX_CORE_PATH . 'log.class.inc.php');
-        // $log = new logHandler;
-        // $log->initAndWriteLog(
-        //     'Logged in by auth token'
-        //     , $userid
-        //     , $user['username']
-        //     , '0'
-        //     , '-'
-        //     , 'MODX'
-        // );
-        // exit('test');
     }
 
     function getSettings() {
@@ -1183,7 +1181,7 @@ class DocumentParser {
         $result = db()->select(
             'setting_name, setting_value'
             , '[+prefix+]web_user_settings'
-            , "webuser='{$uid}'"
+            , where('webuser', '=', $uid)
         );
 
         if (!$result) {
@@ -1217,7 +1215,7 @@ class DocumentParser {
         $result = db()->select(
             'setting_name, setting_value'
             , '[+prefix+]user_settings'
-            , "user='" . $uid . "'"
+            , where('user', '=', $uid)
         );
 
         if (!$result) {
@@ -1257,7 +1255,7 @@ class DocumentParser {
 
         $total = db()->count($rs);
 
-        if (!$total && $this->config['login_by'] !== 'username' && strpos($username, '@') !== false) {
+        if (!$total && config('login_by') !== 'username' && strpos($username, '@') !== false) {
             $rs = db()->select(
                 $field
                 , $from
@@ -1342,7 +1340,7 @@ class DocumentParser {
         if ($this->config('cache_ttl') && is_file($cacheFile)) {
             $timestamp = filemtime($cacheFile);
             $timestamp += $this->config['cache_ttl'];
-            if ($timestamp < $this->server('REQUEST_TIME')) {
+            if ($timestamp < request_time()) {
                 @unlink($cacheFile);
                 $this->documentGenerated = 1;
                 return '';
@@ -1398,7 +1396,13 @@ class DocumentParser {
                 $total = 0;
                 if ($this->config('unauthorized_page')) {
                     // check if file is not public
-                    $rs = db()->select('id', '[+prefix+]document_groups', "document='{$id}'", '', 1);
+                    $rs = db()->select(
+                        'id',
+                        '[+prefix+]document_groups',
+                        where('document', '=', $id),
+                        '',
+                        1
+                    );
                     $total = db()->count($rs);
                 }
 
@@ -1674,7 +1678,7 @@ class DocumentParser {
         $rs = db()->select(
             'id,alias,isfolder,parent'
             , '[+prefix+]site_content'
-            , sprintf('id=%d', (int)$id)
+            , where('id', '=', $id)
         );
 
         if (!db()->count($rs)) {
@@ -1717,7 +1721,7 @@ class DocumentParser {
         $rs = db()->select(
             'id,alias,isfolder,parent'
             , '[+prefix+]site_content'
-            , sprintf('parent=%d', (int)$parent_id)
+            , where('parent', '=', $parent_id)
         );
 
         if (!db()->count($rs)) {
@@ -1762,7 +1766,7 @@ class DocumentParser {
         $rs = db()->select(
             "id, IF(alias='', id, alias) AS alias"
             , '[+prefix+]site_content'
-            , sprintf('parent=%d', $this->getParentID($docid))
+            , where('parent', '=', $this->getParentID($docid))
         );
 
         if (!$rs) {
@@ -1789,7 +1793,10 @@ class DocumentParser {
         $rs = db()->select(
             'parent'
             , '[+prefix+]site_content'
-            , sprintf('id=%d and deleted=0', (int)$docid)
+            , array(
+                where('id', '=', $docid),
+                'AND deleted=0'
+            )
         );
 
         if (!$rs) {
@@ -1814,7 +1821,10 @@ class DocumentParser {
         $rs = db()->select(
             'id'
             , '[+prefix+]site_content'
-            , sprintf('parent=%d and deleted=0', (int)$parent)
+            , array(
+                where('parent', '=', $parent),
+                'AND deleted=0'
+            )
         );
 
         if (!$rs) {
@@ -3070,7 +3080,7 @@ class DocumentParser {
                             db()->select(
                                 'name'
                                 , '[+prefix+]site_tmplvars'
-                                , sprintf("id='%s'", $mt[1])
+                                , where('id', '=', $mt[1])
                             )
                         );
                         $k = $row['name'];
@@ -3087,11 +3097,6 @@ class DocumentParser {
             $previewObject = false;
         }
 
-        // get document groups for current user
-        if ($docgrp = $this->getUserDocGroups()) {
-            $docgrp = implode(',', $docgrp);
-        }
-
         // get document (add so)
         $_ = array();
         if ($this->isFrontend()) {
@@ -3099,8 +3104,9 @@ class DocumentParser {
         } else {
             $_[] = 'sc.privatemgr=0';
         }
+        $docgrp = $this->getUserDocGroups();
         if ($docgrp) {
-            $_[] = sprintf('dg.document_group IN (%s)', $docgrp);
+            $_[] = where_in('dg.`document_group`', $docgrp);
         }
         if ($this->session('mgrRole')) {
             $_[] = sprintf('1=%d', (int)$this->session('mgrRole'));
@@ -3113,7 +3119,11 @@ class DocumentParser {
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id'
             )
-            , sprintf("sc.id=%d AND (%s)", (int)$identifier, $access)
+            , array(
+                where('`sc`.`id`', '=', $identifier),
+                'AND',
+                '(' . $access . ')'
+            )
             , ''
             , 1
         );
@@ -3126,7 +3136,7 @@ class DocumentParser {
             $rs = db()->select(
                 'id'
                 , '[+prefix+]document_groups'
-                , sprintf("document='%d'", $identifier)
+                , where('document', '=', $identifier)
                 , ''
                 , 1
             );
@@ -3213,7 +3223,6 @@ class DocumentParser {
                 }
             }
         }
-
         return $documentObject;
     }
 
@@ -4395,19 +4404,18 @@ class DocumentParser {
         $dg = array(); // add so
         $dgn = array();
 
-        if ($this->session('webDocgroups') && $this->session('webValidated')
-            && $this->isFrontend()) {
-            $dg = $this->session('webDocgroups');
-            if ($this->session('webDocgrpNames')) {
-                $dgn = $this->session('webDocgrpNames'); //add so
+        if (sessionv('webDocgroups') && sessionv('webValidated') && $this->isFrontend()) {
+            $dg = sessionv('webDocgroups');
+            if (sessionv('webDocgrpNames')) {
+                $dgn = sessionv('webDocgrpNames'); //add so
             }
         }
 
-        if ($this->session('mgrDocgroups') && $this->session('mgrValidated')
-            && ($this->isBackend() || $this->config['allow_mgr2web'] === '1')) {
-            $dg = array_merge($dg, $this->session('mgrDocgroups', array()));
-            if ($this->session('mgrDocgrpNames')) {
-                $dgn = array_merge($dgn, $this->session('mgrDocgrpNames', array()));
+        if (sessionv('mgrDocgroups') && sessionv('mgrValidated')
+            && ($this->isBackend() || config('allow_mgr2web'))) {
+            $dg = array_merge($dg, sessionv('mgrDocgroups'));
+            if (sessionv('mgrDocgrpNames')) {
+                $dgn = array_merge($dgn, sessionv('mgrDocgrpNames'));
             }
         }
 
@@ -4426,10 +4434,7 @@ class DocumentParser {
         $ds = db()->select(
             'name'
             , '[+prefix+]documentgroup_names'
-            , sprintf(
-                'id IN (%s)'
-                , join(',', $dg)
-            )
+            , where_in('id', $dg)
         );
 
         $dgn = array();
@@ -4450,11 +4455,11 @@ class DocumentParser {
     # Remove unwanted html tags and snippet, settings and tags
     function stripTags($html, $allowed = '') {
         $t = strip_tags($html, $allowed);
-        $t = preg_replace('~\[\*(.*?)\*\]~', '', $t); //tv
-        $t = preg_replace('~\[\[(.*?)\]\]~', '', $t); //snippet
-        $t = preg_replace('~\[\!(.*?)\!\]~', '', $t); //snippet
-        $t = preg_replace('~\[\((.*?)\)\]~', '', $t); //settings
-        $t = preg_replace('~\[\+(.*?)\+\]~', '', $t); //placeholders
+        $t = preg_replace('~\[\*(.*?)\*]~', '', $t); //tv
+        $t = preg_replace('~\[\[(.*?)]]~', '', $t); //snippet
+        $t = preg_replace('~\[!(.*?)!]~', '', $t); //snippet
+        $t = preg_replace('~\[\((.*?)\)]~', '', $t); //settings
+        $t = preg_replace('~\[\+(.*?)\+]~', '', $t); //placeholders
         $t = preg_replace('~{{(.*?)}}~', '', $t); //chunks
         return $t;
     }
@@ -4578,7 +4583,14 @@ class DocumentParser {
             $this->pluginCache["{$pluginName}Props"] = '';
             return;
         }
-        $result = db()->select('*', '[+prefix+]site_plugins', "`name`='{$pluginName}' AND disabled=0");
+        $result = db()->select(
+            '*',
+            '[+prefix+]site_plugins',
+            array(
+                where('name', '=', $pluginName),
+                'AND disabled=0'
+            )
+        );
         if (db()->count($result) == 1) {
             $row = db()->getRow($result);
             $code = $row['plugincode'];
@@ -4956,9 +4968,9 @@ class DocumentParser {
         $rs = db()->select(
             'id'
             , '[+prefix+]site_content'
-            , sprintf(
-                "deleted=0 and alias='%s'"
-                , db()->escape($aliasPath)
+            , array(
+                where('alias', '=', $aliasPath),
+                'AND deleted=0'
             )
             , 'parent, menuindex'
         );
@@ -4970,11 +4982,11 @@ class DocumentParser {
             $rs = db()->select(
                 'id'
                 , '[+prefix+]site_content'
-                , sprintf(
-                    "deleted=0 and id='%s'"
-                    , db()->escape($aliasPath)
+                , array(
+                    where('id', '=', $aliasPath),
+                    'AND deleted=0'
                 )
-            );
+                );
             $row = db()->getRow($rs);
         }
         if (!$row) {
@@ -5296,26 +5308,6 @@ class DocumentParser {
             return $rs;
         }
         return false;
-    }
-
-    private function save_jpg($save_path, $limit_width, $limit_height) {
-        $new_image = imagecreatetruecolor($limit_width, $limit_height);
-        $rs = imagecopyresampled(
-            $new_image
-            , imagecreatefromjpeg($tmp_path)
-            , 0
-            , 0
-            , 0
-            , 0
-            , $limit_width
-            , $limit_height
-            , $img[0]
-            , $img[1]
-        );
-        if (!$rs) {
-            return false;
-        }
-        $rs = imagejpeg($new_image, $target_path, 83);
     }
 
     public function input_get($key = null, $default = null) {

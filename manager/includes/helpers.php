@@ -402,19 +402,19 @@ function datetime_format($format, $timestamp = '', $default = '')
 	);
 }
 
-function where($p1, $p2, $p3=null) {
+function where($field, $op, $value=null) {
+    if ($value===null) {
+        $value = $op;
+        $op = '=';
+    }
     return sprintf(
-        '`%s`%s"%s"',
-        func_get_arg(0),
-        $p3===null ? '=' : func_get_arg(1),
-        db()->escape(
-            $p3===null ? func_get_arg(1) : func_get_arg(2)
-        ),
+        strpos($field,'`')===false ? '`%s` %s "%s"' : '%s %s "%s"',
+        $field, $op, $value
     );
 }
 
-function and_where($p1, $p2, $p3=null) {
-    return 'AND ' . where($p1, $p2, $p3);
+function and_where($field, $op, $value=null) {
+    return 'AND ' . where($field, $op, $value);
 }
 
 function where_in($field, $values=array()) {
@@ -425,7 +425,7 @@ function where_in($field, $values=array()) {
         $values[$i] = "'" . db()->escape($v) . "'";
     }
     return sprintf(
-        '`%s` IN (%s)',
+        strpos($field,'`')===false ? '`%s` IN (%s)' : '%s IN (%s)',
         $field,
         implode(',', $values)
     );
