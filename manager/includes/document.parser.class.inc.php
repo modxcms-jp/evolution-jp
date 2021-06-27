@@ -3148,11 +3148,13 @@ class DocumentParser {
 
         // load TVs and merge with document - Orig by Apodigm - Docvars
         $field = array();
+        $field['tvid'] = 'tv.id';
         $field['tv.name'] = 'tv.name';
         $field['value'] = "IF(tvc.value!='',tvc.value,tv.default_text)";
         $field['tv.display'] = 'tv.display';
         $field['tv.display_params'] = 'tv.display_params';
         $field['tv.type'] = 'tv.type';
+        $field['tv.caption'] = 'tv.caption';
         $from = array();
         $from[] = '[+prefix+]site_tmplvars tv';
         $from[] = 'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid=tv.id';
@@ -3176,16 +3178,20 @@ class DocumentParser {
                 if (isset($documentObject[$name])) {
                     continue;
                 }
+                $tmplvars[$name][] = $row['tvid'];
                 $tmplvars[$name][] = $row['name'];
                 $tmplvars[$name][] = $row['value'];
                 $tmplvars[$name][] = $row['display'];
                 $tmplvars[$name][] = $row['display_params'];
                 $tmplvars[$name][] = $row['type'];
+                $tmplvars[$name][] = $row['caption'];
+                $tmplvars[$name]['tvid'] = $row['tvid'];
                 $tmplvars[$name]['name'] = $row['name'];
                 $tmplvars[$name]['value'] = $row['value'];
                 $tmplvars[$name]['display'] = $row['display'];
                 $tmplvars[$name]['display_params'] = $row['display_params'];
                 $tmplvars[$name]['type'] = $row['type'];
+                $tmplvars[$name]['caption'] = $row['caption'];
             }
             $documentObject = array_merge($documentObject, $tmplvars);
         }
@@ -3413,7 +3419,7 @@ class DocumentParser {
         return !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true');
     }
 
-    function getDocuments(
+    public function getDocuments(
         $ids = array(),
         $published = 1,
         $deleted = 0,
@@ -3463,7 +3469,10 @@ class DocumentParser {
 
             $result = db()->select(
                 'DISTINCT ' . $this->join(',', explode(',', $fields), 'sc.')
-                , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
+                , array(
+                    '[+prefix+]site_content sc',
+                    'LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
+                )
                 , $where
                 , $sort ? sprintf('sc.%s %s', $sort, $dir) : ''
                 , $limit
@@ -3503,7 +3512,7 @@ class DocumentParser {
         return $docs;
     }
 
-    function getDocument($id = 0, $fields = '*', $published = 1, $deleted = 0) {
+    public function getDocument($id = 0, $fields = '*', $published = 1, $deleted = 0) {
         if (!$id) {
             return false;
         }
@@ -3516,7 +3525,7 @@ class DocumentParser {
         return false;
     }
 
-    function getField($field = 'content', $docid = '') {
+    public function getField($field = 'content', $docid = '') {
         static $cached = array();
         if (isset($cached[$docid][$field])) {
             return $cached[$docid][$field];
@@ -3543,7 +3552,7 @@ class DocumentParser {
         return $doc[$field];
     }
 
-    function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias') {
+    public function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias') {
         if (!$docid || !preg_match('/^[1-9][0-9]*$/', $docid)) {
             return false;
         }
@@ -5089,7 +5098,7 @@ class DocumentParser {
         return true;
     }
 
-    function gotoSetup() {
+    public function gotoSetup() {
         if (strpos($_SERVER['SCRIPT_NAME'], 'install/index.php') !== false) {
             return false;
         }

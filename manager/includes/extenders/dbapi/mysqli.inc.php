@@ -379,6 +379,9 @@ class DBAPI {
             }
             $pairs = implode(',', $pair);
         }
+        if (is_array($where)) {
+            $where = implode(' ', $where);
+        }
         return $this->query(
             sprintf(
                 'UPDATE %s SET %s %s %s %s'
