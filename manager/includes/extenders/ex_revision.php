@@ -122,7 +122,7 @@ class REVISION
             'status'   => $status,
             'content'  => db()->escape($revision_content),
             'element'  => 'resource',
-            'editedon' => serverv('REQUEST_TIME'),
+            'editedon' => request_time(),
             'editedby' => evo()->getLoginUserID(),
             'checksum' => $checksum,
             'version'  => ($status === 'inherit') ? $total + 1 : 0,
@@ -326,7 +326,7 @@ class REVISION
             evo()->doc->fixTvNest($fields)
         );
 
-        if (severv('REQUEST_TIME') < array_get($fields, 'pub_date', 0)) {
+        if (request_time() < array_get($fields, 'pub_date', 0)) {
             $this->save($fields['id'], $fields, 'standby');
             db()->update(
                 array('pub_date' => array_get($fields, 'pub_date', 0))

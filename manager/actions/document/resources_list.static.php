@@ -362,7 +362,7 @@ function getStatusIcon($status) {
 function getStatus($doc) {
     global $modx, $_lang;
 
-    if (!$doc['published'] && ($_SERVER['REQUEST_TIME'] < $doc['pub_date'] || $doc['unpub_date'] < $_SERVER['REQUEST_TIME'])) {
+    if (!$doc['published'] && (request_time() < $doc['pub_date'] || $doc['unpub_date'] < request_time())) {
         return $modx->parseText('<span class="unpublishedDoc">[+page_data_unpublished+]</span>', $_lang);
     }
     return $modx->parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);

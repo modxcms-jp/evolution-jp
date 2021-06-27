@@ -438,7 +438,7 @@ function getInputValues($id = 0, $mode = 'new') {
     
     $fields['editedby'] = evo()->getLoginUserID();
     if ($mode === 'new') {
-        $fields['createdon'] = serverv('REQUEST_TIME');
+        $fields['createdon'] = request_time();
         $fields['createdby'] = evo()->getLoginUserID();
         $fields['publishedon'] = checkPublishedon(0);
     } elseif ($mode === 'edit') {
@@ -456,7 +456,7 @@ function checkStartDoc($id, $published, $pub_date, $unpub_date) {
         );
         exit;
     }
-    if ($pub_date > serverv('REQUEST_TIME') || $unpub_date) {
+    if ($pub_date > request_time() || $unpub_date) {
         evo()->webAlertAndQuit(
             'Document is linked to site_start variable and cannot have publish or unpublish dates set!'
             , sprintf('index.php?a=27&id=%s', $id)
@@ -509,7 +509,7 @@ function checkPublishedon($timestamp) {
         return $timestamp;
     }
 
-    if ($form_v['published'] && $form_v['pub_date'] && $form_v['pub_date'] <= serverv('REQUEST_TIME')) {
+    if ($form_v['published'] && $form_v['pub_date'] && $form_v['pub_date'] <= request_time()) {
         return $form_v['pub_date'];
     }
 
@@ -521,7 +521,7 @@ function checkPublishedon($timestamp) {
         return 0;
     }
 
-    return serverv('REQUEST_TIME');
+    return request_time();
 }
 
 function checkPublishedby($db_v) {
@@ -532,7 +532,7 @@ function checkPublishedby($db_v) {
     }
 
     // if it was changed from unpublished to published
-    if ($form_v['published'] && $form_v['pub_date'] <= serverv('REQUEST_TIME')) {
+    if ($form_v['published'] && $form_v['pub_date'] <= request_time()) {
         return $db_v['publishedby'];
     }
 

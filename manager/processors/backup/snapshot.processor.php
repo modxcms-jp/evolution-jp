@@ -79,7 +79,7 @@ function filename() {
         array('/', ' ', ':')
         , array('-', '-', '')
         , strtolower(
-            evo()->toDateFormat(anyv('REQUEST_TIME'))
+            evo()->toDateFormat(request_time())
         )
     );
     global $settings_version;

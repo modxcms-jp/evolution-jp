@@ -128,9 +128,9 @@ class DocAPI {
             $f['pub_date'] = 0;
         } else {
             $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
-            if ($f['pub_date'] < serverv('request_time')) {
+            if ($f['pub_date'] < request_time()) {
                 $f['published'] = 1;
-            } elseif ($f['pub_date'] > serverv('request_time')) {
+            } elseif ($f['pub_date'] > request_time()) {
                 $f['published'] = 0;
             }
         }
@@ -139,7 +139,7 @@ class DocAPI {
             $f['unpub_date'] = 0;
         } else {
             $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-            if ($f['unpub_date'] < serverv('request_time')) {
+            if ($f['unpub_date'] < request_time()) {
                 $f['published'] = 0;
             }
         }
@@ -159,13 +159,13 @@ class DocAPI {
             $fields['pagetitle'] = lang('untitled_resource');
         }
         if (empty($fields['createdon'])) {
-            $fields['createdon'] = serverv('request_time');
+            $fields['createdon'] = request_time();
         }
         if (empty($fields['createdby'])) {
             $fields['createdby'] = evo()->getLoginUserID();
         }
         if (empty($fields['editedon'])) {
-            $fields['editedon'] = serverv('request_time');
+            $fields['editedon'] = request_time();
         }
         if (empty($fields['editedby'])) {
             $fields['editedby'] = evo()->getLoginUserID();
@@ -340,7 +340,7 @@ class DocAPI {
                     }
                     break;
                 case 'editedon':
-                    $value = $_SERVER['REQUEST_TIME'];
+                    $value = request_time();
                     break;
                 case 'editedby':
                     if (empty($value)) {
@@ -427,9 +427,9 @@ class DocAPI {
                     $url .= "&id={evo()->array_get($form_v, 'id')}";
                 }
                 evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
-            } elseif ($form_v['pub_date'] < $_SERVER['REQUEST_TIME']) {
+            } elseif ($form_v['pub_date'] < request_time()) {
                 $form_v['published'] = 1;
-            } elseif ($form_v['pub_date'] > $_SERVER['REQUEST_TIME']) {
+            } elseif ($form_v['pub_date'] > request_time()) {
                 $form_v['published'] = 0;
             }
         }
@@ -443,7 +443,7 @@ class DocAPI {
                     $url .= "&id={evo()->array_get($form_v, 'id')}";
                 }
                 evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
-            } elseif ($form_v['unpub_date'] < $_SERVER['REQUEST_TIME']) {
+            } elseif ($form_v['unpub_date'] < request_time()) {
                 $form_v['published'] = 0;
             }
         }
@@ -458,11 +458,11 @@ class DocAPI {
             $form_v['unpub_date'] = 0;
             $form_v['published'] = 0;
         }
-        $form_v['publishedon'] = $form_v['published'] ? $_SERVER['REQUEST_TIME'] : 0;
+        $form_v['publishedon'] = $form_v['published'] ? request_time() : 0;
         $form_v['publishedby'] = $form_v['published'] ? evo()->getLoginUserID() : 0;
 
         $form_v['createdby'] = evo()->getLoginUserID();
-        $form_v['createdon'] = $_SERVER['REQUEST_TIME'];
+        $form_v['createdon'] = request_time();
         return $form_v;
     }
 
@@ -491,7 +491,7 @@ class DocAPI {
         if (isset($f['pub_date']) && !empty($f['pub_date'])) {
             $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
 
-            if ($f['pub_date'] < serverv('request_time')) {
+            if ($f['pub_date'] < request_time()) {
                 $f['published'] = 1;
             } else {
                 $f['published'] = 0;
@@ -503,7 +503,7 @@ class DocAPI {
         if (isset($f['unpub_date']) && !empty($f['unpub_date'])) {
             $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
 
-            if ($f['unpub_date'] < serverv('request_time')) {
+            if ($f['unpub_date'] < request_time()) {
                 $f['published'] = 0;
             } else {
                 $f['published'] = 1;

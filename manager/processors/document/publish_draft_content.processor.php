@@ -22,7 +22,7 @@ $modx->loadExtension('REVISION');
 
 if (postv('publishoption') === 'reserve' && postv('pub_date')) {
     $pub_date = evo()->toTimeStamp(postv('pub_date'));
-    if (serverv('REQUEST_TIME') < $pub_date) {
+    if (request_time() < $pub_date) {
         setStandBy($docid, $pub_date);
         evo()->setCacheRefreshTime($pub_date);
     } else {

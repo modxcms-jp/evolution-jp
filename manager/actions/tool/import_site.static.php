@@ -250,7 +250,7 @@ function importFiles($parent, $filedir, $files, $mode) {
                 importFiles($newid, $filedir . $alias . '/', $value, 'sub');
             }
             if ($find === false) {
-                $date = $_SERVER['REQUEST_TIME'];
+                $date = request_time();
                 $field['pagetitle'] = $field['alias'];
                 $field['content'] = '';
                 $field['createdon'] = $date;

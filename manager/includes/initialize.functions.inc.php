@@ -284,7 +284,7 @@ class init {
         if (sessionv('mgrLastlogin')) {
             $_SESSION['modx.session.created.time'] = sessionv('mgrLastlogin');
         } else {
-            $_SESSION['modx.session.created.time'] = serverv('REQUEST_TIME');
+            $_SESSION['modx.session.created.time'] = request_time();
         }
     }
 

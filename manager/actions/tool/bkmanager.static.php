@@ -63,7 +63,7 @@ if ($mode === 'snapshot') {
         exit;
     }
 
-    $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
+    $today = $modx->toDateFormat(request_time());
     $today = str_replace(array('/', ' ', ':'), array('-', '-', ''), $today);
     $today = strtolower($today);
     global $path, $settings_version;
@@ -341,7 +341,7 @@ if (sessionv('result_msg')) {
                 ?>
             </div>
             <?php
-            $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
+            $today = $modx->toDateFormat(request_time());
             $today = str_replace(array('/', ' '), '-', $today);
             $today = str_replace(':', '', $today);
             $today = strtolower($today);

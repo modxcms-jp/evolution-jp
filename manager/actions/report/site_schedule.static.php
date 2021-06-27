@@ -34,7 +34,7 @@ if (!$modx->hasPermission('view_schedule')) {
         $rs = db()->select(
             'id, pagetitle, pub_date'
             , '[+prefix+]site_content'
-            , 'pub_date > ' . $_SERVER['REQUEST_TIME']
+            , 'pub_date > ' . request_time()
             , 'pub_date ASC'
         );
         $total = db()->getRecordCount($rs);
@@ -85,7 +85,7 @@ if (!$modx->hasPermission('view_schedule')) {
         $rs = db()->select(
                 'id, pagetitle, unpub_date'
                 , '[+prefix+]site_content'
-                , 'unpub_date > ' . serverv('REQUEST_TIME')
+                , 'unpub_date > ' . request_time()
                 , 'unpub_date ASC'
         );
         $total = db()->getRecordCount($rs);
@@ -94,7 +94,7 @@ if (!$modx->hasPermission('view_schedule')) {
         } else {
             ?>
             <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-3 rowstyle-even"
-                   id="table-2" width="100%">
+                id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
                     <th class="sortable"><b><?php echo lang('id'); ?></b></th>

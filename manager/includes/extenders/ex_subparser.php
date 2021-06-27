@@ -157,7 +157,7 @@ class SubParser {
 
         $fields['eventid'] = $evtid;
         $fields['type'] = $type;
-        $fields['createdon'] = evo()->server('REQUEST_TIME');
+        $fields['createdon'] = request_time();
         $fields['source'] = $title;
         $fields['description'] = $msg;
         $fields['user'] = $LoginUserID;
@@ -2266,7 +2266,7 @@ class SubParser {
         }
 
         if ($filename === '') {
-            $today = $modx->toDateFormat($_SERVER['REQUEST_TIME']);
+            $today = $modx->toDateFormat(request_time());
             $today = str_replace(
                 array('/', ' ', ':')
                 , array('-', '-', '')
@@ -2630,7 +2630,7 @@ class SubParser {
     function updateDraft() {
         global $modx;
 
-        $now = evo()->server('REQUEST_TIME', 0) + evo()->config('server_offset_time', 0);
+        $now = serverv('REQUEST_TIME', 0) + evo()->config('server_offset_time', 0);
 
         $rs = db()->select(
             '*'

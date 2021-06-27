@@ -35,7 +35,7 @@ class EXPORT_SITE {
     }
 
     function getPastTime() {
-        return time() - $_SERVER['REQUEST_TIME'];
+        return time() - request_time();
     }
 
     function setExportDir($dir) {

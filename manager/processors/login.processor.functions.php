@@ -35,7 +35,7 @@ function failedLogin() {
     if (config('failed_login_attempts', 0) <= $failedlogincount) {
         db()->update(
             array(
-                'blockeduntil' => $_SERVER['REQUEST_TIME'] + (config('blocked_minutes') * 60)
+                'blockeduntil' => $_SERVER[request_time()] + (config('blocked_minutes') * 60)
             )
             , '[+prefix+]user_attributes'
             , sprintf("internalKey='%s'", user('internalKey'))
@@ -186,11 +186,11 @@ function isBlockedUser() {
     if (!user('blocked')) {
         return false;
     }
-    if (evo()->server_var('REQUEST_TIME') < user('blockeduntil', 0)) {
+    if (request_time() < user('blockeduntil', 0)) {
         return true;
     }
     if (config('failed_login_attempts', 0) < user('failedlogincount', 0)) {
-        if (evo()->server_var('REQUEST_TIME') < user('blockeduntil', 0)) {
+        if (request_time() < user('blockeduntil', 0)) {
             return true;
         }
     }
@@ -361,14 +361,14 @@ function managerLogin() {
             'failedlogincount' => 0,
             'logincount' => user('logincount') + 1,
             'lastlogin' => user('thislogin'),
-            'thislogin' => $modx->server_var('REQUEST_TIME'),
+            'thislogin' => request_time(),
             'sessionid' => session_id()
         )
         , $modx->getFullTableName('user_attributes')
         , 'internalKey=' . user('internalKey')
     );
 
-    $_SESSION['mgrLastlogin'] = $modx->server_var('REQUEST_TIME');
+    $_SESSION['mgrLastlogin'] = request_time();
     $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
 
     if ($modx->input_any('rememberme')) {
@@ -404,7 +404,7 @@ function managerLogin() {
                 'modx_remember_manager'
                 , ''
                 , array(
-                    'expires' => ($modx->server_var('REQUEST_TIME') - 3600),
+                    'expires' => (request_time() - 3600),
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
@@ -417,7 +417,7 @@ function managerLogin() {
             setcookie(
                 'modx_remember_manager'
                 , ''
-                , ($modx->server_var('REQUEST_TIME') - 3600)
+                , (request_time() - 3600)
                 , MODX_BASE_URL . '; SameSite=Lax'
                 , null
                 , init::is_ssl() ? true : false
