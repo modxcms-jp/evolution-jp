@@ -61,21 +61,21 @@
     }
 
     function OpenServerBrowser(url, width, height) {
-        var iLeft = (screen.width - width) / 2;
-        var iTop = (screen.height - height) / 2;
+        let iLeft = (screen.width - width) / 2;
+        let iTop = (screen.height - height) / 2;
 
-        var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes";
+        let sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes";
         sOptions += ",width=" + width;
         sOptions += ",height=" + height;
         sOptions += ",left=" + iLeft;
         sOptions += ",top=" + iTop;
 
-        var oWindow = window.open(url, "FCKBrowseWindow", sOptions);
+        let oWindow = window.open(url, "FCKBrowseWindow", sOptions);
     }
 
     function BrowseServer() {
-        var w = screen.width * 0.7;
-        var h = screen.height * 0.7;
+        let w = screen.width * 0.7;
+        let h = screen.height * 0.7;
         OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
     }
 
