@@ -401,3 +401,43 @@ function datetime_format($format, $timestamp = '', $default = '')
 		$timestamp
 	);
 }
+
+function where($p1, $p2, $p3=null) {
+    return sprintf(
+        '`%s`%s"%s"',
+        func_get_arg(0),
+        $p3===null ? '=' : func_get_arg(1),
+        db()->escape(
+            $p3===null ? func_get_arg(1) : func_get_arg(2)
+        ),
+    );
+}
+
+function and_where($p1, $p2, $p3=null) {
+    return 'AND ' . where($p1, $p2, $p3);
+}
+
+function where_in($field, $values=array()) {
+    if(!$values) {
+        return null;
+    }
+    foreach($values as $i=>$v) {
+        $values[$i] = "'" . db()->escape($v) . "'";
+    }
+    return sprintf(
+        '`%s` IN (%s)',
+        $field,
+        implode(',', $values)
+    );
+}
+
+function and_where_in($field, $values=array()) {
+    if(!$values) {
+        return null;
+    }
+    return 'AND ' . where_in($field, $values);
+}
+
+function request_time() {
+    return serverv('request_time');
+}
