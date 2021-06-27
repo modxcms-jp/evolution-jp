@@ -106,7 +106,7 @@ class init {
     }
 
     public static function get_base_path() {
-        $self = 'manager/includes/initialize.functions.inc';
+        $self = 'manager/includes/initialize.functions.inc.php';
         return str_replace(
             array('\\', $self)
             , array('/', '')
