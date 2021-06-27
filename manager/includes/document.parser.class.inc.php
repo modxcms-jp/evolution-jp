@@ -191,7 +191,7 @@ class DocumentParser {
         }
 
         if (!isset($this->tstart)) {
-            $this->tstart = $_SERVER['REQUEST_TIME_FLOAT'];
+            $this->tstart = serverv('REQUEST_TIME_FLOAT');
         }
         if (!isset($this->mstart)) {
             $this->mstart = memory_get_usage();
@@ -268,9 +268,11 @@ class DocumentParser {
 
         $this->updatePublishStatus();
 
-        $this->decoded_request_uri = urldecode($this->treatRequestUri($_SERVER['REQUEST_URI']));
-        $_ = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/')) . '/';
-        $_ = ltrim($_, '/');
+        $this->decoded_request_uri = urldecode($this->treatRequestUri(request_uri()));
+        $_ = ltrim(
+            substr(request_uri(), 0, strrpos(request_uri(), '/')) . '/',
+            '/'
+        );
         if (strpos($_, '?') !== false) {
             $_ = substr($_, 0, strpos($_, '?'));
         }
@@ -382,7 +384,7 @@ class DocumentParser {
         $f['cache_section'] = $category;
         $f['cache_key'] = $key;
         $f['cache_value'] = $value;
-        $f['cache_timestamp'] = $_SERVER['REQUEST_TIME'];
+        $f['cache_timestamp'] = request_time();
         return db()->insert(db()->escape($f), '[+prefix+]system_cache');
     }
 
@@ -432,7 +434,7 @@ class DocumentParser {
     }
 
     function getRequestQ($uri) {
-        if (strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) // IIS friendly url fix
+        if (strpos(serverv('SERVER_SOFTWARE'), 'Microsoft-IIS') !== false) // IIS friendly url fix
         {
             return $this->_IIS_furl_fix();
         }
@@ -449,13 +451,13 @@ class DocumentParser {
     }
 
     function sanitizeVars() {
-        if (isset($_SERVER['QUERY_STRING']) && strpos(urldecode($_SERVER['QUERY_STRING']), chr(0)) !== false) {
+        if (strpos(urldecode(serverv('QUERY_STRING')), chr(0)) !== false) {
             exit();
         }
 
         foreach (array('PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING') as $key) {
             if (isset ($_SERVER[$key])) {
-                $_SERVER[$key] = $this->htmlspecialchars($_SERVER[$key]);
+                $_SERVER[$key] = $this->hsc($_SERVER[$key]);
             } else {
                 $_SERVER[$key] = null;
             }
@@ -2340,7 +2342,7 @@ class DocumentParser {
             return $content;
         }
 
-        $sp = '#' . hash('crc32b', 'ConditionalTags' . $_SERVER['REQUEST_TIME']) . '#';
+        $sp = '#' . hash('crc32b', 'ConditionalTags' . request_time()) . '#';
         $content = str_replace(array('<?php', '?>'), array("{$sp}b", "{$sp}e"), $content);
 
         $pieces = explode('<@IF:', $content);
@@ -3051,7 +3053,7 @@ class DocumentParser {
             $this->documentIdentifier = $identifier;
         } elseif ($this->input_get('revision')) {
             if (!$this->isLoggedIn()) {
-                $_SESSION['save_uri'] = $_SERVER['REQUEST_URI'];
+                $_SESSION['save_uri'] = request_uri();
                 header('location:' . MODX_MANAGER_URL);
                 exit;
             }
@@ -5046,7 +5048,7 @@ class DocumentParser {
             if (!empty($baseTime) && $this->isLoggedin()) {
                 $t = $baseTime;
             } else {
-                $this->baseTime = $_SERVER['REQUEST_TIME'];
+                $this->baseTime = request_time();
                 return true;
             }
         }
@@ -5099,11 +5101,11 @@ class DocumentParser {
     }
 
     public function gotoSetup() {
-        if (strpos($_SERVER['SCRIPT_NAME'], 'install/index.php') !== false) {
+        if (strpos(serverv('SCRIPT_NAME'), 'install/index.php') !== false) {
             return false;
         }
 
-        if (strpos($_SERVER['SCRIPT_NAME'], 'install/connection.') !== false) {
+        if (strpos(serverv('SCRIPT_NAME'), 'install/connection.') !== false) {
             return false;
         }
 
