@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('logs')) {
+if (!evo()->hasPermission('logs')) {
     exit;
 }
 ?>

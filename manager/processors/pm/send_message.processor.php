@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('messages')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('messages')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 //$db->debug = true;
@@ -17,26 +17,26 @@ $sendto = $_REQUEST['sendto'];
 $recipient = $_REQUEST['user'];
 $groupid = $_REQUEST['group'];
 
-$sender = $modx->getLoginUserID();
+$sender = evo()->getLoginUserID();
 
-$subject = $modx->db->escape($_REQUEST['messagesubject']);
+$subject = db()->escape($_REQUEST['messagesubject']);
 if ($subject == '') {
     $subject = "(no subject)";
 }
-$message = $modx->db->escape($_REQUEST['messagebody']);
+$message = db()->escape($_REQUEST['messagebody']);
 if ($message == '') {
     $message = "(no message)";
 }
 $postdate = time();
 $type = 'Message';
 
-$rs = $modx->db->select('fullname,email', '[+prefix+]user_attributes', "internalKey='$sender'");
-$from = $modx->db->getRow($rs);
+$rs = db()->select('fullname,email', '[+prefix+]user_attributes', "internalKey='$sender'");
+$from = db()->getRow($rs);
 
 if ($sendto == 'u') {
     if ($recipient == 0) {
-        $e->setError(13);
-        $e->dumpError();
+        alert()->setError(13);
+        alert()->dumpError();
     }
     $private = 1;
     $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
@@ -45,12 +45,12 @@ if ($sendto == 'u') {
 
 if ($sendto === 'g') {
     if ($groupid == 0) {
-        $e->setError(14);
-        $e->dumpError();
+        alert()->setError(14);
+        alert()->dumpError();
     }
-    $rs = $modx->db->select('internalKey', '[+prefix+]user_attributes', "role={$groupid} AND blocked=0");
+    $rs = db()->select('internalKey', '[+prefix+]user_attributes', "role={$groupid} AND blocked=0");
     $private = 0;
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         if ($row['internalKey'] != $sender) {
             $recipient = $row['internalKey'];
             $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
@@ -60,9 +60,9 @@ if ($sendto === 'g') {
 }
 
 if ($sendto === 'a') {
-    $rs = $modx->db->select('id', '[+prefix+]manager_users');
+    $rs = db()->select('id', '[+prefix+]manager_users');
     $private = 0;
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         if ($row['id'] != $sender) {
             $recipient = $row['id'];
             $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
@@ -87,7 +87,7 @@ function pm2email($from, $fields) {
     $params['from'] = $from['email'];
     $params['fromname'] = $from['fullname'];
     $params['subject'] = $f_subject;
-    $params['sendto'] = $modx->db->getValue($modx->db->select('email', '[+prefix+]user_attributes',
+    $params['sendto'] = db()->getValue(db()->select('email', '[+prefix+]user_attributes',
         "internalKey='{$recipient}'"));
     $modx->sendmail($params, $msg);
     usleep(300000);
@@ -101,7 +101,7 @@ function send_pm($fields, $from) {
     }
     $fields['subject'] = encrypt($fields['subject']);
     $fields['message'] = encrypt($fields['message']);
-    $rs = $modx->db->insert($fields, '[+prefix+]user_messages');
+    $rs = db()->insert($fields, '[+prefix+]user_messages');
 }
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992

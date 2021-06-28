@@ -19,7 +19,7 @@ function jsAlert($msg) {
     } else {
         echo sprintf(
             "<script>alert('%s');history.go(-1);</script>"
-            , $modx->db->escape($msg)
+            , db()->escape($msg)
         );
     }
 }
@@ -47,7 +47,7 @@ function failedLogin() {
 
 function loginPhpass($givenPassword, $dbasePassword) {
     global $modx;
-    return $modx->phpass->CheckPassword($givenPassword, $dbasePassword);
+    return evo()->phpass->CheckPassword($givenPassword, $dbasePassword);
 }
 
 function loginV1($givenPassword, $dbasePassword, $internalKey) {
@@ -194,7 +194,7 @@ function isBlockedUser() {
             return true;
         }
     }
-    evo()->db->update(
+    db()->update(
         array(
             'failedlogincount' => 0,
             'blocked' => 0
@@ -339,24 +339,24 @@ function managerLogin() {
     $_SESSION['mgrFailedlogins'] = user('failedlogincount');
     $_SESSION['mgrLogincount'] = user('logincount'); // login count
     $_SESSION['mgrRole'] = user('role');
-    $rs = $modx->db->select(
+    $rs = db()->select(
         '*'
         , '[+prefix+]user_roles'
         , sprintf("id='%d'", user('role'))
     );
-    $row = $modx->db->getRow($rs);
+    $row = db()->getRow($rs);
 
     $_SESSION['mgrPermissions'] = $row;
 
     if ($modx->session_var('mgrPermissions.messages') == 1) {
-        $rs = $modx->db->select('*', '[+prefix+]manager_users');
-        $total = $modx->db->getRecordCount($rs);
+        $rs = db()->select('*', '[+prefix+]manager_users');
+        $total = db()->count($rs);
         if ($total == 1) {
             $_SESSION['mgrPermissions']['messages'] = '0';
         }
     }
     // successful login so reset fail count and update key values
-    $modx->db->update(
+    db()->update(
         array(
             'failedlogincount' => 0,
             'logincount' => user('logincount') + 1,
@@ -364,7 +364,7 @@ function managerLogin() {
             'thislogin' => request_time(),
             'sessionid' => session_id()
         )
-        , $modx->getFullTableName('user_attributes')
+        , evo()->getFullTableName('user_attributes')
         , 'internalKey=' . user('internalKey')
     );
 
@@ -426,7 +426,7 @@ function managerLogin() {
         }
     }
 
-    if ($modx->hasPermission('remove_locks')) {
+    if (evo()->hasPermission('remove_locks')) {
         $modx->manager->remove_locks();
     }
 
@@ -434,7 +434,7 @@ function managerLogin() {
     $log = new logHandler;
     $log->initAndWriteLog(
         'Logged in'
-        , $modx->getLoginUserID()
+        , evo()->getLoginUserID()
         , user('username')
         , '58'
         , '-'

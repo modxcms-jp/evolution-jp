@@ -365,7 +365,7 @@ function checkDocPermission($id, $document_groups = array()) {
     // get the document, but only if it already exists
     if (mode() === 'edit') {
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total > 1) {
             alert()->setError(6);
             alert()->dumpError();

@@ -1,26 +1,22 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!($modx->hasPermission('settings') && ($modx->hasPermission('logs') || $modx->hasPermission('bk_manager')))) {
-    $e->setError(3);
-    $e->dumpError();
+if (!hasPermission('settings') || (!hasPermission('logs') && !hasPermission('bk_manager'))) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-if ((!isset($_REQUEST['t']) || $_REQUEST['t'] == '') && (!isset($_REQUEST['u']) || $_REQUEST['u'] == '')) {
-    $e->setError(10);
-    $e->dumpError();
+if (!anyv('t') && !anyv('u')) {
+    alert()->setError(10);
+    alert()->dumpError();
 }
 
-if (isset($_REQUEST['t'])) {
-    $sql = sprintf('OPTIMIZE TABLE `%s`', $modx->db->escape($_REQUEST['t']));
-} elseif (isset($_REQUEST['u'])) {
-    $sql = sprintf('TRUNCATE TABLE `%s`', $modx->db->escape($_REQUEST['u']));
+if (anyv('t')) {
+    db()->optimize('[+prefix+]'.anyv('t'));
+}
+if (anyv('u')) {
+    db()->truncate('[+prefix+]'.anyv('u'));
 }
 
-if ($sql) {
-    $rs = $modx->db->query($sql);
-}
-
-$mode = (int)$_REQUEST['mode'];
-header("Location: index.php?a={$mode}&s=4");
+header('Location: index.php?a=' . (int)anyv('mode') . '&s=4');

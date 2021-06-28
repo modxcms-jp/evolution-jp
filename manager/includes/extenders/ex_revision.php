@@ -108,7 +108,7 @@ class REVISION
             , 'version DESC'
         );
         $exists_data = db()->getRow($rs);
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         $revision_content = serialize($input);
         $checksum = hash('crc32b', $revision_content);
         if ($total

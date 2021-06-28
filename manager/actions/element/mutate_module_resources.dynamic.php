@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('edit_module')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_module')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_REQUEST['id'])) {
@@ -15,21 +15,21 @@ if (isset($_REQUEST['id'])) {
 }
 
 // Get table names (alphabetical)
-$tbl_site_module_depobj = $modx->getFullTableName('site_module_depobj');
-$tbl_site_plugins = $modx->getFullTableName('site_plugins');
-$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+$tbl_site_module_depobj = evo()->getFullTableName('site_module_depobj');
+$tbl_site_plugins = evo()->getFullTableName('site_plugins');
+$tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 $modx->manager->initPageViewState();
 
 // check to see the  editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
-$limit = db()->getRecordCount($rs);
+$limit = db()->count($rs);
 if ($limit > 1) {
     while ($lock = db()->getRow($rs)) {
-        if ($lock['internalKey'] != $modx->getLoginUserID()) {
+        if ($lock['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['modules']);
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -130,7 +130,7 @@ switch ($_REQUEST['op']) {
 
 // load record
 $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
-$limit = db()->getRecordCount($rs);
+$limit = db()->count($rs);
 if ($limit > 1) {
     echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
     exit;
@@ -141,8 +141,8 @@ if ($limit > 1) {
 $content = db()->getRow($rs);
 $_SESSION['itemname'] = $content['name'];
 if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 ?>

@@ -63,7 +63,7 @@
                 'id' => $userid,
                 'usersettings' => $user
             );
-            $evtOut = $modx->invokeEvent('OnUserFormRender', $tmp);
+            $evtOut = evo()->invokeEvent('OnUserFormRender', $tmp);
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);
             }

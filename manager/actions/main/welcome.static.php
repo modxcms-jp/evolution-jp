@@ -1,17 +1,17 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 
-if ($modx->hasPermission('settings') && (!isset($settings_version) || $settings_version != $modx_version)) {
+if (evo()->hasPermission('settings') && (!isset($settings_version) || $settings_version != $modx_version)) {
     // seems to be a new install - send the user to the configuration page
     echo '<script type="text/javascript">document.location.href="index.php?a=17";</script>';
     exit;
 }
 
-$uid = $modx->getLoginUserID();
+$uid = evo()->getLoginUserID();
 
 $script = <<<JS
         <script type="text/javascript">
@@ -37,7 +37,7 @@ $modx->setPlaceholder('site', $_lang['site']);
 $modx->setPlaceholder('info', $_lang['info']);
 
 // setup message info
-if ($modx->hasPermission('messages')) {
+if (evo()->hasPermission('messages')) {
     $messages = $modx->manager->getMessageCount();
     $_SESSION['nrtotalmessages'] = $messages['total'];
     $_SESSION['nrnewmessages'] = $messages['new'];
@@ -59,42 +59,42 @@ if ($modx->hasPermission('messages')) {
 }
 
 // setup icons
-if ($modx->hasPermission('new_document') || $modx->hasPermission('save_document')) {
+if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
     if (!isset($_style['icons_newdoc_large'])) {
         $_style['icons_newdoc_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/newdoc.png';
     }
     $src = get_icon($_lang['add_resource'], 4, $_style['icons_newdoc_large'], $_lang['add_resource']);
     $modx->setPlaceholder('NewDocIcon', $src);
 }
-if ($modx->hasPermission('view_document')) {
+if (evo()->hasPermission('view_document')) {
     $src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'],
         $_lang['view_child_resources_in_container']);
     $modx->setPlaceholder('iconResources', $src);
 }
-if ($modx->hasPermission('edit_user')) {
+if (evo()->hasPermission('edit_user')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('SecurityIcon', $src);
 }
-if ($modx->hasPermission('edit_web_user')) {
+if (evo()->hasPermission('edit_web_user')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserIcon', $src);
 }
-if ($modx->hasPermission('new_module') || $modx->hasPermission('edit_module')) {
+if (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) {
     $src = get_icon($_lang['modules'], 106, $_style['icons_modules_large'], $_lang['manage_modules']);
     $modx->setPlaceholder('ModulesIcon', $src);
 }
-if ($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) {
+if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
     if (!isset($_style['icons_elements_large'])) {
         $_style['icons_elements_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/elements.png';
     }
     $src = get_icon($_lang['element_management'], 76, $_style['icons_elements_large'], $_lang['element_management']);
     $modx->setPlaceholder('ResourcesIcon', $src);
 }
-if ($modx->hasPermission('bk_manager')) {
+if (evo()->hasPermission('bk_manager')) {
     $src = get_icon($_lang['backup'], 93, $_style['icons_backup_large'], $_lang['bk_manager']);
     $modx->setPlaceholder('BackupIcon', $src);
 }
-if ($modx->hasPermission('help')) {
+if (evo()->hasPermission('help')) {
     if (!isset($_style['icons_help_large'])) {
         $_style['icons_help_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/help.png';
     }
@@ -103,29 +103,29 @@ if ($modx->hasPermission('help')) {
 }
 
 
-if ($modx->hasPermission('file_manager')) {
+if (evo()->hasPermission('file_manager')) {
     if (!isset($_style['icons_files_large'])) {
         $_style['icons_files_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/files.png';
     }
     $src = get_icon($_lang['manage_files'], 31, $_style['icons_files_large'], $_lang['manage_files']);
     $modx->setPlaceholder('FileManagerIcon', $src);
 }
-if ($modx->hasPermission('new_user') || $modx->hasPermission('edit_user')) {
+if (evo()->hasPermission('new_user') || evo()->hasPermission('edit_user')) {
     $src = get_icon($_lang['security'], 75, $_style['icons_security_large'], $_lang['user_management_title']);
     $modx->setPlaceholder('UserManagerIcon', $src);
 }
-if ($modx->hasPermission('new_web_user') || $modx->hasPermission('edit_web_user')) {
+if (evo()->hasPermission('new_web_user') || evo()->hasPermission('edit_web_user')) {
     $src = get_icon($_lang['web_users'], 99, $_style['icons_webusers_large'], $_lang['web_user_management_title']);
     $modx->setPlaceholder('WebUserManagerIcon', $src);
 }
-if ($modx->hasPermission('view_eventlog')) {
+if (evo()->hasPermission('view_eventlog')) {
     if (!isset($_style['icons_log_large'])) {
         $_style['icons_log_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/log.png';
     }
     $src = get_icon($_lang['eventlog'], 114, $_style['icons_log_large'], $_lang['eventlog']);
     $modx->setPlaceholder('EventLogIcon', $src);
 }
-if ($modx->hasPermission('logs')) {
+if (evo()->hasPermission('logs')) {
     if (!isset($_style['icons_sysinfo_large'])) {
         $_style['icons_sysinfo_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/info.png';
     }
@@ -138,7 +138,7 @@ if (!isset($_style['icons_search_large'])) {
 $src = get_icon($_lang['search_resource'], 71, $_style['icons_search_large'], $_lang['search_resource']);
 $modx->setPlaceholder('SearchIcon', $src);
 
-if ($modx->hasPermission('settings')) {
+if (evo()->hasPermission('settings')) {
     if (!isset($_style['icons_settings_large'])) {
         $_style['icons_settings_large'] = MODX_MANAGER_URL . 'media/style/common/images/icons/32x/settings.png';
     }
@@ -148,13 +148,13 @@ if ($modx->hasPermission('settings')) {
 
 // setup modules
 $modulemenu = array();
-if ($modx->hasPermission('exec_module')) {
+if (evo()->hasPermission('exec_module')) {
     // Each module
     if ($_SESSION['mgrRole'] != 1) {
         // Display only those modules the user can execute
-        $tbl_site_modules = $modx->getFullTableName('site_modules');
-        $tbl_site_module_access = $modx->getFullTableName('site_module_access');
-        $tbl_member_groups = $modx->getFullTableName('member_groups');
+        $tbl_site_modules = evo()->getFullTableName('site_modules');
+        $tbl_site_module_access = evo()->getFullTableName('site_module_access');
+        $tbl_member_groups = evo()->getFullTableName('member_groups');
         $field = 'sm.id, sm.name, mg.member, sm.editedon';
         $from = "{$tbl_site_modules} AS sm";
         $from .= " LEFT JOIN {$tbl_site_module_access} AS sma ON sma.module = sm.id";
@@ -163,7 +163,7 @@ if ($modx->hasPermission('exec_module')) {
         $rs = db()->select($field, $from, $where, 'sm.editedon DESC');
     } else {
         // Admins get the entire list
-        $rs = db()->select('id,name,icon', $modx->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
+        $rs = db()->select('id,name,icon', evo()->getFullTableName('site_modules'), 'disabled != 1', 'editedon DESC');
     }
     while ($content = db()->getRow($rs)) {
         if (empty($content['icon'])) {
@@ -181,7 +181,7 @@ $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
 if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
-    || ($modx->config['warning_visibility'] == 2 && $modx->hasPermission('save_role') == 1)
+    || ($modx->config['warning_visibility'] == 2 && evo()->hasPermission('save_role') == 1)
     || $modx->config['warning_visibility'] == 1) {
     include_once(MODX_CORE_PATH . 'config_check.inc.php');
     $modx->setPlaceholder('settings_config', $_lang['warning']);
@@ -201,21 +201,21 @@ global $tpl;
 // invoke event OnManagerWelcomePrerender
 $modx->event->vars = array();
 $modx->event->vars['tpl'] = &$tpl;
-$evtOut = $modx->invokeEvent('OnManagerWelcomePrerender');
+$evtOut = evo()->invokeEvent('OnManagerWelcomePrerender');
 if (is_array($evtOut)) {
     $output = implode('', $evtOut);
     $modx->setPlaceholder('OnManagerWelcomePrerender', $output);
 }
 
 // invoke event OnManagerWelcomeHome
-$evtOut = $modx->invokeEvent('OnManagerWelcomeHome');
+$evtOut = evo()->invokeEvent('OnManagerWelcomeHome');
 if (is_array($evtOut)) {
     $output = implode('', $evtOut);
     $modx->setPlaceholder('OnManagerWelcomeHome', $output);
 }
 
 // invoke event OnManagerWelcomeRender
-$evtOut = $modx->invokeEvent('OnManagerWelcomeRender');
+$evtOut = evo()->invokeEvent('OnManagerWelcomeRender');
 $modx->event->vars = array();
 if (is_array($evtOut)) {
     $output = implode('', $evtOut);

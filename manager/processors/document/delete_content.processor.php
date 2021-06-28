@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('delete_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // check the document doesn't have any children
@@ -39,25 +39,25 @@ getChildren($id);
 $params['id'] = $id;
 $params['children'] = $children;
 $params['enableProcess'] = true;
-$modx->invokeEvent("OnBeforeDocFormDelete", $params);
+evo()->invokeEvent("OnBeforeDocFormDelete", $params);
 if ($params['enableProcess'] == false) {
     $modx->webAlertAndQuit("The deletion process was interrupted by plugin.");
 }
 
 $field = array();
 $field['deleted'] = '1';
-$field['deletedby'] = $modx->getLoginUserID();
+$field['deletedby'] = evo()->getLoginUserID();
 $field['deletedon'] = time();
 if (0 < count($children)) {
     $docs_to_delete = implode(' ,', $children);
-    $rs = $modx->db->update($field, '[+prefix+]site_content', "id IN({$docs_to_delete})");
+    $rs = db()->update($field, '[+prefix+]site_content', "id IN({$docs_to_delete})");
     if (!$rs) {
         exit("Something went wrong while trying to set the document's children to deleted status...");
     }
 }
 
 //ok, 'delete' the document.
-$rs = $modx->db->update($field, '[+prefix+]site_content', "id='{$id}'");
+$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
 if (!$rs) {
     exit('Something went wrong while trying to set the document to deleted status...');
 }
@@ -65,11 +65,11 @@ if (!$rs) {
 // invoke OnDocFormDelete event
 $params['id'] = $id;
 $params['children'] = $children; //array()
-$modx->invokeEvent("OnDocFormDelete", $params);
+evo()->invokeEvent("OnDocFormDelete", $params);
 
 // empty cache
 $modx->clearCache();
-$pid = $modx->db->getValue($modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'"));
+$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 if ($pid !== '0') {
     $url = "index.php?r=1&a=120&id={$pid}";
@@ -82,12 +82,12 @@ header("Location: {$url}");
 function getChildren($parent) {
     global $modx, $children;
 
-    $rs = $modx->db->select('id', '[+prefix+]site_content', "parent='{$parent}' AND deleted='0'");
-    if (!$modx->db->getRecordCount($rs)) {
+    $rs = db()->select('id', '[+prefix+]site_content', "parent='{$parent}' AND deleted='0'");
+    if (!db()->count($rs)) {
         return;
     }
     // the document has children documents, we'll need to delete those too
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         if ($row['id'] == $modx->config['site_start']) {
             exit("The document you are trying to delete is a folder containing document {$row['id']}. This document is registered as the 'Site start' document, and cannot be deleted. Please assign another document as your 'Site start' document and try again.");
         }
@@ -102,11 +102,11 @@ function getChildren($parent) {
 function check_linked($id) {
     global $modx;
 
-    $rs = $modx->db->select('id', '[+prefix+]site_content', "content LIKE '%[~{$id}~]%' AND deleted='0'");
-    if (!$modx->db->getRecordCount($rs)) {
+    $rs = db()->select('id', '[+prefix+]site_content', "content LIKE '%[~{$id}~]%' AND deleted='0'");
+    if (!db()->count($rs)) {
         return false;
     }
-    while ($row = $modx->db->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $result[] = $row['id'];
     }
     return $result;

@@ -139,7 +139,7 @@ if (getv('submitok')) {
         , implode(' and ', $where)
         , 'id'
     );
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if (evo()->hasPermission('edit_document')) {
         $action = '27';
         $itemicon = style('icons_edit_document');

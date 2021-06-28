@@ -232,7 +232,7 @@
             <td>
                 <?php
                 // invoke OnRichTextEditorRegister event
-                $editors = $modx->invokeEvent("OnRichTextEditorRegister");
+                $editors = evo()->invokeEvent("OnRichTextEditorRegister");
                 if (is_array($editors)) {
                     $which_editor_sel = '<select name="which_editor">';
                     $which_editor_sel .= '<option value="none"' . ($which_editor == 'none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
@@ -265,7 +265,7 @@
             <td colspan="2" style="padding:0;">
                 <?php
                 // invoke OnInterfaceSettingsRender event
-                $evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
+                $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
                 if (is_array($evtOut)) {
                     echo implode("", $evtOut);
                 }

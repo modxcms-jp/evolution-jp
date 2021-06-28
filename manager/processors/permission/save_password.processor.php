@@ -1,15 +1,15 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_password')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_password')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$password = $_POST['pass1'];
+$password = postv('pass1');
 
-if ($password != $_POST['pass2']) {
+if ($password != postv('pass2')) {
     $msg = '<p class="fail">passwords don\'t match!</p>';
 } elseif (empty($password)) {
     $msg = '<p class="fail">passwords don\'t empty!</p>';
@@ -18,21 +18,21 @@ if ($password != $_POST['pass2']) {
 } elseif (32 < strlen($password)) {
     $msg = '<p class="fail">Password is too long. Please specify a password of less than 32 characters.</p>';
 } else {
-    $uid = $modx->getLoginUserID();
-    $modx->loadExtension('phpass');
-    $f['password'] = $modx->phpass->HashPassword($password);
-    $rs = $modx->db->update($f, '[+prefix+]manager_users', "id='{$uid}'");
+    $uid = evo()->getLoginUserID();
+    evo()->loadExtension('phpass');
+    $f['password'] = evo()->phpass->HashPassword($password);
+    $rs = db()->update($f, '[+prefix+]manager_users', "id='{$uid}'");
     if (!$rs) {
         $msg = '<p class="fail">An error occured while attempting to save the new password.</p>';
     } else {
-        $userinfo = $modx->getUserInfo($uid);
+        $userinfo = evo()->getUserInfo($uid);
         $msg = '<p class="success">' . $_lang["change_password_success"] . '</p>';
         $tmp = array(
             "userid" => $uid,
             "username" => $userinfo['username'],
             "userpassword" => $userinfo['password']
         );
-        $modx->invokeEvent("OnManagerChangePassword", $tmp);
+        evo()->invokeEvent("OnManagerChangePassword", $tmp);
     }
 }
 $_SESSION['onetime_msg'] = $msg;

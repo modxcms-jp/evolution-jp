@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('view_eventlog')) {
+if (!evo()->hasPermission('view_eventlog')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -32,7 +32,7 @@ $cm = new ContextMenu("cntxm", 150);
 $cm->addItem(lang('view_log'), "js:menuAction(1)", style('icons_save'));
 $cm->addSeparator();
 $cm->addItem(lang('delete'), "js:menuAction(2)", style('icons_delete'),
-    (!$modx->hasPermission('delete_eventlog') ? 1 : 0));
+    (!evo()->hasPermission('delete_eventlog') ? 1 : 0));
 echo $cm->render();
 
 ?>

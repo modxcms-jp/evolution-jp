@@ -29,7 +29,7 @@ function webLoginAlert($msg, $ph=array()) {
     global $modx;
     return sprintf(
         '<script>window.setTimeout("alert(\'%s\')",10);</script>'
-        , addslashes($modx->db->escape(fmplang($msg,$ph)))
+        , addslashes(db()->escape(fmplang($msg,$ph)))
     );
 }
 

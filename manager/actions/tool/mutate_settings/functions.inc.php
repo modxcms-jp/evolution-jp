@@ -138,7 +138,7 @@ function get_role_list() {
         , 'save_role DESC,new_role DESC,id ASC'
     );
     $options = "\n";
-    while ($ph = evo()->db->getRow($rs)) {
+    while ($ph = db()->getRow($rs)) {
         $ph['selected'] = $default_role == $ph['id'] ? 'selected' : '';
         $options .= evo()->parseText(
             '<option value="[+id+]" [+selected+]>[+name+]</option>'

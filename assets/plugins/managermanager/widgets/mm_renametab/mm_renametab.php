@@ -34,7 +34,7 @@ function mm_renameTab($tab, $newname, $roles = '', $templates = ''){
 
         // This is =<1.0.0 only
         case 'meta':
-            if ($modx->hasPermission('edit_doc_metatags') && $modx->config['show_meta'] != "0") {
+            if (evo()->hasPermission('edit_doc_metatags') && $modx->config['show_meta'] != "0") {
                 $output .= '$j("div#documentPane h2:nth-child(3) span").empty().prepend("' . jsSafe($newname) . '");' . "\n";
             }
             break;

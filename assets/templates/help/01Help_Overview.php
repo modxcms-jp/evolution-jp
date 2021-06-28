@@ -1,5 +1,5 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!isset($modx) || !evo()->isLoggedin()) exit;
 ?>
 
 <div class="sectionHeader"><?php echo $_lang['about_title']; ?></div><div class="sectionBody">

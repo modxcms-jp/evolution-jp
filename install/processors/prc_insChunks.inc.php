@@ -72,7 +72,7 @@ foreach ($tplChunks as $i => $tplInfo) {
                         , db()->escape($field['name'])
                     )
                 );
-                if (!db()->getRecordCount($rs)) {
+                if (!db()->count($rs)) {
                     break;
                 }
                 $i++;

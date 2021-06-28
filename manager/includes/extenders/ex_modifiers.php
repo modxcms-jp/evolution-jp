@@ -360,7 +360,7 @@ class MODIFIERS {
             , ''
             , 1
         );
-        if (!db()->getRecordCount($rs)) {
+        if (!db()->count($rs)) {
             return false;
         }
 

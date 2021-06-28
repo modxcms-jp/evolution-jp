@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
@@ -15,7 +15,7 @@ function get_resources_byajax($id) {
         , '[+prefix+]site_content'
         , "template='" . $id . "'"
     );
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     if (evo()->config['limit_by_container'] < $total) {
         return sprintf('<p>%s</p>', $_lang['a16_many_resources']);
     }

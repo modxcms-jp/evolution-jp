@@ -1,12 +1,12 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 global $_PAGE;
-if (!($modx->hasPermission('new_module') || $modx->hasPermission('edit_module') || $modx->hasPermission('exec_module'))) {
-    $e->setError(3);
-    $e->dumpError();
+if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') || evo()->hasPermission('exec_module'))) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $modx->manager->initPageViewState();
@@ -30,14 +30,14 @@ $_PAGE['vs']['lm'] = $listmode;
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
 $cm->addItem($_lang["run_module"], "js:menuAction(1)", $_style['icons_save'],
-    (!$modx->hasPermission('exec_module') ? 1 : 0));
+    (!evo()->hasPermission('exec_module') ? 1 : 0));
 $cm->addSeparator();
 $cm->addItem($_lang["edit"], "js:menuAction(2)", $_style['icons_edit_document'],
-    (!$modx->hasPermission('edit_module') ? 1 : 0));
+    (!evo()->hasPermission('edit_module') ? 1 : 0));
 $cm->addItem($_lang["duplicate"], "js:menuAction(3)", $_style['icons_resource_duplicate'],
-    (!$modx->hasPermission('new_module') ? 1 : 0));
+    (!evo()->hasPermission('new_module') ? 1 : 0));
 $cm->addItem($_lang["delete"], "js:menuAction(4)", $_style['icons_delete'],
-    (!$modx->hasPermission('delete_module') ? 1 : 0));
+    (!evo()->hasPermission('delete_module') ? 1 : 0));
 echo $cm->render();
 
 ?>
@@ -91,7 +91,7 @@ echo $cm->render();
 
     <div id="actions">
         <ul class="actionButtons">
-            <?php if (($modx->hasPermission('new_module'))) {
+            <?php if ((evo()->hasPermission('new_module'))) {
                 echo '<li id="newModule" class="mutate"><a href="index.php?a=107"><img src="' . $_style["icons_save"] . '" />' . $_lang["new_module"] . '</a></li>';
             } ?>
             <li id="Button5" class="mutate"><a href="#"

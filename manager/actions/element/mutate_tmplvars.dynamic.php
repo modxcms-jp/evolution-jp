@@ -1,14 +1,14 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('edit_template') && $_REQUEST['a'] == '301') {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_template') && $_REQUEST['a'] == '301') {
+    alert()->setError(3);
+    alert()->dumpError();
 }
-if (!$modx->hasPermission('new_template') && $_REQUEST['a'] == '300') {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('new_template') && $_REQUEST['a'] == '300') {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_REQUEST['id'])) {
@@ -19,13 +19,13 @@ if (isset($_REQUEST['id'])) {
 
 // check to see the variable editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
-$total = db()->getRecordCount($rs);
+$total = db()->count($rs);
 if ($total > 1) {
     while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] != $modx->getLoginUserID()) {
+        if ($row['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang['lock_msg'], $row['username'], ' template variable');
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -41,7 +41,7 @@ global $content;
 $content = array();
 if (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) {
     $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     if ($total > 1) {
         echo 'Oops, Multiple variables sharing same unique id. Not good.';
         exit;
@@ -63,7 +63,7 @@ if ($form_v) {
 // get available RichText Editors
 $RTEditors = '';
 $tmp = array('forfrontend' => 1);
-$evtOut = $modx->invokeEvent('OnRichTextEditorRegister', $tmp);
+$evtOut = evo()->invokeEvent('OnRichTextEditorRegister', $tmp);
 if (is_array($evtOut)) {
     $RTEditors = implode(',', $evtOut);
 }
@@ -264,7 +264,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
     <?php
     // invoke OnTVFormPrerender event
     $tmp = array('id' => $id);
-    $evtOut = $modx->invokeEvent('OnTVFormPrerender', $tmp);
+    $evtOut = evo()->invokeEvent('OnTVFormPrerender', $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
     }
@@ -281,7 +281,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
 
     <div id="actions">
         <ul class="actionButtons">
-            <?php if ($modx->hasPermission('save_template')) : ?>
+            <?php if (evo()->hasPermission('save_template')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                         <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
@@ -300,7 +300,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     'icon' => $_style['icons_resource_duplicate'],
                     'label' => $_lang['duplicate']
                 );
-                if ($modx->hasPermission('new_template')) {
+                if (evo()->hasPermission('new_template')) {
                     echo $modx->manager->ab($params);
                 }
                 $params = array(
@@ -308,7 +308,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
                 );
-                if ($modx->hasPermission('delete_template')) {
+                if (evo()->hasPermission('delete_template')) {
                     echo $modx->manager->ab($params);
                 }
             }
@@ -363,7 +363,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                 $option['dateonly'] = 'DateOnly';
                                 $option['hidden'] = 'Hidden';
                                 $result = db()->select('name', '[+prefix+]site_snippets', "name like'input:%'");
-                                if (0 < db()->getRecordCount($result)) {
+                                if (0 < db()->count($result)) {
                                     while ($row = db()->getRow($result)) {
                                         $input_name = trim(substr($row['name'], 6));
                                         $option[strtolower($input_name)] = ucwords(strtolower($input_name));
@@ -374,7 +374,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                     '[+prefix+]site_plugins',
                                     "name like'input:%' and disabled!=1"
                                 );
-                                if (0 < db()->getRecordCount($result)) {
+                                if (0 < db()->count($result)) {
                                     while ($row = db()->getRow($result)) {
                                         $input_name = trim(substr($row['name'], 6));
                                         $option[strtolower($input_name)] = ucwords(strtolower($input_name));
@@ -489,7 +489,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                     <tr>
                         <td>
                             <?php
-                            if (0 < db()->getRecordCount($rs)) :
+                            if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
                                     if ($_REQUEST['a'] == '300' && $modx->config['default_template'] == $row['id']) {
                                         $checked = true;
@@ -545,7 +545,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                         <td align="left"><textarea name="description" style="padding:0;height:4em;"><?= hsc($content['description']); ?></textarea>
                         </td>
                     </tr>
-                    <?php if ($modx->hasPermission('save_template') == 1) { ?>
+                    <?php if (evo()->hasPermission('save_template') == 1) { ?>
                         <tr>
                             <td align="left" colspan="2"><label><input name="locked" value="on" type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : ""; ?> class="inputBox" />
                                     <b><?= $_lang['lock_tmplvars']; ?></b> <span class="comment"><?= $_lang['lock_tmplvars_msg']; ?></span></label>
@@ -569,7 +569,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                 while ($row = db()->getRow($rs)) {
                     $groupsarray[] = $row['documentgroup'];
                 }
-                if ($modx->hasPermission('access_permissions')) {
+                if (evo()->hasPermission('access_permissions')) {
             ?>
                     <div class="tab-page" id="tabAccess">
                         <h2 class="tab"><?= $_lang['access_permissions']; ?></h2>
@@ -607,7 +607,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                         $number_of_g = 0;
                         while ($row = db()->getRow($rs)) {
                             $checked = in_array($row['id'], $groupsarray);
-                            if ($modx->hasPermission('access_permissions')) {
+                            if (evo()->hasPermission('access_permissions')) {
                                 if ($checked) {
                                     $notPublic = true;
                                 }
@@ -617,7 +617,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
                                 echo '<input type="hidden" name="docgroups[]"  value="' . $row['id'] . '" />';
                             }
                         }
-                        if ($modx->hasPermission('access_permissions')) {
+                        if (evo()->hasPermission('access_permissions')) {
                             $disabled = ($number_of_g === 0) ? 'disabled="disabled"' : '';
                             $chks = '<label><input type="checkbox" name="chkalldocs" ' . (!$notPublic ? "checked='checked'" : '') . ' onclick="makePublic(true)" ' . $disabled . ' /><span class="warning">' . $_lang['all_doc_groups'] . '</span></label>' . $chks;
                         }
@@ -635,7 +635,7 @@ $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
             <?php
             // invoke OnTVFormRender event
             $tmp = array('id' => $id);
-            $evtOut = $modx->invokeEvent('OnTVFormRender', $tmp);
+            $evtOut = evo()->invokeEvent('OnTVFormRender', $tmp);
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);
             }

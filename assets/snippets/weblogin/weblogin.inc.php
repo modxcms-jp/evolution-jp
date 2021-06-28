@@ -27,7 +27,7 @@ if(!isset($tplReminder)) $tplReminder   = (isset($tpls[2])) ? $tpls[2] : '';
 if(!isset($tplLogout))   $tplLogout     = $tpls[1];
 
 if(!isset($_SESSION['webValidated'])) {
-	$username = isset($_POST['username'])? $modx->db->escape(htmlspecialchars(trim($_POST['username']), ENT_QUOTES)):'';
+	$username = isset($_POST['username'])? db()->escape(htmlspecialchars(trim($_POST['username']), ENT_QUOTES)):'';
 	$form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--
@@ -79,8 +79,8 @@ if(!isset($_SESSION['webValidated'])) {
 EOT;
 	if(isset($uid))
 	{
-		$rs = $modx->db->select('*', '[+prefix+]web_users', "id='{$uid}'");
-		$row = $modx->db->getRow($rs);
+		$rs = db()->select('*', '[+prefix+]web_users', "id='{$uid}'");
+		$row = db()->getRow($rs);
 		$username = $row['username'];
 	}
 	
@@ -114,14 +114,14 @@ else
     }
 	$sql = sprintf(
         "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) values(-%s, '%s', '%s', '998', %s, '%s')"
-        , $modx->getFullTableName('active_users')
+        , evo()->getFullTableName('active_users')
         , $_SESSION['webInternalKey']
         , $_SESSION['webShortname']
         , time()
         , $itemid
         , $ip
     );
-	if(!$rs = $modx->db->query($sql)) {
+	if(!$rs = db()->query($sql)) {
 		$output .= webLoginAlert("error replacing into active users! SQL: {$sql}");
 	} else {
 		// display logout

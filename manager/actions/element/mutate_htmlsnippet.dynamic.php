@@ -1,24 +1,24 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 switch ((int)$_REQUEST['a']) {
     case 78:
-        if (!$modx->hasPermission('edit_chunk')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('edit_chunk')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     case 77:
-        if (!$modx->hasPermission('new_chunk')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('new_chunk')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     default:
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 $id = preg_match('@^[1-9][0-9]*$@', $_REQUEST['id']) ? $_REQUEST['id'] : 0;
@@ -27,12 +27,12 @@ $id = preg_match('@^[1-9][0-9]*$@', $_REQUEST['id']) ? $_REQUEST['id'] : 0;
 
 // Check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=78 AND id='{$id}'");
-if (db()->getRecordCount($rs) > 1) {
+if (db()->count($rs) > 1) {
     while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] != $modx->getLoginUserID()) {
+        if ($row['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['chunk']);
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -40,7 +40,7 @@ if (db()->getRecordCount($rs) > 1) {
 $content = array();
 if (isset($_REQUEST['id']) && $_REQUEST['id'] != '' && is_numeric($_REQUEST['id'])) {
     $rs = db()->select('*', '[+prefix+]site_htmlsnippets', "id='{$id}'");
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     if ($total > 1) {
         exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
     }
@@ -136,7 +136,7 @@ if (isset($form_v['which_editor'])) {
 
         // invoke OnChunkFormPrerender event
         $tmp = array('id' => $id);
-        $evtOut = $modx->invokeEvent('OnChunkFormPrerender', $tmp);
+        $evtOut = evo()->invokeEvent('OnChunkFormPrerender', $tmp);
         if (is_array($evtOut)) {
             echo implode('', $evtOut);
         }
@@ -151,14 +151,14 @@ if (isset($form_v['which_editor'])) {
 
         <div id="actions">
             <ul class="actionButtons">
-                <?php if ($modx->hasPermission('save_chunk')): ?>
+                <?php if (evo()->hasPermission('save_chunk')): ?>
                     <li id="save" class="primary mutate">
                         <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();">
                             <img src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
-                            <?php if ($modx->hasPermission('new_chunk')) { ?>
+                            <?php if (evo()->hasPermission('new_chunk')) { ?>
                                 <option id="stay1"
                                         value="1" <?php echo $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?php echo $_lang['stay_new'] ?></option>
                             <?php } ?>
@@ -176,7 +176,7 @@ if (isset($form_v['which_editor'])) {
                         'icon' => $_style['icons_resource_duplicate'],
                         'label' => $_lang['duplicate']
                     );
-                    if ($modx->hasPermission('new_chunk')) {
+                    if (evo()->hasPermission('new_chunk')) {
                         echo $modx->manager->ab($params);
                     }
                     $params = array(
@@ -184,7 +184,7 @@ if (isset($form_v['which_editor'])) {
                         'icon' => $_style['icons_delete_document'],
                         'label' => $_lang['delete']
                     );
-                    if ($modx->hasPermission('delete_chunk')) {
+                    if (evo()->hasPermission('delete_chunk')) {
                         echo $modx->manager->ab($params);
                     }
                 }
@@ -226,7 +226,7 @@ if (isset($form_v['which_editor'])) {
                         <option value="none"<?php echo $which_editor == 'none' ? ' selected="selected"' : '' ?>><?php echo $_lang['none'] ?></option>
                         <?php
                         // invoke OnRichTextEditorRegister event
-                        $evtOut = $modx->invokeEvent('OnRichTextEditorRegister');
+                        $evtOut = evo()->invokeEvent('OnRichTextEditorRegister');
                         if (is_array($evtOut)) {
                             foreach ($evtOut as $i => $editor) {
                                 echo "\t" . '<option value="' . $editor . '"' . ($which_editor == $editor ? ' selected="selected"' : '') . '>' . $editor . "</option>\n";
@@ -238,7 +238,7 @@ if (isset($form_v['which_editor'])) {
 
                     // invoke OnChunkFormRender event
                     $tmp = array('id' => $id);
-                    $evtOut = $modx->invokeEvent('OnChunkFormRender', $tmp);
+                    $evtOut = evo()->invokeEvent('OnChunkFormRender', $tmp);
                     if (is_array($evtOut)) {
                         echo implode('', $evtOut);
                     }
@@ -317,7 +317,7 @@ if (isset($form_v['which_editor'])) {
                                                                  type="checkbox"<?php echo $content['editor_type'] == 1 ? ' checked="checked"' : '' ?>
                                                                  class="inputBox" value="1"/></td>
                         </tr>
-                        <?php if ($modx->hasPermission('save_chunk') == 1) { ?>
+                        <?php if (evo()->hasPermission('save_chunk') == 1) { ?>
                             <tr>
                                 <td align="left" colspan="2">
                                     <label><input name="locked"
@@ -376,7 +376,7 @@ if ($use_editor == 1) {
             'post',
         )
     );
-    $evtOut = $modx->invokeEvent('OnRichTextEditorInit', $tmp);
+    $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
     }

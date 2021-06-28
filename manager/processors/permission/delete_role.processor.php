@@ -1,14 +1,14 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_role')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_role')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$tbl_user_attributes = $modx->getFullTableName('user_attributes');
-$tb_user_roles = $modx->getFullTableName('user_roles');
+$tbl_user_attributes = evo()->getFullTableName('user_attributes');
+$tb_user_roles = evo()->getFullTableName('user_roles');
 
 if (empty($_GET['id'])) {
     header("Location: index.php?a=86");
@@ -26,18 +26,18 @@ if ($id == 1) {
     exit;
 }
 
-$rs = $modx->db->select('count(id)', $tbl_user_attributes, "role={$id}");
+$rs = db()->select('count(id)', $tbl_user_attributes, "role={$id}");
 if (!$rs) {
     echo "Something went wrong while trying to find users with this role...";
     exit;
 }
-if ($modx->db->getValue($rs) > 0) {
+if (db()->getValue($rs) > 0) {
     echo "There are users with this role. It can't be deleted.";
     exit;
 }
 
 // delete the attributes
-$rs = $modx->db->delete($tb_user_roles, "id={$id}");
+$rs = db()->delete($tb_user_roles, "id={$id}");
 if (!$rs) {
     echo "Something went wrong while trying to delete the role...";
     exit;

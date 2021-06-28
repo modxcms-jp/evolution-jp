@@ -43,7 +43,7 @@ $info['repl_after'] = postv('repl_after');
 $info['repl_before'] = postv('repl_before');
 $info['export_dir'] = $export_dir;
 
-$evtOut = $modx->invokeEvent('OnExportPreExec', $info);
+$evtOut = evo()->invokeEvent('OnExportPreExec', $info);
 if (is_array($evtOut)) {
     echo implode("\n", $evtOut);
 }
@@ -92,7 +92,7 @@ $info['repl_before'] = postv('repl_before');
 $info['export_dir'] = $export_dir;
 $info['output'] = $output;
 $info['totatlime'] = $totaltime;
-$evtOut = $modx->invokeEvent('OnExportExec', $info);
+$evtOut = evo()->invokeEvent('OnExportExec', $info);
 if (is_array($evtOut)) {
     echo implode("\n", $evtOut);
 }

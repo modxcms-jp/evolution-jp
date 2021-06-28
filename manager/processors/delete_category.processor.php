@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 if (!hasPermission('save_plugin') && !hasPermission('save_snippet') && !hasPermission('save_template') && !hasPermission('save_module')) {

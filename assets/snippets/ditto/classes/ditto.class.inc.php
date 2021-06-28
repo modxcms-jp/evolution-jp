@@ -45,10 +45,10 @@ class ditto {
 
         if(isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
 
-        $tvs = $modx->db->select('name', '[+prefix+]site_tmplvars');
+        $tvs = db()->select('name', '[+prefix+]site_tmplvars');
         // TODO: make it so that it only pulls those that apply to the current template
         $dbfields = array();
-        while ($dbfield = $modx->db->getRow($tvs))
+        while ($dbfield = db()->getRow($tvs))
         {
             $dbfields[] = $dbfield['name'];
         }
@@ -513,10 +513,10 @@ class ditto {
     static function getAuthor($createdby) {
         global $modx;
 
-        if($createdby > 0) $user = $modx->getUserInfo($createdby);
+        if($createdby > 0) $user = evo()->getUserInfo($createdby);
         else               $user = $modx->getWebUserInfo(abs($createdby));
 
-        if ($user === false) $user = $modx->getUserInfo(1);// get admin user name
+        if ($user === false) $user = evo()->getUserInfo(1);// get admin user name
 
         return ($user['fullname'] != '') ? $user['fullname'] : $user['username'];
     }
@@ -765,7 +765,7 @@ class ditto {
     function getParentList() {
         global $modx;
 
-        $rs = $modx->db->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        $rs = db()->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         $kids = array();
         while($row = $this->db->getRow($rs)) {
             $kids[] = $row['parent'];
@@ -791,7 +791,7 @@ class ditto {
     function appendTV($tvname= '', $docIDs){
         global $modx;
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             'stv.*, stc.*'
             , array(
                 '[+prefix+]site_tmplvar_contentvalues stc',
@@ -804,9 +804,9 @@ class ditto {
             )
             , 'stc.contentid ASC'
         );
-        $total = $modx->db->getRecordCount($rs);
+        $total = db()->count($rs);
         $docs = array();
-        while($row = $modx->db->getRow($rs))  {
+        while($row = db()->getRow($rs))  {
             $k = '#' .$row['contentid'];
             $v = $modx->tvProcessor($row);
             $docs[$k][$row['name']]       = $v;
@@ -816,14 +816,14 @@ class ditto {
             return $docs;
         }
 
-        $rs = $modx->db->select(
+        $rs = db()->select(
             '*'
             , '[+prefix+]site_tmplvars'
             , sprintf("name='%s'", $tvname)
             , ''
             , 1
         );
-        $row = @$modx->db->getRow($rs);
+        $row = @db()->getRow($rs);
         if (strtoupper($row['default_text']) === '@INHERIT') {
             $row['value'] = '@INHERIT';
             foreach ($docIDs as $id) {
@@ -948,8 +948,8 @@ class ditto {
                 WHERE sc.id IN (%s) %s AND sc.deleted=%d %s
                 %s GROUP BY sc.id%s %s"
             , 'sc.' .implode(',sc.',$fields)
-            , $modx->getFullTableName('site_content')
-            , $modx->getFullTableName('document_groups')
+            , evo()->getFullTableName('site_content')
+            , evo()->getFullTableName('document_groups')
             , join($ids, ',')
             , $published ? 'AND sc.published=1' : ''
             , $deleted
@@ -959,12 +959,12 @@ class ditto {
             , ($limit != '') ? 'LIMIT ' . $limit : ''
         );
 
-        $rs= $modx->db->query($sql);
-        if (!$modx->db->getRecordCount($rs)) return false;
+        $rs= db()->query($sql);
+        if (!db()->count($rs)) return false;
         $docs= array ();
 
         $TVIDs = array();
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $docid = $row['id'];
             if ($dateSource && $row[$dateSource]) {
                 if (!preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
@@ -1057,7 +1057,7 @@ class ditto {
                 $where[] = 'AND sc.published=1';
             }
             $where[] = 'GROUP BY sc.id';
-            $rs= $modx->db->select(
+            $rs= db()->select(
                 'DISTINCT sc.id'
                 , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
                 , $where
@@ -1074,7 +1074,7 @@ class ditto {
                 $where[] = 'AND published=1';
             }
             $where[] = 'GROUP BY id';
-            $rs= $modx->db->select(
+            $rs= db()->select(
                 'DISTINCT id'
                 , '[+prefix+]site_content'
                 , $where
@@ -1082,7 +1082,7 @@ class ditto {
         }
 
         $docs= array ();
-        while($row = $modx->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $docs[] = $row;
         }
         return $docs;

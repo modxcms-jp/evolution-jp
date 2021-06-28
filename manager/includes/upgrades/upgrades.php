@@ -177,7 +177,7 @@ function update_tbl_system_settings() {
     }
 
     $rs = db()->select('*', '[+prefix+]document_groups');
-    $use_udperms  = (db()->getRecordCount($rs) == 0) ? '0' : '1';
+    $use_udperms  = (db()->count($rs) == 0) ? '0' : '1';
     evo()->config['use_udperms'] = evo()->regOption(
         'use_udperms'
         , $use_udperms

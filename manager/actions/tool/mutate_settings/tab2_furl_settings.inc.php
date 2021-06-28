@@ -93,7 +93,7 @@ jQuery(function(){
             <td colspan="2">
                 <?php
                 // invoke OnFriendlyURLSettingsRender event
-                $evtOut = $modx->invokeEvent("OnFriendlyURLSettingsRender");
+                $evtOut = evo()->invokeEvent("OnFriendlyURLSettingsRender");
                 if (is_array($evtOut)) {
                     echo implode("", $evtOut);
                 }

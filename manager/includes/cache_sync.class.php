@@ -41,7 +41,7 @@ class synccache {
                 "id, IF(alias='', id, alias) AS alias, parent"
                 , '[+prefix+]site_content'
             );
-            if ($qh && db()->getRecordCount($qh)) {
+            if ($qh && db()->count($qh)) {
                 while ($row = db()->getRow($qh)) {
                     $this->aliases[$row['id']] = $row['alias'];
                     $this->parents[$row['id']] = $row['parent'];
@@ -180,7 +180,7 @@ class synccache {
             , '[+prefix+]system_settings'
             , "setting_name='recent_update'"
         );
-        if (db()->getRecordCount($rs)) {
+        if (db()->count($rs)) {
             db()->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
         } else {
             db()->insert($f, '[+prefix+]system_settings');

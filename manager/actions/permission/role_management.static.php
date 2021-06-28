@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('edit_role')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_role')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 ?>
 <br/>
@@ -32,9 +32,9 @@ if (!$modx->hasPermission('edit_role')) {
         </ul>
         <?php
 
-        $tbl_user_roles = $modx->getFullTableName('user_roles');
+        $tbl_user_roles = evo()->getFullTableName('user_roles');
         $rs = db()->select('name, id, description', $tbl_user_roles, '', 'name');
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total < 1) {
             echo "The request returned no roles!</div>";
             exit;

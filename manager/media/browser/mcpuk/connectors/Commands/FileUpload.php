@@ -202,7 +202,7 @@ class FileUpload {
 								'filepath'	=> $this->real_cwd,
 								'filename'	=> $filename
           );
-					$modx->invokeEvent('OnFileBrowserUpload',$tmp);
+					evo()->invokeEvent('OnFileBrowserUpload',$tmp);
 				}
 			}
 		}

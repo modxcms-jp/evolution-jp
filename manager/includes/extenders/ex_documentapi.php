@@ -286,9 +286,9 @@ class Document {
      *
      */
     public function setTemplate($name) {
-        $rs = self::$modx->db->select('id', '[+prefix+]site_templates',
-            "templatename= '" . self::$modx->db->escape($name) . "'");
-        if ($row = self::$modx->db->getRow($rs)) {
+        $rs = self::db()->select('id', '[+prefix+]site_templates',
+            "templatename= '" . self::db()->escape($name) . "'");
+        if ($row = self::db()->getRow($rs)) {
             return $this->setTemplatebyID($row['id']);
         }
         $this->logWarn('無効なテンプレート名を指定しています。');
@@ -311,8 +311,8 @@ class Document {
             return false;
         }
         if ($tid != 0) {
-            $rs = self::$modx->db->select('id', '[+prefix+]site_templates', "id= $tid");
-            if (!($row = self::$modx->db->getRow($rs))) {
+            $rs = self::db()->select('id', '[+prefix+]site_templates', "id= $tid");
+            if (!($row = self::db()->getRow($rs))) {
                 $this->logWarn('無効なテンプレートIDを指定しています。');
                 $tid = 0;
             }
@@ -337,8 +337,8 @@ WHERE tvt.templateid = {$this->content['template']}
 SQL_QUERY;
 
             $sql = str_replace('[+prefix+]', self::$modx->db->config['table_prefix'], $sql);
-            $rs = self::$modx->db->query($sql);
-            while ($row = self::$modx->db->getRow($rs)) {
+            $rs = self::db()->query($sql);
+            while ($row = self::db()->getRow($rs)) {
                 $this->tv[$row['id']]['name'] = $row['name'];
                 $this->tv[$row['id']]['value'] = $row['value'];
                 $this->tv[$row['id']]['default'] = $row['default_text'];
@@ -358,8 +358,8 @@ WHERE st.id = {$this->content['template']}
 SQL_QUERY;
 
             $sql = str_replace('[+prefix+]', self::$modx->db->config['table_prefix'], $sql);
-            $rs = self::$modx->db->query($sql);
-            while ($row = self::$modx->db->getRow($rs)) {
+            $rs = self::db()->query($sql);
+            while ($row = self::db()->getRow($rs)) {
                 $this->tv[$row['id']]['name'] = $row['name'];
                 $this->tv[$row['id']]['value'] = $row['default_text'];
                 $this->tv[$row['id']]['default'] = $row['default_text'];
@@ -385,8 +385,8 @@ SQL_QUERY;
             $this->logerr('リソースIDの指定が不正です。');
             return false;
         } else {
-            $rs = self::$modx->db->select('*', '[+prefix+]site_content', 'id=' . $id);
-            $row = self::$modx->db->getRow($rs);
+            $rs = self::db()->select('*', '[+prefix+]site_content', 'id=' . $id);
+            $row = self::db()->getRow($rs);
             if (empty($row)) {
                 $this->logerr('リソースの読み込みに失敗しました。');
                 return false;
@@ -400,8 +400,8 @@ SQL_QUERY;
             switch ($status) {
                 case self::ST_DRAFT:
 
-                    $rs = self::$modx->db->select('content', '[+prefix+]site_revision', "elmid=$id AND status='draft'");
-                    if ($row = self::$modx->db->getRow($rs)) {
+                    $rs = self::db()->select('content', '[+prefix+]site_revision', "elmid=$id AND status='draft'");
+                    if ($row = self::db()->getRow($rs)) {
                         $row = unserialize($row['content']);
                         foreach ($row as $k => $v) {
                             if (preg_match('/^tv([0-9]+)(.*)$/', $k, $mt)) {
@@ -513,8 +513,8 @@ SQL_QUERY;
             if ($c['menuindex'] == 'auto') {
                 //自動採番
                 if ($id != 0 && !array_key_exists('parent', $c)) {
-                    $rs = self::$modx->db->select('parent', '[+prefix+]site_content', "id=$id");
-                    if ($row = self::$modx->db->getRow($rs)) {
+                    $rs = self::db()->select('parent', '[+prefix+]site_content', "id=$id");
+                    if ($row = self::db()->getRow($rs)) {
                         $pid = $row['parent'];
                     }
                 } elseif (isset($c['parent']) && !empty($c['parent'])) {
@@ -522,9 +522,9 @@ SQL_QUERY;
                 } else {
                     $pid = 0;
                 }
-                $rs = self::$modx->db->select('(max(menuindex) + 1) AS menuindex', '[+prefix+]site_content',
+                $rs = self::db()->select('(max(menuindex) + 1) AS menuindex', '[+prefix+]site_content',
                     "parent=$pid");
-                if (($row = self::$modx->db->getRow($rs)) && !empty($row['menuindex'])) {
+                if (($row = self::db()->getRow($rs)) && !empty($row['menuindex'])) {
                     $c['menuindex'] = $row['menuindex'];
                 } else {
                     $c['menuindex'] = 0;
@@ -537,16 +537,16 @@ SQL_QUERY;
         //content登録
         unset($c['id']);
         if (!empty($c)) {
-            $c = self::$modx->db->escape($c);
+            $c = self::db()->escape($c);
 
             if ($id != 0) {
                 //update
-                if (!self::$modx->db->update($c, '[+prefix+]site_content', 'id=' . $id)) {
+                if (!self::db()->update($c, '[+prefix+]site_content', 'id=' . $id)) {
                     $id = false;
                 }
             } else {
                 //insert
-                $id = self::$modx->db->insert($c, '[+prefix+]site_content');
+                $id = self::db()->insert($c, '[+prefix+]site_content');
             }
         }
 
@@ -564,24 +564,24 @@ SQL_QUERY;
                 if ($v['value'] === $v['default']) {
                     //デフォルト時は削除
                     if (self::isInt($k, 1)) {
-                        self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues',
+                        self::db()->delete('[+prefix+]site_tmplvar_contentvalues',
                             "tmplvarid = $k AND contentid = $id");
                     }
                 } else {
-                    $rs = self::$modx->db->select('id', '[+prefix+]site_tmplvar_contentvalues',
+                    $rs = self::db()->select('id', '[+prefix+]site_tmplvar_contentvalues',
                         "tmplvarid = $k AND contentid = $id");
-                    if ($row = self::$modx->db->getRow($rs)) {
-                        $rs = self::$modx->db->update(array('value' => self::$modx->db->escape($v['value'])),
+                    if ($row = self::db()->getRow($rs)) {
+                        $rs = self::db()->update(array('value' => self::db()->escape($v['value'])),
                             '[+prefix+]site_tmplvar_contentvalues',
                             "tmplvarid = $k AND contentid = $id");
                         if (!$rs) {
                             $errflag = true;
                         }
                     } else {
-                        $rs = self::$modx->db->insert(array(
+                        $rs = self::db()->insert(array(
                             'tmplvarid' => $k,
                             'contentid' => $id,
-                            'value' => self::$modx->db->escape($v['value'])
+                            'value' => self::db()->escape($v['value'])
                         ),
                             '[+prefix+]site_tmplvar_contentvalues');
                         if (!$rs) {
@@ -663,8 +663,8 @@ SQL_QUERY;
         if (!self::isInt($id, 1)) {
             return false;
         }
-        $rs = self::$modx->db->select('id', '[+prefix+]site_content', "id = $id");
-        if ($row = self::$modx->db->getRow($rs)) {
+        $rs = self::db()->select('id', '[+prefix+]site_content', "id = $id");
+        if ($row = self::db()->getRow($rs)) {
             return true;
         }
         return false;
@@ -690,8 +690,8 @@ SQL_QUERY;
 
         if (is_null($onPub)) {
             //値の参照
-            $rs = self::$modx->db->select('id,published', '[+prefix+]site_content', "id = $id");
-            if ($row = self::$modx->db->getRow($rs)) {
+            $rs = self::db()->select('id,published', '[+prefix+]site_content', "id = $id");
+            if ($row = self::db()->getRow($rs)) {
                 return $row['published'];
             }
             return false;
@@ -716,7 +716,7 @@ SQL_QUERY;
         $target[] = $id;
         $inList = '(' . implode(',', $target) . ')';
 
-        if (self::$modx->db->update($p, '[+prefix+]site_content', "id IN $inList")) {
+        if (self::db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
             if ($clearCache) {
                 self::$modx->clearCache();
             }
@@ -745,8 +745,8 @@ SQL_QUERY;
 
         if (is_null($onDel)) {
             //値の参照
-            $rs = self::$modx->db->select('id,deleted', '[+prefix+]site_content', "id = $id");
-            if ($row = self::$modx->db->getRow($rs)) {
+            $rs = self::db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
+            if ($row = self::db()->getRow($rs)) {
                 return $row['deleted'];
             }
             return false;
@@ -764,8 +764,8 @@ SQL_QUERY;
         } else {
             $p['deletedby'] = 0;
             $p['deletedon'] = 0;
-            $rs = self::$modx->db->select('id,deletedon', '[+prefix+]site_content', "id = $id");
-            if ($row = self::$modx->db->getRow($rs)) {
+            $rs = self::db()->select('id,deletedon', '[+prefix+]site_content', "id = $id");
+            if ($row = self::db()->getRow($rs)) {
                 $addWhere = "deletedon = {$row['deletedon']}";
             }
         }
@@ -778,7 +778,7 @@ SQL_QUERY;
         $inList = '(' . implode(',', $target) . ')';
 
 
-        if (self::$modx->db->update($p, '[+prefix+]site_content', "id IN $inList")) {
+        if (self::db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
             if ($clearCache) {
                 self::$modx->clearCache();
             }
@@ -802,8 +802,8 @@ SQL_QUERY;
     public static function erase($id, $force = false, $recursive = true, $clearCache = true) {
         if (self::documentExist($id)) {
             if (!$force) {
-                $rs = self::$modx->db->select('id,deleted', '[+prefix+]site_content', "id = $id");
-                if (($row = self::$modx->db->getRow($rs)) && $row['deleted'] != 1) {
+                $rs = self::db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
+                if (($row = self::db()->getRow($rs)) && $row['deleted'] != 1) {
                     return false;
                 }
             }
@@ -816,8 +816,8 @@ SQL_QUERY;
             $inList = '(' . implode(',', $target) . ')';
 
             //tvの削除 -> content削除
-            self::$modx->db->delete('[+prefix+]site_tmplvar_contentvalues', "contentid IN $inList");
-            $rs = self::$modx->db->delete('[+prefix+]site_content', "id IN $inList");
+            self::db()->delete('[+prefix+]site_tmplvar_contentvalues', "contentid IN $inList");
+            $rs = self::db()->delete('[+prefix+]site_content', "id IN $inList");
 
             if ($rs !== false && $clearCache) {
                 self::$modx->clearCache();
@@ -922,7 +922,7 @@ SQL_QUERY;
     /*
      * ログインユーザIDを取得
      *
-     * $modx->getLoginUserID()のラッパー
+     * evo()->getLoginUserID()のラッパー
      * 管理ユーザ専用とし、falseを返した際に0を返すように変更
      *
      * @param なし
@@ -930,7 +930,7 @@ SQL_QUERY;
      *
      */
     private static function getLoginMgrUserID() {
-        $u = self::$modx->getLoginUserID('mgr');
+        $u = self::evo()->getLoginUserID('mgr');
         if (empty($u)) {
             return 0;
         }
@@ -955,9 +955,9 @@ SQL_QUERY;
         }
         $ids = array($id);
         while (!empty($ids)) {
-            $rs = self::$modx->db->select('id', '[+prefix+]site_content',
+            $rs = self::db()->select('id', '[+prefix+]site_content',
                 "parent='" . array_shift($ids) . "' $addWhere");
-            while ($row = self::$modx->db->getRow($rs)) {
+            while ($row = self::db()->getRow($rs)) {
                 array_push($ids, $row['id']);
                 $r[] = $row['id'];
             }

@@ -203,10 +203,10 @@ class LINKLIST
 			$limit =  2000;
 		}
 		
-		$tblsc = $modx->getFullTableName('site_content');
-		$tbldg = $modx->getFullTableName('document_groups');
+		$tblsc = evo()->getFullTableName('site_content');
+		$tbldg = evo()->getFullTableName('document_groups');
 	
-	    $result = $modx->db->select(
+	    $result = db()->select(
 	        "DISTINCT {$fields}",
 			"{$tblsc} AS sc LEFT JOIN {$tbldg} dg on dg.document = sc.id",
 			"sc.hidemenu=0 AND sc.published=1 AND sc.deleted=0 {$where_recent}",
@@ -249,10 +249,10 @@ class LINKLIST
 			return $page_cache[$doc_id];
 		}
 		
-	    $tblsc = $modx->getFullTableName('site_content');
-	    $tbldg = $modx->getFullTableName('document_groups');
+	    $tblsc = evo()->getFullTableName('site_content');
+	    $tbldg = evo()->getFullTableName('document_groups');
 	
-	    $result = $modx->db->select(
+	    $result = db()->select(
 	        "sc.parent, sc.menutitle, sc.pagetitle, sc.menuindex, sc.published",
 			"{$tblsc} sc LEFT JOIN {$tbldg} dg on dg.document = sc.id",
 			"sc.hidemenu=0 AND sc.published=1 AND sc.deleted=0 AND sc.id='{$doc_id}'"

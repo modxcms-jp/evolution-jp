@@ -330,7 +330,7 @@ jQuery(function(){
             <td colspan="2" style="padding:0;">
                 <?php
                 // invoke OnUserSettingsRender event
-                $evtOut = $modx->invokeEvent("OnUserSettingsRender");
+                $evtOut = evo()->invokeEvent("OnUserSettingsRender");
                 if (is_array($evtOut)) {
                     echo implode("", $evtOut);
                 }

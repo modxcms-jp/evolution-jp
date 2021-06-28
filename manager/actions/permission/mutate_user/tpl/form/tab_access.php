@@ -22,7 +22,7 @@
     }
     echo "<p>" . lang('access_permissions_user_message') . "</p>";
     $rs = db()->select('name, id', '[+prefix+]membergroup_names', '', 'name');
-    if (!db()->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         echo '<div class="actionButtons"><a href="index.php?a=40" class="primary">Create user group</a></div>';
     } else {
         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';

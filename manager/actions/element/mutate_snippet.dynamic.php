@@ -1,38 +1,38 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 switch ((int)$_REQUEST['a']) {
     case 22:
-        if (!$modx->hasPermission('edit_snippet')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('edit_snippet')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     case 23:
-        if (!$modx->hasPermission('new_snippet')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('new_snippet')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     default:
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
-$limit = db()->getRecordCount($rs);
+$limit = db()->count($rs);
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != $modx->getLoginUserID()) {
+        if ($lock['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang['lock_msg'], $lock['username'], $_lang['snippet']);
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -41,7 +41,7 @@ if ($limit > 1) {
 $content = array();
 if (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) {
     $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if ($limit > 1) {
         echo "Oops, Multiple snippets sharing same unique id. Not good.<p>";
         exit;
@@ -259,7 +259,7 @@ if ($formRestored) {
     <?php
     // invoke OnSnipFormPrerender event
     $tmp = array("id" => $id);
-    $evtOut = $modx->invokeEvent("OnSnipFormPrerender", $tmp);
+    $evtOut = evo()->invokeEvent("OnSnipFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
     }
@@ -269,7 +269,7 @@ if ($formRestored) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <?php if ($modx->hasPermission('save_snippet')): ?>
+            <?php if (evo()->hasPermission('save_snippet')): ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
@@ -293,7 +293,7 @@ if ($formRestored) {
                     'icon' => $_style['icons_resource_duplicate'],
                     'label' => $_lang['duplicate']
                 );
-                if ($modx->hasPermission('new_snippet')) {
+                if (evo()->hasPermission('new_snippet')) {
                     echo $modx->manager->ab($params);
                 }
                 $params = array(
@@ -301,7 +301,7 @@ if ($formRestored) {
                     'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
                 );
-                if ($modx->hasPermission('delete_snippet')) {
+                if (evo()->hasPermission('delete_snippet')) {
                     echo $modx->manager->ab($params);
                 }
             }
@@ -390,7 +390,7 @@ if ($formRestored) {
                                       style="padding:0;height:4em;"><?php echo $content['description'] ?></textarea>
                         </td>
                     </tr>
-                    <?php if ($modx->hasPermission('save_snippet') == 1) { ?>
+                    <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
                                 <label><input style="padding:0;margin:0;" name="locked"
@@ -405,7 +405,7 @@ if ($formRestored) {
                         "INNER JOIN [+prefix+]site_snippets AS ss ON ss.id=smd.resource ";
                     $ds = db()->select('sm.id,sm.name,sm.guid', $from,
                         "smd.resource='{$id}' AND sm.enable_sharedparams='1'", 'sm.name');
-                    $guid_total = db()->getRecordCount($ds);
+                    $guid_total = db()->count($ds);
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
@@ -451,7 +451,7 @@ if ($formRestored) {
     <?php
     // invoke OnSnipFormRender event
     $tmp = array("id" => $id);
-    $evtOut = $modx->invokeEvent("OnSnipFormRender", $tmp);
+    $evtOut = evo()->invokeEvent("OnSnipFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
     }

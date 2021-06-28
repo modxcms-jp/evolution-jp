@@ -51,7 +51,7 @@
     }
 
     function deleteuser() {
-        <?php if($_GET['id'] == $modx->getLoginUserID()) { ?>
+        <?php if($_GET['id'] == evo()->getLoginUserID()) { ?>
         alert("<?php echo $_lang['alert_delete_self']; ?>");
         <?php } else { ?>
         if (confirm("<?php echo $_lang['confirm_delete_user']; ?>") == true) {

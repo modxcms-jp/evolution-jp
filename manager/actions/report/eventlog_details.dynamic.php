@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('view_eventlog')) {
+if (!evo()->hasPermission('view_eventlog')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -37,7 +37,7 @@ $content = db()->getRow($ds);
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if ($modx->hasPermission('delete_eventlog')) { ?>
+        <?php if (evo()->hasPermission('delete_eventlog')) { ?>
             <li id="Button3"><a href="#" onclick="deletelog();"><img
                             src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?></a>
             </li>

@@ -1,28 +1,24 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_snippet')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_snippet')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
-$id = intval($_GET['id']);
+$id = (int)getv('id');
 
-// invoke OnBeforeChunkFormDelete event
-$tmp = array("id" => $id);
-$modx->invokeEvent("OnBeforeChunkFormDelete", $tmp);
+$tmp = array('id' => $id);
+evo()->invokeEvent('OnBeforeChunkFormDelete', $tmp);
 
-//ok, delete the chunk.
-$rs = $modx->db->delete('[+prefix+]site_htmlsnippets', "id='{$id}'");
+$rs = db()->delete('[+prefix+]site_htmlsnippets', where('id', '=', $id));
 if (!$rs) {
     exit('Something went wrong while trying to delete the htmlsnippet...');
 }
 
-// invoke OnChunkFormDelete event
-$tmp = array("id" => $id);
-$modx->invokeEvent("OnChunkFormDelete", $tmp);
+$tmp = array('id' => $id);
+evo()->invokeEvent('OnChunkFormDelete', $tmp);
 
-// empty cache
-$modx->clearCache(); // first empty the cache
-// finished emptying cache - redirect
-header("Location: index.php?a=76");
+evo()->clearCache();
+
+header('Location: index.php?a=76');

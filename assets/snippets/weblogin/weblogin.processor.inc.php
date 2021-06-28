@@ -5,22 +5,22 @@
 
 defined('IN_PARSER_MODE') or die();
 
-$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
-$tbl_web_users           = $modx->getFullTableName('web_users');
-$tbl_web_user_settings   = $modx->getFullTableName('web_user_settings');
+$tbl_web_user_attributes = evo()->getFullTableName('web_user_attributes');
+$tbl_web_users           = evo()->getFullTableName('web_users');
+$tbl_web_user_settings   = evo()->getFullTableName('web_user_settings');
 
 # process password activation
 if ($isPWDActivate==1)
 {
-	$uid     = $modx->db->escape($_REQUEST['uid']);
+	$uid     = db()->escape($_REQUEST['uid']);
 	
-	$rs  = $modx->db->select('*', $tbl_web_users, "id='{$uid}'");
-	$limit = $modx->db->getRecordCount($rs);
+	$rs  = db()->select('*', $tbl_web_users, "id='{$uid}'");
+	$limit = db()->count($rs);
 	if($limit!=1) {
 		$output = webLoginAlert("Error while loading user account. Please contact the Site Administrator");
 		return;
 	}
-    $row = $modx->db->getRow($rs);
+    $row = db()->getRow($rs);
     $username = $row['username'];
     list($newpwd, $token, $requestedon) = explode('|',$row['cachepwd']);
     $past = time()-$requestedon;
@@ -45,10 +45,10 @@ if ($isPWDActivate==1)
     $f = array();
     $f['password'] = md5($newpwd);
     $f['cachepwd'] = '';
-    $rs = $modx->db->update($f,$tbl_web_users,"id='{$uid}'");
+    $rs = db()->update($f,$tbl_web_users,"id='{$uid}'");
 
     // unblock user by resetting "blockeduntil"
-    $rs2 = $modx->db->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
+    $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
 
     // invoke OnWebChangePassword event
     $tmp = array(
@@ -56,7 +56,7 @@ if ($isPWDActivate==1)
 		'username'     => $username,
 		'userpassword' => $newpwd
 		);
-    $modx->invokeEvent('OnWebChangePassword',$tmp);
+    evo()->invokeEvent('OnWebChangePassword',$tmp);
 
     if(!$rs || !$rs2)  $output = webLoginAlert("Error while activating password.");
     elseif(!$pwdActId) $output = webLoginAlert("Your new password was successfully activated.");
@@ -88,21 +88,21 @@ if ($isPWDReminder==1)
 	$sql = "SELECT wu.*, wua.fullname
 	FROM {$tbl_web_users} wu
 	INNER JOIN {$tbl_web_user_attributes} wua ON wua.internalkey=wu.id
-	WHERE wua.email='".$modx->db->escape($email)."'";
+	WHERE wua.email='".db()->escape($email)."'";
 	
-	$ds = $modx->db->query($sql);
-	$limit = $modx->db->getRecordCount($ds);
+	$ds = db()->query($sql);
+	$limit = db()->count($ds);
 	if($limit==1)
 	{
 		$newpwd = webLoginGeneratePassword(8);
 		$token = webLoginGeneratePassword(8); // activation key
-		$row = $modx->db->getRow($ds);
+		$row = db()->getRow($ds);
 		$uid = $row['id'];
 		//save new password
 		$f = array();
 		$requestedon = time();
 		$f['cachepwd'] = "{$newpwd}|{$token}|{$requestedon}";
-		$modx->db->update($f,$tbl_web_users,"id='{$uid}'");
+		db()->update($f,$tbl_web_users,"id='{$uid}'");
 		// built activation url
 		$xhtmlUrlSetting = $modx->config['xhtml_urls'];
 		$modx->config['xhtml_urls'] = false;
@@ -163,7 +163,7 @@ if ($isLogOut==1)
 	$v=array();
 	$v['userid']   = $internalKey;
 	$v['username'] = $username;
-	$modx->invokeEvent('OnBeforeWebLogout', $v);
+	evo()->invokeEvent('OnBeforeWebLogout', $v);
 	
 	// if we were launched from the manager
 	// do NOT destroy session
@@ -195,7 +195,7 @@ if ($isLogOut==1)
 	$v=array();
 	$v['userid']   = $internalKey;
 	$v['username'] = $username;
-	$modx->invokeEvent('OnWebLogout',$v);
+	evo()->invokeEvent('OnWebLogout',$v);
 	
 	// redirect to first authorized logout page
 	$modx->config['xhtml_urls'] = '0';
@@ -206,8 +206,8 @@ if ($isLogOut==1)
 
 # process login
 
-$username      = $modx->db->escape(htmlspecialchars($_POST['username'], ENT_QUOTES));
-$givenPassword = $modx->db->escape($_POST['password']);
+$username      = db()->escape(htmlspecialchars($_POST['username'], ENT_QUOTES));
+$givenPassword = db()->escape($_POST['password']);
 $captcha_code  = isset($_POST['captcha_code'])? $_POST['captcha_code']: '';
 $rememberme    = $_POST['rememberme'];
 
@@ -216,13 +216,13 @@ $v = array();
 $v['username'] = $username;
 $v['userpassword'] = $givenPassword;
 $v['rememberme'] = $rememberme;
-$modx->invokeEvent('OnBeforeWebLogin', $v);
+evo()->invokeEvent('OnBeforeWebLogin', $v);
 
 $field = 'web_users.*, user_attributes.*';
 $from = "{$tbl_web_users} as web_users, {$tbl_web_user_attributes} as user_attributes";
 $where = "BINARY web_users.username='{$username}' and user_attributes.internalKey=web_users.id";
-$ds = $modx->db->select($field, $from, $where);
-$limit = $modx->db->getRecordCount($ds);
+$ds = db()->select($field, $from, $where);
+$limit = db()->count($ds);
 
 if($limit==0 || $limit>1)
 {
@@ -230,7 +230,7 @@ if($limit==0 || $limit>1)
 	return;
 }
 
-$row = $modx->db->getRow($ds);
+$row = db()->getRow($ds);
 
 $internalKey          = $row['id'];
 $dbasePassword        = $row['password'];
@@ -248,8 +248,8 @@ $email                = $row['email'];
 // load user settings
 if($internalKey)
 {
-	$rs = $modx->db->select('setting_name, setting_value',$tbl_web_user_settings,"webuser='$internalKey'");
-	while ($row = $modx->db->getRow($rs, 'both'))
+	$rs = db()->select('setting_name, setting_value',$tbl_web_user_settings,"webuser='$internalKey'");
+	while ($row = db()->getRow($rs, 'both'))
 	{
 		$modx->config[$row[0]] = $row[1];
 	}
@@ -270,7 +270,7 @@ if($failedlogins>=$modx->config['failed_login_attempts'] && $blockeduntildate<ti
 	$f = array();
 	$f['failedlogincount'] = '0';
 	$f['blockeduntil'] = time()-1;
-	$ds = $modx->db->update($f,$tbl_web_user_attributes,"internalKey='{$internalKey}'");
+	$ds = db()->update($f,$tbl_web_user_attributes,"internalKey='{$internalKey}'");
 }
 
 if($blocked=='1') // this user has been blocked by an admin, so no way he's loggin in!
@@ -329,7 +329,7 @@ $tmp = array(
 "savedpassword" => $dbasePassword,
 "rememberme"    => $rememberme
 );
-$rt = $modx->invokeEvent("OnWebAuthentication",$tmp);
+$rt = evo()->invokeEvent("OnWebAuthentication",$tmp);
 // check if plugin authenticated the user
 if (!$rt||(is_array($rt) && !in_array(TRUE,$rt)))
 {
@@ -365,7 +365,7 @@ if(isset($newloginerror) && $newloginerror==1)
 		$f = array();
 		$f['failedlogincount'] = $failedlogins;
 	}
-	$ds = $modx->db->update($f,$tbl_web_user_attributes,"internalKey='{$internalKey}'");
+	$ds = db()->update($f,$tbl_web_user_attributes,"internalKey='{$internalKey}'");
 	
 	session_destroy();
 	session_unset();
@@ -377,7 +377,7 @@ $currentsessionid = session_id();
 if(!isset($_SESSION['webValidated']))
 {
 	$sql = "update {$tbl_web_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=".time().", sessionid='$currentsessionid' where internalKey=$internalKey";
-	$ds = $modx->db->query($sql);
+	$ds = db()->query($sql);
 }
 
 $_SESSION['webShortname']      = $username;
@@ -393,14 +393,14 @@ $_SESSION['webnrlogins']       = $nrlogins;
 $_SESSION['webUserGroupNames'] = ''; // reset user group names
 
 // get user's document groups
-$tbl_webgroup_access = $modx->getFullTableName('webgroup_access');
+$tbl_webgroup_access = evo()->getFullTableName('webgroup_access');
 
 $from = array('[+prefix+]web_groups ug');
 $from[] = 'INNER JOIN [+prefix+]webgroup_access uga ON uga.webgroup=ug.webgroup';
-$ds = $modx->db->select('uga.documentgroup',$from,"ug.webuser='{$internalKey}'");
+$ds = db()->select('uga.documentgroup',$from,"ug.webuser='{$internalKey}'");
 $i=0;
 $dg=array();
-while ($row = $modx->db->getRow($ds,'num'))
+while ($row = db()->getRow($ds,'num'))
 {
 	$i++;
 	$dg[$i]=$row[0];
@@ -453,9 +453,9 @@ if($id!=$modx->documentIdentifier)
 	if($a!=1)
 	{
 		// web users are stored with negative id
-		$tbl_active_users = $modx->getFullTableName('active_users');
+		$tbl_active_users = evo()->getFullTableName('active_users');
 		$sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-{$_SESSION['webInternalKey']}, '{$_SESSION['webShortname']}', '{$lasthittime}', '{$a}', {$itemid}, '{$ip}')";
-		if(!$ds = $modx->db->query($sql))
+		if(!$ds = db()->query($sql))
 		{
 			$output = "error replacing into active users! SQL: {$sql}";
 			return;
@@ -470,7 +470,7 @@ $tmp = array(
 "userpassword"  => $givenPassword,
 "rememberme"    => $_POST['rememberme']
 );
-$modx->invokeEvent("OnWebLogin",$tmp);
+evo()->invokeEvent("OnWebLogin",$tmp);
 
 // redirect
 if(isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl']))

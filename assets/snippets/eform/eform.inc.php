@@ -477,7 +477,7 @@ function eForm($modx,$params) {
                         $body .= "<tr><td>$key</td><td><pre>$value</pre></td></tr>";
                     }
                     $body .="</table>";
-                    $modx->loadExtension('MODxMailer');
+                    evo()->loadExtension('MODxMailer');
                     # send abuse alert
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From		= $modx->config['emailsender'];
@@ -593,7 +593,7 @@ function eForm($modx,$params) {
                 }
 
                 # include PHP Mailer
-                $modx->loadExtension('MODxMailer');
+                evo()->loadExtension('MODxMailer');
 
                 # send form
                 //defaults to html so only test sendasText
@@ -620,7 +620,7 @@ function eForm($modx,$params) {
 
                 # send user a copy of the report
                 if($ccsender && $fields['email']) {
-                    $modx->loadExtension('MODxMailer');
+                    evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From		= $from;
                     $modx->mail->FromName	= $fromname;
@@ -638,7 +638,7 @@ function eForm($modx,$params) {
                 $isHtml = ($sendAsText==1 || strpos($sendAsText, 'autotext') !== false) ? false:true;
                 if ($autotext && $fields['email']!='') {
                     $autotext = formMerge($autotext,$fields);
-                    $modx->loadExtension('MODxMailer');
+                    evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From		= ($autosender)? $autosender:$from;
                     $modx->mail->FromName	= ($autoSenderName)?$autoSenderName:$fromname;
@@ -655,7 +655,7 @@ function eForm($modx,$params) {
                 # send mobile email
                 if ($mobile && $mobiletext) {
                     $mobiletext = formMerge($mobiletext,$fields);
-                    $modx->loadExtension('MODxMailer');
+                    evo()->loadExtension('MODxMailer');
                     $modx->mail->IsHTML($isHtml);
                     $modx->mail->From		= $from;
                     $modx->mail->FromName	= $fromname;
@@ -1227,12 +1227,12 @@ function validateField($value,$fld,&$vMsg,$isDebug=false){
                     $param =     str_replace('{PREFIX}',$modx->db->config['table_prefix'],$param);
                     //added in 1.4
                     if( preg_match("/{([^}]*?)\}/",$param,$matches) ){
-                        $tmp = $modx->db->escape(formMerge('[+'.$matches[1].'+]',$fields));
+                        $tmp = db()->escape(formMerge('[+'.$matches[1].'+]',$fields));
                         $param = str_replace('{'.$matches[1].'}',$tmp,$param);
                     }
-                    $rs = $modx->db->query("SELECT $param;");
+                    $rs = db()->query("SELECT $param;");
                     //select value from 1st field in records only (not case sensitive)
-                    while( $v = $modx->db->getValue($rs) ) $vlist[]=strtolower($v);
+                    while( $v = db()->getValue($rs) ) $vlist[]=strtolower($v);
                 }
                 if(!is_array($vlist)){
                     //WARNING! if not debugging (and query fails) error is ignored, and value will validate!!

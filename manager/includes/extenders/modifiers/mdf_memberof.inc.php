@@ -1,5 +1,5 @@
 <?php
-$userID = abs($modx->getLoginUserID('web'));
+$userID = abs(evo()->getLoginUserID('web'));
 $modx->qs_hash = md5($modx->qs_hash."^{$userID}^");
 
 $groupNames = ($this->strlen($opt) > 0 ) ? explode(',',$opt) : array();
@@ -11,7 +11,7 @@ if(!is_array($groupNames)) return 0;
 if (isset($modx->filter->cache['mo'][$userID])) $grpNames = $modx->filter->cache['mo'][$userID];
 else {
     $from = sprintf("[+prefix+]webgroup_names wgn INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='%s'",$userID);
-    $rs = $modx->db->select('wgn.name',$from);
+    $rs = db()->select('wgn.name',$from);
     $modx->filter->cache['mo'][$userID] = $grpNames = $modx->db->getColumn('name',$rs);
 }
 

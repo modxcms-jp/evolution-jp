@@ -1,31 +1,29 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('new_chunk')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('new_chunk')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
-if (!preg_match('@^[0-9]+$@', $_GET['id'])) {
-    exit;
-}
-$id = $_GET['id'];
-
-// duplicate htmlsnippet
-$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
-$tpl = $_lang['duplicate_title_string'];
-$sql = "INSERT INTO $tbl_site_htmlsnippets (name, description, snippet, category, editor_type)
-		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, category, editor_type
-		FROM {$tbl_site_htmlsnippets} WHERE id='{$id}'";
-$rs = $modx->db->query($sql);
-
-if ($rs) {
-    $newid = $modx->db->getInsertId();
-} // get new id
-else {
-    echo "A database error occured while trying to duplicate variable: <br /><br />" . $modx->db->getLastError();
+if (!preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     exit;
 }
 
-// finish duplicating - redirect to new chunk
-header("Location: index.php?a=78&id={$newid}");
+$sql = sprintf(
+    "INSERT INTO %s (name, description, snippet, category, editor_type)
+		SELECT REPLACE('%s','[+title+]',name) AS 'name', description, snippet, category, editor_type
+		FROM %s WHERE id='%s'",
+    evo()->getFullTableName('site_htmlsnippets'),
+    $_lang['duplicate_title_string'],
+    evo()->getFullTableName('site_htmlsnippets'),
+    getv('id')
+);
+$rs = db()->query($sql);
+
+if (!$rs) {
+    echo "A database error occured while trying to duplicate variable: <br /><br />" . db()->getLastError();
+    exit;
+}
+
+header("Location: index.php?a=78&id=" . db()->getInsertId());

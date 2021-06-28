@@ -39,7 +39,7 @@ function getTmplvars($docid, $template_id, $docgrp) {
         , 'tvtpl.rank,tv.rank, tv.id'
     );
 
-    if (!db()->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         return array();
     }
     while ($row = db()->getRow($rs)) {
@@ -524,7 +524,7 @@ function checkDocLock($id) {
             , $id
         )
     );
-    if (db()->getRecordCount($rs) <= 1) {
+    if (db()->count($rs) <= 1) {
         return;
     }
     while ($row = db()->getRow($rs)) {
@@ -562,7 +562,7 @@ function db_value($id, $docgrp) {
                 $docgrp)
         )
     );
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if ($limit > 1) {
         alert()->setError(6);
         alert()->dumpError();

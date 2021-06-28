@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
@@ -33,7 +33,7 @@ $num_rows_unpub = db()->getAffectedRows();
         $modx->clearCache(array('showReport' => true));
 
         // invoke OnSiteRefresh event
-        $modx->invokeEvent("OnSiteRefresh");
+        evo()->invokeEvent("OnSiteRefresh");
 
         ?>
         <div>

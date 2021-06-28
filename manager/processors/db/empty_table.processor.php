@@ -1,12 +1,12 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('settings')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('settings')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$rs = $modx->db->truncate('[+prefix+]manager_log');
+db()->truncate('[+prefix+]manager_log');
 
 header('Location: index.php?a=13');

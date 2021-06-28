@@ -1,23 +1,23 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('save_plugin')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_plugin')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
     $id = $_POST['id'];
 }
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
+$name = db()->escape(trim($_POST['name']));
+$description = db()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? '1' : '0';
-$plugincode = $modx->db->escape($_POST['post']);
-$properties = $modx->db->escape($_POST['properties']);
+$plugincode = db()->escape($_POST['post']);
+$properties = db()->escape($_POST['properties']);
 $disabled = $_POST['disabled'] == "on" ? '1' : '0';
-$moduleguid = $modx->db->escape($_POST['moduleguid']);
+$moduleguid = db()->escape($_POST['moduleguid']);
 $sysevents = $_POST['sysevents'];
 if (empty($sysevents)) {
     $sysevents[] = 90;
@@ -25,11 +25,11 @@ if (empty($sysevents)) {
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $category = $modx->db->escape($_POST['categoryid']);
+    $category = db()->escape($_POST['categoryid']);
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $category = '0';
 } else {
-    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory(db()->escape($_POST['newcategory']));
     if ($catCheck) {
         $category = $catCheck;
     } else {
@@ -49,12 +49,12 @@ switch ($_POST['mode']) {
             'mode' => 'new',
             'id' => ''
         );
-        $modx->invokeEvent('OnBeforePluginFormSave', $tmp);
+        evo()->invokeEvent('OnBeforePluginFormSave', $tmp);
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
-            $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
-            $count = $modx->db->getValue($rs);
+            $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
+            $count = db()->getValue($rs);
             if ($count > 0) {
                 $modx->manager->saveFormValues(101);
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
@@ -83,7 +83,7 @@ switch ($_POST['mode']) {
 
         //do stuff to save the new plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
-        $newid = $modx->db->insert($f, '[+prefix+]site_plugins');
+        $newid = db()->insert($f, '[+prefix+]site_plugins');
         if (!$newid) {
             echo "Couldn't get last insert key!";
             exit;
@@ -97,7 +97,7 @@ switch ($_POST['mode']) {
             'mode' => 'new',
             'id' => $newid
         );
-        $modx->invokeEvent('OnPluginFormSave', $tmp);
+        evo()->invokeEvent('OnPluginFormSave', $tmp);
 
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -117,13 +117,13 @@ switch ($_POST['mode']) {
             'mode' => 'upd',
             'id' => $id
         );
-        $modx->invokeEvent("OnBeforePluginFormSave", $tmp);
+        evo()->invokeEvent("OnBeforePluginFormSave", $tmp);
 
         // disallow duplicate names for active plugins
         if ($disabled == '0') {
-            $rs = $modx->db->select('COUNT(*)', '[+prefix+]site_plugins',
+            $rs = db()->select('COUNT(*)', '[+prefix+]site_plugins',
                 "name='{$name}' AND id!='{$id}' AND disabled='0'");
-            if ($modx->db->getValue($rs) > 0) {
+            if (db()->getValue($rs) > 0) {
                 $modx->manager->saveFormValues();
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
@@ -150,7 +150,7 @@ switch ($_POST['mode']) {
         }
         //do stuff to save the edited plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
-        $rs = $modx->db->update($f, '[+prefix+]site_plugins', "id='{$id}'");
+        $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited plugin not saved!";
         } else {
@@ -162,7 +162,7 @@ switch ($_POST['mode']) {
                 'mode' => 'upd',
                 'id' => $id
             );
-            $modx->invokeEvent('OnPluginFormSave', $tmp);
+            evo()->invokeEvent('OnPluginFormSave', $tmp);
 
             // empty cache
             $modx->clearCache(); // first empty the cache
@@ -187,7 +187,7 @@ switch ($_POST['mode']) {
 function saveEventListeners($id, $sysevents, $mode) {
     global $modx;
     // save selected system events
-    $tblSitePluginEvents = $modx->getFullTableName('site_plugin_events');
+    $tblSitePluginEvents = evo()->getFullTableName('site_plugin_events');
     $sql = "INSERT INTO {$tblSitePluginEvents} (pluginid,evtid,priority) VALUES ";
     for ($i = 0, $iMax = count($sysevents); $i < $iMax; $i++) {
         $event = $sysevents[$i];
@@ -200,8 +200,8 @@ function saveEventListeners($id, $sysevents, $mode) {
         } else {
             $prioritySql = "select priority from {$tblSitePluginEvents} where evtid={$event} and pluginid={$id}";
         }
-        $rs = $modx->db->query($prioritySql);
-        $prevPriority = $modx->db->getRow($rs);
+        $rs = db()->query($prioritySql);
+        $prevPriority = db()->getRow($rs);
         if ($mode == '101') {
             $priority = isset($prevPriority['priority']) ? $prevPriority['priority'] + 1 : 1;
         } else {
@@ -212,8 +212,8 @@ function saveEventListeners($id, $sysevents, $mode) {
         }
         $sql .= "(" . $id . "," . $event . "," . $priority . ")";
     }
-    $modx->db->query("DELETE FROM {$tblSitePluginEvents} WHERE pluginid={$id}");
+    db()->query("DELETE FROM {$tblSitePluginEvents} WHERE pluginid={$id}");
     if (count($sysevents) > 0) {
-        $modx->db->query($sql);
+        db()->query($sql);
     }
 }

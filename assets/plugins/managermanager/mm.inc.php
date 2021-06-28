@@ -112,9 +112,9 @@ class MANAGERMANAGER {
         
         // Add in TVs to the list of available fields
         $all_tvs = $modx->db->makeArray(
-            $modx->db->select(
+            db()->select(
                 'name,type,id,elements'
-                , $modx->getFullTableName('site_tmplvars')
+                , evo()->getFullTableName('site_tmplvars')
                 , ''
                 , 'name ASC'
             )

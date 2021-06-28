@@ -544,7 +544,7 @@ class Wayfinder {
             else                     $fields[$i] = 'sc.'.$v;
         }
 
-        $result = $modx->db->select(
+        $result = db()->select(
             'DISTINCT ' . join(',', $fields)
             , $from
             , $where
@@ -564,7 +564,7 @@ class Wayfinder {
         $resultIds = array();
         $resourceArray = array();
         //loop through the results
-        while($row = $modx->db->getRow($result)) {
+        while($row = db()->getRow($result)) {
             $resultIds[] = $row['id'];
             //Create the link
             $linkScheme = $this->_config['fullLink'] ? 'full' : '';
@@ -689,7 +689,7 @@ class Wayfinder {
 
     function getTVList() {
         global $modx;
-        $tvs = $modx->db->select('name', '[+prefix+]site_tmplvars');
+        $tvs = db()->select('name', '[+prefix+]site_tmplvars');
             // TODO: make it so that it only pulls those that apply to the current template
         return $modx->db->getColumn('name', $tvs);
     }
@@ -930,9 +930,9 @@ class Wayfinder {
             return $id;
         }
 
-        $rs = $modx->db->select('*','[+prefix+]site_content',"parent='{$id}' AND hidemenu=0");
+        $rs = db()->select('*','[+prefix+]site_content',"parent='{$id}' AND hidemenu=0");
 
-        if($modx->db->getRecordCount($rs)) {
+        if(db()->count($rs)) {
             return $id;
         }
 

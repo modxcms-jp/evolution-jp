@@ -1,22 +1,22 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('view_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('view_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (!preg_match('@^[0-9]+$@', anyv('id'))) {
-    $e->setError(1);
-    $e->dumpError();
+    alert()->setError(1);
+    alert()->dumpError();
 }
 
 $id = anyv('id');
 if (!manager()->isAllowed($id)) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $modx->updatePublishStatus();
@@ -39,7 +39,7 @@ $rs = db()->select(
     )
     , $where
 );
-$total = db()->getRecordCount($rs);
+$total = db()->count($rs);
 if ($total > 1) {
     echo "<p>Internal System Error...</p>"
         . "<p>More results returned than expected. </p>"
@@ -48,8 +48,8 @@ if ($total > 1) {
 }
 
 if ($total == 0) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $content = db()->getRow($rs);
@@ -114,20 +114,20 @@ foreach ($content as $k => $v) {
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if ($modx->hasPermission('save_document')): ?>
+        <?php if (evo()->hasPermission('save_document')): ?>
             <li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img
                             src="<?php echo $_style["icons_edit_document"] ?>"/> <?php echo $_lang['edit'] ?></a></li>
         <?php endif; ?>
-        <?php if ($modx->hasPermission('save_document') && $modx->hasPermission('move_document')): ?>
+        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')): ?>
             <li id="Button2" class="mutate"><a href="#" onclick="movedocument();"><img
                             src="<?php echo $_style["icons_move_document"] ?>"/> <?php echo $_lang['move'] ?></a></li>
         <?php endif; ?>
-        <?php if ($modx->hasPermission('new_document') && $modx->hasPermission('save_document')): ?>
+        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')): ?>
             <li id="Button4"><a href="#" onclick="duplicatedocument();"><img
                             src="<?php echo $_style["icons_resource_duplicate"] ?>"/> <?php echo $_lang['duplicate'] ?>
                 </a></li>
         <?php endif; ?>
-        <?php if ($modx->hasPermission('delete_document') && $modx->hasPermission('save_document')): ?>
+        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')): ?>
             <li id="Button3"><a href="#" onclick="deletedocument();"><img
                             src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?></a>
             </li>

@@ -1,23 +1,23 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_template')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_template')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $id = (int)$_GET['id'];
-$tbl_site_content = $modx->getFullTableName('site_content');
-$tbl_site_templates = $modx->getFullTableName('site_templates');
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
+$tbl_site_content = evo()->getFullTableName('site_content');
+$tbl_site_templates = evo()->getFullTableName('site_templates');
+$tbl_site_tmplvar_templates = evo()->getFullTableName('site_tmplvar_templates');
 
 // delete the template, but first check it doesn't have any documents using it
-$rs = $modx->db->select('id, pagetitle', $tbl_site_content, "template='{$id}' and deleted=0");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('id, pagetitle', $tbl_site_content, "template='{$id}' and deleted=0");
+$limit = db()->count($rs);
 if ($limit > 0) {
     echo "This template is in use. Please set the documents using the template to another template. Documents using this template:<br />";
     for ($i = 0; $i < $limit; $i++) {
-        $row = $modx->db->getRow($rs);
+        $row = db()->getRow($rs);
         echo $row['id'] . " - " . $row['pagetitle'] . "<br />\n";
     }
     exit;
@@ -30,20 +30,20 @@ if ($id == $default_template) {
 
 // invoke OnBeforeTempFormDelete event
 $tmp = array('id' => $id);
-$modx->invokeEvent('OnBeforeTempFormDelete', $tmp);
+evo()->invokeEvent('OnBeforeTempFormDelete', $tmp);
 
 //ok, delete the document.
-$rs = $modx->db->delete($tbl_site_templates, "id='{$id}'");
+$rs = db()->delete($tbl_site_templates, "id='{$id}'");
 if (!$rs) {
     echo "Something went wrong while trying to delete the template...";
     exit;
 }
 
-$rs = $modx->db->delete($tbl_site_tmplvar_templates, "templateid='{$id}'");
+$rs = db()->delete($tbl_site_tmplvar_templates, "templateid='{$id}'");
 
 // invoke OnTempFormDelete event
 $tmp = array('id' => $id);
-$modx->invokeEvent('OnTempFormDelete', $tmp);
+evo()->invokeEvent('OnTempFormDelete', $tmp);
 
 // empty cache
 $modx->clearCache();

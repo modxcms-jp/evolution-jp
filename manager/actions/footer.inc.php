@@ -1,5 +1,5 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!isset($modx) || !evo()->isLoggedin()) exit;
 // display system alert window if messages are available
 if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque)>0) {
 	echo $modx->manager->sysAlert($modx->SystemAlertMsgQueque);

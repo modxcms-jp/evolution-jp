@@ -4,8 +4,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 if (!evo()->hasPermission('save_user')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // Send an email to the user
@@ -132,7 +132,7 @@ function saveUserSettings($id) {
 // Web alert -  sends an alert to web browser
 function webAlert($msg) {
     global $id;
-    $mode = $_POST['mode'];
+    $mode = postv('mode');
     $url = 'index.php?a=' . $mode . ($mode == '12' ? "&id=" . $id : '');
     evo()->manager->saveFormValues($mode);
     evo()->webAlertAndQuit($msg, $url);

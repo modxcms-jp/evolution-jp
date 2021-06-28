@@ -1,14 +1,14 @@
 <?php
 // Action 127
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     $id = $_GET['id'];
 } else {
-    $e->setError(2);
-    $e->dumpError();
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 $ph['id'] = $id;

@@ -1,16 +1,16 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 global $_style;
-if (!$modx->hasPermission('messages')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('messages')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 if (isset($_REQUEST['id'])) {
     $msgid = intval($_REQUEST['id']);
 }
-$uid = $modx->getLoginUserID();
+$uid = evo()->getLoginUserID();
 ?>
     <h1><?php echo $_lang['messages_title']; ?></h1>
 <?php
@@ -31,7 +31,7 @@ $location = isset($_GET['id']) ? '10' : '2';
         <div class="sectionBody" id="lyr3">
             <?php
             $rs = db()->select('*', '[+prefix+]user_messages', "id='{$msgid}'");
-            $limit = db()->getRecordCount($rs);
+            $limit = db()->count($rs);
             if ($limit != 1) {
                 echo "Wrong number of messages returned!";
             } else {
@@ -166,7 +166,7 @@ $location = isset($_GET['id']) ? '10' : '2';
                 , 'postdate DESC'
                 , sprintf('%d, %s', $int_cur_position, $int_num_result)
             );
-            $limit = db()->getRecordCount($rs);
+            $limit = db()->count($rs);
             if ($limit < 1):
                 echo $_lang['messages_no_messages'];
             else:
@@ -227,7 +227,7 @@ $location = isset($_GET['id']) ? '10' : '2';
             <?php
             if (($_REQUEST['m'] === 'rp' || $_REQUEST['m'] === 'f') && isset($msgid)) {
                 $rs = db()->select('*', '[+prefix+]user_messages', "id='{$msgid}'");
-                $limit = db()->getRecordCount($rs);
+                $limit = db()->count($rs);
                 if ($limit != 1) {
                     echo "Wrong number of messages returned!";
                 } else {
@@ -369,7 +369,7 @@ $rs = db()->select('count(*)', '[+prefix+]user_messages', "recipient='{$uid}' AN
 $_SESSION['nrnewmessages'] = db()->getValue($rs);
 $rs = db()->select('count(*)', '[+prefix+]user_messages', "recipient='{$uid}'");
 $_SESSION['nrtotalmessages'] = db()->getValue($rs);
-$messagesallowed = $modx->hasPermission('messages');
+$messagesallowed = evo()->hasPermission('messages');
 ?>
     <script type="text/javascript">
         function msgCountAgain() {

@@ -38,7 +38,7 @@ class DocAPI {
         }
         if (preg_match('@^[1-9][0-9]*$@', array_get($fields, 'doc.parent', 0))) {
             db()->update(
-                array('isfolder' => '1')
+                array('isfolder' => 1)
                 , '[+prefix+]site_content'
                 , sprintf("id='%s'", array_get($fields, 'doc.parent')));
         }
@@ -61,8 +61,8 @@ class DocAPI {
         return $id;
     }
 
-    function update($f = array(), $docid = 0, $where = '') {
-        if (!$docid || !preg_match('@^[1-9][0-9]*$@', $docid)) {
+    public function update($f = array(), $docid = 0, $where = '') {
+        if (!preg_match('@^[1-9][0-9]*$@', $docid)) {
             return false;
         }
         if (is_string($f) && str_contains($f, '=')) {
@@ -153,7 +153,7 @@ class DocAPI {
             }
         }
         if(!isset($fields['published'])) {
-            $fields['published'] = evo()->config('publish_default', 0);
+            $fields['published'] = config('publish_default', 0);
         }
         if (array_get($fields, 'pagetitle', '')==='') {
             $fields['pagetitle'] = lang('untitled_resource');
@@ -174,12 +174,12 @@ class DocAPI {
             $fields['publishedon'] = $fields['editedon'];
         }
         if (empty($fields['template'])) {
-            $fields['template'] = evo()->config('default_template', 0);
+            $fields['template'] = config('default_template', 0);
         }
         return $fields;
     }
 
-    function saveTV($doc_id, $name, $value) {
+    public function saveTV($doc_id, $name, $value) {
         static $tv = array();
         if(!isset($tv[$doc_id][$name])) {
             $rs = db()->select(
@@ -267,7 +267,7 @@ class DocAPI {
                 , db()->escape($template_id)
             )
         );
-        return db()->getRecordCount($rs) == 1;
+        return db()->count($rs) == 1;
     }
 
     private function isTv($key){
@@ -579,7 +579,7 @@ class DocAPI {
 
     function existsDoc($id = 0) {
         $rs = db()->select('id', '[+prefix+]site_content', "id='{$id}'");
-        if (db()->getRecordCount($rs) == 0) {
+        if (db()->count($rs) == 0) {
             return false;
         }
 

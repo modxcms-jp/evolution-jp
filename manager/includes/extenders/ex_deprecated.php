@@ -113,7 +113,7 @@ class OldFunctions {
     function webAlert($msg, $url = '') {
         global $modx;
 
-        $msg = addslashes($modx->db->escape($msg));
+        $msg = addslashes(db()->escape($msg));
         if (substr(strtolower($url), 0, 11) == 'javascript:') {
             $act = '__WebAlert();';
             $fnc = 'function __WebAlert(){' . substr($url, 11) . '};';
@@ -141,8 +141,8 @@ class OldFunctions {
         }
 
         $field = "IF(alias='', id, alias) AS alias, id, parent";
-        $rs = $modx->db->select($field, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
-        while ($row = $modx->db->getRow($rs)) {
+        $rs = db()->select($field, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        while ($row = db()->getRow($rs)) {
             $docs[$row['id']] = array('alias' => $row['alias'], 'parent' => $row['parent']);
         }
 

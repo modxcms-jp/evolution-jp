@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('move_document') || !$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('move_document') || !evo()->hasPermission('save_document') || !evo()->hasPermission('publish_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_REQUEST['id'])) {
@@ -12,8 +12,8 @@ if (isset($_REQUEST['id'])) {
 } elseif (isset($_REQUEST['batch'])) {
     $id = join(',', $_REQUEST['batch']);
 } else {
-    $e->setError(2);
-    $e->dumpError();
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 // check permissions on the document

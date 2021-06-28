@@ -1,27 +1,27 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_template')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_template')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $id = (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) ? $_GET['id'] : 0;
 $forced = isset($_GET['force']) ? $_GET['force'] : 0;
 
-$tbl_site_content = $modx->getFullTableName('site_content');
-$tbl_site_tmplvar_contentvalues = $modx->getFullTableName('site_tmplvar_contentvalues');
-$tbl_site_tmplvars = $modx->getFullTableName('site_tmplvars');
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvar_access = $modx->getFullTableName('site_tmplvar_access');
+$tbl_site_content = evo()->getFullTableName('site_content');
+$tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
+$tbl_site_tmplvars = evo()->getFullTableName('site_tmplvars');
+$tbl_site_tmplvar_templates = evo()->getFullTableName('site_tmplvar_templates');
+$tbl_site_tmplvar_access = evo()->getFullTableName('site_tmplvar_access');
 
 // check for relations
 if (!$forced) {
     $field = 'sc.id, sc.pagetitle,sc.description';
     $from = "{$tbl_site_content} sc INNER JOIN {$tbl_site_tmplvar_contentvalues} stcv ON stcv.contentid=sc.id";
     $where = "stcv.tmplvarid='{$id}'";
-    $rs = $modx->db->select($field, $from, $where);
-    $count = $modx->db->getRecordCount($rs);
+    $rs = db()->select($field, $from, $where);
+    $count = db()->count($rs);
     if ($count > 0) {
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         ?>
@@ -47,7 +47,7 @@ if (!$forced) {
         <?php
         echo "<p>" . $_lang['tmplvar_inuse'] . "</p>";
         echo "<ul>";
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             echo '<li><span style="width: 200px"><a href="index.php?id=' . $row['id'] . '&a=27">' . $row['pagetitle'] . '</a></span>' . ($row['description'] != '' ? ' - ' . $row['description'] : '') . '</li>';
         }
         echo "</ul>";
@@ -60,10 +60,10 @@ if (!$forced) {
 
 // invoke OnBeforeTVFormDelete event
 $tmp = array("id" => $id);
-$modx->invokeEvent("OnBeforeTVFormDelete", $tmp);
+evo()->invokeEvent("OnBeforeTVFormDelete", $tmp);
 
 // delete variable
-$rs = $modx->db->delete($tbl_site_tmplvars, "id='{$id}'");
+$rs = db()->delete($tbl_site_tmplvars, "id='{$id}'");
 if (!$rs) {
     echo "Something went wrong while trying to delete the field...";
     exit;
@@ -72,14 +72,14 @@ if (!$rs) {
 header("Location: index.php?a=76");
 
 // delete variable's content values
-$modx->db->delete($tbl_site_tmplvar_contentvalues, "tmplvarid='{$id}'");
+db()->delete($tbl_site_tmplvar_contentvalues, "tmplvarid='{$id}'");
 
 // delete variable's template access
-$modx->db->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
+db()->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
 
 // delete variable's access permissions
-$modx->db->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
+db()->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
 
 // invoke OnTVFormDelete event
 $tmp = array("id" => $id);
-$modx->invokeEvent("OnTVFormDelete", $tmp);
+evo()->invokeEvent("OnTVFormDelete", $tmp);

@@ -49,10 +49,10 @@ if(isset($_GET['docid']) && preg_match('@^[0-9]+$@',$_GET['docid']))
 }
 elseif(isset($_GET['chunk']) && preg_match('@^[0-9]+$@',$_GET['chunk']))
 {
-	$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+	$tbl_site_htmlsnippets = evo()->getFullTableName('site_htmlsnippets');
 	$cid = $_GET['chunk'];
-	$rs = $modx->db->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}' AND published=1");
-	$content = $modx->db->getValue($rs);
+	$rs = db()->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}' AND published=1");
+	$content = db()->getValue($rs);
 	if($content) $output = $content;
 }
 else
@@ -75,13 +75,13 @@ else
 	
 	if(isset($chunks) && !empty($chunks))
 	{
-		$tbl_site_htmlsnippets = $modx->getFullTableName('site_htmlsnippets');
+		$tbl_site_htmlsnippets = evo()->getFullTableName('site_htmlsnippets');
 		if(strpos($chunks,',')!==false)
 		{
 			$chunks = explode(',', $chunks);
 			foreach($chunks as $i=>$v)
 			{
-				$chunks[$i] = $modx->db->escape(trim($v));
+				$chunks[$i] = db()->escape(trim($v));
 			}
 			$chunks = join("','", $chunks);
 			$where  = "`name` IN ('{$chunks}')";
@@ -93,9 +93,9 @@ else
 			$orderby = '';
 		}
 		
-		$rs = $modx->db->select('id,name,description', $tbl_site_htmlsnippets, $where, $orderby);
+		$rs = db()->select('id,name,description', $tbl_site_htmlsnippets, $where, $orderby);
 		
-		while($row = $modx->db->getRow($rs))
+		while($row = db()->getRow($rs))
 		{
 			$ph['title']       = $row['name'];
 			$ph['target']      = 'chunk=' . $row['id'];

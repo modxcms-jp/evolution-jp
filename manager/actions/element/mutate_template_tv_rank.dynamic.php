@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_template')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_template')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (!is_numeric($_REQUEST['id'])) {
@@ -46,7 +46,7 @@ $where = "tr.templateid='{$id}'";
 $orderby = 'tr.rank, tv.rank, tv.id';
 
 $rs = db()->select($field, $from, $where, $orderby);
-$limit = db()->getRecordCount($rs);
+$limit = db()->count($rs);
 
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {

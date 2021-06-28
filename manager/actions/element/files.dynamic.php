@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('file_manager')) {
+if (!evo()->hasPermission('file_manager')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -817,7 +817,7 @@ function fileupload() {
                     'filepath' => postv('path'),
                     'filename' => $userfile['name']
                 );
-                $modx->invokeEvent('OnFileManagerUpload', $tmp);
+                evo()->invokeEvent('OnFileManagerUpload', $tmp);
                 // Log the change
                 logFileChange('upload', postv('path') . '/' . $userfile['name']);
             } else {

@@ -3,7 +3,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-$internalKey = $modx->getLoginUserID();
+$internalKey = evo()->getLoginUserID();
 $username = $_SESSION['mgrShortname'];
 
 // invoke OnBeforeManagerLogout event
@@ -11,7 +11,7 @@ $tmp = array(
     'userid' => $internalKey,
     'username' => $username
 );
-$modx->invokeEvent("OnBeforeManagerLogout", $tmp);
+evo()->invokeEvent("OnBeforeManagerLogout", $tmp);
 
 //// Unset all of the session variables.
 //$_SESSION = array();
@@ -27,7 +27,7 @@ $tmp = array(
     'userid' => $internalKey,
     'username' => $username
 );
-$modx->invokeEvent("OnManagerLogout", $tmp);
+evo()->invokeEvent("OnManagerLogout", $tmp);
 
 // show login screen
 header('Location: ' . MODX_SITE_URL . 'manager/');

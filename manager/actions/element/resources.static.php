@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 ?>
@@ -26,7 +26,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
         <div class="tab-pane" id="elementsPane">
 
             <!-- Templates -->
-            <?php if ($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')) { ?>
+            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
                 <div class="tab-page" id="tabTemplates">
                     <h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
                     <div><?php echo $_lang['template_management_msg']; ?></div>
@@ -40,7 +40,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
             <?php } ?>
 
             <!-- Template variables -->
-            <?php if ($modx->hasPermission('new_template') || $modx->hasPermission('edit_template')) { ?>
+            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
                 <div class="tab-page" id="tabVariables">
                     <h2 class="tab"><?php echo $_lang["tmplvars"] ?></h2>
                     <!--//
@@ -58,7 +58,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
             <?php } ?>
 
             <!-- chunks -->
-            <?php if ($modx->hasPermission('new_chunk') || $modx->hasPermission('edit_chunk')) { ?>
+            <?php if (evo()->hasPermission('new_chunk') || evo()->hasPermission('edit_chunk')) { ?>
                 <div class="tab-page" id="tabChunks">
                     <h2 class="tab"><?php echo $_lang["manage_htmlsnippets"] ?></h2>
                     <div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
@@ -73,7 +73,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
             <?php } ?>
 
             <!-- snippets -->
-            <?php if ($modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet')) { ?>
+            <?php if (evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet')) { ?>
                 <div class="tab-page" id="tabSnippets">
                     <h2 class="tab"><?php echo $_lang["manage_snippets"] ?></h2>
                     <div><?php echo $_lang['snippet_management_msg']; ?></div>
@@ -88,7 +88,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
             <?php } ?>
 
             <!-- plugins -->
-            <?php if ($modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) { ?>
+            <?php if (evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) { ?>
                 <div class="tab-page" id="tabPlugins">
                     <h2 class="tab"><?php echo $_lang["manage_plugins"] ?></h2>
                     <div><?php echo $_lang['plugin_management_msg']; ?></div>
@@ -97,7 +97,7 @@ if (!isset($modx) || !$modx->isLoggedin()) {
                         <li><a class="default" href="index.php?a=101"><img
                                         src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_plugin']; ?>
                             </a></li>
-                        <?php if ($modx->hasPermission('save_plugin')) { ?>
+                        <?php if (evo()->hasPermission('save_plugin')) { ?>
                             <li><a href="index.php?a=100"><img
                                         src="<?php echo $_style["sort"] ?>"/> <?php echo $_lang['plugin_priority']; ?>
                             </a></li><?php } ?>
@@ -181,8 +181,8 @@ function addclass($element_name, $row) {
 function getArray($element_name, $action, $nameField = 'name') {
     global $modx, $_lang;
 
-    $tbl_element_name = $modx->getFullTableName($element_name);
-    $tbl_categories = $modx->getFullTableName('categories');
+    $tbl_element_name = evo()->getFullTableName($element_name);
+    $tbl_categories = evo()->getFullTableName('categories');
 
     switch ($element_name) {
         case 'site_plugins':
@@ -209,7 +209,7 @@ function getArray($element_name, $action, $nameField = 'name') {
     }
 
     $rs = db()->select($fields, $from, '', $orderby);
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if ($limit < 1) {
         return $_lang['no_results'];
     }
@@ -226,11 +226,11 @@ function createCategoryList() {
 
     $displayInfo = array();
     $hasPermission = 0;
-    if ($modx->hasPermission('edit_plugin') || $modx->hasPermission('new_plugin')) {
+    if (evo()->hasPermission('edit_plugin') || evo()->hasPermission('new_plugin')) {
         $displayInfo['plugin'] = array('table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']);
         $hasPermission = 1;
     }
-    if ($modx->hasPermission('edit_snippet') || $modx->hasPermission('new_snippet')) {
+    if (evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_snippet')) {
         $displayInfo['snippet'] = array(
             'table' => 'site_snippets',
             'action' => 22,
@@ -238,7 +238,7 @@ function createCategoryList() {
         );
         $hasPermission = 1;
     }
-    if ($modx->hasPermission('edit_chunk') || $modx->hasPermission('new_chunk')) {
+    if (evo()->hasPermission('edit_chunk') || evo()->hasPermission('new_chunk')) {
         $displayInfo['htmlsnippet'] = array(
             'table' => 'site_htmlsnippets',
             'action' => 78,
@@ -246,7 +246,7 @@ function createCategoryList() {
         );
         $hasPermission = 1;
     }
-    if ($modx->hasPermission('edit_template') || $modx->hasPermission('new_template')) {
+    if (evo()->hasPermission('edit_template') || evo()->hasPermission('new_template')) {
         $displayInfo['templates'] = array(
             'table' => 'site_templates',
             'action' => 16,
@@ -255,18 +255,18 @@ function createCategoryList() {
         $displayInfo['tmplvars'] = array('table' => 'site_tmplvars', 'action' => 301, 'name' => $_lang['tmplvars']);
         $hasPermission = 1;
     }
-    if ($modx->hasPermission('edit_module') || $modx->hasPermission('new_module')) {
+    if (evo()->hasPermission('edit_module') || evo()->hasPermission('new_module')) {
         $displayInfo['modules'] = array('table' => 'site_modules', 'action' => 108, 'name' => $_lang['modules']);
         $hasPermission = 1;
     }
 
     //Category Delete permission check
     $delPerm = 0;
-    if ($modx->hasPermission('save_plugin') ||
-        $modx->hasPermission('save_snippet') ||
-        $modx->hasPermission('save_chunk') ||
-        $modx->hasPermission('save_template') ||
-        $modx->hasPermission('save_module')) {
+    if (evo()->hasPermission('save_plugin') ||
+        evo()->hasPermission('save_snippet') ||
+        evo()->hasPermission('save_chunk') ||
+        evo()->hasPermission('save_template') ||
+        evo()->hasPermission('save_module')) {
         $delPerm = 1;
     }
 
@@ -274,8 +274,8 @@ function createCategoryList() {
         $finalInfo = array();
 
         foreach ($displayInfo as $n => $v) {
-            $tbl_elm = $modx->getFullTableName($v['table']);
-            $tbl_categories = $modx->getFullTableName('categories');
+            $tbl_elm = evo()->getFullTableName($v['table']);
+            $tbl_categories = evo()->getFullTableName('categories');
             if ($v['table'] == 'site_templates') {
                 $fields = 'templatename as name, ';
             } elseif ($v['table'] == 'site_plugins') {
@@ -290,7 +290,7 @@ function createCategoryList() {
             $from = "{$tbl_elm} left join {$tbl_categories} on {$tbl_elm}.category = {$tbl_categories}.id";
             $orderby = ($v['table'] == 'site_plugins') ? "{$tbl_elm}.disabled ASC,6,2" : '5,1';
             $rs = db()->select($fields, $from, '', $orderby);
-            $limit = db()->getRecordCount($rs);
+            $limit = db()->count($rs);
             if ($limit > 0) {
                 while ($row = db()->getRow($rs)) {
                     $row['type'] = $v['name'];

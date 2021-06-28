@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('edit_module')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_module')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
@@ -47,37 +47,37 @@ $sqlQuery = db()->escape($query);
 switch ($rt) {
     case "snip":
         $title = $_lang["snippet"];
-        $sql = "SELECT id,name,description FROM " . $modx->getFullTableName("site_snippets") .
+        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_snippets") .
             ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
         break;
 
     case "tpl":
         $title = $_lang["template"];
-        $sql = "SELECT id,templatename as 'name',description FROM " . $modx->getFullTableName("site_templates") .
+        $sql = "SELECT id,templatename as 'name',description FROM " . evo()->getFullTableName("site_templates") .
             ($sqlQuery ? " WHERE (templatename LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY templatename";
         break;
 
     case("tv"):
         $title = $_lang["tv"];
-        $sql = "SELECT id,name,description FROM " . $modx->getFullTableName("site_tmplvars") .
+        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_tmplvars") .
             ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
         break;
 
     case("chunk"):
         $title = $_lang["chunk"];
-        $sql = "SELECT id,name,description FROM " . $modx->getFullTableName("site_htmlsnippets") .
+        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_htmlsnippets") .
             ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
         break;
 
     case("plug"):
         $title = $_lang["plugin"];
-        $sql = "SELECT id,name,description FROM " . $modx->getFullTableName("site_plugins") .
+        $sql = "SELECT id,name,description FROM " . evo()->getFullTableName("site_plugins") .
             ($sqlQuery ? " WHERE (name LIKE '%$sqlQuery%') OR (description LIKE '%$sqlQuery%')" : "") . " ORDER BY name";
         break;
 
     case("doc"):
         $title = $_lang["resource"];
-        $sql = "SELECT id,pagetitle as 'name',longtitle as 'description' FROM " . $modx->getFullTableName("site_content") .
+        $sql = "SELECT id,pagetitle as 'name',longtitle as 'description' FROM " . evo()->getFullTableName("site_content") .
             ($sqlQuery ? " WHERE (pagetitle LIKE '%$sqlQuery%') OR (longtitle LIKE '%$sqlQuery%')" : "") . " ORDER BY pagetitle";
         break;
 

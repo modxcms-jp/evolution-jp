@@ -1,13 +1,13 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('remove_locks')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('remove_locks')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // Remove locks
-$modx->db->query('TRUNCATE ' . $modx->getFullTableName('active_users'));
+db()->query('TRUNCATE ' . evo()->getFullTableName('active_users'));
 header("Location: index.php?a=7");

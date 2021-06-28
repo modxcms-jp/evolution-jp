@@ -4,7 +4,7 @@
  *  Build and return document tree view nodes
  *
  */
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
@@ -54,8 +54,8 @@ $output = getNodes($indent, $parent, $expandAll);
 
 // check for deleted documents on reload
 if ($expandAll == 2) {
-    $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_content', 'deleted=1');
-    if ($modx->db->getValue($rs) > 0) {
+    $rs = db()->select('COUNT(id)', '[+prefix+]site_content', 'deleted=1');
+    if (db()->getValue($rs) > 0) {
         $output .= '<span id="binFull"></span>';
     } // add a special element to let system now that the bin is full
 }
@@ -82,8 +82,8 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '') {
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
     $where = "parent='{$parent}' {$access} GROUP BY sc.id,rev.status";
-    $result = $modx->db->select($field, $from, $where, $tree_orderby);
-    $hasChild = $modx->db->getRecordCount($result);
+    $result = db()->select($field, $from, $where, $tree_orderby);
+    $hasChild = db()->count($result);
 
     if (!isset($modx->config['limit_by_container'])) {
         $modx->config['limit_by_container'] = '';
@@ -101,8 +101,8 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '') {
         }
         if ($container_status !== 'asis' && $parent !== '0') {
             $where = "isfolder=1 AND {$where}";
-            $result = $modx->db->select($field, $from, $where, $tree_orderby);
-            $hasChild = $modx->db->getRecordCount($result);
+            $result = db()->select($field, $from, $where, $tree_orderby);
+            $hasChild = db()->count($result);
         }
     }
 
@@ -125,7 +125,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '') {
     $loop_count = 0;
     $node_name_source = $modx->config['resource_tree_node_name'];
     global $privateweb, $privatemgr;
-    while ($row = $modx->db->getRow($result, 'num')):
+    while ($row = db()->getRow($result, 'num')):
         $loop_count++;
         list($id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft) = $row;
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
@@ -196,8 +196,8 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '') {
 
             if ($container_status === 'container_only' && $isfolder == 1) {
                 $where = "parent='{$id}' AND isfolder=1 {$access} GROUP BY sc.id,rev.status";
-                $result = $modx->db->select($field, $from, $where, $tree_orderby);
-                $hasChild = $modx->db->getRecordCount($result);
+                $result = db()->select($field, $from, $where, $tree_orderby);
+                $hasChild = db()->count($result);
             }
 
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
@@ -381,7 +381,7 @@ function get_tree_orderby() {
         }
     }
     $orderby = trim($orderby);
-    $orderby = $modx->db->escape($_SESSION['tree_sortby'] . " " . $_SESSION['tree_sortdir']);
+    $orderby = db()->escape($_SESSION['tree_sortby'] . " " . $_SESSION['tree_sortdir']);
     if (empty($orderby)) {
         $orderby = 'sc.menuindex ASC';
     }
@@ -554,7 +554,7 @@ function parseNode($tpl, $param, $id) {
     $modx->event->vars = array();
     $modx->event->vars = &$param;
     $modx->event->vars['tpl'] = &$tpl;
-    $evtOut = $modx->invokeEvent('OnManagerNodePrerender', $param);
+    $evtOut = evo()->invokeEvent('OnManagerNodePrerender', $param);
     if (is_array($evtOut)) {
         $evtOut = implode("\n", $evtOut);
     } else {
@@ -565,7 +565,7 @@ function parseNode($tpl, $param, $id) {
     $node = "{$evtOut}{$node}";
 
     $param['node'] = $node;
-    $evtOut = $modx->invokeEvent('OnManagerNodeRender', $param);
+    $evtOut = evo()->invokeEvent('OnManagerNodeRender', $param);
     $modx->event->vars = array();
     if (is_array($evtOut)) {
         $evtOut = implode("\n", $evtOut);

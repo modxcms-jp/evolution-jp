@@ -67,7 +67,7 @@ class EXPORT_SITE {
         if ($allow_ids !== '') {
             $allow_ids = explode(',', $allow_ids);
             foreach ($allow_ids as $i => $v) {
-                $v = $modx->db->escape(trim($v));
+                $v = db()->escape(trim($v));
                 $allow_ids[$i] = "'{$v}'";
             }
             $allow_ids = join(',', $allow_ids);
@@ -76,7 +76,7 @@ class EXPORT_SITE {
         if ($ignore_ids !== '') {
             $ignore_ids = explode(',', $ignore_ids);
             foreach ($ignore_ids as $i => $v) {
-                $v = $modx->db->escape(trim($v));
+                $v = db()->escape(trim($v));
                 $ignore_ids[$i] = "'{$v}'";
             }
             $ignore_ids = join(',', $ignore_ids);
@@ -89,8 +89,8 @@ class EXPORT_SITE {
 
         $where_cacheable = $noncache == 1 ? '' : 'AND cacheable=1';
         $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$where_cacheable} {$ids}";
-        $rs = $modx->db->select('count(id) as total', '[+prefix+]site_content', $where);
-        $row = $modx->db->getRow($rs);
+        $rs = db()->select('count(id) as total', '[+prefix+]site_content', $where);
+        $row = db()->getRow($rs);
         $this->total = $row['total'];
         return $row['total'];
     }
@@ -202,7 +202,7 @@ class EXPORT_SITE {
         $fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
         $noncache = $modx->config['export_includenoncache'] == 1 ? '' : 'AND cacheable=1';
         $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
-        $rs = $modx->db->select($fields, '[+prefix+]site_content', $where);
+        $rs = db()->select($fields, '[+prefix+]site_content', $where);
 
         $ph = array();
         $ph['total'] = $this->total;
@@ -221,7 +221,7 @@ class EXPORT_SITE {
         touch($this->lock_file_path);
 
         $mask = umask();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $_ = $modx->getAliasListing($row['id'], 'path');
             $target_base_path = $_ == '' ? sprintf('%s/', $this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
             unset($_);

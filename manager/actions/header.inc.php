@@ -1,6 +1,6 @@
 <?php
 global $modx;
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
@@ -31,7 +31,7 @@ if ($modx->config('remember_last_tab') !== '2') {
 }
 
 // invoke OnManagerRegClientStartupHTMLBlock event
-$evtOut = $modx->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
+$evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo globalv('modx_lang_attribute','en'); ?>" dir="<?php echo globalv('modx_textdir', 'ltr'); ?>">

@@ -36,7 +36,7 @@ if (!extension_loaded('gd')) {
 
 if (!isset($modx->config['_hide_configcheck_validate_referer']) || $modx->config['_hide_configcheck_validate_referer'] !== '1') {
     if (isset($_SESSION['mgrPermissions']['settings']) && $_SESSION['mgrPermissions']['settings'] == '1') {
-        if ($modx->db->getValue($modx->db->select('COUNT(setting_value)', '[+prefix+]system_settings',
+        if (db()->getValue(db()->select('COUNT(setting_value)', '[+prefix+]system_settings',
             "setting_name='validate_referer' AND setting_value='0'"))) {
             $warnings[] = 'configcheck_validate_referer';
         }
@@ -55,8 +55,8 @@ if (is_file($actionphp)) {
 if (!isset($modx->config['_hide_configcheck_templateswitcher_present']) || $modx->config['_hide_configcheck_templateswitcher_present'] !== '1') {
     if (isset($_SESSION['mgrPermissions']['edit_plugin']) && $_SESSION['mgrPermissions']['edit_plugin'] == '1') {
         $where = "name IN ('TemplateSwitcher','Template Switcher','templateswitcher','template_switcher','template switcher') OR plugincode LIKE '%TemplateSwitcher%'";
-        $rs = $modx->db->select('name, disabled', $modx->getFullTableName('site_plugins'), $where);
-        $row = $modx->db->getRow($rs);
+        $rs = db()->select('name, disabled', evo()->getFullTableName('site_plugins'), $where);
+        $row = db()->getRow($rs);
         if ($row && $row['disabled'] == 0) {
             $warnings[] = 'configcheck_templateswitcher_present';
             $tplName = $row['name'];
@@ -242,7 +242,7 @@ function get_sc_value($field, $id) {
         return true;
     }
     $where = "id='{$id}'";
-    return $modx->db->getValue($modx->db->select($field, '[+prefix+]site_content', $where));
+    return db()->getValue(db()->select($field, '[+prefix+]site_content', $where));
 }
 
 function checkAjaxSearch() {

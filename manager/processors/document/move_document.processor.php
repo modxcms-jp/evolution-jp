@@ -1,12 +1,12 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('move_document')) {
+if (!evo()->hasPermission('move_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (!$modx->hasPermission('edit_document')) {
+if (!evo()->hasPermission('edit_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -176,7 +176,7 @@ function allChildren($docid) {
         exit("An error occured while attempting to find all of the resource's children.");
     }
 
-    if ($numChildren = db()->getRecordCount($rs)) {
+    if ($numChildren = db()->count($rs)) {
         while ($child = db()->getRow($rs)) {
             $children[] = $child['id'];
             $nextgen = allChildren($child['id']);
@@ -194,7 +194,7 @@ function update_parentid($doc_id, $new_parent, $user_id, $menuindex) {
         $alias = db()->getValue($rs);
         $rs = db()->select('id', '[+prefix+]site_content',
             "parent='{$new_parent}' AND (alias='{$alias}' OR (alias='' AND id='{$alias}'))");
-        $find = db()->getRecordcount($rs);
+        $find = db()->count($rs);
         if (0 < $find) {
             $target_id = db()->getValue($rs);
             $url = "javascript:parent.tree.ca='open';window.location.href='index.php?a=27&id={$doc_id}';";

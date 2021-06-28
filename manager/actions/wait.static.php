@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 $ph['_lang_cleaningup'] = $_lang['cleaningup'];

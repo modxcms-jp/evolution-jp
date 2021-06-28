@@ -25,7 +25,7 @@ if (isset($_SESSION['mainframe'])) {
 }
 
 $tmp = array('action' => $action);
-$modx->invokeEvent('OnManagerPreFrameLoader', $tmp);
+evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 ?>
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
     <html <?php echo ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"'; ?>>
@@ -62,4 +62,4 @@ $modx->invokeEvent('OnManagerPreFrameLoader', $tmp);
     </html>
 <?php
 $tmp = array('action' => $action);
-$modx->invokeEvent('OnManagerFrameLoader', $tmp);
+evo()->invokeEvent('OnManagerFrameLoader', $tmp);

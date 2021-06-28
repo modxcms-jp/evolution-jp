@@ -1,17 +1,17 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('web_access_permissions') || $modx->config['use_udperms'] == 0) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('web_access_permissions') || $modx->config['use_udperms'] == 0) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
-$tbl_documentgroup_names = $modx->getFullTableName('documentgroup_names');
-$tbl_webgroup_names = $modx->getFullTableName('webgroup_names');
+$tbl_documentgroup_names = evo()->getFullTableName('documentgroup_names');
+$tbl_webgroup_names = evo()->getFullTableName('webgroup_names');
 // find all document groups, for the select :)
 $rs = db()->select('id,name', $tbl_documentgroup_names, '', 'name');
-if (db()->getRecordCount($rs) < 1) {
+if (db()->count($rs) < 1) {
     $docgroupselector = "[no groups to add]";
 } else {
     $docgroupselector = '<select name="docgroup">' . "\n";
@@ -22,7 +22,7 @@ if (db()->getRecordCount($rs) < 1) {
 }
 
 $rs = db()->select('id,name', $tbl_webgroup_names, '', 'name');
-if (db()->getRecordCount($rs) < 1) {
+if (db()->count($rs) < 1) {
     $usrgroupselector = '[no user groups]';
 } else {
     $usrgroupselector = '<select name="usergroup">' . "\n";
@@ -75,14 +75,14 @@ if (db()->getRecordCount($rs) < 1) {
             </table>
             <br/>
             <?php
-            $tbl_web_groups = $modx->getFullTableName('web_groups');
-            $tbl_web_users = $modx->getFullTableName('web_users');
+            $tbl_web_groups = evo()->getFullTableName('web_groups');
+            $tbl_web_users = evo()->getFullTableName('web_users');
             $field = 'groupnames.*, users.id AS user_id, `users`.username user_name';
             $from = "{$tbl_webgroup_names} AS groupnames";
             $from .= " LEFT JOIN {$tbl_web_groups} AS `groups` ON `groups`.webgroup = groupnames.id";
             $from .= " LEFT JOIN {$tbl_web_users}  AS `users` ON `users`.id = `groups`.webuser";
             $rs = db()->select($field, $from, '', 'groupnames.name');
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
             } else {
                 echo "<ul>\n";
@@ -138,8 +138,8 @@ if (db()->getRecordCount($rs) < 1) {
                 'sc.id AS doc_id, ' .
                 'sc.pagetitle AS doc_title ' .
                 'FROM ' . $tbl_documentgroup_names . ' AS dgnames ' .
-                'LEFT JOIN ' . $modx->getFullTableName('document_groups') . ' AS dg ON dg.document_group = dgnames.id ' .
-                'LEFT JOIN ' . $modx->getFullTableName('site_content') . ' AS sc ON sc.id = dg.document ' .
+                'LEFT JOIN ' . evo()->getFullTableName('document_groups') . ' AS dg ON dg.document_group = dgnames.id ' .
+                'LEFT JOIN ' . evo()->getFullTableName('site_content') . ' AS sc ON sc.id = dg.document ' .
                 'ORDER BY dgnames.name, sc.id';
             ?>
             <table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
@@ -163,7 +163,7 @@ if (db()->getRecordCount($rs) < 1) {
             <br/>
             <?php
             $rs = db()->query($sql);
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
             } else {
                 echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">' . "\n" .
@@ -218,11 +218,11 @@ if (db()->getRecordCount($rs) < 1) {
                 "dgnames.id AS dg_id, " .
                 "dgnames.name AS dg_name " .
                 "FROM " . $tbl_webgroup_names . " AS groupnames " .
-                "LEFT JOIN " . $modx->getFullTableName('webgroup_access') . " AS groupacc ON groupacc.webgroup = groupnames.id " .
+                "LEFT JOIN " . evo()->getFullTableName('webgroup_access') . " AS groupacc ON groupacc.webgroup = groupnames.id " .
                 "LEFT JOIN " . $tbl_documentgroup_names . " AS dgnames ON dgnames.id = groupacc.documentgroup " .
                 "ORDER BY name";
             $rs = db()->query($sql);
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span><br />';
             } else {
                 ?>

@@ -365,7 +365,7 @@ class DataGrid {
         }
 
         // build rows
-        $rowcount = $this->_isDataset ? $modx->db->getRecordCount($this->ds) : count($this->ds);
+        $rowcount = $this->_isDataset ? db()->count($this->ds) : count($this->ds);
 
 
         if ($rowcount == 0) {
@@ -381,7 +381,7 @@ class DataGrid {
             if ($this->pageSize <= 0) {
                 for ($r = 0; $r < $rowcount; $r++) {
                     if ($this->_isDataset) {
-                        $row = $modx->db->getRow($this->ds);
+                        $row = db()->getRow($this->ds);
                     } else {
                         $row = $this->ds[$r];
                     }

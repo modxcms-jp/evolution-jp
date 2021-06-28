@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('edit_user')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_user')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 global $_PAGE, $_style;
@@ -28,9 +28,9 @@ $_PAGE['vs']['lm'] = $listmode;
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 150);
 $cm->addItem($_lang['edit'], 'js:menuAction(1)', $_style['icons_edit_document'],
-    (!$modx->hasPermission('edit_user') ? 1 : 0));
+    (!evo()->hasPermission('edit_user') ? 1 : 0));
 $cm->addItem($_lang['delete'], 'js:menuAction(2)', $_style['icons_delete'],
-    (!$modx->hasPermission('delete_user') ? 1 : 0));
+    (!evo()->hasPermission('delete_user') ? 1 : 0));
 echo $cm->render();
 ?>
 <script language="JavaScript" type="text/javascript">
@@ -103,7 +103,7 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <?php if ($modx->hasPermission('new_user')): ?>
+                    <?php if (evo()->hasPermission('new_user')): ?>
                         <td><a href="index.php?a=11" class="default"><img
                                         src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_user']; ?></a>
                         </td>
@@ -132,9 +132,9 @@ echo $cm->render();
         </div>
         <div>
             <?php
-            $tbl_manager_users = $modx->getFullTableName('manager_users');
-            $tbl_user_attributes = $modx->getFullTableName('user_attributes');
-            $tbl_user_roles = $modx->getFullTableName('user_roles');
+            $tbl_manager_users = evo()->getFullTableName('manager_users');
+            $tbl_user_attributes = evo()->getFullTableName('user_attributes');
+            $tbl_user_roles = evo()->getFullTableName('user_roles');
             $field = 'mu.id,mu.username,roles.name AS rolename,mua.fullname,mua.email,mua.thislogin,mua.logincount';
             $field .= ",IF(mua.gender=1,'{$_lang['user_male']}',IF(mua.gender=2,'{$_lang['user_female']}','-')) AS gender";
             $field .= ",IF(mua.blocked,'{$_lang['yes']}','-') as blocked";

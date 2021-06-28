@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $id = intval($_REQUEST['id']);
@@ -21,10 +21,10 @@ if (!$modx->checkPermissions($id)) {
     exit;
 }
 $doc = $modx->db->getObject('site_content', "id='{$id}'");
-if (!$modx->hasPermission('view_unpublished')) {
-    if ($modx->getLoginUserID() != $doc->publishedby) {
-        $e->setError(3);
-        $e->dumpError();
+if (!evo()->hasPermission('view_unpublished')) {
+    if (evo()->getLoginUserID() != $doc->publishedby) {
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
@@ -37,10 +37,10 @@ if ($now < $doc->pub_date) {
 if ($doc->unpub_date < $now) {
     $field['unpub_date'] = 0;
 }
-$field['publishedby'] = $modx->getLoginUserID();
+$field['publishedby'] = evo()->getLoginUserID();
 $field['publishedon'] = $now;
 $field['editedon'] = $now;
-$rs = $modx->db->update($field, '[+prefix+]site_content', "id='{$id}'");
+$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
 if (!$rs) {
     exit("An error occured while attempting to publish the document.");
 }
@@ -49,9 +49,9 @@ $modx->clearCache();
 
 // invoke OnDocPublished  event
 $tmp = array('docid' => $id, 'type' => 'manual');
-$modx->invokeEvent('OnDocPublished', $tmp);
+evo()->invokeEvent('OnDocPublished', $tmp);
 
-$pid = $modx->db->getValue($modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'"));
+$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";

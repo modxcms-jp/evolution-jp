@@ -975,7 +975,7 @@ class DBAPI {
             if (empty($sql_entry)) {
                 continue;
             }
-            $rs = $modx->db->query($sql_entry, $watchError);
+            $rs = db()->query($sql_entry, $watchError);
         }
     }
 

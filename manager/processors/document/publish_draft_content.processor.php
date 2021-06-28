@@ -1,12 +1,12 @@
 <?php
 // 129
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 if (!evo()->hasPermission('save_document')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
@@ -14,11 +14,11 @@ if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
 } elseif (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $docid = getv('id');
 } else {
-    $e->setError(2);
-    $e->dumpError();
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
-$modx->loadExtension('REVISION');
+evo()->loadExtension('REVISION');
 
 if (postv('publishoption') === 'reserve' && postv('pub_date')) {
     $pub_date = evo()->toTimeStamp(postv('pub_date'));

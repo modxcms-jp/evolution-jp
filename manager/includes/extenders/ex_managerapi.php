@@ -101,10 +101,10 @@ class ManagerAPI {
             , '[+prefix+]site_content'
             , sprintf("id<>'%s' AND alias='%s'", $id, $alias)
         );
-        if (db()->getRecordCount($rs)) {
+        if (db()->count($rs)) {
             $c = 2;
             $_ = $alias;
-            while (0 < db()->getRecordCount(
+            while (0 < db()->count(
                     db()->select('id',
                         '[+prefix+]site_content',
                         sprintf("id!='%s' AND alias='%s'", $id, $_)
@@ -145,7 +145,7 @@ class ManagerAPI {
                     , (int)$parent
                 )
             );
-            if (db()->getRecordCount($rs) == 0) {
+            if (db()->count($rs) == 0) {
                 $noduplex = true;
             } else {
                 $_++;
@@ -605,7 +605,7 @@ class ManagerAPI {
             , sprintf("ug.member='%s'", $uid)
         );
 
-        if (!db()->getRecordCount($rs)) {
+        if (!db()->count($rs)) {
             return array();
         }
 
@@ -630,7 +630,7 @@ class ManagerAPI {
             , preg_match('@^[1-9][0-9]*$@', $uid) ? sprintf("ug.member='%d'", $uid) : ''
         );
 
-        if (!db()->getRecordCount($rs)) {
+        if (!db()->count($rs)) {
             return array();
         }
 

@@ -1,30 +1,30 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('messages')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('messages')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $id = $_REQUEST['id'];
 
 // check the user is allowed to delete this message
-$tbl_user_messages = $modx->getFullTableName('user_messages');
-$rs = $modx->db->select('recipient', $tbl_user_messages, "id={$id}");
-if ($modx->db->getRecordCount($rs) != 1) {
+$tbl_user_messages = evo()->getFullTableName('user_messages');
+$rs = db()->select('recipient', $tbl_user_messages, "id={$id}");
+if (db()->count($rs) != 1) {
     echo 'Wrong number of messages returned!';
     exit;
 }
 
-$row = $modx->db->getRow($rs);
-if ($row['recipient'] != $modx->getLoginUserID()) {
+$row = db()->getRow($rs);
+if ($row['recipient'] != evo()->getLoginUserID()) {
     echo 'You are not allowed to delete this message!';
     exit;
 }
 
 // delete message
-$rs = $modx->db->delete($tbl_user_messages, "id={$id}");
+$rs = db()->delete($tbl_user_messages, "id={$id}");
 if (!$rs) {
     echo 'Something went wrong while trying to delete the message!';
     exit;

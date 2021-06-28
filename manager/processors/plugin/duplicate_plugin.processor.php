@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('new_plugin')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('new_plugin')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $id = $_GET['id'];
 if (!preg_match('/^[0-9]+\z/', $id)) {
@@ -14,30 +14,30 @@ if (!preg_match('/^[0-9]+\z/', $id)) {
 }
 
 // duplicate Plugin
-$tbl_site_plugins = $modx->getFullTableName('site_plugins');
+$tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tpl = $_lang['duplicate_title_string'];
 $sql = "INSERT INTO {$tbl_site_plugins} (name, description, disabled, moduleguid, plugincode, properties, category) 
 		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, moduleguid, plugincode, properties, category 
 		FROM {$tbl_site_plugins} WHERE id={$id}";
-$rs = $modx->db->query($sql);
+$rs = db()->query($sql);
 
 if ($rs) {
     $newid = $modx->db->getInsertId();
 } // get new id
 else {
-    echo "A database error occured while trying to duplicate plugin: <br /><br />" . $modx->db->getLastError();
+    echo "A database error occured while trying to duplicate plugin: <br /><br />" . db()->getLastError();
     exit;
 }
 
 // duplicate Plugin Event Listeners
-$tbl_site_plugin_events = $modx->getFullTableName('site_plugin_events');
+$tbl_site_plugin_events = evo()->getFullTableName('site_plugin_events');
 $sql = "INSERT INTO {$tbl_site_plugin_events} (pluginid,evtid,priority)
 		SELECT $newid, evtid, priority
 		FROM {$tbl_site_plugin_events} WHERE pluginid={$id}";
-$rs = $modx->db->query($sql);
+$rs = db()->query($sql);
 
 if (!$rs) {
-    echo "A database error occured while trying to duplicate plugin events: <br /><br />" . $modx->db->getLastError();
+    echo "A database error occured while trying to duplicate plugin events: <br /><br />" . db()->getLastError();
     exit;
 }
 

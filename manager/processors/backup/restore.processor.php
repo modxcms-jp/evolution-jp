@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('bk_manager')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('bk_manager')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // Backup Manager by Raymond:

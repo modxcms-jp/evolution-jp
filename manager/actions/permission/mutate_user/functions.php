@@ -36,7 +36,7 @@ function getUser($userid) {
         , sprintf("mu.id='%s'", db()->escape($userid))
     );
 
-    if (!db()->getRecordCount($rs)) {
+    if (!db()->count($rs)) {
         return false;
     }
 
@@ -79,7 +79,7 @@ function activeUserCheck($userid) {
         , '[+prefix+]active_users'
         , sprintf("action='12' AND id='%s'", $userid)
     );
-    if (db()->getRecordCount($rs) > 1) {
+    if (db()->count($rs) > 1) {
         while ($lock = db()->getRow($rs)) {
             if ($lock['internalKey'] == evo()->getLoginUserID()) {
                 continue;

@@ -9,10 +9,8 @@ $self = 'assets/modules/docmanager/tv.ajax.php';
 $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 include_once($base_path.'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
-include_once("{$base_path}assets/modules/docmanager/classes/docmanager.class.php");
+include_once($base_path . "assets/modules/docmanager/classes/docmanager.class.php");
 $modx->getSettings();
-$tbl_site_tmplvar_templates = $modx->getFullTableName('site_tmplvar_templates');
-$tbl_site_tmplvars          = $modx->getFullTableName('site_tmplvars');
 
 $dm = new DocManager($modx);
 $dm->getLang();
@@ -25,9 +23,15 @@ if(!isset($_POST['tplID']) || !is_numeric($_POST['tplID'])) {
 }
 
 $tplID = $_POST['tplID'];
-$from = "{$tbl_site_tmplvars} tv LEFT JOIN {$tbl_site_tmplvar_templates} ON tv.id = {$tbl_site_tmplvar_templates}.tmplvarid";
-$rs = $modx->db->select('*', $from, "{$tbl_site_tmplvar_templates}.templateid ='{$tplID}'");
-$total = $modx->db->getRecordCount($rs);
+$rs = db()->select(
+    '*',
+    array(
+        "[+prefix+]site_tmplvars tv ",
+        "LEFT JOIN [+prefix+]site_tmplvar_templates tvtpl ON tv.id = tvtpl.tmplvarid"
+    ),
+    "tvtpl.templateid ='" . $tplID . "'"
+);
+$total = db()->count($rs);
 
 header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
 
@@ -38,17 +42,26 @@ if ($total > 0)
 	
 	for ($i=0; $i<$total; $i++)
 	{
-$row = $modx->db->getRow($rs);
+        $row = db()->getRow($rs);
 		
-		if($i>0 && $i<$total) $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
+		if($i>0 && $i<$total) {
+            $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
+        }
 		
 		$output.='<tr style="height: 24px;">
 			<td align="left" valign="top" width="200">
-				<span class=\'warning\'><input type=\'checkbox\' name=\'update_tv_' . $row['id'] . '\' id=\'cb_update_tv_' . $row['id'] . '\' value=\'yes\' />&nbsp;'.$row['caption'].'</span><br /><span class=\'comment\'>'.$row['description'].'</span>
+				<span class="warning"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;'.$row['caption'].'</span><br /><span class="comment">'.$row['description'].'</span>
 			</td>
 			<td valign="top" style="position:relative">';
 		$base_url = $modx->config['base_url'];
-		$output.= renderFormElement($row['type'], $row['id'], $row['default_text'], $row['elements'], $row['value'], ' style="width:300px;"');
+		$output.= renderFormElement(
+		    $row['type'],
+            $row['id'],
+            $row['default_text'],
+            $row['elements'],
+            $row['value'],
+            ' style="width:300px;"'
+        );
 		$output.= '</td></tr>';
 	}
 	$output.='</table>';

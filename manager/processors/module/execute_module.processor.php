@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('exec_module')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('exec_module')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_REQUEST['id'])) {
@@ -13,9 +13,9 @@ if (isset($_REQUEST['id'])) {
     $id = 0;
 }
 
-$tbl_site_module_access = $modx->getFullTableName('site_module_access');
-$tbl_member_groups = $modx->getFullTableName('member_groups');
-$tbl_site_modules = $modx->getFullTableName('site_modules');
+$tbl_site_module_access = evo()->getFullTableName('site_module_access');
+$tbl_member_groups = evo()->getFullTableName('member_groups');
+$tbl_site_modules = evo()->getFullTableName('site_modules');
 
 // make sure the id's a number
 if (!is_numeric($id)) {
@@ -25,19 +25,21 @@ if (!is_numeric($id)) {
 
 // check if user has access permission, except admins
 if ($_SESSION['mgrRole'] != 1) {
-    $userid = $modx->getLoginUserID();
-    $sql = "SELECT sma.usergroup,mg.member " .
-        "FROM {$tbl_site_module_access} sma " .
-        "LEFT JOIN {$tbl_member_groups} mg ON mg.user_group = sma.usergroup AND member='{$userid}'" .
-        "WHERE sma.module = '$id'";
-    $rs = $modx->db->query($sql);
+    $userid = evo()->getLoginUserID();
+    $sql = sprintf("SELECT sma.usergroup,mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND member='%s'WHERE sma.module = '%s'",
+        $tbl_site_module_access,
+        $tbl_member_groups,
+        $userid,
+        $id
+    );
+    db()->query($sql);
 
     //initialize permission to -1, if it stays -1 no permissions
     //attached so permission granted
     $permissionAccessInt = -1;
 
-    while ($row = $modx->db->getRow($rs)) {
-        if ($row["usergroup"] && $row["member"]) {
+    while ($row = db()->getRow()) {
+        if ($row['usergroup'] && $row["member"]) {
             //if there are permissions and this member has permission, ofcourse
             //this is granted
             $permissionAccessInt = 1;
@@ -58,9 +60,8 @@ if ($_SESSION['mgrRole'] != 1) {
     }
 }
 
-// get module data
-$rs = $modx->db->select('*', $tbl_site_modules, "id='{$id}'");
-$limit = $modx->db->getRecordCount($rs);
+$rs = db()->select('*', $tbl_site_modules, "id='" . $id . "'");
+$limit = db()->count($rs);
 if ($limit > 1) {
     echo "<script type='text/javascript'>" .
         "function jsalert(){ alert('Multiple modules sharing same unique id $id. Please contact the Site Administrator');" .
@@ -77,7 +78,7 @@ if ($limit < 1) {
         "</script>";
     exit;
 }
-$content = $modx->db->getRow($rs);
+$content = db()->getRow($rs);
 $modx->moduleObject = $content;
 if ($content['disabled']) {
     echo "<script type='text/javascript'>" .
@@ -95,11 +96,11 @@ if (!empty($content["properties"])) {
     for ($x = 0, $xMax = count($tmpParams); $x < $xMax; $x++) {
         $pTmp = explode("=", $tmpParams[$x]);
         $pvTmp = explode(";", trim($pTmp[1]));
-        if ($pvTmp[1] == 'list' && $pvTmp[3] != "") {
+        if ($pvTmp[1] === 'list' && $pvTmp[3] != "") {
             $parameter[$pTmp[0]] = $pvTmp[3];
         } //list default
         else {
-            if ($pvTmp[1] != 'list' && $pvTmp[2] != "") {
+            if ($pvTmp[1] !== 'list' && $pvTmp[2] != "") {
                 $parameter[$pTmp[0]] = $pvTmp[2];
             }
         }
@@ -129,8 +130,7 @@ function evalModule($moduleCode, $params) {
         $moduleCode = substr($moduleCode, 0, -2);
     }
     $mod = eval($moduleCode);
-    $msg = ob_get_contents();
-    ob_end_clean();
+    $msg = ob_get_clean();
     if (error_get_last()) {
         $error_info = error_get_last();
         switch ($error_info['type']) {

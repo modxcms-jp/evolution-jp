@@ -219,12 +219,12 @@ class TopicPath
 	private function getDisableDocs()
 	{
 		global $modx;
-		$tbl_site_content = $modx->getFullTableName('site_content');
+		$tbl_site_content = evo()->getFullTableName('site_content');
 		
 		if(empty($this->disabledUnder)) return $this->disabledOn;
 		
-		$rs = $modx->db->select('id', $tbl_site_content, "parent IN ({$this->disabledUnder})");
-		while ($id = $modx->db->getValue($rs))
+		$rs = db()->select('id', $tbl_site_content, "parent IN ({$this->disabledUnder})");
+		while ($id = db()->getValue($rs))
 		{
 			$hidden[] = $id;
 		}

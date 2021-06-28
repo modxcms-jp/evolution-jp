@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('view_schedule')) {
+if (!evo()->hasPermission('view_schedule')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -37,7 +37,7 @@ if (!$modx->hasPermission('view_schedule')) {
             , 'pub_date > ' . request_time()
             , 'pub_date ASC'
         );
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total < 1) {
             echo "<p>" . lang("no_docs_pending_publishing") . "</p>";
         } else {
@@ -88,7 +88,7 @@ if (!$modx->hasPermission('view_schedule')) {
                 , 'unpub_date > ' . request_time()
                 , 'unpub_date ASC'
         );
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total < 1) {
             echo "<p>" . lang("no_docs_pending_unpublishing") . "</p>";
         } else {
@@ -136,7 +136,7 @@ if (!$modx->hasPermission('view_schedule')) {
                 , "0<rv.pub_date AND rv.status='standby' "
                 , 'rv.pub_date ASC'
         );
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total < 1) {
             echo "<p>更新を予定している下書きリソースはありません。</p>";
         } else {

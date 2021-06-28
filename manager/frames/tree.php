@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-$esc_request = $modx->db->escape($_REQUEST);
+$esc_request = db()->escape($_REQUEST);
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?php echo ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"'; ?>>
@@ -139,8 +139,8 @@ $esc_request = $modx->db->escape($_REQUEST);
         function showPopup(id, title, pub, del, draft, e) {
             var x, y
             var mnu = document.getElementById('mx_contextmenu');
-            var permpub = <?php echo $modx->hasPermission('publish_document') ? 1 : 0; ?>;
-            var permdel = <?php echo $modx->hasPermission('delete_document') ? 1 : 0; ?>;
+            var permpub = <?php echo evo()->hasPermission('publish_document') ? 1 : 0; ?>;
+            var permdel = <?php echo evo()->hasPermission('delete_document') ? 1 : 0; ?>;
             if (draft == 1) {
                 jQuery('#itemcreateDraft').hide();
                 jQuery('#itemeditDraft').show();
@@ -469,7 +469,7 @@ $esc_request = $modx->db->escape($_REQUEST);
 <body onclick="hideMenu();" class="<?php echo $modx_textdir === 'rtl' ? ' rtl' : '' ?>">
 <?php
 // invoke OnTreePrerender event
-$evtOut = $modx->invokeEvent('OnManagerTreeInit', $esc_request);
+$evtOut = evo()->invokeEvent('OnManagerTreeInit', $esc_request);
 if (is_array($evtOut)) {
     echo implode("\n", $evtOut);
 }
@@ -488,7 +488,7 @@ if (is_array($evtOut)) {
                         <td><a href="#" class="treeButton" id="Button2" onclick="collapseTree();"
                                title="<?php echo $_lang['collapse_tree']; ?>"><?php echo $_style['collapse_tree']; ?></a>
                         </td>
-                        <?php if ($modx->hasPermission('new_document') && isAllowroot()) { ?>
+                        <?php if (evo()->hasPermission('new_document') && isAllowroot()) { ?>
                             <td><a href="#" class="treeButton" id="Button3a"
                                    onclick="top.main.document.location.href='index.php?a=4';"
                                    title="<?php echo $_lang['add_resource']; ?>"><?php echo $_style['add_doc_tree']; ?></a>
@@ -503,7 +503,7 @@ if (is_array($evtOut)) {
                         </td>
                         <td><a href="#" class="treeButton" id="Button5" onclick="showSorter();"
                                title="<?php echo $_lang['sort_tree']; ?>"><?php echo $_style['sort_tree']; ?></a></td>
-                        <?php if ($modx->hasPermission('empty_trash')) { ?>
+                        <?php if (evo()->hasPermission('empty_trash')) { ?>
                             <td><a href="#" id="Button10" class="treeButtonDisabled"
                                    title="<?php echo $_lang['empty_recycle_bin_empty']; ?>"><?php echo $_style['empty_recycle_bin_empty']; ?></a>
                             </td>
@@ -571,7 +571,7 @@ if (is_array($evtOut)) {
     <div id="treeHolder">
         <?php
         // invoke OnTreeRender event
-        $evtOut = $modx->invokeEvent('OnManagerTreePrerender', $esc_request);
+        $evtOut = evo()->invokeEvent('OnManagerTreePrerender', $esc_request);
         if (is_array($evtOut)) {
             echo implode("\n", $evtOut);
         }
@@ -582,7 +582,7 @@ if (is_array($evtOut)) {
         </div>
         <?php
         // invoke OnTreeRender event
-        $evtOut = $modx->invokeEvent('OnManagerTreeRender', $esc_request);
+        $evtOut = evo()->invokeEvent('OnManagerTreeRender', $esc_request);
         if (is_array($evtOut)) {
             echo implode("\n", $evtOut);
         }
@@ -761,7 +761,7 @@ EOT;
 function itemEditDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('edit_document')) {
+    if (!evo()->hasPermission('edit_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -802,7 +802,7 @@ function itemEditDraft() {
 function itemDocList() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('view_document')) {
+    if (!evo()->hasPermission('view_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -815,7 +815,7 @@ function itemDocList() {
 function itemNewDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('new_document')) {
+    if (!evo()->hasPermission('new_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -828,10 +828,10 @@ function itemNewDoc() {
 function itemMoveDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('move_document')) {
+    if (!evo()->hasPermission('move_document')) {
         return '';
     }
-    if (!$modx->hasPermission('save_document')) {
+    if (!evo()->hasPermission('save_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -844,7 +844,7 @@ function itemMoveDoc() {
 function itemDuplicateDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('new_document') || !$modx->hasPermission('save_document')) {
+    if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -857,7 +857,7 @@ function itemDuplicateDoc() {
 function itemSeperator1() {
     global $modx;
 
-    if ($modx->hasPermission('edit_document') || $modx->hasPermission('new_document') || $modx->hasPermission('save_document')) {
+    if (evo()->hasPermission('edit_document') || evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
         return '<div class="seperator"></div>';
     } else {
         return '';
@@ -867,7 +867,7 @@ function itemSeperator1() {
 function itemPubDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('publish_document')) {
+    if (!evo()->hasPermission('publish_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -880,7 +880,7 @@ function itemPubDoc() {
 function itemUnPubDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('publish_document')) {
+    if (!evo()->hasPermission('publish_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -893,7 +893,7 @@ function itemUnPubDoc() {
 function itemDelDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('delete_document')) {
+    if (!evo()->hasPermission('delete_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -906,7 +906,7 @@ function itemDelDoc() {
 function itemUndelDoc() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('delete_document')) {
+    if (!evo()->hasPermission('delete_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -919,7 +919,7 @@ function itemUndelDoc() {
 function itemDelDocComplete() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('empty_trash')) {
+    if (!evo()->hasPermission('empty_trash')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -932,7 +932,7 @@ function itemDelDocComplete() {
 function itemSeperator2() {
     global $modx;
 
-    if ($modx->hasPermission('publish_document') || $modx->hasPermission('delete_document')) {
+    if (evo()->hasPermission('publish_document') || evo()->hasPermission('delete_document')) {
         return '<div class="seperator"></div>';
     } else {
         return '';
@@ -942,7 +942,7 @@ function itemSeperator2() {
 function itemWebLink() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('new_document')) {
+    if (!evo()->hasPermission('new_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -955,7 +955,7 @@ function itemWebLink() {
 function itemSeperator3() {
     global $modx;
 
-    if ($modx->hasPermission('new_document')) {
+    if (evo()->hasPermission('new_document')) {
         return '<div class="seperator"></div>';
     } else {
         return '';
@@ -965,7 +965,7 @@ function itemSeperator3() {
 function itemDocInfo() {
     global $modx, $_style, $_lang;
 
-    if (!$modx->hasPermission('view_document')) {
+    if (!evo()->hasPermission('view_document')) {
         return '';
     }
     $tpl = tplMenuItem();
@@ -987,7 +987,7 @@ function itemViewPage() {
 
 function isAllowroot() {
     global $modx;
-    if ($modx->hasPermission('save_role')) {
+    if (evo()->hasPermission('save_role')) {
         return 1;
     }
     if ($modx->config['udperms_allowroot']) {

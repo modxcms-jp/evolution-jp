@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_plugin')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_plugin')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $updateMsg = '';

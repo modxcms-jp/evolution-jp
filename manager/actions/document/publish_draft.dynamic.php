@@ -1,12 +1,12 @@
 <?php
 // Action 133
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('save_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@', $_POST['id'])) {
@@ -14,8 +14,8 @@ if (isset($_POST['id']) && preg_match('@^[1-9][0-9]*$@', $_POST['id'])) {
 } elseif (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     $docid = $_GET['id'];
 } else {
-    $e->setError(2);
-    $e->dumpError();
+    alert()->setError(2);
+    alert()->dumpError();
 }
 
 include_once(MODX_MANAGER_PATH . 'actions/document/mutate_content/functions.php');

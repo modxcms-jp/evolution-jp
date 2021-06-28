@@ -1,17 +1,17 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_snippet')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_snippet')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $id = (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) ? $_POST['id'] : 0;
-$name = $modx->db->escape(trim($_POST['name']));
-$description = $modx->db->escape($_POST['description']);
+$name = db()->escape(trim($_POST['name']));
+$description = db()->escape($_POST['description']);
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
-$snippet = $modx->db->escape(trim($_POST['post']));
-$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+$snippet = db()->escape(trim($_POST['post']));
+$tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {
@@ -23,17 +23,17 @@ if (strncmp($snippet, '<?', 2) == 0) {
         $snippet = substr($snippet, 0, -2);
     }
 }
-$properties = $modx->db->escape($_POST['properties']);
-$moduleguid = $modx->db->escape($_POST['moduleguid']);
+$properties = db()->escape($_POST['properties']);
+$moduleguid = db()->escape($_POST['moduleguid']);
 $sysevents = $_POST['sysevents'];
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && 0 < $_POST['categoryid']) {
-    $categoryid = $modx->db->escape($_POST['categoryid']);
+    $categoryid = db()->escape($_POST['categoryid']);
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $categoryid = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory(db()->escape($_POST['newcategory']));
 
     if ($catCheck) {
         $categoryid = $catCheck;
@@ -51,8 +51,8 @@ $where = "name='{$name}'";
 if ($id) {
     $where .= ' AND id!=' . $id;
 }
-$rs = $modx->db->select('COUNT(id)', '[+prefix+]site_snippets', $where);
-$count = $modx->db->getValue($rs);
+$rs = db()->select('COUNT(id)', '[+prefix+]site_snippets', $where);
+$count = db()->getValue($rs);
 if ($count > 0) {
     $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name);
     $modx->manager->saveFormValues(23);
@@ -67,7 +67,7 @@ switch ($_POST['mode']) {
             'mode' => 'new',
             'id' => ''
         );
-        $modx->invokeEvent('OnBeforeSnipFormSave', $tmp);
+        evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the new doc
         $field = array();
@@ -78,7 +78,7 @@ switch ($_POST['mode']) {
         $field['locked'] = $locked;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
-        $newid = $modx->db->insert($field, $tbl_site_snippets);
+        $newid = db()->insert($field, $tbl_site_snippets);
         if (!$newid) {
             echo '$newid not set! New snippet not saved!';
             exit;
@@ -89,7 +89,7 @@ switch ($_POST['mode']) {
             'mode' => 'new',
             'id' => $newid
         );
-        $modx->invokeEvent('OnSnipFormSave', $tmp);
+        evo()->invokeEvent('OnSnipFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
@@ -108,7 +108,7 @@ switch ($_POST['mode']) {
             'mode' => 'upd',
             'id' => $id
         );
-        $modx->invokeEvent('OnBeforeSnipFormSave', $tmp);
+        evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the edited doc
         $field = array();
@@ -119,7 +119,7 @@ switch ($_POST['mode']) {
         $field['locked'] = $locked;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
-        $rs = $modx->db->update($field, $tbl_site_snippets, "id='{$id}'");
+        $rs = db()->update($field, $tbl_site_snippets, "id='{$id}'");
         if (!$rs) {
             echo '$rs not set! Edited snippet not saved!';
             exit;
@@ -130,7 +130,7 @@ switch ($_POST['mode']) {
             'mode' => 'upd',
             'id' => $id
         );
-        $modx->invokeEvent('OnSnipFormSave', $tmp);
+        evo()->invokeEvent('OnSnipFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache
         //if($_POST['runsnippet']) run_snippet($snippet);

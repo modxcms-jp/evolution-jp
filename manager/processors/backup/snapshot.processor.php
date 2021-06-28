@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedIn()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('bk_manager')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('bk_manager')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $snapshot_path = snapshot_path();
@@ -36,8 +36,8 @@ if ($output) {
     exit;
 }
 
-$e->setError(1, 'Unable to Backup Database');
-$e->dumpError();
+alert()->setError(1, 'Unable to Backup Database');
+alert()->dumpError();
 
 function snapshot_path() {
     if (strpos(config('snapshot_path', ''), MODX_BASE_PATH) !== 0) {

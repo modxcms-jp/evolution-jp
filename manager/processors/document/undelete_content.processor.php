@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $id = (int)$_REQUEST['id'];
@@ -15,11 +15,11 @@ if (!$modx->checkPermissions($id)) {
 }
 
 // get the timestamp on which the document was deleted.
-$rs = $modx->db->select('deletedon', '[+prefix+]site_content', "id='{$id}' AND deleted=1");
-if ($modx->db->getRecordCount($rs) != 1) {
+$rs = db()->select('deletedon', '[+prefix+]site_content', "id='{$id}' AND deleted=1");
+if (db()->count($rs) != 1) {
     exit("Couldn't find document to determine it's date of deletion!");
 } else {
-    $deltime = $modx->db->getValue($rs);
+    $deltime = db()->getValue($rs);
 }
 
 $children = array();
@@ -29,7 +29,7 @@ getChildren($id);
 $params['id'] = $id;
 $params['children'] = $children;
 $params['enableProcess'] = true;
-$modx->invokeEvent("OnBeforeDocFormUnDelete", $params);
+evo()->invokeEvent("OnBeforeDocFormUnDelete", $params);
 if ($params['enableProcess'] == false) {
     $modx->webAlertAndQuit("The undeletion process was interrupted by plugin.");
 }
@@ -41,25 +41,25 @@ $field['deletedon'] = '0';
 
 if (0 < count($children)) {
     $docs_to_undelete = implode(' ,', $children);
-    $rs = $modx->db->update($field, '[+prefix+]site_content', "id IN({$docs_to_undelete})");
+    $rs = db()->update($field, '[+prefix+]site_content', "id IN({$docs_to_undelete})");
     if (!$rs) {
         exit("Something went wrong while trying to set the document's children to undeleted status...");
     }
 }
 //'undelete' the document.
-$rs = $modx->db->update($field, '[+prefix+]site_content', "id='{$id}'");
+$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
 if (!$rs) {
     exit("Something went wrong while trying to set the document to undeleted status...");
 } else {
     // invoke OnDocFormUnDelete event
     $params['id'] = $id;
     $params['children'] = $children;
-    $modx->invokeEvent("OnDocFormUnDelete", $params);
+    evo()->invokeEvent("OnDocFormUnDelete", $params);
 
     // empty cache
     $modx->clearCache();
     // finished emptying cache - redirect
-    $pid = $modx->db->getValue($modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'"));
+    $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
     $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
     if ($pid !== '0') {
         $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
@@ -74,11 +74,11 @@ function getChildren($parent) {
     global $children;
     global $deltime, $modx;
 
-    $rs = $modx->db->select('id', '[+prefix+]site_content',
+    $rs = db()->select('id', '[+prefix+]site_content',
         "parent={$parent} AND deleted=1 AND deletedon='{$deltime}'");
-    if ($modx->db->getRecordCount($rs) > 0) {
+    if (db()->count($rs) > 0) {
         // the document has children documents, we'll need to delete those too
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $children[] = $row['id'];
             getChildren($row['id']);
         }

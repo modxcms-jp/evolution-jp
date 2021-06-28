@@ -31,11 +31,11 @@ class SubParser {
         }
 
         if (isset($p['to']) && preg_match('@^[1-9][0-9]*$@', $p['to'])) {
-            $userinfo = $modx->getUserInfo($p['to']);
+            $userinfo = evo()->getUserInfo($p['to']);
             $p['to'] = $userinfo['email'];
         }
         if (isset($p['from']) && preg_match('@^[0-9]+$@', $p['from'])) {
-            $userinfo = $modx->getUserInfo($p['from']);
+            $userinfo = evo()->getUserInfo($p['from']);
             $p['from'] = $userinfo['email'];
             $p['fromname'] = $userinfo['username'];
         }
@@ -45,7 +45,7 @@ class SubParser {
             $p['body'] = $msg;
         }
 
-        $modx->loadExtension('MODxMailer');
+        evo()->loadExtension('MODxMailer');
         $sendto = !isset($p['to']) ? $modx->config['emailsender'] : $p['to'];
         $sendto = explode(',', $sendto);
         foreach ($sendto as $address) {
@@ -150,7 +150,7 @@ class SubParser {
         } else {
             $title = substr($title, 0, 100);
         }
-        $LoginUserID = $modx->getLoginUserID();
+        $LoginUserID = evo()->getLoginUserID();
         if (!$LoginUserID) {
             $LoginUserID = '0';
         }
@@ -501,7 +501,7 @@ class SubParser {
         }
 
         // Display error
-        if ($modx->isLoggedin()) {
+        if (evo()->isLoggedin()) {
             if ($modx->event->name !== 'OnWebPageComplete') {
                 echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
@@ -753,7 +753,7 @@ class SubParser {
     function sendErrorPage() {
         global $modx;
         // invoke OnPageNotFound event
-        $modx->invokeEvent('OnPageNotFound');
+        evo()->invokeEvent('OnPageNotFound');
 
         if ($modx->config['error_page']) {
             $dist = $modx->config['error_page'];
@@ -768,7 +768,7 @@ class SubParser {
         global $modx;
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $modx->documentIdentifier;
-        $modx->invokeEvent('OnPageUnauthorized');
+        evo()->invokeEvent('OnPageUnauthorized');
 
         if ($modx->config['unauthorized_page']) {
             $dist = $modx->config['unauthorized_page'];
@@ -807,7 +807,7 @@ class SubParser {
         } else { // not in cache so let's check the db
             $esc_name = db()->escape($snippetName);
             $result = db()->select('name,snippet,properties', '[+prefix+]site_snippets', "name='{$esc_name}'");
-            if (db()->getRecordCount($result) == 1) {
+            if (db()->count($result) == 1) {
                 $row = db()->getRow($result);
                 $phpCode = $modx->snippetCache[$snippetName] = $row['snippet'];
                 $properties = $modx->snippetCache["{$snippetName}Props"] = $row['properties'];
@@ -831,9 +831,9 @@ class SubParser {
             return false;
         }
 
-        $uid = $modx->getLoginUserID();
+        $uid = evo()->getLoginUserID();
         $ds = db()->select('id,username,password', '[+prefix+]web_users', "`id`='{$uid}'");
-        $total = db()->getRecordCount($ds);
+        $total = db()->count($ds);
         if ($total != 1) {
             return false;
         }
@@ -863,7 +863,7 @@ class SubParser {
                 'username' => $row['username'],
                 'userpassword' => $newPwd
             );
-            $modx->invokeEvent('OnWebChangePassword', $tmp);
+            evo()->invokeEvent('OnWebChangePassword', $tmp);
             return true;
         }
 
@@ -1034,7 +1034,7 @@ class SubParser {
 
         $allowroot = $modx->config['udperms_allowroot'];
 
-        if ($modx->hasPermission('save_role')) {
+        if (evo()->hasPermission('save_role')) {
             return true;
         }
 
@@ -1074,7 +1074,7 @@ class SubParser {
         $where = "sc.id='{$docid}' AND {$where_docgrp}";
 
         $rs = db()->select($field, $from, $where);
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
 
         if ($total == 1) {
             return true;
@@ -1150,7 +1150,7 @@ class SubParser {
                 );
                 $param = $modx->parseText($param, $ph);
                 $rs = db()->query("SELECT {$param}");
-                if (db()->getRecordCount($rs) == 0) {
+                if (db()->count($rs) == 0) {
                     return;
                 }
                 $output = $rs;
@@ -1407,7 +1407,7 @@ class SubParser {
             , '[+prefix+]site_snippets'
             , sprintf("name='input:%s'", $field_type)
         );
-        if (db()->getRecordCount($result) == 1) {
+        if (db()->count($result) == 1) {
             return eval(db()->getValue($result));
         }
 
@@ -1832,7 +1832,7 @@ class SubParser {
         // check cache
         $grpNames = isset ($_SESSION['webUserGroupNames']) ? $_SESSION['webUserGroupNames'] : false;
         if (!is_array($grpNames)) {
-            $uid = $modx->getLoginUserID();
+            $uid = evo()->getLoginUserID();
             $from = '[+prefix+]webgroup_names wgn' .
                 " INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser='{$uid}'";
             $rs = db()->select('wgn.name', $from);
@@ -1856,7 +1856,7 @@ class SubParser {
         $field = 'wu.username, wu.password, wua.*';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
         $rs = db()->select($field, $from, "wu.id='$uid'");
-        $limit = db()->getRecordCount($rs);
+        $limit = db()->count($rs);
         if ($limit == 1) {
             $row = db()->getRow($rs);
             if (!$row['usertype']) {
@@ -1877,7 +1877,7 @@ class SubParser {
             )
             , sprintf("user.id='%s'", db()->escape($uid))
         );
-        if (db()->getRecordCount($rs) == 1) {
+        if (db()->count($rs) == 1) {
             $row = db()->getRow($rs);
             if (!isset($row['usertype'])) {
                 $row['usertype'] = 'manager';
@@ -2134,9 +2134,9 @@ class SubParser {
             $orderby = "{$sort} {$dir}";
         }
 
-        $result = $modx->db->select("DISTINCT {$fields}", $from, $where, $orderby, $limit);
+        $result = db()->select("DISTINCT {$fields}", $from, $where, $orderby, $limit);
         $resourceArray = array();
-        while ($row = evo()->db->getRow($result)) {
+        while ($row = db()->getRow($result)) {
             $resourceArray[] = $row;
         }
         return $resourceArray;
@@ -2555,12 +2555,12 @@ class SubParser {
 
         $modx->config[$key] = $value;
         $f['setting_name'] = $key;
-        $f['setting_value'] = $modx->db->escape($value);
-        $key = $modx->db->escape($key);
-        $rs = $modx->db->select('*', '[+prefix+]system_settings', "setting_name='{$key}'");
+        $f['setting_value'] = db()->escape($value);
+        $key = db()->escape($key);
+        $rs = db()->select('*', '[+prefix+]system_settings', "setting_name='{$key}'");
 
-        if ($modx->db->getRecordCount($rs) == 0) {
-            $modx->db->insert($f, '[+prefix+]system_settings');
+        if (db()->count($rs) == 0) {
+            db()->insert($f, '[+prefix+]system_settings');
             $diff = $modx->db->getAffectedRows();
             if (!$diff) {
                 $modx->messageQuit('Error while inserting new option into database.', $modx->db->lastQuery);
@@ -2613,7 +2613,7 @@ class SubParser {
             }
             $value = $key;
             if ($modifiers !== false) {
-                $modx->loadExtension('MODIFIERS');
+                evo()->loadExtension('MODIFIERS');
                 $value = $modx->filter->phxFilter($key, $value, $modifiers);
             }
             $replace[$i] = $value;
@@ -2638,12 +2638,12 @@ class SubParser {
             , sprintf('pub_date!=0 AND pub_date<%s', $now)
         );
 
-        if (!db()->getRecordCount($rs)) {
+        if (!db()->count($rs)) {
             return;
         }
 
-        $modx->loadExtension('REVISION');
-        $modx->loadExtension('DocAPI');
+        evo()->loadExtension('REVISION');
+        evo()->loadExtension('DocAPI');
         while ($row = db()->getRow($rs)) {
             $draft = $modx->revision->getDraft($row['elmid']);
             $draft['editedon'] = $row['editedon'];
@@ -2661,9 +2661,9 @@ class SubParser {
         global $modx;
 
         $fields = 'id, parent';
-        $rs = $modx->db->select($fields, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
+        $rs = db()->select($fields, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         $modx->documentMap = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $modx->documentMap[] = array($row['parent'] => $row['id']);
         }
     }

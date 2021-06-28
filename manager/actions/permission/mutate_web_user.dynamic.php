@@ -1,31 +1,31 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$tbl_active_users = $modx->getFullTableName('active_users');
-$tbl_web_user_attributes = $modx->getFullTableName('web_user_attributes');
-$tbl_web_user_settings = $modx->getFullTableName('web_user_settings');
-$tbl_web_users = $modx->getFullTableName('web_users');
-$tbl_web_groups = $modx->getFullTableName('web_groups');
-$tbl_webgroup_names = $modx->getFullTableName('webgroup_names');
+$tbl_active_users = evo()->getFullTableName('active_users');
+$tbl_web_user_attributes = evo()->getFullTableName('web_user_attributes');
+$tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
+$tbl_web_users = evo()->getFullTableName('web_users');
+$tbl_web_groups = evo()->getFullTableName('web_groups');
+$tbl_webgroup_names = evo()->getFullTableName('webgroup_names');
 
 switch ((int)$_REQUEST['a']) {
     case 88:
-        if (!$modx->hasPermission('edit_web_user')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('edit_web_user')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     case 87:
-        if (!$modx->hasPermission('new_web_user')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('new_web_user')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     default:
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
@@ -33,14 +33,14 @@ $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', $tbl_active_users, "action='88' AND id='{$user}'");
-$limit = db()->getRecordCount($rs);
+$limit = db()->count($rs);
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != $modx->getLoginUserID()) {
+        if ($lock['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang["lock_msg"], $lock['username'], "web user");
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -49,7 +49,7 @@ if ($limit > 1) {
 if ($_REQUEST['a'] == '88') {
     // get user attributes
     $rs = db()->select('*', $tbl_web_user_attributes, "internalKey='{$user}'");
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if ($limit > 1) {
         echo "More than one user returned!<p>";
         exit;
@@ -70,7 +70,7 @@ if ($_REQUEST['a'] == '88') {
 
     // get user name
     $rs = db()->select('*', $tbl_web_users, "id='{$user}'");
-    $limit = db()->getRecordCount($rs);
+    $limit = db()->count($rs);
     if ($limit > 1) {
         echo "More than one user returned while getting username!<p>";
         exit;
@@ -230,7 +230,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         <?php
         // invoke OnWUsrFormPrerender event
         $tmp = array("id" => $user);
-        $evtOut = $modx->invokeEvent("OnWUsrFormPrerender", $tmp);
+        $evtOut = evo()->invokeEvent("OnWUsrFormPrerender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }
@@ -244,12 +244,12 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
 
         <div id="actions">
             <ul class="actionButtons">
-                <?php if ($modx->hasPermission('save_web_user')): ?>
+                <?php if (evo()->hasPermission('save_web_user')): ?>
                     <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
                                     src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update']; ?></a><span
                                 class="and"> + </span>
                         <select id="stay" name="stay">
-                            <?php if ($modx->hasPermission('new_web_user')) { ?>
+                            <?php if (evo()->hasPermission('new_web_user')) { ?>
                                 <option id="stay1"
                                         value="1" <?php echo $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?php echo $_lang['stay_new'] ?></option>
                             <?php } ?>
@@ -609,7 +609,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 if ($_GET['a'] == '88') { // only do this bit if the user is being edited
                     $uid = intval($_GET['id']);
                     $rs = db()->select('*', $tbl_web_groups, "webuser='{$uid}'");
-                    $limit = db()->getRecordCount($rs);
+                    $limit = db()->count($rs);
                     for ($i = 0; $i < $limit; $i++) {
                         $currentgroup = db()->getRow($rs);
                         $groupsarray[$i] = $currentgroup['webgroup'];
@@ -653,7 +653,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         <?php
         // invoke OnWUsrFormRender event
         $tmp = array("id" => $user);
-        $evtOut = $modx->invokeEvent("OnWUsrFormRender", $tmp);
+        $evtOut = evo()->invokeEvent("OnWUsrFormRender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }

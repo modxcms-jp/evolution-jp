@@ -1,38 +1,38 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 switch ((int)$_REQUEST['a']) {
     case 35:
-        if (!$modx->hasPermission('edit_role')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('edit_role')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     case 38:
-        if (!$modx->hasPermission('new_role')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('new_role')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     default:
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 $role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 // check to see the role editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
-$total = db()->getRecordCount($rs);
+$total = db()->count($rs);
 if ($total > 1) {
     for ($i = 0; $i < $total; $i++) {
         $lock = db()->getRow($rs);
-        if ($lock['internalKey'] != $modx->getLoginUserID()) {
+        if ($lock['internalKey'] != evo()->getLoginUserID()) {
             $msg = sprintf($_lang["lock_msg"], $lock['username'], $_lang['role']);
-            $e->setError(5, $msg);
-            $e->dumpError();
+            alert()->setError(5, $msg);
+            alert()->dumpError();
         }
     }
 }
@@ -41,7 +41,7 @@ if ($total > 1) {
 
 if ($_REQUEST['a'] == '35') {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     if ($total > 1) {
         echo "More than one role returned!<p>";
         exit;
@@ -101,7 +101,7 @@ if ($_REQUEST['a'] == '35') {
 
         <div id="actions">
             <ul class="actionButtons">
-                <?php if ($modx->hasPermission('save_role')): ?>
+                <?php if (evo()->hasPermission('save_role')): ?>
                     <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
                                     src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a></li>
                 <?php endif; ?>
@@ -112,7 +112,7 @@ if ($_REQUEST['a'] == '35') {
                         'icon' => $_style['icons_delete_document'],
                         'label' => $_lang['delete']
                     );
-                    if ($modx->hasPermission('delete_role')) {
+                    if (evo()->hasPermission('delete_role')) {
                         echo $modx->manager->ab($params);
                     }
                 }

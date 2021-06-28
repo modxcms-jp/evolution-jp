@@ -1,20 +1,20 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('delete_snippet')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('delete_snippet')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $id = intval($_GET['id']);
-$tbl_site_snippets = $modx->getFullTableName('site_snippets');
+$tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // invoke OnBeforeSnipFormDelete event
 $tmp = array('id' => $id);
-$modx->invokeEvent('OnBeforeSnipFormDelete', $tmp);
+evo()->invokeEvent('OnBeforeSnipFormDelete', $tmp);
 
 //ok, delete the snippet.
-$rs = $modx->db->delete($tbl_site_snippets, "id='{$id}'");
+$rs = db()->delete($tbl_site_snippets, "id='{$id}'");
 if (!$rs) {
     echo "Something went wrong while trying to delete the snippet...";
     exit;
@@ -22,7 +22,7 @@ if (!$rs) {
 
 // invoke OnSnipFormDelete event
 $tmp = array("id" => $id);
-$modx->invokeEvent('OnSnipFormDelete', $tmp);
+evo()->invokeEvent('OnSnipFormDelete', $tmp);
 
 // empty cache
 $modx->clearCache();

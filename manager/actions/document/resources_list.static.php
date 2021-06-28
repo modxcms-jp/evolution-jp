@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 if (!hasPermission('view_document')) {
-    $e->setError(3);
-    $e->dumpError();
+    alert()->setError(3);
+    alert()->dumpError();
 }
 if (preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     $id = $_GET['id'];
@@ -16,7 +16,7 @@ if (isset($_GET['pid'])) {
     $_GET['pid'] = intval($_GET['pid']);
 }
 
-$modx->loadExtension('DocAPI');
+evo()->loadExtension('DocAPI');
 
 $modx->updatePublishStatus();
 
@@ -56,7 +56,7 @@ if ($_SESSION['mgrRole'] != 1 && !$modx->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
 }
 $rs = db()->select('DISTINCT sc.id', $from, $where);
-$numRecords = db()->getRecordCount($rs);
+$numRecords = db()->count($rs);
 
 if (!$numRecords) {
     $children_output = "<p>" . $_lang['resources_in_container_no'] . "</p>";
@@ -120,7 +120,7 @@ if (!$numRecords) {
         $rows[] = $col;
     }
 
-    $modx->loadExtension('MakeTable');
+    evo()->loadExtension('MakeTable');
 
     // CSS style for table
     $modx->table->setTableClass('grid');

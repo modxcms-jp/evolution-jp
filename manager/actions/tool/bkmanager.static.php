@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('bk_manager')) {
+if (!evo()->hasPermission('bk_manager')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -89,8 +89,8 @@ if ($mode === 'snapshot') {
         $_SESSION['result_msg'] = 'snapshot_ok';
         header("Location: index.php?a=93");
     } else {
-        $e->setError(1, 'Unable to Backup Database');
-        $e->dumpError();
+        alert()->setError(1, 'Unable to Backup Database');
+        alert()->dumpError();
     }
     exit;
 }
@@ -179,14 +179,14 @@ if (sessionv('result_msg')) {
                         </thead>
                         <tbody>
                         <?php
-                        $rs = $modx->db->query(sprintf(
+                        $rs = db()->query(sprintf(
                             "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
                             , $modx->db->dbname
                             , $modx->db->table_prefix
                         ));
                         $i = 0;
                         $totaloverhead = 0;
-                        while ($row = $modx->db->getRow($rs)) {
+                        while ($row = db()->getRow($rs)) {
                             $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
                             if (isset($dumper->_dbtables) && !empty($dumper->_dbtables)) {
@@ -206,7 +206,7 @@ if (sessionv('result_msg')) {
                                 $modx->db->table_prefix . 'event_log',
                                 $modx->db->table_prefix . 'manager_log',
                             );
-                            if ($modx->hasPermission('settings') && in_array($row['Name'],
+                            if (evo()->hasPermission('settings') && in_array($row['Name'],
                                     $truncateable) && $row['Rows'] > 0) {
                                 echo '<td dir="ltr" align="right">' .
                                     '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . $modx->nicesize($row['Data_length'] + $row['Data_free']) . '</a>' .
@@ -215,7 +215,7 @@ if (sessionv('result_msg')) {
                                 echo '<td dir="ltr" align="right">' . $modx->nicesize($row['Data_length'] + $row['Data_free']) . '</td>' . "\n";
                             }
 
-                            if ($modx->hasPermission('settings')) {
+                            if (evo()->hasPermission('settings')) {
                                 echo '<td align="right">' . ($row['Data_free'] > 0 ?
                                         '<a href="index.php?a=54&mode=' . $action . '&t=' . $row['Name'] . '" title="' . $_lang['optimize_table'] . '">' . $modx->nicesize($row['Data_free']) . '</a>' :
                                         '-') .

@@ -35,7 +35,7 @@ if (!checkAllowedIp() || !checkAllowedDays()) {
     return;
 }
 
-$modx->loadExtension('ManagerAPI');
+evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
 $rt = OnManagerAuthentication();

@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 if (!evo()->hasPermission('settings')) {
@@ -10,7 +10,7 @@ $inc_path = MODX_MANAGER_PATH . 'actions/tool/mutate_settings/';
 include_once($inc_path . 'functions.inc.php');
 // check to see the edit settings page isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', 'action=17');
-if (1 < db()->getRecordCount($rs)) {
+if (1 < db()->count($rs)) {
     while ($row = db()->getRow($rs)) {
         if ($row['internalKey'] == evo()->getLoginUserID()) {
             continue;

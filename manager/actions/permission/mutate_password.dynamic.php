@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('change_password')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('change_password')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 if (isset($_SESSION['onetime_msg'])) {
     $onetime_msg = $_SESSION['onetime_msg'];

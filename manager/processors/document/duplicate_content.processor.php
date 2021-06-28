@@ -1,8 +1,8 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('new_document') || !$modx->hasPermission('save_document')) {
+if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -20,7 +20,7 @@ if (!$modx->checkPermissions(getv('id'), true)) {
 }
 
 // Run the duplicator
-$modx->loadExtension('DocAPI');
+evo()->loadExtension('DocAPI');
 $newid = duplicateDocument(getv('id'));
 $modx->clearCache();
 
@@ -135,7 +135,7 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
         , "parent='".$docid."' AND deleted=0"
         , 'id ASC'
     );
-    if (db()->getRecordCount($rs)) {
+    if (db()->count($rs)) {
         $_toplevel++;
         while ($row = db()->getRow($rs)) {
             duplicateDocument(

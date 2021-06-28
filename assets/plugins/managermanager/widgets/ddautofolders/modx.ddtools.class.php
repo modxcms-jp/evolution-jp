@@ -41,13 +41,13 @@ class ddTools {
 		if ($fields['published'] == 1) $fields['pub_date'] = $fields['createdon'];
 			
 		//Вставляем новый документ в базу, получаем id, если что-то пошло не так, выкидываем
-		$id = $modx->db->insert($fields, $modx->getFullTableName('site_content'));
+		$id = db()->insert($fields, evo()->getFullTableName('site_content'));
 			
 		//Если заданы группы (и на всякий проверим ID)
 		if ($groups && $id){
 			//Перебираем все группы
 			foreach ($groups as $gr){
-				$modx->db->insert(array('document_group' => $gr, 'document' => $id), $modx->getFullTableName('document_groups'));
+				db()->insert(array('document_group' => $gr, 'document' => $id), evo()->getFullTableName('document_groups'));
 			}
 		}
 	
@@ -75,7 +75,7 @@ class ddTools {
 		$where = (($id != 0) ? "`id`='$id'" : "") . (($id != 0 && $where != '') ? " OR " : "") . $where;
 	
 		//Обновляем информацию по документу, получаем id, если что-то пошло не так, выкидываем
-		return $modx->db->update($update, $modx->getFullTableName('site_content'), $where);
+		return db()->update($update, evo()->getFullTableName('site_content'), $where);
 	}
 	
 	/**

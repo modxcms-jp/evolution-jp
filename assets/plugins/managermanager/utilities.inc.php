@@ -96,7 +96,7 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
     // Do the SQL query
     $result = db()->select('id', $from, $where);
 
-    if ( !db()->getRecordCount($result)) {
+    if ( !db()->count($result)) {
         return false;
     }
     return db()->makeArray($result);

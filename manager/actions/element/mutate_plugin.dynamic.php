@@ -1,24 +1,24 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
 switch ((int)$_REQUEST['a']) {
     case 102:
-        if (!$modx->hasPermission('edit_plugin')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('edit_plugin')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     case 101:
-        if (!$modx->hasPermission('new_plugin')) {
-            $e->setError(3);
-            $e->dumpError();
+        if (!evo()->hasPermission('new_plugin')) {
+            alert()->setError(3);
+            alert()->dumpError();
         }
         break;
     default:
-        $e->setError(3);
-        $e->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
 }
 
 $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
@@ -26,16 +26,16 @@ $id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 // check to see the plugin editor isn't locked
 $rs = db()->select('*', '[+prefix+]active_users', "action='102' AND id='{$id}'");
 $row = db()->getRow($rs);
-if (1 < db()->getRecordCount($rs) && $row['internalKey'] != $modx->getLoginUserID()) {
+if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
     $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['plugin']);
-    $e->setError(5, $msg);
-    $e->dumpError();
+    alert()->setError(5, $msg);
+    alert()->dumpError();
 }
 // end check for lock
 
 if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     $rs = db()->select('*', '[+prefix+]site_plugins', "id='{$id}'");
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     $pluginObject = (object)db()->getRow($rs);
 
     if (1 < $total):
@@ -419,7 +419,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         <?php
         // invoke OnPluginFormPrerender event
         $tmp = array("id" => $id);
-        $evtOut = $modx->invokeEvent("OnPluginFormPrerender", $tmp);
+        $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }
@@ -431,7 +431,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
 
         <div id="actions">
             <ul class="actionButtons">
-                <?php if ($modx->hasPermission('save_plugin')): ?>
+                <?php if (evo()->hasPermission('save_plugin')): ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
                            onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
@@ -455,7 +455,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                         'icon' => $_style['icons_resource_duplicate'],
                         'label' => $_lang['duplicate']
                     );
-                    if ($modx->hasPermission('new_plugin')) {
+                    if (evo()->hasPermission('new_plugin')) {
                         echo $modx->manager->ab($params);
                     }
                     $params = array(
@@ -463,7 +463,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                         'icon' => $_style['icons_delete_document'],
                         'label' => $_lang['delete']
                     );
-                    if ($modx->hasPermission('delete_plugin')) {
+                    if (evo()->hasPermission('delete_plugin')) {
                         echo $modx->manager->ab($params);
                     }
                 }
@@ -521,7 +521,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                         'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
                     $where = "smd.resource='$id' AND sm.enable_sharedparams='1'";
                     $ds = db()->select($field, $from, $where, 'sm.name');
-                    $guid_total = db()->getRecordCount($ds);
+                    $guid_total = db()->count($ds);
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
@@ -600,7 +600,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                             "User Defined Events"
                         );
                         $rs = db()->select('*', '[+prefix+]system_eventnames', '', 'service DESC, groupname, name');
-                        if (db()->getRecordCount($rs) == 0) {
+                        if (db()->count($rs) == 0) {
                             echo '<tr><td>&nbsp;</td></tr>';
                         } else {
                             $g = 0;
@@ -683,7 +683,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                                                        style="padding:0;height:4em;"><?php echo $pluginObject->description; ?></textarea>
                             </td>
                         </tr>
-                        <?php if ($modx->hasPermission('save_plugin') == 1) { ?>
+                        <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
                             <tr>
                                 <td align="left" valign="top" colspan="2">
                                     <label><input name="locked"
@@ -709,7 +709,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         <?php
         // invoke OnPluginFormRender event
         $tmp = array("id" => $id);
-        $evtOut = $modx->invokeEvent("OnPluginFormRender", $tmp);
+        $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }

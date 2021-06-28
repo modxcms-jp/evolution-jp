@@ -1,30 +1,30 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_template')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_template')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
     $id = $_POST['id'];
 }
 
-$templatename = $modx->db->escape(trim($_POST['templatename']));
-$description = $modx->db->escape($_POST['description']);
-$parent = $modx->db->escape($_POST['parent']);
+$templatename = db()->escape(trim($_POST['templatename']));
+$description = db()->escape($_POST['description']);
+$parent = db()->escape($_POST['parent']);
 
 $locked = $_POST['locked'] == 'on' ? 1 : 0;
 
-$tbl_site_templates = $modx->getFullTableName('site_templates');
+$tbl_site_templates = evo()->getFullTableName('site_templates');
 
 //Kyle Jaebker - added category support
 if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $categoryid = $modx->db->escape($_POST['categoryid']);
+    $categoryid = db()->escape($_POST['categoryid']);
 } elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
     $categoryid = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory(db()->escape($_POST['newcategory']));
     if ($catCheck) {
         $categoryid = $catCheck;
     } else {
@@ -39,7 +39,7 @@ if ($templatename == '') {
 $field = array();
 $field['templatename'] = $templatename;
 $field['description'] = $description;
-$field['content'] = $modx->db->escape($_POST['content']);
+$field['content'] = db()->escape($_POST['content']);
 $field['locked'] = $locked;
 $field['category'] = $categoryid;
 $field['parent'] = $parent;
@@ -52,11 +52,11 @@ switch ($_POST['mode']) {
             'mode' => 'new',
             'id' => ''
         );
-        $modx->invokeEvent("OnBeforeTempFormSave", $tmp);
+        evo()->invokeEvent("OnBeforeTempFormSave", $tmp);
 
         // disallow duplicate names for new templates
-        $rs = $modx->db->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
-        $count = $modx->db->getValue($rs);
+        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}'");
+        $count = db()->getValue($rs);
         if ($count > 0) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
             // prepare a few request/post variables for form redisplay...
@@ -71,7 +71,7 @@ switch ($_POST['mode']) {
         }
 
         //do stuff to save the new doc
-        $newid = $modx->db->insert($field, $tbl_site_templates);
+        $newid = db()->insert($field, $tbl_site_templates);
         if (!$newid) {
             echo "Couldn't get last insert key!";
             exit;
@@ -82,7 +82,7 @@ switch ($_POST['mode']) {
             "mode" => "new",
             "id" => $newid
         );
-        $modx->invokeEvent("OnTempFormSave", $tmp);
+        evo()->invokeEvent("OnTempFormSave", $tmp);
 
         // empty cache
         $modx->clearCache();
@@ -102,11 +102,11 @@ switch ($_POST['mode']) {
             'mode' => 'upd',
             'id' => $id
         );
-        $modx->invokeEvent('OnBeforeTempFormSave', $tmp);
+        evo()->invokeEvent('OnBeforeTempFormSave', $tmp);
 
         // disallow duplicate names for new templates
-        $rs = $modx->db->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
-        $count = $modx->db->getValue($rs);
+        $rs = db()->select('COUNT(id)', $tbl_site_templates, "templatename = '{$templatename}' AND id != '{$id}'");
+        $count = db()->getValue($rs);
         if ($count > 0) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
             // prepare a few request/post variables for form redisplay...
@@ -121,7 +121,7 @@ switch ($_POST['mode']) {
         }
 
         //do stuff to save the edited doc
-        $rs = $modx->db->update($field, $tbl_site_templates, "id='{$id}'");
+        $rs = db()->update($field, $tbl_site_templates, "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited template not saved!";
         } else {
@@ -130,7 +130,7 @@ switch ($_POST['mode']) {
                 "mode" => "upd",
                 "id" => $id
             );
-            $modx->invokeEvent("OnTempFormSave", $tmp);
+            evo()->invokeEvent("OnTempFormSave", $tmp);
 
             // first empty the cache
             $modx->clearCache();

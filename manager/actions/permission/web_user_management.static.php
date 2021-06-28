@@ -1,11 +1,11 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (!$modx->hasPermission('edit_web_user')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('edit_web_user')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $modx->manager->initPageViewState();
@@ -30,9 +30,9 @@ $_PAGE['vs']['lm'] = $listmode;
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
 $cm->addItem($_lang["edit"], "js:menuAction(1)", "media/style/{$manager_theme}/images/icons/logging.gif",
-    (!$modx->hasPermission('edit_user') ? 1 : 0));
+    (!evo()->hasPermission('edit_user') ? 1 : 0));
 $cm->addItem($_lang["delete"], "js:menuAction(2)", "media/style/{$manager_theme}/images/icons/delete.gif",
-    (!$modx->hasPermission('delete_user') ? 1 : 0));
+    (!evo()->hasPermission('delete_user') ? 1 : 0));
 echo $cm->render();
 
 ?>
@@ -136,8 +136,8 @@ echo $cm->render();
             <?php
 
             $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked,'" . $_lang['yes'] . "','-') as 'blocked'" .
-                "FROM " . $modx->getFullTableName("web_users") . " wu " .
-                "INNER JOIN " . $modx->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
+                "FROM " . evo()->getFullTableName("web_users") . " wu " .
+                "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
                 ($sqlQuery ? " WHERE (wu.username LIKE '$sqlQuery%') OR (wua.fullname LIKE '%$sqlQuery%') OR (wua.email LIKE '$sqlQuery%')" : "") . " " .
                 "ORDER BY username";
             $ds = db()->query($sql);

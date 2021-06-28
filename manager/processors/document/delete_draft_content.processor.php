@@ -1,10 +1,10 @@
 <?php
 // 128 / 129
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-$modx->loadExtension('REVISION');
+evo()->loadExtension('REVISION');
 
 $docid = $_POST['id'];
 $modx->revision->delete($docid, 'draft');

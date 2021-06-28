@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('settings')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('settings')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 $form_v = $_POST;
 // lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
@@ -128,14 +128,14 @@ if (isset($form_v) && $form_v) {
         $v = is_array($v) ? implode(',', $v) : $v;
 
         if (!empty($k)) {
-            $savethese[] = "('" . $modx->db->escape($k) . "', '" . $modx->db->escape($v) . "')";
+            $savethese[] = "('" . db()->escape($k) . "', '" . db()->escape($v) . "')";
         }
     }
 
     // Run a single query to save all the values
-    $sql = "REPLACE INTO " . $modx->getFullTableName("system_settings") . " (setting_name, setting_value)
+    $sql = "REPLACE INTO " . evo()->getFullTableName("system_settings") . " (setting_name, setting_value)
 		VALUES " . implode(', ', $savethese);
-    if (!@$rs = $modx->db->query($sql)) {
+    if (!@$rs = db()->query($sql)) {
         echo "Failed to update setting value!";
         exit;
     }
@@ -144,12 +144,12 @@ if (isset($form_v) && $form_v) {
     if (isset($form_v['reset_template'])) {
         $template = $form_v['default_template'];
         $oldtemplate = $form_v['old_template'];
-        $tbl_site_content = $modx->getFullTableName('site_content');
+        $tbl_site_content = evo()->getFullTableName('site_content');
         $reset = $form_v['reset_template'];
         if ($reset == 1) {
-            $modx->db->update("template='{$template}'", $tbl_site_content, "type='document'");
+            db()->update("template='{$template}'", $tbl_site_content, "type='document'");
         } elseif ($reset == 2) {
-            $modx->db->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
+            db()->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
         }
     }
 

@@ -41,10 +41,10 @@ include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
-$modx->loadExtension('ManagerAPI');
+evo()->loadExtension('ManagerAPI');
 
 if (isset($_SESSION['safeMode']) && $_SESSION['safeMode'] == 1) {
-    if ($modx->hasPermission('save_role')) {
+    if (evo()->hasPermission('save_role')) {
         $modx->safeMode = 1;
     } else {
         $modx->safeMode = $_SESSION['safeMode'] = 0;
@@ -55,7 +55,7 @@ $modx->getSettings();
 
 extract($modx->config);
 
-if ($modx->input_post('updateMsgCount') && $modx->hasPermission('messages')) {
+if (postv('updateMsgCount') && evo()->hasPermission('messages')) {
     $modx->manager->getMessageCount();
 }
 
@@ -128,8 +128,8 @@ if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCo
 
 // OK, let's retrieve the action directive from the request
 if (isset($_GET['a']) && isset($_POST['a'])) {
-    $e->setError(100);
-    $e->dumpError();
+    alert()->setError(100);
+    alert()->dumpError();
 } else {
     if (isset($_REQUEST['a'])) {
         $modx->manager->action = (int)$_REQUEST['a'];
@@ -151,7 +151,7 @@ if (isset($_POST['stay']) && $_POST['stay'] !== 'new') {
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
 //   ex)$modx->event->setGlobalVariable('action',999);
 $tmp = array("action" => $modx->manager->action);
-$evtOutOnMPI = $modx->invokeEvent("OnManagerPageInit", $tmp);
+$evtOutOnMPI = evo()->invokeEvent("OnManagerPageInit", $tmp);
 
 $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';

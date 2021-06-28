@@ -1,26 +1,25 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_chunk')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_chunk')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $input = $_POST;
 extract($input);
 unset($input);
 
-if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
-    $id = $_POST['id'];
+if (preg_match('@^[1-9][0-9]*$@', postv('id'))) {
+    $id = postv('id');
 }
 
-$snippet = $modx->db->escape($post);
-$name = (isset($name) && $name !== '') ? $modx->db->escape(trim($name)) : 'Untitled chunk';
-$description = $modx->db->escape($description);
+$snippet = $post;
+$name = (trim($name) !== '') ? trim($name) : 'Untitled chunk';
 $locked = $locked === 'on' ? 1 : 0;
-$editor_type = $editor_type == '1' ? 1 : 0;
-$published = $published == '1' ? 1 : 0;
+$editor_type = $editor_type == 1 ? 1 : 0;
+$published = $published == 1 ? 1 : 0;
 
 // determine published status
 $currentdate = time();
@@ -28,12 +27,13 @@ $currentdate = time();
 if (empty($pub_date)) {
     $pub_date = 0;
 } else {
-    $pub_date = $modx->toTimeStamp($pub_date);
+    $pub_date = evo()->toTimeStamp($pub_date);
     if (empty($pub_date)) {
-        $modx->manager->saveFormValues(78);
-        $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
+        manager()->saveFormValues(78);
+        evo()->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id=" . $id);
         exit;
-    } elseif ($pub_date < $currentdate) {
+    }
+    if ($pub_date < $currentdate) {
         $published = 1;
     } elseif ($pub_date > $currentdate) {
         $published = 0;
@@ -42,75 +42,78 @@ if (empty($pub_date)) {
 if (empty($unpub_date)) {
     $unpub_date = 0;
 } else {
-    $unpub_date = $modx->toTimeStamp($unpub_date);
+    $unpub_date = evo()->toTimeStamp($unpub_date);
     if (empty($unpub_date)) {
-        $modx->manager->saveFormValues(78);
-        $modx->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id={$id}");
+        manager()->saveFormValues(78);
+        evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], 'index.php?a=78&id=' . $id);
         exit;
-    } elseif ($unpub_date < $currentdate) {
+    }
+    if ($unpub_date < $currentdate) {
         $published = 0;
     }
 }
 
 //Kyle Jaebker - added category support
-if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $category = $modx->db->escape($_POST['categoryid']);
-} elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
-    $category = 0;
-} else {
-    $catCheck = $modx->manager->checkCategory($modx->db->escape($_POST['newcategory']));
+if (postv('newcategory')) {
+    $catCheck = manager()->checkCategory(postv('newcategory'));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = $modx->manager->newCategory($_POST['newcategory']);
+        $category = manager()->newCategory(postv('newcategory'));
     }
+} elseif (0 < postv('categoryid')) {
+    $category = postv('categoryid');
+} else {
+    $category = 0;
 }
 
-switch ($_POST['mode']) {
+switch (postv('mode')) {
     case '77':
-
-        // invoke OnBeforeChunkFormSave event
         $tmp = array(
             'mode' => 'new',
             'id' => ''
         );
-        $modx->invokeEvent('OnBeforeChunkFormSave', $tmp);
+        evo()->invokeEvent('OnBeforeChunkFormSave', $tmp);
 
-        // disallow duplicate names for new chunks
-        $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', "name='{$name}'");
-        $count = $modx->db->getValue($rs);
+        $rs = db()->select(
+            'COUNT(id)',
+            '[+prefix+]site_htmlsnippets',
+            where('name', $name)
+        );
+        $count = db()->getValue($rs);
         if ($count > 0) {
-            $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
-            $modx->manager->saveFormValues(77);
-            $modx->webAlertAndQuit($msg, 'index.php?a=77');
+            manager()->saveFormValues(77);
+            evo()->webAlertAndQuit(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name),
+                'index.php?a=77'
+            );
             exit;
         }
-        //do stuff to save the new doc
-        $field = compact(explode(',',
-            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
-        $newid = $modx->db->insert($field, '[+prefix+]site_htmlsnippets');
-        // get the id
+        $field = compact(explode(
+            ',',
+            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'
+        ));
+        $newid = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
         if (!$newid) {
             exit("Couldn't get last insert key!");
         }
 
-        // invoke OnChunkFormSave event
         $tmp = array(
             'mode' => 'new',
             'id' => $newid
         );
-        $modx->invokeEvent('OnChunkFormSave', $tmp);
+        evo()->invokeEvent('OnChunkFormSave', $tmp);
 
         // empty cache
-        $modx->clearCache(); // first empty the cache
+        evo()->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        if ($_POST['stay'] != '') {
-            $a = ($_POST['stay'] == '2') ? "78&id={$newid}" : '77';
-            $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
-        } else {
-            $header = 'Location: index.php?a=76';
+        if (postv('stay') == '') {
+            header('Location: index.php?a=76');
+            return;
         }
-        header($header);
+
+        $a = (postv('stay') == '2') ? "78&id=" . $newid : '77';
+        header("Location: index.php?a=" . $a . "&stay=" . postv('stay'));
         break;
     case '78':
 
@@ -119,46 +122,80 @@ switch ($_POST['mode']) {
             "mode" => "upd",
             "id" => $id
         );
-        $modx->invokeEvent("OnBeforeChunkFormSave", $tmp);
+        evo()->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
         if (check_exist_name($name) !== false) {
-            $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name);
-            $modx->manager->saveFormValues(78);
-            $modx->webAlertAndQuit($msg, "index.php?a=78&id={$id}");
+            manager()->saveFormValues(78);
+            evo()->webAlertAndQuit(
+                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name),
+                "index.php?a=78&id=" . $id
+            );
             exit;
         }
 
         //do stuff to save the edited doc
-        $was_name = $modx->db->getValue($modx->db->select('name', '[+prefix+]site_htmlsnippets', "id='{$id}'"));
-        $field = compact(explode(',',
-            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'));
-        $rs = $modx->db->update($field, '[+prefix+]site_htmlsnippets', "id='{$id}'");
+        $was_name = db()->getValue(
+            db()->select('name', '[+prefix+]site_htmlsnippets', where('id', $id))
+        );
+        $field = compact(explode(
+            ',',
+            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'
+        ));
+        $rs = db()->update(db()->escape($field), '[+prefix+]site_htmlsnippets', where('id', $id));
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
-            $name = stripslashes($name);
-            $name = str_replace("'", "''", $name);
-            $was_name = str_replace("'", "''", $was_name);
+            $name     = db()->escape(str_replace("'", "''", $name));
+            $was_name = db()->escape(str_replace("'", "''", $was_name));
             if ($name !== $was_name) {
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')", '[+prefix+]site_content');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}}}','{{{$name}}}')",
-                    '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}}}','{{{$name}}}')",
-                    '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}}}','{{{$name}}}')",
-                    '[+prefix+]site_tmplvar_contentvalues');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_content');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}:','{{{$name}:')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}:','{{{$name}:')",
-                    '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}:','{{{$name}:')",
-                    '[+prefix+]site_tmplvar_contentvalues');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_content');
-                $modx->db->update("content=REPLACE(content,'{{{$was_name}?','{{{$name}?')", '[+prefix+]site_templates');
-                $modx->db->update("snippet=REPLACE(snippet,'{{{$was_name}?','{{{$name}?')",
-                    '[+prefix+]site_htmlsnippets');
-                $modx->db->update("value=REPLACE(value,    '{{{$was_name}?','{{{$name}?')",
-                    '[+prefix+]site_tmplvar_contentvalues');
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $name),
+                    '[+prefix+]site_content'
+                );
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $name),
+                    '[+prefix+]site_templates'
+                );
+                db()->update(
+                    sprintf("snippet=REPLACE(snippet,'{{%s}}','{{%s}}')", $was_name, $name),
+                    '[+prefix+]site_htmlsnippets'
+                );
+                db()->update(
+                    sprintf("value=REPLACE(value,'{{%s}}','{{%s}}')", $was_name, $name),
+                    '[+prefix+]site_tmplvar_contentvalues'
+                );
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $name),
+                    '[+prefix+]site_content'
+                );
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $name),
+                    '[+prefix+]site_templates'
+                );
+                db()->update(
+                    sprintf("snippet=REPLACE(snippet,'{{%s:','{{%s:')", $was_name, $name),
+                    '[+prefix+]site_htmlsnippets'
+                );
+                db()->update(
+                    sprintf("value=REPLACE(value,'{{%s:','{{%s:')", $was_name, $name),
+                    '[+prefix+]site_tmplvar_contentvalues'
+                );
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $name),
+                    '[+prefix+]site_content'
+                );
+                db()->update(
+                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $name),
+                    '[+prefix+]site_templates'
+                );
+                db()->update(
+                    sprintf("snippet=REPLACE(snippet,'{{%s?','{{%s?')", $was_name, $name),
+                    '[+prefix+]site_htmlsnippets'
+                );
+                db()->update(
+                    sprintf("value=REPLACE(value,'{{%s?','{{%s?')", $was_name, $name),
+                    '[+prefix+]site_tmplvar_contentvalues'
+                );
             }
 
             // invoke OnChunkFormSave event
@@ -166,34 +203,30 @@ switch ($_POST['mode']) {
                 'mode' => 'upd',
                 'id' => $id
             );
-            $modx->invokeEvent('OnChunkFormSave', $tmp);
+            evo()->invokeEvent('OnChunkFormSave', $tmp);
 
             // empty cache
-            $modx->clearCache(); // first empty the cache
+            evo()->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? "78&id={$id}" : "77";
-                $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
-            } else {
-                $header = "Location: index.php?a=76";
+            if (postv('stay') == '') {
+                header("Location: index.php?a=76");
+                return;
             }
-            header($header);
+
+            $a = (postv('stay') == 2) ? "78&id=" . $id : "77";
+            header("Location: index.php?a=" . $a . "&stay=" . postv('stay'));
         }
         break;
-    default:
 }
 
-function check_exist_name($name) { // disallow duplicate names for edit chunks
-    global $modx;
-    $where = "name='{$name}'";
-    if ($_POST['mode'] == 78) {
-        $where = $where . " AND id!={$_POST['id']}";
+function check_exist_name($name) {
+    $where = "name='" . $name . "'";
+    if (postv('mode') == 78) {
+        $where .= " AND id!=" . postv('id');
     }
-    $rs = $modx->db->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
-    $count = $modx->db->getValue($rs);
-    if ($count > 0) {
-        return true;
-    } else {
+    $rs = db()->select('COUNT(id)', '[+prefix+]site_htmlsnippets', $where);
+    if (!db()->getValue($rs)) {
         return false;
     }
+    return true;
 }

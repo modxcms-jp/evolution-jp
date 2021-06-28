@@ -110,11 +110,11 @@ class Mysqldumper {
             unlink($tempfile_path);
         }
 
-        $result = $modx->db->query('SHOW TABLES');
+        $result = db()->query('SHOW TABLES');
         $tables = $this->result2Array(0, $result);
 
         foreach ($tables as $table_name) {
-            $result = $modx->db->query("SHOW CREATE TABLE `{$table_name}`");
+            $result = db()->query("SHOW CREATE TABLE `{$table_name}`");
             $createtable[$table_name] = $this->result2Array(1, $result);
         }
         // Set header
@@ -180,8 +180,8 @@ class Mysqldumper {
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
 
             $output = '';
-            $result = $modx->db->select('*', $table_name);
-            while ($row = $modx->db->getRow($result)) {
+            $result = db()->select('*', $table_name);
+            while ($row = db()->getRow($result)) {
                 $insertdump = $lf;
                 $insertdump .= "INSERT INTO `{$table_name}` VALUES (";
                 if ($table_name === $this->table_prefix . 'system_settings') {
@@ -277,7 +277,7 @@ class Mysqldumper {
         global $modx;
 
         $array = array();
-        while ($row = $modx->db->getRow($resource, 'num')) {
+        while ($row = db()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
         }
         $modx->db->freeResult($resource);
@@ -328,14 +328,14 @@ class Mysqldumper {
             if (empty($sql_entry)) {
                 continue;
             }
-            $rs = $modx->db->query($sql_entry);
+            $rs = db()->query($sql_entry);
         }
         $settings = $this->getSettings();
         $this->restoreSettings($settings);
 
         $modx->clearCache();
-        if ($modx->db->getRecordCount($rs)) {
-            while ($row = $modx->db->getRow($rs)) {
+        if (db()->count($rs)) {
+            while ($row = db()->getRow($rs)) {
                 $_SESSION['last_result'][] = $row;
             }
         }
@@ -346,10 +346,10 @@ class Mysqldumper {
     function getSettings() {
         global $modx;
 
-        $rs = $modx->db->select('setting_name, setting_value', '[+prefix+]system_settings');
+        $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
 
         $settings = array();
-        while ($row = $modx->db->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $name = $row['setting_name'];
             $value = $row['setting_value'];
             switch ($name) {
@@ -381,7 +381,7 @@ class Mysqldumper {
         global $modx;
 
         foreach ($settings as $k => $v) {
-            $modx->db->update(
+            db()->update(
                 array('setting_value' => $v)
                 , '[+prefix+]system_settings'
                 , "setting_name='{$k}'"
@@ -399,7 +399,7 @@ class Mysqldumper {
         if ($dbname === '') {
             $dbname = $this->dbname;
         }
-        $rs = $modx->db->query(
+        $rs = db()->query(
             sprintf(
                 "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
                 , $dbname
@@ -408,8 +408,8 @@ class Mysqldumper {
         );
 
         $tables = array();
-        if ($modx->db->getRecordCount($rs)) {
-            while ($row = $modx->db->getRow($rs)) {
+        if (db()->count($rs)) {
+            while ($row = db()->getRow($rs)) {
                 $tables[] = $row['Name'];
             }
         }

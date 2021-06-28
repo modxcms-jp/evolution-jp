@@ -155,7 +155,7 @@
             <td colspan="2" style="padding:0;">
                 <?php
                 // invoke OnMiscSettingsRender event
-                $evtOut = $modx->invokeEvent("OnMiscSettingsRender");
+                $evtOut = evo()->invokeEvent("OnMiscSettingsRender");
                 if (is_array($evtOut)) {
                     echo implode("", $evtOut);
                 }
@@ -165,7 +165,7 @@
     </table>
 </div>
 <?php
-$evtOut = $modx->invokeEvent('OnSystemSettingsRender');
+$evtOut = evo()->invokeEvent('OnSystemSettingsRender');
 if (is_array($evtOut)) {
     echo implode('', $evtOut);
 }

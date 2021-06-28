@@ -273,7 +273,7 @@ if (id()) {
                         , sprintf("tpl.templateid='%s'", id())
                         , 'tpl.rank, tv.rank, tv.id'
                     );
-                    $total = db()->getRecordCount($rs);
+                    $total = db()->count($rs);
                     ?>
                     <div class="tab-page" id="tabInfo">
                         <h2 class="tab"><?php echo lang('info') ?></h2>
@@ -371,7 +371,7 @@ if (id()) {
 <?php
 function getParentValues($parent) {
     $rs = db()->select('*', '[+prefix+]site_templates', "id='" . $parent . "'");
-    $total = db()->getRecordCount($rs);
+    $total = db()->count($rs);
     $p = (object)db()->getRow($rs);
     if ($total == 1) {
         if (strpos($p->content, '[*#content*]') !== false) {
@@ -407,7 +407,7 @@ function template($key, $default = null) {
     }
     if (anyv('id', 0)) {
         $rs = db()->select('*', '[+prefix+]site_templates', "id='" . anyv('id') . "'");
-        $total = db()->getRecordCount($rs);
+        $total = db()->count($rs);
         if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";
             echo "More results returned than expected. Which sucks. <p>Aborting.";
@@ -440,7 +440,7 @@ function is_locked($id) {
         , '[+prefix+]active_users'
         , sprintf("action=16 AND id='%s'", $id)
     );
-    if (db()->getRecordCount($rs) > 1) {
+    if (db()->count($rs) > 1) {
         while ($row = db()->getRow($rs)) {
             if ($row['internalKey'] == evo()->getLoginUserID()) {
                 continue;

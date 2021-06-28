@@ -1,10 +1,10 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('save_document') || !$modx->hasPermission('publish_document')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_document')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 $id = $_REQUEST['id'];
@@ -31,20 +31,20 @@ if ($doc->pub_date < time()) {
 $field['publishedby'] = 0;
 $field['publishedon'] = 0;
 $field['editedon'] = time();
-$field['editedby'] = $modx->getLoginUserID();
+$field['editedby'] = evo()->getLoginUserID();
 
-$rs = $modx->db->update($field, '[+prefix+]site_content', "id='{$id}'");
+$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
 if (!$rs) {
     exit("An error occured while attempting to unpublish the document.");
 }
 
 // invoke OnDocUnPublished  event
 $tmp = array('docid' => $id, 'type' => 'manual');
-$modx->invokeEvent('OnDocUnPublished', $tmp);
+evo()->invokeEvent('OnDocUnPublished', $tmp);
 
 $modx->clearCache();
 
-$pid = $modx->db->getValue($modx->db->select('parent', '[+prefix+]site_content', "id='{$id}'"));
+$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
 $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";

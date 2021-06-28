@@ -1,15 +1,15 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!$modx->hasPermission('access_permissions')) {
-    $e->setError(3);
-    $e->dumpError();
+if (!evo()->hasPermission('access_permissions')) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 // find all document groups, for the select :)
 $rs = db()->select('*', '[+prefix+]documentgroup_names', '', 'name');
-if (db()->getRecordCount($rs) < 1) {
+if (db()->count($rs) < 1) {
     $docgroupselector = '[no groups to add]';
 } else {
     $docgroupselector = '<select name="docgroup">' . "\n";
@@ -20,7 +20,7 @@ if (db()->getRecordCount($rs) < 1) {
 }
 
 $rs = db()->select('*', '[+prefix+]membergroup_names', '', 'name');
-if (db()->getRecordCount($rs) < 1) {
+if (db()->count($rs) < 1) {
     $usrgroupselector = '[no user groups]';
 } else {
     $usrgroupselector = '<select name="usergroup">' . "\n";
@@ -79,7 +79,7 @@ if (db()->getRecordCount($rs) < 1) {
             $from .= " LEFT JOIN [+prefix+]manager_users AS `users` ON `users`.`id` = `groups`.`member`";
             $orderby = 'groupnames.name';
             $rs = db()->select($field, $from, '', $orderby);
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
             } else {
                 echo "<ul>\n";
@@ -155,7 +155,7 @@ if (db()->getRecordCount($rs) < 1) {
             $from .= " LEFT JOIN [+prefix+]site_content AS sc ON sc.id = dg.document";
             $orderby = 'dgnames.name, sc.id';
             $rs = db()->select($field, $from, '', $orderby);
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span>';
             } else {
                 echo '<table width="600" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">' . "\n" .
@@ -209,7 +209,7 @@ if (db()->getRecordCount($rs) < 1) {
             $from .= " LEFT JOIN [+prefix+]membergroup_access AS groupacc ON groupacc.membergroup = groupnames.id";
             $from .= " LEFT JOIN [+prefix+]documentgroup_names AS dgnames ON dgnames.id = groupacc.documentgroup";
             $rs = db()->select($field, $from, '', 'name');
-            if (db()->getRecordCount($rs) < 1) {
+            if (db()->count($rs) < 1) {
                 echo '<span class="warning">' . $_lang['no_groups_found'] . '</span><br />';
             } else {
                 ?>

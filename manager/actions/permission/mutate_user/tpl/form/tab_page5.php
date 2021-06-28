@@ -71,7 +71,7 @@
                 <?php
                 $edt = isset ($user["which_editor"]) ? $user["which_editor"] : '';
                 // invoke OnRichTextEditorRegister event
-                $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+                $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                 echo "<option value='none'" . selected($edt == 'none') . ">" . lang('none') . "</option>\n";
                 if (is_array($evtOut)) {
                     foreach ($evtOut as $iValue) {
@@ -96,7 +96,7 @@
         <td colspan="2" style="padding:0;">
             <?php
             // invoke OnInterfaceSettingsRender event
-            $evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
+            $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);
             }

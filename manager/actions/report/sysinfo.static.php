@@ -1,5 +1,5 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 if (!evo()->hasPermission('logs')) {
@@ -227,7 +227,7 @@ global $database_connection_method, $lastInstallTime;
                             , 'deleted=0'
                             , 'editedon DESC', 20
                         );
-                        if (!db()->getRecordCount($rs)) {
+                        if (!db()->count($rs)) {
                             echo sprintf('<p>%s</p>', lang('no_edits_creates'));
                         } else {
                             $i = 0;
@@ -240,7 +240,7 @@ global $database_connection_method, $lastInstallTime;
                                         , evo()->getFullTableName('manager_users')
                                         , $where
                                     );
-                                    if (db()->getRecordCount($rs2) == 0) {
+                                    if (db()->count($rs2) == 0) {
                                         $user = '-';
                                     } else {
                                         $r = db()->getRow($rs2);
@@ -291,7 +291,7 @@ global $database_connection_method, $lastInstallTime;
                                 , db()->table_prefix
                             )
                         );
-                        $limit = db()->getRecordCount($rs);
+                        $limit = db()->count($rs);
                         for ($i = 0; $i < $limit; $i++) {
                             $log_status = db()->getRow($rs);
                             $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
@@ -375,7 +375,7 @@ global $database_connection_method, $lastInstallTime;
                         , sprintf('lasthit>%s', $timetocheck)
                         , 'username ASC'
                     );
-                    if (!db()->getRecordCount($rs)) {
+                    if (!db()->count($rs)) {
                         $html = "<p>" . lang('no_active_users_found') . "</p>";
                     } else {
                         while ($activeusers = db()->getRow($rs)) {

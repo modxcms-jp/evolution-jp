@@ -1,18 +1,18 @@
 <?php
-if (!isset($modx) || !$modx->isLoggedin()) {
+if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if ($_REQUEST['a'] !== '74' || !$modx->hasPermission('change_password')) {
+if ($_REQUEST['a'] !== '74' || !evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
-$userid = $modx->getLoginUserID();
+$userid = evo()->getLoginUserID();
 
 // get user attribute
 $rs = db()->select('*', '[+prefix+]user_attributes', "internalKey='{$userid}'");
-$total = db()->getRecordCount($rs);
+$total = db()->count($rs);
 if ($total > 1) {
     exit('More than one user returned!<p>');
 } elseif ($total < 1) {
@@ -41,7 +41,7 @@ foreach ($usersettings as $k => $v) {
 
 // get user name
 $rs = db()->select('*', '[+prefix+]manager_users', "id='{$userid}'");
-$total = db()->getRecordCount($rs);
+$total = db()->count($rs);
 if ($total > 1) {
     exit('More than one user returned while getting username!<p>');
 } elseif ($total < 1) {
@@ -99,7 +99,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         }
 
         function deleteuser() {
-            <?php if($_GET['id'] == $modx->getLoginUserID()) { ?>
+            <?php if($_GET['id'] == evo()->getLoginUserID()) { ?>
             alert("<?php echo $_lang['alert_delete_self']; ?>");
             <?php } else { ?>
             if (confirm("<?php echo $_lang['confirm_delete_user']; ?>") == true) {
@@ -148,7 +148,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
         // invoke OnUserFormPrerender event
         $tmp = array("id" => $userid);
-        $evtOut = $modx->invokeEvent("OnUserFormPrerender", $tmp);
+        $evtOut = evo()->invokeEvent("OnUserFormPrerender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }
@@ -441,7 +441,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     <?php
                                     $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
                                     // invoke OnRichTextEditorRegister event
-                                    $evtOut = $modx->invokeEvent("OnRichTextEditorRegister");
+                                    $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                                     echo '<option value="none"' . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
                                     if (is_array($evtOut)) {
                                         for ($i = 0; $i < count($evtOut); $i++) {
@@ -466,7 +466,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             <td colspan="2" style="padding:0;">
                                 <?php
                                 // invoke OnInterfaceSettingsRender event
-                                $evtOut = $modx->invokeEvent("OnInterfaceSettingsRender");
+                                $evtOut = evo()->invokeEvent("OnInterfaceSettingsRender");
                                 if (is_array($evtOut)) {
                                     echo implode('', $evtOut);
                                 }
@@ -482,7 +482,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
         // invoke OnUserFormRender event
         $tmp = array("id" => $userid);
-        $evtOut = $modx->invokeEvent("OnUserFormRender", $tmp);
+        $evtOut = evo()->invokeEvent("OnUserFormRender", $tmp);
         if (is_array($evtOut)) {
             echo implode("", $evtOut);
         }

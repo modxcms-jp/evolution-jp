@@ -24,19 +24,19 @@ class GetFoldersAndFiles {
     public $actual_cwd;
     public $enable_imgedit;
 
-    function __construct($fckphp_config,$type,$cwd) {
+    public function __construct($fckphp_config, $type, $cwd) {
         $this->fckphp_config=$fckphp_config;
         $this->type=$type;
         $this->raw_cwd=$cwd;
 		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
 		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
 		$self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
-		$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
+		$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 		if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
 		else                                                             $this->enable_imgedit = true;
 	}
 	
-	function run() {
+	public function run() {
 
 		header ("Content-Type: application/xml; charset=utf-8");
 		echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
@@ -79,29 +79,28 @@ class GetFoldersAndFiles {
 			{
 				foreach ($filenames as $filename)
 				{
-					if (($filename!=".")&&($filename!=".."))
-					{
-						if (is_dir($this->real_cwd."/$filename"))
-						{
-							//check if$fckphp_configured not to show this folder
-							$hide=false;
-							for($i=0;$i<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']);$i++)
-							{
-								$pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
-								$hide=(preg_match("/{$pattern}/",$filename) ? true : $hide);
-							}
-							/**
-							* Dont echo the entry, push it in the array
-							*/
-							//if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
-							if (!$hide) array_push($folders_array,$filename);
-						}
-						else
-						{
-							array_push($files,$filename);
-						}
-					}
-				}
+					if ($filename === "." || $filename === "..") {
+                        continue;
+                    }
+                    if (!is_dir($this->real_cwd . "/$filename")) {
+                        $files[] = $filename;
+                        continue;
+                    }
+
+                    //check if$fckphp_configured not to show this folder
+                    $hide = false;
+                    foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'] as $iValue) {
+                        $pattern = $iValue;
+                        $hide = (preg_match("/" . $pattern . "/", $filename) ? true : $hide);
+                    }
+                    /**
+                     * Dont echo the entry, push it in the array
+                     */
+                    //if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
+                    if (!$hide) {
+                        $folders_array[] = $filename;
+                    }
+                }
 			}
 			/**
 		     * Sort the array by the way you like and show it.
@@ -122,70 +121,72 @@ class GetFoldersAndFiles {
 		natcasesort($files);
         $files = array_values($files);
 
-		for ($i=0;$i<sizeof($files);$i++)
-		{
-			$lastdot=strrpos($files[$i],".");
-			$ext=(($lastdot!==false)?(substr($files[$i],$lastdot+1)):"");
+        foreach ($files as $i => $iValue) {
+            $lastdot=strrpos($iValue, ".");
+            $ext= $lastdot!==false ? strtolower(substr($iValue,$lastdot+1)) : "";
 
-			if (in_array(strtolower($ext),$this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
+            if (!in_array($ext, $this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
+                continue;
+            }
 
-				//check if$fckphp_configured not to show this file
-				$editable=$hide=false;
-				for($j=0;$j<sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles']);$j++)
-					$hide=(preg_match("/".$this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'][$j]."/",$files[$i])?true:$hide);
+            //check if$fckphp_configured not to show this file
+            $editable = $hide = false;
+            foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'] as $jValue) {
+                $hide = (preg_match("/" . $jValue . "/", $files[$i]) ? true : $hide);
+            }
 
-				if (!$hide)
-				{
-					if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing'])
-					{
-						if($this->enable_imgedit)
-						{
-							$editable=$this->isImageEditable($this->real_cwd."/".$files[$i]);
-						}
-					}
-					if(extension_loaded('mbstring'))
-					{
-						$name = mb_convert_encoding($files [$i] , 'UTF-8', mb_detect_encoding($files[$i] , 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
-					}
-					else
-					{
-						$name = $files[$i];
-					}
-					echo "\t\t<File name=\"".htmlentities($name, ENT_QUOTES, 'UTF-8')."\" size=\"".ceil(filesize($this->real_cwd."/".$files [$i] )/1024)."\" editable=\"" . ( $editable?"1":"0" ) . "\" />\n";
-				}
-			}
-		}
-		echo "\t</Files>\n";
+            if ($hide) {
+                continue;
+            }
+
+            if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing']) {
+                if ($this->enable_imgedit) {
+                    $editable = $this->isImageEditable($this->real_cwd . "/" . $iValue);
+                }
+            }
+            if (extension_loaded('mbstring')) {
+                $name = mb_convert_encoding($iValue, 'UTF-8', mb_detect_encoding($iValue, 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
+            } else {
+                $name = $iValue;
+            }
+            echo sprintf(
+                    '<File name="%s" size="%s" editable="%s" />',
+                    htmlentities($name, ENT_QUOTES, 'UTF-8'),
+                    ceil(filesize($this->real_cwd . "/" . $iValue) / 1024),
+                    $editable ? "1" : "0"
+            );
+        }
+        echo "\t</Files>\n";
 		echo "</Connector>\n";
 	}
 	
 	
-	function isImageEditable($file) {
-		$fh=fopen($file,"r");
-		if ($fh) {
-			$start4=fread($fh,4);
-			fclose($fh);
-			
-			$start3=substr($start4,0,3);
-			
-			if ($start4=="\x89PNG") { //PNG
-				return (function_exists("imagecreatefrompng") && function_exists("imagepng"));
-				
-			} elseif ($start3=="GIF") { //GIF
-				return (function_exists("imagecreatefromgif") && function_exists("imagegif"));
-				
-			} elseif ($start3=="\xFF\xD8\xFF") { //JPEG
-				return (function_exists("imagecreatefromjpeg")&& function_exists("imagejpeg"));
-				
-			} elseif ($start4=="hsi1") { //JPEG
-				return (function_exists("imagecreatefromjpeg")&& function_exists("imagejpeg"));
-				
-			} else {
-				return false;
-			}
-			
-		} else {
-			return false;
-		}
-	}
+	public function isImageEditable($file) {
+		$fh=fopen($file, 'rb');
+		if (!$fh) {
+            return false;
+        }
+
+        $start4 = fread($fh, 4);
+        fclose($fh);
+
+        $start3 = substr($start4, 0, 3);
+
+        if ($start4 === "\x89PNG") { //PNG
+            return (function_exists("imagecreatefrompng") && function_exists("imagepng"));
+        }
+
+        if ($start3 === "GIF") { //GIF
+            return (function_exists("imagecreatefromgif") && function_exists("imagegif"));
+        }
+
+        if ($start3 === "\xFF\xD8\xFF") { //JPEG
+            return (function_exists("imagecreatefromjpeg") && function_exists("imagejpeg"));
+        }
+
+        if ($start4 === "hsi1") { //JPEG
+            return (function_exists("imagecreatefromjpeg") && function_exists("imagejpeg"));
+        }
+        return false;
+    }
 }

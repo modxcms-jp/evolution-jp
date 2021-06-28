@@ -10,8 +10,8 @@ class logHandler {
     function logError($msg) {
         include_once MODX_CORE_PATH . 'error.class.inc.php';
         $e = new errorHandler;
-        $e->setError(9, "Logging error: " . $msg);
-        $e->dumpError();
+        alert()->setError(9, "Logging error: " . $msg);
+        alert()->dumpError();
     }
 
     public function initAndWriteLog(
@@ -55,7 +55,7 @@ class logHandler {
             , '[+prefix+]manager_log'
         );
         if (!$insert_id) {
-            $this->logError("Couldn't save log to table! " . $modx->db->getLastError());
+            $this->logError("Couldn't save log to table! " . db()->getLastError());
             return;
         }
 
@@ -79,7 +79,7 @@ class logHandler {
         if ($internalKey != '') {
             $this->entry['internalKey'] = $internalKey;
         } else {
-            $this->entry['internalKey'] = $modx->getLoginUserID();
+            $this->entry['internalKey'] = evo()->getLoginUserID();
         }
         if ($username != '') {
             $this->entry['username'] = $username;

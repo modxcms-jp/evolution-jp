@@ -1,11 +1,11 @@
 <?php
-if(!isset($modx) || !$modx->isLoggedin()) exit;
+if(!isset($modx) || !evo()->isLoggedin()) exit;
 
 function iconMessage() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('messages')) {
+	if(evo()->hasPermission('messages')) {
 		$ph['imgsrc'] = ($_SESSION['nrnewmessages']>0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
 		$ph['action']    = 'index.php?a=10';
 		$ph['title']   = $_lang['inbox'];
@@ -17,7 +17,7 @@ function iconElements() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('new_template') || $modx->hasPermission('edit_template') || $modx->hasPermission('new_snippet') || $modx->hasPermission('edit_snippet') || $modx->hasPermission('new_plugin') || $modx->hasPermission('edit_plugin')) {
+	if(evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
 		$ph['imgsrc'] = 'icons/32x/elements.png';
 		$ph['action']    = 'index.php?a=76';
 		$ph['title']   = $_lang['element_management'];
@@ -29,7 +29,7 @@ function iconNewDoc() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('new_document')||$modx->hasPermission('save_document')) {
+	if(evo()->hasPermission('new_document')||evo()->hasPermission('save_document')) {
 		$ph['imgsrc'] = 'icons/32x/newdoc.png';
 		$ph['action']    = 'index.php?a=4';
 		$ph['title']   = $_lang['add_resource'];
@@ -41,7 +41,7 @@ function iconSettings() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('settings')) {
+	if(evo()->hasPermission('settings')) {
 		$ph['imgsrc'] = 'icons/32x/settings.png';
 		$ph['action'] = 'index.php?a=17';
 		$ph['title']  = $_lang['edit_settings'];
@@ -53,7 +53,7 @@ function iconResources() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('view_document')) {
+	if(evo()->hasPermission('view_document')) {
 		$ph['imgsrc'] = 'icons/32x/resources.png';
 		$ph['action']    = 'index.php?a=120';
 		$ph['title']   = $_lang['view_child_resources_in_container'];
@@ -65,7 +65,7 @@ function iconHelp() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('help')) {
+	if(evo()->hasPermission('help')) {
 		$ph['imgsrc'] = 'icons/32x/help.png';
 		$ph['action']    = 'index.php?a=9';
 		$ph['title']   = $_lang['help'];
@@ -77,7 +77,7 @@ function iconFileManager() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('file_manager')) {
+	if(evo()->hasPermission('file_manager')) {
 		$ph['imgsrc'] = 'icons/32x/files.png';
 		$ph['action']    = 'index.php?a=31';
 		$ph['title']   = $_lang['manage_files'];
@@ -89,7 +89,7 @@ function iconEventLog() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('view_eventlog')) {
+	if(evo()->hasPermission('view_eventlog')) {
 		$ph['imgsrc'] = 'icons/32x/log.png';
 		$ph['action']    = 'index.php?a=114';
 		$ph['title']   = $_lang['eventlog'];
@@ -101,7 +101,7 @@ function iconSysInfo() {
 	global $modx,$_lang;
 	
 	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if($modx->hasPermission('logs')) {
+	if(evo()->hasPermission('logs')) {
 		$ph['imgsrc'] = 'icons/32x/info.png';
 		$ph['action']    = 'index.php?a=53';
 		$ph['title']   = $_lang['view_sysinfo'];
@@ -166,19 +166,19 @@ TPL;
     $user_info = $modx->parseText($tpl,$ph);
     
     // recent document info
-    $uid = $modx->getLoginUserID();
+    $uid = evo()->getLoginUserID();
     $field = 'id, pagetitle, description, editedon, editedby';
-    $tbl_site_content = $modx->getFullTableName('site_content');
+    $tbl_site_content = evo()->getFullTableName('site_content');
     $where = "deleted=0 AND editedby='{$uid}'";
-    $rs = $modx->db->select($field,$tbl_site_content,$where,'editedon DESC',10);
+    $rs = db()->select($field,$tbl_site_content,$where,'editedon DESC',10);
     
     $recent_info = $_lang["activity_message"].'<br /><br /><ul>';
     
-    if($modx->db->getRecordCount($rs) < 1) {
+    if(db()->count($rs) < 1) {
         $recent_info .= '<li>' . $_lang['no_activity_message'] . '</li>';
     } else {
     	$tpl = '<li><b>[+editedon+]</b> - [[+id+]] <a href="index.php?a=3&amp;id=[+id+]">[+pagetitle+]</a>[+description+]</li>';
-    	while($row = $modx->db->getRow($rs)) {
+    	while($row = db()->getRow($rs)) {
     		$row['editedon'] = $modx->toDateFormat($row['editedon']);
             if ($row['description'] != '') {
                 $row['description'] = ' - ' . $row['description'];
@@ -214,13 +214,13 @@ function tabOnlineUser() {
     $timetocheck = (time()-(60*20));//+$server_offset_time;
     
     include_once($modx->config['core_path'] . 'actionlist.inc.php');
-    $rs = $modx->db->select('*','[+prefix+]active_users', "lasthit>'{$timetocheck}'", 'username ASC');
-    $total = $modx->db->getRecordCount($rs);
+    $rs = db()->select('*','[+prefix+]active_users', "lasthit>'{$timetocheck}'", 'username ASC');
+    $total = db()->count($rs);
     if($total==1) {
     	$ph['OnlineInfo'] = $modx->parseText('<p>[+no_active_users_found+]</p>',$ph);
     } else {
     	$tr = array();
-    	while ($row = $modx->db->getRow($rs))
+    	while ($row = db()->getRow($rs))
     	{
     		$currentaction = getAction($row['action'], $row['id']);
     		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />':'';
