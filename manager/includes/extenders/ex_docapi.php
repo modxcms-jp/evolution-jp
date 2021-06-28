@@ -137,11 +137,12 @@ class DocAPI {
 
         if (empty($f['unpub_date'])) {
             $f['unpub_date'] = 0;
-        } else {
-            $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-            if ($f['unpub_date'] < request_time()) {
-                $f['published'] = 0;
-            }
+            return $f;
+        }
+
+        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
+        if ($f['unpub_date'] < request_time()) {
+            $f['published'] = 0;
         }
         return $f;
     }
@@ -215,17 +216,17 @@ class DocAPI {
                     , $doc_id
                 )
             );
-        } else {
-            db()->insert(
-                array(
-                    'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
-                    'contentid' => $doc_id,
-                    'value' => db()->escape($value)
-                )
-                , '[+prefix+]site_tmplvar_contentvalues'
-            );
+            return;
         }
-}
+        db()->insert(
+            array(
+                'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
+                'contentid' => $doc_id,
+                'value' => db()->escape($value)
+            )
+            , '[+prefix+]site_tmplvar_contentvalues'
+        );
+    }
 
     private function tmplVars($template_id) {
         static $tmplvars = null;
@@ -409,7 +410,11 @@ class DocAPI {
         }
 
         if ($form_v['pagetitle'] === '') {
-            $form_v['pagetitle'] = ($form_v['type'] === 'reference') ? $_lang['untitled_weblink'] : $_lang['untitled_resource'];
+            if ($form_v['type'] === 'reference') {
+                $form_v['pagetitle'] = $_lang['untitled_weblink'];
+            } else {
+                $form_v['pagetitle'] = $_lang['untitled_resource'];
+            }
         }
 
         if (substr($form_v['alias'], -1) === '/') {
@@ -420,11 +425,11 @@ class DocAPI {
 
         if (!empty($form_v['pub_date'])) {
             $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
-            if (empty($form_v['pub_date'])) {
+            if (!$form_v['pub_date']) {
                 evo()->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
                 if (evo()->array_get($form_v, 'id')) {
-                    $url .= "&id={evo()->array_get($form_v, 'id')}";
+                    $url .= "&id=".evo()->array_get($form_v, 'id');
                 }
                 evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
             } elseif ($form_v['pub_date'] < request_time()) {
@@ -436,11 +441,11 @@ class DocAPI {
 
         if (!empty($form_v['unpub_date'])) {
             $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
-            if (empty($form_v['unpub_date'])) {
+            if (!$form_v['unpub_date']) {
                 evo()->manager->saveFormValues($mode);
                 $url = "index.php?a={$mode}";
                 if (evo()->array_get($form_v, 'id')) {
-                    $url .= "&id={evo()->array_get($form_v, 'id')}";
+                    $url .= "&id=".evo()->array_get($form_v, 'id');
                 }
                 evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
             } elseif ($form_v['unpub_date'] < request_time()) {
@@ -500,18 +505,18 @@ class DocAPI {
             $f['pub_date'] = 0;
         }
 
-        if (isset($f['unpub_date']) && !empty($f['unpub_date'])) {
-            $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
-
-            if ($f['unpub_date'] < request_time()) {
-                $f['published'] = 0;
-            } else {
-                $f['published'] = 1;
-            }
-        } else {
+        if (!isset($f['unpub_date']) || empty($f['unpub_date'])) {
             $f['unpub_date'] = 0;
+            return $f;
         }
 
+        $f['unpub_date'] = evo()->toTimeStamp($f['unpub_date']);
+        if ($f['unpub_date'] < request_time()) {
+            $f['published'] = 0;
+            return $f;
+        }
+
+        $f['published'] = 1;
         return $f;
     }
 
@@ -578,12 +583,8 @@ class DocAPI {
     }
 
     function existsDoc($id = 0) {
-        $rs = db()->select('id', '[+prefix+]site_content', "id='{$id}'");
-        if (db()->count($rs) == 0) {
-            return false;
-        }
-
-        return true;
+        $rs = db()->select('id', '[+prefix+]site_content', where('id', $id));
+        return db()->count($rs) != 0;
     }
 }
 
