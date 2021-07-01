@@ -416,7 +416,7 @@ class ManagerAPI {
     function ab($ph) {
         return html_tag(
             '<li>'
-            , array('class' => $ph['label'] == lang('cancel') ? 'class="mutate"' : ''),
+            , array('class' => $ph['label'] == lang('cancel') ? 'mutate' : ''),
             html_tag(
                 '<a>',
                 array(
