@@ -558,10 +558,9 @@ class DocManagerBackend
                 foreach ($idarray as $iValue) {
                     $pids .= $column . "='" . $iValue . "' OR ";
                 }
-            }
-            /* value is a single document */ elseif (preg_match('/^[\d]+$/', $value, $match)) {
+            } elseif (preg_match('/^[\d]+$/', $value, $match)) {
                 if ($returnval == 0) {
-                    $idarray[] = ($i + $match[0]);
+                    $idarray[] = ($match[0]);
                 } else {
                     $pids .= $column . "='" . $value . "' OR ";
                 }
