@@ -113,7 +113,7 @@ if (mode() === 'edit') {
         evo()->webAlertAndQuit(
             sprintf(
                 "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>."
-                , $sql
+                , db()->lastQuery()
             ), sprintf('index.php?a=27&id=%s', $id)
         );
     }
@@ -125,7 +125,6 @@ if (mode() === 'edit') {
     setDocPermissionsEdit($document_groups, $id);
     updateParentStatus($form_v['parent']);
 
-    // finished moving the document, now check to see if the old_parent should no longer be a folder
     if ($db_v['parent'] != 0) {
         folder2doc($db_v['parent']);
     }
@@ -247,24 +246,23 @@ function get_alias($id, $alias, $parent, $pagetitle) {
         $parent = '0';
     }
     if ($alias && !evo()->config('allow_duplicate_alias')) {
-        // check for duplicate alias name if not allowed
         return _check_duplicate_alias($id, $alias, $parent);
     }
 
-    if (!$alias && evo()->config('automatic_alias')) { // auto assign alias
-        $i = evo()->config('automatic_alias');
-        if ($i == 1) {
-            return evo()->manager->get_alias_from_title($id, $pagetitle);
-        }
-        if ($i == 2) {
-            return evo()->manager->get_alias_num_in_folder($id, $parent);
-        }
+    if ($alias || !evo()->config('automatic_alias')) {
+        return $alias;
+    }
+    $i = evo()->config('automatic_alias');
+    if ($i == 1) {
+        return evo()->manager->get_alias_from_title($id, $pagetitle);
+    }
+    if ($i == 2) {
+        return evo()->manager->get_alias_num_in_folder($id, $parent);
     }
     return $alias;
 }
 
 function _check_duplicate_alias($id, $alias, $parent) {
-    // only check for duplicates on the same level if alias_path is on
     if (evo()->config('use_alias_path')) {
         $docid = db()->getValue(
             'id'
@@ -308,28 +306,28 @@ function _check_duplicate_alias($id, $alias, $parent) {
         }
     }
 
-    if ($docid) {
-        evo()->manager->saveFormValues(postv('mode'));
-
-        $url = sprintf('index.php?a=%s', postv('mode'));
-        if (mode() === 'edit') {
-            $url .= sprintf('&id=%s', $id);
-        } elseif (anyv('pid')) {
-            $url .= sprintf('&pid=%s', anyv('pid'));
-        }
-
-        if (anyv('stay')) {
-            $url .= '&stay=' . anyv('stay');
-        }
-
-        evo()->webAlertAndQuit(
-            sprintf(lang('duplicate_alias_found')
-                , $docid
-                , $alias
-            )
-            , $url
-        );
+    if (!$docid) {
+        return $alias;
     }
+    evo()->manager->saveFormValues(postv('mode'));
+    $url = sprintf('index.php?a=%s', postv('mode'));
+    if (mode() === 'edit') {
+        $url .= sprintf('&id=%s', $id);
+    } elseif (anyv('pid')) {
+        $url .= sprintf('&pid=%s', anyv('pid'));
+    }
+
+    if (anyv('stay')) {
+        $url .= '&stay=' . anyv('stay');
+    }
+
+    evo()->webAlertAndQuit(
+        sprintf(lang('duplicate_alias_found')
+            , $docid
+            , $alias
+        )
+        , $url
+    );
     return $alias;
 }
 
@@ -410,9 +408,8 @@ function isAllowroot() {
     }
     if (evo()->config('udperms_allowroot')) {
         return 1;
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 function getInputValues($id = 0, $mode = 'new') {
@@ -531,7 +528,6 @@ function checkPublishedby($db_v) {
         return $db_v['publishedon'];
     }
 
-    // if it was changed from unpublished to published
     if ($form_v['published'] && $form_v['pub_date'] <= request_time()) {
         return $db_v['publishedby'];
     }
@@ -573,11 +569,12 @@ function insert_tmplvars($docid, $tmplvars) {
             $tvChanges[] = $tv;
         }
     }
-    if ($tvChanges) {
-        foreach ($tvChanges as $tv) {
-            $tv = db()->escape($tv);
-            db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
-        }
+    if (!$tvChanges) {
+        return;
+    }
+    foreach ($tvChanges as $tv) {
+        $tv = db()->escape($tv);
+        db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
     }
 }
 
@@ -625,20 +622,20 @@ function update_tmplvars($docid, $tmplvars) {
         }
     }
 
-    if ($tvChanges) {
-        foreach ($tvChanges as $tv) {
-            $tv = db()->escape($tv);
-            $tvid = $tv['tmplvarid'];
-            db()->update(
-                $tv
-                , '[+prefix+]site_tmplvar_contentvalues'
-                , sprintf(
-                    "tmplvarid='%s' AND contentid='%s'"
-                    , $tvid
-                    , $docid
-                )
-            );
-        }
+    if (!$tvChanges) {
+        return;
+    }
+    foreach ($tvChanges as $tv) {
+        $tv = db()->escape($tv);
+        db()->update(
+            $tv
+            , '[+prefix+]site_tmplvar_contentvalues'
+            , sprintf(
+                "tmplvarid='%s' AND contentid='%s'"
+                , $tv['tmplvarid']
+                , $docid
+            )
+        );
     }
 }
 
@@ -684,10 +681,12 @@ function setDocPermissionsNew($document_groups, $newid) {
             $docgrp_save_attempt = true;
         }
     }
-    if ($docgrp_save_attempt && !$saved) {
-        $msg = 'An error occured while attempting to add the document to a document_group.';
-        evo()->webAlertAndQuit($msg);
+    if (!$docgrp_save_attempt || $saved) {
+        return;
     }
+    evo()->webAlertAndQuit(
+        'An error occured while attempting to add the document to a document_group.'
+    );
 }
 
 function isPublic() {
@@ -705,11 +704,13 @@ function updateParentStatus($parent) {
         , '[+prefix+]site_content'
         , sprintf("id='%s'", $parent)
     );
-    if (!$rs) {
-        evo()->webAlertAndQuit(
-            "An error occured while attempting to change the document's parent to a folder."
-        );
+    if ($rs) {
+        return;
     }
+
+    evo()->webAlertAndQuit(
+        "An error occured while attempting to change the document's parent to a folder."
+    );
 }
 
 // redirect/stay options
@@ -745,8 +746,6 @@ function setDocPermissionsEdit($document_groups, $id) {
     if (evo()->config('use_udperms') != 1 || !is_array($document_groups)) {
         return;
     }
-
-    // grab the current set of permissions on this document the user can access
     $rs = db()->select(
         'groups.id, groups.document_group'
         , array(
@@ -764,9 +763,7 @@ function setDocPermissionsEdit($document_groups, $id) {
     while ($row = db()->getRow($rs)) {
         $exists_groups[$row['document_group']] = $row['id'];
     }
-    // update the permissions in the database
     $new_groups = array();
-    // process the new input
     foreach ($document_groups as $value_pair) {
         list($group, $link_id) = explode(',', $value_pair);
         $new_groups[$group] = $link_id;
@@ -813,9 +810,10 @@ function setDocPermissionsEdit($document_groups, $id) {
             $saved = false;
         }
     }
-    if (!$saved) {
-        evo()->webAlertAndQuit('An error occured while saving document groups.');
+    if ($saved) {
+        return;
     }
+    evo()->webAlertAndQuit('An error occured while saving document groups.');
 }
 
 function folder2doc($parent) {
@@ -828,16 +826,18 @@ function folder2doc($parent) {
         echo "An error occured while attempting to find the old parents' children.";
     }
     $row = db()->getRow($rs);
-    if (!$row['total']) {
-        $rs = db()->update(
-            'isfolder = 0'
-            , '[+prefix+]site_content'
-            , sprintf("id='%s'", $parent)
-        );
-        if (!$rs) {
-            echo 'An error occured while attempting to change the old parent to a regular document.';
-        }
+    if ($row['total']) {
+        return;
     }
+    $rs = db()->update(
+        'isfolder = 0'
+        , '[+prefix+]site_content'
+        , sprintf("id='%s'", $parent)
+    );
+    if ($rs) {
+        return;
+    }
+    echo 'An error occured while attempting to change the old parent to a regular document.';
 }
 
 function getDocGroups() {

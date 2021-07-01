@@ -21,7 +21,7 @@ if (!$modx->checkPermissions($id)) {
     exit;
 }
 
-$doc = $modx->db->getObject('site_content', "id='{$id}'");
+$doc = $modx->db->getObject('site_content', "id='" . $id . "'");
 
 // update the document
 $field['published'] = 0;
@@ -33,7 +33,7 @@ $field['publishedon'] = 0;
 $field['editedon'] = time();
 $field['editedby'] = evo()->getLoginUserID();
 
-$rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
+$rs = db()->update($field, '[+prefix+]site_content', "id='" . $id . "'");
 if (!$rs) {
     exit("An error occured while attempting to unpublish the document.");
 }
@@ -44,8 +44,8 @@ evo()->invokeEvent('OnDocUnPublished', $tmp);
 
 $modx->clearCache();
 
-$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
+$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='" . $id . "'"));
+$page = (isset($_GET['page'])) ? "&page=" . $_GET['page'] : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
 } else {

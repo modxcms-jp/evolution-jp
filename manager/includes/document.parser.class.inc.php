@@ -4471,7 +4471,7 @@ class DocumentParser {
     }
 
     # invoke an event. $extParams - hash array: name=>value
-    function invokeEvent($evtName, &$extParams = array()) {
+    public function invokeEvent($evtName, &$extParams = array()) {
         if ($this->debug) {
             $fstart = $this->getMicroTime();
         }

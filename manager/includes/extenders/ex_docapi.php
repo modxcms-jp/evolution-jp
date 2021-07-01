@@ -120,7 +120,7 @@ class DocAPI {
         $f['pub_date'] = '';
         $f['unpub_date'] = '';
 
-        db()->update($f, '[+prefix+]site_content', "id='{$id}'");
+        db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
 
     function setPubStatus($f) {
@@ -375,13 +375,12 @@ class DocAPI {
 
     function setValue($form_v) {
         global $_lang;
-        $mode = $_POST['mode'];
 
         $form_v['alias'] = get_alias(
-            evo()->array_get($form_v, 'id')
-            , evo()->array_get($form_v, 'alias')
-            , evo()->array_get($form_v, 'parent')
-            , evo()->array_get($form_v, 'pagetitle')
+            array_get($form_v, 'id')
+            , array_get($form_v, 'alias')
+            , array_get($form_v, 'parent')
+            , array_get($form_v, 'pagetitle')
         );
         if ($form_v['type'] !== 'reference' && $form_v['contentType'] !== 'text/html') {
             $form_v['richtext'] = 0;
@@ -426,13 +425,21 @@ class DocAPI {
         if (!empty($form_v['pub_date'])) {
             $form_v['pub_date'] = evo()->toTimeStamp($form_v['pub_date']);
             if (!$form_v['pub_date']) {
-                evo()->manager->saveFormValues($mode);
-                $url = "index.php?a={$mode}";
-                if (evo()->array_get($form_v, 'id')) {
-                    $url .= "&id=".evo()->array_get($form_v, 'id');
+                evo()->manager->saveFormValues(postv('mode'));
+                if (array_get($form_v, 'id')) {
+                    evo()->webAlertAndQuit(
+                        $_lang['mgrlog_dateinvalid'],
+                        "index.php?a=" . postv('mode') . "&id=".array_get($form_v, 'id')
+                    );
+                    exit;
                 }
-                evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
-            } elseif ($form_v['pub_date'] < request_time()) {
+                evo()->webAlertAndQuit(
+                    $_lang['mgrlog_dateinvalid'],
+                    "index.php?a=" . postv('mode')
+                );
+                exit;
+            }
+            if ($form_v['pub_date'] < request_time()) {
                 $form_v['published'] = 1;
             } elseif ($form_v['pub_date'] > request_time()) {
                 $form_v['published'] = 0;
@@ -442,10 +449,10 @@ class DocAPI {
         if (!empty($form_v['unpub_date'])) {
             $form_v['unpub_date'] = evo()->toTimeStamp($form_v['unpub_date']);
             if (!$form_v['unpub_date']) {
-                evo()->manager->saveFormValues($mode);
-                $url = "index.php?a={$mode}";
-                if (evo()->array_get($form_v, 'id')) {
-                    $url .= "&id=".evo()->array_get($form_v, 'id');
+                evo()->manager->saveFormValues(postv('mode'));
+                $url = "index.php?a=" . postv('mode');
+                if (array_get($form_v, 'id')) {
+                    $url .= "&id=".array_get($form_v, 'id');
                 }
                 evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], $url);
             } elseif ($form_v['unpub_date'] < request_time()) {
@@ -454,7 +461,7 @@ class DocAPI {
         }
 
         // deny publishing if not permitted
-        if (evo()->array_get('mode') != 27) {
+        if (array_get('mode') != 27) {
             return $form_v;
         }
 
@@ -521,22 +528,18 @@ class DocAPI {
     }
 
     function fixTvNest($form_v) {
-        if (isset($form_v['ta'])) {
+        if(isset($form_v['ta'])) {
             $form_v['content'] = $form_v['ta'];
             unset($form_v['ta']);
         }
-        $target = explode(
-            ','
-            , 'ta,introtext,pagetitle,longtitle,menutitle,description,alias,link_attributes'
-        );
-        foreach ($target as $key) {
-            if (strpos($form_v[$key], '[*' . $key . '*]') === false) {
+        foreach ($form_v as $k=>$v) {
+            if(is_array($v)) {
                 continue;
             }
-            $form_v[$key] = str_replace(
-                '[*' . $key . '*]'
-                , '[ *' . $key . '* ]'
-                , $form_v[$key]
+            $form_v[$k] = str_replace(
+                '[*' . $k . '*]'
+                , '[ *' . $k . '* ]'
+                , $v
             );
         }
         return $form_v;

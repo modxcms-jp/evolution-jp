@@ -33,13 +33,9 @@ class REVISION
         return $rev;
     }
 
-    public function getRevisionObject(
-        $elmid,
-        $elm = 'resource',
-        $addContent = ''
-    ) {
+    public function getRevisionObject($elmid, $elm = 'resource', $addContent = '') {
         $rs = $this->_setStatus($elmid, $elm);
-        if ( ! $rs) {
+        if (!$rs) {
             return false;
         }
         if ($addContent && ! is_array($addContent)) {
@@ -58,7 +54,7 @@ class REVISION
                     $obj[$k] = $v;
                     continue;
                 }
-                if ( ! $addContent) {
+                if (!$addContent) {
                     continue;
                 }
                 $tmp = unserialize($v);
@@ -237,7 +233,6 @@ class REVISION
                 $this->hasPrivate = 1;
             }
         }
-
         return true;
     }
 
@@ -331,7 +326,7 @@ class REVISION
             db()->update(
                 array('pub_date' => array_get($fields, 'pub_date', 0))
                 , '[+prefix+]site_revision'
-                , sprintf("elmid='%s'", $fields['id'])
+                , where('elmid', '=', $fields['id'])
             );
             evo()->setCacheRefreshTime(array_get($fields, 'pub_date', 0));
 

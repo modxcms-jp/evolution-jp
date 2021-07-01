@@ -18,9 +18,8 @@ if (!$modx->checkPermissions($id)) {
 $rs = db()->select('deletedon', '[+prefix+]site_content', "id='{$id}' AND deleted=1");
 if (db()->count($rs) != 1) {
     exit("Couldn't find document to determine it's date of deletion!");
-} else {
-    $deltime = db()->getValue($rs);
 }
+$deltime = db()->getValue($rs);
 
 $children = array();
 getChildren($id);
@@ -50,24 +49,24 @@ if (0 < count($children)) {
 $rs = db()->update($field, '[+prefix+]site_content', "id='{$id}'");
 if (!$rs) {
     exit("Something went wrong while trying to set the document to undeleted status...");
-} else {
-    // invoke OnDocFormUnDelete event
-    $params['id'] = $id;
-    $params['children'] = $children;
-    evo()->invokeEvent("OnDocFormUnDelete", $params);
-
-    // empty cache
-    $modx->clearCache();
-    // finished emptying cache - redirect
-    $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
-    $page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
-    if ($pid !== '0') {
-        $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
-    } else {
-        $header = "Location: index.php?a=2&r=1";
-    }
-    header($header);
 }
+
+// invoke OnDocFormUnDelete event
+$params['id'] = $id;
+$params['children'] = $children;
+evo()->invokeEvent("OnDocFormUnDelete", $params);
+
+// empty cache
+$modx->clearCache();
+// finished emptying cache - redirect
+$pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));
+$page = (isset($_GET['page'])) ? "&page={$_GET['page']}" : '';
+if ($pid !== '0') {
+    $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
+} else {
+    $header = "Location: index.php?a=2&r=1";
+}
+header($header);
 
 
 function getChildren($parent) {
