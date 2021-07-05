@@ -128,6 +128,33 @@ function alert() {
     return $e;
 }
 
+function set(&$array, $key, $value)
+{
+    if (is_null($key)) {
+        return $array = $value;
+    }
+
+    $keys = explode('.', $key);
+
+    foreach ($keys as $i => $key) {
+        if (count($keys) === 1) {
+            break;
+        }
+
+        unset($keys[$i]);
+
+        if (! isset($array[$key]) || ! is_array($array[$key])) {
+            $array[$key] = [];
+        }
+
+        $array = &$array[$key];
+    }
+
+    $array[array_shift($keys)] = $value;
+
+    return $array;
+}
+
 function array_get($array, $key = null, $default = null) {
     if (evo()) {
         return evo()->array_get($array, $key, $default);
@@ -232,12 +259,11 @@ function serverv($key = null, $default = null) {
 }
 
 function sessionv($key = null, $default = null) {
+    if (strpos($key, '*') === 0) {
+        return array_set($_SESSION, ltrim($key, '*'), $default);
+    }
     if (strpos($key,'.')!==false && evo()) {
         return evo()->session($key, $default);
-    }
-    if (strpos($key, '*') === 0) {
-        $_SESSION[ltrim($key, '*')] = $default;
-        return $default;
     }
     return array_get($_SESSION, $key, $default);
 }
