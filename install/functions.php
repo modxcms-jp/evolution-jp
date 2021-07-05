@@ -333,17 +333,17 @@ function is_iis(){
 }
 
 function isUpGradeable() {
-    if(sessionv('is_upgradeable') !== null) {
-        return sessionv('is_upgradeable');
-    }
-
-    sessionv('*is_upgradeable', 0);
-
     error_reporting(E_ALL & ~E_NOTICE);
     $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
     if (!is_file($conf_path)) {
         return 0;
     }
+    
+    if(sessionv('is_upgradeable') !== null) {
+        return sessionv('is_upgradeable');
+    }
+
+    sessionv('*is_upgradeable', 0);
 
     $dbase             = null;
     $database_server   = null;
