@@ -32,10 +32,10 @@ echo sprintf(
 );
 
 $script = '<script>
-    var characters = {' . getCollation() . "},
-    sel = jQuery('#collation'),
-    opt,
-    isSelected;
+    let characters = {' . getCollation() . "};
+    let sel = jQuery('#collation');
+    let opt;
+    let isSelected;
 
 jQuery.each(characters, function (value, name) {
     isSelected = (value === 'utf8_general_ci');

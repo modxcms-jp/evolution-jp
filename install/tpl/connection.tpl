@@ -17,7 +17,7 @@
 
 	<!-- connection test action/status message -->
 	<div class="clickHere">
-		&rarr; <a id="servertest" href="javascript:void()">[+connection_screen_server_test_connection+]</a>
+		&rarr; <a id="servertest" href="javascript:void(0)">[+connection_screen_server_test_connection+]</a>
 	</div>
 	<div class="status" id="serverstatus" style="display:none;"></div>
 	<!-- end connection test action/status message -->
