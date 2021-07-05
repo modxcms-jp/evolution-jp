@@ -23,7 +23,7 @@ require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
 require_once(MODX_SETUP_PATH . 'functions.php');
 
 if (!install_sessionCheck()) {
-    echo $modx->parseText(
+    echo parseText(
         file_get_contents(MODX_SETUP_PATH . 'tpl/session_problem.tpl')
         , includeLang(lang_name())
     );
