@@ -106,9 +106,8 @@ class init {
     }
 
     public static function get_base_path() {
-        $self = 'manager/includes/initialize.functions.inc.php';
         return str_replace(
-            array('\\', $self)
+            array('\\', 'manager/includes/initialize.functions.inc.php')
             , array('/', '')
             , __FILE__
         );
@@ -133,18 +132,19 @@ class init {
             $dir = substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/'));
             $pos = strrpos($dir, '/', -1);
             if ($pos) {
-                $dir = substr($dir, $pos);
+                return substr($dir, $pos) . '/';
             }
             return $dir . '/';
         }
 
-        $dir = substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/') + 1);
-        $dir = preg_replace('@(.*?)/assets/.*$@', '$1', $dir);
+        $dir = preg_replace(
+            '@(.*?)/assets/.*$@', '$1',
+            substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/') + 1)
+        );
         if (strpos($SCRIPT_NAME, '/~') === 0) {
             $dir = '/~' . substr($dir, 1);
         }
-        $dir = rtrim($dir, '/') . '/';
-        return $dir;
+        return rtrim($dir, '/') . '/';
     }
 
     public static function get_host_name() {
@@ -184,39 +184,40 @@ class init {
 
     // set the document_root :|
     public static function fix_document_root() {
-        if (serverv('PATH_INFO') && !serverv('DOCUMENT_ROOT')) {
-            $_SERVER['DOCUMENT_ROOT'] = str_replace(
-                    $_SERVER['PATH_INFO']
-                    , ''
-                    , str_replace(
-                        '\\'
-                        , '/'
-                        , serverv('PATH_TRANSLATED'))
-                ) . '/';
+        if (!serverv('PATH_INFO') || serverv('DOCUMENT_ROOT')) {
+            return;
         }
+        $_SERVER['DOCUMENT_ROOT'] = str_replace(
+                $_SERVER['PATH_INFO']
+                , ''
+                , str_replace(
+                    '\\'
+                    , '/'
+                    , serverv('PATH_TRANSLATED'))
+            ) . '/';
     }
 
     // check PHP version. MODX Evolution is compatible with php 4 (4.4.2+)
     public static function check_phpvar() {
-        if (version_compare(phpversion(), '5.3.0') < 0) {
-            echo 'MODX is compatible with PHP 5.3.0 and higher. Please upgrade your PHP installation!';
-            exit;
+        if (version_compare(phpversion(), '5.3.0') >= 0) {
+            return;
         }
+        echo 'MODX is compatible with PHP 5.3.0 and higher. Please upgrade your PHP installation!';
+        exit;
     }
 
     public static function fix_magic_quotes() {
-        if (version_compare(PHP_VERSION, '5.4') < 0) {
-            // include_once the magic_quotes_gpc workaround
-            if (get_magic_quotes_gpc()) {
-                include_once __DIR__ . '/quotes_stripper.inc.php';
-            }
+        if (version_compare(PHP_VERSION, '5.4') >= 0 || !get_magic_quotes_gpc()) {
+            return;
         }
+        include_once __DIR__ . '/quotes_stripper.inc.php';
     }
 
     public static function fix_request_time() {
-        if (!isset($_SERVER['REQUEST_TIME'])) {
-            $_SERVER['REQUEST_TIME'] = time();
+        if (isset($_SERVER['REQUEST_TIME'])) {
+            return;
         }
+        $_SERVER['REQUEST_TIME'] = time();
     }
 
     public static function fix_server_addr() {
@@ -246,21 +247,23 @@ class init {
         } elseif (isset($_SERVER['HTTP_X_SAKURA_HTTPS'])) {
             $_SERVER['HTTPS'] = $_SERVER['HTTP_X_SAKURA_HTTPS'];
         }
-        if (isset($_SERVER['HTTPS'])) {
-            if ($_SERVER['HTTPS'] == 1) {
-                $_SERVER['HTTPS'] = 'on';
-            } elseif ($_SERVER['HTTPS'] === 'off') {
-                unset($_SERVER['HTTPS']);
-            }
+        if (!isset($_SERVER['HTTPS'])) {
+            return;
+        }
+        if ($_SERVER['HTTPS'] == 1) {
+            $_SERVER['HTTPS'] = 'on';
+        } elseif ($_SERVER['HTTPS'] === 'off') {
+            unset($_SERVER['HTTPS']);
         }
     }
 
     public static function fix_favicon_req() {
-        if (serverv('REQUEST_URI') === '/favicon.ico') {
-            header('Content-Type: image/vnd.microsoft.icon');
-            header('Content-Length: 0');
-            exit;
+        if (serverv('REQUEST_URI') !== '/favicon.ico') {
+            return;
         }
+        header('Content-Type: image/vnd.microsoft.icon');
+        header('Content-Length: 0');
+        exit;
     }
 
     public static function real_ip() {
