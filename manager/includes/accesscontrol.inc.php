@@ -192,7 +192,7 @@ if (!sessionv('mgrValidated')) {
 }
 
 // log the user action
-$_SESSION['ip'] = evo()->real_ip();
+$_SESSION['ip'] = real_ip();
 
 if (manager()->action != 1) {
     $fields = array(
@@ -201,7 +201,7 @@ if (manager()->action != 1) {
         'lasthit' => serverv('REQUEST_TIME',time()),
         'action' => manager()->action,
         'id' => preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0,
-        'ip' => evo()->real_ip()
+        'ip' => real_ip()
     );
     foreach ($fields as $k => $v) {
         $keys[] = $k;

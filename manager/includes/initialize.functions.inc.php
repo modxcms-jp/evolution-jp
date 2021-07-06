@@ -266,19 +266,6 @@ class init {
         exit;
     }
 
-    public static function real_ip() {
-        if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        }
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $_SERVER['HTTP_X_FORWARDED_FOR'];
-        }
-        if (isset($_SERVER['REMOTE_ADDR'])) {
-            return $_SERVER['REMOTE_ADDR'];
-        }
-        return 'UNKNOWN';
-    }
-
     public static function set_session_create_time() {
         if (sessionv('modx.session.created.time')) {
             return;

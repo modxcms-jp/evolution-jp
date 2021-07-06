@@ -5542,6 +5542,6 @@ class DocumentParser {
     }
 
     public function real_ip() {
-        return init::real_ip();
+        return real_ip();
     }
 }

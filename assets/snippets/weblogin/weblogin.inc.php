@@ -105,7 +105,7 @@ else
 {
 	$output= '';
 	
-	$_SESSION['ip'] = $modx->real_ip();
+	$_SESSION['ip'] = real_ip();
 
     if (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
         $itemid = $_REQUEST['id'];
