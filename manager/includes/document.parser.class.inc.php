@@ -5122,7 +5122,9 @@ class DocumentParser {
         }
 
         if (is_file(MODX_BASE_PATH . 'install/index.php')) {
-            header('Location: install/index.php?action=mode');
+            header(
+                sprintf('Location: %sinstall/index.php?action=mode',MODX_SITE_URL)
+            );
             exit();
         }
 
