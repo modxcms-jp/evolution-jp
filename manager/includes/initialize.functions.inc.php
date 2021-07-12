@@ -197,6 +197,16 @@ class init {
             ) . '/';
     }
 
+    public static function fix_script_name(){
+        if (strpos(serverv('script_name'), '/'.serverv('server_name')) !== 0) {
+            return;
+        }
+        $_SERVER['SCRIPT_NAME'] = substr(
+            serverv('script_name'),
+            strlen(serverv('server_name'))+1
+        );
+    }
+
     // check PHP version. MODX Evolution is compatible with php 4 (4.4.2+)
     public static function check_phpvar() {
         if (version_compare(phpversion(), '5.3.0') >= 0) {
