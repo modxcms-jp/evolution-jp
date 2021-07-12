@@ -1,5 +1,5 @@
 <?php
-
+global $errors, $tplPlugins;
 if (!sessionv('plugin') && !sessionv('installdata')) {
     return;
 }
@@ -46,7 +46,7 @@ foreach ($tplPlugins as $i=>$tplInfo) {
     $f = array();
     $f['name']        = $name;
     $f['description'] = $tplInfo['description'];
-    $plugincode = getLast(preg_split("@(//)?\s*\<\?php@", file_get_contents($tpl_file_path), 2));
+    $plugincode = getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tpl_file_path), 2));
     $f['plugincode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
     $name = db()->escape($name);
     $dbv_plugin = db()->getObject('site_plugins', "name='" . $name . "' AND disabled='0'");
@@ -62,27 +62,27 @@ foreach ($tplPlugins as $i=>$tplInfo) {
 
     $pluginId = false;
 
-    if($dbv_plugin!==false && $dbv_plugin->description !== $tplInfo['description']) {
-        $rs = db()->update(array('disabled'=>'1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
-        if($rs) {
-            $f['category']  = db()->escape($dbv_plugin->category);
-            $pluginId = db()->insert($f, '[+prefix+]site_plugins');
-        }
-        if(!$rs || !$pluginId) {
-            $errors += 1;
-            showError();
-            return;
-        }
-        echo ok($name, lang('upgraded'));
-    } else {
-        $f['category']    = getCreateDbCategory($tplInfo['category']);
+    if($dbv_plugin === false || $dbv_plugin->description === $tplInfo['description']) {
+        $f['category'] = getCreateDbCategory($tplInfo['category']);
         $pluginId = db()->insert($f, '[+prefix+]site_plugins');
-        if(!$pluginId) {
+        if (!$pluginId) {
             $errors += 1;
             showError();
             return;
         }
         echo ok($name, lang('installed'));
+    } else {
+        $rs = db()->update(array('disabled' => '1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+        if ($rs) {
+            $f['category'] = db()->escape($dbv_plugin->category);
+            $pluginId = db()->insert($f, '[+prefix+]site_plugins');
+        }
+        if (!$rs || !$pluginId) {
+            $errors += 1;
+            showError();
+            return;
+        }
+        echo ok($name, lang('upgraded'));
     }
 
     // add system events
