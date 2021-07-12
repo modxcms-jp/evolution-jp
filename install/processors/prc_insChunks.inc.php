@@ -46,7 +46,7 @@ foreach ($tplChunks as $i => $tplInfo) {
             , db()->escape($tplInfo['name'])
         )
     );
-    if (!$rs) {
+    if (!db()->count($rs)) {
         if(!db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
             $errors++;
             showError();
