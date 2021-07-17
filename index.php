@@ -3,8 +3,8 @@ if(!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
     $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 }
 $mstart = memory_get_usage();
-$base_path = str_replace('\\', '/', __DIR__) . '/';
-define('MODX_BASE_PATH', $base_path);
+
+define('MODX_BASE_PATH', str_replace('\\', '/', __DIR__) . '/');
 if(defined('IN_MANAGER_MODE')) {
     return;
 }
