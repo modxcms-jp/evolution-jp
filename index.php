@@ -76,16 +76,17 @@ if (!isset($loaded_autoload) && is_file(MODX_BASE_PATH.'autoload.php')) {
 
 // initiate a new document parser
 include_once(MODX_BASE_PATH.'manager/includes/document.parser.class.inc.php');
-$modx = new DocumentParser;
+$evo = new DocumentParser;
+$modx =& $evo;
 
-$modx->mstart           = $mstart;
-$modx->cacheRefreshTime = $cacheRefreshTime;
+$evo->mstart           = $mstart;
+$evo->cacheRefreshTime = $cacheRefreshTime;
 if(isset($error_reporting)) {
-    $modx->error_reporting = $error_reporting;
+    $evo->error_reporting = $error_reporting;
 }
 
 // execute the parser if index.php was not included
 if (defined('IN_PARSER_MODE') && IN_PARSER_MODE==='true') {
-    $result = $modx->executeParser();
+    $result = $evo->executeParser();
     echo $result;
 }
