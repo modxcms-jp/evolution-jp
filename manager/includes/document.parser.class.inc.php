@@ -1946,7 +1946,9 @@ class DocumentParser {
             }
             if (!isset($ph[$key]) && !$context) {
                 continue;
-            } elseif ($context) {
+            }
+
+            if ($context) {
                 $value = $this->_contextValue("{$key}@{$context}", $this->documentObject['parent']);
             } else {
                 $value = $ph[$key];
@@ -1960,7 +1962,7 @@ class DocumentParser {
                 }
             }
 
-            if (substr($value, 0, 1) === '@') {
+            if (strpos($value, '@') === 0) {
                 $value = $this->atBind($value);
             }
 
@@ -1974,7 +1976,7 @@ class DocumentParser {
         }
 
         if ($this->debug) {
-            $_ = join(', ', $matches[0]);
+            $_ = implode(', ', $matches[0]);
             $this->addLogEntry('$modx->' . __FUNCTION__ . "[{$_}]", $fstart);
         }
         return $content;
