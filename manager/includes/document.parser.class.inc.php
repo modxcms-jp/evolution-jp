@@ -224,7 +224,8 @@ class DocumentParser {
                 return true;
             case 'modifiers' : //Modfires
             case 'phx' :
-                include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
+            case 'filter' :
+                    include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
                 include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
@@ -2461,7 +2462,7 @@ class DocumentParser {
         $cmd = trim($cmd);
         $cmd = rtrim($cmd, '-');
         $cmd = str_replace(array(' and ', ' or '), array('&&', '||'), strtolower($cmd));
-        $token = preg_split('@(\&\&|\|\|)@', $cmd, null, PREG_SPLIT_DELIM_CAPTURE);
+        $token = preg_split('@(&&|\|\|)@', $cmd, null, PREG_SPLIT_DELIM_CAPTURE);
         $cmd = array();
         foreach ($token as $i => $v) {
             $v = trim($v);
@@ -2475,7 +2476,7 @@ class DocumentParser {
                     $v = 0;
                 } elseif (preg_match('@^-?[0-9]+$@', $v)) {
                     $v = (int)$v;
-                } elseif (preg_match('@^[0-9<>=/ \-\+\*\(\)%]*$@', $v)) {
+                } elseif (preg_match('@^[0-9<>=/ \-+*()%]*$@', $v)) {
                     $v = eval("return {$v};");
                 } elseif (trim($v, "' ") == '') {
                     $v = 0;
