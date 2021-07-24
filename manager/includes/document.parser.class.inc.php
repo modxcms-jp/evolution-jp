@@ -2683,13 +2683,12 @@ class DocumentParser {
                 $path = trim(str_ireplace('@include:','',$call));
                 if(is_file($path)) {
                     ob_start();
-                    $return = ob_get_include($path);
-                    $echo = ob_get_clean();
+                    $return = include $path;
                 }
                 $content = str_replace(
                     $matches[0][$i]
-                    , $value
-                    , $echo ? $echo : $return
+                    , ob_get_clean() ?: $return
+                    , $content
                 );
                 continue;
             }
