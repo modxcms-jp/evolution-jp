@@ -190,7 +190,6 @@ class MODIFIERS {
     }
 
     function parsePhx($key, $value, $modifiers) {
-        global $modx;
         static $cache = array();
         $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s', $key, $value, print_r($modifiers, true)));
         if (isset($cache[$cacheKey])) {
@@ -231,8 +230,6 @@ class MODIFIERS {
 
     // Parser: modifier detection and eXtended processing if needed
     function Filter($key, $value, $cmd, $opt = '') {
-        global $modx;
-
         if ($key === 'documentObject') {
             $value = evo()->documentIdentifier;
         }
@@ -272,18 +269,19 @@ class MODIFIERS {
             return 0;
         }
 
-        if (isset($modx->snippetCache["phx:{$cmd}"])) {
-            if ($modx->snippetCache["phx:{$cmd}"]) {
-                return 1;
+        if (isset($modx->snippetCache['phx:' . $cmd])) {
+            if (!$modx->snippetCache['phx:' . $cmd]) {
+                return 0;
             }
-            return 0;
+            return 1;
+
         }
 
         if (isset($modx->snippetCache[$cmd])) {
-            if ($modx->snippetCache[$cmd]) {
-                return 1;
+            if (!$modx->snippetCache[$cmd]) {
+                return 0;
             }
-            return 0;
+            return 1;
         }
 
         $code = $this->getSnippetFromDB($cmd);
@@ -305,8 +303,6 @@ class MODIFIERS {
     }
 
     function chunk_exists($cmd) {
-        global $modx;
-
         if (evo()->getChunk('phx:' . $cmd)) {
             return 1;
         }
@@ -564,14 +560,14 @@ class MODIFIERS {
                 break;
             case 'show':
             case 'this':
-                $conditional = join(' ', $this->condition);
+                $conditional = implode(' ', $this->condition);
                 $isvalid = (int)eval(sprintf("return (%s);", $conditional));
                 if ($isvalid) {
                     return $this->srcValue;
                 }
                 return null;
             case 'then':
-                $conditional = join(' ', $this->condition);
+                $conditional = implode(' ', $this->condition);
                 $isvalid = (int)eval(sprintf("return (%s);", $conditional));
                 if ($isvalid) {
                     $opt = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
@@ -579,7 +575,7 @@ class MODIFIERS {
                 }
                 return null;
             case 'else':
-                $conditional = join(' ', $this->condition);
+                $conditional = implode(' ', $this->condition);
                 $isvalid = (int)eval(sprintf('return (%s);', $conditional));
                 if (!$isvalid) {
                     $opt = str_replace(array('[+value+]', '[+output+]', '{value}', '%s'), $value, $opt);
@@ -641,7 +637,7 @@ class MODIFIERS {
                         $v = trim($v, '</> ');
                         $param[] = "<" . $v . ">";
                     }
-                    $params = join(',', $param);
+                    $params = implode(',', $param);
                 } else {
                     $params = '';
                 }
@@ -992,7 +988,7 @@ class MODIFIERS {
                     $opt = constant($opt);
                 }
                 $cmd($swap, $opt);
-                return join($delim, $swap);
+                return implode($delim, $swap);
             // Resource fields
             case 'id':
                 if ($opt) {
@@ -1444,92 +1440,96 @@ class MODIFIERS {
 
     //mbstring
     private function substr($str, $s, $l = null) {
-        global $modx;
         if ($l === null) {
             $l = $this->strlen($str);
         }
-        if (function_exists('mb_substr')) {
-            if (strpos($str, "\r") !== false) {
-                $str = str_replace(array("\r\n", "\r"), "\n", $str);
-            }
-            return mb_substr($str, $s, $l, evo()->config('modx_charset', 'utf-8'));
+        if (!function_exists('mb_substr')) {
+            return substr($str, $s, $l);
         }
-        return substr($str, $s, $l);
+        if (strpos($str, "\r") !== false) {
+            $str = str_replace(array("\r\n", "\r"), "\n", $str);
+        }
+        return mb_substr($str, $s, $l, evo()->config('modx_charset', 'utf-8'));
     }
 
     private function strpos($haystack, $needle, $offset = 0) {
-        if (function_exists('mb_strpos')) {
-            return mb_strpos($haystack, $needle, $offset, evo()->config('modx_charset', 'utf-8'));
+        if (!function_exists('mb_strpos')) {
+            return strpos($haystack, $needle, $offset);
         }
-        return strpos($haystack, $needle, $offset);
+        return mb_strpos(
+            $haystack,
+            $needle,
+            $offset,
+            evo()->config('modx_charset', 'utf-8')
+        );
     }
 
     private function strlen($str) {
-        if (function_exists('mb_strlen')) {
-            return mb_strlen(
-                str_replace("\r\n", "\n", $str)
-                , evo()->config('modx_charset', 'utf-8')
-            );
+        if (!function_exists('mb_strlen')) {
+            return strlen($str);
         }
-        return strlen($str);
+        return mb_strlen(
+            str_replace("\r\n", "\n", $str)
+            , evo()->config('modx_charset', 'utf-8')
+        );
     }
 
     private function strtolower($str) {
-        if (function_exists('mb_strtolower')) {
-            return mb_strtolower($str);
+        if (!function_exists('mb_strtolower')) {
+            return strtolower($str);
         }
-        return strtolower($str);
+        return mb_strtolower($str);
     }
 
     private function strtoupper($str) {
-        if (function_exists('mb_strtoupper')) {
-            return mb_strtoupper($str);
+        if (!function_exists('mb_strtoupper')) {
+            return strtoupper($str);
         }
-        return strtoupper($str);
+        return mb_strtoupper($str);
     }
 
     private function ucfirst($str) {
-        if (function_exists('mb_strtoupper')) {
-            return mb_strtoupper(
-                    $this->substr(
-                        $str
-                        , 0
-                        , 1
-                    )) . $this->substr($str, 1, $this->strlen($str)
-                );
+        if (!function_exists('mb_strtoupper')) {
+            return ucfirst($str);
         }
-        return ucfirst($str);
+        return mb_strtoupper(
+                $this->substr(
+                    $str
+                    , 0
+                    , 1
+                )) . $this->substr($str, 1, $this->strlen($str)
+            );
     }
 
     private function lcfirst($str) {
-        if (function_exists('mb_strtolower')) {
-            return mb_strtolower(
-                    $this->substr(
-                        $str
-                        , 0
-                        , 1
-                    )) . $this->substr($str, 1, $this->strlen($str)
-                );
+        if (!function_exists('mb_strtolower')) {
+            return lcfirst($str);
         }
-        return lcfirst($str);
+        return mb_strtolower(
+                $this->substr(
+                    $str
+                    , 0
+                    , 1
+                )) . $this->substr($str, 1, $this->strlen($str)
+            );
     }
 
     private function ucwords($str) {
-        if (function_exists('mb_convert_case')) {
-            return mb_convert_case($str, MB_CASE_TITLE);
+        if (!function_exists('mb_convert_case')) {
+            return ucwords($str);
         }
-        return ucwords($str);
+        return mb_convert_case($str, MB_CASE_TITLE);
     }
 
     private function strrev($str) {
         preg_match_all('/./us', $str, $ar);
-        return join(array_reverse($ar[0]));
+        return implode(array_reverse($ar[0]));
     }
 
     private function str_shuffle($str) {
         preg_match_all('/./us', $str, $ar);
         shuffle($ar[0]);
-        return join($ar[0]);
+        return implode($ar[0]);
     }
 
     private function str_word_count($str) {
