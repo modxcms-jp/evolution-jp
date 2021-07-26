@@ -8,23 +8,21 @@ if (!evo()->hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-global $form_v;
-include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
-evo()->loadExtension('DocAPI');
-$form_v = evo()->doc->fixTvNest($_POST);
-$form_v = evo()->doc->initValue($form_v);
-$form_v = evo()->doc->setValue($form_v);
-
-// preprocess POST values
-$id = $form_v['id'];
-if (!preg_match('@^[0-9]*$@', $id) || (mode() === 'edit' && !$id)) {
+if (!preg_match('@^[0-9]*$@', postv('id')) || (mode() === 'edit' && !postv('id'))) {
     alert()->setError(2);
     alert()->dumpError();
 }
 
+include_once(MODX_BASE_PATH . 'manager/actions/document/mutate_content/functions.php');
+evo()->loadExtension('DocAPI');
+// global $form_v;
+// $form_v = validated();
+
+$id = validated('id');
+
 $document_groups = getDocGroups();
 
-checkDocPermission($id, $document_groups);
+checkDocPermission(validated('id'), $document_groups);
 
 evo()->manager->saveFormValues();
 
@@ -32,8 +30,8 @@ if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
     $param = array(
         'mode' => 'new',
-        'doc_vars' => getInputValues(evo()->doc->getNewDocID(), 'new'),
-        'tv_vars' => $form_v['template'] ? get_tmplvars() : array()
+        'doc_vars' => getInputValues(evo()->doc->getNewDocID()),
+        'tv_vars' => validated('template') ? get_tmplvars() : array()
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
@@ -51,14 +49,14 @@ if (mode() === 'new') {
     }
 
     setDocPermissionsNew($document_groups, $newid);
-    updateParentStatus($form_v['parent']);
+    updateParentStatus(validated('parent'));
 
     if (evo()->config('use_udperms')) {
         evo()->manager->setWebDocsAsPrivate($newid);
         evo()->manager->setMgrDocsAsPrivate($newid);
     }
 
-    if ($form_v['syncsite']) {
+    if (validated('syncsite')) {
         evo()->clearCache();
     }
 
@@ -66,78 +64,78 @@ if (mode() === 'new') {
     evo()->event->vars = array('mode' => 'new', 'id' => $newid);
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
-    goNextAction($newid, $form_v['parent'], $form_v['stay'], $form_v['type']);
+    goNextAction($newid, validated('parent'), validated('stay'), validated('type'));
     return;
 }
 
 if (mode() === 'edit') {
-    if ($id == evo()->config('site_start')) {
-        checkStartDoc($id, $form_v['published'], $form_v['pub_date'], $form_v['unpub_date']);
+    if (validated('id') == evo()->config('site_start')) {
+        checkStartDoc(validated('id'), validated('published'), validated('pub_date'), validated('unpub_date'));
     }
-    if ($id == $form_v['parent']) {
+    if (validated('id') == validated('parent')) {
         evo()->webAlertAndQuit(
             "Document can not be it's own parent!"
-            , sprintf('index.php?a=27&id=%s', $id)
+            , sprintf('index.php?a=27&id=%s', validated('id'))
         );
     }
 
-    $form_v['isfolder'] = checkFolderStatus($id);
+    validated('*isfolder', checkFolderStatus(validated('id')));
 
-    $db_v = getExistsValues($id);
+    $db_v = getExistsValues(validated('id'));
     // set publishedon and publishedby
-    $form_v['published'] = checkPublished($db_v);
-    $form_v['pub_date'] = checkPub_date($db_v);
-    $form_v['unpub_date'] = checkUnpub_date($db_v);
-    $form_v['publishedon'] = checkPublishedon($db_v['publishedon']);
-    $form_v['publishedby'] = checkPublishedby($db_v);
+    validated('*published', checkPublished($db_v));
+    validated('*pub_date', checkPub_date($db_v));
+    validated('*unpub_date', checkUnpub_date($db_v));
+    validated('*publishedon', checkPublishedon($db_v['publishedon']));
+    validated('*publishedby', checkPublishedby($db_v));
     $len = strlen(evo()->conf_var('friendly_url_suffix'));
-    if (substr($form_v['alias'], -$len) === evo()->conf_var('friendly_url_suffix')) {
-        $form_v['alias'] = substr($form_v['alias'], 0, -$len);
+    if (substr(validated('alias'), -$len) === evo()->conf_var('friendly_url_suffix')) {
+        validated('*alias', substr(validated('alias'), 0, -$len));
     }
     // invoke OnBeforeDocFormSave event
-    $values = getInputValues($id, 'edit');
+    $values = getInputValues(validated('id'), 'edit');
     $param = array(
         'mode' => 'upd',
-        'id' => $id,
+        'id' => validated('id'),
         'doc_vars' => $values,
-        'tv_vars' => $form_v['template'] ? get_tmplvars($id) : array()
+        'tv_vars' => validated('template') ? get_tmplvars() : array()
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
     $rs = db()->update(
         db()->escape($param['doc_vars'])
         , '[+prefix+]site_content'
-        , sprintf("id='%s'", $id)
+        , sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
         evo()->webAlertAndQuit(
             sprintf(
                 "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>."
                 , db()->lastQuery()
-            ), sprintf('index.php?a=27&id=%s', $id)
+            ), sprintf('index.php?a=27&id=%s', validated('id'))
         );
     }
 
     if ($param['tv_vars']) {
-        update_tmplvars($id, $param['tv_vars']);
+        update_tmplvars(validated('id'), $param['tv_vars']);
     }
 
-    setDocPermissionsEdit($document_groups, $id);
-    updateParentStatus($form_v['parent']);
+    setDocPermissionsEdit($document_groups, validated('id'));
+    updateParentStatus(validated('parent'));
 
     if ($db_v['parent'] != 0) {
         folder2doc($db_v['parent']);
     }
 
     if (evo()->config('use_udperms') == 1) {
-        evo()->manager->setWebDocsAsPrivate($id);
-        evo()->manager->setMgrDocsAsPrivate($id);
+        evo()->manager->setWebDocsAsPrivate(validated('id'));
+        evo()->manager->setMgrDocsAsPrivate(validated('id'));
     }
 
-    if ($form_v['syncsite']) {
-        if ($form_v['published'] != $db_v['published'] || $form_v['alias'] != $db_v['alias']) {
+    if (validated('syncsite')) {
+        if (validated('published') != $db_v['published'] || validated('alias') != $db_v['alias']) {
             evo()->clearCache(array('target' => 'sitecache'));
-        } elseif ($form_v['parent'] != $db_v['parent']) {
+        } elseif (validated('parent') != $db_v['parent']) {
             evo()->clearCache(array('target' => 'sitecache'));
         } else {
             evo()->clearCache(array('target' => 'pagecache'));
@@ -145,19 +143,17 @@ if (mode() === 'edit') {
     }
 
     // invoke OnDocFormSave event
-    evo()->event->vars = array('mode' => 'upd', 'id' => $id);
+    evo()->event->vars = array('mode' => 'upd', 'id' => validated('id'));
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
-    goNextAction($id, $form_v['parent'], $form_v['stay'], $form_v['type']);
+    goNextAction(validated('id'), validated('parent'), validated('stay'), validated('type'));
     return;
 }
 
 header('Location: index.php?a=7');
 
 
-function get_tmplvars($id = 0) {
-    global $form_v;
-
-    $template = $form_v['template'];
+function get_tmplvars() {
+    $template = validated('template');
 
     if (empty($template)) {
         return array();
@@ -188,7 +184,7 @@ function get_tmplvars($id = 0) {
     while ($row = db()->getRow($rs)) {
         $tvid = 'tv' . $row['id'];
 
-        if (!isset($form_v[$tvid])) {
+        if (validated($tvid) === null) {
             $multi_type = array('checkbox', 'listbox-multiple', 'custom_tv');
             if (!in_array($row['type'], $multi_type)) {
                 continue;
@@ -196,34 +192,34 @@ function get_tmplvars($id = 0) {
         }
 
         if ($row['type'] === 'url') {
-            if ($form_v[$tvid . '_prefix'] === 'DocID') {
-                $value = $form_v[$tvid];
+            if (validated($tvid . '_prefix') === 'DocID') {
+                $value = validated($tvid);
                 if (preg_match('/\A[0-9]+\z/', $value)) {
                     $value = '[~' . $value . '~]';
                 }
-            } elseif ($form_v[$tvid . '_prefix'] !== '--') {
-                $value = $form_v[$tvid];
-                $value = $form_v[$tvid . '_prefix'] . $value;
+            } elseif (validated($tvid . '_prefix') !== '--') {
+                $value = validated($tvid . '_prefix') . validated($tvid);
             } else {
-                $value = $form_v[$tvid];
+                $value = validated($tvid);
             }
         } elseif ($row['type'] === 'file') {
-            $value = $form_v[$tvid];
+            $value = validated($tvid);
+        } elseif (is_array(validated($tvid))) {
+            $value = implode('||', validated($tvid));
+        } elseif (validated($tvid)!==null) {
+            $value = validated($tvid);
         } else {
-            if (is_array($form_v[$tvid])) {
-                // handles checkboxes & multiple selects elements
-                $value = join('||', $form_v[$tvid]);
-            } elseif (isset($form_v[$tvid])) {
-                $value = $form_v[$tvid];
-            } else {
-                $value = '';
-            }
+            $value = '';
         }
         // save value if it was modified
         if (substr($row['default_text'], 0, 6) === '@@EVAL') {
-            $eval_str = trim(substr($row['default_text'], 7));
-            $row['default_text'] = eval($eval_str);
+            $row['default_text'] = eval(
+                trim(
+                    substr($row['default_text'], 7)
+                )
+            );
         }
+        
         if (strlen($value) > 0 && $value != $row['default_text']) {
             $tmplvars[$row['id']] = $value;
         } else {
@@ -332,8 +328,6 @@ function _check_duplicate_alias($id, $alias, $parent) {
 }
 
 function checkDocPermission($id, $document_groups = array()) {
-    global $form_v;
-    // ensure that user has not made this document inaccessible to themselves
     if (sessionv('mgrRole') != 1 && is_array($document_groups) && $document_groups) {
         $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
         if ($document_group_list) {
@@ -377,18 +371,18 @@ function checkDocPermission($id, $document_groups = array()) {
         $existingDocument = db()->getRow($rs);
 
         // check to see if the user is allowed to save the document in the place he wants to save it in
-        if ($existingDocument['parent'] == $form_v['parent']) {
+        if ($existingDocument['parent'] == validated('parent')) {
             return;
         }
 
-        if (!evo()->checkPermissions($form_v['parent'])) {
+        if (!evo()->checkPermissions(validated('parent'))) {
             if (mode() === 'new') {
                 $url = 'index.php?a=4';
             } else {
                 $url = "index.php?a=27&id={$id}";
             }
             evo()->manager->saveFormValues();
-            evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, $form_v['alias']), $url);
+            evo()->webAlertAndQuit(sprintf(lang('access_permission_parent_denied'), $id, validated('alias')), $url);
         }
     } elseif (!isAllowroot()) {
         alert()->setError(3);
@@ -413,18 +407,16 @@ function isAllowroot() {
 }
 
 function getInputValues($id = 0, $mode = 'new') {
-    global $form_v;
-
     $db_v_names = explode(',',
         'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
     if ($id) {
         $fields['id'] = $id;
     }
     foreach ($db_v_names as $key) {
-        if (!isset($form_v[$key])) {
-            $form_v[$key] = '';
+        if (validated($key) === null) {
+            validated('*'.$key, '');
         }
-        $fields[$key] = $form_v[$key];
+        $fields[$key] = validated($key);
     }
     if($fields['type'] === 'reference' && !preg_match('{^[1-9][0-9]+$}', $fields['content'])) {
         $fetch_id = evo()->getIdFromUrl($fields['content']);
@@ -462,9 +454,7 @@ function checkStartDoc($id, $published, $pub_date, $unpub_date) {
 }
 
 function checkFolderStatus($id) {
-    global $form_v;
-
-    $isfolder = $form_v['isfolder'];
+    $isfolder = validated('isfolder');
     // check to see document is a folder
     $rs = db()->select('COUNT(id) AS count', '[+prefix+]site_content', "parent='{$id}'");
     if ($rs) {
@@ -480,11 +470,10 @@ function checkFolderStatus($id) {
 
 // keep original publish state, if change is not permitted
 function getPublishPermission($field_name, $db_v) {
-    global $form_v;
     if (!evo()->hasPermission('publish_document')) {
         return $db_v[$field_name];
     }
-    return $form_v[$field_name];
+    return validated($field_name);
 }
 
 function checkPublished($db_v) {
@@ -500,21 +489,19 @@ function checkUnpub_date($db_v) {
 }
 
 function checkPublishedon($timestamp) {
-    global $form_v;
-
     if (!evo()->hasPermission('publish_document')) {
         return $timestamp;
     }
 
-    if ($form_v['published'] && $form_v['pub_date'] && $form_v['pub_date'] <= request_time()) {
-        return $form_v['pub_date'];
+    if (validated('published') && validated('pub_date') && validated('pub_date') <= request_time()) {
+        return validated('pub_date');
     }
 
-    if (0 < $timestamp && $form_v['published']) {
+    if (0 < $timestamp && validated('published')) {
         return $timestamp;
     }
 
-    if (!$form_v['published']) {
+    if (!validated('published')) {
         return 0;
     }
 
@@ -522,21 +509,19 @@ function checkPublishedon($timestamp) {
 }
 
 function checkPublishedby($db_v) {
-    global $form_v;
-
     if (!evo()->hasPermission('publish_document')) {
         return $db_v['publishedon'];
     }
 
-    if ($form_v['published'] && $form_v['pub_date'] <= request_time()) {
+    if (validated('published') && validated('pub_date') <= request_time()) {
         return $db_v['publishedby'];
     }
 
-    if (0 < $db_v['publishedon'] && $form_v['published']) {
+    if (0 < $db_v['publishedon'] && validated('published')) {
         return $db_v['publishedby'];
     }
 
-    if (!$form_v['published']) {
+    if (!validated('published')) {
         return 0;
     }
 
@@ -612,13 +597,17 @@ function update_tmplvars($docid, $tmplvars) {
     }
 
     if ($tvDeletions) {
-        $where = 'id IN(' . join(',', $tvDeletions) . ')';
-        db()->delete('[+prefix+]site_tmplvar_contentvalues', $where);
+        db()->delete(
+            '[+prefix+]site_tmplvar_contentvalues',
+            'id IN(' . join(',', $tvDeletions) . ')'
+        );
     }
     if ($tvAdded) {
         foreach ($tvAdded as $tv) {
-            $tv = db()->escape($tv);
-            db()->insert($tv, '[+prefix+]site_tmplvar_contentvalues');
+            db()->insert(
+                db()->escape($tv),
+                '[+prefix+]site_tmplvar_contentvalues'
+            );
         }
     }
 
@@ -626,9 +615,8 @@ function update_tmplvars($docid, $tmplvars) {
         return;
     }
     foreach ($tvChanges as $tv) {
-        $tv = db()->escape($tv);
         db()->update(
-            $tv
+            db()->escape($tv)
             , '[+prefix+]site_tmplvar_contentvalues'
             , sprintf(
                 "tmplvarid='%s' AND contentid='%s'"
@@ -641,52 +629,46 @@ function update_tmplvars($docid, $tmplvars) {
 
 // document access permissions
 function setDocPermissionsNew($document_groups, $newid) {
-    global $form_v;
-    $parent = $form_v['parent'];
-    $tbl_document_groups = evo()->getFullTableName('document_groups');
-
-    $docgrp_save_attempt = false;
-    if (evo()->config('use_udperms') == 1 && is_array($document_groups)) {
+    if (evo()->config('use_udperms') != 1) {
+        return;
+    }
+    if (is_array($document_groups)) {
         $new_groups = array();
-        // first, split the pair (this is a new document, so ignore the second value
         foreach ($document_groups as $value_pair) {
             $group = (int)substr($value_pair, 0, strpos($value_pair, ','));
             $new_groups[] = sprintf('(%s,%s)', $group, $newid);
         }
-        $saved = true;
         if ($new_groups) {
             $rs = db()->query(
                 sprintf(
                     'INSERT INTO %s (document_group, document) VALUES %s'
-                    , $tbl_document_groups
+                    , evo()->getFullTableName('document_groups')
                     , implode(',', $new_groups)
                 )
             );
-            if (!$rs) {
-                $saved = false;
+            if(!$rs) {
+                evo()->webAlertAndQuit(
+                    'An error occured while attempting to add the document to a document_group.'
+                );
             }
-            $docgrp_save_attempt = true;
         }
-    } else {
-        // inherit document access permissions
-        if (evo()->config('use_udperms') == 1 && isPublic() && $parent) {
-            $sql = sprintf(
-                "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'"
-                , $tbl_document_groups
-                , $newid
-                , $tbl_document_groups
-                , $parent
-            );
-            $saved = db()->query($sql);
-            $docgrp_save_attempt = true;
-        }
-    }
-    if (!$docgrp_save_attempt || $saved) {
         return;
     }
-    evo()->webAlertAndQuit(
-        'An error occured while attempting to add the document to a document_group.'
-    );
+    if (isPublic() && validated('parent')) {
+        $sql = sprintf(
+            "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'"
+            , evo()->getFullTableName('document_groups')
+            , $newid
+            , evo()->getFullTableName('document_groups')
+            , validated('parent')
+        );
+        $rs = db()->query($sql);
+        if(!$rs) {
+            evo()->webAlertAndQuit(
+                'An error occured while attempting to add the document to a document_group.'
+            );
+        }
+    }
 }
 
 function isPublic() {
@@ -707,7 +689,6 @@ function updateParentStatus($parent) {
     if ($rs) {
         return;
     }
-
     evo()->webAlertAndQuit(
         "An error occured while attempting to change the document's parent to a folder."
     );
@@ -852,4 +833,28 @@ function mode() {
         return 'edit';
     }
     return 'new';
+}
+
+function validated($key=null, $default=null) {
+    static $form_v = null;
+
+    if(!$form_v) {
+        evo()->loadExtension('DocAPI');
+        $form_v = evo()->doc->setValue(
+            evo()->doc->initValue(
+                evo()->doc->fixTvNest($_POST)
+            )
+        );
+    }
+
+    if (strpos($key, '*')===0) {
+        $form_v[substr($key,1)] === $default;
+        return;
+    }
+
+    if ($key) {
+        return array_get($form_v, $key, $default);
+    }
+
+    return $form_v;
 }
