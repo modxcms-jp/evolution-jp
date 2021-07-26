@@ -7,26 +7,21 @@ if (!evo()->hasPermission('messages')) {
     alert()->dumpError();
 }
 
-$id = $_REQUEST['id'];
-
-// check the user is allowed to delete this message
-$tbl_user_messages = evo()->getFullTableName('user_messages');
-$rs = db()->select('recipient', $tbl_user_messages, "id={$id}");
+$rs = db()->select(
+    'recipient',
+    '[+prefix+]user_messages',
+    where('id', '=', anyv('id'))
+);
 if (db()->count($rs) != 1) {
-    echo 'Wrong number of messages returned!';
-    exit;
+    exit('Wrong number of messages returned!');
 }
 
 $row = db()->getRow($rs);
 if ($row['recipient'] != evo()->getLoginUserID()) {
-    echo 'You are not allowed to delete this message!';
-    exit;
+    exit('You are not allowed to delete this message!');
 }
 
-// delete message
-$rs = db()->delete($tbl_user_messages, "id={$id}");
-if (!$rs) {
-    echo 'Something went wrong while trying to delete the message!';
-    exit;
+if (!db()->delete('[+prefix+]user_messages', where('id', '=', anyv('id')))) {
+    exit('Something went wrong while trying to delete the message!');
 }
 header('Location: index.php?a=10');

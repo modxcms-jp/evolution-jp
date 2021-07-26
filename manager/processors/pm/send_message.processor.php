@@ -7,67 +7,82 @@ if (!evo()->hasPermission('messages')) {
     alert()->dumpError();
 }
 
-//$db->debug = true;
-
-if (!isset($modx->config['pm2email'])) {
-    $modx->config['pm2email'] == '1';
-}
-
-$sendto = $_REQUEST['sendto'];
-$recipient = $_REQUEST['user'];
-$groupid = $_REQUEST['group'];
-
-$sender = evo()->getLoginUserID();
-
-$subject = db()->escape($_REQUEST['messagesubject']);
-if ($subject == '') {
-    $subject = "(no subject)";
-}
-$message = db()->escape($_REQUEST['messagebody']);
-if ($message == '') {
-    $message = "(no message)";
-}
-$postdate = time();
-$type = 'Message';
-
-$rs = db()->select('fullname,email', '[+prefix+]user_attributes', "internalKey='$sender'");
+$rs = db()->select(
+    'fullname,email',
+    '[+prefix+]user_attributes',
+    where('internalKey', '=', evo()->getLoginUserID())
+);
 $from = db()->getRow($rs);
 
-if ($sendto == 'u') {
-    if ($recipient == 0) {
+if (anyv('sendto') === 'u') {
+    if (anyv('user') == 0) {
         alert()->setError(13);
         alert()->dumpError();
     }
-    $private = 1;
-    $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
-    send_pm($fields, $from);
+    send_pm(
+        array(
+            'recipient'=>anyv('user'),
+            'sender'=>evo()->getLoginUserID(),
+            'subject'=>anyv('messagesubject', '(no subject)'),
+            'message'=>anyv('messagebody', '(no message)'),
+            'postdate'=>request_time(),
+            'type'=>'Message',
+            'private'=>1
+        ),
+        $from
+    );
 }
 
-if ($sendto === 'g') {
-    if ($groupid == 0) {
+if (anyv('sendto') === 'g') {
+    if (anyv('group') == 0) {
         alert()->setError(14);
         alert()->dumpError();
     }
-    $rs = db()->select('internalKey', '[+prefix+]user_attributes', "role={$groupid} AND blocked=0");
-    $private = 0;
+    $rs = db()->select(
+        'internalKey',
+        '[+prefix+]user_attributes',
+        array(
+            where('role', '=', anyv('group')),
+            'AND blocked=0'
+        )
+    );
     while ($row = db()->getRow($rs)) {
-        if ($row['internalKey'] != $sender) {
-            $recipient = $row['internalKey'];
-            $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
-            send_pm($fields, $from);
+        if ($row['internalKey'] == evo()->getLoginUserID()) {
+            continue;
         }
+        send_pm(
+            array(
+                'recipient' => $row['internalKey'],
+                'sender' => evo()->getLoginUserID(),
+                'subject' => anyv('messagesubject', '(no subject)'),
+                'message' => anyv('messagebody', '(no message)'),
+                'postdate' => request_time(),
+                'type' => 'Message',
+                'private' => 0
+            ),
+            $from
+        );
     }
 }
 
-if ($sendto === 'a') {
+if (anyv('sendto') === 'a') {
     $rs = db()->select('id', '[+prefix+]manager_users');
-    $private = 0;
     while ($row = db()->getRow($rs)) {
-        if ($row['id'] != $sender) {
-            $recipient = $row['id'];
-            $fields = compact('recipient', 'sender', 'subject', 'message', 'postdate', 'type', 'private');
-            send_pm($fields, $from);
+        if ($row['id'] == evo()->getLoginUserID()) {
+            continue;
         }
+        send_pm(
+            array(
+                'recipient' => $row['id'],
+                'sender' => evo()->getLoginUserID(),
+                'subject' => anyv('messagesubject', '(no subject)'),
+                'message' => anyv('messagebody', '(no message)'),
+                'postdate' => request_time(),
+                'type' => 'Message',
+                'private' => 0
+            ),
+            $from
+        );
     }
 }
 
@@ -76,32 +91,38 @@ header("Location: index.php?a=10");
 
 function pm2email($from, $fields) {
     global $modx;
-    if ($modx->config['pm2email'] == '0') {
+    if (evo()->config('pm2email', 0) == 0) {
         return;
     }
 
     extract($fields, EXTR_PREFIX_ALL, 'f');
 
-    $msg = $f_message . "\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
-    $msg = $modx->mergeSettingsContent($msg);
+    $msg = array_get($fields, 'message') . "\n\n----------------\nFrom [(site_name)]\n[(site_url)]manager/\n\n";
+    $msg = evo()->mergeSettingsContent($msg);
     $params['from'] = $from['email'];
     $params['fromname'] = $from['fullname'];
-    $params['subject'] = $f_subject;
-    $params['sendto'] = db()->getValue(db()->select('email', '[+prefix+]user_attributes',
-        "internalKey='{$recipient}'"));
+    $params['subject'] = array_get($fields, 'subject');
+    $params['sendto'] = db()->getValue(
+        db()->select(
+            'email',
+            '[+prefix+]user_attributes',
+            where('internalKey', '=', array_get($fields, 'recipient'))
+        )
+    );
     $modx->sendmail($params, $msg);
     usleep(300000);
 }
 
 function send_pm($fields, $from) {
-    global $modx;
-
-    if ($modx->config['pm2email'] == '1') {
+    if (evo()->config('pm2email', 0) == 1) {
         pm2email($from, $fields);
     }
     $fields['subject'] = encrypt($fields['subject']);
     $fields['message'] = encrypt($fields['message']);
-    $rs = db()->insert($fields, '[+prefix+]user_messages');
+    db()->insert(
+        db()->escape($fields),
+        '[+prefix+]user_messages'
+    );
 }
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
@@ -109,9 +130,7 @@ function encrypt($plaintext, $key = 'modx') {
     $len = strlen($plaintext);
     $enc = '';
     for ($i = 0; $i < $len; $i++) {
-        $asciin = ord($plaintext[$i]);
-        $enc .= chr($asciin ^ ord($key[$i]));
+        $enc .= chr(ord($plaintext[$i]) ^ ord($key[$i]));
     }
-    $enc = base64_encode($enc);
-    return $enc;
+    return base64_encode($enc);
 }
