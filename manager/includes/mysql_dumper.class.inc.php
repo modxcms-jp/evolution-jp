@@ -16,44 +16,40 @@ if (!isset($modx) || !is_object($modx)) {
 }
 
 class Mysqldumper {
-    var $_dbtables;
-    var $_isDroptables;
-    var $database_server;
-    var $dbname;
-    var $table_prefix;
-    var $contentsOnly;
+    public $_dbtables;
+    public $_isDroptables;
+    public $database_server;
+    public $dbname;
+    public $table_prefix;
+    public $contentsOnly;
 
-    function __construct() {
-        global $modx;
-        // Don't drop tables by default.
-        if ($modx->db->config['host'] === '127.0.0.1') {
+    public function __construct() {
+        if (db()->config['host'] === '127.0.0.1') {
             $this->database_server = 'localhost';
         } else {
-            $this->database_server = $modx->db->config['host'];
+            $this->database_server = db()->config['host'];
         }
-        $this->dbname = trim($modx->db->dbname, '`');
-        $this->table_prefix = $modx->db->table_prefix;
+        $this->dbname = trim(db()->dbname, '`');
+        $this->table_prefix = db()->table_prefix;
         $this->mode = '';
         $this->addDropCommand(false);
         $this->_isDroptables = true;
         $this->_dbtables = array();
     }
 
-    function setDBtables($dbtables = false) {
-
-        if ($dbtables) {
-            $this->_dbtables = $dbtables;
-        } else {
+    public function setDBtables($dbtables = false) {
+        if (!$dbtables) {
             $this->_dbtables = $this->getTableNames();
+            return;
         }
+        $this->_dbtables = $dbtables;
     }
 
-    // If set to true, it will generate 'DROP TABLE IF EXISTS'-statements for each table.
-    function addDropCommand($state) {
+    public function addDropCommand($state) {
         $this->_isDroptables = $state;
     }
 
-    function isDroptables() {
+    private function isDroptables() {
         return $this->_isDroptables;
     }
 
@@ -65,33 +61,25 @@ class Mysqldumper {
     }
 
     private function is_content_table($table_name) {
-        if ($this->in_array(
+        if (!$this->in_array(
             $table_name
             , array(
-                'site_content'
-            ,
-                'site_htmlsnippets'
-            ,
-                'site_templates'
-            ,
-                'system_settings'
-            ,
-                'site_tmplvars'
-            ,
-                'site_tmplvar_access'
-            ,
-                'site_tmplvar_contentvalues'
-            ,
+                'site_content',
+                'site_htmlsnippets',
+                'site_templates',
+                'system_settings',
+                'site_tmplvars',
+                'site_tmplvar_access',
+                'site_tmplvar_contentvalues',
                 'site_tmplvar_templates'
             )
         )) {
-            return true;
+            return false;
         }
+        return true;
     }
 
-    function createDump() {
-        global $modx;
-
+    public function createDump() {
         if (empty($this->database_server) || empty($this->dbname)) {
             return false;
         }
@@ -120,12 +108,12 @@ class Mysqldumper {
         // Set header
         $header = array();
         $header[] = '-- ';
-        $header[] = '--  ' . addslashes($modx->config['site_name']) . ' Database Dump';
-        $header[] = '--  MODX Version:' . $modx->config['settings_version'];
+        $header[] = '--  ' . addslashes(evo()->config('site_name')) . ' Database Dump';
+        $header[] = '--  MODX Version:' . evo()->config('settings_version');
         $header[] = '--  ';
         $header[] = '--  Host: ' . $this->database_server;
-        $header[] = '--  Generation Time: ' . $modx->toDateFormat(time());
-        $header[] = '--  Server version: ' . $modx->db->getVersion();
+        $header[] = '--  Generation Time: ' . evo()->toDateFormat(time());
+        $header[] = '--  Server version: ' . db()->getVersion();
         $header[] = '--  PHP Version: ' . phpversion();
         $header[] = '--  Database : `' . $this->dbname . '`';
         $header[] = '-- ';
@@ -141,7 +129,6 @@ class Mysqldumper {
         }
 
         foreach ($tables as $table_name) {
-            // check for selected table
             if (!isset($this->_dbtables[$table_name])) {
                 continue;
             }
@@ -156,9 +143,15 @@ class Mysqldumper {
                 continue;
             }
 
-            $output = "{$lf}{$lf}-- --------------------------------------------------------{$lf}{$lf}";
-            $output .= "-- {$lf}-- Table structure for table `{$table_name}`{$lf}";
-            $output .= "-- {$lf}{$lf}";
+            $output = sprintf(
+                '%s%s-- --------------------------------------------------------%s%s',
+                $lf,
+                $lf,
+                $lf,
+                $lf
+            );
+            $output .= sprintf('-- %s-- Table structure for table `%s`%s', $lf, $table_name, $lf);
+            $output .= sprintf('-- %s%s', $lf, $lf);
             // Generate DROP TABLE statement when client wants it to.
             if ($this->isDroptables()) {
                 $output .= 'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;' . $lf;
@@ -213,7 +206,6 @@ class Mysqldumper {
                 }
             }
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
-            $output = '';
         }
         $output = file_get_contents($tempfile_path);
 
@@ -225,7 +217,7 @@ class Mysqldumper {
         return $output;
     }
 
-    function in_array($table_name, $table_names) {
+    private function in_array($table_name, $table_names) {
         foreach ($table_names as $name) {
             if ($table_name === $this->table_prefix . $name) {
                 return true;
@@ -234,7 +226,7 @@ class Mysqldumper {
         return false;
     }
 
-    function convertValues($row) {
+    private function convertValues($row) {
         switch ($row['setting_name']) {
             case 'filemanager_path':
             case 'rb_base_dir':
@@ -256,51 +248,52 @@ class Mysqldumper {
         return $row;
     }
 
-    // Private function object2Array.
-    function object2Array($obj) {
-        $array = null;
-        if (is_object($obj)) {
-            $array = array();
-            foreach (get_object_vars($obj) as $key => $value) {
-                if (is_object($value)) {
-                    $array[$key] = $this->object2Array($value);
-                } else {
-                    $array[$key] = $value;
-                }
+    private function object2Array($obj) {
+        if (!is_object($obj)) {
+            return null;
+        }
+        $array = array();
+        foreach (get_object_vars($obj) as $key => $value) {
+            if (is_object($value)) {
+                $array[$key] = $this->object2Array($value);
+            } else {
+                $array[$key] = $value;
             }
         }
         return $array;
     }
 
     // Private function result2Array.
-    function result2Array($numinarray = 0, $resource) {
-        global $modx;
-
+    private function result2Array($numinarray = 0, $resource) {
         $array = array();
         while ($row = db()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
         }
-        $modx->db->freeResult($resource);
+        db()->freeResult($resource);
         return $array;
     }
 
-    function dumpSql(&$dumpstring) {
-        global $modx, $settings_version;
-        $today = $modx->toDateFormat(time(), 'dateOnly');
-        $today = str_replace('/', '-', $today);
-        $today = strtolower($today);
-        $size = strlen($dumpstring);
+    public function dumpSql(&$dumpstring) {
         if (!headers_sent()) {
             header('Expires: 0');
             header('Cache-Control: private');
             header('Pragma: cache');
             header('Content-type: application/download');
-            header("Content-Length: {$size}");
+            header("Content-Length: " . strlen($dumpstring));
             header(
                 sprintf(
                     'Content-Disposition: attachment; filename=%s-%s_database_backup.sql'
-                    , $today
-                    , $settings_version
+                    , strtolower(
+                        str_replace(
+                            '/',
+                            '-',
+                            evo()->toDateFormat(
+                                time(),
+                                'dateOnly'
+                            )
+                        )
+                    )
+                    , globalv('settings_version')
                 )
             );
         }
@@ -309,7 +302,7 @@ class Mysqldumper {
     }
 
     function snapshot($path, &$dumpstring) {
-        $rs = @file_put_contents($path, $dumpstring);
+        $rs = file_put_contents($path, $dumpstring);
         if ($rs) {
             @chmod($path, 0666);
         }
@@ -317,8 +310,6 @@ class Mysqldumper {
     }
 
     function import_sql($source) {
-        global $modx;
-
         if (strpos($source, "\r") !== false) {
             $source = str_replace(array("\r\n", "\r"), "\n", $source);
         }
@@ -333,7 +324,7 @@ class Mysqldumper {
         $settings = $this->getSettings();
         $this->restoreSettings($settings);
 
-        $modx->clearCache();
+        evo()->clearCache();
         if (db()->count($rs)) {
             while ($row = db()->getRow($rs)) {
                 $_SESSION['last_result'][] = $row;
@@ -344,10 +335,7 @@ class Mysqldumper {
 
 
     function getSettings() {
-        global $modx;
-
         $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
-
         $settings = array();
         while ($row = db()->getRow($rs)) {
             $name = $row['setting_name'];
@@ -378,8 +366,6 @@ class Mysqldumper {
     }
 
     function restoreSettings($settings) {
-        global $modx;
-
         foreach ($settings as $k => $v) {
             db()->update(
                 array('setting_value' => $v)
@@ -390,8 +376,6 @@ class Mysqldumper {
     }
 
     function getTableNames($dbname = '', $table_prefix = '') {
-        global $modx;
-
         if (!$table_prefix) {
             $table_prefix = $this->table_prefix;
         }
