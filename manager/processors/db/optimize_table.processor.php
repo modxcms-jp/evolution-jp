@@ -13,10 +13,10 @@ if (!anyv('t') && !anyv('u')) {
 }
 
 if (anyv('t')) {
-    db()->optimize('[+prefix+]'.anyv('t'));
+    db()->optimize(anyv('t'));
 }
 if (anyv('u')) {
-    db()->truncate('[+prefix+]'.anyv('u'));
+    db()->truncate(anyv('u'));
 }
 
 header('Location: index.php?a=' . (int)anyv('mode') . '&s=4');
