@@ -1919,18 +1919,8 @@ class DocumentParser {
 
         foreach ($matches[1] as $i => $key) {
             if (strpos($key, '#') === 0) {
-                $key = substr($key, 1);// remove # for QuickEdit format
+                $key = substr($key, 1);
             }
-            $key_org = $key;
-            $getkey = function ($key, $ph) {
-                $keys = explode('|',$key);
-                foreach ($keys as $key) {
-                    if($ph[$key]) {
-                        break;
-                    }
-                }
-                return $key;
-            };
             list($key, $modifiers) = $this->splitKeyAndFilter($key);
             if (strpos($key, '@') !== false) {
                 list($key, $context) = explode('@', $key, 2);
@@ -1939,7 +1929,13 @@ class DocumentParser {
             }
 
             if(strpos($key,'|')!==false) {
-                $key = $getkey($key, $ph);
+                $keys = explode('|',$key);
+                foreach ($keys as $k) {
+                    if(!empty($ph[$k])) {
+                        $key = $k;
+                        break;
+                    }
+                }
             }
 
             if (!isset($ph[$key]) && $modifiers) {
@@ -1950,7 +1946,10 @@ class DocumentParser {
             }
 
             if ($context) {
-                $value = $this->_contextValue("{$key}@{$context}", $this->documentObject['parent']);
+                $value = $this->_contextValue(
+                    sprintf('%s@%s', $key, $context),
+                    $this->documentObject['parent']
+                );
             } else {
                 $value = $ph[$key];
             }
