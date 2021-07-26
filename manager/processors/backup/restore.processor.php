@@ -9,17 +9,15 @@ if (!evo()->hasPermission('bk_manager')) {
 
 // Backup Manager by Raymond:
 
-$mode = postv('mode', '');
-
 $source = '';
-if ($mode === 'restore1') {
+if (postv('mode') === 'restore1') {
     if (postv('textarea')) {
         $source = trim(postv('textarea'));
         $_SESSION['textarea'] = $source . "\n";
-    } elseif (isset($_FILES['sqlfile']['tmp_name'])) {
-        $source = file_get_contents($_FILES['sqlfile']['tmp_name']);
+    } elseif (filev('sqlfile.tmp_name')) {
+        $source = file_get_contents(filev('sqlfile.tmp_name'));
     }
-} elseif ($mode === 'restore2') {
+} elseif (postv('mode') === 'restore2') {
     if (!config('snapshot_path') || strpos(config('snapshot_path'), MODX_BASE_PATH) === false) {
         if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
             $snapshot_path = MODX_BASE_PATH . 'temp/backup/';
