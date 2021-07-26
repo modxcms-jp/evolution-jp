@@ -23,7 +23,7 @@ $dumper = new Mysqldumper();
 if ($mode === 'backup') {
     $tables = postv('chk', '');
     if (!is_array($tables)) {
-        $modx->webAlertAndQuit('Please select a valid table from the list below', 'history.back(-1);');
+        evo()->webAlertAndQuit('Please select a valid table from the list below', 'history.back(-1);');
         exit;
     }
 
@@ -56,16 +56,20 @@ if ($mode === 'snapshot') {
         );
     }
     if (!is_writable(rtrim(config('snapshot_path'), '/'))) {
-        echo $modx->parseText(
+        echo evo()->parseText(
             $_lang['bkmgr_alert_mkdir']
             , array('snapshot_path' => config('snapshot_path'))
         );
         exit;
     }
 
-    $today = $modx->toDateFormat(request_time());
-    $today = str_replace(array('/', ' ', ':'), array('-', '-', ''), $today);
-    $today = strtolower($today);
+    $today = strtolower(
+        str_replace(
+            array('/', ' ', ':'),
+            array('-', '-', ''),
+            evo()->toDateFormat(request_time())
+        )
+    );
     global $path, $settings_version;
     $filename = "{$today}-{$settings_version}.sql";
 
@@ -134,10 +138,16 @@ if (sessionv('result_msg')) {
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                            alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+            <li
+                id="Button5"
+                class="mutate"
+            ><a
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"
+            ><img
+                alt="icons_cancel"
+                src="<?php echo $_style["icons_cancel"] ?>"
+            /> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -152,8 +162,12 @@ if (sessionv('result_msg')) {
                     <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><img
                                     src="media/style/<?php echo config('manager_theme'); ?>/images/misc/ed_save.gif"/> <?php echo $_lang['database_table_clickbackup'] ?>
                         </a></p>
-                    <p><label><input type="checkbox" name="droptables"
-                                     checked="checked"/><?php echo $_lang['database_table_droptablestatements'] ?>
+                    <p>
+                        <label>
+                            <input
+                                type="checkbox" name="droptables"
+                                checked="checked"
+                            /><?php echo $_lang['database_table_droptablestatements'] ?>
                         </label></p>
                     <table style="width:100%;background-color:#ccc;">
                         <thead>
@@ -161,10 +175,10 @@ if (sessionv('result_msg')) {
                             <td width="160">
                                 <label>
                                     <input
-                                            name="chkselall"
-                                            onclick="selectAll()"
-                                            title="Select All Tables"
-                                            type="checkbox"
+                                        name="chkselall"
+                                        onclick="selectAll()"
+                                        title="Select All Tables"
+                                        type="checkbox"
                                     /><b><?php echo $_lang['database_table_tablename'] ?></b>
                                 </label>
                             </td>
@@ -181,8 +195,8 @@ if (sessionv('result_msg')) {
                         <?php
                         $rs = db()->query(sprintf(
                             "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
-                            , $modx->db->dbname
-                            , $modx->db->table_prefix
+                            , db()->dbname
+                            , db()->table_prefix
                         ));
                         $i = 0;
                         $totaloverhead = 0;
@@ -203,30 +217,30 @@ if (sessionv('result_msg')) {
 
                             // Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
                             $truncateable = array(
-                                $modx->db->table_prefix . 'event_log',
-                                $modx->db->table_prefix . 'manager_log',
+                                db()->table_prefix . 'event_log',
+                                db()->table_prefix . 'manager_log',
                             );
                             if (evo()->hasPermission('settings') && in_array($row['Name'],
                                     $truncateable) && $row['Rows'] > 0) {
                                 echo '<td dir="ltr" align="right">' .
-                                    '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . $modx->nicesize($row['Data_length'] + $row['Data_free']) . '</a>' .
+                                    '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . evo()->nicesize($row['Data_length'] + $row['Data_free']) . '</a>' .
                                     '</td>' . "\n";
                             } else {
-                                echo '<td dir="ltr" align="right">' . $modx->nicesize($row['Data_length'] + $row['Data_free']) . '</td>' . "\n";
+                                echo '<td dir="ltr" align="right">' . evo()->nicesize($row['Data_length'] + $row['Data_free']) . '</td>' . "\n";
                             }
 
                             if (evo()->hasPermission('settings')) {
                                 echo '<td align="right">' . ($row['Data_free'] > 0 ?
-                                        '<a href="index.php?a=54&mode=' . $action . '&t=' . $row['Name'] . '" title="' . $_lang['optimize_table'] . '">' . $modx->nicesize($row['Data_free']) . '</a>' :
+                                        '<a href="index.php?a=54&mode=' . $action . '&t=' . $row['Name'] . '" title="' . $_lang['optimize_table'] . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
                                         '-') .
                                     '</td>' . "\n";
                             } else {
-                                echo '<td align="right">' . ($row['Data_free'] > 0 ? $modx->nicesize($row['Data_free']) : '-') . '</td>' . "\n";
+                                echo '<td align="right">' . ($row['Data_free'] > 0 ? evo()->nicesize($row['Data_free']) : '-') . '</td>' . "\n";
                             }
 
-                            echo '<td dir="ltr" align="right">' . $modx->nicesize($row['Data_length'] - $row['Data_free']) . '</td>' . "\n" .
-                                '<td dir="ltr" align="right">' . $modx->nicesize($row['Index_length']) . '</td>' . "\n" .
-                                '<td dir="ltr" align="right">' . $modx->nicesize($row['Index_length'] + $row['Data_length'] + $row['Data_free']) . '</td>' . "\n" .
+                            echo '<td dir="ltr" align="right">' . evo()->nicesize($row['Data_length'] - $row['Data_free']) . '</td>' . "\n" .
+                                '<td dir="ltr" align="right">' . evo()->nicesize($row['Index_length']) . '</td>' . "\n" .
+                                '<td dir="ltr" align="right">' . evo()->nicesize($row['Index_length'] + $row['Data_length'] + $row['Data_free']) . '</td>' . "\n" .
                                 "</tr>";
 
                             $total = $total + $row['Index_length'] + $row['Data_length'];
@@ -238,10 +252,10 @@ if (sessionv('result_msg')) {
                             <td valign="top"><b><?php echo $_lang['database_table_totals'] ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir="ltr" align="right"
-                                valign="top"><?php echo $totaloverhead > 0 ? '<b style="color:#990033">' . $modx->nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
+                                valign="top"><?php echo $totaloverhead > 0 ? '<b style="color:#990033">' . evo()->nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
                             <td colspan="2">&nbsp;</td>
                             <td dir="ltr" align="right"
-                                valign="top"><?php echo "<b>" . $modx->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
+                                valign="top"><?php echo "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -315,21 +329,47 @@ if (sessionv('result_msg')) {
 
                     ?>
                     <p>
-                        <label><input type="radio" name="sel"
-                                      onclick="showhide('file');" <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text'); ?> /> <?php echo $_lang["bkmgr_run_sql_file_label"]; ?>
+                        <label>
+                            <input
+                                type="radio"
+                                name="sel"
+                                onclick="showhide('file');"
+                                <?php echo checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text'); ?>
+                            /> <?php echo $_lang["bkmgr_run_sql_file_label"]; ?>
                         </label>
-                        <label><input type="radio" name="sel"
-                                      onclick="showhide('textarea');" <?php echo checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text'); ?> /> <?php echo $_lang["bkmgr_run_sql_direct_label"]; ?>
+                        <label>
+                            <input
+                                type="radio"
+                                name="sel"
+                                onclick="showhide('textarea');"
+                                <?php echo checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text'); ?>
+                            /> <?php echo $_lang["bkmgr_run_sql_direct_label"]; ?>
                         </label>
                     </p>
-                    <div><input type="file" name="sqlfile" id="sqlfile" size="70"
-                                style="display:<?php echo $f_display; ?>;"/></div>
+                    <div>
+                        <input 
+                            type="file"
+                            name="sqlfile"
+                            id="sqlfile"
+                            size="70"
+                            style="display:<?php echo $f_display; ?>;"
+                        />
+                    </div>
                     <div id="textarea" style="display:<?php echo $t_display; ?>;">
-                        <textarea name="textarea" style="width:500px;height:200px;"><?php echo $value; ?></textarea>
+                        <textarea
+                            name="textarea"
+                            style="width:500px;height:200px;"
+                        ><?php echo $value; ?></textarea>
                     </div>
                     <div class="actionButtons" style="margin-top:10px;">
-                        <a href="#" class="primary" onclick="document.mutate.save.click();"><img alt="icons_save"
-                                                                                                 src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang["bkmgr_run_sql_submit"]; ?>
+                        <a
+                            href="#"
+                            class="primary"
+                            onclick="document.mutate.save.click();"
+                        ><img
+                            alt="icons_save"
+                            src="<?php echo $_style["icons_save"] ?>"
+                        /> <?php echo $_lang["bkmgr_run_sql_submit"]; ?>
                         </a>
                     </div>
                     <input type="submit" name="save" style="display:none;"/>
@@ -341,7 +381,7 @@ if (sessionv('result_msg')) {
                 ?>
             </div>
             <?php
-            $today = $modx->toDateFormat(request_time());
+            $today = evo()->toDateFormat(request_time());
             $today = str_replace(array('/', ' '), '-', $today);
             $today = str_replace(':', '', $today);
             $today = strtolower($today);
@@ -351,7 +391,7 @@ if (sessionv('result_msg')) {
             <div class="tab-page" id="tabSnapshot">
                 <h2 class="tab"><?php echo $_lang["bkmgr_snapshot_title"]; ?></h2>
                 <?php echo $ph['result_msg']; ?>
-                <?php echo $modx->parseText(
+                <?php echo evo()->parseText(
                     $_lang["bkmgr_snapshot_msg"]
                     , array('snapshot_path' => config('snapshot_path'))
                 ); ?>
@@ -402,7 +442,7 @@ if (sessionv('result_msg')) {
                         while ($file = array_shift($files)) {
                             $timestamp = filemtime($file);
                             $filename = substr($file, strrpos($file, '/') + 1);
-                            $filesize = $modx->nicesize(filesize($file));
+                            $filesize = evo()->nicesize(filesize($file));
                             $output[$timestamp] = str_replace(array('[+filename+]', '[+filesize+]'),
                                 array($filename, $filesize), $tpl);
                         }
