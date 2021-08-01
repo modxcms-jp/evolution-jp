@@ -144,7 +144,7 @@ function set(&$array, $key, $value)
         unset($keys[$i]);
 
         if (! isset($array[$key]) || ! is_array($array[$key])) {
-            $array[$key] = [];
+            $array[$key] = array();
         }
 
         $array = &$array[$key];
@@ -421,7 +421,7 @@ function datetime_format($format, $timestamp = '', $default = '')
 	if (strpos($format, '%曜') === false) {
 		return strftime($format, $timestamp);
 	}
-	$week = ['日', '月', '火', '水', '木', '金', '土'];
+	$week = array('日', '月', '火', '水', '木', '金', '土');
 	return strftime(
 		str_replace('%曜', $week[date('w', $timestamp)], $format),
 		$timestamp
