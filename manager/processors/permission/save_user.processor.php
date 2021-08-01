@@ -29,7 +29,7 @@ if (!verifyPermission()) {
     exit;
 }
 
-if (postv('mode') == '11') { // new user
+if (postv('mode') == 11) { // new user
     if (userid_byname(postv('newusername', 'New User'))) {
         webAlert('User name is already in use!');
         exit;
