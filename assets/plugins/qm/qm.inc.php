@@ -409,7 +409,7 @@ class Qm {
                         'contentid' => evo()->documentIdentifier,
                         'value'     => db()->escape($tvContent)
                     ),
-                    '[+prefix+]site_tmplvar_contentvalues',
+                    '[+prefix+]site_tmplvar_contentvalues'
                 );
             }
         } else {
