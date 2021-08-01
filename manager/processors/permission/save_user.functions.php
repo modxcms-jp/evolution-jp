@@ -267,13 +267,11 @@ function validate() {
     );
     $rs = array();
     foreach ($fields as $field) {
-        if (!postv($field)) {
-            if (in_array($field, array('dob', 'gender', 'blocked'))) {
-                $rs[$field] = 0;
-            }
-        } else {
-            $rs[$field] = postv($field);
+        if (in_array($field, array('dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter')) && !postv($field)) {
+            $rs[$field] = 0;
+            continue;
         }
+        $rs[$field] = postv($field);
     }
     return $rs;
 }
