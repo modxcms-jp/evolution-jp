@@ -848,7 +848,7 @@ function validated($key=null, $default=null) {
     }
 
     if (strpos($key, '*')===0) {
-        $form_v[substr($key,1)] === $default;
+        $form_v[substr($key,1)] = $default;
         return;
     }
 
