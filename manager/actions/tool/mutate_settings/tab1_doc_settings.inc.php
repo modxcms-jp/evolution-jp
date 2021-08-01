@@ -106,6 +106,25 @@
             </td>
         </tr>
         <tr>
+            <th>公開開始日時自動設定</th>
+            <td>
+                <?php echo wrap_label(
+                    $_lang["enabled"],
+                    form_radio(
+                        'auto_pub_date', 1, config('auto_pub_date')
+                    )
+                ); ?><br/>
+                <?php echo wrap_label(
+                    $_lang["disabled"],
+                    form_radio(
+                        'auto_pub_date', 0, !config('auto_pub_date')
+                    )
+                ); ?>
+                <br/>
+                公開開始日時(pub_date)を設定しない場合、公開日時(publishedon)の値を取得し設定します。
+            </td>
+        </tr>
+        <tr>
             <th><?php echo lang('defaultpublish_title'); ?></th>
             <td>
                 <?php echo wrap_label(

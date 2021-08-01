@@ -84,10 +84,10 @@ if (mode() === 'edit') {
     $db_v = getExistsValues(validated('id'));
     // set publishedon and publishedby
     validated('*published', checkPublished($db_v));
-    validated('*pub_date', checkPub_date($db_v));
     validated('*unpub_date', checkUnpub_date($db_v));
     validated('*publishedon', checkPublishedon($db_v['publishedon']));
     validated('*publishedby', checkPublishedby($db_v));
+    validated('*pub_date', checkPub_date($db_v));
     $len = strlen(evo()->conf_var('friendly_url_suffix'));
     if (substr(validated('alias'), -$len) === evo()->conf_var('friendly_url_suffix')) {
         validated('*alias', substr(validated('alias'), 0, -$len));
@@ -481,7 +481,16 @@ function checkPublished($db_v) {
 }
 
 function checkPub_date($db_v) {
-    return getPublishPermission('pub_date', $db_v);
+    if (!evo()->hasPermission('publish_document')) {
+        return $db_v['pub_date'];
+    }
+    if (!evo()->config('auto_pub_date')) {
+        return validated('pub_date');
+    }
+    if (validated('pub_date')) {
+        return validated('pub_date');
+    }
+    return validated('publishedon');
 }
 
 function checkUnpub_date($db_v) {
