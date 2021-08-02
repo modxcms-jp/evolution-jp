@@ -367,7 +367,7 @@ function request_uri() {
 }
 
 function easy_hash($seed) {
-    return strtr(rtrim(base64_encode(pack('H*', crc32($seed))), '='), '+/', '-_');
+    return strtr(rtrim(base64_encode(pack('H*', hash('adler32', $seed))), '='), '+/', '-_');
 }
 
 function device() {
