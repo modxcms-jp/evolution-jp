@@ -268,9 +268,6 @@ function eForm($modx,$params) {
                     return $v ? true : false;
                 });
             } else {
-                if((version_compare(PHP_VERSION, '5.4') < 0) && get_magic_quotes_gpc()) {
-                    $value = stripslashes($value);
-                }
                 if (!$allowhtml || $formats[$name][2]!='html') {
                     $value = strip_tags($value);
                 } else {

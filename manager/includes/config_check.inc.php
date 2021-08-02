@@ -4,6 +4,9 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 }
 
 $warnings = array();
+if (ini_get('magic_quotes_gpc')) {
+    $warnings[] = 'magic_quotes_gpc';
+}
 if (!checkAjaxSearch()) {
     $warnings[] = 'configcheck_danger_ajaxsearch';
 }
@@ -69,6 +72,9 @@ if (!$warnings) {
 
 foreach ($warnings as $warning) {
     switch ($warning) {
+        case 'magic_quotes_gpc':
+            $output = 'magic_quotes_gpcが有効になっています。無効にしてください。';
+            break;
         case 'configcheck_danger_ajaxsearch':
             $output = $_lang['configcheck_danger_ajaxsearch_msg'];
             if (!sessionv('mgrConfigCheck')) {

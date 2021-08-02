@@ -216,13 +216,6 @@ class init {
         exit;
     }
 
-    public static function fix_magic_quotes() {
-        if (version_compare(PHP_VERSION, '5.4') >= 0 || !get_magic_quotes_gpc()) {
-            return;
-        }
-        include_once __DIR__ . '/quotes_stripper.inc.php';
-    }
-
     public static function fix_request_time() {
         if (isset($_SERVER['REQUEST_TIME'])) {
             return;

@@ -7,7 +7,6 @@ init::check_phpvar();
 init::fix_request_time();
 init::fix_document_root();
 init::fix_script_name();
-init::fix_magic_quotes();
 init::fix_server_addr();
 init::fix_ssl();
 
