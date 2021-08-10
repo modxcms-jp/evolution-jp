@@ -519,7 +519,7 @@ class DocumentParser {
         return $qs_hash;
     }
 
-    function prepareResponse() {
+    public function prepareResponse() {
         // we now know the method and identifier, let's check the cache
         $this->documentContent = $this->getCache($this->documentIdentifier);
         if ($this->documentContent != '') {
@@ -1824,7 +1824,7 @@ class DocumentParser {
         return $parent;
     }
 
-    function setParentIDByParent($parent) {
+    private function setParentIDByParent($parent) {
         static $cached = array();
         if (isset($cached[$parent])) {
             return true;
@@ -1853,7 +1853,7 @@ class DocumentParser {
         return true;
     }
 
-    function getAliasPath($docid) {
+    private function getAliasPath($docid) {
 
         if (isset($this->aliasPath[$docid])) {
             return $this->aliasPath[$docid];
@@ -1895,7 +1895,7 @@ class DocumentParser {
     }
 
     // mod by Raymond
-    function mergeDocumentContent($content, $ph = false, $convertValue = true) {
+    public function mergeDocumentContent($content, $ph = false, $convertValue = true) {
 
         if (strpos($content, '<@LITERAL>') !== false) {
             $content = $this->escapeLiteralTagsContent($content);
