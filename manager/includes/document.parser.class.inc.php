@@ -1828,7 +1828,7 @@ class DocumentParser {
     private function setParentIDByParent($parent) {
         static $cached = array();
         if (isset($cached[$parent])) {
-            return true;
+            return;
         }
         $cached[$parent] = false;
 
@@ -1842,7 +1842,7 @@ class DocumentParser {
         );
 
         if (!$rs) {
-            return false;
+            return;
         }
 
         while ($row = db()->getRow($rs)) {
@@ -1851,7 +1851,7 @@ class DocumentParser {
 
         $cached[$parent] = true;
 
-        return true;
+        return;
     }
 
     private function getAliasPath($docid) {
