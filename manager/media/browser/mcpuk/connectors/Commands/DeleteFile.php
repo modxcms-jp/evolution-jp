@@ -4,17 +4,17 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  * 
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * http://www.opensource.org/licenses/lgpl-license.php
  * 
  * For further information visit:
- * 		http://www.fckeditor.net/
+ * http://www.fckeditor.net/
  * 
  * File Name: DeleteFile.php
- * 	Implements the DeleteFile command to delete a file
- * 	in the current directory. Output is in XML.
+ * Implements the DeleteFile command to delete a file
+ * in the current directory. Output is in XML.
  * 
  * File Authors:
- * 		Grant French (grant@mcpuk.net)
+ * Grant French (grant@mcpuk.net)
  */
 class DeleteFile
 {
@@ -41,29 +41,29 @@ class DeleteFile
         );
         $this->filename = str_replace(array('../', '/'), '', $_GET['FileName']);
     }
-	
-	function run() {
-		$result2=true;
-		
-		$thumb = $this->real_cwd.'/.thumb/'.$this->filename;
-		$result1 = unlink($this->real_cwd.'/'.$this->filename);
-		if (is_file($thumb)) {
+    
+    function run() {
+        $result2=true;
+        
+        $thumb = $this->real_cwd.'/.thumb/'.$this->filename;
+        $result1 = unlink($this->real_cwd.'/'.$this->filename);
+        if (is_file($thumb)) {
             $result2 = unlink($thumb);
         }
-		header ('content-type: text/xml');
-		echo '<?xml version="1.0" encoding="utf-8" ?>'."\n";
-		?>
+        header ('content-type: text/xml');
+        echo '<?xml version="1.0" encoding="utf-8" ?>'."\n";
+        ?>
 <Connector command="DeleteFile" resourceType="<?php echo $this->type; ?>">
-	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
-	<?php
-		if ($result1 && $result2) {
+    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
+    <?php
+        if ($result1 && $result2) {
             $err_no = 0;
         } else {
-             $err_no = 302;
-		}
-	?>
-	<Error number="<?php echo ''.$err_no; ?>" />
+            $err_no = 302;
+        }
+    ?>
+    <Error number="<?php echo ''.$err_no; ?>" />
 </Connector>
-		<?php
-	}
+        <?php
+    }
 }
