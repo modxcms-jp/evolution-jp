@@ -1793,7 +1793,7 @@ class DocumentParser {
         return $this->aliaslist[$docid];
     }
 
-    function getParentID($docid) {
+    public function getParentID($docid) {
 
         if (!$docid) {
             return 0;
@@ -1813,6 +1813,7 @@ class DocumentParser {
         );
 
         if (!$rs) {
+            $this->parentlist[$docid] = false;
             return false;
         }
 
