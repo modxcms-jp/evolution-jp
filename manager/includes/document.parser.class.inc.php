@@ -3308,19 +3308,19 @@ class DocumentParser {
     /* API functions                                                                /
     /***************************************************************************************/
 
-    function getParentIds($id = '', $height = 10) {
-        if ($id === '') {
+    public function getParentIds($id = null, $height = 10) {
+        if ($id === null) {
             $id = $this->documentIdentifier;
         }
         $parents = array();
 
-        while ($id && 0 < $height) {
-            $current_id = $id;
-            $id = $this->getParentID($id);
-            if (!$id) {
+        while ($id && $height) {
+            $parent_id = $this->getParentID($id);
+            if (!$parent_id) {
                 break;
             }
-            $parents[$current_id] = $id;
+            $parents[$id] = $parent_id;
+            $id = $parent_id;
             $height--;
         }
         return $parents;
