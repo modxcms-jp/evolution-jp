@@ -465,5 +465,5 @@ function and_where_in($field, $values=array()) {
 }
 
 function request_time() {
-    return serverv('request_time');
+    return serverv('request_time', time());
 }
