@@ -389,11 +389,17 @@ class DocumentParser {
                 and_where('cache_key', $key)
             )
         );
-        $f['cache_section'] = $category;
-        $f['cache_key'] = $key;
-        $f['cache_value'] = $value;
-        $f['cache_timestamp'] = request_time();
-        return db()->insert(db()->escape($f), '[+prefix+]system_cache');
+        return db()->insert(
+            db()->escape(
+                array(
+                    'cache_section' => $category,
+                    'cache_key' => $key,
+                    'cache_value' => $value,
+                    'cache_timestamp' => request_time()
+                )
+            ),
+            '[+prefix+]system_cache'
+        );
     }
 
     function getDBCache($category, $key) {
