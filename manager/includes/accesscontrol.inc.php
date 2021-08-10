@@ -28,7 +28,6 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 }
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
-$touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
 if (!sessionv('mgrValidated')) {
     if (getv('frame')) {
         $_SESSION['save_uri'] = serverv('REQUEST_URI');
@@ -53,7 +52,8 @@ if (!sessionv('mgrValidated')) {
 
     global $tpl, $_lang;
 
-    if (is_file($touch_path) && serverv('REQUEST_TIME',time()) < filemtime($touch_path) + 300) {
+    $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
+    if (is_file($touch_path) && request_time() < filemtime($touch_path) + 300) {
         $modx->safeMode = 1;
         evo()->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
         $tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
