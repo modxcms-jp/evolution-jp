@@ -16,20 +16,31 @@
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  */
-class DeleteFile {
-	public $fckphp_config;
-	public $type;
-	public $cwd;
-	public $actual_cwd;
+class DeleteFile
+{
+    public $fckphp_config;
+    public $type;
+    public $cwd;
+    public $actual_cwd;
 
-	function __construct($fckphp_config,$type,$cwd) {
-		$this->fckphp_config=$fckphp_config;
-		$this->type=$type;
-		$this->raw_cwd=$cwd;
-		$this->actual_cwd=str_replace('//','/',($this->fckphp_config['UserFilesPath']."/{$type}/".$this->raw_cwd));
-		$this->real_cwd=str_replace('//','/',($this->fckphp_config['basedir'].'/'.$this->actual_cwd));
-		$this->filename=str_replace(array('../','/'), '', $_GET['FileName']);
-	}
+    public function __construct($fckphp_config, $type, $cwd)
+    {
+        $this->fckphp_config = $fckphp_config;
+        $this->type = $type;
+        $this->raw_cwd = $cwd;
+        $this->actual_cwd = sprintf(
+            "%s/%s/%s",
+            $this->fckphp_config['UserFilesPath'],
+            $type,
+            trim($this->raw_cwd, '/') ? '/' . trim($this->raw_cwd, '/') : ''
+        );
+        $this->real_cwd = sprintf(
+                '%s/%s',
+                rtrim($this->fckphp_config['basedir'], '/'),
+                trim($this->actual_cwd, '/') ? trim($this->actual_cwd, '/') : ''
+        );
+        $this->filename = str_replace(array('../', '/'), '', $_GET['FileName']);
+    }
 	
 	function run() {
 		$result2=true;
