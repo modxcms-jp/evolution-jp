@@ -752,16 +752,13 @@ class SubParser {
 
     function sendErrorPage() {
         global $modx;
-        // invoke OnPageNotFound event
         evo()->invokeEvent('OnPageNotFound');
 
-        if ($modx->config['error_page']) {
-            $dist = $modx->config['error_page'];
-        } else {
-            $dist = $modx->config['site_start'];
-        }
         $modx->http_status_code = '404';
-        $modx->sendForward($dist, evo()->server('SERVER_PROTOCOL', '') . ' 404 Not Found');
+        evo()->sendForward(
+            evo()->config('error_page') ? evo()->config('error_page') : evo()->config('site_start'),
+            evo()->server('SERVER_PROTOCOL', '') . ' 404 Not Found'
+        );
     }
 
     function sendUnauthorizedPage() {
