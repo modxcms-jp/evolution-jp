@@ -291,6 +291,12 @@ class DocumentParser {
             'docid_by_uri',
             md5($this->decoded_request_uri)
         );
+
+        if($this->documentIdentifier === false) {
+            $this->sendErrorPage();
+            return;
+        }
+        
         if (!$this->documentIdentifier) {
             $this->documentIdentifier = $this->getDocumentIdentifier(
                 $this->decoded_request_uri
