@@ -2545,6 +2545,7 @@ class DocumentParser {
             $modx->event->cm->setParams($params);
         }
         ob_start();
+        $pluginCode = preg_replace('{^<\?php}u','',trim($pluginCode));
         $return = eval($pluginCode);
         unset ($modx->event->params);
         $echo = ob_get_clean();
