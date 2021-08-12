@@ -1,5 +1,7 @@
 <?php
-if($this->rule_exists($config_chunk)) $modx->config['tvs_below_content'] = '1';
+if($this->rule_exists($config_chunk)) {
+    $modx->config['tvs_below_content'] = '1';
+}
 // Load the jquery library
 echo '<!-- Begin ManagerManager output -->' . "\n";
 

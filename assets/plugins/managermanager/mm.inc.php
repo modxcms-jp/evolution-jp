@@ -31,7 +31,7 @@ class MANAGERMANAGER {
         extract($modx->event->params);
         $mm_version = '0.4'; 
         
-        $pluginDir = $modx->config['base_path'].'assets/plugins/managermanager/';
+        $pluginDir = MODX_BASE_PATH.'assets/plugins/managermanager/';
         
         //Include Utilites
         include_once($pluginDir.'utilities.inc.php');
@@ -114,7 +114,7 @@ class MANAGERMANAGER {
         $all_tvs = $modx->db->makeArray(
             db()->select(
                 'name,type,id,elements'
-                , evo()->getFullTableName('site_tmplvars')
+                , '[+prefix+]site_tmplvars'
                 , ''
                 , 'name ASC'
             )
