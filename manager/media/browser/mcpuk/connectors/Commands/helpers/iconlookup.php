@@ -107,5 +107,3 @@ function iconLookup($mime,$ext) {
 
 	return $icon_basedir."empty.png";
 }
-
-?>
