@@ -407,7 +407,9 @@ function datetime_format($format, $timestamp = '', $default = '')
 		return $default;
 	}
 	if (!preg_match('@^[0-9]+$@', $timestamp)) {
-		$timestamp = strtotime($timestamp);
+		$timestamp = strtotime(
+            preg_replace('@^([0-9]+)/([0-9]+)/([0-9]+)@', '$1-$2-$3', $timestamp)
+        );
 	}
 	if (strpos($format, '%') === false) {
 		return date($format, $timestamp);
