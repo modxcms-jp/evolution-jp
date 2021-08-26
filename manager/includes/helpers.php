@@ -231,9 +231,6 @@ function post($key = null, $default = null) {
 }
 
 function postv($key = null, $default = null) {
-    if (evo()) {
-        return evo()->input_post($key, $default);
-    }
     return array_get($_POST, $key, $default);
 }
 
