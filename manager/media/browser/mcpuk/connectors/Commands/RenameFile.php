@@ -4,17 +4,17 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * http://www.opensource.org/licenses/lgpl-license.php
  *
  * For further information visit:
- * 		http://www.fckeditor.net/
+ *         http://www.fckeditor.net/
  *
  * File Name: RenameFile.php
- * 	Implements the DeleteFile command to delete a file
- * 	in the current directory. Output is in XML
+ * Implements the DeleteFile command to delete a file
+ * in the current directory. Output is in XML
  *
  * File Authors:
- * 		Grant French (grant@mcpuk.net)
+ *         Grant French (grant@mcpuk.net)
  */
 class RenameFile
 {

@@ -18,53 +18,52 @@
 -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
-		<link href="browser.css" type="text/css" rel="stylesheet">
-		<script type="text/javascript" src="js/common.js"></script>
-		<script language="javascript">
 
-function SetResourceType( type )
-{
-	window.parent.frames["frmFolders"].SetResourceType( type ) ;
-}
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="vs_targetSchema" content="http://schemas.microsoft.com/intellisense/ie5">
+    <link href="browser.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="js/common.js"></script>
+    <script language="javascript">
 
-var aTypes = [
-	['files','Files'],
-	['images','Images'],
-	['flash','Flash'],
-	['media','Media']
-] ;
+        function SetResourceType(type) {
+            window.parent.frames["frmFolders"].SetResourceType(type);
+        }
 
-window.onload = function()
-{
-   var bHasType = ( oConnector.ResourceType.length > 0 ) ;
-   var sel;
-   cmbTypeObj=document.getElementById("cmbType");
-   for ( var i = 0 ; i < aTypes.length ; i++ )
-   {
-       if (!bHasType || aTypes[i][0] == oConnector.ResourceType )
-       {
-           sel = true;
-       }
-       else sel = false;
-       
-       AddSelectOption( cmbTypeObj, aTypes[i][1],aTypes[i][0], sel ) ;
-   }
-}
+        var aTypes = [
+            ['files', 'Files'],
+            ['images', 'Images'],
+            ['flash', 'Flash'],
+            ['media', 'Media']
+        ];
 
-		</script>
-	</head>
-	<body bottomMargin="0" topMargin="0">
-		<table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
-			<tr>
-				<td nowrap>
-					Resource Type<br />
-					<select id="cmbType" style="WIDTH: 100%" onchange="SetResourceType(this.value);">
-					</select>
-				</td>
-			</tr>
-		</table>
-	</body>
+        window.onload = function () {
+            var bHasType = (oConnector.ResourceType.length > 0);
+            var sel;
+            cmbTypeObj = document.getElementById("cmbType");
+            for (var i = 0; i < aTypes.length; i++) {
+                if (!bHasType || aTypes[i][0] == oConnector.ResourceType) {
+                    sel = true;
+                }
+                else sel = false;
+
+                AddSelectOption(cmbTypeObj, aTypes[i][1], aTypes[i][0], sel);
+            }
+        }
+
+    </script>
+</head>
+
+<body bottomMargin="0" topMargin="0">
+    <table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+        <tr>
+            <td nowrap>
+                Resource Type<br />
+                <select id="cmbType" style="WIDTH: 100%" onchange="SetResourceType(this.value);">
+                </select>
+            </td>
+        </tr>
+    </table>
+</body>
+
 </html>

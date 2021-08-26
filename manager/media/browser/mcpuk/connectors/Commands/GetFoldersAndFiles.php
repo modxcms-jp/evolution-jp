@@ -4,18 +4,18 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ *         http://www.opensource.org/licenses/lgpl-license.php
  *
  * For further information visit:
- * 		http://www.fckeditor.net/
+ *         http://www.fckeditor.net/
  *
  * File Name: GetFoldersAndFiles.php
- * 	Implements the GetFoldersAndFiles command, to list
- * 	files and folders in the current directory.
- * 	Output is in XML
+ *     Implements the GetFoldersAndFiles command, to list
+ *     files and folders in the current directory.
+ *     Output is in XML
  *
  * File Authors:
- * 		Grant French (grant@mcpuk.net)
+ *         Grant French (grant@mcpuk.net)
  */
 class GetFoldersAndFiles {
     public $fckphp_config;
@@ -28,58 +28,58 @@ class GetFoldersAndFiles {
         $this->fckphp_config=$fckphp_config;
         $this->type=$type;
         $this->raw_cwd=$cwd;
-		$this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
-		$this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
-		$self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
-		$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
-		if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
-		else                                                             $this->enable_imgedit = true;
-	}
-	
-	public function run() {
+        $this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
+        $this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
+        $self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
+        $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
+        if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
+        else                                                             $this->enable_imgedit = true;
+    }
+    
+    public function run() {
 
-		header ("Content-Type: application/xml; charset=utf-8");
-		echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-		?>
+        header ("Content-Type: application/xml; charset=utf-8");
+        echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
+        ?>
 <!DOCTYPE Connector [
 
-	<!ELEMENT Connector	(CurrentFolder,Folders,Files)>
-		<!ATTLIST Connector command CDATA "noname">
-		<!ATTLIST Connector resourceType CDATA "0">
-		
-	<!ELEMENT CurrentFolder	(#PCDATA)>
-		<!ATTLIST CurrentFolder path CDATA "noname">
-		<!ATTLIST CurrentFolder url CDATA "0">
-		
-	<!ELEMENT Folders	(#PCDATA)>
-	
-	<!ELEMENT Folder	(#PCDATA)>
-		<!ATTLIST Folder name CDATA "noname_dir">
-		
-	<!ELEMENT Files		(#PCDATA)>
-		
-	<!ELEMENT File		(#PCDATA)>
-		<!ATTLIST File name CDATA "noname_file">
-		<!ATTLIST File size CDATA "0">
+    <!ELEMENT Connector    (CurrentFolder,Folders,Files)>
+        <!ATTLIST Connector command CDATA "noname">
+        <!ATTLIST Connector resourceType CDATA "0">
+        
+    <!ELEMENT CurrentFolder    (#PCDATA)>
+        <!ATTLIST CurrentFolder path CDATA "noname">
+        <!ATTLIST CurrentFolder url CDATA "0">
+        
+    <!ELEMENT Folders    (#PCDATA)>
+    
+    <!ELEMENT Folder    (#PCDATA)>
+        <!ATTLIST Folder name CDATA "noname_dir">
+        
+    <!ELEMENT Files        (#PCDATA)>
+        
+    <!ELEMENT File        (#PCDATA)>
+        <!ATTLIST File name CDATA "noname_file">
+        <!ATTLIST File size CDATA "0">
 ] >
-		
+        
 <Connector command="GetFoldersAndFiles" resourceType="<?php echo $this->type; ?>">
-	<CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>" />
-	<Folders>
+    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>" />
+    <Folders>
 <?php
-		$files=array();
-		if (opendir($this->real_cwd))
-		{
-			/**
-			* Initiate the array to store the foldernames
-			*/
-			$folders_array = array();
-			$filenames = scandir($this->real_cwd);
-			if($filenames)
-			{
-				foreach ($filenames as $filename)
-				{
-					if ($filename === "." || $filename === "..") {
+        $files=array();
+        if (opendir($this->real_cwd))
+        {
+            /**
+            * Initiate the array to store the foldernames
+            */
+            $folders_array = array();
+            $filenames = scandir($this->real_cwd);
+            if($filenames)
+            {
+                foreach ($filenames as $filename)
+                {
+                    if ($filename === "." || $filename === "..") {
                         continue;
                     }
                     if (!is_dir($this->real_cwd . "/$filename")) {
@@ -101,24 +101,24 @@ class GetFoldersAndFiles {
                         $folders_array[] = $filename;
                     }
                 }
-			}
-			/**
-		     * Sort the array by the way you like and show it.
-		     */
-		    natcasesort($folders_array);
+            }
+            /**
+             * Sort the array by the way you like and show it.
+             */
+            natcasesort($folders_array);
             foreach($folders_array as $k=>$v)
             {
-               echo '<Folder name="'.$v.'" />'."\n";
+                echo '<Folder name="'.$v.'" />'."\n";
             }
-		}
-		echo "\t</Folders>\n";
-		echo "\t<Files>\n";
-		
-		/**
-		 * The filenames are in the array $files
-		 * SORT IT!
-		 */
-		natcasesort($files);
+        }
+        echo "\t</Folders>\n";
+        echo "\t<Files>\n";
+        
+        /**
+         * The filenames are in the array $files
+         * SORT IT!
+         */
+        natcasesort($files);
         $files = array_values($files);
 
         foreach ($files as $i => $iValue) {
@@ -157,13 +157,13 @@ class GetFoldersAndFiles {
             );
         }
         echo "\t</Files>\n";
-		echo "</Connector>\n";
-	}
-	
-	
-	public function isImageEditable($file) {
-		$fh=fopen($file, 'rb');
-		if (!$fh) {
+        echo "</Connector>\n";
+    }
+    
+    
+    public function isImageEditable($file) {
+        $fh=fopen($file, 'rb');
+        if (!$fh) {
             return false;
         }
 
