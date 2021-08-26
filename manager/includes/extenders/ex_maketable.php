@@ -9,32 +9,32 @@
  * @author Jason Coward <jason@opengeek.com> (MODx)
  */
 class MakeTable {
-    var $actionField;
-    var $cellAction;
-    var $linkAction;
-    var $tableWidth;
-    var $tableClass;
-    var $tableID;
-    var $thClass;
-    var $rowHeaderClass;
-    var $columnHeaderClass;
-    var $rowDefaultClass;
-    var $rowAlternateClass;
-    var $formName;
-    var $formAction;
-    var $formElementType;
-    var $formElementName;
-    var $rowAlternatingScheme;
-    var $excludeFields;
-    var $allOption;
-    var $pageNav;
-    var $columnWidths;
-    var $selectedValues;
-    var $pageLimit;
+    public $fieldHeaders;
+    public $actionField;
+    public $cellAction;
+    public $linkAction;
+    public $tableWidth;
+    public $tableClass;
+    public $tableID;
+    public $thClass;
+    public $rowHeaderClass;
+    public $columnHeaderClass;
+    public $rowDefaultClass;
+    public $rowAlternateClass;
+    public $formName;
+    public $formAction;
+    public $formElementType;
+    public $formElementName;
+    public $rowAlternatingScheme;
+    public $excludeFields;
+    public $allOption;
+    public $pageNav;
+    public $columnWidths;
+    public $selectedValues;
+    public $extra;
+    public $pageLimit;
 
-    function __construct() {
-        global $modx;
-
+    public function __construct() {
         $this->fieldHeaders = array();
         $this->excludeFields = array();
         $this->actionField = '';
@@ -54,7 +54,7 @@ class MakeTable {
         $this->allOption = 0;
         $this->selectedValues = array();
         $this->extra = '';
-        $this->pageLimit = $modx->config['number_of_results'];
+        $this->pageLimit = evo()->config('number_of_results');
     }
 
     /**
@@ -66,9 +66,9 @@ class MakeTable {
 
         if (!is_array($this->columnWidths) || !$this->columnWidths[$columnPosition]) {
             return '';
-        } else {
-            return sprintf(' width="%s" ', $this->columnWidths[$columnPosition]);
         }
+
+        return sprintf(' width="%s" ', $this->columnWidths[$columnPosition]);
     }
 
     /**
@@ -78,12 +78,10 @@ class MakeTable {
      */
     function determineRowClass($pos) {
         if ($pos % 2 == 0 && $this->rowAlternatingScheme === 'EVEN') {
-            $class = $this->rowAlternateClass;
-        } else {
-            $class = $this->rowDefaultClass;
+            return sprintf('class="%s"', $this->rowAlternateClass);
         }
+        return sprintf('class="%s"', $this->rowDefaultClass);
 
-        return sprintf('class="%s"', $class);
     }
 
     /**
@@ -96,9 +94,11 @@ class MakeTable {
         if (!$this->cellAction) {
             return '';
         }
-        $action = $this->cellAction . $this->actionField;
-        $value = urlencode($currentActionFieldValue);
-        return sprintf(' onclick="javascript:window.location=\'%s=%s\'" ', $action, $value);
+        return sprintf(
+            ' onclick="javascript:window.location=\'%s=%s\'" ',
+            $this->cellAction . $this->actionField,
+            urlencode($currentActionFieldValue)
+        );
     }
 
     /**
@@ -111,10 +111,12 @@ class MakeTable {
         if (!$this->linkAction) {
             return $cellText;
         }
-
-        $action = $this->linkAction . $this->actionField;
-        $value = urlencode($currentActionFieldValue);
-        return sprintf('<a href="%s=%s">%s</a>', $action, $value, $cellText);
+        return sprintf(
+            '<a href="%s=%s">%s</a>',
+            $this->linkAction . $this->actionField,
+            urlencode($currentActionFieldValue),
+            $cellText
+        );
     }
 
     /**
@@ -123,11 +125,10 @@ class MakeTable {
      * @param $value Indicates the INPUT form element type attribute.
      */
     function prepareLink($path) {
-        if (strpos($path, '?') !== false) {
-            return "{$path}&";
-        } else {
-            return "{$path}?";
+        if (strpos($path, '?') === false) {
+            return $path . '?';
         }
+        return $path . '&';
     }
 
     /**
@@ -149,37 +150,46 @@ class MakeTable {
         if (!is_array($fieldsArray)) {
             return '';
         }
-
-        if ($this->formElementType) {
-            return $this->_renderWithForm($fieldsArray, $fieldHeadersArray);
-        } else {
+        if (!$this->formElementType) {
             return $this->_render($fieldsArray, $fieldHeadersArray);
         }
+        return $this->_renderWithForm($fieldsArray, $fieldHeadersArray);
     }
 
     function _render($fieldsArray, $fieldHeadersArray = array()) {
         $i = 0;
-        $table = '';
         $header = '';
         $tr = array();
         foreach ($fieldsArray as $fieldName => $fieldValue) {
             $colPosition = 0;
             $_ = array();
             foreach ($fieldValue as $key => $value) {
-                if (!in_array($key, $this->excludeFields)) {
-                    if ($i == 0) {
-                        $width = $this->getColumnWidth($colPosition);
-                        $class = $this->thClass ? sprintf('class="%s"', $this->thClass) : '';
-                        $headerText = isset($fieldHeadersArray[$key]) ? $fieldHeadersArray[$key] : $key;
-                        $header .= sprintf('<th %s %s>%s</th>', $width, $class, $headerText);
-                    }
-                    $cellText = $this->createCellText($fieldValue[$this->actionField], $value);
-                    $_[] = sprintf('<td>%s</td>', $cellText);
-                    $colPosition++;
+                if (in_array($key, $this->excludeFields)) {
+                    continue;
                 }
+                if ($i == 0) {
+                    $header .= sprintf(
+                        '<th %s %s>%s</th>',
+                        $this->getColumnWidth($colPosition),
+                        $this->thClass ? sprintf('class="%s"', $this->thClass) : '',
+                        isset($fieldHeadersArray[$key]) ? $fieldHeadersArray[$key] : $key
+                    );
+                }
+                $_[] = sprintf(
+                    '<td>%s</td>',
+                    $this->createCellText(
+                        $fieldValue[$this->actionField],
+                        $value
+                    )
+                );
+                $colPosition++;
             }
             $i++;
-            $tr[] = sprintf("<tr %s>\n%s</tr>", $this->determineRowClass($i), join('', $_));
+            $tr[] = sprintf(
+                "<tr %s>\n%s</tr>",
+                $this->determineRowClass($i),
+                implode('', $_)
+            );
         }
         $_ = array();
         if ($this->tableWidth) {
@@ -191,11 +201,19 @@ class MakeTable {
         if ($this->tableID) {
             $_[] = sprintf('id="%s"', $this->tableID);
         }
-        $args = join(' ', $_);
-        $vs = array($args, $this->rowHeaderClass, $header, join("\n", $tr));
-        $table = vsprintf('<table %s><thead><tr class="%s">%s</tr></thead>%s</table>', $vs);
-        $table = str_replace(array('\t', '\n'), array("\t", "\n"), $table);
-        return $table;
+        return str_replace(
+            array('\t', '\n'),
+            array("\t", "\n"),
+            vsprintf(
+                '<table %s><thead><tr class="%s">%s</tr></thead>%s</table>',
+                array(
+                    implode(' ', $_),
+                    $this->rowHeaderClass,
+                    $header,
+                    implode("\n", $tr)
+                )
+            )
+        );
     }
 
     function _renderWithForm($fieldsArray, $fieldHeadersArray = array()) {
@@ -206,31 +224,42 @@ class MakeTable {
             $table .= sprintf('<tr %s>', $this->determineRowClass($i));
             $currentActionFieldValue = $fieldValue[$this->actionField];
             if (is_array($this->selectedValues)) {
-                $isChecked = array_search($currentActionFieldValue, $this->selectedValues) === false ? 0 : 1;
+                $isChecked = in_array($currentActionFieldValue, $this->selectedValues) ? 1 : 0;
             } else {
                 $isChecked = false;
             }
 
-            $table .= $this->addFormField($currentActionFieldValue, $isChecked);
+            $table .= $this->addFormField(
+                $currentActionFieldValue,
+                $isChecked
+            );
 
             $colPosition = 0;
             foreach ($fieldValue as $key => $value) {
-                if (!in_array($key, $this->excludeFields)) {
-                    if ($i == 0) {
-                        $class = $this->thClass ? 'class="' . $this->thClass . '"' : '';
-                        if (empty ($header)) {
-                            $allOption = $this->allOption ? '<a href="javascript:clickAll()">all</a>' : '';
-                            $header .= sprintf('<th style="width:32px" %s>%s</th>', $class, $allOption);
-                        }
-                        $headerText = isset($fieldHeadersArray[$key]) ? $fieldHeadersArray[$key] : $key;
-                        $header .= sprintf('<th %s %s>%s</th>', $this->getColumnWidth($colPosition), $class,
-                            $headerText);
-                    }
-                    $onclick = $this->getCellAction($currentActionFieldValue);
-                    $cellText = $this->createCellText($currentActionFieldValue, $value);
-                    $table .= sprintf('<td %s>%s</td>', $onclick, $cellText);
-                    $colPosition++;
+                if (in_array($key, $this->excludeFields)) {
+                    continue;
                 }
+                if ($i == 0) {
+                    if (empty ($header)) {
+                        $header .= sprintf(
+                            '<th style="width:32px" %s>%s</th>',
+                            $this->thClass ? 'class="' . $this->thClass . '"' : '',
+                            $this->allOption ? '<a href="javascript:clickAll()">all</a>' : ''
+                        );
+                    }
+                    $header .= sprintf(
+                        '<th %s %s>%s</th>',
+                        $this->getColumnWidth($colPosition),
+                        $this->thClass ? 'class="' . $this->thClass . '"' : '',
+                        isset($fieldHeadersArray[$key]) ? $fieldHeadersArray[$key] : $key
+                    );
+                }
+                $table .= sprintf(
+                    '<td %s>%s</td>',
+                    $this->getCellAction($currentActionFieldValue),
+                    $this->createCellText($currentActionFieldValue, $value)
+                );
+                $colPosition++;
             }
             $i++;
             $table .= '</tr>';
@@ -245,11 +274,19 @@ class MakeTable {
         if ($this->tableID) {
             $_[] = sprintf('id="%s"', $this->tableID);
         }
-        $args = join(' ', $_);
-        $vs = array($args, $this->rowHeaderClass, $header, $table);
-        $table = vsprintf('\n<table %s>\n\t<thead>\n\t<tr class="%s">\n%s\t</tr>\n\t</thead>\n%s</table>\n', $vs);
-        $table = str_replace(array('\t', '\n'), array("\t", "\n"), $table);
-
+        $table = str_replace(
+            array('\t', '\n'),
+            array("\t", "\n"),
+            vsprintf(
+                '\n<table %s>\n\t<thead>\n\t<tr class="%s">\n%s\t</tr>\n\t</thead>\n%s</table>\n',
+                array(
+                    implode(' ', $_),
+                    $this->rowHeaderClass,
+                    $header,
+                    $table
+                )
+            )
+        );
         if ($this->allOption) {
             $table .= $this->_getClickAllScript();
         }
@@ -257,13 +294,18 @@ class MakeTable {
             $table .= "\n" . $this->extra . "\n";
         }
 
-        return sprintf('<form id="%s" name="%s" action="%s" method="POST">%s</form>', $this->formName, $this->formName,
-            $this->formAction, $table);
+        return sprintf(
+            '<form id="%s" name="%s" action="%s" method="POST">%s</form>',
+            $this->formName,
+            $this->formName,
+            $this->formAction,
+            $table
+        );
     }
 
     function _getClickAllScript() {
         return <<< EOT
-<script language="javascript">
+<script>
 toggled = 0;
 function clickAll() {
 	myform = document.getElementById("'.$this->formName.'");
@@ -334,9 +376,8 @@ EOT;
 
         if (empty($navlink)) {
             return '';
-        } else {
-            return sprintf('<div id="pagination" class="paginate"><ul>%s</ul></div>', join("\n", $navlink));
         }
+        return sprintf('<div id="pagination" class="paginate"><ul>%s</ul></div>', join("\n", $navlink));
     }
 
     /**
@@ -363,14 +404,22 @@ EOT;
             if (!empty($qs)) {
                 $p[] = trim($qs, '?&');
             }
-            $path = $modx->makeUrl($modx->documentIdentifier, $modx->documentObject['alias'], '?' . join('&', $p));
+            $path = evo()->makeUrl(
+                evo()->documentIdentifier,
+                $modx->documentObject['alias'],
+                '?' . implode('&', $p)
+            );
         } else {
             $path = $this->prepareLink($path) . "page={$pageNum}";
         }
 
-        $currentClass = $currentPage ? 'class="currentPage"' : '';
-        $path = htmlspecialchars($path, ENT_QUOTES, $modx->config['modx_charset']);
-        return sprintf('<li %s><a href="%s" %s>%s</a></li>', $currentClass, $path, $currentClass, $displayText);
+        return sprintf(
+            '<li %s><a href="%s" %s>%s</a></li>',
+            $currentPage ? 'class="currentPage"' : '',
+            hsc($path, ENT_QUOTES),
+            $currentPage ? 'class="currentPage"' : '',
+            $displayText
+        );
     }
 
     /**
@@ -385,11 +434,13 @@ EOT;
             return '';
         }
 
-        $checked = $isChecked ? 'checked ' : '';
-        $formElementName = ($this->formElementName) ? $this->formElementName : $value;
-
-        return sprintf('<td><input type="%s" name="%s" value="%s" %s /></td>', $this->formElementType, $formElementName,
-            $value, $checked);
+        return sprintf(
+            '<td><input type="%s" name="%s" value="%s" %s /></td>',
+            $this->formElementType,
+            $this->formElementName ? $this->formElementName : $value,
+            $value,
+            $isChecked ? 'checked ' : ''
+        );
     }
 
     /**
@@ -411,14 +462,15 @@ EOT;
         if ($natural_order) {
             return '';
         }
-        if (!isset($_GET['orderby']) || empty($_GET['orderby'])) {
+        if (empty(getv('orderby'))) {
             return '';
         }
 
-        $target = $_GET['orderby'];
-        $order = !empty($_GET['orderdir']) ? $_GET['orderdir'] : 'DESC';
-
-        return " ORDER BY {$target} {$order}";
+        return sprintf(
+            ' ORDER BY %s %s',
+            getv('orderby'),
+            empty(getv('orderdir')) ? 'DESC' : getv('orderdir')
+        );
     }
 
     /**
@@ -430,19 +482,14 @@ EOT;
      * @param $qs An optional query string to append to the order by link.
      */
     function prepareOrderByLink($key, $text, $qs = '') {
-        global $modx;
-        if (!isset($_GET['orderdir']) || empty($_GET['orderdir'])) {
-            $orderDir = 'asc';
-        } elseif (strtolower($_GET['orderdir']) !== 'desc') {
-            $orderDir = 'asc';
-        } else {
-            $orderDir = 'desc';
-        }
-
-        $qs = rtrim($qs, '&');
-
-        return sprintf('<a href="[~%s~]?%s&orderby=%s&orderdir=%s">%s</a>', $modx->documentIdentifier, $qs, $key,
-            $orderDir, $text);
+        return sprintf(
+            '<a href="[~%s~]?%s&orderby=%s&orderdir=%s">%s</a>',
+            evo()->documentIdentifier,
+            rtrim($qs, '&'),
+            $key,
+            getv('orderdir') && strtolower(getv('orderdir')) === 'desc' ? 'desc' : 'asc',
+            $text
+        );
     }
 
     /**
