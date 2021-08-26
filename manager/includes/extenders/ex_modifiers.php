@@ -921,13 +921,7 @@ class MODIFIERS {
                 if (empty($opt)) {
                     $opt = evo()->toDateFormat(null, 'formatOnly');
                 }
-                if (!preg_match('@^[0-9]+$@', $value)) {
-                    $value = strtotime($value);
-                }
-                if (strpos($opt, '%') === false) {
-                    return date($opt, 0 + $value);
-                }
-                return evo()->mb_strftime($opt, 0 + $value);
+                return datetime_format($opt, $value);
             case 'time':
                 if (empty($opt)) {
                     $opt = '%H:%M';
