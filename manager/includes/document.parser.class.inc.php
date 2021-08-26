@@ -3551,13 +3551,8 @@ class DocumentParser {
     }
 
     public function getField($field = 'content', $docid = '') {
-        static $cached = array();
-        if (isset($cached[$docid][$field])) {
-            return $cached[$docid][$field];
-        }
+        static $doc = array(), $cached = array();
 
-        $cached[$docid] = false;
-        
         if ($docid === '' && isset($this->documentIdentifier)) {
             $docid = $this->documentIdentifier;
         } elseif (!preg_match('@^[0-9]+$@', $docid)) {
@@ -3568,13 +3563,27 @@ class DocumentParser {
             return false;
         }
 
-        $doc = $this->getDocumentObject('id', $docid);
-
-        if (is_array($doc[$field])) {
-            $doc[$field] = $this->tvProcessor($doc[$field]);
+        if (isset($cached[$docid][$field])) {
+            return $cached[$docid][$field];
         }
-        $cached[$docid] = $doc;
-        return $doc[$field];
+
+        if (!isset($doc[$docid])) {
+            $doc[$docid] = $this->getDocumentObject('id', $docid);
+        }
+        
+        if (isset($doc[$docid][$field]) && is_array($doc[$docid][$field])) {
+            $cached[$docid][$field] = $this->tvProcessor($doc[$docid][$field]);
+            return $cached[$docid][$field];
+        }
+        $cached[$docid][$field] = array_get(
+            $doc,
+            sprintf(
+                '%s.%s',
+                $docid,
+                $field
+            )
+        );
+        return $cached[$docid][$field];
     }
 
     public function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias') {
