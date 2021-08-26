@@ -383,13 +383,19 @@ class SubParser {
 
         if (preg_match('@^[0-9]+@', $modx->documentIdentifier)) {
             $resource = $modx->getDocumentObject('id', $modx->documentIdentifier);
-            $url = $modx->makeUrl($modx->documentIdentifier);
-            $link = '<a href="' . $url . '" target="_blank">' . $resource['pagetitle'] . '</a>';
             $str .= $modx->parseText(
                 $tpl
                 , array(
                     'left' => 'Resource : ',
-                    'right' => sprintf('[%s]%s', $modx->documentIdentifier, $link)
+                    'right' => sprintf(
+                        '[%s]%s',
+                        $modx->documentIdentifier,
+                        sprintf(
+                            '<a href="%s" target="_blank">%s</a>',
+                            $modx->makeUrl($modx->documentIdentifier),
+                            $resource['pagetitle']
+                        )
+                    )
                 )
             );
         }
@@ -453,8 +459,9 @@ class SubParser {
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        if (error_get_last()) {
-            $str = "<b>".print_r(error_get_last(),true)."</b><br />\n{$str}";
+        $last_error = error_get_last();
+        if ($last_error) {
+            $str = "<b>".print_r($last_error,true)."</b><br />\n{$str}";
         }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
 
