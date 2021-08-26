@@ -14,6 +14,10 @@ if(isset($_GET['get']) && $_GET['get'] === 'captcha') {
     return;
 }
 
+if(is_file('vendor/autoload.php')) {
+    require 'vendor/autoload.php';
+}
+
 $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
