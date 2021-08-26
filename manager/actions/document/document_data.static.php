@@ -19,7 +19,7 @@ if (!manager()->isAllowed($id)) {
     alert()->dumpError();
 }
 
-$modx->updatePublishStatus();
+evo()->updatePublishStatus();
 
 // Get the document content
 $where = array(
@@ -85,7 +85,7 @@ if ($row = db()->getRow($rs)) {
 $_SESSION['itemname'] = $content['pagetitle'];
 
 foreach ($content as $k => $v) {
-    $content[$k] = htmlspecialchars($v, ENT_QUOTES, $modx->config['modx_charset']);
+    $content[$k] = hsc($v);
 }
 
 ?>
@@ -133,7 +133,7 @@ foreach ($content as $k => $v) {
             </li>
         <?php endif; ?>
         <li id="Button6"><a href="#"
-                            onclick="<?php echo ($modx->config['friendly_urls'] == '1') ? "window.open('" . $modx->makeUrl($id) . "','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img
+                            onclick="<?php echo (evo()->config('friendly_urls') == 1) ? "window.open('" . evo()->makeUrl($id) . "','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img
                         src="<?php echo $_style["icons_preview_resource"] ?>"/> <?php echo $_lang['view_resource'] ?>
             </a></li>
         <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;<?php
@@ -172,7 +172,13 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td width="200"><?php echo $_lang['page_data_template'] ?>:</td>
-                        <td><?php echo sprintf('%s(id:%s)', $templatename, $content['template']) ?></td>
+                        <td><?php
+                            echo sprintf(
+                                    '%s(id:%s)',
+                                    $templatename,
+                                    $content['template']);
+                            ?>
+                        </td>
                         <td>[*template*]</td>
                     </tr>
                     <tr>
@@ -182,7 +188,13 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td><?php echo $_lang['long_title'] ?>:</td>
-                        <td><?php echo $content['longtitle'] != '' ? $content['longtitle'] : "(<i>" . $_lang['not_set'] . "</i>)" ?></td>
+                        <td><?php
+                            if ($content['longtitle'] != '') {
+                                echo $content['longtitle'];
+                            } else {
+                                echo "(<i>" . $_lang['not_set'] . "</i>)";
+                            } ?>
+                        </td>
                         <td>[*longtitle*]</td>
                     </tr>
                     <tr>
@@ -197,7 +209,7 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td><?php echo $_lang['type'] ?>:</td>
-                        <td><?php echo $content['type'] == 'reference' ? $_lang['weblink'] : $_lang['resource'] ?></td>
+                        <td><?php echo $content['type'] === 'reference' ? $_lang['weblink'] : $_lang['resource'] ?></td>
                         <td>[*type*]</td>
                     </tr>
                     <tr>
@@ -207,7 +219,7 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td width="200"><?php echo $_lang['page_data_created'] ?>:</td>
-                        <td><?php echo $modx->toDateFormat($content['createdon'] + $server_offset_time) ?>
+                        <td><?php echo evo()->toDateFormat($content['createdon'] + evo()->config('server_offset_time',0)) ?>
                             (<b><?php echo $createdbyname ?></b>)
                         </td>
                         <td>[*createdon:date*]</td>
@@ -215,7 +227,7 @@ foreach ($content as $k => $v) {
                     <?php if ($editedbyname != '') { ?>
                         <tr>
                             <td><?php echo $_lang['page_data_edited'] ?>:</td>
-                            <td><?php echo $modx->toDateFormat($content['editedon'] + $server_offset_time) ?>
+                            <td><?php echo evo()->toDateFormat($content['editedon'] + evo()->config('server_offset_time',0)) ?>
                                 (<b><?php echo $editedbyname ?></b>)
                             </td>
                             <td>[*editedon:date*]</td>
@@ -228,12 +240,12 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td><?php echo $_lang['page_data_publishdate'] ?>:</td>
-                        <td><?php echo $content['pub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : $modx->toDateFormat($content['pub_date']) ?></td>
+                        <td><?php echo $content['pub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : evo()->toDateFormat($content['pub_date']) ?></td>
                         <td>[*pub_date:date*]</td>
                     </tr>
                     <tr>
                         <td><?php echo $_lang['page_data_unpublishdate'] ?>:</td>
-                        <td><?php echo $content['unpub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : $modx->toDateFormat($content['unpub_date']) ?></td>
+                        <td><?php echo $content['unpub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : evo()->toDateFormat($content['unpub_date']) ?></td>
                         <td>[*unpub_date:date*]</td>
                     </tr>
                     <tr>
@@ -258,12 +270,31 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td><?php echo $_lang['page_data_web_access'] ?>:</td>
-                        <td><?php echo $content['privateweb'] == 0 ? $_lang['public'] : '<b style="color: #821517">' . $_lang['private'] . '</b> <img src="media/style/' . $modx->config['manager_theme'] . '/images/icons/secured.gif" align="absmiddle" />' ?></td>
+                        <td><?php
+                            if ($content['privateweb'] == 0) {
+                                echo $_lang['public'];
+                            } else {
+                                echo sprintf(
+                                    '<b style="color: #821517">%s</b> <img src="media/style/%s/images/icons/secured.gif" />',
+                                    $_lang['private'],
+                                    evo()->config('manager_theme')
+                                );
+                            } ?>
+                        </td>
                         <td>[*privateweb*]</td>
                     </tr>
                     <tr>
                         <td><?php echo $_lang['page_data_mgr_access'] ?>:</td>
-                        <td><?php echo $content['privatemgr'] == 0 ? $_lang['public'] : '<b style="color: #821517">' . $_lang['private'] . '</b> <img src="media/style/' . $modx->config['manager_theme'] . '/images/icons/secured.gif" align="absmiddle" />' ?></td>
+                        <td><?php
+                            if ($content['privatemgr'] == 0) {
+                                echo $_lang['public'];
+                            } else {
+                                echo sprintf(
+                                    '<b style="color: #821517">%s</b> <img src="media/style/%s/images/icons/secured.gif" />',
+                                    $_lang['private'],
+                                    evo()->config('manager_theme')
+                                );
+                            } ?></td>
                         <td>[*privatemgr*]</td>
                     </tr>
                     <tr>
@@ -280,16 +311,19 @@ foreach ($content as $k => $v) {
             </div><!-- end sectionBody -->
         </div><!-- end tab-page -->
         <?php
-        $cache_path = "{$modx->config['base_path']}assets/cache/docid_{$id}.pageCache.php";
-        $cache = @file_get_contents($cache_path);
+        $cache = @file_get_contents(MODX_BASE_PATH . "assets/cache/docid_{$id}.pageCache.php");
         if ($cache) :
-            $cache = htmlspecialchars($cache, ENT_QUOTES, $modx->config['modx_charset']);
-            $cache = $_lang['page_data_cached'] . '<p><textarea style="width: 100%; height: 400px;">' . $cache . "</textarea>\n";
             ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
                 <h2 class="tab"><?php echo $_lang['page_data_source'] ?></h2>
-                <?php echo $cache; ?>
+                <?php
+                    echo sprintf(
+                        '%s<p><textarea style="width: 100%%; height: 400px;">%s</textarea>',
+                        $_lang['page_data_cached'],
+                        hsc($cache)
+                    );
+                ?>
             </div><!-- end tab-page -->
         <?php endif; ?>
     </div><!-- end documentPane -->
