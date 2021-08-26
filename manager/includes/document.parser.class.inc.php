@@ -5348,16 +5348,7 @@ class DocumentParser {
     }
 
     public function input_any($key = null, $default = null) {
-        if ($this->input_post($key)!==null) {
-            return $this->input_post($key);
-        }
-        if ($this->input_get($key)!==null) {
-            return $this->input_get($key);
-        }
-        if ($this->input_cookie($key)!==null) {
-            return $this->input_cookie($key);
-        }
-        return $default;
+        return anyv($key, $default);
     }
 
     public function server($key = null, $default = null) {

@@ -245,9 +245,6 @@ function cookiev($key = null, $default = null) {
 }
 
 function anyv($key = null, $default = null) {
-    if (evo()) {
-        return evo()->input_any($key, $default);
-    }
     return array_get($_REQUEST, $key, $default);
 }
 
