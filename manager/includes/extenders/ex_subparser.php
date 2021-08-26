@@ -117,7 +117,7 @@ class SubParser {
         $this->logEvent(
             0
             , $type
-            , $msg ? $msg : evo()->server('REQUEST_URI')
+            , $msg ? $msg : serverv('REQUEST_URI')
             , $title
         );
     }
@@ -259,10 +259,10 @@ class SubParser {
     ) {
         global $modx;
 
-        $version = isset ($GLOBALS['version']) ? $GLOBALS['version'] : '';
-        $release_date = isset ($GLOBALS['release_date']) ? $GLOBALS['release_date'] : '';
-        $ua = $modx->hsc(evo()->server('HTTP_USER_AGENT'));
-        $referer = $modx->hsc(evo()->server('HTTP_REFERER'));
+        $version = globalv('version','');
+        $release_date = globalv('release_date','');
+        $ua = hsc(serverv('HTTP_USER_AGENT'));
+        $referer = hsc(serverv('HTTP_REFERER'));
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
@@ -278,7 +278,7 @@ class SubParser {
         $codetpl = '<tr><td colspan="2"><div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">[+code+]</div></td></tr>';
 
         if ($query) {
-            $str .= $modx->parseText($codetpl, array('code' => $query));
+            $str .= parseText($codetpl, array('code' => $query));
         }
 
         $errortype = array(
@@ -465,7 +465,7 @@ class SubParser {
         } elseif ($modx->event->activePlugin) {
             $title = 'Plugin - ' . $modx->event->activePlugin;
         } elseif ($title !== '') {
-            $title = 'Parser - ' . $text?:$source;
+            $title = 'Parser - ' . $text ? $text : $source;
         } elseif ($query !== '') {
             $title = 'SQL Query';
         } else {
