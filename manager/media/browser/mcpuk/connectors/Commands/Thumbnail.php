@@ -4,21 +4,21 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  *
  * Licensed under the terms of the GNU Lesser General Public License:
- *         http://www.opensource.org/licenses/lgpl-license.php
+ * http://www.opensource.org/licenses/lgpl-license.php
  *
  * For further information visit:
- *         http://www.fckeditor.net/
+ * http://www.fckeditor.net/
  *
  * File Name: Thumbnail.php
- *     Implements the Thumbnail command, to return
- *     a thumbnail to the browser for the sent file,
- *     if the file is an image an attempt is made to
- *     generate a thumbnail, otherwise an appropriate
- *     icon is returned.
- *     Output is image data
+ * Implements the Thumbnail command, to return
+ * a thumbnail to the browser for the sent file,
+ * if the file is an image an attempt is made to
+ * generate a thumbnail, otherwise an appropriate
+ * icon is returned.
+ * Output is image data
  *
  * File Authors:
- *         Grant French (grant@mcpuk.net)
+ * Grant French (grant@mcpuk.net)
  */
 
 if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) {

@@ -10,11 +10,11 @@
  * http://www.fckeditor.net/
  *
  * File Name: GetUploadProgress.php
- *     Implements the GetFolders command, to list the folders
- *     in the current directory. Output is in XML
+ * Implements the GetFolders command, to list the folders
+ * in the current directory. Output is in XML
  *
  * File Authors:
- *         Grant French (grant@mcpuk.net)
+ * Grant French (grant@mcpuk.net)
  */
 class GetUploadProgress {
     public $fckphp_config;

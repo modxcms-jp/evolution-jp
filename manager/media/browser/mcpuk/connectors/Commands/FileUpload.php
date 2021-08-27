@@ -4,28 +4,28 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  *
  * Licensed under the terms of the GNU Lesser General Public License:
- *         http://www.opensource.org/licenses/lgpl-license.php
+ * http://www.opensource.org/licenses/lgpl-license.php
  *
  * For further information visit:
- *         http://www.fckeditor.net/
+ * http://www.fckeditor.net/
  *
  * File Name: FileUpload.php
- *     Implements the FileUpload command,
- *     Checks the file uploaded is allowed,
- *     then moves it to the user data area.
+ * Implements the FileUpload command,
+ * Checks the file uploaded is allowed,
+ * then moves it to the user data area.
  *
  * File Authors:
- *         Grant French (grant@mcpuk.net)
+ * Grant French (grant@mcpuk.net)
  *
  * Modified:
- *         2009-03-23 by Kazuyuki Ikeda (http://www.hikidas.com/)
- *         (*1) fix the bug `MaxSize` unit mismatch (Kbytes => Bytes)
- *         (*2) replace `basename` other codes, because it has bugs for multibyte characters
- *         (*3) refuse the filename has disallowed characters
- *              (multibyte characters cause trouble for browsing resources)
- *          ++  japanese localization
- *         2009-03-24 by Kazuyuki Ikeda (http://www.hikidas.com/)
- *         (*4) add invoking event `OnFileManagerUpload`
+ * 2009-03-23 by Kazuyuki Ikeda (http://www.hikidas.com/)
+ * (*1) fix the bug `MaxSize` unit mismatch (Kbytes => Bytes)
+ * (*2) replace `basename` other codes, because it has bugs for multibyte characters
+ * (*3) refuse the filename has disallowed characters
+ * (multibyte characters cause trouble for browsing resources)
+ * ++  japanese localization
+ * 2009-03-24 by Kazuyuki Ikeda (http://www.hikidas.com/)
+ * (*4) add invoking event `OnFileManagerUpload`
  */
 class FileUpload {
     public $fckphp_config;
