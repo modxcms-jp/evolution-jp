@@ -3,22 +3,13 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)anyv('a')) {
-    case 16:
-        if (!evo()->hasPermission('edit_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    case 19:
-        if (!evo()->hasPermission('new_template')) {
-            alert()->setError(3);
-            alert()->dumpError();
-        }
-        break;
-    default:
-        alert()->setError(3);
-        alert()->dumpError();
+if (
+    getv('a')==16 && !hasPermission('edit_template')
+    ||
+    getv('a')==19 && !hasPermission('new_template')
+) {
+    alert()->setError(3);
+    alert()->dumpError();
 }
 
 if (id()) {
@@ -40,7 +31,7 @@ if (id()) {
         function duplicaterecord() {
             if (confirm("<?php echo lang('confirm_duplicate_record') ?>") == true) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?php echo anyv('id'); ?>&a=96";
+                document.location.href = "index.php?id=<?php echo getv('id'); ?>&a=96";
             }
         }
 
@@ -61,8 +52,8 @@ if (id()) {
         }
         ?>
         <input type="hidden" name="a" value="20">
-        <input type="hidden" name="id" value="<?php echo anyv('id'); ?>">
-        <input type="hidden" name="mode" value="<?php echo (int)anyv('a'); ?>">
+        <input type="hidden" name="id" value="<?php echo getv('id'); ?>">
+        <input type="hidden" name="mode" value="<?php echo (int)getv('a'); ?>">
 
         <h1><?php echo lang('template_title'); ?></h1>
         <div id="actions">
@@ -77,16 +68,16 @@ if (id()) {
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
                             <option id="stay1"
-                                    value="1" <?php echo selected(anyv('stay') == 1); ?> ><?php echo lang('stay_new') ?></option>
+                                    value="1" <?php echo selected(getv('stay') == 1); ?> ><?php echo lang('stay_new') ?></option>
                             <option id="stay2"
-                                    value="2" <?php echo selected(anyv('stay') == 2); ?> ><?php echo lang('stay') ?></option>
+                                    value="2" <?php echo selected(getv('stay') == 2); ?> ><?php echo lang('stay') ?></option>
                             <option id="stay3"
-                                    value="" <?php echo selected(!anyv('stay')); ?> ><?php echo lang('close') ?></option>
+                                    value="" <?php echo selected(!getv('stay')); ?> ><?php echo lang('close') ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
                 <?php
-                if (anyv('a') == '16') {
+                if (getv('a') == 16) {
                     if (evo()->hasPermission('new_template')) {
                         echo evo()->manager->ab(
                             array(
@@ -251,7 +242,7 @@ if (id()) {
                 </div>
 
                 <?php
-                if (anyv('a') == '16') {
+                if (getv('a') == '16') {
                     $rs = db()->select(
                         array(
                             'name' => 'tv.name',
@@ -308,7 +299,7 @@ if (id()) {
                                     </a></li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . anyv('id') . '"><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '"><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>
@@ -405,8 +396,8 @@ function template($key, $default = null) {
     if (isset($tplObject[$key])) {
         return $tplObject[$key];
     }
-    if (anyv('id', 0)) {
-        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . anyv('id') . "'");
+    if (getv('id')) {
+        $rs = db()->select('*', '[+prefix+]site_templates', "id='" . getv('id') . "'");
         $total = db()->count($rs);
         if ($total > 1) {
             echo "Oops, something went terribly wrong...<p>";
@@ -428,8 +419,8 @@ function template($key, $default = null) {
 }
 
 function id() {
-    if (preg_match('@^[0-9]+$@', anyv('id'))) {
-        return anyv('id');
+    if (preg_match('@^[0-9]+$@', getv('id'))) {
+        return getv('id');
     }
     return '';
 }
@@ -440,13 +431,15 @@ function is_locked($id) {
         , '[+prefix+]active_users'
         , sprintf("action=16 AND id='%s'", $id)
     );
-    if (db()->count($rs) > 1) {
-        while ($row = db()->getRow($rs)) {
-            if ($row['internalKey'] == evo()->getLoginUserID()) {
-                continue;
-            }
-            return $row['username'];
+    if (!db()->count($rs)) {
+        return false;
+    }
+
+    while ($row = db()->getRow($rs)) {
+        if ($row['internalKey'] == evo()->getLoginUserID()) {
+            continue;
         }
+        return $row['username'];
     }
     return false;
 }

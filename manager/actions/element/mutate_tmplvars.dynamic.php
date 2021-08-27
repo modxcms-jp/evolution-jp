@@ -2,20 +2,16 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-if (!evo()->hasPermission('edit_template') && $_REQUEST['a'] == '301') {
+if (!hasPermission('edit_template') && anyv('a') == 301) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (!evo()->hasPermission('new_template') && $_REQUEST['a'] == '300') {
+if (!hasPermission('new_template') && anyv('a') == 300) {
     alert()->setError(3);
     alert()->dumpError();
 }
 
-if (isset($_REQUEST['id'])) {
-    $id = (int)$_REQUEST['id'];
-} else {
-    $id = 0;
-}
+$id = (int)anyv('id');
 
 // check to see the variable editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=301 AND id='{$id}'");
