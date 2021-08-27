@@ -162,7 +162,10 @@ if(!function_exists('get_template_options')) {
                 "t.templatename, t.id, IFNULL(c.category,'%s') AS category"
                 , lang('no_category')
             )
-            , '[+prefix+]site_templates t LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+            , array(
+                '[+prefix+]site_templates t',
+                'LEFT JOIN [+prefix+]categories c ON t.category=c.id'
+            )
             , ''
             , 'c.category, t.templatename ASC'
         );
