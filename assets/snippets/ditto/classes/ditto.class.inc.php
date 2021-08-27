@@ -583,12 +583,13 @@ class ditto {
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
             return array();
         }
-
         // Get starting IDs;
         switch($IDType) {
             case 'parents':
-                $IDs = explode(',', $IDs);
-                $documentIDs = $this->getChildIDs($IDs, $depth);
+                $documentIDs = $this->getChildIDs(
+                    explode(',', $IDs),
+                    $depth
+                );
                 break;
             case 'documents':
                 $documentIDs = explode(',', $IDs);
@@ -1011,7 +1012,6 @@ class ditto {
                 return strnatcmp($a['ditto_sort'],$b['ditto_sort']);
             });
         }
-
         return $docs;
     }
 
