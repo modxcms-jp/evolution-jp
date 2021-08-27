@@ -770,7 +770,7 @@ function fileupload() {
     global $modx, $startpath;
     $msg = '';
 
-    if (!empty(filev('userfile.tmp_name'))) {
+    if (filev('userfile.tmp_name')) {
         $userfile['tmp_name'] = filev('userfile.tmp_name');
         $userfile['error'] = filev('userfile.error');
         $name = filev('userfile.name');
