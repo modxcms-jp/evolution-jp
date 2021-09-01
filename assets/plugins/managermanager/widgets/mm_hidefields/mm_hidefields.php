@@ -13,14 +13,13 @@
  */
 
 function mm_hideFields($fields, $roles='', $templates=''){
-	global $mm_fields, $modx;
-	$e = &$modx->event;
+	global $mm_fields;
 	
 	// if we've been supplied with a string, convert it into an array
 	$fields = makeArray($fields);
 	
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -50,24 +49,28 @@ function mm_hideFields($fields, $roles='', $templates=''){
 
             case 'pub_date':
                 $output .= '$j("input[name=pub_date]").parents("tr").next("tr").hide(); ' . "\n";
-                $output .= '$j("input[name=pub_date]").parents("tr").hide(); ';
+                $output .= '$j("input[name=pub_date]").parents("tr").hide();';
                 break;
 
             case 'unpub_date':
                 $output .= '$j("input[name=unpub_date]").parents("tr").next("tr").hide(); ' . "\n";
-                $output .= '$j("input[name=unpub_date]").parents("tr").hide(); ';
+                $output .= '$j("input[name=unpub_date]").parents("tr").hide();';
                 break;
 
-            // Ones that follow the regular pattern
             default:
-                if (isset($mm_fields[$field])) { // Check the fields exist,  so we're not writing JS for elements that don't exist
-                    $output .= '$j("' . $mm_fields[$field]['fieldtype'] . '[name=' . $mm_fields[$field]['fieldname'] . ']").parents("tr").hide().next("tr").find("td[colspan=2]").parent("tr").hide(); ';
+                if (!isset($mm_fields[$field])) {
+                    break;
                 }
-                break;
+                // Check the fields exist,  so we're not writing JS for elements that don't exist
+                $output .= sprintf(
+                    '$j("%s[name=%s]").parents("tr").hide().next("tr").find("td[colspan=2]").parent("tr").hide();',
+                    $mm_fields[$field]['fieldtype'],
+                    $mm_fields[$field]['fieldname']
+                );
         }
 
         $output .= "//  -------------- mm_hideFields :: End ------------- \n";
 
-        $e->output($output . "\n");
+        event()->output($output . "\n");
     }
 }
