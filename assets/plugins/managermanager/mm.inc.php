@@ -107,11 +107,12 @@ class MANAGERMANAGER {
             $mm_fields[$k]['fieldname'] = $a[1];
             $mm_fields[$k]['dbname']    = $a[2];
             $mm_fields[$k]['tv']        = false;
+            $mm_fields[$k]['tvtype']    = false;
         }
         unset($field);
         
         // Add in TVs to the list of available fields
-        $all_tvs = $modx->db->makeArray(
+        $all_tvs = db()->makeArray(
             db()->select(
                 'name,type,id,elements'
                 , '[+prefix+]site_tmplvars'
@@ -186,18 +187,19 @@ class MANAGERMANAGER {
                     'fieldtype' => $t,
                     'fieldname' => sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix),
                     'dbname' => '',
-                    'tv' => true
+                    'tv' => true,
+                    'tvtype'=>$thisTv['type']
                 );
             }
             
-            $mm_fields[ 'tv'.$n ] = array(
+            $mm_fields[ sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix) ] = array(
                 'fieldtype' => $t,
                 'fieldname' => 'tv'.$thisTv['id'].$fieldname_suffix,
                 'dbname'    => '',
-                'tv'        => true
+                'tv'        => true,
+                'tvtype'=>$thisTv['type']
             );
         }
-        
         
         // Check the current event
         global $e;
@@ -229,7 +231,9 @@ class MANAGERMANAGER {
         
         case 'OnManagerMainFrameHeaderHTMLBlock':
             global $action;
-            if(empty($action) && isset($_GET['a'])) $action = $_GET['a'];
+            if(empty($action) && getv('a')) {
+                $action = getv('a');
+            }
             switch($action) {
                 case '4':
                 case '27':
