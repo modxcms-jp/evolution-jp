@@ -167,7 +167,18 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
             break;
 
         default:
-            $output .= 'jQuery("*[name=' . $field . ']").val("' . $new_value . '");' . "\n"; //return;
+            $tv = $mm_fields[$field];
+            if($tv['tvtype']==='option') {
+                $tpl = 'jQuery("%s[name=%s]").val(["%s"])';
+            } else {
+                $tpl = 'jQuery("%s[name=%s]").val("%s");';
+            }
+            $output .= sprintf(
+                $tpl,
+                isset($tv['fieldtype']) ? $tv['fieldtype'] : '*',
+                $tv['fieldname'],
+                $new_value
+            ) . "\n";
             break;
     }
 
