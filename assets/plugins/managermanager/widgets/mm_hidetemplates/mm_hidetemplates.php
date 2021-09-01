@@ -14,11 +14,7 @@
  */
 
 function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
-    global  $modx;
-
-    $e = &$modx->event;
-
-    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -29,8 +25,7 @@ function mm_hideTemplates($tplIds, $roles = '', $templates = ''){
         $output .= '$j("select#field_template option[value=' . $tpl . ']").remove();' . "\n";
         $output .= '}' . "\n";
     }
-
     $output .= "//  -------------- mm_hideTemplates :: End ------------- \n";
 
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }

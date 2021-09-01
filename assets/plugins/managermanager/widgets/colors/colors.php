@@ -13,10 +13,9 @@
  */
 
 function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates = ''){
-	global $modx, $mm_fields, $mm_current_page;
-	$e = &$modx->event;
+	global $mm_fields, $mm_current_page;
 	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -35,8 +34,6 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
 
     // Go through each of the fields supplied
     foreach ($fields as $tv) {
-        $tv_id = $mm_fields[$tv]['fieldname'];
-
         $output .= parseText('
             // ----------- Color widget for  [+tv_id+]  --------------
             jQuery("#[+tv_id+]").css("background-image","none");
@@ -51,11 +48,11 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
             });
             documentDirty = false;
             ', array(
-                'tv_id'   => $tv_id,
+                'tv_id'   => $mm_fields[$tv]['fieldname'],
                 'default' => $default
             )
         );
     }
 
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }

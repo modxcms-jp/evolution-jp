@@ -15,13 +15,12 @@
  */
 
 function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
-	global $modx;
 
-	if ($modx->event->name !== 'OnDocFormRender' || !useThisRule($roles)) {
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles)) {
         return;
     }
 
-	if (!in_array((int)$_GET['id'], makeArray($ids))) {
+    if (!in_array((int)$_GET['id'], makeArray($ids))) {
         return;
     }
 
@@ -36,5 +35,5 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
     jQuery("body").prepend(\'<div id="aback"><div id="amessage">' . $message . '</div></div>\');
     jQuery("#aback").css({height: jQuery("body").height()} );';
 
-    $modx->event->output($output . "\n");
+    event()->output($output . "\n");
 }

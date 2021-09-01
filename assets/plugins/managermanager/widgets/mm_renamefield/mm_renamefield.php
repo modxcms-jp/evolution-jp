@@ -12,16 +12,15 @@
  * @copyright 2012
  */
 
-function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''){
-	global $mm_fields, $modx;
-	$e = &$modx->event;
-	
+function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp='') {
+	global $mm_fields;
+
 	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
-    $output = "//  -------------- mm_renameField :: Begin ------------- \n";
+    $output = "// ----------- mm_renameField :: Begin ------------- \n";
 
     switch ($field) {
         // Exceptions
@@ -45,23 +44,28 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
         case 'content':
             $output .= '$j("#content_header").html("' . jsSafe($newlabel) . '")';
             break;
+
         case 'menuindex':
-            $output .= '$j("input[name=menuindex]").parents().parents("td:first").prev("td").children("span.warning").empty().prepend("' . jsSafe($newlabel) . '");';
+            $output .= '$j("input[name=menuindex]").parents().parents("td:first").prev("td").children("span.warning").html("' . jsSafe($newlabel) . '");';
+            break;
             break;
 
-        // Ones that follow the regular pattern
         default:
-            if (isset($mm_fields[$field])) {
-                $fieldtype = $mm_fields[$field]['fieldtype'];
-                $fieldname = $mm_fields[$field]['fieldname'];
-                $output .= '$j("' . $fieldtype . '[name=' . $fieldname . ']").parents("td:first").prev("td").children("span.warning").empty().prepend("' . jsSafe($newlabel) . '");';
+            if (!isset($mm_fields[$field])) {
+                break;
             }
+            $output .= sprintf(
+                '$j("%s[name=%s]").parents("td:first").prev("td").children("span.warning").html("%s");',
+                $mm_fields[$field]['fieldtype'],
+                $mm_fields[$field]['fieldname'],
+                jsSafe($newlabel)
+            );
             break;
     }
 
     $output .= "//  -------------- mm_renameField :: End ------------- \n";
 
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 
     // If new help has been supplied, do that too
     if ($newhelp != '') {

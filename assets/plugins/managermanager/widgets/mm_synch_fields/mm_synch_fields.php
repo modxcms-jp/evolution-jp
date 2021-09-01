@@ -36,26 +36,26 @@ function mm_synch_fields($fields, $roles = '', $templates = ''){
     ';
 
     foreach ($fields as $field) {
-        if (isset($mm_fields[$field])) {
-            $fieldtype = $mm_fields[$field]['fieldtype'];
-            $fieldname = $mm_fields[$field]['fieldname'];
-
-            $valid_fieldtypes = array('input', 'textarea');
-
-            // Make sure we're dealing with an input
-            if (!in_array($fieldtype, $valid_fieldtypes)) {
-                break;
-            }
-
-            // Add this field to the array of fields being synched
-            $output .= '
-            synch_field[mm_sync_field_count].push(jQuery("' . $fieldtype . '[name=' . $fieldname . ']"));
-            ';
-
-            // Or we don't recognise it
-        } else {
+        if (!isset($mm_fields[$field])) {
             break;
         }
+
+        $fieldtype = $mm_fields[$field]['fieldtype'];
+        $fieldname = $mm_fields[$field]['fieldname'];
+
+        $valid_fieldtypes = array('input', 'textarea');
+
+        // Make sure we're dealing with an input
+        if (!in_array($fieldtype, $valid_fieldtypes)) {
+            break;
+        }
+
+        // Add this field to the array of fields being synched
+        $output .= '
+        synch_field[mm_sync_field_count].push(jQuery("' . $fieldtype . '[name=' . $fieldname . ']"));
+        ';
+
+        // Or we don't recognise it
     }
 
     // Output some javascript to sync these fields

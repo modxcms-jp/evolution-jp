@@ -27,10 +27,9 @@
 
 function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns = 'field', $columnsTitle = '', $colWidth = '180', $splY = '||', $splX = '::', $imgW = 300, $imgH = 100, $minRow = 0, $maxRow = 0, $columnsData = ''){
 
-	global $modx, $mm_current_page, $_lang;
-	$e = &$modx->Event;
+	global $mm_current_page, $_lang;
 	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -58,7 +57,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
     } else {
         // If no content is set, it's likely we're adding a new page at top level.
         // So use the site default template. This may need some work as it might interfere with a default template set by MM?
-        $page_template = $modx->config['default_template'];
+        $page_template = evo()->config('default_template');
     }
 
     $tvsMas = array();
@@ -88,8 +87,8 @@ if (!jQuery.ui || !jQuery.ui.sortable){' . includeJs($widgetDir . 'jquery-ui.cus
 if (!ddMultiple){
 ' . includeCss($widgetDir . 'ddmultiplefields.css') . '
 var ddMultiple = {
-datePickerOffset: ' . $modx->config['datepicker_offset'] . ',
-datePickerFormat: "' . $modx->config['datetime_format'] . '" + " hh:mm:00",
+datePickerOffset: ' . evo()->config('datepicker_offset') . ',
+datePickerFormat: "' . evo()->config('datetime_format') . '" + " hh:mm:00",
 ids: new Array(),
 //Обновляет мульти-поле, берёт значение из оригинального поля
 updateField: function(id){
@@ -471,5 +470,5 @@ if (!ddMultiple[id]){
 
     $output .= "\n// ---------------- mm_ddMultipleFields :: End -------------";
 
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 } // end of widget

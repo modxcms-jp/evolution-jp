@@ -15,9 +15,8 @@
 
 function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = ''){
     global $modx, $mm_current_page;
-    $e = &$modx->event;
 
-    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -78,22 +77,24 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 
 			'."\n";
     // Go through each TV
-    $ph = array('base_url' => $modx->config['base_url']);
-    $ph['thumbnailerUrl'] = $thumbnailerUrl;
-    $ph['w'] = $w;
-    $ph['h'] = $h;
+    $ph = array(
+        'base_url' => MODX_BASE_URL,
+        'thumbnailerUrl' => $thumbnailerUrl,
+        'w' => $w,
+        'h' => $h
+    );
     foreach ($tvs as $tv) {
         $ph['id'] = $tv['id'];
-        $output .= $modx->parseText($tpl1, $ph);
+        $output .= evo()->parseText($tpl1, $ph);
 
         if ($thumbnailerUrl){
-            $output .= $modx->parseText(
+            $output .= evo()->parseText(
                 'url = "%s?src="+escape(url)+"&w=%d&h=%d";'."\n"
                 , $ph
             );
         }
         $ph['style'] = $style;
-        $output .= $modx->parseText($tpl2, $ph);
+        $output .= evo()->parseText($tpl2, $ph);
     }
 
     $output .= '
@@ -113,5 +114,5 @@ setInterval ("checkImageTVupdates();", 250);
 //  -------------- mm_widget_showimagetvs :: End -------------
 
 ';
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }
