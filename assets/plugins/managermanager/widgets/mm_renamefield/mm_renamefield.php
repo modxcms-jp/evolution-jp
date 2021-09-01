@@ -48,6 +48,9 @@ function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp=''
         case 'menuindex':
             $output .= '$j("input[name=menuindex]").parents().parents("td:first").prev("td").children("span.warning").html("' . jsSafe($newlabel) . '");';
             break;
+
+        case 'weblink':
+            $output .= '$j("input#field_weblink").parents("td:first").prev("td").children("span.warning").html("' . jsSafe($newlabel) . '");';
             break;
 
         default:
