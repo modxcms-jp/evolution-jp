@@ -82,6 +82,18 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
                 $output .= 'helpline.after(ruleHtml); ' . "\n";
                 break;
 
+            case 'weblink':
+                $output .= sprintf('
+                var toMove = $j("input#field_weblink").parents("tr:not(.urltv)"); // Identify the table row to move
+                toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
+                var movedTV = toMove.appendTo("#tab%s>table:first"); // Move the table row
+                movedTV.after(ruleHtml); // Insert a rule after
+                movedTV.find("td[width]").prop("width","");  // Remove widths from label column
+                ',
+                    $newtab,
+                );
+                break;
+
             default:
                 if (!isset($mm_fields[$field])) {
                     break;
