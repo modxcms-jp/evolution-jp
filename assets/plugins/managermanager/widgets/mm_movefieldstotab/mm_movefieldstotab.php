@@ -83,20 +83,22 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
                 break;
 
             default:
-                // What type is this field?
-                if (isset($mm_fields[$field])) {
-                    $fieldtype = $mm_fields[$field]['fieldtype'];
-                    $fieldname = $mm_fields[$field]['fieldname'];
-                    $output .= '
-                    var toMove = $j(\'' . $fieldtype . '[name="' . $fieldname . '"]\').parents("tr:not(.urltv)"); // Identify the table row to move
-                    toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
-                    var movedTV = toMove.appendTo("#tab' . $newtab . '>table:first"); // Move the table row
-                    movedTV.after(ruleHtml); // Insert a rule after
-                    movedTV.find("td[width]").prop("width","");  // Remove widths from label column
-                    $j("[name^=\"' . $fieldname . '\"]:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
-                    ';
+                if (!isset($mm_fields[$field])) {
+                    break;
                 }
-
+                $output .= sprintf('
+                var toMove = $j(\'%s[name="%s"]\').parents("tr:not(.urltv)"); // Identify the table row to move
+                toMove.next("tr").find("td[colspan=2]").parents("tr").remove(); // Get rid of line after, if there is one
+                var movedTV = toMove.appendTo("#tab%s>table:first"); // Move the table row
+                movedTV.after(ruleHtml); // Insert a rule after
+                movedTV.find("td[width]").prop("width","");  // Remove widths from label column
+                $j("[name^=\"%s\"]:first").parents("td").removeAttr( "style" );  // This prevents an IE6/7 bug where the moved field would not be visible until you switched tabs
+                ',
+                    $mm_fields[$field]['fieldtype'],
+                    $mm_fields[$field]['fieldname'],
+                    $newtab,
+                    $mm_fields[$field]['fieldname']
+                );
                 break;
         }
     }
