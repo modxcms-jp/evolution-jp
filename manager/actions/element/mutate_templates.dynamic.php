@@ -4,9 +4,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 }
 
 if (
-    getv('a')==16 && !hasPermission('edit_template')
+    (getv('a') == 16 && !hasPermission('edit_template'))
     ||
-    getv('a')==19 && !hasPermission('new_template')
+    (getv('a') == 19 && !hasPermission('new_template'))
 ) {
     alert()->setError(3);
     alert()->dumpError();
