@@ -1388,7 +1388,7 @@ class SubParser {
             return $this->rendarFormCheckbox($field_type, $field_id, $field_value, $field_elements);
         }
         if ($field_type === 'option') {
-            return $this->rendarFormRadio($field_type, $field_id, $field_value, $field_elements);
+            return $this->rendarFormRadio($field_id, $field_value, $field_elements);
         }
         if ($field_type === 'custom_tv') {
             return $this->rendarFormCustom(
@@ -1549,7 +1549,7 @@ class SubParser {
         }
         return trim($field_html);
     }
-    private function rendarFormRadio($field_type, $field_id, $field_value, $field_elements) {
+    private function rendarFormRadio($field_id, $field_value, $field_elements) {
         $index_list = $this->ParseInputOptions(
             $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
         );
