@@ -93,15 +93,13 @@ if (mode() === 'edit') {
         validated('*alias', substr(validated('alias'), 0, -$len));
     }
     // invoke OnBeforeDocFormSave event
-    $values = getInputValues(validated('id'), 'edit');
     $param = array(
         'mode' => 'upd',
         'id' => validated('id'),
-        'doc_vars' => $values,
+        'doc_vars' => getInputValues(validated('id'), 'edit'),
         'tv_vars' => validated('template') ? get_tmplvars() : array()
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
-
     $rs = db()->update(
         db()->escape($param['doc_vars'])
         , '[+prefix+]site_content'
