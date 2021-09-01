@@ -13,8 +13,7 @@
  */
 
 function mm_default($field, $value='', $roles='', $templates='', $eval = false){
-	global $mm_fields, $modx;
-	$e = &$modx->event;
+	global $mm_fields;
 	
 	// if we aren't creating a new document or folder, we don't want to do this
 	// Which action IDs so we want to do this for?
@@ -23,11 +22,11 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 	// 72 = Create new weblink
 	
 	$allowed_actions = array('85','4','72');
-	if (!in_array($modx->manager->action, $allowed_actions)){
+	if (!in_array(manager()->action, $allowed_actions)){
 		return;
 	}
 	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -37,7 +36,7 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
     $output = "//  -------------- mm_default :: Begin ------------- \n";
 
     // Work out the correct date time format based on the config setting
-    $date_format = $modx->toDateFormat(null, 'formatOnly');
+    $date_format = evo()->toDateFormat(null, 'formatOnly');
 
     switch ($field) {
         case 'pub_date':
@@ -174,5 +173,5 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 
     $output .= "//  -------------- mm_default :: End ------------- \n";
 
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }
