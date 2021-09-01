@@ -416,10 +416,14 @@ function getInputValues($id = 0, $mode = 'new') {
         }
         $fields[$key] = validated($key);
     }
-    if($fields['type'] === 'reference' && !preg_match('{^[1-9][0-9]+$}', $fields['content'])) {
-        $fetch_id = evo()->getIdFromUrl($fields['content']);
-        if ($fetch_id) {
-            $fields['content'] = $fetch_id;
+    if($fields['type'] === 'reference') {
+        if (!empty($fields['content']) && !preg_match('{^[1-9][0-9]+$}', $fields['content'])) {
+            $fetch_id = evo()->getIdFromUrl($fields['content']);
+            if ($fetch_id) {
+                $fields['content'] = $fetch_id;
+            } else {
+                $fields['content'] = strip_tags($fields['content']);
+            }
         }
     }
     
