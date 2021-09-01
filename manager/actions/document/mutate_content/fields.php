@@ -94,21 +94,24 @@ function fieldAlias($id) {
 // Web Link specific
 function fieldWeblink() {
     return renderTr(
-        lang('weblink') . html_tag(
-            '<img>'
-            , array(
-                'name' => 'llock',
-                'src' => style('tree_folder'),
-                'alt' => 'tree_folder',
-                'onclick' => 'enableLinkSelection(!allowLinkSelection);',
-                'style' => 'cursor:pointer;'
+        array(
+            lang('weblink'),
+            html_tag(
+                '<img>'
+                , array(
+                    'name' => 'llock',
+                    'src' => style('tree_folder'),
+                    'alt' => 'tree_folder',
+                    'onclick' => 'enableLinkSelection(!allowLinkSelection);',
+                    'style' => 'cursor:pointer;'
+                )
             )
-        )
-        , input_text_tag(
+        ),
+        input_text_tag(
             array(
                 'id' => 'field_weblink',
                 'name' => 'content',
-                'value' => doc('content') ? strip_tags(stripslashes(doc('content'))) : 'http://'
+                'value' => doc('content')
             )
         )
         . html_tag(
