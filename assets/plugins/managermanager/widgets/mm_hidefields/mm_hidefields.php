@@ -68,9 +68,7 @@ function mm_hideFields($fields, $roles='', $templates=''){
                     $mm_fields[$field]['fieldname']
                 );
         }
-
-        $output .= "//  -------------- mm_hideFields :: End ------------- \n";
-
-        event()->output($output . "\n");
     }
+    $output .= "//  -------------- mm_hideFields :: End ------------- \n";
+    event()->output($output . "\n");
 }
