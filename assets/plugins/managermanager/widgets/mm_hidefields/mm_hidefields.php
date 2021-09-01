@@ -57,6 +57,10 @@ function mm_hideFields($fields, $roles='', $templates=''){
                 $output .= '$j("input[name=unpub_date]").parents("tr").hide();';
                 break;
 
+            case 'weblink':
+                $output .= '$j("input#field_weblink").parents("tr").hide().next("tr").find("td[colspan=2]").parent("tr").hide();';
+                break;
+
             default:
                 if (!isset($mm_fields[$field])) {
                     break;
