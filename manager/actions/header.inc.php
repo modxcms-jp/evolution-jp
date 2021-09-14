@@ -12,7 +12,7 @@ if ($modx->config('remember_last_tab') !== '2') {
             , array(
                 'expires' => time() + 3600,
                 'path' => MODX_BASE_URL,
-                'secure' => true,
+                'secure' => init::is_ssl(),
                 'httponly' => true,
                 'samesite' => 'Lax',
             )
