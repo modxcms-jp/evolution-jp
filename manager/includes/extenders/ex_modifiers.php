@@ -652,7 +652,7 @@ class MODIFIERS {
                         )
                     );
                 }
-                return $this->strip_tags($value, $params);
+                return remove_tags($value, $params);
             case 'urlencode':
             case 'url_encode':
             case 'encode_url':
@@ -1528,16 +1528,5 @@ class MODIFIERS {
 
     private function str_word_count($str) {
         return count(preg_split('~[^\p{L}\p{N}\']+~u', $str));
-    }
-
-    private function strip_tags($value, $params = '') {
-        if (stripos($params, 'style') === false && stripos($value, '</style>') !== false) {
-            $value = preg_replace('#<style.*?>.*?</style>#is', '', $value);
-        }
-        if (stripos($params, 'script') === false && stripos($value, '</script>') !== false) {
-            $value = preg_replace('@<script.*?>.*?</script>@is', '', $value);
-        }
-
-        return trim(strip_tags($value, $params));
     }
 }

@@ -11,7 +11,7 @@ $content = str_replace(
     str_replace(
         array('&nbsp;', '　', "\xc2\xa0", "\r", "\n", "\t", ' '),
         ' ',
-        evo()->filter->strip_tags(
+        remove_tags(
             evo()->filter->parseDocumentSource($value)
         )
     )
