@@ -43,16 +43,26 @@ evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
         <?php if ($modx_textdir === 'ltr') {
         // Left-to-Right reading (sidebar on left)
         ?>
-        <frameset cols="<?php echo $modx->config['manager_tree_width']; ?>,*" border="1" frameborder="3"
-                  framespacing="3" bordercolor="#f7f7f7">
+        <frameset
+            cols="<?php echo $modx->config['manager_tree_width']; ?>,*"
+            border="1"
+            frameborder="3"
+            framespacing="3"
+            bordercolor="#f7f7f7"
+        >
             <?php echo $treePane; ?>
             <?php echo $mainPane; ?>
             );">
             <?php } else {
             // Right-to-Left reading (sidebar on right)
             ?>
-            <frameset cols="*,<?php echo $modx->config['manager_tree_width']; ?>" border="1" frameborder="3"
-                      framespacing="3" bordercolor="#f7f7f7">
+            <frameset
+                cols="*,<?php echo $modx->config['manager_tree_width']; ?>"
+                border="1"
+                frameborder="3"
+                framespacing="3"
+                bordercolor="#f7f7f7"
+            >
                 <?php echo $mainPane; ?>
                 <?php echo $treePane; ?>
                 <?php } ?>
