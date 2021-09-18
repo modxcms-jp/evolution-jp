@@ -30,9 +30,9 @@ $guid = db()->escape(postv('guid'));
 $createdon = $editedon = time();
 
 //Kyle Jaebker - added category support
-if (empty(postv('newcategory')) && postv('categoryid') > 0) {
+if (!postv('newcategory') && postv('categoryid') > 0) {
     $category = db()->escape(postv('categoryid'));
-} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
+} elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = 0;
 } else {
     $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));

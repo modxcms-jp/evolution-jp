@@ -22,20 +22,20 @@ $oldemail = postv('oldemail');
 $phone = db()->escape(postv('phone'));
 $mobilephone = db()->escape(postv('mobilephone'));
 $fax = db()->escape(postv('fax'));
-$dob = !empty (postv('dob')) ? $modx->toTimeStamp(postv('dob')) : 0;
+$dob = postv('dob') ? $modx->toTimeStamp(postv('dob')) : 0;
 $country = postv('country');
 $street = db()->escape(postv('street'));
 $city = db()->escape(postv('city'));
 $state = db()->escape(postv('state'));
 $zip = db()->escape(postv('zip'));
-$gender = !empty(postv('gender')) ? postv('gender') : 0;
+$gender = postv('gender') ? postv('gender') : 0;
 $photo = db()->escape(postv('photo'));
 $comment = db()->escape(postv('comment'));
-$role = !empty(postv('role')) ? postv('role') : 0;
-$failedlogincount = !empty(postv('failedlogincount')) ? postv('failedlogincount') : 0;
-$blocked = !empty(postv('blocked')) ? postv('blocked') : 0;
-$blockeduntil = !empty(postv('blockeduntil')) ? $modx->toTimeStamp(postv('blockeduntil')) : 0;
-$blockedafter = !empty(postv('blockedafter')) ? $modx->toTimeStamp(postv('blockedafter')) : 0;
+$role = postv('role') ? postv('role') : 0;
+$failedlogincount = postv('failedlogincount') ? postv('failedlogincount') : 0;
+$blocked = postv('blocked') ? postv('blocked') : 0;
+$blockeduntil = postv('blockeduntil') ? $modx->toTimeStamp(postv('blockeduntil')) : 0;
+$blockedafter = postv('blockedafter') ? $modx->toTimeStamp(postv('blockedafter')) : 0;
 $user_groups = postv('user_groups');
 
 // verify password

@@ -462,14 +462,14 @@ EOT;
         if ($natural_order) {
             return '';
         }
-        if (empty(getv('orderby'))) {
+        if (!getv('orderby')) {
             return '';
         }
 
         return sprintf(
             ' ORDER BY %s %s',
             getv('orderby'),
-            empty(getv('orderdir')) ? 'DESC' : getv('orderdir')
+            !getv('orderdir') ? 'DESC' : getv('orderdir')
         );
     }
 
