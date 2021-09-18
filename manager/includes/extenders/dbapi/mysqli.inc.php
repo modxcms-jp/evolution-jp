@@ -342,14 +342,13 @@ class DBAPI {
         if (is_array($where)) {
             $where = implode(' ', $where);
         }
-
         $rs = $this->query(
             sprintf(
                 'SELECT %s FROM %s %s %s %s'
                 , $this->replaceFullTableName($fields)
                 , $this->replaceFullTableName($from)
-                , trim($where) ? sprintf('WHERE %s', $where) : ''
-                , trim($orderby) ? sprintf('ORDER BY %s', $orderby) : ''
+                , trim($where) ? sprintf('WHERE %s', trim($where)) : ''
+                , trim($orderby) ? sprintf('ORDER BY %s', $this->replaceFullTableName($orderby)) : ''
                 , trim($limit) ? sprintf('LIMIT %s', $limit) : ''
             )
         );
@@ -647,7 +646,7 @@ class DBAPI {
         $rs = $param1;
         $mode = $param2;
 
-        if (!$this->getRecordCount($rs)) {
+        if (!$this->count($rs)) {
             return array();
         }
         $_ = array();
@@ -666,14 +665,14 @@ class DBAPI {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        if ($dsq) {
-            $col = array();
-            while ($row = $this->getRow($dsq)) {
-                $col[] = $row[$name];
-            }
-            return $col;
+        if (!$dsq) {
+            return array();
         }
-        return array();
+        $col = array();
+        while ($row = $this->getRow($dsq)) {
+            $col[] = $row[$name];
+        }
+        return $col;
     }
 
     /**
