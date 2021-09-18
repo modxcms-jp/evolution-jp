@@ -90,7 +90,7 @@ function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
                 movedTV.after(ruleHtml); // Insert a rule after
                 movedTV.find("td[width]").prop("width","");  // Remove widths from label column
                 ',
-                    $newtab,
+                    $newtab
                 );
                 break;
 
