@@ -881,11 +881,12 @@ class ditto {
         if($resource['haskeywords']==1) {
             $metas = implode(',',evo()->getKeywords($resource['id']));
         }
-        if($resource['hasmetatags']==1) {
-            $tags = evo()->getMETATags($resource['id']);
-            foreach ($tags as $n=>$col) {
-                $metas.= ',' .$col['tagvalue'];
-            }
+        if(empty($resource['hasmetatags'])) {
+            return $metas;
+        }
+        $tags = evo()->getMETATags($resource['id']);
+        foreach ($tags as $n => $col) {
+            $metas .= ',' . $col['tagvalue'];
         }
         return $metas;
     }
@@ -1115,13 +1116,13 @@ class ditto {
         $query = array();
         foreach ($_GET as $param=>$value) {
             if ($param !== 'id' && $param !== 'q') {
-                $clean_param = htmlspecialchars($param, ENT_QUOTES);
+                $clean_param = hsc($param, ENT_QUOTES);
                 if(is_array($value)) {
-                    foreach($value as $key => $val) {
-                        $query[$clean_param][] = htmlspecialchars($val, ENT_QUOTES);
+                    foreach($value as $val) {
+                        $query[$clean_param][] = hsc($val, ENT_QUOTES);
                     }
                 }
-                else $query[$clean_param] = htmlspecialchars($value, ENT_QUOTES);
+                else $query[$clean_param] = hsc($value, ENT_QUOTES);
             }
         }
         if (!is_array($args)) {
@@ -1138,10 +1139,12 @@ class ditto {
         $queryString = '';
         foreach ($query as $param=>$value) {
             if(!is_array($value)){
-                if($param === $dittoID . 'start' && $value==0) continue;
+                if($param === $dittoID . 'start' && $value==0) {
+                    continue;
+                }
                 $queryString .= '&' . $param . '=' . $value;
             } else {
-                foreach ($value as $key=>$val) {
+                foreach ($value as $val) {
                     $queryString .= '&' . $param . '[]' . $val;
                 }
             }
@@ -1167,7 +1170,9 @@ class ditto {
         } else {
             $output = $ditto_lang[$langString];
         }
-        if(trim($output)==='') $output = $param;
+        if(trim($output)==='') {
+            $output = $param;
+        }
         return $output;
     }
 
@@ -1194,8 +1199,9 @@ class ditto {
                 $tplPaginateNext
             );
         $previous = $start - $summarize;
-        if($previous!=0) $prevUrl = self::buildURL('start=' . $previous);
-        else {
+        if($previous!=0) {
+            $prevUrl = self::buildURL('start=' . $previous);
+        } else {
             $args = $_GET;
             if(isset($args[$dittoID . 'start'])) {
                 unset($args[$dittoID . 'start']);
@@ -1218,12 +1224,28 @@ class ditto {
         );
         $limten = $summarize + $start;
         if ($paginateAlwaysShowLinks == 1) {
-            if(strpos($tplPaginatePreviousOff,'lang:previous')!==false)
-                $tplPaginatePreviousOff = str_replace('lang:previous','lang%previous',$tplPaginatePreviousOff);
-            if(strpos($tplPaginateNextOff,'lang:next')!==false)
-                $tplPaginateNextOff     = str_replace('lang:next','lang%next',$tplPaginateNextOff);
-            $previousplaceholder = evo()->parseText(array('lang%previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
-            $nextplaceholder = evo()->parseText(array('lang%next'=>$ditto_lang['next']),$tplPaginateNextOff);
+            if(strpos($tplPaginatePreviousOff,'lang:previous')!==false) {
+                $tplPaginatePreviousOff = str_replace(
+                    'lang:previous',
+                    'lang%previous',
+                    $tplPaginatePreviousOff
+                );
+            }
+            if(strpos($tplPaginateNextOff,'lang:next')!==false) {
+                $tplPaginateNextOff = str_replace(
+                    'lang:next',
+                    'lang%next',
+                    $tplPaginateNextOff
+                );
+            }
+            $previousplaceholder = evo()->parseText(
+                array('lang%previous'=>$ditto_lang['prev']),
+                $tplPaginatePreviousOff
+            );
+            $nextplaceholder = evo()->parseText(
+                array('lang%next'=>$ditto_lang['next']),
+                $tplPaginateNextOff
+            );
         } else {
             $previousplaceholder = '';
             $nextplaceholder = '';
@@ -1290,7 +1312,7 @@ class ditto {
         if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
             evo()->toPlaceholders(
                 array(
-                    'next'       => $nextplaceholder,
+                    'next'     => $nextplaceholder,
                     'previous' => $previousplaceholder,
                     'prev'     => $previousplaceholder,
                     'pages'    => $pages
@@ -1301,10 +1323,10 @@ class ditto {
         evo()->toPlaceholders(
             array(
                 'splitter' => $split,
-                'start' => ($start +1),
+                'start'    => ($start+1),
                 'urlStart' => $start,
-                'stop'=> $limiter,
-                'total'=> $total,
+                'stop'     => $limiter,
+                'total'    => $total,
                 'perPage', $summarize,
                 'totalPages'=> $totalpages,
                 'ditto_pagination_set'=> true
@@ -1343,7 +1365,11 @@ class ditto {
     // Based on script from http://wintermute.com.au/bits/2005-09/php-relative-absolute-links/
     // ---------------------------------------------------
     function relToAbs($text, $base) {
-        return preg_replace('#(href|src)="([^:"]*)"#','$1="'.$base.'$2"',$text);
+        return preg_replace(
+            '#(href|src)="([^:"]*)"#',
+            '$1="'.$base.'$2"',
+            $text
+        );
     }
 
     function mb_strftime($format='', $timestamp='')
