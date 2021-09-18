@@ -19,7 +19,17 @@ class ditto {
         $this->sqlOrderBy = array();
         $this->customReset = array();
         $this->constantFields[] = array('db', 'tv');
-        $this->constantFields['db'] = array('id', 'type', 'contentType', 'pagetitle', 'longtitle', 'description', 'alias', 'link_attributes', 'published', 'pub_date', 'unpub_date', 'parent', 'isfolder', 'introtext', 'content', 'richtext', 'template', 'menuindex', 'searchable', 'cacheable', 'createdby', 'createdon', 'editedby', 'editedon', 'deleted', 'deletedon', 'deletedby', 'publishedon', 'publishedby', 'menutitle', 'donthit', 'haskeywords', 'hasmetatags', 'privateweb', 'privatemgr', 'content_dispo', 'hidemenu');
+        $this->constantFields['db'] = array(
+            'id', 'type', 'contentType', 'pagetitle', 'longtitle',
+            'description', 'alias', 'link_attributes', 'published',
+            'pub_date', 'unpub_date', 'parent', 'isfolder',
+            'introtext', 'content', 'richtext', 'template',
+            'menuindex', 'searchable', 'cacheable', 'createdby',
+            'createdon', 'editedby', 'editedon', 'deleted',
+            'deletedon', 'deletedby', 'publishedon', 'publishedby',
+            'menutitle', 'donthit', 'haskeywords', 'hasmetatags',
+            'privateweb', 'privatemgr', 'content_dispo', 'hidemenu'
+        );
         $this->constantFields['tv'] = $this->getTVList();
         $GLOBALS['ditto_constantFields'] = $this->constantFields;
         $this->fields = array(
@@ -46,8 +56,7 @@ class ditto {
         $tvs = db()->select('name', '[+prefix+]site_tmplvars');
         // TODO: make it so that it only pulls those that apply to the current template
         $dbfields = array();
-        while ($dbfield = db()->getRow($tvs))
-        {
+        while ($dbfield = db()->getRow($tvs)) {
             $dbfields[] = $dbfield['name'];
         }
         $this->tmpCache['getTVList'] = $dbfields;
@@ -81,7 +90,7 @@ class ditto {
     // from an array or delimited string
     // ---------------------------------------------------
 
-    function addFields($fields,$location='*',$delimiter=',',$callback=false) {
+    function addFields($fields,$location='*',$delimiter=',',$callback=array()) {
         if (empty($fields)) return false;
         if  (!is_array($fields)) {
             if (strpos($fields,$delimiter) !== false) {
@@ -100,17 +109,12 @@ class ditto {
             }
 
             $this->addField($name,$location,$type);
-            if ($callback !== false) {
+            if ($callback) {
                 call_user_func_array($callback, array($name));
             }
         }
         return true;
     }
-
-    // ---------------------------------------------------
-    // Function: removeField
-    // Remove a field to the internal field detection system
-    // ---------------------------------------------------
 
     function removeField($name,$location,$type) {
         $key = array_search ($name, $this->fields[$location][$type]);
@@ -233,13 +237,7 @@ class ditto {
     // Split up the filters into an array and add the required fields to the fields array
     // ---------------------------------------------------
 
-    public function parseFilters(
-        $filter_params = false
-        , $cFilters    = array()
-        , $pFilters    = array()
-        , $globalDelimiter
-        , $localDelimiter
-    ) {
+    public function parseFilters($filter_params=false, $cFilters=array(), $pFilters=array(), $globalDelimiter, $localDelimiter) {
         $parsedFilters = array('basic' =>array(), 'custom' =>array());
         $filters = explode($globalDelimiter, $filter_params);
         if ($filter_params) {
@@ -256,20 +254,20 @@ class ditto {
             }
         }
         if ($cFilters) {
-            foreach ($cFilters as $name=>$value) {
+            foreach ($cFilters as $name=> $value) {
                 if ($name && $value) {
                     $parsedFilters['custom'][$name] = $value[1];
                     $this->addFields($value[0], 'backend');
                 }
-            }    // TODO: Replace addField with addFields with callback
+            }
         }
         if($pFilters) {
             foreach ($pFilters as $filter) {
-                foreach ($filter as $name=>$value) {
+                foreach ($filter as $name=> $value) {
                     $parsedFilters['basic'][] = $value;
                     $this->addFields($value['source'], 'backend');
                 }
-            }    // TODO: Replace addField with addFields with callback
+            }
         }
         return $parsedFilters;
     }
@@ -282,7 +280,9 @@ class ditto {
     function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$modifier_mode='normal',$x=0) {
         global $ditto_lang;
 
-        if (!is_array($resource)) return $ditto_lang['resource_array_error'];
+        if (!is_array($resource)) {
+            return $ditto_lang['resource_array_error'];
+        }
 
         $placeholders = array();
         $contentVars = array();
@@ -337,8 +337,10 @@ class ditto {
             $output = $phx->output();
         }
         else {
-            $output = $this->template->replace($placeholders,$output);
-            $output = $this->template->replace($contentVars,$output);
+            $output = $this->template->replace(
+                $contentVars,
+                $this->template->replace($placeholders,$output)
+            );
         }
 
         if ($removeChunk) {
@@ -368,8 +370,7 @@ class ditto {
             $placeholders['ditto_iteration'] = $x;
         } // set sequence placeholder
 
-        if (!in_array('class', $custom_v, true)) {
-        } else {
+        if (in_array('class', $custom_v, true)) {
             if (evo()->documentIdentifier == $resource['id']) {
                 $placeholders['class'] = 'active';
             } else {
@@ -381,8 +382,7 @@ class ditto {
         if (in_array('url', $custom_v, true)) {
             if($resource['id']==evo()->config('site_start')) {
                 $placeholders['url'] = evo()->config('site_url');
-            }
-            else {
+            } else {
                 $placeholders['url'] = evo()->makeURL($resource['id'], '', '', 'full');
             }
         }
@@ -429,7 +429,6 @@ class ditto {
     // Function: arrayUnique
     // Make fields array unique
     // ---------------------------------------------------
-
     function arrayUnique($array) {
         foreach($array as $u => $a) {
             foreach ($a as $n => $b) {
@@ -463,7 +462,7 @@ class ditto {
                 } else {
                     $this->addField($source[0],$source[1]);
                     $this->customPlaceholdersMap[$name] = $source[0];
-                }    // TODO: Replace addField with addFields with callback
+                }
             } else if(is_array($value)) {
                 $fields = explode(',',$source);
                 foreach ($fields as $field) {
@@ -507,10 +506,15 @@ class ditto {
     // ---------------------------------------------------
 
     static function getAuthor($createdby) {
-        if($createdby > 0) $user = evo()->getUserInfo($createdby);
-        else               $user = evo()->getWebUserInfo(abs($createdby));
+        if($createdby > 0) {
+            $user = evo()->getUserInfo($createdby);
+        } else {
+            $user = evo()->getWebUserInfo(abs($createdby));
+        }
 
-        if ($user === false) $user = evo()->getUserInfo(1);// get admin user name
+        if ($user === false) {
+            $user = evo()->getUserInfo(1);
+        }
 
         return ($user['fullname'] != '') ? $user['fullname'] : $user['username'];
     }
@@ -606,17 +610,30 @@ class ditto {
 
         // Create where clause
         $where = array ();
-        if ($hideFolders)    $where[] = 'isfolder = 0';
-        if ($showInMenuOnly) $where[] = 'hidemenu = 0';
-        if ($myWhere != '')  $where[] = $myWhere;
+        if ($hideFolders) {
+            $where[] = 'isfolder = 0';
+        }
+        if ($showInMenuOnly) {
+            $where[] = 'hidemenu = 0';
+        }
+        if ($myWhere != '') {
+            $where[] = $myWhere;
+        }
         // set limit
         $where = implode(' AND ', $where);
         $limit = ($limit == 0) ? '' : $limit;
 
         $customReset = $this->customReset;
-        if ($keywords) {$this->addField('haskeywords', '*', 'db');$this->addField('hasmetatags', '*', 'db');}
-        if ($this->debug) {$this->addField('pagetitle', 'backend', 'db');}
-        if ($customReset) {$this->addField('createdon', 'backend', 'db');}
+        if ($keywords) {
+            $this->addField('haskeywords', '*', 'db');
+            $this->addField('hasmetatags', '*', 'db');
+        }
+        if ($this->debug) {
+            $this->addField('pagetitle', 'backend', 'db');
+        }
+        if ($customReset) {
+            $this->addField('createdon', 'backend', 'db');
+        }
         $resource = $this->getDocuments(
             $documentIDs
             ,$this->fields['backend']['db']
@@ -642,8 +659,9 @@ class ditto {
             foreach ($resource as $i => $iValue) {
                 if (!$seeThruUnpub) {
                     $published = $parentList[$iValue['parent']];
-                    if ($published == '0')
+                    if ($published == '0') {
                         unset ($resource[$i]);
+                    }
                 }
                 if ($customReset) {
                     foreach ($customReset as $field) {
@@ -660,7 +678,9 @@ class ditto {
                 $filterObj = new filter();
                 $resource = $filterObj->execute($resource, $filter);
             }
-            if (!$resource) return array();
+            if (!$resource) {
+                return array();
+            }
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource,$orderBy);
             } elseif(event()->param('documents') && !event()->param('orderBy')) {
@@ -711,7 +731,6 @@ class ditto {
                 $this->sortOrder = array_flip($processedIDs);
                 // saves the order of the documents for use later
             }
-
             return $processedIDs;
         }
 
@@ -719,7 +738,6 @@ class ditto {
     }
 
     private function unsort($docs,$ids) {
-        $rs = array();
         foreach($docs as $doc) {
             $docs_tmp[$doc['id']] = $doc;
         }
@@ -760,7 +778,7 @@ class ditto {
     function getParentList() {
         $rs = db()->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         $kids = array();
-        while($row = $this->db->getRow($rs)) {
+        while($row = db()->getRow($rs)) {
             $kids[] = $row['parent'];
         }
         $parents = array();
@@ -833,11 +851,12 @@ class ditto {
         $row['value'] = $row['default_text'];
         foreach ($docIDs as $id) {
             $k = '#' .$id;
-            if (!isset($docs[$k])) {
-                $v = evo()->tvProcessor($row);
-                $docs[$k][$tvname] = $v;
-                $docs[$k]['tv' .$tvname] = $v;
+            if (isset($docs[$k])) {
+                continue;
             }
+            $v = evo()->tvProcessor($row);
+            $docs[$k][$tvname] = $v;
+            $docs[$k]['tv' . $tvname] = $v;
         }
         return $docs;
     }
@@ -860,11 +879,9 @@ class ditto {
 
     function fetchKeywords($resource) {
         if($resource['haskeywords']==1) {
-            // insert keywords
             $metas = implode(',',evo()->getKeywords($resource['id']));
         }
         if($resource['hasmetatags']==1) {
-            // insert meta tags
             $tags = evo()->getMETATags($resource['id']);
             foreach ($tags as $n=>$col) {
                 $metas.= ',' .$col['tagvalue'];
@@ -882,7 +899,6 @@ class ditto {
     function getChildIDs($IDs, $depth) {
         $depth = (int)$depth;
         $docIDs = array();
-        //    RedCat
         foreach($IDs as $id) {
             $kids   = evo()->getChildIds($id,$depth);
             foreach ($kids as $k=>$v) {
@@ -898,10 +914,10 @@ class ditto {
     // ---------------------------------------------------
 
     function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $publicOnly= 1, $extraWhere= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
-        if (!$ids) return false;
-
+        if (!$ids) {
+            return false;
+        }
         sort($ids);
-
         if ($publicOnly) {
             // get document groups for current user
             $docgrp= evo()->getUserDocGroups();
@@ -926,8 +942,7 @@ class ditto {
             $where = 'AND sc.' . join(' AND sc.', $_);
         }
 
-        if ($randomize) $sort = 'RAND()';
-        else            $sort = $orderBy['sql'];
+        $sort = $randomize ? 'RAND()' : $orderBy['sql'];
 
         $sql = sprintf(
             "SELECT DISTINCT %s FROM %s sc
@@ -937,7 +952,7 @@ class ditto {
             , 'sc.' .implode(',sc.',$fields)
             , evo()->getFullTableName('site_content')
             , evo()->getFullTableName('document_groups')
-            , join($ids, ',')
+            , join(',', $ids)
             , $published ? 'AND sc.published=1' : ''
             , $deleted
             , $where
@@ -947,7 +962,9 @@ class ditto {
         );
 
         $rs= db()->query($sql);
-        if (!db()->count($rs)) return false;
+        if (!db()->count($rs)) {
+            return false;
+        }
         $docs= array ();
 
         $TVIDs = array();
@@ -959,7 +976,9 @@ class ditto {
                 }
                 $row[$dateSource] += evo()->config('server_offset_time');
             }
-            if($keywords) $row = $this->appendKeywords($row);
+            if($keywords) {
+                $row = $this->appendKeywords($row);
+            }
 
             if ($this->prefetch == true && $this->sortOrder !== false) {
                 $row['ditto_sort'] = $this->sortOrder[$docid];
@@ -1024,7 +1043,7 @@ class ditto {
         $where = array();
         $docGroup = evo()->getUserDocGroups();
         if ($docGroup) {
-            $where[] = sprintf('sc.id IN (%s)', join($ids, ','));
+            $where[] = sprintf('sc.id IN (%s)', join(',', $ids));
             $where[] = 'AND sc.deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = sprintf(
@@ -1047,7 +1066,7 @@ class ditto {
                 , $where
             );
         } else {
-            $where[] = sprintf('id IN (%s)', join($ids, ','));
+            $where[] = sprintf('id IN (%s)', join(',', $ids));
             $where[] = 'AND deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';
@@ -1178,7 +1197,9 @@ class ditto {
         if($previous!=0) $prevUrl = self::buildURL('start=' . $previous);
         else {
             $args = $_GET;
-            if(isset($args[$dittoID . 'start'])) unset($args[$dittoID . 'start']);
+            if(isset($args[$dittoID . 'start'])) {
+                unset($args[$dittoID . 'start']);
+            }
             if(is_array($args)) {
                 foreach($args as $k=>$v) {
                     $args[$k] = sprintf('%s=%s', $k, $v);
@@ -1232,7 +1253,9 @@ class ditto {
         $cur_x = floor($start / $summarize);
         $min_x = $cur_x - $max_previous;
 
-        if ($min_x < 0)  $min_x = 0;
+        if ($min_x < 0) {
+            $min_x = 0;
+        }
 
         $max_x = $min_x + $max_paginate - 1;
         if ($max_x > $totalpages - 1) {
@@ -1244,7 +1267,9 @@ class ditto {
             $inc = $x * $summarize;
             $display = $x +1;
 
-            if (($x < $min_x) || ($x > $max_x)) continue;
+            if ($x < $min_x || ($x > $max_x)) {
+                continue;
+            }
 
             if ($inc != $start) {
                 $pages .= evo()->parseText(
@@ -1258,7 +1283,9 @@ class ditto {
                     , array('page'=>$display)
                 );
             }
-            if($x < $max_x) $pages .= $paginateSplitterCharacter;
+            if($x < $max_x) {
+                $pages .= $paginateSplitterCharacter;
+            }
         }
         if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
             evo()->toPlaceholders(
@@ -1316,22 +1343,17 @@ class ditto {
     // Based on script from http://wintermute.com.au/bits/2005-09/php-relative-absolute-links/
     // ---------------------------------------------------
     function relToAbs($text, $base) {
-        return preg_replace('#(href|src)="([^:"]*)(?:")#','$1="'.$base.'$2"',$text);
+        return preg_replace('#(href|src)="([^:"]*)"#','$1="'.$base.'$2"',$text);
     }
 
     function mb_strftime($format='', $timestamp='')
     {
         global $modx;
-
-        if (empty($format)) {
-            $format = evo()->toDateFormat(null, 'formatOnly') . ' %H:%M';
-        }
-
-        if (method_exists($modx,'mb_strftime')) {
-            $str = evo()->mb_strftime($format,$timestamp);
-        } else {
-            $str = strftime($format, $timestamp);
-        }
-        return $str;
+        return method_exists($modx, 'mb_strftime')
+            ? evo()->mb_strftime($format, $timestamp)
+            : strftime(
+                !empty($format) ? $format : evo()->toDateFormat(null, 'formatOnly') . ' %H:%M',
+                $timestamp
+            );
     }
 }
