@@ -6,56 +6,126 @@ if (!evo()->hasPermission('settings')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$form_v = $_POST;
-// lose the POST now, gets rid of quirky issue with Safari 3 - see FS#972
-unset($_POST);
 
-$warnings = array();
-if ($form_v['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') === false) {
-    $htaccess = $modx->config['base_path'] . '.htaccess';
-    $sample_htaccess = $modx->config['base_path'] . 'sample.htaccess';
-    $dir = '/' . trim($modx->config['base_url'], '/');
-    if (is_file($htaccess)) {
-        $_ = file_get_contents($htaccess);
-        if (strpos($_, 'RewriteBase') === false) {
-            $warnings[] = $_lang["settings_friendlyurls_alert2"];
-        } elseif (is_writable($htaccess)) {
-            $_ = preg_replace('@RewriteBase.+@', "RewriteBase {$dir}", $_);
-            if (!@file_put_contents($htaccess, $_)) {
-                $warnings[] = $_lang["settings_friendlyurls_alert2"];
-            }
-        }
-    } elseif (is_file($sample_htaccess)) {
-        if (!@rename($sample_htaccess, $htaccess)) {
-            $warnings[] = $_lang["settings_friendlyurls_alert"];
-        } elseif ($modx->config['base_url'] !== '/') {
-            $_ = file_get_contents($htaccess);
-            $_ = preg_replace('@RewriteBase.+@', "RewriteBase {$dir}", $_);
-            if (!@file_put_contents($htaccess, $_)) {
-                $warnings[] = $_lang["settings_friendlyurls_alert2"];
-            }
-        }
-    }
-}
-$default_config = include(MODX_CORE_PATH . 'default.config.php');
-
-$form_v['filemanager_path'] = str_replace('[(base_path)]', MODX_BASE_PATH, $form_v['filemanager_path']);
-$form_v['rb_base_dir'] = str_replace('[(base_path)]', MODX_BASE_PATH, $form_v['rb_base_dir']);
-if (!is_dir($form_v['filemanager_path'])) {
-    $warnings[] = $_lang["configcheck_filemanager_path"];
-}
-if (!is_dir($form_v['rb_base_dir'])) {
-    $warnings[] = $_lang["configcheck_rb_base_dir"];
-}
-
+$warnings = warnings();
 if ($warnings) {
-    $modx->manager->saveFormValues('17');
-    $msg = join("\n", $warnings);
-    $modx->webAlertAndQuit($msg, 'index.php?a=17');
+    manager()->saveFormValues('17');
+    evo()->webAlertAndQuit(implode("\n", $warnings), 'index.php?a=17');
+    exit;
+}
+if (!save_settiongs()) {
+    echo 'Failed to update setting value!';
     exit;
 }
 
-if (isset($form_v) && $form_v) {
+if (formv('reset_template')) {
+    reset_template();
+}
+
+evo()->clearCache();
+setPermission();
+header("Location: index.php?a=7&r=10");
+
+
+
+function setPermission() {
+    if (!is_dir(formv('rb_base_dir') . 'images')) {
+        mkd(formv('rb_base_dir') . 'images');
+    }
+    if (!is_dir(formv('rb_base_dir') . 'files')) {
+        mkd(formv('rb_base_dir') . 'files');
+    }
+    if (!is_dir(formv('rb_base_dir') . 'media')) {
+        mkd(formv('rb_base_dir') . 'media');
+    }
+    if (!is_dir(formv('rb_base_dir') . 'flash')) {
+        mkd(formv('rb_base_dir') . 'flash');
+    }
+    if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
+        mkd(MODX_BASE_PATH . 'temp/export');
+    }
+    if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
+        mkd(MODX_BASE_PATH . 'temp/backup');
+    }
+
+    if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
+        @chmod(MODX_CORE_PATH . 'config.inc.php', 0444);
+    }
+}
+
+function mkd($path) {
+    $rs = @mkdir($path, 0777, true);
+    if ($rs) {
+        $rs = @chmod($path, 0777);
+    }
+    return $rs;
+}
+
+function setModifiedConfig($form_v, $defaut_v) {
+    if ($form_v === $defaut_v) {
+        return $defaut_v;
+    }
+    return '* ' . $form_v;
+}
+
+function formv($key, $default=null) {
+    if(in_array($key, array('filemanager_path','rb_base_dir'))) {
+        return str_replace('[(base_path)]', MODX_BASE_PATH, postv($key));
+    }
+    return postv($key, $default);
+}
+
+function warnings() {
+    $warnings = array();
+    if (!is_dir(formv('filemanager_path'))) {
+        $warnings[] = lang('configcheck_filemanager_path');
+    }
+    if (!is_dir(formv('rb_base_dir'))) {
+        $warnings[] = lang('configcheck_rb_base_dir');
+    }
+    if (formv('friendly_urls') != 1 || strpos(serverv('SERVER_SOFTWARE'), 'IIS') !== false) {
+        return $warnings;
+    }
+
+    $htaccess = MODX_BASE_PATH . '.htaccess';
+    $sample_htaccess = MODX_BASE_PATH . 'sample.htaccess';
+    $dir = '/' . trim(evo()->config['base_url'], '/');
+    if (is_file($htaccess)) {
+        $_ = file_get_contents($htaccess);
+        if (strpos($_, 'RewriteBase') === false) {
+            $warnings[] = lang('settings_friendlyurls_alert2');
+            return $warnings;
+        }
+        if (is_writable($htaccess)) {
+            $rs = file_put_contents(
+                $htaccess,
+                preg_replace('@RewriteBase.+@', "RewriteBase " . $dir, $_)
+            );
+            if (!$rs) {
+                $warnings[] = lang('settings_friendlyurls_alert2');
+            }
+        }
+        return $warnings;
+    }
+    if (is_file($sample_htaccess)) {
+        if (!rename($sample_htaccess, $htaccess)) {
+            $warnings[] = lang('settings_friendlyurls_alert');
+        } elseif (evo()->config['base_url'] !== '/') {
+            $_ = preg_replace(
+                '@RewriteBase.+@', "RewriteBase " . $dir,
+                file_get_contents($htaccess)
+            );
+            if (!@file_put_contents($htaccess, $_)) {
+                $warnings[] = lang('settings_friendlyurls_alert2');
+            }
+        }
+    }
+    return $warnings;
+}
+
+function save_settiongs() {
+    $default_config = include(MODX_CORE_PATH . 'default.config.php');
+    $form_v = $_POST;
     $savethese = array();
     foreach ($form_v as $k => $v) {
         switch ($k) {
@@ -68,6 +138,7 @@ if (isset($form_v) && $form_v) {
             case 'rb_base_dir':
             case 'rb_base_url':
             case 'filemanager_path':
+                $v = formv($k);
                 if ($v !== '') {
                     $v = rtrim($v, '/') . '/';
                 }
@@ -75,7 +146,7 @@ if (isset($form_v) && $form_v) {
             case 'error_page':
             case 'unauthorized_page':
                 if (trim($v) !== '' && !is_numeric($v)) {
-                    $v = $form_v['site_start'];
+                    $v = formv('site_start');
                 }
                 break;
 
@@ -128,76 +199,38 @@ if (isset($form_v) && $form_v) {
         $v = is_array($v) ? implode(',', $v) : $v;
 
         if (!empty($k)) {
-            $savethese[] = "('" . db()->escape($k) . "', '" . db()->escape($v) . "')";
+            $savethese[] = sprintf(
+                "('%s', '%s')",
+                db()->escape($k),
+                db()->escape($v)
+            );
         }
     }
-
     // Run a single query to save all the values
-    $sql = "REPLACE INTO " . evo()->getFullTableName("system_settings") . " (setting_name, setting_value)
-		VALUES " . implode(', ', $savethese);
-    if (!@$rs = db()->query($sql)) {
-        echo "Failed to update setting value!";
-        exit;
-    }
-
-    // Reset Template Pages
-    if (isset($form_v['reset_template'])) {
-        $template = $form_v['default_template'];
-        $oldtemplate = $form_v['old_template'];
-        $tbl_site_content = evo()->getFullTableName('site_content');
-        $reset = $form_v['reset_template'];
-        if ($reset == 1) {
-            db()->update("template='{$template}'", $tbl_site_content, "type='document'");
-        } elseif ($reset == 2) {
-            db()->update("template='{$template}'", $tbl_site_content, "template='{$oldtemplate}'");
-        }
-    }
-
-    // empty cache
-    $modx->clearCache(); // first empty the cache
+    return db()->query(
+        sprintf(
+            "REPLACE INTO %s (setting_name, setting_value) VALUES %s",
+            evo()->getFullTableName('system_settings'),
+            implode(', ', $savethese)
+        )
+    );
 }
 
-setPermission($form_v);
-
-header("Location: index.php?a=7&r=10");
-
-function setPermission($config) {
-    if (!is_dir($config['rb_base_dir'] . 'images')) {
-        mkd($config['rb_base_dir'] . 'images');
+function reset_template(){
+    if (formv('reset_template') == 1) {
+        db()->update(
+            array('template'=>formv('default_template')),
+            '[+prefix+]site_content',
+            where('type', 'document')
+        );
+        return;
     }
-    if (!is_dir($config['rb_base_dir'] . 'files')) {
-        mkd($config['rb_base_dir'] . 'files');
-    }
-    if (!is_dir($config['rb_base_dir'] . 'media')) {
-        mkd($config['rb_base_dir'] . 'media');
-    }
-    if (!is_dir($config['rb_base_dir'] . 'flash')) {
-        mkd($config['rb_base_dir'] . 'flash');
-    }
-    if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
-        mkd(MODX_BASE_PATH . 'temp/export');
-    }
-    if (!is_dir(MODX_BASE_PATH . 'temp/backup')) {
-        mkd(MODX_BASE_PATH . 'temp/backup');
-    }
-
-    if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
-        @chmod(MODX_CORE_PATH . 'config.inc.php', 0444);
+    if (formv('reset_template') == 2) {
+        db()->update(
+            array('template'=>formv('default_template')),
+            '[+prefix+]site_content',
+            where('template', formv('old_template'))
+        );
     }
 }
 
-function mkd($path) {
-    $rs = @mkdir($path, 0777, true);
-    if ($rs) {
-        $rs = @chmod($path, 0777);
-    }
-    return $rs;
-}
-
-function setModifiedConfig($form_v, $defaut_v) {
-    if ($form_v !== $defaut_v) {
-        return "* {$form_v}";
-    } else {
-        return $defaut_v;
-    }
-}
