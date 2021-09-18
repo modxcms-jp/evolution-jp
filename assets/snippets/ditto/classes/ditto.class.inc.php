@@ -41,8 +41,6 @@ class ditto {
     // ---------------------------------------------------
 
     function getTVList() {
-        global $modx;
-
         if(isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
 
         $tvs = db()->select('name', '[+prefix+]site_tmplvars');
@@ -282,7 +280,7 @@ class ditto {
     // ---------------------------------------------------
 
     function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$modifier_mode='normal',$x=0) {
-        global $modx,$ditto_lang;
+        global $ditto_lang;
 
         if (!is_array($resource)) return $ditto_lang['resource_array_error'];
 
@@ -296,11 +294,11 @@ class ditto {
         $placeholders = $this->setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x);
 
         if (in_array('content', $this->fields['display']['db'], true) && $this->format !== 'html') {
-            $placeholders['content'] = $this->relToAbs($resource['content'], $modx->config['site_url']);
+            $placeholders['content'] = $this->relToAbs($resource['content'], evo()->config('site_url'));
         }
 
         if (in_array('introtext', $this->fields['display']['db'], true) && $this->format !== 'html') {
-            $placeholders['introtext'] = $this->relToAbs($resource['introtext'], $modx->config['site_url']);
+            $placeholders['introtext'] = $this->relToAbs($resource['introtext'], evo()->config('site_url'));
         }
 
         $customPlaceholders = $ph;
@@ -328,7 +326,7 @@ class ditto {
             $i = 0;
             while($i<10) {
                 $_ = $output;
-                $output = $modx->parseText($output,$placeholders);
+                $output = evo()->parseText($output,$placeholders);
                 if($_===$output) break;
                 $i++;
             }
@@ -346,7 +344,7 @@ class ditto {
         if ($removeChunk) {
             foreach ($removeChunk as $chunk) {
                 $output = str_replace(
-                    array('{{' . $chunk . '}}', $modx->getChunk($chunk))
+                    array('{{' . $chunk . '}}', evo()->getChunk($chunk))
                     , ''
                     , $output
                 );
@@ -358,8 +356,6 @@ class ditto {
     }
 
     function setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x) {
-        global $modx;
-
         $custom_v = & $this->fields['display']['custom'];
 
         if (in_array('author', $custom_v, true)) {
@@ -374,7 +370,7 @@ class ditto {
 
         if (!in_array('class', $custom_v, true)) {
         } else {
-            if ($modx->documentIdentifier == $resource['id']) {
+            if (evo()->documentIdentifier == $resource['id']) {
                 $placeholders['class'] = 'active';
             } else {
                 $placeholders['class'] = '';
@@ -383,11 +379,11 @@ class ditto {
 
         // set url placeholder
         if (in_array('url', $custom_v, true)) {
-            if($resource['id']==$modx->config['site_start']) {
-                $placeholders['url'] = $modx->config['site_url'];
+            if($resource['id']==evo()->config('site_start')) {
+                $placeholders['url'] = evo()->config('site_url');
             }
             else {
-                $placeholders['url'] = $modx->makeURL($resource['id'], '', '', 'full');
+                $placeholders['url'] = evo()->makeURL($resource['id'], '', '', 'full');
             }
         }
 
@@ -511,10 +507,8 @@ class ditto {
     // ---------------------------------------------------
 
     static function getAuthor($createdby) {
-        global $modx;
-
         if($createdby > 0) $user = evo()->getUserInfo($createdby);
-        else               $user = $modx->getWebUserInfo(abs($createdby));
+        else               $user = evo()->getWebUserInfo(abs($createdby));
 
         if ($user === false) $user = evo()->getUserInfo(1);// get admin user name
 
@@ -764,8 +758,6 @@ class ditto {
     // ---------------------------------------------------
 
     function getParentList() {
-        global $modx;
-
         $rs = db()->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         $kids = array();
         while($row = $this->db->getRow($rs)) {
@@ -777,7 +769,7 @@ class ditto {
                 $parents[0] = '1';
             }
             else {
-                $pInfo = $modx->getPageInfo($parent,0,'published');
+                $pInfo = evo()->getPageInfo($parent,0,'published');
                 $parents[$parent] = $pInfo['published'];
             }
         }
@@ -790,8 +782,6 @@ class ditto {
     // ---------------------------------------------------
 
     function appendTV($tvname= '', $docIDs){
-        global $modx;
-
         $rs = db()->select(
             'stv.*, stc.*'
             , array(
@@ -809,7 +799,7 @@ class ditto {
         $docs = array();
         while($row = db()->getRow($rs))  {
             $k = '#' .$row['contentid'];
-            $v = $modx->tvProcessor($row);
+            $v = evo()->tvProcessor($row);
             $docs[$k][$row['name']]       = $v;
             $docs[$k]['tv' .$row['name']] = $v;
         }
@@ -831,7 +821,7 @@ class ditto {
                 $k = '#' .$id;
                 if (!isset($docs[$k])) {
                     $row['contentid'] = $id;
-                    $v = $modx->tvProcessor($row);
+                    $v = evo()->tvProcessor($row);
                     $docs[$k][$tvname] = $v;
                     $docs[$k]['tv' .$tvname] = $v;
                 }
@@ -844,7 +834,7 @@ class ditto {
         foreach ($docIDs as $id) {
             $k = '#' .$id;
             if (!isset($docs[$k])) {
-                $v = $modx->tvProcessor($row);
+                $v = evo()->tvProcessor($row);
                 $docs[$k][$tvname] = $v;
                 $docs[$k]['tv' .$tvname] = $v;
             }
@@ -869,14 +859,13 @@ class ditto {
     // ---------------------------------------------------
 
     function fetchKeywords($resource) {
-        global $modx;
         if($resource['haskeywords']==1) {
             // insert keywords
-            $metas = implode(',',$modx->getKeywords($resource['id']));
+            $metas = implode(',',evo()->getKeywords($resource['id']));
         }
         if($resource['hasmetatags']==1) {
             // insert meta tags
-            $tags = $modx->getMETATags($resource['id']);
+            $tags = evo()->getMETATags($resource['id']);
             foreach ($tags as $n=>$col) {
                 $metas.= ',' .$col['tagvalue'];
             }
@@ -891,12 +880,11 @@ class ditto {
     // ---------------------------------------------------
 
     function getChildIDs($IDs, $depth) {
-        global $modx;
         $depth = (int)$depth;
         $docIDs = array();
         //    RedCat
         foreach($IDs as $id) {
-            $kids   = $modx->getChildIds($id,$depth);
+            $kids   = evo()->getChildIds($id,$depth);
             foreach ($kids as $k=>$v) {
                 $docIDs[$k] = $v;
             }
@@ -910,21 +898,19 @@ class ditto {
     // ---------------------------------------------------
 
     function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $publicOnly= 1, $extraWhere= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
-        global $modx;
-
         if (!$ids) return false;
 
         sort($ids);
 
         if ($publicOnly) {
             // get document groups for current user
-            $docgrp= $modx->getUserDocGroups();
-            if ($modx->isFrontend()) {
+            $docgrp= evo()->getUserDocGroups();
+            if (evo()->isFrontend()) {
                 $access = sprintf(
                     'sc.privateweb=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
-            } elseif($modx->session_var('mgrRole') != 1) {
+            } elseif(sessionv('mgrRole') != 1) {
                 $access = sprintf(
                     'sc.privatemgr=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
@@ -971,7 +957,7 @@ class ditto {
                 if (!preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
                     $row[$dateSource] = strtotime($row[$dateSource]);
                 }
-                $row[$dateSource] += $modx->config['server_offset_time'];
+                $row[$dateSource] += evo()->config('server_offset_time');
             }
             if($keywords) $row = $this->appendKeywords($row);
 
@@ -1031,18 +1017,16 @@ class ditto {
     // ---------------------------------------------------
 
     function getDocumentsIDs($ids= array (), $published= 1) {
-        global $modx;
-
         if (!$ids) {
             return false;
         }
 
         $where = array();
-        $docGroup = $modx->getUserDocGroups();
+        $docGroup = evo()->getUserDocGroups();
         if ($docGroup) {
             $where[] = sprintf('sc.id IN (%s)', join($ids, ','));
             $where[] = 'AND sc.deleted=0';
-            if ($modx->isFrontend()) {
+            if (evo()->isFrontend()) {
                 $where[] = sprintf(
                     'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
                     , join(',', $docGroup)
@@ -1065,7 +1049,7 @@ class ditto {
         } else {
             $where[] = sprintf('id IN (%s)', join($ids, ','));
             $where[] = 'AND deleted=0';
-            if ($modx->isFrontend()) {
+            if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';
             } elseif ($_SESSION['mgrRole']!=1) {
                 $where[] = 'AND privatemgr=0';
@@ -1094,9 +1078,8 @@ class ditto {
     // ---------------------------------------------------
 
     function formatDate($dateUnixTime, $dateFormat) {
-        global $modx;
-        $dt = $modx->toDateFormat($dateUnixTime, $dateFormat);
-        if ($modx->config['modx_charset'] === 'UTF-8') {
+        $dt = evo()->toDateFormat($dateUnixTime, $dateFormat);
+        if (evo()->config('modx_charset') === 'UTF-8') {
             $dt = utf8_encode($dt);
         }
         return $dt;
@@ -1108,7 +1091,7 @@ class ditto {
     // ---------------------------------------------------
 
     static function buildURL($args,$id=false,$dittoIdentifier=false) {
-        global $modx, $dittoID;
+        global $dittoID;
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = array();
         foreach ($_GET as $param=>$value) {
@@ -1144,9 +1127,9 @@ class ditto {
                 }
             }
         }
-        $cID = ($id !== false) ? $id : $modx->documentObject['id'];
-        $url = $modx->makeURL(trim($cID), '', $queryString);
-        return ($modx->config['xhtml_urls']) ? $url : str_replace('&','&amp;',$url);
+        $cID = ($id !== false) ? $id : evo()->documentObject['id'];
+        $url = evo()->makeURL(trim($cID), '', $queryString);
+        return evo()->config('xhtml_urls') ? $url : str_replace('&','&amp;',$url);
     }
 
     // ---------------------------------------------------
@@ -1156,12 +1139,12 @@ class ditto {
 
     function getParam($param,$langString){
         // get a parameter value and if it is not set get the default language string value
-        global $modx,$ditto_lang;
+        global $ditto_lang;
 
         if (substr($param,0,1)==='@') {
             $output = $this->template->fetch($param);
         } else if(!empty($param)) {
-            $output = $modx->getChunk($param);
+            $output = evo()->getChunk($param);
         } else {
             $output = $ditto_lang[$langString];
         }
@@ -1175,7 +1158,7 @@ class ditto {
     // ---------------------------------------------------
 
     function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter,$maxPaginate=10) {
-        global $modx, $dittoID,$ditto_lang;
+        global $dittoID,$ditto_lang;
 
         if ($stop == 0 || $total == 0 || $summarize==0) {
             return false;
@@ -1185,7 +1168,12 @@ class ditto {
             $tplPaginateNext = str_replace('lang:next','lang%next',$tplPaginateNext);
         if(strpos($tplPaginatePrevious,'lang:previous')!==false)
             $tplPaginatePrevious = str_replace('lang:previous','lang%previous',$tplPaginatePrevious);
-        $rNext =  $modx->parseText(array('url'=> self::buildURL('start=' . $next),'lang%next'=>$ditto_lang['next']),$tplPaginateNext);
+        $rNext =  evo()->parseText(
+            array(
+                'url'=> self::buildURL('start=' . $next),
+                'lang%next'=>$ditto_lang['next']),
+                $tplPaginateNext
+            );
         $previous = $start - $summarize;
         if($previous!=0) $prevUrl = self::buildURL('start=' . $previous);
         else {
@@ -1197,17 +1185,24 @@ class ditto {
                 }
                 $args = join('&',$args);
             }
-            $prevUrl = $modx->makeUrl($modx->documentIdentifier,'',$args);
+            $prevUrl = evo()->makeUrl(
+                evo()->documentIdentifier,'',$args
+            );
         }
-        $rPrevious =  $modx->parseText(array('url'=>$prevUrl,'lang%previous'=>$ditto_lang['prev']),$tplPaginatePrevious);
+        $rPrevious =  evo()->parseText(
+            array(
+                'url'=>$prevUrl,
+                'lang%previous'=>$ditto_lang['prev']),
+                $tplPaginatePrevious
+        );
         $limten = $summarize + $start;
         if ($paginateAlwaysShowLinks == 1) {
             if(strpos($tplPaginatePreviousOff,'lang:previous')!==false)
                 $tplPaginatePreviousOff = str_replace('lang:previous','lang%previous',$tplPaginatePreviousOff);
             if(strpos($tplPaginateNextOff,'lang:next')!==false)
                 $tplPaginateNextOff     = str_replace('lang:next','lang%next',$tplPaginateNextOff);
-            $previousplaceholder = $modx->parseText(array('lang%previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
-            $nextplaceholder = $modx->parseText(array('lang%next'=>$ditto_lang['next']),$tplPaginateNextOff);
+            $previousplaceholder = evo()->parseText(array('lang%previous'=>$ditto_lang['prev']),$tplPaginatePreviousOff);
+            $nextplaceholder = evo()->parseText(array('lang%next'=>$ditto_lang['next']),$tplPaginateNextOff);
         } else {
             $previousplaceholder = '';
             $nextplaceholder = '';
@@ -1252,13 +1247,13 @@ class ditto {
             if (($x < $min_x) || ($x > $max_x)) continue;
 
             if ($inc != $start) {
-                $pages .= $modx->parseText(
+                $pages .= evo()->parseText(
                     $tplPaginatePage
                     , array('url'=> self::buildURL('start=' . $inc),'page'=>$display)
                 );
             } else {
-                $modx->setPlaceholder($dittoID. 'currentPage', $display);
-                $pages .= $modx->parseText(
+                evo()->setPlaceholder($dittoID. 'currentPage', $display);
+                $pages .= evo()->parseText(
                     $tplPaginateCurrentPage
                     , array('page'=>$display)
                 );
@@ -1266,7 +1261,7 @@ class ditto {
             if($x < $max_x) $pages .= $paginateSplitterCharacter;
         }
         if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
-            $modx->toPlaceholders(
+            evo()->toPlaceholders(
                 array(
                     'next'       => $nextplaceholder,
                     'previous' => $previousplaceholder,
@@ -1276,7 +1271,7 @@ class ditto {
                 ,$dittoID
             );
         }
-        $modx->toPlaceholders(
+        evo()->toPlaceholders(
             array(
                 'splitter' => $split,
                 'start' => ($start +1),
@@ -1296,21 +1291,21 @@ class ditto {
     // Render the noResults output
     // ---------------------------------------------------
     function noResults($text,$paginate) {
-        global $modx, $dittoID;
-        $set = $modx->getPlaceholder($dittoID. 'ditto_pagination_set');
+        global $dittoID;
+        $set = evo()->getPlaceholder($dittoID. 'ditto_pagination_set');
         if ($paginate && $set !== true) {
-            $modx->setPlaceholder($dittoID. 'next', '');
-            $modx->setPlaceholder($dittoID. 'previous', '');
-            $modx->setPlaceholder($dittoID. 'prev', '');
-            $modx->setPlaceholder($dittoID. 'splitter', '');
-            $modx->setPlaceholder($dittoID. 'start', 0);
-            $modx->setPlaceholder($dittoID. 'urlStart', '#start');
-            $modx->setPlaceholder($dittoID. 'stop', 0);
-            $modx->setPlaceholder($dittoID. 'total', 0);
-            $modx->setPlaceholder($dittoID. 'pages', '');
-            $modx->setPlaceholder($dittoID. 'perPage', 0);
-            $modx->setPlaceholder($dittoID. 'totalPages', 0);
-            $modx->setPlaceholder($dittoID. 'currentPage', 0);
+            evo()->setPlaceholder($dittoID. 'next', '');
+            evo()->setPlaceholder($dittoID. 'previous', '');
+            evo()->setPlaceholder($dittoID. 'prev', '');
+            evo()->setPlaceholder($dittoID. 'splitter', '');
+            evo()->setPlaceholder($dittoID. 'start', 0);
+            evo()->setPlaceholder($dittoID. 'urlStart', '#start');
+            evo()->setPlaceholder($dittoID. 'stop', 0);
+            evo()->setPlaceholder($dittoID. 'total', 0);
+            evo()->setPlaceholder($dittoID. 'pages', '');
+            evo()->setPlaceholder($dittoID. 'perPage', 0);
+            evo()->setPlaceholder($dittoID. 'totalPages', 0);
+            evo()->setPlaceholder($dittoID. 'currentPage', 0);
         }
         return $text;
     }
@@ -1329,11 +1324,11 @@ class ditto {
         global $modx;
 
         if (empty($format)) {
-            $format = $modx->toDateFormat(null, 'formatOnly') . ' %H:%M';
+            $format = evo()->toDateFormat(null, 'formatOnly') . ' %H:%M';
         }
 
         if (method_exists($modx,'mb_strftime')) {
-            $str = $modx->mb_strftime($format,$timestamp);
+            $str = evo()->mb_strftime($format,$timestamp);
         } else {
             $str = strftime($format, $timestamp);
         }
