@@ -382,7 +382,7 @@
 [CHANGED] Indentation on getDocuments function
 [NEW] Public flag on getDocuments function (Related to #47)
 [NEW] hidePrivate parameter to interface with above (Closes #47)
-[CHANGED] $modx->recordCount to db()->count($result); (Related to #30)
+[CHANGED] $modx->recordCount to $modx->db->getRecordCount($result); (Related to #30)
 [FIXED] &depth now stops when there are no more levels (Closes #45)
 
 [2007-4-12: REVISION 0000]

@@ -4,7 +4,7 @@ if(!defined('MODX_BASE_PATH')) {die('What are you doing? Get out of here!');}
 /* Description:
  *      Aggregates documents to create blogs, article/news
  *      collections, and more,with full support for templating.
- * 
+ *
  * Author:
  *      Mark Kaplan for MODX CMF
 */
@@ -21,7 +21,7 @@ if (isset($ditto_base)) {
 }
 /*
     Param: ditto_base
-    
+
     Purpose:
     Location of Ditto files
 
@@ -45,7 +45,7 @@ $GLOBALS['dittoID'] = $dittoID;
 
     Options:
     Any combination of characters a-z, underscores, and numbers 0-9
-    
+
     Note:
     This is case sensitive
 
@@ -53,7 +53,7 @@ $GLOBALS['dittoID'] = $dittoID;
     "" - blank
 */
 if (!isset($language)) {
-    $language = $modx->config['manager_language'];
+    $language = evo()->config('manager_language');
 }
 if (!is_file(sprintf('%slang/%s.inc.php', $ditto_base, $language))) {
     $language = 'english';
@@ -94,17 +94,12 @@ if (!isset($config)) {
 if(is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
 
-if(strpos($config, '@CHUNK') === 0)
-{
-    eval('?>' . $modx->getChunk(trim(substr($config, 7))));
-}
-elseif(strpos($config, '@FILE') === 0)
-{
-    @include MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/');
-}
-elseif($config !== 'default')
-{
-    @include $ditto_base . 'configs/' . $config . '.config.php';
+if(str_starts_with($config, '@CHUNK')) {
+    eval('?>' . evo()->getChunk(trim(substr($config, 7))));
+} elseif(str_starts_with($config, '@FILE')) {
+    include MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/');
+} elseif($config !== 'default') {
+    include $ditto_base . 'configs/' . $config . '.config.php';
 }
 
 /*
@@ -119,11 +114,11 @@ elseif($config !== 'default')
 
     Default:
     "default"
-    
+
     Related:
     - <extenders>
 */
-$debug = isset($debug)? $debug : 0;
+$debug = !empty($debug)? $debug : 0;
 /*
     Param: debug
 
@@ -133,21 +128,17 @@ $debug = isset($debug)? $debug : 0;
     Options:
     0 - off
     1 - on
-    
+
     Default:
     0 - off
-    
+
     Related:
     - <debug>
 */
-if(!isset($modifier_mode)&&isset($phx)) {
-    if($phx==1) {
-        $modifier_mode = 'phx';
-    } else {
-        $modifier_mode = 'none';
-    }
-} else {
+if(isset($modifier_mode) || !isset($phx)) {
     $modifier_mode = 'normal';
+} else {
+    $modifier_mode = !empty($phx) ? 'phx' : 'none';
 }
 /*
     Param: modifier_mode
@@ -159,15 +150,11 @@ if(!isset($modifier_mode)&&isset($phx)) {
     normal - core internal modifiers function
     phx    - legacy phx function
     none   - off
-    
+
     Default:
     normal
 */
-if (isset($extenders)) {
-    $extenders = explode(',', $extenders);
-} else {
-    $extenders = array();
-}
+$extenders = isset($extenders) ? explode(',', $extenders) : array();
 /*
     Param: extenders
 
@@ -242,7 +229,7 @@ foreach ($files as $filename => $filevalue)
     }
     elseif($filename === 'language')
     {
-        $modx->logEvent(
+        evo()->logEvent(
             1
             , 3
             , sprintf(
@@ -255,7 +242,7 @@ foreach ($files as $filename => $filevalue)
     }
     else
     {
-        $modx->logEvent(
+        evo()->logEvent(
             1
             , 3
             , sprintf(
@@ -280,7 +267,7 @@ if(class_exists('ditto')) {
 }
 else
 {
-    $modx->logEvent(
+    evo()->logEvent(
         1
         , 3
         , $_lang['invalid_class']
@@ -305,7 +292,7 @@ if(count($extenders) > 0)
         $rs = false;
         if(strpos($extender, '@CHUNK') === 0)
         {
-            $chunk = $modx->getChunk(trim(substr($extender, 7)));
+            $chunk = evo()->getChunk(trim(substr($extender, 7)));
             if(!empty($chunk)) {
                 eval($chunk);
                 $rs = true;
@@ -327,7 +314,7 @@ if(count($extenders) > 0)
         }
         else
         {
-            $chunk = $modx->getChunk($extender);
+            $chunk = evo()->getChunk($extender);
             if(!empty($chunk))
             {
                 eval($chunk);
@@ -349,7 +336,12 @@ if(count($extenders) > 0)
 
         if($rs===false)
         {
-            $modx->logEvent(1, 3, "{$extender} " . $_lang['extender_does_not_exist'], "Ditto {$ditto_version}");
+            evo()->logEvent(
+                1,
+                3,
+                $extender . " " . $_lang['extender_does_not_exist'],
+                "Ditto " . $ditto_version
+            );
             return $extender . " " . $_lang['extender_does_not_exist'];
         }
     }
@@ -383,7 +375,7 @@ if (isset($documents)) {
 if (isset($parents)) {
     $parents = trim(preg_replace('`(,)+`', ',', $parents), ',');
 } else {
-    $parents = $modx->documentIdentifier;
+    $parents = evo()->documentIdentifier;
 }
 
 /*
@@ -431,9 +423,7 @@ if ($idType === 'parents') {
 // Variable: IDs
 // Internal variable which holds the set of IDs for Ditto to fetch
 
-if (isset($depth)) {
-    $depth = $depth;
-} else {
+if (!isset($depth)) {
     $depth = 1;
 }
 /*
@@ -823,7 +813,13 @@ if (isset($parsedFilters)) {
 }
 // handle 2.0.0 compatibility
 if (isset($filter) || $filters['custom'] !== false || $filters['parsed'] !== false) {
-    $filter = $ditto->parseFilters($filter, $filters['custom'], $filters['parsed'], $globalFilterDelimiter, $localFilterDelimiter);
+    $filter = $ditto->parseFilters(
+        $filter,
+        $filters['custom'],
+        $filters['parsed'],
+        $globalFilterDelimiter,
+        $localFilterDelimiter
+    );
 } else {
     $filter = false;
 }
@@ -1077,7 +1073,9 @@ if ($count > 0) {
     // set initial stop count
 
     if($paginate == 1) {
-        $paginateAlwaysShowLinks = isset($paginateAlwaysShowLinks)? $paginateAlwaysShowLinks : 0;
+        $paginateAlwaysShowLinks = isset($paginateAlwaysShowLinks)
+            ? $paginateAlwaysShowLinks
+            : 0;
         /*
             Param: paginateAlwaysShowLinks
 
@@ -1138,7 +1136,9 @@ if ($count > 0) {
             - <tplPaginateNext>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateNext = isset($tplPaginateNext)? $ditto->template->fetch($tplPaginateNext) : '<a href="[+url+]" class="ditto_next_link">[+lang:next+]</a>';
+        $tplPaginateNext = isset($tplPaginateNext)
+            ? $ditto->template->fetch($tplPaginateNext)
+            : '<a href="[+url+]" class="ditto_next_link">[+lang:next+]</a>';
         /*
             Param: tplPaginateNext
 
@@ -1158,7 +1158,9 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateNextOff = isset($tplPaginateNextOff)? $ditto->template->fetch($tplPaginateNextOff) : '<span class="ditto_next_off ditto_off">[+lang:next+]</span>';
+        $tplPaginateNextOff = isset($tplPaginateNextOff)
+            ? $ditto->template->fetch($tplPaginateNextOff)
+            : '<span class="ditto_next_off ditto_off">[+lang:next+]</span>';
         /*
             Param: tplPaginateNextOff
 
@@ -1177,7 +1179,9 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePreviousOff = isset($tplPaginatePreviousOff)? $ditto->template->fetch($tplPaginatePreviousOff) : '<span class="ditto_previous_off ditto_off">[+lang:previous+]</span>';
+        $tplPaginatePreviousOff = isset($tplPaginatePreviousOff)
+            ? $ditto->template->fetch($tplPaginatePreviousOff)
+            : '<span class="ditto_previous_off ditto_off">[+lang:previous+]</span>';
         /*
             Param: tplPaginatePreviousOff
 
@@ -1196,7 +1200,9 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginatePage = isset($tplPaginatePage)? $ditto->template->fetch($tplPaginatePage) : '<a class="ditto_page" href="[+url+]">[+page+]</a>';
+        $tplPaginatePage = isset($tplPaginatePage)
+            ? $ditto->template->fetch($tplPaginatePage)
+            : '<a class="ditto_page" href="[+url+]">[+page+]</a>';
         /*
             Param: tplPaginatePage
 
@@ -1216,7 +1222,9 @@ if ($count > 0) {
             - <tplPaginatePrevious>
             - <paginateSplitterCharacter>
         */
-        $tplPaginateCurrentPage = isset($tplPaginateCurrentPage)? $ditto->template->fetch($tplPaginateCurrentPage) : '<span class="ditto_currentpage">[+page+]</span>';
+        $tplPaginateCurrentPage = isset($tplPaginateCurrentPage)
+            ? $ditto->template->fetch($tplPaginateCurrentPage)
+            : '<span class="ditto_currentpage">[+page+]</span>';
         /*
             Param: tplPaginateCurrentPage
 
@@ -1286,7 +1294,20 @@ if ($count > 0) {
         }
     }
 
-    $resource = $ditto->getDocuments($documentIDs, $dbFields, $TVs, $orderBy, $showPublishedOnly, 0, $hidePrivate, $where, $queryLimit, $keywords, $randomize, $dateSource);
+    $resource = $ditto->getDocuments(
+        $documentIDs,
+        $dbFields,
+        $TVs,
+        $orderBy,
+        $showPublishedOnly,
+        0,
+        $hidePrivate,
+        $where,
+        $queryLimit,
+        $keywords,
+        $randomize,
+        $dateSource
+    );
     // retrieves documents
     $output = $header;
     // initialize the output variable and send the header
@@ -1320,7 +1341,7 @@ if ($count > 0) {
                 ,$stop
             );
             // render the output using the correct template, in the correct format and language
-            $modx->setPlaceholder($dittoID."item[".abs($start-$x)."]",$renderedOutput);
+            evo()->setPlaceholder($dittoID."item[".abs($start-$x)."]",$renderedOutput);
             /*
                 Placeholder: item[x]
 
@@ -1342,8 +1363,8 @@ if ($count > 0) {
     // ---------------------------------------------------
 
     if($save) {
-        $modx->setPlaceholder($dittoID."ditto_object", $ditto);
-        $modx->setPlaceholder($dittoID."ditto_resource", ($save == "1") ? array_slice($resource,$display) : $resource);
+        evo()->setPlaceholder($dittoID."ditto_object", $ditto);
+        evo()->setPlaceholder($dittoID."ditto_resource", ($save == "1") ? array_slice($resource,$display) : $resource);
         if ($save==3) {
             return $resource;
         }
@@ -1356,9 +1377,24 @@ if ($count > 0) {
 // ---------------------------------------------------
 
 if ($debug == 1) {
-    $ditto_params =& $modx->event->params;
+    $ditto_params =& event()->params;
     if (!isset($_GET["ditto_{$dittoID}debug"])) {
-        $_SESSION["ditto_debug_{$dittoID}"] = $ditto->debug->render_popup($ditto, $ditto_base, $ditto_version, $ditto_params, $documentIDs, array("db"=>$dbFields,"tv"=>$TVs), $display, $templates, $orderBy, $start, $stop, $total,$filter,$resource);
+        $_SESSION["ditto_debug_" . $dittoID] = $ditto->debug->render_popup(
+            $ditto,
+            $ditto_base,
+            $ditto_version,
+            $ditto_params,
+            $documentIDs,
+            array("db"=>$dbFields,"tv"=>$TVs),
+            $display,
+            $templates,
+            $orderBy,
+            $start,
+            $stop,
+            $total,
+            $filter,
+            $resource
+        );
     }
     if (isset($_GET["ditto_{$dittoID}debug"])) {
         switch ($_GET["ditto_{$dittoID}debug"]) {
@@ -1366,7 +1402,14 @@ if ($debug == 1) {
                 exit($_SESSION["ditto_debug_{$dittoID}"]);
                 break;
             case "save" :
-                $ditto->debug->save($_SESSION["ditto_debug_{$dittoID}"],"ditto".strtolower($ditto_version)."_debug_doc".$modx->documentIdentifier.".html");
+                $ditto->debug->save(
+                    $_SESSION["ditto_debug_" . $dittoID],
+                    sprintf(
+                        'ditto%s_debug_doc%s.html',
+                        strtolower($ditto_version),
+                        evo()->documentIdentifier
+                    )
+                );
                 break;
         }
     } else {
@@ -1374,16 +1417,25 @@ if ($debug == 1) {
     }
 }
 // outerTpl by Dmi3yy & Jako
-if(isset($tplOuter)) $outerTpl = $tplOuter;
-if(isset($outerTpl) && !empty($outerTpl)) {
-    if(!$resource) $output = '';
-    elseif(substr($outerTpl, 0, 5) == '@CODE')
+if(!empty($tplOuter)) {
+    $outerTpl = $tplOuter;
+}
+if(!empty($outerTpl)) {
+    if(!$resource) {
+        $output = '';
+    } elseif(substr($outerTpl, 0, 5) === '@CODE') {
         $outerTpl = trim(substr($outerTpl, 6));
-    elseif ($modx->getChunk($outerTpl) != '')
-        $outerTpl = $modx->getChunk($outerTpl);
+    } elseif (evo()->getChunk($outerTpl) != '') {
+        $outerTpl = evo()->getChunk($outerTpl);
+    }
 
-    if($output)
-        $output = str_replace(array('[+ditto+]','[+documents+]','[+docs+]'),$output,$outerTpl);
+    if($output) {
+        $output = str_replace(
+            array('[+ditto+]', '[+documents+]', '[+docs+]'),
+            $output,
+            $outerTpl
+        );
+    }
 }
 
-return ($save != 3) ? $output : "";
+return ($save == 3) ? '' : $output;

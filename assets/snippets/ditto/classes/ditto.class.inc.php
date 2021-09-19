@@ -90,7 +90,7 @@ class ditto {
     // from an array or delimited string
     // ---------------------------------------------------
 
-    function addFields($fields,$location='*',$delimiter=',',$callback=array()) {
+    function addFields($fields,$location='*',$delimiter=',',$callback=null) {
         if (empty($fields)) return false;
         if  (!is_array($fields)) {
             if (strpos($fields,$delimiter) !== false) {
@@ -109,7 +109,7 @@ class ditto {
             }
 
             $this->addField($name,$location,$type);
-            if ($callback) {
+            if ($callback && is_callable($callback)) {
                 call_user_func_array($callback, array($name));
             }
         }
