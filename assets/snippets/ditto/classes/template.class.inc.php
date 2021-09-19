@@ -221,10 +221,13 @@ class template{
             $template = $tpl;
         } elseif(strpos($tpl, '@DOCUMENT') === 0) {
             $docid = trim(substr($tpl, 10));
-            if(preg_match('@^[1-9][0-9]*$@',$docid))
+            if(preg_match('@^[1-9][0-9]*$@',$docid)) {
                 $template = evo()->getField('content',$docid);
-        } else {
+            }
+        } elseif(evo()->hasChunk($tpl)) {
             $template = evo()->getChunk($tpl);
+        } else {
+            $template = $tpl;
         }
 
         if(strpos($template,'[!')!==false) {
