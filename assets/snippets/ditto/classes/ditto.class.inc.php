@@ -339,7 +339,10 @@ class ditto {
         else {
             $output = $this->template->replace(
                 $contentVars,
-                $this->template->replace($placeholders,$output)
+                $this->template->replace(
+                    $placeholders,
+                    $output
+                )
             );
         }
 
@@ -1188,10 +1191,12 @@ class ditto {
             return false;
         }
         $next = $start + $summarize;
-        if(strpos($tplPaginateNext,'lang:next')!==false)
-            $tplPaginateNext = str_replace('lang:next','lang%next',$tplPaginateNext);
-        if(strpos($tplPaginatePrevious,'lang:previous')!==false)
-            $tplPaginatePrevious = str_replace('lang:previous','lang%previous',$tplPaginatePrevious);
+        if(strpos($tplPaginateNext,'lang:next')!==false) {
+            $tplPaginateNext = str_replace('lang:next', 'lang%next', $tplPaginateNext);
+        }
+        if(strpos($tplPaginatePrevious,'lang:previous')!==false) {
+            $tplPaginatePrevious = str_replace('lang:previous', 'lang%previous', $tplPaginatePrevious);
+        }
         $rNext =  evo()->parseText(
             array(
                 'url'=> self::buildURL('start=' . $next),
@@ -1210,7 +1215,7 @@ class ditto {
                 foreach($args as $k=>$v) {
                     $args[$k] = sprintf('%s=%s', $k, $v);
                 }
-                $args = join('&',$args);
+                $args = implode('&',$args);
             }
             $prevUrl = evo()->makeUrl(
                 evo()->documentIdentifier,'',$args
@@ -1284,7 +1289,7 @@ class ditto {
             $max_x = $totalpages - 1;
             $min_x = $max_x - $max_paginate + 1;
         }
-        $pages = '';
+        $pages = array();
         for ($x = 0; $x <= $totalpages -1; $x++) {
             $inc = $x * $summarize;
             $display = $x +1;
@@ -1293,20 +1298,23 @@ class ditto {
                 continue;
             }
 
-            if ($inc != $start) {
-                $pages .= evo()->parseText(
-                    $tplPaginatePage
-                    , array('url'=> self::buildURL('start=' . $inc),'page'=>$display)
+            if ($inc == $start) {
+                evo()->setPlaceholder($dittoID . 'currentPage', $display);
+                $pages[] = evo()->parseText(
+                    $tplPaginateCurrentPage
+                    , array('page' => $display)
                 );
             } else {
-                evo()->setPlaceholder($dittoID. 'currentPage', $display);
-                $pages .= evo()->parseText(
-                    $tplPaginateCurrentPage
-                    , array('page'=>$display)
+                $pages[] = evo()->parseText(
+                    $tplPaginatePage
+                    , array(
+                        'url' => self::buildURL('start=' . $inc),
+                        'page' => $display
+                        )
                 );
             }
             if($x < $max_x) {
-                $pages .= $paginateSplitterCharacter;
+                $pages[] = $paginateSplitterCharacter;
             }
         }
         if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
@@ -1315,7 +1323,7 @@ class ditto {
                     'next'     => $nextplaceholder,
                     'previous' => $previousplaceholder,
                     'prev'     => $previousplaceholder,
-                    'pages'    => $pages
+                    'pages'    => implode("\n", $pages)
                 )
                 ,$dittoID
             );
