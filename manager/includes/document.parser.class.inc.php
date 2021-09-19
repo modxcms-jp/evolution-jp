@@ -3986,6 +3986,23 @@ class DocumentParser {
         );
     }
 
+    public function hasChunk($chunk_name) {
+        static $db = null;
+        if($db===null) {
+            $db = array();
+            $rs = db()->select(
+                'name,snippet,published'
+                , '[+prefix+]site_htmlsnippets'
+                , 'published=1'
+            );
+            while ($row = db()->getRow($rs)) {
+                $db[$row['name']] = $row;
+                $this->chunkCache[$row['name']] = $row['snippet'];
+            }
+        }
+        return isset($db[$chunk_name]);
+    }
+
     private function _return_chunk_value($chunk_name, $value, $isCache) {
         $params = array(
             'name' => $chunk_name,
