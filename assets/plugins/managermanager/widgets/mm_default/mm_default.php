@@ -2,30 +2,30 @@
 /**
  * mm_default
  * @version 1.1 (2012-11-13)
- * 
+ *
  * Sets a default value for a field when creating a new document.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_default/1.1
- * 
+ *
  * @copyright 2012
  */
 
 function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 	global $mm_fields;
-	
+
 	// if we aren't creating a new document or folder, we don't want to do this
 	// Which action IDs so we want to do this for?
 	// 85 =
 	// 4  =
 	// 72 = Create new weblink
-	
+
 	$allowed_actions = array('85','4','72');
 	if (!in_array(manager()->action, $allowed_actions)){
 		return;
 	}
-	
+
 	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }

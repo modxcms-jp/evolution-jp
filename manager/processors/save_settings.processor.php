@@ -9,7 +9,7 @@ if (!evo()->hasPermission('settings')) {
 
 $warnings = warnings();
 if ($warnings) {
-    manager()->saveFormValues('17');
+    manager()->saveFormValues(17);
     evo()->webAlertAndQuit(implode("\n", $warnings), 'index.php?a=17');
     exit;
 }

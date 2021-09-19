@@ -56,11 +56,11 @@ class template{
                     case 'base':
                         $displayName = 'tpl';
                     break;
-                    
+
                     case 'default':
                         $displayName = 'tpl';
                     break;
-                    
+
                     default:
                         $displayName = 'tpl' .$tplName;
                     break;
@@ -97,7 +97,7 @@ class template{
 
         return false;
     }
-    
+
     function getTagsFromContent($tpl) {
         global $modx;
         
@@ -133,7 +133,7 @@ class template{
             'xml' => array (),
             'unknown' => array()
         );
-        
+
         $custom = array('author', 'date', 'url', 'title', 'ditto_iteration', 'class');
 
         foreach ($fieldList as $field) {
@@ -159,7 +159,7 @@ class template{
             }else if (in_array($field, $custom)) {
                 $fields['custom'][] = $field;
             }else {
-                $fields['unknown'][] = $field; 
+                $fields['unknown'][] = $field;
             }
         }
         return $fields;
@@ -182,7 +182,7 @@ class template{
     // ---------------------------------------------------
     // Function: determine
     // Determine the correct template to apply
-    // ---------------------------------------------------        
+    // ---------------------------------------------------
     public function determine($templates, $x, $start, $stop, $id) {
         global $modx;
 
@@ -199,7 +199,7 @@ class template{
         }
         if ($x == ($stop -1) && !empty($templates['last'])) {
             $currentTPL = 'last';
-        } 
+        }
         $this->current = $currentTPL;
         return $templates[$currentTPL];
     }
@@ -207,7 +207,7 @@ class template{
     // ---------------------------------------------------
     // Function: fetch
     // Get a template, based on version by Doze
-    // 
+    //
     // http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
     // ---------------------------------------------------
     public function fetch($tpl){
@@ -230,7 +230,7 @@ class template{
         } else {
             $template = $modx->getChunk($tpl);
         }
-        
+
         if(strpos($template,'[!')!==false) {
             $template = str_replace(array('[!', '!]'), array('[[', ']]'), $template);
         }

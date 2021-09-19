@@ -183,7 +183,7 @@ class truncate{
 		$this->link = false;
 		$closeTags = true;
 		// summary is turned off
-		
+
 		if ((strpos($resource['content'], $splitter) !== false) && $truncsplit) {
 		    // HTMLarea/XINHA encloses it in paragraph's
 			$summary = explode('<p>' . $splitter . '</p>', $resource['content']);
@@ -194,7 +194,7 @@ class truncate{
 			$summary = $summary['0'];
 			$this->link = '[~' . $resource['id'] . '~]';
 			$this->summaryType = "content";
-	
+
 			// fall back to the summary text
 		} else if (mb_strlen($resource['introtext']) > 0) {
 				$summary = $resource['introtext'];
