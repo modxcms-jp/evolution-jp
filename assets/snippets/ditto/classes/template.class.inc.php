@@ -99,9 +99,7 @@ class template{
     }
 
     function getTagsFromContent($tpl) {
-        global $modx;
-        
-        $matches = $modx->getTagsFromContent($tpl,'[+','+]');
+        $matches = evo()->getTagsFromContent($tpl,'[+','+]');
         if(!$matches) return false;
         foreach($matches[1] as $v) {
             if(strpos($v,'[+')!=false) {
@@ -184,14 +182,12 @@ class template{
     // Determine the correct template to apply
     // ---------------------------------------------------
     public function determine($templates, $x, $start, $stop, $id) {
-        global $modx;
-
         // determine current template
         $currentTPL = 'base';
         if ($x % 2 && !empty($templates['alt'])) {
             $currentTPL = 'alt';
         }
-        if ($id == $modx->documentObject['id'] && !empty($templates['current'])){
+        if ($id == evo()->documentObject['id'] && !empty($templates['current'])){
             $currentTPL = 'current';
         }
         if ($x == 0 && !empty($templates['first'])) {
@@ -211,14 +207,14 @@ class template{
     // http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
     // ---------------------------------------------------
     public function fetch($tpl){
-        global $modx;
         $template = '';
         if(strpos($tpl, '@CHUNK') === 0) {
-            $template = $modx->getChunk(substr($tpl, 7));
+            $template = evo()->getChunk(substr($tpl, 7));
         } elseif(strpos($tpl, '@FILE') === 0) {
             $path = trim(substr($tpl, 6));
-            if(strpos($path, $modx->config['base_url'].'manager/includes/config.inc.php')===false)
+            if(strpos($path, MODX_BASE_URL.'manager/includes/config.inc.php')===false){
                 $template = file_get_contents($path);
+            }
         } elseif(strpos($tpl, '@CODE') === 0) {
             $template = substr($tpl, 6);
         } elseif(strpos($tpl, '[+') !==false) {
@@ -226,9 +222,9 @@ class template{
         } elseif(strpos($tpl, '@DOCUMENT') === 0) {
             $docid = trim(substr($tpl, 10));
             if(preg_match('@^[1-9][0-9]*$@',$docid))
-                $template = $modx->getField('content',$docid);
+                $template = evo()->getField('content',$docid);
         } else {
-            $template = $modx->getChunk($tpl);
+            $template = evo()->getChunk($tpl);
         }
 
         if(strpos($template,'[!')!==false) {
