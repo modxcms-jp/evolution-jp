@@ -293,10 +293,10 @@ function selected($cond) {
 
 function pr($content) {
     if(is_array($content)) {
-        echo '<pre>' . print_r($content, true) . '</pre>';
+        echo '<pre>' . print_r(array_map('hsc',$content), true) . '</pre>';
         return;
     }
-    echo '<pre>' . $content . '</pre>';
+    echo '<pre>' . hsc($content) . '</pre>';
 }
 
 function real_ip() {
