@@ -22,6 +22,7 @@ if (formv('reset_template')) {
     reset_template();
 }
 
+cleanup_tv();
 evo()->clearCache();
 setPermission();
 header("Location: index.php?a=7&r=10");
@@ -234,3 +235,24 @@ function reset_template(){
     }
 }
 
+function cleanup_tv() {
+    $rs = db()->select(
+        'DISTINCT contentid',
+        array(
+            '[+prefix+]site_tmplvar_contentvalues tvc',
+            'LEFT JOIN [+prefix+]site_content doc ON doc.id=tvc.contentid'
+        ),
+        'doc.id IS NULL'
+    );
+    if(!db()->count($rs)) {
+        return;
+    }
+    $docs = array();
+    while($row = db()->getRow($rs)) {
+        $docs[] = $row['contentid'];
+    }
+    db()->delete(
+        '[+prefix+]site_tmplvar_contentvalues',
+        where_in('contentid', $docs)
+    );
+}
