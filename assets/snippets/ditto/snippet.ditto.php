@@ -737,10 +737,10 @@ if (isset($hiddenFields)) {
     [NULL]
 */
 $offset = isset($start) ? $start : 0;
-if (evo()->array_get(event()->params, 'paginate') && evo()->input_get($dittoID . 'start')) {
-    $start = (int)$_GET[$dittoID . 'start'];
-} else {
+if (empty($paginate) || !getv($dittoID . 'start')) {
     $start = 0;
+} else {
+    $start = (int)getv($dittoID . 'start');
 }
 /*
     Param: start
