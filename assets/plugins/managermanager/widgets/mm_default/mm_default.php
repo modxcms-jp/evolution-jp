@@ -32,6 +32,12 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 
 // What's the new value, and does it include PHP?
     $new_value = ($eval) ? eval($value) : $value;
+    if($field==='template' && doc('template')!=$new_value) {
+        echo '<script>jQuery(function(){documentDirty=false;';
+        echo "jQuery('#mutate input[name=\"a\"]').val(4);";
+        echo "jQuery('#mutate input[name=\"newtemplate\"]').val(" . $new_value . ");";
+        echo "jQuery('#mutate').submit();});</script>";
+    }
 
     $output = "//  -------------- mm_default :: Begin ------------- \n";
 
