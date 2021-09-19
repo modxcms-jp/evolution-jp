@@ -4,27 +4,33 @@
 // ---------------------------------------------------
 function determineLink($resource) {
 	global $ditto_object,$ditto_summary_params,$ditto_summary_link;
-	if ($ditto_summary_link !== false) {
-		$parameters = array(
-			"url" => $ditto_summary_link,
-			"text" => $ditto_summary_params["text"],
-		);
-		$tplTrunc = $ditto_summary_params["trunc_tpl"];
-		if ($tplTrunc !== false) {
-			$source = $tplTrunc;
-		} else {
-			$source = '<a href="[+url+]" title="[+text+]">[+text+]</a>';
-		}
-		return $ditto_object->template->replace($parameters,$source);
-	}
-
-    return '';
+	if ($ditto_summary_link === false) {
+        return '';
+    }
+    return $ditto_object->template->replace(
+        array(
+            "url" => $ditto_summary_link,
+            "text" => $ditto_summary_params["text"],
+        ),
+        $ditto_summary_params['trunc_tpl'] === false
+            ? '<a href="[+url+]" title="[+text+]">[+text+]</a>'
+            : $ditto_summary_params['trunc_tpl']
+    );
 }
 function determineSummary($resource) {
 	global $ditto_summary_params;
 	$trunc = new truncate();
 	$p = $ditto_summary_params;
-	$output = $trunc->execute($resource, $p['trunc'], $p['splitter'], $p['text'], $p['length'], $p['offset'], $p['splitter'], true);
+	$output = $trunc->execute(
+	    $resource,
+        $p['trunc'],
+        $p['splitter'],
+        $p['text'],
+        $p['length'],
+        $p['offset'],
+        $p['splitter'],
+        true
+    );
 	$GLOBALS['ditto_summary_link'] = $trunc->link;
 	$GLOBALS['ditto_summary_type'] = $trunc->summaryType;
 	return $output;
@@ -34,85 +40,52 @@ function determineSummary($resource) {
 // Truncate Class
 // ---------------------------------------------------
 class truncate{
-	var $summaryType,$link;
+	public $summaryType,$link;
 
 	function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars=false) {
+		if (mb_strlen($posttext) <= $minimum_length || $truncChars == 1) {
+            return $this->textTrunc($posttext, $minimum_length + $length_offset);
+        }
 
-		// $minimum_length:
-		// The approximate length you want the concatenated text to be
+        // Reset tag counter & quote checker
+        $tag_counter = 0;
+        $quotes_on = false;
+        $c = 0;
+        for ($i = 0, $iMax = mb_strlen($posttext); $i < $iMax; $i++) {
+            $current_char = mb_substr($posttext, $i, 1);
+            $next_char = $i >= (strlen($posttext) - 1) ? '' : mb_substr($posttext, $i + 1, 1);
+            if (!$quotes_on) {
+                if ($current_char === '<') {
+                    $tag_counter = $next_char === '/' ? $tag_counter + 1 : $tag_counter + 3;
+                }
+                if ($current_char === '/' && $tag_counter <> 0) $tag_counter -= 2;
+                if ($current_char === '>') $tag_counter -= 1;
+                if ($current_char === '"') $quotes_on = true;
+            } else {
+                if ($current_char === '"') {
+                    $quotes_on = false;
+                }
+            }
 
+            if ($tag_counter == 2 || $tag_counter == 0) {
+                $c++;
+            }
 
-		// $length_offset:
-		// The variation in how long the text can be in this example text
-		// length will be between 200 and 200-20=180 characters and the
-		// character where the last tag ends
-
-		// Reset tag counter & quote checker
-		$tag_counter = 0;
-		$quotes_on = false;
-		// Check if the text is too long
-		if (mb_strlen($posttext) > $minimum_length && $truncChars != 1) {
-
-			// Reset the tag_counter and pass through (part of) the entire text
-			$c = 0;
-			for ($i = 0, $iMax = mb_strlen($posttext); $i < $iMax; $i++) {
-				// Load the current character and the next one
-				// if the string has not arrived at the last character
-				$current_char = mb_substr($posttext,$i,1);
-				if ($i < strlen($posttext) - 1) {
-					$next_char = mb_substr($posttext,$i + 1,1);
-				}
-				else {
-					$next_char = '';
-				}
-				// First check if quotes are on
-				if (!$quotes_on) {
-					// Check if it's a tag
-					// On a "<" add 3 if it's an opening tag (like <a href...)
-					// or add only 1 if it's an ending tag (like </a>)
-					if ($current_char === '<') {
-						if ($next_char === '/') {
-							$tag_counter += 1;
-						}
-						else {
-							$tag_counter += 3;
-						}
-					}
-					// Slash signifies an ending (like </a> or ... />)
-					// substract 2
-					if ($current_char === '/' && $tag_counter <> 0) $tag_counter -= 2;
-					// On a ">" substract 1
-					if ($current_char === '>') $tag_counter -= 1;
-					// If quotes are encountered, start ignoring the tags
-					// (for directory slashes)
-					if ($current_char === '"') $quotes_on = true;
-				}
-				else {
-					// IF quotes are encountered again, turn it back off
-					if ($current_char === '"') $quotes_on = false;
-				}
-
-				// Count only the chars outside html tags
-				if($tag_counter == 2 || $tag_counter == 0){
-					$c++;
-				}
-
-				// Check if the counter has reached the minimum length yet,
-				// then wait for the tag_counter to become 0, and chop the string there
-				if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
-					$posttext = mb_substr($posttext,0,$i + 1);
-					return $posttext;
-				}
-			}
-		}
-		return $this->textTrunc($posttext, $minimum_length + $length_offset);
+            if ($c > $minimum_length - $length_offset && $tag_counter == 0) {
+                $posttext = mb_substr($posttext, 0, $i + 1);
+                return $posttext;
+            }
+        }
+        return $this->textTrunc($posttext, $minimum_length + $length_offset);
 	}
 
 	function textTrunc($string, $limit, $break="。") {
 		global $modx;
-		
+
 		mb_internal_encoding($modx->config['modx_charset']);
-		if(mb_strwidth($string) <= $limit) return $string;
+		if(mb_strwidth($string) <= $limit) {
+            return $string;
+        }
 
 		$string = mb_strimwidth($string, 0, $limit);
 		if(false !== ($breakpoint = mb_strrpos($string, $break))) {
@@ -137,12 +110,11 @@ class truncate{
 		}
 
 		$c = 0;
-		$loopCounter = count($closeTags[1]); //used to prevent an infinite loop if the html is malformed
+		$loopCounter = count($closeTags[1]);
 		while ($c < count($closeTags[1]) && $loopCounter) {
 			$i = 0;
 			while ($i < count($openTags[1])) {
 				$tag = trim($openTags[1][$i]);
-
 				if (strpos($tag, ' ') !== false) {
 					$tag = substr($tag, 0, strpos($tag, ' '));
 				}
@@ -196,13 +168,13 @@ class truncate{
 			$this->summaryType = "content";
 
 			// fall back to the summary text
-		} else if (mb_strlen($resource['introtext']) > 0) {
+		} elseif (mb_strlen($resource['introtext']) > 0) {
 				$summary = $resource['introtext'];
 				$this->link = '[~' . $resource['id'] . '~]';
 				$this->summaryType = 'introtext';
 				$closeTags = false;
 				// fall back to the summary text count of characters
-		} else if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+		} elseif (strlen($resource['content']) > $truncLen && $trunc == 1) {
 				$summary = $this->html_substr($resource['content'], $truncLen, $truncOffset, $truncChars);
 				$this->link = '[~' . $resource['id'] . '~]';
 				$this->summaryType = "content";
@@ -214,7 +186,6 @@ class truncate{
 		}
 
 		// Post-processing to clean up summaries
-		$summary = ($closeTags === true) ? $this->closeTags($summary) : $summary;
-		return $summary;
+        return !$closeTags ? $summary : $this->closeTags($summary);
 	}
 }
