@@ -296,7 +296,7 @@ class DocumentParser {
             $this->sendErrorPage();
             return;
         }
-        
+
         if (!$this->documentIdentifier) {
             $this->documentIdentifier = $this->getDocumentIdentifier(
                 $this->decoded_request_uri
@@ -307,7 +307,7 @@ class DocumentParser {
                 $this->documentIdentifier
             );
         }
-        
+
 
         if (!$this->documentIdentifier) {
             $this->sendErrorPage();
@@ -3571,7 +3571,7 @@ class DocumentParser {
         if (!isset($doc[$docid])) {
             $doc[$docid] = $this->getDocumentObject('id', $docid);
         }
-        
+
         if (isset($doc[$docid][$field]) && is_array($doc[$docid][$field])) {
             $cached[$docid][$field] = $this->tvProcessor($doc[$docid][$field]);
             return $cached[$docid][$field];
@@ -3924,7 +3924,7 @@ class DocumentParser {
         return $this->config[$name];
     }
 
-    function getChunk($chunk_name) {
+    public function getChunk($chunk_name) {
         $chunk_name = trim($chunk_name);
         if ($chunk_name === '') {
             return false;
