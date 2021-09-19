@@ -3946,42 +3946,9 @@ class DocumentParser {
             );
         }
 
-        $rs = db()->select(
-            'name,snippet,published'
-            , '[+prefix+]site_htmlsnippets'
-            , 'published=1'
-        );
-
-        if (!db()->count($rs)) {
-            return $this->_return_chunk_value(
-                $chunk_name
-                , ''
-                , false
-            );
-        }
-
-        $db = array();
-        while ($row = db()->getRow($rs)) {
-            $name = $row['name'];
-            $db[$name] = $row;
-            if ($row['published'] && !isset($this->chunkCache[$name])) {
-                $this->chunkCache[$name] = $row['snippet'];
-            }
-        }
-
-        if (isset($db[$chunk_name]['snippet'])) {
-            $value = $db[$chunk_name]['snippet'];
-        } else {
-            $value = '';
-        }
-
-        if (!isset($db[$chunk_name]['published']) || $db[$chunk_name]['published'] != 0) {
-            $this->chunkCache[$chunk_name] = $value;
-        }
-
         return $this->_return_chunk_value(
             $chunk_name
-            , $value
+            , !$this->hasChunk($chunk_name) ? '' : $this->chunkCache[$chunk_name]
             , false
         );
     }
