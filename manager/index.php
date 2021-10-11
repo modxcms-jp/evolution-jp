@@ -148,7 +148,7 @@ if (isset($_POST['stay']) && $_POST['stay'] !== 'new') {
 }
 
 // invoke OnManagerPageInit event
-// If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin. 
+// If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin.
 //   ex)$modx->event->setGlobalVariable('action',999);
 $tmp = array("action" => $modx->manager->action);
 $evtOutOnMPI = evo()->invokeEvent("OnManagerPageInit", $tmp);
@@ -221,7 +221,7 @@ if (in_array($modx->manager->action, array(
 }
 
 switch ($modx->manager->action) {
-    case 1 : //frame management - show the requested frame  
+    case 1 : //frame management - show the requested frame
         // get the requested frame
         if (isset($_REQUEST['f'])) {
             $frame = $_REQUEST['f'];
@@ -302,7 +302,7 @@ switch ($modx->manager->action) {
     case 32: // get the save user processor
         include_once($prc_path . 'permission/save_user.processor.php');
         break;
-    case 74: // get the edit user profile page 
+    case 74: // get the edit user profile page
         include_once($action_path . 'permission/mutate_user_pf.dynamic.php');
         break;
     case 28: // get the change password page
