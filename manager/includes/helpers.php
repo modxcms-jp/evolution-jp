@@ -156,22 +156,11 @@ function set(&$array, $key, $value)
 }
 
 function array_get($array, $key = null, $default = null) {
-    if (evo()) {
-        return evo()->array_get($array, $key, $default);
-    }
-
     if ($key === null || trim($key) == '') {
         return $array;
     }
 
-    static $cache = array();
-    $cachekey = md5(print_r(func_get_args(), true));
-    if (isset($cache[$cachekey]) && $cache[$cachekey] !== null) {
-        return $cache[$cachekey];
-    }
-
     if (isset($array[$key])) {
-        $cache[$cachekey] = $array[$key];
         return $array[$key];
     }
     $segments = explode('.', $key);
@@ -185,7 +174,26 @@ function array_get($array, $key = null, $default = null) {
 }
 
 function array_set(&$array, $key, $value) {
-    $array[$key] = $value;
+    if (is_null($key)) {
+        return $array = $value;
+    }
+
+    $keys = explode('.', $key);
+    foreach ($keys as $i => $key) {
+        if (count($keys) === 1) {
+            break;
+        }
+        unset($keys[$i]);
+        if (! isset($array[$key]) || ! is_array($array[$key])) {
+            $array[$key] = [];
+        }
+
+        $array = &$array[$key];
+    }
+
+    $array[array_shift($keys)] = $value;
+
+    return $array;
 }
 
 function request_intvar($key) {
