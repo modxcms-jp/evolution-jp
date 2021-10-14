@@ -1,27 +1,5 @@
-# general
-.project
-*.tmp
-*.bak
-*.swp
-*~.nib
-
-# Windows
-Thumbs.db
-Desktop.ini
-
-# Mac
-.DS_Store
-
-#Translations
-*.mo
-
-#MODX-JP
 .htaccess
-assets/cache
-!assets/cache/index.html
-content/
-config.inc.php
-temp
 
-#PhpStorm
+#IDE
 .idea
+.vscode
