@@ -17,8 +17,9 @@ function jsAlert($msg) {
         echo $msg;
     } else {
         echo sprintf(
-            "<script>alert('%s');history.go(-1);</script>"
-            , db()->escape($msg)
+            "<script>alert('%s');location.href='%s';</script>",
+            hsc($msg),
+            MODX_MANAGER_URL
         );
     }
 }
