@@ -35,7 +35,7 @@ function base_path() {
     exit('base_path not defined.');
 }
 
-function lang($key) {
+function lang($key, $default=null) {
     global $_lang;
     if (!$_lang) {
         include MODX_CORE_PATH . sprintf(
@@ -43,7 +43,7 @@ function lang($key) {
                 , evo()->config('manager_language', 'english')
             );
     }
-    return array_get($_lang, $key, $key);
+    return array_get($_lang, $key, $default ? $default : $key);
 }
 
 function style($key) {
