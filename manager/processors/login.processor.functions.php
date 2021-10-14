@@ -5,7 +5,7 @@ if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
 }
 
 function checkSafedUri() {
-    if (strpos(urldecode(evo()->server_var('REQUEST_URI')), "'") === false) {
+    if (strpos(urldecode(request_uri()), "'") === false) {
         return;
     }
     jsAlert('This is illegal login.');
@@ -210,9 +210,9 @@ function checkAllowedIp() {
         return true;
     }
 
-    $hostname = gethostbyaddr(evo()->server_var('REMOTE_ADDR'));
-    if ($hostname !== false && $hostname != evo()->server_var('REMOTE_ADDR')) {
-        if (gethostbyname($hostname) != evo()->server_var('REMOTE_ADDR')) {
+    $hostname = gethostbyaddr(serverv('REMOTE_ADDR'));
+    if ($hostname !== false && $hostname != serverv('REMOTE_ADDR')) {
+        if (gethostbyname($hostname) != serverv('REMOTE_ADDR')) {
             jsAlert("Your hostname doesn't point back to your IP!");
             return false;
         }
@@ -221,7 +221,7 @@ function checkAllowedIp() {
         ','
         , str_replace(' ', '', user_config('allowed_ip'))
     );
-    if (in_array(evo()->server_var('REMOTE_ADDR'), $allowed_ip)) {
+    if (in_array(serverv('REMOTE_ADDR'), $allowed_ip)) {
         return true;
     }
 
