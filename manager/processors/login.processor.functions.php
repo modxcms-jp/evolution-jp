@@ -12,8 +12,7 @@ function checkSafedUri() {
 }
 
 function jsAlert($msg) {
-    global $modx, $modx_manager_charset;
-    header('Content-Type: text/html; charset=' . $modx_manager_charset);
+    header('Content-Type: text/html; charset=UTF-8');
     if (postv('ajax') == 1) {
         echo $msg;
     } else {
