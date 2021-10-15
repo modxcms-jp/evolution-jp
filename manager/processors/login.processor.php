@@ -39,8 +39,7 @@ if (!checkAllowedIp() || !checkAllowedDays()) {
 evo()->loadExtension('ManagerAPI');
 
 // invoke OnManagerAuthentication event
-$rt = OnManagerAuthentication();
-if (!$rt) {
+if (!OnManagerAuthentication()) {
     if (!validPassword(input('password'), user('password'))) {
         jsAlert(alert()->errors[901]);
         failedLogin();
