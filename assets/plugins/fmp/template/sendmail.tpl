@@ -1,6 +1,6 @@
 [+intro+]
 
-[(site_url)]manager/index.php?fmpkey=[+fmpkey+]
+[(site_url)]manager/?fmpkey=[+fmpkey+]
 [+link+]
 
 [+instructions+]

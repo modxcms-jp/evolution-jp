@@ -10,6 +10,54 @@ class ForgotManagerPassword {
         $this->setLang();
     }
 
+    public function run() {
+        $i = event()->name;
+
+        if (getv('fmpkey') && $i === 'OnManagerLoginFormPrerender') {
+            $this->redirectLoginProcessor(getv('fmpkey'));
+            return;
+        }
+
+        if ($i === 'OnManagerLoginFormRender') {
+            event()->output(
+                $this->showPrompt(
+                    getv('action'),
+                    getv('email')
+                )
+            );
+            return;
+        }
+
+        if ($i === 'OnManagerAuthentication') {
+            $this->sweepExpiredTransient();
+            if(!getv('fmpkey')) {
+                return;
+            }
+            $user_id = $this->getUserIdByHash(getv('fmpkey'));
+            if($user_id) {
+                $_SESSION['mgrForgetPassword'] = '1';
+                if (getv('captcha_code')) {
+                    $_SESSION['veriword'] = getv('captcha_code');
+                }
+                $this->unBlock($user_id);
+            }
+            event()->output($user_id ? true : false);
+        }
+
+        if($i === 'OnManagerLogin') {
+            $this->sweepTransient(
+                evo()->getLoginUserID()
+            );
+        }
+
+        if ($i === 'OnManagerChangePassword') {
+            if (isset($_SESSION['mgrForgetPassword'])) {
+                unset($_SESSION['mgrForgetPassword']);
+            }
+            return;
+        }
+    }
+
     private function lang($key, $default=null) {
         if(!isset($this->lang[$key])) {
             return $default;
@@ -37,61 +85,26 @@ class ForgotManagerPassword {
         }
     }
 
-    public function run() {
-        $i = event()->name;
-        if ($i === 'OnManagerLoginFormRender') {
-            event()->output(
-                $this->showPrompt(
-                    $this->getVar('action'),
-                    $this->getVar('email')
-                )
-            );
-            return;
+    private function redirectLoginProcessor($fmpkey) {
+        $user = $this->getUserByHash($fmpkey);
+        if(!isset($user['email'])) {
+            exit('ユーザが存在しません。');
         }
 
-        if ($i === 'OnManagerChangePassword') {
-            if (isset($_SESSION['mgrForgetPassword'])) {
-                unset($_SESSION['mgrForgetPassword']);
-            }
-            return;
-        }
 
-        $key = $this->getVar('fmpkey');
-
-        if ($i === 'OnManagerLoginFormPrerender') {
-            $this->redirectLoginProcessor($key);
-            return;
-        }
-
-        if ($i === 'OnBeforeManagerLogin') {
-            $this->unBlock($key);
-            return;
-        }
-
-        if ($i === 'OnManagerAuthentication') {
-            event()->output($this->getAuthStatus($key));
-        }
-    }
-
-    private function redirectLoginProcessor($key) {
-        if(!$key) {
-            return;
-        }
-
-        $user = $this->getUser($key);
         header(
             sprintf(
-                'Location:%smanager/processors/login.processor.php?username=%s&fmpkey=%s%s'
-                , MODX_SITE_URL
-                , $user['username']
-                , $key
-                , evo()->config['use_captcha']==='1' ? '&captcha_code=ignore' : ''
+                'Location:%smanager/processors/login.processor.php?username=%s&fmpkey=%s%s',
+                MODX_SITE_URL,
+                $user['email'],
+                $fmpkey,
+                evo()->config('use_captcha') ? '&captcha_code=ignore' : ''
             )
         );
         exit;
     }
 
-    private function showPrompt($action,$to) {
+    private function showPrompt($action,$email) {
         if ($action==='show_form') {
             return $this->getForm();
         }
@@ -104,7 +117,7 @@ class ForgotManagerPassword {
         if($action !== 'send_email') {
             return $link;
         }
-        if (!$this->sendEmail($to)) {
+        if (!$this->sendEmail($email)) {
             return $this->getErrorOutput() . $link;
         }
         return $this->lang('email_sent');
@@ -121,40 +134,16 @@ class ForgotManagerPassword {
         return '';
     }
 
-    private function unBlock($key) {
-        if(!$key) {
-            return;
-        }
-
-        $user = $this->getUser($key);
-        if (!isset($user['id'])) {
-            $this->errors[] = $this->lang('user_doesnt_exist');
-            return;
-        }
-
-        if($this->errors) {
-            return;
-        }
+    private function unBlock($user_id) {
         db()->update(
-            'blocked=0,blockeduntil=0,failedlogincount=0'
-            , '[+prefix+]user_attributes'
-            , sprintf("internalKey='%s'", $user['id'])
+            array(
+                'blocked'          => 0,
+                'blockeduntil'     => 0,
+                'failedlogincount' => 0
+            ),
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%s'", $user_id)
         );
-    }
-
-    private function getAuthStatus($key) {
-        if(empty($key)) {
-            return false;
-        }
-        $_SESSION['mgrForgetPassword'] = '1';
-        if(!$this->getUser($key) || count($this->errors) != 0) {
-            return false;
-        }
-        $captcha_code = $this->getVar('captcha_code');
-        if ($captcha_code !== false) {
-            $_SESSION['veriword'] = $captcha_code;
-        }
-        return true;
     }
 
     private function getForm()
@@ -165,59 +154,128 @@ class ForgotManagerPassword {
         );
     }
 
-    /* Get user info including a hash unique to this user, password, and day */
-    private function getUser($key='',$target='key') {
-        if(!$key || !is_string($key)) {
+    private function getUserByHash($fmpkey) {
+        if(!$fmpkey) {
+            return false;
+        }
+        $user_id = $this->getUserIdByHash($fmpkey);
+        if(!$user_id) {
             return false;
         }
 
-        if ($target==='key') {
-            $where = sprintf(
-                "MD5(CONCAT(attr.lastlogin,usr.password))='%s'"
-                , db()->escape($key)
-            );
-        } elseif($target==='email') {
-            $where = sprintf("attr.email='%s'", db()->escape($key));
-        } else {
-            $where = '';
-        }
-
-        $result = db()->select(
-            'usr.id, usr.username, attr.email, MD5(CONCAT(attr.lastlogin,usr.password)) AS `key`'
-            , array(
-                '[+prefix+]manager_users usr',
-                'INNER JOIN [+prefix+]user_attributes attr ON usr.id=attr.internalKey'
+        return db()->getRow(
+            db()->select(
+                '*',
+                '[+prefix+]user_attributes',
+                sprintf("internalKey='%s'", $user_id),
+                null,
+                1
             )
-            , $where
-            , ''
-            , 1
         );
-        $user = $result ? db()->getRow($result) : null;
+    }
 
-        if(!$user) {
-            $this->errors[] = $this->lang('could_not_find_user');
+    private function getUserIdByHash($fmpkey) {
+        if(empty($fmpkey)) {
+            return false;
         }
-        return $user;
+        return db()->getValue(
+            db()->select(
+                'user',
+                '[+prefix+]user_settings',
+                sprintf("setting_name='fmp_hash' AND setting_value='%s'", $fmpkey)
+            )
+        );
+    }
+
+    private function readTransient($user_id, $key) {
+        return db()->getValue(
+            db()->select(
+                'setting_value',
+                '[+prefix+]user_settings',
+                sprintf(
+                    "user='%s' AND setting_name='%s'",
+                    db()->escape($user_id),
+                    db()->escape($key)
+                )
+            )
+        );
+    }
+
+    private function addTransient($user_id, $key, $value) {
+        return db()->insert(
+            db()->escape(
+                array(
+                    'user' => $user_id,
+                    'setting_name' => $key,
+                    'setting_value' => $value
+                )
+            ),
+            '[+prefix+]user_settings',
+        );
+    }
+
+    private function sweepTransient($user_id) {
+        return db()->delete(
+            '[+prefix+]user_settings',
+            array(
+                sprintf("user=%s", $user_id),
+                "AND setting_name LIKE 'fmp_%'"
+            )
+        );
+    }
+
+    private function sweepExpiredTransient() {
+        $rs = db()->select(
+            'user',
+            '[+prefix+]user_settings',
+            sprintf(
+                "setting_name='fmp_expire' AND unix_timestamp(setting_value)<%s", time()
+            )
+        );
+        $user_ids = array();
+        while($row = db()->getRow($rs)) {
+            $user_ids[] = $row['user'];
+        }
+        if(!$user_ids) {
+            return;
+        }
+        db()->delete(
+            '[+prefix+]user_settings',
+            array(
+                where_in('user', $user_ids),
+                "AND setting_name LIKE 'fmp_%'"
+            )
+        );
     }
 
     /* Send an email with a link to login */
-    private function sendEmail($to) {
-        $user = $this->getUser($to,'email');
-        if(!$user) {
-            return false;
+    private function sendEmail($email) {
+        $user_id = db()->getValue(
+            db()->select(
+                'internalKey',
+                '[+prefix+]user_attributes',
+                sprintf("email='%s'", db()->escape($email))
+            )
+        );
+        if(!$user_id) {
+            exit($this->lang('could_not_find_user'));
         }
+        $this->sweepTransient($user_id);
+        $fmpkey = easy_hash($email . mt_rand());
+        $this->addTransient($user_id, 'fmp_hash', $fmpkey);
+        $this->addTransient($user_id, 'fmp_expire', date('Y-m-d H:i:00', strtotime('+30 minutes')));
 
         $result = evo()->sendmail(
             array(
                 'subject' => $this->lang('password_change_request'),
-                'sendto' => $to
+                'sendto' => $email
             ),
             evo()->parseDocumentSource(
                 evo()->parseText(
                     file_get_contents($this->tpl_path . 'sendmail.tpl')
                     , array(
                         'intro'        => $this->lang('forgot_password_email_intro'),
-                        'fmpkey'       => $user['key'] . (evo()->config['use_captcha']==1 ? '&captcha_code=ignore' : ''),
+                        'fmpkey'       => $fmpkey . (evo()->config('use_captcha') ? '&captcha_code=ignore' : ''),
                         'link'         => $this->lang('forgot_password_email_link'),
                         'instructions' => $this->lang('forgot_password_email_instructions'),
                         'fine_print'   => $this->lang('forgot_password_email_fine_print')
@@ -230,12 +288,5 @@ class ForgotManagerPassword {
             $this->errors[] = $this->lang('error_sending_email');
         }
         return $result;
-    }
-
-    private function getVar($varName) {
-        if(!is_string(evo()->input_get($varName))) {
-            return false;
-        }
-        return trim(evo()->input_get($varName));
     }
 }
