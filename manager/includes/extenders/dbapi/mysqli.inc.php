@@ -312,6 +312,9 @@ class DBAPI {
         if (!$where && !$limit) {
             $this->truncate($from);
         }
+        if (is_array($where)) {
+            $where = implode(' ', $where);
+        }
         return $this->query(
             sprintf(
                 'DELETE FROM %s %s %s %s'
