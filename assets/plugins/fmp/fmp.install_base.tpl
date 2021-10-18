@@ -7,7 +7,7 @@
  * @category 	plugin
  * @version 	1.3
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@events OnManagerLoginFormPrerender,OnManagerLoginFormRender,OnManagerAuthentication,OnManagerChangePassword,OnManagerLogin 
+ * @internal	@events OnManagerLoginFormPrerender,OnManagerLoginFormRender,OnManagerAuthentication,OnManagerMainFrameHeaderHTMLBlock,OnManagerLogin 
  * @internal	@modx_category Manager and Admin
  * @internal    @installset base
  */
