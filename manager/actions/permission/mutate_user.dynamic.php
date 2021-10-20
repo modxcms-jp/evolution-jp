@@ -45,6 +45,8 @@ if (manager()->hasFormValues()) {
         $user['allowed_days'] = '';
     }
 }
+global $usersettings;
+$usersettings = $user;
 
 // include the country list language file
 $_country_lang = array();
