@@ -6,14 +6,11 @@ if (!sessionv('chunk') && !sessionv('installdata')) {
 
 echo sprintf('<h3>%s:</h3>', lang('chunks'));
 foreach ($tplChunks as $i => $tplInfo) {
-    if (
-        !in_array($i, sessionv('chunk'))
-        &&
-        (!sessionv('installdata') || !in_array('sample', $tplInfo['installset']))
-    ) {
-        continue;
+    if (!in_array($i, sessionv('chunk'))) {
+        if (!sessionv('installdata') || !in_array('sample', $tplInfo['installset'])) {
+            continue;
+        }
     }
-
     if (!is_file($tplInfo['tpl_file_path'])) {
         echo ng(
             $tplInfo['name']
@@ -47,7 +44,8 @@ foreach ($tplChunks as $i => $tplInfo) {
         )
     );
     if (!db()->count($rs)) {
-        if(!db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
+        $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
+        if(!$rs) {
             $errors++;
             showError();
             return;
@@ -81,7 +79,8 @@ foreach ($tplChunks as $i => $tplInfo) {
         }
         $i++;
     }
-    if(!db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets')) {
+    $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
+    if(!$rs) {
         $errors++;
         showError();
         return;
