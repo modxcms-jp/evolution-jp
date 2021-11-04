@@ -347,7 +347,7 @@ if (sessionv('result_msg')) {
                         </label>
                     </p>
                     <div>
-                        <input 
+                        <input
                             type="file"
                             name="sqlfile"
                             id="sqlfile"
@@ -469,3 +469,9 @@ if (sessionv('result_msg')) {
 
 <?php
 include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+function checked($cond) {
+    if ($cond) {
+        return 'checked';
+    }
+    return '';
+}

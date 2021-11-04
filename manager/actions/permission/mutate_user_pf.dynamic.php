@@ -513,3 +513,17 @@ function checkbox($name, $value, $label, $cond) {
     $ph['checked'] = checked($cond);
     return $modx->parseText($tpl, $ph);
 }
+
+function checked($cond) {
+    if ($cond) {
+        return 'checked';
+    }
+    return '';
+}
+
+function selected($cond) {
+    if ($cond) {
+        return 'selected';
+    }
+    return '';
+}

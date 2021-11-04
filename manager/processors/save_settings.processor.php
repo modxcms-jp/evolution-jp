@@ -25,7 +25,7 @@ if (formv('reset_template')) {
 cleanup_tv();
 evo()->clearCache();
 setPermission();
-header("Location: index.php?a=7&r=10");
+header("Location: index.php?a=7&r=9");
 
 
 

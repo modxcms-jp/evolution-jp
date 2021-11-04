@@ -24,6 +24,20 @@ function user($key, $default = null) {
     return evo()->array_get($user, $key, $default);
 }
 
+function checked($cond) {
+    if ($cond) {
+        return 'checked';
+    }
+    return '';
+}
+
+function selected($cond) {
+    if ($cond) {
+        return 'selected';
+    }
+    return '';
+}
+
 function getUser($userid) {
     $field = 'mu.*, ua.*';
     $from = array(

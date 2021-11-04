@@ -285,20 +285,6 @@ function globalv($key = null, $default = null) {
     return array_get($GLOBALS, $key, $default);
 }
 
-function checked($cond) {
-    if ($cond) {
-        return 'checked';
-    }
-    return '';
-}
-
-function selected($cond) {
-    if ($cond) {
-        return 'selected';
-    }
-    return '';
-}
-
 function pr($content) {
     if(is_array($content)) {
         echo '<pre>' . print_r(array_map('hsc',$content), true) . '</pre>';

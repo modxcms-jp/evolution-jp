@@ -724,3 +724,17 @@ function bold($cond = false) {
         return;
     }
 }
+
+function checked($cond) {
+    if ($cond) {
+        return 'checked';
+    }
+    return '';
+}
+
+function selected($cond) {
+    if ($cond) {
+        return 'selected';
+    }
+    return '';
+}
