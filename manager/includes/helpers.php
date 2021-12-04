@@ -246,9 +246,6 @@ function postv($key = null, $default = null) {
 }
 
 function cookiev($key = null, $default = null) {
-    if (evo()) {
-        return evo()->input_cookie($key, $default);
-    }
     return array_get($_COOKIE, $key, $default);
 }
 
@@ -257,18 +254,12 @@ function anyv($key = null, $default = null) {
 }
 
 function serverv($key = null, $default = null) {
-    if (evo()) {
-        return evo()->server($key, $default);
-    }
-    return array_get($_SERVER, $key, $default);
+    return array_get($_SERVER, strtoupper($key), $default);
 }
 
 function sessionv($key = null, $default = null) {
     if (strpos($key, '*') === 0) {
         return array_set($_SESSION, ltrim($key, '*'), $default);
-    }
-    if (strpos($key,'.')!==false && evo()) {
-        return evo()->session($key, $default);
     }
     return array_get($_SESSION, $key, $default);
 }
@@ -278,12 +269,8 @@ function filev($key = null, $default = null) {
 }
 
 function globalv($key = null, $default = null) {
-    if (strpos($key,'.')!==false && evo()) {
-        return evo()->global_var($key, $default);
-    }
     if (strpos($key, '*') === 0) {
-        $GLOBALS[ltrim($key, '*')] = $default;
-        return $default;
+        return array_set($GLOBALS, ltrim($key, '*'), $default);
     }
     return array_get($GLOBALS, $key, $default);
 }
