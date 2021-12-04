@@ -155,12 +155,15 @@ function set(&$array, $key, $value)
     return $array;
 }
 
-function array_get($array, $key = null, $default = null) {
+function array_get($array, $key = null, $default = null, $validate = null) {
     if ($key === null || trim($key) == '') {
         return $array;
     }
 
     if (isset($array[$key])) {
+        if ($validate && is_callable($validate) && !$validate($array[$key])) {
+            return $default;
+        }
         return $array[$key];
     }
     $segments = explode('.', $key);
@@ -169,6 +172,9 @@ function array_get($array, $key = null, $default = null) {
             return $default;
         }
         $array = $array[$segment];
+    }
+    if ($validate && is_callable($validate) && !$validate($array)) {
+        return $default;
     }
     return $array;
 }
@@ -228,9 +234,6 @@ function exprintf() {
 }
 
 function getv($key = null, $default = null) {
-    if (evo()) {
-        return evo()->input_get($key, $default);
-    }
     return array_get($_GET, $key, $default);
 }
 
