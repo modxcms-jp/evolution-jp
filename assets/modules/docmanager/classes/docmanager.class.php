@@ -1,28 +1,26 @@
 <?php
 
 class DocManager {
-    private $modx = null;
     public $lang = array();
     public $theme = '';
     private $fileRegister = array();
 
-    function __construct(&$modx) {
-        $this->modx = $modx;
+    function __construct() {
     }
 
     function getLang() {
         $_lang = array();
         $ph = array();
-        $managerLanguage = $this->modx->config['manager_language'];
+        $managerLanguage = evo()->config['manager_language'];
 
-        $userId = $this->modx->getLoginUserID();
+        $userId = evo()->getLoginUserID();
         if ($userId) {
-            $rs = $this->modx->db->select(
+            $rs = db()->select(
                 'setting_name, setting_value'
                 , '[+prefix+]user_settings'
                 , "setting_name='manager_language' AND user=".$userId
             );
-            $row = $this->modx->db->getRow($rs);
+            $row = db()->getRow($rs);
             if ($row) {
                 $managerLanguage = $row['setting_value'];
             }
@@ -47,13 +45,13 @@ class DocManager {
     }
 
     function getTheme() {
-        $theme = $this->modx->db->select(
+        $theme = db()->select(
             'setting_value'
             , '[+prefix+]system_settings'
             , "setting_name='manager_theme'"
         );
-        if ($this->modx->db->getRecordCount($theme)) {
-            $theme = $this->modx->db->getRow($theme);
+        if (db()->getRecordCount($theme)) {
+            $theme = db()->getRow($theme);
             if ($theme['setting_value'] != '') {
                 $this->theme = '/' . $theme['setting_value'];
             } else {

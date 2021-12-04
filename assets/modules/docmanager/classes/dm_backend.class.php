@@ -3,12 +3,10 @@
 class DocManagerBackend
 {
     public $dm = null;
-    public $modx = null;
 
-    public function __construct(&$dm, &$modx)
+    public function __construct(&$dm)
     {
         $this->dm = &$dm;
-        $this->modx = &$modx;
     }
 
     public function handlePostback()

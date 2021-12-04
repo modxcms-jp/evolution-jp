@@ -5,7 +5,7 @@
  * テンプレート・権限・公開／非公開などのドキュメント設定を一括変更
  * 
  * @category	module
- * @version 	1.1
+ * @version 	1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties
  * @internal	@guid 	
@@ -19,9 +19,9 @@ include_once(MODX_BASE_PATH.'assets/modules/docmanager/classes/docmanager.class.
 include_once(MODX_BASE_PATH.'assets/modules/docmanager/classes/dm_frontend.class.php');
 include_once(MODX_BASE_PATH.'assets/modules/docmanager/classes/dm_backend.class.php');
 
-$dm = new DocManager($modx);
-$dmf = new DocManagerFrontend($dm, $modx);
-$dmb = new DocManagerBackend($dm, $modx);
+$dm = new DocManager();
+$dmf = new DocManagerFrontend($dm);
+$dmb = new DocManagerBackend($dm);
 
 $dm->ph = $dm->getLang();
 $dm->ph['theme'] = $dm->getTheme();

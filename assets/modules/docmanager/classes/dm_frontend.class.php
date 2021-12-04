@@ -3,12 +3,10 @@
 class DocManagerFrontend
 {
     var $dm = null;
-    var $modx = null;
 
-    function __construct(&$dm, &$modx)
+    function __construct(&$dm)
     {
         $this->dm = &$dm;
-        $this->modx = &$modx;
         include(MODX_CORE_PATH . 'controls/datagrid.class.php');
     }
 
@@ -25,9 +23,10 @@ class DocManagerFrontend
 
     function renderTemplates()
     {
-        $templateRecordSet = $this->modx->db->select('id,templatename,description', $this->modx->getFullTableName('site_templates'), '', 'id ASC');
-
-        $grd = new DataGrid('', $templateRecordSet);
+        $grd = new DataGrid(
+            '',
+            db()->select('id,templatename,description', '[+prefix+]site_templates', '', 'id ASC')
+        );
         $grd->noRecordMsg = $this->dm->lang['DM_tpl_no_templates'];
         $grd->cssClass = "grid";
         $grd->columnHeaderClass = "gridHeader";
@@ -45,9 +44,10 @@ class DocManagerFrontend
 
     function renderTemplateVars()
     {
-        $templateRecordSet = $this->modx->db->select('id,templatename,description', $this->modx->getFullTableName('site_templates'), '', 'id ASC');
-
-        $grd = new DataGrid('', $templateRecordSet);
+        $grd = new DataGrid(
+            '',
+            db()->select('id,templatename,description', '[+prefix+]site_templates', '', 'id ASC')
+        );
         $grd->noRecordMsg = $this->dm->lang['DM_tpl_no_templates'];
         $grd->cssClass = "grid";
         $grd->columnHeaderClass = "gridHeader";
@@ -64,9 +64,10 @@ class DocManagerFrontend
 
     function renderDocGroups()
     {
-        $documentgroups = $this->modx->db->select('id,name', $this->modx->getFullTableName('documentgroup_names'), '', 'id ASC');
-
-        $grd = new DataGrid('', $documentgroups);
+        $grd = new DataGrid(
+            '',
+            db()->select('id,name', '[+prefix+]documentgroup_names', '', 'id ASC')
+        );
         $grd->noRecordMsg = $this->dm->lang['DM_doc_no_docs'];
         $grd->cssClass = "grid";
         $grd->columnHeaderClass = "gridHeader";
@@ -98,10 +99,10 @@ class DocManagerFrontend
 
     function renderChangeAuthors()
     {
-        $users = $this->modx->db->select('id,username', $this->modx->getFullTableName('manager_users'));
+        $users = db()->select('id,username', evo()->getFullTableName('manager_users'));
         $userOptions = '';
 
-        while ($row = $this->modx->db->getRow($users)) {
+        while ($row = db()->getRow($users)) {
             $userOptions .= '<option value="' . $row['id'] . '">' . $row['username'] . '</option>';
         }
         $this->dm->ph['changeauthors.options'] = $userOptions;
