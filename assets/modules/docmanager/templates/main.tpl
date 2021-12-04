@@ -46,10 +46,10 @@
             var sp;
             var id = document.newdocumentparent.id.value;
             var tdoc = parent.tree.document;
-            var pn = (tdoc.getElementById) ? tdoc.getElementById("node" + pId) : tdoc.all["node" + pId];
+            var pn = tdoc.getElementById("node" + pId);
             if (!pn) return;
             while (pn.p > 0) {
-                pn = (tdoc.getElementById) ? tdoc.getElementById("node" + pn.p) : tdoc.all["node" + pn.p];
+                pn = tdoc.getElementById("node" + pn.p);
                 if (pn.id.substr(4) == id) {
                     alert("Illegal Parent");
                     return;
