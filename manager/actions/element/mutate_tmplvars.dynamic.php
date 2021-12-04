@@ -73,7 +73,8 @@ $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt'] = $_lang['tmplvars_input_option_msg'];
 $tooltip_input_option = $modx->parseText($tooltip_tpl, $ph);
 
-function selected($cond) {
+function selected($cond)
+{
     if ($cond) {
         return 'selected';
     }

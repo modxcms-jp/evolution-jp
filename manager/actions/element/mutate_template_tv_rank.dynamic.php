@@ -103,7 +103,7 @@ $header .= '
         function save() {
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
-    	
+
         window.addEvent(\'domready\', function() {
 			new Sortables($(\'sortlist\'),
 			{
@@ -161,6 +161,3 @@ echo '
             <input type="hidden" name="listSubmitted" value="true" />
             <input type="text" id="list" name="list" value="" />
 </form>';
-
-
-?>

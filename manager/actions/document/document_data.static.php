@@ -27,17 +27,17 @@ $where = array(
 );
 if (sessionv('mgrDocgroups') && sessionv('mgrRole') != 1) {
     $where[] = sprintf(
-        "AND (sc.privatemgr=0 OR dg.document_group IN (%s))"
-        , implode(',', sessionv('mgrDocgroups'))
+        "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
+        implode(',', sessionv('mgrDocgroups'))
     );
 }
 $rs = db()->select(
-    'DISTINCT sc.*'
-    , array(
+    'DISTINCT sc.*',
+    array(
         '[+prefix+]site_content AS sc',
         'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
-    )
-    , $where
+    ),
+    $where
 );
 $total = db()->count($rs);
 if ($total > 1) {
@@ -57,9 +57,9 @@ $content = db()->getRow($rs);
  * "General" tab setup
  */
 $rs = db()->select(
-    'username'
-    , '[+prefix+]manager_users'
-    , sprintf("id='%s'", $content['createdby'])
+    'username',
+    '[+prefix+]manager_users',
+    sprintf("id='%s'", $content['createdby'])
 );
 if ($row = db()->getRow($rs)) {
     $createdbyname = $row['username'];
@@ -67,9 +67,9 @@ if ($row = db()->getRow($rs)) {
 
 // Get Editor's username
 $rs = db()->select(
-    'username'
-    , '[+prefix+]manager_users'
-    , sprintf("id='%s'", $content['editedby'])
+    'username',
+    '[+prefix+]manager_users',
+    sprintf("id='%s'", $content['editedby'])
 );
 if ($row = db()->getRow($rs)) {
     $editedbyname = $row['username'];
@@ -91,61 +91,55 @@ foreach ($content as $k => $v) {
 ?>
 <script type="text/javascript">
     function duplicatedocument() {
-        if (confirm("<?php echo $_lang['confirm_resource_duplicate'];?>") == true) {
-            document.location.href = "index.php?id=<?php echo $id;?>&a=94";
+        if (confirm("<?php echo $_lang['confirm_resource_duplicate']; ?>") == true) {
+            document.location.href = "index.php?id=<?php echo $id; ?>&a=94";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?php echo $_lang['confirm_delete_resource'];?>") == true) {
-            document.location.href = "index.php?id=<?php echo $id;?>&a=6";
+        if (confirm("<?php echo $_lang['confirm_delete_resource']; ?>") == true) {
+            document.location.href = "index.php?id=<?php echo $id; ?>&a=6";
         }
     }
 
     function editdocument() {
-        document.location.href = "index.php?id=<?php echo $id;?>&a=27";
+        document.location.href = "index.php?id=<?php echo $id; ?>&a=27";
     }
 
     function movedocument() {
-        document.location.href = "index.php?id=<?php echo $id;?>&a=51";
+        document.location.href = "index.php?id=<?php echo $id; ?>&a=51";
     }
 </script>
 <h1><?php echo $_lang['doc_data_title'] ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
-        <?php if (evo()->hasPermission('save_document')): ?>
-            <li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img
-                            src="<?php echo $_style["icons_edit_document"] ?>"/> <?php echo $_lang['edit'] ?></a></li>
+        <?php if (evo()->hasPermission('save_document')) : ?>
+            <li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit'] ?></a></li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')): ?>
-            <li id="Button2" class="mutate"><a href="#" onclick="movedocument();"><img
-                            src="<?php echo $_style["icons_move_document"] ?>"/> <?php echo $_lang['move'] ?></a></li>
+        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
+            <li id="Button2" class="mutate"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move'] ?></a></li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')): ?>
-            <li id="Button4"><a href="#" onclick="duplicatedocument();"><img
-                            src="<?php echo $_style["icons_resource_duplicate"] ?>"/> <?php echo $_lang['duplicate'] ?>
+        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
+            <li id="Button4"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate'] ?>
                 </a></li>
         <?php endif; ?>
-        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')): ?>
-            <li id="Button3"><a href="#" onclick="deletedocument();"><img
-                            src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?></a>
+        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
+            <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete'] ?></a>
             </li>
         <?php endif; ?>
-        <li id="Button6"><a href="#"
-                            onclick="<?php echo (evo()->config('friendly_urls') == 1) ? "window.open('" . evo()->makeUrl($id) . "','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img
-                        src="<?php echo $_style["icons_preview_resource"] ?>"/> <?php echo $_lang['view_resource'] ?>
+        <li id="Button6"><a href="#" onclick="<?php echo (evo()->config('friendly_urls') == 1) ? "window.open('" . evo()->makeUrl($id) . "','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['view_resource'] ?>
             </a></li>
         <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;<?php
-            if (isset($content['parent']) && $content['parent'] !== '0') {
-                echo "document.location.href='index.php?a=120&id={$content['parent']}';";
-            } elseif ($_GET['pid']) {
-                $_GET['pid'] = intval($_GET['pid']);
-                echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
-            } else {
-                echo "document.location.href='index.php?a=2';";
-            }
-            ?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a>
+                                                                                    if (isset($content['parent']) && $content['parent'] !== '0') {
+                                                                                        echo "document.location.href='index.php?a=120&id={$content['parent']}';";
+                                                                                    } elseif ($_GET['pid']) {
+                                                                                        $_GET['pid'] = intval($_GET['pid']);
+                                                                                        echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
+                                                                                    } else {
+                                                                                        echo "document.location.href='index.php?a=2';";
+                                                                                    }
+                                                                                    ?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a>
         </li>
     </ul>
 </div>
@@ -174,9 +168,10 @@ foreach ($content as $k => $v) {
                         <td width="200"><?php echo $_lang['page_data_template'] ?>:</td>
                         <td><?php
                             echo sprintf(
-                                    '%s(id:%s)',
-                                    $templatename,
-                                    $content['template']);
+                                '%s(id:%s)',
+                                $templatename,
+                                $content['template']
+                            );
                             ?>
                         </td>
                         <td>[*template*]</td>
@@ -219,7 +214,7 @@ foreach ($content as $k => $v) {
                     </tr>
                     <tr>
                         <td width="200"><?php echo $_lang['page_data_created'] ?>:</td>
-                        <td><?php echo evo()->toDateFormat($content['createdon'] + evo()->config('server_offset_time',0)) ?>
+                        <td><?php echo evo()->toDateFormat($content['createdon'] + evo()->config('server_offset_time', 0)) ?>
                             (<b><?php echo $createdbyname ?></b>)
                         </td>
                         <td>[*createdon:date*]</td>
@@ -227,7 +222,7 @@ foreach ($content as $k => $v) {
                     <?php if ($editedbyname != '') { ?>
                         <tr>
                             <td><?php echo $_lang['page_data_edited'] ?>:</td>
-                            <td><?php echo evo()->toDateFormat($content['editedon'] + evo()->config('server_offset_time',0)) ?>
+                            <td><?php echo evo()->toDateFormat($content['editedon'] + evo()->config('server_offset_time', 0)) ?>
                                 (<b><?php echo $editedbyname ?></b>)
                             </td>
                             <td>[*editedon:date*]</td>
@@ -313,16 +308,16 @@ foreach ($content as $k => $v) {
         <?php
         $cache = @file_get_contents(MODX_BASE_PATH . "assets/cache/docid_{$id}.pageCache.php");
         if ($cache) :
-            ?>
+        ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
                 <h2 class="tab"><?php echo $_lang['page_data_source'] ?></h2>
-                <?php
-                    echo sprintf(
-                        '%s<p><textarea style="width: 100%%; height: 400px;">%s</textarea>',
-                        $_lang['page_data_cached'],
-                        hsc($cache)
-                    );
+                <?=
+                sprintf(
+                    '%s<p><textarea style="width: 100%%; height: 400px;">%s</textarea>',
+                    $_lang['page_data_cached'],
+                    hsc($cache)
+                );
                 ?>
             </div><!-- end tab-page -->
         <?php endif; ?>
