@@ -1,6 +1,6 @@
 <?php
 global $errors, $tplTVs;
-if(sessionv('is_upgradeable')) {
+if (sessionv('is_upgradeable')) {
     return;
 }
 
@@ -9,14 +9,14 @@ if (!sessionv('tv') && !sessionv('installdata')) {
 }
 
 echo "<h3>" . lang('tvs') . ":</h3> ";
-foreach ($tplTVs as $i=>$tplInfo) {
-    if(in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
+foreach ($tplTVs as $i => $tplInfo) {
+    if (in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
         $installSample = true;
     } else {
         $installSample = false;
     }
 
-    if(!in_array($i, sessionv('tv')) && !$installSample) {
+    if (!in_array($i, sessionv('tv')) && !$installSample) {
         continue;
     }
 
@@ -49,7 +49,8 @@ foreach ($tplTVs as $i=>$tplInfo) {
         $tmplvarid = $dbv_tmplvar->id;
         $rs = db()->update(
             db()->escape($f),
-            '[+prefix+]site_tmplvars', "id='" . $tmplvarid . "'"
+            '[+prefix+]site_tmplvars',
+            "id='" . $tmplvarid . "'"
         );
         if (!$rs) {
             $errors += 1;
@@ -62,7 +63,7 @@ foreach ($tplTVs as $i=>$tplInfo) {
 
     // add template assignments
     $templatenames = explode(',', $tplInfo['template_assignments']);
-    if(empty($templatenames)) {
+    if (empty($templatenames)) {
         continue;
     }
 
