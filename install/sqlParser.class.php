@@ -13,15 +13,13 @@ class SqlParser {
     public $connection_collation = 'utf8_general_ci';
     public $managerlanguage = 'english';
 
-    function __construct() {
+    public function __construct() {
     }
 
-    function file_get_sql_contents($filename) {
-        if(strpos($filename,'/')===false) {
-            $path = MODX_BASE_PATH. 'install/sql/' . $filename;
-        } else {
-            $path = MODX_BASE_PATH.$filename;
-        }
+    private function file_get_sql_contents($filename) {
+        $path = strpos($filename,'/')===false
+            ? MODX_BASE_PATH. 'install/sql/' . $filename
+            : MODX_BASE_PATH.$filename;
         if (!is_file($path)) {
             $this->mysqlErrors[] = array(
                 'error' => sprintf("File '%s' not found", $path)
@@ -32,38 +30,44 @@ class SqlParser {
         return file_get_contents($path);
     }
 
-    function intoDB($filename) {
+    public function intoDB($filename) {
         $idata = $this->file_get_sql_contents($filename);
         if(!$idata) {
             return false;
         }
 
-        $dbVersion = (float) db()->getVersion();
-
-        if(version_compare($dbVersion,'4.1.0', '>=')) {
-            $char_collate = sprintf(
-                'DEFAULT CHARSET=%s COLLATE %s'
-                , $this->connection_charset
-                , $this->connection_collation
-            );
-            $idata = str_replace('ENGINE=MyISAM', "ENGINE=MyISAM {$char_collate}", $idata);
+        if(version_compare((float) db()->getVersion(), '5.0.0', '<')) {
+            exit('DBのバージョンが古いためインストールできません。');
         }
 
-        // replace {} tags
-        $ph = array(
-            'PREFIX'          => $this->prefix,
-            'ADMINNAME'       => $this->adminname,
-            'ADMINPASS'       => md5($this->adminpass),
-            'ADMINEMAIL'      => $this->adminemail,
-            'ADMINFULLNAME'   => substr($this->adminemail,0,strpos($this->adminemail,'@')),
-            'MANAGERLANGUAGE' => $this->managerlanguage,
-            'DATE_NOW'        => time()
+        $sql_array = preg_split(
+            '@;[ \t]*\n@',
+            evo()->parseText(
+                str_replace(
+                    'ENGINE=MyISAM',
+                    sprintf(
+                        'ENGINE=MyISAM DEFAULT CHARSET=%s COLLATE %s'
+                        , $this->connection_charset
+                        , $this->connection_collation
+                    ),
+                    $idata
+                ),
+                array(
+                    'PREFIX'          => $this->prefix,
+                    'ADMINNAME'       => $this->adminname,
+                    'ADMINPASS'       => md5($this->adminpass),
+                    'ADMINEMAIL'      => $this->adminemail,
+                    'ADMINFULLNAME'   => substr($this->adminemail,0,strpos($this->adminemail,'@')),
+                    'MANAGERLANGUAGE' => $this->managerlanguage,
+                    'DATE_NOW'        => time()
+                ),
+                '{',
+                '}',
+                false
+            )
         );
-        $idata = evo()->parseText($idata,$ph,'{','}',false);
 
-        $sql_array = preg_split('@;[ \t]*\n@', $idata);
-
-        foreach($sql_array as $i=>$sql) {
+        foreach($sql_array as $sql) {
             $sql = trim($sql, "\r\n; ");
             if ($sql) {
                 db()->query($sql, false);
