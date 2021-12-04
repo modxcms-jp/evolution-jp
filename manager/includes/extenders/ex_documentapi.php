@@ -6,7 +6,8 @@
  *
  */
 
-class Document {
+class Document
+{
 
     const LOG_INFO = 1;
     const LOG_WARN = 2;
@@ -27,45 +28,45 @@ class Document {
 
     //content table column (name => default value(null=sql default))
     private $content_lists
-        = array(
-            'id' => null,
-            'type' => null,
-            'contentType' => null,
-            'pagetitle' => '',
-            'longtitle' => '',
-            'description' => '',
-            'alias' => '',
-            'link_attributes' => '',
-            'published' => null,
-            'pub_date' => null,
-            'unpub_date' => null,
-            'parent' => null,
-            'isfolder' => null,
-            'introtext' => null,
-            'content' => null,
-            'richtext' => null,
-            'template' => null,
-            'menuindex' => 'auto',
-            'searchable' => null,
-            'cacheable' => null,
-            'createdby' => null,
-            'createdon' => 'now()',
-            'editedby' => null,
-            'editedon' => 'now()',
-            'deleted' => null,
-            'deletedon' => null,
-            'deletedby' => null,
-            'publishedon' => null,
-            'publishedby' => null,
-            'menutitle' => '',
-            'donthit' => null,
-            'haskeywords' => null,
-            'hasmetatags' => null,
-            'privateweb' => null,
-            'privatemgr' => null,
-            'content_dispo' => null,
-            'hidemenu' => null
-        );
+    = array(
+        'id' => null,
+        'type' => null,
+        'contentType' => null,
+        'pagetitle' => '',
+        'longtitle' => '',
+        'description' => '',
+        'alias' => '',
+        'link_attributes' => '',
+        'published' => null,
+        'pub_date' => null,
+        'unpub_date' => null,
+        'parent' => null,
+        'isfolder' => null,
+        'introtext' => null,
+        'content' => null,
+        'richtext' => null,
+        'template' => null,
+        'menuindex' => 'auto',
+        'searchable' => null,
+        'cacheable' => null,
+        'createdby' => null,
+        'createdon' => 'now()',
+        'editedby' => null,
+        'editedon' => 'now()',
+        'deleted' => null,
+        'deletedon' => null,
+        'deletedby' => null,
+        'publishedon' => null,
+        'publishedby' => null,
+        'menutitle' => '',
+        'donthit' => null,
+        'haskeywords' => null,
+        'hasmetatags' => null,
+        'privateweb' => null,
+        'privatemgr' => null,
+        'content_dispo' => null,
+        'hidemenu' => null
+    );
 
     //日付処理が必要なカラム
     private $content_type_date = array('pub_date', 'unpub_date', 'createdon', 'editedon', 'deletedon');
@@ -79,7 +80,8 @@ class Document {
      * @return none
      *
      */
-    public function __construct($id = '', $status = self::ST_RELEASED, $level = '') {
+    public function __construct($id = '', $status = self::ST_RELEASED, $level = '')
+    {
         if (self::isInt($level, 1)) {
             $this->logLevel = $level;
         }
@@ -101,7 +103,8 @@ class Document {
      * @return string
      *
      */
-    public function get($field = 'content') {
+    public function get($field = 'content')
+    {
         if (!empty($field) && array_key_exists($field, $this->content)) {
             return $this->content[$field];
         }
@@ -122,7 +125,8 @@ class Document {
      * @return string/false
      *
      */
-    public function getTV($name) {
+    public function getTV($name)
+    {
         foreach ($this->tv as $k => $v) {
             if ($v['name'] == $name) {
                 return $v['value'];
@@ -138,7 +142,8 @@ class Document {
      * @return string/false
      *
      */
-    public function getTVbyID($id) {
+    public function getTVbyID($id)
+    {
         if (!empty($id) && array_key_exists($id, $this->tv)) {
             return $this->tv[$id]['value'];
         }
@@ -158,7 +163,8 @@ class Document {
      * @return string/false
      *
      */
-    public function getAllTVs() {
+    public function getAllTVs()
+    {
         return $this->tv;
     }
 
@@ -171,7 +177,8 @@ class Document {
      * @return int/false
      *
      */
-    public function getTVID($name) {
+    public function getTVID($name)
+    {
         foreach ($this->tv as $k => $v) {
             if ($v['name'] == $name) {
                 return $k;
@@ -190,7 +197,8 @@ class Document {
      * @return bool
      *
      */
-    public function set($field = 'content', $val = '') {
+    public function set($field = 'content', $val = '')
+    {
         if (array_key_exists($field, $this->content_lists)) {
             $tmp = $this->content['template'];
             $this->content[$field] = $val;
@@ -215,7 +223,8 @@ class Document {
      * @return bool
      *
      */
-    public function setTV($name, $val = null) {
+    public function setTV($name, $val = null)
+    {
         foreach ($this->tv as $k => $v) {
             if ($v['name'] == $name) {
                 return $this->setTVbyID($k, $val);
@@ -233,7 +242,8 @@ class Document {
      * @return bool
      *
      */
-    public function setTVbyID($id, $val = null) {
+    public function setTVbyID($id, $val = null)
+    {
         if (!empty($id) && array_key_exists($id, $this->tv)) {
             if (is_null($val)) {
                 $this->tv[$id]['value'] = $this->tv[$id]['default'];
@@ -261,7 +271,8 @@ class Document {
      * @return bool
      *
      */
-    public function setAllTVs($tv) {
+    public function setAllTVs($tv)
+    {
         if (!is_array($tv)) {
             return false;
         }
@@ -285,9 +296,13 @@ class Document {
      * @return bool
      *
      */
-    public function setTemplate($name) {
-        $rs = self::db()->select('id', '[+prefix+]site_templates',
-            "templatename= '" . self::db()->escape($name) . "'");
+    public function setTemplate($name)
+    {
+        $rs = self::db()->select(
+            'id',
+            '[+prefix+]site_templates',
+            "templatename= '" . self::db()->escape($name) . "'"
+        );
         if ($row = self::db()->getRow($rs)) {
             return $this->setTemplatebyID($row['id']);
         }
@@ -306,7 +321,8 @@ class Document {
      * @return bool
      *
      */
-    public function setTemplatebyID($tid) {
+    public function setTemplatebyID($tid)
+    {
         if (!self::isInt($tid, 0)) {
             return false;
         }
@@ -350,7 +366,7 @@ SELECT tv.id
 	  ,tv.name
 	  ,tv.default_text
 FROM [+prefix+]site_tmplvars AS tv
-  LEFT JOIN [+prefix+]site_tmplvar_templates AS tvt 
+  LEFT JOIN [+prefix+]site_tmplvar_templates AS tvt
     ON tvt.tmplvarid = tv.id
   LEFT JOIN [+prefix+]site_templates AS st
 	ON st.id = tvt.templateid
@@ -376,7 +392,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public function load($id, $status = self::ST_RELEASED) {
+    public function load($id, $status = self::ST_RELEASED)
+    {
         //初期化
         $this->content = $this->content_lists;
         $this->tv = array();
@@ -437,7 +454,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public function loadDraft($id) {
+    public function loadDraft($id)
+    {
         return $this->load($id, self::ST_DRAFT);
     }
 
@@ -452,7 +470,8 @@ SQL_QUERY;
      * @return int/bool   save id or false
      *
      */
-    public function save($fields = '*', $clearCache = true) {
+    public function save($fields = '*', $clearCache = true)
+    {
         $c = array(); //新規/更新対象content
         $tv = array(); //新規/更新対象tv
 
@@ -478,7 +497,6 @@ SQL_QUERY;
                     } else {
                         $this->logWarn('Fields not exist:' . $val);
                     }
-
                 }
             }
         }
@@ -522,8 +540,11 @@ SQL_QUERY;
                 } else {
                     $pid = 0;
                 }
-                $rs = self::db()->select('(max(menuindex) + 1) AS menuindex', '[+prefix+]site_content',
-                    "parent=$pid");
+                $rs = self::db()->select(
+                    '(max(menuindex) + 1) AS menuindex',
+                    '[+prefix+]site_content',
+                    "parent=$pid"
+                );
                 if (($row = self::db()->getRow($rs)) && !empty($row['menuindex'])) {
                     $c['menuindex'] = $row['menuindex'];
                 } else {
@@ -564,26 +585,35 @@ SQL_QUERY;
                 if ($v['value'] === $v['default']) {
                     //デフォルト時は削除
                     if (self::isInt($k, 1)) {
-                        self::db()->delete('[+prefix+]site_tmplvar_contentvalues',
-                            "tmplvarid = $k AND contentid = $id");
+                        self::db()->delete(
+                            '[+prefix+]site_tmplvar_contentvalues',
+                            "tmplvarid = $k AND contentid = $id"
+                        );
                     }
                 } else {
-                    $rs = self::db()->select('id', '[+prefix+]site_tmplvar_contentvalues',
-                        "tmplvarid = $k AND contentid = $id");
+                    $rs = self::db()->select(
+                        'id',
+                        '[+prefix+]site_tmplvar_contentvalues',
+                        "tmplvarid = $k AND contentid = $id"
+                    );
                     if ($row = self::db()->getRow($rs)) {
-                        $rs = self::db()->update(array('value' => self::db()->escape($v['value'])),
+                        $rs = self::db()->update(
+                            array('value' => self::db()->escape($v['value'])),
                             '[+prefix+]site_tmplvar_contentvalues',
-                            "tmplvarid = $k AND contentid = $id");
+                            "tmplvarid = $k AND contentid = $id"
+                        );
                         if (!$rs) {
                             $errflag = true;
                         }
                     } else {
-                        $rs = self::db()->insert(array(
-                            'tmplvarid' => $k,
-                            'contentid' => $id,
-                            'value' => self::db()->escape($v['value'])
-                        ),
-                            '[+prefix+]site_tmplvar_contentvalues');
+                        $rs = self::db()->insert(
+                            array(
+                                'tmplvarid' => $k,
+                                'contentid' => $id,
+                                'value' => self::db()->escape($v['value'])
+                            ),
+                            '[+prefix+]site_tmplvar_contentvalues'
+                        );
                         if (!$rs) {
                             $errflag = true;
                         }
@@ -609,7 +639,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public function delete($clearCache = true) {
+    public function delete($clearCache = true)
+    {
         if (!self::isInt($this->content['id'], 1)) {
             return false;
         }
@@ -627,7 +658,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public function undelete($clearCache = true) {
+    public function undelete($clearCache = true)
+    {
         if (!self::isInt($this->content['id'], 1)) {
             return false;
         }
@@ -645,7 +677,8 @@ SQL_QUERY;
      * @return string Log message
      *
      */
-    public function lastLog() {
+    public function lastLog()
+    {
         return $this->lastLog;
     }
 
@@ -659,7 +692,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public static function documentExist($id) {
+    public static function documentExist($id)
+    {
         if (!self::isInt($id, 1)) {
             return false;
         }
@@ -683,7 +717,8 @@ SQL_QUERY;
      * @return 1/0/bool
      *
      */
-    public static function chPublish($id, $onPub = null, $recursive = false, $clearCache = true) {
+    public static function chPublish($id, $onPub = null, $recursive = false, $clearCache = true)
+    {
         if (!self::documentExist($id)) {
             return false;
         }
@@ -738,7 +773,8 @@ SQL_QUERY;
      * @return 1/0/bool
      *
      */
-    public static function chDelete($id, $onDel = null, $recursive = true, $clearCache = true) {
+    public static function chDelete($id, $onDel = null, $recursive = true, $clearCache = true)
+    {
         if (!self::documentExist($id)) {
             return false;
         }
@@ -799,7 +835,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    public static function erase($id, $force = false, $recursive = true, $clearCache = true) {
+    public static function erase($id, $force = false, $recursive = true, $clearCache = true)
+    {
         if (self::documentExist($id)) {
             if (!$force) {
                 $rs = self::db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
@@ -836,22 +873,26 @@ SQL_QUERY;
      * @return bool
      *
      */
-    private function logging($level, $msg = '') {
+    private function logging($level, $msg = '')
+    {
         $this->lastLog = $msg;
         if ($this->logLevel <= $level) {
             self::$modx->logEvent(4, $level, $msg, 'Document Object API');
         }
     }
 
-    private function loginfo($msg = '') {
+    private function loginfo($msg = '')
+    {
         $this->logging(self::LOG_INFO, $msg);
     }
 
-    private function logwarn($msg = '') {
+    private function logwarn($msg = '')
+    {
         $this->logging(self::LOG_WARN, $msg);
     }
 
-    private function logerr($msg = '') {
+    private function logerr($msg = '')
+    {
         $this->logging(self::LOG_ERR, $msg);
     }
 
@@ -865,7 +906,8 @@ SQL_QUERY;
      * @return string/false
      *
      */
-    private function getTVName($name) {
+    private function getTVName($name)
+    {
         $pos = strpos($name, 'tv.');
         if ($pos === 0) {
             $name = substr($name, 3);
@@ -888,7 +930,8 @@ SQL_QUERY;
      * @return bool
      *
      */
-    private static function isInt($param, $min = null, $max = null) {
+    private static function isInt($param, $min = null, $max = null)
+    {
         if (!preg_match('/\A[0-9]+\z/', $param)) {
             return false;
         }
@@ -912,7 +955,8 @@ SQL_QUERY;
      * @return 0/1
      *
      */
-    private static function bool2Int($param) {
+    private static function bool2Int($param)
+    {
         if ($param === true || $param == 1) {
             return 1;
         }
@@ -929,7 +973,8 @@ SQL_QUERY;
      * @return ユーザ名ID
      *
      */
-    private static function getLoginMgrUserID() {
+    private static function getLoginMgrUserID()
+    {
         $u = self::evo()->getLoginUserID('mgr');
         if (empty($u)) {
             return 0;
@@ -948,15 +993,19 @@ SQL_QUERY;
      * @return リソースID郡
      *
      */
-    private static function getChildren($id, $addWhere = '') {
+    private static function getChildren($id, $addWhere = '')
+    {
         $r = array();
         if (!empty($addWhere)) {
             $addWhere = "AND ( $addWhere )";
         }
         $ids = array($id);
         while (!empty($ids)) {
-            $rs = self::db()->select('id', '[+prefix+]site_content',
-                "parent='" . array_shift($ids) . "' $addWhere");
+            $rs = self::db()->select(
+                'id',
+                '[+prefix+]site_content',
+                "parent='" . array_shift($ids) . "' $addWhere"
+            );
             while ($row = self::db()->getRow($rs)) {
                 array_push($ids, $row['id']);
                 $r[] = $row['id'];
