@@ -20,26 +20,26 @@ function run_update($pre_version) {
         , strtolower($pre_version)
     );
 
-    if (version_compare($pre_version, '1.0.5') < 0) {
+    if (version_compare($pre_version, '1.0.5', '<')) {
         update_tbl_system_settings();
         $msg = 'Update 1.0.5 to ' . $modx_version;
         evo()->logEvent(0, 1, $msg, $msg);
     }
 
-    if (version_compare($pre_version, '1.0.6') < 0) {
+    if (version_compare($pre_version, '1.0.6', '<')) {
         update_config_custom_contenttype();
         update_config_default_template_method();
         $msg = 'Update 1.0.6 to ' . $modx_version;
         evo()->logEvent(0, 1, $msg, $msg);
     }
 
-    if (version_compare($pre_version, '1.0.7') < 0) {
+    if (version_compare($pre_version, '1.0.7', '<')) {
         disableLegacyPlugins();
         $msg = 'Update 1.0.7 to ' . $modx_version;
         evo()->logEvent(0, 1, $msg, $msg);
     }
 
-    if (0 < version_compare($pre_version, '1.0.4') && version_compare($pre_version, '1.0.7') < 0) {
+    if (version_compare('1.0.4', $pre_version, '<') && version_compare($pre_version, '1.0.7', '<')) {
         delete_actionphp();
         $msg = 'Delete action.php is success';
         evo()->logEvent(0, 1, $msg, $msg);
