@@ -25,7 +25,6 @@ if ($errors == 0) {
 <br />
 <br />
 <script>
-    /* <![CDATA[ */
     jQuery('#closepage span').click(function(){
         checked = jQuery('#rminstaller').prop('checked');
         if(checked) {
@@ -36,5 +35,4 @@ if ($errors == 0) {
             window.location.href = "../manager/";
         }
     });
-    /* ]]> */
 </script>
