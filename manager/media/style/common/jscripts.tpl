@@ -1,5 +1,4 @@
 <script type="text/javascript">
-    /* <![CDATA[ */
 
     let imanager_url = '[+imanager_url+]';
     let fmanager_url = '[+fmanager_url+]';
@@ -199,7 +198,6 @@
         if (0 < a.value.indexOf('.')) s.innerHTML = '';
         else s.innerHTML = '[+suffix+]';
     }
-
-    /* ]]> */
+    
 </script>
 <script type="text/javascript" src="media/browser/browser.js"></script>

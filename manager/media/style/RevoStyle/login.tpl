@@ -50,12 +50,9 @@
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-    /* <![CDATA[ */
         if (top.frames.length!=0) {
             top.location=self.document.location;
         }
-        
-    /* ]]> */
     </script>
 </head>
 <body id="login">

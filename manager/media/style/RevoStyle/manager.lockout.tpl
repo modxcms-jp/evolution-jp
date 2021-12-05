@@ -54,11 +54,9 @@
 </script>
 
 <script type="text/javascript">
-/* <![CDATA[ */
     if (top.frames.length!=0) {
         top.location=self.document.location;
     }
-/* ]]> */
 </script>
 
 </head>

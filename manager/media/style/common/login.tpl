@@ -57,7 +57,6 @@
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
 
     <script type="text/javascript">
-    /* <![CDATA[ */
         var $j = jQuery.noConflict();
         if (top.frames.length!=0) {
             top.location=self.document.location;
@@ -90,7 +89,6 @@
 			else                                 jQuery('#username').focus();
 			
         });
-    /* ]]> */
     </script>
 </head>
 <body id="login">
