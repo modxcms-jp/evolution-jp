@@ -30,14 +30,14 @@ if (id()) {
 ?>
 <script type="text/javascript">
     function duplicaterecord() {
-        if (confirm("<?php echo lang('confirm_duplicate_record') ?>") == true) {
+        if (confirm("<?= lang('confirm_duplicate_record') ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?php echo getv('id'); ?>&a=96";
+            document.location.href = "index.php?id=<?= getv('id') ?>&a=96";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?php echo lang('confirm_delete_template'); ?>") == true) {
+        if (confirm("<?= lang('confirm_delete_template') ?>")) {
             documentDirty = false;
             document.location.href = "index.php?id=" + document.mutate.id.value + "&a=21";
         }
@@ -53,21 +53,21 @@ if (id()) {
     }
     ?>
     <input type="hidden" name="a" value="20">
-    <input type="hidden" name="id" value="<?php echo getv('id'); ?>">
-    <input type="hidden" name="mode" value="<?php echo (int)getv('a'); ?>">
+    <input type="hidden" name="id" value="<?= getv('id') ?>">
+    <input type="hidden" name="mode" value="<?= (int)getv('a') ?>">
 
-    <h1><?php echo lang('template_title'); ?></h1>
+    <h1><?= lang('template_title') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_template')) : ?>
                 <li id="Button1" class="mutate">
-                    <a href="#" onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"><img src="<?php echo style('icons_save') ?>" /> <?php echo lang('update') ?>
+                    <a href="#" onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"><img src="<?= style('icons_save') ?>" /> <?= lang('update') ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
-                        <option id="stay1" value="1" <?php echo selected(getv('stay') == 1); ?>><?php echo lang('stay_new') ?></option>
-                        <option id="stay2" value="2" <?php echo selected(getv('stay') == 2); ?>><?php echo lang('stay') ?></option>
-                        <option id="stay3" value="" <?php echo selected(!getv('stay')); ?>><?php echo lang('close') ?></option>
+                        <option id="stay1" value="1" <?= selected(getv('stay') == 1) ?>><?= lang('stay_new') ?></option>
+                        <option id="stay2" value="2" <?= selected(getv('stay') == 2) ?>><?= lang('stay') ?></option>
+                        <option id="stay3" value="" <?= selected(!getv('stay')) ?>><?= lang('close') ?></option>
                     </select>
                 </li>
             <?php endif; ?>
@@ -104,10 +104,10 @@ if (id()) {
     <div class="sectionBody">
         <div class="tab-pane" id="templatesPane">
             <div class="tab-page" id="tabTemplate">
-                <h2 class="tab"><?php echo lang('template_edit_tab') ?></h2>
+                <h2 class="tab"><?= lang('template_edit_tab') ?></h2>
                 <div style="margin-bottom:10px;">
-                    <b><?php echo lang('template_name'); ?></b>
-                    <input name="templatename" type="text" maxlength="100" value="<?php echo evo()->hsc(template('templatename')); ?>" class="inputBox" style="width:200px;">
+                    <b><?= lang('template_name') ?></b>
+                    <input name="templatename" type="text" maxlength="100" value="<?= evo()->hsc(template('templatename')) ?>" class="inputBox" style="width:200px;">
                     <?php
                     $rs = db()->select(
                         '*',
@@ -134,7 +134,7 @@ if (id()) {
                     ?>
                     <select name="parent">
                         <option value="0">None</option>
-                        <?php echo implode("\n", $option); ?>
+                        <?= implode("\n", $option) ?>
                     </select>
                 </div>
                 <?php
@@ -148,12 +148,12 @@ if (id()) {
                 ?>
                 <div style="width:100%;position:relative">
                     <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
-                        <span style="float:left;font-weight:bold;"><?php echo lang('template_code'); ?></span>
+                        <span style="float:left;font-weight:bold;"><?= lang('template_code') ?></span>
                     </div>
                     <?php if (isset($head)) {
                         echo $head;
                     } ?>
-                    <textarea dir="ltr" name="content" class="phptextarea" style="width:100%; height: 370px;"><?php echo evo()->hsc(template('content')); ?></textarea>
+                    <textarea dir="ltr" name="content" class="phptextarea" style="width:100%; height: 370px;"><?= evo()->hsc(template('content')) ?></textarea>
                     <?php if (isset($foot)) {
                         echo $foot;
                     } ?>
@@ -162,12 +162,12 @@ if (id()) {
             </div>
 
             <div class="tab-page" id="tabProp">
-                <h2 class="tab"><?php echo lang('settings_properties'); ?></h2>
+                <h2 class="tab"><?= lang('settings_properties') ?></h2>
                 <table>
                     <tr>
-                        <th><?php echo lang('existing_category'); ?>:</th>
+                        <th><?= lang('existing_category') ?>:</th>
                         <td><select id="categoryid" name="categoryid" style="width:300px;">
-                                <option value="0"><?php echo lang('no_category'); ?></option>
+                                <option value="0"><?= lang('no_category') ?></option>
                                 <?php
                                 $ds = evo()->manager->getCategories();
                                 if ($ds) {
@@ -181,23 +181,30 @@ if (id()) {
                                     }
                                 }
                                 ?>
-                                <option value="-1">&gt;&gt; <?php echo lang('new_category'); ?></option>
+                                <option value="-1">&gt;&gt; <?= lang('new_category') ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th valign="top" style="padding-top:5px;"><?php echo lang('new_category'); ?>:</th>
-                        <td valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?php echo template('newcategory', ''); ?>" class="inputBox" style="width:300px;"></td>
+                        <th valign="top" style="padding-top:5px;"><?= lang('new_category') ?>:</th>
+                        <td valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="<?= template('newcategory', '') ?>" class="inputBox" style="width:300px;"></td>
                     </tr>
                     <tr>
-                        <th><?php echo lang('template_desc'); ?>:&nbsp;&nbsp;</th>
-                        <td><textarea name="description" style="padding:0;height:4em;"><?php echo evo()->hsc(template('description')); ?></textarea>
+                        <th><?= lang('template_desc') ?>:&nbsp;&nbsp;</th>
+                        <td><textarea name="description" style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_template') == 1) { ?>
                         <tr>
                             <td colspan="2">
-                                <label><input id="locked" name="locked" type="checkbox" class="inputBox" <?php echo checked(template('locked') == 1); ?>> <?php echo lang('lock_template'); ?> <span class="comment"><?php echo lang('lock_template_msg'); ?></span></label>
+                                <label>
+                                    <input
+                                        id="locked" name="locked"
+                                        type="checkbox" class="inputBox"
+                                        <?= checked(template('locked') == 1) ?>
+                                    > <?= lang('lock_template') ?>
+                                    <span class="comment"><?= lang('lock_template_msg') ?></span>
+                                </label>
                             </td>
                         </tr>
                     <?php } ?>
@@ -230,10 +237,10 @@ if (id()) {
                 $total = db()->count($rs);
             ?>
                 <div class="tab-page" id="tabInfo">
-                    <h2 class="tab"><?php echo lang('info') ?></h2>
-                    <?php echo "<p>" . lang('template_tv_msg') . "</p>"; ?>
+                    <h2 class="tab"><?= lang('info') ?></h2>
+                    <?= "<p>" . lang('template_tv_msg') . "</p>" ?>
                     <div class="sectionHeader">
-                        <?php echo lang('template_assignedtv_tab'); ?>
+                        <?= lang('template_assignedtv_tab') ?>
                     </div>
                     <div class="sectionBody">
                         <?php
@@ -257,8 +264,12 @@ if (id()) {
                             <?php
                             $query = getv('id') ? '&amp;tpl=' . (int)getv('id') : '';
                             ?>
-                            <li><a href="index.php?&amp;a=300<?php echo $query; ?>"><img src="<?php echo style('icons_add'); ?>" /> <?php echo lang('new_tmplvars'); ?>
-                                </a></li>
+                            <li>
+                                <a href="index.php?&amp;a=300<?= $query ?>">
+                                    <img src="<?= style('icons_add') ?>" />
+                                    <?= lang('new_tmplvars') ?>
+                                </a>
+                            </li>
                             <?php
                             if (evo()->hasPermission('save_template') && $total > 1) {
                                 echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '"><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
@@ -266,7 +277,7 @@ if (id()) {
                             ?>
                         </ul>
                     </div>
-                    <div class="sectionHeader"><?php echo lang('a16_use_resources'); ?></div>
+                    <div class="sectionHeader"><?= lang('a16_use_resources') ?></div>
                     <div class="sectionBody">
                         <div id="use_resources"></div>
                     </div>
@@ -276,7 +287,7 @@ if (id()) {
             ?>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?php echo lang('template_msg'); ?>
+                <?= lang('template_msg') ?>
             </div>
             <?php
             // invoke OnTempFormRender event
@@ -290,9 +301,9 @@ if (id()) {
     </div>
 </form>
 <script>
-    var tpstatus = <?php echo (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false'; ?>;
+    var tpstatus = <?= (config('remember_last_tab') == 2 || getv('stay') == 2) ? 'true' : 'false' ?>;
     tpTemplates = new WebFXTabPane(document.getElementById("templatesPane"), tpstatus);
-    var readonly = <?php echo (template('locked') == 1 || template('locked') === 'on') ? '1' : '0'; ?>;
+    var readonly = <?= (template('locked') == 1 || template('locked') === 'on') ? '1' : '0' ?>;
     if (readonly) {
         jQuery('#templatesPane textarea,input[type=text]').prop('readonly', true);
         jQuery('#templatesPane select').addClass('readonly');
@@ -311,7 +322,7 @@ if (id()) {
             a: "1",
             ajaxa: "16",
             target: "use_resources",
-            id: "<?php echo id(); ?>"
+            id: "<?= id() ?>"
         },
         function(data) {
             jQuery('div#use_resources').html(data);

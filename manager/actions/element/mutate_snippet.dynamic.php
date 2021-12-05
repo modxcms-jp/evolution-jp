@@ -21,7 +21,7 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$id = (int) anyv('id',0);
 
 // check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
@@ -67,14 +67,14 @@ if ($formRestored) {
 ?>
 <script type="text/javascript">
     function duplicaterecord() {
-        if (confirm("<?php echo $_lang['confirm_duplicate_record']?>") == true) {
+        if (confirm("<?= $_lang['confirm_duplicate_record']?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?php echo $_REQUEST['id']?>&a=98";
+            document.location.href = "index.php?id=<?= $_REQUEST['id']?>&a=98";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?php echo $_lang['confirm_delete_snippet']?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_snippet']?>")) {
             documentDirty = false;
             document.location.href = "index.php?id=" + document.mutate.id.value + "&a=25";
         }
@@ -117,7 +117,7 @@ if ($formRestored) {
                 value = decode((ar[2]) ? ar[2] : '');
 
                 // store values for later retrieval
-                if (key && dt == 'list') currentParams[key] = [desc, dt, value, ar[3]];
+                if (key && dt === 'list') currentParams[key] = [desc, dt, value, ar[3]];
                 else if (key) currentParams[key] = [desc, dt, value];
 
                 if (dt) {
@@ -200,13 +200,11 @@ if ($formRestored) {
                 currentParams[key][3] = v;
                 implodeParameters();
                 return;
-                break;
             case 'list':
                 v = ctrl.options[ctrl.selectedIndex].value;
                 currentParams[key][3] = v;
                 implodeParameters();
                 return;
-                break;
             case 'list-multi':
                 var arrValues = [];
                 for (var i = 0; i < ctrl.options.length; i++) {
@@ -217,7 +215,6 @@ if ($formRestored) {
                 currentParams[key][3] = arrValues.toString();
                 implodeParameters();
                 return;
-                break;
             default:
                 v = ctrl.value + '';
                 break;
@@ -241,15 +238,15 @@ if ($formRestored) {
 
     function encode(s) {
         s = s + '';
-        s = s.replace(/\=/g, '%3D'); // =
-        s = s.replace(/\&/g, '%26'); // &
+        s = s.replace(/=/g, '%3D'); // =
+        s = s.replace(/&/g, '%26'); // &
         return s;
     }
 
     function decode(s) {
         s = s + '';
-        s = s.replace(/\%3D/g, '='); // =
-        s = s.replace(/\%26/g, '&'); // &
+        s = s.replace(/%3D/g, '='); // =
+        s = s.replace(/%26/g, '&'); // &
         return s;
     }
 
@@ -264,8 +261,8 @@ if ($formRestored) {
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?php echo $content['id'] ?>">
-    <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>">
+    <input type="hidden" name="id" value="<?= $content['id'] ?>">
+    <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
 
     <div id="actions">
         <ul class="actionButtons">
@@ -273,60 +270,57 @@ if ($formRestored) {
                 <li id="Button1" class="mutate">
                     <a href="#"
                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                        <img src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?>
+                        <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?php echo $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?php echo $_lang['stay_new'] ?></option>
+                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?> ><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?php echo $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?> ><?php echo $_lang['stay'] ?></option>
+                                value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?> ><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?php echo $_REQUEST['stay'] == '' ? ' selected=""' : '' ?> ><?php echo $_lang['close'] ?></option>
+                                value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?> ><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
             if ($_GET['a'] == '22') {
-                $params = array(
-                    'onclick' => 'duplicaterecord();',
-                    'icon' => $_style['icons_resource_duplicate'],
-                    'label' => $_lang['duplicate']
-                );
                 if (evo()->hasPermission('new_snippet')) {
-                    echo $modx->manager->ab($params);
+                    echo $modx->manager->ab(array(
+                        'onclick' => 'duplicaterecord();',
+                        'icon' => $_style['icons_resource_duplicate'],
+                        'label' => $_lang['duplicate']
+                    ));
                 }
-                $params = array(
-                    'onclick' => 'deletedocument();',
-                    'icon' => $_style['icons_delete_document'],
-                    'label' => $_lang['delete']
-                );
                 if (evo()->hasPermission('delete_snippet')) {
-                    echo $modx->manager->ab($params);
+                    echo $modx->manager->ab(array(
+                        'onclick' => 'deletedocument();',
+                        'icon' => $_style['icons_delete_document'],
+                        'label' => $_lang['delete']
+                    ));
                 }
             }
-            $params = array(
+            echo $modx->manager->ab(array(
                 'onclick' => "document.location.href='index.php?a=76';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
-            );
-            echo $modx->manager->ab($params);
+            ));
             ?>
         </ul>
     </div>
 
-    <h1><?php echo $_lang['snippet_title'] ?></h1>
+    <h1><?= $_lang['snippet_title'] ?></h1>
 
     <div class="sectionBody">
         <div class="tab-pane" id="snipetPane">
             <!-- General -->
             <div class="tab-page" id="tabSnippet">
-                <h2 class="tab"><?php echo $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?php echo $_lang['snippet_name'] ?></th>
+                        <th align="left"><?= $_lang['snippet_name'] ?></th>
                         <td align="left">[[<input name="name" type="text" maxlength="100"
-                                                  value="<?php echo htmlspecialchars($content['name']) ?>"
+                                                  value="<?= htmlspecialchars($content['name']) ?>"
                                                   class="inputBox" style="width:300px;">]]
                         </td>
                     </tr>
@@ -334,8 +328,8 @@ if ($formRestored) {
                 <!-- PHP text editor start -->
                 <div>
                     <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
-                        <span style="float:left;font-weight:bold;"><?php echo $_lang['snippet_code']; ?></span>
-                        <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?>
+                        <span style="float:left;font-weight:bold;"><?= $_lang['snippet_code'] ?></span>
+                        <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox"
                        onclick="setTextWrap(document.mutate.post,this.checked)"/></span>
                     </div>
@@ -349,20 +343,20 @@ if ($formRestored) {
                     }
                     ?>
                     <textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;"
-                              wrap="soft"><?php echo $code; ?></textarea>
+                              wrap="soft"><?= $code ?></textarea>
                 </div>
                 <!-- PHP text editor end -->
             </div>
 
             <!-- Properties -->
             <div class="tab-page" id="tabProps">
-                <h2 class="tab"><?php echo $_lang['settings_properties'] ?></h2>
+                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?php echo $_lang['existing_category'] ?>:</th>
+                        <th align="left"><?= $_lang['existing_category'] ?>:</th>
                         <td align="left">
                             <select name="categoryid" style="width:300px;">
-                                <option value="0"><?php echo $_lang["no_category"]; ?></option>
+                                <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
@@ -371,12 +365,12 @@ if ($formRestored) {
                                     }
                                 }
                                 ?>
-                                <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
+                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:10px;"><?php echo $_lang['new_category'] ?>:
+                        <th align="left" valign="top" style="padding-top:10px;"><?= $_lang['new_category'] ?>:
                         </th>
                         <td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text"
                                                                                        maxlength="45" value=""
@@ -384,19 +378,19 @@ if ($formRestored) {
                                                                                        style="width:300px;"></td>
                     </tr>
                     <tr>
-                        <th align="left" style="padding-top:10px"><?php echo $_lang['snippet_desc'] ?>:</th>
+                        <th align="left" style="padding-top:10px"><?= $_lang['snippet_desc'] ?>:</th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
-                                      style="padding:0;height:4em;"><?php echo $content['description'] ?></textarea>
+                                      style="padding:0;height:4em;"><?= $content['description'] ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
                                 <label><input style="padding:0;margin:0;" name="locked"
-                                              type="checkbox" <?php echo $content['locked'] == 1 ? "checked='checked'" : ''; ?>
-                                              class="inputBox"> <b><?php echo $_lang['lock_snippet'] ?></b> <span
-                                            class="comment"><?php echo $_lang['lock_snippet_msg'] ?></span></label></td>
+                                              type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : '' ?>
+                                              class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
+                                            class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label></td>
                         </tr>
                     <?php } ?>
                     <?php
@@ -416,24 +410,24 @@ if ($formRestored) {
                     <?php if ($guid_total > 0) {
                         ?>
                         <tr>
-                            <th align="left" style="padding-top:10px;"><?php echo $_lang['import_params'] ?>:</th>
+                            <th align="left" style="padding-top:10px;"><?= $_lang['import_params'] ?>:</th>
                             <td align="left" valign="top" style="padding-top:10px;">
                                 <select name="moduleguid" style="width:300px;">
-                                    <?php echo $options; ?>
+                                    <?= $options ?>
                                 </select>
                             </td>
                         </tr>
                         <tr>
                             <td>&nbsp;</td>
                             <td align="left" valign="top"><span
-                                        class="comment"><?php echo $_lang['import_params_msg']; ?></td>
+                                        class="comment"><?= $_lang['import_params_msg'] ?></td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <th align="left" valign="top"><?php echo $_lang['snippet_properties'] ?>:</th>
+                        <th align="left" valign="top"><?= $_lang['snippet_properties'] ?>:</th>
                         <td align="left" valign="top"><textarea name="properties" maxlength="65535"
                                                                 class="inputBox phptextarea"
-                                                                onChange="showParameters(this);"><?php echo $content['properties'] ?></textarea>
+                                                                onChange="showParameters(this);"><?= $content['properties'] ?></textarea>
                         </td>
                     </tr>
                     <tr id="displayparamrow">
@@ -444,7 +438,7 @@ if ($formRestored) {
             </div>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?php echo $_lang['snippet_msg']; ?>
+                <?= $_lang['snippet_msg'] ?>
             </div>
         </div>
     </div>
@@ -460,9 +454,9 @@ if ($formRestored) {
 
 <script type="text/javascript">
     setTimeout('showParameters();', 10);
-    var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false'; ?>;
+    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
     tpSnippet = new WebFXTabPane(document.getElementById("snipetPane"), tpstatus);
-    var readonly = <?php echo ($content['locked'] == 1 || $content['locked'] == 'on') ? '1' : '0'; ?>;
+    var readonly = <?= ($content['locked'] == 1 || $content['locked'] == 'on') ? '1' : '0' ?>;
     if (readonly == 1) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');

@@ -21,7 +21,7 @@ $updateMsg = '';
 if (isset($_POST['listSubmitted'])) {
     $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
     foreach ($_POST as $listName => $listValue) {
-        if ($listName == 'listSubmitted') {
+        if ($listName === 'listSubmitted') {
             continue;
         }
         $orderArray = explode(';', rtrim($listValue, ';'));

@@ -61,7 +61,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
 $modx->moduleObject = $content;
 ?>
 <script type="text/javascript">
-    var docid = <?php echo $_REQUEST['id']; ?>;
+    var docid = <?= anyv('id') ?>;
     jQuery(function() {
         jQuery('select[name="categoryid"]').change(function() {
             if (jQuery(this).val() == '-1') {
@@ -83,7 +83,7 @@ $modx->moduleObject = $content;
 
     function loadDependencies() {
         if (documentDirty) {
-            if (!confirm("<?php echo $_lang['confirm_load_depends'] ?>")) {
+            if (!confirm("<?= $_lang['confirm_load_depends'] ?>")) {
                 return;
             }
         }
@@ -92,14 +92,14 @@ $modx->moduleObject = $content;
     }
 
     function duplicaterecord() {
-        if (confirm("<?php echo $_lang['confirm_duplicate_record'] ?>") == true) {
+        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
             document.location.href = "index.php?id=" + docid + "&a=111";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?php echo $_lang['confirm_delete_module'] ?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
             documentDirty = false;
             document.location.href = "index.php?id=" + document.mutate.id.value + "&a=110";
         }
@@ -131,7 +131,7 @@ $modx->moduleObject = $content;
         dp = (f.properties.value) ? f.properties.value.split("&") : "";
         if (!dp) tr.style.display = 'none';
         else {
-            t = '<table style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td><?php echo $_lang['parameter'] ?></td><td><?php echo $_lang['value'] ?></td></tr></thead>';
+            t = '<table style="margin-bottom:3px;margin-left:14px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td><?= $_lang['parameter'] ?></td><td><?= $_lang['value'] ?></td></tr></thead>';
             for (p = 0; p < dp.length; p++) {
                 dp[p] = (dp[p] + '').replace(/^\s|\s$/, ""); // trim
                 ar = dp[p].split("=");
@@ -142,7 +142,7 @@ $modx->moduleObject = $content;
                 value = decode((ar[2]) ? ar[2] : '');
 
                 // store values for later retrieval
-                if (key && dt == 'list') currentParams[key] = [desc, dt, value, ar[3]];
+                if (key && dt === 'list') currentParams[key] = [desc, dt, value, ar[3]];
                 else if (key) currentParams[key] = [desc, dt, value];
 
                 if (dt) {
@@ -225,13 +225,11 @@ $modx->moduleObject = $content;
                 currentParams[key][3] = v;
                 implodeParameters();
                 return;
-                break;
             case 'list':
                 v = ctrl.options[ctrl.selectedIndex].value;
                 currentParams[key][3] = v;
                 implodeParameters();
                 return;
-                break;
             case 'list-multi':
                 var arrValues = [];
                 for (var i = 0; i < ctrl.options.length; i++) {
@@ -242,7 +240,6 @@ $modx->moduleObject = $content;
                 currentParams[key][3] = arrValues.toString();
                 implodeParameters();
                 return;
-                break;
             default:
                 v = ctrl.value + '';
                 break;
@@ -266,15 +263,15 @@ $modx->moduleObject = $content;
 
     function encode(s) {
         s = s + '';
-        s = s.replace(/\=/g, '%3D'); // =
-        s = s.replace(/\&/g, '%26'); // &
+        s = s.replace(/=/g, '%3D'); // =
+        s = s.replace(/&/g, '%26'); // &
         return s;
     }
 
     function decode(s) {
         s = s + '';
-        s = s.replace(/\%3D/g, '='); // =
-        s = s.replace(/\%26/g, '&'); // &
+        s = s.replace(/%3D/g, '='); // =
+        s = s.replace(/%26/g, '&'); // &
         return s;
     }
 
@@ -295,7 +292,7 @@ $modx->moduleObject = $content;
     function BrowseServer() {
         let w = screen.width * 0.7;
         let h = screen.height * 0.7;
-        OpenServerBrowser("<?php echo $base_url ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
+        OpenServerBrowser("<?= $base_url ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
     }
 
     function SetUrl(url, width, height, alt) {
@@ -311,65 +308,67 @@ $modx->moduleObject = $content;
         echo implode('', $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?php echo $content['id'] ?>">
-    <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>">
+    <input type="hidden" name="id" value="<?= $content['id'] ?>">
+    <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
 
-    <h1><?php echo $_lang['module_title'] ?></h1>
+    <h1><?= $_lang['module_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <?php if (evo()->hasPermission('save_module')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#" onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                        <img src="<?php echo $_style["icons_save"] ?>" /> <?php echo $_lang['update'] ?>
+                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <?php if (evo()->hasPermission('new_module')) { ?>
-                            <option id="stay1" value="1" <?php echo $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?>><?php echo $_lang['stay_new'] ?></option>
+                            <option id="stay1" value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <?php } ?>
-                        <option id="stay2" value="2" <?php echo $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?>><?php echo $_lang['stay'] ?></option>
-                        <option id="stay3" value="" <?php echo $_REQUEST['stay'] == '' ? ' selected=""' : '' ?>><?php echo $_lang['close'] ?></option>
+                        <option id="stay2" value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                        <option id="stay3" value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
             <?php
             if ($_REQUEST['a'] == '108') {
-                $params = array(
-                    'onclick' => 'deletedocument();',
-                    'icon' => $_style['icons_delete_document'],
-                    'label' => $_lang['delete']
-                );
                 if (evo()->hasPermission('delete_module')) {
-                    echo $modx->manager->ab($params);
+                    echo $modx->manager->ab(
+                        array(
+                            'onclick' => 'deletedocument();',
+                            'icon' => $_style['icons_delete_document'],
+                            'label' => $_lang['delete']
+                        )
+                    );
                 }
             }
-            $params = array(
-                'onclick' => "document.location.href='index.php?a=106';",
-                'icon' => $_style['icons_cancel'],
-                'label' => $_lang['cancel']
+            echo $modx->manager->ab(
+                array(
+                    'onclick' => "document.location.href='index.php?a=106';",
+                    'icon' => $_style['icons_cancel'],
+                    'label' => $_lang['cancel']
+                )
             );
-            echo $modx->manager->ab($params);
             ?>
         </ul>
     </div>
     <!-- end #actions -->
 
     <div class="sectionBody">
-        <p><img class="icon" src="<?php echo $_style['icons_modules']; ?>" alt="." style="vertical-align:middle;text-align:left;" /> <?php echo $_lang['module_msg'] ?></p>
+        <p><img class="icon" src="<?= $_style['icons_modules'] ?>" alt="." style="vertical-align:middle;text-align:left;" /> <?= $_lang['module_msg'] ?></p>
 
         <div class="tab-pane" id="modulePane">
             <!-- General -->
             <div class="tab-page" id="tabModule">
-                <h2 class="tab"><?php echo $_lang['settings_general'] ?></h2>
+                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
                 <table>
                     <tr>
-                        <td align="left"><?php echo $_lang['module_name'] ?>:</td>
-                        <td align="left"><input name="name" type="text" maxlength="100" value="<?php echo htmlspecialchars($content['name']) ?>" class="inputBox"></td>
+                        <td align="left"><?= $_lang['module_name'] ?>:</td>
+                        <td align="left"><input name="name" type="text" maxlength="100" value="<?= htmlspecialchars($content['name']) ?>" class="inputBox"></td>
                     </tr>
                     <tr>
-                        <td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?php echo $content['disabled'] == 1 ? 'checked="checked"' : '' ?> value="on" class="inputBox" />
-                            <span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?php echo $content['disabled'] == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
+                        <td align="left" valign="top" colspan="2"><input name="disabled" type="checkbox" <?= $content['disabled'] == 1 ? 'checked="checked"' : '' ?> value="on" class="inputBox" />
+                            <span style="cursor:pointer" onclick="document.mutate.disabled.click();"><?= $content['disabled'] == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
                         </td>
                     </tr>
                 </table>
@@ -377,8 +376,8 @@ $modx->moduleObject = $content;
                 <!-- PHP text editor start -->
                 <div style="position:relative">
                     <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
-                        <span style="float:left;font-weight:bold;"><?php echo $_lang['module_code'] ?></span>
-                        <span style="float:right; color:#707070"><?php echo $_lang['wrap_lines'] ?><input name="wrap" type="checkbox" <?php echo $content['wrap'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+                        <span style="float:left;font-weight:bold;"><?= $_lang['module_code'] ?></span>
+                        <span style="float:right; color:#707070"><?= $_lang['wrap_lines'] ?><input name="wrap" type="checkbox" <?= $content['wrap'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
                     <?php
                     if ($content['locked'] === '1') {
@@ -387,20 +386,20 @@ $modx->moduleObject = $content;
                         $readonly = '';
                     }
                     ?>
-                    <textarea dir="ltr" <?php echo $readonly; ?> class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?php echo $content['wrap'] == 1 ? 'soft' : 'off' ?>"><?php echo htmlspecialchars($content['modulecode']) ?></textarea>
+                    <textarea dir="ltr" <?= $readonly ?> class="phptextarea" name="post" style="width:100%; height:370px;" wrap="<?= $content['wrap'] == 1 ? 'soft' : 'off' ?>"><?= htmlspecialchars($content['modulecode']) ?></textarea>
                 </div>
                 <!-- PHP text editor end -->
             </div>
 
             <!-- Configuration -->
             <div class="tab-page" id="tabConfig">
-                <h2 class="tab"><?php echo $_lang['settings_config'] ?></h2>
+                <h2 class="tab"><?= $_lang['settings_config'] ?></h2>
                 <table>
                     <tr>
-                        <td align="left"><?php echo $_lang['existing_category'] ?>:</td>
+                        <td align="left"><?= $_lang['existing_category'] ?>:</td>
                         <td align="left">
                             <select name="categoryid">
-                                <option value="0"><?php echo $_lang["no_category"]; ?></option>
+                                <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
@@ -409,44 +408,50 @@ $modx->moduleObject = $content;
                                     }
                                 }
                                 ?>
-                                <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
+                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <td align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category'] ?>
+                        <td align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?>
                             :
                         </td>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text" maxlength="45" value="" class="inputBox"></td>
                     </tr>
                     <tr>
-                        <td align="left"><?php echo $_lang['module_desc'] ?>:</td>
-                        <td align="left"><textarea name="description" style="padding:0;width:300px;height:4em;"><?php echo $content['description']; ?></textarea>
+                        <td align="left"><?= $_lang['module_desc'] ?>:</td>
+                        <td align="left"><textarea name="description" style="padding:0;width:300px;height:4em;"><?= $content['description'] ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <td align="left"><?php echo $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
-                        <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon" value="<?php echo $content['icon'] ?>" /> <input type="button" value="<?php echo $_lang['insert'] ?>" onclick="BrowseServer();" />
+                        <td align="left"><?= $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
+                        <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon" value="<?= $content['icon'] ?>" /> <input type="button" value="<?= $_lang['insert'] ?>" onclick="BrowseServer();" />
                         </td>
                     </tr>
                     <tr style="display:none;">
-                        <td align="left"><input name="enable_resource" title="<?php echo $_lang['enable_resource'] ?>" type="checkbox" <?php echo $content['enable_resource'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?php echo $_lang['enable_resource'] ?>"><?php echo $_lang["element"] ?></span>:
+                        <td align="left"><input name="enable_resource" title="<?= $_lang['enable_resource'] ?>" type="checkbox" <?= $content['enable_resource'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" /> <span style="cursor:pointer" onclick="document.mutate.enable_resource.click();" title="<?= $_lang['enable_resource'] ?>"><?= $_lang["element"] ?></span>:
                         </td>
-                        <td align="left"><input name="resourcefile" type="text" maxlength="255" value="<?php echo $content['resourcefile'] ?>" class="inputBox" />
+                        <td align="left"><input name="resourcefile" type="text" maxlength="255" value="<?= $content['resourcefile'] ?>" class="inputBox" />
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_module') == 1) { ?>
                         <tr>
-                            <td align="left" valign="top" colspan="2"><input name="locked" type="checkbox" <?php echo $content['locked'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" />
-                                <span style="cursor:pointer" onclick="document.mutate.locked.click();"><?php echo $_lang['lock_module'] ?></span>
-                                <span class="comment"><?php echo $_lang['lock_module_msg'] ?></span>
+                            <td align="left" valign="top" colspan="2"><input name="locked" type="checkbox" <?= $content['locked'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" />
+                                <span style="cursor:pointer" onclick="document.mutate.locked.click();"><?= $_lang['lock_module'] ?></span>
+                                <span class="comment"><?= $_lang['lock_module_msg'] ?></span>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <td align="left" valign="top"><?php echo $_lang['module_config'] ?>:</td>
-                        <td align="left" valign="top"><textarea name="properties" style="display:block;" maxlength="65535" class="inputBox phptextarea" onchange="showParameters(this);" /><?php echo $content['properties'] ?></textarea>
-                            <input type="button" value="<?php echo $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?php echo $_lang['update_params'] ?>" />
+                        <td align="left" valign="top"><?= $_lang['module_config'] ?>:</td>
+                        <td align="left" valign="top"><textarea
+                                name="properties"
+                                style="display:block;"
+                                maxlength="65535"
+                                class="inputBox phptextarea"
+                                onchange="showParameters(this);"
+                            ><?= $content['properties'] ?></textarea>
+                            <input type="button" value="<?= $_lang['update_params'] ?>" style="width:16px; margin-left:2px;" title="<?= $_lang['update_params'] ?>" />
                         </td>
                     </tr>
                     <tr id="displayparamrow">
@@ -457,32 +462,51 @@ $modx->moduleObject = $content;
             </div>
 
             <?php if ($_REQUEST['a'] == '107') { ?>
-                <input name="guid" type="hidden" value="<?php echo createGUID(); ?>" />
+                <input name="guid" type="hidden" value="<?= createGUID() ?>" />
             <?php } elseif ($_REQUEST['a'] == '108') { ?>
                 <!-- Dependencies -->
                 <div class="tab-page" id="tabDepend">
-                    <h2 class="tab"><?php echo $_lang['settings_dependencies'] ?></h2>
+                    <h2 class="tab"><?= $_lang['settings_dependencies'] ?></h2>
                     <div class="sectionBody">
                         <?php
                         $display = ($content['enable_sharedparams'] != 1) ? 'style="display:none;"' : '';
                         ?>
                         <table>
                             <tr>
-                                <td align="left" valign="top" colspan="2"><input name="enable_sharedparams" type="checkbox" <?php echo $content['enable_sharedparams'] == 1 ? ' checked="checked"' : '' ?> class="inputBox" /> <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();"><?php echo $_lang['enable_sharedparams'] ?>:</span>
+                                <td align="left" valign="top" colspan="2">
+                                    <input
+                                        name="enable_sharedparams"
+                                        type="checkbox"
+                                        <?= $content['enable_sharedparams'] == 1 ? ' checked="checked"' : '' ?>
+                                        class="inputBox"
+                                    />
+                                    <span style="cursor:pointer" onclick="document.mutate.enable_sharedparams.click();">
+                                        <?= $_lang['enable_sharedparams'] ?>:
+                                    </span>
                                 </td>
                             </tr>
-                            <tr class="sharedparams" <?php echo $display; ?>>
-                                <td align="left" valign="top"><?php echo $_lang['guid'] ?>:</td>
-                                <td align="left" valign="top"><input name="guid" type="text" maxlength="32" value="<?php echo ($content['guid'] != '') ? $content['guid'] : createGUID(); ?>" class="inputBox" /><br />
-                                    <span class="comment"><?php echo $_lang['enable_sharedparams_msg'] ?></span><br />
+                            <tr class="sharedparams" <?= $display ?>>
+                                <td align="left" valign="top"><?= $_lang['guid'] ?>:</td>
+                                <td align="left" valign="top">
+                                    <input
+                                        name="guid" type="text" maxlength="32"
+                                        value="<?=
+                                        ($content['guid'] != '') ? $content['guid'] : createGUID()
+                                        ?>"
+                                        class="inputBox"
+                                    /><br />
+                                    <span class="comment"><?= $_lang['enable_sharedparams_msg'] ?></span><br />
                                 </td>
                             </tr>
                         </table>
                     </div>
-                    <div class="sectionBody sharedparams" <?php echo $display; ?>>
-                        <p><?php echo $_lang['module_viewdepend_msg'] ?></p>
+                    <div class="sectionBody sharedparams" <?= $display ?>>
+                        <p><?= $_lang['module_viewdepend_msg'] ?></p>
                         <p class="actionButtons" style="float:none;overflow:hidden;zoom:1">
-                            <a href="#" onclick="loadDependencies();return false;"><img src="<?php echo $_style["icons_edit_document"] ?>" align="absmiddle" /> <?php echo $_lang['manage_depends'] ?></a>
+                            <a href="#" onclick="loadDependencies();return false;">
+                                <img src="<?= $_style["icons_edit_document"] ?>" align="absmiddle" />
+                                <?= $_lang['manage_depends'] ?>
+                            </a>
                         </p>
                         <?php
                         $field = 'smd.id, COALESCE(ss.name,st.templatename,sv.name,sc.name,sp.name,sd.pagetitle) AS `name`, ' .
@@ -524,7 +548,7 @@ $modx->moduleObject = $content;
             ?>
                 <!-- Access permissions -->
                 <div class="tab-page" id="tabAccess">
-                    <h2 class="tab"><?php echo $_lang['group_access_permissions'] ?></h2>
+                    <h2 class="tab"><?= $_lang['group_access_permissions'] ?></h2>
                     <?php
                     // fetch user access permissions for the module
                     $groupsarray = array();
@@ -562,7 +586,7 @@ $modx->moduleObject = $content;
                                 }
                             }
                         </script>
-                        <p><?php echo $_lang['module_group_access_msg'] ?></p>
+                        <p><?= $_lang['module_group_access_msg'] ?></p>
                     <?php
                     }
                     $chk = '';
@@ -602,7 +626,7 @@ $modx->moduleObject = $content;
     ?>
 </form>
 <script type="text/javascript">
-    var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false'; ?>;
+    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
     tpModule = new WebFXTabPane(document.getElementById("modulePane"), tpstatus);
     setTimeout('showParameters();', 10);
 </script>
@@ -611,9 +635,8 @@ $modx->moduleObject = $content;
 // create globally unique identifiers (guid)
 function createGUID()
 {
-    srand((float)microtime() * 1000000);
-    $r = rand();
-    $u = uniqid(getmypid() . $r . (float)microtime() * 1000000, 1);
-    $m = md5($u);
-    return $m;
+    mt_srand((float)microtime() * 1000000);
+    return md5(
+        uniqid(getmypid() . mt_rand() . (float)microtime() * 1000000, 1)
+    );
 }

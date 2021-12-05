@@ -53,7 +53,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     <script language="JavaScript">
 
         jQuery(function () {
-            var readonly = <?php echo ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1' : '0'; ?>;
+            let readonly = <?= ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1' : '0'; ?>;
             if (readonly == 1) {
                 jQuery('textarea,input[type=text]').prop('readonly', true);
                 jQuery('select').addClass('readonly');
@@ -78,14 +78,14 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         });
 
         function duplicaterecord() {
-            if (confirm("<?php echo $_lang['confirm_duplicate_record'] ?>") == true) {
+            if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?php echo $_REQUEST['id']; ?>&a=105";
+                document.location.href = "index.php?id=<?= $_REQUEST['id']; ?>&a=105";
             }
         }
 
         function deletedocument() {
-            if (confirm("<?php echo $_lang['confirm_delete_plugin']; ?>") == true) {
+            if (confirm("<?= $_lang['confirm_delete_plugin']; ?>")) {
                 documentDirty = false;
                 document.location.href = "index.php?id=" + document.mutate.id.value + "&a=104";
             }
@@ -128,7 +128,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     value = decode((ar[2]) ? ar[2] : '');
 
                     // store values for later retrieval
-                    if (key && (dt == 'list' || dt == 'list-multi')) currentParams[key] = [desc, dt, value, ar[3]];
+                    if (key && (dt === 'list' || dt === 'list-multi')) currentParams[key] = [desc, dt, value, ar[3]];
                     else if (key) currentParams[key] = [desc, dt, value];
 
                     if (dt) {
@@ -215,13 +215,11 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     currentParams[key][3] = v;
                     implodeParameters();
                     return;
-                    break;
                 case 'list':
                     v = ctrl.options[ctrl.selectedIndex].value;
                     currentParams[key][3] = v;
                     implodeParameters();
                     return;
-                    break;
                 case 'list-multi':
                     var arrValues = [];
                     for (var i = 0; i < ctrl.options.length; i++) {
@@ -232,7 +230,6 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     currentParams[key][3] = arrValues.toString();
                     implodeParameters();
                     return;
-                    break;
                 default:
                     v = ctrl.value + '';
                     break;
@@ -256,15 +253,15 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
 
         function encode(s) {
             s = s + '';
-            s = s.replace(/\=/g, '%3D'); // =
-            s = s.replace(/\&/g, '%26'); // &
+            s = s.replace(/=/g, '%3D'); // =
+            s = s.replace(/&/g, '%26'); // &
             return s;
         }
 
         function decode(s) {
             s = s + '';
-            s = s.replace(/\%3D/g, '='); // =
-            s = s.replace(/\%26/g, '&'); // &
+            s = s.replace(/%3D/g, '='); // =
+            s = s.replace(/%26/g, '&'); // &
             return s;
         }
 
@@ -331,7 +328,6 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     }
 
                 });
-
 
                 // Populate the events
                 if (theParams.events) {
@@ -424,10 +420,10 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
             echo implode("", $evtOut);
         }
         ?>
-        <input type="hidden" name="id" value="<?php echo $pluginObject->id; ?>">
-        <input type="hidden" name="mode" value="<?php echo $_GET['a']; ?>">
+        <input type="hidden" name="id" value="<?= $pluginObject->id; ?>">
+        <input type="hidden" name="mode" value="<?= $_GET['a']; ?>">
 
-        <h1><?php echo $_lang['plugin_title']; ?></h1>
+        <h1><?= $_lang['plugin_title']; ?></h1>
 
         <div id="actions">
             <ul class="actionButtons">
@@ -435,16 +431,16 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     <li id="Button1" class="mutate">
                         <a href="#"
                            onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                            <img src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?>
+                            <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
                             <option id="stay1"
-                                    value="1" <?php echo selected($_REQUEST['stay'] == '1'); ?> ><?php echo $_lang['stay_new'] ?></option>
+                                    value="1" <?= selected($_REQUEST['stay'] == '1') ?> ><?= $_lang['stay_new'] ?></option>
                             <option id="stay2"
-                                    value="2" <?php echo selected($_REQUEST['stay'] == '2'); ?> ><?php echo $_lang['stay'] ?></option>
+                                    value="2" <?= selected($_REQUEST['stay'] == '2') ?> ><?= $_lang['stay'] ?></option>
                             <option id="stay3"
-                                    value="" <?php echo selected($_REQUEST['stay'] == ''); ?> ><?php echo $_lang['close'] ?></option>
+                                    value="" <?= selected($_REQUEST['stay'] == '') ?> ><?= $_lang['close'] ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
@@ -481,39 +477,46 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
 
                 <!-- General -->
                 <div class="tab-page" id="tabPlugin">
-                    <h2 class="tab"><?php echo $_lang["settings_general"] ?></h2>
+                    <h2 class="tab"><?= $_lang["settings_general"] ?></h2>
                     <table border="0" cellspacing="0" cellpadding="0">
                         <tr>
-                            <th align="left"><?php echo $_lang['plugin_name']; ?></th>
+                            <th align="left"><?= $_lang['plugin_name'] ?></th>
                             <td align="left"><input id="pluginName" name="name" type="text" maxlength="100"
-                                                    value="<?php echo htmlspecialchars($pluginObject->name); ?>"
+                                                    value="<?= hsc($pluginObject->name) ?>"
                                                     class="inputBox" style="width:300px;"></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top" colspan="2"><label><input name="disabled"
-                                                                                    type="checkbox" <?php echo $pluginObject->disabled == 1 ? "checked='checked'" : ""; ?>
+                                                                                    type="checkbox" <?= $pluginObject->disabled == 1 ? "checked='checked'" : "" ?>
                                                                                     value="on"
-                                                                                    class="inputBox"> <?php echo $pluginObject->disabled == 1 ? "<span class='warning'>" . $_lang['plugin_disabled'] . "</span></label>" : $_lang['plugin_disabled']; ?>
+                                                                                    class="inputBox"> <?= $pluginObject->disabled == 1 ? "<span class='warning'>" . $_lang['plugin_disabled'] . "</span></label>" : $_lang['plugin_disabled'] ?>
                             </td>
                         </tr>
                     </table>
                     <!-- PHP text editor start -->
                     <div style="width:100%;position:relative">
                         <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
-                            <span style="float:left;font-weight:bold;"><?php echo $_lang['plugin_code']; ?></span>
-                            <span style="float:right;color:#707070;"><?php echo $_lang['wrap_lines']; ?><input
-                                        name="wrap" type="checkbox" "checked="checked" class="inputBox" onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
+                            <span style="float:left;font-weight:bold;"><?= $_lang['plugin_code'] ?></span>
+                            <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
+                                <input
+                                    name="wrap"
+                                    type="checkbox"
+                                    checked="checked"
+                                    class="inputBox"
+                                    onclick="setTextWrap(document.mutate.post,this.checked)" />
+                            </span>
                         </div>
-                        <textarea dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"
-                                  class="phptextarea"
-                                  id="phptextarea"><?php echo htmlspecialchars($pluginObject->plugincode); ?></textarea>
+                        <textarea
+                            dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"
+                            class="phptextarea"
+                            id="phptextarea"><?= hsc($pluginObject->plugincode) ?></textarea>
                     </div>
                     <!-- PHP text editor end -->
                 </div>
 
                 <!-- Configuration/Properties -->
                 <div class="tab-page" id="tabProps">
-                    <h2 class="tab"><?php echo $_lang["settings_config"] ?></h2>
+                    <h2 class="tab"><?= $_lang["settings_config"] ?></h2>
                     <?php
                     $field = 'sm.id,sm.name,sm.guid';
                     $from = '[+prefix+]site_modules sm ' .
@@ -525,7 +528,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
-                            $options .= "<option value='" . $row['guid'] . "'" . selected($pluginObject->moduleguid == $row["guid"]) . ">" . htmlspecialchars($row["name"]) . "</option>";
+                            $options .= "<option value='" . $row['guid'] . "'" . selected($pluginObject->moduleguid == $row["guid"]) . ">" . hsc($row["name"]) . "</option>";
                         }
                     }
                     ?>
@@ -534,31 +537,33 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                         if ($guid_total > 0) {
                             ?>
                             <tr>
-                                <th align="left"><?php echo $_lang['import_params']; ?>:&nbsp;&nbsp;</th>
+                                <th align="left"><?= $_lang['import_params'] ?>:&nbsp;&nbsp;</th>
                                 <td align="left">
                                     <select name="moduleguid" style="width:300px;">
                                         <option>&nbsp;</option>
-                                        <?php echo $options; ?>
+                                        <?= $options ?>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
                                 <td>&nbsp;</td>
                                 <td align="left" valign="top"><span style="width:300px;"><span
-                                                class="comment"><?php echo $_lang['import_params_msg']; ?></span></span><br/>
+                                                class="comment"><?= $_lang['import_params_msg'] ?></span></span><br/>
                                 </td>
                             </tr>
                             <?php
                         }
                         ?>
                         <tr>
-                            <th align="left" valign="top"><?php echo $_lang['plugin_config']; ?>:</th>
+                            <th align="left" valign="top"><?= $_lang['plugin_config'] ?>:</th>
                             <td align="left" valign="top">
                                 <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
                                           onblur='showParameters(this);'
-                                          onChange="showParameters(this);"><?php echo $pluginObject->properties; ?></textarea><br/><input
-                                        type="button" value="<?php echo $_lang['update_params']; ?>"
-                                        onclick="showParameters(this);"/></td>
+                                          onChange="showParameters(this);"><?= $pluginObject->properties ?></textarea><br/>
+                                <input
+                                        type="button" value="<?= $_lang['update_params'] ?>"
+                                        onclick="showParameters(this);"/>
+                            </td>
                         </tr>
                         <tr id="displayparamrow">
                             <td valign="top" align="left">&nbsp;</td>
@@ -569,8 +574,8 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
 
                 <!-- System Events -->
                 <div class="tab-page" id="tabEvents">
-                    <h2 class="tab"><?php echo $_lang["settings_events"] ?></h2>
-                    <p><?php echo $_lang['plugin_event_msg']; ?></p>
+                    <h2 class="tab"><?= $_lang["settings_events"] ?></h2>
+                    <p><?= $_lang['plugin_event_msg'] ?></p>
                     <table>
                         <?php
 
@@ -649,48 +654,57 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     </table>
                 </div>
                 <div class="tab-page" id="tabInfo">
-                    <h2 class="tab"><?php echo $_lang['settings_properties']; ?></h2>
+                    <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
                     <table>
                         <tr>
-                            <th align="left"><?php echo $_lang['existing_category']; ?>:&nbsp;&nbsp;</th>
-                            <td align="left"><select name="categoryid" id="categoryid" style="width:300px;">
-                                    <option value="0"><?php echo $_lang["no_category"]; ?></option>
+                            <th align="left"><?= $_lang['existing_category'] ?>:&nbsp;&nbsp;</th>
+                            <td align="left">
+                                <select name="categoryid" id="categoryid" style="width:300px;">
+                                    <option value="0"><?= $_lang["no_category"] ?></option>
                                     <?php
                                     $ds = $modx->manager->getCategories();
                                     if ($ds) {
                                         foreach ($ds as $n => $v) {
-                                            echo "<option value='" . $v['id'] . "'" . selected($pluginObject->category == $v["id"]) . ">" . htmlspecialchars($v["category"]) . "</option>";
+                                            echo sprintf(
+                                                "<option value='%s' %s>%s</option>",
+                                                $v['id'],
+                                                selected($pluginObject->category == $v["id"]),
+                                                hsc($v["category"])
+                                            );
                                         }
                                     }
                                     ?>
-                                    <option value="-1">&gt;&gt; <?php echo $_lang["new_category"]; ?></option>
+                                    <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
                                 </select>
                             </td>
                         </tr>
                         <tr id="newcategry" style="display:none;">
-                            <th align="left" valign="top" style="padding-top:5px;"><?php echo $_lang['new_category']; ?>
+                            <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?>
                                 :
                             </th>
-                            <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory"
-                                                                                          id="newcategory" type="text"
-                                                                                          maxlength="45" value=""
-                                                                                          class="inputBox"
-                                                                                          style="width:300px;"></td>
+                            <td align="left" valign="top" style="padding-top:5px;">
+                                <input name="newcategory"
+                                       id="newcategory" type="text"
+                                       maxlength="45" value=""
+                                       class="inputBox"
+                                       style="width:300px;">
+                            </td>
                         </tr>
                         <tr>
-                            <th align="left"><?php echo $_lang['plugin_desc']; ?>:&nbsp;&nbsp;</th>
-                            <td align="left"><textarea id="pluginDescription" name="description"
-                                                       style="padding:0;height:4em;"><?php echo $pluginObject->description; ?></textarea>
+                            <th align="left"><?= $_lang['plugin_desc'] ?>:&nbsp;&nbsp;</th>
+                            <td align="left">
+                                <textarea id="pluginDescription" name="description"
+                                          style="padding:0;height:4em;"><?= $pluginObject->description ?></textarea>
                             </td>
                         </tr>
                         <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
                             <tr>
                                 <td align="left" valign="top" colspan="2">
                                     <label><input name="locked"
-                                                  type="checkbox" <?php echo $pluginObject->locked == 1 ? "checked='checked'" : ""; ?>
+                                                  type="checkbox" <?= $pluginObject->locked == 1 ? "checked='checked'" : "" ?>
                                                   value="on" class="inputBox">
-                                        <b><?php echo $_lang['lock_plugin']; ?></b> <span
-                                                class="comment"><?php echo $_lang['lock_plugin_msg']; ?></span></label>
+                                        <b><?= $_lang['lock_plugin'] ?></b> <span
+                                                class="comment"><?= $_lang['lock_plugin_msg'] ?></span></label>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -698,12 +712,12 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                 </div>
                 <div class="tab-page" id="tabHelp">
                     <h2 class="tab">ヘルプ</h2>
-                    <?php echo $_lang['plugin_msg']; ?>
+                    <?= $_lang['plugin_msg'] ?>
                 </div>
             </div>
         </div>
         <script>
-            var tpstatus = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false';?>;
+            var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false';?>;
             tp = new WebFXTabPane(document.getElementById("pluginPane"), tpstatus);
         </script>
         <?php

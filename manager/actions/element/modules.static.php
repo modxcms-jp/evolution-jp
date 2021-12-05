@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var array $_lang
+ * @var array $_style
+ */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
@@ -12,7 +16,7 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
 $modx->manager->initPageViewState();
 
 // get and save search string
-if ($_REQUEST['op'] == 'reset') {
+if ($_REQUEST['op'] === 'reset') {
     $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
@@ -43,12 +47,12 @@ echo $cm->render();
 ?>
 <script type="text/javascript">
     var selectedItem;
-    var contextm = <?php echo $cm->getClientScriptObject(); ?>;
+    var contextm = <?= $cm->getClientScriptObject() ?>;
 
     function showContentMenu(id, e) {
         selectedItem = id;
         contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))
-            <?php echo $modx_textdir === 'rtl' ? '-190' : '';?>+ "px"; //offset menu if RTL is selected
+        <?= $modx_textdir === 'rtl' ? '-190' : '';?>+ "px"; //offset menu if RTL is selected
         contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + "px";
         contextm.style.visibility = "visible";
         e.cancelBubble = true;
@@ -66,12 +70,12 @@ echo $cm->render();
                 window.location.href = 'index.php?a=108&id=' + id;
                 break;
             case 3:		// duplicate
-                if (confirm("<?php echo $_lang['confirm_duplicate_record'] ?>") == true) {
+                if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                     window.location.href = 'index.php?a=111&id=' + id;
                 }
                 break;
             case 4:		// delete
-                if (confirm("<?php echo $_lang['confirm_delete_module']; ?>") == true) {
+                if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
                     window.location.href = 'index.php?a=110&id=' + id;
                 }
                 break;
@@ -83,11 +87,11 @@ echo $cm->render();
     });
 </script>
 
-<h1><?php echo $_lang['module_management']; ?></h1>
+<h1><?= $_lang['module_management'] ?></h1>
 
 <div class="sectionBody">
     <!-- load modules -->
-    <p><?php echo $_lang['module_management_msg']; ?></p>
+    <p><?= $_lang['module_management_msg'] ?></p>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -97,7 +101,7 @@ echo $cm->render();
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                             alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

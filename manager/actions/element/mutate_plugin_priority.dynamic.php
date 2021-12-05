@@ -13,7 +13,7 @@ if (isset($_POST['listSubmitted'])) {
     $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
 
     foreach ($_POST as $listName => $listValue) {
-        if ($listName == 'listSubmitted') {
+        if ($listName === 'listSubmitted') {
             continue;
         }
         $orderArray = explode(',', $listValue);
@@ -79,7 +79,7 @@ $header = '
 		ul.sortableList
 		{
 			padding-left: 20px;
-			margin: 0px;
+			margin: 0;
 			width: 300px;
 		}
 
@@ -89,17 +89,17 @@ $header = '
 			cursor: move;
             color: #444444;
             padding: 3px 5px;
-			margin: 4px 0px;
+			margin: 4px 0;
             border: 1px solid #CCCCCC;
 			background-repeat: repeat-x;
 		}
         #sortableListForm {display:none;}
 	</style>
-    <script type="text/javascript">
+    <script>
         function save() {
         	setTimeout("document.sortableListForm.submit()",1000);
     	}
-    	
+
     	window.addEvent(\'domready\', function() {';
 foreach ($sortables as $list) {
     $header .= 'new Sortables($(\'' . $list . '\'), {

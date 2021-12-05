@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var array $_style
+ * @var array $_lang
+ */
 // Action 127
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;

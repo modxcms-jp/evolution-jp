@@ -48,22 +48,22 @@ switch ($_REQUEST['op']) {
         if (count($opids) > 0) {
             // 1-snips, 2-tpls, 3-tvs, 4-chunks, 5-plugins, 6-docs
             $rt = strtolower($_REQUEST["rt"]);
-            if ($rt == 'chunk') {
+            if ($rt === 'chunk') {
                 $type = 10;
             }
-            if ($rt == 'doc') {
+            if ($rt === 'doc') {
                 $type = 20;
             }
-            if ($rt == 'plug') {
+            if ($rt === 'plug') {
                 $type = 30;
             }
-            if ($rt == 'snip') {
+            if ($rt === 'snip') {
                 $type = 40;
             }
-            if ($rt == 'tpl') {
+            if ($rt === 'tpl') {
                 $type = 50;
             }
-            if ($rt == 'tv') {
+            if ($rt === 'tv') {
                 $type = 60;
             }
             $v = array();
@@ -85,8 +85,8 @@ switch ($_REQUEST['op']) {
         break;
     case 'del':
         $opids = $_REQUEST['depid'];
-        for ($i = 0; $i < count($opids); $i++) {
-            $opids[$i] = intval($opids[$i]); // convert ids to numbers
+        for ($i = 0, $iMax = count($opids); $i < $iMax; $i++) {
+            $opids[$i] = (int)$opids[$i]; // convert ids to numbers
         }
         // get resources that needs to be removed
         $ds = db()->query("SELECT * FROM " . $tbl_site_module_depobj . " WHERE id IN (" . implode(",", $opids) . ")");
@@ -111,8 +111,8 @@ switch ($_REQUEST['op']) {
             }
             // reset moduleguid for deleted resources
             if (($cp = count($plids)) || ($cs = count($snids))) {
-                $plids = join(',', $plids);
-                $snids = join(',', $snids);
+                $plids = implode(',', $plids);
+                $snids = implode(',', $snids);
                 if ($cp) {
                     db()->update("moduleguid=''", $tbl_site_plugins, "id IN ({$plids}) AND moduleguid='{$guid}'");
                 }
@@ -123,7 +123,7 @@ switch ($_REQUEST['op']) {
                 $modx->clearCache();
             }
         }
-        $opids = join(',', $opids);
+        $opids = implode(',', $opids);
         db()->delete($tbl_site_module_depobj, "id IN ({$opids})");
         break;
 }
@@ -134,10 +134,13 @@ $limit = db()->count($rs);
 if ($limit > 1) {
     echo "<p>Multiple modules sharing same unique id. Please contact the Site Administrator.<p>";
     exit;
-} elseif ($limit < 1) {
+}
+
+if ($limit < 1) {
     echo "<p>Module not found for id '$id'.</p>";
     exit;
 }
+
 $content = db()->getRow($rs);
 $_SESSION['itemname'] = $content['name'];
 if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
@@ -149,7 +152,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 <script type="text/javascript">
 
     function removeDependencies() {
-        if (confirm("<?php echo $_lang['confirm_delete_record']; ?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_record'] ?>")) {
             documentDirty = false;
             document.mutate.op.value = "del";
             document.mutate.submit();
@@ -212,28 +215,28 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
     <input type="hidden" name="op" value=""/>
     <input type="hidden" name="rt" value=""/>
     <input type="hidden" name="newids" value=""/>
-    <input type="hidden" name="id" value="<?php echo $content['id']; ?>"/>
-    <h1><?php echo $_lang['module_resource_title']; ?></h1>
+    <input type="hidden" name="id" value="<?= $content['id'] ?>"/>
+    <h1><?= $_lang['module_resource_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate"><a href="index.php?a=106"><img
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a>
+                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a>
         </ul>
     </div>
 
     <div class="section">
-        <div class="sectionHeader"><?php echo $content["name"] . " - " . $_lang['module_resource_title']; ?></div>
+        <div class="sectionHeader"><?= $content["name"] . " - " . $_lang['module_resource_title'] ?></div>
         <div class="sectionBody">
-            <p><img src="<?php echo $_style["icons_modules"] ?>" alt=""
-                    align="left"/><?php echo $_lang['module_resource_msg']; ?></p>
+            <p><img src="<?= $_style["icons_modules"] ?>" alt=""
+                    align="left"/><?= $_lang['module_resource_msg'] ?></p>
             <br/>
             <!-- Dependencies -->
             <ul class="actionButtons">
                 <li><a href="#" onclick="addSnippet();return false;"><img
-                                src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['add_snippet']; ?></a></li>
+                                src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_snippet'] ?></a></li>
                 <li><a href="#" onclick="addPlugin();return false;"><img
-                                src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['add_plugin']; ?></a></li>
+                                src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_plugin'] ?></a></li>
             </ul>
             <?php
             $sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
@@ -265,7 +268,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
             ?>
             <ul class="actionButtons">
                 <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img
-                                src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['remove']; ?>
+                                src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['remove'] ?>
                     </a></li>
             </ul>
         </div>
