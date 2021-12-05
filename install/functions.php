@@ -216,10 +216,10 @@ function clean_up($sqlParser)
     // secure web documents - privateweb
     db()->query("UPDATE `" . $table_prefix . "site_content` SET privateweb = 0 WHERE privateweb = 1");
     $sql = "SELECT DISTINCT sc.id
-             FROM `" . $table_prefix . "site_content` sc
-             LEFT JOIN `" . $table_prefix . "document_groups` dg ON dg.document = sc.id
-             LEFT JOIN `" . $table_prefix . "webgroup_access` wga ON wga.documentgroup = dg.document_group
-             WHERE wga.id>0";
+            FROM `" . $table_prefix . "site_content` sc
+            LEFT JOIN `" . $table_prefix . "document_groups` dg ON dg.document = sc.id
+            LEFT JOIN `" . $table_prefix . "webgroup_access` wga ON wga.documentgroup = dg.document_group
+            WHERE wga.id>0";
     $rs = db()->query($sql);
     if (!$rs) {
         echo sprintf(
@@ -245,10 +245,10 @@ function clean_up($sqlParser)
     db()->query(sprintf('UPDATE `%ssite_content` SET privatemgr = 0 WHERE privatemgr = 1', $table_prefix));
     $sql = sprintf(
         'SELECT DISTINCT sc.id
-             FROM `%ssite_content` sc
-             LEFT JOIN `%sdocument_groups` dg ON dg.document = sc.id
-             LEFT JOIN `%smembergroup_access` mga ON mga.documentgroup = dg.document_group
-             WHERE mga.id>0',
+            FROM `%ssite_content` sc
+            LEFT JOIN `%sdocument_groups` dg ON dg.document = sc.id
+            LEFT JOIN `%smembergroup_access` mga ON mga.documentgroup = dg.document_group
+            WHERE mga.id>0',
         $table_prefix,
         $table_prefix,
         $table_prefix

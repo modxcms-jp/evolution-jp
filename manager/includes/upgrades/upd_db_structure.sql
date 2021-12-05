@@ -181,6 +181,8 @@ ALTER TABLE `{PREFIX}site_plugin_events` DROP PRIMARY KEY;
 
 ALTER TABLE `{PREFIX}site_plugin_events` ADD PRIMARY KEY (`pluginid`, `evtid`);
 
+# ALTER TABLE `{PREFIX}site_templates` CHANGE `templatename` `name` varchar(50) NOT NULL DEFAULT '';
+
 ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_tmplvarid`;
 
 ALTER TABLE `{PREFIX}site_tmplvar_templates` DROP INDEX `idx_templateid`;

@@ -35,7 +35,7 @@
         }
 
         function setMoveValue(pId, pName) {
-            if (pId == 0 || checkParentChildRelation(pId, pName)) {
+            if (!pId || checkParentChildRelation(pId, pName)) {
                 document.newdocumentparent.new_parent.value = pId;
                 document.getElementById('parentName').innerHTML = "Parent: <strong>" + pId + "</strong> (" + pName +
                 ")";
@@ -43,19 +43,17 @@
         }
 
         function checkParentChildRelation(pId, pName) {
-            var sp;
-            var id = document.newdocumentparent.id.value;
-            var tdoc = parent.tree.document;
-            var pn = tdoc.getElementById("node" + pId);
-            if (!pn) return;
+            const id = document.newdocumentparent.id.value;
+            const tdoc = parent.tree.document;
+            let pn = tdoc.getElementById("node" + pId);
+            if (!pn) return false;
             while (pn.p > 0) {
                 pn = tdoc.getElementById("node" + pn.p);
-                if (pn.id.substr(4) == id) {
+                if (pn.id.substr(4) === id) {
                     alert("Illegal Parent");
-                    return;
+                    return false;
                 }
             }
-
             return true;
         }
     </script>

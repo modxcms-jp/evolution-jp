@@ -1,13 +1,12 @@
 <!-- Access Permissions -->
 <div class="tab-page" id="tabAccess">
     <h2 class="tab" id="tabAccessHeader">[+_lang_access_permissions+]</h2>
-    <script type="text/javascript">
-        /* <![CDATA[ */
+    <script>
         function makePublic(b) {
-            var notPublic = false;
-            var f = document.forms['mutate'];
-            var chkpub = f['chkalldocs'];
-            var chks = f['docgroups[]'];
+            let notPublic = false;
+            const f = document.forms['mutate'];
+            let chkpub = f['chkalldocs'];
+            let chks = f['docgroups[]'];
             if (!chks && chkpub) {
                 chkpub.checked = true;
                 return false;
@@ -21,8 +20,6 @@
                 chkpub.checked = true;
             }
         }
-
-        /* ]]> */
     </script>
     <p>[+_lang_access_permissions_docs_message+]</p>
     <ul>

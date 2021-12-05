@@ -75,7 +75,7 @@ function get_src_js() {
 top.mainMenu.defaultTreeFrame();
 parent.tree.ca = "move";
 function setMoveValue(pId, pName) {
-    if (pId==0 || checkParentChildRelation(pId, pName)) {
+    if (pId===0 || checkParentChildRelation(pId, pName)) {
         document.newdocumentparent.new_parent.value=pId;
         document.getElementById('parentName').innerHTML = "{$_lang['new_parent']}: <b>" + pId + "</b> (" + pName + ")";
     }
@@ -83,21 +83,19 @@ function setMoveValue(pId, pName) {
 
 // check if the selected parent is a child of this document
 function checkParentChildRelation(pId, pName) {
-    var sp;
-    var id = document.newdocumentparent.id.value;
-    var tdoc = parent.tree.document;
-    var pn = tdoc.getElementById("node"+pId);
-    if (!pn) return;
-    if (pn.id.substr(4)==id) {
+    const id = document.newdocumentparent.id.value;
+    const tdoc = parent.tree.document;
+    let pn = tdoc.getElementById("node"+pId);
+    if (!pn) return false;
+    if (pn.id.substr(4)===id) {
         alert("{$_lang['illegal_parent_self']}");
-        return;
-    }
-    else {
+        return false;
+    } else {
         while (pn.p>0) {
             pn = tdoc.getElementById("node"+pn.p);
-            if (pn.id.substr(4)==id) {
+            if (pn.id.substr(4)===id) {
                 alert("{$_lang['illegal_parent_child']}");
-                return;
+                return false;
             }
         }
     }
@@ -111,19 +109,23 @@ EOT;
 
 function show_perm_error() {
     global $_lang;
-    $src = <<< EOT
-<br /><br /><div class="section"><div class="sectionHeader">{$_lang['access_permissions']}</div><div class="sectionBody">
-<p>{$_lang['access_permission_denied']}</p>
-</div></div>
-EOT;
-    echo $src;
+    echo sprintf(
+        '<br /><br /><div class="section"><div class="sectionHeader">%s</div><div class="sectionBody"><p>%s</p></div></div>',
+        $_lang['access_permissions'],
+        $_lang['access_permission_denied']
+    );
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
 function get_parentid($id) {
-    if (strpos($id, ',')) {
+    if (strpos($id, ',')!==false) {
         $id = substr($id, 0, strpos($id, ','));
     }
-    $rs = db()->select('parent', '[+prefix+]site_content', "id='{$id}'");
-    return db()->getValue($rs);
+    return db()->getValue(
+        db()->select(
+            'parent',
+            '[+prefix+]site_content',
+            sprintf("id='%s'", $id)
+        )
+    );
 }

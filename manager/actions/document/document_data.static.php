@@ -1,4 +1,8 @@
 <?php
+/**
+ * @var array $_lang
+ * @var  array $_style
+ */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
@@ -91,55 +95,92 @@ foreach ($content as $k => $v) {
 ?>
 <script type="text/javascript">
     function duplicatedocument() {
-        if (confirm("<?php echo $_lang['confirm_resource_duplicate']; ?>") == true) {
-            document.location.href = "index.php?id=<?php echo $id; ?>&a=94";
+        if (confirm("<?= $_lang['confirm_resource_duplicate']; ?>")) {
+            document.location.href = "index.php?id=<?= $id ?>&a=94";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?php echo $_lang['confirm_delete_resource']; ?>") == true) {
-            document.location.href = "index.php?id=<?php echo $id; ?>&a=6";
+        if (confirm("<?= $_lang['confirm_delete_resource']; ?>")) {
+            document.location.href = "index.php?id=<?= $id ?>&a=6";
         }
     }
 
     function editdocument() {
-        document.location.href = "index.php?id=<?php echo $id; ?>&a=27";
+        document.location.href = "index.php?id=<?= $id; ?>&a=27";
     }
 
     function movedocument() {
-        document.location.href = "index.php?id=<?php echo $id; ?>&a=51";
+        document.location.href = "index.php?id=<?= $id ?>&a=51";
     }
 </script>
-<h1><?php echo $_lang['doc_data_title'] ?></h1>
+<h1><?= $_lang['doc_data_title'] ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <?php if (evo()->hasPermission('save_document')) : ?>
-            <li id="Button1" class="mutate"><a href="javascript:void(0)" onclick="editdocument();"><img src="<?php echo $_style["icons_edit_document"] ?>" /> <?php echo $_lang['edit'] ?></a></li>
-        <?php endif; ?>
-        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
-            <li id="Button2" class="mutate"><a href="#" onclick="movedocument();"><img src="<?php echo $_style["icons_move_document"] ?>" /> <?php echo $_lang['move'] ?></a></li>
-        <?php endif; ?>
-        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
-            <li id="Button4"><a href="#" onclick="duplicatedocument();"><img src="<?php echo $_style["icons_resource_duplicate"] ?>" /> <?php echo $_lang['duplicate'] ?>
-                </a></li>
-        <?php endif; ?>
-        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
-            <li id="Button3"><a href="#" onclick="deletedocument();"><img src="<?php echo $_style["icons_delete_document"] ?>" /> <?php echo $_lang['delete'] ?></a>
+            <li id="Button1" class="mutate">
+                <a href="javascript:void(0)" onclick="editdocument();">
+                    <img src="<?= $_style["icons_edit_document"] ?>"/>
+                    <?= $_lang['edit'] ?>
+                </a>
             </li>
         <?php endif; ?>
-        <li id="Button6"><a href="#" onclick="<?php echo (evo()->config('friendly_urls') == 1) ? "window.open('" . evo()->makeUrl($id) . "','previeWin')" : "window.open('../index.php?id=$id','previeWin')"; ?>"><img src="<?php echo $_style["icons_preview_resource"] ?>" /> <?php echo $_lang['view_resource'] ?>
-            </a></li>
-        <li id="Button5" class="mutate"><a href="#" onclick="documentDirty=false;<?php
-                                                                                    if (isset($content['parent']) && $content['parent'] !== '0') {
-                                                                                        echo "document.location.href='index.php?a=120&id={$content['parent']}';";
-                                                                                    } elseif ($_GET['pid']) {
-                                                                                        $_GET['pid'] = intval($_GET['pid']);
-                                                                                        echo "document.location.href='index.php?a=120&id={$_GET['pid']}';";
-                                                                                    } else {
-                                                                                        echo "document.location.href='index.php?a=2';";
-                                                                                    }
-                                                                                    ?>"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a>
+        <?php if (evo()->hasPermission('save_document') && evo()->hasPermission('move_document')) : ?>
+            <li id="Button2" class="mutate">
+                <a href="#" onclick="movedocument();">
+                    <img src="<?= $_style["icons_move_document"] ?>"/>
+                    <?= $_lang['move'] ?>
+                </a>
+            </li>
+        <?php endif; ?>
+        <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
+            <li id="Button4">
+                <a href="#" onclick="duplicatedocument();">
+                    <img src="<?= $_style["icons_resource_duplicate"] ?>" />
+                    <?= $_lang['duplicate'] ?>
+                </a>
+            </li>
+        <?php endif; ?>
+        <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
+            <li id="Button3">
+                <a href="#" onclick="deletedocument();">
+                    <img src="<?= $_style["icons_delete_document"] ?>" />
+                    <?= $_lang['delete'] ?>
+                </a>
+            </li>
+        <?php endif; ?>
+        <li id="Button6">
+            <a
+                href="#"
+                onclick="<?=
+                (evo()->config('friendly_urls') == 1)
+                    ? sprintf("window.open('%s','previeWin')", evo()->makeUrl($id))
+                    : sprintf("window.open('../index.php?id=%s','previeWin')", $id)
+                ;
+                ?>"
+            >
+                <img src="<?= $_style["icons_preview_resource"] ?>" />
+                <?= $_lang['view_resource'] ?>
+            </a>
+        </li>
+        <li id="Button5" class="mutate"><a
+                href="#"
+                onclick="
+                documentDirty=false;
+                <?php
+                if (isset($content['parent']) && $content['parent'] != 0) {
+                    echo "document.location.href='index.php?a=120&id=" . $content['parent'] . "';";
+                } elseif ($_GET['pid']) {
+                    echo "document.location.href='index.php?a=120&id=" . (int)$_GET['pid'] . "';";
+                } else {
+                    echo "document.location.href='index.php?a=2';";
+                }
+                ?>"
+            ><img
+                    alt="icons_cancel"
+                    src="<?= $_style["icons_cancel"] ?>"
+                /> <?= $_lang['cancel'] ?></a>
         </li>
     </ul>
 </div>
@@ -156,16 +197,16 @@ foreach ($content as $k => $v) {
         </style>
         <!-- General -->
         <div class="tab-page" id="tabDocInfo">
-            <h2 class="tab"><?php echo $_lang['information'] ?></h2>
+            <h2 class="tab"><?= $_lang['information'] ?></h2>
             <div class="sectionBody">
                 <table>
                     <tr>
                         <td width="200">ID:</td>
-                        <td><?php echo $content['id'] ?></td>
+                        <td><?= $content['id'] ?></td>
                         <td>[*id*]</td>
                     </tr>
                     <tr>
-                        <td width="200"><?php echo $_lang['page_data_template'] ?>:</td>
+                        <td width="200"><?= $_lang['page_data_template'] ?>:</td>
                         <td><?php
                             echo sprintf(
                                 '%s(id:%s)',
@@ -177,12 +218,12 @@ foreach ($content as $k => $v) {
                         <td>[*template*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_title'] ?>:</td>
-                        <td><?php echo $content['pagetitle'] ?></td>
+                        <td><?= $_lang['resource_title'] ?>:</td>
+                        <td><?= $content['pagetitle'] ?></td>
                         <td>[*pagetitle*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['long_title'] ?>:</td>
+                        <td><?= $_lang['long_title'] ?>:</td>
                         <td><?php
                             if ($content['longtitle'] != '') {
                                 echo $content['longtitle'];
@@ -193,78 +234,110 @@ foreach ($content as $k => $v) {
                         <td>[*longtitle*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_description'] ?>:</td>
-                        <td><?php echo $content['description'] != '' ? $content['description'] : "(<i>" . $_lang['not_set'] . "</i>)" ?></td>
+                        <td><?= $_lang['resource_description'] ?>:</td>
+                        <td><?=
+                            $content['description'] != ''
+                                ? $content['description']
+                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                            ?></td>
                         <td>[*description*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_summary'] ?>:</td>
-                        <td><?php echo $content['introtext'] != '' ? $content['introtext'] : "(<i>" . $_lang['not_set'] . "</i>)" ?></td>
+                        <td><?= $_lang['resource_summary'] ?>:</td>
+                        <td><?=
+                            $content['introtext'] != ''
+                                ? $content['introtext']
+                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                            ?></td>
                         <td>[*introtext*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['type'] ?>:</td>
-                        <td><?php echo $content['type'] === 'reference' ? $_lang['weblink'] : $_lang['resource'] ?></td>
+                        <td><?= $_lang['type'] ?>:</td>
+                        <td><?=
+                            $content['type'] === 'reference'
+                                ? $_lang['weblink']
+                                : $_lang['resource']
+                            ?></td>
                         <td>[*type*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_alias'] ?>:</td>
-                        <td><?php echo $content['alias'] != '' ? $content['alias'] : "(<i>" . $_lang['not_set'] . "</i>)" ?></td>
+                        <td><?= $_lang['resource_alias'] ?>:</td>
+                        <td><?=
+                            $content['alias'] != ''
+                                ? $content['alias']
+                                : "(<i>" . $_lang['not_set'] . "</i>)"
+                            ?></td>
                         <td>[*alias*]</td>
                     </tr>
                     <tr>
-                        <td width="200"><?php echo $_lang['page_data_created'] ?>:</td>
-                        <td><?php echo evo()->toDateFormat($content['createdon'] + evo()->config('server_offset_time', 0)) ?>
-                            (<b><?php echo $createdbyname ?></b>)
+                        <td width="200"><?= $_lang['page_data_created'] ?>:</td>
+                        <td><?=
+                            evo()->toDateFormat(
+                                $content['createdon'] + evo()->config('server_offset_time', 0)
+                            )
+                            ?>
+                            (<b><?= $createdbyname ?></b>)
                         </td>
                         <td>[*createdon:date*]</td>
                     </tr>
                     <?php if ($editedbyname != '') { ?>
                         <tr>
-                            <td><?php echo $_lang['page_data_edited'] ?>:</td>
-                            <td><?php echo evo()->toDateFormat($content['editedon'] + evo()->config('server_offset_time', 0)) ?>
-                                (<b><?php echo $editedbyname ?></b>)
+                            <td><?= $_lang['page_data_edited'] ?>:</td>
+                            <td><?= evo()->toDateFormat($content['editedon'] + evo()->config('server_offset_time', 0)) ?>
+                                (<b><?= $editedbyname ?></b>)
                             </td>
                             <td>[*editedon:date*]</td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <td width="200"><?php echo $_lang['page_data_status'] ?>:</td>
-                        <td><?php echo $content['published'] == 0 ? '<span class="unpublishedDoc">' . $_lang['page_data_unpublished'] . '</span>' : '<span class="publisheddoc">' . $_lang['page_data_published'] . '</span>' ?></td>
+                        <td width="200"><?= $_lang['page_data_status'] ?>:</td>
+                        <td><?=
+                            $content['published'] == 0
+                                ? '<span class="unpublishedDoc">' . $_lang['page_data_unpublished'] . '</span>'
+                                : '<span class="publisheddoc">' . $_lang['page_data_published'] . '</span>'
+                            ?></td>
                         <td>[*published*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_publishdate'] ?>:</td>
-                        <td><?php echo $content['pub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : evo()->toDateFormat($content['pub_date']) ?></td>
+                        <td><?= $_lang['page_data_publishdate'] ?>:</td>
+                        <td><?=
+                            $content['pub_date'] == 0
+                                ? "(<i>" . $_lang['not_set'] . "</i>)"
+                                : evo()->toDateFormat($content['pub_date'])
+                            ?></td>
                         <td>[*pub_date:date*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_unpublishdate'] ?>:</td>
-                        <td><?php echo $content['unpub_date'] == 0 ? "(<i>" . $_lang['not_set'] . "</i>)" : evo()->toDateFormat($content['unpub_date']) ?></td>
+                        <td><?= $_lang['page_data_unpublishdate'] ?>:</td>
+                        <td><?=
+                            $content['unpub_date'] == 0
+                                ? "(<i>" . $_lang['not_set'] . "</i>)"
+                                : evo()->toDateFormat($content['unpub_date'])
+                            ?></td>
                         <td>[*unpub_date:date*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_cacheable'] ?>:</td>
-                        <td><?php echo $content['cacheable'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $_lang['page_data_cacheable'] ?>:</td>
+                        <td><?= $content['cacheable'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
                         <td>[*cacheable*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_searchable'] ?>:</td>
-                        <td><?php echo $content['searchable'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $_lang['page_data_searchable'] ?>:</td>
+                        <td><?= $content['searchable'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
                         <td>[*searchable*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_opt_menu_index'] ?>:</td>
-                        <td><?php echo $content['menuindex'] ?></td>
+                        <td><?= $_lang['resource_opt_menu_index'] ?>:</td>
+                        <td><?= $content['menuindex'] ?></td>
                         <td>[*menuindex*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['resource_opt_show_menu'] ?>:</td>
-                        <td><?php echo $content['hidemenu'] == 1 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $_lang['resource_opt_show_menu'] ?>:</td>
+                        <td><?= $content['hidemenu'] == 1 ? $_lang['no'] : $_lang['yes'] ?></td>
                         <td>[*hidemenu*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_web_access'] ?>:</td>
+                        <td><?= $_lang['page_data_web_access'] ?>:</td>
                         <td><?php
                             if ($content['privateweb'] == 0) {
                                 echo $_lang['public'];
@@ -279,7 +352,7 @@ foreach ($content as $k => $v) {
                         <td>[*privateweb*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_mgr_access'] ?>:</td>
+                        <td><?= $_lang['page_data_mgr_access'] ?>:</td>
                         <td><?php
                             if ($content['privatemgr'] == 0) {
                                 echo $_lang['public'];
@@ -293,13 +366,13 @@ foreach ($content as $k => $v) {
                         <td>[*privatemgr*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_editor'] ?>:</td>
-                        <td><?php echo $content['richtext'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $_lang['page_data_editor'] ?>:</td>
+                        <td><?= $content['richtext'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
                         <td>[*richtext*]</td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['page_data_folder'] ?>:</td>
-                        <td><?php echo $content['isfolder'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $_lang['page_data_folder'] ?>:</td>
+                        <td><?= $content['isfolder'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
                         <td>[*isfolder*]</td>
                     </tr>
                 </table>
@@ -311,7 +384,7 @@ foreach ($content as $k => $v) {
         ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
-                <h2 class="tab"><?php echo $_lang['page_data_source'] ?></h2>
+                <h2 class="tab"><?= $_lang['page_data_source'] ?></h2>
                 <?=
                 sprintf(
                     '%s<p><textarea style="width: 100%%; height: 400px;">%s</textarea>',
