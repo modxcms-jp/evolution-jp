@@ -7,11 +7,11 @@
         <option value="0">[+lang.DM_adjust_authors_noselection+]</option>
         [+changeauthors.options+]
     </select>
-    <br /><br />
+    <br/><br/>
 
     <label for="author_editedby">[+lang.DM_adjust_authors_editedby+]</label>
-        <select name="author_editedby" style="width:50%">
-            <option value="0">[+lang.DM_adjust_authors_noselection+]</option>
-            [+changeauthors.options+]
-        </select>
+    <select name="author_editedby" style="width:50%">
+        <option value="0">[+lang.DM_adjust_authors_noselection+]</option>
+        [+changeauthors.options+]
+    </select>
 </form>

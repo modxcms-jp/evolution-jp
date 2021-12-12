@@ -61,7 +61,7 @@ class DocManagerBackend
             $noId = true;
             $this->dm->ph['sort.disable_tree_select'] = 'true';
             $this->dm->ph['sort.save'] = 'none';
-            $this->dm->ph['sort.message'] =  $this->dm->lang['DM_sort_noid'];
+            $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_noid'];
         }
 
         if (!$noId) {
@@ -69,7 +69,7 @@ class DocManagerBackend
             if ($cnt < 1) {
                 $this->dm->ph['sort.disable_tree_select'] = 'true';
                 $this->dm->ph['sort.save'] = 'none';
-                $this->dm->ph['sort.message'] =  $this->dm->lang['DM_sort_nochildren'];
+                $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_nochildren'];
             } else {
                 foreach ($resource as $item) {
                     $classes = '';

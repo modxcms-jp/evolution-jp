@@ -7,7 +7,7 @@ define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
 $self = 'assets/modules/docmanager/tv.ajax.php';
 $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
-include_once($base_path.'manager/includes/document.parser.class.inc.php');
+include_once($base_path . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 include_once($base_path . "assets/modules/docmanager/classes/docmanager.class.php");
 $modx->getSettings();
@@ -18,7 +18,7 @@ $dm->getTheme();
 
 $output = '';
 
-if(!isset($_POST['tplID']) || !is_numeric($_POST['tplID'])) {
+if (!isset($_POST['tplID']) || !is_numeric($_POST['tplID'])) {
     return;
 }
 
@@ -33,113 +33,110 @@ $rs = db()->select(
 );
 $total = db()->count($rs);
 
-header('Content-Type: text/html; charset='.$modx->config['modx_charset']);
+header('Content-Type: text/html; charset=' . $modx->config['modx_charset']);
 
-if ($total > 0)
-{
-	require(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
-	$output.= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
-	
-	for ($i=0; $i<$total; $i++)
-	{
+if ($total > 0) {
+    require(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
+    $output .= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
+
+    for ($i = 0; $i < $total; $i++) {
         $row = db()->getRow($rs);
-		
-		if($i>0 && $i<$total) {
+
+        if ($i > 0 && $i < $total) {
             $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
         }
-		
-		$output.='<tr style="height: 24px;">
+
+        $output .= '<tr style="height: 24px;">
 			<td align="left" valign="top" width="200">
-				<span class="warning"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;'.$row['caption'].'</span><br /><span class="comment">'.$row['description'].'</span>
+				<span class="warning"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . $row['caption'] . '</span><br /><span class="comment">' . $row['description'] . '</span>
 			</td>
 			<td valign="top" style="position:relative">';
-		$base_url = $modx->config['base_url'];
-		$output.= renderFormElement(
-		    $row['type'],
+        $base_url = $modx->config['base_url'];
+        $output .= renderFormElement(
+            $row['type'],
             $row['id'],
             $row['default_text'],
             $row['elements'],
             $row['value'],
             ' style="width:300px;"'
         );
-		$output.= '</td></tr>';
-	}
-	$output.='</table>';
-}
-else
-{
-	echo $dm->lang['DM_tv_no_tv'];
+        $output .= '</td></tr>';
+    }
+    $output .= '</table>';
+} else {
+    echo $dm->lang['DM_tv_no_tv'];
 }
 echo $output;
 
 
-function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style='') {
-	global $dm;
-	global $base_url;
+function renderFormElement($field_type, $field_id, $default_text, $field_elements, $field_value, $field_style = '')
+{
+    global $dm;
+    global $base_url;
 
-	$field_html ='';
-	$field_value = ($field_value!="" ? $field_value : $default_text);
+    $field_html = '';
+    $field_value = ($field_value != "" ? $field_value : $default_text);
 
-	switch ($field_type) {
-		case 'text': // handler for regular text boxes
-		case 'rawtext'; // non-htmlentity converted text boxes
-		case 'email': // handles email input fields
-		case 'number': // handles the input of numbers
-			$field_html .= sprintf(
-			    '<input type="text" id="tv%s" name="tv%s" value="%s" %s tvtype="%s" onchange="documentDirty=true;" style="width:100%%" />',
+    switch ($field_type) {
+        case 'text': // handler for regular text boxes
+        case 'rawtext'; // non-htmlentity converted text boxes
+        case 'email': // handles email input fields
+        case 'number': // handles the input of numbers
+            $field_html .= sprintf(
+                '<input type="text" id="tv%s" name="tv%s" value="%s" %s tvtype="%s" onchange="documentDirty=true;" style="width:100%%" />',
                 $field_id,
                 $field_id,
                 hsc($field_value),
                 $field_style,
                 $field_type
             );
-			break;
-		case 'textareamini': // handler for textarea mini boxes
-			$field_html .= sprintf(
-			    '<textarea id="tv%s" name="tv%s" cols="40" rows="5" onchange="documentDirty=true;" style="width:100%%">%s</textarea>',
+            break;
+        case 'textareamini': // handler for textarea mini boxes
+            $field_html .= sprintf(
+                '<textarea id="tv%s" name="tv%s" cols="40" rows="5" onchange="documentDirty=true;" style="width:100%%">%s</textarea>',
                 $field_id,
                 $field_id,
                 hsc($field_value)
             );
-			break;
-		case 'textarea': // handler for textarea boxes
-		case 'rawtextarea': // non-htmlentity convertex textarea boxes
-		case 'htmlarea': // handler for textarea boxes (deprecated)
-		case "richtext": // handler for textarea boxes
-			$field_html .= sprintf(
-			    '<textarea id="tv%s" name="tv%s" cols="40" rows="15" onchange="documentDirty=true;" style="width:100%%;">%s</textarea>',
+            break;
+        case 'textarea': // handler for textarea boxes
+        case 'rawtextarea': // non-htmlentity convertex textarea boxes
+        case 'htmlarea': // handler for textarea boxes (deprecated)
+        case "richtext": // handler for textarea boxes
+            $field_html .= sprintf(
+                '<textarea id="tv%s" name="tv%s" cols="40" rows="15" onchange="documentDirty=true;" style="width:100%%;">%s</textarea>',
                 $field_id,
                 $field_id,
                 hsc($field_value)
             );
-			break;
-		case 'date':
-			$field_id = str_replace(array('-', '.'),'_', urldecode($field_id));	
-            if($field_value=='') $field_value=0;
-			$field_html .= sprintf(
-			    '<input id="tv%s" name="tv%s" class="DatePicker" type="text" value="%d" onblur="documentDirty=true;" />',
+            break;
+        case 'date':
+            $field_id = str_replace(array('-', '.'), '_', urldecode($field_id));
+            if ($field_value == '') $field_value = 0;
+            $field_html .= sprintf(
+                '<input id="tv%s" name="tv%s" class="DatePicker" type="text" value="%d" onblur="documentDirty=true;" />',
                 $field_id,
                 $field_id,
                 $field_value == 0 || !isset($field_value) ? '' : $field_value
             );
-			$field_html .= sprintf(
-			    ' <a onclick="document.forms[\'templatevariables\'].elements[\'tv%s\'].value=\'\';document.forms[\'templatevariables\'].elements[\'tv%s\'].onblur(); return true;" onmouseover="window.status=\'clear the date\'; return true;" onmouseout="window.status=\'\'; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/%simages/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date"></a>',
+            $field_html .= sprintf(
+                ' <a onclick="document.forms[\'templatevariables\'].elements[\'tv%s\'].value=\'\';document.forms[\'templatevariables\'].elements[\'tv%s\'].onblur(); return true;" onmouseover="window.status=\'clear the date\'; return true;" onmouseout="window.status=\'\'; return true;" style="cursor:pointer; cursor:hand"><img src="media/style/%simages/icons/cal_nodate.gif" width="16" height="16" border="0" alt="No date"></a>',
                 $field_id,
                 $field_id,
                 !empty($dm->theme) ? $dm->theme . "/" : ""
             );
 
-			break;
-		case 'dropdown': // handler for select boxes
-			$field_html .= sprintf(
-			    '<select id="tv%s" name="tv%s" size="1" onchange="documentDirty=true;">',
+            break;
+        case 'dropdown': // handler for select boxes
+            $field_html .= sprintf(
+                '<select id="tv%s" name="tv%s" size="1" onchange="documentDirty=true;">',
                 $field_id,
                 $field_id
             );
-			$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+            $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-                if (strlen($itemvalue)==0) {
+                list($item, $itemvalue) = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
                 $field_html .= sprintf(
@@ -149,18 +146,18 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                     hsc($item)
                 );
             }
-            $field_html .=  "</select>";
-			break;
-		case "listbox": // handler for select boxes
-			$field_html .= sprintf(
-			    '<select id="tv%s" name="tv%s" onchange="documentDirty=true;" size="8">',
+            $field_html .= "</select>";
+            break;
+        case "listbox": // handler for select boxes
+            $field_html .= sprintf(
+                '<select id="tv%s" name="tv%s" onchange="documentDirty=true;" size="8">',
                 $field_id,
                 $field_id
             );
-			$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+            $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-                if (strlen($itemvalue)==0) {
+                list($item, $itemvalue) = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
                 $field_html .= sprintf(
@@ -169,19 +166,19 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                     $itemvalue == $field_value ? ' selected="selected"' : '', hsc($item)
                 );
             }
-            $field_html .=  "</select>";
-			break;
-		case 'listbox-multiple': // handler for select boxes where you can choose multiple items
-			$field_value = explode('||',$field_value);
-			$field_html .= sprintf(
-			    '<select id="tv%s[]" name="tv%s[]" multiple="multiple" onchange="documentDirty=true;" size="8">',
+            $field_html .= "</select>";
+            break;
+        case 'listbox-multiple': // handler for select boxes where you can choose multiple items
+            $field_value = explode('||', $field_value);
+            $field_html .= sprintf(
+                '<select id="tv%s[]" name="tv%s[]" multiple="multiple" onchange="documentDirty=true;" size="8">',
                 $field_id,
                 $field_id
             );
-			$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+            $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode('==',$itemvalue);
-                if (strlen($itemvalue)==0) {
+                list($item, $itemvalue) = (is_array($itemvalue)) ? $itemvalue : explode('==', $itemvalue);
+                if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
                 $field_html .= sprintf(
@@ -191,39 +188,39 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                     hsc($item)
                 );
             }
-            $field_html .=  "</select>";
-			break;
-		case 'url': // handles url input fields
-			$urls= array(''=>'--', 'http://'=>'http://', 'https://'=>'https://', 'ftp://'=>'ftp://', 'mailto:'=>'mailto:');
-			$field_html = sprintf(
-			    '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv%s_prefix" name="tv%s_prefix" onchange="documentDirty=true;">',
+            $field_html .= "</select>";
+            break;
+        case 'url': // handles url input fields
+            $urls = array('' => '--', 'http://' => 'http://', 'https://' => 'https://', 'ftp://' => 'ftp://', 'mailto:' => 'mailto:');
+            $field_html = sprintf(
+                '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv%s_prefix" name="tv%s_prefix" onchange="documentDirty=true;">',
                 $field_id,
                 $field_id
             );
-			foreach($urls as $k => $v){
-				if(strpos($field_value,$v)===false) {
+            foreach ($urls as $k => $v) {
+                if (strpos($field_value, $v) === false) {
                     $field_html .= sprintf('<option value="%s">%s</option>', $v, $k);
-                } else{
-					$field_value = str_replace($v,'',$field_value);
-					$field_html.= sprintf('<option value="%s" selected="selected">%s</option>', $v, $k);
-				}
-			}
-			$field_html .='</select></td><td>';
-			$field_html .= sprintf(
-			    '<input type="text" id="tv%s" name="tv%s" value="%s" width="100" %s onchange="documentDirty=true;" /></td></tr></table>',
+                } else {
+                    $field_value = str_replace($v, '', $field_value);
+                    $field_html .= sprintf('<option value="%s" selected="selected">%s</option>', $v, $k);
+                }
+            }
+            $field_html .= '</select></td><td>';
+            $field_html .= sprintf(
+                '<input type="text" id="tv%s" name="tv%s" value="%s" width="100" %s onchange="documentDirty=true;" /></td></tr></table>',
                 $field_id,
                 $field_id,
                 hsc($field_value),
                 $field_style
             );
-			break;
-		case 'checkbox': // handles check boxes
-			$field_value = !is_array($field_value) ? explode('||',$field_value) : $field_value;
-			$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
-			static $i=0;
+            break;
+        case 'checkbox': // handles check boxes
+            $field_value = !is_array($field_value) ? explode('||', $field_value) : $field_value;
+            $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+            static $i = 0;
             foreach ($index_list as $item => $itemvalue) {
-                list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-                if (strlen($itemvalue)==0) {
+                list($item, $itemvalue) = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
                 $field_html .= sprintf(
@@ -238,21 +235,21 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                 $i++;
             }
             break;
-		case 'option': // handles radio buttons
-			$index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
+        case 'option': // handles radio buttons
+            $index_list = ParseIntputOptions(ProcessTVCommand($field_elements, $field_id));
             foreach ($index_list as $item => $itemvalue) {
-                list($item,$itemvalue) =  (is_array($itemvalue)) ? $itemvalue : explode("==",$itemvalue);
-                if (strlen($itemvalue)==0) {
+                list($item, $itemvalue) = (is_array($itemvalue)) ? $itemvalue : explode("==", $itemvalue);
+                if (strlen($itemvalue) == 0) {
                     $itemvalue = $item;
                 }
-                $field_html .=  '<input type="radio" value="'.hsc($itemvalue).'" name="tv'.$field_id.'" '.($itemvalue==$field_value ?'checked="checked"':'').' onchange="documentDirty=true;" />'.$item.'<br />';
+                $field_html .= '<input type="radio" value="' . hsc($itemvalue) . '" name="tv' . $field_id . '" ' . ($itemvalue == $field_value ? 'checked="checked"' : '') . ' onchange="documentDirty=true;" />' . $item . '<br />';
             }
             break;
-		case 'image':	// handles image fields using htmlarea image manager
-			global $ResourceManagerLoaded;
-			global $content,$use_editor,$which_editor;
-			if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){ 
-				$field_html .="
+        case 'image':    // handles image fields using htmlarea image manager
+            global $ResourceManagerLoaded;
+            global $content, $use_editor, $which_editor;
+            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || $_GET['a'] == 4) && $use_editor == 1 && $which_editor == 3)) {
+                $field_html .= "
 				<script type=\"text/javascript\">
 						var lastImageCtrl;
 						var lastFileCtrl;
@@ -267,21 +264,21 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							sOptions += ',top=' + iTop ;
 
 							var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
-						}			
+						}
 						function BrowseServer(ctrl) {
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
 							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.php?Type=images', w, h);
 						}
-						
+
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
 							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.php?Type=files', w, h);
 						}
-						
+
 						function SetUrl(url, width, height, alt){
 							if(lastFileCtrl) {
 								var c = document.templatevariables[lastFileCtrl];
@@ -294,10 +291,10 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							}
 						}
 				</script>";
-				$ResourceManagerLoaded  = true;
-			} 
-			$field_html .= sprintf(
-			    '<input type="text" id="tv%s" name="tv%s"  value="%s" %s onchange="documentDirty=true;" />&nbsp;<input type="button" value="%s" onclick="BrowseServer(\'tv%s\')" />',
+                $ResourceManagerLoaded = true;
+            }
+            $field_html .= sprintf(
+                '<input type="text" id="tv%s" name="tv%s"  value="%s" %s onchange="documentDirty=true;" />&nbsp;<input type="button" value="%s" onclick="BrowseServer(\'tv%s\')" />',
                 $field_id,
                 $field_id,
                 $field_value,
@@ -305,14 +302,14 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                 $dm->lang['insert'],
                 $field_id
             );
-			break;
-		case 'file': // handles the input of file uploads
-		/* Modified by Timon for use with resource browser */
-			global $ResourceManagerLoaded;
-			global $content,$use_editor,$which_editor;
-			if (!$ResourceManagerLoaded && !(($content['richtext']==1 || $_GET['a']==4) && $use_editor==1 && $which_editor==3)){
-			/* I didn't understand the meaning of the condition above, so I left it untouched ;-) */ 
-				$field_html .="
+            break;
+        case 'file': // handles the input of file uploads
+            /* Modified by Timon for use with resource browser */
+            global $ResourceManagerLoaded;
+            global $content, $use_editor, $which_editor;
+            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || $_GET['a'] == 4) && $use_editor == 1 && $which_editor == 3)) {
+                /* I didn't understand the meaning of the condition above, so I left it untouched ;-) */
+                $field_html .= "
 				<script type=\"text/javascript\">
 						var lastImageCtrl;
 						var lastFileCtrl;
@@ -328,21 +325,21 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 
 							var oWindow = window.open( url, 'FCKBrowseWindow', sOptions ) ;
 						}
-						
+
 							function BrowseServer(ctrl) {
 							lastImageCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
 							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.php?Type=images', w, h);
 						}
-									
+
 						function BrowseFileServer(ctrl) {
 							lastFileCtrl = ctrl;
 							var w = screen.width * 0.7;
 							var h = screen.height * 0.7;
 							OpenServerBrowser('{$base_url}manager/media/browser/mcpuk/browser.php?Type=files', w, h);
 						}
-						
+
 						function SetUrl(url, width, height, alt){
 							if(lastFileCtrl) {
 								var c = document.templatevariables[lastFileCtrl];
@@ -357,10 +354,10 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 							}
 						}
 				</script>";
-				$ResourceManagerLoaded  = true;
-			} 
-			$field_html .= sprintf(
-			    '<input type="text" id="tv%s" name="tv%s"  value="%s" %s onchange="documentDirty=true;" />&nbsp;<input type="button" value="%s" onclick="BrowseFileServer(\'tv%s\')" />',
+                $ResourceManagerLoaded = true;
+            }
+            $field_html .= sprintf(
+                '<input type="text" id="tv%s" name="tv%s"  value="%s" %s onchange="documentDirty=true;" />&nbsp;<input type="button" value="%s" onclick="BrowseFileServer(\'tv%s\')" />',
                 $field_id,
                 $field_id,
                 $field_value,
@@ -368,26 +365,27 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
                 $dm->lang['insert'],
                 $field_id
             );
-            
-			break;
-		default: // the default handler -- for errors, mostly
-			$field_html .= sprintf(
-			    '<input type="text" id="tv%s" name="tv%s" value="%s" %s onchange="documentDirty=true;" />',
+
+            break;
+        default: // the default handler -- for errors, mostly
+            $field_html .= sprintf(
+                '<input type="text" id="tv%s" name="tv%s" value="%s" %s onchange="documentDirty=true;" />',
                 $field_id,
                 $field_id,
                 hsc($field_value),
                 $field_style
             );
-	} // end switch statement
-	return $field_html;
+    } // end switch statement
+    return $field_html;
 } // end renderFormElement function
 
-function ParseIntputOptions($v) {
+function ParseIntputOptions($v)
+{
     if (is_array($v)) {
         return $v;
     }
 
-    if(!db()->isResult($v)) {
+    if (!db()->isResult($v)) {
         return explode('||', $v);
     }
 

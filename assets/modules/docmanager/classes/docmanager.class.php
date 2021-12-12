@@ -1,14 +1,17 @@
 <?php
 
-class DocManager {
+class DocManager
+{
     public $lang = array();
     public $theme = '';
     private $fileRegister = array();
 
-    function __construct() {
+    function __construct()
+    {
     }
 
-    function getLang() {
+    function getLang()
+    {
         $_lang = array();
         $ph = array();
         $managerLanguage = evo()->config['manager_language'];
@@ -18,7 +21,7 @@ class DocManager {
             $rs = db()->select(
                 'setting_name, setting_value'
                 , '[+prefix+]user_settings'
-                , "setting_name='manager_language' AND user=".$userId
+                , "setting_name='manager_language' AND user=" . $userId
             );
             $row = db()->getRow($rs);
             if ($row) {
@@ -26,25 +29,26 @@ class DocManager {
             }
         }
 
-        $docmanager_lang_dir = MODX_BASE_PATH.'assets/modules/docmanager/lang/';
-        include MODX_CORE_PATH.'lang/english.inc.php';
+        $docmanager_lang_dir = MODX_BASE_PATH . 'assets/modules/docmanager/lang/';
+        include MODX_CORE_PATH . 'lang/english.inc.php';
         include $docmanager_lang_dir . 'english.inc.php';
-        if($managerLanguage !== 'english') {
-            if(is_file(MODX_CORE_PATH . 'lang/' . $managerLanguage . '.inc.php')) {
+        if ($managerLanguage !== 'english') {
+            if (is_file(MODX_CORE_PATH . 'lang/' . $managerLanguage . '.inc.php')) {
                 include MODX_CORE_PATH . 'lang/' . $managerLanguage . '.inc.php';
             }
-            if(is_file($docmanager_lang_dir . $managerLanguage . '.inc.php')) {
+            if (is_file($docmanager_lang_dir . $managerLanguage . '.inc.php')) {
                 include $docmanager_lang_dir . $managerLanguage . '.inc.php';
             }
         }
         $this->lang = $_lang;
         foreach ($_lang as $key => $value) {
-            $ph['lang.'.$key] = $value;
+            $ph['lang.' . $key] = $value;
         }
         return $ph;
     }
 
-    function getTheme() {
+    function getTheme()
+    {
         $theme = db()->select(
             'setting_value'
             , '[+prefix+]system_settings'
@@ -63,13 +67,14 @@ class DocManager {
         return '';
     }
 
-    function getFileContents($file) {
+    function getFileContents($file)
+    {
         if (empty($file)) {
             return false;
         }
 
-        $file = MODX_BASE_PATH.'assets/modules/docmanager/templates/'.$file;
-        if(array_key_exists($file, $this->fileRegister)) {
+        $file = MODX_BASE_PATH . 'assets/modules/docmanager/templates/' . $file;
+        if (array_key_exists($file, $this->fileRegister)) {
             return $this->fileRegister[$file];
         }
 
@@ -78,29 +83,30 @@ class DocManager {
         return $contents;
     }
 
-    function parseTemplate($tpl, $ph = array()) {
+    function parseTemplate($tpl, $ph = array())
+    {
         global $modx;
         if (isset($this->fileRegister[$tpl])) {
             $tpl = $this->fileRegister[$tpl];
         } else {
             $tpl = $this->getFileContents($tpl);
         }
-        if($tpl) {
-            if(strpos($tpl,'</body>')!==false) {
-                if(!isset($modx->config['mgr_date_picker_path'])) {
+        if ($tpl) {
+            if (strpos($tpl, '</body>') !== false) {
+                if (!isset($modx->config['mgr_date_picker_path'])) {
                     $modx->config['mgr_date_picker_path'] = 'media/script/air-datepicker/datepicker.inc.php';
                 }
                 $dp = $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
-                $tpl = str_replace('</body>',$dp.'</body>',$tpl);
+                $tpl = str_replace('</body>', $dp . '</body>', $tpl);
             }
             $ph['settings_version'] = $modx->config['settings_version'];
             return preg_replace(
                 '/(\[\+.*?\+\])/'
-                ,''
+                , ''
                 , $modx->parseText(
-                    $modx->mergeSettingsContent($tpl)
-                    , $ph
-                )
+                $modx->mergeSettingsContent($tpl)
+                , $ph
+            )
             );
         }
 

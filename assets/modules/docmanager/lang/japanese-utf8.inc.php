@@ -40,10 +40,10 @@ $_lang['DM_tpl_desc'] = '下の表からテンプレートを選んでリソー�
 $_lang['DM_tpl_no_templates'] = 'テンプレートがありません';
 $_lang['DM_tpl_column_id'] = 'ID';
 $_lang['DM_tpl_column_name'] = 'テンプレート名';
-$_lang['DM_tpl_column_description'] ='説明';
+$_lang['DM_tpl_column_description'] = '説明';
 $_lang['DM_tpl_blank_template'] = 'テンプレート無し';
 
-$_lang['DM_tpl_results_message']= '他の操作を行いたいときは「戻る」ボタンを使ってください。サイトのキャッシュは自動的にクリアされています。';
+$_lang['DM_tpl_results_message'] = '他の操作を行いたいときは「戻る」ボタンを使ってください。サイトのキャッシュは自動的にクリアされています。';
 
 //-- template variables tab
 $_lang['DM_tv_desc'] = '変更するリソースをIDで指定します。IDの指定は下記の範囲指定をするか、サイトツリーから選択するか、いずれでも指定できます。適用するテンプレートを表から選ぶと関連するテンプレート変数がロードされます。後はテンプレート変数の値を入力して「適用」ボタンを クリックすれば処理が開始されます。';
@@ -72,7 +72,7 @@ $_lang['DM_sort_pick_item'] = 'メニューの並び順(menuindex)をマウス�
 $_lang['DM_sort_updating'] = '更新中 ...';
 $_lang['DM_sort_updated'] = '更新しました。「閉じる」または「戻る」ボタンをクリックしてください。';
 $_lang['DM_sort_nochildren'] = 'このリソースにはサブリソースがありません。';
-$_lang['DM_sort_noid']='リソースが選択されていません。戻ってリソースを選択してください。';
+$_lang['DM_sort_noid'] = 'リソースが選択されていません。戻ってリソースを選択してください。';
 
 //-- other tab
 $_lang['DM_other_header'] = 'リソースの各種設定';
@@ -113,7 +113,7 @@ $_lang['DM_adjust_authors_createdby'] = '作成者:';
 $_lang['DM_adjust_authors_editedby'] = '編集者:';
 $_lang['DM_adjust_authors_noselection'] = '変更なし';
 
- //-- labels
+//-- labels
 $_lang['DM_date_pubdate'] = '公開日時:';
 $_lang['DM_date_unpubdate'] = '公開終了日時:';
 $_lang['DM_date_createdon'] = '作成日時:';
@@ -134,7 +134,7 @@ $_lang['DM_select_range_text'] = '<p><strong>指定方法（n、m はリソー�
 							<li>n　　 - IDがnの1つのリソースを意味する指定</li>
 							<li>例：1*,4**,2-20,25　- この指定では、1、1のサブリソース、4、4の全配下リソース、
 							2から20までの19個のリソース及び25 の各IDのリソースが指定されています。</li></ul>';
-$_lang['DM_select_tree'] ='ツリー表示からリソースを選択します';
+$_lang['DM_select_tree'] = 'ツリー表示からリソースを選択します';
 
 //-- process tree/range messages
 $_lang['DM_process_noselection'] = '必要な指定がされていません。';
@@ -148,15 +148,15 @@ $_lang['DM_process_back'] = '戻る';
 //-- manager access logging
 $_lang['DM_log_template'] = 'Doc Manager: テンプレートを変更しました。';
 $_lang['DM_log_templatevariables'] = 'Doc Manager: テンプレート変数を変更しました。';
-$_lang['DM_log_docpermissions'] ='Doc Manager: リソースのアクセス制限を変更しました。';
-$_lang['DM_log_sortmenu']='Document Manager: メニューインデックス操作を完了しました。';
-$_lang['DM_log_publish']='Document Manager: リソースの公開/非公開を変更しました。';
-$_lang['DM_log_hidemenu']='Document Manager: リソースのメニュー表示/非表示を変更しました。';
-$_lang['DM_log_search']='Document Manager: リソースの検索対象/非対象を変更しました。';
-$_lang['DM_log_cache']='Document Manager: リソースのキャッシュ可/不可を変更しました。';
-$_lang['DM_log_richtext']='Document Manager: リソースのリッチテキストエディタの設定を変更しました。';
-$_lang['DM_log_delete']='Document Manager: リソースの削除/復活を変更しました。';
-$_lang['DM_log_dates']='Document Manager: リソースの各種日付を変更しました。';
-$_lang['DM_log_authors']='Document Manager: リソースの作成者などの情報を変更しました。';
+$_lang['DM_log_docpermissions'] = 'Doc Manager: リソースのアクセス制限を変更しました。';
+$_lang['DM_log_sortmenu'] = 'Document Manager: メニューインデックス操作を完了しました。';
+$_lang['DM_log_publish'] = 'Document Manager: リソースの公開/非公開を変更しました。';
+$_lang['DM_log_hidemenu'] = 'Document Manager: リソースのメニュー表示/非表示を変更しました。';
+$_lang['DM_log_search'] = 'Document Manager: リソースの検索対象/非対象を変更しました。';
+$_lang['DM_log_cache'] = 'Document Manager: リソースのキャッシュ可/不可を変更しました。';
+$_lang['DM_log_richtext'] = 'Document Manager: リソースのリッチテキストエディタの設定を変更しました。';
+$_lang['DM_log_delete'] = 'Document Manager: リソースの削除/復活を変更しました。';
+$_lang['DM_log_dates'] = 'Document Manager: リソースの各種日付を変更しました。';
+$_lang['DM_log_authors'] = 'Document Manager: リソースの作成者などの情報を変更しました。';
 
 ?>
