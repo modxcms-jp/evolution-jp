@@ -77,7 +77,7 @@
     onchange_callback                : [+onchange_callback+][+terminate+]
     [+customparams+]
 })
-;
+    ;
     function myCustomOnChangeHandler() {
     if( typeof gotosave !== "undefined" && !gotosave) documentDirty = true;
 }

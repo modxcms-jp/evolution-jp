@@ -519,7 +519,7 @@ class DocManagerBackend
                     }
                 }
             } elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
-            /* value is a group for immediate children */
+                /* value is a group for immediate children */
                 $match = rtrim($match[0], '*');
 
                 $group = db()->select('id', $tbl_site_content, 'parent=' . $match);
