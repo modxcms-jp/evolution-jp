@@ -1,30 +1,31 @@
 <?php
 /**
  * mm_ddGMap
- * @version 1.1.1 (2012-11-13)
- * 
- * Позволяет интегрировать карту Google Maps для получения координат.
- * 
- * @uses ManagerManager plugin 0.4.
- * 
  * @param $tvs {string; comma separated string} - Имя TV, для которой необходимо применить виджет.
  * @param $roles {string; comma separated string} - Роли, для которых необходимо применить виждет, пустое значение — все роли. По умолчанию: ''.
  * @param $templates {string; comma separated string} - Шаблоны, для которых необходимо применить виджет, пустое значение — все шаблоны. По умолчанию: ''.
  * @param $w {string; integer} - Ширина контейнера с картой. По умолчанию: 'auto'.
  * @param $h {integer} - Высота контейнера с картой. По умолчанию: 400.
  * @param $hideField {boolean} - Необходимо ли скрывать оригинальное текстовое поле с координатами. По умолчанию: true.
- * 
+ *
+ * @version 1.1.1 (2012-11-13)
+ *
+ * Позволяет интегрировать карту Google Maps для получения координат.
+ *
+ * @uses ManagerManager plugin 0.4.
+ *
  * @link http://code.divandesign.biz/modx/mm_ddgmap/1.1.1
- * 
+ *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.biz
  */
 
-function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true){
-	global $modx, $content, $modx_lang_attribute;
-	$e = &$modx->Event;
-	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_ddGMap($tvs, $roles = '', $templates = '', $w = 'auto', $h = '400', $hideField = true)
+{
+    global $modx, $content, $modx_lang_attribute;
+    $e = &$modx->Event;
+
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

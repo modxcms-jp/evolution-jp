@@ -12,27 +12,28 @@
  * @copyright 2012
  */
 
-function mm_default($field, $value='', $roles='', $templates='', $eval = false){
-	global $mm_fields;
+function mm_default($field, $value = '', $roles = '', $templates = '', $eval = false)
+{
+    global $mm_fields;
 
-	// if we aren't creating a new document or folder, we don't want to do this
-	// Which action IDs so we want to do this for?
-	// 85 =
-	// 4  =
-	// 72 = Create new weblink
+    // if we aren't creating a new document or folder, we don't want to do this
+    // Which action IDs so we want to do this for?
+    // 85 =
+    // 4  =
+    // 72 = Create new weblink
 
-	$allowed_actions = array('85','4','72');
-	if (!in_array(manager()->action, $allowed_actions)){
-		return;
-	}
+    $allowed_actions = array('85', '4', '72');
+    if (!in_array(manager()->action, $allowed_actions)) {
+        return;
+    }
 
-	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
 // What's the new value, and does it include PHP?
     $new_value = ($eval) ? eval($value) : $value;
-    if($field==='template' && doc('template')!=$new_value) {
+    if ($field === 'template' && doc('template') != $new_value) {
         echo '<script>jQuery(function(){documentDirty=false;';
         echo "jQuery('#mutate input[name=\"a\"]').val(4);";
         echo "jQuery('#mutate input[name=\"newtemplate\"]').val(" . $new_value . ");";
@@ -174,17 +175,17 @@ function mm_default($field, $value='', $roles='', $templates='', $eval = false){
 
         default:
             $tv = $mm_fields[$field];
-            if($tv['tvtype']==='option') {
+            if ($tv['tvtype'] === 'option') {
                 $tpl = 'jQuery("%s[name=%s]").val(["%s"])';
             } else {
                 $tpl = 'jQuery("%s[name=%s]").val("%s");';
             }
             $output .= sprintf(
-                $tpl,
-                isset($tv['fieldtype']) ? $tv['fieldtype'] : '*',
-                $tv['fieldname'],
-                $new_value
-            ) . "\n";
+                    $tpl,
+                    isset($tv['fieldtype']) ? $tv['fieldtype'] : '*',
+                    $tv['fieldname'],
+                    $new_value
+                ) . "\n";
             break;
     }
 

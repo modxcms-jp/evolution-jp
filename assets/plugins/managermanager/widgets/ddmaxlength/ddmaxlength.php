@@ -9,12 +9,13 @@
  * http://www.DivanDesign.ru
  */
 
-function mm_ddMaxLength($tvs='', $roles='', $templates='', $length=150){
+function mm_ddMaxLength($tvs = '', $roles = '', $templates = '', $length = 150)
+{
 
-	global $modx, $content;
-	$e = &$modx->Event;
+    global $modx, $content;
+    $e = &$modx->Event;
 
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -70,7 +71,7 @@ jQuery("div.ddMaxLengthCount span").each(function(){
 
 if(ddErrors.length > 0){
     alert("Некорректно заполнены поля: " + ddErrors.join(","));
-    
+
     return false;
 } else {
     return true;

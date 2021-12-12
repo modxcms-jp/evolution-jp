@@ -28,9 +28,7 @@ if (getv('quickmanagerclose')) {
 // QM+ TV edit
 if (getv('quickmanagertv') == 1 && getv('tvname') != '' && $this->tvbuttons == 'true') {
     $output = include 'edit_tv.inc.php';
-}
-
-// QM+ with toolbar
+} // QM+ with toolbar
 else {
     if (sessionv('mgrValidated') && anyv('z') !== 'manprev') {
         if (anyv('logout')) {
@@ -125,14 +123,14 @@ else {
 ';
                             return;
                         case 'link':
-                            $customButton  = '
+                            $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom" href="' . $buttonParentId . '" ><span>' . $buttonTitle . '</span></a>
 </li>
 ';
                             return;
                         case 'modal':
-                            $customButton  = '
+                            $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
 <a class="qmButton qmCustom colorbox" href="' . $buttonParentId . '" ><span>' . $buttonTitle . '</span></a>
 </li>
@@ -146,7 +144,7 @@ else {
 
         // Go to Manager button
         if ($this->managerbutton == 'true') {
-            $managerButton  = '
+            $managerButton = '
 <li class="qmManager">
 <a class="qmButton qmManager" title="' . $_lang['manager'] . '" href="' . evo()->config['site_url'] . 'manager/" ><span>' . $_lang['manager'] . '</span></a>
 </li>
@@ -155,7 +153,7 @@ else {
         }
         // Logout button
         $logout = evo()->config['site_url'] . 'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid=' . $docID;
-        $logoutButton  = '
+        $logoutButton = '
 <li class="qmLogout">
 <a id="qmLogout" class="qmButton qmLogout" title="' . $_lang['logout'] . '" href="' . $logout . '" ><span>' . $_lang['logout'] . '</span></a>
 </li>
@@ -247,7 +245,7 @@ $' . $jvar . '("#qmEditorClosed").click(function ()
 function getCookie(cookieName)
 {
 	var results = document.cookie.match ( "(^|;) ?" + cookieName + "=([^;]*)(;|$)" );
-	
+
 	if (results) return (unescape(results[2]));
 	else return null;
 }

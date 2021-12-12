@@ -1,12 +1,6 @@
 <?php
 /**
  * mm_ddAutoFolders
- * @version 1.0.1 (2012-02-15)
- *
- * Automatically move documents (OnBeforeDocFormSave event) based on their date (publication date; any date in tv) into folders of year and month (like 2012/02/). If folders (documents) of year and month doesn`t exist they are created automatically OnBeforeDocFormSave event.
- *
- * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
- *
  * @param $ddRoles {comma separated string} - List of role IDs this should be applied to. Leave empty (or omit) for all roles. [Optional; Default: '']
  * @param $ddTemplates {comma separated string} - List of template IDs this should be applied to. Leave empty (or omit) for all templates. [Optional; Default: '']
  * @param $ddParent {integer} - Ultimate parent ID (parent of the years). [Required]
@@ -16,18 +10,18 @@
  * @param $ddYearPub {0; 1} - Would the documents of year published? [Optional; Default: 0]
  * @param $ddMonthPub {0; 1} - Would the documents of month published? [Optional; Default: 0]
  *
+ * @version 1.0.1 (2012-02-15)
+ *
+ * Automatically move documents (OnBeforeDocFormSave event) based on their date (publication date; any date in tv) into folders of year and month (like 2012/02/). If folders (documents) of year and month doesn`t exist they are created automatically OnBeforeDocFormSave event.
+ *
+ * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
+ *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
  */
 
 /**
  * mm_ddAutoFolders
- * @version 1.0.1 (2012-02-15)
- * 
- * При сохранении (событие OnBeforeDocFormSave) автоматически перемещает необходимый документ, основываясь на его дате (дата публикации, или любая дата в tv) в папку года и месяца. Если папки (документы) года и/или месяца ещё не созданы, они создадутся автоматически.
- * 
- * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
- * 
  * @param $ddRoles {comma separated string} - ID ролей, к которым необходимо применить правило. [Optional; Default: '']
  * @param $ddTemplates {comma separated string} - ID шаблонов, к которым необходимо применить правило. [Optional; Default: '']
  * @param $ddParent {integer} - ID корневого родителя. [Required]
@@ -36,17 +30,24 @@
  * @param $ddMonthTpl {integer} - ID шаблона, который необходимо выставлять документам-месяцам. [Optional; Default: 0]
  * @param $ddYearPub {0; 1} - Надо ли публиковать документы-годы. [Optional; Default: 0]
  * @param $ddMonthPub {0; 1} - Надо ли публиковать документы-месяцы. [Optional; Default: 0]
- * 
+ *
+ * @version 1.0.1 (2012-02-15)
+ *
+ * При сохранении (событие OnBeforeDocFormSave) автоматически перемещает необходимый документ, основываясь на его дате (дата публикации, или любая дата в tv) в папку года и месяца. Если папки (документы) года и/или месяца ещё не созданы, они создадутся автоматически.
+ *
+ * @uses modx 1.0.5, modx ddTools class 0.1, ManagerManager plugin 0.3.11
+ *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
  */
 
-function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddDateSource = 'pub_date', $ddYearTpl = 0, $ddMonthTpl = 0, $ddYearPub = '0', $ddMonthPub = '0'){
-	global $modx, $pub_date, $parent, $template, $document_groups, $tmplvars, $modx_lang_attribute;
-	$e = &$modx->Event;
-	
-	//$ddParent is required
-	if (!is_numeric($ddParent) || $e->name != 'OnBeforeDocFormSave' || !useThisRule($ddRoles, $ddTemplates)) {
+function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddDateSource = 'pub_date', $ddYearTpl = 0, $ddMonthTpl = 0, $ddYearPub = '0', $ddMonthPub = '0')
+{
+    global $modx, $pub_date, $parent, $template, $document_groups, $tmplvars, $modx_lang_attribute;
+    $e = &$modx->Event;
+
+    //$ddParent is required
+    if (!is_numeric($ddParent) || $e->name != 'OnBeforeDocFormSave' || !useThisRule($ddRoles, $ddTemplates)) {
         return;
     }
 

@@ -12,10 +12,11 @@
  * @copyright 2012
  */
 
-function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates = ''){
-	global $mm_fields, $mm_current_page;
-	
-	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates = '')
+{
+    global $mm_fields, $mm_current_page;
+
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -48,7 +49,7 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
             });
             documentDirty = false;
             ', array(
-                'tv_id'   => $mm_fields[$tv]['fieldname'],
+                'tv_id' => $mm_fields[$tv]['fieldname'],
                 'default' => $default
             )
         );

@@ -12,7 +12,8 @@
  * @copyright 2012
  */
 
-function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $width = '680'){
+function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $width = '680')
+{
 
     // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
     if ((event()->name != 'OnDocFormRender' && event()->name != 'OnPluginFormRender') || !useThisRule($roles, $templates)) {
@@ -31,10 +32,10 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
 </div>
     ',
         array(
-            'id'=>$id,
-            'name'=>$name,
-            'intro'=>$intro,
-            'width'=>$width,
+            'id' => $id,
+            'name' => $name,
+            'intro' => $intro,
+            'width' => $width,
         )
     );
 

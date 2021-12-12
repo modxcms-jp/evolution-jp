@@ -14,7 +14,8 @@
  * @copyright 2012
  */
 
-function mm_widget_accessdenied($ids = '', $message = '', $roles = ''){
+function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
+{
 
     if (event()->name !== 'OnDocFormRender' || !useThisRule($roles)) {
         return;

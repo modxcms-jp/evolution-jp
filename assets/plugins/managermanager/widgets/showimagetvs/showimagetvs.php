@@ -13,7 +13,8 @@
  * @copyright 2012
  */
 
-function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = ''){
+function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = '')
+{
     global $modx, $mm_current_page;
 
     if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
@@ -22,25 +23,25 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
 
     $output = '';
 
-    if ($w || $h){
-        if(!$w) $w = 300;
-        if(!$h) $h = (int) $w * 0.3;
+    if ($w || $h) {
+        if (!$w) $w = 300;
+        if (!$h) $h = (int)$w * 0.3;
         $style = sprintf(
             "'float:left;max-width:%dpx; max-height:%dpx; margin: 4px 0; cursor: pointer;'"
             , $w
             , $h
         );
-    }else{
+    } else {
         $style = '';
     }
 
     // Does this page's template use any image TVs? If not, quit now!
-    if($tvs) {
+    if ($tvs) {
         $tvs = tplUseTvs($mm_current_page['template'], $tvs);
     } else {
         $tvs = tplUseTvs($mm_current_page['template'], $tvs, 'image');
     }
-    if (!$tvs){
+    if (!$tvs) {
         return;
     }
 
@@ -52,22 +53,22 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 	var $this = jQuery(this),
 		// Get the new URL
 		url = $this.val();
-	
+
 	$this.data("lastvalue", url);
-	
+
 	$this.addClass("imageField");
 	var url = jQuery(this).val();
 	url = (url != "" && url.search(/^@[a-z]+/i) == -1) ? url : url.replace(new RegExp(/^@[a-z]+/i), "");
-	url = (url != "" && url.search(/https?:\\/\\//i) == -1 && url.search(/^\\//i) == -1) ? ("[+base_url+]" + url) : url;'."\n";
+	url = (url != "" && url.search(/https?:\\/\\//i) == -1 && url.search(/^\\//i) == -1) ? ("[+base_url+]" + url) : url;' . "\n";
 
     $tpl2 = '
 	// Remove the old preview tv[+id+]
 	jQuery("#tv[+id+]PreviewContainer").remove();
-	
+
 	if (url != "" && !url.match("/.*::.*/")){
 		// Create a new preview
 		jQuery("#tv[+id+]").parents("td").append(\'<div class="tvimage" id="tv[+id+]PreviewContainer"><img src="\'+url+\'" style="\'+[+style+]+\'" id="tv[+id+]Preview"/></div>\');
-		
+
 		// Attach a browse event to the picture, so it can trigger too
 		jQuery("#tv[+id+]Preview").click(function(){
 			BrowseServer("tv[+id+]");
@@ -75,7 +76,7 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 	}
 }).trigger("load"); // Trigger a change event on load
 
-			'."\n";
+			' . "\n";
     // Go through each TV
     $ph = array(
         'base_url' => MODX_BASE_URL,
@@ -87,9 +88,9 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
         $ph['id'] = $tv['id'];
         $output .= evo()->parseText($tpl1, $ph);
 
-        if ($thumbnailerUrl){
+        if ($thumbnailerUrl) {
             $output .= evo()->parseText(
-                'url = "%s?src="+escape(url)+"&w=%d&h=%d";'."\n"
+                'url = "%s?src="+escape(url)+"&w=%d&h=%d";' . "\n"
                 , $ph
             );
         }
@@ -98,7 +99,7 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
     }
 
     $output .= '
-		
+
 // Monitor the image TVs for changes
 checkImageTVupdates = function(){
 	jQuery(".imageField").each(function(){
