@@ -62,7 +62,8 @@ if ($expandAll == 2) {
 
 echo $output;
 
-function getNodes($indent, $parent = 0, $expandAll, $output = '') {
+function getNodes($indent, $parent = 0, $expandAll, $output = '')
+{
     global $modx;
     global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2, $docgrp, $mgrRole;
 
@@ -263,7 +264,8 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '') {
     return $output;
 }
 
-function tplPageNode() {
+function tplPageNode()
+{
     $src = <<< EOT
 <div
 	id="node[+id+]"
@@ -294,7 +296,8 @@ EOT;
     return $src;
 }
 
-function getFopenNode() {
+function getFopenNode()
+{
     $src = <<< EOT
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
 	id="s[+id+]"
@@ -328,7 +331,8 @@ EOT;
     return $src;
 }
 
-function tplFcloseNode() {
+function tplFcloseNode()
+{
     $src = <<< EOT
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
 	id="s[+id+]"
@@ -362,7 +366,8 @@ EOT;
     return $src;
 }
 
-function get_tree_orderby() {
+function get_tree_orderby()
+{
     global $modx;
     if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir'])) {
         // This is the first startup, set default sort order
@@ -394,7 +399,8 @@ function get_tree_orderby() {
     return $orderby;
 }
 
-function get_spacer($indent) {
+function get_spacer($indent)
+{
     $spacer = '';
     for ($i = 1; $i <= $indent; $i++) {
         if ($i !== 1) {
@@ -406,7 +412,8 @@ function get_spacer($indent) {
     return $spacer;
 }
 
-function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder) {
+function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder)
+{
     global $modx;
 
     switch ($node_name_source) {
@@ -445,7 +452,8 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
     return evo()->hsc(str_replace(array("\r\n", "\n", "\r"), ' ', $rs));
 }
 
-function getIcon($id, $contenttype, $isfolder = '0') {
+function getIcon($id, $contenttype, $isfolder = '0')
+{
     global $modx, $_style, $privateweb, $privatemgr;
 
     // icons by content type
@@ -509,7 +517,8 @@ function getIcon($id, $contenttype, $isfolder = '0') {
     return $rs;
 }
 
-function getClassName($published, $deleted, $hidemenu, $hasAccess) {
+function getClassName($published, $deleted, $hidemenu, $hasAccess)
+{
     $protectedClass = $hasAccess == 0 ? ' protectedNode' : '';
     if ($deleted == 1) {
         $rs = 'deletedNode';
@@ -523,7 +532,8 @@ function getClassName($published, $deleted, $hidemenu, $hasAccess) {
     return $rs;
 }
 
-function getAlt($id, $alias = '', $menuindex, $hidemenu, $privatemgr, $privateweb) {
+function getAlt($id, $alias = '', $menuindex, $hidemenu, $privatemgr, $privateweb)
+{
     global $modx, $_lang;
 
     $_[] = "[{$id}] ";
@@ -537,12 +547,14 @@ function getAlt($id, $alias = '', $menuindex, $hidemenu, $privatemgr, $privatewe
     return htmlspecialchars($alt, ENT_QUOTES, $modx->config['modx_charset']);
 }
 
-function tplEmptyFolder() {
+function tplEmptyFolder()
+{
     return '<div style="white-space:nowrap;">[+spacer+]<img align="absmiddle" src="[+icon_deletedpage+]">&nbsp;<span class="emptyNode">[+msg+]</span></div>';
 
 }
 
-function parseNode($tpl, $param, $id) {
+function parseNode($tpl, $param, $id)
+{
     global $modx;
 
     $_tmp = $modx->config['limit_by_container'];

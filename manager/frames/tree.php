@@ -48,7 +48,8 @@ $esc_request = db()->escape($_REQUEST);
 
         var openedArray = [];
         <?php
-        function openedArray($allowed_parents) {
+        function openedArray($allowed_parents)
+        {
             $allowed_parents = explode(',', evo()->conf_var('allowed_parents'));
             foreach ($allowed_parents as $allowed_parent) {
                 $_ = evo()->getParentIds($allowed_parent);
@@ -542,20 +543,28 @@ if (is_array($evtOut)) {
                     <td style="padding-left: 10px;padding-top: 1px;" colspan="2">
                         <select name="sortby" style="font-size: 12px;">
                             <option value="<?php echo $modx->config['resource_tree_node_name']; ?>"></option>
-                            <option value="isfolder" <?php echo select($_SESSION['tree_sortby'] == 'isfolder'); ?>><?php echo $_lang['folder']; ?></option>
-                            <option value="pagetitle" <?php echo select($_SESSION['tree_sortby'] == 'pagetitle'); ?>><?php echo $_lang['pagetitle']; ?></option>
-                            <option value="id" <?php echo select($_SESSION['tree_sortby'] == 'id'); ?>><?php echo $_lang['id']; ?></option>
-                            <option value="menuindex" <?php echo select($_SESSION['tree_sortby'] == 'menuindex'); ?>><?php echo $_lang['resource_opt_menu_index'] ?></option>
-                            <option value="createdon" <?php echo select($_SESSION['tree_sortby'] == 'createdon'); ?>><?php echo $_lang['createdon']; ?></option>
-                            <option value="editedon" <?php echo select($_SESSION['tree_sortby'] == 'editedon'); ?>><?php echo $_lang['editedon']; ?></option>
+                            <option
+                                value="isfolder" <?php echo select($_SESSION['tree_sortby'] == 'isfolder'); ?>><?php echo $_lang['folder']; ?></option>
+                            <option
+                                value="pagetitle" <?php echo select($_SESSION['tree_sortby'] == 'pagetitle'); ?>><?php echo $_lang['pagetitle']; ?></option>
+                            <option
+                                value="id" <?php echo select($_SESSION['tree_sortby'] == 'id'); ?>><?php echo $_lang['id']; ?></option>
+                            <option
+                                value="menuindex" <?php echo select($_SESSION['tree_sortby'] == 'menuindex'); ?>><?php echo $_lang['resource_opt_menu_index'] ?></option>
+                            <option
+                                value="createdon" <?php echo select($_SESSION['tree_sortby'] == 'createdon'); ?>><?php echo $_lang['createdon']; ?></option>
+                            <option
+                                value="editedon" <?php echo select($_SESSION['tree_sortby'] == 'editedon'); ?>><?php echo $_lang['editedon']; ?></option>
                         </select>
                     </td>
                 </tr>
                 <tr>
                     <td width="99%" style="padding-left: 10px;padding-top: 1px;">
                         <select name="sortdir" style="font-size: 12px;">
-                            <option value="DESC" <?php echo select($_SESSION['tree_sortdir'] == 'DESC'); ?>><?php echo $_lang['sort_desc']; ?></option>
-                            <option value="ASC" <?php echo select($_SESSION['tree_sortdir'] == 'ASC'); ?>><?php echo $_lang['sort_asc']; ?></option>
+                            <option
+                                value="DESC" <?php echo select($_SESSION['tree_sortdir'] == 'DESC'); ?>><?php echo $_lang['sort_desc']; ?></option>
+                            <option
+                                value="ASC" <?php echo select($_SESSION['tree_sortdir'] == 'ASC'); ?>><?php echo $_lang['sort_asc']; ?></option>
                         </select>
                         <input type="hidden" name="dt" value="<?php echo htmlspecialchars($_REQUEST['dt']); ?>"/>
                     </td>
@@ -692,7 +701,8 @@ if (is_array($evtOut)) {
 
     </script>
     <?php
-    function getTplCtxMenu() {
+    function getTplCtxMenu()
+    {
         $tpl = <<< EOT
 <!-- Contextual Menu Popup Code -->
 <div id="mx_contextmenu" onselectstart="return false;">
@@ -745,11 +755,13 @@ EOT;
 </body>
 </html>
 <?php
-function select($cond = false) {
+function select($cond = false)
+{
     return ($cond) ? ' selected="selected"' : '';
 }
 
-function tplMenuItem() {
+function tplMenuItem()
+{
     $tpl = <<< EOT
 <div class="menuLink" id="item[+action+]" onclick="menuHandler('[+action+]'); hideMenu();">
 	<img src="[+img+]" />[+text+]
@@ -758,7 +770,8 @@ EOT;
     return $tpl;
 }
 
-function itemEditDoc() {
+function itemEditDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('edit_document')) {
@@ -771,7 +784,8 @@ function itemEditDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemCreateDraft() {
+function itemCreateDraft()
+{
     global $modx, $_style, $_lang;
 
     if (!$modx->config['enable_draft']) {
@@ -785,7 +799,8 @@ function itemCreateDraft() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemEditDraft() {
+function itemEditDraft()
+{
     global $modx, $_style, $_lang;
 
     if (!$modx->config['enable_draft']) {
@@ -799,7 +814,8 @@ function itemEditDraft() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemDocList() {
+function itemDocList()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('view_document')) {
@@ -812,7 +828,8 @@ function itemDocList() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemNewDoc() {
+function itemNewDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('new_document')) {
@@ -825,7 +842,8 @@ function itemNewDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemMoveDoc() {
+function itemMoveDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('move_document')) {
@@ -841,7 +859,8 @@ function itemMoveDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemDuplicateDoc() {
+function itemDuplicateDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_document')) {
@@ -854,7 +873,8 @@ function itemDuplicateDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemSeperator1() {
+function itemSeperator1()
+{
     global $modx;
 
     if (evo()->hasPermission('edit_document') || evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
@@ -864,7 +884,8 @@ function itemSeperator1() {
     }
 }
 
-function itemPubDoc() {
+function itemPubDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('publish_document')) {
@@ -877,7 +898,8 @@ function itemPubDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemUnPubDoc() {
+function itemUnPubDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('publish_document')) {
@@ -890,7 +912,8 @@ function itemUnPubDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemDelDoc() {
+function itemDelDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('delete_document')) {
@@ -903,7 +926,8 @@ function itemDelDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemUndelDoc() {
+function itemUndelDoc()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('delete_document')) {
@@ -916,7 +940,8 @@ function itemUndelDoc() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemDelDocComplete() {
+function itemDelDocComplete()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('empty_trash')) {
@@ -929,7 +954,8 @@ function itemDelDocComplete() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemSeperator2() {
+function itemSeperator2()
+{
     global $modx;
 
     if (evo()->hasPermission('publish_document') || evo()->hasPermission('delete_document')) {
@@ -939,7 +965,8 @@ function itemSeperator2() {
     }
 }
 
-function itemWebLink() {
+function itemWebLink()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('new_document')) {
@@ -952,7 +979,8 @@ function itemWebLink() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemSeperator3() {
+function itemSeperator3()
+{
     global $modx;
 
     if (evo()->hasPermission('new_document')) {
@@ -962,7 +990,8 @@ function itemSeperator3() {
     }
 }
 
-function itemDocInfo() {
+function itemDocInfo()
+{
     global $modx, $_style, $_lang;
 
     if (!evo()->hasPermission('view_document')) {
@@ -975,7 +1004,8 @@ function itemDocInfo() {
     return $modx->parseText($tpl, $ph);
 }
 
-function itemViewPage() {
+function itemViewPage()
+{
     global $modx, $_style, $_lang;
 
     $tpl = tplMenuItem();
@@ -985,7 +1015,8 @@ function itemViewPage() {
     return $modx->parseText($tpl, $ph);
 }
 
-function isAllowroot() {
+function isAllowroot()
+{
     global $modx;
     if (evo()->hasPermission('save_role')) {
         return 1;
