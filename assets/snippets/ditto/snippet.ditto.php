@@ -1,5 +1,7 @@
 <?php
-if(!defined('MODX_BASE_PATH')) {die('What are you doing? Get out of here!');}
+if (!defined('MODX_BASE_PATH')) {
+    die('What are you doing? Get out of here!');
+}
 
 /* Description:
  *      Aggregates documents to create blogs, article/news
@@ -17,7 +19,7 @@ $ditto_version = '2.1.4';
 if (isset($ditto_base)) {
     $ditto_base = MODX_BASE_PATH . ltrim($ditto_base, '/');
 } else {
-    $ditto_base = str_replace('\\','/',__DIR__) . '/';
+    $ditto_base = str_replace('\\', '/', __DIR__) . '/';
 }
 /*
     Param: ditto_base
@@ -91,14 +93,14 @@ if (!isset($config)) {
     $config = 'default';
 }
 
-if(is_file($ditto_base . 'configs/default.config.php'))
+if (is_file($ditto_base . 'configs/default.config.php'))
     include $ditto_base . 'configs/default.config.php';
 
-if(str_starts_with($config, '@CHUNK')) {
+if (str_starts_with($config, '@CHUNK')) {
     eval('?>' . evo()->getChunk(trim(substr($config, 7))));
-} elseif(str_starts_with($config, '@FILE')) {
-    include MODX_BASE_PATH . ltrim(trim(substr($config, 6)),'/');
-} elseif($config !== 'default') {
+} elseif (str_starts_with($config, '@FILE')) {
+    include MODX_BASE_PATH . ltrim(trim(substr($config, 6)), '/');
+} elseif ($config !== 'default') {
     include $ditto_base . 'configs/' . $config . '.config.php';
 }
 
@@ -118,7 +120,7 @@ if(str_starts_with($config, '@CHUNK')) {
     Related:
     - <extenders>
 */
-$debug = !empty($debug)? $debug : 0;
+$debug = !empty($debug) ? $debug : 0;
 /*
     Param: debug
 
@@ -135,7 +137,7 @@ $debug = !empty($debug)? $debug : 0;
     Related:
     - <debug>
 */
-if(isset($modifier_mode) || !isset($phx)) {
+if (isset($modifier_mode) || !isset($phx)) {
     $modifier_mode = 'normal';
 } else {
     $modifier_mode = !empty($phx) ? 'phx' : 'none';
@@ -183,10 +185,10 @@ if (isset($orderBy)) {
     $orderBy = null;
 }
 
-if(substr(strtolower($orderBy),-2)!=='sc') {
+if (substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
 }
-$orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
+$orderBy = array('parsed' => array(), 'custom' => array(), 'unparsed' => $orderBy);
 // Variable: orderBy
 // An array that holds all criteria to sort the result set by.
 // Note that using a custom sort will disable all other sorting.
@@ -196,39 +198,33 @@ $orderBy = array('parsed'=>array(),'custom'=>array(),'unparsed'=>$orderBy);
 
 //---Includes-------------------------------------------------------- //
 
-$files = array (
-    'language'       => sprintf('%slang/%s.inc.php', $ditto_base, $language),
-    'main_class'     => sprintf('%sclasses/ditto.class.inc.php', $ditto_base),
+$files = array(
+    'language' => sprintf('%slang/%s.inc.php', $ditto_base, $language),
+    'main_class' => sprintf('%sclasses/ditto.class.inc.php', $ditto_base),
     'template_class' => sprintf('%sclasses/template.class.inc.php', $ditto_base),
-    'filter_class'   => sprintf('%sclasses/filter.class.inc.php', $ditto_base),
-    'format'         => sprintf('%sformats/%s.format.inc.php', $ditto_base, $format)
+    'filter_class' => sprintf('%sclasses/filter.class.inc.php', $ditto_base),
+    'format' => sprintf('%sformats/%s.format.inc.php', $ditto_base, $format)
 );
 
-if ($modifier_mode==='phx') {
-    $files['prePHx_class']     = $ditto_base . 'classes/phx.pre.class.inc.php';
+if ($modifier_mode === 'phx') {
+    $files['prePHx_class'] = $ditto_base . 'classes/phx.pre.class.inc.php';
 }
 if (isset($randomize)) {
-    $files['randomize_class']  = $ditto_base . 'classes/random.class.inc.php';
+    $files['randomize_class'] = $ditto_base . 'classes/random.class.inc.php';
 }
 if ($debug == 1) {
     $files['modx_debug_class'] = $ditto_base . 'debug/modxDebugConsole.class.php';
-    $files['debug_class']      = $ditto_base . 'classes/debug.class.inc.php';
-    $files['debug_templates']  = $ditto_base . 'debug/debug.templates.php';
+    $files['debug_class'] = $ditto_base . 'classes/debug.class.inc.php';
+    $files['debug_templates'] = $ditto_base . 'debug/debug.templates.php';
 }
 
 $files = array_unique($files);
-foreach ($files as $filename => $filevalue)
-{
-    if(strpos($filename,'class')!==false && is_file($filevalue))
-    {
+foreach ($files as $filename => $filevalue) {
+    if (strpos($filename, 'class') !== false && is_file($filevalue)) {
         include_once($filevalue);
-    }
-    elseif(is_file($filevalue))
-    {
+    } elseif (is_file($filevalue)) {
         @include($filevalue);
-    }
-    elseif($filename === 'language')
-    {
+    } elseif ($filename === 'language') {
         evo()->logEvent(
             1
             , 3
@@ -239,9 +235,7 @@ foreach ($files as $filename => $filevalue)
             'Ditto ' . $ditto_version
         );
         return sprintf('Language file does not exist Please check: %s', $filevalue);
-    }
-    else
-    {
+    } else {
         evo()->logEvent(
             1
             , 3
@@ -262,61 +256,50 @@ foreach ($files as $filename => $filevalue)
 
 //---Initiate Class-------------------------------------------------- //
 $dbg_templates = isset($dbg_templates) ? $dbg_templates : NULL;
-if(class_exists('ditto')) {
-    $ditto = new ditto($format,$_lang,$dbg_templates);
-}
-else
-{
+if (class_exists('ditto')) {
+    $ditto = new ditto($format, $_lang, $dbg_templates);
+} else {
     evo()->logEvent(
         1
         , 3
         , $_lang['invalid_class']
-        , 'Ditto ' .$ditto_version
+        , 'Ditto ' . $ditto_version
     );
     return $_lang['invalid_class'];
 }
 
 //---Initiate Extenders---------------------------------------------- //
-if (isset($tagData))
-{
+if (isset($tagData)) {
     $extenders[] = 'tagging';
 }
 
-if(count($extenders) > 0)
-{
+if (count($extenders) > 0) {
     $extenders = array_unique($extenders);
-    foreach ($extenders as $extender)
-    {
+    foreach ($extenders as $extender) {
         $extender = trim($extender);
-        $extender = str_replace('\\','/',$extender);
+        $extender = str_replace('\\', '/', $extender);
         $rs = false;
-        if(strpos($extender, '@CHUNK') === 0)
-        {
+        if (strpos($extender, '@CHUNK') === 0) {
             $chunk = evo()->getChunk(trim(substr($extender, 7)));
-            if(!empty($chunk)) {
+            if (!empty($chunk)) {
                 eval($chunk);
                 $rs = true;
             }
-        }
-        elseif(strpos($extender, '@FILE') === 0)
-        {
+        } elseif (strpos($extender, '@FILE') === 0) {
             $extender_path = MODX_BASE_PATH . trim(
-                trim(
-                    substr($extender, 6))
-                , '/'
+                    trim(
+                        substr($extender, 6))
+                    , '/'
                 );
-            if(  strpos($extender_path,'../')===false
-                && strpos($extender_path,'manager/')!==0
+            if (strpos($extender_path, '../') === false
+                && strpos($extender_path, 'manager/') !== 0
                 && is_file($extender_path)) {
                 include($extender_path);
                 $rs = true;
             }
-        }
-        else
-        {
+        } else {
             $chunk = evo()->getChunk($extender);
-            if(!empty($chunk))
-            {
+            if (!empty($chunk)) {
                 eval($chunk);
                 $rs = true;
             }
@@ -328,14 +311,12 @@ if(count($extenders) > 0)
             , $extender
         );
 
-        if($rs===false && is_file($extender_path))
-        {
+        if ($rs === false && is_file($extender_path)) {
             include($extender_path);
             $rs = true;
         }
 
-        if($rs===false)
-        {
+        if ($rs === false) {
             evo()->logEvent(
                 1,
                 3,
@@ -360,7 +341,7 @@ if (isset($limit)) {
 if (isset($sortBy) || isset($sortDir) || $orderBy['unparsed'] === null) {
     $sortDir = isset($sortDir) ? strtoupper($sortDir) : 'DESC';
     $sortBy = isset($sortBy) ? $sortBy : "createdon";
-    $orderBy['parsed'][]=array($sortBy,$sortDir);
+    $orderBy['parsed'][] = array($sortBy, $sortDir);
 }
 // Allow backwards compatibility
 
@@ -795,8 +776,8 @@ if (!isset($localFilterDelimiter)) {
     - <filter>
     - <parseFilters>
 */
-if(!isset($filters)) {
-    $filters = array('custom'=>array(), 'parsed'=>array());
+if (!isset($filters)) {
+    $filters = array('custom' => array(), 'parsed' => array());
 }
 // Variable: filters
 // Holds both the custom filters array for configs or extenders to add to
@@ -911,20 +892,20 @@ if (!isset($save)) {
     Default:
         0 - off; returns output
 */
-if(!isset($tplAlt)) {
+if (!isset($tplAlt)) {
     $tplAlt = '';
 }
-if(!isset($tplFirst)) {
+if (!isset($tplFirst)) {
     $tplFirst = '';
 }
-if(!isset($tplLast)) {
+if (!isset($tplLast)) {
     $tplLast = '';
 }
-if(!isset($tplCurrentDocument)) {
+if (!isset($tplCurrentDocument)) {
     $tplCurrentDocument = '';
 }
 $templates = array(
-    'default' => '@CODE ' .$_lang['default_template'],
+    'default' => '@CODE ' . $_lang['default_template'],
     'base' => $tpl,
     'alt' => $tplAlt,
     'first' => $tplFirst,
@@ -1001,7 +982,7 @@ $templates = array(
     Default:
     &tpl
 */
-$orderBy = $ditto->parseOrderBy($orderBy,$randomize);
+$orderBy = $ditto->parseOrderBy($orderBy, $randomize);
 /*
     Param: orderBy
 
@@ -1018,10 +999,10 @@ $orderBy = $ditto->parseOrderBy($orderBy,$randomize);
 $templates = $ditto->template->process($templates);
 // parse the templates for TV's and store them for later use
 
-$ditto->setDisplayFields($ditto->template->fields,$hiddenFields);
+$ditto->setDisplayFields($ditto->template->fields, $hiddenFields);
 // parse hidden fields
 
-$ditto->parseFields($placeholders,$seeThruUnpub,$dateSource,$randomize);
+$ditto->parseFields($placeholders, $seeThruUnpub, $dateSource, $randomize);
 // parse the fields into the field array
 $documentIDs = $ditto->determineIDs(
     $IDs
@@ -1045,7 +1026,7 @@ $documentIDs = $ditto->determineIDs(
 
 // retrieves a list of document IDs that meet the criteria and populates the $resources array with them
 // count the number of documents to be retrieved
-$count = count($documentIDs)-$offset;
+$count = count($documentIDs) - $offset;
 // handle the offset
 
 if ($count > 0) {
@@ -1072,7 +1053,7 @@ if ($count > 0) {
     }
     // set initial stop count
 
-    if($paginate == 1) {
+    if ($paginate == 1) {
         $paginateAlwaysShowLinks = isset($paginateAlwaysShowLinks)
             ? $paginateAlwaysShowLinks
             : 0;
@@ -1266,7 +1247,7 @@ if ($count > 0) {
     $TVs = $ditto->fields['display']['tv'];
     // get the TVs
 
-    switch($orderBy['parsed'][0][1]) {
+    switch ($orderBy['parsed'][0][1]) {
         case 'DESC':
             $stop = ($ditto->prefetch === false) ? $stop + $start + $offset : $stop + $offset;
             $start += $offset;
@@ -1278,16 +1259,16 @@ if ($count > 0) {
     }
 
     if ($ditto->prefetch !== false) {
-        $documentIDs = array_slice($documentIDs,$start,$stop);
+        $documentIDs = array_slice($documentIDs, $start, $stop);
         // set the document IDs equal to the trimmed array
-        $dbFields = array_diff($dbFields,$ditto->prefetch['fields']['db']);
+        $dbFields = array_diff($dbFields, $ditto->prefetch['fields']['db']);
         // calculate the difference between the database fields and those already prefetched
         $dbFields[] = 'id';
         // append id to the db fields array
-        $TVs = array_diff($TVs,$ditto->prefetch['fields']['tv']);
+        $TVs = array_diff($TVs, $ditto->prefetch['fields']['tv']);
         // calculate the difference between the tv fields and those already prefetched
         $start = 0;
-        $stop = min($display,($queryLimit != 0) ? $queryLimit : $display,count($documentIDs));
+        $stop = min($display, ($queryLimit != 0) ? $queryLimit : $display, count($documentIDs));
     } else {
         if (($queryLimit == 0)) {
             $queryLimit = '';
@@ -1314,19 +1295,19 @@ if ($count > 0) {
 
     if ($resource) {
         if ($randomize != '0' && $randomize != '1') {
-            $resource = $ditto->weightedRandom($resource,$randomize,$stop);
+            $resource = $ditto->weightedRandom($resource, $randomize, $stop);
             // randomize the documents
         }
 
         $resource = array_values($resource);
 
-        for ($x=$start;$x<$stop;$x++) {
+        for ($x = $start; $x < $stop; $x++) {
             $template = $ditto->template->determine(
                 $templates
-                ,$x
-                ,0
-                ,$stop
-                ,$resource[$x]['id']
+                , $x
+                , 0
+                , $stop
+                , $resource[$x]['id']
             );
             // choose the template to use and set the code of that template to the template variable
             $renderedOutput = $ditto->render(
@@ -1336,12 +1317,12 @@ if ($count > 0) {
                 , $dateSource
                 , $dateFormat
                 , $placeholders
-                ,$modifier_mode
-                ,abs($start-$x)
-                ,$stop
+                , $modifier_mode
+                , abs($start - $x)
+                , $stop
             );
             // render the output using the correct template, in the correct format and language
-            evo()->setPlaceholder($dittoID."item[".abs($start-$x)."]",$renderedOutput);
+            evo()->setPlaceholder($dittoID . "item[" . abs($start - $x) . "]", $renderedOutput);
             /*
                 Placeholder: item[x]
 
@@ -1352,7 +1333,7 @@ if ($count > 0) {
             // send the rendered output to the buffer
         }
     } else {
-        $output .= $ditto->noResults($noResults,$paginate);
+        $output .= $ditto->noResults($noResults, $paginate);
         // if no documents are found return a no documents found string
     }
     $output .= $footer;
@@ -1362,15 +1343,15 @@ if ($count > 0) {
     // Save Object
     // ---------------------------------------------------
 
-    if($save) {
-        evo()->setPlaceholder($dittoID."ditto_object", $ditto);
-        evo()->setPlaceholder($dittoID."ditto_resource", ($save == "1") ? array_slice($resource,$display) : $resource);
-        if ($save==3) {
+    if ($save) {
+        evo()->setPlaceholder($dittoID . "ditto_object", $ditto);
+        evo()->setPlaceholder($dittoID . "ditto_resource", ($save == "1") ? array_slice($resource, $display) : $resource);
+        if ($save == 3) {
             return $resource;
         }
     }
 } else {
-    $output = $header.$ditto->noResults($noResults,$paginate).$footer;
+    $output = $header . $ditto->noResults($noResults, $paginate) . $footer;
 }
 // ---------------------------------------------------
 // Handle Debugging
@@ -1385,7 +1366,7 @@ if ($debug == 1) {
             $ditto_version,
             $ditto_params,
             $documentIDs,
-            array("db"=>$dbFields,"tv"=>$TVs),
+            array("db" => $dbFields, "tv" => $TVs),
             $display,
             $templates,
             $orderBy,
@@ -1413,23 +1394,23 @@ if ($debug == 1) {
                 break;
         }
     } else {
-        $output = $ditto->debug->render_link($dittoID,$ditto_base).$output;
+        $output = $ditto->debug->render_link($dittoID, $ditto_base) . $output;
     }
 }
 // outerTpl by Dmi3yy & Jako
-if(!empty($tplOuter)) {
+if (!empty($tplOuter)) {
     $outerTpl = $tplOuter;
 }
-if(!empty($outerTpl)) {
-    if(!$resource) {
+if (!empty($outerTpl)) {
+    if (!$resource) {
         $output = '';
-    } elseif(substr($outerTpl, 0, 5) === '@CODE') {
+    } elseif (substr($outerTpl, 0, 5) === '@CODE') {
         $outerTpl = trim(substr($outerTpl, 6));
     } elseif (evo()->getChunk($outerTpl) != '') {
         $outerTpl = evo()->getChunk($outerTpl);
     }
 
-    if($output) {
+    if ($output) {
         $output = str_replace(
             array('[+ditto+]', '[+documents+]', '[+docs+]'),
             $output,

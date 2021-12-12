@@ -7,35 +7,38 @@
  * 		like to the one in Ditto 2
 */
 
-class modxDebugConsole{
+class modxDebugConsole
+{
     var $templates;
 
-    function __construct($templates) {
+    function __construct($templates)
+    {
         $this->templates = $templates;
-            // set templates array
+        // set templates array
     }
 
     // ---------------------------------------------------
     // Function: render
     // Render the contents of the debug console
     // ---------------------------------------------------
-    function render($cTabs,$title,$base_path) {
+    function render($cTabs, $title, $base_path)
+    {
         global $modx;
 
         $content = '';
-        foreach ($cTabs as $name=>$tab_content) {
-            $content .= $this->makeTab($name,$tab_content);
+        foreach ($cTabs as $name => $tab_content) {
+            $content .= $this->makeTab($name, $tab_content);
         }
         $placeholders = array(
             '[+ditto_base_url+]' => $base_path,
-            '[+base_url+]' => MODX_SITE_URL. 'manager/',
+            '[+base_url+]' => MODX_SITE_URL . 'manager/',
             '[+theme+]' => $modx->config['manager_theme'],
             '[+title+]' => $title,
             '[+content+]' => $content,
             '[+charset+]' => $modx->config['modx_charset'],
         );
 
-        return str_replace( array_keys( $placeholders ), array_values( $placeholders ), $this->templates['main']);
+        return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['main']);
     }
 
 
@@ -43,7 +46,8 @@ class modxDebugConsole{
     // Function: save
     // Save the debug console as a file
     // ---------------------------------------------------
-    function save($html,$filename) {
+    function save($html, $filename)
+    {
         global $modx;
         header(sprintf('Content-Type: text/html; charset=%s', $modx->config['modx_charset']));
         header(sprintf('Content-Disposition: attachment; filename="%s"', $filename));
@@ -54,71 +58,75 @@ class modxDebugConsole{
     // Function: makelink
     // Render the links to the debug console
     // ---------------------------------------------------
-    function makeLink($title,$open_text,$save_text,$base_path,$prefix= '') {
+    function makeLink($title, $open_text, $save_text, $base_path, $prefix = '')
+    {
         global $modx;
         $placeholders = array(
-            '[+open_url+]' => $this->buildURL('debug=open',$modx->documentIdentifier,$prefix),
+            '[+open_url+]' => $this->buildURL('debug=open', $modx->documentIdentifier, $prefix),
             '[+curl+]' => $_SERVER['REQUEST_URI'],
             '[+dbg_title+]' => $title,
-            '[+dbg_icon_url+]' => $base_path.'bug.png',
-            '[+save_url+]' => $this->buildURL('debug=save',$modx->documentIdentifier,$prefix),
+            '[+dbg_icon_url+]' => $base_path . 'bug.png',
+            '[+save_url+]' => $this->buildURL('debug=save', $modx->documentIdentifier, $prefix),
             '[+open_dbg_console+]' => $open_text,
             '[+save_dbg_console+]' => $save_text,
         );
-        return str_replace( array_keys( $placeholders ), array_values( $placeholders ), $this->templates['links']);
+        return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['links']);
     }
 
     // ---------------------------------------------------
     // Function: buildURL
     // Build a URL with regard to a prefix
     // ---------------------------------------------------
-    function buildURL($args,$id=false,$prefix= '') {
+    function buildURL($args, $id = false, $prefix = '')
+    {
         global $modx;
-            $query = array();
-            foreach ($_GET as $param=>$value) {
-                if ($param !== 'id' && $param !== 'q') {
-                    $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
-                }
+        $query = array();
+        foreach ($_GET as $param => $value) {
+            if ($param !== 'id' && $param !== 'q') {
+                $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
             }
-            if (!is_array($args)) {
-                $args = explode('&',$args);
-                foreach ($args as $arg) {
-                    $arg = explode('=',$arg);
-                    $query[$prefix.$arg[0]] = urlencode(trim($arg[1]));
-                }
-            } else {
-                foreach ($args as $name=>$value) {
-                    $query[$prefix.$name] = urlencode(trim($value));
-                }
+        }
+        if (!is_array($args)) {
+            $args = explode('&', $args);
+            foreach ($args as $arg) {
+                $arg = explode('=', $arg);
+                $query[$prefix . $arg[0]] = urlencode(trim($arg[1]));
             }
-            $queryString = '';
-            foreach ($query as $param=>$value) {
-                $queryString .= '&'.$param.'='.(is_array($value) ? implode(',',$value) : $value);
+        } else {
+            foreach ($args as $name => $value) {
+                $query[$prefix . $name] = urlencode(trim($value));
             }
-            $cID = ($id !== false) ? $id : $modx->documentObject['id'];
-            $url = $modx->makeURL(trim($cID), '', $queryString);
-            return ($modx->config['xhtml_urls']) ? $url : str_replace('&', '&amp;',$url);
+        }
+        $queryString = '';
+        foreach ($query as $param => $value) {
+            $queryString .= '&' . $param . '=' . (is_array($value) ? implode(',', $value) : $value);
+        }
+        $cID = ($id !== false) ? $id : $modx->documentObject['id'];
+        $url = $modx->makeURL(trim($cID), '', $queryString);
+        return ($modx->config['xhtml_urls']) ? $url : str_replace('&', '&amp;', $url);
     }
 
     // ---------------------------------------------------
     // Function: makeTab
     // Render a tab
     // ---------------------------------------------------
-    function makeTab($title,$content) {
+    function makeTab($title, $content)
+    {
         $placeholders = array(
             '[+title+]' => $title,
             '[+tab_content+]' => $content,
         );
-        return str_replace( array_keys( $placeholders ), array_values( $placeholders ), $this->templates['tab']);
+        return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['tab']);
     }
 
     // ---------------------------------------------------
     // Function: makeMODxSafe
     // Make all MODX tags safe for the output
     // ---------------------------------------------------
-    function makeMODxSafe($value) {
+    function makeMODxSafe($value)
+    {
         global $modx;
-        $value = (strpos($value, '<') !== false) ? '<pre>' .htmlentities($value,ENT_NOQUOTES,$modx->config['modx_charset']). '</pre>' : $value;
+        $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']) . '</pre>' : $value;
         $value = str_replace(
             array('[', ']', '{', '}')
             , array('&#091;', '&#093;', '&#123;', '&#125;')
@@ -131,38 +139,39 @@ class modxDebugConsole{
     // Function: makeParamTable
     // Turn an array of parameters in the format ["param"] => "value" into a table
     // ---------------------------------------------------
-    function makeParamTable($parameters=array(), $header= '', $sort=true, $prep=true, $wordwrap=true) {
+    function makeParamTable($parameters = array(), $header = '', $sort = true, $prep = true, $wordwrap = true)
+    {
         if (!is_array($parameters)) {
             return '';
         }
         if ($sort === true) {
-                ksort($parameters);
+            ksort($parameters);
         }
         $output = '<table>
                 <tbody>
                     <tr>
-                    <th>'.$header.'</th>
+                    <th>' . $header . '</th>
                     </tr>
                     <tr>
                         <td>
                         <table>
                         <tbody>
         ';
-        foreach ($parameters as $key=>$value) {
+        foreach ($parameters as $key => $value) {
             if (!is_string($value)) {
-                $value = var_export($value,true);
+                $value = var_export($value, true);
             }
             $value = ($prep == true) ? $this->makeMODxSafe($value) : $value;
-            $value = ($wordwrap == true) ? wordwrap($value,100,"\r\n",1) : $value;
+            $value = ($wordwrap == true) ? wordwrap($value, 100, "\r\n", 1) : $value;
             $output .= '
                         <tr>
-                            <th>'.$key.'</th>
-                            <td>'.$value.'</td>
+                            <th>' . $key . '</th>
+                            <td>' . $value . '</td>
                         </tr>
             ';
         }
         $output .=
-        '
+            '
                         </tbody>
                     </table>
                     </td>
@@ -171,7 +180,7 @@ class modxDebugConsole{
                 </table>
                 ';
 
-    return $output;
+        return $output;
     }
 
 
@@ -179,9 +188,10 @@ class modxDebugConsole{
     // Function: cleanArray
     // Remove empty items from the array
     // ---------------------------------------------------
-    function cleanArray($array) {
+    function cleanArray($array)
+    {
         foreach ($array as $i => $v) {
-            if(is_array($v)) {
+            if (is_array($v)) {
                 $array[$i] = $this->cleanArray($v);
             }
             if (!$v || !$array[$i]) {
@@ -218,31 +228,33 @@ class modxDebugConsole{
         // Start the table
         $table = "<table>\n";
         $head = array_keys($array[0]);
-    if (!is_numeric($head[0])) {
-        // The header
-        $table .= "\t<tr>";
-        // Take the keys from the first row as the headings
-        foreach (array_keys($array[0]) as $heading) {
-            $table .= '<th>' . $heading . '</th>';
+        if (!is_numeric($head[0])) {
+            // The header
+            $table .= "\t<tr>";
+            // Take the keys from the first row as the headings
+            foreach (array_keys($array[0]) as $heading) {
+                $table .= '<th>' . $heading . '</th>';
+            }
+            $table .= "</tr>\n";
         }
-        $table .= "</tr>\n";
-    }
         // The body
         foreach ($array as $row) {
-            $table .= "\t<tr>" ;
+            $table .= "\t<tr>";
             foreach ($row as $cell) {
                 $table .= '<td>';
 
                 // Cast objects
-                if ($modx->db->isResult($cell)) { $cell = (array) $cell; }
+                if ($modx->db->isResult($cell)) {
+                    $cell = (array)$cell;
+                }
 
                 if ($recursive === true && is_array($cell) && !empty($cell)) {
                     // Recursive mode
                     $table .= "\n" . $this->array2table($cell, true, true) . "\n";
                 } else {
                     $table .= (strlen($cell) > 0) ?
-                    htmlspecialchars((string) $cell) :
-                    $null;
+                        htmlspecialchars((string)$cell) :
+                        $null;
                 }
 
                 $table .= '</td>';

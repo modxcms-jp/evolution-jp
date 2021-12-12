@@ -11,17 +11,17 @@
 // $newParameters = $oldParameter;
 // ---------------------------------------------------
 
-$parents = isset($parents) ? $parents.','.$startID : $startID;
+$parents = isset($parents) ? $parents . ',' . $startID : $startID;
 
-$removeChunk = isset($commentsChunk) ? $commentsChunk.','.$removeChunk : $commentsChunk;
+$removeChunk = isset($commentsChunk) ? $commentsChunk . ',' . $removeChunk : $commentsChunk;
 
-$hiddenFields = isset($hiddenTVs) ? $hiddenTVs.','.$hiddenFields : $hiddenTVs;
+$hiddenFields = isset($hiddenTVs) ? $hiddenTVs . ',' . $hiddenFields : $hiddenTVs;
 
 $dateSource = isset($dateFormatType) ? $dateFormatType : $dateSource;
 
-$depth = (isset($descendentDepth))? $descendentDepth : $depth;
+$depth = (isset($descendentDepth)) ? $descendentDepth : $depth;
 
-$abbrLanguage = (isset($rssLanguage))? $rssLanguage : $abbrLanguage;
+$abbrLanguage = (isset($rssLanguage)) ? $rssLanguage : $abbrLanguage;
 
 $tplAlt = isset($tplAltRows) ? $tplAltRows : $tplAlt;
 
@@ -29,11 +29,11 @@ $tplFirst = isset($tplFirstRow) ? ($tplFirstRow) : $tplFirst;
 
 $tplLast = isset($tplLastRow) ? ($tplLastRow) : $tplLast;
 
-$tplPaginatePrevious = isset($tplArchivePrevious)? ($tplArchivePrevious) : $tplPaginatePrevious;
+$tplPaginatePrevious = isset($tplArchivePrevious) ? ($tplArchivePrevious) : $tplPaginatePrevious;
 
-$tplPaginateNext = isset($tplArchiveNext)? ($tplArchiveNext) : $tplPaginateNext;
+$tplPaginateNext = isset($tplArchiveNext) ? ($tplArchiveNext) : $tplPaginateNext;
 
 $noResults = isset($emptyText) ? $emptyText : $noResults;
 
 $extenders[] = "summary";
-	// load the summary extender
+// load the summary extender

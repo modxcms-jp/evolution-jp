@@ -4,11 +4,11 @@
  *
  * Completely template-driven and highly flexible menu builder
  *
- * @category 	snippet
- * @version 	2.1
- * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties
- * @internal	@modx_category Navigation
+ * @category    snippet
+ * @version    2.1
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal    @properties
+ * @internal    @modx_category Navigation
  * @internal    @installset base, sample
  * @documentation Official docs https://rtfm.modx.com/extras/evo/wayfinder
  * @documentation Almost complete guide, Cheatsheet http://sottwell.com/links/wayfinder.html
@@ -19,28 +19,30 @@
  * @author      and many others since 2006
  * @lastupdate  23/05/2016
  */
-if(!defined('MODX_BASE_PATH')){die('What are you doing? Get out of here!');}
+if (!defined('MODX_BASE_PATH')) {
+    die('What are you doing? Get out of here!');
+}
 
-$wf_base_path = str_replace('\\','/',__DIR__) . '/';
+$wf_base_path = str_replace('\\', '/', __DIR__) . '/';
 $conf_path = $wf_base_path . 'configs/';
 
 //Include a custom config file if specified
-if(is_file($conf_path . 'default.config.php')) {
+if (is_file($conf_path . 'default.config.php')) {
     include $conf_path . 'default.config.php';
 }
 
 $config = !isset($config) ? 'default' : trim($config);
-$config = ltrim($config,'/');
+$config = ltrim($config, '/');
 
-if(strpos($config, '@CHUNK') === 0) {
+if (strpos($config, '@CHUNK') === 0) {
     eval('?>' . $modx->getChunk(trim(substr($config, 7))));
-} elseif(strpos($config, '@FILE') === 0) {
+} elseif (strpos($config, '@FILE') === 0) {
     include MODX_BASE_PATH . trim(substr($config, 6));
-} elseif($config !== 'default' && is_file($conf_path . $config . '.config.php')) {
+} elseif ($config !== 'default' && is_file($conf_path . $config . '.config.php')) {
     include $conf_path . $config . '.config.php';
-} elseif(is_file($conf_path . $config)) {
+} elseif (is_file($conf_path . $config)) {
     include $conf_path . $config;
-} elseif(is_file(MODX_BASE_PATH.$config)) {
+} elseif (is_file(MODX_BASE_PATH . $config)) {
     include(MODX_BASE_PATH . $config);
 }
 
@@ -54,85 +56,85 @@ if (class_exists('Wayfinder')) {
 
 if (!isset($startId)) {
     $startId = $modx->documentIdentifier;
-} elseif(stripos($startId, 'p') === 0) {
+} elseif (stripos($startId, 'p') === 0) {
     $startId = $wf->getParentID($modx->documentIdentifier);
-} elseif(stripos($startId, 'i') === 0) {
+} elseif (stripos($startId, 'i') === 0) {
     $startId = $wf->getIndexID($modx->documentIdentifier);
-} elseif(!preg_match('@^[0-9]+$@', $startId)) {
+} elseif (!preg_match('@^[0-9]+$@', $startId)) {
     exit(sprintf('# %s # Wayfinder &startId error', $startId));
 }
 
 $wf->_config = array(
-	'id' => $startId,
-	'level' => isset($level) ? $level : 0,
-	'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
-	'excludeDocs' => isset($excludeDocs) ? $excludeDocs : 0,
-	'where' => isset($where) ? $where : '',
-	'ph' => isset($ph) ? $ph : FALSE,
-	'debug' => isset($debug) ? TRUE : FALSE,
-	'ignoreHidden' => isset($ignoreHidden) ? $ignoreHidden : FALSE,
-	'hideSubMenus' => isset($hideSubMenus) ? $hideSubMenus : FALSE,
-	'useWeblinkUrl' => isset($useWeblinkUrl) ? $useWeblinkUrl : TRUE,
-	'fullLink' => isset($fullLink) ? $fullLink : true,
-	'nl' => isset($removeNewLines) ? '' : "\n",
-	'sortOrder' => isset($sortOrder) ? strtoupper($sortOrder) : 'ASC',
-	'sortBy' => isset($sortBy) ? $sortBy : 'menuindex',
-	'limit' => isset($limit) ? $limit : 0,
-	'cssTpl' => isset($cssTpl) ? $cssTpl : FALSE,
-	'jsTpl' => isset($jsTpl) ? $jsTpl : FALSE,
-	'rowIdPrefix' => isset($rowIdPrefix) ? $rowIdPrefix : FALSE,
-	'textOfLinks' => isset($textOfLinks) ? $textOfLinks : 'menutitle',
-	'titleOfLinks' => isset($titleOfLinks) ? $titleOfLinks : 'pagetitle',
-	'displayStart' => isset($displayStart) ? $displayStart : FALSE,
-	'showPrivate' => isset($showPrivate) ? $showPrivate : FALSE,
-	'entityEncode' => isset($entityEncode) ? $entityEncode : FALSE,
-	// for local references - use original document fields separated by comma (useful for set active if it is current, titles, link attr, etc)
-	'useReferenced' => isset($useReferenced) ? $useReferenced: "id", 
-	'hereId' => isset($hereId) ? (int)$hereId : $modx->documentIdentifier
+    'id' => $startId,
+    'level' => isset($level) ? $level : 0,
+    'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
+    'excludeDocs' => isset($excludeDocs) ? $excludeDocs : 0,
+    'where' => isset($where) ? $where : '',
+    'ph' => isset($ph) ? $ph : FALSE,
+    'debug' => isset($debug) ? TRUE : FALSE,
+    'ignoreHidden' => isset($ignoreHidden) ? $ignoreHidden : FALSE,
+    'hideSubMenus' => isset($hideSubMenus) ? $hideSubMenus : FALSE,
+    'useWeblinkUrl' => isset($useWeblinkUrl) ? $useWeblinkUrl : TRUE,
+    'fullLink' => isset($fullLink) ? $fullLink : true,
+    'nl' => isset($removeNewLines) ? '' : "\n",
+    'sortOrder' => isset($sortOrder) ? strtoupper($sortOrder) : 'ASC',
+    'sortBy' => isset($sortBy) ? $sortBy : 'menuindex',
+    'limit' => isset($limit) ? $limit : 0,
+    'cssTpl' => isset($cssTpl) ? $cssTpl : FALSE,
+    'jsTpl' => isset($jsTpl) ? $jsTpl : FALSE,
+    'rowIdPrefix' => isset($rowIdPrefix) ? $rowIdPrefix : FALSE,
+    'textOfLinks' => isset($textOfLinks) ? $textOfLinks : 'menutitle',
+    'titleOfLinks' => isset($titleOfLinks) ? $titleOfLinks : 'pagetitle',
+    'displayStart' => isset($displayStart) ? $displayStart : FALSE,
+    'showPrivate' => isset($showPrivate) ? $showPrivate : FALSE,
+    'entityEncode' => isset($entityEncode) ? $entityEncode : FALSE,
+    // for local references - use original document fields separated by comma (useful for set active if it is current, titles, link attr, etc)
+    'useReferenced' => isset($useReferenced) ? $useReferenced : "id",
+    'hereId' => isset($hereId) ? (int)$hereId : $modx->documentIdentifier
 );
 
 //get user class definitions
 $wf->_css = array(
-	'first' => isset($firstClass) ? $firstClass : '',
-	'last' => isset($lastClass) ? $lastClass : 'last',
-	'here' => isset($hereClass) ? $hereClass : 'active',
-	'parent' => isset($parentClass) ? $parentClass : '',
-	'row' => isset($rowClass) ? $rowClass : '',
-	'outer' => isset($outerClass) ? $outerClass : '',
-	'inner' => isset($innerClass) ? $innerClass : '',
-	'outerLevel' => isset($outerLevelClass) ? $outerLevelClass: '',
-	'level' => isset($levelClass) ? $levelClass: '',
-	'self' => isset($selfClass) ? $selfClass : '',
-	'weblink' => isset($webLinkClass) ? $webLinkClass : '',
+    'first' => isset($firstClass) ? $firstClass : '',
+    'last' => isset($lastClass) ? $lastClass : 'last',
+    'here' => isset($hereClass) ? $hereClass : 'active',
+    'parent' => isset($parentClass) ? $parentClass : '',
+    'row' => isset($rowClass) ? $rowClass : '',
+    'outer' => isset($outerClass) ? $outerClass : '',
+    'inner' => isset($innerClass) ? $innerClass : '',
+    'outerLevel' => isset($outerLevelClass) ? $outerLevelClass : '',
+    'level' => isset($levelClass) ? $levelClass : '',
+    'self' => isset($selfClass) ? $selfClass : '',
+    'weblink' => isset($webLinkClass) ? $webLinkClass : '',
 );
 
 //get user templates
 $wf->_templates = array(
-	'outerTpl' => isset($outerTpl) ? $outerTpl : '',
-	'rowTpl' => isset($rowTpl) ? $rowTpl : '',
-	'parentRowTpl' => isset($parentRowTpl) ? $parentRowTpl : '',
-	'parentRowHereTpl' => isset($parentRowHereTpl) ? $parentRowHereTpl : '',
-	'hereTpl' => isset($hereTpl) ? $hereTpl : '',
-	'innerTpl' => isset($innerTpl) ? $innerTpl : '',
-	'innerRowTpl' => isset($innerRowTpl) ? $innerRowTpl : '',
-	'innerHereTpl' => isset($innerHereTpl) ? $innerHereTpl : '',
-	'activeParentRowTpl' => isset($activeParentRowTpl) ? $activeParentRowTpl : '',
-	'categoryFoldersTpl' => isset($categoryFoldersTpl) ? $categoryFoldersTpl : '',
-	'startItemTpl' => isset($startItemTpl) ? $startItemTpl : '',
-	'lastRowTpl' => isset($lastRowTpl) ? $lastRowTpl : '',
-	'rowTplLast' => isset($rowTplLast) ? $rowTplLast : '',
+    'outerTpl' => isset($outerTpl) ? $outerTpl : '',
+    'rowTpl' => isset($rowTpl) ? $rowTpl : '',
+    'parentRowTpl' => isset($parentRowTpl) ? $parentRowTpl : '',
+    'parentRowHereTpl' => isset($parentRowHereTpl) ? $parentRowHereTpl : '',
+    'hereTpl' => isset($hereTpl) ? $hereTpl : '',
+    'innerTpl' => isset($innerTpl) ? $innerTpl : '',
+    'innerRowTpl' => isset($innerRowTpl) ? $innerRowTpl : '',
+    'innerHereTpl' => isset($innerHereTpl) ? $innerHereTpl : '',
+    'activeParentRowTpl' => isset($activeParentRowTpl) ? $activeParentRowTpl : '',
+    'categoryFoldersTpl' => isset($categoryFoldersTpl) ? $categoryFoldersTpl : '',
+    'startItemTpl' => isset($startItemTpl) ? $startItemTpl : '',
+    'lastRowTpl' => isset($lastRowTpl) ? $lastRowTpl : '',
+    'rowTplLast' => isset($rowTplLast) ? $rowTplLast : '',
 );
 
 //Process Wayfinder
 $output = $wf->run();
 
 if ($wf->_config['debug'] && evo()->isLoggedin()) {
-	$modx->regClientHTMLBlock($wf->renderDebugOutput());
+    $modx->regClientHTMLBlock($wf->renderDebugOutput());
 }
 
 //Output Results
 if ($wf->_config['ph']) {
-    $modx->setPlaceholder($wf->_config['ph'],$output);
+    $modx->setPlaceholder($wf->_config['ph'], $output);
     return;
 }
 

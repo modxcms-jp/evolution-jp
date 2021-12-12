@@ -7,12 +7,12 @@
  *  	Ditto's output capabilities to include XML
 */
 
-if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
 $modx->documentObject['contentType'] = 'application/xml';
 
 // set placeholders
-$xml_placeholders['[+xml_copyright+]'] = isset($copyright) ? $copyright: $_lang['default_copyright'];
+$xml_placeholders['[+xml_copyright+]'] = isset($copyright) ? $copyright : $_lang['default_copyright'];
 /*
 	Param: copyright
 
@@ -25,7 +25,7 @@ $xml_placeholders['[+xml_copyright+]'] = isset($copyright) ? $copyright: $_lang[
 	Default:
 	[LANG]
 */
-$xml_placeholders['[+xml_lang+]'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
+$xml_placeholders['[+xml_lang+]'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
 /*
 	Param: abbrLanguage
 
@@ -41,8 +41,8 @@ $xml_placeholders['[+xml_lang+]'] = (isset($abbrLanguage))? $abbrLanguage : $_la
 	Related:
 	- <language>
 */
-$xml_placeholders['[+xml_link+]'] = $modx->config['site_url']."[~".$modx->documentObject['id']."~]";
-$xml_placeholders['[+xml_ttl+]'] = isset($ttl) ? intval($ttl):120;
+$xml_placeholders['[+xml_link+]'] = $modx->config['site_url'] . "[~" . $modx->documentObject['id'] . "~]";
+$xml_placeholders['[+xml_ttl+]'] = isset($ttl) ? intval($ttl) : 120;
 /*
 	Param: ttl
 
@@ -68,7 +68,7 @@ $xml_placeholders['[+xml_charset+]'] = isset($charset) ? $charset : $modx->confi
 	Default:
 	MODX default charset
 */
-$rss_placeholders['[+xml_xsl+]'] = isset($xsl) ? '<?xml-stylesheet type="text/xsl" href="'.$modx->config['site_url'].$xsl.'" ?>' : '';
+$rss_placeholders['[+xml_xsl+]'] = isset($xsl) ? '<?xml-stylesheet type="text/xsl" href="' . $modx->config['site_url'] . $xsl . '" ?>' : '';
 /*
 	Param: xsl
 
@@ -83,17 +83,18 @@ $rss_placeholders['[+xml_xsl+]'] = isset($xsl) ? '<?xml-stylesheet type="text/xs
 */
 
 // set tpl xml placeholders
-$placeholders['*'] = "xml_parameters"; 
-if(!function_exists("xml_parameters")) { 
-	function xml_parameters($placeholders) {
-		global $modx;
-		$xmlArr = array();
-		foreach ($placeholders as $name=>$value) {
-			$xmlArr["xml_".$name] = htmlentities($value,ENT_NOQUOTES,$modx->config["modx_charset"]);
-		}
-		$placeholders = array_merge($xmlArr,$placeholders);
-		return $placeholders;	
-	}
+$placeholders['*'] = "xml_parameters";
+if (!function_exists("xml_parameters")) {
+    function xml_parameters($placeholders)
+    {
+        global $modx;
+        $xmlArr = array();
+        foreach ($placeholders as $name => $value) {
+            $xmlArr["xml_" . $name] = htmlentities($value, ENT_NOQUOTES, $modx->config["modx_charset"]);
+        }
+        $placeholders = array_merge($xmlArr, $placeholders);
+        return $placeholders;
+    }
 }
 // set default templates
 
@@ -130,9 +131,9 @@ TPL;
 
 // set template values
 
-$header = isset($header) ? $header : template::replace($xml_placeholders,$xml_header);
+$header = isset($header) ? $header : template::replace($xml_placeholders, $xml_header);
 
-$tpl = isset($tpl) ? $tpl : "@CODE:".$xml_tpl;
+$tpl = isset($tpl) ? $tpl : "@CODE:" . $xml_tpl;
 
 $footer = isset($footer) ? $footer : $xml_footer;
 

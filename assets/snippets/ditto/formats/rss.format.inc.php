@@ -7,12 +7,12 @@
  *  	Ditto's output capabilities to include RSS
 */
 
-if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
 $modx->documentObject['contentType'] = 'application/rss+xml';
 
 // set placeholders
-$rss_placeholders['rss_copyright'] = isset($copyright) ? $copyright: $_lang['default_copyright'];
+$rss_placeholders['rss_copyright'] = isset($copyright) ? $copyright : $_lang['default_copyright'];
 /*
 	Param: copyright
 
@@ -25,7 +25,7 @@ $rss_placeholders['rss_copyright'] = isset($copyright) ? $copyright: $_lang['def
 	Default:
 	[LANG]
 */
-$rss_placeholders['rss_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
+$rss_placeholders['rss_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
 /*
 	Param: abbrLanguage
 
@@ -41,8 +41,8 @@ $rss_placeholders['rss_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['
 	Related:
 	- <language>
 */
-$rss_placeholders['rss_link'] = $modx->config['site_url']."[~".$modx->documentObject['id']."~]";
-$rss_placeholders['rss_ttl'] = isset($ttl) ? intval($ttl):120;
+$rss_placeholders['rss_link'] = $modx->config['site_url'] . "[~" . $modx->documentObject['id'] . "~]";
+$rss_placeholders['rss_ttl'] = isset($ttl) ? intval($ttl) : 120;
 /*
 	Param: ttl
 
@@ -68,7 +68,7 @@ $rss_placeholders['rss_charset'] = isset($charset) ? $charset : $modx->config['m
 	Default:
 	MODX default charset
 */
-$rss_placeholders['rss_xsl'] = isset($xsl) ? "\n" . '<?xml-stylesheet type="text/xsl" href="'.$modx->config['site_url'].$xsl.'" ?>' : ''; 
+$rss_placeholders['rss_xsl'] = isset($xsl) ? "\n" . '<?xml-stylesheet type="text/xsl" href="' . $modx->config['site_url'] . $xsl . '" ?>' : '';
 /*
 	Param: xsl
 
@@ -84,36 +84,39 @@ $rss_placeholders['rss_xsl'] = isset($xsl) ? "\n" . '<?xml-stylesheet type="text
 
 global $dateSource;
 $dateSource = isset($modx->event->params['dateSource']) ? $modx->event->params['dateSource'] : 'publishedon';
-if(!isset($orderBy ['unparsed'])) $orderBy ['unparsed'] = "{$dateSource} DESC";
+if (!isset($orderBy ['unparsed'])) $orderBy ['unparsed'] = "{$dateSource} DESC";
 
-	// date type to display (values can be createdon, pub_date, editedon)
-	
+// date type to display (values can be createdon, pub_date, editedon)
+
 // set tpl rss placeholders
-$placeholders['rss_date'] = array($dateSource,"rss_date");
-$placeholders['rss_pagetitle'] = array("pagetitle","rss_pagetitle");
-$placeholders['rss_author'] = array("createdby","rss_author");
+$placeholders['rss_date'] = array($dateSource, "rss_date");
+$placeholders['rss_pagetitle'] = array("pagetitle", "rss_pagetitle");
+$placeholders['rss_author'] = array("createdby", "rss_author");
 
-if(!function_exists("rss_date")) {
-	function rss_date($resource) {
-		global $dateSource;
-		return date("r",  intval($resource[$dateSource]) + $modx->config["server_offset_time"]);
-	}
+if (!function_exists("rss_date")) {
+    function rss_date($resource)
+    {
+        global $dateSource;
+        return date("r", intval($resource[$dateSource]) + $modx->config["server_offset_time"]);
+    }
 }
-if(!function_exists("rss_pagetitle")) {
-	function rss_pagetitle($resource) {
-		return htmlspecialchars(html_entity_decode($resource['pagetitle'], ENT_QUOTES));
-	}
+if (!function_exists("rss_pagetitle")) {
+    function rss_pagetitle($resource)
+    {
+        return htmlspecialchars(html_entity_decode($resource['pagetitle'], ENT_QUOTES));
+    }
 }
-if(!function_exists("rss_author")) {
-	function rss_author($resource) {
-		return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
-	}
+if (!function_exists("rss_author")) {
+    function rss_author($resource)
+    {
+        return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
+    }
 }
 
 $extenders[] = "summary";
-	// load required summary extender for backwards compatibility
-	// TODO: Remove summary extender in next major version
-	
+// load required summary extender for backwards compatibility
+// TODO: Remove summary extender in next major version
+
 // set default templates
 
 $rss_header = <<<TPL
@@ -139,7 +142,7 @@ $rss_tpl = <<<TPL
 			<dc:creator>[+rss_author+]</dc:creator>
 			[+tagLinks+]
 		</item>
-	
+
 TPL;
 
 $rss_footer = <<<TPL
@@ -148,9 +151,9 @@ $rss_footer = <<<TPL
 TPL;
 
 // set template values
-$header = isset($header) ? $header : template::replace($rss_placeholders,$rss_header);
+$header = isset($header) ? $header : template::replace($rss_placeholders, $rss_header);
 
-$tpl = isset($tpl) ? $tpl : "@CODE:".$rss_tpl;
+$tpl = isset($tpl) ? $tpl : "@CODE:" . $rss_tpl;
 
 $footer = isset($footer) ? $footer : $rss_footer;
 

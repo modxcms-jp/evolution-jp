@@ -59,7 +59,7 @@ $snipPath = $modx->config['base_path'] . "assets/snippets/";
 
 # check if inside manager
 if ($m = $modx->isBackend()) {
-	return ''; // don't go any further when inside manager
+return ''; // don't go any further when inside manager
 }
 
 # deprecated params - only for backward compatibility
@@ -92,9 +92,9 @@ include_once("{$snipPath}weblogin/weblogin.common.inc.php");
 include_once("{$snipPath}weblogin/crypt.class.inc.php");
 
 if ($isPWDActivate || $isPWDReminder || $isLogOut || $isPostBack) {
-	# include the logger class
-	include_once(MODX_CORE_PATH . 'log.class.inc.php');
-	include_once("{$snipPath}weblogin/weblogin.processor.inc.php");
+# include the logger class
+include_once(MODX_CORE_PATH . 'log.class.inc.php');
+include_once("{$snipPath}weblogin/weblogin.processor.inc.php");
 }
 
 include_once("{$snipPath}weblogin/weblogin.inc.php");

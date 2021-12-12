@@ -4,7 +4,7 @@
  * Title: Language File
  * Purpose:
  *  	Default English language file for Ditto
- *  	
+ *
  * Note:
  * 		New language keys should added at the bottom of this page
 */
@@ -27,7 +27,7 @@ $_lang['missing_placeholders_tpl'] = 'One of your Ditto templates are missing pl
 
 $_lang['no_documents'] = '<p>No documents found.</p>';
 $_lang['resource_array_error'] = 'Resource Array Error';
- 
+
 $_lang['prev'] = "&lt; Previous";
 $_lang['next'] = "Next &gt;";
 $_lang['button_splitter'] = "|";
@@ -58,7 +58,7 @@ $_lang['total'] = "Total";
 $_lang['sortBy'] = "Sort By";
 $_lang['sortDir'] = "Sort Direction";
 $_lang['start'] = "Start";
-	 
+
 $_lang['stop'] = "Stop";
 $_lang['ditto_IDs'] = "IDs";
 $_lang['ditto_IDs_selected'] = "Selected IDs";

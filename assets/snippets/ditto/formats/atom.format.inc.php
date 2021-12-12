@@ -6,12 +6,12 @@
  *  	Ditto's output capabilities to include ATOM
 */
 
-if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
 $modx->documentObject['contentType'] = 'application/atom+xml';
 
 // set placeholders
-$atom_placeholders['atom_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang['abbr_lang'];
+$atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lang['abbr_lang'];
 /*
 	Param: abbrLanguage
 
@@ -27,7 +27,7 @@ $atom_placeholders['atom_lang'] = (isset($abbrLanguage))? $abbrLanguage : $_lang
 	Related:
 	- <language>
 */
-$atom_placeholders['atom_link'] = $modx->config['site_url']."[~".$modx->documentObject['id']."~]";
+$atom_placeholders['atom_link'] = $modx->config['site_url'] . "[~" . $modx->documentObject['id'] . "~]";
 $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config['modx_charset'];
 /*
 	Param: charset
@@ -44,39 +44,43 @@ $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config[
 
 $atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', $modx->documentObject["editedon"]);
 $placeholders['*'] = "atom_placeholders";
-$placeholders['atom_createdon'] = array("createdon","atomCreatedDate"); 
-$placeholders['atom_editedon'] = array("editedon","atomEditedDate");
-$placeholders['atom_author'] = array("createdby","atomCreatedBy");
+$placeholders['atom_createdon'] = array("createdon", "atomCreatedDate");
+$placeholders['atom_editedon'] = array("editedon", "atomEditedDate");
+$placeholders['atom_author'] = array("createdby", "atomCreatedBy");
 
-if(!function_exists("atomCreatedDate")) {
-	function atomCreatedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
-	}
+if (!function_exists("atomCreatedDate")) {
+    function atomCreatedDate($resource)
+    {
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
+    }
 }
-if(!function_exists("atomEditedDate")) {
-	function atomEditedDate($resource) {
-		return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
-	}
+if (!function_exists("atomEditedDate")) {
+    function atomEditedDate($resource)
+    {
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
+    }
 }
-if(!function_exists("atomCreatedBy")) { 
-	function atomCreatedBy($resource) {
-		return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
-	}
+if (!function_exists("atomCreatedBy")) {
+    function atomCreatedBy($resource)
+    {
+        return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
+    }
 }
 $extenders[] = "summary";
-	// load required summary extender for backwards compatibility
-	// TODO: Remove summary extender in next major version
+// load required summary extender for backwards compatibility
+// TODO: Remove summary extender in next major version
 
 // set atom placeholders
-if(!function_exists("atom_placeholders")) { 
-	function atom_placeholders($placeholders) {
-		$field = array();
-		foreach ($placeholders as $name=>$value) {
-			$field["atom_escaped_".$name] = htmlspecialchars(html_entity_decode($value));
-		}
-		$placeholders = array_merge($field,$placeholders);
-		return $placeholders;	
-	}
+if (!function_exists("atom_placeholders")) {
+    function atom_placeholders($placeholders)
+    {
+        $field = array();
+        foreach ($placeholders as $name => $value) {
+            $field["atom_escaped_" . $name] = htmlspecialchars(html_entity_decode($value));
+        }
+        $placeholders = array_merge($field, $placeholders);
+        return $placeholders;
+    }
 }
 
 // set default templates
@@ -114,9 +118,9 @@ TPL;
 
 // set template values
 
-$header = isset($header) ? $header : template::replace($atom_placeholders,$atom_header);
+$header = isset($header) ? $header : template::replace($atom_placeholders, $atom_header);
 
-$tpl = isset($tpl) ? $tpl : '@CODE:' .$atom_tpl;
+$tpl = isset($tpl) ? $tpl : '@CODE:' . $atom_tpl;
 
 $footer = isset($footer) ? $footer : $atom_footer;
 

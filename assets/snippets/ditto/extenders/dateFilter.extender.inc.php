@@ -11,40 +11,43 @@
 // ---------------------------------------------------
 
 if (!class_exists('dateFilter')) {
-	class dateFilter {
-		public $month, $year, $day, $dateSource;
-	
-		function __construct($month, $year, $day, $dateSource) {
-			$this->month = $month;
-			$this->year = $year;
-			$this->day = $day;
-			$this->dateSource = $dateSource;
-		}
+    class dateFilter
+    {
+        public $month, $year, $day, $dateSource;
 
-		public function execute($value) {
-			$month = $this->month;
-			$year = $this->year;
-			$day = $this->day;
-			$unset = 1;
-			
-			if ($year && !$month && !$day) { // Year only e.g. 2007
-				$min = mktime(0,0,0,1,1,$year);
-				$max = mktime(23,59,59,12,31,$year);
-			} else if ($year && $month && !$day) { // Year and month e.g. 2007-01
-				$min = mktime(0,0,0,$month, 1, $year);
-				$max = mktime(23,59,59,$month, date('t', $min), $year);
-			} else if ($year && $month && $day) { // Year month and day e.g. 2007-01-11
-				$min = mktime(0,0,0,$month, $day, $year);
-				$max = mktime(23,59,59,$month, $day, $year);
-			}
-			
-			$compare = $value[$this->dateSource];
-			if ($compare < $min || $compare > $max){
-				$unset = 0;
-			}
-			return $unset;
-		}
-	}
+        function __construct($month, $year, $day, $dateSource)
+        {
+            $this->month = $month;
+            $this->year = $year;
+            $this->day = $day;
+            $this->dateSource = $dateSource;
+        }
+
+        public function execute($value)
+        {
+            $month = $this->month;
+            $year = $this->year;
+            $day = $this->day;
+            $unset = 1;
+
+            if ($year && !$month && !$day) { // Year only e.g. 2007
+                $min = mktime(0, 0, 0, 1, 1, $year);
+                $max = mktime(23, 59, 59, 12, 31, $year);
+            } else if ($year && $month && !$day) { // Year and month e.g. 2007-01
+                $min = mktime(0, 0, 0, $month, 1, $year);
+                $max = mktime(23, 59, 59, $month, date('t', $min), $year);
+            } else if ($year && $month && $day) { // Year month and day e.g. 2007-01-11
+                $min = mktime(0, 0, 0, $month, $day, $year);
+                $max = mktime(23, 59, 59, $month, $day, $year);
+            }
+
+            $compare = $value[$this->dateSource];
+            if ($compare < $min || $compare > $max) {
+                $unset = 0;
+            }
+            return $unset;
+        }
+    }
 }
 
 // ---------------------------------------------------
@@ -75,14 +78,14 @@ $dateSource = isset($dateSource) ? $dateSource : 'createdon';
 
 	Options:
 	# - Any UNIX timestamp from MODX fields or TVs such as createdon, pub_date, or editedon
-	
+
 	Default:
 	'createdon'
-	
+
 	Related:
 	- <dateFormat>
 */
-if(!isset($dateFilterDefault)) $dateFilterDefault = 0;
+if (!isset($dateFilterDefault)) $dateFilterDefault = 0;
 /*
 	Param: dateFilterDefault
 
@@ -94,7 +97,7 @@ if(!isset($dateFilterDefault)) $dateFilterDefault = 0;
 	1 - current year
 	2 - current year and month
 	3 - current year, month, and day
-	
+
 	Default:
 	0
 */
@@ -114,53 +117,53 @@ if ($source === 'get') {
     } else {
         $day = 0;
     }
-} elseif ($source === 'params'){
-	$month = isset($month) ? (int) $month : 0;
-	/*
-		Param: month
+} elseif ($source === 'params') {
+    $month = isset($month) ? (int)$month : 0;
+    /*
+        Param: month
 
-		Purpose:
-		Month to filter by
+        Purpose:
+        Month to filter by
 
-		Options:
-		# - Number between 1-12 (inclusive) that corresponds to the month to filter by
+        Options:
+        # - Number between 1-12 (inclusive) that corresponds to the month to filter by
 
-		Default:
-		[NULL]
-	*/
-	$year = isset($year) ? (int)$year : 0;
-	/*
-		Param: year
+        Default:
+        [NULL]
+    */
+    $year = isset($year) ? (int)$year : 0;
+    /*
+        Param: year
 
-		Purpose:
-		Year to filter by
+        Purpose:
+        Year to filter by
 
-		Options:
-		# - Any numerical year (4 numbers; ex: 2006)
+        Options:
+        # - Any numerical year (4 numbers; ex: 2006)
 
-		Default:
-		[NULL]
-	*/
-	$day = isset($day) ? (int)$day : 0;
-	/*
-		Param: day
+        Default:
+        [NULL]
+    */
+    $day = isset($day) ? (int)$day : 0;
+    /*
+        Param: day
 
-		Purpose:
-		Day to filter by
+        Purpose:
+        Day to filter by
 
-		Options:
-		# - Any numerical day within the current month
+        Options:
+        # - Any numerical day within the current month
 
-		Default:
-		[NULL]
-	*/
+        Default:
+        [NULL]
+    */
 } else {
-	if (!empty($_REQUEST[$dittoID.$source])) {
-		$date = getdate(strtotime($_REQUEST[$dittoID.$source]));
-		$year = $date['year'];
-		$month = $date['mon'];
-		$day = $date['mday'];
-	}
+    if (!empty($_REQUEST[$dittoID . $source])) {
+        $date = getdate(strtotime($_REQUEST[$dittoID . $source]));
+        $year = $date['year'];
+        $month = $date['mon'];
+        $day = $date['mday'];
+    }
 }
 
 // ---------------------------------------------------
@@ -169,27 +172,27 @@ if ($source === 'get') {
 
 
 switch ($dateFilterDefault) {
-	case 0:
-		// do nothing
-	break;
+    case 0:
+        // do nothing
+        break;
 
-	case 1:
-		$cDate = getdate();
-		$year = ($year) ? $year : $cDate['year'];
-	break;
-	
-	case 2:
-		$cDate = getdate();
-		$year = ($year) ? $year : $cDate['year'];
-		$month = ($month) ? $month : $cDate['mon'];
-	break;
-	
-	case 3:
-		$cDate = getdate();
-		$year = ($year) ? $year : $cDate['year'];
-		$month = ($month) ? $month : $cDate['mon'];
-		$day = ($day) ? $day : $cDate['mday'];
-	break;
+    case 1:
+        $cDate = getdate();
+        $year = ($year) ? $year : $cDate['year'];
+        break;
+
+    case 2:
+        $cDate = getdate();
+        $year = ($year) ? $year : $cDate['year'];
+        $month = ($month) ? $month : $cDate['mon'];
+        break;
+
+    case 3:
+        $cDate = getdate();
+        $year = ($year) ? $year : $cDate['year'];
+        $month = ($month) ? $month : $cDate['mon'];
+        $day = ($day) ? $day : $cDate['mday'];
+        break;
 }
 
 // ---------------------------------------------------
@@ -197,45 +200,45 @@ switch ($dateFilterDefault) {
 // ---------------------------------------------------
 
 if ($year) {
-	$modx->setPlaceholder($dittoID. 'year',$year);
-	/*
-		Placeholder: year
+    $modx->setPlaceholder($dittoID . 'year', $year);
+    /*
+        Placeholder: year
 
-		Content:
-		Year being filtered by
-	*/
+        Content:
+        Year being filtered by
+    */
 }
 if ($month && $year) {
-	$month_text = strftime('%B', mktime(10, 10, 10, $month, 10, $year));
-	$modx->setPlaceholder($dittoID. 'month', $month_text);
-	/*
-		Placeholder: month
+    $month_text = strftime('%B', mktime(10, 10, 10, $month, 10, $year));
+    $modx->setPlaceholder($dittoID . 'month', $month_text);
+    /*
+        Placeholder: month
 
-		Content:
-		Month being filtered by
-	*/
-	$modx->setPlaceholder($dittoID. 'month_numeric', $month);
-	/*
-		Placeholder: month
+        Content:
+        Month being filtered by
+    */
+    $modx->setPlaceholder($dittoID . 'month_numeric', $month);
+    /*
+        Placeholder: month
 
-		Content:
-		Numeric version of the month being filtered by
-	*/
+        Content:
+        Numeric version of the month being filtered by
+    */
 }
 if ($day && $month && $year) {
-	$modx->setPlaceholder($dittoID. 'day', $day);
-	/*
-		Placeholder: day
+    $modx->setPlaceholder($dittoID . 'day', $day);
+    /*
+        Placeholder: day
 
-		Content:
-		Day being filtered by
-	*/
+        Content:
+        Day being filtered by
+    */
 }
 
 // ---------------------------------------------------
 // Date Filter Execution
 // ---------------------------------------------------
 if ($year || ($year && $month) || ($year && $month && $day)) {
-	$dateFilterOject = new dateFilter($month,$year,$day,$dateSource);
-	$filters['custom']['dateFilter'] = array($dateSource,array($dateFilterOject, 'execute'));
+    $dateFilterOject = new dateFilter($month, $year, $day, $dateSource);
+    $filters['custom']['dateFilter'] = array($dateSource, array($dateFilterOject, 'execute'));
 }

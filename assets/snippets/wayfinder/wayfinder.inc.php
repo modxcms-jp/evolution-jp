@@ -11,7 +11,8 @@
 ::::::::::::::::::::::::::::::::::::::::
 */
 
-class Wayfinder {
+class Wayfinder
+{
     public $_config;
     public $_templates;
     public $_css;
@@ -21,14 +22,16 @@ class Wayfinder {
     public $tvList = array();
     public $debugInfo = array();
 
-    function __construct() {
+    function __construct()
+    {
     }
 
-    public function run() {
+    public function run()
+    {
         global $modx;
         if ($this->_config['debug']) {
-            $this->addDebugInfo('settings','Settings','Settings','Settings used to create this menu.',$this->_config);
-            $this->addDebugInfo('settings','CSS','CSS Settings','Available CSS options.',$this->_css);
+            $this->addDebugInfo('settings', 'Settings', 'Settings', 'Settings used to create this menu.', $this->_config);
+            $this->addDebugInfo('settings', 'CSS', 'CSS Settings', 'Available CSS options.', $this->_css);
         }
         //setup here checking array
         $this->parentTree = $modx->getParentIds($this->_config['hereId']);
@@ -51,27 +54,28 @@ class Wayfinder {
         return $noneReturn;
     }
 
-    function buildMenu() {
+    function buildMenu()
+    {
         $output = '';
         foreach ($this->docs as $level => $parents) {
             foreach ($parents as $parentId => $children) {
-                if ($this->_config['hideSubMenus'] && !$this->isHere($parentId) && 1<$level) {
+                if ($this->_config['hideSubMenus'] && !$this->isHere($parentId) && 1 < $level) {
                     continue;
                 }
 
                 $subMenu = $this->buildSubMenu($children, $level);
-                if ($level==1 && (!$this->_config['displayStart'] || $this->_config['id']==0)) {
+                if ($level == 1 && (!$this->_config['displayStart'] || $this->_config['id'] == 0)) {
                     $output = $subMenu;
                     continue;
                 }
 
-                if($level==0 && $this->_config['displayStart']) {
+                if ($level == 0 && $this->_config['displayStart']) {
                     $output = $subMenu;
                     continue;
                 }
 
                 $wrapper_text = sprintf('[+wf.wrapper.%s+]', $parentId);
-                if(strpos($output,$wrapper_text)!==false) {
+                if (strpos($output, $wrapper_text) !== false) {
                     $output = str_replace(
                         $wrapper_text
                         , $subMenu
@@ -85,7 +89,8 @@ class Wayfinder {
         return $output;
     }
 
-    function buildSubMenu($subDocs,$level) {
+    function buildSubMenu($subDocs, $level)
+    {
         global $modx;
 
         $subMenuOutput = '';
@@ -95,7 +100,7 @@ class Wayfinder {
         //Loop through each document to render output
         foreach ($subDocs as $docId => $docInfo) {
             $docInfo['level'] = $level;
-            $docInfo['first'] = $counter==1 ? 1 : 0;
+            $docInfo['first'] = $counter == 1 ? 1 : 0;
             //Determine if last item in group
             if ($counter == $total && 0 < $total) {
                 $docInfo['last'] = 1;
@@ -104,16 +109,16 @@ class Wayfinder {
             }
 
             //Determine if document has children
-            if(in_array($docInfo['id'],$this->hasChildren)) {
+            if (in_array($docInfo['id'], $this->hasChildren)) {
                 $docInfo['hasChildren'] = 1;
-                $numChildren            = count($this->docs[$level+1][$docInfo['id']]);
+                $numChildren = count($this->docs[$level + 1][$docInfo['id']]);
             } else {
                 $docInfo['hasChildren'] = 0;
-                $numChildren            = 0;
+                $numChildren = 0;
             }
 
             //Render the row output
-            $subMenuOutput .= $this->renderRow($docInfo,$numChildren,$counter);
+            $subMenuOutput .= $this->renderRow($docInfo, $numChildren, $counter);
             //Update counter for last check
             $counter++;
         }
@@ -121,17 +126,17 @@ class Wayfinder {
         if ($level < 1) return $subMenuOutput;
 
         //Determine wrapper class
-        if ($level==1) $wrapperClass = 'outercls';
+        if ($level == 1) $wrapperClass = 'outercls';
         else           $wrapperClass = 'innercls'; // 1<$level
 
         //Get the class names for the wrapper
         $classNames = $this->setItemClass($wrapperClass, 0, 0, 0, $level);
 
         $ph = array();
-        $ph['wf.wrapper']    = $subMenuOutput;
-        $ph['wf.classes']    = $classNames ? sprintf(' class="%s"',$classNames) : '';
+        $ph['wf.wrapper'] = $subMenuOutput;
+        $ph['wf.classes'] = $classNames ? sprintf(' class="%s"', $classNames) : '';
         $ph['wf.classnames'] = $classNames;
-        $ph['wf.level']      = $level;
+        $ph['wf.level'] = $level;
         //Determine which wrapper template to use
         if ($this->_templates['innerTpl'] && $wrapperClass === 'innercls') {
             $tpl = $this->_templates['innerTpl'];
@@ -140,32 +145,33 @@ class Wayfinder {
         }
 
         //Process the wrapper
-        $subMenuOutput = $modx->parseText($tpl,$ph);
+        $subMenuOutput = $modx->parseText($tpl, $ph);
         //Debug
         if ($this->_config['debug']) {
             $info = array();
-            $info['template'] = ($tpl==$this->_templates['innerTpl']) ? 'innerTpl':'outerTpl';
-            foreach ($ph as $k=>$v) {
+            $info['template'] = ($tpl == $this->_templates['innerTpl']) ? 'innerTpl' : 'outerTpl';
+            foreach ($ph as $k => $v) {
                 if ($k !== 'wf.wrapper') {
                     $info[sprintf('[+%s+]', $k)] = $v;
                 }
             }
             $groupkey = $docInfo['parent'];
-            $header  = "Wrapper for items with parent {$groupkey}.";
+            $header = "Wrapper for items with parent {$groupkey}.";
             $message = 'These fields were used when processing the wrapper for the following documents.';
-            $this->addDebugInfo('wrapper',$groupkey,$header,$message,$info);
+            $this->addDebugInfo('wrapper', $groupkey, $header, $message, $info);
         }
         //Return the submenu
         return $subMenuOutput;
     }
 
     //render each rows output
-    function renderRow(&$resource,$numChildren,$curNum) {
+    function renderRow(&$resource, $numChildren, $curNum)
+    {
         global $modx;
         $refid = $resource['id'];
 
         // Determine fields for use from referenced resource
-        if ($this->_config['useReferenced'] && $resource['type'] === 'reference' && preg_match('@^[1-9][0-9]*$@',$resource['content'])) {
+        if ($this->_config['useReferenced'] && $resource['type'] === 'reference' && preg_match('@^[1-9][0-9]*$@', $resource['content'])) {
             if ($this->_config['useReferenced'] === 'id') {
                 // if id only, do not need get referenced data
                 $resource['id'] = $resource['content'];
@@ -218,7 +224,7 @@ class Wayfinder {
             && $numChildren) {
             $usedTemplate = 'activeParentRowTpl';
         } elseif ($resource['isfolder']
-            && ($resource['template']=='0' || is_numeric(strpos($resource['link_attributes'],'rel="category"')))
+            && ($resource['template'] == '0' || is_numeric(strpos($resource['link_attributes'], 'rel="category"')))
             && $this->_templates['categoryFoldersTpl']
             && ($resource['level'] < $this->_config['level'] || $this->_config['level'] == 0)) {
             $usedTemplate = 'categoryFoldersTpl';
@@ -236,36 +242,35 @@ class Wayfinder {
         }
         //Setup the new wrapper name and get the class names
         $useSub = $resource['hasChildren'] ? "[+wf.wrapper.{$refid}+]" : '';
-        $classNames = $this->setItemClass('rowcls',$resource['id'],$resource['first'],$resource['last'],$resource['level'],$resource['hasChildren'],$resource['type']);
-        $useClass = $classNames ? $useClass = sprintf(' class="%s"',$classNames) : '';
+        $classNames = $this->setItemClass('rowcls', $resource['id'], $resource['first'], $resource['last'], $resource['level'], $resource['hasChildren'], $resource['type']);
+        $useClass = $classNames ? $useClass = sprintf(' class="%s"', $classNames) : '';
 
         //Setup the row id if a prefix is specified
         if ($this->_config['rowIdPrefix']) {
             $useId = sprintf(' id="%s%s"', $this->_config['rowIdPrefix'], $resource['id']);
-        }
-        else {
+        } else {
             $useId = '';
         }
 
         //Load row values into placholder array
         $ph = array();
-        $ph['wf.wrapper']      = $useSub;
-        $ph['wf.classes']      = $useClass;
-        $ph['wf.classnames']   = $classNames;
-        $ph['wf.link']         = $resource['link'];
-        $ph['url']             = $resource['link'];
-        $ph['wf.title']        = !$this->_config['entityEncode'] ? $resource['title']       : $modx->hsc($resource['title']);
-        $ph['wf.linktext']     = !$this->_config['entityEncode'] ? $resource['linktext']    : $modx->hsc($resource['linktext']);
-        $ph['wf.id']           = $useId;
-        $ph['wf.alias']        = $resource['alias'];
-        $ph['wf.attributes']   = $resource['link_attributes'];
-        $ph['wf.docid']        = $resource['id'];
-        $ph['wf.introtext']    = !$this->_config['entityEncode'] ? $resource['introtext']   : $modx->hsc($resource['introtext']);
-        $ph['wf.description']  = !$this->_config['entityEncode'] ? $resource['description'] : $modx->hsc($resource['description']);
+        $ph['wf.wrapper'] = $useSub;
+        $ph['wf.classes'] = $useClass;
+        $ph['wf.classnames'] = $classNames;
+        $ph['wf.link'] = $resource['link'];
+        $ph['url'] = $resource['link'];
+        $ph['wf.title'] = !$this->_config['entityEncode'] ? $resource['title'] : $modx->hsc($resource['title']);
+        $ph['wf.linktext'] = !$this->_config['entityEncode'] ? $resource['linktext'] : $modx->hsc($resource['linktext']);
+        $ph['wf.id'] = $useId;
+        $ph['wf.alias'] = $resource['alias'];
+        $ph['wf.attributes'] = $resource['link_attributes'];
+        $ph['wf.docid'] = $resource['id'];
+        $ph['wf.introtext'] = !$this->_config['entityEncode'] ? $resource['introtext'] : $modx->hsc($resource['introtext']);
+        $ph['wf.description'] = !$this->_config['entityEncode'] ? $resource['description'] : $modx->hsc($resource['description']);
         $ph['wf.subitemcount'] = $numChildren;
-        $ph['wf.refid']        = $refid;
-        $ph['wf.menuindex']    = $resource['menuindex'];
-        $ph['wf.iterator']     = $curNum;
+        $ph['wf.refid'] = $refid;
+        $ph['wf.menuindex'] = $resource['menuindex'];
+        $ph['wf.iterator'] = $curNum;
 
         //Add document variables to the placeholder array
         foreach ($resource as $dvName => $dvVal) {
@@ -282,11 +287,11 @@ class Wayfinder {
         if ($this->_config['debug']) {
             $debugDocInfo = array();
             $debugDocInfo['template'] = $usedTemplate;
-            foreach ($ph as $k=>$v) {
+            foreach ($ph as $k => $v) {
                 $k = sprintf('[+%s+]', $k);
                 $debugDocInfo[$k] = $v;
             }
-            if(count($resource)%2!=0) {
+            if (count($resource) % 2 != 0) {
                 $resource['-'] = '';
             }
             $this->addDebugInfo(
@@ -296,7 +301,7 @@ class Wayfinder {
                     , $resource['parent']
                     , $resource['id']
                 )
-                ,"Doc: #{$resource['id']}"
+                , "Doc: #{$resource['id']}"
                 , 'The following fields were used when processing this document.'
                 , $debugDocInfo
             );
@@ -307,85 +312,88 @@ class Wayfinder {
                     , $resource['parent']
                     , $resource['id']
                 )
-                ,"Doc: #{$resource['id']}"
+                , "Doc: #{$resource['id']}"
                 , 'The following fields were retrieved from the database for this document.'
-                ,$resource
+                , $resource
             );
         }
         //Process the row
 
-        $output = $modx->parseText($this->_templates[$usedTemplate],$ph);
+        $output = $modx->parseText($this->_templates[$usedTemplate], $ph);
 
         return $output . $this->_config['nl'];
     }
 
     //determine style class for current item being processed
-    function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document') {
+    function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document')
+    {
         $classNames = array();
-        $class  = &$this->_css;
+        $class = &$this->_css;
         $config = &$this->_config;
 
-        switch($classType) {
+        switch ($classType) {
             case 'outercls':
-                if($class['outer']) {
+                if ($class['outer']) {
                     $classNames[] = $class['outer'];
                 }             //Set outer class
                 break;
             case 'innercls':
-                if($class['inner']) {
+                if ($class['inner']) {
                     $classNames[] = $class['inner'];
                 }             //Set inner class
-                if($class['outerLevel']) {
+                if ($class['outerLevel']) {
                     $classNames[] = $class['outerLevel'] . $level;
                 } //Set level class
                 break;
             case 'rowcls':
-                if($class['row']) {
+                if ($class['row']) {
                     $classNames[] = $class['row'];
                 }               //Set row class
-                if($first && $class['first']) {
+                if ($first && $class['first']) {
                     $classNames[] = $class['first'];
                 }             //Set first class
-                if($last && $class['last']) {
+                if ($last && $class['last']) {
                     $classNames[] = $class['last'];
                 }              //Set last class
-                if($class['level']) {
+                if ($class['level']) {
                     $classNames[] = $class['level'] . $level;
                 }      //Set level class
 
-                if($class['here'] && $this->isHere($docId)) {
+                if ($class['here'] && $this->isHere($docId)) {
                     $classNames[] = $class['here'];
                 }              //Set here class
-                if($class['self'] && $docId==$config['hereId']) {
+                if ($class['self'] && $docId == $config['hereId']) {
                     $classNames[] = $class['self'];
                 }              //Set self class
-                if($class['weblink'] && $type === 'reference') {
+                if ($class['weblink'] && $type === 'reference') {
                     $classNames[] = $class['weblink'];
                 }           //Set class for weblink
 
-                if($isFolder && $class['parent']) {
-                  if ($level < $config['level'] || $config['level']==0) {
-                    if ($this->isHere($docId) || !$config['hideSubMenus']) {
-                        $classNames[] = $class['parent'];
-                    }            // Set parentFolder class
-                  }
+                if ($isFolder && $class['parent']) {
+                    if ($level < $config['level'] || $config['level'] == 0) {
+                        if ($this->isHere($docId) || !$config['hideSubMenus']) {
+                            $classNames[] = $class['parent'];
+                        }            // Set parentFolder class
+                    }
                 }
                 break;
         }
 
-        if($classNames) {
+        if ($classNames) {
             return join(' ', $classNames);
         }
         return '';
     }
 
     //determine "you are here"
-    function isHere($did) {
-        return in_array($did,$this->parentTree);
+    function isHere($did)
+    {
+        return in_array($did, $this->parentTree);
     }
 
     //Add the specified css & javascript chunks to the page
-    function regJsCss() {
+    function regJsCss()
+    {
         global $modx;
         //Debug
         if ($this->_config['debug']) {
@@ -399,8 +407,7 @@ class Wayfinder {
                 if ($this->_config['debug']) {
                     $jsCssDebug['css'] = sprintf('The CSS in %s was registered.', $this->_config['cssTpl']);
                 }
-            }
-            elseif ($this->_config['debug']) {
+            } elseif ($this->_config['debug']) {
                 $jsCssDebug['css'] = sprintf('The CSS in %s was not found.', $this->_config['cssTpl']);
             }
         }
@@ -412,8 +419,7 @@ class Wayfinder {
                 if ($this->_config['debug']) {
                     $jsCssDebug['js'] = sprintf('The Javascript in %s was registered.', $this->_config['jsTpl']);
                 }
-            }
-            elseif ($this->_config['debug']) {
+            } elseif ($this->_config['debug']) {
                 $jsCssDebug['js'] = sprintf('The Javascript in %s was not found.', $this->_config['jsTpl']);
             }
         }
@@ -424,7 +430,8 @@ class Wayfinder {
     }
 
     //Get all of the documents from the database
-    private function getData() {
+    private function getData()
+    {
         global $modx;
 
         $ids = array();
@@ -447,9 +454,9 @@ class Wayfinder {
                 $parents = array_slice(
                     array_reverse($parents)
                     , 0
-                    , ($this->_config['level'] ?: 10) -1);
+                    , ($this->_config['level'] ?: 10) - 1);
 
-                foreach($parents as $p) {
+                foreach ($parents as $p) {
                     $ids += $modx->getChildIds($p, 1, $ids);
                 }
             }
@@ -470,13 +477,12 @@ class Wayfinder {
         $where = array();
         $where[] = 'sc.published=1';
         $where[] = 'AND sc.deleted=0';
-        if($modx->isFrontend()) {
-            if(!$this->_config['showPrivate']) {
+        if ($modx->isFrontend()) {
+            if (!$this->_config['showPrivate']) {
                 $where[] = 'AND sc.privateweb=0';
             }
-        }
-        elseif($_SESSION['mgrRole']!=1) {
-            if($modx->getUserDocGroups()) {
+        } elseif ($_SESSION['mgrRole'] != 1) {
+            if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
                     'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
                     , implode(',', $modx->getUserDocGroups()
@@ -516,20 +522,19 @@ class Wayfinder {
             );
         }
 
-        $where[]  = sprintf(
+        $where[] = sprintf(
             'AND sc.id IN (%s)'
-            , implode(',',$ids)
+            , implode(',', $ids)
         );
         $where[] = 'GROUP BY sc.id';
 
         //Determine sorting
         if (strtolower($this->_config['sortBy']) === 'random') {
             $sort = 'rand()';
-        }
-        else {
+        } else {
             // modify field names to use sc. table reference
             $_ = explode(',', $this->_config['sortBy']);
-            foreach($_ as $i=>$v) {
+            foreach ($_ as $i => $v) {
                 $_[$i] = 'sc.' . trim($v);
             }
             $sort = implode(',', $_);
@@ -537,11 +542,11 @@ class Wayfinder {
         }
 
         //run the query
-        $fields = explode(',','id,menutitle,pagetitle,introtext,menuindex,published,hidemenu,parent,isfolder,description,alias,longtitle,type,content,template,link_attributes');
-        foreach($fields as $i=>$v) {
-            if    ($v === 'alias')   $fields[$i] = "IF(sc.alias='', sc.id, sc.alias) AS alias";
-            elseif($v === 'content') $fields[$i] = "IF(sc.type='reference',sc.content,'') AS content";
-            else                     $fields[$i] = 'sc.'.$v;
+        $fields = explode(',', 'id,menutitle,pagetitle,introtext,menuindex,published,hidemenu,parent,isfolder,description,alias,longtitle,type,content,template,link_attributes');
+        foreach ($fields as $i => $v) {
+            if ($v === 'alias') $fields[$i] = "IF(sc.alias='', sc.id, sc.alias) AS alias";
+            elseif ($v === 'content') $fields[$i] = "IF(sc.type='reference',sc.content,'') AS content";
+            else                     $fields[$i] = 'sc.' . $v;
         }
 
         $result = db()->select(
@@ -559,27 +564,24 @@ class Wayfinder {
             $startLevel = 0;
         } else {
             $startLevel = count($modx->getParentIds($this->_config['id']));
-            $startLevel = $startLevel ? $startLevel+1 : 1;
+            $startLevel = $startLevel ? $startLevel + 1 : 1;
         }
         $resultIds = array();
         $resourceArray = array();
         //loop through the results
-        while($row = db()->getRow($result)) {
+        while ($row = db()->getRow($result)) {
             $resultIds[] = $row['id'];
             //Create the link
             $linkScheme = $this->_config['fullLink'] ? 'full' : '';
             if ($this->_config['useWeblinkUrl'] && $row['type'] === 'reference') {
-                if (preg_match('@^[1-9][0-9]*$@',$row['content'])) {
+                if (preg_match('@^[1-9][0-9]*$@', $row['content'])) {
                     $row['link'] = $modx->makeUrl((int)$row['content'], '', '', $linkScheme);
-                }
-                else {
+                } else {
                     $row['link'] = $row['content'];
                 }
-            }
-            elseif ($row['id'] == $modx->config['site_start']) {
+            } elseif ($row['id'] == $modx->config['site_start']) {
                 $row['link'] = $modx->config['site_url'];
-            }
-            else {
+            } else {
                 $row['link'] = $modx->makeUrl($row['id'], '', '', $linkScheme);
             }
 
@@ -588,30 +590,28 @@ class Wayfinder {
                 $level = count($modx->getParentIds($row['id'])) + 1 - $startLevel;
             }
             //add parent to hasChildren array for later processing
-            if (($level > 1 || $this->_config['displayStart']) && !in_array($row['parent'],$this->hasChildren)) {
+            if (($level > 1 || $this->_config['displayStart']) && !in_array($row['parent'], $this->hasChildren)) {
                 $this->hasChildren[] = $row['parent'];
             }
             //set the level
             $row['level'] = $level;
             $prevParent = $row['parent'];
             //determine other output options
-            if(strpos($this->_config['textOfLinks'],',')!==false) {
+            if (strpos($this->_config['textOfLinks'], ',') !== false) {
                 $_ = explode(',', $this->_config['textOfLinks']);
-                foreach($_ as $v) {
+                foreach ($_ as $v) {
                     $v = trim($v);
-                    if($row[$v]) {
+                    if ($row[$v]) {
                         $useTextField = $v;
                         break;
                     }
                 }
-                if(empty($useTextField)) {
+                if (empty($useTextField)) {
                     $useTextField = 'pagetitle';
                 }
-            }
-            elseif($row[$this->_config['textOfLinks']]) {
+            } elseif ($row[$this->_config['textOfLinks']]) {
                 $useTextField = $this->_config['textOfLinks'];
-            }
-            else {
+            } else {
                 $useTextField = 'pagetitle';
             }
 
@@ -619,20 +619,19 @@ class Wayfinder {
 
             $useTitleField = null;
 
-            if(strpos($this->_config['titleOfLinks'],',')!==false) {
+            if (strpos($this->_config['titleOfLinks'], ',') !== false) {
                 $_ = explode(',', $this->_config['titleOfLinks']);
-                foreach($_ as $v) {
+                foreach ($_ as $v) {
                     $v = trim($v);
-                    if($row[$v]) {
+                    if ($row[$v]) {
                         $useTitleField = $v;
                         break;
                     }
                 }
-                if(empty($useTitleField)) {
+                if (empty($useTitleField)) {
                     $useTitleField = $this->_config['titleOfLinks'];
                 }
-            }
-            else {
+            } else {
                 $useTitleField = $this->_config['titleOfLinks'];
             }
 
@@ -641,8 +640,7 @@ class Wayfinder {
             //If tvs were specified keep array flat otherwise array becomes level->parent->doc
             if ($this->tvList) {
                 $tempResults[] = $row;
-            }
-            else {
+            } else {
                 $resourceArray[$row['level']][$row['parent']][] = $row;
             }
         }
@@ -651,7 +649,7 @@ class Wayfinder {
             $tvValues = array();
             //loop through all tvs and get their values for each document
             foreach ($this->tvList as $tvName) {
-                $tvValues = $this->array_merge_recursive($this->appendTV($tvName,$resultIds),$tvValues);
+                $tvValues = $this->array_merge_recursive($this->appendTV($tvName, $resultIds), $tvValues);
             }
             //loop through the document array and add the tvar values to each document
             foreach ($tempResults as $tempDocInfo) {
@@ -672,11 +670,12 @@ class Wayfinder {
     // Apeend a TV to the documents array
     // ---------------------------------------------------
 
-    function appendTV($tvname,$docIDs){
+    function appendTV($tvname, $docIDs)
+    {
         global $modx;
 
         $resourceArray = array();
-        foreach($docIDs as $id) {
+        foreach ($docIDs as $id) {
             $tv = $modx->getTemplateVarOutput($tvname, $id);
             $resourceArray["#{$id}"][$tvname] = $tv[$tvname];
         }
@@ -687,15 +686,17 @@ class Wayfinder {
     // Get a list of all available TVs
     // ---------------------------------------------------
 
-    function getTVList() {
+    function getTVList()
+    {
         global $modx;
         $tvs = db()->select('name', '[+prefix+]site_tmplvars');
-            // TODO: make it so that it only pulls those that apply to the current template
+        // TODO: make it so that it only pulls those that apply to the current template
         return $modx->db->getColumn('name', $tvs);
     }
 
     //debugging to check for valid chunks
-    function checkTemplates() {
+    function checkTemplates()
+    {
         $default['outerTpl'] = '<ul[+wf.classes+]>[+wf.wrapper+]</ul>';
         $default['rowTpl'] = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
         $default['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
@@ -756,12 +757,13 @@ class Wayfinder {
         }
     }
 
-    private function array_merge_recursive($arr1, $arr2) {
-        foreach($arr2 as $key=>$value) {
-            if(!is_array($arr1)) {
+    private function array_merge_recursive($arr1, $arr2)
+    {
+        foreach ($arr2 as $key => $value) {
+            if (!is_array($arr1)) {
                 $arr1 = array($arr1);
             }
-            if(is_array($value)) {
+            if (is_array($value)) {
                 $arr1[$key] = $this->array_merge_recursive($arr1[$key], $value);
             } else {
                 $arr1[$key] = $value;
@@ -770,28 +772,30 @@ class Wayfinder {
         return $arr1;
     }
 
-    function fetch($tpl){
+    function fetch($tpl)
+    {
         global $modx;
 
-        if(strpos($tpl, '@FILE') === 0) {
+        if (strpos($tpl, '@FILE') === 0) {
             return file_get_contents(substr($tpl, 6));
         }
-        if(strpos($tpl, '@CODE') === 0) {
+        if (strpos($tpl, '@CODE') === 0) {
             return substr($tpl, 6);
         }
-        if($modx->getChunk($tpl) != '') {
+        if ($modx->getChunk($tpl) != '') {
             return $modx->getChunk($tpl);
         }
         return $tpl;
     }
 
 
-    function findTemplateVars($tpl) {
+    function findTemplateVars($tpl)
+    {
         preg_match_all('~\[\+([^:]*?)(:|\+\])~', $tpl, $matches);
         $tvnames = array();
-        foreach($matches[1] as $tv) {
-            if (strpos(strtolower($tv), 'phx')===0) continue;
-            if (strpos(strtolower($tv), 'wf.')===0) continue;
+        foreach ($matches[1] as $tv) {
+            if (strpos(strtolower($tv), 'phx') === 0) continue;
+            if (strpos(strtolower($tv), 'wf.') === 0) continue;
             $tvnames[] = $tv;
         }
 
@@ -802,10 +806,11 @@ class Wayfinder {
         return array();
     }
 
-    function addDebugInfo($group,$groupkey,$header,$message,$info) {
+    function addDebugInfo($group, $groupkey, $header, $message, $info)
+    {
         $infoString = '<table class="wfdebug" style="margin-bottom:1em;">';
         $total = count($info);
-        if($total!=1 && $total%2 != 0) {
+        if ($total != 1 && $total % 2 != 0) {
             $info['-'] = '';
         }
         $count = 0;
@@ -814,28 +819,28 @@ class Wayfinder {
             $key = $this->modxPrep($key);
             if ($value === true || $value === false) {
                 $value = $value ? 'true' : 'false';
-                $value = sprintf('<span class="bool %s">%s</span>',$value,$value);
+                $value = sprintf('<span class="bool %s">%s</span>', $value, $value);
             } else {
-                if($key === 'nl') {
+                if ($key === 'nl') {
                     $key = 'removeNewLines';
-                    $value = str_replace("\n",'\\n',$value);
-                }
-                elseif($key === 'id') {
+                    $value = str_replace("\n", '\\n', $value);
+                } elseif ($key === 'id') {
                     $key = 'startId';
                 }
                 $value = $this->modxPrep($value);
-                $value = str_replace(array(' ',"\n"),array('&nbsp;',"<br />\n"),$value);
+                $value = str_replace(array(' ', "\n"), array('&nbsp;', "<br />\n"), $value);
             }
             if ($count == 2) {
-                $infoString .= '</tr>'; $count = 0;
+                $infoString .= '</tr>';
+                $count = 0;
             }
             if ($count == 0) {
                 $infoString .= '<tr>';
             }
-            if ($value=='') {
+            if ($value == '') {
                 $value = '&nbsp;';
             }
-            if($key!='-' && ($group === 'settings'||$group === 'template')) {
+            if ($key != '-' && ($group === 'settings' || $group === 'template')) {
                 $key = '&' . $key;
             }
             $infoString .= sprintf('<th>%s</th><td>%s</td>', $key, $value);
@@ -844,17 +849,18 @@ class Wayfinder {
         $infoString .= '</tr></table>';
 
         $message = $this->modxPrep($message);
-        if($group === 'row') {
+        if ($group === 'row') {
             $message = sprintf('<div>%s</div>', $message);
         }
         $this->debugInfo[$group][$groupkey] = array(
             'header' => $this->modxPrep($header),
-            'message' =>  $message,
+            'message' => $message,
             'info' => $infoString,
         );
     }
 
-    function renderDebugOutput() {
+    function renderDebugOutput()
+    {
         global $modx;
 
         $output = '<style>table.wfdebug {font-family:verdana,sans-serif;background-color:#fff;margin:1em;border-collapse:collapse !important;box-sizing: border-box;} table.wfdebug * {box-sizing: border-box;} table.wfdebug td,table.wfdebug th {padding:3px;border:1px solid #ccc;}table.wfdebug th {background-color:#eee;color:#333;font-weight:normal;} table.wfdebug td span.bool{border-radius: 4px;font-size: 90%;padding: 2px 4px;}table.wfdebug td span.true{background-color: #dff0d8;color: #3c763d;}table.wfdebug td span.false{background-color: #f9f2f4;color: #c7254e;}</style>';
@@ -876,17 +882,17 @@ class Wayfinder {
                         $output .= $modx->parseText('<tr><table class="wfdebug">
                                     <tr style="background:#336699;color:#fff;"><th>[+header+] - <span style="font-weight:normal;">[+message+]</span></th></tr>
                                     <tr><td>[+info+]</td></tr>
-                                    <tr style="background:#336699;color:#fff;"><th>Documents included in this wrapper:</th></tr>',$info);
+                                    <tr style="background:#336699;color:#fff;"><th>Documents included in this wrapper:</th></tr>', $info);
 
                         foreach ($this->debugInfo['row'] as $key => $value) {
                             $value['message_v'] = $this->debugInfo['rowdata'][$key]['message'];
-                            $value['info_v']    = $this->debugInfo['rowdata'][$key]['info'];
-                            $keyParts = explode(':',$key);
+                            $value['info_v'] = $this->debugInfo['rowdata'][$key]['info'];
+                            $keyParts = explode(':', $key);
                             if ($parentId == $keyParts[0]) {
                                 $output .= $modx->parseText('<tr style="background:#eee;"><th>[+header+]</th></tr>
                                     <tr><td>
                                     <div>[+message+] [+message_v+]</div>
-                                    <div>[+info+] [+info_v+]</div></td></tr>',$value);
+                                    <div>[+info+] [+info_v+]</div></td></tr>', $value);
                             }
                         }
 
@@ -899,7 +905,7 @@ class Wayfinder {
                     foreach ($item as $parentId => $info) {
                         $output .= $modx->parseText('
                             <tr style="background:#336699;color:#fff;"><th>[+header+] - <span style="font-weight:normal;">[+message+]</span></th></tr>
-                            <tr><td>[+info+]</td></tr>',$info);
+                            <tr><td>[+info+]</td></tr>', $info);
                     }
                     break;
                 default:
@@ -911,7 +917,8 @@ class Wayfinder {
         return $output;
     }
 
-    function modxPrep($value) {
+    function modxPrep($value)
+    {
         global $modx;
         if (strpos($value, '<') !== false) {
             $value = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
@@ -926,23 +933,24 @@ class Wayfinder {
     {
         global $modx;
 
-        if($modx->documentObject['parent']==0) {
+        if ($modx->documentObject['parent'] == 0) {
             return $id;
         }
 
-        $rs = db()->select('*','[+prefix+]site_content',"parent='{$id}' AND hidemenu=0");
+        $rs = db()->select('*', '[+prefix+]site_content', "parent='{$id}' AND hidemenu=0");
 
-        if(db()->count($rs)) {
+        if (db()->count($rs)) {
             return $id;
         }
 
         return $modx->documentObject['parent'];
     }
 
-    function getParentID($id) {
+    function getParentID($id)
+    {
         global $modx;
 
-        if($modx->documentObject['parent']==0) {
+        if ($modx->documentObject['parent'] == 0) {
             return $id;
         }
 

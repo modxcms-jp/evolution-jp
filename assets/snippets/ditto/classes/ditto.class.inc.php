@@ -7,11 +7,13 @@
  *      functionality and any supporting functions they need
 */
 
-class ditto {
-    public $template,$resource,$format,$debug,$advSort,$sqlOrderBy,$customReset,$fields,$constantFields,$prefetch,$sortOrder,$customPlaceholdersMap;
+class ditto
+{
+    public $template, $resource, $format, $debug, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder, $customPlaceholdersMap;
     public $tmpCache = array();
 
-    function __construct($format,$language,$debug) {
+    function __construct($format, $language, $debug)
+    {
         $this->format = $format;
         $GLOBALS['ditto_lang'] = $language;
         $this->prefetch = false;
@@ -33,16 +35,18 @@ class ditto {
         $this->constantFields['tv'] = $this->getTVList();
         $GLOBALS['ditto_constantFields'] = $this->constantFields;
         $this->fields = array(
-            'display' =>array(),
-            'backend' =>array(
-                'tv' =>array(),
-                'db' =>array('id', 'published'))
+            'display' => array(),
+            'backend' => array(
+                'tv' => array(),
+                'db' => array('id', 'published'))
         );
         $this->sortOrder = false;
         $this->customPlaceholdersMap = array();
         $this->template = new template();
 
-        if ($debug !== null) {$this->debug = new debug($debug);}
+        if ($debug !== null) {
+            $this->debug = new debug($debug);
+        }
     }
 
     // ---------------------------------------------------
@@ -50,8 +54,9 @@ class ditto {
     // Get a list of all available TVs
     // ---------------------------------------------------
 
-    function getTVList() {
-        if(isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
+    function getTVList()
+    {
+        if (isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
 
         $tvs = db()->select('name', '[+prefix+]site_tmplvars');
         // TODO: make it so that it only pulls those that apply to the current template
@@ -68,7 +73,8 @@ class ditto {
     // Add a field to the internal field detection system
     // ---------------------------------------------------
 
-    function addField($name,$location,$type=false) {
+    function addField($name, $location, $type = false)
+    {
         if ($type === false) {
             $type = $this->getDocVarType($name);
         }
@@ -90,11 +96,12 @@ class ditto {
     // from an array or delimited string
     // ---------------------------------------------------
 
-    function addFields($fields,$location='*',$delimiter=',',$callback=null) {
+    function addFields($fields, $location = '*', $delimiter = ',', $callback = null)
+    {
         if (empty($fields)) return false;
-        if  (!is_array($fields)) {
-            if (strpos($fields,$delimiter) !== false) {
-                $fields = explode($delimiter,$fields);
+        if (!is_array($fields)) {
+            if (strpos($fields, $delimiter) !== false) {
+                $fields = explode($delimiter, $fields);
             } else {
                 $fields = array($fields);
             }
@@ -108,7 +115,7 @@ class ditto {
                 $type = false;
             }
 
-            $this->addField($name,$location,$type);
+            $this->addField($name, $location, $type);
             if ($callback && is_callable($callback)) {
                 call_user_func_array($callback, array($name));
             }
@@ -116,8 +123,9 @@ class ditto {
         return true;
     }
 
-    function removeField($name,$location,$type) {
-        $key = array_search ($name, $this->fields[$location][$type]);
+    function removeField($name, $location, $type)
+    {
+        $key = array_search($name, $this->fields[$location][$type]);
         if ($key !== false) {
             unset($this->fields[$location][$type][$key]);
         }
@@ -128,7 +136,8 @@ class ditto {
     // Move the detected fields into the Ditto fields array
     // ---------------------------------------------------
 
-    function setDisplayFields($fields,$hiddenFields) {
+    function setDisplayFields($fields, $hiddenFields)
+    {
         $this->fields['display'] = $fields;
         if ($this->fields['display']['qe']) {
             $this->addField('pagetitle', 'display', 'db');
@@ -143,21 +152,22 @@ class ditto {
     // Determine if the provided field is a tv, a database field, or something else
     // ---------------------------------------------------
 
-    function getDocVarType($field) {
+    function getDocVarType($field)
+    {
         global $ditto_constantFields;
         $tvFields = $ditto_constantFields['tv'];
         $dbFields = $ditto_constantFields['db'];
 
-        if(in_array($field, $tvFields, true)){
+        if (in_array($field, $tvFields, true)) {
             return 'tv';
         }
 
-        if(in_array(substr($field, 2), $tvFields, true)) {
+        if (in_array(substr($field, 2), $tvFields, true)) {
             return 'tv:prefix';
             // TODO: Remove TV Prefix support
         }
 
-        if(in_array($field, $dbFields, true)){
+        if (in_array($field, $dbFields, true)) {
             return 'db';
         }
 
@@ -169,38 +179,39 @@ class ditto {
     // Parse out orderBy parameter string
     // ---------------------------------------------------
 
-    function parseOrderBy($orderBy,$randomize) {
+    function parseOrderBy($orderBy, $randomize)
+    {
         if ($randomize != 0) return false;
         $orderBy['sql'] = array();
 
         foreach ($orderBy['parsed'] as $item) {
-            $this->addFields($item[0],'backend');
-            $this->checkAdvSort($item[0],$item[1]);
+            $this->addFields($item[0], 'backend');
+            $this->checkAdvSort($item[0], $item[1]);
         }
 
         foreach ($orderBy['custom'] as $item) {
-            $this->addFields($item[0],'backend');
+            $this->addFields($item[0], 'backend');
             $this->checkAdvSort($item[0]);
         }
 
         if ($orderBy['unparsed'] !== null) {
-            $inputs = explode(',',$orderBy['unparsed']);
+            $inputs = explode(',', $orderBy['unparsed']);
             foreach ($inputs as $input) {
                 $input = trim($input);
-                $position = strrpos($input,' ');
+                $position = strrpos($input, ' ');
                 // find last space
-                $sortBy = substr($input,0,$position);
-                if(!$sortBy) {
+                $sortBy = substr($input, 0, $position);
+                if (!$sortBy) {
                     $sortBy = 'id';
                 }
-                $sortDir = substr($input,$position);
+                $sortDir = substr($input, $position);
                 $sortDir = $sortDir ? trim($sortDir) : 'asc';
-                $sortBy = $this->checkAdvSort($sortBy,$sortDir);
+                $sortBy = $this->checkAdvSort($sortBy, $sortDir);
                 $this->addField($sortBy, 'backend');
-                $orderBy['parsed'][] = array($sortBy,strtoupper($sortDir));
+                $orderBy['parsed'][] = array($sortBy, strtoupper($sortDir));
             }
         }
-        $orderBy['sql'] = implode(', ',$this->sqlOrderBy);
+        $orderBy['sql'] = implode(', ', $this->sqlOrderBy);
         unset($orderBy['unparsed']);
         return $orderBy;
     }
@@ -209,10 +220,11 @@ class ditto {
     // Function: checkAdvSort
     // Check the advSortString
     // ---------------------------------------------------
-    function checkAdvSort($sortBy,$sortDir='asc') {
-        $advSort = array ('pub_date','unpub_date',"editedon","deletedon","publishedon");
+    function checkAdvSort($sortBy, $sortDir = 'asc')
+    {
+        $advSort = array('pub_date', 'unpub_date', "editedon", "deletedon", "publishedon");
         $type = $this->getDocVarType($sortBy);
-        switch($type) {
+        switch ($type) {
             case 'tv:prefix':
                 $sortBy = substr($sortBy, 2);
                 $this->advSort = true;
@@ -225,7 +237,7 @@ class ditto {
                     $this->advSort = true;
                     $this->customReset[] = $sortBy;
                 } else {
-                    $this->sqlOrderBy[] = 'sc.'.$sortBy.' '.$sortDir;
+                    $this->sqlOrderBy[] = 'sc.' . $sortBy . ' ' . $sortDir;
                 }
                 break;
         }
@@ -237,8 +249,9 @@ class ditto {
     // Split up the filters into an array and add the required fields to the fields array
     // ---------------------------------------------------
 
-    public function parseFilters($filter_params=false, $cFilters=array(), $pFilters=array(), $globalDelimiter, $localDelimiter) {
-        $parsedFilters = array('basic' =>array(), 'custom' =>array());
+    public function parseFilters($filter_params = false, $cFilters = array(), $pFilters = array(), $globalDelimiter, $localDelimiter)
+    {
+        $parsedFilters = array('basic' => array(), 'custom' => array());
         $filters = explode($globalDelimiter, $filter_params);
         if ($filter_params) {
             foreach ($filters as $filter) {
@@ -250,20 +263,20 @@ class ditto {
                 $this->addField($source, 'backend');
                 $value = $filterArray[1];
                 $mode = isset ($filterArray[2]) ? $filterArray[2] : 1;
-                $parsedFilters['basic'][] = array('source' =>$source, 'value' =>$value, 'mode' =>$mode);
+                $parsedFilters['basic'][] = array('source' => $source, 'value' => $value, 'mode' => $mode);
             }
         }
         if ($cFilters) {
-            foreach ($cFilters as $name=> $value) {
+            foreach ($cFilters as $name => $value) {
                 if ($name && $value) {
                     $parsedFilters['custom'][$name] = $value[1];
                     $this->addFields($value[0], 'backend');
                 }
             }
         }
-        if($pFilters) {
+        if ($pFilters) {
             foreach ($pFilters as $filter) {
-                foreach ($filter as $name=> $value) {
+                foreach ($filter as $name => $value) {
                     $parsedFilters['basic'][] = $value;
                     $this->addFields($value['source'], 'backend');
                 }
@@ -277,7 +290,8 @@ class ditto {
     // Render the document output
     // ---------------------------------------------------
 
-    function render($resource, $template, $removeChunk,$dateSource,$dateFormat,$ph=array(),$modifier_mode='normal',$x=0) {
+    function render($resource, $template, $removeChunk, $dateSource, $dateFormat, $ph = array(), $modifier_mode = 'normal', $x = 0)
+    {
         global $ditto_lang;
 
         if (!is_array($resource)) {
@@ -286,12 +300,12 @@ class ditto {
 
         $placeholders = array();
         $contentVars = array();
-        foreach ($resource as $name=>$value) {
+        foreach ($resource as $name => $value) {
             $placeholders[$name] = $value;
             $contentVars['[*' . $name . '*]'] = $value;
         }
 
-        $placeholders = $this->setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x);
+        $placeholders = $this->setCustomVar($placeholders, $resource, $dateFormat, $dateSource, $x);
 
         if (in_array('content', $this->fields['display']['db'], true) && $this->format !== 'html') {
             $placeholders['content'] = $this->relToAbs($resource['content'], evo()->config('site_url'));
@@ -303,40 +317,38 @@ class ditto {
 
         $customPlaceholders = $ph;
         // set custom placeholder
-        foreach ($ph as $name=>$value) {
+        foreach ($ph as $name => $value) {
             if ($name === '*') {
                 continue;
             }
-            $placeholders[$name] = call_user_func($value[1],$resource);
+            $placeholders[$name] = call_user_func($value[1], $resource);
             unset($customPlaceholders[$name]);
         }
 
-        foreach ($customPlaceholders as $name=>$cmd) {
+        foreach ($customPlaceholders as $name => $cmd) {
             $placeholders = $cmd($placeholders);
         }
 
         $PHs = $placeholders;
-        foreach($PHs as $key=>$output) {
-            $placeholders[$key] = str_replace( array_keys( $contentVars ), array_values( $contentVars ), $output );
+        foreach ($PHs as $key => $output) {
+            $placeholders[$key] = str_replace(array_keys($contentVars), array_values($contentVars), $output);
         }
         unset($PHs);
 
         $output = $template;
-        if($modifier_mode==='normal') {
+        if ($modifier_mode === 'normal') {
             $i = 0;
-            while($i<10) {
+            while ($i < 10) {
                 $_ = $output;
-                $output = evo()->parseText($output,$placeholders);
-                if($_===$output) break;
+                $output = evo()->parseText($output, $placeholders);
+                if ($_ === $output) break;
                 $i++;
             }
-        }
-        elseif($modifier_mode==='phx') {
+        } elseif ($modifier_mode === 'phx') {
             $phx = new prePHx($output);
             $phx->setPlaceholders($placeholders);
             $output = $phx->output();
-        }
-        else {
+        } else {
             $output = $this->template->replace(
                 $contentVars,
                 $this->template->replace(
@@ -360,8 +372,9 @@ class ditto {
         return $output;
     }
 
-    function setCustomVar($placeholders,$resource,$dateFormat,$dateSource,$x) {
-        $custom_v = & $this->fields['display']['custom'];
+    function setCustomVar($placeholders, $resource, $dateFormat, $dateSource, $x)
+    {
+        $custom_v = &$this->fields['display']['custom'];
 
         if (in_array('author', $custom_v, true)) {
             $placeholders['author'] = self::getAuthor($resource['createdby']);
@@ -383,7 +396,7 @@ class ditto {
 
         // set url placeholder
         if (in_array('url', $custom_v, true)) {
-            if($resource['id']==evo()->config('site_start')) {
+            if ($resource['id'] == evo()->config('site_start')) {
                 $placeholders['url'] = evo()->config('site_url');
             } else {
                 $placeholders['url'] = evo()->makeURL($resource['id'], '', '', 'full');
@@ -402,13 +415,14 @@ class ditto {
                 }
                 $timestamp = $timestamp[1] + $timestamp[0];
             }
-            $placeholders['date'] = $this->mb_strftime($dateFormat,$timestamp);
+            $placeholders['date'] = $this->mb_strftime($dateFormat, $timestamp);
         }
 
         return $placeholders;
     }
 
-    function parseFields($placeholders,$seeThruUnpub,$dateSource,$randomize) {
+    function parseFields($placeholders, $seeThruUnpub, $dateSource, $randomize)
+    {
         $this->parseCustomPlaceholders($placeholders);
         $this->parseDBFields($seeThruUnpub);
         if ($randomize != 0) {
@@ -418,7 +432,7 @@ class ditto {
         $this->addField('pagetitle', 'display', 'db');
         $this->addField('parent', 'display', 'db');
         $checkOptions = array('pub_date', 'unpub_date', 'editedon', 'deletedon', 'publishedon');
-        if (in_array($dateSource,$checkOptions)) {
+        if (in_array($dateSource, $checkOptions)) {
             $this->addField('createdon', 'display');
         }
         if (in_array('date', $this->fields['display']['custom'], true)) {
@@ -432,8 +446,9 @@ class ditto {
     // Function: arrayUnique
     // Make fields array unique
     // ---------------------------------------------------
-    function arrayUnique($array) {
-        foreach($array as $u => $a) {
+    function arrayUnique($array)
+    {
+        foreach ($array as $u => $a) {
             foreach ($a as $n => $b) {
                 $array[$u][$n] = array_unique($b);
             }
@@ -446,28 +461,29 @@ class ditto {
     // Parse the required fields out of the custom placeholders
     // ---------------------------------------------------
 
-    function parseCustomPlaceholders($placeholders) {
-        foreach ($placeholders as $name=>$value) {
+    function parseCustomPlaceholders($placeholders)
+    {
+        foreach ($placeholders as $name => $value) {
             $this->addField($name, 'display', 'custom');
             $this->removeField($name, 'display', 'unknown');
             $source = $value[0];
             $qe = $value[2];
 
-            if(is_array($source)) {
-                if(strpos($source[0], ',')!==false){
-                    $fields = explode(',',$source[0]);
+            if (is_array($source)) {
+                if (strpos($source[0], ',') !== false) {
+                    $fields = explode(',', $source[0]);
                     foreach ($fields as $field) {
                         if (!empty($field)) {
-                            $this->addField($field,$source[1]);
+                            $this->addField($field, $source[1]);
                             $this->customPlaceholdersMap[$name] = $field;
                         }
                     }
                 } else {
-                    $this->addField($source[0],$source[1]);
+                    $this->addField($source[0], $source[1]);
                     $this->customPlaceholdersMap[$name] = $source[0];
                 }
-            } else if(is_array($value)) {
-                $fields = explode(',',$source);
+            } else if (is_array($value)) {
+                $fields = explode(',', $source);
                 foreach ($fields as $field) {
                     if (!empty($field)) {
                         $field = trim($field);
@@ -480,7 +496,7 @@ class ditto {
             if ($qe === null) {
                 return;
             }
-            $this->customPlaceholdersMap[$name] = array('qe',$qe);
+            $this->customPlaceholdersMap[$name] = array('qe', $qe);
         }
     }
 
@@ -489,7 +505,8 @@ class ditto {
     // Parse out the fields required for each state
     // ---------------------------------------------------
 
-    function parseDBFields($seeThruUnpub) {
+    function parseDBFields($seeThruUnpub)
+    {
         if (!$seeThruUnpub) {
             $this->addField('parent', 'backend', 'db');
         }
@@ -508,8 +525,9 @@ class ditto {
     // Get the author name, or if not available the username
     // ---------------------------------------------------
 
-    static function getAuthor($createdby) {
-        if($createdby > 0) {
+    static function getAuthor($createdby)
+    {
+        if ($createdby > 0) {
             $user = evo()->getUserInfo($createdby);
         } else {
             $user = evo()->getWebUserInfo(abs($createdby));
@@ -526,9 +544,10 @@ class ditto {
     // Function: userSort
     // Sort the resource array by a user defined function
     // ---------------------------------------------------
-    function userSort($resource,$sort) {
+    function userSort($resource, $sort)
+    {
         foreach ($sort['custom'] as $item) {
-            usort($resource,$item[1]);
+            usort($resource, $item[1]);
         }
         return $resource;
     }
@@ -540,10 +559,11 @@ class ditto {
     // Link: http://de3.php.net/manual/en/function.array-multisort.php#73498
     // ---------------------------------------------------
 
-    function multiSort($resource,$orderBy) {
+    function multiSort($resource, $orderBy)
+    {
         $sort_arr = array();
-        foreach($resource as $uniqid => $row){
-            foreach($row as $key=>$value){
+        foreach ($resource as $uniqid => $row) {
+            foreach ($row as $key => $value) {
                 $sort_arr[$key][$uniqid] = $value;
             }
         }
@@ -563,7 +583,7 @@ class ditto {
     // ---------------------------------------------------
 
     function determineIDs(
-        $IDs
+          $IDs
         , $IDType
         , $TVs
         , $orderBy
@@ -580,12 +600,13 @@ class ditto {
         , $summarize
         , $filter
         , $randomize
-    ) {
+    )
+    {
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
             return array();
         }
         // Get starting IDs;
-        switch($IDType) {
+        switch ($IDType) {
             case 'parents':
                 $documentIDs = $this->getChildIDs(
                     explode(',', $IDs),
@@ -597,7 +618,7 @@ class ditto {
                 break;
         }
 
-        if ($this->advSort == false && $hideFolders==0 && $showInMenuOnly==0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $keywords==0) {
+        if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $keywords == 0) {
             $this->prefetch = false;
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
             $documentIDs = array();
@@ -612,7 +633,7 @@ class ditto {
         $this->prefetch = true;
 
         // Create where clause
-        $where = array ();
+        $where = array();
         if ($hideFolders) {
             $where[] = 'isfolder = 0';
         }
@@ -639,17 +660,17 @@ class ditto {
         }
         $resource = $this->getDocuments(
             $documentIDs
-            ,$this->fields['backend']['db']
-            ,$TVs
-            ,$orderBy
-            ,$showPublishedOnly
-            ,0
-            ,$hidePrivate
-            ,$where
-            ,$limit
-            ,$keywords
-            ,$randomize
-            ,$dateSource
+            , $this->fields['backend']['db']
+            , $TVs
+            , $orderBy
+            , $showPublishedOnly
+            , 0
+            , $hidePrivate
+            , $where
+            , $limit
+            , $keywords
+            , $randomize
+            , $dateSource
         );
         if ($resource) {
             $resource = array_values($resource);
@@ -685,43 +706,41 @@ class ditto {
                 return array();
             }
             if ($this->advSort && !$randomize) {
-                $resource = $this->multiSort($resource,$orderBy);
-            } elseif(event()->param('documents') && !event()->param('orderBy')) {
+                $resource = $this->multiSort($resource, $orderBy);
+            } elseif (event()->param('documents') && !event()->param('orderBy')) {
                 $resource = $this->unsort(
                     $resource
                     , event()->param('documents')
                 );
             }
             if ($orderBy['custom']) {
-                $resource = $this->userSort($resource,$orderBy);
+                $resource = $this->userSort($resource, $orderBy);
             }
-            $fields = array_intersect($this->fields['backend'],$this->fields['display']);
+            $fields = array_intersect($this->fields['backend'], $this->fields['display']);
             $readyFields = array();
             foreach ($fields as $field) {
-                foreach($field as $k=>$v) {
+                foreach ($field as $k => $v) {
                     $readyFields[$k] = $v;
                 }
             }
-            $processedIDs = array ();
+            $processedIDs = array();
             $keep = array();
             foreach ($resource as $key => $value) {
                 $processedIDs[] = $value['id'];
-                $iKey = '#'.$value['id'];
-                foreach ($value as $key2=>$v2)
-                {
-                    if (in_array($key2,$readyFields)) {
+                $iKey = '#' . $value['id'];
+                foreach ($value as $key2 => $v2) {
+                    if (in_array($key2, $readyFields)) {
                         $keep[$iKey][$key2] = $v2;
                     }
-                    if ($this->getDocVarType($key2) === 'tv:prefix')
-                    {
-                        if (in_array(substr($key2,2),$readyFields)) {
+                    if ($this->getDocVarType($key2) === 'tv:prefix') {
+                        if (in_array(substr($key2, 2), $readyFields)) {
                             $keep[$iKey][$key2] = $v2;
                         }
                     }
                 }
             }
 
-            $this->prefetch = array('resource' =>$keep, 'fields' =>$fields);
+            $this->prefetch = array('resource' => $keep, 'fields' => $fields);
             if ($this->debug) {
                 $this->prefetch['dbg_resource'] = $dbg_resource;
                 $this->prefetch['dbg_IDs_pre'] = $documentIDs;
@@ -740,8 +759,9 @@ class ditto {
         return array();
     }
 
-    private function unsort($docs,$ids) {
-        foreach($docs as $doc) {
+    private function unsort($docs, $ids)
+    {
+        foreach ($docs as $doc) {
             $docs_tmp[$doc['id']] = $doc;
         }
         $ids = explode(',', $ids);
@@ -756,7 +776,8 @@ class ditto {
     // Execute a random order sort
     // ---------------------------------------------------
 
-    function weightedRandom($resource,$field,$show) {
+    function weightedRandom($resource, $field, $show)
+    {
         $type = $this->getDocVarType($field);
         if ($type === 'unknown') {
             return $resource;
@@ -765,7 +786,7 @@ class ditto {
         $random = new random();
         foreach ($resource as $document) {
             $doc = $document;
-            $random->add($doc,abs(intval($document[$field])));
+            $random->add($doc, abs(intval($document[$field])));
         }
         $resource = $random->select_weighted_unique($show);
         shuffle($resource);
@@ -778,19 +799,19 @@ class ditto {
     // Get a list of all available parents
     // ---------------------------------------------------
 
-    function getParentList() {
+    function getParentList()
+    {
         $rs = db()->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         $kids = array();
-        while($row = db()->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $kids[] = $row['parent'];
         }
         $parents = array();
         foreach ($kids as $parent) {
             if ($parent == 0) {
                 $parents[0] = '1';
-            }
-            else {
-                $pInfo = evo()->getPageInfo($parent,0,'published');
+            } else {
+                $pInfo = evo()->getPageInfo($parent, 0, 'published');
                 $parents[$parent] = $pInfo['published'];
             }
         }
@@ -802,7 +823,8 @@ class ditto {
     // Apeend a TV to the documents array
     // ---------------------------------------------------
 
-    function appendTV($tvname= '', $docIDs){
+    function appendTV($tvname = '', $docIDs)
+    {
         $rs = db()->select(
             'stv.*, stc.*'
             , array(
@@ -818,11 +840,11 @@ class ditto {
         );
         $total = db()->count($rs);
         $docs = array();
-        while($row = db()->getRow($rs))  {
-            $k = '#' .$row['contentid'];
+        while ($row = db()->getRow($rs)) {
+            $k = '#' . $row['contentid'];
             $v = evo()->tvProcessor($row);
-            $docs[$k][$row['name']]       = $v;
-            $docs[$k]['tv' .$row['name']] = $v;
+            $docs[$k][$row['name']] = $v;
+            $docs[$k]['tv' . $row['name']] = $v;
         }
         if ($total == count($docIDs)) {
             return $docs;
@@ -839,12 +861,12 @@ class ditto {
         if (strtoupper($row['default_text']) === '@INHERIT') {
             $row['value'] = '@INHERIT';
             foreach ($docIDs as $id) {
-                $k = '#' .$id;
+                $k = '#' . $id;
                 if (!isset($docs[$k])) {
                     $row['contentid'] = $id;
                     $v = evo()->tvProcessor($row);
                     $docs[$k][$tvname] = $v;
-                    $docs[$k]['tv' .$tvname] = $v;
+                    $docs[$k]['tv' . $tvname] = $v;
                 }
             }
             return $docs;
@@ -853,7 +875,7 @@ class ditto {
         $row['contentid'] = '';
         $row['value'] = $row['default_text'];
         foreach ($docIDs as $id) {
-            $k = '#' .$id;
+            $k = '#' . $id;
             if (isset($docs[$k])) {
                 continue;
             }
@@ -869,7 +891,8 @@ class ditto {
     // Append keywords's to the resource array
     // ---------------------------------------------------
 
-    function appendKeywords($resource) {
+    function appendKeywords($resource)
+    {
         $keys = $this->fetchKeywords($resource);
         $resource['keywords'] = $keys;
         return $resource;
@@ -880,11 +903,12 @@ class ditto {
     // Helper function to <appendKeywords>
     // ---------------------------------------------------
 
-    function fetchKeywords($resource) {
-        if($resource['haskeywords']==1) {
-            $metas = implode(',',evo()->getKeywords($resource['id']));
+    function fetchKeywords($resource)
+    {
+        if ($resource['haskeywords'] == 1) {
+            $metas = implode(',', evo()->getKeywords($resource['id']));
         }
-        if(empty($resource['hasmetatags'])) {
+        if (empty($resource['hasmetatags'])) {
             return $metas;
         }
         $tags = evo()->getMETATags($resource['id']);
@@ -900,12 +924,13 @@ class ditto {
     // Similar to the modx version by the same name but much faster
     // ---------------------------------------------------
 
-    function getChildIDs($IDs, $depth) {
+    function getChildIDs($IDs, $depth)
+    {
         $depth = (int)$depth;
         $docIDs = array();
-        foreach($IDs as $id) {
-            $kids   = evo()->getChildIds($id,$depth);
-            foreach ($kids as $k=>$v) {
+        foreach ($IDs as $id) {
+            $kids = evo()->getChildIds($id, $depth);
+            foreach ($kids as $k => $v) {
                 $docIDs[$k] = $v;
             }
         }
@@ -917,20 +942,21 @@ class ditto {
     // Get documents and append TVs + Prefetch Data, and sort
     // ---------------------------------------------------
 
-    function getDocuments($ids= array (), $fields, $TVs, $orderBy, $published= 1, $deleted= 0, $publicOnly= 1, $extraWhere= '', $limit= '', $keywords=0, $randomize=0, $dateSource=false) {
+    function getDocuments($ids = array(), $fields, $TVs, $orderBy, $published = 1, $deleted = 0, $publicOnly = 1, $extraWhere = '', $limit = '', $keywords = 0, $randomize = 0, $dateSource = false)
+    {
         if (!$ids) {
             return false;
         }
         sort($ids);
         if ($publicOnly) {
             // get document groups for current user
-            $docgrp= evo()->getUserDocGroups();
+            $docgrp = evo()->getUserDocGroups();
             if (evo()->isFrontend()) {
                 $access = sprintf(
                     'sc.privateweb=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
-            } elseif(sessionv('mgrRole') != 1) {
+            } elseif (sessionv('mgrRole') != 1) {
                 $access = sprintf(
                     'sc.privatemgr=0 %s'
                     , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
@@ -938,9 +964,9 @@ class ditto {
             }
         }
 
-        if($extraWhere!=='') {
+        if ($extraWhere !== '') {
             $_ = explode('AND', $extraWhere);
-            foreach($_ as $i=>$v) {
+            foreach ($_ as $i => $v) {
                 $_[$i] = trim($v);
             }
             $where = 'AND sc.' . join(' AND sc.', $_);
@@ -953,7 +979,7 @@ class ditto {
                 LEFT JOIN %s dg on dg.document = sc.id
                 WHERE sc.id IN (%s) %s AND sc.deleted=%d %s
                 %s GROUP BY sc.id%s %s"
-            , 'sc.' .implode(',sc.',$fields)
+            , 'sc.' . implode(',sc.', $fields)
             , evo()->getFullTableName('site_content')
             , evo()->getFullTableName('document_groups')
             , join(',', $ids)
@@ -965,14 +991,14 @@ class ditto {
             , ($limit != '') ? 'LIMIT ' . $limit : ''
         );
 
-        $rs= db()->query($sql);
+        $rs = db()->query($sql);
         if (!db()->count($rs)) {
             return false;
         }
-        $docs= array ();
+        $docs = array();
 
         $TVIDs = array();
-        while($row = db()->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $docid = $row['id'];
             if ($dateSource && $row[$dateSource]) {
                 if (!preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
@@ -980,7 +1006,7 @@ class ditto {
                 }
                 $row[$dateSource] += evo()->config('server_offset_time');
             }
-            if($keywords) {
+            if ($keywords) {
                 $row = $this->appendKeywords($row);
             }
 
@@ -992,42 +1018,43 @@ class ditto {
             $x = '#' . $docid;
             $docs[$x] = $row;
             if ($this->prefetch['resource']) {
-                $docs[$x] = array_merge($row,$this->prefetch['resource'][$x]);
+                $docs[$x] = array_merge($row, $this->prefetch['resource'][$x]);
                 // merge the prefetch array and the normal array
             }
         }
 
-        foreach($this->fields['display']['tv'] as $tv) {
+        foreach ($this->fields['display']['tv'] as $tv) {
             $TVs[] = $tv;
         }
-        foreach($this->fields['backend']['tv'] as $tv) {
+        foreach ($this->fields['backend']['tv'] as $tv) {
             $TVs[] = $tv;
         }
 
         $TVs = array_unique($TVs);
         $TVData = array();
         if ($TVs) {
-            foreach($TVs as $tv){
+            foreach ($TVs as $tv) {
                 $TVData = $this->array_merge_recursive(
-                    $this->appendTV($tv,$TVIDs)
-                    ,$TVData
+                    $this->appendTV($tv, $TVIDs)
+                    , $TVData
                 );
             }
         }
 
-        $docs = $this->array_merge_recursive($docs,$TVData);
+        $docs = $this->array_merge_recursive($docs, $TVData);
         if ($this->prefetch && $this->sortOrder) {
-            uasort($docs, function($a, $b){
-                return strnatcmp($a['ditto_sort'],$b['ditto_sort']);
+            uasort($docs, function ($a, $b) {
+                return strnatcmp($a['ditto_sort'], $b['ditto_sort']);
             });
         }
         return $docs;
     }
 
-    public function array_merge_recursive($org, $override) {
-        foreach($override as $k=>$v) {
+    public function array_merge_recursive($org, $override)
+    {
+        foreach ($override as $k => $v) {
             if (is_array($v)) {
-                $org[$k] = $this->array_merge_recursive($org[$k],$v);
+                $org[$k] = $this->array_merge_recursive($org[$k], $v);
             } else {
                 $org[$k] = $v;
             }
@@ -1039,7 +1066,8 @@ class ditto {
     // Get an array of documents
     // ---------------------------------------------------
 
-    function getDocumentsIDs($ids= array (), $published= 1) {
+    function getDocumentsIDs($ids = array(), $published = 1)
+    {
         if (!$ids) {
             return false;
         }
@@ -1054,17 +1082,17 @@ class ditto {
                     'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
                     , join(',', $docGroup)
                 );
-            } elseif($_SESSION['mgrRole']!=1) {
+            } elseif ($_SESSION['mgrRole'] != 1) {
                 $where[] = sprintf(
                     'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
                     , join(',', $docGroup)
                 );
             }
-            if($published) {
+            if ($published) {
                 $where[] = 'AND sc.published=1';
             }
             $where[] = 'GROUP BY sc.id';
-            $rs= db()->select(
+            $rs = db()->select(
                 'DISTINCT sc.id'
                 , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
                 , $where
@@ -1074,22 +1102,22 @@ class ditto {
             $where[] = 'AND deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';
-            } elseif ($_SESSION['mgrRole']!=1) {
+            } elseif ($_SESSION['mgrRole'] != 1) {
                 $where[] = 'AND privatemgr=0';
             }
-            if($published) {
+            if ($published) {
                 $where[] = 'AND published=1';
             }
             $where[] = 'GROUP BY id';
-            $rs= db()->select(
+            $rs = db()->select(
                 'DISTINCT id'
                 , '[+prefix+]site_content'
                 , $where
             );
         }
 
-        $docs= array ();
-        while($row = db()->getRow($rs)) {
+        $docs = array();
+        while ($row = db()->getRow($rs)) {
             $docs[] = $row;
         }
         return $docs;
@@ -1100,7 +1128,8 @@ class ditto {
     // Render the date in the proper format and encoding
     // ---------------------------------------------------
 
-    function formatDate($dateUnixTime, $dateFormat) {
+    function formatDate($dateUnixTime, $dateFormat)
+    {
         $dt = evo()->toDateFormat($dateUnixTime, $dateFormat);
         if (evo()->config('modx_charset') === 'UTF-8') {
             $dt = utf8_encode($dt);
@@ -1113,36 +1142,36 @@ class ditto {
     // Build a URL with regard to Ditto ID
     // ---------------------------------------------------
 
-    static function buildURL($args,$id=false,$dittoIdentifier=false) {
+    static function buildURL($args, $id = false, $dittoIdentifier = false)
+    {
         global $dittoID;
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = array();
-        foreach ($_GET as $param=>$value) {
+        foreach ($_GET as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $clean_param = hsc($param, ENT_QUOTES);
-                if(is_array($value)) {
-                    foreach($value as $val) {
+                if (is_array($value)) {
+                    foreach ($value as $val) {
                         $query[$clean_param][] = hsc($val, ENT_QUOTES);
                     }
-                }
-                else $query[$clean_param] = hsc($value, ENT_QUOTES);
+                } else $query[$clean_param] = hsc($value, ENT_QUOTES);
             }
         }
         if (!is_array($args)) {
-            $args = explode('&',$args);
+            $args = explode('&', $args);
             foreach ($args as $arg) {
-                $arg = explode('=',$arg);
-                $query[$dittoID.$arg[0]] = rawurlencode(trim($arg[1]));
+                $arg = explode('=', $arg);
+                $query[$dittoID . $arg[0]] = rawurlencode(trim($arg[1]));
             }
         } else {
-            foreach ($args as $name=>$value) {
-                $query[$dittoID.$name] = rawurlencode(trim($value));
+            foreach ($args as $name => $value) {
+                $query[$dittoID . $name] = rawurlencode(trim($value));
             }
         }
         $queryString = '';
-        foreach ($query as $param=>$value) {
-            if(!is_array($value)){
-                if($param === $dittoID . 'start' && $value==0) {
+        foreach ($query as $param => $value) {
+            if (!is_array($value)) {
+                if ($param === $dittoID . 'start' && $value == 0) {
                     continue;
                 }
                 $queryString .= '&' . $param . '=' . $value;
@@ -1154,7 +1183,7 @@ class ditto {
         }
         $cID = ($id !== false) ? $id : evo()->documentObject['id'];
         $url = evo()->makeURL(trim($cID), '', $queryString);
-        return evo()->config('xhtml_urls') ? $url : str_replace('&','&amp;',$url);
+        return evo()->config('xhtml_urls') ? $url : str_replace('&', '&amp;', $url);
     }
 
     // ---------------------------------------------------
@@ -1162,18 +1191,19 @@ class ditto {
     // Get a parameter or use the default language value
     // ---------------------------------------------------
 
-    function getParam($param,$langString){
+    function getParam($param, $langString)
+    {
         // get a parameter value and if it is not set get the default language string value
         global $ditto_lang;
 
-        if (substr($param,0,1)==='@') {
+        if (substr($param, 0, 1) === '@') {
             $output = $this->template->fetch($param);
-        } else if(!empty($param)) {
+        } else if (!empty($param)) {
             $output = evo()->getChunk($param);
         } else {
             $output = $ditto_lang[$langString];
         }
-        if(trim($output)==='') {
+        if (trim($output) === '') {
             $output = $param;
         }
         return $output;
@@ -1184,59 +1214,60 @@ class ditto {
     // Paginate the documents
     // ---------------------------------------------------
 
-    function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter,$maxPaginate=10) {
-        global $dittoID,$ditto_lang;
+    function paginate($start, $stop, $total, $summarize, $tplPaginateNext, $tplPaginatePrevious, $tplPaginateNextOff, $tplPaginatePreviousOff, $tplPaginatePage, $tplPaginateCurrentPage, $paginateAlwaysShowLinks, $paginateSplitterCharacter, $maxPaginate = 10)
+    {
+        global $dittoID, $ditto_lang;
 
-        if ($stop == 0 || $total == 0 || $summarize==0) {
+        if ($stop == 0 || $total == 0 || $summarize == 0) {
             return false;
         }
         $next = $start + $summarize;
-        if(strpos($tplPaginateNext,'lang:next')!==false) {
+        if (strpos($tplPaginateNext, 'lang:next') !== false) {
             $tplPaginateNext = str_replace('lang:next', 'lang%next', $tplPaginateNext);
         }
-        if(strpos($tplPaginatePrevious,'lang:previous')!==false) {
+        if (strpos($tplPaginatePrevious, 'lang:previous') !== false) {
             $tplPaginatePrevious = str_replace('lang:previous', 'lang%previous', $tplPaginatePrevious);
         }
-        $rNext =  evo()->parseText(
+        $rNext = evo()->parseText(
             array(
-                'url'=> self::buildURL('start=' . $next),
-                'lang%next'=>$ditto_lang['next']),
-                $tplPaginateNext
-            );
+                'url' => self::buildURL('start=' . $next),
+                'lang%next' => $ditto_lang['next']),
+            $tplPaginateNext
+        );
         $previous = $start - $summarize;
-        if($previous!=0) {
+        if ($previous != 0) {
             $prevUrl = self::buildURL('start=' . $previous);
         } else {
             $args = $_GET;
-            if(isset($args[$dittoID . 'start'])) {
+            if (isset($args[$dittoID . 'start'])) {
                 unset($args[$dittoID . 'start']);
             }
-            if(is_array($args)) {
-                foreach($args as $k=>$v) {
+            if (is_array($args)) {
+                foreach ($args as $k => $v) {
                     $args[$k] = sprintf('%s=%s', $k, $v);
                 }
-                $args = implode('&',$args);
+                $args = implode('&', $args);
             }
             $prevUrl = evo()->makeUrl(
-                evo()->documentIdentifier,'',$args
+                evo()->documentIdentifier, '', $args
             );
         }
-        $rPrevious =  evo()->parseText(
+        $rPrevious = evo()->parseText(
             array(
-                'url'=>$prevUrl,
-                'lang%previous'=>$ditto_lang['prev']),
-                $tplPaginatePrevious
+                'url' => $prevUrl,
+                'lang%previous' => $ditto_lang['prev']),
+            $tplPaginatePrevious
         );
         $limten = $summarize + $start;
         if ($paginateAlwaysShowLinks == 1) {
-            if(strpos($tplPaginatePreviousOff,'lang:previous')!==false) {
+            if (strpos($tplPaginatePreviousOff, 'lang:previous') !== false) {
                 $tplPaginatePreviousOff = str_replace(
                     'lang:previous',
                     'lang%previous',
                     $tplPaginatePreviousOff
                 );
             }
-            if(strpos($tplPaginateNextOff,'lang:next')!==false) {
+            if (strpos($tplPaginateNextOff, 'lang:next') !== false) {
                 $tplPaginateNextOff = str_replace(
                     'lang:next',
                     'lang%next',
@@ -1244,11 +1275,11 @@ class ditto {
                 );
             }
             $previousplaceholder = evo()->parseText(
-                array('lang%previous'=>$ditto_lang['prev']),
+                array('lang%previous' => $ditto_lang['prev']),
                 $tplPaginatePreviousOff
             );
             $nextplaceholder = evo()->parseText(
-                array('lang%next'=>$ditto_lang['next']),
+                array('lang%next' => $ditto_lang['next']),
                 $tplPaginateNextOff
             );
         } else {
@@ -1290,9 +1321,9 @@ class ditto {
             $min_x = $max_x - $max_paginate + 1;
         }
         $pages = array();
-        for ($x = 0; $x <= $totalpages -1; $x++) {
+        for ($x = 0; $x <= $totalpages - 1; $x++) {
             $inc = $x * $summarize;
-            $display = $x +1;
+            $display = $x + 1;
 
             if ($x < $min_x || ($x > $max_x)) {
                 continue;
@@ -1310,36 +1341,36 @@ class ditto {
                     , array(
                         'url' => self::buildURL('start=' . $inc),
                         'page' => $display
-                        )
+                    )
                 );
             }
-            if($x < $max_x) {
+            if ($x < $max_x) {
                 $pages[] = $paginateSplitterCharacter;
             }
         }
-        if ($totalpages > 1 || $paginateAlwaysShowLinks==1){
+        if ($totalpages > 1 || $paginateAlwaysShowLinks == 1) {
             evo()->toPlaceholders(
                 array(
-                    'next'     => $nextplaceholder,
+                    'next' => $nextplaceholder,
                     'previous' => $previousplaceholder,
-                    'prev'     => $previousplaceholder,
-                    'pages'    => implode("\n", $pages)
+                    'prev' => $previousplaceholder,
+                    'pages' => implode("\n", $pages)
                 )
-                ,$dittoID
+                , $dittoID
             );
         }
         evo()->toPlaceholders(
             array(
                 'splitter' => $split,
-                'start'    => ($start+1),
+                'start' => ($start + 1),
                 'urlStart' => $start,
-                'stop'     => $limiter,
-                'total'    => $total,
+                'stop' => $limiter,
+                'total' => $total,
                 'perPage', $summarize,
-                'totalPages'=> $totalpages,
-                'ditto_pagination_set'=> true
+                'totalPages' => $totalpages,
+                'ditto_pagination_set' => true
             )
-            ,$dittoID
+            , $dittoID
         );
     }
 
@@ -1347,22 +1378,23 @@ class ditto {
     // Function: noResults
     // Render the noResults output
     // ---------------------------------------------------
-    function noResults($text,$paginate) {
+    function noResults($text, $paginate)
+    {
         global $dittoID;
-        $set = evo()->getPlaceholder($dittoID. 'ditto_pagination_set');
+        $set = evo()->getPlaceholder($dittoID . 'ditto_pagination_set');
         if ($paginate && $set !== true) {
-            evo()->setPlaceholder($dittoID. 'next', '');
-            evo()->setPlaceholder($dittoID. 'previous', '');
-            evo()->setPlaceholder($dittoID. 'prev', '');
-            evo()->setPlaceholder($dittoID. 'splitter', '');
-            evo()->setPlaceholder($dittoID. 'start', 0);
-            evo()->setPlaceholder($dittoID. 'urlStart', '#start');
-            evo()->setPlaceholder($dittoID. 'stop', 0);
-            evo()->setPlaceholder($dittoID. 'total', 0);
-            evo()->setPlaceholder($dittoID. 'pages', '');
-            evo()->setPlaceholder($dittoID. 'perPage', 0);
-            evo()->setPlaceholder($dittoID. 'totalPages', 0);
-            evo()->setPlaceholder($dittoID. 'currentPage', 0);
+            evo()->setPlaceholder($dittoID . 'next', '');
+            evo()->setPlaceholder($dittoID . 'previous', '');
+            evo()->setPlaceholder($dittoID . 'prev', '');
+            evo()->setPlaceholder($dittoID . 'splitter', '');
+            evo()->setPlaceholder($dittoID . 'start', 0);
+            evo()->setPlaceholder($dittoID . 'urlStart', '#start');
+            evo()->setPlaceholder($dittoID . 'stop', 0);
+            evo()->setPlaceholder($dittoID . 'total', 0);
+            evo()->setPlaceholder($dittoID . 'pages', '');
+            evo()->setPlaceholder($dittoID . 'perPage', 0);
+            evo()->setPlaceholder($dittoID . 'totalPages', 0);
+            evo()->setPlaceholder($dittoID . 'currentPage', 0);
         }
         return $text;
     }
@@ -1372,15 +1404,16 @@ class ditto {
     // Convert relative urls to absolute URLs
     // Based on script from http://wintermute.com.au/bits/2005-09/php-relative-absolute-links/
     // ---------------------------------------------------
-    function relToAbs($text, $base) {
+    function relToAbs($text, $base)
+    {
         return preg_replace(
             '#(href|src)="([^:"]*)"#',
-            '$1="'.$base.'$2"',
+            '$1="' . $base . '$2"',
             $text
         );
     }
 
-    function mb_strftime($format='', $timestamp='')
+    function mb_strftime($format = '', $timestamp = '')
     {
         global $modx;
         return method_exists($modx, 'mb_strftime')

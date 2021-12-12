@@ -1,8 +1,8 @@
 <?php
 /**
-* snippets/eform/japanese-utf8.inc.php
-* 日本語 language file for eForm
-*/
+ * snippets/eform/japanese-utf8.inc.php
+ * 日本語 language file for eForm
+ */
 $_lang["ef_date_format"] = '%Y-%m-%d %H:%M:%S';
 $_lang["ef_debug_info"] = "デバッグ情報: ";
 $_lang["ef_debug_warning"] = '<p style="color:red;"><span style="font-size:1.5em;font-weight:bold;">警告 - デバッグモードが有効</span><br />このフォームを公開する前にデバッグモードを無効にしてください！</p>';
@@ -33,7 +33,7 @@ $_lang["ef_required_message"] = "{fields}は、必須項目です<br />";
 $_lang["ef_rule_failed"] = '設定された[+rule+] (input="[+input+]")ルールが<span style="color:red;">適用</span>されませんでした。 ';
 $_lang["ef_rule_passed"] = '設定された[+rule+] (input="[+input+]")が正しく認識されました。';
 $_lang["ef_sql_no_result"] = " 検証を通過しました。<span style=\"color:red;\">SQLは結果を返しませんでした。</span> ";
-$_lang["ef_submit_time_limit"] = "<p>フォームデータは送信済みです。再送信は".($submitLimit/60)." 秒後に可能になります。</p>";
+$_lang["ef_submit_time_limit"] = "<p>フォームデータは送信済みです。再送信は" . ($submitLimit / 60) . " 秒後に可能になります。</p>";
 $_lang["ef_tamper_attempt"] = "不正な変更の試みを発見しました!";
 $_lang["ef_thankyou_message"] = "<h3>ありがとうございます。</h3><p>入力された情報は無事送信されました。</p>";
 $_lang["ef_thousands_separator"] = ''; //leave empty to use (php) locale, only needed if you want to overide locale setting!
