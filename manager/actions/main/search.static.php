@@ -9,14 +9,14 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
     <div id="actions">
         <ul class="actionButtons">
             <li
-                    id="Button5"
-                    class="mutate"
+                id="Button5"
+                class="mutate"
             ><a
-                        href="#"
-                        onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                    href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
                 ><img
-                            alt="icons_cancel"
-                            src="<?php echo style('icons_cancel') ?>"
+                        alt="icons_cancel"
+                        src="<?php echo style('icons_cancel') ?>"
                     /> <?php echo lang('cancel') ?></a></li>
         </ul>
     </div>
@@ -77,17 +77,17 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td colspan="4">
                             <ul class="actionButtons">
                                 <li><a
-                                            class="default"
-                                            href="#"
-                                            onclick="jQuery('#submitok').click();"
+                                        class="default"
+                                        href="#"
+                                        onclick="jQuery('#submitok').click();"
                                     ><img
-                                                src="<?php echo style('icons_save') ?>"
+                                            src="<?php echo style('icons_save') ?>"
                                         /> <?php echo lang('search') ?></a
                                     ></li>
                                 <li><a
-                                            href="index.php?a=2"
+                                        href="index.php?a=2"
                                     ><img
-                                                src="<?php echo style('icons_cancel') ?>"
+                                            src="<?php echo style('icons_cancel') ?>"
                                         /> <?php echo lang('cancel') ?></a
                                     ></li>
                             </ul>
@@ -217,7 +217,7 @@ if (getv('submitok')) {
                                     ?>
                                     <a href="index.php?a=120&id=<?php echo $row['id']; ?>"
                                        title="<?php echo lang('search_view_docdata'); ?>"><img
-                                                src="<?php echo style('tree_folder'); ?>"/></a>
+                                            src="<?php echo style('tree_folder'); ?>"/></a>
                                     <?php
                                 }
                                 echo $row['id'];

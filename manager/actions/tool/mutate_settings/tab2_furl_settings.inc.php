@@ -1,16 +1,16 @@
 <script>
-jQuery(function(){
-    if (jQuery('input[name="friendly_urls"]:checked').val()==0) {
-        jQuery('.furlRow').hide();
-    }
-    jQuery('input[name="friendly_urls"]').change(function () {
-        if(jQuery(this).val()==1) {
-            jQuery('tr.furlRow').fadeIn();
-        } else {
-            jQuery('tr.furlRow').fadeOut();
+    jQuery(function () {
+        if (jQuery('input[name="friendly_urls"]:checked').val() == 0) {
+            jQuery('.furlRow').hide();
         }
+        jQuery('input[name="friendly_urls"]').change(function () {
+            if (jQuery(this).val() == 1) {
+                jQuery('tr.furlRow').fadeIn();
+            } else {
+                jQuery('tr.furlRow').fadeOut();
+            }
+        });
     });
-});
 </script>
 <div class="tab-page" id="tabPage3">
     <h2 class="tab"><?php echo $_lang["settings_furls"] ?></h2>

@@ -8,7 +8,7 @@ if (!evo()->hasPermission('view_eventlog')) {
 }
 
 // get id
-$id = (int)anyv('id',0);
+$id = (int)anyv('id', 0);
 
 // make sure the id's a number
 if (!is_numeric($id)) {
@@ -39,11 +39,11 @@ $content = db()->getRow($ds);
     <ul class="actionButtons">
         <?php if (evo()->hasPermission('delete_eventlog')) { ?>
             <li id="Button3"><a href="#" onclick="deletelog();"><img
-                            src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?></a>
+                        src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?></a>
             </li>
         <?php } ?>
         <li id="Button5" class="mutate"><a href="index.php?a=114"><img
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a></li>
+                    src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a></li>
     </ul>
 </div>
 

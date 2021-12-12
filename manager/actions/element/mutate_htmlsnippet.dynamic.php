@@ -220,7 +220,8 @@ if (isset($form_v['which_editor'])) {
                     </table>
 
                     <div>
-                        <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                        <div
+                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                             <span style="font-weight:bold;"><?= $_lang['chunk_code'] ?></span>
                         </div>
                         <textarea

@@ -4,7 +4,8 @@
  *
  * @return array of keys from a language file
  */
-function get_lang_keys($filename) {
+function get_lang_keys($filename)
+{
     global $_lang;
     $path = sprintf('%slang/%s', MODX_CORE_PATH, $filename);
     if (is_file($path) && is_readable($path)) {
@@ -19,7 +20,8 @@ function get_lang_keys($filename) {
  *
  * @return array of languages that define the key in their file
  */
-function get_langs_by_key($key) {
+function get_langs_by_key($key)
+{
     global $lang_keys;
     $lang_return = array();
     foreach ($lang_keys as $lang => $keys) {
@@ -40,7 +42,8 @@ function get_langs_by_key($key) {
  * @param string $selected_lang specify language to select in option list, default none
  * @return html|string
  */
-function get_lang_options($key = null, $selected_lang = null) {
+function get_lang_options($key = null, $selected_lang = null)
+{
     global $lang_keys;
     $lang_options = array();
     if ($key) {
@@ -69,9 +72,10 @@ function get_lang_options($key = null, $selected_lang = null) {
     return $lang_options;
 }
 
-function form_text_tag($name, $value, $attr=array()) {
+function form_text_tag($name, $value, $attr = array())
+{
     return sprintf(
-        strpos($value,'"')===false
+        strpos($value, '"') === false
             ? '<input type="text" name="%s" value="%s" %s>' : '<input type="text" name="%s" value=\'%s\' %s>'
         , $name
         , $value
@@ -79,12 +83,13 @@ function form_text_tag($name, $value, $attr=array()) {
     );
 }
 
-function join_attr($attr = array()) {
-    if(!$attr) {
+function join_attr($attr = array())
+{
+    if (!$attr) {
         return '';
     }
     $rs = array();
-    foreach ($attr as $k=>$v) {
+    foreach ($attr as $k => $v) {
         $rs[] = sprintf(
             '%s="%s"'
             , $k
@@ -94,7 +99,8 @@ function join_attr($attr = array()) {
     return implode(' ', $rs);
 }
 
-function form_text($name, $maxlength = '255', $add = '', $readonly = false) {
+function form_text($name, $maxlength = '255', $add = '', $readonly = false)
+{
     if (!$maxlength) {
         $maxlength = '255';
     }
@@ -109,7 +115,8 @@ function form_text($name, $maxlength = '255', $add = '', $readonly = false) {
     );
 }
 
-function form_radio($name, $value, $checked = false, $add = '', $disabled = false) {
+function form_radio($name, $value, $checked = false, $add = '', $disabled = false)
+{
     return sprintf(
         '<input type="radio" name="%s" value="%s" %s %s %s />'
         , $name
@@ -120,7 +127,8 @@ function form_radio($name, $value, $checked = false, $add = '', $disabled = fals
     );
 }
 
-function wrap_label($str='', $object='') {
+function wrap_label($str = '', $object = '')
+{
     return sprintf(
         '<label>%s %s</label>'
         , $object
@@ -128,7 +136,8 @@ function wrap_label($str='', $object='') {
     );
 }
 
-function get_role_list() {
+function get_role_list()
+{
     global $default_role;
 
     $rs = db()->select(
@@ -148,7 +157,8 @@ function get_role_list() {
     return $options;
 }
 
-function checkConfig($key) {
+function checkConfig($key)
+{
     global $settings, $default_config;
     if (strpos($settings[$key], '* ') === 0) {
         $settings[$key] = trim($settings[$key], '* ');
@@ -157,8 +167,9 @@ function checkConfig($key) {
     }
 }
 
-function settings() {
-    global $modx,$default_config;
+function settings()
+{
+    global $modx, $default_config;
     $settings = array();
     $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
     while ($row = db()->getRow($rs)) {

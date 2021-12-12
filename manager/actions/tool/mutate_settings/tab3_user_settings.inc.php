@@ -1,26 +1,26 @@
 <script>
-jQuery(function(){
-    if (jQuery('input[name="use_captcha"]:checked').val()==0) {
-        jQuery('.captchaRow').hide();
-    }
-    jQuery('input[name="use_captcha"]').change(function () {
-        if(jQuery(this).val()==1) {
-            jQuery('tr.captchaRow').fadeIn();
-        } else {
-            jQuery('tr.captchaRow').fadeOut();
+    jQuery(function () {
+        if (jQuery('input[name="use_captcha"]:checked').val() == 0) {
+            jQuery('.captchaRow').hide();
         }
-    });
-    if (jQuery('input[name="email_method"]:checked').val()=='mail') {
-        jQuery('.emailMethodRow').hide();
-    }
-    jQuery('input[name="email_method"]').change(function () {
-        if(jQuery(this).val()=='smtp') {
-            jQuery('tr.emailMethodRow').fadeIn();
-        } else {
-            jQuery('tr.emailMethodRow').fadeOut();
+        jQuery('input[name="use_captcha"]').change(function () {
+            if (jQuery(this).val() == 1) {
+                jQuery('tr.captchaRow').fadeIn();
+            } else {
+                jQuery('tr.captchaRow').fadeOut();
+            }
+        });
+        if (jQuery('input[name="email_method"]:checked').val() == 'mail') {
+            jQuery('.emailMethodRow').hide();
         }
+        jQuery('input[name="email_method"]').change(function () {
+            if (jQuery(this).val() == 'smtp') {
+                jQuery('tr.emailMethodRow').fadeIn();
+            } else {
+                jQuery('tr.emailMethodRow').fadeOut();
+            }
+        });
     });
-});
 </script>
 <div class="tab-page" id="tabPage4">
     <h2 class="tab"><?php echo $_lang["settings_users"] ?></h2>
@@ -200,17 +200,17 @@ jQuery(function(){
         <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_host_title"] ?></th>
             <td><input
-                onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
-                value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com"; ?>"/>
+                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
+                    value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com"; ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_port_title"] ?></th>
             <td>
                 <input
-                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" 
+                    onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
                     name="smtp_port"
-                value="<?php echo isset($smtp_port) ? $smtp_port : "25"; ?>"/>
+                    value="<?php echo isset($smtp_port) ? $smtp_port : "25"; ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">

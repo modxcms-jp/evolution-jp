@@ -103,7 +103,7 @@ if ($_REQUEST['a'] == '35') {
             <ul class="actionButtons">
                 <?php if (evo()->hasPermission('save_role')): ?>
                     <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
-                                    src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a></li>
+                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a></li>
                 <?php endif; ?>
                 <?php
                 if ($_GET['a'] == '35') {
@@ -334,7 +334,8 @@ if ($_REQUEST['a'] == '35') {
 
 
 <?php
-function render_form($name, $label, $status = '') {
+function render_form($name, $label, $status = '')
+{
     global $modx, $roledata;
 
     $tpl = <<< EOT

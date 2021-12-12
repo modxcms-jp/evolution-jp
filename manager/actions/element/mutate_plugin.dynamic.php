@@ -495,7 +495,8 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     </table>
                     <!-- PHP text editor start -->
                     <div style="width:100%;position:relative">
-                        <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                        <div
+                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                             <span style="float:left;font-weight:bold;"><?= $_lang['plugin_code'] ?></span>
                             <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
                                 <input
@@ -503,7 +504,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                                     type="checkbox"
                                     checked="checked"
                                     class="inputBox"
-                                    onclick="setTextWrap(document.mutate.post,this.checked)" />
+                                    onclick="setTextWrap(document.mutate.post,this.checked)"/>
                             </span>
                         </div>
                         <textarea
@@ -548,7 +549,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                             <tr>
                                 <td>&nbsp;</td>
                                 <td align="left" valign="top"><span style="width:300px;"><span
-                                                class="comment"><?= $_lang['import_params_msg'] ?></span></span><br/>
+                                            class="comment"><?= $_lang['import_params_msg'] ?></span></span><br/>
                                 </td>
                             </tr>
                             <?php
@@ -561,8 +562,8 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                                           onblur='showParameters(this);'
                                           onChange="showParameters(this);"><?= $pluginObject->properties ?></textarea><br/>
                                 <input
-                                        type="button" value="<?= $_lang['update_params'] ?>"
-                                        onclick="showParameters(this);"/>
+                                    type="button" value="<?= $_lang['update_params'] ?>"
+                                    onclick="showParameters(this);"/>
                             </td>
                         </tr>
                         <tr id="displayparamrow">
@@ -645,7 +646,8 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                             echoEventRows($evtnames);
                         }
 
-                        function echoEventRows(&$evtnames) {
+                        function echoEventRows(&$evtnames)
+                        {
                             echo "<tr><td>" . join("</td><td>", $evtnames) . "</td></tr>";
                             $evtnames = array();
                         }
@@ -704,7 +706,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                                                   type="checkbox" <?= $pluginObject->locked == 1 ? "checked='checked'" : "" ?>
                                                   value="on" class="inputBox">
                                         <b><?= $_lang['lock_plugin'] ?></b> <span
-                                                class="comment"><?= $_lang['lock_plugin_msg'] ?></span></label>
+                                            class="comment"><?= $_lang['lock_plugin_msg'] ?></span></label>
                                 </td>
                             </tr>
                         <?php } ?>
@@ -731,7 +733,8 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     </form>
 <?php
 
-function bold($cond = false) {
+function bold($cond = false)
+{
     if ($cond !== false) {
         return ' style="background-color:#777;color:#fff;"';
     } else {
@@ -739,14 +742,16 @@ function bold($cond = false) {
     }
 }
 
-function checked($cond) {
+function checked($cond)
+{
     if ($cond) {
         return 'checked';
     }
     return '';
 }
 
-function selected($cond) {
+function selected($cond)
+{
     if ($cond) {
         return 'selected';
     }

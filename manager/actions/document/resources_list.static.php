@@ -1,6 +1,6 @@
 <?php
 /** @var array $_lang
- *  @var array $_style
+ * @var array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -255,7 +255,8 @@ EOT;
     </div>
 
 <?php
-function getTitle($doc) {
+function getTitle($doc)
+{
     global $_style;
 
     $doc['class'] = _getClasses($doc);
@@ -267,14 +268,16 @@ function getTitle($doc) {
     return $title;
 }
 
-function getIcon($doc) {
+function getIcon($doc)
+{
     $doc['iconpath'] = _getIconPath($doc);
 
     $tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
     return parseText($tpl, $doc);
 }
 
-function getDescription($doc) {
+function getDescription($doc)
+{
     $len = mb_strlen($doc['pagetitle'] . $doc['description'], evo()->config('modx_charset'));
     $tpl = '<span style="color:#777;">%s</span>';
     if ($len < 50) {
@@ -286,7 +289,8 @@ function getDescription($doc) {
     return sprintf('<br />' . $tpl, $doc['description']);
 }
 
-function _getClasses($doc) {
+function _getClasses($doc)
+{
     $classes = array();
     $classes[] = 'withmenu';
     if ($doc['deleted'] === '1') {
@@ -301,7 +305,8 @@ function _getClasses($doc) {
     return ' class="' . implode(' ', $classes) . '"';
 }
 
-function getPublishedOn($doc) {
+function getPublishedOn($doc)
+{
     global $modx;
 
     if ($doc['publishedon']) {
@@ -315,7 +320,8 @@ function getPublishedOn($doc) {
     return '-';
 }
 
-function getEditedon($editedon) {
+function getEditedon($editedon)
+{
     global $modx;
 
     if ($editedon) {
@@ -324,7 +330,8 @@ function getEditedon($editedon) {
     return '-';
 }
 
-function getStatusIcon($status) {
+function getStatusIcon($status)
+{
     global $modx, $_style;
 
     if (!evo()->config['enable_draft']) {
@@ -342,7 +349,8 @@ function getStatusIcon($status) {
     }
 }
 
-function getStatus($doc) {
+function getStatus($doc)
+{
     global $_lang;
 
     if (!$doc['published'] && (request_time() < $doc['pub_date'] || $doc['unpub_date'] < request_time())) {
@@ -351,13 +359,14 @@ function getStatus($doc) {
     return parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);
 }
 
-function _getIconPath($doc) {
+function _getIconPath($doc)
+{
     global $_style;
 
     switch ($doc['id']) {
         case evo()->config('site_start')           :
             return $_style['tree_page_home'];
-        case evo()->config('error_page',evo()->config('site_start'))           :
+        case evo()->config('error_page', evo()->config('site_start'))           :
             return $_style['tree_page_404'];
         case evo()->config('unauthorized_page')    :
             return $_style['tree_page_info'];
@@ -377,7 +386,8 @@ function _getIconPath($doc) {
     return $_style['tree_folder'];
 }
 
-function get_jscript($id, $cm) {
+function get_jscript($id, $cm)
+{
     global $modx, $_lang, $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
@@ -486,7 +496,8 @@ EOT;
     return $block;
 }
 
-function getReturnAction($current) {
+function getReturnAction($current)
+{
     if (!isset($current['parent'])) {
         return 'index.php?a=2';
     }
@@ -499,10 +510,11 @@ function getReturnAction($current) {
         return 'index.php?a=120';
     }
 
-    return 'index.php?a=120&id='.$current['parent'];
+    return 'index.php?a=120&id=' . $current['parent'];
 }
 
-function getTopicPath($id) {
+function getTopicPath($id)
+{
     if ($id == 0) {
         return '';
     }
@@ -536,7 +548,8 @@ function getTopicPath($id) {
     );
 }
 
-function getContextMenu($cm) {
+function getContextMenu($cm)
+{
     if (hasPermission('edit_document')) {
         $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
     }

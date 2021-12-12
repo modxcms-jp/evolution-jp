@@ -7,7 +7,8 @@ if (preg_match('@^[1-9][0-9]*$@', anyv('id'))) {
     return get_resources_byajax(anyv('id'));
 }
 
-function get_resources_byajax($id) {
+function get_resources_byajax($id)
+{
     global $_lang;
 
     $rs = db()->select(

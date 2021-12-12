@@ -15,14 +15,14 @@ if (!evo()->hasPermission('export_static')) {
 <div id="actions">
     <ul class="actionButtons">
         <li
-                class="mutate"
-                id="Button5"
+            class="mutate"
+            id="Button5"
         ><a
-                    href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"
             ><img
-                        alt="icons_cancel"
-                        src="<?php echo style('icons_cancel') ?>"
+                    alt="icons_cancel"
+                    src="<?php echo style('icons_cancel') ?>"
                 /> <?php echo lang('cancel') ?></a>
         </li>
     </ul>
@@ -61,17 +61,17 @@ if (!evo()->hasPermission('export_static')) {
                             <td>
                                 <label>
                                     <input
-                                            name="generate_mode"
-                                            type="radio"
-                                            value="crawl"
+                                        name="generate_mode"
+                                        type="radio"
+                                        value="crawl"
                                         <?php echo $generate_mode === 'crawl' ? 'checked' : ''; ?>
                                     ><?php echo lang('a83_mode_crawl'); ?>
                                 </label>
                                 <label>
                                     <input
-                                            name="generate_mode"
-                                            type="radio"
-                                            value="direct"
+                                        name="generate_mode"
+                                        type="radio"
+                                        value="direct"
                                         <?php echo $generate_mode === 'direct' ? 'checked' : ''; ?>
                                     ><?php echo lang('a83_mode_direct'); ?>
                                 </label>
@@ -84,51 +84,51 @@ if (!evo()->hasPermission('export_static')) {
                             <td>
                                 <label>
                                     <input
-                                            name="target"
-                                            type="radio"
-                                            value="all"
+                                        name="target"
+                                        type="radio"
+                                        value="all"
                                         <?php echo $checked['all']; ?>
                                     >全リソース
                                 </label>
                                 <label>
                                     <input
-                                            name="target"
-                                            type="radio"
-                                            value="allow_ids"
+                                        name="target"
+                                        type="radio"
+                                        value="allow_ids"
                                         <?php echo $checked['allow_ids']; ?>
                                     >一部のリソースを出力
                                 </label>
                                 <label>
                                     <input
-                                            name="target"
-                                            type="radio"
-                                            value="ignore_ids"
+                                        name="target"
+                                        type="radio"
+                                        value="ignore_ids"
                                         <?php echo $checked['ignore_ids']; ?>
                                     >一部のリソースを除外
                                 </label>
                                 <?php $display = array('allow_ids' => 'none', 'ignore_ids' => 'none'); ?>
                                 <?php $display[sessionv('export_target', 'all')] = 'block'; ?>
                                 <div
-                                        id="allow_ids"
-                                        style="display:<?php echo $display['allow_ids']; ?>"
+                                    id="allow_ids"
+                                    style="display:<?php echo $display['allow_ids']; ?>"
                                 >
                                     <input
-                                            type="text"
-                                            name="allow_ids"
-                                            value="<?php echo sessionv('export_allow_ids', ''); ?>"
-                                            style="width:300px;background-color:#f2fff2;"
+                                        type="text"
+                                        name="allow_ids"
+                                        value="<?php echo sessionv('export_allow_ids', ''); ?>"
+                                        style="width:300px;background-color:#f2fff2;"
                                     /><br/>
                                     出力するリソースのIDを指定(カンマ区切りで複数指定可)
                                 </div>
                                 <div
-                                        id="ignore_ids"
-                                        style="display:<?php echo $display['ignore_ids']; ?>"
+                                    id="ignore_ids"
+                                    style="display:<?php echo $display['ignore_ids']; ?>"
                                 >
                                     <input
-                                            type="text"
-                                            name="ignore_ids"
-                                            value="<?php echo sessionv('export_ignore_ids'); ?>"
-                                            style="width:300px;background-color:#fff2f2;"
+                                        type="text"
+                                        name="ignore_ids"
+                                        value="<?php echo sessionv('export_ignore_ids'); ?>"
+                                        style="width:300px;background-color:#fff2f2;"
                                     /><br/>
                                     出力しないリソースのIDを指定(カンマ区切りで複数指定可)
                                 </div>
@@ -147,17 +147,17 @@ if (!evo()->hasPermission('export_static')) {
                             <td>
                                 <label>
                                     <input
-                                            type="radio"
-                                            name="includenoncache"
-                                            value="1"
+                                        type="radio"
+                                        name="includenoncache"
+                                        value="1"
                                         <?php echo $checked[1]; ?>
                                     ><?php echo lang('yes'); ?>
                                 </label>
                                 <label>
                                     <input
-                                            type="radio"
-                                            name="includenoncache"
-                                            value="0"
+                                        type="radio"
+                                        name="includenoncache"
+                                        value="0"
                                         <?php echo $checked[0]; ?>
                                     ><?php echo lang('no'); ?>
                                 </label>
@@ -167,20 +167,20 @@ if (!evo()->hasPermission('export_static')) {
                             <td class="head"><?php echo lang('export_site.static.php4'); ?></td>
                             <td>
                                 <input
-                                        type="text"
-                                        name="repl_before"
-                                        value="<?php echo sessionv('export_repl_before', MODX_SITE_URL); ?>"
-                                        style="width:300px;"/>
+                                    type="text"
+                                    name="repl_before"
+                                    value="<?php echo sessionv('export_repl_before', MODX_SITE_URL); ?>"
+                                    style="width:300px;"/>
                             </td>
                         </tr>
                         <tr>
                             <td class="head"><?php echo lang('export_site.static.php5'); ?></td>
                             <td>
                                 <input
-                                        type="text"
-                                        name="repl_after"
-                                        value="<?php echo sessionv('export_repl_after', MODX_SITE_URL); ?>"
-                                        style="width:300px;"
+                                    type="text"
+                                    name="repl_after"
+                                    value="<?php echo sessionv('export_repl_after', MODX_SITE_URL); ?>"
+                                    style="width:300px;"
                                 />
                             </td>
                         </tr>
@@ -196,11 +196,11 @@ if (!evo()->hasPermission('export_static')) {
                     <ul class="actionButtons">
                         <li>
                             <a
-                                    href="#"
-                                    class="default"
-                                    onclick="document.exportFrm.submit();"
+                                href="#"
+                                class="default"
+                                onclick="document.exportFrm.submit();"
                             ><img
-                                        src="<?php echo style('icons_save') ?>"
+                                    src="<?php echo style('icons_save') ?>"
                                 /> <?php echo lang('export_site_start'); ?></a>
                         </li>
                     </ul>

@@ -137,7 +137,7 @@ foreach ($content as $k => $v) {
         <?php if (evo()->hasPermission('new_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button4">
                 <a href="#" onclick="duplicatedocument();">
-                    <img src="<?= $_style["icons_resource_duplicate"] ?>" />
+                    <img src="<?= $_style["icons_resource_duplicate"] ?>"/>
                     <?= $_lang['duplicate'] ?>
                 </a>
             </li>
@@ -145,7 +145,7 @@ foreach ($content as $k => $v) {
         <?php if (evo()->hasPermission('delete_document') && evo()->hasPermission('save_document')) : ?>
             <li id="Button3">
                 <a href="#" onclick="deletedocument();">
-                    <img src="<?= $_style["icons_delete_document"] ?>" />
+                    <img src="<?= $_style["icons_delete_document"] ?>"/>
                     <?= $_lang['delete'] ?>
                 </a>
             </li>
@@ -156,11 +156,10 @@ foreach ($content as $k => $v) {
                 onclick="<?=
                 (evo()->config('friendly_urls') == 1)
                     ? sprintf("window.open('%s','previeWin')", evo()->makeUrl($id))
-                    : sprintf("window.open('../index.php?id=%s','previeWin')", $id)
-                ;
+                    : sprintf("window.open('../index.php?id=%s','previeWin')", $id);
                 ?>"
             >
-                <img src="<?= $_style["icons_preview_resource"] ?>" />
+                <img src="<?= $_style["icons_preview_resource"] ?>"/>
                 <?= $_lang['view_resource'] ?>
             </a>
         </li>
@@ -381,7 +380,7 @@ foreach ($content as $k => $v) {
         <?php
         $cache = @file_get_contents(MODX_BASE_PATH . "assets/cache/docid_{$id}.pageCache.php");
         if ($cache) :
-        ?>
+            ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
                 <h2 class="tab"><?= $_lang['page_data_source'] ?></h2>

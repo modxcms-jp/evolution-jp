@@ -34,7 +34,8 @@ $_SESSION['token'] = $ph['token']; //todo:暫定対応、トークン処理は�
 echo $modx->parseText($tpl, $ph);
 
 
-function fieldDraftPub_date($docid) {
+function fieldDraftPub_date($docid)
+{
     global $modx, $_lang, $_style;
 
     //statusはdraft/standbyでも気にしない
@@ -67,7 +68,8 @@ EOT;
     return $body;
 }
 
-function getTplDraft() {
+function getTplDraft()
+{
     $tpl = <<< EOT
 <style>
 	label {display:block;}

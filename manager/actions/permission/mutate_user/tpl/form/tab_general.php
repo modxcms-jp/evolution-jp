@@ -14,7 +14,7 @@
     <?php } ?>
     <?php if (user('id')) { ?>
         <tr
-                id="showname"
+            id="showname"
             <?php
             if (getv('a') == 11) {
                 echo 'style="display:none";';
@@ -28,20 +28,20 @@
                 -
                 <span class="comment">
                 <a
-                        href="#"
-                        onclick="jQuery('#showname').hide(100);jQuery('#editname').show(100);return false;"
+                    href="#"
+                    onclick="jQuery('#showname').hide(100);jQuery('#editname').show(100);return false;"
                 ><?php echo lang('change_name'); ?></a>
             </span>
                 <input
-                        name="oldusername"
-                        type="hidden"
-                        value="<?php echo hsc(user('oldusername', user('username'))); ?>"
+                    name="oldusername"
+                    type="hidden"
+                    value="<?php echo hsc(user('oldusername', user('username'))); ?>"
                 />
             </td>
         </tr>
     <?php } ?>
     <tr
-            id="editname"
+        id="editname"
         <?php
         if (getv('a') == 12) {
             echo 'style="display:none";';
@@ -52,11 +52,11 @@
             <?php echo lang('username'); ?>:
         </th>
         <td><input
-                    name="newusername"
-                    value="<?php echo hsc(user('username')); ?>"
-                    type="text"
-                    class="inputBox"
-                    maxlength="100"
+                name="newusername"
+                value="<?php echo hsc(user('username')); ?>"
+                type="text"
+                class="inputBox"
+                maxlength="100"
             /></td>
     </tr>
     <tr>
@@ -66,35 +66,35 @@
         <td>
             <?php if (anyv('a') == 12): ?>
                 <input
-                        name="newpasswordcheck"
-                        type="checkbox"
-                        onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"
+                    name="newpasswordcheck"
+                    type="checkbox"
+                    onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"
                 ><br/>
             <?php endif; ?>
             <input
-                    name="newpassword"
-                    value="<?php echo anyv('a') == 11 ? 1 : 0; ?>"
-                    type="hidden"
+                name="newpassword"
+                value="<?php echo anyv('a') == 11 ? 1 : 0; ?>"
+                type="hidden"
             />
             <span
-                    style="display:<?php echo anyv('a') == 11 ? "block" : "none"; ?>"
-                    id="passwordBlock"
+                style="display:<?php echo anyv('a') == 11 ? "block" : "none"; ?>"
+                id="passwordBlock"
             >
                 <fieldset style="width:300px;padding:0;">
                     <label>
                         <input
-                                name="passwordgenmethod"
-                                value="g"
-                                type=radio
+                            name="passwordgenmethod"
+                            value="g"
+                            type=radio
                             <?php echo postv('passwordgenmethod') === "spec" ? "" : 'checked="checked"'; ?>
                         />
                         <?php echo lang('password_gen_gen'); ?>
                     </label><br/>
                     <label>
                         <input
-                                name="passwordgenmethod"
-                                value="spec"
-                                type=radio
+                            name="passwordgenmethod"
+                            value="spec"
+                            type=radio
                             <?php echo postv('passwordgenmethod') === "spec" ? 'checked="checked"' : ""; ?>
                         >
                         <?php echo lang('password_gen_specify'); ?>
@@ -104,44 +104,44 @@
                             <?php echo lang('change_password_new'); ?>:
                         </label>
                         <input
-                                name="specifiedpassword"
-                                type="password"
-                                onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                size="20"
-                                autocomplete="off"
+                            name="specifiedpassword"
+                            type="password"
+                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                            size="20"
+                            autocomplete="off"
                         /><br/>
                         <label for="confirmpassword" style="width:120px">
                             <?php echo lang('change_password_confirm'); ?>:
                         </label>
                         <input
-                                name="confirmpassword"
-                                type="password"
-                                onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-                                size="20"
-                                autocomplete="off"
+                            name="confirmpassword"
+                            type="password"
+                            onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+                            size="20"
+                            autocomplete="off"
                         /><br/>
                         <span
-                                class="warning"
-                                style="font-weight:normal"
+                            class="warning"
+                            style="font-weight:normal"
                         ><?php echo lang('password_gen_length'); ?></span>
                     </div>
                 </fieldset>
                 <fieldset
-                        style="width:300px;padding:0;"
+                    style="width:300px;padding:0;"
                 >
                     <label>
                         <input
-                                name="passwordnotifymethod"
-                                value="e"
-                                type="radio"
+                            name="passwordnotifymethod"
+                            value="e"
+                            type="radio"
                             <?php echo postv('passwordnotifymethod') === "e" ? 'checked="checked"' : ""; ?>
                         /><?php echo lang('password_method_email'); ?>
                     </label><br/>
                     <label>
                         <input
-                                type="radio"
-                                name="passwordnotifymethod"
-                                value="s"
+                            type="radio"
+                            name="passwordnotifymethod"
+                            value="s"
                             <?php echo postv('passwordnotifymethod') === 'e' ? '' : 'checked="checked"'; ?>
                         /><?php echo lang('password_method_screen'); ?>
                     </label>
@@ -153,15 +153,15 @@
         <th><?php echo lang('user_email'); ?>:</th>
         <td>
             <input
-                    name="email"
-                    value="<?php echo hsc(user('email')); ?>"
-                    type="text"
-                    class="inputBox"
+                name="email"
+                value="<?php echo hsc(user('email')); ?>"
+                type="text"
+                class="inputBox"
             />
             <input
-                    name="oldemail"
-                    value="<?php echo hsc(user('oldemail', user('email'))); ?>"
-                    type="hidden"
+                name="oldemail"
+                value="<?php echo hsc(user('oldemail', user('email'))); ?>"
+                type="hidden"
             />
         </td>
     </tr>

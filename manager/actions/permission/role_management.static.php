@@ -17,7 +17,7 @@ if (!evo()->hasPermission('edit_role')) {
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?>
+                    alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?>
             </a></li>
     </ul>
 </div>
@@ -28,7 +28,7 @@ if (!evo()->hasPermission('edit_role')) {
 
         <ul class="actionButtons">
             <li><a class="default" href="index.php?a=38"><img
-                            src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_role']; ?></a></li>
+                        src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_role']; ?></a></li>
         </ul>
         <?php
 
@@ -57,7 +57,7 @@ if (!evo()->hasPermission('edit_role')) {
                 } else {
                     ?>
                     <li><span style="width: 200px"><a
-                                    href="index.php?id=<?php echo $row['id']; ?>&a=35"><?php echo "({$row['id']}) {$row['name']}"; ?></a></span>
+                                href="index.php?id=<?php echo $row['id']; ?>&a=35"><?php echo "({$row['id']}) {$row['name']}"; ?></a></span>
                         - <?php echo $row['description']; ?></li>
                     <?php
                 }

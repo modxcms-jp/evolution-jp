@@ -1,5 +1,6 @@
 <?php
-function getActionButtons($id) {
+function getActionButtons($id)
+{
     switch (manager()->action) {
         case '4':
         case '72':
@@ -62,7 +63,8 @@ function getActionButtons($id) {
     return preg_replace('@\[\+[^]]+\+]@', '', parseText(file_get_tpl('action_buttons.tpl'), $ph));
 }
 
-function ab_preview($id = 0) {
+function ab_preview($id = 0)
+{
     $tpl = '<li id="preview"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style('icons_preview_resource');
     $ph['alt'] = 'preview resource';
@@ -70,7 +72,8 @@ function ab_preview($id = 0) {
     return parseText($tpl, $ph);
 }
 
-function ab_save() {
+function ab_save()
+{
     $tpl = '<li id="save" class="primary mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a>[+select+]</li>';
     $ph['icon'] = style('icons_save');
     $ph['alt'] = 'icons_save';
@@ -109,7 +112,8 @@ function ab_save() {
     return parseText($tpl, $ph);
 }
 
-function ab_open_draft($id) {
+function ab_open_draft($id)
+{
     $tpl = '<li id="opendraft" class="opendraft mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_save");
     $ph['alt'] = 'icons_draft';
@@ -117,7 +121,8 @@ function ab_open_draft($id) {
     return parseText($tpl, $ph);
 }
 
-function ab_create_draft($id) {
+function ab_create_draft($id)
+{
     if (!config('enable_draft')) {
         return false;
     }
@@ -134,7 +139,8 @@ function ab_create_draft($id) {
     return parseText($tpl, $ph);
 }
 
-function ab_cancel($id) {
+function ab_cancel($id)
+{
     $tpl = '<li id="cancel" class="mutate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_cancel");
     $ph['alt'] = 'icons_cancel';
@@ -142,14 +148,16 @@ function ab_cancel($id) {
     return parseText($tpl, $ph);
 }
 
-function ab_move() {
+function ab_move()
+{
     $tpl = '<li id="move" class="mutate"><a href="#"><img src="[+icon+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_move_document");
     $ph['label'] = lang('move');
     return parseText($tpl, $ph);
 }
 
-function ab_duplicate() {
+function ab_duplicate()
+{
     $tpl = '<li id="duplicate"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_resource_duplicate");
     $ph['alt'] = 'icons_resource_duplicate';
@@ -157,7 +165,8 @@ function ab_duplicate() {
     return parseText($tpl, $ph);
 }
 
-function ab_delete() {
+function ab_delete()
+{
     $tpl = '<li id="delete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_delete_document");
     $ph['alt'] = 'icons_delete_document';
@@ -165,7 +174,8 @@ function ab_delete() {
     return parseText($tpl, $ph);
 }
 
-function ab_undelete() {
+function ab_undelete()
+{
     $tpl = '<li id="undelete"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_undelete_resource");
     $ph['alt'] = 'icons_undelete_document';
@@ -173,7 +183,8 @@ function ab_undelete() {
     return parseText($tpl, $ph);
 }
 
-function ab_delete_draft() {
+function ab_delete_draft()
+{
     $tpl = '<li id="deletedraft"><a href="#"><img src="[+icon+]" alt="[+alt+]" /> [+label+]</a></li>';
     $ph['icon'] = style("icons_delete_document");
     $ph['alt'] = 'icons_delete_document';

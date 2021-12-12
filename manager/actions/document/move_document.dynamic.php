@@ -27,7 +27,8 @@ $parent = get_parentid($id);
 echo get_src_content($id, $parent);
 
 
-function get_src_content($id, $parent) {
+function get_src_content($id, $parent)
+{
     global $_lang, $_style;
     $redirect = $parent == 0 ? 'index.php?a=2' : "index.php?a=120&amp;id={$parent}";
     $src = <<< EOT
@@ -57,7 +58,8 @@ EOT;
     return $src;
 }
 
-function batch_move() {
+function batch_move()
+{
     foreach ($_REQUEST['batch'] as $v) {
         $ids[] = sprintf("id='%s'", db()->escape($v));
     }
@@ -68,7 +70,8 @@ function batch_move() {
     }
 }
 
-function get_src_js() {
+function get_src_js()
+{
     global $_lang;
     $src = <<< EOT
 <script language="javascript">
@@ -107,7 +110,8 @@ EOT;
     return $src;
 }
 
-function show_perm_error() {
+function show_perm_error()
+{
     global $_lang;
     echo sprintf(
         '<br /><br /><div class="section"><div class="sectionHeader">%s</div><div class="sectionBody"><p>%s</p></div></div>',
@@ -117,8 +121,9 @@ function show_perm_error() {
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
-function get_parentid($id) {
-    if (strpos($id, ',')!==false) {
+function get_parentid($id)
+{
+    if (strpos($id, ',') !== false) {
         $id = substr($id, 0, strpos($id, ','));
     }
     return db()->getValue(

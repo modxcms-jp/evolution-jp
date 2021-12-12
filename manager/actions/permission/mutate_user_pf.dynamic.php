@@ -181,11 +181,11 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                 <?php
                 if ($_REQUEST['a'] == '74') { ?>
                     <li id="Button3"><a href="#" onclick="deleteuser();"><img
-                                    src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?>
+                                src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?>
                         </a></li>
                 <?php } ?>
                 <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                                src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
             </ul>
         </div>
         <!-- Tab Start -->
@@ -219,8 +219,8 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             <th valign="top"><?php echo $_GET['a'] == '11' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
                             <td><label><input name="newpasswordcheck" type="checkbox"
                                               onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a'] == "11" ? " checked disabled" : ""; ?>><input
-                                            type="hidden" name="newpassword"
-                                            value="<?php echo $_REQUEST['a'] == "11" ? 1 : 0; ?>"/></label><br/>
+                                        type="hidden" name="newpassword"
+                                        value="<?php echo $_REQUEST['a'] == "11" ? 1 : 0; ?>"/></label><br/>
                                 <span style="display:<?php echo $_REQUEST['a'] == "11" ? "block" : "none"; ?>"
                                       id="passwordBlock">
 	<fieldset style="width:300px">
@@ -325,9 +325,12 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             <th><?php echo $_lang['user_gender']; ?>:</th>
                             <td><select name="gender" class="inputBox">
                                     <option value=""></option>
-                                    <option value="1" <?php echo selected($userdata['gender'] == '1'); ?>><?php echo $_lang['user_male']; ?></option>
-                                    <option value="2" <?php echo selected($userdata['gender'] == '2'); ?>><?php echo $_lang['user_female']; ?></option>
-                                    <option value="3" <?php echo selected($userdata['gender'] == '3'); ?>><?php echo $_lang['user_other']; ?></option>
+                                    <option
+                                        value="1" <?php echo selected($userdata['gender'] == '1'); ?>><?php echo $_lang['user_male']; ?></option>
+                                    <option
+                                        value="2" <?php echo selected($userdata['gender'] == '2'); ?>><?php echo $_lang['user_female']; ?></option>
+                                    <option
+                                        value="3" <?php echo selected($userdata['gender'] == '3'); ?>><?php echo $_lang['user_other']; ?></option>
                                 </select>
                             </td>
                         </tr>
@@ -422,7 +425,8 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                             $languagename = trim(substr($file, 0, $endpos));
                                             $selectedtext = selected($activelang === $languagename);
                                             ?>
-                                            <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_",
+                                            <option
+                                                value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_",
                                                     " ", $languagename)); ?></option>
                                             <?php
                                         }
@@ -495,7 +499,8 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 <?php
 
 // converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
+function ConvertDate($date)
+{
     global $modx;
     if ($date == "") {
         return "0";
@@ -504,7 +509,8 @@ function ConvertDate($date) {
     }
 }
 
-function checkbox($name, $value, $label, $cond) {
+function checkbox($name, $value, $label, $cond)
+{
     global $modx;
     $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
     $ph['name'] = $name;
@@ -514,14 +520,16 @@ function checkbox($name, $value, $label, $cond) {
     return $modx->parseText($tpl, $ph);
 }
 
-function checked($cond) {
+function checked($cond)
+{
     if ($cond) {
         return 'checked';
     }
     return '';
 }
 
-function selected($cond) {
+function selected($cond)
+{
     if ($cond) {
         return 'selected';
     }

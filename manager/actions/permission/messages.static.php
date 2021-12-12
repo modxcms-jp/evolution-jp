@@ -20,8 +20,8 @@ $location = isset($_GET['id']) ? '10' : '2';
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=<?php echo $location; ?>';"><img
-                            alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        alt="icons_cancel"
+                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -57,17 +57,18 @@ $location = isset($_GET['id']) ? '10' : '2';
                             <td colspan="2">
                                 <ul class="actionButtons">
                                     <li id="btn_reply"><a
-                                                href="index.php?a=10&t=c&m=rp&id=<?php echo $message['id']; ?>"><img
-                                                    src="<?php echo $_style["icons_message_reply"] ?>"/> <?php echo $_lang['messages_reply']; ?>
+                                            href="index.php?a=10&t=c&m=rp&id=<?php echo $message['id']; ?>"><img
+                                                src="<?php echo $_style["icons_message_reply"] ?>"/> <?php echo $_lang['messages_reply']; ?>
                                         </a></li>
                                     <li><a href="index.php?a=10&t=c&m=f&id=<?php echo $message['id']; ?>"><img
-                                                    src="<?php echo $_style["icons_message_forward"] ?>"/> <?php echo $_lang['messages_forward']; ?>
+                                                src="<?php echo $_style["icons_message_forward"] ?>"/> <?php echo $_lang['messages_forward']; ?>
                                         </a></li>
                                     <li><a href="index.php?a=65&id=<?php echo $message['id']; ?>"><img
-                                                    src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?>
+                                                src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?>
                                         </a></li>
                                     <?php if ($message['sender'] == 0) { ?>
-                                        <script type="text/javascript">document.getElementById("btn_reply").className = 'disabled';</script>
+                                        <script
+                                            type="text/javascript">document.getElementById("btn_reply").className = 'disabled';</script>
                                     <?php } ?>
                                 </ul>
                             </td>
@@ -349,10 +350,10 @@ $location = isset($_GET['id']) ? '10' : '2';
                                 <ul class="actionButtons" style="margin-top:15px;">
                                     <li><a href="#" class="primary"
                                            onclick="documentDirty=false; document.messagefrm.submit();"><img
-                                                    src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['messages_send']; ?>
+                                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['messages_send']; ?>
                                         </a></li>
                                     <li><a href="index.php?a=10&t=c"><img
-                                                    src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?>
+                                                src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?>
                                         </a></li>
                                 </ul>
                             </td>
@@ -387,7 +388,8 @@ $messagesallowed = evo()->hasPermission('messages');
 <?php
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
-function decrypt($encryptedText, $key = 'modx') {
+function decrypt($encryptedText, $key = 'modx')
+{
     $enc = base64_decode($encryptedText);
     $plaintext = '';
     $len = strlen($enc);

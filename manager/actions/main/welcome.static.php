@@ -265,7 +265,8 @@ if ($js = $modx->getRegisteredClientScripts()) {
 $welcome_tpl = preg_replace('~\[\+(.*?)\+\]~', '', $welcome_tpl); //cleanup
 echo $welcome_tpl;
 
-function get_icon($title, $action, $icon_path, $alt = '') {
+function get_icon($title, $action, $icon_path, $alt = '')
+{
     if (preg_match('@^[1-9][0-9]*$@', $action)) {
         $action = 'index.php?a=' . $action;
     }

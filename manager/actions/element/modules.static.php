@@ -52,7 +52,7 @@ echo $cm->render();
     function showContentMenu(id, e) {
         selectedItem = id;
         contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))
-        <?= $modx_textdir === 'rtl' ? '-190' : '';?>+ "px"; //offset menu if RTL is selected
+        <?= $modx_textdir === 'rtl' ? '-190' : '';?> + "px"; //offset menu if RTL is selected
         contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + "px";
         contextm.style.visibility = "visible";
         e.cancelBubble = true;
@@ -100,8 +100,8 @@ echo $cm->render();
             } ?>
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                            alt="icons_cancel"
-                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
+                        alt="icons_cancel"
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

@@ -34,12 +34,12 @@ if ($modx->config('remember_last_tab') !== '2') {
 $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 ?>
 <!DOCTYPE html>
-<html lang="<?php echo globalv('modx_lang_attribute','en'); ?>" dir="<?php echo globalv('modx_textdir', 'ltr'); ?>">
+<html lang="<?php echo globalv('modx_lang_attribute', 'en'); ?>" dir="<?php echo globalv('modx_textdir', 'ltr'); ?>">
 <head>
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx->config('modx_charset'); ?>"/>
     <link rel="stylesheet" type="text/css"
-        href="media/style/<?php echo $modx->config('manager_theme'); ?>/style.css?<?php echo globalv('modx_version'); ?>"
+          href="media/style/<?php echo $modx->config('manager_theme'); ?>/style.css?<?php echo globalv('modx_version'); ?>"
     />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css"/>
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css"/>
@@ -49,8 +49,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     } ?>
     <?php echo $modx->config('manager_inline_style'); ?>
     <?php echo sprintf(
-            '<script src="%s" type="text/javascript"></script>'
-            , $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')
+        '<script src="%s" type="text/javascript"></script>'
+        , $modx->config('mgr_jquery_path', 'media/script/jquery/jquery.min.js')
     );
     ?>
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
@@ -58,7 +58,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script src="media/script/mootools/mootools.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript">
-        var treeopen = <?php echo $modx->config('tree_pane_open_default',1);?>;
+        var treeopen = <?php echo $modx->config('tree_pane_open_default', 1);?>;
         if (treeopen === 0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 
         var documentDirty = false;
@@ -141,9 +141,9 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 <body
     id="<?php echo getv('f', 'mainpane'); ?>"
     ondragstart="return false"
-    <?php if (globalv('modx_textdir') === 'rtl') {?>
-    class="rtl"
-    <?php }?>
+    <?php if (globalv('modx_textdir') === 'rtl') { ?>
+        class="rtl"
+    <?php } ?>
 >
 <div id="preLoader">
     <div class="preLoaderText"><?php echo style('ajax_loader'); ?></div>

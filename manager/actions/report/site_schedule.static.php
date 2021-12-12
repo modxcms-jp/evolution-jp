@@ -43,12 +43,12 @@ if (!evo()->hasPermission('view_schedule')) {
         } else {
             ?>
             <table
-                    border="0"
-                    cellpadding="2"
-                    cellspacing="0"
-                    class="sortabletable sortable-onload-3 rowstyle-even"
-                    id="table-1"
-                    width="100%"
+                border="0"
+                cellpadding="2"
+                cellspacing="0"
+                class="sortabletable sortable-onload-3 rowstyle-even"
+                id="table-1"
+                width="100%"
             >
                 <thead>
                 <tr bgcolor="#CCCCCC">
@@ -65,7 +65,7 @@ if (!evo()->hasPermission('view_schedule')) {
                         <td><?php echo $row['id']; ?></td>
                         <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle'] ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time',0)) ?></td>
+                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
                     </tr>
                     <?php
                 }
@@ -83,10 +83,10 @@ if (!evo()->hasPermission('view_schedule')) {
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
         $rs = db()->select(
-                'id, pagetitle, unpub_date'
-                , '[+prefix+]site_content'
-                , 'unpub_date > ' . request_time()
-                , 'unpub_date ASC'
+            'id, pagetitle, unpub_date'
+            , '[+prefix+]site_content'
+            , 'unpub_date > ' . request_time()
+            , 'unpub_date ASC'
         );
         $total = db()->count($rs);
         if ($total < 1) {
@@ -94,7 +94,7 @@ if (!evo()->hasPermission('view_schedule')) {
         } else {
             ?>
             <table border="0" cellpadding="2" cellspacing="0" class="sortabletable sortable-onload-3 rowstyle-even"
-                id="table-2" width="100%">
+                   id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
                     <th class="sortable"><b><?php echo lang('id'); ?></b></th>
@@ -110,7 +110,7 @@ if (!evo()->hasPermission('view_schedule')) {
                         <td><?php echo $row['id']; ?></td>
                         <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle']; ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['unpub_date'] + config('server_offset_time',0)); ?></td>
+                        <td><?php echo $modx->toDateFormat($row['unpub_date'] + config('server_offset_time', 0)); ?></td>
                     </tr>
                     <?php
                 }
@@ -128,13 +128,13 @@ if (!evo()->hasPermission('view_schedule')) {
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
         $rs = db()->select(
-                'rv.*, sc.*, rv.pub_date AS pub_date'
-                , array(
-                    '[+prefix+]site_revision rv',
-                    'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
-                )
-                , "0<rv.pub_date AND rv.status='standby' "
-                , 'rv.pub_date ASC'
+            'rv.*, sc.*, rv.pub_date AS pub_date'
+            , array(
+                '[+prefix+]site_revision rv',
+                'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
+            )
+            , "0<rv.pub_date AND rv.status='standby' "
+            , 'rv.pub_date ASC'
         );
         $total = db()->count($rs);
         if ($total < 1) {
@@ -159,27 +159,27 @@ if (!evo()->hasPermission('view_schedule')) {
                         <td><?php echo $row['elmid']; ?></td>
                         <td>
                             <a
-                                    href="<?php echo 'index.php?a=131&id=' . $row['elmid']; ?>"
+                                href="<?php echo 'index.php?a=131&id=' . $row['elmid']; ?>"
                             >
                                 <?php echo $row['pagetitle']; ?>
                             </a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time',0)); ?></td>
+                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)); ?></td>
                         <td>
                             <a
-                                    href="<?php echo sprintf(
-                                            '%s?revision=%s'
-                                            , evo()->makeUrl($row['elmid'])
-                                            , $row['version']
-                                    ); ?>"
-                                    target="_blank"
+                                href="<?php echo sprintf(
+                                    '%s?revision=%s'
+                                    , evo()->makeUrl($row['elmid'])
+                                    , $row['version']
+                                ); ?>"
+                                target="_blank"
                             >
                                 プレビュー
                             </a>
                             /
                             <a
-                                    href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist"
-                                    class="unpub_draft">公開取り消し</a>
+                                href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist"
+                                class="unpub_draft">公開取り消し</a>
                         </td>
                     </tr>
                     <?php

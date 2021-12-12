@@ -52,7 +52,8 @@
                         $languagename = trim(substr($file, 0, $endpos));
                         $selectedtext = selected($activelang === $languagename);
                         ?>
-                        <option value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_",
+                        <option
+                            value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_",
                                 " ", $languagename)); ?></option>
                         <?php
                     }

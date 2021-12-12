@@ -3,116 +3,124 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 ?>
-<script type="text/javascript">
-    function deleteCategory(catid) {
-        jConfirm("<?php echo $_lang['confirm_delete_category']; ?>", "<?php echo $_lang['delete_category']; ?>", function(r) {
-            if (r) document.location.href = "index.php?a=501&catId=" + catid;
-            else return false;
-        });
-    }
-</script>
+    <script type="text/javascript">
+        function deleteCategory(catid) {
+            jConfirm("<?php echo $_lang['confirm_delete_category']; ?>", "<?php echo $_lang['delete_category']; ?>", function (r) {
+                if (r) document.location.href = "index.php?a=501&catId=" + catid;
+                else return false;
+            });
+        }
+    </script>
 
-<h1><?php echo $_lang['element_management']; ?></h1>
+    <h1><?php echo $_lang['element_management']; ?></h1>
 
-<div id="actions">
-    <ul class="actionButtons">
-        <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>" /> <?php echo $_lang['cancel'] ?></a></li>
-    </ul>
-</div>
+    <div id="actions">
+        <ul class="actionButtons">
+            <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img
+                        alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?>
+                </a></li>
+        </ul>
+    </div>
 
-<div class="sectionBody">
-    <div class="tab-pane" id="elementsPane">
+    <div class="sectionBody">
+        <div class="tab-pane" id="elementsPane">
 
-        <!-- Templates -->
-        <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
-            <div class="tab-page" id="tabTemplates">
-                <h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
-                <div><?php echo $_lang['template_management_msg']; ?></div>
-                <ul class="actionButtons">
-                    <li><a class="default" href="index.php?a=19"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_template']; ?>
-                        </a></li>
-                </ul>
-                <?php echo createResourceList('site_templates', 16, 'templatename'); ?>
-            </div>
-        <?php } ?>
+            <!-- Templates -->
+            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
+                <div class="tab-page" id="tabTemplates">
+                    <h2 class="tab"><?php echo $_lang["manage_templates"] ?></h2>
+                    <div><?php echo $_lang['template_management_msg']; ?></div>
+                    <ul class="actionButtons">
+                        <li><a class="default" href="index.php?a=19"><img
+                                    src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_template']; ?>
+                            </a></li>
+                    </ul>
+                    <?php echo createResourceList('site_templates', 16, 'templatename'); ?>
+                </div>
+            <?php } ?>
 
-        <!-- Template variables -->
-        <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
-            <div class="tab-page" id="tabVariables">
-                <h2 class="tab"><?php echo $_lang["tmplvars"] ?></h2>
-                <!--//
-                        Modified By Raymond for Template Variables
-                        Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
-                    -->
-                <div><?php echo $_lang['tmplvars_management_msg']; ?></div>
-                <ul class="actionButtons">
-                    <li><a class="default" href="index.php?a=300"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_tmplvars']; ?>
-                        </a></li>
-                </ul>
-                <?php echo createResourceList('site_tmplvars', 301); ?>
-            </div>
-        <?php } ?>
+            <!-- Template variables -->
+            <?php if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template')) { ?>
+                <div class="tab-page" id="tabVariables">
+                    <h2 class="tab"><?php echo $_lang["tmplvars"] ?></h2>
+                    <!--//
+                            Modified By Raymond for Template Variables
+                            Added by Apodigm 09-06-2004- DocVars - web@apodigm.com
+                        -->
+                    <div><?php echo $_lang['tmplvars_management_msg']; ?></div>
+                    <ul class="actionButtons">
+                        <li><a class="default" href="index.php?a=300"><img
+                                    src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_tmplvars']; ?>
+                            </a></li>
+                    </ul>
+                    <?php echo createResourceList('site_tmplvars', 301); ?>
+                </div>
+            <?php } ?>
 
-        <!-- chunks -->
-        <?php if (evo()->hasPermission('new_chunk') || evo()->hasPermission('edit_chunk')) { ?>
-            <div class="tab-page" id="tabChunks">
-                <h2 class="tab"><?php echo $_lang["manage_htmlsnippets"] ?></h2>
-                <div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
+            <!-- chunks -->
+            <?php if (evo()->hasPermission('new_chunk') || evo()->hasPermission('edit_chunk')) { ?>
+                <div class="tab-page" id="tabChunks">
+                    <h2 class="tab"><?php echo $_lang["manage_htmlsnippets"] ?></h2>
+                    <div><?php echo $_lang['htmlsnippet_management_msg']; ?></div>
 
-                <ul class="actionButtons">
-                    <li><a class="default" href="index.php?a=77"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_htmlsnippet']; ?>
-                        </a></li>
-                </ul>
-                <?php echo createResourceList('site_htmlsnippets', 78); ?>
-            </div>
-        <?php } ?>
+                    <ul class="actionButtons">
+                        <li><a class="default" href="index.php?a=77"><img
+                                    src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_htmlsnippet']; ?>
+                            </a></li>
+                    </ul>
+                    <?php echo createResourceList('site_htmlsnippets', 78); ?>
+                </div>
+            <?php } ?>
 
-        <!-- snippets -->
-        <?php if (evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet')) { ?>
-            <div class="tab-page" id="tabSnippets">
-                <h2 class="tab"><?php echo $_lang["manage_snippets"] ?></h2>
-                <div><?php echo $_lang['snippet_management_msg']; ?></div>
+            <!-- snippets -->
+            <?php if (evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet')) { ?>
+                <div class="tab-page" id="tabSnippets">
+                    <h2 class="tab"><?php echo $_lang["manage_snippets"] ?></h2>
+                    <div><?php echo $_lang['snippet_management_msg']; ?></div>
 
-                <ul class="actionButtons">
-                    <li><a class="default" href="index.php?a=23"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_snippet']; ?>
-                        </a></li>
-                </ul>
-                <?php echo createResourceList('site_snippets', 22); ?>
-            </div>
-        <?php } ?>
+                    <ul class="actionButtons">
+                        <li><a class="default" href="index.php?a=23"><img
+                                    src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_snippet']; ?>
+                            </a></li>
+                    </ul>
+                    <?php echo createResourceList('site_snippets', 22); ?>
+                </div>
+            <?php } ?>
 
-        <!-- plugins -->
-        <?php if (evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) { ?>
-            <div class="tab-page" id="tabPlugins">
-                <h2 class="tab"><?php echo $_lang["manage_plugins"] ?></h2>
-                <div><?php echo $_lang['plugin_management_msg']; ?></div>
+            <!-- plugins -->
+            <?php if (evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) { ?>
+                <div class="tab-page" id="tabPlugins">
+                    <h2 class="tab"><?php echo $_lang["manage_plugins"] ?></h2>
+                    <div><?php echo $_lang['plugin_management_msg']; ?></div>
 
-                <ul class="actionButtons">
-                    <li><a class="default" href="index.php?a=101"><img src="<?php echo $_style["icons_add"] ?>" /> <?php echo $_lang['new_plugin']; ?>
-                        </a></li>
-                    <?php if (evo()->hasPermission('save_plugin')) { ?>
-                        <li><a href="index.php?a=100"><img src="<?php echo $_style["sort"] ?>" /> <?php echo $_lang['plugin_priority']; ?>
+                    <ul class="actionButtons">
+                        <li><a class="default" href="index.php?a=101"><img
+                                    src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_plugin']; ?>
+                            </a></li>
+                        <?php if (evo()->hasPermission('save_plugin')) { ?>
+                            <li><a href="index.php?a=100"><img
+                                    src="<?php echo $_style["sort"] ?>"/> <?php echo $_lang['plugin_priority']; ?>
                             </a></li><?php } ?>
-                </ul>
-                <?php echo createResourceList('site_plugins', 102); ?>
-            </div>
-        <?php } ?>
+                    </ul>
+                    <?php echo createResourceList('site_plugins', 102); ?>
+                </div>
+            <?php } ?>
 
-        <!-- category view -->
-        <div class="tab-page" id="tabCategory">
-            <h2 class="tab"><?php echo $_lang["element_categories"] ?></h2>
-            <div><?php echo $_lang['category_msg']; ?></div>
-            <br />
-            <ul>
-                <?php echo createCategoryList(); ?>
-            </ul>
+            <!-- category view -->
+            <div class="tab-page" id="tabCategory">
+                <h2 class="tab"><?php echo $_lang["element_categories"] ?></h2>
+                <div><?php echo $_lang['category_msg']; ?></div>
+                <br/>
+                <ul>
+                    <?php echo createCategoryList(); ?>
+                </ul>
+            </div>
         </div>
     </div>
-</div>
-<script type="text/javascript">
-    var tpstatus = <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?>;
-    tpElements = new WebFXTabPane(document.getElementById("elementsPane"), tpstatus);
-</script>
+    <script type="text/javascript">
+        var tpstatus = <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?>;
+        tpElements = new WebFXTabPane(document.getElementById("elementsPane"), tpstatus);
+    </script>
 <?php
 function createResourceList($element_name, $action, $nameField = 'name')
 {

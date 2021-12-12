@@ -65,7 +65,10 @@ if (!evo()->hasPermission('logs')) {
         .p {
             text-align: left;
         }
-        h1.p {background:transparent;}
+
+        h1.p {
+            background: transparent;
+        }
 
         .e {
             width: 150px;
@@ -106,6 +109,7 @@ if (!evo()->hasPermission('logs')) {
             height: 1px;
             color: #333333;
         }
+
         ul.actionButtons li a:hover {
             text-decoration: none;
         }
@@ -121,8 +125,8 @@ if (!evo()->hasPermission('logs')) {
                     href="#"
                     onclick="documentDirty=false;document.location.href='index.php?a=53';"
                 ><img
-                    alt="icons_cancel"
-                    src="<?php echo style("icons_cancel") ?>"/> <?php echo lang('cancel') ?></a>
+                        alt="icons_cancel"
+                        src="<?php echo style("icons_cancel") ?>"/> <?php echo lang('cancel') ?></a>
             </li>
         </ul>
     </div>
@@ -133,13 +137,13 @@ phpinfo();
 echo str_replace(
     array(
         '<div class="center">'
-        , 'width="600"'
-        , 'src,input'
+    , 'width="600"'
+    , 'src,input'
     )
     , array(
         '<div>'
-        , 'width="90%"'
-        , 'src, input'
+    , 'width="90%"'
+    , 'src, input'
     )
     , preg_replace(
         '@.*<body>(.+)</body>.*@s'
