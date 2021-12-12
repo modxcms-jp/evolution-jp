@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
@@ -16,6 +17,7 @@
  * File Authors:
  * Grant French (grant@mcpuk.net)
  */
+
 class RenameFile
 {
     public $fckphp_config;
@@ -87,16 +89,16 @@ class RenameFile
         }
         header("content-type: text/xml");
         echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-?>
+        ?>
         <Connector command="RenameFile" resourceType="<?php echo $this->type; ?>">
-            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
+            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
             <?php
             if ($result1 && $result2) $err_no = 0;
             else                    $err_no = 502;
             ?>
-            <Error number="<?php echo "" . $err_no; ?>" />
+            <Error number="<?php echo "" . $err_no; ?>"/>
         </Connector>
-<?php
+        <?php
     }
 
     function nameValid($fname)

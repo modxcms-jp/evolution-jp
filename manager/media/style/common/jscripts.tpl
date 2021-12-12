@@ -8,42 +8,42 @@
     // save tree folder state
     if (parent.tree) parent.tree.saveFolderState();
 
-    jQuery(function() {
-        jQuery('#save a').click(function() {
+    jQuery(function () {
+        jQuery('#save a').click(function () {
             documentDirty = false;
             gotosave = true;
             jQuery('#mutate').submit();
         });
-        jQuery('#createdraft').click(function() {
+        jQuery('#createdraft').click(function () {
             document.location.href = 'index.php?a=132&id=[+id+]';
         });
-        jQuery('#opendraft').click(function() {
+        jQuery('#opendraft').click(function () {
             document.location.href = 'index.php?a=131&id=[+id+]';
         });
-        jQuery('#delete').click(function() {
+        jQuery('#delete').click(function () {
             if (confirm("[+lang_confirm_delete_resource+]"))
                 document.location.href = "index.php?id=[+id+]&a=6";
         });
-        jQuery('#undelete').click(function() {
+        jQuery('#undelete').click(function () {
             if (confirm("[+lang_confirm_undelete+]"))
                 document.location.href = "index.php?id=[+id+]&a=63";
         });
-        jQuery('#deletedraft').click(function() {
+        jQuery('#deletedraft').click(function () {
             if (confirm("[+lang_confirm_delete_draft_resource+]")) {
                 documentDirty = false;
                 document.mutate.a.value = 130;
                 jQuery('#mutate').submit();
             }
         });
-        jQuery('#move').click(function() {
+        jQuery('#move').click(function () {
             document.location.href = "index.php?id=[+id+]&a=51";
         });
-        jQuery('#duplicate').click(function() {
+        jQuery('#duplicate').click(function () {
             if (confirm("[+lang_confirm_resource_duplicate+]"))
                 document.location.href = "index.php?id=[+id+]&a=94";
         });
 
-        jQuery('#preview').click(function() {
+        jQuery('#preview').click(function () {
             if (prevWin && !prevWin.closed) {
                 prevWin.close();
             }
@@ -56,7 +56,7 @@
             }
             return false;
         });
-        jQuery('#cancel').click(function() {
+        jQuery('#cancel').click(function () {
             var docIsFolder = '[+docIsFolder+]';
             var docParent = '[+docParent+]';
             if (docMode === 'draft') document.location.href = 'index.php?a=3&id=' + '[+id+]';
@@ -64,18 +64,18 @@
             else if (docParent != 0) document.location.href = 'index.php?a=120&id=' + '[+docParent+]';
             else document.location.href = 'index.php?a=2';
         });
-        jQuery('#pub_date').next('a').click(function() {
+        jQuery('#pub_date').next('a').click(function () {
             jQuery('#pub_date').val('');
             documentDirty = true;
             return true;
         });
-        jQuery('#unpub_date').next('a').click(function() {
+        jQuery('#unpub_date').next('a').click(function () {
             jQuery('#unpub_date').val('');
             documentDirty = true;
             return true;
         });
         curTemplate = jQuery('#field_template').val();
-        jQuery('#field_template').change(function() {
+        jQuery('#field_template').change(function () {
             newTemplate = jQuery('#field_template').val();
             if (curTemplate !== newTemplate) {
                 documentDirty = false;
@@ -84,7 +84,7 @@
                 jQuery('#mutate').submit();
             }
         });
-        jQuery('#which_editor').change(function() {
+        jQuery('#which_editor').change(function () {
             newTemplate = jQuery('#field_template').val();
             newEditor = jQuery('#which_editor').val();
             documentDirty = false;
@@ -198,6 +198,6 @@
         if (0 < a.value.indexOf('.')) s.innerHTML = '';
         else s.innerHTML = '[+suffix+]';
     }
-    
+
 </script>
 <script type="text/javascript" src="media/browser/browser.js"></script>

@@ -1,21 +1,23 @@
 <?php
+
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
  * http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *
  * For further information visit:
  * http://www.fckeditor.net/
- * 
+ *
  * File Name: DeleteFile.php
  * Implements the DeleteFile command to delete a file
  * in the current directory. Output is in XML.
- * 
+ *
  * File Authors:
  * Grant French (grant@mcpuk.net)
  */
+
 class DeleteFile
 {
     public $fckphp_config;
@@ -35,35 +37,36 @@ class DeleteFile
             trim($this->raw_cwd, '/') ? '/' . trim($this->raw_cwd, '/') : ''
         );
         $this->real_cwd = sprintf(
-                '%s/%s',
-                rtrim($this->fckphp_config['basedir'], '/'),
-                trim($this->actual_cwd, '/') ? trim($this->actual_cwd, '/') : ''
+            '%s/%s',
+            rtrim($this->fckphp_config['basedir'], '/'),
+            trim($this->actual_cwd, '/') ? trim($this->actual_cwd, '/') : ''
         );
         $this->filename = str_replace(array('../', '/'), '', unescape($_GET['FileName']));
     }
-    
-    function run() {
-        $result2=true;
-        
-        $thumb = $this->real_cwd.'/.thumb/'.$this->filename;
-        $result1 = unlink($this->real_cwd.'/'.$this->filename);
+
+    function run()
+    {
+        $result2 = true;
+
+        $thumb = $this->real_cwd . '/.thumb/' . $this->filename;
+        $result1 = unlink($this->real_cwd . '/' . $this->filename);
         if (is_file($thumb)) {
             $result2 = unlink($thumb);
         }
-        header ('content-type: text/xml');
-        echo '<?xml version="1.0" encoding="utf-8" ?>'."\n";
+        header('content-type: text/xml');
+        echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
         ?>
-<Connector command="DeleteFile" resourceType="<?php echo $this->type; ?>">
-    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
-    <?php
-        if ($result1 && $result2) {
-            $err_no = 0;
-        } else {
-            $err_no = 302;
-        }
-    ?>
-    <Error number="<?php echo ''.$err_no; ?>" />
-</Connector>
+        <Connector command="DeleteFile" resourceType="<?php echo $this->type; ?>">
+            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+            <?php
+            if ($result1 && $result2) {
+                $err_no = 0;
+            } else {
+                $err_no = 302;
+            }
+            ?>
+            <Error number="<?php echo '' . $err_no; ?>"/>
+        </Connector>
         <?php
     }
 }

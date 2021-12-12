@@ -1,143 +1,154 @@
 <?php
-if(!isset($modx) || !evo()->isLoggedin()) exit;
+if (!isset($modx) || !evo()->isLoggedin()) exit;
 
-function iconMessage() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('messages')) {
-		$ph['imgsrc'] = ($_SESSION['nrnewmessages']>0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
-		$ph['action']    = 'index.php?a=10';
-		$ph['title']   = $_lang['inbox'];
-		$modx->setPlaceholder('iconMessage',$modx->parseText(icontpl(),$ph));
-	}
+function iconMessage()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('messages')) {
+        $ph['imgsrc'] = ($_SESSION['nrnewmessages'] > 0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
+        $ph['action'] = 'index.php?a=10';
+        $ph['title'] = $_lang['inbox'];
+        $modx->setPlaceholder('iconMessage', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconElements() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
-		$ph['imgsrc'] = 'icons/32x/elements.png';
-		$ph['action']    = 'index.php?a=76';
-		$ph['title']   = $_lang['element_management'];
-		$modx->setPlaceholder('iconElements',$modx->parseText(icontpl(),$ph));
-	}
+function iconElements()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('new_template') || evo()->hasPermission('edit_template') || evo()->hasPermission('new_snippet') || evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_plugin') || evo()->hasPermission('edit_plugin')) {
+        $ph['imgsrc'] = 'icons/32x/elements.png';
+        $ph['action'] = 'index.php?a=76';
+        $ph['title'] = $_lang['element_management'];
+        $modx->setPlaceholder('iconElements', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconNewDoc() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('new_document')||evo()->hasPermission('save_document')) {
-		$ph['imgsrc'] = 'icons/32x/newdoc.png';
-		$ph['action']    = 'index.php?a=4';
-		$ph['title']   = $_lang['add_resource'];
-		$modx->setPlaceholder('iconNewDoc',$modx->parseText(icontpl(),$ph));
-	}
+function iconNewDoc()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document')) {
+        $ph['imgsrc'] = 'icons/32x/newdoc.png';
+        $ph['action'] = 'index.php?a=4';
+        $ph['title'] = $_lang['add_resource'];
+        $modx->setPlaceholder('iconNewDoc', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconSettings() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('settings')) {
-		$ph['imgsrc'] = 'icons/32x/settings.png';
-		$ph['action'] = 'index.php?a=17';
-		$ph['title']  = $_lang['edit_settings'];
-		$modx->setPlaceholder('iconSettings',$modx->parseText(icontpl(),$ph));
-	}
+function iconSettings()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('settings')) {
+        $ph['imgsrc'] = 'icons/32x/settings.png';
+        $ph['action'] = 'index.php?a=17';
+        $ph['title'] = $_lang['edit_settings'];
+        $modx->setPlaceholder('iconSettings', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconResources() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('view_document')) {
-		$ph['imgsrc'] = 'icons/32x/resources.png';
-		$ph['action']    = 'index.php?a=120';
-		$ph['title']   = $_lang['view_child_resources_in_container'];
-		$modx->setPlaceholder('iconResources',$modx->parseText(icontpl(),$ph));
-	}
+function iconResources()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('view_document')) {
+        $ph['imgsrc'] = 'icons/32x/resources.png';
+        $ph['action'] = 'index.php?a=120';
+        $ph['title'] = $_lang['view_child_resources_in_container'];
+        $modx->setPlaceholder('iconResources', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconHelp() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('help')) {
-		$ph['imgsrc'] = 'icons/32x/help.png';
-		$ph['action']    = 'index.php?a=9';
-		$ph['title']   = $_lang['help'];
-		$modx->setPlaceholder('iconHelp',$modx->parseText(icontpl(),$ph));
-	}
+function iconHelp()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('help')) {
+        $ph['imgsrc'] = 'icons/32x/help.png';
+        $ph['action'] = 'index.php?a=9';
+        $ph['title'] = $_lang['help'];
+        $modx->setPlaceholder('iconHelp', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconFileManager() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('file_manager')) {
-		$ph['imgsrc'] = 'icons/32x/files.png';
-		$ph['action']    = 'index.php?a=31';
-		$ph['title']   = $_lang['manage_files'];
-		$modx->setPlaceholder('iconFileManager',$modx->parseText(icontpl(),$ph));
-	}
+function iconFileManager()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('file_manager')) {
+        $ph['imgsrc'] = 'icons/32x/files.png';
+        $ph['action'] = 'index.php?a=31';
+        $ph['title'] = $_lang['manage_files'];
+        $modx->setPlaceholder('iconFileManager', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconEventLog() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('view_eventlog')) {
-		$ph['imgsrc'] = 'icons/32x/log.png';
-		$ph['action']    = 'index.php?a=114';
-		$ph['title']   = $_lang['eventlog'];
-		$modx->setPlaceholder('iconEventLog',$modx->parseText(icontpl(),$ph));
-	}
+function iconEventLog()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('view_eventlog')) {
+        $ph['imgsrc'] = 'icons/32x/log.png';
+        $ph['action'] = 'index.php?a=114';
+        $ph['title'] = $_lang['eventlog'];
+        $modx->setPlaceholder('iconEventLog', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconSysInfo() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	if(evo()->hasPermission('logs')) {
-		$ph['imgsrc'] = 'icons/32x/info.png';
-		$ph['action']    = 'index.php?a=53';
-		$ph['title']   = $_lang['view_sysinfo'];
-		$modx->setPlaceholder('iconSysInfo',$modx->parseText(icontpl(),$ph));
-	}
+function iconSysInfo()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    if (evo()->hasPermission('logs')) {
+        $ph['imgsrc'] = 'icons/32x/info.png';
+        $ph['action'] = 'index.php?a=53';
+        $ph['title'] = $_lang['view_sysinfo'];
+        $modx->setPlaceholder('iconSysInfo', $modx->parseText(icontpl(), $ph));
+    }
 }
 
-function iconSearch() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	$ph['imgsrc'] = 'icons/32x/search.png';
-	$ph['action']    = 'index.php?a=71';
-	$ph['title']   = $_lang['search_resource'];
-	$modx->setPlaceholder('iconSearch',$modx->parseText(icontpl(),$ph));
+function iconSearch()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    $ph['imgsrc'] = 'icons/32x/search.png';
+    $ph['action'] = 'index.php?a=71';
+    $ph['title'] = $_lang['search_resource'];
+    $modx->setPlaceholder('iconSearch', $modx->parseText(icontpl(), $ph));
 }
 
-function tabYourInfo() {
-	global $modx,$_lang,$server_offset_time;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	
-	$ph = $_lang;
-	
-    if(!empty($_SESSION['mgrLastlogin'])) {
-        $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin']+$server_offset_time);
+function tabYourInfo()
+{
+    global $modx, $_lang, $server_offset_time;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+
+    $ph = $_lang;
+
+    if (!empty($_SESSION['mgrLastlogin'])) {
+        $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin'] + $server_offset_time);
     } else {
         $Lastlogin = '-';
     }
-    
-	$ph['UserName']   = $modx->getLoginUserName();
-	$ph['name']       = $_SESSION['mgrPermissions']['name'];
-	$ph['Lastlogin']  = $Lastlogin;
-	$ph['Logincount'] = $_SESSION['mgrLogincount'] + 1;
-	
-    
+
+    $ph['UserName'] = $modx->getLoginUserName();
+    $ph['name'] = $_SESSION['mgrPermissions']['name'];
+    $ph['Lastlogin'] = $Lastlogin;
+    $ph['Logincount'] = $_SESSION['mgrLogincount'] + 1;
+
+
     $tpl = <<< TPL
 <p>[+yourinfo_message+]</p>
 <table border="0" cellspacing="0" cellpadding="0">
@@ -163,35 +174,35 @@ function tabYourInfo() {
   </tr>
 </table>
 TPL;
-    $user_info = $modx->parseText($tpl,$ph);
-    
+    $user_info = $modx->parseText($tpl, $ph);
+
     // recent document info
     $uid = evo()->getLoginUserID();
     $field = 'id, pagetitle, description, editedon, editedby';
     $tbl_site_content = evo()->getFullTableName('site_content');
     $where = "deleted=0 AND editedby='{$uid}'";
-    $rs = db()->select($field,$tbl_site_content,$where,'editedon DESC',10);
-    
-    $recent_info = $_lang["activity_message"].'<br /><br /><ul>';
-    
-    if(db()->count($rs) < 1) {
+    $rs = db()->select($field, $tbl_site_content, $where, 'editedon DESC', 10);
+
+    $recent_info = $_lang["activity_message"] . '<br /><br /><ul>';
+
+    if (db()->count($rs) < 1) {
         $recent_info .= '<li>' . $_lang['no_activity_message'] . '</li>';
     } else {
-    	$tpl = '<li><b>[+editedon+]</b> - [[+id+]] <a href="index.php?a=3&amp;id=[+id+]">[+pagetitle+]</a>[+description+]</li>';
-    	while($row = db()->getRow($rs)) {
-    		$row['editedon'] = $modx->toDateFormat($row['editedon']);
+        $tpl = '<li><b>[+editedon+]</b> - [[+id+]] <a href="index.php?a=3&amp;id=[+id+]">[+pagetitle+]</a>[+description+]</li>';
+        while ($row = db()->getRow($rs)) {
+            $row['editedon'] = $modx->toDateFormat($row['editedon']);
             if ($row['description'] != '') {
                 $row['description'] = ' - ' . $row['description'];
             }
-    		$recent_info .= $modx->parseText($tpl,$row);
-    	}
+            $recent_info .= $modx->parseText($tpl, $row);
+        }
     }
-    $recent_info.='</ul>';
-    
-    $modx->setPlaceholder('recent_docs',$_lang['recent_docs']);
-    $ph['UserInfo']       = $user_info;
-    $ph['RecentInfo']     = $recent_info;
-    
+    $recent_info .= '</ul>';
+
+    $modx->setPlaceholder('recent_docs', $_lang['recent_docs']);
+    $ph['UserInfo'] = $user_info;
+    $ph['RecentInfo'] = $recent_info;
+
     $tpl = <<< TPL
 <div class="tab-page" id="tabYour">
 	<h2 class="tab">[+yourinfo_title+]</h2>
@@ -202,33 +213,33 @@ TPL;
 	<div class="sectionBody">[+UserInfo+]</div>
 </div>
 TPL;
-    $tabYourInfo = $modx->parseText($tpl,$ph);
-    $modx->setPlaceholder('tabYourInfo',$tabYourInfo);
+    $tabYourInfo = $modx->parseText($tpl, $ph);
+    $modx->setPlaceholder('tabYourInfo', $tabYourInfo);
 }
 
-function tabOnlineUser() {
-	global $modx,$_lang;
-	
-	if(!isset($_GET['a']) || $_GET['a']!=='2') return;
-	$ph = $_lang;
-    $timetocheck = (time()-(60*20));//+$server_offset_time;
-    
+function tabOnlineUser()
+{
+    global $modx, $_lang;
+
+    if (!isset($_GET['a']) || $_GET['a'] !== '2') return;
+    $ph = $_lang;
+    $timetocheck = (time() - (60 * 20));//+$server_offset_time;
+
     include_once($modx->config['core_path'] . 'actionlist.inc.php');
-    $rs = db()->select('*','[+prefix+]active_users', "lasthit>'{$timetocheck}'", 'username ASC');
+    $rs = db()->select('*', '[+prefix+]active_users', "lasthit>'{$timetocheck}'", 'username ASC');
     $total = db()->count($rs);
-    if($total==1) {
-    	$ph['OnlineInfo'] = $modx->parseText('<p>[+no_active_users_found+]</p>',$ph);
+    if ($total == 1) {
+        $ph['OnlineInfo'] = $modx->parseText('<p>[+no_active_users_found+]</p>', $ph);
     } else {
-    	$tr = array();
-    	while ($row = db()->getRow($rs))
-    	{
-    		$currentaction = getAction($row['action'], $row['id']);
-    		$webicon = ($row['internalKey']<0)? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />':'';
-    		$tr[] = "<tr><td><b>".$row['username']."</b></td><td>{$webicon}&nbsp;".abs($row['internalKey'])."</td><td>".$row['ip']."</td><td>".strftime('%H:%M:%S', $row['lasthit']+$server_offset_time)."</td><td>{$currentaction}</td></tr>";
-    	}
-    	if(!empty($tr)) $ph['userlist'] = join("\n",$tr);
-        $ph['now'] = strftime('%H:%M:%S', time()+$server_offset_time);
-    	$tpl = <<< TPL
+        $tr = array();
+        while ($row = db()->getRow($rs)) {
+            $currentaction = getAction($row['action'], $row['id']);
+            $webicon = ($row['internalKey'] < 0) ? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />' : '';
+            $tr[] = "<tr><td><b>" . $row['username'] . "</b></td><td>{$webicon}&nbsp;" . abs($row['internalKey']) . "</td><td>" . $row['ip'] . "</td><td>" . strftime('%H:%M:%S', $row['lasthit'] + $server_offset_time) . "</td><td>{$currentaction}</td></tr>";
+        }
+        if (!empty($tr)) $ph['userlist'] = join("\n", $tr);
+        $ph['now'] = strftime('%H:%M:%S', time() + $server_offset_time);
+        $tpl = <<< TPL
 <p>[+onlineusers_message+]<b>[+now+]</b>)</p>
 <table width="100%" class="grid">
 <thead>
@@ -245,8 +256,8 @@ function tabOnlineUser() {
 </tbody>
 </table>
 TPL;
-        $ph['OnlineInfo'] = $modx->parseText($tpl,$ph);
-    
+        $ph['OnlineInfo'] = $modx->parseText($tpl, $ph);
+
     }
     $tpl = <<< TPL
 <div class="tab-page" id="tabOnline">
@@ -256,11 +267,11 @@ TPL;
     <div class="sectionBody">[+OnlineInfo+]</div>
 </div>
 TPL;
-    $tabOnlineUser = $modx->parseText($tpl,$ph);
-    $modx->setPlaceholder('tabOnlineUser',$tabOnlineUser);
+    $tabOnlineUser = $modx->parseText($tpl, $ph);
+    $modx->setPlaceholder('tabOnlineUser', $tabOnlineUser);
 }
 
 function icontpl()
 {
-	return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="media/style/RevoStyle/images/[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
+    return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="media/style/RevoStyle/images/[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
 }
