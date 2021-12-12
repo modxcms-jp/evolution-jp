@@ -184,7 +184,8 @@ switch ($_POST['mode']) {
 
 
 # Save Plugin Event Listeners
-function saveEventListeners($id, $sysevents, $mode) {
+function saveEventListeners($id, $sysevents, $mode)
+{
     global $modx;
     // save selected system events
     $tblSitePluginEvents = evo()->getFullTableName('site_plugin_events');

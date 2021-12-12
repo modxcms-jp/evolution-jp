@@ -17,8 +17,8 @@ $tbl_site_modules = evo()->getFullTableName('site_modules');
 $tpl = $_lang['duplicate_title_string'];
 $sql = sprintf(
     "
-        INSERT INTO %s (name, description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, guid, enable_sharedparams, properties, modulecode) 
-		SELECT REPLACE('%s','[+title+]',name) AS 'name', description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, '%s' as 'guid', enable_sharedparams, properties, modulecode 
+        INSERT INTO %s (name, description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, guid, enable_sharedparams, properties, modulecode)
+		SELECT REPLACE('%s','[+title+]',name) AS 'name', description, disabled, category, wrap, icon, enable_resource, resourcefile, createdon, editedon, '%s' as 'guid', enable_sharedparams, properties, modulecode
 		FROM %s WHERE id=%s",
     $tbl_site_modules, $tpl, createGUID(), $tbl_site_modules, $id);
 $rs = db()->query($sql);
@@ -34,7 +34,7 @@ else {
 // duplicate module dependencies
 $tbl_site_module_depobj = evo()->getFullTableName('site_module_depobj');
 $sql = "INSERT INTO " . $tbl_site_module_depobj . " (module, resource, type)
-		SELECT  '" . $newid . "', resource, type  
+		SELECT  '" . $newid . "', resource, type
 		FROM " . $tbl_site_module_depobj . " WHERE module=" . $id;
 $rs = db()->query($sql);
 
@@ -46,7 +46,7 @@ if (!$rs) {
 // duplicate module user group access
 $tbl_site_module_access = evo()->getFullTableName('site_module_access');
 $sql = "INSERT INTO " . $tbl_site_module_access . " (module, usergroup)
-		SELECT  '" . $newid . "', usergroup  
+		SELECT  '" . $newid . "', usergroup
 		FROM " . $tbl_site_module_access . " WHERE module=" . $id;
 $rs = db()->query($sql);
 
@@ -60,7 +60,8 @@ header("Location: index.php?r=2&a=108&id=" . $newid);
 
 
 // create globally unique identifiers (guid)
-function createGUID() {
+function createGUID()
+{
     mt_srand((double)microtime() * 1000000);
     $r = mt_rand();
     $u = uniqid(getmypid() . $r . (double)microtime() * 1000000, 1);

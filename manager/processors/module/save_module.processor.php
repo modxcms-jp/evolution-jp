@@ -163,7 +163,8 @@ switch (postv('mode')) {
 }
 
 // saves module user group access
-function saveUserGroupAccessPermissons() {
+function saveUserGroupAccessPermissons()
+{
     global $modx;
     global $id, $newid;
 

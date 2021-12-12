@@ -115,7 +115,8 @@ echo $output;
 include(MODX_CORE_PATH . 'sysalert.display.inc.php');
 
 // evalModule
-function evalModule($moduleCode, $params) {
+function evalModule($moduleCode, $params)
+{
     global $modx;
     $modx->event->params = &$params; // store params inside event object
     if (is_array($params)) {
