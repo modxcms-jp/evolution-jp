@@ -150,10 +150,10 @@ class filter
     {
         if (in_array($field_name, explode(',', 'pub_date,unpub_date'))) {
             return true;
-        };
+        }
         if (in_array($field_name, explode(',', 'published,createdon,editedon,publishedon,deletedon'))) {
             return true;
-        };
+        }
         return false;
     }
 }

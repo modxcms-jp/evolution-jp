@@ -1,6 +1,6 @@
 <script language="javascript" type="text/javascript">
     function mceOpenServerBrowser(field_name, url, type, win
-) {
+    ) {
     if (type == "media") {type = win.document.getElementById("media_type").value;}
     var cmsURL = "[+cmsurl+]";
     switch (type) {

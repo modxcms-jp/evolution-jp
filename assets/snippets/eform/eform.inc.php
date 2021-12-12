@@ -934,7 +934,7 @@ function eFormParseTemplate($tpl, $isDebug = false)
     $formats = array();  //clear formats so values don't persist through multiple snippet calls
     $labels = array();
 
-    $regExpr = "#(<label[^>]*?>)(.*?)</label>#si";;
+    $regExpr = "#(<label[^>]*?>)(.*?)</label>#si";
     preg_match_all($regExpr, $tpl, $matches);
     foreach ($matches[1] as $key => $fld) {
         $attr = attr2array($fld);

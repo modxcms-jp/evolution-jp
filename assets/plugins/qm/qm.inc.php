@@ -83,7 +83,7 @@ class Qm
         $this->tbwidth = $tbwidth;
         $this->tbheight = $tbheight;
         $this->hidefields = $hidefields;
-        $this->hidetabs = isset($hidetabs) ? $hidetabs : '';;
+        $this->hidetabs = isset($hidetabs) ? $hidetabs : '';
         $this->hidesections = isset($hidesections) ? $hidesections : '';
         $this->addbutton = $addbutton;
         $this->tpltype = $tpltype;

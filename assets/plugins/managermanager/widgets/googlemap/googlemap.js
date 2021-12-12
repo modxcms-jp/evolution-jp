@@ -1,7 +1,7 @@
 var $j = jQuery.noConflict();
-var map = new Object();
-var marker = new Object();
-var addressField = new Object();
+var map = {};
+var marker = {};
+var addressField = {};
 
 function googlemap(id, defaultGeoLoc) {
     mapContainerId = "map_canvas_" + id;
@@ -30,7 +30,7 @@ function StartGoogleMaps(mapContainerId) {
         geoLoc = $j("#" + tvId).val().split(',');
         initOverlay = true;
     } else {
-        geoLoc = (defaultGeoLoc != '') ? defaultGeoLoc.split(',') : new Array(35.6585805, 139.74543289999997);	// get default from mm_rules, otherwise head to berlin
+        geoLoc = (defaultGeoLoc != '') ? defaultGeoLoc.split(',') : [35.6585805, 139.74543289999997];	// get default from mm_rules, otherwise head to berlin
     }
 
     var center = new google.maps.LatLng(geoLoc[0], geoLoc[1]);
@@ -81,5 +81,5 @@ function geoSearch(mapContainerId) {
             alert("Not found: " + status);
         }
     });
-};
+}
 

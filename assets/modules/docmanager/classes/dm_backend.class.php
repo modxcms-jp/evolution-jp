@@ -518,9 +518,8 @@ class DocManagerBackend
                         $pids .= '' . $column . "='" . ($i + $match[0]) . '\' OR ';
                     }
                 }
-            }
-
-            /* value is a group for immediate children */ elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
+            } elseif (preg_match('/^[\d]+\*$/', $value, $match)) {
+            /* value is a group for immediate children */
                 $match = rtrim($match[0], '*');
 
                 $group = db()->select('id', $tbl_site_content, 'parent=' . $match);

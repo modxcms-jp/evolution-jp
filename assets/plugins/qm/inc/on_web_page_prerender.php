@@ -167,8 +167,8 @@ else {
 <div id="qmEditor">
 
 <ul>
-<li id="qmClose"><a class="qmButton qmClose" href="#" onclick="javascript: return false;">X</a></li>
-<li><a id="qmLogoClose" class="qmClose" href="#" onclick="javascript: return false;"></a></li>
+<li id="qmClose"><a class="qmButton qmClose" href="#" onclick="return false;">X</a></li>
+<li><a id="qmLogoClose" class="qmClose" href="#" onclick="return false;"></a></li>
 ' . $controls . '
 </ul>
 </div>';
