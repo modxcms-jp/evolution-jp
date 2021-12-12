@@ -4,14 +4,16 @@ if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
     exit;
 }
 
-function checkSafedUri() {
+function checkSafedUri()
+{
     if (strpos(urldecode(request_uri()), "'") === false) {
         return;
     }
     jsAlert('This is illegal login.');
 }
 
-function jsAlert($msg) {
+function jsAlert($msg)
+{
     header('Content-Type: text/html; charset=UTF-8');
     if (postv('ajax') == 1) {
         echo $msg;
@@ -24,7 +26,8 @@ function jsAlert($msg) {
     }
 }
 
-function failedLogin() {
+function failedLogin()
+{
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
     db()->update(
@@ -45,12 +48,14 @@ function failedLogin() {
     session_unset();
 }
 
-function loginPhpass($givenPassword, $dbasePassword) {
+function loginPhpass($givenPassword, $dbasePassword)
+{
     global $modx;
     return evo()->phpass->CheckPassword($givenPassword, $dbasePassword);
 }
 
-function loginV1($givenPassword, $dbasePassword, $internalKey) {
+function loginV1($givenPassword, $dbasePassword, $internalKey)
+{
     global $modx;
 
     $user_algo = $modx->manager->getV1UserHashAlgorithm($internalKey);
@@ -72,7 +77,8 @@ function loginV1($givenPassword, $dbasePassword, $internalKey) {
     return true;
 }
 
-function loginMD5($givenPassword, $dbasePassword, $internalKey) {
+function loginMD5($givenPassword, $dbasePassword, $internalKey)
+{
     if ($dbasePassword != md5($givenPassword)) {
         return false;
     }
@@ -80,7 +86,8 @@ function loginMD5($givenPassword, $dbasePassword, $internalKey) {
     return true;
 }
 
-function updateNewHash($internalKey, $password) {
+function updateNewHash($internalKey, $password)
+{
     $rs = db()->update(
         array(
             'password' => db()->escape(
@@ -92,7 +99,8 @@ function updateNewHash($internalKey, $password) {
     );
 }
 
-function user_config($key, $default = null) {
+function user_config($key, $default = null)
+{
     static $conf = null;
     if (isset($conf[$key])) {
         return $conf[$key];
@@ -114,7 +122,8 @@ function user_config($key, $default = null) {
     return $default;
 }
 
-function input($key, $default = null) {
+function input($key, $default = null)
+{
     static $input = array();
 
     if (isset($input[$key])) {
@@ -144,7 +153,8 @@ function input($key, $default = null) {
     return array_get($input, $key, $default);
 }
 
-function user($key, $default = null) {
+function user($key, $default = null)
+{
     static $user = array();
 
     if (isset($user[$key])) {
@@ -173,7 +183,8 @@ function user($key, $default = null) {
     return array_get($user, $key, $default);
 }
 
-function OnBeforeManagerLogin() {
+function OnBeforeManagerLogin()
+{
     $info = array(
         'username' => input('username'),
         'userpassword' => input('password'),
@@ -182,7 +193,8 @@ function OnBeforeManagerLogin() {
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
-function isBlockedUser() {
+function isBlockedUser()
+{
     if (!user('blocked')) {
         return false;
     }
@@ -205,7 +217,8 @@ function isBlockedUser() {
     return false;
 }
 
-function checkAllowedIp() {
+function checkAllowedIp()
+{
     if (!user_config('allowed_ip')) {
         return true;
     }
@@ -229,7 +242,8 @@ function checkAllowedIp() {
     return false;
 }
 
-function OnManagerAuthentication() {
+function OnManagerAuthentication()
+{
     $info = array(
         'userid' => user('internalKey'),
         'username' => user('username'),
@@ -244,7 +258,8 @@ function OnManagerAuthentication() {
     return true;
 }
 
-function OnManagerLogin() {
+function OnManagerLogin()
+{
     $info = array(
         'userid' => user('internalKey'),
         'username' => user('username'),
@@ -254,7 +269,8 @@ function OnManagerLogin() {
     evo()->invokeEvent('OnManagerLogin', $info);
 }
 
-function checkCaptcha() {
+function checkCaptcha()
+{
     if (config('use_captcha') != 1) {
         return true;
     }
@@ -272,7 +288,8 @@ function checkCaptcha() {
     return true;
 }
 
-function checkAllowedDays() {
+function checkAllowedDays()
+{
     if (!user_config('allowed_days')) {
         return true;
     }
@@ -286,7 +303,8 @@ function checkAllowedDays() {
     return false;
 }
 
-function validPassword($inputPassword = '', $savedPassword = '') {
+function validPassword($inputPassword = '', $savedPassword = '')
+{
     evo()->loadExtension('phpass');
     switch (evo()->manager->getHashType($savedPassword)) {
         case 'phpass':
@@ -300,7 +318,8 @@ function validPassword($inputPassword = '', $savedPassword = '') {
     }
 }
 
-function redirectAfterLogin() {
+function redirectAfterLogin()
+{
     if (user_config('manager_login_startup')) {
         $header = 'Location: ' . evo()->makeUrl(user_config('manager_login_startup'));
         if (evo()->input_post('ajax')) {
@@ -323,7 +342,8 @@ function redirectAfterLogin() {
     header($header);
 }
 
-function managerLogin() {
+function managerLogin()
+{
     global $modx;
 
     session_regenerate_id(true);

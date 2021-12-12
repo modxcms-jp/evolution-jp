@@ -25,7 +25,7 @@
     <script type="text/javascript" src="js/common.js"></script>
     <script language="javascript">
 
-        var oListManager = new Object();
+        var oListManager = {};
 
         oListManager.Init = function () {
             this.Table = document.getElementById('tableFiles');
@@ -128,7 +128,7 @@
              *
              */
             if (imageEditable == 1 && oConnector.ResourceType.toLowerCase() == "images") {
-                oCell.innerHTML = oCell.innerHTML + '<a href="#" onclick="javascript:window.open(\'manager/media/ImageEditor/editor.php?img=/images' + oConnector.CurrentFolder + fileName + '\',\'win\',\'status=0,toolbar=0\');"><img alt="Edit image" border="0" src="images/editImage.gif" /></a>';
+                oCell.innerHTML = oCell.innerHTML + '<a href="#" onclick="window.open(\'manager/media/ImageEditor/editor.php?img=/images' + oConnector.CurrentFolder + fileName + '\',\'win\',\'status=0,toolbar=0\');"><img alt="Edit image" border="0" src="images/editImage.gif" /></a>';
             }
 
             /*

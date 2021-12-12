@@ -35,9 +35,9 @@ if (!$forced) {
         <div id="actions">
             <ul class="actionButtons">
                 <li><a href="#" onclick="deletedocument();"><img
-                                src="<?php echo $_style["icons_delete"] ?>"/> <?php echo $_lang["delete"]; ?></a></li>
+                            src="<?php echo $_style["icons_delete"] ?>"/> <?php echo $_lang["delete"]; ?></a></li>
                 <li class="mutate"><a href="index.php?a=301&id=<?php echo $id; ?>"><img
-                                src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang["cancel"]; ?></a></li>
+                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang["cancel"]; ?></a></li>
             </ul>
         </div>
 

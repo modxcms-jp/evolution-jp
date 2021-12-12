@@ -9,7 +9,7 @@ if (!hasPermission('save_document')) {
     alert()->dumpError();
 }
 
-if (! preg_match('@^[1-9][0-9]*$@', postv('id'))) {
+if (!preg_match('@^[1-9][0-9]*$@', postv('id'))) {
     alert()->setError(2);
     alert()->dumpError();
     return;

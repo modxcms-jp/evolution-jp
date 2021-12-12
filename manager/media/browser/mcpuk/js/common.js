@@ -48,7 +48,7 @@ function GetMyUrlParam(paramName) {
         return '';
 }
 
-var oConnector = new Object();
+var oConnector = {};
 oConnector.CurrentFolder = '/';
 oConnector.UploadHandler = GetUrlParam('UploadHandler');
 var pathname = window.location.pathname.replace(/manager\/media\/browser\/mcpuk\/.*$/, '');
@@ -76,13 +76,13 @@ oConnector.SendCommand = function (command, params, callBackFunction) {
         return oXML.LoadUrl(sUrl);
 }
 
-var oIcons = new Object();
+var oIcons = {};
 
 oIcons.AvailableIconsArray = [
     'ai', 'avi', 'bmp', 'cs', 'dll', 'doc', 'exe', 'fla', 'gif', 'htm', 'html', 'jpg', 'js',
     'mdb', 'mp3', 'pdf', 'ppt', 'rdp', 'swf', 'swt', 'txt', 'vsd', 'xls', 'xml', 'zip'];
 
-oIcons.AvailableIcons = new Object();
+oIcons.AvailableIcons = {};
 
 for (var i = 0; i < oIcons.AvailableIconsArray.length; i++)
     oIcons.AvailableIcons[oIcons.AvailableIconsArray[i]] = true;

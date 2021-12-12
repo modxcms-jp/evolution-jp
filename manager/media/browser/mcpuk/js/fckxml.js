@@ -57,7 +57,7 @@ FCKXml.prototype.LoadUrl = function (urlToCall, asyncFunctionPointer) {
 }
 
 FCKXml.prototype.SelectNodes = function (xpath) {
-    var aNodeArray = new Array();
+    var aNodeArray = [];
 
     var xPathResult = this.DOMDocument.evaluate(xpath, this.DOMDocument,
         this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);

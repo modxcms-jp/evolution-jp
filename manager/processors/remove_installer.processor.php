@@ -25,7 +25,8 @@ if (isset($_GET['rminstall'])) {
 echo "<script>window.location='../index.php?a=2';</script>";
 
 // rmdirRecursive - detects symbollic links on unix
-function rmdirRecursive($path) {
+function rmdirRecursive($path)
+{
     $files = scandir($path);
     foreach ($files as $entry) {
         if ($entry === '.') {

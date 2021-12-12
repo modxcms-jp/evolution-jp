@@ -163,6 +163,7 @@ if ($updategroupaccess == true) {
 
 header('Location: index.php?a=40');
 
-function warning($msg) {
+function warning($msg)
+{
     exit($msg);
 }

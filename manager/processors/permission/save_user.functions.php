@@ -9,25 +9,26 @@ if (!evo()->hasPermission('save_user')) {
 }
 
 // Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn) {
+function sendMailMessage($email, $uid, $pwd, $ufn)
+{
     $message = evo()->mergeSettingsContent(
         evo()->parseText(
             evo()->config['signupemail_message'],
             array(
                 'username' => $uid,
-                'uid'=> $uid,
-                'password'=> $pwd,
-                'pwd'=> $pwd,
-                'fullname'=> $ufn,
-                'ufn'=> $ufn,
-                'site_name'=> evo()->config['site_name'],
-                'sname'=> evo()->config['site_name'],
-                'manager_email'=> evo()->config['emailsender'],
-                'saddr'=> evo()->config['emailsender'],
-                'semail'=> evo()->config['emailsender'],
-                'site_url'=> evo()->config['site_url'],
-                'surl'=> evo()->config['site_url'] . 'manager/'
-                )
+                'uid' => $uid,
+                'password' => $pwd,
+                'pwd' => $pwd,
+                'fullname' => $ufn,
+                'ufn' => $ufn,
+                'site_name' => evo()->config['site_name'],
+                'sname' => evo()->config['site_name'],
+                'manager_email' => evo()->config['emailsender'],
+                'saddr' => evo()->config['emailsender'],
+                'semail' => evo()->config['emailsender'],
+                'site_url' => evo()->config['site_url'],
+                'surl' => evo()->config['site_url'] . 'manager/'
+            )
         )
     );
     if (!evo()->sendmail($email, $message)) {
@@ -37,7 +38,8 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 }
 
 // Save User Settings
-function saveUserSettings($id) {
+function saveUserSettings($id)
+{
     $ignore = array(
         'id',
         'oldusername',
@@ -130,7 +132,8 @@ function saveUserSettings($id) {
 }
 
 // Web alert -  sends an alert to web browser
-function webAlert($msg) {
+function webAlert($msg)
+{
     global $id;
     $mode = postv('mode');
     $url = 'index.php?a=' . $mode . ($mode == '12' ? "&id=" . $id : '');
@@ -139,7 +142,8 @@ function webAlert($msg) {
 }
 
 // Generate password
-function generate_password($length = 10) {
+function generate_password($length = 10)
+{
     static $password = null;
     if ($password) {
         return $password;
@@ -147,7 +151,8 @@ function generate_password($length = 10) {
     return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
 }
 
-function verifyPermission() {
+function verifyPermission()
+{
     if ($_SESSION['mgrRole'] == 1) {
         return true;
     }
@@ -163,8 +168,9 @@ function verifyPermission() {
     return true;
 }
 
-function userid_byname($newusername) {
-    if(!$newusername) {
+function userid_byname($newusername)
+{
+    if (!$newusername) {
         return false;
     }
     $rs = db()->select(
@@ -178,8 +184,9 @@ function userid_byname($newusername) {
     return db()->getValue($rs);
 }
 
-function userid_byemail($email) {
-    if(!$email) {
+function userid_byemail($email)
+{
+    if (!$email) {
         return false;
     }
     $rs = db()->select(
@@ -193,7 +200,8 @@ function userid_byemail($email) {
     return db()->getValue($rs);
 }
 
-function role_byuserid($userid) {
+function role_byuserid($userid)
+{
     $rs = db()->select(
         'role'
         , '[+prefix+]user_attributes'
@@ -205,15 +213,18 @@ function role_byuserid($userid) {
     return db()->getValue($rs);
 }
 
-function hasOldUserName() {
+function hasOldUserName()
+{
     return (postv('oldusername') != postv('newusername', 'New User'));
 }
 
-function hasOldUserEmail() {
+function hasOldUserEmail()
+{
     return (postv('oldemail') != postv('email'));
 }
 
-function newPassword() {
+function newPassword()
+{
     if (postv('passwordgenmethod') === 'spec') {
         return postv('specifiedpassword');
     }
@@ -224,7 +235,8 @@ function newPassword() {
     exit;
 }
 
-function confirmPassword() {
+function confirmPassword()
+{
     if (postv('passwordgenmethod') !== 'spec') {
         return true;
     }
@@ -234,7 +246,8 @@ function confirmPassword() {
     return false;
 }
 
-function validEmail() {
+function validEmail()
+{
     if (!postv('email')) {
         return false;
     }
@@ -244,7 +257,8 @@ function validEmail() {
     return true;
 }
 
-function validate() {
+function validate()
+{
     $fields = array(
         'fullname',
         'role',
@@ -276,7 +290,8 @@ function validate() {
     return $rs;
 }
 
-function newUser() {
+function newUser()
+{
     // invoke OnBeforeUserFormSave event
     $tmp = array(
         'mode' => 'new',
@@ -384,7 +399,7 @@ function newUser() {
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                            src="<?php echo style('icons_save') ?>"/> <?php echo lang('close'); ?>
+                        src="<?php echo style('icons_save') ?>"/> <?php echo lang('close'); ?>
                 </a></li>
         </ul>
     </div>
@@ -406,7 +421,8 @@ function newUser() {
     include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }
 
-function updateUser() {
+function updateUser()
+{
     // invoke OnBeforeUserFormSave event
     $tmp = array(
         'mode' => 'upd',
@@ -533,8 +549,8 @@ function updateUser() {
         }
         if (postv('save_action') !== 'close') {
             header(sprintf(
-                    'Location: index.php?a=11&r=3&save_action=%s'
-                    , postv('save_action')
+                'Location: index.php?a=11&r=3&save_action=%s'
+                , postv('save_action')
             ));
             exit;
         }
@@ -565,7 +581,7 @@ function updateUser() {
         <ul class="actionButtons">
             <li class="mutate">
                 <a href="<?php echo $stayUrl; ?>"><img
-                            src="<?php echo style('icons_save') ?>"/> <?php echo (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close'); ?>
+                        src="<?php echo style('icons_save') ?>"/> <?php echo (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close'); ?>
                 </a>
             </li>
         </ul>

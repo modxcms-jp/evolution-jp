@@ -69,7 +69,8 @@ if ($pid !== '0') {
 header($header);
 
 
-function getChildren($parent) {
+function getChildren($parent)
+{
     global $children;
     global $deltime, $modx;
 
@@ -84,7 +85,8 @@ function getChildren($parent) {
     }
 }
 
-function disp_access_permission_denied() {
+function disp_access_permission_denied()
+{
     global $_lang;
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>

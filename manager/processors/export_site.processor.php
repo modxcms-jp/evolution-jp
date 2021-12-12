@@ -99,7 +99,8 @@ if (is_array($evtOut)) {
 
 return $output;
 
-function getIds($target) {
+function getIds($target)
+{
     if (postv('target') === 'all' || postv('target') !== $target) {
         return '';
     }

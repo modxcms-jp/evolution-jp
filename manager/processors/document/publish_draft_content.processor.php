@@ -37,7 +37,8 @@ $header = sprintf('Location: index.php?a=3&id=%s&r=1', $docid);
 header($header);
 
 
-function setStandBy($docid, $pub_date) {
+function setStandBy($docid, $pub_date)
+{
     db()->update(
         array(
             'pub_date' => $pub_date,
@@ -49,7 +50,8 @@ function setStandBy($docid, $pub_date) {
     return 'set_standby';
 }
 
-function publishDraft($docid) {
+function publishDraft($docid)
+{
     evo()->loadExtension('DocAPI');
     $rs = db()->select(
         '*'

@@ -28,13 +28,13 @@
         var bIsLoaded = false;
         var iIntervalId;
 
-        var oListManager = new Object();
+        var oListManager = {};
 
         oListManager.Init = function () {
             this.Table = document.getElementById('tableFiles');
             this.UpRow = document.getElementById('trUp');
 
-            this.TableRows = new Object();
+            this.TableRows = {};
         }
 
         oListManager.Clear = function () {
@@ -43,7 +43,7 @@
                 this.Table.deleteRow(1);
 
             // Reset the TableRows collection.
-            this.TableRows = new Object();
+            this.TableRows = {};
         }
 
         oListManager.AddItem = function (folderName, folderPath) {

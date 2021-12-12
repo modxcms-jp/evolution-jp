@@ -38,6 +38,6 @@ function SetUrl(url, width, height, alt) {
         if (c) c.value = url;
         lastImageCtrl = '';
     } else {
-        return;
+
     }
 }
