@@ -16,7 +16,7 @@ function getOption($fieldName)
         return $_SESSION[$fieldName];
     }
 
-    if (isset($GLOBALS[$fieldName])  && $GLOBALS[$fieldName] !== '') {
+    if (isset($GLOBALS[$fieldName]) && $GLOBALS[$fieldName] !== '') {
         return $GLOBALS[$fieldName];
     }
 
@@ -61,6 +61,7 @@ function key_field($category = '')
     }
     return 'name';
 }
+
 function table_name($category = '')
 {
     if ($category === 'template') {
@@ -154,8 +155,8 @@ function parse_docblock($fullpath)
     }
 
     $docblock_start_found = false;
-    $name_found           = false;
-    $description_found    = false;
+    $name_found = false;
+    $description_found = false;
 
     while (!feof($tpl)) {
         $line = fgets($tpl);
@@ -185,7 +186,7 @@ function parse_docblock($fullpath)
         $ma = null;
         if (preg_match("/^\s+\*\s+@([^\s]+)\s+(.+)/", $line, $ma)) {
             $param = trim($ma[1]);
-            $val   = trim($ma[2]);
+            $val = trim($ma[2]);
             if ($param && $val) {
                 if ($param === 'internal') {
                     $ma = null;
@@ -358,11 +359,11 @@ function isUpGradeable()
 
     sessionv('*is_upgradeable', 0);
 
-    $dbase             = null;
-    $database_server   = null;
-    $database_user     = null;
+    $dbase = null;
+    $database_server = null;
+    $database_user = null;
     $database_password = null;
-    $table_prefix      = null;
+    $table_prefix = null;
     $database_connection_charset = null;
     include($conf_path);
 
@@ -371,11 +372,11 @@ function isUpGradeable()
     }
 
     global $modx;
-    $modx->db->hostname     = $database_server;
-    $modx->db->username     = $database_user;
-    $modx->db->password     = $database_password;
-    $modx->db->dbname       = trim($dbase, '`');
-    $modx->db->charset      = $database_connection_charset;
+    $modx->db->hostname = $database_server;
+    $modx->db->username = $database_user;
+    $modx->db->password = $database_password;
+    $modx->db->dbname = trim($dbase, '`');
+    $modx->db->charset = $database_connection_charset;
     $modx->db->table_prefix = $table_prefix;
     db()->connect();
 
@@ -475,14 +476,14 @@ function ph()
 {
     global $cmsName, $cmsVersion, $modx_textdir, $modx_release_date;
 
-    $ph['site_url']      = MODX_SITE_URL;
-    $ph['pagetitle']     = lang('modx_install');
-    $ph['textdir']       = ($modx_textdir && $modx_textdir === 'rtl') ? ' id="rtl"' : '';
-    $ph['help_link']     = !sessionv('is_upgradeable') ? lang('help_link_new') : lang('help_link_upd');
-    $ph['version']       = $cmsName . ' ' . $cmsVersion;
-    $ph['release_date']  = ($modx_textdir && $modx_textdir === 'rtl' ? '&rlm;' : '') . $modx_release_date;
-    $ph['footer1']       = str_replace('[+year+]', date('Y'), lang('modx_footer1'));
-    $ph['footer2']       = lang('modx_footer2');
+    $ph['site_url'] = MODX_SITE_URL;
+    $ph['pagetitle'] = lang('modx_install');
+    $ph['textdir'] = ($modx_textdir && $modx_textdir === 'rtl') ? ' id="rtl"' : '';
+    $ph['help_link'] = !sessionv('is_upgradeable') ? lang('help_link_new') : lang('help_link_upd');
+    $ph['version'] = $cmsName . ' ' . $cmsVersion;
+    $ph['release_date'] = ($modx_textdir && $modx_textdir === 'rtl' ? '&rlm;' : '') . $modx_release_date;
+    $ph['footer1'] = str_replace('[+year+]', date('Y'), lang('modx_footer1'));
+    $ph['footer2'] = lang('modx_footer2');
     return $ph;
 }
 
@@ -498,7 +499,7 @@ function install_sessionCheck()
 
 function getLast($array = array())
 {
-    $array = (array) $array;
+    $array = (array)$array;
     return end($array);
 }
 

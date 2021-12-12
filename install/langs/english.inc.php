@@ -81,7 +81,7 @@ $_lang["database_use_failed_note"] = 'Please check the database permissions for 
 $_lang["default_language"] = 'Default Manager Language';
 $_lang["default_language_description"] = 'This is the default language that will be used in the MODX Manager back end control panel.';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
-$_lang["encoding"] = 'utf-8';	//charset encoding for html header
+$_lang["encoding"] = 'utf-8';    //charset encoding for html header
 $_lang["error"] = 'error';
 $_lang["errors"] = 'errors';
 $_lang["failed"] = 'FAILED!';
@@ -107,7 +107,7 @@ $_lang["installation_upgrade_existing"] = 'Upgrade Existing Install';
 $_lang["installation_upgrade_existing_note"] = 'Upgrade your current files and database.';
 $_lang["installed"] = 'Installed';
 $_lang["installing_demo_site"] = 'Installing demo site: ';
-$_lang["language_code"] = 'en';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["language_code"] = 'en';    // for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';
 $_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';

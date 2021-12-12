@@ -6,8 +6,8 @@ if (!sessionv('snippet') && !sessionv('installdata')) {
 
 echo '<h3>' . lang('snippets') . ':</h3>';
 
-foreach ($tplSnippets as $k=>$tplInfo) {
-    if(!in_array($k, sessionv('snippet')) && !withSample($tplInfo['installset'])) {
+foreach ($tplSnippets as $k => $tplInfo) {
+    if (!in_array($k, sessionv('snippet')) && !withSample($tplInfo['installset'])) {
         continue;
     }
 
@@ -22,9 +22,9 @@ foreach ($tplSnippets as $k=>$tplInfo) {
     }
 
     $f = array(
-        'snippet'     => getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tplInfo['tpl_file_path']))),
+        'snippet' => getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tplInfo['tpl_file_path']))),
         'description' => $tplInfo['description'],
-        'properties'  => $tplInfo['properties']
+        'properties' => $tplInfo['properties']
     );
     $dbv_snippet = db()->getObject('site_snippets', "name='" . db()->escape($tplInfo['name']) . "'");
     if (!$dbv_snippet) {

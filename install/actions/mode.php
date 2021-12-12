@@ -1,17 +1,17 @@
 <?php
 
 //back from next
-if(postv('adminemail')!==null) {
-    sessionv('*adminemail',postv('adminemail'));
+if (postv('adminemail') !== null) {
+    sessionv('*adminemail', postv('adminemail'));
 }
-if(postv('adminpass')!==null) {
-    sessionv('*adminpass',postv('adminpass'));
+if (postv('adminpass') !== null) {
+    sessionv('*adminpass', postv('adminpass'));
 }
-if(postv('adminpassconfirm')!==null) {
+if (postv('adminpassconfirm') !== null) {
     sessionv('*adminpassconfirm', postv('adminpassconfirm'));
 }
 
-$ph['is_upgradeable']   = sessionv('is_upgradeable');
+$ph['is_upgradeable'] = sessionv('is_upgradeable');
 if (!sessionv('is_upgradeable')) {
     $ph['installImg'] = 'install_new.png';
     $ph['welcome_title'] = lang('welcome_message_welcome');
@@ -26,9 +26,9 @@ if (!sessionv('is_upgradeable')) {
     $ph['installNote'] = lang('installation_upgrade_existing_note');
 }
 $ph['btnnext_value'] = lang('btnnext_value');
-$ph['lang_options']  = get_lang_options(lang_name());
+$ph['lang_options'] = get_lang_options(lang_name());
 
-echo  evo()->parseText(
+echo evo()->parseText(
     file_get_contents(
         MODX_BASE_PATH . 'install/tpl/mode.tpl')
     , $ph

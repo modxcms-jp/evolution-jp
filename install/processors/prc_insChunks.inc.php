@@ -45,7 +45,7 @@ foreach ($tplChunks as $i => $tplInfo) {
     );
     if (!db()->count($rs)) {
         $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
-        if(!$rs) {
+        if (!$rs) {
             $errors++;
             showError();
             return;
@@ -80,7 +80,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         $i++;
     }
     $rs = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
-    if(!$rs) {
+    if (!$rs) {
         $errors++;
         showError();
         return;

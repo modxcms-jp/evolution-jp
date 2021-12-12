@@ -1,6 +1,6 @@
 <?php
 
-if(!sessionv('database_server')) {
+if (!sessionv('database_server')) {
     exit('go to first step');
 }
 
@@ -25,9 +25,9 @@ $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 $callBackFnc = include(MODX_SETUP_PATH . 'setup.info.php');
 include_once(MODX_SETUP_PATH . 'sqlParser.class.php');
 $sqlParser = new SqlParser();
-$sqlParser->prefix     = sessionv('table_prefix');
-$sqlParser->adminname  = sessionv('adminname');
-$sqlParser->adminpass  = sessionv('adminpass');
+$sqlParser->prefix = sessionv('table_prefix');
+$sqlParser->adminname = sessionv('adminname');
+$sqlParser->adminpass = sessionv('adminpass');
 $sqlParser->adminemail = sessionv('adminemail');
 $sqlParser->connection_charset = sessionv('database_charset');
 $sqlParser->connection_collation = sessionv('database_collation');
@@ -35,8 +35,8 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 
 // install/update database
 
-if(sessionv('is_upgradeable') && db()->table_exists('[+prefix+]site_revision')) {
-    if(!db()->field_exists('elmid', '[+prefix+]site_revision')) {
+if (sessionv('is_upgradeable') && db()->table_exists('[+prefix+]site_revision')) {
+    if (!db()->field_exists('elmid', '[+prefix+]site_revision')) {
         db()->query(
             str_replace(
                 '[+prefix+]'
@@ -50,9 +50,9 @@ echo "<p>" . lang('setup_database_creating_tables');
 
 $sqlParser->intoDB('create_tables.sql');
 
-if(!sessionv('is_upgradeable')) {
+if (!sessionv('is_upgradeable')) {
     $sqlParser->intoDB('default_settings.sql');
-    if(is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql')) {
+    if (is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql')) {
         $sqlParser->intoDB('default_settings_custom.sql');
     }
 }
@@ -62,8 +62,8 @@ $sqlParser->intoDB('fix_settings.sql');
 if ($sqlParser->installFailed == true) {
     $errors += 1;
     printf('<span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
-    printf('<p>%s</p>',                                lang('setup_couldnt_install'));
-    printf('<p>%s<br /><br />',                        lang('installation_error_occured'));
+    printf('<p>%s</p>', lang('setup_couldnt_install'));
+    printf('<p>%s<br /><br />', lang('installation_error_occured'));
     foreach ($sqlParser->mysqlErrors as $err) {
         printf('<em>%s</em>%s<span class="mono">%s</span>.<hr />', $err['error'], lang('during_execution_of_sql'), strip_tags($err['sql']));
     }
@@ -74,16 +74,16 @@ if ($sqlParser->installFailed == true) {
 
 printf('<span class="ok">%s</span></p>', lang('ok'));
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
-$ph['database_type']               = $database_type;
-$ph['database_server']             = sessionv('database_server');
-$ph['database_user']               = db()->escape(sessionv('database_user'));
-$ph['database_password']           = db()->escape(sessionv('database_password'));
+$ph['database_type'] = $database_type;
+$ph['database_server'] = sessionv('database_server');
+$ph['database_user'] = db()->escape(sessionv('database_user'));
+$ph['database_password'] = db()->escape(sessionv('database_password'));
 $ph['database_connection_charset'] = sessionv('database_charset');
-$ph['database_connection_method']  = sessionv('database_connection_method');
-$ph['dbase']                       = trim(sessionv('dbase'),'`');
-$ph['table_prefix']                = sessionv('table_prefix');
-$ph['lastInstallTime']             = time();
-$ph['https_port']                  = '443';
+$ph['database_connection_method'] = sessionv('database_connection_method');
+$ph['dbase'] = trim(sessionv('dbase'), '`');
+$ph['table_prefix'] = sessionv('table_prefix');
+$ph['lastInstallTime'] = time();
+$ph['https_port'] = '443';
 
 $configString = evo()->parseText($configString, $ph);
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
@@ -143,7 +143,7 @@ include_once('processors/prc_insPlugins.inc.php');   // Install Plugins
 include_once('processors/prc_insSnippets.inc.php');  // Install Snippets
 
 // install data
-if (sessionv('is_upgradeable') == 0 && sessionv('installdata')==1) {
+if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     echo "<p>" . lang('installing_demo_site');
     $sqlParser->intoDB('sample_data.sql');
     if ($sqlParser->installFailed == true) {
@@ -151,12 +151,12 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata')==1) {
         printf('<span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
         echo "<p>" . lang('setup_couldnt_install') . "</p>";
         echo "<p>" . lang('installation_error_occured') . "<br /><br />";
-        foreach($sqlParser->mysqlErrors as $info) {
+        foreach ($sqlParser->mysqlErrors as $info) {
             printf(
                 '<em>%s</em>%s<span class="mono">%s</span>.<hr />'
                 , $info['error']
                 , lang('during_execution_of_sql')
-                ,strip_tags($info['sql'])
+                , strip_tags($info['sql'])
             );
         }
         echo '</p>';
@@ -175,7 +175,7 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 $cache_path = MODX_BASE_PATH . 'assets/cache/';
 
 $files = glob($cache_path . "*.idx.php");
-foreach($files as $file) {
+foreach ($files as $file) {
     @unlink($file);
 }
 
@@ -198,7 +198,7 @@ echo "<p><b>" . lang('installation_successful') . "</b></p>";
 echo "<p>" . lang('to_log_into_content_manager') . "</p>";
 echo '<p><img src="img/ico_info.png" align="left" style="margin-right:10px;" />';
 
-if(sessionv('is_upgradeable') == 0) {
+if (sessionv('is_upgradeable') == 0) {
     echo lang('installation_note');
 } else {
     echo lang('upgrade_note');
@@ -208,14 +208,17 @@ echo '</p>';
 
 $_SESSION = array();
 
-function ok($name,$msg) {
+function ok($name, $msg)
+{
     return sprintf('<p>&nbsp;&nbsp;%s: <span class="ok">%s</span></p>', $name, $msg) . "\n";
 }
 
-function ng($name,$msg) {
+function ng($name, $msg)
+{
     return sprintf('<p>&nbsp;&nbsp;%s: <span class="notok">%s</span></p>', $name, $msg) . "\n";
 }
 
-function showError() {
+function showError()
+{
     printf('<p>%s</p>', db()->getLastError());
 }

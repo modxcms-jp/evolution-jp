@@ -32,10 +32,10 @@ foreach ($tplTemplates as $i => $tplInfo) {
 
     $f = array();
     $content = file_get_contents($tplInfo['tpl_file_path']);
-    $f['content']     = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $content, 1);
+    $f['content'] = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $content, 1);
     $f['description'] = $tplInfo['description'];
-    $f['category']    = getCreateDbCategory($tplInfo['category']);
-    $f['locked']      = $tplInfo['locked'];
+    $f['category'] = getCreateDbCategory($tplInfo['category']);
+    $f['locked'] = $tplInfo['locked'];
     $f = db()->escape($f);
 
     // See if the template already exists

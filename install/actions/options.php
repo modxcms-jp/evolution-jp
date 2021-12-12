@@ -30,19 +30,18 @@ if (sessionv('is_upgradeable')) {
     $ph['install_sample_site'] = block_install_sample_site($ph) . "\n";
 }
 $ph['block_templates'] = block_templates($tplTemplates, $ph);
-$ph['block_tvs']       = block_tvs($tplTVs,            $ph);
-$ph['block_chunks']    = block_chunks($tplChunks,      $ph);
-$ph['block_modules']   = block_modules($tplModules,  $ph);
-$ph['block_plugins']   = block_plugins($tplPlugins,  $ph);
-$ph['block_snippets']  = block_snippets($tplSnippets, $ph);
+$ph['block_tvs'] = block_tvs($tplTVs, $ph);
+$ph['block_chunks'] = block_chunks($tplChunks, $ph);
+$ph['block_modules'] = block_modules($tplModules, $ph);
+$ph['block_plugins'] = block_plugins($tplPlugins, $ph);
+$ph['block_snippets'] = block_snippets($tplSnippets, $ph);
 
 $ph['object_list'] = show_object_list($ph) . "\n";
 
-echo  evo()->parseText(
+echo evo()->parseText(
     file_get_contents(MODX_BASE_PATH . 'install/tpl/options.tpl'),
     $ph
 );
-
 
 
 function show_object_list($ph)

@@ -32,8 +32,8 @@ foreach ($tplModules as $i => $tplInfo) {
     $f = array();
     $f['description'] = $tplInfo['description'];
     $modulecode = getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tpl_file_path), 2));
-    $f['modulecode']  = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $modulecode, 1);
-    $f['properties']  = $tplInfo['properties'];
+    $f['modulecode'] = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $modulecode, 1);
+    $f['properties'] = $tplInfo['properties'];
     $f['enable_sharedparams'] = $tplInfo['shareparams'];
     $f = db()->escape($f);
 
