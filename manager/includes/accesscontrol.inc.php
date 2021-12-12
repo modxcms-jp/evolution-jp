@@ -15,7 +15,7 @@ if (sessionv('mgrValidated') && sessionv('usertype') !== 'manager') {
 // andrazk 20070416 - if session started before install and was not destroyed yet
 if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv('mgrValidated')) {
     if (
-        (sessionv('modx.session.created.time',0) < $lastInstallTime)
+        (sessionv('modx.session.created.time', 0) < $lastInstallTime)
         && sessionv('REQUEST_METHOD') !== 'POST'
     ) {
         if (cookiev(session_name())) {
@@ -198,7 +198,7 @@ if (manager()->action != 1) {
     $fields = array(
         'internalKey' => evo()->getLoginUserID(),
         'username' => sessionv('mgrShortname'),
-        'lasthit' => serverv('REQUEST_TIME',time()),
+        'lasthit' => serverv('REQUEST_TIME', time()),
         'action' => manager()->action,
         'id' => preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0,
         'ip' => real_ip()
@@ -224,7 +224,8 @@ if (is_file($touch_path)) {
     unlink($touch_path);
 }
 
-function installGoingOn() {
+function installGoingOn()
+{
     if (checkInstallProc()) {
         return 1;
     }
@@ -234,12 +235,13 @@ function installGoingOn() {
     return false;
 }
 
-function checkInstallProc() {
+function checkInstallProc()
+{
     $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
     if (!is_file($instcheck_path)) {
         return false;
     }
-    
+
     global $installStartTime;
     include_once($instcheck_path);
     if (!isset($installStartTime)) {

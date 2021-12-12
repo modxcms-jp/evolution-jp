@@ -1,7 +1,8 @@
 <?php
 // cache & synchronise class
 
-class synccache {
+class synccache
+{
     public $cachePath;
     public $showReport;
     public $aliases = array();
@@ -10,7 +11,8 @@ class synccache {
     public $config = array();
     public $cacheRefreshTime;
 
-    public function __construct() {
+    public function __construct()
+    {
         if (!$this->target) {
             $this->target = 'pagecache,sitecache';
         }
@@ -19,23 +21,28 @@ class synccache {
         }
     }
 
-    public function setConfig($config) {
+    public function setConfig($config)
+    {
         $this->config = $config;
     }
 
-    public function setTarget($target) {
+    public function setTarget($target)
+    {
         $this->target = $target;
     }
 
-    public function setCachepath($path) {
+    public function setCachepath($path)
+    {
         $this->cachePath = rtrim($path, '/') . '/';
     }
 
-    public function setReport($bool) {
+    public function setReport($bool)
+    {
         $this->showReport = $bool;
     }
 
-    private function getParents($id, $path = '') { // modx:returns child's parent
+    private function getParents($id, $path = '')
+    { // modx:returns child's parent
         if (empty($this->aliases)) {
             $qh = db()->select(
                 "id, IF(alias='', id, alias) AS alias, parent"
@@ -67,7 +74,8 @@ class synccache {
         );
     }
 
-    public function emptyCache() {
+    public function emptyCache()
+    {
         global $modx;
 
         if (!isset($this->cachePath)) {
@@ -99,7 +107,8 @@ class synccache {
         $this->showReport($result);
     }
 
-    private function purgeCacheFiles($target = 'pageCache') {
+    private function purgeCacheFiles($target = 'pageCache')
+    {
         if (!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
             return false;
         }
@@ -141,7 +150,8 @@ class synccache {
         return array($filesincache, count($deletedfiles), $deletedfiles);
     }
 
-    public function showReport($info) {
+    public function showReport($info)
+    {
         global $_lang;
         list($filesincache, $deletedfilesincache, $deletedfiles) = $info;
         // finished cache stuff.
@@ -161,7 +171,8 @@ class synccache {
         echo '</ul>';
     }
 
-    private function recent_update() {
+    private function recent_update()
+    {
         global $modx;
         static $recent_update = null;
 
@@ -188,7 +199,8 @@ class synccache {
         return $recent_update;
     }
 
-    public function publishBasicConfig() {
+    public function publishBasicConfig()
+    {
         global $modx, $site_sessionname;
 
         $this->recent_update();
@@ -254,11 +266,13 @@ class synccache {
         }
     }
 
-    public function setCacheRefreshTime($unixtime) {
+    public function setCacheRefreshTime($unixtime)
+    {
         $this->cacheRefreshTime = $unixtime;
     }
 
-    private function getCacheRefreshTime() {
+    private function getCacheRefreshTime()
+    {
         $time = array('cacheRefreshTime' => $this->cacheRefreshTime);
 
         $time['content_pub_date'] = $this->minTime(
@@ -301,7 +315,8 @@ class synccache {
         return min($time);
     }
 
-    private function minTime($table_name, $field_name, $where) {
+    private function minTime($table_name, $field_name, $where)
+    {
         $rs = db()->select(
             sprintf('MIN(%s) AS result', $field_name)
             , '[+prefix+]' . $table_name
@@ -317,7 +332,8 @@ class synccache {
      * build siteCache file
      * @return boolean success
      */
-    public function buildCache() {
+    public function buildCache()
+    {
         global $modx, $_lang;
 
         // invoke OnBeforeCacheUpdate event
@@ -355,7 +371,8 @@ class synccache {
         return true;
     }
 
-    private function cache_put_contents($filename, $content) {
+    private function cache_put_contents($filename, $content)
+    {
         global $_lang;
         if (!$content) {
             return;
@@ -400,7 +417,8 @@ class synccache {
         );
     }
 
-    private function _get_settings() {
+    private function _get_settings()
+    {
         global $modx;
         static $config = null;
         if ($config) {
@@ -421,7 +439,8 @@ class synccache {
         return $config;
     }
 
-    private function _legacy_cache() {
+    private function _legacy_cache()
+    {
         global $modx;
 
         $rs = db()->select(
@@ -444,7 +463,8 @@ class synccache {
         }
     }
 
-    private function alias_path($parent_id) {
+    private function alias_path($parent_id)
+    {
         if (!evo()->config('friendly_urls')) {
             return $parent_id;
         }
@@ -454,7 +474,8 @@ class synccache {
         return '';
     }
 
-    private function _get_content_types() {
+    private function _get_content_types()
+    {
         $rs = db()->select(
             'id, contentType', '[+prefix+]site_content'
             , "contentType != 'text/html'"
@@ -470,7 +491,8 @@ class synccache {
         return implode("\n", $_) . "\n";
     }
 
-    private function _get_chunks() {
+    private function _get_chunks()
+    {
         global $modx;
 
         $rs = db()->select(
@@ -484,7 +506,8 @@ class synccache {
         return $modx->chunkCache;
     }
 
-    private function _get_snippets() {
+    private function _get_snippets()
+    {
         global $modx;
         $rs = db()->select('*', '[+prefix+]site_snippets');
         $modx->snippetCache = array();
@@ -496,7 +519,8 @@ class synccache {
         return $modx->snippetCache;
     }
 
-    private function _get_plugins() {
+    private function _get_plugins()
+    {
         global $modx;
 
         $rs = db()->select('*', '[+prefix+]site_plugins', 'disabled=0');
@@ -509,7 +533,8 @@ class synccache {
         return $modx->pluginCache;
     }
 
-    private function _get_events() {
+    private function _get_events()
+    {
         $rs = db()->select(
             'sysevt.name as `evtname`, plugs.name as plgname'
             , array(
@@ -544,7 +569,8 @@ class synccache {
         return implode("\n", $_) . "\n";
     }
 
-    private function getFileList($dir, $pattern = '@\.*$@') {
+    private function getFileList($dir, $pattern = '@\.*$@')
+    {
         $dir = rtrim($dir, '/');
         $tmp = array_diff(scandir($dir), array('..', '.'));
         $files = array();

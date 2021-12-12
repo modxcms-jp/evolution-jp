@@ -5,7 +5,8 @@
  *
  */
 
-class CONFIG_MEDIATION {
+class CONFIG_MEDIATION
+{
     public $hasOutput = false;
 
     private $modx;
@@ -19,7 +20,8 @@ class CONFIG_MEDIATION {
      * @return none
      *
      */
-    public function __construct(&$orgmodx = null) {
+    public function __construct(&$orgmodx = null)
+    {
         global $modx;
         if (is_null($orgmodx)) {
             $this->modx = $modx;
@@ -35,7 +37,8 @@ class CONFIG_MEDIATION {
      * @return none
      *
      */
-    public function setParams($params) {
+    public function setParams($params)
+    {
         $this->params = $params;
     }
 
@@ -47,7 +50,8 @@ class CONFIG_MEDIATION {
      * @return bool
      *
      */
-    public function setParam($key, $val = null) {
+    public function setParam($key, $val = null)
+    {
         if (isset($this->params[$key])) {
             $this->params[$key] = $val;
             return true;
@@ -62,7 +66,8 @@ class CONFIG_MEDIATION {
      * @return all param keys
      *
      */
-    public function getParamKeys() {
+    public function getParamKeys()
+    {
         $out = array();
         if (is_array($this->params)) {
             foreach ($this->params as $key => $val) {
@@ -79,7 +84,8 @@ class CONFIG_MEDIATION {
      * @return all params
      *
      */
-    public function getParams() {
+    public function getParams()
+    {
         return $this->params;
     }
 
@@ -90,7 +96,8 @@ class CONFIG_MEDIATION {
      * @return param value oe null
      *
      */
-    public function getParam($key) {
+    public function getParam($key)
+    {
         if (isset($this->params[$key])) {
             return $this->params[$key];
         }
@@ -104,7 +111,8 @@ class CONFIG_MEDIATION {
      * @return none
      *
      */
-    public function addOutput($data) {
+    public function addOutput($data)
+    {
         $this->hasOutput = true;
         $this->output .= $data;
     }
@@ -116,7 +124,8 @@ class CONFIG_MEDIATION {
      * @return output data
      *
      */
-    public function showOutput() {
+    public function showOutput()
+    {
         return $this->output;
     }
 

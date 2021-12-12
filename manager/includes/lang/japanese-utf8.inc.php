@@ -10,7 +10,7 @@
  * Date:           2019/10/15
  * Version:        2.0.5
  * MODX version:   Evolution 1.0.0 - 1.0.23J
-*/
+ */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
@@ -1138,7 +1138,7 @@ $_lang["disabled"] = '無効';
 
 $_lang["limit_by_container"] = 'コンテナ内の表示数';
 $_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると表示を抑制します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
-$_lang["allow_mgr2web_title"]   = '認証状態を上書き';
+$_lang["allow_mgr2web_title"] = '認証状態を上書き';
 $_lang["allow_mgr2web_message"] = '管理メンバーとしてログインしている時はウェブユーザとしてもログインしている状態にします。';
 
 $_lang["No errors occured."] = "No errors occured.";
@@ -1160,7 +1160,7 @@ $_lang["Double action (GET & POST) posted!"] = "Double action (GET & POST) poste
 $_lang["Document cannot be it's own parent!"] = "Document cannot be it's own parent!";
 $_lang["Document's ID not passed in request!"] = "Document's ID not passed in request!";
 $_lang["New parent not set in request!"] = "New parent not set in request!";
-$_lang["don't know the user!" ] = "ログイン名またはパスワードが間違っています。";
+$_lang["don't know the user!"] = "ログイン名またはパスワードが間違っています。";
 $_lang["wrong password!"] = "ログイン名またはパスワードが間違っています。";
 $_lang["Due to too many failed logins, you have been blocked!"] = "ログインを数回失敗したため、一時的にアクセスが制限されています。";
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
@@ -1203,7 +1203,7 @@ $_lang["a95_convert_link_msg"] = 'サイト内リンクをリンクタグに変�
 $_lang["a17_image_limit_width_title"] = '画像の横幅の最大値';
 $_lang["a17_image_limit_width_message"] = 'アップロードする画像の横幅を自動的に縮小します。空白にすると処理しません。';
 
-$_lang["enable_bindings_title"]  = '@Bindingsを有効にする';
+$_lang["enable_bindings_title"] = '@Bindingsを有効にする';
 $_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings機能</a>を有効にします。この機能は、投稿画面上の入力フィールド(テンプレート変数)に任意のコマンドを記述し、実行するものです。PHP文の実行などが可能なため、複数メンバーでサイトを運用する場合、当機能の運用には注意が必要です。';
 
 $_lang["a83_mode_title"] = '動作モード';

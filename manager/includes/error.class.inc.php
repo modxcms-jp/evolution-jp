@@ -1,13 +1,15 @@
 <?php
 
 // this is the old error handler. Here for legacy, until i replace all the old errors.
-class errorHandler {
+class errorHandler
+{
 
     public $errorcode = null;
     public $errors = array();
     private $errormessage;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->errors = array(
             0 => lang('No errors occured.'),
             1 => lang('An error occured!'),
@@ -39,7 +41,8 @@ class errorHandler {
         );
     }
 
-    public function setError($errorcode, $message = '') {
+    public function setError($errorcode, $message = '')
+    {
         $this->errorcode = $errorcode;
         if ($message) {
             $this->errormessage = $message;
@@ -48,11 +51,13 @@ class errorHandler {
         $this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
     }
 
-    public function hasError() {
+    public function hasError()
+    {
         return $this->errorcode;
     }
 
-    public function dumpError() {
+    public function dumpError()
+    {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         echo evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl')
@@ -66,7 +71,8 @@ class errorHandler {
         exit;
     }
 
-    private function prev() {
+    private function prev()
+    {
         if (isset($_GET['count_attempts'])) {
             return 'index.php?a=2';
         }
@@ -82,7 +88,8 @@ class errorHandler {
         );
     }
 
-    private function getError() {
+    private function getError()
+    {
         return $this->errorcode;
     }
 }

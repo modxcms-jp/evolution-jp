@@ -1,8 +1,10 @@
 <?php
 $this->old = new OldFunctions();
 
-class OldFunctions {
-    function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0) {
+class OldFunctions
+{
+    function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)
+    {
         global $modx;
         // first find out whether the value passed is an array
         if (!is_array($array)) {
@@ -35,14 +37,16 @@ class OldFunctions {
         return $listhtml;
     }
 
-    function getUserData() {
+    function getUserData()
+    {
         $client['host'] = $_SERVER['REMOTE_ADDR'];
         $client['ip'] = $_SERVER['REMOTE_ADDR'];
         $client['ua'] = $_SERVER['HTTP_USER_AGENT'];
         return $client;
     }
 
-    function insideManager() {
+    function insideManager()
+    {
         $m = false;
         if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true') {
             $m = true;
@@ -55,21 +59,25 @@ class OldFunctions {
         return $m;
     }
 
-    function putChunk($chunkName) {
+    function putChunk($chunkName)
+    {
         global $modx;
         return $modx->getChunk($chunkName);
     }// deprecated alias name >.<
 
-    function getDocGroups() {
+    function getDocGroups()
+    {
         global $modx;
         return $modx->getUserDocGroups();
     } // deprecated
 
-    function changePassword($o, $n) {
+    function changePassword($o, $n)
+    {
         return changeWebUserPassword($o, $n);
     } // deprecated
 
-    function userLoggedIn() {
+    function userLoggedIn()
+    {
         global $modx;
         $userdetails = array();
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
@@ -91,7 +99,8 @@ class OldFunctions {
         }
     }
 
-    function makeFriendlyURL($pre, $suff, $path) {
+    function makeFriendlyURL($pre, $suff, $path)
+    {
         global $modx;
         $elements = explode('/', $path);
         $alias = array_pop($elements);
@@ -110,7 +119,8 @@ class OldFunctions {
     }
 
     # Displays a javascript alert message in the web browser
-    function webAlert($msg, $url = '') {
+    function webAlert($msg, $url = '')
+    {
         global $modx;
 
         $msg = addslashes(db()->escape($msg));
@@ -128,7 +138,8 @@ class OldFunctions {
         }
     }
 
-    function makeDocumentListing() {
+    function makeDocumentListing()
+    {
         global $modx;
 
         $cache_path = MODX_BASE_PATH . 'assets/cache/documentListing.siteCache.idx.php';

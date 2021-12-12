@@ -135,7 +135,8 @@ $GLOBALS['action_list'] = array(
     '999' => 'Custom action',
 );
 
-function getAction($actionId, $itemid = '') {
+function getAction($actionId, $itemid = '')
+{
     global $action_list;
 
     $ret = sprintf($action_list[$actionId], $itemid);

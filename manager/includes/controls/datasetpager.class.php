@@ -10,7 +10,8 @@
 
 $__DataSetPagerCnt = 0;
 
-class DataSetPager {
+class DataSetPager
+{
 
     var $ds; // datasource
     var $pageSize;
@@ -27,7 +28,8 @@ class DataSetPager {
     var $selPageStyle;
     var $selPageClass;
 
-    function __construct($id, $ds, $pageSize = 10, $pageNumber = -1) {
+    function __construct($id, $ds, $pageSize = 10, $pageNumber = -1)
+    {
         global $_PAGE; // use view state object
 
         global $__DataSetPagerCnt;
@@ -57,33 +59,40 @@ class DataSetPager {
         $this->pager = '';
     }
 
-    function getRenderedPager() {
+    function getRenderedPager()
+    {
         return $this->pager;
     }
 
-    function getRenderedRows() {
+    function getRenderedRows()
+    {
         return $this->rows;
     }
 
-    function setDataSource($ds) {
+    function setDataSource($ds)
+    {
         $this->ds = $ds;
     }
 
-    function setPageSize($ps) {
+    function setPageSize($ps)
+    {
         $this->pageSize = $ps;
     }
 
-    function setRenderRowFnc($fncName, $args = '') {
+    function setRenderRowFnc($fncName, $args = '')
+    {
         $this->renderRowFnc = &$fncName;
         $this->renderRowFncArgs = $args;    // extra agruments
     }
 
-    function setRenderPagerFnc($fncName, $args = "") {
+    function setRenderPagerFnc($fncName, $args = "")
+    {
         $this->renderPagerFnc = $fncName;
         $this->renderPagerFncArgs = $args;    // extra agruments
     }
 
-    function render() {
+    function render()
+    {
         global $modx, $_PAGE;
 
         $isDataset = $modx->db->isResult($this->ds);

@@ -1,10 +1,12 @@
 <?php
 
-class ContextMenu {
+class ContextMenu
+{
 
     var $i;
 
-    function __construct($id = '', $width = 120, $visible = false) {
+    function __construct($id = '', $width = 120, $visible = false)
+    {
         global $ContextMenuCnt;
         if (!$ContextMenuCnt) {
             $ContextMenuCnt = 0;
@@ -17,7 +19,8 @@ class ContextMenu {
         $this->i = 0;
     }
 
-    function addItem($text, $action = "", $img = "", $disabled = 0) {
+    function addItem($text, $action = "", $img = "", $disabled = 0)
+    {
         global $base_url, $manager_theme, $_style;
         if (!$img) {
             $img = $base_url . $_style['tx'];
@@ -43,13 +46,15 @@ class ContextMenu {
         $this->i++;
     }
 
-    function addSeparator() {
+    function addSeparator()
+    {
         $this->html .= "
 			<div class='cntxMnuSeparator'></div>
 		";
     }
 
-    function render() {
+    function render()
+    {
         global $modx;
         global $ContextMenuScript;
 
@@ -59,7 +64,8 @@ class ContextMenu {
         return $html;
     }
 
-    function getClientScriptObject() {
+    function getClientScriptObject()
+    {
         return "getCntxMenu('" . $this->id . "')";
     }
 }

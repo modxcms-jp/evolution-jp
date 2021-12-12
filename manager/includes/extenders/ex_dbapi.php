@@ -1,10 +1,10 @@
 <?php
 include_once(
-    sprintf(
-        '%s/dbapi/%s.inc.php'
-        , __DIR__
-        , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
-    )
+sprintf(
+    '%s/dbapi/%s.inc.php'
+    , __DIR__
+    , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
+)
 );
 global $modx;
 $modx = $this;
@@ -33,7 +33,7 @@ $this->db->table_prefix = $table_prefix;
 $this->db->lastInstallTime = $lastInstallTime;
 
 $rs = $this->db->connect();
-if(!$rs) {
+if (!$rs) {
     exit('Cannot access db');
 }
 // alias for backward compatibility

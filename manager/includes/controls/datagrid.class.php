@@ -10,7 +10,8 @@
 
 $__DataGridCnt = 0;
 
-class DataGrid {
+class DataGrid
+{
 
     public $ds; // datasource
 
@@ -53,7 +54,8 @@ class DataGrid {
     public $src_encode;
     public $detectHeader;
 
-    function __construct($id = '', $ds = '', $pageSize = 20, $pageNumber = -1) {
+    function __construct($id = '', $ds = '', $pageSize = 20, $pageNumber = -1)
+    {
         global $__DataGridCnt;
 
         // set id
@@ -76,7 +78,8 @@ class DataGrid {
         $this->src_encode = evo()->config['modx_charset'];
     }
 
-    function setDataSource() {
+    function setDataSource()
+    {
         if (db()->isResult($this->ds)) {
             return;
         }
@@ -91,7 +94,8 @@ class DataGrid {
         $this->ds = $ds;
     }
 
-    function RenderRowFnc($n, $row) {
+    function RenderRowFnc($n, $row)
+    {
         if ($this->_alt == 0) {
             $Style = $this->_itemStyle;
             $Class = $this->_itemClass;
@@ -148,7 +152,8 @@ class DataGrid {
     }
 
     // format column values
-    function formatColumnValue($row, $value, $type, &$align) {
+    function formatColumnValue($row, $value, $type, &$align)
+    {
         global $modx;
         if (strpos($type, ":") !== false) {
             list($type, $type_format) = explode(":", $type, 2);
@@ -232,7 +237,8 @@ class DataGrid {
         return $value;
     }
 
-    function render() {
+    function render()
+    {
         // set datasource
         $this->setDataSource();
 

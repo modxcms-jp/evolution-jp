@@ -453,7 +453,7 @@ class MODIFIERS
         $this->value = $value;
         $this->opt = $opt;
         switch ($cmd) {
-                // Conditional Modifiers
+            // Conditional Modifiers
             case 'input':
             case 'if':
                 if (!$opt) {
@@ -612,9 +612,9 @@ class MODIFIERS
                     return $map[$value];
                 }
                 return '';
-                // End of Conditional Modifiers
+            // End of Conditional Modifiers
 
-                // Encode / Decode / Hash / Escape
+            // Encode / Decode / Hash / Escape
             case 'htmlent':
             case 'htmlentities':
                 return htmlentities($value, ENT_QUOTES, evo()->config('modx_charset', 'utf-8'));
@@ -693,7 +693,7 @@ class MODIFIERS
             case 'json_encode':
             case 'json_decode':
                 return $cmd($value);
-                // String Modifiers
+            // String Modifiers
             case 'lcase':
             case 'strtolower':
             case 'lower_case':
@@ -762,7 +762,7 @@ class MODIFIERS
                     return wordwrap($value, $width, "\n", true);
                 }
                 $chunk = array();
-                $bt    = '';
+                $bt = '';
                 while ($bt != $value) {
                     $bt = $value;
                     if ($this->strlen($value) < $width) {
@@ -770,7 +770,7 @@ class MODIFIERS
                         break;
                     }
                     $chunk[] = $this->substr($value, 0, $width);
-                    $value   = $this->substr($value, $width);
+                    $value = $this->substr($value, $width);
                 }
                 return implode("\n", $chunk);
             case 'substr':
@@ -923,13 +923,13 @@ class MODIFIERS
                     return $cmd($value);
                 }
                 return $cmd($value, $opt);
-                // These are all straight wrappers for PHP functions
+            // These are all straight wrappers for PHP functions
             case 'ucfirst':
             case 'lcfirst':
             case 'ucwords':
                 return $this->$cmd($value);
 
-                // Date time format
+            // Date time format
             case 'strftime':
             case 'date':
             case 'dateformat':
@@ -950,7 +950,7 @@ class MODIFIERS
                 return evo()->mb_strftime($opt, 0 + $value);
             case 'strtotime':
                 return strtotime($value);
-                // mathematical function
+            // mathematical function
             case 'toint':
                 return (int)$value;
             case 'tofloat':
@@ -1001,7 +1001,7 @@ class MODIFIERS
                 }
                 $cmd($swap, $opt);
                 return implode($delim, $swap);
-                // Resource fields
+            // Resource fields
             case 'id':
                 if ($opt) {
                     return $this->getDocumentObject($opt, $key);
@@ -1122,7 +1122,7 @@ class MODIFIERS
                 }
                 return evo()->makeUrl($value, '', '', $opt);
 
-                // File system
+            // File system
             case 'getimageinfo':
             case 'imageinfo':
                 if (!is_file($value)) {
@@ -1210,7 +1210,7 @@ class MODIFIERS
                     return filesize($filename);
                 }
                 return '';
-                // User info
+            // User info
             case 'username':
             case 'fullname':
             case 'role':
@@ -1247,7 +1247,7 @@ class MODIFIERS
                 }
                 $this->value = -$value;
                 return $this->includeMdfFile('moduser');
-                // Special functions
+            // Special functions
             case 'ifempty':
             case '_default':
             case 'default':
@@ -1320,7 +1320,7 @@ class MODIFIERS
                     round($opt * 0.5625),
                     $value
                 );
-                //case 'youtube4x3':%s*0.75＋25
+            //case 'youtube4x3':%s*0.75＋25
             case 'setvar':
                 $modx->placeholders[$opt] = $value;
                 return '';
@@ -1342,7 +1342,7 @@ class MODIFIERS
             case 'dummy':
                 return $value;
 
-                // If we haven't yet found the modifier, let's look elsewhere
+            // If we haven't yet found the modifier, let's look elsewhere
             default:
                 $_ = compact('key', 'value', 'cmd', 'opt');
                 $_['url'] = $_SERVER['REQUEST_URI'];
@@ -1516,16 +1516,16 @@ class MODIFIERS
             return ucfirst($str);
         }
         return mb_strtoupper(
-            $this->substr(
+                $this->substr(
+                    $str,
+                    0,
+                    1
+                )
+            ) . $this->substr(
                 $str,
-                0,
-                1
-            )
-        ) . $this->substr(
-            $str,
-            1,
-            $this->strlen($str)
-        );
+                1,
+                $this->strlen($str)
+            );
     }
 
     private function lcfirst($str)
@@ -1534,16 +1534,16 @@ class MODIFIERS
             return lcfirst($str);
         }
         return mb_strtolower(
-            $this->substr(
+                $this->substr(
+                    $str,
+                    0,
+                    1
+                )
+            ) . $this->substr(
                 $str,
-                0,
-                1
-            )
-        ) . $this->substr(
-            $str,
-            1,
-            $this->strlen($str)
-        );
+                1,
+                $this->strlen($str)
+            );
     }
 
     private function ucwords($str)

@@ -1,12 +1,12 @@
 <?php
 /**
-* Country List Language File
-* Version: 1.0
-* Date: 31/10/2006
-*
-* Array keys refer to the ID number that is saved in the database
-*
-*/
+ * Country List Language File
+ * Version: 1.0
+ * Date: 31/10/2006
+ *
+ * Array keys refer to the ID number that is saved in the database
+ *
+ */
 
 $_country_lang["1"] = 'Afghanistan';
 $_country_lang["2"] = 'Albania';

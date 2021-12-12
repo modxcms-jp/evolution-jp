@@ -15,7 +15,8 @@ if (!isset($modx) || !is_object($modx)) {
     exit;
 }
 
-class Mysqldumper {
+class Mysqldumper
+{
     public $_dbtables;
     public $_isDroptables;
     public $database_server;
@@ -23,7 +24,8 @@ class Mysqldumper {
     public $table_prefix;
     public $contentsOnly;
 
-    public function __construct() {
+    public function __construct()
+    {
         if (db()->config['host'] === '127.0.0.1') {
             $this->database_server = 'localhost';
         } else {
@@ -37,7 +39,8 @@ class Mysqldumper {
         $this->_dbtables = array();
     }
 
-    public function setDBtables($dbtables = false) {
+    public function setDBtables($dbtables = false)
+    {
         if (!$dbtables) {
             $this->_dbtables = $this->getTableNames();
             return;
@@ -45,22 +48,26 @@ class Mysqldumper {
         $this->_dbtables = $dbtables;
     }
 
-    public function addDropCommand($state) {
+    public function addDropCommand($state)
+    {
         $this->_isDroptables = $state;
     }
 
-    private function isDroptables() {
+    private function isDroptables()
+    {
         return $this->_isDroptables;
     }
 
-    private function is_log_table($table_name) {
+    private function is_log_table($table_name)
+    {
         if ($this->in_array($table_name, array('event_log', 'manager_log'))) {
             return true;
         }
         return false;
     }
 
-    private function is_content_table($table_name) {
+    private function is_content_table($table_name)
+    {
         if (!$this->in_array(
             $table_name
             , array(
@@ -79,7 +86,8 @@ class Mysqldumper {
         return true;
     }
 
-    public function createDump() {
+    public function createDump()
+    {
         if (empty($this->database_server) || empty($this->dbname)) {
             return false;
         }
@@ -94,7 +102,7 @@ class Mysqldumper {
         // Set line feed
         $lf = "\n";
         $tempfile_path = MODX_BASE_PATH . 'assets/cache/bktemp.pageCache.php';
-        if(is_file($tempfile_path)) {
+        if (is_file($tempfile_path)) {
             unlink($tempfile_path);
         }
 
@@ -217,7 +225,8 @@ class Mysqldumper {
         return $output;
     }
 
-    private function in_array($table_name, $table_names) {
+    private function in_array($table_name, $table_names)
+    {
         foreach ($table_names as $name) {
             if ($table_name === $this->table_prefix . $name) {
                 return true;
@@ -226,7 +235,8 @@ class Mysqldumper {
         return false;
     }
 
-    private function convertValues($row) {
+    private function convertValues($row)
+    {
         switch ($row['setting_name']) {
             case 'filemanager_path':
             case 'rb_base_dir':
@@ -248,7 +258,8 @@ class Mysqldumper {
         return $row;
     }
 
-    private function object2Array($obj) {
+    private function object2Array($obj)
+    {
         if (!is_object($obj)) {
             return null;
         }
@@ -264,7 +275,8 @@ class Mysqldumper {
     }
 
     // Private function result2Array.
-    private function result2Array($numinarray = 0, $resource) {
+    private function result2Array($numinarray = 0, $resource)
+    {
         $array = array();
         while ($row = db()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
@@ -273,7 +285,8 @@ class Mysqldumper {
         return $array;
     }
 
-    public function dumpSql(&$dumpstring) {
+    public function dumpSql(&$dumpstring)
+    {
         if (!headers_sent()) {
             header('Expires: 0');
             header('Cache-Control: private');
@@ -301,7 +314,8 @@ class Mysqldumper {
         return true;
     }
 
-    function snapshot($path, &$dumpstring) {
+    function snapshot($path, &$dumpstring)
+    {
         $rs = file_put_contents($path, $dumpstring);
         if ($rs) {
             @chmod($path, 0666);
@@ -309,7 +323,8 @@ class Mysqldumper {
         return $rs;
     }
 
-    function import_sql($source) {
+    function import_sql($source)
+    {
         if (strpos($source, "\r") !== false) {
             $source = str_replace(array("\r\n", "\r"), "\n", $source);
         }
@@ -334,7 +349,8 @@ class Mysqldumper {
     }
 
 
-    function getSettings() {
+    function getSettings()
+    {
         $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
         $settings = array();
         while ($row = db()->getRow($rs)) {
@@ -365,7 +381,8 @@ class Mysqldumper {
         return $settings;
     }
 
-    function restoreSettings($settings) {
+    function restoreSettings($settings)
+    {
         foreach ($settings as $k => $v) {
             db()->update(
                 array('setting_value' => $v)
@@ -375,7 +392,8 @@ class Mysqldumper {
         }
     }
 
-    function getTableNames($dbname = '', $table_prefix = '') {
+    function getTableNames($dbname = '', $table_prefix = '')
+    {
         if (!$table_prefix) {
             $table_prefix = $this->table_prefix;
         }

@@ -1,6 +1,7 @@
 <?php
 
-class EXPORT_SITE {
+class EXPORT_SITE
+{
     var $targetDir;
     var $generate_mode;
     var $total;
@@ -14,7 +15,8 @@ class EXPORT_SITE {
     var $maxtime;
     var $lock_file_path;
 
-    function __construct() {
+    function __construct()
+    {
         global $modx;
 
         if (!defined('MODX_BASE_PATH')) {
@@ -34,24 +36,28 @@ class EXPORT_SITE {
         $this->lock_file_path = MODX_BASE_PATH . 'assets/cache/export.lock';
     }
 
-    function getPastTime() {
+    function getPastTime()
+    {
         return time() - request_time();
     }
 
-    function setExportDir($dir) {
+    function setExportDir($dir)
+    {
         $dir = str_replace('\\', '/', $dir);
         $dir = rtrim($dir, '/');
         $this->targetDir = $dir;
     }
 
-    function get_mtime() {
+    function get_mtime()
+    {
         $mtime = microtime();
         $mtime = explode(' ', $mtime);
         $mtime = $mtime[1] + $mtime[0];
         return $mtime;
     }
 
-    function setUrlMode() {
+    function setUrlMode()
+    {
         global $modx;
 
         if ($modx->config['friendly_urls'] == 0) {
@@ -61,7 +67,8 @@ class EXPORT_SITE {
         }
     }
 
-    function getTotal($allow_ids = '', $ignore_ids = '', $noncache = '0') {
+    function getTotal($allow_ids = '', $ignore_ids = '', $noncache = '0')
+    {
         global $modx;
 
         if ($allow_ids !== '') {
@@ -95,7 +102,8 @@ class EXPORT_SITE {
         return $row['total'];
     }
 
-    function removeDirectoryAll($directory = '') {
+    function removeDirectoryAll($directory = '')
+    {
         if (empty($directory)) {
             $directory = $this->targetDir;
         }
@@ -131,7 +139,8 @@ class EXPORT_SITE {
         return $rs;
     }
 
-    function makeFile($docid, $filepath) {
+    function makeFile($docid, $filepath)
+    {
         global $modx, $_lang;
 
         $pastTime = $this->getPastTime();
@@ -177,7 +186,8 @@ class EXPORT_SITE {
         }
     }
 
-    function getFileName($docid, $alias = '', $prefix, $suffix) {
+    function getFileName($docid, $alias = '', $prefix, $suffix)
+    {
         global $modx;
 
         if ($alias === '') {
@@ -191,7 +201,8 @@ class EXPORT_SITE {
         return $filename;
     }
 
-    function run($parent = 0) {
+    function run($parent = 0)
+    {
         global $_lang;
         global $modx;
         $ids = $this->allow_ids ? $this->allow_ids : $this->ignore_ids;
@@ -293,7 +304,8 @@ class EXPORT_SITE {
         return join("\n", $this->output);
     }
 
-    function get_contents($url, $timeout = 10) {
+    function get_contents($url, $timeout = 10)
+    {
         if (!extension_loaded('curl')) {
             return @file_get_contents($url);
         }
@@ -327,7 +339,8 @@ class EXPORT_SITE {
         return $result;
     }
 
-    function makeMsg($cond, $status = 'success') {
+    function makeMsg($cond, $status = 'success')
+    {
         global $modx, $_lang;
 
         $tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>';

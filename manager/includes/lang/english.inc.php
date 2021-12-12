@@ -7,7 +7,7 @@
  * Date:           23 December 2010
  * Version:        2.0.5
  * MODX version:   Evolution 1.0.10
-*/
+ */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
@@ -1135,7 +1135,7 @@ $_lang["disabled"] = 'disabled';
 
 $_lang["limit_by_container"] = 'The number of displays in a container';
 $_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Containers only';
-$_lang["allow_mgr2web_title"]   = 'Override attestation state';
+$_lang["allow_mgr2web_title"] = 'Override attestation state';
 $_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
 
 $_lang["No errors occured."] = "No errors occured.";
@@ -1157,7 +1157,7 @@ $_lang["Double action (GET & POST) posted!"] = "Double action (GET & POST) poste
 $_lang["Document cannot be it's own parent!"] = "Document cannot be it's own parent!";
 $_lang["Document's ID not passed in request!"] = "Document's ID not passed in request!";
 $_lang["New parent not set in request!"] = "New parent not set in request!";
-$_lang["don't know the user!" ] = "Incorrect username or password entered!";
+$_lang["don't know the user!"] = "Incorrect username or password entered!";
 $_lang["wrong password!"] = "Incorrect username or password entered!";
 $_lang["Due to too many failed logins, you have been blocked!"] = "Due to too many failed logins, you have been blocked!";
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
@@ -1200,7 +1200,7 @@ $_lang["a95_convert_link_msg"] = 'Convert the link in the site into an link tag.
 $_lang["a17_image_limit_width_title"] = 'The maximum of the width of the image(px)';
 $_lang["a17_image_limit_width_message"] = 'Reduce the width of the image to upload automatically. Do not handle it when make a blank.';
 
-$_lang["enable_bindings_title"]  = 'Enable @Bindings commands';
+$_lang["enable_bindings_title"] = 'Enable @Bindings commands';
 $_lang['enable_bindings_message'] = 'Enable <a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings commands</a>. Describe any command in the entry field (template variable) on the contribution screen and carry out this function. When manage a site in plural members because the practice of the PHP sentence is possible, attention is necessary for the use of this function.';
 
 $_lang["a83_mode_title"] = 'Generate mode';

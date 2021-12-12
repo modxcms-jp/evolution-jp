@@ -1,8 +1,8 @@
 <label
-    for="tv_[+id+]_[+i+]"
+        for="tv_[+id+]_[+i+]"
 ><input
-    type="radio"
-    value="[+value+]"
-    id="tv_[+id+]_[+i+]"
-    name="tv[+id+]" [+checked+]
-/>[+label+]</label>
+            type="radio"
+            value="[+value+]"
+            id="tv_[+id+]_[+i+]"
+            name="tv[+id+]" [+checked+]
+    />[+label+]</label>

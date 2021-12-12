@@ -5,7 +5,8 @@
  *
  */
 
-class DBAPI {
+class DBAPI
+{
 
     var $conn;
     var $config;
@@ -30,7 +31,8 @@ class DBAPI {
         $prefix = null,
         $charset = '',
         $connection_method = 'SET CHARACTER SET'
-    ) {
+    )
+    {
         global $database_server, $dbase, $database_user, $database_password, $table_prefix, $database_connection_charset, $database_connection_method;
 
         $this->config['host'] = $host ? $host : $database_server;
@@ -54,7 +56,8 @@ class DBAPI {
      * @name:  connect
      *
      */
-    function connect($host = '', $uid = '', $pwd = '', $dbase = '', $persist = 0) {
+    function connect($host = '', $uid = '', $pwd = '', $dbase = '', $persist = 0)
+    {
         global $modx;
 
         if ($host) {
@@ -146,7 +149,8 @@ class DBAPI {
         return true;
     }
 
-    function select_db($dbase = '') {
+    function select_db($dbase = '')
+    {
         if ($dbase) {
             return mysql_select_db($dbase, $this->conn);
         }
@@ -156,12 +160,14 @@ class DBAPI {
      * @name:  disconnect
      *
      */
-    function disconnect() {
+    function disconnect()
+    {
         @ mysql_close($this->conn);
         $this->conn = null;
     }
 
-    function escape($s, $safecount = 0) {
+    function escape($s, $safecount = 0)
+    {
         $safecount++;
         if (1000 < $safecount) {
             exit("Too many loops '{$safecount}'");
@@ -199,7 +205,8 @@ class DBAPI {
      * @desc:  Mainly for internal use.
      * Developers should use select, update, insert, delete where possible
      */
-    function query($sql, $watchError = true) {
+    function query($sql, $watchError = true)
+    {
         global $modx;
         if (!$this->isConnected()) {
             $rs = $this->connect();
@@ -259,7 +266,8 @@ class DBAPI {
      * @name:  delete
      *
      */
-    function delete($from, $where = '', $orderby = '', $limit = '') {
+    function delete($from, $where = '', $orderby = '', $limit = '')
+    {
         global $modx;
         if (!$from) {
             $modx->messageQuit("Empty \$from parameters in DBAPI::delete().");
@@ -282,7 +290,8 @@ class DBAPI {
      * @name:  select
      *
      */
-    function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
+    function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '')
+    {
         global $modx;
 
         if (is_array($fields)) {
@@ -318,7 +327,8 @@ class DBAPI {
      * @name:  update
      *
      */
-    function update($fields, $table, $where = '', $orderby = '', $limit = '') {
+    function update($fields, $table, $where = '', $orderby = '', $limit = '')
+    {
         global $modx;
         if (!$table) {
             $modx->messageQuit("Empty \$table parameter in DBAPI::update().");
@@ -349,7 +359,8 @@ class DBAPI {
      * @name:  insert
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->__insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
@@ -357,7 +368,8 @@ class DBAPI {
      * @name:  insert ignore
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->__insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
@@ -365,11 +377,13 @@ class DBAPI {
      * @name:  replace
      * @desc:  returns either last id inserted or the result from the query
      */
-    function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
-    function save($fields, $table, $where = '') {
+    function save($fields, $table, $where = '')
+    {
 
         if ($where === '') {
             $mode = 'insert';
@@ -394,7 +408,8 @@ class DBAPI {
         $fromtable = '',
         $where = '',
         $limit = ''
-    ) {
+    )
+    {
         global $modx;
         if (!$intotable) {
             $modx->messageQuit('Empty $intotable parameters in DBAPI::insert().');
@@ -459,7 +474,8 @@ class DBAPI {
      * @name:  freeResult
      *
      */
-    function freeResult($conn = null) {
+    function freeResult($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -470,7 +486,8 @@ class DBAPI {
      * @name:  fieldName
      *
      */
-    function fieldName($rs, $col = 0) {
+    function fieldName($rs, $col = 0)
+    {
         return mysql_field_name($rs, $col);
     }
 
@@ -478,7 +495,8 @@ class DBAPI {
      * @name:  selectDb
      *
      */
-    function selectDb($name) {
+    function selectDb($name)
+    {
         mysql_select_db($name);
     }
 
@@ -486,7 +504,8 @@ class DBAPI {
      * @name:  getInsertId
      *
      */
-    function getInsertId($conn = null) {
+    function getInsertId($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -497,7 +516,8 @@ class DBAPI {
      * @name:  getAffectedRows
      *
      */
-    function getAffectedRows($conn = null) {
+    function getAffectedRows($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -508,14 +528,16 @@ class DBAPI {
      * @name:  getLastError
      *
      */
-    function getLastError($conn = null) {
+    function getLastError($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
         return mysql_error($conn);
     }
 
-    function getLastErrorNo($conn = null) {
+    function getLastErrorNo($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -526,7 +548,8 @@ class DBAPI {
      * @name:  getRecordCount
      *
      */
-    function getRecordCount($rs, $from = '', $where = '') {
+    function getRecordCount($rs, $from = '', $where = '')
+    {
         if ($this->isResult($rs)) {
             return mysql_num_rows($rs);
         } elseif (is_string($rs) && !empty($where)) {
@@ -543,7 +566,8 @@ class DBAPI {
      * @param: $dsq - dataset
      *
      */
-    function getRow($ds, $mode = 'assoc', $where = '', $orderby = '', $limit = '') {
+    function getRow($ds, $mode = 'assoc', $where = '', $orderby = '', $limit = '')
+    {
         if (is_string($ds)) {
             if ($where) {
                 return $this->getRow($this->select($ds, $mode, $where, $orderby, $limit));
@@ -573,7 +597,8 @@ class DBAPI {
         }
     }
 
-    function getRows($rs, $mode = 'assoc') {
+    function getRows($rs, $mode = 'assoc')
+    {
 
         if (is_string($rs)) {
             if ($where) {
@@ -600,7 +625,8 @@ class DBAPI {
      * @desc:  returns an array of the values found on colun $name
      * @param: $dsq - dataset or query string
      */
-    function getColumn($name, $dsq) {
+    function getColumn($name, $dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
@@ -620,7 +646,8 @@ class DBAPI {
      * @desc:  returns an array containing the column $name
      * @param: $dsq - dataset or query string
      */
-    function getColumnNames($dsq) {
+    function getColumnNames($dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
@@ -639,7 +666,8 @@ class DBAPI {
      * @desc:  returns the value from the first column in the set
      * @param: $rs - dataset or query string
      */
-    function getValue($rs, $from = '', $where = '') {
+    function getValue($rs, $from = '', $where = '')
+    {
         if (is_string($rs)) {
             if ($from && $where) {
                 $rs = $this->select($rs, $from, $where, $orderby, $limit);
@@ -659,7 +687,8 @@ class DBAPI {
      *          if the recordset was empty, returns false if no recordset
      *          was passed
      */
-    function makeArray($rs = '') {
+    function makeArray($rs = '')
+    {
         if (!$rs) {
             return false;
         }
@@ -676,7 +705,8 @@ class DBAPI {
      *
      * @return string
      */
-    function getVersion() {
+    function getVersion()
+    {
         if (!$this->isConnected()) {
             $rs = $this->connect();
             if (!$rs) {
@@ -686,11 +716,13 @@ class DBAPI {
         return mysql_get_server_info();
     }
 
-    function server_info() {
+    function server_info()
+    {
         return $this->getVersion();
     }
 
-    function host_info() {
+    function host_info()
+    {
         return mysql_get_host_info();
     }
 
@@ -704,7 +736,8 @@ class DBAPI {
      * @param string $orderby
      * @return an object of row from query, or return false if empty query
      */
-    function getObject($table, $where, $orderby = '') {
+    function getObject($table, $where, $orderby = '')
+    {
         $table = $this->replaceFullTableName($table, 'force');
         $rs = $this->select('*', $table, $where, $orderby, 1);
         if ($this->getRecordCount($rs) == 0) {
@@ -720,7 +753,8 @@ class DBAPI {
      * @param string $sql
      * @return an object of row from query, or return false if empty query
      */
-    function getObjectSql($sql) {
+    function getObjectSql($sql)
+    {
         $rs = $this->query($sql);
         if ($this->getRecordCount($rs) == 0) {
             return false;
@@ -741,7 +775,8 @@ class DBAPI {
      * @param type $limit
      * @return type
      */
-    function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0) {
+    function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0)
+    {
         $sql_or_table = trim($sql_or_table);
         if ((stripos($sql_or_table, 'select') === 0) || (stripos($sql_or_table, 'show') === 0)) {
             $sql = $sql_or_table;
@@ -762,11 +797,13 @@ class DBAPI {
 
     }
 
-    function isResult($rs) {
+    function isResult($rs)
+    {
         return is_resource($rs);
     }
 
-    function getFullTableName($table_name) {
+    function getFullTableName($table_name)
+    {
         $dbase = trim($this->dbname, '`');
         return "`{$dbase}`.`{$this->table_prefix}{$table_name}`";
     }
@@ -778,7 +815,8 @@ class DBAPI {
      * @param string $table_name
      * @return string
      */
-    function replaceFullTableName($table_name, $force = null) {
+    function replaceFullTableName($table_name, $force = null)
+    {
         $table_name = trim($table_name);
         $dbase = trim($this->dbname, '`');
         $prefix = $this->table_prefix;
@@ -799,7 +837,8 @@ class DBAPI {
      * @name:  getXML
      * @desc:  returns an XML formay of the dataset $ds
      */
-    function getXML($dsq) {
+    function getXML($dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
@@ -823,7 +862,8 @@ class DBAPI {
      *         table
      * @param: $table: the full name of the database table
      */
-    function getTableMetaData($table) {
+    function getTableMetaData($table)
+    {
         $metadata = false;
         if (!empty ($table)) {
             $sql = "SHOW FIELDS FROM {$table}";
@@ -845,7 +885,8 @@ class DBAPI {
      * @param: $fieldType: the type of field to format the date for
      *         (in MySQL, you have DATE, TIME, YEAR, and DATETIME)
      */
-    function prepareDate($timestamp, $fieldType = 'DATETIME') {
+    function prepareDate($timestamp, $fieldType = 'DATETIME')
+    {
         $date = '';
         if ($timestamp !== false && $timestamp > 0) {
             switch ($fieldType) {
@@ -894,7 +935,8 @@ class DBAPI {
      *         pagerStyle
      *
      */
-    function getHTMLGrid($dsq, $params) {
+    function getHTMLGrid($dsq, $params)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
@@ -935,7 +977,8 @@ class DBAPI {
         }
     }
 
-    function optimize($table_name) {
+    function optimize($table_name)
+    {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
         $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
         if ($rs) {
@@ -944,21 +987,25 @@ class DBAPI {
         return $rs;
     }
 
-    function truncate($table_name) {
+    function truncate($table_name)
+    {
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
         $rs = $this->query("TRUNCATE TABLE `{$table_name}`");
         return $rs;
     }
 
-    function dataSeek($result, $row_number) {
+    function dataSeek($result, $row_number)
+    {
         return mysql_data_seek($result, $row_number);
     }
 
-    function numFields($ds) {
+    function numFields($ds)
+    {
         return mysql_num_fields($ds);
     }
 
-    function importSql($source, $watchError = true) {
+    function importSql($source, $watchError = true)
+    {
         global $modx;
 
         if (is_file($source)) {
@@ -979,7 +1026,8 @@ class DBAPI {
         }
     }
 
-    function table_exists($table_name) {
+    function table_exists($table_name)
+    {
         $dbname = trim($this->dbname, '`');
         $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
         $sql = sprintf("SHOW TABLES FROM `%s` LIKE '%s'", $dbname, $table_name);
@@ -988,7 +1036,8 @@ class DBAPI {
         return 0 < $this->getRecordCount($rs) ? 1 : 0;
     }
 
-    function field_exists($field_name, $table_name) {
+    function field_exists($field_name, $table_name)
+    {
         $table_name = $this->replaceFullTableName($table_name);
 
         if (!$this->table_exists($table_name)) {
@@ -1000,7 +1049,8 @@ class DBAPI {
         return $this->getRow($rs) ? 1 : 0;
     }
 
-    function isConnected() {
+    function isConnected()
+    {
         if (!empty ($this->conn) && $this->isResult($this->conn)) {
             return true;
         } else {
@@ -1008,7 +1058,8 @@ class DBAPI {
         }
     }
 
-    function getCollation($table = '[+prefix+]site_content', $field = 'content') {
+    function getCollation($table = '[+prefix+]site_content', $field = 'content')
+    {
         $table = str_replace('[+prefix+]', $this->table_prefix, $table);
         $sql = sprintf("SHOW FULL COLUMNS FROM `%s`", $table);
         $rs = $this->query($sql);
@@ -1021,7 +1072,8 @@ class DBAPI {
         return $Collation;
     }
 
-    function _getFieldsStringFromArray($fields = array()) {
+    function _getFieldsStringFromArray($fields = array())
+    {
 
         if (empty($fields)) {
             return '*';
@@ -1040,7 +1092,8 @@ class DBAPI {
         return join(',', $_);
     }
 
-    function _getFromStringFromArray($tables = array()) {
+    function _getFromStringFromArray($tables = array())
+    {
         $_ = array();
         foreach ($tables as $k => $v) {
             $_[] = $v;

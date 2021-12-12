@@ -1,6 +1,7 @@
 <?php
 // start cms session
-function startCMSSession() {
+function startCMSSession()
+{
     global $site_sessionname;
 
     $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
@@ -19,7 +20,8 @@ function startCMSSession() {
     // init::setcookie(0);
 }
 
-function set_parser_mode() {
+function set_parser_mode()
+{
     if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == true) {
         return;
     }
@@ -42,8 +44,10 @@ function set_parser_mode() {
     session_cache_limiter('');
 }
 
-class init {
-    public static function init_mgr() {
+class init
+{
+    public static function init_mgr()
+    {
         // send anti caching headers
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . " GMT");
@@ -53,7 +57,8 @@ class init {
         header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
 
-    public static function session_set_cookie_params($options = array()) {
+    public static function session_set_cookie_params($options = array())
+    {
         $options += array(
             'lifetime' => 3600 * 24 * 30,
             'path' => MODX_BASE_URL,
@@ -77,7 +82,8 @@ class init {
 
     }
 
-    public static function setcookie($expires) {
+    public static function setcookie($expires)
+    {
         global $site_sessionname;
         if (70300 <= PHP_VERSION_ID) {
             setcookie(
@@ -105,7 +111,8 @@ class init {
         );
     }
 
-    public static function get_base_path() {
+    public static function get_base_path()
+    {
         return str_replace(
             array('\\', 'manager/includes/initialize.functions.inc.php')
             , array('/', '')
@@ -113,7 +120,8 @@ class init {
         );
     }
 
-    public static function get_base_url($base_path) {
+    public static function get_base_url($base_path)
+    {
         $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
         if (defined('IN_MANAGER_MODE')) {
             if (strpos($SCRIPT_NAME, '/manager/') !== false) {
@@ -147,7 +155,8 @@ class init {
         return rtrim($dir, '/') . '/';
     }
 
-    public static function get_host_name() {
+    public static function get_host_name()
+    {
         $host_name = serverv('server_name', serverv('HTTP_HOST'));
         if (!$host_name) {
             return '';
@@ -159,7 +168,8 @@ class init {
         return $host_name;
     }
 
-    public static function get_site_url($base_url) {
+    public static function get_site_url($base_url)
+    {
         return sprintf(
             '%s%s%s/'
             , static::is_ssl() ? 'https://' : 'http://'
@@ -168,7 +178,8 @@ class init {
         );
     }
 
-    public static function is_ssl() {
+    public static function is_ssl()
+    {
         global $https_port;
 
         if (strtolower(serverv('HTTPS')) === 'on') {
@@ -183,7 +194,8 @@ class init {
     }
 
     // set the document_root :|
-    public static function fix_document_root() {
+    public static function fix_document_root()
+    {
         if (!serverv('PATH_INFO') || serverv('DOCUMENT_ROOT')) {
             return;
         }
@@ -197,18 +209,20 @@ class init {
             ) . '/';
     }
 
-    public static function fix_script_name(){
-        if (strpos(serverv('script_name'), '/'.serverv('server_name')) !== 0) {
+    public static function fix_script_name()
+    {
+        if (strpos(serverv('script_name'), '/' . serverv('server_name')) !== 0) {
             return;
         }
         $_SERVER['SCRIPT_NAME'] = substr(
             serverv('script_name'),
-            strlen(serverv('server_name'))+1
+            strlen(serverv('server_name')) + 1
         );
     }
 
     // check PHP version. MODX Evolution is compatible with php 4 (4.4.2+)
-    public static function check_phpvar() {
+    public static function check_phpvar()
+    {
         if (version_compare(phpversion(), '5.3.0') >= 0) {
             return;
         }
@@ -216,14 +230,16 @@ class init {
         exit;
     }
 
-    public static function fix_request_time() {
+    public static function fix_request_time()
+    {
         if (isset($_SERVER['REQUEST_TIME'])) {
             return;
         }
         $_SERVER['REQUEST_TIME'] = time();
     }
 
-    public static function fix_server_addr() {
+    public static function fix_server_addr()
+    {
         if (!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR'])) {
             $_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
         }
@@ -235,8 +251,9 @@ class init {
         }
     }
 
-    public static function fix_ssl() {
-        if (serverv('HTTP_X_FORWARDED_PROTO')==='https') {
+    public static function fix_ssl()
+    {
+        if (serverv('HTTP_X_FORWARDED_PROTO') === 'https') {
             $_SERVER['HTTPS'] = 'on';
             return;
         }
@@ -260,7 +277,8 @@ class init {
         }
     }
 
-    public static function fix_favicon_req() {
+    public static function fix_favicon_req()
+    {
         if (serverv('REQUEST_URI') !== '/favicon.ico') {
             return;
         }
@@ -269,7 +287,8 @@ class init {
         exit;
     }
 
-    public static function set_session_create_time() {
+    public static function set_session_create_time()
+    {
         if (sessionv('modx.session.created.time')) {
             return;
         }
@@ -281,7 +300,8 @@ class init {
         }
     }
 
-    public static function cookieExpiration() {
+    public static function cookieExpiration()
+    {
         $lifetime = sessionv(
             sprintf(
                 'modx.%s.session.cookie.lifetime'

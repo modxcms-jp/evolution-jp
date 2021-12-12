@@ -28,20 +28,23 @@
 // * Function printPaging() broken in two: getPagingArray() and getPagingRowArray()
 // * Function openTable() and closeTable() removed.
 // =====================================================
-class Paging {
+class Paging
+{
     public $int_num_result;  // Number of result to show per page (decided by user)
     public $int_nbr_row;     // Total number of items (SQL count from db)
     public $int_cur_position;// Current position in recordset
     public $str_ext_argv;    // Extra argv of query string
 
-    public function __construct($int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = '') {
-        $this->int_nbr_row      = $int_nbr_row;
-        $this->int_num_result   = $int_num_result;
+    public function __construct($int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = '')
+    {
+        $this->int_nbr_row = $int_nbr_row;
+        $this->int_num_result = $int_num_result;
         $this->int_cur_position = $int_cur_position;
-        $this->str_ext_argv     = urldecode($str_ext_argv);
+        $this->str_ext_argv = urldecode($str_ext_argv);
     }
 
-    public function getPagingArray() {
+    public function getPagingArray()
+    {
         $paging['lower'] = ($this->int_cur_position + 1);
 
         if ($this->int_cur_position + $this->int_num_result >= $this->int_nbr_row) {
@@ -83,7 +86,8 @@ class Paging {
         return $paging;
     }
 
-    public function getPagingRowArray() {
+    public function getPagingRowArray()
+    {
         $array_all_page = array();
         $total = $this->getNumberOfPage();
         for ($i = 0; $i < $total; $i++) {
@@ -102,11 +106,13 @@ class Paging {
         return $array_all_page;
     }
 
-    private function getNumberOfPage() {
+    private function getNumberOfPage()
+    {
         return $this->int_nbr_row / $this->int_num_result;
     }
 
-    private function getCurrentPage() {
+    private function getCurrentPage()
+    {
         $int_cur_page = ($this->int_cur_position * $this->getNumberOfPage()) / $this->int_nbr_row;
         return number_format($int_cur_page, 0);
     }

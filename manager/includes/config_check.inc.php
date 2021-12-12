@@ -198,7 +198,7 @@ foreach ($warnings as $warning) {
             $output = $_lang['configcheck_default_msg'];
     }
     $config_check_result[] = sprintf(
-'<fieldset style="padding:0;">
+        '<fieldset style="padding:0;">
     <p><strong>%s</strong></p>
     <p style="padding-left:1em">%s%s</p>
 </fieldset>
@@ -213,8 +213,8 @@ $config_check_results = "<h3>" . $_lang['configcheck_notok'] . "</h3>";
 $config_check_results .= implode("\n", $config_check_result);
 
 
-
-function get_src_TemplateSwitcher_js($tplName) {
+function get_src_TemplateSwitcher_js($tplName)
+{
     global $_lang;
 
     $script =
@@ -238,7 +238,8 @@ function disableTemplateSwitcher(){
     return $script;
 }
 
-function get_sc_value($field, $id) {
+function get_sc_value($field, $id)
+{
     if (empty($id)) {
         return true;
     }
@@ -251,7 +252,8 @@ function get_sc_value($field, $id) {
     );
 }
 
-function checkAjaxSearch() {
+function checkAjaxSearch()
+{
     $target_path = MODX_BASE_PATH . 'assets/snippets/ajaxSearch/classes/ajaxSearchConfig.class.inc.php';
     if (!is_file($target_path)) {
         return true;
@@ -263,17 +265,19 @@ function checkAjaxSearch() {
     return false;
 }
 
-function checkConfig() {
+function checkConfig()
+{
     if (!is_writable(MODX_CORE_PATH . 'config.inc.php')) {
         return true;
     }
-    if(@chmod(MODX_CORE_PATH . 'config.inc.php', 0444)) {
+    if (@chmod(MODX_CORE_PATH . 'config.inc.php', 0444)) {
         return true;
     }
     return false;
 }
 
-function checkValidateReferer() {
+function checkValidateReferer()
+{
     if (evo()->config('_hide_configcheck_validate_referer')) {
         return true;
     }
@@ -291,7 +295,8 @@ function checkValidateReferer() {
     return false;
 }
 
-function checkActionPhp() {
+function checkActionPhp()
+{
     $actionphp = MODX_BASE_PATH . 'action.php';
     if (!is_file($actionphp)) {
         return true;
@@ -304,11 +309,12 @@ function checkActionPhp() {
 }
 
 // check for Template Switcher plugin
-function checkTplSwitchPlugin() {
+function checkTplSwitchPlugin()
+{
     if (evo()->config('_hide_configcheck_templateswitcher_present')) {
         return true;
     }
-    if(!sessionv('mgrPermissions.edit_plugin')) {
+    if (!sessionv('mgrPermissions.edit_plugin')) {
         return true;
     }
     if (sessionv('mgrPermissions.edit_plugin') != 1) {
@@ -322,7 +328,7 @@ function checkTplSwitchPlugin() {
             "OR plugincode LIKE '%TemplateSwitcher%'"
         )
     );
-    while($row = db()->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         if ($row['disabled'] != 0) {
             continue;
         }

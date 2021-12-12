@@ -17,11 +17,13 @@ include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');
  * -----------------------------------------------------------------
  */
 
-class MODxMailer extends PHPMailer {
+class MODxMailer extends PHPMailer
+{
     var $mb_language = false;
     var $encode_header_method = null;
 
-    function __construct() {
+    function __construct()
+    {
         global $modx;
 
         $this->encode_header_method = '';
@@ -94,7 +96,8 @@ class MODxMailer extends PHPMailer {
         }
     }
 
-    function EncodeHeader($str, $position = 'text') {
+    function EncodeHeader($str, $position = 'text')
+    {
         global $modx;
         if ($this->encode_header_method == 'mb_encode_mimeheader') {
             return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
@@ -103,7 +106,8 @@ class MODxMailer extends PHPMailer {
         }
     }
 
-    public function Send() {
+    public function Send()
+    {
         $target = array(
             "sanitized_by_modx& #039" => "'",
             "sanitized_by_modx& #145" => "'",
@@ -130,7 +134,8 @@ class MODxMailer extends PHPMailer {
         }
     }
 
-    function MailSend($header, $body) {
+    function MailSend($header, $body)
+    {
         global $modx;
 
         $org_body = $body;
@@ -166,7 +171,8 @@ class MODxMailer extends PHPMailer {
         return $this->mbMailSend($header, $body);
     }
 
-    function mbMailSend($header, $body) {
+    function mbMailSend($header, $body)
+    {
         global $modx;
 
         $to = '';
@@ -215,14 +221,16 @@ class MODxMailer extends PHPMailer {
         return true;
     }
 
-    function SetError($msg) {
+    function SetError($msg)
+    {
         global $modx;
         $modx->config['send_errormail'] = '0';
         $modx->logEvent(0, 3, $msg, 'phpmailer');
         return parent::SetError($msg);
     }
 
-    function address_split($address) {
+    function address_split($address)
+    {
         $address = trim($address);
         if (strpos($address, '<') !== false && substr($address, -1) === '>') {
             $address = rtrim($address, '>');
@@ -234,7 +242,8 @@ class MODxMailer extends PHPMailer {
         return $result;
     }
 
-    public static function validateAddress($address, $patternselect = null) {
+    public static function validateAddress($address, $patternselect = null)
+    {
         global $modx;
 
         if (!isset($modx->config['validate_emailaddr'])) {

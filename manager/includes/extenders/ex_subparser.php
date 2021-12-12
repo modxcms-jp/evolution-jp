@@ -2,11 +2,14 @@
 
 $this->sub = new SubParser();
 
-class SubParser {
-    public function __construct() {
+class SubParser
+{
+    public function __construct()
+    {
     }
 
-    function sendmail($params = array(), $msg = '') {
+    function sendmail($params = array(), $msg = '')
+    {
         global $modx;
         $p = array();
         if (isset($params) && is_string($params)) {
@@ -84,7 +87,8 @@ class SubParser {
         return $modx->mail->send();
     }
 
-    function rotate_log($target = 'event_log', $limit = 2000, $trim = 100) {
+    function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
+    {
         global $modx;
 
         if ($limit < $trim) {
@@ -107,7 +111,8 @@ class SubParser {
         }
     }
 
-    function addLog($title = 'no title', $msg = '', $type = 1) {
+    function addLog($title = 'no title', $msg = '', $type = 1)
+    {
         if ($title === '') {
             $title = 'no title';
         }
@@ -122,7 +127,8 @@ class SubParser {
         );
     }
 
-    function logEvent($evtid, $type, $msg, $title = 'Parser') {
+    function logEvent($evtid, $type, $msg, $title = 'Parser')
+    {
         global $modx;
         if (!db()->isConnected()) {
             return;
@@ -204,7 +210,8 @@ class SubParser {
         }
     }
 
-    function clearCache($params = array()) {
+    function clearCache($params = array())
+    {
         global $modx;
 
         if (!is_array($params) && preg_match('@^[1-9][0-9]*$@', $params)) {
@@ -256,11 +263,12 @@ class SubParser {
         $text = '',
         $line = '',
         $output = ''
-    ) {
+    )
+    {
         global $modx;
 
-        $version = globalv('version','');
-        $release_date = globalv('release_date','');
+        $version = globalv('version', '');
+        $release_date = globalv('release_date', '');
         $ua = hsc(serverv('HTTP_USER_AGENT'));
         $referer = hsc(serverv('HTTP_REFERER'));
         if ($is_error) {
@@ -461,7 +469,7 @@ class SubParser {
 
         $last_error = error_get_last();
         if ($last_error) {
-            $str = "<b>".print_r($last_error,true)."</b><br />\n{$str}";
+            $str = "<b>" . print_r($last_error, true) . "</b><br />\n{$str}";
         }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
 
@@ -482,10 +490,10 @@ class SubParser {
         if (isset($actionName) && $actionName) {
             $title .= $actionName;
         }
-        if($line) {
-            $title .= ' line:'.$line;
+        if ($line) {
+            $title .= ' line:' . $line;
         }
-        
+
         switch ($nr) {
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
@@ -530,7 +538,8 @@ class SubParser {
         exit;
     }
 
-    function recDebugInfo() {
+    function recDebugInfo()
+    {
         global $modx;
 
         $incs = get_included_files();
@@ -582,7 +591,8 @@ class SubParser {
         $this->addLog('Debug log', $msg, 1);
     }
 
-    function get_backtrace() {
+    function get_backtrace()
+    {
         global $modx;
         $str = "<p><b>Backtrace</b></p>\n";
         $str .= '<table>';
@@ -625,7 +635,8 @@ class SubParser {
         return $str;
     }
 
-    function sendRedirect($url = '', $count_attempts = 0, $type = 'REDIRECT_HEADER', $responseCode = '') {
+    function sendRedirect($url = '', $count_attempts = 0, $type = 'REDIRECT_HEADER', $responseCode = '')
+    {
         global $modx;
 
         if ($modx->debug) {
@@ -728,7 +739,8 @@ class SubParser {
         exit;
     }
 
-    function sendForward($id, $responseCode = '') {
+    function sendForward($id, $responseCode = '')
+    {
         global $modx;
 
         if ($modx->forwards) {
@@ -746,7 +758,8 @@ class SubParser {
         exit;
     }
 
-    function sendUnavailablePage() {
+    function sendUnavailablePage()
+    {
         global $modx;
         if ($modx->config['site_unavailable_page']) {
             $dist = $modx->config['site_unavailable_page'];
@@ -757,7 +770,8 @@ class SubParser {
         $modx->sendForward($dist, 'HTTP/1.0 503 Service Unavailable');
     }
 
-    function sendErrorPage() {
+    function sendErrorPage()
+    {
         global $modx;
         evo()->invokeEvent('OnPageNotFound');
 
@@ -768,7 +782,8 @@ class SubParser {
         );
     }
 
-    function sendUnauthorizedPage() {
+    function sendUnauthorizedPage()
+    {
         global $modx;
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $modx->documentIdentifier;
@@ -785,7 +800,8 @@ class SubParser {
         $modx->sendForward($dist, 'HTTP/1.1 403 Forbidden');
     }
 
-    function getSnippetId() {
+    function getSnippetId()
+    {
         global $modx;
         if ($modx->currentSnippet) {
             $snip = db()->escape($modx->currentSnippet);
@@ -798,12 +814,14 @@ class SubParser {
         return 0;
     }
 
-    function getSnippetName() {
+    function getSnippetName()
+    {
         global $modx;
         return $modx->currentSnippet;
     }
 
-    function runSnippet($snippetName, $params = array()) {
+    function runSnippet($snippetName, $params = array())
+    {
         global $modx;
         if (isset ($modx->snippetCache[$snippetName])) {
             $phpCode = $modx->snippetCache[$snippetName];
@@ -828,7 +846,8 @@ class SubParser {
     }
 
     # Change current web user's password - returns true if successful, oterhwise return error message
-    function changeWebUserPassword($oldPwd, $newPwd) {
+    function changeWebUserPassword($oldPwd, $newPwd)
+    {
         global $modx;
 
         if ($_SESSION['webValidated'] != 1) {
@@ -875,7 +894,8 @@ class SubParser {
     }
 
     # add an event listner to a plugin - only for use within the current execution cycle
-    function addEventListener($evtName, $pluginName) {
+    function addEventListener($evtName, $pluginName)
+    {
         global $modx;
         if (!$evtName || !$pluginName) {
             return false;
@@ -888,7 +908,8 @@ class SubParser {
     }
 
     # remove event listner - only for use within the current execution cycle
-    function removeEventListener($evtName, $pluginName = '') {
+    function removeEventListener($evtName, $pluginName = '')
+    {
         global $modx;
 
         if (!$evtName) {
@@ -910,7 +931,8 @@ class SubParser {
         return false;
     }
 
-    function regClientCSS($src, $media = '') {
+    function regClientCSS($src, $media = '')
+    {
         global $modx;
 
         if (empty($src) || isset ($modx->loadedjscripts[$src])) {
@@ -939,7 +961,8 @@ class SubParser {
         $src,
         $options = array('name' => '', 'version' => '0', 'plaintext' => false),
         $startup = false
-    ) {
+    )
+    {
         global $modx;
 
         if (empty($src)) {
@@ -1011,25 +1034,29 @@ class SubParser {
         $modx->loadedjscripts[$key]['pos'] = $pos;
     }
 
-    function regClientStartupHTMLBlock($html) { // Registers Client-side Startup HTML block
+    function regClientStartupHTMLBlock($html)
+    { // Registers Client-side Startup HTML block
         $options = array('plaintext' => true);
         $startup = true;
         $this->regClientScript($html, $options, $startup);
     }
 
-    function regClientHTMLBlock($html) { // Registers Client-side HTML block
+    function regClientHTMLBlock($html)
+    { // Registers Client-side HTML block
         $options = array('plaintext' => true);
         $startup = false;
         $this->regClientScript($html, $options, $startup);
     }
 
     # Registers Startup Client-side JavaScript - these scripts are loaded at inside the <head> tag
-    function regClientStartupScript($src, $options = array('name' => '', 'version' => '0', 'plaintext' => false)) {
+    function regClientStartupScript($src, $options = array('name' => '', 'version' => '0', 'plaintext' => false))
+    {
         $startup = true;
         $this->regClientScript($src, $options, $startup);
     }
 
-    function checkPermissions($docid = false, $duplicateDoc = false) {
+    function checkPermissions($docid = false, $duplicateDoc = false)
+    {
         global $modx;
 
         if (strpos($docid, ',') !== false) {
@@ -1091,7 +1118,8 @@ class SubParser {
      * Created by Raymond Irving Feb, 2005
      */
 
-    function ProcessTVCommand($input, $name = '', $docid = '', $src = 'docform') {
+    function ProcessTVCommand($input, $name = '', $docid = '', $src = 'docform')
+    {
         global $modx;
         $docid = (int)$docid ? (int)$docid : $modx->documentIdentifier;
         $input = trim($input);
@@ -1215,7 +1243,8 @@ class SubParser {
     }
 
     // separate @ cmd from params
-    function splitTVCommand($binding_string) {
+    function splitTVCommand($binding_string)
+    {
         if (strpos($binding_string, '@') !== 0) {
             return array();
         }
@@ -1240,7 +1269,8 @@ class SubParser {
         return $binding_array;
     }
 
-    function getExtention($str) {
+    function getExtention($str)
+    {
         $str = trim($str);
         $str = strtolower($str);
         $pos = strrpos($str, '.');
@@ -1250,7 +1280,8 @@ class SubParser {
         return substr($str, $pos);
     }
 
-    function decodeParamValue($s) {
+    function decodeParamValue($s)
+    {
         $s = str_replace(
             array('%3B', '%3D', '%26', '%2C', '%5C')
             , array(';', '=', '&', ',', '\\')
@@ -1260,7 +1291,8 @@ class SubParser {
     }
 
     // returns an array if a delimiter is present. returns array is a recordset is present
-    function parseInput($src, $delim = '||', $type = 'string', $columns = true) { // type can be: string, array
+    function parseInput($src, $delim = '||', $type = 'string', $columns = true)
+    { // type can be: string, array
         global $modx;
 
         if (db()->isResult($src)) {
@@ -1280,7 +1312,8 @@ class SubParser {
         return $src;
     }
 
-    function getUnixtimeFromDateString($value) {
+    function getUnixtimeFromDateString($value)
+    {
         $timestamp = false;
         // Check for MySQL or legacy style date
         $date_match_1 = '/^([0-9]{2})-([0-9]{2})-([0-9]{4}) ([0-9]{2}):([0-9]{2}):([0-9]{2})$/';
@@ -1323,7 +1356,8 @@ class SubParser {
         $field_value,
         $field_style = '',
         $row = array()
-    ) {
+    )
+    {
         global $modx, $_lang, $content;
 
         $field_type = strtolower($field_type);
@@ -1424,7 +1458,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormText($field_type, $field_id, $field_value, $field_style) {
+    private function rendarFormText($field_type, $field_id, $field_value, $field_style)
+    {
         if ($field_type === 'text') {
             $class = 'text';
         } elseif ($field_type === 'number') {
@@ -1445,7 +1480,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormTextarea($field_type, $field_id, $field_value, $field_style) {
+    private function rendarFormTextarea($field_type, $field_id, $field_value, $field_style)
+    {
         return evo()->parseText(
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_textarea.tpl')
             , array(
@@ -1459,7 +1495,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormDate($field_type, $field_id, $field_value, $field_style) {
+    private function rendarFormDate($field_type, $field_id, $field_value, $field_style)
+    {
         $format = evo()->config['datetime_format'];
         if ($field_type === 'date') {
             $format .= ' hh:mm:00';
@@ -1483,7 +1520,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormSelect($field_type, $field_id, $field_value, $field_elements) {
+    private function rendarFormSelect($field_type, $field_id, $field_value, $field_elements)
+    {
         $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_list.tpl');
         if ($field_type === 'listbox-multiple' && strpos($tpl, '[+name+][]') === false) {
             $tpl = str_replace('[+name+]', '[+name+][]', $tpl);
@@ -1513,15 +1551,16 @@ class SubParser {
             $tpl,
             array(
                 'options' => implode("\n", $options),
-                'id'      => 'tv' . $field_id,
-                'name'    => 'tv' . $field_id,
-                'size'    => $size,
-                'extra'   => ($field_type === 'listbox-multiple') ? 'multiple' : ''
+                'id' => 'tv' . $field_id,
+                'name' => 'tv' . $field_id,
+                'size' => $size,
+                'extra' => ($field_type === 'listbox-multiple') ? 'multiple' : ''
             )
         );
     }
 
-    private function rendarFormCheckbox($field_type, $field_id, $field_value, $field_elements) {
+    private function rendarFormCheckbox($field_type, $field_id, $field_value, $field_elements)
+    {
         if (!is_array($field_value)) {
             $field_value = explode('||', $field_value);
         }
@@ -1536,11 +1575,11 @@ class SubParser {
             $field_html .= evo()->parseText(
                 $tpl,
                 array(
-                    'id'      => 'tv' . $field_id . '_' . $i,
-                    'name'    => 'tv' . $field_id . '[]',
-                    'value'   => evo()->hsc($value),
-                    'tvtype'  => $field_type,
-                    'label'   => $label,
+                    'id' => 'tv' . $field_id . '_' . $i,
+                    'name' => 'tv' . $field_id . '[]',
+                    'value' => evo()->hsc($value),
+                    'tvtype' => $field_type,
+                    'label' => $label,
                     'checked' => $this->isSelected($label, $value, $item, $field_value) ?
                         ' checked' : ''
                 )
@@ -1549,7 +1588,9 @@ class SubParser {
         }
         return trim($field_html);
     }
-    private function rendarFormRadio($field_id, $field_value, $field_elements) {
+
+    private function rendarFormRadio($field_id, $field_value, $field_elements)
+    {
         $index_list = $this->ParseInputOptions(
             $this->ProcessTVCommand($field_elements, $field_id, '', 'tvform')
         );
@@ -1574,7 +1615,8 @@ class SubParser {
         return $field_html;
     }
 
-    private function rendarFormImage($field_id, $field_value, $field_style) {
+    private function rendarFormImage($field_id, $field_value, $field_style)
+    {
         return sprintf(
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl')
             , $field_id
@@ -1586,7 +1628,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormFile($field_id, $field_value, $field_style) {
+    private function rendarFormFile($field_id, $field_value, $field_style)
+    {
         return sprintf(
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl')
             , $field_id
@@ -1598,7 +1641,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormHidden($field_id, $field_value) {
+    private function rendarFormHidden($field_id, $field_value)
+    {
         return sprintf(
             '<input type="hidden" id="tv%s" name="tv%s" value="%s" tvtype="%s" />'
             , $field_id
@@ -1608,7 +1652,8 @@ class SubParser {
         );
     }
 
-    private function rendarFormCustom($field_type, $field_id, $field_value, $field_style, $field_elements, $default_text) {
+    private function rendarFormCustom($field_type, $field_id, $field_value, $field_style, $field_elements, $default_text)
+    {
         $ph['field_type'] = $field_type;
         $ph['field_id'] = $field_id;
         $ph['field_name'] = "tv" . $field_id;
@@ -1631,7 +1676,8 @@ class SubParser {
         );
     }
 
-    private function custom_tv_tpl($field_id, $field_elements) {
+    private function custom_tv_tpl($field_id, $field_elements)
+    {
         global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
             $path_str = trim(substr($field_elements, 6));
@@ -1703,7 +1749,8 @@ class SubParser {
         return $field_elements;
     }
 
-    function ParseInputOptions($v) {
+    function ParseInputOptions($v)
+    {
         if (is_array($v)) {
             return $v;
         }
@@ -1730,7 +1777,8 @@ class SubParser {
         return explode('||', $v);
     }
 
-    function splitOption($value) {
+    function splitOption($value)
+    {
         if (is_array($value)) {
             $label = $value[0];
             $value = isset($value[1]) ? $value[1] : $value[0];
@@ -1744,7 +1792,8 @@ class SubParser {
         return array(trim($label), trim($value));
     }
 
-    function isSelected($label, $value, $item, $field_value) {
+    function isSelected($label, $value, $item, $field_value)
+    {
         if (is_array($item)) {
             $item = $item['0'];
         }
@@ -1771,7 +1820,8 @@ class SubParser {
      * @param string $msg Message to show
      * @param string $url URL to redirect to
      */
-    function webAlertAndQuit($msg, $url = "") {
+    function webAlertAndQuit($msg, $url = "")
+    {
         global $modx, $modx_manager_charset;
         if (strpos(strtolower($url), 'javascript:') === 0) {
             $fnc = substr($url, 11);
@@ -1800,7 +1850,8 @@ class SubParser {
         exit;
     }
 
-    function getMimeType($filepath = '') {
+    function getMimeType($filepath = '')
+    {
         $fp = fopen($filepath, 'rb');
         $head = fread($fp, 2);
         fclose($fp);
@@ -1826,7 +1877,8 @@ class SubParser {
     }
 
     # returns true if the current web user is a member the specified groups
-    function isMemberOfWebGroup($groupNames = array()) {
+    function isMemberOfWebGroup($groupNames = array())
+    {
         global $modx;
 
         if (!is_array($groupNames)) {
@@ -1854,7 +1906,8 @@ class SubParser {
     }
 
     # Returns a record for the web user
-    function getWebUserInfo($uid) {
+    function getWebUserInfo($uid)
+    {
         global $modx;
 
         $field = 'wu.username, wu.password, wua.*';
@@ -1872,7 +1925,8 @@ class SubParser {
     }
 
     # Returns a record for the manager user
-    function getUserInfo($uid) {
+    function getUserInfo($uid)
+    {
         $rs = db()->select(
             'user.username, user.password, attrib.*'
             , array(
@@ -1895,7 +1949,8 @@ class SubParser {
     }
 
     # Returns current user name
-    function getLoginUserName($context = '') {
+    function getLoginUserName($context = '')
+    {
         if ($context && evo()->session($context . 'Validated')) {
             return evo()->session($context . 'Shortname');
         }
@@ -1912,7 +1967,8 @@ class SubParser {
     }
 
     # Returns current login user type - web or manager
-    function getLoginUserType() {
+    function getLoginUserType()
+    {
         if (evo()->isFrontend() && evo()->session('webValidated')) {
             return 'web';
         }
@@ -1940,7 +1996,8 @@ class SubParser {
         $tvsort = 'rank'
         ,
         $tvsortdir = 'ASC'
-    ) {
+    )
+    {
         global $modx;
 
         $docs = $modx->getDocumentChildren(
@@ -1973,7 +2030,8 @@ class SubParser {
         $published = 1,
         $docsort = 'menuindex',
         $docsortdir = 'ASC'
-    ) {
+    )
+    {
         global $modx;
 
         $docs = $modx->getDocumentChildren($parentid, $published, 0, '*', '', $docsort, $docsortdir);
@@ -1997,7 +2055,8 @@ class SubParser {
         $dir = 'ASC',
         $fields = 'id, pagetitle, description, parent, alias, menutitle',
         $where = false
-    ) {
+    )
+    {
         global $modx;
         static $cache = array();
 
@@ -2049,7 +2108,8 @@ class SubParser {
         $sort = 'menuindex',
         $dir = 'ASC',
         $fields = 'id, pagetitle, description, parent, alias, menutitle'
-    ) {
+    )
+    {
         global $modx;
         static $cache = array();
 
@@ -2099,7 +2159,8 @@ class SubParser {
         $sort = 'menuindex',
         $dir = 'ASC',
         $limit = ''
-    ) {
+    )
+    {
         global $modx;
 
         // modify field names to use sc. table reference
@@ -2146,7 +2207,8 @@ class SubParser {
         return $resourceArray;
     }
 
-    function getPreviewObject($input = array()) {
+    function getPreviewObject($input = array())
+    {
         global $modx;
 
         if ($modx->previewObject) {
@@ -2202,7 +2264,8 @@ class SubParser {
         return $modx->previewObject;
     }
 
-    function loadLexicon($target = 'manager') {
+    function loadLexicon($target = 'manager')
+    {
         global $modx;
 
         if (!isset($modx->config['manager_language'])) {
@@ -2233,7 +2296,8 @@ class SubParser {
         }
     }
 
-    function snapshot($filename = '', $target = '') {
+    function snapshot($filename = '', $target = '')
+    {
         global $modx, $settings_version;
 
         if (is_array($filename)) {
@@ -2296,7 +2360,8 @@ class SubParser {
      * @return array
      */
 
-    function getVersionData($data = null) {
+    function getVersionData($data = null)
+    {
         global $modx;
         if (!$modx->version || !is_array($modx->version)) {
             //include for compatibility modx version < 1.0.10
@@ -2311,7 +2376,8 @@ class SubParser {
         return ($data !== null && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
     }
 
-    function _IIS_furl_fix() {
+    function _IIS_furl_fix()
+    {
         if (evo()->config['friendly_urls'] != 1) {
             return;
         }
@@ -2337,7 +2403,8 @@ class SubParser {
         return $qp['path'];
     }
 
-    function genTokenString($seed = '') {
+    function genTokenString($seed = '')
+    {
         static $tokenString = null;
         if ($tokenString) {
             return $tokenString;
@@ -2357,7 +2424,8 @@ class SubParser {
         return $tokenString;
     }
 
-    function setCacheRefreshTime($unixtime = 0) {
+    function setCacheRefreshTime($unixtime = 0)
+    {
         if ($unixtime == 0) {
             return;
         }
@@ -2370,7 +2438,8 @@ class SubParser {
         $cache->publishBasicConfig();
     }
 
-    function atBind($str = '') {
+    function atBind($str = '')
+    {
         if (strpos($str, '@') !== 0) {
             return $str;
         }
@@ -2388,7 +2457,8 @@ class SubParser {
         return $str;
     }
 
-    function atBindFile($str = '') {
+    function atBindFile($str = '')
+    {
         if (strpos($str, '@FILE') !== 0) {
             return $str;
         }
@@ -2444,7 +2514,8 @@ class SubParser {
         return $content;
     }
 
-    function atBindUrl($str = '') {
+    function atBindUrl($str = '')
+    {
         if (strpos($str, '@URL') !== 0) {
             return $str;
         }
@@ -2464,7 +2535,8 @@ class SubParser {
         return file_get_contents($str);
     }
 
-    function atBindInclude($str = '') {
+    function atBindInclude($str = '')
+    {
         if (strpos($str, '@INCLUDE') !== 0) {
             return $str;
         }
@@ -2517,11 +2589,13 @@ class SubParser {
         return $content;
     }
 
-    function setOption($key, $value = '') {
+    function setOption($key, $value = '')
+    {
         $this->config[$key] = $value;
     }
 
-    function getOption($key, $default = null, $options = null, $skipEmpty = false) {
+    function getOption($key, $default = null, $options = null, $skipEmpty = false)
+    {
         global $modx;
 
         $option = $default;
@@ -2554,7 +2628,8 @@ class SubParser {
         return $option;
     }
 
-    function regOption($key, $value = '') {
+    function regOption($key, $value = '')
+    {
         global $modx;
 
         $modx->config[$key] = $value;
@@ -2577,7 +2652,8 @@ class SubParser {
         $modx->getSettings();
     }
 
-    function mergeInlineFilter($content) {
+    function mergeInlineFilter($content)
+    {
         global $modx;
 
         if (strpos($content, '[+@') === false) {
@@ -2631,7 +2707,8 @@ class SubParser {
         return $content;
     }
 
-    function updateDraft() {
+    function updateDraft()
+    {
         global $modx;
 
         $now = serverv('REQUEST_TIME', 0) + evo()->config('server_offset_time', 0);
@@ -2661,7 +2738,8 @@ class SubParser {
         );
     }
 
-    function setdocumentMap() {
+    function setdocumentMap()
+    {
         global $modx;
 
         $fields = 'id, parent';
@@ -2672,7 +2750,8 @@ class SubParser {
         }
     }
 
-    function setAliasListing() {
+    function setAliasListing()
+    {
         global $modx;
         if (!$modx->aliasListing) {
             $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');

@@ -6,12 +6,13 @@
  */
 
 require_once(__DIR__ . '/initialize.inc.php');
-if(is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
+if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
     require_once(MODX_BASE_PATH . 'assets/helpers.php');
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
 
-class DocumentParser {
+class DocumentParser
+{
     public $version;
     public $db; // db object
     public $event, $Event; // event object
@@ -89,7 +90,8 @@ class DocumentParser {
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
-    function __get($property_name) {
+    function __get($property_name)
+    {
         if (isset($this->config[$property_name])) {
             return $this->config[$property_name];
         }
@@ -102,7 +104,8 @@ class DocumentParser {
         return '';
     }
 
-    public function __call($method_name, $arguments) {
+    public function __call($method_name, $arguments)
+    {
         $_ = explode(',',
             'splitTVCommand,ParseInputOptions,ProcessTVCommand,_IIS_furl_fix,addEventListener,addLog,atBind,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
         if (in_array($method_name, $_, true)) {
@@ -151,7 +154,8 @@ class DocumentParser {
     }
 
     // constructor
-    function __construct() {
+    function __construct()
+    {
         if ($this->isLoggedIn()) {
             ini_set('display_errors', 1);
         }
@@ -205,7 +209,8 @@ class DocumentParser {
      * @return bool or Object
      *
      */
-    public function loadExtension($extname) {
+    public function loadExtension($extname)
+    {
         $extname = strtolower($extname);
 
         switch ($extname) {
@@ -225,7 +230,7 @@ class DocumentParser {
             case 'modifiers' : //Modfires
             case 'phx' :
             case 'filter' :
-                    include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
+                include_once(MODX_CORE_PATH . 'extenders/ex_modifiers.php');
                 return true;
             case 'deprecatedapi':
                 include_once(MODX_CORE_PATH . 'extenders/ex_deprecated.php');
@@ -246,7 +251,8 @@ class DocumentParser {
         }
     }
 
-    public function executeParser() {
+    public function executeParser()
+    {
         ob_start();
 
         $this->http_status_code = '200';
@@ -279,7 +285,7 @@ class DocumentParser {
         }
         $this->uri_parent_dir = $_;
 
-        if (serverv('REQUEST_METHOD')==='POST') {
+        if (serverv('REQUEST_METHOD') === 'POST') {
             $this->config['cache_type'] = 0;
         }
 
@@ -292,7 +298,7 @@ class DocumentParser {
             md5($this->decoded_request_uri)
         );
 
-        if($this->documentIdentifier === false) {
+        if ($this->documentIdentifier === false) {
             $this->sendErrorPage();
             return;
         }
@@ -319,7 +325,8 @@ class DocumentParser {
         return $this->prepareResponse();
     }
 
-    private function treatRequestUri($uri) {
+    private function treatRequestUri($uri)
+    {
         $pos = strpos($uri, '?');
         if ($pos === false) {
             return $uri;
@@ -329,7 +336,8 @@ class DocumentParser {
         return substr($uri, 0, $pos) . '?' . http_build_query($qs);
     }
 
-    function executeParserDirect($id = '') {
+    function executeParserDirect($id = '')
+    {
         ob_start();
 
         $this->http_status_code = '200';
@@ -364,7 +372,8 @@ class DocumentParser {
         return $this->prepareResponse();
     }
 
-    private function getDocumentIdentifier($uri) {
+    private function getDocumentIdentifier($uri)
+    {
         if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
             return getv('id');
         }
@@ -381,7 +390,8 @@ class DocumentParser {
         return 0;
     }
 
-    function setDBCache($category, $key, $value) {
+    function setDBCache($category, $key, $value)
+    {
         db()->delete(
             '[+prefix+]system_cache',
             array(
@@ -402,7 +412,8 @@ class DocumentParser {
         );
     }
 
-    function getDBCache($category, $key) {
+    function getDBCache($category, $key)
+    {
         $rs = db()->select(
             'cache_value',
             '[+prefix+]system_cache',
@@ -419,11 +430,13 @@ class DocumentParser {
         return db()->getValue($rs);
     }
 
-    function purgeDBCache() {
+    function purgeDBCache()
+    {
         return db()->truncate('[+prefix+]system_cache');
     }
 
-    function _treatAliasPath($q) {
+    function _treatAliasPath($q)
+    {
         $pos = strrpos($q, '/');
         if ($pos) {
             $path = substr($q, 0, $pos);
@@ -449,7 +462,8 @@ class DocumentParser {
         return $alias;
     }
 
-    function getRequestQ($uri) {
+    function getRequestQ($uri)
+    {
         if (strpos(serverv('SERVER_SOFTWARE'), 'Microsoft-IIS') !== false) // IIS friendly url fix
         {
             return $this->_IIS_furl_fix();
@@ -466,7 +480,8 @@ class DocumentParser {
         return substr($uri, strlen(MODX_BASE_URL));
     }
 
-    function sanitizeVars() {
+    function sanitizeVars()
+    {
         if (strpos(urldecode(serverv('QUERY_STRING')), chr(0)) !== false) {
             exit();
         }
@@ -488,7 +503,8 @@ class DocumentParser {
         $this->sanitize_gpc($_REQUEST);
     }
 
-    function setUaType() {
+    function setUaType()
+    {
         if (!$this->config('individual_cache') || $this->config('cache_type') == 2) {
             return 'pages';
         }
@@ -496,7 +512,8 @@ class DocumentParser {
 
     }
 
-    function genQsHash() {
+    function genQsHash()
+    {
         if (!$this->server('QUERY_STRING')) {
             return '';
         }
@@ -519,7 +536,8 @@ class DocumentParser {
         return $qs_hash;
     }
 
-    public function prepareResponse() {
+    public function prepareResponse()
+    {
         // we now know the method and identifier, let's check the cache
         $this->documentContent = $this->getCache($this->documentIdentifier);
         if ($this->documentContent != '') {
@@ -609,7 +627,8 @@ class DocumentParser {
         return $this->outputContent();
     }
 
-    function _getTemplateCode($documentObject) {
+    function _getTemplateCode($documentObject)
+    {
         if (!$documentObject['template']) {
             return '[*content*]';
         } // use blank template
@@ -668,7 +687,8 @@ class DocumentParser {
         return $content;
     }
 
-    function outputContent($noEvent = false) {
+    function outputContent($noEvent = false)
+    {
 
         $this->documentOutput = $this->documentContent;
 
@@ -780,14 +800,16 @@ class DocumentParser {
         return $content;
     }
 
-    function RecoveryEscapedTags($contents) {
+    function RecoveryEscapedTags($contents)
+    {
         $tags = explode(',', '{{,}},[[,]],[!,!],[*,*],[(,)],[+,+],[~,~],[^,^]');
         $rTags = $this->_getEscapedTags($tags);
         $contents = str_replace($rTags, $tags, $contents);
         return $contents;
     }
 
-    function _getEscapedTags($tags) {
+    function _getEscapedTags($tags)
+    {
         $rTags = array();
         foreach ($tags as $tag) {
             $rTags[] = '\\' . $tag[0] . '\\' . $tag[1];
@@ -795,7 +817,8 @@ class DocumentParser {
         return $rTags;
     }
 
-    function parseNonCachedSnippets($contents) {
+    function parseNonCachedSnippets($contents)
+    {
         if ($this->config['cache_type'] == 2) {
             $this->config['cache_type'] = 1;
         }
@@ -816,7 +839,8 @@ class DocumentParser {
         return $contents;
     }
 
-    function postProcess() {
+    function postProcess()
+    {
         // if the current document was generated, cache it!
         if ($this->documentGenerated == 1
             && $this->documentObject['cacheable'] == 1
@@ -895,7 +919,8 @@ class DocumentParser {
         // end post processing
     }
 
-    function sanitize_gpc(&$target, $count = 0) {
+    function sanitize_gpc(&$target, $count = 0)
+    {
         if (!$target) {
             return array();
         }
@@ -927,23 +952,27 @@ class DocumentParser {
         return $target;
     }
 
-    function getUaType() {
+    function getUaType()
+    {
         return device();
     }
 
-    public function join($delim = ',', $array, $prefix = '') {
+    public function join($delim = ',', $array, $prefix = '')
+    {
         foreach ($array as $i => $v) {
             $array[$i] = $prefix . trim($v);
         }
         return implode($delim, $array);
     }
 
-    function getMicroTime() {
+    function getMicroTime()
+    {
         list ($usec, $sec) = explode(' ', microtime());
         return ((float)$usec + (float)$sec);
     }
 
-    function get_static_pages($filepath) {
+    function get_static_pages($filepath)
+    {
         if (strpos($filepath, '?') !== false) {
             $filepath = strstr($filepath, '?', true);
         }
@@ -997,7 +1026,8 @@ class DocumentParser {
         return false;
     }
 
-    private function getSiteCache() {
+    private function getSiteCache()
+    {
         $cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
         if (is_file($cache_path)) {
             $config = include($cache_path);
@@ -1009,7 +1039,8 @@ class DocumentParser {
         return false;
     }
 
-    private function setSiteCache($config) {
+    private function setSiteCache($config)
+    {
         if (!db()->isConnected() || !db()->table_exists('[+prefix+]system_settings')) {
             return;
         }
@@ -1021,7 +1052,8 @@ class DocumentParser {
         $cache->buildCache($this);
     }
 
-    private function token_auth() {
+    private function token_auth()
+    {
         if (!$this->input_get('auth_token')) {
             return null;
         }
@@ -1116,7 +1148,8 @@ class DocumentParser {
         }
     }
 
-    function getSettings() {
+    function getSettings()
+    {
         $this->token_auth();
 
         $config = $this->getSiteCache();
@@ -1186,7 +1219,8 @@ class DocumentParser {
         return $this->config;
     }
 
-    private function getWebUserSettings($config) {
+    private function getWebUserSettings($config)
+    {
         $uid = $this->getLoginUserID('web');
         if (!$uid) {
             return $config;
@@ -1207,7 +1241,8 @@ class DocumentParser {
         return $config;
     }
 
-    private function getUserConfig($uid = null) {
+    private function getUserConfig($uid = null)
+    {
         if (!$uid) {
             $uid = $this->getLoginUserID('mgr');
             if (!$uid) {
@@ -1244,7 +1279,8 @@ class DocumentParser {
     }
 
     // check for manager login session
-    function isLoggedIn($context = 'mgr') {
+    function isLoggedIn($context = 'mgr')
+    {
         if (stripos($context, 'm') === 0) {
             return $this->session('mgrValidated');
         }
@@ -1254,7 +1290,8 @@ class DocumentParser {
         return false;
     }
 
-    public function getUserFromName($username) {
+    public function getUserFromName($username)
+    {
         $field = 'mu.*, ua.*';
         $from = array(
             '[+prefix+]manager_users mu',
@@ -1284,11 +1321,13 @@ class DocumentParser {
         return db()->getRow($rs);
     }
 
-    function checkSession() {
+    function checkSession()
+    {
         return $this->isLoggedin();
     }
 
-    function checkPreview() {
+    function checkPreview()
+    {
         if ($this->isLoggedin() != true) {
             return false;
         }
@@ -1301,7 +1340,8 @@ class DocumentParser {
     }
 
     // check if site is offline
-    function checkSiteStatus() {
+    function checkSiteStatus()
+    {
         // site online
         if ($this->config('site_status')) {
             return true;
@@ -1316,11 +1356,13 @@ class DocumentParser {
         return false;
     }
 
-    function checkCache($id) {
+    function checkCache($id)
+    {
         return $this->getCache($id);
     }
 
-    function getCache($id) {
+    function getCache($id)
+    {
         if (!$this->config('cache_type')) { // jp-edition only
             return '';
         }
@@ -1440,7 +1482,8 @@ class DocumentParser {
         return $a[1]; // return document content
     }
 
-    function updatePublishStatus() {
+    function updatePublishStatus()
+    {
         $cache_path = MODX_BASE_PATH . 'assets/cache/basicConfig.php';
         if ($this->cacheRefreshTime == '') {
             if (is_file($cache_path)) {
@@ -1557,7 +1600,8 @@ class DocumentParser {
         }
     }
 
-    function getTagsFromContent($content, $left = '[+', $right = '+]') {
+    function getTagsFromContent($content, $left = '[+', $right = '+]')
+    {
         static $cached = array();
 
         $key = hash('crc32b', $content . '|' . $left . '|' . $right);
@@ -1576,7 +1620,8 @@ class DocumentParser {
         return $tags;
     }
 
-    private function _getTagsFromContent($content, $left = '[+', $right = '+]') {
+    private function _getTagsFromContent($content, $left = '[+', $right = '+]')
+    {
         if (strpos($content, $left) === false) {
             return array();
         }
@@ -1649,7 +1694,8 @@ class DocumentParser {
         return $tags;
     }
 
-    private function escaped_content($content, $left, $spacer) {
+    private function escaped_content($content, $left, $spacer)
+    {
         if ($left === '{{') {
             if (strpos($content, ';}}') !== false) {
                 $content = str_replace(';}}', sprintf(';}%s}', $spacer), $content);
@@ -1679,7 +1725,8 @@ class DocumentParser {
         return $content;
     }
 
-    public function getAliasListing($id, $key = false) {
+    public function getAliasListing($id, $key = false)
+    {
 
         if (isset($this->aliasListing[$id])) {
             if ($key) {
@@ -1725,7 +1772,8 @@ class DocumentParser {
         return $pathInfo;
     }
 
-    function setAliasListingByParent($parent_id) {
+    function setAliasListingByParent($parent_id)
+    {
 
         if (isset($this->tmpCache['aliasListingByParent'][$parent_id])) {
             return true;
@@ -1770,7 +1818,8 @@ class DocumentParser {
         return true;
     }
 
-    function getAliasFromID($docid) {
+    function getAliasFromID($docid)
+    {
 
         if (isset($this->aliaslist[$docid])) {
             return $this->aliaslist[$docid];
@@ -1793,7 +1842,8 @@ class DocumentParser {
         return $this->aliaslist[$docid];
     }
 
-    public function getParentID($docid) {
+    public function getParentID($docid)
+    {
 
         if (!$docid) {
             return 0;
@@ -1825,7 +1875,8 @@ class DocumentParser {
         return $parent;
     }
 
-    private function setParentIDByParent($parent) {
+    private function setParentIDByParent($parent)
+    {
         static $cached = array();
         if (isset($cached[$parent])) {
             return;
@@ -1854,7 +1905,8 @@ class DocumentParser {
         return;
     }
 
-    private function getAliasPath($docid) {
+    private function getAliasPath($docid)
+    {
 
         if (isset($this->aliasPath[$docid])) {
             return $this->aliasPath[$docid];
@@ -1880,8 +1932,9 @@ class DocumentParser {
         return $this->aliasPath[$docid];
     }
 
-    public function getUltimateParentId($docid=null, $top = 0) {
-        if($docid===null) {
+    public function getUltimateParentId($docid = null, $top = 0)
+    {
+        if ($docid === null) {
             $docid = $this->documentIdentifier;
         }
         $i = 0;
@@ -1896,7 +1949,8 @@ class DocumentParser {
     }
 
     // mod by Raymond
-    public function mergeDocumentContent($content, $ph = false, $convertValue = true) {
+    public function mergeDocumentContent($content, $ph = false, $convertValue = true)
+    {
 
         if (strpos($content, '<@LITERAL>') !== false) {
             $content = $this->escapeLiteralTagsContent($content);
@@ -1941,10 +1995,10 @@ class DocumentParser {
                 $context = false;
             }
 
-            if(strpos($key,'|')!==false) {
-                $keys = explode('|',$key);
+            if (strpos($key, '|') !== false) {
+                $keys = explode('|', $key);
                 foreach ($keys as $k) {
-                    if(!empty($ph[$k])) {
+                    if (!empty($ph[$k])) {
                         $key = $k;
                         break;
                     }
@@ -1995,7 +2049,8 @@ class DocumentParser {
         return $content;
     }
 
-    function splitKeyAndFilter($key) {
+    function splitKeyAndFilter($key)
+    {
 
         if (strpos($key, ':') === false) {
             return array(trim($key), false);
@@ -2006,7 +2061,8 @@ class DocumentParser {
         return array(trim($key), trim($modifiers));
     }
 
-    function getReadableValue($key, $value) {
+    function getReadableValue($key, $value)
+    {
         if ($this->get_docfield_type($key) === 'datetime') {
             return $this->toDateFormat($value);
         }
@@ -2017,7 +2073,8 @@ class DocumentParser {
         return $value;
     }
 
-    function _contextValue($key, $parent = false) {
+    function _contextValue($key, $parent = false)
+    {
         if (preg_match('/@\d+\/u/', $key)) {
             $key = str_replace(array('@', '/u'), array('@u(', ')'), $key);
         }
@@ -2130,7 +2187,8 @@ class DocumentParser {
         return '';
     }
 
-    function addLogEntry($fname, $fstart) {
+    function addLogEntry($fname, $fstart)
+    {
         $tend = $this->getMicroTime();
         $totaltime = $tend - $fstart;
         $fname = $this->htmlspecialchars($fname);
@@ -2138,7 +2196,8 @@ class DocumentParser {
         $this->functionLog[] = $msg;
     }
 
-    function mergeSettingsContent($content, $ph = false) {
+    function mergeSettingsContent($content, $ph = false)
+    {
         if (strpos($content, '<@LITERAL>') !== false) {
             $content = $this->escapeLiteralTagsContent($content);
         }
@@ -2181,7 +2240,8 @@ class DocumentParser {
         return $content;
     }
 
-    function mergeChunkContent($content, $ph = false) {
+    function mergeChunkContent($content, $ph = false)
+    {
         if (strpos($content, '{{ ') !== false) {
             $content = str_replace(array('{{ ', ' }}'), array('\{\{ ', ' \}\}'), $content);
         }
@@ -2241,7 +2301,8 @@ class DocumentParser {
     }
 
     // Added by Raymond
-    function mergePlaceholderContent($content, $ph = false) {
+    function mergePlaceholderContent($content, $ph = false)
+    {
 
         if (strpos($content, '<@LITERAL>') !== false) {
             $content = $this->escapeLiteralTagsContent($content);
@@ -2291,7 +2352,8 @@ class DocumentParser {
         return $content;
     }
 
-    function mergeCommentedTagsContent($content, $left = '<!--@MODX:', $right = '-->') {
+    function mergeCommentedTagsContent($content, $left = '<!--@MODX:', $right = '-->')
+    {
         if (strpos($content, $left) === false) {
             return $content;
         }
@@ -2316,7 +2378,8 @@ class DocumentParser {
         return $content;
     }
 
-    function ignoreCommentedTagsContent($content, $left = '<!--@IGNORE:BEGIN-->', $right = '<!--@IGNORE:END-->') {
+    function ignoreCommentedTagsContent($content, $left = '<!--@IGNORE:BEGIN-->', $right = '<!--@IGNORE:END-->')
+    {
         if (strpos($content, $left) === false) {
             return $content;
         }
@@ -2334,7 +2397,8 @@ class DocumentParser {
         return $content;
     }
 
-    function escapeLiteralTagsContent($content, $left = '<@LITERAL>', $right = '<@ENDLITERAL>') {
+    function escapeLiteralTagsContent($content, $left = '<@LITERAL>', $right = '<@ENDLITERAL>')
+    {
         if (strpos($content, $left) === false) {
             return $content;
         }
@@ -2357,7 +2421,8 @@ class DocumentParser {
         $elseiftag = '<@ELSEIF:',
         $elsetag = '<@ELSE>',
         $endiftag = '<@ENDIF>'
-    ) {
+    )
+    {
         if ($this->debug) {
             $fstart = $this->getMicroTime();
         }
@@ -2413,7 +2478,8 @@ class DocumentParser {
         $elseiftag = '<@ELSEIF:',
         $elsetag = '<@ELSE>',
         $endiftag = '<@ENDIF>'
-    ) {
+    )
+    {
         if (strpos($content, '<!--@IF ') !== false) {
             $content = str_replace('<!--@IF ', $iftag, $content);
         } // for jp
@@ -2440,7 +2506,8 @@ class DocumentParser {
         return $content;
     }
 
-    private function _parseCTagCMD($cmd) {
+    private function _parseCTagCMD($cmd)
+    {
         if (strpos($cmd, '[!') !== false) {
             $cmd = str_replace(array('[!', '!]'), array('[[', ']]'), $cmd);
         }
@@ -2511,7 +2578,8 @@ class DocumentParser {
         return $cmd;
     }
 
-    function mergeBenchmarkContent($content) {
+    function mergeBenchmarkContent($content)
+    {
         if (strpos($content, '^]') === false) {
             return $content;
         }
@@ -2537,7 +2605,8 @@ class DocumentParser {
         );
     }
 
-    public function evalPlugin($pluginCode, $params) {
+    public function evalPlugin($pluginCode, $params)
+    {
         $modx = &$this;
         $modx->event->params = $params; // store params inside event object
         if (is_array($params)) {
@@ -2545,7 +2614,7 @@ class DocumentParser {
             $modx->event->cm->setParams($params);
         }
         ob_start();
-        $pluginCode = preg_replace('{^<\?php}u','',trim($pluginCode));
+        $pluginCode = preg_replace('{^<\?php}u', '', trim($pluginCode));
         $return = eval($pluginCode);
         unset ($modx->event->params);
         $echo = ob_get_clean();
@@ -2586,7 +2655,8 @@ class DocumentParser {
         return '';
     }
 
-    public function evalSnippet($phpcode, $params) {
+    public function evalSnippet($phpcode, $params)
+    {
         $phpcode = trim($phpcode);
         if (empty($phpcode)) {
             return '';
@@ -2665,7 +2735,8 @@ class DocumentParser {
         return $echo . $return;
     }
 
-    function evalSnippets($content) {
+    function evalSnippets($content)
+    {
         if (strpos($content, '[[') === false) {
             return $content;
         }
@@ -2693,8 +2764,8 @@ class DocumentParser {
                 continue;
             }
             if (stripos($call, '@include:') === 0) {
-                $path = trim(str_ireplace('@include:','',$call));
-                if(is_file($path)) {
+                $path = trim(str_ireplace('@include:', '', $call));
+                if (is_file($path)) {
                     ob_start();
                     $return = include $path;
                 }
@@ -2719,13 +2790,14 @@ class DocumentParser {
         return $content;
     }
 
-    private function getAbsolutePath($path) {
-        if(substr($path,0,1)==='/') {
+    private function getAbsolutePath($path)
+    {
+        if (substr($path, 0, 1) === '/') {
             if (!is_file($path)) {
                 $path = MODX_BASE_PATH . ltrim($path, '/');
             }
         }
-        if(strpos($path, MODX_MANAGER_PATH)===0) {
+        if (strpos($path, MODX_MANAGER_PATH) === 0) {
             return false;
         }
         if (!is_file($path)) {
@@ -2735,7 +2807,8 @@ class DocumentParser {
 
     }
 
-    private function _getSGVar($value) { // Get super globals
+    private function _getSGVar($value)
+    { // Get super globals
         $key = $value;
         list($key, $modifiers) = $this->splitKeyAndFilter($key);
 
@@ -2765,7 +2838,8 @@ class DocumentParser {
         return $value;
     }
 
-    private function _get_snip_result($piece) {
+    private function _get_snip_result($piece)
+    {
         if (ltrim($piece) !== $piece) {
             return '';
         }
@@ -2936,7 +3010,8 @@ class DocumentParser {
         return $params;
     }
 
-    function _getSplitPosition($str) {
+    function _getSplitPosition($str)
+    {
         $closeOpt = false;
         $maybePos = false;
         $inFilter = false;
@@ -2993,7 +3068,8 @@ class DocumentParser {
         return $pos;
     }
 
-    private function _split_snip_call($call) {
+    private function _split_snip_call($call)
+    {
         $spacer = hash('crc32b', 'dummy');
         if (strpos($call, ']]>') !== false) {
             $call = str_replace(']]>', "]{$spacer}]>", $call);
@@ -3018,7 +3094,8 @@ class DocumentParser {
         return $snip;
     }
 
-    private function _getSnippetObject($snip_name) {
+    private function _getSnippetObject($snip_name)
+    {
         if (!isset($this->snippetCache[$snip_name])) {
             return false;
         }
@@ -3032,7 +3109,8 @@ class DocumentParser {
         return $snippetObject;
     }
 
-    function setSnippetCache() {
+    function setSnippetCache()
+    {
         $rs = db()->select('name,snippet,properties', '[+prefix+]site_snippets');
         while ($row = db()->getRow($rs)) {
             $name = $row['name'];
@@ -3041,7 +3119,8 @@ class DocumentParser {
         }
     }
 
-    function getPluginCache() {
+    function getPluginCache()
+    {
         $plugins = @include(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
 
         if ($plugins) {
@@ -3051,7 +3130,8 @@ class DocumentParser {
         return false;
     }
 
-    private function is_int($string) {
+    private function is_int($string)
+    {
         return preg_match('@^[1-9][0-9]*$@', $string);
     }
 
@@ -3059,7 +3139,8 @@ class DocumentParser {
      * name: getDocumentObject  - used by parser
      * desc: returns a document object - $method: alias, id
      */
-    public function getDocumentObject($method = 'id', $identifier = '', $mode = 'direct') {
+    public function getDocumentObject($method = 'id', $identifier = '', $mode = 'direct')
+    {
         if ($method === 'alias') {
             $identifier = $this->getIdFromAlias($identifier);
             if ($identifier === false) {
@@ -3245,7 +3326,8 @@ class DocumentParser {
      * name: parseDocumentSource - used by parser
      * desc: return document source aftering parsing tvs, snippets, chunks, etc.
      */
-    function parseDocumentSource($source) {
+    function parseDocumentSource($source)
+    {
         $orgDocumentOutput = $this->documentOutput;
         $i = 0;
         while ($i < $this->maxParserPasses) {
@@ -3309,7 +3391,8 @@ class DocumentParser {
     /* API functions                                                                /
     /***************************************************************************************/
 
-    public function getParentIds($id = null, $height = 10) {
+    public function getParentIds($id = null, $height = 10)
+    {
         if ($id === null) {
             $id = $this->documentIdentifier;
         }
@@ -3327,9 +3410,10 @@ class DocumentParser {
         return $parents;
     }
 
-    public function hasChildren($docid, $extraWhere='and deleted=0') {
+    public function hasChildren($docid, $extraWhere = 'and deleted=0')
+    {
         static $cache = array();
-        if(isset($cache[$docid])) {
+        if (isset($cache[$docid])) {
             return $cache[$docid];
         }
         $rs = db()->getValue(
@@ -3343,14 +3427,15 @@ class DocumentParser {
                 )
             )
         );
-        while($row = db()->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $cache[$row['id']] = $row['count'];
         }
         return isset($cache[$docid]) ? $cache[$docid] : null;
     }
 
-    public function getSiblingIds($docid) {
-        static $cache  = array();
+    public function getSiblingIds($docid)
+    {
+        static $cache = array();
         if (isset($cache[$docid])) {
             return $cache[$docid];
         }
@@ -3361,18 +3446,20 @@ class DocumentParser {
             , sprintf("parent='%s' and deleted=0", $parent_id)
         );
         $siblings = array();
-        while($row = db()->getRow($rs)) {
+        while ($row = db()->getRow($rs)) {
             $siblings[] = $row['id'];
         }
         $cache[$docid] = $siblings;
         return $siblings;
     }
 
-    public function getSiblings($docid) {
+    public function getSiblings($docid)
+    {
         return $this->getSiblingIds($docid);
     }
 
-    public function getChildIds($id, $depth = 10, $children = array()) {
+    public function getChildIds($id, $depth = 10, $children = array())
+    {
         static $cached = array();
         $cacheKey = hash('crc32b', print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
@@ -3424,24 +3511,27 @@ class DocumentParser {
     }
 
     # Returns true if user has the currect permission
-    function hasPermission($key = null) {
+    function hasPermission($key = null)
+    {
 
         if ($this->session('mgrPermissions')) {
             if (!$key) {
                 return print_r($_SESSION['mgrPermissions'], true);
             }
-            return ($this->session('mgrPermissions.'.$key) == 1);
+            return ($this->session('mgrPermissions.' . $key) == 1);
         }
         return false;
     }
 
     # Returns true if parser is executed in backend (manager) mode
-    function isBackend() {
+    function isBackend()
+    {
         return defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true';
     }
 
     # Returns true if parser is executed in frontend mode
-    function isFrontend() {
+    function isFrontend()
+    {
         return !(defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true');
     }
 
@@ -3454,7 +3544,8 @@ class DocumentParser {
         $sort = 'menuindex',
         $dir = 'ASC',
         $limit = ''
-    ) {
+    )
+    {
         if (!$ids) {
             return false;
         }
@@ -3538,7 +3629,8 @@ class DocumentParser {
         return $docs;
     }
 
-    public function getDocument($id = 0, $fields = '*', $published = 1, $deleted = 0) {
+    public function getDocument($id = 0, $fields = '*', $published = 1, $deleted = 0)
+    {
         if (!$id) {
             return false;
         }
@@ -3551,7 +3643,8 @@ class DocumentParser {
         return false;
     }
 
-    public function getField($field = 'content', $docid = '') {
+    public function getField($field = 'content', $docid = '')
+    {
         static $doc = array(), $cached = array();
 
         if ($docid === '' && isset($this->documentIdentifier)) {
@@ -3587,7 +3680,8 @@ class DocumentParser {
         return $cached[$docid][$field];
     }
 
-    public function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias') {
+    public function getPageInfo($docid = 0, $activeOnly = 1, $fields = 'id, pagetitle, description, alias')
+    {
         if (!$docid || !preg_match('/^[1-9][0-9]*$/', $docid)) {
             return false;
         }
@@ -3612,12 +3706,12 @@ class DocumentParser {
                 , $docid
                 , ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : ''
                 , $this->isFrontend() ?
-                    "sc.privateweb='0'"
-                    :
-                    sprintf(
-                        "1='%s' OR sc.privatemgr='0'"
-                        , $this->session('mgrRole')
-                    )
+                "sc.privateweb='0'"
+                :
+                sprintf(
+                    "1='%s' OR sc.privatemgr='0'"
+                    , $this->session('mgrRole')
+                )
                 , ($docgrp) ? sprintf("OR dg.document_group IN (%s)", implode(',', $docgrp)) : ''
             )
             , ''
@@ -3626,7 +3720,8 @@ class DocumentParser {
         return db()->getRow($result);
     }
 
-    function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent') {
+    function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent')
+    {
         if (!$pid) {
             return false;
         }
@@ -3648,7 +3743,8 @@ class DocumentParser {
         return $this->getPageInfo($child['parent'], $activeOnly, $fields);
     }
 
-    private function _getReferenceListing() {
+    private function _getReferenceListing()
+    {
         $rs = db()->select(
             'id,content'
             , '[+prefix+]site_content'
@@ -3680,7 +3776,8 @@ class DocumentParser {
         return $referenceListing;
     }
 
-    function makeUrl($id = '', $alias = '', $args = '', $scheme = 'full', $ignoreReference = false) {
+    function makeUrl($id = '', $alias = '', $args = '', $scheme = 'full', $ignoreReference = false)
+    {
         static $cached = array();
 
         if ($id == 0) {
@@ -3717,7 +3814,7 @@ class DocumentParser {
 
         if (!isset($this->referenceListing[$id]) || $ignoreReference) {
             $orgId = null;
-            $type  = 'document';
+            $type = 'document';
         } else {
             $type = 'reference';
             if (!preg_match('/^[0-9]+$/', $this->referenceListing[$id])) {
@@ -3739,8 +3836,8 @@ class DocumentParser {
         } else {
             $alPath = '';
             if (!$alias) {
-                $al = $this->getAliasListing($orgId?$orgId:$id);
-                $alias = $orgId?$orgId:$id;
+                $al = $this->getAliasListing($orgId ? $orgId : $id);
+                $alias = $orgId ? $orgId : $id;
                 if ($this->config('friendly_alias_urls')) {
                     if (!$al || !$al['alias']) {
                         return false;
@@ -3808,13 +3905,13 @@ class DocumentParser {
             $url = preg_replace('/&(?!amp;)/', '&amp;', $url);
         }
         $params = array(
-            'id'     => $id,
-            'alias'  => $alias,
-            'args'   => $args,
+            'id' => $id,
+            'alias' => $alias,
+            'args' => $args,
             'scheme' => $scheme,
-            'url'    => & $url,
-            'type'   => $type,
-            'orgId'  => $orgId
+            'url' => & $url,
+            'type' => $type,
+            'orgId' => $orgId
         );
         $this->event->vars = $params;
         $rs = $this->invokeEvent('OnMakeUrl', $params);
@@ -3831,7 +3928,8 @@ class DocumentParser {
         return $url;
     }
 
-    function rewriteUrls($content) {
+    function rewriteUrls($content)
+    {
         if (strpos($content, '[~') === false) {
             return $content;
         }
@@ -3914,7 +4012,8 @@ class DocumentParser {
         return $content;
     }
 
-    function getConfig($name = '', $default = '') {
+    function getConfig($name = '', $default = '')
+    {
         if (!isset($this->config[$name])) {
             if ($default === '') {
                 return false;
@@ -3924,7 +4023,8 @@ class DocumentParser {
         return $this->config[$name];
     }
 
-    public function getChunk($chunk_name) {
+    public function getChunk($chunk_name)
+    {
         $chunk_name = trim($chunk_name);
         if ($chunk_name === '') {
             return false;
@@ -3953,9 +4053,10 @@ class DocumentParser {
         );
     }
 
-    public function hasChunk($chunk_name) {
+    public function hasChunk($chunk_name)
+    {
         static $db = null;
-        if($db===null) {
+        if ($db === null) {
             $db = array();
             $rs = db()->select(
                 'name,snippet,published'
@@ -3970,7 +4071,8 @@ class DocumentParser {
         return isset($db[$chunk_name]);
     }
 
-    private function _return_chunk_value($chunk_name, $value, $isCache) {
+    private function _return_chunk_value($chunk_name, $value, $isCache)
+    {
         $params = array(
             'name' => $chunk_name,
             'value' => $value,
@@ -3981,7 +4083,8 @@ class DocumentParser {
 
     }
 
-    function parseChunk($chunkName, $ph, $left = '{', $right = '}', $mode = 'chunk') {
+    function parseChunk($chunkName, $ph, $left = '{', $right = '}', $mode = 'chunk')
+    {
         if (!is_array($ph)) {
             return false;
         }
@@ -3994,7 +4097,8 @@ class DocumentParser {
         return $this->parseText($tpl, $ph, $left, $right);
     }
 
-    function parseText($tpl = '', $ph = array(), $left = '[+', $right = '+]', $execModifier = true) {
+    function parseText($tpl = '', $ph = array(), $left = '[+', $right = '+]', $execModifier = true)
+    {
         if (is_array($tpl) && !is_array($ph)) {
             list($tpl, $ph) = array($ph, $tpl);
         } // ditto->paginate()
@@ -4060,7 +4164,8 @@ class DocumentParser {
         return $tpl;
     }
 
-    function parseList($tpl = '', $multiPH = array()) {
+    function parseList($tpl = '', $multiPH = array())
+    {
 
         if (empty($multiPH) || empty($tpl)) {
             return $tpl;
@@ -4075,7 +4180,8 @@ class DocumentParser {
         return implode("\n", $_);
     }
 
-    function toDateFormat($timestamp = 0, $mode = '') {
+    function toDateFormat($timestamp = 0, $mode = '')
+    {
         if ($timestamp == 0 && $mode === '') {
             return '';
         }
@@ -4105,7 +4211,8 @@ class DocumentParser {
         return $strTime;
     }
 
-    function toTimeStamp($str) {
+    function toTimeStamp($str)
+    {
         $str = trim($str);
         if (empty($str)) {
             return '';
@@ -4144,7 +4251,8 @@ class DocumentParser {
         return $timeStamp;
     }
 
-    function mb_strftime($format = '%Y/%m/%d', $timestamp = '') {
+    function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
+    {
         global $modx, $_lc;
 
         if (stripos($format, '%a') !== false) {
@@ -4198,7 +4306,8 @@ class DocumentParser {
 
     // Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
     # returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
-    public function getTemplateVar($idname = '', $fields = '*', $docid = '', $published = 1) {
+    public function getTemplateVar($idname = '', $fields = '*', $docid = '', $published = 1)
+    {
         if ($idname == '') {
             return false;
         }
@@ -4208,7 +4317,8 @@ class DocumentParser {
     }
 
     # returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
-    public function getTemplateVars($idnames = '*', $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC') {
+    public function getTemplateVars($idnames = '*', $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC')
+    {
         // get document record
         if ($docid === '' && $this->documentIdentifier) {
             $docid = $this->documentIdentifier;
@@ -4298,7 +4408,8 @@ class DocumentParser {
     }
 
     # returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
-    function getTemplateVarOutput($idnames = '*', $docid = '', $published = 1, $sep = '') {
+    function getTemplateVarOutput($idnames = '*', $docid = '', $published = 1, $sep = '')
+    {
         if (is_array($idnames) && empty($idnames)) {
             return false;
         }
@@ -4338,22 +4449,26 @@ class DocumentParser {
     }
 
     # returns the full table name based on db settings
-    function getFullTableName($tbl) {
+    function getFullTableName($tbl)
+    {
         return db()->getFullTableName($tbl);
     }
 
     # return placeholder value
-    function getPlaceholder($name) {
+    function getPlaceholder($name)
+    {
         return $this->placeholders[$name];
     }
 
     # sets a value for a placeholder
-    function setPlaceholder($name, $value) {
+    function setPlaceholder($name, $value)
+    {
         $this->placeholders[$name] = $value;
     }
 
     # set arrays or object vars as placeholders
-    function toPlaceholders($ph, $prefix = '') {
+    function toPlaceholders($ph, $prefix = '')
+    {
         if (is_object($ph)) {
             $ph = get_object_vars($ph);
         }
@@ -4364,7 +4479,8 @@ class DocumentParser {
         }
     }
 
-    function toPlaceholder($key, $value, $prefix = '') {
+    function toPlaceholder($key, $value, $prefix = '')
+    {
         if (is_array($value) || is_object($value)) {
             $this->toPlaceholders(
                 $value
@@ -4379,17 +4495,20 @@ class DocumentParser {
     }
 
     # returns the virtual relative path to the manager folder
-    function getManagerPath() {
+    function getManagerPath()
+    {
         return MODX_BASE_URL . 'manager/';
     }
 
     # returns the virtual relative path to the cache folder
-    function getCachePath() {
+    function getCachePath()
+    {
         return MODX_BASE_URL . 'assets/cache/';
     }
 
     # Returns current user id
-    function getLoginUserID($context = '') {
+    function getLoginUserID($context = '')
+    {
         if ($context && isset($_SESSION["{$context}Validated"])) {
             return $_SESSION["{$context}InternalKey"];
         }
@@ -4408,7 +4527,8 @@ class DocumentParser {
     # Returns an array of document groups that current user is assigned to.
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
-    function getUserDocGroups($resolveIds = false) {
+    function getUserDocGroups($resolveIds = false)
+    {
         $dg = array(); // add so
         $dgn = array();
 
@@ -4461,7 +4581,8 @@ class DocumentParser {
     }
 
     # Remove unwanted html tags and snippet, settings and tags
-    function stripTags($html, $allowed = '') {
+    function stripTags($html, $allowed = '')
+    {
         $t = strip_tags($html, $allowed);
         $t = preg_replace('~\[\*(.*?)\*]~', '', $t); //tv
         $t = preg_replace('~\[\[(.*?)]]~', '', $t); //snippet
@@ -4473,13 +4594,15 @@ class DocumentParser {
     }
 
     # remove all event listners - only for use within the current execution cycle
-    function removeAllEventListener() {
+    function removeAllEventListener()
+    {
         unset ($this->pluginEvent);
         $this->pluginEvent = array();
     }
 
     # invoke an event. $extParams - hash array: name=>value
-    public function invokeEvent($evtName, &$extParams = array()) {
+    public function invokeEvent($evtName, &$extParams = array())
+    {
         if ($this->debug) {
             $fstart = $this->getMicroTime();
         }
@@ -4572,21 +4695,24 @@ class DocumentParser {
         return $results;
     }
 
-    function getPluginCode($pluginName) {
+    function getPluginCode($pluginName)
+    {
         if (!isset ($this->pluginCache[$pluginName])) {
             $this->setPluginCache($pluginName);
         }
         return $this->pluginCache[$pluginName];
     }
 
-    function getPluginProperties($pluginName) {
+    function getPluginProperties($pluginName)
+    {
         if (!isset ($this->pluginCache["{$pluginName}Props"])) {
             $this->setPluginCache($pluginName);
         }
         return $this->pluginCache["{$pluginName}Props"];
     }
 
-    function setPluginCache($pluginName) {
+    function setPluginCache($pluginName)
+    {
         if (isset($this->pluginCache[$pluginName])) {
             $this->pluginCache["{$pluginName}Props"] = '';
             return;
@@ -4612,7 +4738,8 @@ class DocumentParser {
     }
 
     # parses a resource property string and returns the result as an array
-    function parseProperties($propertyString) {
+    function parseProperties($propertyString)
+    {
         if (!$propertyString) {
             return array();
         }
@@ -4623,7 +4750,7 @@ class DocumentParser {
             if (strpos($tmpParam, '=') === false) {
                 continue;
             }
-            $pTmp  = explode('=', $tmpParam);
+            $pTmp = explode('=', $tmpParam);
             $pvTmp = explode(';', trim($pTmp['1']));
             if ($pvTmp['1'] === 'list' && $pvTmp['3'] != '') {
                 $parameter[trim($pTmp['0'])] = $pvTmp['3']; //list default
@@ -4642,7 +4769,8 @@ class DocumentParser {
     * Created by Raymond Irving Feb, 2005
     */
     // Added by Raymond 20-Jan-2005
-    function tvProcessor($value, $format = '', $paramstring = '', $name = '', $tvtype = '', $docid = '', $sep = '') {
+    function tvProcessor($value, $format = '', $paramstring = '', $name = '', $tvtype = '', $docid = '', $sep = '')
+    {
         $modx = &$this;
 
         if (is_array($value)) {
@@ -4743,7 +4871,8 @@ class DocumentParser {
         return $o;
     }
 
-    function applyFilter($value = '', $modifiers = false, $key = '') {
+    function applyFilter($value = '', $modifiers = false, $key = '')
+    {
         if ($modifiers === false || $modifiers === 'raw') {
             return $value;
         }
@@ -4751,7 +4880,8 @@ class DocumentParser {
         return $this->filter->phxFilter($key, $value, trim($modifiers));
     }
 
-    function addSnippet($name, $phpCode, $params = array()) {
+    function addSnippet($name, $phpCode, $params = array())
+    {
         if (strpos($phpCode, '@') === 0) {
             $phpCode = $this->atBind($phpCode);
         }
@@ -4759,18 +4889,21 @@ class DocumentParser {
         $this->snippetCache["#{$name}Props"] = $params;
     }
 
-    function addChunk($name, $text) {
+    function addChunk($name, $text)
+    {
         if (strpos($text, '@') === 0) {
             $text = $this->atBind($text);
         }
         $this->chunkCache['#' . $name] = $text;
     }
 
-    function addFilter($name, $phpCode) {
+    function addFilter($name, $phpCode)
+    {
         $this->snippetCache['phx:' . $name] = $phpCode;
     }
 
-    function cleanUpMODXTags($content = '') {
+    function cleanUpMODXTags($content = '')
+    {
         $_ = array('[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]');
         foreach ($_ as $brackets) {
             list($left, $right) = explode(' ', $brackets);
@@ -4784,48 +4917,59 @@ class DocumentParser {
     }
 
     // - deprecated db functions
-    function dbConnect() {
+    function dbConnect()
+    {
         db()->connect();
         $this->rs = $this->db->conn;
     }
 
-    function dbQuery($sql) {
+    function dbQuery($sql)
+    {
         return db()->query($sql);
     }
 
-    function recordCount($rs) {
+    function recordCount($rs)
+    {
         return db()->count($rs);
     }
 
-    function fetchRow($rs, $mode = 'assoc') {
+    function fetchRow($rs, $mode = 'assoc')
+    {
         return db()->getRow($rs, $mode);
     }
 
-    function affectedRows($rs) {
+    function affectedRows($rs)
+    {
         return db()->getAffectedRows($rs);
     }
 
-    function insertId($rs) {
+    function insertId($rs)
+    {
         return db()->getInsertId($rs);
     }
 
-    function dbClose() {
+    function dbClose()
+    {
         db()->disconnect();
     }
 
-    function putChunk($chunkName) {
+    function putChunk($chunkName)
+    {
         return $this->getChunk($chunkName);
     }
 
-    function getDocGroups() {
+    function getDocGroups()
+    {
         return $this->getUserDocGroups();
     }
 
-    function changePassword($o, $n) {
+    function changePassword($o, $n)
+    {
         return $this->changeWebUserPassword($o, $n);
     }
 
-    function parsePlaceholder($src = '', $ph = array(), $left = '[+', $right = '+]', $mode = 'ph') {
+    function parsePlaceholder($src = '', $ph = array(), $left = '[+', $right = '+]', $mode = 'ph')
+    {
         return $this->parseText($src, $ph, $left, $right, $mode);
     }
 
@@ -4834,7 +4978,8 @@ class DocumentParser {
     /* End of API functions                                       */
     /***************************************************************************************/
 
-    function phpError($nr, $text, $file, $line) {
+    function phpError($nr, $text, $file, $line)
+    {
         if (error_reporting() == 0 || $nr == 0) {
             return true;
         }
@@ -4873,11 +5018,13 @@ class DocumentParser {
         return $result;
     }
 
-    function getRegisteredClientScripts() {
+    function getRegisteredClientScripts()
+    {
         return join("\n", $this->jscripts);
     }
 
-    function getRegisteredClientStartupScripts() {
+    function getRegisteredClientStartupScripts()
+    {
         return join("\n", $this->sjscripts);
     }
 
@@ -4887,7 +5034,8 @@ class DocumentParser {
      * @param string Alias to be formatted
      * @return string Safe alias
      */
-    function stripAlias($alias, $browserID = '') {
+    function stripAlias($alias, $browserID = '')
+    {
         // let add-ons overwrite the default behavior
         $params = array('alias' => &$alias, 'browserID' => $browserID);
         $this->event->vars = $params;
@@ -4906,7 +5054,8 @@ class DocumentParser {
         return strip_tags($alias);
     }
 
-    function nicesize($size) {
+    function nicesize($size)
+    {
         $a = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
         $pos = 0;
         while ($size >= 1024) {
@@ -4916,7 +5065,8 @@ class DocumentParser {
         return round($size, 2) . ' ' . $a[$pos];
     }
 
-    public function getIdFromAlias($aliasPath = '') {
+    public function getIdFromAlias($aliasPath = '')
+    {
         static $cache = array();
 
         $aliasPath = trim($aliasPath, '/');
@@ -4994,7 +5144,7 @@ class DocumentParser {
                     where('id', '=', $aliasPath),
                     'AND deleted=0'
                 )
-                );
+            );
             $row = db()->getRow($rs);
         }
         if (!$row) {
@@ -5005,13 +5155,14 @@ class DocumentParser {
         return $row['id'];
     }
 
-    public function getIdFromUrl($url = '') {
+    public function getIdFromUrl($url = '')
+    {
         $url = preg_replace(
             '@' . $this->config('friendly_url_suffix') . '$@'
             , ''
             , trim($url)
         );
-        if (strpos($url, '/')===0) {
+        if (strpos($url, '/') === 0) {
             $url = preg_replace('@^' . MODX_BASE_URL . '@', '', $url);
         }
         if (substr($url, 0, 4) === 'http') {
@@ -5032,7 +5183,8 @@ class DocumentParser {
      * @return bool
      *
      */
-    function saveToFile($filename, $data) {
+    function saveToFile($filename, $data)
+    {
         if (!$filename) {
             return false;
         }
@@ -5062,7 +5214,8 @@ class DocumentParser {
      * @return bool
      *
      */
-    function setBaseTime($t = '') {
+    function setBaseTime($t = '')
+    {
         if (!$t) {
             $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
             if (!empty($baseTime) && $this->isLoggedin()) {
@@ -5091,7 +5244,8 @@ class DocumentParser {
      * @return int
      *
      */
-    function getBaseTime() {
+    function getBaseTime()
+    {
         return $this->baseTime;
     }
 
@@ -5107,7 +5261,8 @@ class DocumentParser {
      * @return bool
      *
      */
-    private static function isInt($param, $min = null, $max = null) {
+    private static function isInt($param, $min = null, $max = null)
+    {
         if (!preg_match('/\A[0-9]+\z/', $param)) {
             return false;
         }
@@ -5120,7 +5275,8 @@ class DocumentParser {
         return true;
     }
 
-    public function gotoSetup() {
+    public function gotoSetup()
+    {
         if (strpos(serverv('SCRIPT_NAME'), 'install/index.php') !== false) {
             return false;
         }
@@ -5131,7 +5287,7 @@ class DocumentParser {
 
         if (is_file(MODX_BASE_PATH . 'install/index.php')) {
             header(
-                sprintf('Location: %sinstall/index.php?action=mode',MODX_SITE_URL)
+                sprintf('Location: %sinstall/index.php?action=mode', MODX_SITE_URL)
             );
             exit();
         }
@@ -5139,11 +5295,13 @@ class DocumentParser {
         exit('Not installed.');
     }
 
-    function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
+    function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false)
+    {
         return $this->hsc($str, $flags, $encode, $double_encode);
     }
 
-    function hsc($str = '', $flags = ENT_COMPAT, $encode = null, $double_encode = false) {
+    function hsc($str = '', $flags = ENT_COMPAT, $encode = null, $double_encode = false)
+    {
         if ($str === '') {
             return '';
         }
@@ -5155,7 +5313,7 @@ class DocumentParser {
         }
 
         if (!$encode) {
-            $encode = $this->config('modx_charset','utf-8');
+            $encode = $this->config('modx_charset', 'utf-8');
         }
 
         $ent_str = htmlspecialchars($str, $flags, $encode, $double_encode);
@@ -5168,13 +5326,15 @@ class DocumentParser {
         return $ent_str;
     }
 
-    function reload() {
+    function reload()
+    {
         $url = $this->makeUrl($this->docid);
         $this->sendRedirect($url);
         exit;
     }
 
-    function move_uploaded_file($tmp_path, $target_path) {
+    function move_uploaded_file($tmp_path, $target_path)
+    {
         $target_path = str_replace('\\', '/', $target_path);
         $new_file_permissions = octdec(ltrim($this->config['new_file_permissions'], '0'));
 
@@ -5320,34 +5480,41 @@ class DocumentParser {
         return false;
     }
 
-    public function input_get($key = null, $default = null) {
+    public function input_get($key = null, $default = null)
+    {
         return $this->array_get($_GET, $key, $default);
     }
 
-    public function input_post($key = null, $default = null) {
+    public function input_post($key = null, $default = null)
+    {
         return $this->array_get($_POST, $key, $default);
     }
 
-    public function input_cookie($key = null, $default = null) {
+    public function input_cookie($key = null, $default = null)
+    {
         return $this->array_get($_COOKIE, $key, $default);
     }
 
-    public function input_any($key = null, $default = null) {
+    public function input_any($key = null, $default = null)
+    {
         return anyv($key, $default);
     }
 
-    public function server($key = null, $default = null) {
+    public function server($key = null, $default = null)
+    {
         if (!isset($_SERVER)) {
             return $default;
         }
         return $this->array_get($_SERVER, strtoupper($key), $default);
     }
 
-    public function server_var($key = null, $default = null) {
+    public function server_var($key = null, $default = null)
+    {
         return $this->server($key, $default);
     }
 
-    public function session($key = null, $default = null) {
+    public function session($key = null, $default = null)
+    {
         if (strpos($key, '*') === 0) {
             $_SESSION[ltrim($key, '*')] = $default;
             return $default;
@@ -5358,11 +5525,13 @@ class DocumentParser {
         return $this->array_get($_SESSION, $key, $default);
     }
 
-    public function session_var($key = null, $default = null) {
+    public function session_var($key = null, $default = null)
+    {
         return $this->session($key, $default);
     }
 
-    public function global_var($key = null, $default = null) {
+    public function global_var($key = null, $default = null)
+    {
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
             $this->array_set($GLOBALS, $key, $value);
@@ -5374,7 +5543,8 @@ class DocumentParser {
         return $this->array_get($GLOBALS, $key, $default);
     }
 
-    public function config($key = null, $default = null) {
+    public function config($key = null, $default = null)
+    {
         if (!defined('MODX_SETUP_PATH')) {
             if (!isset($this->config['site_url']) || !$this->config['site_url']) {
                 $this->getSettings();
@@ -5388,7 +5558,8 @@ class DocumentParser {
         return $this->array_get($this->config, $key, $default);
     }
 
-    public function doc($key = null, $default = null) {
+    public function doc($key = null, $default = null)
+    {
         if (!$this->documentObject) {
             return $default;
         }
@@ -5400,18 +5571,21 @@ class DocumentParser {
         return $this->array_get($this->documentObject, $key, $default);
     }
 
-    public function output($string = null) {
+    public function output($string = null)
+    {
         if ($string !== null) {
             $this->documentOutput = $string;
         }
         return $this->documentOutput;
     }
 
-    public function conf_var($key = null, $default = null) {
+    public function conf_var($key = null, $default = null)
+    {
         return $this->config($key, $default);
     }
 
-    function array_get($array, $key = null, $default = null) {
+    function array_get($array, $key = null, $default = null)
+    {
         if ($key === null || trim($key) == '') {
             return $array;
         }
@@ -5437,7 +5611,8 @@ class DocumentParser {
     }
 
     // from Laravel Arr::set()
-    public function array_set(&$array, $key, $value) {
+    public function array_set(&$array, $key, $value)
+    {
         if ($key === null) {
             return $array = $value;
         }
@@ -5457,7 +5632,8 @@ class DocumentParser {
         return $array;
     }
 
-    public function get_docfield_type($field_name = '') {
+    public function get_docfield_type($field_name = '')
+    {
         $type = array();
         $type['datetime'] = 'published,createdon,editedon,publishedon,deletedon,pub_date,unpub_date';
         $type['title'] = 'pagetitle,longtitle,menutitle';
@@ -5509,7 +5685,8 @@ class DocumentParser {
     }
 
     // End of class.
-    public function html_tag($tag_name, $attrib = array(), $content = null) {
+    public function html_tag($tag_name, $attrib = array(), $content = null)
+    {
         $tag_name = trim($tag_name, '<>');
         if (!$attrib && !$content) {
             return sprintf('<%s>', $tag_name);
@@ -5542,7 +5719,8 @@ class DocumentParser {
         );
     }
 
-    public function real_ip() {
+    public function real_ip()
+    {
         return real_ip();
     }
 }

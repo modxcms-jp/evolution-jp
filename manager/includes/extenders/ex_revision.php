@@ -33,12 +33,13 @@ class REVISION
         return $rev;
     }
 
-    public function getRevisionObject($elmid, $elm = 'resource', $addContent = '') {
+    public function getRevisionObject($elmid, $elm = 'resource', $addContent = '')
+    {
         $rs = $this->_setStatus($elmid, $elm);
         if (!$rs) {
             return false;
         }
-        if ($addContent && ! is_array($addContent)) {
+        if ($addContent && !is_array($addContent)) {
             $addContent = explode(',', $addContent);
         }
 
@@ -59,7 +60,7 @@ class REVISION
                 }
                 $tmp = unserialize($v);
                 foreach ($addContent as $k2) {
-                    if ( ! isset($tmp[$k2])) {
+                    if (!isset($tmp[$k2])) {
                         continue;
                     }
                     $obj[$k2] = $tmp[$k2];
@@ -81,7 +82,7 @@ class REVISION
 
         $draft = array_get($row, 'content') ? unserialize($row['content'])
             : array();
-        if ( ! $draft) {
+        if (!$draft) {
             return array();
         }
 
@@ -90,7 +91,7 @@ class REVISION
 
     public function save($elmid = '', $resource = array(), $status = 'inherit')
     {
-        if ( ! $elmid) {
+        if (!$elmid) {
             return '';
         }
 
@@ -114,14 +115,14 @@ class REVISION
             return 'nochange';
         }
         $f = array(
-            'elmid'    => $elmid,
-            'status'   => $status,
-            'content'  => db()->escape($revision_content),
-            'element'  => 'resource',
+            'elmid' => $elmid,
+            'status' => $status,
+            'content' => db()->escape($revision_content),
+            'element' => 'resource',
             'editedon' => request_time(),
             'editedby' => evo()->getLoginUserID(),
             'checksum' => $checksum,
-            'version'  => ($status === 'inherit') ? $total + 1 : 0,
+            'version' => ($status === 'inherit') ? $total + 1 : 0,
         );
 
         if ($total) {
@@ -136,7 +137,7 @@ class REVISION
 
     public function delete($elmid = '', $status = '*')
     {
-        if ( ! $elmid) {
+        if (!$elmid) {
             return 0;
         }
 
@@ -153,30 +154,30 @@ class REVISION
     private function convertData($doc = array())
     {
         $input = array(
-            'content'         => array_get($doc, 'content'
+            'content' => array_get($doc, 'content'
                 , array_get($doc, 'ta', '')
             ),
-            'pagetitle'       => array_get($doc, 'pagetitle', ''),
-            'longtitle'       => array_get($doc, 'longtitle', ''),
-            'menutitle'       => array_get($doc, 'menutitle', ''),
-            'description'     => array_get($doc, 'description', ''),
-            'introtext'       => array_get($doc, 'introtext', ''),
-            'type'            => array_get($doc, 'type', 'document'),
-            'alias'           => array_get($doc, 'alias', ''),
+            'pagetitle' => array_get($doc, 'pagetitle', ''),
+            'longtitle' => array_get($doc, 'longtitle', ''),
+            'menutitle' => array_get($doc, 'menutitle', ''),
+            'description' => array_get($doc, 'description', ''),
+            'introtext' => array_get($doc, 'introtext', ''),
+            'type' => array_get($doc, 'type', 'document'),
+            'alias' => array_get($doc, 'alias', ''),
             'link_attributes' => array_get($doc, 'link_attributes', ''),
-            'isfolder'        => array_get($doc, 'isfolder', 0),
-            'richtext'        => array_get($doc, 'richtext', 1),
-            'parent'          => array_get($doc, 'parent', 0),
-            'template'        => array_get($doc, 'template', 0),
-            'menuindex'       => array_get($doc, 'menuindex', 0),
-            'searchable'      => array_get($doc, 'searchable', 1),
-            'cacheable'       => array_get($doc, 'cacheable', 1),
-            'contentType'     => array_get($doc, 'contentType', 'text/html'),
-            'content_dispo'   => array_get($doc, 'content_dispo', ''),
-            'hidemenu'        => array_get($doc, 'hidemenu', ''),
-            'pub_date'        => array_get($doc, 'pub_date', 0),
-            'unpub_date'      => array_get($doc, 'unpub_date', 0),
-            'published'       => array_get($doc, 'published'
+            'isfolder' => array_get($doc, 'isfolder', 0),
+            'richtext' => array_get($doc, 'richtext', 1),
+            'parent' => array_get($doc, 'parent', 0),
+            'template' => array_get($doc, 'template', 0),
+            'menuindex' => array_get($doc, 'menuindex', 0),
+            'searchable' => array_get($doc, 'searchable', 1),
+            'cacheable' => array_get($doc, 'cacheable', 1),
+            'contentType' => array_get($doc, 'contentType', 'text/html'),
+            'content_dispo' => array_get($doc, 'content_dispo', ''),
+            'hidemenu' => array_get($doc, 'hidemenu', ''),
+            'pub_date' => array_get($doc, 'pub_date', 0),
+            'unpub_date' => array_get($doc, 'unpub_date', 0),
+            'published' => array_get($doc, 'published'
                 , evo()->config(
                     'publish_default'
                     , 0
@@ -187,16 +188,16 @@ class REVISION
             if (strpos($k, 'tv') !== 0) {
                 continue;
             }
-            if (array_get($doc, $k.'_prefix') === null) {
+            if (array_get($doc, $k . '_prefix') === null) {
                 $input[$k] = is_array($v) ? implode('||', $v) : $v;
                 continue;
             }
-            if ($doc[$k.'_prefix'] === 'DocID') {
+            if ($doc[$k . '_prefix'] === 'DocID') {
                 //tvがリンクの時の例外処理
-                $input[$k] = '[~'.$v.'~]';
+                $input[$k] = '[~' . $v . '~]';
                 continue;
             }
-            $input[$k] = $doc[$k.'_prefix'].$v;
+            $input[$k] = $doc[$k . '_prefix'] . $v;
         }
 
         return $input;
@@ -208,7 +209,7 @@ class REVISION
             '*'
             , '[+prefix+]site_revision'
             , sprintf("elmid='%s' AND element='%s'", $elmid, $elm));
-        if ( ! $rs) {
+        if (!$rs) {
             return false;
         }
 
@@ -262,7 +263,7 @@ class REVISION
             $form[] = evo()->parseText(
                 '<input type="hidden" name="[+name+]" value="[+value+]" />'
                 , array(
-                    'name'  => $k,
+                    'name' => $k,
                     'value' => hsc($v),
                 )
             );
@@ -277,7 +278,7 @@ class REVISION
     */
     public function chStandbytoDraft($elmid, $type = 'resource')
     {
-        if ( ! $elmid) {
+        if (!$elmid) {
             return false;
         }
 
@@ -296,11 +297,11 @@ class REVISION
     {
         $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
         while ($row = db()->getRow($rs)) {
-            $tvname['tv'.$row['id']] = $row['name'];
+            $tvname['tv' . $row['id']] = $row['name'];
         }
 
         foreach ($input as $k => $v) {
-            if ( ! isset($tvname[$k])) {
+            if (!isset($tvname[$k])) {
                 continue;
             }
             unset($input[$k]);

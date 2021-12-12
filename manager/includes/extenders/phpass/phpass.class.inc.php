@@ -24,13 +24,14 @@
 // Obviously, since this code is in the public domain, the above are not
 // requirements (there can be none), but merely suggestions.
 //
-class PasswordHash {
+class PasswordHash
+{
     var $itoa64;
     var $iteration_count_log2;
     var $portable_hashes;
     var $random_state;
 
-    function __construct($iteration_count_log2=8, $portable_hashes=true)
+    function __construct($iteration_count_log2 = 8, $portable_hashes = true)
     {
         $this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -125,7 +126,7 @@ class PasswordHash {
         // in PHP would result in much worse performance and
         // consequently in lower iteration counts and hashes that are
         // quicker to crack (by non-PHP code).
-        
+
         $hash = md5($salt . $password, TRUE);
         do {
             $hash = md5($hash . $password, TRUE);
@@ -198,7 +199,7 @@ class PasswordHash {
 
     function HashPassword($password)
     {
-        if ( strlen( $password ) > 4096 ) {
+        if (strlen($password) > 4096) {
             return '*';
         }
 
@@ -225,7 +226,7 @@ class PasswordHash {
             $random = $this->get_random_bytes(6);
         $hash =
             $this->crypt_private($password,
-            $this->gensalt_private($random));
+                $this->gensalt_private($random));
         if (strlen($hash) == 34)
             return $hash;
 
@@ -237,14 +238,14 @@ class PasswordHash {
 
     function CheckPassword($password, $stored_hash)
     {
-        if ( strlen( $password ) > 4096 ) {
+        if (strlen($password) > 4096) {
             return false;
         }
 
         $hash = $this->crypt_private($password, $stored_hash);
-        if (substr($hash,0,1) === '*')
+        if (substr($hash, 0, 1) === '*')
             $hash = crypt($password, $stored_hash);
 
-        return ($hash===$stored_hash) ? true : false;
+        return ($hash === $stored_hash) ? true : false;
     }
 }
