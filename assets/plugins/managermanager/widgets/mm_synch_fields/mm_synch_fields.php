@@ -2,30 +2,31 @@
 /**
  * mm_synch_fields
  * @version 1.1 (2012-11-13)
- * 
+ *
  * Synch two fields in real time.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_synch_fields/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_synch_fields($fields, $roles = '', $templates = ''){
-	global $modx, $mm_fields;
-	$e = &$modx->event;
-	
-	// if we've been supplied with a string, convert it into an array
-	$fields = makeArray($fields);
-	
-	// We need at least 2 values
-	if (count($fields) < 2){
-		return;
-	}
-	
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_synch_fields($fields, $roles = '', $templates = '')
+{
+    global $modx, $mm_fields;
+    $e = &$modx->event;
+
+    // if we've been supplied with a string, convert it into an array
+    $fields = makeArray($fields);
+
+    // We need at least 2 values
+    if (count($fields) < 2) {
+        return;
+    }
+
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

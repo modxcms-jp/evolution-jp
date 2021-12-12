@@ -4,19 +4,20 @@
  * @version 1.1 (2012-11-13)
  *
  * Change the label for an element.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_renamefield/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_renameField($field, $newlabel, $roles='', $templates='', $newhelp='') {
-	global $mm_fields;
+function mm_renameField($field, $newlabel, $roles = '', $templates = '', $newhelp = '')
+{
+    global $mm_fields;
 
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

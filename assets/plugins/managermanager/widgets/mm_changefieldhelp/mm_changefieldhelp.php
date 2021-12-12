@@ -4,24 +4,25 @@
  * @version 1.1 (2012-11-13)
  *
  * Change the help text of a field.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_changefieldhelp/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_changeFieldHelp($field, $helptext='', $roles='', $templates=''){
-	global $mm_fields, $modx;
-	$e = &$modx->event;
+function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = '')
+{
+    global $mm_fields, $modx;
+    $e = &$modx->event;
 
-	if ($helptext == ''){
-		return;
-	}
+    if ($helptext == '') {
+        return;
+    }
 
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
