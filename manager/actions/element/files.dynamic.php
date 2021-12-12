@@ -360,8 +360,9 @@ if (!is_readable($startpath)) {
             ?>
 
             <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
-                <input type="hidden" name="MAX_FILE_SIZE"
-                       value="<?= isset($upload_maxsize) ? $upload_maxsize : 3145728 ?>">
+                <input
+                    type="hidden" name="MAX_FILE_SIZE"
+                    value="<?= isset($upload_maxsize) ? $upload_maxsize : 3145728 ?>">
                 <input type="hidden" name="a" value="31">
                 <input type="hidden" name="path" value="<?= $startpath ?>">
 
@@ -371,8 +372,9 @@ if (!is_readable($startpath)) {
 
                 <div id="uploader" class="actionButtons" style="margin-top:10px;">
                     <input type="file" name="userfile" onchange="document.upload.submit();">
-                    <a class="default" href="#" onclick="document.upload.submit()"
-                       style="display:inline;float:none;"><?=
+                    <a
+                        class="default" href="#" onclick="document.upload.submit()"
+                        style="display:inline;float:none;"><?=
                         '<img src="' . $_style['icons_add'] . '" /> '
                         . lang('files_uploadfile')
                         ?></a>
@@ -395,8 +397,10 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
     ?>
 
     <div class="section">
-        <div class="sectionHeader"
-             id="file_editfile"><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
+        <div
+            class="sectionHeader"
+            id="file_editfile"
+        ><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
         <div class="sectionBody">
             <?php
             $filename = anyv('path');
@@ -423,8 +427,10 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
                 <input type="hidden" name="path" value="<?= anyv('path') ?>"/>
                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
                     <tr>
-                        <td><textarea dir="ltr" style="width:100%; height:370px;" name="content"
-                                      class="phptextarea"><?= $ent_buffer ?></textarea></td>
+                        <td>
+                            <textarea
+                                dir="ltr" style="width:100%; height:370px;" name="content"
+                                class="phptextarea"><?= $ent_buffer ?></textarea></td>
                     </tr>
                 </table>
             </form>
