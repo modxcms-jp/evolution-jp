@@ -1346,7 +1346,7 @@ class DocumentParser {
             , $filename
         );
 
-        if ($this->session('mgrValidated') || 0 < $this->input_post()) {
+        if ($this->session('mgrValidated') || $this->input_post()) {
             $this->config['cache_type'] = '1';
         }
 
