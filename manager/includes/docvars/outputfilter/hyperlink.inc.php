@@ -9,13 +9,13 @@ foreach ($urls as $url) {
         if ($o) $o .= '<br />';
         $attributes = '';
         // setup the link attributes
-        $attr = array(
+        $attr = [
             'href' => $url,
             'title' => $params['title'] ? htmlspecialchars($params['title']) : $name,
             'class' => $params['linkclass'],
             'style' => $params['linkstyle'],
             'target' => $params['target'],
-        );
+        ];
         foreach ($attr as $k => $v) {
             $attributes .= ($v ? " {$k}=\"{$v}\"" : '');
         }

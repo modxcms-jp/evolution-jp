@@ -11,7 +11,7 @@ class EXPORT_SITE
     var $exportstart;
     var $repl_before;
     var $repl_after;
-    var $output = array();
+    var $output = [];
     var $maxtime;
     var $lock_file_path;
 
@@ -146,7 +146,7 @@ class EXPORT_SITE
         $pastTime = $this->getPastTime();
         if (!empty($this->maxtime) && $this->maxtime < $pastTime) {
             $msg = $modx->parseText($_lang['export_site_exit_maxtime'],
-                array('count' => $this->count, 'total' => $this->total, 'maxtime' => $this->maxtime));
+                ['count' => $this->count, 'total' => $this->total, 'maxtime' => $this->maxtime]);
             exit($msg);
         }
 
@@ -215,7 +215,7 @@ class EXPORT_SITE
         $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
         $rs = db()->select($fields, '[+prefix+]site_content', $where);
 
-        $ph = array();
+        $ph = [];
         $ph['total'] = $this->total;
         $folder_permission = octdec($modx->config['new_folder_permissions']);
 
@@ -344,7 +344,7 @@ class EXPORT_SITE
         global $modx, $_lang;
 
         $tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>';
-        $ph = array();
+        $ph = [];
 
         $ph['status'] = $status;
 

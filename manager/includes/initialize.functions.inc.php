@@ -57,16 +57,16 @@ class init
         header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
 
-    public static function session_set_cookie_params($options = array())
+    public static function session_set_cookie_params($options = [])
     {
-        $options += array(
+        $options += [
             'lifetime' => 3600 * 24 * 30,
             'path' => MODX_BASE_URL,
             'domain' => '',
             'secure' => init::is_ssl() ? true : false,
             'httponly' => true,
             'samesite' => 'Lax'
-        );
+        ];
         if (70300 <= PHP_VERSION_ID) {
             session_set_cookie_params($options);
         } else {
@@ -89,14 +89,14 @@ class init
             setcookie(
                 $site_sessionname
                 , session_id()
-                , array(
+                , [
                     'expires' => $expires,
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                )
+                ]
             );
             return;
         }
@@ -114,8 +114,8 @@ class init
     public static function get_base_path()
     {
         return str_replace(
-            array('\\', 'manager/includes/initialize.functions.inc.php')
-            , array('/', '')
+            ['\\', 'manager/includes/initialize.functions.inc.php']
+            , ['/', '']
             , __FILE__
         );
     }

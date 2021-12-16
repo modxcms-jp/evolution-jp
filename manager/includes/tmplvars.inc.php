@@ -6,7 +6,7 @@ function renderFormElement(
     $field_elements,
     $field_value,
     $field_style = '',
-    $row = array()
+    $row = []
 )
 {
     global $modx;

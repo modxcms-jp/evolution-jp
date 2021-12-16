@@ -1,5 +1,5 @@
 <?php
-$default_config = array(
+$default_config = [
     'site_url' => MODX_SITE_URL,
     'base_url' => MODX_BASE_URL,
     'allow_duplicate_alias' => '0',
@@ -96,7 +96,7 @@ $default_config = array(
     'doc_encoding' => 'UTF-8',
     'enable_draft' => '0',
     'automatic_optimize' => '1',
-);
+];
 
 if (getv('a') !== '17') {
     return $default_config;

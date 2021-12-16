@@ -79,7 +79,7 @@ class OldFunctions
     function userLoggedIn()
     {
         global $modx;
-        $userdetails = array();
+        $userdetails = [];
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             // web user
             $userdetails['loggedIn'] = true;
@@ -154,14 +154,14 @@ class OldFunctions
         $field = "IF(alias='', id, alias) AS alias, id, parent";
         $rs = db()->select($field, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         while ($row = db()->getRow($rs)) {
-            $docs[$row['id']] = array('alias' => $row['alias'], 'parent' => $row['parent']);
+            $docs[$row['id']] = ['alias' => $row['alias'], 'parent' => $row['parent']];
         }
 
         foreach ($docs as $docid => $doc) {
             if ($modx->config['friendly_urls'] !== '1' || $modx->config['use_alias_path'] !== '1') {
                 $key = $doc['alias'];
             } else {
-                $_ = array();
+                $_ = [];
                 $_[] = $doc['alias'];
                 $pid = $doc['parent'];
                 if ($pid !== '0') {

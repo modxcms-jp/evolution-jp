@@ -68,7 +68,7 @@ class CONFIG_MEDIATION
      */
     public function getParamKeys()
     {
-        $out = array();
+        $out = [];
         if (is_array($this->params)) {
             foreach ($this->params as $key => $val) {
                 $out[] = $key;

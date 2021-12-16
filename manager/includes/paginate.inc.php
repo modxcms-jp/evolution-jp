@@ -88,7 +88,7 @@ class Paging
 
     public function getPagingRowArray()
     {
-        $array_all_page = array();
+        $array_all_page = [];
         $total = $this->getNumberOfPage();
         for ($i = 0; $i < $total; $i++) {
             if ($i == $this->getCurrentPage()) {

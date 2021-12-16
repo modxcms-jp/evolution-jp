@@ -98,12 +98,12 @@ function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false
     return $tpl;
 }
 
-function html_tag($tag_name, $attrib = array(), $content = null)
+function html_tag($tag_name, $attrib = [], $content = null)
 {
     return evo()->html_tag($tag_name, $attrib, $content);
 }
 
-function input_text_tag($props = array())
+function input_text_tag($props = [])
 {
     $props['type'] = 'text';
     $props['maxlength'] = evo()->array_get($props, 'maxlength', 255);
@@ -116,13 +116,13 @@ function input_text_tag($props = array())
     return evo()->html_tag('input', $props);
 }
 
-function textarea_tag($props = array(), $content)
+function textarea_tag($props = [], $content)
 {
     $props['class'] = evo()->array_get($props, 'class', 'inputBox');
     return evo()->html_tag('textarea', $props, $content);
 }
 
-function select_tag($props = array(), $options)
+function select_tag($props = [], $options)
 {
     $props['class'] = evo()->array_get($props, 'class', 'inputBox');
     if (is_array($options)) {
@@ -131,7 +131,7 @@ function select_tag($props = array(), $options)
     return evo()->html_tag('select', $props, $options);
 }
 
-function img_tag($src, $props = array())
+function img_tag($src, $props = [])
 {
     $props['src'] = $src;
     return evo()->html_tag('img', $props);
@@ -164,7 +164,7 @@ function set(&$array, $key, $value)
         unset($keys[$i]);
 
         if (!isset($array[$key]) || !is_array($array[$key])) {
-            $array[$key] = array();
+            $array[$key] = [];
         }
 
         $array = &$array[$key];
@@ -446,7 +446,7 @@ function datetime_format($format, $timestamp = '', $default = '')
     if (strpos($format, '%曜') === false) {
         return strftime($format, $timestamp);
     }
-    $week = array('日', '月', '火', '水', '木', '金', '土');
+    $week = ['日', '月', '火', '水', '木', '金', '土'];
     return strftime(
         str_replace('%曜', $week[date('w', $timestamp)], $format),
         $timestamp
@@ -470,7 +470,7 @@ function and_where($field, $op, $value = null)
     return 'AND ' . where($field, $op, $value);
 }
 
-function where_in($field, $values = array())
+function where_in($field, $values = [])
 {
     if (!$values) {
         return null;
@@ -485,7 +485,7 @@ function where_in($field, $values = array())
     );
 }
 
-function and_where_in($field, $values = array())
+function and_where_in($field, $values = [])
 {
     if (!$values) {
         return null;

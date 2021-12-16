@@ -139,7 +139,7 @@ class DataGrid
                 $width = 'width="' . $width . '"';
             }
             $attr = '';
-            foreach (array($colStyle, $Class, $align, $color, $nowrap, $width) as $v) {
+            foreach ([$colStyle, $Class, $align, $color, $nowrap, $width] as $v) {
                 $v = trim($v);
                 if (!empty($v)) {
                     $attr .= ' ' . $v;
@@ -273,12 +273,12 @@ class DataGrid
         }
 
         // start grid
-        $attrs = array(
+        $attrs = [
             $this->cssClass ? 'class="' . $this->cssClass . '"' : '',
             $this->cssStyle ? 'style="' . $this->cssStyle . '"' : '',
             (int)$this->cellPadding ? 'cellpadding="' . (int)$this->cellPadding . '"' : '',
             (int)$this->cellSpacing ? 'cellspacing="' . (int)$this->cellSpacing . '"' : ''
-        );
+        ];
         $attr = '';
         foreach ($attrs as $v) {
             $v = trim($v);
@@ -303,7 +303,7 @@ class DataGrid
                 $this->columns
             );
         } else {
-            $this->_colnames = array();
+            $this->_colnames = [];
         }
 
         $this->_colwidths = explode(
@@ -340,7 +340,7 @@ class DataGrid
 
         if (!$this->_isDataset) {
             if ($this->ds === '') {
-                $this->ds = array();
+                $this->ds = [];
             } else {
                 $delim = '@[' . $this->cdelim . "\n]@";
                 $this->ds = preg_split($delim, $this->ds);
@@ -350,14 +350,14 @@ class DataGrid
 
         if (0 < count($this->_colnames)) {
             $tblColHdr = "<thead>\n<tr>";
-            $attrs = array(
+            $attrs = [
                 'style' => ($this->columnHeaderStyle)
                     ? 'style="' . $this->columnHeaderStyle . '"'
                     : '',
                 'class' => ($this->columnHeaderClass)
                     ? 'class="' . $this->columnHeaderClass . '"'
                     : ''
-            );
+            ];
             for ($c = 0; $c < $this->_colcount; $c++) {
                 if (!empty($this->_colwidths[$c])) {
                     $attrs['width'] = 'width="' . $this->_colwidths[$c] . '"';
@@ -389,7 +389,7 @@ class DataGrid
         $rowcount = $this->_isDataset ? db()->count($this->ds) : count($this->ds);
 
         if ($rowcount == 0) {
-            $ph = array();
+            $ph = [];
             $ph['colspan'] = (1 < $this->_colcount) ? 'colspan="' . $this->_colcount . '"' : '';
             $ph['style'] = $this->_itemStyle;
             $ph['class'] = $this->_itemClass;

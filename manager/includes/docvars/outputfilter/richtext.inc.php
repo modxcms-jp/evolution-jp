@@ -8,17 +8,17 @@ $richtexteditor = $params['edt'] ? $params['edt'] : '';
 $o = '<div class="MODX_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
 $o .= htmlspecialchars($value);
 $o .= '</textarea></div>';
-$replace_richtext = array($id);
+$replace_richtext = [$id];
 // setup editors
 if (!empty($replace_richtext) && !empty($richtexteditor)) {
     // invoke OnRichTextEditorInit event
-    $tmp = array(
+    $tmp = [
         'editor' => $richtexteditor,
         'elements' => $replace_richtext,
         'forfrontend' => 1,
         'width' => $w,
         'height' => $h
-    );
+    ];
     $evtOut = $this->invokeEvent('OnRichTextEditorInit', $tmp);
     if (is_array($evtOut)) $o .= implode('', $evtOut);
 }

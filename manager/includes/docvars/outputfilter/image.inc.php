@@ -9,14 +9,14 @@ foreach ($images as $image) {
 
     if ($src) {
         // We have a valid source
-        $src = $this->parseText($params['imgoutput'], array('value' => $src));
-        $attr = array(
+        $src = $this->parseText($params['imgoutput'], ['value' => $src]);
+        $attr = [
             'class' => $params['imgclass'],
             'src' => $src,
             'id' => ($params['id'] ? $params['id'] : ''),
             'alt' => htmlspecialchars($params['alttext']),
             'style' => $params['imgstyle']
-        );
+        ];
         if (isset($params['align']) && $params['align'] != 'none') {
             $attr['align'] = $params['align'];
         }

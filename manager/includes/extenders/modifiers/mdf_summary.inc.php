@@ -6,10 +6,10 @@ if (!preg_match('/^[1-9][0-9]*$/', $opt)) {
 }
 
 $content = str_replace(
-    array('。 ', '、 ', ' ・', '。・', '…'),
-    array('。', '、', '・', '。', '・・'),
+    ['。 ', '、 ', ' ・', '。・', '…'],
+    ['。', '、', '・', '。', '・・'],
     str_replace(
-        array('&nbsp;', '　', "\xc2\xa0", "\r", "\n", "\t", ' '),
+        ['&nbsp;', '　', "\xc2\xa0", "\r", "\n", "\t", ' '],
         ' ',
         remove_tags(
             evo()->filter->parseDocumentSource($value)
