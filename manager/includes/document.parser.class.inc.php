@@ -878,7 +878,7 @@ class DocumentParser
                 case '2':
                     $cacheContent = serialize($this->documentObject['contentType']);
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-                    $filename = $this->uri_parent_dir . hash('crc32b', $this->decoded_request_uri);
+                    $filename = hash('crc32b', request_uri());
                     break;
             }
 
@@ -900,9 +900,12 @@ class DocumentParser
             if (!is_dir(MODX_BASE_PATH . 'assets/cache/' . $this->uaType)) {
                 mkdir(MODX_BASE_PATH . 'assets/cache/' . $this->uaType, 0777);
             }
-            $path = sprintf("%sassets/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
-            if (!is_dir($path)) {
-                mkdir($path, 0777, true);
+
+            if($this->config['cache_type']==1) {
+                $path = sprintf("%sassets/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
+                if (!is_dir($path)) {
+                    mkdir($path, 0777, true);
+                }
             }
             $this->saveToFile(
                 sprintf(
