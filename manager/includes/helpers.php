@@ -81,8 +81,11 @@ if (!function_exists('str_ends_with')) {
     }
 }
 
-function hsc($string = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false)
+function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
+    if(!$string) {
+        return $string;
+    }
     return evo()->hsc($string, $flags, $encode, $double_encode);
 }
 
