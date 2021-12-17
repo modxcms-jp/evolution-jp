@@ -7,7 +7,7 @@
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
 $self = 'manager/session_keepalive.php';
-$base_path = str_replace($self, '', str_replace('\\', '/', __FILE__));
+$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 include_once($base_path . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
