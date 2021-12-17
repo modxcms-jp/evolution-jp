@@ -5142,30 +5142,35 @@ class DocumentParser {
         exit('Not installed.');
     }
 
-    function htmlspecialchars($str = '', $flags = ENT_COMPAT, $encode = '', $double_encode = false) {
+    function htmlspecialchars($str, $flags = ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML401, $encode = null, $double_encode = true)
+    {
         return $this->hsc($str, $flags, $encode, $double_encode);
     }
 
-    function hsc($str = '', $flags = ENT_COMPAT, $encode = null, $double_encode = false) {
-        if ($str === '') {
-            return '';
+    function hsc($str, $flags = ENT_QUOTES|ENT_SUBSTITUTE|ENT_HTML401, $encode = null, $double_encode = true)
+    {
+        if (!$str) {
+            return $str;
         }
+    
         if (is_array($str)) {
             foreach ($str as $k => $v) {
-                $str[$k] = $this->hsc($v, $flags, $encode);
+                $str[$k] = $this->hsc($v, $flags, $encode, $double_encode);
             }
             return $str;
         }
 
         if (!$encode) {
-            $encode = $this->config('modx_charset','utf-8');
+            $encode = $this->config('modx_charset', 'utf-8');
         }
 
         $ent_str = htmlspecialchars($str, $flags, $encode, $double_encode);
 
         if ($str && $ent_str == '') {
-            $detect_order = implode(',', mb_detect_order());
-            $ent_str = mb_convert_encoding($str, $encode, $detect_order);
+            $ent_str = $this->hsc(
+                mb_convert_encoding($str, $encode, implode(',', mb_detect_order())),
+                $flags, $encode, $double_encode
+            );
         }
 
         return $ent_str;
