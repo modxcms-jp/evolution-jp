@@ -608,9 +608,18 @@ if (!function_exists('default_value')) {
             'searchable' => config('search_default'),
             'cacheable' => config('cache_default'),
             'type' => manager()->action == 72 ? 'reference' : 'document',
-            'richtext' => manager()->action == 72 ? 0 : 1,
             'parent' => $parent_id,
-            'template' => $new_template_id ? $new_template_id : getDefaultTemplate()
+            'template' => $new_template_id ? $new_template_id : getDefaultTemplate(),
+            'pagetitle'=>'',
+            'longtitle'=>'',
+            'menutitle' => '',
+            'description'=>'',
+            'introtext' => '',
+            'link_attributes'=>'',
+            'pub_date'=>'',
+            'unpub_date'=>'',
+            'isfolder'=>0,
+            'content' => ''
         );
     }
 }

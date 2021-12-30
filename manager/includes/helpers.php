@@ -343,7 +343,7 @@ function user_agent()
     return serverv('http_user_agent', '');
 }
 
-function doc($key, $default = null)
+function doc($key, $default = '')
 {
     global $modx, $docObject;
     if (isset($docObject)) {
@@ -366,13 +366,13 @@ function doc($key, $default = null)
     }
     if (str_contains($key, '|hsc')) {
         return hsc(
-            evo()->array_get(
+            array_get(
                 $a
                 , str_replace('|hsc', '', $key, $default)
             )
         );
     }
-    return evo()->array_get($a, $key, $default);
+    return array_get($a, $key, $default);
 }
 
 function ob_get_include($path)
