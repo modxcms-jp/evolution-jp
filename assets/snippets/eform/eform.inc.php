@@ -355,6 +355,9 @@ function eForm($modx, $params)
                                 $rClass[$name] = $requiredClass;
                             } elseif ($_FILES[$name]['tmp_name']) {
                                 if (strpos($fld[5], '#LIST') !== 0 || validateField($_FILES[$name]['name'], $fld, $vMsg, $isDebug)) {
+                                    if(!isset($attachments)) {
+                                        $attachments = [];
+                                    }
                                     $attachments[count($attachments)] = $_FILES[$name]['tmp_name'];
                                 } else $rClass[$name] = $invalidClass;
                             }
