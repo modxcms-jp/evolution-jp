@@ -686,94 +686,68 @@ class DocumentParser
         return $content;
     }
 
+    private function mergeScripts($content) {
+        if ($this->documentGenerated != 1) {
+            return $content;
+        }
+        if ($this->documentObject['cacheable'] != 1) {
+            return $content;
+        }
+        if ($this->documentObject['type'] !== 'document') {
+            return $content;
+        }
+        if ($this->documentObject['published'] != 1) {
+            return $content;
+        }
+
+        if ($this->sjscripts) {
+            $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
+        }
+        if ($this->jscripts) {
+            $this->documentObject['__MODxJScripts__'] = $this->jscripts;
+        }
+        return $content;
+    }
+
     function outputContent($noEvent = false)
     {
+        $content = $this->documentContent;
+        $content = $this->mergeScripts($content);
+        $content = $this->parseNonCachedSnippets($content);
+        $content = $this->mergeRegisteredClientStartupScripts($content);
+        $content = $this->mergeRegisteredClientScripts($content);
+        $content = $this->cleanUpMODXTags($content);
+        $content = $this->rewriteUrls($content);
 
-        $this->documentOutput = $this->documentContent;
-
-        if ($this->documentGenerated == 1
-            && $this->documentObject['cacheable'] == 1
-            && $this->documentObject['type'] === 'document'
-            && $this->documentObject['published'] == 1) {
-            if ($this->sjscripts) {
-                $this->documentObject['__MODxSJScripts__'] = $this->sjscripts;
-            }
-            if ($this->jscripts) {
-                $this->documentObject['__MODxJScripts__'] = $this->jscripts;
-            }
+        if ($this->config('cache_type') != 2 && strpos($content, '^]') !== false) {
+            $content = $this->mergeBenchmarkContent($content);
         }
 
-        if (strpos($this->documentOutput, '[!') !== false) {
-            $this->documentOutput = $this->parseNonCachedSnippets($this->documentOutput);
-        }
-
-        if ($this->sjscripts && $js = $this->getRegisteredClientStartupScripts()) {
-            $this->documentOutput = str_ireplace('</head>', "{$js}\n</head>", $this->documentOutput);
-        }
-
-        if ($this->jscripts && $js = $this->getRegisteredClientScripts()) {
-            $this->documentOutput = str_ireplace('</body>', "{$js}\n</body>", $this->documentOutput);
-        }
-
-        $this->documentOutput = $this->cleanUpMODXTags($this->documentOutput);
-
-        if (strpos($this->documentOutput, '[~') !== false) {
-            $this->documentOutput = $this->rewriteUrls($this->documentOutput);
-        }
-        if (strpos($this->documentOutput, '<!---->') !== false) {
-            $this->documentOutput = str_replace('<!---->', '', $this->documentOutput);
-        }
-
-        // send out content-type and content-disposition headers
-        if (defined('IN_PARSER_MODE') && constant('IN_PARSER_MODE') == 'true') {
-            $type = $this->documentObject['contentType'];
-            if (!$type) {
-                $type = 'text/html';
-            }
-
-            header(sprintf('Content-Type: %s; charset=%s', $type, $this->config('modx_charset')));
-            if ($this->documentObject['content_dispo'] == 1) {
-                if ($this->documentObject['alias']) {
-                    $name = $this->documentObject['alias'];
-                } else {
-                    // strip title of special characters
-                    $name = $this->documentObject['pagetitle'];
-                    $name = strip_tags($name);
-                    $name = preg_replace('/&.+?;/', '', $name); // kill entities
-                    $name = preg_replace('/\s+/', '-', $name);
-                    $name = preg_replace('|-+|', '-', $name);
-                    $name = trim($name, '-');
-                }
-                header('Content-Disposition: attachment; filename=' . $name);
-            }
-        }
-        if ($this->config('cache_type') != 2 && strpos($this->documentOutput, '^]') !== false) {
-            $this->documentOutput = $this->mergeBenchmarkContent($this->documentOutput);
-        }
-
-        if (strpos($this->documentOutput, '\{') !== false) {
-            $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
-        } elseif (strpos($this->documentOutput, '\[') !== false) {
-            $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
+        if (strpos($content, '\{') !== false) {
+            $content = $this->RecoveryEscapedTags($content);
+        } elseif (strpos($content, '\[') !== false) {
+            $content = $this->RecoveryEscapedTags($content);
         }
 
         if ($this->dumpSQLCode) {
-            $this->documentOutput = preg_replace(
+            $content = preg_replace(
                 '@(</body>)@i'
-                , implode("\n", $this->dumpSQLCode) . "\n\\1", $this->documentOutput);
+                , implode("\n", $this->dumpSQLCode) . "\n\\1", $content);
         }
 
         if ($this->dumpSnippetsCode) {
-            $this->documentOutput = preg_replace(
+            $content = preg_replace(
                 '@(</body>)@i'
                 , implode("\n", $this->dumpSnippetsCode) . "\n\\1"
-                , $this->documentOutput
+                , $content
             );
         }
         $unstrict_url = MODX_SITE_URL . $this->makeUrl($this->config('site_start'), '', '', 'rel');
-        if (strpos($this->documentOutput, $unstrict_url) !== false) {
-            $this->documentOutput = str_replace($unstrict_url, MODX_SITE_URL, $this->documentOutput);
+        if (strpos($content, $unstrict_url) !== false) {
+            $content = str_replace($unstrict_url, MODX_SITE_URL, $content);
         }
+
+        $this->documentOutput = $content;
 
         // invoke OnLogPageView event
         if ($this->config['track_visitors'] == 1) {
@@ -791,12 +765,36 @@ class DocumentParser
             echo $this->documentOutput;
         }
 
-        $content = ob_get_clean();
-        header('Content-Length: ' . strlen($content));
         if ($this->debug) {
             $this->recDebugInfo();
         }
-        return $content;
+
+        $ob_get = ob_get_clean();
+        if (defined('IN_PARSER_MODE') && constant('IN_PARSER_MODE') == 'true') {
+            header(
+                sprintf(
+                    'Content-Type: %s; charset=%s',
+                    array_get($this->documentObject, 'contentType', 'text/html'),
+                    $this->config('modx_charset')
+                )
+            );
+            header('Content-Length: ' . strlen($ob_get));
+            if ($this->documentObject['content_dispo'] == 1) {
+                if ($this->documentObject['alias']) {
+                    $name = $this->documentObject['alias'];
+                } else {
+                    // strip title of special characters
+                    $name = $this->documentObject['pagetitle'];
+                    $name = strip_tags($name);
+                    $name = preg_replace('/&.+?;/', '', $name); // kill entities
+                    $name = preg_replace('/\s+/', '-', $name);
+                    $name = preg_replace('|-+|', '-', $name);
+                    $name = trim($name, '-');
+                }
+                header('Content-Disposition: attachment; filename=' . $name);
+            }
+        }
+        return $ob_get;
     }
 
     function RecoveryEscapedTags($contents)
@@ -818,6 +816,9 @@ class DocumentParser
 
     function parseNonCachedSnippets($contents)
     {
+        if (strpos($contents, '[!') === false) {
+            return $contents;
+        }
         if ($this->config['cache_type'] == 2) {
             $this->config['cache_type'] = 1;
         }
@@ -4915,6 +4916,9 @@ class DocumentParser
             $matches = $this->getTagsFromContent($content, $left, $right);
             $content = str_replace($matches[0], '', $content);
         }
+        if (strpos($content, '<!---->') !== false) {
+            $content = str_replace('<!---->', '', $content);
+        }
         return $content;
     }
 
@@ -5020,14 +5024,28 @@ class DocumentParser
         return $result;
     }
 
-    function getRegisteredClientScripts()
+    function mergeRegisteredClientScripts($content)
     {
-        return join("\n", $this->jscripts);
+        if(!$this->jscripts) {
+            return $content;
+        }
+        return str_ireplace(
+            '</body>',
+            join("\n", $this->jscripts) . "\n</body>",
+            $content
+        );
     }
 
-    function getRegisteredClientStartupScripts()
+    function mergeRegisteredClientStartupScripts($content)
     {
-        return join("\n", $this->sjscripts);
+        if(!$this->sjscripts) {
+            return $content;
+        }
+        return str_ireplace(
+            '</head>',
+            join("\n", $this->sjscripts) . "\n</head>",
+            $content
+        );
     }
 
     /**
