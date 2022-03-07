@@ -327,13 +327,12 @@ class DocumentParser
 
     private function treatRequestUri($uri)
     {
-        $pos = strpos($uri, '?');
-        if ($pos === false) {
+        if(strpos($uri,'?')===false) {
             return $uri;
         }
         $qs = $_GET;
         ksort($qs);
-        return substr($uri, 0, $pos) . '?' . http_build_query($qs);
+        return strstr($uri,'?',true) . '?' . http_build_query($qs);
     }
 
     function executeParserDirect($id = '')
@@ -5308,7 +5307,7 @@ class DocumentParser
         if (!$str) {
             return $str;
         }
-    
+
         if (is_array($str)) {
             foreach ($str as $k => $v) {
                 $str[$k] = $this->hsc($v, $flags, $encode, $double_encode);
