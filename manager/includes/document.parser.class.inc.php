@@ -719,10 +719,6 @@ class DocumentParser
         $content = $this->cleanUpMODXTags($content);
         $content = $this->rewriteUrls($content);
 
-        if ($this->config('cache_type') != 2 && strpos($content, '^]') !== false) {
-            $content = $this->mergeBenchmarkContent($content);
-        }
-
         if (strpos($content, '\{') !== false) {
             $content = $this->RecoveryEscapedTags($content);
         } elseif (strpos($content, '\[') !== false) {
@@ -759,11 +755,7 @@ class DocumentParser
             $this->invokeEvent('OnWebPagePrerender');
         }
 
-        if (strpos($this->documentOutput, '^]') !== false) {
-            echo $this->mergeBenchmarkContent($this->documentOutput);
-        } else {
-            echo $this->documentOutput;
-        }
+        echo $this->mergeBenchmarkContent($this->documentOutput);
 
         if ($this->debug) {
             $this->recDebugInfo();
