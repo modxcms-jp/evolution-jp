@@ -1667,7 +1667,7 @@ class SubParser
                 evo()->mergeSettingsContent(
                     evo()->mergeDocumentContent(
                         evo()->parseText(
-                            $this->custom_tv_tpl($field_id, $field_elements)
+                            $this->custom_tv_tpl($field_id, $field_elements, $ph)
                             , $ph
                         )
                     )
@@ -1676,7 +1676,7 @@ class SubParser
         );
     }
 
-    private function custom_tv_tpl($field_id, $field_elements)
+    private function custom_tv_tpl($field_id, $field_elements, $ph)
     {
         global $modx, $_lang;
         if (strpos($field_elements, '@FILE') === 0) {
@@ -1695,6 +1695,7 @@ class SubParser
         }
 
         if (strpos($field_elements, '@INCLUDE') === 0) {
+            extract($ph);
             $path_str = substr($field_elements, 9);
             if (strpos($path_str, "\n") !== false) {
                 $path_str = strstr($path_str, "\n", true);
@@ -1733,6 +1734,7 @@ class SubParser
         }
 
         if (strpos($field_elements, '@EVAL') === 0) {
+            extract($ph);
             return eval(
             trim(substr($field_elements, 6))
             );
