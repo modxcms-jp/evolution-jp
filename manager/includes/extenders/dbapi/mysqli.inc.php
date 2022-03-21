@@ -1076,18 +1076,16 @@ class DBAPI
 
     function optimize($table_name)
     {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
+        $rs = $this->query("OPTIMIZE TABLE ". $this->replaceFullTableName($table_name));
         if ($rs) {
-            $rs = $this->query("ALTER TABLE `{$table_name}`");
+            $rs = $this->query("ALTER TABLE " . $this->replaceFullTableName($table_name));
         }
         return $rs;
     }
 
     function truncate($table_name)
     {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        return $this->query("TRUNCATE TABLE `" . $table_name . "`");
+        return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
     }
 
     function dataSeek($result, $row_number)
