@@ -314,7 +314,6 @@ class DocumentParser
             );
         }
 
-
         if (!$this->documentIdentifier) {
             $this->sendErrorPage();
         }
@@ -3846,6 +3845,7 @@ class DocumentParser
                     } else {
                         $alPath = '';
                     }
+
                     if ($this->config('xhtml_urls')) {
                         $alias = urlencode($al['alias']);
                     } else {

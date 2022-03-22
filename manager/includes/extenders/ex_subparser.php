@@ -2546,7 +2546,6 @@ class SubParser
         } else {
             $file_path = false;
         }
-
         if (!$file_path || !is_file($file_path)) {
             return false;
         }
