@@ -1,15 +1,15 @@
 /**
-* Bootstrap
-*
-* 学習用途向きのシンプルなテンプレート
-*
-* @category    template
-* @version    0.9
-* @license    http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
-* @internal    @lock_template 0
-* @internal    @modx_category Demo Content
-* @internal    @installset sample
-*/
+ * Bootstrap
+ *
+ * 学習用途向きのシンプルなテンプレート
+ *
+ * @category    template
+ * @version    0.9
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal    @lock_template 0
+ * @internal    @modx_category Demo Content
+ * @internal    @installset sample
+ */
 <!DOCTYPE html>
 <html lang="ja">
 <head>
