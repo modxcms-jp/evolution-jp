@@ -43,7 +43,7 @@ $modx->mstart = $mstart;
 $modx->safeMode = 0;
 evo()->loadExtension('ManagerAPI');
 
-if (isset($_SESSION['safeMode']) && $_SESSION['safeMode'] == 1) {
+if (sessionv('safeMode') == 1) {
     if (evo()->hasPermission('save_role')) {
         $modx->safeMode = 1;
     } else {
@@ -65,7 +65,7 @@ $modx->loadLexicon('manager');
 // send the charset header
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
-$modx->manager->action = isset($_REQUEST['a']) ? (int)$_REQUEST['a'] : 1;
+$modx->manager->action = anyv('a', 1);
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');

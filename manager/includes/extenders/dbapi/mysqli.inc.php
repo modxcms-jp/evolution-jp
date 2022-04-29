@@ -440,7 +440,7 @@ class DBAPI
     function save($fields, $table, $where = '')
     {
 
-        if (!$where || !$this->getRecordCount($this->select('*', $table, $where))) {
+        if (!$where || !$this->count($this->select('*', $table, $where))) {
             $mode = 'insert';
         } else {
             $mode = 'update';
@@ -846,7 +846,7 @@ class DBAPI
      *  or
      *        $docs = $modx->db->getObjects("select * from modx_site_content left join ...");
      *
-     * @param type $sql_or_table
+     * @param string $sql_or_table
      * @param type $where
      * @param type $orderby
      * @param type $limit
@@ -881,7 +881,7 @@ class DBAPI
         return is_object($rs);
     }
 
-    function getFullTableName($table_name)
+    public function getFullTableName($table_name)
     {
         return sprintf(
             '`%s`.`%s%s`'
@@ -928,7 +928,7 @@ class DBAPI
      * @name:  getXML
      * @desc:  returns an XML formay of the dataset $ds
      */
-    function getXML($dsq)
+    public function getXML($dsq)
     {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
@@ -936,15 +936,17 @@ class DBAPI
         $xmldata = [];
         while ($row = $this->getRow($dsq, 'both')) {
             $item = [];
-            for ($j = 0; $line = each($row); $j++) {
-                if ($j % 2) {
+            $i = 0;
+            foreach($row as $k=>$v) {
+                if ($i % 2) {
                     $item[] = sprintf(
                         "<%s>%s</%s>"
-                        , $line[0]
-                        , $line[1]
-                        , $line[0]
+                        , $k
+                        , $v
+                        , $v
                     );
                 }
+                $i++;
             }
             if ($item) {
                 $xmldata[] = "<item>\r\n" . implode("\r\n", $item) . "</item>";
@@ -964,7 +966,6 @@ class DBAPI
         if (!$table) {
             return false;
         }
-
         $ds = $this->query(sprintf('SHOW FIELDS FROM %s', $table));
         if (!$ds) {
             return false;
@@ -1032,49 +1033,51 @@ class DBAPI
      *         pagerStyle
      *
      */
-    function getHTMLGrid($dsq, $params)
+    public function getHTMLGrid($dsq, $params)
     {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        if ($dsq) {
-            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-            $grd = new DataGrid('', $dsq);
-
-            $grd->noRecordMsg = $params['noRecordMsg'];
-
-            $grd->columnHeaderClass = $params['columnHeaderClass'];
-            $grd->cssClass = $params['cssClass'];
-            $grd->itemClass = $params['itemClass'];
-            $grd->altItemClass = $params['altItemClass'];
-
-            $grd->columnHeaderStyle = $params['columnHeaderStyle'];
-            $grd->cssStyle = $params['cssStyle'];
-            $grd->itemStyle = $params['itemStyle'];
-            $grd->altItemStyle = $params['altItemStyle'];
-
-            $grd->columns = $params['columns'];
-            $grd->fields = $params['fields'];
-            $grd->colWidths = $params['colWidths'];
-            $grd->colAligns = $params['colAligns'];
-            $grd->colColors = $params['colColors'];
-            $grd->colTypes = $params['colTypes'];
-            $grd->colWraps = $params['colWraps'];
-
-            $grd->cellPadding = $params['cellPadding'];
-            $grd->cellSpacing = $params['cellSpacing'];
-            $grd->header = $params['header'];
-            $grd->footer = $params['footer'];
-            $grd->pageSize = $params['pageSize'];
-            $grd->pagerLocation = $params['pagerLocation'];
-            $grd->pagerClass = $params['pagerClass'];
-            $grd->pagerStyle = $params['pagerStyle'];
-
-            return $grd->render();
+        if (!$dsq) {
+            return null;
         }
+
+        include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+        $grd = new DataGrid('', $dsq);
+
+        $grd->noRecordMsg = $params['noRecordMsg'];
+
+        $grd->columnHeaderClass = $params['columnHeaderClass'];
+        $grd->cssClass = $params['cssClass'];
+        $grd->itemClass = $params['itemClass'];
+        $grd->altItemClass = $params['altItemClass'];
+
+        $grd->columnHeaderStyle = $params['columnHeaderStyle'];
+        $grd->cssStyle = $params['cssStyle'];
+        $grd->itemStyle = $params['itemStyle'];
+        $grd->altItemStyle = $params['altItemStyle'];
+
+        $grd->columns = $params['columns'];
+        $grd->fields = $params['fields'];
+        $grd->colWidths = $params['colWidths'];
+        $grd->colAligns = $params['colAligns'];
+        $grd->colColors = $params['colColors'];
+        $grd->colTypes = $params['colTypes'];
+        $grd->colWraps = $params['colWraps'];
+
+        $grd->cellPadding = $params['cellPadding'];
+        $grd->cellSpacing = $params['cellSpacing'];
+        $grd->header = $params['header'];
+        $grd->footer = $params['footer'];
+        $grd->pageSize = $params['pageSize'];
+        $grd->pagerLocation = $params['pagerLocation'];
+        $grd->pagerClass = $params['pagerClass'];
+        $grd->pagerStyle = $params['pagerStyle'];
+
+        return $grd->render();
     }
 
-    function optimize($table_name)
+    public function optimize($table_name)
     {
         $rs = $this->query("OPTIMIZE TABLE ". $this->replaceFullTableName($table_name));
         if ($rs) {
@@ -1083,7 +1086,7 @@ class DBAPI
         return $rs;
     }
 
-    function truncate($table_name)
+    public function truncate($table_name)
     {
         return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
     }
@@ -1157,7 +1160,7 @@ class DBAPI
         ) ? 1 : 0;
     }
 
-    function isConnected()
+    public function isConnected()
     {
         if (!$this->conn) {
             return false;
@@ -1168,23 +1171,25 @@ class DBAPI
         return true;
     }
 
-    function getCollation($table = '[+prefix+]site_content', $field = 'content')
+    public function getCollation($table = '[+prefix+]site_content', $field = 'content')
     {
-        $table = str_replace('[+prefix+]', $this->table_prefix, $table);
-        $sql = sprintf("SHOW FULL COLUMNS FROM `%s`", $table);
-        $rs = $this->query($sql);
-        $Collation = 'utf8_general_ci';
+        $rs = $this->query(
+            sprintf(
+                'SHOW FULL COLUMNS FROM `%s`',
+                str_replace('[+prefix+]', $this->table_prefix, $table)
+            )
+        );
         while ($row = $this->getRow($rs)) {
-            if ($row['Field'] == $field && isset($row['Collation'])) {
-                $Collation = $row['Collation'];
+            if ($row['Field'] != $field || !isset($row['Collation'])) {
+                continue;
             }
+            return $row['Collation'];
         }
-        return $Collation;
+        return 'utf8_general_ci';
     }
 
-    function _getFieldsStringFromArray($fields = [])
+    public function _getFieldsStringFromArray($fields = [])
     {
-
         if (empty($fields)) {
             return '*';
         }
