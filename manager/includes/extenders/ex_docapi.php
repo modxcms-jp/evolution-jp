@@ -11,7 +11,7 @@ class DocAPI
     {
     }
 
-    public function create($f = array(), $groups = array())
+    public function create($f = [], $groups = [])
     {
         $f = $this->correctResourceFields($f);
 
@@ -27,7 +27,7 @@ class DocAPI
             $f['id'] = $newdocid;
         }
 
-        $fields = array();
+        $fields = [];
         foreach ($f as $k => $v) {
             if ($this->isTv($k)) {
                 $fields['tv'][$k] = $v;
@@ -41,7 +41,7 @@ class DocAPI
         }
         if (preg_match('@^[1-9][0-9]*$@', array_get($fields, 'doc.parent', 0))) {
             db()->update(
-                array('isfolder' => 1)
+                ['isfolder' => 1]
                 , '[+prefix+]site_content'
                 , sprintf("id='%s'", array_get($fields, 'doc.parent')));
         }
@@ -55,7 +55,7 @@ class DocAPI
         if ($groups) {
             foreach ($groups as $group) {
                 db()->insert(
-                    array('document_group' => $group, 'document' => $id)
+                    ['document_group' => $group, 'document' => $id]
                     , '[+prefix+]document_groups'
                 );
             }
@@ -64,21 +64,21 @@ class DocAPI
         return $id;
     }
 
-    public function update($f = array(), $docid = 0, $where = '')
+    public function update($f = [], $docid = 0, $where = '')
     {
         if (!preg_match('@^[1-9][0-9]*$@', $docid)) {
             return false;
         }
         if (is_string($f) && str_contains($f, '=')) {
             list($k, $v) = explode('=', $f, 2);
-            $f = array(
+            $f = [
                 trim($k) => trim($v)
-            );
+            ];
         }
         $f['id'] = $docid;
         $f = $this->correctResourceFields($f);
 
-        $fields = array();
+        $fields = [];
         foreach ($f as $k => $v) {
             if ($this->isTv($k)) {
                 $fields['tv'][$k] = $v;
@@ -189,20 +189,20 @@ class DocAPI
 
     public function saveTV($doc_id, $name, $value)
     {
-        static $tv = array();
+        static $tv = [];
         if (!isset($tv[$doc_id][$name])) {
             $rs = db()->select(
-                array(
+                [
                     'doc_id' => 'doc.id',
                     'tv_name' => 'var.name',
                     'tv_id' => 'tt.tmplvarid',
                     'template_id' => 'doc.template'
-                )
-                , array(
+                ]
+                , [
                     '[+prefix+]site_content doc',
                     'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.template',
                     'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
-                )
+                ]
                 , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
             );
             while ($row = db()->getRow($rs)) {
@@ -214,9 +214,9 @@ class DocAPI
         }
         if ($this->hasTmplvar($tv[$doc_id][$name]['tv_id'], $doc_id)) {
             db()->update(
-                array(
+                [
                     'value' => db()->escape($value)
-                )
+                ]
                 , '[+prefix+]site_tmplvar_contentvalues'
                 , sprintf(
                     "tmplvarid='%s' AND contentid='%s'"
@@ -227,11 +227,11 @@ class DocAPI
             return;
         }
         db()->insert(
-            array(
+            [
                 'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
                 'contentid' => $doc_id,
                 'value' => db()->escape($value)
-            )
+            ]
             , '[+prefix+]site_tmplvar_contentvalues'
         );
     }
@@ -243,7 +243,7 @@ class DocAPI
             return $tmplvars;
         }
         $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
-        $tmplvars = array();
+        $tmplvars = [];
         while ($row = db()->getRow($rs)) {
             if (!$this->hasTmplvarRelation($row['id'], $template_id)) {
                 continue;
@@ -291,7 +291,7 @@ class DocAPI
         if ($tv !== null) {
             return false;
         }
-        $tv = array();
+        $tv = [];
         $rs = db()->select('id,name', '[+prefix+]site_tmplvars');
         while ($row = db()->getRow($rs)) {
             $tv[$row['name']] = $row['id'];

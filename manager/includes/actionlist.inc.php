@@ -4,7 +4,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 }
 
 // action list
-$GLOBALS['action_list'] = array(
+$GLOBALS['action_list'] = [
     '1' => 'Loading a frame(set)',
     '2' => 'Viewing home page/ online users',
     '3' => 'Viewing data for resource',
@@ -133,7 +133,7 @@ $GLOBALS['action_list'] = array(
     '501' => 'Delete category',
     '998' => 'Custom action with style',
     '999' => 'Custom action',
-);
+];
 
 function getAction($actionId, $itemid = '')
 {

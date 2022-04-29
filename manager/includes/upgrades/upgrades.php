@@ -16,8 +16,8 @@ function run_update($pre_version)
     global $modx_version;
 
     $pre_version = str_replace(
-        array('j', 'rc', '-r')
-        , array('', 'RC', '-')
+        ['j', 'rc', '-r']
+        , ['', 'RC', '-']
         , strtolower($pre_version)
     );
 
@@ -96,10 +96,10 @@ function disableLegacyPlugins()
 
 function update_config_custom_contenttype()
 {
-    $search = array(
+    $search = [
         '',
         'text/css,text/html,text/javascript,text/plain,text/xml',
-        'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain');
+        'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain'];
     foreach ($search as $v) {
         if ($v !== evo()->config['custom_contenttype']) {
             continue;
@@ -152,7 +152,7 @@ function update_config_default_template_method()
 function update_tbl_user_roles()
 {
     db()->update(
-        array(
+        [
             'view_unpublished' => '1',
             'publish_document' => '1',
             'move_document' => '1',
@@ -165,7 +165,7 @@ function update_tbl_user_roles()
             'empty_trash' => '1',
             'remove_locks' => '1',
             'view_schedule' => '1',
-        )
+        ]
         , '[+prefix+]user_roles'
         , "`save_role`='1'"
     );

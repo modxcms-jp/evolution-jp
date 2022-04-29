@@ -11,13 +11,13 @@ foreach ($values as $value) {
     $tagvalue = is_array($value) ? implode(' ', $value) : $value;
     if (!$tagvalue) continue;
 
-    $tagvalue = $this->parseText($params['tagoutput'], array('value' => $tagvalue));
+    $tagvalue = $this->parseText($params['tagoutput'], ['value' => $tagvalue]);
 
     $attr['id'] = ($tagid ? $tagid : $tagname) . ($i == 0 ? '' : "-{$i}"); // 'tv' already added to id
     $attr['class'] = $params['tagclass'];
     $attr['style'] = $params['tagstyle'];
 
-    $_ = array();
+    $_ = [];
     foreach ($attr as $k => $v) {
         if ($v) $_[] = "{$k}=\"{$v}\"";
     }

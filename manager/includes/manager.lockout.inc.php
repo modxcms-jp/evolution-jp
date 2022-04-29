@@ -8,7 +8,7 @@ if (anyv('a') == '8' || !sessionv('mgrValidated')) {
 }
 
 evo()->toPlaceholders(
-    array(
+    [
         'modx_charset' => $modx_manager_charset,
         'theme' => evo()->config('manager_theme'),
         'site_name' => evo()->config('site_name'),
@@ -19,7 +19,7 @@ evo()->toPlaceholders(
         'logouturl' => './index.php?a=8',
         'manager_theme_url' => sprintf('%smedia/style/%s/', MODX_MANAGER_URL, evo()->config('manager_theme')),
         'year' => date('Y')
-    )
+    ]
 );
 
 if (evo()->config('manager_login_startup')) {

@@ -62,10 +62,10 @@ if (!sessionv('mgrValidated')) {
     }
 
     // invoke OnManagerLoginFormPrerender event
-    $modx->event->vars = array();
+    $modx->event->vars = [];
     $modx->event->vars['tpl'] = &$tpl;
     $evtOut = evo()->invokeEvent('OnManagerLoginFormPrerender');
-    $modx->event->vars = array();
+    $modx->event->vars = [];
     $html = is_array($evtOut) ? implode('', $evtOut) : '';
     evo()->setPlaceholder('OnManagerLoginFormPrerender', $html);
 
@@ -76,10 +76,10 @@ if (!sessionv('mgrValidated')) {
 
     // andrazk 20070416 - notify user of install/update
     if (installGoingOn()) {
-        $login_message = array(
+        $login_message = [
             1 => $_lang['login_cancelled_install_in_progress'],
             2 => $_lang['login_cancelled_site_was_updated']
-        );
+        ];
         evo()->setPlaceholder(
             'login_message'
             , sprintf(
@@ -195,14 +195,14 @@ if (!sessionv('mgrValidated')) {
 $_SESSION['ip'] = real_ip();
 
 if (manager()->action != 1) {
-    $fields = array(
+    $fields = [
         'internalKey' => evo()->getLoginUserID(),
         'username' => sessionv('mgrShortname'),
         'lasthit' => serverv('REQUEST_TIME', time()),
         'action' => manager()->action,
         'id' => preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0,
         'ip' => real_ip()
-    );
+    ];
     foreach ($fields as $k => $v) {
         $keys[] = $k;
         $values[] = $v;

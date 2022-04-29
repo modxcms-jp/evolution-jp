@@ -21,14 +21,14 @@ class Document
 
     //private $id='';                  // Resource ID
     private $status = 'released';    // リソースの状態(本番:released、下書き:draft等)
-    private $content = array();       // Site content
-    private $tv = array();       // Template Value
+    private $content = [];       // Site content
+    private $tv = [];       // Template Value
     private $logLevel = self::LOG_ERR; // Output log level
     private $lastLog = '';            // Last log message
 
     //content table column (name => default value(null=sql default))
     private $content_lists
-        = array(
+        = [
             'id' => null,
             'type' => null,
             'contentType' => null,
@@ -66,10 +66,10 @@ class Document
             'privatemgr' => null,
             'content_dispo' => null,
             'hidemenu' => null
-        );
+        ];
 
     //日付処理が必要なカラム
-    private $content_type_date = array('pub_date', 'unpub_date', 'createdon', 'editedon', 'deletedon');
+    private $content_type_date = ['pub_date', 'unpub_date', 'createdon', 'editedon', 'deletedon'];
 
     /*
      * __construct
@@ -88,7 +88,7 @@ class Document
 
         if (empty($id)) {
             $this->content = $this->content_lists;
-            $this->tv = array();
+            $this->tv = [];
         } else {
             $this->load($id, $status);
         }
@@ -335,7 +335,7 @@ class Document
         }
         $this->content['template'] = $tid;
         //tv読み直し
-        $this->tv = array();
+        $this->tv = [];
         if (self::documentExist($this->content['id'])) {
             //tv読み込み(値付)
             $sql = <<< SQL_QUERY
@@ -396,7 +396,7 @@ SQL_QUERY;
     {
         //初期化
         $this->content = $this->content_lists;
-        $this->tv = array();
+        $this->tv = [];
 
         if (!self::isInt($id, 1)) {
             $this->logerr('リソースIDの指定が不正です。');
@@ -472,8 +472,8 @@ SQL_QUERY;
      */
     public function save($fields = '*', $clearCache = true)
     {
-        $c = array(); //新規/更新対象content
-        $tv = array(); //新規/更新対象tv
+        $c = []; //新規/更新対象content
+        $tv = []; //新規/更新対象tv
 
         if (empty($fields) || $fields == '*') {
             foreach ($this->content as $key => $val) {
@@ -598,7 +598,7 @@ SQL_QUERY;
                     );
                     if ($row = self::db()->getRow($rs)) {
                         $rs = self::db()->update(
-                            array('value' => self::db()->escape($v['value'])),
+                            ['value' => self::db()->escape($v['value'])],
                             '[+prefix+]site_tmplvar_contentvalues',
                             "tmplvarid = $k AND contentid = $id"
                         );
@@ -607,11 +607,11 @@ SQL_QUERY;
                         }
                     } else {
                         $rs = self::db()->insert(
-                            array(
+                            [
                                 'tmplvarid' => $k,
                                 'contentid' => $id,
                                 'value' => self::db()->escape($v['value'])
-                            ),
+                            ],
                             '[+prefix+]site_tmplvar_contentvalues'
                         );
                         if (!$rs) {
@@ -734,7 +734,7 @@ SQL_QUERY;
 
         //値の更新
         $onPub = self::bool2Int($onPub);
-        $p = array();
+        $p = [];
         $p['published'] = $onPub;
         if ($onPub == 1) {
             $p['publishedby'] = self::getLoginMgrUserID();
@@ -744,7 +744,7 @@ SQL_QUERY;
             $p['publishedon'] = 0;
         }
 
-        $target = array();
+        $target = [];
         if ($recursive) {
             $target = self::getChildren($id);
         }
@@ -790,7 +790,7 @@ SQL_QUERY;
 
         //値の更新
         $onDel = self::bool2Int($onDel);
-        $p = array();
+        $p = [];
         $p['deleted'] = $onDel;
         $addWhere = ''; //削除復活の場合、削除日が同じ子リソースを復活させる
         if ($onDel == 1) {
@@ -806,7 +806,7 @@ SQL_QUERY;
             }
         }
 
-        $target = array();
+        $target = [];
         if ($recursive) {
             $target = self::getChildren($id, $addWhere);
         }
@@ -845,7 +845,7 @@ SQL_QUERY;
                 }
             }
 
-            $target = array();
+            $target = [];
             if ($recursive) {
                 $target = self::getChildren($id);
             }
@@ -995,11 +995,11 @@ SQL_QUERY;
      */
     private static function getChildren($id, $addWhere = '')
     {
-        $r = array();
+        $r = [];
         if (!empty($addWhere)) {
             $addWhere = "AND ( $addWhere )";
         }
-        $ids = array($id);
+        $ids = [$id];
         while (!empty($ids)) {
             $rs = self::db()->select(
                 'id',

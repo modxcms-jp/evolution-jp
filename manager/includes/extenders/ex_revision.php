@@ -21,7 +21,7 @@ class REVISION
             , '[+prefix+]site_revision'
             , sprintf("elmid='%s'", $elmid)
         );
-        $rev = array();
+        $rev = [];
         while ($row = db()->getRow($rs)) {
             if ($row['version'] === 'inherit') {
                 $rev['inherit'] = unserialize($row['content']);
@@ -48,7 +48,7 @@ class REVISION
             , '[+prefix+]site_revision'
             , sprintf("elmid='%s' AND element='%s'", $elmid, $elm)
         );
-        $obj = array();
+        $obj = [];
         while ($row = db()->getRow($rs)) {
             foreach ($row as $k => $v) {
                 if ($k !== 'content') {
@@ -81,15 +81,15 @@ class REVISION
         $row = db()->getRow($rs);
 
         $draft = array_get($row, 'content') ? unserialize($row['content'])
-            : array();
+            : [];
         if (!$draft) {
-            return array();
+            return [];
         }
 
         return $this->convertData($draft);
     }
 
-    public function save($elmid = '', $resource = array(), $status = 'inherit')
+    public function save($elmid = '', $resource = [], $status = 'inherit')
     {
         if (!$elmid) {
             return '';
@@ -114,7 +114,7 @@ class REVISION
         ) {
             return 'nochange';
         }
-        $f = array(
+        $f = [
             'elmid' => $elmid,
             'status' => $status,
             'content' => db()->escape($revision_content),
@@ -123,7 +123,7 @@ class REVISION
             'editedby' => evo()->getLoginUserID(),
             'checksum' => $checksum,
             'version' => ($status === 'inherit') ? $total + 1 : 0,
-        );
+        ];
 
         if ($total) {
             db()->update($f, '[+prefix+]site_revision',
@@ -151,9 +151,9 @@ class REVISION
         );
     }
 
-    private function convertData($doc = array())
+    private function convertData($doc = [])
     {
-        $input = array(
+        $input = [
             'content' => array_get($doc, 'content'
                 , array_get($doc, 'ta', '')
             ),
@@ -183,7 +183,7 @@ class REVISION
                     , 0
                 )
             ),
-        );
+        ];
         foreach ($doc as $k => $v) {
             if (strpos($k, 'tv') !== 0) {
                 continue;
@@ -258,14 +258,14 @@ class REVISION
     public function getFormFromDraft($id)
     {
         $data = $this->getDraft($id);
-        $form = array();
+        $form = [];
         foreach ($data as $k => $v) {
             $form[] = evo()->parseText(
                 '<input type="hidden" name="[+name+]" value="[+value+]" />'
-                , array(
+                , [
                     'name' => $k,
                     'value' => hsc($v),
-                )
+                ]
             );
         }
 
@@ -283,7 +283,7 @@ class REVISION
         }
 
         return db()->update(
-            array('status' => 'draft')
+            ['status' => 'draft']
             , '[+prefix+]site_revision'
             , sprintf(
                 "element='%s' AND elmid='%s'"
@@ -325,7 +325,7 @@ class REVISION
         if (request_time() < array_get($fields, 'pub_date', 0)) {
             $this->save($fields['id'], $fields, 'standby');
             db()->update(
-                array('pub_date' => array_get($fields, 'pub_date', 0))
+                ['pub_date' => array_get($fields, 'pub_date', 0)]
                 , '[+prefix+]site_revision'
                 , where('elmid', '=', $fields['id'])
             );

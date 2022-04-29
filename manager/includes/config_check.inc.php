@@ -3,7 +3,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-$warnings = array();
+$warnings = [];
 if (ini_get('magic_quotes_gpc')) {
     $warnings[] = 'magic_quotes_gpc';
 }
@@ -103,9 +103,9 @@ foreach ($warnings as $warning) {
         case 'configcheck_mgr_tpl':
             $output = evo()->parseText(
                 $_lang['configcheck_mgr_tpl_msg'],
-                array(
+                [
                     'path' => urlencode(MODX_BASE_PATH)
-                )
+                ]
             );
             break;
         case 'configcheck_installer':
@@ -323,10 +323,10 @@ function checkTplSwitchPlugin()
     $rs = db()->select(
         'name, disabled',
         '[+prefix+]site_plugins',
-        array(
+        [
             "name IN ('TemplateSwitcher','Template Switcher','templateswitcher','template_switcher','template switcher')",
             "OR plugincode LIKE '%TemplateSwitcher%'"
-        )
+        ]
     );
     while ($row = db()->getRow($rs)) {
         if ($row['disabled'] != 0) {

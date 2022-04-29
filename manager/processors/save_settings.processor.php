@@ -97,7 +97,7 @@ function warnings()
     $dir = '/' . trim(evo()->config['base_url'], '/');
     if (is_file($htaccess)) {
         $_ = file_get_contents($htaccess);
-        if (strpos($_, 'RewriteBase') === false) {
+        if (strpos($_, 'RewriteEngine') === false) {
             $warnings[] = lang('settings_friendlyurls_alert2');
             return $warnings;
         }

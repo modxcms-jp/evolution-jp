@@ -254,7 +254,7 @@ class DBAPI
             if (!$watchError) {
                 return false;
             }
-            if (!in_array($this->conn->errno, array(1064, 1054, 1060, 1061, 1091))) {
+            if (!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])) {
                 evo()->messageQuit(
                     sprintf(
                         'Execution of a query to the database failed - %s'
@@ -273,11 +273,11 @@ class DBAPI
         if (evo()->dumpSQL) {
             $backtraces = debug_backtrace();
             array_shift($backtraces);
-            $debug_path = array();
+            $debug_path = [];
             foreach ($backtraces as $line) {
                 $debug_path[] = $line['function'];
             }
-            $_ = array();
+            $_ = [];
             $_[] = sprintf(
                 '<fieldset style="text-align:left"><legend>Query %d - %s</legend>'
                 , evo()->executedQueries + 1
@@ -681,9 +681,9 @@ class DBAPI
         $mode = $param2;
 
         if (!$this->count($rs)) {
-            return array();
+            return [];
         }
-        $_ = array();
+        $_ = [];
         while ($row = $this->getRow($rs, $mode)) {
             $_[] = $row;
         }
@@ -701,9 +701,9 @@ class DBAPI
             $dsq = $this->query($dsq);
         }
         if (!$dsq) {
-            return array();
+            return [];
         }
-        $col = array();
+        $col = [];
         while ($row = $this->getRow($dsq)) {
             $col[] = $row[$name];
         }
@@ -723,7 +723,7 @@ class DBAPI
         if (!$dsq) {
             return false;
         }
-        $names = array();
+        $names = [];
         $limit = $this->numFields($dsq);
         for ($i = 0; $i < $limit; $i++) {
             $names[] = $this->fieldName($dsq, $i);
@@ -765,7 +765,7 @@ class DBAPI
         if (!$rs) {
             return false;
         }
-        $rsArray = array();
+        $rsArray = [];
         while ($row = $this->getRow($rs)) {
             $rsArray[] = $row;
         }
@@ -868,7 +868,7 @@ class DBAPI
         }
 
         $rs = $this->query($sql);
-        $result = array();
+        $result = [];
         while ($row = $this->getRow($rs, 'object')) {
             $result[] = $row;
         }
@@ -933,9 +933,9 @@ class DBAPI
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        $xmldata = array();
+        $xmldata = [];
         while ($row = $this->getRow($dsq, 'both')) {
-            $item = array();
+            $item = [];
             for ($j = 0; $line = each($row); $j++) {
                 if ($j % 2) {
                     $item[] = sprintf(
@@ -1076,18 +1076,16 @@ class DBAPI
 
     function optimize($table_name)
     {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
+        $rs = $this->query("OPTIMIZE TABLE ". $this->replaceFullTableName($table_name));
         if ($rs) {
-            $rs = $this->query("ALTER TABLE `{$table_name}`");
+            $rs = $this->query("ALTER TABLE " . $this->replaceFullTableName($table_name));
         }
         return $rs;
     }
 
     function truncate($table_name)
     {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        return $this->query("TRUNCATE TABLE `" . $table_name . "`");
+        return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
     }
 
     function dataSeek($result, $row_number)
@@ -1107,7 +1105,7 @@ class DBAPI
         }
 
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+            $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
         $_ = explode("\n", $source);
         $source = '';
@@ -1184,14 +1182,14 @@ class DBAPI
         return $Collation;
     }
 
-    function _getFieldsStringFromArray($fields = array())
+    function _getFieldsStringFromArray($fields = [])
     {
 
         if (empty($fields)) {
             return '*';
         }
 
-        $_ = array();
+        $_ = [];
         foreach ($fields as $k => $v) {
             if (preg_match('@^[0-9]+$@', $k)) {
                 $_[] = $v;
@@ -1204,9 +1202,9 @@ class DBAPI
         return implode(',', $_);
     }
 
-    function _getFromStringFromArray($tables = array())
+    function _getFromStringFromArray($tables = [])
     {
-        $_ = array();
+        $_ = [];
         foreach ($tables as $k => $v) {
             $_[] = $v;
         }

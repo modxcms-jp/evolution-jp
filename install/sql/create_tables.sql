@@ -1,5 +1,5 @@
-# MODX Database Script for New/Upgrade Installations
-# MODX was created By Raymond Irving - Nov 2004
+-- MODX Database Script for New/Upgrade Installations
+-- MODX was created By Raymond Irving - Nov 2004
 
 CREATE TABLE IF NOT EXISTS `{PREFIX}active_users`
 (

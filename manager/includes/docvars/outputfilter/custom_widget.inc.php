@@ -4,7 +4,7 @@ if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 $widget_output = '';
 $o = '';
 /* If we are loading a file */
-$params['output'] = $this->parseText($params['output'], array('value' => $value, 'tvname' => $name));
+$params['output'] = $this->parseText($params['output'], ['value' => $value, 'tvname' => $name]);
 
 if (substr($params['output'], 0, 5) === '<?php') $params['output'] = "@EVAL:\n" . substr($params['output'], 5);
 $modx->tvfilter = new stdClass();
@@ -44,12 +44,12 @@ else {
     else            $widget_output = '';
 }
 
-$modx->tvfilter->vars = array();
+$modx->tvfilter->vars = [];
 
 if (is_string($widget_output)) // Except @INCLUDE
 {
     if (strpos($widget_output, '[+') !== false)
-        $widget_output = $this->parseText($widget_output, array('value' => $value, 'tvname' => $name), '[+', '+]', false);
+        $widget_output = $this->parseText($widget_output, ['value' => $value, 'tvname' => $name], '[+', '+]', false);
 
     $o = $this->parseDocumentSource($widget_output);
 } else {

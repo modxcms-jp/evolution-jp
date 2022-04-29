@@ -259,7 +259,12 @@ class MANAGERMANAGER
 
     function make_changes($chunk)
     {
-        // See if there is any chunk output (e.g. it exists, and is not empty)
+        if(strpos($chunk, '@FILE')===0) {
+            return evo()->atBindFile($chunk);
+        }
+        if(strpos($chunk, '@INCLUDE')===0) {
+            return evo()->atBindInclude($chunk);
+        }
         $chunk_output = evo()->getChunk($chunk);
         if ($chunk_output) {
             eval($chunk_output); // If there is, run it.

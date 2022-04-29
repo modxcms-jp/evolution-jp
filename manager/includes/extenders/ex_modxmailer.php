@@ -108,7 +108,7 @@ class MODxMailer extends PHPMailer
 
     public function Send()
     {
-        $target = array(
+        $target = [
             "sanitized_by_modx& #039" => "'",
             "sanitized_by_modx& #145" => "'",
             "sanitized_by_modx& #146" => "'",
@@ -116,7 +116,7 @@ class MODxMailer extends PHPMailer
             "sanitized_by_modx& #147" => "\"",
             "sanitized_by_modx& #148" => "\"",
             "&quot;" => "\""
-        );
+        ];
         $this->Body = str_replace(array_keys($target), array_values($target), $this->Body);
 
         try {
@@ -238,7 +238,7 @@ class MODxMailer extends PHPMailer
         } else {
             $name = '';
         }
-        $result = array($name, $address);
+        $result = [$name, $address];
         return $result;
     }
 

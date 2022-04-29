@@ -32,7 +32,7 @@ class ManagerAPI
         global $_PAGE;
 
         if (evo()->session_var('mgrPageViewSID', '') != $this->action) {
-            $_SESSION['mgrPageViewSDATA'] = array(); // new view state
+            $_SESSION['mgrPageViewSDATA'] = []; // new view state
             $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
         }
         $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
@@ -245,8 +245,8 @@ class ManagerAPI
             exit('A possible CSRF attempt was detected. No referer was provided by the server.');
         }
 
-        $referer = str_replace(array('http://', 'https://'), '//', $referer);
-        $site_url = str_replace(array('http://', 'https://'), '//', MODX_SITE_URL);
+        $referer = str_replace(['http://', 'https://'], '//', $referer);
+        $site_url = str_replace(['http://', 'https://'], '//', MODX_SITE_URL);
         if (stripos($referer, $site_url) !== 0) {
             exit("A possible CSRF attempt was detected from referer: {$referer}.");
         }
@@ -437,18 +437,18 @@ class ManagerAPI
     {
         return html_tag(
             '<li>'
-            , array('class' => $ph['label'] == lang('cancel') ? 'mutate' : ''),
+            , ['class' => $ph['label'] == lang('cancel') ? 'mutate' : ''],
             html_tag(
                 '<a>',
-                array(
+                [
                     'href' => '#',
                     'onclick' => $ph['onclick']
-                )
+                ]
                 , img_tag(
                     $ph['icon'],
-                    array(
+                    [
                         'alt' => $ph['alt']
-                    )
+                    ]
                 ) . $ph['label']
             )
         );
@@ -457,7 +457,7 @@ class ManagerAPI
     function newCategory($newCat)
     {
         $newCatid = db()->insert(
-            array('category' => db()->escape($newCat))
+            ['category' => db()->escape($newCat)]
             , '[+prefix+]categories'
         );
 
@@ -500,16 +500,16 @@ class ManagerAPI
         );
 
         if (!$rs) {
-            return array();
+            return [];
         }
 
-        $resourceArray = array();
+        $resourceArray = [];
         // pixelchutes
         while ($row = db()->getRow($rs)) {
-            $resourceArray[] = array(
+            $resourceArray[] = [
                 'id' => $row['id'],
                 'category' => stripslashes($row['category'])
-            );
+            ];
         }
         return $resourceArray;
     }
@@ -521,18 +521,18 @@ class ManagerAPI
             return;
         }
 
-        $resetTables = array(
+        $resetTables = [
             'site_plugins',
             'site_snippets',
             'site_htmlsnippets',
             'site_templates',
             'site_tmplvars',
             'site_modules'
-        );
+        ];
 
         foreach ($resetTables as $table_name) {
             db()->update(
-                array('category' => '0')
+                ['category' => '0']
                 , '[+prefix+]' . $table_name
                 , sprintf("category='%d'", $catId)
             );
@@ -564,23 +564,23 @@ class ManagerAPI
         }
 
         if (!is_array($sysAlertMsgQueque)) {
-            $sysAlertMsgQueque = array($sysAlertMsgQueque);
+            $sysAlertMsgQueque = [$sysAlertMsgQueque];
         }
 
         unset($_SESSION['SystemAlertMsgQueque']);
-        $_SESSION['SystemAlertMsgQueque'] = array();
+        $_SESSION['SystemAlertMsgQueque'] = [];
 
-        $alerts = array();
+        $alerts = [];
         foreach ($sysAlertMsgQueque as $_) {
             $alerts[] = $_;
         }
 
         return evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
-            , array(
+            , [
                 'alerts' => db()->escape(implode('<hr />', $alerts)),
                 'title' => $_lang['sys_alert']
-            )
+            ]
         );
     }
 
@@ -613,7 +613,7 @@ class ManagerAPI
             echo "{$new},{$total}";
             exit();
         } else {
-            return array('new' => $new, 'total' => $total);
+            return ['new' => $new, 'total' => $total];
         }
     }
 
@@ -626,18 +626,18 @@ class ManagerAPI
 
         $rs = db()->select(
             'uga.documentgroup as documentgroup'
-            , array(
+            , [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group'
-            )
+            ]
             , sprintf("ug.member='%s'", $uid)
         );
 
         if (!db()->count($rs)) {
-            return array();
+            return [];
         }
 
-        $documentgroup = array();
+        $documentgroup = [];
         while ($row = db()->getRow($rs)) {
             $documentgroup[] = $row['documentgroup'];
         }
@@ -652,18 +652,18 @@ class ManagerAPI
 
         $rs = db()->select(
             'user_group,name'
-            , array(
+            , [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id'
-            )
+            ]
             , preg_match('@^[1-9][0-9]*$@', $uid) ? sprintf("ug.member='%d'", $uid) : ''
         );
 
         if (!db()->count($rs)) {
-            return array();
+            return [];
         }
 
-        $group = array();
+        $group = [];
         while ($row = db()->getRow($rs)) {
             $group[$row['user_group']] = $row['name'];
         }
@@ -682,18 +682,18 @@ class ManagerAPI
     function setMgrDocsAsPrivate($docid = '')
     {
         db()->update(
-            array('privatemgr' => 0)
+            ['privatemgr' => 0]
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
         );
 
         $rs = db()->select(
             'sc.id'
-            , array(
+            , [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
-            )
+            ]
             , $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
         );
 
@@ -705,7 +705,7 @@ class ManagerAPI
 
         $ids = implode(',', $ids);
         db()->update(
-            array('privatemgr' => 1)
+            ['privatemgr' => 1]
             , '[+prefix+]site_content'
             , sprintf('id IN (%s)', $ids)
         );
@@ -723,18 +723,18 @@ class ManagerAPI
     function setWebDocsAsPrivate($docid = '')
     {
         db()->update(
-            array('privateweb' => 0)
+            ['privateweb' => 0]
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
         );
 
         $rs = db()->select(
             'DISTINCT sc.id'
-            , array(
+            , [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
-            )
+            ]
             , $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
         );
 
@@ -746,7 +746,7 @@ class ManagerAPI
 
         $ids = implode(',', $ids);
         db()->update(
-            array('privateweb' => 1)
+            ['privateweb' => 1]
             , '[+prefix+]site_content'
             , sprintf("id IN (%s)", $ids)
         );
@@ -904,11 +904,11 @@ class ManagerAPI
     {
         global $modx;
 
-        $modx->user_allowed_docs = array();
+        $modx->user_allowed_docs = [];
         $allowed_parents = explode(
             ','
             , str_replace(
-                array(' ', '|')
+                [' ', '|']
                 , ','
                 , preg_replace(
                     '@\s+@'
@@ -922,7 +922,7 @@ class ManagerAPI
             return '';
         }
 
-        $_ = array();
+        $_ = [];
         foreach ($allowed_parents as $parent) {
             $parent = trim($parent);
             $children = evo()->getChildIds($parent);
@@ -947,7 +947,7 @@ class ManagerAPI
     function byte($value)
     {
         $substr = substr($value, -1);
-        $units = array('B', 'K', 'M', 'T');
+        $units = ['B', 'K', 'M', 'T'];
         if (!in_array($substr, $units)) {
             return $value;
         }

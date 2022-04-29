@@ -611,9 +611,9 @@ class DBAPI
         }
 
         if (!$this->getRecordCount($rs)) {
-            return array();
+            return [];
         }
-        $_ = array();
+        $_ = [];
         while ($row = $this->getRow($rs, $mode)) {
             $_[] = $row;
         }
@@ -631,13 +631,13 @@ class DBAPI
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
-            $col = array();
+            $col = [];
             while ($row = $this->getRow($dsq)) {
                 $col[] = $row[$name];
             }
             return $col;
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -652,7 +652,7 @@ class DBAPI
             $dsq = $this->query($dsq);
         }
         if ($dsq) {
-            $names = array();
+            $names = [];
             $limit = mysql_num_fields($dsq);
             for ($i = 0; $i < $limit; $i++) {
                 $names[] = mysql_field_name($dsq, $i);
@@ -692,7 +692,7 @@ class DBAPI
         if (!$rs) {
             return false;
         }
-        $rsArray = array();
+        $rsArray = [];
         while ($row = $this->getRow($rs)) {
             $rsArray[] = $row;
         }
@@ -789,7 +789,7 @@ class DBAPI
         }
 
         $rs = $this->query($sql);
-        $result = array();
+        $result = [];
         while ($row = $this->getRow($rs, 'object')) {
             $result[] = $row;
         }
@@ -1013,7 +1013,7 @@ class DBAPI
         }
 
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+            $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
         $source = str_replace('{PREFIX}', $this->table_prefix, $source);
         $sql_array = preg_split('@;[ \t]*\n@', $source);
@@ -1072,14 +1072,14 @@ class DBAPI
         return $Collation;
     }
 
-    function _getFieldsStringFromArray($fields = array())
+    function _getFieldsStringFromArray($fields = [])
     {
 
         if (empty($fields)) {
             return '*';
         }
 
-        $_ = array();
+        $_ = [];
         foreach ($fields as $k => $v) {
             if (preg_match('@^[0-9]+$@', $k)) {
                 $_[] = $v;
@@ -1092,9 +1092,9 @@ class DBAPI
         return join(',', $_);
     }
 
-    function _getFromStringFromArray($tables = array())
+    function _getFromStringFromArray($tables = [])
     {
-        $_ = array();
+        $_ = [];
         foreach ($tables as $k => $v) {
             $_[] = $v;
         }

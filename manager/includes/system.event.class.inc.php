@@ -9,8 +9,8 @@ class SystemEvent
     public $_globalVariables;
     public $activated;
     public $activePlugin;
-    public $params = array();
-    public $vars = array();
+    public $params = [];
+    public $vars = [];
     public $cm = null;
     public $SystemAlertMsgQueque;
 
@@ -27,7 +27,7 @@ class SystemEvent
         if ($msg == '' || !is_array($this->SystemAlertMsgQueque)) {
             return;
         }
-        $alert = array();
+        $alert = [];
         if ($this->name && $this->activePlugin) {
             $alert[] = sprintf(
                 '<div><b>%s</b> - <span style="color:maroon;">%s</span></div>'
@@ -92,7 +92,7 @@ class SystemEvent
     {
         unset ($this->returnedValues);
         $this->_output = '';
-        $this->_globalVariables = array();
+        $this->_globalVariables = [];
         $this->_propagate = true;
         $this->activated = false;
     }

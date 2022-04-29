@@ -3,7 +3,7 @@
 class logHandler
 {
     // Single variable for a log entry
-    public $entry = array();
+    public $entry = [];
 
     public function __construct()
     {
@@ -48,7 +48,7 @@ class logHandler
         }
 
         $insert_id = db()->insert(
-            db()->escape(array(
+            db()->escape([
                 'timestamp' => time(),
                 'internalKey' => $this->entry['internalKey'],
                 'username' => $this->entry['username'],
@@ -56,7 +56,7 @@ class logHandler
                 'itemid' => $item_id,
                 'itemname' => $this->entry['itemName'],
                 'message' => $this->entry['msg']
-            ))
+            ])
             , '[+prefix+]manager_log'
         );
         if (!$insert_id) {

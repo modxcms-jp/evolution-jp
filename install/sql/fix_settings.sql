@@ -41,8 +41,7 @@ INTO `{PREFIX}user_roles`
 (1, 'Administrator', 'Site administrators have full access to all functions',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
 
 
-#
-1 - "Parser Service Events", 2 -  "Manager Access Events", 3 - "Web Access Service Events", 4 - "Cache Service Events", 5 - "Template Service Events", 6 - Custom Events
+-- 1 - "Parser Service Events", 2 -  "Manager Access Events", 3 - "Web Access Service Events", 4 - "Cache Service Events", 5 - "Template Service Events", 6 - Custom Events
 
 REPLACE INTO `{PREFIX}system_eventnames` 
 (id,name,service,groupname) VALUES 
@@ -175,6 +174,5 @@ REPLACE INTO `{PREFIX}system_eventnames`
 ('999','OnPageUnauthorized','1',''),
 ('1000','OnPageNotFound','1','');
 
-#
-^ I don't think we need more than 1000 built-in events. Custom events will start at 1001
+-- ^ I don't think we need more than 1000 built-in events. Custom events will start at 1001
 

@@ -5,12 +5,12 @@ class errorHandler
 {
 
     public $errorcode = null;
-    public $errors = array();
+    public $errors = [];
     private $errormessage;
 
     public function __construct()
     {
-        $this->errors = array(
+        $this->errors = [
             0 => lang('No errors occured.'),
             1 => lang('An error occured!'),
             2 => lang("Document's ID not passed in request!"),
@@ -38,7 +38,7 @@ class errorHandler
             903 => lang('You are blocked and cannot log in!'),
             904 => lang('You are blocked and cannot log in! Please try again later.'),
             905 => lang("The security code you entered didn't validate! Please try to login again!")
-        );
+        ];
     }
 
     public function setError($errorcode, $message = '')
@@ -61,11 +61,11 @@ class errorHandler
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         echo evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl')
-            , array(
+            , [
                 'message' => db()->escape($this->errormessage),
                 'warning' => lang('warning'),
                 'url' => $this->prev()
-            )
+            ]
         );
         include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
         exit;

@@ -36,7 +36,7 @@ class Mysqldumper
         $this->mode = '';
         $this->addDropCommand(false);
         $this->_isDroptables = true;
-        $this->_dbtables = array();
+        $this->_dbtables = [];
     }
 
     public function setDBtables($dbtables = false)
@@ -60,7 +60,7 @@ class Mysqldumper
 
     private function is_log_table($table_name)
     {
-        if ($this->in_array($table_name, array('event_log', 'manager_log'))) {
+        if ($this->in_array($table_name, ['event_log', 'manager_log'])) {
             return true;
         }
         return false;
@@ -70,7 +70,7 @@ class Mysqldumper
     {
         if (!$this->in_array(
             $table_name
-            , array(
+            , [
                 'site_content',
                 'site_htmlsnippets',
                 'site_templates',
@@ -79,7 +79,7 @@ class Mysqldumper
                 'site_tmplvar_access',
                 'site_tmplvar_contentvalues',
                 'site_tmplvar_templates'
-            )
+            ]
         )) {
             return false;
         }
@@ -114,7 +114,7 @@ class Mysqldumper
             $createtable[$table_name] = $this->result2Array(1, $result);
         }
         // Set header
-        $header = array();
+        $header = [];
         $header[] = '-- ';
         $header[] = '--  ' . addslashes(evo()->config('site_name')) . ' Database Dump';
         $header[] = '--  MODX Version:' . evo()->config('settings_version');
@@ -263,7 +263,7 @@ class Mysqldumper
         if (!is_object($obj)) {
             return null;
         }
-        $array = array();
+        $array = [];
         foreach (get_object_vars($obj) as $key => $value) {
             if (is_object($value)) {
                 $array[$key] = $this->object2Array($value);
@@ -277,7 +277,7 @@ class Mysqldumper
     // Private function result2Array.
     private function result2Array($numinarray = 0, $resource)
     {
-        $array = array();
+        $array = [];
         while ($row = db()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
         }
@@ -326,7 +326,7 @@ class Mysqldumper
     function import_sql($source)
     {
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+            $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
         $sql_array = preg_split('@;[ \t]*\n@', $source);
         foreach ($sql_array as $sql_entry) {
@@ -352,7 +352,7 @@ class Mysqldumper
     function getSettings()
     {
         $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
-        $settings = array();
+        $settings = [];
         while ($row = db()->getRow($rs)) {
             $name = $row['setting_name'];
             $value = $row['setting_value'];
@@ -385,7 +385,7 @@ class Mysqldumper
     {
         foreach ($settings as $k => $v) {
             db()->update(
-                array('setting_value' => $v)
+                ['setting_value' => $v]
                 , '[+prefix+]system_settings'
                 , "setting_name='{$k}'"
             );
@@ -409,7 +409,7 @@ class Mysqldumper
             )
         );
 
-        $tables = array();
+        $tables = [];
         if (db()->count($rs)) {
             while ($row = db()->getRow($rs)) {
                 $tables[] = $row['Name'];

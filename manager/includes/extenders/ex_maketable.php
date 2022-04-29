@@ -37,8 +37,8 @@ class MakeTable
 
     public function __construct()
     {
-        $this->fieldHeaders = array();
-        $this->excludeFields = array();
+        $this->fieldHeaders = [];
+        $this->excludeFields = [];
         $this->actionField = '';
         $this->cellAction = '';
         $this->linkAction = '';
@@ -54,7 +54,7 @@ class MakeTable
         $this->formElementType = '';
         $this->rowAlternatingScheme = 'EVEN';
         $this->allOption = 0;
-        $this->selectedValues = array();
+        $this->selectedValues = [];
         $this->extra = '';
         $this->pageLimit = evo()->config('number_of_results');
     }
@@ -149,12 +149,12 @@ class MakeTable
      * for each column.
      */
 
-    function create($fieldsArray, $fieldHeadersArray = array())
+    function create($fieldsArray, $fieldHeadersArray = [])
     {
         return $this->renderTable($fieldsArray, $fieldHeadersArray);
     }
 
-    function renderTable($fieldsArray, $fieldHeadersArray = array())
+    function renderTable($fieldsArray, $fieldHeadersArray = [])
     {
         if (!is_array($fieldsArray)) {
             return '';
@@ -165,14 +165,14 @@ class MakeTable
         return $this->_renderWithForm($fieldsArray, $fieldHeadersArray);
     }
 
-    function _render($fieldsArray, $fieldHeadersArray = array())
+    function _render($fieldsArray, $fieldHeadersArray = [])
     {
         $i = 0;
         $header = '';
-        $tr = array();
+        $tr = [];
         foreach ($fieldsArray as $fieldName => $fieldValue) {
             $colPosition = 0;
-            $_ = array();
+            $_ = [];
             foreach ($fieldValue as $key => $value) {
                 if (in_array($key, $this->excludeFields)) {
                     continue;
@@ -201,7 +201,7 @@ class MakeTable
                 implode('', $_)
             );
         }
-        $_ = array();
+        $_ = [];
         if ($this->tableWidth) {
             $_[] = sprintf('width="%s"', $this->tableWidth);
         }
@@ -212,21 +212,21 @@ class MakeTable
             $_[] = sprintf('id="%s"', $this->tableID);
         }
         return str_replace(
-            array('\t', '\n'),
-            array("\t", "\n"),
+            ['\t', '\n'],
+            ["\t", "\n"],
             vsprintf(
                 '<table %s><thead><tr class="%s">%s</tr></thead>%s</table>',
-                array(
+                [
                     implode(' ', $_),
                     $this->rowHeaderClass,
                     $header,
                     implode("\n", $tr)
-                )
+                ]
             )
         );
     }
 
-    function _renderWithForm($fieldsArray, $fieldHeadersArray = array())
+    function _renderWithForm($fieldsArray, $fieldHeadersArray = [])
     {
         $i = 0;
         $table = '';
@@ -275,7 +275,7 @@ class MakeTable
             $i++;
             $table .= '</tr>';
         }
-        $_ = array();
+        $_ = [];
         if ($this->tableWidth) {
             $_[] = sprintf('width="%s"', $this->tableWidth);
         }
@@ -286,16 +286,16 @@ class MakeTable
             $_[] = sprintf('id="%s"', $this->tableID);
         }
         $table = str_replace(
-            array('\t', '\n'),
-            array("\t", "\n"),
+            ['\t', '\n'],
+            ["\t", "\n"],
             vsprintf(
                 '\n<table %s>\n\t<thead>\n\t<tr class="%s">\n%s\t</tr>\n\t</thead>\n%s</table>\n',
-                array(
+                [
                     implode(' ', $_),
                     $this->rowHeaderClass,
                     $header,
                     $table
-                )
+                ]
             )
         );
         if ($this->allOption) {
@@ -358,7 +358,7 @@ EOT;
             return '';
         }
 
-        $navlink = array();
+        $navlink = [];
         if (!empty($base_url)) {
             $base_url = "?{$base_url}";
         }
@@ -408,7 +408,7 @@ EOT;
         global $modx;
 
         if (empty($path)) {
-            $p = array();
+            $p = [];
             $p[] = "page={$pageNum}";
             if (!empty($_GET['orderby'])) {
                 $p[] = 'orderby=' . $_GET['orderby'];
