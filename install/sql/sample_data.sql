@@ -1,11 +1,11 @@
-#
-MODx Database Script for New/Upgrade Installations
-#
-# Each sql command is separated by double lines
+--
+-- MODx Database Script for New/Upgrade Installations
+--
+-- Each sql command is separated by double lines
 
-#
-# Dumping data for table `site_content`
-#
+--
+-- Dumping data for table `site_content`
+--
 
 TRUNCATE TABLE `{PREFIX}site_content`;
 
@@ -102,11 +102,8 @@ VALUES ('15', 'document', 'text/html', '送信メールのひな型', '', '', 't
         '0', '0', '0', '1');
 
 
-#
-# Dumping data for table `system_settings`
-#
+-- Dumping data for table `system_settings`
 
 REPLACE INTO `{PREFIX}system_settings` VALUES('error_page', '4');
 
-REPLACE
-INTO `{PREFIX}system_settings` VALUES('default_template', '2');
+REPLACE INTO `{PREFIX}system_settings` VALUES('default_template', '2');

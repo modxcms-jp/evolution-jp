@@ -1,8 +1,6 @@
-#
-Insert system records
-#::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+-- Insert system records
+-- Default Site Settings
 
-# Default Site Settings
 INSERT IGNORE INTO `{PREFIX}system_settings` 
 (setting_name, setting_value) VALUES 
 ('settings_version','0'),
@@ -29,14 +27,13 @@ INSERT IGNORE INTO `{PREFIX}system_settings`
 ('manager_theme','RevoStyle'),
 ('theme_refresher','');
 
-#
-Default Site Template
+-- Default Site Template
 
 INSERT INTO `{PREFIX}site_templates` 
 (id, templatename, description, editor_type, category, icon, template_type, content, locked) VALUES ('1','Minimal Template','Default minimal empty template (content returned only)','0','0','','0','[*content*]','0');
 
-#
-Default Site Documents
+
+-- Default Site Documents
 
 INSERT INTO `{PREFIX}site_content` VALUES (1,'document','text/html','MODX CMS Install Success','Welcome to the MODX Content Management System','','minimal-base','',1,0,0,0,0,'','<h3>Install Successful!</h3>\r\n<p>You have successfully installed MODX.</p>\r\n\r\n<h3>Getting Help</h3>\r\n<p>The <a href=\"http://modxcms.com/forums/\" target=\"_blank\">MODX Community</a> provides a great starting point to learn all things MODX, or you can also <a href=\"http://modxcms.com/learn/it.html\">see some great learning resources</a> (books, tutorials, blogs and screencasts).</p>\r\n<p>Welcome to MODX!</p>\r\n',1,3,0,1,1,1,{DATE_NOW},1,{DATE_NOW},0,0,0,{DATE_NOW},1,'Base Install',0,0,0,0,0,0,0,1);
 
