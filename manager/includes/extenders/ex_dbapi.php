@@ -38,3 +38,44 @@ if (!$rs) {
 }
 // alias for backward compatibility
 $this->dbConfig = &$this->db->config;
+
+function where($field, $op, $value = null)
+{
+    if ($value === null) {
+        $value = $op;
+        $op = '=';
+    }
+    return sprintf(
+        strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
+        $field, $op, $value
+    );
+}
+
+function and_where($field, $op, $value = null)
+{
+    return 'AND ' . where($field, $op, $value);
+}
+
+function where_in($field, $values = [])
+{
+    if (!$values) {
+        return null;
+    }
+    foreach ($values as $i => $v) {
+        $values[$i] = "'" . db()->escape($v) . "'";
+    }
+    return sprintf(
+        strpos($field, '`') === false ? '`%s` IN (%s)' : '%s IN (%s)',
+        $field,
+        implode(',', $values)
+    );
+}
+
+function and_where_in($field, $values = [])
+{
+    if (!$values) {
+        return null;
+    }
+    return 'AND ' . where_in($field, $values);
+}
+
