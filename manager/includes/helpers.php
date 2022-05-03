@@ -245,11 +245,6 @@ function getv($key = null, $default = null)
     return array_get($_GET, $key, $default);
 }
 
-function post($key = null, $default = null)
-{
-    return postv($key, $default);
-}
-
 function postv($key = null, $default = null)
 {
     return array_get($_POST, $key, $default);
