@@ -225,7 +225,6 @@ class DocumentParser
                 return true;
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
-                Document::$modx = $this;
                 return true;
             case 'modifiers' : //Modfires
             case 'phx' :
