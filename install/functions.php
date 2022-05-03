@@ -380,7 +380,7 @@ function isUpGradeable()
     $modx->db->table_prefix = $table_prefix;
     db()->connect();
 
-    if (db()->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
+    if (db()->isConnected() && db()->tableExists('[+prefix+]system_settings')) {
         sessionv('*database_server', $database_server);
         sessionv('*database_user', $database_user);
         sessionv('*database_password', $database_password);

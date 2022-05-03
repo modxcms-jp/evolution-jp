@@ -1035,7 +1035,7 @@ class DocumentParser
 
     private function setSiteCache($config)
     {
-        if (!db()->isConnected() || !db()->table_exists('[+prefix+]system_settings')) {
+        if (!db()->isConnected() || !db()->tableExists('[+prefix+]system_settings')) {
             return;
         }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';

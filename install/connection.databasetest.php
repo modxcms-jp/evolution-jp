@@ -77,7 +77,7 @@ function isAlreadyInUse($db_name, $table_prefix)
     global $modx;
     $modx->db->dbname = db()->escape($db_name);
     $modx->db->table_prefix = db()->escape($table_prefix);
-    if (!db()->table_exists('[+prefix+]site_content')) {
+    if (!db()->tableExists('[+prefix+]site_content')) {
         return false;
     }
     if (!db()->select('COUNT(id)', '[+prefix+]site_content')) {

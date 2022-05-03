@@ -35,8 +35,8 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 
 // install/update database
 
-if (sessionv('is_upgradeable') && db()->table_exists('[+prefix+]site_revision')) {
-    if (!db()->field_exists('elmid', '[+prefix+]site_revision')) {
+if (sessionv('is_upgradeable') && db()->tableExists('[+prefix+]site_revision')) {
+    if (!db()->fieldExists('elmid', '[+prefix+]site_revision')) {
         db()->query(
             str_replace(
                 '[+prefix+]'
