@@ -31,6 +31,9 @@ function config($key, $default = null)
 
 function docid()
 {
+    if(event()->name === 'OnDocFormSave') {
+        return globalv('id');
+    }
     return evo()->documentIdentifier;
 }
 
@@ -503,13 +506,13 @@ function request_time()
 
 function remove_tags($value, $params = '')
 {
-    if (stripos($params, 'style') !== false && stripos($value, '</style>') !== false) {
+    if (stripos($params, 'style') === false && stripos($value, '</style>') !== false) {
         $value = preg_replace('#<style.*?>.*?</style>#is', '', $value);
     }
-    if (stripos($params, 'script') !== false && stripos($value, '</script>') !== false) {
+    if (stripos($params, 'script') === false && stripos($value, '</script>') !== false) {
         $value = preg_replace('@<script.*?>.*?</script>@is', '', $value);
     }
-    if (stripos($params, '[[') !== false && stripos($value, ']]') !== false) {
+    if (strpos($params, '[[') === false && strpos($value, ']]') !== false) {
         $value = preg_replace('@\[\[.+?\]\]@s', '', $value);
     }
     return trim(strip_tags($value, $params));
