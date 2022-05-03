@@ -255,11 +255,6 @@ function postv($key = null, $default = null)
     return array_get($_POST, $key, $default);
 }
 
-function cookiev($key = null, $default = null)
-{
-    return array_get($_COOKIE, $key, $default);
-}
-
 function anyv($key = null, $default = null)
 {
     return array_get($_REQUEST, $key, $default);
@@ -278,17 +273,22 @@ function sessionv($key = null, $default = null)
     return array_get($_SESSION, $key, $default);
 }
 
-function filev($key = null, $default = null)
-{
-    return array_get($_FILES, $key, $default);
-}
-
 function globalv($key = null, $default = null)
 {
     if (strpos($key, '*') === 0) {
         return array_set($GLOBALS, ltrim($key, '*'), $default);
     }
     return array_get($GLOBALS, $key, $default);
+}
+
+function cookiev($key = null, $default = null)
+{
+    return array_get($_COOKIE, $key, $default);
+}
+
+function filev($key = null, $default = null)
+{
+    return array_get($_FILES, $key, $default);
 }
 
 function pr($content)
@@ -298,25 +298,6 @@ function pr($content)
         return;
     }
     echo '<pre>' . hsc($content) . '</pre>';
-}
-
-function real_ip()
-{
-    return serverv(
-        'http_client_ip'
-        , serverv(
-            'http_x_forwarded_for'
-            , serverv(
-                'remote_addr'
-                , 'UNKNOWN'
-            )
-        )
-    );
-}
-
-function user_agent()
-{
-    return serverv('http_user_agent', '');
 }
 
 function doc($key, $default = '')
@@ -359,11 +340,6 @@ function ob_get_include($path)
     ob_start();
     $return = eval(preg_replace('{^\s*<\?php}', '', file_get_contents($path)));
     return ob_get_clean() ?: $return;
-}
-
-function request_uri()
-{
-    return serverv('request_uri');
 }
 
 function easy_hash($seed)
@@ -430,6 +406,35 @@ function datetime_format($format, $timestamp = '', $default = '')
         str_replace('%曜', $week[date('w', $timestamp)], $format),
         $timestamp
     );
+}
+
+function request_uri()
+{
+    return serverv('request_uri');
+}
+
+function request_time()
+{
+    return serverv('request_time', time());
+}
+
+function real_ip()
+{
+    return serverv(
+        'http_client_ip'
+        , serverv(
+            'http_x_forwarded_for'
+            , serverv(
+                'remote_addr'
+                , 'UNKNOWN'
+            )
+        )
+    );
+}
+
+function user_agent()
+{
+    return serverv('http_user_agent', '');
 }
 
 function remove_tags($value, $params = '')
