@@ -463,5 +463,5 @@ function remove_tags($value, $params = '')
     if (strpos($params, '[[') === false && strpos($value, ']]') !== false) {
         $value = preg_replace('@\[\[.+?\]\]@s', '', $value);
     }
-    return trim(strip_tags($value, $params));
+    return strip_tags($value, $params);
 }
