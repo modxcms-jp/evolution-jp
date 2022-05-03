@@ -4481,12 +4481,12 @@ class DocumentParser
                 $value
                 , sprintf('%s%s.', $prefix, $key)
             );
-        } else {
-            $this->setPlaceholder(
-                sprintf('%s%s', $prefix, $key)
-                , $value
-            );
+            return;
         }
+        $this->setPlaceholder(
+            sprintf('%s%s', $prefix, $key)
+            , $value
+        );
     }
 
     # returns the virtual relative path to the manager folder

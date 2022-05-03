@@ -898,7 +898,7 @@ class DBAPI
      * @param string $table_name
      * @return string
      */
-    function replaceFullTableName($table_name, $force = null)
+    public function replaceFullTableName($table_name, $force = null)
     {
         if ($force) {
             return sprintf(
@@ -1130,7 +1130,7 @@ class DBAPI
         }
     }
 
-    function table_exists($table_name)
+    public function table_exists($table_name)
     {
         $sql = sprintf(
             "SHOW TABLES FROM `%s` LIKE '%s'"
@@ -1141,7 +1141,7 @@ class DBAPI
         return 0 < $this->getRecordCount($this->query($sql)) ? 1 : 0;
     }
 
-    function field_exists($field_name, $table_name)
+    public function field_exists($field_name, $table_name)
     {
         $table_name = $this->replaceFullTableName($table_name);
 

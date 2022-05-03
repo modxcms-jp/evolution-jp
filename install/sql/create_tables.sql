@@ -560,4 +560,3 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}system_cache`
     KEY `cache_section` (`cache_section`),
     KEY `cache_key` (`cache_key`)
 ) ENGINE = MyISAM;
-
