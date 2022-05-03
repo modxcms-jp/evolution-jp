@@ -304,9 +304,24 @@ function doc($key, $default = '')
 {
     global $modx, $docObject;
     if (isset($docObject)) {
-        $doc = $docObject;
-    } elseif (isset($modx->documntObject)) {
+        $doc = &$docObject;
+    } elseif (!empty($modx->documntObject)) {
         $doc = &$modx->documntObject;
+    } elseif(!empty(evo()->documentIdentifier)) {
+        $docObject = evo()->getDocumentObject('id', evo()->documentIdentifier);
+        $doc = &$docObject;
+    }
+    if(empty(evo()->documentIdentifier)) {
+        if(!empty($doc['id'])) {
+            $modx->documentIdentifier = $doc['id'];
+        } else {
+            global $id;
+            if(!empty($id)) {
+                $modx->documentIdentifier = $id;
+            } else {
+                exit('resource id not found.');
+            }
+        }
     }
     if (strpos($key, '*') === 0) {
         $value = $default;
