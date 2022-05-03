@@ -4,9 +4,10 @@ class DBAPI
 {
 
     public $conn = null;
-    public $config;
+    public $config = [];
     public $lastQuery;
     public $hostname;
+    public $dbase;
     public $dbname;
     public $username;
     public $password;
@@ -25,20 +26,21 @@ class DBAPI
         $dbase = '',
         $user = '',
         $pwd = '',
-        $prefix = null,
+        $prefix = '',
         $charset = 'utf8',
         $connection_method = 'SET CHARACTER SET'
     )
     {
-        $this->config['host'] = $host ? $host : evo()->global_var('database_server', '');
-        $this->config['dbase'] = $dbase ? $dbase : evo()->global_var('dbase', '');
-        $this->config['user'] = $user ? $user : evo()->global_var('database_user', '');
-        $this->config['pass'] = $pwd ? $pwd : evo()->global_var('database_password', '');
-        $this->config['table_prefix'] = ($prefix !== null) ? $prefix : evo()->global_var('table_prefix');
-        $this->config['charset'] = $charset ? $charset : evo()->global_var('database_connection_charset');
-        $this->config['connection_method'] = evo()->global_var('database_connection_method', $connection_method);
+        $this->config['host'] = $host ?: globalv('database_server', '');
+        $this->config['dbase'] = trim($dbase ?: globalv('dbase', ''), '`');
+        $this->config['user'] = $user ?: globalv('database_user', '');
+        $this->config['pass'] = $pwd ?: globalv('database_password', '');
+        $this->config['table_prefix'] = $prefix ?: globalv('table_prefix');
+        $this->config['charset'] = $charset ?: globalv('database_connection_charset');
+        $this->config['connection_method'] = globalv('database_connection_method', $connection_method);
         $this->hostname = &$this->config['host'];
-        $this->dbname = &$this->config['dbase'];
+        $this->dbase = &$this->config['dbase'];
+        $this->dbname = &$this->dbase;
         $this->username = &$this->config['user'];
         $this->password = &$this->config['pass'];
         $this->table_prefix = &$this->config['table_prefix'];
@@ -55,10 +57,10 @@ class DBAPI
 
     public function get($prop_name, $default = null)
     {
-        if (isset($this->$prop_name)) {
-            return $this->$prop_name;
+        if (!isset($this->$prop_name)) {
+            return $default;
         }
-        return $default;
+        return $this->$prop_name;
     }
 
     public function prop($prop_name, $value = null)
@@ -89,7 +91,7 @@ class DBAPI
             $this->password = $pwd;
         }
         if ($dbase) {
-            $this->dbname = $dbase;
+            $this->dbase = trim($dbase, '`');
         }
 
         if (substr(PHP_OS, 0, 3) === 'WIN' && $this->hostname === 'localhost') {
@@ -135,14 +137,13 @@ class DBAPI
             return false;
         }
 
-        if ($this->dbname) {
-            $this->dbname = trim($this->dbname, '` '); // remove the `` chars
-            $rs = $this->select_db($this->dbname);
+        if ($this->dbase) {
+            $rs = $this->select_db($this->dbase);
             if (!$rs) {
                 evo()->messageQuit(
                     sprintf(
                         "Failed to select the database '%s'!"
-                        , $this->dbname
+                        , $this->dbase
                     )
                 );
                 return false;
@@ -294,7 +295,7 @@ class DBAPI
                 $_[] = 'Current Snippet => ' . evo()->currentSnippet . '<br>';
             }
             if (stripos($sql, 'select') === 0) {
-                $_[] = 'Record Count => ' . $this->getRecordCount($result) . '<br>';
+                $_[] = 'Record Count => ' . $this->count($result) . '<br>';
             } else {
                 $_[] = 'Affected Rows => ' . $this->getAffectedRows() . '<br>';
             }
@@ -590,7 +591,7 @@ class DBAPI
     }
 
     /**
-     * @name:  getRecordCount
+     * @name:  count
      *
      */
     function count($rs = null, $from = '', $where = '')
@@ -817,7 +818,7 @@ class DBAPI
             , $orderby
             , 1
         );
-        if ($this->getRecordCount($rs) == 0) {
+        if ($this->count($rs) == 0) {
             return false;
         }
         return $this->getRow($rs, 'object');
@@ -833,7 +834,7 @@ class DBAPI
     function getObjectSql($sql)
     {
         $rs = $this->query($sql);
-        if ($this->getRecordCount($rs) == 0) {
+        if ($this->count($rs) == 0) {
             return false;
         }
         return $this->getRow($rs, 'object');
@@ -885,7 +886,7 @@ class DBAPI
     {
         return sprintf(
             '`%s`.`%s%s`'
-            , trim($this->dbname, '`')
+            , $this->dbase
             , $this->table_prefix
             , $table_name
         );
@@ -903,7 +904,7 @@ class DBAPI
         if ($force) {
             return sprintf(
                 '`%s`.`%s%s`'
-                , trim($this->dbname, '`')
+                , $this->dbase
                 , $this->table_prefix
                 , str_replace('[+prefix+]', '', $table_name)
             );
@@ -914,7 +915,7 @@ class DBAPI
                 '@\[\+prefix\+]([0-9a-zA-Z_]+)@'
                 , sprintf(
                     '`%s`.`%s$1`'
-                    , trim($this->dbname, '`')
+                    , $this->dbase
                     , $this->table_prefix
                 )
                 , $table_name
@@ -1130,22 +1131,33 @@ class DBAPI
         }
     }
 
-    public function table_exists($table_name)
+    public function tableExists($table_name)
     {
         $sql = sprintf(
             "SHOW TABLES FROM `%s` LIKE '%s'"
-            , trim($this->dbname, '`')
+            , $this->dbase
             , str_replace('[+prefix+]', $this->table_prefix, $table_name)
         );
 
-        return 0 < $this->getRecordCount($this->query($sql)) ? 1 : 0;
+        return 0 < $this->count($this->query($sql)) ? 1 : 0;
     }
 
-    public function field_exists($field_name, $table_name)
+    /**
+     * table exists
+     *
+     * @param string $table_name
+     * @return bool
+     * @deprecated Change function name. tableExists() is recommended.
+     */
+    public function table_exists($table_name) {
+        return tableExists($table_name);
+    }
+
+    public function fieldExists($field_name, $table_name)
     {
         $table_name = $this->replaceFullTableName($table_name);
 
-        if (!$this->table_exists($table_name)) {
+        if (!$this->tableExists($table_name)) {
             return 0;
         }
 
@@ -1158,6 +1170,19 @@ class DBAPI
                 )
             )
         ) ? 1 : 0;
+    }
+
+    /**
+     * field exists
+     *
+     * @param string $field_name
+     * @param string $table_name
+     * @return bool
+     * @deprecated Change function name. fieldExists() is recommended.
+     */
+    public function field_exists($field_name, $table_name)
+    {
+        return $this->fieldExists($field_name, $table_name);
     }
 
     public function isConnected()
