@@ -89,7 +89,16 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     if(!$string) {
         return $string;
     }
-    return evo()->hsc($string, $flags, $encode, $double_encode);
+    if(is_array($string)) {
+        foreach($string as $i=>$v) {
+            $string[$i] = hsc($v, $flags, $encode, $double_encode);
+        }
+        return $string;
+    }
+    if($encode===null) {
+        $encode = 'utf-8';
+    }
+    return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
