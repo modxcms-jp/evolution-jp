@@ -26,7 +26,7 @@ class DBAPI
         $dbase = '',
         $user = '',
         $pwd = '',
-        $prefix = '',
+        $prefix = null,
         $charset = 'utf8',
         $connection_method = 'SET CHARACTER SET'
     )
@@ -35,7 +35,7 @@ class DBAPI
         $this->config['dbase'] = trim($dbase ?: globalv('dbase', ''), '`');
         $this->config['user'] = $user ?: globalv('database_user', '');
         $this->config['pass'] = $pwd ?: globalv('database_password', '');
-        $this->config['table_prefix'] = $prefix ?: globalv('table_prefix');
+        $this->config['table_prefix'] = $prefix!==null ? $prefix : globalv('table_prefix');
         $this->config['charset'] = $charset ?: globalv('database_connection_charset');
         $this->config['connection_method'] = globalv('database_connection_method', $connection_method);
         $this->hostname = &$this->config['host'];
