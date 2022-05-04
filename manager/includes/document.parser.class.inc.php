@@ -225,7 +225,6 @@ class DocumentParser
                 return true;
             case 'documentapi' : // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
-                Document::$modx = $this;
                 return true;
             case 'modifiers' : //Modfires
             case 'phx' :
@@ -1035,7 +1034,7 @@ class DocumentParser
 
     private function setSiteCache($config)
     {
-        if (!db()->isConnected() || !db()->table_exists('[+prefix+]system_settings')) {
+        if (!db()->isConnected() || !db()->tableExists('[+prefix+]system_settings')) {
             return;
         }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
@@ -4481,12 +4480,12 @@ class DocumentParser
                 $value
                 , sprintf('%s%s.', $prefix, $key)
             );
-        } else {
-            $this->setPlaceholder(
-                sprintf('%s%s', $prefix, $key)
-                , $value
-            );
+            return;
         }
+        $this->setPlaceholder(
+            sprintf('%s%s', $prefix, $key)
+            , $value
+        );
     }
 
     # returns the virtual relative path to the manager folder

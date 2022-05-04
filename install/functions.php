@@ -8,19 +8,12 @@ function setOption($fieldName, $value = '')
 
 function getOption($fieldName)
 {
-    if (isset($_POST[$fieldName]) && $_POST[$fieldName] !== '') {
-        return $_POST[$fieldName];
-    }
-
-    if (isset($_SESSION[$fieldName]) && $_SESSION[$fieldName] !== '') {
-        return $_SESSION[$fieldName];
-    }
-
-    if (isset($GLOBALS[$fieldName]) && $GLOBALS[$fieldName] !== '') {
-        return $GLOBALS[$fieldName];
-    }
-
-    return false;
+    return postv($fieldName,
+        sessionv($fieldName,
+            globalv($fieldName),
+            false
+        )
+    );
 }
 
 function browser_lang()
@@ -380,7 +373,7 @@ function isUpGradeable()
     $modx->db->table_prefix = $table_prefix;
     db()->connect();
 
-    if (db()->isConnected() && db()->table_exists('[+prefix+]system_settings')) {
+    if (db()->isConnected() && db()->tableExists('[+prefix+]system_settings')) {
         sessionv('*database_server', $database_server);
         sessionv('*database_user', $database_user);
         sessionv('*database_password', $database_password);

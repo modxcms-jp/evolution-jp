@@ -10,7 +10,7 @@ if (!evo()->hasPermission('save_document')) {
 }
 
 if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
-    $docid = post('id');
+    $docid = postv('id');
 } elseif (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $docid = getv('id');
 } else {

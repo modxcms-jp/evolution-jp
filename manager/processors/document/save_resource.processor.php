@@ -61,6 +61,7 @@ if (mode() === 'new') {
     }
 
     // invoke OnDocFormSave event
+    validated('*id', $newid);
     evo()->event->vars = array('mode' => 'new', 'id' => $newid);
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 

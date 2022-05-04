@@ -1228,8 +1228,8 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                 #cache all this
                 if (!isset($vlist)) {
                     $rt = array();
-                    $param = str_replace('{DBASE}', $modx->db->config['dbase'], $param);
-                    $param = str_replace('{PREFIX}', $modx->db->config['table_prefix'], $param);
+                    $param = str_replace('{DBASE}', db()->get('dbase'), $param);
+                    $param = str_replace('{PREFIX}', db->get('table_prefix'), $param);
                     //added in 1.4
                     if (preg_match("/{([^}]*?)\}/", $param, $matches)) {
                         $tmp = db()->escape(formMerge('[+' . $matches[1] . '+]', $fields));

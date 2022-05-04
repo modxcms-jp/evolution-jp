@@ -31,6 +31,9 @@ function config($key, $default = null)
 
 function docid()
 {
+    if(event()->name === 'OnDocFormSave') {
+        return globalv('id');
+    }
     return evo()->documentIdentifier;
 }
 
@@ -86,7 +89,16 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     if(!$string) {
         return $string;
     }
-    return evo()->hsc($string, $flags, $encode, $double_encode);
+    if(is_array($string)) {
+        foreach($string as $i=>$v) {
+            $string[$i] = hsc($v, $flags, $encode, $double_encode);
+        }
+        return $string;
+    }
+    if($encode===null) {
+        $encode = 'utf-8';
+    }
+    return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
@@ -151,33 +163,6 @@ function alert()
     return $e;
 }
 
-function set(&$array, $key, $value)
-{
-    if (is_null($key)) {
-        return $array = $value;
-    }
-
-    $keys = explode('.', $key);
-
-    foreach ($keys as $i => $key) {
-        if (count($keys) === 1) {
-            break;
-        }
-
-        unset($keys[$i]);
-
-        if (!isset($array[$key]) || !is_array($array[$key])) {
-            $array[$key] = [];
-        }
-
-        $array = &$array[$key];
-    }
-
-    $array[array_shift($keys)] = $value;
-
-    return $array;
-}
-
 function array_get($array, $key = null, $default = null, $validate = null)
 {
     if ($key === null || trim($key) == '') {
@@ -229,8 +214,8 @@ function array_set(&$array, $key, $value)
 
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
-        return evo()->input_any($key);
+    if (preg_match('@^[1-9][0-9]*$@', anyv($key))) {
+        return anyv($key);
     }
     return 0;
 }
@@ -269,19 +254,9 @@ function getv($key = null, $default = null)
     return array_get($_GET, $key, $default);
 }
 
-function post($key = null, $default = null)
-{
-    return postv($key, $default);
-}
-
 function postv($key = null, $default = null)
 {
     return array_get($_POST, $key, $default);
-}
-
-function cookiev($key = null, $default = null)
-{
-    return array_get($_COOKIE, $key, $default);
 }
 
 function anyv($key = null, $default = null)
@@ -302,17 +277,22 @@ function sessionv($key = null, $default = null)
     return array_get($_SESSION, $key, $default);
 }
 
-function filev($key = null, $default = null)
-{
-    return array_get($_FILES, $key, $default);
-}
-
 function globalv($key = null, $default = null)
 {
     if (strpos($key, '*') === 0) {
         return array_set($GLOBALS, ltrim($key, '*'), $default);
     }
     return array_get($GLOBALS, $key, $default);
+}
+
+function cookiev($key = null, $default = null)
+{
+    return array_get($_COOKIE, $key, $default);
+}
+
+function filev($key = null, $default = null)
+{
+    return array_get($_FILES, $key, $default);
 }
 
 function pr($content)
@@ -324,32 +304,26 @@ function pr($content)
     echo '<pre>' . hsc($content) . '</pre>';
 }
 
-function real_ip()
-{
-    return serverv(
-        'http_client_ip'
-        , serverv(
-            'http_x_forwarded_for'
-            , serverv(
-                'remote_addr'
-                , 'UNKNOWN'
-            )
-        )
-    );
-}
-
-function user_agent()
-{
-    return serverv('http_user_agent', '');
-}
-
 function doc($key, $default = '')
 {
     global $modx, $docObject;
     if (isset($docObject)) {
-        $doc = $docObject;
-    } elseif (isset($modx->documntObject)) {
+        $doc = &$docObject;
+    } elseif (!empty($modx->documntObject)) {
         $doc = &$modx->documntObject;
+    } elseif(!empty(evo()->documentIdentifier)) {
+        $docObject = evo()->getDocumentObject('id', evo()->documentIdentifier);
+        $doc = &$docObject;
+    }
+    if(empty(evo()->documentIdentifier)) {
+        if(!empty($doc['id'])) {
+            $modx->documentIdentifier = $doc['id'];
+        } else {
+            global $id;
+            if(!empty($id)) {
+                $modx->documentIdentifier = $id;
+            }
+        }
     }
     if (strpos($key, '*') === 0) {
         $value = $default;
@@ -367,8 +341,9 @@ function doc($key, $default = '')
     if (str_contains($key, '|hsc')) {
         return hsc(
             array_get(
-                $a
-                , str_replace('|hsc', '', $key, $default)
+                $a,
+                str_replace('|hsc', '', $key),
+                $default
             )
         );
     }
@@ -383,11 +358,6 @@ function ob_get_include($path)
     ob_start();
     $return = eval(preg_replace('{^\s*<\?php}', '', file_get_contents($path)));
     return ob_get_clean() ?: $return;
-}
-
-function request_uri()
-{
-    return serverv('request_uri');
 }
 
 function easy_hash($seed)
@@ -456,44 +426,9 @@ function datetime_format($format, $timestamp = '', $default = '')
     );
 }
 
-function where($field, $op, $value = null)
+function request_uri()
 {
-    if ($value === null) {
-        $value = $op;
-        $op = '=';
-    }
-    return sprintf(
-        strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
-        $field, $op, $value
-    );
-}
-
-function and_where($field, $op, $value = null)
-{
-    return 'AND ' . where($field, $op, $value);
-}
-
-function where_in($field, $values = [])
-{
-    if (!$values) {
-        return null;
-    }
-    foreach ($values as $i => $v) {
-        $values[$i] = "'" . db()->escape($v) . "'";
-    }
-    return sprintf(
-        strpos($field, '`') === false ? '`%s` IN (%s)' : '%s IN (%s)',
-        $field,
-        implode(',', $values)
-    );
-}
-
-function and_where_in($field, $values = [])
-{
-    if (!$values) {
-        return null;
-    }
-    return 'AND ' . where_in($field, $values);
+    return serverv('request_uri');
 }
 
 function request_time()
@@ -501,16 +436,35 @@ function request_time()
     return serverv('request_time', time());
 }
 
+function real_ip()
+{
+    return serverv(
+        'http_client_ip'
+        , serverv(
+            'http_x_forwarded_for'
+            , serverv(
+                'remote_addr'
+                , 'UNKNOWN'
+            )
+        )
+    );
+}
+
+function user_agent()
+{
+    return serverv('http_user_agent', '');
+}
+
 function remove_tags($value, $params = '')
 {
-    if (stripos($params, 'style') !== false && stripos($value, '</style>') !== false) {
+    if (stripos($params, 'style') === false && stripos($value, '</style>') !== false) {
         $value = preg_replace('#<style.*?>.*?</style>#is', '', $value);
     }
-    if (stripos($params, 'script') !== false && stripos($value, '</script>') !== false) {
+    if (stripos($params, 'script') === false && stripos($value, '</script>') !== false) {
         $value = preg_replace('@<script.*?>.*?</script>@is', '', $value);
     }
-    if (stripos($params, '[[') !== false && stripos($value, ']]') !== false) {
+    if (strpos($params, '[[') === false && strpos($value, ']]') !== false) {
         $value = preg_replace('@\[\[.+?\]\]@s', '', $value);
     }
-    return trim(strip_tags($value, $params));
+    return strip_tags($value, $params);
 }
