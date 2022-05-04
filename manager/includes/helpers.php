@@ -332,8 +332,9 @@ function doc($key, $default = '')
     if (str_contains($key, '|hsc')) {
         return hsc(
             array_get(
-                $a
-                , str_replace('|hsc', '', $key, $default)
+                $a,
+                str_replace('|hsc', '', $key),
+                $default
             )
         );
     }

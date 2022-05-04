@@ -39,7 +39,7 @@ function fieldDescription()
                 'style' => 'height:43px;',
                 'rows' => '2'
             ),
-            doc('description|hsc')
+            doc('description|hsc','')
         )
         . tooltip(lang('resource_description_help')),
         'vertical-align:top;'
@@ -145,7 +145,7 @@ function fieldIntrotext()
                 'style' => 'height:60px;',
                 'rows' => '3'
             ),
-            doc('introtext|hsc')
+            doc('introtext|hsc','')
         ) . tooltip(lang('resource_summary_help')),
         'vertical-align:top;'
     );
