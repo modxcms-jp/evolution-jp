@@ -75,7 +75,7 @@ class DBAPI
      * @name:  connect
      *
      */
-    function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0)
+    public function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0)
     {
         if ($this->isConnected()) {
             return true;
@@ -164,7 +164,7 @@ class DBAPI
         return $this->conn;
     }
 
-    function select_db($dbase = '')
+    public function select_db($dbase = '')
     {
         if ($dbase) {
             return $this->conn->select_db($dbase);
@@ -176,13 +176,13 @@ class DBAPI
      * @name:  disconnect
      *
      */
-    function disconnect()
+    public function disconnect()
     {
         $this->conn->close();
         $this->conn = null;
     }
 
-    function escape($s, $safecount = 0)
+    public function escape($s, $safecount = 0)
     {
         $safecount++;
         if (1000 < $safecount) {
@@ -232,7 +232,7 @@ class DBAPI
      * @desc:  Mainly for internal use.
      * Developers should use select, update, insert, delete where possible
      */
-    function query($sql, $watchError = true)
+    public function query($sql, $watchError = true)
     {
         global $modx;
         if ($this->rawQuery) {
@@ -316,7 +316,7 @@ class DBAPI
      * @name:  delete
      *
      */
-    function delete($from, $where = '', $orderby = '', $limit = '')
+    public function delete($from, $where = '', $orderby = '', $limit = '')
     {
         if (!$from) {
             evo()->messageQuit('Empty $from parameters in DBAPI::delete().');
@@ -343,7 +343,7 @@ class DBAPI
      * @name:  select
      *
      */
-    function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '')
+    public function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '')
     {
         if (!$from) {
             evo()->messageQuit('Empty $from parameters in DBAPI::select().');
@@ -377,7 +377,7 @@ class DBAPI
      * @name:  update
      *
      */
-    function update($fields, $table, $where = '', $orderby = '', $limit = '')
+    public function update($fields, $table, $where = '', $orderby = '', $limit = '')
     {
         if (!$table) {
             evo()->messageQuit("Empty \$table parameter in DBAPI::update().");
@@ -415,7 +415,7 @@ class DBAPI
      * @name:  insert
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    public function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
     {
         return $this->_insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
@@ -424,7 +424,7 @@ class DBAPI
      * @name:  insert ignore
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    public function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
     {
         return $this->_insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
