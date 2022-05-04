@@ -205,8 +205,8 @@ function array_set(&$array, $key, $value)
 
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', evo()->input_any($key))) {
-        return evo()->input_any($key);
+    if (preg_match('@^[1-9][0-9]*$@', anyv($key))) {
+        return anyv($key);
     }
     return 0;
 }
