@@ -313,8 +313,6 @@ function doc($key, $default = '')
             global $id;
             if(!empty($id)) {
                 $modx->documentIdentifier = $id;
-            } else {
-                exit('resource id not found.');
             }
         }
     }
