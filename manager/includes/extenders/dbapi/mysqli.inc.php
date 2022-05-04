@@ -325,16 +325,13 @@ class DBAPI
         if (!$where && !$limit) {
             $this->truncate($from);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         return $this->query(
             sprintf(
-                'DELETE FROM %s %s %s %s'
-                , $this->replaceFullTableName($from)
-                , $where ? 'WHERE ' . $where : ''
-                , $orderby ? 'ORDER BY ' . $orderby : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                'DELETE FROM %s %s %s %s',
+                $this->replaceFullTableName($from),
+                $this->_where($where),
+                $orderby ? 'ORDER BY ' . $orderby : '',
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             )
         );
     }
@@ -356,17 +353,14 @@ class DBAPI
         if (is_array($from)) {
             $from = $this->_getFromStringFromArray($from);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         $rs = $this->query(
             sprintf(
-                'SELECT %s FROM %s %s %s %s'
-                , $this->replaceFullTableName($fields)
-                , $this->replaceFullTableName($from)
-                , trim($where) ? sprintf('WHERE %s', trim($where)) : ''
-                , trim($orderby) ? sprintf('ORDER BY %s', $this->replaceFullTableName($orderby)) : ''
-                , trim($limit) ? sprintf('LIMIT %s', $limit) : ''
+                'SELECT %s FROM %s %s %s %s',
+                $this->replaceFullTableName($fields),
+                $this->replaceFullTableName($from),
+                $this->_where($where),
+                trim($orderby) ? sprintf('ORDER BY %s', $this->replaceFullTableName($orderby)) : '',
+                trim($limit) ? sprintf('LIMIT %s', $limit) : ''
             )
         );
         $this->rs = $rs;
@@ -396,17 +390,14 @@ class DBAPI
             }
             $pairs = implode(',', $pair);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         return $this->query(
             sprintf(
-                'UPDATE %s SET %s %s %s %s'
-                , $this->replaceFullTableName($table)
-                , $pairs
-                , $where ? 'WHERE ' . $where : ''
-                , $orderby ? 'ORDER BY ' . $orderby : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                'UPDATE %s SET %s %s %s %s',
+                $this->replaceFullTableName($table),
+                $pairs,
+                $this->_where($where),
+                $orderby ? 'ORDER BY ' . $orderby : '',
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             )
         );
     }
@@ -471,14 +462,14 @@ class DBAPI
         $intotable = $this->replaceFullTableName($intotable);
         if ($fromtable) {
             $query = sprintf(
-                '%s %s (%s) SELECT %s FROM %s %s %s'
-                , $insert_method
-                , $intotable
-                , is_array($fields) ? implode(',', array_keys($fields)) : $fields
-                , $fromfields ? $fromfields : $intotable
-                , $this->replaceFullTableName($fromtable)
-                , $where ? 'WHERE ' . $where : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                '%s %s (%s) SELECT %s FROM %s %s %s',
+                $insert_method,
+                $intotable,
+                is_array($fields) ? implode(',', array_keys($fields)) : $fields,
+                $fromfields ? $fromfields : $intotable,
+                $this->replaceFullTableName($fromtable),
+                $this->_where($where),
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             );
         } elseif (is_array($fields)) {
             if (!$fromtable) {
@@ -812,11 +803,11 @@ class DBAPI
     function getObject($table, $where, $orderby = '')
     {
         $rs = $this->select(
-            '*'
-            , $this->replaceFullTableName($table, 'force')
-            , $where
-            , $orderby
-            , 1
+            '*',
+            $this->replaceFullTableName($table, 'force'),
+            $where,
+            $orderby,
+            1
         );
         if ($this->count($rs) == 0) {
             return false;
@@ -860,11 +851,11 @@ class DBAPI
             $sql = $sql_or_table;
         } else {
             $sql = sprintf(
-                'SELECT * from %s %s %s %s'
-                , $this->replaceFullTableName($sql_or_table, 'force')
-                , $where ? ' WHERE ' . $where : ''
-                , $orderby ? ' ORDER BY ' . $orderby : ''
-                , $limit ? 'LIMIT ' . $limit : ''
+                'SELECT * from %s %s %s %s',
+                $this->replaceFullTableName($sql_or_table, 'force'),
+                $this->_where($where),
+                $orderby ? ' ORDER BY ' . $orderby : '',
+                $limit ? 'LIMIT ' . $limit : ''
             );
         }
 
@@ -1244,5 +1235,18 @@ class DBAPI
     public function rawQuery($flag = true)
     {
         $this->rawQuery = $flag;
+    }
+
+    private function _where($where) {
+        if(!$where) {
+            return null;
+        }
+        if(!is_array($where)) {
+            if(trim($where)=='') {
+                return null;
+            }
+            return 'WHERE ' . $where;
+        }
+        return 'WHERE ' . implode(' ', $where);
     }
 }
