@@ -8,19 +8,12 @@ function setOption($fieldName, $value = '')
 
 function getOption($fieldName)
 {
-    if (isset($_POST[$fieldName]) && $_POST[$fieldName] !== '') {
-        return $_POST[$fieldName];
-    }
-
-    if (isset($_SESSION[$fieldName]) && $_SESSION[$fieldName] !== '') {
-        return $_SESSION[$fieldName];
-    }
-
-    if (isset($GLOBALS[$fieldName]) && $GLOBALS[$fieldName] !== '') {
-        return $GLOBALS[$fieldName];
-    }
-
-    return false;
+    return postv($fieldName,
+        sessionv($fieldName,
+            globalv($fieldName),
+            false
+        )
+    );
 }
 
 function browser_lang()
