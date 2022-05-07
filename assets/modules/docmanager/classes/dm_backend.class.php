@@ -131,14 +131,14 @@ class DocManagerBackend
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
-        if ($error == '') {
+        if (!$error) {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_success'];
+            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
 
-        evo()->clearCache();
         $this->logDocumentChange('template');
         return $this->dm->parseTemplate('update.tpl', $this->dm->ph);
     }
@@ -266,13 +266,13 @@ class DocManagerBackend
             $this->logDocumentChange('templatevariables');
         }
 
-        if ($error == '' && $updateError == '') {
+        if (!$error && !$updateError) {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_success'];
         } else {
             $this->dm->ph['update.message'] = $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
 
-        if ($updateError <> '') {
+        if ($updateError) {
             $this->dm->ph['update.message'] .= '<br />' . $updateError;
         }
         $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_tpl_results_message'];
@@ -357,8 +357,9 @@ class DocManagerBackend
             $error = $this->dm->lang['DM_doc_no_docs'];
         }
 
-        if ($error == '') {
+        if (!$error) {
             $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_process_update_success'];
+            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] .= '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
@@ -468,8 +469,9 @@ class DocManagerBackend
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
         }
 
-        if ($error == '') {
+        if (!$error) {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_success'];
+            evo()->clearCache();
         } else {
             $this->dm->ph['update.message'] = '<br />' . $this->dm->lang['DM_process_update_error'] . '<br />' . $error;
         }
