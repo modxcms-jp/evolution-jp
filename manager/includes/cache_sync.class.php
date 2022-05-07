@@ -173,7 +173,6 @@ class synccache
 
     private function recent_update()
     {
-        global $modx;
         static $recent_update = null;
 
         if ($recent_update) {
@@ -201,7 +200,7 @@ class synccache
 
     public function publishBasicConfig()
     {
-        global $modx, $site_sessionname;
+        global $site_sessionname;
 
         $this->recent_update();
         $config = $this->_get_settings();
