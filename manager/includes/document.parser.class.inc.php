@@ -483,6 +483,9 @@ class DocumentParser
             exit();
         }
 
+        if(!$this->config('sanitize_gpc')) {
+            return;
+        }
         foreach (['PHP_SELF', 'HTTP_USER_AGENT', 'HTTP_REFERER', 'QUERY_STRING'] as $key) {
             if (isset ($_SERVER[$key])) {
                 $_SERVER[$key] = $this->hsc($_SERVER[$key]);

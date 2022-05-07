@@ -96,6 +96,7 @@ $default_config = [
     'doc_encoding' => 'UTF-8',
     'enable_draft' => '0',
     'automatic_optimize' => '1',
+    'sanitize_gpc' => 1,
 ];
 
 if (getv('a') !== '17') {
