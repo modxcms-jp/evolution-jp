@@ -131,7 +131,7 @@ function warnings()
 function save_settiongs()
 {
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
-    $form_v = $_POST;
+    $form_v = $_POST + $default_config;
     $savethese = array();
     foreach ($form_v as $k => $v) {
         switch ($k) {
