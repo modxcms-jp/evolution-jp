@@ -4011,13 +4011,7 @@ class DocumentParser
 
     function getConfig($name = '', $default = '')
     {
-        if (!isset($this->config[$name])) {
-            if ($default === '') {
-                return false;
-            }
-            return $default;
-        }
-        return $this->config[$name];
+        return $this->config($name, $default);
     }
 
     public function getChunk($chunk_name)
@@ -5551,7 +5545,7 @@ class DocumentParser
     {
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
-            $this->array_set($GLOBALS, $key, $value);
+            array_set($GLOBALS, $key, $value);
             return $value;
         }
         if (!isset($GLOBALS)) {
@@ -5569,7 +5563,7 @@ class DocumentParser
         }
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
-            $this->array_set($this->config, $key, $value);
+            array_set($this->config, $key, $value);
             return $value;
         }
         return $this->array_get($this->config, $key, $default);
@@ -5582,7 +5576,7 @@ class DocumentParser
         }
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
-            $this->array_set($this->documentObject, $key, $value);
+            array_set($this->documentObject, $key, $value);
             return $value;
         }
         return $this->array_get($this->documentObject, $key, $default);
@@ -5630,23 +5624,7 @@ class DocumentParser
     // from Laravel Arr::set()
     public function array_set(&$array, $key, $value)
     {
-        if ($key === null) {
-            return $array = $value;
-        }
-        $key = ltrim('*', $key);
-        $keys = explode('.', $key);
-        while (count($keys) > 1) {
-            $key = array_shift($keys);
-            $key = ltrim('*', $key);
-            if (!isset($array[$key]) || !is_array($array[$key])) {
-                $array[$key] = [];
-            }
-            $array = &$array[$key];
-        }
-
-        $array[array_shift($keys)] = $value;
-
-        return $array;
+        return array_set($array, $key, $value);
     }
 
     public function get_docfield_type($field_name = '')
