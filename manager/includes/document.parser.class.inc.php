@@ -5197,7 +5197,7 @@ class DocumentParser
             return false;
         }
 
-        $tmp = MODX_BASE_PATH . 'assets/cache/.tmp_' . md5(uniqid(getmypid() . '_', true));
+        $tmp = tempnam(MODX_BASE_PATH . 'assets/cache', 'tmp');
         if (is_file($tmp) && !is_writable($tmp)) {
             chmod($tmp, 0666);
         }
