@@ -23,6 +23,7 @@ if (formv('reset_template')) {
 }
 
 cleanup_tv();
+fix_pulishedon();
 evo()->clearCache();
 setPermission();
 header("Location: index.php?a=7&r=9");
@@ -261,5 +262,20 @@ function cleanup_tv()
     db()->delete(
         '[+prefix+]site_tmplvar_contentvalues',
         where_in('contentid', $docs)
+    );
+}
+
+function fix_pulishedon() {
+    db()->update(
+        'publishedon=editedon',
+        '[+prefix+]site_content',
+        [
+            "published=1 AND deleted=0 AND publishedon=0",
+            "AND pub_date<".request_time(),
+            sprintf(
+                "AND (unpub_date=0 OR unpub_date>'%s')",
+                request_time()
+            )
+        ]
     );
 }
