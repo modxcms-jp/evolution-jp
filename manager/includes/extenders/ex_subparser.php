@@ -941,19 +941,23 @@ class SubParser
 
         $nextpos = max(array_merge([0], array_keys($modx->sjscripts))) + 1;
 
-        $modx->loadedjscripts[$src]['startup'] = true;
-        $modx->loadedjscripts[$src]['version'] = '0';
-        $modx->loadedjscripts[$src]['pos'] = $nextpos;
+        $modx->loadedjscripts[$src] = [
+            'startup' => true,
+            'version' => '0',
+            'pos' => $nextpos
+        ];
 
-        if (strpos(strtolower($src), '<style') !== false || strpos(strtolower($src), '<link') !== false) {
+        if (strpos(strtolower($src), '<style') !== false
+                || strpos(strtolower($src), '<link') !== false) {
             $modx->sjscripts[$nextpos] = $src;
-        } else {
-            $modx->sjscripts[$nextpos] = sprintf(
-                '<link rel="stylesheet" type="text/css" href="%s" %s/>'
-                , $src
-                , $media ? sprintf('media="%s" ', $media) : ''
-            );
+            return;
         }
+        
+        $modx->sjscripts[$nextpos] = sprintf(
+            '<link rel="stylesheet" type="text/css" href="%s" %s/>'
+            , $src
+            , $media ? sprintf('media="%s" ', $media) : ''
+        );
     }
 
     # Registers Client-side JavaScript     - these scripts are loaded at the end of the page unless $startup is true
