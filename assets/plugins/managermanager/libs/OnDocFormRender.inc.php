@@ -5,7 +5,7 @@ $e->output('
     <!-- This document is using template: ' . $mm_current_page['template'] . ' -->
     <!-- You are logged into the following role: ' . $mm_current_page['role'] . ' -->
 
-    <script type="text/javascript" charset="' . $modx->config['modx_charset'] . '">
+    <script charset="' . $modx->config['modx_charset'] . '">
     var mm_lastTab = "tabGeneral";
     var mm_sync_field_count = 0;
     var synch_field = new Array();

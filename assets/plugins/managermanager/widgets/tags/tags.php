@@ -12,12 +12,18 @@
  * @copyright 2012
  */
 
-function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count = false, $roles = '', $templates = '', $default = '')
+function mm_widget_tags(
+    $fields,
+    $delimiter = ',',
+    $source = '',
+    $display_count = false,
+    $roles = '',
+    $templates = '',
+    $default = '')
 {
-    global $modx, $mm_fields, $mm_current_page;
-    $e = &$modx->event;
+    global $mm_fields, $mm_current_page;
 
-    if ($e->name != 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if (event()->name != 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -41,8 +47,8 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
     // Insert some JS and a style sheet into the head
     $output = '';
     $output .= "//  -------------- Tag widget include ------------- \n";
-    $output .= includeJs($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.js');
-    $output .= includeCss($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.css');
+    $output .= includeJs(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.js');
+    $output .= includeCss(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.css');
 
     // Go through each of the fields supplied
     foreach ($fields as $targetTv) {
@@ -103,7 +109,7 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
         ", $targetTv, $tv_id, $tv_id, $html_list);
 
         // Initiate the tagCompleter class for this field
-        $output .= $modx->parseText(
+        $output .= evo()->parseText(
                 'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
                 , array(
                     'tv_id' => $tv_id,
@@ -111,5 +117,5 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
                 )
             ) . "\n";
     }
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }
