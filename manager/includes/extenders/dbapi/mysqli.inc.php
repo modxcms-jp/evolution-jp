@@ -93,6 +93,7 @@ class DBAPI
         if ($dbase) {
             $this->dbase = trim($dbase, '`');
         }
+        $this->dbase = trim($this->dbase, '`');
 
         if (substr(PHP_OS, 0, 3) === 'WIN' && $this->hostname === 'localhost') {
             $hostname = '127.0.0.1';
