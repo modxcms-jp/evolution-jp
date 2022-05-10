@@ -1699,7 +1699,6 @@ class SubParser
         }
 
         if (strpos($field_elements, '@INCLUDE') === 0) {
-            extract($ph);
             $path_str = substr($field_elements, 9);
             if (strpos($path_str, "\n") !== false) {
                 $path_str = strstr($path_str, "\n", true);
@@ -1707,20 +1706,15 @@ class SubParser
             $path_str = trim($path_str);
             if (is_file(MODX_BASE_PATH . 'assets/tvs/' . $path_str)) {
                 $path = MODX_BASE_PATH . 'assets/tvs/' . $path_str;
-            } elseif (is_file(MODX_BASE_PATH . $path_str)) {
-                $path = MODX_BASE_PATH . $path_str;
+            } elseif (is_file(MODX_BASE_PATH . ltrim($path_str, '/'))) {
+                $path = MODX_BASE_PATH . ltrim($path_str, '/');
             } else {
-                $path = false;
-            }
-
-            if (!$path) {
                 return $path_str . ' does not exist';
             }
-
+            extract($ph);
             ob_start();
-            $return = ob_get_include($path);
-            $echo = ob_get_clean();
-            return $echo ?: $return;
+            $return = include $path;
+            return ob_get_clean() ?: $return;
         }
 
         if (strpos($field_elements, '@CHUNK') === 0) {
@@ -1740,7 +1734,7 @@ class SubParser
         if (strpos($field_elements, '@EVAL') === 0) {
             extract($ph);
             return eval(
-            trim(substr($field_elements, 6))
+                trim(substr($field_elements, 6))
             );
         }
 
