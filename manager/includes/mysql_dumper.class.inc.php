@@ -240,7 +240,7 @@ class Mysqldumper
         switch ($row['setting_name']) {
             case 'filemanager_path':
             case 'rb_base_dir':
-                if (strpos($row['setting_value'], MODX_BASE_PATH) !== false) {
+                if (strpos($row['setting_value'], MODX_BASE_PATH) === 0) {
                     $row['setting_value'] = str_replace(MODX_BASE_PATH, '[(base_path)]', $row['setting_value']);
                 }
                 break;

@@ -210,19 +210,11 @@ function settings()
         $settings = array_merge($settings, $_POST);
     }
 
-    if (strpos($settings['site_url'], '[(site_url)]') !== false) {
-        $settings['site_url'] = str_replace(
-            '[(site_url)]'
-            , MODX_SITE_URL
-            , $settings['site_url']
-        );
+    if ($settings['site_url'] === '[(site_url)]') {
+        $settings['site_url'] = MODX_SITE_URL;
     }
-    if (strpos($settings['base_url'], '[(base_url)]') !== false) {
-        $settings['base_url'] = str_replace(
-            '[(base_url)]'
-            , MODX_BASE_URL
-            , $settings['base_url']
-        );
+    if ($settings['base_url'] === '[(base_url)]') {
+        $settings['base_url'] = MODX_BASE_URL;
     }
     return $settings;
 }
