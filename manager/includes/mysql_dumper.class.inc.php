@@ -60,7 +60,7 @@ class Mysqldumper
 
     private function is_log_table($table_name)
     {
-        if ($this->in_array($table_name, ['event_log', 'manager_log'])) {
+        if ($this->in_array($table_name, ['event_log', 'manager_log', 'system_cache'])) {
             return true;
         }
         return false;
@@ -143,10 +143,6 @@ class Mysqldumper
             if (strpos($table_name, $this->table_prefix) !== 0) {
                 continue;
             }
-            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
-                continue;
-            }
-
             if ($this->contentsOnly && !$this->is_content_table($table_name)) {
                 continue;
             }
@@ -171,6 +167,11 @@ class Mysqldumper
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
+            
+            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
+                continue;
+            }
+
             $output .= sprintf(
                 '-- %s-- Dumping data for table `%s`%s-- %s'
                 , $lf

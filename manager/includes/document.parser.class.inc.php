@@ -5561,6 +5561,12 @@ class DocumentParser
                 $this->getSettings();
             }
         }
+        if($this->config['site_url']==='[(site_url)]') {
+            $this->config['site_url'] = MODX_SITE_URL;
+        }
+        if($this->config['base_url']==='[(base_url)]') {
+            $this->config['base_url'] = MODX_BASE_URL;
+        }
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
             array_set($this->config, $key, $value);
