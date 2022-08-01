@@ -2,8 +2,7 @@
 
 /*
  * Title: Example2
- * Purpose:
- *  	Example file for basing new Extenders on
+ * Purpose: Example file for basing new Extenders on
 */
 
 // ---------------------------------------------------
@@ -12,9 +11,9 @@
 // ---------------------------------------------------
 
 $placeholders['example'] = array(
-	array('pagetitle', '*')
-	, 'exampleFunction'
-	, 'pagetitle'
+	array('pagetitle', '*'),
+    'exampleFunction',
+    'pagetitle'
 );
 	// Variable: $placeholders['example']
 	// Add the placeholder example to the custom placeholders list 
