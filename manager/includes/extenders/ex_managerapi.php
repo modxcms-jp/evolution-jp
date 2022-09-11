@@ -31,7 +31,7 @@ class ManagerAPI
     {
         global $_PAGE;
 
-        if (evo()->session_var('mgrPageViewSID', '') != $this->action) {
+        if (sessionv('mgrPageViewSID', '') != $this->action) {
             $_SESSION['mgrPageViewSDATA'] = []; // new view state
             $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
         }
@@ -49,7 +49,7 @@ class ManagerAPI
     // check for saved form
     function hasFormValues()
     {
-        if (isset($_SESSION['mgrFormValueId']) && evo()->session_var('mgrFormValues')) {
+        if (isset($_SESSION['mgrFormValueId']) && sessionv('mgrFormValues')) {
             if ($this->action == $_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues'])) {
                 return true;
             }
@@ -255,7 +255,7 @@ class ManagerAPI
     function checkToken()
     {
         $clientToken = evo()->input_any('token', false);
-        $serverToken = evo()->session_var('token', false);
+        $serverToken = sessionv('token', false);
 
         $_SESSION['token'] = '';
 
@@ -426,8 +426,8 @@ class ManagerAPI
         $actions = explode(',',
             '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
         if (in_array($action, $actions)) {
-            if (evo()->session_var('current_request_uri')) {
-                $_SESSION['previous_request_uri'] = evo()->session_var('current_request_uri');
+            if (sessionv('current_request_uri')) {
+                $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
             }
             $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
         }

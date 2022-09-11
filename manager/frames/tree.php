@@ -63,7 +63,7 @@ $esc_request = db()->escape($_REQUEST);
             }
             return $openedArray;
         }
-        if (evo()->conf_var('allowed_parents') && !evo()->session_var('openedArray')) {
+        if (evo()->conf_var('allowed_parents') && !sessionv('openedArray')) {
             $openedArray = openedArray(evo()->conf_var('allowed_parents'));
             if ($openedArray) {
                 $_SESSION['openedArray'] = implode('|', $openedArray);

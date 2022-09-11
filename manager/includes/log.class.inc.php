@@ -96,7 +96,7 @@ class logHandler
         if ($itemname != '') {
             $this->entry['itemName'] = $itemname;
         } else {
-            $this->entry['itemName'] = evo()->session_var('itemname', '-');
+            $this->entry['itemName'] = sessionv('itemname', '-');
         }    // writes the id to the object
     }
 }

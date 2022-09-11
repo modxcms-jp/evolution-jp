@@ -275,12 +275,12 @@ function checkCaptcha()
         return true;
     }
 
-    if (!evo()->session_var('veriword')) {
+    if (!sessionv('veriword')) {
         jsAlert('Captcha is not configured properly.');
         return false;
     }
 
-    if (evo()->session_var('veriword') != input('captcha_code')) {
+    if (sessionv('veriword') != input('captcha_code')) {
         jsAlert(alert()->errors[905]);
         failedLogin(user('internalKey'), user('failedlogincount'));
         return false;
@@ -329,8 +329,8 @@ function redirectAfterLogin()
         return;
     }
 
-    if (evo()->session_var('save_uri')) {
-        $uri = evo()->session_var('save_uri');
+    if (sessionv('save_uri')) {
+        $uri = sessionv('save_uri');
         unset($_SESSION['save_uri']);
     } else {
         $uri = MODX_MANAGER_URL;
@@ -351,14 +351,15 @@ function managerLogin()
     $_SESSION['usertype'] = 'manager'; // user is a backend user
 
     // get permissions
-    $_SESSION['mgrShortname'] = user('username');
-    $_SESSION['mgrFullname'] = user('fullname');
-    $_SESSION['mgrEmail'] = user('email');
-    $_SESSION['mgrValidated'] = 1;
-    $_SESSION['mgrInternalKey'] = user('internalKey');
+    $_SESSION['mgrShortname']    = user('username');
+    $_SESSION['mgrFullname']     = user('fullname');
+    $_SESSION['mgrEmail']        = user('email');
+    $_SESSION['mgrValidated']    = 1;
+    $_SESSION['mgrInternalKey']  = user('internalKey');
     $_SESSION['mgrFailedlogins'] = user('failedlogincount');
-    $_SESSION['mgrLogincount'] = user('logincount'); // login count
-    $_SESSION['mgrRole'] = user('role');
+    $_SESSION['mgrLogincount']   = user('logincount');        // login count
+    $_SESSION['mgrRole']         = user('role');
+
     $rs = db()->select(
         '*'
         , '[+prefix+]user_roles'
@@ -368,7 +369,7 @@ function managerLogin()
 
     $_SESSION['mgrPermissions'] = $row;
 
-    if ($modx->session_var('mgrPermissions.messages') == 1) {
+    if (sessionv('mgrPermissions.messages') == 1) {
         $rs = db()->select('*', '[+prefix+]manager_users');
         $total = db()->count($rs);
         if ($total == 1) {

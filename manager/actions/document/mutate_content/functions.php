@@ -34,7 +34,7 @@ function getTmplvars($docid, $template_id, $docgrp)
         , sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
             , $template_id
-            , evo()->session_var('mgrRole')
+            , sessionv('mgrRole')
             , $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
         )
         , 'tvtpl.rank,tv.rank, tv.id'

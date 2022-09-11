@@ -87,7 +87,7 @@ if (in_array(postv('mode'), array('12', '74'))) {
             exit;
         }
     }
-    if (evo()->session_var('mgrRole') != 1 && role_byuserid(postv('id')) == 1) {
+    if (sessionv('mgrRole') != 1 && role_byuserid(postv('id')) == 1) {
         webAlert('You cannot alter an administrative user.');
         exit;
     }
