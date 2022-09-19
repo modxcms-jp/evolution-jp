@@ -69,7 +69,7 @@ function setModifiedConfig($form_v, $defaut_v)
     if ($form_v === $defaut_v) {
         return $defaut_v;
     }
-    return '* ' . $form_v;
+    return ltrim($form_v, '* ');
 }
 
 function formv($key, $default = null)
