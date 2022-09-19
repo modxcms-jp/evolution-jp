@@ -180,8 +180,27 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['url'] = "'{$url}'";
         $ph['published'] = $published;
         $ph['deleted'] = $deleted;
-        $ph['nodetitleDisplay'] = '<span class="' . $class . '">' . $nodetitle . '</span>';
-        $ph['pageIdDisplay'] = '<span>(' . ($modx_textdir === 'rtl' ? '&rlm;' : '') . $id . ')</span>';
+        $hankaku_title = mb_convert_kana($nodetitle, 'Kas');
+        $shortenTitle = (sessionv('tree_sortby')!=='id' && 24<mb_strwidth($hankaku_title))
+            ? mb_strimwidth($hankaku_title,0,22) . ' ...'
+            : $hankaku_title
+        ;
+        $ph['nodetitleDisplay'] = sessionv('tree_sortby')==='id'
+            ? sprintf(
+                '<span>[%s%s]</span> <span class="%s">%s</span>',
+                $modx_textdir === 'rtl' ? '&rlm;' : '',
+                $id,
+                $class,
+                $shortenTitle
+            )
+            : sprintf(
+                '<span class="%s">%s</span> <span>[%s%s]</span>',
+                $class,
+                $shortenTitle,
+                $modx_textdir === 'rtl' ? '&rlm;' : '',
+                $id
+            );
+        $ph['pageIdDisplay'] = '';
         $ph['draftDisplay'] = $draftDisplay;
         $ph['_lang_click_to_context'] = $_lang['click_to_context'];
 
