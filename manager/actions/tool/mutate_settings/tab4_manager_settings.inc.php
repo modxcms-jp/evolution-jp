@@ -124,6 +124,25 @@
             </td>
         </tr>
         <tr>
+            <th><?php echo $_lang["setting_resource_tree_sortby_default"] ?></th>
+            <td>
+                <select name="resource_tree_sortby_default" size="1" class="inputBox">
+                    <?php
+                    $output = [];
+                    foreach (['isfolder','pagetitle','id','menuindex','createdon','editedon'] as $v) {
+                        $output[] = str_replace(
+                            ['[+value+]', '[+selected+]'],
+                            [$v, ($v == $resource_tree_sortby_default) ? 'selected' : ''],
+                            '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n"
+                        );
+                    }
+                    echo join("\n", $output)
+                    ?>
+                </select><br/>
+                <?php echo $_lang["setting_resource_tree_sortby_default_desc"] ?>
+            </td>
+        </tr>
+        <tr>
             <th><?php echo $_lang["setting_resource_tree_node_name"] ?></th>
             <td>
                 <select name="resource_tree_node_name" size="1" class="inputBox">
@@ -143,7 +162,6 @@
                 <?php echo $_lang["setting_resource_tree_node_name_desc"] ?>
             </td>
         </tr>
-
         <tr>
             <th><?php echo $_lang["top_howmany_title"] ?></th>
             <td>

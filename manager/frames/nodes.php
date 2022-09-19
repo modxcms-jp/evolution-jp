@@ -23,20 +23,12 @@ if (getv('savestateonly')) {
 }
 
 // setup sorting
-if(anyv('tree_sortby') || !sessionv('tree_sortby')) {
-    $_SESSION['tree_sortby'] = anyv(
-        'tree_sortby', tree_sortby_default(
-            evo()->config('resource_tree_node_name')
-        )
-    );
+if(anyv('tree_sortby')) {
+    $_SESSION['tree_sortby'] = anyv('tree_sortby');
 }
 
-if(anyv('tree_sortdir') || !sessionv('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = anyv(
-        'tree_sortdir', tree_sortdir_default(
-            evo()->config('resource_tree_node_name')
-        )
-    );
+if(anyv('tree_sortdir')) {
+    $_SESSION['tree_sortdir'] = anyv('tree_sortdir');
 }
 
 global $opened, $opened2, $closed2;
@@ -406,25 +398,6 @@ function tplFcloseNode()
 
 EOT;
     return $src;
-}
-
-function tree_sortby_default($node_name) {
-    $names = ['pagetitle','menutitle','alias','createdon','editedon','publishedon'];
-    return in_array($node_name, $names)
-        ? $node_name
-        : 'menuindex';
-}
-
-function tree_sortdir_default($node_name) {
-    $names  = [
-        'pagetitle'   => 'DESC',
-        'menutitle'   => 'DESC',
-        'alias'       => 'DESC',
-        'createdon'   => 'ASC',
-        'editedon'    => 'ASC',
-        'publishedon' => 'ASC'
-    ];
-    return isset($names[$node_name]) ? $names[$node_name] : 'ASC';
 }
 
 function get_tree_orderby()

@@ -45,6 +45,7 @@ $default_config = [
     'pm2email' => '1',
     'rb_webuser' => '0',
     'remember_last_tab' => '1',
+    'resource_tree_sortby_default' => 'menuindex',
     'resource_tree_node_name' => 'pagetitle',
     'rss_url_news' => 'http://feeds2.feedburner.com/modxjp',
     'rss_url_security' => 'http://feeds2.feedburner.com/modxjpsec',

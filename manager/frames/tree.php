@@ -8,10 +8,14 @@ $esc_request = db()->escape($_REQUEST);
 
 $fieldtype = strpos(config('resource_tree_node_name'), 'edon') !== false ? 'date' : 'str';
 if (!sessionv('tree_sortby')) {
-    $_SESSION['tree_sortby'] = tree_sortby_default(config('resource_tree_node_name'));
+    $_SESSION['tree_sortby'] = tree_sortby_default(
+        config('resource_tree_sortby_default','menuindex')
+    );
 }
 if (!sessionv('tree_sortdir')) {
-    $_SESSION['tree_sortdir'] = tree_sortdir_default(config('resource_tree_node_name'));
+    $_SESSION['tree_sortdir'] = tree_sortdir_default(
+        config('resource_tree_sortdir_default','ASC')
+    );
 }
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -1040,21 +1044,21 @@ function isSelectedTreeSortDir($direction) {
     return 'selected';
 }
 
-function tree_sortby_default($node_name) {
-    $names = ['pagetitle','menutitle','alias','createdon','editedon','publishedon'];
-    return in_array($node_name, $names)
-        ? $node_name
+function tree_sortby_default($field_name) {
+    $names = ['isfolder','pagetitle','id','menuindex','createdon','editedon'];
+    return in_array($field_name, $names)
+        ? $field_name
         : 'menuindex';
 }
 
-function tree_sortdir_default($node_name) {
+function tree_sortdir_default($field_name) {
     $names  = [
-        'pagetitle'   => 'DESC',
-        'menutitle'   => 'DESC',
-        'alias'       => 'DESC',
-        'createdon'   => 'ASC',
-        'editedon'    => 'ASC',
-        'publishedon' => 'ASC'
+        'isfolder'  => 'DESC',
+        'pagetitle' => 'ASC',
+        'id'        => 'ASC',
+        'menuindex' => 'ASC',
+        'createdon' => 'DESC',
+        'editedon'  => 'DESC',
     ];
-    return isset($names[$node_name]) ? $names[$node_name] : 'ASC';
+    return isset($names[$field_name]) ? $names[$field_name] : 'ASC';
 }
