@@ -4,53 +4,58 @@
  *  Build and return document tree view nodes
  *
  */
-if (!isset($modx) || !evo()->isLoggedin()) {
+if (empty($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if ($modx->getLoginUserType() !== 'manager') {
+if (evo()->getLoginUserType() !== 'manager') {
     exit('Not Logged In!');
 }
 
 // save folderstate
-if (isset($_GET['opened'])) {
-    $_SESSION['openedArray'] = $_GET['opened'];
-}
-if (isset($_GET['savestateonly'])) {
+
+if (getv('savestateonly')) {
+    $_SESSION['openedArray'] = getv('opened')
+        ? explode('|',getv('opened'))
+        : []
+    ;
     exit('savestateonly');
 }
+
 // setup sorting
-if (isset($_REQUEST['tree_sortby'])) {
-    $_SESSION['tree_sortby'] = $_REQUEST['tree_sortby'];
-}
-if (isset($_REQUEST['tree_sortdir'])) {
-    $_SESSION['tree_sortdir'] = $_REQUEST['tree_sortdir'];
+if(anyv('tree_sortby') || !sessionv('tree_sortby')) {
+    $_SESSION['tree_sortby'] = anyv(
+        'tree_sortby', tree_sortby_default(
+            evo()->config('resource_tree_node_name')
+        )
+    );
 }
 
-$indent = intval($_GET['indent']);
-$parent = intval($_GET['parent']);
-$expandAll = intval($_GET['expandAll']);
+if(anyv('tree_sortdir') || !sessionv('tree_sortdir')) {
+    $_SESSION['tree_sortdir'] = anyv(
+        'tree_sortdir', tree_sortdir_default(
+            evo()->config('resource_tree_node_name')
+        )
+    );
+}
 
-if (isset($_SESSION['openedArray'])) {
-    $openedArray = explode('|', $_SESSION['openedArray']);
+global $opened, $opened2, $closed2;
+
+if (sessionv('openedArray')) {
+    $openedArray = sessionv('openedArray');
     foreach ($openedArray as $i => $v) {
         $openedArray[$i] = (int)$v;
     }
     $opened = array_filter($openedArray);
 } else {
-    $opened = array();
+    $opened = [];
 }
-$opened2 = array();
-$closed2 = array();
+$opened2 = [];
+$closed2 = [];
 
-if ($_SESSION['mgrDocgroups']) {
-    $docgrp = implode(',', $_SESSION['mgrDocgroups']);
-}
+$expandAll = (int)getv('expandAll');
 
-// get document groups for current user
-$mgrRole = (isset ($_SESSION['mgrRole']) && (string)$_SESSION['mgrRole'] === '1') ? '1' : '0';
-
-$output = getNodes($indent, $parent, $expandAll);
+$output = getNodes(getv('indent',0), getv('parent',0), $expandAll);
 
 // check for deleted documents on reload
 if ($expandAll == 2) {
@@ -65,25 +70,43 @@ echo $output;
 function getNodes($indent, $parent = 0, $expandAll, $output = '')
 {
     global $modx;
-    global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2, $docgrp, $mgrRole;
+    global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2;
 
     if ($parent == '') {
         $parent = 0;
     }
 
+    // get document groups for current user
+    $mgrRole = (sessionv('mgrRole')) ? 1 : 0;
+
     // setup spacer
     $spacer = get_spacer($indent);
     $tree_orderby = get_tree_orderby();
-    $in_docgrp = !$docgrp ? '' : "OR dg.document_group IN ({$docgrp})";
-    $access = $modx->config['tree_show_protected'] ? '' : "AND (1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp})";
+    $in_docgrp = sessionv('mgrDocgroups')
+        ? sprintf(
+            'OR dg.document_group IN (%s)',
+            implode(',', sessionv('mgrDocgroups', ''))
+        )
+        : ''
+    ;
 
+    if (config('tree_show_protected') || sessionv('mgrRole')) {
+        $access = '';
+    } else {
+        $access = "AND (sc.privatemgr=0 " . $in_docgrp . ")";
+    }
     $field = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
-    $field .= ",privateweb, privatemgr,MAX(IF(1={$mgrRole} OR sc.privatemgr=0 {$in_docgrp}, 1, 0)) AS has_access, rev.status AS status";
+    $field .= ",privateweb, privatemgr,MAX(IF(1=" . $mgrRole . " OR sc.privatemgr=0 " . $in_docgrp . ", 1, 0)) AS has_access, rev.status AS status";
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
-    $where = "parent='{$parent}' {$access} GROUP BY sc.id,rev.status";
-    $result = db()->select($field, $from, $where, $tree_orderby);
+    $where = sprintf("parent='%s' %s GROUP BY sc.id,rev.status", $parent, $access);
+    $result = db()->select(
+        $field,
+        $from,
+        $where,
+        $tree_orderby
+    );
     $hasChild = db()->count($result);
 
     if (!isset($modx->config['limit_by_container'])) {
@@ -101,7 +124,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
             $container_status = 'asis';
         }
         if ($container_status !== 'asis' && $parent !== '0') {
-            $where = "isfolder=1 AND {$where}";
+            $where = "isfolder=1 AND " . $where;
             $result = db()->select($field, $from, $where, $tree_orderby);
             $hasChild = db()->count($result);
         }
@@ -124,7 +147,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
 
 
     $loop_count = 0;
-    $node_name_source = $modx->config['resource_tree_node_name'];
+    $node_name_source = evo()->config('resource_tree_node_name');
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
         $loop_count++;
@@ -210,7 +233,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
             // expandAll: two type for partial expansion
             if ($expandAll == 1 || ($expandAll == 2 && in_array($id, $opened))) {
                 if ($expandAll == 1) {
-                    array_push($opened2, $id);
+                    $opened2[] = $id;
                 }
                 if ($container_status === 'container_only' && $hasChild == 0) {
                     $ph['_style_tree_minusnode'] = $_style['tree_blanknode'];
@@ -243,7 +266,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
                     );
                     $output .= $modx->parseText($tpl, $param);
                 }
-                array_push($closed2, $id);
+                $closed2[] = $id;
             }
         }
         // store vars in Javascript
@@ -366,33 +389,31 @@ EOT;
     return $src;
 }
 
+function tree_sortby_default($node_name) {
+    $names = ['pagetitle','menutitle','alias','createdon','editedon','publishedon'];
+    return in_array($node_name, $names)
+        ? $node_name
+        : 'menuindex';
+}
+
+function tree_sortdir_default($node_name) {
+    $names  = [
+        'pagetitle'   => 'DESC',
+        'menutitle'   => 'DESC',
+        'alias'       => 'DESC',
+        'createdon'   => 'ASC',
+        'editedon'    => 'ASC',
+        'publishedon' => 'ASC'
+    ];
+    return isset($names[$node_name]) ? $names[$node_name] : 'ASC';
+}
+
 function get_tree_orderby()
 {
-    global $modx;
-    if (!isset($_SESSION['tree_sortby']) && !isset($_SESSION['tree_sortdir'])) {
-        // This is the first startup, set default sort order
-        switch ($modx->config['resource_tree_node_name']) {
-            case 'createdon':
-            case 'editedon':
-            case 'publishedon':
-            case 'pub_date':
-            case 'unpub_date':
-                $_SESSION['tree_sortby'] = $modx->config['resource_tree_node_name'];
-                $_SESSION['tree_sortdir'] = 'DESC';
-                break;
-            default:
-                $_SESSION['tree_sortby'] = 'menuindex';
-                $_SESSION['tree_sortdir'] = 'ASC';
-        }
-    }
-    $orderby = trim($orderby);
-    $orderby = db()->escape($_SESSION['tree_sortby'] . " " . $_SESSION['tree_sortdir']);
-    if (empty($orderby)) {
-        $orderby = 'sc.menuindex ASC';
-    }
+    $orderby = sessionv('tree_sortby') . ' ' . sessionv('tree_sortdir');
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if ($_SESSION['tree_sortby'] == 'isfolder') {
+    if ($_SESSION['tree_sortby'] === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
     $orderby .= ', sc.editedon DESC';
@@ -418,7 +439,7 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
 
     switch ($node_name_source) {
         case 'menutitle':
-            $rs = $menutitle ? $menutitle : $pagetitle;
+            $rs = !empty($menutitle) ? $menutitle : $pagetitle;
             break;
         case 'alias':
             $nodetitle = $alias ? $alias : $id;
