@@ -90,7 +90,7 @@ class logHandler
         if ($username != '') {
             $this->entry['username'] = $username;
         } else {
-            $this->entry['username'] = $modx->getLoginUserName();
+            $this->entry['username'] = evo()->getLoginUserName();
         }
 
         if ($itemname != '') {

@@ -31,17 +31,16 @@ function failedLogin()
     //increment the failed login counter
     $failedlogincount = user('failedlogincount') + 1;
     db()->update(
-        array('failedlogincount' => $failedlogincount)
-        , '[+prefix+]user_attributes'
-        , sprintf("internalKey='%s'", user('internalKey'))
+        ['failedlogincount' => $failedlogincount],
+        '[+prefix+]user_attributes',
+        sprintf("internalKey='%s'", user('internalKey'))
     );
     if (config('failed_login_attempts', 0) <= $failedlogincount) {
-        db()->update(
-            array(
-                'blockeduntil' => $_SERVER[request_time()] + (config('blocked_minutes') * 60)
-            )
-            , '[+prefix+]user_attributes'
-            , sprintf("internalKey='%s'", user('internalKey'))
+        db()->update([
+                'blockeduntil' => request_time() + (config('blocked_minutes') * 60)
+            ],
+            '[+prefix+]user_attributes',
+            sprintf("internalKey='%s'", user('internalKey'))
         );
     }
     @session_destroy();
@@ -88,14 +87,13 @@ function loginMD5($givenPassword, $dbasePassword, $internalKey)
 
 function updateNewHash($internalKey, $password)
 {
-    $rs = db()->update(
-        array(
+    db()->update([
             'password' => db()->escape(
                 evo()->phpass->HashPassword($password)
             )
-        )
-        , '[+prefix+]manager_users'
-        , sprintf("id='%s'", $internalKey)
+        ],
+        '[+prefix+]manager_users',
+        sprintf("id='%s'", $internalKey)
     );
 }
 
@@ -106,11 +104,11 @@ function user_config($key, $default = null)
         return $conf[$key];
     }
     $rs = db()->select(
-        'setting_name, setting_value'
-        , '[+prefix+]user_settings'
-        , sprintf(
-            "user='%s' AND setting_value!=''"
-            , user('internalKey')
+        'setting_name, setting_value',
+        '[+prefix+]user_settings',
+        sprintf(
+            "user='%s' AND setting_value!=''",
+            user('internalKey')
         )
     );
     while ($row = db()->getRow($rs)) {
@@ -124,18 +122,18 @@ function user_config($key, $default = null)
 
 function input($key, $default = null)
 {
-    static $input = array();
+    static $input = [];
 
     if (isset($input[$key])) {
         return $input[$key];
     }
 
-    $input = array(
-        'username' => postv('username', getv('username')),
-        'password' => postv('password'),
+    $input = [
+        'username'     => postv('username', getv('username')),
+        'password'     => postv('password'),
         'captcha_code' => postv('captcha_code', ''),
-        'rememberme' => postv('rememberme', '')
-    );
+        'rememberme'   => postv('rememberme', '')
+    ];
     if (strpos($input['username'], ':safemode') !== false) {
         $input['username'] = str_replace(':safemode', '', $input['username']);
         $input['safeMode'] = 1;
@@ -155,7 +153,7 @@ function input($key, $default = null)
 
 function user($key, $default = null)
 {
-    static $user = array();
+    static $user = [];
 
     if (isset($user[$key])) {
         return $user[$key];
@@ -185,11 +183,11 @@ function user($key, $default = null)
 
 function OnBeforeManagerLogin()
 {
-    $info = array(
-        'username' => input('username'),
+    $info = [
+        'username'     => input('username'),
         'userpassword' => input('password'),
-        'rememberme' => input('rememberme')
-    );
+        'rememberme'   => input('rememberme')
+    ];
     evo()->invokeEvent('OnBeforeManagerLogin', $info);
 }
 
@@ -207,10 +205,10 @@ function isBlockedUser()
         }
     }
     db()->update(
-        array(
+        [
             'failedlogincount' => 0,
             'blocked' => 0
-        )
+        ]
         , '[+prefix+]user_attributes'
         , sprintf("internalKey='%s'", user('internalKey'))
     );
@@ -244,13 +242,13 @@ function checkAllowedIp()
 
 function OnManagerAuthentication()
 {
-    $info = array(
-        'userid' => user('internalKey'),
-        'username' => user('username'),
-        'userpassword' => input('password'),
+    $info = [
+        'userid'        => user('internalKey'),
+        'username'      => user('username'),
+        'userpassword'  => input('password'),
         'savedpassword' => user('password'),
-        'rememberme' => input('rememberme')
-    );
+        'rememberme'    => input('rememberme')
+    ];
     $rt = evo()->invokeEvent('OnManagerAuthentication', $info);
     if (!$rt || (is_array($rt) && !in_array(true, $rt))) {
         return false;
@@ -260,12 +258,12 @@ function OnManagerAuthentication()
 
 function OnManagerLogin()
 {
-    $info = array(
-        'userid' => user('internalKey'),
-        'username' => user('username'),
+    $info = [
+        'userid'       => user('internalKey'),
+        'username'     => user('username'),
         'userpassword' => input('password'),
-        'rememberme' => input('rememberme')
-    );
+        'rememberme'   => input('rememberme')
+    ];
     evo()->invokeEvent('OnManagerLogin', $info);
 }
 
@@ -361,9 +359,9 @@ function managerLogin()
     $_SESSION['mgrRole']         = user('role');
 
     $rs = db()->select(
-        '*'
-        , '[+prefix+]user_roles'
-        , sprintf("id='%d'", user('role'))
+        '*',
+        '[+prefix+]user_roles',
+        sprintf("id='%d'", user('role'))
     );
     $row = db()->getRow($rs);
 
@@ -378,15 +376,15 @@ function managerLogin()
     }
     // successful login so reset fail count and update key values
     db()->update(
-        array(
+        [
             'failedlogincount' => 0,
             'logincount' => user('logincount') + 1,
             'lastlogin' => user('thislogin'),
             'thislogin' => request_time(),
             'sessionid' => session_id()
-        )
-        , evo()->getFullTableName('user_attributes')
-        , 'internalKey=' . user('internalKey')
+        ],
+        evo()->getFullTableName('user_attributes'),
+        'internalKey=' . user('internalKey')
     );
 
     $_SESSION['mgrLastlogin'] = request_time();
@@ -396,53 +394,53 @@ function managerLogin()
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
         if (70300 <= PHP_VERSION_ID) {
             setcookie(
-                'modx_remember_manager'
-                , user('username')
-                , array(
+                'modx_remember_manager',
+                user('username'),
+                [
                     'expires' => strtotime('+1 month'),
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                )
+                ]
             );
         } else {
             setcookie(
-                'modx_remember_manager'
-                , user('username')
-                , strtotime('+1 month')
-                , MODX_BASE_URL . '; SameSite=Lax'
-                , null
-                , init::is_ssl() ? true : false
-                , true
+                'modx_remember_manager',
+                user('username'),
+                strtotime('+1 month'),
+                MODX_BASE_URL . '; SameSite=Lax',
+                null,
+                init::is_ssl() ? true : false,
+                true
             );
         }
     } else {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
         if (70300 <= PHP_VERSION_ID) {
             setcookie(
-                'modx_remember_manager'
-                , ''
-                , array(
+                'modx_remember_manager',
+                '',
+                [
                     'expires' => (request_time() - 3600),
                     'path' => MODX_BASE_URL,
                     'secure' => init::is_ssl() ? true : false,
                     'domain' => init::get_host_name(),
                     'httponly' => true,
                     'samesite' => 'Lax',
-                )
+                ]
             );
             return;
         } else {
             setcookie(
-                'modx_remember_manager'
-                , ''
-                , (request_time() - 3600)
-                , MODX_BASE_URL . '; SameSite=Lax'
-                , null
-                , init::is_ssl() ? true : false
-                , true
+                'modx_remember_manager',
+                '',
+                (request_time() - 3600),
+                MODX_BASE_URL . '; SameSite=Lax',
+                null,
+                init::is_ssl() ? true : false,
+                true
             );
         }
     }
@@ -454,11 +452,11 @@ function managerLogin()
     include_once(MODX_CORE_PATH . 'log.class.inc.php');
     $log = new logHandler;
     $log->initAndWriteLog(
-        'Logged in'
-        , evo()->getLoginUserID()
-        , user('username')
-        , '58'
-        , '-'
-        , 'MODX'
+        'Logged in',
+        evo()->getLoginUserID(),
+        user('username'),
+        '58',
+        '-',
+        'MODX'
     );
 }
