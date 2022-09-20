@@ -137,35 +137,7 @@ if (!sessionv('mgrValidated')) {
     evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
     evo()->setPlaceholder('login_button', $_lang["login_button"]);
 
-    // load template
-    if (!evo()->config('manager_login_tpl')) {
-        evo()->config['manager_login_tpl'] = MODX_MANAGER_PATH . 'media/style/common/login.tpl';
-    }
-
-    $target = evo()->config('manager_login_tpl');
-    if (isset($tpl) && !empty($tpl)) {
-        $login_tpl = $tpl;
-    } elseif (substr($target, 0, 1) === '@') {
-        if (substr($target, 0, 6) === '@CHUNK') {
-            $login_tpl = evo()->getChunk(trim(substr($target, 7)));
-        } elseif (substr($target, 0, 5) === '@FILE') {
-            $login_tpl = file_get_contents(trim(substr($target, 6)));
-        }
-    } else {
-        $chunk = evo()->getChunk($target);
-        if ($chunk !== false && !empty($chunk)) {
-            $login_tpl = $chunk;
-        } elseif (is_file(MODX_BASE_PATH . $target)) {
-            $login_tpl = file_get_contents(MODX_BASE_PATH . $target);
-        } elseif (is_file($theme_path . "login.tpl")) {
-            $login_tpl = file_get_contents($theme_path . "login.tpl");
-        } elseif (is_file($theme_path . "html/login.html")) { // ClipperCMS compatible
-            $login_tpl = file_get_contents($theme_path . "html/login.html");
-        } else {
-            $login_tpl = file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
-        }
-    }
-    evo()->output = $login_tpl;
+    evo()->output = loadLoginTpl($tpl);
     $evtOut = evo()->invokeEvent('OnManagerLoginFormRender');
     evo()->setPlaceholder(
         'OnManagerLoginFormRender'
@@ -188,7 +160,6 @@ if (!sessionv('mgrValidated')) {
     $modx->output = preg_replace($regx, '', evo()->output); //cleanup
     echo evo()->output;
     exit;
-
 }
 
 // log the user action
@@ -222,6 +193,42 @@ if (manager()->action != 1) {
 }
 if (is_file($touch_path)) {
     unlink($touch_path);
+}
+
+function loadLoginTpl($tpl) {
+    // exit(evo()->config('manager_login_tpl'));
+    // print_r(evo()->config);exit;
+    if (!empty($tpl)) {
+        return $tpl;
+    }
+    if(empty(evo()->config('manager_login_tpl'))) {
+        return file_get_contents(MODX_MANAGER_PATH . 'media/style/common/login.tpl');
+    }
+
+    $style_path = MODX_MANAGER_PATH . 'media/style/';
+    if (empty(evo()->config('manager_login_tpl'))) {
+        if (is_file($style_path . evo()->config('manager_theme') . '/login.tpl')) {
+            return file_get_contents($style_path . evo()->config('manager_theme') . '/login.tpl');
+        }
+        return file_get_contents($style_path . 'common/login.tpl');
+    }
+
+    $target = evo()->config('manager_login_tpl');
+    if (strpos($target, '@') === 0) {
+        $result = evo()->atBind($target);
+        if($result) {
+            return $result;
+        }
+    }
+
+    $chunk = evo()->getChunk($target);
+    if (!empty($chunk)) {
+        return $chunk;
+    }
+    if (is_file(MODX_BASE_PATH . $target)) {
+        return file_get_contents(MODX_BASE_PATH . $target);
+    }
+    return file_get_contents($style_path . 'common/login.tpl');
 }
 
 function installGoingOn()

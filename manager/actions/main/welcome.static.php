@@ -222,47 +222,12 @@ if (is_array($evtOut)) {
     $modx->setPlaceholder('OnManagerWelcomeRender', $output);
 }
 
-// load template
-if (!isset($modx->config['manager_welcome_tpl']) || empty($modx->config['manager_welcome_tpl'])) {
-    $modx->config['manager_welcome_tpl'] = MODX_MANAGER_PATH . 'media/style/common/welcome.tpl';
-}
-
-$target = $modx->config['manager_welcome_tpl'];
-if (isset($tpl) && !empty($tpl)) {
-    $welcome_tpl = $tpl;
-} elseif (substr($target, 0, 1) === '@') {
-    if (substr($target, 0, 6) === '@CHUNK') {
-        $target = trim(substr($target, 7));
-        $welcome_tpl = $modx->getChunk($target);
-    } elseif (substr($target, 0, 5) === '@FILE') {
-        $target = trim(substr($target, 6));
-        $welcome_tpl = file_get_contents($target);
-    }
-} else {
-    $chunk = $modx->getChunk($target);
-    if ($chunk !== false && !empty($chunk)) {
-        $welcome_tpl = $chunk;
-    } elseif (is_file(MODX_BASE_PATH . $target)) {
-        $target = MODX_BASE_PATH . $target;
-        $welcome_tpl = file_get_contents($target);
-    } elseif (is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/welcome.tpl')) {
-        $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/welcome.tpl';
-        $welcome_tpl = file_get_contents($target);
-    } elseif (is_file(MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/welcome.html')) { // ClipperCMS compatible
-        $target = MODX_MANAGER_PATH . 'media/style/' . $modx->config['manager_theme'] . '/html/welcome.html';
-        $welcome_tpl = file_get_contents($target);
-    } else {
-        $target = MODX_MANAGER_PATH . 'media/style/common/welcome.tpl';
-        $welcome_tpl = file_get_contents($target);
-    }
-}
-
 // merge placeholders
-$welcome_tpl = $modx->parseDocumentSource($welcome_tpl);
+$welcome_tpl = $modx->parseDocumentSource(welcomeTpl($tpl));
 if ($js = $modx->getRegisteredClientScripts()) {
     $welcome_tpl .= $js;
 }
-$welcome_tpl = preg_replace('~\[\+(.*?)\+\]~', '', $welcome_tpl); //cleanup
+$welcome_tpl = preg_replace('~\[\+(.*?)\+]~', '', $welcome_tpl); //cleanup
 echo $welcome_tpl;
 
 function get_icon($title, $action, $icon_path, $alt = '')
@@ -272,4 +237,39 @@ function get_icon($title, $action, $icon_path, $alt = '')
     }
     $icon = '<a class="hometblink" href="' . $action . '" alt="' . $alt . '"><img src="' . $icon_path . '" /><br />' . $title . "</a>\n";
     return '<span class="wm_button" style="border:0">' . $icon . '</span>';
+}
+
+function welcomeTpl($tpl) {
+    if (!empty($tpl)) {
+        return $tpl;
+    }
+
+    $style_path = MODX_MANAGER_PATH . 'media/style/';
+    if (empty(evo()->config('manager_welcome_tpl'))) {
+        if (is_file($style_path . evo()->config('manager_theme') . '/welcome.tpl')) {
+            return file_get_contents(
+                $style_path . evo()->config('manager_theme') . '/welcome.tpl'
+            );
+        }
+        return file_get_contents($style_path . 'common/welcome.tpl');
+    }
+
+
+    $target = evo()->config('manager_welcome_tpl');
+    if (strpos($target, '@') === 0) {
+        $result = evo()->atBind($target);
+        if($result) {
+            return $result;
+        }
+    }
+
+    $chunk = evo()->getChunk($target);
+    if (!empty($chunk)) {
+        return $chunk;
+    }
+    if (is_file(MODX_BASE_PATH . $target)) {
+        $target = MODX_BASE_PATH . $target;
+        return file_get_contents(MODX_BASE_PATH . $target);
+    }
+    return file_get_contents($style_path . 'common/welcome.tpl');
 }
