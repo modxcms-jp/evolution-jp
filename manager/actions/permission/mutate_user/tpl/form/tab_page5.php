@@ -62,16 +62,22 @@
                 $activelang = (!empty($user['manager_language'])) ? $user['manager_language'] : '';
                 $dir = dir(MODX_CORE_PATH . 'lang');
                 while ($file = $dir->read()) {
-                    if (strpos($file, '.inc.php') !== false) {
-                        $endpos = strpos($file, ".");
-                        $languagename = trim(substr($file, 0, $endpos));
-                        $selectedtext = selected($activelang === $languagename);
-                        ?>
-                        <option
-                            value="<?= $languagename; ?>" <?= $selectedtext; ?>><?= ucwords(str_replace("_",
-                                " ", $languagename)); ?></option>
-                        <?php
+                    if (strpos($file, '.inc.php') === false) {
+                        continue;
                     }
+                    $languagename = trim(
+                        substr(
+                            $file,
+                            0,
+                            strpos($file, '.')
+                        )
+                    );
+                    ?>
+                    <option
+                        value="<?= $languagename; ?>"
+                        <?= selected($activelang === $languagename); ?>
+                    ><?= ucwords(str_replace('_', ' ', $languagename)); ?></option>
+                    <?php
                 }
                 $dir->close();
                 ?>
@@ -90,8 +96,7 @@
                 $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                 echo "<option value='none'" . selected($edt == 'none') . ">" . lang('none') . "</option>\n";
                 if (is_array($evtOut)) {
-                    foreach ($evtOut as $iValue) {
-                        $editor = $iValue;
+                    foreach ($evtOut as $editor) {
                         echo "<option value='$editor'" . selected($edt == $editor) . ">$editor</option>\n";
                     }
                 }
