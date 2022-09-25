@@ -2688,7 +2688,7 @@ class SubParser
         $rs = db()->select(
             '*'
             , '[+prefix+]site_revision'
-            , sprintf('pub_date!=0 AND pub_date<%s', $now)
+            , sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
         );
 
         if (!db()->count($rs)) {
@@ -2706,7 +2706,7 @@ class SubParser
         }
         db()->delete(
             '[+prefix+]site_revision'
-            , sprintf("pub_date!=0 AND pub_date<%s", $now)
+            , sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
         );
     }
 
