@@ -385,6 +385,9 @@ class DBAPI
                 if ($value === null || strtolower($value) === 'null') {
                     $value = 'NULL';
                 } else {
+                    if( $value === 0 ){
+                        $value = '0';
+                    }
                     $value = sprintf("'%s'", $value);
                 }
                 $pair[$key] = sprintf('`%s`=%s', $key, $value);
