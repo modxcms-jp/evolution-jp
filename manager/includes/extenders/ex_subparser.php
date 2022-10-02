@@ -2702,12 +2702,18 @@ class SubParser
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
 
-            $modx->doc->update($draft, $row['elmid']);
+            if( $modx->doc->update($draft, $row['elmid']) !== false){
+                db()->delete(
+                    '[+prefix+]site_revision'
+                    , sprintf('internalKey=%d', $row['internalKey'])
+                );
+            }else{
+                $modx->logEvent(0,
+                                3,
+                                'Update failed.<br />docid='.$row['elmid'].'<br />draftid='.$row['internalKey'],
+                                'Draft update error');
+            }
         }
-        db()->delete(
-            '[+prefix+]site_revision'
-            , sprintf("pub_date!=0 AND pub_date<%s AND status = 'standby'", $now)
-        );
     }
 
     function setdocumentMap()
