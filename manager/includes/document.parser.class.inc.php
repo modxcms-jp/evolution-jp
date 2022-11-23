@@ -556,7 +556,7 @@ class DocumentParser
             }
             $this->documentObject = $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
             if (isset($_)) {
-                $this->documentObject = array_merge($_, $this->documentObject);
+                $this->documentObject = array_merge((array)$_, $this->documentObject);
             }
 
             // validation routines

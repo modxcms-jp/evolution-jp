@@ -304,7 +304,7 @@ class synccache
             , "0 < pub_date AND status = 'standby'"
         );
         foreach ($time as $k => $v) {
-            if (!$v || $v < serverv('REQUEST_TIME', 0)) {
+            if (!$v || $v == 0) {
                 unset($time[$k]);
             }
         }
@@ -319,7 +319,7 @@ class synccache
         $rs = db()->select(
             sprintf('MIN(%s) AS result', $field_name)
             , '[+prefix+]' . $table_name
-            , sprintf('%s AND UNIX_TIMESTAMP()<%s', $where, $field_name)
+            , $where 
         );
         if (!$rs) {
             return 0;
