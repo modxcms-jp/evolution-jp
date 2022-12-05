@@ -121,8 +121,8 @@ function html_tag($tag_name, $attrib = [], $content = null)
 function input_text_tag($props = [])
 {
     $props['type'] = 'text';
-    $props['maxlength'] = evo()->array_get($props, 'maxlength', 255);
-    $props['class'] = evo()->array_get($props, 'class', 'inputBox');
+    $props['maxlength'] = array_get($props, 'maxlength', 255);
+    $props['class'] = array_get($props, 'class', 'inputBox');
     foreach ($props as $k => $v) {
         if ($v === false) {
             unset($props[$k]);
@@ -133,13 +133,13 @@ function input_text_tag($props = [])
 
 function textarea_tag($props = [], $content)
 {
-    $props['class'] = evo()->array_get($props, 'class', 'inputBox');
+    $props['class'] = array_get($props, 'class', 'inputBox');
     return evo()->html_tag('textarea', $props, $content);
 }
 
 function select_tag($props = [], $options)
 {
-    $props['class'] = evo()->array_get($props, 'class', 'inputBox');
+    $props['class'] = array_get($props, 'class', 'inputBox');
     if (is_array($options)) {
         $options = implode("\n", $options);
     }
