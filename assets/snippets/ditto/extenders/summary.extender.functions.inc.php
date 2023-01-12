@@ -28,14 +28,25 @@ function determineSummary($resource)
         $resource,
         $p['trunc'],
         $p['splitter'],
-        $p['text'],
         $p['length'],
         $p['offset'],
         $p['splitter'],
         true
     );
-    $GLOBALS['ditto_summary_link'] = $trunc->link;
-    $GLOBALS['ditto_summary_type'] = $trunc->summaryType;
+    $GLOBALS['ditto_summary_link'] = $trunc->link(
+        $resource,
+        $p['trunc'],
+        $p['splitter'],
+        $p['length'],
+        $p['splitter']
+    );
+    $GLOBALS['ditto_summary_type'] = $trunc->summaryType(
+        $resource,
+        $p['trunc'],
+        $p['splitter'],
+        $p['length'],
+        $p['splitter']
+    );
     return $output;
 }
 
@@ -44,9 +55,7 @@ function determineSummary($resource)
 // ---------------------------------------------------
 class truncate
 {
-    public $summaryType, $link;
-
-    function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars = false)
+    private function html_substr($posttext, $minimum_length = 200, $length_offset = 20, $truncChars = false)
     {
         if (mb_strlen($posttext) <= $minimum_length || $truncChars == 1) {
             return $this->textTrunc($posttext, $minimum_length + $length_offset);
@@ -84,7 +93,7 @@ class truncate
         return $this->textTrunc($posttext, $minimum_length + $length_offset);
     }
 
-    function textTrunc($string, $limit, $break = "。")
+    private function textTrunc($string, $limit, $break = "。")
     {
         global $modx;
 
@@ -101,7 +110,7 @@ class truncate
         return $string;
     }
 
-    function closeTags($text)
+    private function closeTags($text)
     {
         global $debug;
         $openPattern = "/<([^\/].*?)>/";
@@ -157,43 +166,52 @@ class truncate
         return $text . $endTags;
     }
 
-    function execute($resource, $trunc, $splitter, $linktext, $truncLen, $truncOffset, $truncsplit, $truncChars)
+    public function execute($resource, $trunc, $splitter, $truncLen, $truncOffset, $truncsplit, $truncChars)
     {
-        $this->summaryType = "content";
-        $this->link = false;
-        $closeTags = true;
-        // summary is turned off
-
         if ((strpos($resource['content'], $splitter) !== false) && $truncsplit) {
-            // HTMLarea/XINHA encloses it in paragraph's
             $summary = explode('<p>' . $splitter . '</p>', $resource['content']);
-
             // For TinyMCE or if it isn't wrapped inside paragraph tags
-            $summary = explode($splitter, $summary['0']);
-
-            $summary = $summary['0'];
-            $this->link = '[~' . $resource['id'] . '~]';
-            $this->summaryType = "content";
-
-            // fall back to the summary text
-        } elseif (mb_strlen($resource['introtext']) > 0) {
-            $summary = $resource['introtext'];
-            $this->link = '[~' . $resource['id'] . '~]';
-            $this->summaryType = 'introtext';
-            $closeTags = false;
-            // fall back to the summary text count of characters
-        } elseif (strlen($resource['content']) > $truncLen && $trunc == 1) {
-            $summary = $this->html_substr($resource['content'], $truncLen, $truncOffset, $truncChars);
-            $this->link = '[~' . $resource['id'] . '~]';
-            $this->summaryType = "content";
-            // and back to where we started if all else fails (short post)
-        } else {
-            $summary = $resource['content'];
-            $this->summaryType = 'content';
-            $this->link = false;
+            $_ = explode($splitter, $summary[0]);
+            return $this->closeTags($_[0]);
         }
+        if ($resource['introtext']) {
+            return $resource['introtext'];
+            // fall back to the summary text count of characters
+        }
+        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+            // and back to where we started if all else fails (short post)
+            return $this->closeTags(
+                $this->html_substr($resource['content'], $truncLen, $truncOffset, $truncChars)
+            );
+        }
+        return $this->closeTags($resource['content']);
+    }
 
-        // Post-processing to clean up summaries
-        return !$closeTags ? $summary : $this->closeTags($summary);
+    public function summaryType($resource, $trunc, $splitter, $truncLen, $truncsplit)
+    {
+        if (strpos($resource['content'], $splitter) !== false && $truncsplit) {
+            return 'content';
+        }
+        if (mb_strlen($resource['introtext']) > 0) {
+            return 'introtext';
+        }
+        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+            return 'content';
+        }
+        return 'content';
+    }
+
+    public function link($resource, $trunc, $splitter, $truncLen, $truncsplit)
+    {
+        if (strpos($resource['content'], $splitter) !== false && $truncsplit) {
+            return '[~' . $resource['id'] . '~]';
+        }
+        if (mb_strlen($resource['introtext']) > 0) {
+            return '[~' . $resource['id'] . '~]';
+        }
+        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+            return '[~' . $resource['id'] . '~]';
+        }
+        return false;
     }
 }

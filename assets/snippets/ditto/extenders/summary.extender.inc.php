@@ -13,89 +13,89 @@ $placeholders['link'] = array('id', 'determineLink');
 
 $trunc = isset($trunc) ? $trunc : 1;
 /*
-   Param: trunc
+Param: trunc
 
-   Purpose:
-   Enable truncation on the summary placeholder
+Purpose:
+Enable truncation on the summary placeholder
 
-   Options:
-   0 - off
-   1 - on
+Options:
+0 - off
+1 - on
 
-   Default:
-   1 - on
+Default:
+1 - on
 */
 $splitter = isset($truncAt) ? $truncAt : '<!-- splitter -->';
 /*
-   Param: truncAt
+Param: truncAt
 
-   Purpose:
-   Location to split the content at
+Purpose:
+Location to split the content at
 
-   Options:
-   Any unique text or code string that is contained
-   in the content of each document
+Options:
+Any unique text or code string that is contained
+in the content of each document
 
-   Default:
-   '<!-- splitter -->'
+Default:
+'<!-- splitter -->'
 */
 $length = isset($truncLen) ? $truncLen : 300;
 /*
-   Param: truncLen
+Param: truncLen
 
-   Purpose:
-   Number of characters to show of the content
+Purpose:
+Number of characters to show of the content
 
-   Options:
-   Any number greater than <truncOffset>
+Options:
+Any number greater than <truncOffset>
 
-   Default:
-   300
+Default:
+300
 */
 $offset = isset($truncOffset) ? $truncOffset : 30;
 /*
-   Param: truncOffset
+Param: truncOffset
 
-   Purpose:
-   Number of charactars to 'wander' either way of <truncLen>
+Purpose:
+Number of charactars to 'wander' either way of <truncLen>
 
-   Options:
-   Any number greater less than <truncLen>
+Options:
+Any number greater less than <truncLen>
 
-   Default:
-   30
+Default:
+30
 */
 $text = isset($truncText) ? $truncText : 'Read more...';
 /*
-   Param: truncText
+Param: truncText
 
-   Purpose:
-   Text to be displayed in [+link+]
+Purpose:
+Text to be displayed in [+link+]
 
-   Options:
-   Any valid text or html
+Options:
+Any valid text or html
 
-   Default:
-   'Read more...'
+Default:
+'Read more...'
 */
 $trunc_tpl = isset($tplTrunc) ? template::fetch($tplTrunc) : false;
 /*
-   Param: tplTrunc
+Param: tplTrunc
 
-   Purpose:
-   Template to be used for [+link+]
+Purpose:
+Template to be used for [+link+]
 
-   Options:
-   - Any valid chunk name
-   - Code via @CODE:
-   - File via @FILE:
+Options:
+- Any valid chunk name
+- Code via @CODE:
+- File via @FILE:
 
-   Placeholders:
-   [+url+] - URL of the document
-   [+text+] - &truncText
+Placeholders:
+[+url+] - URL of the document
+[+text+] - &truncText
 
-   Default:
-   &truncText
+Default:
+&truncText
 */
 
 $GLOBALS['ditto_summary_link'] = '';

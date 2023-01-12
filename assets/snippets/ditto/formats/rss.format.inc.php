@@ -90,21 +90,19 @@ TPL;
 }
 
 if (!function_exists("rss_date")) {
-    function rss_date($resource)
-    {
+    function rss_date($resource) {
         global $modx, $dateSource;
         return date("r", intval($resource[$dateSource]) + $modx->config["server_offset_time"]);
     }
 }
+
 if (!function_exists("rss_pagetitle")) {
-    function rss_pagetitle($resource)
-    {
+    function rss_pagetitle($resource) {
         return htmlspecialchars(html_entity_decode($resource['pagetitle'], ENT_QUOTES));
     }
 }
 if (!function_exists("rss_author")) {
-    function rss_author($resource)
-    {
+    function rss_author($resource) {
         return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
     }
 }
