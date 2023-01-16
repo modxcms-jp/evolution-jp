@@ -589,11 +589,10 @@ class DocumentParser
                 if ($this->previewObject) {
                     $this->directParse = 0;
                 }
-                $rs = $this->sendRedirect(
-                    $this->documentObject['content']
-                    , 0
-                    , ''
-                    , 'HTTP/1.0 301 Moved Permanently'
+                $rs = $this->sendRedirect($this->documentObject['content'],
+                    0,
+                    '',
+                    'HTTP/1.0 301 Moved Permanently'
                 );
                 if ($this->directParse == 1) {
                     return $rs;
@@ -727,16 +726,16 @@ class DocumentParser
         }
 
         if ($this->dumpSQLCode) {
-            $content = preg_replace(
-                '@(</body>)@i'
-                , implode("\n", $this->dumpSQLCode) . "\n\\1", $content);
+            $content = preg_replace('@(</body>)@i',
+                implode("\n", $this->dumpSQLCode) . "\n\\1",
+                $content
+            );
         }
 
         if ($this->dumpSnippetsCode) {
-            $content = preg_replace(
-                '@(</body>)@i'
-                , implode("\n", $this->dumpSnippetsCode) . "\n\\1"
-                , $content
+            $content = preg_replace('@(</body>)@i',
+                implode("\n", $this->dumpSnippetsCode) . "\n\\1",
+                $content
             );
         }
         $unstrict_url = MODX_SITE_URL . $this->makeUrl($this->config('site_start'), '', '', 'rel');
@@ -901,13 +900,12 @@ class DocumentParser
                 }
             }
             $this->saveToFile(
-                sprintf(
-                    '%sassets/cache/%s/%s.pageCache.php'
-                    , MODX_BASE_PATH
-                    , $this->uaType
-                    , $filename
-                )
-                , $cacheContent
+                sprintf('%sassets/cache/%s/%s.pageCache.php',
+                    MODX_BASE_PATH,
+                    $this->uaType,
+                    $filename
+                ),
+                $cacheContent
             );
         }
         // Useful for example to external page counters/stats packages
@@ -1056,10 +1054,9 @@ class DocumentParser
         if (!$this->db) {
             $this->loadExtension('DBAPI');
         }
-        $rs = db()->select(
-            'user'
-            , '[+prefix+]user_settings'
-            , [
+        $rs = db()->select('user',
+            '[+prefix+]user_settings',
+            [
                 where('setting_name', '=', 'auth_token'),
                 'AND',
                 where('setting_value', '=', $this->input_get('auth_token'))
@@ -1084,10 +1081,9 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
-        $rs = db()->select(
-            '*'
-            , '[+prefix+]user_roles'
-            , where('id', '=', $user['role'])
+        $rs = db()->select('*',
+            '[+prefix+]user_roles',
+            where('id', '=', $user['role'])
         );
         $row = db()->getRow($rs);
 
@@ -1100,16 +1096,15 @@ class DocumentParser
             }
         }
         // successful login so reset fail count and update key values
-        db()->update(
-            [
-                'failedlogincount' => 0,
-                'logincount' => $user['logincount'] + 1,
-                'lastlogin' => $user['thislogin'],
-                'thislogin' => request_time(),
-                'sessionid' => session_id()
-            ]
-            , $this->getFullTableName('user_attributes')
-            , 'internalKey=' . $userid
+        db()->update([
+            'failedlogincount' => 0,
+            'logincount' => $user['logincount'] + 1,
+            'lastlogin' => $user['thislogin'],
+            'thislogin' => request_time(),
+            'sessionid' => session_id()
+        ],
+            $this->getFullTableName('user_attributes'),
+            'internalKey=' . $userid
         );
 
         $_SESSION['mgrLastlogin'] = request_time();
@@ -1120,22 +1115,20 @@ class DocumentParser
 
         if ($this->input_any('rememberme')) {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$this->config['session.cookie.lifetime'];
-            setcookie(
-                'modx_remember_manager'
-                , $user['username']
-                , strtotime('+1 month')
-                , MODX_BASE_URL
-                , null
-                , init::is_ssl() ? true : false
-                , true
+            setcookie('modx_remember_manager',
+                $user['username'],
+                strtotime('+1 month'),
+                MODX_BASE_URL,
+                null,
+                init::is_ssl() ? true : false,
+                true
             );
         } else {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
-            setcookie(
-                'modx_remember_manager'
-                , ''
-                , (request_time() - 3600)
-                , MODX_BASE_URL
+            setcookie('modx_remember_manager',
+                '',
+                (request_time() - 3600),
+                MODX_BASE_URL
             );
         }
 
@@ -1182,17 +1175,15 @@ class DocumentParser
         }
 
         if (strpos($this->config['filemanager_path'], '[(') !== false) {
-            $this->config['filemanager_path'] = str_replace(
-                '[(base_path)]'
-                , MODX_BASE_PATH
-                , $this->config['filemanager_path']
+            $this->config['filemanager_path'] = str_replace('[(base_path)]',
+                MODX_BASE_PATH,
+                $this->config['filemanager_path']
             );
         }
         if (strpos($this->config['rb_base_dir'], '[(') !== false) {
-            $this->config['rb_base_dir'] = str_replace(
-                '[(base_path)]'
-                , MODX_BASE_PATH
-                , $this->config['rb_base_dir']
+            $this->config['rb_base_dir'] = str_replace('[(base_path)]',
+                MODX_BASE_PATH,
+                $this->config['rb_base_dir']
             );
         }
         if (!isset($this->config['modx_charset'])) {
