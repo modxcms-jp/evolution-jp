@@ -183,49 +183,31 @@ class DBAPI
         $this->conn = null;
     }
 
-    public function escape($s, $safecount = 0)
+    /**
+     * @param array|string $s
+     * @return array|string
+     */
+    public function escape($s)
     {
-        $safecount++;
-        if (1000 < $safecount) {
-            exit(sprintf("Too many loops '%d'", $safecount));
-        }
-
         if (!$this->isConnected()) {
             if (!$this->connect()) {
                 return false;
             }
         }
 
-        if (is_array($s)) {
-            if (!$s) {
-                return '';
-            }
-
-            foreach ($s as $i => $v) {
-                $s[$i] = $this->escape($v, $safecount);
-            }
-            return $s;
+        if (!is_array($s)) {
+            return $this->conn->escape_string($s);
         }
 
-        if (function_exists('mysqli_set_charset')) {
-            return $this->conn->real_escape_string($s);
+        if (!count($s)) {
+            return '';
         }
 
-        if ($this->charset === 'utf8') {
-            return mb_convert_encoding(
-                $this->conn->real_escape_string(
-                    mb_convert_encoding(
-                        $s
-                        , 'eucjp-win'
-                        , 'utf-8'
-                    )
-                )
-                , 'utf-8'
-                , 'eucjp-win'
-            );
+        foreach ($s as $i => $v) {
+            $s[$i] = $this->escape($v);
         }
 
-        return $this->conn->escape_string($s);
+        return $s;
     }
 
     /**
