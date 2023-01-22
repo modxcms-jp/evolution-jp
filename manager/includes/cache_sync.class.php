@@ -46,7 +46,8 @@ class synccache
         if (empty($this->aliases)) {
             $qh = db()->select(
                 "id, IF(alias='', id, alias) AS alias, parent"
-                , '[+prefix+]site_content'
+                , '[+prefix+]site_content',
+                'deleted=0 and isfolder=1'
             );
             if ($qh && db()->count($qh)) {
                 while ($row = db()->getRow($qh)) {
@@ -319,7 +320,7 @@ class synccache
         $rs = db()->select(
             sprintf('MIN(%s) AS result', $field_name)
             , '[+prefix+]' . $table_name
-            , $where 
+            , $where
         );
         if (!$rs) {
             return 0;
