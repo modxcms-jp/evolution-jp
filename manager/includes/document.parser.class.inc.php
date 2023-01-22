@@ -221,10 +221,10 @@ class DocumentParser
             case 'subparser'   :
             case 'revision'    :
             case 'phpass'      :
-                require_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
+                require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'documentapi' : // Document API
-                include_once(MODX_CORE_PATH . "extenders/ex_{$extname}.php");
+                include_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'modifiers' : //Modfires
             case 'phx' :
@@ -274,7 +274,9 @@ class DocumentParser
 
         $this->updatePublishStatus();
 
-        $this->decoded_request_uri = urldecode($this->treatRequestUri(request_uri()));
+        $this->decoded_request_uri = urldecode(
+            $this->treatRequestUri(request_uri())
+        );
         $_ = ltrim(
             substr(request_uri(), 0, strrpos(request_uri(), '/')) . '/',
             '/'
@@ -299,7 +301,7 @@ class DocumentParser
 
         if ($this->documentIdentifier === false) {
             $this->sendErrorPage();
-            return;
+            exit;
         }
 
         if (!$this->documentIdentifier) {
@@ -338,7 +340,6 @@ class DocumentParser
         ob_start();
 
         $this->http_status_code = '200';
-
         $this->directParse = 1;
 
         // get the settings
@@ -355,7 +356,7 @@ class DocumentParser
             $this->sendUnavailablePage();
         }
 
-        $this->decoded_request_uri = MODX_BASE_URL . "index.php?id={$id}";
+        $this->decoded_request_uri = MODX_BASE_URL . "index.php?id=" . $id;
         $this->uri_parent_dir = '';
 
         $_REQUEST['id'] = $id;
@@ -554,7 +555,9 @@ class DocumentParser
             if ($this->documentObject) {
                 $_ = $this->documentObject;
             }
-            $this->documentObject = $this->getDocumentObject('id', $this->documentIdentifier, 'prepareResponse');
+            $this->documentObject = $this->getDocumentObject(
+                'id', $this->documentIdentifier, 'prepareResponse'
+            );
             if (isset($_)) {
                 $this->documentObject = array_merge((array)$_, $this->documentObject);
             }
@@ -572,7 +575,10 @@ class DocumentParser
 
             if ($this->http_status_code == '200') {
                 if ($this->documentObject['published'] == 0) {
-                    if (!$this->hasPermission('view_unpublished') || !$this->checkPermissions($this->documentIdentifier)) {
+                    if (!$this->hasPermission('view_unpublished')) {
+                        $this->sendErrorPage();
+                    }
+                    if (!$this->checkPermissions($this->documentIdentifier)) {
                         $this->sendErrorPage();
                     }
                 } elseif ($this->documentObject['deleted'] == 1) {
