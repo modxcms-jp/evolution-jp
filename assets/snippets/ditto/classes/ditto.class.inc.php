@@ -56,15 +56,17 @@ class ditto
 
     function getTVList()
     {
-        if (isset($this->tmpCache['getTVList'])) return $this->tmpCache['getTVList'];
+        static $dbfields = null;
 
-        $tvs = db()->select('name', '[+prefix+]site_tmplvars');
-        // TODO: make it so that it only pulls those that apply to the current template
-        $dbfields = array();
-        while ($dbfield = db()->getRow($tvs)) {
-            $dbfields[] = $dbfield['name'];
+        if ($dbfields !== null) {
+            return $dbfields;
         }
-        $this->tmpCache['getTVList'] = $dbfields;
+
+        $rs = db()->select('name', '[+prefix+]site_tmplvars');
+        $dbfields = [];
+        while ($row = db()->getRow($rs)) {
+            $dbfields[] = $row['name'];
+        }
         return $dbfields;
     }
 
