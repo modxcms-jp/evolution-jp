@@ -87,6 +87,8 @@ class DocumentParser
     public $uri_parent_dir;
     public $manager;
     public $user_allowed_docs;
+    public $mail;
+    public $table;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -732,14 +734,16 @@ class DocumentParser
         }
 
         if ($this->dumpSQLCode) {
-            $content = preg_replace('@(</body>)@i',
+            $content = preg_replace(
+            	'@(</body>)@i',
                 implode("\n", $this->dumpSQLCode) . "\n\\1",
                 $content
             );
         }
 
         if ($this->dumpSnippetsCode) {
-            $content = preg_replace('@(</body>)@i',
+            $content = preg_replace(
+            	'@(</body>)@i',
                 implode("\n", $this->dumpSnippetsCode) . "\n\\1",
                 $content
             );
@@ -1060,7 +1064,8 @@ class DocumentParser
         if (!$this->db) {
             $this->loadExtension('DBAPI');
         }
-        $rs = db()->select('user',
+        $rs = db()->select(
+        	'user',
             '[+prefix+]user_settings',
             [
                 where('setting_name', '=', 'auth_token'),
@@ -1087,7 +1092,8 @@ class DocumentParser
         $_SESSION['mgrFailedlogins'] = $user['failedlogincount'];
         $_SESSION['mgrLogincount'] = $user['logincount']; // login count
         $_SESSION['mgrRole'] = $user['role'];
-        $rs = db()->select('*',
+        $rs = db()->select(
+        	'*',
             '[+prefix+]user_roles',
             where('id', '=', $user['role'])
         );
@@ -1121,7 +1127,8 @@ class DocumentParser
 
         if ($this->input_any('rememberme')) {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$this->config['session.cookie.lifetime'];
-            setcookie('modx_remember_manager',
+            setcookie(
+            	'modx_remember_manager',
                 $user['username'],
                 strtotime('+1 month'),
                 MODX_BASE_URL,
@@ -1131,7 +1138,8 @@ class DocumentParser
             );
         } else {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
-            setcookie('modx_remember_manager',
+            setcookie(
+            	'modx_remember_manager',
                 '',
                 (request_time() - 3600),
                 MODX_BASE_URL
@@ -1181,13 +1189,15 @@ class DocumentParser
         }
 
         if (strpos($this->config['filemanager_path'], '[(') !== false) {
-            $this->config['filemanager_path'] = str_replace('[(base_path)]',
+            $this->config['filemanager_path'] = str_replace(
+            	'[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['filemanager_path']
             );
         }
         if (strpos($this->config['rb_base_dir'], '[(') !== false) {
-            $this->config['rb_base_dir'] = str_replace('[(base_path)]',
+            $this->config['rb_base_dir'] = str_replace(
+            	'[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['rb_base_dir']
             );
