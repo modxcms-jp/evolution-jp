@@ -2544,7 +2544,7 @@ class DocumentParser
         $cmd = trim($cmd);
         $cmd = rtrim($cmd, '-');
         $cmd = str_replace([' and ', ' or '], ['&&', '||'], strtolower($cmd));
-        $token = preg_split('@(&&|\|\|)@', $cmd, null, PREG_SPLIT_DELIM_CAPTURE);
+        $token = preg_split('@(&&|\|\|)@', $cmd, -1, PREG_SPLIT_DELIM_CAPTURE);
         $cmd = [];
         foreach ($token as $i => $v) {
             $v = trim($v);
@@ -4277,7 +4277,7 @@ class DocumentParser
         if (strpos(PHP_OS, 'WIN') === 0) {
             $format = str_replace('%-', '%#', $format);
         }
-        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, null, PREG_SPLIT_DELIM_CAPTURE);
+        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         $str = '';
         foreach ($pieces as $v) {
