@@ -1190,14 +1190,14 @@ class DocumentParser
 
         if (strpos($this->config['filemanager_path'], '[(') !== false) {
             $this->config['filemanager_path'] = str_replace(
-            	'[(base_path)]',
+                '[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['filemanager_path']
             );
         }
         if (strpos($this->config['rb_base_dir'], '[(') !== false) {
             $this->config['rb_base_dir'] = str_replace(
-            	'[(base_path)]',
+                '[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['rb_base_dir']
             );
