@@ -2780,9 +2780,6 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
-            if ($value === false) {
-                continue;
-            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -2853,7 +2850,7 @@ class DocumentParser
 
         $snippetObject = $this->_getSnippetObject($key);
         if (!$snippetObject) {
-            return false;
+            return '';
         }
 
         $snip_call['name'] = $key;
