@@ -16,6 +16,7 @@ class DBAPI
     public $connection_method;
     private $rs;
     private $rawQuery = false;
+    private $dbconnectionmethod;
 
     /**
      * @name:  DBAPI
@@ -215,7 +216,7 @@ class DBAPI
      * @desc:  Mainly for internal use.
      * Developers should use select, update, insert, delete where possible
      */
-    public function query($sql, $watchError = true)
+    public function exec($sql, $watchError = true)
     {
         global $modx;
         if ($this->rawQuery) {
@@ -288,6 +289,11 @@ class DBAPI
         }
         $modx->executedQueries = evo()->executedQueries + 1;
         return $result;
+    }
+
+    public function query($sql, $watchError = true)
+    {
+        return $this->exec($sql, $watchError);
     }
 
     public function lastQuery()
