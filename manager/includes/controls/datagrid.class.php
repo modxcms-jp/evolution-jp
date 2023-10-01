@@ -13,6 +13,8 @@ $__DataGridCnt = 0;
 class DataGrid
 {
 
+    public $id;
+    
     public $ds; // datasource
 
     public $pageSize;            // pager settings
@@ -36,7 +38,7 @@ class DataGrid
     public $colAligns;
     public $colWraps;
     public $colColors;
-    public $colTypes;            // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
+    public $colTypes; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
     // data type: integer,float,currency,date
 
     public $header;
@@ -53,6 +55,26 @@ class DataGrid
     public $cwrap;
     public $src_encode;
     public $detectHeader;
+
+    public $pagerClass;
+    public $pagerStyle;
+
+    private $_alt;
+    private $_total;
+    private $_isDataset;
+    private $_colcount;
+    private $_colnames;
+    private $_fieldnames;
+    private $_colwidths;
+    private $_colaligns;
+    private $_colwraps;
+    private $_colcolors;
+    private $_coltypes;
+    private $_itemStyle;
+    private $_itemClass;
+    private $_altItemStyle;
+    private $_altItemClass;
+
 
     function __construct($id = '', $ds = '', $pageSize = 20, $pageNumber = -1)
     {
@@ -386,7 +408,11 @@ class DataGrid
             : 'style="margin:10px 0;background-color:#ffffff;"';
 
         // build rows
-        $rowcount = $this->_isDataset ? db()->count($this->ds) : count($this->ds);
+        if ($this->_isDataset) {
+            $rowcount = db()->count($this->ds);
+        } else {
+            $rowcount = is_array($this->ds) ? count($this->ds) : 0;
+        }
 
         if ($rowcount == 0) {
             $ph = [];

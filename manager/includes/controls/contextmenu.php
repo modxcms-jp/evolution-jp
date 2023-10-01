@@ -3,7 +3,11 @@
 class ContextMenu
 {
 
-    var $i;
+    public $i;
+    private $html;
+    private $id;
+    private $width;
+    private $visible;
 
     function __construct($id = '', $width = 120, $visible = false)
     {
