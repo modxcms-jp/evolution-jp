@@ -1,5 +1,8 @@
-.htaccess
+/assets/cache/*
+/content/
+/temp/
 
-#IDE
-.idea
-.vscode
+.htaccess
+/manager/includes/config.inc.php
+
+!.gitkeep
