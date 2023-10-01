@@ -126,7 +126,7 @@ function eForm($modx, $params)
 {
     global $_lang;
     global $debugText;
-    global $formats, $fields, $efPostBack;
+    global $formats, $fields, $efPostBack, $_dfnMaxlength;
 
     $fields = array(); //reset fields array - needed in case of multiple forms
 
@@ -931,8 +931,8 @@ function AttachFilesToMailer(&$mail, &$attachFiles)
 /*--- Form Parser stuff----------------------*/
 function eFormParseTemplate($tpl, $isDebug = false)
 {
-    global $modx, $formats, $optionsName, $_lang, $debugText, $fields, $validFormId;
-    global $efPostBack;
+    global $formats, $optionsName, $_lang, $debugText, $fields, $validFormId;
+    global $efPostBack, $_dfnMaxlength;
 
     $formats = array();  //clear formats so values don't persist through multiple snippet calls
     $labels = array();
@@ -1016,13 +1016,15 @@ function eFormParseTemplate($tpl, $isDebug = false)
 
                 //Get the whole select block with option tags
                 //escape any regex characters!
-                $regExp = "#<select [^><]*?name=" . preg_quote($tagAttributes['name'], '#') . "[^>]*?" . ">(.*?)</select>#si";
-                preg_match($regExp, $tpl, $matches);
-                $optionTags = $matches[1];
+                preg_match(
+                    "#<select [^><]*?name=" . preg_quote($tagAttributes['name'], '#') . "[^>]*?" . ">(.*?)</select>#si",
+                    $tpl,
+                    $matches
+                );
 
                 $select = $newSelect = $matches[0];
                 //get separate option tags and split them up
-                preg_match_all("#(<option [^>]*?>)#si", $optionTags, $matches);
+                preg_match_all("#(<option [^>]*?>)#si", $matches[1], $matches);
                 $validValues = array();
                 foreach ($matches[1] as $option) {
                     $attr = attr2array($option);
@@ -1198,7 +1200,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                     } //yes,.. I know - cheating :)
 
                     if ($isDebug && (!is_numeric($range[0]) || !is_numeric($range[1])))
-                        $modx->messageQuit('Error in validating form field!', '', $false, E_USER_WARNING, __FILE__, '', '#RANGE rule contains non-numeric values: ' . $fld[5], __LINE__);
+                        $modx->messageQuit('Error in validating form field!', '', false, E_USER_WARNING, __FILE__, '', '#RANGE rule contains non-numeric values: ' . $fld[5], __LINE__);
                     sort($range);
                     if ($value >= $range[0] && $value <= $range[1]) break 2; //valid
                 }
@@ -1219,7 +1221,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
 
                 if ($isDebug && count($vlist) == 1 && empty($vlist[0])) {
                     //if debugging bail out big time
-                    $modx->messageQuit('Error in validating form field!', '', $false, E_USER_WARNING, __FILE__, '', '#LIST rule declared but no list values supplied: ' . $fld[5], __LINE__);
+                    $modx->messageQuit('Error in validating form field!', '', false, E_USER_WARNING, __FILE__, '', '#LIST rule declared but no list values supplied: ' . $fld[5], __LINE__);
                 } elseif (!in_array(strtolower($value), $vlist))
                     $errMsg = ($fld[2] == 'file') ? $_lang["ef_failed_upload"] : $_lang['ef_failed_list'];
                 break;
@@ -1229,7 +1231,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                 if (!isset($vlist)) {
                     $rt = array();
                     $param = str_replace('{DBASE}', db()->get('dbase'), $param);
-                    $param = str_replace('{PREFIX}', db->get('table_prefix'), $param);
+                    $param = str_replace('{PREFIX}', db()->get('table_prefix'), $param);
                     //added in 1.4
                     if (preg_match("/{([^}]*?)\}/", $param, $matches)) {
                         $tmp = db()->escape(formMerge('[+' . $matches[1] . '+]', $fields));
