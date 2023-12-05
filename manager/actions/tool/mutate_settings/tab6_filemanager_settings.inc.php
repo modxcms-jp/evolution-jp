@@ -36,12 +36,6 @@
                 <?php echo $_lang["uploadable_media_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["uploadable_flash_title"] ?></th>
-            <td>
-                <?php echo form_text('upload_flash'); ?><br/>
-                <?php echo $_lang["uploadable_flash_message"] ?></td>
-        </tr>
-        <tr>
             <th><?php echo $_lang["upload_maxsize_title"] ?></th>
             <td>
                 <?php

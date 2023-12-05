@@ -958,7 +958,6 @@ function uploadablefiles()
     return array_merge(
         explode(',', config('upload_files', array())),
         explode(',', config('upload_images', array())),
-        explode(',', config('upload_media', array())),
-        explode(',', config('upload_flash', array()))
+        explode(',', config('upload_media', array()))
     );
 }

@@ -33,14 +33,10 @@ function iconLookup($mime, $ext)
         "application/vnd.ms-powerpoint" => "doc.png",
         "application/x-tar" => "tar.png",
         "application/zip" => "tar.png",
-        "application/x-shockwave-flash" => "flash.png",
         "message/html" => "html.png"
     );
 
     $extIcons = array(
-        "swf" => "flash.png",
-        "fla" => "flash.png",
-        "flv" => "flash.png",
         "pdf" => "pdf.png",
         "ps" => "postscript.png",
         "eps" => "postscript.png",

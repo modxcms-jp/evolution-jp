@@ -84,7 +84,6 @@ function saveUserSettings($id)
         'manager_inline_style',
         'upload_images',
         'upload_media',
-        'upload_flash',
         'upload_files'
     );
 

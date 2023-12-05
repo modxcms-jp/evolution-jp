@@ -3585,7 +3585,6 @@ class PHPMailer
             'php' => 'application/x-httpd-php',
             'phtml' => 'application/x-httpd-php',
             'phps' => 'application/x-httpd-php-source',
-            'swf' => 'application/x-shockwave-flash',
             'sit' => 'application/x-stuffit',
             'tar' => 'application/x-tar',
             'tgz' => 'application/x-tar',

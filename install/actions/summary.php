@@ -86,7 +86,6 @@ if (!is_dir(MODX_BASE_PATH . 'assets/images')) {
     // cache writable?
     $dir_images = MODX_BASE_PATH . 'content/images';
     $dir_files = MODX_BASE_PATH . 'content/files';
-    $dir_flash = MODX_BASE_PATH . 'content/flash';
     $dir_media = MODX_BASE_PATH . 'content/media';
 
     if (!is_writable(MODX_BASE_PATH . 'content')) {
@@ -96,18 +95,17 @@ if (!is_dir(MODX_BASE_PATH . 'assets/images')) {
         $_ = echo_ok();
         mkd($dir_images);
         mkd($dir_files);
-        mkd($dir_flash);
         mkd($dir_media);
     }
     echo p($_ . lang('checking_if_content_writable'));
 
     if (is_writable(MODX_BASE_PATH . 'content')) {
-        if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_flash) || !is_dir($dir_media)) {
+        if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_media)) {
             echo p(echo_failed() . lang('checking_if_images_exist'));
             $errors += 1;
         } else {
             // File Browser directories writable?
-            if (!is_writable($dir_images) || !is_writable($dir_files) || !is_writable($dir_flash) || !is_writable($dir_media)) {
+            if (!is_writable($dir_images) || !is_writable($dir_files) || !is_writable($dir_media)) {
                 $_ = echo_failed();
                 $errors += 1;
             } else {

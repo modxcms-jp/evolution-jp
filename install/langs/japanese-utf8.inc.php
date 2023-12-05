@@ -40,8 +40,8 @@ $_lang["checking_if_cache_writable"] = '<span class="mono">/assets/cache</span>�
 $_lang["checking_if_config_exist_and_writable"] = '<span class="mono">/manager/includes/config.inc.php</span>の存在と書き込み属性: ';
 $_lang["checking_if_export_exists"] = '<span class="mono">/temp/export</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang["checking_if_export_writable"] = '<span class="mono">/temp/export</span>ディレクトリの書き込み属性: ';
-$_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
-$_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/flash</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
+$_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの存在(なければ転送に失敗しています): ';
+$_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
 $_lang["checking_sql_version"] = 'SQLのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
 $_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';

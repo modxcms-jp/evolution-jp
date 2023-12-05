@@ -137,16 +137,6 @@ $fckphp_config['ResourceAreas']['images'] = array(
     'HideFiles' => array("^\."),
     'AllowImageEditing' => true //Not yet complete, but you can take a look and see
 );
-//Flash area
-$fckphp_config['ResourceAreas']['flash'] = array(
-    'AllowedExtensions' => explode(',', strtolower(evo()->config('upload_flash'))),
-    'AllowedMIME' => array(),
-    'MaxSize' => $upload_maxsize,
-    'DiskQuota' => -1,
-    'HideFolders' => array("^\."),
-    'HideFiles' => array("^\."),
-    'AllowImageEditing' => false
-);
 
 //Media area
 $fckphp_config['ResourceAreas']['media'] = array(
@@ -227,7 +217,7 @@ $fckphp_config['Debug_SESSIONS'] = false;
 /*	ResourceTypes :: Array of valid resource areas				*/
 /*	Commands :: Array of valid commands accepted by the connector		*/
 
-$fckphp_config['ResourceTypes'] = array('files', 'images', 'flash', 'media');
+$fckphp_config['ResourceTypes'] = array('files', 'images', 'media');
 $fckphp_config['Commands'] = array(
     'CreateFolder',
     'GetFolders',

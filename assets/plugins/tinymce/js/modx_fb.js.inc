@@ -18,10 +18,6 @@
     case "iframe":
     type = "media";
     break;
-    case "shockwave":
-    case "flash":
-    type = "flash";
-    break;
     case "file":
     type = "files";
     break;
