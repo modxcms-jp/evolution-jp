@@ -28,6 +28,7 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 }
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
+$touch_path = null;
 if (!sessionv('mgrValidated')) {
     if (getv('frame')) {
         $_SESSION['save_uri'] = serverv('REQUEST_URI');
