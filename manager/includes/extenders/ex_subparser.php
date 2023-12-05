@@ -479,7 +479,7 @@ class SubParser
             $title = 'Snippet - ' . $modx->currentSnippet;
         } elseif ($modx->event->activePlugin) {
             $title = 'Plugin - ' . $modx->event->activePlugin;
-        } elseif ($title !== '') {
+        } elseif (isset($title) && $title !== '') {
             $title = 'Parser - ' . $text ? $text : $source;
         } elseif ($query !== '') {
             $title = 'SQL Query';
