@@ -1,8 +1,10 @@
-/assets/cache/*
 /content/
-/temp/
 
 .htaccess
 /manager/includes/config.inc.php
+
+.thumbs/
+/assets/cache/*
+/temp/*
 
 !.gitkeep
