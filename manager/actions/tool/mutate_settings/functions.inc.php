@@ -45,7 +45,7 @@ function get_langs_by_key($key)
 function get_lang_options($key = null, $selected_lang = null)
 {
     global $lang_keys;
-    $lang_options = array();
+    $lang_options = [];
     if ($key) {
         $languages = get_langs_by_key($key);
         sort($languages);
@@ -62,14 +62,14 @@ function get_lang_options($key = null, $selected_lang = null)
     $languages = array_keys($lang_keys);
     sort($languages);
     foreach ($languages as $language_name) {
-        $lang_options .= sprintf(
-            '<option value="%s" %s>%s</option>'
-            , $language_name
-            , $language_name == $selected_lang ? ' selected="selected"' : ''
-            , ucwords(str_replace('_', ' ', $language_name))
+        $lang_options[] = sprintf(
+            '<option value="%s" %s>%s</option>',
+            $language_name,
+            $language_name == $selected_lang ? ' selected="selected"' : '',
+            ucwords(str_replace('_', ' ', $language_name))
         );
     }
-    return $lang_options;
+    return implode("\n", $lang_options);
 }
 
 function form_text_tag($name, $value, $attr = array())
