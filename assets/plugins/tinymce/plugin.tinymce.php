@@ -1,18 +1,7 @@
 <?php
-if (!defined('MODX_BASE_PATH')) {
-    die('What are you doing? Get out of here!');
-}
-// Set the name of the plugin folder
+!defined('MODX_BASE_PATH') && die('What are you doing? Get out of here!');
 
-global $usersettings, $settings;
-
-// Set path and base setting variables
-
-$params['mce_path'] = $mce_path;
-$params['mce_url'] = $mce_url;
-
-$plugin_dir = 'tinymce';
-include_once("{$mce_path}functions.php");
+include_once(__DIR__ . '/functions.php');
 
 $mce = new TinyMCE();
 
@@ -33,9 +22,5 @@ switch ($e->name) {
     case "OnInterfaceSettingsRender":
         $html = $mce->get_mce_settings();
         $e->output($html);
-        break;
-
-    default :
-        return; // stop here - this is very important.
         break;
 }
