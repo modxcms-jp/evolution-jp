@@ -52,7 +52,6 @@ evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
         >
             <?php echo $treePane; ?>
             <?php echo $mainPane; ?>
-            );">
             <?php } else {
             // Right-to-Left reading (sidebar on right)
             ?>
