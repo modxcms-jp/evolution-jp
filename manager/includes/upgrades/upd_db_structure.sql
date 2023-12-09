@@ -302,9 +302,9 @@ SET `type`='document',
     `contentType`='text/html'
 WHERE `type` = '';
 
-UPDATE {PREFIX} documentgroup_names AS dgn
-    LEFT JOIN {PREFIX} membergroup_access AS mga ON mga.documentgroup = dgn.id
-    LEFT JOIN {PREFIX} webgroup_access AS wga ON wga.documentgroup = dgn.id
+UPDATE {PREFIX}documentgroup_names AS dgn
+    LEFT JOIN {PREFIX}membergroup_access AS mga ON mga.documentgroup = dgn.id
+    LEFT JOIN {PREFIX}webgroup_access AS wga ON wga.documentgroup = dgn.id
 SET dgn.private_memgroup = (mga.membergroup IS NOT NULL),
     dgn.private_webgroup = (wga.webgroup IS NOT NULL);
 
