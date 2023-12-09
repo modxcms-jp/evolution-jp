@@ -51,13 +51,13 @@ $placeholders['atom_author'] = array("createdby", "atomCreatedBy");
 if (!function_exists("atomCreatedDate")) {
     function atomCreatedDate($resource)
     {
-        return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + evo()->config('server_offset_time'));
     }
 }
 if (!function_exists("atomEditedDate")) {
     function atomEditedDate($resource)
     {
-        return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + evo()->config('server_offset_time'));
     }
 }
 if (!function_exists("atomCreatedBy")) {
