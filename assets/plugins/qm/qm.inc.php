@@ -248,7 +248,7 @@ class Qm
             return sprintf(
                 '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>'
                 , $this->tvbclass
-                , evo()->config['site_url']
+                , MODX_SITE_URL
                 , $docID
                 , urlencode($matches[1])
                 , $caption

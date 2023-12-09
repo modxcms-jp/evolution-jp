@@ -155,7 +155,7 @@ class TopicPath
         foreach ($docs as $doc) {
             $ph = $doc;
             if (in_array($doc['id'], $this->stopIDs)) break;
-            $ph['url'] = ($doc['id'] == $modx->config['site_start']) ? $modx->config['site_url'] : $modx->makeUrl($doc['id'], '', '', 'full');
+            $ph['url'] = ($doc['id'] == $modx->config['site_start']) ? MODX_SITE_URL : $modx->makeUrl($doc['id'], '', '', 'full');
             $ph['href'] = &$ph['url'];
             foreach ($this->titleField as $f) {
                 if ($doc[$f] !== '') {

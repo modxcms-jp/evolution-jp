@@ -55,7 +55,7 @@ $output = parseText(
     $output,
     array(
         'theme' => $theme,
-        'site_url' => config('site_url'),
+        'site_url' => MODX_SITE_URL,
         'jquery_path' => $this->jqpath
     )
 );
@@ -74,7 +74,7 @@ if ($locked) {
         $imagePreview = $this->get_img_prev_src();
         $imagePreview = str_replace(
             array('[+site_url+]', '[+tv_value+]', '[+tv_name+]'),
-            array(evo()->config['site_url'], tv('value'), getv('tvname')),
+            array(MODX_SITE_URL, tv('value'), getv('tvname')),
             $imagePreview
         );
     } else $imagePreview = '';
@@ -114,7 +114,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
 </body>
 </html>
 ', array(
-        'site_url' => evo()->config['site_url'],
+        'site_url' => MODX_SITE_URL,
         'docid' => $docID,
         'tvname' => getv('tvname'),
         'tvid' => tv('tvid', ''),

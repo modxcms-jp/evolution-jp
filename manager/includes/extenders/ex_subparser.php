@@ -522,7 +522,7 @@ class SubParser
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
                 echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
                 echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
-                    $modx->config['site_url'], $modx->config['manager_theme']);
+                MODX_SITE_URL, $modx->config['manager_theme']);
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }

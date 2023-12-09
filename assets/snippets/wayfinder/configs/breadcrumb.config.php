@@ -25,7 +25,7 @@ $activeParentRowTpl = str_replace('[+delim+]', $delim, $activeParentRowTpl);
 if ($modx->config['site_start'] !== $modx->documentIdentifier) {
     $home = $modx->getDocumentObject('id', $modx->config['site_start']);
     $home_title = $home['menutitle'] ? $home['menutitle'] : $home['pagetitle'];
-    $homeLink = '<a href="' . $modx->config['site_url'] . '" title="' . $home_title . '">' . $home_title . '</a>' . $delim;
+    $homeLink = '<a href="' . MODX_SITE_URL . '" title="' . $home_title . '">' . $home_title . '</a>' . $delim;
 } else {
     $homeLink = '';
 }
