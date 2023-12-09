@@ -2,6 +2,7 @@
 
 .htaccess
 /manager/includes/config.inc.php
+/mamager/includes/extra.config.php
 
 .thumbs/
 /assets/cache/*
