@@ -176,7 +176,7 @@ class SubParser
         $modx->db->lastQuery = $_;
         if (isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
             if ($modx->config['send_errormail'] <= $type) {
-                $body['URL'] = $modx->config['site_url'] . ltrim(evo()->server('REQUEST_URI'), '/');
+                $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
                 $body['Source'] = $fields['source'];
                 $body['IP'] = evo()->server('REMOTE_ADDR');
                 if (evo()->server('REMOTE_ADDR')) {

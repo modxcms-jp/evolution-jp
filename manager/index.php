@@ -93,7 +93,7 @@ switch ($modx->manager->action) {
             if ($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']]) {
                 @session_destroy();
                 session_unset();
-                header("Location: " . $modx->config['site_url'] . "manager/");
+                header("Location: " . MODX_SITE_URL . "manager/");
                 exit;
             }
         }

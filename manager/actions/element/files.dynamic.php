@@ -804,7 +804,7 @@ function fileupload()
     }
 
     // this seems to be an upload action.
-    $path = $modx->config['site_url'] . substr($startpath, strlen(config('filemanager_path')));
+    $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
     $path = rtrim($path, '/') . '/' . $userfile['name'];
     $msg .= $path;
     if ($userfile['error'] == 0) {
