@@ -886,7 +886,8 @@ class MODIFIERS
             case 'money_format':
                 setlocale(LC_MONETARY, setlocale(LC_TIME, 0));
                 if ($value !== '') {
-                    return money_format($opt, (float)$value);
+                    $fmt = new NumberFormatter('ja_JP', NumberFormatter::CURRENCY);
+                    return $fmt->format((float)$value);
                 }
                 break;
             case 'tobool':
