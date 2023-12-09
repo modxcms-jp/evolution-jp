@@ -36,7 +36,7 @@ class convert2utf8mb4 {
         if (strpos($this->getConfigContent(), "'utf8mb4'") !== false) {
             return;
         }
-        
+
         @chmod($this->config_path, 0666);
         file_put_contents(
             $this->config_path,
@@ -64,9 +64,9 @@ class convert2utf8mb4 {
                     db()->dbase
                 )
             );
-            echo "Database charset has been changed to utf8mb4.<br>\n";
+            // echo "Database charset has been changed to utf8mb4.<br>\n";
         } else {
-            echo "Database charset is already utf8mb4.<br>\n";
+            // echo "Database charset is already utf8mb4.<br>\n";
         }
     }
 
@@ -94,7 +94,7 @@ class convert2utf8mb4 {
                     $row['TABLE_NAME']
                 )
             );
-            echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
+            // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
         }
     }
 }

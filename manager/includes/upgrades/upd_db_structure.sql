@@ -313,3 +313,11 @@ SET disabled='1'
 WHERE `name` = 'ダッシュボード・あなたの情報'
     OR `name` = 'ダッシュボード・オンライン情報';
 
+ALTER TABLE `{PREFIX}documentgroup_names`
+CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+
+ALTER TABLE `{PREFIX}membergroup_names`
+CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+
+ALTER TABLE `{PREFIX}webgroup_names`
+CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
