@@ -102,7 +102,7 @@ class Mysqldumper
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'assets/cache/bktemp.pageCache.php';
+        $tempfile_path = MODX_BASE_PATH . 'temp/cache/bktemp.pageCache.php';
         if (is_file($tempfile_path)) {
             unlink($tempfile_path);
         }
@@ -168,7 +168,7 @@ class Mysqldumper
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
-            
+
             if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
                 continue;
             }

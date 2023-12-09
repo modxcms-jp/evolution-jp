@@ -5,7 +5,7 @@
 /mamager/includes/extra.config.php
 
 .thumbs/
-/assets/cache/*
+/temp/cache/*
 /temp/*
 
 !.gitkeep

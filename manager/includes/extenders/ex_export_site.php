@@ -33,7 +33,7 @@ class EXPORT_SITE
         if (!isset($this->total)) {
             $this->getTotal();
         }
-        $this->lock_file_path = MODX_BASE_PATH . 'assets/cache/export.lock';
+        $this->lock_file_path = MODX_BASE_PATH . 'temp/cache/export.lock';
     }
 
     function getPastTime()

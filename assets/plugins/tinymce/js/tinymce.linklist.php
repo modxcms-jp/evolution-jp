@@ -49,7 +49,7 @@ if (empty($_SESSION['usertype']) || $_SESSION['usertype'] !== 'manager') {
 }
 
 $modx->getSettings();
-$cache_path = $modx->config['base_path'] . 'assets/cache/mce_linklist.pageCache.php';
+$cache_path = $modx->config['base_path'] . 'temp/cache/mce_linklist.pageCache.php';
 if (file_exists($cache_path)) {
     $output = file_get_contents($cache_path);
 } else {

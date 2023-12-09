@@ -223,7 +223,7 @@ class SubParser
 
             $_ = ['pages', 'pc', 'smartphone', 'tablet', 'mobile'];
             foreach ($_ as $uaType) {
-                $page_cache_path = MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php";
+                $page_cache_path = MODX_BASE_PATH . "temp/cache/{$uaType}/{$filename}.pageCache.php";
                 if (is_file($page_cache_path)) {
                     unlink($page_cache_path);
                 }
@@ -236,13 +236,13 @@ class SubParser
             $params['target'] = 'pagecache,sitecache';
         }
 
-        if (opendir(MODX_BASE_PATH . 'assets/cache') !== false) {
+        if (opendir(MODX_BASE_PATH . 'temp/cache') !== false) {
             $showReport = ($params['showReport']) ? $params['showReport'] : false;
             $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
 
             include_once MODX_CORE_PATH . 'cache_sync.class.php';
             $sync = new synccache();
-            $sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+            $sync->setCachepath(MODX_BASE_PATH . 'temp/cache/');
             $sync->setReport($showReport);
             $sync->setTarget($target);
             $sync->emptyCache(); // first empty the cache
@@ -950,7 +950,7 @@ class SubParser
             $modx->sjscripts[$nextpos] = $src;
             return;
         }
-        
+
         $modx->sjscripts[$nextpos] = sprintf(
             '<link rel="stylesheet" type="text/css" href="%s" %s/>'
             , $src
@@ -2562,7 +2562,7 @@ class SubParser
     function setOption($key, $value = '')
     {
         global $modx;
-        
+
         $modx->config[$key] = $value;
     }
 
@@ -2732,13 +2732,13 @@ class SubParser
     {
         global $modx;
         if (!$modx->aliasListing) {
-            $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+            $aliases = @include(MODX_BASE_PATH . 'temp/cache/aliasListing.siteCache.idx.php');
             if ($aliases) {
                 $modx->aliasListing = $aliases;
             }
         }
         if (!$modx->documentMap) {
-            $documentMap = @include(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+            $documentMap = @include(MODX_BASE_PATH . 'temp/cache/documentMap.siteCache.idx.php');
             if ($documentMap) {
                 $modx->documentMap = $documentMap;
             }

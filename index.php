@@ -22,8 +22,8 @@ $cache_type = 1;
 $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
-if (is_file(MODX_BASE_PATH . 'assets/cache/basicConfig.php')) {
-    include_once(MODX_BASE_PATH . 'assets/cache/basicConfig.php');
+if (is_file(MODX_BASE_PATH . 'temp/cache/basicConfig.php')) {
+    include_once(MODX_BASE_PATH . 'temp/cache/basicConfig.php');
 }
 
 if (isset($conditional_get) && $conditional_get == 1) {
@@ -40,7 +40,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
         session_write_close();
         $uri_parent_dir = substr($_SERVER['REQUEST_URI'], 0, strrpos($_SERVER['REQUEST_URI'], '/')) . '/';
         $uri_parent_dir = ltrim($uri_parent_dir, '/');
-        $target = MODX_BASE_PATH . 'assets/cache/pages/' . $uri_parent_dir . hash('crc32b', $_SERVER['REQUEST_URI']) . '.pageCache.php';
+        $target = MODX_BASE_PATH . 'temp/cache/pages/' . $uri_parent_dir . hash('crc32b', $_SERVER['REQUEST_URI']) . '.pageCache.php';
         if (is_file($target)) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));

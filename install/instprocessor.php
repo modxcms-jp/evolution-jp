@@ -172,7 +172,7 @@ if ($callBackFnc != '') $callBackFnc ($sqlParser);
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
 
-$cache_path = MODX_BASE_PATH . 'assets/cache/';
+$cache_path = MODX_BASE_PATH . 'temp/cache/';
 
 $files = glob($cache_path . "*.idx.php");
 foreach ($files as $file) {

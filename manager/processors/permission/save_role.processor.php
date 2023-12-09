@@ -52,7 +52,7 @@ switch (postv('mode')) {
     case '35' :
         $rs = db()->update($fields, '[+prefix+]user_roles', "id='{$id}'");
         if ($rs) {
-            $cache_path = "{$modx->config['base_path']}assets/cache/rolePublishing.idx.php";
+            $cache_path = "{$modx->config['base_path']}temp/cache/rolePublishing.idx.php";
             if (is_file($cache_path)) {
                 $role = unserialize(file_get_contents($cache_path));
             }
