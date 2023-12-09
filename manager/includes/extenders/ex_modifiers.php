@@ -9,6 +9,7 @@ $this->filter = new MODIFIERS;
 class MODIFIERS
 {
 
+    public $documentObject;
     public $placeholders = [];
     public $vars = [];
     public $bt;
@@ -392,7 +393,7 @@ class MODIFIERS
             $mdf_path = false;
         }
 
-        if (!$mdf_path) {
+        if (empty($mdf_path)) {
             return false;
         }
 
