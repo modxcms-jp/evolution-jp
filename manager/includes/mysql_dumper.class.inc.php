@@ -23,6 +23,7 @@ class Mysqldumper
     public $dbname;
     public $table_prefix;
     public $contentsOnly;
+    public $mode;
 
     public function __construct()
     {
