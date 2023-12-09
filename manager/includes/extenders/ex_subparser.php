@@ -82,15 +82,13 @@ class SubParser
         $modx->mail->Subject = !isset($p['subject']) ? $modx->config['emailsubject'] : $p['subject'];
         $modx->mail->Body = $p['body'];
         if (isset($p['type']) && $p['type'] === 'text') {
-            $this->mail->IsHTML(false);
+            $modx->mail->IsHTML(false);
         }
         return $modx->mail->send();
     }
 
     function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
     {
-        global $modx;
-
         if ($limit < $trim) {
             $trim = $limit;
         }
@@ -1087,7 +1085,7 @@ class SubParser
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
-        if ($this->duplicateDoc == true && $parent == 0 && $allowroot == 0) {
+        if ($duplicateDoc == true && $parent == 0 && $allowroot == 0) {
             return false; // deny duplicate document at root if Allow Root is No
         }
 
@@ -2563,7 +2561,9 @@ class SubParser
 
     function setOption($key, $value = '')
     {
-        $this->config[$key] = $value;
+        global $modx;
+        
+        $modx->config[$key] = $value;
     }
 
     function getOption($key, $default = null, $options = null, $skipEmpty = false)
