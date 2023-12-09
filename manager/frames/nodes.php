@@ -195,10 +195,10 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['pageIdDisplay'] = '';
         $ph['draftDisplay'] = $draftDisplay;
         $ph['_lang_click_to_context'] = $_lang['click_to_context'];
+        $ph['pad'] = $pad;
 
         if (!$isfolder) {
             $ph['pid'] = "'p{$id}'";
-            $ph['pad'] = $pad;
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
             if ($type === 'reference') {
                 $ph['icon'] = $_style["tree_linkgo"];
@@ -219,14 +219,14 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
             $ph['fid'] = "'f{$id}'";
             $ph['indent'] = $indent + 1;
             switch ($modx->config['tree_page_click']) {
-                case '27':
+                case 27:
                     $ph['ca'] = 'open';
                     break;
-                case '3' :
+                case 3 :
                     $ph['ca'] = 'docinfo';
                     break;
                 default  :
-                    $ph['ca'] = 'doclist';
+                    $ph['ca'] = hasChildren($id) ? 'doclist' : 'open';
             }
 
             if ($container_status === 'container_only' && $isfolder == 1) {
@@ -251,8 +251,12 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
                 } else {
                     $ph['_style_tree_minusnode'] = $_style['tree_minusnode'];
                 }
-                $tpl = getFopenNode();
-                $parseNode = parseNode($tpl, $ph, $id, $parent);
+                $parseNode = parseNode(
+                    hasChildren($id) ? tplFopenNode() : tplPageNode(),
+                    $ph,
+                    $id,
+                    $parent
+                );
                 if ($parseNode) {
                     $output .= $parseNode;
                 }
@@ -266,16 +270,18 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
                 } else {
                     $ph['_style_tree_plusnode'] = $_style['tree_plusnode'];
                 }
-                $tpl = tplFcloseNode();
-                $output .= parseNode($tpl, $ph, $id);
+                $output .= parseNode(
+                    hasChildren($id) ? tplFcloseNode() : tplPageNode(),
+                    $ph,
+                    $id
+                );
                 if ($parent != 0 && $container_status === 'too_many' && $loop_count == $hasChild) {
-                    $tpl = tplEmptyFolder();
                     $param = array(
                         'spacer' => $spacer . $pad,
                         'icon_deletedpage' => $_style['tree_deletedpage'],
                         'msg' => $_lang['too_many_resources']
                     );
-                    $output .= $modx->parseText($tpl, $param);
+                    $output .= $modx->parseText(tplEmptyFolder(), $param);
                 }
                 $closed2[] = $id;
             }
@@ -330,7 +336,7 @@ EOT;
     return $src;
 }
 
-function getFopenNode()
+function tplFopenNode()
 {
     $src = <<< EOT
 <div id="node[+id+]" p="[+parent+]" style="white-space: nowrap;"><div>[+spacer+]<img
@@ -603,4 +609,20 @@ function parseNode($tpl, $param, $id)
     }
 
     return $node;
+}
+
+function hasChildren($id) {
+    if (config('tree_show_protected') || sessionv('mgrRole')) {
+        $access = '';
+    } elseif(!sessionv('mgrDocgroups')) {
+        $access = '';
+    } else {
+        $access = sprintf(
+            "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
+            implode(',', sessionv('mgrDocgroups', ''))
+        );
+    }
+
+    $result = db()->select('*', '[+prefix+]site_content', "parent='{$id}' {$access}");
+    return db()->count($result) ? true : false;
 }
