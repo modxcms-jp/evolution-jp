@@ -30,7 +30,6 @@ $this->db->password = $database_password;
 $this->db->dbname = $dbase;
 $this->db->charset = $database_connection_charset;
 $this->db->table_prefix = $table_prefix;
-$this->db->lastInstallTime = $lastInstallTime;
 
 $rs = $this->db->connect();
 if (!$rs) {
