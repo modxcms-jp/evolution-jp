@@ -28,26 +28,21 @@ class MODxMailer extends PHPMailer
 
         $this->encode_header_method = '';
 
-        $this->PluginDir = MODX_CORE_PATH . 'controls/phpmailer/';
-
-        switch ($modx->config['email_method']) {
-            case 'smtp':
-                include_once(MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php');
-                $this->IsSMTP();
-                $this->Host = $modx->config['smtp_host'] . ':' . $modx->config['smtp_port'];
-                $this->SMTPAuth = $modx->config['smtp_auth'] === '1' ? true : false;
-                $this->Username = $modx->config['smtp_username'];
-                $this->Password = $modx->config['smtppw'];
-                $this->SMTPSecure = $modx->config['smtp_secure'];
-                if (10 < strlen($this->Password)) {
-                    $this->Password = substr($this->Password, 0, -7);
-                    $this->Password = str_replace('%', '=', $this->Password);
-                    $this->Password = base64_decode($this->Password);
-                }
-                break;
-            case 'mail':
-            default:
-                $this->IsMail();
+        if($modx->config['email_method']==='smtp') {
+            include_once MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php';
+            $this->IsSMTP();
+            $this->Host = $modx->config['smtp_host'] . ':' . $modx->config['smtp_port'];
+            $this->SMTPAuth = $modx->config['smtp_auth'] === '1' ? true : false;
+            $this->Username = $modx->config['smtp_username'];
+            $this->Password = $modx->config['smtppw'];
+            $this->SMTPSecure = $modx->config['smtp_secure'];
+            if (10 < strlen($this->Password)) {
+                $this->Password = substr($this->Password, 0, -7);
+                $this->Password = str_replace('%', '=', $this->Password);
+                $this->Password = base64_decode($this->Password);
+            }
+        } else {
+            $this->IsMail();
         }
 
         $this->From = $modx->config['emailsender'];
@@ -55,7 +50,7 @@ class MODxMailer extends PHPMailer
         $this->FromName = $modx->config['site_name'];
         $this->IsHTML(true);
 
-        if (isset($modx->config['mail_charset']) && !empty($modx->config['mail_charset'])) {
+        if (!empty($modx->config['mail_charset'])) {
             $mail_charset = $modx->config['mail_charset'];
         } else {
             $mail_charset = strtolower($modx->config['manager_language']);
@@ -183,38 +178,30 @@ class MODxMailer extends PHPMailer
             $to .= $this->AddrFormat($this->to[$i]);
         }
 
-        $toArr = explode(',', $to);
-
-        $params = sprintf("-oi -f %s", $this->Sender);
-        if ($this->Sender != '' && strlen(ini_get('safe_mode')) < 1) {
+        if ($this->Sender && !ini_get('safe_mode')) {
             $old_from = ini_get('sendmail_from');
             ini_set('sendmail_from', $this->Sender);
-            if ($this->SingleTo === true && count($toArr) > 1) {
-                foreach ($toArr as $key => $val) {
-                    $rt = @mail($val, $this->Subject, $body, $header, $params);
-                }
-            } else {
-                $rt = @mail($to, $this->Subject, $body, $header, $params);
-            }
-        } else {
-            if ($this->SingleTo === true && count($toArr) > 1) {
-                foreach ($toArr as $key => $val) {
-                    $rt = @mail($val, $this->Subject, $body, $header, $params);
-                }
-            } else {
-                $rt = @mail($to, $this->Subject, $body, $header);
-            }
         }
-
-        if (isset($old_from)) {
+        $toArr = explode(',', $to);
+        $params = sprintf("-oi -f %s", $this->Sender);
+        foreach ($toArr as $val) {
+            $rt = mail($val, $this->Subject, $body, $header, $params);
+        }
+        if (!empty($old_from)) {
             ini_set('sendmail_from', $old_from);
         }
+
         if (!$rt) {
-            $msg = $this->Lang('instantiate') . "<br />\n";
-            $msg .= "{$this->Subject}<br />\n";
-            $msg .= "{$this->FromName}&lt;{$this->From}&gt;<br />\n";
-            $msg .= mb_convert_encoding($body, $modx->config['modx_charset'], $this->CharSet);
-            $this->SetError($msg);
+            $this->SetError(
+                implode(
+                    "\n", [
+                        $this->Lang('instantiate') . "<br />",
+                        "{$this->Subject}<br />",
+                        "{$this->FromName}&lt;{$this->From}&gt;<br />",
+                        mb_convert_encoding($body, $modx->config['modx_charset'], $this->CharSet)
+                    ]
+                )
+            );
             return false;
         }
 

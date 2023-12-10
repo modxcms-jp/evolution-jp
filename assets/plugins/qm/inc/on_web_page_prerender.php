@@ -41,7 +41,7 @@ else {
 
         $editButton = '
 <li class="qmEdit">
-<a class="qmButton qmEdit colorbox" href="' . evo()->config['site_url'] . 'manager/index.php?a=27&amp;id=' . $docID . '&amp;quickmanager=1"><span> ' . $_lang['edit_resource'] . '</span></a>
+<a class="qmButton qmEdit colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=27&amp;id=' . $docID . '&amp;quickmanager=1"><span> ' . $_lang['edit_resource'] . '</span></a>
 </li>
 ';
         // Check if user has manager access to current document
@@ -57,7 +57,7 @@ else {
             // Add button
             $addButton = '
 <li class="qmAdd">
-<a class="qmButton qmAdd colorbox" href="' . evo()->config['site_url'] . 'manager/index.php?a=4&amp;pid=' . $docID . '&amp;quickmanager=1"><span>' . $_lang['create_resource_here'] . '</span></a>
+<a class="qmButton qmAdd colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=' . $docID . '&amp;quickmanager=1"><span>' . $_lang['create_resource_here'] . '</span></a>
 </li>
 ';
 
@@ -118,7 +118,7 @@ else {
                         case 'new':
                             $customButton = '
 <li class="qm-custom-' . $i . ' qmCustom">
-<a class="qmButton qmCustom colorbox" href="' . evo()->config['site_url'] . 'manager/index.php?a=4&amp;pid=' . $buttonParentId . '&amp;quickmanager=1&amp;customaddtplid=' . $buttonTplId . '"><span>' . $buttonTitle . '</span></a>
+<a class="qmButton qmCustom colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=' . $buttonParentId . '&amp;quickmanager=1&amp;customaddtplid=' . $buttonTplId . '"><span>' . $buttonTitle . '</span></a>
 </li>
 ';
                             return;
@@ -146,13 +146,13 @@ else {
         if ($this->managerbutton == 'true') {
             $managerButton = '
 <li class="qmManager">
-<a class="qmButton qmManager" title="' . $_lang['manager'] . '" href="' . evo()->config['site_url'] . 'manager/" ><span>' . $_lang['manager'] . '</span></a>
+<a class="qmButton qmManager" title="' . $_lang['manager'] . '" href="' . MODX_SITE_URL . 'manager/" ><span>' . $_lang['manager'] . '</span></a>
 </li>
 ';
             $controls .= $managerButton;
         }
         // Logout button
-        $logout = evo()->config['site_url'] . 'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid=' . $docID;
+        $logout = MODX_SITE_URL . 'manager/index.php?a=8&amp;quickmanager=logout&amp;logoutid=' . $docID;
         $logoutButton = '
 <li class="qmLogout">
 <a id="qmLogout" class="qmButton qmLogout" title="' . $_lang['logout'] . '" href="' . $logout . '" ><span>' . $_lang['logout'] . '</span></a>
@@ -173,7 +173,7 @@ else {
 </ul>
 </div>';
         $css = '
-<link rel="stylesheet" type="text/css" href="' . evo()->config['site_url'] . 'assets/plugins/qm/css/style.css" />
+<link rel="stylesheet" type="text/css" href="' . MODX_SITE_URL . 'assets/plugins/qm/css/style.css" />
 ';
 
         // Autohide toolbar? Default: true
@@ -188,12 +188,12 @@ else {
         // Insert jQuery and ColorBox in head if needed
         $head = '';
         if ($this->loadfrontendjq == 'true') {
-            $head .= '<script src="' . evo()->config['site_url'] . $this->jqpath . '" type="text/javascript"></script>';
+            $head .= '<script src="' . MODX_SITE_URL . $this->jqpath . '" type="text/javascript"></script>';
         }
         if ($this->loadtb == 'true') {
             $head .= '
-<link type="text/css" media="screen" rel="stylesheet" href="' . evo()->config['site_url'] . 'assets/plugins/qm/css/colorbox.css" />
-<script type="text/javascript" src="' . evo()->config['site_url'] . 'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
+<link type="text/css" media="screen" rel="stylesheet" href="' . MODX_SITE_URL . 'assets/plugins/qm/css/colorbox.css" />
+<script type="text/javascript" src="' . MODX_SITE_URL . 'assets/plugins/qm/js/jquery.colorbox-min.js"></script>
 ';
         }
         // Insert ColorBox jQuery definitions for QuickManager+
@@ -263,12 +263,12 @@ function getCookie(cookieName)
 
         // Search and create edit buttons in to the content
         if ($this->editbuttons == 'true' && $access) {
-            $output = preg_replace('/<!-- ' . $this->editbclass . ' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="' . $this->editbclass . '"><a class="colorbox" href="' . evo()->config['site_url'] . 'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh=' . $docID . '"><span>$3</span></a></span>', $output);
+            $output = preg_replace('/<!-- ' . $this->editbclass . ' ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\2 -->/', '<span class="' . $this->editbclass . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=27&amp;id=$1&amp;quickmanager=1&amp;qmrefresh=' . $docID . '"><span>$3</span></a></span>', $output);
         }
 
         // Search and create new document buttons in to the content
         if ($this->newbuttons == 'true' && $access) {
-            $output = preg_replace('/<!-- ' . $this->newbclass . ' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="' . $this->newbclass . '"><a class="colorbox" href="' . evo()->config['site_url'] . 'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
+            $output = preg_replace('/<!-- ' . $this->newbclass . ' ([0-9]+) ([0-9]+) ([\'|\\"])([^\\"\'\(\)<>!?]+)\\3 -->/', '<span class="' . $this->newbclass . '"><a class="colorbox" href="' . MODX_SITE_URL . 'manager/index.php?a=4&amp;pid=$1&amp;quickmanager=1&amp;customaddtplid=$2"><span>$4</span></a></span>', $output);
         }
 
         // Search and create new document buttons in to the content

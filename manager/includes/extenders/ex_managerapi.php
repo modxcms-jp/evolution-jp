@@ -935,30 +935,35 @@ class ManagerAPI
         return $modx->user_allowed_docs;
     }
 
-    function getUploadMaxsize()
+    public function getUploadMaxsize()
     {
         return min(
-            $this->byte(ini_get('upload_max_filesize'))
-            , $this->byte(ini_get('post_max_size'))
-            , $this->byte(ini_get('memory_limit'))
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size')),
+            $this->convertToBytes(ini_get('memory_limit'))
         );
     }
 
-    function byte($value)
+    private function convertToBytes($input)
     {
-        $substr = substr($value, -1);
-        $units = ['B', 'K', 'M', 'T'];
-        if (!in_array($substr, $units)) {
-            return $value;
+        $unit = strtoupper(substr($input, -1));
+        $numericValue = substr($input, 0, -1);
+        $validUnits = ['B', 'K', 'M', 'T'];
+    
+        if (!in_array($unit, $validUnits)) {
+            return $numericValue;
         }
-        $size = $value;
-        foreach ($units as $unit) {
-            if ($unit === $substr) {
-                return $size;
+    
+        $bytes = $numericValue;
+    
+        foreach ($validUnits as $validUnit) {
+            if ($validUnit === $unit) {
+                return $bytes;
             }
-            $size = $size * 1024;
+            $bytes *= 1024;
         }
-        return $size;
+    
+        return $bytes;
     }
 
     function getTplModule()

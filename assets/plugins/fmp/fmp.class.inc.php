@@ -56,8 +56,8 @@ class ForgotManagerPassword
             $_SESSION['fmp_sent'] = $this->sendFmpMail(getv('email'))
                 ? $this->lang('email_sent')
                 : $this->getErrorOutput() . $this->formLink();
-            if (is_file(MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php')) {
-                unlink(MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php');
+            if (is_file(MODX_BASE_PATH . 'temp/cache/touch.siteCache.idx.php')) {
+                unlink(MODX_BASE_PATH . 'temp/cache/touch.siteCache.idx.php');
             }
             evo()->sendRedirect(MODX_MANAGER_URL);
             exit;

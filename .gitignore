@@ -1,5 +1,11 @@
-.htaccess
+/content/
 
-#IDE
-.idea
-.vscode
+.htaccess
+/manager/includes/config.inc.php
+/mamager/includes/extra.config.php
+
+.thumbs/
+/temp/cache/*
+/temp/*
+
+!.gitkeep

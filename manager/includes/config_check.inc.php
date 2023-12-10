@@ -46,7 +46,7 @@ if (get_sc_value('privateweb', $unauthorized_page) == 1) {
 if (get_sc_value('privateweb', $error_page) == 1) {
     $warnings[] = 'configcheck_errorpage_unavailable';
 }
-if (!is_writable(MODX_BASE_PATH . 'assets/cache')) {
+if (!is_writable(MODX_BASE_PATH . 'temp/cache')) {
     $warnings[] = 'configcheck_cache';
 }
 if (!is_writable(evo()->config('rb_base_dir') . 'images')) {

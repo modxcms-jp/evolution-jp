@@ -580,7 +580,7 @@ class Wayfinder
                     $row['link'] = $row['content'];
                 }
             } elseif ($row['id'] == $modx->config['site_start']) {
-                $row['link'] = $modx->config['site_url'];
+                $row['link'] = MODX_SITE_URL;
             } else {
                 $row['link'] = $modx->makeUrl($row['id'], '', '', $linkScheme);
             }

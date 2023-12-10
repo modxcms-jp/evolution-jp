@@ -82,15 +82,13 @@ class SubParser
         $modx->mail->Subject = !isset($p['subject']) ? $modx->config['emailsubject'] : $p['subject'];
         $modx->mail->Body = $p['body'];
         if (isset($p['type']) && $p['type'] === 'text') {
-            $this->mail->IsHTML(false);
+            $modx->mail->IsHTML(false);
         }
         return $modx->mail->send();
     }
 
     function rotate_log($target = 'event_log', $limit = 2000, $trim = 100)
     {
-        global $modx;
-
         if ($limit < $trim) {
             $trim = $limit;
         }
@@ -176,7 +174,7 @@ class SubParser
         $modx->db->lastQuery = $_;
         if (isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
             if ($modx->config['send_errormail'] <= $type) {
-                $body['URL'] = $modx->config['site_url'] . ltrim(evo()->server('REQUEST_URI'), '/');
+                $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
                 $body['Source'] = $fields['source'];
                 $body['IP'] = evo()->server('REMOTE_ADDR');
                 if (evo()->server('REMOTE_ADDR')) {
@@ -225,7 +223,7 @@ class SubParser
 
             $_ = ['pages', 'pc', 'smartphone', 'tablet', 'mobile'];
             foreach ($_ as $uaType) {
-                $page_cache_path = MODX_BASE_PATH . "assets/cache/{$uaType}/{$filename}.pageCache.php";
+                $page_cache_path = MODX_BASE_PATH . "temp/cache/{$uaType}/{$filename}.pageCache.php";
                 if (is_file($page_cache_path)) {
                     unlink($page_cache_path);
                 }
@@ -238,13 +236,13 @@ class SubParser
             $params['target'] = 'pagecache,sitecache';
         }
 
-        if (opendir(MODX_BASE_PATH . 'assets/cache') !== false) {
+        if (opendir(MODX_BASE_PATH . 'temp/cache') !== false) {
             $showReport = ($params['showReport']) ? $params['showReport'] : false;
             $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
 
             include_once MODX_CORE_PATH . 'cache_sync.class.php';
             $sync = new synccache();
-            $sync->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+            $sync->setCachepath(MODX_BASE_PATH . 'temp/cache/');
             $sync->setReport($showReport);
             $sync->setTarget($target);
             $sync->emptyCache(); // first empty the cache
@@ -479,7 +477,7 @@ class SubParser
             $title = 'Snippet - ' . $modx->currentSnippet;
         } elseif ($modx->event->activePlugin) {
             $title = 'Plugin - ' . $modx->event->activePlugin;
-        } elseif ($title !== '') {
+        } elseif (isset($title) && $title !== '') {
             $title = 'Parser - ' . $text ? $text : $source;
         } elseif ($query !== '') {
             $title = 'SQL Query';
@@ -522,7 +520,7 @@ class SubParser
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
                 echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
                 echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
-                    $modx->config['site_url'], $modx->config['manager_theme']);
+                MODX_SITE_URL, $modx->config['manager_theme']);
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }
@@ -952,7 +950,7 @@ class SubParser
             $modx->sjscripts[$nextpos] = $src;
             return;
         }
-        
+
         $modx->sjscripts[$nextpos] = sprintf(
             '<link rel="stylesheet" type="text/css" href="%s" %s/>'
             , $src
@@ -1087,7 +1085,7 @@ class SubParser
 
         $rs = db()->select('parent', '[+prefix+]site_content', "id='{$docid}'");
         $parent = db()->getValue($rs);
-        if ($this->duplicateDoc == true && $parent == 0 && $allowroot == 0) {
+        if ($duplicateDoc == true && $parent == 0 && $allowroot == 0) {
             return false; // deny duplicate document at root if Allow Root is No
         }
 
@@ -2563,7 +2561,9 @@ class SubParser
 
     function setOption($key, $value = '')
     {
-        $this->config[$key] = $value;
+        global $modx;
+
+        $modx->config[$key] = $value;
     }
 
     function getOption($key, $default = null, $options = null, $skipEmpty = false)
@@ -2732,13 +2732,13 @@ class SubParser
     {
         global $modx;
         if (!$modx->aliasListing) {
-            $aliases = @include(MODX_BASE_PATH . 'assets/cache/aliasListing.siteCache.idx.php');
+            $aliases = @include(MODX_BASE_PATH . 'temp/cache/aliasListing.siteCache.idx.php');
             if ($aliases) {
                 $modx->aliasListing = $aliases;
             }
         }
         if (!$modx->documentMap) {
-            $documentMap = @include(MODX_BASE_PATH . 'assets/cache/documentMap.siteCache.idx.php');
+            $documentMap = @include(MODX_BASE_PATH . 'temp/cache/documentMap.siteCache.idx.php');
             if ($documentMap) {
                 $modx->documentMap = $documentMap;
             }

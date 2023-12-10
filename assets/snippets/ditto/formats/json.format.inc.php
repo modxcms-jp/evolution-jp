@@ -38,7 +38,7 @@ $json_placeholders['json_copyright'] = isset($copyright) ? $copyright : $_lang['
 	Default:
 	[LANG]
 */
-$json_placeholders['json_link'] = $modx->config['site_url'] . "[~" . $modx->documentObject['id'] . "~]";
+$json_placeholders['json_link'] = MODX_SITE_URL . "[~" . $modx->documentObject['id'] . "~]";
 $json_placeholders['json_ttl'] = isset($ttl) ? intval($ttl) : 120;
 /*
 	Param: ttl

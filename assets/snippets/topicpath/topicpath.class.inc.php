@@ -4,11 +4,26 @@ class TopicPath
 {
     private $stopIds;
     private $pathThruUnPub;
+    private $showTopicsAtHome;
+    private $showAtLeastOneTopic;
+    private $ignoreIDs;
+    private $disabledOn;
+    private $disabledUnder;
+    private $menuItemOnly;
+    private $limit;
+    private $topicGap;
+    private $titleField;
+    private $descField;
+    private $homeId;
+    private $homeTopicTitle;
+    private $homeTopicDesc;
+    private $order;
+    private $theme;
+    private $tpl;
 
     public function __construct()
     {
         global $modx;
-        if (event()->params) extract($modx->event->params);
         $this->set('showTopicsAtHome', '0');
         $this->set('showAtLeastOneTopic', '0');
         $this->array_set('ignoreIDs', '');
@@ -20,9 +35,12 @@ class TopicPath
         $this->array_set('titleField', 'menutitle,pagetitle');
         $this->array_set('descField', 'description,longtitle,pagetitle');
         $this->set('homeId', $modx->config['site_start']);
-        $this->array_set('stopIDs', '');
+        $this->array_set('stopIds', '');
         $this->set('order', '');
 
+        if (event()->params) {
+            extract($modx->event->params);
+        }
         if (isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
         if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
 
@@ -154,8 +172,8 @@ class TopicPath
         $c = count($docs);
         foreach ($docs as $doc) {
             $ph = $doc;
-            if (in_array($doc['id'], $this->stopIDs)) break;
-            $ph['url'] = ($doc['id'] == $modx->config['site_start']) ? $modx->config['site_url'] : $modx->makeUrl($doc['id'], '', '', 'full');
+            if (in_array($doc['id'], $this->stopIds)) break;
+            $ph['url'] = ($doc['id'] == $modx->config['site_start']) ? MODX_SITE_URL : $modx->makeUrl($doc['id'], '', '', 'full');
             $ph['href'] = &$ph['url'];
             foreach ($this->titleField as $f) {
                 if ($doc[$f] !== '') {
@@ -204,7 +222,6 @@ class TopicPath
 
     private function getDisableDocs()
     {
-        global $modx;
         $tbl_site_content = evo()->getFullTableName('site_content');
 
         if (empty($this->disabledUnder)) return $this->disabledOn;

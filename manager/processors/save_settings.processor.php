@@ -40,9 +40,6 @@ function setPermission()
     if (!is_dir(formv('rb_base_dir') . 'media')) {
         mkd(formv('rb_base_dir') . 'media');
     }
-    if (!is_dir(formv('rb_base_dir') . 'flash')) {
-        mkd(formv('rb_base_dir') . 'flash');
-    }
     if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
         mkd(MODX_BASE_PATH . 'temp/export');
     }

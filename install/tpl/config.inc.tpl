@@ -20,4 +20,8 @@ if(function_exists('date_default_timezone_set')) {
     date_default_timezone_set('Asia/Tokyo');
 }
 
-include_once(__DIR__ . '/initialize.inc.php');
+if (is_file(__DIR__ . '/extra.config.php')) {
+    include __DIR__ . '/extra.config.php';
+}
+
+include_once __DIR__ . '/initialize.inc.php';

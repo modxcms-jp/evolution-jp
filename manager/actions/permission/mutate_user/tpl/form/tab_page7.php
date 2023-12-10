@@ -31,17 +31,6 @@
         </td>
     </tr>
     <tr>
-        <th><?php echo lang('uploadable_flash_title') ?></th>
-        <td>
-            <input type='text' maxlength='255' style="width: 250px;" name="upload_flash"
-                   value="<?php echo isset($user['upload_flash']) ? $user['upload_flash'] : ""; ?>">
-            &nbsp;&nbsp; <label><input type="checkbox" name="default_upload_flash"
-                                       value="1" <?php echo isset($user['upload_flash']) ? '' : 'checked'; ?> /> <?php echo lang('user_use_config'); ?>
-            </label>
-            <div><?php echo lang('uploadable_flash_message') . lang('user_upload_message') ?></div>
-        </td>
-    </tr>
-    <tr>
         <th><?php echo lang('uploadable_files_title') ?></th>
         <td>
             <input type='text' maxlength='255' style="width: 250px;" name="upload_files"

@@ -38,7 +38,7 @@ $script = '<script>
     let isSelected;
 
 jQuery.each(characters, function (value, name) {
-    isSelected = (value === 'utf8_general_ci');
+    isSelected = (value === 'utf8mb4_general_ci');
     opt = jQuery('<option>')
         .val(value)
         .text(name)

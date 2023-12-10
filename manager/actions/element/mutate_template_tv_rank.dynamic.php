@@ -14,7 +14,7 @@ if (!is_numeric($_REQUEST['id'])) {
 $id = intval($_REQUEST['id']);
 
 $basePath = $modx->config['base_path'];
-$siteURL = $modx->config['site_url'];
+$siteURL = MODX_SITE_URL;
 
 $updateMsg = '';
 

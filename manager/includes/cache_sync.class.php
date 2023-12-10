@@ -17,7 +17,7 @@ class synccache
             $this->target = 'pagecache,sitecache';
         }
         if (defined('MODX_BASE_PATH')) {
-            $this->cachePath = MODX_BASE_PATH . 'assets/cache/';
+            $this->cachePath = MODX_BASE_PATH . 'temp/cache/';
         }
     }
 

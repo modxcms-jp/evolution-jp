@@ -42,7 +42,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         echo "Multiple plugins sharing same unique id. Not good.<p>";
         exit;
     elseif ($total < 1):
-        header("Location: {$modx->config['site_url']}");
+        header("Location: " . MODX_SITE_URL);
     endif;
 
     $_SESSION['itemname'] = $pluginObject->name;

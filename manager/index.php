@@ -12,10 +12,10 @@ include_once('../index.php');
 $self_path = str_replace('\\', '/', __FILE__);
 $self_dir = str_replace('/index.php', '', $self_path);
 $mgr_dir = substr($self_dir, strrpos($self_dir, '/') + 1);
-if (!is_dir(MODX_BASE_PATH . 'assets/cache')) {
-    mkdir(MODX_BASE_PATH . 'assets/cache');
+if (!is_dir(MODX_BASE_PATH . 'temp/cache')) {
+    mkdir(MODX_BASE_PATH . 'temp/cache');
 }
-$site_mgr_path = MODX_BASE_PATH . 'assets/cache/siteManager.php';
+$site_mgr_path = MODX_BASE_PATH . 'temp/cache/siteManager.php';
 
 if (!is_file($site_mgr_path)) {
     $src = "<?php\n";
@@ -87,13 +87,13 @@ switch ($modx->manager->action) {
     case 86:
         break;
     default:
-        if (is_file(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php')) {
-            $content = file_get_contents(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php');
+        if (is_file(MODX_BASE_PATH . 'temp/cache/rolePublishing.idx.php')) {
+            $content = file_get_contents(MODX_BASE_PATH . 'temp/cache/rolePublishing.idx.php');
             $role = unserialize($content);
             if ($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']]) {
                 @session_destroy();
                 session_unset();
-                header("Location: " . $modx->config['site_url'] . "manager/");
+                header("Location: " . MODX_SITE_URL . "manager/");
                 exit;
             }
         }

@@ -41,36 +41,36 @@ if (sessionv('test') != 1) {
 
 // check directories
 // cache exists?
-if (!is_dir(MODX_BASE_PATH . 'assets/cache')) {
+if (!is_dir(MODX_BASE_PATH . 'temp/cache')) {
     echo p(echo_failed() . lang('checking_if_cache_exist'));
     $errors += 1;
 }
 
 // cache writable?
-if (!is_writable(MODX_BASE_PATH . 'assets/cache')) {
+if (!is_writable(MODX_BASE_PATH . 'temp/cache')) {
     $_ = echo_failed();
     $errors += 1;
 } else {
     $_ = echo_ok();
-    mkd(MODX_BASE_PATH . 'assets/cache/rss');
+    mkd(MODX_BASE_PATH . 'temp/cache/rss');
 }
 echo p($_ . lang('checking_if_cache_writable'));
 
-if (is_writable(MODX_BASE_PATH . 'assets/cache')) {
+if (is_writable(MODX_BASE_PATH . 'temp/cache')) {
     // cache files writable?
-    if (!is_file(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
+    if (!is_file(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php')) {
         // make an attempt to create the file
-        file_put_contents(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php', '<?php //MODX site cache file ?>');
+        file_put_contents(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php', '<?php //MODX site cache file ?>');
     }
-    if (!is_writable(MODX_BASE_PATH . 'assets/cache/siteCache.idx.php')) {
+    if (!is_writable(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php')) {
         $_ = echo_failed();
         $errors += 1;
     } else $_ = echo_ok();
     echo p($_ . lang('checking_if_cache_file_writable'));
 
-    file_put_contents(MODX_BASE_PATH . 'assets/cache/basicConfig.php', '<?php $cacheRefreshTime=0; ?>');
+    file_put_contents(MODX_BASE_PATH . 'temp/cache/basicConfig.php', '<?php $cacheRefreshTime=0; ?>');
 
-    if (!is_writable(MODX_BASE_PATH . 'assets/cache/basicConfig.php')) {
+    if (!is_writable(MODX_BASE_PATH . 'temp/cache/basicConfig.php')) {
         $_ = echo_failed();
         $errors += 1;
     } else $_ = echo_ok();
@@ -86,7 +86,6 @@ if (!is_dir(MODX_BASE_PATH . 'assets/images')) {
     // cache writable?
     $dir_images = MODX_BASE_PATH . 'content/images';
     $dir_files = MODX_BASE_PATH . 'content/files';
-    $dir_flash = MODX_BASE_PATH . 'content/flash';
     $dir_media = MODX_BASE_PATH . 'content/media';
 
     if (!is_writable(MODX_BASE_PATH . 'content')) {
@@ -96,18 +95,17 @@ if (!is_dir(MODX_BASE_PATH . 'assets/images')) {
         $_ = echo_ok();
         mkd($dir_images);
         mkd($dir_files);
-        mkd($dir_flash);
         mkd($dir_media);
     }
     echo p($_ . lang('checking_if_content_writable'));
 
     if (is_writable(MODX_BASE_PATH . 'content')) {
-        if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_flash) || !is_dir($dir_media)) {
+        if (!is_dir($dir_images) || !is_dir($dir_files) || !is_dir($dir_media)) {
             echo p(echo_failed() . lang('checking_if_images_exist'));
             $errors += 1;
         } else {
             // File Browser directories writable?
-            if (!is_writable($dir_images) || !is_writable($dir_files) || !is_writable($dir_flash) || !is_writable($dir_media)) {
+            if (!is_writable($dir_images) || !is_writable($dir_files) || !is_writable($dir_media)) {
                 $_ = echo_failed();
                 $errors += 1;
             } else {
@@ -197,11 +195,11 @@ echo sprintf(
 // Version and strict mode check end
 
 // andrazk 20070416 - add install flag and disable manager login
-// assets/cache writable?
+// temp/cache writable?
 
-if (is_writable('../assets/cache')) {
+if (is_writable('../temp/cache')) {
     // make an attempt to create the file
-    file_put_contents(MODX_BASE_PATH . 'assets/cache/installProc.inc.php', '<?php $installStartTime = ' . time() . '; ?>');
+    file_put_contents(MODX_BASE_PATH . 'temp/cache/installProc.inc.php', '<?php $installStartTime = ' . time() . '; ?>');
 }
 
 if ($errors > 0) {

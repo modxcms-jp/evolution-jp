@@ -27,7 +27,7 @@ $atom_placeholders['atom_lang'] = (isset($abbrLanguage)) ? $abbrLanguage : $_lan
 	Related:
 	- <language>
 */
-$atom_placeholders['atom_link'] = $modx->config['site_url'] . "[~" . $modx->documentObject['id'] . "~]";
+$atom_placeholders['atom_link'] = MODX_SITE_URL . "[~" . $modx->documentObject['id'] . "~]";
 $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config['modx_charset'];
 /*
 	Param: charset
@@ -51,13 +51,13 @@ $placeholders['atom_author'] = array("createdby", "atomCreatedBy");
 if (!function_exists("atomCreatedDate")) {
     function atomCreatedDate($resource)
     {
-        return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + $modx->config["server_offset_time"]);
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["createdon"] + evo()->config('server_offset_time'));
     }
 }
 if (!function_exists("atomEditedDate")) {
     function atomEditedDate($resource)
     {
-        return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + $modx->config["server_offset_time"]);
+        return date('Y-m-d\TH:i:s\Z', (int)$resource["editedon"] + evo()->config('server_offset_time'));
     }
 }
 if (!function_exists("atomCreatedBy")) {

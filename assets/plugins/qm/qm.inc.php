@@ -11,6 +11,30 @@ class Qm
 {
     public $modx;
     public $jqpath = '';
+    public $loadfrontendjq = 'false';
+    public $noconflictjq = 'false';
+    public $loadtb = 'false';
+    public $tbwidth = '600';
+    public $tbheight = '400';
+    public $hidefields = '';
+    public $hidetabs = '';
+    public $hidesections = '';
+    public $addbutton = 'false';
+    public $tpltype = '0';
+    public $tplid = '';
+    public $custombutton = '';
+    public $managerbutton = 'false';
+    public $logout = 'false';
+    public $autohide = 'false';
+    public $editbuttons = 'false';
+    public $editbclass = 'qm_edit';
+    public $newbuttons = 'false';
+    public $newbclass = 'qm_new';
+    public $tvbuttons = 'false';
+    public $tvbclass = 'qm_tv';
+    public $aliases = [];
+    public $parents = [];
+    public $docGroup = '';
 
     public function __construct()
     {
@@ -248,7 +272,7 @@ class Qm
             return sprintf(
                 '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>'
                 , $this->tvbclass
-                , evo()->config['site_url']
+                , MODX_SITE_URL
                 , $docID
                 , urlencode($matches[1])
                 , $caption

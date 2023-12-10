@@ -11,7 +11,7 @@ class SqlParser
     public $adminemail = 'example@example.com';
     public $adminpass;
     public $connection_charset = 'utf8';
-    public $connection_collation = 'utf8_general_ci';
+    public $connection_collation = 'utf8mb4_general_ci';
     public $managerlanguage = 'english';
 
     public function __construct()

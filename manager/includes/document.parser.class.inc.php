@@ -896,21 +896,21 @@ class DocumentParser
                     break;
             }
 
-            if (!is_dir(MODX_BASE_PATH . 'assets/cache')) {
-                mkdir(MODX_BASE_PATH . 'assets/cache');
+            if (!is_dir(MODX_BASE_PATH . 'temp/cache')) {
+                mkdir(MODX_BASE_PATH . 'temp/cache');
             }
-            if (!is_dir(MODX_BASE_PATH . 'assets/cache/' . $this->uaType)) {
-                mkdir(MODX_BASE_PATH . 'assets/cache/' . $this->uaType, 0777);
+            if (!is_dir(MODX_BASE_PATH . 'temp/cache/' . $this->uaType)) {
+                mkdir(MODX_BASE_PATH . 'temp/cache/' . $this->uaType, 0777);
             }
 
             if ($this->config['cache_type'] == 1) {
-                $path = sprintf("%sassets/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
+                $path = sprintf("%stemp/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
                 if (!is_dir($path)) {
                     mkdir($path, 0777, true);
                 }
             }
             $this->saveToFile(
-                sprintf('%sassets/cache/%s/%s.pageCache.php',
+                sprintf('%stemp/cache/%s/%s.pageCache.php',
                     MODX_BASE_PATH,
                     $this->uaType,
                     $filename
@@ -1032,7 +1032,7 @@ class DocumentParser
 
     private function getSiteCache()
     {
-        $cache_path = MODX_BASE_PATH . 'assets/cache/config.siteCache.idx.php';
+        $cache_path = MODX_BASE_PATH . 'temp/cache/config.siteCache.idx.php';
         if (is_file($cache_path)) {
             $config = include($cache_path);
         }
@@ -1050,7 +1050,7 @@ class DocumentParser
         }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $cache = new synccache();
-        $cache->setCachepath(MODX_BASE_PATH . 'assets/cache/');
+        $cache->setCachepath(MODX_BASE_PATH . 'temp/cache/');
         $cache->setReport(false);
         $cache->setConfig($config);
         $cache->buildCache($this);
@@ -1166,7 +1166,7 @@ class DocumentParser
         }
         $this->config = $config;
 
-        $cache_path = MODX_BASE_PATH . 'assets/cache/';
+        $cache_path = MODX_BASE_PATH . 'temp/cache/';
         if (is_file($cache_path . 'siteCache.idx.php')) {
             include_once($cache_path . 'siteCache.idx.php');
         }
@@ -1190,14 +1190,14 @@ class DocumentParser
 
         if (strpos($this->config['filemanager_path'], '[(') !== false) {
             $this->config['filemanager_path'] = str_replace(
-            	'[(base_path)]',
+                '[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['filemanager_path']
             );
         }
         if (strpos($this->config['rb_base_dir'], '[(') !== false) {
             $this->config['rb_base_dir'] = str_replace(
-            	'[(base_path)]',
+                '[(base_path)]',
                 MODX_BASE_PATH,
                 $this->config['rb_base_dir']
             );
@@ -1385,7 +1385,7 @@ class DocumentParser
         }
 
         $cacheFile = sprintf(
-            '%sassets/cache/%s/%s.pageCache.php'
+            '%stemp/cache/%s/%s.pageCache.php'
             , MODX_BASE_PATH
             , $this->uaType
             , $filename
@@ -1487,7 +1487,7 @@ class DocumentParser
 
     function updatePublishStatus()
     {
-        $cache_path = MODX_BASE_PATH . 'assets/cache/basicConfig.php';
+        $cache_path = MODX_BASE_PATH . 'temp/cache/basicConfig.php';
         if ($this->cacheRefreshTime == '') {
             if (is_file($cache_path)) {
                 global $cacheRefreshTime;
@@ -2544,7 +2544,7 @@ class DocumentParser
         $cmd = trim($cmd);
         $cmd = rtrim($cmd, '-');
         $cmd = str_replace([' and ', ' or '], ['&&', '||'], strtolower($cmd));
-        $token = preg_split('@(&&|\|\|)@', $cmd, null, PREG_SPLIT_DELIM_CAPTURE);
+        $token = preg_split('@(&&|\|\|)@', $cmd, -1, PREG_SPLIT_DELIM_CAPTURE);
         $cmd = [];
         foreach ($token as $i => $v) {
             $v = trim($v);
@@ -2780,9 +2780,6 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
-            if ($value === false) {
-                continue;
-            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -2853,7 +2850,7 @@ class DocumentParser
 
         $snippetObject = $this->_getSnippetObject($key);
         if (!$snippetObject) {
-            return false;
+            return '';
         }
 
         $snip_call['name'] = $key;
@@ -3124,7 +3121,7 @@ class DocumentParser
 
     function getPluginCache()
     {
-        $plugins = @include(MODX_BASE_PATH . 'assets/cache/plugin.siteCache.idx.php');
+        $plugins = @include(MODX_BASE_PATH . 'temp/cache/plugin.siteCache.idx.php');
 
         if ($plugins) {
             $this->pluginCache = $plugins;
@@ -4277,7 +4274,7 @@ class DocumentParser
         if (strpos(PHP_OS, 'WIN') === 0) {
             $format = str_replace('%-', '%#', $format);
         }
-        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, null, PREG_SPLIT_DELIM_CAPTURE);
+        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         $str = '';
         foreach ($pieces as $v) {
@@ -4501,7 +4498,7 @@ class DocumentParser
     # returns the virtual relative path to the cache folder
     function getCachePath()
     {
-        return MODX_BASE_URL . 'assets/cache/';
+        return MODX_BASE_URL . 'temp/cache/';
     }
 
     # Returns current user id
@@ -5204,7 +5201,7 @@ class DocumentParser
             return false;
         }
 
-        $tmp = tempnam(MODX_BASE_PATH . 'assets/cache', 'tmp');
+        $tmp = tempnam(MODX_BASE_PATH . 'temp/cache', 'tmp');
         if (is_file($tmp) && !is_writable($tmp)) {
             chmod($tmp, 0666);
         }

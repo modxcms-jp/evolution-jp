@@ -28,6 +28,7 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 }
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
+$touch_path = null;
 if (!sessionv('mgrValidated')) {
     if (getv('frame')) {
         $_SESSION['save_uri'] = serverv('REQUEST_URI');
@@ -52,7 +53,7 @@ if (!sessionv('mgrValidated')) {
 
     global $tpl, $_lang;
 
-    $touch_path = MODX_BASE_PATH . 'assets/cache/touch.siteCache.idx.php';
+    $touch_path = MODX_BASE_PATH . 'temp/cache/touch.siteCache.idx.php';
     if (is_file($touch_path) && request_time() < filemtime($touch_path) + 300) {
         $modx->safeMode = 1;
         evo()->addLog($_lang['logtitle_login_disp_warning'], $_lang['logmsg_login_disp_warning'], 2);
@@ -244,7 +245,7 @@ function installGoingOn()
 
 function checkInstallProc()
 {
-    $instcheck_path = MODX_BASE_PATH . 'assets/cache/installProc.inc.php';
+    $instcheck_path = MODX_BASE_PATH . 'temp/cache/installProc.inc.php';
     if (!is_file($instcheck_path)) {
         return false;
     }

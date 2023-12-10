@@ -26,8 +26,8 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
                 'manager_email' => evo()->config['emailsender'],
                 'saddr' => evo()->config['emailsender'],
                 'semail' => evo()->config['emailsender'],
-                'site_url' => evo()->config['site_url'],
-                'surl' => evo()->config['site_url'] . 'manager/'
+                'site_url' => MODX_SITE_URL,
+                'surl' => MODX_SITE_URL . 'manager/'
             )
         )
     );
@@ -84,7 +84,6 @@ function saveUserSettings($id)
         'manager_inline_style',
         'upload_images',
         'upload_media',
-        'upload_flash',
         'upload_files'
     );
 

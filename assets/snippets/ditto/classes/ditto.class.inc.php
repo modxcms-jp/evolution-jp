@@ -310,11 +310,11 @@ class ditto
         $placeholders = $this->setCustomVar($placeholders, $resource, $dateFormat, $dateSource, $x);
 
         if (in_array('content', $this->fields['display']['db'], true) && $this->format !== 'html') {
-            $placeholders['content'] = $this->relToAbs($resource['content'], evo()->config('site_url'));
+            $placeholders['content'] = $this->relToAbs($resource['content'], MODX_SITE_URL);
         }
 
         if (in_array('introtext', $this->fields['display']['db'], true) && $this->format !== 'html') {
-            $placeholders['introtext'] = $this->relToAbs($resource['introtext'], evo()->config('site_url'));
+            $placeholders['introtext'] = $this->relToAbs($resource['introtext'], MODX_SITE_URL);
         }
 
         $customPlaceholders = $ph;
@@ -399,7 +399,7 @@ class ditto
         // set url placeholder
         if (in_array('url', $custom_v, true)) {
             if ($resource['id'] == evo()->config('site_start')) {
-                $placeholders['url'] = evo()->config('site_url');
+                $placeholders['url'] = MODX_SITE_URL;
             } else {
                 $placeholders['url'] = evo()->makeURL($resource['id'], '', '', 'full');
             }

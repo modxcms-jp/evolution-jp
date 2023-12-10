@@ -804,7 +804,7 @@ function fileupload()
     }
 
     // this seems to be an upload action.
-    $path = $modx->config['site_url'] . substr($startpath, strlen(config('filemanager_path')));
+    $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
     $path = rtrim($path, '/') . '/' . $userfile['name'];
     $msg .= $path;
     if ($userfile['error'] == 0) {
@@ -940,7 +940,7 @@ function proteted_path()
         $proteted_path[] = base_path() . 'assets/modules';
     }
     if (!evo()->hasPermission('empty_cache')) {
-        $proteted_path[] = base_path() . 'assets/cache';
+        $proteted_path[] = base_path() . 'temp/cache';
     }
     if (!evo()->hasPermission('import_static')) {
         $proteted_path[] = base_path() . 'temp/import';
@@ -958,7 +958,6 @@ function uploadablefiles()
     return array_merge(
         explode(',', config('upload_files', array())),
         explode(',', config('upload_images', array())),
-        explode(',', config('upload_media', array())),
-        explode(',', config('upload_flash', array()))
+        explode(',', config('upload_media', array()))
     );
 }
