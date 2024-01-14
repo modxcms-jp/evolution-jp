@@ -79,7 +79,7 @@ class DocumentParser
     public $template_path;
     public $lastInstallTime;
     public $aliaslist = [];
-    public $parentlist = [];
+    public $parentIds = [];
     public $aliasPath = [];
     public $tmpCache = [];
     public $docid;
@@ -1852,8 +1852,8 @@ class DocumentParser
             return 0;
         }
 
-        if (isset($this->parentlist[$docid])) {
-            return $this->parentlist[$docid];
+        if (isset($this->parentIds[$docid])) {
+            return $this->parentIds[$docid];
         }
 
         $rs = db()->select(
@@ -1866,13 +1866,13 @@ class DocumentParser
         );
 
         if (!$rs) {
-            $this->parentlist[$docid] = false;
+            $this->parentIds[$docid] = false;
             return false;
         }
 
         $parent = db()->getValue($rs);
 
-        $this->parentlist[$docid] = $parent;
+        $this->parentIds[$docid] = $parent;
         $this->setParentIDByParent($parent);
 
         return $parent;
@@ -1900,7 +1900,7 @@ class DocumentParser
         }
 
         while ($row = db()->getRow($rs)) {
-            $this->parentlist[$row['id']] = $parent;
+            $this->parentIds[$row['id']] = $parent;
         }
 
         $cached[$parent] = true;
