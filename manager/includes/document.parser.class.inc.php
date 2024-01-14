@@ -1886,9 +1886,8 @@ class DocumentParser
         $cached[$parent] = false;
 
         $rs = db()->select(
-            'id'
-            , '[+prefix+]site_content'
-            , [
+            'id',
+            '[+prefix+]site_content', [
                 where('parent', '=', $parent),
                 'AND deleted=0'
             ]
