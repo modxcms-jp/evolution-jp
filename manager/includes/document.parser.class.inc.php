@@ -4461,7 +4461,7 @@ class DocumentParser
     }
 
     # set arrays or object vars as placeholders
-    function toPlaceholders($ph, $prefix = '')
+    public function toPlaceholders($ph, $prefix = '')
     {
         if (is_object($ph)) {
             $ph = get_object_vars($ph);
@@ -4473,7 +4473,7 @@ class DocumentParser
         }
     }
 
-    function toPlaceholder($key, $value, $prefix = '')
+    public function toPlaceholder($key, $value, $prefix = '')
     {
         if (is_array($value) || is_object($value)) {
             $this->toPlaceholders(
