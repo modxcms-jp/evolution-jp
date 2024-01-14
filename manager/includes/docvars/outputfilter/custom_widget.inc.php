@@ -37,9 +37,9 @@ if (substr($params['output'], 0, 5) == '@FILE') {
     } else {
         $widget_output = $msg . $return;
     }
-} elseif ($params['output'] === '')
+} elseif ($params['output'] === '') {
     return;
-else {
+} else {
     if ($value !== '') $widget_output = $params['output'];
     else            $widget_output = '';
 }
