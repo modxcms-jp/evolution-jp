@@ -196,9 +196,9 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['draftDisplay'] = $draftDisplay;
         $ph['_lang_click_to_context'] = $_lang['click_to_context'];
         $ph['pad'] = $pad;
+        $ph['pid'] = "'p{$id}'";
 
         if (!$isfolder) {
-            $ph['pid'] = "'p{$id}'";
             $ph['icon'] = getIcon($id, $contenttype, $isfolder);
             if ($type === 'reference') {
                 $ph['icon'] = $_style["tree_linkgo"];
