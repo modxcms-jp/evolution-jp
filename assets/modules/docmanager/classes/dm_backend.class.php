@@ -45,7 +45,7 @@ class DocManagerBackend
 
         if (is_numeric($id)) {
             $rs = db()->select(
-                'id,pagetitle,parent,menuindex,published,hidemenu,deleted',
+                'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
                 '[+prefix+]site_content',
                 where('parent', '=', $id),
                 'menuindex ASC'
@@ -71,15 +71,18 @@ class DocManagerBackend
                 $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_nochildren'];
             } else {
                 foreach ($resource as $item) {
-                    $classes = '';
-                    $classes .= ($item['hidemenu']) ? ' notInMenuNode ' : ' inMenuNode';
-                    $classes .= ($item['published']) ? ' publishedNode ' : ' unpublishedNode ';
-                    $classes = ($item['deleted']) ? ' deletedNode ' : $classes;
-                    $classes .= (count(evo()->getChildIds($item['id'], 1)) > 0) ? ' hasChildren ' : ' noChildren ';
+                    $classes = [
+                        $item['hidemenu'] ? 'notInMenuNode' : 'inMenuNode',
+                        $item['published'] ? 'publishedNode ' : 'unpublishedNode ',
+                        $item['isfolder'] ? 'hasChildren' : 'noChildren',
+                    ];
+                    if ($item['deleted']) {
+                        $classes[] = 'deletedNode';
+                    }
                     $this->dm->ph['sort.options'] .= sprintf(
                         '<li id="item_%s" class="sort %s">%s</li>',
                         $item['id'],
-                        $classes,
+                        implode(' ', $classes),
                         $item['pagetitle']
                     );
                 }
