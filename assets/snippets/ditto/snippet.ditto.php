@@ -1046,7 +1046,7 @@ if ($count > 0) {
     }
     // allow show to use all option
 
-    if (($save != '1')) {
+    if ($save != 1) {
         $stop = min($total - $start, $display);
     } else {
         $stop = min($count, $total);
