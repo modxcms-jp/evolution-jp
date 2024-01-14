@@ -1857,9 +1857,8 @@ class DocumentParser
         }
 
         $rs = db()->select(
-            'parent'
-            , '[+prefix+]site_content'
-            , [
+            'parent',
+            '[+prefix+]site_content', [
                 where('id', '=', $docid),
                 'AND deleted=0'
             ]
