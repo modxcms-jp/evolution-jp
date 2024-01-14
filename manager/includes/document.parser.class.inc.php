@@ -3790,13 +3790,7 @@ class DocumentParser
             $id = $this->documentIdentifier;
         }
 
-        $cacheKey = hash(
-            'crc32b'
-            , print_r(
-                [$id, $alias, $args, $scheme, $ignoreReference]
-                , true
-            )
-        );
+        $cacheKey = hash('crc32b' , print_r(func_get_args(), true));
         if (isset($cached[$cacheKey])) {
             return $cached[$cacheKey];
         }
