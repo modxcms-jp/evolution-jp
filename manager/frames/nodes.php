@@ -105,7 +105,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $modx->config['limit_by_container'] = '';
     }
 
-    if ($modx->config['tree_page_click'] !== '27' && $parent != 0) {
+    if ($modx->config['tree_page_click'] != 27 && $parent != 0) {
         if ($modx->config['limit_by_container'] === '') {
             $container_status = 'asis';
         } elseif ($modx->config['limit_by_container'] === '0') {
@@ -115,7 +115,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         } else {
             $container_status = 'asis';
         }
-        if ($container_status !== 'asis' && $parent !== '0') {
+        if ($container_status !== 'asis' && $parent != 0) {
             $where = "isfolder=1 AND " . $where;
             $result = db()->select($field, $from, $where, $tree_orderby);
             $hasChild = db()->count($result);
