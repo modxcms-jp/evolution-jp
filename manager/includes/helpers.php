@@ -354,14 +354,17 @@ function doc($key, $default = '')
     } else {
         $a = $doc;
     }
-    if (str_contains($key, '|hsc')) {
-        return hsc(
-            array_get(
-                $a,
-                str_replace('|hsc', '', $key),
-                $default
-            )
+    if (strpos($key, ':') !== false) {
+        // modifierを設定
+        $modifiers = explode(':', $key);
+        $key = array_shift($modifiers);
+        $value = evo()->applyFilter(
+            array_get($a, $key, $default),
+            $key,
+            implode(':', $modifiers)
         );
+    }
+    // $keyが「|」で区切られている場合は値が有効なキーを探す
     }
     return array_get($a, $key, $default);
 }
