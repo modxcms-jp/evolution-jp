@@ -49,27 +49,9 @@ class template
                 $templates[$name] = $this->fetch($tpl);
             }
         }
-        $fieldList = array();
-        foreach ($templates as $tplName => $tpl) {
-            $check = $this->findTemplateVars($tpl);
-            if (is_array($check)) {
-                $fieldList = array_merge($check, $fieldList);
-            } else {
-                switch ($tplName) {
-                    case 'base':
-                        $displayName = 'tpl';
-                        break;
-
-                    case 'default':
-                        $displayName = 'tpl';
-                        break;
-
-                    default:
-                        $displayName = 'tpl' . $tplName;
-                        break;
-                }
-                $templates[$tplName] = str_replace('[+tpl+]', $displayName, $this->language['bad_tpl']);
-            }
+        $fieldList = [];
+        foreach ($templates as $tpl) {
+            $fieldList = array_merge($this->findTemplateVars($tpl), $fieldList);
         }
 
         $fieldList = array_unique($fieldList);
