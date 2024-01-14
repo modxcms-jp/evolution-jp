@@ -68,20 +68,23 @@ class template
     // Function: findTemplateVars
     // Find al the template variables in the template
     // ---------------------------------------------------
-    function findTemplateVars($tpl)
+    private function findTemplateVars($tpl)
     {
         $matches = $this->getTagsFromContent($tpl);
-        if (!$matches) return $tpl;
-        $TVs = array();
-        foreach ($matches[1] as $tv) {
-            $match = explode(':', $tv);
-            $TVs[strtolower($match[0])] = $match[0];
+        if (!$matches) {
+            return [];
         }
-        if ($TVs) {
-            return array_values($TVs);
+        $TVs = array_map(
+            function($tv) {
+                $match = explode(':', $tv);
+                return $match[0];
+            },
+            $matches[1]
+        );
+        if (!$TVs) {
+            return [];
         }
-
-        return false;
+        return array_unique($TVs);
     }
 
     function getTagsFromContent($tpl)
