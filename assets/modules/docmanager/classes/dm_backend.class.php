@@ -65,8 +65,7 @@ class DocManagerBackend
         }
 
         if (!$noId) {
-            $cnt = count($resource);
-            if ($cnt < 1) {
+            if (!$resource) {
                 $this->dm->ph['sort.disable_tree_select'] = 'true';
                 $this->dm->ph['sort.save'] = 'none';
                 $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_nochildren'];
