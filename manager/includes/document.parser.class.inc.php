@@ -83,7 +83,7 @@ class DocumentParser
     public $aliasPath = [];
     public $tmpCache = [];
     public $docid;
-    public $doc = [];
+    public $doc;
     public $uri_parent_dir;
     public $manager;
     public $user_allowed_docs;
