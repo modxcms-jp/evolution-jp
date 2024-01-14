@@ -1,6 +1,6 @@
 /content/
 
-.htaccess
+/.htaccess
 /manager/includes/config.inc.php
 /mamager/includes/extra.config.php
 
