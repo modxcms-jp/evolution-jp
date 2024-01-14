@@ -4,10 +4,12 @@ function startCMSSession()
 {
     global $site_sessionname;
 
-    $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
-    session_name($site_sessionname);
-    init::session_set_cookie_params();
-    session_start();
+    if (session_status() == PHP_SESSION_NONE) {
+        $site_sessionname = 'evo' . substr(easy_hash(__FILE__), 0, 7);
+        session_name($site_sessionname);
+        init::session_set_cookie_params();
+        session_start();
+    }
     if (sessionv('evo_sid_hash') !== md5(session_id())) {
         session_regenerate_id(true);
         $_SESSION['evo_sid_hash'] = md5(session_id());
@@ -15,9 +17,7 @@ function startCMSSession()
     if (sessionv('mgrValidated') || sessionv('webValidated')) {
         // init::setcookie(init::cookieExpiration());
         init::set_session_create_time();
-        return;
     }
-    // init::setcookie(0);
 }
 
 function set_parser_mode()
