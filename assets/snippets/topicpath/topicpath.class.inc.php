@@ -3,7 +3,6 @@
 class TopicPath
 {
     private $stopIds;
-    private $pathThruUnPub;
     private $showTopicsAtHome;
     private $showAtLeastOneTopic;
     private $ignoreIDs;
@@ -45,7 +44,7 @@ class TopicPath
         if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
 
         $this->theme = $theme;
-        $this->tpl = array();
+        $this->tpl = [];
         if (isset($tplOuter)) $this->tpl['Outer'] = $tplOuter;
         if (isset($tplHomeTopic)) $this->tpl['HomeTopic'] = $tplHomeTopic;
         if (isset($tplCurrentTopic)) $this->tpl['CurrentTopic'] = $tplCurrentTopic;
@@ -56,16 +55,6 @@ class TopicPath
         } elseif (isset($tplOtherTopic) && strpos(trim($tplOtherTopic), '<li') === 0) {
             $this->tpl['Separator'] = "\n";
         }
-    }
-
-    private function set($key, $default = null)
-    {
-        $this->$key = array_get(event()->params, $key, $default);
-    }
-
-    private function array_set($key, $default = null)
-    {
-        $this->$key = explode(',', array_get(event()->params, $key, $default));
     }
 
     public function getTopicPath()
@@ -100,18 +89,34 @@ class TopicPath
         $docs = $this->getDocs($id);
         $topics = $this->setTopics($docs, $tpl);
 
-        if ($this->limit < count($topics)) $topics = $this->trimTopics($topics);
+        if ($this->limit < count($topics)) {
+            $topics = $this->trimTopics($topics);
+        }
 
-        if (count($topics) > 1 || (count($topics) == 1 && $this->showAtLeastOneTopic)) {
-            if (strpos($this->order, 'r') === 0) $topics = array_reverse($topics);
-            $rs = join($tpl['Separator'], $topics);
-            $rs = $modx->parseText($tpl['Outer'], array('topics' => $rs));
-        } else $rs = '';
+        if (1 < count($topics) || (count($topics) == 1 && $this->showAtLeastOneTopic)) {
+            if (strpos($this->order, 'r') === 0) {
+                $topics = array_reverse($topics);
+            }
+            return $modx->parseText(
+                $tpl['Outer'],
+                ['topics' => implode($tpl['Separator'], $topics)]
+            );
+        }
 
-        return $rs;
+        return '';
     }
 
-    function trimTopics($topics)
+    private function set($key, $default = null)
+    {
+        $this->$key = array_get(event()->params, $key, $default);
+    }
+
+    private function array_set($key, $default = null)
+    {
+        $this->$key = explode(',', array_get(event()->params, $key, $default));
+    }
+
+    private function trimTopics($topics)
     {
         $last_topic = array_pop($topics);
         array_splice($topics, $this->limit - 1);
@@ -121,7 +126,7 @@ class TopicPath
         return $topics;
     }
 
-    function isEnable($doc)
+    private function isEnable($doc)
     {
         if (in_array($doc['id'], $this->ignoreIDs)) $rs = false;
         elseif ($this->menuItemOnly && $doc['hidemenu']) $rs = false;
@@ -131,22 +136,12 @@ class TopicPath
         return $rs;
     }
 
-    function isEnd($doc)
-    {
-        if (in_array($doc['id'], $this->stopIds) || !$doc['parent'] || (!$doc['published'] && !$this->pathThruUnPub)) {
-            $rs = true;
-        } else $rs = false;
-
-        return $rs;
-    }
-
     private function getDocs($docid)
     {
         global $modx;
 
-        $docs = array();
+        $docs = [];
         $c = 0;
-        $doc = array();
         while ($docid !== $this->homeId && $c < 1000) {
             $doc = $modx->getPageInfo($docid, 0, '*');
             if ($doc['id'] == $modx->documentIdentifier) {
@@ -156,7 +151,9 @@ class TopicPath
                 $docs[] = $doc;
             }
             $docid = $doc['parent'];
-            if ($docid === '0') $docid = $this->homeId;
+            if (!$docid) {
+                $docid = $this->homeId;
+            }
             $c++;
         }
         $docs[] = $modx->getPageInfo($this->homeId, 0, '*');
@@ -166,14 +163,17 @@ class TopicPath
     private function setTopics($docs, $tpl)
     {
         global $modx;
-        $topics = array();
+        $topics = [];
         $docs = array_reverse($docs);
         $i = 0;
         $c = count($docs);
         foreach ($docs as $doc) {
             $ph = $doc;
             if (in_array($doc['id'], $this->stopIds)) break;
-            $ph['url'] = ($doc['id'] == $modx->config['site_start']) ? MODX_SITE_URL : $modx->makeUrl($doc['id'], '', '', 'full');
+            $ph['url'] = ($doc['id'] == config('site_start'))
+                ? MODX_SITE_URL
+                : $modx->makeUrl($doc['id'], '', '', 'full')
+            ;
             $ph['href'] = &$ph['url'];
             foreach ($this->titleField as $f) {
                 if ($doc[$f] !== '') {
