@@ -1938,6 +1938,13 @@ class DocumentParser
         if ($docid === null) {
             $docid = $this->documentIdentifier;
         }
+
+        static $cached = [];
+        $cachedKey = $docid . ',' . $top;
+        if (isset($cached[$cachedKey])) {
+            return $cached[$cachedKey];
+        }
+
         $i = 0;
         while ($docid && $i < 20) {
             if ($top == $this->getParentID($docid)) {
@@ -1946,6 +1953,8 @@ class DocumentParser
             $docid = $this->getParentID($docid);
             $i++;
         }
+
+        $cached[$cachedKey] = $docid;
         return $docid;
     }
 
