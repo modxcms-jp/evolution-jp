@@ -4504,7 +4504,7 @@ class DocumentParser
     }
 
     # returns the virtual relative path to the manager folder
-    function getManagerPath()
+    public function getManagerPath()
     {
         return MODX_BASE_URL . 'manager/';
     }
