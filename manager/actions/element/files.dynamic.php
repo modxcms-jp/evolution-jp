@@ -362,7 +362,7 @@ if (!is_readable($startpath)) {
             <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
                 <input
                     type="hidden" name="MAX_FILE_SIZE"
-                    value="<?= isset($upload_maxsize) ? $upload_maxsize : 3145728 ?>">
+                    value="<?= evo()->config('upload_maxsize', 32*1024*1024) ?>">
                 <input type="hidden" name="a" value="31">
                 <input type="hidden" name="path" value="<?= $startpath ?>">
 
