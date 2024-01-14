@@ -228,6 +228,12 @@ class template
             );
         }
 
+        if (strpos($tpl, '@INCLUDE') === 0) {
+            return ob_get_include(
+                preg_replace('/^@INCLUDE[: ]?/', '', $tpl)
+            );
+        }
+
         if (strpos($tpl, '@CODE') === 0) {
             return preg_replace('/^@CODE[: ]?/', '', $tpl);
         }
