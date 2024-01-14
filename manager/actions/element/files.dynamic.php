@@ -355,10 +355,8 @@ if (!is_readable($startpath)) {
         </div>
 
         <?php
-        if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && is_writable($startpath)) {
-            @ini_set('upload_max_filesize', config('upload_maxsize')); // modified by raymond
+        if (is_writable($startpath)) {
             ?>
-
             <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
                 <input
                     type="hidden" name="MAX_FILE_SIZE"
