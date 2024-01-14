@@ -1,4 +1,7 @@
 <?php
+/**
+ * @return DocumentParser
+ */
 function evo()
 {
     global $modx;
@@ -8,11 +11,17 @@ function evo()
     return $modx;
 }
 
+/**
+ * @return DBAPI
+ */
 function db()
 {
     return evo()->db;
 }
 
+/**
+ * @return ManagerAPI
+ */
 function manager()
 {
     global $modx;
@@ -220,6 +229,9 @@ function request_intvar($key)
     return 0;
 }
 
+/**
+ * @return SystemEvent
+ */
 function event()
 {
     return evo()->event;
