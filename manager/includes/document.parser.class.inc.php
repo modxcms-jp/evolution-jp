@@ -4443,7 +4443,7 @@ class DocumentParser
     }
 
     # returns the full table name based on db settings
-    function getFullTableName($tbl)
+    public function getFullTableName($tbl)
     {
         return db()->getFullTableName($tbl);
     }
