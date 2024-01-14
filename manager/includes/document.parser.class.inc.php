@@ -4449,15 +4449,30 @@ class DocumentParser
     }
 
     # return placeholder value
-    function getPlaceholder($name)
+    public function ph($name=null, $default='')
     {
-        return $this->placeholders[$name];
+        if (!$name) {
+            return $this->placeholders;
+        }
+        return $this->placeholders[$name] ?? $default;
     }
 
     # sets a value for a placeholder
-    function setPlaceholder($name, $value)
+    public function setPh($name, $value)
     {
         $this->placeholders[$name] = $value;
+    }
+
+    # return placeholder value
+    public function getPlaceholder($name=null, $default='')
+    {
+        return $this->ph($name, $default);
+    }
+
+    # sets a value for a placeholder
+    public function setPlaceholder($name, $value)
+    {
+        $this->setPh($name, $value);
     }
 
     # set arrays or object vars as placeholders
