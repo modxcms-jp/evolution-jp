@@ -3415,21 +3415,18 @@ class DocumentParser
         if (isset($cache[$docid])) {
             return $cache[$docid];
         }
-        $rs = db()->getValue(
+
+        $cache[$docid] = db()->getValue(
             db()->select(
-                'id, count(id) as count'
-                , '[+prefix+]site_content'
-                , sprintf(
-                    "parent in (%s) %s GROUP BY id"
-                    , implode(',', $this->getSiblings($docid))
-                    , $extraWhere
-                )
+                'count(id) as count',
+                '[+prefix+]site_content', [
+                    'parent = ' . $docid,
+                    $extraWhere
+                ]
             )
         );
-        while ($row = db()->getRow($rs)) {
-            $cache[$row['id']] = $row['count'];
-        }
-        return isset($cache[$docid]) ? $cache[$docid] : null;
+
+        return $cache[$docid];
     }
 
     public function getSiblingIds($docid)
