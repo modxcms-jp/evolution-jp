@@ -1998,12 +1998,6 @@ class DocumentParser
             if (strpos($key, '#') === 0) {
                 $key = substr($key, 1);
             }
-            list($key, $modifiers) = $this->splitKeyAndFilter($key);
-            if (strpos($key, '@') !== false) {
-                list($key, $context) = explode('@', $key, 2);
-            } else {
-                $context = false;
-            }
 
             if (strpos($key, '|') !== false) {
                 $keys = explode('|', $key);
@@ -2013,6 +2007,13 @@ class DocumentParser
                         break;
                     }
                 }
+            }
+
+            list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            if (strpos($key, '@') !== false) {
+                list($key, $context) = explode('@', $key, 2);
+            } else {
+                $context = false;
             }
 
             if (!isset($ph[$key]) && $modifiers) {
