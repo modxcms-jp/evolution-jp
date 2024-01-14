@@ -1,0 +1,7 @@
+<?php
+if (strpos(__DIR__ , '/development') !== false) {
+    $dbase = 'development';
+}
+if (strpos(__DIR__ , '/staging') !== false) {
+    $dbase = 'staging';
+}
