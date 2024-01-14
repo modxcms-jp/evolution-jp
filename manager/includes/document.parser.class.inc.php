@@ -3780,7 +3780,7 @@ class DocumentParser
         return $referenceListing;
     }
 
-    function makeUrl($id = '', $alias = '', $args = '', $scheme = 'full', $ignoreReference = false)
+    public function makeUrl($id = '', $alias = '', $args = '', $scheme = 'full', $ignoreReference = false)
     {
         static $cached = [];
 
