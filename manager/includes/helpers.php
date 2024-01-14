@@ -365,6 +365,13 @@ function doc($key, $default = '')
         );
     }
     // $keyが「|」で区切られている場合は値が有効なキーを探す
+    if (strpos($key, '|') !== false) {
+        $keys = explode('|', $key);
+        foreach ($keys as $key) {
+            if (!empty($a[$key])) {
+                break;
+            }
+        }
     }
     return array_get($a, $key, $default);
 }
