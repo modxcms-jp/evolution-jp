@@ -197,38 +197,53 @@ class template
     // Function: fetch
     // Get a template, based on version by Doze
     //
-    // http://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
+    // https://modxcms.com/forums/index.php/topic,5344.msg41096.html#msg41096
     // ---------------------------------------------------
     public function fetch($tpl)
     {
-        $template = '';
-        if (strpos($tpl, '@CHUNK') === 0) {
-            $template = evo()->getChunk(substr($tpl, 7));
-        } elseif (strpos($tpl, '@FILE') === 0) {
-            $path = trim(substr($tpl, 6));
-            if (strpos($path, MODX_BASE_URL . 'manager/includes/config.inc.php') === false) {
-                $template = file_get_contents($path);
-            }
-        } elseif (strpos($tpl, '@CODE') === 0) {
-            $template = substr($tpl, 6);
-        } elseif (strpos($tpl, '[+') !== false) {
-            $template = $tpl;
-        } elseif (strpos($tpl, '@DOCUMENT') === 0) {
-            $docid = trim(substr($tpl, 10));
-            if (preg_match('@^[1-9][0-9]*$@', $docid)) {
-                $template = evo()->getField('content', $docid);
-            }
-        } elseif (evo()->hasChunk($tpl)) {
-            $template = evo()->getChunk($tpl);
-        } else {
-            $template = $tpl;
-        }
+        $template = $this->_fetch($tpl);
 
         if (strpos($template, '[!') !== false) {
-            $template = str_replace(array('[!', '!]'), array('[[', ']]'), $template);
-        } elseif ($template === '' || $template === false) {
-            $template = $this->language['missing_placeholders_tpl'];
+            return str_replace(['[!', '!]'], '[[', ']]', $template);
         }
+
         return $template;
+    }
+
+    private function _fetch($tpl)
+    {
+        if (strpos($tpl, 'manager/includes/config.inc.php') !== false) {
+            throw new Exception('Invalid template path');
+        }
+
+        if (strpos($tpl, '@CHUNK') === 0) {
+            return evo()->getChunk(
+                preg_replace('/^@CHUNK[: ]?/', '', $tpl)
+            );
+        }
+
+        if (strpos($tpl, '@FILE') === 0) {
+            return file_get_contents(
+                preg_replace('/^@FILE[: ]?/', '', $tpl)
+            );
+        }
+
+        if (strpos($tpl, '@CODE') === 0) {
+            return preg_replace('/^@CODE[: ]?/', '', $tpl);
+        }
+
+        if (strpos($tpl, '@DOCUMENT') === 0) {
+            $docid = trim(substr($tpl, 10));
+            if (!preg_match('/^[1-9][0-9]*$/', $docid)) {
+                throw new Exception('Invalid document id');
+            }
+            return evo()->getField('content', $docid);
+        }
+
+        if (evo()->hasChunk($tpl)) {
+            return evo()->getChunk($tpl);
+        }
+
+        return $tpl;
     }
 }
