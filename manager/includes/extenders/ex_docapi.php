@@ -13,7 +13,7 @@ class DocAPI
 
     public function create($f = [], $groups = [])
     {
-        $f = $this->correctResourceFields($f);
+        $f = $this->correctResourceFields($f, 'create');
 
         $f['editedon'] = $f['createdon'];
         $f['editedby'] = $f['createdby'];
@@ -76,7 +76,7 @@ class DocAPI
             ];
         }
         $f['id'] = $docid;
-        $f = $this->correctResourceFields($f,'update');
+        $f = $this->correctResourceFields($f, 'update');
 
         $fields = [];
         foreach ($f as $k => $v) {
@@ -156,41 +156,67 @@ class DocAPI
     // type : 'create' or 'update'
     private function correctResourceFields($fields,$type='create')
     {
-        foreach ($fields as $k => $v) {
+        $keys = array_keys($fields);
+        foreach ($keys as $k) {
             if (!evo()->get_docfield_type($k)) {
                 unset($fields[$k]);
             }
         }
+
+        $fields['editedon'] = request_time();
+
+        if (empty($fields['editedby']) && $editedBy = evo()->getLoginUserID()) {
+            $fields['editedby'] = $editedBy;
+        }
+
+        if ($type == 'create') {
+            return $this->_fieldsForCreate($fields);
+        }
+
+        return $this->fieldsForUpdate($fields);
+    }
+
+    private function _fieldsForCreate($fields)
+    {
         if (!isset($fields['published'])) {
             $fields['published'] = config('publish_default', 0);
         }
         if (array_get($fields, 'pagetitle', '') === '') {
             $fields['pagetitle'] = lang('untitled_resource');
         }
-        if ( $type == 'create' && !isset($fields['createdon'])) {
+        if (!isset($fields['createdon'])) {
             $fields['createdon'] = request_time();
         }
-        if ( $type == 'create' && !isset($fields['createdby'])) {
+        if (!isset($fields['createdby'])) {
             $fields['createdby'] = evo()->getLoginUserID();
             if( $fields['createdby'] === false ) {
                 $fields['createdby'] = 0;
             }
         }
-        if (empty($fields['editedon'])) {
-            $fields['editedon'] = request_time();
-        }
-        if (empty($fields['editedby'])) {
-            $fields['editedby'] = evo()->getLoginUserID();
-            if( $fields['editedby'] === false ){
-                $fields['editedby'] = 0;
-            }
-        }
+        
         if (empty($fields['publishedon']) && !empty($fields['published'])) {
             $fields['publishedon'] = $fields['editedon'];
         }
         if (empty($fields['template'])) {
             $fields['template'] = config('default_template', 0);
         }
+
+        return $fields;
+    }
+
+    private function fieldsForUpdate($fields)
+    {
+        if (isset($fields['pagetitle']) && $fields['pagetitle'] === '') {
+            $fields['pagetitle'] = lang('untitled_resource');
+        }
+
+        if (!empty($fields['published'])) {
+            $fields['publishedon'] = request_time();
+            if (empty($fields['publishedby']) && $fields['editedby']) {
+                $fields['publishedby'] = $fields['editedby'];
+            }
+        }
+        
         return $fields;
     }
 
