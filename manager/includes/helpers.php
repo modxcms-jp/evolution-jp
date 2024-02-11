@@ -352,6 +352,12 @@ function doc($key, $default = '')
     } elseif (str_contains($key, '@up')) {
         $a = evo()->getDocumentObject('id', uparent());
         $key = str_replace('@up', '', $key);
+    } elseif (str_contains($key, '@inherit')) {
+        $key = str_replace('@inherit', '', $key);
+        $a = evo()->getDocumentObject(
+            'id',
+            evo()->inheritDocId($key, docid())
+        );
     } elseif (evo()->isFrontEnd()) {
         $a = evo()->documentObject;
     } else {
