@@ -349,6 +349,9 @@ function doc($key, $default = '')
     if (str_contains($key, '@parent')) {
         $a = evo()->getDocumentObject('id', doc('parent'));
         $key = str_replace('@parent', '', $key);
+    } elseif (str_contains($key, '@up')) {
+        $a = evo()->getDocumentObject('id', uparent());
+        $key = str_replace('@up', '', $key);
     } elseif (evo()->isFrontEnd()) {
         $a = evo()->documentObject;
     } else {
