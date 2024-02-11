@@ -24,18 +24,16 @@ class MODxMailer extends PHPMailer
 
     function __construct()
     {
-        global $modx;
-
         $this->encode_header_method = '';
 
-        if($modx->config['email_method']==='smtp') {
+        if(evo()->config('email_method')==='smtp') {
             include_once MODX_CORE_PATH . 'controls/phpmailer/class.smtp.php';
             $this->IsSMTP();
-            $this->Host = $modx->config['smtp_host'] . ':' . $modx->config['smtp_port'];
-            $this->SMTPAuth = $modx->config['smtp_auth'] === '1' ? true : false;
-            $this->Username = $modx->config['smtp_username'];
-            $this->Password = $modx->config['smtppw'];
-            $this->SMTPSecure = $modx->config['smtp_secure'];
+            $this->Host = evo()->config('smtp_host') . ':' . evo()->config('smtp_port');
+            $this->SMTPAuth = evo()->config('smtp_auth') == 1 ? true : false;
+            $this->Username = evo()->config('smtp_username');
+            $this->Password = evo()->config('smtppw');
+            $this->SMTPSecure = evo()->config('smtp_secure');
             if (10 < strlen($this->Password)) {
                 $this->Password = substr($this->Password, 0, -7);
                 $this->Password = str_replace('%', '=', $this->Password);
@@ -45,15 +43,15 @@ class MODxMailer extends PHPMailer
             $this->IsMail();
         }
 
-        $this->From = $modx->config['emailsender'];
-        $this->Sender = $modx->config['emailsender'];
-        $this->FromName = $modx->config['site_name'];
+        $this->From = evo()->config('emailsender');
+        $this->Sender = evo()->config('emailsender');
+        $this->FromName = evo()->config('site_name');
         $this->IsHTML(true);
 
-        if (!empty($modx->config['mail_charset'])) {
-            $mail_charset = $modx->config['mail_charset'];
+        if (evo()->config('mail_charset')) {
+            $mail_charset = evo()->config('mail_charset');
         } else {
-            $mail_charset = strtolower($modx->config['manager_language']);
+            $mail_charset = strtolower(evo()->config('manager_language'));
             if (substr($mail_charset, 0, 8) === 'japanese') {
                 $mail_charset = 'jis';
             } else {
@@ -83,7 +81,7 @@ class MODxMailer extends PHPMailer
         }
         if (extension_loaded('mbstring') && $this->mb_language !== false) {
             mb_language($this->mb_language);
-            mb_internal_encoding($modx->config['modx_charset']);
+            mb_internal_encoding(evo()->config('modx_charset'));
         }
         $exconf = MODX_CORE_PATH . 'controls/phpmailer/config.inc.php';
         if (is_file($exconf)) {
@@ -93,7 +91,6 @@ class MODxMailer extends PHPMailer
 
     function EncodeHeader($str, $position = 'text')
     {
-        global $modx;
         if ($this->encode_header_method == 'mb_encode_mimeheader') {
             return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
         } else {
@@ -131,25 +128,19 @@ class MODxMailer extends PHPMailer
 
     function MailSend($header, $body)
     {
-        global $modx;
-
         $org_body = $body;
 
         switch ($this->CharSet) {
             case 'ISO-2022-JP':
-                $body = mb_convert_encoding($body, 'JIS', $modx->config['modx_charset']);
-                if (ini_get('safe_mode')) {
-                    $mode = 'normal';
-                } else {
-                    $this->Subject = $this->EncodeHeader($this->Subject);
-                    $mode = 'mb';
-                }
-                break;
+                $body = mb_convert_encoding($body, 'JIS', evo()->config('modx_charset'));
+                $this->Subject = $this->EncodeHeader($this->Subject);
+                $mode = 'mb';
+            break;
             default:
                 $mode = 'normal';
         }
 
-        if ($modx->debug) {
+        if (evo()->debug) {
             $debug_info = 'CharSet = ' . $this->CharSet . "\n";
             $debug_info .= 'Encoding = ' . $this->Encoding . "\n";
             $debug_info .= 'mb_language = ' . $this->mb_language . "\n";
@@ -157,7 +148,7 @@ class MODxMailer extends PHPMailer
             $debug_info .= "send_mode = {$mode}\n";
             $debug_info .= 'Subject = ' . $this->Subject . "\n";
             $log = "<pre>{$debug_info}\n{$header}\n{$org_body}</pre>";
-            $modx->logEvent(1, 1, $log, 'MODxMailer debug information');
+            evo()->logEvent(1, 1, $log, 'MODxMailer debug information');
             //return true;
         }
         if ($mode === 'normal') {
@@ -168,8 +159,6 @@ class MODxMailer extends PHPMailer
 
     function mbMailSend($header, $body)
     {
-        global $modx;
-
         $to = '';
         for ($i = 0; $i < count($this->to); $i++) {
             if ($i != 0) {
@@ -178,7 +167,7 @@ class MODxMailer extends PHPMailer
             $to .= $this->AddrFormat($this->to[$i]);
         }
 
-        if ($this->Sender && !ini_get('safe_mode')) {
+        if ($this->Sender) {
             $old_from = ini_get('sendmail_from');
             ini_set('sendmail_from', $this->Sender);
         }
@@ -198,7 +187,7 @@ class MODxMailer extends PHPMailer
                         $this->Lang('instantiate') . "<br />",
                         "{$this->Subject}<br />",
                         "{$this->FromName}&lt;{$this->From}&gt;<br />",
-                        mb_convert_encoding($body, $modx->config['modx_charset'], $this->CharSet)
+                        mb_convert_encoding($body, evo()->config('modx_charset'), $this->CharSet)
                     ]
                 )
             );
@@ -239,7 +228,7 @@ class MODxMailer extends PHPMailer
         $address = trim($address);
         $localPart = substr($address, 0, strrpos($address, '@'));
         $isQuotedString = (substr($localPart, 0, 1) === '"' && substr($localPart, -1) === '"');
-        switch ($modx->config['validate_emailaddr']) {
+        switch ($modx->config('validate_emailaddr')) {
             case 'deny_quoted_string':
                 if ($isQuotedString) {
                     return false;
