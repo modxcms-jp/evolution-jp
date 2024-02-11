@@ -2141,6 +2141,9 @@ class DocumentParser
                 $str = trim($str, '()"\'');
                 $docid = $this->getIdFromAlias($str);
                 break;
+            case 'inherit':
+                $docid = $this->inheritDocId($key, $this->documentIdentifier);
+                break;
             case 'prev':
                 if (!$option) {
                     $option = 'menuindex,ASC';
@@ -2203,6 +2206,20 @@ class DocumentParser
             return $this->getField($key, $docid);
         }
         return '';
+    }
+
+    public function inheritDocId($key, $docId)
+    {
+        $currentId = $docId;
+        while ($currentId != 0) {
+            $doc = $this->getDocumentObject('id', $currentId);
+            $value = is_array($doc[$key]) ? $doc[$key]['value'] : $doc[$key];
+            if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
+                return $currentId;
+            }
+            $currentId = $this->getParentID($currentId);
+        }
+        return $docId;
     }
 
     function addLogEntry($fname, $fstart)
