@@ -5677,6 +5677,18 @@ class DocumentParser
         array_set($this->config, $key, $value);
     }
 
+    public function saveConfig($key, $value)
+    {
+        return db()->save(
+            [
+                'setting_name' => $key,
+                'setting_value' => $value
+            ],
+            db()->getFullTableName('system_settings'),
+            sprintf("setting_name='%s'", db()->escape($key))
+        );
+    }
+
     public function doc($key = null, $default = null)
     {
         if (!$this->documentObject) {
