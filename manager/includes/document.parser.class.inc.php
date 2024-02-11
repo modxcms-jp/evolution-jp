@@ -5110,6 +5110,11 @@ class DocumentParser
         return join("\n", $this->jscripts);
     }
 
+    public function getRegisteredClientStartupScripts()
+    {
+        return join("\n", $this->sjscripts);
+    }
+
     /**
      * Format alias to be URL-safe. Strip invalid characters.
      *
