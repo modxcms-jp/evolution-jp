@@ -49,14 +49,16 @@ class ManagerAPI
     // check for saved form
     function hasFormValues()
     {
-        if (isset($_SESSION['mgrFormValueId']) && sessionv('mgrFormValues')) {
-            if ($this->action == $_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues'])) {
-                return true;
-            }
-
-            $this->clearSavedFormValues();
+        if (!isset($_SESSION['mgrFormValueId']) || !sessionv('mgrFormValues')) {
+            return false;
         }
-        return false;
+
+        if ($this->action != sessionv('mgrFormValueId') || !is_array($_SESSION['mgrFormValues'])) {
+            $this->clearSavedFormValues();
+            return false;
+        }
+
+        return true;
     }
 
     // saved form post from $_POST
