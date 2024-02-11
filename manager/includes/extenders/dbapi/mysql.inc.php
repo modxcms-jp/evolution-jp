@@ -74,9 +74,7 @@ class DBAPI
         }
 
         if (!$this->hostname || !$this->username) {
-            if (!$modx->setConfig()) {
-                return false;
-            }
+            return false;
         }
 
         if (substr(PHP_OS, 0, 3) === 'WIN' && $this->hostname === 'localhost') {
@@ -253,7 +251,7 @@ class DBAPI
                     $bt .= "{$function} - {$file}[{$line}]<br />";
                 }
                 $modx->dumpSQLCode[] = '<fieldset style="text-align:left">';
-                $modx->dumpSQLCode[] = '<legend>Query ' . ++$this->executedQueries . " - " . sprintf("%2.4f s",
+                $modx->dumpSQLCode[] = '<legend>Query ' . ++$modx->executedQueries . " - " . sprintf("%2.4f s",
                         $totaltime) . '</legend>';
                 $modx->dumpSQLCode[] = "{$sql}<br />{$bt}</fieldset>";
             }
