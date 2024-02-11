@@ -124,7 +124,6 @@ global $database_connection_method, $lastInstallTime;
                     $info = array(
                         'OS' => sprintf('%s %s %s %s', PHP_OS, php_uname('r'), php_uname('v'), php_uname('m')),
                         'PHPのバージョン' => PHP_VERSION,
-                        'セーフモード' => !ini_get('safe_mode') ? 'off' : 'on',
                         'php_sapi_name' => php_sapi_name(),
                         'MySQLのバージョン' => db()->server_info(),
                         'MySQLホスト情報' => db()->host_info(),
