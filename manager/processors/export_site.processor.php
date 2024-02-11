@@ -62,9 +62,9 @@ sessionv('*export_repl_before', postv('repl_before'));
 sessionv('*export_repl_after', postv('repl_after'));
 
 $total = $modx->export->getTotal(
-    getIds('allow_ids')
-    , getIds('ignore_ids')
-    , sessionv('export_includenoncache')
+    getIds('allow_ids'),
+    getIds('ignore_ids'),
+    sessionv('export_includenoncache')
 );
 
 $output = sprintf(lang('export_site_numberdocs'), $total);
