@@ -13,6 +13,7 @@ class SystemEvent
     public $vars = [];
     public $cm = null;
     public $SystemAlertMsgQueque;
+    public $returnedValues;
 
     public function __construct($name = '')
     {
@@ -106,6 +107,11 @@ class SystemEvent
             $this->params[$key] = false;
         }
         return $this->params[$key];
+    }
+
+    public function setParam($key, $value)
+    {
+        $this->params[$key] = $value;
     }
 
     public function param($key, $default = null)
