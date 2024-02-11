@@ -591,7 +591,7 @@ class DBAPI
         }
     }
 
-    function getRows($rs, $mode = 'assoc')
+    function getRows($rs, $mode = 'assoc', $where = '', $orderby = '', $limit = '')
     {
 
         if (is_string($rs)) {
