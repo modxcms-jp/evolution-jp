@@ -2217,7 +2217,9 @@ class SubParser
                     }
                 }
                 $input[$name] = $v;
-            } elseif ($k === 'ta') {
+                continue;
+            }
+            if ($k === 'ta') {
                 $input['content'] = $v;
                 unset($input['ta']);
             }
