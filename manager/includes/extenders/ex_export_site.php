@@ -13,6 +13,7 @@ class EXPORT_SITE
     private $ignore_ids;
     private $output = [];
     private $lock_file_path;
+    private $bearer_token;
 
     public function __construct()
     {
@@ -29,6 +30,9 @@ class EXPORT_SITE
             $this->total = $this->getTotal();
         }
         $this->lock_file_path = MODX_BASE_PATH . 'temp/cache/export.lock';
+        if (!evo()->config('site_status')) {
+            $this->bearer_token = bin2hex(random_bytes(64));
+        }
     }
 
     private function getPastTime()
@@ -221,6 +225,10 @@ class EXPORT_SITE
         }
         touch($this->lock_file_path);
 
+        if ($this->bearer_token) {
+            evo()->saveBearerToken($this->bearer_token, time() + 60*60*3);
+        }
+
         $mask = umask();
         while ($row = db()->getRow($rs)) {
             $_ = $modx->getAliasListing($row['id'], 'path');
@@ -324,7 +332,7 @@ class EXPORT_SITE
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        if (ini_get('open_basedir') == '' && ini_get('safe_mode') === 'Off') {
+        if (ini_get('open_basedir') == '') {
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         }
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
@@ -335,6 +343,16 @@ class EXPORT_SITE
         if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
         }
+
+        if ($this->bearer_token) {
+            curl_setopt(
+                $ch,
+                CURLOPT_HTTPHEADER, [
+                    'Authorization: Bearer '. $this->bearer_token
+                ]
+            );
+        }
+
         $result = curl_exec($ch);
         if (!$result) {
             $i = 0;
