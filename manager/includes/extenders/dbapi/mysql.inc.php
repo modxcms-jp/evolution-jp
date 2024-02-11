@@ -380,22 +380,18 @@ class DBAPI
         return $this->__insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
-    function save($fields, $table, $where = '')
+    public function save($fields, $table, $where = '')
     {
 
-        if ($where === '') {
-            $mode = 'insert';
-        } elseif ($this->getRecordCount($this->select('*', $table, $where)) == 0) {
-            $mode = 'insert';
-        } else {
-            $mode = 'update';
+        if (!$where) {
+            return $this->insert($fields, $table);
         }
 
-        if ($mode === 'insert') {
+        if (!$this->count($this->select('*', $table, $where))) {
             return $this->insert($fields, $table);
-        } else {
-            return $this->update($fields, $table, $where);
         }
+
+        return $this->update($fields, $table, $where);
     }
 
     private function __insert(
