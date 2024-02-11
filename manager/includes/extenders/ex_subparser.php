@@ -1181,7 +1181,7 @@ class SubParser
                     $value = (string)$tv['value'];
                     if ($value !== '' && strpos($value, '@INHERIT') !== 0) {
                         $output = $value;
-                        break 2;
+                        break;
                     }
                 }
                 break;
