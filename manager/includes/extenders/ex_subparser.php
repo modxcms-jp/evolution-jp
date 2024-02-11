@@ -2224,15 +2224,10 @@ class SubParser
                 unset($input['ta']);
             }
         }
-        if ($input['pub_date'] === '') {
-            $input['pub_date'] = '0';
-        }
-        if ($input['unpub_date'] === '') {
-            $input['unpub_date'] = '0';
-        }
-        if ($input['publishedon'] === '') {
-            $input['publishedon'] = '0';
-        }
+        
+        $input['pub_date']    = evo()->toTimeStamp($input['pub_date']);
+        $input['unpub_date']  = evo()->toTimeStamp($input['unpub_date']);
+        $input['publishedon'] = evo()->toTimeStamp($input['publishedon']);
 
         $modx->previewObject = $input;
 
