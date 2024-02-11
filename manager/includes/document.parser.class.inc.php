@@ -180,7 +180,6 @@ class DocumentParser
         $this->Event = &$this->event; //alias for backward compatibility
         $this->ph = &$this->placeholders;
         $this->docid = &$this->documentIdentifier;
-        $this->doc = &$this->documentObject;
 
         $this->maxParserPasses = 10; // max number of parser recursive loops or passes
         $this->debug = false;
