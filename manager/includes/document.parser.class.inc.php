@@ -110,8 +110,10 @@ class DocumentParser
 
     public function __call($method_name, $arguments)
     {
-        $_ = explode(',',
-            'splitTVCommand,ParseInputOptions,ProcessTVCommand,addEventListener,addLog,atBind,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,runSnippet,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing');
+        $_ = explode(
+            ',',
+            'splitTVCommand,ParseInputOptions,ProcessTVCommand,addEventListener,addLog,atBind,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing'
+        );
         if (in_array($method_name, $_, true)) {
             $this->loadExtension('SubParser');
             if (method_exists($this->sub, $method_name)) {
@@ -2805,6 +2807,41 @@ class DocumentParser
         }
 
         return $content;
+    }
+
+    public function runSnippet($snippetName, $params = [])
+    {
+        if (isset($this->snippetCache[$snippetName])) {
+            // load default params/properties
+            $parameters = array_merge(
+                $this->parseProperties(
+                    $this->snippetCache[$snippetName . 'Props']
+                ),
+                $params
+            );
+            // run snippet
+            return $this->evalSnippet(
+                $this->snippetCache[$snippetName],
+                $parameters
+            );
+        }
+
+        // not in cache so let's check the db
+        $esc_name = db()->escape($snippetName);
+        $result = db()->select('name,snippet,properties', '[+prefix+]site_snippets', "name='{$esc_name}'");
+        if (db()->count($result) == 1) {
+            $row = db()->getRow($result);
+            $phpCode = $this->snippetCache[$snippetName] = $row['snippet'];
+            $properties = $this->snippetCache["{$snippetName}Props"] = $row['properties'];
+        } else {
+            $phpCode = $this->snippetCache[$snippetName] = "return false;";
+            $properties = '';
+        }
+        // load default params/properties
+        $parameters = $this->parseProperties($properties);
+        $parameters = array_merge($parameters, $params);
+        // run snippet
+        return $this->evalSnippet($phpCode, $parameters);
     }
 
     private function getAbsolutePath($path)

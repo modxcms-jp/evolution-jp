@@ -818,31 +818,6 @@ class SubParser
         return $modx->currentSnippet;
     }
 
-    function runSnippet($snippetName, $params = [])
-    {
-        global $modx;
-        if (isset ($modx->snippetCache[$snippetName])) {
-            $phpCode = $modx->snippetCache[$snippetName];
-            $properties = $modx->snippetCache["{$snippetName}Props"];
-        } else { // not in cache so let's check the db
-            $esc_name = db()->escape($snippetName);
-            $result = db()->select('name,snippet,properties', '[+prefix+]site_snippets', "name='{$esc_name}'");
-            if (db()->count($result) == 1) {
-                $row = db()->getRow($result);
-                $phpCode = $modx->snippetCache[$snippetName] = $row['snippet'];
-                $properties = $modx->snippetCache["{$snippetName}Props"] = $row['properties'];
-            } else {
-                $phpCode = $modx->snippetCache[$snippetName] = "return false;";
-                $properties = '';
-            }
-        }
-        // load default params/properties
-        $parameters = $modx->parseProperties($properties);
-        $parameters = array_merge($parameters, $params);
-        // run snippet
-        return $modx->evalSnippet($phpCode, $parameters);
-    }
-
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
