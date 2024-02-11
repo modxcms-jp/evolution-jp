@@ -35,22 +35,22 @@ function mm_changeFieldHelp($field, $helptext = '', $roles = '', $templates = ''
         //Is this TV?
         if ($mm_fields[$field]['tv']) {
             $output .= sprintf(
-                'jQuery("%s[name=%s]").parents("td:first").prev("td").children("span.comment").html("%s");'
-                , $fieldtype
-                , $fieldname
-                , jsSafe($helptext)
+                'jQuery("%s[name=%s]").parents("td:first").prev("td").children("span.comment").html("%s");',
+                $fieldtype,
+                $fieldname,
+                jsSafe($helptext)
             );
             //Or document field
         } else {
             // Give the help button an ID, and modify the alt/title text
             $output .= sprintf(
-                'jQuery("%s[name=%s]").siblings("img.tooltip").prop("id", "%s-help").prop("title", "%s").prop("alt", "%s").data("powertip", "%s"); '
-                , $fieldtype
-                , $fieldname
-                , $fieldname
-                , jsSafe($helptext)
-                , jsSafe($helptext)
-                , jsSafe($helptext)
+                'jQuery("%s[name=%s]").siblings("img.tooltip").prop("id", "%s-help").prop("title", "%s").prop("alt", "%s").data("powertip", "%s"); ',
+                $fieldtype,
+                $fieldname,
+                $fieldname,
+                jsSafe($helptext),
+                jsSafe($helptext),
+                jsSafe($helptext)
             );
         }
         $output .= "//  -------------- mm_changeFieldHelp :: End ------------- \n";
