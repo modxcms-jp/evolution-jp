@@ -1,7 +1,4 @@
 <?php
-if (evo()->directParse == 1) {
-    return;
-}
 if (evo()->documentObject['contentType'] !== 'text/html') {
     return;
 }

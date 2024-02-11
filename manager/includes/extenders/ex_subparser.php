@@ -706,13 +706,6 @@ class SubParser
             exit;
         }
 
-        if ($modx->directParse == 1) {
-            if (evo()->server('HTTP_USER_AGENT')) {
-                ini_set('user_agent', evo()->server('HTTP_USER_AGENT'));
-            }
-            return file_get_contents($url);
-        }
-
         if (strpos($responseCode, '301') !== false) {
             header($header, true, 301);
             exit;
@@ -2224,7 +2217,7 @@ class SubParser
                 unset($input['ta']);
             }
         }
-        
+
         $input['pub_date']    = evo()->toTimeStamp($input['pub_date']);
         $input['unpub_date']  = evo()->toTimeStamp($input['unpub_date']);
         $input['publishedon'] = evo()->toTimeStamp($input['publishedon']);

@@ -65,7 +65,6 @@ class DocumentParser
     public $cacheRefreshTime;
     public $error_reporting;
     public $http_status_code;
-    public $directParse;
     public $decoded_request_uri;
     public $dbConfig;
     public $pluginCache;
@@ -261,8 +260,6 @@ class DocumentParser
 
         $this->http_status_code = '200';
 
-        $this->directParse = 0;
-
         // get the settings
         if (!isset($this->config) || !$this->config) {
             $this->config = $this->getSettings();
@@ -338,41 +335,6 @@ class DocumentParser
         $qs = $_GET;
         ksort($qs);
         return strstr($uri, '?', true) . '?' . http_build_query($qs);
-    }
-
-    function executeParserDirect($id = '')
-    {
-        ob_start();
-
-        $this->http_status_code = '200';
-        $this->directParse = 1;
-
-        // get the settings
-        if (!isset($this->config) || !$this->config) {
-            $this->config = $this->getSettings();
-        }
-
-        $this->setBaseTime();
-        $this->sanitizeVars();
-        $this->uaType = $this->setUaType();
-        $this->qs_hash = '';
-
-        if ($this->checkSiteStatus() === false) {
-            $this->sendUnavailablePage();
-        }
-
-        $this->decoded_request_uri = MODX_BASE_URL . "index.php?id=" . $id;
-        $this->uri_parent_dir = '';
-
-        $_REQUEST['id'] = $id;
-        $_GET['id'] = $id;
-
-        $this->documentIdentifier = $id;
-
-        // invoke OnWebPageInit event
-        $this->invokeEvent('OnWebPageInit');
-
-        return $this->prepareResponse();
     }
 
     private function getDocumentIdentifier($uri)
@@ -598,18 +560,12 @@ class DocumentParser
                     $this->documentObject['content'] = $this->makeUrl($this->documentObject['content']);
                 }
                 $this->documentObject['content'] = $this->parseDocumentSource($this->documentObject['content']);
-                if ($this->previewObject) {
-                    $this->directParse = 0;
-                }
                 $rs = $this->sendRedirect(
                     $this->documentObject['content'],
                     0,
                     '',
                     'HTTP/1.0 301 Moved Permanently'
                 );
-                if ($this->directParse == 1) {
-                    return $rs;
-                }
             }
             // check if we should not hit this document
             if ($this->documentObject['donthit'] == 1) {
@@ -630,12 +586,10 @@ class DocumentParser
             // Parse document source
             $this->documentContent = $this->parseDocumentSource($this->documentContent);
         }
-        if ($this->directParse == 0) {
-            register_shutdown_function([
-                &$this,
-                'postProcess'
-            ]); // tell PHP to call postProcess when it shuts down
-        }
+        register_shutdown_function([
+            &$this,
+            'postProcess'
+        ]); // tell PHP to call postProcess when it shuts down
         return $this->outputContent();
     }
 
@@ -3220,7 +3174,6 @@ class DocumentParser
             }
 
             $previewObject = $this->getPreviewObject($_POST);
-            $this->directParse = 1;
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
         } elseif ($this->input_get('revision')) {

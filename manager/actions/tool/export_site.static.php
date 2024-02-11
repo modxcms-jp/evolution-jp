@@ -53,30 +53,6 @@ if (!evo()->hasPermission('export_static')) {
                         }
                     </style>
                     <table class="settings" cellspacing="0" cellpadding="2">
-                        <?php
-                        $generate_mode = sessionv('export_generate_mode', 'crawl');
-                        ?>
-                        <tr>
-                            <td class="head"><?php echo lang('a83_mode_title'); ?></td>
-                            <td>
-                                <label>
-                                    <input
-                                        name="generate_mode"
-                                        type="radio"
-                                        value="crawl"
-                                        <?php echo $generate_mode === 'crawl' ? 'checked' : ''; ?>
-                                    ><?php echo lang('a83_mode_crawl'); ?>
-                                </label>
-                                <label>
-                                    <input
-                                        name="generate_mode"
-                                        type="radio"
-                                        value="direct"
-                                        <?php echo $generate_mode === 'direct' ? 'checked' : ''; ?>
-                                    ><?php echo lang('a83_mode_direct'); ?>
-                                </label>
-                            </td>
-                        </tr>
                         <tr>
                             <td class="head">出力するリソース</td>
                             <?php $checked = array('all' => '', 'allow_ids' => '', 'ignore_ids' => ''); ?>

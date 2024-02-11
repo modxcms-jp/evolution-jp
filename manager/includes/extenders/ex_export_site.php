@@ -2,7 +2,6 @@
 
 class EXPORT_SITE
 {
-    public $generate_mode;
     public $total;
     public $exportstart;
     public $repl_before;
@@ -26,7 +25,6 @@ class EXPORT_SITE
         $this->exportstart = $this->get_mtime();
         $this->count = 0;
         $this->setUrlMode();
-        $this->generate_mode = 'crawl';
         $this->targetDir = $modx->config['base_path'] . 'temp/export';
         $this->maxtime = 60;
         $modx->config['site_status'] = '1';
@@ -151,15 +149,8 @@ class EXPORT_SITE
             exit($msg);
         }
 
-        if ($this->generate_mode === 'direct') {
-            $back_lang = $_lang;
-            $src = $modx->executeParserDirect($docid);
-            $_lang = $back_lang;
-        } else {
-            $url = $modx->makeUrl($docid, '', '', 'full');
-            $src = $this->get_contents($url);
-        }
-
+        $url = $modx->makeUrl($docid, '', '', 'full');
+        $src = $this->get_contents($url);
 
         if ($src === false || is_file(dirname($filepath))) {
             return 'failed_no_open';

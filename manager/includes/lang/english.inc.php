@@ -1203,10 +1203,6 @@ $_lang["a17_image_limit_width_message"] = 'Reduce the width of the image to uplo
 $_lang["enable_bindings_title"] = 'Enable @Bindings commands';
 $_lang['enable_bindings_message'] = 'Enable <a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings commands</a>. Describe any command in the entry field (template variable) on the contribution screen and carry out this function. When manage a site in plural members because the practice of the PHP sentence is possible, attention is necessary for the use of this function.';
 
-$_lang["a83_mode_title"] = 'Generate mode';
-$_lang["a83_mode_direct"] = 'Direct parse';
-$_lang["a83_mode_crawl"] = 'Crawl (legacy mode)';
-
 $_lang["update"] = 'Save';
 
 $_lang["a17_manager_inline_style_title"] = 'Append style';
