@@ -660,7 +660,7 @@ class DBAPI
      * @desc:  returns the value from the first column in the set
      * @param: $rs - dataset or query string
      */
-    function getValue($rs, $from = '', $where = '')
+    function getValue($rs, $from = '', $where = '', $orderby = '', $limit = '')
     {
         if (is_string($rs)) {
             if ($from && $where) {
