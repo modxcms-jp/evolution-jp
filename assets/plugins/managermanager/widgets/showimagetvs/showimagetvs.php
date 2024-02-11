@@ -15,7 +15,7 @@
 
 function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl = '', $roles = '', $templates = '')
 {
-    global $modx, $mm_current_page;
+    global $mm_current_page;
 
     if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
@@ -48,7 +48,7 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
     $output .= "//  -------------- mm_widget_showimagetvs :: Begin ------------- \n";
 
     $tpl1 = '
-// Adding preview for tv[+id+]
+// Adding preview for tv[+id+]\
 jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 	var $this = jQuery(this),
 		// Get the new URL
