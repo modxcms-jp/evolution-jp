@@ -419,6 +419,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
 
             ?>
 
+<?php if (anyv('mode') === 'save') { ?>
             <form action="index.php" method="post" name="editFile">
                 <input type="hidden" name="a" value="31"/>
                 <input type="hidden" name="mode" value="save"/>
@@ -432,6 +433,11 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
                     </tr>
                 </table>
             </form>
+<?php } else { ?>
+    <div style="background-color:#fcfcfc;border: 1px solid #ccc; padding:10px 20px;">
+    <?= '<pre>' . $ent_buffer . '</pre>' ?>
+    </div>
+<?php } ?>
         </div>
     </div>
     <?php
