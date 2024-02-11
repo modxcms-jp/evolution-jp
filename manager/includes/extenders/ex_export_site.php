@@ -16,8 +16,6 @@ class EXPORT_SITE
 
     public function __construct()
     {
-        global $modx;
-
         if (!defined('MODX_BASE_PATH')) {
             return;
         }
@@ -334,7 +332,7 @@ class EXPORT_SITE
             curl_setopt($ch, CURLOPT_AUTOREFERER, true);
         }
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-        if ($_SERVER['HTTP_USER_AGENT']) {
+        if (serverv('HTTP_USER_AGENT')) {
             curl_setopt($ch, CURLOPT_USERAGENT, $_SERVER['HTTP_USER_AGENT']);
         }
         $result = curl_exec($ch);
