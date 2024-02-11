@@ -368,12 +368,18 @@ function doc($key, $default = '')
     if (strpos($key, '|') !== false) {
         $keys = explode('|', $key);
         foreach ($keys as $key) {
-            if (!empty($a[$key])) {
-                break;
+            if (array_get($a, $key)) {
+                return array_get($a, $key, $default);
+            }
+            if (array_get($a, $key . '.value')) {
+                return array_get($a, $key . '.value', $default);
             }
         }
     }
-    return array_get($a, $key, $default);
+    return is_array($a[$key])
+        ? array_get($a, $key . '.value', $default)
+        : array_get($a, $key, $default)
+    ;
 }
 
 function ob_get_include($path)
