@@ -5662,10 +5662,19 @@ class DocumentParser
         }
         if (strpos($key, '*') === 0 || strpos($key, '.*') !== false) {
             $value = $default;
-            array_set($this->config, $key, $value);
+            $this->setConfig(
+                $this->config,
+                str_replace(['.*', '*'], '', $key),
+                $value
+            );
             return $value;
         }
         return $this->array_get($this->config, $key, $default);
+    }
+
+    public function setConfig($key, $value)
+    {
+        array_set($this->config, $key, $value);
     }
 
     public function doc($key = null, $default = null)
