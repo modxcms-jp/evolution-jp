@@ -5105,6 +5105,11 @@ class DocumentParser
         );
     }
 
+    public function getRegisteredClientScripts()
+    {
+        return join("\n", $this->jscripts);
+    }
+
     /**
      * Format alias to be URL-safe. Strip invalid characters.
      *
