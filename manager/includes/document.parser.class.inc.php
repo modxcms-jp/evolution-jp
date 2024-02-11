@@ -2103,12 +2103,7 @@ class DocumentParser
         }
         list($key, $str) = explode('@', $key, 2);
 
-        if (strpos($str, '(')) {
-            list($context, $option) = explode('(', $str, 2);
-        } else {
-            list($context, $option) = [$str, false];
-        }
-
+        list($context, $option) = explode('(', $str, 2);
         if ($option) {
             $option = trim($option, ')(\'"`');
         }
