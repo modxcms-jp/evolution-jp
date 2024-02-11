@@ -49,7 +49,6 @@ function failedLogin()
 
 function loginPhpass($givenPassword, $dbasePassword)
 {
-    global $modx;
     return evo()->phpass->CheckPassword($givenPassword, $dbasePassword);
 }
 
