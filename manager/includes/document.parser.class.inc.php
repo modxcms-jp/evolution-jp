@@ -4254,11 +4254,11 @@ class DocumentParser
         return $strTime;
     }
 
-    function toTimeStamp($str)
+    function toTimeStamp($str, $default = '')
     {
         $str = trim($str);
         if (empty($str)) {
-            return '';
+            return $default;
         }
         if (preg_match('@^[0-9]+$@', $str)) {
             return $str;
