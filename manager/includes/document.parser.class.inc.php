@@ -1314,6 +1314,10 @@ class DocumentParser
             return true;
         }
 
+        // ベアラトークンを確認
+        if ($this->verifyBearerToken()) {
+            return true;
+        }
         // site offline but launched via the manager
         if ($this->isLoggedin()) {
             return true;
@@ -1321,6 +1325,65 @@ class DocumentParser
 
         // site is offline
         return false;
+    }
+
+    private function verifyBearerToken() {
+        if (!function_exists('getallheaders')) {
+            return false;
+        }
+
+        $headers = getallheaders();
+        if (!isset($headers['authorization'])) {
+            return false;
+        }
+
+        $auth = $headers['authorization'];
+        if (!preg_match('/Bearer\s+(.+)/', $auth, $matches)) {
+            return false;
+        }
+
+        $rs = db()->select(
+            'setting_value',
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token')
+        );
+        $hashedBearerToken = db()->getValue($rs);
+        if (!$hashedBearerToken) {
+            return false;
+        }
+
+        $rs = db()->select(
+            'setting_value',
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token_expire')
+        );
+        $bearerTokenExpire = db()->getValue($rs);
+        if (!$bearerTokenExpire || $bearerTokenExpire < request_time()) {
+            return false;
+        }
+
+        $this->loadExtension('phpass');
+        return $this->phpass->checkPassword($matches[1], $hashedBearerToken);
+    }
+
+    public function saveBearerToken($token, $expire = null)
+    {
+        $this->loadExtension('phpass');
+        $hashedToken = $this->phpass->hashPassword($token);
+        if (!$expire) {
+            $expire = request_time() + 60 * 60 * 24 * 30; // 30 days
+        }
+
+        db()->save(
+            ['setting_name' => 'bearer_token', 'setting_value' => $hashedToken],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token')
+        );
+        db()->save(
+            ['setting_name' => 'bearer_token_expire', 'setting_value' => $expire],
+            '[+prefix+]system_settings',
+            where('setting_name', '=', 'bearer_token_expire')
+        );
     }
 
     function checkCache($id)
