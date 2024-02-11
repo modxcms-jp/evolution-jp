@@ -226,30 +226,30 @@ foreach ($files as $filename => $filevalue) {
         @include($filevalue);
     } elseif ($filename === 'language') {
         evo()->logEvent(
-            1
-            , 3
-            , sprintf(
-            'Language file does not exist Please check: %s'
-            , $filevalue
-        ),
+            1,
+            3,
+            sprintf(
+                'Language file does not exist Please check: %s',
+                $filevalue
+            ),
             'Ditto ' . $ditto_version
         );
         return sprintf('Language file does not exist Please check: %s', $filevalue);
     } else {
         evo()->logEvent(
-            1
-            , 3
-            , sprintf(
-                '%s %s'
-                , $filevalue
-                , $_lang['file_does_not_exist']
-            )
-            , 'Ditto ' . $ditto_version
+            1,
+            3,
+            sprintf(
+                '%s %s',
+                $filevalue,
+                $_lang['file_does_not_exist']
+            ),
+            'Ditto ' . $ditto_version
         );
         return sprintf(
-            '%s %s'
-            , $filevalue
-            , $_lang['file_does_not_exist']
+            '%s %s',
+            $filevalue,
+            $_lang['file_does_not_exist']
         );
     }
 }
@@ -260,10 +260,10 @@ if (class_exists('ditto')) {
     $ditto = new ditto($format, $_lang, $dbg_templates);
 } else {
     evo()->logEvent(
-        1
-        , 3
-        , $_lang['invalid_class']
-        , 'Ditto ' . $ditto_version
+        1,
+        3,
+        $_lang['invalid_class'],
+        'Ditto ' . $ditto_version
     );
     return $_lang['invalid_class'];
 }
@@ -306,9 +306,9 @@ if (count($extenders) > 0) {
         }
 
         $extender_path = sprintf(
-            '%sextenders/%s.extender.inc.php'
-            , $ditto_base
-            , $extender
+            '%sextenders/%s.extender.inc.php',
+            $ditto_base,
+            $extender
         );
 
         if ($rs === false && is_file($extender_path)) {
@@ -1005,23 +1005,23 @@ $ditto->setDisplayFields($ditto->template->fields, $hiddenFields);
 $ditto->parseFields($placeholders, $seeThruUnpub, $dateSource, $randomize);
 // parse the fields into the field array
 $documentIDs = $ditto->determineIDs(
-    $IDs
-    , $idType
-    , $ditto->fields['backend']['tv']
-    , $orderBy
-    , $depth
-    , $showPublishedOnly
-    , $seeThruUnpub
-    , $hideFolders
-    , $hidePrivate
-    , $showInMenuOnly
-    , $where
-    , $keywords
-    , $dateSource
-    , $queryLimit
-    , $display
-    , $filter
-    , $randomize
+    $IDs,
+    $idType,
+    $ditto->fields['backend']['tv'],
+    $orderBy,
+    $depth,
+    $showPublishedOnly,
+    $seeThruUnpub,
+    $hideFolders,
+    $hidePrivate,
+    $showInMenuOnly,
+    $where,
+    $keywords,
+    $dateSource,
+    $queryLimit,
+    $display,
+    $filter,
+    $randomize
 );
 
 // retrieves a list of document IDs that meet the criteria and populates the $resources array with them
@@ -1046,10 +1046,10 @@ if ($count > 0) {
     }
     // allow show to use all option
 
-    if ($save != 1) {
-        $stop = min($total - $start, $display);
-    } else {
+    if ($save == 1) {
         $stop = min($count, $total);
+    } else {
+        $stop = min($total - $start, $display);
     }
     // set initial stop count
 
@@ -1226,18 +1226,18 @@ if ($count > 0) {
         */
 
         $ditto->paginate(
-            $start
-            , $stop
-            , $total
-            , $display
-            , $tplPaginateNext
-            , $tplPaginatePrevious
-            , $tplPaginateNextOff
-            , $tplPaginatePreviousOff
-            , $tplPaginatePage
-            , $tplPaginateCurrentPage
-            , $paginateAlwaysShowLinks
-            , $paginateSplitterCharacter
+            $start,
+            $stop,
+            $total,
+            $display,
+            $tplPaginateNext,
+            $tplPaginatePrevious,
+            $tplPaginateNextOff,
+            $tplPaginatePreviousOff,
+            $tplPaginatePage,
+            $tplPaginateCurrentPage,
+            $paginateAlwaysShowLinks,
+            $paginateSplitterCharacter
         );
         // generate the pagination placeholders
     }
@@ -1303,23 +1303,23 @@ if ($count > 0) {
 
         for ($x = $start; $x < $stop; $x++) {
             $template = $ditto->template->determine(
-                $templates
-                , $x
-                , 0
-                , $stop
-                , $resource[$x]['id']
+                $templates,
+                $x,
+                0,
+                $stop,
+                $resource[$x]['id']
             );
             // choose the template to use and set the code of that template to the template variable
             $renderedOutput = $ditto->render(
-                $resource[$x]
-                , $template
-                , $removeChunk
-                , $dateSource
-                , $dateFormat
-                , $placeholders
-                , $modifier_mode
-                , abs($start - $x)
-                , $stop
+                $resource[$x],
+                $template,
+                $removeChunk,
+                $dateSource,
+                $dateFormat,
+                $placeholders,
+                $modifier_mode,
+                abs($start - $x),
+                $stop
             );
             // render the output using the correct template, in the correct format and language
             evo()->setPlaceholder($dittoID . "item[" . abs($start - $x) . "]", $renderedOutput);
@@ -1379,10 +1379,10 @@ if ($debug == 1) {
     }
     if (isset($_GET["ditto_{$dittoID}debug"])) {
         switch ($_GET["ditto_{$dittoID}debug"]) {
-            case "open" :
+            case "open":
                 exit($_SESSION["ditto_debug_{$dittoID}"]);
                 break;
-            case "save" :
+            case "save":
                 $ditto->debug->save(
                     $_SESSION["ditto_debug_" . $dittoID],
                     sprintf(
