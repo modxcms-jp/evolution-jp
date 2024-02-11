@@ -287,13 +287,15 @@ if (count($extenders) > 0) {
             }
         } elseif (strpos($extender, '@FILE') === 0) {
             $extender_path = MODX_BASE_PATH . trim(
-                    trim(
-                        substr($extender, 6))
-                    , '/'
-                );
+                trim(
+                    substr($extender, 6)
+                ),
+                '/'
+            );
             if (strpos($extender_path, '../') === false
                 && strpos($extender_path, 'manager/') !== 0
-                && is_file($extender_path)) {
+                && is_file($extender_path)
+            ) {
                 include($extender_path);
                 $rs = true;
             }
@@ -1406,6 +1408,8 @@ if (!empty($outerTpl)) {
         $output = '';
     } elseif (substr($outerTpl, 0, 5) === '@CODE') {
         $outerTpl = trim(substr($outerTpl, 6));
+    } elseif (strpos($outerTpl, '@') === 0) {
+        $outerTpl = evo()->atBind($outerTpl);
     } elseif (evo()->getChunk($outerTpl) != '') {
         $outerTpl = evo()->getChunk($outerTpl);
     }
