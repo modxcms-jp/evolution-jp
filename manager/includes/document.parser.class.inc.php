@@ -3754,22 +3754,22 @@ class DocumentParser
             [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
-            ]
-            , sprintf(
-                "(sc.id='%s' %s) AND (%s %s)"
-                , $docid
-                , ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : ''
-                , $this->isFrontend() ?
-                "sc.privateweb='0'"
-                :
-                sprintf(
-                    "1='%s' OR sc.privatemgr='0'"
-                    , $this->session('mgrRole')
-                )
-                , ($docgrp) ? sprintf("OR dg.document_group IN (%s)", implode(',', $docgrp)) : ''
-            )
-            , ''
-            , 1
+            ],
+            sprintf(
+                "(sc.id='%s' %s) AND (%s %s)",
+                $docid,
+                ($activeOnly == 1) ? "AND sc.published=1 AND sc.deleted='0'" : '',
+                $this->isFrontend() ?
+                    "sc.privateweb='0'"
+                    :
+                    sprintf(
+                        "1='%s' OR sc.privatemgr='0'",
+                        $this->session('mgrRole')
+                    ),
+                ($docgrp) ? sprintf("OR dg.document_group IN (%s)", implode(',', $docgrp)) : ''
+            ),
+            '',
+            1
         );
         return db()->getRow($result);
     }
