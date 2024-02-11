@@ -504,6 +504,9 @@ function checkPub_date($db_v)
     if (validated('pub_date')) {
         return validated('pub_date');
     }
+    if (!validated('published')) {
+        return 0;
+    }
     return validated('publishedon');
 }
 
