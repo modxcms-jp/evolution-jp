@@ -2,30 +2,30 @@
 
 class EXPORT_SITE
 {
-    var $targetDir;
-    var $generate_mode;
-    var $total;
-    var $count;
-    var $allow_ids;
-    var $ignore_ids;
-    var $exportstart;
-    var $repl_before;
-    var $repl_after;
-    var $output = [];
-    var $maxtime;
-    var $lock_file_path;
+    public $generate_mode;
+    public $total;
+    public $exportstart;
+    public $repl_before;
+    public $repl_after;
+    public $maxtime;
+    private $targetDir;
+    private $count;
+    private $allow_ids;
+    private $ignore_ids;
+    private $output = [];
+    private $lock_file_path;
 
-    function __construct()
+    public function __construct()
     {
         global $modx;
 
         if (!defined('MODX_BASE_PATH')) {
             return;
         }
+
         $this->exportstart = $this->get_mtime();
         $this->count = 0;
         $this->setUrlMode();
-        $this->dirCheckCount = 0;
         $this->generate_mode = 'crawl';
         $this->targetDir = $modx->config['base_path'] . 'temp/export';
         $this->maxtime = 60;
@@ -36,19 +36,19 @@ class EXPORT_SITE
         $this->lock_file_path = MODX_BASE_PATH . 'temp/cache/export.lock';
     }
 
-    function getPastTime()
+    private function getPastTime()
     {
         return time() - request_time();
     }
 
-    function setExportDir($dir)
+    public function setExportDir($dir)
     {
         $dir = str_replace('\\', '/', $dir);
         $dir = rtrim($dir, '/');
         $this->targetDir = $dir;
     }
 
-    function get_mtime()
+    public function get_mtime()
     {
         $mtime = microtime();
         $mtime = explode(' ', $mtime);
@@ -56,7 +56,7 @@ class EXPORT_SITE
         return $mtime;
     }
 
-    function setUrlMode()
+    private function setUrlMode()
     {
         global $modx;
 
@@ -67,10 +67,8 @@ class EXPORT_SITE
         }
     }
 
-    function getTotal($allow_ids = '', $ignore_ids = '', $noncache = '0')
+    public function getTotal($allow_ids = '', $ignore_ids = '', $noncache = '0')
     {
-        global $modx;
-
         if ($allow_ids !== '') {
             $allow_ids = explode(',', $allow_ids);
             foreach ($allow_ids as $i => $v) {
@@ -102,7 +100,7 @@ class EXPORT_SITE
         return $row['total'];
     }
 
-    function removeDirectoryAll($directory = '')
+    private function removeDirectoryAll($directory = '')
     {
         if (empty($directory)) {
             $directory = $this->targetDir;
@@ -118,20 +116,23 @@ class EXPORT_SITE
 
         if (!is_dir($directory)) {
             return false;
-        } elseif (!is_readable($directory)) {
+        }
+
+        if (!is_readable($directory)) {
             return false;
-        } else {
-            $files = glob($directory . '/*');
-            if (!empty($files)) {
-                foreach ($files as $path) {
-                    if (is_dir($path)) {
-                        $this->removeDirectoryAll($path);
-                    } else {
-                        $rs = unlink($path);
-                    }
+        }
+
+        $files = glob($directory . '/*');
+        if (!empty($files)) {
+            foreach ($files as $path) {
+                if (is_dir($path)) {
+                    $this->removeDirectoryAll($path);
+                } else {
+                    $rs = unlink($path);
                 }
             }
         }
+
         if ($directory !== $this->targetDir) {
             $rs = rmdir($directory);
         }
@@ -139,7 +140,7 @@ class EXPORT_SITE
         return $rs;
     }
 
-    function makeFile($docid, $filepath)
+    private function makeFile($docid, $filepath)
     {
         global $modx, $_lang;
 
@@ -150,11 +151,9 @@ class EXPORT_SITE
             exit($msg);
         }
 
-        $file_permission = octdec($modx->config['new_file_permissions']);
         if ($this->generate_mode === 'direct') {
             $back_lang = $_lang;
             $src = $modx->executeParserDirect($docid);
-
             $_lang = $back_lang;
         } else {
             $url = $modx->makeUrl($docid, '', '', 'full');
@@ -162,31 +161,26 @@ class EXPORT_SITE
         }
 
 
-        if ($src !== false) {
-            if ($this->repl_before !== $this->repl_after) {
-                $src = str_replace($this->repl_before, $this->repl_after, $src);
-            }
-
-            if (is_file(dirname($filepath))) {
-                return 'failed_no_open';
-            }
-
-            $result = file_put_contents($filepath, $src);
-            if ($result !== false) {
-                @chmod($filepath, 0666);
-            }
-
-            if ($result !== false) {
-                return 'success';
-            } else {
-                return 'failed_no_write';
-            }
-        } else {
+        if ($src === false || is_file(dirname($filepath))) {
             return 'failed_no_open';
         }
+
+        if ($this->repl_before !== $this->repl_after) {
+            $src = str_replace($this->repl_before, $this->repl_after, $src);
+        }
+
+        $result = file_put_contents($filepath, $src);
+
+        if ($result === false) {
+            return 'failed_no_write';
+        }
+
+        $file_permission = octdec($modx->config('new_file_permissions'));
+        @chmod($filepath, 0666);
+        return 'success';
     }
 
-    function getFileName($docid, $alias = '', $prefix, $suffix)
+    private function getFileName($docid, $alias = '', $prefix, $suffix)
     {
         global $modx;
 
@@ -201,19 +195,22 @@ class EXPORT_SITE
         return $filename;
     }
 
-    function run($parent = 0)
+    public function run()
     {
         global $_lang;
         global $modx;
-        $ids = $this->allow_ids ? $this->allow_ids : $this->ignore_ids;
 
-        $prefix = $modx->config['friendly_url_prefix'];
-        $suffix = $modx->config['friendly_url_suffix'];
-
-        $fields = "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published";
-        $noncache = $modx->config['export_includenoncache'] == 1 ? '' : 'AND cacheable=1';
-        $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$noncache} {$ids}";
-        $rs = db()->select($fields, '[+prefix+]site_content', $where);
+        $rs = db()->select(
+            "id, alias, pagetitle, isfolder, (content = '' AND template = 0) AS wasNull, published",
+            '[+prefix+]site_content',
+            sprintf(
+                "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) %s %s",
+                ($modx->config('export_includenoncache') == 1
+                    ? ''
+                    : 'AND cacheable=1'),
+                $this->allow_ids ?: $this->ignore_ids
+            )
+        );
 
         $ph = [];
         $ph['total'] = $this->total;
@@ -234,7 +231,10 @@ class EXPORT_SITE
         $mask = umask();
         while ($row = db()->getRow($rs)) {
             $_ = $modx->getAliasListing($row['id'], 'path');
-            $target_base_path = $_ == '' ? sprintf('%s/', $this->targetDir) : sprintf('%s/%s/', $this->targetDir, $_);
+            $target_base_path = $_ == ''
+                ? sprintf('%s/', $this->targetDir)
+                : sprintf('%s/%s/', $this->targetDir, $_)
+            ;
             unset($_);
             $_ = rtrim($target_base_path, '/');
             umask(000);
@@ -248,13 +248,18 @@ class EXPORT_SITE
             $row['count'] = $this->count;
 
             if (!$row['wasNull']) { // needs writing a document
-                $docname = $this->getFileName($row['id'], $row['alias'], $prefix, $suffix);
+                $docname = $this->getFileName(
+                    $row['id'],
+                    $row['alias'],
+                    $modx->config('friendly_url_prefix'),
+                    $modx->config('friendly_url_suffix')
+                );
                 $filename = $target_base_path . $docname;
                 if (is_dir($filename)) {
                     $filename = rtrim($filename, '/') . '/index.html';
                 }
                 if (!is_file($filename) || substr($filename, -10) === 'index.html') {
-                    if ($row['published'] === '1') {
+                    if ($row['published'] == 1) {
                         $status = $this->makeFile($row['id'], $filename);
                         switch ($status) {
                             case 'failed_no_write' :
@@ -277,34 +282,45 @@ class EXPORT_SITE
                 $row['status'] = $msg_success_skip_dir;
                 $this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
             }
-            if ($row['isfolder'] === '1' && ($modx->config['suffix_mode'] !== '1' || strpos($row['alias'],
-                        '.') === false)) { // needs making a folder
-                $end_dir = ($row['alias'] !== '') ? $row['alias'] : $row['id'];
-                $folder_path = $target_base_path . $end_dir;
-                if (strpos($folder_path, MODX_BASE_PATH) !== 0) {
-                    return false;
-                }
-                if (!is_dir($folder_path)) {
-                    if (is_file($folder_path)) {
-                        @unlink($folder_path);
-                    }
-                    umask(000);
-                    mkdir($folder_path, 0777);
-                    umask($mask);
-                }
 
-                if ($modx->config['make_folders'] === '1' && $row['published'] === '1') {
-                    if (is_file($filename)) {
-                        rename($filename, $folder_path . '/index.html');
-                    }
+            if ($row['isfolder'] != 1) {
+                continue;
+            }
+
+            if ($modx->config('suffix_mode') == 1 && strpos($row['alias'], '.') !== false) {
+                continue;
+            }
+
+            $end_dir = ($row['alias'] !== '') ? $row['alias'] : $row['id'];
+            $folder_path = $target_base_path . $end_dir;
+            if (strpos($folder_path, MODX_BASE_PATH) !== 0) {
+                return false;
+            }
+
+            if (!is_dir($folder_path)) {
+                if (is_file($folder_path)) {
+                    @unlink($folder_path);
                 }
+                umask(000);
+                mkdir($folder_path, 0777);
+                umask($mask);
+            }
+
+            if ($modx->config['make_folders'] != 1 || $row['published'] != 1) {
+                continue;
+            }
+
+            if (is_file($filename)) {
+                rename($filename, $folder_path . '/index.html');
             }
         }
-        unlink($this->lock_file_path);
+        if (is_file($this->lock_file_path)) {
+            unlink($this->lock_file_path);
+        }
         return join("\n", $this->output);
     }
 
-    function get_contents($url, $timeout = 10)
+    private function get_contents($url, $timeout = 10)
     {
         if (!extension_loaded('curl')) {
             return @file_get_contents($url);
@@ -339,20 +355,16 @@ class EXPORT_SITE
         return $result;
     }
 
-    function makeMsg($cond, $status = 'success')
+    private function makeMsg($cond, $status = 'success')
     {
         global $modx, $_lang;
 
         $tpl = ' <span class="[+status+]">[+msg1+]</span> [+msg2+]</span>';
         $ph = [];
-
         $ph['status'] = $status;
-
-        if ($status === 'success') {
-            $ph['msg1'] = $_lang['export_site_success'];
-        } else {
-            $ph['msg1'] = $_lang['export_site_failed'];
-        }
+        $ph['msg1'] = ($status === 'success')
+            ? $_lang['export_site_success']
+            : $_lang['export_site_failed'];
 
         if ($cond === 'failed_no_write') {
             $ph['msg2'] = $_lang["export_site_failed_no_write"] . ' - ' . $this->targetDir . '/';
