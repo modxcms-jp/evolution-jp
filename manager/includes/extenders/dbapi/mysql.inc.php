@@ -763,7 +763,7 @@ class DBAPI
      *  or
      *        $docs = $modx->db->getObjects("select * from modx_site_content left join ...");
      *
-     * @param type $sql_or_table
+     * @param string $sql_or_table
      * @param type $where
      * @param type $orderby
      * @param type $limit
