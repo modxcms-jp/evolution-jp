@@ -59,13 +59,10 @@ class TopicPath
 
     public function getTopicPath()
     {
-        global $modx;
-        $id = $modx->documentIdentifier;
-
         $this->disabledOn = $this->getDisableDocs();
 
-        if (!$this->showTopicsAtHome && $id === $modx->config['site_start']) return;
-        elseif (in_array($id, $this->disabledOn)) return;
+        if (!$this->showTopicsAtHome && docid() === $this->homeId) return;
+        elseif (in_array(docid(), $this->disabledOn)) return;
         $default = include(__DIR__ . '/config/default.php');
         switch (strtolower($this->theme)) {
             case 'list':
@@ -86,7 +83,7 @@ class TopicPath
             if (substr($v, 0, 5) === '@CODE') $tpl[$i] = substr($v, 6);
         }
 
-        $docs = $this->getDocs($id);
+        $docs = $this->getDocs(docid());
         $topics = $this->setTopics($docs, $tpl);
 
         if ($this->limit < count($topics)) {
@@ -97,7 +94,7 @@ class TopicPath
             if (strpos($this->order, 'r') === 0) {
                 $topics = array_reverse($topics);
             }
-            return $modx->parseText(
+            return evo()->parseText(
                 $tpl['Outer'],
                 ['topics' => implode($tpl['Separator'], $topics)]
             );
@@ -166,50 +163,23 @@ class TopicPath
         $topics = [];
         $docs = array_reverse($docs);
         $i = 0;
-        $c = count($docs);
+        $total = count($docs);
         foreach ($docs as $doc) {
             $ph = $doc;
-            if (in_array($doc['id'], $this->stopIds)) break;
-            $ph['url'] = ($doc['id'] == config('site_start'))
-                ? MODX_SITE_URL
-                : $modx->makeUrl($doc['id'], '', '', 'full')
-            ;
+            if (in_array($doc['id'], $this->stopIds)) {
+                break;
+            }
+            $ph['url'] = $this->url($doc);
             $ph['href'] = &$ph['url'];
-            foreach ($this->titleField as $f) {
-                if ($doc[$f] !== '') {
-                    $ph['title'] = $doc[$f];
-                    break;
-                }
-            }
-            if (!isset($ph['title'])) $ph['title'] = $doc['pagetitle'];
 
-            foreach ($this->descField as $f) {
-                if ($doc[$f] !== '') {
-                    $ph['desc'] = $doc[$f];
-                    break;
-                }
-            }
-            if (!isset($ph['desc'])) $ph['desc'] = $doc['pagetitle'];
+            $ph['title'] = hsc($this->title($doc));
+            $ph['desc'] = hsc($this->desc($doc));
 
-            if (isset($this->homeTopicTitle) && $doc['id'] == $this->homeId) {
-                $ph['title'] = $this->homeTopicTitle;
-            }
-            if (isset($this->homeTopicDesc) && $doc['id'] == $this->homeId) {
-                $ph['desc'] = $this->homeTopicDesc;
-            }
-            $isRf = false;
-            if (isset($tpl['ReferenceTopic']) && $doc['type'] === "reference") {
-                $isRf = true;
-            }
-
-            $ph['title'] = htmlspecialchars($ph['title'], ENT_QUOTES, $modx->config['modx_charset']);
-            $ph['desc'] = htmlspecialchars($ph['desc'], ENT_QUOTES, $modx->config['modx_charset']);
-
-            if ($i === $c - 1 && $doc['id'] == $modx->documentIdentifier) {
+            if ($i === $total - 1 && $doc['id'] == $modx->documentIdentifier) {
                 $topics[$i] = $modx->parseText($tpl['CurrentTopic'], $ph);
             } elseif ($i === 0) {
                 $topics[$i] = $modx->parseText($tpl['HomeTopic'], $ph);
-            } elseif ($isRf) {
+            } elseif ($this->isReferenceTopic($doc, $tpl)) {
                 $topics[$i] = $modx->parseText($tpl['ReferenceTopic'], $ph);
             } else {
                 $topics[$i] = $modx->parseText($tpl['OtherTopic'], $ph);
@@ -218,6 +188,48 @@ class TopicPath
             $i++;
         }
         return $topics;
+    }
+
+    private function url($doc)
+    {
+        return ($doc['id'] == $this->homeId)
+            ? MODX_SITE_URL
+            : evo()->makeUrl($doc['id'], '', '', 'full')
+        ;
+    }
+    private function title($doc)
+    {
+        if ($this->homeTopicTitle !== null && $doc['id'] == $this->homeId) {
+            return $this->homeTopicTitle;
+        }
+
+        foreach ($this->titleField as $f) {
+            if ($doc[$f] !== '') {
+                return $doc[$f];
+            }
+        }
+
+        return $doc['pagetitle'];
+    }
+
+    private function desc($doc)
+    {
+        if ($this->homeTopicDesc !== null && $doc['id'] == $this->homeId) {
+            return $this->homeTopicDesc;
+        }
+
+        foreach ($this->descField as $f) {
+            if ($doc[$f] !== '') {
+                return $doc[$f];
+            }
+        }
+
+        return $doc['pagetitle'];
+    }
+
+    private function isReferenceTopic($doc, $tpl)
+    {
+        return isset($tpl['ReferenceTopic']) && $doc['type'] === "reference";
     }
 
     private function getDisableDocs()
