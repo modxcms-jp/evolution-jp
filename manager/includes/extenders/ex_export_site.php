@@ -25,11 +25,10 @@ class EXPORT_SITE
         $this->exportstart = $this->get_mtime();
         $this->count = 0;
         $this->setUrlMode();
-        $this->targetDir = $modx->config['base_path'] . 'temp/export';
+        $this->targetDir = MODX_BASE_PATH . 'temp/export';
         $this->maxtime = 60;
-        $modx->config['site_status'] = '1';
-        if (!isset($this->total)) {
-            $this->getTotal();
+        if (!$this->total) {
+            $this->total = $this->getTotal();
         }
         $this->lock_file_path = MODX_BASE_PATH . 'temp/cache/export.lock';
     }
@@ -58,7 +57,7 @@ class EXPORT_SITE
     {
         global $modx;
 
-        if ($modx->config['friendly_urls'] == 0) {
+        if ($modx->config('friendly_urls') == 0) {
             $modx->config['friendly_urls'] = 1;
             $modx->config['use_alias_path'] = 1;
             $modx->clearCache();
@@ -86,13 +85,18 @@ class EXPORT_SITE
             $ignore_ids = "AND NOT id IN ({$ignore_ids})";
         }
 
-        $ids = $allow_ids ? $allow_ids : $ignore_ids;
         $this->allow_ids = $allow_ids;
         $this->ignore_ids = $ignore_ids;
 
-        $where_cacheable = $noncache == 1 ? '' : 'AND cacheable=1';
-        $where = "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) {$where_cacheable} {$ids}";
-        $rs = db()->select('count(id) as total', '[+prefix+]site_content', $where);
+        $rs = db()->select(
+            'count(id) as total',
+            '[+prefix+]site_content',
+            sprintf(
+                "deleted=0 AND ((published=1 AND type='document') OR (isfolder=1)) %s %s",
+                $noncache == 1 ? '' : 'AND cacheable=1',
+                $allow_ids ?: $ignore_ids
+            )
+        );
         $row = db()->getRow($rs);
         $this->total = $row['total'];
         return $row['total'];
