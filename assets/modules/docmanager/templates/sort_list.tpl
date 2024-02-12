@@ -4,6 +4,7 @@
 <head>
     <title>[+lang.DM_module_title+]</title>
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
+    <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
     <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
     <script type="text/javascript">
@@ -47,11 +48,27 @@
         }
 
         ul.sortableList li.noChildren {
-            background-image: url(media/style[+theme+]/images/tree/page.gif);
+            background-image: url(media/style[+theme+]/images/tree/page.png);
         }
 
         ul.sortableList li.hasChildren {
-            background-image: url(media/style[+theme+]/images/tree/folder.gif);
+            background-image: url(media/style[+theme+]/images/tree/folder.png);
+        }
+
+        ul.sortableList li.homeNode {
+            background-image: url(media/style[+theme+]/images/tree/application_home.png);
+        }
+
+        ul.sortableList li.unavailableNode {
+            background-image: url(media/style[+theme+]/images/tree/application_hourglass.png);
+        }
+
+        ul.sortableList li.unauthorizedNode {
+            background-image: url(media/style[+theme+]/images/tree/application_hourglass.png);
+        }
+
+        ul.sortableList li.errorNode {
+            background-image: url(media/style[+theme+]/images/tree/application_404.png);
         }
 
         ul.sortableList li.inMenuNode {font-weight:bold;} ul.sortableList li.unpublishedNode

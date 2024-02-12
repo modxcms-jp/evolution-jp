@@ -41,8 +41,15 @@ class DocManagerBackend
         $this->dm->ph['sort.disable_tree_select'] = 'false';
         $this->dm->ph['sort.options'] = '';
         $this->dm->ph['sort.save'] = '';
-        $resource = array();
 
+        if ($id == '') {
+            $this->dm->ph['sort.disable_tree_select'] = 'true';
+            $this->dm->ph['sort.save'] = 'none';
+            $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_noid'];
+            return $this->dm->parseTemplate('sort_list.tpl', $this->dm->ph);
+        }
+
+        $resource = [];
         if (is_numeric($id)) {
             $rs = db()->select(
                 'id,pagetitle,parent,menuindex,published,hidemenu,deleted,isfolder',
@@ -57,37 +64,45 @@ class DocManagerBackend
             while ($row = db()->getRow($rs)) {
                 $resource[] = $row;
             }
-        } elseif ($id == '') {
-            $noId = true;
-            $this->dm->ph['sort.disable_tree_select'] = 'true';
-            $this->dm->ph['sort.save'] = 'none';
-            $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_noid'];
         }
 
-        if (!$noId) {
-            if (!$resource) {
-                $this->dm->ph['sort.disable_tree_select'] = 'true';
-                $this->dm->ph['sort.save'] = 'none';
-                $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_nochildren'];
-            } else {
-                foreach ($resource as $item) {
-                    $classes = [
-                        $item['hidemenu'] ? 'notInMenuNode' : 'inMenuNode',
-                        $item['published'] ? 'publishedNode ' : 'unpublishedNode ',
-                        $item['isfolder'] ? 'hasChildren' : 'noChildren',
-                    ];
-                    if ($item['deleted']) {
-                        $classes[] = 'deletedNode';
-                    }
-                    $this->dm->ph['sort.options'] .= sprintf(
-                        '<li id="item_%s" class="sort %s">%s</li>',
-                        $item['id'],
-                        implode(' ', $classes),
-                        $item['pagetitle']
-                    );
-                }
-            }
+        if (!$resource) {
+            $this->dm->ph['sort.disable_tree_select'] = 'true';
+            $this->dm->ph['sort.save'] = 'none';
+            $this->dm->ph['sort.message'] = $this->dm->lang['DM_sort_nochildren'];
+
+            return $this->dm->parseTemplate('sort_list.tpl', $this->dm->ph);
         }
+
+        foreach ($resource as $item) {
+            $classes = [
+                $item['hidemenu'] ? 'notInMenuNode' : 'inMenuNode',
+                $item['published'] ? 'publishedNode ' : 'unpublishedNode ',
+                $item['isfolder'] ? 'hasChildren' : 'noChildren',
+            ];
+            if ($item['deleted']) {
+                $classes[] = 'deletedNode';
+            }
+            if ($item['id'] == evo()->config('site_start')) {
+                $classes[] = 'homeNode';
+            }
+            if ($item['id'] == evo()->config('error_page')) {
+                $classes[] = 'errorNode';
+            }
+            if ($item['id'] == evo()->config('site_unavailable_page')) {
+                $classes[] = 'unavailableNode';
+            }
+            if ($item['id'] == evo()->config('unauthorized_page')) {
+                $classes[] = 'unauthorizedNode';
+            }
+            $this->dm->ph['sort.options'] .= sprintf(
+                '<li id="item_%s" class="sort %s">%s</li>',
+                $item['id'],
+                implode(' ', $classes),
+                $item['pagetitle']
+            );
+        }
+
         return $this->dm->parseTemplate('sort_list.tpl', $this->dm->ph);
     }
 
