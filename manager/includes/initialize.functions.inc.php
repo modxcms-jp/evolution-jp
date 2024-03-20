@@ -61,53 +61,35 @@ class init
     {
         $options += [
             'lifetime' => 3600 * 24 * 30,
-            'path' => MODX_BASE_URL,
-            'domain' => '',
-            'secure' => init::is_ssl() ? true : false,
+            'path'     => MODX_BASE_URL,
+            'domain'   => '',
+            'secure'   => init::is_ssl() ? true : false,
             'httponly' => true,
             'samesite' => 'Lax'
         ];
-        if (70300 <= PHP_VERSION_ID) {
-            session_set_cookie_params($options);
-        } else {
-            session_set_cookie_params(
-                $options['lifetime']
-                , $options['path'] . '; SameSite=Lax'
-                , ''
-                , $options['secure']
-                , $options['httponly']
-            );
-        }
-
-
+        session_set_cookie_params(
+            $options['lifetime'],
+            $options['path'],
+            $options['domain'],
+            $options['secure'],
+            $options['httponly']
+        );
     }
 
     public static function setcookie($expires)
     {
         global $site_sessionname;
-        if (70300 <= PHP_VERSION_ID) {
-            setcookie(
-                $site_sessionname
-                , session_id()
-                , [
-                    'expires' => $expires,
-                    'path' => MODX_BASE_URL,
-                    'secure' => init::is_ssl() ? true : false,
-                    'domain' => init::get_host_name(),
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]
-            );
-            return;
-        }
         setcookie(
-            $site_sessionname
-            , session_id()
-            , $expires
-            , MODX_BASE_URL . '; SameSite=Lax'
-            , ''
-            , init::is_ssl() ? true : false
-            , true
+            $site_sessionname,
+            session_id(),
+            [
+                'expires'  => $expires,
+                'path'     => MODX_BASE_URL,
+                'secure'   => init::is_ssl() ? true : false,
+                'domain'   => init::get_host_name(),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]
         );
     }
 
