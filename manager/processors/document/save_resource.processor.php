@@ -765,13 +765,13 @@ function setDocPermissionsEdit($document_groups, $id)
         return;
     }
     $rs = db()->select(
-        'groups.id, groups.document_group'
+        '`groups`.id, `groups`.document_group'
         , array(
             '[+prefix+]document_groups AS `groups`',
             'LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id=`groups`.document_group'
         )
         , sprintf(
-            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND groups.document='%s'"
+            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'"
             , (int)evo()->hasPermission('access_permissions')
             , (int)evo()->hasPermission('web_access_permissions')
             , $id
