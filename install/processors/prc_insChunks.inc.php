@@ -13,12 +13,12 @@ foreach ($tplChunks as $i => $tplInfo) {
     }
     if (!is_file($tplInfo['tpl_file_path'])) {
         echo ng(
-            $tplInfo['name']
-            , sprintf(
-                "%s '%s' %s"
-                , lang('unable_install_chunk')
-                , $tplInfo['tpl_file_path']
-                , lang('not_found')
+            $tplInfo['name'],
+            sprintf(
+                "%s '%s' %s",
+                lang('unable_install_chunk'),
+                $tplInfo['tpl_file_path'],
+                lang('not_found')
             )
         );
         continue;
@@ -27,20 +27,20 @@ foreach ($tplChunks as $i => $tplInfo) {
         'name' => $tplInfo['name'],
         'description' => $tplInfo['description'],
         'snippet' => preg_replace(
-            "@^.*?/\*\*.*?\*/\s+@s"
-            , ''
-            , file_get_contents($tplInfo['tpl_file_path'])
-            , 1
+            "@^.*?/\*\*.*?\*/\s+@s",
+            '',
+            file_get_contents($tplInfo['tpl_file_path']),
+            1
         ),
         'category' => getCreateDbCategory($tplInfo['category'])
     );
 
     $rs = db()->select(
-        '*'
-        , '[+prefix+]site_htmlsnippets'
-        , sprintf(
-            "name='%s'"
-            , db()->escape($tplInfo['name'])
+        '*',
+        '[+prefix+]site_htmlsnippets',
+        sprintf(
+            "name='%s'",
+            db()->escape($tplInfo['name'])
         )
     );
     if (!db()->count($rs)) {
@@ -55,9 +55,9 @@ foreach ($tplChunks as $i => $tplInfo) {
     }
     if ($tplInfo['overwrite'] !== 'false') {
         $updated = db()->update(
-            db()->escape($field)
-            , '[+prefix+]site_htmlsnippets'
-            , sprintf("name='%s'", $tplInfo['name'])
+            db()->escape($field),
+            '[+prefix+]site_htmlsnippets',
+            sprintf("name='%s'", $tplInfo['name'])
         );
         echo ok($tplInfo['name'], lang('upgraded'));
         continue;

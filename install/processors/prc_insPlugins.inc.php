@@ -31,7 +31,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
 
     // parse comma-separated legacy names and prepare them for sql IN clause
     if (isset($tplInfo['legacy_names'])) {
-        $_ = array();
+        $_ = [];
         $array_legacy_names = explode(',', $tplInfo['legacy_names']);
         while ($v = array_shift($array_legacy_names)) {
             $_[] = trim($v);
@@ -43,7 +43,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
         }
     }
 
-    $f = array();
+    $f = [];
     $f['name'] = $name;
     $f['description'] = $tplInfo['description'];
     $plugincode = getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tpl_file_path), 2));

@@ -13,10 +13,10 @@ foreach ($tplSnippets as $k => $tplInfo) {
 
     if (!is_file($tplInfo['tpl_file_path'])) {
         echo ng($tplInfo['name'], sprintf(
-            "%s '%s' %s"
-            , lang('unable_install_snippet')
-            , $tplInfo['tpl_file_path']
-            , lang('not_found')
+            "%s '%s' %s",
+            lang('unable_install_snippet'),
+            $tplInfo['tpl_file_path'],
+            lang('not_found')
         ));
         continue;
     }
