@@ -153,10 +153,10 @@ class init
     public static function get_site_url($base_url)
     {
         return sprintf(
-            '%s%s%s/'
-            , static::is_ssl() ? 'https://' : 'http://'
-            , static::get_host_name()
-            , rtrim($base_url, '/')
+            '%s%s%s/',
+            static::is_ssl() ? 'https://' : 'http://',
+            static::get_host_name(),
+            rtrim($base_url, '/')
         );
     }
 
@@ -182,13 +182,14 @@ class init
             return;
         }
         $_SERVER['DOCUMENT_ROOT'] = str_replace(
-                $_SERVER['PATH_INFO']
-                , ''
-                , str_replace(
-                    '\\'
-                    , '/'
-                    , serverv('PATH_TRANSLATED'))
-            ) . '/';
+            $_SERVER['PATH_INFO'],
+            '',
+            str_replace(
+                '\\',
+                '/',
+                serverv('PATH_TRANSLATED')
+            )
+        ) . '/';
     }
 
     public static function fix_script_name()
@@ -222,13 +223,13 @@ class init
 
     public static function fix_server_addr()
     {
-        if (!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR'])) {
-            $_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
+        if (!serverv('SERVER_ADDR') && serverv('LOCAL_ADDR')) {
+            $_SERVER['SERVER_ADDR'] = serverv('LOCAL_ADDR');
         }
-        if (isset($_SERVER['HTTP_X_REMOTE_ADDR'])) {
-            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REMOTE_ADDR'];
+        if (serverv('HTTP_X_REMOTE_ADDR')) {
+            $_SERVER['REMOTE_ADDR'] = serverv('HTTP_X_REMOTE_ADDR');
         }
-        if ($_SERVER['REMOTE_ADDR'] === '::1') {
+        if (serverv('REMOTE_ADDR') === '::1') {
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         }
     }
