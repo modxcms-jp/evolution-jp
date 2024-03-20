@@ -21,10 +21,10 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $tpl_file_path = $tplInfo['tpl_file_path'];
     if (!is_file($tpl_file_path)) {
         echo ng($name, sprintf(
-            "%s '%s' %s"
-            , lang('unable_install_plugin')
-            , $tpl_file_path
-            , lang('not_found')
+            "%s '%s' %s",
+            lang('unable_install_plugin'),
+            $tpl_file_path,
+            lang('not_found')
         ));
         continue;
     }
@@ -93,9 +93,9 @@ foreach ($tplPlugins as $i => $tplInfo) {
 
         // add new events
         $selected = sprintf(
-            "SELECT '%s' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('%s')"
-            , $pluginId
-            , implode("','", $events)
+            "SELECT '%s' as 'pluginid',se.id as 'evtid' FROM [+prefix+]system_eventnames se WHERE name IN ('%s')",
+            $pluginId,
+            implode("','", $events)
         );
         $query = 'INSERT INTO [+prefix+]site_plugin_events (pluginid, evtid) ' . $selected;
         $query = str_replace('[+prefix+]', db()->table_prefix, $query);
