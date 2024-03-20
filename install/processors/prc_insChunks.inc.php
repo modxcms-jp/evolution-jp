@@ -57,7 +57,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         $updated = db()->update(
             db()->escape($field),
             '[+prefix+]site_htmlsnippets',
-            sprintf("name='%s'", $tplInfo['name'])
+            sprintf("name='%s'", db()->escape($tplInfo['name']))
         );
         echo ok($tplInfo['name'], lang('upgraded'));
         continue;
@@ -67,11 +67,11 @@ foreach ($tplChunks as $i => $tplInfo) {
     while ($i < 100) {
         $field['name'] = $i ? sprintf('%s(%s)', $swap_name, $i) : $swap_name;
         $rs = db()->select(
-            '*'
-            , '[+prefix+]site_htmlsnippets'
-            , sprintf(
-                "name='%s'"
-                , db()->escape($field['name'])
+            '*',
+            '[+prefix+]site_htmlsnippets',
+            sprintf(
+                "name='%s'",
+                db()->escape($field['name'])
             )
         );
         if (!db()->count($rs)) {

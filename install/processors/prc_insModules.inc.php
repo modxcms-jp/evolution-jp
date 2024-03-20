@@ -35,14 +35,13 @@ foreach ($tplModules as $i => $tplInfo) {
     $f['modulecode'] = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $modulecode, 1);
     $f['properties'] = $tplInfo['properties'];
     $f['enable_sharedparams'] = $tplInfo['shareparams'];
-    $f = db()->escape($f);
 
     $dbv_module = db()->getObject('site_modules', "name='" . db()->escape($name) . "'");
     if (!$dbv_module) {
-        $f['name'] = db()->escape($name);
-        $f['guid'] = db()->escape($tplInfo['guid']);
+        $f['name'] = $name;
+        $f['guid'] = $tplInfo['guid'];
         $f['category'] = getCreateDbCategory($tplInfo['category']);
-        if (!@db()->insert($f, '[+prefix+]site_modules')) {
+        if (!db()->insert(db()->escape($f), '[+prefix+]site_modules')) {
             $errors += 1;
             showError();
             return;

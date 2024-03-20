@@ -43,7 +43,7 @@ foreach ($tplSnippets as $k => $tplInfo) {
         continue;
     }
     $props = propUpdate($tplInfo['properties'], $dbv_snippet->properties);
-    if (!@ db()->update($f, '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
+    if (!db()->update(db()->escape($f), '[+prefix+]site_snippets', "name='" . db()->escape($tplInfo['name']) . "'")) {
         $errors += 1;
         showError();
         return;

@@ -20,7 +20,7 @@ foreach ($tplTVs as $i => $tplInfo) {
         continue;
     }
 
-    $name = db()->escape($tplInfo['name']);
+    $name = $tplInfo['name'];
     $f = array();
     $f['type'] = $tplInfo['input_type'];
     $f['caption'] = $tplInfo['caption'];
@@ -77,7 +77,7 @@ foreach ($tplTVs as $i => $tplInfo) {
             continue;
         }
         db()->insert(
-            array('tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id),
+            ['tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id],
             '[+prefix+]site_tmplvar_templates'
         );
     }

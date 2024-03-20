@@ -38,8 +38,11 @@ foreach ($tplPlugins as $i => $tplInfo) {
         }
         $legacy_names = implode(',', $_);
         if ($legacy_names) {
-            $legacy_names = db()->escape($legacy_names);
-            $rs = db()->update(array('disabled' => '1'), '[+prefix+]site_plugins', "name IN ('{$legacy_names}')");
+            $rs = db()->update(
+                ['disabled' => '1'],
+                '[+prefix+]site_plugins',
+                sprintf("name IN ('%s')", db()->escape($legacy_names))
+            );
         }
     }
 
@@ -48,7 +51,6 @@ foreach ($tplPlugins as $i => $tplInfo) {
     $f['description'] = $tplInfo['description'];
     $plugincode = getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tpl_file_path), 2));
     $f['plugincode'] = preg_replace("@^.*?/\*\*.*?\*/\s+@s", '', $plugincode, 1);
-    $name = db()->escape($name);
     $dbv_plugin = db()->getObject('site_plugins', "name='" . $name . "' AND disabled='0'");
     if ($dbv_plugin->properties) {
         $f['properties'] = propUpdate($tplInfo['properties'], $dbv_plugin->properties);
@@ -57,14 +59,16 @@ foreach ($tplPlugins as $i => $tplInfo) {
     }
 
     $f['disabled'] = $tplInfo['disabled'];
-    $f['moduleguid'] = db()->escape($tplInfo['guid']);
-    $f = db()->escape($f);
+    $f['moduleguid'] = $tplInfo['guid'];
 
     $pluginId = false;
 
     if ($dbv_plugin === false || $dbv_plugin->description === $tplInfo['description']) {
         $f['category'] = getCreateDbCategory($tplInfo['category']);
-        $pluginId = db()->insert($f, '[+prefix+]site_plugins');
+        $pluginId = db()->insert(
+            db()->escape($f),
+            '[+prefix+]site_plugins'
+        );
         if (!$pluginId) {
             $errors += 1;
             showError();
@@ -72,10 +76,13 @@ foreach ($tplPlugins as $i => $tplInfo) {
         }
         echo ok($name, lang('installed'));
     } else {
-        $rs = db()->update(array('disabled' => '1'), '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
+        $rs = db()->update(['disabled' => '1'], '[+prefix+]site_plugins', "id='{$dbv_plugin->id}'");
         if ($rs) {
-            $f['category'] = db()->escape($dbv_plugin->category);
-            $pluginId = db()->insert($f, '[+prefix+]site_plugins');
+            $f['category'] = $dbv_plugin->category;
+            $pluginId = db()->insert(
+                db()->escape($f),
+                '[+prefix+]site_plugins'
+            );
         }
         if (!$rs || !$pluginId) {
             $errors += 1;
