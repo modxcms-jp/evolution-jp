@@ -36,8 +36,8 @@ if (mode() === 'new') {
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
     $newid = db()->insert(
-        db()->escape($param['doc_vars'])
-        , '[+prefix+]site_content'
+        db()->escape($param['doc_vars']),
+        '[+prefix+]site_content'
     );
     if (!$newid) {
         $msg = 'An error occured while attempting to save the new document: ' . db()->getLastError();
@@ -75,8 +75,8 @@ if (mode() === 'edit') {
     }
     if (validated('id') == validated('parent')) {
         evo()->webAlertAndQuit(
-            "Document can not be it's own parent!"
-            , sprintf('index.php?a=27&id=%s', validated('id'))
+            "Document can not be it's own parent!",
+            sprintf('index.php?a=27&id=%s', validated('id'))
         );
     }
 
@@ -102,16 +102,17 @@ if (mode() === 'edit') {
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
     $rs = db()->update(
-        db()->escape($param['doc_vars'])
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", validated('id'))
+        db()->escape($param['doc_vars']),
+        '[+prefix+]site_content',
+        sprintf("id='%s'", validated('id'))
     );
     if (!$rs) {
         evo()->webAlertAndQuit(
             sprintf(
-                "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>."
-                , db()->lastQuery()
-            ), sprintf('index.php?a=27&id=%s', validated('id'))
+                "An error occured while attempting to save the edited document. The generated SQL is: <i> %s </i>.",
+                db()->lastQuery()
+            ),
+            sprintf('index.php?a=27&id=%s', validated('id'))
         );
     }
 
@@ -165,19 +166,19 @@ function get_tmplvars()
     }
 
     $rs = db()->select(
-        'DISTINCT tv.*'
-        , array(
+        'DISTINCT tv.*',
+        array(
             '[+prefix+]site_tmplvars AS tv',
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
             'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
-        )
-        , sprintf(
-            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
-            , $template
-            , sessionv('mgrRole')
-            , $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
-        )
-        , 'tv.rank'
+        ),
+        sprintf(
+            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
+            $template,
+            sessionv('mgrRole'),
+            $docgrp ? sprintf('OR tva.documentgroup IN (%s)', $docgrp) : ''
+        ),
+        'tv.rank'
     );
 
     $tmplvars = array();
@@ -213,11 +214,7 @@ function get_tmplvars()
         }
         // save value if it was modified
         if (substr($row['default_text'], 0, 6) === '@@EVAL') {
-            $row['default_text'] = eval(
-            trim(
-                substr($row['default_text'], 7)
-            )
-            );
+            $row['default_text'] = eval(trim(substr($row['default_text'], 7)));
         }
 
         if (strlen($value) > 0 && $value != $row['default_text']) {
@@ -263,42 +260,43 @@ function _check_duplicate_alias($id, $alias, $parent)
 {
     if (evo()->config('use_alias_path')) {
         $docid = db()->getValue(
-            'id'
-            , '[+prefix+]site_content'
-            , sprintf(
-                "id!='%s' AND alias='%s' AND parent=%s LIMIT 1"
-                , $id
-                , $alias
-                , $parent
+            'id',
+            '[+prefix+]site_content',
+            sprintf(
+                "id!='%s' AND alias='%s' AND parent=%s LIMIT 1",
+                $id,
+                $alias,
+                $parent
             )
         );
         if ($docid < 1) {
             $docid = db()->getValue(
-                'id'
-                , '[+prefix+]site_content'
-                , sprintf(
-                    "id='%s' AND alias='' AND parent='%s'"
-                    , $alias
-                    , $parent)
+                'id',
+                '[+prefix+]site_content',
+                sprintf(
+                    "id='%s' AND alias='' AND parent='%s'",
+                    $alias,
+                    $parent
+                )
             );
         }
     } else {
         $rs = db()->select(
-            'id'
-            , '[+prefix+]site_content'
-            , sprintf(
-                "id!='%s' AND alias='%s' LIMIT 1"
-                , $id
-                , $alias
+            'id',
+            '[+prefix+]site_content',
+            sprintf(
+                "id!='%s' AND alias='%s' LIMIT 1",
+                $id,
+                $alias
             )
         );
         $docid = db()->getValue($rs);
         if ($docid < 1) {
             $docid = db()->getValue(
                 db()->select(
-                    'id'
-                    , '[+prefix+]site_content'
-                    , sprintf("id='%s' AND alias=''", $alias)
+                    'id',
+                    '[+prefix+]site_content',
+                    sprintf("id='%s' AND alias=''", $alias)
                 )
             );
         }
@@ -320,11 +318,12 @@ function _check_duplicate_alias($id, $alias, $parent)
     }
 
     evo()->webAlertAndQuit(
-        sprintf(lang('duplicate_alias_found')
-            , $docid
-            , $alias
-        )
-        , $url
+        sprintf(
+            lang('duplicate_alias_found'),
+            $docid,
+            $alias
+        ),
+        $url
     );
     return $alias;
 }
@@ -336,13 +335,14 @@ function checkDocPermission($id, $document_groups = array())
         if ($document_group_list) {
             $count = db()->getValue(
                 db()->select(
-                    'COUNT(mg.id)'
-                    , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
-                    , sprintf(
-                    "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'"
-                    , $document_group_list
-                    , sessionv('mgrInternalKey')
-                ))
+                    'COUNT(mg.id)',
+                    '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
+                    sprintf(
+                        "mga.membergroup = mg.user_group AND mga.documentgroup IN(%s) AND mg.member='%s'",
+                        $document_group_list,
+                        sessionv('mgrInternalKey')
+                    )
+                )
             );
             if (!$count) {
                 if (mode() === 'new') {
@@ -412,8 +412,10 @@ function isAllowroot()
 
 function getInputValues($id = 0, $mode = 'new')
 {
-    $db_v_names = explode(',',
-        'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon');
+    $db_v_names = explode(
+        ',',
+        'content,pagetitle,longtitle,type,description,alias,link_attributes,isfolder,richtext,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,contentType,content_dispo,donthit,menutitle,hidemenu,introtext,createdby,createdon'
+    );
     if ($id) {
         $fields['id'] = $id;
     }
@@ -450,15 +452,15 @@ function checkStartDoc($id, $published, $pub_date, $unpub_date)
 {
     if ($published == 0) {
         evo()->webAlertAndQuit(
-            'Document is linked to site_start variable and cannot be unpublished!'
-            , sprintf('index.php?a=27&id=%s', $id)
+            'Document is linked to site_start variable and cannot be unpublished!',
+            sprintf('index.php?a=27&id=%s', $id)
         );
         exit;
     }
     if ($pub_date > request_time() || $unpub_date) {
         evo()->webAlertAndQuit(
-            'Document is linked to site_start variable and cannot have publish or unpublish dates set!'
-            , sprintf('index.php?a=27&id=%s', $id)
+            'Document is linked to site_start variable and cannot have publish or unpublish dates set!',
+            sprintf('index.php?a=27&id=%s', $id)
         );
     }
 }
@@ -564,8 +566,8 @@ function getExistsValues($id)
     );
     if (!$row) {
         evo()->webAlertAndQuit(
-            "An error occured while attempting to find the document's current parent."
-            , sprintf('index.php?a=27&id=%s', $id)
+            "An error occured while attempting to find the document's current parent.",
+            sprintf('index.php?a=27&id=%s', $id)
         );
     }
     return $row;
@@ -603,9 +605,9 @@ function update_tmplvars($docid, $tmplvars)
     $tvAdded = array();
     $tvDeletions = array();
     $rs = db()->select(
-        'id, tmplvarid'
-        , '[+prefix+]site_tmplvar_contentvalues'
-        , sprintf("contentid='%s'", $docid)
+        'id, tmplvarid',
+        '[+prefix+]site_tmplvar_contentvalues',
+        sprintf("contentid='%s'", $docid)
     );
     $tvIds = array();
     while ($row = db()->getRow($rs)) {
@@ -648,12 +650,12 @@ function update_tmplvars($docid, $tmplvars)
     }
     foreach ($tvChanges as $tv) {
         db()->update(
-            db()->escape($tv)
-            , '[+prefix+]site_tmplvar_contentvalues'
-            , sprintf(
-                "tmplvarid='%s' AND contentid='%s'"
-                , $tv['tmplvarid']
-                , $docid
+            db()->escape($tv),
+            '[+prefix+]site_tmplvar_contentvalues',
+            sprintf(
+                "tmplvarid='%s' AND contentid='%s'",
+                $tv['tmplvarid'],
+                $docid
             )
         );
     }
@@ -674,9 +676,9 @@ function setDocPermissionsNew($document_groups, $newid)
         if ($new_groups) {
             $rs = db()->query(
                 sprintf(
-                    'INSERT INTO %s (document_group, document) VALUES %s'
-                    , evo()->getFullTableName('document_groups')
-                    , implode(',', $new_groups)
+                    'INSERT INTO %s (document_group, document) VALUES %s',
+                    evo()->getFullTableName('document_groups'),
+                    implode(',', $new_groups)
                 )
             );
             if (!$rs) {
@@ -689,11 +691,11 @@ function setDocPermissionsNew($document_groups, $newid)
     }
     if (isPublic() && validated('parent')) {
         $sql = sprintf(
-            "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'"
-            , evo()->getFullTableName('document_groups')
-            , $newid
-            , evo()->getFullTableName('document_groups')
-            , validated('parent')
+            "INSERT INTO %s (document_group, document) SELECT document_group, %s FROM %s WHERE document='%s'",
+            evo()->getFullTableName('document_groups'),
+            $newid,
+            evo()->getFullTableName('document_groups'),
+            validated('parent')
         );
         $rs = db()->query($sql);
         if (!$rs) {
@@ -717,9 +719,9 @@ function updateParentStatus($parent)
     }
 
     $rs = db()->update(
-        'isfolder=1'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $parent)
+        'isfolder=1',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $parent)
     );
     if ($rs) {
         return;
@@ -765,16 +767,16 @@ function setDocPermissionsEdit($document_groups, $id)
         return;
     }
     $rs = db()->select(
-        '`groups`.id, `groups`.document_group'
-        , array(
+        '`groups`.id, `groups`.document_group',
+        array(
             '[+prefix+]document_groups AS `groups`',
             'LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id=`groups`.document_group'
-        )
-        , sprintf(
-            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'"
-            , (int)evo()->hasPermission('access_permissions')
-            , (int)evo()->hasPermission('web_access_permissions')
-            , $id
+        ),
+        sprintf(
+            "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'",
+            (int)evo()->hasPermission('access_permissions'),
+            (int)evo()->hasPermission('web_access_permissions'),
+            $id
         )
     );
     $exists_groups = array();
@@ -800,9 +802,9 @@ function setDocPermissionsEdit($document_groups, $id)
     $saved = true;
     if ($insertions) {
         $sql_insert = sprintf(
-            'INSERT INTO %s (document_group, document) VALUES %s'
-            , evo()->getFullTableName('document_groups')
-            , implode(',', $insertions)
+            'INSERT INTO %s (document_group, document) VALUES %s',
+            evo()->getFullTableName('document_groups'),
+            implode(',', $insertions)
         );
         $rs = db()->query($sql_insert);
         if (!$rs) {
@@ -811,8 +813,8 @@ function setDocPermissionsEdit($document_groups, $id)
     }
     if ($exists_groups) {
         $rs = db()->delete(
-            '[+prefix+]document_groups'
-            , sprintf('id IN (%s)', implode(',', $exists_groups))
+            '[+prefix+]document_groups',
+            sprintf('id IN (%s)', implode(',', $exists_groups))
         );
         if (!$rs) {
             $saved = false;
@@ -821,8 +823,8 @@ function setDocPermissionsEdit($document_groups, $id)
     // necessary to remove all permissions as document is public
     if (postv('chkalldocs') === 'on') {
         $rs = db()->delete(
-            '[+prefix+]document_groups'
-            , sprintf("document='%s'", $id)
+            '[+prefix+]document_groups',
+            sprintf("document='%s'", $id)
         );
         if (!$rs) {
             $saved = false;
@@ -837,9 +839,9 @@ function setDocPermissionsEdit($document_groups, $id)
 function folder2doc($parent)
 {
     $rs = db()->select(
-        'COUNT(id) as total'
-        , '[+prefix+]site_content'
-        , "parent=" . $parent
+        'COUNT(id) as total',
+        '[+prefix+]site_content',
+        "parent=" . $parent
     );
     if (!$rs) {
         echo "An error occured while attempting to find the old parents' children.";
@@ -849,9 +851,9 @@ function folder2doc($parent)
         return;
     }
     $rs = db()->update(
-        'isfolder = 0'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $parent)
+        'isfolder = 0',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $parent)
     );
     if ($rs) {
         return;
