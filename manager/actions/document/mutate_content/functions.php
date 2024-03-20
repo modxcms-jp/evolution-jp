@@ -663,8 +663,8 @@ function checkViewUnpubDocPerm($published, $editedby)
     if (evo()->getLoginUserID() != $editedby) {
         global $modx;
         $modx->config['remember_last_tab'] = 0;
-        evo()->event->setError(3);
-        evo()->event->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
