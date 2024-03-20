@@ -951,20 +951,20 @@ class ManagerAPI
         $unit = strtoupper(substr($input, -1));
         $numericValue = substr($input, 0, -1);
         $validUnits = ['B', 'K', 'M', 'T'];
-    
+
         if (!in_array($unit, $validUnits)) {
             return $numericValue;
         }
-    
+
         $bytes = $numericValue;
-    
+
         foreach ($validUnits as $validUnit) {
             if ($validUnit === $unit) {
                 return $bytes;
             }
             $bytes *= 1024;
         }
-    
+
         return $bytes;
     }
 
