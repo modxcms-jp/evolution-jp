@@ -172,7 +172,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             }
 
             window.stopWork = function() {
-                jQuery('#workText').html('');
+                document.getElementById('workText').innerHTML = '';
             }
 
             // GENERAL FUNCTIONS - Remove locks

@@ -118,7 +118,6 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         jQuery(function () {
             jQuery('#preLoader').hide();
             jQuery('input.DatePicker').attr('autocomplete', 'off');
-            top.mainMenu.stopWork();
         });
 
         jQuery(window).on('beforeunload', function () {
