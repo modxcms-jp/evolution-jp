@@ -900,24 +900,17 @@ class MODIFIERS
             case 'br2nl':
                 return preg_replace('@<br[\s/]*>@i', "\n", $value);
             case 'nl2br':
-                if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-                    return nl2br($value);
-                }
                 if ($opt !== '') {
                     $opt = strtolower(trim($opt));
                     if ($opt === 'false') {
                         $opt = false;
-                    } elseif ($opt === '0') {
-                        $opt = false;
-                    } else {
-                        $opt = true;
                     }
-                } elseif (evo()->config('mce_element_format') === 'html') {
-                    $opt = false;
-                } else {
-                    $opt = true;
+                    return nl2br($value, (boolean) $opt);
                 }
-                return nl2br($value, $opt);
+                return nl2br(
+                    $value,
+                    (evo()->config('mce_element_format') === 'html')
+                );
             case 'ltrim':
             case 'rtrim':
             case 'trim': // ref http://mblo.info/modifiers/custom-modifiers/rtrim_opt.html

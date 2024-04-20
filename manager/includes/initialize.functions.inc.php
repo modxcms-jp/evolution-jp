@@ -61,53 +61,35 @@ class init
     {
         $options += [
             'lifetime' => 3600 * 24 * 30,
-            'path' => MODX_BASE_URL,
-            'domain' => '',
-            'secure' => init::is_ssl() ? true : false,
+            'path'     => MODX_BASE_URL,
+            'domain'   => '',
+            'secure'   => init::is_ssl() ? true : false,
             'httponly' => true,
             'samesite' => 'Lax'
         ];
-        if (70300 <= PHP_VERSION_ID) {
-            session_set_cookie_params($options);
-        } else {
-            session_set_cookie_params(
-                $options['lifetime']
-                , $options['path'] . '; SameSite=Lax'
-                , ''
-                , $options['secure']
-                , $options['httponly']
-            );
-        }
-
-
+        session_set_cookie_params(
+            $options['lifetime'],
+            $options['path'],
+            $options['domain'],
+            $options['secure'],
+            $options['httponly']
+        );
     }
 
     public static function setcookie($expires)
     {
         global $site_sessionname;
-        if (70300 <= PHP_VERSION_ID) {
-            setcookie(
-                $site_sessionname
-                , session_id()
-                , [
-                    'expires' => $expires,
-                    'path' => MODX_BASE_URL,
-                    'secure' => init::is_ssl() ? true : false,
-                    'domain' => init::get_host_name(),
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]
-            );
-            return;
-        }
         setcookie(
-            $site_sessionname
-            , session_id()
-            , $expires
-            , MODX_BASE_URL . '; SameSite=Lax'
-            , ''
-            , init::is_ssl() ? true : false
-            , true
+            $site_sessionname,
+            session_id(),
+            [
+                'expires'  => $expires,
+                'path'     => MODX_BASE_URL,
+                'secure'   => init::is_ssl() ? true : false,
+                'domain'   => init::get_host_name(),
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]
         );
     }
 
@@ -171,10 +153,10 @@ class init
     public static function get_site_url($base_url)
     {
         return sprintf(
-            '%s%s%s/'
-            , static::is_ssl() ? 'https://' : 'http://'
-            , static::get_host_name()
-            , rtrim($base_url, '/')
+            '%s%s%s/',
+            static::is_ssl() ? 'https://' : 'http://',
+            static::get_host_name(),
+            rtrim($base_url, '/')
         );
     }
 
@@ -200,13 +182,14 @@ class init
             return;
         }
         $_SERVER['DOCUMENT_ROOT'] = str_replace(
-                $_SERVER['PATH_INFO']
-                , ''
-                , str_replace(
-                    '\\'
-                    , '/'
-                    , serverv('PATH_TRANSLATED'))
-            ) . '/';
+            $_SERVER['PATH_INFO'],
+            '',
+            str_replace(
+                '\\',
+                '/',
+                serverv('PATH_TRANSLATED')
+            )
+        ) . '/';
     }
 
     public static function fix_script_name()
@@ -240,13 +223,13 @@ class init
 
     public static function fix_server_addr()
     {
-        if (!isset($_SERVER['SERVER_ADDR']) && isset($_SERVER['LOCAL_ADDR'])) {
-            $_SERVER['SERVER_ADDR'] = $_SERVER['LOCAL_ADDR'];
+        if (!serverv('SERVER_ADDR') && serverv('LOCAL_ADDR')) {
+            $_SERVER['SERVER_ADDR'] = serverv('LOCAL_ADDR');
         }
-        if (isset($_SERVER['HTTP_X_REMOTE_ADDR'])) {
-            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REMOTE_ADDR'];
+        if (serverv('HTTP_X_REMOTE_ADDR')) {
+            $_SERVER['REMOTE_ADDR'] = serverv('HTTP_X_REMOTE_ADDR');
         }
-        if ($_SERVER['REMOTE_ADDR'] === '::1') {
+        if (serverv('REMOTE_ADDR') === '::1') {
             $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         }
     }

@@ -193,11 +193,11 @@ function getUDGroups($id)
     // Query the permissions and names from above
     if ($docid) {
         $rs = db()->select(
-            'dgn.*, groups.id AS link_id'
+            'dgn.*, `groups`.id AS link_id'
             , array(
                 '[+prefix+]documentgroup_names AS dgn',
                 sprintf(
-                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND groups.document=%s'
+                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s'
                     , $docid
                 )
             )
@@ -663,8 +663,8 @@ function checkViewUnpubDocPerm($published, $editedby)
     if (evo()->getLoginUserID() != $editedby) {
         global $modx;
         $modx->config['remember_last_tab'] = 0;
-        evo()->event->setError(3);
-        evo()->event->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
