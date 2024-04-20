@@ -60,6 +60,7 @@ if (manager()->action != 1) {
     $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(evo()->getLoginUserID());
 }
 
+clearstatcache(true, $touch_path);
 if ($touch_path && is_file($touch_path)) {
     unlink($touch_path);
 }

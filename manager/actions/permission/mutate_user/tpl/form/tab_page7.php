@@ -45,7 +45,7 @@
         <th><?php echo lang('upload_maxsize_title') ?></th>
         <td>
             <input type='text' maxlength='255' style="width: 300px;" name="upload_maxsize"
-                   value="<?evo()->config('upload_maxsize', $modx->manager->getUploadMaxsize()) ?>">
+                   value="<?= evo()->config('upload_maxsize', $modx->manager->getUploadMaxsize()) ?>">
             <div><?php echo sprintf(lang('upload_maxsize_message'), $modx->manager->getUploadMaxsize()) ?></div>
         </td>
     </tr>

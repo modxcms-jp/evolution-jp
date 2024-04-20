@@ -464,7 +464,7 @@ function ls($curpath)
     );
     $uploadablefiles = add_dot(uploadablefiles());
     $inlineviewablefiles = add_dot(
-        explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
+        explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess,sample' . config('alias_suffix'))
     );
     $viewablefiles = add_dot(
         explode(',', 'jpg,gif,png,ico')
