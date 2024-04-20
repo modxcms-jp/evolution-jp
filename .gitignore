@@ -1,11 +1,22 @@
-/content/
+# 手動で更新する必要があるファイル(画像・PDF・動画などのコンテンツ系ファイルと設定ファイル)
+/assets/images/*
+/assets/files/*
+/assets/flash/*
+/assets/media/*
+/content/images/*
+/content/files/*
+/content/flash/*
+/content/media/*
 
 /.htaccess
 /manager/includes/config.inc.php
-/mamager/includes/extra.config.php
+/manager/includes/extra.config.php
 
+# システムが動的に生成するサーバ固有のファイルのため同期が不要なファイル・ディレクトリ
 .thumbs/
 /temp/cache/*
 /temp/*
 
+# gitは空のディレクトリを管理しないため、空のディレクトリを同期したい場合は、
+# このファイルが存在するディレクトリに.gitkeepという名前の空ファイルを作成してください
 !.gitkeep
