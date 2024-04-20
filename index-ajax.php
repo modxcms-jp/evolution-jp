@@ -1,4 +1,5 @@
 <?php
+include 'manager/includes/helpers.php';
 // Add items to this array corresponding to which directories within assets/snippets/ can be used by this file.
 // Do not add entries unneccesarily.
 // Any PHP files in these directories can be executed by any user.
