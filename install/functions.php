@@ -302,7 +302,7 @@ function propUpdate($new, $old)
     foreach ($returnArr as $k => $v) {
         $return .= sprintf('&%s=%s ', $k, $v);
     }
-    return db()->escape($return);
+    return $return;
 }
 
 function getCreateDbCategory($category)

@@ -42,9 +42,9 @@ foreach ($tplModules as $k => $tplInfo) {
         echo ok($tplInfo['name'], lang('installed'));
         continue;
     }
-    $props = propUpdate($tplInfo['properties'], $dbv_module->properties);
+    $f['properties'] = propUpdate($tplInfo['properties'], $dbv_module->properties);
     $rs = db()->update(
-        db()->insert(db()->escape($f),
+        db()->escape($f),
         '[+prefix+]site_modules',
         "name='" . db()->escape($tplInfo['name']) . "'"
     );
