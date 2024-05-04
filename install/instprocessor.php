@@ -35,14 +35,18 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 
 // install/update database
 
-if (sessionv('is_upgradeable') && db()->tableExists('[+prefix+]site_revision')) {
-    if (!db()->fieldExists('elmid', '[+prefix+]site_revision')) {
+if (sessionv('is_upgradeable')) {
+    if (db()->tableExists('[+prefix+]site_revision') && !db()->fieldExists('elmid', '[+prefix+]site_revision')) {
         db()->query(
             str_replace(
                 '[+prefix+]'
                 , sessionv('table_prefix')
                 , 'DROP TABLE IF EXISTS `[+prefix+]site_revision`')
         );
+    }
+    $message = include MODX_CORE_PATH . 'convert2utf8mb4.php';
+    if ($message) {
+        echo "<p>" . $message . "</p>";
     }
 }
 

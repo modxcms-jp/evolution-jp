@@ -1,12 +1,21 @@
 <?php
 $convert = new convert2utf8mb4();
-if (!$convert->isAvailable()) {
-    return false;
+
+// デフォルトのcollationがutf8mb4_general_ciなら何もしない
+if ($convert->getDbCollation() === 'utf8mb4_general_ci') {
+    return '';
 }
 
-$convert->replaceConfig();
+if (!$convert->isAvailable()) {
+    return 'utf8mb4 is not available.';
+}
+
+$convert->updateDbDefaultCollation();
+$convert->updateConfigIncPhp();
 $convert->convertDb();
 $convert->convertTables();
+
+return 'Database collation has been changed to utf8mb4_general_ci.';
 
 class convert2utf8mb4 {
     private $config_path;
@@ -31,7 +40,7 @@ class convert2utf8mb4 {
         return db()->count($rs);
     }
 
-    public function replaceConfig()
+    public function updateConfigIncPhp()
     {
         if (strpos($this->getConfigContent(), "'utf8mb4'") !== false) {
             return;
@@ -43,6 +52,16 @@ class convert2utf8mb4 {
             str_replace("'utf8'", "'utf8mb4'", $this->getConfigContent())
         );
         @chmod($this->config_path, 0444);
+    }
+
+    public function updateDbDefaultCollation()
+    {
+        db()->exec(
+            sprintf(
+                "ALTER DATABASE `%s` COLLATE = utf8mb4_general_ci",
+                db()->dbase
+            )
+        );
     }
 
     public function convertDb()
@@ -64,9 +83,6 @@ class convert2utf8mb4 {
                     db()->dbase
                 )
             );
-            // echo "Database charset has been changed to utf8mb4.<br>\n";
-        } else {
-            // echo "Database charset is already utf8mb4.<br>\n";
         }
     }
 
@@ -96,5 +112,15 @@ class convert2utf8mb4 {
             );
             // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
         }
+    }
+
+    public function getDbCollation()
+    {
+        $rs = db()->select(
+            'DEFAULT_COLLATION_NAME',
+            'INFORMATION_SCHEMA.SCHEMATA',
+            sprintf("SCHEMA_NAME = '%s'", db()->dbase)
+        );
+        return db()->getValue($rs);
     }
 }

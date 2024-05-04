@@ -5,8 +5,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 global $default_config, $settings_version;
 
-include MODX_CORE_PATH . 'upgrades/convert2utf8mb4.php';
-
 db()->importSql(MODX_CORE_PATH . 'upgrades/upd_db_structure.sql', false);
 $default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 
