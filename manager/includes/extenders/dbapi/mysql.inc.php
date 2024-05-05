@@ -1057,7 +1057,7 @@ class DBAPI
         $table = str_replace('[+prefix+]', $this->table_prefix, $table);
         $sql = sprintf("SHOW FULL COLUMNS FROM `%s`", $table);
         $rs = $this->query($sql);
-        $Collation = 'utf8_general_ci';
+        $Collation = 'utf8mb4_general_ci';
         while ($row = $this->getRow($rs)) {
             if ($row['Field'] == $field && isset($row['Collation'])) {
                 $Collation = $row['Collation'];

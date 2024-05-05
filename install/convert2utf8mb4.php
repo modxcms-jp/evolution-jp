@@ -10,7 +10,6 @@ if (!$convert->isAvailable()) {
     return 'utf8mb4 is not available.';
 }
 
-$convert->updateDbDefaultCollation();
 $convert->updateConfigIncPhp();
 $convert->convertDb();
 $convert->convertTables();
@@ -52,16 +51,6 @@ class convert2utf8mb4 {
             str_replace("'utf8'", "'utf8mb4'", $this->getConfigContent())
         );
         @chmod($this->config_path, 0444);
-    }
-
-    public function updateDbDefaultCollation()
-    {
-        db()->exec(
-            sprintf(
-                "ALTER DATABASE `%s` COLLATE = utf8mb4_general_ci",
-                db()->dbase
-            )
-        );
     }
 
     public function convertDb()

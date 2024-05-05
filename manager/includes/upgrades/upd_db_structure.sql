@@ -81,9 +81,6 @@ ALTER TABLE `{PREFIX}web_user_attributes`
 ALTER TABLE `{PREFIX}active_users`
     MODIFY COLUMN `ip` varchar(50) NOT NULL DEFAULT '';
 
-ALTER TABLE `{PREFIX}documentgroup_names`
-    MODIFY COLUMN `name` varchar(245) NOT NULL DEFAULT '';
-
 ALTER TABLE `{PREFIX}event_log`
     MODIFY COLUMN `source` varchar(245) NOT NULL DEFAULT '',
     MODIFY COLUMN `description` text;
@@ -93,9 +90,6 @@ ALTER TABLE `{PREFIX}categories`
 
 ALTER TABLE `{PREFIX}manager_users`
     MODIFY COLUMN `username` varchar(100) NOT NULL DEFAULT '';
-
-ALTER TABLE `{PREFIX}membergroup_names`
-    MODIFY COLUMN `name` varchar(245) NOT NULL DEFAULT '';
 
 ALTER TABLE `{PREFIX}site_content`
     MODIFY COLUMN `pagetitle` varchar(255) NOT NULL default '',
@@ -196,9 +190,6 @@ ALTER TABLE `{PREFIX}web_user_attributes`
     MODIFY COLUMN `fax` varchar(100) NOT NULL DEFAULT '',
     MODIFY COLUMN `photo` varchar(255) NOT NULL DEFAULT '' COMMENT 'link to photo',
     MODIFY COLUMN `comment` text;
-
-ALTER TABLE `{PREFIX}webgroup_names`
-    MODIFY COLUMN `name` varchar(245) NOT NULL DEFAULT '',
 
     ALTER TABLE `{PREFIX}site_content` DROP INDEX `content_ft_idx`;
 
@@ -314,10 +305,10 @@ WHERE `name` = 'ダッシュボード・あなたの情報'
     OR `name` = 'ダッシュボード・オンライン情報';
 
 ALTER TABLE `{PREFIX}documentgroup_names`
-CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;
 
 ALTER TABLE `{PREFIX}membergroup_names`
-CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;
 
 ALTER TABLE `{PREFIX}webgroup_names`
-CHANGE `name` `name` varchar(245) COLLATE 'utf8_general_ci' NOT NULL DEFAULT '' AFTER `id`;
+CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;

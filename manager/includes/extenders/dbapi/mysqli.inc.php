@@ -1193,7 +1193,7 @@ class DBAPI
             }
             return $row['Collation'];
         }
-        return 'utf8_general_ci';
+        return 'utf8mb4_general_ci';
     }
 
     public function _getFieldsStringFromArray($fields = [])
