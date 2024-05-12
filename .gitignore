@@ -1,13 +1,3 @@
-# 手動で更新する必要があるファイル(画像・PDF・動画などのコンテンツ系ファイルと設定ファイル)
-/assets/images/*
-/assets/files/*
-/assets/flash/*
-/assets/media/*
-/content/images/*
-/content/files/*
-/content/flash/*
-/content/media/*
-
 /.htaccess
 /manager/includes/config.inc.php
 /manager/includes/extra.config.php
