@@ -350,7 +350,6 @@ function isUpGradeable()
         return sessionv('is_upgradeable');
     }
 
-    sessionv('*is_upgradeable', 0);
 
     $dbase = null;
     $database_server = null;
@@ -361,6 +360,7 @@ function isUpGradeable()
     include($conf_path);
 
     if (!$dbase) {
+    	sessionv('*is_upgradeable', 0);
         return 0;
     }
 
@@ -386,6 +386,7 @@ function isUpGradeable()
         sessionv('*is_upgradeable', 1);
         return 1;
     }
+    sessionv('*is_upgradeable', 0);
     return 0;
 }
 
