@@ -26,13 +26,6 @@ if (version_compare(phpversion(), '5.3.0') < 0) {
 }
 echo p($_ . lang('checking_php_version'));
 
-// check php register globals off
-$register_globals = (int)ini_get('register_globals');
-if ($register_globals == '1') {
-    echo p(echo_failed() . lang('checking_registerglobals'));
-    echo p('<strong>' . lang('checking_registerglobals_note') . '</strong>');
-}
-
 // check sessions
 if (sessionv('test') != 1) {
     echo p(echo_failed() . lang('checking_sessions'));

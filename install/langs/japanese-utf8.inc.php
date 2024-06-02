@@ -44,8 +44,6 @@ $_lang["checking_if_images_exist"] = '<span class="mono">/content/images</span>,
 $_lang["checking_if_images_writable"] = '<span class="mono">/content/images</span>,<span class="mono">/content/files</span>,<span class="mono">/content/media</span>ディレクトリの書き込み属性: ';
 $_lang["checking_sql_version"] = 'SQLのバージョン: ';
 $_lang["checking_php_version"] = 'PHPのバージョンチェック: ';
-$_lang["checking_registerglobals"] = 'Register_Globalsの設定: ';
-$_lang["checking_registerglobals_note"] = 'Register_Globalsがオンになっていると、サイトはXSS攻撃の対象としてさらされるため非常に危険です。特に必要がなければオフにしてください。.htaccessに「php_flag register_globals off」と記述を加えることでオフに設定できます。';
 $_lang["checking_sessions"] = 'セッション情報が正常に構成されるかどうか: ';
 $_lang["checking_table_prefix"] = 'Tableプレフィックスの設定 `';
 $_lang["chunks"] = 'チャンク';

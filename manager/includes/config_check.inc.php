@@ -19,9 +19,6 @@ if (is_file(MODX_BASE_PATH . "assets/templates/manager/login.html")) {
 if (is_dir('../install/')) {
     $warnings[] = 'configcheck_installer';
 }
-if (ini_get('register_globals')) {
-    $warnings[] = 'configcheck_register_globals';
-}
 if (!extension_loaded('gd')) {
     $warnings[] = 'configcheck_php_gdzip';
 }
@@ -148,9 +145,6 @@ foreach ($warnings as $warning) {
             break;
         case 'configcheck_lang_difference':
             $output = $_lang['configcheck_lang_difference_msg'];
-            break;
-        case 'configcheck_register_globals':
-            $output = $_lang['configcheck_register_globals_msg'];
             break;
         case 'configcheck_php_gdzip':
             $output = $_lang['configcheck_php_gdzip_msg'];

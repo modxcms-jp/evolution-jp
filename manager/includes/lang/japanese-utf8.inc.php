@@ -134,8 +134,6 @@ $_lang["configcheck_notok"] = '動作環境に問題があります。';
 $_lang["configcheck_ok"] = '問題なし - 警告はありません。';
 $_lang["configcheck_php_gdzip"] = 'GDライブラリが読み込まれてません。';
 $_lang["configcheck_php_gdzip_msg"] = 'このサーバでは<a href="http://www.google.com/search?q=gd+%22php.ini%22&lr=lang_ja" target="_blank">GDライブラリ</a>が読み込まれてません。<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=CAPTCHA&sa.x=26&sa.y=8&siteurl=http:%2F%2Fforum.modx.jp%2F" target="_blank">ログイン時の画像認証機能(CAPTCHA)</a>など画像まわりの処理に制限があります。';
-$_lang["configcheck_register_globals"] = '「register_globals」が「ON」に設定されており、セキュリティ上問題があります。';
-$_lang["configcheck_register_globals_msg"] = 'register_globals がonになっているため、この環境は非常に脆弱です。.htaccessまたはphp.iniによって off にすることを強くおすすめします。';
 $_lang["configcheck_title"] = '設定チェック';
 $_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
 $_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">TemplateSwitcherを削除</a>';

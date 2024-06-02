@@ -44,8 +44,6 @@ $_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/ima
 $_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories are writable: ';
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
-$_lang["checking_registerglobals"] = 'Checking if Register_Globals is off: ';
-$_lang["checking_registerglobals_note"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your MODX install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install MODX, but consider yourself warned.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
