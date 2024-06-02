@@ -7,6 +7,8 @@ error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', 1);
 header("Content-Type: text/html; charset=utf-8");
 
+include ('../define-path.php');
+
 define('MODX_API_MODE', true);
 define('MODX_BASE_PATH', str_replace('\\', '/', dirname(__DIR__)) . '/');
 define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
