@@ -4,12 +4,12 @@ $chkagree = postv('chkagree', sessionv('chkagree'));
 
 if (sessionv('prevAction') === 'options') {
     $_SESSION['installdata'] = postv('installdata', '');
-    $_SESSION['template'] = postv('template', array());
-    $_SESSION['tv'] = postv('tv', array());
-    $_SESSION['chunk'] = postv('chunk', array());
-    $_SESSION['snippet'] = postv('snippet', array());
-    $_SESSION['plugin'] = postv('plugin', array());
-    $_SESSION['module'] = postv('module', array());
+    $_SESSION['template']    = postv('template', array());
+    $_SESSION['tv']          = postv('tv', array());
+    $_SESSION['chunk']       = postv('chunk', array());
+    $_SESSION['snippet']     = postv('snippet', array());
+    $_SESSION['plugin']      = postv('plugin', array());
+    $_SESSION['module']      = postv('module', array());
 }
 
 echo '<h2>' . lang('preinstall_validation') . '</h2>';
@@ -85,8 +85,8 @@ if (!is_dir(MODX_BASE_PATH . 'assets/images')) {
 
     // cache writable?
     $dir_images = MODX_BASE_PATH . 'content/images';
-    $dir_files = MODX_BASE_PATH . 'content/files';
-    $dir_media = MODX_BASE_PATH . 'content/media';
+    $dir_files  = MODX_BASE_PATH . 'content/files';
+    $dir_media  = MODX_BASE_PATH . 'content/media';
 
     if (!is_writable(MODX_BASE_PATH . 'content')) {
         $_ = echo_failed();
@@ -185,11 +185,11 @@ if (!$isWriteable) {
 echo p($_ . lang('checking_if_config_exist_and_writable'));
 
 echo sprintf(
-    '<p>%s %s <strong>%s%s </strong></p>'
-    , echo_ok()
-    , lang('checking_sql_version')
-    , lang('sql_version_is')
-    , $modx->db->getVersion()
+    '<p>%s %s <strong>%s%s </strong></p>',
+    echo_ok(),
+    lang('checking_sql_version'),
+    lang('sql_version_is'),
+    $modx->db->getVersion()
 );
 
 // Version and strict mode check end
@@ -202,7 +202,7 @@ if (is_writable(MODX_CACHE_PATH)) {
 }
 
 if ($errors > 0) {
-    ?>
+?>
     <p>
         <?php
         echo '<strong>' . lang('setup_cannot_continue') . '</strong>';
@@ -219,7 +219,7 @@ if ($errors > 0) {
         echo lang('visit_forum');
         ?>
     </p>
-    <?php
+<?php
 }
 
 echo p('&nbsp;');
@@ -229,25 +229,27 @@ $nextButton = $errors ? lang('retry') : lang('install');
 $nextVisibility = $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
 ?>
-    <form id="install" action="index.php" method="POST">
-        <div>
-            <input type="hidden" value="<?php echo $nextAction; ?>" name="action"/>
-            <input type="hidden" value="1" name="options_selected"/>
-            <input type="hidden" name="prev_action" value="summary"/>
-        </div>
+<form id="install" action="index.php" method="POST">
+    <div>
+        <input type="hidden" value="<?php echo $nextAction; ?>" name="action" />
+        <input type="hidden" value="1" name="options_selected" />
+        <input type="hidden" name="prev_action" value="summary" />
+    </div>
 
         <h2><?php echo lang('agree_to_terms'); ?></h2>
         <p>
             <input type="checkbox" value="1" id="chkagree" name="chkagree"
-                   style="line-height:18px" <?php echo $chkagree ? 'checked="checked" ' : ""; ?><?php echo $agreeToggle; ?>/><label
+            style="line-height:18px" <?php echo $chkagree ? 'checked="checked" ' : ""; ?><?php echo $agreeToggle; ?>/><label
                 for="chkagree"
                 style="display:inline;float:none;line-height:18px;"> <?php echo lang('iagree_box') ?> </label>
         </p>
         <p class="buttonlinks">
-            <a href="javascript:void(0);" class="prev"
-               title="<?php echo lang('btnback_value') ?>"><span><?php echo lang('btnback_value') ?></span></a>
-            <a href="javascript:void(0);" class="next" id="nextbutton" title="<?php echo $nextButton ?>"
-               style="visibility:<?php echo $nextVisibility; ?>"><span><?php echo $nextButton ?></span></a>
+            <a
+                href="javascript:void(0);" class="prev"
+                title="<?php echo lang('btnback_value') ?>"><span><?php echo lang('btnback_value') ?></span></a>
+            <a
+                href="javascript:void(0);" class="next" id="nextbutton" title="<?php echo $nextButton ?>"
+                style="visibility:<?php echo $nextVisibility; ?>"><span><?php echo $nextButton ?></span></a>
         </p>
     </form>
     <script type="text/javascript">

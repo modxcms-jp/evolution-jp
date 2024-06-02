@@ -11,31 +11,29 @@ require_once(MODX_BASE_PATH . 'install/functions.php');
 includeLang(getOption('install_language'));
 
 db()->connect(
-    sessionv('database_server')
-    , sessionv('database_user')
-    , sessionv('database_password')
+    sessionv('database_server'),
+    sessionv('database_user'),
+    sessionv('database_password')
 );
 if (!db()->isConnected()) {
-    exit(
-        lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed'))
-    );
+    exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
 }
 
-$db_name = trim(postv('dbase'), '`');
-$table_prefix = trim(postv('table_prefix'));
+$db_name              = trim(postv('dbase'), '`');
+$table_prefix         = trim(postv('table_prefix'));
 if ($table_prefix) {
     $table_prefix = rtrim($table_prefix, '_') . '_';
 }
-$db_collation = trim(postv('database_collation'));
+$db_collation         = trim(postv('database_collation'));
 $db_connection_method = trim(postv('database_connection_method'));
-$db_charset = substr($db_collation, 0, strpos($db_collation, '_'));
+$db_charset           = substr($db_collation, 0, strpos($db_collation, '_'));
 
 if (db()->select_db(db()->escape($db_name))) {
     if (isAlreadyInUse($db_name, $table_prefix)) {
         exit(
             lang('status_checking_database') . span_fail(
-                '#ffe6eb'
-                , lang('status_failed_table_prefix_already_in_use')
+                '#ffe6eb',
+                lang('status_failed_table_prefix_already_in_use')
             )
         );
     }
@@ -43,9 +41,10 @@ if (db()->select_db(db()->escape($db_name))) {
 } else {
     if (!createDB($db_name, $db_charset, $db_collation)) {
         exit(
-            lang('status_checking_database') . span_fail(
-                '#ffe6eb'
-                , $query . lang('status_failed_could_not_create_database')
+            lang('status_checking_database')
+            . span_fail(
+                '#ffe6eb',
+                $query . lang('status_failed_could_not_create_database')
             )
         );
     }
@@ -64,18 +63,18 @@ echo lang('status_checking_database') . span_pass('#e6ffeb', $msg);
 function createDB($db_name, $db_charset, $db_collation)
 {
     $query = sprintf(
-        "CREATE DATABASE `%s` CHARACTER SET '%s' COLLATE %s"
-        , db()->escape($db_name)
-        , db()->escape($db_charset)
-        , db()->escape($db_collation)
+        "CREATE DATABASE `%s` CHARACTER SET '%s' COLLATE %s",
+        db()->escape($db_name),
+        db()->escape($db_charset),
+        db()->escape($db_collation)
     );
-    return @ db()->query($query);
+    return @db()->query($query);
 }
 
 function isAlreadyInUse($db_name, $table_prefix)
 {
     global $modx;
-    $modx->db->dbname = db()->escape($db_name);
+    $modx->db->dbname       = db()->escape($db_name);
     $modx->db->table_prefix = db()->escape($table_prefix);
     if (!db()->tableExists('[+prefix+]site_content')) {
         return false;
@@ -95,4 +94,3 @@ function span_fail($bgcolor, $str)
 {
     return sprintf('<span id="database_fail" style="background: %s;padding:8px;border-radius:5px;color:#FF0000;">%s</span>', $bgcolor, $str);
 }
-

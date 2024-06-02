@@ -30,8 +30,8 @@ if ($errors == 0) {
         <span><?= lang('btnclose_value') ?></span>
     </a>
 </p>
-<br/>
-<br/>
+<br>
+<br>
 <script>
     jQuery('#closepage span').click(function () {
         if (jQuery('#rminstaller').prop('checked')) {
