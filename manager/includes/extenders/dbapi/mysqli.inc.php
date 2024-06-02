@@ -1133,7 +1133,7 @@ class DBAPI
      * @deprecated Change function name. tableExists() is recommended.
      */
     public function table_exists($table_name) {
-        return tableExists($table_name);
+        return $this->tableExists($table_name);
     }
 
     public function fieldExists($field_name, $table_name)
