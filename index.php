@@ -4,7 +4,8 @@ if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 }
 $mstart = memory_get_usage();
 
-define('MODX_BASE_PATH', str_replace('\\', '/', __DIR__) . '/');
+include 'define-path.php';
+
 if (defined('IN_MANAGER_MODE')) {
     return;
 }

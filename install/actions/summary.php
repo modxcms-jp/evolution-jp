@@ -41,36 +41,36 @@ if (sessionv('test') != 1) {
 
 // check directories
 // cache exists?
-if (!is_dir(MODX_BASE_PATH . 'temp/cache')) {
+if (!is_dir(MODX_CACHE_PATH)) {
     echo p(echo_failed() . lang('checking_if_cache_exist'));
     $errors += 1;
 }
 
 // cache writable?
-if (!is_writable(MODX_BASE_PATH . 'temp/cache')) {
+if (!is_writable(rtrim(MODX_CACHE_PATH, '/'))) {
     $_ = echo_failed();
     $errors += 1;
 } else {
     $_ = echo_ok();
-    mkd(MODX_BASE_PATH . 'temp/cache/rss');
+    mkd(MODX_CACHE_PATH . 'rss');
 }
 echo p($_ . lang('checking_if_cache_writable'));
 
-if (is_writable(MODX_BASE_PATH . 'temp/cache')) {
+if (is_writable(rtrim(MODX_CACHE_PATH, '/'))) {
     // cache files writable?
-    if (!is_file(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php')) {
+    if (!is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
         // make an attempt to create the file
-        file_put_contents(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php', '<?php //MODX site cache file ?>');
+        file_put_contents(MODX_CACHE_PATH . 'siteCache.idx.php', '<?php //MODX site cache file ?>');
     }
-    if (!is_writable(MODX_BASE_PATH . 'temp/cache/siteCache.idx.php')) {
-        $_ = echo_failed();
+    if (!is_writable(MODX_CACHE_PATH . 'siteCache.idx.php')) {
+        $_ =  echo_failed();
         $errors += 1;
-    } else $_ = echo_ok();
+    } else $_ =  echo_ok();
     echo p($_ . lang('checking_if_cache_file_writable'));
 
-    file_put_contents(MODX_BASE_PATH . 'temp/cache/basicConfig.php', '<?php $cacheRefreshTime=0; ?>');
+    file_put_contents(MODX_CACHE_PATH . 'basicConfig.php', '<?php $cacheRefreshTime=0; ?>');
 
-    if (!is_writable(MODX_BASE_PATH . 'temp/cache/basicConfig.php')) {
+    if (!is_writable(MODX_CACHE_PATH . 'basicConfig.php')) {
         $_ = echo_failed();
         $errors += 1;
     } else $_ = echo_ok();
@@ -195,11 +195,10 @@ echo sprintf(
 // Version and strict mode check end
 
 // andrazk 20070416 - add install flag and disable manager login
-// temp/cache writable?
 
-if (is_writable('../temp/cache')) {
+if (is_writable(MODX_CACHE_PATH)) {
     // make an attempt to create the file
-    file_put_contents(MODX_BASE_PATH . 'temp/cache/installProc.inc.php', '<?php $installStartTime = ' . time() . '; ?>');
+    file_put_contents(MODX_CACHE_PATH . 'installProc.inc.php', '<?php $installStartTime = ' . time() . '; ?>');
 }
 
 if ($errors > 0) {
