@@ -12,7 +12,7 @@ init::fix_ssl();
 
 // automatically assign base_path and base_url
 if (!defined('MODX_BASE_PATH')) {
-    include '../../define-path.php';
+    include dirname(__DIR__, 2) . '/define-path.php';
 }
 if (!defined('MODX_BASE_URL')) {
     define('MODX_BASE_URL', init::get_base_url(MODX_BASE_PATH));
