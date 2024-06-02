@@ -1,5 +1,6 @@
 # EditorConfig is awesome: https://EditorConfig.org
 
+# top-most EditorConfig file
 root = true
 
 [*]
@@ -10,7 +11,7 @@ charset = utf-8
 trim_trailing_whitespace = false
 insert_final_newline = true
 
-[*.{php,php.sample,html.php,js,css,scss,json,md}]
+[*.{php,sample,html,html.php,js,css,scss,json,md}]
 trim_trailing_whitespace = true
 
 [*.{html,html.php,js,css,scss,json,md}]
