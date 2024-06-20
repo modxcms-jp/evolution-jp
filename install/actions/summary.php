@@ -269,17 +269,24 @@ function echo_failed($msg = NULL)
 
 function mkd($path)
 {
+    $rs = false;
     if (!is_dir($path)) {
-        $rs = @mkdir($path, 0777, true);
+        $rs = mkdir($path, 0777, true);
         if ($rs) {
-            $rs = @chmod($path, 0777);
+            chmod($path, 0777);
+            clearstatcache(); // ディレクトリ作成後のキャッシュをクリア
         }
     }
 
     if (!is_file($path . '/index.html')) {
-        $rs = @file_put_contents($path . '/index.html', '');
-        if ($rs) @chmod($path . '/index.html', 0666);
-        if (!is_writable($path . '/index.html')) echo echo_failed($path);
+        $rs = file_put_contents($path . '/index.html', '');
+        if ($rs) {
+            chmod($path . '/index.html', 0666);
+            clearstatcache(); // ファイル作成後のキャッシュをクリア
+        }
+        if (!is_writable($path . '/index.html')) {
+            echo echo_failed($path); // エラーメッセージを改善するために、エラー抑制を削除
+        }
     }
 
     return $rs;
