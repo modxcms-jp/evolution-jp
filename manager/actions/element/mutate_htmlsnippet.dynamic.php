@@ -8,7 +8,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a', 0)) {
     case 78:
         if (!evo()->hasPermission('edit_chunk')) {
             alert()->setError(3);
@@ -26,7 +26,11 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = preg_match('@^[1-9][0-9]*$@', anyv('id', 0));
+$id = anyv('id', 0);
+if (!preg_match('@^[0-9]+$@', $id)) {
+    alert()->setError(3);
+    alert()->dumpError();
+}
 
 // Get table names (alphabetical)
 
@@ -43,14 +47,14 @@ if (db()->count($rs) > 1) {
 }
 
 $content = [];
-if (isset($_REQUEST['id']) && $_REQUEST['id'] != '' && is_numeric($_REQUEST['id'])) {
+if (preg_match('@^[1-9][0-9]*$@', $id)) {
     $rs = db()->select('*', '[+prefix+]site_htmlsnippets', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {
         exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
     }
-    if ($total < 1) {
-        exit('<p>Chunk doesn\'t exist.</p>');
+    if (!$total) {
+        exit("<p>Chunk doesn't exist.</p>");
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = $content['name'];
