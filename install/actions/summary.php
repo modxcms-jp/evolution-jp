@@ -34,7 +34,7 @@ if (sessionv('test') != 1) {
 
 // check directories
 // cache exists?
-if (!is_dir(rtrim(MODX_CACHE_PATH, '/'))) {
+if (!is_dir(rtrim(MODX_CACHE_PATH, '/')) && !mkd(MODX_CACHE_PATH)) {
     echo p(echo_failed() . lang('checking_if_cache_exist'));
     $errors += 1;
 }
