@@ -858,26 +858,18 @@ class DocumentParser
                     break;
             }
 
-            if (!is_dir(MODX_BASE_PATH . 'temp/cache')) {
-                mkdir(MODX_BASE_PATH . 'temp/cache');
-            }
-            if (!is_dir(MODX_BASE_PATH . 'temp/cache/' . $this->uaType)) {
-                mkdir(MODX_BASE_PATH . 'temp/cache/' . $this->uaType, 0777);
+            if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
+                mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
             }
 
             if ($this->config['cache_type'] == 1) {
-                $path = sprintf("%stemp/cache/%s/%s", MODX_BASE_PATH, $this->uaType, $this->uri_parent_dir);
+                $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
                 if (!is_dir($path)) {
                     mkdir($path, 0777, true);
                 }
             }
             $this->saveToFile(
-                sprintf(
-                    '%stemp/cache/%s/%s.pageCache.php',
-                    MODX_BASE_PATH,
-                    $this->uaType,
-                    $filename
-                ),
+                MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
                 $cacheContent
             );
         }
@@ -995,7 +987,7 @@ class DocumentParser
 
     private function getSiteCache()
     {
-        $cache_path = MODX_BASE_PATH . 'temp/cache/config.siteCache.idx.php';
+        $cache_path = MODX_CACHE_PATH . 'config.siteCache.idx.php';
         if (is_file($cache_path)) {
             $config = include($cache_path);
         }
@@ -1013,7 +1005,7 @@ class DocumentParser
         }
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $cache = new synccache();
-        $cache->setCachepath(MODX_BASE_PATH . 'temp/cache/');
+        $cache->setCachepath(MODX_CACHE_PATH);
         $cache->setReport(false);
         $cache->setConfig($config);
         $cache->buildCache($this);
@@ -1130,9 +1122,8 @@ class DocumentParser
         }
         $this->config = $config;
 
-        $cache_path = MODX_BASE_PATH . 'temp/cache/';
-        if (is_file($cache_path . 'siteCache.idx.php')) {
-            include_once($cache_path . 'siteCache.idx.php');
+        if (is_file(MODX_CACHE_PATH . 'siteCache.idx.php')) {
+            include_once(MODX_CACHE_PATH . 'siteCache.idx.php');
         }
 
         $this->config['base_path'] = MODX_BASE_PATH;
@@ -1412,8 +1403,8 @@ class DocumentParser
         }
 
         $cacheFile = sprintf(
-            '%stemp/cache/%s/%s.pageCache.php',
-            MODX_BASE_PATH,
+            '%s/%s/%s.pageCache.php',
+            MODX_CACHE_PATH,
             $this->uaType,
             $filename
         );
@@ -1514,7 +1505,7 @@ class DocumentParser
 
     function updatePublishStatus()
     {
-        $cache_path = MODX_BASE_PATH . 'temp/cache/basicConfig.php';
+        $cache_path = MODX_CACHE_PATH . 'basicConfig.php';
         if ($this->cacheRefreshTime == '') {
             if (is_file($cache_path)) {
                 global $cacheRefreshTime;
@@ -3204,7 +3195,7 @@ class DocumentParser
 
     function getPluginCache()
     {
-        $plugins = @include(MODX_BASE_PATH . 'temp/cache/plugin.siteCache.idx.php');
+        $plugins = @include(MODX_CACHE_PATH . 'plugin.siteCache.idx.php');
 
         if ($plugins) {
             $this->pluginCache = $plugins;
@@ -4589,7 +4580,7 @@ class DocumentParser
     # returns the virtual relative path to the cache folder
     function getCachePath()
     {
-        return MODX_BASE_URL . 'temp/cache/';
+        return MODX_CACHE_PATH;
     }
 
     # Returns current user id
@@ -5304,7 +5295,7 @@ class DocumentParser
             return false;
         }
 
-        $tmp = tempnam(MODX_BASE_PATH . 'temp/cache', 'tmp');
+        $tmp = tempnam(rtrim(MODX_CACHE_PATH, '/'), 'tmp');
         if (is_file($tmp) && !is_writable($tmp)) {
             chmod($tmp, 0666);
         }

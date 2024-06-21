@@ -378,7 +378,7 @@ foreach ($content as $k => $v) {
             </div><!-- end sectionBody -->
         </div><!-- end tab-page -->
         <?php
-        $cache = @file_get_contents(MODX_BASE_PATH . "temp/cache/docid_{$id}.pageCache.php");
+        $cache = @file_get_contents(MODX_CACHE_PATH . "docid_{$id}.pageCache.php");
         if ($cache) :
             ?>
             <!-- Page Source -->
