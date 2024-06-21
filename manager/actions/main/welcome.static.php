@@ -7,14 +7,14 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
 
 if (evo()->hasPermission('settings') && (!isset($settings_version) || $settings_version != $modx_version)) {
     // seems to be a new install - send the user to the configuration page
-    echo '<script type="text/javascript">document.location.href="index.php?a=17";</script>';
+    echo '<script>document.location.href="index.php?a=17";</script>';
     exit;
 }
 
 $uid = evo()->getLoginUserID();
 
 $script = <<<JS
-        <script type="text/javascript">
+        <script>
         function hideConfigCheckWarning(key){
             \$j.post('index.php', {'a':'118','action':'setsetting','key':'_hide_configcheck_' + key,'value':'1'},function(resp)
             {

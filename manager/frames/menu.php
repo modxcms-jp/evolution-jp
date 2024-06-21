@@ -233,13 +233,17 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 <?php } ?>
                 | <a href="index.php?a=8" target="_top"><?php echo $_lang['logout'] ?></a>
                 <?php
-                $style = $settings_version != $modx_version ? 'style="color:#ffff8a;"' : '';
                 if (empty($settings_version)) {
                     $settings_version = '0.0.0';
                 }
                 ?>
-                | <?php echo sprintf('<span %s title="%s &ndash; %s">%s</span>&nbsp;', $style, $site_name,
-                    $modx_full_appname, $settings_version); ?>
+                |
+                <?= sprintf('<span %s title="%s &ndash; %s">%s</span>&nbsp;',
+                        $settings_version != $modx_version ? 'style="color:#ffff8a;"' : '',
+                        $site_name,
+                        $modx_full_appname,
+                        $settings_version
+                )?>
                 <!-- close #supplementalNav --></div>
         </div>
     </div>
