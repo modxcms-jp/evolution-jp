@@ -72,9 +72,9 @@ class init
     public static function get_base_path()
     {
         return str_replace(
-            ['\\', 'manager/includes/initialize.functions.inc.php']
-            , ['/', '']
-            , __FILE__
+            ['\\', 'manager/includes/initialize.functions.inc.php'],
+            ['/', ''],
+            __FILE__
         );
     }
 
@@ -104,7 +104,8 @@ class init
         }
 
         $dir = preg_replace(
-            '@(.*?)/assets/.*$@', '$1',
+            '@(.*?)/assets/.*$@',
+            '$1',
             substr($SCRIPT_NAME, 0, strrpos($SCRIPT_NAME, '/') + 1)
         );
         if (strpos($SCRIPT_NAME, '/~') === 0) {
@@ -263,10 +264,10 @@ class init
     {
         $lifetime = sessionv(
             sprintf(
-                'modx.%s.session.cookie.lifetime'
-                , sessionv('mgrValidated') ? 'mgr' : 'web'
-            )
-            , 0
+                'modx.%s.session.cookie.lifetime',
+                sessionv('mgrValidated') ? 'mgr' : 'web'
+            ),
+            0
         );
         if (!preg_match('@^[1-9][0-9]+$@', $lifetime)) {
             return 0;
