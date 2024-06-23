@@ -15,7 +15,6 @@ function startCMSSession()
         $_SESSION['evo_sid_hash'] = md5(session_id());
     }
     if (sessionv('mgrValidated') || sessionv('webValidated')) {
-        // init::setcookie(init::cookieExpiration());
         init::set_session_create_time();
     }
 }
@@ -68,23 +67,6 @@ class init
             'samesite' => 'Lax'
         ];
         session_set_cookie_params($options);
-    }
-
-    public static function setcookie($expires)
-    {
-        global $site_sessionname;
-        setcookie(
-            $site_sessionname,
-            session_id(),
-            [
-                'expires'  => $expires,
-                'path'     => MODX_BASE_URL,
-                'secure'   => init::is_ssl() ? true : false,
-                'domain'   => init::get_host_name(),
-                'httponly' => true,
-                'samesite' => 'Lax',
-            ]
-        );
     }
 
     public static function get_base_path()
