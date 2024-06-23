@@ -120,6 +120,8 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
             $result = db()->select($field, $from, $where, $tree_orderby);
             $hasChild = db()->count($result);
         }
+    } else {
+        $container_status = 'asis';
     }
 
     $pad = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
@@ -408,7 +410,7 @@ EOT;
 
 function get_tree_orderby()
 {
-    $orderby = sessionv('tree_sortby') . ' ' . sessionv('tree_sortdir');
+    $orderby = sessionv('tree_sortby', 'id') . ' ' . sessionv('tree_sortdir', 'asc');
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
     if ($_SESSION['tree_sortby'] === 'isfolder') {
