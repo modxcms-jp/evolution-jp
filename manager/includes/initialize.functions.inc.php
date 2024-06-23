@@ -67,13 +67,7 @@ class init
             'httponly' => true,
             'samesite' => 'Lax'
         ];
-        session_set_cookie_params(
-            $options['lifetime'],
-            $options['path'],
-            $options['domain'],
-            $options['secure'],
-            $options['httponly']
-        );
+        session_set_cookie_params($options);
     }
 
     public static function setcookie($expires)
