@@ -7,9 +7,9 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 if ($modx->config('remember_last_tab') !== '2') {
     if (70300 <= PHP_VERSION_ID) {
         setcookie(
-            'webfxtab_childPane'
-            , getv('tab', 1)
-            , array(
+            'webfxtab_childPane',
+            getv('tab', 1),
+            array(
                 'expires' => time() + 3600,
                 'path' => MODX_BASE_URL,
                 'secure' => init::is_ssl(),
@@ -19,13 +19,13 @@ if ($modx->config('remember_last_tab') !== '2') {
         );
     } else {
         setcookie(
-            'webfxtab_childPane'
-            , getv('tab', 1)
-            , time() + 3600
-            , MODX_BASE_URL . '; SameSite=Lax'
-            , ''
-            , init::is_ssl()
-            , true
+            'webfxtab_childPane',
+            getv('tab', 1),
+            time() + 3600,
+            MODX_BASE_URL . '; SameSite=Lax',
+            '',
+            init::is_ssl(),
+            true
         );
     }
 }
