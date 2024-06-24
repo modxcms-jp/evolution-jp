@@ -410,7 +410,13 @@ EOT;
 
 function get_tree_orderby()
 {
-    $orderby = sessionv('tree_sortby', 'id') . ' ' . sessionv('tree_sortdir', 'asc');
+    $orderby = sprintf('%s %s',
+        sessionv(
+            'tree_sortby',
+            config('resource_tree_sortby_default','menuindex')
+        ),
+        sessionv('tree_sortdir', 'asc')
+    );
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
     if ($_SESSION['tree_sortby'] === 'isfolder') {
