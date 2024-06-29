@@ -520,3 +520,39 @@ function withSample($installset)
     }
     return true;
 }
+
+function convert2utf8mb4() {
+    include MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    $convert = new convert2utf8mb4();
+    if ($convert->isUtf8mb4Configured()) {
+        return;
+    }
+    if (!$convert->isAvailable()) {
+        echo "<p>'utf8mb4 is not available.'</p>";
+        return;
+    }
+
+    $charset = $convert->getDefaultCharset();
+    if (!$charset) {
+        return;
+    }
+
+    echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
+    if ($charset !== 'utf8mb4') {
+        $convert->convertDb();
+    }
+    $convert->convertDb();
+    
+    $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
+    if ($count) {
+        echo sprintf(
+            "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+            $count
+        );
+    } else {
+        echo "<p>utf8mb4_general_ciに変換されたテーブルはありません。</p>";
+    }
+
+    $convert->updateConfigIncPhp();
+    echo "<p>config.inc.php has been updated.</p>";
+}

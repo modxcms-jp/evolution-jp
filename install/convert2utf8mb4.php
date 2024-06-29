@@ -41,24 +41,21 @@ class convert2utf8mb4 {
 
     public function convertDb()
     {
+        db()->exec(
+            sprintf(
+                "ALTER DATABASE %s CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
+                db()->dbase
+            )
+        );
+    }
+
+    public function getDefaultCharset() {
         $rs = db()->select(
             'DEFAULT_CHARACTER_SET_NAME',
             'INFORMATION_SCHEMA.SCHEMATA',
             sprintf("SCHEMA_NAME = '%s'", db()->dbase)
         );
-        $charset = db()->getValue($rs);
-        if(!$charset) {
-            return;
-        }
-
-        if ($charset !== 'utf8mb4') {
-            db()->exec(
-                sprintf(
-                    "ALTER DATABASE %s CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
-                    db()->dbase
-                )
-            );
-        }
+        return db()->getValue($rs);
     }
 
     public function convertTablesWithPrefix($prefix)

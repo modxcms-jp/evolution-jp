@@ -45,30 +45,7 @@ if (sessionv('is_upgradeable')) {
             )
         );
     }
-    include MODX_SETUP_PATH . 'convert2utf8mb4.php';
-    echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
-    $convert = new convert2utf8mb4();
-    if ($convert->isUtf8mb4Configured()) {
-        echo "<p>utf8mb4 is already configured.</p>";
-    } else {
-        if (!$convert->isAvailable()) {
-            echo "<p>'utf8mb4 is not available.'</p>";
-        } else {
-            if ($convert->updateConfigIncPhp()) {
-                echo "<p>config.inc.php has been updated.</p>";
-                $convert->convertDb();
-                $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
-                if ($count) {
-                    echo sprintf(
-                        "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
-                        $count
-                    );
-                } else {
-                    echo "<p>utf8mb4_general_ciに変換されたテーブルはありません。</p>";
-                }
-            }
-        }
-    }
+    convert2utf8mb4();
 }
 
 echo "<p>" . lang('setup_database_creating_tables');
