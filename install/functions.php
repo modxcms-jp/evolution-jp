@@ -534,6 +534,7 @@ function convert2utf8mb4() {
 
     $charset = $convert->getDefaultCharset();
     if (!$charset) {
+        echo "<p>'Database default charset is not available.'</p>";
         return;
     }
 
