@@ -39,14 +39,35 @@ if (sessionv('is_upgradeable')) {
     if (db()->tableExists('[+prefix+]site_revision') && !db()->fieldExists('elmid', '[+prefix+]site_revision')) {
         db()->query(
             str_replace(
-                '[+prefix+]'
-                , sessionv('table_prefix')
-                , 'DROP TABLE IF EXISTS `[+prefix+]site_revision`')
+                '[+prefix+]',
+                sessionv('table_prefix'),
+                'DROP TABLE IF EXISTS `[+prefix+]site_revision`'
+            )
         );
     }
-    $message = include MODX_CORE_PATH . 'convert2utf8mb4.php';
-    if ($message) {
-        echo "<p>" . $message . "</p>";
+    include MODX_SETUP_PATH . 'convert2utf8mb4.php';
+    echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
+    $convert = new convert2utf8mb4();
+    if ($convert->isUtf8mb4Configured()) {
+        echo "<p>utf8mb4 is already configured.</p>";
+    } else {
+        if (!$convert->isAvailable()) {
+            echo "<p>'utf8mb4 is not available.'</p>";
+        } else {
+            if ($convert->updateConfigIncPhp()) {
+                echo "<p>config.inc.php has been updated.</p>";
+                $convert->convertDb();
+                $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
+                if ($count) {
+                    echo sprintf(
+                        "<p>Database and tables collation have been changed to utf8mb4_general_ci. %d tables have been converted.</p>",
+                        $count
+                    );
+                } else {
+                    echo "<p>utf8mb4_general_ciに変換されたテーブルはありません。</p>";
+                }
+            }
+        }
     }
 }
 

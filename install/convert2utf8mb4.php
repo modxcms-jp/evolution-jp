@@ -1,21 +1,4 @@
 <?php
-$convert = new convert2utf8mb4();
-
-// デフォルトのcollationがutf8mb4_general_ciなら何もしない
-if ($convert->getDbCollation() === 'utf8mb4_general_ci') {
-    return '';
-}
-
-if (!$convert->isAvailable()) {
-    return 'utf8mb4 is not available.';
-}
-
-$convert->updateConfigIncPhp();
-$convert->convertDb();
-$convert->convertTables();
-
-return 'Database collation has been changed to utf8mb4_general_ci.';
-
 class convert2utf8mb4 {
     private $config_path;
 
@@ -41,16 +24,19 @@ class convert2utf8mb4 {
 
     public function updateConfigIncPhp()
     {
-        if (strpos($this->getConfigContent(), "'utf8mb4'") !== false) {
-            return;
+        if ($this->isUtf8mb4Configured()) {
+            return false;
         }
 
         @chmod($this->config_path, 0666);
-        file_put_contents(
+        return file_put_contents(
             $this->config_path,
             str_replace("'utf8'", "'utf8mb4'", $this->getConfigContent())
         );
-        @chmod($this->config_path, 0444);
+    }
+
+    public function isUtf8mb4Configured() {
+        return strpos($this->getConfigContent(), "'utf8mb4'") !== false;
     }
 
     public function convertDb()
@@ -75,7 +61,7 @@ class convert2utf8mb4 {
         }
     }
 
-    public function convertTables()
+    public function convertTablesWithPrefix($prefix)
     {
         $rs = db()->select(
             'TABLE_NAME, CCSA.CHARACTER_SET_NAME',
@@ -87,7 +73,7 @@ class convert2utf8mb4 {
                 sprintf(
                     "TABLE_SCHEMA = '%s' AND TABLE_NAME LIKE '%s%%'",
                     db()->dbase,
-                    db()->table_prefix
+                    $prefix
                 ),
                 "AND CCSA.CHARACTER_SET_NAME != 'utf8mb4'"
             ]
@@ -101,6 +87,7 @@ class convert2utf8mb4 {
             );
             // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
         }
+        return db()->count($rs);
     }
 
     public function getDbCollation()
