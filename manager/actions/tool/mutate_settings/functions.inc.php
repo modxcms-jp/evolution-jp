@@ -76,10 +76,10 @@ function form_text_tag($name, $value, $attr = array())
 {
     return sprintf(
         strpos($value, '"') === false
-            ? '<input type="text" name="%s" value="%s" %s>' : '<input type="text" name="%s" value=\'%s\' %s>'
-        , $name
-        , $value
-        , join_attr($attr)
+            ? '<input type="text" name="%s" value="%s" %s>' : '<input type="text" name="%s" value=\'%s\' %s>',
+        $name,
+        $value,
+        join_attr($attr)
     );
 }
 
@@ -91,9 +91,9 @@ function join_attr($attr = array())
     $rs = array();
     foreach ($attr as $k => $v) {
         $rs[] = sprintf(
-            '%s="%s"'
-            , $k
-            , $v
+            '%s="%s"',
+            $k,
+            $v
         );
     }
     return implode(' ', $rs);
@@ -105,34 +105,34 @@ function form_text($name, $maxlength = '255', $add = '', $readonly = false)
         $maxlength = '255';
     }
     return sprintf(
-        '<input type="text" name="%s" value="%s" maxlength="%s" %s %s %s />'
-        , $name
-        , evo()->config($name, '')
-        , $maxlength
-        , $maxlength <= 10 ? sprintf('style="width:%sem;"', $maxlength) : ''
-        , $readonly ? 'disabled' : ''
-        , $add ? $add : ''
+        '<input type="text" name="%s" value="%s" maxlength="%s" %s %s %s />',
+        $name,
+        evo()->config($name, ''),
+        $maxlength,
+        $maxlength <= 10 ? sprintf('style="width:%sem;"', $maxlength) : '',
+        $readonly ? 'disabled' : '',
+        $add ? $add : ''
     );
 }
 
 function form_radio($name, $value, $checked = false, $add = '', $disabled = false)
 {
     return sprintf(
-        '<input type="radio" name="%s" value="%s" %s %s %s />'
-        , $name
-        , $value
-        , $checked ? 'checked="checked"' : ''
-        , $disabled ? 'disabled' : ''
-        , $add
+        '<input type="radio" name="%s" value="%s" %s %s %s />',
+        $name,
+        $value,
+        $checked ? 'checked="checked"' : '',
+        $disabled ? 'disabled' : '',
+        $add
     );
 }
 
 function wrap_label($str = '', $object = '')
 {
     return sprintf(
-        '<label>%s %s</label>'
-        , $object
-        , $str
+        '<label>%s %s</label>',
+        $object,
+        $str
     );
 }
 
@@ -141,17 +141,17 @@ function get_role_list()
     global $default_role;
 
     $rs = db()->select(
-        'id,name'
-        , '[+prefix+]user_roles'
-        , 'id!=1'
-        , 'save_role DESC,new_role DESC,id ASC'
+        'id,name',
+        '[+prefix+]user_roles',
+        'id!=1',
+        'save_role DESC,new_role DESC,id ASC'
     );
     $options = "\n";
     while ($ph = db()->getRow($rs)) {
         $ph['selected'] = $default_role == $ph['id'] ? 'selected' : '';
         $options .= evo()->parseText(
-            '<option value="[+id+]" [+selected+]>[+name+]</option>'
-            , $ph
+            '<option value="[+id+]" [+selected+]>[+name+]</option>',
+            $ph
         );
     }
     return $options;
