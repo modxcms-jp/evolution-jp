@@ -218,3 +218,18 @@ function settings()
     }
     return $settings;
 }
+
+class Form
+{
+    public static function text($name, $value, $attr = array())
+    {
+        return sprintf(
+            strpos($value, '"') === false
+                ? '<input type="text" name="%s" value="%s" %s>'
+                : '<input type="text" name="%s" value=\'%s\' %s>',
+            $name,
+            $value,
+            join_attr($attr)
+        );
+    }
+}
