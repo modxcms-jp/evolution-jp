@@ -63,7 +63,7 @@ if (!$numRecords) {
     $f[] = 'rev.status';
     $where = array();
     $where[] = "sc.parent='" . $id . "'";
-    if ($_SESSION['mgrRole'] != 1 && !evo()->config['tree_show_protected']) {
+    if ($_SESSION['mgrRole'] != 1 && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
@@ -84,8 +84,8 @@ if (!$numRecords) {
         $orderby,
         sprintf(
             '%s,%s',
-            ($offset * evo()->config['number_of_results']),
-            evo()->config['number_of_results']
+            ($offset * evo()->config('number_of_results')),
+            evo()->config('number_of_results')
         )
     );
     $docs = array();
@@ -129,7 +129,7 @@ if (!$numRecords) {
     evo()->table->setRowDefaultClass('gridItem');
     evo()->table->setRowAlternateClass('gridAltItem');
     evo()->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
-    evo()->table->setPageLimit(evo()->config['number_of_results']);
+    evo()->table->setPageLimit(evo()->config('number_of_results'));
 
     // Table header
     $header['checkbox'] = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
