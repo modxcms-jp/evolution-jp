@@ -42,6 +42,20 @@
             </td>
         </tr>
         <tr>
+            <th><?php echo $_lang["manager_docs_orderby_title"] ?></th>
+            <td>
+                <?=
+                    Form::text(
+                        'manager_docs_orderby',
+                        config('manager_docs_orderby'), [
+                            'style' => 'width:500px;'
+                        ]
+                    )
+                ?>
+                <p><?php echo $_lang["manager_docs_orderby_message"] ?></p>
+            </td>
+        </tr>
+        <tr>
             <th><?php echo $_lang["tree_pane_open_default_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["open"],

@@ -67,7 +67,6 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    $orderby = 'sc.isfolder DESC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
     if (preg_match('@^[1-9][0-9]*$@', getv('page'))) {
         $offset = getv('page') - 1;
     } else {
@@ -81,7 +80,9 @@ if (!$numRecords) {
             "LEFT JOIN [+prefix+]site_revision rev on rev.elmid=sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource'"
         ),
         $where,
-        $orderby,
+        transformOrderBy(
+            evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
+        ),
         sprintf(
             '%s,%s',
             ($offset * evo()->config('number_of_results')),
@@ -592,6 +593,19 @@ function getContextMenu($cm)
     if (hasPermission('view_document')) {
         $cm->addItem(lang('resource_overview'), "js:menuAction(3)", style('icons_resource_overview'));
     }
-    //$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
     return $cm->render();
+}
+
+function transformOrderBy($input) {
+    $parts = array_map(
+        'trim',
+        explode(',', $input)
+    );
+    foreach ($parts as &$part) {
+        $part = 'sc.' . $part;
+        if (stripos($part, ' desc') === false && stripos($part, ' asc') === false) {
+            $part .= ' desc';
+        }
+    }
+    return implode(', ', $parts);
 }

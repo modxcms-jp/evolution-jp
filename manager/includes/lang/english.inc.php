@@ -1233,6 +1233,9 @@ $_lang["topmenu_items_message"] = 'Top menu structure in the manager interface';
 
 $_lang["open"] = 'Open';
 
+$_lang["manager_docs_orderby_title"] = 'Resource list order';
+$_lang["manager_docs_orderby_message"] = 'Set the order of the <a href="index.php?a=120">resource list</a>.';
+
 $_lang["tree_pane_open_default_title"] = 'Tree pane default';
 $_lang["tree_pane_open_default_message"] = 'Tree pane default';
 

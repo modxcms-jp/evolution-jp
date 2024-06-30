@@ -1236,6 +1236,9 @@ $_lang["topmenu_items_message"] = '管理画面のトップメニューの構成
 
 $_lang["open"] = '開く';
 
+$_lang["manager_docs_orderby_title"] = 'リソース一覧の並び順';
+$_lang["manager_docs_orderby_message"] = '<a href="index.php?a=120">リソース一覧</a>の並び順を設定します。指定方法については<a href="https://modx.jp/docs/extras/snippets/ditto/params/main/body.html#orderBy" target="_blank">DittoのorderByパラメータ</a>を参考にしてください。';
+
 $_lang["tree_pane_open_default_title"] = 'ツリーペインの初期状態';
 $_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルトで有効にするか閉じておくかを設定します。';
 

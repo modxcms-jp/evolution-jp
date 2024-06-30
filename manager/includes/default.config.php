@@ -97,6 +97,7 @@ $default_config = [
     'enable_draft' => '0',
     'automatic_optimize' => '1',
     'sanitize_gpc' => 1,
+    'manager_docs_orderby' => 'isfolder desc, publishedon desc, editedon desc, id desc',
 ];
 
 if (getv('a') !== '17') {
