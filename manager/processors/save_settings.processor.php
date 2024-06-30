@@ -24,6 +24,7 @@ if (formv('reset_template')) {
 
 cleanup_tv();
 fix_pulishedon();
+repairDocs();
 evo()->clearCache();
 setPermission();
 header("Location: index.php?a=7&r=9");
@@ -274,5 +275,13 @@ function fix_pulishedon() {
                 request_time()
             )
         ]
+    );
+}
+
+function repairDocs() {
+    db()->update(
+        'editedon=createdon',
+        '[+prefix+]site_content',
+        'editedon=0'
     );
 }
