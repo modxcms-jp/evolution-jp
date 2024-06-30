@@ -90,6 +90,12 @@ function join_attr($attr = array())
     }
     $rs = array();
     foreach ($attr as $k => $v) {
+        if ($v === false) {
+            continue;
+        }
+        if ($v === true) {
+            $v = $k;
+        }
         $rs[] = sprintf(
             '%s="%s"',
             $k,
