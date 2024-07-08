@@ -76,6 +76,7 @@ class convert2utf8mb4 {
             ]
         );
         while($row = db()->getRow($rs)) {
+            echo sprintf('%sを変換します<br>', $row['TABLE_NAME']);
             db()->exec(
                 sprintf(
                     "ALTER TABLE %s CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",

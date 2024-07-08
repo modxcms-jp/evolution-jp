@@ -34,6 +34,14 @@ ALTER TABLE `{PREFIX}user_roles`
 ALTER TABLE `{PREFIX}user_roles`
     ADD COLUMN `move_document` int(1) NOT NULL DEFAULT '0' AFTER `save_document`;
 
+ALTER TABLE `{PREFIX}documentgroup_names`
+    CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;
+
+ALTER TABLE `{PREFIX}membergroup_names`
+    CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;
+
+ALTER TABLE `{PREFIX}webgroup_names`
+    CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`;
 
 REPLACE
 INTO `{PREFIX}user_roles`

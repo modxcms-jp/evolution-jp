@@ -45,7 +45,6 @@ if (sessionv('is_upgradeable')) {
             )
         );
     }
-    convert2utf8mb4();
 }
 
 echo "<p>" . lang('setup_database_creating_tables');
@@ -60,6 +59,11 @@ if (!sessionv('is_upgradeable')) {
 }
 
 $sqlParser->intoDB('fix_settings.sql');
+
+if (sessionv('is_upgradeable')) {
+    convert2utf8mb4();
+}
+
 // display database results
 if ($sqlParser->installFailed == true) {
     $errors += 1;
