@@ -1128,8 +1128,12 @@ class DocumentParser
 
         $this->config['base_path'] = MODX_BASE_PATH;
         $this->config['core_path'] = MODX_CORE_PATH;
-        $this->config['base_url'] = MODX_BASE_URL;
-        $this->config['site_url'] = MODX_SITE_URL;
+        if (defined('MODX_BASE_URL')) {
+            $this->config['base_url'] = MODX_BASE_URL;
+        }
+        if (defined('MODX_SITE_URL')) {
+            $this->config['site_url'] = MODX_SITE_URL;
+        }
         if (!isset($this->config['error_page'])) {
             $this->config['error_page'] = $this->config['start_page'];
         }
