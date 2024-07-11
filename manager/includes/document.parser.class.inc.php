@@ -988,7 +988,7 @@ class DocumentParser
     private function getSiteCache()
     {
         $cache_path = MODX_CACHE_PATH . 'config.siteCache.idx.php';
-        if (is_file($cache_path)) {
+        if (is_readable($cache_path)) {
             $config = include($cache_path);
         }
 
