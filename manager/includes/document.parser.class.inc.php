@@ -5066,6 +5066,10 @@ class DocumentParser
 
     function phpError($nr, $text, $file, $line)
     {
+        // CLI環境であれば処理をスキップ
+        if (php_sapi_name() == 'cli') {
+            return true;
+        }
         if (error_reporting() == 0 || $nr == 0) {
             return true;
         }
