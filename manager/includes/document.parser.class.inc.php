@@ -5300,7 +5300,7 @@ class DocumentParser
         }
 
         $tmp = tempnam(rtrim(MODX_CACHE_PATH, '/'), 'tmp');
-        if (is_file($tmp) && !is_writable($tmp)) {
+        if (is_file($tmp)) {
             chmod($tmp, 0666);
         }
 
