@@ -98,6 +98,9 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     if(!$string) {
         return $string;
     }
+    if (is_object($string)) {
+        return $string;
+    }
     if(is_array($string)) {
         foreach($string as $i=>$v) {
             $string[$i] = hsc($v, $flags, $encode, $double_encode);
