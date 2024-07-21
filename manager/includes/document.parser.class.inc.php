@@ -332,9 +332,27 @@ class DocumentParser
         if (strpos($uri, '?') === false) {
             return $uri;
         }
-        $qs = $_GET;
+        $qs = $this->removeTrackingParameters($_GET);
         ksort($qs);
         return strstr($uri, '?', true) . '?' . http_build_query($qs);
+    }
+
+    private function removeTrackingParameters($params)
+    {
+        // 削除するパラメータのリスト
+        $trackingParameters = [
+            'gclid', 'yclid', 'fbclid', 'msclkid',
+            'utm_source', 'utm_medium', 'utm_campaign',
+            'utm_term', 'utm_content'
+        ];
+
+        // 特定のトラッキングパラメータを削除
+        foreach ($trackingParameters as $param) {
+            if (isset($params[$param])) {
+                unset($params[$param]);
+            }
+        }
+        return $params;
     }
 
     private function getDocumentIdentifier($uri)
