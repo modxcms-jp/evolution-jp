@@ -213,13 +213,6 @@ class EXPORT_SITE
         $ph['total'] = $this->total;
         $folder_permission = octdec($modx->config['new_folder_permissions']);
 
-        $msg_failed_no_write = $this->makeMsg('failed_no_write', 'fail');
-        $msg_failed_no_open = $this->makeMsg('failed_no_open', 'fail');
-        $msg_failed_no_retrieve = $this->makeMsg('failed_no_retrieve', 'fail');
-        $msg_success = $this->makeMsg('success');
-        $msg_success_skip_doc = $this->makeMsg('success_skip_doc');
-        $msg_success_skip_dir = $this->makeMsg('success_skip_dir');
-
         if (!is_file($this->lock_file_path)) {
             $this->removeDirectoryAll($this->targetDir);
         }
@@ -248,79 +241,85 @@ class EXPORT_SITE
             $this->count++;
             $row['count'] = $this->count;
 
-            if (!$row['wasNull']) { // needs writing a document
-                $docname = $this->getFileName(
-                    $row['id'],
-                    $row['alias'],
-                    $modx->config('friendly_url_prefix'),
-                    $modx->config('friendly_url_suffix')
-                );
-                $filename = $target_base_path . $docname;
-                if (is_dir($filename)) {
-                    $filename = rtrim($filename, '/') . '/index.html';
-                }
-                if (!is_file($filename) || substr($filename, -10) === 'index.html') {
-                    if ($row['published'] == 1) {
-                        $status = $this->makeFile($row['id'], $filename);
-                        switch ($status) {
-                            case 'failed_no_write' :
-                                $row['status'] = $msg_failed_no_write;
-                                break;
-                            case 'failed_no_open'  :
-                                $row['status'] = $msg_failed_no_open;
-                                break;
-                            default                :
-                                $row['status'] = $msg_success;
-                        }
-                    } else {
-                        $row['status'] = $msg_failed_no_retrieve;
-                    }
-                } else {
-                    $row['status'] = $msg_success_skip_doc;
-                }
-                $this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
-            } else {
-                $row['status'] = $msg_success_skip_dir;
-                $this->output[] = $modx->parseText($_lang['export_site_exporting_document'], $row);
-            }
-
-            if ($row['isfolder'] != 1) {
-                continue;
-            }
-
-            if ($modx->config('suffix_mode') == 1 && strpos($row['alias'], '.') !== false) {
-                continue;
-            }
-
-            $end_dir = ($row['alias'] !== '') ? $row['alias'] : $row['id'];
-            $folder_path = $target_base_path . $end_dir;
-            if (strpos($folder_path, MODX_BASE_PATH) !== 0) {
-                return false;
-            }
-
-            if (!is_dir($folder_path)) {
-                if (is_file($folder_path)) {
-                    @unlink($folder_path);
-                }
-                umask(000);
-                mkdir($folder_path, 0777);
-                umask($mask);
-            }
-
-            if ($modx->config['make_folders'] != 1 || $row['published'] != 1) {
-                continue;
-            }
-
-            if (is_file($filename)) {
-                rename($filename, $folder_path . '/index.html');
-            }
+            $this->processRow($row, $target_base_path, $_lang, $mask);
         }
+
         if (is_file($this->lock_file_path)) {
             unlink($this->lock_file_path);
         }
+
         return join("\n", $this->output);
     }
 
+    private function processRow($row, $target_base_path, $_lang, $mask)
+    {
+        if (!$row['wasNull']) { // needs writing a document
+            $docname = $this->getFileName(
+                $row['id'],
+                $row['alias'],
+                evo()->config('friendly_url_prefix'),
+                evo()->config('friendly_url_suffix')
+            );
+            $filename = $target_base_path . $docname;
+            if (is_dir($filename)) {
+                $filename = rtrim($filename, '/') . '/index.html';
+            }
+            if (!is_file($filename) || substr($filename, -10) === 'index.html') {
+                if ($row['published'] == 1) {
+                    $status = $this->makeFile($row['id'], $filename);
+                    switch ($status) {
+                        case 'failed_no_write':
+                            $row['status'] = $this->makeMsg('failed_no_write', 'fail');
+                            break;
+                        case 'failed_no_open':
+                            $row['status'] = $this->makeMsg('failed_no_open', 'fail');
+                            break;
+                        default:
+                            $row['status'] = $this->makeMsg('success');
+                    }
+                } else {
+                    $row['status'] = $this->makeMsg('failed_no_retrieve', 'fail');
+                }
+            } else {
+                $row['status'] = $this->makeMsg('success_skip_doc');
+            }
+            $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+        } else {
+            $row['status'] = $this->makeMsg('success_skip_dir');
+            $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+        }
+
+        if ($row['isfolder'] != 1) {
+            return;
+        }
+
+        if (evo()->config('suffix_mode') == 1 && strpos($row['alias'], '.') !== false) {
+            return;
+        }
+
+        $end_dir = ($row['alias'] !== '') ? $row['alias'] : $row['id'];
+        $folder_path = $target_base_path . $end_dir;
+        if (strpos($folder_path, MODX_BASE_PATH) !== 0) {
+            return false;
+        }
+
+        if (!is_dir($folder_path)) {
+            if (is_file($folder_path)) {
+                @unlink($folder_path);
+            }
+            umask(000);
+            mkdir($folder_path, 0777);
+            umask($mask);
+        }
+
+        if (evo()->config('make_folders') != 1 || $row['published'] != 1) {
+            return;
+        }
+
+        if (is_file($filename)) {
+            rename($filename, $folder_path . '/index.html');
+        }
+    }
     private function get_contents($url, $timeout = 10)
     {
         if (!extension_loaded('curl')) {
