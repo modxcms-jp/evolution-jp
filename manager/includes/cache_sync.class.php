@@ -312,7 +312,7 @@ class synccache
         if (!$time) {
             return 0;
         }
-        return min($time);
+        return (request_time() + config('server_offset_time', 0)) < min($time) ? min($time) : 0;
     }
 
     private function minTime($table_name, $field_name, $where)
