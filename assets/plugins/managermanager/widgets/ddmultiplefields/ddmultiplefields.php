@@ -34,7 +34,6 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         return;
     }
 
-    $output = '';
     $widgetDir = MODX_BASE_URL . 'assets/plugins/managermanager/widgets/ddmultiplefields/';
 
     if ($columnsData) {
@@ -78,6 +77,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         return;
     }
 
+    $output = '';
     $output .= "// ---------------- mm_ddMultipleFields :: Begin ------------- \n";
     //General functions
     $output .= '
