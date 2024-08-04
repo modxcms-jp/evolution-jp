@@ -5453,7 +5453,11 @@ class DocumentParser
 
         if ($str && $ent_str == '') {
             $ent_str = $this->hsc(
-                mb_convert_encoding($str, $encode, implode(',', mb_detect_order())),
+                mb_convert_encoding(
+                    $str,
+                    $encode,
+                    mb_detect_order(['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'])
+                ),
                 $flags,
                 $encode,
                 $double_encode
