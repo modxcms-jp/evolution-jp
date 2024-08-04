@@ -197,6 +197,12 @@ if (is_file(MODX_CACHE_PATH . "installProc.inc.php")) {
     @chmod(MODX_CACHE_PATH . "installProc.inc.php", 0755);
     unlink(MODX_CACHE_PATH . "installProc.inc.php");
 }
+
+// assets/cacheディレクトリが存在する場合は、サブディレクトリも含めて全て削除
+if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
+    deleteCacheDirectory(MODX_BASE_PATH . 'assets/cache');
+}
+
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
 echo "<p>" . lang('to_log_into_content_manager') . "</p>";
@@ -211,6 +217,23 @@ if (sessionv('is_upgradeable') == 0) {
 echo '</p>';
 
 $_SESSION = array();
+
+function deleteCacheDirectory($cachePath) {
+    if (!is_dir($cachePath)) {
+        return;
+    }
+
+    $dir = new RecursiveDirectoryIterator($cachePath, FilesystemIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
+    foreach ($files as $file) {
+        if ($file->isDir()) {
+            rmdir($file->getRealPath());
+        } else {
+            unlink($file->getRealPath());
+        }
+    }
+    rmdir($cachePath);
+}
 
 function ok($name, $msg)
 {
