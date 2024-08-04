@@ -310,16 +310,17 @@ class DocumentParser
             $this->documentIdentifier = $this->getDocumentIdentifier(
                 $this->decoded_request_uri
             );
-            $this->setDBCache(
-                'docid_by_uri',
-                md5($this->decoded_request_uri),
-                $this->documentIdentifier
-            );
         }
 
         if (!$this->documentIdentifier) {
             $this->sendErrorPage();
         }
+
+        $this->setDBCache(
+            'docid_by_uri',
+            md5($this->decoded_request_uri),
+            $this->documentIdentifier
+        );
 
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
