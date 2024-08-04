@@ -170,12 +170,6 @@ class synccache
 
     private function recent_update()
     {
-        static $recent_update = null;
-
-        if ($recent_update) {
-            return $recent_update;
-        }
-
         $recent_update = serverv('REQUEST_TIME', 0) + config('server_offset_time', 0);
 
         $f = [
@@ -183,16 +177,15 @@ class synccache
             'setting_name' => 'recent_update'
         ];
         $rs = db()->select(
-            'setting_name,setting_value'
-            , '[+prefix+]system_settings'
-            , "setting_name='recent_update'"
+            'setting_name,setting_value',
+            '[+prefix+]system_settings',
+            "setting_name='recent_update'"
         );
         if (db()->count($rs)) {
             db()->update($f, '[+prefix+]system_settings', "setting_name='recent_update'");
         } else {
             db()->insert($f, '[+prefix+]system_settings');
         }
-        return $recent_update;
     }
 
     public function publishBasicConfig()
@@ -300,11 +293,9 @@ class synccache
             , 'pub_date'
             , "0 < pub_date AND status = 'standby'"
         );
-        foreach ($time as $k => $v) {
-            if (!$v || $v == 0) {
-                unset($time[$k]);
-            }
-        }
+        $time = array_filter($time, function($v) {
+            return !empty($v);
+        });
         if (!$time) {
             return 0;
         }
