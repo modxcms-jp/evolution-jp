@@ -70,8 +70,8 @@ class Mysqldumper
     private function is_content_table($table_name)
     {
         if (!$this->in_array(
-            $table_name
-            , [
+            $table_name,
+            [
                 'site_content',
                 'site_htmlsnippets',
                 'site_templates',
@@ -127,9 +127,9 @@ class Mysqldumper
         $header[] = '--  Database : `' . $this->dbname . '`';
         $header[] = '-- ';
         file_put_contents(
-            $tempfile_path
-            , implode($lf, $header)
-            , FILE_APPEND | LOCK_EX
+            $tempfile_path,
+            implode($lf, $header),
+            FILE_APPEND | LOCK_EX
         );
 
         $this->_dbtables = array_flip($this->_dbtables);
@@ -161,9 +161,9 @@ class Mysqldumper
             if ($this->isDroptables()) {
                 $output .= 'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;' . $lf;
                 $output .= sprintf(
-                        'DROP TABLE IF EXISTS `%s`;'
-                        , $table_name
-                    ) . $lf;
+                    'DROP TABLE IF EXISTS `%s`;',
+                    $table_name
+                ) . $lf;
                 $output .= "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;{$lf}{$lf}";
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
@@ -174,11 +174,11 @@ class Mysqldumper
             }
 
             $output .= sprintf(
-                '-- %s-- Dumping data for table `%s`%s-- %s'
-                , $lf
-                , $table_name
-                , $lf
-                , $lf
+                '-- %s-- Dumping data for table `%s`%s-- %s',
+                $lf,
+                $table_name,
+                $lf,
+                $lf
             );
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
 
@@ -297,8 +297,8 @@ class Mysqldumper
             header("Content-Length: " . strlen($dumpstring));
             header(
                 sprintf(
-                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql'
-                    , strtolower(
+                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
+                    strtolower(
                         str_replace(
                             '/',
                             '-',
@@ -307,8 +307,8 @@ class Mysqldumper
                                 'dateOnly'
                             )
                         )
-                    )
-                    , globalv('settings_version')
+                    ),
+                    globalv('settings_version')
                 )
             );
         }
@@ -363,9 +363,10 @@ class Mysqldumper
                 case 'filemanager_path':
                     if (strpos($value, '[(base_path)]') !== false) {
                         $settings[$name] = str_replace(
-                            '[(base_path)]'
-                            , MODX_BASE_PATH
-                            , $value);
+                            '[(base_path)]',
+                            MODX_BASE_PATH,
+                            $value
+                        );
                     }
                     break;
                 case 'site_url':
@@ -387,9 +388,9 @@ class Mysqldumper
     {
         foreach ($settings as $k => $v) {
             db()->update(
-                ['setting_value' => $v]
-                , '[+prefix+]system_settings'
-                , "setting_name='{$k}'"
+                ['setting_value' => $v],
+                '[+prefix+]system_settings',
+                "setting_name='{$k}'"
             );
         }
     }
@@ -405,9 +406,9 @@ class Mysqldumper
         }
         $rs = db()->query(
             sprintf(
-                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
-                , $dbname
-                , $table_prefix
+                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
+                $dbname,
+                $table_prefix
             )
         );
 
