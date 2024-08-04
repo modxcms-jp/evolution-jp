@@ -2698,14 +2698,18 @@ class SubParser
     function setAliasListing()
     {
         global $modx;
-        if (!$modx->aliasListing) {
-            $aliases = @include(MODX_BASE_PATH . 'temp/cache/aliasListing.siteCache.idx.php');
+
+        $aliasListingCachePath = MODX_CACHE_PATH . 'aliasListing.siteCache.idx.php';
+        if (!$modx->aliasListing && is_file($aliasListingCachePath)) {
+            $aliases = include $aliasListingCachePath;
             if ($aliases) {
                 $modx->aliasListing = $aliases;
             }
         }
-        if (!$modx->documentMap) {
-            $documentMap = @include(MODX_BASE_PATH . 'temp/cache/documentMap.siteCache.idx.php');
+
+        $documentMapCachePath = MODX_CACHE_PATH . 'documentMap.siteCache.idx.php';
+        if (!$modx->documentMap && is_file($documentMapCachePath)) {
+            $documentMap = include MODX_CACHE_PATH . 'documentMap.siteCache.idx.php';
             if ($documentMap) {
                 $modx->documentMap = $documentMap;
             }
