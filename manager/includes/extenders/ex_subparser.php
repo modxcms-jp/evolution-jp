@@ -230,25 +230,27 @@ class SubParser
             }
         }
 
+        if (opendir(MODX_CACHE_PATH) === false) {
+            return false;
+        }
+
         if (is_string($params) && $params === 'full') {
             $params = [];
             $params['showReport'] = false;
             $params['target'] = 'pagecache,sitecache';
         }
 
-        if (opendir(MODX_CACHE_PATH) !== false) {
-            $showReport = ($params['showReport']) ? $params['showReport'] : false;
-            $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
+        $showReport = ($params['showReport']) ? $params['showReport'] : false;
+        $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
 
-            include_once MODX_CORE_PATH . 'cache_sync.class.php';
-            $sync = new synccache();
-            $sync->setCachepath(MODX_CACHE_PATH);
-            $sync->setReport($showReport);
-            $sync->setTarget($target);
-            $sync->emptyCache(); // first empty the cache
-            return true;
-        }
-        return false;
+        include_once MODX_CORE_PATH . 'cache_sync.class.php';
+        $sync = new synccache();
+        $sync->setCachepath(MODX_CACHE_PATH);
+        $sync->setReport($showReport);
+        $sync->setTarget($target);
+        $sync->emptyCache(); // first empty the cache
+
+        return true;
     }
 
     function messageQuit(
