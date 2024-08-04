@@ -944,7 +944,7 @@ function proteted_path()
         $proteted_path[] = base_path() . 'assets/modules';
     }
     if (!evo()->hasPermission('empty_cache')) {
-        $proteted_path[] = base_path() . 'temp/cache';
+        $proteted_path[] = rtrim(MODX_CACHE_PATH, '/');
     }
     if (!evo()->hasPermission('import_static')) {
         $proteted_path[] = base_path() . 'temp/import';

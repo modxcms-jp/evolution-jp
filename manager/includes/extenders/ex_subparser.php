@@ -223,7 +223,7 @@ class SubParser
 
             $_ = ['pages', 'pc', 'smartphone', 'tablet', 'mobile'];
             foreach ($_ as $uaType) {
-                $page_cache_path = MODX_BASE_PATH . "temp/cache/{$uaType}/{$filename}.pageCache.php";
+                $page_cache_path = MODX_CACHE_PATH . "{$uaType}/{$filename}.pageCache.php";
                 if (is_file($page_cache_path)) {
                     unlink($page_cache_path);
                 }
@@ -236,13 +236,13 @@ class SubParser
             $params['target'] = 'pagecache,sitecache';
         }
 
-        if (opendir(MODX_BASE_PATH . 'temp/cache') !== false) {
+        if (opendir(MODX_CACHE_PATH) !== false) {
             $showReport = ($params['showReport']) ? $params['showReport'] : false;
             $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
 
             include_once MODX_CORE_PATH . 'cache_sync.class.php';
             $sync = new synccache();
-            $sync->setCachepath(MODX_BASE_PATH . 'temp/cache/');
+            $sync->setCachepath(MODX_CACHE_PATH);
             $sync->setReport($showReport);
             $sync->setTarget($target);
             $sync->emptyCache(); // first empty the cache

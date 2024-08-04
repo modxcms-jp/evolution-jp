@@ -142,9 +142,9 @@ class OldFunctions
     {
         global $modx;
 
-        $cache_path = MODX_BASE_PATH . 'temp/cache/documentListing.siteCache.idx.php';
+        $cache_path = MODX_CACHE_PATH . 'documentListing.siteCache.idx.php';
         if (is_file($cache_path)) {
-            $d = @include_once(MODX_BASE_PATH . 'temp/cache/documentListing.siteCache.idx.php');
+            $d = @include_once $cache_path;
         }
         if ($d) {
             $modx->documentListing = $d;

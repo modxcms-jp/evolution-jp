@@ -29,7 +29,7 @@ class EXPORT_SITE
         if (!$this->total) {
             $this->total = $this->getTotal();
         }
-        $this->lock_file_path = MODX_BASE_PATH . 'temp/cache/export.lock';
+        $this->lock_file_path = MODX_CACHE_PATH . 'export.lock';
         if (!evo()->config('site_status')) {
             $this->bearer_token = bin2hex(random_bytes(64));
         }

@@ -16,8 +16,8 @@ class synccache
         if (!$this->target) {
             $this->target = 'pagecache,sitecache';
         }
-        if (defined('MODX_BASE_PATH')) {
-            $this->cachePath = MODX_BASE_PATH . 'temp/cache/';
+        if (defined('MODX_CACHE_PATH')) {
+            $this->cachePath = MODX_CACHE_PATH;
         }
     }
 
@@ -78,10 +78,6 @@ class synccache
     public function emptyCache()
     {
         global $modx;
-
-        if (!isset($this->cachePath)) {
-            exit('Cache path not set.');
-        }
 
         $instance_name = '';
         if (is_object($modx)) {

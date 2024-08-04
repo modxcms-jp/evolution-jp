@@ -28,7 +28,7 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 }
 
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
-$touch_path = MODX_BASE_PATH . 'temp/cache/touch.siteCache.idx.php';
+$touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
 if (!sessionv('mgrValidated')) {
     include __DIR__ . '/accesscontrol-not-mgr.inc.php';
     exit;
@@ -109,7 +109,7 @@ function installGoingOn()
 
 function checkInstallProc()
 {
-    $instcheck_path = MODX_BASE_PATH . 'temp/cache/installProc.inc.php';
+    $instcheck_path = MODX_CACHE_PATH . 'installProc.inc.php';
     if (!is_file($instcheck_path)) {
         return false;
     }

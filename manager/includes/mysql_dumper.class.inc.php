@@ -102,7 +102,7 @@ class Mysqldumper
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'temp/cache/bktemp.pageCache.php';
+        $tempfile_path = MODX_CACHE_PATH . 'bktemp.pageCache.php';
         if (is_file($tempfile_path)) {
             unlink($tempfile_path);
         }
