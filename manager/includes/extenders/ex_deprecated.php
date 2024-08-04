@@ -1,8 +1,10 @@
 <?php
 $this->old = new OldFunctions();
 
-class OldFunctions {
-    function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0) {
+class OldFunctions
+{
+    function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)
+    {
         global $modx;
         // first find out whether the value passed is an array
         if (!is_array($array)) {
@@ -35,14 +37,16 @@ class OldFunctions {
         return $listhtml;
     }
 
-    function getUserData() {
+    function getUserData()
+    {
         $client['host'] = $_SERVER['REMOTE_ADDR'];
         $client['ip'] = $_SERVER['REMOTE_ADDR'];
         $client['ua'] = $_SERVER['HTTP_USER_AGENT'];
         return $client;
     }
 
-    function insideManager() {
+    function insideManager()
+    {
         $m = false;
         if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true') {
             $m = true;
@@ -55,23 +59,27 @@ class OldFunctions {
         return $m;
     }
 
-    function putChunk($chunkName) {
+    function putChunk($chunkName)
+    {
         global $modx;
         return $modx->getChunk($chunkName);
     }// deprecated alias name >.<
 
-    function getDocGroups() {
+    function getDocGroups()
+    {
         global $modx;
         return $modx->getUserDocGroups();
     } // deprecated
 
-    function changePassword($o, $n) {
+    function changePassword($o, $n)
+    {
         return changeWebUserPassword($o, $n);
     } // deprecated
 
-    function userLoggedIn() {
+    function userLoggedIn()
+    {
         global $modx;
-        $userdetails = array();
+        $userdetails = [];
         if ($modx->isFrontend() && isset ($_SESSION['webValidated'])) {
             // web user
             $userdetails['loggedIn'] = true;
@@ -91,7 +99,8 @@ class OldFunctions {
         }
     }
 
-    function makeFriendlyURL($pre, $suff, $path) {
+    function makeFriendlyURL($pre, $suff, $path)
+    {
         global $modx;
         $elements = explode('/', $path);
         $alias = array_pop($elements);
@@ -110,7 +119,8 @@ class OldFunctions {
     }
 
     # Displays a javascript alert message in the web browser
-    function webAlert($msg, $url = '') {
+    function webAlert($msg, $url = '')
+    {
         global $modx;
 
         $msg = addslashes(db()->escape($msg));
@@ -128,12 +138,13 @@ class OldFunctions {
         }
     }
 
-    function makeDocumentListing() {
+    function makeDocumentListing()
+    {
         global $modx;
 
-        $cache_path = MODX_BASE_PATH . 'assets/cache/documentListing.siteCache.idx.php';
+        $cache_path = MODX_CACHE_PATH . 'documentListing.siteCache.idx.php';
         if (is_file($cache_path)) {
-            $d = @include_once(MODX_BASE_PATH . 'assets/cache/documentListing.siteCache.idx.php');
+            $d = @include_once $cache_path;
         }
         if ($d) {
             $modx->documentListing = $d;
@@ -143,14 +154,14 @@ class OldFunctions {
         $field = "IF(alias='', id, alias) AS alias, id, parent";
         $rs = db()->select($field, '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
         while ($row = db()->getRow($rs)) {
-            $docs[$row['id']] = array('alias' => $row['alias'], 'parent' => $row['parent']);
+            $docs[$row['id']] = ['alias' => $row['alias'], 'parent' => $row['parent']];
         }
 
         foreach ($docs as $docid => $doc) {
             if ($modx->config['friendly_urls'] !== '1' || $modx->config['use_alias_path'] !== '1') {
                 $key = $doc['alias'];
             } else {
-                $_ = array();
+                $_ = [];
                 $_[] = $doc['alias'];
                 $pid = $doc['parent'];
                 if ($pid !== '0') {

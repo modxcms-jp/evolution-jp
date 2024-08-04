@@ -20,7 +20,7 @@ if (isset($_SESSION['onetime_msg'])) {
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                    src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 <div class="section">
@@ -49,7 +49,7 @@ if (isset($_SESSION['onetime_msg'])) {
                         <div class="actionButtons" style="float:right;">
                             <a class="default" href="#"
                                onclick="documentDirty=false; document.userform.save.click();"><img
-                                        src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a>
+                                    src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a>
                         </div>
                     </td>
                 </tr>

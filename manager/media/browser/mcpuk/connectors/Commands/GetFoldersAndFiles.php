@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
@@ -17,68 +18,70 @@
  * File Authors:
  * Grant French (grant@mcpuk.net)
  */
-class GetFoldersAndFiles {
+
+class GetFoldersAndFiles
+{
     public $fckphp_config;
     public $type;
     public $cwd;
     public $actual_cwd;
     public $enable_imgedit;
 
-    public function __construct($fckphp_config, $type, $cwd) {
-        $this->fckphp_config=$fckphp_config;
-        $this->type=$type;
-        $this->raw_cwd=$cwd;
-        $this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
-        $this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
+    public function __construct($fckphp_config, $type, $cwd)
+    {
+        $this->fckphp_config = $fckphp_config;
+        $this->type = $type;
+        $this->raw_cwd = $cwd;
+        $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
+        $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
         $self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
         $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
-        if(!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
+        if (!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
         else                                                             $this->enable_imgedit = true;
     }
-    
-    public function run() {
 
-        header ("Content-Type: application/xml; charset=utf-8");
+    public function run()
+    {
+
+        header("Content-Type: application/xml; charset=utf-8");
         echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
         ?>
-<!DOCTYPE Connector [
+        <!DOCTYPE Connector [
 
-    <!ELEMENT Connector    (CurrentFolder,Folders,Files)>
+            <!ELEMENT Connector    (CurrentFolder,Folders,Files)>
         <!ATTLIST Connector command CDATA "noname">
         <!ATTLIST Connector resourceType CDATA "0">
-        
-    <!ELEMENT CurrentFolder    (#PCDATA)>
+
+        <!ELEMENT CurrentFolder    (#PCDATA)>
         <!ATTLIST CurrentFolder path CDATA "noname">
         <!ATTLIST CurrentFolder url CDATA "0">
-        
-    <!ELEMENT Folders    (#PCDATA)>
-    
-    <!ELEMENT Folder    (#PCDATA)>
+
+        <!ELEMENT Folders    (#PCDATA)>
+
+        <!ELEMENT Folder    (#PCDATA)>
         <!ATTLIST Folder name CDATA "noname_dir">
-        
-    <!ELEMENT Files        (#PCDATA)>
-        
-    <!ELEMENT File        (#PCDATA)>
+
+        <!ELEMENT Files        (#PCDATA)>
+
+        <!ELEMENT File        (#PCDATA)>
         <!ATTLIST File name CDATA "noname_file">
         <!ATTLIST File size CDATA "0">
-] >
-        
-<Connector command="GetFoldersAndFiles" resourceType="<?php echo $this->type; ?>">
-    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>" />
-    <Folders>
-<?php
-        $files=array();
-        if (opendir($this->real_cwd))
-        {
+        ] >
+
+    <Connector command="GetFoldersAndFiles" resourceType="<?php echo $this->type; ?>">
+        <CurrentFolder path="<?php echo $this->raw_cwd; ?>"
+                       url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>"/>
+        <Folders>
+        <?php
+        $files = array();
+        if (opendir($this->real_cwd)) {
             /**
-            * Initiate the array to store the foldernames
-            */
+             * Initiate the array to store the foldernames
+             */
             $folders_array = array();
             $filenames = scandir($this->real_cwd);
-            if($filenames)
-            {
-                foreach ($filenames as $filename)
-                {
+            if ($filenames) {
+                foreach ($filenames as $filename) {
                     if ($filename === "." || $filename === "..") {
                         continue;
                     }
@@ -106,14 +109,13 @@ class GetFoldersAndFiles {
              * Sort the array by the way you like and show it.
              */
             natcasesort($folders_array);
-            foreach($folders_array as $k=>$v)
-            {
-                echo '<Folder name="'.$v.'" />'."\n";
+            foreach ($folders_array as $k => $v) {
+                echo '<Folder name="' . $v . '" />' . "\n";
             }
         }
         echo "\t</Folders>\n";
         echo "\t<Files>\n";
-        
+
         /**
          * The filenames are in the array $files
          * SORT IT!
@@ -122,8 +124,8 @@ class GetFoldersAndFiles {
         $files = array_values($files);
 
         foreach ($files as $i => $iValue) {
-            $lastdot=strrpos($iValue, ".");
-            $ext= $lastdot!==false ? strtolower(substr($iValue,$lastdot+1)) : "";
+            $lastdot = strrpos($iValue, ".");
+            $ext = $lastdot !== false ? strtolower(substr($iValue, $lastdot + 1)) : "";
 
             if (!in_array($ext, $this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
                 continue;
@@ -145,24 +147,29 @@ class GetFoldersAndFiles {
                 }
             }
             if (extension_loaded('mbstring')) {
-                $name = mb_convert_encoding($iValue, 'UTF-8', mb_detect_encoding($iValue, 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
+                $name = mb_convert_encoding(
+                    $iValue,
+                    'UTF-8',
+                    mb_detect_encoding($iValue, ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'], true)
+                );
             } else {
                 $name = $iValue;
             }
             echo sprintf(
-                    '<File name="%s" size="%s" editable="%s" />',
-                    htmlentities($name, ENT_QUOTES, 'UTF-8'),
-                    ceil(filesize($this->real_cwd . "/" . $iValue) / 1024),
-                    $editable ? "1" : "0"
+                '<File name="%s" size="%s" editable="%s" />',
+                htmlentities($name, ENT_QUOTES, 'UTF-8'),
+                ceil(filesize($this->real_cwd . "/" . $iValue) / 1024),
+                $editable ? "1" : "0"
             );
         }
         echo "\t</Files>\n";
         echo "</Connector>\n";
     }
-    
-    
-    public function isImageEditable($file) {
-        $fh=fopen($file, 'rb');
+
+
+    public function isImageEditable($file)
+    {
+        $fh = fopen($file, 'rb');
         if (!$fh) {
             return false;
         }

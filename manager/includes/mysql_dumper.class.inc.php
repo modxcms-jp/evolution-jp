@@ -15,15 +15,18 @@ if (!isset($modx) || !is_object($modx)) {
     exit;
 }
 
-class Mysqldumper {
+class Mysqldumper
+{
     public $_dbtables;
     public $_isDroptables;
     public $database_server;
     public $dbname;
     public $table_prefix;
     public $contentsOnly;
+    public $mode;
 
-    public function __construct() {
+    public function __construct()
+    {
         if (db()->config['host'] === '127.0.0.1') {
             $this->database_server = 'localhost';
         } else {
@@ -34,10 +37,11 @@ class Mysqldumper {
         $this->mode = '';
         $this->addDropCommand(false);
         $this->_isDroptables = true;
-        $this->_dbtables = array();
+        $this->_dbtables = [];
     }
 
-    public function setDBtables($dbtables = false) {
+    public function setDBtables($dbtables = false)
+    {
         if (!$dbtables) {
             $this->_dbtables = $this->getTableNames();
             return;
@@ -45,25 +49,29 @@ class Mysqldumper {
         $this->_dbtables = $dbtables;
     }
 
-    public function addDropCommand($state) {
+    public function addDropCommand($state)
+    {
         $this->_isDroptables = $state;
     }
 
-    private function isDroptables() {
+    private function isDroptables()
+    {
         return $this->_isDroptables;
     }
 
-    private function is_log_table($table_name) {
-        if ($this->in_array($table_name, array('event_log', 'manager_log'))) {
+    private function is_log_table($table_name)
+    {
+        if ($this->in_array($table_name, ['event_log', 'manager_log', 'system_cache'])) {
             return true;
         }
         return false;
     }
 
-    private function is_content_table($table_name) {
+    private function is_content_table($table_name)
+    {
         if (!$this->in_array(
-            $table_name
-            , array(
+            $table_name,
+            [
                 'site_content',
                 'site_htmlsnippets',
                 'site_templates',
@@ -72,14 +80,15 @@ class Mysqldumper {
                 'site_tmplvar_access',
                 'site_tmplvar_contentvalues',
                 'site_tmplvar_templates'
-            )
+            ]
         )) {
             return false;
         }
         return true;
     }
 
-    public function createDump() {
+    public function createDump()
+    {
         if (empty($this->database_server) || empty($this->dbname)) {
             return false;
         }
@@ -93,8 +102,8 @@ class Mysqldumper {
 
         // Set line feed
         $lf = "\n";
-        $tempfile_path = MODX_BASE_PATH . 'assets/cache/bktemp.pageCache.php';
-        if(is_file($tempfile_path)) {
+        $tempfile_path = MODX_CACHE_PATH . 'bktemp.pageCache.php';
+        if (is_file($tempfile_path)) {
             unlink($tempfile_path);
         }
 
@@ -106,7 +115,7 @@ class Mysqldumper {
             $createtable[$table_name] = $this->result2Array(1, $result);
         }
         // Set header
-        $header = array();
+        $header = [];
         $header[] = '-- ';
         $header[] = '--  ' . addslashes(evo()->config('site_name')) . ' Database Dump';
         $header[] = '--  MODX Version:' . evo()->config('settings_version');
@@ -118,9 +127,9 @@ class Mysqldumper {
         $header[] = '--  Database : `' . $this->dbname . '`';
         $header[] = '-- ';
         file_put_contents(
-            $tempfile_path
-            , implode($lf, $header)
-            , FILE_APPEND | LOCK_EX
+            $tempfile_path,
+            implode($lf, $header),
+            FILE_APPEND | LOCK_EX
         );
 
         $this->_dbtables = array_flip($this->_dbtables);
@@ -135,10 +144,6 @@ class Mysqldumper {
             if (strpos($table_name, $this->table_prefix) !== 0) {
                 continue;
             }
-            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
-                continue;
-            }
-
             if ($this->contentsOnly && !$this->is_content_table($table_name)) {
                 continue;
             }
@@ -156,19 +161,24 @@ class Mysqldumper {
             if ($this->isDroptables()) {
                 $output .= 'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;' . $lf;
                 $output .= sprintf(
-                        'DROP TABLE IF EXISTS `%s`;'
-                        , $table_name
-                    ) . $lf;
+                    'DROP TABLE IF EXISTS `%s`;',
+                    $table_name
+                ) . $lf;
                 $output .= "SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;{$lf}{$lf}";
             }
             $output .= $createtable[$table_name][0] . ';' . $lf;
             $output .= $lf;
+
+            if ($this->mode === 'snapshot' && $this->is_log_table($table_name)) {
+                continue;
+            }
+
             $output .= sprintf(
-                '-- %s-- Dumping data for table `%s`%s-- %s'
-                , $lf
-                , $table_name
-                , $lf
-                , $lf
+                '-- %s-- Dumping data for table `%s`%s-- %s',
+                $lf,
+                $table_name,
+                $lf,
+                $lf
             );
             file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
 
@@ -199,7 +209,7 @@ class Mysqldumper {
                     }
                     $insertdump .= $value . ',';
                 }
-                $output .= rtrim($insertdump, ',') . ");";
+                $output .= rtrim($insertdump, ',') . ");".$lf;
                 if (1048576 < strlen($output)) {
                     file_put_contents($tempfile_path, $output, FILE_APPEND | LOCK_EX);
                     $output = '';
@@ -217,7 +227,8 @@ class Mysqldumper {
         return $output;
     }
 
-    private function in_array($table_name, $table_names) {
+    private function in_array($table_name, $table_names)
+    {
         foreach ($table_names as $name) {
             if ($table_name === $this->table_prefix . $name) {
                 return true;
@@ -226,11 +237,12 @@ class Mysqldumper {
         return false;
     }
 
-    private function convertValues($row) {
+    private function convertValues($row)
+    {
         switch ($row['setting_name']) {
             case 'filemanager_path':
             case 'rb_base_dir':
-                if (strpos($row['setting_value'], MODX_BASE_PATH) !== false) {
+                if (strpos($row['setting_value'], MODX_BASE_PATH) === 0) {
                     $row['setting_value'] = str_replace(MODX_BASE_PATH, '[(base_path)]', $row['setting_value']);
                 }
                 break;
@@ -248,11 +260,12 @@ class Mysqldumper {
         return $row;
     }
 
-    private function object2Array($obj) {
+    private function object2Array($obj)
+    {
         if (!is_object($obj)) {
             return null;
         }
-        $array = array();
+        $array = [];
         foreach (get_object_vars($obj) as $key => $value) {
             if (is_object($value)) {
                 $array[$key] = $this->object2Array($value);
@@ -264,8 +277,9 @@ class Mysqldumper {
     }
 
     // Private function result2Array.
-    private function result2Array($numinarray = 0, $resource) {
-        $array = array();
+    private function result2Array($numinarray = 0, $resource)
+    {
+        $array = [];
         while ($row = db()->getRow($resource, 'num')) {
             $array[] = $row[$numinarray];
         }
@@ -273,7 +287,8 @@ class Mysqldumper {
         return $array;
     }
 
-    public function dumpSql(&$dumpstring) {
+    public function dumpSql(&$dumpstring)
+    {
         if (!headers_sent()) {
             header('Expires: 0');
             header('Cache-Control: private');
@@ -282,8 +297,8 @@ class Mysqldumper {
             header("Content-Length: " . strlen($dumpstring));
             header(
                 sprintf(
-                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql'
-                    , strtolower(
+                    'Content-Disposition: attachment; filename=%s-%s_database_backup.sql',
+                    strtolower(
                         str_replace(
                             '/',
                             '-',
@@ -292,8 +307,8 @@ class Mysqldumper {
                                 'dateOnly'
                             )
                         )
-                    )
-                    , globalv('settings_version')
+                    ),
+                    globalv('settings_version')
                 )
             );
         }
@@ -301,7 +316,8 @@ class Mysqldumper {
         return true;
     }
 
-    function snapshot($path, &$dumpstring) {
+    function snapshot($path, &$dumpstring)
+    {
         $rs = file_put_contents($path, $dumpstring);
         if ($rs) {
             @chmod($path, 0666);
@@ -309,9 +325,10 @@ class Mysqldumper {
         return $rs;
     }
 
-    function import_sql($source) {
+    function import_sql($source)
+    {
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+            $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
         $sql_array = preg_split('@;[ \t]*\n@', $source);
         foreach ($sql_array as $sql_entry) {
@@ -334,9 +351,10 @@ class Mysqldumper {
     }
 
 
-    function getSettings() {
+    function getSettings()
+    {
         $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
-        $settings = array();
+        $settings = [];
         while ($row = db()->getRow($rs)) {
             $name = $row['setting_name'];
             $value = $row['setting_value'];
@@ -345,9 +363,10 @@ class Mysqldumper {
                 case 'filemanager_path':
                     if (strpos($value, '[(base_path)]') !== false) {
                         $settings[$name] = str_replace(
-                            '[(base_path)]'
-                            , MODX_BASE_PATH
-                            , $value);
+                            '[(base_path)]',
+                            MODX_BASE_PATH,
+                            $value
+                        );
                     }
                     break;
                 case 'site_url':
@@ -365,17 +384,19 @@ class Mysqldumper {
         return $settings;
     }
 
-    function restoreSettings($settings) {
+    function restoreSettings($settings)
+    {
         foreach ($settings as $k => $v) {
             db()->update(
-                array('setting_value' => $v)
-                , '[+prefix+]system_settings'
-                , "setting_name='{$k}'"
+                ['setting_value' => $v],
+                '[+prefix+]system_settings',
+                "setting_name='{$k}'"
             );
         }
     }
 
-    function getTableNames($dbname = '', $table_prefix = '') {
+    function getTableNames($dbname = '', $table_prefix = '')
+    {
         if (!$table_prefix) {
             $table_prefix = $this->table_prefix;
         }
@@ -385,13 +406,13 @@ class Mysqldumper {
         }
         $rs = db()->query(
             sprintf(
-                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
-                , $dbname
-                , $table_prefix
+                "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
+                $dbname,
+                $table_prefix
             )
         );
 
-        $tables = array();
+        $tables = [];
         if (db()->count($rs)) {
             while ($row = db()->getRow($rs)) {
                 $tables[] = $row['Name'];

@@ -1,3 +1,3 @@
 <select id="[+id+]" name="[+name+]" size="[+size+]" [+extra+]>
-[+options+]
+    [+options+]
 </select>

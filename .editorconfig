@@ -1,16 +1,18 @@
-# https://editorconfig.org
-# This file is for unifying the coding style for different editors and IDEs
-# editorconfig.org
+# EditorConfig is awesome: https://EditorConfig.org
 
-# PHP PSR-2 Coding Standards
-# https://www.php-fig.org/psr/psr-2/
-
+# top-most EditorConfig file
 root = true
 
-[*.php]
-charset = utf-8
-end_of_line = lf
+[*]
 indent_style = space
 indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = false
 insert_final_newline = true
+
+[*.{php,sample,html,html.php,js,css,scss,json,md}]
 trim_trailing_whitespace = true
+
+[*.{html,html.php,js,css,scss,json,md}]
+indent_size = 2

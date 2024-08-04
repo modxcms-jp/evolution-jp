@@ -21,13 +21,13 @@ if (anyv('sendto') === 'u') {
     }
     send_pm(
         array(
-            'recipient'=>anyv('user'),
-            'sender'=>evo()->getLoginUserID(),
-            'subject'=>anyv('messagesubject', '(no subject)'),
-            'message'=>anyv('messagebody', '(no message)'),
-            'postdate'=>request_time(),
-            'type'=>'Message',
-            'private'=>1
+            'recipient' => anyv('user'),
+            'sender' => evo()->getLoginUserID(),
+            'subject' => anyv('messagesubject', '(no subject)'),
+            'message' => anyv('messagebody', '(no message)'),
+            'postdate' => request_time(),
+            'type' => 'Message',
+            'private' => 1
         ),
         $from
     );
@@ -89,7 +89,8 @@ if (anyv('sendto') === 'a') {
 header("Location: index.php?a=10");
 
 
-function pm2email($from, $fields) {
+function pm2email($from, $fields)
+{
     global $modx;
     if (evo()->config('pm2email', 0) == 0) {
         return;
@@ -113,7 +114,8 @@ function pm2email($from, $fields) {
     usleep(300000);
 }
 
-function send_pm($fields, $from) {
+function send_pm($fields, $from)
+{
     if (evo()->config('pm2email', 0) == 1) {
         pm2email($from, $fields);
     }
@@ -126,7 +128,8 @@ function send_pm($fields, $from) {
 }
 
 // http://d.hatena.ne.jp/hoge-maru/20120715/1342371992
-function encrypt($plaintext, $key = 'modx') {
+function encrypt($plaintext, $key = 'modx')
+{
     $len = strlen($plaintext);
     $enc = '';
     for ($i = 0; $i < $len; $i++) {

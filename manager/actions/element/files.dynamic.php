@@ -59,16 +59,16 @@ if (!is_readable($startpath)) {
                             '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>',
                             array(
                                 'icons_save' => $_style['icons_save'],
-                                'lang_save'  => lang('save')
+                                'lang_save' => lang('save')
                             )
                         ) . "\n";
                 }
                 $_ .= $modx->parseText(
                     '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
                     array(
-                        'href'        =>'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
+                        'href' => 'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
                         'tree_folder' => $_style['tree_folder'],
-                        'subject'     => lang('add_folder')
+                        'subject' => lang('add_folder')
                     )
                 );
 
@@ -82,11 +82,11 @@ if (!is_readable($startpath)) {
             ?>
             <li id="Button5" class="mutate">
                 <a
-                        href="#"
-                        onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"
+                    href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"
                 ><img
-                            alt="icons_cancel"
-                            src="<?= $_style["icons_cancel"] ?>"
+                        alt="icons_cancel"
+                        src="<?= $_style["icons_cancel"] ?>"
                     /> <?= lang('cancel') ?></a>
             </li>
         </ul>
@@ -355,14 +355,12 @@ if (!is_readable($startpath)) {
         </div>
 
         <?php
-        if (((@ini_get("file_uploads") == true) || get_cfg_var("file_uploads") == 1) && is_writable($startpath)) {
-            @ini_set('upload_max_filesize', config('upload_maxsize')); // modified by raymond
+        if (is_writable($startpath)) {
             ?>
-
             <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
                 <input
                     type="hidden" name="MAX_FILE_SIZE"
-                    value="<?= isset($upload_maxsize) ? $upload_maxsize : 3145728 ?>">
+                    value="<?= evo()->config('upload_maxsize', 32*1024*1024) ?>">
                 <input type="hidden" name="a" value="31">
                 <input type="hidden" name="path" value="<?= $startpath ?>">
 
@@ -421,6 +419,7 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
 
             ?>
 
+<?php if (anyv('mode') === 'save') { ?>
             <form action="index.php" method="post" name="editFile">
                 <input type="hidden" name="a" value="31"/>
                 <input type="hidden" name="mode" value="save"/>
@@ -434,12 +433,18 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
                     </tr>
                 </table>
             </form>
+<?php } else { ?>
+    <div style="background-color:#fcfcfc;border: 1px solid #ccc; padding:10px 20px;">
+    <?= '<pre>' . $ent_buffer . '</pre>' ?>
+    </div>
+<?php } ?>
         </div>
     </div>
     <?php
 }
 
-function ls($curpath) {
+function ls($curpath)
+{
     if (!defined('SCANDIR_SORT_ASCENDING')) {
         define('SCANDIR_SORT_ASCENDING', 0);
         define('SCANDIR_SORT_DESCENDING', 1);
@@ -459,7 +464,7 @@ function ls($curpath) {
     );
     $uploadablefiles = add_dot(uploadablefiles());
     $inlineviewablefiles = add_dot(
-        explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess' . config('alias_suffix'))
+        explode(',', 'txt,php,tpl,html,htm,xml,js,css,pageCache,htaccess,sample' . config('alias_suffix'))
     );
     $viewablefiles = add_dot(
         explode(',', 'jpg,gif,png,ico')
@@ -657,7 +662,8 @@ function ls($curpath) {
     }
 }
 
-function removeLastPath($string) {
+function removeLastPath($string)
+{
     $pos = strrpos($string, '/');
     if ($pos !== false) {
         $path = substr($string, 0, $pos);
@@ -667,7 +673,8 @@ function removeLastPath($string) {
     return $path;
 }
 
-function getExtension($string) {
+function getExtension($string)
+{
     $pos = strrpos($string, '.');
     if ($pos !== false) {
         $ext = substr($string, $pos);
@@ -678,7 +685,8 @@ function getExtension($string) {
     return $ext;
 }
 
-function checkExtension($path = '') {
+function checkExtension($path = '')
+{
     $uploadablefiles = add_dot(uploadablefiles());
     if (!in_array(getExtension($path), $uploadablefiles, true)) {
         return false;
@@ -687,7 +695,8 @@ function checkExtension($path = '') {
     return true;
 }
 
-function mkdirs($strPath, $mode) { // recursive mkdir function
+function mkdirs($strPath, $mode)
+{ // recursive mkdir function
     if (is_dir($strPath)) {
         return true;
     }
@@ -698,7 +707,8 @@ function mkdirs($strPath, $mode) { // recursive mkdir function
     return @mkdir($strPath);
 }
 
-function logFileChange($type, $filename) {
+function logFileChange($type, $filename)
+{
     include_once(MODX_CORE_PATH . 'log.class.inc.php');
     $log = new logHandler();
 
@@ -725,7 +735,8 @@ function logFileChange($type, $filename) {
 }
 
 // by patrick_allaert - php user notes
-function unzip($file, $path) {
+function unzip($file, $path)
+{
     // added by Raymond
     if (!extension_loaded('zip')) {
         return 0;
@@ -766,7 +777,8 @@ function unzip($file, $path) {
     return true;
 }
 
-function rrmdir($dir) {
+function rrmdir($dir)
+{
     foreach (glob($dir . '/*') as $file) {
         if (is_dir($file)) {
             rrmdir($file);
@@ -777,7 +789,8 @@ function rrmdir($dir) {
     return rmdir($dir);
 }
 
-function fileupload() {
+function fileupload()
+{
     global $modx, $startpath;
     $msg = '';
 
@@ -795,7 +808,7 @@ function fileupload() {
     }
 
     // this seems to be an upload action.
-    $path = $modx->config['site_url'] . substr($startpath, strlen(config('filemanager_path')));
+    $path = MODX_SITE_URL . substr($startpath, strlen(config('filemanager_path')));
     $path = rtrim($path, '/') . '/' . $userfile['name'];
     $msg .= $path;
     if ($userfile['error'] == 0) {
@@ -858,7 +871,8 @@ function fileupload() {
     return $msg . '<p><span class="success">' . lang('files_upload_ok') . '</span></p>';
 }
 
-function textsave() {
+function textsave()
+{
     logFileChange('modify', postv('path'));
 
     // Write $content to our opened file.
@@ -870,7 +884,8 @@ function textsave() {
     return lang('editing_file') . '<span class="success"><b>' . lang('file_saved') . '</b></span><br /><br />';
 }
 
-function delete_file() {
+function delete_file()
+{
 
     logFileChange('delete', anyv('path'));
 
@@ -883,14 +898,16 @@ function delete_file() {
     return $msg . '<span class="success"><b>' . lang('file_deleted') . '</b></span><br /><br />';
 }
 
-function add_dot($array) {
+function add_dot($array)
+{
     foreach ($array as $i => $iValue) {
         $array[$i] = '.' . strtolower(trim($iValue)); // add a dot :)
     }
     return $array;
 }
 
-function webstart_path() {
+function webstart_path()
+{
     $webstart_path = str_replace(
         array(realpath('../'), '\\'),
         array('', '/'),
@@ -902,7 +919,8 @@ function webstart_path() {
     return '../' . $webstart_path;
 }
 
-function proteted_path() {
+function proteted_path()
+{
     if (sessionv('mgrRole') == 1) {
         return array();
     }
@@ -926,7 +944,7 @@ function proteted_path() {
         $proteted_path[] = base_path() . 'assets/modules';
     }
     if (!evo()->hasPermission('empty_cache')) {
-        $proteted_path[] = base_path() . 'assets/cache';
+        $proteted_path[] = rtrim(MODX_CACHE_PATH, '/');
     }
     if (!evo()->hasPermission('import_static')) {
         $proteted_path[] = base_path() . 'temp/import';
@@ -939,11 +957,11 @@ function proteted_path() {
     return $proteted_path;
 }
 
-function uploadablefiles() {
+function uploadablefiles()
+{
     return array_merge(
-        explode(',', config('upload_files',array())),
-        explode(',', config('upload_images',array())),
-        explode(',', config('upload_media',array())),
-        explode(',', config('upload_flash',array()))
+        explode(',', config('upload_files', array())),
+        explode(',', config('upload_images', array())),
+        explode(',', config('upload_media', array()))
     );
 }

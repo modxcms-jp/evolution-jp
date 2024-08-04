@@ -1,5 +1,5 @@
 <?php
-if((int)anyv('quickmanager') != 1) {
+if ((int)anyv('quickmanager') != 1) {
     return;
 }
 
@@ -15,7 +15,7 @@ evo()->clearCache();
 global $modx;
 $modx->config['xhtml_urls'] = 0;
 evo()->sendRedirect(
-    evo()->makeUrl(postv('qmrefresh', $id),'','quickmanagerclose=1','full'),
+    evo()->makeUrl(postv('qmrefresh', $id), '', 'quickmanagerclose=1', 'full'),
     0,
     'REDIRECT_HEADER',
     'HTTP/1.1 301 Moved Permanently'

@@ -1,62 +1,64 @@
 <?php
-class rc4crypt {
-	function endecrypt ($pwd, $data, $case='') {
-		if ($case == 'de') {
-			$data = urldecode($data);
-		}
 
-		$key[] = '';
-		$box[] = '';
-		$temp_swap = '';
-		$pwd_length = 0;
+class rc4crypt
+{
+    function endecrypt($pwd, $data, $case = '')
+    {
+        if ($case == 'de') {
+            $data = urldecode($data);
+        }
 
-		$pwd_length = strlen($pwd);
+        $key[] = '';
+        $box[] = '';
+        $temp_swap = '';
+        $pwd_length = 0;
 
-		for ($i = 0; $i <= 255; $i++) {
-			$key[$i] = ord(substr($pwd, ($i % $pwd_length), 1));
-			$box[$i] = $i;
-		}
+        $pwd_length = strlen($pwd);
 
-		$x = 0;
+        for ($i = 0; $i <= 255; $i++) {
+            $key[$i] = ord(substr($pwd, ($i % $pwd_length), 1));
+            $box[$i] = $i;
+        }
 
-		for ($i = 0; $i <= 255; $i++) {
-			$x = ($x + $box[$i] + $key[$i]) % 256;
-			$temp_swap = $box[$i];
+        $x = 0;
 
-			$box[$i] = $box[$x];
-			$box[$x] = $temp_swap;
-		}
+        for ($i = 0; $i <= 255; $i++) {
+            $x = ($x + $box[$i] + $key[$i]) % 256;
+            $temp_swap = $box[$i];
 
-		$temp = '';
-		$k = '';
+            $box[$i] = $box[$x];
+            $box[$x] = $temp_swap;
+        }
 
-		$cipherby = '';
-		$cipher = '';
+        $temp = '';
+        $k = '';
 
-		$a = 0;
-		$j = 0;
+        $cipherby = '';
+        $cipher = '';
 
-		for ($i = 0; $i < strlen($data); $i++) {
-			$a = ($a + 1) % 256;
-			$j = ($j + $box[$a]) % 256;
+        $a = 0;
+        $j = 0;
 
-			$temp = $box[$a];
-			$box[$a] = $box[$j];
+        for ($i = 0; $i < strlen($data); $i++) {
+            $a = ($a + 1) % 256;
+            $j = ($j + $box[$a]) % 256;
 
-			$box[$j] = $temp;
+            $temp = $box[$a];
+            $box[$a] = $box[$j];
 
-			$k = $box[(($box[$a] + $box[$j]) % 256)];
-			$cipherby = ord(substr($data, $i, 1)) ^ $k;
+            $box[$j] = $temp;
 
-			$cipher .= chr($cipherby);
-		}
+            $k = $box[(($box[$a] + $box[$j]) % 256)];
+            $cipherby = ord(substr($data, $i, 1)) ^ $k;
 
-		if ($case == 'de') {
-			$cipher = urldecode(urlencode($cipher));
-		} 
-		else {
-			$cipher = urlencode($cipher);
-		}
-		return $cipher;
-	}
+            $cipher .= chr($cipherby);
+        }
+
+        if ($case == 'de') {
+            $cipher = urldecode(urlencode($cipher));
+        } else {
+            $cipher = urlencode($cipher);
+        }
+        return $cipher;
+    }
 }

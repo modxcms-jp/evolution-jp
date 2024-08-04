@@ -1,5 +1,5 @@
 <?php
-if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) exit;
+if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) exit;
 
 // MM rules can go in here, instead of a chunk
 // If you copy them to a chunk, don't include the opening and closing PHP tags

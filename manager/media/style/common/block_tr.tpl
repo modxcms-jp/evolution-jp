@@ -1,6 +1,6 @@
 <tr id="[+id+]">
-	<th>[+title+]</th>
-	<td>
-[+content+]
-	</td>
+    <th>[+title+]</th>
+    <td>
+        [+content+]
+    </td>
 </tr>

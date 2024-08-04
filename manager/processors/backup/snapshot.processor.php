@@ -39,7 +39,8 @@ if ($output) {
 alert()->setError(1, 'Unable to Backup Database');
 alert()->dumpError();
 
-function snapshot_path() {
+function snapshot_path()
+{
     if (strpos(config('snapshot_path', ''), MODX_BASE_PATH) !== 0) {
         if (is_dir(MODX_BASE_PATH . 'temp/backup/')) {
             return MODX_BASE_PATH . 'temp/backup/';
@@ -51,7 +52,8 @@ function snapshot_path() {
     return config('snapshot_path');
 }
 
-function check_snapshot_path($snapshot_path) {
+function check_snapshot_path($snapshot_path)
+{
     if (!is_dir(rtrim($snapshot_path, '/'))) {
         mkdir(rtrim($snapshot_path, '/'));
         @chmod(rtrim($snapshot_path, '/'), 0777);
@@ -71,7 +73,8 @@ function check_snapshot_path($snapshot_path) {
     }
 }
 
-function filename() {
+function filename()
+{
     if (postv('file_name')) {
         return postv('file_name');
     }

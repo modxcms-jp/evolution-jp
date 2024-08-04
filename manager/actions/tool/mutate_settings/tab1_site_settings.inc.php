@@ -35,9 +35,9 @@
             <th><?php echo lang('site_slogan_title'); ?></th>
             <td>
         <textarea
-                name="site_slogan"
-                id="site_slogan"
-                style="display:block;width:300px;height:4em;"
+            name="site_slogan"
+            id="site_slogan"
+            style="display:block;width:300px;height:4em;"
         ><?php echo config('site_slogan'); ?></textarea>
                 <?php echo lang('site_slogan_message'); ?>
             </td>
@@ -97,26 +97,26 @@
                     <?php echo lang('update_settings_from_language'); ?>
                 </p>
                 <select
-                        name="reload_site_unavailable"
-                        id="reload_site_unavailable_select"
-                        onchange="confirmLangChange(this, 'siteunavailable_message_default', 'site_unavailable_message_textarea');"
+                    name="reload_site_unavailable"
+                    id="reload_site_unavailable_select"
+                    onchange="confirmLangChange(this, 'siteunavailable_message_default', 'site_unavailable_message_textarea');"
                 >
                     <?php echo get_lang_options('siteunavailable_message_default'); ?>
                 </select>
             </th>
             <td>
         <textarea
-                name="site_unavailable_message"
-                id="site_unavailable_message_textarea"
-                style="width:100%; height: 120px;display:block;"
+            name="site_unavailable_message"
+            id="site_unavailable_message_textarea"
+            style="width:100%; height: 120px;display:block;"
         ><?php
             echo config('site_unavailable_message', lang('siteunavailable_message_default'));
             ?></textarea>
                 <input
-                        type="hidden"
-                        name="siteunavailable_message_default"
-                        id="siteunavailable_message_default_hidden"
-                        value="<?php echo addslashes(lang('siteunavailable_message_default')); ?>"
+                    type="hidden"
+                    name="siteunavailable_message_default"
+                    id="siteunavailable_message_default_hidden"
+                    value="<?php echo addslashes(lang('siteunavailable_message_default')); ?>"
                 />
                 <?php echo lang('siteunavailable_message'); ?>
             </td>
@@ -126,17 +126,17 @@
             <td>
                 <?php echo form_text('txt_custom_contenttype', 100, 'style="width:200px;"'); ?>
                 <input
-                        type="button"
-                        value="<?php echo lang('add'); ?>"
-                        onclick='addContentType()'
+                    type="button"
+                    value="<?php echo lang('add'); ?>"
+                    onclick='addContentType()'
                 /><br/>
                 <table>
                     <tr>
                         <td valign="top">
                             <select
-                                    name="lst_custom_contenttype"
-                                    style="width:200px;"
-                                    size="5"
+                                name="lst_custom_contenttype"
+                                style="width:200px;"
+                                size="5"
                             >
                                 <?php
                                 foreach (explode(',', config('custom_contenttype')) as $v) {
@@ -145,17 +145,17 @@
                                 ?>
                             </select>
                             <input
-                                    name="custom_contenttype"
-                                    type="hidden"
-                                    value="<?php echo config('custom_contenttype'); ?>"
+                                name="custom_contenttype"
+                                type="hidden"
+                                value="<?php echo config('custom_contenttype'); ?>"
                             />
                         </td>
                         <td valign="top">
                             &nbsp;<input
-                                    name="removecontenttype"
-                                    type="button"
-                                    value="<?php echo lang('remove'); ?>"
-                                    onclick='removeContentType()'
+                                name="removecontenttype"
+                                type="button"
+                                value="<?php echo lang('remove'); ?>"
+                                onclick='removeContentType()'
                             />
                         </td>
                     </tr>

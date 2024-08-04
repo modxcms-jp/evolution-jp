@@ -1,41 +1,42 @@
 #popup_container {
-	font-family: Arial, sans-serif;
-	font-size: 12px;
-	min-width: 300px; /* Dialog will be no smaller than this */
-	max-width: 600px; /* Dialog will wrap after this width */
-	background: #FFF;
-	border: solid 5px #999;
-	color: #000;
-	border-radius: 5px;
-	cursor: default;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    min-width: 300px; /* Dialog will be no smaller than this */
+    max-width: 600px; /* Dialog will wrap after this width */
+    background: #FFF;
+    border: solid 5px #999;
+    color: #000;
+    border-radius: 5px;
+    cursor: default;
 }
 
 #popup_title {
-	cursor: default;
-	font-size: 14px;
-	font-weight: bold;
-	text-align: center;
-	line-height: 1.75em;
-	color: #666;
-	border: solid 1px #FFF;
-	border-bottom: solid 1px #999;*/
-	padding: 0em;
-	margin: 0em;
+    cursor: default;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.75em;
+    color: #666;
+    border: solid 1px #FFF;
+    border-bottom: solid 1px #999;
+    */ padding: 0em;
+    margin: 0em;
 }
 
 #popup_message {
-	padding: 18px;
-	padding-bottom:5px;
+    padding: 18px;
+    padding-bottom: 5px;
 }
 
 #popup_panel {
-	text-align: center;
-	margin: 1em 0em 1em 0em;
+    text-align: center;
+    margin: 1em 0em 1em 0em;
 }
 
 #popup_prompt {
-	margin: .5em 0em;
+    margin: .5em 0em;
 }
-input#popup_ok::-moz-focus-inner{
-    border :0px;
+
+input#popup_ok::-moz-focus-inner {
+    border: 0px;
 }

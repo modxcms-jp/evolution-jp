@@ -7,14 +7,14 @@
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
 $self = 'manager/session_keepalive.php';
-$base_path = str_replace($self,'',str_replace('\\','/',__FILE__));
-include_once($base_path.'manager/includes/document.parser.class.inc.php');
+$base_path = str_replace(['\\', $self], ['/', ''], __FILE__);
+include_once($base_path . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
 // Keep it alive
 header('Content-type: application/json');
 
-if($modx->input_get('tok') !== md5(session_id())) {
+if ($modx->input_get('tok') !== md5(session_id())) {
     exit('{"status":null}');
 }
 

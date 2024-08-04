@@ -5,12 +5,15 @@
  * the removing of documents from the result set
 */
 
-class filter {
+class filter
+{
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
-    public function execute($docs, $filter) {
+    public function execute($docs, $filter)
+    {
         foreach ($filter['basic'] as $current_filter) {
             if (!is_array($current_filter) || !$current_filter) {
                 continue;
@@ -23,27 +26,29 @@ class filter {
         return $docs;
     }
 
-    private function _basicFilter($docs, $param) {
-        foreach($docs as $i=>$doc) {
+    private function _basicFilter($docs, $param)
+    {
+        foreach ($docs as $i => $doc) {
             $unset = $this->isTrue($doc, $param);
-            if($param['flip_mode']) {
+            if ($param['flip_mode']) {
                 $unset = !$unset;
             }
-            if($unset) {
+            if ($unset) {
                 unset($docs[$i]);
             }
         }
         return $docs;
     }
 
-    private function _getParams($param) {
+    private function _getParams($param)
+    {
         global $modx;
 
         $rs = array();
         $op = $this->_get_operator_name($param['mode']);
-        if(!$op) {
+        if (!$op) {
             $op = $this->_get_operator_name($param['value']);
-            if($op) {
+            if ($op) {
                 $param['value'] = $param['mode'];
             } else {
                 $op = '9';
@@ -51,12 +56,12 @@ class filter {
         }
         $rs['op'] = $op;
 
-        if(stripos($param['value'], '@EVAL') === 0) {
+        if (stripos($param['value'], '@EVAL') === 0) {
             $eval_code = trim(
-                substr($param['value'],6)
-                , ';'
-            ) . ';';
-            if(strpos($eval_code,'return')===false) {
+                    substr($param['value'], 6)
+                    , ';'
+                ) . ';';
+            if (strpos($eval_code, 'return') === false) {
                 $eval_code = 'return ' . $eval_code;
             }
             $rs['creteria'] = eval($eval_code);
@@ -64,14 +69,14 @@ class filter {
             $rs['creteria'] = $param['value'];
         }
 
-        if(strpos($rs['creteria'],'[+') !== false) {
+        if (strpos($rs['creteria'], '[+') !== false) {
             $rs['creteria'] = $modx->mergePlaceholderContent($rs['creteria']);
         }
 
         $rs['creteria'] = trim($rs['creteria']);
 
         if ($this->is_datetime_field($param['source'])) {
-            if (!preg_match('@^[0-9]+$@',$rs['creteria'])) {
+            if (!preg_match('@^[0-9]+$@', $rs['creteria'])) {
                 $rs['creteria'] = strtotime($rs['creteria']);
             }
         }
@@ -91,50 +96,64 @@ class filter {
         return $rs;
     }
 
-    private function isTrue($doc, $param) {
+    private function isTrue($doc, $param)
+    {
         $field_name = $param['field_name'];
         $doc_value = isset($doc[$field_name]) ? $doc[$field_name] : false;
         $creteria = $param['creteria'];
 
         switch ($param['op']) {
-            case '!=' : return ($doc_value != $creteria || $doc_value===false);
-            case '==' : return ($doc_value == $creteria);
-            case '<'  : return ($doc_value <  $creteria);
-            case '>'  : return ($doc_value >  $creteria);
-            case '>=' : return ($doc_value >= $creteria);
-            case '<=' : return ($doc_value <= $creteria);
-            case '=~' : return (strpos($doc_value, $creteria)===false);
-            case '!~' : return (strpos($doc_value, $creteria)!==false);
-            case 9    : return (stripos($doc_value, $creteria)===false);
-            case 10   : return (stripos($doc_value, $creteria)!==false);
-            case 'regex': return (preg_match($doc_value, $creteria)===false);
+            case '!=' :
+                return ($doc_value != $creteria || $doc_value === false);
+            case '==' :
+                return ($doc_value == $creteria);
+            case '<'  :
+                return ($doc_value < $creteria);
+            case '>'  :
+                return ($doc_value > $creteria);
+            case '>=' :
+                return ($doc_value >= $creteria);
+            case '<=' :
+                return ($doc_value <= $creteria);
+            case '=~' :
+                return (strpos($doc_value, $creteria) === false);
+            case '!~' :
+                return (strpos($doc_value, $creteria) !== false);
+            case 9    :
+                return (stripos($doc_value, $creteria) === false);
+            case 10   :
+                return (stripos($doc_value, $creteria) !== false);
+            case 'regex':
+                return (preg_match($doc_value, $creteria) === false);
             case 11   :
                 $firstChr = strtoupper(substr($doc_value, 0, 1));
-                return ($firstChr!=$creteria);
+                return ($firstChr != $creteria);
         }
         return false;
     }
 
-    private function _get_operator_name($op) {
-        if (in_array($op, array('!=','1','<>','ne'),true))  return '!=';
-        if (in_array($op, array('==',2,'eq')))       return '==';
-        if (in_array($op, array('<',3,'lt')))        return '<';
-        if (in_array($op, array('<=',6,'lte','le'))) return '<=';
-        if (in_array($op, array('>',4,'gt')))        return '>';
-        if (in_array($op, array('>=',5,'gte','ge'))) return '>=';
-        if (in_array($op, array('regex','preg')))    return 'regex';
-        if (in_array($op, array('=~',7,'find','search','strpos'))) return '=~';
-        if (in_array($op, array('!=~',8,'!~','!find','!search','!strpos'))) return '!=~';
+    private function _get_operator_name($op)
+    {
+        if (in_array($op, array('!=', '1', '<>', 'ne'), true)) return '!=';
+        if (in_array($op, array('==', 2, 'eq'))) return '==';
+        if (in_array($op, array('<', 3, 'lt'))) return '<';
+        if (in_array($op, array('<=', 6, 'lte', 'le'))) return '<=';
+        if (in_array($op, array('>', 4, 'gt'))) return '>';
+        if (in_array($op, array('>=', 5, 'gte', 'ge'))) return '>=';
+        if (in_array($op, array('regex', 'preg'))) return 'regex';
+        if (in_array($op, array('=~', 7, 'find', 'search', 'strpos'))) return '=~';
+        if (in_array($op, array('!=~', 8, '!~', '!find', '!search', '!strpos'))) return '!=~';
         return false;
     }
 
-    private function is_datetime_field($field_name='') {
-        if(in_array($field_name, explode(',','pub_date,unpub_date'))) {
+    private function is_datetime_field($field_name = '')
+    {
+        if (in_array($field_name, explode(',', 'pub_date,unpub_date'))) {
             return true;
-        };
-        if(in_array($field_name, explode(',','published,createdon,editedon,publishedon,deletedon'))) {
+        }
+        if (in_array($field_name, explode(',', 'published,createdon,editedon,publishedon,deletedon'))) {
             return true;
-        };
+        }
         return false;
     }
 }

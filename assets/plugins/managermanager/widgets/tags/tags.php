@@ -12,11 +12,18 @@
  * @copyright 2012
  */
 
-function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count = false, $roles = '', $templates = '', $default=''){
-    global $modx, $mm_fields, $mm_current_page;
-    $e = &$modx->event;
+function mm_widget_tags(
+    $fields,
+    $delimiter = ',',
+    $source = '',
+    $display_count = false,
+    $roles = '',
+    $templates = '',
+    $default = '')
+{
+    global $mm_fields, $mm_current_page;
 
-    if ($e->name != 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    if (event()->name != 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -40,13 +47,13 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
     // Insert some JS and a style sheet into the head
     $output = '';
     $output .= "//  -------------- Tag widget include ------------- \n";
-    $output .= includeJs($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.js');
-    $output .= includeCss($modx->config['base_url'] . 'assets/plugins/managermanager/widgets/tags/tags.css');
+    $output .= includeJs(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.js');
+    $output .= includeCss(evo()->config('base_url') . 'assets/plugins/managermanager/widgets/tags/tags.css');
 
     // Go through each of the fields supplied
     foreach ($fields as $targetTv) {
         $foundTags = array();
-        if(strpos($default, '@fix')!==0) {
+        if (strpos($default, '@fix') !== 0) {
             // Get the list of current values for this TV
             $result = db()->select(
                 'value'
@@ -70,14 +77,14 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
 
         $default = explode(',', $default);
         foreach ($default as $k) {
-            if(strpos($k, '@fix')===0) {
+            if (strpos($k, '@fix') === 0) {
                 continue;
             }
-            if(!isset($foundTags[$k])) {
+            if (!isset($foundTags[$k])) {
                 $foundTags[$k] = 0;
             }
         }
-        
+
         $lis = '';
         foreach ($foundTags as $t => $c) {
             $lis .= sprintf(
@@ -102,13 +109,13 @@ function mm_widget_tags($fields, $delimiter = ',', $source = '', $display_count 
         ", $targetTv, $tv_id, $tv_id, $html_list);
 
         // Initiate the tagCompleter class for this field
-        $output .= $modx->parseText(
-            'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
-            , array(
-                'tv_id' => $tv_id,
-                'delim' => $delimiter
-            )
-        ) . "\n";
+        $output .= evo()->parseText(
+                'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
+                , array(
+                    'tv_id' => $tv_id,
+                    'delim' => $delimiter
+                )
+            ) . "\n";
     }
-    $e->output($output . "\n");
+    event()->output($output . "\n");
 }

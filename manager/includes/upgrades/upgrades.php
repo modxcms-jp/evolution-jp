@@ -11,12 +11,13 @@ $default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 run_update($settings_version);
 evo()->clearCache();
 
-function run_update($pre_version) {
+function run_update($pre_version)
+{
     global $modx_version;
 
     $pre_version = str_replace(
-        array('j', 'rc', '-r')
-        , array('', 'RC', '-')
+        ['j', 'rc', '-r']
+        , ['', 'RC', '-']
         , strtolower($pre_version)
     );
 
@@ -51,7 +52,8 @@ function run_update($pre_version) {
     updateTopMenu();
 }
 
-function disableOldCarbonTheme() {
+function disableOldCarbonTheme()
+{
     global $default_config;
 
     $old_manager_theme = evo()->config['manager_theme'];
@@ -69,7 +71,8 @@ function disableOldCarbonTheme() {
     }
 }
 
-function disableOldFckEditor() {
+function disableOldFckEditor()
+{
     global $default_config;
 
     $tpl_path = MODX_BASE_PATH . 'assets/plugins/fckeditor/plugin.fckeditor.tpl';
@@ -85,16 +88,18 @@ function disableOldFckEditor() {
     evo()->logEvent(0, 1, $msg, $msg);
 }
 
-function disableLegacyPlugins() {
+function disableLegacyPlugins()
+{
     db()->update("`disabled`='1'", '[+prefix+]site_plugins', "`name`='Bindings機能の有効無効'");
     db()->update("`disabled`='1'", '[+prefix+]site_plugins', "`name`='Bottom Button Bar'");
 }
 
-function update_config_custom_contenttype() {
-    $search = array(
+function update_config_custom_contenttype()
+{
+    $search = [
         '',
         'text/css,text/html,text/javascript,text/plain,text/xml',
-        'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain');
+        'application/rss+xml,application/pdf,application/msword,application/excel,text/html,text/css,text/xml,text/javascript,text/plain'];
     foreach ($search as $v) {
         if ($v !== evo()->config['custom_contenttype']) {
             continue;
@@ -106,10 +111,11 @@ function update_config_custom_contenttype() {
     }
 }
 
-function update_config_default_template_method() {
+function update_config_default_template_method()
+{
     global $auto_template_logic;
 
-    $rs  = db()->select(
+    $rs = db()->select(
         'properties,disabled'
         , '[+prefix+]site_plugins'
         , "`name`='Inherit Parent Template' AND disabled=0"
@@ -143,28 +149,30 @@ function update_config_default_template_method() {
     $auto_template_logic = 'sibling';
 }
 
-function update_tbl_user_roles() {
+function update_tbl_user_roles()
+{
     db()->update(
-        array(
+        [
             'view_unpublished' => '1',
             'publish_document' => '1',
-            'move_document'    => '1',
-            'edit_chunk'       => '1',
-            'new_chunk'        => '1',
-            'save_chunk'       => '1',
-            'delete_chunk'     => '1',
-            'import_static'    => '1',
-            'export_static'    => '1',
-            'empty_trash'      => '1',
-            'remove_locks'     => '1',
-            'view_schedule'    => '1',
-        )
+            'move_document' => '1',
+            'edit_chunk' => '1',
+            'new_chunk' => '1',
+            'save_chunk' => '1',
+            'delete_chunk' => '1',
+            'import_static' => '1',
+            'export_static' => '1',
+            'empty_trash' => '1',
+            'remove_locks' => '1',
+            'view_schedule' => '1',
+        ]
         , '[+prefix+]user_roles'
         , "`save_role`='1'"
     );
 }
 
-function update_tbl_system_settings() {
+function update_tbl_system_settings()
+{
     global $use_udperms;
     if (evo()->config('validate_referer') === '00') {
         evo()->regOption('validate_referer', '0');
@@ -177,14 +185,15 @@ function update_tbl_system_settings() {
     }
 
     $rs = db()->select('*', '[+prefix+]document_groups');
-    $use_udperms  = (db()->count($rs) == 0) ? '0' : '1';
+    $use_udperms = (db()->count($rs) == 0) ? '0' : '1';
     evo()->config['use_udperms'] = evo()->regOption(
         'use_udperms'
         , $use_udperms
     );
 }
 
-function delete_actionphp() {
+function delete_actionphp()
+{
     $path = MODX_BASE_PATH . 'action.php';
     if (!is_file($path)) {
         return;
@@ -198,7 +207,8 @@ function delete_actionphp() {
     evo()->logEvent(0, 1, $msg, $msg);
 }
 
-function updateTopMenu() {
+function updateTopMenu()
+{
     if (!evo()->config('topmenu_site')) {
         return;
     }

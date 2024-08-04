@@ -145,7 +145,7 @@ switch (postv('mode')) {
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
-            $name     = db()->escape(str_replace("'", "''", $name));
+            $name = db()->escape(str_replace("'", "''", $name));
             $was_name = db()->escape(str_replace("'", "''", $was_name));
             if ($name !== $was_name) {
                 db()->update(
@@ -219,7 +219,8 @@ switch (postv('mode')) {
         break;
 }
 
-function check_exist_name($name) {
+function check_exist_name($name)
+{
     $where = "name='" . $name . "'";
     if (postv('mode') == 78) {
         $where .= " AND id!=" . postv('id');

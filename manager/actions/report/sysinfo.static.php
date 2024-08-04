@@ -15,8 +15,8 @@ global $database_connection_method, $lastInstallTime;
                 <a href="#"
                    onclick="documentDirty=false;document.location.href='index.php?a=2';">
                     <img
-                            alt="icons_cancel"
-                            src="<?php echo style("icons_cancel") ?>"
+                        alt="icons_cancel"
+                        src="<?php echo style("icons_cancel") ?>"
                     /> <?php echo lang('cancel') ?>
                 </a>
             </li>
@@ -124,7 +124,6 @@ global $database_connection_method, $lastInstallTime;
                     $info = array(
                         'OS' => sprintf('%s %s %s %s', PHP_OS, php_uname('r'), php_uname('v'), php_uname('m')),
                         'PHPのバージョン' => PHP_VERSION,
-                        'セーフモード' => !ini_get('safe_mode') ? 'off' : 'on',
                         'php_sapi_name' => php_sapi_name(),
                         'MySQLのバージョン' => db()->server_info(),
                         'MySQLホスト情報' => db()->host_info(),
@@ -181,7 +180,7 @@ global $database_connection_method, $lastInstallTime;
                     <h3>さらに詳細な情報</h3>
                     <p>
                         <a href="index.php?a=200">phpinfo</a> をご覧ください。文字化け関係は<a href="index.php?a=200#module_mbstring">mbstring</a>、captcha関係は<a
-                                href="index.php?a=200#module_gd">GDやFreeType</a>などを確認する必要があります。
+                            href="index.php?a=200#module_gd">GDやFreeType</a>などを確認する必要があります。
                     </p>
                 </div>
             </div>
@@ -407,7 +406,8 @@ global $database_connection_method, $lastInstallTime;
     </script>
 
 <?php
-function render_tr($label, $content) {
+function render_tr($label, $content)
+{
     $ph['label'] = $label;
     $ph['content'] = $content;
     $tpl = <<< EOT

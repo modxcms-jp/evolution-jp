@@ -10,7 +10,7 @@
  * Date:           2019/10/15
  * Version:        2.0.5
  * MODX version:   Evolution 1.0.0 - 1.0.23J
-*/
+ */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
 $modx_manager_charset = 'UTF-8';
@@ -134,8 +134,6 @@ $_lang["configcheck_notok"] = '動作環境に問題があります。';
 $_lang["configcheck_ok"] = '問題なし - 警告はありません。';
 $_lang["configcheck_php_gdzip"] = 'GDライブラリが読み込まれてません。';
 $_lang["configcheck_php_gdzip_msg"] = 'このサーバでは<a href="http://www.google.com/search?q=gd+%22php.ini%22&lr=lang_ja" target="_blank">GDライブラリ</a>が読み込まれてません。<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&ie=UTF-8&q=CAPTCHA&sa.x=26&sa.y=8&siteurl=http:%2F%2Fforum.modx.jp%2F" target="_blank">ログイン時の画像認証機能(CAPTCHA)</a>など画像まわりの処理に制限があります。';
-$_lang["configcheck_register_globals"] = '「register_globals」が「ON」に設定されており、セキュリティ上問題があります。';
-$_lang["configcheck_register_globals_msg"] = 'register_globals がonになっているため、この環境は非常に脆弱です。.htaccessまたはphp.iniによって off にすることを強くおすすめします。';
 $_lang["configcheck_title"] = '設定チェック';
 $_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
 $_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">TemplateSwitcherを削除</a>';
@@ -595,7 +593,7 @@ $_lang["page_data_markup"] = 'マークアップ/構造';
 $_lang["page_data_mgr_access"] = '管理画面からアクセス';
 $_lang["page_data_notcached"] = 'このリソースは、まだキャッシュされていません。';
 $_lang["page_data_publishdate"] = '公開開始日時';
-$_lang["page_data_publishdate_help"] = '公開日時を設定した場合、リソースは公開日時の到来と共に公開されます。この設定は「公開ステータス」よりも優先されます。';
+$_lang["page_data_publishdate_help"] = '公開日時を設定した場合、リソースは公開日時の到来と共に公開されます。<br>この設定は「公開ステータス」よりも優先されます。';
 $_lang["page_data_published"] = '公開';
 $_lang["page_data_searchable"] = '検索対象に含める';
 $_lang["page_data_searchable_help"] = 'このフィールドをチェックすることにより、リソースを検索対象にします。このフィールドをスニペット内で別の目的に使用することもできます。';
@@ -605,7 +603,7 @@ $_lang["page_data_template"] = '使用テンプレート';
 $_lang["page_data_template_help"] = 'このリソースが使用するテンプレートを選択してください。';
 $_lang["page_data_title"] = 'ページデータ';
 $_lang["page_data_unpublishdate"] = '公開終了日時';
-$_lang["page_data_unpublishdate_help"] = '公開終了日時を設定すると、公開終了日時を迎えた時点でリソースが非公開状態に戻ります。この設定は「公開ステータス」よりも優先されます。';
+$_lang["page_data_unpublishdate_help"] = '公開終了日時を設定すると、公開終了日時を迎えた時点でリソースが非公開状態に戻ります。<br>この設定は「公開ステータス」よりも優先されます。';
 $_lang["page_data_unpublished"] = '非公開';
 $_lang["page_data_web_access"] = 'ウェブからアクセス';
 $_lang["pagetitle"] = 'リソース名';
@@ -651,11 +649,11 @@ $_lang["public"] = 'グループ制限なし';
 $_lang["publish_date"] = '公開日時';
 $_lang["publish_events"] = '公開を予定しているリソースの一覧';
 $_lang["publish_resource"] = '公開する';
-$_lang["rb_base_dir_message"] = 'ファイルブラウザディレクトリの物理パスです。images・files・flash・mediaの4つのディレクトリの参照先をここで設定します。';
+$_lang["rb_base_dir_message"] = 'ファイルブラウザディレクトリの物理パスです。images・files・mediaの3つのディレクトリの参照先をここで設定します。';
 $_lang["rb_base_dir_title"] = 'ファイルブラウザディレクトリの<br />物理パス';
 $_lang["rb_base_url_message"] = 'ファイルブラウザディレクトリ(通常はcontentディレクトリ)の相対パスを指定します。';
 $_lang["rb_base_url_title"] = 'ファイルブラウザディレクトリの<br />相対パス';
-$_lang["rb_message"] = '「はい」を選択するとファイルブラウザを使用できます。ファイルブラウザは投稿画面から呼び出します。サーバー上に画像などをアップロードし、投稿画面に貼り付けることができます。この設定はimages・files・flash・mediaの4つのディレクトリを参照します。参照範囲が広い<a href="index.php?a=31">「ファイル管理」</a>と違い、ファイルブラウザは投稿画面との連動を前提としており、主にコンテンツに紐付くファイルのみを扱います。';
+$_lang["rb_message"] = '「はい」を選択するとファイルブラウザを使用できます。ファイルブラウザは投稿画面から呼び出します。サーバー上に画像などをアップロードし、投稿画面に貼り付けることができます。この設定はimages・files・mediaの3つのディレクトリを参照します。参照範囲が広い<a href="index.php?a=31">「ファイル管理」</a>と違い、ファイルブラウザは投稿画面との連動を前提としており、主にコンテンツに紐付くファイルのみを扱います。';
 $_lang["rb_title"] = 'ファイルブラウザを使用';
 $_lang["rb_webuser_message"] = '<a href="index.php?a=99">ウェブユーザー</a>にファイルブラウザの利用を許可するかどうかを選択します。';
 $_lang["rb_webuser_title"] = 'ウェブユーザーの<br />ファイルブラウザ利用';
@@ -709,7 +707,7 @@ $_lang["resource_opt_show_menu_help"] = 'メニューにこのリソースを表
 $_lang["resource_opt_trackvisit_help"] = 'このページへの訪問者をログに記録する(対応モジュールが必要)';
 $_lang["resource_overview"] = 'リソースの詳細情報';
 $_lang["resource_parent"] = '親リソース';
-$_lang["resource_parent_help"] = 'コンテナアイコンをクリックすると、このリソースの親(コンテナ)を変更できる状態になります。アイコンが変化している状態で、親にしたいリソースをリソースツリー上でクリックしてください。もう一度クリックすると元に戻ります。';
+$_lang["resource_parent_help"] = 'コンテナアイコンをクリックすると、このリソースの親(コンテナ)を<br>変更できる状態になります。アイコンが変化している状態で、<br>親にしたいリソースをリソースツリー上でクリックしてください。<br>もう一度クリックすると元に戻ります。';
 $_lang["resource_permissions_error"] = 'このリソースを、少なくともアクセス可能な一つ以上のリソースグループへ割り当ててください。';
 $_lang["resource_setting"] = 'リソース設定';
 $_lang["resource_summary"] = '要約(序説)';
@@ -977,8 +975,6 @@ $_lang["upload_maxsize_message"] = '管理画面を通じてアップロード�
 $_lang["upload_maxsize_title"] = 'アップロードサイズの上限';
 $_lang["uploadable_files_message"] = 'アップロードできる文書ファイルの拡張子を入力してください。カンマで区切って複数指定できます。';
 $_lang["uploadable_files_title"] = 'アップロード可能な文書ファイル';
-$_lang["uploadable_flash_message"] = 'アップロードできるフラッシュファイルの拡張子を入力してください。カンマで区切って複数指定できます。';
-$_lang["uploadable_flash_title"] = 'アップロード可能なフラッシュ';
 $_lang["uploadable_images_message"] = 'アップロードできる画像ファイルの拡張子を入力してください。カンマで区切って複数指定できます。';
 $_lang["uploadable_images_title"] = 'アップロード可能な画像ファイル';
 $_lang["uploadable_media_message"] = 'アップロードできるメディアファイルの拡張子を入力してください。カンマで区切って複数指定できます。';
@@ -1067,8 +1063,10 @@ $_lang["day_names"] = '日,月,火,水,木,金,土';
 $_lang["month_names"] = '1月,2月,3月,4月,5月,6月,7月,8月,9月,10月,11月,12月';
 $_lang["tree_page_click_option_auto"] = '自動(推奨)';
 $_lang["too_many_resources"] = 'リソース数が多いため非表示';
+$_lang['setting_resource_tree_sortby_default'] = 'リソースツリーの並び順';
+$_lang['setting_resource_tree_sortby_default_desc'] = '管理画面のリソースツリー上の並び順を指定します。デフォルトはmenuindexですが、menutitle・alias など任意のリソースフィールドを使用できます。';
 $_lang['setting_resource_tree_node_name'] = 'リソースツリーのノード名';
-$_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
+$_lang['setting_resource_tree_node_name_desc'] = '管理画面のリソースツリー上のノード表示に使用するリソースフィールドを指定します。デフォルトは pagetitle ですが、menutitle・alias など任意のリソースフィールドを使用できます。';
 $_lang['setting_cache_type'] = 'キャッシュ設定';
 $_lang['setting_cache_type_desc'] = '「バイパスモード」はプラグイン処理をキャッシュします。キャッシュ処理を想定しないプラグインがある場合は注意が必要です。';
 $_lang['setting_conditional_get'] = '条件付きGET';
@@ -1138,7 +1136,7 @@ $_lang["disabled"] = '無効';
 
 $_lang["limit_by_container"] = 'コンテナ内の表示数';
 $_lang["limit_by_container_message"] = 'ツリー上のコンテナ内のリソース数がここで設定した数を超えると表示を抑制します。何も入力しない場合は無制限、0を指定すると常にコンテナのみを表示します。';
-$_lang["allow_mgr2web_title"]   = '認証状態を上書き';
+$_lang["allow_mgr2web_title"] = '認証状態を上書き';
 $_lang["allow_mgr2web_message"] = '管理メンバーとしてログインしている時はウェブユーザとしてもログインしている状態にします。';
 
 $_lang["No errors occured."] = "No errors occured.";
@@ -1160,7 +1158,7 @@ $_lang["Double action (GET & POST) posted!"] = "Double action (GET & POST) poste
 $_lang["Document cannot be it's own parent!"] = "Document cannot be it's own parent!";
 $_lang["Document's ID not passed in request!"] = "Document's ID not passed in request!";
 $_lang["New parent not set in request!"] = "New parent not set in request!";
-$_lang["don't know the user!" ] = "ログイン名またはパスワードが間違っています。";
+$_lang["don't know the user!"] = "ログイン名またはパスワードが間違っています。";
 $_lang["wrong password!"] = "ログイン名またはパスワードが間違っています。";
 $_lang["Due to too many failed logins, you have been blocked!"] = "ログインを数回失敗したため、一時的にアクセスが制限されています。";
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
@@ -1203,12 +1201,8 @@ $_lang["a95_convert_link_msg"] = 'サイト内リンクをリンクタグに変�
 $_lang["a17_image_limit_width_title"] = '画像の横幅の最大値';
 $_lang["a17_image_limit_width_message"] = 'アップロードする画像の横幅を自動的に縮小します。空白にすると処理しません。';
 
-$_lang["enable_bindings_title"]  = '@Bindingsを有効にする';
+$_lang["enable_bindings_title"] = '@Bindingsを有効にする';
 $_lang['enable_bindings_message'] = '<a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings機能</a>を有効にします。この機能は、投稿画面上の入力フィールド(テンプレート変数)に任意のコマンドを記述し、実行するものです。PHP文の実行などが可能なため、複数メンバーでサイトを運用する場合、当機能の運用には注意が必要です。';
-
-$_lang["a83_mode_title"] = '動作モード';
-$_lang["a83_mode_direct"] = '直接生成(高速・要メモリ)';
-$_lang["a83_mode_crawl"] = 'クロール(旧バージョン型処理)';
 
 $_lang["update"] = '更新';
 
@@ -1241,6 +1235,9 @@ $_lang["topmenu_items_title"] = '管理画面のメニュー構成';
 $_lang["topmenu_items_message"] = '管理画面のトップメニューの構成を設定します。権限が割り当てられていない操作はここで指定してもメニュー表示されません。';
 
 $_lang["open"] = '開く';
+
+$_lang["manager_docs_orderby_title"] = 'リソース一覧の並び順';
+$_lang["manager_docs_orderby_message"] = '<a href="index.php?a=120">リソース一覧</a>の並び順を設定します。指定方法については<a href="https://modx.jp/docs/extras/snippets/ditto/params/main/body.html#orderBy" target="_blank">DittoのorderByパラメータ</a>を参考にしてください。';
 
 $_lang["tree_pane_open_default_title"] = 'ツリーペインの初期状態';
 $_lang["tree_pane_open_default_message"] = 'ツリーペインをデフォルトで有効にするか閉じておくかを設定します。';

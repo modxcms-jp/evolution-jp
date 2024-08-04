@@ -1,18 +1,18 @@
 <?php
+include '../define-path.php';
 define('MODX_API_MODE', true);
-define('MODX_BASE_PATH', str_replace('\\','/', dirname(__DIR__)).'/');
 define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
 include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 require_once(MODX_BASE_PATH . 'install/functions.php');
 $_lang = includeLang(sessionv('install_language', 'english'));
-$modx->db->hostname = postv('host','localhost');
-$modx->db->username = postv('uid','root');
-$modx->db->password = postv('pwd','passwford');
+$modx->db->hostname = postv('host', 'localhost');
+$modx->db->username = postv('uid', 'root');
+$modx->db->password = postv('pwd', 'passwford');
 db()->connect();
 
 if (!db()->isConnected()) {
-    exit( sprintf(
+    exit(sprintf(
         '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s</span></div>'
         , lang('status_failed')
     ));
@@ -38,7 +38,7 @@ $script = '<script>
     let isSelected;
 
 jQuery.each(characters, function (value, name) {
-    isSelected = (value === 'utf8_general_ci');
+    isSelected = (value === 'utf8mb4_general_ci');
     opt = jQuery('<option>')
         .val(value)
         .text(name)
@@ -48,10 +48,11 @@ jQuery.each(characters, function (value, name) {
 </script>";
 echo $script;
 
-function getCollation() {
+function getCollation()
+{
     $rs = db()->query("SHOW COLLATION LIKE 'utf8%'");
-    while($row=db()->getRow($rs)) {
-        if(isSafeCollation($row['Collation'])) {
+    while ($row = db()->getRow($rs)) {
+        if (isSafeCollation($row['Collation'])) {
             $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
         }
         //$row['Charset'];
@@ -59,16 +60,17 @@ function getCollation() {
     return implode(',', $_);
 }
 
-function isSafeCollation($collation) {
-    if (strpos($collation,'_general_c')!==false) {
+function isSafeCollation($collation)
+{
+    if (strpos($collation, '_general_c') !== false) {
         return true;
     }
 
-    if (strpos($collation,'_unicode_c')!==false) {
+    if (strpos($collation, '_unicode_c') !== false) {
         return true;
     }
 
-    if (strpos($collation,'_bin')!==false) {
+    if (strpos($collation, '_bin') !== false) {
         return true;
     }
 

@@ -12,10 +12,7 @@ include_once('../index.php');
 $self_path = str_replace('\\', '/', __FILE__);
 $self_dir = str_replace('/index.php', '', $self_path);
 $mgr_dir = substr($self_dir, strrpos($self_dir, '/') + 1);
-if (!is_dir(MODX_BASE_PATH . 'assets/cache')) {
-    mkdir(MODX_BASE_PATH . 'assets/cache');
-}
-$site_mgr_path = MODX_BASE_PATH . 'assets/cache/siteManager.php';
+$site_mgr_path = MODX_CACHE_PATH . 'siteManager.php';
 
 if (!is_file($site_mgr_path)) {
     $src = "<?php\n";
@@ -43,7 +40,7 @@ $modx->mstart = $mstart;
 $modx->safeMode = 0;
 evo()->loadExtension('ManagerAPI');
 
-if (isset($_SESSION['safeMode']) && $_SESSION['safeMode'] == 1) {
+if (sessionv('safeMode') == 1) {
     if (evo()->hasPermission('save_role')) {
         $modx->safeMode = 1;
     } else {
@@ -65,7 +62,7 @@ $modx->loadLexicon('manager');
 // send the charset header
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
-$modx->manager->action = isset($_REQUEST['a']) ? (int)$_REQUEST['a'] : 1;
+$modx->manager->action = anyv('a', 1);
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
@@ -87,13 +84,13 @@ switch ($modx->manager->action) {
     case 86:
         break;
     default:
-        if (is_file(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php')) {
-            $content = file_get_contents(MODX_BASE_PATH . 'assets/cache/rolePublishing.idx.php');
+        if (is_file(MODX_CACHE_PATH . 'rolePublishing.idx.php')) {
+            $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
             $role = unserialize($content);
             if ($_SESSION['mgrLastlogin'] < $role[$_SESSION['mgrRole']]) {
                 @session_destroy();
                 session_unset();
-                header("Location: " . $modx->config['site_url'] . "manager/");
+                header("Location: " . MODX_SITE_URL . "manager/");
                 exit;
             }
         }
@@ -582,7 +579,7 @@ switch ($modx->manager->action) {
         include_once($action_path . 'footer.inc.php');
 }
 
-if(in_array($modx->manager->action,array(2,3,120,4,72,27,132,131,51,133,7,87,88,11,12,74,28,38,35,16,19,117,22,23,78,77,18,26,106,107,108,113,100,101,102,127,200,31,40,91,17,53,13,10,70,71,59,75,99,86,76,83,95,9,300,301,114,115,998))) {
+if (in_array($modx->manager->action, array(2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 115, 998))) {
     include_once($action_path . 'footer.inc.php');
 }
 

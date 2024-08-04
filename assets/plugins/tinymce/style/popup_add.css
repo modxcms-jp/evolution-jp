@@ -7,5 +7,6 @@ input#usemap,
 input#longdesc,
 input#classes,
 input#class_custom,
-input#class_list_custom
-	{ ime-mode:disabled; }
+input#class_list_custom {
+    ime-mode: disabled;
+}

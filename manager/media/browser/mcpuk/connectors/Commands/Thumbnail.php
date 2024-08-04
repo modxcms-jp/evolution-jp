@@ -21,84 +21,88 @@
  * Grant French (grant@mcpuk.net)
  */
 
-if(!defined('MODX_BASE_PATH') || strpos(str_replace('\\','/',__FILE__), MODX_BASE_PATH)!==0) {
+if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_BASE_PATH) !== 0) {
     exit;
 }
-include_once(MODX_BASE_PATH.'manager/media/browser/mcpuk/connectors/Commands/helpers/iconlookup.php');
+include_once(MODX_BASE_PATH . 'manager/media/browser/mcpuk/connectors/Commands/helpers/iconlookup.php');
 
-class Thumbnail {
+class Thumbnail
+{
     public $fckphp_config;
     public $type;
     public $cwd;
     public $actual_cwd;
     public $filename;
 
-    function __construct($fckphp_config,$type,$cwd) {
-        $this->fckphp_config=$fckphp_config;
-        $this->type=$type;
-        $this->actual_cwd=$type.'/';
-        if($cwd!=='/') {
+    function __construct($fckphp_config, $type, $cwd)
+    {
+        $this->fckphp_config = $fckphp_config;
+        $this->type = $type;
+        $this->actual_cwd = $type . '/';
+        if ($cwd !== '/') {
             $this->actual_cwd .= $cwd;
         }
-        $this->real_cwd = $this->fckphp_config['basedir'].$this->actual_cwd;
-        $this->real_cwd = rtrim($this->real_cwd,'/');
-        $this->filename=str_replace(array('../','/'),'',unescape(getv('FileName')));
+        $this->real_cwd = $this->fckphp_config['basedir'] . $this->actual_cwd;
+        $this->real_cwd = rtrim($this->real_cwd, '/');
+        $this->filename = str_replace(array('../', '/'), '', unescape(getv('FileName')));
     }
 
-    function run() {
-        $thumbfile=$this->real_cwd.'/.thumb/'.$this->filename;
-        $file_permissions   = octdec(evo()->config['new_file_permissions']);
+    function run()
+    {
+        $thumbfile = $this->real_cwd . '/.thumb/' . $this->filename;
+        $file_permissions = octdec(evo()->config['new_file_permissions']);
         $folder_permissions = octdec(evo()->config['new_folder_permissions']);
-        $icon=false;
+        $icon = false;
 
         if (is_file($thumbfile)) {
-            $icon=$thumbfile;
+            $icon = $thumbfile;
         } else {
             $thumbdir = dirname($thumbfile);
-            $fullfile=$this->real_cwd.'/'.$this->filename;
+            $fullfile = $this->real_cwd . '/' . $this->filename;
             $mime = evo()->getMimeType($fullfile);
-            $ext=strtolower($this->getExtension($this->filename));
+            $ext = strtolower($this->getExtension($this->filename));
 
-            if ($this->isImage($mime,$ext)) {
-                if(!is_dir($thumbdir)) {
+            if ($this->isImage($mime, $ext)) {
+                if (!is_dir($thumbdir)) {
                     $rs = mkdir($thumbdir, $folder_permissions, true);
                 }
-                if($rs) {
+                if ($rs) {
                     chmod($thumbdir, $folder_permissions);
                 }
                 //Try and find a thumbnail, else try to generate one
                 //    else send generic picture icon.
 
-                if($this->isJPEG($mime,$ext)) {
+                if ($this->isJPEG($mime, $ext)) {
                     $result = $this->resizeFromJPEG($fullfile);
-                } elseif($this->isPNG($mime,$ext)) {
+                } elseif ($this->isPNG($mime, $ext)) {
                     $result = $this->resizeFromPNG($fullfile);
-                } elseif($this->isGIF($mime,$ext)) {
+                } elseif ($this->isGIF($mime, $ext)) {
                     $result = $this->resizeFromGIF($fullfile);
                 } else {
                     $result = false;
                 }
 
-                if ($result!==false && function_exists('imagejpeg')) {
-                    imagejpeg($result,$thumbfile,80);
-                    @chmod($thumbfile,$file_permissions);
-                    $icon=$thumbfile;
+                if ($result !== false && function_exists('imagejpeg')) {
+                    imagejpeg($result, $thumbfile, 80);
+                    @chmod($thumbfile, $file_permissions);
+                    $icon = $thumbfile;
                 }
             }
-            if($icon===false) {
+            if ($icon === false) {
                 $icon = iconLookup($mime, $ext);
             }
         }
 
         $iconMime = evo()->getMimeType($icon);
-        if ($iconMime==false) {
+        if ($iconMime == false) {
             $iconMime = 'image/jpeg';
         }
         header(sprintf('Content-type: %s', $iconMime), true);
         readfile($icon);
     }
 
-    function isImage($mime,$ext) {
+    function isImage($mime, $ext)
+    {
         if (in_array($mime, array('image/gif', 'image/jpg', 'image/jpeg', 'image/png'))) {
             return true;
         }
@@ -108,7 +112,8 @@ class Thumbnail {
         return false;
     }
 
-    function isJPEG($mime,$ext) {
+    function isJPEG($mime, $ext)
+    {
         if (in_array($mime, array('image/jpg', 'image/jpeg'))) {
             return true;
         }
@@ -118,23 +123,27 @@ class Thumbnail {
         return false;
     }
 
-    function isGIF($mime,$ext) {
+    function isGIF($mime, $ext)
+    {
         return ($mime === 'image/gif') || ($ext === 'gif');
     }
 
-    function isPNG($mime,$ext) {
+    function isPNG($mime, $ext)
+    {
         return ($mime === 'image/png') || ($ext === 'png');
     }
 
-    function getExtension($filename) {
-        $lastpos=strrpos($filename,'.');
-        if ($lastpos!==false) {
+    function getExtension($filename)
+    {
+        $lastpos = strrpos($filename, '.');
+        if ($lastpos !== false) {
             return strtolower(substr($filename, ($lastpos + 1)));
         }
         return '';
     }
 
-    function resizeFromJPEG($file) {
+    function resizeFromJPEG($file)
+    {
         $img = @imagecreatefromjpeg($file);
         if ($img) {
             return ($this->resizeImage($img));
@@ -142,7 +151,8 @@ class Thumbnail {
         return false;
     }
 
-    function resizeFromGIF($file) {
+    function resizeFromGIF($file)
+    {
         $img = @imagecreatefromgif($file);
         if ($img) {
             return ($this->resizeImage($img));
@@ -150,7 +160,8 @@ class Thumbnail {
         return false;
     }
 
-    function resizeFromPNG($path) {
+    function resizeFromPNG($path)
+    {
         $img = @imagecreatefrompng($path);
         if ($img) {
             imagesavealpha($img, true);
@@ -159,29 +170,31 @@ class Thumbnail {
         return false;
     }
 
-    function resizeImage($img) {
-        $width=imagesx($img);
-        $height=imagesy($img);
-        if ($width>$height) {
-            $n_height=$height*(64/$width);
-            $n_width=64;
+    function resizeImage($img)
+    {
+        $width = imagesx($img);
+        $height = imagesy($img);
+        if ($width > $height) {
+            $n_height = $height * (64 / $width);
+            $n_width = 64;
         } else {
-            $n_width=$width*(64/$height);
-            $n_height=64;
+            $n_width = $width * (64 / $height);
+            $n_height = 64;
         }
 
-        $x=0;$y=0;
-        if ($n_width<64) {
+        $x = 0;
+        $y = 0;
+        if ($n_width < 64) {
             $x = round((64 - $n_width) / 2);
         }
-        if ($n_height<64) {
+        if ($n_height < 64) {
             $y = round((64 - $n_height) / 2);
         }
 
-        $thumb=imagecreatetruecolor(64,64);
+        $thumb = imagecreatetruecolor(64, 64);
 
         #Ben Lancaster (benlanc@ster.me.uk)
-        imagefill($thumb, 0, 0, imagecolorallocate($thumb,255,255,255));
+        imagefill($thumb, 0, 0, imagecolorallocate($thumb, 255, 255, 255));
 
         if (!function_exists('imagecopyresampled')) {
             return imagecopyresized($thumb, $img, $x, $y, 0, 0, $n_width, $n_height, $width, $height);

@@ -6,46 +6,46 @@ if (!preg_match('/^[1-9][0-9]*$/', $opt)) {
 }
 
 $content = str_replace(
-    array('。 ', '、 ', ' ・', '。・', '…'),
-    array('。',  '、',  '・',  '。', '・・'),
+    ['。 ', '、 ', ' ・', '。・', '…'],
+    ['。', '、', '・', '。', '・・'],
     str_replace(
-        array('&nbsp;', '　', "\xc2\xa0", "\r", "\n", "\t", ' '),
+        ['&nbsp;', '　', "\xc2\xa0", "\r", "\n", "\t", ' '],
         ' ',
         remove_tags(
             evo()->filter->parseDocumentSource($value)
         )
     )
 );
-$content = preg_replace('@\s+@',' ',$content);
+$content = preg_replace('@\s+@', ' ', $content);
 
 $content_org = $content;
 
 $strlen = evo()->filter->strlen($content);
-$limit = $strlen<$limit ? $strlen : $limit;
-$p = strpos($content,'。')!==false ? '[。！？]+' : '[\.\!\?\s]+';
-if(!preg_match('@('.$p.')@u', $content)) {
+$limit = $strlen < $limit ? $strlen : $limit;
+$p = strpos($content, '。') !== false ? '[。！？]+' : '[\.\!\?\s]+';
+if (!preg_match('@(' . $p . ')@u', $content)) {
     return evo()->filter->substr($content, 0, $limit);
 }
 
-$_ = preg_split('@('.$p.')@u', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
-$content='';
-foreach($_ as $i=>$v) {
-    if(evo()->filter->strlen($content.$v)<$limit) {
+$_ = preg_split('@(' . $p . ')@u', $content, -1, PREG_SPLIT_DELIM_CAPTURE);
+$content = '';
+foreach ($_ as $i => $v) {
+    if (evo()->filter->strlen($content . $v) < $limit) {
         $content .= $v;
         continue;
     }
-    if(preg_match('@('.$p.')@u', $v)) {
+    if (preg_match('@(' . $p . ')@u', $v)) {
         $content .= $v;
         continue;
     }
     break;
 }
 
-if($limit < evo()->filter->strlen($content)) {
+if ($limit < evo()->filter->strlen($content)) {
     $content = evo()->filter->substr($content, 0, $limit);
 }
 
-if(trim($content)=='') {
+if (trim($content) == '') {
     $content = evo()->filter->substr($content_org, 0, $limit - 4) . ' ...';
 }
 

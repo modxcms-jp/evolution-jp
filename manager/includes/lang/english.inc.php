@@ -7,7 +7,7 @@
  * Date:           23 December 2010
  * Version:        2.0.5
  * MODX version:   Evolution 1.0.10
-*/
+ */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'en'; // Manager HTML/XML Language Attribute see http://en.wikipedia.org/wiki/ISO_639-1
 $modx_manager_charset = 'UTF-8';
@@ -131,8 +131,6 @@ $_lang["configcheck_notok"] = 'One or more configuration details didn\'t check o
 $_lang["configcheck_ok"] = 'Check passed OK - no warnings to report.';
 $_lang["configcheck_php_gdzip"] = 'GD and/or Zip PHP extensions not found';
 $_lang["configcheck_php_gdzip_msg"] = 'MODX needs the GD and Zip extension enabled for PHP. While MODX will work without them, you will not be able to take full advantage of the built-in File Manager, Image Editor or Captcha for logins.';
-$_lang["configcheck_register_globals"] = 'register_globals is set to ON in your php.ini configuration file';
-$_lang["configcheck_register_globals_msg"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about what you can do to disable this setting.';
 $_lang["configcheck_title"] = 'Configuration check';
 $_lang["configcheck_templateswitcher_present"] = 'TemplateSwitcher Plugin detected';
 $_lang["configcheck_templateswitcher_present_delete"] = '<a href="javascript:deleteTemplateSwitcher();">Delete TemplateSwitcher</a>';
@@ -648,11 +646,11 @@ $_lang["public"] = 'Public';
 $_lang["publish_date"] = 'Publish Date';
 $_lang["publish_events"] = 'Publish Events';
 $_lang["publish_resource"] = 'Publish Resource';
-$_lang["rb_base_dir_message"] = 'Enter the physical path to the File Browser directory. This setting is usually automatically generated. If you\'re using IIS, however, MODX may not be able to work the path out on its own, causing the File Browser to show an error. In that case, you can enter the path to the images directory here (the path as you\'d see it in Windows Explorer). <b>NOTE:</b> The File Browser directory must contain the subfolders images, files, flash and media in order for the file browser to function correctly.';
+$_lang["rb_base_dir_message"] = 'Enter the physical path to the File Browser directory. This setting is usually automatically generated. If you\'re using IIS, however, MODX may not be able to work the path out on its own, causing the File Browser to show an error. In that case, you can enter the path to the images directory here (the path as you\'d see it in Windows Explorer). <b>NOTE:</b> The File Browser directory must contain the subfolders images, files and media in order for the file browser to function correctly.';
 $_lang["rb_base_dir_title"] = 'File base path';
 $_lang["rb_base_url_message"] = 'Enter the virtual path to files directory. This setting is usually automatically generated. If you\'re using IIS, however, MODX may not be able to work the URL out on it\'s own, causing the File Browser to show an error. In that case, you can enter the URL to the images directory here (the URL as you\'d enter it on Internet Explorer).';
 $_lang["rb_base_url_title"] = 'File Browser URL';
-$_lang["rb_message"] = 'Select yes to enable the File Browser. This will allow your users to browse and upload files such as images, flash and media files on the server.';
+$_lang["rb_message"] = 'Select yes to enable the File Browser. This will allow your users to browse and upload files such as images and media files on the server.';
 $_lang["rb_title"] = 'Enable File Browser';
 $_lang["rb_webuser_message"] = 'Do you want to allow a web user the ability to use the file browser? <b>WARNING:</b> Allowing web users the use of the file browser exposes the files available to manager users.  Only use this option for trusted web users.';
 $_lang["rb_webuser_title"] = 'Web Users?';
@@ -850,7 +848,7 @@ $_lang["settings_page_settings"] = 'Settings';
 $_lang["settings_photo"] = 'Photo';
 $_lang["settings_properties"] = 'Properties';
 $_lang["settings_site"] = 'Site';
-$_lang["settings_strip_image_paths_message"] = 'If this is set to \'No\', MODX  will write file browser src\'s (images, files, flash, etc.) as absolute URLs. Relative URLs are helpful should you wish to move your MODX install, e.g., from a staging site to a production site. If you have no idea what this means, it\'s best just to leave it set to \'Yes\'.';
+$_lang["settings_strip_image_paths_message"] = 'If this is set to \'No\', MODX  will write file browser src\'s (images, files, etc.) as absolute URLs. Relative URLs are helpful should you wish to move your MODX install, e.g., from a staging site to a production site. If you have no idea what this means, it\'s best just to leave it set to \'Yes\'.';
 $_lang["settings_strip_image_paths_title"] = 'Rewrite browser paths?';
 $_lang["settings_templvars"] = 'Template Variables';
 $_lang["settings_title"] = 'System configuration';
@@ -974,8 +972,6 @@ $_lang["upload_maxsize_message"] = 'Enter the maximum file size that can be uplo
 $_lang["upload_maxsize_title"] = 'Maximum upload size';
 $_lang["uploadable_files_message"] = 'Enter a list of files that can be uploaded into \'assets/files/\' using the File Browser. Please enter the extensions for the filetypes, separated by commas.';
 $_lang["uploadable_files_title"] = 'Uploadable File Types';
-$_lang["uploadable_flash_message"] = 'Enter a list of files that can be uploaded into \'assets/flash/\' using the File Browser. Please enter the extensions for the flash types, separated by commas.';
-$_lang["uploadable_flash_title"] = 'Uploadable Flash Types';
 $_lang["uploadable_images_message"] = 'Enter a list of files that can be uploaded into \'assets/images/\' using the File Browser. Please enter the extensions for the image types, separated by commas.';
 $_lang["uploadable_images_title"] = 'Uploadable Image Types';
 $_lang["uploadable_media_message"] = 'Enter a list of files that can be uploaded into \'assets/media/\' using the File Browser. Please enter the extensions for the media types, separated by commas.';
@@ -1064,7 +1060,9 @@ $_lang["day_names"] = 'Sun,Mon,Tue,Wed,Thu,Fri,Sat';
 $_lang["month_names"] = 'Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec';
 $_lang["tree_page_click_option_auto"] = 'Auto';
 $_lang["too_many_resources"] = 'Undisplayed, there are many resources';
-$_lang['setting_resource_tree_node_name'] = 'The node name of a resource tree';
+$_lang['setting_resource_tree_sortby_default'] = 'The Order of a resource tree';
+$_lang['setting_resource_tree_sortby_default_desc'] = 'Specify the sorting order on the resource tree of the management screen. The default is menuindex, but you can use any resource field such as menutitle, alias, etc.';
+$_lang['setting_resource_tree_node_name'] = 'The node name of resource tree';
 $_lang['setting_resource_tree_node_name_desc'] = 'Specify the Resource field to use when rendering the nodes in the Resource Tree. Defaults to pagetitle, although any Resource field can be used, such as menutitle, alias.';
 $_lang['setting_cache_type'] = 'Cache mode';
 $_lang['setting_cache_type_desc'] = 'Selection of "Cache disabled" will repeal all the cache functions. Caching invalid does not recommend.';
@@ -1135,7 +1133,7 @@ $_lang["disabled"] = 'disabled';
 
 $_lang["limit_by_container"] = 'The number of displays in a container';
 $_lang["limit_by_container_message"] = 'A display will be controlled if the number of resources in the container on a tree exceeds the number set up here.<br />blank - Unlimited<br />0  - Containers only';
-$_lang["allow_mgr2web_title"]   = 'Override attestation state';
+$_lang["allow_mgr2web_title"] = 'Override attestation state';
 $_lang["allow_mgr2web_message"] = 'When logged in as a management member, it override the state of logging in also as a Web user.';
 
 $_lang["No errors occured."] = "No errors occured.";
@@ -1157,7 +1155,7 @@ $_lang["Double action (GET & POST) posted!"] = "Double action (GET & POST) poste
 $_lang["Document cannot be it's own parent!"] = "Document cannot be it's own parent!";
 $_lang["Document's ID not passed in request!"] = "Document's ID not passed in request!";
 $_lang["New parent not set in request!"] = "New parent not set in request!";
-$_lang["don't know the user!" ] = "Incorrect username or password entered!";
+$_lang["don't know the user!"] = "Incorrect username or password entered!";
 $_lang["wrong password!"] = "Incorrect username or password entered!";
 $_lang["Due to too many failed logins, you have been blocked!"] = "Due to too many failed logins, you have been blocked!";
 $_lang["You are blocked and cannot log in!"] = "You are blocked and cannot log in!";
@@ -1200,12 +1198,8 @@ $_lang["a95_convert_link_msg"] = 'Convert the link in the site into an link tag.
 $_lang["a17_image_limit_width_title"] = 'The maximum of the width of the image(px)';
 $_lang["a17_image_limit_width_message"] = 'Reduce the width of the image to upload automatically. Do not handle it when make a blank.';
 
-$_lang["enable_bindings_title"]  = 'Enable @Bindings commands';
+$_lang["enable_bindings_title"] = 'Enable @Bindings commands';
 $_lang['enable_bindings_message'] = 'Enable <a href="http://www.google.com/cse?cx=007286147079563201032%3Aigbcdgg0jyo&q=Bindings" target="_blank">@Bindings commands</a>. Describe any command in the entry field (template variable) on the contribution screen and carry out this function. When manage a site in plural members because the practice of the PHP sentence is possible, attention is necessary for the use of this function.';
-
-$_lang["a83_mode_title"] = 'Generate mode';
-$_lang["a83_mode_direct"] = 'Direct parse';
-$_lang["a83_mode_crawl"] = 'Crawl (legacy mode)';
 
 $_lang["update"] = 'Save';
 
@@ -1238,6 +1232,9 @@ $_lang["topmenu_items_title"] = 'Top menu structure';
 $_lang["topmenu_items_message"] = 'Top menu structure in the manager interface';
 
 $_lang["open"] = 'Open';
+
+$_lang["manager_docs_orderby_title"] = 'Resource list order';
+$_lang["manager_docs_orderby_message"] = 'Set the order of the <a href="index.php?a=120">resource list</a>.';
 
 $_lang["tree_pane_open_default_title"] = 'Tree pane default';
 $_lang["tree_pane_open_default_message"] = 'Tree pane default';

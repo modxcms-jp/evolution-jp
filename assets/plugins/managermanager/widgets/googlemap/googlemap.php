@@ -3,13 +3,14 @@
 // mm_widget_googlemap ver 0.12
 // 2010 / Oori
 // Free for all
-//--------------------------------------------------------------------------------- 
-function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', $templates='') {
-	
-	global $modx, $mm_fields,$mm_current_page;
-	$e = &$modx->event;
-	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+//---------------------------------------------------------------------------------
+function mm_widget_googlemap($fields, $googleApiKey = '', $default = '', $roles = '', $templates = '')
+{
+
+    global $modx, $mm_fields, $mm_current_page;
+    $e = &$modx->event;
+
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

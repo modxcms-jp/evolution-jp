@@ -41,7 +41,7 @@
             <td>
                 <input type="hidden" name="failedlogincount" value="<?php echo $user['failedlogincount']; ?>">
                 <span id='failed'><?php echo $user['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a
-                        href="javascript:resetFailed()"><?php echo lang('reset_failedlogins'); ?></a>]
+                    href="javascript:resetFailed()"><?php echo lang('reset_failedlogins'); ?></a>]
             </td>
         </tr>
         <tr>
@@ -50,18 +50,18 @@
                 <?php $blocked = (user('blocked') || (user('blockeduntil', 0) > time() && user('blockeduntil'))); ?>
                 <label>
                     <input
-                            name="blockedcheck"
-                            type="checkbox"
-                            onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"
+                        name="blockedcheck"
+                        type="checkbox"
+                        onclick="changeblockstate(document.userform.blocked, document.userform.blockedcheck);"
                         <?php
                         if ($blocked) {
                             echo "checked";
                         } ?>
                     >
                     <input
-                            type="hidden"
-                            name="blocked"
-                            value="<?php echo $blocked ? 1 : 0; ?>">
+                        type="hidden"
+                        name="blocked"
+                        value="<?php echo $blocked ? 1 : 0; ?>">
                 </label></td>
         </tr>
         <tr>
@@ -80,12 +80,12 @@
             <th><?php echo lang('user_blockeduntil'); ?>:</th>
             <td>
                 <input
-                        type="text"
-                        id="blockeduntil"
-                        name="blockeduntil"
-                        class="DatePicker"
-                        value="<?php echo($user['blockeduntil'] ? $modx->toDateFormat($user['blockeduntil']) : ''); ?>"
-                        onblur='documentDirty=true;' readonly="readonly">
+                    type="text"
+                    id="blockeduntil"
+                    name="blockeduntil"
+                    class="DatePicker"
+                    value="<?php echo($user['blockeduntil'] ? $modx->toDateFormat($user['blockeduntil']) : ''); ?>"
+                    onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                    style="cursor:pointer; cursor:hand"><img align="absmiddle"
                                                             src="media/style/<?php echo $modx->config['manager_theme']; ?>/images/icons/cal_nodate.gif"

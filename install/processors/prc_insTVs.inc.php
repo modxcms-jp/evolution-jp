@@ -20,16 +20,16 @@ foreach ($tplTVs as $i => $tplInfo) {
         continue;
     }
 
-    $name = db()->escape($tplInfo['name']);
+    $name = $tplInfo['name'];
     $f = array();
-    $f['type']           = $tplInfo['input_type'];
-    $f['caption']        = $tplInfo['caption'];
-    $f['description']    = $tplInfo['description'];
-    $f['category']       = getCreateDbCategory($tplInfo['category']);
-    $f['locked']         = $tplInfo['locked'];
-    $f['elements']       = $tplInfo['elements'];
-    $f['default_text']   = $tplInfo['default_text'];
-    $f['display']        = $tplInfo['display'];
+    $f['type'] = $tplInfo['input_type'];
+    $f['caption'] = $tplInfo['caption'];
+    $f['description'] = $tplInfo['description'];
+    $f['category'] = getCreateDbCategory($tplInfo['category']);
+    $f['locked'] = $tplInfo['locked'];
+    $f['elements'] = $tplInfo['elements'];
+    $f['default_text'] = $tplInfo['default_text'];
+    $f['display'] = $tplInfo['display'];
     $f['display_params'] = $tplInfo['display_params'];
 
     $dbv_tmplvar = db()->getObject('site_tmplvars', "name='" . $name . "'");
@@ -77,7 +77,7 @@ foreach ($tplTVs as $i => $tplInfo) {
             continue;
         }
         db()->insert(
-            array('tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id),
+            ['tmplvarid' => $tmplvarid, 'templateid' => $dbv_template->id],
             '[+prefix+]site_tmplvar_templates'
         );
     }

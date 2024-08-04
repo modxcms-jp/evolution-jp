@@ -18,64 +18,65 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
-var FCKXml = function () { }
+var FCKXml = function () {
+}
 
 function escapeHTML(text) {
-	text = text.replace('\n', '');
-	text = text.replace('&', '&amp;');
-	text = text.replace('<', '&lt;');
-	text = text.replace('>', '&gt;');
-	return text;
+    text = text.replace('\n', '');
+    text = text.replace('&', '&amp;');
+    text = text.replace('<', '&lt;');
+    text = text.replace('>', '&gt;');
+    return text;
 }
 
 FCKXml.prototype.GetHttpRequest = function () {
-	return new XMLHttpRequest();
+    return new XMLHttpRequest();
 }
 
 FCKXml.prototype.LoadUrl = function (urlToCall, asyncFunctionPointer) {
-	var oFCKXml = this;
+    var oFCKXml = this;
 
-	var bAsync = (typeof (asyncFunctionPointer) == 'function');
+    var bAsync = (typeof (asyncFunctionPointer) == 'function');
 
-	var oXmlHttp = this.GetHttpRequest();
-	oXmlHttp.open("GET", urlToCall, bAsync);
+    var oXmlHttp = this.GetHttpRequest();
+    oXmlHttp.open("GET", urlToCall, bAsync);
 
-	if (bAsync) {
-		oXmlHttp.onreadystatechange = function () {
-			if (oXmlHttp.readyState == 4) {
-				oFCKXml.DOMDocument = oXmlHttp.responseXML;
-				asyncFunctionPointer(oFCKXml);
-			}
-		}
-	}
+    if (bAsync) {
+        oXmlHttp.onreadystatechange = function () {
+            if (oXmlHttp.readyState == 4) {
+                oFCKXml.DOMDocument = oXmlHttp.responseXML;
+                asyncFunctionPointer(oFCKXml);
+            }
+        }
+    }
 
-	oXmlHttp.send(null);
+    oXmlHttp.send(null);
 
-	if (!bAsync)
-		this.DOMDocument = oXmlHttp.responseXML;
+    if (!bAsync)
+        this.DOMDocument = oXmlHttp.responseXML;
 }
 
 FCKXml.prototype.SelectNodes = function (xpath) {
-	var aNodeArray = new Array();
+    var aNodeArray = [];
 
-	var xPathResult = this.DOMDocument.evaluate(xpath, this.DOMDocument,
-		this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-	if (xPathResult) {
-		var oNode = xPathResult.iterateNext();
-		while (oNode) {
-			aNodeArray[aNodeArray.length] = oNode;
-			oNode = xPathResult.iterateNext();
-		}
-	}
-	return aNodeArray;
+    var xPathResult = this.DOMDocument.evaluate(xpath, this.DOMDocument,
+        this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+    if (xPathResult) {
+        var oNode = xPathResult.iterateNext();
+        while (oNode) {
+            aNodeArray[aNodeArray.length] = oNode;
+            oNode = xPathResult.iterateNext();
+        }
+    }
+    return aNodeArray;
 }
 
 FCKXml.prototype.SelectSingleNode = function (xpath) {
-	var xPathResult = this.DOMDocument.evaluate(xpath, this.DOMDocument,
-		this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), 9, null);
+    var xPathResult = this.DOMDocument.evaluate(xpath, this.DOMDocument,
+        this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), 9, null);
 
-	if (xPathResult && xPathResult.singleNodeValue)
-		return xPathResult.singleNodeValue;
-	else
-		return null;
+    if (xPathResult && xPathResult.singleNodeValue)
+        return xPathResult.singleNodeValue;
+    else
+        return null;
 }

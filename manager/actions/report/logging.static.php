@@ -41,15 +41,15 @@ while ($row = db()->getRow($rs)) {
                         <tbody>
                         <tr style="background-color:#fff;">
                             <td
-                                    style="width:120px;"
+                                style="width:120px;"
                             ><b><?php echo lang('mgrlog_msg'); ?></b></td>
                             <td align="right">
                                 <input
-                                        type="text"
-                                        name="message"
-                                        class="inputbox"
-                                        style="width:240px"
-                                        value="<?php echo getv('message'); ?>"
+                                    type="text"
+                                    name="message"
+                                    class="inputbox"
+                                    style="width:240px"
+                                    value="<?php echo getv('message'); ?>"
                                 />
                             </td>
                         </tr>
@@ -114,10 +114,10 @@ while ($row = db()->getRow($rs)) {
                                     foreach ($logs_items as $row) {
                                         $selectedtext = $row['itemid'] == getv('itemid') ? ' selected="selected"' : '';
                                         echo sprintf(
-                                                '<option value="%s"%s>%s</option>'
-                                                , $row['itemid']
-                                                , $selectedtext
-                                                , $row['itemid']
+                                            '<option value="%s"%s>%s</option>'
+                                            , $row['itemid']
+                                            , $selectedtext
+                                            , $row['itemid']
                                         );
                                     }
                                     ?>    </select>
@@ -133,10 +133,10 @@ while ($row = db()->getRow($rs)) {
                                     $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
                                     foreach ($logs_names as $row) {
                                         echo sprintf(
-                                                '<option value="%s"%s>%s</option>'
-                                                , $row['itemname']
-                                                , $row['itemname'] == getv('itemname') ? ' selected="selected"' : ''
-                                                , $row['itemname']
+                                            '<option value="%s"%s>%s</option>'
+                                            , $row['itemname']
+                                            , $row['itemname'] == getv('itemname') ? ' selected="selected"' : ''
+                                            , $row['itemname']
                                         );
                                     }
                                     ?>    </select>
@@ -148,10 +148,10 @@ while ($row = db()->getRow($rs)) {
                                 <input type="text" id="datefrom" name="datefrom" class="DatePicker"
                                        value="<?php echo getv('datefrom', ''); ?>"/>
                                 <a
-                                        onclick="document.logging.datefrom.value=''; return true;"
-                                        style="cursor:pointer; cursor:hand"><img
-                                            src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
-                                            border="0" alt="No date"
+                                    onclick="document.logging.datefrom.value=''; return true;"
+                                    style="cursor:pointer; cursor:hand"><img
+                                        src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                        border="0" alt="No date"
                                     /></a>
                             </td>
                         </tr>
@@ -169,11 +169,11 @@ while ($row = db()->getRow($rs)) {
                                     onclick="document.logging.dateto.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"
                                 >
-                                <img
-                                    src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
-                                    border="0"
-                                    alt="No date"
-                                />
+                                    <img
+                                        src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                        border="0"
+                                        alt="No date"
+                                    />
                                 </a>
                             </td>
                         </tr>
@@ -358,7 +358,7 @@ EOT;
                 $row['itemname'] = evo()->hsc($row['itemname']);
                 if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                     $row['title'] = '<div style="text-align:center;">-</div>';
-                } elseif (in_array($row['action'], array(3,27,5))) {
+                } elseif (in_array($row['action'], array(3, 27, 5))) {
                     $row['title'] = evo()->parseText(
                         '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>'
                         , $row
@@ -388,7 +388,8 @@ EOT;
     }
 endif;
 
-function array_unique_multi($array, $checkKey) {
+function array_unique_multi($array, $checkKey)
+{
     if (!is_array(current($array)) || empty($checkKey)) {
         return array_unique($array);
     }
@@ -404,7 +405,8 @@ function array_unique_multi($array, $checkKey) {
     return $ret;
 }
 
-function record_sort($array, $key) {
+function record_sort($array, $key)
+{
     $hash = array();
     foreach ($array as $k => $v) {
         $hash[$k] = $v[$key];

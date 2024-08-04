@@ -3,11 +3,12 @@
  * @var array $_lang
  * @var array $_style
  */
+
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a', 0)) {
     case 78:
         if (!evo()->hasPermission('edit_chunk')) {
             alert()->setError(3);
@@ -25,7 +26,11 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = preg_match('@^[1-9][0-9]*$@', $_REQUEST['id']) ? $_REQUEST['id'] : 0;
+$id = anyv('id', 0);
+if (!preg_match('@^[0-9]+$@', $id)) {
+    alert()->setError(3);
+    alert()->dumpError();
+}
 
 // Get table names (alphabetical)
 
@@ -41,15 +46,15 @@ if (db()->count($rs) > 1) {
     }
 }
 
-$content = array();
-if (isset($_REQUEST['id']) && $_REQUEST['id'] != '' && is_numeric($_REQUEST['id'])) {
+$content = [];
+if (preg_match('@^[1-9][0-9]*$@', $id)) {
     $rs = db()->select('*', '[+prefix+]site_htmlsnippets', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {
         exit('<p>Error: Multiple Chunk sharing same unique ID.</p>');
     }
-    if ($total < 1) {
-        exit('<p>Chunk doesn\'t exist.</p>');
+    if (!$total) {
+        exit("<p>Chunk doesn't exist.</p>");
     }
     $content = db()->getRow($rs);
     $_SESSION['itemname'] = $content['name'];
@@ -90,7 +95,7 @@ if (isset($form_v['which_editor'])) {
 
 // Print RTE Javascript function
 ?>
-    <script language="javascript" type="text/javascript">
+    <script>
         // Added for RTE selection
         function changeRTE() {
             var whichEditor = document.getElementById('which_editor');
@@ -212,21 +217,23 @@ if (isset($form_v['which_editor'])) {
                     <table>
                         <tr>
                             <th align="left"><?= $_lang['htmlsnippet_name'] ?></th>
-                            <td align="left">{{<input name="name" type="text" maxlength="100"
-                                                      value="<?= hsc($content['name']) ?>"
-                                                      class="inputBox" style="width:300px;">}}
+                            <td align="left">
+                            {{<input name="name" type="text" maxlength="100"
+                                    value="<?= hsc($content['name']) ?>"
+                                    class="inputBox" style="width:300px;">}}
                             </td>
                         </tr>
                     </table>
 
                     <div>
-                        <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                        <div
+                            style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                             <span style="font-weight:bold;"><?= $_lang['chunk_code'] ?></span>
                         </div>
                         <textarea
                             dir="ltr" class="phptextarea" name="post"
                             style="height:350px;width:100%"
-                        ><?= isset($content['post']) ? hsc($content['post']) : hsc($content['snippet']) ?></textarea>
+                        ><?= hsc($content['post'] ?? $content['snippet']) ?></textarea>
                     </div>
 
                     <span class="warning"><?= $_lang['which_editor_title'] ?></span>
@@ -289,11 +296,11 @@ if (isset($form_v['which_editor'])) {
                             <th align="left"><?= $_lang['page_data_unpublishdate'] ?></th>
                             <td>
                                 <input id="unpub_date" name="unpub_date" type="text"
-                                       value="<?= $content['unpub_date'] ?>" class="DatePicker"/>
+                                        value="<?= $content['unpub_date'] ?>" class="DatePicker"/>
                                 <a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;"
-                                   style="cursor:pointer; cursor:hand">
+                                    style="cursor:pointer; cursor:hand">
                                     <img src="<?= $_style["icons_cal_nodate"] ?>"
-                                         alt="<?= $_lang['remove_date'] ?>"/></a>
+                                        alt="<?= $_lang['remove_date'] ?>"/></a>
                             </td>
                         </tr>
                         <tr>

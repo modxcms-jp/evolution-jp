@@ -221,7 +221,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate"><a href="index.php?a=106"><img
-                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a>
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a>
         </ul>
     </div>
 
@@ -234,9 +234,9 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
             <!-- Dependencies -->
             <ul class="actionButtons">
                 <li><a href="#" onclick="addSnippet();return false;"><img
-                                src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_snippet'] ?></a></li>
+                            src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_snippet'] ?></a></li>
                 <li><a href="#" onclick="addPlugin();return false;"><img
-                                src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_plugin'] ?></a></li>
+                            src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_plugin'] ?></a></li>
             </ul>
             <?php
             $sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
@@ -268,7 +268,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
             ?>
             <ul class="actionButtons">
                 <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img
-                                src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['remove'] ?>
+                            src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['remove'] ?>
                     </a></li>
             </ul>
         </div>

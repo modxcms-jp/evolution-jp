@@ -10,7 +10,7 @@ if (!evo()->hasPermission('save_document')) {
 }
 
 if (preg_match('@^[1-9][0-9]*$@', postv('id', 0))) {
-    $docid = post('id');
+    $docid = postv('id');
 } elseif (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $docid = getv('id');
 } else {
@@ -37,7 +37,8 @@ $header = sprintf('Location: index.php?a=3&id=%s&r=1', $docid);
 header($header);
 
 
-function setStandBy($docid, $pub_date) {
+function setStandBy($docid, $pub_date)
+{
     db()->update(
         array(
             'pub_date' => $pub_date,
@@ -49,7 +50,8 @@ function setStandBy($docid, $pub_date) {
     return 'set_standby';
 }
 
-function publishDraft($docid) {
+function publishDraft($docid)
+{
     evo()->loadExtension('DocAPI');
     $rs = db()->select(
         '*'

@@ -23,13 +23,15 @@ if (formv('reset_template')) {
 }
 
 cleanup_tv();
+fix_pulishedon();
+repairDocs();
 evo()->clearCache();
 setPermission();
 header("Location: index.php?a=7&r=9");
 
 
-
-function setPermission() {
+function setPermission()
+{
     if (!is_dir(formv('rb_base_dir') . 'images')) {
         mkd(formv('rb_base_dir') . 'images');
     }
@@ -38,9 +40,6 @@ function setPermission() {
     }
     if (!is_dir(formv('rb_base_dir') . 'media')) {
         mkd(formv('rb_base_dir') . 'media');
-    }
-    if (!is_dir(formv('rb_base_dir') . 'flash')) {
-        mkd(formv('rb_base_dir') . 'flash');
     }
     if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
         mkd(MODX_BASE_PATH . 'temp/export');
@@ -54,7 +53,8 @@ function setPermission() {
     }
 }
 
-function mkd($path) {
+function mkd($path)
+{
     $rs = @mkdir($path, 0777, true);
     if ($rs) {
         $rs = @chmod($path, 0777);
@@ -62,21 +62,24 @@ function mkd($path) {
     return $rs;
 }
 
-function setModifiedConfig($form_v, $defaut_v) {
+function setModifiedConfig($form_v, $defaut_v)
+{
     if ($form_v === $defaut_v) {
         return $defaut_v;
     }
-    return '* ' . $form_v;
+    return ltrim($form_v, '* ');
 }
 
-function formv($key, $default=null) {
-    if(in_array($key, array('filemanager_path','rb_base_dir'))) {
+function formv($key, $default = null)
+{
+    if (in_array($key, array('filemanager_path', 'rb_base_dir'))) {
         return str_replace('[(base_path)]', MODX_BASE_PATH, postv($key));
     }
     return postv($key, $default);
 }
 
-function warnings() {
+function warnings()
+{
     $warnings = array();
     if (!is_dir(formv('filemanager_path'))) {
         $warnings[] = lang('configcheck_filemanager_path');
@@ -93,7 +96,7 @@ function warnings() {
     $dir = '/' . trim(evo()->config['base_url'], '/');
     if (is_file($htaccess)) {
         $_ = file_get_contents($htaccess);
-        if (strpos($_, 'RewriteBase') === false) {
+        if (strpos($_, 'RewriteEngine') === false) {
             $warnings[] = lang('settings_friendlyurls_alert2');
             return $warnings;
         }
@@ -124,9 +127,10 @@ function warnings() {
     return $warnings;
 }
 
-function save_settiongs() {
+function save_settiongs()
+{
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
-    $form_v = $_POST;
+    $form_v = $_POST + $default_config;
     $savethese = array();
     foreach ($form_v as $k => $v) {
         switch ($k) {
@@ -217,10 +221,11 @@ function save_settiongs() {
     );
 }
 
-function reset_template(){
+function reset_template()
+{
     if (formv('reset_template') == 1) {
         db()->update(
-            array('template'=>formv('default_template')),
+            array('template' => formv('default_template')),
             '[+prefix+]site_content',
             where('type', 'document')
         );
@@ -228,14 +233,15 @@ function reset_template(){
     }
     if (formv('reset_template') == 2) {
         db()->update(
-            array('template'=>formv('default_template')),
+            array('template' => formv('default_template')),
             '[+prefix+]site_content',
             where('template', formv('old_template'))
         );
     }
 }
 
-function cleanup_tv() {
+function cleanup_tv()
+{
     $rs = db()->select(
         'DISTINCT contentid',
         array(
@@ -244,15 +250,38 @@ function cleanup_tv() {
         ),
         'doc.id IS NULL'
     );
-    if(!db()->count($rs)) {
+    if (!db()->count($rs)) {
         return;
     }
     $docs = array();
-    while($row = db()->getRow($rs)) {
+    while ($row = db()->getRow($rs)) {
         $docs[] = $row['contentid'];
     }
     db()->delete(
         '[+prefix+]site_tmplvar_contentvalues',
         where_in('contentid', $docs)
+    );
+}
+
+function fix_pulishedon() {
+    db()->update(
+        'publishedon=editedon',
+        '[+prefix+]site_content',
+        [
+            "published=1 AND deleted=0 AND publishedon=0",
+            "AND pub_date<".request_time(),
+            sprintf(
+                "AND (unpub_date=0 OR unpub_date>'%s')",
+                request_time()
+            )
+        ]
+    );
+}
+
+function repairDocs() {
+    db()->update(
+        'editedon=createdon',
+        '[+prefix+]site_content',
+        'editedon=0'
     );
 }

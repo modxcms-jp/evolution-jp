@@ -2,17 +2,18 @@
 /**
  * mm_inherit
  * @version 1.1 (2012-11-13)
- * 
+ *
  * Inherit values from a parent.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_inherit/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_inherit($fields, $roles = '', $templates = ''){
+function mm_inherit($fields, $roles = '', $templates = '')
+{
     global $mm_fields;
 
     // if we aren't creating a new document or folder, we don't want to do this

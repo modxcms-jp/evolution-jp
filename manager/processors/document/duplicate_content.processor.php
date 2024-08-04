@@ -34,13 +34,14 @@ $pid = db()->getValue(
     )
 );
 if ($pid == 0) {
-    header("Location: index.php?r=1&a=3&id=".$newid);
+    header("Location: index.php?r=1&a=3&id=" . $newid);
     return;
 }
-header("Location: index.php?r=1&a=120&id=".$pid);
+header("Location: index.php?r=1&a=120&id=" . $pid);
 
 
-function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true) {
+function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias = true)
+{
     global $_lang;
 
     // invoke OnBeforeDocDuplicate event
@@ -60,15 +61,15 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     // Once we've grabbed the document object, start doing some modifications
     if ($_toplevel == 0 && $reset_alias === true) {
         $content['pagetitle'] = str_replace(
-                '[+title+]'
-                , $content['pagetitle']
-                , $_lang['duplicate_title_string']
+            '[+title+]'
+            , $content['pagetitle']
+            , $_lang['duplicate_title_string']
         );
         $content['alias'] = null;
     } elseif (
-            (!evo()->config('friendly_urls') || !evo()->config('allow_duplicate_alias'))
-            &&
-            $reset_alias === true
+        (!evo()->config('friendly_urls') || !evo()->config('allow_duplicate_alias'))
+        &&
+        $reset_alias === true
     ) {
         $content['alias'] = null;
     }
@@ -132,7 +133,7 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     $rs = db()->select(
         'id'
         , '[+prefix+]site_content'
-        , "parent='".$docid."' AND deleted=0"
+        , "parent='" . $docid . "' AND deleted=0"
         , 'id ASC'
     );
     if (db()->count($rs)) {
@@ -151,25 +152,27 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
 }
 
 // Duplicate Document TVs
-function duplicateTVs($oldid, $newid) {
+function duplicateTVs($oldid, $newid)
+{
     $tbltvc = evo()->getFullTableName('site_tmplvar_contentvalues');
     db()->insert(
-            'contentid,tmplvarid,value'
-            , $tbltvc
-            , $newid.",tmplvarid,value"
-            , $tbltvc
-            , "contentid='".$oldid."'"
+        'contentid,tmplvarid,value'
+        , $tbltvc
+        , $newid . ",tmplvarid,value"
+        , $tbltvc
+        , "contentid='" . $oldid . "'"
     );
 }
 
 // Duplicate Document Access Permissions
-function duplicateAccess($oldid, $newid) {
+function duplicateAccess($oldid, $newid)
+{
     $tbldg = evo()->getFullTableName('document_groups');
     db()->insert(
-            'document,document_group'
-            , $tbldg
-            , $newid.",document_group"
-            , $tbldg
-            , "document='".$oldid."'"
+        'document,document_group'
+        , $tbldg
+        , $newid . ",document_group"
+        , $tbldg
+        , "document='" . $oldid . "'"
     );
 }

@@ -33,19 +33,17 @@ $_lang["btnnext_value"] = 'Next';
 $_lang["cant_write_config_file"] = 'MODX couldn\'t write the config file. Please copy the following into the file ';
 $_lang["cant_write_config_file_note"] = 'Once that\'s been done, you can log into MODX Admin by pointing your browser at YourSiteName.com/manager/.';
 $_lang["checkbox_select_options"] = 'Checkbox select options:';
-$_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories exist: ';
-$_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/assets/cache/siteCache.idx.php</span> file is writable: ';
-$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/assets/cache/basicConfig.php</span> file is writable: ';
-$_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/assets/cache</span> and <span class="mono">/assets/cache/rss</span> directories are writable: ';
+$_lang["checking_if_cache_exist"] = 'Checking if <span class="mono">/temp/cache</span> and <span class="mono">/temp/cache/rss</span> directories exist: ';
+$_lang["checking_if_cache_file_writable"] = 'Checking if <span class="mono">/temp/cache/siteCache.idx.php</span> file is writable: ';
+$_lang["checking_if_cache_file2_writable"] = 'Checking if <span class="mono">/temp/cache/basicConfig.php</span> file is writable: ';
+$_lang["checking_if_cache_writable"] = 'Checking if <span class="mono">/temp/cache</span> and <span class="mono">/temp/cache/rss</span> directories are writable: ';
 $_lang["checking_if_config_exist_and_writable"] = 'Checking if <span class="mono">/manager/includes/config.inc.php</span> exists and is writable: ';
 $_lang["checking_if_export_exists"] = 'Checking if <span class="mono">/assets/export</span> directory exists: ';
 $_lang["checking_if_export_writable"] = 'Checking if <span class="mono">/assets/export</span> directory is writable: ';
-$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories exists: ';
-$_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span>, <span class="mono">/assets/flash</span> and <span class="mono">/assets/media</span> directories are writable: ';
+$_lang["checking_if_images_exist"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories exists: ';
+$_lang["checking_if_images_writable"] = 'Checking if <span class="mono">/assets/images</span>, <span class="mono">/assets/files</span> and <span class="mono">/assets/media</span> directories are writable: ';
 $_lang["checking_sql_version"] = 'Checking SQL version: ';
 $_lang["checking_php_version"] = 'Checking PHP version: ';
-$_lang["checking_registerglobals"] = 'Checking if Register_Globals is off: ';
-$_lang["checking_registerglobals_note"] = 'This configuration makes your site much more susceptible to Cross Site Scripting (XSS) attacks. You should speak to your host about disabling this setting, usually by one of three ways: modifying the global php.ini file, adding rules to a .htaccess file in the root of your MODX install, or adding custom php.ini override files in every directory on your install (and there\'s a lot of them). You will still be able to install MODX, but consider yourself warned.'; //Look at changing this to provide a solution.
 $_lang["checking_sessions"] = 'Checking if sessions are properly configured: ';
 $_lang["checking_table_prefix"] = 'Checking table prefix `';
 $_lang["chunks"] = 'Chunks';
@@ -81,7 +79,7 @@ $_lang["database_use_failed_note"] = 'Please check the database permissions for 
 $_lang["default_language"] = 'Default Manager Language';
 $_lang["default_language_description"] = 'This is the default language that will be used in the MODX Manager back end control panel.';
 $_lang["during_execution_of_sql"] = ' during the execution of SQL statement ';
-$_lang["encoding"] = 'utf-8';	//charset encoding for html header
+$_lang["encoding"] = 'utf-8';    //charset encoding for html header
 $_lang["error"] = 'error';
 $_lang["errors"] = 'errors';
 $_lang["failed"] = 'FAILED!';
@@ -107,7 +105,7 @@ $_lang["installation_upgrade_existing"] = 'Upgrade Existing Install';
 $_lang["installation_upgrade_existing_note"] = 'Upgrade your current files and database.';
 $_lang["installed"] = 'Installed';
 $_lang["installing_demo_site"] = 'Installing demo site: ';
-$_lang["language_code"] = 'en';	// for html element e.g. <html xml:lang="en" lang="en">
+$_lang["language_code"] = 'en';    // for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';
 $_lang["modx_footer1"] = '&copy; 2005-[+year+] the <a href="http://www.modxcms.com/" target="_blank" style="color: green; text-decoration:underline">MODX</a> Content Management Framework (CMF) project. All rights reserved. MODX is licensed under the GNU GPL.';

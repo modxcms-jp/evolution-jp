@@ -10,7 +10,7 @@ if ($_POST || defined('MODX_API_MODE')) {
     return;
 }
 
-if(isset($site_sessionname) && $site_sessionname) {
+if (isset($site_sessionname) && $site_sessionname) {
     session_name($site_sessionname);
     session_cache_limiter('');
     session_start();
@@ -26,9 +26,9 @@ header('ETag: ' . $etag);
 header('Last-Modified: ' . $last_modified);
 
 if (
-    filter_input( INPUT_SERVER, 'HTTP_IF_NONE_MATCH') !== $etag
+    filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH') !== $etag
     &&
-    filter_input( INPUT_SERVER, 'HTTP_IF_MODIFIED_SINCE') !== $last_modified
+    filter_input(INPUT_SERVER, 'HTTP_IF_MODIFIED_SINCE') !== $last_modified
 ) {
     return;
 }

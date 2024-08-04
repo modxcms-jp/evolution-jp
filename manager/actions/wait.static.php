@@ -16,7 +16,8 @@ if ($_REQUEST['r'] == 10) {
 $tpl = get_tpl();
 echo $modx->parseText($tpl, $ph);
 
-function get_tpl() {
+function get_tpl()
+{
     $tpl = <<< EOT
 <h1>[+_lang_cleaningup+]</h1>
 <div class="section">

@@ -33,7 +33,6 @@
         var aTypes = [
             ['files', 'Files'],
             ['images', 'Images'],
-            ['flash', 'Flash'],
             ['media', 'Media']
         ];
 
@@ -44,8 +43,7 @@
             for (var i = 0; i < aTypes.length; i++) {
                 if (!bHasType || aTypes[i][0] == oConnector.ResourceType) {
                     sel = true;
-                }
-                else sel = false;
+                } else sel = false;
 
                 AddSelectOption(cmbTypeObj, aTypes[i][1], aTypes[i][0], sel);
             }
@@ -55,15 +53,15 @@
 </head>
 
 <body bottomMargin="0" topMargin="0">
-    <table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
-        <tr>
-            <td nowrap>
-                Resource Type<br />
-                <select id="cmbType" style="WIDTH: 100%" onchange="SetResourceType(this.value);">
-                </select>
-            </td>
-        </tr>
-    </table>
+<table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+    <tr>
+        <td nowrap>
+            Resource Type<br/>
+            <select id="cmbType" style="WIDTH: 100%" onchange="SetResourceType(this.value);">
+            </select>
+        </td>
+    </tr>
+</table>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 <script>
-	jAlert('[+message+]', '[+warning+]', function(){
-		top.main.document.location.href='[+url+]';
-	});
+    jAlert('[+message+]', '[+warning+]', function () {
+        top.main.document.location.href = '[+url+]';
+    });
 </script>

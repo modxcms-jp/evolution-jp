@@ -1,13 +1,16 @@
 <?php
 
-class logHandler {
+class logHandler
+{
     // Single variable for a log entry
-    public $entry = array();
+    public $entry = [];
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
-    function logError($msg) {
+    function logError($msg)
+    {
         include_once MODX_CORE_PATH . 'error.class.inc.php';
         $e = new errorHandler;
         alert()->setError(9, "Logging error: " . $msg);
@@ -21,12 +24,14 @@ class logHandler {
         $action = '',
         $itemid = '',
         $itemname = ''
-    ) {
+    )
+    {
         $this->setEntry($msg, $internalKey, $username, $itemname);
         $this->writeToLog(evo()->input_any('a', 0), evo()->input_any('id', 'x'));
     }
 
-    public function writeToLog($action_id = 0, $item_id = 'x') {
+    public function writeToLog($action_id = 0, $item_id = 'x')
+    {
         global $modx;
 
         if ($this->entry['internalKey'] == '') {
@@ -43,7 +48,7 @@ class logHandler {
         }
 
         $insert_id = db()->insert(
-            db()->escape(array(
+            db()->escape([
                 'timestamp' => time(),
                 'internalKey' => $this->entry['internalKey'],
                 'username' => $this->entry['username'],
@@ -51,7 +56,7 @@ class logHandler {
                 'itemid' => $item_id,
                 'itemname' => $this->entry['itemName'],
                 'message' => $this->entry['msg']
-            ))
+            ])
             , '[+prefix+]manager_log'
         );
         if (!$insert_id) {
@@ -70,7 +75,8 @@ class logHandler {
         );
     }
 
-    private function setEntry($msg = '', $internalKey = '', $username = '', $itemname = '') {
+    private function setEntry($msg = '', $internalKey = '', $username = '', $itemname = '')
+    {
         global $modx;
 
         $this->entry['msg'] = $msg;    // writes testmessage to the object
@@ -84,13 +90,13 @@ class logHandler {
         if ($username != '') {
             $this->entry['username'] = $username;
         } else {
-            $this->entry['username'] = $modx->getLoginUserName();
+            $this->entry['username'] = evo()->getLoginUserName();
         }
 
         if ($itemname != '') {
             $this->entry['itemName'] = $itemname;
         } else {
-            $this->entry['itemName'] = evo()->session_var('itemname', '-');
+            $this->entry['itemName'] = sessionv('itemname', '-');
         }    // writes the id to the object
     }
 }

@@ -38,7 +38,7 @@ switch ($_POST['action']) {
         if ($post_key == '_delete_' && !empty($post_lang)) {
             $rs = @ db()->delete('[+prefix+}site_plugins', "name='{$post_lang}'");
         } elseif (!empty($post_key) && !empty($post_lang) && !empty($post_value)) {
-            $rs = @ db()->update(array($post_key => $post_value), '[+prefix+]site_plugins', "name='{$post_lang}'");
+            $rs = @ db()->update([$post_key => $post_value], '[+prefix+]site_plugins', "name='{$post_lang}'");
         }
         break;
 }
@@ -56,7 +56,8 @@ if ($output === 'true') {
 echo $output;
 
 
-function getStringFromLangFile($key, $lang) {
+function getStringFromLangFile($key, $lang)
+{
     $langfile_path = MODX_CORE_PATH . "lang/{$lang}.inc.php";
     if (strpos($langfile_path, '..') !== false || !is_file($langfile_path)) {
         return;

@@ -1,1 +1,1 @@
-<input type="text" class="[+class+]" id="[+id+]" name="[+name+]" value="[+value+]" style="[+style+]" />
+<input type="text" class="[+class+]" id="[+id+]" name="[+name+]" value="[+value+]" style="[+style+]"/>

@@ -142,12 +142,12 @@ if (sessionv('result_msg')) {
                 id="Button5"
                 class="mutate"
             ><a
-                href="#"
-                onclick="documentDirty=false;document.location.href='index.php?a=2';"
-            ><img
-                alt="icons_cancel"
-                src="<?php echo $_style["icons_cancel"] ?>"
-            /> <?php echo $_lang['cancel'] ?></a></li>
+                    href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"
+                ><img
+                        alt="icons_cancel"
+                        src="<?php echo $_style["icons_cancel"] ?>"
+                    /> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -160,7 +160,7 @@ if (sessionv('result_msg')) {
                     <p><?php echo $_lang['table_hoverinfo'] ?></p>
 
                     <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><img
-                                    src="media/style/<?php echo config('manager_theme'); ?>/images/misc/ed_save.gif"/> <?php echo $_lang['database_table_clickbackup'] ?>
+                                src="media/style/<?php echo config('manager_theme'); ?>/images/misc/ed_save.gif"/> <?php echo $_lang['database_table_clickbackup'] ?>
                         </a></p>
                     <p>
                         <label>
@@ -367,9 +367,9 @@ if (sessionv('result_msg')) {
                             class="primary"
                             onclick="document.mutate.save.click();"
                         ><img
-                            alt="icons_save"
-                            src="<?php echo $_style["icons_save"] ?>"
-                        /> <?php echo $_lang["bkmgr_run_sql_submit"]; ?>
+                                alt="icons_save"
+                                src="<?php echo $_style["icons_save"] ?>"
+                            /> <?php echo $_lang["bkmgr_run_sql_submit"]; ?>
                         </a>
                     </div>
                     <input type="submit" name="save" style="display:none;"/>
@@ -469,7 +469,8 @@ if (sessionv('result_msg')) {
 
 <?php
 include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
-function checked($cond) {
+function checked($cond)
+{
     if ($cond) {
         return 'checked';
     }

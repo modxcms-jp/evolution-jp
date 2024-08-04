@@ -1,6 +1,6 @@
 <?php
 /** @var array $_lang
- *  @var array $_style
+ * @var array $_style
  */
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
@@ -63,11 +63,10 @@ if (!$numRecords) {
     $f[] = 'rev.status';
     $where = array();
     $where[] = "sc.parent='" . $id . "'";
-    if ($_SESSION['mgrRole'] != 1 && !evo()->config['tree_show_protected']) {
+    if ($_SESSION['mgrRole'] != 1 && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    $orderby = 'sc.isfolder DESC, sc.publishedon DESC, if(sc.editedon=0,10000000000,sc.editedon) DESC, sc.id DESC';
     if (preg_match('@^[1-9][0-9]*$@', getv('page'))) {
         $offset = getv('page') - 1;
     } else {
@@ -81,11 +80,13 @@ if (!$numRecords) {
             "LEFT JOIN [+prefix+]site_revision rev on rev.elmid=sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource'"
         ),
         $where,
-        $orderby,
+        transformOrderBy(
+            evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
+        ),
         sprintf(
             '%s,%s',
-            ($offset * evo()->config['number_of_results']),
-            evo()->config['number_of_results']
+            ($offset * evo()->config('number_of_results')),
+            evo()->config('number_of_results')
         )
     );
     $docs = array();
@@ -129,7 +130,7 @@ if (!$numRecords) {
     evo()->table->setRowDefaultClass('gridItem');
     evo()->table->setRowAlternateClass('gridAltItem');
     evo()->table->setColumnWidths('2%, 2%, 68%, 10%, 10%, 8%');
-    evo()->table->setPageLimit(evo()->config['number_of_results']);
+    evo()->table->setPageLimit(evo()->config('number_of_results'));
 
     // Table header
     $header['checkbox'] = '<input type="checkbox" name="chkselall" onclick="selectAll()" />';
@@ -255,7 +256,8 @@ EOT;
     </div>
 
 <?php
-function getTitle($doc) {
+function getTitle($doc)
+{
     global $_style;
 
     $doc['class'] = _getClasses($doc);
@@ -267,14 +269,16 @@ function getTitle($doc) {
     return $title;
 }
 
-function getIcon($doc) {
+function getIcon($doc)
+{
     $doc['iconpath'] = _getIconPath($doc);
 
     $tpl = '<img src="[+iconpath+]" id="icon[+id+]" onclick="return showContentMenu([+id+],event);" />';
     return parseText($tpl, $doc);
 }
 
-function getDescription($doc) {
+function getDescription($doc)
+{
     $len = mb_strlen($doc['pagetitle'] . $doc['description'], evo()->config('modx_charset'));
     $tpl = '<span style="color:#777;">%s</span>';
     if ($len < 50) {
@@ -286,7 +290,8 @@ function getDescription($doc) {
     return sprintf('<br />' . $tpl, $doc['description']);
 }
 
-function _getClasses($doc) {
+function _getClasses($doc)
+{
     $classes = array();
     $classes[] = 'withmenu';
     if ($doc['deleted'] === '1') {
@@ -301,7 +306,8 @@ function _getClasses($doc) {
     return ' class="' . implode(' ', $classes) . '"';
 }
 
-function getPublishedOn($doc) {
+function getPublishedOn($doc)
+{
     global $modx;
 
     if ($doc['publishedon']) {
@@ -315,7 +321,8 @@ function getPublishedOn($doc) {
     return '-';
 }
 
-function getEditedon($editedon) {
+function getEditedon($editedon)
+{
     global $modx;
 
     if ($editedon) {
@@ -324,7 +331,8 @@ function getEditedon($editedon) {
     return '-';
 }
 
-function getStatusIcon($status) {
+function getStatusIcon($status)
+{
     global $modx, $_style;
 
     if (!evo()->config['enable_draft']) {
@@ -342,7 +350,8 @@ function getStatusIcon($status) {
     }
 }
 
-function getStatus($doc) {
+function getStatus($doc)
+{
     global $_lang;
 
     if (!$doc['published'] && (request_time() < $doc['pub_date'] || $doc['unpub_date'] < request_time())) {
@@ -351,13 +360,14 @@ function getStatus($doc) {
     return parseText('<span class="publishedDoc">[+page_data_published+]</span>', $_lang);
 }
 
-function _getIconPath($doc) {
+function _getIconPath($doc)
+{
     global $_style;
 
     switch ($doc['id']) {
         case evo()->config('site_start')           :
             return $_style['tree_page_home'];
-        case evo()->config('error_page',evo()->config('site_start'))           :
+        case evo()->config('error_page', evo()->config('site_start'))           :
             return $_style['tree_page_404'];
         case evo()->config('unauthorized_page')    :
             return $_style['tree_page_info'];
@@ -377,7 +387,8 @@ function _getIconPath($doc) {
     return $_style['tree_folder'];
 }
 
-function get_jscript($id, $cm) {
+function get_jscript($id, $cm)
+{
     global $modx, $_lang, $modx_textdir;
 
     $contextm = $cm->getClientScriptObject();
@@ -486,7 +497,8 @@ EOT;
     return $block;
 }
 
-function getReturnAction($current) {
+function getReturnAction($current)
+{
     if (!isset($current['parent'])) {
         return 'index.php?a=2';
     }
@@ -499,10 +511,11 @@ function getReturnAction($current) {
         return 'index.php?a=120';
     }
 
-    return 'index.php?a=120&id='.$current['parent'];
+    return 'index.php?a=120&id=' . $current['parent'];
 }
 
-function getTopicPath($id) {
+function getTopicPath($id)
+{
     if ($id == 0) {
         return '';
     }
@@ -536,7 +549,8 @@ function getTopicPath($id) {
     );
 }
 
-function getContextMenu($cm) {
+function getContextMenu($cm)
+{
     if (hasPermission('edit_document')) {
         $cm->addItem(lang('edit_resource'), "js:menuAction(27)", style('icons_edit_document'));
     }
@@ -579,6 +593,19 @@ function getContextMenu($cm) {
     if (hasPermission('view_document')) {
         $cm->addItem(lang('resource_overview'), "js:menuAction(3)", style('icons_resource_overview'));
     }
-    //$cm->addItem($_lang["preview_resource"], "js:menuAction(999)",$_style['icons_preview_resource'],0);
     return $cm->render();
+}
+
+function transformOrderBy($input) {
+    $parts = array_map(
+        'trim',
+        explode(',', $input)
+    );
+    foreach ($parts as &$part) {
+        $part = 'sc.' . $part;
+        if (stripos($part, ' desc') === false && stripos($part, ' asc') === false) {
+            $part .= ' desc';
+        }
+    }
+    return implode(', ', $parts);
 }

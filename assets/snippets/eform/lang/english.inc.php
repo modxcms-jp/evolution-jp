@@ -1,8 +1,8 @@
 <?php
 /**
-* assets/snippets/eform/english.inc.php
-* English language file for eForm
-*/
+ * assets/snippets/eform/english.inc.php
+ * English language file for eForm
+ */
 $_lang["ef_date_format"] = "%d-%b-%Y %H:%M:%S";
 $_lang["ef_debug_info"] = "Debug info: ";
 $_lang["ef_debug_warning"] = "<p style=\"color:red;\"><span style=\"font-size:1.5em;font-weight:bold;\">WARNING - DEBUGGING IS ON</span> <br />Make sure you turn debugging off before making this form live!</p>";
@@ -33,7 +33,7 @@ $_lang["ef_required_message"] = " The following required field(s) are missing: {
 $_lang["ef_rule_failed"] = "<span style=\"color:red;\">Failed</span> using rule [+rule+] (input=\"[+input+]\")";
 $_lang["ef_rule_passed"] = "Passed using rule [+rule+] (input=\"[+input+]\").";
 $_lang["ef_sql_no_result"] = " silently passed validation. <span style=\"color:red;\"> SQL returned no result!</span> ";
-$_lang["ef_submit_time_limit"] = "<p>This form was already submitted succesfully. Re-submission of the form is disabled for ".($submitLimit/60)." minutes.</p>";
+$_lang["ef_submit_time_limit"] = "<p>This form was already submitted succesfully. Re-submission of the form is disabled for " . ($submitLimit / 60) . " minutes.</p>";
 $_lang["ef_tamper_attempt"] = "Tampering attempt detected!";
 $_lang["ef_thankyou_message"] = "<h3>Thank You!</h3><p>Your information was successfully submitted.</p>";
 $_lang["ef_thousands_separator"] = ""; //leave empty to use (php) locale, only needed if you want to overide locale setting!

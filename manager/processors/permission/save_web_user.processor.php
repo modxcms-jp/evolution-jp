@@ -201,7 +201,7 @@ switch (postv('mode')) {
             <div id="actions">
                 <ul class="actionButtons">
                     <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                                    src="<?php echo $_style['icons_save'] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                                src="<?php echo $_style['icons_save'] ?>"/> <?php echo $_lang['close']; ?></a></li>
                 </ul>
             </div>
 
@@ -395,7 +395,7 @@ switch (postv('mode')) {
             <div id="actions">
                 <ul class="actionButtons">
                     <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                                    src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close']; ?></a></li>
                 </ul>
             </div>
 
@@ -426,7 +426,8 @@ switch (postv('mode')) {
 }
 
 // Send an email to the user
-function sendMailMessage($email, $uid, $pwd, $ufn) {
+function sendMailMessage($email, $uid, $pwd, $ufn)
+{
     global $modx, $websignupemail_message;
     global $emailsender;
     global $site_name, $site_url;
@@ -456,7 +457,8 @@ function sendMailMessage($email, $uid, $pwd, $ufn) {
 }
 
 // Save User Settings
-function saveUserSettings($id) {
+function saveUserSettings($id)
+{
     global $modx;
 
     $settings = array(
@@ -484,7 +486,8 @@ function saveUserSettings($id) {
 // converts date format dd-mm-yyyy to php date
 
 // Web alert -  sends an alert to web browser
-function webAlert($msg) {
+function webAlert($msg)
+{
     global $id, $modx;
     $mode = postv('mode');
     $url = "index.php?a=" . $mode . ($mode == '88' ? "&id=" . $id : '');
@@ -493,6 +496,7 @@ function webAlert($msg) {
 }
 
 // Generate password
-function generate_password($length = 10) {
+function generate_password($length = 10)
+{
     return substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, $length);
 }

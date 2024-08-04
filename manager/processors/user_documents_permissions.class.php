@@ -1,10 +1,12 @@
 <?php
 
-class udperms {
+class udperms
+{
     var $document;
     var $duplicateDoc = false;
 
-    function checkPermissions() {
+    function checkPermissions()
+    {
         global $modx;
         return $modx->checkPermissions($this->document, $this->duplicateDoc);
     }

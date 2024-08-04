@@ -2,20 +2,20 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
  * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *
  * For further information visit:
  * 		http://www.fckeditor.net/
- * 
+ *
  * "Support Open Source software. What about a donation today?"
  *
  * File Name: connector.php
- * 	Main connector file, implements the State Pattern to 
- * 	redirect requests to the appropriate class based on 
+ * 	Main connector file, implements the State Pattern to
+ * 	redirect requests to the appropriate class based on
  * 	the command name passed.
- * 
+ *
  * File Authors:
  * 		Grant French (grant@mcpuk.net)
  */
@@ -44,21 +44,21 @@ outputHeaders();
 
 //Get the passed data
 $command = getv('Command', '');
-$type    = getv('Type') ? strtolower(getv('Type')) : 'files';
-$cwd     = getv('CurrentFolder') ? str_replace('..', '', unescape(getv('CurrentFolder'))) : '/';
-$extra   = getv('ExtraParams', '');
+$type = getv('Type') ? strtolower(getv('Type')) : 'files';
+$cwd = getv('CurrentFolder') ? str_replace('..', '', unescape(getv('CurrentFolder'))) : '/';
+$extra = getv('ExtraParams', '');
 
 if ($fckphp_config['Debug'] === true) {
-    $msg  = '$command=' . "{$command}\n";
-    $msg .= '$type='    . $type . "\n";
-    $msg .= '$cwd='     . $cwd . "\n";
-    $msg .= '$extra='   . $extra . "\n";
-    $msg .= '$_GET='      . print_r($_GET, true) . "\n";
-    $msg .= '$_POST='     . print_r($_POST, true) . "\n";
-    $msg .= '$_SERVER='   . print_r($_SERVER, true) . "\n";
+    $msg = '$command=' . "{$command}\n";
+    $msg .= '$type=' . $type . "\n";
+    $msg .= '$cwd=' . $cwd . "\n";
+    $msg .= '$extra=' . $extra . "\n";
+    $msg .= '$_GET=' . print_r($_GET, true) . "\n";
+    $msg .= '$_POST=' . print_r($_POST, true) . "\n";
+    $msg .= '$_SERVER=' . print_r($_SERVER, true) . "\n";
     $msg .= '$_SESSIONS=' . print_r($_SESSION, true) . "\n";
-    $msg .= '$_COOKIE='   . print_r($_COOKIE, true) . "\n";
-    $msg .= '$_FILES='    . print_r($_FILES, true) . "\n";
+    $msg .= '$_COOKIE=' . print_r($_COOKIE, true) . "\n";
+    $msg .= '$_FILES=' . print_r($_FILES, true) . "\n";
     $modx->logEvent(
         0,
         1,

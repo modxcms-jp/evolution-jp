@@ -15,7 +15,7 @@ $_lang["bad_tpl"] = "<p>&[+tpl+] <br />指定したDittoテンプレート(チ�
 $_lang['missing_placeholders_tpl'] = 'Dittoテンプレートに含まれるプレースホルダに問題があります。';
 $_lang['no_documents'] = '<p>記事はありません。</p>';
 $_lang['resource_array_error'] = 'リソース配列エラー';
- 
+
 $_lang['prev'] = "&lt; 戻る";
 $_lang['next'] = "次へ &gt;";
 $_lang['button_splitter'] = "|";
@@ -46,7 +46,7 @@ $_lang['total'] = "総件数";
 $_lang['sortBy'] = "並び替えフィールド";
 $_lang['sortDir'] = "並び替え順";
 $_lang['start'] = "開始位置";
-	 
+
 $_lang['stop'] = "停止位置";
 $_lang['ditto_IDs'] = "ID";
 $_lang['ditto_IDs_selected'] = "選択済みID";

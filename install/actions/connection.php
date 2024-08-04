@@ -1,6 +1,6 @@
 <?php
 
-if(sessionv('prevAction')==='options') {
+if (sessionv('prevAction') === 'options') {
     sessionv('*installdata', postv('installdata', ''));
     sessionv('*template', postv('template', array()));
     sessionv('*tv', postv('tv', array()));
@@ -24,10 +24,10 @@ $ph = array_merge(
         'dbase'             => sessionv('dbase', ''),
     )
 );
-if($ph['database_server'] === '127.0.0.1') {
+if ($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';
 }
-echo  $modx->parseText(
+echo $modx->parseText(
     file_get_contents(
         MODX_BASE_PATH . 'install/tpl/connection.tpl'
     )

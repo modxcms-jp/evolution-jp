@@ -7,16 +7,43 @@
  * @version     1.5.6 updated 12/01/2011
  */
 
-class Qm {
+class Qm
+{
     public $modx;
     public $jqpath = '';
+    public $loadfrontendjq = 'false';
+    public $noconflictjq = 'false';
+    public $loadtb = 'false';
+    public $tbwidth = '600';
+    public $tbheight = '400';
+    public $hidefields = '';
+    public $hidetabs = '';
+    public $hidesections = '';
+    public $addbutton = 'false';
+    public $tpltype = '0';
+    public $tplid = '';
+    public $custombutton = '';
+    public $managerbutton = 'false';
+    public $logout = 'false';
+    public $autohide = 'false';
+    public $editbuttons = 'false';
+    public $editbclass = 'qm_edit';
+    public $newbuttons = 'false';
+    public $newbclass = 'qm_new';
+    public $tvbuttons = 'false';
+    public $tvbclass = 'qm_tv';
+    public $aliases = [];
+    public $parents = [];
+    public $docGroup = '';
 
-    public function __construct() {
+    public function __construct()
+    {
     }
 
-    private function tv_buttons() {
+    private function tv_buttons()
+    {
         global $modx;
-        if(!evo()->isFrontend()) {
+        if (!evo()->isFrontend()) {
             return;
         }
         // Replace [*#tv*] with QM+ edit TV button placeholders
@@ -27,24 +54,24 @@ class Qm {
             return;
         }
         $output = &$modx->documentOutput;
-        if(strpos($output,'[*#')===false) {
+        if (strpos($output, '[*#') === false) {
             return;
         }
-        
+
         $m = evo()->getTagsFromContent(
             $output
             , '[*#', '*]'
         );
-        if(!$m) {
+        if (!$m) {
             return;
         }
-        foreach($m[1] as $i=>$v) {
+        foreach ($m[1] as $i => $v) {
             $output = str_replace(
                 $m[0][$i]
                 , sprintf(
                     '<!-- %s %s -->%s'
                     , event()->param('tvbclass')
-                    , (strpos($v,':')!==false) ? substr($v, 0, strpos($v, ':')) : $v
+                    , (strpos($v, ':') !== false) ? substr($v, 0, strpos($v, ':')) : $v
                     , $m[0][$i]
                 )
                 , $output
@@ -52,20 +79,21 @@ class Qm {
         }
     }
 
-    private function init() {
+    private function init()
+    {
         global $modx;
-        if(getv('a')==83) {
+        if (getv('a') == 83) {
             return;
         }
 
         $params = event()->params;
-        if(!$params) {
+        if (!$params) {
             $modx->documentOutput = 'QuickManagerをインストールし直してください。';
             return;
         }
         extract($params);
         if ($this->config('disabled')) {
-            $arr = explode(',', $this->config('disabled') );
+            $arr = explode(',', $this->config('disabled'));
             if (in_array(evo()->documentIdentifier, $arr)) {
                 return false;
             }
@@ -79,12 +107,12 @@ class Qm {
         $this->tbwidth = $tbwidth;
         $this->tbheight = $tbheight;
         $this->hidefields = $hidefields;
-        $this->hidetabs = isset($hidetabs) ? $hidetabs : '';;
+        $this->hidetabs = isset($hidetabs) ? $hidetabs : '';
         $this->hidesections = isset($hidesections) ? $hidesections : '';
         $this->addbutton = $addbutton;
         $this->tpltype = $tpltype;
         $this->tplid = isset($tplid) ? $tplid : '';
-        $this->custombutton = isset($custombutton)? $custombutton : '';
+        $this->custombutton = isset($custombutton) ? $custombutton : '';
         $this->managerbutton = $managerbutton;
         $this->logout = $logout;
         $this->autohide = $autohide;
@@ -95,22 +123,23 @@ class Qm {
         $this->tvbuttons = $tvbuttons;
         $this->tvbclass = $tvbclass;
 
-        if(!isset($version) || version_compare($version,'1.5.5r5','<')) {
+        if (!isset($version) || version_compare($version, '1.5.5r5', '<')) {
             $modx->documentOutput = 'QuickManagerをアップデートしてください。';
             return false;
         }
 
         // Includes
-        include_once(MODX_BASE_PATH.'assets/plugins/qm/mcc.class.php');
+        include_once(MODX_BASE_PATH . 'assets/plugins/qm/mcc.class.php');
         return true;
     }
 
-    function Run() {
+    function Run()
+    {
 
         $this->tv_buttons();
 
         $rs = $this->init();
-        if(!$rs) {
+        if (!$rs) {
             return;
         }
         // Include MODx manager language file
@@ -139,11 +168,12 @@ class Qm {
         }
     }
 
-    public function conf($key, $default=null) {
+    public function conf($key, $default = null)
+    {
         $conf = evo()->event->params;
-        if(!isset($conf[$key])) {
+        if (!isset($conf[$key])) {
             $keys = array('hidetabs', 'hidesections', 'tplid', 'custombutton');
-            if(in_array($key, $keys)) {
+            if (in_array($key, $keys)) {
                 return '';
             }
             if ($key === 'jqpath') {
@@ -158,7 +188,8 @@ class Qm {
 
     }
 
-    function checkAccess() {
+    function checkAccess()
+    {
         // If user is admin (role = 1)
         if (sessionv('mgrRole') == 1) {
             return true;
@@ -168,7 +199,7 @@ class Qm {
             return false;
         }
 
-        $result= db()->select(
+        $result = db()->select(
             'id'
             , '[+prefix+]document_groups'
             , where('document', '=', evo()->documentIdentifier)
@@ -177,7 +208,7 @@ class Qm {
             return true;
         }
 
-        if(!sessionv('mgrDocgroups')) {
+        if (!sessionv('mgrDocgroups')) {
             return false;
         }
         $result = db()->select(
@@ -197,8 +228,9 @@ class Qm {
 
     // Function from: manager/processors/cache_sync.class.processor.php
     //_____________________________________________________
-    function getParents($id, $path = ''){
-        if(!$this->aliases) {
+    function getParents($id, $path = '')
+    {
+        if (!$this->aliases) {
             $qh = db()->select(
                 "id, IF(alias='', id, alias) AS alias, parent"
                 , '[+prefix+]site_content'
@@ -219,7 +251,8 @@ class Qm {
 
     // Create TV buttons if user has permissions to TV
     //_____________________________________________________
-    function createTvButtons($matches) {
+    function createTvButtons($matches)
+    {
         $docID = evo()->documentIdentifier;
 
         // Get TV caption for button title
@@ -239,7 +272,7 @@ class Qm {
             return sprintf(
                 '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>'
                 , $this->tvbclass
-                , evo()->config['site_url']
+                , MODX_SITE_URL
                 , $docID
                 , urlencode($matches[1])
                 , $caption
@@ -249,12 +282,13 @@ class Qm {
 
     // Check user access to TV
     //_____________________________________________________
-    function checkTvAccess($tvId){
+    function checkTvAccess($tvId)
+    {
         if ($_SESSION['mgrRole'] == 1) {
             return true;
         }
 
-        $result = db()->select('id','[+prefix+]site_tmplvar_access', 'tmplvarid = ' . $tvId);
+        $result = db()->select('id', '[+prefix+]site_tmplvar_access', 'tmplvarid = ' . $tvId);
         if (!db()->count($result)) {
             return true;
         }
@@ -278,53 +312,64 @@ class Qm {
 
     // Get default TV ("build-in" TVs) captions
     //_____________________________________________________
-    public function getDefaultTvCaption($name){
+    public function getDefaultTvCaption($name)
+    {
         global $_lang;
         switch ($name) {
-            case 'pagetitle'   : return $_lang['resource_title'];
-            case 'longtitle'   : return $_lang['long_title'];
-            case 'description' : return $_lang['resource_description'];
-            case 'content'     : return $_lang['resource_content'];
-            case 'menutitle'   : return $_lang['resource_opt_menu_title'];
-            case 'introtext'   : return $_lang['resource_summary'];
+            case 'pagetitle'   :
+                return $_lang['resource_title'];
+            case 'longtitle'   :
+                return $_lang['long_title'];
+            case 'description' :
+                return $_lang['resource_description'];
+            case 'content'     :
+                return $_lang['resource_content'];
+            case 'menutitle'   :
+                return $_lang['resource_opt_menu_title'];
+            case 'introtext'   :
+                return $_lang['resource_summary'];
         }
         return '';
     }
 
-    public function getField($field_name, $docid) {
+    public function getField($field_name, $docid)
+    {
         $doc = evo()->getDocumentObject('id', $docid);
-        if(!$doc) {
+        if (!$doc) {
             return false;
         }
-        if(is_array(array_get($doc, $field_name))) {
+        if (is_array(array_get($doc, $field_name))) {
             return array_get($doc, $field_name);
         }
         return array(
-            'type'         => $this->formType($doc, $field_name),
+            'type' => $this->formType($doc, $field_name),
             'default_text' => '',
-            'elements'     => '',
-            'value'        => array_get($doc, $field_name),
-            'access'       => true,
-            'caption'      => $this->caption($field_name)
+            'elements' => '',
+            'value' => array_get($doc, $field_name),
+            'access' => true,
+            'caption' => $this->caption($field_name)
         );
     }
-    
-    private function formType($doc,$field_name) {
-        switch ($field_name)
-        {
+
+    private function formType($doc, $field_name)
+    {
+        switch ($field_name) {
             case 'pagetitle'   :
             case 'longtitle'   :
-            case 'menutitle'   : return 'text';
+            case 'menutitle'   :
+                return 'text';
             case 'description' :
-            case 'introtext'   : return 'textarea';
-            case 'content'     : return (config('use_editor') && doc('richtext')) ? 'richtext' : 'textarea';
+            case 'introtext'   :
+                return 'textarea';
+            case 'content'     :
+                return (config('use_editor') && doc('richtext')) ? 'richtext' : 'textarea';
         }
         return null;
     }
 
-    private function caption($field_name) {
-        switch ($field_name)
-        {
+    private function caption($field_name)
+    {
+        switch ($field_name) {
             case 'pagetitle'   :
             case 'longtitle'   :
             case 'description' :
@@ -337,7 +382,8 @@ class Qm {
     }
     // Check that a document isn't locked for editing
     //_____________________________________________________
-    function checkLocked(){
+    function checkLocked()
+    {
         $result = db()->select(
             'internalKey',
             '[+prefix+]active_users',
@@ -355,9 +401,10 @@ class Qm {
         return true;
     }
 
-    function setLocked($locked) {
+    function setLocked($locked)
+    {
         if ($locked == 1) {
-            $fields['id']     = evo()->documentIdentifier;
+            $fields['id'] = evo()->documentIdentifier;
             $fields['action'] = 27;
         } else {
             $fields['id'] = 'NULL';
@@ -372,11 +419,12 @@ class Qm {
 
     // Save TV
     //_____________________________________________________
-    function saveTv($tvName){
-        $tvId = preg_match('@^[1-9][0-9]*$@',postv('tvid')) ? postv('tvid') : 0;
-        $tvContent = postv('tv' . $tvId, postv('tv'.$tvName), '');
+    function saveTv($tvName)
+    {
+        $tvId = preg_match('@^[1-9][0-9]*$@', postv('tvid')) ? postv('tvid') : 0;
+        $tvContent = postv('tv' . $tvId, postv('tv' . $tvName), '');
 
-        $tmp = array('mode'=>'upd', 'id'=>evo()->documentIdentifier);
+        $tmp = array('mode' => 'upd', 'id' => evo()->documentIdentifier);
         evo()->invokeEvent('OnBeforeDocFormSave', $tmp);
 
         if (is_array($tvContent)) {
@@ -393,7 +441,7 @@ class Qm {
                     and_where('contentid', '=', evo()->documentIdentifier)
                 )
             );
-            if(db()->count()) {
+            if (db()->count()) {
                 $result = db()->update(
                     array('value' => db()->escape($tvContent)),
                     '[+prefix+]site_tmplvar_contentvalues',
@@ -407,7 +455,7 @@ class Qm {
                     array(
                         'tmplvarid' => $tvId,
                         'contentid' => evo()->documentIdentifier,
-                        'value'     => db()->escape($tvContent)
+                        'value' => db()->escape($tvContent)
                     ),
                     '[+prefix+]site_tmplvar_contentvalues'
                 );
@@ -421,7 +469,7 @@ class Qm {
                 where('id', '=', evo()->documentIdentifier)
             );
         }
-        if(!$result) {
+        if (!$result) {
             evo()->logEvent(
                 0
                 , 0
@@ -434,23 +482,25 @@ class Qm {
             return;
         }
         db()->update(
-            array('editedon'=>request_time(), 'editedby'=>$_SESSION['mgrInternalKey'])
+            array('editedon' => request_time(), 'editedby' => $_SESSION['mgrInternalKey'])
             , '[+prefix+]site_content'
             , where('id', evo()->documentIdentifier)
         );
-        $tmp = array('mode'=>'upd', 'id'=>evo()->documentIdentifier);
+        $tmp = array('mode' => 'upd', 'id' => evo()->documentIdentifier);
         evo()->invokeEvent('OnDocFormSave', $tmp);
         evo()->clearCache();
     }
 
-    public function jq() {
+    public function jq()
+    {
         if ($this->noconflictjq === 'true') {
             return '$j';
         }
         return '$';
     }
 
-    public function get_img_prev_src(){
+    public function get_img_prev_src()
+    {
         return parseText(
             file_get_contents(__DIR__ . '/js/preview_img.tpl'),
             array(
@@ -460,9 +510,10 @@ class Qm {
         );
     }
 
-    private function config($key, $default=null) {
+    private function config($key, $default = null)
+    {
         $conf = evo()->event->params;
-        if(!isset($conf[$key])) {
+        if (!isset($conf[$key])) {
             if ($key === 'jqpath') {
                 if ($this->jqpath) {
                     return $this->jqpath;
@@ -471,10 +522,10 @@ class Qm {
             }
             return $default;
         }
-        if($conf[$key]==='true') {
+        if ($conf[$key] === 'true') {
             $conf[$key] = true;
         }
-        if($conf[$key]==='false') {
+        if ($conf[$key] === 'false') {
             $conf[$key] = false;
         }
         return $conf[$key];

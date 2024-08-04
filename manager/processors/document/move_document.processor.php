@@ -25,7 +25,7 @@ if (anyv('new_parent') === null) {
     alert()->dumpError();
 }
 
-if (strpos(anyv('id'), ',')===false) {
+if (strpos(anyv('id'), ',') === false) {
     $doc_ids[] = anyv('id');
     $doc_id = anyv('id');
 } else {
@@ -34,9 +34,9 @@ if (strpos(anyv('id'), ',')===false) {
 }
 
 $rs = db()->select(
-        'parent'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $doc_id)
+    'parent'
+    , '[+prefix+]site_content'
+    , sprintf("id='%s'", $doc_id)
 );
 if (!$rs) {
     exit("An error occured while attempting to find the resource's current parent.");
@@ -78,9 +78,9 @@ if (in_array($new_parent, $children)) {
 }
 
 $rs = db()->update(
-        'isfolder=1'
-        , '[+prefix+]site_content'
-        , "id='".$new_parent."'"
+    'isfolder=1'
+    , '[+prefix+]site_content'
+    , "id='" . $new_parent . "'"
 );
 if (!$rs) {
     alertAndQuit(
@@ -96,7 +96,7 @@ if (evo()->config('auto_menuindex') === null || evo()->config('auto_menuindex'))
             db()->select(
                 'max(menuindex)'
                 , '[+prefix+]site_content'
-                , "parent='".$new_parent."'"
+                , "parent='" . $new_parent . "'"
             )
         ) + 1;
 } else {
@@ -113,9 +113,9 @@ if (is_array($doc_ids)) {
 
 // finished moving the resource, now check to see if the old_parent should no longer be a folder.
 $rs = db()->select(
-        'count(*) as count'
-        , '[+prefix+]site_content'
-        , "parent='".$current_parent."'"
+    'count(*) as count'
+    , '[+prefix+]site_content'
+    , "parent='" . $current_parent . "'"
 );
 if (!$rs) {
     alertAndQuit(
@@ -126,7 +126,7 @@ if (!$rs) {
 }
 
 $row = db()->getRow($rs);
-if (! $row['count']) {
+if (!$row['count']) {
     $rs = db()->update(
         'isfolder=0'
         , '[+prefix+]site_content'
@@ -158,7 +158,8 @@ header("Location: index.php?a=2&r=1");
 exit;
 
 
-function alertAndQuit($string, $docid) {
+function alertAndQuit($string, $docid)
+{
     evo()->webAlertAndQuit(
         $string
         , sprintf(
@@ -169,7 +170,8 @@ function alertAndQuit($string, $docid) {
     exit;
 }
 
-function allChildren($docid) {
+function allChildren($docid)
+{
     $children = array();
     $rs = db()->select('id', '[+prefix+]site_content', "parent='{$docid}'");
     if (!$rs) {
@@ -188,7 +190,8 @@ function allChildren($docid) {
     return $children;
 }
 
-function update_parentid($doc_id, $new_parent, $user_id, $menuindex) {
+function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
+{
     if (!evo()->config('allow_duplicate_alias')) {
         $rs = db()->select("IF(alias='', id, alias) AS alias", '[+prefix+]site_content', "id='{$doc_id}'");
         $alias = db()->getValue($rs);

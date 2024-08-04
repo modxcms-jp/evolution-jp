@@ -79,7 +79,8 @@ if ($pid !== '0') {
 header("Location: {$url}");
 
 
-function getChildren($parent) {
+function getChildren($parent)
+{
     global $modx, $children;
 
     $rs = db()->select('id', '[+prefix+]site_content', "parent='{$parent}' AND deleted='0'");
@@ -99,7 +100,8 @@ function getChildren($parent) {
     }
 }
 
-function check_linked($id) {
+function check_linked($id)
+{
     global $modx;
 
     $rs = db()->select('id', '[+prefix+]site_content', "content LIKE '%[~{$id}~]%' AND deleted='0'");

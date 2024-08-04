@@ -10,8 +10,11 @@
 
 $__DataGridCnt = 0;
 
-class DataGrid {
+class DataGrid
+{
 
+    public $id;
+    
     public $ds; // datasource
 
     public $pageSize;            // pager settings
@@ -35,7 +38,7 @@ class DataGrid {
     public $colAligns;
     public $colWraps;
     public $colColors;
-    public $colTypes;            // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
+    public $colTypes; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
     // data type: integer,float,currency,date
 
     public $header;
@@ -53,7 +56,28 @@ class DataGrid {
     public $src_encode;
     public $detectHeader;
 
-    function __construct($id = '', $ds = '', $pageSize = 20, $pageNumber = -1) {
+    public $pagerClass;
+    public $pagerStyle;
+
+    private $_alt;
+    private $_total;
+    private $_isDataset;
+    private $_colcount;
+    private $_colnames;
+    private $_fieldnames;
+    private $_colwidths;
+    private $_colaligns;
+    private $_colwraps;
+    private $_colcolors;
+    private $_coltypes;
+    private $_itemStyle;
+    private $_itemClass;
+    private $_altItemStyle;
+    private $_altItemClass;
+
+
+    function __construct($id = '', $ds = '', $pageSize = 20, $pageNumber = -1)
+    {
         global $__DataGridCnt;
 
         // set id
@@ -76,7 +100,8 @@ class DataGrid {
         $this->src_encode = evo()->config['modx_charset'];
     }
 
-    function setDataSource() {
+    function setDataSource()
+    {
         if (db()->isResult($this->ds)) {
             return;
         }
@@ -91,7 +116,8 @@ class DataGrid {
         $this->ds = $ds;
     }
 
-    function RenderRowFnc($n, $row) {
+    function RenderRowFnc($n, $row)
+    {
         if ($this->_alt == 0) {
             $Style = $this->_itemStyle;
             $Class = $this->_itemClass;
@@ -135,7 +161,7 @@ class DataGrid {
                 $width = 'width="' . $width . '"';
             }
             $attr = '';
-            foreach (array($colStyle, $Class, $align, $color, $nowrap, $width) as $v) {
+            foreach ([$colStyle, $Class, $align, $color, $nowrap, $width] as $v) {
                 $v = trim($v);
                 if (!empty($v)) {
                     $attr .= ' ' . $v;
@@ -148,7 +174,8 @@ class DataGrid {
     }
 
     // format column values
-    function formatColumnValue($row, $value, $type, &$align) {
+    function formatColumnValue($row, $value, $type, &$align)
+    {
         global $modx;
         if (strpos($type, ":") !== false) {
             list($type, $type_format) = explode(":", $type, 2);
@@ -232,7 +259,8 @@ class DataGrid {
         return $value;
     }
 
-    function render() {
+    function render()
+    {
         // set datasource
         $this->setDataSource();
 
@@ -267,12 +295,12 @@ class DataGrid {
         }
 
         // start grid
-        $attrs = array(
+        $attrs = [
             $this->cssClass ? 'class="' . $this->cssClass . '"' : '',
             $this->cssStyle ? 'style="' . $this->cssStyle . '"' : '',
             (int)$this->cellPadding ? 'cellpadding="' . (int)$this->cellPadding . '"' : '',
             (int)$this->cellSpacing ? 'cellspacing="' . (int)$this->cellSpacing . '"' : ''
-        );
+        ];
         $attr = '';
         foreach ($attrs as $v) {
             $v = trim($v);
@@ -297,7 +325,7 @@ class DataGrid {
                 $this->columns
             );
         } else {
-            $this->_colnames = array();
+            $this->_colnames = [];
         }
 
         $this->_colwidths = explode(
@@ -334,7 +362,7 @@ class DataGrid {
 
         if (!$this->_isDataset) {
             if ($this->ds === '') {
-                $this->ds = array();
+                $this->ds = [];
             } else {
                 $delim = '@[' . $this->cdelim . "\n]@";
                 $this->ds = preg_split($delim, $this->ds);
@@ -344,14 +372,14 @@ class DataGrid {
 
         if (0 < count($this->_colnames)) {
             $tblColHdr = "<thead>\n<tr>";
-            $attrs = array(
+            $attrs = [
                 'style' => ($this->columnHeaderStyle)
                     ? 'style="' . $this->columnHeaderStyle . '"'
                     : '',
                 'class' => ($this->columnHeaderClass)
                     ? 'class="' . $this->columnHeaderClass . '"'
                     : ''
-            );
+            ];
             for ($c = 0; $c < $this->_colcount; $c++) {
                 if (!empty($this->_colwidths[$c])) {
                     $attrs['width'] = 'width="' . $this->_colwidths[$c] . '"';
@@ -380,10 +408,14 @@ class DataGrid {
             : 'style="margin:10px 0;background-color:#ffffff;"';
 
         // build rows
-        $rowcount = $this->_isDataset ? db()->count($this->ds) : count($this->ds);
+        if ($this->_isDataset) {
+            $rowcount = db()->count($this->ds);
+        } else {
+            $rowcount = is_array($this->ds) ? count($this->ds) : 0;
+        }
 
         if ($rowcount == 0) {
-            $ph = array();
+            $ph = [];
             $ph['colspan'] = (1 < $this->_colcount) ? 'colspan="' . $this->_colcount . '"' : '';
             $ph['style'] = $this->_itemStyle;
             $ph['class'] = $this->_itemClass;

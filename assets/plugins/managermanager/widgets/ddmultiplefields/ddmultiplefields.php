@@ -1,10 +1,6 @@
 <?php
-/** 
+/**
  * mm_ddMultipleFields
- * @version 4.3.4 (2012-12-20)
- * 
- * Позволяет добавлять произвольное количество полей (TV) к одному документу (записывается в одно через разделители).
- *
  * @param tvs {comma separated string} - Имена TV, для которых необходимо применить виджет.
  * @param roles {comma separated string} - Роли, для которых необходимо применить виждет, пустое значение — все роли. По умолчанию: ''.
  * @param templates {comma separated string} - Id шаблонов, для которых необходимо применить виджет, пустое значение — все шаблоны. По умолчанию: ''.
@@ -18,22 +14,26 @@
  * @param minRow {integer} - Минимальное количество строк. По умолчанию: 0.
  * @param maxRow {integer} - Максимальное количество строк. По умолчанию: 0 (без лимита).
  * @param coloumnsData {separated string} - Список возможных значений для полей в формате json, через ||. По умолчанию: ''.
- * 
+ *
+ * @version 4.3.4 (2012-12-20)
+ *
+ * Позволяет добавлять произвольное количество полей (TV) к одному документу (записывается в одно через разделители).
+ *
  * @link http://code.divandesign.biz/modx/mm_ddmultiplefields/4.3.4
- * 
+ *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.ru
  */
 
-function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns = 'field', $columnsTitle = '', $colWidth = '180', $splY = '||', $splX = '::', $imgW = 300, $imgH = 100, $minRow = 0, $maxRow = 0, $columnsData = ''){
+function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns = 'field', $columnsTitle = '', $colWidth = '180', $splY = '||', $splX = '::', $imgW = 300, $imgH = 100, $minRow = 0, $maxRow = 0, $columnsData = '')
+{
 
-	global $mm_current_page, $_lang;
-	
-	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    global $mm_current_page, $_lang;
+
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
-    $output = '';
     $widgetDir = MODX_BASE_URL . 'assets/plugins/managermanager/widgets/ddmultiplefields/';
 
     if ($columnsData) {
@@ -77,6 +77,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         return;
     }
 
+    $output = '';
     $output .= "// ---------------- mm_ddMultipleFields :: Begin ------------- \n";
     //General functions
     $output .= '
@@ -103,32 +104,32 @@ updateField: function(id){
 //Обновляет оригинальное поле TV, собирая данные по мульти-полям
 updateTv: function(id){
     var masRows = new Array();
-    
+
     //Перебираем все строки
     jQuery("#" + id + "ddMultipleField .ddFieldBlock").each(function(){
         var $this = jQuery(this),
             masCol = new Array(),
             id_field = {index: false, val: false, $field: false};
-        
+
         //Перебираем все колонки, закидываем значения в массив
         $this.find(".ddField").each(function(index){
             //Если поле с типом id
             if (ddMultiple[id].coloumns[index] == "id"){
                 id_field.index = index;
                 id_field.$field = jQuery(this);
-                
+
                 //Сохраняем значение поля
                 id_field.val = id_field.$field.val();
                 //Если значение пустое, то генерим
                 if (id_field.val == "") id_field.val = (new Date).getTime();
-                
+
                 //Обнуляем значение
                 id_field.$field.val("");
             }
             //Собираем значения строки в массив
             masCol.push(jQuery.trim(jQuery(this).val()));
         });
-        
+
         var col = masCol.join(ddMultiple[id].splX);
         if (col.length != ((masCol.length - 1) * ddMultiple[id].splX.length)){
             //Проверяем было ли поле с id
@@ -153,7 +154,7 @@ init: function(id, val, target){
     //Делаем таблицу мульти-полей, вешаем на таблицу функцию обновления оригинального поля
     var $ddMultipleField = jQuery("<table class=\"ddMultipleField\" id=\"" + id + "ddMultipleField\"></table>").appendTo(target)/*.
                             on("change.ddEvents", function(){ddMultiple.updateTv(id);})*/;
-    
+
     //Если заголовков хватает
     if (ddMultiple[id].coloumnsTitle.length == ddMultiple[id].coloumns.length){
         var text = "";
@@ -161,25 +162,25 @@ init: function(id, val, target){
         jQuery.each(ddMultiple[id].coloumnsTitle, function(key, val){
             text += "<th>"+val+"</th>";
         });
-        
+
         jQuery("<tr><th></th>" + text + "<th></th></tr>").appendTo($ddMultipleField);
     }
-    
+
     //Делаем новые мульти-поля
     var arr = val.split(ddMultiple[id].splY);
-    
+
     //Проверяем на максимальное и минимальное количество строк
     if (ddMultiple[id].maxRow && arr.length > ddMultiple[id].maxRow) arr.length = ddMultiple[id].maxRow;
     else if (ddMultiple[id].minRow && arr.length < ddMultiple[id].minRow) arr.length = ddMultiple[id].minRow;
-    
+
     for (var i = 0, len = arr.length; i < len; i++){
         //В случае, если размер массива был увеличен по minRow, значением будет undefined, посему зафигачим пустую строку
         ddMultiple.makeFieldRow(id, arr[i] || "");
     }
-    
+
     //Создаём кнопку +
     ddMultiple.makeAddButton(id);
-    
+
     //Добавляем возможность перетаскивания
     $ddMultipleField.sortable({
         items: "tr:has(td)",
@@ -200,7 +201,7 @@ init: function(id, val, target){
     });
     //Запускаем обновление, если были ограничения
     if (ddMultiple[id].maxRow || ddMultiple[id].minRow) $ddMultipleField.trigger("change.ddEvents");
-    
+
 },
 //Функция создания строки
 //Принимает id и данные строки
@@ -208,10 +209,10 @@ makeFieldRow: function(id, val){
     //Проверяем привышает ли количество строк максимальное
     if (ddMultiple[id].maxRow && jQuery("#"+id+"ddMultipleField .ddFieldBlock").length >= ddMultiple[id].maxRow) return;
     var $fieldBlock = jQuery("<tr class=\"ddFieldBlock " + id + "ddFieldBlock\" ><td class=\"ddSortHandle\"><div></div></td></tr>").appendTo(jQuery("#" + id + "ddMultipleField"));
-    
+
     //Разбиваем переданное значение на колонки
     val = ddMultiple.maskQuoutes(val).split(ddMultiple[id].splX);
-    
+
     var $field;
 
     //Перебираем колонки
@@ -219,7 +220,7 @@ makeFieldRow: function(id, val){
         if (!val[key]) val[key] = "";
         if (!ddMultiple[id].coloumnsTitle[key]) ddMultiple[id].coloumnsTitle[key] = "";
         if (!ddMultiple[id].colWidth[key] || ddMultiple[id].colWidth[key] == "") ddMultiple[id].colWidth[key] = ddMultiple[id].colWidth[key - 1];
-    
+
         var $col = ddMultiple.makeFieldCol($fieldBlock);
 
         //По умолчанию создаём поле как текстовое
@@ -241,7 +242,7 @@ makeFieldRow: function(id, val){
             if (!($field.val())){
                 $field.val((new Date).getTime());
             }
-            
+
             $col.hide();
         }else if(ddMultiple[id].coloumns[key] == "date"){
             $field.remove();
@@ -253,7 +254,7 @@ makeFieldRow: function(id, val){
             $field.remove();
             ddMultiple.makeSelect(val[key], ddMultiple[id].coloumnsTitle[key], ddMultiple[id].coloumnsData[key], ddMultiple[id].colWidth[key], $col);
         }
-    
+
     });
 
     //Create DeleteButton
@@ -263,10 +264,10 @@ makeFieldRow: function(id, val){
     jQuery(".ddField", $fieldBlock).on("load.ddEvents change.ddEvents",function(){
         jQuery(this).parents(".ddMultipleField:first").trigger("change.ddEvents");
     });
-    
+
     //Специально для полей, содержащих изображения необходимо инициализировать
     jQuery(".ddFieldCol:has(.ddField_image) .ddField", $fieldBlock).trigger("change.ddEvents");
-    
+
     return $fieldBlock;
 },
 //Создание колонки поля
@@ -280,7 +281,7 @@ makeDeleteButton: function(id, fieldCol){
         if (ddMultiple[id].minRow && jQuery("#" + id + "ddMultipleField .ddFieldBlock").length <= ddMultiple[id].minRow){
             return;
         }
-        
+
         var $this = jQuery(this),
             $par = $this.parents(".ddFieldBlock:first"),
             $table = $this.parents(".ddMultipleField:first");
@@ -446,7 +447,7 @@ if (!ddMultiple[id]){
         makeFieldFunction: ddMultiple.' . $makeFieldFunction . ',
         browseFuntion: ' . $browseFuntion . '
     };
-    
+
     ddMultiple.ids.push(id);
 
     //Скрываем оригинальное поле
@@ -457,7 +458,7 @@ if (!ddMultiple[id]){
         //Обновляем текущее мульти-поле
         ddMultiple.updateField($this.prop("id"));
     });
-    
+
     //Если это файл или изображение, cкрываем оригинальную кнопку
     if (ddMultiple[id].browseFuntion){$this.next("input[type=button]").hide();}
 

@@ -2,25 +2,26 @@
 /**
  * mm_requireFields
  * @version 1.2 (2013-02-11)
- * 
+ *
  * Make fields required. Currently works with text fields only.
  * In the future perhaps this could deal with other elements.
  * Originally version by Jelle Jager AKA TobyL - Make fields required
  * Updated by ncrossland to utilise simpler field handline of MM 0.3.5+; bring jQuery code into line; add indication to required fields
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_requirefields/1.2
- * 
+ *
  * @copyright 2013
  */
 
-function mm_requireFields($fields, $roles='', $templates=''){
-	global $mm_fields, $mm_current_page, $modx;
-	$e = &$modx->event;
-	
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_requireFields($fields, $roles = '', $templates = '')
+{
+    global $mm_fields, $mm_current_page, $modx;
+    $e = &$modx->event;
+
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -148,12 +149,12 @@ var msg = "";
 
 if(errors.length > 0){
     var errMsg = errors.length + " required fields are missing:\n\n ";
-    
+
     for (var i = 0; i < errors.length; i++){
         errMsg += " - " + errors[i] + " \n";
     }
     errMsg += " \nPlease correct the indicated fields.";
-    
+
     alert(errMsg);
     return false;
 }else{

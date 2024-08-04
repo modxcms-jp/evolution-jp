@@ -56,14 +56,14 @@ foreach ($dir as $filename) {
             <li id="Button1" class="mutate">
                 <a href="#" onclick="documentDirty=false; document.settings.submit();">
                     <img
-                            src="<?php echo style('icons_save') ?>"
+                        src="<?php echo style('icons_save') ?>"
                     /> <?php echo lang('update'); ?>
                 </a>
             </li>
             <li id="Button5" class="mutate">
                 <a href="#" onclick="document.location.href='index.php?a=2';">
                     <img
-                            src="<?php echo style('icons_cancel') ?>"
+                        src="<?php echo style('icons_cancel') ?>"
                     /> <?php echo lang('cancel'); ?>
                 </a>
             </li>
@@ -74,17 +74,21 @@ foreach ($dir as $filename) {
             border-collapse: collapse;
             width: 100%;
         }
+
         table.settings tr {
             border-bottom: 1px dotted #ccc;
         }
+
         table.settings th {
             font-size: inherit;
             vertical-align: top;
             text-align: left;
         }
+
         table.settings th, table.settings td {
             padding: 5px;
         }
+
         table.settings td input[type=text] {
             width: 250px;
         }

@@ -4,24 +4,25 @@
  * @version 1.1 (2012-11-13)
  *
  * Move a field to a different tab.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_movefieldstotab/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_moveFieldsToTab($fields, $newtab, $roles='', $templates=''){
+function mm_moveFieldsToTab($fields, $newtab, $roles = '', $templates = '')
+{
 
-	global $modx, $mm_fields,$splitter;
-	$e = &$modx->event;
-	
-	// if we've been supplied with a string, convert it into an array
-	$fields = makeArray($fields);
-	
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+    global $modx, $mm_fields, $splitter;
+    $e = &$modx->event;
+
+    // if we've been supplied with a string, convert it into an array
+    $fields = makeArray($fields);
+
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

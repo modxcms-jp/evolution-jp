@@ -1,7 +1,8 @@
 <?php
 
 // converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
+function ConvertDate($date)
+{
     global $modx;
     if (!$date) {
         return "0";
@@ -9,7 +10,8 @@ function ConvertDate($date) {
     return $modx->toTimeStamp($date);
 }
 
-function checkbox($name, $value, $label, $cond) {
+function checkbox($name, $value, $label, $cond)
+{
     global $modx;
     $tpl = '<label><input type="checkbox" name="[+name+]" value="[+value+]" [+checked+] />[+label+]</label>';
     $ph['name'] = $name;
@@ -19,26 +21,30 @@ function checkbox($name, $value, $label, $cond) {
     return $modx->parseText($tpl, $ph);
 }
 
-function user($key, $default = null) {
+function user($key, $default = null)
+{
     global $user;
     return evo()->array_get($user, $key, $default);
 }
 
-function checked($cond) {
+function checked($cond)
+{
     if ($cond) {
         return 'checked';
     }
     return '';
 }
 
-function selected($cond) {
+function selected($cond)
+{
     if ($cond) {
         return 'selected';
     }
     return '';
 }
 
-function getUser($userid) {
+function getUser($userid)
+{
     $field = 'mu.*, ua.*';
     $from = array(
         '[+prefix+]manager_users mu',
@@ -71,7 +77,8 @@ function getUser($userid) {
     return $user;
 }
 
-function hasUserPermission($action) {
+function hasUserPermission($action)
+{
     if ($action == 12) {
         if (!hasPermission('edit_user')) {
             return false;
@@ -87,7 +94,8 @@ function hasUserPermission($action) {
     return false;
 }
 
-function activeUserCheck($userid) {
+function activeUserCheck($userid)
+{
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'
@@ -105,7 +113,8 @@ function activeUserCheck($userid) {
     return true;
 }
 
-function blockedmode($user) {
+function blockedmode($user)
+{
     if ($user['blocked'] == 1) {
         return '1';
     }
@@ -121,7 +130,8 @@ function blockedmode($user) {
     return '0';
 }
 
-function saveOptions() {
+function saveOptions()
+{
     $option = array();
     $option[] = html_tag(
         'option'
@@ -150,7 +160,8 @@ function saveOptions() {
     return $option;
 }
 
-function aButtonSave() {
+function aButtonSave()
+{
     if (!hasPermission('save_user')) {
         return '';
     }
@@ -188,7 +199,8 @@ function aButtonSave() {
     );
 }
 
-function aButtonDelete($userid) {
+function aButtonDelete($userid)
+{
     if (request_intvar('a') != '12' || evo()->getLoginUserID() == $userid || !hasPermission('delete_user')) {
         return '';
     }
@@ -202,7 +214,8 @@ function aButtonDelete($userid) {
     );
 }
 
-function aButtonCancel() {
+function aButtonCancel()
+{
     return manager()->ab(
         array(
             'onclick' => "document.location.href='index.php?a=75';",

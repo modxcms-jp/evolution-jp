@@ -8,18 +8,18 @@ if (anyv('a') == '8' || !sessionv('mgrValidated')) {
 }
 
 evo()->toPlaceholders(
-    array(
+    [
         'modx_charset' => $modx_manager_charset,
-        'theme'        => evo()->config('manager_theme'),
-        'site_name'    => evo()->config('site_name'),
-        'logo_slogan'  => $_lang['logo_slogan'],
+        'theme' => evo()->config('manager_theme'),
+        'site_name' => evo()->config('site_name'),
+        'logo_slogan' => $_lang['logo_slogan'],
         'manager_lockout_message' => $_lang['manager_lockout_message'],
-        'home'         => $_lang['home'],
-        'logout'       => $_lang['logout'],
-        'logouturl'    => './index.php?a=8',
+        'home' => $_lang['home'],
+        'logout' => $_lang['logout'],
+        'logouturl' => './index.php?a=8',
         'manager_theme_url' => sprintf('%smedia/style/%s/', MODX_MANAGER_URL, evo()->config('manager_theme')),
-        'year'         =>  date('Y')
-    )
+        'year' => date('Y')
+    ]
 );
 
 if (evo()->config('manager_login_startup')) {
@@ -36,7 +36,8 @@ echo preg_replace(
 );
 exit;
 
-function tpl_content () {
+function tpl_content()
+{
     if (evo()->config('manager_lockout_tpl')) {
         $target = evo()->config('manager_lockout_tpl');
     } else {

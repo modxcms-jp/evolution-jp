@@ -1,14 +1,16 @@
 <?php
 
 // this is the old error handler. Here for legacy, until i replace all the old errors.
-class errorHandler {
+class errorHandler
+{
 
     public $errorcode = null;
-    public $errors = array();
+    public $errors = [];
     private $errormessage;
 
-    public function __construct() {
-        $this->errors = array(
+    public function __construct()
+    {
+        $this->errors = [
             0 => lang('No errors occured.'),
             1 => lang('An error occured!'),
             2 => lang("Document's ID not passed in request!"),
@@ -36,10 +38,11 @@ class errorHandler {
             903 => lang('You are blocked and cannot log in!'),
             904 => lang('You are blocked and cannot log in! Please try again later.'),
             905 => lang("The security code you entered didn't validate! Please try to login again!")
-        );
+        ];
     }
 
-    public function setError($errorcode, $message = '') {
+    public function setError($errorcode, $message = '')
+    {
         $this->errorcode = $errorcode;
         if ($message) {
             $this->errormessage = $message;
@@ -48,25 +51,28 @@ class errorHandler {
         $this->errormessage = evo()->array_get($this->errors, $errorcode, $errorcode);
     }
 
-    public function hasError() {
+    public function hasError()
+    {
         return $this->errorcode;
     }
 
-    public function dumpError() {
+    public function dumpError()
+    {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         echo evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl')
-            , array(
+            , [
                 'message' => db()->escape($this->errormessage),
                 'warning' => lang('warning'),
                 'url' => $this->prev()
-            )
+            ]
         );
         include_once MODX_MANAGER_PATH . 'actions/footer.inc.php';
         exit;
     }
 
-    private function prev() {
+    private function prev()
+    {
         if (isset($_GET['count_attempts'])) {
             return 'index.php?a=2';
         }
@@ -82,7 +88,8 @@ class errorHandler {
         );
     }
 
-    private function getError() {
+    private function getError()
+    {
         return $this->errorcode;
     }
 }

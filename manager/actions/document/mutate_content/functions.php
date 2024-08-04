@@ -1,5 +1,6 @@
 <?php
-function getTmplvars($docid, $template_id, $docgrp) {
+function getTmplvars($docid, $template_id, $docgrp)
+{
 
     if (!$template_id) {
         return array();
@@ -33,7 +34,7 @@ function getTmplvars($docid, $template_id, $docgrp) {
         , sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
             , $template_id
-            , evo()->session_var('mgrRole')
+            , sessionv('mgrRole')
             , $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
         )
         , 'tvtpl.rank,tv.rank, tv.id'
@@ -48,7 +49,8 @@ function getTmplvars($docid, $template_id, $docgrp) {
     return $tmplVars;
 }
 
-function rteContent($htmlcontent, $editors) {
+function rteContent($htmlcontent, $editors)
+{
     return textarea_tag(
             array(
                 'id' => 'ta',
@@ -61,7 +63,8 @@ function rteContent($htmlcontent, $editors) {
         . getEditors($editors);
 }
 
-function getEditors($editors) {
+function getEditors($editors)
+{
     if (!is_array($editors)) {
         return '';
     }
@@ -91,11 +94,13 @@ function getEditors($editors) {
     );
 }
 
-function tpl_base_dir() {
+function tpl_base_dir()
+{
     return str_replace('\\', '/', __DIR__) . '/';
 }
 
-function sectionContent() {
+function sectionContent()
+{
     if (doc('type') !== 'document') {
         return '';
     }
@@ -120,14 +125,16 @@ function sectionContent() {
     return parseText(file_get_tpl('section_content.tpl'), $ph);
 }
 
-function sectionTV($tpl, $fields) {
+function sectionTV($tpl, $fields)
+{
     $ph = array();
     $ph['header'] = lang('settings_templvars');
     $ph['body'] = $fields;
     return parseText($tpl, $ph);
 }
 
-function rte_fields() {
+function rte_fields()
+{
     static $rte_fields = null;
     if ($rte_fields !== null) {
         return $rte_fields;
@@ -146,7 +153,8 @@ function rte_fields() {
     return $rte_fields;
 }
 
-function getGroups($docid) {
+function getGroups($docid)
+{
     // Load up, the permissions from the parent (if new document) or existing document
     $rs = db()->select(
         'id, document_group'
@@ -160,7 +168,8 @@ function getGroups($docid) {
     return $groups;
 }
 
-function getUDGroups($id) {
+function getUDGroups($id)
+{
     global $permissions_yes, $permissions_no;
 
     if (manager()->action == 27 && $id) {
@@ -184,11 +193,11 @@ function getUDGroups($id) {
     // Query the permissions and names from above
     if ($docid) {
         $rs = db()->select(
-            'dgn.*, groups.id AS link_id'
+            'dgn.*, `groups`.id AS link_id'
             , array(
                 '[+prefix+]documentgroup_names AS dgn',
                 sprintf(
-                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND groups.document=%s'
+                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s'
                     , $docid
                 )
             )
@@ -249,7 +258,7 @@ function getUDGroups($id) {
         }
 
         // does user have this permission?
-        if (_mgroup($row['id'])+_wgroup($row['id']) > 0) {
+        if (_mgroup($row['id']) + _wgroup($row['id']) > 0) {
             ++$permissions_yes;
         } else {
             ++$permissions_no;
@@ -305,7 +314,8 @@ function getUDGroups($id) {
     return $permissions;
 }
 
-function _mgroup($group_id) {
+function _mgroup($group_id)
+{
     return db()->getValue(
         db()->select(
             'COUNT(mg.id)'
@@ -319,7 +329,8 @@ function _mgroup($group_id) {
     );
 }
 
-function _wgroup($group_id) {
+function _wgroup($group_id)
+{
     return db()->getValue(
         db()->select(
             'COUNT(mg.id)'
@@ -333,7 +344,8 @@ function _wgroup($group_id) {
     );
 }
 
-function mergeDraft($content, $draft) {
+function mergeDraft($content, $draft)
+{
     if (!hasPermission('publish_document')) {
         $draft['published'] = '0';
     }
@@ -345,7 +357,7 @@ function mergeDraft($content, $draft) {
         if (isset($draft[$tvid])) {
             $content[$k]['value'] = $draft[$tvid];
             unset($draft[$tvid]);
-        } else  {
+        } else {
             $content[$k]['value'] = null;
         }
     }
@@ -353,7 +365,8 @@ function mergeDraft($content, $draft) {
     return $content;
 }
 
-function tooltip($msg) {
+function tooltip($msg)
+{
     return img_tag(
         style('icons_tooltip')
         , array(
@@ -366,7 +379,8 @@ function tooltip($msg) {
     );
 }
 
-function get_alias_path($id) {
+function get_alias_path($id)
+{
     $pid = (int)$_REQUEST['pid'];
 
     if (config('use_alias_path') === '0') {
@@ -397,7 +411,8 @@ function get_alias_path($id) {
     return $path;
 }
 
-function renderTr($head, $body, $rowstyle = '') {
+function renderTr($head, $body, $rowstyle = '')
+{
     if (!is_array($head)) {
         $ph['head'] = $head;
         $ph['extra_head'] = '';
@@ -422,8 +437,9 @@ function renderTr($head, $body, $rowstyle = '') {
     return parseText(file_get_tpl('render_tr.tpl'), $ph);
 }
 
-if(!function_exists('getDefaultTemplate')) {
-    function getDefaultTemplate() {
+if (!function_exists('getDefaultTemplate')) {
+    function getDefaultTemplate()
+    {
         static $default_template = null;
         if ($default_template !== null) {
             return $default_template;
@@ -467,7 +483,8 @@ if(!function_exists('getDefaultTemplate')) {
 }
 
 // check permissions
-function checkPermissions($id) {
+function checkPermissions($id)
+{
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
@@ -514,7 +531,8 @@ function checkPermissions($id) {
     }
 }
 
-function checkDocLock($id) {
+function checkDocLock($id)
+{
     $rs = db()->select(
         'internalKey, username'
         , '[+prefix+]active_users'
@@ -538,7 +556,8 @@ function checkDocLock($id) {
 }
 
 // get document groups for current user
-function getDocgrp() {
+function getDocgrp()
+{
     if (isset($_SESSION['mgrDocgroups']) || !empty($_SESSION['mgrDocgroups'])) {
         return implode(',', $_SESSION['mgrDocgroups']);
     } else {
@@ -546,7 +565,8 @@ function getDocgrp() {
     }
 }
 
-function db_value($id, $docgrp) {
+function db_value($id, $docgrp)
+{
     if ($id === '0') {
         return array();
     }
@@ -574,8 +594,9 @@ function db_value($id, $docgrp) {
     return db()->getRow($rs);
 }
 
-if(!function_exists('default_value')) {
-    function default_value($parent_id, $new_template_id) {
+if (!function_exists('default_value')) {
+    function default_value($parent_id, $new_template_id)
+    {
         return array(
             'menuindex' => getMenuIndexAtNew($parent_id),
             'alias' => getAliasAtNew(),
@@ -587,15 +608,25 @@ if(!function_exists('default_value')) {
             'searchable' => config('search_default'),
             'cacheable' => config('cache_default'),
             'type' => manager()->action == 72 ? 'reference' : 'document',
-            'richtext' => manager()->action == 72 ? 0 : 1,
             'parent' => $parent_id,
-            'template' => $new_template_id ? $new_template_id : getDefaultTemplate()
+            'template' => $new_template_id ? $new_template_id : getDefaultTemplate(),
+            'pagetitle'=>'',
+            'longtitle'=>'',
+            'menutitle' => '',
+            'description'=>'',
+            'introtext' => '',
+            'link_attributes'=>'',
+            'pub_date'=>'',
+            'unpub_date'=>'',
+            'isfolder'=>0,
+            'content' => ''
         );
     }
 }
 
 // restore saved form
-function mergeReloadValues($docObject) {
+function mergeReloadValues($docObject)
+{
     if (manager()->hasFormValues()) {
         $populate = manager()->loadFormValues();
         if ($populate) {
@@ -623,7 +654,8 @@ function mergeReloadValues($docObject) {
     return $docObject;
 }
 
-function checkViewUnpubDocPerm($published, $editedby) {
+function checkViewUnpubDocPerm($published, $editedby)
+{
     if (manager()->action != 27 || hasPermission('view_unpublished') || $published) {
         return;
     }
@@ -631,13 +663,14 @@ function checkViewUnpubDocPerm($published, $editedby) {
     if (evo()->getLoginUserID() != $editedby) {
         global $modx;
         $modx->config['remember_last_tab'] = 0;
-        evo()->event->setError(3);
-        evo()->event->dumpError();
+        alert()->setError(3);
+        alert()->dumpError();
     }
 }
 
 // increase menu index if this is a new document
-function getMenuIndexAtNew($parent_id) {
+function getMenuIndexAtNew($parent_id)
+{
     if (config('auto_menuindex') == 1) {
         return db()->getValue(
                 db()->select(
@@ -650,7 +683,8 @@ function getMenuIndexAtNew($parent_id) {
     return '0';
 }
 
-function getAliasAtNew() {
+function getAliasAtNew()
+{
     if (config('automatic_alias') === '2') {
         return manager()->get_alias_num_in_folder(
             0
@@ -660,7 +694,8 @@ function getAliasAtNew() {
     return '';
 }
 
-function getJScripts($docid) {
+function getJScripts($docid)
+{
     $ph = array();
     $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
     $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
@@ -691,7 +726,8 @@ function getJScripts($docid) {
 }
 
 
-function renderSplit() {
+function renderSplit()
+{
     return <<< EOT
 <tr>
 	<td colspan="2"><div class="split"></div></td>
@@ -699,55 +735,21 @@ function renderSplit() {
 EOT;
 }
 
-if(!function_exists('doc')) {
-    /**
-     * @param string $key
-     * @param null $default
-     * @return array|mixed|string|null
-     */
-    function doc($key, $default = null) {
-        global $modx, $docObject;
-        if (isset($docObject)) {
-            $doc = $docObject;
-        } elseif (isset($modx->documntObject)) {
-            $doc = &$modx->documntObject;
-        }
-        if (strpos($key, '*') === 0) {
-            $value = $default;
-            $doc[substr($key, 1)] = $value;
-            return $value;
-        }
-        if (str_contains($key, '@parent')) {
-            $a = evo()->getDocumentObject('id', doc('parent'));
-            $key = str_replace('@parent', '', $key);
-        } else {
-            $a = $doc;
-        }
-        if (str_contains($key, '|hsc')) {
-            return hsc(
-                evo()->array_get(
-                    $a
-                    , str_replace('|hsc', '', $key, $default)
-                )
-            );
-        }
-        return evo()->array_get($a, $key, $default);
-    }
-}
-
-function file_get_tpl($path) {
+function file_get_tpl($path)
+{
     if (is_file(MODX_BASE_PATH . config('custom_tpl_dir') . $path)) {
         return file_get_contents(MODX_BASE_PATH . config('custom_tpl_dir') . $path);
     }
     return file_get_contents(tpl_base_dir() . $path);
 }
 
-function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit) {
+function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit)
+{
     return array(
         'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
-        'upload_maxsize' => config('upload_maxsize', 3145728),
+        'upload_maxsize' => config('upload_maxsize', 32*1024*1024),
         'mode' => manager()->action,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),
@@ -762,8 +764,9 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
     );
 }
 
-if(!function_exists('collect_tab_general_ph')) {
-    function collect_tab_general_ph($docid) {
+if (!function_exists('collect_tab_general_ph')) {
+    function collect_tab_general_ph($docid)
+    {
         return array(
             '_lang_settings_general' => lang('settings_general'),
             'fieldPagetitle' => fieldPagetitle(),
@@ -784,15 +787,17 @@ if(!function_exists('collect_tab_general_ph')) {
     }
 }
 
-function collect_tab_tv_ph() {
+function collect_tab_tv_ph()
+{
     return array(
         'TVFields' => fieldsTV(),
         '_lang_tv' => lang('tmplvars')
     );
 }
 
-if(!function_exists('collect_tab_settings_ph')) {
-    function collect_tab_settings_ph($docid) {
+if (!function_exists('collect_tab_settings_ph')) {
+    function collect_tab_settings_ph($docid)
+    {
         $ph = array();
         $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
         $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';

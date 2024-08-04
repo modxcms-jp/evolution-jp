@@ -26,8 +26,8 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                            alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        alt="icons_cancel"
+                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -49,7 +49,8 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                             <tr>
                                 <td nowrap="nowrap"><b><?php echo $_lang['import_parent_resource']; ?></b></td>
                                 <td>&nbsp;</td>
-                                <td><b><span id="parentName">0 (<?php echo evo()->config('site_name'); ?>)</span></b></td>
+                                <td><b><span id="parentName">0 (<?php echo evo()->config('site_name'); ?>)</span></b>
+                                </td>
                             </tr>
                             <tr>
                                 <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site_maxtime']; ?></b>
@@ -75,17 +76,17 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                                 <td>&nbsp;</td>
                                 <td>
                                     <label><input
-                                        type="radio"
-                                        name="object"
-                                        value="body"
-                                        checked="checked"
-                                    /> <?php echo $_lang['import_site.static.php4']; ?>
+                                            type="radio"
+                                            name="object"
+                                            value="body"
+                                            checked="checked"
+                                        /> <?php echo $_lang['import_site.static.php4']; ?>
                                     </label>
                                     <label><input
-                                        type="radio"
-                                        name="object"
-                                        value="all"
-                                    /> <?php echo $_lang['import_site.static.php5']; ?></label>
+                                            type="radio"
+                                            name="object"
+                                            value="all"
+                                        /> <?php echo $_lang['import_site.static.php5']; ?></label>
                                     <br/>
                                 </td>
                             </tr>
@@ -99,7 +100,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                         </table>
                         <ul class="actionButtons">
                             <li><a href="#" class="default" onclick="document.importFrm.submit();"><img
-                                            src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['import_site_start']; ?>
+                                        src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['import_site_start']; ?>
                                 </a></li>
                         </ul>
                     </form>
@@ -113,7 +114,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
             ?>
                 <ul class="actionButtons">
                     <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                                    src="<?php echo $_style["icons_close"] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                                src="<?php echo $_style["icons_close"] ?>"/> <?php echo $_lang['close']; ?></a></li>
                 </ul>
                 <script type="text/javascript">
                     top.mainMenu.reloadtree();
@@ -126,10 +127,11 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
     </div>
 
 <?php
-function run() {
+function run()
+{
     $output = '';
 
-    $maxtime = postv('maxtime',120);
+    $maxtime = postv('maxtime', 120);
     if (!is_numeric($maxtime)) {
         $maxtime = 30;
     }
@@ -146,7 +148,7 @@ function run() {
         db()->update(array('setting_value' => ''), '[+prefix+]system_settings', "setting_name='error_page'");
     }
 
-    $parent = (int)postv('parent',0);
+    $parent = (int)postv('parent', 0);
 
     if (is_dir(MODX_BASE_PATH . 'temp/import')) {
         $filedir = MODX_BASE_PATH . 'temp/import/';
@@ -181,7 +183,8 @@ function run() {
     return $output;
 }
 
-function importFiles($parent, $filedir, $files, $mode) {
+function importFiles($parent, $filedir, $files, $mode)
+{
     global $_lang, $allowedfiles;
     global $search_default, $cache_default, $publish_default;
 
@@ -190,7 +193,7 @@ function importFiles($parent, $filedir, $files, $mode) {
         return;
     }
     if (postv('object') === 'all') {
-        evo()->config('*default_template',0);
+        evo()->config('*default_template', 0);
         $richtext = '0';
     } else {
         $richtext = '1';
@@ -225,14 +228,14 @@ function importFiles($parent, $filedir, $files, $mode) {
 
                 $file = getFileContent($filepath);
                 list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
-                $field['pagetitle']   = $pagetitle;
-                $field['longtitle']   = $pagetitle;
+                $field['pagetitle'] = $pagetitle;
+                $field['longtitle'] = $pagetitle;
                 $field['description'] = $description;
-                $field['content']     = db()->escape($content);
-                $date                 = filemtime($filepath);
-                $field['createdon']   = $date;
-                $field['editedon']    = $date;
-                $newid                = db()->insert($field, '[+prefix+]site_content');
+                $field['content'] = db()->escape($content);
+                $date = filemtime($filepath);
+                $field['createdon'] = $date;
+                $field['editedon'] = $date;
+                $newid = db()->insert($field, '[+prefix+]site_content');
                 if (!$newid) {
                     $vs = array(
                         $_lang['import_site_failed'],
@@ -341,7 +344,8 @@ function importFiles($parent, $filedir, $files, $mode) {
     }
 }
 
-function getFiles($directory, $listing = array(), $count = 0) {
+function getFiles($directory, $listing = array(), $count = 0)
+{
     global $_lang;
     global $filesfound;
     $c = $count;
@@ -378,7 +382,8 @@ function getFiles($directory, $listing = array(), $count = 0) {
     return ($listing);
 }
 
-function getFileContent($filepath) {
+function getFileContent($filepath)
+{
     global $_lang;
     // get the file
     if (!$buffer = file_get_contents($filepath)) {
@@ -390,7 +395,8 @@ function getFileContent($filepath) {
     return '';
 }
 
-function pop_index($array) {
+function pop_index($array)
+{
     $new_array = array();
     foreach ($array as $k => $v) {
         if ($v !== 'index.html' && $v !== 'index.htm') {
@@ -407,7 +413,8 @@ function pop_index($array) {
     return $new_array;
 }
 
-function treatContent($src, $filename, $alias) {
+function treatContent($src, $filename, $alias)
+{
     $src = mb_convert_encoding($src, evo()->config('modx_charset'), 'UTF-8,SJIS-win,eucJP-win,SJIS,EUC-JP,ASCII');
 
     if (preg_match("@<title>(.*)</title>@i", $src, $matches)) {
@@ -442,7 +449,8 @@ function treatContent($src, $filename, $alias) {
     return array($pagetitle, $content, $description);
 }
 
-function convertLink() {
+function convertLink()
+{
     $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
     $alias = array();
     $linkList = array();
@@ -466,7 +474,7 @@ function convertLink() {
                 switch ($v) {
                     case '/':
                     case MODX_SITE_URL:
-                    case MODX_SITE_URL.'index.html':
+                    case MODX_SITE_URL . 'index.html':
                     case MODX_SITE_URL . 'index.htm':
                         $v = '[(site_url)]';
                         break;
@@ -515,11 +523,11 @@ function convertLink() {
             $i++;
         }
         db()->update(
-                array(
-                        'content' => db()->escape(str_replace($s, $r, $row['content']))
-                )
-                , '[+prefix+]site_content'
-                , sprintf("id='%s'", $row['id'])
+            array(
+                'content' => db()->escape(str_replace($s, $r, $row['content']))
+            )
+            , '[+prefix+]site_content'
+            , sprintf("id='%s'", $row['id'])
         );
     }
 }

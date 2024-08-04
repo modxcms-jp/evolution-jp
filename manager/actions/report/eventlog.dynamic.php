@@ -15,7 +15,7 @@ if (anyv('op') === 'reset') {
     $search = $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $search = $query = anyv('search',$_PAGE['vs']['search']);
+    $search = $query = anyv('search', $_PAGE['vs']['search']);
     if (!is_numeric($search)) {
         $search = db()->escape($query);
     }
@@ -23,7 +23,7 @@ if (anyv('op') === 'reset') {
 }
 
 // get & save listmode
-$listmode = anyv('listmode',$_PAGE['vs']['lm']);
+$listmode = anyv('listmode', $_PAGE['vs']['lm']);
 $_PAGE['vs']['lm'] = $listmode;
 
 // context menu
@@ -94,8 +94,8 @@ echo $cm->render();
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                            alt="icons_cancel"
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        alt="icons_cancel"
+                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -107,10 +107,10 @@ echo $cm->render();
                 <tr>
                     <td>
                         <a
-                                href="index.php?a=116&cls=1"
+                            href="index.php?a=116&cls=1"
                         ><img
-                                    src="<?php echo $_style["icons_delete_document"] ?>"
-                                    align="absmiddle"
+                                src="<?php echo $_style["icons_delete_document"] ?>"
+                                align="absmiddle"
                             /> <?php echo lang('clear_log') ?></a>
                     </td>
                     <td nowrap="nowrap">
@@ -121,16 +121,16 @@ echo $cm->render();
                                            value="<?php echo $query ?>"/></td>
                                 <td><a class="primary" href="#" title="<?php echo lang('search') ?>"
                                        onclick="searchResource();return false;"><img
-                                                src="<?php echo style('icons_save'); ?>"/><?php echo lang('go') ?>
+                                            src="<?php echo style('icons_save'); ?>"/><?php echo lang('go') ?>
                                     </a></td>
                                 <td><a href="#" title="<?php echo $_lang['reset'] ?>"
                                        onclick="resetSearch();return false;"><img
-                                                src="<?php echo style('icons_refresh'); ?>" style="display:inline;"/></a>
+                                            src="<?php echo style('icons_refresh'); ?>" style="display:inline;"/></a>
                                 </td>
                                 <td><a href="#" title="<?php echo $_lang['list_mode'] ?>"
                                        onclick="changeListMode();return false;"><img
-                                                src="<?php echo style('icons_table'); ?>"
-                                                style="display:inline;"/></a></td>
+                                            src="<?php echo style('icons_table'); ?>"
+                                            style="display:inline;"/></a></td>
                             </tr>
                         </table>
                     </td>

@@ -1,30 +1,31 @@
 <?php
-/** 
+/**
  * ddSetFieldValue
- * @version 1.0.3 (2012-11-13)
- * 
- * Жёстко выставляет необходимые значения заданному полю
- * 
- * @uses ManagerManager plugin 0.4.
- * 
- * @todo Основан на mm_default
- * 
  * @param field {string} - Имя поля, для которого необходимо установить значение.
  * @param value {string} - Значение, которое необходимо установить.
  * @param roles {comma separated string} - Id ролей. По умолчанию: для всех ролей.
  * @param templates {comma separated string} - Id шаблонов. По умолчанию: для всех шаблонов.
- * 
+ *
+ * @uses ManagerManager plugin 0.4.
+ *
+ * @todo Основан на mm_default
+ *
+ * @version 1.0.3 (2012-11-13)
+ *
+ * Жёстко выставляет необходимые значения заданному полю
+ *
  * @link http://code.divandesign.biz/modx/mm_ddsetfieldvalue/1.0.3
- * 
+ *
  * @copyright 2012, DivanDesign
  * http://www.DivanDesign.biz
  */
 
-function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
-	global $modx, $content, $mm_fields, $mm_current_page;
-	$e = &$modx->event;
-	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = '')
+{
+    global $modx, $content, $mm_fields, $mm_current_page;
+    $e = &$modx->event;
+
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 
@@ -158,7 +159,7 @@ function mm_ddSetFieldValue($field, $value = '', $roles = '', $templates = ''){
                                 $j("#which_editor").val("none");
                                 changeRTE();
                             }
-                                    
+
                             ';
                 $output .= '' . "\n";
             }

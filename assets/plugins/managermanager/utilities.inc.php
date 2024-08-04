@@ -9,7 +9,8 @@
 
 // Pass useThisRule a comma separated list of allowed roles and templates, and it will
 // return TRUE or FALSE to indicate whether this rule should be run on this page
-function useThisRule($roles='', $templates='') {
+function useThisRule($roles = '', $templates = '')
+{
 
     global $mm_current_page;
 
@@ -34,46 +35,49 @@ function useThisRule($roles='', $templates='') {
 }
 
 // Makes a commas separated list into an array
-function makeArray($csv) {
+function makeArray($csv)
+{
     // If we've already been supplied an array, just return it
     if (is_array($csv)) {
         return $csv;
     }
 
     // Else if we have an empty string
-    if (trim($csv)=='') {
+    if (trim($csv) == '') {
         return array();
     }
 
     // Otherwise, turn it into an array
-    $return = explode(',',$csv);
-    foreach ($return as $i=>$v) {
+    $return = explode(',', $csv);
+    foreach ($return as $i => $v) {
         $return[$i] = trim($v);
     }
     return $return;
 }
 
 // Make an output JS safe
-function jsSafe($str) {
+function jsSafe($str)
+{
     global $modx;
 
-    return htmlentities($str, ENT_QUOTES, $modx->config('modx_charset','utf-8'), false);
+    return htmlentities($str, ENT_QUOTES, $modx->config('modx_charset', 'utf-8'), false);
 }
 
 // Does the specified template use the specified TVs?
 // $tpl_id = Template ID (int)
 // $tvs = TV names - either array or comma separated list
 // $types = TV types - e.g. image
-function tplUseTvs($tpl_id, $tvs='', $types='') {
+function tplUseTvs($tpl_id, $tvs = '', $types = '')
+{
 
     // If it's a blank template, it can't have TVs
-    if($tpl_id == 0) {
+    if ($tpl_id == 0) {
         return false;
     }
 
     // Make the TVs and field types into an array
     $fields = makeArray($tvs);
-    $types  = makeArray($types);
+    $types = makeArray($types);
 
     // Get the DB table names
     $from = array('[+prefix+]site_tmplvars tvs');
@@ -89,32 +93,34 @@ function tplUseTvs($tpl_id, $tvs='', $types='') {
     if ($types) {
         $where[] = sprintf('type IN %s', makeSqlList($types));
     }
-    if($where) {
+    if ($where) {
         $where = join(' AND ', $where);
     }
 
     // Do the SQL query
     $result = db()->select('id', $from, $where);
 
-    if ( !db()->count($result)) {
+    if (!db()->count($result)) {
         return false;
     }
     return db()->makeArray($result);
 }
 
 // Create a MySQL-safe list from an array
-function makeSqlList($arr) {
+function makeSqlList($arr)
+{
     $arr = makeArray($arr);
-    foreach($arr as $k=>$tv) {
+    foreach ($arr as $k => $tv) {
         $arr[$k] = sprintf("'%s'", db()->escape($tv)); // Escape them for MySQL
     }
-    return sprintf(' (%s) ', implode(',',$arr));
+    return sprintf(' (%s) ', implode(',', $arr));
 }
 
 // Generates the code needed to include an external script file.
 // $url is the URL of the external script
 // $output_type is either js or html - depending on where the output is appearing
-function includeJs($url, $output_type='js') {
+function includeJs($url, $output_type = 'js')
+{
 
     if ($output_type === 'js') {
         return sprintf(
@@ -122,7 +128,7 @@ function includeJs($url, $output_type='js') {
             , $url);
     }
     if ($output_type === 'html') {
-        return sprintf('<script src="%s" type="text/javascript"></script>'."\n", $url);
+        return sprintf('<script src="%s" type="text/javascript"></script>' . "\n", $url);
     }
     return '';
 }
@@ -130,7 +136,8 @@ function includeJs($url, $output_type='js') {
 // Generates the code needed to include an external CSS file.
 // $url is any URL
 // $output_type is either js or html - depending on where the output is appearing
-function includeCss($url, $output_type='js') {
+function includeCss($url, $output_type = 'js')
+{
     if ($output_type === 'js') {
         return sprintf(
             '$j("head").append(\' <link href="%s" rel="stylesheet" type="text/css" /> \');' . "\n"

@@ -4,22 +4,23 @@
  * @version 1.1 (2012-11-13)
  *
  * Hide a field.
- * 
+ *
  * @uses ManagerManager plugin 0.4.
- * 
+ *
  * @link http://code.divandesign.biz/modx/mm_hidefields/1.1
- * 
+ *
  * @copyright 2012
  */
 
-function mm_hideFields($fields, $roles='', $templates=''){
-	global $mm_fields;
-	
-	// if we've been supplied with a string, convert it into an array
-	$fields = makeArray($fields);
-	
-	// if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
-	if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_hideFields($fields, $roles = '', $templates = '')
+{
+    global $mm_fields;
+
+    // if we've been supplied with a string, convert it into an array
+    $fields = makeArray($fields);
+
+    // if the current page is being edited by someone in the list of roles, and uses a template in the list of templates
+    if (event()->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

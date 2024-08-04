@@ -1,10 +1,10 @@
 <?php
 include_once(
-    sprintf(
-        '%s/dbapi/%s.inc.php'
-        , __DIR__
-        , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
-    )
+sprintf(
+    '%s/dbapi/%s.inc.php'
+    , __DIR__
+    , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
+)
 );
 global $modx;
 $modx = $this;
@@ -30,11 +30,51 @@ $this->db->password = $database_password;
 $this->db->dbname = $dbase;
 $this->db->charset = $database_connection_charset;
 $this->db->table_prefix = $table_prefix;
-$this->db->lastInstallTime = $lastInstallTime;
 
 $rs = $this->db->connect();
-if(!$rs) {
+if (!$rs) {
     exit('Cannot access db');
 }
 // alias for backward compatibility
 $this->dbConfig = &$this->db->config;
+
+function where($field, $op, $value = null)
+{
+    if ($value === null) {
+        $value = $op;
+        $op = '=';
+    }
+    return sprintf(
+        strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
+        $field, $op, $value
+    );
+}
+
+function and_where($field, $op, $value = null)
+{
+    return 'AND ' . where($field, $op, $value);
+}
+
+function where_in($field, $values = [])
+{
+    if (!$values) {
+        return null;
+    }
+    foreach ($values as $i => $v) {
+        $values[$i] = "'" . db()->escape($v) . "'";
+    }
+    return sprintf(
+        strpos($field, '`') === false ? '`%s` IN (%s)' : '%s IN (%s)',
+        $field,
+        implode(',', $values)
+    );
+}
+
+function and_where_in($field, $values = [])
+{
+    if (!$values) {
+        return null;
+    }
+    return 'AND ' . where_in($field, $values);
+}
+

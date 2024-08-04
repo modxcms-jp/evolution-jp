@@ -17,59 +17,57 @@ class Document
     const ST_RELEASED = 'released';
     const ST_DRAFT = 'draft';
 
-    public static $modx = null; //MODXオブジェクトを指定しないとこのクラスは動作しません
-
     //private $id='';                  // Resource ID
     private $status = 'released';    // リソースの状態(本番:released、下書き:draft等)
-    private $content = array();       // Site content
-    private $tv = array();       // Template Value
+    private $content = [];       // Site content
+    private $tv = [];       // Template Value
     private $logLevel = self::LOG_ERR; // Output log level
     private $lastLog = '';            // Last log message
 
     //content table column (name => default value(null=sql default))
     private $content_lists
-    = array(
-        'id' => null,
-        'type' => null,
-        'contentType' => null,
-        'pagetitle' => '',
-        'longtitle' => '',
-        'description' => '',
-        'alias' => '',
-        'link_attributes' => '',
-        'published' => null,
-        'pub_date' => null,
-        'unpub_date' => null,
-        'parent' => null,
-        'isfolder' => null,
-        'introtext' => null,
-        'content' => null,
-        'richtext' => null,
-        'template' => null,
-        'menuindex' => 'auto',
-        'searchable' => null,
-        'cacheable' => null,
-        'createdby' => null,
-        'createdon' => 'now()',
-        'editedby' => null,
-        'editedon' => 'now()',
-        'deleted' => null,
-        'deletedon' => null,
-        'deletedby' => null,
-        'publishedon' => null,
-        'publishedby' => null,
-        'menutitle' => '',
-        'donthit' => null,
-        'haskeywords' => null,
-        'hasmetatags' => null,
-        'privateweb' => null,
-        'privatemgr' => null,
-        'content_dispo' => null,
-        'hidemenu' => null
-    );
+        = [
+            'id' => null,
+            'type' => null,
+            'contentType' => null,
+            'pagetitle' => '',
+            'longtitle' => '',
+            'description' => '',
+            'alias' => '',
+            'link_attributes' => '',
+            'published' => null,
+            'pub_date' => null,
+            'unpub_date' => null,
+            'parent' => null,
+            'isfolder' => null,
+            'introtext' => null,
+            'content' => null,
+            'richtext' => null,
+            'template' => null,
+            'menuindex' => 'auto',
+            'searchable' => null,
+            'cacheable' => null,
+            'createdby' => null,
+            'createdon' => 'now()',
+            'editedby' => null,
+            'editedon' => 'now()',
+            'deleted' => null,
+            'deletedon' => null,
+            'deletedby' => null,
+            'publishedon' => null,
+            'publishedby' => null,
+            'menutitle' => '',
+            'donthit' => null,
+            'haskeywords' => null,
+            'hasmetatags' => null,
+            'privateweb' => null,
+            'privatemgr' => null,
+            'content_dispo' => null,
+            'hidemenu' => null
+        ];
 
     //日付処理が必要なカラム
-    private $content_type_date = array('pub_date', 'unpub_date', 'createdon', 'editedon', 'deletedon');
+    private $content_type_date = ['pub_date', 'unpub_date', 'createdon', 'editedon', 'deletedon'];
 
     /*
      * __construct
@@ -88,7 +86,7 @@ class Document
 
         if (empty($id)) {
             $this->content = $this->content_lists;
-            $this->tv = array();
+            $this->tv = [];
         } else {
             $this->load($id, $status);
         }
@@ -252,7 +250,7 @@ class Document
             }
             return true;
         }
-        $this->logWarn('TV not exist:' . $name);
+        $this->logWarn('TV not exist:tv' . $id);
         return false;
     }
 
@@ -298,12 +296,12 @@ class Document
      */
     public function setTemplate($name)
     {
-        $rs = self::db()->select(
+        $rs = db()->select(
             'id',
             '[+prefix+]site_templates',
-            "templatename= '" . self::db()->escape($name) . "'"
+            "templatename= '" . db()->escape($name) . "'"
         );
-        if ($row = self::db()->getRow($rs)) {
+        if ($row = db()->getRow($rs)) {
             return $this->setTemplatebyID($row['id']);
         }
         $this->logWarn('無効なテンプレート名を指定しています。');
@@ -327,15 +325,15 @@ class Document
             return false;
         }
         if ($tid != 0) {
-            $rs = self::db()->select('id', '[+prefix+]site_templates', "id= $tid");
-            if (!($row = self::db()->getRow($rs))) {
+            $rs = db()->select('id', '[+prefix+]site_templates', "id= $tid");
+            if (!($row = db()->getRow($rs))) {
                 $this->logWarn('無効なテンプレートIDを指定しています。');
                 $tid = 0;
             }
         }
         $this->content['template'] = $tid;
         //tv読み直し
-        $this->tv = array();
+        $this->tv = [];
         if (self::documentExist($this->content['id'])) {
             //tv読み込み(値付)
             $sql = <<< SQL_QUERY
@@ -352,9 +350,9 @@ WHERE tvt.templateid = {$this->content['template']}
 
 SQL_QUERY;
 
-            $sql = str_replace('[+prefix+]', self::$modx->db->config['table_prefix'], $sql);
-            $rs = self::db()->query($sql);
-            while ($row = self::db()->getRow($rs)) {
+            $sql = str_replace('[+prefix+]', db()->get('table_prefix'), $sql);
+            $rs = db()->query($sql);
+            while ($row = db()->getRow($rs)) {
                 $this->tv[$row['id']]['name'] = $row['name'];
                 $this->tv[$row['id']]['value'] = $row['value'];
                 $this->tv[$row['id']]['default'] = $row['default_text'];
@@ -373,9 +371,9 @@ FROM [+prefix+]site_tmplvars AS tv
 WHERE st.id = {$this->content['template']}
 SQL_QUERY;
 
-            $sql = str_replace('[+prefix+]', self::$modx->db->config['table_prefix'], $sql);
-            $rs = self::db()->query($sql);
-            while ($row = self::db()->getRow($rs)) {
+            $sql = str_replace('[+prefix+]', db()->get('table_prefix'), $sql);
+            $rs = db()->query($sql);
+            while ($row = db()->getRow($rs)) {
                 $this->tv[$row['id']]['name'] = $row['name'];
                 $this->tv[$row['id']]['value'] = $row['default_text'];
                 $this->tv[$row['id']]['default'] = $row['default_text'];
@@ -396,14 +394,14 @@ SQL_QUERY;
     {
         //初期化
         $this->content = $this->content_lists;
-        $this->tv = array();
+        $this->tv = [];
 
         if (!self::isInt($id, 1)) {
             $this->logerr('リソースIDの指定が不正です。');
             return false;
         } else {
-            $rs = self::db()->select('*', '[+prefix+]site_content', 'id=' . $id);
-            $row = self::db()->getRow($rs);
+            $rs = db()->select('*', '[+prefix+]site_content', 'id=' . $id);
+            $row = db()->getRow($rs);
             if (empty($row)) {
                 $this->logerr('リソースの読み込みに失敗しました。');
                 return false;
@@ -417,8 +415,8 @@ SQL_QUERY;
             switch ($status) {
                 case self::ST_DRAFT:
 
-                    $rs = self::db()->select('content', '[+prefix+]site_revision', "elmid=$id AND status='draft'");
-                    if ($row = self::db()->getRow($rs)) {
+                    $rs = db()->select('content', '[+prefix+]site_revision', "elmid=$id AND status='draft'");
+                    if ($row = db()->getRow($rs)) {
                         $row = unserialize($row['content']);
                         foreach ($row as $k => $v) {
                             if (preg_match('/^tv([0-9]+)(.*)$/', $k, $mt)) {
@@ -434,7 +432,7 @@ SQL_QUERY;
                                 $this->content[$k] = $v;
                             }
                         }
-                        self::$modx->logEvent(1, 1, print_r($this->content, true), 'debug3');
+                        evo()->logEvent(1, 1, print_r($this->content, true), 'debug3');
                     } else {
                         $this->logWarn('下書きが存在しません。');
                         return false;
@@ -472,8 +470,8 @@ SQL_QUERY;
      */
     public function save($fields = '*', $clearCache = true)
     {
-        $c = array(); //新規/更新対象content
-        $tv = array(); //新規/更新対象tv
+        $c = []; //新規/更新対象content
+        $tv = []; //新規/更新対象tv
 
         if (empty($fields) || $fields == '*') {
             foreach ($this->content as $key => $val) {
@@ -531,8 +529,8 @@ SQL_QUERY;
             if ($c['menuindex'] == 'auto') {
                 //自動採番
                 if ($id != 0 && !array_key_exists('parent', $c)) {
-                    $rs = self::db()->select('parent', '[+prefix+]site_content', "id=$id");
-                    if ($row = self::db()->getRow($rs)) {
+                    $rs = db()->select('parent', '[+prefix+]site_content', "id=$id");
+                    if ($row = db()->getRow($rs)) {
                         $pid = $row['parent'];
                     }
                 } elseif (isset($c['parent']) && !empty($c['parent'])) {
@@ -540,12 +538,12 @@ SQL_QUERY;
                 } else {
                     $pid = 0;
                 }
-                $rs = self::db()->select(
+                $rs = db()->select(
                     '(max(menuindex) + 1) AS menuindex',
                     '[+prefix+]site_content',
                     "parent=$pid"
                 );
-                if (($row = self::db()->getRow($rs)) && !empty($row['menuindex'])) {
+                if (($row = db()->getRow($rs)) && !empty($row['menuindex'])) {
                     $c['menuindex'] = $row['menuindex'];
                 } else {
                     $c['menuindex'] = 0;
@@ -558,16 +556,16 @@ SQL_QUERY;
         //content登録
         unset($c['id']);
         if (!empty($c)) {
-            $c = self::db()->escape($c);
+            $c = db()->escape($c);
 
             if ($id != 0) {
                 //update
-                if (!self::db()->update($c, '[+prefix+]site_content', 'id=' . $id)) {
+                if (!db()->update($c, '[+prefix+]site_content', 'id=' . $id)) {
                     $id = false;
                 }
             } else {
                 //insert
-                $id = self::db()->insert($c, '[+prefix+]site_content');
+                $id = db()->insert($c, '[+prefix+]site_content');
             }
         }
 
@@ -585,20 +583,20 @@ SQL_QUERY;
                 if ($v['value'] === $v['default']) {
                     //デフォルト時は削除
                     if (self::isInt($k, 1)) {
-                        self::db()->delete(
+                        db()->delete(
                             '[+prefix+]site_tmplvar_contentvalues',
                             "tmplvarid = $k AND contentid = $id"
                         );
                     }
                 } else {
-                    $rs = self::db()->select(
+                    $rs = db()->select(
                         'id',
                         '[+prefix+]site_tmplvar_contentvalues',
                         "tmplvarid = $k AND contentid = $id"
                     );
-                    if ($row = self::db()->getRow($rs)) {
-                        $rs = self::db()->update(
-                            array('value' => self::db()->escape($v['value'])),
+                    if ($row = db()->getRow($rs)) {
+                        $rs = db()->update(
+                            ['value' => db()->escape($v['value'])],
                             '[+prefix+]site_tmplvar_contentvalues',
                             "tmplvarid = $k AND contentid = $id"
                         );
@@ -606,12 +604,12 @@ SQL_QUERY;
                             $errflag = true;
                         }
                     } else {
-                        $rs = self::db()->insert(
-                            array(
+                        $rs = db()->insert(
+                            [
                                 'tmplvarid' => $k,
                                 'contentid' => $id,
-                                'value' => self::db()->escape($v['value'])
-                            ),
+                                'value' => db()->escape($v['value'])
+                            ],
                             '[+prefix+]site_tmplvar_contentvalues'
                         );
                         if (!$rs) {
@@ -626,7 +624,7 @@ SQL_QUERY;
         }
 
         if ($id !== false && $clearCache) {
-            self::$modx->clearCache();
+            evo()->clearCache();
         }
 
         return $id;
@@ -697,8 +695,8 @@ SQL_QUERY;
         if (!self::isInt($id, 1)) {
             return false;
         }
-        $rs = self::db()->select('id', '[+prefix+]site_content', "id = $id");
-        if ($row = self::db()->getRow($rs)) {
+        $rs = db()->select('id', '[+prefix+]site_content', "id = $id");
+        if ($row = db()->getRow($rs)) {
             return true;
         }
         return false;
@@ -725,8 +723,8 @@ SQL_QUERY;
 
         if (is_null($onPub)) {
             //値の参照
-            $rs = self::db()->select('id,published', '[+prefix+]site_content', "id = $id");
-            if ($row = self::db()->getRow($rs)) {
+            $rs = db()->select('id,published', '[+prefix+]site_content', "id = $id");
+            if ($row = db()->getRow($rs)) {
                 return $row['published'];
             }
             return false;
@@ -734,7 +732,7 @@ SQL_QUERY;
 
         //値の更新
         $onPub = self::bool2Int($onPub);
-        $p = array();
+        $p = [];
         $p['published'] = $onPub;
         if ($onPub == 1) {
             $p['publishedby'] = self::getLoginMgrUserID();
@@ -744,16 +742,16 @@ SQL_QUERY;
             $p['publishedon'] = 0;
         }
 
-        $target = array();
+        $target = [];
         if ($recursive) {
             $target = self::getChildren($id);
         }
         $target[] = $id;
         $inList = '(' . implode(',', $target) . ')';
 
-        if (self::db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
+        if (db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
             if ($clearCache) {
-                self::$modx->clearCache();
+                evo()->clearCache();
             }
             return true;
         }
@@ -781,8 +779,8 @@ SQL_QUERY;
 
         if (is_null($onDel)) {
             //値の参照
-            $rs = self::db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
-            if ($row = self::db()->getRow($rs)) {
+            $rs = db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
+            if ($row = db()->getRow($rs)) {
                 return $row['deleted'];
             }
             return false;
@@ -790,7 +788,7 @@ SQL_QUERY;
 
         //値の更新
         $onDel = self::bool2Int($onDel);
-        $p = array();
+        $p = [];
         $p['deleted'] = $onDel;
         $addWhere = ''; //削除復活の場合、削除日が同じ子リソースを復活させる
         if ($onDel == 1) {
@@ -800,13 +798,13 @@ SQL_QUERY;
         } else {
             $p['deletedby'] = 0;
             $p['deletedon'] = 0;
-            $rs = self::db()->select('id,deletedon', '[+prefix+]site_content', "id = $id");
-            if ($row = self::db()->getRow($rs)) {
+            $rs = db()->select('id,deletedon', '[+prefix+]site_content', "id = $id");
+            if ($row = db()->getRow($rs)) {
                 $addWhere = "deletedon = {$row['deletedon']}";
             }
         }
 
-        $target = array();
+        $target = [];
         if ($recursive) {
             $target = self::getChildren($id, $addWhere);
         }
@@ -814,9 +812,9 @@ SQL_QUERY;
         $inList = '(' . implode(',', $target) . ')';
 
 
-        if (self::db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
+        if (db()->update($p, '[+prefix+]site_content', "id IN $inList")) {
             if ($clearCache) {
-                self::$modx->clearCache();
+                evo()->clearCache();
             }
             return true;
         }
@@ -839,13 +837,13 @@ SQL_QUERY;
     {
         if (self::documentExist($id)) {
             if (!$force) {
-                $rs = self::db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
-                if (($row = self::db()->getRow($rs)) && $row['deleted'] != 1) {
+                $rs = db()->select('id,deleted', '[+prefix+]site_content', "id = $id");
+                if (($row = db()->getRow($rs)) && $row['deleted'] != 1) {
                     return false;
                 }
             }
 
-            $target = array();
+            $target = [];
             if ($recursive) {
                 $target = self::getChildren($id);
             }
@@ -853,11 +851,11 @@ SQL_QUERY;
             $inList = '(' . implode(',', $target) . ')';
 
             //tvの削除 -> content削除
-            self::db()->delete('[+prefix+]site_tmplvar_contentvalues', "contentid IN $inList");
-            $rs = self::db()->delete('[+prefix+]site_content', "id IN $inList");
+            db()->delete('[+prefix+]site_tmplvar_contentvalues', "contentid IN $inList");
+            $rs = db()->delete('[+prefix+]site_content', "id IN $inList");
 
             if ($rs !== false && $clearCache) {
-                self::$modx->clearCache();
+                evo()->clearCache();
             }
             return $rs;
         }
@@ -877,7 +875,7 @@ SQL_QUERY;
     {
         $this->lastLog = $msg;
         if ($this->logLevel <= $level) {
-            self::$modx->logEvent(4, $level, $msg, 'Document Object API');
+            evo()->logEvent(4, $level, $msg, 'Document Object API');
         }
     }
 
@@ -995,18 +993,18 @@ SQL_QUERY;
      */
     private static function getChildren($id, $addWhere = '')
     {
-        $r = array();
+        $r = [];
         if (!empty($addWhere)) {
             $addWhere = "AND ( $addWhere )";
         }
-        $ids = array($id);
+        $ids = [$id];
         while (!empty($ids)) {
-            $rs = self::db()->select(
+            $rs = db()->select(
                 'id',
                 '[+prefix+]site_content',
                 "parent='" . array_shift($ids) . "' $addWhere"
             );
-            while ($row = self::db()->getRow($rs)) {
+            while ($row = db()->getRow($rs)) {
                 array_push($ids, $row['id']);
                 $r[] = $row['id'];
             }

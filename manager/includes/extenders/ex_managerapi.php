@@ -10,11 +10,13 @@ $this->manager = new ManagerAPI;
 global $_PAGE; // page view state object. Usage $_PAGE['vs']['propertyname'] = $value;
 
 // Content manager wrapper class
-class ManagerAPI {
+class ManagerAPI
+{
 
     public $action; // action directive
 
-    function __construct() {
+    function __construct()
+    {
         global $action;
         $this->action = $action; // set action directive
         if (isset($_POST['token']) || isset($_GET['token'])) {
@@ -25,37 +27,43 @@ class ManagerAPI {
         }
     }
 
-    function initPageViewState($id = 0) {
+    function initPageViewState($id = 0)
+    {
         global $_PAGE;
 
-        if (evo()->session_var('mgrPageViewSID', '') != $this->action) {
-            $_SESSION['mgrPageViewSDATA'] = array(); // new view state
+        if (sessionv('mgrPageViewSID', '') != $this->action) {
+            $_SESSION['mgrPageViewSDATA'] = []; // new view state
             $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
         }
         $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
     }
 
     // save page view state - not really necessary,
-    function savePageViewState($id = 0) {
+    function savePageViewState($id = 0)
+    {
         global $_PAGE;
         $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
         $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action;
     }
 
     // check for saved form
-    function hasFormValues() {
-        if (isset($_SESSION['mgrFormValueId']) && evo()->session_var('mgrFormValues')) {
-            if ($this->action == $_SESSION['mgrFormValueId'] && is_array($_SESSION['mgrFormValues'])) {
-                return true;
-            }
-
-            $this->clearSavedFormValues();
+    function hasFormValues()
+    {
+        if (!isset($_SESSION['mgrFormValueId']) || !sessionv('mgrFormValues')) {
+            return false;
         }
-        return false;
+
+        if ($this->action != sessionv('mgrFormValueId') || !is_array($_SESSION['mgrFormValues'])) {
+            $this->clearSavedFormValues();
+            return false;
+        }
+
+        return true;
     }
 
     // saved form post from $_POST
-    function saveFormValues($id = 0) {
+    function saveFormValues($id = 0)
+    {
         if (!$_POST) {
             return false;
         }
@@ -65,7 +73,8 @@ class ManagerAPI {
     }
 
     // load saved form values into $_POST
-    function loadFormValues() {
+    function loadFormValues()
+    {
         if (!$this->hasFormValues()) {
             return false;
         }
@@ -78,11 +87,13 @@ class ManagerAPI {
     }
 
     // clear form post
-    function clearSavedFormValues() {
+    function clearSavedFormValues()
+    {
         unset($_SESSION['mgrFormValues'], $_SESSION['mgrFormValueId']);
     }
 
-    function get_alias_from_title($id = 0, $pagetitle = '') {
+    function get_alias_from_title($id = 0, $pagetitle = '')
+    {
         if ($id === '') {
             $id = 0;
         }
@@ -120,7 +131,8 @@ class ManagerAPI {
         return $alias;
     }
 
-    function get_alias_num_in_folder($id = '0', $parent = '0') {
+    function get_alias_num_in_folder($id = '0', $parent = '0')
+    {
         $rs = db()->select(
             'MAX(cast(alias as SIGNED))'
             , '[+prefix+]site_content'
@@ -154,12 +166,14 @@ class ManagerAPI {
         return $_;
     }
 
-    function modx_move_uploaded_file($tmp_path, $target_path) {
+    function modx_move_uploaded_file($tmp_path, $target_path)
+    {
         return evo()->move_uploaded_file($tmp_path, $target_path);
 
     }
 
-    function validate_referer($flag) {
+    function validate_referer($flag)
+    {
         if (getv('frame') === 'main') {
             switch (evo()->manager->action) {
                 case '3' :
@@ -233,16 +247,17 @@ class ManagerAPI {
             exit('A possible CSRF attempt was detected. No referer was provided by the server.');
         }
 
-        $referer = str_replace(array('http://', 'https://'), '//', $referer);
-        $site_url = str_replace(array('http://', 'https://'), '//', MODX_SITE_URL);
+        $referer = str_replace(['http://', 'https://'], '//', $referer);
+        $site_url = str_replace(['http://', 'https://'], '//', MODX_SITE_URL);
         if (stripos($referer, $site_url) !== 0) {
             exit("A possible CSRF attempt was detected from referer: {$referer}.");
         }
     }
 
-    function checkToken() {
+    function checkToken()
+    {
         $clientToken = evo()->input_any('token', false);
-        $serverToken = evo()->session_var('token', false);
+        $serverToken = sessionv('token', false);
 
         $_SESSION['token'] = '';
 
@@ -259,13 +274,15 @@ class ManagerAPI {
         return true;
     }
 
-    function makeToken() {
+    function makeToken()
+    {
         $newToken = evo()->genTokenString();
         $_SESSION['token'] = $newToken;
         return $newToken;
     }
 
-    function remove_locks($action = 'all', $limit_time = 120) {
+    function remove_locks($action = 'all', $limit_time = 120)
+    {
         $limit_time = time() - $limit_time;
         if ($action === 'all') {
             $action = '';
@@ -279,7 +296,8 @@ class ManagerAPI {
         );
     }
 
-    function getHashType($db_value = '') { // md5 | v1 | phpass
+    function getHashType($db_value = '')
+    { // md5 | v1 | phpass
         $c = substr($db_value, 0, 1);
         if ($c === '$') {
             return 'phpass';
@@ -296,7 +314,8 @@ class ManagerAPI {
         return 'unknown';
     }
 
-    function genV1Hash($password, $seed = '1') { // $seed is user_id basically
+    function genV1Hash($password, $seed = '1')
+    { // $seed is user_id basically
         if (isset(evo()->config['pwd_hash_algo']) && !empty(evo()->config['pwd_hash_algo'])) {
             $algorithm = evo()->config['pwd_hash_algo'];
         } else {
@@ -341,7 +360,8 @@ class ManagerAPI {
         return $result;
     }
 
-    function getV1UserHashAlgorithm($uid) {
+    function getV1UserHashAlgorithm($uid)
+    {
         $user = db()->getObject('manager_users', "id='{$uid}'");
 
         if (strpos($user->password, '>') === false) {
@@ -357,85 +377,43 @@ class ManagerAPI {
         );
     }
 
-    function checkHashAlgorithm($algorithm = '') {
-        if (!$algorithm) {
-            return '';
-        }
-
-        switch ($algorithm) {
-            case 'BLOWFISH_Y':
-                if (defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1) {
-                    if (version_compare('5.3.7', PHP_VERSION) <= 0) {
-                        $result = true;
-                    }
-                }
-                break;
-            case 'BLOWFISH_A':
-                if (defined('CRYPT_BLOWFISH') && CRYPT_BLOWFISH == 1) {
-                    $result = true;
-                }
-                break;
-            case 'SHA512':
-                if (defined('CRYPT_SHA512') && CRYPT_SHA512 == 1) {
-                    $result = true;
-                }
-                break;
-            case 'SHA256':
-                if (defined('CRYPT_SHA256') && CRYPT_SHA256 == 1) {
-                    $result = true;
-                }
-                break;
-            case 'MD5':
-                if (defined('CRYPT_MD5') && CRYPT_MD5 == 1 && PHP_VERSION !== '5.3.7') {
-                    $result = true;
-                }
-                break;
-            case 'UNCRYPT':
-                $result = true;
-                break;
-        }
-
-        if (!isset($result)) {
-            $result = false;
-        }
-
-        return $result;
-    }
-
-    function setView($action) {
+    function setView($action)
+    {
         $actions = explode(',',
             '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
         if (in_array($action, $actions)) {
-            if (evo()->session_var('current_request_uri')) {
-                $_SESSION['previous_request_uri'] = evo()->session_var('current_request_uri');
+            if (sessionv('current_request_uri')) {
+                $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
             }
             $_SESSION['current_request_uri'] = $_SERVER['REQUEST_URI'];
         }
     }
 
-    function ab($ph) {
+    function ab($ph)
+    {
         return html_tag(
             '<li>'
-            , array('class' => $ph['label'] == lang('cancel') ? 'mutate' : ''),
+            , ['class' => $ph['label'] == lang('cancel') ? 'mutate' : ''],
             html_tag(
                 '<a>',
-                array(
+                [
                     'href' => '#',
                     'onclick' => $ph['onclick']
-                )
+                ]
                 , img_tag(
                     $ph['icon'],
-                    array(
+                    [
                         'alt' => $ph['alt']
-                    )
+                    ]
                 ) . $ph['label']
             )
         );
     }
 
-    function newCategory($newCat) {
+    function newCategory($newCat)
+    {
         $newCatid = db()->insert(
-            array('category' => db()->escape($newCat))
+            ['category' => db()->escape($newCat)]
             , '[+prefix+]categories'
         );
 
@@ -446,7 +424,8 @@ class ManagerAPI {
     }
 
     //check if new category already exists
-    function checkCategory($newCat = '') {
+    function checkCategory($newCat = '')
+    {
         $rs = db()->select(
             'id,category'
             , '[+prefix+]categories'
@@ -467,7 +446,8 @@ class ManagerAPI {
     }
 
     //Get all categories
-    function getCategories() {
+    function getCategories()
+    {
         $rs = db()->select(
             'id, category'
             , '[+prefix+]categories'
@@ -476,38 +456,39 @@ class ManagerAPI {
         );
 
         if (!$rs) {
-            return array();
+            return [];
         }
 
-        $resourceArray = array();
+        $resourceArray = [];
         // pixelchutes
         while ($row = db()->getRow($rs)) {
-            $resourceArray[] = array(
+            $resourceArray[] = [
                 'id' => $row['id'],
                 'category' => stripslashes($row['category'])
-            );
+            ];
         }
         return $resourceArray;
     }
 
     //Delete category & associations
-    function deleteCategory($catId = 0) {
+    function deleteCategory($catId = 0)
+    {
         if (!$catId) {
             return;
         }
 
-        $resetTables = array(
+        $resetTables = [
             'site_plugins',
             'site_snippets',
             'site_htmlsnippets',
             'site_templates',
             'site_tmplvars',
             'site_modules'
-        );
+        ];
 
         foreach ($resetTables as $table_name) {
             db()->update(
-                array('category' => '0')
+                ['category' => '0']
                 , '[+prefix+]' . $table_name
                 , sprintf("category='%d'", $catId)
             );
@@ -527,7 +508,8 @@ class ManagerAPI {
      *
      */
 
-    function sysAlert($sysAlertMsgQueque = '') {
+    function sysAlert($sysAlertMsgQueque = '')
+    {
         global $_lang;
 
         if (!$sysAlertMsgQueque) {
@@ -538,27 +520,28 @@ class ManagerAPI {
         }
 
         if (!is_array($sysAlertMsgQueque)) {
-            $sysAlertMsgQueque = array($sysAlertMsgQueque);
+            $sysAlertMsgQueque = [$sysAlertMsgQueque];
         }
 
         unset($_SESSION['SystemAlertMsgQueque']);
-        $_SESSION['SystemAlertMsgQueque'] = array();
+        $_SESSION['SystemAlertMsgQueque'] = [];
 
-        $alerts = array();
+        $alerts = [];
         foreach ($sysAlertMsgQueque as $_) {
             $alerts[] = $_;
         }
 
         return evo()->parseText(
             file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
-            , array(
+            , [
                 'alerts' => db()->escape(implode('<hr />', $alerts)),
                 'title' => $_lang['sys_alert']
-            )
+            ]
         );
     }
 
-    function getMessageCount() {
+    function getMessageCount()
+    {
         if (!evo()->hasPermission('messages')) {
             return false;
         }
@@ -586,55 +569,57 @@ class ManagerAPI {
             echo "{$new},{$total}";
             exit();
         } else {
-            return array('new' => $new, 'total' => $total);
+            return ['new' => $new, 'total' => $total];
         }
     }
 
     // get user's document groups
-    function getMgrDocgroups($uid = 0) {
+    function getMgrDocgroups($uid = 0)
+    {
         if (!$uid) {
             $uid = evo()->getLoginUserID();
         }
 
         $rs = db()->select(
             'uga.documentgroup as documentgroup'
-            , array(
+            , [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group'
-            )
+            ]
             , sprintf("ug.member='%s'", $uid)
         );
 
         if (!db()->count($rs)) {
-            return array();
+            return [];
         }
 
-        $documentgroup = array();
+        $documentgroup = [];
         while ($row = db()->getRow($rs)) {
             $documentgroup[] = $row['documentgroup'];
         }
         return $documentgroup;
     }
 
-    function getMemberGroups($uid = 0) {
+    function getMemberGroups($uid = 0)
+    {
         if (!$uid) {
             $uid = evo()->getLoginUserID();
         }
 
         $rs = db()->select(
             'user_group,name'
-            , array(
+            , [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id'
-            )
+            ]
             , preg_match('@^[1-9][0-9]*$@', $uid) ? sprintf("ug.member='%d'", $uid) : ''
         );
 
         if (!db()->count($rs)) {
-            return array();
+            return [];
         }
 
-        $group = array();
+        $group = [];
         while ($row = db()->getRow($rs)) {
             $group[$row['user_group']] = $row['name'];
         }
@@ -650,20 +635,21 @@ class ManagerAPI {
      *    is assigned to the document group that the document belongs to.
      *
      */
-    function setMgrDocsAsPrivate($docid = '') {
+    function setMgrDocsAsPrivate($docid = '')
+    {
         db()->update(
-            array('privatemgr' => 0)
+            ['privatemgr' => 0]
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
         );
 
         $rs = db()->select(
             'sc.id'
-            , array(
+            , [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
-            )
+            ]
             , $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
         );
 
@@ -675,7 +661,7 @@ class ManagerAPI {
 
         $ids = implode(',', $ids);
         db()->update(
-            array('privatemgr' => 1)
+            ['privatemgr' => 1]
             , '[+prefix+]site_content'
             , sprintf('id IN (%s)', $ids)
         );
@@ -690,20 +676,21 @@ class ManagerAPI {
      *    is assigned to the document group that the document belongs to.
      *
      */
-    function setWebDocsAsPrivate($docid = '') {
+    function setWebDocsAsPrivate($docid = '')
+    {
         db()->update(
-            array('privateweb' => 0)
+            ['privateweb' => 0]
             , '[+prefix+]site_content'
             , $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
         );
 
         $rs = db()->select(
             'DISTINCT sc.id'
-            , array(
+            , [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
-            )
+            ]
             , $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
         );
 
@@ -715,18 +702,20 @@ class ManagerAPI {
 
         $ids = implode(',', $ids);
         db()->update(
-            array('privateweb' => 1)
+            ['privateweb' => 1]
             , '[+prefix+]site_content'
             , sprintf("id IN (%s)", $ids)
         );
         return $ids;
     }
 
-    function getStylePath() {
+    function getStylePath()
+    {
         return MODX_MANAGER_PATH . 'media/style/';
     }
 
-    function renderTabPane($ph) {
+    function renderTabPane($ph)
+    {
         $style_path = $this->getStylePath() . 'common/block_tabpane.tpl';
 
         if (!is_file($style_path)) {
@@ -748,7 +737,8 @@ class ManagerAPI {
         );
     }
 
-    function renderTabPage($ph) {
+    function renderTabPage($ph)
+    {
         $style_path = $this->getStylePath() . 'common/block_tabpage.tpl';
 
         if (!is_file($style_path)) {
@@ -772,7 +762,8 @@ class ManagerAPI {
         );
     }
 
-    function renderSection($ph) {
+    function renderSection($ph)
+    {
         $style_path = $this->getStylePath() . 'common/block_section.tpl';
 
         if (!is_file($style_path)) {
@@ -795,7 +786,8 @@ class ManagerAPI {
         );
     }
 
-    function renderTr($ph) {
+    function renderTr($ph)
+    {
         $style_path = $this->getStylePath() . 'common/block_tr.tpl';
 
         if (!is_file($style_path)) {
@@ -818,7 +810,8 @@ class ManagerAPI {
             , $ph);
     }
 
-    function isAllowed($id) {
+    function isAllowed($id)
+    {
         global $modx;
 
         if (!$id) {
@@ -844,7 +837,8 @@ class ManagerAPI {
         return true;
     }
 
-    function isContainAllowed($id) {
+    function isContainAllowed($id)
+    {
         if ($this->isAllowed($id)) {
             return true;
         }
@@ -862,14 +856,15 @@ class ManagerAPI {
         return false;
     }
 
-    function getUserAllowedDocs() {
+    function getUserAllowedDocs()
+    {
         global $modx;
 
-        $modx->user_allowed_docs = array();
+        $modx->user_allowed_docs = [];
         $allowed_parents = explode(
             ','
             , str_replace(
-                array(' ', '|')
+                [' ', '|']
                 , ','
                 , preg_replace(
                     '@\s+@'
@@ -883,7 +878,7 @@ class ManagerAPI {
             return '';
         }
 
-        $_ = array();
+        $_ = [];
         foreach ($allowed_parents as $parent) {
             $parent = trim($parent);
             $children = evo()->getChildIds($parent);
@@ -896,30 +891,39 @@ class ManagerAPI {
         return $modx->user_allowed_docs;
     }
 
-    function getUploadMaxsize() {
+    public function getUploadMaxsize()
+    {
         return min(
-            $this->byte(ini_get('upload_max_filesize'))
-            , $this->byte(ini_get('post_max_size'))
-            , $this->byte(ini_get('memory_limit'))
+            $this->convertToBytes(ini_get('upload_max_filesize')),
+            $this->convertToBytes(ini_get('post_max_size')),
+            $this->convertToBytes(ini_get('memory_limit'))
         );
     }
-    function byte($value) {
-        $substr = substr($value,-1);
-        $units = array('B','K','M','T');
-        if(!in_array($substr, $units)) {
-            return $value;
+
+    private function convertToBytes($input)
+    {
+        $unit = strtoupper(substr($input, -1));
+        $numericValue = substr($input, 0, -1);
+        $validUnits = ['B', 'K', 'M', 'T'];
+
+        if (!in_array($unit, $validUnits)) {
+            return $numericValue;
         }
-        $size = $value;
-        foreach($units as $unit) {
-            if($unit === $substr) {
-                return $size;
+
+        $bytes = $numericValue;
+
+        foreach ($validUnits as $validUnit) {
+            if ($validUnit === $unit) {
+                return $bytes;
             }
-            $size = $size * 1024;
+            $bytes *= 1024;
         }
-        return $size;
+
+        return $bytes;
     }
 
-    function getTplModule() {
+    function getTplModule()
+    {
         ob_start();
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
         echo '[+content+]';
@@ -927,7 +931,8 @@ class ManagerAPI {
         return ob_get_clean();
     }
 
-    function loadDatePicker($path) {
+    function loadDatePicker($path)
+    {
         include_once($path);
         $dp = new DATEPICKER();
         return evo()->mergeSettingsContent($dp->getDP());

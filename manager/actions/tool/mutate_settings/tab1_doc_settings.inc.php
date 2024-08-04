@@ -5,7 +5,9 @@
         <tr>
             <th><?php echo lang('defaulttemplate_title'); ?></th>
             <td>
-                <select name="default_template" class="inputBox" onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo config('default_template'); ?>'){wrap.style.display='block';}else{wrap.style.display='none';}" style="width:150px">
+                <select name="default_template" class="inputBox"
+                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo config('default_template'); ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
+                        style="width:150px">
                     <option value="">(blank)</option>
                     <?php
                     $rs = db()->select(
@@ -57,7 +59,7 @@
                             lang('template_reset_all'),
                             form_radio('reset_template', '1')
                         );
-                        ?><br />
+                        ?><br/>
                         <?php echo wrap_label(
                             sprintf(
                                 lang('template_reset_specific'),
@@ -66,7 +68,7 @@
                             form_radio('reset_template', 2)
                         ); ?>
                     </div>
-                    <input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>" />
+                    <input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>"/>
                     <?php echo lang('defaulttemplate_message'); ?>
             </td>
         </tr>
@@ -80,7 +82,7 @@
                         'system',
                         config('auto_template_logic') === 'system'
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('defaulttemplate_logic_parent_message'),
                     form_radio(
@@ -88,7 +90,7 @@
                         'parent',
                         config('auto_template_logic') === 'parent'
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('defaulttemplate_logic_sibling_message'),
                     form_radio(
@@ -96,7 +98,7 @@
                         'sibling',
                         config('auto_template_logic') === 'sibling'
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('defaulttemplate_logic_general_message'); ?>
             </td>
         </tr>
@@ -110,7 +112,7 @@
                         1,
                         config('auto_pub_date')
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     $_lang["disabled"],
                     form_radio(
@@ -119,7 +121,7 @@
                         !config('auto_pub_date')
                     )
                 ); ?>
-                <br />
+                <br/>
                 公開開始日時(pub_date)を設定しない場合、公開日時(publishedon)の値を取得し設定します。
             </td>
         </tr>
@@ -133,7 +135,7 @@
                         1,
                         config('publish_default') == 1
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('no'),
                     form_radio(
@@ -141,7 +143,7 @@
                         0,
                         config('publish_default') == 0
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('defaultpublish_message'); ?>
             </td>
         </tr>
@@ -155,7 +157,7 @@
                         1,
                         config('auto_menuindex') == 1
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('no'),
                     form_radio(
@@ -163,7 +165,7 @@
                         0,
                         config('auto_menuindex') == 0
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('defaultmenuindex_message'); ?>
             </td>
         </tr>
@@ -177,7 +179,7 @@
                         0,
                         config('docid_incrmnt_method') == 0
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('docid_incrmnt_method_1'),
                     form_radio(
@@ -185,7 +187,7 @@
                         1,
                         config('docid_incrmnt_method') == 1
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('docid_incrmnt_method_2'),
                     form_radio(
@@ -193,16 +195,16 @@
                         2,
                         config('docid_incrmnt_method') == 2
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('docid_incrmnt_method_message'); ?>
             </td>
         </tr>
         <tr>
             <th><?php echo $_lang["enable_draft_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["enabled"], form_radio('enable_draft', '1', $enable_draft == '1')); ?><br />
+                <?php echo wrap_label($_lang["enabled"], form_radio('enable_draft', '1', $enable_draft == '1')); ?><br/>
                 <?php echo wrap_label($_lang["disabled"], form_radio('enable_draft', '0', $enable_draft == '0')); ?>
-                <br />
+                <br/>
                 <?php echo $_lang["enable_draft_message"] ?>
             </td>
         </tr>
@@ -216,7 +218,7 @@
                         1,
                         config('cache_default') == 1
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('no'),
                     form_radio(
@@ -224,7 +226,7 @@
                         0,
                         config('cache_default') == 0
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('defaultcache_message'); ?>
             </td>
         </tr>
@@ -238,7 +240,7 @@
                         1,
                         config('search_default') == 1
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo wrap_label(
                     lang('no'),
                     form_radio(
@@ -246,7 +248,7 @@
                         0,
                         config('search_default') == 0
                     )
-                ); ?><br />
+                ); ?><br/>
                 <?php echo lang('defaultsearch_message'); ?></td>
         </tr>
         <tr class="row1" style="border-bottom:none;">

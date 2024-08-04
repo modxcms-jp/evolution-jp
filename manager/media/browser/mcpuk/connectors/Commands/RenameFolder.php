@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
@@ -16,54 +17,59 @@
  * File Authors:
  * Grant French (grant@mcpuk.net)
  */
-class RenameFolder {
+
+class RenameFolder
+{
     public $fckphp_config;
     public $type;
     public $cwd;
     public $actual_cwd;
     public $newfolder;
-    
-    function __construct($fckphp_config,$type,$cwd) {
-        $this->fckphp_config=$fckphp_config;
-        $this->type=$type;
-        $this->raw_cwd=$cwd;
-        $this->actual_cwd=str_replace("//","/",($fckphp_config['UserFilesPath']."/$type/".$this->raw_cwd));
-        $this->real_cwd=str_replace("//","/",($this->fckphp_config['basedir']."/".$this->actual_cwd));
-        $this->foldername=str_replace(array("..","/"),"",$_GET['FolderName']);
-        $this->newname=str_replace(array("..","/"),"",$this->checkName($_GET['NewName']));
+
+    function __construct($fckphp_config, $type, $cwd)
+    {
+        $this->fckphp_config = $fckphp_config;
+        $this->type = $type;
+        $this->raw_cwd = $cwd;
+        $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
+        $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
+        $this->foldername = str_replace(array("..", "/"), "", $_GET['FolderName']);
+        $this->newname = str_replace(array("..", "/"), "", $this->checkName($_GET['NewName']));
     }
-    
-    function checkName($name) {
-        $newName="";
-        for ($i=0;$i<strlen($name);$i++) {
-            if (in_array($name[$i],$this->fckphp_config['DirNameAllowedChars'])) $newName.=$name[$i];
+
+    function checkName($name)
+    {
+        $newName = "";
+        for ($i = 0; $i < strlen($name); $i++) {
+            if (in_array($name[$i], $this->fckphp_config['DirNameAllowedChars'])) $newName .= $name[$i];
         }
         return $newName;
     }
-    
-    function run() {
-        $result1=false;
 
-        
-        if ($this->newname!='') {
-            $result1=rename($this->real_cwd.'/'.$this->foldername,$this->real_cwd.'/'.$this->newname);
+    function run()
+    {
+        $result1 = false;
+
+
+        if ($this->newname != '') {
+            $result1 = rename($this->real_cwd . '/' . $this->foldername, $this->real_cwd . '/' . $this->newname);
         }
-        
-        header ("content-type: text/xml");
+
+        header("content-type: text/xml");
         echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
         ?>
-<Connector command="RenameFolder" resourceType="<?php echo $this->type; ?>">
-    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>" />
-    <?php
-        if ($result1) {
-            $err_no=0;
-        } else {
-            $err_no=602;
-        }
-        
-    ?>
-    <Error number="<?php echo "".$err_no; ?>" />
-</Connector>
+        <Connector command="RenameFolder" resourceType="<?php echo $this->type; ?>">
+            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+            <?php
+            if ($result1) {
+                $err_no = 0;
+            } else {
+                $err_no = 602;
+            }
+
+            ?>
+            <Error number="<?php echo "" . $err_no; ?>"/>
+        </Connector>
         <?php
     }
 }

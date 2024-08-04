@@ -39,8 +39,8 @@ $num_rows_unpub = db()->getAffectedRows();
         <div>
             <ul class="actionButtons">
                 <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                                alt="icons_cancel"
-                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close'] ?></a></li>
+                            alt="icons_cancel"
+                            src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close'] ?></a></li>
             </ul>
         </div>
     </div>

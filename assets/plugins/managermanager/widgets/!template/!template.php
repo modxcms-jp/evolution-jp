@@ -12,11 +12,12 @@
  * @copyright 2013
  */
 
-function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '', $templates = ''){
-	global $modx, $mm_fields, $mm_current_page;
-	$e = &$modx->event;
-	
-	if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
+function mm_widget_template($fields, $other_param = 'defaultValue', $roles = '', $templates = '')
+{
+    global $modx, $mm_fields, $mm_current_page;
+    $e = &$modx->event;
+
+    if ($e->name !== 'OnDocFormRender' || !useThisRule($roles, $templates)) {
         return;
     }
 

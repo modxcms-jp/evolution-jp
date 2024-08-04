@@ -38,7 +38,8 @@ $tpl = tpl();
 
 echo $modx->parseText($tpl, $ph);
 
-function tpl() {
+function tpl()
+{
     $tpl = <<< TPL
 <h1>[+title+]</h1>
 <div id="actions">

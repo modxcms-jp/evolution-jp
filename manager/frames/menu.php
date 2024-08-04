@@ -7,7 +7,7 @@ if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     <html <?php if ($modx_textdir === 'rtl') {
         echo 'dir="rtl"';
     } ?>lang="<?php echo $mxla; ?>" xml:lang="<?php echo $mxla; ?>">
@@ -15,7 +15,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>"/>
         <title>nav</title>
         <link rel="stylesheet" type="text/css"
-                href="media/style/<?php echo $manager_theme ?>/style.css?<?php echo $modx_version; ?>"/>
+              href="media/style/<?php echo $manager_theme ?>/style.css?<?php echo $modx_version; ?>"/>
         <?php echo $modx->config['manager_inline_style']; ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript">
@@ -167,12 +167,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
             // GENERAL FUNCTIONS - Work
             // These functions are used for showing the user the system is working
-            function work() { // parent.mainMenu.document
+            window.work = function() { // parent.mainMenu.document
                 jQuery('#workText').html('&nbsp;<img src="<?php echo $_style['icons_working']?>" />&nbsp;<?php echo $_lang['working']?>');
             }
 
-            function stopWork() {
-                jQuery('#workText').html('');
+            window.stopWork = function() {
+                document.getElementById('workText').innerHTML = '';
             }
 
             // GENERAL FUNCTIONS - Remove locks
@@ -226,20 +226,24 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     | <span id="newMail"><a href="index.php?a=10" title="<?php echo $_lang['you_got_mail'] ?>"
                                             target="main"> <img src="<?php echo $_style['icons_mail'] ?>"/></a></span>
                     <a onclick="this.blur();" href="index.php?a=10" target="main"><?php echo $_lang['messages'] ?> <span
-                                id="msgCounter">( ? / ? )</span></a>
+                            id="msgCounter">( ? / ? )</span></a>
                 <?php }
                 if (evo()->hasPermission('help')) { ?>
                     | <a href="index.php?a=9" target="main"><?php echo $_lang['help'] ?></a>
                 <?php } ?>
                 | <a href="index.php?a=8" target="_top"><?php echo $_lang['logout'] ?></a>
                 <?php
-                $style = $settings_version != $modx_version ? 'style="color:#ffff8a;"' : '';
                 if (empty($settings_version)) {
                     $settings_version = '0.0.0';
                 }
                 ?>
-                | <?php echo sprintf('<span %s title="%s &ndash; %s">%s</span>&nbsp;', $style, $site_name,
-                    $modx_full_appname, $settings_version); ?>
+                |
+                <?= sprintf('<span %s title="%s &ndash; %s">%s</span>&nbsp;',
+                        $settings_version != $modx_version ? 'style="color:#ffff8a;"' : '',
+                        $site_name,
+                        $modx_full_appname,
+                        $settings_version
+                )?>
                 <!-- close #supplementalNav --></div>
         </div>
     </div>
@@ -403,7 +407,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     </html>
 
 <?php
-function item($name, $href, $display = 1, $attrib = 'target="main"') {
+function item($name, $href, $display = 1, $attrib = 'target="main"')
+{
     if ($display == 0) {
         return false;
     }
@@ -413,7 +418,8 @@ function item($name, $href, $display = 1, $attrib = 'target="main"') {
     return sprintf('<li><a onclick="this.blur();" href="%s" %s>%s</a></li>', $href, $attrib, $name);
 }
 
-function buildMenu($target, $item) {
+function buildMenu($target, $item)
+{
     global $modx;
 
     if (!isset($modx->config['topmenu_site'])) {

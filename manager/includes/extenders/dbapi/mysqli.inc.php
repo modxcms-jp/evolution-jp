@@ -1,11 +1,13 @@
 <?php
 
-class DBAPI {
+class DBAPI
+{
 
     public $conn = null;
-    public $config;
+    public $config = [];
     public $lastQuery;
     public $hostname;
+    public $dbase;
     public $dbname;
     public $username;
     public $password;
@@ -13,7 +15,8 @@ class DBAPI {
     public $charset;
     public $connection_method;
     private $rs;
-    private $rawQuery=false;
+    private $rawQuery = false;
+    private $dbconnectionmethod;
 
     /**
      * @name:  DBAPI
@@ -27,16 +30,18 @@ class DBAPI {
         $prefix = null,
         $charset = 'utf8',
         $connection_method = 'SET CHARACTER SET'
-    ) {
-        $this->config['host'] = $host ? $host : evo()->global_var('database_server', '');
-        $this->config['dbase'] = $dbase ? $dbase : evo()->global_var('dbase', '');
-        $this->config['user'] = $user ? $user : evo()->global_var('database_user', '');
-        $this->config['pass'] = $pwd ? $pwd : evo()->global_var('database_password', '');
-        $this->config['table_prefix'] = ($prefix !== null) ? $prefix : evo()->global_var('table_prefix');
-        $this->config['charset'] = $charset ? $charset : evo()->global_var('database_connection_charset');
-        $this->config['connection_method'] = evo()->global_var('database_connection_method', $connection_method);
+    )
+    {
+        $this->config['host'] = $host ?: globalv('database_server', '');
+        $this->config['dbase'] = trim($dbase ?: globalv('dbase', ''), '`');
+        $this->config['user'] = $user ?: globalv('database_user', '');
+        $this->config['pass'] = $pwd ?: globalv('database_password', '');
+        $this->config['table_prefix'] = $prefix!==null ? $prefix : globalv('table_prefix');
+        $this->config['charset'] = $charset ?: globalv('database_connection_charset');
+        $this->config['connection_method'] = globalv('database_connection_method', $connection_method);
         $this->hostname = &$this->config['host'];
-        $this->dbname = &$this->config['dbase'];
+        $this->dbase = &$this->config['dbase'];
+        $this->dbname = &$this->dbase;
         $this->username = &$this->config['user'];
         $this->password = &$this->config['pass'];
         $this->table_prefix = &$this->config['table_prefix'];
@@ -45,19 +50,22 @@ class DBAPI {
         $this->dbconnectionmethod = &$this->config['connection_method'];
     }
 
-    public function set($prop_name, $value = null) {
+    public function set($prop_name, $value = null)
+    {
         $this->$prop_name = $value;
         return $value;
     }
 
-    public function get($prop_name, $default = null) {
-        if (isset($this->$prop_name)) {
-            return $this->$prop_name;
+    public function get($prop_name, $default = null)
+    {
+        if (!isset($this->$prop_name)) {
+            return $default;
         }
-        return $default;
+        return $this->$prop_name;
     }
 
-    public function prop($prop_name, $value = null) {
+    public function prop($prop_name, $value = null)
+    {
         if (strpos($prop_name, '*') === 0) {
             return $this->set(ltrim($prop_name, '*'), $value);
         }
@@ -68,7 +76,8 @@ class DBAPI {
      * @name:  connect
      *
      */
-    function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0) {
+    public function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0)
+    {
         if ($this->isConnected()) {
             return true;
         }
@@ -83,8 +92,9 @@ class DBAPI {
             $this->password = $pwd;
         }
         if ($dbase) {
-            $this->dbname = $dbase;
+            $this->dbase = trim($dbase, '`');
         }
+        $this->dbase = trim($this->dbase, '`');
 
         if (substr(PHP_OS, 0, 3) === 'WIN' && $this->hostname === 'localhost') {
             $hostname = '127.0.0.1';
@@ -129,14 +139,13 @@ class DBAPI {
             return false;
         }
 
-        if ($this->dbname) {
-            $this->dbname = trim($this->dbname, '` '); // remove the `` chars
-            $rs = $this->select_db($this->dbname);
+        if ($this->dbase) {
+            $rs = $this->select_db($this->dbase);
             if (!$rs) {
                 evo()->messageQuit(
                     sprintf(
                         "Failed to select the database '%s'!"
-                        , $this->dbname
+                        , $this->dbase
                     )
                 );
                 return false;
@@ -157,7 +166,8 @@ class DBAPI {
         return $this->conn;
     }
 
-    function select_db($dbase = '') {
+    public function select_db($dbase = '')
+    {
         if ($dbase) {
             return $this->conn->select_db($dbase);
         }
@@ -168,53 +178,37 @@ class DBAPI {
      * @name:  disconnect
      *
      */
-    function disconnect() {
+    public function disconnect()
+    {
         $this->conn->close();
         $this->conn = null;
     }
 
-    function escape($s, $safecount = 0) {
-        $safecount++;
-        if (1000 < $safecount) {
-            exit(sprintf("Too many loops '%d'", $safecount));
-        }
-
+    /**
+     * @param array|string $s
+     * @return array|string
+     */
+    public function escape($s)
+    {
         if (!$this->isConnected()) {
             if (!$this->connect()) {
                 return false;
             }
         }
 
-        if (is_array($s)) {
-            if (!$s) {
-                return '';
-            }
-
-            foreach ($s as $i => $v) {
-                $s[$i] = $this->escape($v, $safecount);
-            }
-            return $s;
+        if (!is_array($s)) {
+            return $this->conn->escape_string($s);
         }
 
-        if (function_exists('mysqli_set_charset')) {
-            return $this->conn->real_escape_string($s);
+        if (!count($s)) {
+            return '';
         }
 
-        if ($this->charset === 'utf8') {
-            return mb_convert_encoding(
-                $this->conn->real_escape_string(
-                    mb_convert_encoding(
-                        $s
-                        , 'eucjp-win'
-                        , 'utf-8'
-                    )
-                )
-                , 'utf-8'
-                , 'eucjp-win'
-            );
+        foreach ($s as $i => $v) {
+            $s[$i] = $this->escape($v);
         }
 
-        return $this->conn->escape_string($s);
+        return $s;
     }
 
     /**
@@ -222,9 +216,10 @@ class DBAPI {
      * @desc:  Mainly for internal use.
      * Developers should use select, update, insert, delete where possible
      */
-    function query($sql, $watchError = true) {
+    public function exec($sql, $watchError = true)
+    {
         global $modx;
-        if($this->rawQuery) {
+        if ($this->rawQuery) {
             echo $sql;
             return;
         }
@@ -244,7 +239,7 @@ class DBAPI {
             if (!$watchError) {
                 return false;
             }
-            if (!in_array($this->conn->errno, array(1064, 1054, 1060, 1061, 1091))) {
+            if (!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])) {
                 evo()->messageQuit(
                     sprintf(
                         'Execution of a query to the database failed - %s'
@@ -263,11 +258,11 @@ class DBAPI {
         if (evo()->dumpSQL) {
             $backtraces = debug_backtrace();
             array_shift($backtraces);
-            $debug_path = array();
+            $debug_path = [];
             foreach ($backtraces as $line) {
                 $debug_path[] = $line['function'];
             }
-            $_ = array();
+            $_ = [];
             $_[] = sprintf(
                 '<fieldset style="text-align:left"><legend>Query %d - %s</legend>'
                 , evo()->executedQueries + 1
@@ -278,13 +273,13 @@ class DBAPI {
                 $_[] = 'Current Event  => ' . event()->name . '<br>';
             }
             if (event()->activePlugin) {
-                $_[] = 'Current Plugin => ' .event()->activePlugin . '<br>';
+                $_[] = 'Current Plugin => ' . event()->activePlugin . '<br>';
             }
             if (evo()->currentSnippet) {
                 $_[] = 'Current Snippet => ' . evo()->currentSnippet . '<br>';
             }
             if (stripos($sql, 'select') === 0) {
-                $_[] = 'Record Count => ' . $this->getRecordCount($result) . '<br>';
+                $_[] = 'Record Count => ' . $this->count($result) . '<br>';
             } else {
                 $_[] = 'Affected Rows => ' . $this->getAffectedRows() . '<br>';
             }
@@ -296,7 +291,13 @@ class DBAPI {
         return $result;
     }
 
-    public function lastQuery() {
+    public function query($sql, $watchError = true)
+    {
+        return $this->exec($sql, $watchError);
+    }
+
+    public function lastQuery()
+    {
         return $this->lastQuery;
     }
 
@@ -304,7 +305,8 @@ class DBAPI {
      * @name:  delete
      *
      */
-    function delete($from, $where = '', $orderby = '', $limit = '') {
+    public function delete($from, $where = '', $orderby = '', $limit = '')
+    {
         if (!$from) {
             evo()->messageQuit('Empty $from parameters in DBAPI::delete().');
             return false;
@@ -312,16 +314,13 @@ class DBAPI {
         if (!$where && !$limit) {
             $this->truncate($from);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         return $this->query(
             sprintf(
-                'DELETE FROM %s %s %s %s'
-                , $this->replaceFullTableName($from)
-                , $where ? 'WHERE ' . $where : ''
-                , $orderby ? 'ORDER BY ' . $orderby : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                'DELETE FROM %s %s %s %s',
+                $this->replaceFullTableName($from),
+                $this->_where($where),
+                $orderby ? 'ORDER BY ' . $orderby : '',
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             )
         );
     }
@@ -330,7 +329,8 @@ class DBAPI {
      * @name:  select
      *
      */
-    function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '') {
+    public function select($fields = '*', $from = '', $where = '', $orderby = '', $limit = '')
+    {
         if (!$from) {
             evo()->messageQuit('Empty $from parameters in DBAPI::select().');
             exit;
@@ -342,17 +342,14 @@ class DBAPI {
         if (is_array($from)) {
             $from = $this->_getFromStringFromArray($from);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         $rs = $this->query(
             sprintf(
-                'SELECT %s FROM %s %s %s %s'
-                , $this->replaceFullTableName($fields)
-                , $this->replaceFullTableName($from)
-                , trim($where) ? sprintf('WHERE %s', trim($where)) : ''
-                , trim($orderby) ? sprintf('ORDER BY %s', $this->replaceFullTableName($orderby)) : ''
-                , trim($limit) ? sprintf('LIMIT %s', $limit) : ''
+                'SELECT %s FROM %s %s %s %s',
+                $this->replaceFullTableName($fields),
+                $this->replaceFullTableName($from),
+                $this->_where($where),
+                trim($orderby) ? sprintf('ORDER BY %s', $this->replaceFullTableName($orderby)) : '',
+                trim($limit) ? sprintf('LIMIT %s', $limit) : ''
             )
         );
         $this->rs = $rs;
@@ -363,7 +360,8 @@ class DBAPI {
      * @name:  update
      *
      */
-    function update($fields, $table, $where = '', $orderby = '', $limit = '') {
+    public function update($fields, $table, $where = '', $orderby = '', $limit = '')
+    {
         if (!$table) {
             evo()->messageQuit("Empty \$table parameter in DBAPI::update().");
             exit;
@@ -375,23 +373,23 @@ class DBAPI {
                 if ($value === null || strtolower($value) === 'null') {
                     $value = 'NULL';
                 } else {
+                    if( $value === 0 ){
+                        $value = '0';
+                    }
                     $value = sprintf("'%s'", $value);
                 }
                 $pair[$key] = sprintf('`%s`=%s', $key, $value);
             }
             $pairs = implode(',', $pair);
         }
-        if (is_array($where)) {
-            $where = implode(' ', $where);
-        }
         return $this->query(
             sprintf(
-                'UPDATE %s SET %s %s %s %s'
-                , $this->replaceFullTableName($table)
-                , $pairs
-                , $where ? 'WHERE ' . $where : ''
-                , $orderby ? 'ORDER BY ' . $orderby : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                'UPDATE %s SET %s %s %s %s',
+                $this->replaceFullTableName($table),
+                $pairs,
+                $this->_where($where),
+                $orderby ? 'ORDER BY ' . $orderby : '',
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             )
         );
     }
@@ -400,7 +398,8 @@ class DBAPI {
      * @name:  insert
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    public function insert($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->_insert('INSERT INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
@@ -408,7 +407,8 @@ class DBAPI {
      * @name:  insert ignore
      * @desc:  returns either last id inserted or the result from the query
      */
-    function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    public function insert_ignore($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->_insert('INSERT IGNORE', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
@@ -416,13 +416,15 @@ class DBAPI {
      * @name:  replace
      * @desc:  returns either last id inserted or the result from the query
      */
-    function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '') {
+    function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    {
         return $this->_insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
-    function save($fields, $table, $where = '') {
+    function save($fields, $table, $where = '')
+    {
 
-        if (!$where || !$this->getRecordCount($this->select('*', $table, $where))) {
+        if (!$where || !$this->count($this->select('*', $table, $where))) {
             $mode = 'insert';
         } else {
             $mode = 'update';
@@ -442,7 +444,8 @@ class DBAPI {
         $fromtable = '',
         $where = '',
         $limit = ''
-    ) {
+    )
+    {
         if (!$intotable) {
             evo()->messageQuit('Empty $intotable parameters in DBAPI::insert().');
             return false;
@@ -451,14 +454,14 @@ class DBAPI {
         $intotable = $this->replaceFullTableName($intotable);
         if ($fromtable) {
             $query = sprintf(
-                '%s %s (%s) SELECT %s FROM %s %s %s'
-                , $insert_method
-                , $intotable
-                , is_array($fields) ? implode(',', array_keys($fields)) : $fields
-                , $fromfields ? $fromfields : $intotable
-                , $this->replaceFullTableName($fromtable)
-                , $where ? 'WHERE ' . $where : ''
-                , $limit !== '' ? 'LIMIT ' . $limit : ''
+                '%s %s (%s) SELECT %s FROM %s %s %s',
+                $insert_method,
+                $intotable,
+                is_array($fields) ? implode(',', array_keys($fields)) : $fields,
+                $fromfields ? $fromfields : $intotable,
+                $this->replaceFullTableName($fromtable),
+                $this->_where($where),
+                $limit !== '' ? 'LIMIT ' . $limit : ''
             );
         } elseif (is_array($fields)) {
             if (!$fromtable) {
@@ -498,7 +501,8 @@ class DBAPI {
      * @name:  freeResult
      *
      */
-    function freeResult($rs) {
+    function freeResult($rs)
+    {
         $rs->free_result();
     }
 
@@ -506,7 +510,8 @@ class DBAPI {
      * @name:  fieldName
      *
      */
-    function fieldName($rs, $col = 0) {
+    function fieldName($rs, $col = 0)
+    {
         return $rs->fetch_field_direct($col)->name;
     }
 
@@ -514,7 +519,8 @@ class DBAPI {
      * @name:  selectDb
      *
      */
-    function selectDb($name) {
+    function selectDb($name)
+    {
         $this->conn->select_db($name);
     }
 
@@ -522,7 +528,8 @@ class DBAPI {
      * @name:  getInsertId
      *
      */
-    function getInsertId($conn = null) {
+    function getInsertId($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -533,7 +540,8 @@ class DBAPI {
      * @name:  getAffectedRows
      *
      */
-    function getAffectedRows($conn = null) {
+    function getAffectedRows($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -544,18 +552,21 @@ class DBAPI {
      * @name:  lastError
      *
      */
-    function lastError($conn = null) {
+    function lastError($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
         return $conn->error;
     }
 
-    function getLastError($conn = null) {
+    function getLastError($conn = null)
+    {
         return $this->lastError($conn);
     }
 
-    function getLastErrorNo($conn = null) {
+    function getLastErrorNo($conn = null)
+    {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
         }
@@ -563,11 +574,12 @@ class DBAPI {
     }
 
     /**
-     * @name:  getRecordCount
+     * @name:  count
      *
      */
-    function count($rs=null, $from = '', $where = '') {
-        if($rs===null && $this->rs) {
+    function count($rs = null, $from = '', $where = '')
+    {
+        if ($rs === null && $this->rs) {
             $rs = $this->rs;
         }
         if ($this->isResult($rs)) {
@@ -581,7 +593,8 @@ class DBAPI {
         return 0;
     }
 
-    function getRecordCount($rs=null, $from = '', $where = '') {
+    function getRecordCount($rs = null, $from = '', $where = '')
+    {
         return $this->count($rs, $from, $where);
     }
 
@@ -591,8 +604,9 @@ class DBAPI {
      * @param: $rs - dataset
      *
      */
-    function getRow($param1=null, $param2 = 'assoc', $where = '', $orderby = '', $limit = '') {
-        if($param1===null && $this->rs) {
+    function getRow($param1 = null, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
+    {
+        if ($param1 === null && $this->rs) {
             $param1 = $this->rs;
         }
         if (is_string($param1)) {
@@ -630,7 +644,8 @@ class DBAPI {
         return false;
     }
 
-    function getRows($param1, $param2 = 'assoc', $where = '', $orderby = '', $limit = '') {
+    function getRows($param1, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
+    {
 
         if (is_string($param1)) {
             if ($where) {
@@ -650,9 +665,9 @@ class DBAPI {
         $mode = $param2;
 
         if (!$this->count($rs)) {
-            return array();
+            return [];
         }
-        $_ = array();
+        $_ = [];
         while ($row = $this->getRow($rs, $mode)) {
             $_[] = $row;
         }
@@ -664,14 +679,15 @@ class DBAPI {
      * @desc:  returns an array of the values found on colun $name
      * @param: $dsq - dataset or query string
      */
-    function getColumn($name, $dsq) {
+    function getColumn($name, $dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         if (!$dsq) {
-            return array();
+            return [];
         }
-        $col = array();
+        $col = [];
         while ($row = $this->getRow($dsq)) {
             $col[] = $row[$name];
         }
@@ -683,14 +699,15 @@ class DBAPI {
      * @desc:  returns an array containing the column $name
      * @param: $dsq - dataset or query string
      */
-    function getColumnNames($dsq) {
+    function getColumnNames($dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
         if (!$dsq) {
             return false;
         }
-        $names = array();
+        $names = [];
         $limit = $this->numFields($dsq);
         for ($i = 0; $i < $limit; $i++) {
             $names[] = $this->fieldName($dsq, $i);
@@ -703,8 +720,9 @@ class DBAPI {
      * @desc:  returns the value from the first column in the set
      * @param: $rs - dataset or query string
      */
-    function getValue($rs=null, $from = '', $where = '', $orderby = '', $limit = '') {
-        if($rs===null && $this->rs) {
+    function getValue($rs = null, $from = '', $where = '', $orderby = '', $limit = '')
+    {
+        if ($rs === null && $this->rs) {
             $rs = $this->rs;
         }
         if (is_string($rs)) {
@@ -726,11 +744,12 @@ class DBAPI {
      *          if the recordset was empty, returns false if no recordset
      *          was passed
      */
-    function makeArray($rs = '') {
+    function makeArray($rs = '')
+    {
         if (!$rs) {
             return false;
         }
-        $rsArray = array();
+        $rsArray = [];
         while ($row = $this->getRow($rs)) {
             $rsArray[] = $row;
         }
@@ -743,7 +762,8 @@ class DBAPI {
      *
      * @return string
      */
-    function getVersion() {
+    function getVersion()
+    {
         if (!$this->isConnected()) {
             if (!$this->connect()) {
                 return false;
@@ -752,11 +772,13 @@ class DBAPI {
         return $this->conn->server_info;
     }
 
-    function server_info() {
+    function server_info()
+    {
         return $this->getVersion();
     }
 
-    function host_info() {
+    function host_info()
+    {
         return $this->conn->host_info;
     }
 
@@ -770,15 +792,16 @@ class DBAPI {
      * @param string $orderby
      * @return array|bool|false|object|stdClass
      */
-    function getObject($table, $where, $orderby = '') {
+    function getObject($table, $where, $orderby = '')
+    {
         $rs = $this->select(
-            '*'
-            , $this->replaceFullTableName($table, 'force')
-            , $where
-            , $orderby
-            , 1
+            '*',
+            $this->replaceFullTableName($table, 'force'),
+            $where,
+            $orderby,
+            1
         );
-        if ($this->getRecordCount($rs) == 0) {
+        if ($this->count($rs) == 0) {
             return false;
         }
         return $this->getRow($rs, 'object');
@@ -791,9 +814,10 @@ class DBAPI {
      * @param string $sql
      * @return array|bool|false|object|stdClass
      */
-    function getObjectSql($sql) {
+    function getObjectSql($sql)
+    {
         $rs = $this->query($sql);
-        if ($this->getRecordCount($rs) == 0) {
+        if ($this->count($rs) == 0) {
             return false;
         }
         return $this->getRow($rs, 'object');
@@ -806,28 +830,29 @@ class DBAPI {
      *  or
      *        $docs = $modx->db->getObjects("select * from modx_site_content left join ...");
      *
-     * @param type $sql_or_table
+     * @param string $sql_or_table
      * @param type $where
      * @param type $orderby
      * @param type $limit
      * @return array
      */
-    function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0) {
+    function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0)
+    {
         $sql_or_table = trim($sql_or_table);
         if (stripos($sql_or_table, 'select') === 0 || stripos($sql_or_table, 'show') === 0) {
             $sql = $sql_or_table;
         } else {
             $sql = sprintf(
-                'SELECT * from %s %s %s %s'
-                , $this->replaceFullTableName($sql_or_table, 'force')
-                , $where ? ' WHERE ' . $where : ''
-                , $orderby ? ' ORDER BY ' . $orderby : ''
-                , $limit ? 'LIMIT ' . $limit : ''
+                'SELECT * from %s %s %s %s',
+                $this->replaceFullTableName($sql_or_table, 'force'),
+                $this->_where($where),
+                $orderby ? ' ORDER BY ' . $orderby : '',
+                $limit ? 'LIMIT ' . $limit : ''
             );
         }
 
         $rs = $this->query($sql);
-        $result = array();
+        $result = [];
         while ($row = $this->getRow($rs, 'object')) {
             $result[] = $row;
         }
@@ -835,14 +860,16 @@ class DBAPI {
 
     }
 
-    function isResult($rs) {
+    function isResult($rs)
+    {
         return is_object($rs);
     }
 
-    function getFullTableName($table_name) {
+    public function getFullTableName($table_name)
+    {
         return sprintf(
             '`%s`.`%s%s`'
-            , trim($this->dbname, '`')
+            , $this->dbase
             , $this->table_prefix
             , $table_name
         );
@@ -855,11 +882,12 @@ class DBAPI {
      * @param string $table_name
      * @return string
      */
-    function replaceFullTableName($table_name, $force = null) {
+    public function replaceFullTableName($table_name, $force = null)
+    {
         if ($force) {
             return sprintf(
                 '`%s`.`%s%s`'
-                , trim($this->dbname, '`')
+                , $this->dbase
                 , $this->table_prefix
                 , str_replace('[+prefix+]', '', $table_name)
             );
@@ -870,7 +898,7 @@ class DBAPI {
                 '@\[\+prefix\+]([0-9a-zA-Z_]+)@'
                 , sprintf(
                     '`%s`.`%s$1`'
-                    , trim($this->dbname, '`')
+                    , $this->dbase
                     , $this->table_prefix
                 )
                 , $table_name
@@ -884,25 +912,28 @@ class DBAPI {
      * @name:  getXML
      * @desc:  returns an XML formay of the dataset $ds
      */
-    function getXML($dsq) {
+    public function getXML($dsq)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        $xmldata = array();
+        $xmldata = [];
         while ($row = $this->getRow($dsq, 'both')) {
-            $item = array();
-            for ($j = 0; $line = each($row); $j++) {
-                if ($j % 2) {
+            $item = [];
+            $i = 0;
+            foreach($row as $k=>$v) {
+                if ($i % 2) {
                     $item[] = sprintf(
                         "<%s>%s</%s>"
-                        , $line[0]
-                        , $line[1]
-                        , $line[0]
+                        , $k
+                        , $v
+                        , $v
                     );
                 }
+                $i++;
             }
-            if($item) {
-                $xmldata[] = "<item>\r\n" . implode("\r\n",$item) . "</item>";
+            if ($item) {
+                $xmldata[] = "<item>\r\n" . implode("\r\n", $item) . "</item>";
             }
         }
         return "<xml>\r\n<recordset>\r\n" . implode("\r\n", $xmldata) . "</recordset>\r\n</xml>";
@@ -914,11 +945,11 @@ class DBAPI {
      *         table
      * @param: $table: the full name of the database table
      */
-    function getTableMetaData($table) {
+    function getTableMetaData($table)
+    {
         if (!$table) {
             return false;
         }
-
         $ds = $this->query(sprintf('SHOW FIELDS FROM %s', $table));
         if (!$ds) {
             return false;
@@ -938,7 +969,8 @@ class DBAPI {
      * @param: $fieldType: the type of field to format the date for
      *         (in MySQL, you have DATE, TIME, YEAR, and DATETIME)
      */
-    function prepareDate($timestamp, $fieldType = 'DATETIME') {
+    function prepareDate($timestamp, $fieldType = 'DATETIME')
+    {
         if (!preg_match('@^[1-9][0-9]*$@', $timestamp)) {
             return '';
         }
@@ -985,76 +1017,82 @@ class DBAPI {
      *         pagerStyle
      *
      */
-    function getHTMLGrid($dsq, $params) {
+    public function getHTMLGrid($dsq, $params)
+    {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
         }
-        if ($dsq) {
-            include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
-            $grd = new DataGrid('', $dsq);
-
-            $grd->noRecordMsg = $params['noRecordMsg'];
-
-            $grd->columnHeaderClass = $params['columnHeaderClass'];
-            $grd->cssClass = $params['cssClass'];
-            $grd->itemClass = $params['itemClass'];
-            $grd->altItemClass = $params['altItemClass'];
-
-            $grd->columnHeaderStyle = $params['columnHeaderStyle'];
-            $grd->cssStyle = $params['cssStyle'];
-            $grd->itemStyle = $params['itemStyle'];
-            $grd->altItemStyle = $params['altItemStyle'];
-
-            $grd->columns = $params['columns'];
-            $grd->fields = $params['fields'];
-            $grd->colWidths = $params['colWidths'];
-            $grd->colAligns = $params['colAligns'];
-            $grd->colColors = $params['colColors'];
-            $grd->colTypes = $params['colTypes'];
-            $grd->colWraps = $params['colWraps'];
-
-            $grd->cellPadding = $params['cellPadding'];
-            $grd->cellSpacing = $params['cellSpacing'];
-            $grd->header = $params['header'];
-            $grd->footer = $params['footer'];
-            $grd->pageSize = $params['pageSize'];
-            $grd->pagerLocation = $params['pagerLocation'];
-            $grd->pagerClass = $params['pagerClass'];
-            $grd->pagerStyle = $params['pagerStyle'];
-
-            return $grd->render();
+        if (!$dsq) {
+            return null;
         }
+
+        include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
+        $grd = new DataGrid('', $dsq);
+
+        $grd->noRecordMsg = $params['noRecordMsg'];
+
+        $grd->columnHeaderClass = $params['columnHeaderClass'];
+        $grd->cssClass = $params['cssClass'];
+        $grd->itemClass = $params['itemClass'];
+        $grd->altItemClass = $params['altItemClass'];
+
+        $grd->columnHeaderStyle = $params['columnHeaderStyle'];
+        $grd->cssStyle = $params['cssStyle'];
+        $grd->itemStyle = $params['itemStyle'];
+        $grd->altItemStyle = $params['altItemStyle'];
+
+        $grd->columns = $params['columns'];
+        $grd->fields = $params['fields'];
+        $grd->colWidths = $params['colWidths'];
+        $grd->colAligns = $params['colAligns'];
+        $grd->colColors = $params['colColors'];
+        $grd->colTypes = $params['colTypes'];
+        $grd->colWraps = $params['colWraps'];
+
+        $grd->cellPadding = $params['cellPadding'];
+        $grd->cellSpacing = $params['cellSpacing'];
+        $grd->header = $params['header'];
+        $grd->footer = $params['footer'];
+        $grd->pageSize = $params['pageSize'];
+        $grd->pagerLocation = $params['pagerLocation'];
+        $grd->pagerClass = $params['pagerClass'];
+        $grd->pagerStyle = $params['pagerStyle'];
+
+        return $grd->render();
     }
 
-    function optimize($table_name) {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        $rs = $this->query("OPTIMIZE TABLE `{$table_name}`");
+    public function optimize($table_name)
+    {
+        $rs = $this->query("OPTIMIZE TABLE ". $this->replaceFullTableName($table_name));
         if ($rs) {
-            $rs = $this->query("ALTER TABLE `{$table_name}`");
+            $rs = $this->query("ALTER TABLE " . $this->replaceFullTableName($table_name));
         }
         return $rs;
     }
 
-    function truncate($table_name) {
-        $table_name = str_replace('[+prefix+]', $this->table_prefix, $table_name);
-        return $this->query("TRUNCATE TABLE `" . $table_name . "`");
+    public function truncate($table_name)
+    {
+        return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
     }
 
-    function dataSeek($result, $row_number) {
+    function dataSeek($result, $row_number)
+    {
         return $result->data_seek($row_number);
     }
 
-    function numFields($rs) {
+    function numFields($rs)
+    {
         return $rs->field_count;
     }
 
-    function importSql($source, $watchError = true) {
+    function importSql($source, $watchError = true)
+    {
         if (is_file($source)) {
             $source = file_get_contents($source);
         }
 
         if (strpos($source, "\r") !== false) {
-            $source = str_replace(array("\r\n", "\r"), "\n", $source);
+            $source = str_replace(["\r\n", "\r"], "\n", $source);
         }
         $_ = explode("\n", $source);
         $source = '';
@@ -1076,20 +1114,33 @@ class DBAPI {
         }
     }
 
-    function table_exists($table_name) {
+    public function tableExists($table_name)
+    {
         $sql = sprintf(
             "SHOW TABLES FROM `%s` LIKE '%s'"
-            , trim($this->dbname, '`')
+            , $this->dbase
             , str_replace('[+prefix+]', $this->table_prefix, $table_name)
         );
 
-        return 0 < $this->getRecordCount($this->query($sql)) ? 1 : 0;
+        return 0 < $this->count($this->query($sql)) ? 1 : 0;
     }
 
-    function field_exists($field_name, $table_name) {
+    /**
+     * table exists
+     *
+     * @param string $table_name
+     * @return bool
+     * @deprecated Change function name. tableExists() is recommended.
+     */
+    public function table_exists($table_name) {
+        return $this->tableExists($table_name);
+    }
+
+    public function fieldExists($field_name, $table_name)
+    {
         $table_name = $this->replaceFullTableName($table_name);
 
-        if (!$this->table_exists($table_name)) {
+        if (!$this->tableExists($table_name)) {
             return 0;
         }
 
@@ -1104,7 +1155,21 @@ class DBAPI {
         ) ? 1 : 0;
     }
 
-    function isConnected() {
+    /**
+     * field exists
+     *
+     * @param string $field_name
+     * @param string $table_name
+     * @return bool
+     * @deprecated Change function name. fieldExists() is recommended.
+     */
+    public function field_exists($field_name, $table_name)
+    {
+        return $this->fieldExists($field_name, $table_name);
+    }
+
+    public function isConnected()
+    {
         if (!$this->conn) {
             return false;
         }
@@ -1114,26 +1179,30 @@ class DBAPI {
         return true;
     }
 
-    function getCollation($table = '[+prefix+]site_content', $field = 'content') {
-        $table = str_replace('[+prefix+]', $this->table_prefix, $table);
-        $sql = sprintf("SHOW FULL COLUMNS FROM `%s`", $table);
-        $rs = $this->query($sql);
-        $Collation = 'utf8_general_ci';
+    public function getCollation($table = '[+prefix+]site_content', $field = 'content')
+    {
+        $rs = $this->query(
+            sprintf(
+                'SHOW FULL COLUMNS FROM `%s`',
+                str_replace('[+prefix+]', $this->table_prefix, $table)
+            )
+        );
         while ($row = $this->getRow($rs)) {
-            if ($row['Field'] == $field && isset($row['Collation'])) {
-                $Collation = $row['Collation'];
+            if ($row['Field'] != $field || !isset($row['Collation'])) {
+                continue;
             }
+            return $row['Collation'];
         }
-        return $Collation;
+        return 'utf8mb4_general_ci';
     }
 
-    function _getFieldsStringFromArray($fields = array()) {
-
+    public function _getFieldsStringFromArray($fields = [])
+    {
         if (empty($fields)) {
             return '*';
         }
 
-        $_ = array();
+        $_ = [];
         foreach ($fields as $k => $v) {
             if (preg_match('@^[0-9]+$@', $k)) {
                 $_[] = $v;
@@ -1146,14 +1215,30 @@ class DBAPI {
         return implode(',', $_);
     }
 
-    function _getFromStringFromArray($tables = array()) {
-        $_ = array();
+    function _getFromStringFromArray($tables = [])
+    {
+        $_ = [];
         foreach ($tables as $k => $v) {
             $_[] = $v;
         }
         return implode(' ', $_);
     }
-    public function rawQuery($flag=true) {
+
+    public function rawQuery($flag = true)
+    {
         $this->rawQuery = $flag;
+    }
+
+    private function _where($where) {
+        if(!$where) {
+            return null;
+        }
+        if(!is_array($where)) {
+            if(trim($where)=='') {
+                return null;
+            }
+            return 'WHERE ' . $where;
+        }
+        return 'WHERE ' . implode(' ', $where);
     }
 }

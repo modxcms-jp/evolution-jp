@@ -246,8 +246,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
             <ul class="actionButtons">
                 <?php if (evo()->hasPermission('save_web_user')): ?>
                     <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
-                                    src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update']; ?></a><span
-                                class="and"> + </span>
+                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update']; ?></a><span
+                            class="and"> + </span>
                         <select id="stay" name="stay">
                             <?php if (evo()->hasPermission('new_web_user')) { ?>
                                 <option id="stay1"
@@ -262,11 +262,11 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 <?php endif; ?>
                 <?php if ($_REQUEST['a'] == '88') { ?>
                     <li><a href="#" onclick="deleteuser();"><img
-                                    src="<?php echo $_style["icons_delete"] ?>"/> <?php echo $_lang['delete']; ?></a>
+                                src="<?php echo $_style["icons_delete"] ?>"/> <?php echo $_lang['delete']; ?></a>
                     </li>
                 <?php } ?>
                 <li><a href="#" onclick="document.location.href='index.php?a=99';"><img
-                                src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a></li>
+                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a></li>
             </ul>
         </div>
 
@@ -445,9 +445,12 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             <th><?php echo $_lang['user_gender']; ?>:</th>
                             <td><select name="gender">
                                     <option value=""></option>
-                                    <option value="1" <?php echo ($_POST['gender'] == '1' || $userdata['gender'] == '1') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_male']; ?></option>
-                                    <option value="2" <?php echo ($_POST['gender'] == '2' || $userdata['gender'] == '2') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_female']; ?></option>
-                                    <option value="3" <?php echo ($_POST['gender'] == '3' || $userdata['gender'] == '3') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_other']; ?></option>
+                                    <option
+                                        value="1" <?php echo ($_POST['gender'] == '1' || $userdata['gender'] == '1') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_male']; ?></option>
+                                    <option
+                                        value="2" <?php echo ($_POST['gender'] == '2' || $userdata['gender'] == '2') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_female']; ?></option>
+                                    <option
+                                        value="3" <?php echo ($_POST['gender'] == '3' || $userdata['gender'] == '3') ? "selected='selected'" : ""; ?>><?php echo $_lang['user_other']; ?></option>
                                 </select>
                             </td>
                         </tr>
@@ -518,15 +521,15 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                     <input type="hidden" name="failedlogincount"
                                            value="<?php echo $userdata['failedlogincount']; ?>">
                                     <span id='failed'><?php echo $userdata['failedlogincount'] ?></span>&nbsp;&nbsp;&nbsp;[<a
-                                            href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]
+                                        href="javascript:resetFailed()"><?php echo $_lang['reset_failedlogins']; ?></a>]
                                 </td>
                             </tr>
                             <tr>
                                 <th><?php echo $_lang['user_block']; ?>:</th>
                                 <td><input name="blockedcheck" type="checkbox"
                                            onclick="changeblockstate(document.userform.blockedmode, document.userform.blockedcheck);"<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0)) ? " checked='checked'" : ""; ?> /><input
-                                            type="hidden" name="blocked"
-                                            value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0)) ? 1 : 0; ?>">
+                                        type="hidden" name="blocked"
+                                        value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0)) ? 1 : 0; ?>">
                                 </td>
                             </tr>
                             <tr>
@@ -666,7 +669,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
 <?php
 
 // converts date format dd-mm-yyyy to php date
-function ConvertDate($date) {
+function ConvertDate($date)
+{
     global $modx;
     if ($date == "") {
         return "0";

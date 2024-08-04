@@ -21,7 +21,7 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = (int) anyv('id',0);
+$id = (int)anyv('id', 0);
 
 // check to see the snippet editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=22 AND id='{$id}'");
@@ -327,7 +327,8 @@ if ($formRestored) {
                 </table>
                 <!-- PHP text editor start -->
                 <div>
-                    <div style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
+                    <div
+                        style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                         <span style="float:left;font-weight:bold;"><?= $_lang['snippet_code'] ?></span>
                         <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
 		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox"
@@ -390,7 +391,7 @@ if ($formRestored) {
                                 <label><input style="padding:0;margin:0;" name="locked"
                                               type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : '' ?>
                                               class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
-                                            class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label></td>
+                                        class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label></td>
                         </tr>
                     <?php } ?>
                     <?php
@@ -420,7 +421,7 @@ if ($formRestored) {
                         <tr>
                             <td>&nbsp;</td>
                             <td align="left" valign="top"><span
-                                        class="comment"><?= $_lang['import_params_msg'] ?></td>
+                                    class="comment"><?= $_lang['import_params_msg'] ?></td>
                         </tr>
                     <?php } ?>
                     <tr>

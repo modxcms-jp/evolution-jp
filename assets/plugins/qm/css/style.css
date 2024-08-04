@@ -1,18 +1,16 @@
 /* Edit buttons in content, e.g. for Ditto listings */
 
-.qm-edit
-{
+.qm-edit {
     display: block;
     float: right;
     margin: 5px 0 5px 5px;
     line-height: 1em;
-    padding: 0 !important;  
+    padding: 0 !important;
 }
 
 .qm-edit a,
 .qm-new a, .qm-tv a,
-.qm-new a:link, .qm-tv a:visited
-{
+.qm-new a:link, .qm-tv a:visited {
     display: block;
     color: #3b454f !important;
     text-decoration: none;
@@ -24,8 +22,7 @@
 
 /* New document buttons in content */
 
-.qm-new, .qm-tv 
-{
+.qm-new, .qm-tv {
     display: block;
     float: right;
     margin: 5px 0 5px 5px;
@@ -35,137 +32,117 @@
 
 /* TV edit form */
 
-#qm-tv-body
-{
+#qm-tv-body {
 }
 
-#qm-tv-tv
-{
+#qm-tv-tv {
 }
 
-#qm-tv-body h1 
-{
-	margin-bottom: 20px;
-}
-
-#qm-tv-description
-{
+#qm-tv-body h1 {
     margin-bottom: 20px;
 }
 
-.qm-tv-text input, .qm-tv-textarea textarea, .qm-tv-image input[type=text], .qm-tv-file input[type=text]
-{
-    border: 1px solid #ddd;
-	border-left-color: #c3c3c3;
-	border-top-color: #7c7c7c;
-	padding: 4px 4px 4px 4px;
+#qm-tv-description {
+    margin-bottom: 20px;
 }
 
-.qm-tv-text input
-{
+.qm-tv-text input, .qm-tv-textarea textarea, .qm-tv-image input[type=text], .qm-tv-file input[type=text] {
+    border: 1px solid #ddd;
+    border-left-color: #c3c3c3;
+    border-top-color: #7c7c7c;
+    padding: 4px 4px 4px 4px;
+}
+
+.qm-tv-text input {
     width: 400px !important;
 }
 
-.qm-tv-textarea textarea
-{
+.qm-tv-textarea textarea {
     width: 100%;
     height: 200px;
 }
 
-.qm-tv-image input[type=text]
-{
+.qm-tv-image input[type=text] {
     width: 400px !important;
 }
 
-#qm-tv-image-preview
-{
+#qm-tv-image-preview {
     margin-top: 15px;
 }
 
-#qm-tv-image-preview img
-{
-    max-width: 200px; 
+#qm-tv-image-preview img {
+    max-width: 200px;
     max-height: 200px;
 }
 
 
 /* Toolbar */
 
-*:focus, *:active 
-{
+*:focus, *:active {
     outline: none !important;
 }
 
-#qmEditor, #qmEditorClosed
-{
-	font-family: Arial, Helvetica, sans-serif !important;
-    top:0; 
-    left:0;
+#qmEditor, #qmEditorClosed {
+    font-family: Arial, Helvetica, sans-serif !important;
+    top: 0;
+    left: 0;
     padding: 3px;
     position: fixed;
     width: 100%;
-    line-height:1;
+    line-height: 1;
     z-index: 10001;
-	background: #657587 url(images/tinylogo.png) no-repeat -2px 3px;
-	text-align: left;
-	opacity:0.5; 
-    ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; 
-	filter: alpha(opacity=50);
-	top: -28px;
-	-webkit-transition-duration: 0.7s;
-	-moz-transition-duration: 0.7s;
-	transition-duration: 0.7s;
+    background: #657587 url(images/tinylogo.png) no-repeat -2px 3px;
+    text-align: left;
+    opacity: 0.5;
+    ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+    filter: alpha(opacity=50);
+    top: -28px;
+    -webkit-transition-duration: 0.7s;
+    -moz-transition-duration: 0.7s;
+    transition-duration: 0.7s;
 }
- 
-#qmEditor *:focus, #qmEditor *:active 
-{
+
+#qmEditor *:focus, #qmEditor *:active {
     outline: none !important;
 }
 
-#qmEditor img
-{
+#qmEditor img {
     border: 0;
 }
 
-#qmEditor a
-{
-	display: block;
-	width: auto;
-	height: auto;
-	margin: 0;
-	padding: 0;
-	line-height: normal;
-	border: 0;
+#qmEditor a {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    line-height: normal;
+    border: 0;
 }
 
-#qmEditor .qmEdit span, .qm-edit span, .qm-tv span
-{
+#qmEditor .qmEdit span, .qm-edit span, .qm-tv span {
     background: transparent url(images/save.png) no-repeat left center;
     padding-left: 20px;
 }
 
-#qmEditor .qmButton span
-{
+#qmEditor .qmButton span {
 
 }
 
-#qmEditorClosed
-{
+#qmEditorClosed {
     height: 26px;
     display: none;
     width: 40px !important;
     cursor: pointer !important;
 }
 
-#qmClose
-{
+#qmClose {
     display: block;
-    float: right !important; 
+    float: right !important;
     margin-right: -2px !important;
 }
 
-#qmLogoClose
-{
+#qmLogoClose {
     display: block;
     float: left;
     height: 26px !important;
@@ -175,71 +152,65 @@
     border: 0 !important;
     background: transparent url(images/transparent.gif) repeat;
 }
-    
-#qmEditor:hover, #qmEditorClosed:hover 
-{
-    opacity:1; 
-    -ms-filter:"" !important;
-    filter:none !important;
-	top: 0px;
-	-webkit-transition-duration: 0.2s;
-	-moz-transition-duration: 0.2s;
-	transition-duration: 0.2s;
+
+#qmEditor:hover, #qmEditorClosed:hover {
+    opacity: 1;
+    -ms-filter: "" !important;
+    filter: none !important;
+    top: 0px;
+    -webkit-transition-duration: 0.2s;
+    -moz-transition-duration: 0.2s;
+    transition-duration: 0.2s;
 }
 
 
 /* Action buttons based on MODx Carbon Theme */
 
-#qmEditor ul 
-{ /* .actionButtons --> #qmEditor */
-	margin: 0;
-	padding: 0px 10px 0px 0px;
-	list-style-type: none;
+#qmEditor ul { /* .actionButtons --> #qmEditor */
+    margin: 0;
+    padding: 0px 10px 0px 0px;
+    list-style-type: none;
 }
 
-#qmEditor li 
-{
-	margin: 0 8px 0 0;
-	float: left;
-	height: 15px;
-	line-height: 15px;
-	padding: 0;
+#qmEditor li {
+    margin: 0 8px 0 0;
+    float: left;
+    height: 15px;
+    line-height: 15px;
+    padding: 0;
     list-style-type: none;
     height: auto;
     width: auto;
     background: none;
     border: 0;
-    list-style-image:none;
+    list-style-image: none;
 }
 
-#qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv
-{
-	color: #3b454f;
-	font-weight: bold;
-	font-size: 12px;
-	background: #c7ced2 url(images/button-gradient.png) repeat-x 0px -6px; 
+#qmEditor .qmButton, .qm-edit, .qm-new, .qm-tv {
+    color: #3b454f;
+    font-weight: bold;
+    font-size: 12px;
+    background: #c7ced2 url(images/button-gradient.png) repeat-x 0px -6px;
     padding: 4px 6px;
-	white-space: nowrap;
-	text-decoration: none;
-	border-radius: 4px;
-	border: 1px solid #8ea4be;
-	outline: none;
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 4px;
+    border: 1px solid #8ea4be;
+    outline: none;
 }
 
 div#qmEditor span {
-	font-weight: bold;
+    font-weight: bold;
 }
 
-#qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover
-{
-	background-position: bottom left;
-	box-shadow:  0 0 10px #b8c7d6;
-	-webkit-transition: -webkit-box-shadow 0.2s linear;
+#qmEditor .qmButton:hover, .qm-edit:hover, .qm-new:hover, .qm-tv:hover {
+    background-position: bottom left;
+    box-shadow: 0 0 10px #b8c7d6;
+    -webkit-transition: -webkit-box-shadow 0.2s linear;
 }
 
-#qmEditor .qmButton:active 
-{
-	background-color: #92aac4;
-	background-position: bottom left;
-	box-shadow:  0 0 10px #b8c7d6;
+#qmEditor .qmButton:active {
+    background-color: #92aac4;
+    background-position: bottom left;
+    box-shadow: 0 0 10px #b8c7d6;
 }

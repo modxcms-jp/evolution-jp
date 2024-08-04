@@ -32,11 +32,9 @@ if (!is_writable($export_dir)) {
 }
 
 $modx->export->maxtime = preg_match('@^[0-9]+$@', postv('maxtime')) ? postv('maxtime') : 60;
-$modx->export->generate_mode = postv('generate_mode');
 $modx->export->setExportDir($export_dir);
 
 $info = array();
-$info['generate_mode'] = postv('generate_mode');
 $info['allow_ids'] = getIds('allow_ids');
 $info['ignore_ids'] = getIds('ignore_ids');
 $info['repl_after'] = postv('repl_after');
@@ -50,7 +48,6 @@ if (is_array($evtOut)) {
 
 if (sessionv('export_allow_ids') !== getIds('allow_ids')
     || sessionv('export_ignore_ids') !== getIds('ignore_ids')
-    || sessionv('export_generate_mode') !== postv('generate_mode')
     || sessionv('export_includenoncache') !== postv('includenoncache')
     || sessionv('export_repl_before') !== postv('repl_before')
     || sessionv('export_repl_after') !== postv('repl_after')) {
@@ -59,16 +56,15 @@ if (sessionv('export_allow_ids') !== getIds('allow_ids')
 
 sessionv('*export_allow_ids', postv('allow_ids'));
 sessionv('*export_ignore_ids', postv('ignore_ids'));
-sessionv('*export_generate_mode', postv('generate_mode'));
 sessionv('*export_target', postv('target'));
 sessionv('*export_includenoncache', postv('includenoncache', 0));
 sessionv('*export_repl_before', postv('repl_before'));
 sessionv('*export_repl_after', postv('repl_after'));
 
 $total = $modx->export->getTotal(
-    getIds('allow_ids')
-    , getIds('ignore_ids')
-    , sessionv('export_includenoncache')
+    getIds('allow_ids'),
+    getIds('ignore_ids'),
+    sessionv('export_includenoncache')
 );
 
 $output = sprintf(lang('export_site_numberdocs'), $total);
@@ -84,7 +80,6 @@ $totaltime = ($exportend - $modx->export->exportstart);
 $output .= sprintf('<p>' . lang('export_site_time') . '</p>', round($totaltime, 3));
 
 $info = array();
-$info['generate_mode'] = postv('generate_mode');
 $info['allow_ids'] = getIds('allow_ids');
 $info['ignore_ids'] = getIds('ignore_ids');
 $info['repl_after'] = postv('repl_after');
@@ -99,7 +94,8 @@ if (is_array($evtOut)) {
 
 return $output;
 
-function getIds($target) {
+function getIds($target)
+{
     if (postv('target') === 'all' || postv('target') !== $target) {
         return '';
     }

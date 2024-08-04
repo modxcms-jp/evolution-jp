@@ -177,7 +177,8 @@ switch ($_POST['mode']) {
         echo 'Erm... You supposed to be here now?';
 }
 
-function saveTemplateAccess() {
+function saveTemplateAccess()
+{
     global $id, $newid;
     global $modx;
 
@@ -210,7 +211,8 @@ function saveTemplateAccess() {
     }
 }
 
-function saveDocumentAccessPermissons() {
+function saveDocumentAccessPermissons()
+{
     global $modx, $id, $newid;
 
     if ($newid) {
@@ -240,7 +242,8 @@ function saveDocumentAccessPermissons() {
     }
 }
 
-function check_exist_name($name) { // disallow duplicate names for new tvs
+function check_exist_name($name)
+{ // disallow duplicate names for new tvs
     global $modx;
     $where = "name='{$name}'";
     if ($_POST['mode'] == 301) {
@@ -255,7 +258,8 @@ function check_exist_name($name) { // disallow duplicate names for new tvs
     }
 }
 
-function check_reserved_names($name) { // disallow reserved names
+function check_reserved_names($name)
+{ // disallow reserved names
     global $modx;
 
     $reserved_names = explode(',',
