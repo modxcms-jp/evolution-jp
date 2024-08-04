@@ -379,16 +379,16 @@ class DocumentParser
         db()->delete(
             '[+prefix+]system_cache',
             [
-                where('cache_section', $category),
+                where('cache_category', $category),
                 and_where('cache_key', $key)
             ]
         );
         return db()->insert(
             db()->escape(
                 [
-                    'cache_section' => $category,
-                    'cache_key' => $key,
-                    'cache_value' => $value,
+                    'cache_category'  => $category,
+                    'cache_key'       => $key,
+                    'cache_value'     => $value,
                     'cache_timestamp' => request_time()
                 ]
             ),
