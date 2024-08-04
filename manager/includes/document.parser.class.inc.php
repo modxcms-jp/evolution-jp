@@ -402,7 +402,7 @@ class DocumentParser
             'cache_value',
             '[+prefix+]system_cache',
             [
-                where('cache_section', '=', $category),
+                where('cache_category', '=', $category),
                 'and',
                 where('cache_key', '=', $key)
             ]
