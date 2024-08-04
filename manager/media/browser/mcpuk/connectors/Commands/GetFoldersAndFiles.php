@@ -147,7 +147,11 @@ class GetFoldersAndFiles
                 }
             }
             if (extension_loaded('mbstring')) {
-                $name = mb_convert_encoding($iValue, 'UTF-8', mb_detect_encoding($iValue, 'UTF-8, windows-1251, ASCII, ISO-8859-1'));
+                $name = mb_convert_encoding(
+                    $iValue,
+                    'UTF-8',
+                    mb_detect_encoding($iValue, ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'], true)
+                );
             } else {
                 $name = $iValue;
             }
