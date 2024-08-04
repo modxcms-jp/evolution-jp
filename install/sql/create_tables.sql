@@ -549,6 +549,8 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_revision`
     KEY `status` (`status`)
 ) ENGINE = MyISAM COMMENT ='Contains revision data.';
 
+DROP TABLE IF EXISTS `{PREFIX}system_cache`;
+
 CREATE TABLE IF NOT EXISTS `{PREFIX}system_cache`
 (
     `cache_id`        int(20)      NOT NULL AUTO_INCREMENT,
