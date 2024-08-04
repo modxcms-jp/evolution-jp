@@ -296,15 +296,6 @@ class DocumentParser
         if ($rs === 'complete') {
             exit;
         }
-        $this->documentIdentifier = $this->getDBCache(
-            'docid_by_uri',
-            md5($this->decoded_request_uri)
-        );
-
-        if ($this->documentIdentifier === false) {
-            $this->sendErrorPage();
-            exit;
-        }
 
         if (!$this->documentIdentifier) {
             $this->documentIdentifier = $this->getDocumentIdentifier(
@@ -315,12 +306,6 @@ class DocumentParser
         if (!$this->documentIdentifier) {
             $this->sendErrorPage();
         }
-
-        $this->setDBCache(
-            'docid_by_uri',
-            md5($this->decoded_request_uri),
-            $this->documentIdentifier
-        );
 
         // invoke OnWebPageInit event
         $this->invokeEvent('OnWebPageInit');
@@ -363,12 +348,20 @@ class DocumentParser
         }
 
         if ($uri === MODX_BASE_URL) {
-            return $this->config['site_start'];
+            return $this->config('site_start');
         }
 
-        $getQ = $this->getRequestQ($this->decoded_request_uri);
-        if (!getv('id') && $getQ !== false) {
-            return $this->getIdFromAlias($this->_treatAliasPath($getQ));
+        $urlWithoutQuery = $this->getRequestQ($uri);
+        $docId = $this->getDBCache('docid_by_uri', $urlWithoutQuery);
+        if ($docId) {
+            return $docId;
+        }
+
+        $docId = $this->getIdFromAlias($this->_treatAliasPath($urlWithoutQuery));
+
+        if ($docId) {
+            $this->setDBCache('docid_by_uri', $uri, $docId);
+            return $docId;
         }
 
         return 0;
@@ -448,11 +441,6 @@ class DocumentParser
 
     function getRequestQ($uri)
     {
-        if (strpos(serverv('SERVER_SOFTWARE'), 'Microsoft-IIS') !== false) // IIS friendly url fix
-        {
-            return $this->_IIS_furl_fix();
-        }
-
         if (strpos($uri, '?') !== false) {
             $uri = strstr($uri, '?', true);
         }
@@ -461,7 +449,7 @@ class DocumentParser
             return '/';
         }
 
-        return substr($uri, strlen(MODX_BASE_URL));
+        return '/' . substr($uri, strlen(MODX_BASE_URL));
     }
 
     function sanitizeVars()
