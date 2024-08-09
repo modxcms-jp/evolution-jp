@@ -329,7 +329,7 @@ class DocumentParser
         $trackingParameters = [
             'gclid', 'yclid', 'fbclid', 'msclkid',
             'utm_source', 'utm_medium', 'utm_campaign',
-            'utm_term', 'utm_content'
+            'utm_term', 'utm_content','ldtag_cl','twclid'
         ];
 
         // 特定のトラッキングパラメータを削除
