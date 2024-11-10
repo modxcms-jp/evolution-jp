@@ -329,7 +329,9 @@ class DocumentParser
         $trackingParameters = [
             'gclid', 'yclid', 'fbclid', 'msclkid',
             'utm_source', 'utm_medium', 'utm_campaign',
-            'utm_term', 'utm_content','ldtag_cl','twclid'
+            'utm_term', 'utm_content','ldtag_cl','twclid',
+            'utm_feeditemid','utm_device','hsa_cam','hsa_grp',
+            'hsa_mt','hsa_src','hsa_ad','hsa_acc','hsa_net','hsa_kw','hsa_tgt','hsa_ver',
         ];
 
         // 特定のトラッキングパラメータを削除
