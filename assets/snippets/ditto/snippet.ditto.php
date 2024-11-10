@@ -667,11 +667,8 @@ if (!isset($where)) {
     Related:
     - <queryLimit>
 */
-if (isset($noResults)) {
-    $noResults = $ditto->getParam($noResults, 'no_documents');
-} else {
-    $noResults = $_lang['no_documents'];
-}
+$noResults = event()->param('noResults', $_lang['no_documents']);
+
 /*
     Param: noResults
 
