@@ -116,9 +116,6 @@ class SystemEvent
 
     public function param($key, $default = null)
     {
-        if (!$this->params) {
-            return $default;
-        }
         return array_get($this->params, $key, $default);
     }
 }
