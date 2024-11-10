@@ -45,8 +45,8 @@ class synccache
     { // modx:returns child's parent
         if (empty($this->aliases)) {
             $qh = db()->select(
-                "id, IF(alias='', id, alias) AS alias, parent"
-                , '[+prefix+]site_content',
+                "id, IF(alias='', id, alias) AS alias, parent",
+                '[+prefix+]site_content',
                 'deleted=0 and isfolder=1'
             );
             if ($qh && db()->count($qh)) {
@@ -66,11 +66,11 @@ class synccache
         }
 
         return $this->getParents(
-            $this->parents[$id]
-            , sprintf(
-                '%s/%s'
-                , $this->aliases[$id]
-                , $path
+            $this->parents[$id],
+            sprintf(
+                '%s/%s',
+                $this->aliases[$id],
+                $path
             )
         );
     }
@@ -205,48 +205,48 @@ class synccache
 
         $cacheRefreshTime = $this->getCacheRefreshTime();
         $content[] = sprintf(
-            '$cacheRefreshTime = %s; // %s'
-            , $cacheRefreshTime
-            , date('Y-m-d H:i:s', $cacheRefreshTime)
+            '$cacheRefreshTime = %s; // %s',
+            $cacheRefreshTime,
+            date('Y-m-d H:i:s', $cacheRefreshTime)
         );
         $content[] = sprintf(
-            '$cache_type = %s;'
-            , config('cache_type', 1)
+            '$cache_type = %s;',
+            config('cache_type', 1)
         );
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
-                '$site_sessionname = "%s";'
-                , $site_sessionname
+                '$site_sessionname = "%s";',
+                $site_sessionname
             );
         }
 
         $content[] = sprintf(
-            '$site_status = %s;'
-            , config('site_status', 1)
+            '$site_status = %s;',
+            config('site_status', 1)
         );
         $content[] = sprintf(
-            '$error_reporting = "%s";'
-            , config('error_reporting', 1)
+            '$error_reporting = "%s";',
+            config('error_reporting', 1)
         );
 
         if (evo()->array_get($config, 'site_url') && strpos(evo()->array_get($config, 'site_url'), '[(') === false) {
             $content[] = sprintf(
-                '$site_url = "%s";'
-                , evo()->array_get($config, 'site_url')
+                '$site_url = "%s";',
+                evo()->array_get($config, 'site_url')
             );
         }
 
         if (evo()->array_get($config, 'base_url') && strpos(evo()->array_get($config, 'base_url'), '[(') === false) {
             $content[] = sprintf(
-                '$base_url = "%s";'
-                , evo()->array_get($config, 'base_url')
+                '$base_url = "%s";',
+                evo()->array_get($config, 'base_url')
             );
         }
 
         if (config('conditional_get')) {
             $content[] = sprintf(
-                '$conditional_get = "%s";'
-                , config('conditional_get')
+                '$conditional_get = "%s";',
+                config('conditional_get')
             );
         }
 
@@ -265,33 +265,33 @@ class synccache
         $time = ['cacheRefreshTime' => $this->cacheRefreshTime];
 
         $time['content_pub_date'] = $this->minTime(
-            'site_content'
-            , 'pub_date'
-            , '0 < pub_date and published=0 and (unpub_date=0 OR pub_date<=unpub_date)'
+            'site_content',
+            'pub_date',
+            '0 < pub_date and published=0 and (unpub_date=0 OR pub_date<=unpub_date)'
         );
 
         $time['content_unpub_date'] = $this->minTime(
-            'site_content'
-            , 'unpub_date'
-            , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
+            'site_content',
+            'unpub_date',
+            '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
 
         $time['chunk_pub_date'] = $this->minTime(
-            'site_htmlsnippets'
-            , 'pub_date'
-            , '0 < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)'
+            'site_htmlsnippets',
+            'pub_date',
+            '0 < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)'
         );
 
         $time['chunk_unpub_date'] = $this->minTime(
-            'site_htmlsnippets'
-            , 'unpub_date'
-            , '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
+            'site_htmlsnippets',
+            'unpub_date',
+            '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
         );
 
         $time['revision_standby'] = $this->minTime(
-            'site_revision'
-            , 'pub_date'
-            , "0 < pub_date AND status = 'standby'"
+            'site_revision',
+            'pub_date',
+            "0 < pub_date AND status = 'standby'"
         );
         $time = array_filter($time, function($v) {
             return !empty($v);
@@ -305,9 +305,9 @@ class synccache
     private function minTime($table_name, $field_name, $where)
     {
         $rs = db()->select(
-            sprintf('MIN(%s) AS result', $field_name)
-            , '[+prefix+]' . $table_name
-            , $where
+            sprintf('MIN(%s) AS result', $field_name),
+            '[+prefix+]' . $table_name,
+            $where
         );
         if (!$rs) {
             return 0;
@@ -368,9 +368,9 @@ class synccache
             $content = var_export($content, 'true');
             if (strpos($filename, 'documentMap') !== false) {
                 $content = str_replace(
-                    ["\n", '),']
-                    , ['', "),\n"]
-                    , $content
+                    ["\n", '),'],
+                    ['', "),\n"],
+                    $content
                 );
             }
             $content = sprintf("<?php \n return %s;", $content);
@@ -391,17 +391,17 @@ class synccache
 
         header('Content-Type: text/html; charset=' . evo()->config('modx_charset', 'utf-8'));
         echo evo()->parseText(
-            '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />'
-            , [
+            '<link rel="stylesheet" type="text/css" href="[+manager_url+]media/style/[+theme+]/style.css" />',
+            [
                 'manager_url' => MODX_MANAGER_URL,
                 'theme' => evo()->config('manager_theme', '')
             ]
         );
         exit(sprintf(
-            '<div class="section"><div class="sectionBody">%s - %s</div></div>'
-            , $cache_path
-            , $_lang['file_not_saved'])
-        );
+            '<div class="section"><div class="sectionBody">%s - %s</div></div>',
+            $cache_path,
+            $_lang['file_not_saved']
+        ));
     }
 
     private function _get_settings()
@@ -431,10 +431,10 @@ class synccache
         global $modx;
 
         $rs = db()->select(
-            "IF(alias='', id, alias) AS alias, id, parent, isfolder"
-            , '[+prefix+]site_content'
-            , 'deleted=0'
-            , 'parent, menuindex'
+            "IF(alias='', id, alias) AS alias, id, parent, isfolder",
+            '[+prefix+]site_content',
+            'deleted=0',
+            'parent, menuindex'
         );
         $modx->aliasListing = [];
         $modx->documentMap = [];
@@ -464,15 +464,16 @@ class synccache
     private function _get_content_types()
     {
         $rs = db()->select(
-            'id, contentType', '[+prefix+]site_content'
-            , "contentType != 'text/html'"
+            'id, contentType',
+            '[+prefix+]site_content',
+            "contentType != 'text/html'"
         );
         $_ = ['$c = &$this->contentTypes;'];
         while ($row = db()->getRow($rs)) {
             $_[] = sprintf(
-                '$c[%s] = \'%s\';'
-                , $row['id']
-                , $row['contentType']
+                '$c[%s] = \'%s\';',
+                $row['id'],
+                $row['contentType']
             );
         }
         return implode("\n", $_) . "\n";
@@ -483,8 +484,9 @@ class synccache
         global $modx;
 
         $rs = db()->select(
-            'name,snippet'
-            , '[+prefix+]site_htmlsnippets', "`published`='1'"
+            'name,snippet',
+            '[+prefix+]site_htmlsnippets',
+            "`published`='1'"
         );
         $modx->chunkCache = [];
         while ($row = db()->getRow($rs)) {
@@ -523,14 +525,14 @@ class synccache
     private function _get_events()
     {
         $rs = db()->select(
-            'sysevt.name as `evtname`, plugs.name as plgname'
-            , [
+            'sysevt.name as `evtname`, plugs.name as plgname',
+            [
                 '[+prefix+]system_eventnames sysevt',
                 'INNER JOIN [+prefix+]site_plugin_events pe ON pe.evtid = sysevt.id',
                 'INNER JOIN [+prefix+]site_plugins plugs ON plugs.id = pe.pluginid'
-            ]
-            , 'plugs.disabled=0'
-            , 'sysevt.name,pe.priority'
+            ],
+            'plugs.disabled=0',
+            'sysevt.name,pe.priority'
         );
         $_ = ['$e = &$this->pluginEvent;'];
         $events = [];
@@ -544,12 +546,15 @@ class synccache
         }
         foreach ($events as $evtname => $pluginnames) {
             $_[] = sprintf(
-                "\$e['%s'] = array('%s');"
-                , $evtname
-                , implode("','", str_replace(
-                        ["\\", "'"]
-                        , ["\\\\", "\\'"]
-                        , $pluginnames)
+                "\$e['%s'] = array('%s');",
+                $evtname,
+                implode(
+                    "','",
+                    str_replace(
+                        ["\\", "'"],
+                        ["\\\\", "\\'"],
+                        $pluginnames
+                    )
                 )
             );
         }
