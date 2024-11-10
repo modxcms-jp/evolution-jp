@@ -2,8 +2,7 @@
 
 /*
  * Title: Example2
- * Purpose:
- *  	Example file for basing new Extenders on
+ * Purpose: Example file for basing new Extenders on
 */
 
 // ---------------------------------------------------
