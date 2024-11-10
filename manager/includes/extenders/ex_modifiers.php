@@ -1341,6 +1341,9 @@ class MODIFIERS
             default:
                 $_ = compact('key', 'value', 'cmd', 'opt');
                 $_['url'] = $_SERVER['REQUEST_URI'];
+                $_['ip'] = $_SERVER['REMOTE_ADDR'];
+                $_['ua'] = $_SERVER['HTTP_USER_AGENT'];
+                $_['docid'] = evo()->documentIdentifier;
                 evo()->addLog('unparsed modifire', $_, 2);
         }
         return $value;
