@@ -11,9 +11,9 @@
 // ---------------------------------------------------
 
 $placeholders['example'] = array(
-    array('pagetitle', '*')
-, 'exampleFunction'
-, 'pagetitle'
+    array('pagetitle', '*'),
+    'exampleFunction',
+    'pagetitle'
 );
 // Variable: $placeholders['example']
 // Add the placeholder example to the custom placeholders list
