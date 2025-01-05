@@ -1,11 +1,6 @@
 <?php
-include_once(
-sprintf(
-    '%s/dbapi/%s.inc.php'
-    , __DIR__
-    , function_exists('mysqli_connect') ? 'mysqli' : 'mysql'
-)
-);
+include_once __DIR__ . '/dbapi/mysqli.inc.php';
+
 global $modx;
 $modx = $this;
 $this->db = new DBAPI;
