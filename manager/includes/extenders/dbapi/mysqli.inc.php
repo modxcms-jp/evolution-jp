@@ -733,7 +733,7 @@ class DBAPI
             }
         }
         $row = $this->getRow($rs, 'num');
-        return $row[0];
+        return $row[0] ?? null;
     }
 
     /**

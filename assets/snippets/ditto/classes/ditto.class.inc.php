@@ -251,7 +251,7 @@ class ditto
     // Split up the filters into an array and add the required fields to the fields array
     // ---------------------------------------------------
 
-    public function parseFilters($filter_params = false, $cFilters = array(), $pFilters = array(), $globalDelimiter, $localDelimiter)
+    public function parseFilters($filter_params = false, $cFilters = [], $pFilters = [], $globalDelimiter = ',', $localDelimiter = ':')
     {
         $parsedFilters = array('basic' => array(), 'custom' => array());
         $filters = explode($globalDelimiter, $filter_params);
@@ -718,7 +718,7 @@ class ditto
             if ($orderBy['custom']) {
                 $resource = $this->userSort($resource, $orderBy);
             }
-            $fields = array_intersect($this->fields['backend'], $this->fields['display']);
+            $fields = array_intersect_key($this->fields['backend'], $this->fields['display']);
             $readyFields = array();
             foreach ($fields as $field) {
                 foreach ($field as $k => $v) {
@@ -825,7 +825,7 @@ class ditto
     // Apeend a TV to the documents array
     // ---------------------------------------------------
 
-    function appendTV($tvname = '', $docIDs)
+    function appendTV($tvname = '', $docIDs=[])
     {
         $rs = db()->select(
             'stv.*, stc.*'
@@ -944,7 +944,7 @@ class ditto
     // Get documents and append TVs + Prefetch Data, and sort
     // ---------------------------------------------------
 
-    function getDocuments($ids = array(), $fields, $TVs, $orderBy, $published = 1, $deleted = 0, $publicOnly = 1, $extraWhere = '', $limit = '', $keywords = 0, $randomize = 0, $dateSource = false)
+    function getDocuments($ids = [], $fields=[], $TVs=[], $orderBy=[], $published = 1, $deleted = 0, $publicOnly = 1, $extraWhere = '', $limit = '', $keywords = 0, $randomize = 0, $dateSource = false)
     {
         if (!$ids) {
             return false;
@@ -980,17 +980,17 @@ class ditto
             "SELECT DISTINCT %s FROM %s sc
                 LEFT JOIN %s dg on dg.document = sc.id
                 WHERE sc.id IN (%s) %s AND sc.deleted=%d %s
-                %s GROUP BY sc.id%s %s"
-            , 'sc.' . implode(',sc.', $fields)
-            , evo()->getFullTableName('site_content')
-            , evo()->getFullTableName('document_groups')
-            , join(',', $ids)
-            , $published ? 'AND sc.published=1' : ''
-            , $deleted
-            , $where
-            , $publicOnly ? sprintf('AND (%s)', $access) : ''
-            , $sort ? ' ORDER BY ' . $sort : ''
-            , ($limit != '') ? 'LIMIT ' . $limit : ''
+                %s GROUP BY sc.id%s %s",
+            'sc.' . implode(',sc.', $fields),
+            evo()->getFullTableName('site_content'),
+            evo()->getFullTableName('document_groups'),
+            implode(',', $ids),
+            $published ? 'AND sc.published=1' : '',
+            $deleted,
+            $where ?? '',
+            $publicOnly ? sprintf('AND (%s)', $access) : '',
+            $sort ? ' ORDER BY ' . $sort : '',
+            ($limit != '') ? 'LIMIT ' . $limit : ''
         );
 
         $rs = db()->query($sql);
@@ -1002,7 +1002,7 @@ class ditto
         $TVIDs = array();
         while ($row = db()->getRow($rs)) {
             $docid = $row['id'];
-            if ($dateSource && $row[$dateSource]) {
+            if ($dateSource && !empty($row[$dateSource])) {
                 if (!preg_match('@^[1-9][0-9]*$@', $row[$dateSource])) {
                     $row[$dateSource] = strtotime($row[$dateSource]);
                 }
@@ -1019,7 +1019,7 @@ class ditto
             $TVIDs[] = $docid;
             $x = '#' . $docid;
             $docs[$x] = $row;
-            if ($this->prefetch['resource']) {
+            if (!empty($this->prefetch['resource'])) {
                 $docs[$x] = array_merge($row, $this->prefetch['resource'][$x]);
                 // merge the prefetch array and the normal array
             }

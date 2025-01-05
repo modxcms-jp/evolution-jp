@@ -792,7 +792,8 @@ if (isset($parsedFilters)) {
     $filters['parsed'] = array_merge($filters['parsed'], $parsedFilters);
 }
 // handle 2.0.0 compatibility
-if (isset($filter) || $filters['custom'] !== false || $filters['parsed'] !== false) {
+$filter = $filter ?? '';
+if ($filter || $filters['custom'] !== false || $filters['parsed'] !== false) {
     $filter = $ditto->parseFilters(
         $filter,
         $filters['custom'],
