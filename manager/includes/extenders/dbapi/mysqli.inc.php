@@ -438,8 +438,8 @@ class DBAPI
 
     private function _insert(
         $insert_method = 'INSERT INTO',
-        $fields,
-        $intotable,
+        $fields = '',
+        $intotable = '',
         $fromfields = '*',
         $fromtable = '',
         $where = '',
