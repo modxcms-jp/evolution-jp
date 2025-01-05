@@ -169,11 +169,13 @@ foreach ($content as $k => $v) {
                 documentDirty=false;
                 <?php
                 if (isset($content['parent']) && $content['parent'] != 0) {
-                    echo "document.location.href='index.php?a=120&id=" . $content['parent'] . "';";
-                } elseif ($_GET['pid']) {
-                    echo "document.location.href='index.php?a=120&id=" . (int)$_GET['pid'] . "';";
+                    $tpl = 'document.location.href=\'index.php?a=120&id=%s\';';
+                    echo sprintf($tpl, $content['parent']);
+                } elseif (getv('pid')) {
+                    $tpl = 'document.location.href=\'index.php?a=120&id=%d\';';
+                    echo sprintf($tpl, (int)getv('pid'));
                 } else {
-                    echo "document.location.href='index.php?a=2';";
+                    echo 'document.location.href=\'index.php?a=2\';';
                 }
                 ?>"
             ><img
