@@ -24,9 +24,9 @@ class SqlParser
             ? MODX_BASE_PATH . 'install/sql/' . $filename
             : MODX_BASE_PATH . $filename;
         if (!is_file($path)) {
-            $this->mysqlErrors[] = array(
+            $this->mysqlErrors[] = [
                 'error' => sprintf("File '%s' not found", $path)
-            );
+            ];
             $this->installFailed = true;
             return false;
         }
@@ -52,7 +52,7 @@ class SqlParser
             '@;[ \t]*\n@',
             evo()->parseText(
                 str_replace('{TABLE_OPTION}', $tableOption, $idata),
-                array(
+                [
                     'PREFIX' => $this->prefix,
                     'ADMINNAME' => $this->adminname,
                     'ADMINPASS' => md5($this->adminpass),
@@ -62,7 +62,7 @@ class SqlParser
                     ),
                     'MANAGERLANGUAGE' => $this->managerlanguage,
                     'DATE_NOW' => time()
-                ),
+                ],
                 '{',
                 '}',
                 false
@@ -78,11 +78,11 @@ class SqlParser
             if (!$error_no) {
                 continue;
             }
-            if (!in_array($error_no, array(1060, 1061, 1091, 1054, 1064))) {
-                $this->mysqlErrors[] = array(
+            if (!in_array($error_no, [1060, 1061, 1091, 1054, 1064])) {
+                $this->mysqlErrors[] = [
                     'error' => db()->getLastError(),
                     'sql' => $sql
-                );
+                ];
                 $this->installFailed = true;
             }
         }
