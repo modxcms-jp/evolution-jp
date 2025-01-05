@@ -158,8 +158,8 @@ if ($source === 'get') {
         [NULL]
     */
 } else {
-    if (!empty($_REQUEST[$dittoID . $source])) {
-        $date = getdate(strtotime($_REQUEST[$dittoID . $source]));
+    if (anyv($dittoID . $source)) {
+        $date = getdate(strtotime(anyv($dittoID . $source)));
         $year = $date['year'];
         $month = $date['mon'];
         $day = $date['mday'];
