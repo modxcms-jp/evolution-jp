@@ -925,7 +925,7 @@ class DocumentParser
         return device();
     }
 
-    public function join($delim = ',', $array, $prefix = '')
+    public function join($delim = ',', $array = [], $prefix = '')
     {
         foreach ($array as $i => $v) {
             $array[$i] = $prefix . trim($v);
