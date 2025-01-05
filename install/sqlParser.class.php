@@ -44,24 +44,22 @@ class SqlParser
             exit('DBのバージョンが古いためインストールできません。');
         }
 
+        $tableOption = vsprintf(
+            'CHARSET=%s COLLATE %s',
+            [$this->connection_charset, $this->connection_collation]
+        );
         $sql_array = preg_split(
             '@;[ \t]*\n@',
             evo()->parseText(
-                str_replace(
-                    '{TABLE_OPTION}',
-                    sprintf(
-                        'CHARSET=%s COLLATE %s'
-                        , $this->connection_charset
-                        , $this->connection_collation
-                    ),
-                    $idata
-                ),
+                str_replace('{TABLE_OPTION}', $tableOption, $idata),
                 array(
                     'PREFIX' => $this->prefix,
                     'ADMINNAME' => $this->adminname,
                     'ADMINPASS' => md5($this->adminpass),
                     'ADMINEMAIL' => $this->adminemail,
-                    'ADMINFULLNAME' => substr($this->adminemail, 0, strpos($this->adminemail, '@')),
+                    'ADMINFULLNAME' => substr(
+                        $this->adminemail, 0, strpos($this->adminemail, '@')
+                    ),
                     'MANAGERLANGUAGE' => $this->managerlanguage,
                     'DATE_NOW' => time()
                 ),
