@@ -388,7 +388,7 @@ function doc($key, $default = '')
             }
         }
     }
-    return is_array($a[$key])
+    return isset($a[$key]) && is_array($a[$key])
         ? array_get($a, $key . '.value', $default)
         : array_get($a, $key, $default)
     ;
