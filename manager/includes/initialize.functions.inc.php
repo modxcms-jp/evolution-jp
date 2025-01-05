@@ -140,7 +140,8 @@ class init
     {
         global $https_port;
 
-        if (strtolower(serverv('HTTPS')) === 'on') {
+        $https = serverv('HTTPS');
+        if ($https !== null && strtolower($https) === 'on') {
             return true;
         }
 
