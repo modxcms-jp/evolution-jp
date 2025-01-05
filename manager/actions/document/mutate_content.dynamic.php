@@ -33,9 +33,9 @@ if (request_intvar('id')) {
 evo()->loadExtension('REVISION');
 if (request_intvar('id') && config('enable_draft')) {
     $modx->revisionObject = evo()->revision->getRevisionObject(
-        request_intvar('id')
-        , 'resource'
-        , 'template'
+        request_intvar('id'),
+        'resource',
+        'template'
     );
 } else {
     $modx->revisionObject = array();
@@ -71,20 +71,20 @@ $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
 $body = array();
 $body[] = parseText(
-    file_get_tpl('tab_general.tpl')
-    , collect_tab_general_ph(request_intvar('id'))
+    file_get_tpl('tab_general.tpl'),
+    collect_tab_general_ph(request_intvar('id'))
 );
 
 if (!config('tvs_below_content', 1) && $tmplVars) {
     $body[] = parseText(
-        file_get_tpl('tab_tv.tpl')
-        , collect_tab_tv_ph()
+        file_get_tpl('tab_tv.tpl'),
+        collect_tab_tv_ph()
     );
 }
 
 $body[] = parseText(
-    file_get_tpl('tab_settings.tpl')
-    , collect_tab_settings_ph(request_intvar('id'))
+    file_get_tpl('tab_settings.tpl'),
+    collect_tab_settings_ph(request_intvar('id'))
 );
 
 if (config('use_udperms') == 1) {
@@ -134,10 +134,10 @@ if (evo()->input_any('pid')) {
     $template = str_replace('<input type="hidden" name="pid" value="[+pid+]" />', '', $template);
 }
 $ph = collect_template_ph(
-    request_intvar('id')
-    , $OnDocFormPrerender
-    , $OnDocFormRender
-    , $OnRichTextEditorInit
+    request_intvar('id'),
+    $OnDocFormPrerender,
+    $OnDocFormRender,
+    $OnRichTextEditorInit
 );
 $ph['content'] = implode("\n", $body);
 echo parseText($template, $ph);
