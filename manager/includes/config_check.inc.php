@@ -264,7 +264,7 @@ function checkConfig()
     if (!is_writable(MODX_CORE_PATH . 'config.inc.php')) {
         return true;
     }
-    if (@chmod(MODX_CORE_PATH . 'config.inc.php', 0444)) {
+    if (chmod(MODX_CORE_PATH . 'config.inc.php', 0444)) {
         return true;
     }
     return false;
