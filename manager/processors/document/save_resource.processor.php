@@ -161,9 +161,11 @@ function get_tmplvars()
     }
 
     // get document groups for current user
-    if (sessionv('mgrDocgroups')) {
-        $docgrp = implode(',', sessionv('mgrDocgroups'));
-    }
+    $docgrp = sessionv('mgrDocgroups')
+        ? implode(',', sessionv('mgrDocgroups'))
+        : ''
+    ;
+
 
     $rs = db()->select(
         'DISTINCT tv.*',
