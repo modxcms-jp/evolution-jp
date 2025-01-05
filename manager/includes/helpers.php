@@ -143,13 +143,13 @@ function input_text_tag($props = [])
     return evo()->html_tag('input', $props);
 }
 
-function textarea_tag($props = [], $content)
+function textarea_tag($props = [], $content='')
 {
     $props['class'] = array_get($props, 'class', 'inputBox');
     return evo()->html_tag('textarea', $props, $content);
 }
 
-function select_tag($props = [], $options)
+function select_tag($props = [], $options='')
 {
     $props['class'] = array_get($props, 'class', 'inputBox');
     if (is_array($options)) {
