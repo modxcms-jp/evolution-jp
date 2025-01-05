@@ -108,18 +108,21 @@ class ManagerAPI
         }
 
         $rs = db()->select(
-            'id'
-            , '[+prefix+]site_content'
-            , sprintf("id<>'%s' AND alias='%s'", $id, $alias)
+            'id',
+            '[+prefix+]site_content',
+            sprintf("id<>'%s' AND alias='%s'", $id, $alias)
         );
         if (db()->count($rs)) {
             $c = 2;
             $_ = $alias;
-            while (0 < db()->count(
-                    db()->select('id',
+            while (
+                0 < db()->count(
+                    db()->select(
+                        'id',
                         '[+prefix+]site_content',
                         sprintf("id!='%s' AND alias='%s'", $id, $_)
-                    ))
+                    )
+                )
             ) {
                 $_ = $alias;
                 $_ .= '_' . $c;
@@ -134,12 +137,12 @@ class ManagerAPI
     function get_alias_num_in_folder($id = '0', $parent = '0')
     {
         $rs = db()->select(
-            'MAX(cast(alias as SIGNED))'
-            , '[+prefix+]site_content'
-            , sprintf(
-                "id<>'%s' AND parent='%s' AND alias REGEXP '^[0-9]+$'"
-                , (int)$id
-                , (int)$parent
+            'MAX(cast(alias as SIGNED))',
+            '[+prefix+]site_content',
+            sprintf(
+                "id<>'%s' AND parent='%s' AND alias REGEXP '^[0-9]+$'",
+                (int)$id,
+                (int)$parent
             )
         );
         $_ = db()->getValue($rs);
@@ -149,12 +152,12 @@ class ManagerAPI
         $_++;
         while (!isset($noduplex)) {
             $rs = db()->select(
-                'id'
-                , '[+prefix+]site_content'
-                , sprintf(
-                    "id='%s' AND parent=%s AND alias=''"
-                    , $_
-                    , (int)$parent
+                'id',
+                '[+prefix+]site_content',
+                sprintf(
+                    "id='%s' AND parent=%s AND alias=''",
+                    $_,
+                    (int)$parent
                 )
             );
             if (db()->count($rs) == 0) {
@@ -169,72 +172,71 @@ class ManagerAPI
     function modx_move_uploaded_file($tmp_path, $target_path)
     {
         return evo()->move_uploaded_file($tmp_path, $target_path);
-
     }
 
     function validate_referer($flag)
     {
         if (getv('frame') === 'main') {
             switch (evo()->manager->action) {
-                case '3' :
-                case '120' :
-                case '4' :
-                case '72' :
-                case '27' :
-                case '8' :
-                case '87' :
-                case '88' :
-                case '11' :
-                case '12' :
-                case '74' :
-                case '28' :
-                case '35' :
-                case '38' :
-                case '16' :
-                case '19' :
-                case '22' :
-                case '23' :
-                case '77' :
-                case '78' :
-                case '18' :
-                case '106' :
-                case '107' :
-                case '108' :
-                case '100' :
-                case '101' :
-                case '102' :
-                case '131' :
-                case '200' :
-                case '31' :
-                case '40' :
-                case '91' :
-                case '41' :
-                case '92' :
-                case '17' :
-                case '53' :
-                case '13' :
-                case '10' :
-                case '70' :
-                case '71' :
-                case '59' :
-                case '75' :
-                case '99' :
-                case '86' :
-                case '76' :
-                case '83' :
-                case '93' :
-                case '95' :
-                case '9' :
-                case '301' :
-                case '302' :
-                case '115' :
-                case '112' :
+                case '3':
+                case '120':
+                case '4':
+                case '72':
+                case '27':
+                case '8':
+                case '87':
+                case '88':
+                case '11':
+                case '12':
+                case '74':
+                case '28':
+                case '35':
+                case '38':
+                case '16':
+                case '19':
+                case '22':
+                case '23':
+                case '77':
+                case '78':
+                case '18':
+                case '106':
+                case '107':
+                case '108':
+                case '100':
+                case '101':
+                case '102':
+                case '131':
+                case '200':
+                case '31':
+                case '40':
+                case '91':
+                case '41':
+                case '92':
+                case '17':
+                case '53':
+                case '13':
+                case '10':
+                case '70':
+                case '71':
+                case '59':
+                case '75':
+                case '99':
+                case '86':
+                case '76':
+                case '83':
+                case '93':
+                case '95':
+                case '9':
+                case '301':
+                case '302':
+                case '115':
+                case '112':
                     unset($_GET['frame']);
                     $_SESSION['mainframe'] = $_GET;
                     header('Location:' . MODX_MANAGER_URL);
                     exit;
                     break;
-                default :
+                default:
             }
         }
 
@@ -291,8 +293,8 @@ class ManagerAPI
             $action = "action={$action} and";
         }
         db()->delete(
-            '[+prefix+]active_users'
-            , sprintf('%s lasthit < %s', $action, $limit_time)
+            '[+prefix+]active_users',
+            sprintf('%s lasthit < %s', $action, $limit_time)
         );
     }
 
@@ -351,10 +353,10 @@ class ManagerAPI
         }
 
         $result = sprintf(
-            '%s>%s%s'
-            , strtolower($algorithm)
-            , md5($salt . $password)
-            , substr(md5($salt), 0, 8)
+            '%s>%s%s',
+            strtolower($algorithm),
+            md5($salt . $password),
+            substr(md5($salt), 0, 8)
         );
 
         return $result;
@@ -370,17 +372,19 @@ class ManagerAPI
 
         return strtoupper(
             substr(
-                $user->password
-                , 0
-                , strpos($user->password, '>')
+                $user->password,
+                0,
+                strpos($user->password, '>')
             )
         );
     }
 
     function setView($action)
     {
-        $actions = explode(',',
-            '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999');
+        $actions = explode(
+            ',',
+            '10,100,101,102,106,107,108,11,112,113,114,115,117,74,12,120,13,131,16,17,18,19,2,200,22,23,26,27,28,29,3,300,301,31,35,38,4,40,51,53,59,70,71,72,75,76,77,78,81,83,84,86,87,88,9,91,93,95,99,998,999'
+        );
         if (in_array($action, $actions)) {
             if (sessionv('current_request_uri')) {
                 $_SESSION['previous_request_uri'] = sessionv('current_request_uri');
@@ -392,15 +396,15 @@ class ManagerAPI
     function ab($ph)
     {
         return html_tag(
-            '<li>'
-            , ['class' => $ph['label'] == lang('cancel') ? 'mutate' : ''],
+            '<li>',
+            ['class' => $ph['label'] == lang('cancel') ? 'mutate' : ''],
             html_tag(
                 '<a>',
                 [
                     'href' => '#',
                     'onclick' => $ph['onclick']
-                ]
-                , img_tag(
+                ],
+                img_tag(
                     $ph['icon'],
                     [
                         'alt' => $ph['alt']
@@ -413,8 +417,8 @@ class ManagerAPI
     function newCategory($newCat)
     {
         $newCatid = db()->insert(
-            ['category' => db()->escape($newCat)]
-            , '[+prefix+]categories'
+            ['category' => db()->escape($newCat)],
+            '[+prefix+]categories'
         );
 
         if (!$newCatid) {
@@ -427,10 +431,10 @@ class ManagerAPI
     function checkCategory($newCat = '')
     {
         $rs = db()->select(
-            'id,category'
-            , '[+prefix+]categories'
-            , ''
-            , 'category'
+            'id,category',
+            '[+prefix+]categories',
+            '',
+            'category'
         );
 
         if (!$rs) {
@@ -449,10 +453,10 @@ class ManagerAPI
     function getCategories()
     {
         $rs = db()->select(
-            'id, category'
-            , '[+prefix+]categories'
-            , ''
-            , 'category'
+            'id, category',
+            '[+prefix+]categories',
+            '',
+            'category'
         );
 
         if (!$rs) {
@@ -488,15 +492,15 @@ class ManagerAPI
 
         foreach ($resetTables as $table_name) {
             db()->update(
-                ['category' => '0']
-                , '[+prefix+]' . $table_name
-                , sprintf("category='%d'", $catId)
+                ['category' => '0'],
+                '[+prefix+]' . $table_name,
+                sprintf("category='%d'", $catId)
             );
         }
 
         db()->delete(
-            '[+prefix+]categories'
-            , sprintf("id='%d'", $catId)
+            '[+prefix+]categories',
+            sprintf("id='%d'", $catId)
         );
     }
 
@@ -532,8 +536,8 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl')
-            , [
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
+            [
                 'alerts' => db()->escape(implode('<hr />', $alerts)),
                 'title' => $_lang['sys_alert']
             ]
@@ -550,17 +554,17 @@ class ManagerAPI
 
         $new = db()->getValue(
             db()->select(
-                'count(id)'
-                , '[+prefix+]user_messages'
-                , sprintf("recipient='%s' and messageread=0", $uid)
+                'count(id)',
+                '[+prefix+]user_messages',
+                sprintf("recipient='%s' and messageread=0", $uid)
             )
         );
 
         $total = db()->getValue(
             db()->select(
-                'count(id)'
-                , '[+prefix+]user_messages'
-                , sprintf("recipient='%s'", $uid)
+                'count(id)',
+                '[+prefix+]user_messages',
+                sprintf("recipient='%s'", $uid)
             )
         );
 
@@ -581,12 +585,12 @@ class ManagerAPI
         }
 
         $rs = db()->select(
-            'uga.documentgroup as documentgroup'
-            , [
+            'uga.documentgroup as documentgroup',
+            [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_access uga ON uga.membergroup=ug.user_group'
-            ]
-            , sprintf("ug.member='%s'", $uid)
+            ],
+            sprintf("ug.member='%s'", $uid)
         );
 
         if (!db()->count($rs)) {
@@ -607,12 +611,12 @@ class ManagerAPI
         }
 
         $rs = db()->select(
-            'user_group,name'
-            , [
+            'user_group,name',
+            [
                 '[+prefix+]member_groups ug',
                 'INNER JOIN [+prefix+]membergroup_names ugnames ON ug.user_group=ugnames.id'
-            ]
-            , preg_match('@^[1-9][0-9]*$@', $uid) ? sprintf("ug.member='%d'", $uid) : ''
+            ],
+            preg_match('@^[1-9][0-9]*$@', $uid) ? sprintf("ug.member='%d'", $uid) : ''
         );
 
         if (!db()->count($rs)) {
@@ -638,19 +642,19 @@ class ManagerAPI
     function setMgrDocsAsPrivate($docid = '')
     {
         db()->update(
-            ['privatemgr' => 0]
-            , '[+prefix+]site_content'
-            , $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
+            ['privatemgr' => 0],
+            '[+prefix+]site_content',
+            $docid ? sprintf("id='%s'", $docid) : 'privatemgr=1'
         );
 
         $rs = db()->select(
-            'sc.id'
-            , [
+            'sc.id',
+            [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]membergroup_access mga ON mga.documentgroup = dg.document_group'
-            ]
-            , $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
+            ],
+            $docid > 0 ? sprintf("sc.id='%s' AND mga.id > 0", $docid) : 'mga.id > 0'
         );
 
         $ids = db()->getColumn('id', $rs);
@@ -661,9 +665,9 @@ class ManagerAPI
 
         $ids = implode(',', $ids);
         db()->update(
-            ['privatemgr' => 1]
-            , '[+prefix+]site_content'
-            , sprintf('id IN (%s)', $ids)
+            ['privatemgr' => 1],
+            '[+prefix+]site_content',
+            sprintf('id IN (%s)', $ids)
         );
         return $ids;
     }
@@ -679,19 +683,19 @@ class ManagerAPI
     function setWebDocsAsPrivate($docid = '')
     {
         db()->update(
-            ['privateweb' => 0]
-            , '[+prefix+]site_content'
-            , $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
+            ['privateweb' => 0],
+            '[+prefix+]site_content',
+            $docid ? sprintf("id='%s'", $docid) : 'privateweb=1'
         );
 
         $rs = db()->select(
-            'DISTINCT sc.id'
-            , [
+            'DISTINCT sc.id',
+            [
                 '[+prefix+]site_content sc',
                 'LEFT JOIN [+prefix+]document_groups dg ON dg.document = sc.id',
                 'LEFT JOIN [+prefix+]webgroup_access wga ON wga.documentgroup = dg.document_group'
-            ]
-            , $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
+            ],
+            $docid ? sprintf("sc.id='%s' AND wga.id > 0", $docid) : 'wga.id > 0'
         );
 
         $ids = db()->getColumn('id', $rs);
@@ -702,9 +706,9 @@ class ManagerAPI
 
         $ids = implode(',', $ids);
         db()->update(
-            ['privateweb' => 1]
-            , '[+prefix+]site_content'
-            , sprintf("id IN (%s)", $ids)
+            ['privateweb' => 1],
+            '[+prefix+]site_content',
+            sprintf("id IN (%s)", $ids)
         );
         return $ids;
     }
@@ -732,8 +736,8 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents($style_path)
-            , $ph
+            file_get_contents($style_path),
+            $ph
         );
     }
 
@@ -757,8 +761,8 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents($style_path)
-            , $ph
+            file_get_contents($style_path),
+            $ph
         );
     }
 
@@ -781,8 +785,8 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents($style_path)
-            , $ph
+            file_get_contents($style_path),
+            $ph
         );
     }
 
@@ -806,8 +810,9 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents($style_path)
-            , $ph);
+            file_get_contents($style_path),
+            $ph
+        );
     }
 
     function isAllowed($id)
@@ -862,14 +867,14 @@ class ManagerAPI
 
         $modx->user_allowed_docs = [];
         $allowed_parents = explode(
-            ','
-            , str_replace(
-                [' ', '|']
-                , ','
-                , preg_replace(
-                    '@\s+@'
-                    , ' '
-                    , trim(evo()->config['allowed_parents'])
+            ',',
+            str_replace(
+                [' ', '|'],
+                ',',
+                preg_replace(
+                    '@\s+@',
+                    ' ',
+                    trim(evo()->config['allowed_parents'])
                 )
             )
         );
