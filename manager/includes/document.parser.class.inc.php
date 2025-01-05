@@ -89,6 +89,7 @@ class DocumentParser
     public $user_allowed_docs;
     public $mail;
     public $table;
+    public $sub;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
