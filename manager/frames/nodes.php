@@ -59,7 +59,7 @@ if ($expandAll == 2) {
 
 echo $output;
 
-function getNodes($indent, $parent = 0, $expandAll, $output = '')
+function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
 {
     global $modx;
     global $_style, $modx_textdir, $_lang, $opened, $opened2, $closed2;
@@ -101,16 +101,12 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
     );
     $hasChild = db()->count($result);
 
-    if (!isset($modx->config['limit_by_container'])) {
-        $modx->config['limit_by_container'] = '';
-    }
-
-    if ($modx->config['tree_page_click'] != 27 && $parent != 0) {
-        if ($modx->config['limit_by_container'] === '') {
+    if ($modx->config('tree_page_click') != 27 && $parent != 0) {
+        if ($modx->config('limit_by_container') === '') {
             $container_status = 'asis';
-        } elseif ($modx->config['limit_by_container'] === '0') {
+        } elseif ($modx->config('limit_by_container') == 0) {
             $container_status = 'container_only';
-        } elseif ($modx->config['limit_by_container'] < $hasChild) {
+        } elseif ($modx->config('limit_by_container') < $hasChild) {
             $container_status = 'too_many';
         } else {
             $container_status = 'asis';
@@ -154,7 +150,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['hasdraft'] = !empty($hasDraft) ? 1 : 0;
 
         $draftDisplay = '';
-        if ($modx->config['enable_draft']) {
+        if ($modx->config('enable_draft')) {
             $tpl = '&nbsp;<img src="%s">&nbsp;';
             if ($hasDraft === 'draft') {
                 $draftDisplay = sprintf($tpl, $_style['tree_draft']);
@@ -167,7 +163,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['parent'] = $parent;
         $ph['spacer'] = $spacer;
         $pagetitle = addslashes($pagetitle);
-        $pagetitle = htmlspecialchars($pagetitle, ENT_QUOTES, $modx->config['modx_charset']);
+        $pagetitle = htmlspecialchars($pagetitle, ENT_QUOTES, $modx->config('modx_charset'));
         $ph['pagetitle'] = "'{$pagetitle}'";
         $ph['nodetitle'] = "'" . addslashes($nodetitle) . "'";
         $url = $modx->makeUrl($id, '', '', 'full');
@@ -205,7 +201,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
             if ($type === 'reference') {
                 $ph['icon'] = $_style["tree_linkgo"];
             }
-            switch ($modx->config['tree_page_click']) {
+            switch ($modx->config('tree_page_click')) {
                 case '27':
                     $ph['ca'] = 'open';
                     break;
@@ -220,7 +216,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         } else {
             $ph['fid'] = "'f{$id}'";
             $ph['indent'] = $indent + 1;
-            switch ($modx->config['tree_page_click']) {
+            switch ($modx->config('tree_page_click')) {
                 case 27:
                     $ph['ca'] = 'open';
                     break;
@@ -449,12 +445,12 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
             break;
         case 'alias':
             $nodetitle = $alias ? $alias : $id;
-            if ((strpos($alias, '.') === false) || ($modx->config['suffix_mode'] !== '1')) {
-                if ($isfolder != 1 || $modx->config['make_folders'] !== '1') {
-                    $nodetitle .= $modx->config['friendly_url_suffix'];
+            if ((strpos($alias, '.') === false) || ($modx->config('suffix_mode') !== '1')) {
+                if ($isfolder != 1 || $modx->config('make_folders') !== '1') {
+                    $nodetitle .= $modx->config('friendly_url_suffix');
                 }
             }
-            $rs = $modx->config['friendly_url_prefix'] . $nodetitle;
+            $rs = $modx->config('friendly_url_prefix') . $nodetitle;
             break;
         case 'pagetitle':
             $rs = $pagetitle;
@@ -513,13 +509,13 @@ function getIcon($id, $contenttype, $isfolder = '0')
         'image/png' => $_style["tree_page_png"]
     );
 
-    if ($id == $modx->config['site_start']) {
+    if ($id == $modx->config('site_start')) {
         $rs = $_style["tree_page_home"];
-    } elseif ($id == $modx->config['error_page']) {
+    } elseif ($id == $modx->config('error_page')) {
         $rs = $_style["tree_page_404"];
-    } elseif ($id == $modx->config['site_unavailable_page']) {
+    } elseif ($id == $modx->config('site_unavailable_page')) {
         $rs = $_style["tree_page_hourglass"];
-    } elseif ($id == $modx->config['unauthorized_page']) {
+    } elseif ($id == $modx->config('unauthorized_page')) {
         $rs = $_style["tree_page_info"];
     } else {
         if (!$privateweb && !$privatemgr) :
@@ -559,7 +555,7 @@ function getClassName($published, $deleted, $hidemenu, $hasAccess)
     return $rs;
 }
 
-function getAlt($id, $alias = '', $menuindex, $hidemenu, $privatemgr, $privateweb)
+function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
 {
     global $modx, $_lang;
 
@@ -571,7 +567,7 @@ function getAlt($id, $alias = '', $menuindex, $hidemenu, $privatemgr, $privatewe
     $_[] = "{$_lang['page_data_mgr_access']}: " . ($privatemgr ? $_lang['private'] : $_lang['public']);
     $alt = join("\n", $_);
     $alt = addslashes($alt);
-    return htmlspecialchars($alt, ENT_QUOTES, $modx->config['modx_charset']);
+    return htmlspecialchars($alt, ENT_QUOTES, $modx->config('modx_charset'));
 }
 
 function tplEmptyFolder()
@@ -584,7 +580,7 @@ function parseNode($tpl, $param, $id)
 {
     global $modx;
 
-    $_tmp = $modx->config['limit_by_container'];
+    $_tmp = $modx->config('limit_by_container');
     $modx->config['limit_by_container'] = '';
     if ($modx->manager->isContainAllowed($id) === false) {
         return;
