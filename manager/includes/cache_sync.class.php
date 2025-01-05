@@ -122,7 +122,7 @@ class synccache
         $files = $this->getFileList($this->cachePath, $pattern);
         $files = array_reverse($files);
 
-        $filesincache = ($files[0] !== $pattern) ? count($files) : 0;
+        $filesincache = ($files && $files[0] !== $pattern) ? count($files) : 0;
 
         if (!$filesincache) {
             return [0, 0, []];
