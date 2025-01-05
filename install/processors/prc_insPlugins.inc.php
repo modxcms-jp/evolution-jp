@@ -94,7 +94,7 @@ foreach ($tplPlugins as $i => $tplInfo) {
 
     // add system events
     $events = explode(',', $tplInfo['events']);
-    if ($pluginId && count($events) > 0) {
+    if ($pluginId && $events) {
         // remove existing events
         db()->delete('[+prefix+]site_plugin_events', "pluginid='{$pluginId}'");
 
