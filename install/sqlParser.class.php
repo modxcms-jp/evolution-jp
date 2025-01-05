@@ -48,9 +48,9 @@ class SqlParser
             '@;[ \t]*\n@',
             evo()->parseText(
                 str_replace(
-                    'ENGINE=MyISAM',
+                    '{TABLE_OPTION}',
                     sprintf(
-                        'ENGINE=MyISAM DEFAULT CHARSET=%s COLLATE %s'
+                        'CHARSET=%s COLLATE %s'
                         , $this->connection_charset
                         , $this->connection_collation
                     ),
