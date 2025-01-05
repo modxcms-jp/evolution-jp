@@ -5,10 +5,12 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 $ph['_lang_cleaningup'] = $_lang['cleaningup'];
 $ph['_lang_actioncomplete'] = $_lang['actioncomplete'];
 
-if ($_REQUEST['r'] == 10) {
+if (anyv('r') == 10) {
     $ph['reload'] = 'top.mainMenu.reloadPane(10);';
-} elseif ($_REQUEST['dv'] == 1 && $_REQUEST['id'] != '') {
-    $ph['reload'] = "document.location.href='index.php?a=3&id={$_REQUEST['id']};'";
+} elseif (anyv('dv') == 1 && anyv('id') != '') {
+    $ph['reload'] = sprintf(
+        "document.location.href='index.php?a=3&id=%s';", anyv('id')
+    );
 } else {
     $ph['reload'] = 'document.location.href="index.php?a=2"';
 }
