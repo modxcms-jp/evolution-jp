@@ -27,7 +27,7 @@
                 <textarea
                     name="manager_inline_style" id="manager_inline_style"
                     style="width:95%; height: 9em;"
-                ><?php echo $manager_inline_style; ?></textarea><br/>
+                ><?php echo config('manager_inline_style'); ?></textarea><br/>
                 <?php echo $_lang["a17_manager_inline_style_message"] ?>
             </td>
         </tr>
@@ -36,7 +36,7 @@
             <th><?php echo $_lang["language_title"] ?></th>
             <td>
                 <select name="manager_language" size="1" class="inputBox">
-                    <?php echo get_lang_options(null, $manager_language); ?>
+                    <?php echo get_lang_options(null, config('manager_language')); ?>
                 </select><br/>
                 <?php echo $_lang["language_message"] ?>
             </td>
@@ -59,9 +59,9 @@
             <th><?php echo $_lang["tree_pane_open_default_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["open"],
-                    form_radio('tree_pane_open_default', 1, $tree_pane_open_default == 1)); ?><br/>
+                    form_radio('tree_pane_open_default', 1, config('tree_pane_open_default') == 1)); ?><br/>
                 <?php echo wrap_label($_lang["close"],
-                    form_radio('tree_pane_open_default', 0, $tree_pane_open_default == 0)); ?><br/>
+                    form_radio('tree_pane_open_default', 0, config('tree_pane_open_default') == 0)); ?><br/>
                 <?php echo $_lang["tree_pane_open_default_message"] ?>
             </td>
         </tr>
@@ -117,11 +117,11 @@
             <th><?php echo $_lang["tree_page_click"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["edit_resource"],
-                    form_radio('tree_page_click', '27', $tree_page_click == '27')); ?><br/>
+                    form_radio('tree_page_click', '27', config('tree_page_click') == '27')); ?><br/>
                 <?php echo wrap_label($_lang["doc_data_title"],
-                    form_radio('tree_page_click', '3', $tree_page_click == '3')); ?><br/>
+                    form_radio('tree_page_click', '3', config('tree_page_click') == '3')); ?><br/>
                 <?php echo wrap_label($_lang["tree_page_click_option_auto"],
-                    form_radio('tree_page_click', 'auto', $tree_page_click == 'auto')); ?><br/>
+                    form_radio('tree_page_click', 'auto', config('tree_page_click') == 'auto')); ?><br/>
                 <?php echo $_lang["tree_page_click_message"] ?>
             </td>
         </tr>
@@ -129,10 +129,10 @@
             <th><?php echo $_lang["remember_last_tab"] ?></th>
             <td>
                 <?php echo wrap_label("{$_lang['yes']} (Full)",
-                    form_radio('remember_last_tab', '2', $remember_last_tab == '2')); ?><br/>
+                    form_radio('remember_last_tab', '2', config('remember_last_tab') == '2')); ?><br/>
                 <?php echo wrap_label("{$_lang['yes']} (Stay mode)",
-                    form_radio('remember_last_tab', '1', $remember_last_tab == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('remember_last_tab', '0', $remember_last_tab == '0')); ?>
+                    form_radio('remember_last_tab', '1', config('remember_last_tab') == '1')); ?><br/>
+                <?php echo wrap_label($_lang["no"], form_radio('remember_last_tab', '0', config('remember_last_tab') == '0')); ?>
                 <br/>
                 <?php echo $_lang["remember_last_tab_message"] ?>
             </td>
@@ -146,7 +146,7 @@
                     foreach (['isfolder','pagetitle','id','menuindex','createdon','editedon'] as $v) {
                         $output[] = str_replace(
                             ['[+value+]', '[+selected+]'],
-                            [$v, ($v == $resource_tree_sortby_default) ? 'selected' : ''],
+                            [$v, ($v == config('resource_tree_sortby_default')) ? 'selected' : ''],
                             '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n"
                         );
                     }
@@ -165,7 +165,7 @@
                     $option = array('pagetitle', 'menutitle', 'alias', 'createdon', 'editedon', 'publishedon');
                     $output = array();
                     foreach ($option as $v) {
-                        $selected = ($v == $resource_tree_node_name) ? 'selected' : '';
+                        $selected = ($v == config('resource_tree_node_name')) ? 'selected' : '';
                         $s = array('[+value+]', '[+selected+]');
                         $r = array($v, $selected);
                         $output[] = str_replace($s, $r, $tpl);
@@ -196,7 +196,7 @@
                     $datetime_format_list = array('dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd');
                     $str = '';
                     foreach ($datetime_format_list as $value) {
-                        $selectedtext = ($datetime_format == $value) ? ' selected' : '';
+                        $selectedtext = (config('datetime_format') == $value) ? ' selected' : '';
                         $str .= '<option value="' . $value . '"' . $selectedtext . '>';
                         $str .= $value . "</option>\n";
                     }
@@ -215,9 +215,9 @@
             <th><?php echo $_lang["automatic_optimize_table_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
-                    form_radio('automatic_optimize', '1', $automatic_optimize == '1')); ?><br/>
+                    form_radio('automatic_optimize', '1', config('automatic_optimize') == '1')); ?><br/>
                 <?php echo wrap_label($_lang["no"],
-                    form_radio('automatic_optimize', '0', $automatic_optimize == '0')); ?><br/>
+                    form_radio('automatic_optimize', '0', config('automatic_optimize') == '0')); ?><br/>
                 <?php echo $_lang["automatic_optimize_table_message"] ?>
             </td>
         </tr>
@@ -236,8 +236,8 @@
         <tr>
             <th><?php echo $_lang["pm2email_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"], form_radio('pm2email', '1', $pm2email == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('pm2email', '0', $pm2email == '0')); ?><br/>
+                <?php echo wrap_label($_lang["yes"], form_radio('pm2email', '1', config('pm2email') == '1')); ?><br/>
+                <?php echo wrap_label($_lang["no"], form_radio('pm2email', '0', config('pm2email') == '0')); ?><br/>
                 <?php echo $_lang["pm2email_message"] ?>
             </td>
         </tr>
@@ -252,14 +252,14 @@
             <th><?php echo $_lang["use_editor_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
-                    form_radio('use_editor', '1', $use_editor == '1', 'id="editorRowOn"')); ?><br/>
+                    form_radio('use_editor', '1', config('use_editor') == '1', 'id="editorRowOn"')); ?><br/>
                 <?php echo wrap_label($_lang["no"],
-                    form_radio('use_editor', '0', $use_editor == '0', 'id="editorRowOff"')); ?><br/>
+                    form_radio('use_editor', '0', config('use_editor') == '0', 'id="editorRowOff"')); ?><br/>
                 <?php echo $_lang["use_editor_message"] ?>
             </td>
         </tr>
 
-        <tr class="editorRow" style="display: <?php echo $use_editor == 1 ? $displayStyle : 'none'; ?>">
+        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
             <th><?php echo $_lang["which_editor_title"] ?></th>
             <td>
                 <?php
@@ -267,9 +267,9 @@
                 $editors = evo()->invokeEvent("OnRichTextEditorRegister");
                 if (is_array($editors)) {
                     $which_editor_sel = '<select name="which_editor">';
-                    $which_editor_sel .= '<option value="none"' . ($which_editor == 'none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
+                    $which_editor_sel .= '<option value="none"' . (config('which_editor') == 'none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
                     foreach ($editors as $editor) {
-                        $editor_sel = $which_editor == $editor ? ' selected="selected"' : '';
+                        $editor_sel = config('which_editor') == $editor ? ' selected="selected"' : '';
                         $which_editor_sel .= '<option value="' . $editor . '"' . $editor_sel . '>' . $editor . "</option>\n";
                     }
                     $which_editor_sel .= '</select><br />';
@@ -280,14 +280,14 @@
                 ?>
                 <?php echo $_lang["which_editor_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?php echo $use_editor == 1 ? $displayStyle : 'none'; ?>">
+        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
             <th><?php echo $_lang["fe_editor_lang_title"] ?></th>
             <td><select name="fe_editor_lang" size="1" class="inputBox">
-                    <?php echo get_lang_options(null, $fe_editor_lang); ?>
+                    <?php echo get_lang_options(null, config('fe_editor_lang')); ?>
                 </select><br/>
                 <?php echo $_lang["fe_editor_lang_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?php echo $use_editor == 1 ? $displayStyle : 'none'; ?>">
+        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
             <th><?php echo $_lang["editor_css_path_title"] ?></th>
             <td>
                 <?php echo form_text('editor_css_path', '', 'style="width:400px;"'); ?><br/>

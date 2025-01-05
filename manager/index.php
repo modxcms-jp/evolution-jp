@@ -136,7 +136,7 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
 }
 
 // attempt to foil some simple types of CSRF attacks
-$modx->manager->validate_referer($modx->config['validate_referer']);
+$modx->manager->validate_referer($modx->config('validate_referer'));
 
 $modx->manager->setView($modx->manager->action);
 

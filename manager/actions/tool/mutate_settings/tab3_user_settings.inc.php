@@ -38,8 +38,8 @@
             <th><?php echo $_lang["udperms_allowroot_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
-                    form_radio('udperms_allowroot', '1', $udperms_allowroot == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('udperms_allowroot', '0', $udperms_allowroot == '0')); ?>
+                    form_radio('udperms_allowroot', '1', config('udperms_allowroot') == '1')); ?><br/>
+                <?php echo wrap_label($_lang["no"], form_radio('udperms_allowroot', '0', config('udperms_allowroot') == '0')); ?>
                 <br/>
                 <?php echo $_lang["udperms_allowroot_message"] ?>
             </td>
@@ -48,9 +48,9 @@
             <th><?php echo $_lang["tree_show_protected"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
-                    form_radio('tree_show_protected', '1', $tree_show_protected == '1')); ?><br/>
+                    form_radio('tree_show_protected', '1', config('tree_show_protected') == '1')); ?><br/>
                 <?php echo wrap_label($_lang["no"],
-                    form_radio('tree_show_protected', '0', $tree_show_protected == '0')); ?><br/>
+                    form_radio('tree_show_protected', '0', config('tree_show_protected') == '0')); ?><br/>
                 <?php echo $_lang["tree_show_protected_message"] ?>
             </td>
         </tr>
@@ -68,9 +68,9 @@
         <tr>
             <th><?php echo $_lang["validate_referer_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"], form_radio('validate_referer', '1', $validate_referer == '1')); ?>
+                <?php echo wrap_label($_lang["yes"], form_radio('validate_referer', '1', config('validate_referer') == '1')); ?>
                 <br/>
-                <?php echo wrap_label($_lang["no"], form_radio('validate_referer', '0', $validate_referer == '0')); ?>
+                <?php echo wrap_label($_lang["no"], form_radio('validate_referer', '0', config('validate_referer') == '0')); ?>
                 <br/>
                 <?php echo $_lang["validate_referer_message"] ?>
             </td>
@@ -79,8 +79,8 @@
         <tr>
             <th><?php echo $_lang["allow_mgr2web_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"], form_radio('allow_mgr2web', '1', $allow_mgr2web == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('allow_mgr2web', '0', $allow_mgr2web == '0')); ?><br/>
+                <?php echo wrap_label($_lang["yes"], form_radio('allow_mgr2web', '1', config('allow_mgr2web') == '1')); ?><br/>
+                <?php echo wrap_label($_lang["no"], form_radio('allow_mgr2web', '0', config('allow_mgr2web') == '0')); ?><br/>
                 <?php echo $_lang["allow_mgr2web_message"] ?>
             </td>
         </tr>
@@ -133,11 +133,11 @@
             <th><?php echo $_lang["warning_visibility"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["administrators"],
-                    form_radio('warning_visibility', '0', $warning_visibility == '0')); ?><br/>
+                    form_radio('warning_visibility', '0', config('warning_visibility') == '0')); ?><br/>
                 <?php echo wrap_label($_lang["a17_warning_opt2"],
-                    form_radio('warning_visibility', '2', $warning_visibility == '2')); ?><br/>
+                    form_radio('warning_visibility', '2', config('warning_visibility') == '2')); ?><br/>
                 <?php echo wrap_label($_lang["everybody"],
-                    form_radio('warning_visibility', '1', $warning_visibility == '1')); ?><br/>
+                    form_radio('warning_visibility', '1', config('warning_visibility') == '1')); ?><br/>
                 <?php echo $_lang["warning_visibility_message"] ?>
             </td>
         </tr>
@@ -147,9 +147,9 @@
             <th><?php echo $_lang["captcha_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["yes"],
-                    form_radio('use_captcha', '1', $use_captcha == '1' && $gdAvailable, '', !$gdAvailable)); ?><br/>
+                    form_radio('use_captcha', '1', config('use_captcha') == '1' && $gdAvailable, '', !$gdAvailable)); ?><br/>
                 <?php echo wrap_label($_lang["no"],
-                    form_radio('use_captcha', '0', $use_captcha == '0' || !$gdAvailable, '', !$gdAvailable)); ?><br/>
+                    form_radio('use_captcha', '0', config('use_captcha') == '0' || !$gdAvailable, '', !$gdAvailable)); ?><br/>
                 <?php echo $_lang["captcha_message"] ?>
             </td>
         </tr>
@@ -183,17 +183,28 @@
             <th><?php echo $_lang["email_method_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["email_method_mail"],
-                    form_radio('email_method', 'mail', ($email_method == 'mail' || !isset($email_method)))); ?>
+                    form_radio('email_method', 'mail', (evo()->config('email_method') == 'mail' || !evo()->config('email_method')))); ?>
                 <?php echo wrap_label($_lang["email_method_smtp"],
-                    form_radio('email_method', 'smtp', ($email_method == 'smtp'))); ?><br/>
+                    form_radio('email_method', 'smtp', (evo()->config('email_method') == 'smtp'))); ?><br/>
             </td>
         </tr>
         <tr class="emailMethodRow">
             <th><?php echo $_lang["smtp_auth_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"],
-                    form_radio('smtp_auth', '1', ($smtp_auth == '1' || !isset($smtp_auth)))); ?>
-                <?php echo wrap_label($_lang["no"], form_radio('smtp_auth', '0', ($smtp_auth == '0'))); ?><br/>
+                <?php echo wrap_label(
+                    $_lang["yes"],
+                    form_radio(
+                        'smtp_auth',
+                        '1',
+                        config('smtp_auth', 0) == 1
+                    )
+                ); ?>
+                <?php echo wrap_label(
+                    $_lang["no"],
+                    form_radio(
+                        'smtp_auth', '0', config('smtp_auth', 0) == 0
+                    )
+                ); ?><br/>
             </td>
         </tr>
 
@@ -201,7 +212,7 @@
             <th><?php echo $_lang["smtp_host_title"] ?></th>
             <td><input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;" name="smtp_host"
-                    value="<?php echo isset($smtp_host) ? $smtp_host : "smtp.example.com"; ?>"/>
+                    value="<?php echo config('smtp_host', 'smtp.example.com'); ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">
@@ -210,7 +221,7 @@
                 <input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
                     name="smtp_port"
-                    value="<?php echo isset($smtp_port) ? $smtp_port : "25"; ?>"/>
+                    value="<?php echo config('smtp_port', '25'); ?>"/>
             </td>
         </tr>
         <tr class="emailMethodRow">
@@ -219,7 +230,7 @@
                 <input
                     onchange="documentDirty=true;" type="text" maxlength="255" style="width: 250px;"
                     name="smtp_username"
-                    value="<?php echo isset($smtp_username) ? $smtp_username : $emailsender; ?>"
+                    value="<?php echo config('smtp_username', $emailsender); ?>"
                 />
             </td>
         </tr>
@@ -235,9 +246,9 @@
             <th><?php echo $_lang["smtp_secure_title"] ?></th>
             <td>
                 <?php echo wrap_label($_lang["none"],
-                    form_radio('smtp_secure', '', ($smtp_secure == '' || !isset($smtp_secure)))); ?>
-                <?php echo wrap_label("ssl", form_radio('smtp_secure', 'ssl', ($smtp_secure == 'ssl'))); ?>
-                <?php echo wrap_label("tls", form_radio('smtp_secure', 'tls', ($smtp_secure == 'tls'))); ?>
+                    form_radio('smtp_secure', '', (config('smtp_secure') == '' || !isset($smtp_secure)))); ?>
+                <?php echo wrap_label("ssl", form_radio('smtp_secure', 'ssl', (config('smtp_secure') == 'ssl'))); ?>
+                <?php echo wrap_label("tls", form_radio('smtp_secure', 'tls', (config('smtp_secure') == 'tls'))); ?>
             </td>
         </tr>
 
