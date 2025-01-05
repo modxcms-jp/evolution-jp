@@ -106,26 +106,29 @@ class TinyMCE
                 $config = $settings;
                 break;
         }
-        $params['theme'] = $config['tinymce_editor_theme'];
-        $params['mce_editor_skin'] = $config['mce_editor_skin'];
-        $params['mce_entermode'] = $config['mce_entermode'];
-        $params['mce_element_format'] = $config['mce_element_format'];
-        $params['mce_schema'] = $config['mce_schema'];
-        $params['css_selectors'] = $config['tinymce_css_selectors'];
-        $params['custom_plugins'] = $config['tinymce_custom_plugins'];
-        $params['custom_buttons1'] = $config['tinymce_custom_buttons1'];
-        $params['custom_buttons2'] = $config['tinymce_custom_buttons2'];
-        $params['custom_buttons3'] = $config['tinymce_custom_buttons3'];
-        $params['custom_buttons4'] = $config['tinymce_custom_buttons4'];
-        $params['mce_template_docs'] = $config['mce_template_docs'];
-        $params['mce_template_chunks'] = $config['mce_template_chunks'];
+        include_once("{$mce_path}settings/default_params.php");
+        $params['theme'] = $config['tinymce_editor_theme'] ?? 'editor';
+        $params['mce_editor_skin'] = $config['mce_editor_skin'] ?? 'default';
+        if (isset($config['mce_entermode'])) {
+            $params['mce_entermode'] = $config['mce_entermode'];
+        }
+        $params['mce_entermode'] = $config['mce_entermode'] ?? $ph['mce_entermode'];
+        $params['mce_element_format'] = $config['mce_element_format'] ?? $ph['mce_element_format'];
+        $params['mce_schema'] = $config['mce_schema'] ?? $ph['mce_schema'];
+        $params['css_selectors'] = $config['tinymce_css_selectors'] ?? $ph['css_selectors'];
+        $params['custom_plugins'] = $config['tinymce_custom_plugins'] ?? $ph['custom_plugins'];
+        $params['custom_buttons1'] = $config['tinymce_custom_buttons1'] ?? $ph['custom_buttons1'];
+        $params['custom_buttons2'] = $config['tinymce_custom_buttons2'] ?? $ph['custom_buttons2'];
+        $params['custom_buttons3'] = $config['tinymce_custom_buttons3'] ?? $ph['custom_buttons3'];
+        $params['custom_buttons4'] = $config['tinymce_custom_buttons4'] ?? $ph['custom_buttons4'];
+        $params['mce_template_docs'] = $config['mce_template_docs'] ?? $ph['mce_template_docs'];
+        $params['mce_template_chunks'] = $config['mce_template_chunks'] ?? $ph['mce_template_chunks'];
 
         // language settings
         if (!@include($mce_path . "lang/" . $modx->config['manager_language'] . '.inc.php')) {
             include_once("{$mce_path}lang/english.inc.php");
         }
 
-        include_once("{$mce_path}settings/default_params.php");
         $ph += $_lang;
 
         $theme_options = '';
@@ -317,11 +320,10 @@ class TinyMCE
         $ph['height'] = (!empty($params['height'])) ? $params['height'] : '300';
         $ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
         if (strpos($modx->config['mce_editor_skin'], ':') !== false) {
-            list($skin, $skin_variant) = explode(':', $modx->config['mce_editor_skin']);
+            list($skin, $skin_variant) = explode(':', config('mce_editor_skin', 'default'));
         } else $skin = $modx->config['mce_editor_skin'];
         $ph['skin'] = $skin;
-        if ($skin_variant) $ph['skin_variant'] = $skin_variant;
-        else              $ph['skin_variant'] = '';
+        $ph['skin_variant'] = $skin_variant ?? '';
 
         $ph['document_base_url'] = MODX_SITE_URL;
         switch ($params['mce_path_options']) {
@@ -390,14 +392,19 @@ class TinyMCE
         $ph['entity_encoding'] = $params['entity_encoding'];
         $ph['onchange_callback'] = "'myCustomOnChangeHandler'";
         $ph['terminate'] = empty($params['customparams']) ? '' : ',';
-        $ph['customparams'] = rtrim(
-            evo()->parseText(
-                $params['customparams']
-                , evo()->documentObject
-                , '[*'
-                , '*]'
-            ),
-            ',');
+        if (!empty($params['customparams'])) {
+            $ph['customparams'] = rtrim(
+                evo()->parseText(
+                    $params['customparams'],
+                    evo()->documentObject,
+                    '[*',
+                    '*]'
+                ),
+                ','
+            );
+        } else {
+            $ph['customparams'] = '';
+        }
         $content_css[] = "{$mce_url}style/content.css";
         if (preg_match('@^/@', $params['editor_css_path'])) {
             $content_css[] = $params['editor_css_path'];
