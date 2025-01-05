@@ -381,22 +381,23 @@ function tooltip($msg)
 
 function get_alias_path($id)
 {
-    $pid = (int)$_REQUEST['pid'];
-
     if (config('use_alias_path') === '0') {
         return MODX_BASE_URL;
     }
 
-    if ($pid) {
+    $pid = (int)anyv('pid', 0);
+
+    if (!$id && !$pid) {
+        return MODX_BASE_URL;
+    }
+    if (!$pid) {
+        $path = evo()->getAliasListing($id, 'path');
+    } else {
         if (evo()->getAliasListing($pid, 'path')) {
             $path = evo()->getAliasListing($pid, 'path') . '/' . evo()->getAliasListing($pid, 'alias');
         } else {
             $path = evo()->getAliasListing($pid, 'alias');
         }
-    } elseif (!$id) {
-        return MODX_BASE_URL;
-    } else {
-        $path = evo()->getAliasListing($id, 'path');
     }
 
     if ($path === '') {
