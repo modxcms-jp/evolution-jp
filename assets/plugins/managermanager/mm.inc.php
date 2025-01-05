@@ -259,6 +259,8 @@ class MANAGERMANAGER
 
     function make_changes($chunk)
     {
+        global $modx;
+
         if(strpos($chunk, '@FILE')===0) {
             return evo()->atBindFile($chunk);
         }
