@@ -543,7 +543,7 @@ function convert2utf8mb4() {
         $convert->convertDb();
     }
     $convert->convertDb();
-    
+
     $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
     if ($count) {
         echo sprintf(
