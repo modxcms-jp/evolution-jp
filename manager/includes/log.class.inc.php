@@ -40,7 +40,7 @@ class logHandler
         }
         if ($this->entry['msg'] == '') {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
-            $this->entry['msg'] = getAction($action_id, $this->entry['itemId']);
+            $this->entry['msg'] = getAction($action_id, $this->entry['itemid']??'');
             if ($this->entry['msg'] == '') {
                 $this->logError("couldn't find message to write to log.");
                 return;
