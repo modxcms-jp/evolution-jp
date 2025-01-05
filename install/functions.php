@@ -36,7 +36,7 @@ function includeLang($lang_name, $dir = 'langs/')
     global $_lang;
 
     $_lang = array();
-    $lang_name = str_replace('\\', '/', $lang_name);
+    $lang_name = str_replace('\\', '/', $lang_name ?? '');
     if (strpos($lang_name, '/') !== false) {
         require_once(MODX_SETUP_PATH . 'langs/english.inc.php');
     } elseif (is_file(MODX_SETUP_PATH . $dir . $lang_name . '.inc.php')) {
