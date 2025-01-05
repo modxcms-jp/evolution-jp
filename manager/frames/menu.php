@@ -15,8 +15,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>"/>
         <title>nav</title>
         <link rel="stylesheet" type="text/css"
-              href="media/style/<?php echo $manager_theme ?>/style.css?<?php echo $modx_version; ?>"/>
-        <?php echo $modx->config['manager_inline_style']; ?>
+              href="media/style/<?php echo config('manager_theme') ?>/style.css?<?php echo $modx_version; ?>"/>
+        <?php echo config('manager_inline_style'); ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript">
             // TREE FUNCTIONS - FRAME
@@ -32,7 +32,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             jQuery(function () {
                 window.setInterval('keepMeAlive()', 1000 * 60);
                 if (msgcheck != 0) updateMail(true); // First run update
-                var mailinterval = <?php echo $modx->config['mail_check_timeperiod'];?>;
+                var mailinterval = <?php echo config('mail_check_timeperiod');?>;
                 if (mailinterval != '' && mailinterval != 0) {
                     if (msgcheck != 0) setInterval('updateMail(true)', mailinterval * 1000);
                 }
@@ -258,7 +258,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                     // Site Menu
                     $item['home'] = item($_lang['home'], 2);             // home
-                    $item['preview'] = item($_lang['view_site'], $modx->config["site_url"], 1,
+                    $item['preview'] = item($_lang['view_site'], config("site_url"), 1,
                         'target="_blank"'); // preview
                     $item['refresh_site'] = item($_lang['refresh_site'], 26,
                         evo()->hasPermission('empty_cache'));    // clear-cache
@@ -316,8 +316,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                     // Security menu items (users)
                     $perm_role_management = (evo()->hasPermission('new_role') || evo()->hasPermission('edit_role') || evo()->hasPermission('delete_role')) ? 1 : 0;
-                    $perm_mgruser = (evo()->hasPermission('access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
-                    $perm_webuser = (evo()->hasPermission('web_access_permissions') && $modx->config['use_udperms'] == 1) ? 1 : 0;
+                    $perm_mgruser = (evo()->hasPermission('access_permissions') && config('use_udperms') == 1) ? 1 : 0;
+                    $perm_webuser = (evo()->hasPermission('web_access_permissions') && config('use_udperms') == 1) ? 1 : 0;
 
                     $item['user_manage'] = item($_lang['user_management_title'], 75,
                         evo()->hasPermission('edit_user'));// manager-users
