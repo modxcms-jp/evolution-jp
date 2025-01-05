@@ -80,7 +80,7 @@ function ab_save()
     $ph['label'] = lang('update');
 
     $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
-    $saveAfter = isset($_REQUEST['stay']) ? $_REQUEST['stay'] : $_SESSION['saveAfter'];
+    $saveAfter = anyv('stay', sessionv('saveAfter', 'close'));
     $selected = array('new' => '', 'stay' => '', 'close' => '');
     if (hasPermission('new_document')
         && $saveAfter === 'new') {
