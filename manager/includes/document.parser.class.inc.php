@@ -132,7 +132,7 @@ class DocumentParser
             $this->config = $this->getSettings();
         }
 
-        if (!isset($this->config['error_reporting']) || 1 < $this->config['error_reporting']) {
+        if (!$this->config('error_reporting') || 1 < $this->config('error_reporting')) {
             if ($error_type == 1) {
                 $title = 'Call deprecated method';
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is deprecated function");
@@ -426,8 +426,8 @@ class DocumentParser
             $alias = $q;
         }
 
-        $prefix = $this->config['friendly_url_prefix'];
-        $suffix = $this->config['friendly_url_suffix'];
+        $prefix = $this->config('friendly_url_prefix');
+        $suffix = $this->config('friendly_url_suffix');
         if ($prefix && strpos($q, $prefix) !== false) {
             $alias = preg_replace("@^{$prefix}@", '', $alias);
         }
@@ -542,7 +542,7 @@ class DocumentParser
 
             // validation routines
             if ($this->checkSiteStatus() === false) {
-                if (!$this->config['site_unavailable_page']) {
+                if (!$this->config('site_unavailable_page')) {
                     header("Content-Type: text/html; charset={$this->config['modx_charset']}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
                     $content = $this->parseText($tpl, $this->config);
@@ -726,7 +726,7 @@ class DocumentParser
         $this->documentOutput = $content;
 
         // invoke OnLogPageView event
-        if ($this->config['track_visitors'] == 1) {
+        if ($this->config('track_visitors') == 1) {
             $this->invokeEvent('OnLogPageHit');
         }
 
@@ -791,7 +791,7 @@ class DocumentParser
         if (strpos($contents, '[!') === false) {
             return $contents;
         }
-        if ($this->config['cache_type'] == 2) {
+        if ($this->config('cache_type') == 2) {
             $this->config['cache_type'] = 1;
         }
 
@@ -842,7 +842,7 @@ class DocumentParser
                 $this->documentObject['__MODxDocGroups__'] = join(',', $docGroups);
             }
 
-            switch ($this->config['cache_type']) {
+            switch ($this->config('cache_type')) {
                 case '1':
                     $cacheContent = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
                     $cacheContent .= serialize($this->documentObject);
@@ -1144,11 +1144,11 @@ class DocumentParser
         if (defined('MODX_SITE_URL')) {
             $this->config['site_url'] = MODX_SITE_URL;
         }
-        if (!isset($this->config['error_page'])) {
-            $this->config['error_page'] = $this->config['start_page'];
+        if (!$this->config('error_page')) {
+            $this->config['error_page'] = $this->config('start_page');
         }
-        if (!isset($this->config['unauthorized_page'])) {
-            $this->config['unauthorized_page'] = $this->config['error_page'];
+        if (!$this->config('unauthorized_page')) {
+            $this->config['unauthorized_page'] = $this->config('error_page');
         }
 
         $this->config = $this->getWebUserSettings($this->config);
@@ -1157,18 +1157,18 @@ class DocumentParser
             $this->config[$k] = $v;
         }
 
-        if (strpos($this->config['filemanager_path'], '[(') !== false) {
+        if (strpos($this->config('filemanager_path'), '[(') !== false) {
             $this->config['filemanager_path'] = str_replace(
                 '[(base_path)]',
                 MODX_BASE_PATH,
-                $this->config['filemanager_path']
+                $this->config('filemanager_path')
             );
         }
-        if (strpos($this->config['rb_base_dir'], '[(') !== false) {
+        if (strpos($this->config('rb_base_dir'), '[(') !== false) {
             $this->config['rb_base_dir'] = str_replace(
                 '[(base_path)]',
                 MODX_BASE_PATH,
-                $this->config['rb_base_dir']
+                $this->config('rb_base_dir')
             );
         }
         if (!isset($this->config['modx_charset'])) {
@@ -1178,12 +1178,12 @@ class DocumentParser
         if ($this->lastInstallTime) {
             $this->config['lastInstallTime'] = $this->lastInstallTime;
         }
-        if ($this->config['legacy_cache']) {
+        if ($this->config('legacy_cache')) {
             $this->setAliasListing();
         }
         $this->setSnippetCache();
 
-        if ($this->config['disable_cache_at_login'] && $this->isFrontEnd() && $this->isLoggedIn('mgr')) {
+        if ($this->config('disable_cache_at_login') && $this->isFrontEnd() && $this->isLoggedIn('mgr')) {
             $this->config['cache_type'] = 0;
         }
 
@@ -4263,9 +4263,9 @@ class DocumentParser
         }
 
         $timestamp = trim($timestamp);
-        $timestamp = (int)$timestamp + $this->config['server_offset_time'];
+        $timestamp = (int)$timestamp + $this->config('server_offset_time');
 
-        switch ($this->config['datetime_format']) {
+        switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
             case 'YYYY/mm/dd':
                 $dateFormat = '%Y/%m/%d';
                 break;
@@ -4297,7 +4297,7 @@ class DocumentParser
             return $str;
         }
 
-        switch ($this->config['datetime_format']) {
+        switch ($this->config('datetime_format')) {
             case 'YYYY/mm/dd':
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
@@ -5202,10 +5202,10 @@ class DocumentParser
         $cache[$aliasPath] = false;
 
         if (empty($aliasPath)) {
-            return $this->config['site_start'];
+            return $this->config('site_start');
         }
 
-        if ($this->config['use_alias_path']) {
+        if ($this->config('use_alias_path')) {
             if (strpos($aliasPath, '/') !== false) {
                 $_a = explode('/', $aliasPath);
             } else {
@@ -5469,9 +5469,9 @@ class DocumentParser
     function move_uploaded_file($tmp_path, $target_path)
     {
         $target_path = str_replace('\\', '/', $target_path);
-        $new_file_permissions = octdec(ltrim($this->config['new_file_permissions'], '0'));
+        $new_file_permissions = octdec(ltrim($this->config('new_file_permissions'), '0'));
 
-        if (strpos($target_path, $this->config['filemanager_path']) !== 0) {
+        if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
             $msg = "Can't upload to '{$target_path}'.";
             $this->logEvent(1, 3, $msg, 'move_uploaded_file');
         }
@@ -5504,7 +5504,7 @@ class DocumentParser
         $limit_width = $this->config('image_limit_width');
         if (!$limit_width || $img[0] <= $limit_width || !$ext) {
             if (move_uploaded_file($tmp_path, $target_path)) {
-                @chmod($target_path, octdec($this->config['new_file_permissions']));
+                @chmod($target_path, octdec($this->config('new_file_permissions')));
                 return true;
             }
             $this->logEvent(
@@ -5679,7 +5679,7 @@ class DocumentParser
     public function config($key = null, $default = null)
     {
         if (!defined('MODX_SETUP_PATH')) {
-            if (!isset($this->config['site_url']) || !$this->config['site_url']) {
+            if (empty($this->config['site_url'])) {
                 $this->getSettings();
             }
         }
