@@ -58,7 +58,7 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include(MODX_SETUP_PATH . 'fix_settings.php');
+include(MODX_SETUP_PATH . 'sql/fix_settings.php');
 
 if (sessionv('is_upgradeable')) {
     convert2utf8mb4();
