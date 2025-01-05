@@ -240,8 +240,8 @@ class SubParser
             $params['target'] = 'pagecache,sitecache';
         }
 
-        $showReport = ($params['showReport']) ? $params['showReport'] : false;
-        $target = ($params['target']) ? $params['target'] : 'pagecache,sitecache';
+        $showReport = !empty($params['showReport']) ? $params['showReport'] : false;
+        $target = !empty($params['target']) ? $params['target'] : 'pagecache,sitecache';
 
         include_once MODX_CORE_PATH . 'cache_sync.class.php';
         $sync = new synccache();
@@ -389,7 +389,7 @@ class SubParser
             );
         }
 
-        if (preg_match('@^[0-9]+@', $modx->documentIdentifier)) {
+        if (!is_null($modx->documentIdentifier) && preg_match('@^[0-9]+@', $modx->documentIdentifier)) {
             $resource = $modx->getDocumentObject('id', $modx->documentIdentifier);
             $str .= $modx->parseText(
                 $tpl,
@@ -512,7 +512,9 @@ class SubParser
 
         // Set 500 response header
         if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
-            header('HTTP/1.1 500 Internal Server Error');
+            if (!headers_sent()) {
+                header('HTTP/1.1 500 Internal Server Error');
+            }
         }
 
         // Display error
@@ -1321,8 +1323,8 @@ class SubParser
         $field_type,
         $field_id,
         $default_text = '',
-        $field_elements,
-        $field_value,
+        $field_elements = '',
+        $field_value = '',
         $field_style = '',
         $row = []
     )
