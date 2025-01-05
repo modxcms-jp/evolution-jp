@@ -49,7 +49,9 @@ function setPermission()
     }
 
     if (is_writable(MODX_CORE_PATH . 'config.inc.php')) {
-        @chmod(MODX_CORE_PATH . 'config.inc.php', 0444);
+        if (!chmod(MODX_CORE_PATH . 'config.inc.php', 0444)) {
+            echo 'Failed to change permissions for config.inc.php';
+        }
     }
 }
 
