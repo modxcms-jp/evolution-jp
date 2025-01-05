@@ -58,7 +58,7 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-$sqlParser->intoDB('fix_settings.sql');
+include(MODX_SETUP_PATH . 'fix_settings.php');
 
 if (sessionv('is_upgradeable')) {
     convert2utf8mb4();
