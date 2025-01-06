@@ -18,6 +18,8 @@
  * Grant French (grant@mcpuk.net)
  */
 
+require_once 'Base.php';
+
 class CreateFolder extends Base
 {
     public $fckphp_config;
