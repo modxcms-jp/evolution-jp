@@ -33,8 +33,8 @@ class GetUploadProgress extends Base
         $this->raw_cwd = $cwd;
         $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
         $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
-        $this->uploadID = $_GET['uploadID'];
-        $this->refreshURL = $_GET['refreshURL'];
+        $this->uploadID = getv('uploadID');
+        $this->refreshURL = getv('refreshURL');
 
     }
 

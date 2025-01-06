@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_snippet')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = intval($_GET['id']);
+$id = (int) getv('id');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // invoke OnBeforeSnipFormDelete event

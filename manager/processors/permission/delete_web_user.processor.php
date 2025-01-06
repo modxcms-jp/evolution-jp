@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_web_user')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = intval($_GET['id']);
+$id = (int)(getv('id'));
 
 $tbl_web_users = evo()->getFullTableName('web_users');
 $tbl_web_groups = evo()->getFullTableName('web_groups');

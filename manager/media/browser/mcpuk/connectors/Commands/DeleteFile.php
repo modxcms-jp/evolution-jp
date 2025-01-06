@@ -41,7 +41,7 @@ class DeleteFile extends Base
             rtrim($this->fckphp_config['basedir'], '/'),
             trim($this->actual_cwd, '/') ? trim($this->actual_cwd, '/') : ''
         );
-        $this->filename = str_replace(array('../', '/'), '', unescape($_GET['FileName']));
+        $this->filename = str_replace(array('../', '/'), '', unescape(getv('FileName')));
     }
 
     function run()

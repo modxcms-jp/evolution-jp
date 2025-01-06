@@ -48,7 +48,7 @@ class CreateFolder extends Base
         $this->newfolder = str_replace(
             array('..', '/'),
             '',
-            $_GET['NewFolderName']
+            getv('NewFolderName')
         );
     }
 

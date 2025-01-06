@@ -12,7 +12,7 @@ $id = anyv('id');
 
 $modx->loadExtension('REVISION');
 if( $modx->revision->chStandbytoDraft($id) ){
-	if( $_GET['back'] == 'publist' ){
+	if( getv('back') === 'publist' ){
 		$header = "Location: index.php?a=70&r=1";
 	}else{
 		$header = "Location: index.php?a=3&id={$id}&r=1";

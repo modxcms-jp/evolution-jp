@@ -33,8 +33,8 @@ class RenameFolder extends Base
         $this->raw_cwd = $cwd;
         $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
         $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
-        $this->foldername = str_replace(array("..", "/"), "", $_GET['FolderName']);
-        $this->newname = str_replace(array("..", "/"), "", $this->checkName($_GET['NewName']));
+        $this->foldername = str_replace(array("..", "/"), "", getv('FolderName'));
+        $this->newname = str_replace(array("..", "/"), "", $this->checkName(getv('NewName')));
     }
 
     function checkName($name)

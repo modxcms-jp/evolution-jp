@@ -7,7 +7,7 @@ if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_doc
     alert()->dumpError();
 }
 
-$id = $_REQUEST['id'];
+$id = anyv('id');
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {
@@ -45,7 +45,7 @@ evo()->invokeEvent('OnDocUnPublished', $tmp);
 $modx->clearCache();
 
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='" . $id . "'"));
-$page = (isset($_GET['page'])) ? "&page=" . $_GET['page'] : '';
+$page = getv('page') ? "&page=" . getv('page') : '';
 if ($pid !== '0') {
     $header = "Location: index.php?r=1&a=120&id={$pid}{$page}";
 } else {

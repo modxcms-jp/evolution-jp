@@ -14,7 +14,7 @@ $self = 'manager/processors/remove_installer.processor.php';
 $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
 
 $install_dir = "{$base_path}install";
-if (isset($_GET['rminstall'])) {
+if (getv('rminstall')) {
     if (is_dir($install_dir)) {
         if (!rmdirRecursive($install_dir)) {
             $msg = 'An error occured while attempting to remove the install folder';
@@ -44,4 +44,10 @@ function rmdirRecursive($path)
         }
     }
     return @rmdir($path);
+}
+
+if (!function_exists('getv')) {
+    function getv($name) {
+        return $_GET[$name] ?? null;
+    }
 }

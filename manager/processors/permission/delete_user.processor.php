@@ -6,7 +6,7 @@ if (!evo()->hasPermission('delete_user')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = intval($_GET['id']);
+$id = (int)(getv('id'));
 
 // delete the user, but first check if we are deleting our own record
 if ($id == evo()->getLoginUserID()) {
