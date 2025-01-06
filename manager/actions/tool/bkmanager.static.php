@@ -200,6 +200,7 @@ if (sessionv('result_msg')) {
                         ));
                         $i = 0;
                         $totaloverhead = 0;
+                        $total = 0;
                         while ($row = db()->getRow($rs)) {
                             $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
 
