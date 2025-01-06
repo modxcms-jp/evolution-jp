@@ -6,29 +6,29 @@ if (!evo()->hasPermission('save_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
-    $id = $_POST['id'];
+if (preg_match('@^[0-9]+$@', postv('id', ''))) {
+    $id = postv('id');
 }
 
-$templatename = db()->escape(trim($_POST['templatename']));
-$description = db()->escape($_POST['description']);
-$parent = db()->escape($_POST['parent']);
+$templatename = db()->escape(trim(postv('templatename')));
+$description = db()->escape(postv('description'));
+$parent = db()->escape(postv('parent'));
 
-$locked = $_POST['locked'] == 'on' ? 1 : 0;
+$locked = postv('locked') == 'on' ? 1 : 0;
 
 $tbl_site_templates = evo()->getFullTableName('site_templates');
 
 //Kyle Jaebker - added category support
-if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $categoryid = db()->escape($_POST['categoryid']);
-} elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
+if (empty(postv('newcategory')) && postv('categoryid') > 0) {
+    $categoryid = db()->escape(postv('categoryid'));
+} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
     if ($catCheck) {
         $categoryid = $catCheck;
     } else {
-        $categoryid = $modx->manager->newCategory($_POST['newcategory']);
+        $categoryid = $modx->manager->newCategory(postv('newcategory'));
     }
 }
 
@@ -39,12 +39,12 @@ if ($templatename == '') {
 $field = array();
 $field['templatename'] = $templatename;
 $field['description'] = $description;
-$field['content'] = db()->escape($_POST['content']);
+$field['content'] = db()->escape(postv('content'));
 $field['locked'] = $locked;
 $field['category'] = $categoryid;
 $field['parent'] = $parent;
 
-switch ($_POST['mode']) {
+switch (postv('mode')) {
     case '19':
 
         // invoke OnBeforeTempFormSave event
@@ -61,9 +61,9 @@ switch ($_POST['mode']) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '19';
-            $_POST['locked'] = isset($_POST['locked']) && $_POST['locked'] == 'on' ? 1 : 0;
+            $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
             $_POST['category'] = $categoryid;
-            $_GET['stay'] = $_POST['stay'];
+            $_GET['stay'] = postv('stay');
             include(MODX_MANAGER_PATH . 'actions/header.inc.php');
             include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
             include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
@@ -87,9 +87,9 @@ switch ($_POST['mode']) {
         // empty cache
         $modx->clearCache();
         // finished emptying cache - redirect
-        if ($_POST['stay'] != '') {
-            $a = ($_POST['stay'] == '2') ? "16&id=$newid" : "19";
-            $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+        if (postv('stay') != '') {
+            $a = (postv('stay') == '2') ? "16&id=$newid" : "19";
+            $header = "Location: index.php?a={$a}&stay=" . postv('stay');
         } else {
             $header = "Location: index.php?a=76";
         }
@@ -111,9 +111,9 @@ switch ($_POST['mode']) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['template'], $templatename));
             // prepare a few request/post variables for form redisplay...
             $_REQUEST['a'] = '16';
-            $_POST['locked'] = isset($_POST['locked']) && $_POST['locked'] == 'on' ? 1 : 0;
+            $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
             $_POST['category'] = $categoryid;
-            $_GET['stay'] = $_POST['stay'];
+            $_GET['stay'] = postv('stay');
             include(MODX_MANAGER_PATH . 'actions/header.inc.php');
             include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
             include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
@@ -135,9 +135,9 @@ switch ($_POST['mode']) {
             // first empty the cache
             $modx->clearCache();
             // finished emptying cache - redirect
-            if ($_POST['stay'] != '') {
-                $a = ($_POST['stay'] == '2') ? "16&id=$id" : "19";
-                $header = "Location: index.php?a={$a}&stay={$_POST['stay']}";
+            if (postv('stay') != '') {
+                $a = (postv('stay') == '2') ? "16&id=$id" : "19";
+                $header = "Location: index.php?a={$a}&stay=" . postv('stay');
             } else {
                 $header = "Location: index.php?a=76";
             }

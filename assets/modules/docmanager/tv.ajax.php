@@ -18,11 +18,11 @@ $dm->getTheme();
 
 $output = '';
 
-if (!isset($_POST['tplID']) || !is_numeric($_POST['tplID'])) {
+if (!is_numeric(postv('tplID'))) {
     return;
 }
 
-$tplID = $_POST['tplID'];
+$tplID = postv('tplID');
 $rs = db()->select(
     '*',
     array(

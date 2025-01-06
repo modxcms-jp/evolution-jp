@@ -136,8 +136,8 @@ $modx->manager->validate_referer($modx->config('validate_referer'));
 
 $modx->manager->setView($modx->manager->action);
 
-if (isset($_POST['stay']) && $_POST['stay'] !== 'new') {
-    $_SESSION['saveAfter'] = $_POST['stay'];
+if (postv('stay') && postv('stay') !== 'new') {
+    $_SESSION['saveAfter'] = postv('stay');
 }
 
 // invoke OnManagerPageInit event

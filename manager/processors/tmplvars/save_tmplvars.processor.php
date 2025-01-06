@@ -8,30 +8,30 @@ if (!evo()->hasPermission('save_template')) {
 }
 
 if (isset($_POST['id']) && preg_match('@^[0-9]+$@', $_POST['id'])) {
-    $id = $_POST['id'];
+    $id = postv('id');
 }
-$name = db()->escape(trim($_POST['name']));
-$description = db()->escape($_POST['description']);
-$caption = db()->escape($_POST['caption']);
-$type = db()->escape($_POST['type']);
-$elements = db()->escape($_POST['elements']);
-$default_text = db()->escape($_POST['default_text']);
-$rank = isset($_POST['rank']) ? db()->escape($_POST['rank']) : 0;
-$display = db()->escape($_POST['display']);
-$display_params = db()->escape($_POST['params']);
-$locked = $_POST['locked'] == 'on' ? 1 : 0;
+$name = db()->escape(trim(postv('name')));
+$description = db()->escape(postv('description'));
+$caption = db()->escape(postv('caption'));
+$type = db()->escape(postv('type'));
+$elements = db()->escape(postv('elements'));
+$default_text = db()->escape(postv('default_text'));
+$rank = isset($_POST['rank']) ? db()->escape(postv('rank')) : 0;
+$display = db()->escape(postv('display'));
+$display_params = db()->escape(postv('params'));
+$locked = postv('locked') == 'on' ? 1 : 0;
 
 //Kyle Jaebker - added category support
-if (empty($_POST['newcategory']) && $_POST['categoryid'] > 0) {
-    $category = db()->escape($_POST['categoryid']);
-} elseif (empty($_POST['newcategory']) && $_POST['categoryid'] <= 0) {
+if (empty(postv('newcategory')) && postv('categoryid') > 0) {
+    $category = db()->escape(postv('categoryid'));
+} elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $category = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape($_POST['newcategory']));
+    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = $modx->manager->newCategory($_POST['newcategory']);
+        $category = $modx->manager->newCategory(postv('newcategory'));
     }
 }
 
@@ -41,7 +41,7 @@ if ($name == '') {
 if ($caption == '') {
     $caption = $name;
 }
-switch ($_POST['mode']) {
+switch (postv('mode')) {
     case '300':
         // invoke OnBeforeTVFormSave event
         $tmp = array(
@@ -85,8 +85,8 @@ switch ($_POST['mode']) {
         // empty cache
         $modx->clearCache(); // first empty the cache
         // finished emptying cache - redirect
-        if (isset($_POST['stay']) && $_POST['stay'] != '') {
-            switch ($_POST['stay']) {
+        if (postv('stay')) {
+            switch (postv('stay')) {
                 case '1':
                     $a = '300';
                     break;
@@ -94,7 +94,7 @@ switch ($_POST['mode']) {
                     $a = "301&id={$newid}";
                     break;
             }
-            $url = "index.php?a={$a}&stay={$_POST['stay']}";
+            $url = "index.php?a={$a}&stay=" . postv('stay');
         } else {
             $url = "index.php?a=76";
         }
@@ -157,8 +157,8 @@ switch ($_POST['mode']) {
             // empty cache
             $modx->clearCache(); // first empty the cache
             // finished emptying cache - redirect
-            if (isset($_POST['stay']) && $_POST['stay'] != '') {
-                switch ($_POST['stay']) {
+            if (postv('stay')) {
+                switch (postv('stay')) {
                     case '1':
                         $a = '300';
                         break;
@@ -166,7 +166,7 @@ switch ($_POST['mode']) {
                         $a = "301&id={$id}";
                         break;
                 }
-                $url = "index.php?a={$a}&stay={$_POST['stay']}";
+                $url = "index.php?a={$a}&stay=" . postv('stay');
             } else {
                 $url = 'index.php?a=76';
             }
@@ -218,7 +218,7 @@ function saveDocumentAccessPermissons()
     if ($newid) {
         $id = $newid;
     }
-    $docgroups = $_POST['docgroups'];
+    $docgroups = postv('docgroups');
 
     // check for permission update access
     if ($modx->config['use_udperms'] == 1) {
@@ -246,8 +246,8 @@ function check_exist_name($name)
 { // disallow duplicate names for new tvs
     global $modx;
     $where = "name='{$name}'";
-    if ($_POST['mode'] == 301) {
-        $where = $where . " AND id!={$_POST['id']}";
+    if (postv('mode') == 301) {
+        $where = $where . " AND id!=" . postv('id');
     }
     $rs = db()->select('COUNT(id)', '[+prefix+]site_tmplvars', $where);
     $count = db()->getValue($rs);

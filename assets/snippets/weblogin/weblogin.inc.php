@@ -27,7 +27,7 @@ if (!isset($tplReminder)) $tplReminder = (isset($tpls[2])) ? $tpls[2] : '';
 if (!isset($tplLogout)) $tplLogout = $tpls[1];
 
 if (!isset($_SESSION['webValidated'])) {
-    $username = isset($_POST['username']) ? db()->escape(htmlspecialchars(trim($_POST['username']), ENT_QUOTES)) : '';
+    $username = isset($_POST['username']) ? db()->escape(htmlspecialchars(trim(postv('username')), ENT_QUOTES)) : '';
     $form = <<< EOT
     <script type="text/JavaScript">
     <!--//--><![CDATA[//><!--

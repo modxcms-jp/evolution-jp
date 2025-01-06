@@ -14,7 +14,7 @@ $dm->ph['ajax.endpoint'] = MODX_SITE_URL . 'assets/modules/docmanager/tv.ajax.ph
 $dm->ph['datepicker.offset'] = $modx->config['datepicker_offset'];
 $dm->ph['datetime.format'] = $modx->config['datetime_format'];
 
-if (isset($_POST['tabAction'])) {
+if (postv('tabAction')) {
     $dmb->handlePostback();
 } else {
     $dmf->getViews();

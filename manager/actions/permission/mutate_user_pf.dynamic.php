@@ -59,10 +59,10 @@ if ($modx->manager->hasFormValues()) {
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
-    $usernamedata['username'] = $userdata['newusername'];
-    $usernamedata['oldusername'] = $form_v['oldusername'];
+    $usernamedata['username'] = postv('newusername');
+    $usernamedata['oldusername'] = postv('oldusername');
     $usersettings = array_merge($usersettings, $userdata);
-    $usersettings['allowed_days'] = is_array($form_v['allowed_days']) ? implode(",", $form_v['allowed_days']) : "";
+    $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
     extract($usersettings, EXTR_OVERWRITE);
 }
 
@@ -226,9 +226,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
     <fieldset style="width:300px">
     <legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
     <label><input type=radio name="passwordgenmethod"
-                value="g" <?php echo $_POST['passwordgenmethod'] == "spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br/>
+                value="g" <?php echo postv('passwordgenmethod') == "spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br/>
     <label><input type=radio name="passwordgenmethod"
-                value="spec" <?php echo $_POST['passwordgenmethod'] == "spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br/>
+                value="spec" <?php echo postv('passwordgenmethod') == "spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br/>
     <div style="padding-left:20px">
     <label for="specifiedpassword" style="width:120px"><?php echo $_lang['change_password_new']; ?>:</label>
     <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"

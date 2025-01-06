@@ -192,7 +192,7 @@ function eForm($modx, $params)
         ), $tpl);
     }
 
-    $validFormId = (isset($_POST['formid']) && $formid == $_POST['formid']) ? 1 : 0;
+    $validFormId = $formid == postv('formid') ? 1 : 0;
 
     # check if postback mode
     $efPostBack = ($validFormId && $_POST && (strpos($_SERVER["HTTP_REFERER"], $modx->config["site_url"]) !== FALSE)) ? true : false; //retain old variable?
@@ -290,7 +290,7 @@ function eForm($modx, $params)
         if ($vericode) {
             //add support for captcha code - thanks to Djamoer
             $code = $_SESSION['veriword'] ? $_SESSION['veriword'] : $_SESSION['eForm.VeriCode'];
-            if ($fields['vericode'] != $code) {
+            if (postv('vericode') != $code) {
                 $vMsg[count($vMsg)] = $_lang['ef_failed_vericode'];
                 $rClass['vericode'] = $invalidClass; //added in 1.4.4
             }

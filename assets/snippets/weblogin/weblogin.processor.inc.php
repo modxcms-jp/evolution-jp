@@ -69,7 +69,7 @@ if ($isPWDActivate == 1) {
 
 # process password reminder
 if ($isPWDReminder == 1) {
-    $email = $_POST['txtwebemail'];
+    $email = postv('txtwebemail');
     if (isset($reminder_message)) {
         if (preg_match('@^[1-9[0-9]*$@', $reminder_message))
             $message = $modx->getField('content', $reminder_message);
@@ -193,10 +193,10 @@ if ($isLogOut == 1) {
 
 # process login
 
-$username = db()->escape(htmlspecialchars($_POST['username'], ENT_QUOTES));
-$givenPassword = db()->escape($_POST['password']);
-$captcha_code = isset($_POST['captcha_code']) ? $_POST['captcha_code'] : '';
-$rememberme = $_POST['rememberme'];
+$username = db()->escape(htmlspecialchars(postv('username'), ENT_QUOTES));
+$givenPassword = db()->escape(postv('password'));
+$captcha_code = postv('captcha_code', '');
+$rememberme = postv('rememberme');
 
 // invoke OnBeforeWebLogin event
 $v = array();
@@ -429,7 +429,7 @@ $tmp = array(
     "userid" => $internalKey,
     "username" => $username,
     "userpassword" => $givenPassword,
-    "rememberme" => $_POST['rememberme']
+    "rememberme" => postv('rememberme')
 );
 evo()->invokeEvent("OnWebLogin", $tmp);
 

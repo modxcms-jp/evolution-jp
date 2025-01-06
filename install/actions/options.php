@@ -3,20 +3,20 @@
 global $tplTemplates, $tplTVs, $tplChunks, $tplModules, $tplPlugins, $tplSnippets;
 
 if (isset($_POST['chkagree'])) {
-    $_SESSION['chkagree'] = $_POST['chkagree'];
+    $_SESSION['chkagree'] = postv('chkagree');
 }
 
 if (isset($_POST['adminname'])) {
-    $_SESSION['adminname'] = $_POST['adminname'];
+    $_SESSION['adminname'] = postv('adminname');
 }
 if (isset($_POST['adminemail'])) {
-    $_SESSION['adminemail'] = $_POST['adminemail'];
+    $_SESSION['adminemail'] = postv('adminemail');
 }
 if (isset($_POST['adminpass'])) {
-    $_SESSION['adminpass'] = $_POST['adminpass'];
+    $_SESSION['adminpass'] = postv('adminpass');
 }
 if (isset($_POST['adminpassconfirm'])) {
-    $_SESSION['adminpassconfirm'] = $_POST['adminpassconfirm'];
+    $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
 }
 
 $_SESSION['managerlanguage'] = sessionv('install_language');

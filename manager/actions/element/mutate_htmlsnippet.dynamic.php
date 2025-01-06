@@ -73,7 +73,7 @@ if ($modx->manager->hasFormValues()) {
 
 if ($formRestored == true || isset ($_REQUEST['changeMode'])) {
     $content = array_merge($content, $form_v);
-    $content['content'] = $form_v['ta'];
+    $content['content'] = postv('ta');
     if (empty ($content['pub_date'])) {
         unset($content['pub_date']);
     } else {
@@ -87,7 +87,7 @@ if ($formRestored == true || isset ($_REQUEST['changeMode'])) {
 }
 
 if (isset($form_v['which_editor'])) {
-    $which_editor = $form_v['which_editor'];
+    $which_editor = postv('which_editor');
 } elseif (!isset($content['editor_type']) || empty($content['editor_type'])) {
     $which_editor = 'none';
 }
