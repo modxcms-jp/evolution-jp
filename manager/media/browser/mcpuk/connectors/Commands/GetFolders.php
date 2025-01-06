@@ -39,8 +39,8 @@ class GetFolders
         header("content-type: text/xml");
         echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
         ?>
-        <Connector command="GetFolders" resourceType="<?php echo $this->type; ?>">
-            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+        <Connector command="GetFolders" resourceType="<?= $this->type ?>">
+            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
             <Folders>
                 <?php
                 /**

@@ -52,8 +52,8 @@ class GetUploadProgress
                 header("content-type: text/xml"); //Nick Crossland (ncrossland)
                 echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
                 ?>
-                <Connector command="GetUploadProgress" resourceType="<?php echo $this->type; ?>">
-                    <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+                <Connector command="GetUploadProgress" resourceType="<?= $this->type ?>">
+                    <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
                     <Progress max="2" value="1"/>
                     <RefreshURL url=""/>
                 </Connector>
@@ -81,10 +81,10 @@ class GetUploadProgress
         header("content-type: text/xml");
         echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
         ?>
-        <Connector command="GetUploadProgress" resourceType="<?php echo $this->type; ?>">
-            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
-            <Progress max="<?php echo $totalBytes; ?>" value="<?php echo $readBytes; ?>"/>
-            <RefreshURL url="<?php echo htmlentities($refreshURL, ENT_QUOTES, 'UTF-8'); ?>"/>
+        <Connector command="GetUploadProgress" resourceType="<?= $this->type ?>">
+            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
+            <Progress max="<?= $totalBytes ?>" value="<?= $readBytes ?>"/>
+            <RefreshURL url="<?= htmlentities($refreshURL, ENT_QUOTES, 'UTF-8') ?>"/>
         </Connector>
         <?php
         xml_parser_free($parser);

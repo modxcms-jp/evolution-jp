@@ -74,8 +74,8 @@ class CreateFolder
         header("content-type: text/xml");
         echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
         ?>
-        <Connector command="CreateFolder" resourceType="<?php echo $this->type; ?>">
-            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+        <Connector command="CreateFolder" resourceType="<?= $this->type ?>">
+            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
             <?php
             $newdir = str_replace(
                 "//",
@@ -108,7 +108,7 @@ class CreateFolder
                 $err_no = 102;
             } //Invalid Folder Name
             ?>
-            <Error number="<?php echo "" . $err_no; ?>"/>
+            <Error number="<?= "" . $err_no ?>"/>
         </Connector>
         <?php
     }

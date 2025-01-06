@@ -56,8 +56,8 @@ class DeleteFile
         header('content-type: text/xml');
         echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
         ?>
-        <Connector command="DeleteFile" resourceType="<?php echo $this->type; ?>">
-            <CurrentFolder path="<?php echo $this->raw_cwd; ?>" url="<?php echo $this->actual_cwd; ?>"/>
+        <Connector command="DeleteFile" resourceType="<?= $this->type ?>">
+            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
             <?php
             if ($result1 && $result2) {
                 $err_no = 0;
@@ -65,7 +65,7 @@ class DeleteFile
                 $err_no = 302;
             }
             ?>
-            <Error number="<?php echo '' . $err_no; ?>"/>
+            <Error number="<?= '' . $err_no ?>"/>
         </Connector>
         <?php
     }

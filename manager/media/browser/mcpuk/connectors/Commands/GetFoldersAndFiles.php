@@ -68,9 +68,9 @@ class GetFoldersAndFiles
         <!ATTLIST File size CDATA "0">
         ] >
 
-    <Connector command="GetFoldersAndFiles" resourceType="<?php echo $this->type; ?>">
-        <CurrentFolder path="<?php echo $this->raw_cwd; ?>"
-                       url="<?php echo $this->fckphp_config['urlprefix'] . $this->actual_cwd; ?>"/>
+    <Connector command="GetFoldersAndFiles" resourceType="<?= $this->type ?>">
+        <CurrentFolder path="<?= $this->raw_cwd ?>"
+                       url="<?= $this->fckphp_config['urlprefix'] . $this->actual_cwd ?>"/>
         <Folders>
         <?php
         $files = array();
