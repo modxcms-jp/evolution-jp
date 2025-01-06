@@ -380,8 +380,9 @@ foreach ($content as $k => $v) {
             </div><!-- end sectionBody -->
         </div><!-- end tab-page -->
         <?php
-        $cache = @file_get_contents(MODX_CACHE_PATH . "docid_{$id}.pageCache.php");
-        if ($cache) :
+        $cachePath = MODX_CACHE_PATH . "docid_{$id}.pageCache.php";
+        if (is_file($cachePath)) :
+            $cache = file_get_contents(MODX_CACHE_PATH . "docid_{$id}.pageCache.php");
             ?>
             <!-- Page Source -->
             <div class="tab-page" id="tabSource">
