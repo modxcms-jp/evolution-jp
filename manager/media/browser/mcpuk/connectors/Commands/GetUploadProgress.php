@@ -18,7 +18,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class GetUploadProgress
+class GetUploadProgress extends Base
 {
     public $fckphp_config;
     public $type;

@@ -18,7 +18,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class RenameFolder
+class RenameFolder extends Base
 {
     public $fckphp_config;
     public $type;

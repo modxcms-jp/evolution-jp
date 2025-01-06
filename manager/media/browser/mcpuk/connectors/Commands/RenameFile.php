@@ -18,7 +18,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class RenameFile
+class RenameFile extends Base
 {
     public $fckphp_config;
     public $type;

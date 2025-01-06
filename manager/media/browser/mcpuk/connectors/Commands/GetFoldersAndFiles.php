@@ -19,7 +19,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class GetFoldersAndFiles
+class GetFoldersAndFiles extends Base
 {
     public $fckphp_config;
     public $type;

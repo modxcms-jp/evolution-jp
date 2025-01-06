@@ -26,7 +26,7 @@ if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_
 }
 include_once(MODX_BASE_PATH . 'manager/media/browser/mcpuk/connectors/Commands/helpers/iconlookup.php');
 
-class Thumbnail
+class Thumbnail extends Base
 {
     public $fckphp_config;
     public $type;

@@ -18,7 +18,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class DeleteFolder
+class DeleteFolder extends Base
 {
     public $fckphp_config;
     public $type;

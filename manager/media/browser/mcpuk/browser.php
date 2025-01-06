@@ -24,8 +24,8 @@ class FBROWSER
 {
     function seturl_js()
     {
-        if (isset($_GET['editor']) && strpos($editor_name, '..') === false)
-            $editor_name = htmlspecialchars($_GET['editor']);
+        if (getv('editor') && strpos(getv('editor'), '..') === false)
+            $editor_name = htmlspecialchars(getv('editor'));
         else $editor_name = '';
         if (!empty($editor_name)) {
             $seturl_js_path = MODX_BASE_PATH . "assets/plugins/{$editor_name}/seturl_js_{$editor_name}.inc";

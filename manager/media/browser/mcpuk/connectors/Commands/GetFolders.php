@@ -18,7 +18,7 @@
  * Grant French (grant@mcpuk.net)
  */
 
-class GetFolders
+class GetFolders extends Base
 {
     public $fckphp_config;
     public $type;
