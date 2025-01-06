@@ -224,23 +224,23 @@ $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagr
 ?>
 <form id="install" action="index.php" method="POST">
     <div>
-        <input type="hidden" value="<?php echo $nextAction; ?>" name="action" />
+        <input type="hidden" value="<?= $nextAction ?>" name="action" />
         <input type="hidden" value="1" name="options_selected" />
         <input type="hidden" name="prev_action" value="summary" />
     </div>
 
-        <h2><?php echo lang('agree_to_terms'); ?></h2>
+        <h2><?= lang('agree_to_terms') ?></h2>
         <p>
             <input type="checkbox" value="1" id="chkagree" name="chkagree"
-                   style="line-height:18px" <?php echo $chkagree ? 'checked="checked" ' : ""; ?><?php echo $agreeToggle; ?>/><label
+                   style="line-height:18px" <?= $chkagree ? 'checked="checked" ' : "" ?><?= $agreeToggle ?>/><label
                 for="chkagree"
-                style="display:inline;float:none;line-height:18px;"> <?php echo lang('iagree_box') ?> </label>
+                style="display:inline;float:none;line-height:18px;"> <?= lang('iagree_box') ?> </label>
         </p>
         <p class="buttonlinks">
             <a href="javascript:void(0);" class="prev"
-               title="<?php echo lang('btnback_value') ?>"><span><?php echo lang('btnback_value') ?></span></a>
-            <a href="javascript:void(0);" class="next" id="nextbutton" title="<?php echo $nextButton ?>"
-               style="visibility:<?php echo $nextVisibility; ?>"><span><?php echo $nextButton ?></span></a>
+               title="<?= lang('btnback_value') ?>"><span><?= lang('btnback_value') ?></span></a>
+            <a href="javascript:void(0);" class="next" id="nextbutton" title="<?= $nextButton ?>"
+               style="visibility:<?= $nextVisibility ?>"><span><?= $nextButton ?></span></a>
         </p>
     </form>
     <script type="text/javascript">

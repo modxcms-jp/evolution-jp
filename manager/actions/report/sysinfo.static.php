@@ -8,7 +8,7 @@ if (!evo()->hasPermission('logs')) {
 }
 global $database_connection_method, $lastInstallTime;
 ?>
-    <h1><?php echo lang('view_sysinfo'); ?></h1>
+    <h1><?= lang('view_sysinfo') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate">
@@ -16,8 +16,8 @@ global $database_connection_method, $lastInstallTime;
                    onclick="documentDirty=false;document.location.href='index.php?a=2';">
                     <img
                         alt="icons_cancel"
-                        src="<?php echo style("icons_cancel") ?>"
-                    /> <?php echo lang('cancel') ?>
+                        src="<?= style("icons_cancel") ?>"
+                    /> <?= lang('cancel') ?>
                 </a>
             </li>
         </ul>
@@ -33,9 +33,9 @@ global $database_connection_method, $lastInstallTime;
     <div class="sectionBody">
         <div class="tab-pane" id="sysinfoPane">
             <div class="tab-page" id="tabServer">
-                <h2 class="tab"><?php echo lang('view_sysinfo'); ?></h2>
+                <h2 class="tab"><?= lang('view_sysinfo') ?></h2>
                 <!-- server -->
-                <div class="sectionHeader"><?php echo lang('view_sysinfo'); ?></div>
+                <div class="sectionHeader"><?= lang('view_sysinfo') ?></div>
                 <div class="sectionBody" id="lyr2">
                     <table border="0" cellspacing="2" cellpadding="2">
                         <?php
@@ -113,7 +113,7 @@ global $database_connection_method, $lastInstallTime;
             </div>
 
             <div class="tab-page" id="sysinfoDesc">
-                <h2 class="tab"><?php echo lang('click_to_view_details'); ?></h2>
+                <h2 class="tab"><?= lang('click_to_view_details') ?></h2>
                 <div class="sectionHeader">サポートに必要な情報</div>
                 <div class="sectionBody" style="padding:10px 20px;">
                     <p>
@@ -187,10 +187,10 @@ global $database_connection_method, $lastInstallTime;
 
             <!-- recent documents -->
             <div class="tab-page" id="tabActivity">
-                <h2 class="tab"><?php echo lang('activity_title'); ?></h2>
-                <div class="sectionHeader"><?php echo lang('activity_title'); ?></div>
+                <h2 class="tab"><?= lang('activity_title') ?></h2>
+                <div class="sectionHeader"><?= lang('activity_title') ?></div>
                 <div class="sectionBody" id="lyr1">
-                    <?php echo lang('sysinfo_activity_message'); ?>
+                    <?= lang('sysinfo_activity_message') ?>
                     <p>
                         <style type="text/css">
                             table.grid {
@@ -210,10 +210,10 @@ global $database_connection_method, $lastInstallTime;
                     <table class="grid">
                         <thead>
                         <tr>
-                            <td><b><?php echo lang('id'); ?></b></td>
-                            <td><b><?php echo lang('resource_title'); ?></b></td>
-                            <td><b><?php echo lang('sysinfo_userid'); ?></b></td>
-                            <td><b><?php echo lang('datechanged'); ?></b></td>
+                            <td><b><?= lang('id') ?></b></td>
+                            <td><b><?= lang('resource_title') ?></b></td>
+                            <td><b><?= lang('sysinfo_userid') ?></b></td>
+                            <td><b><?= lang('datechanged') ?></b></td>
                         </tr>
                         </thead>
                         <tbody>
@@ -263,21 +263,21 @@ global $database_connection_method, $lastInstallTime;
             </div>
             <!-- database -->
             <div class="tab-page" id="tabDatebase">
-                <h2 class="tab"><?php echo lang('database_tables'); ?></h2>
-                <div class="sectionHeader"><?php echo lang('database_tables'); ?></div>
+                <h2 class="tab"><?= lang('database_tables') ?></h2>
+                <div class="sectionHeader"><?= lang('database_tables') ?></div>
                 <div class="sectionBody" id="lyr4">
                     <table class="grid">
                         <thead>
                         <tr>
-                            <td width="160"><b><?php echo lang('database_table_tablename'); ?></b></td>
-                            <td width="50"><b><?php echo lang('database_table_engine'); ?></b></td>
-                            <td width="40" align="right"><b><?php echo lang('database_table_records'); ?></b></td>
-                            <td width="120" align="right"><b><?php echo lang('database_table_datasize'); ?></b></td>
-                            <td width="120" align="right"><b><?php echo lang('database_table_overhead'); ?></b></td>
-                            <td width="120" align="right"><b><?php echo lang('database_table_effectivesize'); ?></b>
+                            <td width="160"><b><?= lang('database_table_tablename') ?></b></td>
+                            <td width="50"><b><?= lang('database_table_engine') ?></b></td>
+                            <td width="40" align="right"><b><?= lang('database_table_records') ?></b></td>
+                            <td width="120" align="right"><b><?= lang('database_table_datasize') ?></b></td>
+                            <td width="120" align="right"><b><?= lang('database_table_overhead') ?></b></td>
+                            <td width="120" align="right"><b><?= lang('database_table_effectivesize') ?></b>
                             </td>
-                            <td width="120" align="right"><b><?php echo lang('database_table_indexsize'); ?></b></td>
-                            <td width="120" align="right"><b><?php echo lang('database_table_totalsize'); ?></b></td>
+                            <td width="120" align="right"><b><?= lang('database_table_indexsize') ?></b></td>
+                            <td width="120" align="right"><b><?= lang('database_table_totalsize') ?></b></td>
                         </tr>
                         </thead>
                         <tbody>
@@ -293,13 +293,13 @@ global $database_connection_method, $lastInstallTime;
                             $log_status = db()->getRow($rs);
                             $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
                             ?>
-                            <tr bgcolor="<?php echo $bgcolor; ?>" title="<?php echo $log_status['Comment']; ?>"
+                            <tr bgcolor="<?= $bgcolor ?>" title="<?= $log_status['Comment'] ?>"
                                 style="cursor:default">
-                                <td><b style="color:#009933"><?php echo $log_status['Name']; ?></b></td>
-                                <td><?php echo $log_status['Engine']; ?></td>
-                                <td align="right"><?php echo $log_status['Rows']; ?></td>
+                                <td><b style="color:#009933"><?= $log_status['Name'] ?></b></td>
+                                <td><?= $log_status['Engine'] ?></td>
+                                <td align="right"><?= $log_status['Rows'] ?></td>
                                 <td dir="ltr"
-                                    align="right"><?php echo evo()->nicesize($log_status['Data_length'] + $log_status['Data_free']); ?></td>
+                                    align="right"><?= evo()->nicesize($log_status['Data_length'] + $log_status['Data_free']) ?></td>
                                 <?php
 
                                 if (evo()->hasPermission('settings')) {
@@ -313,11 +313,11 @@ global $database_connection_method, $lastInstallTime;
                                 }
                                 ?>
                                 <td dir='ltr'
-                                    align="right"><?php echo evo()->nicesize($log_status['Data_length'] - $log_status['Data_free']); ?></td>
+                                    align="right"><?= evo()->nicesize($log_status['Data_length'] - $log_status['Data_free']) ?></td>
                                 <td dir='ltr'
-                                    align="right"><?php echo evo()->nicesize($log_status['Index_length']); ?></td>
+                                    align="right"><?= evo()->nicesize($log_status['Index_length']) ?></td>
                                 <td dir='ltr'
-                                    align="right"><?php echo evo()->nicesize($log_status['Index_length'] + $log_status['Data_length'] + $log_status['Data_free']); ?></td>
+                                    align="right"><?= evo()->nicesize($log_status['Index_length'] + $log_status['Data_length'] + $log_status['Data_free']) ?></td>
                             </tr>
                             <?php
                             $total = $log_status['Index_length'] + $log_status['Data_length'];
@@ -325,27 +325,27 @@ global $database_connection_method, $lastInstallTime;
                         }
                         ?>
                         <tr bgcolor="#e0e0e0">
-                            <td valign="top"><b><?php echo lang('database_table_totals'); ?></b></td>
+                            <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir='ltr' align="right"
-                                valign="top"><?php echo $totaloverhead > 0 ? "<b style='color:#990033'>" . evo()->nicesize($totaloverhead) . "</b><br />(" . number_format($totaloverhead) . " B)" : "-"; ?></td>
+                                valign="top"><?= $totaloverhead > 0 ? "<b style='color:#990033'>" . evo()->nicesize($totaloverhead) . "</b><br />(" . number_format($totaloverhead) . " B)" : "-" ?></td>
                             <td colspan="2">&nbsp;</td>
                             <td dir='ltr' align="right"
-                                valign="top"><?php echo "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)"; ?></td>
+                                valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>
                         </tr>
                         </tbody>
                     </table>
                     <?php
                     if ($totaloverhead > 0) { ?>
-                        <p><?php echo lang('database_overhead'); ?></p>
+                        <p><?= lang('database_overhead') ?></p>
                     <?php } ?>
                 </div>
             </div>
 
             <!-- online users -->
             <div class="tab-page" id="tabOnlineUsers">
-                <h2 class="tab"><?php echo lang('onlineusers_title'); ?></h2>
-                <div class="sectionHeader"><?php echo lang('onlineusers_title'); ?></div>
+                <h2 class="tab"><?= lang('onlineusers_title') ?></h2>
+                <div class="sectionHeader"><?= lang('onlineusers_title') ?></div>
                 <div class="sectionBody" id="lyr5">
 
                     <?php

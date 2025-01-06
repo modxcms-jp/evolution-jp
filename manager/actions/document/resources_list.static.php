@@ -159,7 +159,7 @@ echo get_jscript($id, $cm);
 
 ?>
     <script type="text/javascript" src="media/script/tablesort.js"></script>
-    <h1><?php echo $_lang['view_child_resources_in_container'] ?></h1>
+    <h1><?= $_lang['view_child_resources_in_container'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
@@ -195,21 +195,21 @@ echo get_jscript($id, $cm);
             <?php if (hasPermission('new_document')) { ?>
                 <ul class="actionButtons">
                     <li class="mutate">
-                        <a href="index.php?a=4&amp;pid=<?php echo $id ?>">
+                        <a href="index.php?a=4&amp;pid=<?= $id ?>">
                             <img
-                                src="<?php echo $_style["icons_new_document"]; ?>"
+                                src="<?= $_style["icons_new_document"] ?>"
                                 align="absmiddle"
                             />
-                            <?php echo $_lang['create_resource_here'] ?>
+                            <?= $_lang['create_resource_here'] ?>
                         </a>
                     </li>
                     <li class="mutate">
-                        <a href="index.php?a=72&amp;pid=<?php echo $id ?>">
+                        <a href="index.php?a=72&amp;pid=<?= $id ?>">
                             <img
-                                src="<?php echo $_style["icons_new_weblink"]; ?>"
+                                src="<?= $_style["icons_new_weblink"] ?>"
                                 align="absmiddle"
                             />
-                            <?php echo $_lang['create_weblink_here'] ?>
+                            <?= $_lang['create_weblink_here'] ?>
                         </a>
                     </li>
                 </ul>

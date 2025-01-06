@@ -100,9 +100,9 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
         function deleteuser() {
             <?php if($_GET['id'] == evo()->getLoginUserID()) { ?>
-            alert("<?php echo $_lang['alert_delete_self']; ?>");
+            alert("<?= $_lang['alert_delete_self'] ?>");
             <?php } else { ?>
-            if (confirm("<?php echo $_lang['confirm_delete_user']; ?>") == true) {
+            if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
                 document.location.href = "index.php?id=" + document.userform.userid.value + "&a=33";
             }
             <?php } ?>
@@ -110,11 +110,11 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
         // change name
         function changeName() {
-            if (confirm("<?php echo $_lang['confirm_name_change']; ?>") == true) {
+            if (confirm("<?= $_lang['confirm_name_change'] ?>") == true) {
                 var e1 = document.getElementById("showname");
                 var e2 = document.getElementById("editname");
                 e1.style.display = "none";
-                e2.style.display = "<?php echo $displayStyle; ?>";
+                e2.style.display = "<?= $displayStyle ?>";
             }
         }
 
@@ -134,12 +134,12 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         function BrowseServer() {
             var w = screen.width * 0.7;
             var h = screen.height * 0.7;
-            OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
+            OpenServerBrowser("<?= $base_url ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
         }
 
         function SetUrl(url, width, height, alt) {
             document.userform.photo.value = url;
-            document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
+            document.images['iphoto'].src = "<?= $base_url ?>" + url;
         }
     </script>
 
@@ -154,38 +154,38 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         }
         ?>
         <input type="hidden" name="mode" value="74">
-        <input type="hidden" name="userid" value="<?php echo $userid; ?>">
-        <input type="hidden" name="newusername" value="<?php echo $usernamedata['username']; ?>"/>
-        <input type="hidden" name="role" value="<?php echo $userdata['role']; ?>"/>
-        <input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>">
+        <input type="hidden" name="userid" value="<?= $userid ?>">
+        <input type="hidden" name="newusername" value="<?= $usernamedata['username'] ?>"/>
+        <input type="hidden" name="role" value="<?= $userdata['role'] ?>"/>
+        <input type="hidden" name="failedlogincount" value="<?= $userdata['failedlogincount'] ?>">
         <input type="hidden" name="blockedmode"
-                value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
+                value="<?= ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
 
-        <h1><?php echo $_lang['profile']; ?></h1>
+        <h1><?= $_lang['profile'] ?></h1>
         <div id="actions">
             <ul class="actionButtons">
                 <li id="Button1" class="mutate">
                     <a href="#" onclick="documentDirty=false; document.userform.save.click();">
-                        <img src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?>
+                        <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?php echo selected(anyv('stay') == 1); ?> ><?php echo $_lang['stay_new'] ?></option>
+                                value="1" <?= selected(anyv('stay') == 1) ?> ><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?php echo selected(anyv('stay') == 2); ?> ><?php echo $_lang['stay'] ?></option>
+                                value="2" <?= selected(anyv('stay') == 2) ?> ><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?php echo selected(anyv('stay') == ''); ?> ><?php echo $_lang['close'] ?></option>
+                                value="" <?= selected(anyv('stay') == '') ?> ><?= $_lang['close'] ?></option>
                     </select>
                 </li>
                 <?php
                 if (anyv('a') == 74) { ?>
                     <li id="Button3"><a href="#" onclick="deleteuser();"><img
-                                src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?>
+                                src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['delete'] ?>
                         </a></li>
                 <?php } ?>
                 <li id="Button5" class="mutate"><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                            src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                            src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
             </ul>
         </div>
         <!-- Tab Start -->
@@ -213,30 +213,30 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
             <div class="tab-pane" id="userPane">
                 <!-- Profile -->
                 <div class="tab-page" id="tabProfile">
-                    <h2 class="tab"><?php echo $_lang["profile"] ?></h2>
+                    <h2 class="tab"><?= $_lang["profile"] ?></h2>
                     <table class="settings">
                         <tr>
-                            <th valign="top"><?php echo $_GET['a'] == '11' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
+                            <th valign="top"><?= $_GET['a'] == '11' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
                             <td><label><input name="newpasswordcheck" type="checkbox"
-                                            onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo anyv('a') == 11 ? " checked disabled" : ""; ?>><input
+                                            onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?= anyv('a') == 11 ? " checked disabled" : "" ?>><input
                                         type="hidden" name="newpassword"
-                                        value="<?php echo anyv('a') == 11 ? 1 : 0; ?>"/></label><br/>
-                                <span style="display:<?php echo anyv('a') == 11 ? "block" : "none"; ?>"
+                                        value="<?= anyv('a') == 11 ? 1 : 0 ?>"/></label><br/>
+                                <span style="display:<?= anyv('a') == 11 ? "block" : "none" ?>"
                                     id="passwordBlock">
     <fieldset style="width:300px">
-    <legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
+    <legend><b><?= $_lang['password_gen_method'] ?></b></legend>
     <label><input type=radio name="passwordgenmethod"
-                value="g" <?php echo postv('passwordgenmethod') == "spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br/>
+                value="g" <?= postv('passwordgenmethod') == "spec" ? "" : 'checked="checked"' ?> /><?= $_lang['password_gen_gen'] ?></label><br/>
     <label><input type=radio name="passwordgenmethod"
-                value="spec" <?php echo postv('passwordgenmethod') == "spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br/>
+                value="spec" <?= postv('passwordgenmethod') == "spec" ? 'checked="checked"' : "" ?>><?= $_lang['password_gen_specify'] ?></label><br/>
     <div style="padding-left:20px">
-    <label for="specifiedpassword" style="width:120px"><?php echo $_lang['change_password_new']; ?>:</label>
+    <label for="specifiedpassword" style="width:120px"><?= $_lang['change_password_new'] ?>:</label>
     <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
         size="20" autocomplete="off"/><br/>
-    <label for="confirmpassword" style="width:120px"><?php echo $_lang['change_password_confirm']; ?>:</label>
+    <label for="confirmpassword" style="width:120px"><?= $_lang['change_password_confirm'] ?>:</label>
     <input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
         size="20" autocomplete="off"/><br/>
-    <small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
+    <small><span class="warning" style="font-weight:normal"><?= $_lang['password_gen_length'] ?></span></small>
     </div>
     </fieldset>
     <input type="hidden" name="passwordnotifymethod" value="s"/>
@@ -244,62 +244,62 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_email']; ?>:</th>
+                            <th><?= $_lang['user_email'] ?>:</th>
                             <td>
                                 <input type="text" name="email" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['email']); ?>"/>
+                                        value="<?= htmlspecialchars($userdata['email']) ?>"/>
                                 <input type="hidden" name="oldemail"
-                                        value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>"/>
+                                        value="<?= htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']) ?>"/>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_full_name']; ?>:</th>
+                            <th><?= $_lang['user_full_name'] ?>:</th>
                             <td><input type="text" name="fullname" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['fullname']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['fullname']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_phone']; ?>:</th>
+                            <th><?= $_lang['user_phone'] ?>:</th>
                             <td><input type="text" name="phone" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['phone']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['phone']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_mobile']; ?>:</th>
+                            <th><?= $_lang['user_mobile'] ?>:</th>
                             <td><input type="text" name="mobilephone" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['mobilephone']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_fax']; ?>:</th>
+                            <th><?= $_lang['user_fax'] ?>:</th>
                             <td><input type="text" name="fax" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['fax']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['fax']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_street']; ?>:</th>
+                            <th><?= $_lang['user_street'] ?>:</th>
                             <td><input type="text" name="street" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['street']); ?>"
+                                        value="<?= htmlspecialchars($userdata['street']) ?>"
                                         onchange="documentDirty=true;"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_city']; ?>:</th>
+                            <th><?= $_lang['user_city'] ?>:</th>
                             <td><input type="text" name="city" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['city']); ?>"
+                                        value="<?= htmlspecialchars($userdata['city']) ?>"
                                         onchange="documentDirty=true;"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_state']; ?>:</th>
+                            <th><?= $_lang['user_state'] ?>:</th>
                             <td><input type="text" name="state" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['state']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['state']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_zip']; ?>:</th>
+                            <th><?= $_lang['user_zip'] ?>:</th>
                             <td><input type="text" name="zip" class="inputBox"
-                                        value="<?php echo htmlspecialchars($userdata['zip']); ?>"/></td>
+                                        value="<?= htmlspecialchars($userdata['zip']) ?>"/></td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_country']; ?>:</th>
+                            <th><?= $_lang['user_country'] ?>:</th>
                             <td>
                                 <select size="1" name="country" class="inputBox">
                                     <?php $chosenCountry = isset($_POST['country']) ? $_POST['country'] : $userdata['country']; ?>
-                                    <option value="" <?php echo selected(empty($chosenCountry)); ?> >&nbsp;</option>
+                                    <option value="" <?= selected(empty($chosenCountry)) ?> >&nbsp;</option>
                                     <?php
                                     foreach ($_country_lang as $key => $country) {
                                         echo '<option value="' . $key . '"' . selected(isset($chosenCountry) && $chosenCountry == $key) . ">{$country}</option>\n";
@@ -309,44 +309,44 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_dob']; ?>:</th>
+                            <th><?= $_lang['user_dob'] ?>:</th>
                             <td>
                                 <input type="text" id="dob" name="dob" class="DatePicker"
                                        value="<?php echo($userdata['dob'] ? $modx->toDateFormat($userdata['dob'],
                                            'dateOnly') : ""); ?>" onblur="documentDirty=true;">
                                 <a onclick="document.userform.dob.value=''; return true;"
                                    style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                                                            src="media/style/<?php echo $manager_theme; ?>/images/icons/cal_nodate.gif"
+                                                                            src="media/style/<?= $manager_theme ?>/images/icons/cal_nodate.gif"
                                                                             border="0"
-                                                                            alt="<?php echo $_lang['remove_date']; ?>"></a>
+                                                                            alt="<?= $_lang['remove_date'] ?>"></a>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang['user_gender']; ?>:</th>
+                            <th><?= $_lang['user_gender'] ?>:</th>
                             <td><select name="gender" class="inputBox">
                                     <option value=""></option>
                                     <option
-                                        value="1" <?php echo selected($userdata['gender'] == '1'); ?>><?php echo $_lang['user_male']; ?></option>
+                                        value="1" <?= selected($userdata['gender'] == '1') ?>><?= $_lang['user_male'] ?></option>
                                     <option
-                                        value="2" <?php echo selected($userdata['gender'] == '2'); ?>><?php echo $_lang['user_female']; ?></option>
+                                        value="2" <?= selected($userdata['gender'] == '2') ?>><?= $_lang['user_female'] ?></option>
                                     <option
-                                        value="3" <?php echo selected($userdata['gender'] == '3'); ?>><?php echo $_lang['user_other']; ?></option>
+                                        value="3" <?= selected($userdata['gender'] == '3') ?>><?= $_lang['user_other'] ?></option>
                                 </select>
                             </td>
                         </tr>
                         <tr>
-                            <th valign="top"><?php echo $_lang['comment']; ?>:</th>
+                            <th valign="top"><?= $_lang['comment'] ?>:</th>
                             <td>
                                 <textarea type="text" name="comment" class="inputBox"
-                                          rows="5"><?php echo htmlspecialchars($userdata['comment']); ?></textarea>
+                                          rows="5"><?= htmlspecialchars($userdata['comment']) ?></textarea>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang["user_photo"] ?></th>
+                            <th><?= $_lang["user_photo"] ?></th>
                             <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
-                                       value="<?php echo htmlspecialchars($userdata['photo']); ?>"/>
-                                <input type="button" value="<?php echo $_lang['insert']; ?>" onclick="BrowseServer();"/>
-                                <div><?php echo $_lang["user_photo_message"]; ?></div>
+                                       value="<?= htmlspecialchars($userdata['photo']) ?>"/>
+                                <input type="button" value="<?= $_lang['insert'] ?>" onclick="BrowseServer();"/>
+                                <div><?= $_lang["user_photo_message"] ?></div>
                                 <div>
                                     <?php
                                     if (isset($_POST['photo'])) {
@@ -361,7 +361,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                         $photo = $modx->config['base_url'] . $photo;
                                     }
                                     ?>
-                                    <img name="iphoto" src="<?php echo $photo; ?>"/>
+                                    <img name="iphoto" src="<?= $photo ?>"/>
                                 </div>
                             </td>
                         </tr>
@@ -370,13 +370,13 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 
                 <!-- Interface & editor settings -->
                 <div class="tab-page" id="tabPage5">
-                    <h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
+                    <h2 class="tab"><?= $_lang["settings_ui"] ?></h2>
                     <table class="settings">
                         <tr>
-                            <th><?php echo $_lang["manager_theme"] ?></th>
+                            <th><?= $_lang["manager_theme"] ?></th>
                             <td><select name="manager_theme" size="1" class="inputBox"
                                         onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
-                                    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
+                                    <option value=""><?= $_lang["user_use_config"] ?></option>
                                     <?php
                                     $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
                                     foreach ($files as $file) {
@@ -390,32 +390,32 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     }
                                     ?>
                                 </select><input type="hidden" name="theme_refresher" value="">
-                                <div><?php echo $_lang["manager_theme_message"]; ?></div>
+                                <div><?= $_lang["manager_theme_message"] ?></div>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang["a17_manager_inline_style_title"] ?></th>
+                            <th><?= $_lang["a17_manager_inline_style_title"] ?></th>
                             <td>
                                 <textarea name="manager_inline_style" id="manager_inline_style"
-                                          style="width:95%; height: 9em;"><?php echo $manager_inline_style; ?></textarea><br/>
+                                          style="width:95%; height: 9em;"><?= $manager_inline_style ?></textarea><br/>
                                 &nbsp;&nbsp; <label><input type="checkbox" id="default_manager_inline_style"
                                                            name="default_manager_inline_style"
-                                                           value="1" <?php echo isset($usersettings['manager_inline_style']) ? '' : 'checked'; ?> /> <?php echo $_lang["user_use_config"]; ?>
+                                                           value="1" <?= isset($usersettings['manager_inline_style']) ? '' : 'checked' ?> /> <?= $_lang["user_use_config"] ?>
                                 </label>
-                                <div><?php echo $_lang["a17_manager_inline_style_message"]; ?></div>
+                                <div><?= $_lang["a17_manager_inline_style_message"] ?></div>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang["mgr_login_start"] ?></th>
+                            <th><?= $_lang["mgr_login_start"] ?></th>
                             <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                       value="<?php echo isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup']; ?>">
-                                <div><?php echo $_lang["mgr_login_start_message"] ?></div>
+                                       value="<?= isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup'] ?>">
+                                <div><?= $_lang["mgr_login_start_message"] ?></div>
                             </td>
                         </tr>
                         <tr>
-                            <th><?php echo $_lang["language_title"] ?></th>
+                            <th><?= $_lang["language_title"] ?></th>
                             <td><select name="manager_language" size="1" class="inputBox">
-                                    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
+                                    <option value=""><?= $_lang["user_use_config"] ?></option>
                                     <?php
                                     $activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
                                     $dir = dir(MODX_CORE_PATH . 'lang');
@@ -426,7 +426,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                             $selectedtext = selected($activelang === $languagename);
                                             ?>
                                             <option
-                                                value="<?php echo $languagename; ?>" <?php echo $selectedtext; ?>><?php echo ucwords(str_replace("_",
+                                                value="<?= $languagename ?>" <?= $selectedtext ?>><?= ucwords(str_replace("_",
                                                     " ", $languagename)); ?></option>
                                             <?php
                                         }
@@ -434,14 +434,14 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     $dir->close();
                                     ?>
                                 </select>
-                                <div><?php echo $_lang["language_message"]; ?></div>
+                                <div><?= $_lang["language_message"] ?></div>
                             </td>
                         </tr>
-                        <tr id="editorRow0" style="display: <?php echo $use_editor == 1 ? $displayStyle : 'none'; ?>">
-                            <th><?php echo $_lang["which_editor_title"] ?></th>
+                        <tr id="editorRow0" style="display: <?= $use_editor == 1 ? $displayStyle : 'none' ?>">
+                            <th><?= $_lang["which_editor_title"] ?></th>
                             <td>
                                 <select name="which_editor" class="inputBox">
-                                    <option value=""><?php echo $_lang["user_use_config"]; ?></option>
+                                    <option value=""><?= $_lang["user_use_config"] ?></option>
                                     <?php
                                     $edt = isset ($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
                                     // invoke OnRichTextEditorRegister event
@@ -455,15 +455,15 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                     }
                                     ?>
                                 </select>
-                                <div><?php echo $_lang["which_editor_message"] ?></div>
+                                <div><?= $_lang["which_editor_message"] ?></div>
                             </td>
                         </tr>
                         <tr id="editorRow14" class="row3"
-                            style="display: <?php echo $use_editor == 1 ? $displayStyle : 'none'; ?>">
-                            <th><?php echo $_lang["editor_css_path_title"] ?></th>
+                            style="display: <?= $use_editor == 1 ? $displayStyle : 'none' ?>">
+                            <th><?= $_lang["editor_css_path_title"] ?></th>
                             <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
-                                       value="<?php echo isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : ""; ?>"/>
-                                <div><?php echo $_lang["editor_css_path_message"] ?></div>
+                                       value="<?= isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ?>"/>
+                                <div><?= $_lang["editor_css_path_message"] ?></div>
                             </td>
                         </tr>
                         <tr class='row1'>
@@ -493,7 +493,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         ?>
     </form>
     <script type="text/javascript">
-        var remember = <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false'; ?>;
+        var remember = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
         tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
     </script>
 <?php

@@ -1,14 +1,14 @@
 <?php if (getv('id') == evo()->getLoginUserID()) { ?>
-    <p><?php echo lang('user_edit_self_msg'); ?></p>
+    <p><?= lang('user_edit_self_msg') ?></p>
 <?php } ?>
-<h2 class="tab"><?php echo lang('login_settings') ?></h2>
+<h2 class="tab"><?= lang('login_settings') ?></h2>
 <table class="settings">
     <?php
     if (user('blocked') == 1 || (user('blockeduntil') > time() && user('blockeduntil') != 0) || user('failedlogins') > 3) {
         ?>
         <tr>
             <td colspan="2">
-                <span id="blocked" class="warning"><b><?php echo lang('user_is_blocked'); ?></b></span><br/>
+                <span id="blocked" class="warning"><b><?= lang('user_is_blocked') ?></b></span><br/>
             </td>
         </tr>
     <?php } ?>
@@ -22,20 +22,20 @@
             ?>
         >
             <td colspan="2">
-                <img src="<?php echo style('icons_user') ?>"/>
+                <img src="<?= style('icons_user') ?>"/>
                 &nbsp;
-                <b><?php echo user('oldusername', user('username')); ?></b>
+                <b><?= user('oldusername', user('username')) ?></b>
                 -
                 <span class="comment">
                 <a
                     href="#"
                     onclick="jQuery('#showname').hide(100);jQuery('#editname').show(100);return false;"
-                ><?php echo lang('change_name'); ?></a>
+                ><?= lang('change_name') ?></a>
             </span>
                 <input
                     name="oldusername"
                     type="hidden"
-                    value="<?php echo hsc(user('oldusername', user('username'))); ?>"
+                    value="<?= hsc(user('oldusername', user('username'))) ?>"
                 />
             </td>
         </tr>
@@ -49,11 +49,11 @@
         ?>
     >
         <th>
-            <?php echo lang('username'); ?>:
+            <?= lang('username') ?>:
         </th>
         <td><input
                 name="newusername"
-                value="<?php echo hsc(user('username')); ?>"
+                value="<?= hsc(user('username')) ?>"
                 type="text"
                 class="inputBox"
                 maxlength="100"
@@ -61,7 +61,7 @@
     </tr>
     <tr>
         <th valign="top">
-            <?php echo getv('a') == 11 ? lang('password') . ':' : lang('change_password_new') . ":"; ?>
+            <?= getv('a') == 11 ? lang('password') . ':' : lang('change_password_new') . ":" ?>
         </th>
         <td>
             <?php if (anyv('a') == 12): ?>
@@ -73,11 +73,11 @@
             <?php endif; ?>
             <input
                 name="newpassword"
-                value="<?php echo anyv('a') == 11 ? 1 : 0; ?>"
+                value="<?= anyv('a') == 11 ? 1 : 0 ?>"
                 type="hidden"
             />
             <span
-                style="display:<?php echo anyv('a') == 11 ? "block" : "none"; ?>"
+                style="display:<?= anyv('a') == 11 ? "block" : "none" ?>"
                 id="passwordBlock"
             >
                 <fieldset style="width:300px;padding:0;">
@@ -86,22 +86,22 @@
                             name="passwordgenmethod"
                             value="g"
                             type=radio
-                            <?php echo postv('passwordgenmethod') === "spec" ? "" : 'checked="checked"'; ?>
+                            <?= postv('passwordgenmethod') === "spec" ? "" : 'checked="checked"' ?>
                         />
-                        <?php echo lang('password_gen_gen'); ?>
+                        <?= lang('password_gen_gen') ?>
                     </label><br/>
                     <label>
                         <input
                             name="passwordgenmethod"
                             value="spec"
                             type=radio
-                            <?php echo postv('passwordgenmethod') === "spec" ? 'checked="checked"' : ""; ?>
+                            <?= postv('passwordgenmethod') === "spec" ? 'checked="checked"' : "" ?>
                         >
-                        <?php echo lang('password_gen_specify'); ?>
+                        <?= lang('password_gen_specify') ?>
                     </label><br/>
                     <div style="padding-left:20px">
                         <label for="specifiedpassword" style="width:120px">
-                            <?php echo lang('change_password_new'); ?>:
+                            <?= lang('change_password_new') ?>:
                         </label>
                         <input
                             name="specifiedpassword"
@@ -111,7 +111,7 @@
                             autocomplete="off"
                         /><br/>
                         <label for="confirmpassword" style="width:120px">
-                            <?php echo lang('change_password_confirm'); ?>:
+                            <?= lang('change_password_confirm') ?>:
                         </label>
                         <input
                             name="confirmpassword"
@@ -123,7 +123,7 @@
                         <span
                             class="warning"
                             style="font-weight:normal"
-                        ><?php echo lang('password_gen_length'); ?></span>
+                        ><?= lang('password_gen_length') ?></span>
                     </div>
                 </fieldset>
                 <fieldset
@@ -134,39 +134,39 @@
                             name="passwordnotifymethod"
                             value="e"
                             type="radio"
-                            <?php echo postv('passwordnotifymethod') === "e" ? 'checked="checked"' : ""; ?>
-                        /><?php echo lang('password_method_email'); ?>
+                            <?= postv('passwordnotifymethod') === "e" ? 'checked="checked"' : "" ?>
+                        /><?= lang('password_method_email') ?>
                     </label><br/>
                     <label>
                         <input
                             type="radio"
                             name="passwordnotifymethod"
                             value="s"
-                            <?php echo postv('passwordnotifymethod') === 'e' ? '' : 'checked="checked"'; ?>
-                        /><?php echo lang('password_method_screen'); ?>
+                            <?= postv('passwordnotifymethod') === 'e' ? '' : 'checked="checked"' ?>
+                        /><?= lang('password_method_screen') ?>
                     </label>
                 </fieldset>
             </span>
         </td>
     </tr>
     <tr>
-        <th><?php echo lang('user_email'); ?>:</th>
+        <th><?= lang('user_email') ?>:</th>
         <td>
             <input
                 name="email"
-                value="<?php echo hsc(user('email')); ?>"
+                value="<?= hsc(user('email')) ?>"
                 type="text"
                 class="inputBox"
             />
             <input
                 name="oldemail"
-                value="<?php echo hsc(user('oldemail', user('email'))); ?>"
+                value="<?= hsc(user('oldemail', user('email'))) ?>"
                 type="hidden"
             />
         </td>
     </tr>
     <tr>
-        <th><?php echo lang('user_role'); ?>:</th>
+        <th><?= lang('user_role') ?>:</th>
         <td>
             <?php
             if ($userid == evo()->getLoginUserID()) {
@@ -202,7 +202,7 @@
             }
             ?>
             <select name="role" class="inputBox">
-                <?php echo implode("\n", $options); ?>
+                <?= implode("\n", $options) ?>
             </select>
         </td>
     </tr>

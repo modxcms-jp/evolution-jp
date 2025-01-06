@@ -22,21 +22,21 @@
     function changeblockstate(element, checkelement) {
         currval = eval(element).value;
         if (currval == 1) {
-            if (confirm("<?php echo $_lang['confirm_unblock']; ?>") == true) {
+            if (confirm("<?= $_lang['confirm_unblock'] ?>") == true) {
                 document.userform.blocked.value = 0;
                 document.userform.blockeduntil.value = "";
                 document.userform.blockedafter.value = "";
                 document.userform.failedlogincount.value = 0;
-                blocked.innerHTML = "<b><?php echo $_lang['unblock_message']; ?></b>";
+                blocked.innerHTML = "<b><?= $_lang['unblock_message'] ?></b>";
                 blocked.className = "TD";
                 eval(element).value = 0;
             } else {
                 eval(checkelement).checked = true;
             }
         } else {
-            if (confirm("<?php echo $_lang['confirm_block']; ?>") == true) {
+            if (confirm("<?= $_lang['confirm_block'] ?>") == true) {
                 document.userform.blocked.value = 1;
-                blocked.innerHTML = "<b><?php echo $_lang['block_message']; ?></b>";
+                blocked.innerHTML = "<b><?= $_lang['block_message'] ?></b>";
                 blocked.className = "warning";
                 eval(element).value = 1;
             } else {
@@ -52,9 +52,9 @@
 
     function deleteuser() {
         <?php if($_GET['id'] == evo()->getLoginUserID()) { ?>
-        alert("<?php echo $_lang['alert_delete_self']; ?>");
+        alert("<?= $_lang['alert_delete_self'] ?>");
         <?php } else { ?>
-        if (confirm("<?php echo $_lang['confirm_delete_user']; ?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
             document.location.href = "index.php?id=" + document.userform.userid.value + "&a=33";
         }
         <?php } ?>
@@ -76,13 +76,13 @@
     function BrowseServer() {
         let w = screen.width * 0.7;
         let h = screen.height * 0.7;
-        OpenServerBrowser("<?php echo $base_url; ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
+        OpenServerBrowser("<?= $base_url ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
     }
 
     function SetUrl(url, width, height, alt) {
         document.userform.photo.value = url;
-        document.images['iphoto'].src = "<?php echo $base_url; ?>" + url;
+        document.images['iphoto'].src = "<?= $base_url ?>" + url;
     }
 
-    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?php echo (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false'; ?> );
+    tpUser = new WebFXTabPane(document.getElementById("userPane"), <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?> );
 </script>

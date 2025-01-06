@@ -1,5 +1,5 @@
-<h2 class="tab"><?php echo lang('access_permissions') ?></h2>
-<div class="sectionHeader"><?php echo lang('access_permissions'); ?></div>
+<h2 class="tab"><?= lang('access_permissions') ?></h2>
+<div class="sectionHeader"><?= lang('access_permissions') ?></div>
 <div class="sectionBody">
     <?php
     $groupsarray = array();

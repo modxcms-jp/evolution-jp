@@ -90,9 +90,9 @@ function disp_access_permission_denied()
     global $_lang;
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <div class="sectionHeader"><?php echo $_lang['access_permissions']; ?></div>
+    <div class="sectionHeader"><?= $_lang['access_permissions'] ?></div>
     <div class="sectionBody">
-    <p><?php echo $_lang['access_permission_denied']; ?></p>
+    <p><?= $_lang['access_permission_denied'] ?></p>
     <?php
     include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;

@@ -12,22 +12,22 @@ if (isset($_REQUEST['id'])) {
 }
 $uid = evo()->getLoginUserID();
 ?>
-    <h1><?php echo $_lang['messages_title']; ?></h1>
+    <h1><?= $_lang['messages_title'] ?></h1>
 <?php
 $location = isset($_GET['id']) ? '10' : '2';
 ?>
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=<?php echo $location; ?>';"><img
+                                               onclick="documentDirty=false;document.location.href='index.php?a=<?= $location ?>';"><img
                         alt="icons_cancel"
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
 <?php if (isset($msgid) && $_REQUEST['m'] == 'r') { ?>
     <div class="section">
-        <div class="sectionHeader"><?php echo $_lang['messages_read_message']; ?></div>
+        <div class="sectionHeader"><?= $_lang['messages_read_message'] ?></div>
         <div class="sectionBody" id="lyr3">
             <?php
             $rs = db()->select('*', '[+prefix+]user_messages', "id='{$msgid}'");
@@ -57,14 +57,14 @@ $location = isset($_GET['id']) ? '10' : '2';
                             <td colspan="2">
                                 <ul class="actionButtons">
                                     <li id="btn_reply"><a
-                                            href="index.php?a=10&t=c&m=rp&id=<?php echo $message['id']; ?>"><img
-                                                src="<?php echo $_style["icons_message_reply"] ?>"/> <?php echo $_lang['messages_reply']; ?>
+                                            href="index.php?a=10&t=c&m=rp&id=<?= $message['id'] ?>"><img
+                                                src="<?= $_style["icons_message_reply"] ?>"/> <?= $_lang['messages_reply'] ?>
                                         </a></li>
-                                    <li><a href="index.php?a=10&t=c&m=f&id=<?php echo $message['id']; ?>"><img
-                                                src="<?php echo $_style["icons_message_forward"] ?>"/> <?php echo $_lang['messages_forward']; ?>
+                                    <li><a href="index.php?a=10&t=c&m=f&id=<?= $message['id'] ?>"><img
+                                                src="<?= $_style["icons_message_forward"] ?>"/> <?= $_lang['messages_forward'] ?>
                                         </a></li>
-                                    <li><a href="index.php?a=65&id=<?php echo $message['id']; ?>"><img
-                                                src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?>
+                                    <li><a href="index.php?a=65&id=<?= $message['id'] ?>"><img
+                                                src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['delete'] ?>
                                         </a></li>
                                     <?php if ($message['sender'] == 0) { ?>
                                         <script
@@ -77,16 +77,16 @@ $location = isset($_GET['id']) ? '10' : '2';
                             <td colspan="2">&nbsp;</td>
                         </tr>
                         <tr>
-                            <td style="width: 120px;"><b><?php echo $_lang['messages_from']; ?>:</b></td>
-                            <td style="width: 480px;"><?php echo $sendername; ?></td>
+                            <td style="width: 120px;"><b><?= $_lang['messages_from'] ?>:</b></td>
+                            <td style="width: 480px;"><?= $sendername ?></td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang['messages_sent']; ?>:</b></td>
-                            <td><?php echo $modx->toDateFormat($message['postdate'] + $modx->config['server_offset_time']); ?></td>
+                            <td><b><?= $_lang['messages_sent'] ?>:</b></td>
+                            <td><?= $modx->toDateFormat($message['postdate'] + $modx->config['server_offset_time']) ?></td>
                         </tr>
                         <tr>
-                            <td><b><?php echo $_lang['messages_subject']; ?>:</b></td>
-                            <td><?php echo $message['subject']; ?></td>
+                            <td><b><?= $_lang['messages_subject'] ?>:</b></td>
+                            <td><?= $message['subject'] ?></td>
                         </tr>
                         <tr>
                             <td colspan="2">
@@ -115,7 +115,7 @@ $location = isset($_GET['id']) ? '10' : '2';
 
 
     <div class="section">
-        <div class="sectionHeader"><?php echo $_lang['messages_inbox']; ?></div>
+        <div class="sectionHeader"><?= $_lang['messages_inbox'] ?></div>
         <div class="sectionBody">
             <?php
 
@@ -180,10 +180,10 @@ $location = isset($_GET['id']) ? '10' : '2';
                 <thead>
                 <tr bgcolor='#CCCCCC'>
                     <th width="12"></th>
-                    <th width="60%" class="sortable"><b><?php echo $_lang['messages_subject']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['messages_from']; ?></b></th>
-                    <th class="sortable"><b><?php echo $_lang['messages_private']; ?></b></th>
-                    <th width="20%" class="sortable"><b><?php echo $_lang['messages_sent']; ?></b></th>
+                    <th width="60%" class="sortable"><b><?= $_lang['messages_subject'] ?></b></th>
+                    <th class="sortable"><b><?= $_lang['messages_from'] ?></b></th>
+                    <th class="sortable"><b><?= $_lang['messages_private'] ?></b></th>
+                    <th width="20%" class="sortable"><b><?= $_lang['messages_sent'] ?></b></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -206,11 +206,11 @@ $location = isset($_GET['id']) ? '10' : '2';
                                 echo sprintf('<img src="media/style/%s/images/icons/new1-09.gif">',
                                     $modx->config['manager_theme']);
                             } ?></td>
-                        <td class="<?php echo $messagestyle; ?>" style="cursor: pointer; text-decoration: underline;"
-                            onclick="document.location.href='index.php?a=10&id=<?php echo $message['id']; ?>&m=r';"><?php echo $message['subject']; ?></td>
-                        <td><?php echo $sendername; ?></td>
-                        <td><?php echo $message['private'] == 0 ? $_lang['no'] : $_lang['yes']; ?></td>
-                        <td><?php echo $modx->toDateFormat($message['postdate'] + $modx->config['server_offset_time']); ?></td>
+                        <td class="<?= $messagestyle ?>" style="cursor: pointer; text-decoration: underline;"
+                            onclick="document.location.href='index.php?a=10&id=<?= $message['id'] ?>&m=r';"><?= $message['subject'] ?></td>
+                        <td><?= $sendername ?></td>
+                        <td><?= $message['private'] == 0 ? $_lang['no'] : $_lang['yes'] ?></td>
+                        <td><?= $modx->toDateFormat($message['postdate'] + $modx->config['server_offset_time']) ?></td>
                     </tr>
                 <?php
                 endwhile;
@@ -223,7 +223,7 @@ $location = isset($_GET['id']) ? '10' : '2';
         </div>
     </div>
     <div class="section">
-        <div class="sectionHeader"><?php echo $_lang['messages_compose']; ?></div>
+        <div class="sectionHeader"><?= $_lang['messages_compose'] ?></div>
         <div class="sectionBody">
             <?php
             if (($_REQUEST['m'] === 'rp' || $_REQUEST['m'] === 'f') && isset($msgid)) {
@@ -277,18 +277,18 @@ $location = isset($_GET['id']) ? '10' : '2';
             </script>
             <form action="index.php?a=66" method="post" name="messagefrm" enctype="multipart/form-data">
                 <fieldset style="width: 600px;background-color:#fff;border:1px solid #ddd;">
-                    <legend><b><?php echo $_lang['messages_send_to']; ?>:</b></legend>
+                    <legend><b><?= $_lang['messages_send_to'] ?>:</b></legend>
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
                             <td>
                                 <label><input type=radio name="sendto" VALUE="u" checked
-                                              onClick='hideSpans(1);'><?php echo $_lang['messages_user']; ?></label>
+                                              onClick='hideSpans(1);'><?= $_lang['messages_user'] ?></label>
                                 <label><input type=radio name="sendto" VALUE="g"
-                                              onClick='hideSpans(2);'><?php echo $_lang['messages_group']; ?></label>
+                                              onClick='hideSpans(2);'><?= $_lang['messages_group'] ?></label>
                                 <label><input type=radio name="sendto" VALUE="a"
-                                              onClick='hideSpans(3);'><?php echo $_lang['messages_all']; ?></label><br/>
+                                              onClick='hideSpans(3);'><?= $_lang['messages_all'] ?></label><br/>
                                 <span id='userspan'
-                                      style="display:block;"> <?php echo $_lang['messages_select_user']; ?>:&nbsp;
+                                      style="display:block;"> <?= $_lang['messages_select_user'] ?>:&nbsp;
     <?php
     // get all usernames
     $rs = db()->select('mu.username,mu.id',
@@ -299,14 +299,14 @@ $location = isset($_GET['id']) ? '10' : '2';
     <?php
     while ($row = db()->getRow($rs)) {
         ?>
-        <option value="<?php echo $row['id']; ?>"><?php echo $row['username']; ?></option>
+        <option value="<?= $row['id'] ?>"><?= $row['username'] ?></option>
         <?php
     }
     ?>
     </select>
 </span>
                                 <span id='groupspan'
-                                      style="display:none;"> <?php echo $_lang['messages_select_group']; ?>:&nbsp;
+                                      style="display:none;"> <?= $_lang['messages_select_group'] ?>:&nbsp;
     <?php
     // get all usernames
     $rs = db()->select('name, id', '[+prefix+]user_roles');
@@ -315,7 +315,7 @@ $location = isset($_GET['id']) ? '10' : '2';
     <?php
     while ($row = db()->getRow($rs)) {
         ?>
-        <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+        <option value="<?= $row['id'] ?>"><?= $row['name'] ?></option>
         <?php
     }
     ?>
@@ -331,18 +331,18 @@ $location = isset($_GET['id']) ? '10' : '2';
                 <p>
 
                 <fieldset style="width: 600px;background-color:#fff;border:1px solid #ddd;">
-                    <legend><b><?php echo $_lang['messages_message']; ?>:</b></legend>
+                    <legend><b><?= $_lang['messages_message'] ?>:</b></legend>
 
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                         <tr>
-                            <td><?php echo $_lang['messages_subject']; ?>:</td>
+                            <td><?= $_lang['messages_subject'] ?>:</td>
                             <td><input name="messagesubject" type=text class="inputBox" style="width: 500px;"
-                                       maxlength="60" value="<?php echo $subjecttext; ?>"></td>
+                                       maxlength="60" value="<?= $subjecttext ?>"></td>
                         </tr>
                         <tr>
-                            <td valign="top"><?php echo $_lang['messages_message']; ?>:</td>
+                            <td valign="top"><?= $_lang['messages_message'] ?>:</td>
                             <td><textarea name="messagebody" style="width:500px; height: 200px;" onLoad="this.focus()"
-                                          class="inputBox"><?php echo $messagetext; ?></textarea></td>
+                                          class="inputBox"><?= $messagetext ?></textarea></td>
                         </tr>
                         <tr>
                             <td></td>
@@ -350,10 +350,10 @@ $location = isset($_GET['id']) ? '10' : '2';
                                 <ul class="actionButtons" style="margin-top:15px;">
                                     <li><a href="#" class="primary"
                                            onclick="documentDirty=false; document.messagefrm.submit();"><img
-                                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['messages_send']; ?>
+                                                src="<?= $_style["icons_save"] ?>"/> <?= $_lang['messages_send'] ?>
                                         </a></li>
                                     <li><a href="index.php?a=10&t=c"><img
-                                                src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?>
+                                                src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
                                         </a></li>
                                 </ul>
                             </td>
@@ -375,7 +375,7 @@ $messagesallowed = evo()->hasPermission('messages');
     <script type="text/javascript">
         function msgCountAgain() {
             try {
-                top.mainMenu.startmsgcount(<?php echo $_SESSION['nrnewmessages']; ?>,<?php echo $_SESSION['nrtotalmessages']; ?>,<?php echo $messagesallowed ? 1 : 0; ?>);
+                top.mainMenu.startmsgcount(<?= $_SESSION['nrnewmessages'] ?>,<?= $_SESSION['nrtotalmessages'] ?>,<?= $messagesallowed ? 1 : 0 ?>);
             } catch (oException) {
                 vv = window.setTimeout('msgCountAgain()', 1500);
             }

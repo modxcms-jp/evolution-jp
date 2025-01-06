@@ -5,7 +5,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 ?>
 
-    <h1><?php echo lang('search_criteria'); ?></h1>
+    <h1><?= lang('search_criteria') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li
@@ -16,8 +16,8 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                     onclick="documentDirty=false;document.location.href='index.php?a=2';"
                 ><img
                         alt="icons_cancel"
-                        src="<?php echo style('icons_cancel') ?>"
-                    /> <?php echo lang('cancel') ?></a></li>
+                        src="<?= style('icons_cancel') ?>"
+                    /> <?= lang('cancel') ?></a></li>
         </ul>
     </div>
     <div class="section">
@@ -26,34 +26,34 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                 <input type="hidden" name="a" value="71"/>
                 <table width="100%" border="0">
                     <tr>
-                        <td width="120"><?php echo lang('search_criteria_id'); ?></td>
+                        <td width="120"><?= lang('search_criteria_id') ?></td>
                         <td width="20">&nbsp;</td>
                         <td width="120">
-                            <input name="searchid" type="text" value="<?php echo getv('searchid'); ?>"/>
+                            <input name="searchid" type="text" value="<?= getv('searchid') ?>"/>
                         </td>
-                        <td><?php echo lang('search_criteria_id_msg'); ?></td>
+                        <td><?= lang('search_criteria_id_msg') ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo lang('search_criteria_title'); ?></td>
+                        <td><?= lang('search_criteria_title') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="pagetitle" type="text" value="<?php echo getv('pagetitle'); ?>"/>
+                            <input name="pagetitle" type="text" value="<?= getv('pagetitle') ?>"/>
                         </td>
-                        <td><?php echo lang('search_criteria_title_msg'); ?></td>
+                        <td><?= lang('search_criteria_title_msg') ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo lang('search_criteria_longtitle'); ?></td>
+                        <td><?= lang('search_criteria_longtitle') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="longtitle" type="text" value="<?php echo getv('longtitle'); ?>"/>
+                            <input name="longtitle" type="text" value="<?= getv('longtitle') ?>"/>
                         </td>
-                        <td><?php echo lang('search_criteria_longtitle_msg'); ?></td>
+                        <td><?= lang('search_criteria_longtitle_msg') ?></td>
                     </tr>
                     <tr>
                         <td>Alias</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="alias" type="text" value="<?php echo getv('alias'); ?>"/>
+                            <input name="alias" type="text" value="<?= getv('alias') ?>"/>
                         </td>
                         <td></td>
                     </tr>
@@ -61,17 +61,17 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                         <td>URL</td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="url" type="text" size="50" value="<?php echo getv('url'); ?>"/>
+                            <input name="url" type="text" size="50" value="<?= getv('url') ?>"/>
                         </td>
                         <td></td>
                     </tr>
                     <tr>
-                        <td><?php echo lang('search_criteria_content'); ?></td>
+                        <td><?= lang('search_criteria_content') ?></td>
                         <td>&nbsp;</td>
                         <td>
-                            <input name="content" type="text" value="<?php echo getv('content'); ?>"/>
+                            <input name="content" type="text" value="<?= getv('content') ?>"/>
                         </td>
-                        <td><?php echo lang('search_criteria_content_msg'); ?></td>
+                        <td><?= lang('search_criteria_content_msg') ?></td>
                     </tr>
                     <tr>
                         <td colspan="4">
@@ -81,14 +81,14 @@ unset($_SESSION['itemname']); // clear this, because it's only set for logging p
                                         href="#"
                                         onclick="jQuery('#submitok').click();"
                                     ><img
-                                            src="<?php echo style('icons_save') ?>"
-                                        /> <?php echo lang('search') ?></a
+                                            src="<?= style('icons_save') ?>"
+                                        /> <?= lang('search') ?></a
                                     ></li>
                                 <li><a
                                         href="index.php?a=2"
                                     ><img
-                                            src="<?php echo style('icons_cancel') ?>"
-                                        /> <?php echo lang('cancel') ?></a
+                                            src="<?= style('icons_cancel') ?>"
+                                        /> <?= lang('cancel') ?></a
                                     ></li>
                             </ul>
                         </td>
@@ -149,7 +149,7 @@ if (getv('submitok')) {
     }
     ?>
     <div class="section">
-        <div class="sectionHeader"><?php echo lang('search_results'); ?></div>
+        <div class="sectionHeader"><?= lang('search_results') ?></div>
         <div class="sectionBody">
             <?php
             if ($limit < 1) {
@@ -163,9 +163,9 @@ if (getv('submitok')) {
                     <thead>
                     <tr style="background-color:#cccccc">
                         <th width="20"></th>
-                        <th class="sortable"><b><?php echo lang('search_results_returned_id'); ?></b></th>
-                        <th class="sortable"><b><?php echo lang('search_results_returned_title'); ?></b></th>
-                        <th class="sortable"><b><?php echo lang('search_results_returned_desc'); ?></b></th>
+                        <th class="sortable"><b><?= lang('search_results_returned_id') ?></b></th>
+                        <th class="sortable"><b><?= lang('search_results_returned_title') ?></b></th>
+                        <th class="sortable"><b><?= lang('search_results_returned_desc') ?></b></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -207,30 +207,30 @@ if (getv('submitok')) {
                         ?>
                         <tr>
                             <td align="center">
-                                <a href="index.php?a=<?php echo $action; ?>&id=<?php echo $row['id']; ?>"
-                                   title="<?php echo lang('search_view_docdata'); ?>">
-                                    <img src="<?php echo $itemicon; ?>"/></a>
+                                <a href="index.php?a=<?= $action ?>&id=<?= $row['id'] ?>"
+                                   title="<?= lang('search_view_docdata') ?>">
+                                    <img src="<?= $itemicon ?>"/></a>
                             </td>
                             <td>
                                 <?php
                                 if ($row['isfolder'] == 1) {
                                     ?>
-                                    <a href="index.php?a=120&id=<?php echo $row['id']; ?>"
-                                       title="<?php echo lang('search_view_docdata'); ?>"><img
-                                            src="<?php echo style('tree_folder'); ?>"/></a>
+                                    <a href="index.php?a=120&id=<?= $row['id'] ?>"
+                                       title="<?= lang('search_view_docdata') ?>"><img
+                                            src="<?= style('tree_folder') ?>"/></a>
                                     <?php
                                 }
                                 echo $row['id'];
                                 ?>
                             </td>
-                            <td<?php echo $tdClass; ?>
+                            <td<?= $tdClass ?>
                             <?php
                             $pagetitle = mb_strlen($row['pagetitle'],
                                 $modx_manager_charset) > 70 ? evo()->hsc(mb_substr($row['pagetitle'], 0, 70,
                                     $modx_manager_charset)) . "..." : evo()->hsc($row['pagetitle']);
                             ?>
-                            <img src="<?php echo $icon; ?>"/> <?php echo $pagetitle; ?></td>
-                            <td<?php echo $tdClass; ?>><?php echo mb_strlen($row['description'],
+                            <img src="<?= $icon ?>"/> <?= $pagetitle ?></td>
+                            <td<?= $tdClass ?>><?= mb_strlen($row['description'],
                                     $modx_manager_charset) > 70 ? mb_substr($row['description'], 0, 70,
                                         $modx_manager_charset) . "..." : $row['description']; ?></td>
                         </tr>

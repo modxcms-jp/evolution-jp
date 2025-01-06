@@ -196,21 +196,21 @@ switch (postv('mode')) {
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
             ?>
-            <h1><?php echo $_lang['web_user_title']; ?></h1>
+            <h1><?= $_lang['web_user_title'] ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                                src="<?php echo $_style['icons_save'] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                    <li class="mutate"><a href="<?= $stayUrl ?>"><img
+                                src="<?= $_style['icons_save'] ?>"/> <?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
             <div class="section">
-                <div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
+                <div class="sectionHeader"><?= $_lang['web_user_title'] ?></div>
                 <div class="sectionBody">
                     <div id="disp">
                         <p>
-                            <?php echo sprintf($_lang['password_msg'], $newusername, $newpassword); ?>
+                            <?= sprintf($_lang['password_msg'], $newusername, $newpassword) ?>
                         </p>
                     </div>
                 </div>
@@ -390,20 +390,20 @@ switch (postv('mode')) {
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
             ?>
-            <h1><?php echo $_lang['web_user_title']; ?></h1>
+            <h1><?= $_lang['web_user_title'] ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
-                    <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                    <li class="mutate"><a href="<?= $stayUrl ?>"><img
+                                src="<?= $_style["icons_save"] ?>"/> <?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
             <div class="section">
-                <div class="sectionHeader"><?php echo $_lang['web_user_title']; ?></div>
+                <div class="sectionHeader"><?= $_lang['web_user_title'] ?></div>
                 <div class="sectionBody">
                     <div id="disp">
-                        <p><?php echo sprintf($_lang["password_msg"], $newusername, $newpassword); ?></p>
+                        <p><?= sprintf($_lang["password_msg"], $newusername, $newpassword) ?></p>
                     </div>
                 </div>
             </div>

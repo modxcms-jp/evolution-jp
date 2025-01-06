@@ -33,35 +33,35 @@ if (!$ds) {
 $content = db()->getRow($ds);
 
 ?>
-<h1><?php echo $_lang['eventlog']; ?></h1>
+<h1><?= $_lang['eventlog'] ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <?php if (evo()->hasPermission('delete_eventlog')) { ?>
             <li id="Button3"><a href="#" onclick="deletelog();"><img
-                        src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete']; ?></a>
+                        src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['delete'] ?></a>
             </li>
         <?php } ?>
         <li id="Button5" class="mutate"><a href="index.php?a=114"><img
-                    src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel']; ?></a></li>
+                    src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
     </ul>
 </div>
 
 <script language="JavaScript" type="text/javascript">
     function deletelog() {
-        if (confirm("<?php echo $_lang['confirm_delete_eventlog']; ?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_eventlog'] ?>") == true) {
             document.location.href = "index.php?id=" + document.resource.id.value + "&a=116";
         }
     }
 </script>
 
 <form name="resource" method="get">
-    <input type="hidden" name="id" value="<?php echo $id; ?>"/>
-    <input type="hidden" name="a" value="<?php echo (int)anyv('a'); ?>"/>
-    <input type="hidden" name="listmode" value="<?php echo anyv('listmode'); ?>"/>
+    <input type="hidden" name="id" value="<?= $id ?>"/>
+    <input type="hidden" name="a" value="<?= (int)anyv('a') ?>"/>
+    <input type="hidden" name="listmode" value="<?= anyv('listmode') ?>"/>
     <input type="hidden" name="op" value=""/>
     <div class="section">
-        <div class="sectionHeader"><?php echo $content['source'] . " - " . $_lang['eventlog_viewer']; ?></div>
+        <div class="sectionHeader"><?= $content['source'] . " - " . $_lang['eventlog_viewer'] ?></div>
         <div class="sectionBody">
             <?php
             $date = $modx->toDateFormat($content["createdon"]);

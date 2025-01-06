@@ -10,36 +10,36 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     <html <?php if ($modx_textdir === 'rtl') {
         echo 'dir="rtl"';
-    } ?>lang="<?php echo $mxla; ?>" xml:lang="<?php echo $mxla; ?>">
+    } ?>lang="<?= $mxla ?>" xml:lang="<?= $mxla ?>">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset; ?>"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
         <title>nav</title>
         <link rel="stylesheet" type="text/css"
-              href="media/style/<?php echo config('manager_theme') ?>/style.css?<?php echo $modx_version; ?>"/>
-        <?php echo config('manager_inline_style'); ?>
+              href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
+        <?= config('manager_inline_style') ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
         <script type="text/javascript">
             // TREE FUNCTIONS - FRAME
             // These functions affect the tree frame and any items that may be pointing to the tree.
             var currentFrameState = 'open';
-            var defaultFrameWidth = '<?php echo $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
-            var userDefinedFrameWidth = '<?php echo $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
+            var defaultFrameWidth = '<?= $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
+            var userDefinedFrameWidth = '<?= $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
             var workText;
             var buildText;
-            var msgcheck = <?php echo evo()->hasPermission('messages') ? 1 : 0;?>;
+            var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;
 
             var $j = jQuery.noConflict();
             jQuery(function () {
                 window.setInterval('keepMeAlive()', 1000 * 60);
                 if (msgcheck != 0) updateMail(true); // First run update
-                var mailinterval = <?php echo config('mail_check_timeperiod');?>;
+                var mailinterval = <?= config('mail_check_timeperiod');?>;
                 if (mailinterval != '' && mailinterval != 0) {
                     if (msgcheck != 0) setInterval('updateMail(true)', mailinterval * 1000);
                 }
 
                 if (top.__hideTree) {
                     // display toc icon
-                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>");
+                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
                 }
             });
 
@@ -84,7 +84,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 userDefinedFrameWidth = parent.document.getElementsByTagName("FRAMESET").item(1).cols;
                 currentFrameState = 'closed';
                 try {
-                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?php echo $_style['show_tree']?>' alt='<?php echo $_lang['show_tree']?>' /></a>");
+                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
                     parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo($modx_textdir === 'ltr' ? '0,*' : '*,0')?>';
                     top.__hideTree = true;
                 } catch (oException) {
@@ -128,7 +128,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             function reloadtree() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_loading_doc_tree']?>' />&nbsp;<?php echo $_lang['loading_doc_tree']?>";
+                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_loading_doc_tree']?>' />&nbsp;<?= $_lang['loading_doc_tree']?>";
                     jQuery(elm).show();
                 }
                 top.tree.saveFolderState(); // save folder state
@@ -138,7 +138,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             function reloadmenu() {
                 var elm = document.getElementById('buildText');
                 if (elm) {
-                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?php echo $_style['icons_working']?>' />&nbsp;<?php echo $_lang['loading_menu']?>";
+                    elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_working']?>' />&nbsp;<?= $_lang['loading_menu']?>";
                     jQuery(elm).show();
                 }
                 parent.mainMenu.location.reload();
@@ -168,7 +168,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             // GENERAL FUNCTIONS - Work
             // These functions are used for showing the user the system is working
             window.work = function() { // parent.mainMenu.document
-                jQuery('#workText').html('&nbsp;<img src="<?php echo $_style['icons_working']?>" />&nbsp;<?php echo $_lang['working']?>');
+                jQuery('#workText').html('&nbsp;<img src="<?= $_style['icons_working']?>" />&nbsp;<?= $_lang['working']?>');
             }
 
             window.stopWork = function() {
@@ -178,7 +178,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             // GENERAL FUNCTIONS - Remove locks
             // This function removes locks on documents, templates, parsers, and snippets
             function removeLocks() {
-                if (confirm("<?php echo $_lang['confirm_remove_locks']?>") == true) {
+                if (confirm("<?= $_lang['confirm_remove_locks']?>") == true) {
                     top.main.document.location.href = "index.php?a=67";
                 }
             }
@@ -203,9 +203,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
         </script>
     </head>
 
-    <body id="topMenu" class="<?php echo $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
+    <body id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
 
-    <div id="tocText"<?php echo $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
+    <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
         <div id="topbar-container">
             <div id="statusbar">
@@ -223,15 +223,15 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 }
                 ?>
                 <?php if (evo()->hasPermission('messages')) { ?>
-                    | <span id="newMail"><a href="index.php?a=10" title="<?php echo $_lang['you_got_mail'] ?>"
-                                            target="main"> <img src="<?php echo $_style['icons_mail'] ?>"/></a></span>
-                    <a onclick="this.blur();" href="index.php?a=10" target="main"><?php echo $_lang['messages'] ?> <span
+                    | <span id="newMail"><a href="index.php?a=10" title="<?= $_lang['you_got_mail'] ?>"
+                                            target="main"> <img src="<?= $_style['icons_mail'] ?>"/></a></span>
+                    <a onclick="this.blur();" href="index.php?a=10" target="main"><?= $_lang['messages'] ?> <span
                             id="msgCounter">( ? / ? )</span></a>
                 <?php }
                 if (evo()->hasPermission('help')) { ?>
-                    | <a href="index.php?a=9" target="main"><?php echo $_lang['help'] ?></a>
+                    | <a href="index.php?a=9" target="main"><?= $_lang['help'] ?></a>
                 <?php } ?>
-                | <a href="index.php?a=8" target="_top"><?php echo $_lang['logout'] ?></a>
+                | <a href="index.php?a=8" target="_top"><?= $_lang['logout'] ?></a>
                 <?php
                 if (empty($settings_version)) {
                     $settings_version = '0.0.0';
@@ -249,7 +249,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     </div>
 
     <form name="menuForm" action="l4mnu.php" class="clear">
-        <input name="sessToken" type="hidden" id="sessTokenInput" value="<?php echo md5(session_id()); ?>"/>
+        <input name="sessToken" type="hidden" id="sessTokenInput" value="<?= md5(session_id()) ?>"/>
         <div id="Navcontainer">
             <div id="divNav">
                 <ul id="nav">

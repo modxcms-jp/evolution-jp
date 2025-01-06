@@ -95,19 +95,19 @@ foreach ($content as $k => $v) {
 ?>
 <script type="text/javascript">
     function duplicatedocument() {
-        if (confirm("<?= $_lang['confirm_resource_duplicate']; ?>")) {
+        if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>")) {
             document.location.href = "index.php?id=<?= $id ?>&a=94";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_resource']; ?>")) {
+        if (confirm("<?= $_lang['confirm_delete_resource'] ?>")) {
             document.location.href = "index.php?id=<?= $id ?>&a=6";
         }
     }
 
     function editdocument() {
-        document.location.href = "index.php?id=<?= $id; ?>&a=27";
+        document.location.href = "index.php?id=<?= $id ?>&a=27";
     }
 
     function movedocument() {

@@ -1,9 +1,9 @@
 <!-- Interface & editor settings -->
 <div class="tab-page" id="tabPage5">
-    <h2 class="tab"><?php echo $_lang["settings_ui"] ?></h2>
+    <h2 class="tab"><?= $_lang["settings_ui"] ?></h2>
     <table class="settings">
         <tr>
-            <th><?php echo $_lang["manager_theme"] ?></th>
+            <th><?= $_lang["manager_theme"] ?></th>
             <td><select name="manager_theme" size="1" class="inputBox">
                     <?php
                     $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
@@ -18,31 +18,31 @@
                     }
                     ?>
                 </select><br/>
-                <?php echo $_lang["manager_theme_message"] ?></td>
+                <?= $_lang["manager_theme_message"] ?></td>
         </tr>
 
         <tr>
-            <th><?php echo $_lang["a17_manager_inline_style_title"] ?></th>
+            <th><?= $_lang["a17_manager_inline_style_title"] ?></th>
             <td>
                 <textarea
                     name="manager_inline_style" id="manager_inline_style"
                     style="width:95%; height: 9em;"
-                ><?php echo config('manager_inline_style'); ?></textarea><br/>
-                <?php echo $_lang["a17_manager_inline_style_message"] ?>
+                ><?= config('manager_inline_style') ?></textarea><br/>
+                <?= $_lang["a17_manager_inline_style_message"] ?>
             </td>
         </tr>
 
         <tr>
-            <th><?php echo $_lang["language_title"] ?></th>
+            <th><?= $_lang["language_title"] ?></th>
             <td>
                 <select name="manager_language" size="1" class="inputBox">
-                    <?php echo get_lang_options(null, config('manager_language')); ?>
+                    <?= get_lang_options(null, config('manager_language')) ?>
                 </select><br/>
-                <?php echo $_lang["language_message"] ?>
+                <?= $_lang["language_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["manager_docs_orderby_title"] ?></th>
+            <th><?= $_lang["manager_docs_orderby_title"] ?></th>
             <td>
                 <?=
                     Form::text(
@@ -52,17 +52,17 @@
                         ]
                     )
                 ?>
-                <p><?php echo $_lang["manager_docs_orderby_message"] ?></p>
+                <p><?= $_lang["manager_docs_orderby_message"] ?></p>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["tree_pane_open_default_title"] ?></th>
+            <th><?= $_lang["tree_pane_open_default_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["open"],
+                <?= wrap_label($_lang["open"],
                     form_radio('tree_pane_open_default', 1, config('tree_pane_open_default') == 1)); ?><br/>
-                <?php echo wrap_label($_lang["close"],
+                <?= wrap_label($_lang["close"],
                     form_radio('tree_pane_open_default', 0, config('tree_pane_open_default') == 0)); ?><br/>
-                <?php echo $_lang["tree_pane_open_default_message"] ?>
+                <?= $_lang["tree_pane_open_default_message"] ?>
             </td>
         </tr>
         <?php
@@ -74,71 +74,71 @@
         checkConfig('topmenu_tools');
         ?>
         <tr>
-            <th><?php echo $_lang["topmenu_items_title"] ?></th>
+            <th><?= $_lang["topmenu_items_title"] ?></th>
             <td>
                 <table>
                     <tr>
-                        <td><?php echo $_lang['site'] . '</td><td>' . form_text('topmenu_site', '',
+                        <td><?= $_lang['site'] . '</td><td>' . form_text('topmenu_site', '',
                                     $tmenu_style); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['elements'] . '</td><td>' . form_text('topmenu_element', '',
+                        <td><?= $_lang['elements'] . '</td><td>' . form_text('topmenu_element', '',
                                     $tmenu_style); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['users'] . '</td><td>' . form_text('topmenu_security', '',
+                        <td><?= $_lang['users'] . '</td><td>' . form_text('topmenu_security', '',
                                     $tmenu_style); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['user'] . '</td><td>' . form_text('topmenu_user', '',
+                        <td><?= $_lang['user'] . '</td><td>' . form_text('topmenu_user', '',
                                     $tmenu_style); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['tools'] . '</td><td>' . form_text('topmenu_tools', '',
+                        <td><?= $_lang['tools'] . '</td><td>' . form_text('topmenu_tools', '',
                                     $tmenu_style); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo $_lang['reports'] . '</td><td>' . form_text('topmenu_reports', '',
+                        <td><?= $_lang['reports'] . '</td><td>' . form_text('topmenu_reports', '',
                                     $tmenu_style); ?></td>
                     </tr>
                 </table>
-                <div><?php echo $_lang["topmenu_items_message"]; ?></div>
+                <div><?= $_lang["topmenu_items_message"] ?></div>
             </td>
         </tr>
 
         <tr>
-            <th><?php echo $_lang["limit_by_container"] ?></th>
+            <th><?= $_lang["limit_by_container"] ?></th>
             <td>
-                <?php echo form_text('limit_by_container', 4); ?><br/>
-                <?php echo $_lang["limit_by_container_message"] ?></td>
+                <?= form_text('limit_by_container', 4) ?><br/>
+                <?= $_lang["limit_by_container_message"] ?></td>
         </tr>
 
         <tr>
-            <th><?php echo $_lang["tree_page_click"] ?></th>
+            <th><?= $_lang["tree_page_click"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["edit_resource"],
+                <?= wrap_label($_lang["edit_resource"],
                     form_radio('tree_page_click', '27', config('tree_page_click') == '27')); ?><br/>
-                <?php echo wrap_label($_lang["doc_data_title"],
+                <?= wrap_label($_lang["doc_data_title"],
                     form_radio('tree_page_click', '3', config('tree_page_click') == '3')); ?><br/>
-                <?php echo wrap_label($_lang["tree_page_click_option_auto"],
+                <?= wrap_label($_lang["tree_page_click_option_auto"],
                     form_radio('tree_page_click', 'auto', config('tree_page_click') == 'auto')); ?><br/>
-                <?php echo $_lang["tree_page_click_message"] ?>
+                <?= $_lang["tree_page_click_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["remember_last_tab"] ?></th>
+            <th><?= $_lang["remember_last_tab"] ?></th>
             <td>
-                <?php echo wrap_label("{$_lang['yes']} (Full)",
+                <?= wrap_label("{$_lang['yes']} (Full)",
                     form_radio('remember_last_tab', '2', config('remember_last_tab') == '2')); ?><br/>
-                <?php echo wrap_label("{$_lang['yes']} (Stay mode)",
+                <?= wrap_label("{$_lang['yes']} (Stay mode)",
                     form_radio('remember_last_tab', '1', config('remember_last_tab') == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('remember_last_tab', '0', config('remember_last_tab') == '0')); ?>
+                <?= wrap_label($_lang["no"], form_radio('remember_last_tab', '0', config('remember_last_tab') == '0')) ?>
                 <br/>
-                <?php echo $_lang["remember_last_tab_message"] ?>
+                <?= $_lang["remember_last_tab_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["setting_resource_tree_sortby_default"] ?></th>
+            <th><?= $_lang["setting_resource_tree_sortby_default"] ?></th>
             <td>
                 <select name="resource_tree_sortby_default" size="1" class="inputBox">
                     <?php
@@ -153,11 +153,11 @@
                     echo join("\n", $output)
                     ?>
                 </select><br/>
-                <?php echo $_lang["setting_resource_tree_sortby_default_desc"] ?>
+                <?= $_lang["setting_resource_tree_sortby_default_desc"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["setting_resource_tree_node_name"] ?></th>
+            <th><?= $_lang["setting_resource_tree_node_name"] ?></th>
             <td>
                 <select name="resource_tree_node_name" size="1" class="inputBox">
                     <?php
@@ -173,24 +173,24 @@
                     echo join("\n", $output)
                     ?>
                 </select><br/>
-                <?php echo $_lang["setting_resource_tree_node_name_desc"] ?>
+                <?= $_lang["setting_resource_tree_node_name_desc"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["top_howmany_title"] ?></th>
+            <th><?= $_lang["top_howmany_title"] ?></th>
             <td>
-                <?php echo form_text('top_howmany', 3); ?><br/>
-                <?php echo $_lang["top_howmany_message"] ?>
+                <?= form_text('top_howmany', 3) ?><br/>
+                <?= $_lang["top_howmany_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["datepicker_offset"] ?></th>
+            <th><?= $_lang["datepicker_offset"] ?></th>
             <td>
-                <?php echo form_text('datepicker_offset', 5); ?><br/>
-                <?php echo $_lang["datepicker_offset_message"] ?></td>
+                <?= form_text('datepicker_offset', 5) ?><br/>
+                <?= $_lang["datepicker_offset_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["datetime_format"] ?></th>
+            <th><?= $_lang["datetime_format"] ?></th>
             <td><select name="datetime_format" size="1" class="inputBox">
                     <?php
                     $datetime_format_list = array('dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd');
@@ -203,64 +203,64 @@
                     echo $str;
                     ?>
                 </select><br/>
-                <?php echo $_lang["datetime_format_message"] ?></td>
+                <?= $_lang["datetime_format_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["nologentries_title"] ?></th>
+            <th><?= $_lang["nologentries_title"] ?></th>
             <td>
-                <?php echo form_text('number_of_logs', 3); ?><br/>
-                <?php echo $_lang["nologentries_message"] ?></td>
+                <?= form_text('number_of_logs', 3) ?><br/>
+                <?= $_lang["nologentries_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["automatic_optimize_table_title"] ?></th>
+            <th><?= $_lang["automatic_optimize_table_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"],
+                <?= wrap_label($_lang["yes"],
                     form_radio('automatic_optimize', '1', config('automatic_optimize') == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"],
+                <?= wrap_label($_lang["no"],
                     form_radio('automatic_optimize', '0', config('automatic_optimize') == '0')); ?><br/>
-                <?php echo $_lang["automatic_optimize_table_message"] ?>
+                <?= $_lang["automatic_optimize_table_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["mail_check_timeperiod_title"] ?></th>
+            <th><?= $_lang["mail_check_timeperiod_title"] ?></th>
             <td>
-                <?php echo form_text('mail_check_timeperiod', 5); ?><br/>
-                <?php echo $_lang["mail_check_timeperiod_message"] ?></td>
+                <?= form_text('mail_check_timeperiod', 5) ?><br/>
+                <?= $_lang["mail_check_timeperiod_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["nomessages_title"] ?></th>
+            <th><?= $_lang["nomessages_title"] ?></th>
             <td>
-                <?php echo form_text('number_of_messages', 5); ?><br/>
-                <?php echo $_lang["nomessages_message"] ?></td>
+                <?= form_text('number_of_messages', 5) ?><br/>
+                <?= $_lang["nomessages_message"] ?></td>
         </tr>
         <tr>
-            <th><?php echo $_lang["pm2email_title"] ?></th>
+            <th><?= $_lang["pm2email_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"], form_radio('pm2email', '1', config('pm2email') == '1')); ?><br/>
-                <?php echo wrap_label($_lang["no"], form_radio('pm2email', '0', config('pm2email') == '0')); ?><br/>
-                <?php echo $_lang["pm2email_message"] ?>
+                <?= wrap_label($_lang["yes"], form_radio('pm2email', '1', config('pm2email') == '1')) ?><br/>
+                <?= wrap_label($_lang["no"], form_radio('pm2email', '0', config('pm2email') == '0')) ?><br/>
+                <?= $_lang["pm2email_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["noresults_title"] ?></th>
+            <th><?= $_lang["noresults_title"] ?></th>
             <td>
-                <?php echo form_text('number_of_results', 5); ?><br/>
-                <?php echo $_lang["noresults_message"] ?></td>
+                <?= form_text('number_of_results', 5) ?><br/>
+                <?= $_lang["noresults_message"] ?></td>
         </tr>
 
         <tr>
-            <th><?php echo $_lang["use_editor_title"] ?></th>
+            <th><?= $_lang["use_editor_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["yes"],
+                <?= wrap_label($_lang["yes"],
                     form_radio('use_editor', '1', config('use_editor') == '1', 'id="editorRowOn"')); ?><br/>
-                <?php echo wrap_label($_lang["no"],
+                <?= wrap_label($_lang["no"],
                     form_radio('use_editor', '0', config('use_editor') == '0', 'id="editorRowOff"')); ?><br/>
-                <?php echo $_lang["use_editor_message"] ?>
+                <?= $_lang["use_editor_message"] ?>
             </td>
         </tr>
 
-        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
-            <th><?php echo $_lang["which_editor_title"] ?></th>
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+            <th><?= $_lang["which_editor_title"] ?></th>
             <td>
                 <?php
                 // invoke OnRichTextEditorRegister event
@@ -278,20 +278,20 @@
                 }
                 echo $which_editor_sel;
                 ?>
-                <?php echo $_lang["which_editor_message"] ?></td>
+                <?= $_lang["which_editor_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
-            <th><?php echo $_lang["fe_editor_lang_title"] ?></th>
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+            <th><?= $_lang["fe_editor_lang_title"] ?></th>
             <td><select name="fe_editor_lang" size="1" class="inputBox">
-                    <?php echo get_lang_options(null, config('fe_editor_lang')); ?>
+                    <?= get_lang_options(null, config('fe_editor_lang')) ?>
                 </select><br/>
-                <?php echo $_lang["fe_editor_lang_message"] ?></td>
+                <?= $_lang["fe_editor_lang_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?php echo config('use_editor') == 1 ? $displayStyle : 'none'; ?>">
-            <th><?php echo $_lang["editor_css_path_title"] ?></th>
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+            <th><?= $_lang["editor_css_path_title"] ?></th>
             <td>
-                <?php echo form_text('editor_css_path', '', 'style="width:400px;"'); ?><br/>
-                <?php echo $_lang["editor_css_path_message"] ?></td>
+                <?= form_text('editor_css_path', '', 'style="width:400px;"'); ?><br/>
+                <?= $_lang["editor_css_path_message"] ?></td>
         </tr>
         <tr class="row1" style="border-bottom:none;">
             <td colspan="2" style="padding:0;">

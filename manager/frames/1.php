@@ -28,42 +28,42 @@ $tmp = array('action' => $action);
 evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 ?>
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-    <html <?php echo ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"'; ?>>
+    <html <?= ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"' ?>>
     <head>
-        <title><?php echo $site_name; ?> - (MODX CMS Manager)</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=<?php echo $modx_manager_charset ?>"/>
+        <title><?= $site_name ?> - (MODX CMS Manager)</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx_manager_charset ?>"/>
     </head>
     <?php
     $treePane = '<frame name="tree" src="index.php?a=1&amp;f=tree" scrolling="no" frameborder="0" onresize="top.tree.resizeTree();">';
     $mainPane = sprintf('<frame name="main" src="%s" scrolling="auto" frameborder="0" onload="if(top && top.mainMenu && typeof top.mainMenu.stopWork) top.mainMenu.stopWork();">',
     $mainurl);
     ?>
-    <frameset rows="<?php echo $modx->config['manager_menu_height']; ?>,*" border="0">
+    <frameset rows="<?= $modx->config['manager_menu_height'] ?>,*" border="0">
         <frame name="mainMenu" src="index.php?a=1&amp;f=menu" scrolling="no" frameborder="0" noresize="noresize">
         <?php if ($modx_textdir === 'ltr') {
         // Left-to-Right reading (sidebar on left)
         ?>
         <frameset
-            cols="<?php echo $modx->config['manager_tree_width']; ?>,*"
+            cols="<?= $modx->config['manager_tree_width'] ?>,*"
             border="1"
             frameborder="3"
             framespacing="3"
             bordercolor="#f7f7f7"
         >
-            <?php echo $treePane; ?>
-            <?php echo $mainPane; ?>
+            <?= $treePane ?>
+            <?= $mainPane ?>
             <?php } else {
             // Right-to-Left reading (sidebar on right)
             ?>
             <frameset
-                cols="*,<?php echo $modx->config['manager_tree_width']; ?>"
+                cols="*,<?= $modx->config['manager_tree_width'] ?>"
                 border="1"
                 frameborder="3"
                 framespacing="3"
                 bordercolor="#f7f7f7"
             >
-                <?php echo $mainPane; ?>
-                <?php echo $treePane; ?>
+                <?= $mainPane ?>
+                <?= $treePane ?>
                 <?php } ?>
             </frameset>
         </frameset>

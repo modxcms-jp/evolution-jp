@@ -3,10 +3,10 @@
     <h2 class="tab">リソース設定</h2>
     <table class="settings">
         <tr>
-            <th><?php echo lang('defaulttemplate_title'); ?></th>
+            <th><?= lang('defaulttemplate_title') ?></th>
             <td>
                 <select name="default_template" class="inputBox"
-                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?php echo config('default_template'); ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
+                        onchange="wrap=document.getElementById('template_reset_options_wrapper');if(this.options[this.selectedIndex].value != '<?= config('default_template') ?>'){wrap.style.display='block';}else{wrap.style.display='none';}"
                         style="width:150px">
                     <option value="">(blank)</option>
                     <?php
@@ -55,12 +55,12 @@
                     }
                     ?>
                     <div id="template_reset_options_wrapper" style="display:none;">
-                        <?php echo wrap_label(
+                        <?= wrap_label(
                             lang('template_reset_all'),
                             form_radio('reset_template', '1')
                         );
                         ?><br/>
-                        <?php echo wrap_label(
+                        <?= wrap_label(
                             sprintf(
                                 lang('template_reset_specific'),
                                 $savedTmpName
@@ -68,14 +68,14 @@
                             form_radio('reset_template', 2)
                         ); ?>
                     </div>
-                    <input type="hidden" name="old_template" value="<?php echo $savedTmpId; ?>"/>
-                    <?php echo lang('defaulttemplate_message'); ?>
+                    <input type="hidden" name="old_template" value="<?= $savedTmpId ?>"/>
+                    <?= lang('defaulttemplate_message') ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('defaulttemplate_logic_title'); ?></th>
+            <th><?= lang('defaulttemplate_logic_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('defaulttemplate_logic_system_message'),
                     form_radio(
                         'auto_template_logic',
@@ -83,7 +83,7 @@
                         config('auto_template_logic') === 'system'
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('defaulttemplate_logic_parent_message'),
                     form_radio(
                         'auto_template_logic',
@@ -91,7 +91,7 @@
                         config('auto_template_logic') === 'parent'
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('defaulttemplate_logic_sibling_message'),
                     form_radio(
                         'auto_template_logic',
@@ -99,13 +99,13 @@
                         config('auto_template_logic') === 'sibling'
                     )
                 ); ?><br/>
-                <?php echo lang('defaulttemplate_logic_general_message'); ?>
+                <?= lang('defaulttemplate_logic_general_message') ?>
             </td>
         </tr>
         <tr>
             <th>公開開始日時自動設定</th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     $_lang["enabled"],
                     form_radio(
                         'auto_pub_date',
@@ -113,7 +113,7 @@
                         config('auto_pub_date')
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     $_lang["disabled"],
                     form_radio(
                         'auto_pub_date',
@@ -126,9 +126,9 @@
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('defaultpublish_title'); ?></th>
+            <th><?= lang('defaultpublish_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('yes'),
                     form_radio(
                         'publish_default',
@@ -136,7 +136,7 @@
                         config('publish_default') == 1
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('no'),
                     form_radio(
                         'publish_default',
@@ -144,13 +144,13 @@
                         config('publish_default') == 0
                     )
                 ); ?><br/>
-                <?php echo lang('defaultpublish_message'); ?>
+                <?= lang('defaultpublish_message') ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('defaultmenuindex_title'); ?></th>
+            <th><?= lang('defaultmenuindex_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('yes'),
                     form_radio(
                         'auto_menuindex',
@@ -158,7 +158,7 @@
                         config('auto_menuindex') == 1
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('no'),
                     form_radio(
                         'auto_menuindex',
@@ -166,13 +166,13 @@
                         config('auto_menuindex') == 0
                     )
                 ); ?><br/>
-                <?php echo lang('defaultmenuindex_message'); ?>
+                <?= lang('defaultmenuindex_message') ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('docid_incrmnt_method_title'); ?></th>
+            <th><?= lang('docid_incrmnt_method_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('docid_incrmnt_method_0'),
                     form_radio(
                         'docid_incrmnt_method',
@@ -180,7 +180,7 @@
                         config('docid_incrmnt_method') == 0
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('docid_incrmnt_method_1'),
                     form_radio(
                         'docid_incrmnt_method',
@@ -188,7 +188,7 @@
                         config('docid_incrmnt_method') == 1
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('docid_incrmnt_method_2'),
                     form_radio(
                         'docid_incrmnt_method',
@@ -196,22 +196,22 @@
                         config('docid_incrmnt_method') == 2
                     )
                 ); ?><br/>
-                <?php echo lang('docid_incrmnt_method_message'); ?>
+                <?= lang('docid_incrmnt_method_message') ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo $_lang["enable_draft_title"] ?></th>
+            <th><?= $_lang["enable_draft_title"] ?></th>
             <td>
-                <?php echo wrap_label($_lang["enabled"], form_radio('enable_draft', '1', $enable_draft == '1')); ?><br/>
-                <?php echo wrap_label($_lang["disabled"], form_radio('enable_draft', '0', $enable_draft == '0')); ?>
+                <?= wrap_label($_lang["enabled"], form_radio('enable_draft', '1', $enable_draft == '1')) ?><br/>
+                <?= wrap_label($_lang["disabled"], form_radio('enable_draft', '0', $enable_draft == '0')) ?>
                 <br/>
-                <?php echo $_lang["enable_draft_message"] ?>
+                <?= $_lang["enable_draft_message"] ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('defaultcache_title'); ?></th>
+            <th><?= lang('defaultcache_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('yes'),
                     form_radio(
                         'cache_default',
@@ -219,7 +219,7 @@
                         config('cache_default') == 1
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('no'),
                     form_radio(
                         'cache_default',
@@ -227,13 +227,13 @@
                         config('cache_default') == 0
                     )
                 ); ?><br/>
-                <?php echo lang('defaultcache_message'); ?>
+                <?= lang('defaultcache_message') ?>
             </td>
         </tr>
         <tr>
-            <th><?php echo lang('defaultsearch_title'); ?></th>
+            <th><?= lang('defaultsearch_title') ?></th>
             <td>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('yes'),
                     form_radio(
                         'search_default',
@@ -241,7 +241,7 @@
                         config('search_default') == 1
                     )
                 ); ?><br/>
-                <?php echo wrap_label(
+                <?= wrap_label(
                     lang('no'),
                     form_radio(
                         'search_default',
@@ -249,7 +249,7 @@
                         config('search_default') == 0
                     )
                 ); ?><br/>
-                <?php echo lang('defaultsearch_message'); ?></td>
+                <?= lang('defaultsearch_message') ?></td>
         </tr>
         <tr class="row1" style="border-bottom:none;">
             <td colspan="2" style="padding:0;">

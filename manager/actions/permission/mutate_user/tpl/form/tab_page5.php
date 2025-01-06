@@ -4,7 +4,7 @@
         <th><?= lang('manager_theme') ?></th>
         <td><select name="manager_theme" size="1" class="inputBox"
                     onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
-                <option value=""><?= lang('user_use_config'); ?></option>
+                <option value=""><?= lang('user_use_config') ?></option>
                 <?php
                 $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
                 foreach ($files as $file) {
@@ -18,7 +18,7 @@
                 }
                 ?>
             </select><input type="hidden" name="theme_refresher" value="">
-            <div><?= lang('manager_theme_message'); ?></div>
+            <div><?= lang('manager_theme_message') ?></div>
         </td>
     </tr>
     <tr>
@@ -27,14 +27,14 @@
             <textarea
                 name="manager_inline_style" id="manager_inline_style"
                 style="width:95%; height: 9em;"
-            ><?= $modx->config['manager_inline_style']; ?></textarea><br/>
+            ><?= $modx->config['manager_inline_style'] ?></textarea><br/>
             &nbsp;&nbsp;
             <label><input
                 type="checkbox" name="default_manager_inline_style"
-                value="1" <?= isset($user['manager_inline_style']) ? '' : 'checked'; ?>
-                /> <?= lang('user_use_config'); ?>
+                value="1" <?= isset($user['manager_inline_style']) ? '' : 'checked' ?>
+                /> <?= lang('user_use_config') ?>
             </label>
-            <div><?= lang('a17_manager_inline_style_message'); ?></div>
+            <div><?= lang('a17_manager_inline_style_message') ?></div>
         </td>
     </tr>
     <tr>
@@ -57,7 +57,7 @@
     <tr>
         <th><?= lang('language_title') ?></th>
         <td><select name="manager_language" size="1" class="inputBox">
-                <option value=""><?= lang('user_use_config'); ?></option>
+                <option value=""><?= lang('user_use_config') ?></option>
                 <?php
                 $activelang = (!empty($user['manager_language'])) ? $user['manager_language'] : '';
                 $dir = dir(MODX_CORE_PATH . 'lang');
@@ -74,22 +74,22 @@
                     );
                     ?>
                     <option
-                        value="<?= $languagename; ?>"
-                        <?= selected($activelang === $languagename); ?>
-                    ><?= ucwords(str_replace('_', ' ', $languagename)); ?></option>
+                        value="<?= $languagename ?>"
+                        <?= selected($activelang === $languagename) ?>
+                    ><?= ucwords(str_replace('_', ' ', $languagename)) ?></option>
                     <?php
                 }
                 $dir->close();
                 ?>
             </select>
-            <div><?= lang('language_message'); ?></div>
+            <div><?= lang('language_message') ?></div>
         </td>
     </tr>
-    <tr id='editorRow0' style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none'; ?>">
+    <tr id='editorRow0' style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none' ?>">
         <th><?= lang('which_editor_title') ?></th>
         <td>
             <select name="which_editor" class="inputBox">
-                <option value=""><?= lang('user_use_config'); ?></option>
+                <option value=""><?= lang('user_use_config') ?></option>
                 <?php
                 $edt = isset ($user["which_editor"]) ? $user["which_editor"] : '';
                 // invoke OnRichTextEditorRegister event
@@ -106,10 +106,10 @@
         </td>
     </tr>
     <tr id='editorRow14' class="row3"
-        style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none'; ?>">
+        style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none' ?>">
         <th><?= lang('editor_css_path_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path"
-                   value="<?= isset($user["editor_css_path"]) ? $user["editor_css_path"] : ""; ?>"/>
+                   value="<?= isset($user["editor_css_path"]) ? $user["editor_css_path"] : "" ?>"/>
             <div><?= lang('editor_css_path_message') ?></div>
         </td>
     </tr>

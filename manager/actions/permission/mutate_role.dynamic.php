@@ -83,7 +83,7 @@ if (anyv('a') == 35) {
         }
 
         function deletedocument() {
-            jConfirm('<?php echo $_lang['confirm_delete_role']?>', '<?php echo $_lang['confirm']?>',
+            jConfirm('<?= $_lang['confirm_delete_role']?>', '<?= $_lang['confirm']?>',
                 function (r) {
                     if (r)
                         document.location.href = "index.php?id=" + document.userform.id.value + "&a=37";
@@ -94,16 +94,16 @@ if (anyv('a') == 35) {
 
     </script>
     <form action="index.php?a=36" method="post" name="userform" enctype="multipart/form-data">
-        <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>">
-        <input type="hidden" name="id" value="<?php echo $_GET['id'] ?>">
+        <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+        <input type="hidden" name="id" value="<?= $_GET['id'] ?>">
 
-        <h1><?php echo $_lang['role_title']; ?></h1>
+        <h1><?= $_lang['role_title'] ?></h1>
 
         <div id="actions">
             <ul class="actionButtons">
                 <?php if (evo()->hasPermission('save_role')): ?>
                     <li class="mutate"><a href="#" onclick="documentDirty=false; document.userform.save.click();"><img
-                                src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['update'] ?></a></li>
+                                src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?></a></li>
                 <?php endif; ?>
                 <?php
                 if ($_GET['a'] == '35') {
@@ -131,13 +131,13 @@ if (anyv('a') == 35) {
                 <fieldset>
                     <table>
                         <tr>
-                            <td><?php echo $_lang['role_name']; ?>:</td>
-                            <td><input name="name" type="text" maxlength="50" value="<?php echo $roledata['name']; ?>">
+                            <td><?= $_lang['role_name'] ?>:</td>
+                            <td><input name="name" type="text" maxlength="50" value="<?= $roledata['name'] ?>">
                             </td>
                         </tr>
                         <tr>
-                            <td><?php echo $_lang['resource_description']; ?>:</td>
-                            <td><textarea name="description"><?php echo $roledata['description']; ?></textarea></td>
+                            <td><?= $_lang['resource_description'] ?>:</td>
+                            <td><textarea name="description"><?= $roledata['description'] ?></textarea></td>
                         </tr>
                     </table>
                 </fieldset>
@@ -155,7 +155,7 @@ if (anyv('a') == 35) {
                     <tr>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['page_data_general']; ?></h3>
+                                <h3><?= $_lang['page_data_general'] ?></h3>
                                 <?php
                                 echo render_form('frames', $_lang['role_frames'], 'disabled');
                                 echo render_form('home', $_lang['role_home'], 'disabled');
@@ -173,7 +173,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_content_management']; ?></h3>
+                                <h3><?= $_lang['role_content_management'] ?></h3>
                                 <?php
                                 echo render_form('view_document', $_lang['role_view_docdata'], 'disabled');
                                 echo render_form('new_document', $_lang['role_create_doc']);
@@ -196,7 +196,7 @@ if (anyv('a') == 35) {
                     <tr>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_template_management']; ?></h3>
+                                <h3><?= $_lang['role_template_management'] ?></h3>
                                 <?php
                                 echo render_form('new_template', $_lang['role_create_template']);
                                 echo render_form('edit_template', $_lang['role_edit_template']);
@@ -207,7 +207,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_snippet_management']; ?></h3>
+                                <h3><?= $_lang['role_snippet_management'] ?></h3>
                                 <?php
                                 echo render_form('new_snippet', $_lang['role_create_snippet']);
                                 echo render_form('edit_snippet', $_lang['role_edit_snippet']);
@@ -218,7 +218,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_chunk_management']; ?></h3>
+                                <h3><?= $_lang['role_chunk_management'] ?></h3>
                                 <?php
                                 echo render_form('new_chunk', $_lang['role_create_chunk']);
                                 echo render_form('edit_chunk', $_lang['role_edit_chunk']);
@@ -229,7 +229,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_plugin_management']; ?></h3>
+                                <h3><?= $_lang['role_plugin_management'] ?></h3>
                                 <?php
                                 echo render_form('new_plugin', $_lang['role_create_plugin']);
                                 echo render_form('edit_plugin', $_lang['role_edit_plugin']);
@@ -242,7 +242,7 @@ if (anyv('a') == 35) {
                 </table>
 
                 <fieldset>
-                    <h3><?php echo $_lang['role_module_management']; ?></h3>
+                    <h3><?= $_lang['role_module_management'] ?></h3>
                     <?php
                     echo render_form('new_module', $_lang['role_new_module']);
                     echo render_form('edit_module', $_lang['role_edit_module']);
@@ -256,7 +256,7 @@ if (anyv('a') == 35) {
                     <tr>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_user_management']; ?></h3>
+                                <h3><?= $_lang['role_user_management'] ?></h3>
                                 <?php
                                 echo render_form('new_user', $_lang['role_new_user']);
                                 echo render_form('edit_user', $_lang['role_edit_user']);
@@ -267,7 +267,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_web_user_management']; ?></h3>
+                                <h3><?= $_lang['role_web_user_management'] ?></h3>
                                 <?php
                                 echo render_form('new_web_user', $_lang['role_new_web_user']);
                                 echo render_form('edit_web_user', $_lang['role_edit_web_user']);
@@ -278,7 +278,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_udperms']; ?></h3>
+                                <h3><?= $_lang['role_udperms'] ?></h3>
                                 <?php
                                 echo render_form('access_permissions', $_lang['role_access_persmissions']);
                                 echo render_form('web_access_permissions', $_lang['role_web_access_persmissions']);
@@ -287,7 +287,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_role_management']; ?></h3>
+                                <h3><?= $_lang['role_role_management'] ?></h3>
                                 <?php
                                 echo render_form('new_role', $_lang['role_new_role']);
                                 echo render_form('edit_role', $_lang['role_edit_role']);
@@ -303,7 +303,7 @@ if (anyv('a') == 35) {
                     <tr>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_eventlog_management']; ?></h3>
+                                <h3><?= $_lang['role_eventlog_management'] ?></h3>
                                 <?php
                                 echo render_form('view_eventlog', $_lang['role_view_eventlog']);
                                 echo render_form('delete_eventlog', $_lang['role_delete_eventlog']);
@@ -312,7 +312,7 @@ if (anyv('a') == 35) {
                         </td>
                         <td>
                             <fieldset>
-                                <h3><?php echo $_lang['role_config_management']; ?></h3>
+                                <h3><?= $_lang['role_config_management'] ?></h3>
                                 <?php
                                 echo render_form('logs', $_lang['role_view_logs']);
                                 echo render_form('settings', $_lang['role_edit_settings']);

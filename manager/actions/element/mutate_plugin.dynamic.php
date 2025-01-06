@@ -53,7 +53,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
     <script language="JavaScript">
 
         jQuery(function () {
-            let readonly = <?= ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1' : '0'; ?>;
+            let readonly = <?= ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1' : '0' ?>;
             if (readonly == 1) {
                 jQuery('textarea,input[type=text]').prop('readonly', true);
                 jQuery('select').addClass('readonly');
@@ -80,12 +80,12 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         function duplicaterecord() {
             if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= anyv('id'); ?>&a=105";
+                document.location.href = "index.php?id=<?= anyv('id') ?>&a=105";
             }
         }
 
         function deletedocument() {
-            if (confirm("<?= $_lang['confirm_delete_plugin']; ?>")) {
+            if (confirm("<?= $_lang['confirm_delete_plugin'] ?>")) {
                 documentDirty = false;
                 document.location.href = "index.php?id=" + document.mutate.id.value + "&a=104";
             }
@@ -420,10 +420,10 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
             echo implode("", $evtOut);
         }
         ?>
-        <input type="hidden" name="id" value="<?= $pluginObject->id; ?>">
-        <input type="hidden" name="mode" value="<?= $_GET['a']; ?>">
+        <input type="hidden" name="id" value="<?= $pluginObject->id ?>">
+        <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
 
-        <h1><?= $_lang['plugin_title']; ?></h1>
+        <h1><?= $_lang['plugin_title'] ?></h1>
 
         <div id="actions">
             <ul class="actionButtons">

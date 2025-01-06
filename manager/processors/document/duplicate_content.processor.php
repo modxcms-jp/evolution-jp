@@ -11,9 +11,9 @@ if (!evo()->hasPermission('new_document') || !evo()->hasPermission('save_documen
 if (!$modx->checkPermissions(getv('id'), true)) {
     include(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <div class="sectionHeader"><?php echo lang('access_permissions'); ?></div>
+    <div class="sectionHeader"><?= lang('access_permissions') ?></div>
     <div class="sectionBody">
-    <p><?php echo lang('access_permission_denied'); ?></p>
+    <p><?= lang('access_permission_denied') ?></p>
     <?php
     include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     exit;

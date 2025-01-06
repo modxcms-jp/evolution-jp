@@ -334,7 +334,7 @@ if (isset($form_v['which_editor'])) {
                                 <textarea
                                     name="description"
                                     style="padding:0;height:4em;width:300px;"
-                                ><?= hsc($content['description']); ?></textarea>
+                                ><?= hsc($content['description']) ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -361,7 +361,7 @@ if (isset($form_v['which_editor'])) {
                 </div>
                 <div class="tab-page" id="tabHelp">
                     <h2 class="tab">ヘルプ</h2>
-                    <?= $_lang['htmlsnippet_msg']; ?>
+                    <?= $_lang['htmlsnippet_msg'] ?>
                 </div>
             </div>
             <script>
@@ -373,7 +373,7 @@ if (isset($form_v['which_editor'])) {
     </form>
     </div>
     <script>
-        var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0'; ?>;
+        var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0' ?>;
         if (readonly == 1) {
             jQuery('textarea,input[type=text]').prop('readonly', true);
             jQuery('select').addClass('readonly');

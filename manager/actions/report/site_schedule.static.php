@@ -8,7 +8,7 @@ if (!evo()->hasPermission('view_schedule')) {
 }
 ?>
 <script type="text/javascript" src="media/script/tablesort.js"></script>
-<h1><?php echo lang('site_schedule') ?></h1>
+<h1><?= lang('site_schedule') ?></h1>
 <div id="actions">
     <ul class="actionButtons">
         <li
@@ -20,15 +20,15 @@ if (!evo()->hasPermission('view_schedule')) {
             >
                 <img
                     alt="icons_cancel"
-                    src="<?php echo style('icons_cancel') ?>"
-                /> <?php echo lang('cancel') ?>
+                    src="<?= style('icons_cancel') ?>"
+                /> <?= lang('cancel') ?>
             </a>
         </li>
     </ul>
 </div>
 
 <div class="section">
-    <div class="sectionHeader"><?php echo lang("publish_events") ?></div>
+    <div class="sectionHeader"><?= lang("publish_events") ?></div>
     <div class="sectionBody" id="lyr1">
         <?php
         $rs = db()->select(
@@ -52,9 +52,9 @@ if (!evo()->hasPermission('view_schedule')) {
             >
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
-                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
-                    <th class="sortable"><b><?php echo lang('publish_date'); ?></b></th>
+                    <th class="sortable"><b><?= lang('id') ?></b></th>
+                    <th class="sortable"><b><?= lang('resource') ?></b></th>
+                    <th class="sortable"><b><?= lang('publish_date') ?></b></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -62,10 +62,10 @@ if (!evo()->hasPermission('view_schedule')) {
                 while ($row = db()->getRow($rs)) {
                     ?>
                     <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle'] ?></a>
+                        <td><?= $row['id'] ?></td>
+                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= $row['pagetitle'] ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
+                        <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
                     </tr>
                     <?php
                 }
@@ -79,7 +79,7 @@ if (!evo()->hasPermission('view_schedule')) {
 </div>
 
 <div class="section">
-    <div class="sectionHeader"><?php echo lang("unpublish_events"); ?></div>
+    <div class="sectionHeader"><?= lang("unpublish_events") ?></div>
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
         $rs = db()->select(
@@ -97,9 +97,9 @@ if (!evo()->hasPermission('view_schedule')) {
                    id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
-                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
-                    <th class="sortable"><b><?php echo lang('unpublish_date'); ?></b></th>
+                    <th class="sortable"><b><?= lang('id') ?></b></th>
+                    <th class="sortable"><b><?= lang('resource') ?></b></th>
+                    <th class="sortable"><b><?= lang('unpublish_date') ?></b></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -107,10 +107,10 @@ if (!evo()->hasPermission('view_schedule')) {
                 while ($row = db()->getRow($rs)) {
                     ?>
                     <tr>
-                        <td><?php echo $row['id']; ?></td>
-                        <td><a href="index.php?a=3&id=<?php echo $row['id']; ?>"><?php echo $row['pagetitle']; ?></a>
+                        <td><?= $row['id'] ?></td>
+                        <td><a href="index.php?a=3&id=<?= $row['id'] ?>"><?= $row['pagetitle'] ?></a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['unpub_date'] + config('server_offset_time', 0)); ?></td>
+                        <td><?= $modx->toDateFormat($row['unpub_date'] + config('server_offset_time', 0)) ?></td>
                     </tr>
                     <?php
                 }
@@ -145,8 +145,8 @@ if (!evo()->hasPermission('view_schedule')) {
                    id="table-2" width="100%">
                 <thead>
                 <tr bgcolor="#CCCCCC">
-                    <th class="sortable"><b><?php echo lang('id'); ?></b></th>
-                    <th class="sortable"><b><?php echo lang('resource'); ?></b></th>
+                    <th class="sortable"><b><?= lang('id') ?></b></th>
+                    <th class="sortable"><b><?= lang('resource') ?></b></th>
                     <th class="sortable">更新予約日時</th>
                     <th class="sortable">操作</th>
                 </tr>
@@ -156,18 +156,18 @@ if (!evo()->hasPermission('view_schedule')) {
                 while ($row = db()->getRow($rs)) {
                     ?>
                     <tr>
-                        <td><?php echo $row['elmid']; ?></td>
+                        <td><?= $row['elmid'] ?></td>
                         <td>
                             <a
-                                href="<?php echo 'index.php?a=131&id=' . $row['elmid']; ?>"
+                                href="<?= 'index.php?a=131&id=' . $row['elmid'] ?>"
                             >
-                                <?php echo $row['pagetitle']; ?>
+                                <?= $row['pagetitle'] ?>
                             </a>
                         </td>
-                        <td><?php echo $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)); ?></td>
+                        <td><?= $modx->toDateFormat($row['pub_date'] + config('server_offset_time', 0)) ?></td>
                         <td>
                             <a
-                                href="<?php echo sprintf(
+                                href="<?= sprintf(
                                     '%s?revision=%s'
                                     , evo()->makeUrl($row['elmid'])
                                     , $row['version']
@@ -178,7 +178,7 @@ if (!evo()->hasPermission('view_schedule')) {
                             </a>
                             /
                             <a
-                                href="index.php?a=134&id=<?php echo $row['elmid']; ?>&back=publist"
+                                href="index.php?a=134&id=<?= $row['elmid'] ?>&back=publist"
                                 class="unpub_draft">公開取り消し</a>
                         </td>
                     </tr>

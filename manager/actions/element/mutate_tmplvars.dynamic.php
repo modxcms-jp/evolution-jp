@@ -86,12 +86,12 @@ function selected($cond)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id'); ?>&a=304";
+            document.location.href = "index.php?id=<?= anyv('id') ?>&a=304";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_tmplvars']; ?>") == true) {
+        if (confirm("<?= $_lang['confirm_delete_tmplvars'] ?>") == true) {
             documentDirty = false;
             document.location.href = "index.php?id=" + document.mutate.id.value + "&a=303";
         }
@@ -105,7 +105,7 @@ function selected($cond)
     widgetParams['hyperlink'] = '&text=Display Text;string; &title=Title;string; &linkclass=Class;string &linkstyle=Style;string &target=Target;string &linkattrib=Attributes;string';
     widgetParams['htmltag'] = '&tagoutput=Content;textarea;[+value+] &tagname=Tag Name;string;div &tagid=Tag ID;string &tagclass=Class;string &tagstyle=Style;string &tagattrib=Attributes;string';
     widgetParams['datagrid'] = '&cdelim=Column Delimiter;list;%2C,tab,||,:: &cwrap=Column Wrapper;string;" &enc=Src Encode;list;utf-8,sjis-win,sjis,eucjp-win,euc-jp,jis,auto &detecthead=Detect Header;list;first line,none;first line &cols=Column Names;string &cwidth=Column Widths;string &calign=Column Alignments;string &ccolor=Column Colors;string &ctype=Column Types;string &cpad=Cell Padding;string; &cspace=Cell Spacing;string; &psize=Page Size;int;100 &ploc=Pager Location;list;top-right,top-left,bottom-left,bottom-right,both-right,both-left; &pclass=Pager Class;string &pstyle=Pager Style;string &head=Header Text;string &foot=Footer Text;string &tblc=Grid Class;string &tbls=Grid Style;string &itmc=Item Class;string; &itms=Item Style;string &aitmc=Alt Item Class;string &aitms=Alt Item Style;string &chdrc=Column Header Class;string &chdrs=Column Header Style;string;&egmsg=Empty message;string;No records found;';
-    widgetParams['richtext'] = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?= $RTEditors; ?>';
+    widgetParams['richtext'] = '&w=Width;string;100% &h=Height;string;300px &edt=Editor;list;<?= $RTEditors ?>';
     widgetParams['image'] = '&imgoutput=Src;textarea;[+value+] &alttext=Alternate Text;string &align=Align;list;none,baseline,top,middle,bottom,texttop,absmiddle,absbottom,left,right &name=Name;string &imgclass=Class;string &id=ID;string &imgstyle=Style;string &imgattrib=Other Attribs;string';
     widgetParams['custom_widget'] = '&output=Output;textarea;[+value+]';
 
@@ -144,7 +144,7 @@ function selected($cond)
         dp = (widgetParams[df]) ? widgetParams[df].split("&") : "";
         if (!dp) tr.style.display = 'none';
         else {
-            t = '<table width="400" style="margin-bottom:3px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?= $_lang['parameter']; ?></td><td width="50%"><?= $_lang['value']; ?></td></tr></thead>';
+            t = '<table width="400" style="margin-bottom:3px;background-color:#EEEEEE" cellpadding="2" cellspacing="1"><thead><tr><td width="50%"><?= $_lang['parameter'] ?></td><td width="50%"><?= $_lang['value'] ?></td></tr></thead>';
             for (p = 0; p < dp.length; p++) {
                 dp[p] = (dp[p] + '').replace(/^\s|\s$/, ""); // trim
                 ar = dp[p].split("=");
@@ -273,10 +273,10 @@ function selected($cond)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= $content['id']; ?>">
+    <input type="hidden" name="id" value="<?= $content['id'] ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= $_GET['a']; ?>">
-    <input type="hidden" name="params" value="<?= hsc($content['display_params']); ?>">
+    <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+    <input type="hidden" name="params" value="<?= hsc($content['display_params']) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
         if ($id) {
@@ -333,24 +333,24 @@ function selected($cond)
     <div class="sectionBody">
         <div class="tab-pane" id="tmplvarsPane">
             <div class="tab-page" id="tabGeneral">
-                <h2 class="tab"><?= $_lang['settings_general']; ?></h2>
+                <h2 class="tab"><?= $_lang['settings_general'] ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_name']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_name'] ?></th>
                         <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input
-                                name="name" type="text" maxlength="50" value="<?= hsc($content['name']); ?>"
+                                name="name" type="text" maxlength="50" value="<?= hsc($content['name']) ?>"
                                 class="inputBox" style="width:300px;"><span
                                 style="font-family:'Courier New', Courier, mono">*]</span></td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_caption']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_caption'] ?></th>
                         <td align="left"><input name="caption" type="text" maxlength="80"
-                                                value="<?= hsc($content['caption']); ?>" class="inputBox"
+                                                value="<?= hsc($content['caption']) ?>" class="inputBox"
                                                 style="width:300px;"></td>
                     </tr>
 
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_type']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_type'] ?></th>
                         <td align="left">
                             <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
                                 <?php
@@ -432,58 +432,58 @@ function selected($cond)
                         $display = '';
                     }
                     ?>
-                    <tr id="inputoption" <?= $display; ?>>
-                        <th align="left" valign="top"><?= $_lang['tmplvars_elements']; ?></th>
-                        <td align="left" nowrap="nowrap"><?= $form_elements . $tooltip_input_option; ?></td>
+                    <tr id="inputoption" <?= $display ?>>
+                        <th align="left" valign="top"><?= $_lang['tmplvars_elements'] ?></th>
+                        <td align="left" nowrap="nowrap"><?= $form_elements . $tooltip_input_option ?></td>
                     </tr>
                     <tr>
-                        <th align="left" valign="top"><?= $_lang['tmplvars_default']; ?></th>
+                        <th align="left" valign="top"><?= $_lang['tmplvars_default'] ?></th>
                         <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
                         class="inputBox phptextarea" rows="5"
-                        style="width:400px;"><?= hsc($content['default_text']); ?></textarea>
+                        style="width:400px;"><?= hsc($content['default_text']) ?></textarea>
                         </td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_widget']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_widget'] ?></th>
                         <td align="left">
                             <select name="display" size="1" class="inputBox" style="width:400px;"
                                     onchange="showParameters(this);">
-                                <option value="" <?= selected($content['display'] == ''); ?>>&nbsp;</option>
-                                <option value="custom_widget" <?= selected($content['display'] === 'custom_widget'); ?>>
+                                <option value="" <?= selected($content['display'] == '') ?>>&nbsp;</option>
+                                <option value="custom_widget" <?= selected($content['display'] === 'custom_widget') ?>>
                                     Custom Processor
                                 </option>
-                                <option value="image" <?= selected($content['display'] === 'image'); ?>>Image
+                                <option value="image" <?= selected($content['display'] === 'image') ?>>Image
                                 </option>
-                                <option value="hyperlink" <?= selected($content['display'] === 'hyperlink'); ?>>
+                                <option value="hyperlink" <?= selected($content['display'] === 'hyperlink') ?>>
                                     Hyperlink
                                 </option>
-                                <option value="htmltag" <?= selected($content['display'] === 'htmltag'); ?>>HTML
+                                <option value="htmltag" <?= selected($content['display'] === 'htmltag') ?>>HTML
                                     Generic Tag
                                 </option>
-                                <option value="string" <?= selected($content['display'] === 'string'); ?>>String
+                                <option value="string" <?= selected($content['display'] === 'string') ?>>String
                                     Formatter
                                 </option>
-                                <option value="date" <?= selected($content['display'] === 'date'); ?>>Date
+                                <option value="date" <?= selected($content['display'] === 'date') ?>>Date
                                     Formatter
                                 </option>
-                                <option value="unixtime" <?= selected($content['display'] === 'unixtime'); ?>>
+                                <option value="unixtime" <?= selected($content['display'] === 'unixtime') ?>>
                                     Unixtime
                                 </option>
-                                <option value="delim" <?= selected($content['display'] === 'delim'); ?>>Delimited
+                                <option value="delim" <?= selected($content['display'] === 'delim') ?>>Delimited
                                     List
                                 </option>
-                                <option value="datagrid" <?= selected($content['display'] === 'datagrid'); ?>>
+                                <option value="datagrid" <?= selected($content['display'] === 'datagrid') ?>>
                                     Data Grid
                                 </option>
                             </select>
                         </td>
                     </tr>
                     <tr id="displayparamrow">
-                        <td valign="top" align="left"><?= $_lang['tmplvars_widget_prop']; ?>
+                        <td valign="top" align="left"><?= $_lang['tmplvars_widget_prop'] ?>
                             <div style="padding-top:8px;"><a href="javascript://"
                                                              onclick="resetParameters(); return false"><img
-                                        src="<?= $_style['icons_refresh']; ?>"
-                                        alt="<?= $_lang['tmplvars_reset_params']; ?>"></a></div>
+                                        src="<?= $_style['icons_refresh'] ?>"
+                                        alt="<?= $_lang['tmplvars_reset_params'] ?>"></a></div>
                         </td>
                         <td align="left" id="displayparams">&nbsp;</td>
                     </tr>
@@ -492,8 +492,8 @@ function selected($cond)
 
             <!-- Template Permission -->
             <div class="tab-page" id="tabPerm">
-                <h2 class="tab"><?= $_lang['tmplvar_tmpl_access']; ?></h2>
-                <p><?= $_lang['tmplvar_tmpl_access_msg']; ?></p>
+                <h2 class="tab"><?= $_lang['tmplvar_tmpl_access'] ?></h2>
+                <p><?= $_lang['tmplvar_tmpl_access_msg'] ?></p>
                 <style type="text/css">
                     label {
                         display: block;
@@ -536,13 +536,13 @@ function selected($cond)
             </div>
 
             <div class="tab-page" id="tabInfo">
-                <h2 class="tab"><?= $_lang['settings_properties']; ?></h2>
+                <h2 class="tab"><?= $_lang['settings_properties'] ?></h2>
                 <table>
                     <tr>
-                        <th align="left"><?= $_lang['existing_category']; ?></th>
+                        <th align="left"><?= $_lang['existing_category'] ?></th>
                         <td align="left">
                             <select name="categoryid" style="width:300px;">
-                                <option value="0"><?= $_lang["no_category"]; ?></option>
+                                <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
@@ -551,37 +551,37 @@ function selected($cond)
                                     }
                                 }
                                 ?>
-                                <option value="-1">&gt;&gt; <?= $_lang["new_category"]; ?></option>
+                                <option value="-1">&gt;&gt; <?= $_lang["new_category"] ?></option>
                             </select>
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category']; ?></th>
+                        <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?></th>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
                                                                                       maxlength="45" value=""
                                                                                       class="inputBox"
                                                                                       style="width:300px;"></td>
                     </tr>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_description']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_description'] ?></th>
                         <td align="left"><textarea name="description"
-                                                   style="padding:0;height:4em;"><?= hsc($content['description']); ?></textarea>
+                                                   style="padding:0;height:4em;"><?= hsc($content['description']) ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_template') == 1) { ?>
                         <tr>
                             <td align="left" colspan="2"><label><input name="locked" value="on"
-                                                                       type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : ""; ?>
+                                                                       type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : "" ?>
                                                                        class="inputBox"/>
-                                    <b><?= $_lang['lock_tmplvars']; ?></b> <span
-                                        class="comment"><?= $_lang['lock_tmplvars_msg']; ?></span></label>
+                                    <b><?= $_lang['lock_tmplvars'] ?></b> <span
+                                        class="comment"><?= $_lang['lock_tmplvars_msg'] ?></span></label>
                             </td>
                         </tr>
                     <?php } ?>
                     <tr>
-                        <th align="left"><?= $_lang['tmplvars_rank']; ?></th>
+                        <th align="left"><?= $_lang['tmplvars_rank'] ?></th>
                         <td align="left"><input name="rank" type="text" maxlength="4"
-                                                value="<?= (isset($content['rank'])) ? $content['rank'] : 0; ?>"
+                                                value="<?= (isset($content['rank'])) ? $content['rank'] : 0 ?>"
                                                 class="inputBox" style="width:300px;"></td>
                     </tr>
                 </table>
@@ -600,7 +600,7 @@ function selected($cond)
                 if (evo()->hasPermission('access_permissions')) {
                     ?>
                     <div class="tab-page" id="tabAccess">
-                        <h2 class="tab"><?= $_lang['access_permissions']; ?></h2>
+                        <h2 class="tab"><?= $_lang['access_permissions'] ?></h2>
                         <script type="text/javascript">
                             function makePublic(b) {
                                 var notPublic = false;
@@ -625,7 +625,7 @@ function selected($cond)
                                 }
                             }
                         </script>
-                        <p><?= $_lang['tmplvar_access_msg']; ?></p>
+                        <p><?= $_lang['tmplvar_access_msg'] ?></p>
                         <?php
                         $chk = '';
                         $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
@@ -658,7 +658,7 @@ function selected($cond)
             ?>
             <div class="tab-page" id="tabHelp">
                 <h2 class="tab">ヘルプ</h2>
-                <?= $_lang['tmplvars_msg']; ?>
+                <?= $_lang['tmplvars_msg'] ?>
             </div>
             <?php
             // invoke OnTVFormRender event
@@ -673,7 +673,7 @@ function selected($cond)
 </form>
 <script>
     tpTmplvars = new WebFXTabPane(document.getElementById("tmplvarsPane"), false);
-    var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0'; ?>;
+    var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0' ?>;
     if (readonly == 1) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');

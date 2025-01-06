@@ -56,7 +56,7 @@ echo $cm->render();
     }
 
     var selectedItem;
-    var contextm = <?php echo $cm->getClientScriptObject()?>;
+    var contextm = <?= $cm->getClientScriptObject()?>;
 
     function showContentMenu(id, e) {
         selectedItem = id;
@@ -84,24 +84,24 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?php echo $id ?? '' ?>"/>
-    <input type="hidden" name="listmode" value="<?php echo $listmode ?>"/>
+    <input type="hidden" name="id" value="<?= $id ?? '' ?>"/>
+    <input type="hidden" name="listmode" value="<?= $listmode ?>"/>
     <input type="hidden" name="op" value=""/>
 
-    <h1><?php echo lang('eventlog_viewer') ?></h1>
+    <h1><?= lang('eventlog_viewer') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                             onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
     <div class="sectionBody">
         <!-- load modules -->
-        <p><?php echo $_lang['eventlog_msg'] ?></p>
+        <p><?= $_lang['eventlog_msg'] ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
@@ -109,27 +109,27 @@ echo $cm->render();
                         <a
                             href="index.php?a=116&cls=1"
                         ><img
-                                src="<?php echo $_style["icons_delete_document"] ?>"
+                                src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
-                            /> <?php echo lang('clear_log') ?></a>
+                            /> <?= lang('clear_log') ?></a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
-                                <td><?php echo lang('search') ?> </td>
+                                <td><?= lang('search') ?> </td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                           value="<?php echo $query ?>"/></td>
-                                <td><a class="primary" href="#" title="<?php echo lang('search') ?>"
+                                           value="<?= $query ?>"/></td>
+                                <td><a class="primary" href="#" title="<?= lang('search') ?>"
                                        onclick="searchResource();return false;"><img
-                                            src="<?php echo style('icons_save'); ?>"/><?php echo lang('go') ?>
+                                            src="<?= style('icons_save') ?>"/><?= lang('go') ?>
                                     </a></td>
-                                <td><a href="#" title="<?php echo $_lang['reset'] ?>"
+                                <td><a href="#" title="<?= $_lang['reset'] ?>"
                                        onclick="resetSearch();return false;"><img
-                                            src="<?php echo style('icons_refresh'); ?>" style="display:inline;"/></a>
+                                            src="<?= style('icons_refresh') ?>" style="display:inline;"/></a>
                                 </td>
-                                <td><a href="#" title="<?php echo $_lang['list_mode'] ?>"
+                                <td><a href="#" title="<?= $_lang['list_mode'] ?>"
                                        onclick="changeListMode();return false;"><img
-                                            src="<?php echo style('icons_table'); ?>"
+                                            src="<?= style('icons_table') ?>"
                                             style="display:inline;"/></a></td>
                             </tr>
                         </table>

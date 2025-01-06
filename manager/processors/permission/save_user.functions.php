@@ -120,9 +120,9 @@ function saveUserSettings($id)
         return;
     }
     $sql = sprintf(
-        'INSERT INTO %s (user, setting_name, setting_value) VALUES %s'
-        , evo()->getFullTableName('user_settings')
-        , implode(', ', $savethese)
+        'INSERT INTO %s (user, setting_name, setting_value) VALUES %s',
+        evo()->getFullTableName('user_settings'),
+        implode(', ', $savethese)
     );
     if (!db()->query($sql)) {
         exit('Failed to update user settings!');
@@ -173,9 +173,9 @@ function userid_byname($newusername)
         return false;
     }
     $rs = db()->select(
-        'id'
-        , '[+prefix+]manager_users'
-        , sprintf("username='%s'", db()->escape($newusername))
+        'id',
+        '[+prefix+]manager_users',
+        sprintf("username='%s'", db()->escape($newusername))
     );
     if (!db()->count($rs)) {
         return false;
@@ -189,9 +189,9 @@ function userid_byemail($email)
         return false;
     }
     $rs = db()->select(
-        'internalKey'
-        , '[+prefix+]user_attributes'
-        , sprintf("email='%s'", $email)
+        'internalKey',
+        '[+prefix+]user_attributes',
+        sprintf("email='%s'", $email)
     );
     if (!db()->count($rs)) {
         return false;
@@ -202,9 +202,9 @@ function userid_byemail($email)
 function role_byuserid($userid)
 {
     $rs = db()->select(
-        'role'
-        , '[+prefix+]user_attributes'
-        , sprintf('internalKey=%s', $userid)
+        'role',
+        '[+prefix+]user_attributes',
+        sprintf('internalKey=%s', $userid)
     );
     if (!db()->count($rs)) {
         return false;
@@ -300,24 +300,24 @@ function newUser()
 
     // build the SQL
     $internalKey = db()->insert(
-        array('username' => db()->escape(postv('newusername', 'New User')))
-        , '[+prefix+]manager_users'
+        array('username' => db()->escape(postv('newusername', 'New User'))),
+        '[+prefix+]manager_users'
     );
     if (!$internalKey) {
         webAlert('An error occurred while attempting to save the user.');
         exit;
     }
     db()->update(
-        array('password' => evo()->phpass->HashPassword(newPassword()))
-        , '[+prefix+]manager_users'
-        , sprintf("id='%s'", $internalKey)
+        array('password' => evo()->phpass->HashPassword(newPassword())),
+        '[+prefix+]manager_users',
+        sprintf("id='%s'", $internalKey)
     );
 
     $field = validate();
     $field['internalKey'] = $internalKey;
     $rs = db()->insert(
-        db()->escape($field)
-        , '[+prefix+]user_attributes'
+        db()->escape($field),
+        '[+prefix+]user_attributes'
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to save the user's attributes.");
@@ -354,8 +354,8 @@ function newUser()
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    array('user_group' => $user_group, 'member' => $internalKey)
-                    , '[+prefix+]member_groups'
+                    array('user_group' => $user_group, 'member' => $internalKey),
+                    '[+prefix+]member_groups'
                 );
                 if (!$rs) {
                     webAlert('An error occurred while attempting to add the user to a user_group.');
@@ -369,9 +369,9 @@ function newUser()
     if (postv('stay') != '') {
         if (postv('stay') == '2') {
             $stayUrl = sprintf(
-                'index.php?r=3&a=11&stay=%s&id=%s'
-                , postv('stay')
-                , $internalKey
+                'index.php?r=3&a=11&stay=%s&id=%s',
+                postv('stay'),
+                $internalKey
             );
         } else {
             $stayUrl = 'index.php?r=3&a=11&stay=' . postv('stay');
@@ -382,29 +382,29 @@ function newUser()
 
     if (postv('passwordnotifymethod') === 'e') {
         sendMailMessage(
-            postv('email')
-            , postv('newusername', 'New User')
-            , newPassword()
-            , postv('fullname')
+            postv('email'),
+            postv('newusername', 'New User'),
+            newPassword(),
+            postv('fullname')
         );
         header('Location: ' . $stayUrl);
         exit;
     }
 
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-    ?>
-    <h1><?php echo lang('user_title'); ?></h1>
+?>
+    <h1><?= lang('user_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
-            <li class="mutate"><a href="<?php echo $stayUrl ?>"><img
-                        src="<?php echo style('icons_save') ?>"/> <?php echo lang('close'); ?>
+            <li class="mutate"><a href="<?= $stayUrl ?>"><img
+                        src="<?= style('icons_save') ?>" /> <?= lang('close') ?>
                 </a></li>
         </ul>
     </div>
 
     <div class="section">
-        <div class="sectionHeader"><?php echo lang('user_title'); ?></div>
+        <div class="sectionHeader"><?= lang('user_title') ?></div>
         <div class="sectionBody">
             <div id="disp">
                 <p>
@@ -435,9 +435,9 @@ function updateUser()
         $field['password'] = evo()->phpass->HashPassword(newPassword());
     }
     $rs = db()->update(
-        db()->escape($field)
-        , '[+prefix+]manager_users'
-        , sprintf("id='%s'", postv('userid'))
+        db()->escape($field),
+        '[+prefix+]manager_users',
+        sprintf("id='%s'", postv('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's data.");
@@ -447,9 +447,9 @@ function updateUser()
     $field = validate();
     $field['failedlogincount'] = postv('failedlogincount');
     $rs = db()->update(
-        db()->escape($field)
-        , '[+prefix+]user_attributes'
-        , sprintf("internalKey='%s'", postv('userid'))
+        db()->escape($field),
+        '[+prefix+]user_attributes',
+        sprintf("internalKey='%s'", postv('userid'))
     );
     if (!$rs) {
         webAlert("An error occurred while attempting to update the user's attributes.");
@@ -508,8 +508,8 @@ function updateUser()
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    array('user_group' => $user_group, 'member' => postv('userid'))
-                    , '[+prefix+]member_groups'
+                    array('user_group' => $user_group, 'member' => postv('userid')),
+                    '[+prefix+]member_groups'
                 );
                 if (!$rs) {
                     webAlert('An error occurred while attempting to add the user to a user_group.');
@@ -520,14 +520,15 @@ function updateUser()
     }
     // end of user_groups stuff!
     if (postv('userid') == evo()->getLoginUserID() && postv('newpassword') !== 1 && postv('passwordnotifymethod') !== 's') {
-        ?>
+    ?>
+
         <body bgcolor='#efefef'>
-        <script language="JavaScript">
-            alert("<?php echo lang('user_changeddata'); ?>");
-            top.location.href = 'index.php?a=8';
-        </script>
+            <script language="JavaScript">
+                alert("<?= lang('user_changeddata') ?>");
+                top.location.href = 'index.php?a=8';
+            </script>
         </body>
-        <?php
+    <?php
         exit;
     }
     evo()->getSettings();
@@ -539,17 +540,17 @@ function updateUser()
     if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {
         if (postv('save_action') === 'stay') {
             header(sprintf(
-                'Location: index.php?a=%s&id=%s&r=3&save_action=%s'
-                , postv('mode')
-                , postv('userid')
-                , postv('save_action')
+                'Location: index.php?a=%s&id=%s&r=3&save_action=%s',
+                postv('mode'),
+                postv('userid'),
+                postv('save_action')
             ));
             exit;
         }
         if (postv('save_action') !== 'close') {
             header(sprintf(
-                'Location: index.php?a=11&r=3&save_action=%s'
-                , postv('save_action')
+                'Location: index.php?a=11&r=3&save_action=%s',
+                postv('save_action')
             ));
             exit;
         }
@@ -565,42 +566,42 @@ function updateUser()
         $stayUrl = 'index.php?a=8';
     } elseif (postv('save_action') !== 'close') {
         $stayUrl = sprintf(
-            'index.php?a=%s&save_action=%s'
-            , (postv('save_action') === 'stay') ? sprintf('%s&id=%s', postv('mode'), postv('userid')) : '11'
-            , postv('save_action')
+            'index.php?a=%s&save_action=%s',
+            (postv('save_action') === 'stay') ? sprintf('%s&id=%s', postv('mode'), postv('userid')) : '11',
+            postv('save_action')
         );
     } else {
         $stayUrl = 'index.php?a=75';
     }
     include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     ?>
-    <h1><?php echo lang('user_title'); ?></h1>
+    <h1><?= lang('user_title') ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate">
-                <a href="<?php echo $stayUrl; ?>"><img
-                        src="<?php echo style('icons_save') ?>"/> <?php echo (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close'); ?>
+                <a href="<?= $stayUrl ?>"><img
+                        src="<?= style('icons_save') ?>" /> <?= (postv('userid') == evo()->getLoginUserID()) ? lang('logout') : lang('close') ?>
                 </a>
             </li>
         </ul>
     </div>
 
     <div class="section">
-        <div class="sectionHeader"><?php echo lang('user_title'); ?></div>
+        <div class="sectionHeader"><?= lang('user_title') ?></div>
         <div class="sectionBody">
             <div id="disp">
                 <p>
-                    <?php echo sprintf(
-                            lang('password_msg')
-                            , postv('newusername', 'New User')
-                            , newPassword()
-                        ) . ((postv('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
+                    <?= sprintf(
+                        lang('password_msg'),
+                        postv('newusername', 'New User'),
+                        newPassword()
+                    ) . ((postv('userid') == evo()->getLoginUserID()) ? ' ' . lang('user_changeddata') : ''); ?>
                 </p>
             </div>
         </div>
     </div>
-    <?php
+<?php
 
     include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
 }

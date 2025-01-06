@@ -126,7 +126,7 @@ if (!evo()->hasPermission('logs')) {
                     onclick="documentDirty=false;document.location.href='index.php?a=53';"
                 ><img
                         alt="icons_cancel"
-                        src="<?php echo style("icons_cancel") ?>"/> <?php echo lang('cancel') ?></a>
+                        src="<?= style("icons_cancel") ?>"/> <?= lang('cancel') ?></a>
             </li>
         </ul>
     </div>

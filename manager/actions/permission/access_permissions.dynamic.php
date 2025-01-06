@@ -31,24 +31,24 @@ if (db()->count($rs) < 1) {
 }
 
 ?>
-<h1><?php echo $_lang['mgr_access_permissions'] ?></h1>
+<h1><?= $_lang['mgr_access_permissions'] ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?>
+                    alt="icons_cancel" src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
             </a></li>
     </ul>
 </div>
 
 <div class="sectionBody">
-    <p><?php echo $_lang['access_permissions_introtext'] ?></p><?php echo $modx->config['use_udperms'] != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
+    <p><?= $_lang['access_permissions_introtext'] ?></p><?= $modx->config['use_udperms'] != 1 ? '<p>' . $_lang['access_permissions_off'] . '</p>' : '' ?>
 
     <div class="tab-pane" id="tabPane1">
 
         <div class="tab-page" id="tabPage1">
-            <h2 class="tab"><?php echo $_lang['access_permissions_user_groups'] ?></h2>
+            <h2 class="tab"><?= $_lang['access_permissions_user_groups'] ?></h2>
             <?php
             // User Groups
             echo '<p>' . $_lang['access_permissions_users_tab'] . '</p>';
@@ -56,7 +56,7 @@ if (db()->count($rs) < 1) {
             <table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                 <thead>
                 <tr>
-                    <td><b><?php echo $_lang['access_permissions_add_user_group'] ?></b></td>
+                    <td><b><?= $_lang['access_permissions_add_user_group'] ?></b></td>
                 </tr>
                 </thead>
                 <tr class="row1">
@@ -66,7 +66,7 @@ if (db()->count($rs) < 1) {
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_user_group"/>
                             <input type="text" value="" name="newusergroup"/>&nbsp;
-                            <input type="submit" value="<?php echo $_lang['submit'] ?>"/>
+                            <input type="submit" value="<?= $_lang['submit'] ?>"/>
                         </form>
                     </td>
                 </tr>
@@ -123,7 +123,7 @@ if (db()->count($rs) < 1) {
 
 
         <div class="tab-page" id="tabPage2">
-            <h2 class="tab"><?php echo $_lang['access_permissions_resource_groups'] ?></h2>
+            <h2 class="tab"><?= $_lang['access_permissions_resource_groups'] ?></h2>
             <?php
             // Document Groups
 
@@ -132,7 +132,7 @@ if (db()->count($rs) < 1) {
             <table width="300" border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                 <thead>
                 <tr>
-                    <td><b><?php echo $_lang['access_permissions_add_resource_group'] ?></b></td>
+                    <td><b><?= $_lang['access_permissions_add_resource_group'] ?></b></td>
                 </tr>
                 </thead>
                 <tr class="row1">
@@ -142,7 +142,7 @@ if (db()->count($rs) < 1) {
                             <input type="hidden" name="a" value="41"/>
                             <input type="hidden" name="operation" value="add_document_group"/>
                             <input type="text" value="" name="newdocgroup"/>&nbsp;
-                            <input type="submit" value="<?php echo $_lang['submit'] ?>"/>
+                            <input type="submit" value="<?= $_lang['submit'] ?>"/>
                         </form>
                     </td>
                 </tr>
@@ -198,7 +198,7 @@ if (db()->count($rs) < 1) {
         </div>
 
         <div class="tab-page" id="tabPage3">
-            <h2 class="tab"><?php echo $_lang['access_permissions_links'] ?></h2>
+            <h2 class="tab"><?= $_lang['access_permissions_links'] ?></h2>
             <?php
             // User/Document Group Links
 
@@ -216,7 +216,7 @@ if (db()->count($rs) < 1) {
                 <table border="0" cellspacing="1" cellpadding="3" bgcolor="#ccc">
                     <thead>
                     <tr>
-                        <td><b><?php echo $_lang["access_permissions_group_link"] ?></b></td>
+                        <td><b><?= $_lang["access_permissions_group_link"] ?></b></td>
                     </tr>
                     </thead>
                     <tr class="row1">
@@ -224,11 +224,11 @@ if (db()->count($rs) < 1) {
                             <form method="post" action="index.php" name="accesspermissions" style="margin: 0px;">
                                 <input type="hidden" name="a" value="41"/>
                                 <input type="hidden" name="operation" value="add_document_group_to_user_group"/>
-                                <?php echo $_lang["access_permissions_link_user_group"] ?>
-                                <?php echo $usrgroupselector ?>
-                                <?php echo $_lang["access_permissions_link_to_group"] ?>
-                                <?php echo $docgroupselector ?>
-                                <input type="submit" value="<?php echo $_lang['submit'] ?>">
+                                <?= $_lang["access_permissions_link_user_group"] ?>
+                                <?= $usrgroupselector ?>
+                                <?= $_lang["access_permissions_link_to_group"] ?>
+                                <?= $docgroupselector ?>
+                                <input type="submit" value="<?= $_lang['submit'] ?>">
                             </form>
                         </td>
                     </tr>

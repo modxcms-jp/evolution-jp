@@ -13,7 +13,7 @@ while ($row = db()->getRow($rs)) {
     $logs[] = $row;
 }
 ?>
-    <h1><?php echo lang('mgrlog_view') ?></h1>
+    <h1><?= lang('mgrlog_view') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li
@@ -25,8 +25,8 @@ while ($row = db()->getRow($rs)) {
                     onclick="documentDirty=false;document.location.href='index.php?a=2';"
                 ><img
                         alt="icons_cancel"
-                        src="<?php echo style('icons_cancel') ?>"
-                    /> <?php echo lang('cancel') ?>
+                        src="<?= style('icons_cancel') ?>"
+                    /> <?= lang('cancel') ?>
                 </a>
             </li>
         </ul>
@@ -36,28 +36,28 @@ while ($row = db()->getRow($rs)) {
             <input type="hidden" name="a" value="13">
             <div class="tab-pane" id="logPane">
                 <div class="tab-page" id="tabGeneral">
-                    <h2 class="tab"><?php echo lang('general'); ?></h2>
+                    <h2 class="tab"><?= lang('general') ?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr style="background-color:#fff;">
                             <td
                                 style="width:120px;"
-                            ><b><?php echo lang('mgrlog_msg'); ?></b></td>
+                            ><b><?= lang('mgrlog_msg') ?></b></td>
                             <td align="right">
                                 <input
                                     type="text"
                                     name="message"
                                     class="inputbox"
                                     style="width:240px"
-                                    value="<?php echo getv('message'); ?>"
+                                    value="<?= getv('message') ?>"
                                 />
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_user') ?></b></td>
+                            <td><b><?= lang('mgrlog_user') ?></b></td>
                             <td align="right">
                                 <select name="searchuser" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo lang('mgrlog_anyall') ?></option>
+                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
                                     <?php
                                     // get all users currently in the log
                                     $logs_user = record_sort(array_unique_multi($logs, 'internalKey'), 'username');
@@ -75,14 +75,14 @@ while ($row = db()->getRow($rs)) {
                     </table>
                 </div>
                 <div class="tab-page" id="tabSettings">
-                    <h2 class="tab"><?php echo lang('option'); ?></h2>
+                    <h2 class="tab"><?= lang('option') ?></h2>
                     <table border="0" cellpadding="2" cellspacing="0">
                         <tbody>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_action'); ?></b></td>
+                            <td><b><?= lang('mgrlog_action') ?></b></td>
                             <td align="right">
                                 <select name="action" class="inputBox" style="width:240px;">
-                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
+                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
                                     <?php
                                     // get all available actions in the log
                                     include_once(MODX_CORE_PATH . 'actionlist.inc.php');
@@ -104,10 +104,10 @@ while ($row = db()->getRow($rs)) {
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
-                            <td><b><?php echo lang('mgrlog_itemid'); ?></b></td>
+                            <td><b><?= lang('mgrlog_itemid') ?></b></td>
                             <td align="right">
                                 <select name="itemid" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
+                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
                                     <?php
                                     // get all itemid currently in logging
                                     $logs_items = record_sort(array_unique_multi($logs, 'itemid'), 'itemid');
@@ -124,10 +124,10 @@ while ($row = db()->getRow($rs)) {
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_itemname'); ?></b></td>
+                            <td><b><?= lang('mgrlog_itemname') ?></b></td>
                             <td align="right">
                                 <select name="itemname" class="inputBox" style="width:240px">
-                                    <option value="0"><?php echo lang('mgrlog_anyall'); ?></option>
+                                    <option value="0"><?= lang('mgrlog_anyall') ?></option>
                                     <?php
                                     // get all itemname currently in logging
                                     $logs_names = record_sort(array_unique_multi($logs, 'itemname'), 'itemname');
@@ -143,34 +143,34 @@ while ($row = db()->getRow($rs)) {
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_datefr'); ?></b></td>
+                            <td><b><?= lang('mgrlog_datefr') ?></b></td>
                             <td align="right">
                                 <input type="text" id="datefrom" name="datefrom" class="DatePicker"
-                                       value="<?php echo getv('datefrom', ''); ?>"/>
+                                       value="<?= getv('datefrom', '') ?>"/>
                                 <a
                                     onclick="document.logging.datefrom.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img
-                                        src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                        src="media/style/<?= config('manager_theme') ?>/images/icons/cal_nodate.gif"
                                         border="0" alt="No date"
                                     /></a>
                             </td>
                         </tr>
                         <tr style="background-color:#fff;">
-                            <td><b><?php echo lang('mgrlog_dateto'); ?></b></td>
+                            <td><b><?= lang('mgrlog_dateto') ?></b></td>
                             <td align="right">
                                 <input
                                     type="text"
                                     id="dateto"
                                     name="dateto"
                                     class="DatePicker"
-                                    value="<?php echo getv('dateto', ''); ?>"
+                                    value="<?= getv('dateto', '') ?>"
                                 />
                                 <a
                                     onclick="document.logging.dateto.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"
                                 >
                                     <img
-                                        src="media/style/<?php echo config('manager_theme'); ?>/images/icons/cal_nodate.gif"
+                                        src="media/style/<?= config('manager_theme') ?>/images/icons/cal_nodate.gif"
                                         border="0"
                                         alt="No date"
                                     />
@@ -178,14 +178,14 @@ while ($row = db()->getRow($rs)) {
                             </td>
                         </tr>
                         <tr>
-                            <td><b><?php echo lang('mgrlog_results'); ?></b></td>
+                            <td><b><?= lang('mgrlog_results') ?></b></td>
                             <td align="right">
                                 <input
                                     type="text" name="nrresults"
                                     class="inputbox" style="width:100px"
-                                    value="<?php echo getv('nrresults', config('number_of_logs')); ?>"
+                                    value="<?= getv('nrresults', config('number_of_logs')) ?>"
                                 />
-                                <img src="<?php echo style('tx'); ?>" border="0"/>
+                                <img src="<?= style('tx') ?>" border="0"/>
                             </td>
                         </tr>
                         </tbody>
@@ -195,21 +195,21 @@ while ($row = db()->getRow($rs)) {
                     <li><a
                             href="#" class="default"
                             onclick="documentDirty=false;document.logging.log_submit.click();">
-                            <img src="<?php echo style('icons_save') ?>"/>
-                            <?php echo lang('search'); ?>
+                            <img src="<?= style('icons_save') ?>"/>
+                            <?= lang('search') ?>
                         </a>
                     </li>
                     <li>
                         <a href="index.php?a=2" onclick="documentDirty=false;">
-                            <img src="<?php echo style('icons_cancel') ?>"/>
-                            <?php echo lang('cancel'); ?>
+                            <img src="<?= style('icons_cancel') ?>"/>
+                            <?= lang('cancel') ?>
                         </a>
                     </li>
                 </ul>
                 <input
                     type="submit"
                     name="log_submit"
-                    value="<?php echo lang('mgrlog_searchlogs') ?>"
+                    value="<?= lang('mgrlog_searchlogs') ?>"
                     style="display:none;"
                 />
             </div>
@@ -221,7 +221,7 @@ while ($row = db()->getRow($rs)) {
 
 <?php if (getv('log_submit')) : ?>
     <div class="section">
-    <div class="sectionHeader"><?php echo lang('mgrlog_qresults'); ?></div>
+    <div class="sectionHeader"><?= lang('mgrlog_qresults') ?></div>
     <div class="sectionBody" id="lyr2">
     <?php
     if (getv('log_submit')) {
@@ -335,10 +335,10 @@ while ($row = db()->getRow($rs)) {
         <table class="sortabletable rowstyle-even" id="table-1">
             <thead>
             <tr>
-                <th class="sortable"><b><?php echo lang('mgrlog_time'); ?></b></th>
-                <th class="sortable"><b><?php echo lang('mgrlog_action'); ?></b></th>
-                <th class="sortable"><b><?php echo lang('mgrlog_itemid'); ?></b></th>
-                <th class="sortable"><b><?php echo lang('mgrlog_username'); ?></b></th>
+                <th class="sortable"><b><?= lang('mgrlog_time') ?></b></th>
+                <th class="sortable"><b><?= lang('mgrlog_action') ?></b></th>
+                <th class="sortable"><b><?= lang('mgrlog_itemid') ?></b></th>
+                <th class="sortable"><b><?= lang('mgrlog_username') ?></b></th>
             </tr>
             </thead>
             <tbody>

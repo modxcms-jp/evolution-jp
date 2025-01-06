@@ -20,14 +20,14 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
         }
     </script>
 
-    <h1><?php echo $_lang['import_site_html']; ?></h1>
+    <h1><?= $_lang['import_site_html'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -40,38 +40,38 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                 ?>
 
                 <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
-                    <legend><?php echo $_lang['import_site']; ?></legend>
+                    <legend><?= $_lang['import_site'] ?></legend>
                     <form action="index.php" method="post" name="importFrm">
                         <input type="hidden" name="import" value="import"/>
                         <input type="hidden" name="a" value="95"/>
                         <input type="hidden" name="parent" value="0"/>
                         <table border="0" cellspacing="0" cellpadding="2">
                             <tr>
-                                <td nowrap="nowrap"><b><?php echo $_lang['import_parent_resource']; ?></b></td>
+                                <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
                                 <td>&nbsp;</td>
-                                <td><b><span id="parentName">0 (<?php echo evo()->config('site_name'); ?>)</span></b>
+                                <td><b><span id="parentName">0 (<?= evo()->config('site_name') ?>)</span></b>
                                 </td>
                             </tr>
                             <tr>
-                                <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site_maxtime']; ?></b>
+                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_maxtime'] ?></b>
                                 </td>
                                 <td>&nbsp;</td>
                                 <td><input type="text" name="maxtime" value="30"/>
                                     <br/>
-                                    <?php echo $_lang['import_site_maxtime_message']; ?>
+                                    <?= $_lang['import_site_maxtime_message'] ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site.static.php1']; ?></b>
+                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php1'] ?></b>
                                 </td>
                                 <td>&nbsp;</td>
                                 <td><input type="checkbox" id="reset" name="reset" value="on"/>
                                     <br/>
-                                    <?php echo $_lang['import_site.static.php2']; ?>
+                                    <?= $_lang['import_site.static.php2'] ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td nowrap="nowrap" valign="top"><b><?php echo $_lang['import_site.static.php3']; ?></b>
+                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php3'] ?></b>
                                 </td>
                                 <td>&nbsp;</td>
                                 <td>
@@ -80,27 +80,27 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
                                             name="object"
                                             value="body"
                                             checked="checked"
-                                        /> <?php echo $_lang['import_site.static.php4']; ?>
+                                        /> <?= $_lang['import_site.static.php4'] ?>
                                     </label>
                                     <label><input
                                             type="radio"
                                             name="object"
                                             value="all"
-                                        /> <?php echo $_lang['import_site.static.php5']; ?></label>
+                                        /> <?= $_lang['import_site.static.php5'] ?></label>
                                     <br/>
                                 </td>
                             </tr>
                             <tr>
-                                <td nowrap="nowrap" valign="top"><b><?php echo $_lang['a95_convert_link']; ?></b></td>
+                                <td nowrap="nowrap" valign="top"><b><?= $_lang['a95_convert_link'] ?></b></td>
                                 <td>&nbsp;</td>
                                 <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on"/>
-                                        <?php echo $_lang['a95_convert_link_msg']; ?></label>
+                                        <?= $_lang['a95_convert_link_msg'] ?></label>
                                 </td>
                             </tr>
                         </table>
                         <ul class="actionButtons">
                             <li><a href="#" class="default" onclick="document.importFrm.submit();"><img
-                                        src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['import_site_start']; ?>
+                                        src="<?= $_style["icons_save"] ?>"/> <?= $_lang['import_site_start'] ?>
                                 </a></li>
                         </ul>
                     </form>
@@ -114,7 +114,7 @@ $allowedfiles = array('html', 'htm', 'shtml', 'xml');
             ?>
                 <ul class="actionButtons">
                     <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                                src="<?php echo $_style["icons_close"] ?>"/> <?php echo $_lang['close']; ?></a></li>
+                                src="<?= $_style["icons_close"] ?>"/> <?= $_lang['close'] ?></a></li>
                 </ul>
                 <script type="text/javascript">
                     top.mainMenu.reloadtree();

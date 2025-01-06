@@ -2516,7 +2516,7 @@ class DocumentParser
 
         $content = str_replace(['<@ELSE>', '<@ENDIF>'], ['<?php else:?>', '<?php endif;?>'], $content);
         if (strpos($content, '<?xml') !== false) {
-            $content = str_replace('<?xml', '<?php echo "<?xml";?>', $content);
+            $content = str_replace('<?xml', '<?= "<?xml";?>', $content);
         }
         ob_start();
         eval('?>' . $content);

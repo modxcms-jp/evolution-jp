@@ -191,7 +191,7 @@ class FileUpload
         </head>
         <body>
         <script type="text/javascript">
-            window.parent.frames['frmUpload'].OnUploadCompleted(<?php echo $disp; ?>);
+            window.parent.frames['frmUpload'].OnUploadCompleted(<?= $disp ?>);
         </script>
         </body>
         </html>

@@ -44,27 +44,27 @@ foreach ($dir as $filename) {
 }
 ?>
 <script type="text/javascript">
-    var displayStyle = '<?php echo $displayStyle; ?>';
-    var lang_chg = '<?php echo lang('confirm_setting_language_change'); ?>';
+    var displayStyle = '<?= $displayStyle ?>';
+    var lang_chg = '<?= lang('confirm_setting_language_change') ?>';
 </script>
 <script type="text/javascript" src="actions/tool/mutate_settings/functions.js"></script>
 <form name="settings" action="index.php" method="post" enctype="multipart/form-data">
     <input type="hidden" name="a" value="30"/>
-    <h1><?php echo lang('settings_title'); ?></h1>
+    <h1><?= lang('settings_title') ?></h1>
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button1" class="mutate">
                 <a href="#" onclick="documentDirty=false; document.settings.submit();">
                     <img
-                        src="<?php echo style('icons_save') ?>"
-                    /> <?php echo lang('update'); ?>
+                        src="<?= style('icons_save') ?>"
+                    /> <?= lang('update') ?>
                 </a>
             </li>
             <li id="Button5" class="mutate">
                 <a href="#" onclick="document.location.href='index.php?a=2';">
                     <img
-                        src="<?php echo style('icons_cancel') ?>"
-                    /> <?php echo lang('cancel'); ?>
+                        src="<?= style('icons_cancel') ?>"
+                    /> <?= lang('cancel') ?>
                 </a>
             </li>
         </ul>
@@ -94,13 +94,13 @@ foreach ($dir as $filename) {
         }
     </style>
     <div style="margin: 0 10px 0 20px">
-        <input type="hidden" name="site_id" value="<?php echo $site_id; ?>"/>
-        <input type="hidden" name="settings_version" value="<?php echo $modx_version; ?>"/>
+        <input type="hidden" name="site_id" value="<?= $site_id ?>"/>
+        <input type="hidden" name="settings_version" value="<?= $modx_version ?>"/>
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
         <?php
         if (!isset($settings_version) || $settings_version != $modx_version) {
             ?>
-            <div class='sectionBody'><p><?php echo lang('settings_after_install'); ?></p></div>
+            <div class='sectionBody'><p><?= lang('settings_after_install') ?></p></div>
             <?php
         }
         ?>
@@ -120,7 +120,7 @@ foreach ($dir as $filename) {
 <script>
     tpSettings = new WebFXTabPane(
         document.getElementById("settingsPane")
-        , <?php echo evo()->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?>
+        , <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
     );
     jQuery('#udPermsOn').change(function () {
         jQuery('.udPerms').slideDown();

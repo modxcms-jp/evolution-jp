@@ -3,13 +3,13 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 ?>
-<h1><?php echo $_lang['help']; ?></h1>
+<h1><?= $_lang['help'] ?></h1>
 
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button5" class="mutate"><a href="#"
                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                    alt="icons_cancel" src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?>
+                    alt="icons_cancel" src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
             </a></li>
     </ul>
 </div>
@@ -53,5 +53,5 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     </div>
 </div>
 <script type="text/javascript">
-    tpHelp = new WebFXTabPane(document.getElementById("helpPane"), <?php echo $modx->config['remember_last_tab'] == 0 ? 'false' : 'true'; ?> );
+    tpHelp = new WebFXTabPane(document.getElementById("helpPane"), <?= $modx->config['remember_last_tab'] == 0 ? 'false' : 'true' ?> );
 </script>

@@ -18,7 +18,7 @@ $num_rows_unpub = db()->getAffectedRows();
 <script type="text/javascript">
     doRefresh(1);
 </script>
-<h1><?php echo $_lang['refresh_title']; ?></h1>
+<h1><?= $_lang['refresh_title'] ?></h1>
 <div class="section">
     <div class="sectionBody">
         <?php
@@ -40,7 +40,7 @@ $num_rows_unpub = db()->getAffectedRows();
             <ul class="actionButtons">
                 <li id="Button5"><a href="#" onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                             alt="icons_cancel"
-                            src="<?php echo $_style["icons_save"] ?>"/> <?php echo $_lang['close'] ?></a></li>
+                            src="<?= $_style["icons_save"] ?>"/> <?= $_lang['close'] ?></a></li>
             </ul>
         </div>
     </div>

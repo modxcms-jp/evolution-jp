@@ -56,7 +56,7 @@ echo $cm->render();
     }
 
     var selectedItem;
-    var contextm = <?php echo $cm->getClientScriptObject(); ?>;
+    var contextm = <?= $cm->getClientScriptObject() ?>;
 
     function showContentMenu(id, e) {
         selectedItem = id;
@@ -74,7 +74,7 @@ echo $cm->render();
                 window.location.href = 'index.php?a=88&id=' + id;
                 break;
             case 2:		// delete
-                if (confirm("<?php echo $_lang['confirm_delete_user']; ?>") == true) {
+                if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
                     window.location.href = 'index.php?a=90&id=' + id;
                 }
                 break;
@@ -86,44 +86,44 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?php echo $id ?? ''; ?>"/>
-    <input type="hidden" name="listmode" value="<?php echo $listmode; ?>"/>
+    <input type="hidden" name="id" value="<?= $id ?? '' ?>"/>
+    <input type="hidden" name="listmode" value="<?= $listmode ?>"/>
     <input type="hidden" name="op" value=""/>
 
-    <h1><?php echo $_lang['web_user_management_title']; ?></h1>
+    <h1><?= $_lang['web_user_management_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
                                                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
-                        src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
     <div class="sectionBody">
-        <p><?php echo $_lang['web_user_management_msg']; ?></p>
+        <p><?= $_lang['web_user_management_msg'] ?></p>
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
                     <td><a class="default" href="index.php?a=87"><img
-                                src="<?php echo $_style["icons_add"] ?>"/> <?php echo $_lang['new_web_user']; ?></a>
+                                src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_web_user'] ?></a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
-                                <td><?php echo $_lang["search"]; ?></td>
+                                <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                           value="<?php echo $query; ?>"/></td>
-                                <td><a class="default" href="#" title="<?php echo $_lang["search"]; ?>"
-                                       onclick="searchResource();return false;"><?php echo $_lang["go"]; ?></a></td>
-                                <td><a href="#" title="<?php echo $_lang["reset"]; ?>"
+                                           value="<?= $query ?>"/></td>
+                                <td><a class="default" href="#" title="<?= $_lang["search"] ?>"
+                                       onclick="searchResource();return false;"><?= $_lang["go"] ?></a></td>
+                                <td><a href="#" title="<?= $_lang["reset"] ?>"
                                        onclick="resetSearch();return false;"><img
-                                            src="<?php echo $_style['icons_refresh']; ?>" style="display:inline;"/></a>
+                                            src="<?= $_style['icons_refresh'] ?>" style="display:inline;"/></a>
                                 </td>
-                                <td><a href="#" title="<?php echo $_lang["list_mode"]; ?>"
+                                <td><a href="#" title="<?= $_lang["list_mode"] ?>"
                                        onclick="changeListMode();return false;"><img
-                                            src="<?php echo $_style['icons_table']; ?>"
+                                            src="<?= $_style['icons_table'] ?>"
                                             style="display:inline;"/></a></td>
                             </tr>
                         </table>
