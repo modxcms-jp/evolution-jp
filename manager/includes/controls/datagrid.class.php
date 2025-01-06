@@ -14,7 +14,7 @@ class DataGrid
 {
 
     public $id;
-    
+
     public $ds; // datasource
 
     public $pageSize;            // pager settings
@@ -138,11 +138,11 @@ class DataGrid
             }
             $value = $row[$key];
 
-            $width = $this->_colwidths[$c];
-            $align = $this->_colaligns[$c];
-            $color = $this->_colcolors[$c];
-            $type = $this->_coltypes[$c];
-            $nowrap = $this->_colwraps[$c];
+            $width = $this->_colwidths[$c] ?? '';
+            $align = $this->_colaligns[$c] ?? '';
+            $color = $this->_colcolors[$c] ?? '';
+            $type = $this->_coltypes[$c] ?? '';
+            $nowrap = $this->_colwraps[$c] ?? '';
             if ($color && $Style) {
                 $colStyle = substr($colStyle, 0, -1) . ";background-color:{$color};'";
             }
@@ -384,7 +384,7 @@ class DataGrid
                 if (!empty($this->_colwidths[$c])) {
                     $attrs['width'] = 'width="' . $this->_colwidths[$c] . '"';
                 } else {
-                    $attrs['width'] = $this->_colwidths[$c];
+                    $attrs['width'] = '';
                 }
                 $attr = '';
                 foreach ($attrs as $v) {
@@ -466,19 +466,19 @@ class DataGrid
         $tpl = '<div align="[+align+]" [+pagerClass+] [+pagerStyle+]>[+tblPager+]</div>' . "\n";
         $ph['pagerClass'] = $pagerClass;
         $ph['pagerStyle'] = $pagerStyle;
-        $ph['tblPager'] = $tblPager;
+        $ph['tblPager'] = $tblPager ?? '';
         if (substr($this->pagerLocation, -4) == 'left') {
             $ph['align'] = 'left';
         } else {
             $ph['align'] = 'right';
         }
 
-        if ($tblPager && $ptop) {
+        if (!empty($tblPager) && $ptop) {
             $o = evo()->parseText($tpl, $ph) . $o;
         }
         $o .= $tblColHdr . $tblRows;
         $o .= $tblEnd;
-        if ($tblPager && $pbot) {
+        if (!empty($tblPager) && $pbot) {
             $o = $o . evo()->parseText($tpl, $ph);
         }
 

@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a')) {
     case 107:
         if (!evo()->hasPermission('new_module')) {
             alert()->setError(3);
@@ -21,7 +21,7 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = preg_match('@^[1-9][0-9]*$@', $_REQUEST['id']) ? $_REQUEST['id'] : 0;
+$id = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0;
 
 // Check to see the editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
@@ -318,24 +318,24 @@ $modx->moduleObject = $content;
                 <?php if (evo()->hasPermission('save_module')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                           onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                            onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                             <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
                             <?php if (evo()->hasPermission('new_module')) { ?>
                                 <option id="stay1"
-                                        value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                                        value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                             <?php } ?>
                             <option id="stay2"
-                                    value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                                    value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                             <option id="stay3"
-                                    value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                                    value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
                 <?php
-                if ($_REQUEST['a'] == '108') {
+                if (anyv('a') == '108') {
                     if (evo()->hasPermission('delete_module')) {
                         echo $modx->manager->ab(
                             array(
@@ -375,10 +375,10 @@ $modx->moduleObject = $content;
                         </tr>
                         <tr>
                             <td align="left" valign="top" colspan="2"><input name="disabled"
-                                                                             type="checkbox" <?= $content['disabled'] == 1 ? 'checked="checked"' : '' ?>
-                                                                             value="on" class="inputBox"/>
+                            type="checkbox" <?= $content['disabled'] == 1 ? 'checked="checked"' : '' ?>
+                            value="on" class="inputBox"/>
                                 <span style="cursor:pointer"
-                                      onclick="document.mutate.disabled.click();"><?= $content['disabled'] == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
+                                        onclick="document.mutate.disabled.click();"><?= $content['disabled'] == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
                             </td>
                         </tr>
                     </table>
@@ -389,8 +389,8 @@ $modx->moduleObject = $content;
                             style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                             <span style="float:left;font-weight:bold;"><?= $_lang['module_code'] ?></span>
                             <span style="float:right; color:#707070"><?= $_lang['wrap_lines'] ?><input name="wrap"
-                                                                                                       type="checkbox" <?= $content['wrap'] == 1 ? ' checked="checked"' : '' ?> class="inputBox"
-                                                                                                       onclick="setTextWrap(document.mutate.post,this.checked)"/></span>
+                                    type="checkbox" <?= $content['wrap'] == 1 ? ' checked="checked"' : '' ?> class="inputBox"
+                                    onclick="setTextWrap(document.mutate.post,this.checked)"/></span>
                         </div>
                         <?php
                         if ($content['locked'] === '1') {
@@ -400,8 +400,8 @@ $modx->moduleObject = $content;
                         }
                         ?>
                         <textarea dir="ltr" <?= $readonly ?> class="phptextarea" name="post"
-                                  style="width:100%; height:370px;"
-                                  wrap="<?= $content['wrap'] == 1 ? 'soft' : 'off' ?>"><?= htmlspecialchars($content['modulecode']) ?></textarea>
+                                style="width:100%; height:370px;"
+                                wrap="<?= $content['wrap'] == 1 ? 'soft' : 'off' ?>"><?= htmlspecialchars($content['modulecode']) ?></textarea>
                     </div>
                     <!-- PHP text editor end -->
                 </div>
@@ -491,9 +491,9 @@ $modx->moduleObject = $content;
                     </table>
                 </div>
 
-                <?php if ($_REQUEST['a'] == '107') { ?>
+                <?php if (anyv('a') == '107') { ?>
                     <input name="guid" type="hidden" value="<?= createGUID() ?>"/>
-                <?php } elseif ($_REQUEST['a'] == '108') { ?>
+                <?php } elseif (anyv('a') == '108') { ?>
                     <!-- Dependencies -->
                     <div class="tab-page" id="tabDepend">
                         <h2 class="tab"><?= $_lang['settings_dependencies'] ?></h2>

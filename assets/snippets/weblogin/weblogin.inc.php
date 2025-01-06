@@ -104,8 +104,8 @@ EOT;
 
     $_SESSION['ip'] = real_ip();
 
-    if (isset($_REQUEST['id']) && is_numeric($_REQUEST['id'])) {
-        $itemid = $_REQUEST['id'];
+    if (anyv('id') && is_numeric(anyv('id'))) {
+        $itemid = anyv('id');
     } else {
         $itemid = 'NULL';
     }

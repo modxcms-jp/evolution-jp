@@ -11,17 +11,17 @@ if (!evo()->hasPermission('edit_user')) {
 global $_PAGE, $_style;
 $modx->manager->initPageViewState();
 // get and save search string
-if (isset($_REQUEST['op']) && $_REQUEST['op'] == 'reset') {
+if (anyv('op') == 'reset') {
     $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = isset($_REQUEST['search']) ? $_REQUEST['search'] : $_PAGE['vs']['search'];
+    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
     $keyword = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
 // get & save listmode
-$listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode'] : $_PAGE['vs']['lm'];
+$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 // context menu
@@ -83,8 +83,8 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?php echo $id; ?>"/>
-    <input type="hidden" name="listmode" value="<?php echo $listmode; ?>"/>
+    <input type="hidden" name="id" value="<?php echo $id ?? ''; ?>"/>
+    <input type="hidden" name="listmode" value="<?php echo $listmode ?? ''; ?>"/>
     <input type="hidden" name="op" value=""/>
 
     <h1><?php echo $_lang['user_management_title']; ?></h1>
@@ -92,7 +92,7 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
                         src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
@@ -189,7 +189,7 @@ echo $cm->render();
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }
-            if ($_REQUEST['op'] == 'reset') {
+            if (anyv('op') == 'reset') {
                 $grd->pageNumber = 1;
             }
             // render grid

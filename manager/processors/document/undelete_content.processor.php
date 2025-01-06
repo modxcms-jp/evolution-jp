@@ -7,7 +7,7 @@ if (!evo()->hasPermission('delete_document')) {
     alert()->dumpError();
 }
 
-$id = (int)$_REQUEST['id'];
+$id = (int)anyv('id');
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {

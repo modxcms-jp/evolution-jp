@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a')) {
     case 22:
         if (!evo()->hasPermission('edit_snippet')) {
             alert()->setError(3);
@@ -69,7 +69,7 @@ if ($formRestored) {
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record']?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= $_REQUEST['id']?>&a=98";
+            document.location.href = "index.php?id=<?= anyv('id')?>&a=98";
         }
     }
 

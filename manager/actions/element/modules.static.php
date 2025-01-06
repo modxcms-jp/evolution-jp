@@ -16,17 +16,17 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
 $modx->manager->initPageViewState();
 
 // get and save search string
-if ($_REQUEST['op'] === 'reset') {
+if (anyv('op') === 'reset') {
     $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = isset($_REQUEST['search']) ? $_REQUEST['search'] : $_PAGE['vs']['search'];
+    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
     $sqlQuery = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
 // get & save listmode
-$listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode'] : $_PAGE['vs']['lm'];
+$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 
@@ -132,7 +132,7 @@ echo $cm->render();
         if ($listmode == '1') {
             $grd->pageSize = 0;
         }
-        if ($_REQUEST['op'] === 'reset') {
+        if (anyv('op') === 'reset') {
             $grd->pageNumber = 1;
         }
         // render grid

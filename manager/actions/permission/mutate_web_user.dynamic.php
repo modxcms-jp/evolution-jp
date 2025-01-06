@@ -10,7 +10,7 @@ $tbl_web_users = evo()->getFullTableName('web_users');
 $tbl_web_groups = evo()->getFullTableName('web_groups');
 $tbl_webgroup_names = evo()->getFullTableName('webgroup_names');
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a')) {
     case 88:
         if (!evo()->hasPermission('edit_web_user')) {
             alert()->setError(3);
@@ -46,7 +46,7 @@ if ($limit > 1) {
 }
 // end check for lock
 
-if ($_REQUEST['a'] == '88') {
+if (anyv('a') == 88) {
     // get user attributes
     $rs = db()->select('*', $tbl_web_user_attributes, "internalKey='{$user}'");
     $limit = db()->count($rs);
@@ -238,7 +238,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         <input type="hidden" name="mode" value="<?php echo $_GET['a'] ?>"/>
         <input type="hidden" name="id" value="<?php echo $_GET['id'] ?>"/>
         <input type="hidden" name="blockedmode"
-               value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
+                value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
 
         <h1><?php echo $_lang['web_user_title']; ?></h1>
 
@@ -251,16 +251,16 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <select id="stay" name="stay">
                             <?php if (evo()->hasPermission('new_web_user')) { ?>
                                 <option id="stay1"
-                                        value="1" <?php echo $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?php echo $_lang['stay_new'] ?></option>
+                                        value="1" <?php echo anyv('stay') == 1 ? ' selected=""' : '' ?> ><?php echo $_lang['stay_new'] ?></option>
                             <?php } ?>
                             <option id="stay2"
-                                    value="2" <?php echo $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?> ><?php echo $_lang['stay'] ?></option>
+                                    value="2" <?php echo anyv('stay') == 2 ? ' selected="selected"' : '' ?> ><?php echo $_lang['stay'] ?></option>
                             <option id="stay3"
-                                    value="" <?php echo $_REQUEST['stay'] == '' ? ' selected=""' : '' ?> ><?php echo $_lang['close'] ?></option>
+                                    value="" <?php echo anyv('stay') == '' ? ' selected=""' : '' ?> ><?php echo $_lang['close'] ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
-                <?php if ($_REQUEST['a'] == '88') { ?>
+                <?php if (anyv('a') == 88) { ?>
                     <li><a href="#" onclick="deleteuser();"><img
                                 src="<?php echo $_style["icons_delete"] ?>"/> <?php echo $_lang['delete']; ?></a>
                     </li>
@@ -306,13 +306,13 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <tr>
                             <th valign="top"><?php echo $_GET['a'] == '87' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
                             <td>
-                                <?php if ($_REQUEST['a'] !== '87'): ?>
+                                <?php if (anyv('a') != 87): ?>
                                     <input name="newpasswordcheck" type="checkbox"
                                            onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);">
                                 <?php endif; ?>
                                 <input type="hidden" name="newpassword"
-                                       value="<?php echo $_REQUEST['a'] == "87" ? 1 : 0; ?>"/><br/>
-                                <div style="display:<?php echo $_REQUEST['a'] == "87" ? "block" : "none"; ?>"
+                                       value="<?php echo anyv('a') == 87 ? 1 : 0; ?>"/><br/>
+                                <div style="display:<?php echo anyv('a') == 87 ? "block" : "none"; ?>"
                                      id="passwordBlock">
                                     <fieldset style="width:300px;padding:0;">
                                         <label><input type=radio name="passwordgenmethod"

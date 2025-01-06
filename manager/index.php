@@ -128,11 +128,7 @@ if (isset($_GET['a']) && isset($_POST['a'])) {
     alert()->setError(100);
     alert()->dumpError();
 } else {
-    if (isset($_REQUEST['a'])) {
-        $modx->manager->action = (int)$_REQUEST['a'];
-    } else {
-        $modx->manager->action = '';
-    }
+    $modx->manager->action = (int)anyv('a') ?: '';
 }
 
 // attempt to foil some simple types of CSRF attacks

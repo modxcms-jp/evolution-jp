@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if ($_REQUEST['a'] !== '74' || !evo()->hasPermission('change_password')) {
+if (anyv('a') != 74 || !evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
 }
@@ -159,7 +159,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         <input type="hidden" name="role" value="<?php echo $userdata['role']; ?>"/>
         <input type="hidden" name="failedlogincount" value="<?php echo $userdata['failedlogincount']; ?>">
         <input type="hidden" name="blockedmode"
-               value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
+                value="<?php echo ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
 
         <h1><?php echo $_lang['profile']; ?></h1>
         <div id="actions">
@@ -171,15 +171,15 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?php echo selected($_REQUEST['stay'] == '1'); ?> ><?php echo $_lang['stay_new'] ?></option>
+                                value="1" <?php echo selected(anyv('stay') == 1); ?> ><?php echo $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?php echo selected($_REQUEST['stay'] == '2'); ?> ><?php echo $_lang['stay'] ?></option>
+                                value="2" <?php echo selected(anyv('stay') == 2); ?> ><?php echo $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?php echo selected($_REQUEST['stay'] == ''); ?> ><?php echo $_lang['close'] ?></option>
+                                value="" <?php echo selected(anyv('stay') == ''); ?> ><?php echo $_lang['close'] ?></option>
                     </select>
                 </li>
                 <?php
-                if ($_REQUEST['a'] == '74') { ?>
+                if (anyv('a') == 74) { ?>
                     <li id="Button3"><a href="#" onclick="deleteuser();"><img
                                 src="<?php echo $_style["icons_delete_document"] ?>"/> <?php echo $_lang['delete'] ?>
                         </a></li>
@@ -218,81 +218,81 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <tr>
                             <th valign="top"><?php echo $_GET['a'] == '11' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":"; ?></th>
                             <td><label><input name="newpasswordcheck" type="checkbox"
-                                              onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo $_REQUEST['a'] == "11" ? " checked disabled" : ""; ?>><input
+                                            onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?php echo anyv('a') == 11 ? " checked disabled" : ""; ?>><input
                                         type="hidden" name="newpassword"
-                                        value="<?php echo $_REQUEST['a'] == "11" ? 1 : 0; ?>"/></label><br/>
-                                <span style="display:<?php echo $_REQUEST['a'] == "11" ? "block" : "none"; ?>"
-                                      id="passwordBlock">
-	<fieldset style="width:300px">
-	<legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
-	<label><input type=radio name="passwordgenmethod"
-                  value="g" <?php echo $_POST['passwordgenmethod'] == "spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br/>
-	<label><input type=radio name="passwordgenmethod"
-                  value="spec" <?php echo $_POST['passwordgenmethod'] == "spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br/>
-	<div style="padding-left:20px">
-	<label for="specifiedpassword" style="width:120px"><?php echo $_lang['change_password_new']; ?>:</label>
-	<input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-           size="20" autocomplete="off"/><br/>
-	<label for="confirmpassword" style="width:120px"><?php echo $_lang['change_password_confirm']; ?>:</label>
-	<input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
-           size="20" autocomplete="off"/><br/>
-	<small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
-	</div>
-	</fieldset>
-	<input type="hidden" name="passwordnotifymethod" value="s"/>
-	</span>
+                                        value="<?php echo anyv('a') == 11 ? 1 : 0; ?>"/></label><br/>
+                                <span style="display:<?php echo anyv('a') == 11 ? "block" : "none"; ?>"
+                                    id="passwordBlock">
+    <fieldset style="width:300px">
+    <legend><b><?php echo $_lang['password_gen_method']; ?></b></legend>
+    <label><input type=radio name="passwordgenmethod"
+                value="g" <?php echo $_POST['passwordgenmethod'] == "spec" ? "" : 'checked="checked"'; ?> /><?php echo $_lang['password_gen_gen']; ?></label><br/>
+    <label><input type=radio name="passwordgenmethod"
+                value="spec" <?php echo $_POST['passwordgenmethod'] == "spec" ? 'checked="checked"' : ""; ?>><?php echo $_lang['password_gen_specify']; ?></label><br/>
+    <div style="padding-left:20px">
+    <label for="specifiedpassword" style="width:120px"><?php echo $_lang['change_password_new']; ?>:</label>
+    <input type="password" name="specifiedpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+        size="20" autocomplete="off"/><br/>
+    <label for="confirmpassword" style="width:120px"><?php echo $_lang['change_password_confirm']; ?>:</label>
+    <input type="password" name="confirmpassword" onkeypress="document.userform.passwordgenmethod[1].checked=true;"
+        size="20" autocomplete="off"/><br/>
+    <small><span class="warning" style="font-weight:normal"><?php echo $_lang['password_gen_length']; ?></span></small>
+    </div>
+    </fieldset>
+    <input type="hidden" name="passwordnotifymethod" value="s"/>
+    </span>
                             </td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_email']; ?>:</th>
                             <td>
                                 <input type="text" name="email" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['email']); ?>"/>
+                                        value="<?php echo htmlspecialchars($userdata['email']); ?>"/>
                                 <input type="hidden" name="oldemail"
-                                       value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>"/>
+                                        value="<?php echo htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']); ?>"/>
                             </td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_full_name']; ?>:</th>
                             <td><input type="text" name="fullname" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['fullname']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['fullname']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_phone']; ?>:</th>
                             <td><input type="text" name="phone" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['phone']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['phone']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_mobile']; ?>:</th>
                             <td><input type="text" name="mobilephone" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['mobilephone']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_fax']; ?>:</th>
                             <td><input type="text" name="fax" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['fax']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['fax']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_street']; ?>:</th>
                             <td><input type="text" name="street" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['street']); ?>"
-                                       onchange="documentDirty=true;"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['street']); ?>"
+                                        onchange="documentDirty=true;"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_city']; ?>:</th>
                             <td><input type="text" name="city" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['city']); ?>"
-                                       onchange="documentDirty=true;"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['city']); ?>"
+                                        onchange="documentDirty=true;"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_state']; ?>:</th>
                             <td><input type="text" name="state" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['state']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['state']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_zip']; ?>:</th>
                             <td><input type="text" name="zip" class="inputBox"
-                                       value="<?php echo htmlspecialchars($userdata['zip']); ?>"/></td>
+                                        value="<?php echo htmlspecialchars($userdata['zip']); ?>"/></td>
                         </tr>
                         <tr>
                             <th><?php echo $_lang['user_country']; ?>:</th>

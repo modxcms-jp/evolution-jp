@@ -139,10 +139,12 @@ function getAction($actionId, $itemid = '')
 {
     global $action_list;
 
-    $ret = sprintf($action_list[$actionId], $itemid);
-    if (!$ret) {
-        $ret = "Idle (unknown)";
+    $tpl = $action_list[$actionId] ?? '';
+    if (!$tpl) {
+        return 'Idle (unknown)';
     }
+
+    $ret = sprintf($action_list[$actionId], $itemid);
 
     return $ret;
 }

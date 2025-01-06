@@ -42,7 +42,7 @@ $rt = strtolower($_REQUEST['rt']);
 $sm = strtolower($_REQUEST['sm']);
 
 // get search string
-$query = $_REQUEST['search'];
+$query = anyv('search');
 $sqlQuery = db()->escape($query);
 
 // select SQL
@@ -142,8 +142,8 @@ switch ($rt) {
 </script>
 <form name="selector" method="get">
     <input type="hidden" name="id" value="<?php echo $id; ?>"/>
-    <input type="hidden" name="a" value="<?php echo (int)$_REQUEST['a']; ?>"/>
-    <input type="hidden" name="listmode" value="<?php echo $_REQUEST['listmode']; ?>"/>
+    <input type="hidden" name="a" value="<?php echo (int)anyv('a'); ?>"/>
+    <input type="hidden" name="listmode" value="<?php echo anyv('listmode'); ?>"/>
     <input type="hidden" name="op" value=""/>
     <input type="hidden" name="rt" value="<?php echo $rt; ?>"/>
     <input type="hidden" name="rt" value="<?php echo $rt; ?>"/>
@@ -151,7 +151,7 @@ switch ($rt) {
     <input type="hidden" name="cb" value="<?php echo $cb; ?>"/>
     <div class="section" style="margin:1em;">
         <div class="sectionHeader"
-             style="margin:0px"><?php echo $title . " - " . $_lang['element_selector_title']; ?></div>
+            style="margin:0px"><?php echo $title . " - " . $_lang['element_selector_title']; ?></div>
         <div class="sectionBody" style="margin-right:0px;margin-left:0px;">
             <p><?php echo $_lang['element_selector_msg']; ?></p>
             <!-- resources -->
@@ -215,7 +215,7 @@ switch ($rt) {
                             $grd->columns = $_lang["name"] . " ," . $_lang["description"];
                             $grd->colTypes = "template:<label><input type='" . ($sm == 'm' ? 'checkbox' : 'radio') . "' name='id[]' value='[+id+]' onclick='setCheckbox(this);'> [+value+]</label>";
                             $grd->fields = "name,description";
-                            if ($_REQUEST['listmode'] == '1') {
+                            if (anyv('listmode') == 1) {
                                 $grd->pageSize = 0;
                             }
                             echo $grd->render();

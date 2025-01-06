@@ -147,8 +147,8 @@ if (id()) {
                         $parent = getParentValues(template('parent'));
                     }
                     if (!empty($parent)) {
-                        $head = $parent['head'];
-                        $foot = $parent['foot'];
+                        $head = $parent['head'] ?? '';
+                        $foot = $parent['foot'] ?? '';
                     }
                     ?>
                     <div style="width:100%;position:relative">
@@ -160,7 +160,7 @@ if (id()) {
                             echo $head;
                         } ?>
                         <textarea dir="ltr" name="content" class="phptextarea"
-                                  style="width:100%; height: 370px;"><?= evo()->hsc(template('content')) ?></textarea>
+                            style="width:100%; height: 370px;"><?= evo()->hsc(template('content')) ?></textarea>
                         <?php if (isset($foot)) {
                             echo $foot;
                         } ?>

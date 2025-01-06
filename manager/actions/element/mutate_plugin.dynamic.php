@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a')) {
     case 102:
         if (!evo()->hasPermission('edit_plugin')) {
             alert()->setError(3);
@@ -21,7 +21,7 @@ switch ((int)$_REQUEST['a']) {
         alert()->dumpError();
 }
 
-$id = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$id = anyv('id', 0);
 
 // check to see the plugin editor isn't locked
 $rs = db()->select('*', '[+prefix+]active_users', "action='102' AND id='{$id}'");
@@ -80,7 +80,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         function duplicaterecord() {
             if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= $_REQUEST['id']; ?>&a=105";
+                document.location.href = "index.php?id=<?= anyv('id'); ?>&a=105";
             }
         }
 
@@ -430,17 +430,17 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                 <?php if (evo()->hasPermission('save_plugin')): ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                           onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                            onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                             <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                         </a>
                         <span class="and"> + </span>
                         <select id="stay" name="stay">
                             <option id="stay1"
-                                    value="1" <?= selected($_REQUEST['stay'] == '1') ?> ><?= $_lang['stay_new'] ?></option>
+                                    value="1" <?= selected(anyv('stay') == 1) ?> ><?= $_lang['stay_new'] ?></option>
                             <option id="stay2"
-                                    value="2" <?= selected($_REQUEST['stay'] == '2') ?> ><?= $_lang['stay'] ?></option>
+                                    value="2" <?= selected(anyv('stay') == 2) ?> ><?= $_lang['stay'] ?></option>
                             <option id="stay3"
-                                    value="" <?= selected($_REQUEST['stay'] == '') ?> ><?= $_lang['close'] ?></option>
+                                    value="" <?= selected(anyv('stay') == '') ?> ><?= $_lang['close'] ?></option>
                         </select>
                     </li>
                 <?php endif; ?>

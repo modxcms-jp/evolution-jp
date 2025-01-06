@@ -139,7 +139,7 @@ $header .= '</head>
 <div id="actions">
     <ul class="actionButtons">
         <li class="mutate"><a class="default" href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=16&amp;id=' . $_REQUEST['id'] . '\';"><img src="' . $_style["icons_cancel"] . '"> ' . $_lang['cancel'] . '</a></li>
+		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=16&amp;id=' . anyv('id') . '\';"><img src="' . $_style["icons_cancel"] . '"> ' . $_lang['cancel'] . '</a></li>
 	</ul>
 </div>
 

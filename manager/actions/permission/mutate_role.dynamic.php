@@ -3,7 +3,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-switch ((int)$_REQUEST['a']) {
+switch ((int)anyv('a')) {
     case 35:
         if (!evo()->hasPermission('edit_role')) {
             alert()->setError(3);
@@ -39,7 +39,7 @@ if ($total > 1) {
 // end check for lock
 
 
-if ($_REQUEST['a'] == '35') {
+if (anyv('a') == 35) {
     $rs = db()->select('*', '[+prefix+]user_roles', "id='{$role}'");
     $total = db()->count($rs);
     if ($total > 1) {

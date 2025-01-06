@@ -8,11 +8,7 @@ if (!evo()->hasPermission('edit_module')) {
     alert()->dumpError();
 }
 
-if (isset($_REQUEST['id'])) {
-    $id = (int)$_REQUEST['id'];
-} else {
-    $id = 0;
-}
+$id = anyv('id', 0);
 
 // Get table names (alphabetical)
 $tbl_site_module_depobj = evo()->getFullTableName('site_module_depobj');
@@ -42,12 +38,12 @@ if (!is_numeric($id)) {
 }
 
 // take action
-switch ($_REQUEST['op']) {
+switch (anyv('op')) {
     case 'add':
-        $opids = explode(',', $_REQUEST['newids']);
+        $opids = explode(',', anyv('newids'));
         if (count($opids) > 0) {
             // 1-snips, 2-tpls, 3-tvs, 4-chunks, 5-plugins, 6-docs
-            $rt = strtolower($_REQUEST["rt"]);
+            $rt = strtolower(anyv('rt'));
             if ($rt === 'chunk') {
                 $type = 10;
             }
@@ -84,7 +80,7 @@ switch ($_REQUEST['op']) {
         }
         break;
     case 'del':
-        $opids = $_REQUEST['depid'];
+        $opids = anyv('depid');
         for ($i = 0, $iMax = count($opids); $i < $iMax; $i++) {
             $opids[$i] = (int)$opids[$i]; // convert ids to numbers
         }

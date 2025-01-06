@@ -86,7 +86,7 @@ function selected($cond)
     function duplicaterecord() {
         if (confirm("<?= $_lang['confirm_duplicate_record'] ?>") == true) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= $_REQUEST['id']; ?>&a=304";
+            document.location.href = "index.php?id=<?= anyv('id'); ?>&a=304";
         }
     }
 
@@ -288,16 +288,16 @@ function selected($cond)
             <?php if (evo()->hasPermission('save_template')) : ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                       onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                         <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                                value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                                value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
@@ -439,8 +439,8 @@ function selected($cond)
                     <tr>
                         <th align="left" valign="top"><?= $_lang['tmplvars_default']; ?></th>
                         <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
-                                                                   class="inputBox phptextarea" rows="5"
-                                                                   style="width:400px;"><?= hsc($content['default_text']); ?></textarea><?= $tooltip_tv_binding; ?>
+                        class="inputBox phptextarea" rows="5"
+                        style="width:400px;"><?= hsc($content['default_text']); ?></textarea>
                         </td>
                     </tr>
                     <tr>
@@ -510,7 +510,7 @@ function selected($cond)
                             <?php
                             if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
-                                    if ($_REQUEST['a'] == '300' && $modx->config['default_template'] == $row['id']) {
+                                    if (anyv('a') == 300 && $modx->config['default_template'] == $row['id']) {
                                         $checked = true;
                                     } elseif (getv('tpl') == $row['id']) {
                                         $checked = true;

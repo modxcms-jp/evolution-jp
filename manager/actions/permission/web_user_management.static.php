@@ -12,17 +12,17 @@ $modx->manager->initPageViewState();
 
 global $_PAGE;
 
-if ($_REQUEST['op'] == 'reset') {
+if (anyv('op') == 'reset') {
     $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = isset($_REQUEST['search']) ? $_REQUEST['search'] : $_PAGE['vs']['search'];
+    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
     $sqlQuery = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
 // get & save listmode
-$listmode = isset($_REQUEST['listmode']) ? $_REQUEST['listmode'] : $_PAGE['vs']['lm'];
+$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 
@@ -86,7 +86,7 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?php echo $id; ?>"/>
+    <input type="hidden" name="id" value="<?php echo $id ?? ''; ?>"/>
     <input type="hidden" name="listmode" value="<?php echo $listmode; ?>"/>
     <input type="hidden" name="op" value=""/>
 
@@ -156,7 +156,7 @@ echo $cm->render();
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }
-            if ($_REQUEST['op'] == 'reset') {
+            if (anyv('op') == 'reset') {
                 $grd->pageNumber = 1;
             }
             // render grid

@@ -11,7 +11,7 @@ $tbl_web_user_settings = evo()->getFullTableName('web_user_settings');
 
 # process password activation
 if ($isPWDActivate == 1) {
-    $uid = db()->escape($_REQUEST['uid']);
+    $uid = db()->escape(anyv('uid'));
 
     $rs = db()->select('*', $tbl_web_users, "id='{$uid}'");
     $limit = db()->count($rs);
@@ -26,7 +26,7 @@ if ($isPWDActivate == 1) {
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;
     }
-    if ($token !== $_REQUEST['token']) {
+    if ($token !== anyv('token')) {
         if (!$actInvalidKey)
             $output = webLoginAlert("Invalid password activation key. Your password was NOT activated.");
         else $modx->sendRedirect($actInvalidKey);
@@ -410,7 +410,7 @@ if (!$ok) // check if a login home id page was set
 // update active users list if redirectinq to another page
 if ($id != $modx->documentIdentifier) {
     $_SESSION['ip'] = real_ip();
-    $itemid = isset($_REQUEST['id']) ? $_REQUEST['id'] : 'NULL';
+    $itemid = anyv('id');
     $lasthittime = time();
     $a = 998;
     if ($a != 1) {
@@ -434,9 +434,9 @@ $tmp = array(
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-if (isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl'])) {
+if (isset($_REQUEST['refurl']) && !empty(anyv('refurl'))) {
     // last accessed page
-    $targetPageId = $_REQUEST['refurl'];
+    $targetPageId = anyv('refurl');
     if (strpos($targetPageId, 'q=') !== false) {
         $urlPos = strpos($targetPageId, 'q=') + 2;
         $alias = substr($targetPageId, $urlPos);
@@ -447,7 +447,7 @@ if (isset($_REQUEST['refurl']) && !empty($_REQUEST['refurl'])) {
         $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($targetPageId);
     } else {
-        $url = $_REQUEST['refurl'];
+        $url = anyv('refurl');
     }
     $modx->sendRedirect($url);
 } else // login home page

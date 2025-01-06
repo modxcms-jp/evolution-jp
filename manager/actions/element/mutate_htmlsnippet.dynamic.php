@@ -118,7 +118,7 @@ if (isset($form_v['which_editor'])) {
         function duplicaterecord() {
             if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                 documentDirty = false;
-                document.location.href = "index.php?id=<?= $_REQUEST['id'] ?>&a=97";
+                document.location.href = "index.php?id=<?= anyv('id') ?>&a=97";
             }
         }
 
@@ -152,8 +152,8 @@ if (isset($form_v['which_editor'])) {
 
         ?>
         <input type="hidden" name="a" value="79"/>
-        <input type="hidden" name="id" value="<?= $_REQUEST['id'] ?>"/>
-        <input type="hidden" name="mode" value="<?= (int)$_REQUEST['a'] ?>"/>
+        <input type="hidden" name="id" value="<?= anyv('id') ?>"/>
+        <input type="hidden" name="mode" value="<?= (int)anyv('a') ?>"/>
         <input type="hidden" name="changeMode" value=""/>
 
         <h1><?= $_lang['htmlsnippet_title'] ?></h1>
@@ -169,17 +169,17 @@ if (isset($form_v['which_editor'])) {
                         <select id="stay" name="stay">
                             <?php if (evo()->hasPermission('new_chunk')) { ?>
                                 <option id="stay1"
-                                        value="1" <?= $_REQUEST['stay'] == '1' ? ' selected=""' : '' ?> ><?= $_lang['stay_new'] ?></option>
+                                        value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?> ><?= $_lang['stay_new'] ?></option>
                             <?php } ?>
                             <option id="stay2"
-                                    value="2" <?= $_REQUEST['stay'] == '2' ? ' selected="selected"' : '' ?> ><?= $_lang['stay'] ?></option>
+                                    value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?> ><?= $_lang['stay'] ?></option>
                             <option id="stay3"
-                                    value="" <?= $_REQUEST['stay'] == '' ? ' selected=""' : '' ?> ><?= $_lang['close'] ?></option>
+                                    value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?> ><?= $_lang['close'] ?></option>
                         </select>
                     </li>
                 <?php endif; ?>
                 <?php
-                if ($_REQUEST['a'] == '78') {
+                if (anyv('a') == '78') {
                     if (evo()->hasPermission('new_chunk')) {
                         echo $modx->manager->ab(
                             array(

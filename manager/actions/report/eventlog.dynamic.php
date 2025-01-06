@@ -15,7 +15,7 @@ if (anyv('op') === 'reset') {
     $search = $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $search = $query = anyv('search', $_PAGE['vs']['search']);
+    $search = $query = anyv('search', array_get($_PAGE, 'vs.search'));
     if (!is_numeric($search)) {
         $search = db()->escape($query);
     }
@@ -23,7 +23,7 @@ if (anyv('op') === 'reset') {
 }
 
 // get & save listmode
-$listmode = anyv('listmode', $_PAGE['vs']['lm']);
+$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
 $_PAGE['vs']['lm'] = $listmode;
 
 // context menu
@@ -84,7 +84,7 @@ echo $cm->render();
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?php echo $id ?>"/>
+    <input type="hidden" name="id" value="<?php echo $id ?? '' ?>"/>
     <input type="hidden" name="listmode" value="<?php echo $listmode ?>"/>
     <input type="hidden" name="op" value=""/>
 
@@ -93,7 +93,7 @@ echo $cm->render();
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
                         src="<?php echo $_style["icons_cancel"] ?>"/> <?php echo $_lang['cancel'] ?></a></li>
         </ul>
@@ -175,7 +175,7 @@ echo $cm->render();
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }
-            if (isset($_REQUEST['op']) && $_REQUEST['op'] == 'reset') {
+            if (anyv('op') == 'reset') {
                 $grd->pageNumber = 1;
             }
             // render grid

@@ -407,7 +407,7 @@ class ManagerAPI
                 img_tag(
                     $ph['icon'],
                     [
-                        'alt' => $ph['alt']
+                        'alt' => $ph['alt'] ?? '',
                     ]
                 ) . $ph['label']
             )

@@ -7,7 +7,7 @@ if (!evo()->hasPermission('save_document') || !evo()->hasPermission('publish_doc
     alert()->dumpError();
 }
 
-$id = intval($_REQUEST['id']);
+$id = intval(anyv('id'));
 
 // check permissions on the document
 if (!$modx->checkPermissions($id)) {

@@ -7,10 +7,10 @@ if (!evo()->hasPermission('move_document') || !evo()->hasPermission('save_docume
     alert()->dumpError();
 }
 
-if (isset($_REQUEST['id'])) {
-    $id = (int)$_REQUEST['id'];
-} elseif (isset($_REQUEST['batch'])) {
-    $id = join(',', $_REQUEST['batch']);
+if (anyv('id')) {
+    $id = (int)anyv('id');
+} elseif (anyv('batch')) {
+    $id = implode(',', anyv('batch'));
 } else {
     alert()->setError(2);
     alert()->dumpError();
@@ -60,7 +60,11 @@ EOT;
 
 function batch_move()
 {
-    foreach ($_REQUEST['batch'] as $v) {
+    $batch = anyv('batch');
+    if (!$batch) {
+        return;
+    }
+    foreach ($batch as $v) {
         $ids[] = sprintf("id='%s'", db()->escape($v));
     }
     $where = implode(' OR ', $ids);
