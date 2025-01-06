@@ -66,9 +66,9 @@ class Thumbnail extends Base
             if ($this->isImage($mime, $ext)) {
                 if (!is_dir($thumbdir)) {
                     $rs = mkdir($thumbdir, $folder_permissions, true);
-                }
-                if ($rs) {
-                    chmod($thumbdir, $folder_permissions);
+                    if ($rs) {
+                        chmod($thumbdir, $folder_permissions);
+                    }
                 }
                 //Try and find a thumbnail, else try to generate one
                 //    else send generic picture icon.
