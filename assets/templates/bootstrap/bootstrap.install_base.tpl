@@ -4,7 +4,7 @@
  * 学習用途向きのシンプルなテンプレート
  *
  * @category    template
- * @version    0.9
+ * @version    1.0
  * @license    http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal    @lock_template 0
  * @internal    @modx_category Demo Content
@@ -18,22 +18,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>[*pagetitle*] - [(site_name)]</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        html {font-size:16px;} body {
-            padding-top: 50px;
-            margin-top: 0px;
-            font-family: Roboto, "Droid Sans", "Open Sans", Arial, Helvetica, Meiryo, "Hiragino Kaku Gothic ProN", sans-serif;
-            font-size: 16px;
-        }
-
         html {
+            font-size: 16px;
             position: relative;
             min-height: 100%;
         }
 
         body {
+            padding-top: 56px;
             margin-bottom: 60px;
+            font-family: Roboto, "Droid Sans", "Open Sans", Arial, Helvetica, Meiryo, "Hiragino Kaku Gothic ProN", sans-serif;
+            font-size: 16px;
         }
 
         nav {
@@ -41,11 +38,22 @@
             box-shadow: 0 5px 5px -8px rgba(0, 0, 0, 0.1);
         }
 
-        ul.breadcrumb {} .footer {
-            position: absolute;
+        .navbar-nav {
+            gap: 20px;
+        }
+
+        .jumbotron {
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+            background-color: #d6d8db;
+            border-radius: .3rem;
+            text-align: center;
+        }
+
+        .footer {
+            position: fixed;
             bottom: 0;
             width: 100%;
-            /* Set the fixed height of the footer here */
             height: 65px;
             background-color: #d5d5d5;
         }
@@ -57,22 +65,17 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-default navbar-fixed-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#gnavi">
-                <span class="sr-only">メニュー</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="[(site_url)]">[(site_name)]</a>
-        </div>
-        <div id="gnavi" class="collapse navbar-collapse">
+        <a class="navbar-brand" href="[(site_url)]">[(site_name)]</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#gnavi" aria-controls="gnavi" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="gnavi" class="collapse navbar-collapse justify-content-end">
             [[Wayfinder?
-            &startId = 0
-            &level = 1
-            &outerClass = 'nav navbar-nav navbar-right'
+            &startId=0
+            &level=1
+            &outerClass='navbar-nav'
             ]]
         </div>
     </div>
@@ -93,7 +96,6 @@
     </div>
 </div>
 <@ENDIF>
-
 <div class="container" style="padding-bottom:3em;">
     <div class="row">
         <@IF:[[Wayfinder?level=1&startId=parent]]>
@@ -101,7 +103,7 @@
             [*description:tpl('<p class="lead">[+value+]</p>')*]
             [*content*]
         </div>
-        <div class="col-sm-3">[[Wayfinder?level=1&startId=parent&outerClass='nav nav-pills nav-stacked']]</div>
+        <div class="col-sm-3">[[Wayfinder?level=1&startId=parent&outerClass='nav nav-pills flex-column']]</div>
         <@ELSE>
         <div class="col-lg-12">
             [*description:tpl('<p class="lead">[+value+]</p>')*]
@@ -115,6 +117,6 @@
         <p class="text-center" style="margin: 20px 0;">(c)[[$_SERVER['REQUEST_TIME']:dateformat('Y')]] [(site_name)]</p>
     </div>
 </div>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
