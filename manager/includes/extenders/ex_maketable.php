@@ -185,10 +185,11 @@ class MakeTable
                         isset($fieldHeadersArray[$key]) ? $fieldHeadersArray[$key] : $key
                     );
                 }
+                $fieldText = $fieldValue[$this->actionField] ?? '';
                 $_[] = sprintf(
                     '<td>%s</td>',
                     $this->createCellText(
-                        $fieldValue[$this->actionField],
+                        $fieldText,
                         $value
                     )
                 );
@@ -403,7 +404,7 @@ EOT;
      * @param $currentPage Indicates if the link is to the current page.
      * @param $qs And optional query string to be appended to the link.
      */
-    function createPageLink($path = '', $pageNum, $displayText, $currentPage = false, $qs = '')
+    function createPageLink($path = '', $pageNum=0, $displayText='', $currentPage = false, $qs = '')
     {
         global $modx;
 
