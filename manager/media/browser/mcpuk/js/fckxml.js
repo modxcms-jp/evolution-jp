@@ -75,23 +75,31 @@ FCKXml.prototype.LoadUrl = function (urlToCall, asyncFunctionPointer) {
 };
 
 FCKXml.prototype.SelectNodes = function (xpath) {
-  var aNodeArray = [];
-
-  var xPathResult = this.DOMDocument.evaluate(
-    xpath,
-    this.DOMDocument,
-    this.DOMDocument.createNSResolver(this.DOMDocument.documentElement),
-    XPathResult.ORDERED_NODE_ITERATOR_TYPE,
-    null
-  );
-  if (xPathResult) {
-    var oNode = xPathResult.iterateNext();
-    while (oNode) {
-      aNodeArray[aNodeArray.length] = oNode;
-      oNode = xPathResult.iterateNext();
-    }
+  if (this.DOMDocument == null) {
+    console.error('DOMDocument is null');
+    return [];
   }
-  return aNodeArray;
+
+  var nodes = [];
+  try {
+    var xPathResult = this.DOMDocument.evaluate(
+      xpath,
+      this.DOMDocument,
+      this.DOMDocument.createNSResolver(this.DOMDocument.documentElement),
+      XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      null
+    );
+    if (xPathResult) {
+      var oNode = xPathResult.iterateNext();
+      while (oNode) {
+        nodes[nodes.length] = oNode;
+        oNode = xPathResult.iterateNext();
+      }
+    }
+  } catch (e) {
+    console.error('Error evaluating XPath:', e);
+  }
+  return nodes;
 };
 
 FCKXml.prototype.SelectSingleNode = function (xpath) {
@@ -99,15 +107,18 @@ FCKXml.prototype.SelectSingleNode = function (xpath) {
     console.error('DOMDocument is null');
     return null;
   }
-  var xPathResult = this.DOMDocument.evaluate(
-    xpath,
-    this.DOMDocument,
-    this.DOMDocument.createNSResolver(this.DOMDocument.documentElement),
-    9,
-    null
-  );
 
-  if (xPathResult && xPathResult.singleNodeValue)
+  try {
+    var xPathResult = this.DOMDocument.evaluate(
+      xpath,
+      this.DOMDocument,
+      this.DOMDocument.createNSResolver(this.DOMDocument.documentElement),
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    );
     return xPathResult.singleNodeValue;
-  else return null;
+  } catch (e) {
+    console.error('Error evaluating XPath:', e);
+    return null;
+  }
 };
