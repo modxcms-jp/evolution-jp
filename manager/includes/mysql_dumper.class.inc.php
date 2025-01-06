@@ -277,7 +277,7 @@ class Mysqldumper
     }
 
     // Private function result2Array.
-    private function result2Array($numinarray = 0, $resource)
+    private function result2Array($numinarray, $resource)
     {
         $array = [];
         while ($row = db()->getRow($resource, 'num')) {
