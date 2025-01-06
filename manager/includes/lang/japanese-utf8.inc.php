@@ -7,9 +7,8 @@
  * Author:         eastbind
  * Author:         MEGU
  * Author:         yamamoto https://kyms.jp
- * Date:           2019/10/15
- * Version:        2.0.5
- * MODX version:   Evolution 1.0.0 - 1.0.23J
+ * Date:           2024/01/05
+ * MODX version:   Evolution 1.0.0 - 1.1.1J
  */
 //$modx_textdir = 'rtl'; // uncomment this line for RTL langauges
 $modx_lang_attribute = 'ja'; // Manager HTML and XML Language Attribute
