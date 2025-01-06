@@ -51,14 +51,14 @@ if ($mode === 'snapshot') {
     }
     if (!is_file(config('snapshot_path') . '.htaccess')) {
         file_put_contents(
-            config('snapshot_path') . '.htaccess'
-            , "order deny,allow\ndeny from all\n"
+            config('snapshot_path') . '.htaccess',
+            "order deny,allow\ndeny from all\n"
         );
     }
     if (!is_writable(rtrim(config('snapshot_path'), '/'))) {
         echo evo()->parseText(
-            $_lang['bkmgr_alert_mkdir']
-            , array('snapshot_path' => config('snapshot_path'))
+            $_lang['bkmgr_alert_mkdir'],
+            array('snapshot_path' => config('snapshot_path'))
         );
         exit;
     }
@@ -194,9 +194,9 @@ if (sessionv('result_msg')) {
                         <tbody>
                         <?php
                         $rs = db()->query(sprintf(
-                            "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'"
-                            , db()->dbname
-                            , db()->table_prefix
+                            "SHOW TABLE STATUS FROM `%s` LIKE '%s%%'",
+                            db()->dbname,
+                            db()->table_prefix
                         ));
                         $i = 0;
                         $totaloverhead = 0;
@@ -410,8 +410,9 @@ if (sessionv('result_msg')) {
                         </tr>
                     </table>
                     <div class="actionButtons" style="margin-top:10px;margin-bottom:10px;">
-                        <a href="#" class="primary" onclick="document.snapshot.save.click();"><img alt="icons_save"
-                                                                                                   src="<?php echo $_style["icons_add"] ?>"/><?php echo $_lang["bkmgr_snapshot_submit"]; ?>
+                        <a href="#" class="primary" onclick="document.snapshot.save.click();">
+                            <img alt="icons_save"
+                                src="<?php echo $_style["icons_add"] ?>"/><?php echo $_lang["bkmgr_snapshot_submit"]; ?>
                         </a>
                         <input type="submit" name="save" style="display:none;"/>
                 </form>
