@@ -11,7 +11,7 @@ if (!defined('MODX_BASE_PATH') || strpos(str_replace('\\', '/', __FILE__), MODX_
 // Tagging Parameters
 // ---------------------------------------------------
 
-$landing = isset($tagDocumentID) ? $tagDocumentID : $modx->documentObject['id'];
+$landing = $tagDocumentID ?? $modx->documentObject['id'];
 /*
 	Param: tagDocumentID
 
@@ -24,7 +24,7 @@ $landing = isset($tagDocumentID) ? $tagDocumentID : $modx->documentObject['id'];
 	Default:
 	Current MODX Document
 */
-$source = isset($tagData) ? $tagData : '';
+$source = $tagData ?? '';
 /*
 	Param: tagData
 
@@ -37,7 +37,7 @@ $source = isset($tagData) ? $tagData : '';
 	Default:
 	[NULL]
 */
-$caseSensitive = isset($caseSensitive) ? $caseSensitive : 0;
+$caseSensitive = $caseSensitive ?? 0;
 /*
 	Param: caseSensitive
 
@@ -51,7 +51,7 @@ $caseSensitive = isset($caseSensitive) ? $caseSensitive : 0;
 	Default:
 	0 - off
 */
-$mode = isset($tagMode) ? $tagMode : 'onlyTags';
+$mode = $tagMode ?? 'onlyTags';
 /*
 	Param: tagMode
 
@@ -67,7 +67,7 @@ $mode = isset($tagMode) ? $tagMode : 'onlyTags';
 	Default:
 	"onlyTags"
 */
-$delimiter = isset($tagDelimiter) ? $tagDelimiter : ' ';
+$delimiter = $tagDelimiter ?? ' ';
 /*
 	Param: tagDelimiter
 
@@ -80,7 +80,7 @@ $delimiter = isset($tagDelimiter) ? $tagDelimiter : ' ';
 	Default:
 	" " - space
 */
-$displayDelimiter = isset($tagDisplayDelimiter) ? $tagDisplayDelimiter : $delimiter;
+$displayDelimiter = $tagDisplayDelimiter ?? $delimiter;
 /*
 	Param: tagDisplayDelimiter
 
@@ -93,7 +93,7 @@ $displayDelimiter = isset($tagDisplayDelimiter) ? $tagDisplayDelimiter : $delimi
 	Default:
 	&tagDelimiter
 */
-$sort = isset($tagSort) ? $tagSort : 1;
+$sort = $tagSort ?? 1;
 /*
 	Param: tagSort
 
@@ -107,7 +107,7 @@ $sort = isset($tagSort) ? $tagSort : 1;
 	Default:
 	1 - on
 */
-$displayMode = isset($tagDisplayMode) ? $tagDisplayMode : 1;
+$displayMode = $tagDisplayMode ?? 1;
 /*
 	Param: tagDisplayMode
 
@@ -199,10 +199,10 @@ if (!class_exists('tagging')) {
 
         function prepGivenTags($givenTags)
         {
-            global $_GET, $dittoID;
+            global $dittoID;
 
-            $getTags = !empty($_GET[$dittoID . 'tags']) ? trim($_GET[$dittoID . 'tags']) : false;
-            // Get tags from the $_GET array
+            $getTags = getv($dittoID . 'tags') ? trim(getv($dittoID . 'tags')) : false;
+            // Get tags from the getv array
 
             $tags1 = array();
             $tags2 = array();

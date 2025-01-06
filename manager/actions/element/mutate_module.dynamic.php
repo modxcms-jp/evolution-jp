@@ -43,7 +43,7 @@ if (!is_numeric($id)) {
     exit('Passed ID is NaN!');
 }
 
-if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
+if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -309,7 +309,7 @@ $modx->moduleObject = $content;
         }
         ?>
         <input type="hidden" name="id" value="<?= $content['id'] ?>">
-        <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+        <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
         <h1><?= $_lang['module_title'] ?></h1>
 
@@ -335,7 +335,7 @@ $modx->moduleObject = $content;
                     </li>
                 <?php endif; ?>
                 <?php
-                if (anyv('a') == '108') {
+                if (getv('a') == 108) {
                     if (evo()->hasPermission('delete_module')) {
                         echo $modx->manager->ab(
                             array(
@@ -657,7 +657,7 @@ $modx->moduleObject = $content;
         ?>
     </form>
     <script type="text/javascript">
-        var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
+        var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
         tpModule = new WebFXTabPane(document.getElementById("modulePane"), tpstatus);
         setTimeout('showParameters();', 10);
     </script>

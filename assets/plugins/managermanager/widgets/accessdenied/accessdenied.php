@@ -21,7 +21,7 @@ function mm_widget_accessdenied($ids = '', $message = '', $roles = '')
         return;
     }
 
-    if (!in_array((int)$_GET['id'], makeArray($ids))) {
+    if (!in_array((int)getv('id'), makeArray($ids))) {
         return;
     }
 

@@ -210,7 +210,7 @@ class TinyMCE
         $params['use_browser'] = $modx->config['use_browser'];
         $params['editor_css_path'] = $modx->config['editor_css_path'];
 
-        if ($modx->isBackend() || ((int)$_GET['quickmanagertv'] == 1 && isset($_SESSION['mgrValidated']))) {
+        if ($modx->isBackend() || (getv('quickmanagertv') == 1 && isset($_SESSION['mgrValidated']))) {
             $params['theme'] = $modx->config['tinymce_editor_theme'];
             $params['mce_editor_skin'] = $modx->config['mce_editor_skin'];
             $params['mce_entermode'] = $modx->config['mce_entermode'];

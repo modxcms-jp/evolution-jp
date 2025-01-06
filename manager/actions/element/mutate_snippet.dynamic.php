@@ -39,7 +39,7 @@ if ($limit > 1) {
 // end check for lock
 
 $content = array();
-if (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) {
+if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
     $limit = db()->count($rs);
     if ($limit > 1) {
@@ -262,7 +262,7 @@ if ($formRestored) {
     }
     ?>
     <input type="hidden" name="id" value="<?= $content['id'] ?>">
-    <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+    <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
     <div id="actions">
         <ul class="actionButtons">
@@ -284,7 +284,7 @@ if ($formRestored) {
                 </li>
             <?php endif; ?>
             <?php
-            if ($_GET['a'] == '22') {
+            if (getv('a') == 22) {
                 if (evo()->hasPermission('new_snippet')) {
                     echo $modx->manager->ab(array(
                         'onclick' => 'duplicaterecord();',
@@ -455,7 +455,7 @@ if ($formRestored) {
 
 <script type="text/javascript">
     setTimeout('showParameters();', 10);
-    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
+    var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
     tpSnippet = new WebFXTabPane(document.getElementById("snipetPane"), tpstatus);
     var readonly = <?= ($content['locked'] == 1 || $content['locked'] == 'on') ? '1' : '0' ?>;
     if (readonly == 1) {

@@ -99,7 +99,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         }
 
         function deleteuser() {
-            <?php if($_GET['id'] == evo()->getLoginUserID()) { ?>
+            <?php if(getv('id') == evo()->getLoginUserID()) { ?>
             alert("<?= $_lang['alert_delete_self'] ?>");
             <?php } else { ?>
             if (confirm("<?= $_lang['confirm_delete_user'] ?>") == true) {
@@ -216,7 +216,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                     <h2 class="tab"><?= $_lang["profile"] ?></h2>
                     <table class="settings">
                         <tr>
-                            <th valign="top"><?= $_GET['a'] == '11' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                            <th valign="top"><?= getv('a') == 11 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
                             <td><label><input name="newpasswordcheck" type="checkbox"
                                             onclick="changestate(document.userform.newpassword);changePasswordState(document.userform.newpassword);"<?= anyv('a') == 11 ? " checked disabled" : "" ?>><input
                                         type="hidden" name="newpassword"
@@ -493,7 +493,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         ?>
     </form>
     <script type="text/javascript">
-        var remember = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
+        var remember = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
         tpUser = new WebFXTabPane(document.getElementById("userPane"), remember);
     </script>
 <?php

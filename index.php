@@ -10,7 +10,7 @@ if (defined('IN_MANAGER_MODE')) {
     return;
 }
 
-if (isset($_GET['get']) && $_GET['get'] === 'captcha') {
+if (getv('get') === 'captcha') {
     include_once MODX_BASE_PATH . 'manager/media/captcha/veriword.php';
     return;
 }

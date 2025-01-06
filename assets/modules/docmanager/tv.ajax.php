@@ -248,7 +248,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
         case 'image':    // handles image fields using htmlarea image manager
             global $ResourceManagerLoaded;
             global $content, $use_editor, $which_editor;
-            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || $_GET['a'] == 4) && $use_editor == 1 && $which_editor == 3)) {
+            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
                 $field_html .= "
 				<script type=\"text/javascript\">
 						var lastImageCtrl;
@@ -307,7 +307,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             /* Modified by Timon for use with resource browser */
             global $ResourceManagerLoaded;
             global $content, $use_editor, $which_editor;
-            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || $_GET['a'] == 4) && $use_editor == 1 && $which_editor == 3)) {
+            if (!$ResourceManagerLoaded && !(($content['richtext'] == 1 || getv('a') == 4) && $use_editor == 1 && $which_editor == 3)) {
                 /* I didn't understand the meaning of the condition above, so I left it untouched ;-) */
                 $field_html .= "
 				<script type=\"text/javascript\">

@@ -1132,7 +1132,7 @@ if ($count > 0) {
             - File via @FILE
 
             Placeholders:
-            url - URL for the next link
+            url - url for the next link
             lang:next - value of 'next' from the language file
 
             Related:
@@ -1359,7 +1359,7 @@ if ($count > 0) {
 
 if ($debug == 1) {
     $ditto_params =& event()->params;
-    if (!isset($_GET["ditto_{$dittoID}debug"])) {
+    if (!getv("ditto_{$dittoID}debug")) {
         $_SESSION["ditto_debug_" . $dittoID] = $ditto->debug->render_popup(
             $ditto,
             $ditto_base,
@@ -1377,8 +1377,8 @@ if ($debug == 1) {
             $resource
         );
     }
-    if (isset($_GET["ditto_{$dittoID}debug"])) {
-        switch ($_GET["ditto_{$dittoID}debug"]) {
+    if (getv("ditto_{$dittoID}debug")) {
+        switch (getv("ditto_{$dittoID}debug")) {
             case "open":
                 exit($_SESSION["ditto_debug_{$dittoID}"]);
                 break;

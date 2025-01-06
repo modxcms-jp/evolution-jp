@@ -235,8 +235,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
             echo implode("", $evtOut);
         }
         ?>
-        <input type="hidden" name="mode" value="<?= $_GET['a'] ?>"/>
-        <input type="hidden" name="id" value="<?= $_GET['id'] ?>"/>
+        <input type="hidden" name="mode" value="<?= getv('a') ?>"/>
+        <input type="hidden" name="id" value="<?= getv('id') ?>"/>
         <input type="hidden" name="blockedmode"
                 value="<?= ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>"/>
 
@@ -285,7 +285,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         </tr>
                         <?php if (!empty($userdata['id'])) { ?>
                             <tr id="showname"
-                                style="display: <?= ($_GET['a'] == '88' && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? $displayStyle : 'none' ?> ">
+                                style="display: <?= (getv('a') == 88 && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? $displayStyle : 'none' ?> ">
                                 <td colspan="2">
                                     <img src="<?= $_style['icons_user'] ?>"
                                          alt="."/>&nbsp;<b><?= !empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username'] ?></b>
@@ -297,14 +297,14 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             </tr>
                         <?php } ?>
                         <tr id="editname"
-                            style="display:<?= $_GET['a'] == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? $displayStyle : 'none' ?>">
+                            style="display:<?= getv('a') == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? $displayStyle : 'none' ?>">
                             <th><?= $_lang['username'] ?>:</th>
                             <td><input type="text" name="newusername" class="inputBox"
                                        value="<?= htmlspecialchars(isset($_POST['newusername']) ? $_POST['newusername'] : $usernamedata['username']) ?>"
                                        maxlength="100"/></td>
                         </tr>
                         <tr>
-                            <th valign="top"><?= $_GET['a'] == '87' ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
+                            <th valign="top"><?= getv('a') == 87 ? $_lang['password'] . ":" : $_lang['change_password_new'] . ":" ?></th>
                             <td>
                                 <?php if (anyv('a') != 87): ?>
                                     <input name="newpasswordcheck" type="checkbox"
@@ -499,7 +499,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                 <div><?= $_lang["login_homepage_message"] ?></div>
                             </td>
                         </tr>
-                        <?php if ($_GET['a'] == '88'): ?>
+                        <?php if (getv('a') == 88): ?>
                             <tr>
                                 <th><?= $_lang['user_logincount'] ?>:</th>
                                 <td><?= $userdata['logincount'] ?></td>
@@ -609,8 +609,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 {
                 $groupsarray = array();
 
-                if ($_GET['a'] == '88') { // only do this bit if the user is being edited
-                    $uid = intval($_GET['id']);
+                if (getv('a') == 88) { // only do this bit if the user is being edited
+                    $uid = intval(getv('id'));
                     $rs = db()->select('*', $tbl_web_groups, "webuser='{$uid}'");
                     $limit = db()->count($rs);
                     for ($i = 0; $i < $limit; $i++) {
@@ -663,7 +663,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         ?>
     </form>
     <script type="text/javascript">
-        var remember = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false' ?>;
+        var remember = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
         tpUser = new WebFXTabPane(document.getElementById("webUserPane"), remember);
     </script>
 <?php

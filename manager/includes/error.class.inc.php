@@ -73,7 +73,7 @@ class errorHandler
 
     private function prev()
     {
-        if (isset($_GET['count_attempts'])) {
+        if (getv('count_attempts')) {
             return 'index.php?a=2';
         }
 

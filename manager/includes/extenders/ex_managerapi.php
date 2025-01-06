@@ -19,7 +19,7 @@ class ManagerAPI
     {
         global $action;
         $this->action = $action; // set action directive
-        if (isset($_POST['token']) || isset($_GET['token'])) {
+        if (postv('token') || getv('token')) {
             $rs = $this->checkToken();
             if (!$rs) {
                 exit('unvalid token');

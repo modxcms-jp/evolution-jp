@@ -51,8 +51,8 @@ class DataSetPager
         // by setting pager to -1 cause pager to load it's last page number
         if ($pageNumber == -1) {
             $pageNumber = 1;
-            if (isset($_GET["dpgn" . $this->id])) {
-                $pageNumber = $_GET["dpgn" . $this->id];
+            if (getv("dpgn" . $this->id)) {
+                $pageNumber = getv("dpgn" . $this->id);
             } elseif (isset($_PAGE['vs'][$id . '_dpgn'])) {
                 $pageNumber = $_PAGE['vs'][$id . '_dpgn'];
             }

@@ -7,7 +7,7 @@ if (!evo()->hasPermission('new_plugin')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = $_GET['id'];
+$id = getv('id');
 if (!preg_match('/^[0-9]+\z/', $id)) {
     echo 'Value of $id is invalid.';
     exit;

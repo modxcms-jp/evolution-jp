@@ -20,7 +20,7 @@
             <div><?= lang('user_allowed_parents_message') ?></div>
         </td>
     </tr>
-    <?php if ($_GET['a'] == '12'): ?>
+    <?php if (getv('a') == 12): ?>
         <tr>
             <th><?= lang('user_logincount') ?>:</th>
             <td><?= $user['logincount'] ?></td>

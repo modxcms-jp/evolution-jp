@@ -8,8 +8,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
-    $id = $_GET['id'];
+if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
+    $id = getv('id');
 } else {
     alert()->setError(2);
     alert()->dumpError();
@@ -19,7 +19,7 @@ $ph['id'] = $id;
 $ph['style_icons_cancel'] = $_style["icons_cancel"];
 $ph['lang_cancel'] = $_lang['cancel'];
 
-switch ($_GET['mode']) {
+switch (getv('mode')) {
     case 'deleted':
         $ph['title'] = '下書きを削除';
         $ph['msg'] = '下書きを削除しました。';

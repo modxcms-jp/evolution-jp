@@ -124,7 +124,7 @@ if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCo
 }
 
 // OK, let's retrieve the action directive from the request
-if (isset($_GET['a']) && isset($_POST['a'])) {
+if (getv('a') && postv('a')) {
     alert()->setError(100);
     alert()->dumpError();
 } else {

@@ -367,11 +367,8 @@ class SubParser
         $str .= sprintf('<td>%s</td>', hsc(urldecode(evo()->server('REQUEST_URI'))));
         $str .= '</tr>';
 
-        if (isset($_GET['a'])) {
-            $action = $_GET['a'];
-        } elseif (isset($_POST['a'])) {
-            $action = $_POST['a'];
-        }
+        $action = getv('a', postv('a'));
+        
         if (isset($action) && $action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;

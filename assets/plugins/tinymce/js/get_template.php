@@ -41,15 +41,19 @@ $chunks = $modx->config['mce_template_chunks'];
 
 $output = false;
 
-if (isset($_GET['docid']) && preg_match('@^[0-9]+$@', $_GET['docid'])) {
-    $doc = $modx->getDocument($_GET['docid']);
-    if ($doc) $output = $doc['content'];
-} elseif (isset($_GET['chunk']) && preg_match('@^[0-9]+$@', $_GET['chunk'])) {
-    $tbl_site_htmlsnippets = evo()->getFullTableName('site_htmlsnippets');
-    $cid = $_GET['chunk'];
-    $rs = db()->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}' AND published=1");
-    $content = db()->getValue($rs);
-    if ($content) $output = $content;
+if ($docid = getv('docid')) {
+    if (preg_match('@^[0-9]+$@', $docid)) {
+        $doc = $modx->getDocument($docid);
+        if ($doc) $output = $doc['content'];
+    }
+} elseif ($chunk = getv('chunk')) {
+    if (preg_match('@^[0-9]+$@', $chunk)) {
+        $tbl_site_htmlsnippets = evo()->getFullTableName('site_htmlsnippets');
+        $cid = $chunk;
+        $rs = db()->select('snippet', $tbl_site_htmlsnippets, "`id`='{$cid}' AND published=1");
+        $content = db()->getValue($rs);
+        if ($content) $output = $content;
+    }
 } else {
     $list = array();
     $tpl = "['[+title+]', '[+site_url+]assets/plugins/tinymce/js/get_template.php?[+target+]', '[+description+]']";

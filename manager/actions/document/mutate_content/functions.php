@@ -368,8 +368,8 @@ function mergeDraft($content, $draft)
 function tooltip($msg)
 {
     return img_tag(
-        style('icons_tooltip')
-        , array(
+        style('icons_tooltip'),
+        array(
             'alt' => $msg,
             'title' => $msg,
             'onclick' => 'alert(this.alt);',

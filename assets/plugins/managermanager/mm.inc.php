@@ -65,8 +65,8 @@ class MANAGERMANAGER
 
         if (isset($_POST['template'])) {
             $mm_current_page['template'] = $_POST['template'];
-        } elseif (isset($_GET['newtemplate'])) {
-            $mm_current_page['template'] = $_GET['newtemplate'];
+        } elseif (getv('newtemplate')) {
+            $mm_current_page['template'] = getv('newtemplate');
         } elseif (isset($content['template'])) {
             $mm_current_page['template'] = $content['template'];
         } else {

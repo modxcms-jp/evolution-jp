@@ -33,7 +33,7 @@ if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
 }
 // end check for lock
 
-if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
+if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_plugins', "id='{$id}'");
     $total = db()->count($rs);
     $pluginObject = (object)db()->getRow($rs);
@@ -421,7 +421,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
         }
         ?>
         <input type="hidden" name="id" value="<?= $pluginObject->id ?>">
-        <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+        <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
         <h1><?= $_lang['plugin_title'] ?></h1>
 
@@ -445,7 +445,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
                     </li>
                 <?php endif; ?>
                 <?php
-                if ($_GET['a'] == '102') {
+                if (getv('a') == 102) {
                     $params = array(
                         'onclick' => 'duplicaterecord();',
                         'icon' => $_style['icons_resource_duplicate'],
@@ -719,7 +719,7 @@ if (isset($_GET['id']) && preg_match('@^[1-9][0-9]*$@', $_GET['id'])) {
             </div>
         </div>
         <script>
-            var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || ($_GET['stay'] == 2)) ? 'true' : 'false';?>;
+            var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false';?>;
             tp = new WebFXTabPane(document.getElementById("pluginPane"), tpstatus);
         </script>
         <?php

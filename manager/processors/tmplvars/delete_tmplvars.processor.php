@@ -6,8 +6,8 @@ if (!evo()->hasPermission('delete_template')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$id = (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) ? $_GET['id'] : 0;
-$forced = isset($_GET['force']) ? $_GET['force'] : 0;
+$id = preg_match('@^[0-9]+$@', getv('id')) ? getv('id') : 0;
+$forced = getv('force', 0);
 
 $tbl_site_content = evo()->getFullTableName('site_content');
 $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');

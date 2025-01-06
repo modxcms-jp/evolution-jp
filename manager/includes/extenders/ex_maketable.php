@@ -348,11 +348,7 @@ EOT;
     {
         global $_lang, $modx;
 
-        if (!isset($_GET['page']) || !preg_match('@^[1-9][0-9]*$@', $_GET['page'])) {
-            $currentPage = 1;
-        } else {
-            $currentPage = $_GET['page'];
-        }
+        $currentPage = getv('page') && preg_match('@^[1-9][0-9]*$@', getv('page')) ? getv('page') : 1;
 
         $totalPages = ceil($totalRecords / $this->pageLimit);
         if ($totalPages < 2) {
@@ -411,11 +407,11 @@ EOT;
         if (empty($path)) {
             $p = [];
             $p[] = "page={$pageNum}";
-            if (!empty($_GET['orderby'])) {
-                $p[] = 'orderby=' . $_GET['orderby'];
+            if (getv('orderby')) {
+                $p[] = 'orderby=' . getv('orderby');
             }
-            if (!empty($_GET['orderdir'])) {
-                $p[] = 'orderdir=' . $_GET['orderdir'];
+            if (getv('orderdir')) {
+                $p[] = 'orderdir=' . getv('orderdir');
             }
             if (!empty($qs)) {
                 $p[] = trim($qs, '?&');
@@ -466,7 +462,7 @@ EOT;
      */
     function handlePaging()
     {
-        $offset = (preg_match('@^[1-9][0-9]*$@', $_GET['page'])) ? $_GET['page'] - 1 : 0;
+        $offset = (preg_match('@^[1-9][0-9]*$@', getv('page'))) ? getv('page') - 1 : 0;
         return sprintf(' LIMIT %s,%s', $offset * $this->pageLimit, $this->pageLimit);
     }
 

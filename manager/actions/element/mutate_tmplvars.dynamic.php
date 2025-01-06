@@ -35,7 +35,7 @@ if (!is_numeric($id)) {
 
 global $content;
 $content = array();
-if (isset($_GET['id']) && preg_match('@^[0-9]+$@', $_GET['id'])) {
+if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
     $total = db()->count($rs);
     if ($total > 1) {
@@ -275,7 +275,7 @@ function selected($cond)
     ?>
     <input type="hidden" name="id" value="<?= $content['id'] ?>">
     <input type="hidden" name="a" value="302">
-    <input type="hidden" name="mode" value="<?= $_GET['a'] ?>">
+    <input type="hidden" name="mode" value="<?= getv('a') ?>">
     <input type="hidden" name="params" value="<?= hsc($content['display_params']) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
@@ -302,7 +302,7 @@ function selected($cond)
                 </li>
             <?php endif; ?>
             <?php
-            if ($_GET['a'] == '301') {
+            if (getv('a') == 301) {
                 $params = array(
                     'onclick' => 'duplicaterecord();',
                     'icon' => $_style['icons_resource_duplicate'],
