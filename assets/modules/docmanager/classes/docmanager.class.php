@@ -4,6 +4,7 @@ class DocManager
 {
     public $lang = array();
     public $theme = '';
+    public $ph = [];
     private $fileRegister = array();
 
     function __construct()
