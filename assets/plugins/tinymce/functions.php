@@ -12,7 +12,7 @@ class TinyMCE
         $this->params['mce_url'] = MODX_BASE_URL . 'assets/plugins/tinymce/';
     }
 
-    function get_lang($lang)
+    private function get_lang($lang)
     {
         switch (strtolower($lang)) {
             case 'russian-utf8' :
@@ -28,7 +28,7 @@ class TinyMCE
         return $lc;
     }
 
-    function get_skin_names()
+    private function get_skin_names()
     {
         global $modx, $_lang;
         $params = $this->params;
@@ -71,19 +71,19 @@ class TinyMCE
         return implode("\n", $option);
     }
 
-    function selected($cond = false)
+    private function selected($cond = false)
     {
         if ($cond !== false) return ' selected="selected"';
         else                return '';
     }
 
-    function checked($cond = false)
+    private function checked($cond = false)
     {
         if ($cond !== false) return ' checked="checked"';
         else                return '';
     }
 
-    function get_mce_settings()
+    public function get_mce_settings()
     {
         global $modx, $_lang, $usersettings, $settings;
         $params = &$this->params;
@@ -199,7 +199,7 @@ class TinyMCE
         return $gsettings;
     }
 
-    function get_mce_script()
+    public function get_mce_script()
     {
         global $modx;
         $params = &$this->params;
@@ -306,7 +306,7 @@ class TinyMCE
         return $str;
     }
 
-    function build_mce_init($plugins, $buttons1, $buttons2, $buttons3, $buttons4)
+    private function build_mce_init($plugins, $buttons1, $buttons2, $buttons3, $buttons4)
     {
         global $modx;
         $params = $this->params;
@@ -418,7 +418,7 @@ class TinyMCE
 
         $ph['tpl_list'] = $mce_url . "js/get_template.php";
 
-        $mce_init = file_get_contents($mce_path . "js/mce_init.inc.js");
+        $mce_init = file_get_contents($mce_path . "js/mce_init.inc.js.template");
         foreach ($ph as $name => $value) {
             $name = '[+' . $name . '+]';
             $mce_init = str_replace($name, $value, $mce_init);
@@ -426,7 +426,7 @@ class TinyMCE
         return $mce_init;
     }
 
-    function build_tiny_callback()
+    private function build_tiny_callback()
     {
         return str_replace(
             '[+cmsurl+]',
