@@ -124,8 +124,9 @@ if (sessionv('is_upgradeable') == 0) {
     );
     db()->query($query);
 } else {
-    $rs = db()->getObject('setting_value', '[+prefix+]system_settings', "setting_name='site_id'");
-    $site_id = db()->getValue($rs);
+    $site_id = db()->getValue(
+        'setting_value', '[+prefix+]system_settings', "setting_name='site_id'"
+    );
     if ($site_id) {
         if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
             $query = str_replace(
