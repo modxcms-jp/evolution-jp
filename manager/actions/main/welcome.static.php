@@ -5,7 +5,12 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 
-if (evo()->hasPermission('settings') && (!isset($settings_version) || $settings_version != $modx_version)) {
+$settings_version = db()->getValue(
+    'setting_value',
+    evo()->getFullTableName('system_settings'),
+    'setting_name="settings_version"'
+);
+if (evo()->hasPermission('settings') && $settings_version != $modx_version) {
     // seems to be a new install - send the user to the configuration page
     echo '<script>document.location.href="index.php?a=17";</script>';
     exit;
