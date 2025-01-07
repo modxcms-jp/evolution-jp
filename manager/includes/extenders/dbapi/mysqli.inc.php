@@ -1146,11 +1146,7 @@ class DBAPI
 
         return $this->getRow(
             $this->query(
-                sprintf(
-                    'DESCRIBE %s %s'
-                    , $table_name
-                    , $field_name
-                )
+                sprintf('DESCRIBE %s %s', $table_name, $field_name)
             )
         ) ? 1 : 0;
     }
