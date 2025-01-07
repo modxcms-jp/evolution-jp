@@ -24,8 +24,10 @@ $iconEventLog = 1;
 $iconSysInfo = 1;
 $iconHelp = 1;
 
-include_once(dirname(__FILE__) . '/welcome.php');
-if (is_file(dirname(__FILE__) . '/config.php')) include(dirname(__FILE__) . '/config.php');
+include_once(__DIR__ . '/welcome.php');
+if (is_file(__DIR__ . '/config.php')) {
+    include __DIR__ . '/config.php';
+}
 
 if ($tab_your_info == 1) tabYourInfo();
 if ($tab_online == 1) tabOnlineUser();

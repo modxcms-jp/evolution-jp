@@ -22,7 +22,7 @@ class DATEPICKER
         if (!$modx_lang_attribute) return 'en';
 
         $lc = $modx_lang_attribute;
-        $dp_path = str_replace('\\', '/', dirname(__FILE__));
+        $dp_path = str_replace('\\', '/', __DIR__);
         if (is_file("{$dp_path}/i18n/datepicker.{$lc}.js")) return $modx_lang_attribute;
         else                                               return 'en';
     }
