@@ -469,7 +469,6 @@ class ditto
             $this->addField($name, 'display', 'custom');
             $this->removeField($name, 'display', 'unknown');
             $source = $value[0];
-            $qe = $value[2];
 
             if (is_array($source)) {
                 if (strpos($source[0], ',') !== false) {
@@ -495,6 +494,7 @@ class ditto
                 }
             }
 
+            $qe = $value[2] ?? null;
             if ($qe === null) {
                 return;
             }
