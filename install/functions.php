@@ -538,11 +538,11 @@ function convert2utf8mb4() {
         return;
     }
 
+    $collation = db()->getCollation();
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
-    if ($charset !== 'utf8mb4') {
+    if ($collation !== 'utf8mb4_general_ci') {
         $convert->convertDb();
     }
-    $convert->convertDb();
 
     $count = $convert->convertTablesWithPrefix(sessionv('table_prefix', 'modx_'));
     if ($count) {
