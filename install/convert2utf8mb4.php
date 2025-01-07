@@ -61,7 +61,7 @@ class convert2utf8mb4 {
     public function convertTablesWithPrefix($prefix)
     {
         $rs = db()->select(
-            'TABLE_NAME, CCSA.CHARACTER_SET_NAME',
+            'TABLE_NAME, CCSA.CHARACTER_SET_NAME, T.TABLE_COLLATION',
             [
                 'INFORMATION_SCHEMA.TABLES AS T',
                 'JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY AS CCSA ON T.TABLE_COLLATION = CCSA.COLLATION_NAME'
@@ -72,7 +72,7 @@ class convert2utf8mb4 {
                     db()->dbase,
                     $prefix
                 ),
-                "AND CCSA.CHARACTER_SET_NAME != 'utf8mb4'"
+                "AND CCSA.COLLATION_NAME != 'utf8mb4_general_ci'"
             ]
         );
         while($row = db()->getRow($rs)) {
