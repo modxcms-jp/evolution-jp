@@ -32,9 +32,11 @@ function set_parser_mode()
     }
 
     // set some settings, and address some IE issues
-    @ini_set('url_rewriter.tags', '');
-    @ini_set('session.use_trans_sid', 0);
-    @ini_set('session.use_only_cookies', 1);
+    if (!session_id()) {
+        ini_set('url_rewriter.tags', '');
+        ini_set('session.use_trans_sid', 0);
+        ini_set('session.use_only_cookies', 1);
+    }
     header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
     header('Cache-Control: private, must-revalidate');
     if (session_id()) {
