@@ -129,10 +129,17 @@ function warnings()
     return $warnings;
 }
 
+function getNewVersion() {
+    include MODX_CORE_PATH . 'version.inc.php';
+    return $modx_version;
+}
+
 function save_settiongs()
 {
     $default_config = include(MODX_CORE_PATH . 'default.config.php');
     $form_v = $_POST + $default_config;
+    $form_v['settings_version'] = getNewVersion();
+
     $savethese = array();
     foreach ($form_v as $k => $v) {
         switch ($k) {
@@ -199,8 +206,6 @@ function save_settiongs()
             case 'topmenu_tools':
             case 'topmenu_reports':
                 $v = setModifiedConfig($v, $default_config[$k]);
-                break;
-            default:
                 break;
         }
         $v = is_array($v) ? implode(',', $v) : $v;
