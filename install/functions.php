@@ -524,9 +524,7 @@ function withSample($installset)
 function convert2utf8mb4() {
     include MODX_SETUP_PATH . 'convert2utf8mb4.php';
     $convert = new convert2utf8mb4();
-    if ($convert->isUtf8mb4Configured()) {
-        return;
-    }
+
     if (!$convert->isAvailable()) {
         echo "<p>'utf8mb4 is not available.'</p>";
         return;
