@@ -1404,9 +1404,10 @@ class ditto
         global $modx;
         return method_exists($modx, 'mb_strftime')
             ? evo()->mb_strftime($format, $timestamp)
-            : strftime(
-                !empty($format) ? $format : evo()->toDateFormat(null, 'formatOnly') . ' %H:%M',
-                $timestamp
+            : (new DateTime())->setTimestamp($timestamp)->format(
+                !empty($format)
+                    ? $format
+                    : evo()->toDateFormat(null, 'formatOnly') . ' %H:%M'
             );
     }
 }
