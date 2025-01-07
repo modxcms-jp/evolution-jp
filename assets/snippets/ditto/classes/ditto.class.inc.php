@@ -1125,19 +1125,6 @@ class ditto
         return $docs;
     }
 
-    // ---------------------------------------------------
-    // Function: formatDate
-    // Render the date in the proper format and encoding
-    // ---------------------------------------------------
-
-    function formatDate($dateUnixTime, $dateFormat)
-    {
-        $dt = evo()->toDateFormat($dateUnixTime, $dateFormat);
-        if (evo()->config('modx_charset') === 'UTF-8') {
-            $dt = utf8_encode($dt);
-        }
-        return $dt;
-    }
 
     // ---------------------------------------------------
     // Function: buildURL
