@@ -5,7 +5,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 global $default_config, $settings_version;
 
-db()->importSql(MODX_CORE_PATH . 'upgrades/upd_db_structure.sql', false);
+include MODX_CORE_PATH . 'upgrades/upd_db_structure.php';
+
 $default_config = include_once(MODX_CORE_PATH . 'default.config.php');
 
 run_update($settings_version);
