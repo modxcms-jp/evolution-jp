@@ -990,7 +990,7 @@ class ditto
             $where ?? '',
             $publicOnly ? sprintf('AND (%s)', $access) : '',
             $sort ? ' ORDER BY ' . $sort : '',
-            ($limit != '') ? 'LIMIT ' . $limit : ''
+            ($limit) ? 'LIMIT ' . $limit : ''
         );
 
         $rs = db()->query($sql);

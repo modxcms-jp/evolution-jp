@@ -631,7 +631,7 @@ if (!isset($seeThruUnpub)) {
     - <where>
 */
 if (!isset($queryLimit)) {
-    $queryLimit = 0;
+    $queryLimit = null;
 }
 /*
     Param: queryLimit
