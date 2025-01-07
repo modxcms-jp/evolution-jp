@@ -214,7 +214,7 @@ class SubParser
 
         if (!is_array($params) && preg_match('@^[1-9][0-9]*$@', $params)) {
             $docid = $params;
-            if ($modx->config['cache_type'] === '2') {
+            if ($modx->config['cache_type'] == 2) {
                 $url = $modx->config['base_url'] . $modx->makeUrl($docid, '', '', 'root_rel');
                 $filename = hash('crc32b', $url);
             } else {
@@ -368,7 +368,7 @@ class SubParser
         $str .= '</tr>';
 
         $action = getv('a', postv('a'));
-        
+
         if (isset($action) && $action) {
             include_once(MODX_CORE_PATH . 'actionlist.inc.php');
             global $action_list;
