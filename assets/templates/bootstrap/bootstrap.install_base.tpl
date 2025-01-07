@@ -42,6 +42,33 @@
             gap: 20px;
         }
 
+        .breadcrumb {
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .breadcrumb li {
+            display: inline;
+        }
+
+        .breadcrumb li a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .breadcrumb li a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb li + li::before {
+            content: "\203A"; /* › */
+            color: #6c757d;
+            padding: 0 8px;
+        }
+
         .jumbotron {
             padding: 4rem 2rem;
             margin-bottom: 3rem;
