@@ -12,6 +12,6 @@ if (isset($this->phpass) && is_object($this->phpass)) {
 if (!include_once(MODX_MANAGER_PATH . 'includes/extenders/phpass/phpass.class.inc.php')) {
     return false;
 } else {
-    $this->phpass = new PasswordHash;
+    $this->phpass = new PasswordHash(8, true);
     return true;
 }
