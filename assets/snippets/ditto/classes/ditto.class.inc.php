@@ -585,23 +585,23 @@ class ditto
     // ---------------------------------------------------
 
     function determineIDs(
-          $IDs
-        , $IDType
-        , $TVs
-        , $orderBy
-        , $depth
-        , $showPublishedOnly
-        , $seeThruUnpub
-        , $hideFolders
-        , $hidePrivate
-        , $showInMenuOnly
-        , $myWhere
-        , $keywords
-        , $dateSource
-        , $limit
-        , $summarize
-        , $filter
-        , $randomize
+        $IDs,
+        $IDType,
+        $TVs,
+        $orderBy,
+        $depth,
+        $showPublishedOnly,
+        $seeThruUnpub,
+        $hideFolders,
+        $hidePrivate,
+        $showInMenuOnly,
+        $myWhere,
+        $keywords,
+        $dateSource,
+        $limit,
+        $summarize,
+        $filter,
+        $randomize
     )
     {
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
@@ -955,13 +955,13 @@ class ditto
             $docgrp = evo()->getUserDocGroups();
             if (evo()->isFrontend()) {
                 $access = sprintf(
-                    'sc.privateweb=0 %s'
-                    , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
+                    'sc.privateweb=0 %s',
+                    $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
             } elseif (sessionv('mgrRole') != 1) {
                 $access = sprintf(
-                    'sc.privatemgr=0 %s'
-                    , $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
+                    'sc.privatemgr=0 %s',
+                    $docgrp ? ' OR dg.document_group IN (' . implode(',', $docgrp) . ')' : ''
                 );
             }
         }
