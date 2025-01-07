@@ -44,7 +44,7 @@ db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEF
 $table = sessionv('table_prefix') . 'webgroup_names';
 db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEFAULT '' AFTER `id`");
 
-$table = sessionv('table_prefix') . 'user_roles';
+$table = sessionv('table_prefix') . 'event_log';
 db()->query("ALTER TABLE `$table` MODIFY `source` VARCHAR(255)");
 
 $data = [
