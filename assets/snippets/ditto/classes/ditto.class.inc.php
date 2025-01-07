@@ -661,18 +661,18 @@ class ditto
             $this->addField('createdon', 'backend', 'db');
         }
         $resource = $this->getDocuments(
-            $documentIDs
-            , $this->fields['backend']['db']
-            , $TVs
-            , $orderBy
-            , $showPublishedOnly
-            , 0
-            , $hidePrivate
-            , $where
-            , $limit
-            , $keywords
-            , $randomize
-            , $dateSource
+            $documentIDs,
+            $this->fields['backend']['db'],
+            $TVs,
+            $orderBy,
+            $showPublishedOnly,
+            0,
+            $hidePrivate,
+            $where,
+            $limit,
+            $keywords,
+            $randomize,
+            $dateSource
         );
         if ($resource) {
             $resource = array_values($resource);
