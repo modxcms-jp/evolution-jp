@@ -115,11 +115,11 @@ if ($config_saved === false) {
 
 if (sessionv('is_upgradeable') == 0) {
     $query = str_replace(
-        '[+prefix+]'
-        , db()->table_prefix
-        , sprintf(
-            "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')"
-            , uniqid('')
+        '[+prefix+]',
+        db()->table_prefix,
+        sprintf(
+            "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')",
+            uniqid('')
         )
     );
     db()->query($query);
@@ -129,11 +129,11 @@ if (sessionv('is_upgradeable') == 0) {
     if ($site_id) {
         if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
             $query = str_replace(
-                '[+prefix+]'
-                , db()->table_prefix
-                , sprintf(
-                    "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')"
-                    , uniqid('')
+                '[+prefix+]',
+                db()->table_prefix,
+                sprintf(
+                    "REPLACE INTO [+prefix+]system_settings (setting_name,setting_value) VALUES('site_id','%s')",
+                    uniqid('')
                 )
             );
             db()->query($query);
