@@ -15,19 +15,22 @@ if (!preg_match('/^[0-9]+\z/', $id)) {
 // duplicate TV
 $tpl = $_lang['duplicate_title_string'];
 $tbl_site_tmplvars = evo()->getFullTableName('site_tmplvars');
-$sql = "INSERT INTO {$tbl_site_tmplvars} (type, name, caption, description, default_text, elements, rank, display, display_params, category)
-		SELECT type, REPLACE('{$tpl}','[+title+]',name) AS 'name', caption, description, default_text, elements, rank, display, display_params, category
-		FROM {$tbl_site_tmplvars} WHERE id={$id}";
+$sql = "INSERT INTO $tbl_site_tmplvars (`type`, `name`, `caption`, `description`, `default_text`, `elements`, `rank`, `display`, `display_params`, `category`)
+    SELECT `type`, REPLACE('{$tpl}','[+title+]',`name`) AS `name`, `caption`, `description`, `default_text`, `elements`, `rank`, `display`, `display_params`, `category`
+    FROM $tbl_site_tmplvars WHERE `id`={$id}";
 $rs = db()->query($sql);
 
-if ($rs) {
-    $newid = $modx->db->getInsertId();
-} // get new id
-else {
+if (!$rs) {
     echo "A database error occured while trying to duplicate TV: <br /><br />" . db()->getLastError();
     exit;
-}
+} // get new id
 
+$newid = $modx->db->getInsertId();
+
+if (!$newid) {
+    echo "A database error occured while trying to get the new TV id: <br /><br />" . db()->getLastError();
+    exit;
+}
 
 // duplicate TV Template Access Permissions
 $tbl_site_tmplvar_templates = evo()->getFullTableName('site_tmplvar_templates');
