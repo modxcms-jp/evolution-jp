@@ -188,7 +188,7 @@ function saveTemplateAccess()
 
     $getRankArray = array();
 
-    $getRank = db()->select('templateid,rank', '[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
+    $getRank = db()->select('templateid,`rank`', '[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
 
     while ($row = db()->getRow($getRank)) {
         $getRankArray[$row['templateid']] = $row['rank'];
