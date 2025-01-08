@@ -88,7 +88,7 @@ if ($formRestored == true || isset ($_REQUEST['changeMode'])) {
 
 if (isset($form_v['which_editor'])) {
     $which_editor = postv('which_editor');
-} elseif (!isset($content['editor_type']) || empty($content['editor_type'])) {
+} elseif (empty($content['editor_type'])) {
     $which_editor = 'none';
 }
 
