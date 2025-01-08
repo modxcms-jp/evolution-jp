@@ -3,6 +3,9 @@
 class DBAPI
 {
 
+    /**
+     * @var mysqli|null $conn The MySQLi connection instance or null if not connected.
+     */
     public $conn = null;
     public $config = [];
     public $lastQuery;
