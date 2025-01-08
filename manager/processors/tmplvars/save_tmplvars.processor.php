@@ -206,7 +206,7 @@ function saveTemplateAccess()
         $field = array();
         $field['tmplvarid'] = $id;
         $field['templateid'] = $iValue;
-        $field['rank'] = $setRank;
+        $field['`rank`'] = $setRank;
         db()->insert($field, '[+prefix+]site_tmplvar_templates');
     }
 }
