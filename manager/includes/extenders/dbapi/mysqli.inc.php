@@ -122,17 +122,17 @@ class DBAPI
             $this->conn = null;
             if (evo()->config('send_errormail') && evo()->config('send_errormail') < 3) {
                 evo()->sendmail(
-                    'Missing to create the database connection! from ' . evo()->config('site_name')
-                    , sprintf(
-                        "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s"
-                        , 'Failed to create the database connection!'
-                        , evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES)
-                        , evo()->hsc(evo()->server('HTTP_USER_AGENT'), ENT_QUOTES)
-                        , evo()->server('REMOTE_ADDR')
-                        , evo()->server('REMOTE_HOST') ? evo()->server('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : ''
-                        , gethostbyaddr(evo()->server('REMOTE_ADDR'))
-                        , evo()->hsc(evo()->server('HTTP_REFERER'), ENT_QUOTES)
-                        , date('Y-m-d H:i:s')
+                    'Missing to create the database connection! from ' . evo()->config('site_name'),
+                    sprintf(
+                        "%s\n%s\n%s\n%s\n%s%s(hostname)\n%s\n%s",
+                        'Failed to create the database connection!',
+                        evo()->hsc($_SERVER['REQUEST_URI'], ENT_QUOTES),
+                        evo()->hsc(evo()->server('HTTP_USER_AGENT'), ENT_QUOTES),
+                        evo()->server('REMOTE_ADDR'),
+                        evo()->server('REMOTE_HOST') ? evo()->server('REMOTE_HOST') . '(REMOTE_HOST)' . "\n" : '',
+                        gethostbyaddr(evo()->server('REMOTE_ADDR')),
+                        evo()->hsc(evo()->server('HTTP_REFERER'), ENT_QUOTES),
+                        date('Y-m-d H:i:s')
                     )
                 );
             }
@@ -147,8 +147,8 @@ class DBAPI
             if (!$rs) {
                 evo()->messageQuit(
                     sprintf(
-                        "Failed to select the database '%s'!"
-                        , $this->dbase
+                        "Failed to select the database '%s'!",
+                        $this->dbase
                     )
                 );
                 return false;
@@ -161,8 +161,8 @@ class DBAPI
         $totaltime = $tend - $tstart;
         if (evo()->dumpSQL) {
             evo()->dumpSQLCode[] = sprintf(
-                '<fieldset style="text-align:left;"><legend>Database connection</legend>%s</fieldset>'
-                , sprintf("Database connection was created in %2.4f s", $totaltime)
+                '<fieldset style="text-align:left;"><legend>Database connection</legend>%s</fieldset>',
+                sprintf("Database connection was created in %2.4f s", $totaltime)
             );
         }
         evo()->queryTime += $totaltime;
@@ -245,10 +245,10 @@ class DBAPI
             if (!in_array($this->conn->errno, [1064, 1054, 1060, 1061, 1091])) {
                 evo()->messageQuit(
                     sprintf(
-                        'Execution of a query to the database failed - %s'
-                        , $this->getLastError()
-                    )
-                    , $sql
+                        'Execution of a query to the database failed - %s',
+                        $this->getLastError()
+                    ),
+                    $sql
                 );
                 return false;
             }
@@ -267,9 +267,9 @@ class DBAPI
             }
             $_ = [];
             $_[] = sprintf(
-                '<fieldset style="text-align:left"><legend>Query %d - %s</legend>'
-                , evo()->executedQueries + 1
-                , sprintf('%2.2f ms', $totaltime)
+                '<fieldset style="text-align:left"><legend>Query %d - %s</legend>',
+                evo()->executedQueries + 1,
+                sprintf('%2.2f ms', $totaltime)
             );
             $_[] = $sql . '<br><br>';
             if (event()->name) {
@@ -469,11 +469,11 @@ class DBAPI
         } elseif (is_array($fields)) {
             if (!$fromtable) {
                 $query = sprintf(
-                    "%s %s (`%s`) VALUES('%s')"
-                    , $insert_method
-                    , $intotable
-                    , implode('`,`', array_keys($fields))
-                    , implode("','", array_values($fields))
+                    "%s %s (`%s`) VALUES('%s')",
+                    $insert_method,
+                    $intotable,
+                    implode('`,`', array_keys($fields)),
+                    implode("','", array_values($fields))
                 );
             }
         } else {
@@ -615,8 +615,8 @@ class DBAPI
         if (is_string($param1)) {
             if ($where) {
                 return $this->getRow(
-                    $this->select($param1, $param2, $where, $orderby, $limit)
-                    , 'assoc'
+                    $this->select($param1, $param2, $where, $orderby, $limit),
+                    'assoc'
                 );
             }
             return $this->getRow($this->query($param1), $param2);
@@ -640,8 +640,8 @@ class DBAPI
         }
         evo()->messageQuit(
             sprintf(
-                "Unknown get type (%s) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'."
-                , $param2
+                "Unknown get type (%s) specified for fetchRow - must be empty, 'assoc', 'num' or 'both'.",
+                $param2
             )
         );
         return false;
@@ -653,8 +653,8 @@ class DBAPI
         if (is_string($param1)) {
             if ($where) {
                 return $this->getRows(
-                    $this->select($param1, $param2, $where, $orderby, $limit)
-                    , 'assoc'
+                    $this->select($param1, $param2, $where, $orderby, $limit),
+                    'assoc'
                 );
             }
             return $this->getRows($this->query($param1), $param2);
@@ -871,10 +871,10 @@ class DBAPI
     public function getFullTableName($table_name)
     {
         return sprintf(
-            '`%s`.`%s%s`'
-            , $this->dbase
-            , $this->table_prefix
-            , $table_name
+            '`%s`.`%s%s`',
+            $this->dbase,
+            $this->table_prefix,
+            $table_name
         );
     }
 
@@ -889,22 +889,22 @@ class DBAPI
     {
         if ($force) {
             return sprintf(
-                '`%s`.`%s%s`'
-                , $this->dbase
-                , $this->table_prefix
-                , str_replace('[+prefix+]', '', $table_name)
+                '`%s`.`%s%s`',
+                $this->dbase,
+                $this->table_prefix,
+                str_replace('[+prefix+]', '', $table_name)
             );
         }
 
         if (strpos(trim($table_name), '[+prefix+]') !== false) {
             return preg_replace(
-                '@\[\+prefix\+]([0-9a-zA-Z_]+)@'
-                , sprintf(
-                    '`%s`.`%s$1`'
-                    , $this->dbase
-                    , $this->table_prefix
-                )
-                , $table_name
+                '@\[\+prefix\+]([0-9a-zA-Z_]+)@',
+                sprintf(
+                    '`%s`.`%s$1`',
+                    $this->dbase,
+                    $this->table_prefix
+                ),
+                $table_name
             );
         }
 
@@ -927,10 +927,10 @@ class DBAPI
             foreach($row as $k=>$v) {
                 if ($i % 2) {
                     $item[] = sprintf(
-                        "<%s>%s</%s>"
-                        , $k
-                        , $v
-                        , $v
+                        "<%s>%s</%s>",
+                        $k,
+                        $v,
+                        $v
                     );
                 }
                 $i++;
@@ -1106,8 +1106,8 @@ class DBAPI
             $source .= $v . "\n";
         }
         $sql_array = preg_split(
-            '@;[ \t]*\n@'
-            , str_replace('{PREFIX}', $this->table_prefix, $source)
+            '@;[ \t]*\n@',
+            str_replace('{PREFIX}', $this->table_prefix, $source)
         );
         foreach ($sql_array as $sql) {
             if (!trim($sql)) {
@@ -1120,9 +1120,9 @@ class DBAPI
     public function tableExists($table_name)
     {
         $sql = sprintf(
-            "SHOW TABLES FROM `%s` LIKE '%s'"
-            , $this->dbase
-            , str_replace('[+prefix+]', $this->table_prefix, $table_name)
+            "SHOW TABLES FROM `%s` LIKE '%s'",
+            $this->dbase,
+            str_replace('[+prefix+]', $this->table_prefix, $table_name)
         );
 
         return 0 < $this->count($this->query($sql)) ? 1 : 0;
