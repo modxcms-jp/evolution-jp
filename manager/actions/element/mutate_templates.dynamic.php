@@ -62,7 +62,7 @@ if (id()) {
                 <?php if (evo()->hasPermission('save_template')) : ?>
                     <li id="Button1" class="mutate">
                         <a href="#"
-                           onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"><img
+                            onclick="jQuery('#templatesPane select').prop('disabled',false);documentDirty=false;jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');jQuery('#mutate').submit();"><img
                                 src="<?= style('icons_save') ?>"/> <?= lang('update') ?>
                         </a>
                         <span class="and"> + </span>
@@ -107,8 +107,9 @@ if (id()) {
                     <div style="margin-bottom:10px;">
                         <b><?= lang('template_name') ?></b>
                         <input name="templatename" type="text" maxlength="100"
-                               value="<?= evo()->hsc(template('templatename')) ?>" class="inputBox"
-                               style="width:200px;">
+                            value="<?= evo()->hsc(template('templatename')) ?>"
+                            class="inputBox"
+                            style="width:200px;">
                         <?php
                         $rs = db()->select(
                             '*',
@@ -189,16 +190,21 @@ if (id()) {
                             </td>
                         </tr>
                         <tr id="newcategry" style="display:none;">
-                            <th valign="top" style="padding-top:5px;"><?= lang('new_category') ?>:</th>
-                            <td valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                                                             maxlength="45"
-                                                                             value="<?= template('newcategory', '') ?>"
-                                                                             class="inputBox" style="width:300px;"></td>
+                            <th valign="top" style="padding-top:5px;">
+                                <?= lang('new_category') ?>:
+                            </th>
+                            <td valign="top" style="padding-top:5px;">
+                                <input name="newcategory"
+                                    type="text"
+                                    maxlength="45"
+                                    value="<?= template('newcategory', '') ?>"
+                                    class="inputBox" style="width:300px;">
+                            </td>
                         </tr>
                         <tr>
                             <th><?= lang('template_desc') ?>:&nbsp;&nbsp;</th>
                             <td><textarea name="description"
-                                          style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
+                                    style="padding:0;height:4em;"><?= evo()->hsc(template('description')) ?></textarea>
                             </td>
                         </tr>
                         <?php if (evo()->hasPermission('save_template') == 1) { ?>
