@@ -46,7 +46,7 @@ if (id()) {
 
     <form name="mutate" id="mutate" method="POST" action="index.php" enctype="multipart/form-data">
         <?php
-        $tmp = array('id' => id());
+        $tmp = ['id' => id()];
         $evtOut = evo()->invokeEvent('OnTempFormPrerender', $tmp);
         if (is_array($evtOut)) {
             echo implode('', $evtOut);
@@ -77,29 +77,25 @@ if (id()) {
                 <?php
                 if (getv('a') == 16) {
                     if (evo()->hasPermission('new_template')) {
-                        echo evo()->manager->ab(
-                            array(
-                                'onclick' => 'duplicaterecord();',
-                                'icon' => style('icons_resource_duplicate'),
-                                'label' => lang('duplicate')
-                            )
-                        );
+                        echo evo()->manager->ab([
+                            'onclick' => 'duplicaterecord();',
+                            'icon' => style('icons_resource_duplicate'),
+                            'label' => lang('duplicate')
+                        ]);
                     }
                     if (evo()->hasPermission('delete_template')) {
-                        echo evo()->manager->ab(
-                            array(
-                                'onclick' => 'deletedocument();',
-                                'icon' => style('icons_delete_document'),
-                                'label' => lang('delete')
-                            )
-                        );
+                        echo evo()->manager->ab([
+                            'onclick' => 'deletedocument();',
+                            'icon' => style('icons_delete_document'),
+                            'label' => lang('delete')
+                        ]);
                     }
                 }
-                echo evo()->manager->ab(array(
+                echo evo()->manager->ab([
                     'onclick' => "document.location.href='index.php?a=76';",
                     'icon' => style('icons_cancel'),
                     'label' => lang('cancel')
-                ));
+                ]);
                 ?>
             </ul>
         </div>
@@ -119,7 +115,7 @@ if (id()) {
                             '[+prefix+]site_templates',
                             id() ? "parent!='" . id() . "'" : ''
                         );
-                        $parent = array();
+                        $parent = [];
                         while ($row = db()->getRow($rs)) {
                             if (id() == $row['id']) {
                                 continue;
@@ -130,7 +126,7 @@ if (id()) {
                             );
                         }
                         $tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
-                        $option = array();
+                        $option = [];
                         foreach ($parent as $ph) {
                             $ph['selected'] = template('parent') == $ph['id'] ? 'selected' : '';
                             $option[] = evo()->parseText($tpl, $ph);
@@ -225,7 +221,7 @@ if (id()) {
                 <?php
                 if (getv('a') == '16') {
                     $rs = db()->select(
-                        array(
+                        [
                             'name' => 'tv.name',
                             'id' => 'tv.id',
                             'tplid' => 'tpl.templateid',
@@ -235,13 +231,12 @@ if (id()) {
                                 lang('no_category')
                             ),
                             'desc' => 'tv.description'
-
-                        ),
-                        array(
+                        ],
+                        [
                             '[+prefix+]site_tmplvar_templates tpl',
                             'INNER JOIN [+prefix+]site_tmplvars tv ON tv.id=tpl.tmplvarid',
                             'LEFT JOIN [+prefix+]categories cat ON tv.category=cat.id',
-                        ),
+                        ],
                         sprintf("tpl.templateid='%s'", id()),
                         'tpl.rank, tv.rank, tv.id'
                     );
@@ -359,7 +354,7 @@ function getParentValues($parent)
         }
     }
     if ($total != 1 || strpos($p->content, '[*content*]') === false) {
-        return array();
+        return [];
     }
 
     $content = explode('[*content*]', $p->content, 2);
@@ -382,7 +377,7 @@ function getParentValues($parent)
 
 function template($key, $default = null)
 {
-    static $tplObject = array();
+    static $tplObject = [];
     if (isset($tplObject[$key])) {
         return $tplObject[$key];
     }
