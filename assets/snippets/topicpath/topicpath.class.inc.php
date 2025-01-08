@@ -43,6 +43,12 @@ class TopicPath
         if (isset($homeTopicTitle)) $this->homeTopicTitle = $homeTopicTitle;
         if (isset($homeTopicDesc)) $this->homeTopicDesc = $homeTopicDesc;
 
+        if ($theme === 'li') {
+            $theme = 'list';
+        }
+        if (!$theme) {
+            $theme = 'simple';
+        }
         $this->theme = $theme;
         $this->tpl = [];
         if (isset($tplOuter)) $this->tpl['Outer'] = $tplOuter;
@@ -64,20 +70,10 @@ class TopicPath
         if (!$this->showTopicsAtHome && docid() === $this->homeId) return;
         elseif (in_array(docid(), $this->disabledOn)) return;
         $default = include(__DIR__ . '/config/default.php');
-        switch (strtolower($this->theme)) {
-            case 'list':
-            case 'li':
-                $tpl = $default['list'];
-                break;
-            case 'bootstrap':
-                $tpl = $default['bootstrap'];
-                break;
-            case 'microdata':
-                $tpl = $default['microdata'];
-                break;
-            default:
-                $tpl = $default['simple'];
+        if (!isset($default[$this->theme])) {
+            throw new Exception("Theme '{$this->theme}' not found in configuration.");
         }
+        $tpl = $default[$this->theme];
         $tpl = array_merge($tpl, $this->tpl);
         foreach ($tpl as $i => $v) {
             if (substr($v, 0, 5) === '@CODE') $tpl[$i] = substr($v, 6);
