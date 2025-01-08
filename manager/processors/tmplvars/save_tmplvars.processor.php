@@ -124,54 +124,57 @@ switch (postv('mode')) {
         $field = compact(explode(',',
             'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
         $rs = db()->update($field, '[+prefix+]site_tmplvars', "id='{$id}'");
+
         if (!$rs) {
             echo "\$rs not set! Edited variable not saved!";
-        } else {
-            $name = stripslashes($name);
-            $name = str_replace("'", "''", $name);
-            $was_name = str_replace("'", "''", $was_name);
-            if ($name !== $was_name) {
-                db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
-                db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
-                    '[+prefix+]site_templates');
-                db()->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
-                    '[+prefix+]site_htmlsnippets');
-                db()->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
-                    '[+prefix+]site_tmplvar_contentvalues');
-                db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_content');
-                db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_templates');
-                db()->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
-                    '[+prefix+]site_htmlsnippets');
-                db()->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
-                    '[+prefix+]site_tmplvar_contentvalues');
-            }
-            // save access permissions
-            saveTemplateAccess();
-            saveDocumentAccessPermissons();
-            // invoke OnTVFormSave event
-            $tmp = array(
-                'mode' => 'upd',
-                'id' => $id
-            );
-            evo()->invokeEvent('OnTVFormSave', $tmp);
-            // empty cache
-            $modx->clearCache(); // first empty the cache
-            // finished emptying cache - redirect
-            if (postv('stay')) {
-                switch (postv('stay')) {
-                    case '1':
-                        $a = '300';
-                        break;
-                    case '2':
-                        $a = "301&id={$id}";
-                        break;
-                }
-                $url = "index.php?a={$a}&stay=" . postv('stay');
-            } else {
-                $url = 'index.php?a=76';
-            }
-            header("Location: {$url}");
+            exit;
         }
+
+        // update all references to this TV
+        $name = stripslashes($name);
+        $name = str_replace("'", "''", $name);
+        $was_name = str_replace("'", "''", $was_name);
+        if ($name !== $was_name) {
+            db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
+            db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_templates');
+            db()->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_htmlsnippets');
+            db()->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_tmplvar_contentvalues');
+            db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_content');
+            db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_templates');
+            db()->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
+                '[+prefix+]site_htmlsnippets');
+            db()->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
+                '[+prefix+]site_tmplvar_contentvalues');
+        }
+        // save access permissions
+        saveTemplateAccess();
+        saveDocumentAccessPermissons();
+        // invoke OnTVFormSave event
+        $tmp = array(
+            'mode' => 'upd',
+            'id' => $id
+        );
+        evo()->invokeEvent('OnTVFormSave', $tmp);
+        // empty cache
+        $modx->clearCache(); // first empty the cache
+        // finished emptying cache - redirect
+        if (postv('stay')) {
+            switch (postv('stay')) {
+                case '1':
+                    $a = '300';
+                    break;
+                case '2':
+                    $a = "301&id={$id}";
+                    break;
+            }
+            $url = "index.php?a={$a}&stay=" . postv('stay');
+        } else {
+            $url = 'index.php?a=76';
+        }
+        header("Location: {$url}");
         break;
     default:
         echo 'Erm... You supposed to be here now?';
