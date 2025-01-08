@@ -9,6 +9,14 @@ return array(
         'OtherTopic' => '<li><a href="[+url+]">[+title+]</a></li>',
         'Separator' => "\n"
     ),
+    'bootstrap5' => array(
+        'Outer' => '<nav aria-label="breadcrumb"><ol class="breadcrumb">[+topics+]</ol></nav>',
+        'HomeTopic' => '<li class="breadcrumb-item"><a href="[+url+]">[+title+]</a></li>',
+        'CurrentTopic' => '<li class="breadcrumb-item active" aria-current="page">[+title+]</li>',
+        'ReferenceTopic' => '<li class="breadcrumb-item"><a href="[+url+]">[+title+]</a></li>',
+        'OtherTopic' => '<li class="breadcrumb-item"><a href="[+url+]">[+title+]</a></li>',
+        'Separator' => "\n"
+    ),
     'bootstrap' => array(
         'Outer' => '<ol class="breadcrumb">[+topics+]</ol>',
         'HomeTopic' => '<li class="home"><a href="[+url+]">[+title+]</a></li>',
