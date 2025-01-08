@@ -200,9 +200,8 @@ function saveTemplateAccess()
     if (!$templates) {
         return;
     }
-    $total = count($templates);
     foreach ($templates as $iValue) {
-        $setRank = ($getRankArray[$iValue]) ? $getRankArray[$iValue] : 0;
+        $setRank = $getRankArray[$iValue] ?? 0;
         $field = array();
         $field['tmplvarid'] = $id;
         $field['templateid'] = $iValue;
