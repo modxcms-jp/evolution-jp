@@ -71,7 +71,7 @@ if ($modx->manager->hasFormValues()) {
     $form_v = $_POST;
 }
 
-if ($formRestored == true || isset ($_REQUEST['changeMode'])) {
+if ($formRestored == true || postv('changeMode')) {
     $content = array_merge($content, $form_v);
     $content['content'] = postv('ta');
     if (empty ($content['pub_date'])) {
