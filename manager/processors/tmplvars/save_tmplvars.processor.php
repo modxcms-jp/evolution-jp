@@ -180,7 +180,6 @@ switch (postv('mode')) {
 function saveTemplateAccess()
 {
     global $id, $newid;
-    global $modx;
 
     if ($newid) {
         $id = $newid;
