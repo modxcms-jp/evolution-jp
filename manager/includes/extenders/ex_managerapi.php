@@ -49,16 +49,15 @@ class ManagerAPI
     // check for saved form
     function hasFormValues()
     {
-        if (!isset($_SESSION['mgrFormValueId']) || !sessionv('mgrFormValues')) {
-            return false;
+        if (isset($_SESSION['mgrFormValues'][$this->action])) {
+            return true;
         }
 
-        if ($this->action != sessionv('mgrFormValueId') || !is_array($_SESSION['mgrFormValues'])) {
-            $this->clearSavedFormValues();
-            return false;
+        if (isset($_SESSION['mgrFormValues'])) {
+            unset($_SESSION['mgrFormValues']);
         }
 
-        return true;
+        return false;
     }
 
     // saved form post from $_POST
@@ -67,8 +66,8 @@ class ManagerAPI
         if (!$_POST) {
             return false;
         }
-        $_SESSION['mgrFormValues'] = $_POST;
-        $_SESSION['mgrFormValueId'] = ($id > 0) ? $id : $this->action;
+        $actionId = $id ?: $this->action;
+        $_SESSION['mgrFormValues'][$actionId] = $_POST;
         return true;
     }
 
@@ -76,20 +75,13 @@ class ManagerAPI
     function loadFormValues()
     {
         if (!$this->hasFormValues()) {
-            return false;
+            return [];
         }
-        $p = $_SESSION['mgrFormValues'];
-        foreach ($p as $k => $v) {
-            $_POST[$k] = $v;
-        }
-        $this->clearSavedFormValues();
-        return $_POST;
-    }
 
-    // clear form post
-    function clearSavedFormValues()
-    {
-        unset($_SESSION['mgrFormValues'], $_SESSION['mgrFormValueId']);
+        $values = sessionv('mgrFormValues', []);
+        unset($_SESSION['mgrFormValues']);
+
+        return $values;
     }
 
     function get_alias_from_title($id = 0, $pagetitle = '')
