@@ -258,8 +258,8 @@ function saveDocumentAccessPermissons()
 }
 
 function check_exist_name($name)
-{ // disallow duplicate names for new tvs
-    global $modx;
+{
+    // disallow duplicate names for new tvs
     $where = "name='{$name}'";
     if (postv('mode') == 301) {
         $where = $where . " AND id!=" . postv('id');
@@ -274,9 +274,8 @@ function check_exist_name($name)
 }
 
 function check_reserved_names($name)
-{ // disallow reserved names
-    global $modx;
-
+{
+    // disallow reserved names
     $reserved_names = explode(
         ',',
         'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu'
