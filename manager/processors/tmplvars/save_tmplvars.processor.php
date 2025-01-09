@@ -188,7 +188,7 @@ function saveTemplateAccess()
         $id = $newid;
     }
 
-    $getRankArray = array();
+    $getRankArray = [];
 
     $getRank = db()->select('templateid,`rank`', '[+prefix+]site_tmplvar_templates', "tmplvarid={$id}");
 
@@ -204,7 +204,7 @@ function saveTemplateAccess()
     }
     foreach ($templates as $iValue) {
         $setRank = $getRankArray[$iValue] ?? 0;
-        $field = array();
+        $field = [];
         $field['tmplvarid'] = $id;
         $field['templateid'] = $iValue;
         $field['rank'] = $setRank;
