@@ -63,8 +63,10 @@ switch (postv('mode')) {
         }
 
         // Add new TV
-        $field = compact(explode(',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
+        $field = compact(explode(
+            ',',
+            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
+        ));
         $newid = db()->insert($field, '[+prefix+]site_tmplvars');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -121,8 +123,10 @@ switch (postv('mode')) {
         }
         // update TV
         $was_name = db()->getValue(db()->select('name', '[+prefix+]site_tmplvars', "id='{$id}'"));
-        $field = compact(explode(',',
-            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'));
+        $field = compact(explode(
+            ',',
+            'name,description,caption,type,elements,default_text,display,display_params,rank,locked,category'
+        ));
         $rs = db()->update($field, '[+prefix+]site_tmplvars', "id='{$id}'");
 
         if (!$rs) {
@@ -136,18 +140,28 @@ switch (postv('mode')) {
         $was_name = str_replace("'", "''", $was_name);
         if ($name !== $was_name) {
             db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')", '[+prefix+]site_content');
-            db()->update("content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_templates');
-            db()->update("snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_htmlsnippets');
-            db()->update("value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
-                '[+prefix+]site_tmplvar_contentvalues');
+            db()->update(
+                "content=REPLACE(content,'[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_templates'
+            );
+            db()->update(
+                "snippet=REPLACE(snippet,'[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_htmlsnippets'
+            );
+            db()->update(
+                "value=REPLACE(value,    '[*{$was_name}*]','[*{$name}*]')",
+                '[+prefix+]site_tmplvar_contentvalues'
+            );
             db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_content');
             db()->update("content=REPLACE(content,'[*{$was_name}:','[*{$name}:')", '[+prefix+]site_templates');
-            db()->update("snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
-                '[+prefix+]site_htmlsnippets');
-            db()->update("value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
-                '[+prefix+]site_tmplvar_contentvalues');
+            db()->update(
+                "snippet=REPLACE(snippet,'[*{$was_name}:','[*{$name}:')",
+                '[+prefix+]site_htmlsnippets'
+            );
+            db()->update(
+                "value=REPLACE(value,    '[*{$was_name}:','[*{$name}:')",
+                '[+prefix+]site_tmplvar_contentvalues'
+            );
         }
         // save access permissions
         saveTemplateAccess();
@@ -263,8 +277,10 @@ function check_reserved_names($name)
 { // disallow reserved names
     global $modx;
 
-    $reserved_names = explode(',',
-        'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu');
+    $reserved_names = explode(
+        ',',
+        'id,type,contentType,pagetitle,longtitle,description,alias,link_attributes,published,pub_date,unpub_date,parent,isfolder,introtext,content,richtext,template,menuindex,searchable,cacheable,createdby,createdon,editedby,editedon,deleted,deletedon,deletedby,publishedon,publishedby,menutitle,donthit,haskeywords,hasmetatags,privateweb,privatemgr,content_dispo,hidemenu'
+    );
     if (in_array($name, $reserved_names)) {
         $_POST['name'] = '';
         return true;
