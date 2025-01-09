@@ -46,7 +46,7 @@ if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
         header("Location: /index.php?id={$site_start}");
     }
     $content = db()->getRow($rs);
-    $_SESSION['itemname'] = $content['caption'];
+    $_SESSION['itemname'] = entity('caption');
 } else {
     $_SESSION['itemname'] = "New Template Variable";
 }
@@ -64,7 +64,7 @@ if (is_array($evtOut)) {
     $RTEditors = implode(',', $evtOut);
 }
 
-$form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc($content['elements']) . "</textarea>\n";
+$form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc(entity('elements')) . "</textarea>\n";
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
 $ph = array();
@@ -79,6 +79,11 @@ function selected($cond)
         return 'selected';
     }
     return '';
+}
+
+function entity($key, $default = null) {
+    global $content;
+    return $content[$key] ?? $default;
 }
 
 ?>
@@ -273,10 +278,10 @@ function selected($cond)
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= $content['id'] ?>">
+    <input type="hidden" name="id" value="<?= entity('id') ?>">
     <input type="hidden" name="a" value="302">
     <input type="hidden" name="mode" value="<?= getv('a') ?>">
-    <input type="hidden" name="params" value="<?= hsc($content['display_params']) ?>">
+    <input type="hidden" name="params" value="<?= hsc(entity('display_params')) ?>">
 
     <h1><?= $_lang['tmplvars_title'];
         if ($id) {
@@ -338,14 +343,14 @@ function selected($cond)
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_name'] ?></th>
                         <td align="left"><span style="font-family:'Courier New', Courier, mono">[*</span><input
-                                name="name" type="text" maxlength="50" value="<?= hsc($content['name']) ?>"
+                                name="name" type="text" maxlength="50" value="<?= hsc(entity('name')) ?>"
                                 class="inputBox" style="width:300px;"><span
                                 style="font-family:'Courier New', Courier, mono">*]</span></td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_caption'] ?></th>
                         <td align="left"><input name="caption" type="text" maxlength="80"
-                                                value="<?= hsc($content['caption']) ?>" class="inputBox"
+                                                value="<?= hsc(entity('caption')) ?>" class="inputBox"
                                                 style="width:300px;"></td>
                     </tr>
 
@@ -393,15 +398,15 @@ function selected($cond)
                                         $option[strtolower($input_name)] = ucwords(strtolower($input_name));
                                     }
                                 }
-                                if ($content['type'] == '') {
-                                    $content['type'] == 'text';
+                                if (!entity('type')) {
+                                    entity('type') === 'text';
                                 }
                                 foreach ($option as $k => $v) {
                                     $selected = '';
-                                    if (empty($content['type'])) {
+                                    if (empty(entity('type'))) {
                                         $content['type'] = 'text';
                                     }
-                                    if (strtolower($content['type']) == strtolower($k)) {
+                                    if (strtolower(entity('type')) == strtolower($k)) {
                                         $selected = 'selected="selected"';
                                     }
                                     $row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
@@ -412,7 +417,7 @@ function selected($cond)
                         </td>
                     </tr>
                     <?php
-                    switch ($content['type']) {
+                    switch (entity('type')) {
                         case 'dropdown':
                         case 'listbox':
                         case 'listbox-multiple':
@@ -428,7 +433,7 @@ function selected($cond)
                     $name1 = strtolower(substr(db()->getValue($res1), 6));
                     $res2 = db()->select('name', '[+prefix+]site_snippets', "name like'input:%'");
                     $name2 = strtolower(substr(db()->getValue($res2), 6));
-                    if ($name1 == $content['type'] || $name2 == $content['type']) {
+                    if ($name1 == entity('type') || $name2 == entity('type')) {
                         $display = '';
                     }
                     ?>
@@ -440,7 +445,7 @@ function selected($cond)
                         <th align="left" valign="top"><?= $_lang['tmplvars_default'] ?></th>
                         <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
                         class="inputBox phptextarea" rows="5"
-                        style="width:400px;"><?= hsc($content['default_text']) ?></textarea>
+                        style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
@@ -448,31 +453,31 @@ function selected($cond)
                         <td align="left">
                             <select name="display" size="1" class="inputBox" style="width:400px;"
                                     onchange="showParameters(this);">
-                                <option value="" <?= selected($content['display'] == '') ?>>&nbsp;</option>
-                                <option value="custom_widget" <?= selected($content['display'] === 'custom_widget') ?>>
+                                <option value="" <?= selected(entity('display') == '') ?>>&nbsp;</option>
+                                <option value="custom_widget" <?= selected(entity('display') === 'custom_widget') ?>>
                                     Custom Processor
                                 </option>
-                                <option value="image" <?= selected($content['display'] === 'image') ?>>Image
+                                <option value="image" <?= selected(entity('display') === 'image') ?>>Image
                                 </option>
-                                <option value="hyperlink" <?= selected($content['display'] === 'hyperlink') ?>>
+                                <option value="hyperlink" <?= selected(entity('display') === 'hyperlink') ?>>
                                     Hyperlink
                                 </option>
-                                <option value="htmltag" <?= selected($content['display'] === 'htmltag') ?>>HTML
+                                <option value="htmltag" <?= selected(entity('display') === 'htmltag') ?>>HTML
                                     Generic Tag
                                 </option>
-                                <option value="string" <?= selected($content['display'] === 'string') ?>>String
+                                <option value="string" <?= selected(entity('display') === 'string') ?>>String
                                     Formatter
                                 </option>
-                                <option value="date" <?= selected($content['display'] === 'date') ?>>Date
+                                <option value="date" <?= selected(entity('display') === 'date') ?>>Date
                                     Formatter
                                 </option>
-                                <option value="unixtime" <?= selected($content['display'] === 'unixtime') ?>>
+                                <option value="unixtime" <?= selected(entity('display') === 'unixtime') ?>>
                                     Unixtime
                                 </option>
-                                <option value="delim" <?= selected($content['display'] === 'delim') ?>>Delimited
+                                <option value="delim" <?= selected(entity('display') === 'delim') ?>>Delimited
                                     List
                                 </option>
-                                <option value="datagrid" <?= selected($content['display'] === 'datagrid') ?>>
+                                <option value="datagrid" <?= selected(entity('display') === 'datagrid') ?>>
                                     Data Grid
                                 </option>
                             </select>
@@ -510,12 +515,12 @@ function selected($cond)
                             <?php
                             if (0 < db()->count($rs)) :
                                 while ($row = db()->getRow($rs)) :
-                                    if (anyv('a') == 300 && $modx->config['default_template'] == $row['id']) {
+                                    if (anyv('a') == 300 && config('default_template') == $row['id']) {
                                         $checked = true;
                                     } elseif (getv('tpl') == $row['id']) {
                                         $checked = true;
-                                    } elseif ($id == 0 && is_array($_POST['template'])) {
-                                        $checked = in_array($row['id'], $_POST['template']);
+                                    } elseif ($id == 0 && is_array(entity('template'))) {
+                                        $checked = in_array($row['id'], entity('template'));
                                     } else {
                                         $checked = $row['tmplvarid'];
                                     }
@@ -547,7 +552,7 @@ function selected($cond)
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo "<option value='" . $v['id'] . "'" . ($content["category"] == $v["id"] ? " selected='selected'" : "") . ">" . hsc($v["category"]) . "</option>";
+                                        echo "<option value='" . $v['id'] . "'" . (entity("category") == $v["id"] ? " selected='selected'" : "") . ">" . hsc($v["category"]) . "</option>";
                                     }
                                 }
                                 ?>
@@ -565,13 +570,13 @@ function selected($cond)
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_description'] ?></th>
                         <td align="left"><textarea name="description"
-                                                   style="padding:0;height:4em;"><?= hsc($content['description']) ?></textarea>
+                                                   style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_template') == 1) { ?>
                         <tr>
                             <td align="left" colspan="2"><label><input name="locked" value="on"
-                                                                       type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : "" ?>
+                                                                       type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
                                                                        class="inputBox"/>
                                     <b><?= $_lang['lock_tmplvars'] ?></b> <span
                                         class="comment"><?= $_lang['lock_tmplvars_msg'] ?></span></label>
@@ -581,7 +586,7 @@ function selected($cond)
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_rank'] ?></th>
                         <td align="left"><input name="rank" type="text" maxlength="4"
-                                                value="<?= (isset($content['rank'])) ? $content['rank'] : 0 ?>"
+                                                value="<?= hsc(entity('rank', 0)) ?>"
                                                 class="inputBox" style="width:300px;"></td>
                     </tr>
                 </table>
@@ -629,8 +634,8 @@ function selected($cond)
                         <?php
                         $chk = '';
                         $rs = db()->select('name, id', '[+prefix+]documentgroup_names');
-                        if (empty($groupsarray) && is_array($_POST['docgroups']) && empty($_POST['id'])) {
-                            $groupsarray = $_POST['docgroups'];
+                        if (empty($groupsarray) && is_array(entity('docgroups')) && empty(entity('id'))) {
+                            $groupsarray = entity('docgroups');
                         }
                         $number_of_g = 0;
                         while ($row = db()->getRow($rs)) {
@@ -673,7 +678,7 @@ function selected($cond)
 </form>
 <script>
     tpTmplvars = new WebFXTabPane(document.getElementById("tmplvarsPane"), false);
-    var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0' ?>;
+    var readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
     if (readonly == 1) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');
