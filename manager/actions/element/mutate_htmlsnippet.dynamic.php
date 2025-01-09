@@ -74,21 +74,30 @@ if ($modx->manager->hasFormValues()) {
 if ($formRestored == true || postv('changeMode')) {
     $content = array_merge($content, $form_v);
     $content['content'] = postv('ta');
-    if (empty ($content['pub_date'])) {
-        unset($content['pub_date']);
-    } else {
-        $content['pub_date'] = $modx->toTimeStamp($content['pub_date']);
+}
+
+function entity($key, $default = null)
+{
+    global $content;
+
+    if (!isset($content['published'])) {
+        $content['published'] = 1;
     }
-    if (empty ($content['unpub_date'])) {
-        unset($content['unpub_date']);
-    } else {
-        $content['unpub_date'] = $modx->toTimeStamp($content['unpub_date']);
-    }
+    $content['pub_date'] = !empty($content['pub_date'])
+        ? evo()->toDateFormat($content['pub_date'])
+        : ''
+    ;
+    $content['unpub_date'] = !empty($content['unpub_date'])
+        ? evo()->toDateFormat($content['unpub_date'])
+        : ''
+    ;
+
+    return $content[$key] ?? $default;
 }
 
 if (isset($form_v['which_editor'])) {
     $which_editor = postv('which_editor');
-} elseif (empty($content['editor_type'])) {
+} elseif (!entity('editor_type')) {
     $which_editor = 'none';
 }
 
@@ -219,7 +228,7 @@ if (isset($form_v['which_editor'])) {
                             <th align="left"><?= $_lang['htmlsnippet_name'] ?></th>
                             <td align="left">
                             {{<input name="name" type="text" maxlength="100"
-                                    value="<?= hsc($content['name']) ?>"
+                                    value="<?= hsc(entity('name')) ?>"
                                     class="inputBox" style="width:300px;">}}
                             </td>
                         </tr>
@@ -233,7 +242,7 @@ if (isset($form_v['which_editor'])) {
                         <textarea
                             dir="ltr" class="phptextarea" name="post"
                             style="height:350px;width:100%"
-                        ><?= hsc($content['post'] ?? $content['snippet']) ?></textarea>
+                        ><?= hsc(entity('post') ?? entity('snippet')) ?></textarea>
                     </div>
 
                     <span class="warning"><?= $_lang['which_editor_title'] ?></span>
@@ -272,17 +281,14 @@ if (isset($form_v['which_editor'])) {
                             <td><input
                                     name="published" onclick="resetpubdate();"
                                     type="checkbox"
-                                    <?= (!isset($content['published']) || $content['published'] == 1) ? ' checked="checked"' : '' ?>
+                                    <?= (entity('published') == 1) ? ' checked="checked"' : '' ?>
                                     class="inputBox" value="1"/></td>
                         </tr>
                         <tr>
-                            <?php
-                            $content['pub_date'] = (isset($content['pub_date']) && $content['pub_date'] != '0') ? $modx->toDateFormat($content['pub_date']) : '';
-                            ?>
                             <th align="left"><?= $_lang['page_data_publishdate'] ?></th>
                             <td>
                                 <input id="pub_date" name="pub_date" type="text"
-                                       value="<?= $content['pub_date'] ?>" class="DatePicker"/>
+                                       value="<?= entity('pub_date') ?>" class="DatePicker"/>
                                 <a onclick="document.mutate.pub_date.value=''; documentDirty=true; return true;"
                                    style="cursor:pointer; cursor:hand;">
                                     <img src="<?= $_style["icons_cal_nodate"] ?>"
@@ -290,13 +296,10 @@ if (isset($form_v['which_editor'])) {
                             </td>
                         </tr>
                         <tr>
-                            <?php
-                            $content['unpub_date'] = (isset($content['unpub_date']) && $content['unpub_date'] != '0') ? $modx->toDateFormat($content['unpub_date']) : '';
-                            ?>
                             <th align="left"><?= $_lang['page_data_unpublishdate'] ?></th>
                             <td>
                                 <input id="unpub_date" name="unpub_date" type="text"
-                                        value="<?= $content['unpub_date'] ?>" class="DatePicker"/>
+                                        value="<?= entity('unpub_date') ?>" class="DatePicker"/>
                                 <a onclick="document.mutate.unpub_date.value=''; documentDirty=true; return true;"
                                     style="cursor:pointer; cursor:hand">
                                     <img src="<?= $_style["icons_cal_nodate"] ?>"
@@ -312,7 +315,7 @@ if (isset($form_v['which_editor'])) {
                                     $ds = $modx->manager->getCategories();
                                     if ($ds) {
                                         foreach ($ds as $n => $v) {
-                                            echo "\t\t\t\t" . '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] || (empty($content['category']) && $_POST['categoryid'] == $v['id']) ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";
+                                            echo "\t\t\t\t" . '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] || (empty(entity('category')) && postv('categoryid') == $v['id']) ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";
                                         }
                                     }
                                     ?>
@@ -324,7 +327,7 @@ if (isset($form_v['which_editor'])) {
                             <td align="left" valign="top"><input
                                     name="newcategory"
                                     type="text" maxlength="45"
-                                    value="<?= isset($content['newcategory']) ? $content['newcategory'] : '' ?>"
+                                    value="<?= entity('newcategory') ?>"
                                     class="inputBox" style="width:300px;">
                             </td>
                         </tr>
@@ -334,7 +337,7 @@ if (isset($form_v['which_editor'])) {
                                 <textarea
                                     name="description"
                                     style="padding:0;height:4em;width:300px;"
-                                ><?= hsc($content['description']) ?></textarea>
+                                ><?= hsc(entity('description')) ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -342,7 +345,7 @@ if (isset($form_v['which_editor'])) {
                             <td align="left" valign="top"><input
                                     name="editor_type"
                                     type="checkbox"
-                                    <?= $content['editor_type'] == 1 ? ' checked="checked"' : '' ?>
+                                    <?= entity('editor_type') == 1 ? ' checked="checked"' : '' ?>
                                     class="inputBox" value="1"/></td>
                         </tr>
                         <?php if (evo()->hasPermission('save_chunk') == 1) { ?>
@@ -351,7 +354,7 @@ if (isset($form_v['which_editor'])) {
                                     <label><input
                                             name="locked"
                                             type="checkbox"
-                                            <?= $content['locked'] == 1 || $content['locked'] === 'on' ? ' checked="checked"' : '' ?>
+                                            <?= entity('locked') == 1 || entity('locked') === 'on' ? ' checked="checked"' : '' ?>
                                             class="inputBox" value="on"/> <?= $_lang['lock_htmlsnippet'] ?>
                                         <span class="comment"><?= $_lang['lock_htmlsnippet_msg'] ?></span></label>
                                 </td>
@@ -373,7 +376,7 @@ if (isset($form_v['which_editor'])) {
     </form>
     </div>
     <script>
-        var readonly = <?= ($content['locked'] === '1' || $content['locked'] === 'on') ? '1' : '0' ?>;
+        var readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
         if (readonly == 1) {
             jQuery('textarea,input[type=text]').prop('readonly', true);
             jQuery('select').addClass('readonly');
