@@ -137,7 +137,8 @@ $givenTags = !empty($tags) ? trim($tags) : false;
 	Default:
 	[NULL]
 */
-$tplTagLinks = !empty($tplTagLinks) ? template::fetch($tplTagLinks) : false;
+$templateInstance = new template();
+$tplTagLinks = !empty($tplTagLinks) ? $templateInstance->fetch($tplTagLinks) : false;
 /*
 	Param: tplTagLinks
 
