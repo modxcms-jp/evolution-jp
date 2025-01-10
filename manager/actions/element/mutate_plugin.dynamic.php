@@ -592,11 +592,7 @@ function entity($key, $default = null)
                             $evts[] = $row['evtid'];
                         }
                     } else {
-                        if (isset($content['sysevents']) && is_array($content['sysevents'])) {
-                            $evts = $content['sysevents'];
-                        } else {
-                            $evts = [];
-                        }
+                        $evts = [];
                     }
 
                     // display system events
