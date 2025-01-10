@@ -742,20 +742,15 @@ function unzip($file, $path)
         return 0;
     }
     // end mod
-    $zip = zip_open($file);
-    if (!$zip) {
-        zip_close($zip);
+    $zip = new ZipArchive();
+    if ($zip->open($file) !== true) {
         return false;
     }
 
     $old_umask = umask(0);
     $path = rtrim($path, '/') . '/';
-    while ($zip_entry = zip_read($zip)) {
-        if (zip_entry_filesize($zip_entry) <= 0) {
-            continue;
-        }
-        // str_replace must be used under windows to convert "/" into "\"
-        $zip_entry_name = zip_entry_name($zip_entry);
+    for ($i = 0; $i < $zip->numFiles; $i++) {
+        $zip_entry_name = $zip->getNameIndex($i);
         $complete_path = $path . str_replace('\\', '/', dirname($zip_entry_name));
         $complete_name = $path . str_replace('\\', '/', $zip_entry_name);
         if (!is_dir($complete_path)) {
@@ -767,13 +762,10 @@ function unzip($file, $path)
                 }
             }
         }
-        if (zip_entry_open($zip, $zip_entry, 'r')) {
-            file_put_contents($complete_name, zip_entry_read($zip_entry, zip_entry_filesize($zip_entry)));
-            zip_entry_close($zip_entry);
-        }
+        copy("zip://".$file."#".$zip_entry_name, $complete_name);
     }
     umask($old_umask);
-    zip_close($zip);
+    $zip->close();
     return true;
 }
 
