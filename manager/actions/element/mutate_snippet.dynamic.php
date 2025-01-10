@@ -74,14 +74,14 @@ function entity($key, $default = null)
 ?>
 <script type="text/javascript">
     function duplicaterecord() {
-        if (confirm("<?= $_lang['confirm_duplicate_record']?>")) {
+        if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
             documentDirty = false;
-            document.location.href = "index.php?id=<?= anyv('id')?>&a=98";
+            document.location.href = "index.php?id=<?= anyv('id') ?>&a=98";
         }
     }
 
     function deletedocument() {
-        if (confirm("<?= $_lang['confirm_delete_snippet']?>")) {
+        if (confirm("<?= $_lang['confirm_delete_snippet'] ?>")) {
             documentDirty = false;
             document.location.href = "index.php?id=" + document.mutate.id.value + "&a=25";
         }
@@ -117,10 +117,10 @@ function entity($key, $default = null)
             for (p = 0; p < dp.length; p++) {
                 dp[p] = (dp[p] + '').replace(/^\s|\s$/, ""); // trim
                 ar = dp[p].split("=");
-                key = ar[0];		// param
+                key = ar[0]; // param
                 ar = (ar[1] + '').split(";");
-                desc = ar[0];	// description
-                dt = ar[1];		// data type
+                desc = ar[0]; // description
+                dt = ar[1]; // data type
                 value = decode((ar[2]) ? ar[2] : '');
 
                 // store values for later retrieval
@@ -176,7 +176,7 @@ function entity($key, $default = null)
                         case 'textarea':
                             c = '<textarea class="phptextarea" name="prop_' + key + '" cols="50" rows="4" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)">' + value + '</textarea>';
                             break;
-                        default:  // string
+                        default: // string
                             c = '<input type="text" name="prop_' + key + '" value="' + value + '" size="30" onchange="setParameter(\'' + key + '\',\'' + dt + '\',this)" />';
                             break;
 
@@ -256,7 +256,6 @@ function entity($key, $default = null)
         s = s.replace(/%26/g, '&'); // &
         return s;
     }
-
 </script>
 
 <form name="mutate" id="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
@@ -276,17 +275,17 @@ function entity($key, $default = null)
             <?php if (evo()->hasPermission('save_snippet')): ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                    onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                        <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
+                        onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?> ><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?> ><?= $_lang['stay'] ?></option>
+                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?> ><?= $_lang['close'] ?></option>
+                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
@@ -327,8 +326,8 @@ function entity($key, $default = null)
                     <tr>
                         <th align="left"><?= $_lang['snippet_name'] ?></th>
                         <td align="left">[[<input name="name" type="text" maxlength="100"
-                                                  value="<?= htmlspecialchars(entity('name')) ?>"
-                                                  class="inputBox" style="width:300px;">]]
+                                value="<?= htmlspecialchars(entity('name')) ?>"
+                                class="inputBox" style="width:300px;">]]
                         </td>
                     </tr>
                 </table>
@@ -338,8 +337,8 @@ function entity($key, $default = null)
                         style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                         <span style="float:left;font-weight:bold;"><?= $_lang['snippet_code'] ?></span>
                         <span style="float:right;color:#707070;"><?= $_lang['wrap_lines'] ?>
-		    	<input name="wrap" type="checkbox" checked="checked" class="inputBox"
-                       onclick="setTextWrap(document.mutate.post,this.checked)"/></span>
+                            <input name="wrap" type="checkbox" checked="checked" class="inputBox"
+                                onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
                     <?php
                     if (isset($content['snippet'])) {
@@ -351,7 +350,7 @@ function entity($key, $default = null)
                     }
                     ?>
                     <textarea class="phptextarea" dir="ltr" name="post" style="width:100%; height:370px;"
-                              wrap="soft"><?= $code ?></textarea>
+                        wrap="soft"><?= $code ?></textarea>
                 </div>
                 <!-- PHP text editor end -->
             </div>
@@ -381,32 +380,37 @@ function entity($key, $default = null)
                         <th align="left" valign="top" style="padding-top:10px;"><?= $_lang['new_category'] ?>:
                         </th>
                         <td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text"
-                                                                                       maxlength="45" value=""
-                                                                                       class="inputBox"
-                                                                                       style="width:300px;"></td>
+                                maxlength="45" value=""
+                                class="inputBox"
+                                style="width:300px;"></td>
                     </tr>
                     <tr>
                         <th align="left" style="padding-top:10px"><?= $_lang['snippet_desc'] ?>:</th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
-                                      style="padding:0;height:4em;"><?= entity('description') ?></textarea>
+                                style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
                                 <label><input style="padding:0;margin:0;" name="locked"
-                                              type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                              class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
-                                        class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label></td>
+                                        type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
+                                        class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
+                                        class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label>
+                            </td>
                         </tr>
                     <?php } ?>
                     <?php
                     $from = "[+prefix+]site_modules AS sm " .
                         "INNER JOIN [+prefix+]site_module_depobj AS smd ON smd.module=sm.id AND smd.type=40 " .
                         "INNER JOIN [+prefix+]site_snippets AS ss ON ss.id=smd.resource ";
-                    $ds = db()->select('sm.id,sm.name,sm.guid', $from,
-                        "smd.resource='{$id}' AND sm.enable_sharedparams='1'", 'sm.name');
+                    $ds = db()->select(
+                        'sm.id,sm.name,sm.guid',
+                        $from,
+                        "smd.resource='{$id}' AND sm.enable_sharedparams='1'",
+                        'sm.name'
+                    );
                     $guid_total = db()->count($ds);
                     if ($guid_total > 0) {
                         $options = '';
@@ -416,7 +420,7 @@ function entity($key, $default = null)
                     }
                     ?>
                     <?php if ($guid_total > 0) {
-                        ?>
+                    ?>
                         <tr>
                             <th align="left" style="padding-top:10px;"><?= $_lang['import_params'] ?>:</th>
                             <td align="left" valign="top" style="padding-top:10px;">
@@ -434,8 +438,8 @@ function entity($key, $default = null)
                     <tr>
                         <th align="left" valign="top"><?= $_lang['snippet_properties'] ?>:</th>
                         <td align="left" valign="top"><textarea name="properties" maxlength="65535"
-                                                                class="inputBox phptextarea"
-                                                                onChange="showParameters(this);"><?= entity('properties') ?></textarea>
+                                class="inputBox phptextarea"
+                                onChange="showParameters(this);"><?= entity('properties') ?></textarea>
                         </td>
                     </tr>
                     <tr id="displayparamrow">
@@ -469,15 +473,15 @@ function entity($key, $default = null)
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');
         jQuery('#Button1').hide();
-        jQuery('input[name="locked"]').click(function () {
+        jQuery('input[name="locked"]').click(function() {
             jQuery('#Button1').toggle();
         });
     }
-    jQuery('input[name="locked"]').click(function () {
+    jQuery('input[name="locked"]').click(function() {
         jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
         jQuery('select').toggleClass('readonly');
     });
-    jQuery('select[name="categoryid"]').change(function () {
+    jQuery('select[name="categoryid"]').change(function() {
         if (jQuery(this).val() == '-1') {
             jQuery('#newcategry').fadeIn();
         } else {
