@@ -206,6 +206,12 @@ class MANAGERMANAGER
 
         // Check the current event
         global $e;
+        /**
+         * Reference to the current MODX event.
+         *
+         * @var \DocumentParser $modx
+         * @var \SystemEvent $e
+         */
         $e = &$modx->event;
 
         // The start of adding or editing a document (before the main form)
