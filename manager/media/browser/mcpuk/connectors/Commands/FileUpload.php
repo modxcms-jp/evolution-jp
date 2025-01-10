@@ -29,7 +29,9 @@
  * (*4) add invoking event `OnFileManagerUpload`
  */
 
-class FileUpload
+require_once 'Base.php';
+
+class FileUpload extends Base
 {
     public $fckphp_config;
     public $type;
