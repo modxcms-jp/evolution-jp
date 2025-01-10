@@ -377,15 +377,20 @@ function entity($key, $default = null)
                         </td>
                     </tr>
                     <tr id="newcategry" style="display:none;">
-                        <th align="left" valign="top" style="padding-top:10px;"><?= $_lang['new_category'] ?>:
+                        <th align="left" valign="top" style="padding-top:10px;">
+                            <?= $_lang['new_category'] ?>:
                         </th>
-                        <td align="left" valign="top" style="padding-top:10px;"><input name="newcategory" type="text"
+                        <td align="left" valign="top" style="padding-top:10px;">
+                            <input name="newcategory" type="text"
                                 maxlength="45" value=""
                                 class="inputBox"
-                                style="width:300px;"></td>
+                                style="width:300px;">
+                        </td>
                     </tr>
                     <tr>
-                        <th align="left" style="padding-top:10px"><?= $_lang['snippet_desc'] ?>:</th>
+                        <th align="left" style="padding-top:10px">
+                            <?= $_lang['snippet_desc'] ?>:
+                        </th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
                                 style="padding:0;height:4em;"><?= entity('description') ?></textarea>
@@ -394,10 +399,13 @@ function entity($key, $default = null)
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
-                                <label><input style="padding:0;margin:0;" name="locked"
+                                <label>
+                                    <input style="padding:0;margin:0;" name="locked"
                                         type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
-                                        class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
-                                        class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label>
+                                        class="inputBox">
+                                    <b><?= $_lang['lock_snippet'] ?></b>
+                                    <span class="comment"><?= $_lang['lock_snippet_msg'] ?></span>
+                                </label>
                             </td>
                         </tr>
                     <?php } ?>
@@ -437,7 +445,8 @@ function entity($key, $default = null)
                     <?php } ?>
                     <tr>
                         <th align="left" valign="top"><?= $_lang['snippet_properties'] ?>:</th>
-                        <td align="left" valign="top"><textarea name="properties" maxlength="65535"
+                        <td align="left" valign="top">
+                            <textarea name="properties" maxlength="65535"
                                 class="inputBox phptextarea"
                                 onChange="showParameters(this);"><?= entity('properties') ?></textarea>
                         </td>
