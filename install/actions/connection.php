@@ -2,12 +2,12 @@
 
 if (sessionv('prevAction') === 'options') {
     sessionv('*installdata', postv('installdata', ''));
-    sessionv('*template', postv('template', array()));
-    sessionv('*tv', postv('tv', array()));
-    sessionv('*chunk', postv('chunk', array()));
-    sessionv('*snippet', postv('snippet', array()));
-    sessionv('*plugin', postv('plugin', array()));
-    sessionv('*module', postv('module', array()));
+    sessionv('*template', postv('template', []));
+    sessionv('*tv', postv('tv', []));
+    sessionv('*chunk', postv('chunk', []));
+    sessionv('*snippet', postv('snippet', []));
+    sessionv('*plugin', postv('plugin', []));
+    sessionv('*module', postv('module', []));
 }
 $ph = array_merge(
     $ph

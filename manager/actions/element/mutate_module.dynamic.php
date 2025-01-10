@@ -582,7 +582,7 @@ $modx->moduleObject = $content;
                         <h2 class="tab"><?= $_lang['group_access_permissions'] ?></h2>
                         <?php
                         // fetch user access permissions for the module
-                        $groupsarray = array();
+                        $groupsarray = [];
                         $rs = db()->select('*', '[+prefix+]site_module_access', "module='{$id}'");
                         $total = db()->count($rs);
                         for ($i = 0; $i < $total; $i++) {
@@ -625,7 +625,7 @@ $modx->moduleObject = $content;
                         $total = db()->count($rs);
                         for ($i = 0; $i < $total; $i++) {
                             $row = db()->getRow($rs);
-                            $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : array();
+                            $groupsarray = is_numeric($id) && $id > 0 ? $groupsarray : [];
                             $checked = in_array($row['id'], $groupsarray);
                             if (evo()->hasPermission('access_permissions')) {
                                 if ($checked) {

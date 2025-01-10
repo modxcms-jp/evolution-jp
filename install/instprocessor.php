@@ -217,7 +217,7 @@ if (sessionv('is_upgradeable') == 0) {
 
 echo '</p>';
 
-$_SESSION = array();
+$_SESSION = [];
 
 function deleteCacheDirectory($cachePath) {
     if (!is_dir($cachePath)) {

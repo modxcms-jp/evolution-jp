@@ -112,7 +112,7 @@ if (getv('submitok')) {
         $searchid = getv('searchid', 0);
     }
 
-    $where = array();
+    $where = [];
     if ($searchid) {
         $where[] = "id='" . db()->escape($searchid) . "' ";
     }

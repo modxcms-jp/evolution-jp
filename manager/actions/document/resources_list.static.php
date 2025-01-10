@@ -19,7 +19,7 @@ evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
 
 if (!$id) {
-    $current = array();
+    $current = [];
 } else {
     $current = db()->getRow(
         db()->select('*', '[+prefix+]site_content', "id='" . $id . "'")
@@ -39,7 +39,7 @@ if (!isset($current['id'])) {
 $docgrp = $_SESSION['mgrDocgroups'] ? implode(',', $_SESSION['mgrDocgroups']) : '';
 $in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : '';
 
-$where = array();
+$where = [];
 $where[] = "sc.parent='" . $id . "'";
 if ($_SESSION['mgrRole'] != 1 && !evo()->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
@@ -55,13 +55,13 @@ if (!$numRecords) {
     $children_output = "<p>" . $_lang['resources_in_container_no'] . "</p>";
 } else {
     $children_output = '';
-    $f = array();
+    $f = [];
     $f[] = 'DISTINCT sc.*';
     if ($_SESSION['mgrRole'] != 1) {
         $f['has_access'] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0))', $in_docgrp);
     }
     $f[] = 'rev.status';
-    $where = array();
+    $where = [];
     $where[] = "sc.parent='" . $id . "'";
     if ($_SESSION['mgrRole'] != 1 && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
@@ -89,12 +89,12 @@ if (!$numRecords) {
             evo()->config('number_of_results')
         )
     );
-    $docs = array();
+    $docs = [];
     while ($row = db()->getRow($rs)) {
         $docs[$row['id']] = $row;
     }
 
-    $rows = array();
+    $rows = [];
     $tpl = '<div class="title">[+icon+][+statusIcon+]</div><a href="[+link+]">[+title+][+description+]</a>';
     foreach ($docs as $docid => $doc) {
         if (!manager()->isContainAllowed($docid)) {
@@ -112,7 +112,7 @@ if (!$numRecords) {
         $doc['title'] = getTitle($doc);
         $doc['description'] = getDescription($doc);
 
-        $col = array();
+        $col = [];
         $col['checkbox'] = sprintf('<input type="checkbox" name="batch[]" value="%s" />', $docid);
         $col['docid'] = $docid;
         $col['title'] = parseText($tpl, $doc);
@@ -292,7 +292,7 @@ function getDescription($doc)
 
 function _getClasses($doc)
 {
-    $classes = array();
+    $classes = [];
     $classes[] = 'withmenu';
     if ($doc['deleted'] === '1') {
         $classes[] = 'deletedNode';

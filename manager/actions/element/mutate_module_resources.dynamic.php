@@ -62,7 +62,7 @@ switch (anyv('op')) {
             if ($rt === 'tv') {
                 $type = 60;
             }
-            $v = array();
+            $v = [];
             foreach ($opids as $opid) {
                 $opid = intval($opid);
                 $v[] = "('{$id}','{$opid}','{$type}')";
@@ -89,8 +89,8 @@ switch (anyv('op')) {
         if ($ds) {
             // loop through resources and look for plugins and snippets
             $i = 0;
-            $plids = array();
-            $snid = array();
+            $plids = [];
+            $snid = [];
             while ($row = db()->getRow($ds)) {
                 if ($row['type'] == '30') {
                     $plids[$i] = $row['resource'];

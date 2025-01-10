@@ -184,7 +184,7 @@
                 , $where
                 , 'save_role DESC, new_role DESC, id ASC'
             );
-            $options = array();
+            $options = [];
             while ($row = db()->getRow($rs)) {
                 if (anyv('a') == 11) {
                     $selected = ($row['id'] == evo()->config['default_role']);

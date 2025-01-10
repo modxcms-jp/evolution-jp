@@ -16,11 +16,11 @@ class Wayfinder
     public $_config;
     public $_templates;
     public $_css;
-    public $docs = array();
-    public $parentTree = array();
-    public $hasChildren = array();
-    public $tvList = array();
-    public $debugInfo = array();
+    public $docs = [];
+    public $parentTree = [];
+    public $hasChildren = [];
+    public $tvList = [];
+    public $debugInfo = [];
 
     function __construct()
     {
@@ -132,7 +132,7 @@ class Wayfinder
         //Get the class names for the wrapper
         $classNames = $this->setItemClass($wrapperClass, 0, 0, 0, $level);
 
-        $ph = array();
+        $ph = [];
         $ph['wf.wrapper'] = $subMenuOutput;
         $ph['wf.classes'] = $classNames ? sprintf(' class="%s"', $classNames) : '';
         $ph['wf.classnames'] = $classNames;
@@ -148,7 +148,7 @@ class Wayfinder
         $subMenuOutput = $modx->parseText($tpl, $ph);
         //Debug
         if ($this->_config['debug']) {
-            $info = array();
+            $info = [];
             $info['template'] = ($tpl == $this->_templates['innerTpl']) ? 'innerTpl' : 'outerTpl';
             foreach ($ph as $k => $v) {
                 if ($k !== 'wf.wrapper') {
@@ -253,7 +253,7 @@ class Wayfinder
         }
 
         //Load row values into placholder array
-        $ph = array();
+        $ph = [];
         $ph['wf.wrapper'] = $useSub;
         $ph['wf.classes'] = $useClass;
         $ph['wf.classnames'] = $classNames;
@@ -285,7 +285,7 @@ class Wayfinder
         }
         //Debug
         if ($this->_config['debug']) {
-            $debugDocInfo = array();
+            $debugDocInfo = [];
             $debugDocInfo['template'] = $usedTemplate;
             foreach ($ph as $k => $v) {
                 $k = sprintf('[+%s+]', $k);
@@ -327,7 +327,7 @@ class Wayfinder
     //determine style class for current item being processed
     function setItemClass($classType, $docId = 0, $first = 0, $last = 0, $level = 0, $isFolder = 0, $type = 'document')
     {
-        $classNames = array();
+        $classNames = [];
         $class = &$this->_css;
         $config = &$this->_config;
 
@@ -434,7 +434,7 @@ class Wayfinder
     {
         global $modx;
 
-        $ids = array();
+        $ids = [];
 
         if (!$this->_config['hideSubMenus']) {
             $ids = $modx->getChildIds(
@@ -467,14 +467,14 @@ class Wayfinder
         }
 
         if (!$ids) {
-            return array();
+            return [];
         }
 
-        $from = array();
+        $from = [];
         $from[] = '[+prefix+]site_content sc';
         $from[] = 'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id';
 
-        $where = array();
+        $where = [];
         $where[] = 'sc.published=1';
         $where[] = 'AND sc.deleted=0';
         if ($modx->isFrontend()) {
@@ -566,8 +566,8 @@ class Wayfinder
             $startLevel = count($modx->getParentIds($this->_config['id']));
             $startLevel = $startLevel ? $startLevel + 1 : 1;
         }
-        $resultIds = array();
-        $resourceArray = array();
+        $resultIds = [];
+        $resourceArray = [];
         //loop through the results
         while ($row = db()->getRow($result)) {
             $resultIds[] = $row['id'];
@@ -646,7 +646,7 @@ class Wayfinder
         }
         //Process the tvs
         if ($this->tvList && !empty($resultIds)) {
-            $tvValues = array();
+            $tvValues = [];
             //loop through all tvs and get their values for each document
             foreach ($this->tvList as $tvName) {
                 $tvValues = $this->array_merge_recursive($this->appendTV($tvName, $resultIds), $tvValues);
@@ -674,7 +674,7 @@ class Wayfinder
     {
         global $modx;
 
-        $resourceArray = array();
+        $resourceArray = [];
         foreach ($docIDs as $id) {
             $tv = $modx->getTemplateVarOutput($tvname, $id);
             $resourceArray["#{$id}"][$tvname] = $tv[$tvname];
@@ -701,7 +701,7 @@ class Wayfinder
         $default['rowTpl'] = '<li[+wf.id+][+wf.classes+]><a href="[+wf.link+]" title="[+wf.title+]" [+wf.attributes+]>[+wf.linktext+]</a>[+wf.wrapper+]</li>';
         $default['startItemTpl'] = '<h2[+wf.id+][+wf.classes+]>[+wf.linktext+]</h2>[+wf.wrapper+]';
 
-        $find_fields = array();
+        $find_fields = [];
 
         foreach ($this->_templates as $name => $string) {
             $fetched_tpl = $string ? $this->fetch($string) : false;
@@ -792,7 +792,7 @@ class Wayfinder
     function findTemplateVars($tpl)
     {
         preg_match_all('~\[\+([^:]*?)(:|\+\])~', $tpl, $matches);
-        $tvnames = array();
+        $tvnames = [];
         foreach ($matches[1] as $tv) {
             if (strpos(strtolower($tv), 'phx') === 0) continue;
             if (strpos(strtolower($tv), 'wf.') === 0) continue;
@@ -803,7 +803,7 @@ class Wayfinder
             return array_unique($tvnames);
         }
 
-        return array();
+        return [];
     }
 
     function addDebugInfo($group, $groupkey, $header, $message, $info)

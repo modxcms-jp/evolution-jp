@@ -21,7 +21,7 @@ foreach ($tplTVs as $i => $tplInfo) {
     }
 
     $name = $tplInfo['name'];
-    $f = array();
+    $f = [];
     $f['type'] = $tplInfo['input_type'];
     $f['caption'] = $tplInfo['caption'];
     $f['description'] = $tplInfo['description'];

@@ -3,10 +3,10 @@ function getTmplvars($docid, $template_id, $docgrp)
 {
 
     if (!$template_id) {
-        return array();
+        return [];
     }
 
-    $tmplVars = array();
+    $tmplVars = [];
 
     $rs = db()->select(
         array(
@@ -41,7 +41,7 @@ function getTmplvars($docid, $template_id, $docgrp)
     );
 
     if (!db()->count($rs)) {
-        return array();
+        return [];
     }
     while ($row = db()->getRow($rs)) {
         $tmplVars['tv' . $row['id']] = $row;
@@ -127,7 +127,7 @@ function sectionContent()
 
 function sectionTV($tpl, $fields)
 {
-    $ph = array();
+    $ph = [];
     $ph['header'] = lang('settings_templvars');
     $ph['body'] = $fields;
     return parseText($tpl, $ph);
@@ -139,7 +139,7 @@ function rte_fields()
     if ($rte_fields !== null) {
         return $rte_fields;
     }
-    $rte_fields = array();
+    $rte_fields = [];
     if (config('use_editor') == 1 && doc('richtext') == 1) {
         $rte_fields[] = 'ta';
     }
@@ -161,7 +161,7 @@ function getGroups($docid)
         , '[+prefix+]document_groups'
         , sprintf("document='%s'", $docid)
     );
-    $groups = array();
+    $groups = [];
     while ($row = db()->getRow($rs)) {
         $groups[] = sprintf('%s,%s', $row['document_group'], $row['id']);
     }
@@ -186,7 +186,7 @@ function getUDGroups($id)
     $inputAttributes['name'] = 'docgroups[]';
     $inputAttributes['onclick'] = 'makePublic(false)';
 
-    $permissions = array(); // New Permissions array list (this contains the HTML)
+    $permissions = []; // New Permissions array list (this contains the HTML)
     $permissions_yes = 0; // count permissions the current mgr user has
     $permissions_no = 0; // count permissions the current mgr user doesn't have
 
@@ -220,7 +220,7 @@ function getUDGroups($id)
             $groupsarray = getGroups($docid);
         }
     } else {
-        $groupsarray = postv('docgroups', array());
+        $groupsarray = postv('docgroups', []);
     }
     // Loop through the permissions list
     while ($row = db()->getRow($rs)) {
@@ -252,7 +252,7 @@ function getUDGroups($id)
         $inputAttributes['value'] = $inputValue;
 
         // Create attribute string list
-        $inputString = array();
+        $inputString = [];
         foreach ($inputAttributes as $k => $v) {
             $inputString[] = sprintf('%s="%s"', $k, $v);
         }
@@ -267,7 +267,7 @@ function getUDGroups($id)
         $permissions[] = "\t\t"
             . html_tag(
                 '<li>'
-                , array()
+                , []
                 , sprintf("<input %s />\n", implode(' ', $inputString))
                 . html_tag(
                     'label'
@@ -283,7 +283,7 @@ function getUDGroups($id)
 
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
     if (sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
-        return array();
+        return [];
     }
 
 // Add the "All Document Groups" item if we have rights in both contexts
@@ -292,7 +292,7 @@ function getUDGroups($id)
             $permissions
             , html_tag(
                 '<li>'
-                , array(),
+                , [],
                 html_tag('<input>', array(
                         'type' => 'checkbox',
                         'class' => 'checkbox',
@@ -503,7 +503,7 @@ function checkPermissions($id)
         }
         manager()->remove_locks('27');
         if (!evo()->checkPermissions($id)) {
-            $_ = array();
+            $_ = [];
             $_[] = '<br /><br /><div class="section">';
             $_[] = sprintf('<div class="sectionHeader">%s</div>', lang('access_permissions'));
             $_[] = '<div class="sectionBody">';
@@ -569,7 +569,7 @@ function getDocgrp()
 function db_value($id, $docgrp)
 {
     if ($id === '0') {
-        return array();
+        return [];
     }
 
     $rs = db()->select(
@@ -697,7 +697,7 @@ function getAliasAtNew()
 
 function getJScripts($docid)
 {
-    $ph = array();
+    $ph = [];
     $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
     $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
     $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?Type=files');
@@ -799,7 +799,7 @@ function collect_tab_tv_ph()
 if (!function_exists('collect_tab_settings_ph')) {
     function collect_tab_settings_ph($docid)
     {
-        $ph = array();
+        $ph = [];
         $ph['_lang_settings_page_settings'] = lang('settings_page_settings');
         $ph['fieldPublished'] = evo()->doc->mode === 'normal' ? fieldPublished() : '';
         $ph['fieldPub_date'] = fieldPub_date($docid);

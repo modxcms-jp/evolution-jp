@@ -128,7 +128,7 @@ function eForm($modx, $params)
     global $debugText;
     global $formats, $fields, $efPostBack, $_dfnMaxlength;
 
-    $fields = array(); //reset fields array - needed in case of multiple forms
+    $fields = []; //reset fields array - needed in case of multiple forms
 
 // define some variables used as array index
     $_dfnMaxlength = 6;
@@ -259,7 +259,7 @@ function eForm($modx, $params)
         $disclaimer = (($tmp = efLoadTemplate($disclaimer)) !== false) ? $tmp : '';
 
         //error message containers
-        $vMsg = $rMsg = $rClass = array();
+        $vMsg = $rMsg = $rClass = [];
 
         # get user post back data
         foreach ($_POST as $name => $value) {
@@ -793,7 +793,7 @@ function eForm($modx, $params)
 function formMerge($docText, $docFields, $vClasses = '')
 {
     global $formats;
-    static $lastitems = array();
+    static $lastitems = [];
 
     if (!$docText) {
         return '';
@@ -934,8 +934,8 @@ function eFormParseTemplate($tpl, $isDebug = false)
     global $formats, $optionsName, $_lang, $debugText, $fields, $validFormId;
     global $efPostBack, $_dfnMaxlength;
 
-    $formats = array();  //clear formats so values don't persist through multiple snippet calls
-    $labels = array();
+    $formats = [];  //clear formats so values don't persist through multiple snippet calls
+    $labels = [];
 
     $regExpr = "#(<label[^>]*?>)(.*?)</label>#si";
     preg_match_all($regExpr, $tpl, $matches);
@@ -1025,7 +1025,7 @@ function eFormParseTemplate($tpl, $isDebug = false)
                 $select = $newSelect = $matches[0];
                 //get separate option tags and split them up
                 preg_match_all("#(<option [^>]*?>)#si", $matches[1], $matches);
-                $validValues = array();
+                $validValues = [];
                 foreach ($matches[1] as $option) {
                     $attr = attr2array($option);
 //* debug */ print __LINE__.': <pre>'.print_r($attr,true) .'</pre><br />';
@@ -1229,7 +1229,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
             case "#SELECT":    //validates against a list of values from the cms database
                 #cache all this
                 if (!isset($vlist)) {
-                    $rt = array();
+                    $rt = [];
                     $param = str_replace('{DBASE}', db()->get('dbase'), $param);
                     $param = str_replace('{PREFIX}', db()->get('table_prefix'), $param);
                     //added in 1.4

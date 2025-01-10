@@ -74,7 +74,7 @@ $extenders[] = "summary";
 if (!function_exists("atom_placeholders")) {
     function atom_placeholders($placeholders)
     {
-        $field = array();
+        $field = [];
         foreach ($placeholders as $name => $value) {
             $field["atom_escaped_" . $name] = htmlspecialchars(html_entity_decode($value));
         }

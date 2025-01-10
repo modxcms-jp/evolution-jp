@@ -48,7 +48,7 @@ $rs = db()->select($f, $from, 'plugs.disabled=0', 'sysevt.name,pe.priority');
 $insideUl = 0;
 $preEvt = '';
 $evtLists = '';
-$sortables = array();
+$sortables = [];
 while ($row = db()->getRow($rs)) {
     if ($preEvt !== $row['evtid']) {
         $sortables[] = $row['evtid'];

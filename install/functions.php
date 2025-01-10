@@ -35,7 +35,7 @@ function includeLang($lang_name, $dir = 'langs/')
 {
     global $_lang;
 
-    $_lang = array();
+    $_lang = [];
     $lang_name = str_replace('\\', '/', $lang_name ?? '');
     if (strpos($lang_name, '/') !== false) {
         require_once(MODX_SETUP_PATH . 'langs/english.inc.php');
@@ -137,7 +137,7 @@ function compare_check($params)
 
 function parse_docblock($fullpath)
 {
-    $params = array();
+    $params = [];
     if (!is_readable($fullpath)) {
         return false;
     }
@@ -203,7 +203,7 @@ function parse_docblock($fullpath)
 
 function clean_up($sqlParser)
 {
-    $ids = array();
+    $ids = [];
 
     $table_prefix = $sqlParser->prefix;
 
@@ -277,7 +277,7 @@ function clean_up($sqlParser)
 function propUpdate($new, $old)
 {
     // Split properties up into arrays
-    $returnArr = array();
+    $returnArr = [];
     $newArr = explode('&', $new);
     $oldArr = explode('&', $old);
 
@@ -393,11 +393,11 @@ function isUpGradeable()
 function parseProperties($propertyString)
 {
     if (!$propertyString) {
-        return array();
+        return [];
     }
 
     $tmpParams = explode('&', $propertyString);
-    $parameter = array();
+    $parameter = [];
     foreach ($tmpParams as $xValue) {
         if (strpos($xValue, '=', 0)) {
             $pTmp = explode('=', $xValue);
@@ -412,7 +412,7 @@ function parseProperties($propertyString)
     return $parameter;
 }
 
-function result($status = 'ok', $ph = array())
+function result($status = 'ok', $ph = [])
 {
     global $modx;
 
@@ -431,7 +431,7 @@ function result($status = 'ok', $ph = array())
 
 function get_langs()
 {
-    $langs = array();
+    $langs = [];
     foreach (glob('langs/*.inc.php') as $path) {
         if (substr($path, 6, 1) === '.') continue;
         $langs[] = substr($path, 6, strpos($path, '.inc.php') - 6);
@@ -491,7 +491,7 @@ function install_sessionCheck()
     return true;
 }
 
-function getLast($array = array())
+function getLast($array = [])
 {
     $array = (array)$array;
     return end($array);

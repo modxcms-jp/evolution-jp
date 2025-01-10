@@ -132,7 +132,7 @@ function blockedmode($user)
 
 function saveOptions()
 {
-    $option = array();
+    $option = [];
     $option[] = html_tag(
         'option'
         , array(

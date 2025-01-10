@@ -152,7 +152,7 @@ if (evo()->hasPermission('settings')) {
 }
 
 // setup modules
-$modulemenu = array();
+$modulemenu = [];
 if (evo()->hasPermission('exec_module')) {
     // Each module
     if ($_SESSION['mgrRole'] != 1) {
@@ -204,7 +204,7 @@ if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
 // load template file
 global $tpl;
 // invoke event OnManagerWelcomePrerender
-$modx->event->vars = array();
+$modx->event->vars = [];
 $modx->event->vars['tpl'] = &$tpl;
 $evtOut = evo()->invokeEvent('OnManagerWelcomePrerender');
 if (is_array($evtOut)) {
@@ -221,7 +221,7 @@ if (is_array($evtOut)) {
 
 // invoke event OnManagerWelcomeRender
 $evtOut = evo()->invokeEvent('OnManagerWelcomeRender');
-$modx->event->vars = array();
+$modx->event->vars = [];
 if (is_array($evtOut)) {
     $output = implode('', $evtOut);
     $modx->setPlaceholder('OnManagerWelcomeRender', $output);

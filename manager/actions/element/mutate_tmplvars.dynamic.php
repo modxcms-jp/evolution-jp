@@ -34,7 +34,7 @@ if (!is_numeric($id)) {
 }
 
 global $content;
-$content = array();
+$content = [];
 if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_tmplvars', "id={$id}");
     $total = db()->count($rs);
@@ -67,7 +67,7 @@ if (is_array($evtOut)) {
 $form_elements = '<textarea name="elements" maxlength="65535" style="width:400px;height:110px;" class="inputBox phptextarea">' . hsc(entity('elements')) . "</textarea>\n";
 
 $tooltip_tpl = '<img src="[+src+]" title="[+title+]" alt="[+alt+]" class="tooltip" onclick="alert(this.alt);" style="cursor:help" />';
-$ph = array();
+$ph = [];
 $ph['src'] = $_style['icons_tooltip_over'];
 $ph['title'] = $_lang['tmplvars_input_option_msg'];
 $ph['alt'] = $_lang['tmplvars_input_option_msg'];
@@ -359,7 +359,7 @@ function entity($key, $default = null) {
                         <td align="left">
                             <select id="type" name="type" size="1" class="inputBox" style="width:300px;">
                                 <?php
-                                $option = array();
+                                $option = [];
                                 $option['custom_tv'] = 'Custom Form';
                                 $option['text'] = 'Text';
                                 $option['textarea'] = 'Textarea';
@@ -595,7 +595,7 @@ function entity($key, $default = null) {
             <!-- Access Permissions -->
             <?php
             if ($modx->config['use_udperms'] == 1) {
-                $groupsarray = array();
+                $groupsarray = [];
 
                 // fetch permissions for the variable
                 $rs = db()->select('documentgroup', '[+prefix+]site_tmplvar_access', "tmplvarid='{$id}'");

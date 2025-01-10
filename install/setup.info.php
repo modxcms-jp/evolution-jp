@@ -1,7 +1,7 @@
 <?php
 
 // setup Template template files - array : name, description, type - 0:file or 1:content, parameters, category
-$tplTemplates = array();
+$tplTemplates = [];
 $templatePath = MODX_BASE_PATH . 'assets/templates/';
 if (!sessionv('is_upgradeable') && is_dir($templatePath) && is_readable($templatePath)) {
     $files = collectTpls($templatePath);
@@ -26,7 +26,7 @@ if (!sessionv('is_upgradeable') && is_dir($templatePath) && is_readable($templat
 }
 
 // setup Template Variable template files
-$tplTVs = array();
+$tplTVs = [];
 $tvPath = MODX_BASE_PATH . 'assets/tvs/';
 if (!sessionv('is_upgradeable') && is_dir($tvPath) && is_readable($tvPath)) {
     $files = collectTpls($tvPath);
@@ -57,7 +57,7 @@ if (!sessionv('is_upgradeable') && is_dir($tvPath) && is_readable($tvPath)) {
 }
 
 // setup chunks template files - array : name, description, type - 0:file or 1:content, file or content
-$tplChunks = array();
+$tplChunks = [];
 $chunkPath = MODX_BASE_PATH . 'assets/chunks/';
 if (is_dir($chunkPath) && is_readable($chunkPath)) {
     $files = collectTpls($chunkPath);
@@ -82,7 +82,7 @@ if (is_dir($chunkPath) && is_readable($chunkPath)) {
 }
 
 // setup snippets template files - array : name, description, type - 0:file or 1:content, file or content,properties
-$tplSnippets = array();
+$tplSnippets = [];
 $snippetPath = MODX_BASE_PATH . 'assets/snippets/';
 if (is_dir($snippetPath) && is_readable($snippetPath)) {
     $files = collectTpls($snippetPath);
@@ -109,7 +109,7 @@ if (is_dir($snippetPath) && is_readable($snippetPath)) {
 }
 
 // setup plugins template files - array : name, description, type - 0:file or 1:content, file or content,properties
-$tplPlugins = array();
+$tplPlugins = [];
 $pluginPath = MODX_BASE_PATH . 'assets/plugins/';
 if (is_dir($pluginPath) && is_readable($pluginPath)) {
     $files = collectTpls($pluginPath);
@@ -145,7 +145,7 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
 }
 
 // setup modules - array : name, description, type - 0:file or 1:content, file or content,properties, guid,enable_sharedparams
-$tplModules = array();
+$tplModules = [];
 $modulePath = MODX_BASE_PATH . 'assets/modules/';
 if (is_dir($modulePath) && is_readable($modulePath)) {
     $files = collectTpls($modulePath);
@@ -181,7 +181,7 @@ function get_installset($params)
     if (array_key_exists('installset', $params)) {
         return preg_split("/\s*,\s*/", $params['installset']);
     }
-    return array();
+    return [];
 }
 
 function add_version_strings($params)

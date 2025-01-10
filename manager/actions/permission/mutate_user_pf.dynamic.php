@@ -23,7 +23,7 @@ $userdata = db()->getRow($rs);
 
 // get user settings
 $rs = db()->select('*', '[+prefix+]user_settings', "user='{$userid}'");
-$usersettings = array();
+$usersettings = [];
 while ($row = db()->getRow($rs)) {
     $usersettings[$row['setting_name']] = $row['setting_value'];
 }
@@ -67,7 +67,7 @@ if ($modx->manager->hasFormValues()) {
 }
 
 // include the country list language file
-$_country_lang = array();
+$_country_lang = [];
 $lcdir_path = MODX_CORE_PATH . 'lang/country/';
 include_once($lcdir_path . 'english_country.inc.php');
 $lang_path = sprintf($lcdir_path . '%s_country.inc.php', $modx->config['manager_language']);

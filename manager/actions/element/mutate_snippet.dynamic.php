@@ -38,7 +38,7 @@ if ($limit > 1) {
 }
 // end check for lock
 
-$content = array();
+$content = [];
 if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_snippets', "id='{$id}'");
     $limit = db()->count($rs);

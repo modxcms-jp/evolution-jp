@@ -60,7 +60,7 @@ if (!function_exists("json_parameters")) {
     function json_parameters($placeholders)
     {
         global $modx;
-        $jsonArr = array();
+        $jsonArr = [];
         foreach ($placeholders as $name => $value) {
             $value = addslashes(htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
             if ($name == 'date' && !preg_match('@^[0-9]+$@', $value))

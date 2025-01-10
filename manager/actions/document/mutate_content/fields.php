@@ -255,7 +255,7 @@ function fieldMenuindex()
 
 function menuindex()
 {
-    $ph = array();
+    $ph = [];
     $ph['menuindex'] = input_text_tag(
         array(
             'name' => 'menuindex',
@@ -318,10 +318,10 @@ function fieldsTV()
         return '';
     }
 
-    $form_v = $_POST ? $_POST : array();
+    $form_v = $_POST ? $_POST : [];
     $i = 0;
-    $output = array();
-    $hidden = array();
+    $output = [];
+    $hidden = [];
     $output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
     $splitLine = renderSplit();
     foreach ($tmplVars as $tv) {
@@ -360,7 +360,7 @@ function fieldsTV()
             );
             $hidden[] = $formElement;
         } else {
-            $ph = array();
+            $ph = [];
             $ph['caption'] = evo()->hsc($tv['caption']);
             $ph['description'] = $tv['description'];
             $ph['zindex'] = ($tv['type'] === 'date') ? 'z-index:100;' : '';
@@ -692,7 +692,7 @@ function fieldContentType()
         return '';
     }
     $ct = explode(',', config('custom_contenttype'));
-    $option = array();
+    $option = [];
     foreach ($ct as $value) {
         $option[] = html_tag(
             '<option>',

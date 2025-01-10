@@ -218,7 +218,7 @@ function getArray($element_name, $action, $nameField = 'name')
         return $_lang['no_results'];
     }
 
-    $rows = array();
+    $rows = [];
     while ($row = db()->getRow($rs)) {
         $rows[$row['id']] = $row;
     }
@@ -229,7 +229,7 @@ function createCategoryList()
 {
     global $modx, $_lang;
 
-    $displayInfo = array();
+    $displayInfo = [];
     $hasPermission = 0;
     if (evo()->hasPermission('edit_plugin') || evo()->hasPermission('new_plugin')) {
         $displayInfo['plugin'] = array('table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']);
@@ -278,7 +278,7 @@ function createCategoryList()
     }
 
     if ($hasPermission) {
-        $finalInfo = array();
+        $finalInfo = [];
 
         foreach ($displayInfo as $n => $v) {
             $tbl_elm = evo()->getFullTableName($v['table']);
@@ -329,7 +329,7 @@ function createCategoryList()
                 }
                 $insideUl = 1;
             }
-            $ph = array();
+            $ph = [];
             if (array_key_exists('disabled', $v) && $v['disabled']) {
                 $ph['class'] = ' class="disabledPlugin"';
             }

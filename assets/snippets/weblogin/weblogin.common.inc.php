@@ -8,9 +8,9 @@
 // extract declarations
 function webLoginExtractDeclarations(&$html)
 {
-    $declare = array();
+    $declare = [];
     if (strpos($html, '<!-- #declare:') === false) return $declare;
-    $matches = array();
+    $matches = [];
     if (preg_match_all("/<\!-- \#declare\:(.*)[^-->]?-->/i", $html, $matches)) {
         for ($i = 0; $i < count($matches[1]); $i++) {
             $tag = explode(' ', $matches[1][$i]);
@@ -25,7 +25,7 @@ function webLoginExtractDeclarations(&$html)
 }
 
 // show javascript alert
-function webLoginAlert($msg, $ph = array())
+function webLoginAlert($msg, $ph = [])
 {
     global $modx;
     return sprintf(
@@ -67,11 +67,11 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
     return true;
 }
 
-function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix = false)
+function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = false)
 {
     global $modx;
     $array_get = $_GET;
-    $urlstring = array();
+    $urlstring = [];
 
     unset($array_get['id'], $array_get['q'], $array_get['webloginmode']);
 
@@ -93,7 +93,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = array(), $suffix 
     return $modx->makeUrl($docid, $alias, $url, 'full');
 }
 
-function fmplang($key, $ph = array())
+function fmplang($key, $ph = [])
 {
     $_lang = array(
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',

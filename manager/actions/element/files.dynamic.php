@@ -52,7 +52,7 @@ if (!is_readable($startpath)) {
             }
 
             if (is_writable($startpath)) {
-                $ph = array();
+                $ph = [];
                 $_ = '';
                 if (anyv('mode') === 'save') {
                     $_ = $modx->parseText(
@@ -319,8 +319,8 @@ if (!is_readable($startpath)) {
         $filesize = 0;
         $files = 0;
         $folders = 0;
-        $dirs_array = array();
-        $files_array = array();
+        $dirs_array = [];
+        $files_array = [];
         if (strlen(MODX_BASE_PATH) < strlen(config('filemanager_path'))) {
             $len--;
         }
@@ -922,7 +922,7 @@ function webstart_path()
 function proteted_path()
 {
     if (sessionv('mgrRole') == 1) {
-        return array();
+        return [];
     }
 
     $proteted_path[] = array(
@@ -960,8 +960,8 @@ function proteted_path()
 function uploadablefiles()
 {
     return array_merge(
-        explode(',', config('upload_files', array())),
-        explode(',', config('upload_images', array())),
-        explode(',', config('upload_media', array()))
+        explode(',', config('upload_files', [])),
+        explode(',', config('upload_images', [])),
+        explode(',', config('upload_media', []))
     );
 }

@@ -582,7 +582,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
 
                         // get selected events
                         if (is_numeric($id) && $id > 0) {
-                            $evts = array();
+                            $evts = [];
                             $rs = db()->select('*', '[+prefix+]site_plugin_events', "pluginid='{$id}'");
                             while ($row = db()->getRow($rs)) {
                                 $evts[] = $row['evtid'];
@@ -591,12 +591,12 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                             if (isset($pluginObject->sysevents) && is_array($pluginObject->sysevents)) {
                                 $evts = $pluginObject->sysevents;
                             } else {
-                                $evts = array();
+                                $evts = [];
                             }
                         }
 
                         // display system events
-                        $evtnames = array();
+                        $evtnames = [];
                         $services = array(
                             "Parser Service Events",
                             "Manager Access Events",
@@ -649,7 +649,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                         function echoEventRows(&$evtnames)
                         {
                             echo "<tr><td>" . join("</td><td>", $evtnames) . "</td></tr>";
-                            $evtnames = array();
+                            $evtnames = [];
                         }
 
                         ?>

@@ -2,7 +2,7 @@
 <div class="sectionHeader"><?= lang('access_permissions') ?></div>
 <div class="sectionBody">
     <?php
-    $groupsarray = array();
+    $groupsarray = [];
     if (evo()->input_get('a') == 12) { // only do this bit if the user is being edited
         $rs = db()->select(
             '*'
@@ -28,7 +28,7 @@
         $tpl = '<label><input type="checkbox" name="user_groups[]" value="[+id+]" [+checked+] />[+name+]</label><br />';
         while ($row = db()->getRow($rs)) {
             $src = $tpl;
-            $ph = array();
+            $ph = [];
             $ph['id'] = $row['id'];
             $ph['checked'] = in_array($row['id'], $groupsarray) ? 'checked="checked"' : '';
             $ph['name'] = $row['name'];

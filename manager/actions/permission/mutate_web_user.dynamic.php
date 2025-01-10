@@ -62,7 +62,7 @@ if (anyv('a') == 88) {
 
     // get user settings
     $rs = db()->select('*', $tbl_web_user_settings, "webuser='{$user}'");
-    $usersettings = array();
+    $usersettings = [];
     while ($row = db()->getRow($rs)) {
         $usersettings[$row['setting_name']] = $row['setting_value'];
     }
@@ -82,9 +82,9 @@ if (anyv('a') == 88) {
     $usernamedata = db()->getRow($rs);
     $_SESSION['itemname'] = $usernamedata['username'];
 } else {
-    $userdata = array();
-    $usersettings = array();
-    $usernamedata = array();
+    $userdata = [];
+    $usersettings = [];
+    $usernamedata = [];
     $_SESSION['itemname'] = "New web user";
 }
 
@@ -103,7 +103,7 @@ if ($modx->manager->hasFormValues()) {
 }
 
 // include the country list language file
-$_country_lang = array();
+$_country_lang = [];
 $base_path = $modx->config['base_path'];
 if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php")) {
     include_once(MODX_CORE_PATH . "lang/country/{$manager_language}_country.inc.php");
@@ -607,7 +607,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 <?php
                 if ($modx->config['use_udperms'] == 1)
                 {
-                $groupsarray = array();
+                $groupsarray = [];
 
                 if (getv('a') == 88) { // only do this bit if the user is being edited
                     $uid = intval(getv('id'));

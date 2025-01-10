@@ -41,7 +41,7 @@ if ($isPWDActivate == 1) {
         return;
     }
     // activate new password
-    $f = array();
+    $f = [];
     $f['password'] = md5($newpwd);
     $f['cachepwd'] = '';
     $rs = db()->update($f, $tbl_web_users, "id='{$uid}'");
@@ -94,7 +94,7 @@ if ($isPWDReminder == 1) {
         $row = db()->getRow($ds);
         $uid = $row['id'];
         //save new password
-        $f = array();
+        $f = [];
         $requestedon = time();
         $f['cachepwd'] = "{$newpwd}|{$token}|{$requestedon}";
         db()->update($f, $tbl_web_users, "id='{$uid}'");
@@ -104,7 +104,7 @@ if ($isPWDReminder == 1) {
         $url = $modx->makeURL($modx->documentIdentifier, '', "webloginmode=actp&uid={$uid}&token={$token}", 'full');
         $modx->config['xhtml_urls'] = $xhtmlUrlSetting;
         // replace placeholders and send email
-        $ph = array();
+        $ph = [];
         $ph['uid'] = $uid;
         $ph['username'] = $row['username'];
         $ph['password'] = $newpwd;
@@ -151,7 +151,7 @@ if ($isLogOut == 1) {
     $username = $_SESSION['webShortname'];
 
     // invoke OnBeforeWebLogout event
-    $v = array();
+    $v = [];
     $v['userid'] = $internalKey;
     $v['username'] = $username;
     evo()->invokeEvent('OnBeforeWebLogout', $v);
@@ -179,7 +179,7 @@ if ($isLogOut == 1) {
     }
 
     // invoke OnWebLogout event
-    $v = array();
+    $v = [];
     $v['userid'] = $internalKey;
     $v['username'] = $username;
     evo()->invokeEvent('OnWebLogout', $v);
@@ -199,7 +199,7 @@ $captcha_code = postv('captcha_code', '');
 $rememberme = postv('rememberme');
 
 // invoke OnBeforeWebLogin event
-$v = array();
+$v = [];
 $v['username'] = $username;
 $v['userpassword'] = $givenPassword;
 $v['rememberme'] = $rememberme;
@@ -249,7 +249,7 @@ if ($failedlogins >= $modx->config['failed_login_attempts'] && $blockeduntildate
 
 if ($failedlogins >= $modx->config['failed_login_attempts'] && $blockeduntildate < time()) {
     // blocked due to number of login errors, but get to try again
-    $f = array();
+    $f = [];
     $f['failedlogincount'] = '0';
     $f['blockeduntil'] = time() - 1;
     $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
@@ -328,13 +328,13 @@ if (isset($newloginerror) && $newloginerror == 1) {
     $failedlogins += $newloginerror;
     if ($failedlogins >= $modx->config['failed_login_attempts']) //increment the failed login counter, and block!
     {
-        $f = array();
+        $f = [];
         $f['failedlogincount'] = $failedlogins;
         $f['blocked'] = 1;
         $f['blockeduntil'] = time() + ($modx->config['blocked_minutes'] * 60);
     } else //increment the failed login counter
     {
-        $f = array();
+        $f = [];
         $f['failedlogincount'] = $failedlogins;
     }
     $ds = db()->update($f, $tbl_web_user_attributes, "internalKey='{$internalKey}'");
@@ -370,7 +370,7 @@ $from = array('[+prefix+]web_groups ug');
 $from[] = 'INNER JOIN [+prefix+]webgroup_access uga ON uga.webgroup=ug.webgroup';
 $ds = db()->select('uga.documentgroup', $from, "ug.webuser='{$internalKey}'");
 $i = 0;
-$dg = array();
+$dg = [];
 while ($row = db()->getRow($ds, 'num')) {
     $i++;
     $dg[$i] = $row[0];
