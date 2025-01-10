@@ -4332,50 +4332,73 @@ class DocumentParser
     function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
     {
         global $modx, $_lc;
-
+    
         if (stripos($format, '%a') !== false) {
             $modx->loadLexicon('locale');
         }
-
+    
         if (isset($_lc['days.short'])) {
             $a = explode(',', $_lc['days.short']);
         } else {
             $a = explode(',', 'Sun, Mon, Tue, Wed, Thu, Fri, Sat');
         }
         if (isset($_lc['days.wide'])) {
-            $A = explode(',', $_lc['days.short']);
+            $A = explode(',', $_lc['days.wide']);
         } else {
             $A = explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
         }
-        $w = strftime('%w', $timestamp);
-        $p = ['am' => 'AM', 'pm' => 'PM'];
-        $P = ['am' => 'am', 'pm' => 'pm'];
-        $ampm = (strftime('%H', $timestamp) < 12) ? 'am' : 'pm';
+    
         if ($timestamp === '') {
             return '';
         }
+    
+        $date = new DateTime();
+        $date->setTimestamp($timestamp);
+    
+        $w = $date->format('w');
+        $ampm = ($date->format('H') < 12) ? 'am' : 'pm';
+        $p = ['am' => 'AM', 'pm' => 'PM'];
+        $P = ['am' => 'am', 'pm' => 'pm'];
+    
         if (strpos(PHP_OS, 'WIN') === 0) {
             $format = str_replace('%-', '%#', $format);
         }
-        $pieces = preg_split('@(%[\-#]?[a-zA-Z%])@', $format, -1, PREG_SPLIT_DELIM_CAPTURE);
-
-        $str = '';
-        foreach ($pieces as $v) {
-            if ($v === '%a') {
-                $str .= $a[$w];
-            } elseif ($v === '%A') {
-                $str .= $A[$w];
-            } elseif ($v === '%p') {
-                $str .= $p[$ampm];
-            } elseif ($v === '%P') {
-                $str .= $P[$ampm];
-            } elseif (strpos($v, '%') !== false) {
-                $str .= strftime($v, $timestamp);
-            } else {
-                $str .= $v;
-            }
-        }
-        return $str;
+    
+        $replacements = [
+            '%a' => $a[$w],
+            '%A' => $A[$w],
+            '%p' => $p[$ampm],
+            '%P' => $P[$ampm],
+            '%Y' => $date->format('Y'),
+            '%y' => $date->format('y'),
+            '%m' => $date->format('m'),
+            '%B' => $date->format('F'),
+            '%b' => $date->format('M'),
+            '%d' => $date->format('d'),
+            '%e' => $date->format('j'),
+            '%H' => $date->format('H'),
+            '%I' => $date->format('h'),
+            '%M' => $date->format('i'),
+            '%S' => $date->format('s'),
+            '%w' => $date->format('w'),
+            '%j' => $date->format('z'),
+            '%U' => $date->format('W'),
+            '%W' => $date->format('W'),
+            '%C' => floor($date->format('Y') / 100),
+            '%u' => $date->format('N'),
+            '%V' => $date->format('W'),
+            '%z' => $date->format('O'),
+            '%Z' => $date->format('T'),
+            '%G' => $date->format('o'),
+            '%g' => $date->format('y'),
+            '%c' => $date->format('c'),
+            '%x' => $date->format('Y-m-d'),
+            '%X' => $date->format('H:i:s'),
+            '%%' => '%',
+            // 必要に応じて他のフォーマットも追加
+        ];
+    
+        return strtr($format, $replacements);
     }
 
     #::::::::::::::::::::::::::::::::::::::::
