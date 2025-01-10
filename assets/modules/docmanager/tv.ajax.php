@@ -389,7 +389,7 @@ function ParseIntputOptions($v)
         return explode('||', $v);
     }
 
-    $a = array();
+    $a = [];
     while ($cols = db()->getRow($v, 'num')) {
         $a[] = $cols;
     }

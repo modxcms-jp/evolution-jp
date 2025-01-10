@@ -33,7 +33,7 @@ class TinyMCE
         global $modx, $_lang;
         $params = $this->params;
         $mce_path = $params['mce_path'];
-        $option = array();
+        $option = [];
 
         $skin_dir = $mce_path . "tiny_mce/themes/advanced/skins/";
         switch ($modx->manager->action) {
@@ -88,11 +88,11 @@ class TinyMCE
         global $modx, $_lang, $usersettings, $settings;
         $params = &$this->params;
         $mce_path = $params['mce_path'];
-        $ph = array();
+        $ph = [];
 
         switch ($modx->manager->action) {
             case 11:
-                $config = array();
+                $config = [];
                 break;
             case 12:
             case 74:

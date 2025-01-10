@@ -172,7 +172,7 @@ class DocManagerBackend
         if (count($pids) <= 0) {
             $updateError .= $this->dm->lang['DM_tv_no_docs'] . '<br />';
         } else {
-            $tmplVars = array();
+            $tmplVars = [];
             foreach ($_POST as $key => $value) {
                 if (strpos($key, 'update_tv_') !== 0 || $value !== 'yes') {
                     continue;
@@ -198,7 +198,7 @@ class DocManagerBackend
                     $tmplvar = postv("tv" . $row['id']);
                 } else {
                     if (is_array(postv("tv" . $tvKeyName))) {
-                        $feature_insert = array();
+                        $feature_insert = [];
                         $lst = postv("tv" . $row['id']);
                         foreach ($lst as $feature_item) {
                             $feature_insert[count($feature_insert)] = $feature_item;
@@ -428,7 +428,7 @@ class DocManagerBackend
         }
 
         /* document date settings */
-        $dateval = array();
+        $dateval = [];
 
         if (postv('pubdate') != '') {
             $dateval['pub_date'] = evo()->toTimeStamp(postv('pubdate'));
@@ -444,7 +444,7 @@ class DocManagerBackend
         }
 
         /* document author settings */
-        $authorval = array();
+        $authorval = [];
         if (postv('author_createdby') <> 0) {
             $authorval['createdby'] = (int)postv('author_createdby');
         }
@@ -499,7 +499,7 @@ class DocManagerBackend
     function processRange($pids, $column, $returnval = 1)
     {
         $tbl_site_content = evo()->getFullTableName('site_content');
-        $values = array();
+        $values = [];
         $error = '';
 
         if (trim($pids) <> '') {
@@ -596,13 +596,13 @@ class DocManagerBackend
         return $results;
     }
 
-    function getTemplateVarIds($tvNames = array(), $documentId, $ignoreList = array())
+    function getTemplateVarIds($tvNames = [], $documentId, $ignoreList = [])
     {
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName("site_tmplvar_contentvalues");
         if (count($tvNames) <= 0) {
-            return array();
+            return [];
         }
-        $output = array();
+        $output = [];
         foreach ($tvNames as $name => $value) {
             if (in_array($name, $ignoreList)) {
                 continue;

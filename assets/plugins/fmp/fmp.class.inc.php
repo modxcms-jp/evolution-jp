@@ -9,7 +9,7 @@ class ForgotManagerPassword
     function __construct()
     {
         $this->tpl_path = str_replace('\\', '/', __DIR__) . '/template/';
-        $this->errors = array();
+        $this->errors = [];
         $this->setLang();
     }
 
@@ -253,7 +253,7 @@ class ForgotManagerPassword
                 "setting_name='fmp_expire' AND unix_timestamp(setting_value)<%s", time()
             )
         );
-        $user_ids = array();
+        $user_ids = [];
         while ($row = db()->getRow($rs)) {
             $user_ids[] = $row['user'];
         }

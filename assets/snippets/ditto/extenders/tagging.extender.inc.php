@@ -204,8 +204,8 @@ if (!class_exists('tagging')) {
             $getTags = getv($dittoID . 'tags') ? trim(getv($dittoID . 'tags')) : false;
             // Get tags from the getv array
 
-            $tags1 = array();
-            $tags2 = array();
+            $tags1 = [];
+            $tags2 = [];
 
             if ($getTags !== false) {
                 $tags1 = explode($this->delimiter, $getTags);
@@ -215,7 +215,7 @@ if (!class_exists('tagging')) {
                 $tags2 = explode($this->delimiter, $givenTags);
             }
 
-            $kTags = array();
+            $kTags = [];
             $tags = array_merge($tags1, $tags2);
             foreach ($tags as $tag) {
                 if (!empty($tag)) {
@@ -270,7 +270,7 @@ if (!class_exists('tagging')) {
             return $this->tagLinks($this->combineTags($this->source, $resource, true), $this->delimiter, $this->landing, $this->format);
         }
 
-        function parseTagData($tagData, $names = array())
+        function parseTagData($tagData, $names = [])
         {
             return explode(',', $tagData);
         }
@@ -280,13 +280,13 @@ if (!class_exists('tagging')) {
             if ($this->callback !== false) {
                 return call_user_func_array($this->callback, array('tagData' => $tagData, 'resource' => $resource, 'array' => $array));
             }
-            $tags = array();
+            $tags = [];
             foreach ($tagData as $source) {
                 if (!empty($resource[$source])) {
                     $tags[] = $resource[$source];
                 }
             }
-            $kTags = array();
+            $kTags = [];
             $tags = explode($this->delimiter, implode($this->delimiter, $tags));
             foreach ($tags as $tag) {
                 if (!empty($tag)) {
@@ -330,7 +330,7 @@ if (!class_exists('tagging')) {
                     $output .= ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? $this->displayDelimiter : '';
                 }
             } else if ($format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $this->displayMode == 2) {
-                $tagList = array();
+                $tagList = [];
                 foreach ($tags as $tag) {
                     $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
                     $url = ditto::buildURL("tags={$tag}&start=0", $tagDocID);

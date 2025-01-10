@@ -49,7 +49,7 @@ class debug extends modxDebugConsole
     )
     {
         global $ditto_lang;
-        $tabs = array();
+        $tabs = [];
         if ($fields['db'] && $fields['tv']) {
             $fields = array_merge_recursive($ditto->fields, array('retrieved' => $fields));
         } else {
@@ -101,7 +101,7 @@ class debug extends modxDebugConsole
     function preparePrefetch($prefetch)
     {
         global $ditto_lang;
-        $ditto_IDs = array();
+        $ditto_IDs = [];
         if ($prefetch['dbg_IDs_pre']) {
             $k = sprintf('%s (%s)', $ditto_lang['ditto_IDs_all'], count($prefetch['dbg_IDs_pre']));
             $ditto_IDs[$k] = implode(',', $prefetch['dbg_IDs_pre']);
@@ -188,7 +188,7 @@ class debug extends modxDebugConsole
         }
         $output = '';
         if (is_array($orderBy['parsed']) && $orderBy['parsed']) {
-            $sort = array();
+            $sort = [];
             foreach ($orderBy['parsed'] as $key => $value) {
                 $sort[$key] = array($ditto_lang['sortBy'] => $value[0], $ditto_lang['sortDir'] => $value[1]);
             }
@@ -203,7 +203,7 @@ class debug extends modxDebugConsole
     // ---------------------------------------------------
     function prepareTemplates($templates)
     {
-        $displayTPLs = array();
+        $displayTPLs = [];
         foreach ($templates as $name => $value) {
             switch ($name) {
                 case 'base':

@@ -10,7 +10,7 @@
 class ditto
 {
     public $template, $resource, $format, $debug, $advSort, $sqlOrderBy, $customReset, $fields, $constantFields, $prefetch, $sortOrder, $customPlaceholdersMap;
-    public $tmpCache = array();
+    public $tmpCache = [];
 
     function __construct($format, $language, $debug)
     {
@@ -18,8 +18,8 @@ class ditto
         $GLOBALS['ditto_lang'] = $language;
         $this->prefetch = false;
         $this->advSort = false;
-        $this->sqlOrderBy = array();
-        $this->customReset = array();
+        $this->sqlOrderBy = [];
+        $this->customReset = [];
         $this->constantFields[] = array('db', 'tv');
         $this->constantFields['db'] = array(
             'id', 'type', 'contentType', 'pagetitle', 'longtitle',
@@ -35,13 +35,13 @@ class ditto
         $this->constantFields['tv'] = $this->getTVList();
         $GLOBALS['ditto_constantFields'] = $this->constantFields;
         $this->fields = array(
-            'display' => array(),
+            'display' => [],
             'backend' => array(
-                'tv' => array(),
+                'tv' => [],
                 'db' => array('id', 'published'))
         );
         $this->sortOrder = false;
-        $this->customPlaceholdersMap = array();
+        $this->customPlaceholdersMap = [];
         $this->template = new template();
 
         if ($debug !== null) {
@@ -184,7 +184,7 @@ class ditto
     function parseOrderBy($orderBy, $randomize)
     {
         if ($randomize != 0) return false;
-        $orderBy['sql'] = array();
+        $orderBy['sql'] = [];
 
         foreach ($orderBy['parsed'] as $item) {
             $this->addFields($item[0], 'backend');
@@ -253,7 +253,7 @@ class ditto
 
     public function parseFilters($filter_params = false, $cFilters = [], $pFilters = [], $globalDelimiter = ',', $localDelimiter = ':')
     {
-        $parsedFilters = array('basic' => array(), 'custom' => array());
+        $parsedFilters = array('basic' => [], 'custom' => []);
         $filters = explode($globalDelimiter, $filter_params);
         if ($filter_params) {
             foreach ($filters as $filter) {
@@ -292,7 +292,7 @@ class ditto
     // Render the document output
     // ---------------------------------------------------
 
-    function render($resource, $template, $removeChunk, $dateSource, $dateFormat, $ph = array(), $modifier_mode = 'normal', $x = 0)
+    function render($resource, $template, $removeChunk, $dateSource, $dateFormat, $ph = [], $modifier_mode = 'normal', $x = 0)
     {
         global $ditto_lang;
 
@@ -300,8 +300,8 @@ class ditto
             return $ditto_lang['resource_array_error'];
         }
 
-        $placeholders = array();
-        $contentVars = array();
+        $placeholders = [];
+        $contentVars = [];
         foreach ($resource as $name => $value) {
             $placeholders[$name] = $value;
             $contentVars['[*' . $name . '*]'] = $value;
@@ -563,7 +563,7 @@ class ditto
 
     function multiSort($resource, $orderBy)
     {
-        $sort_arr = array();
+        $sort_arr = [];
         foreach ($resource as $uniqid => $row) {
             foreach ($row as $key => $value) {
                 $sort_arr[$key][$uniqid] = $value;
@@ -605,7 +605,7 @@ class ditto
     )
     {
         if (($summarize == 0 && $summarize !== 'all') || (is_array($IDs) && !$IDs) || $IDs === false) {
-            return array();
+            return [];
         }
         // Get starting IDs;
         switch ($IDType) {
@@ -623,7 +623,7 @@ class ditto
         if ($this->advSort == false && $hideFolders == 0 && $showInMenuOnly == 0 && $myWhere == '' && $filter == false && $hidePrivate == 1 && $keywords == 0) {
             $this->prefetch = false;
             $documents = $this->getDocumentsIDs($documentIDs, $showPublishedOnly);
-            $documentIDs = array();
+            $documentIDs = [];
             if ($documents) {
                 foreach ($documents as $doc) {
                     $documentIDs[] = $doc['id'];
@@ -635,7 +635,7 @@ class ditto
         $this->prefetch = true;
 
         // Create where clause
-        $where = array();
+        $where = [];
         if ($hideFolders) {
             $where[] = 'isfolder = 0';
         }
@@ -705,7 +705,7 @@ class ditto
                 $resource = $filterObj->execute($resource, $filter);
             }
             if (!$resource) {
-                return array();
+                return [];
             }
             if ($this->advSort && !$randomize) {
                 $resource = $this->multiSort($resource, $orderBy);
@@ -719,14 +719,14 @@ class ditto
                 $resource = $this->userSort($resource, $orderBy);
             }
             $fields = array_intersect_key($this->fields['backend'], $this->fields['display']);
-            $readyFields = array();
+            $readyFields = [];
             foreach ($fields as $field) {
                 foreach ($field as $k => $v) {
                     $readyFields[$k] = $v;
                 }
             }
-            $processedIDs = array();
-            $keep = array();
+            $processedIDs = [];
+            $keep = [];
             foreach ($resource as $key => $value) {
                 $processedIDs[] = $value['id'];
                 $iKey = '#' . $value['id'];
@@ -758,7 +758,7 @@ class ditto
             return $processedIDs;
         }
 
-        return array();
+        return [];
     }
 
     private function unsort($docs, $ids)
@@ -767,7 +767,7 @@ class ditto
             $docs_tmp[$doc['id']] = $doc;
         }
         $ids = explode(',', $ids);
-        $rs = array();
+        $rs = [];
         foreach ($ids as $id) {
             $rs[] = $docs_tmp[$id];
         }
@@ -804,11 +804,11 @@ class ditto
     function getParentList()
     {
         $rs = db()->select('parent,id', '[+prefix+]site_content', 'deleted=0', 'parent, menuindex');
-        $kids = array();
+        $kids = [];
         while ($row = db()->getRow($rs)) {
             $kids[] = $row['parent'];
         }
-        $parents = array();
+        $parents = [];
         foreach ($kids as $parent) {
             if ($parent == 0) {
                 $parents[0] = '1';
@@ -841,7 +841,7 @@ class ditto
             , 'stc.contentid ASC'
         );
         $total = db()->count($rs);
-        $docs = array();
+        $docs = [];
         while ($row = db()->getRow($rs)) {
             $k = '#' . $row['contentid'];
             $v = evo()->tvProcessor($row);
@@ -929,7 +929,7 @@ class ditto
     function getChildIDs($IDs, $depth)
     {
         $depth = (int)$depth;
-        $docIDs = array();
+        $docIDs = [];
         foreach ($IDs as $id) {
             $kids = evo()->getChildIds($id, $depth);
             foreach ($kids as $k => $v) {
@@ -997,9 +997,9 @@ class ditto
         if (!db()->count($rs)) {
             return false;
         }
-        $docs = array();
+        $docs = [];
 
-        $TVIDs = array();
+        $TVIDs = [];
         while ($row = db()->getRow($rs)) {
             $docid = $row['id'];
             if ($dateSource && !empty($row[$dateSource])) {
@@ -1033,7 +1033,7 @@ class ditto
         }
 
         $TVs = array_unique($TVs);
-        $TVData = array();
+        $TVData = [];
         if ($TVs) {
             foreach ($TVs as $tv) {
                 $TVData = $this->array_merge_recursive(
@@ -1068,13 +1068,13 @@ class ditto
     // Get an array of documents
     // ---------------------------------------------------
 
-    function getDocumentsIDs($ids = array(), $published = 1)
+    function getDocumentsIDs($ids = [], $published = 1)
     {
         if (!$ids) {
             return false;
         }
 
-        $where = array();
+        $where = [];
         $docGroup = evo()->getUserDocGroups();
         if ($docGroup) {
             $where[] = sprintf('sc.id IN (%s)', join(',', $ids));
@@ -1118,7 +1118,7 @@ class ditto
             );
         }
 
-        $docs = array();
+        $docs = [];
         while ($row = db()->getRow($rs)) {
             $docs[] = $row;
         }
@@ -1135,7 +1135,7 @@ class ditto
     {
         global $dittoID;
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
-        $query = array();
+        $query = [];
         foreach ($_GET as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $clean_param = hsc($param, ENT_QUOTES);
@@ -1306,7 +1306,7 @@ class ditto
             $max_x = $totalpages - 1;
             $min_x = $max_x - $max_paginate + 1;
         }
-        $pages = array();
+        $pages = [];
         for ($x = 0; $x <= $totalpages - 1; $x++) {
             $inc = $x * $summarize;
             $display = $x + 1;

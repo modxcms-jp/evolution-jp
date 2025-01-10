@@ -37,7 +37,7 @@ if (getv('a') == 4) {
                 if (evo()->config['auto_template_logic'] === 'sibling') {
                     // Eoler: template_autologic in Evolution 1.0.5+
                     // http://tracker.modx.com/issues/9586
-                    $tv = array();
+                    $tv = [];
                     $sibl = evo()->getDocumentChildren($pid, 1, 0, 'template', '', 'menuindex', 'ASC', 1);
                     if (!$sibl) {
                         $sibl = evo()->getDocumentChildren($pid, 0, 0, 'template', '', 'menuindex', 'ASC', 1);

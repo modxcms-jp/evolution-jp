@@ -1,5 +1,5 @@
 <?php
-$dbg_templates = array();
+$dbg_templates = [];
 $dbg_templates['main'] = <<<TPL
 <!DOCTYPE html> 
 <html> 

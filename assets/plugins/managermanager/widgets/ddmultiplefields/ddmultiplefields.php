@@ -38,7 +38,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
 
     if ($columnsData) {
         $columnsDataTemp = explode('||', $columnsData);
-        $columnsData = array();
+        $columnsData = [];
         foreach ($columnsDataTemp as $value) {
             //Евалим знение и записываем результат или исходное значени
             $eval = @eval($value);
@@ -60,7 +60,7 @@ function mm_ddMultipleFields($tvs = '', $roles = '', $templates = '', $columns =
         $page_template = evo()->config('default_template');
     }
 
-    $tvsMas = array();
+    $tvsMas = [];
     // Does this page's template use any image or file or text TVs?
     $types = explode(',', 'image,file,text,textarea');
     foreach ($types as $type) {
@@ -90,7 +90,7 @@ if (!ddMultiple){
 var ddMultiple = {
 datePickerOffset: ' . evo()->config('datepicker_offset') . ',
 datePickerFormat: "' . evo()->config('datetime_format') . '" + " hh:mm:00",
-ids: new Array(),
+ids: new [],
 //Обновляет мульти-поле, берёт значение из оригинального поля
 updateField: function(id){
     //Если есть текущее поле
@@ -103,12 +103,12 @@ updateField: function(id){
 },
 //Обновляет оригинальное поле TV, собирая данные по мульти-полям
 updateTv: function(id){
-    var masRows = new Array();
+    var masRows = new [];
 
     //Перебираем все строки
     jQuery("#" + id + "ddMultipleField .ddFieldBlock").each(function(){
         var $this = jQuery(this),
-            masCol = new Array(),
+            masCol = new [],
             id_field = {index: false, val: false, $field: false};
 
         //Перебираем все колонки, закидываем значения в массив

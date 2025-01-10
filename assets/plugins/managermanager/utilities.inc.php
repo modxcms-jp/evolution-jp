@@ -44,7 +44,7 @@ function makeArray($csv)
 
     // Else if we have an empty string
     if (trim($csv) == '') {
-        return array();
+        return [];
     }
 
     // Otherwise, turn it into an array
@@ -83,7 +83,7 @@ function tplUseTvs($tpl_id, $tvs = '', $types = '')
     $from = array('[+prefix+]site_tmplvars tvs');
     $from[] = 'LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid = tvs.id';
 
-    $where = array();
+    $where = [];
     if ($tpl_id) {
         $where[] = sprintf('rel.templateid=%s', $tpl_id);
     }

@@ -20,7 +20,7 @@
 // Replace the contents of tinymce.linklist.php with this file. Done!
 
 // Config options
-$templates_to_ignore = array();    // Template IDs to ignore from the link list
+$templates_to_ignore = [];    // Template IDs to ignore from the link list
 $include_page_ids = false;
 $charset = 'UTF-8';
 $mode = 'tree'; // breadcrumbs or tree
@@ -60,14 +60,14 @@ if (file_exists($cache_path)) {
         die();
     }
 
-    $list = array();
+    $list = [];
 
     foreach ($allpages as $page) {
         if (!in_array($page['template'], $templates_to_ignore)) {
             $caption = '';
             $page['parents'] = array_reverse($page['parents']);
-            $breadcrumbs = array();
-            $sortcrumbs = array();
+            $breadcrumbs = [];
+            $sortcrumbs = [];
             $published = $page['published'];
             foreach ($page['parents'] as $parent) {
                 $p = $linklist->getPage($parent);

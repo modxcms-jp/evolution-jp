@@ -52,7 +52,7 @@ function mm_widget_tags(
 
     // Go through each of the fields supplied
     foreach ($fields as $targetTv) {
-        $foundTags = array();
+        $foundTags = [];
         if (strpos($default, '@fix') !== 0) {
             // Get the list of current values for this TV
             $result = db()->select(

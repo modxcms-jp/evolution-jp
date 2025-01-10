@@ -23,7 +23,7 @@ if (!class_exists('ddTools')) {
          * Создаёт новый документ.
          *
          */
-        public static function createDocument($fields = array(), $groups = false)
+        public static function createDocument($fields = [], $groups = false)
         {
             global $modx;
 
@@ -70,7 +70,7 @@ if (!class_exists('ddTools')) {
          * @desc $id и/или $where должны быть переданы
          *
          */
-        public static function udateDocument($id = 0, $update = array(), $where = '')
+        public static function udateDocument($id = 0, $update = [], $where = '')
         {
             global $modx;
 

@@ -8,7 +8,7 @@
  * 		- All variables must be prefixed with ditto_ for the snippet to recognize them!
  * 		- If a Ditto id is set use the sntax
 */
-$variables = array();
+$variables = [];
 $stripTags = isset($stripTags) ? $stripTags : 1;
 /*
 	Param: stripTags

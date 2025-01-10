@@ -44,7 +44,7 @@ class filter
     {
         global $modx;
 
-        $rs = array();
+        $rs = [];
         $op = $this->_get_operator_name($param['mode']);
         if (!$op) {
             $op = $this->_get_operator_name($param['value']);

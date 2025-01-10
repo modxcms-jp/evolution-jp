@@ -19,16 +19,16 @@ class template
     {
         $this->language = $GLOBALS['ditto_lang'];
         $this->fields = array(
-            'db' => array(),
-            'tv' => array(),
-            'custom' => array(),
-            'item' => array(),
-            'qe' => array(),
-            'phx' => array(),
-            'rss' => array(),
-            'json' => array(),
-            'xml' => array(),
-            'unknown' => array()
+            'db' => [],
+            'tv' => [],
+            'custom' => [],
+            'item' => [],
+            'qe' => [],
+            'phx' => [],
+            'rss' => [],
+            'json' => [],
+            'xml' => [],
+            'unknown' => []
         );
     }
 
@@ -111,16 +111,16 @@ class template
         $dbFields = $ditto_constantFields['db'];
         $tvFields = $ditto_constantFields['tv'];
         $fields = array(
-            'db' => array(),
-            'tv' => array(),
-            'custom' => array(),
-            'item' => array(),
-            'qe' => array(),
-            'phx' => array(),
-            'rss' => array(),
-            'json' => array(),
-            'xml' => array(),
-            'unknown' => array()
+            'db' => [],
+            'tv' => [],
+            'custom' => [],
+            'item' => [],
+            'qe' => [],
+            'phx' => [],
+            'rss' => [],
+            'json' => [],
+            'xml' => [],
+            'unknown' => []
         );
 
         $custom = array('author', 'date', 'url', 'title', 'ditto_iteration', 'class');
@@ -160,8 +160,8 @@ class template
     // ---------------------------------------------------
     static function replace($placeholders, $tpl)
     {
-        $keys = array();
-        $values = array();
+        $keys = [];
+        $values = [];
         foreach ($placeholders as $key => $value) {
             $keys[] = '[+' . $key . '+]';
             $values[] = $value;

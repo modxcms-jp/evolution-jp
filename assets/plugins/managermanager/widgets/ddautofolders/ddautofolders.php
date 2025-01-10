@@ -58,7 +58,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     require_once $widgetDir . 'modx.ddtools.class.php';
 
     //Дата
-    $ddDate = array();
+    $ddDate = [];
 
     //Если задано, откуда брать дату и это не дата публикации, пытаемся найти в tv`шках
     if ($ddDateSource && $ddDateSource !== 'pub_date') {

@@ -10,7 +10,7 @@
 
 class random
 {
-    public $data = array();
+    public $data = [];
 
     public function add($string, $weight = 1)
     {
@@ -23,7 +23,7 @@ class random
             if ($new[$var['s']]) $new[$var['s']] += $var['w'];
             else                $new[$var['s']] = $var['w'];
         }
-        $this->data = array();
+        $this->data = [];
         foreach ($new as $key => $var) {
             $this->data[] = array('s' => $key, 'w' => $var);
         }

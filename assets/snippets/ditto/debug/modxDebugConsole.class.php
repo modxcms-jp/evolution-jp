@@ -80,7 +80,7 @@ class modxDebugConsole
     function buildURL($args, $id = false, $prefix = '')
     {
         global $modx;
-        $query = array();
+        $query = [];
         foreach ($_GET as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
@@ -139,7 +139,7 @@ class modxDebugConsole
     // Function: makeParamTable
     // Turn an array of parameters in the format ["param"] => "value" into a table
     // ---------------------------------------------------
-    function makeParamTable($parameters = array(), $header = '', $sort = true, $prep = true, $wordwrap = true)
+    function makeParamTable($parameters = [], $header = '', $sort = true, $prep = true, $wordwrap = true)
     {
         if (!is_array($parameters)) {
             return '';

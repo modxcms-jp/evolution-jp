@@ -10,7 +10,7 @@
 // * xxx
 
 // Config options
-$templates_to_ignore = array();    // Template IDs to ignore from the link list
+$templates_to_ignore = [];    // Template IDs to ignore from the link list
 $include_page_ids = false;
 $charset = 'UTF-8';
 $sortby = 'menuindex'; // Could be menuindex or menutitle
@@ -55,7 +55,7 @@ if ($docid = getv('docid')) {
         if ($content) $output = $content;
     }
 } else {
-    $list = array();
+    $list = [];
     $tpl = "['[+title+]', '[+site_url+]assets/plugins/tinymce/js/get_template.php?[+target+]', '[+description+]']";
     $ph['site_url'] = MODX_SITE_URL;
 

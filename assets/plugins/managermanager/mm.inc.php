@@ -61,7 +61,7 @@ class MANAGERMANAGER
 
         // Set variables
         global $content, $default_template, $mm_current_page, $mm_fields;
-        $mm_current_page = array();
+        $mm_current_page = [];
 
         if (isset($_POST['template'])) {
             $mm_current_page['template'] = $_POST['template'];

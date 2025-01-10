@@ -156,7 +156,7 @@ if (isset($modifier_mode) || !isset($phx)) {
     Default:
     normal
 */
-$extenders = isset($extenders) ? explode(',', $extenders) : array();
+$extenders = isset($extenders) ? explode(',', $extenders) : [];
 /*
     Param: extenders
 
@@ -175,7 +175,7 @@ $extenders = isset($extenders) ? explode(',', $extenders) : array();
 // Variable: extenders
 // Array that can be added to by configs or formats to load that extender
 
-$placeholders = array();
+$placeholders = [];
 // Variable: placeholders
 // Initialize custom placeholders array for configs or extenders to add to
 
@@ -188,7 +188,7 @@ if (isset($orderBy)) {
 if (substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
 }
-$orderBy = array('parsed' => array(), 'custom' => array(), 'unparsed' => $orderBy);
+$orderBy = array('parsed' => [], 'custom' => [], 'unparsed' => $orderBy);
 // Variable: orderBy
 // An array that holds all criteria to sort the result set by.
 // Note that using a custom sort will disable all other sorting.
@@ -776,7 +776,7 @@ if (!isset($localFilterDelimiter)) {
     - <parseFilters>
 */
 if (!isset($filters)) {
-    $filters = array('custom' => array(), 'parsed' => array());
+    $filters = array('custom' => [], 'parsed' => []);
 }
 // Variable: filters
 // Holds both the custom filters array for configs or extenders to add to
