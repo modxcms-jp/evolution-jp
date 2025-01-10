@@ -7,64 +7,68 @@ if (!evo()->hasPermission('save_chunk')) {
     alert()->dumpError();
 }
 
-$input = $_POST;
-extract($input);
-unset($input);
-
 if (preg_match('@^[1-9][0-9]*$@', postv('id'))) {
     $id = postv('id');
 }
 
-$snippet = $post;
-$name = (trim($name) !== '') ? trim($name) : 'Untitled chunk';
-$locked = $locked === 'on' ? 1 : 0;
-$editor_type = $editor_type == 1 ? 1 : 0;
-$published = $published == 1 ? 1 : 0;
+function entity($key, $default = null)
+{
+    if ($key === 'name') {
+        return postv($key, 'Untitled chunk');
+    }
+    if ($key === 'locked') {
+        return postv('locked') === 'on' ? 1 : 0;
+    }
+    if ($key === 'editor_type') {
+        return postv('editor_type') == 1 ? 1 : 0;
+    }
+    if ($key === 'published') {
+        return postv('published') == 1 ? 1 : 0;
+    }
 
-// determine published status
-$currentdate = time();
+    $currentdate = time();
 
-if (empty($pub_date)) {
-    $pub_date = 0;
-} else {
-    $pub_date = evo()->toTimeStamp($pub_date);
-    if (empty($pub_date)) {
-        manager()->saveFormValues(78);
-        evo()->webAlertAndQuit($_lang["mgrlog_dateinvalid"], "index.php?a=78&id=" . $id);
-        exit;
+    if ($key === 'pub_date') {
+        if (empty(postv('pub_date'))) {
+            return 0;
+        }
+        $pub_date = evo()->toTimeStamp(postv('pub_date'));
+        if ($pub_date < $currentdate) {
+            $_POST['published'] = 1;
+        } elseif ($pub_date > $currentdate) {
+            $_POST['published'] = 0;
+        }
+        return $pub_date;
     }
-    if ($pub_date < $currentdate) {
-        $published = 1;
-    } elseif ($pub_date > $currentdate) {
-        $published = 0;
-    }
-}
-if (empty($unpub_date)) {
-    $unpub_date = 0;
-} else {
-    $unpub_date = evo()->toTimeStamp($unpub_date);
-    if (empty($unpub_date)) {
-        manager()->saveFormValues(78);
-        evo()->webAlertAndQuit($_lang['mgrlog_dateinvalid'], 'index.php?a=78&id=' . $id);
-        exit;
-    }
-    if ($unpub_date < $currentdate) {
-        $published = 0;
-    }
-}
 
-//Kyle Jaebker - added category support
-if (postv('newcategory')) {
-    $catCheck = manager()->checkCategory(postv('newcategory'));
-    if ($catCheck) {
-        $category = $catCheck;
-    } else {
-        $category = manager()->newCategory(postv('newcategory'));
+    // unpub_date
+    if ($key === 'unpub_date') {
+        if (empty(postv('unpub_date'))) {
+            return 0;
+        }
+        $unpub_date = evo()->toTimeStamp(postv('unpub_date'));
+        if ($unpub_date < $currentdate) {
+            $_POST['published'] = 0;
+        }
+        return $unpub_date;
     }
-} elseif (0 < postv('categoryid')) {
-    $category = postv('categoryid');
-} else {
-    $category = 0;
+
+    if ($key === 'category') {
+        if (postv('newcategory')) {
+            $catCheck = manager()->checkCategory(postv('newcategory'));
+            if ($catCheck) {
+                return $catCheck;
+            } else {
+                return manager()->newCategory(postv('newcategory'));
+            }
+        } elseif (0 < postv('categoryid')) {
+            return postv('categoryid');
+        } else {
+            return 0;
+        }
+    }
+
+    return postv($key, $default);
 }
 
 switch (postv('mode')) {
@@ -78,21 +82,28 @@ switch (postv('mode')) {
         $rs = db()->select(
             'COUNT(id)',
             '[+prefix+]site_htmlsnippets',
-            where('name', $name)
+            where('name', entity('name'))
         );
         $count = db()->getValue($rs);
         if ($count > 0) {
             manager()->saveFormValues(77);
             evo()->webAlertAndQuit(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name),
+                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
                 'index.php?a=77'
             );
             exit;
         }
-        $field = compact(explode(
-            ',',
-            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'
-        ));
+        $field = [
+            'name' => entity('name'),
+            'description' => entity('description'),
+            'published' => entity('published'),
+            'pub_date' => entity('pub_date'),
+            'unpub_date' => entity('unpub_date'),
+            'snippet' => entity('post'),
+            'locked' => entity('locked'),
+            'editor_type' => entity('editor_type'),
+            'category' => entity('category')
+        ];
         $newid = db()->insert(db()->escape($field), '[+prefix+]site_htmlsnippets');
         if (!$newid) {
             exit("Couldn't get last insert key!");
@@ -124,10 +135,10 @@ switch (postv('mode')) {
         );
         evo()->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
-        if (check_exist_name($name) !== false) {
+        if (check_exist_name(entity('name')) !== false) {
             manager()->saveFormValues(78);
             evo()->webAlertAndQuit(
-                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], $name),
+                sprintf($_lang['duplicate_name_found_general'], $_lang['chunk'], entity('name')),
                 "index.php?a=78&id=" . $id
             );
             exit;
@@ -137,63 +148,70 @@ switch (postv('mode')) {
         $was_name = db()->getValue(
             db()->select('name', '[+prefix+]site_htmlsnippets', where('id', $id))
         );
-        $field = compact(explode(
-            ',',
-            'name,description,published,pub_date,unpub_date,snippet,locked,editor_type,category'
-        ));
+        $field = [
+            'name' => entity('name'),
+            'description' => entity('description'),
+            'published' => entity('published'),
+            'pub_date' => entity('pub_date'),
+            'unpub_date' => entity('unpub_date'),
+            'snippet' => entity('post'),
+            'locked' => entity('locked'),
+            'editor_type' => entity('editor_type'),
+            'category' => entity('category')
+        ];
         $rs = db()->update(db()->escape($field), '[+prefix+]site_htmlsnippets', where('id', $id));
         if (!$rs) {
             echo "\$rs not set! Edited htmlsnippet not saved!";
         } else {
-            $name = db()->escape(str_replace("'", "''", $name));
+            $chunkName = db()->escape(str_replace("'", "''", entity('name')));
             $was_name = db()->escape(str_replace("'", "''", $was_name));
-            if ($name !== $was_name) {
+            if ($chunkName !== $was_name) {
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $chunkName),
                     '[+prefix+]site_content'
                 );
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s}}','{{%s}}')", $was_name, $chunkName),
                     '[+prefix+]site_templates'
                 );
                 db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s}}','{{%s}}')", $was_name, $name),
+                    sprintf("snippet=REPLACE(snippet,'{{%s}}','{{%s}}')", $was_name, $chunkName),
                     '[+prefix+]site_htmlsnippets'
                 );
                 db()->update(
-                    sprintf("value=REPLACE(value,'{{%s}}','{{%s}}')", $was_name, $name),
+                    sprintf("value=REPLACE(value,'{{%s}}','{{%s}}')", $was_name, $chunkName),
                     '[+prefix+]site_tmplvar_contentvalues'
                 );
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $chunkName),
                     '[+prefix+]site_content'
                 );
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s:','{{%s:')", $was_name, $chunkName),
                     '[+prefix+]site_templates'
                 );
                 db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s:','{{%s:')", $was_name, $name),
+                    sprintf("snippet=REPLACE(snippet,'{{%s:','{{%s:')", $was_name, $chunkName),
                     '[+prefix+]site_htmlsnippets'
                 );
                 db()->update(
-                    sprintf("value=REPLACE(value,'{{%s:','{{%s:')", $was_name, $name),
+                    sprintf("value=REPLACE(value,'{{%s:','{{%s:')", $was_name, $chunkName),
                     '[+prefix+]site_tmplvar_contentvalues'
                 );
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $chunkName),
                     '[+prefix+]site_content'
                 );
                 db()->update(
-                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $name),
+                    sprintf("content=REPLACE(content,'{{%s?','{{%s?')", $was_name, $chunkName),
                     '[+prefix+]site_templates'
                 );
                 db()->update(
-                    sprintf("snippet=REPLACE(snippet,'{{%s?','{{%s?')", $was_name, $name),
+                    sprintf("snippet=REPLACE(snippet,'{{%s?','{{%s?')", $was_name, $chunkName),
                     '[+prefix+]site_htmlsnippets'
                 );
                 db()->update(
-                    sprintf("value=REPLACE(value,'{{%s?','{{%s?')", $was_name, $name),
+                    sprintf("value=REPLACE(value,'{{%s?','{{%s?')", $was_name, $chunkName),
                     '[+prefix+]site_tmplvar_contentvalues'
                 );
             }
@@ -219,9 +237,9 @@ switch (postv('mode')) {
         break;
 }
 
-function check_exist_name($name)
+function check_exist_name($chunkName)
 {
-    $where = "name='" . $name . "'";
+    $where = "name='" . $chunkName . "'";
     if (postv('mode') == 78) {
         $where .= " AND id!=" . postv('id');
     }
