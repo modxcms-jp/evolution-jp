@@ -326,7 +326,7 @@ function entity($key, $default = null)
                     <tr>
                         <th align="left"><?= $_lang['snippet_name'] ?></th>
                         <td align="left">[[<input name="name" type="text" maxlength="100"
-                                value="<?= htmlspecialchars(entity('name')) ?>"
+                                value="<?= hsc(entity('name')) ?>"
                                 class="inputBox" style="width:300px;">]]
                         </td>
                     </tr>
@@ -342,9 +342,9 @@ function entity($key, $default = null)
                     </div>
                     <?php
                     if (isset($content['snippet'])) {
-                        $code = trim(htmlspecialchars(entity('snippet')));
+                        $code = trim(hsc(entity('snippet')));
                     } elseif (isset($content['post'])) {
-                        $code = trim(htmlspecialchars(entity('post')));
+                        $code = trim(hsc(entity('post')));
                     } else {
                         $code = '';
                     }
@@ -368,7 +368,7 @@ function entity($key, $default = null)
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . '</option>';
+                                        echo '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] ? ' selected="selected"' : '') . '>' . hsc($v['category']) . '</option>';
                                     }
                                 }
                                 ?>
@@ -423,7 +423,7 @@ function entity($key, $default = null)
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
-                            $options .= "<option value='" . $row['guid'] . "'" . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . htmlspecialchars($row['name']) . "</option>";
+                            $options .= "<option value='" . $row['guid'] . "'" . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . hsc($row['name']) . "</option>";
                         }
                     }
                     ?>
