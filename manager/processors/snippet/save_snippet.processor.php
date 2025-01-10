@@ -70,7 +70,7 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the new doc
-        $field = array();
+        $field = [];
         $field['name'] = $name;
         $field['description'] = $description;
         $field['snippet'] = $snippet;
@@ -111,7 +111,7 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the edited doc
-        $field = array();
+        $field = [];
         $field['name'] = $name;
         $field['description'] = $description;
         $field['snippet'] = $snippet;
