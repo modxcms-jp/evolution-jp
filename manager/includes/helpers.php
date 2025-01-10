@@ -461,10 +461,10 @@ function datetime_format($format, $timestamp = '', $default = '')
         return date($format, $timestamp);
     }
     if (strpos($format, '%曜') === false) {
-        return strftime($format, $timestamp);
+        return evo()->mb_strftime($format, $timestamp);
     }
     $week = ['日', '月', '火', '水', '木', '金', '土'];
-    return strftime(
+    return evo()->mb_strftime(
         str_replace('%曜', $week[date('w', $timestamp)], $format),
         $timestamp
     );

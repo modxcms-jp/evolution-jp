@@ -89,7 +89,7 @@ function mm_inherit($fields, $roles = '', $templates = '')
 
             case 'pub_date':
             case 'unpub_date':
-                $output .= '$j("input[name=' . $fieldname . ']").val("' . strftime($date_format . ' %H:%M:%S', $newvalue) . '"); ';
+                $output .= '$j("input[name=' . $fieldname . ']").val("' . evo()->mb_strftime($date_format . ' %H:%M:%S', $newvalue) . '"); ';
                 break;
 
             default:

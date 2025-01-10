@@ -209,7 +209,7 @@ if ($year) {
     */
 }
 if ($month && $year) {
-    $month_text = strftime('%B', mktime(10, 10, 10, $month, 10, $year));
+    $month_text = evo()->mb_strftime('%B', mktime(10, 10, 10, $month, 10, $year));
     $modx->setPlaceholder($dittoID . 'month', $month_text);
     /*
         Placeholder: month

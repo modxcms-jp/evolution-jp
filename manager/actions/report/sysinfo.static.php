@@ -64,11 +64,11 @@ global $database_connection_method, $lastInstallTime;
                         );
                         echo render_tr(
                             lang('servertime')
-                            , strftime('%H:%M:%S', time())
+                            , evo()->mb_strftime('%H:%M:%S', time())
                         );
                         echo render_tr(
                             lang('localtime')
-                            , strftime(
+                            , evo()->mb_strftime(
                                 '%H:%M:%S'
                                 , time() + config('server_offset_time')
                             )
@@ -349,7 +349,7 @@ global $database_connection_method, $lastInstallTime;
                 <div class="sectionBody" id="lyr5">
 
                     <?php
-                    $html = lang('onlineusers_message') . '<b>' . strftime('%H:%M:%S',
+                    $html = lang('onlineusers_message') . '<b>' . evo()->mb_strftime('%H:%M:%S',
                             time() + config('server_offset_time')) . '</b>):<br /><br />
 				<table class="grid">
 				<thead>
@@ -387,7 +387,7 @@ global $database_connection_method, $lastInstallTime;
                             }
                             $html .= sprintf('<tr><td><b>%s</b></td><td>%s&nbsp;%s</td><td>%s</td><td>%s</td><td>%s</td><td align="right">%s</td></tr>',
                                 $activeusers['username'], $webicon, abs($activeusers['internalKey']),
-                                $activeusers['ip'], strftime(
+                                $activeusers['ip'], evo()->mb_strftime(
                                     '%H:%M:%S'
                                     , $activeusers['lasthit'] + config('server_offset_time')
                                 ), $currentaction, $activeusers['action']);

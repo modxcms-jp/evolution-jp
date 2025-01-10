@@ -235,10 +235,10 @@ function tabOnlineUser()
         while ($row = db()->getRow($rs)) {
             $currentaction = getAction($row['action'], $row['id']);
             $webicon = ($row['internalKey'] < 0) ? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />' : '';
-            $tr[] = "<tr><td><b>" . $row['username'] . "</b></td><td>{$webicon}&nbsp;" . abs($row['internalKey']) . "</td><td>" . $row['ip'] . "</td><td>" . strftime('%H:%M:%S', $row['lasthit'] + $server_offset_time) . "</td><td>{$currentaction}</td></tr>";
+            $tr[] = "<tr><td><b>" . $row['username'] . "</b></td><td>{$webicon}&nbsp;" . abs($row['internalKey']) . "</td><td>" . $row['ip'] . "</td><td>" . evo()->mb_strftime('%H:%M:%S', $row['lasthit'] + $server_offset_time) . "</td><td>{$currentaction}</td></tr>";
         }
         if (!empty($tr)) $ph['userlist'] = join("\n", $tr);
-        $ph['now'] = strftime('%H:%M:%S', time() + $server_offset_time);
+        $ph['now'] = evo()->mb_strftime('%H:%M:%S', time() + $server_offset_time);
         $tpl = <<< TPL
 <p>[+onlineusers_message+]<b>[+now+]</b>)</p>
 <table width="100%" class="grid">

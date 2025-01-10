@@ -438,7 +438,7 @@ function eForm($modx, $params)
                             break;
                         case "date":
                             $format_string = isset($_lang['ef_date_format']) ? $_lang['ef_date_format'] : '%d-%b-%Y %H:%M:%S';
-                            $value = ($value) ? strftime($format_string, strtotime($value)) : "";
+                            $value = ($value) ? evo()->mb_strftime($format_string, strtotime($value)) : "";
                             $value = str_replace("00:00:00", "", $value);// remove trailing zero time values
                             break;
                         case "html":
@@ -465,7 +465,7 @@ function eForm($modx, $params)
                 }
             }
             # set postdate
-            $fields['postdate'] = strftime($modx->toDateFormat(null, 'formatOnly') . " %H:%M:%S", time());
+            $fields['postdate'] = evo()->mb_strftime($modx->toDateFormat(null, 'formatOnly') . " %H:%M:%S", time());
 
             //check against email injection and replace suspect content
             if (hasMailHeaders($fields)) {

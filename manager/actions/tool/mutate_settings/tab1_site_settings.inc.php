@@ -210,8 +210,8 @@
                 </select><br />
                 <?php printf(
                     lang('serveroffset_message'),
-                    strftime('%H:%M:%S', time()),
-                    strftime(
+                    evo()->mb_strftime('%H:%M:%S', time()),
+                    evo()->mb_strftime(
                         '%H:%M:%S',
                         time() + config('server_offset_time')
                     )

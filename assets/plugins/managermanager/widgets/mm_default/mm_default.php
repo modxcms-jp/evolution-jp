@@ -49,7 +49,7 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
         case 'pub_date':
         case 'unpub_date':
             if ($new_value == '') {
-                $new_value = strftime($date_format . ' %H:%M:%S');
+                $new_value = evo()->mb_strftime($date_format . ' %H:%M:%S');
             }
             $output .= sprintf(
                 'jQuery("input[name=%s]").val("%s"); ' . "\n"
