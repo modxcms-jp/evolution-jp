@@ -21,10 +21,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-$id = anyv('id', 0);
-
 // check to see the plugin editor isn't locked
-$rs = db()->select('*', '[+prefix+]active_users', "action='102' AND id='{$id}'");
+$rs = db()->select('*', '[+prefix+]active_users', sprintf("action='102' AND id='%d'", getv('id')));
 $row = db()->getRow($rs);
 if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
     $msg = sprintf($_lang['lock_msg'], $row['username'], $_lang['plugin']);
@@ -34,7 +32,7 @@ if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
 // end check for lock
 
 if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
-    $rs = db()->select('*', '[+prefix+]site_plugins', "id='{$id}'");
+    $rs = db()->select('*', '[+prefix+]site_plugins', sprintf("id='%d'", getv('id')));
     $total = db()->count($rs);
     $content = db()->getRow($rs);
 
@@ -47,6 +45,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
 
     $_SESSION['itemname'] = entity('name');
 } else {
+    $content = [];
     $_SESSION['itemname'] = 'New Plugin';
 }
 
@@ -419,7 +418,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
     <?php
     // invoke OnPluginFormPrerender event
-    $tmp = array("id" => $id);
+    $tmp = array("id" => getv('id'));
     $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -528,7 +527,7 @@ function entity($key, $default = null)
                 $from = '[+prefix+]site_modules sm ' .
                     'INNER JOIN [+prefix+]site_module_depobj smd ON smd.module=sm.id AND smd.type=30 ' .
                     'INNER JOIN [+prefix+]site_plugins sp ON sp.id=smd.resource';
-                $where = "smd.resource='$id' AND sm.enable_sharedparams='1'";
+                $where = sprintf("smd.resource='%d' AND sm.enable_sharedparams='1'", getv('id'));
                 $ds = db()->select($field, $from, $where, 'sm.name');
                 $guid_total = db()->count($ds);
                 if ($guid_total > 0) {
@@ -586,9 +585,9 @@ function entity($key, $default = null)
                     <?php
 
                     // get selected events
-                    if (is_numeric($id) && $id > 0) {
+                    if (getv('id')) {
                         $evts = [];
-                        $rs = db()->select('*', '[+prefix+]site_plugin_events', "pluginid='{$id}'");
+                        $rs = db()->select('*', '[+prefix+]site_plugin_events', sprintf("pluginid='%d'", getv('id')));
                         while ($row = db()->getRow($rs)) {
                             $evts[] = $row['evtid'];
                         }
@@ -733,7 +732,7 @@ function entity($key, $default = null)
     </script>
     <?php
     // invoke OnPluginFormRender event
-    $tmp = array("id" => $id);
+    $tmp = array("id" => getv('id'));
     $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
