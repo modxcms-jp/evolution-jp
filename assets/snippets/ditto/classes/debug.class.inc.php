@@ -215,7 +215,7 @@ class debug extends modxDebugConsole
                     break;
 
                 default:
-                    $displayName = 'tpl' . strtoupper($name{0}) . substr($name, 1);
+                    $displayName = 'tpl' . strtoupper($name[0]) . substr($name, 1);
                     break;
             }
             $displayTPLs[$displayName] = $value;
