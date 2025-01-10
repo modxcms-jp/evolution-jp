@@ -285,7 +285,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
             }
         }
         // store vars in Javascript
-        $a = array();
+        $a = [];
         if ($expandAll == 1 && !empty($opened2)) {
             foreach ($opened2 as $d) {
                 $a[] = sprintf('parent.openedArray[%d] = 1;', $d);
@@ -586,7 +586,7 @@ function parseNode($tpl, $param, $id)
         return;
     }
     $modx->config['limit_by_container'] = $_tmp;
-    $modx->event->vars = array();
+    $modx->event->vars = [];
     $modx->event->vars = &$param;
     $modx->event->vars['tpl'] = &$tpl;
     $evtOut = evo()->invokeEvent('OnManagerNodePrerender', $param);
@@ -601,7 +601,7 @@ function parseNode($tpl, $param, $id)
 
     $param['node'] = $node;
     $evtOut = evo()->invokeEvent('OnManagerNodeRender', $param);
-    $modx->event->vars = array();
+    $modx->event->vars = [];
     if (is_array($evtOut)) {
         $evtOut = implode("\n", $evtOut);
     } else {

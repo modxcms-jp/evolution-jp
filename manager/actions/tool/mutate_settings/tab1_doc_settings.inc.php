@@ -16,7 +16,7 @@
                         '',
                         'c.category, t.templatename ASC'
                     );
-                    $options = array();
+                    $options = [];
                     while ($row = db()->getRow($rs)) {
                         $options[$row['category'] == null ? lang('no_category') : $row['category']][] = array(
                             'id' => $row['id'],
@@ -24,9 +24,9 @@
                             'selected' => (config('default_template') == $row['id'])
                         );
                     }
-                    $echo = array();
+                    $echo = [];
                     foreach ($options as $category => $templates) {
-                        $group = array();
+                        $group = [];
                         foreach ($templates as $template) {
                             $group[] = sprintf(
                                 '<option value="%s"%s>%s</option>',

@@ -163,7 +163,7 @@
                     <?php
                     $tpl = '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n";
                     $option = array('pagetitle', 'menutitle', 'alias', 'createdon', 'editedon', 'publishedon');
-                    $output = array();
+                    $output = [];
                     foreach ($option as $v) {
                         $selected = ($v == config('resource_tree_node_name')) ? 'selected' : '';
                         $s = array('[+value+]', '[+selected+]');

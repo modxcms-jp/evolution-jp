@@ -8,7 +8,7 @@ if (!evo()->hasPermission('logs')) {
 }
 
 $rs = db()->select('DISTINCT internalKey, username, action, itemid, itemname', '[+prefix+]manager_log');
-$logs = array();
+$logs = [];
 while ($row = db()->getRow($rs)) {
     $logs[] = $row;
 }
@@ -226,7 +226,7 @@ while ($row = db()->getRow($rs)) {
     <?php
     if (getv('log_submit')) {
         // get the selections the user made.
-        $where = array();
+        $where = [];
         if (getv('searchuser')) {
             $where[] = sprintf("internalKey='%d'", (int)getv('searchuser'));
         }
@@ -352,7 +352,7 @@ while ($row = db()->getRow($rs)) {
 	<td><a href="index.php?a=13&searchuser=[+internalKey+]&itemname=0&log_submit=true">[+username+]</a></td>
 </tr>
 EOT;
-            $logentries = array();
+            $logentries = [];
             $i = 0;
             while ($row = db()->getRow($rs)) {
                 $row['itemname'] = evo()->hsc($row['itemname']);
@@ -393,8 +393,8 @@ function array_unique_multi($array, $checkKey)
     if (!is_array(current($array)) || empty($checkKey)) {
         return array_unique($array);
     }
-    $ret = array();
-    $checkValues = array();
+    $ret = [];
+    $checkValues = [];
     foreach ($array as $key => $current) {
         if (in_array($current[$checkKey], $checkValues)) {
             continue;
@@ -407,12 +407,12 @@ function array_unique_multi($array, $checkKey)
 
 function record_sort($array, $key)
 {
-    $hash = array();
+    $hash = [];
     foreach ($array as $k => $v) {
         $hash[$k] = $v[$key];
     }
     natsort($hash);
-    $records = array();
+    $records = [];
     foreach ($hash as $k => $row) {
         $records[$k] = $array[$k];
     }

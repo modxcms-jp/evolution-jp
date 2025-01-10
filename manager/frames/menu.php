@@ -286,7 +286,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                     // Modules Menu Items
                     $perm_module_management = (evo()->hasPermission('new_module') || evo()->hasPermission('edit_module')) ? 1 : 0;
-                    $item['modules'] = array();
+                    $item['modules'] = [];
                     $item['modules']['module_management'] = item($_lang['module_management'], 106,
                         $perm_module_management);// manage-modules
                     if (evo()->hasPermission('exec_module')) {

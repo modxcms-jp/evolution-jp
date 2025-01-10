@@ -12,7 +12,7 @@ function get_lang_keys($filename)
         include($path);
         return array_keys($_lang);
     }
-    return array();
+    return [];
 }
 
 /**
@@ -23,7 +23,7 @@ function get_lang_keys($filename)
 function get_langs_by_key($key)
 {
     global $lang_keys;
-    $lang_return = array();
+    $lang_return = [];
     foreach ($lang_keys as $lang => $keys) {
         if (!in_array($key, $keys)) {
             continue;
@@ -72,7 +72,7 @@ function get_lang_options($key = null, $selected_lang = null)
     return implode("\n", $lang_options);
 }
 
-function form_text_tag($name, $value, $attr = array())
+function form_text_tag($name, $value, $attr = [])
 {
     return sprintf(
         strpos($value, '"') === false
@@ -83,12 +83,12 @@ function form_text_tag($name, $value, $attr = array())
     );
 }
 
-function join_attr($attr = array())
+function join_attr($attr = [])
 {
     if (!$attr) {
         return '';
     }
-    $rs = array();
+    $rs = [];
     foreach ($attr as $k => $v) {
         if ($v === false) {
             continue;
@@ -176,7 +176,7 @@ function checkConfig($key)
 function settings()
 {
     global $modx, $default_config;
-    $settings = array();
+    $settings = [];
     $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
     while ($row = db()->getRow($rs)) {
         $settings[$row['setting_name']] = $row['setting_value'];
@@ -227,7 +227,7 @@ function settings()
 
 class Form
 {
-    public static function text($name, $value, $attr = array())
+    public static function text($name, $value, $attr = [])
     {
         return sprintf(
             strpos($value, '"') === false

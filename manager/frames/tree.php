@@ -531,7 +531,7 @@ EOT;
         return $tpl;
     }
 
-    $ph = array();
+    $ph = [];
     $ph['itemEditDoc'] = itemEditDoc(); // edit
     $ph['itemDocList'] = itemDocList(); // Resource list
     $ph['itemNewDoc'] = itemNewDoc(); // new Resource

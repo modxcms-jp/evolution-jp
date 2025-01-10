@@ -206,7 +206,7 @@ function importFiles($parent, $filedir, $files, $mode)
                 $alias = substr($alias, 2);
             }
             echo "<span>{$alias}/</span>";
-            $field = array();
+            $field = [];
             $field['type'] = 'document';
             $field['contentType'] = 'text/html';
             $field['published'] = $publish_default;
@@ -292,7 +292,7 @@ function importFiles($parent, $filedir, $files, $mode)
                 list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
 
                 $date = filemtime($filepath);
-                $field = array();
+                $field = [];
                 $field['type'] = 'document';
                 $field['contentType'] = 'text/html';
                 $field['pagetitle'] = $pagetitle;
@@ -344,7 +344,7 @@ function importFiles($parent, $filedir, $files, $mode)
     }
 }
 
-function getFiles($directory, $listing = array(), $count = 0)
+function getFiles($directory, $listing = [], $count = 0)
 {
     global $_lang;
     global $filesfound;
@@ -362,7 +362,7 @@ function getFiles($directory, $listing = array(), $count = 0)
                         , $directory
                         , $file
                     )
-                    , array()
+                    , []
                     , $count + 1
                 );
             } elseif (strpos($file, '.htm') !== false) {
@@ -397,7 +397,7 @@ function getFileContent($filepath)
 
 function pop_index($array)
 {
-    $new_array = array();
+    $new_array = [];
     foreach ($array as $k => $v) {
         if ($v !== 'index.html' && $v !== 'index.htm') {
             $new_array[$k] = $v;
@@ -452,14 +452,14 @@ function treatContent($src, $filename, $alias)
 function convertLink()
 {
     $rs = db()->select('*', '[+prefix+]site_content', 'deletedon!=1');
-    $alias = array();
-    $linkList = array();
+    $alias = [];
+    $linkList = [];
     while ($row = db()->getRow($rs)) {
         $id = $row['id'];
         $_ = explode('<a href="', $row['content']);
         $i = 0;
-        $s = array();
-        $r = array();
+        $s = [];
+        $r = [];
         foreach ($_ as $v) {
             if (strpos($v, '"') !== false) {
                 $v = substr($v, 0, strpos($v, '"'));

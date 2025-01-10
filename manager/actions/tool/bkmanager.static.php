@@ -309,13 +309,13 @@ if (sessionv('result_msg')) {
                         if (!$last_result) {
                             $result = '';
                         } else {
-                            $last_result = array_merge(array(), array_diff($last_result, array('')));
+                            $last_result = array_merge([], array_diff($last_result, array('')));
                             foreach ($last_result['0'] as $k => $v) {
                                 $title[] = $k;
                             }
                             $result = '<tr><th>' . join('</th><th>', $title) . '</th></tr>';
                             foreach ($last_result as $row) {
-                                $result_value = array();
+                                $result_value = [];
                                 if ($row) {
                                     foreach ($row as $k => $v) {
                                         $result_value[] = $v;
