@@ -292,7 +292,7 @@ class ditto
     // Render the document output
     // ---------------------------------------------------
 
-    function render($resource, $template, $removeChunk, $dateSource, $dateFormat, $ph = [], $modifier_mode = 'normal', $x = 0)
+    function render($resource, $template, $removeChunk, $dateSource, $dateFormat, $ph = [], $x = 0)
     {
         global $ditto_lang;
 
@@ -338,26 +338,12 @@ class ditto
         unset($PHs);
 
         $output = $template;
-        if ($modifier_mode === 'normal') {
-            $i = 0;
-            while ($i < 10) {
-                $_ = $output;
-                $output = evo()->parseText($output, $placeholders);
-                if ($_ === $output) break;
-                $i++;
-            }
-        } elseif ($modifier_mode === 'phx') {
-            $phx = new prePHx($output);
-            $phx->setPlaceholders($placeholders);
-            $output = $phx->output();
-        } else {
-            $output = $this->template->replace(
-                $contentVars,
-                $this->template->replace(
-                    $placeholders,
-                    $output
-                )
-            );
+        $i = 0;
+        while ($i < 10) {
+            $_ = $output;
+            $output = evo()->parseText($output, $placeholders);
+            if ($_ === $output) break;
+            $i++;
         }
 
         if ($removeChunk) {

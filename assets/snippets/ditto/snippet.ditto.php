@@ -137,25 +137,6 @@ $debug = !empty($debug) ? $debug : 0;
     Related:
     - <debug>
 */
-if (isset($modifier_mode) || !isset($phx)) {
-    $modifier_mode = 'normal';
-} else {
-    $modifier_mode = !empty($phx) ? 'phx' : 'none';
-}
-/*
-    Param: modifier_mode
-
-    Purpose:
-    Use modifier mode
-
-    Options:
-    normal - core internal modifiers function
-    phx    - legacy phx function
-    none   - off
-
-    Default:
-    normal
-*/
 $extenders = isset($extenders) ? explode(',', $extenders) : [];
 /*
     Param: extenders
@@ -206,9 +187,6 @@ $files = array(
     'format' => sprintf('%sformats/%s.format.inc.php', $ditto_base, $format)
 );
 
-if ($modifier_mode === 'phx') {
-    $files['prePHx_class'] = $ditto_base . 'classes/phx.pre.class.inc.php';
-}
 if (isset($randomize)) {
     $files['randomize_class'] = $ditto_base . 'classes/random.class.inc.php';
 }
@@ -1317,7 +1295,6 @@ if ($count > 0) {
                 $dateSource,
                 $dateFormat,
                 $placeholders,
-                $modifier_mode,
                 abs($start - $x),
                 $stop
             );
