@@ -1096,11 +1096,13 @@ class DocumentParser
             setcookie(
                 'modx_remember_manager',
                 $user['username'],
-                strtotime('+1 month'),
-                MODX_BASE_URL,
-                null,
-                init::is_ssl() ? true : false,
-                true
+                [
+                    'expires' => strtotime('+1 month'),
+                    'path' => MODX_BASE_URL,
+                    'secure' => init::is_ssl(),
+                    'httponly' => true,
+                    'samesite' => 'Lax'
+                ]
             );
         } else {
             $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
