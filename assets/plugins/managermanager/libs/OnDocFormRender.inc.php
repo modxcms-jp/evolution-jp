@@ -8,7 +8,7 @@ $e->output('
     <script charset="' . $modx->config['modx_charset'] . '">
     var mm_lastTab = "tabGeneral";
     var mm_sync_field_count = 0;
-    var synch_field = new [];
+    var synch_field = new Array();
 
 $j(function(){
         // Lets handle errors nicely...

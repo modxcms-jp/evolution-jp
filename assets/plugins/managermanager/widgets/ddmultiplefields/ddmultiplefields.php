@@ -103,7 +103,7 @@ updateField: function(id){
 },
 //Обновляет оригинальное поле TV, собирая данные по мульти-полям
 updateTv: function(id){
-    var masRows = new [];
+    var masRows = new Array();
 
     //Перебираем все строки
     jQuery("#" + id + "ddMultipleField .ddFieldBlock").each(function(){

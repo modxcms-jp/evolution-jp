@@ -58,7 +58,7 @@ warningClass: "maxLenghtWarning"
 
     $output .= '
 jQuery("#mutate").submit(function(){
-var ddErrors = new [];
+var ddErrors = new Array();
 jQuery("div.ddMaxLengthCount span").each(function(){
     var $this = jQuery(this), field = $this.parents(".ddMaxLengthCount:first").parent().find(".ddMaxLengthField");
     if (parseInt($this.text()) < 0){
