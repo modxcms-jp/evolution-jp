@@ -82,7 +82,7 @@ function formv($key, $default = null)
 
 function warnings()
 {
-    $warnings = array();
+    $warnings = [];
     if (!is_dir(formv('filemanager_path'))) {
         $warnings[] = lang('configcheck_filemanager_path');
     }
@@ -140,7 +140,7 @@ function save_settiongs()
     $form_v = $_POST + $default_config;
     $form_v['settings_version'] = getNewVersion();
 
-    $savethese = array();
+    $savethese = [];
     foreach ($form_v as $k => $v) {
         switch ($k) {
             case 'base_url':
@@ -260,7 +260,7 @@ function cleanup_tv()
     if (!db()->count($rs)) {
         return;
     }
-    $docs = array();
+    $docs = [];
     while ($row = db()->getRow($rs)) {
         $docs[] = $row['contentid'];
     }

@@ -60,7 +60,7 @@ switch (postv('mode')) {
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
                 // prepare a few variables prior to redisplaying form...
-                $content = array();
+                $content = [];
                 $_REQUEST['a'] = '101';
                 $_GET['a'] = '101';
                 $_GET['stay'] = postv('stay');
@@ -128,7 +128,7 @@ switch (postv('mode')) {
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
                 // prepare a few variables prior to redisplaying form...
-                $content = array();
+                $content = [];
                 $_REQUEST['a'] = '102';
                 $_GET['a'] = '102';
                 $_GET['stay'] = postv('stay');

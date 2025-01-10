@@ -14,7 +14,7 @@ $tmp = array(
 evo()->invokeEvent("OnBeforeManagerLogout", $tmp);
 
 //// Unset all of the session variables.
-//$_SESSION = array();
+//$_SESSION = [];
 // destroy session cookie
 if (isset($_COOKIE[session_name()])) {
     setcookie(session_name(), '', 0, $modx->config['base_url']);

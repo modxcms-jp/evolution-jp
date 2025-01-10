@@ -19,7 +19,7 @@ checkSafedUri();
 
 $_SESSION['safeMode'] = input('safeMode');
 if (!sessionv('SystemAlertMsgQueque')) {
-    $_SESSION['SystemAlertMsgQueque'] = array();
+    $_SESSION['SystemAlertMsgQueque'] = [];
 }
 
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];

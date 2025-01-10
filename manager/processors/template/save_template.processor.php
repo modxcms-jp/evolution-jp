@@ -36,7 +36,7 @@ if ($templatename == '') {
     $templatename = "Untitled template";
 }
 
-$field = array();
+$field = [];
 $field['templatename'] = $templatename;
 $field['description'] = $description;
 $field['content'] = db()->escape(postv('content'));

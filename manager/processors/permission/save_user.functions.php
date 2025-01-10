@@ -88,7 +88,7 @@ function saveUserSettings($id)
     );
 
     // get user setting field names
-    $settings = array();
+    $settings = [];
     $post = $_POST;
     foreach ($post as $k => $v) {
         if (in_array($k, $ignore)) {
@@ -111,7 +111,7 @@ function saveUserSettings($id)
     }
 
     db()->delete(evo()->getFullTableName('user_settings'), sprintf("user='%s'", $id));
-    $savethese = array();
+    $savethese = [];
     foreach ($settings as $k => $v) {
         $v = db()->escape($v);
         $savethese[] = sprintf("(%s, '%s', '%s')", $id, $k, $v);
@@ -278,7 +278,7 @@ function validate()
         'blockeduntil',
         'blockedafter'
     );
-    $rs = array();
+    $rs = [];
     foreach ($fields as $field) {
         if (in_array($field, array('dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter')) && !postv($field)) {
             $rs[$field] = 0;

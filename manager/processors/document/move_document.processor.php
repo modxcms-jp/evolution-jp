@@ -172,7 +172,7 @@ function alertAndQuit($string, $docid)
 
 function allChildren($docid)
 {
-    $children = array();
+    $children = [];
     $rs = db()->select('id', '[+prefix+]site_content', "parent='{$docid}'");
     if (!$rs) {
         exit("An error occured while attempting to find all of the resource's children.");

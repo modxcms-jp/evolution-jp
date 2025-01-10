@@ -15,7 +15,7 @@ if (!isset($_SESSION['mgrValidated'])) {
 $modx->getSettings();
 
 $rb = new FBROWSER();
-$ph = array();
+$ph = [];
 $ph['seturl_js'] = $rb->seturl_js();
 $output = $rb->render_fbrowser($ph);
 echo $output;

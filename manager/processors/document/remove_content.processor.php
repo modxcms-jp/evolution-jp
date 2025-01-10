@@ -11,7 +11,7 @@ if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@', $_REQUEST['id'])) {
     $ids = array($_REQUEST['id']);
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
-    $ids = array();
+    $ids = [];
     if (db()->count($rs) > 0) {
         while ($row = db()->getRow($rs)) {
             $ids[] = $row['id'];
@@ -47,7 +47,7 @@ if (!$rs) {
 } else {
     // invoke OnEmptyTrash event
     evo()->invokeEvent('OnEmptyTrash', $modx->event->vars);
-    $modx->event->vars = array();
+    $modx->event->vars = [];
     // empty cache
     $modx->clearCache(); // first empty the cache
     // finished emptying cache - redirect

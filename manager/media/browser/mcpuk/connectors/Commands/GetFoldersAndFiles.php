@@ -74,12 +74,12 @@ class GetFoldersAndFiles extends Base
                        url="<?= $this->fckphp_config['urlprefix'] . $this->actual_cwd ?>"/>
         <Folders>
         <?php
-        $files = array();
+        $files = [];
         if (opendir($this->real_cwd)) {
             /**
              * Initiate the array to store the foldernames
              */
-            $folders_array = array();
+            $folders_array = [];
             $filenames = scandir($this->real_cwd);
             if ($filenames) {
                 foreach ($filenames as $filename) {

@@ -32,7 +32,7 @@ if (isset($warning)) {
     $modx->webAlertAndQuit($warning, 'javascript:history.back();');
 }
 
-$children = array();
+$children = [];
 getChildren($id);
 
 // invoke OnBeforeDocFormDelete event
@@ -44,7 +44,7 @@ if ($params['enableProcess'] == false) {
     $modx->webAlertAndQuit("The deletion process was interrupted by plugin.");
 }
 
-$field = array();
+$field = [];
 $field['deleted'] = '1';
 $field['deletedby'] = evo()->getLoginUserID();
 $field['deletedon'] = time();
@@ -64,7 +64,7 @@ if (!$rs) {
 
 // invoke OnDocFormDelete event
 $params['id'] = $id;
-$params['children'] = $children; //array()
+$params['children'] = $children; //[]
 evo()->invokeEvent("OnDocFormDelete", $params);
 
 // empty cache

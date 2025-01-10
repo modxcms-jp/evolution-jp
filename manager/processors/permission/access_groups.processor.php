@@ -128,7 +128,7 @@ switch ($_REQUEST['operation']) {
         $where = "membergroup='{$usergroup}' AND documentgroup='{$docgroup}'";
         $limit = db()->getValue(db()->select('count(*)', $tbl_membergroup_access, $where));
         if ($limit <= 0) {
-            $f = array();
+            $f = [];
             $f['membergroup'] = $usergroup;
             $f['documentgroup'] = $docgroup;
             if (!db()->insert_ignore($f, $tbl_membergroup_access)) {

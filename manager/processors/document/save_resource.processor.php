@@ -31,7 +31,7 @@ if (mode() === 'new') {
     $param = array(
         'mode' => 'new',
         'doc_vars' => getInputValues(evo()->doc->getNewDocID()),
-        'tv_vars' => validated('template') ? get_tmplvars() : array()
+        'tv_vars' => validated('template') ? get_tmplvars() : []
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
@@ -98,7 +98,7 @@ if (mode() === 'edit') {
         'mode' => 'upd',
         'id' => validated('id'),
         'doc_vars' => getInputValues(validated('id'), 'edit'),
-        'tv_vars' => validated('template') ? get_tmplvars() : array()
+        'tv_vars' => validated('template') ? get_tmplvars() : []
     );
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
     $rs = db()->update(
@@ -157,7 +157,7 @@ function get_tmplvars()
     $template = validated('template');
 
     if (empty($template)) {
-        return array();
+        return [];
     }
 
     // get document groups for current user
@@ -183,7 +183,7 @@ function get_tmplvars()
         'tv.rank'
     );
 
-    $tmplvars = array();
+    $tmplvars = [];
     while ($row = db()->getRow($rs)) {
         $tvid = 'tv' . $row['id'];
 
@@ -330,7 +330,7 @@ function _check_duplicate_alias($id, $alias, $parent)
     return $alias;
 }
 
-function checkDocPermission($id, $document_groups = array())
+function checkDocPermission($id, $document_groups = [])
 {
     if (sessionv('mgrRole') != 1 && is_array($document_groups) && $document_groups) {
         $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
@@ -580,7 +580,7 @@ function insert_tmplvars($docid, $tmplvars)
     if (!$tmplvars) {
         return;
     }
-    $tvChanges = array();
+    $tvChanges = [];
     $tv['contentid'] = $docid;
     foreach ($tmplvars as $tmplvarid => $value) {
         if ($value !== false) {
@@ -603,15 +603,15 @@ function update_tmplvars($docid, $tmplvars)
     if (!$tmplvars) {
         return;
     }
-    $tvChanges = array();
-    $tvAdded = array();
-    $tvDeletions = array();
+    $tvChanges = [];
+    $tvAdded = [];
+    $tvDeletions = [];
     $rs = db()->select(
         'id, tmplvarid',
         '[+prefix+]site_tmplvar_contentvalues',
         sprintf("contentid='%s'", $docid)
     );
-    $tvIds = array();
+    $tvIds = [];
     while ($row = db()->getRow($rs)) {
         $tvIds[$row['tmplvarid']] = $row['id'];
     }
@@ -670,7 +670,7 @@ function setDocPermissionsNew($document_groups, $newid)
         return;
     }
     if (is_array($document_groups)) {
-        $new_groups = array();
+        $new_groups = [];
         foreach ($document_groups as $value_pair) {
             $group = (int)substr($value_pair, 0, strpos($value_pair, ','));
             $new_groups[] = sprintf('(%s,%s)', $group, $newid);
@@ -781,16 +781,16 @@ function setDocPermissionsEdit($document_groups, $id)
             $id
         )
     );
-    $exists_groups = array();
+    $exists_groups = [];
     while ($row = db()->getRow($rs)) {
         $exists_groups[$row['document_group']] = $row['id'];
     }
-    $new_groups = array();
+    $new_groups = [];
     foreach ($document_groups as $value_pair) {
         list($group, $link_id) = explode(',', $value_pair);
         $new_groups[$group] = $link_id;
     }
-    $insertions = array();
+    $insertions = [];
     foreach ($new_groups as $group_id => $link_id) {
         $group_id = (int)$group_id;
         if (isset($exists_groups[$group_id])) {
@@ -866,9 +866,9 @@ function folder2doc($parent)
 function getDocGroups()
 {
     if (postv('chkalldocs') === 'on') {
-        return array();
+        return [];
     }
-    return postv('docgroups', array());
+    return postv('docgroups', []);
 }
 
 function mode()

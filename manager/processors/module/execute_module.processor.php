@@ -90,7 +90,7 @@ if ($content['disabled']) {
 }
 
 // load module configuration
-$parameter = array();
+$parameter = [];
 if (!empty($content["properties"])) {
     $tmpParams = explode("&", $content["properties"]);
     for ($x = 0, $xMax = count($tmpParams); $x < $xMax; $x++) {

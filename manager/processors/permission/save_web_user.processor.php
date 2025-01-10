@@ -111,7 +111,7 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
         // create the user account
-        $fields = array();
+        $fields = [];
         $fields['username'] = $newusername;
         $fields['password'] = md5($newpassword);
         $internalKey = db()->insert(
@@ -160,7 +160,7 @@ switch (postv('mode')) {
         // first, check that up_perms are switched on!
         if ($modx->config['use_udperms'] == 1) {
             if ($user_groups) {
-                $field = array();
+                $field = [];
                 foreach ($user_groups as $user_group) {
                     $field['webgroup'] = (int)$user_group;
                     $field['webuser'] = $internalKey;
@@ -474,7 +474,7 @@ function saveUserSettings($id)
             $value = implode(',', $value);
         }
         if ($value != '') {
-            $field = array();
+            $field = [];
             $field['webuser'] = $id;
             $field['setting_name'] = $name;
             $field['setting_value'] = db()->escape($value);

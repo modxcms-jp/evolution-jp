@@ -63,7 +63,7 @@ switch (postv('mode')) {
             $modx->event->alert(sprintf($_lang['duplicate_name_found_module'], $name));
 
             // prepare a few variables prior to redisplaying form...
-            $content = array();
+            $content = [];
             $_REQUEST['a'] = '107';
             $_GET['a'] = '107';
             $_GET['stay'] = postv('stay');

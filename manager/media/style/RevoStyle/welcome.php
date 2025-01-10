@@ -231,7 +231,7 @@ function tabOnlineUser()
     if ($total == 1) {
         $ph['OnlineInfo'] = $modx->parseText('<p>[+no_active_users_found+]</p>', $ph);
     } else {
-        $tr = array();
+        $tr = [];
         while ($row = db()->getRow($rs)) {
             $currentaction = getAction($row['action'], $row['id']);
             $webicon = ($row['internalKey'] < 0) ? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />' : '';

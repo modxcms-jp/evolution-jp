@@ -21,7 +21,7 @@ if (db()->count($rs) != 1) {
 }
 $deltime = db()->getValue($rs);
 
-$children = array();
+$children = [];
 getChildren($id);
 
 // invoke OnBeforeDocFormUnDelete event
@@ -33,7 +33,7 @@ if ($params['enableProcess'] == false) {
     $modx->webAlertAndQuit("The undeletion process was interrupted by plugin.");
 }
 
-$field = array();
+$field = [];
 $field['deleted'] = '0';
 $field['deletedby'] = '0';
 $field['deletedon'] = '0';

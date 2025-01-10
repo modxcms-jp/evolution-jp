@@ -105,7 +105,7 @@ class FileUpload
             $disp = "202,'" . $ext . "はアップロードできない種類のファイルです。'";//Disallowed file extension
         } else {
             $basename = substr($filename, 0, strrpos($filename, '.'));
-            $dirSizes = array();
+            $dirSizes = [];
             $globalSize = 0;
             $failSizeCheck = false;
             if ($this->fckphp_config['DiskQuota']['Global'] != -1) {

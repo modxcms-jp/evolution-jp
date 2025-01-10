@@ -109,7 +109,7 @@ $fckphp_config['ResourceAreas']['files'] = array(
     'AllowedExtensions' => explode(',', strtolower(evo()->config('upload_files'))),
 
     //Not implemented yet
-    'AllowedMIME' => array(),
+    'AllowedMIME' => [],
 
     //Set the maximum single upload to this area to 2MB (2048Kb)
     'MaxSize' => $upload_maxsize,
@@ -130,7 +130,7 @@ $fckphp_config['ResourceAreas']['files'] = array(
 //Image area
 $fckphp_config['ResourceAreas']['images'] = array(
     'AllowedExtensions' => explode(',', strtolower(evo()->config('upload_images'))),
-    'AllowedMIME' => array(),
+    'AllowedMIME' => [],
     'MaxSize' => $upload_maxsize,
     'DiskQuota' => -1,
     'HideFolders' => array("^\."),
@@ -141,7 +141,7 @@ $fckphp_config['ResourceAreas']['images'] = array(
 //Media area
 $fckphp_config['ResourceAreas']['media'] = array(
     'AllowedExtensions' => explode(',', strtolower(evo()->config('upload_media'))),
-    'AllowedMIME' => array(),
+    'AllowedMIME' => [],
     'MaxSize' => $upload_maxsize,
     'DiskQuota' => -1,
     'HideFolders' => array("^\."),
@@ -162,7 +162,7 @@ $fckphp_config['DiskQuota']['Global'] = -1; //no diskquota  //($rb_diskquota) ? 
 
 $fckphp_config['MaxDirNameLength'] = 25;
 
-$fckphp_config['DirNameAllowedChars'] = array();
+$fckphp_config['DirNameAllowedChars'] = [];
 
 //Allow numbers
 for ($i = 48; $i < 58; $i++) {

@@ -48,7 +48,7 @@ class GetFolders extends Base
                 /**
                  * Initiate the array to store the filenames
                  */
-                $files_in_folder = array();
+                $files_in_folder = [];
                 $files = scandir($this->real_cwd);
                 if ($files) {
                     foreach ($files as $filename) {

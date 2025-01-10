@@ -34,7 +34,7 @@ if (!is_writable($export_dir)) {
 $modx->export->maxtime = preg_match('@^[0-9]+$@', postv('maxtime')) ? postv('maxtime') : 60;
 $modx->export->setExportDir($export_dir);
 
-$info = array();
+$info = [];
 $info['allow_ids'] = getIds('allow_ids');
 $info['ignore_ids'] = getIds('ignore_ids');
 $info['repl_after'] = postv('repl_after');
@@ -79,7 +79,7 @@ $exportend = $modx->export->get_mtime();
 $totaltime = ($exportend - $modx->export->exportstart);
 $output .= sprintf('<p>' . lang('export_site_time') . '</p>', round($totaltime, 3));
 
-$info = array();
+$info = [];
 $info['allow_ids'] = getIds('allow_ids');
 $info['ignore_ids'] = getIds('ignore_ids');
 $info['repl_after'] = postv('repl_after');
