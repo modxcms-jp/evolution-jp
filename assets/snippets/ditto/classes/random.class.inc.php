@@ -118,6 +118,7 @@ class random
         }
 
         $i = 0;
+        $sub = 0;
         while ($i < $amount) {
             $max -= $sub;
             $w = 0;
