@@ -23,7 +23,7 @@ if (!class_exists('ddTools')) {
          * Создаёт новый документ.
          *
          */
-        public static function createDocument($fields = [], $groups = false)
+        public static function createDocument($fields = [], $groups = [])
         {
             global $modx;
 
