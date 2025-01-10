@@ -64,6 +64,12 @@ if ($modx->manager->hasFormValues()) {
 if ($formRestored) {
     $content = array_merge($content, $form_v);
 }
+
+function entity($key, $default = null)
+{
+    return $content[$key] ?? $default;
+}
+
 ?>
 <script type="text/javascript">
     function duplicaterecord() {
@@ -261,7 +267,7 @@ if ($formRestored) {
         echo implode("", $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= $content['id'] ?>">
+    <input type="hidden" name="id" value="<?= entity('id') ?>">
     <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
     <div id="actions">
@@ -320,7 +326,7 @@ if ($formRestored) {
                     <tr>
                         <th align="left"><?= $_lang['snippet_name'] ?></th>
                         <td align="left">[[<input name="name" type="text" maxlength="100"
-                                                  value="<?= htmlspecialchars($content['name']) ?>"
+                                                  value="<?= htmlspecialchars(entity('name')) ?>"
                                                   class="inputBox" style="width:300px;">]]
                         </td>
                     </tr>
@@ -336,9 +342,9 @@ if ($formRestored) {
                     </div>
                     <?php
                     if (isset($content['snippet'])) {
-                        $code = trim(htmlspecialchars($content['snippet']));
+                        $code = trim(htmlspecialchars(entity('snippet')));
                     } elseif (isset($content['post'])) {
-                        $code = trim(htmlspecialchars($content['post']));
+                        $code = trim(htmlspecialchars(entity('post')));
                     } else {
                         $code = '';
                     }
@@ -362,7 +368,7 @@ if ($formRestored) {
                                 $ds = $modx->manager->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . '</option>';
+                                        echo '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . '</option>';
                                     }
                                 }
                                 ?>
@@ -382,14 +388,14 @@ if ($formRestored) {
                         <th align="left" style="padding-top:10px"><?= $_lang['snippet_desc'] ?>:</th>
                         <td align="left" style="padding-top:10px">
                             <textarea name="description"
-                                      style="padding:0;height:4em;"><?= $content['description'] ?></textarea>
+                                      style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
                                 <label><input style="padding:0;margin:0;" name="locked"
-                                              type="checkbox" <?= $content['locked'] == 1 ? "checked='checked'" : '' ?>
+                                              type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : '' ?>
                                               class="inputBox"> <b><?= $_lang['lock_snippet'] ?></b> <span
                                         class="comment"><?= $_lang['lock_snippet_msg'] ?></span></label></td>
                         </tr>
@@ -404,7 +410,7 @@ if ($formRestored) {
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
-                            $options .= "<option value='" . $row['guid'] . "'" . ($content['moduleguid'] == $row['guid'] ? " selected='selected'" : "") . ">" . htmlspecialchars($row['name']) . "</option>";
+                            $options .= "<option value='" . $row['guid'] . "'" . (entity('moduleguid') == $row['guid'] ? " selected='selected'" : "") . ">" . htmlspecialchars($row['name']) . "</option>";
                         }
                     }
                     ?>
@@ -428,7 +434,7 @@ if ($formRestored) {
                         <th align="left" valign="top"><?= $_lang['snippet_properties'] ?>:</th>
                         <td align="left" valign="top"><textarea name="properties" maxlength="65535"
                                                                 class="inputBox phptextarea"
-                                                                onChange="showParameters(this);"><?= $content['properties'] ?></textarea>
+                                                                onChange="showParameters(this);"><?= entity('properties') ?></textarea>
                         </td>
                     </tr>
                     <tr id="displayparamrow">
@@ -457,7 +463,7 @@ if ($formRestored) {
     setTimeout('showParameters();', 10);
     var tpstatus = <?= (($modx->config['remember_last_tab'] == 2) || (getv('stay') == 2)) ? 'true' : 'false' ?>;
     tpSnippet = new WebFXTabPane(document.getElementById("snipetPane"), tpstatus);
-    var readonly = <?= ($content['locked'] == 1 || $content['locked'] == 'on') ? '1' : '0' ?>;
+    var readonly = <?= (entity('locked') == 1 || entity('locked') == 'on') ? '1' : '0' ?>;
     if (readonly == 1) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');
