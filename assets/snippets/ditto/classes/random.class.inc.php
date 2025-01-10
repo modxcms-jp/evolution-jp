@@ -19,6 +19,7 @@ class random
 
     function optimize()
     {
+        $new = [];
         foreach ($this->data as $var) {
             if ($new[$var['s']]) $new[$var['s']] += $var['w'];
             else                $new[$var['s']] = $var['w'];
