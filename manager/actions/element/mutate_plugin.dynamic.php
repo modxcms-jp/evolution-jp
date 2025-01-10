@@ -36,7 +36,7 @@ if (1 < db()->count($rs) && $row['internalKey'] != evo()->getLoginUserID()) {
 if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
     $rs = db()->select('*', '[+prefix+]site_plugins', "id='{$id}'");
     $total = db()->count($rs);
-    $pluginObject = (object)db()->getRow($rs);
+    $content = db()->getRow($rs);
 
     if (1 < $total):
         echo "Multiple plugins sharing same unique id. Not good.<p>";
@@ -45,15 +45,22 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
         header("Location: " . MODX_SITE_URL);
     endif;
 
-    $_SESSION['itemname'] = $pluginObject->name;
+    $_SESSION['itemname'] = entity('name');
 } else {
     $_SESSION['itemname'] = 'New Plugin';
+}
+
+function entity($key, $default = null)
+{
+    global $content;
+    
+    return $content[$key] ?? $default;
 }
 ?>
     <script language="JavaScript">
 
         jQuery(function () {
-            let readonly = <?= ($pluginObject->locked == 1 || $pluginObject->locked === 'on') ? '1' : '0' ?>;
+            let readonly = <?= (entity('locked') == 1 || entity('locked') === 'on') ? 1 : 0 ?>;
             if (readonly == 1) {
                 jQuery('textarea,input[type=text]').prop('readonly', true);
                 jQuery('select').addClass('readonly');
@@ -420,7 +427,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
             echo implode("", $evtOut);
         }
         ?>
-        <input type="hidden" name="id" value="<?= $pluginObject->id ?>">
+        <input type="hidden" name="id" value="<?= entity('id') ?>">
         <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
         <h1><?= $_lang['plugin_title'] ?></h1>
@@ -482,14 +489,14 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                         <tr>
                             <th align="left"><?= $_lang['plugin_name'] ?></th>
                             <td align="left"><input id="pluginName" name="name" type="text" maxlength="100"
-                                                    value="<?= hsc($pluginObject->name) ?>"
+                                                    value="<?= hsc(entity('name')) ?>"
                                                     class="inputBox" style="width:300px;"></td>
                         </tr>
                         <tr>
                             <td align="left" valign="top" colspan="2"><label><input name="disabled"
-                                                                                    type="checkbox" <?= $pluginObject->disabled == 1 ? "checked='checked'" : "" ?>
+                                                                                    type="checkbox" <?= entity('disabled') == 1 ? "checked='checked'" : "" ?>
                                                                                     value="on"
-                                                                                    class="inputBox"> <?= $pluginObject->disabled == 1 ? "<span class='warning'>" . $_lang['plugin_disabled'] . "</span></label>" : $_lang['plugin_disabled'] ?>
+                                                                                    class="inputBox"> <?= entity('disabled') == 1 ? "<span class='warning'>" . $_lang['plugin_disabled'] . "</span></label>" : $_lang['plugin_disabled'] ?>
                             </td>
                         </tr>
                     </table>
@@ -510,7 +517,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                         <textarea
                             dir="ltr" name="post" style="width:100%; height:370px;" wrap="soft"
                             class="phptextarea"
-                            id="phptextarea"><?= hsc($pluginObject->plugincode) ?></textarea>
+                            id="phptextarea"><?= hsc(entity('plugincode')) ?></textarea>
                     </div>
                     <!-- PHP text editor end -->
                 </div>
@@ -529,7 +536,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                     if ($guid_total > 0) {
                         $options = '';
                         while ($row = db()->getRow($ds)) {
-                            $options .= "<option value='" . $row['guid'] . "'" . selected($pluginObject->moduleguid == $row["guid"]) . ">" . hsc($row["name"]) . "</option>";
+                            $options .= "<option value='" . $row['guid'] . "'" . selected(entity('moduleguid') == $row["guid"]) . ">" . hsc($row["name"]) . "</option>";
                         }
                     }
                     ?>
@@ -560,7 +567,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                             <td align="left" valign="top">
                                 <textarea class="phptextarea inputBox" name="properties" id="propertiesBox"
                                           onblur='showParameters(this);'
-                                          onChange="showParameters(this);"><?= $pluginObject->properties ?></textarea><br/>
+                                          onChange="showParameters(this);"><?= entity('properties') ?></textarea><br/>
                                 <input
                                     type="button" value="<?= $_lang['update_params'] ?>"
                                     onclick="showParameters(this);"/>
@@ -588,8 +595,8 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                                 $evts[] = $row['evtid'];
                             }
                         } else {
-                            if (isset($pluginObject->sysevents) && is_array($pluginObject->sysevents)) {
-                                $evts = $pluginObject->sysevents;
+                            if (isset($content['sysevents']) && is_array($content['sysevents'])) {
+                                $evts = $content['sysevents'];
                             } else {
                                 $evts = [];
                             }
@@ -670,7 +677,7 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                                             echo sprintf(
                                                 "<option value='%s' %s>%s</option>",
                                                 $v['id'],
-                                                selected($pluginObject->category == $v["id"]),
+                                                selected(entity('category') == $v["id"]),
                                                 hsc($v["category"])
                                             );
                                         }
@@ -696,14 +703,14 @@ if (getv('id') && preg_match('@^[1-9][0-9]*$@', getv('id'))) {
                             <th align="left"><?= $_lang['plugin_desc'] ?>:&nbsp;&nbsp;</th>
                             <td align="left">
                                 <textarea id="pluginDescription" name="description"
-                                          style="padding:0;height:4em;"><?= $pluginObject->description ?></textarea>
+                                          style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                             </td>
                         </tr>
                         <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
                             <tr>
                                 <td align="left" valign="top" colspan="2">
                                     <label><input name="locked"
-                                                  type="checkbox" <?= $pluginObject->locked == 1 ? "checked='checked'" : "" ?>
+                                                  type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
                                                   value="on" class="inputBox">
                                         <b><?= $_lang['lock_plugin'] ?></b> <span
                                             class="comment"><?= $_lang['lock_plugin_msg'] ?></span></label>
