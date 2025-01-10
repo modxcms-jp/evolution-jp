@@ -70,12 +70,22 @@
         }
 
         .jumbotron {
-            padding: 4rem 2rem;
-            margin-bottom: 3rem;
-            background-color: #d6d8db;
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+            background-color: #e9ecef;
             border-radius: .3rem;
-            text-align: center;
         }
+
+        .jumbotron h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .jumbotron p {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
 
         .footer {
             position: fixed;
