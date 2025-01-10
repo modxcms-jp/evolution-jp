@@ -83,14 +83,19 @@ function entity($key, $default = null)
     if (!isset($content['published'])) {
         $content['published'] = 1;
     }
-    $content['pub_date'] = !empty($content['pub_date'])
-        ? evo()->toDateFormat($content['pub_date'])
-        : ''
-    ;
-    $content['unpub_date'] = !empty($content['unpub_date'])
-        ? evo()->toDateFormat($content['unpub_date'])
-        : ''
-    ;
+    if ($key === 'pub_date') {
+        return !empty($content['pub_date'])
+            ? evo()->toDateFormat($content['pub_date'])
+            : ''
+        ;
+    }
+
+    if ($key === 'unpub_date') {
+        return !empty($content['unpub_date'])
+            ? evo()->toDateFormat($content['unpub_date'])
+            : ''
+        ;
+    }
 
     return $content[$key] ?? $default;
 }
@@ -100,7 +105,6 @@ if (isset($form_v['which_editor'])) {
 } elseif (!entity('editor_type')) {
     $which_editor = 'none';
 }
-
 
 // Print RTE Javascript function
 ?>
