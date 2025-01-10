@@ -67,6 +67,7 @@ if ($formRestored) {
 
 function entity($key, $default = null)
 {
+    global $content;
     return $content[$key] ?? $default;
 }
 
@@ -275,7 +276,7 @@ function entity($key, $default = null)
             <?php if (evo()->hasPermission('save_snippet')): ?>
                 <li id="Button1" class="mutate">
                     <a href="#"
-                       onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
+                    onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
                         <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
                     </a>
                     <span class="and"> + </span>
