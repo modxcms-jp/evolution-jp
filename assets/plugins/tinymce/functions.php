@@ -36,7 +36,7 @@ class TinyMCE
 
     private function get_skin_names()
     {
-        global $modx, $_lang;
+        global $_lang;
         $params = $this->params;
         $mce_path = $params['mce_path'];
         $option = [];
@@ -46,10 +46,11 @@ class TinyMCE
             case '11':
             case '12':
             case '74':
-                $selected = $this->selected(empty($params['mce_editor_skin']));
+                $selected = $this->selected(empty($this->usersettings('mce_editor_skin')));
                 $option[] = '<option value=""' . $selected . '>' . $_lang['mce_theme_global_settings'] . "</option>";
                 break;
         }
+
         foreach (glob("{$skin_dir}*", GLOB_ONLYDIR) as $dir) {
             $dir = str_replace('\\', '/', $dir);
             $skin_name = substr($dir, strrpos($dir, '/') + 1);
@@ -62,16 +63,17 @@ class TinyMCE
                     $skins[$skin_name][] = $skin_variant;
                 }
             }
-            foreach ($skins as $k => $o) {
-                foreach ($o as $v) {
-                    if ($v === 'default') {
-                        $value = $k;
-                    } else {
-                        $value = "{$k}:{$v}";
-                    }
-                    $selected = $this->selected($value == $params['mce_editor_skin']);
-                    $option[] = '<option value="' . $value . '"' . $selected . '>' . $value . "</option>";
-                }
+        }
+
+        foreach ($skins as $skinName => $variants) {
+            foreach ($variants as $variant) {
+                $value = ($variant === 'default')
+                    ? $skinName
+                    : "{$skinName}:{$variant}";
+                $selected = $this->selected($this->usersettings('mce_editor_skin') && $value == $this->usersettings('mce_editor_skin'));
+                $option[] = sprintf(
+                    '<option value="%s"%s>%s</option>', $value, $selected, $value
+                );
             }
         }
         return implode("\n", $option);
@@ -139,12 +141,16 @@ class TinyMCE
         ];
         $themeOptions = [];
         foreach ($themes as $value => $label) {
+            if ($value === 'inherit') {
+                $value = '';
+                $selected = empty($this->usersettings('tinymce_editor_theme'));
+            } else {
+                $selected = $value == $this->usersettings('tinymce_editor_theme');
+            }
             $themeOptions[] = vsprintf(
                 '<option value=%s %s>%s</option>', [
                     '"' . $value . '"',
-                    (!$this->usersettings('tinymce_editor_theme') || $value == $this->usersettings('tinymce_editor_theme'))
-                        ? 'selected'
-                        : '',
+                    $selected ? 'selected' : '',
                     $label,
                 ]
             ) . "\n";
