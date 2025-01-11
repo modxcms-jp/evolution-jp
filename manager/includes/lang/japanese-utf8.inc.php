@@ -145,6 +145,7 @@ $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外�
 $_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
 $_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。';
 $_lang["configcheck_warning"] = '警告';
+$_lang["confirm"] = '確認';
 $_lang["confirm_block"] = 'このアカウントを休止してもよろしいですか?';
 $_lang["confirm_delete_eventlog"] = 'このログエントリーを削除してもよろしいですか?';
 $_lang["confirm_delete_file"] = 'このファイルを削除してもよろしいですか?';
