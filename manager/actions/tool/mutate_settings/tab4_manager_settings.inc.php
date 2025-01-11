@@ -267,10 +267,15 @@
                 $editors = evo()->invokeEvent("OnRichTextEditorRegister");
                 if (is_array($editors)) {
                     $which_editor_sel = '<select name="which_editor">';
-                    $which_editor_sel .= '<option value="none"' . (config('which_editor') == 'none' ? ' selected="selected"' : '') . '>' . $_lang["none"] . "</option>\n";
+                    $which_editor_sel .= sprintf(
+                        '<option value="none"%s>%s</option>\n',
+                        config('which_editor') == 'none' ? ' selected' : '',
+                        $_lang["none"]);
                     foreach ($editors as $editor) {
                         $editor_sel = config('which_editor') == $editor ? ' selected="selected"' : '';
-                        $which_editor_sel .= '<option value="' . $editor . '"' . $editor_sel . '>' . $editor . "</option>\n";
+                        $which_editor_sel .= sprintf(
+                            '<option value="%s"%s>%s</option>\n', $editor, $editor_sel, $editor
+                        );
                     }
                     $which_editor_sel .= '</select><br />';
                 } else {

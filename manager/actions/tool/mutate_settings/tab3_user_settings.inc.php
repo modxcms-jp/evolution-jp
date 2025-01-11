@@ -183,7 +183,11 @@
             <th><?= $_lang["email_method_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["email_method_mail"],
-                    form_radio('email_method', 'mail', (evo()->config('email_method') == 'mail' || !evo()->config('email_method')))); ?>
+                    form_radio(
+                        'email_method',
+                        'mail',
+                        (evo()->config('email_method') == 'mail' || !evo()->config('email_method')))
+                    ); ?>
                 <?= wrap_label($_lang["email_method_smtp"],
                     form_radio('email_method', 'smtp', (evo()->config('email_method') == 'smtp'))); ?><br/>
             </td>

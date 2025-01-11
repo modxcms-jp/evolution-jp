@@ -14,7 +14,7 @@
                     id="default_filemanager_path">[(base_path)]</span> <?= "({$base_path})" ?><br/>
                 <?= form_text('filemanager_path', 255, 'id="filemanager_path" value="' . config('filemanager_path') . '"') ?>
                 <input type="button" onclick="jQuery('#filemanager_path').val('[(base_path)]');"
-                       value="<?= $_lang["reset"] ?>" name="reset_filemanager_path"><br/>
+                        value="<?= $_lang["reset"] ?>" name="reset_filemanager_path"><br/>
                 <?= $_lang["filemanager_path_message"] ?></td>
         </tr>
         <tr>
@@ -115,11 +115,13 @@
                 }
                 ?>
                 <?= $_lang['default'] ?> <span
-                    id="default_rb_base_dir"><?= "[(base_path)]{$default_rb_base_dir}" ?></span> <?= "({$base_path}{$default_rb_base_dir})" ?>
+                    id="default_rb_base_dir">
+                    <?= "[(base_path)]{$default_rb_base_dir}" ?></span>
+                    <?= "({$base_path}{$default_rb_base_dir})" ?>
                 <br/>
                 <?= form_text('rb_base_dir', 255, 'id="rb_base_dir" value="' . config('rb_base_dir') . '"') ?>
                 <input type="button" onclick="jQuery('#rb_base_dir').val(jQuery('#default_rb_base_dir').text());"
-                       value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
+                        value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
         </tr>
         <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
