@@ -98,18 +98,11 @@ class TinyMCE
 
         switch ($modx->manager->action) {
             case 11:
-                $config = [];
-                break;
             case 12:
             case 74:
-                $config = $this->usersettings;
                 if (!isset($this->usersettings['tinymce_editor_theme'])) {
                     $this->usersettings['tinymce_editor_theme'] = '';
                 }
-                break;
-            case 17:
-            default:
-                $config = evo()->config;
                 break;
         }
         include_once("{$mce_path}settings/default_params.php");
@@ -134,24 +127,32 @@ class TinyMCE
 
         $ph += $_lang;
 
-        $theme_options = '';
-        $themes['inherit'] = $_lang['mce_theme_global_settings'];
-        $themes['simple'] = $_lang['mce_theme_simple'];
-        $themes['editor'] = $_lang['mce_theme_editor'];
-        $themes['creative'] = $_lang['mce_theme_creative'];
-        $themes['logic'] = $_lang['mce_theme_logic'];
-        $themes['advanced'] = $_lang['mce_theme_advanced'];
-        $themes['legacy'] = (!empty($_lang['mce_theme_legacy'])) ? $_lang['mce_theme_legacy'] : 'legacy';
-        $themes['custom'] = $_lang['mce_theme_custom'];
-        foreach ($themes as $key => $value) {
-            $selected = $this->selected(empty($this->usersettings) || $key == $this->usersettings['tinymce_editor_theme']);
-            $key = '"' . $key . '"';
-            $theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
+        $themes = [
+            'inherit' => $_lang['mce_theme_global_settings'],
+            'simple' => $_lang['mce_theme_simple'],
+            'editor' => $_lang['mce_theme_editor'],
+            'creative' => $_lang['mce_theme_creative'],
+            'logic' => $_lang['mce_theme_logic'],
+            'advanced' => $_lang['mce_theme_advanced'],
+            'legacy' => (!empty($_lang['mce_theme_legacy'])) ? $_lang['mce_theme_legacy'] : 'legacy',
+            'custom' => $_lang['mce_theme_custom']
+        ];
+        $themeOptions = [];
+        foreach ($themes as $value => $label) {
+            $themeOptions[] = vsprintf(
+                '<option value=%s %s>%s</option>', [
+                    '"' . $value . '"',
+                    (!$this->usersettings('tinymce_editor_theme') || $value == $this->usersettings('tinymce_editor_theme'))
+                        ? 'selected'
+                        : '',
+                    $label,
+                ]
+            ) . "\n";
         }
         $ph['display'] = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         $ph['display'] = $modx->config['use_editor'] == 1 ? $ph['display'] : 'none';
 
-        $ph['theme_options'] = $theme_options;
+        $ph['theme_options'] = implode("\n", $themeOptions);
         $ph['skin_options'] = $this->get_skin_names();
 
         $ph['entermode_options'] = sprintf(
@@ -224,6 +225,11 @@ class TinyMCE
         return evo()->cleanUpMODXTags(
             evo()->parseText($gsettings, $ph)
         );
+    }
+
+    private function usersettings($key, $default = null)
+    {
+        return $this->usersettings[$key] ?? $default;
     }
 
     public function get_mce_script()
