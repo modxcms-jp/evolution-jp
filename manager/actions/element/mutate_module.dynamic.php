@@ -53,12 +53,18 @@ if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
         exit('<p>No record found for id: ' . $id . '.</p>');
     }
     $content = db()->getRow($rs);
-    $_SESSION['itemname'] = $content['name'];
+    $_SESSION['itemname'] = content('name');
 } else {
     $_SESSION['itemname'] = 'New Module';
     $content['wrap'] = '1';
 }
 $modx->moduleObject = $content;
+
+function content($key, $default = null)
+{
+    global $content;
+    return $content[$key] ?? $default;
+}
 ?>
 <script type="text/javascript">
     var docid = <?= anyv('id') ?>;
@@ -308,7 +314,7 @@ $modx->moduleObject = $content;
         echo implode('', $evtOut);
     }
     ?>
-    <input type="hidden" name="id" value="<?= $content['id'] ?>">
+    <input type="hidden" name="id" value="<?= content('id') ?>">
     <input type="hidden" name="mode" value="<?= getv('a') ?>">
 
     <h1><?= $_lang['module_title'] ?></h1>
@@ -370,15 +376,15 @@ $modx->moduleObject = $content;
                     <tr>
                         <td align="left"><?= $_lang['module_name'] ?>:</td>
                         <td align="left"><input name="name" type="text" maxlength="100"
-                                value="<?= htmlspecialchars($content['name']) ?>" class="inputBox">
+                                value="<?= hsc(content('name')) ?>" class="inputBox">
                         </td>
                     </tr>
                     <tr>
                         <td align="left" valign="top" colspan="2"><input name="disabled"
-                                type="checkbox" <?= $content['disabled'] == 1 ? 'checked="checked"' : '' ?>
+                                type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
                                 value="on" class="inputBox" />
                             <span style="cursor:pointer"
-                                onclick="document.mutate.disabled.click();"><?= $content['disabled'] == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
+                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
                         </td>
                     </tr>
                 </table>
@@ -389,11 +395,11 @@ $modx->moduleObject = $content;
                         style="padding:3px 8px; overflow:hidden;zoom:1; background-color:#eeeeee; border:1px solid #c3c3c3; border-bottom:none;margin-top:5px;">
                         <span style="float:left;font-weight:bold;"><?= $_lang['module_code'] ?></span>
                         <span style="float:right; color:#707070"><?= $_lang['wrap_lines'] ?><input name="wrap"
-                                type="checkbox" <?= $content['wrap'] == 1 ? ' checked="checked"' : '' ?> class="inputBox"
+                                type="checkbox" <?= content('wrap') == 1 ? ' checked="checked"' : '' ?> class="inputBox"
                                 onclick="setTextWrap(document.mutate.post,this.checked)" /></span>
                     </div>
                     <?php
-                    if ($content['locked'] === '1') {
+                    if (content('locked') == 1) {
                         $readonly = 'readonly';
                     } else {
                         $readonly = '';
@@ -401,7 +407,7 @@ $modx->moduleObject = $content;
                     ?>
                     <textarea dir="ltr" <?= $readonly ?> class="phptextarea" name="post"
                         style="width:100%; height:370px;"
-                        wrap="<?= $content['wrap'] == 1 ? 'soft' : 'off' ?>"><?= htmlspecialchars($content['modulecode']) ?></textarea>
+                        wrap="<?= content('wrap') == 1 ? 'soft' : 'off' ?>"><?= hsc(content('modulecode')) ?></textarea>
                 </div>
                 <!-- PHP text editor end -->
             </div>
@@ -419,7 +425,7 @@ $modx->moduleObject = $content;
                                 $ds = manager()->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
-                                        echo "\t\t\t" . '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . "</option>\n";
+                                        echo "\t\t\t" . '<option value="' . $v['id'] . '"' . (content('category') == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . "</option>\n";
                                     }
                                 }
                                 ?>
@@ -438,32 +444,32 @@ $modx->moduleObject = $content;
                     <tr>
                         <td align="left"><?= $_lang['module_desc'] ?>:</td>
                         <td align="left"><textarea name="description"
-                                style="padding:0;width:300px;height:4em;"><?= $content['description'] ?></textarea>
+                                style="padding:0;width:300px;height:4em;"><?= content('description') ?></textarea>
                         </td>
                     </tr>
                     <tr>
                         <td align="left"><?= $_lang['icon'] ?> <span class="comment">(32x32)</span>:</td>
                         <td align="left"><input type="text" maxlength="255" style="width: 235px;" name="icon"
-                                value="<?= $content['icon'] ?>" /> <input type="button"
+                                value="<?= content('icon') ?>" /> <input type="button"
                                 value="<?= $_lang['insert'] ?>"
                                 onclick="BrowseServer();" />
                         </td>
                     </tr>
                     <tr style="display:none;">
                         <td align="left"><input name="enable_resource" title="<?= $_lang['enable_resource'] ?>"
-                                type="checkbox" <?= $content['enable_resource'] == 1 ? ' checked="checked"' : '' ?>
+                                type="checkbox" <?= content('enable_resource') == 1 ? ' checked="checked"' : '' ?>
                                 class="inputBox" /> <span style="cursor:pointer"
                                 onclick="document.mutate.enable_resource.click();"
                                 title="<?= $_lang['enable_resource'] ?>"><?= $_lang["element"] ?></span>:
                         </td>
                         <td align="left"><input name="resourcefile" type="text" maxlength="255"
-                                value="<?= $content['resourcefile'] ?>" class="inputBox" />
+                                value="<?= content('resourcefile') ?>" class="inputBox" />
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_module') == 1) { ?>
                         <tr>
                             <td align="left" valign="top" colspan="2"><input name="locked"
-                                    type="checkbox" <?= $content['locked'] == 1 ? ' checked="checked"' : '' ?>
+                                    type="checkbox" <?= content('locked') == 1 ? ' checked="checked"' : '' ?>
                                     class="inputBox" />
                                 <span style="cursor:pointer"
                                     onclick="document.mutate.locked.click();"><?= $_lang['lock_module'] ?></span>
@@ -478,7 +484,7 @@ $modx->moduleObject = $content;
                                 style="display:block;"
                                 maxlength="65535"
                                 class="inputBox phptextarea"
-                                onchange="showParameters(this);"><?= $content['properties'] ?></textarea>
+                                onchange="showParameters(this);"><?= content('properties') ?></textarea>
                             <input type="button" value="<?= $_lang['update_params'] ?>"
                                 style="width:16px; margin-left:2px;" title="<?= $_lang['update_params'] ?>" />
                         </td>
@@ -498,7 +504,7 @@ $modx->moduleObject = $content;
                     <h2 class="tab"><?= $_lang['settings_dependencies'] ?></h2>
                     <div class="sectionBody">
                         <?php
-                        $display = ($content['enable_sharedparams'] != 1) ? 'style="display:none;"' : '';
+                        $display = (content('enable_sharedparams') != 1) ? 'style="display:none;"' : '';
                         ?>
                         <table>
                             <tr>
@@ -506,7 +512,7 @@ $modx->moduleObject = $content;
                                     <input
                                         name="enable_sharedparams"
                                         type="checkbox"
-                                        <?= $content['enable_sharedparams'] == 1 ? ' checked="checked"' : '' ?>
+                                        <?= content('enable_sharedparams') == 1 ? ' checked="checked"' : '' ?>
                                         class="inputBox" />
                                     <span style="cursor:pointer"
                                         onclick="document.mutate.enable_sharedparams.click();">
@@ -520,7 +526,7 @@ $modx->moduleObject = $content;
                                     <input
                                         name="guid" type="text" maxlength="32"
                                         value="<?=
-                                                ($content['guid'] != '') ? $content['guid'] : createGUID()
+                                                content('guid') ?: createGUID()
                                                 ?>"
                                         class="inputBox" /><br />
                                     <span class="comment"><?= $_lang['enable_sharedparams_msg'] ?></span><br />
