@@ -314,7 +314,7 @@ switch (postv('mode')) {
             "UPDATE %s SET username='%s'%s WHERE id='%s'",
             evo()->getFullTableName('web_users'),
             db()->escape($newusername),
-            $updatepasswordsql,
+            $updatepasswordsql ?? '',
             $id
         );
         $rs = db()->query($sql);
@@ -358,24 +358,24 @@ switch (postv('mode')) {
         saveUserSettings($id);
 
         // invoke OnWebSaveUser event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'userid' => $id,
             'username' => $newusername,
-            'userpassword' => $newpassword,
+            'userpassword' => $newpassword ?? '',
             'useremail' => $email,
             'userfullname' => $fullname,
             'oldusername' => ($oldusername != $newusername) ? $oldusername : '',
             'olduseremail' => ($oldemail != $email) ? $oldemail : ''
-        );
+        ];
         evo()->invokeEvent('OnWebSaveUser', $tmp);
 
         // invoke OnWebChangePassword event
-        if ($updatepasswordsql) {
+        if (!empty($updatepasswordsql)) {
             $tmp = array(
                 'userid' => $id,
                 'username' => $newusername,
-                'userpassword' => $newpassword
+                'userpassword' => $newpassword ?? ''
             );
         }
         evo()->invokeEvent('OnWebChangePassword', $tmp);
