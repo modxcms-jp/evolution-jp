@@ -11,7 +11,7 @@
                     $file = str_replace('\\', '/', $file);
                     if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
                         $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
-                        $selectedtext = $themename == $user['manager_theme'] ? "selected='selected'" : "";
+                        $selectedtext = $themename == user('manager_theme') ? "selected='selected'" : "";
                         echo "<option value='$themename' $selectedtext>" . ucwords(str_replace("_", " ",
                                 $themename)) . "</option>";
                     }
@@ -31,7 +31,7 @@
             &nbsp;&nbsp;
             <label><input
                 type="checkbox" name="default_manager_inline_style"
-                value="1" <?= isset($user['manager_inline_style']) ? '' : 'checked' ?>
+                value="1" <?= user('manager_inline_style') ? '' : 'checked' ?>
                 /> <?= lang('user_use_config') ?>
             </label>
             <div><?= lang('a17_manager_inline_style_message') ?></div>
@@ -42,11 +42,7 @@
         <td>
             <input
                 name="manager_login_startup"
-                value="<?=
-                    isset($user['manager_login_startup'])
-                        ? $user['manager_login_startup']
-                        : ''
-                    ?>"
+                value="<?= user('manager_login_startup') ?: '' ?>"
                 type="text"
                 maxlength="50"
                 style="width: 100px;"
@@ -59,7 +55,7 @@
         <td><select name="manager_language" size="1" class="inputBox">
                 <option value=""><?= lang('user_use_config') ?></option>
                 <?php
-                $activelang = (!empty($user['manager_language'])) ? $user['manager_language'] : '';
+                $activelang = user('manager_language') ?: '';
                 $dir = dir(MODX_CORE_PATH . 'lang');
                 while ($file = $dir->read()) {
                     if (strpos($file, '.inc.php') === false) {
@@ -91,7 +87,7 @@
             <select name="which_editor" class="inputBox">
                 <option value=""><?= lang('user_use_config') ?></option>
                 <?php
-                $edt = isset ($user["which_editor"]) ? $user["which_editor"] : '';
+                $edt = user("which_editor");
                 // invoke OnRichTextEditorRegister event
                 $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                 echo "<option value='none'" . selected($edt == 'none') . ">" . lang('none') . "</option>\n";
@@ -109,7 +105,7 @@
         style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none' ?>">
         <th><?= lang('editor_css_path_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path"
-                   value="<?= isset($user["editor_css_path"]) ? $user["editor_css_path"] : "" ?>"/>
+                   value="<?= user("editor_css_path") ?>"/>
             <div><?= lang('editor_css_path_message') ?></div>
         </td>
     </tr>
