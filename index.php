@@ -52,7 +52,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
                 header('Content-Type:' . $type . '; charset=utf-8');
             } else header('Content-Type:text/html; charset=utf-8');
             $msize = memory_get_peak_usage() - $mstart;
-            $units = array('B', 'KB', 'MB');
+            $units = ['B', 'KB', 'MB'];
             $pos = 0;
             while ($msize >= 1024) {
                 $msize /= 1024;
@@ -62,7 +62,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
             $totalTime = (microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']);
             $totalTime = sprintf('%2.4f s', $totalTime);
             $incs = get_included_files();
-            $r = array('[^q^]' => '0', '[^qt^]' => '0s', '[^p^]' => $totalTime, '[^t^]' => $totalTime, '[^s^]' => 'bypass_cache', '[^m^]' => $msize, '[^f^]' => count($incs));
+            $r = ['[^q^]' => '0', '[^qt^]' => '0s', '[^p^]' => $totalTime, '[^t^]' => $totalTime, '[^s^]' => 'bypass_cache', '[^m^]' => $msize, '[^f^]' => count($incs)];
             $output = strtr($output, $r);
             if (is_file(MODX_BASE_PATH . 'autoload.php'))
                 $loaded_autoload = include MODX_BASE_PATH . 'autoload.php';

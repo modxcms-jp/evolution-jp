@@ -78,12 +78,12 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 
 			' . "\n";
     // Go through each TV
-    $ph = array(
+    $ph = [
         'base_url' => MODX_BASE_URL,
         'thumbnailerUrl' => $thumbnailerUrl,
         'w' => $w,
         'h' => $h
-    );
+    ];
     foreach ($tvs as $tv) {
         $ph['id'] = $tv['id'];
         $output .= evo()->parseText($tpl1, $ph);

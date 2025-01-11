@@ -136,20 +136,20 @@ class ForgotManagerPassword
     function send($email, $fmpkey)
     {
         return evo()->sendmail(
-            array(
+            [
                 'subject' => $this->lang('password_change_request'),
                 'sendto' => $email
-            ),
+            ],
             evo()->parseDocumentSource(
                 evo()->parseText(
-                    file_get_contents($this->tpl_path . 'sendmail.tpl')
-                    , array(
+                    file_get_contents($this->tpl_path . 'sendmail.tpl'),
+                    [
                         'intro' => $this->lang('forgot_password_email_intro'),
                         'fmpkey' => $fmpkey . (evo()->config('use_captcha') ? '&captcha_code=ignore' : ''),
                         'link' => $this->lang('forgot_password_email_link'),
                         'instructions' => $this->lang('forgot_password_email_instructions'),
                         'fine_print' => $this->lang('forgot_password_email_fine_print')
-                    )
+                    ]
                 )
             )
         );
@@ -201,11 +201,11 @@ class ForgotManagerPassword
     private function unBlock($user_id)
     {
         db()->update(
-            array(
+            [
                 'blocked' => 0,
                 'blockeduntil' => 0,
                 'failedlogincount' => 0
-            ),
+            ],
             '[+prefix+]user_attributes',
             sprintf("internalKey='%s'", $user_id)
         );
@@ -223,11 +223,11 @@ class ForgotManagerPassword
     {
         return db()->insert(
             db()->escape(
-                array(
+                [
                     'user' => $user_id,
                     'setting_name' => $key,
                     'setting_value' => $value
-                )
+                ]
             ),
             '[+prefix+]user_settings'
         );
@@ -237,10 +237,10 @@ class ForgotManagerPassword
     {
         db()->delete(
             '[+prefix+]user_settings',
-            array(
+            [
                 sprintf("user=%s", $user_id),
                 "AND setting_name LIKE 'fmp_%'"
-            )
+            ]
         );
     }
 
@@ -262,10 +262,10 @@ class ForgotManagerPassword
         }
         db()->delete(
             '[+prefix+]user_settings',
-            array(
+            [
                 where_in('user', $user_ids),
                 "AND setting_name LIKE 'fmp_%'"
-            )
+            ]
         );
     }
 

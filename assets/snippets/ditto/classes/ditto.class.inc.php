@@ -21,7 +21,7 @@ class ditto
         $this->sqlOrderBy = [];
         $this->customReset = [];
         $this->constantFields[] = array('db', 'tv');
-        $this->constantFields['db'] = array(
+        $this->constantFields['db'] = [
             'id', 'type', 'contentType', 'pagetitle', 'longtitle',
             'description', 'alias', 'link_attributes', 'published',
             'pub_date', 'unpub_date', 'parent', 'isfolder',
@@ -31,15 +31,16 @@ class ditto
             'deletedon', 'deletedby', 'publishedon', 'publishedby',
             'menutitle', 'donthit', 'haskeywords', 'hasmetatags',
             'privateweb', 'privatemgr', 'content_dispo', 'hidemenu'
-        );
+        ];
         $this->constantFields['tv'] = $this->getTVList();
         $GLOBALS['ditto_constantFields'] = $this->constantFields;
-        $this->fields = array(
+        $this->fields = [
             'display' => [],
-            'backend' => array(
+            'backend' => [
                 'tv' => [],
-                'db' => array('id', 'published'))
-        );
+                'db' => ['id', 'published']
+            ]
+        ];
         $this->sortOrder = false;
         $this->customPlaceholdersMap = [];
         $this->template = new template();
@@ -253,7 +254,7 @@ class ditto
 
     public function parseFilters($filter_params = false, $cFilters = [], $pFilters = [], $globalDelimiter = ',', $localDelimiter = ':')
     {
-        $parsedFilters = array('basic' => [], 'custom' => []);
+        $parsedFilters = ['basic' => [], 'custom' => []];
         $filters = explode($globalDelimiter, $filter_params);
         if ($filter_params) {
             foreach ($filters as $filter) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QuickManager+
  *
@@ -36,9 +37,7 @@ class Qm
     public $parents = [];
     public $docGroup = '';
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     private function tv_buttons()
     {
@@ -59,22 +58,23 @@ class Qm
         }
 
         $m = evo()->getTagsFromContent(
-            $output
-            , '[*#', '*]'
+            $output,
+            '[*#',
+            '*]'
         );
         if (!$m) {
             return;
         }
         foreach ($m[1] as $i => $v) {
             $output = str_replace(
-                $m[0][$i]
-                , sprintf(
-                    '<!-- %s %s -->%s'
-                    , event()->param('tvbclass')
-                    , (strpos($v, ':') !== false) ? substr($v, 0, strpos($v, ':')) : $v
-                    , $m[0][$i]
-                )
-                , $output
+                $m[0][$i],
+                sprintf(
+                    '<!-- %s %s -->%s',
+                    event()->param('tvbclass'),
+                    (strpos($v, ':') !== false) ? substr($v, 0, strpos($v, ':')) : $v,
+                    $m[0][$i]
+                ),
+                $output
             );
         }
     }
@@ -185,7 +185,6 @@ class Qm
             return $default;
         }
         return $conf[$key];
-
     }
 
     function checkAccess()
@@ -200,9 +199,9 @@ class Qm
         }
 
         $result = db()->select(
-            'id'
-            , '[+prefix+]document_groups'
-            , where('document', '=', evo()->documentIdentifier)
+            'id',
+            '[+prefix+]document_groups',
+            where('document', '=', evo()->documentIdentifier)
         );
         if (!db()->count($result)) {
             return true;
@@ -212,13 +211,13 @@ class Qm
             return false;
         }
         $result = db()->select(
-            'id'
-            , '[+prefix+]document_groups'
-            , array(
+            'id',
+            '[+prefix+]document_groups',
+            [
                 where('document', '=', evo()->documentIdentifier),
                 'AND',
                 where_in('document_group', sessionv('mgrDocgroups'))
-            )
+            ]
         );
         if (db()->count($result)) {
             return true;
@@ -232,8 +231,8 @@ class Qm
     {
         if (!$this->aliases) {
             $qh = db()->select(
-                "id, IF(alias='', id, alias) AS alias, parent"
-                , '[+prefix+]site_content'
+                "id, IF(alias='', id, alias) AS alias, parent",
+                '[+prefix+]site_content'
             );
             if ($qh && db()->count($qh) > 0) {
                 while ($row = db()->getRow($qh)) {
@@ -270,12 +269,12 @@ class Qm
         // Return TV button link if access
         if ($access && $caption != '') {
             return sprintf(
-                '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>'
-                , $this->tvbclass
-                , MODX_SITE_URL
-                , $docID
-                , urlencode($matches[1])
-                , $caption
+                '<span class="%s"><a class="colorbox" href="%sindex.php?id=%s&amp;quickmanagertv=1&amp;tvname=%s"><span>%s</span></a></span>',
+                $this->tvbclass,
+                MODX_SITE_URL,
+                $docID,
+                urlencode($matches[1]),
+                $caption
             );
         }
     }
@@ -295,12 +294,12 @@ class Qm
 
         if ($this->docGroup != '') {
             $result = db()->select(
-                'id'
-                , '[+prefi+]site_tmplvar_access'
-                , sprintf(
-                    'tmplvarid = %s AND documentgroup IN (%s)'
-                    , $tvId
-                    , $this->docGroup
+                'id',
+                '[+prefi+]site_tmplvar_access',
+                sprintf(
+                    'tmplvarid = %s AND documentgroup IN (%s)',
+                    $tvId,
+                    $this->docGroup
                 )
             );
             if (db()->count($result)) {
@@ -316,17 +315,17 @@ class Qm
     {
         global $_lang;
         switch ($name) {
-            case 'pagetitle'   :
+            case 'pagetitle':
                 return $_lang['resource_title'];
-            case 'longtitle'   :
+            case 'longtitle':
                 return $_lang['long_title'];
-            case 'description' :
+            case 'description':
                 return $_lang['resource_description'];
-            case 'content'     :
+            case 'content':
                 return $_lang['resource_content'];
-            case 'menutitle'   :
+            case 'menutitle':
                 return $_lang['resource_opt_menu_title'];
-            case 'introtext'   :
+            case 'introtext':
                 return $_lang['resource_summary'];
         }
         return '';
@@ -354,14 +353,14 @@ class Qm
     private function formType($doc, $field_name)
     {
         switch ($field_name) {
-            case 'pagetitle'   :
-            case 'longtitle'   :
-            case 'menutitle'   :
+            case 'pagetitle':
+            case 'longtitle':
+            case 'menutitle':
                 return 'text';
-            case 'description' :
-            case 'introtext'   :
+            case 'description':
+            case 'introtext':
                 return 'textarea';
-            case 'content'     :
+            case 'content':
                 return (config('use_editor') && doc('richtext')) ? 'richtext' : 'textarea';
         }
         return null;
@@ -370,12 +369,12 @@ class Qm
     private function caption($field_name)
     {
         switch ($field_name) {
-            case 'pagetitle'   :
-            case 'longtitle'   :
-            case 'description' :
-            case 'content'     :
-            case 'menutitle'   :
-            case 'introtext'   :
+            case 'pagetitle':
+            case 'longtitle':
+            case 'description':
+            case 'content':
+            case 'menutitle':
+            case 'introtext':
                 return $this->getDefaultTvCaption($field_name);
         }
         return null;
@@ -387,11 +386,11 @@ class Qm
         $result = db()->select(
             'internalKey',
             '[+prefix+]active_users',
-            array(
+            [
                 where('action', 27),
                 and_where('internalKey', '!=', $_SESSION['mgrInternalKey']),
                 and_where('id', evo()->documentIdentifier)
-            )
+            ]
         );
 
         if (!db()->count($result)) {
@@ -424,7 +423,7 @@ class Qm
         $tvId = preg_match('@^[1-9][0-9]*$@', postv('tvid')) ? postv('tvid') : 0;
         $tvContent = postv('tv' . $tvId, postv('tv' . $tvName), '');
 
-        $tmp = array('mode' => 'upd', 'id' => evo()->documentIdentifier);
+        $tmp = ['mode' => 'upd', 'id' => evo()->documentIdentifier];
         evo()->invokeEvent('OnBeforeDocFormSave', $tmp);
 
         if (is_array($tvContent)) {
@@ -471,22 +470,22 @@ class Qm
         }
         if (!$result) {
             evo()->logEvent(
-                0
-                , 0
-                , sprintf(
-                    '<p>Save failed!</p><strong>SQL:</strong><pre>%s</pre>'
-                    , db()->lastQuery()
-                )
-                , 'QuickManager+'
+                0,
+                0,
+                sprintf(
+                    '<p>Save failed!</p><strong>SQL:</strong><pre>%s</pre>',
+                    db()->lastQuery()
+                ),
+                'QuickManager+'
             );
             return;
         }
         db()->update(
-            array('editedon' => request_time(), 'editedby' => $_SESSION['mgrInternalKey'])
-            , '[+prefix+]site_content'
-            , where('id', evo()->documentIdentifier)
+            ['editedon' => request_time(), 'editedby' => $_SESSION['mgrInternalKey']],
+            '[+prefix+]site_content',
+            where('id', evo()->documentIdentifier)
         );
-        $tmp = array('mode' => 'upd', 'id' => evo()->documentIdentifier);
+        $tmp = ['mode' => 'upd', 'id' => evo()->documentIdentifier];
         evo()->invokeEvent('OnDocFormSave', $tmp);
         evo()->clearCache();
     }
@@ -529,6 +528,5 @@ class Qm
             $conf[$key] = false;
         }
         return $conf[$key];
-
     }
 }

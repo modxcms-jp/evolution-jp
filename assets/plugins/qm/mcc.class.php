@@ -1,4 +1,5 @@
 <?php
+
 /**
  * QuickManager+ Manager Control Class
  *
@@ -20,21 +21,19 @@ if (!class_exists('Mcc')) {
         //_______________________________________________________
         function __construct()
         {
-            $this->tabs = array(
-                'general' => array('index' => 1, 'id' => 'tabGeneral'),
-                'settings' => array('index' => 2, 'id' => 'tabSettings'),
-                'access' => array('index' => 3, 'id' => 'tabAccess')
-            );
+            $this->tabs = [
+                'general' => ['index' => 1, 'id' => 'tabGeneral'],
+                'settings' => ['index' => 2, 'id' => 'tabSettings'],
+                'access' => ['index' => 3, 'id' => 'tabAccess']
+            ];
 
-            $this->sections = array(
-                'docsettings' => array('index' => 0, 'name' => 'DocSettings'),
-                'content' => array('index' => 1, 'name' => 'Content'),
-                'tvs' => array('index' => 2, 'name' => 'TVs')
-            );
+            $this->sections = [
+                'docsettings' => ['index' => 0, 'name' => 'DocSettings'],
+                'content' => ['index' => 1, 'name' => 'Content'],
+                'tvs' => ['index' => 2, 'name' => 'TVs']
+            ];
 
-            $this->fields = array('content', 'pagetitle', 'longtitle', 'menuindex', 'parent', 'description', 'alias', 'link_attributes', 'introtext', 'template', 'menutitle');
-
-            global $modx;
+            $this->fields = ['content', 'pagetitle', 'longtitle', 'menuindex', 'parent', 'description', 'alias', 'link_attributes', 'introtext', 'template', 'menutitle'];
         }
 
         //_______________________________________________________
@@ -138,4 +137,3 @@ if (!class_exists('Mcc')) {
         }
     }
 }
-?>

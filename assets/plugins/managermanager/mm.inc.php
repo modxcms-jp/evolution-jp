@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ManagerManager plugin
  * @version 0.4 (2012-11-14)
@@ -23,9 +24,7 @@
 class MANAGERMANAGER
 {
 
-    function __construct()
-    {
-    }
+    function __construct() {}
 
     function run()
     {
@@ -40,7 +39,7 @@ class MANAGERMANAGER
         include_once($pluginDir . 'utilities.inc.php');
 
         // When loading widgets, ignore folders / files beginning with these chars
-        $ignore_first_chars = array('.', '_', '!');
+        $ignore_first_chars = ['.', '_', '!'];
 
         // Include widgets
         // We look for a PHP file with the same name as the directory - e.g.
@@ -76,35 +75,37 @@ class MANAGERMANAGER
         $mm_current_page['role'] = $_SESSION['mgrRole'];
 
         // What are the fields we can change, and what types are they?
-        $field['pagetitle'] = array('input', 'pagetitle', 'pagetitle');
-        $field['longtitle'] = array('input', 'longtitle', 'longtitle');
-        $field['description'] = array('textarea', 'description', 'description');
-        $field['alias'] = array('input', 'alias', 'alias');
-        $field['link_attributes'] = array('input', 'link_attributes', 'link_attributes');
-        $field['menutitle'] = array('input', 'menutitle', 'menutitle');
-        $field['menuindex'] = array('input', 'menuindex', 'menuindex');
-        $field['show_in_menu'] = array('input', 'hidemenucheck', 'hidemenu');
-        $field['hide_menu'] = array('input', 'hidemenucheck', 'hidemenu'); // synonym for show_in_menu
-        $field['parent'] = array('input', 'parent', 'parent');
-        $field['is_folder'] = array('input', 'isfoldercheck', 'isfolder');
-        $field['is_richtext'] = array('input', 'richtextcheck', 'richtext');
-        $field['log'] = array('input', 'donthitcheck', 'donthit');
-        $field['published'] = array('input', 'publishedcheck', 'published');
-        $field['pub_date'] = array('input', 'pub_date', 'pub_date');
-        $field['unpub_date'] = array('input', 'unpub_date', 'unpub_date');
-        $field['searchable'] = array('input', 'searchablecheck', 'searchable');
-        $field['cacheable'] = array('input', 'cacheablecheck', 'cacheable');
-        $field['clear_cache'] = array('input', 'syncsitecheck', '');
-        $field['weblink'] = array('input', 'ta', 'content');
-        $field['introtext'] = array('textarea', 'introtext', 'introtext');
-        $field['content'] = array('textarea', 'ta', 'content');
-        $field['template'] = array('select', 'template', 'template');
-        $field['content_type'] = array('select', 'contentType', 'contentType');
-        $field['content_dispo'] = array('select', 'content_dispo', 'content_dispo');
-        $field['keywords'] = array('select', 'keywords[]', '');
-        $field['metatags'] = array('select', 'metatags[]', '');
-        $field['which_editor'] = array('select', 'which_editor', '');
-        $field['resource_type'] = array('select', 'type', 'isfolder');
+        $field = [
+            'pagetitle' => ['input', 'pagetitle', 'pagetitle'],
+            'longtitle' => ['input', 'longtitle', 'longtitle'],
+            'description' => ['textarea', 'description', 'description'],
+            'alias' => ['input', 'alias', 'alias'],
+            'link_attributes' => ['input', 'link_attributes', 'link_attributes'],
+            'menutitle' => ['input', 'menutitle', 'menutitle'],
+            'menuindex' => ['input', 'menuindex', 'menuindex'],
+            'show_in_menu' => ['input', 'hidemenucheck', 'hidemenu'],
+            'hide_menu' => ['input', 'hidemenucheck', 'hidemenu'], // synonym for show_in_menu
+            'parent' => ['input', 'parent', 'parent'],
+            'is_folder' => ['input', 'isfoldercheck', 'isfolder'],
+            'is_richtext' => ['input', 'richtextcheck', 'richtext'],
+            'log' => ['input', 'donthitcheck', 'donthit'],
+            'published' => ['input', 'publishedcheck', 'published'],
+            'pub_date' => ['input', 'pub_date', 'pub_date'],
+            'unpub_date' => ['input', 'unpub_date', 'unpub_date'],
+            'searchable' => ['input', 'searchablecheck', 'searchable'],
+            'cacheable' => ['input', 'cacheablecheck', 'cacheable'],
+            'clear_cache' => ['input', 'syncsitecheck', ''],
+            'weblink' => ['input', 'ta', 'content'],
+            'introtext' => ['textarea', 'introtext', 'introtext'],
+            'content' => ['textarea', 'ta', 'content'],
+            'template' => ['select', 'template', 'template'],
+            'content_type' => ['select', 'contentType', 'contentType'],
+            'content_dispo' => ['select', 'content_dispo', 'content_dispo'],
+            'keywords' => ['select', 'keywords[]', ''],
+            'metatags' => ['select', 'metatags[]', ''],
+            'which_editor' => ['select', 'which_editor', ''],
+            'resource_type' => ['select', 'type', 'isfolder']
+        ];
         foreach ($field as $k => $a) {
             $mm_fields[$k]['fieldtype'] = $a[0];
             $mm_fields[$k]['fieldname'] = $a[1];
@@ -117,10 +118,10 @@ class MANAGERMANAGER
         // Add in TVs to the list of available fields
         $all_tvs = db()->makeArray(
             db()->select(
-                'name,type,id,elements'
-                , '[+prefix+]site_tmplvars'
-                , ''
-                , 'name ASC'
+                'name,type,id,elements',
+                '[+prefix+]site_tmplvars',
+                '',
+                'name ASC'
             )
         );
         foreach ($all_tvs as $thisTv) {
@@ -216,7 +217,7 @@ class MANAGERMANAGER
 
         // The start of adding or editing a document (before the main form)
         switch ($e->name) {
-            // if it's the plugin config form, give us a copy of all the relevant values
+                // if it's the plugin config form, give us a copy of all the relevant values
             case 'OnPluginFormRender':
                 include_once($pluginDir . 'libs/OnPluginFormRender.inc.php');
                 break;
@@ -225,7 +226,7 @@ class MANAGERMANAGER
                 include_once($pluginDir . 'libs/OnDocFormPrerender.inc.php');
                 break;
 
-            // The main document editing form
+                // The main document editing form
             case 'OnDocFormRender':
                 include_once($pluginDir . 'libs/OnDocFormRender.inc.php');
                 break;
@@ -259,7 +260,6 @@ class MANAGERMANAGER
                 }
 
                 break;
-
         } // end switch
     }
 
@@ -267,10 +267,10 @@ class MANAGERMANAGER
     {
         global $modx;
 
-        if(strpos($chunk, '@FILE')===0) {
+        if (strpos($chunk, '@FILE') === 0) {
             return evo()->atBindFile($chunk);
         }
-        if(strpos($chunk, '@INCLUDE')===0) {
+        if (strpos($chunk, '@INCLUDE') === 0) {
             return evo()->atBindInclude($chunk);
         }
         $chunk_output = evo()->getChunk($chunk);
@@ -279,10 +279,10 @@ class MANAGERMANAGER
             return "// Getting rules from chunk: $chunk \n\n";
         }
 
-        $files = array(
+        $files = [
             MODX_BASE_PATH . $chunk,
             str_replace('\\', '/', __DIR__) . '/mm_rules.inc.php'
-        );
+        ];
         foreach ($files as $config_file) {
             if (is_file($config_file) && trim(file_get_contents($config_file))) {
                 include($config_file);
@@ -298,10 +298,10 @@ class MANAGERMANAGER
             return true;
         }
 
-        $files = array(
+        $files = [
             MODX_BASE_PATH . $chunk_name,
             str_replace('\\', '/', __DIR__) . '/mm_rules.inc.php'
-        );
+        ];
         foreach ($files as $config_file) {
             if (is_file($config_file) && trim(file_get_contents($config_file))) {
                 return true;

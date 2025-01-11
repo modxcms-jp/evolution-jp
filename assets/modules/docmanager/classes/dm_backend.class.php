@@ -140,9 +140,7 @@ class DocManagerBackend
 
         if ($pids !== '' && $template !== '') {
             $values = rtrim($pids, ' OR ');
-            $fields = array(
-                'template' => (int)$template
-            );
+            $fields = ['template' => (int)$template];
             db()->update($fields, evo()->getFullTableName('site_content'), $values);
         } else {
             $error .= '<br />' . $this->dm->lang['DM_process_noselection'] . '<br />';
@@ -255,9 +253,7 @@ class DocManagerBackend
 
                     if (!isset($noUpdate)) {
                         if ($checkCount > 0) {
-                            $fields = array(
-                                'value' => db()->escape($tmplVars["$tvIndex"])
-                            );
+                            $fields = ['value' => db()->escape($tmplVars["$tvIndex"])];
                             db()->update(
                                 $fields,
                                 $tbl_site_tmplvar_contentvalues,
@@ -265,11 +261,11 @@ class DocManagerBackend
                             );
                             $updated = true;
                         } elseif (ltrim($tmplVars[(string)$tvIndex]) !== '') {
-                            $fields = array(
+                            $fields = [
                                 'value' => db()->escape($tmplVars["$tvIndex"]),
                                 'contentid' => db()->escape($docID),
                                 'tmplvarid' => db()->escape($tvValue)
-                            );
+                            ];
                             db()->insert($fields, $tbl_site_tmplvar_contentvalues);
                             $updated = true;
                         }
@@ -393,10 +389,10 @@ class DocManagerBackend
         switch (postv('setoption')) {
             case 1:
                 $fieldval = 'published';
-                $secondaryFields = array(
+                $secondaryFields = [
                     'publishedon' => postv('newvalue') == 1 ? time() : 0,
                     'publishedby' => postv('newvalue') == 1 ? $_SESSION['mgrInternalKey'] : 0
-                );
+                ];
                 $this->logDocumentChange('publish');
                 break;
             case 2:
@@ -417,10 +413,10 @@ class DocManagerBackend
                 break;
             case 6:
                 $fieldval = 'deleted';
-                $secondaryFields = array(
+                $secondaryFields = [
                     'deletedon' => postv('newvalue') == 1 ? time() : '0',
                     'deletedby' => postv('newvalue') == 1 ? $_SESSION['mgrInternalKey'] : '0'
-                );
+                ];
                 $this->logDocumentChange('delete');
                 break;
             default:
@@ -459,9 +455,7 @@ class DocManagerBackend
         $values = rtrim($pids, ' OR ');
 
         if ($pids !== '' && postv('newvalue') !== '') {
-            $fields = array(
-                $fieldval => (int)postv('newvalue')
-            );
+            $fields = [$fieldval => (int)postv('newvalue')];
             if (isset($secondaryFields) && is_array($secondaryFields)) {
                 $fields = array_merge($fields, $secondaryFields);
             }

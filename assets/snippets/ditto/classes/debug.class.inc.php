@@ -20,11 +20,11 @@ class debug extends modxDebugConsole
     {
         global $ditto_lang;
         return $this->makeLink(
-            $ditto_lang['debug']
-            , $ditto_lang['open_dbg_console']
-            , $ditto_lang['save_dbg_console']
-            , str_replace(MODX_BASE_PATH, MODX_SITE_URL, $ditto_base . 'debug/')
-            , 'ditto_' . $dittoID
+            $ditto_lang['debug'],
+            $ditto_lang['open_dbg_console'],
+            $ditto_lang['save_dbg_console'],
+            str_replace(MODX_BASE_PATH, MODX_SITE_URL, $ditto_base . 'debug/'),
+            'ditto_' . $dittoID
         );
     }
     // ---------------------------------------------------
@@ -32,47 +32,46 @@ class debug extends modxDebugConsole
     // Render the contents of the debug console
     // ---------------------------------------------------
     function render_popup(
-          $ditto
-        , $ditto_base
-        , $ditto_version
-        , $ditto_params
-        , $IDs
-        , $fields
-        , $summarize
-        , $templates
-        , $orderBy
-        , $start
-        , $stop
-        , $total
-        , $filter
-        , $resource
-    )
-    {
+        $ditto,
+        $ditto_base,
+        $ditto_version,
+        $ditto_params,
+        $IDs,
+        $fields,
+        $summarize,
+        $templates,
+        $orderBy,
+        $start,
+        $stop,
+        $total,
+        $filter,
+        $resource
+    ) {
         global $ditto_lang;
         $tabs = [];
         if ($fields['db'] && $fields['tv']) {
-            $fields = array_merge_recursive($ditto->fields, array('retrieved' => $fields));
+            $fields = array_merge_recursive($ditto->fields, ['retrieved' => $fields]);
         } else {
             $fields = $ditto->fields;
         }
 
         $tabs[$ditto_lang['info']] = $this->prepareBasicInfo(
-            $ditto_version
-            , $IDs
-            , $summarize
-            , $orderBy
-            , $start
-            , $stop
-            , $total
+            $ditto_version,
+            $IDs,
+            $summarize,
+            $orderBy,
+            $start,
+            $stop,
+            $total
         );
         $tabs[$ditto_lang['params']] = $this->makeParamTable($ditto_params, $ditto_lang['params']);
         $tabs[$ditto_lang['fields']] = sprintf(
-            '<div class="ditto_dbg_fields">%s</div>'
-            , $this->array2table($this->cleanArray($fields), true, true)
+            '<div class="ditto_dbg_fields">%s</div>',
+            $this->array2table($this->cleanArray($fields), true, true)
         );
         $tabs[$ditto_lang['templates']] = $this->makeParamTable(
-            $this->prepareTemplates($templates)
-            , $ditto_lang['templates']
+            $this->prepareTemplates($templates),
+            $ditto_lang['templates']
         );
 
         if ($filter !== false) {
@@ -87,10 +86,10 @@ class debug extends modxDebugConsole
         }
 
         return $this->render(
-                $tabs
-                , $ditto_lang['debug']
-                , str_replace(MODX_BASE_PATH, MODX_SITE_URL, $ditto_base)
-            )
+            $tabs,
+            $ditto_lang['debug'],
+            str_replace(MODX_BASE_PATH, MODX_SITE_URL, $ditto_base)
+        )
             . "\r\n\r\n" . '<!--- ' . evo()->mb_strftime('%c', time()) . ' --->';
     }
 
@@ -113,7 +112,7 @@ class debug extends modxDebugConsole
             $k = sprintf('%s (0)', $ditto_lang['ditto_IDs_selected']);
             $ditto_IDs[$k] = strip_tags($ditto_lang['no_documents']);
         }
-        $out = $this->array2table(array($ditto_lang['prefetch_data'] => $ditto_IDs), true, true);
+        $out = $this->array2table([$ditto_lang['prefetch_data'] => $ditto_IDs], true, true);
         return $out . $this->prepareDocumentInfo($prefetch['dbg_resource']);
     }
 
@@ -127,10 +126,10 @@ class debug extends modxDebugConsole
         foreach ($filter as $name => $value) {
             if ($name === 'custom') {
                 foreach ($value as $k => $v) {
-                    $output .= $this->array2table(array($k => $v), true, true);
+                    $output .= $this->array2table([$k => $v], true, true);
                 }
             } else {
-                $output .= $this->array2table(array($name => $value), true, true);
+                $output .= $this->array2table([$name => $value], true, true);
             }
         }
         return $output;
@@ -149,21 +148,23 @@ class debug extends modxDebugConsole
         $output = '';
         foreach ($resource as $item) {
             $item['createdon'] = sprintf(
-                '%s(%s)'
-                , $item['createdon']
-                , $modx->toDateFormat($item['createdon']
-            ));
-            $output .= $this->makeParamTable(
-                $item
-                , str_replace(
-                    array('[+pagetitle+]', '[+id+]')
-                    , array($item['pagetitle'], $item['id'])
-                    , $this->templates['item']
+                '%s(%s)',
+                $item['createdon'],
+                $modx->toDateFormat(
+                    $item['createdon']
                 )
-                , true
-                , true
-                , true
-                , 'resource'
+            );
+            $output .= $this->makeParamTable(
+                $item,
+                str_replace(
+                    ['[+pagetitle+]', '[+id+]'],
+                    [$item['pagetitle'], $item['id']],
+                    $this->templates['item']
+                ),
+                true,
+                true,
+                true,
+                'resource'
             );
         }
         return $output;
@@ -190,7 +191,7 @@ class debug extends modxDebugConsole
         if (is_array($orderBy['parsed']) && $orderBy['parsed']) {
             $sort = [];
             foreach ($orderBy['parsed'] as $key => $value) {
-                $sort[$key] = array($ditto_lang['sortBy'] => $value[0], $ditto_lang['sortDir'] => $value[1]);
+                $sort[$key] = [$ditto_lang['sortBy'] => $value[0], $ditto_lang['sortDir'] => $value[1]];
             }
             $output = $this->array2table($this->cleanArray($sort), true, true);
         }

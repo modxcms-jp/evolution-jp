@@ -6,7 +6,7 @@
 define('MODX_API_MODE', true);
 define('IN_MANAGER_MODE', 'true');
 $self = 'assets/modules/docmanager/tv.ajax.php';
-$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
+$base_path = str_replace(['\\', $self], ['/', ''], __FILE__);
 include_once($base_path . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 include_once($base_path . "assets/modules/docmanager/classes/docmanager.class.php");
@@ -25,10 +25,7 @@ if (!is_numeric(postv('tplID'))) {
 $tplID = postv('tplID');
 $rs = db()->select(
     '*',
-    array(
-        "[+prefix+]site_tmplvars tv ",
-        "LEFT JOIN [+prefix+]site_tmplvar_templates tvtpl ON tv.id = tvtpl.tmplvarid"
-    ),
+    ["[+prefix+]site_tmplvars tv", "LEFT JOIN [+prefix+]site_tmplvar_templates tvtpl ON tv.id = tvtpl.tmplvarid"],
     "tvtpl.templateid ='" . $tplID . "'"
 );
 $total = db()->count($rs);
@@ -191,7 +188,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             $field_html .= "</select>";
             break;
         case 'url': // handles url input fields
-            $urls = array('' => '--', 'http://' => 'http://', 'https://' => 'https://', 'ftp://' => 'ftp://', 'mailto:' => 'mailto:');
+            $urls = ['' => '--', 'http://' => 'http://', 'https://' => 'https://', 'ftp://' => 'ftp://', 'mailto:' => 'mailto:'];
             $field_html = sprintf(
                 '<table border="0" cellspacing="0" cellpadding="0"><tr><td><select id="tv%s_prefix" name="tv%s_prefix" onchange="documentDirty=true;">',
                 $field_id,
