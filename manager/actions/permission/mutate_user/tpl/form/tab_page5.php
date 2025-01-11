@@ -3,7 +3,7 @@
     <tr>
         <th><?= lang('manager_theme') ?></th>
         <td><select name="manager_theme" size="1" class="inputBox"
-                    onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
+                onchange="document.userform.theme_refresher.value = Date.parse(new Date())">
                 <option value=""><?= lang('user_use_config') ?></option>
                 <?php
                 $files = glob(MODX_MANAGER_PATH . 'media/style/*/style.php');
@@ -12,8 +12,11 @@
                     if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
                         $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
                         $selectedtext = $themename == user('manager_theme') ? "selected='selected'" : "";
-                        echo "<option value='$themename' $selectedtext>" . ucwords(str_replace("_", " ",
-                                $themename)) . "</option>";
+                        echo "<option value='$themename' $selectedtext>" . ucwords(str_replace(
+                            "_",
+                            " ",
+                            $themename
+                        )) . "</option>";
                     }
                 }
                 ?>
@@ -26,13 +29,11 @@
         <td>
             <textarea
                 name="manager_inline_style" id="manager_inline_style"
-                style="width:95%; height: 9em;"
-            ><?= $modx->config['manager_inline_style'] ?></textarea><br/>
+                style="width:95%; height: 9em;"><?= $modx->config['manager_inline_style'] ?></textarea><br />
             &nbsp;&nbsp;
             <label><input
-                type="checkbox" name="default_manager_inline_style"
-                value="1" <?= user('manager_inline_style') ? '' : 'checked' ?>
-                /> <?= lang('user_use_config') ?>
+                    type="checkbox" name="default_manager_inline_style"
+                    value="1" <?= user('manager_inline_style') ? '' : 'checked' ?> /> <?= lang('user_use_config') ?>
             </label>
             <div><?= lang('a17_manager_inline_style_message') ?></div>
         </td>
@@ -45,8 +46,7 @@
                 value="<?= user('manager_login_startup') ?: '' ?>"
                 type="text"
                 maxlength="50"
-                style="width: 100px;"
-            >
+                style="width: 100px;">
             <div><?= lang('mgr_login_start_message') ?></div>
         </td>
     </tr>
@@ -68,12 +68,11 @@
                             strpos($file, '.')
                         )
                     );
-                    ?>
+                ?>
                     <option
                         value="<?= $languagename ?>"
-                        <?= selected($activelang === $languagename) ?>
-                    ><?= ucwords(str_replace('_', ' ', $languagename)) ?></option>
-                    <?php
+                        <?= selected($activelang === $languagename) ?>><?= ucwords(str_replace('_', ' ', $languagename)) ?></option>
+                <?php
                 }
                 $dir->close();
                 ?>
@@ -105,7 +104,7 @@
         style="display: <?= $modx->config['use_editor'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('editor_css_path_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path"
-                   value="<?= user("editor_css_path") ?>"/>
+                value="<?= user("editor_css_path") ?>" />
             <div><?= lang('editor_css_path_message') ?></div>
         </td>
     </tr>
