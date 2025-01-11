@@ -177,7 +177,7 @@ class EXPORT_SITE
         return 'success';
     }
 
-    private function getFileName($docid, $alias = '', $prefix, $suffix)
+    private function getFileName($docid, $alias, $prefix, $suffix)
     {
         global $modx;
 
