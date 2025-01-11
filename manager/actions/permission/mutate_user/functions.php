@@ -115,6 +115,10 @@ function activeUserCheck($userid)
 
 function blockedmode($user)
 {
+    if (!$user) {
+        return '0';
+    }
+
     if ($user['blocked'] == 1) {
         return '1';
     }

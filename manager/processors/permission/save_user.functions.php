@@ -538,6 +538,10 @@ function updateUser()
         exit;
     }
     if (postv('newpassword') != 1 || postv('passwordnotifymethod') !== 's') {
+        if (postv('mode') == 74) {
+            header('Location: ' . 'index.php?r=3&a=2');
+            exit;
+        }
         if (postv('save_action') === 'stay') {
             header(sprintf(
                 'Location: index.php?a=%s&id=%s&r=3&save_action=%s',
@@ -552,10 +556,6 @@ function updateUser()
                 'Location: index.php?a=11&r=3&save_action=%s',
                 postv('save_action')
             ));
-            exit;
-        }
-        if (postv('mode') === '74') {
-            header('Location: ' . 'index.php?r=3&a=2');
             exit;
         }
         header('Location: ' . 'index.php?a=75&r=3');

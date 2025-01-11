@@ -2,7 +2,6 @@
 if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
-
 if (anyv('a') != 74 || !evo()->hasPermission('change_password')) {
     alert()->setError(3);
     alert()->dumpError();
@@ -64,6 +63,20 @@ if (manager()->hasFormValues()) {
     $usersettings = array_merge($usersettings, $userdata);
     $usersettings['allowed_days'] = is_array(postv('allowed_days')) ? implode(",", postv('allowed_days')) : "";
     extract($usersettings, EXTR_OVERWRITE);
+}
+
+function userData($key, $default = null)
+{
+    global $userdata;
+
+    return $userdata[$key] ?? $default;
+}
+
+function setting($key, $default = null)
+{
+    global $usersettings;
+
+    return $usersettings[$key] ?? $default;
 }
 
 // include the country list language file
@@ -152,11 +165,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     ?>
     <input type="hidden" name="mode" value="74">
     <input type="hidden" name="userid" value="<?= $userid ?>">
-    <input type="hidden" name="newusername" value="<?= $usernamedata['username'] ?>" />
-    <input type="hidden" name="role" value="<?= $userdata['role'] ?>" />
-    <input type="hidden" name="failedlogincount" value="<?= $userdata['failedlogincount'] ?>">
+    <input type="hidden" name="newusername" value="<?= userData('username') ?>" />
+    <input type="hidden" name="role" value="<?= userData('role') ?>" />
+    <input type="hidden" name="failedlogincount" value="<?= userData('failedlogincount') ?>">
     <input type="hidden" name="blockedmode"
-        value="<?= ($userdata['blocked'] == 1 || ($userdata['blockeduntil'] > time() && $userdata['blockeduntil'] != 0) || ($userdata['blockedafter'] < time() && $userdata['blockedafter'] != 0) || $userdata['failedlogins'] > 3) ? "1" : "0" ?>" />
+        value="<?= (userData('blocked') == 1 || (userData('blockeduntil') > time() && userData('blockeduntil') != 0) || (userData('blockedafter') < time() && userData('blockedafter') != 0) || userData('failedlogins') > 3) ? "1" : "0" ?>" />
 
     <h1><?= $_lang['profile'] ?></h1>
     <div id="actions">
@@ -245,52 +258,52 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang['user_email'] ?>:</th>
                         <td>
                             <input type="text" name="email" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['email']) ?>" />
+                                value="<?= hsc(userData('email')) ?>" />
                             <input type="hidden" name="oldemail"
-                                value="<?= htmlspecialchars(!empty($userdata['oldemail']) ? $userdata['oldemail'] : $userdata['email']) ?>" />
+                                value="<?= hsc(userData('oldemail') ?: userData('email')) ?>" />
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_full_name'] ?>:</th>
                         <td><input type="text" name="fullname" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['fullname']) ?>" /></td>
+                                value="<?= hsc(userData('fullname')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_phone'] ?>:</th>
                         <td><input type="text" name="phone" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['phone']) ?>" /></td>
+                                value="<?= hsc(userData('phone')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_mobile'] ?>:</th>
                         <td><input type="text" name="mobilephone" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['mobilephone']) ?>" /></td>
+                                value="<?= hsc(userData('mobilephone')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_fax'] ?>:</th>
                         <td><input type="text" name="fax" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['fax']) ?>" /></td>
+                                value="<?= hsc(userData('fax')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_street'] ?>:</th>
                         <td><input type="text" name="street" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['street']) ?>"
+                                value="<?= hsc(userData('street')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_city'] ?>:</th>
                         <td><input type="text" name="city" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['city']) ?>"
+                                value="<?= hsc(userData('city')) ?>"
                                 onchange="documentDirty=true;" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_state'] ?>:</th>
                         <td><input type="text" name="state" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['state']) ?>" /></td>
+                                value="<?= hsc(userData('state')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_zip'] ?>:</th>
                         <td><input type="text" name="zip" class="inputBox"
-                                value="<?= htmlspecialchars($userdata['zip']) ?>" /></td>
+                                value="<?= hsc(userData('zip')) ?>" /></td>
                     </tr>
                     <tr>
                         <th><?= $_lang['user_country'] ?>:</th>
@@ -310,8 +323,8 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang['user_dob'] ?>:</th>
                         <td>
                             <input type="text" id="dob" name="dob" class="DatePicker"
-                                value="<?php echo ($userdata['dob'] ? $modx->toDateFormat(
-                                            $userdata['dob'],
+                                value="<?php echo (userData('dob') ? $modx->toDateFormat(
+                                            userData('dob'),
                                             'dateOnly'
                                         ) : ""); ?>" onblur="documentDirty=true;">
                             <a onclick="document.userform.dob.value=''; return true;"
@@ -326,11 +339,11 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <td><select name="gender" class="inputBox">
                                 <option value=""></option>
                                 <option
-                                    value="1" <?= selected($userdata['gender'] == '1') ?>><?= $_lang['user_male'] ?></option>
+                                    value="1" <?= selected(userData('gender') == 1) ?>><?= $_lang['user_male'] ?></option>
                                 <option
-                                    value="2" <?= selected($userdata['gender'] == '2') ?>><?= $_lang['user_female'] ?></option>
+                                    value="2" <?= selected(userData('gender') == 2) ?>><?= $_lang['user_female'] ?></option>
                                 <option
-                                    value="3" <?= selected($userdata['gender'] == '3') ?>><?= $_lang['user_other'] ?></option>
+                                    value="3" <?= selected(userData('gender') == 3) ?>><?= $_lang['user_other'] ?></option>
                             </select>
                         </td>
                     </tr>
@@ -338,13 +351,13 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th valign="top"><?= $_lang['comment'] ?>:</th>
                         <td>
                             <textarea type="text" name="comment" class="inputBox"
-                                rows="5"><?= htmlspecialchars($userdata['comment']) ?></textarea>
+                                rows="5"><?= hsc(userData('comment')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
                         <th><?= $_lang["user_photo"] ?></th>
                         <td><input type="text" maxlength="255" style="width: 150px;" name="photo"
-                                value="<?= htmlspecialchars($userdata['photo']) ?>" />
+                                value="<?= hsc(userData('photo')) ?>" />
                             <input type="button" value="<?= $_lang['insert'] ?>" onclick="BrowseServer();" />
                             <div><?= $_lang["user_photo_message"] ?></div>
                             <div>
@@ -383,7 +396,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                     $file = str_replace('\\', '/', $file);
                                     if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
                                         $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
-                                        $selectedtext = $themename == $usersettings['manager_theme'] ? "selected='selected'" : "";
+                                        $selectedtext = $themename == setting('manager_theme') ? "selected='selected'" : "";
                                         echo "<option value='$themename' $selectedtext>" . ucwords(str_replace(
                                             "_",
                                             " ",
@@ -400,7 +413,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <th><?= $_lang["a17_manager_inline_style_title"] ?></th>
                         <td>
                             <textarea name="manager_inline_style" id="manager_inline_style"
-                                style="width:95%; height: 9em;"><?= $manager_inline_style ?></textarea><br />
+                                style="width:95%; height: 9em;"><?= setting('manager_inline_style') ?></textarea><br />
                             &nbsp;&nbsp; <label><input type="checkbox" id="default_manager_inline_style"
                                     name="default_manager_inline_style"
                                     value="1" <?= isset($usersettings['manager_inline_style']) ? '' : 'checked' ?> /> <?= $_lang["user_use_config"] ?>
@@ -411,7 +424,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                     <tr>
                         <th><?= $_lang["mgr_login_start"] ?></th>
                         <td><input type='text' maxlength='50' style="width: 100px;" name="manager_login_startup"
-                                value="<?= isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : $usersettings['manager_login_startup'] ?>">
+                                value="<?= isset($_POST['manager_login_startup']) ? $_POST['manager_login_startup'] : setting('manager_login_startup') ?>">
                             <div><?= $_lang["mgr_login_start_message"] ?></div>
                         </td>
                     </tr>
@@ -420,7 +433,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         <td><select name="manager_language" size="1" class="inputBox">
                                 <option value=""><?= $_lang["user_use_config"] ?></option>
                                 <?php
-                                $activelang = (!empty($usersettings['manager_language'])) ? $usersettings['manager_language'] : '';
+                                $activelang = (!empty(setting('manager_language'))) ? setting('manager_language') : '';
                                 $dir = dir(MODX_CORE_PATH . 'lang');
                                 while ($file = $dir->read()) {
                                     if (strpos($file, '.inc.php') !== false) {
@@ -449,7 +462,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                             <select name="which_editor" class="inputBox">
                                 <option value=""><?= $_lang["user_use_config"] ?></option>
                                 <?php
-                                $edt = isset($usersettings["which_editor"]) ? $usersettings["which_editor"] : '';
+                                $edt = setting('which_editor');
                                 // invoke OnRichTextEditorRegister event
                                 $evtOut = evo()->invokeEvent("OnRichTextEditorRegister");
                                 echo '<option value="none"' . selected($edt == 'none') . ">" . $_lang["none"] . "</option>\n";
@@ -468,7 +481,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                         style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
                         <th><?= $_lang["editor_css_path_title"] ?></th>
                         <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
-                                value="<?= isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ?>" />
+                                value="<?= setting('editor_css_path') ?>" />
                             <div><?= $_lang["editor_css_path_message"] ?></div>
                         </td>
                     </tr>
