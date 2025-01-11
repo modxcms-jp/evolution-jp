@@ -57,12 +57,12 @@ if ($modx->config['required_email_wuser']) {
 }
 
 switch (postv('mode')) {
-    case '87' : // new user
+    case '87': // new user
         // check if this user name already exist
         $rs = db()->select(
-            'id'
-            , '[+prefix+]web_users'
-            , sprintf("username='%s'", db()->escape($newusername))
+            'id',
+            '[+prefix+]web_users',
+            sprintf("username='%s'", db()->escape($newusername))
         );
         if (db()->count($rs)) {
             webAlert('User name is already in use!');
@@ -72,9 +72,9 @@ switch (postv('mode')) {
         // check if the email address already exist
         if ($modx->config['required_email_wuser']) {
             $rs = db()->select(
-                'id'
-                , '[+prefix+]web_user_attributes'
-                , sprintf("email='%s'", $email)
+                'id',
+                '[+prefix+]web_user_attributes',
+                sprintf("email='%s'", $email)
             );
             if (!$rs) {
                 webAlert(sprintf('An error occurred while attempting to retrieve all users with email %s.', $email));
@@ -115,19 +115,38 @@ switch (postv('mode')) {
         $fields['username'] = $newusername;
         $fields['password'] = md5($newpassword);
         $internalKey = db()->insert(
-            $fields
-            , '[+prefix+]web_users'
+            $fields,
+            '[+prefix+]web_users'
         );
         if (!$internalKey) {
             webAlert("An error occurred while attempting to save the user.");
             exit;
         }
 
-        $fields = compact('internalKey', 'fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street',
-            'city', 'state', 'country', 'gender', 'dob', 'photo', 'comment', 'blocked', 'blockeduntil', 'blockedafter');
+        $fields = compact(
+            'internalKey',
+            'fullname',
+            'role',
+            'email',
+            'phone',
+            'mobilephone',
+            'fax',
+            'zip',
+            'street',
+            'city',
+            'state',
+            'country',
+            'gender',
+            'dob',
+            'photo',
+            'comment',
+            'blocked',
+            'blockeduntil',
+            'blockedafter'
+        );
         $rs = db()->insert(
-            $fields
-            , '[+prefix+]web_user_attributes'
+            $fields,
+            '[+prefix+]web_user_attributes'
         );
         if (!$rs) {
             webAlert("An error occurred while attempting to save the user's attributes.");
@@ -165,8 +184,8 @@ switch (postv('mode')) {
                     $field['webgroup'] = (int)$user_group;
                     $field['webuser'] = $internalKey;
                     $rs = db()->insert(
-                        $field
-                        , '[+prefix+]web_groups'
+                        $field,
+                        '[+prefix+]web_groups'
                     );
                     if (!$rs) {
                         webAlert("An error occurred while attempting to add the user to a web group.");
@@ -195,13 +214,13 @@ switch (postv('mode')) {
             }
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            ?>
+?>
             <h1><?= $_lang['web_user_title'] ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
                     <li class="mutate"><a href="<?= $stayUrl ?>"><img
-                                src="<?= $_style['icons_save'] ?>"/> <?= $_lang['close'] ?></a></li>
+                                src="<?= $_style['icons_save'] ?>" /> <?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
@@ -215,11 +234,11 @@ switch (postv('mode')) {
                     </div>
                 </div>
             </div>
-            <?php
+        <?php
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         }
         break;
-    case '88' : // edit user
+    case '88': // edit user
         // generate a new password for this user
         if ($genpassword == 1) {
             if ($specifiedpassword != '' && $passwordgenmethod === 'spec') {
@@ -246,9 +265,9 @@ switch (postv('mode')) {
 
         // check if the username already exist
         $rs = db()->select(
-            'id'
-            , '[+prefix+]web_users'
-            , sprintf("username='%s'", db()->escape($newusername))
+            'id',
+            '[+prefix+]web_users',
+            sprintf("username='%s'", db()->escape($newusername))
         );
         if (!$rs) {
             webAlert("An error occurred while attempting to retrieve all users with username $newusername.");
@@ -266,9 +285,10 @@ switch (postv('mode')) {
         // check if the email address already exists
         if ($modx->config['required_email_wuser']) {
             $rs = db()->select(
-                'internalKey'
-                , '[+prefix+]web_user_attributes'
-                , sprintf("email='%s'", $email));
+                'internalKey',
+                '[+prefix+]web_user_attributes',
+                sprintf("email='%s'", $email)
+            );
             if (!$rs) {
                 webAlert("An error occurred while attempting to retrieve all users with email $email.");
                 exit;
@@ -291,11 +311,11 @@ switch (postv('mode')) {
 
         // update user name and password
         $sql = sprintf(
-            "UPDATE %s SET username='%s'%s WHERE id='%s'"
-            , evo()->getFullTableName('web_users')
-            , db()->escape($newusername)
-            , $updatepasswordsql
-            , $id
+            "UPDATE %s SET username='%s'%s WHERE id='%s'",
+            evo()->getFullTableName('web_users'),
+            db()->escape($newusername),
+            $updatepasswordsql,
+            $id
         );
         $rs = db()->query($sql);
         if (!$rs) {
@@ -303,13 +323,31 @@ switch (postv('mode')) {
             exit;
         }
 
-        $fields = compact('fullname', 'role', 'email', 'phone', 'mobilephone', 'fax', 'zip', 'street', 'city', 'state',
+        $fields = compact(
+            'fullname',
+            'role',
+            'email',
+            'phone',
+            'mobilephone',
+            'fax',
+            'zip',
+            'street',
+            'city',
+            'state',
             'country',
-            'gender', 'dob', 'photo', 'comment', 'failedlogincount', 'blocked', 'blockeduntil', 'blockedafter');
+            'gender',
+            'dob',
+            'photo',
+            'comment',
+            'failedlogincount',
+            'blocked',
+            'blockeduntil',
+            'blockedafter'
+        );
         $rs = db()->update(
-            $fields
-            , evo()->getFullTableName('web_user_attributes')
-            , sprintf("internalKey='%s'", $id)
+            $fields,
+            evo()->getFullTableName('web_user_attributes'),
+            sprintf("internalKey='%s'", $id)
         );
         if (!$rs) {
             webAlert("An error occurred while attempting to update the user's attributes.");
@@ -362,15 +400,17 @@ switch (postv('mode')) {
             if ($user_groups) {
                 foreach ($user_groups as $group) {
                     $sql = sprintf(
-                        "INSERT INTO %s (webgroup, webuser) VALUES('%s', '%s')"
-                        , evo()->getFullTableName('web_groups')
-                        , $group
-                        , $id
+                        "INSERT INTO %s (webgroup, webuser) VALUES('%s', '%s')",
+                        evo()->getFullTableName('web_groups'),
+                        $group,
+                        $id
                     );
                     if (!db()->query($sql)) {
-                        webAlert(sprintf(
-                                'An error occurred while attempting to add the user to a user_group.<br />%s;'
-                                , $sql)
+                        webAlert(
+                            sprintf(
+                                'An error occurred while attempting to add the user to a user_group.<br />%s;',
+                                $sql
+                            )
                         );
                         exit;
                     }
@@ -389,13 +429,13 @@ switch (postv('mode')) {
             }
 
             include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
-            ?>
+        ?>
             <h1><?= $_lang['web_user_title'] ?></h1>
 
             <div id="actions">
                 <ul class="actionButtons">
                     <li class="mutate"><a href="<?= $stayUrl ?>"><img
-                                src="<?= $_style["icons_save"] ?>"/> <?= $_lang['close'] ?></a></li>
+                                src="<?= $_style["icons_save"] ?>" /> <?= $_lang['close'] ?></a></li>
                 </ul>
             </div>
 
@@ -407,7 +447,7 @@ switch (postv('mode')) {
                     </div>
                 </div>
             </div>
-            <?php
+<?php
 
             include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
         } else {
@@ -420,7 +460,7 @@ switch (postv('mode')) {
             header($header);
         }
         break;
-    default :
+    default:
         webAlert('Unauthorized access');
         exit;
 }
