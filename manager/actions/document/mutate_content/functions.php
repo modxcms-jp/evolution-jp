@@ -18,26 +18,26 @@ function getTmplvars($docid, $template_id, $docgrp)
                 :
                 'tv.default_text',
             'tvtpl.rank'
-        )
-        , array(
+        ),
+        array(
             '[+prefix+]site_tmplvars AS tv',
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
             $docid ?
                 sprintf(
-                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'"
-                    , $docid
+                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues AS tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
+                    $docid
                 )
                 :
                 '',
             'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
-        )
-        , sprintf(
-            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)"
-            , $template_id
-            , sessionv('mgrRole')
-            , $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
-        )
-        , 'tvtpl.rank,tv.rank, tv.id'
+        ),
+        sprintf(
+            "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
+            $template_id,
+            sessionv('mgrRole'),
+            $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
+        ),
+        'tvtpl.rank,tv.rank, tv.id'
     );
 
     if (!db()->count($rs)) {
@@ -52,13 +52,13 @@ function getTmplvars($docid, $template_id, $docgrp)
 function rteContent($htmlcontent, $editors)
 {
     return textarea_tag(
-            array(
-                'id' => 'ta',
-                'name' => 'ta',
-                'style' => 'width:100%;height:350px;'
-            )
-            , $htmlcontent
-        )
+        array(
+            'id' => 'ta',
+            'name' => 'ta',
+            'style' => 'width:100%;height:350px;'
+        ),
+        $htmlcontent
+    )
         . html_tag('<span>', array('class' => 'warning'), lang('which_editor_title'))
         . getEditors($editors);
 }
@@ -78,19 +78,20 @@ function getEditors($editors)
     );
     foreach ($editors as $editor) {
         $options[] = html_tag(
-            '<option>'
-            , array(
+            '<option>',
+            array(
                 'value' => $editor,
                 'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
-            )
-            , $editor
+            ),
+            $editor
         );
     }
-    return select_tag(array(
+    return select_tag(
+        array(
             'id' => 'which_editor',
             'name' => 'which_editor'
-        )
-        , implode("\n", $options)
+        ),
+        implode("\n", $options)
     );
 }
 
@@ -107,8 +108,8 @@ function sectionContent()
     $ph['header'] = lang('resource_content');
     $planetpl = function ($content) {
         return sprintf(
-            '<textarea class="phptextarea" id="ta" name="ta" style="width:100%%; height: 400px;">%s</textarea>'
-            , $content
+            '<textarea class="phptextarea" id="ta" name="ta" style="width:100%%; height: 400px;">%s</textarea>',
+            $content
         );
     };
     if (config('use_editor') && doc('richtext')) {
@@ -157,9 +158,9 @@ function getGroups($docid)
 {
     // Load up, the permissions from the parent (if new document) or existing document
     $rs = db()->select(
-        'id, document_group'
-        , '[+prefix+]document_groups'
-        , sprintf("document='%s'", $docid)
+        'id, document_group',
+        '[+prefix+]document_groups',
+        sprintf("document='%s'", $docid)
     );
     $groups = [];
     while ($row = db()->getRow($rs)) {
@@ -193,23 +194,23 @@ function getUDGroups($id)
     // Query the permissions and names from above
     if ($docid) {
         $rs = db()->select(
-            'dgn.*, `groups`.id AS link_id'
-            , array(
+            'dgn.*, `groups`.id AS link_id',
+            array(
                 '[+prefix+]documentgroup_names AS dgn',
                 sprintf(
-                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s'
-                    , $docid
+                    'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s',
+                    $docid
                 )
-            )
-            , ''
-            , 'name'
+            ),
+            '',
+            'name'
         );
     } else {
         $rs = db()->select(
-            '*, NULL AS link_id'
-            , '[+prefix+]documentgroup_names'
-            , ''
-            , 'name'
+            '*, NULL AS link_id',
+            '[+prefix+]documentgroup_names',
+            '',
+            'name'
         );
     }
     // retain selected doc groups between post
@@ -234,9 +235,9 @@ function getUDGroups($id)
 
         // Create an inputValue pair (group ID and group link (if it exists))
         $inputValue = sprintf(
-            '%s,%s'
-            , $row['id']
-            , $row['link_id'] ? $row['link_id'] : 'new'
+            '%s,%s',
+            $row['id'],
+            $row['link_id'] ? $row['link_id'] : 'new'
         );
 
         $checked = in_array($inputValue, $groupsarray);
@@ -266,14 +267,14 @@ function getUDGroups($id)
 
         $permissions[] = "\t\t"
             . html_tag(
-                '<li>'
-                , []
-                , sprintf("<input %s />\n", implode(' ', $inputString))
-                . html_tag(
-                    'label'
-                    , array('for' => 'group-' . $row['id'])
-                    , $row['name']
-                )
+                '<li>',
+                [],
+                sprintf("<input %s />\n", implode(' ', $inputString))
+                    . html_tag(
+                        'label',
+                        array('for' => 'group-' . $row['id']),
+                        $row['name']
+                    )
             );
     }
 
@@ -286,14 +287,16 @@ function getUDGroups($id)
         return [];
     }
 
-// Add the "All Document Groups" item if we have rights in both contexts
+    // Add the "All Document Groups" item if we have rights in both contexts
     if (hasPermission('access_permissions') && hasPermission('web_access_permissions')) {
         array_unshift(
-            $permissions
-            , html_tag(
-                '<li>'
-                , [],
-                html_tag('<input>', array(
+            $permissions,
+            html_tag(
+                '<li>',
+                [],
+                html_tag(
+                    '<input>',
+                    array(
                         'type' => 'checkbox',
                         'class' => 'checkbox',
                         'name' => 'chkalldocs',
@@ -302,11 +305,15 @@ function getUDGroups($id)
                         'onclick' => 'makePublic(true);'
                     )
                 )
-                . html_tag('label', array(
-                        'for' => 'groupall',
-                        'class' => 'warning'
+                    . html_tag(
+                        'label',
+                        array(
+                            'for' => 'groupall',
+                            'class' => 'warning'
+                        ),
+                        lang('all_doc_groups')
                     )
-                    , lang('all_doc_groups')))
+            )
         );
         // Output the permissions list...
     }
@@ -318,12 +325,12 @@ function _mgroup($group_id)
 {
     return db()->getValue(
         db()->select(
-            'COUNT(mg.id)'
-            , '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg'
-            , sprintf(
-                'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s'
-                , $group_id
-                , $_SESSION['mgrInternalKey']
+            'COUNT(mg.id)',
+            '[+prefix+]membergroup_access mga, [+prefix+]member_groups mg',
+            sprintf(
+                'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s',
+                $group_id,
+                $_SESSION['mgrInternalKey']
             )
         )
     );
@@ -333,12 +340,12 @@ function _wgroup($group_id)
 {
     return db()->getValue(
         db()->select(
-            'COUNT(mg.id)'
-            , '[+prefix+]webgroup_access mga, [+prefix+]web_groups mg'
-            , sprintf(
-                'mga.webgroup=mg.webgroup AND mga.documentgroup=%s AND mg.webuser=%s'
-                , $group_id
-                , $_SESSION['mgrInternalKey']
+            'COUNT(mg.id)',
+            '[+prefix+]webgroup_access mga, [+prefix+]web_groups mg',
+            sprintf(
+                'mga.webgroup=mg.webgroup AND mga.documentgroup=%s AND mg.webuser=%s',
+                $group_id,
+                $_SESSION['mgrInternalKey']
             )
         )
     );
@@ -454,21 +461,21 @@ if (!function_exists('getDefaultTemplate')) {
 
         if (config('auto_template_logic') === 'sibling') {
             $rs = db()->select(
-                'template'
-                , '[+prefix+]site_content'
-                , sprintf(
-                    "id!='%s' AND isfolder=0 AND parent='%s'"
-                    , config('site_start')
-                    , request_intvar('pid')
-                )
-                , 'published DESC,menuindex ASC'
-                , 1
+                'template',
+                '[+prefix+]site_content',
+                sprintf(
+                    "id!='%s' AND isfolder=0 AND parent='%s'",
+                    config('site_start'),
+                    request_intvar('pid')
+                ),
+                'published DESC,menuindex ASC',
+                1
             );
         } elseif (config('auto_template_logic') === 'parent') {
             $rs = db()->select(
-                'template'
-                , '[+prefix+]site_content'
-                , sprintf("id='%s'", request_intvar('pid'))
+                'template',
+                '[+prefix+]site_content',
+                sprintf("id='%s'", request_intvar('pid'))
             );
         } else {
             $default_template = config('default_template');
@@ -535,12 +542,12 @@ function checkPermissions($id)
 function checkDocLock($id)
 {
     $rs = db()->select(
-        'internalKey, username'
-        , '[+prefix+]active_users'
-        , sprintf(
-            "action='%s' AND id='%s'"
-            , manager()->action
-            , $id
+        'internalKey, username',
+        '[+prefix+]active_users',
+        sprintf(
+            "action='%s' AND id='%s'",
+            manager()->action,
+            $id
         )
     );
     if (db()->count($rs) <= 1) {
@@ -573,14 +580,15 @@ function db_value($id, $docgrp)
     }
 
     $rs = db()->select(
-        'DISTINCT sc.*'
-        , '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
-        , sprintf(
-            "sc.id='%s' %s"
-            , $id
-            ,
-            ($_SESSION['mgrRole'] == 1 || !$docgrp) ? '' : sprintf('AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
-                $docgrp)
+        'DISTINCT sc.*',
+        '[+prefix+]site_content AS sc LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id',
+        sprintf(
+            "sc.id='%s' %s",
+            $id,
+            ($_SESSION['mgrRole'] == 1 || !$docgrp) ? '' : sprintf(
+                'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
+                $docgrp
+            )
         )
     );
     $limit = db()->count($rs);
@@ -611,15 +619,15 @@ if (!function_exists('default_value')) {
             'type' => manager()->action == 72 ? 'reference' : 'document',
             'parent' => $parent_id,
             'template' => $new_template_id ? $new_template_id : getDefaultTemplate(),
-            'pagetitle'=>'',
-            'longtitle'=>'',
+            'pagetitle' => '',
+            'longtitle' => '',
             'menutitle' => '',
-            'description'=>'',
+            'description' => '',
             'introtext' => '',
-            'link_attributes'=>'',
-            'pub_date'=>'',
-            'unpub_date'=>'',
-            'isfolder'=>0,
+            'link_attributes' => '',
+            'pub_date' => '',
+            'unpub_date' => '',
+            'isfolder' => 0,
             'content' => ''
         );
     }
@@ -674,12 +682,12 @@ function getMenuIndexAtNew($parent_id)
 {
     if (config('auto_menuindex') == 1) {
         return db()->getValue(
-                db()->select(
-                    'count(id)'
-                    , '[+prefix+]site_content'
-                    , sprintf("parent='%s'", $parent_id)
-                )
-            ) + 1;
+            db()->select(
+                'count(id)',
+                '[+prefix+]site_content',
+                sprintf("parent='%s'", $parent_id)
+            )
+        ) + 1;
     }
     return '0';
 }
@@ -688,8 +696,8 @@ function getAliasAtNew()
 {
     if (config('automatic_alias') === '2') {
         return manager()->get_alias_num_in_folder(
-            0
-            , request_intvar('pid')
+            0,
+            request_intvar('pid')
         );
     }
     return '';
@@ -721,8 +729,8 @@ function getJScripts($docid)
     $ph['suffix'] = config('friendly_url_suffix');
 
     return parseText(
-        file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl')
-        , $ph
+        file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl'),
+        $ph
     );
 }
 
@@ -750,7 +758,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
-        'upload_maxsize' => config('upload_maxsize', 32*1024*1024),
+        'upload_maxsize' => config('upload_maxsize', 32 * 1024 * 1024),
         'mode' => manager()->action,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),
@@ -810,16 +818,16 @@ if (!function_exists('collect_tab_settings_ph')) {
 
         $ph['fieldType'] = fieldType();
         $ph['fieldContentType'] = (doc('type') === 'reference') ? html_tag(
-            '<input>'
-            , array(
+            '<input>',
+            array(
                 'type' => 'hidden',
                 'name' => 'contentType',
                 'value' => doc('contentType')
             )
         ) : fieldContentType();
         $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
-            '<input>'
-            , array(
+            '<input>',
+            array(
                 'type' => 'hidden',
                 'name' => 'content_dispo',
                 'value' => doc('content_dispo')
