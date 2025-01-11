@@ -156,7 +156,7 @@ if (isset($form_v['which_editor'])) {
     <?php
 
     // invoke OnChunkFormPrerender event
-    $tmp = array('id' => $id);
+    $tmp = ['id' => $id];
     $evtOut = evo()->invokeEvent('OnChunkFormPrerender', $tmp);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
@@ -194,29 +194,29 @@ if (isset($form_v['which_editor'])) {
             if (anyv('a') == '78') {
                 if (evo()->hasPermission('new_chunk')) {
                     echo manager()->ab(
-                        array(
+                        [
                             'onclick' => 'duplicaterecord();',
                             'icon' => $_style['icons_resource_duplicate'],
                             'label' => $_lang['duplicate']
-                        )
+                        ]
                     );
                 }
                 if (evo()->hasPermission('delete_chunk')) {
                     echo manager()->ab(
-                        array(
+                        [
                             'onclick' => 'deletedocument();',
                             'icon' => $_style['icons_delete_document'],
                             'label' => $_lang['delete']
-                        )
+                        ]
                     );
                 }
             }
             echo manager()->ab(
-                array(
+                [
                     'onclick' => "document.location.href='index.php?a=76';",
                     'icon' => $_style['icons_cancel'],
                     'label' => $_lang['cancel']
-                )
+                ]
             );
             ?>
         </ul>
@@ -266,7 +266,7 @@ if (isset($form_v['which_editor'])) {
                 <?php
 
                 // invoke OnChunkFormRender event
-                $tmp = array('id' => $id);
+                $tmp = ['id' => $id];
                 $evtOut = evo()->invokeEvent('OnChunkFormRender', $tmp);
                 if (is_array($evtOut)) {
                     echo implode('', $evtOut);
@@ -407,12 +407,10 @@ if (isset($form_v['which_editor'])) {
 <?php
 // invoke OnRichTextEditorInit event
 if ($use_editor == 1) {
-    $tmp = array(
+    $tmp = [
         'editor' => $which_editor,
-        'elements' => array(
-            'post',
-        )
-    );
+        'elements' => ['post']
+    ];
     $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
