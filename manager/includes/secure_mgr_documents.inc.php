@@ -6,5 +6,5 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 function secureMgrDocument($docid = '')
 {
     global $modx;
-    return $modx->manager->setMgrDocsAsPrivate($docid);
+    return manager()->setMgrDocsAsPrivate($docid);
 }

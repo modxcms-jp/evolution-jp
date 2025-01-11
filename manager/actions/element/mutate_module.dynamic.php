@@ -337,7 +337,7 @@ $modx->moduleObject = $content;
                 <?php
                 if (getv('a') == 108) {
                     if (evo()->hasPermission('delete_module')) {
-                        echo $modx->manager->ab(
+                        echo manager()->ab(
                             array(
                                 'onclick' => 'deletedocument();',
                                 'icon' => $_style['icons_delete_document'],
@@ -346,7 +346,7 @@ $modx->moduleObject = $content;
                         );
                     }
                 }
-                echo $modx->manager->ab(
+                echo manager()->ab(
                     array(
                         'onclick' => "document.location.href='index.php?a=106';",
                         'icon' => $_style['icons_cancel'],
@@ -416,7 +416,7 @@ $modx->moduleObject = $content;
                                 <select name="categoryid">
                                     <option value="0"><?= $_lang["no_category"] ?></option>
                                     <?php
-                                    $ds = $modx->manager->getCategories();
+                                    $ds = manager()->getCategories();
                                     if ($ds) {
                                         foreach ($ds as $n => $v) {
                                             echo "\t\t\t" . '<option value="' . $v['id'] . '"' . ($content['category'] == $v['id'] ? ' selected="selected"' : '') . '>' . htmlspecialchars($v['category']) . "</option>\n";

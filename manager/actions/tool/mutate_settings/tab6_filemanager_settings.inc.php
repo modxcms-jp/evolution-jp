@@ -39,7 +39,7 @@
             <th><?= $_lang["upload_maxsize_title"] ?></th>
             <td>
                 <?php
-                $limit_size = $modx->manager->getUploadMaxsize();
+                $limit_size = manager()->getUploadMaxsize();
                 if (empty($modx->config['upload_maxsize'])) {
                     $last = substr($limit_size, -1);
                     $limit_size = substr($limit_size, 0, -1);

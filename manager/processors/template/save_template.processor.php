@@ -24,11 +24,11 @@ if (empty(postv('newcategory')) && postv('categoryid') > 0) {
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
+    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
     if ($catCheck) {
         $categoryid = $catCheck;
     } else {
-        $categoryid = $modx->manager->newCategory(postv('newcategory'));
+        $categoryid = manager()->newCategory(postv('newcategory'));
     }
 }
 

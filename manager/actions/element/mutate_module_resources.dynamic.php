@@ -15,7 +15,7 @@ $tbl_site_module_depobj = evo()->getFullTableName('site_module_depobj');
 $tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
-$modx->manager->initPageViewState();
+manager()->initPageViewState();
 
 // check to see the  editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");

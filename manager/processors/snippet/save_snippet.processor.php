@@ -33,12 +33,12 @@ if (empty(postv('newcategory')) && 0 < postv('categoryid')) {
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $categoryid = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
+    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
 
     if ($catCheck) {
         $categoryid = $catCheck;
     } else {
-        $categoryid = $modx->manager->newCategory(postv('newcategory'));
+        $categoryid = manager()->newCategory(postv('newcategory'));
     }
 }
 
@@ -55,7 +55,7 @@ $rs = db()->select('COUNT(id)', '[+prefix+]site_snippets', $where);
 $count = db()->getValue($rs);
 if ($count > 0) {
     $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['snippet'], $name);
-    $modx->manager->saveFormValues(23);
+    manager()->saveFormValues(23);
     $modx->webAlertAndQuit($msg, 'index.php?a=23');
     exit;
 }

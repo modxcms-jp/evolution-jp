@@ -8,7 +8,7 @@ if (!evo()->hasPermission('view_eventlog')) {
 }
 
 global $_PAGE;
-$modx->manager->initPageViewState();
+manager()->initPageViewState();
 
 // get and save search string
 if (anyv('op') === 'reset') {

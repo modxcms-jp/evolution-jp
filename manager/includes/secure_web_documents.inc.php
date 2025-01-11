@@ -5,6 +5,5 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 
 function secureWebDocument($docid = '')
 {
-    global $modx;
-    return $modx->manager->setWebDocsAsPrivate($docid);
+    return manager()->setWebDocsAsPrivate($docid);
 }

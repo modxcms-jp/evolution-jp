@@ -6,7 +6,7 @@ if (!evo()->hasPermission('file_manager')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$newToken = $modx->manager->makeToken();
+$newToken = manager()->makeToken();
 global $_style;
 // settings
 $style_path = parseText('[+site_url+]manager/media/style/[+manager_theme+]/images/', $modx->config);

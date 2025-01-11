@@ -53,7 +53,7 @@ $modx->getSettings();
 extract($modx->config);
 
 if (postv('updateMsgCount') && evo()->hasPermission('messages')) {
-    $modx->manager->getMessageCount();
+    manager()->getMessageCount();
 }
 
 // include_once the language file
@@ -62,7 +62,7 @@ $modx->loadLexicon('manager');
 // send the charset header
 header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
 
-$modx->manager->action = anyv('a', 1);
+manager()->action = anyv('a', 1);
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
@@ -72,7 +72,7 @@ if (!isset($_SESSION['mgrValidated'])) {
     exit('Not Logged In!');
 }
 
-switch ($modx->manager->action) {
+switch (manager()->action) {
     case 5:
     case 20:
     case 24:
@@ -132,9 +132,9 @@ if (getv('a') && postv('a')) {
 }
 
 // attempt to foil some simple types of CSRF attacks
-$modx->manager->validate_referer($modx->config('validate_referer'));
+manager()->validate_referer($modx->config('validate_referer'));
 
-$modx->manager->setView($modx->manager->action);
+manager()->setView(manager()->action);
 
 if (postv('stay') && postv('stay') !== 'new') {
     $_SESSION['saveAfter'] = postv('stay');
@@ -143,7 +143,7 @@ if (postv('stay') && postv('stay') !== 'new') {
 // invoke OnManagerPageInit event
 // If you would like to output $evtOutOnMPI , set $action to 999 or 998 in Plugin.
 //   ex)$modx->event->setGlobalVariable('action',999);
-$tmp = array("action" => $modx->manager->action);
+$tmp = array("action" => manager()->action);
 $evtOutOnMPI = evo()->invokeEvent("OnManagerPageInit", $tmp);
 
 $action_path = MODX_MANAGER_PATH . 'actions/';
@@ -151,7 +151,7 @@ $prc_path = MODX_MANAGER_PATH . 'processors/';
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 
-if (in_array($modx->manager->action, array(
+if (in_array(manager()->action, array(
     2,
     3,
     120,
@@ -213,7 +213,7 @@ if (in_array($modx->manager->action, array(
     include_once($action_path . 'header.inc.php');
 }
 
-switch ($modx->manager->action) {
+switch (manager()->action) {
     case 1 : //frame management - show the requested frame
         // get the requested frame
         if (isset($_REQUEST['f'])) {
@@ -575,12 +575,12 @@ switch ($modx->manager->action) {
         include_once($action_path . 'footer.inc.php');
 }
 
-if (in_array($modx->manager->action, array(2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 115, 998))) {
+if (in_array(manager()->action, array(2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 115, 998))) {
     include_once($action_path . 'footer.inc.php');
 }
 
 // log action, unless it's a frame request
-switch ($modx->manager->action) {
+switch (manager()->action) {
     case 1:
     case 7:
     case 2:

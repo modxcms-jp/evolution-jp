@@ -456,7 +456,7 @@ function entity($key, $default = null)
                     'label' => $_lang['duplicate']
                 );
                 if (evo()->hasPermission('new_plugin')) {
-                    echo $modx->manager->ab($params);
+                    echo manager()->ab($params);
                 }
                 $params = array(
                     'onclick' => 'deletedocument();',
@@ -464,7 +464,7 @@ function entity($key, $default = null)
                     'label' => $_lang['delete']
                 );
                 if (evo()->hasPermission('delete_plugin')) {
-                    echo $modx->manager->ab($params);
+                    echo manager()->ab($params);
                 }
             }
             $params = array(
@@ -472,7 +472,7 @@ function entity($key, $default = null)
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
             );
-            echo $modx->manager->ab($params);
+            echo manager()->ab($params);
             ?>
         </ul>
     </div>
@@ -668,7 +668,7 @@ function entity($key, $default = null)
                             <select name="categoryid" id="categoryid" style="width:300px;">
                                 <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
-                                $ds = $modx->manager->getCategories();
+                                $ds = manager()->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
                                         echo sprintf(

@@ -113,7 +113,7 @@ if (anyv('a') == 35) {
                         'label' => $_lang['delete']
                     );
                     if (evo()->hasPermission('delete_role')) {
-                        echo $modx->manager->ab($params);
+                        echo manager()->ab($params);
                     }
                 }
                 $params = array(
@@ -121,7 +121,7 @@ if (anyv('a') == 35) {
                     'icon' => $_style['icons_cancel'],
                     'label' => $_lang['cancel']
                 );
-                echo $modx->manager->ab($params);
+                echo manager()->ab($params);
                 ?>
             </ul>
         </div>

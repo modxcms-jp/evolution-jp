@@ -72,7 +72,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
 
         jQuery(function() {
-            var action = <?= $modx->manager->action ?>;
+            var action = <?= manager()->action ?>;
             switch (action) {
                 case 27:
                 case 17:

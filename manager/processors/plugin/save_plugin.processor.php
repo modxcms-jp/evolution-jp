@@ -29,11 +29,11 @@ if (!postv('newcategory') && postv('categoryid') > 0) {
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = '0';
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
+    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = $modx->manager->newCategory(postv('newcategory'));
+        $category = manager()->newCategory(postv('newcategory'));
     }
 }
 
@@ -56,7 +56,7 @@ switch (postv('mode')) {
             $rs = db()->select('COUNT(id)', '[+prefix+]site_plugins', "name='{$name}' AND disabled='0'");
             $count = db()->getValue($rs);
             if ($count > 0) {
-                $modx->manager->saveFormValues(101);
+                manager()->saveFormValues(101);
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
                 // prepare a few variables prior to redisplaying form...
@@ -124,7 +124,7 @@ switch (postv('mode')) {
             $rs = db()->select('COUNT(*)', '[+prefix+]site_plugins',
                 "name='{$name}' AND id!='{$id}' AND disabled='0'");
             if (db()->getValue($rs) > 0) {
-                $modx->manager->saveFormValues();
+                manager()->saveFormValues();
                 $modx->event->alert(sprintf($_lang['duplicate_name_found_general'], $_lang['plugin'], $name));
 
                 // prepare a few variables prior to redisplaying form...

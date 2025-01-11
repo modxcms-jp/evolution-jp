@@ -27,11 +27,11 @@ if (empty(postv('newcategory')) && postv('categoryid') > 0) {
 } elseif (empty(postv('newcategory')) && postv('categoryid') <= 0) {
     $category = 0;
 } else {
-    $catCheck = $modx->manager->checkCategory(db()->escape(postv('newcategory')));
+    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = $modx->manager->newCategory(postv('newcategory'));
+        $category = manager()->newCategory(postv('newcategory'));
     }
 }
 
@@ -51,13 +51,13 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
-            $modx->manager->saveFormValues(300);
+            manager()->saveFormValues(300);
             $modx->webAlertAndQuit($msg, 'index.php?a=300');
             exit;
         }
         if (check_reserved_names($name) !== false) {
             $msg = sprintf($_lang['reserved_name_warning'], $name);
-            $modx->manager->saveFormValues(300);
+            manager()->saveFormValues(300);
             $modx->webAlertAndQuit($msg, 'index.php?a=300');
             exit;
         }
@@ -111,13 +111,13 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
-            $modx->manager->saveFormValues(301);
+            manager()->saveFormValues(301);
             $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
             exit;
         }
         if (check_reserved_names($name) !== false) {
             $msg = sprintf($_lang['reserved_name_warning'], $name);
-            $modx->manager->saveFormValues(301);
+            manager()->saveFormValues(301);
             $modx->webAlertAndQuit($msg, "index.php?id={$id}&a=301");
             exit;
         }

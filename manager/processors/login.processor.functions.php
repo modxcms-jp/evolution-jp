@@ -56,7 +56,7 @@ function loginV1($givenPassword, $dbasePassword, $internalKey)
 {
     global $modx;
 
-    $user_algo = $modx->manager->getV1UserHashAlgorithm($internalKey);
+    $user_algo = manager()->getV1UserHashAlgorithm($internalKey);
 
     if (!config('pwd_hash_algo')) {
         $modx->config['pwd_hash_algo'] = 'UNCRYPT';
@@ -66,7 +66,7 @@ function loginV1($givenPassword, $dbasePassword, $internalKey)
         $modx->config['pwd_hash_algo'] = $user_algo;
     }
 
-    if ($dbasePassword != $modx->manager->genV1Hash($givenPassword, $internalKey)) {
+    if ($dbasePassword != manager()->genV1Hash($givenPassword, $internalKey)) {
         return false;
     }
 
@@ -387,7 +387,7 @@ function managerLogin()
     );
 
     $_SESSION['mgrLastlogin'] = request_time();
-    $_SESSION['mgrDocgroups'] = $modx->manager->getMgrDocgroups(user('internalKey'));
+    $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(user('internalKey'));
 
     if (anyv('rememberme')) {
         $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$modx->config('session.cookie.lifetime', 0);
@@ -420,7 +420,7 @@ function managerLogin()
     }
 
     if (evo()->hasPermission('remove_locks')) {
-        $modx->manager->remove_locks();
+        manager()->remove_locks();
     }
 
     include_once(MODX_CORE_PATH . 'log.class.inc.php');

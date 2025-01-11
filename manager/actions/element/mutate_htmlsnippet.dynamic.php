@@ -64,8 +64,8 @@ if (preg_match('@^[1-9][0-9]*$@', $id)) {
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
-    $form_v = $modx->manager->loadFormValues();
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
     $formRestored = true;
 } else {
     $form_v = $_POST;
@@ -122,7 +122,7 @@ if (isset($form_v['which_editor'])) {
             } else newEditor = '';
 
             documentDirty = false;
-            document.mutate.a.value = <?= $modx->manager->action ?>;
+            document.mutate.a.value = <?= manager()->action ?>;
             document.mutate.which_editor.value = newEditor;
             document.mutate.changeMode.value = newEditor;
             document.mutate.submit();
@@ -194,7 +194,7 @@ if (isset($form_v['which_editor'])) {
                 <?php
                 if (anyv('a') == '78') {
                     if (evo()->hasPermission('new_chunk')) {
-                        echo $modx->manager->ab(
+                        echo manager()->ab(
                             array(
                                 'onclick' => 'duplicaterecord();',
                                 'icon' => $_style['icons_resource_duplicate'],
@@ -203,7 +203,7 @@ if (isset($form_v['which_editor'])) {
                         );
                     }
                     if (evo()->hasPermission('delete_chunk')) {
-                        echo $modx->manager->ab(
+                        echo manager()->ab(
                             array(
                                 'onclick' => 'deletedocument();',
                                 'icon' => $_style['icons_delete_document'],
@@ -212,7 +212,7 @@ if (isset($form_v['which_editor'])) {
                         );
                     }
                 }
-                echo $modx->manager->ab(
+                echo manager()->ab(
                     array(
                         'onclick' => "document.location.href='index.php?a=76';",
                         'icon' => $_style['icons_cancel'],
@@ -316,7 +316,7 @@ if (isset($form_v['which_editor'])) {
                                 <select name="categoryid" style="width:300px;">
                                     <option value="0"><?= $_lang["no_category"] ?></option>
                                     <?php
-                                    $ds = $modx->manager->getCategories();
+                                    $ds = manager()->getCategories();
                                     if ($ds) {
                                         foreach ($ds as $n => $v) {
                                             echo "\t\t\t\t" . '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] || (empty(entity('category')) && postv('categoryid') == $v['id']) ? ' selected="selected"' : '') . '>' . hsc($v['category']) . "</option>\n";

@@ -90,8 +90,8 @@ if (anyv('a') == 88) {
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
-    $form_v = $modx->manager->loadFormValues();
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);

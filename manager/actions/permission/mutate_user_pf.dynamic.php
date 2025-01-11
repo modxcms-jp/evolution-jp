@@ -54,8 +54,8 @@ $_SESSION['itemname'] = $usernamedata['username'];
 
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
-    $form_v = $modx->manager->loadFormValues();
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
     // restore post values
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);

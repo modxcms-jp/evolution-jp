@@ -42,7 +42,7 @@ class TinyMCE
         $option = [];
 
         $skin_dir = $mce_path . "tiny_mce/themes/advanced/skins/";
-        switch ($modx->manager->action) {
+        switch (manager()->action) {
             case '11':
             case '12':
             case '74':
@@ -96,7 +96,7 @@ class TinyMCE
         $mce_path = $params['mce_path'];
         $ph = [];
 
-        switch ($modx->manager->action) {
+        switch (manager()->action) {
             case 11:
             case 12:
             case 74:
@@ -164,7 +164,7 @@ class TinyMCE
             $this->checked($params['mce_entermode'] === 'br'),
             $_lang['mce_entermode_opt2']
         );
-        switch ($modx->manager->action) {
+        switch (manager()->action) {
             case '11':
             case '12':
             case '74':
@@ -185,7 +185,7 @@ class TinyMCE
             '<label><input name="mce_element_format" type="radio" value="html" %s/>HTML</label>',
             $this->checked($params['mce_element_format'] === 'html')
         );
-        switch ($modx->manager->action) {
+        switch (manager()->action) {
             case '11':
             case '12':
             case '74':
@@ -206,7 +206,7 @@ class TinyMCE
             '<label><input name="mce_schema" type="radio" value="html5" %s/>HTML5</label>',
             $this->checked($params['mce_schema'] === 'html5')
         );
-        switch ($modx->manager->action) {
+        switch (manager()->action) {
             case '11':
             case '12':
             case '74':
@@ -304,7 +304,7 @@ class TinyMCE
                     $plugins = 'quickupload,' . $plugins;
                     $buttons2 = 'quickupload,' . $buttons2;
                 }
-                if ($modx->manager->action == '4' || $modx->manager->action == '27' || $modx->manager->action == '78') {
+                if (manager()->action == '4' || manager()->action == '27' || manager()->action == '78') {
                     global $content;
                     if (isset($content['template']) && $content['template'] === '0') {
                         $plugins = str_replace('autosave', '', $plugins);
@@ -396,7 +396,7 @@ class TinyMCE
                 $ph['convert_urls'] = 'false';
         }
 
-        if ($modx->config['mce_entermode'] !== 'br' && $modx->manager->action !== '78') {
+        if ($modx->config['mce_entermode'] !== 'br' && manager()->action !== '78') {
             $ph['forced_root_block'] = 'p';
             $ph['force_p_newlines'] = 'true';
             $ph['force_br_newlines'] = 'false';

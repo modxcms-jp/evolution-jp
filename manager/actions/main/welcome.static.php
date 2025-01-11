@@ -43,7 +43,7 @@ $modx->setPlaceholder('info', $_lang['info']);
 
 // setup message info
 if (evo()->hasPermission('messages')) {
-    $messages = $modx->manager->getMessageCount();
+    $messages = manager()->getMessageCount();
     $_SESSION['nrtotalmessages'] = $messages['total'];
     $_SESSION['nrnewmessages'] = $messages['new'];
 

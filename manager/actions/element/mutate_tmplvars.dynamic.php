@@ -51,7 +51,7 @@ if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
     $_SESSION['itemname'] = "New Template Variable";
 }
 
-$form_v = $modx->manager->loadFormValues();
+$form_v = manager()->loadFormValues();
 if ($form_v) {
     $content = array_merge($content, $form_v);
 }
@@ -314,7 +314,7 @@ function entity($key, $default = null) {
                     'label' => $_lang['duplicate']
                 );
                 if (evo()->hasPermission('new_template')) {
-                    echo $modx->manager->ab($params);
+                    echo manager()->ab($params);
                 }
                 $params = array(
                     'onclick' => 'deletedocument();',
@@ -322,7 +322,7 @@ function entity($key, $default = null) {
                     'label' => $_lang['delete']
                 );
                 if (evo()->hasPermission('delete_template')) {
-                    echo $modx->manager->ab($params);
+                    echo manager()->ab($params);
                 }
             }
             $params = array(
@@ -330,7 +330,7 @@ function entity($key, $default = null) {
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
             );
-            echo $modx->manager->ab($params);
+            echo manager()->ab($params);
             ?>
         </ul>
     </div>
@@ -549,7 +549,7 @@ function entity($key, $default = null) {
                             <select name="categoryid" style="width:300px;">
                                 <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
-                                $ds = $modx->manager->getCategories();
+                                $ds = manager()->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
                                         echo "<option value='" . $v['id'] . "'" . (entity("category") == $v["id"] ? " selected='selected'" : "") . ">" . hsc($v["category"]) . "</option>";

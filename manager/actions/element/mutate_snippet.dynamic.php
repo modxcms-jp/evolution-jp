@@ -56,8 +56,8 @@ if (getv('id') && preg_match('@^[0-9]+$@', getv('id'))) {
 }
 // restore saved form
 $formRestored = false;
-if ($modx->manager->hasFormValues()) {
-    $form_v = $modx->manager->loadFormValues();
+if (manager()->hasFormValues()) {
+    $form_v = manager()->loadFormValues();
     $formRestored = true;
 }
 
@@ -292,21 +292,21 @@ function entity($key, $default = null)
             <?php
             if (getv('a') == 22) {
                 if (evo()->hasPermission('new_snippet')) {
-                    echo $modx->manager->ab(array(
+                    echo manager()->ab(array(
                         'onclick' => 'duplicaterecord();',
                         'icon' => $_style['icons_resource_duplicate'],
                         'label' => $_lang['duplicate']
                     ));
                 }
                 if (evo()->hasPermission('delete_snippet')) {
-                    echo $modx->manager->ab(array(
+                    echo manager()->ab(array(
                         'onclick' => 'deletedocument();',
                         'icon' => $_style['icons_delete_document'],
                         'label' => $_lang['delete']
                     ));
                 }
             }
-            echo $modx->manager->ab(array(
+            echo manager()->ab(array(
                 'onclick' => "document.location.href='index.php?a=76';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
@@ -365,7 +365,7 @@ function entity($key, $default = null)
                             <select name="categoryid" style="width:300px;">
                                 <option value="0"><?= $_lang["no_category"] ?></option>
                                 <?php
-                                $ds = $modx->manager->getCategories();
+                                $ds = manager()->getCategories();
                                 if ($ds) {
                                     foreach ($ds as $n => $v) {
                                         echo '<option value="' . $v['id'] . '"' . (entity('category') == $v['id'] ? ' selected="selected"' : '') . '>' . hsc($v['category']) . '</option>';

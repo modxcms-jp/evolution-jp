@@ -13,7 +13,7 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
     alert()->dumpError();
 }
 
-$modx->manager->initPageViewState();
+manager()->initPageViewState();
 
 // get and save search string
 if (anyv('op') === 'reset') {

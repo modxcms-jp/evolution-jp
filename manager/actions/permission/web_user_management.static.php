@@ -8,7 +8,7 @@ if (!evo()->hasPermission('edit_web_user')) {
     alert()->dumpError();
 }
 
-$modx->manager->initPageViewState();
+manager()->initPageViewState();
 
 global $_PAGE;
 

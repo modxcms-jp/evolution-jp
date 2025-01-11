@@ -582,7 +582,7 @@ function parseNode($tpl, $param, $id)
 
     $_tmp = $modx->config('limit_by_container');
     $modx->config['limit_by_container'] = '';
-    if ($modx->manager->isContainAllowed($id) === false) {
+    if (manager()->isContainAllowed($id) === false) {
         return;
     }
     $modx->config['limit_by_container'] = $_tmp;

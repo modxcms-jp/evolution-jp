@@ -9,7 +9,7 @@ if (!evo()->hasPermission('edit_user')) {
 }
 
 global $_PAGE, $_style;
-$modx->manager->initPageViewState();
+manager()->initPageViewState();
 // get and save search string
 if (anyv('op') == 'reset') {
     $query = '';

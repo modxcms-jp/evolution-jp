@@ -491,7 +491,7 @@ function webAlert($msg)
     global $id, $modx;
     $mode = postv('mode');
     $url = "index.php?a=" . $mode . ($mode == '88' ? "&id=" . $id : '');
-    $modx->manager->saveFormValues($mode);
+    manager()->saveFormValues($mode);
     $modx->webAlertAndQuit($msg, $url);
 }
 

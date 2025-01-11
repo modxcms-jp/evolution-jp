@@ -97,7 +97,7 @@ class DocManager
                 if (!isset($modx->config['mgr_date_picker_path'])) {
                     $modx->config['mgr_date_picker_path'] = 'media/script/air-datepicker/datepicker.inc.php';
                 }
-                $dp = $modx->manager->loadDatePicker($modx->config['mgr_date_picker_path']);
+                $dp = manager()->loadDatePicker($modx->config['mgr_date_picker_path']);
                 $tpl = str_replace('</body>', $dp . '</body>', $tpl);
             }
             $ph['settings_version'] = $modx->config['settings_version'];
