@@ -3,13 +3,19 @@
 class TinyMCE
 {
     public $params;
+    private $usersettings = [];
 
     function __construct()
     {
-        global $modx;
+        global $modx, $usersettings;
+
         $this->params = $modx->event->params;
         $this->params['mce_path'] = MODX_BASE_PATH . 'assets/plugins/tinymce/';
         $this->params['mce_url'] = MODX_BASE_URL . 'assets/plugins/tinymce/';
+
+        if (manager()->action == 12) {
+            $this->usersettings = $usersettings;
+        }
     }
 
     private function get_lang($lang)
@@ -85,7 +91,7 @@ class TinyMCE
 
     public function get_mce_settings()
     {
-        global $modx, $_lang, $usersettings, $settings;
+        global $modx, $_lang;
         $params = &$this->params;
         $mce_path = $params['mce_path'];
         $ph = [];
@@ -96,33 +102,30 @@ class TinyMCE
                 break;
             case 12:
             case 74:
-                $config = $usersettings;
-                if ($usersettings['tinymce_editor_theme']) {
-                    $usersettings['tinymce_editor_theme'] = $settings['tinymce_editor_theme'];
+                $config = $this->usersettings;
+                if (!isset($this->usersettings['tinymce_editor_theme'])) {
+                    $this->usersettings['tinymce_editor_theme'] = '';
                 }
                 break;
             case 17:
             default:
-                $config = $settings;
+                $config = evo()->config;
                 break;
         }
         include_once("{$mce_path}settings/default_params.php");
-        $params['theme'] = $config['tinymce_editor_theme'] ?? 'editor';
-        $params['mce_editor_skin'] = $config['mce_editor_skin'] ?? 'default';
-        if (isset($config['mce_entermode'])) {
-            $params['mce_entermode'] = $config['mce_entermode'];
-        }
-        $params['mce_entermode'] = $config['mce_entermode'] ?? $ph['mce_entermode'];
-        $params['mce_element_format'] = $config['mce_element_format'] ?? $ph['mce_element_format'];
-        $params['mce_schema'] = $config['mce_schema'] ?? $ph['mce_schema'];
-        $params['css_selectors'] = $config['tinymce_css_selectors'] ?? $ph['css_selectors'];
-        $params['custom_plugins'] = $config['tinymce_custom_plugins'] ?? $ph['custom_plugins'];
-        $params['custom_buttons1'] = $config['tinymce_custom_buttons1'] ?? $ph['custom_buttons1'];
-        $params['custom_buttons2'] = $config['tinymce_custom_buttons2'] ?? $ph['custom_buttons2'];
-        $params['custom_buttons3'] = $config['tinymce_custom_buttons3'] ?? $ph['custom_buttons3'];
-        $params['custom_buttons4'] = $config['tinymce_custom_buttons4'] ?? $ph['custom_buttons4'];
-        $params['mce_template_docs'] = $config['mce_template_docs'] ?? $ph['mce_template_docs'];
-        $params['mce_template_chunks'] = $config['mce_template_chunks'] ?? $ph['mce_template_chunks'];
+        $params['theme'] = config('tinymce_editor_theme', 'editor');
+        $params['mce_editor_skin'] = config('mce_editor_skin', 'default');
+        $params['mce_entermode'] = config('mce_entermode', 'p');
+        $params['mce_element_format'] = config('mce_element_format', 'xhtml');
+        $params['mce_schema'] = config('mce_schema', 'html4');
+        $params['css_selectors'] = config('tinymce_css_selectors', '左寄せ=justifyleft;右寄せ=justifyright');
+        $params['custom_plugins'] = config('tinymce_custom_plugins');
+        $params['custom_buttons1'] = config('tinymce_custom_buttons1');
+        $params['custom_buttons2'] = config('tinymce_custom_buttons2');
+        $params['custom_buttons3'] = config('tinymce_custom_buttons3');
+        $params['custom_buttons4'] = config('tinymce_custom_buttons4');
+        $params['mce_template_docs'] = config('mce_template_docs');
+        $params['mce_template_chunks'] = config('mce_template_chunks');
 
         // language settings
         if (!@include($mce_path . "lang/" . $modx->config['manager_language'] . '.inc.php')) {
@@ -132,13 +135,7 @@ class TinyMCE
         $ph += $_lang;
 
         $theme_options = '';
-        switch ($modx->manager->action) {
-            case '11';
-            case '12';
-            case '74';
-                $selected = empty($params['theme']) ? '"selected"' : '';
-                $theme_options .= '<option value="" ' . $selected . '>' . $_lang['mce_theme_global_settings'] . "</option>\n";
-        }
+        $themes['inherit'] = $_lang['mce_theme_global_settings'];
         $themes['simple'] = $_lang['mce_theme_simple'];
         $themes['editor'] = $_lang['mce_theme_editor'];
         $themes['creative'] = $_lang['mce_theme_creative'];
@@ -147,7 +144,7 @@ class TinyMCE
         $themes['legacy'] = (!empty($_lang['mce_theme_legacy'])) ? $_lang['mce_theme_legacy'] : 'legacy';
         $themes['custom'] = $_lang['mce_theme_custom'];
         foreach ($themes as $key => $value) {
-            $selected = $this->selected($key == $params['theme']);
+            $selected = $this->selected(empty($this->usersettings) || $key == $this->usersettings['tinymce_editor_theme']);
             $key = '"' . $key . '"';
             $theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
         }
@@ -157,46 +154,76 @@ class TinyMCE
         $ph['theme_options'] = $theme_options;
         $ph['skin_options'] = $this->get_skin_names();
 
-        $ph['entermode_options'] = '<label><input name="mce_entermode" type="radio" value="p" ' . $this->checked($ph['mce_entermode'] === 'p') . '/>' . $_lang['mce_entermode_opt1'] . '</label><br />';
-        $ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="br" ' . $this->checked($ph['mce_entermode'] === 'br') . '/>' . $_lang['mce_entermode_opt2'] . '</label>';
+        $ph['entermode_options'] = sprintf(
+            '<label><input name="mce_entermode" type="radio" value="p" %s/>%s</label><br />',
+            $this->checked($params['mce_entermode'] === 'p'),
+            $_lang['mce_entermode_opt1']
+        );
+        $ph['entermode_options'] .= sprintf(
+            '<label><input name="mce_entermode" type="radio" value="br" %s/>%s</label>',
+            $this->checked($params['mce_entermode'] === 'br'),
+            $_lang['mce_entermode_opt2']
+        );
         switch ($modx->manager->action) {
             case '11':
             case '12':
             case '74':
                 $ph['entermode_options'] .= '<br />';
-                $ph['entermode_options'] .= '<label><input name="mce_entermode" type="radio" value="" ' . $this->checked(empty($params['mce_entermode'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+                $ph['entermode_options'] .= sprintf(
+                    '<label><input name="mce_entermode" type="radio" value="" %s/>%s</label><br />',
+                    $this->checked(empty($params['mce_entermode'])),
+                    $_lang['mce_theme_global_settings']
+                );
                 break;
         }
 
-        $ph['element_format_options'] = '<label><input name="mce_element_format" type="radio" value="xhtml" ' . $this->checked($ph['mce_element_format'] === 'xhtml') . '/>XHTML</label><br />';
-        $ph['element_format_options'] .= '<label><input name="mce_element_format" type="radio" value="html" ' . $this->checked($ph['mce_element_format'] === 'html') . '/>HTML</label>';
+        $ph['element_format_options'] = sprintf(
+            '<label><input name="mce_element_format" type="radio" value="xhtml" %s/>XHTML</label><br />',
+            $this->checked($params['mce_element_format'] === 'xhtml')
+        );
+        $ph['element_format_options'] .= sprintf(
+            '<label><input name="mce_element_format" type="radio" value="html" %s/>HTML</label>',
+            $this->checked($params['mce_element_format'] === 'html')
+        );
         switch ($modx->manager->action) {
             case '11':
             case '12':
             case '74':
                 $ph['element_format_options'] .= '<br />';
-                $ph['element_format_options'] .= '<label><input name="mce_element_format" type="radio" value="" ' . $this->checked(empty($params['mce_element_format'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+                $ph['element_format_options'] .= sprintf(
+                    '<label><input name="mce_element_format" type="radio" value="" %s/>%s</label><br />',
+                    $this->checked(empty($params['mce_element_format'])),
+                    $_lang['mce_theme_global_settings']
+                );
                 break;
         }
 
-        $ph['schema_options'] = '<label><input name="mce_schema" type="radio" value="html4" ' . $this->checked($ph['mce_schema'] === 'html4') . '/>HTML4(XHTML)</label><br />';
-        $ph['schema_options'] .= '<label><input name="mce_schema" type="radio" value="html5" ' . $this->checked($ph['mce_schema'] === 'html5') . '/>HTML5</label>';
+        $ph['schema_options'] = sprintf(
+            '<label><input name="mce_schema" type="radio" value="html4" %s/>HTML4(XHTML)</label><br />',
+            $this->checked($params['mce_schema'] === 'html4')
+        );
+        $ph['schema_options'] .= sprintf(
+            '<label><input name="mce_schema" type="radio" value="html5" %s/>HTML5</label>',
+            $this->checked($params['mce_schema'] === 'html5')
+        );
         switch ($modx->manager->action) {
             case '11':
             case '12':
             case '74':
                 $ph['schema_options'] .= '<br />';
-                $ph['schema_options'] .= '<label><input name="mce_schema" type="radio" value="" ' . $this->checked(empty($params['mce_schema'])) . '/>' . $_lang['mce_theme_global_settings'] . '</label><br />';
+                $ph['schema_options'] .= sprintf(
+                    '<label><input name="mce_schema" type="radio" value="" %s/>%s</label><br />',
+                    $this->checked(empty($params['mce_schema'])),
+                    $_lang['mce_theme_global_settings']
+                );
                 break;
         }
 
         $gsettings = file_get_contents("{$mce_path}inc/gsettings.inc.html");
 
-        foreach ($ph as $name => $value) {
-            $name = '[+' . $name . '+]';
-            $gsettings = str_replace($name, $value, $gsettings);
-        }
-        return $gsettings;
+        return evo()->cleanUpMODXTags(
+            evo()->parseText($gsettings, $ph)
+        );
     }
 
     public function get_mce_script()
