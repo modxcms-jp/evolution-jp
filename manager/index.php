@@ -4,8 +4,10 @@ if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
 }
 $mstart = memory_get_usage();
 
-define('IN_MANAGER_MODE',
-    'true');  // we use this to make sure files are accessed through the manager instead of seperately.
+define(
+    'IN_MANAGER_MODE',
+    'true'
+);  // we use this to make sure files are accessed through the manager instead of seperately.
 define('MODX_MANAGER_PATH', str_replace('\\', '/', __DIR__) . '/');
 
 include_once('../index.php');
@@ -214,7 +216,7 @@ if (in_array(manager()->action, array(
 }
 
 switch (manager()->action) {
-    case 1 : //frame management - show the requested frame
+    case 1: //frame management - show the requested frame
         // get the requested frame
         if (isset($_REQUEST['f'])) {
             $frame = $_REQUEST['f'];
@@ -307,7 +309,7 @@ switch (manager()->action) {
     case 33: // get the delete user page
         include_once($prc_path . 'permission/delete_user.processor.php');
         break;
-// role management
+        // role management
     case 38: // get the new role page
     case 35: // get the edit role page
         include_once($action_path . 'permission/mutate_role.dynamic.php');
@@ -418,15 +420,15 @@ switch (manager()->action) {
     case 130: // delete draft action
         include_once($prc_path . 'document/delete_draft_content.processor.php');
         break;
-// view phpinfo
+        // view phpinfo
     case 200: // show phpInfo
         include_once($action_path . 'report/phpinfo.static.php');
         break;
-// errorpage
+        // errorpage
     case 29: // get the error page
         include_once($action_path . 'error_dialog.static.php');
         break;
-// file manager
+        // file manager
     case 31: // get the page to manage files
         include_once($action_path . 'element/files.dynamic.php');
         break;
@@ -525,7 +527,7 @@ switch (manager()->action) {
     case 9: // get the help page
         include_once($action_path . 'tool/help.static.php');
         break;
-    // Template Variables - Based on Apodigm's Docvars
+        // Template Variables - Based on Apodigm's Docvars
     case 300: // get the new document variable action
     case 301: // get the edit document variable action
         include_once($action_path . 'element/mutate_tmplvars.dynamic.php');
@@ -561,7 +563,7 @@ switch (manager()->action) {
             echo implode('', $evtOutOnMPI);
         }
         break;
-    default : // default action: show not implemented message
+    default: // default action: show not implemented message
         // say that what was requested doesn't do anything yet
         include_once($action_path . 'header.inc.php');
         echo "

@@ -92,10 +92,13 @@ echo $cm->render();
 
     <div id="actions">
         <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#"
-                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
+            <li id="Button5" class="mutate">
+                <a href="#"
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                    alt="icons_cancel"
+                    src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?>
+                </a>
+            </li>
         </ul>
     </div>
 
@@ -106,31 +109,41 @@ echo $cm->render();
             <table border="0" style="width:100%">
                 <tr>
                     <td>
-                        <a
-                            href="index.php?a=116&cls=1"
-                        ><img
+                        <a href="index.php?a=116&cls=1">
+                            <img
                                 src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
-                            /> <?= lang('clear_log') ?></a>
+                            /> <?= lang('clear_log') ?>
+                        </a>
                     </td>
                     <td nowrap="nowrap">
                         <table border="0" style="float:right">
                             <tr>
                                 <td><?= lang('search') ?> </td>
-                                <td><input class="searchtext" name="search" type="text" size="15"
-                                           value="<?= $query ?>"/></td>
-                                <td><a class="primary" href="#" title="<?= lang('search') ?>"
-                                       onclick="searchResource();return false;"><img
-                                            src="<?= style('icons_save') ?>"/><?= lang('go') ?>
-                                    </a></td>
-                                <td><a href="#" title="<?= $_lang['reset'] ?>"
-                                       onclick="resetSearch();return false;"><img
-                                            src="<?= style('icons_refresh') ?>" style="display:inline;"/></a>
+                                <td>
+                                    <input class="searchtext" name="search" type="text" size="15"
+                                        value="<?= $query ?>"/>
                                 </td>
-                                <td><a href="#" title="<?= $_lang['list_mode'] ?>"
-                                       onclick="changeListMode();return false;"><img
+                                <td>
+                                    <a class="primary" href="#" title="<?= lang('search') ?>"
+                                        onclick="searchResource();return false;">
+                                        <img src="<?= style('icons_save') ?>"/>
+                                        <?= lang('go') ?>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" title="<?= $_lang['reset'] ?>"
+                                        onclick="resetSearch();return false;">
+                                        <img src="<?= style('icons_refresh') ?>" style="display:inline;"/>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="#" title="<?= $_lang['list_mode'] ?>" onclick="changeListMode();return false;">
+                                        <img
                                             src="<?= style('icons_table') ?>"
-                                            style="display:inline;"/></a></td>
+                                            style="display:inline;"/>
+                                    </a>
+                                </td>
                             </tr>
                         </table>
                     </td>
@@ -160,7 +173,10 @@ echo $cm->render();
             $grd->itemClass = "gridItem";
             $grd->altItemClass = "gridAltItem";
             $grd->fields = "id,type,source,createdon,username";
-            $grd->columns = $_lang['event_id'] . ', ' . $_lang['type'] . " ," . $_lang['source'] . " ," . $_lang['date'] . " ," . $_lang['sysinfo_userid'];
+            $grd->columns = sprintf(
+                '%s, %s, %s, %s, %s',
+                $_lang['event_id'], $_lang['type'], $_lang['source'], $_lang['date'], $_lang['sysinfo_userid']
+            );
             $grd->colWidths = "20,34,,150";
             $grd->columnHeaderStyle = 'text-align:center;';
             $grd->colAligns = "right,center,,,center,center";

@@ -146,7 +146,6 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 
 ?>
 <script type="text/javascript">
-
     function removeDependencies() {
         if (confirm("<?= $_lang['confirm_delete_record'] ?>")) {
             documentDirty = false;
@@ -207,17 +206,17 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
 </script>
 
 <form name="mutate" method="post" action="index.php">
-    <input type="hidden" name="a" value="113"/>
-    <input type="hidden" name="op" value=""/>
-    <input type="hidden" name="rt" value=""/>
-    <input type="hidden" name="newids" value=""/>
-    <input type="hidden" name="id" value="<?= $content['id'] ?>"/>
+    <input type="hidden" name="a" value="113" />
+    <input type="hidden" name="op" value="" />
+    <input type="hidden" name="rt" value="" />
+    <input type="hidden" name="newids" value="" />
+    <input type="hidden" name="id" value="<?= $content['id'] ?>" />
     <h1><?= $_lang['module_resource_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li class="mutate"><a href="index.php?a=106"><img
-                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a>
+                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a>
         </ul>
     </div>
 
@@ -225,14 +224,14 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
         <div class="sectionHeader"><?= $content["name"] . " - " . $_lang['module_resource_title'] ?></div>
         <div class="sectionBody">
             <p><img src="<?= $_style["icons_modules"] ?>" alt=""
-                    align="left"/><?= $_lang['module_resource_msg'] ?></p>
-            <br/>
+                    align="left" /><?= $_lang['module_resource_msg'] ?></p>
+            <br />
             <!-- Dependencies -->
             <ul class="actionButtons">
                 <li><a href="#" onclick="addSnippet();return false;"><img
-                            src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_snippet'] ?></a></li>
+                            src="<?= $_style["icons_add"] ?>" /> <?= $_lang['add_snippet'] ?></a></li>
                 <li><a href="#" onclick="addPlugin();return false;"><img
-                            src="<?= $_style["icons_add"] ?>"/> <?= $_lang['add_plugin'] ?></a></li>
+                            src="<?= $_style["icons_add"] ?>" /> <?= $_lang['add_plugin'] ?></a></li>
             </ul>
             <?php
             $sql = "SELECT smd.id,COALESCE(ss.name,sp.name) as 'name'," .
@@ -264,7 +263,7 @@ if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
             ?>
             <ul class="actionButtons">
                 <li><a style="margin-bottom:10px;" href="#" onclick="removeDependencies();return false;"><img
-                            src="<?= $_style["icons_delete_document"] ?>"/> <?= $_lang['remove'] ?>
+                            src="<?= $_style["icons_delete_document"] ?>" /> <?= $_lang['remove'] ?>
                     </a></li>
             </ul>
         </div>

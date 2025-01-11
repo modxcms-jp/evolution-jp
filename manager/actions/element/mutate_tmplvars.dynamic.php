@@ -81,7 +81,8 @@ function selected($cond)
     return '';
 }
 
-function entity($key, $default = null) {
+function entity($key, $default = null)
+{
     global $content;
     return $content[$key] ?? $default;
 }
@@ -294,15 +295,15 @@ function entity($key, $default = null) {
                 <li id="Button1" class="mutate">
                     <a href="#"
                         onclick="documentDirty=false;jQuery('#mutate').submit();jQuery('#Button1').hide();jQuery('input,textarea,select').addClass('readonly');">
-                        <img src="<?= $_style["icons_save"] ?>"/> <?= $_lang['update'] ?>
+                        <img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?>
                     </a><span class="and"> + </span>
                     <select id="stay" name="stay">
                         <option id="stay1"
-                                value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
+                            value="1" <?= anyv('stay') == 1 ? ' selected=""' : '' ?>><?= $_lang['stay_new'] ?></option>
                         <option id="stay2"
-                                value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
+                            value="2" <?= anyv('stay') == 2 ? ' selected="selected"' : '' ?>><?= $_lang['stay'] ?></option>
                         <option id="stay3"
-                                value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
+                            value="" <?= anyv('stay') == '' ? ' selected=""' : '' ?>><?= $_lang['close'] ?></option>
                     </select>
                 </li>
             <?php endif; ?>
@@ -350,8 +351,8 @@ function entity($key, $default = null) {
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_caption'] ?></th>
                         <td align="left"><input name="caption" type="text" maxlength="80"
-                                                value="<?= hsc(entity('caption')) ?>" class="inputBox"
-                                                style="width:300px;"></td>
+                                value="<?= hsc(entity('caption')) ?>" class="inputBox"
+                                style="width:300px;"></td>
                     </tr>
 
                     <tr>
@@ -444,15 +445,15 @@ function entity($key, $default = null) {
                     <tr>
                         <th align="left" valign="top"><?= $_lang['tmplvars_default'] ?></th>
                         <td align="left" nowrap="nowrap"><textarea name="default_text" type="text"
-                        class="inputBox phptextarea" rows="5"
-                        style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
+                                class="inputBox phptextarea" rows="5"
+                                style="width:400px;"><?= hsc(entity('default_text')) ?></textarea>
                         </td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_widget'] ?></th>
                         <td align="left">
                             <select name="display" size="1" class="inputBox" style="width:400px;"
-                                    onchange="showParameters(this);">
+                                onchange="showParameters(this);">
                                 <option value="" <?= selected(entity('display') == '') ?>>&nbsp;</option>
                                 <option value="custom_widget" <?= selected(entity('display') === 'custom_widget') ?>>
                                     Custom Processor
@@ -486,7 +487,7 @@ function entity($key, $default = null) {
                     <tr id="displayparamrow">
                         <td valign="top" align="left"><?= $_lang['tmplvars_widget_prop'] ?>
                             <div style="padding-top:8px;"><a href="javascript://"
-                                                             onclick="resetParameters(); return false"><img
+                                    onclick="resetParameters(); return false"><img
                                         src="<?= $_style['icons_refresh'] ?>"
                                         alt="<?= $_lang['tmplvars_reset_params'] ?>"></a></div>
                         </td>
@@ -563,21 +564,21 @@ function entity($key, $default = null) {
                     <tr id="newcategry" style="display:none;">
                         <th align="left" valign="top" style="padding-top:5px;"><?= $_lang['new_category'] ?></th>
                         <td align="left" valign="top" style="padding-top:5px;"><input name="newcategory" type="text"
-                                                                                      maxlength="45" value=""
-                                                                                      class="inputBox"
-                                                                                      style="width:300px;"></td>
+                                maxlength="45" value=""
+                                class="inputBox"
+                                style="width:300px;"></td>
                     </tr>
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_description'] ?></th>
                         <td align="left"><textarea name="description"
-                                                   style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
+                                style="padding:0;height:4em;"><?= hsc(entity('description')) ?></textarea>
                         </td>
                     </tr>
                     <?php if (evo()->hasPermission('save_template') == 1) { ?>
                         <tr>
                             <td align="left" colspan="2"><label><input name="locked" value="on"
-                                                                       type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
-                                                                       class="inputBox"/>
+                                        type="checkbox" <?= entity('locked') == 1 ? "checked='checked'" : "" ?>
+                                        class="inputBox" />
                                     <b><?= $_lang['lock_tmplvars'] ?></b> <span
                                         class="comment"><?= $_lang['lock_tmplvars_msg'] ?></span></label>
                             </td>
@@ -586,8 +587,8 @@ function entity($key, $default = null) {
                     <tr>
                         <th align="left"><?= $_lang['tmplvars_rank'] ?></th>
                         <td align="left"><input name="rank" type="text" maxlength="4"
-                                                value="<?= hsc(entity('rank', 0)) ?>"
-                                                class="inputBox" style="width:300px;"></td>
+                                value="<?= hsc(entity('rank', 0)) ?>"
+                                class="inputBox" style="width:300px;"></td>
                     </tr>
                 </table>
             </div>
@@ -603,7 +604,7 @@ function entity($key, $default = null) {
                     $groupsarray[] = $row['documentgroup'];
                 }
                 if (evo()->hasPermission('access_permissions')) {
-                    ?>
+            ?>
                     <div class="tab-page" id="tabAccess">
                         <h2 class="tab"><?= $_lang['access_permissions'] ?></h2>
                         <script type="text/javascript">
@@ -657,7 +658,7 @@ function entity($key, $default = null) {
                         echo $chks;
                         ?>
                     </div>
-                    <?php
+            <?php
                 }
             }
             ?>
@@ -683,15 +684,15 @@ function entity($key, $default = null) {
         jQuery('textarea,input[type=text]').prop('readonly', true);
         jQuery('select').addClass('readonly');
         jQuery('#Button1').hide();
-        jQuery('input[name="locked"]').click(function () {
+        jQuery('input[name="locked"]').click(function() {
             jQuery('#Button1').toggle();
         });
     }
-    jQuery('input[name="locked"]').click(function () {
+    jQuery('input[name="locked"]').click(function() {
         jQuery('textarea,input[type=text]').prop('readonly', jQuery(this).prop('checked'));
         jQuery('select').toggleClass('readonly');
     });
-    jQuery('select[name="categoryid"]').change(function () {
+    jQuery('select[name="categoryid"]').change(function() {
         if (jQuery(this).val() == '-1') {
             jQuery('#newcategry').fadeIn();
         } else {
@@ -700,7 +701,7 @@ function entity($key, $default = null) {
         }
     });
     var itype = jQuery('#type');
-    itype.change(function () {
+    itype.change(function() {
         switch (itype.val()) {
             case 'dropdown':
             case 'listbox':
@@ -708,13 +709,13 @@ function entity($key, $default = null) {
             case 'checkbox':
             case 'option':
             case 'custom_tv':
-            <?php
-            $result = db()->select('name', '[+prefix+]site_plugins', "name like'input:%' and disabled!=1");
-            while ($row = db()->getRow($result)) {
-                $type = strtolower(str_replace("input:", "", $row["name"]));
-                echo "\t\t\tcase '" . $type . "':\n";
-            }
-            ?>
+                <?php
+                $result = db()->select('name', '[+prefix+]site_plugins', "name like'input:%' and disabled!=1");
+                while ($row = db()->getRow($result)) {
+                    $type = strtolower(str_replace("input:", "", $row["name"]));
+                    echo "\t\t\tcase '" . $type . "':\n";
+                }
+                ?>
                 jQuery('#inputoption').fadeIn();
                 var ctv = '<textarea name="[+name+]">[+value+]</textarea>';
                 if (itype.val() == 'custom_tv') {

@@ -35,203 +35,204 @@ if (!is_readable($startpath)) {
 }
 
 ?>
-    <style type="text/css">
-        .warning {
-            color: #c00;
+<style type="text/css">
+    .warning {
+        color: #c00;
+    }
+</style>
+<h1><?= lang('manage_files') ?></h1>
+
+<div id="actions">
+    <ul class="actionButtons">
+        <?php
+        if (getv('mode') !== 'drill') {
+            $href = 'a=31&path=' . urlencode(anyv('path'));
+        } else {
+            $href = 'a=2';
         }
-    </style>
-    <h1><?= lang('manage_files') ?></h1>
 
-    <div id="actions">
-        <ul class="actionButtons">
-            <?php
-            if (getv('mode') !== 'drill') {
-                $href = 'a=31&path=' . urlencode(anyv('path'));
-            } else {
-                $href = 'a=2';
-            }
-
-            if (is_writable($startpath)) {
-                $ph = [];
-                $_ = '';
-                if (anyv('mode') === 'save') {
-                    $_ = $modx->parseText(
-                            '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>',
-                            array(
-                                'icons_save' => $_style['icons_save'],
-                                'lang_save' => lang('save')
-                            )
-                        ) . "\n";
-                }
-                $_ .= $modx->parseText(
-                    '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
+        if (is_writable($startpath)) {
+            $ph = [];
+            $_ = '';
+            if (anyv('mode') === 'save') {
+                $_ = $modx->parseText(
+                    '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>',
                     array(
-                        'href' => 'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
-                        'tree_folder' => $_style['tree_folder'],
-                        'subject' => lang('add_folder')
+                        'icons_save' => $_style['icons_save'],
+                        'lang_save' => lang('save')
                     )
-                );
-
-                $tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
-                $ph['image'] = $_style['tree_page'];
-                $ph['href'] = 'index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=';
-                $ph['lang_newfile'] = lang('files.dynamic.php1');
-                $_ .= $modx->parseText($tpl, $ph);
-                echo $_;
+                ) . "\n";
             }
-            ?>
-            <li id="Button5" class="mutate">
-                <a
-                    href="#"
-                    onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"
-                ><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>"
-                    /> <?= lang('cancel') ?></a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="section">
-        <div class="sectionBody">
-            <script type="text/javascript">
-                var current_path = '<?= $startpath;?>';
-
-                function show_image(url) {
-                    document.getElementById('imageviewer').style.border = "1px solid #ccc";
-                    document.getElementById('imageviewer').src = url;
-                }
-
-                function setColor(o, state) {
-                    if (!o) return;
-                    if (state && o.style) o.style.backgroundColor = '#eeeeee';
-                    else if (o.style) o.style.backgroundColor = 'transparent';
-                }
-
-                function confirmDelete() {
-                    return confirm("<?= lang('confirm_delete_file') ?>");
-                }
-
-                function confirmDeleteFolder(status) {
-                    if (status !== 'file_exists')
-                        return confirm("<?= lang('confirm_delete_dir') ?>");
-                    else
-                        return confirm("<?= lang('confirm_delete_dir_recursive') ?>");
-                }
-
-                function confirmUnzip() {
-                    return confirm("<?= lang('confirm_unzip_file') ?>");
-                }
-
-                function unzipFile(file) {
-                    if (confirmUnzip()) {
-                        window.location.href = "index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file + "&token=<?= $newToken;?>";
-                        return false;
-                    }
-                }
-
-                function getFolderName(a) {
-                    var f;
-                    f = window.prompt('Enter New Folder Name:', '')
-                    if (f) a.href += escape(f);
-                    return (f) ? true : false;
-                }
-
-                function getFileName(a) {
-                    var f;
-                    f = window.prompt('Enter New File Name:', '')
-                    if (f) a.href += escape(f);
-                    return (f) ? true : false;
-                }
-
-                function deleteFolder(folder, status) {
-                    if (confirmDeleteFolder(status)) {
-                        window.location.href = "index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder + "&token=<?= $newToken;?>";
-                        return false;
-                    }
-                }
-
-                function deleteFile(file) {
-                    if (confirmDelete()) {
-                        window.location.href = "index.php?a=31&mode=delete&path=" + current_path + '/' + file + "&token=<?= $newToken;?>";
-                        return false;
-                    }
-                }
-            </script>
-            <?php
-            if (!empty($_FILES['userfile'])) {
-                $information = fileupload();
-            } elseif (postv('mode') === 'save') {
-                echo textsave();
-            } elseif (anyv('mode') === 'delete') {
-                echo delete_file();
-            }
-
-            if (in_array($startpath, $proteted_path)) {
-                echo lang('files.dynamic.php2');
-                exit;
-            }
-
-            if (rtrim($startpath, '/') == config('filemanager_path')) {
-                $ph = array(
-                    'image' => $_style['tree_deletedfolder'],
-                    'subject' => '<span style="color:#bbb;cursor:default;">Top</span>'
-                );
-            } else {
-                $ph = array(
-                    'image' => $_style['tree_folder'],
-                    'subject' => sprintf(
-                        '<a href="index.php?a=31&mode=drill&path=%s">Top</b></a> / ',
-                        config('filemanager_path')
-                    )
-                );
-            }
-            echo $modx->parseText(
-                '<img src="[+image+]" align="absmiddle" alt="" />[+subject+] ',
-                $ph
+            $_ .= $modx->parseText(
+                '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
+                array(
+                    'href' => 'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
+                    'tree_folder' => $_style['tree_folder'],
+                    'subject' => lang('add_folder')
+                )
             );
 
-            $len = strlen(config('filemanager_path'));
-            if (substr($startpath, $len) == '') {
-                $topic_path = '/';
-            } else {
-                $topic_path = substr($startpath, $len);
-                $pieces = explode('/', rtrim($topic_path, '/'));
-                $path = '';
-                $count = count($pieces);
-                foreach ($pieces as $i => $v) {
-                    if (empty($v)) {
-                        continue;
-                    }
-                    $path .= rtrim($v, '/') . '/';
-                    if (1 < $count) {
-                        $pieces[$i] = sprintf(
-                            '<a href="%s">%s</a>',
-                            'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path),
-                            trim($v, '/')
-                        );
-                    } else {
-                        $pieces[$i] = trim($v, '/');
-                    }
-                    $count--;
-                }
-                $topic_path = join(' / ', $pieces);
+            $tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
+            $ph['image'] = $_style['tree_page'];
+            $ph['href'] = 'index.php?a=31&mode=newfile&path=' . urlencode($startpath) . '&name=';
+            $ph['lang_newfile'] = lang('files.dynamic.php1');
+            $_ .= $modx->parseText($tpl, $ph);
+            echo $_;
+        }
+        ?>
+        <li id="Button5" class="mutate">
+            <a
+                href="#"
+                onclick="documentDirty=false;document.location.href='index.php?<?= $href ?>';"><img
+                    alt="icons_cancel"
+                    src="<?= $_style["icons_cancel"] ?>" /> <?= lang('cancel') ?></a>
+        </li>
+    </ul>
+</div>
+
+<div class="section">
+    <div class="sectionBody">
+        <script type="text/javascript">
+            var current_path = '<?= $startpath; ?>';
+
+            function show_image(url) {
+                document.getElementById('imageviewer').style.border = "1px solid #ccc";
+                document.getElementById('imageviewer').src = url;
             }
 
-            ?> <b><?= mb_convert_encoding(
-                    $topic_path,
-                    $modx_manager_charset,
-                    'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'
-                ) ?></b>
-            <?php
-            // check to see user isn't trying to move below the document_root
-            if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace('//',
-                '/', config('filemanager_path') . '/'))) {
-            echo lang('files_access_denied') ?>
-        </div>
+            function setColor(o, state) {
+                if (!o) return;
+                if (state && o.style) o.style.backgroundColor = '#eeeeee';
+                else if (o.style) o.style.backgroundColor = 'transparent';
+            }
 
+            function confirmDelete() {
+                return confirm("<?= lang('confirm_delete_file') ?>");
+            }
+
+            function confirmDeleteFolder(status) {
+                if (status !== 'file_exists')
+                    return confirm("<?= lang('confirm_delete_dir') ?>");
+                else
+                    return confirm("<?= lang('confirm_delete_dir_recursive') ?>");
+            }
+
+            function confirmUnzip() {
+                return confirm("<?= lang('confirm_unzip_file') ?>");
+            }
+
+            function unzipFile(file) {
+                if (confirmUnzip()) {
+                    window.location.href = "index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file + "&token=<?= $newToken; ?>";
+                    return false;
+                }
+            }
+
+            function getFolderName(a) {
+                var f;
+                f = window.prompt('Enter New Folder Name:', '')
+                if (f) a.href += escape(f);
+                return (f) ? true : false;
+            }
+
+            function getFileName(a) {
+                var f;
+                f = window.prompt('Enter New File Name:', '')
+                if (f) a.href += escape(f);
+                return (f) ? true : false;
+            }
+
+            function deleteFolder(folder, status) {
+                if (confirmDeleteFolder(status)) {
+                    window.location.href = "index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder + "&token=<?= $newToken; ?>";
+                    return false;
+                }
+            }
+
+            function deleteFile(file) {
+                if (confirmDelete()) {
+                    window.location.href = "index.php?a=31&mode=delete&path=" + current_path + '/' + file + "&token=<?= $newToken; ?>";
+                    return false;
+                }
+            }
+        </script>
         <?php
-        exit;
+        if (!empty($_FILES['userfile'])) {
+            $information = fileupload();
+        } elseif (postv('mode') === 'save') {
+            echo textsave();
+        } elseif (anyv('mode') === 'delete') {
+            echo delete_file();
+        }
+
+        if (in_array($startpath, $proteted_path)) {
+            echo lang('files.dynamic.php2');
+            exit;
+        }
+
+        if (rtrim($startpath, '/') == config('filemanager_path')) {
+            $ph = array(
+                'image' => $_style['tree_deletedfolder'],
+                'subject' => '<span style="color:#bbb;cursor:default;">Top</span>'
+            );
+        } else {
+            $ph = array(
+                'image' => $_style['tree_folder'],
+                'subject' => sprintf(
+                    '<a href="index.php?a=31&mode=drill&path=%s">Top</b></a> / ',
+                    config('filemanager_path')
+                )
+            );
+        }
+        echo $modx->parseText(
+            '<img src="[+image+]" align="absmiddle" alt="" />[+subject+] ',
+            $ph
+        );
+
+        $len = strlen(config('filemanager_path'));
+        if (substr($startpath, $len) == '') {
+            $topic_path = '/';
+        } else {
+            $topic_path = substr($startpath, $len);
+            $pieces = explode('/', rtrim($topic_path, '/'));
+            $path = '';
+            $count = count($pieces);
+            foreach ($pieces as $i => $v) {
+                if (empty($v)) {
+                    continue;
+                }
+                $path .= rtrim($v, '/') . '/';
+                if (1 < $count) {
+                    $pieces[$i] = sprintf(
+                        '<a href="%s">%s</a>',
+                        'index.php?a=31&mode=drill&path=' . urlencode(config('filemanager_path') . $path),
+                        trim($v, '/')
+                    );
+                } else {
+                    $pieces[$i] = trim($v, '/');
+                }
+                $count--;
+            }
+            $topic_path = join(' / ', $pieces);
+        }
+
+        ?> <b><?= mb_convert_encoding(
+                        $topic_path,
+                        $modx_manager_charset,
+                        'SJIS-win,SJIS,EUCJP-win,EUC-JP,UTF-8'
+                    ) ?></b>
+        <?php
+        // check to see user isn't trying to move below the document_root
+        if (substr(strtolower(str_replace('//', '/', $startpath . "/")), 0, $len) != strtolower(str_replace(
+            '//',
+            '/',
+            config('filemanager_path') . '/'
+        ))) {
+            echo lang('files_access_denied') ?>
+    </div>
+
+<?php
+            exit;
         }
 
         // Unzip .zip files - by Raymond
@@ -326,79 +327,79 @@ if (!is_readable($startpath)) {
         }
 
         echo '<br />';
-        ?>
-        <table>
-            <tr>
-                <td><b><?= lang('files_filename') ?></b></td>
-                <td><b><?= lang('files_modified') ?></b></td>
-                <td><b><?= lang('files_filesize') ?></b></td>
-                <td><b><?= lang('files_fileoptions') ?></b></td>
-            </tr>
-            <?php
-            ls($startpath);
-            echo "\n\n\n";
-            if ($folders == 0 && $files == 0) {
-                echo '<tr><td colspan="4"><img src="' . $_style['tree_deletedfolder'] . '" /><span style="color:#888;cursor:default;"> This directory is empty.</span></td></tr>';
-            }
-            ?></table>
-        <hr/>
-        <?php
-        global $filesizes;
+?>
+<table>
+    <tr>
+        <td><b><?= lang('files_filename') ?></b></td>
+        <td><b><?= lang('files_modified') ?></b></td>
+        <td><b><?= lang('files_filesize') ?></b></td>
+        <td><b><?= lang('files_fileoptions') ?></b></td>
+    </tr>
+    <?php
+    ls($startpath);
+    echo "\n\n\n";
+    if ($folders == 0 && $files == 0) {
+        echo '<tr><td colspan="4"><img src="' . $_style['tree_deletedfolder'] . '" /><span style="color:#888;cursor:default;"> This directory is empty.</span></td></tr>';
+    }
+    ?>
+</table>
+<hr />
+<?php
+global $filesizes;
 
-        echo lang('files_directories'), ': <b>', $folders, '</b> ';
-        echo lang('files_files'), ': <b>', $files, '</b> ';
-        echo lang('files_data'), ': <b><span dir="ltr">', $modx->nicesize($filesizes), '</span></b> ';
-        echo lang('files_dirwritable'), ' <b>', is_writable($startpath) == 1 ? lang('yes') . '.' : lang('no') . '.'
-        ?></b>
-        <div>
-            <img src="<?= $_style['tx'] ?>" id="imageviewer"/>
+echo lang('files_directories'), ': <b>', $folders, '</b> ';
+echo lang('files_files'), ': <b>', $files, '</b> ';
+echo lang('files_data'), ': <b><span dir="ltr">', $modx->nicesize($filesizes), '</span></b> ';
+echo lang('files_dirwritable'), ' <b>', is_writable($startpath) == 1 ? lang('yes') . '.' : lang('no') . '.'
+?></b>
+<div>
+    <img src="<?= $_style['tx'] ?>" id="imageviewer" />
+</div>
+
+<?php
+if (is_writable($startpath)) {
+?>
+    <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
+        <input
+            type="hidden" name="MAX_FILE_SIZE"
+            value="<?= evo()->config('upload_maxsize', 32 * 1024 * 1024) ?>">
+        <input type="hidden" name="a" value="31">
+        <input type="hidden" name="path" value="<?= $startpath ?>">
+
+        <?php if (isset($information)) {
+            echo $information;
+        } ?>
+
+        <div id="uploader" class="actionButtons" style="margin-top:10px;">
+            <input type="file" name="userfile" onchange="document.upload.submit();">
+            <a
+                class="default" href="#" onclick="document.upload.submit()"
+                style="display:inline;float:none;"><?=
+                                                    '<img src="' . $_style['icons_add'] . '" /> '
+                                                        . lang('files_uploadfile')
+                                                    ?></a>
+            <input type="submit" value="<?= lang('files_uploadfile') ?>" style="display:none;">
         </div>
+    </form>
+<?php
+} else {
+    echo "<p>" . lang('files_upload_inhibited_msg') . "</p>";
+}
 
-        <?php
-        if (is_writable($startpath)) {
-            ?>
-            <form name="upload" enctype="multipart/form-data" action="index.php" method="post">
-                <input
-                    type="hidden" name="MAX_FILE_SIZE"
-                    value="<?= evo()->config('upload_maxsize', 32*1024*1024) ?>">
-                <input type="hidden" name="a" value="31">
-                <input type="hidden" name="path" value="<?= $startpath ?>">
-
-                <?php if (isset($information)) {
-                    echo $information;
-                } ?>
-
-                <div id="uploader" class="actionButtons" style="margin-top:10px;">
-                    <input type="file" name="userfile" onchange="document.upload.submit();">
-                    <a
-                        class="default" href="#" onclick="document.upload.submit()"
-                        style="display:inline;float:none;"><?=
-                        '<img src="' . $_style['icons_add'] . '" /> '
-                        . lang('files_uploadfile')
-                        ?></a>
-                    <input type="submit" value="<?= lang('files_uploadfile') ?>" style="display:none;">
-                </div>
-            </form>
-            <?php
-        } else {
-            echo "<p>" . lang('files_upload_inhibited_msg') . "</p>";
-        }
-
-        ?>
+?>
 
 
-    </div>
-    </div>
+</div>
+</div>
 <?php
 
 if (anyv('mode') === 'save' || anyv('mode') === 'view') {
-    ?>
+?>
 
     <div class="section">
         <div
             class="sectionHeader"
-            id="file_editfile"
-        ><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
+            id="file_editfile"><?= anyv('mode') === 'save' ? lang('files_editfile') : lang('files_viewfile') ?></div>
         <div class="sectionBody">
             <?php
             $filename = anyv('path');
@@ -419,28 +420,29 @@ if (anyv('mode') === 'save' || anyv('mode') === 'view') {
 
             ?>
 
-<?php if (anyv('mode') === 'save') { ?>
-            <form action="index.php" method="post" name="editFile">
-                <input type="hidden" name="a" value="31"/>
-                <input type="hidden" name="mode" value="save"/>
-                <input type="hidden" name="path" value="<?= anyv('path') ?>"/>
-                <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td>
-                            <textarea
-                                dir="ltr" style="width:100%; height:370px;" name="content"
-                                class="phptextarea"><?= $ent_buffer ?></textarea></td>
-                    </tr>
-                </table>
-            </form>
-<?php } else { ?>
-    <div style="background-color:#fcfcfc;border: 1px solid #ccc; padding:10px 20px;">
-    <?= '<pre>' . $ent_buffer . '</pre>' ?>
-    </div>
-<?php } ?>
+            <?php if (anyv('mode') === 'save') { ?>
+                <form action="index.php" method="post" name="editFile">
+                    <input type="hidden" name="a" value="31" />
+                    <input type="hidden" name="mode" value="save" />
+                    <input type="hidden" name="path" value="<?= anyv('path') ?>" />
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td>
+                                <textarea
+                                    dir="ltr" style="width:100%; height:370px;" name="content"
+                                    class="phptextarea"><?= $ent_buffer ?></textarea>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            <?php } else { ?>
+                <div style="background-color:#fcfcfc;border: 1px solid #ccc; padding:10px 20px;">
+                    <?= '<pre>' . $ent_buffer . '</pre>' ?>
+                </div>
+            <?php } ?>
         </div>
     </div>
-    <?php
+<?php
 }
 
 function ls($curpath)
@@ -556,8 +558,11 @@ function ls($curpath)
                     $files_array[$filecounter]['view'] = sprintf(
                         '<a href="%s%s" style="cursor:pointer; width:20px;"><img src="%smisc/ed_save.gif" align="absmiddle" alt="%s" title="%s" /></a> ',
                         webstart_path(),
-                        implode('/', array_map('rawurlencode', explode('/', substr($newpath, $len,
-                            strlen($newpath))))),
+                        implode('/', array_map('rawurlencode', explode('/', substr(
+                            $newpath,
+                            $len,
+                            strlen($newpath)
+                        )))),
                         $style_path,
                         lang('file_download_file'),
                         lang('file_download_file')
@@ -601,7 +606,8 @@ function ls($curpath)
                 );
             } else {
                 $files_array[$filecounter]['edit'] = sprintf(
-                    '<span class="disabledImage"><img src="%s" align="absmiddle" alt="%s" title="%s" /></span> ', $_style['icons_edit_document'],
+                    '<span class="disabledImage"><img src="%s" align="absmiddle" alt="%s" title="%s" /></span> ',
+                    $_style['icons_edit_document'],
                     lang('files_editfile'),
                     lang('files_editfile')
                 );
@@ -762,7 +768,7 @@ function unzip($file, $path)
                 }
             }
         }
-        copy("zip://".$file."#".$zip_entry_name, $complete_name);
+        copy("zip://" . $file . "#" . $zip_entry_name, $complete_name);
     }
     umask($old_umask);
     $zip->close();

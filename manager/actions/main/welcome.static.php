@@ -51,8 +51,11 @@ if (evo()->hasPermission('messages')) {
     <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;' . $_lang["inbox"] . ($_SESSION['nrnewmessages'] > 0 ? " (<span style='color:red'>" . $_SESSION['nrnewmessages'] . '</span>)' : '') . '</span><br />';
     if ($_SESSION['nrnewmessages'] > 0) {
         $msg .= '<span class="comment">'
-            . sprintf($_lang["welcome_messages"], $_SESSION['nrtotalmessages'],
-                "<span style='color:red;'>" . $_SESSION['nrnewmessages'] . "</span>") . '</span>';
+            . sprintf(
+                $_lang["welcome_messages"],
+                $_SESSION['nrtotalmessages'],
+                "<span style='color:red;'>" . $_SESSION['nrnewmessages'] . "</span>"
+            ) . '</span>';
         $mail_icon = $_style['icons_mail_new_large'];
     } else {
         $msg .= '<span class="comment">' . $_lang["messages_no_messages"] . '</span>';
@@ -72,8 +75,12 @@ if (evo()->hasPermission('new_document') || evo()->hasPermission('save_document'
     $modx->setPlaceholder('NewDocIcon', $src);
 }
 if (evo()->hasPermission('view_document')) {
-    $src = get_icon($_lang['view_child_resources_in_container'], 120, $_style['icons_resources_large'],
-        $_lang['view_child_resources_in_container']);
+    $src = get_icon(
+        $_lang['view_child_resources_in_container'],
+        120,
+        $_style['icons_resources_large'],
+        $_lang['view_child_resources_in_container']
+    );
     $modx->setPlaceholder('iconResources', $src);
 }
 if (evo()->hasPermission('edit_user')) {
@@ -187,7 +194,8 @@ $modx->setPlaceholder('Modules', $modules);
 // do some config checks
 if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
     || ($modx->config['warning_visibility'] == 2 && evo()->hasPermission('save_role') == 1)
-    || $modx->config['warning_visibility'] == 1) {
+    || $modx->config['warning_visibility'] == 1
+) {
     include_once(MODX_CORE_PATH . 'config_check.inc.php');
     $modx->setPlaceholder('settings_config', $_lang['warning']);
     $modx->setPlaceholder('configcheck_title', $_lang['configcheck_title']);
@@ -244,7 +252,8 @@ function get_icon($title, $action, $icon_path, $alt = '')
     return '<span class="wm_button" style="border:0">' . $icon . '</span>';
 }
 
-function welcomeTpl($tpl) {
+function welcomeTpl($tpl)
+{
     if (!empty($tpl)) {
         return $tpl;
     }
@@ -263,7 +272,7 @@ function welcomeTpl($tpl) {
     $target = evo()->config('manager_welcome_tpl');
     if (strpos($target, '@') === 0) {
         $result = evo()->atBind($target);
-        if($result) {
+        if ($result) {
             return $result;
         }
     }

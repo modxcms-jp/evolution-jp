@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var array $_lang
  * @var array $_style
@@ -33,15 +34,31 @@ $_PAGE['vs']['lm'] = $listmode;
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu("cntxm", 150);
-$cm->addItem($_lang["run_module"], "js:menuAction(1)", $_style['icons_save'],
-    (!evo()->hasPermission('exec_module') ? 1 : 0));
+$cm->addItem(
+    $_lang["run_module"],
+    "js:menuAction(1)",
+    $_style['icons_save'],
+    (!evo()->hasPermission('exec_module') ? 1 : 0)
+);
 $cm->addSeparator();
-$cm->addItem($_lang["edit"], "js:menuAction(2)", $_style['icons_edit_document'],
-    (!evo()->hasPermission('edit_module') ? 1 : 0));
-$cm->addItem($_lang["duplicate"], "js:menuAction(3)", $_style['icons_resource_duplicate'],
-    (!evo()->hasPermission('new_module') ? 1 : 0));
-$cm->addItem($_lang["delete"], "js:menuAction(4)", $_style['icons_delete'],
-    (!evo()->hasPermission('delete_module') ? 1 : 0));
+$cm->addItem(
+    $_lang["edit"],
+    "js:menuAction(2)",
+    $_style['icons_edit_document'],
+    (!evo()->hasPermission('edit_module') ? 1 : 0)
+);
+$cm->addItem(
+    $_lang["duplicate"],
+    "js:menuAction(3)",
+    $_style['icons_resource_duplicate'],
+    (!evo()->hasPermission('new_module') ? 1 : 0)
+);
+$cm->addItem(
+    $_lang["delete"],
+    "js:menuAction(4)",
+    $_style['icons_delete'],
+    (!evo()->hasPermission('delete_module') ? 1 : 0)
+);
 echo $cm->render();
 
 ?>
@@ -52,7 +69,7 @@ echo $cm->render();
     function showContentMenu(id, e) {
         selectedItem = id;
         contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))
-        <?= $modx_textdir === 'rtl' ? '-190' : '';?> + "px"; //offset menu if RTL is selected
+        <?= $modx_textdir === 'rtl' ? '-190' : ''; ?> + "px"; //offset menu if RTL is selected
         contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + "px";
         contextm.style.visibility = "visible";
         e.cancelBubble = true;
@@ -62,19 +79,19 @@ echo $cm->render();
     function menuAction(a) {
         var id = selectedItem;
         switch (a) {
-            case 1:		// run module
+            case 1: // run module
                 dontShowWorker = true; // prevent worker from being displayed
                 window.location.href = 'index.php?a=112&id=' + id;
                 break;
-            case 2:		// edit
+            case 2: // edit
                 window.location.href = 'index.php?a=108&id=' + id;
                 break;
-            case 3:		// duplicate
+            case 3: // duplicate
                 if (confirm("<?= $_lang['confirm_duplicate_record'] ?>")) {
                     window.location.href = 'index.php?a=111&id=' + id;
                 }
                 break;
-            case 4:		// delete
+            case 4: // delete
                 if (confirm("<?= $_lang['confirm_delete_module'] ?>")) {
                     window.location.href = 'index.php?a=110&id=' + id;
                 }
@@ -82,7 +99,7 @@ echo $cm->render();
         }
     }
 
-    document.addEvent('click', function () {
+    document.addEvent('click', function() {
         contextm.style.visibility = "hidden";
     });
 </script>
@@ -99,9 +116,9 @@ echo $cm->render();
                 echo '<li id="newModule" class="mutate"><a href="index.php?a=107"><img src="' . $_style["icons_save"] . '" />' . $_lang["new_module"] . '</a></li>';
             } ?>
             <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 

@@ -27,10 +27,18 @@ $_PAGE['vs']['lm'] = $listmode;
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');
 $cm = new ContextMenu('cntxm', 150);
-$cm->addItem($_lang['edit'], 'js:menuAction(1)', $_style['icons_edit_document'],
-    (!evo()->hasPermission('edit_user') ? 1 : 0));
-$cm->addItem($_lang['delete'], 'js:menuAction(2)', $_style['icons_delete'],
-    (!evo()->hasPermission('delete_user') ? 1 : 0));
+$cm->addItem(
+    $_lang['edit'],
+    'js:menuAction(1)',
+    $_style['icons_edit_document'],
+    (!evo()->hasPermission('edit_user') ? 1 : 0)
+);
+$cm->addItem(
+    $_lang['delete'],
+    'js:menuAction(2)',
+    $_style['icons_delete'],
+    (!evo()->hasPermission('delete_user') ? 1 : 0)
+);
 echo $cm->render();
 ?>
 <script language="JavaScript" type="text/javascript">
@@ -67,10 +75,10 @@ echo $cm->render();
     function menuAction(a) {
         var id = selectedItem;
         switch (a) {
-            case 1:		// edit
+            case 1: // edit
                 window.location.href = 'index.php?a=12&id=' + id;
                 break;
-            case 2:		// delete
+            case 2: // delete
                 if (confirm("<?= $_lang['confirm_delete_user'] ?>")) {
                     window.location.href = 'index.php?a=33&id=' + id;
                 }
@@ -78,23 +86,23 @@ echo $cm->render();
         }
     }
 
-    document.addEvent('click', function () {
+    document.addEvent('click', function() {
         contextm.style.visibility = "hidden";
     });
 </script>
 <form name="resource" method="post">
-    <input type="hidden" name="id" value="<?= $id ?? '' ?>"/>
-    <input type="hidden" name="listmode" value="<?= $listmode ?? '' ?>"/>
-    <input type="hidden" name="op" value=""/>
+    <input type="hidden" name="id" value="<?= $id ?? '' ?>" />
+    <input type="hidden" name="listmode" value="<?= $listmode ?? '' ?>" />
+    <input type="hidden" name="op" value="" />
 
     <h1><?= $_lang['user_management_title'] ?></h1>
 
     <div id="actions">
         <ul class="actionButtons">
             <li id="Button5" class="mutate"><a href="#"
-                                            onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                    onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
                         alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
+                        src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
         </ul>
     </div>
 
@@ -105,7 +113,7 @@ echo $cm->render();
                 <tr>
                     <?php if (evo()->hasPermission('new_user')): ?>
                         <td><a href="index.php?a=11" class="default"><img
-                                    src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_user'] ?></a>
+                                    src="<?= $_style["icons_add"] ?>" /> <?= $_lang['new_user'] ?></a>
                         </td>
                     <?php endif; ?>
                     <td nowrap="nowrap">
@@ -113,17 +121,17 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                           value="<?= $query ?>"/></td>
+                                        value="<?= $query ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
-                                       onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
+                                        onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
-                                       onclick="resetSearch();return false;"><img
-                                            src="<?= $_style['icons_refresh'] ?>" style="display:inline;"/></a>
+                                        onclick="resetSearch();return false;"><img
+                                            src="<?= $_style['icons_refresh'] ?>" style="display:inline;" /></a>
                                 </td>
                                 <td><a href="#" title="<?= $_lang["list_mode"] ?>"
-                                       onclick="changeListMode();return false;"><img
+                                        onclick="changeListMode();return false;"><img
                                             src="<?= $_style['icons_table'] ?>"
-                                            style="display:inline;"/></a></td>
+                                            style="display:inline;" /></a></td>
                             </tr>
                         </table>
                     </td>
@@ -177,8 +185,11 @@ echo $cm->render();
                 $_lang['user_block']
             ));
             $grd->colTypes = join('||', array(
-                sprintf('template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="' . $_style['icons_user'] . '" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="%s">[+value+]</a></span>',
-                    $_lang['click_to_context'], $_lang['click_to_edit_title']),
+                sprintf(
+                    'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="' . $_style['icons_user'] . '" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="%s">[+value+]</a></span>',
+                    $_lang['click_to_context'],
+                    $_lang['click_to_edit_title']
+                ),
                 '[+fullname+]',
                 '[+email+]',
                 '[+rolename+]',
