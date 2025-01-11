@@ -259,7 +259,7 @@
             </td>
         </tr>
 
-        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["which_editor_title"] ?></th>
             <td>
                 <?php
@@ -280,14 +280,14 @@
                 ?>
                 <?= $_lang["which_editor_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["fe_editor_lang_title"] ?></th>
             <td><select name="fe_editor_lang" size="1" class="inputBox">
                     <?= get_lang_options(null, config('fe_editor_lang')) ?>
                 </select><br/>
                 <?= $_lang["fe_editor_lang_message"] ?></td>
         </tr>
-        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? $displayStyle : 'none' ?>">
+        <tr class="editorRow" style="display: <?= config('use_editor') == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["editor_css_path_title"] ?></th>
             <td>
                 <?= form_text('editor_css_path', '', 'style="width:400px;"'); ?><br/>

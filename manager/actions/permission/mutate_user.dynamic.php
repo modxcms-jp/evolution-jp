@@ -59,7 +59,6 @@ if (evo()->config('manager_language') !== 'english' && is_file($countries_path))
     include_once $countries_path;
 }
 
-$displayStyle = (sessionv('browser') === 'modern') ? 'table-row' : 'block';
 // invoke OnUserFormPrerender event
 $tmp = array('id' => $userid);
 $evtOut = evo()->invokeEvent('OnUserFormPrerender', $tmp);

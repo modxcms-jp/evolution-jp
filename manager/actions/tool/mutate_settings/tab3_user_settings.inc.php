@@ -34,7 +34,7 @@
                     form_radio('use_udperms', '0', $modx->config['use_udperms'] == '0', 'id="udPermsOff"')); ?><br/>
                 <?= $_lang["udperms_message"] ?></td>
         </tr>
-        <tr class="udPerms" style="display: <?= $modx->config['use_udperms'] == 1 ? $displayStyle : 'none' ?>">
+        <tr class="udPerms" style="display: <?= $modx->config['use_udperms'] == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["udperms_allowroot_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],
@@ -44,7 +44,7 @@
                 <?= $_lang["udperms_allowroot_message"] ?>
             </td>
         </tr>
-        <tr class="udPerms" style="display: <?= $modx->config['use_udperms'] == 1 ? $displayStyle : 'none' ?>">
+        <tr class="udPerms" style="display: <?= $modx->config['use_udperms'] == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["tree_show_protected"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],

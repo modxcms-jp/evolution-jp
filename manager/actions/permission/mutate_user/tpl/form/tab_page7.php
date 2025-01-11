@@ -50,7 +50,7 @@
         </td>
     </tr>
     <tr id='rbRow1' class='row3'
-        style="display: <?= $modx->config['use_browser'] == 1 ? $displayStyle : 'none' ?>">
+        style="display: <?= $modx->config['use_browser'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('rb_base_dir_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_dir"
                    value="<?= isset($user["rb_base_dir"]) ? $user["rb_base_dir"] : "" ?>"/>
@@ -58,7 +58,7 @@
         </td>
     </tr>
     <tr id='rbRow4' class='row3'
-        style="display: <?= $modx->config['use_browser'] == 1 ? $displayStyle : 'none' ?>">
+        style="display: <?= $modx->config['use_browser'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('rb_base_url_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 300px;" name="rb_base_url"
                    value="<?= isset($user["rb_base_url"]) ? $user["rb_base_url"] : "" ?>"/>

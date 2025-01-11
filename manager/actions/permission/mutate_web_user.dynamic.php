@@ -176,7 +176,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                 var e1 = document.getElementById("showname");
                 var e2 = document.getElementById("editname");
                 e1.style.display = "none";
-                e2.style.display = "<?= $displayStyle ?>";
+                e2.style.display = "table-row";
             }
         }
 
@@ -285,7 +285,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         </tr>
                         <?php if (!empty($userdata['id'])) { ?>
                             <tr id="showname"
-                                style="display: <?= (getv('a') == 88 && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? $displayStyle : 'none' ?> ">
+                                style="display: <?= (getv('a') == 88 && (!isset($usernamedata['oldusername']) || $usernamedata['oldusername'] == $usernamedata['username'])) ? 'table-row' : 'none' ?> ">
                                 <td colspan="2">
                                     <img src="<?= $_style['icons_user'] ?>"
                                          alt="."/>&nbsp;<b><?= !empty($usernamedata['oldusername']) ? $usernamedata['oldusername'] : $usernamedata['username'] ?></b>
@@ -297,7 +297,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                             </tr>
                         <?php } ?>
                         <tr id="editname"
-                            style="display:<?= getv('a') == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? $displayStyle : 'none' ?>">
+                            style="display:<?= getv('a') == '87' || (isset($usernamedata['oldusername']) && $usernamedata['oldusername'] != $usernamedata['username']) ? 'table-row' : 'none' ?>">
                             <th><?= $_lang['username'] ?>:</th>
                             <td><input type="text" name="newusername" class="inputBox"
                                        value="<?= htmlspecialchars(isset($_POST['newusername']) ? $_POST['newusername'] : $usernamedata['username']) ?>"

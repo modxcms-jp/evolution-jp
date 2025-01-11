@@ -81,7 +81,7 @@
             <div><?= lang('language_message') ?></div>
         </td>
     </tr>
-    <tr id='editorRow0' style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none' ?>">
+    <tr id='editorRow0' style="display: <?= $modx->config['use_editor'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('which_editor_title') ?></th>
         <td>
             <select name="which_editor" class="inputBox">
@@ -102,7 +102,7 @@
         </td>
     </tr>
     <tr id='editorRow14' class="row3"
-        style="display: <?= $modx->config['use_editor'] == 1 ? $displayStyle : 'none' ?>">
+        style="display: <?= $modx->config['use_editor'] == 1 ? 'table-row' : 'none' ?>">
         <th><?= lang('editor_css_path_title') ?></th>
         <td><input type='text' maxlength='255' style="width: 250px;" name="editor_css_path"
                    value="<?= user("editor_css_path") ?>"/>

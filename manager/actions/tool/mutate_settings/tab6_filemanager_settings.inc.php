@@ -84,7 +84,7 @@
             </td>
         </tr>
 
-        <tr class="rbRow" style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class="rbRow" style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["settings_strip_image_paths_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],
@@ -95,7 +95,7 @@
             </td>
         </tr>
 
-        <tr class="rbRow" style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class="rbRow" style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["rb_webuser_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"], form_radio('rb_webuser', '1', $rb_webuser == '1')) ?><br/>
@@ -103,7 +103,7 @@
                 <?= $_lang["rb_webuser_message"] ?>
             </td>
         </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["rb_base_dir_title"] ?></th>
             <td>
                 <?php
@@ -122,13 +122,13 @@
                        value="<?= $_lang["reset"] ?>" name="reset_rb_base_dir"><br/>
                 <?= $_lang["rb_base_dir_message"] ?></td>
         </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["rb_base_url_title"] ?></th>
             <td>
                 <?= $site_url . form_text('rb_base_url', 255, 'value="' . config('rb_base_url') . '"') ?><br/>
                 <?= $_lang["rb_base_url_message"] ?></td>
         </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["clean_uploaded_filename"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],
@@ -138,7 +138,7 @@
                 <?= $_lang["clean_uploaded_filename_message"] ?>
             </td>
         </tr>
-        <tr class='rbRow' style="display: <?= $use_browser == 1 ? $displayStyle : 'none' ?>">
+        <tr class='rbRow' style="display: <?= $use_browser == 1 ? 'table-row' : 'none' ?>">
             <th><?= $_lang["a17_image_limit_width_title"] ?></th>
             <td>
                 <?= form_text('image_limit_width') ?>px<br/>

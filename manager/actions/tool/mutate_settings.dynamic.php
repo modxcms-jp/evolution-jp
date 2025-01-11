@@ -30,8 +30,6 @@ if ($settings_version && $settings_version != $modx_version) {
 $settings = settings();
 extract($settings, EXTR_OVERWRITE);
 
-$displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
-
 // load languages and keys
 $lang_keys = array();
 $dir = scandir(MODX_CORE_PATH . 'lang');
@@ -44,7 +42,6 @@ foreach ($dir as $filename) {
 }
 ?>
 <script type="text/javascript">
-    var displayStyle = '<?= $displayStyle ?>';
     var lang_chg = '<?= lang('confirm_setting_language_change') ?>';
 </script>
 <script type="text/javascript" src="actions/tool/mutate_settings/functions.js"></script>

@@ -74,8 +74,6 @@ $lang_path = sprintf($lcdir_path . '%s_country.inc.php', $modx->config['manager_
 if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     include_once($lang_path);
 }
-
-$displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
 ?>
     <script type="text/javascript">
 
@@ -114,7 +112,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                 var e1 = document.getElementById("showname");
                 var e2 = document.getElementById("editname");
                 e1.style.display = "none";
-                e2.style.display = "<?= $displayStyle ?>";
+                e2.style.display = "table-row";
             }
         }
 
@@ -437,7 +435,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                                 <div><?= $_lang["language_message"] ?></div>
                             </td>
                         </tr>
-                        <tr id="editorRow0" style="display: <?= $use_editor == 1 ? $displayStyle : 'none' ?>">
+                        <tr id="editorRow0" style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
                             <th><?= $_lang["which_editor_title"] ?></th>
                             <td>
                                 <select name="which_editor" class="inputBox">
@@ -459,7 +457,7 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                             </td>
                         </tr>
                         <tr id="editorRow14" class="row3"
-                            style="display: <?= $use_editor == 1 ? $displayStyle : 'none' ?>">
+                            style="display: <?= $use_editor == 1 ? 'table-row' : 'none' ?>">
                             <th><?= $_lang["editor_css_path_title"] ?></th>
                             <td><input type="text" maxlength="255" style="width: 250px;" name="editor_css_path"
                                        value="<?= isset($usersettings["editor_css_path"]) ? $usersettings["editor_css_path"] : "" ?>"/>

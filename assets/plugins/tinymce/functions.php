@@ -149,8 +149,7 @@ class TinyMCE
                 ]
             ) . "\n";
         }
-        $ph['display'] = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
-        $ph['display'] = $modx->config['use_editor'] == 1 ? $ph['display'] : 'none';
+        $ph['display'] = $modx->config['use_editor'] == 1 ? 'table-row' : 'none';
 
         $ph['theme_options'] = implode("\n", $themeOptions);
         $ph['skin_options'] = $this->get_skin_names();
