@@ -21,7 +21,7 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-$role = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
+$role = (int)anyv('id');
 
 // check to see the role editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=35 and id='{$role}'");
@@ -51,13 +51,17 @@ if (anyv('a') == 35) {
         exit;
     }
     $roledata = db()->getRow($rs);
-    $_SESSION['itemname'] = $roledata['name'];
+    $_SESSION['itemname'] = role('name');
 } else {
-    $roledata = 0;
+    $roledata = [];
     $_SESSION['itemname'] = "New role";
 }
 
-
+function role($key, $default = null)
+{
+    global $roledata;
+    return $roledata[$key] ?? $default;
+}
 ?>
 <script type="text/javascript">
     $j(function() {
@@ -131,12 +135,12 @@ if (anyv('a') == 35) {
                 <table>
                     <tr>
                         <td><?= $_lang['role_name'] ?>:</td>
-                        <td><input name="name" type="text" maxlength="50" value="<?= $roledata['name'] ?>">
+                        <td><input name="name" type="text" maxlength="50" value="<?= role('name') ?>">
                         </td>
                     </tr>
                     <tr>
                         <td><?= $_lang['resource_description'] ?>:</td>
-                        <td><textarea name="description"><?= $roledata['description'] ?></textarea></td>
+                        <td><textarea name="description"><?= role('description') ?></textarea></td>
                     </tr>
                 </table>
             </fieldset>
@@ -335,8 +339,6 @@ if (anyv('a') == 35) {
 <?php
 function render_form($name, $label, $status = '')
 {
-    global $modx, $roledata;
-
     $tpl = <<< EOT
 <label>
 	<input name="[+name+]check" class="click" type="checkbox" onchange="changestate(document.userform.[+name+])" [+checked+] [+status+]>
@@ -345,8 +347,8 @@ function render_form($name, $label, $status = '')
 </label>
 
 EOT;
-    $checked = ($roledata[$name] == 1) ? 'checked' : '';
-    $value = ($roledata[$name] == 1) ? 1 : 0;
+    $checked = (role($name) == 1) ? 'checked' : '';
+    $value = (role($name) == 1) ? 1 : 0;
     if ($status == 'disabled') {
         $checked = 'checked';
         $value = 1;
