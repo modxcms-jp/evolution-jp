@@ -46,10 +46,10 @@ function selected($cond)
 function getUser($userid)
 {
     $field = 'mu.*, ua.*';
-    $from = array(
+    $from = [
         '[+prefix+]manager_users mu',
         'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
-    );
+    ];
     $rs = db()->select(
         $field,
         $from,
@@ -139,26 +139,26 @@ function saveOptions()
     $option = [];
     $option[] = html_tag(
         'option',
-        array(
+        [
             'value' => 'next',
             'selected' => evo()->input_any('save_action') == 'next' ? null : ''
-        ),
+        ],
         lang('stay_new')
     );
     $option[] = html_tag(
         'option',
-        array(
+        [
             'value' => 'stay',
             'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
-        ),
+        ],
         lang('stay')
     );
     $option[] = html_tag(
         'option',
-        array(
+        [
             'value' => 'close',
             'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
-        ),
+        ],
         lang('close')
     );
     return $option;
@@ -171,33 +171,33 @@ function aButtonSave()
     }
     return html_tag(
         'li',
-        array(
+        [
             'id' => 'Button1',
             'class' => 'mutate'
-        ),
+        ],
         html_tag(
             'a',
-            array(
+            [
                 'href' => '#',
                 'onclick' => 'documentDirty=false; document.userform.save.click();'
-            ),
+            ],
             html_tag(
                 'img',
-                array('src' => style('icons_save'))
+                ['src' => style('icons_save')]
             )
                 . lang('update')
         )
             . html_tag(
                 'span',
-                array('class' => 'and'),
+                ['class' => 'and'],
                 ' + '
             )
             . html_tag(
                 'select',
-                array(
+                [
                     'id' => 'stay',
                     'name' => 'save_action'
-                ),
+                ],
                 implode("\n", saveOptions())
             )
     );
@@ -210,21 +210,21 @@ function aButtonDelete($userid)
     }
 
     return manager()->ab(
-        array(
+        [
             'onclick' => 'deleteuser();',
             'icon' => style('icons_delete_document'),
             'label' => lang('delete')
-        )
+        ]
     );
 }
 
 function aButtonCancel()
 {
     return manager()->ab(
-        array(
+        [
             'onclick' => "document.location.href='index.php?a=75';",
             'icon' => style('icons_cancel'),
             'label' => lang('cancel')
-        )
+        ]
     );
 }

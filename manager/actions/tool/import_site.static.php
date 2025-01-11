@@ -8,129 +8,125 @@ if (!evo()->hasPermission('import_static')) {
 }
 
 // Files to upload
-$allowedfiles = array('html', 'htm', 'shtml', 'xml');
+$allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 ?>
-    <script type="text/javascript">
-        parent.tree.ca = "parent";
+<script type="text/javascript">
+    parent.tree.ca = "parent";
 
-        function setParent(pId, pName) {
-            document.importFrm.parent.value = pId;
-            document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
-            document.getElementById('reset').disabled = pId != 0;
-        }
-    </script>
+    function setParent(pId, pName) {
+        document.importFrm.parent.value = pId;
+        document.getElementById('parentName').innerHTML = pId + " (" + pName + ")";
+        document.getElementById('reset').disabled = pId != 0;
+    }
+</script>
 
-    <h1><?= $_lang['import_site_html'] ?></h1>
+<h1><?= $_lang['import_site_html'] ?></h1>
 
-    <div id="actions">
-        <ul class="actionButtons">
-            <li id="Button5" class="mutate"><a href="#"
-                                               onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
-                        alt="icons_cancel"
-                        src="<?= $_style["icons_cancel"] ?>"/> <?= $_lang['cancel'] ?></a></li>
-        </ul>
-    </div>
+<div id="actions">
+    <ul class="actionButtons">
+        <li id="Button5" class="mutate"><a href="#"
+                onclick="documentDirty=false;document.location.href='index.php?a=2';"><img
+                    alt="icons_cancel"
+                    src="<?= $_style["icons_cancel"] ?>" /> <?= $_lang['cancel'] ?></a></li>
+    </ul>
+</div>
 
-    <div class="section">
-        <div class="sectionBody">
-            <?php
+<div class="section">
+    <div class="sectionBody">
+        <?php
 
-            if (!postv('import')) {
-                echo "<p>" . $_lang['import_site_message'] . "</p>";
-                ?>
+        if (!postv('import')) {
+            echo "<p>" . $_lang['import_site_message'] . "</p>";
+        ?>
 
-                <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
-                    <legend><?= $_lang['import_site'] ?></legend>
-                    <form action="index.php" method="post" name="importFrm">
-                        <input type="hidden" name="import" value="import"/>
-                        <input type="hidden" name="a" value="95"/>
-                        <input type="hidden" name="parent" value="0"/>
-                        <table border="0" cellspacing="0" cellpadding="2">
-                            <tr>
-                                <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
-                                <td>&nbsp;</td>
-                                <td><b><span id="parentName">0 (<?= evo()->config('site_name') ?>)</span></b>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_maxtime'] ?></b>
-                                </td>
-                                <td>&nbsp;</td>
-                                <td><input type="text" name="maxtime" value="30"/>
-                                    <br/>
-                                    <?= $_lang['import_site_maxtime_message'] ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php1'] ?></b>
-                                </td>
-                                <td>&nbsp;</td>
-                                <td><input type="checkbox" id="reset" name="reset" value="on"/>
-                                    <br/>
-                                    <?= $_lang['import_site.static.php2'] ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php3'] ?></b>
-                                </td>
-                                <td>&nbsp;</td>
-                                <td>
-                                    <label><input
-                                            type="radio"
-                                            name="object"
-                                            value="body"
-                                            checked="checked"
-                                        /> <?= $_lang['import_site.static.php4'] ?>
-                                    </label>
-                                    <label><input
-                                            type="radio"
-                                            name="object"
-                                            value="all"
-                                        /> <?= $_lang['import_site.static.php5'] ?></label>
-                                    <br/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td nowrap="nowrap" valign="top"><b><?= $_lang['a95_convert_link'] ?></b></td>
-                                <td>&nbsp;</td>
-                                <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on"/>
-                                        <?= $_lang['a95_convert_link_msg'] ?></label>
-                                </td>
-                            </tr>
-                        </table>
-                        <ul class="actionButtons">
-                            <li><a href="#" class="default" onclick="document.importFrm.submit();"><img
-                                        src="<?= $_style["icons_save"] ?>"/> <?= $_lang['import_site_start'] ?>
-                                </a></li>
-                        </ul>
-                    </form>
-                </fieldset>
-            <?php
-            }
-            else
-            {
+            <fieldset style="padding:10px;border:1px solid #ccc;background-color:#fff;">
+                <legend><?= $_lang['import_site'] ?></legend>
+                <form action="index.php" method="post" name="importFrm">
+                    <input type="hidden" name="import" value="import" />
+                    <input type="hidden" name="a" value="95" />
+                    <input type="hidden" name="parent" value="0" />
+                    <table border="0" cellspacing="0" cellpadding="2">
+                        <tr>
+                            <td nowrap="nowrap"><b><?= $_lang['import_parent_resource'] ?></b></td>
+                            <td>&nbsp;</td>
+                            <td><b><span id="parentName">0 (<?= evo()->config('site_name') ?>)</span></b>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site_maxtime'] ?></b>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td><input type="text" name="maxtime" value="30" />
+                                <br />
+                                <?= $_lang['import_site_maxtime_message'] ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php1'] ?></b>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td><input type="checkbox" id="reset" name="reset" value="on" />
+                                <br />
+                                <?= $_lang['import_site.static.php2'] ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['import_site.static.php3'] ?></b>
+                            </td>
+                            <td>&nbsp;</td>
+                            <td>
+                                <label><input
+                                        type="radio"
+                                        name="object"
+                                        value="body"
+                                        checked="checked" /> <?= $_lang['import_site.static.php4'] ?>
+                                </label>
+                                <label><input
+                                        type="radio"
+                                        name="object"
+                                        value="all" /> <?= $_lang['import_site.static.php5'] ?></label>
+                                <br />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td nowrap="nowrap" valign="top"><b><?= $_lang['a95_convert_link'] ?></b></td>
+                            <td>&nbsp;</td>
+                            <td><label><input type="checkbox" id="convert_link" name="convert_link" value="on" />
+                                    <?= $_lang['a95_convert_link_msg'] ?></label>
+                            </td>
+                        </tr>
+                    </table>
+                    <ul class="actionButtons">
+                        <li><a href="#" class="default" onclick="document.importFrm.submit();"><img
+                                    src="<?= $_style["icons_save"] ?>" /> <?= $_lang['import_site_start'] ?>
+                            </a></li>
+                    </ul>
+                </form>
+            </fieldset>
+        <?php
+        } else {
             run();
             evo()->clearCache();
-            ?>
-                <ul class="actionButtons">
-                    <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
-                                src="<?= $_style["icons_close"] ?>"/> <?= $_lang['close'] ?></a></li>
-                </ul>
-                <script type="text/javascript">
-                    top.mainMenu.reloadtree();
-                    parent.tree.ca = 'open';
-                </script>
-                <?php
-            }
-            ?>
-        </div>
+        ?>
+            <ul class="actionButtons">
+                <li><a href="#" onclick="document.location.href='index.php?a=2';"><img
+                            src="<?= $_style["icons_close"] ?>" /> <?= $_lang['close'] ?></a></li>
+            </ul>
+            <script type="text/javascript">
+                top.mainMenu.reloadtree();
+                parent.tree.ca = 'open';
+            </script>
+        <?php
+        }
+        ?>
     </div>
+</div>
 
 <?php
 function run()
 {
     global $_lang;
-    
+
     $output = '';
 
     $maxtime = postv('maxtime', 120);
@@ -249,8 +245,8 @@ function importFiles($parent, $filedir, $files, $mode)
                 }
                 $find = true;
                 echo sprintf(
-                    ' - <span class="success">%s</span><br />' . "\n"
-                    , $_lang['import_site_success']
+                    ' - <span class="success">%s</span><br />' . "\n",
+                    $_lang['import_site_success']
                 );
                 importFiles($newid, $filedir . $alias . '/', $value, 'sub');
             }
@@ -331,14 +327,14 @@ function importFiles($parent, $filedir, $files, $mode)
                 }
                 if ($is_site_start == true && $_POST['reset'] === 'on') {
                     db()->update(
-                        "setting_value=" . $newid
-                        , '[+prefix+]system_settings'
-                        , "setting_name='site_start'"
+                        "setting_value=" . $newid,
+                        '[+prefix+]system_settings',
+                        "setting_name='site_start'"
                     );
                     db()->update(
-                        'menuindex=0'
-                        , '[+prefix+]site_content'
-                        , "id='" . $newid . "'"
+                        'menuindex=0',
+                        '[+prefix+]site_content',
+                        "id='" . $newid . "'"
                     );
                 }
             }
@@ -360,12 +356,12 @@ function getFiles($directory, $listing = [], $count = 0)
                 $count = -1;
                 $listing['d#' . $file] = getFiles(
                     sprintf(
-                        '%s%s/'
-                        , $directory
-                        , $file
-                    )
-                    , []
-                    , $count + 1
+                        '%s%s/',
+                        $directory,
+                        $file
+                    ),
+                    [],
+                    $count + 1
                 );
             } elseif (strpos($file, '.htm') !== false) {
                 $listing[$c] = $file;
@@ -375,10 +371,10 @@ function getFiles($directory, $listing = [], $count = 0)
         }
     } else {
         echo sprintf(
-            '<p><span class="fail">%s</span> %s %s</p>'
-            , $_lang['import_site_failed']
-            , $_lang['import_site_failed_no_open_dir']
-            , $directory
+            '<p><span class="fail">%s</span> %s %s</p>',
+            $_lang['import_site_failed'],
+            $_lang['import_site_failed_no_open_dir'],
+            $directory
         );
     }
     return ($listing);
@@ -527,9 +523,9 @@ function convertLink()
         db()->update(
             array(
                 'content' => db()->escape(str_replace($s, $r, $row['content']))
-            )
-            , '[+prefix+]site_content'
-            , sprintf("id='%s'", $row['id'])
+            ),
+            '[+prefix+]site_content',
+            sprintf("id='%s'", $row['id'])
         );
     }
 }

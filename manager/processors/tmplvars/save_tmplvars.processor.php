@@ -44,10 +44,10 @@ if ($caption == '') {
 switch (postv('mode')) {
     case '300':
         // invoke OnBeforeTVFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => ''
-        );
+        ];
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
@@ -78,10 +78,10 @@ switch (postv('mode')) {
         saveDocumentAccessPermissons();
 
         // invoke OnTVFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => $newid
-        );
+        ];
         evo()->invokeEvent('OnTVFormSave', $tmp);
 
         // empty cache
@@ -104,10 +104,10 @@ switch (postv('mode')) {
         break;
     case '301':
         // invoke OnBeforeTVFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnBeforeTVFormSave', $tmp);
         if (check_exist_name($name) !== false) {
             $msg = sprintf($_lang['duplicate_name_found_general'], $_lang['tv'], $name);
@@ -167,10 +167,10 @@ switch (postv('mode')) {
         saveTemplateAccess();
         saveDocumentAccessPermissons();
         // invoke OnTVFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnTVFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -218,10 +218,11 @@ function saveTemplateAccess()
     }
     foreach ($templates as $iValue) {
         $setRank = $getRankArray[$iValue] ?? 0;
-        $field = [];
-        $field['tmplvarid'] = $id;
-        $field['templateid'] = $iValue;
-        $field['rank'] = $setRank;
+        $field = [
+            'tmplvarid' => $id,
+            'templateid' => $iValue,
+            'rank' => $setRank
+        ];
         db()->insert($field, '[+prefix+]site_tmplvar_templates');
     }
 }
