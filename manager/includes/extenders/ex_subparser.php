@@ -1895,7 +1895,7 @@ class SubParser
             'user.username, user.password, attrib.*',
             [
                 '[+prefix+]manager_users user',
-                'INNER JOIN [+prefix+]user_attributes attrib ON ua.internalKey=user.id'
+                'INNER JOIN [+prefix+]user_attributes attrib ON attrib.internalKey=user.id'
             ],
             sprintf("user.id='%s'", db()->escape($uid))
         );
