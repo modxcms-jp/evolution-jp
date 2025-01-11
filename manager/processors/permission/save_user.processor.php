@@ -55,7 +55,7 @@ if (postv('mode') == 11) { // new user
     return;
 }
 
-if (in_array(postv('mode'), array('12', '74'))) {
+if (in_array(postv('mode'), [12, 74])) {
     if (!preg_match('@^[1-9][0-9]*$@', postv('userid'))) {
         webAlert('Missing user id!');
     }
@@ -87,7 +87,7 @@ if (in_array(postv('mode'), array('12', '74'))) {
             exit;
         }
     }
-    if (sessionv('mgrRole') != 1 && role_byuserid(postv('id')) == 1) {
+    if (sessionv('mgrRole') != 1 && role_byuserid(postv('userid')) == 1) {
         webAlert('You cannot alter an administrative user.');
         exit;
     }
