@@ -51,9 +51,9 @@ function getUser($userid)
         'LEFT JOIN [+prefix+]user_attributes ua ON ua.internalKey=mu.id'
     );
     $rs = db()->select(
-        $field
-        , $from
-        , sprintf("mu.id='%s'", db()->escape($userid))
+        $field,
+        $from,
+        sprintf("mu.id='%s'", db()->escape($userid))
     );
 
     if (!db()->count($rs)) {
@@ -97,9 +97,9 @@ function hasUserPermission($action)
 function activeUserCheck($userid)
 {
     $rs = db()->select(
-        'internalKey, username'
-        , '[+prefix+]active_users'
-        , sprintf("action='12' AND id='%s'", $userid)
+        'internalKey, username',
+        '[+prefix+]active_users',
+        sprintf("action='12' AND id='%s'", $userid)
     );
     if (db()->count($rs) > 1) {
         while ($lock = db()->getRow($rs)) {
@@ -138,28 +138,28 @@ function saveOptions()
 {
     $option = [];
     $option[] = html_tag(
-        'option'
-        , array(
+        'option',
+        array(
             'value' => 'next',
             'selected' => evo()->input_any('save_action') == 'next' ? null : ''
-        )
-        , lang('stay_new')
+        ),
+        lang('stay_new')
     );
     $option[] = html_tag(
-        'option'
-        , array(
+        'option',
+        array(
             'value' => 'stay',
             'selected' => evo()->input_any('save_action') == 'stay' ? null : ''
-        )
-        , lang('stay')
+        ),
+        lang('stay')
     );
     $option[] = html_tag(
-        'option'
-        , array(
+        'option',
+        array(
             'value' => 'close',
             'selected' => evo()->input_any('save_action', 'close') == 'close' ? null : ''
-        )
-        , lang('close')
+        ),
+        lang('close')
     );
     return $option;
 }
@@ -170,36 +170,36 @@ function aButtonSave()
         return '';
     }
     return html_tag(
-        'li'
-        , array(
+        'li',
+        array(
             'id' => 'Button1',
             'class' => 'mutate'
-        )
-        , html_tag(
-            'a'
-            , array(
+        ),
+        html_tag(
+            'a',
+            array(
                 'href' => '#',
                 'onclick' => 'documentDirty=false; document.userform.save.click();'
+            ),
+            html_tag(
+                'img',
+                array('src' => style('icons_save'))
             )
-            , html_tag(
-                'img'
-                , array('src' => style('icons_save'))
+                . lang('update')
+        )
+            . html_tag(
+                'span',
+                array('class' => 'and'),
+                ' + '
             )
-            . lang('update')
-        )
-        . html_tag(
-            'span'
-            , array('class' => 'and')
-            , ' + '
-        )
-        . html_tag(
-            'select'
-            , array(
-                'id' => 'stay',
-                'name' => 'save_action'
+            . html_tag(
+                'select',
+                array(
+                    'id' => 'stay',
+                    'name' => 'save_action'
+                ),
+                implode("\n", saveOptions())
             )
-            , implode("\n", saveOptions())
-        )
     );
 }
 
