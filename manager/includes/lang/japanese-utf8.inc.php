@@ -1303,3 +1303,6 @@ $_lang["delete_resource_complete"] = '完全に削除';
 
 $_lang["enable_draft_title"] = '下書き機能';
 $_lang["enable_draft_message"] = '下書き機能の操作ボタンなどを表示します。無効にしても下書きデータは失われません。';
+
+$_lang["manager_treepane_trim_title"] = 'リソースツリーのタイトルを省略';
+$_lang["manager_treepane_trim_title_message"] = 'リソースツリーのタイトルの文字数が多い時に省略するかどうかを設定します。';

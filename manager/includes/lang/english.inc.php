@@ -1301,3 +1301,6 @@ $_lang["delete_resource_complete"] = 'Delete complete';
 
 $_lang["enable_draft_title"] = 'Draft function';
 $_lang["enable_draft_message"] = 'Show draft UI.';
+
+$_lang["manager_treepane_trim_title"] = 'Trim Tree Pane Titles';
+$_lang["manager_treepane_trim_title_message"] = 'Choose whether to trim the titles in the tree pane when they are too long.';

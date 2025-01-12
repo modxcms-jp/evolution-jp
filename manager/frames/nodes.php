@@ -175,10 +175,7 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $ph['published'] = $published;
         $ph['deleted'] = $deleted;
         $hankaku_title = mb_convert_kana($nodetitle, 'Kas');
-        $shortenTitle = (sessionv('tree_sortby')!=='id' && 24<mb_strwidth($hankaku_title))
-            ? mb_strimwidth($hankaku_title,0,22) . ' ...'
-            : $hankaku_title
-        ;
+        $shortenTitle = getShortenTitle($hankaku_title, sessionv('tree_sortby'));
         $ph['nodetitleDisplay'] = sessionv('tree_sortby')==='id'
             ? sprintf(
                 '<span>[%s%s]</span> <span class="%s">%s</span>',
@@ -633,4 +630,17 @@ function hasChildren($id) {
 
     $result = db()->select('*', '[+prefix+]site_content', "parent='{$id}' {$access}");
     return db()->count($result) ? true : false;
+}
+
+function getShortenTitle($title, $sortby) {
+    if ($sortby === 'id') {
+        return $title;
+    }
+    if (!config('manager_treepane_trim_title')) {
+        return $title;
+    }
+    if (mb_strwidth($title) <= 24) {
+        return $title;
+    }
+    return mb_strimwidth($title, 0, 22) . ' ...';
 }
