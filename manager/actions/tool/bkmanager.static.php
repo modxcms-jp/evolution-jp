@@ -341,7 +341,7 @@ if (sessionv('result_msg')) {
                             type="radio"
                             name="sel"
                             onclick="showhide('textarea');"
-                            <?= checked(isset(sessionv('console_mode') === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
+                            <?= checked(sessionv('console_mode') === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
                     </label>
                 </p>
                 <div>
