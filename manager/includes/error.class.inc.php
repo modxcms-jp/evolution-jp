@@ -60,8 +60,8 @@ class errorHandler
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         echo evo()->parseText(
-            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl')
-            , [
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
+            [
                 'message' => db()->escape($this->errormessage),
                 'warning' => lang('warning'),
                 'url' => $this->prev()
@@ -77,14 +77,14 @@ class errorHandler
             return 'index.php?a=2';
         }
 
-        if (preg_match('/[&?]count_attempts/', $_SESSION['previous_request_uri'])) {
-            return $_SESSION['previous_request_uri'];
+        if (preg_match('/[&?]count_attempts/', sessionv('previous_request_uri'))) {
+            return sessionv('previous_request_uri');
         }
 
         return sprintf(
-            '%s%scount_attempts=1'
-            , $_SESSION['previous_request_uri']
-            , strpos($_SESSION['previous_request_uri'], '?') === false ? '?' : '&'
+            '%s%scount_attempts=1',
+            sessionv('previous_request_uri'),
+            strpos(sessionv('previous_request_uri'), '?') === false ? '?' : '&'
         );
     }
 

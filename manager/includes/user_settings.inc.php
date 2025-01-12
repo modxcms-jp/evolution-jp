@@ -3,15 +3,10 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
     exit();
 }
 
-// START HACK
-if (isset($modx)) {
-    $user_id = evo()->getLoginUserID();
-} elseif (isset($_SESSION['mgrInternalKey'])) {
-    $user_id = $_SESSION['mgrInternalKey'];
-} else {
-    $user_id = '';
+$user_id = evo()->getLoginUserID();
+if (empty($user_id)) {
+    return;
 }
-// END HACK
 
 if (!empty($user_id)) {
     // Raymond: grab the user settings from the database.

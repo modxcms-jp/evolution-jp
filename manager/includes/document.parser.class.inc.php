@@ -4332,11 +4332,11 @@ class DocumentParser
     function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
     {
         global $modx, $_lc;
-    
+
         if (stripos($format, '%a') !== false) {
             $modx->loadLexicon('locale');
         }
-    
+
         if (isset($_lc['days.short'])) {
             $a = explode(',', $_lc['days.short']);
         } else {
@@ -4347,23 +4347,23 @@ class DocumentParser
         } else {
             $A = explode(',', 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday');
         }
-    
+
         if ($timestamp === '') {
             return '';
         }
-    
+
         $date = new DateTime();
         $date->setTimestamp($timestamp);
-    
+
         $w = $date->format('w');
         $ampm = ($date->format('H') < 12) ? 'am' : 'pm';
         $p = ['am' => 'AM', 'pm' => 'PM'];
         $P = ['am' => 'am', 'pm' => 'pm'];
-    
+
         if (strpos(PHP_OS, 'WIN') === 0) {
             $format = str_replace('%-', '%#', $format);
         }
-    
+
         $replacements = [
             '%a' => $a[$w],
             '%A' => $A[$w],
@@ -4397,7 +4397,7 @@ class DocumentParser
             '%%' => '%',
             // 必要に応じて他のフォーマットも追加
         ];
-    
+
         return strtr($format, $replacements);
     }
 
@@ -4625,15 +4625,15 @@ class DocumentParser
     # Returns current user id
     function getLoginUserID($context = '')
     {
-        if ($context && isset($_SESSION["{$context}Validated"])) {
-            return $_SESSION["{$context}InternalKey"];
+        if ($context && sessionv("{$context}Validated")) {
+            return sessionv("{$context}InternalKey");
         }
 
-        if ($this->isFrontend() && isset($_SESSION['webValidated'])) {
-            return $_SESSION['webInternalKey'];
+        if ($this->isFrontend() && sessionv('webValidated')) {
+            return sessionv('webInternalKey');
         }
 
-        if ($this->isBackend() && isset($_SESSION['mgrValidated'])) {
+        if ($this->isBackend() && sessionv('mgrValidated')) {
             return sessionv('mgrInternalKey', 0);
         }
 

@@ -24,7 +24,7 @@ if (!is_numeric($id)) {
 }
 
 // check if user has access permission, except admins
-if ($_SESSION['mgrRole'] != 1) {
+if (sessionv('mgrRole') != 1) {
     $userid = evo()->getLoginUserID();
     $sql = sprintf("SELECT sma.usergroup,mg.member FROM %s sma LEFT JOIN %s mg ON mg.user_group = sma.usergroup AND member='%s'WHERE sma.module = '%s'",
         $tbl_site_module_access,

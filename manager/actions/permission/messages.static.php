@@ -375,7 +375,7 @@ $messagesallowed = evo()->hasPermission('messages');
     <script type="text/javascript">
         function msgCountAgain() {
             try {
-                top.mainMenu.startmsgcount(<?= $_SESSION['nrnewmessages'] ?>,<?= $_SESSION['nrtotalmessages'] ?>,<?= $messagesallowed ? 1 : 0 ?>);
+                top.mainMenu.startmsgcount(<?= sessionv('nrnewmessages') ?>,<?= sessionv('nrtotalmessages') ?>,<?= $messagesallowed ? 1 : 0 ?>);
             } catch (oException) {
                 vv = window.setTimeout('msgCountAgain()', 1500);
             }

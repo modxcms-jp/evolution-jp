@@ -152,7 +152,7 @@ function generate_password($length = 10)
 
 function verifyPermission()
 {
-    if ($_SESSION['mgrRole'] == 1) {
+    if (sessionv('mgrRole') == 1) {
         return true;
     }
     if (evo()->input_post('role') != 1) {
@@ -532,7 +532,7 @@ function updateUser()
         exit;
     }
     evo()->getSettings();
-    if (postv('userid') == evo()->getLoginUserID() && $_SESSION['mgrRole'] !== postv('role', 0)) {
+    if (postv('userid') == evo()->getLoginUserID() && sessionv('mgrRole') !== postv('role', 0)) {
         $_SESSION['mgrRole'] = postv('role', 0);
         evo()->webAlertAndQuit(lang('save_user.processor.php1'), 'index.php?a=75');
         exit;

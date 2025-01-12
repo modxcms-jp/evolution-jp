@@ -73,7 +73,7 @@ class OldFunctions
 
     function changePassword($o, $n)
     {
-        return changeWebUserPassword($o, $n);
+        return evo()->changeWebUserPassword($o, $n);
     } // deprecated
 
     function userLoggedIn()

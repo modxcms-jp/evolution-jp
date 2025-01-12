@@ -412,7 +412,7 @@ function get_tree_orderby()
     );
 
     // Folder sorting gets special setup ;) Add menuindex and pagetitle
-    if ($_SESSION['tree_sortby'] === 'isfolder') {
+    if (sessionv('tree_sortby') === 'isfolder') {
         $orderby .= ', sc.menuindex ASC';
     }
     $orderby .= ', sc.editedon DESC';

@@ -10,12 +10,12 @@ if (!isset($modx->config['manager_tree_width'])) {
     $modx->config['manager_tree_width'] = '260';
 }
 
-if (isset($_SESSION['mainframe'])) {
-    $action = $_SESSION['mainframe']['a'];
-    $mainurl = 'index.php?' . http_build_query($_SESSION['mainframe']);
+if (sessionv('mainframe.a')) {
+    $action = sessionv('mainframe.a');
+    $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
     unset($_SESSION['mainframe']);
 } else {
-    if (isset($_SESSION['mgrForgetPassword'])) {
+    if (sessionv('mgrForgetPassword')) {
         $action = '28';
     } else {
         $action = '2';

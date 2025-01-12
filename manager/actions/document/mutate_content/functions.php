@@ -330,7 +330,7 @@ function _mgroup($group_id)
             sprintf(
                 'mga.membergroup=mg.user_group AND mga.documentgroup=%s AND mg.member=%s',
                 $group_id,
-                $_SESSION['mgrInternalKey']
+                sessionv('mgrInternalKey')
             )
         )
     );
@@ -345,7 +345,7 @@ function _wgroup($group_id)
             sprintf(
                 'mga.webgroup=mg.webgroup AND mga.documentgroup=%s AND mg.webuser=%s',
                 $group_id,
-                $_SESSION['mgrInternalKey']
+                sessionv('mgrInternalKey')
             )
         )
     );
@@ -566,8 +566,8 @@ function checkDocLock($id)
 // get document groups for current user
 function getDocgrp()
 {
-    if (isset($_SESSION['mgrDocgroups']) || !empty($_SESSION['mgrDocgroups'])) {
-        return implode(',', $_SESSION['mgrDocgroups']);
+    if (sessionv('mgrDocgroups')) {
+        return implode(',', sessionv('mgrDocgroups'));
     } else {
         return '';
     }
@@ -585,7 +585,7 @@ function db_value($id, $docgrp)
         sprintf(
             "sc.id='%s' %s",
             $id,
-            ($_SESSION['mgrRole'] == 1 || !$docgrp) ? '' : sprintf(
+            (sessionv('mgrRole') == 1 || !$docgrp) ? '' : sprintf(
                 'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
                 $docgrp
             )

@@ -303,7 +303,7 @@ if (sessionv('result_msg')) {
                 }
 
                 if (sessionv('last_result')) {
-                    $last_result = $_SESSION['last_result'];
+                    $last_result = sessionv('last_result');
                     unset($_SESSION['last_result']);
                     if (!$last_result) {
                         $result = '';
@@ -334,14 +334,14 @@ if (sessionv('result_msg')) {
                             type="radio"
                             name="sel"
                             onclick="showhide('file');"
-                            <?= checked(!isset($_SESSION['console_mode']) || $_SESSION['console_mode'] !== 'text') ?> /> <?= $_lang["bkmgr_run_sql_file_label"] ?>
+                            <?= checked(!isset($_SESSION['console_mode']) || sessionv('console_mode') !== 'text') ?> /> <?= $_lang["bkmgr_run_sql_file_label"] ?>
                     </label>
                     <label>
                         <input
                             type="radio"
                             name="sel"
                             onclick="showhide('textarea');"
-                            <?= checked(isset($_SESSION['console_mode']) && $_SESSION['console_mode'] === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
+                            <?= checked(isset(sessionv('console_mode') === 'text') ?> /> <?= $_lang["bkmgr_run_sql_direct_label"] ?>
                     </label>
                 </p>
                 <div>

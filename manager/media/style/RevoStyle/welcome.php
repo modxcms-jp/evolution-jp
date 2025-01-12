@@ -7,7 +7,7 @@ function iconMessage()
 
     if (getv('a') != 2) return;
     if (evo()->hasPermission('messages')) {
-        $ph['imgsrc'] = ($_SESSION['nrnewmessages'] > 0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
+        $ph['imgsrc'] = (sessionv('nrnewmessages', 0) > 0) ? 'icons/32x/mail_new.png' : 'icons/32x/mail.png';
         $ph['action'] = 'index.php?a=10';
         $ph['title'] = $_lang['inbox'];
         $modx->setPlaceholder('iconMessage', $modx->parseText(icontpl(), $ph));
@@ -137,16 +137,16 @@ function tabYourInfo()
 
     $ph = $_lang;
 
-    if (!empty($_SESSION['mgrLastlogin'])) {
-        $Lastlogin = $modx->toDateFormat($_SESSION['mgrLastlogin'] + $server_offset_time);
+    if (sessionv('mgrLastlogin')) {
+        $Lastlogin = $modx->toDateFormat(sessionv('mgrLastlogin', 0) + $server_offset_time);
     } else {
         $Lastlogin = '-';
     }
 
     $ph['UserName'] = $modx->getLoginUserName();
-    $ph['name'] = $_SESSION['mgrPermissions']['name'];
+    $ph['name'] = sessionv('mgrPermissions.name');
     $ph['Lastlogin'] = $Lastlogin;
-    $ph['Logincount'] = $_SESSION['mgrLogincount'] + 1;
+    $ph['Logincount'] = sessionv('mgrLogincount', 0) + 1;
 
 
     $tpl = <<< TPL

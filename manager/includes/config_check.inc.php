@@ -199,7 +199,7 @@ foreach ($warnings as $warning) {
 ',
         $_lang[$warning],
         $output,
-        $_SESSION['mgrRole'] != 1 ? '<br />' . $_lang['configcheck_admin'] : ''
+        sessionv('mgrRole') != 1 ? '<br />' . $_lang['configcheck_admin'] : ''
     );
 }
 $_SESSION['mgrConfigCheck'] = true;

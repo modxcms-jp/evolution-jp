@@ -139,7 +139,7 @@ if ($limit < 1) {
 
 $content = db()->getRow($rs);
 $_SESSION['itemname'] = $content['name'];
-if ($content['locked'] == 1 && $_SESSION['mgrRole'] != 1) {
+if ($content['locked'] == 1 && sessionv('mgrRole') != 1) {
     alert()->setError(3);
     alert()->dumpError();
 }
