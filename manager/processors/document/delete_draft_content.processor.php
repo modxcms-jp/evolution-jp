@@ -6,7 +6,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 
 evo()->loadExtension('REVISION');
 
-$docid = $_POST['id'];
+$docid = postv('id');
 $modx->revision->delete($docid, 'draft');
 $modx->revision->delete($docid, 'standby');
 

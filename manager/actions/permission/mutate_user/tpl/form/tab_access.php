@@ -15,8 +15,8 @@
     }
 
     // retain selected doc groups between post
-    if (is_array($_POST['user_groups'])) {
-        foreach ($_POST['user_groups'] as $v) {
+    if (is_array(postv('user_groups'))) {
+        foreach (postv('user_groups') as $v) {
             $groupsarray[] = $v;
         }
     }

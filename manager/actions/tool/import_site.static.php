@@ -325,7 +325,7 @@ function importFiles($parent, $filedir, $files, $mode)
                 if ($filename === 'index.html') {
                     $is_site_start = true;
                 }
-                if ($is_site_start == true && $_POST['reset'] === 'on') {
+                if ($is_site_start == true && postv('reset') === 'on') {
                     db()->update(
                         "setting_value=" . $newid,
                         '[+prefix+]system_settings',
@@ -432,7 +432,7 @@ function treatContent($src, $filename, $alias)
         $description = '';
     }
 
-    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is", $src, $matches)) && $_POST['object'] == 'body') {
+    if ((preg_match("@<body[^>]*>(.*)[^<]+</body>@is", $src, $matches)) && postv('object') == 'body') {
         $content = $matches[1];
     } else {
         $content = $src;
