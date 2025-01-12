@@ -32,7 +32,7 @@ class Paging
 {
     public $int_num_result;  // Number of result to show per page (decided by user)
     public $int_nbr_row;     // Total number of items (SQL count from db)
-    public $int_cur_position;// Current position in recordset
+    public $int_cur_position; // Current position in recordset
     public $str_ext_argv;    // Extra argv of query string
 
     public function __construct($int_nbr_row, $int_cur_position, $int_num_result, $str_ext_argv = '')
@@ -57,30 +57,30 @@ class Paging
 
         if ($this->int_cur_position != 0) {
             $paging['first_link'] = sprintf(
-                '<a href="%s?int_cur_position=0%s">'
-                , serverv('SCRIPT_NAME')
-                , $this->str_ext_argv
+                '<a href="%s?int_cur_position=0%s">',
+                serverv('SCRIPT_NAME'),
+                $this->str_ext_argv
             );
             $paging['previous_link'] = sprintf(
-                '<a href="%s?int_cur_position=%s%s">'
-                , serverv('SCRIPT_NAME')
-                , $this->int_cur_position - $this->int_num_result
-                , $this->str_ext_argv
+                '<a href="%s?int_cur_position=%s%s">',
+                serverv('SCRIPT_NAME'),
+                $this->int_cur_position - $this->int_num_result,
+                $this->str_ext_argv
             );
         }
 
         if (($this->int_nbr_row - $this->int_cur_position) > $this->int_num_result) {
             $paging['last_link'] = sprintf(
-                '<a href="%s?int_cur_position=%s%s">'
-                , serverv('SCRIPT_NAME')
-                , $this->int_nbr_row
-                , $this->str_ext_argv
+                '<a href="%s?int_cur_position=%s%s">',
+                serverv('SCRIPT_NAME'),
+                $this->int_nbr_row,
+                $this->str_ext_argv
             );
             $paging['next_link'] = sprintf(
-                '<a href="%s?int_cur_position=%s%s">'
-                , serverv('SCRIPT_NAME')
-                , ($this->int_cur_position + $this->int_num_result)
-                , $this->str_ext_argv
+                '<a href="%s?int_cur_position=%s%s">',
+                serverv('SCRIPT_NAME'),
+                ($this->int_cur_position + $this->int_num_result),
+                $this->str_ext_argv
             );
         }
         return $paging;
@@ -95,11 +95,11 @@ class Paging
                 $array_all_page[$i] = sprintf('<b>%d</b>&nbsp;', ($i + 1));
             } else {
                 $array_all_page[$i] = sprintf(
-                    '<a href="%s?int_cur_position=%d%s">%d</a>&nbsp;'
-                    , serverv('SCRIPT_NAME')
-                    , ($i * $this->int_num_result)
-                    , $this->str_ext_argv
-                    , $i + 1
+                    '<a href="%s?int_cur_position=%d%s">%d</a>&nbsp;',
+                    serverv('SCRIPT_NAME'),
+                    ($i * $this->int_num_result),
+                    $this->str_ext_argv,
+                    $i + 1
                 );
             }
         }
