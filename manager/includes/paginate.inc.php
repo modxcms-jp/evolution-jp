@@ -45,6 +45,17 @@ class Paging
 
     public function getPagingArray()
     {
+        // initial
+        $paging = [
+            'first_link' => '',
+            'previous_link' => '',
+            'next_link' => '',
+            'last_link' => '',
+            'lower' => 0,
+            'upper' => 0,
+            'total' => 0,
+        ];
+
         $paging['lower'] = ($this->int_cur_position + 1);
 
         if ($this->int_cur_position + $this->int_num_result >= $this->int_nbr_row) {
