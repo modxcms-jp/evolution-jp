@@ -177,6 +177,14 @@
             </td>
         </tr>
         <tr>
+            <th><?= $_lang["manager_treepane_trim_title"] ?></th>
+            <td>
+                <?= wrap_label($_lang["yes"], form_radio('manager_treepane_trim_title', '1', config('manager_treepane_trim_title') == '1')); ?><br/>
+                <?= wrap_label($_lang["no"], form_radio('manager_treepane_trim_title', '0', config('manager_treepane_trim_title') == '0')); ?><br/>
+                <?= $_lang["manager_treepane_trim_title_message"] ?>
+            </td>
+        </tr>
+        <tr>
             <th><?= $_lang["top_howmany_title"] ?></th>
             <td>
                 <?= form_text('top_howmany', 3) ?><br/>

@@ -98,6 +98,7 @@ $default_config = [
     'automatic_optimize' => '1',
     'sanitize_gpc' => 1,
     'manager_docs_orderby' => 'isfolder desc, publishedon desc, editedon desc, id desc',
+    'manager_treepane_trim_title' => 1,
 ];
 
 if (getv('a') !== '17') {
