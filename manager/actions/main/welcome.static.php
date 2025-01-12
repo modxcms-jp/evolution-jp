@@ -48,13 +48,13 @@ if (evo()->hasPermission('messages')) {
     $_SESSION['nrnewmessages'] = $messages['new'];
 
     $msg = '<a href="index.php?a=10"><img src="' . $_style['icons_mail_large'] . '" /></a>
-    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;' . $_lang["inbox"] . ($_SESSION['nrnewmessages'] > 0 ? " (<span style='color:red'>" . $_SESSION['nrnewmessages'] . '</span>)' : '') . '</span><br />';
-    if ($_SESSION['nrnewmessages'] > 0) {
+    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span style='color:red'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
+    if (sessionv('nrnewmessages') > 0) {
         $msg .= '<span class="comment">'
             . sprintf(
                 $_lang["welcome_messages"],
-                $_SESSION['nrtotalmessages'],
-                "<span style='color:red;'>" . $_SESSION['nrnewmessages'] . "</span>"
+                sessionv('nrtotalmessages'),
+                "<span style='color:red;'>" . sessionv('nrnewmessages') . "</span>"
             ) . '</span>';
         $mail_icon = $_style['icons_mail_new_large'];
     } else {
@@ -162,7 +162,7 @@ if (evo()->hasPermission('settings')) {
 $modulemenu = [];
 if (evo()->hasPermission('exec_module')) {
     // Each module
-    if ($_SESSION['mgrRole'] != 1) {
+    if (sessionv('mgrRole') != 1) {
         // Display only those modules the user can execute
         $tbl_site_modules = evo()->getFullTableName('site_modules');
         $tbl_site_module_access = evo()->getFullTableName('site_module_access');
@@ -192,9 +192,9 @@ if (0 < count($modulemenu)) {
 $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
-if (($modx->config['warning_visibility'] == 0 && $_SESSION['mgrRole'] == 1)
-    || ($modx->config['warning_visibility'] == 2 && evo()->hasPermission('save_role') == 1)
-    || $modx->config['warning_visibility'] == 1
+if (config('warning_visibility' == 0 && sessionv('mgrRole') == 1)
+    || (config('warning_visibility') == 2 && evo()->hasPermission('save_role') == 1)
+    || config('warning_visibility') == 1
 ) {
     include_once(MODX_CORE_PATH . 'config_check.inc.php');
     $modx->setPlaceholder('settings_config', $_lang['warning']);
