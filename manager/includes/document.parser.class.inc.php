@@ -350,11 +350,12 @@ class DocumentParser
             return getv('id');
         }
 
-        if ($uri === MODX_BASE_URL) {
+        $parsedUri = parse_url($uri, PHP_URL_PATH);
+        if ($parsedUri === MODX_BASE_URL) {
             return $this->config('site_start');
         }
 
-        $urlWithoutQuery = $this->getRequestQ($uri);
+        $urlWithoutQuery = $this->getRequestQ($parsedUri);
         $docId = $this->getDBCache('docid_by_uri', $urlWithoutQuery);
         if ($docId) {
             return $docId;
@@ -362,16 +363,21 @@ class DocumentParser
 
         $docId = $this->getIdFromAlias($this->_treatAliasPath($urlWithoutQuery));
 
-        if ($docId) {
-            $this->setDBCache('docid_by_uri', $uri, $docId);
-            return $docId;
+        if (!$docId) {
+            return 0;
         }
 
-        return 0;
+        $this->saveDBCache('docid_by_uri', $parsedUri, $docId);
+
+        return $docId;
     }
 
-    function setDBCache($category, $key, $value)
+    private function saveDBCache($category, $key, $value)
     {
+        if (245 < strlen($key)) {
+            return false;
+        }
+
         db()->delete(
             '[+prefix+]system_cache',
             [
@@ -379,10 +385,11 @@ class DocumentParser
                 and_where('cache_key', $key)
             ]
         );
+
         return db()->insert(
             db()->escape(
                 [
-                    'cache_section'  => $category,
+                    'cache_section'   => $category,
                     'cache_key'       => $key,
                     'cache_value'     => $value,
                     'cache_timestamp' => request_time()
