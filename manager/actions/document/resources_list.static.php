@@ -36,12 +36,12 @@ if (!isset($current['id'])) {
     $current['id'] = 0;
 }
 
-$docgrp = $_SESSION['mgrDocgroups'] ? implode(',', $_SESSION['mgrDocgroups']) : '';
+$docgrp = sessionv('mgrDocgroups') ? implode(',', sessionv('mgrDocgroups')) : '';
 $in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : '';
 
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
-if ($_SESSION['mgrRole'] != 1 && !evo()->config['tree_show_protected']) {
+if (sessionv('mgrRole') != 1 && !evo()->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
 }
 $rs = db()->select(
@@ -57,13 +57,13 @@ if (!$numRecords) {
     $children_output = '';
     $f = [];
     $f[] = 'DISTINCT sc.*';
-    if ($_SESSION['mgrRole'] != 1) {
+    if (sessionv('mgrRole') != 1) {
         $f['has_access'] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0))', $in_docgrp);
     }
     $f[] = 'rev.status';
     $where = [];
     $where[] = "sc.parent='" . $id . "'";
-    if ($_SESSION['mgrRole'] != 1 && !evo()->config('tree_show_protected')) {
+    if (sessionv('mgrRole') != 1 && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
@@ -101,7 +101,7 @@ if (!$numRecords) {
             continue;
         }
 
-        if ($_SESSION['mgrRole'] == 1) {
+        if (sessionv('mgrRole') == 1) {
             $doc['has_access'] = 1;
         }
         $doc = hsc($doc);
