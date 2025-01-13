@@ -81,7 +81,7 @@ class ManagerAPI
         $values = sessionv('mgrFormValues', []);
         unset($_SESSION['mgrFormValues']);
 
-        return $values;
+        return $values[$this->action];
     }
 
     function get_alias_from_title($id = 0, $pagetitle = '')
