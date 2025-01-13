@@ -52,7 +52,7 @@ if (!is_writable(evo()->config('rb_base_dir') . 'images')) {
 if (!is_dir(evo()->config('rb_base_dir'))) {
     $warnings[] = 'configcheck_rb_base_dir';
 }
-if (!is_dir(evo()->config['filemanager_path'])) {
+if (!is_dir(evo()->config('filemanager_path'))) {
     $warnings[] = 'configcheck_filemanager_path';
 }
 if (sessionv('mgrRole') == 1) {
