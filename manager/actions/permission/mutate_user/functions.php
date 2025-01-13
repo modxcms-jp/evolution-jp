@@ -119,16 +119,16 @@ function blockedmode($user)
         return '0';
     }
 
-    if ($user['blocked'] == 1) {
+    if ($user['blocked']??null == 1) {
         return '1';
     }
-    if ($user['blockeduntil'] && $user['blockeduntil'] > time()) {
+    if ($user['blockeduntil']??null && $user['blockeduntil'] > time()) {
         return '1';
     }
-    if ($user['blockedafter'] && $user['blockedafter'] < time()) {
+    if ($user['blockedafter']??null && $user['blockedafter'] < time()) {
         return '1';
     }
-    if (3 < $user['failedlogins']) {
+    if (isset($user['failedlogins']) && 3 < $user['failedlogins']) {
         return '1';
     }
     return '0';
