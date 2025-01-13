@@ -87,7 +87,7 @@ if (in_array(postv('mode'), [12, 74])) {
             exit;
         }
     }
-    if (sessionv('mgrRole') != 1 && role_byuserid(postv('userid')) == 1) {
+    if (!manager()->isAdmin() && role_byuserid(postv('userid')) == 1) {
         webAlert('You cannot alter an administrative user.');
         exit;
     }

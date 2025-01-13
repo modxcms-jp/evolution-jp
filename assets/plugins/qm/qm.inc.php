@@ -189,8 +189,7 @@ class Qm
 
     function checkAccess()
     {
-        // If user is admin (role = 1)
-        if (sessionv('mgrRole') == 1) {
+        if (manager()->isAdmin()) {
             return true;
         }
 

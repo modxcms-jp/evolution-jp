@@ -162,7 +162,7 @@ if (evo()->hasPermission('settings')) {
 $modulemenu = [];
 if (evo()->hasPermission('exec_module')) {
     // Each module
-    if (sessionv('mgrRole') != 1) {
+    if (!manager()->isAdmin()) {
         // Display only those modules the user can execute
         $tbl_site_modules = evo()->getFullTableName('site_modules');
         $tbl_site_module_access = evo()->getFullTableName('site_module_access');
@@ -192,14 +192,18 @@ if (0 < count($modulemenu)) {
 $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
-if (config('warning_visibility' == 0 && sessionv('mgrRole') == 1)
+if (config('warning_visibility' == 0 && manager()->isAdmin())
     || (config('warning_visibility') == 2 && evo()->hasPermission('save_role') == 1)
     || config('warning_visibility') == 1
 ) {
     include_once(MODX_CORE_PATH . 'config_check.inc.php');
+    $configCheck = new ConfigCheck($_lang);
+    $configCheck->run();
+    $config_check_results = $configCheck->getWarnings();
+
     $modx->setPlaceholder('settings_config', $_lang['warning']);
     $modx->setPlaceholder('configcheck_title', $_lang['configcheck_title']);
-    if ($config_check_results != $_lang['configcheck_ok']) {
+    if ($config_check_results) {
         $modx->setPlaceholder('config_check_results', $config_check_results);
         $modx->setPlaceholder('config_display', 'block');
     } else {

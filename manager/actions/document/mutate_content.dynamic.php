@@ -98,7 +98,7 @@ if (config('use_udperms') == 1) {
         $ph['_lang_access_permissions_docs_message'] = lang('access_permissions_docs_message');
         $ph['UDGroups'] = implode("\n", $permissions);
         $body[] = parseText(file_get_tpl('tab_access.tpl'), $ph);
-    } elseif (sessionv('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
+    } elseif (!manager()->isAdmin() && $permissions_yes == 0 && $permissions_no > 0
         && (
             sessionv('mgrPermissions.access_permissions') == 1
             ||

@@ -81,7 +81,7 @@ class ManagerAPI
         $values = sessionv('mgrFormValues', []);
         unset($_SESSION['mgrFormValues']);
 
-        return $values;
+        return $values[$this->action];
     }
 
     function get_alias_from_title($id = 0, $pagetitle = '')
@@ -534,6 +534,19 @@ class ManagerAPI
                 'title' => $_lang['sys_alert']
             ]
         );
+    }
+
+    public function isAdmin()
+    {
+        if (!hasPermission('access_permissions')) {
+            return false;
+        }
+
+        if (!hasPermission('web_access_permissions')) {
+            return false;
+        }
+
+        return true;
     }
 
     function getMessageCount()

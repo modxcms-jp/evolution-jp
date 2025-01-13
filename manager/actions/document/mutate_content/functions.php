@@ -34,7 +34,7 @@ function getTmplvars($docid, $template_id, $docgrp)
         sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template_id,
-            sessionv('mgrRole'),
+            manager()->isAdmin() ? 1 : 0,
             $docgrp ? sprintf(' OR tva.documentgroup IN (%s)', $docgrp) : ''
         ),
         'tvtpl.rank,tv.rank, tv.id'
@@ -245,6 +245,7 @@ function getUDGroups($id)
             $notPublic = true;
             $inputAttributes['checked'] = 'checked';
         } else {
+            $notPublic = false;
             unset($inputAttributes['checked']);
         }
 
@@ -283,7 +284,7 @@ function getUDGroups($id)
     }
 
     // if mgr user doesn't have access to any of the displayable permissions, forget about them and make doc public
-    if (sessionv('mgrRole') != 1 && !$permissions_yes && $permissions_no) {
+    if (!manager()->isAdmin() && !$permissions_yes && $permissions_no) {
         return [];
     }
 
@@ -585,7 +586,7 @@ function db_value($id, $docgrp)
         sprintf(
             "sc.id='%s' %s",
             $id,
-            (sessionv('mgrRole') == 1 || !$docgrp) ? '' : sprintf(
+            (manager()->isAdmin() || !$docgrp) ? '' : sprintf(
                 'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
                 $docgrp
             )
