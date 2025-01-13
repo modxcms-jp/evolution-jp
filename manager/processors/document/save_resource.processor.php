@@ -332,7 +332,7 @@ function _check_duplicate_alias($id, $alias, $parent)
 
 function checkDocPermission($id, $document_groups = [])
 {
-    if (sessionv('mgrRole') != 1 && is_array($document_groups) && $document_groups) {
+    if (!manager()->isAdmin() && is_array($document_groups) && $document_groups) {
         $document_group_list = implode(',', array_filter($document_groups, 'is_numeric'));
         if ($document_group_list) {
             $count = db()->getValue(

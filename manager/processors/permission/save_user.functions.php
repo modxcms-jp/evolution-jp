@@ -152,7 +152,7 @@ function generate_password($length = 10)
 
 function verifyPermission()
 {
-    if (sessionv('mgrRole') == 1) {
+    if (manager()->isAdmin()) {
         return true;
     }
     if (evo()->input_post('role') != 1) {

@@ -31,7 +31,7 @@ class ConfigCheck {
 ',
                 $this->_lang[$warning['title']],
                 $warning['message'],
-                sessionv('mgrRole') != 1 ? '<br />' . $this->_lang['configcheck_admin'] : ''
+                !manager()->isAdmin() ? '<br />' . $this->_lang['configcheck_admin'] : ''
             );
         }
         $_SESSION['mgrConfigCheck'] = true;
