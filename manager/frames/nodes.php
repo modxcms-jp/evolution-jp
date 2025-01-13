@@ -68,9 +68,6 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         $parent = 0;
     }
 
-    // get document groups for current user
-    $mgrRole = (sessionv('mgrRole')) ? 1 : 0;
-
     // setup spacer
     $spacer = get_spacer($indent);
     $tree_orderby = get_tree_orderby();
@@ -82,19 +79,26 @@ function getNodes($indent, $parent = 0, $expandAll, $output = '')
         : ''
     ;
 
-    if (config('tree_show_protected') || sessionv('mgrRole')) {
+    if (config('tree_show_protected') || manager()->isAdmin()) {
         $access = '';
     } else {
         $access = "AND (sc.privatemgr=0 " . $in_docgrp . ")";
     }
-    $field = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted,type,menuindex,hidemenu,alias,contentType';
-    $field .= ",privateweb, privatemgr,MAX(IF(1=" . $mgrRole . " OR sc.privatemgr=0 " . $in_docgrp . ", 1, 0)) AS has_access, rev.status AS status";
+    $field = [];
+    $field[] = 'DISTINCT sc.id,pagetitle,menutitle,parent,isfolder,published,deleted';
+    $field[] = 'type,menuindex,hidemenu,alias,contentType,privateweb, privatemgr';
+    if (!manager()->isAdmin()) {
+        $field[] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0)) AS has_access', $in_docgrp);
+    } else {
+        $field[] = '1 AS has_access';
+    }
+    $field[] = 'rev.status AS status';
     $from = '[+prefix+]site_content AS sc';
     $from .= ' LEFT JOIN [+prefix+]document_groups dg on dg.document = sc.id';
     $from .= " LEFT JOIN [+prefix+]site_revision rev on rev.elmid = sc.id AND (rev.status='draft' OR rev.status='standby') AND rev.element='resource'";
     $where = sprintf("parent='%s' %s GROUP BY sc.id,rev.status", $parent, $access);
     $result = db()->select(
-        $field,
+        implode(',', $field),
         $from,
         $where,
         $tree_orderby
