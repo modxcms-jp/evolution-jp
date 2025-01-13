@@ -197,9 +197,13 @@ if (config('warning_visibility' == 0 && sessionv('mgrRole') == 1)
     || config('warning_visibility') == 1
 ) {
     include_once(MODX_CORE_PATH . 'config_check.inc.php');
+    $configCheck = new ConfigCheck($_lang);
+    $configCheck->run();
+    $config_check_results = $configCheck->getWarnings();
+
     $modx->setPlaceholder('settings_config', $_lang['warning']);
     $modx->setPlaceholder('configcheck_title', $_lang['configcheck_title']);
-    if ($config_check_results != $_lang['configcheck_ok']) {
+    if ($config_check_results) {
         $modx->setPlaceholder('config_check_results', $config_check_results);
         $modx->setPlaceholder('config_display', 'block');
     } else {
