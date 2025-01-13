@@ -536,6 +536,19 @@ class ManagerAPI
         );
     }
 
+    public function isAdmin()
+    {
+        if (!hasPermission('access_permissions')) {
+            return false;
+        }
+
+        if (!hasPermission('web_access_permissions')) {
+            return false;
+        }
+
+        return true;
+    }
+
     function getMessageCount()
     {
         if (!evo()->hasPermission('messages')) {
