@@ -919,7 +919,7 @@ function webstart_path()
 
 function proteted_path()
 {
-    if (sessionv('mgrRole') == 1) {
+    if (manager()->isAdmin()) {
         return [];
     }
 

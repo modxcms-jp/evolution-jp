@@ -162,7 +162,7 @@ if (evo()->hasPermission('settings')) {
 $modulemenu = [];
 if (evo()->hasPermission('exec_module')) {
     // Each module
-    if (sessionv('mgrRole') != 1) {
+    if (!manager()->isAdmin()) {
         // Display only those modules the user can execute
         $tbl_site_modules = evo()->getFullTableName('site_modules');
         $tbl_site_module_access = evo()->getFullTableName('site_module_access');
@@ -192,7 +192,7 @@ if (0 < count($modulemenu)) {
 $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
-if (config('warning_visibility' == 0 && sessionv('mgrRole') == 1)
+if (config('warning_visibility' == 0 && manager()->isAdmin())
     || (config('warning_visibility') == 2 && evo()->hasPermission('save_role') == 1)
     || config('warning_visibility') == 1
 ) {

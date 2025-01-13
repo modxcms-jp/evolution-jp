@@ -111,7 +111,7 @@ if (config('use_udperms') == 1) {
         $ph['UDGroups'] = implode("\n", $permissions);
         $body[] = parseText(file_get_tpl('tab_access.tpl'), $ph);
     } elseif (
-        sessionv('mgrRole') != 1 && $permissions_yes == 0 && $permissions_no > 0
+        !manager()->isAdmin() && $permissions_yes == 0 && $permissions_no > 0
         && (sessionv('mgrPermissions.access_permissions') == 1
             ||
             sessionv('mgrPermissions.web_access_permissions') == 1)

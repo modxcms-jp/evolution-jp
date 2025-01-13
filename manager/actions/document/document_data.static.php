@@ -29,7 +29,7 @@ evo()->updatePublishStatus();
 $where = array(
     sprintf("sc.id ='%s'", $id)
 );
-if (sessionv('mgrDocgroups') && sessionv('mgrRole') != 1) {
+if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
     $where[] = sprintf(
         "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
         implode(',', sessionv('mgrDocgroups'))

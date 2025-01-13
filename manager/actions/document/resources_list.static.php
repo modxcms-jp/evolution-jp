@@ -41,7 +41,7 @@ $in_docgrp = !empty($docgrp) ? " OR dg.document_group IN (" . $docgrp . ")" : ''
 
 $where = [];
 $where[] = "sc.parent='" . $id . "'";
-if (sessionv('mgrRole') != 1 && !evo()->config['tree_show_protected']) {
+if (!manager()->isAdmin() && !evo()->config['tree_show_protected']) {
     $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
 }
 $rs = db()->select(
@@ -57,13 +57,13 @@ if (!$numRecords) {
     $children_output = '';
     $f = [];
     $f[] = 'DISTINCT sc.*';
-    if (sessionv('mgrRole') != 1) {
+    if (!manager()->isAdmin()) {
         $f['has_access'] = sprintf('MAX(IF(sc.privatemgr=0 %s, 1, 0))', $in_docgrp);
     }
     $f[] = 'rev.status';
     $where = [];
     $where[] = "sc.parent='" . $id . "'";
-    if (sessionv('mgrRole') != 1 && !evo()->config('tree_show_protected')) {
+    if (!manager()->isAdmin() && !evo()->config('tree_show_protected')) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
@@ -101,7 +101,7 @@ if (!$numRecords) {
             continue;
         }
 
-        if (sessionv('mgrRole') == 1) {
+        if (manager()->isAdmin()) {
             $doc['has_access'] = 1;
         }
         $doc = hsc($doc);
@@ -333,7 +333,7 @@ function getEditedon($editedon)
 
 function getStatusIcon($status)
 {
-    global $modx, $_style;
+    global $_style;
 
     if (!evo()->config['enable_draft']) {
         return '';
