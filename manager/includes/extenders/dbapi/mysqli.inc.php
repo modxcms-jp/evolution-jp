@@ -155,7 +155,6 @@ class DBAPI
                 return false;
             }
             $this->conn->query(sprintf('%s %s', $this->connection_method, $this->charset));
-            $this->conn->set_charset($this->charset);
         }
 
         $tend = evo()->getMicroTime();
