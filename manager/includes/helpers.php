@@ -6,7 +6,7 @@ function evo()
 {
     global $modx;
     if (!$modx) {
-        return false;
+        return null;
     }
     return $modx;
 }
@@ -24,8 +24,7 @@ function db()
  */
 function manager()
 {
-    global $modx;
-    return $modx->manager;
+    return evo()->manager;
 }
 
 function hasPermission($key = null)
