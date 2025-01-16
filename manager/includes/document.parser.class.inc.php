@@ -939,7 +939,7 @@ class DocumentParser
 
     public function getMicroTime()
     {
-        list($usec, $sec) = explode(' ', microtime());
+        [$usec, $sec] = explode(' ', microtime());
         return ((float)$usec + (float)$sec);
     }
 
@@ -2048,9 +2048,9 @@ class DocumentParser
                 }
             }
 
-            list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
             if (strpos($key, '@') !== false) {
-                list($key, $context) = explode('@', $key, 2);
+                [$key, $context] = explode('@', $key, 2);
             } else {
                 $context = false;
             }
@@ -2106,7 +2106,7 @@ class DocumentParser
             return [trim($key), false];
         }
 
-        list($key, $modifiers) = explode(':', $key, 2);
+        [$key, $modifiers] = explode(':', $key, 2);
 
         return [trim($key), trim($modifiers)];
     }
@@ -2128,9 +2128,9 @@ class DocumentParser
         if (preg_match('/@\d+\/u/', $key)) {
             $key = str_replace(['@', '/u'], ['@u(', ')'], $key);
         }
-        list($key, $str) = explode('@', $key, 2);
+        [$key, $str] = explode('@', $key, 2);
 
-        list($context, $option) = explode('(', $str, 2);
+        [$context, $option] = explode('(', $str, 2);
         if ($option) {
             $option = trim($option, ')(\'"`');
         }
@@ -2177,7 +2177,7 @@ class DocumentParser
                 } elseif (strpos($option, ',') === false) {
                     $option .= ',ASC';
                 }
-                list($by, $dir) = explode(',', $option, 2);
+                [$by, $dir] = explode(',', $option, 2);
                 $children = $this->getActiveChildren($parent, $by, $dir);
                 $find = false;
                 $prev = false;
@@ -2203,7 +2203,7 @@ class DocumentParser
                 } elseif (strpos($option, ',') === false) {
                     $option .= ',ASC';
                 }
-                list($by, $dir) = explode(',', $option, 2);
+                [$by, $dir] = explode(',', $option, 2);
                 $children = $this->getActiveChildren($parent, $by, $dir);
                 $find = false;
                 $next = false;
@@ -2281,7 +2281,7 @@ class DocumentParser
         }
 
         foreach ($matches[1] as $i => $key) {
-            list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
 
             if (isset($ph[$key])) {
                 $value = $ph[$key];
@@ -2332,7 +2332,7 @@ class DocumentParser
             $key = $snip_call['name'];
             $params = $this->getParamsFromString($snip_call['params']);
 
-            list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
 
             if (!isset($ph[$key])) {
                 $ph[$key] = $this->getChunk($key);
@@ -2391,7 +2391,7 @@ class DocumentParser
         }
         foreach ($matches[1] as $i => $key) {
 
-            list($key, $modifiers) = $this->splitKeyAndFilter($key);
+            [$key, $modifiers] = $this->splitKeyAndFilter($key);
 
             if (isset($ph[$key])) {
                 $value = $ph[$key];
@@ -2502,7 +2502,7 @@ class DocumentParser
                 $content = $split;
                 continue;
             }
-            list($cmd, $text) = explode('>', $split, 2);
+            [$cmd, $text] = explode('>', $split, 2);
             $cmd = str_replace("'", "\'", $cmd);
             $content .= "<?php if(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
             $content .= $text;
@@ -2513,7 +2513,7 @@ class DocumentParser
                 $content = $split;
                 continue;
             }
-            list($cmd, $text) = explode('>', $split, 2);
+            [$cmd, $text] = explode('>', $split, 2);
             $cmd = str_replace("'", "\'", $cmd);
             $content .= "<?php elseif(\$this->_parseCTagCMD('" . $cmd . "')): ?>";
             $content .= $text;
@@ -2901,7 +2901,7 @@ class DocumentParser
     private function _getSGVar($value)
     { // Get super globals
         $key = $value;
-        list($key, $modifiers) = $this->splitKeyAndFilter($key);
+        [$key, $modifiers] = $this->splitKeyAndFilter($key);
 
         $key = str_replace(['(', ')'], ["['", "']"], $key);
         if (strpos($key, '$_SESSION') !== false) {
@@ -2937,7 +2937,7 @@ class DocumentParser
 
         $snip_call = $this->_split_snip_call($piece);
 
-        list($key, $modifiers) = $this->splitKeyAndFilter($snip_call['name']);
+        [$key, $modifiers] = $this->splitKeyAndFilter($snip_call['name']);
 
         $snippetObject = $this->_getSnippetObject($key);
         if (!$snippetObject) {
@@ -3010,7 +3010,7 @@ class DocumentParser
                 $_tmp = trim($_tmp);
                 $delim = substr($_tmp, 0, 1);
                 if (in_array($delim, ['"', "'", '`'])) {
-                    list($null, $value, $_tmp) = explode($delim, $_tmp, 3);
+                    [$null, $value, $_tmp] = explode($delim, $_tmp, 3);
                     while (strpos(trim($_tmp), '//') === 0) {
                         $_ = $_tmp;
                         $_tmp = strstr(trim($_tmp), "\n");
@@ -3020,7 +3020,7 @@ class DocumentParser
                     }
                     $i = 0;
                     while ($delim === '`' && substr(trim($_tmp), 0, 1) !== '&' && 1 < substr_count($_tmp, '`')) {
-                        list($inner, $outer, $_tmp) = explode('`', $_tmp, 3);
+                        [$inner, $outer, $_tmp] = explode('`', $_tmp, 3);
                         $value .= "`{$inner}`{$outer}";
                         $i++;
                         if (20 < $i) {
@@ -3031,7 +3031,7 @@ class DocumentParser
                         $value = rtrim($value, '`');
                     }
                 } elseif (strpos($_tmp, '&') !== false) {
-                    list($value, $_tmp) = explode('&', $_tmp, 2);
+                    [$value, $_tmp] = explode('&', $_tmp, 2);
                     $value = trim($value);
                 } else {
                     $value = $_tmp;
@@ -3091,7 +3091,7 @@ class DocumentParser
                 $k = substr($k, 0, -2);
                 $params[$k][] = current($p);
             } elseif (strpos($k, '[') !== false && substr($k, -1) === ']') {
-                list($k, $subk) = explode('[', $k, 2);
+                [$k, $subk] = explode('[', $k, 2);
                 $params[$k][substr($subk, 0, -1)] = current($p);
             } else {
                 $params[$k] = current($p);
@@ -4046,11 +4046,11 @@ class DocumentParser
             if (strpos($key, '?') === false) {
                 $args = '';
             } else {
-                list($key, $args) = explode('?', $key, 2);
+                [$key, $args] = explode('?', $key, 2);
             }
 
             if (strpos($key, ':') !== false) {
-                list($key, $modifiers) = $this->splitKeyAndFilter($key);
+                [$key, $modifiers] = $this->splitKeyAndFilter($key);
             } else {
                 $modifiers = false;
             }
@@ -4181,7 +4181,7 @@ class DocumentParser
     public function parseText($tpl = '', $ph = [], $left = '[+', $right = '+]', $execModifier = true)
     {
         if (is_array($tpl) && !is_array($ph)) {
-            list($tpl, $ph) = [$ph, $tpl];
+            [$tpl, $ph] = [$ph, $tpl];
         } // ditto->paginate()
 
         if (is_array($tpl)) {
@@ -4206,15 +4206,15 @@ class DocumentParser
 
         foreach ($matches[1] as $i => $key) {
             if (strpos($key, ':') !== false && $execModifier) {
-                list($key, $modifiers) = $this->splitKeyAndFilter($key);
+                [$key, $modifiers] = $this->splitKeyAndFilter($key);
             } else {
                 $modifiers = false;
             }
 
             if (strpos($key, '@') !== false) {
-                list($key, $context) = explode('@', $key, 2);
+                [$key, $context] = explode('@', $key, 2);
             } else {
-                list($key, $context) = [$key, ''];
+                [$key, $context] = [$key, ''];
             }
 
             if (!isset($ph['parent'])) {
@@ -4307,19 +4307,19 @@ class DocumentParser
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                list($Y, $m, $d, $H, $M, $S) = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
+                [$Y, $m, $d, $H, $M, $S] = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
                 break;
             case 'dd-mm-YYYY':
                 if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                list($d, $m, $Y, $H, $M, $S) = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
+                [$d, $m, $Y, $H, $M, $S] = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
                 break;
             case 'mm/dd/YYYY':
                 if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                list($m, $d, $Y, $H, $M, $S) = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
+                [$m, $d, $Y, $H, $M, $S] = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
                 break;
         }
         if (!$H && !$M && !$S) {
@@ -5027,7 +5027,7 @@ class DocumentParser
     {
         $_ = ['[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]'];
         foreach ($_ as $brackets) {
-            list($left, $right) = explode(' ', $brackets);
+            [$left, $right] = explode(' ', $brackets);
             if (strpos($content, $left) === false) {
                 continue;
             }
