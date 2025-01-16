@@ -1,4 +1,7 @@
-* text=auto eol=lf
+* text eol=lf
 .gitattributes export-ignore
 .gitignore export-ignore
 .editorconfig export-ignore
+*.png binary
+*.jpg binary
+*.gif binary

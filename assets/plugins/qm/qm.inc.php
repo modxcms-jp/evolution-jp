@@ -37,7 +37,10 @@ class Qm
     public $parents = [];
     public $docGroup = '';
 
-    public function __construct() {}
+    public function __construct() {
+        global $modx;
+        $modx->loadExtension('ManagerAPI');
+    }
 
     private function tv_buttons()
     {
