@@ -399,7 +399,7 @@ class DocumentParser
         );
     }
 
-    function getDBCache($category, $key)
+    private function getDBCache($category, $key)
     {
         $rs = db()->select(
             'cache_value',
@@ -417,12 +417,12 @@ class DocumentParser
         return db()->getValue($rs);
     }
 
-    function purgeDBCache()
+    public function purgeDBCache()
     {
         return db()->truncate('[+prefix+]system_cache');
     }
 
-    function _treatAliasPath($q)
+    private function _treatAliasPath($q)
     {
         $pos = strrpos($q, '/');
         if ($pos) {
@@ -449,7 +449,7 @@ class DocumentParser
         return $alias;
     }
 
-    function getRequestQ($uri)
+    private function getRequestQ($uri)
     {
         if (strpos($uri, '?') !== false) {
             $uri = strstr($uri, '?', true);
@@ -462,7 +462,7 @@ class DocumentParser
         return '/' . substr($uri, strlen(MODX_BASE_URL));
     }
 
-    function sanitizeVars()
+    private function sanitizeVars()
     {
         if (strpos(urldecode(serverv('QUERY_STRING')), chr(0)) !== false) {
             exit();
@@ -488,7 +488,7 @@ class DocumentParser
         $this->sanitize_gpc($_REQUEST);
     }
 
-    function setUaType()
+    private function setUaType()
     {
         if (!$this->config('individual_cache') || $this->config('cache_type') == 2) {
             return 'pages';
@@ -496,7 +496,7 @@ class DocumentParser
         return device();
     }
 
-    function genQsHash()
+    private function genQsHash()
     {
         if (!$this->server('QUERY_STRING')) {
             return '';
@@ -610,7 +610,7 @@ class DocumentParser
         return $this->outputContent();
     }
 
-    function _getTemplateCode($documentObject)
+    private function _getTemplateCode($documentObject)
     {
         if (!$documentObject['template']) {
             return '[*content*]';
@@ -776,7 +776,7 @@ class DocumentParser
         return $ob_get;
     }
 
-    function RecoveryEscapedTags($contents)
+    private function RecoveryEscapedTags($contents)
     {
         $tags = explode(',', '{{,}},[[,]],[!,!],[*,*],[(,)],[+,+],[~,~],[^,^]');
         $rTags = $this->_getEscapedTags($tags);
@@ -784,7 +784,7 @@ class DocumentParser
         return $contents;
     }
 
-    function _getEscapedTags($tags)
+    private function _getEscapedTags($tags)
     {
         $rTags = [];
         foreach ($tags as $tag) {
@@ -793,7 +793,7 @@ class DocumentParser
         return $rTags;
     }
 
-    function parseNonCachedSnippets($contents)
+    private function parseNonCachedSnippets($contents)
     {
         if (strpos($contents, '[!') === false) {
             return $contents;
@@ -895,7 +895,7 @@ class DocumentParser
         // end post processing
     }
 
-    function sanitize_gpc(&$target, $count = 0)
+    public function sanitize_gpc(&$target, $count = 0)
     {
         if (!$target) {
             return [];
@@ -928,7 +928,7 @@ class DocumentParser
         return $target;
     }
 
-    function getUaType()
+    private function getUaType()
     {
         return device();
     }
@@ -941,13 +941,13 @@ class DocumentParser
         return implode($delim, $array);
     }
 
-    function getMicroTime()
+    public function getMicroTime()
     {
         list($usec, $sec) = explode(' ', microtime());
         return ((float)$usec + (float)$sec);
     }
 
-    function get_static_pages($filepath)
+    private function get_static_pages($filepath)
     {
         if (strpos($filepath, '?') !== false) {
             $filepath = strstr($filepath, '?', true);
@@ -1126,7 +1126,7 @@ class DocumentParser
         }
     }
 
-    function getSettings()
+    public function getSettings()
     {
         $this->token_auth();
 
@@ -1644,7 +1644,7 @@ class DocumentParser
         }
     }
 
-    function getTagsFromContent($content, $left = '[+', $right = '+]')
+    public function getTagsFromContent($content, $left = '[+', $right = '+]')
     {
         static $cached = [];
 
@@ -1816,7 +1816,7 @@ class DocumentParser
         return $pathInfo;
     }
 
-    function setAliasListingByParent($parent_id)
+    private function setAliasListingByParent($parent_id)
     {
 
         if (isset($this->tmpCache['aliasListingByParent'][$parent_id])) {
@@ -2103,7 +2103,7 @@ class DocumentParser
         return $content;
     }
 
-    function splitKeyAndFilter($key)
+    private function splitKeyAndFilter($key)
     {
 
         if (strpos($key, ':') === false) {
@@ -2115,7 +2115,7 @@ class DocumentParser
         return [trim($key), trim($modifiers)];
     }
 
-    function getReadableValue($key, $value)
+    private function getReadableValue($key, $value)
     {
         if ($this->get_docfield_type($key) === 'datetime') {
             return $this->toDateFormat($value);
@@ -2253,7 +2253,7 @@ class DocumentParser
         return $docId;
     }
 
-    function addLogEntry($fname, $fstart)
+    public function addLogEntry($fname, $fstart)
     {
         $tend = $this->getMicroTime();
         $totaltime = $tend - $fstart;
@@ -2262,7 +2262,7 @@ class DocumentParser
         $this->functionLog[] = $msg;
     }
 
-    function mergeSettingsContent($content, $ph = false)
+    public function mergeSettingsContent($content, $ph = false)
     {
         if (strpos($content, '<@LITERAL>') !== false) {
             $content = $this->escapeLiteralTagsContent($content);
@@ -2306,7 +2306,7 @@ class DocumentParser
         return $content;
     }
 
-    function mergeChunkContent($content, $ph = false)
+    public function mergeChunkContent($content, $ph = false)
     {
         if (strpos($content, '{{ ') !== false) {
             $content = str_replace(['{{ ', ' }}'], ['\{\{ ', ' \}\}'], $content);
@@ -2367,7 +2367,7 @@ class DocumentParser
     }
 
     // Added by Raymond
-    function mergePlaceholderContent($content, $ph = false)
+    public function mergePlaceholderContent($content, $ph = false)
     {
 
         if (strpos($content, '<@LITERAL>') !== false) {
@@ -2418,7 +2418,7 @@ class DocumentParser
         return $content;
     }
 
-    function mergeCommentedTagsContent($content, $left = '<!--@MODX:', $right = '-->')
+    public function mergeCommentedTagsContent($content, $left = '<!--@MODX:', $right = '-->')
     {
         if (strpos($content, $left) === false) {
             return $content;
@@ -2444,7 +2444,7 @@ class DocumentParser
         return $content;
     }
 
-    function ignoreCommentedTagsContent($content, $left = '<!--@IGNORE:BEGIN-->', $right = '<!--@IGNORE:END-->')
+    public function ignoreCommentedTagsContent($content, $left = '<!--@IGNORE:BEGIN-->', $right = '<!--@IGNORE:END-->')
     {
         if (strpos($content, $left) === false) {
             return $content;
@@ -2463,7 +2463,7 @@ class DocumentParser
         return $content;
     }
 
-    function escapeLiteralTagsContent($content, $left = '<@LITERAL>', $right = '<@ENDLITERAL>')
+    public function escapeLiteralTagsContent($content, $left = '<@LITERAL>', $right = '<@ENDLITERAL>')
     {
         if (strpos($content, $left) === false) {
             return $content;
@@ -2481,7 +2481,7 @@ class DocumentParser
         return $content;
     }
 
-    function mergeConditionalTagsContent(
+    public function mergeConditionalTagsContent(
         $content,
         $iftag = '<@IF:',
         $elseiftag = '<@ELSEIF:',
@@ -2642,7 +2642,7 @@ class DocumentParser
         return $cmd;
     }
 
-    function mergeBenchmarkContent($content)
+    public function mergeBenchmarkContent($content)
     {
         if (strpos($content, '^]') === false) {
             return $content;
@@ -2984,7 +2984,7 @@ class DocumentParser
         return $value;
     }
 
-    function getParamsFromString($string = '') // _snipParamsToArray()
+    private function getParamsFromString($string = '') // _snipParamsToArray()
     {
         if (empty($string)) {
             return [];
@@ -3105,7 +3105,7 @@ class DocumentParser
         return $params;
     }
 
-    function _getSplitPosition($str)
+    private function _getSplitPosition($str)
     {
         $closeOpt = false;
         $maybePos = false;
@@ -3206,7 +3206,7 @@ class DocumentParser
         return $snippetObject;
     }
 
-    function setSnippetCache()
+    private function setSnippetCache()
     {
         $rs = db()->select('name,snippet,properties', '[+prefix+]site_snippets');
         while ($row = db()->getRow($rs)) {
@@ -3216,7 +3216,7 @@ class DocumentParser
         }
     }
 
-    function getPluginCache()
+    private function getPluginCache()
     {
         $plugins = @include(MODX_CACHE_PATH . 'plugin.siteCache.idx.php');
 
@@ -3422,7 +3422,7 @@ class DocumentParser
      * name: parseDocumentSource - used by parser
      * desc: return document source aftering parsing tvs, snippets, chunks, etc.
      */
-    function parseDocumentSource($source)
+    public function parseDocumentSource($source)
     {
         $orgDocumentOutput = $this->documentOutput;
         $i = 0;
@@ -3816,7 +3816,7 @@ class DocumentParser
         return db()->getRow($result);
     }
 
-    function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent')
+    public function getParent($pid = -1, $activeOnly = 1, $fields = 'id, pagetitle, description, alias, parent')
     {
         if (!$pid) {
             return false;
@@ -4019,7 +4019,7 @@ class DocumentParser
         return $url;
     }
 
-    function rewriteUrls($content)
+    public function rewriteUrls($content)
     {
         if (strpos($content, '[~') === false) {
             return $content;
@@ -4104,7 +4104,7 @@ class DocumentParser
         return $content;
     }
 
-    function getConfig($name = '', $default = '')
+    public function getConfig($name = '', $default = '')
     {
         return $this->config($name, $default);
     }
@@ -4168,7 +4168,7 @@ class DocumentParser
         return $value;
     }
 
-    function parseChunk($chunkName, $ph, $left = '{', $right = '}', $mode = 'chunk')
+    public function parseChunk($chunkName, $ph, $left = '{', $right = '}', $mode = 'chunk')
     {
         if (!is_array($ph)) {
             return false;
@@ -4182,7 +4182,7 @@ class DocumentParser
         return $this->parseText($tpl, $ph, $left, $right);
     }
 
-    function parseText($tpl = '', $ph = [], $left = '[+', $right = '+]', $execModifier = true)
+    public function parseText($tpl = '', $ph = [], $left = '[+', $right = '+]', $execModifier = true)
     {
         if (is_array($tpl) && !is_array($ph)) {
             list($tpl, $ph) = [$ph, $tpl];
@@ -4249,7 +4249,7 @@ class DocumentParser
         return $tpl;
     }
 
-    function parseList($tpl = '', $multiPH = [])
+    public function parseList($tpl = '', $multiPH = [])
     {
 
         if (empty($multiPH) || empty($tpl)) {
@@ -4265,7 +4265,7 @@ class DocumentParser
         return implode("\n", $_);
     }
 
-    function toDateFormat($timestamp = 0, $mode = '')
+    public function toDateFormat($timestamp = 0, $mode = '')
     {
         if ($timestamp == 0 && $mode === '') {
             return '';
@@ -4296,7 +4296,7 @@ class DocumentParser
         return $strTime;
     }
 
-    function toTimeStamp($str, $default = '')
+    public function toTimeStamp($str, $default = '')
     {
         $str = trim($str);
         if (empty($str)) {
@@ -4336,7 +4336,7 @@ class DocumentParser
         return $timeStamp;
     }
 
-    function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
+    public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
     {
         global $modx, $_lc;
 
@@ -4624,13 +4624,13 @@ class DocumentParser
     }
 
     # returns the virtual relative path to the cache folder
-    function getCachePath()
+    private function getCachePath()
     {
         return MODX_CACHE_PATH;
     }
 
     # Returns current user id
-    function getLoginUserID($context = '')
+    public function getLoginUserID($context = '')
     {
         if ($context && sessionv("{$context}Validated")) {
             return sessionv("{$context}InternalKey");
@@ -4650,7 +4650,7 @@ class DocumentParser
     # Returns an array of document groups that current user is assigned to.
     # This function will first return the web user doc groups when running from frontend otherwise it will return manager user's docgroup
     # Set $resolveIds to true to return the document group names
-    function getUserDocGroups($resolveIds = false)
+    public function getUserDocGroups($resolveIds = false)
     {
         $dg = []; // add so
         $dgn = [];
@@ -4706,7 +4706,7 @@ class DocumentParser
     }
 
     # Remove unwanted html tags and snippet, settings and tags
-    function stripTags($html, $allowed = '')
+    public function stripTags($html, $allowed = '')
     {
         $t = strip_tags($html, $allowed);
         $t = preg_replace('~\[\*(.*?)\*]~', '', $t); //tv
@@ -4719,7 +4719,7 @@ class DocumentParser
     }
 
     # remove all event listners - only for use within the current execution cycle
-    function removeAllEventListener()
+    public function removeAllEventListener()
     {
         unset($this->pluginEvent);
         $this->pluginEvent = [];
@@ -4820,7 +4820,7 @@ class DocumentParser
         return $results;
     }
 
-    function getPluginCode($pluginName)
+    private function getPluginCode($pluginName)
     {
         if (!isset($this->pluginCache[$pluginName])) {
             $this->setPluginCache($pluginName);
@@ -4828,7 +4828,7 @@ class DocumentParser
         return $this->pluginCache[$pluginName];
     }
 
-    function getPluginProperties($pluginName)
+    private function getPluginProperties($pluginName)
     {
         if (!isset($this->pluginCache["{$pluginName}Props"])) {
             $this->setPluginCache($pluginName);
@@ -4836,7 +4836,7 @@ class DocumentParser
         return $this->pluginCache["{$pluginName}Props"];
     }
 
-    function setPluginCache($pluginName)
+    private function setPluginCache($pluginName)
     {
         if (isset($this->pluginCache[$pluginName])) {
             $this->pluginCache["{$pluginName}Props"] = '';
@@ -4863,7 +4863,7 @@ class DocumentParser
     }
 
     # parses a resource property string and returns the result as an array
-    function parseProperties($propertyString)
+    public function parseProperties($propertyString)
     {
         if (!$propertyString) {
             return [];
@@ -4894,7 +4894,7 @@ class DocumentParser
     * Created by Raymond Irving Feb, 2005
     */
     // Added by Raymond 20-Jan-2005
-    function tvProcessor($value, $format = '', $paramstring = '', $name = '', $tvtype = '', $docid = '', $sep = '')
+    public function tvProcessor($value, $format = '', $paramstring = '', $name = '', $tvtype = '', $docid = '', $sep = '')
     {
         $modx = &$this;
 
@@ -4996,7 +4996,7 @@ class DocumentParser
         return $o;
     }
 
-    function applyFilter($value = '', $modifiers = false, $key = '')
+    public function applyFilter($value = '', $modifiers = false, $key = '')
     {
         if ($modifiers === false || $modifiers === 'raw') {
             return $value;
@@ -5005,7 +5005,7 @@ class DocumentParser
         return $this->filter->phxFilter($key, $value, trim($modifiers));
     }
 
-    function addSnippet($name, $phpCode, $params = [])
+    public function addSnippet($name, $phpCode, $params = [])
     {
         if (strpos($phpCode, '@') === 0) {
             $phpCode = $this->atBind($phpCode);
@@ -5014,7 +5014,7 @@ class DocumentParser
         $this->snippetCache["#{$name}Props"] = $params;
     }
 
-    function addChunk($name, $text)
+    public function addChunk($name, $text)
     {
         if (strpos($text, '@') === 0) {
             $text = $this->atBind($text);
@@ -5022,12 +5022,12 @@ class DocumentParser
         $this->chunkCache['#' . $name] = $text;
     }
 
-    function addFilter($name, $phpCode)
+    public function addFilter($name, $phpCode)
     {
         $this->snippetCache['phx:' . $name] = $phpCode;
     }
 
-    function cleanUpMODXTags($content = '')
+    private function cleanUpMODXTags($content = '')
     {
         $_ = ['[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]'];
         foreach ($_ as $brackets) {
@@ -5045,58 +5045,58 @@ class DocumentParser
     }
 
     // - deprecated db functions
-    function dbConnect()
+    public function dbConnect()
     {
         db()->connect();
         $this->rs = $this->db->conn;
     }
 
-    function dbQuery($sql)
+    public function dbQuery($sql)
     {
         return db()->query($sql);
     }
 
-    function recordCount($rs)
+    public function recordCount($rs)
     {
         return db()->count($rs);
     }
 
-    function fetchRow($rs, $mode = 'assoc')
+    public function fetchRow($rs, $mode = 'assoc')
     {
         return db()->getRow($rs, $mode);
     }
 
-    function affectedRows($rs)
+    public function affectedRows($rs)
     {
         return db()->getAffectedRows($rs);
     }
 
-    function insertId($rs)
+    public function insertId($rs)
     {
         return db()->getInsertId($rs);
     }
 
-    function dbClose()
+    public function dbClose()
     {
         db()->disconnect();
     }
 
-    function putChunk($chunkName)
+    public function putChunk($chunkName)
     {
         return $this->getChunk($chunkName);
     }
 
-    function getDocGroups()
+    public function getDocGroups()
     {
         return $this->getUserDocGroups();
     }
 
-    function changePassword($o, $n)
+    public function changePassword($o, $n)
     {
         return $this->changeWebUserPassword($o, $n);
     }
 
-    function parsePlaceholder($src = '', $ph = [], $left = '[+', $right = '+]', $mode = 'ph')
+    public function parsePlaceholder($src = '', $ph = [], $left = '[+', $right = '+]', $mode = 'ph')
     {
         return $this->parseText($src, $ph, $left, $right, $mode);
     }
@@ -5106,7 +5106,7 @@ class DocumentParser
     /* End of API functions                                       */
     /***************************************************************************************/
 
-    function phpError($nr, $text, $file, $line)
+    public function phpError($nr, $text, $file, $line)
     {
         // CLI環境であれば処理をスキップ
         if (php_sapi_name() == 'cli') {
@@ -5150,7 +5150,7 @@ class DocumentParser
         return $result;
     }
 
-    function mergeRegisteredClientScripts($content)
+    public function mergeRegisteredClientScripts($content)
     {
         if (!$this->jscripts) {
             return $content;
@@ -5162,7 +5162,7 @@ class DocumentParser
         );
     }
 
-    function mergeRegisteredClientStartupScripts($content)
+    public function mergeRegisteredClientStartupScripts($content)
     {
         if (!$this->sjscripts) {
             return $content;
@@ -5190,7 +5190,7 @@ class DocumentParser
      * @param string Alias to be formatted
      * @return string Safe alias
      */
-    function stripAlias($alias, $browserID = '')
+    public function stripAlias($alias, $browserID = '')
     {
         // let add-ons overwrite the default behavior
         $params = ['alias' => &$alias, 'browserID' => $browserID];
@@ -5210,7 +5210,7 @@ class DocumentParser
         return strip_tags($alias);
     }
 
-    function nicesize($size)
+    public function nicesize($size)
     {
         $a = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         $pos = 0;
@@ -5339,7 +5339,7 @@ class DocumentParser
      * @return bool
      *
      */
-    function saveToFile($filename, $data)
+    public function saveToFile($filename, $data)
     {
         if (!$filename) {
             return false;
@@ -5370,7 +5370,7 @@ class DocumentParser
      * @return bool
      *
      */
-    function setBaseTime($t = '')
+    private function setBaseTime($t = '')
     {
         if (!$t) {
             $baseTime = isset($_REQUEST['baseTime']) ? $_REQUEST['baseTime'] : '';
@@ -5400,7 +5400,7 @@ class DocumentParser
      * @return int
      *
      */
-    function getBaseTime()
+    private function getBaseTime()
     {
         return $this->baseTime;
     }
@@ -5451,12 +5451,12 @@ class DocumentParser
         exit('Not installed.');
     }
 
-    function htmlspecialchars($str, $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
+    public function htmlspecialchars($str, $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
     {
         return $this->hsc($str, $flags, $encode, $double_encode);
     }
 
-    function hsc($str, $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
+    public function hsc($str, $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
     {
         if (!$str) {
             return $str;
@@ -5491,14 +5491,14 @@ class DocumentParser
         return $ent_str;
     }
 
-    function reload()
+    public function reload()
     {
         $url = $this->makeUrl($this->docid);
         $this->sendRedirect($url);
         exit;
     }
 
-    function move_uploaded_file($tmp_path, $target_path)
+    public function move_uploaded_file($tmp_path, $target_path)
     {
         $target_path = str_replace('\\', '/', $target_path);
         $new_file_permissions = octdec(ltrim($this->config('new_file_permissions'), '0'));
@@ -5776,7 +5776,7 @@ class DocumentParser
         return $this->config($key, $default);
     }
 
-    function array_get($array, $key = null, $default = null)
+    public function array_get($array, $key = null, $default = null)
     {
         if ($key === null || trim($key) == '') {
             return $array;
