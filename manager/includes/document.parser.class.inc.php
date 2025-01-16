@@ -559,33 +559,29 @@ class DocumentParser
             }
 
             if ($this->http_status_code == '200') {
-                if ($this->documentObject['published'] == 0) {
+                if ($this->doc('published') == 0) {
                     if (!$this->hasPermission('view_unpublished')) {
                         $this->sendErrorPage();
                     }
                     if (!$this->checkPermissions($this->documentIdentifier)) {
                         $this->sendErrorPage();
                     }
-                } elseif ($this->documentObject['deleted'] == 1) {
+                } elseif ($this->doc('deleted') == 1) {
                     $this->sendErrorPage();
                 }
             }
             // check whether it's a reference
-            if ($this->documentObject['type'] === 'reference') {
-                if (preg_match('@^[0-9]+$@', $this->documentObject['content'])) {
-                    // if it's a bare document id
-                    $this->documentObject['content'] = $this->makeUrl($this->documentObject['content']);
+            if ($this->doc('type') === 'reference') {
+                $url = $this->doc('content');
+                if (preg_match('@^[0-9]+$@', $url)) {
+                    $url = $this->makeUrl($url);
                 }
-                $this->documentObject['content'] = $this->parseDocumentSource($this->documentObject['content']);
-                $rs = $this->sendRedirect(
-                    $this->documentObject['content'],
-                    0,
-                    '',
-                    'HTTP/1.0 301 Moved Permanently'
-                );
+                $url = trim($this->parseDocumentSource($url));
+                $this->sendRedirect($url, 0, '', 'HTTP/1.0 301 Moved Permanently');
+                return;
             }
             // check if we should not hit this document
-            if ($this->documentObject['donthit'] == 1) {
+            if ($this->doc('donthit') == 1) {
                 $this->config['track_visitors'] = 0;
             }
 
@@ -675,13 +671,13 @@ class DocumentParser
         if ($this->documentGenerated != 1) {
             return $content;
         }
-        if ($this->documentObject['cacheable'] != 1) {
+        if ($this->doc('cacheable') != 1) {
             return $content;
         }
-        if ($this->documentObject['type'] !== 'document') {
+        if ($this->doc('type') !== 'document') {
             return $content;
         }
-        if ($this->documentObject['published'] != 1) {
+        if ($this->doc('published') != 1) {
             return $content;
         }
 
@@ -758,12 +754,12 @@ class DocumentParser
                 )
             );
             header('Content-Length: ' . strlen($ob_get));
-            if ($this->documentObject['content_dispo'] == 1) {
-                if ($this->documentObject['alias']) {
-                    $name = $this->documentObject['alias'];
+            if ($this->doc('content_dispo', 1) == 1) {
+                if ($this->doc('alias')) {
+                    $name = $this->doc('alias');
                 } else {
                     // strip title of special characters
-                    $name = $this->documentObject['pagetitle'];
+                    $name = $this->doc('pagetitle');
                     $name = strip_tags($name);
                     $name = preg_replace('/&.+?;/', '', $name); // kill entities
                     $name = preg_replace('/\s+/', '-', $name);
@@ -823,9 +819,9 @@ class DocumentParser
         // if the current document was generated, cache it!
         if (
             $this->documentGenerated == 1
-            && $this->documentObject['cacheable'] == 1
-            && $this->documentObject['type'] === 'document'
-            && $this->documentObject['published'] == 1
+            && $this->doc('cacheable') == 1
+            && $this->doc('type') === 'document'
+            && $this->doc('published') == 1
         ) {
             $docid = $this->documentIdentifier;
             $param = ['makeCache' => true];
@@ -857,7 +853,7 @@ class DocumentParser
                     $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
                     break;
                 case '2':
-                    $cacheContent = serialize($this->documentObject['contentType']);
+                    $cacheContent = serialize($this->doc('contentType'));
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
                     $filename = hash('crc32b', request_uri());
                     break;
@@ -2069,7 +2065,7 @@ class DocumentParser
             if ($context) {
                 $value = $this->_contextValue(
                     sprintf('%s@%s', $key, $context),
-                    $this->documentObject['parent']
+                    $this->doc('parent')
                 );
             } else {
                 $value = $ph[$key];
@@ -3822,11 +3818,11 @@ class DocumentParser
             return false;
         }
         if ($pid == -1) {
-            if ($this->documentObject['parent'] == 0) {
+            if ($this->doc('parent') == 0) {
                 return false;
             }
             return $this->getPageInfo(
-                $this->documentObject['parent'],
+                $this->doc('parent'),
                 $activeOnly,
                 $fields
             );
