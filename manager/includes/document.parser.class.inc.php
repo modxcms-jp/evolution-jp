@@ -93,7 +93,7 @@ class DocumentParser
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
-    function __get($property_name)
+    public function __get($property_name)
     {
         if (isset($this->config[$property_name])) {
             return $this->config[$property_name];
@@ -159,8 +159,7 @@ class DocumentParser
         return '';
     }
 
-    // constructor
-    function __construct()
+    public function __construct()
     {
         if ($this->isLoggedIn()) {
             ini_set('display_errors', 1);
@@ -690,7 +689,7 @@ class DocumentParser
         return $content;
     }
 
-    function outputContent($noEvent = false)
+    private function outputContent($noEvent = false)
     {
         $content = $this->documentContent;
         $content = $this->mergeScripts($content);
@@ -814,7 +813,7 @@ class DocumentParser
         return $contents;
     }
 
-    function postProcess()
+    private function postProcess()
     {
         // if the current document was generated, cache it!
         if (
@@ -1256,7 +1255,7 @@ class DocumentParser
     }
 
     // check for manager login session
-    function isLoggedIn($context = 'mgr')
+    public function isLoggedIn($context = 'mgr')
     {
         if (stripos($context, 'm') === 0) {
             return $this->session('mgrValidated');
@@ -1298,7 +1297,7 @@ class DocumentParser
         return db()->getRow($rs);
     }
 
-    function checkSession()
+    public function checkSession()
     {
         return $this->isLoggedin();
     }
@@ -1317,7 +1316,7 @@ class DocumentParser
     }
 
     // check if site is offline
-    function checkSiteStatus()
+    private function checkSiteStatus()
     {
         // site online
         if ($this->config('site_status')) {
@@ -1401,7 +1400,7 @@ class DocumentParser
         return $this->getCache($id);
     }
 
-    function getCache($id)
+    private function getCache($id)
     {
         if (!$this->config('cache_type')) { // jp-edition only
             return '';
@@ -1522,7 +1521,7 @@ class DocumentParser
         return $a[1]; // return document content
     }
 
-    function updatePublishStatus()
+    public function updatePublishStatus()
     {
         $cache_path = MODX_CACHE_PATH . 'basicConfig.php';
         if ($this->cacheRefreshTime == '') {
@@ -1858,7 +1857,7 @@ class DocumentParser
         return true;
     }
 
-    function getAliasFromID($docid)
+    private function getAliasFromID($docid)
     {
 
         if (isset($this->aliaslist[$docid])) {
