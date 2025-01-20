@@ -753,7 +753,7 @@ class DocumentParser
                 )
             );
             header('Content-Length: ' . strlen($ob_get));
-            if ($this->doc('content_dispo', 1) == 1) {
+            if ($this->doc('content_dispo') == 1) {
                 if ($this->doc('alias')) {
                     $name = $this->doc('alias');
                 } else {
