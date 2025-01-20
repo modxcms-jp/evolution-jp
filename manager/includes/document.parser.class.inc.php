@@ -1302,7 +1302,7 @@ class DocumentParser
         return $this->isLoggedin();
     }
 
-    function checkPreview()
+    private function checkPreview()
     {
         if ($this->isLoggedin() != true) {
             return false;
@@ -1395,7 +1395,7 @@ class DocumentParser
         );
     }
 
-    function checkCache($id)
+    private function checkCache($id)
     {
         return $this->getCache($id);
     }
