@@ -267,6 +267,10 @@ class SubParser
     {
         global $modx;
 
+        if (!$modx->error_reporting && !$modx->isLoggedIn()) {
+            return true;
+        }
+
         $version = globalv('version', '');
         $release_date = globalv('release_date', '');
         $ua = hsc(serverv('HTTP_USER_AGENT'));
@@ -503,9 +507,6 @@ class SubParser
                 $error_level = 3;
         }
         $modx->logEvent(0, $error_level, $str, $title);
-        if ($modx->error_reporting === '99' && !isset($_SESSION['mgrValidated'])) {
-            return true;
-        }
 
         // Set 500 response header
         if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
