@@ -273,8 +273,8 @@ class SubParser
 
         $version = globalv('version', '');
         $release_date = globalv('release_date', '');
-        $ua = hsc(serverv('HTTP_USER_AGENT'));
-        $referer = hsc(serverv('HTTP_REFERER'));
+        $ua = hsc(serverv('HTTP_USER_AGENT', ''));
+        $referer = hsc(serverv('HTTP_REFERER', ''));
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
