@@ -172,30 +172,28 @@ class SubParser
             $title = 'DB connect error';
         }
         $modx->db->lastQuery = $_;
-        if (isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
-            if ($modx->config['send_errormail'] <= $type) {
-                $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
-                $body['Source'] = $fields['source'];
-                $body['IP'] = evo()->server('REMOTE_ADDR');
-                if (evo()->server('REMOTE_ADDR')) {
-                    $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
-                }
-                if ($hostname) {
-                    $body['Host name'] = $hostname;
-                }
-                if ($modx->event->activePlugin) {
-                    $body['Plugin'] = $modx->event->activePlugin;
-                }
-                if ($modx->currentSnippet) {
-                    $body['Snippet'] = $modx->currentSnippet;
-                }
-                $subject = 'Error mail from ' . $modx->config['site_name'];
-                foreach ($body as $k => $v) {
-                    $mailbody[] = sprintf('[%s] %s', $k, $v);
-                }
-                $mailbody = implode("\n", $mailbody);
-                $modx->sendmail($subject, $mailbody);
+        if (config('send_errormail') && config('send_errormail') <= $type) {
+            $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
+            $body['Source'] = $fields['source'];
+            $body['IP'] = evo()->server('REMOTE_ADDR');
+            if (evo()->server('REMOTE_ADDR')) {
+                $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
             }
+            if ($hostname) {
+                $body['Host name'] = $hostname;
+            }
+            if ($modx->event->activePlugin) {
+                $body['Plugin'] = $modx->event->activePlugin;
+            }
+            if ($modx->currentSnippet) {
+                $body['Snippet'] = $modx->currentSnippet;
+            }
+            $subject = 'Error mail from ' . $modx->config['site_name'];
+            foreach ($body as $k => $v) {
+                $mailbody[] = sprintf('[%s] %s', $k, $v);
+            }
+            $mailbody = implode("\n", $mailbody);
+            $modx->sendmail($subject, $mailbody);
         }
         if (!isset($insert_id) || !$insert_id) {
             exit('Error while inserting event log into database.');
