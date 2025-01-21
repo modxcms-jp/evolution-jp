@@ -352,6 +352,17 @@ class SubParser
                     'right' => $source
                 ]
             );
+        } elseif ($modx->currentSnippetCode) {
+            $lines = explode("\n", $modx->currentSnippetCode);
+            $str .= $modx->parseText(
+                $tpl,
+                [
+                    'left' => 'Source : ',
+                    'right' => sprintf(
+                        '[[%s]]: %s', $modx->currentSnippet, $lines[$line - 1]
+                    )
+                ]
+            );
         }
 
         if (db()->lastQuery) {
@@ -403,16 +414,6 @@ class SubParser
                             $resource['pagetitle']
                         )
                     )
-                ]
-            );
-        }
-
-        if ($modx->currentSnippet) {
-            $str .= $modx->parseText(
-                $tpl,
-                [
-                    'left' => 'Current Snippet : ',
-                    'right' => $modx->currentSnippet
                 ]
             );
         }
