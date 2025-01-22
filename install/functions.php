@@ -85,25 +85,27 @@ function mode($category)
 
 function compare_check($params)
 {
+    $category = $params['category'] ?? '';
+
     $where = array(
-        sprintf("`%s`='%s'", key_field($params['category']), $params['name'])
+        sprintf("`%s`='%s'", key_field($category), $params['name'])
     );
-    if ($params['category'] === 'plugin') {
+    if ($category === 'plugin') {
         $where[] = " AND `disabled`='0'";
     }
 
-    $rs = db()->select('*', "[+prefix+]" . table_name($params['category']), $where);
+    $rs = db()->select('*', "[+prefix+]" . table_name($category), $where);
     if (!$rs) {
         return 'no exists';
     }
 
-    if (mode($params['category']) === 'name_compare') {
+    if (mode($category) === 'name_compare') {
         return 'same';
     }
 
     $row = db()->getRow($rs);
 
-    if (mode($params['category']) === 'version_compare') {
+    if (mode($category) === 'version_compare') {
         $old_version = strip_tags(
             substr($row['description'], 0, strpos($row['description'], '</strong>'))
         );
