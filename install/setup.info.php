@@ -91,6 +91,7 @@ if (is_dir($snippetPath) && is_readable($snippetPath)) {
         if (!is_array($params) || !$params) {
             continue;
         }
+        $params['category'] = $params['category'] ?? 'snippet';
         if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
@@ -122,6 +123,7 @@ if (is_dir($pluginPath) && is_readable($pluginPath)) {
         if (!is_array($params) || !$params) {
             continue;
         }
+        $params['category'] = $params['category'] ?? 'plugin';
         if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
@@ -154,6 +156,7 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
         if (!is_array($params) || !$params) {
             continue;
         }
+        $params['category'] = $params['category'] ?? 'module';
         if (sessionv('is_upgradeable') && compare_check($params) === 'same') {
             continue;
         }
