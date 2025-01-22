@@ -148,57 +148,73 @@ function parse_docblock($fullpath)
     }
 
     $docblock_start_found = false;
-    $name_found = false;
-    $description_found = false;
 
     while (!feof($tpl)) {
         $line = fgets($tpl);
         if (!$docblock_start_found) {    // find docblock start
-            if (strpos($line, '/**') !== false) $docblock_start_found = true;
-            continue;
-        }
-
-        if (!$name_found) {    // find name
-            $ma = null;
-            if (preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
-                $params['name'] = trim($ma[1]);
-                $name_found = !empty($params['name']);
+            if (strpos($line, '/**') !== false) {
+                $docblock_start_found = true;
             }
             continue;
         }
 
-        if (!$description_found) {    // find description
-            $ma = null;
-            if (preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
-                $params['description'] = trim($ma[1]);
-                $description_found = !empty($params['description']);
+        if (!isset($params['name'])) {    // find name
+            $name = getString($line);
+            if ($name) {
+                $params['name'] = $name;
             }
             continue;
         }
 
-        $ma = null;
+        if (!isset($params['description'])) {    // find description
+            $description = getString($line);
+            if ($description) {
+                $params['description'] = $description;
+            }
+        }
+
+        $ma = [];
         if (preg_match("/^\s+\*\s+@([^\s]+)\s+(.+)/", $line, $ma)) {
             $param = trim($ma[1]);
             $val = trim($ma[2]);
-            if ($param && $val) {
-                if ($param === 'internal') {
-                    $ma = null;
-                    if (preg_match("/@([^\s]+)\s+(.+)/", $val, $ma)) {
-                        $param = trim($ma[1]);
-                        $val = trim($ma[2]);
-                    }
-                    if (!$param) {
-                        continue;
-                    }
-                }
-                $params[$param] = $val;
+
+            if (!$param || !$val) {
+                continue;
             }
-        } elseif (preg_match("/^\s*\*\/\s*$/", $line)) {
+
+            if ($param === 'internal') {
+                $ma = null;
+                if (preg_match("/@([^\s]+)\s+(.+)/", $val, $ma)) {
+                    $param = trim($ma[1]);
+                    $val = trim($ma[2]);
+                }
+                if (!$param) {
+                    continue;
+                }
+            }
+
+            $params[$param] = $val;
+
+            if (!isset($params['description'])) {
+                $params['description'] = '';
+            }
+
+            continue;
+        }
+
+        if (preg_match("/^\s*\*\/\s*$/", $line)) {
             break;
         }
     }
     @fclose($tpl);
     return $params;
+}
+
+function getString($line) {
+    if (!preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
+        return null;
+    }
+    return trim($ma[1]);
 }
 
 function clean_up($sqlParser)
