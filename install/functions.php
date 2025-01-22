@@ -57,25 +57,16 @@ function key_field($category = '')
 
 function table_name($category = '')
 {
-    if ($category === 'template') {
-        return 'site_templates';
-    }
-    if ($category === 'tv') {
-        return 'site_tmplvars';
-    }
-    if ($category === 'chunk') {
-        return 'site_htmlsnippets';
-    }
-    if ($category === 'snippet') {
-        return 'site_snippets';
-    }
-    if ($category === 'plugin') {
-        return 'site_plugins';
-    }
-    if ($category === 'module') {
-        return 'site_modules';
-    }
-    return '';
+    $table_names = [
+        'template' => 'site_templates',
+        'tv'       => 'site_tmplvars',
+        'chunk'    => 'site_htmlsnippets',
+        'snippet'  => 'site_snippets',
+        'plugin'   => 'site_plugins',
+        'module'   => 'site_modules'
+    ];
+
+    return $table_names[$category] ?? '';
 }
 
 function mode($category)
