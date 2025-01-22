@@ -204,7 +204,7 @@ function parse_docblock($fullpath)
 }
 
 function getString($line) {
-    if (!preg_match("/^\s+\*\s+(.+)/", $line, $ma)) {
+    if (!preg_match("/^\s+\*\s+([^@].+)/", $line, $ma)) {
         return null;
     }
     return trim($ma[1]);
