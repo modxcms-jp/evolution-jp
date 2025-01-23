@@ -4,14 +4,6 @@ if (!sessionv('database_server')) {
     exit('go to first step');
 }
 
-global $tplChunks;
-global $tplTemplates;
-global $tplSnippets;
-global $tplPlugins;
-global $tplModules;
-global $tplTVs;
-global $errors;
-
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
 require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
