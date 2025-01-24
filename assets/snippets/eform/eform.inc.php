@@ -803,7 +803,7 @@ function formMerge($docText, $docFields, $vClasses = '')
     foreach ($matches[1] as $iValue) {
         $name = $iValue;
         if (strpos($name, ':') !== false) {
-            list($listName, $listValue) = explode(':', $name);
+            [$listName, $listValue] = explode(':', $name);
         } else {
             $listName = $name;
         }
@@ -1170,7 +1170,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
     $fldMsg = trim($fld[4]);
     if (empty($fld[5])) return $output; //if no rule value validates
 
-    list($cmd, $param) = explode(" ", trim($fld[5]), 2);
+    [$cmd, $param] = explode(" ", trim($fld[5]), 2);
     $cmd = strtoupper(trim($cmd));
     if (substr($cmd, 0, 1) != '#') {
         $vMsg[count($vMsg)] = "$desc &raquo;" . $_lang['ef_error_validation_rule'];
@@ -1306,12 +1306,12 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
 
 function filterEformValue($value, $param)
 {
-    list($cmd, $param) = explode(" ", trim($param), 2);
+    [$cmd, $param] = explode(" ", trim($param), 2);
     $cmd = trim($cmd);
 
     switch (strtoupper($cmd)) {
         case "#REGEX":
-            list($src, $dst) = explode("||", $param, 2);
+            [$src, $dst] = explode("||", $param, 2);
             $value = ($v = preg_replace($src, $dst, $value)) ? $v : $value;
             break;
 
@@ -1368,7 +1368,7 @@ function efRegisterStartupBlock($src_array, $noScript = false)
     }
 
     foreach ($src_array as $item) {
-        list($src, $type) = $item;
+        [$src, $type] = $item;
         //skip scripts if told to do so
         if ($type === 'javascript' && $noScript) {
             continue;

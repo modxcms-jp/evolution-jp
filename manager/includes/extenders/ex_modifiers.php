@@ -781,7 +781,7 @@ class MODIFIERS
                 if (strpos($opt, ',') === false) {
                     return $this->substr($value, $opt);
                 }
-                list($b, $e) = explode(',', $opt, 2);
+                [$b, $e] = explode(',', $opt, 2);
                 return $this->substr($value, $b, (int)$e);
             case 'limit':
             case 'trim_to': // http://www.movabletype.jp/documentation/appendices/modifiers/trim_to.html
@@ -789,7 +789,7 @@ class MODIFIERS
                     $len = $opt;
                     $str = '';
                 } else {
-                    list($len, $str) = explode('+', $opt, 2);
+                    [$len, $str] = explode('+', $opt, 2);
                 }
                 if ($len === '') {
                     $len = 100;
@@ -824,7 +824,7 @@ class MODIFIERS
                 } else {
                     break;
                 }
-                list($s, $r) = explode($delim, $opt);
+                [$s, $r] = explode($delim, $opt);
                 if ($value !== '') {
                     return str_replace($s, $r, $value);
                 }
@@ -860,7 +860,7 @@ class MODIFIERS
                 if (empty($opt) || strpos($opt, ',') === false) {
                     break;
                 }
-                list($s, $r) = explode(',', $opt, 2);
+                [$s, $r] = explode(',', $opt, 2);
                 if ($value !== '') {
                     return preg_replace($s, $r, $value);
                 }

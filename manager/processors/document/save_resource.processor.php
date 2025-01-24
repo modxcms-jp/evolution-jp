@@ -787,7 +787,7 @@ function setDocPermissionsEdit($document_groups, $id)
     }
     $new_groups = [];
     foreach ($document_groups as $value_pair) {
-        list($group, $link_id) = explode(',', $value_pair);
+        [$group, $link_id] = explode(',', $value_pair);
         $new_groups[$group] = $link_id;
     }
     $insertions = [];

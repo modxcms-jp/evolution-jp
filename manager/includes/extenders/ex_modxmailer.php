@@ -210,7 +210,7 @@ class MODxMailer extends PHPMailer
         $address = trim($address);
         if (strpos($address, '<') !== false && substr($address, -1) === '>') {
             $address = rtrim($address, '>');
-            list($name, $address) = explode('<', $address);
+            [$name, $address] = explode('<', $address);
         } else {
             $name = '';
         }

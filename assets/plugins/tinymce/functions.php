@@ -358,7 +358,7 @@ class TinyMCE
         $ph['height'] = (!empty($params['height'])) ? $params['height'] : '300';
         $ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
         if (strpos($modx->config['mce_editor_skin'], ':') !== false) {
-            list($skin, $skin_variant) = explode(':', config('mce_editor_skin', 'default'));
+            [$skin, $skin_variant] = explode(':', config('mce_editor_skin', 'default'));
         } else $skin = $modx->config['mce_editor_skin'];
         $ph['skin'] = $skin;
         $ph['skin_variant'] = $skin_variant ?? '';

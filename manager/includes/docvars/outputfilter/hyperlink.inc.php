@@ -3,7 +3,7 @@ if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
 $urls = $this->parseInput($value, '||', 'array');
 foreach ($urls as $url) {
-    list($name, $url) = is_array($url) ? $url : explode('==', $url);
+    [$name, $url] = is_array($url) ? $url : explode('==', $url);
     if (!$url) $url = $name;
     if ($url) {
         if ($o) $o .= '<br />';

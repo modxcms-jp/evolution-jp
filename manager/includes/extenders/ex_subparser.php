@@ -52,30 +52,30 @@ class SubParser
         $sendto = !isset($p['to']) ? $modx->config['emailsender'] : $p['to'];
         $sendto = explode(',', $sendto);
         foreach ($sendto as $address) {
-            list($name, $address) = $modx->mail->address_split($address);
+            [$name, $address] = $modx->mail->address_split($address);
             $modx->mail->AddAddress($address, $name);
         }
         if (isset($p['cc'])) {
             $p['cc'] = explode(',', $p['cc']);
             foreach ($p['cc'] as $address) {
-                list($name, $address) = $modx->mail->address_split($address);
+                [$name, $address] = $modx->mail->address_split($address);
                 $modx->mail->AddCC($address, $name);
             }
         }
         if (isset($p['bcc'])) {
             $p['bcc'] = explode(',', $p['bcc']);
             foreach ($p['bcc'] as $address) {
-                list($name, $address) = $modx->mail->address_split($address);
+                [$name, $address] = $modx->mail->address_split($address);
                 $modx->mail->AddBCC($address, $name);
             }
         }
         if (isset($p['replyto'])) {
-            list($name, $address) = $modx->mail->address_split($p['replyto']);
+            [$name, $address] = $modx->mail->address_split($p['replyto']);
             $modx->mail->addReplyTo($address, $name);
         }
 
         if (isset($p['from']) && strpos($p['from'], '<') !== false && substr($p['from'], -1) === '>') {
-            list($p['fromname'], $p['from']) = $modx->mail->address_split($p['from']);
+            [$p['fromname'], $p['from']] = $modx->mail->address_split($p['from']);
         }
         $modx->mail->From = !isset($p['from']) ? $modx->config['emailsender'] : $p['from'];
         $modx->mail->FromName = !isset($p['fromname']) ? $modx->config['site_name'] : $p['fromname'];
@@ -660,7 +660,7 @@ class SubParser
             } elseif (preg_match('@^[1-9][0-9]*$@', $url)) {
                 $url = $modx->makeUrl($url);
             } elseif (preg_match('@^[1-9][0-9]*\?@', $url)) {
-                list($url, $args) = explode('?', $url, 2);
+                [$url, $args] = explode('?', $url, 2);
                 $url = $modx->makeUrl($url, '', $args, 'full');
             }
 
@@ -1500,7 +1500,7 @@ class SubParser
         $field_values = explode('||', $field_value);
         $options = [];
         foreach ($index_list as $item) {
-            list($label, $value) = $this->splitOption($item);
+            [$label, $value] = $this->splitOption($item);
             $options[] = evo()->parseText(
                 '<option value="[+value+]" [+selected+]>[+label+]</option>',
                 [
@@ -1539,7 +1539,7 @@ class SubParser
         $field_html = '';
         $i = 0;
         foreach ($index_list as $item) {
-            list($label, $value) = $this->splitOption($item);
+            [$label, $value] = $this->splitOption($item);
             $field_html .= evo()->parseText(
                 $tpl,
                 [
@@ -1566,7 +1566,7 @@ class SubParser
         $field_html = '';
         $tpl = file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_radio.tpl');
         foreach ($index_list as $item) {
-            list($label, $value) = $this->splitOption($item);
+            [$label, $value] = $this->splitOption($item);
             $field_html .= evo()->parseText(
                 $tpl,
                 [
@@ -1750,7 +1750,7 @@ class SubParser
             if (strpos($value, '==') === false) {
                 $label = $value;
             } else {
-                list($label, $value) = explode('==', $value, 2);
+                [$label, $value] = explode('==', $value, 2);
             }
         }
         return [trim($label), trim($value)];
@@ -2609,11 +2609,11 @@ class SubParser
                         break;
                     }
                     $key = substr($key, 1);
-                    list($body, $remain) = explode($delim, $key, 2);
+                    [$body, $remain] = explode($delim, $key, 2);
                     $key = str_replace(':', hash('crc32b', ':'), $body) . $remain;
             }
             if (strpos($key, ':') !== false) {
-                list($key, $modifiers) = explode(':', $key, 2);
+                [$key, $modifiers] = explode(':', $key, 2);
             } else {
                 $modifiers = false;
             }

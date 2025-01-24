@@ -145,7 +145,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
     global $privateweb, $privatemgr;
     while ($row = db()->getRow($result, 'num')):
         $loop_count++;
-        list($id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft) = $row;
+        [$id, $pagetitle, $menutitle, $parent, $isfolder, $published, $deleted, $type, $menuindex, $hidemenu, $alias, $contenttype, $privateweb, $privatemgr, $hasAccess, $hasDraft] = $row;
         $nodetitle = getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $isfolder);
 
         $class = getClassName($published, $deleted, $hidemenu, $hasAccess);
