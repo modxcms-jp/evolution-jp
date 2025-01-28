@@ -181,14 +181,13 @@ function save_settiongs()
                 }
                 break;
             case 'smtppw':
-                if ($v !== '********************') {
-                    $v = trim($v);
-                    $v = base64_encode($v) . substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'),
-                            0, 7);
-                    $v = str_replace('=', '%', $v);
-                } else {
-                    $k = '';
+                if ($v === '********************') {
+                    continue 2;
                 }
+                $v = trim($v);
+                $v = base64_encode($v) . substr(str_shuffle('abcdefghjkmnpqrstuvxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'),
+                        0, 7);
+                $v = str_replace('=', '%', $v);
                 break;
             case 'a':
             case 'reload_site_unavailable':
