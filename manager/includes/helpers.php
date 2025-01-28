@@ -476,7 +476,15 @@ function request_uri()
 
 function request_time()
 {
-    return serverv('request_time', time());
+    static $request_time = null;
+
+    if ($request_time) {
+        return $request_time;
+    }
+
+    $request_time = serverv('request_time') ?: time();
+
+    return $request_time;
 }
 
 function real_ip()
