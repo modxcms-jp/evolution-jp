@@ -83,10 +83,10 @@ function formv($key, $default = null)
 function warnings()
 {
     $warnings = [];
-    if (!is_dir(formv('filemanager_path'))) {
+    if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('filemanager_path')))) {
         $warnings[] = lang('configcheck_filemanager_path');
     }
-    if (!is_dir(formv('rb_base_dir'))) {
+    if (!is_dir(str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir')))) {
         $warnings[] = lang('configcheck_rb_base_dir');
     }
     if (formv('friendly_urls') != 1 || strpos(serverv('SERVER_SOFTWARE'), 'IIS') !== false) {
