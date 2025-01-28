@@ -41,6 +41,7 @@ class DocumentParser
     public $executedQueries;
     public $queryTime;
     public $currentSnippet;
+    public $currentSnippetCode;
     public $aliases;
     public $entrypage;
     public $dumpSQL;
@@ -165,7 +166,7 @@ class DocumentParser
             ini_set('display_errors', 1);
         }
         if (!defined('MODX_SETUP_PATH')) {
-            set_error_handler([&$this, 'phpError'], E_ALL); //error_reporting(0);
+            set_error_handler([&$this, 'phpError'], E_ALL & ~E_NOTICE); //error_reporting(0);
         }
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI'); // load DBAPI class
@@ -2716,8 +2717,10 @@ class DocumentParser
 
     public function evalSnippet($phpcode, $params)
     {
+        $this->currentSnippetCode = $phpcode;
         $phpcode = trim($phpcode);
         if (empty($phpcode)) {
+            $this->currentSnippetCode = '';
             return '';
         }
 

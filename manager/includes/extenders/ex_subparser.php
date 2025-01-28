@@ -172,30 +172,28 @@ class SubParser
             $title = 'DB connect error';
         }
         $modx->db->lastQuery = $_;
-        if (isset($modx->config['send_errormail']) && $modx->config['send_errormail'] !== '0') {
-            if ($modx->config['send_errormail'] <= $type) {
-                $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
-                $body['Source'] = $fields['source'];
-                $body['IP'] = evo()->server('REMOTE_ADDR');
-                if (evo()->server('REMOTE_ADDR')) {
-                    $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
-                }
-                if ($hostname) {
-                    $body['Host name'] = $hostname;
-                }
-                if ($modx->event->activePlugin) {
-                    $body['Plugin'] = $modx->event->activePlugin;
-                }
-                if ($modx->currentSnippet) {
-                    $body['Snippet'] = $modx->currentSnippet;
-                }
-                $subject = 'Error mail from ' . $modx->config['site_name'];
-                foreach ($body as $k => $v) {
-                    $mailbody[] = sprintf('[%s] %s', $k, $v);
-                }
-                $mailbody = implode("\n", $mailbody);
-                $modx->sendmail($subject, $mailbody);
+        if (config('send_errormail') && config('send_errormail') <= $type) {
+            $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
+            $body['Source'] = $fields['source'];
+            $body['IP'] = evo()->server('REMOTE_ADDR');
+            if (evo()->server('REMOTE_ADDR')) {
+                $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
             }
+            if ($hostname) {
+                $body['Host name'] = $hostname;
+            }
+            if ($modx->event->activePlugin) {
+                $body['Plugin'] = $modx->event->activePlugin;
+            }
+            if ($modx->currentSnippet) {
+                $body['Snippet'] = $modx->currentSnippet;
+            }
+            $subject = 'Error mail from ' . $modx->config['site_name'];
+            foreach ($body as $k => $v) {
+                $mailbody[] = sprintf('[%s] %s', $k, $v);
+            }
+            $mailbody = implode("\n", $mailbody);
+            $modx->sendmail($subject, $mailbody);
         }
         if (!isset($insert_id) || !$insert_id) {
             exit('Error while inserting event log into database.');
@@ -267,10 +265,14 @@ class SubParser
     {
         global $modx;
 
+        if (!$modx->error_reporting && !$modx->isLoggedIn()) {
+            return true;
+        }
+
         $version = globalv('version', '');
         $release_date = globalv('release_date', '');
-        $ua = hsc(serverv('HTTP_USER_AGENT'));
-        $referer = hsc(serverv('HTTP_REFERER'));
+        $ua = hsc(serverv('HTTP_USER_AGENT', ''));
+        $referer = hsc(serverv('HTTP_REFERER', ''));
         if ($is_error) {
             $str = '<h3 style="color:red">&laquo; MODX Parse Error &raquo;</h3>
                     <table border="0" cellpadding="1" cellspacing="0">
@@ -350,6 +352,17 @@ class SubParser
                     'right' => $source
                 ]
             );
+        } elseif ($modx->currentSnippetCode) {
+            $lines = explode("\n", $modx->currentSnippetCode);
+            $str .= $modx->parseText(
+                $tpl,
+                [
+                    'left' => 'Source : ',
+                    'right' => sprintf(
+                        '[[%s]]: %s', $modx->currentSnippet, $lines[$line - 1]
+                    )
+                ]
+            );
         }
 
         if (db()->lastQuery) {
@@ -401,16 +414,6 @@ class SubParser
                             $resource['pagetitle']
                         )
                     )
-                ]
-            );
-        }
-
-        if ($modx->currentSnippet) {
-            $str .= $modx->parseText(
-                $tpl,
-                [
-                    'left' => 'Current Snippet : ',
-                    'right' => $modx->currentSnippet
                 ]
             );
         }
@@ -503,9 +506,6 @@ class SubParser
                 $error_level = 3;
         }
         $modx->logEvent(0, $error_level, $str, $title);
-        if ($modx->error_reporting === '99' && !isset($_SESSION['mgrValidated'])) {
-            return true;
-        }
 
         // Set 500 response header
         if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
