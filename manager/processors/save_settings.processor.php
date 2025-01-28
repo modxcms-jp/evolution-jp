@@ -75,7 +75,7 @@ function setModifiedConfig($form_v, $defaut_v)
 function formv($key, $default = null)
 {
     if (in_array($key, ['filemanager_path', 'rb_base_dir'])) {
-        return str_replace('[(base_path)]', MODX_BASE_PATH, postv($key));
+        return str_replace(MODX_BASE_PATH, '[(base_path)]', postv($key));
     }
     return postv($key, $default);
 }
@@ -149,12 +149,16 @@ function save_settiongs()
                 }
                 break;
             case 'site_url':
-            case 'rb_base_dir':
             case 'rb_base_url':
+                $v = rtrim($v, '/') . '/';
+                break;
+            case 'rb_base_dir':
             case 'filemanager_path':
-                $v = formv($k);
-                if ($v !== '') {
+                if ($v !== '[(base_path)]') {
                     $v = rtrim($v, '/') . '/';
+                }
+                if (strpos($v, MODX_BASE_PATH) === 0) {
+                    $v = '[(base_path)]' . substr($v, strlen('[(base_path)]'));
                 }
                 break;
             case 'error_page':
