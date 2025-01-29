@@ -4336,10 +4336,10 @@ class DocumentParser
 
     public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
     {
-        global $modx, $_lc;
+        global $_lc;
 
         if (stripos($format, '%a') !== false) {
-            $modx->loadLexicon('locale');
+            $this->loadLexicon('locale');
         }
 
         if (isset($_lc['days.short'])) {
@@ -4402,6 +4402,7 @@ class DocumentParser
             '%%' => '%',
             '%-m' => $date->format('n'),
             '%-d' => $date->format('j'),
+            '%曜' => ['日', '月', '火', '水', '木', '金', '土'][$date->format('w')],
             // 必要に応じて他のフォーマットも追加
         ];
 
