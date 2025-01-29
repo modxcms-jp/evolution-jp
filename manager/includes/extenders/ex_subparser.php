@@ -49,7 +49,7 @@ class SubParser
         }
 
         evo()->loadExtension('MODxMailer');
-        $sendto = !isset($p['to']) ? $modx->config['emailsender'] : $p['to'];
+        $sendto = !isset($p['to']) ? evo()->config('emailsender') : $p['to'];
         $sendto = explode(',', $sendto);
         foreach ($sendto as $address) {
             [$name, $address] = $modx->mail->address_split($address);
@@ -77,9 +77,9 @@ class SubParser
         if (isset($p['from']) && strpos($p['from'], '<') !== false && substr($p['from'], -1) === '>') {
             [$p['fromname'], $p['from']] = $modx->mail->address_split($p['from']);
         }
-        $modx->mail->From = !isset($p['from']) ? $modx->config['emailsender'] : $p['from'];
-        $modx->mail->FromName = !isset($p['fromname']) ? $modx->config['site_name'] : $p['fromname'];
-        $modx->mail->Subject = !isset($p['subject']) ? $modx->config['emailsubject'] : $p['subject'];
+        $modx->mail->From = !isset($p['from']) ? evo()->config('emailsender') : $p['from'];
+        $modx->mail->FromName = !isset($p['fromname']) ? evo()->config('site_name') : $p['fromname'];
+        $modx->mail->Subject = !isset($p['subject']) ? evo()->config('emailsubject') : $p['subject'];
         $modx->mail->Body = $p['body'];
         if (isset($p['type']) && $p['type'] === 'text') {
             $modx->mail->IsHTML(false);
@@ -188,7 +188,7 @@ class SubParser
             if ($modx->currentSnippet) {
                 $body['Snippet'] = $modx->currentSnippet;
             }
-            $subject = 'Error mail from ' . $modx->config['site_name'];
+            $subject = 'Error mail from ' . evo()->config('site_name');
             foreach ($body as $k => $v) {
                 $mailbody[] = sprintf('[%s] %s', $k, $v);
             }
@@ -199,9 +199,9 @@ class SubParser
             exit('Error while inserting event log into database.');
         }
 
-        $trim = isset($modx->config['event_log_trim']) ? (int)$modx->config['event_log_trim'] : 100;
+        $trim = (int)evo()->config('event_log_trim', 100);
         if (($insert_id % $trim) == 0) {
-            $limit = (isset($modx->config['event_log_limit'])) ? (int)$modx->config['event_log_limit'] : 2000;
+            $limit = (int)evo()->config('event_log_limit', 2000);
             $modx->rotate_log('event_log', $limit, $trim);
         }
     }
@@ -212,8 +212,8 @@ class SubParser
 
         if (!is_array($params) && preg_match('@^[1-9][0-9]*$@', $params)) {
             $docid = $params;
-            if ($modx->config['cache_type'] == 2) {
-                $url = $modx->config['base_url'] . $modx->makeUrl($docid, '', '', 'root_rel');
+            if ($modx->config('cache_type') == 2) {
+                $url = evo()->config('base_url') . $modx->makeUrl($docid, '', '', 'root_rel');
                 $filename = hash('crc32b', $url);
             } else {
                 $filename = "docid_{$docid}";
@@ -521,7 +521,7 @@ class SubParser
                 echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
                 echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
                 echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
-                MODX_SITE_URL, $modx->config['manager_theme']);
+                MODX_SITE_URL, evo()->config('manager_theme'));
                 echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
                 echo '</head><body>';
             }
@@ -753,11 +753,9 @@ class SubParser
     function sendUnavailablePage()
     {
         global $modx;
-        if ($modx->config['site_unavailable_page']) {
-            $dist = $modx->config['site_unavailable_page'];
-        } else {
-            $dist = $modx->config['site_start'];
-        }
+
+        $dist = evo()->config('site_unavailable_page') ?: evo()->config('site_start');
+
         $modx->http_status_code = '503';
         $modx->sendForward($dist, 'HTTP/1.0 503 Service Unavailable');
     }
@@ -765,6 +763,7 @@ class SubParser
     function sendErrorPage()
     {
         global $modx;
+
         evo()->invokeEvent('OnPageNotFound');
 
         $modx->http_status_code = '404';
@@ -777,16 +776,17 @@ class SubParser
     function sendUnauthorizedPage()
     {
         global $modx;
+
         // invoke OnPageUnauthorized event
         $_REQUEST['refurl'] = $modx->documentIdentifier;
         evo()->invokeEvent('OnPageUnauthorized');
 
-        if ($modx->config['unauthorized_page']) {
-            $dist = $modx->config['unauthorized_page'];
-        } elseif ($modx->config['error_page']) {
-            $dist = $modx->config['error_page'];
+        if (evo()->config('unauthorized_page')) {
+            $dist = evo()->config('unauthorized_page');
+        } elseif (evo()->config('error_page')) {
+            $dist = evo()->config('error_page');
         } else {
-            $dist = $modx->config['site_start'];
+            $dist = evo()->config('site_start');
         }
         $modx->http_status_code = '403';
         $modx->sendForward($dist, 'HTTP/1.1 403 Forbidden');
@@ -815,8 +815,6 @@ class SubParser
     # Change current web user's password - returns true if successful, oterhwise return error message
     function changeWebUserPassword($oldPwd, $newPwd)
     {
-        global $modx;
-
         if ($_SESSION['webValidated'] != 1) {
             return false;
         }
@@ -1028,13 +1026,11 @@ class SubParser
 
     function checkPermissions($docid = false, $duplicateDoc = false)
     {
-        global $modx;
-
         if (strpos($docid, ',') !== false) {
             $docid = substr($docid, 0, strpos($docid, ','));
         }
 
-        $allowroot = $modx->config['udperms_allowroot'];
+        $allowroot = evo()->config('udperms_allowroot');
 
         if (evo()->hasPermission('save_role')) {
             return true;
@@ -1044,7 +1040,7 @@ class SubParser
             return true;
         }
 
-        if (empty($modx->config['use_udperms'])) {
+        if (!evo()->config('use_udperms')) {
             return true;
         }
 
@@ -1095,7 +1091,7 @@ class SubParser
         $docid = (int)$docid ? (int)$docid : $modx->documentIdentifier;
         $input = trim($input);
 
-        if (strpos($input, '@') === 0 && $modx->config['enable_bindings'] != 1 && $src === 'docform') {
+        if (strpos($input, '@') === 0 && evo()->config('enable_bindings') != 1 && $src === 'docform') {
             return '@Bindings is disabled.';
         }
 
@@ -1465,7 +1461,7 @@ class SubParser
 
     private function rendarFormDate($field_type, $field_id, $field_value, $field_style)
     {
-        $format = evo()->config['datetime_format'];
+        $format = evo()->config('datetime_format');
         if ($field_type === 'date') {
             $format .= ' hh:mm:00';
         }
@@ -1481,7 +1477,7 @@ class SubParser
                 'style'           => $field_style,
                 'tvtype'          => $field_type,
                 'cal_nodate'      => style('icons_cal_nodate'),
-                'yearOffset'      => evo()->config['datepicker_offset'],
+                'yearOffset'      => evo()->config('datepicker_offset'),
                 'datetime_format' => $format,
                 'timepicker'      => $field_type === 'date' ? 'true' : 'false'
             ]
@@ -1843,8 +1839,6 @@ class SubParser
     # returns true if the current web user is a member the specified groups
     function isMemberOfWebGroup($groupNames = [])
     {
-        global $modx;
-
         if (!is_array($groupNames)) {
             return false;
         }
@@ -1872,8 +1866,6 @@ class SubParser
     # Returns a record for the web user
     function getWebUserInfo($uid)
     {
-        global $modx;
-
         $field = 'wu.username, wu.password, wua.*';
         $from = '[+prefix+]web_users wu INNER JOIN [+prefix+]web_user_attributes wua ON wua.internalkey=wu.id';
         $rs = db()->select($field, $from, "wu.id='$uid'");
@@ -2173,7 +2165,7 @@ class SubParser
         }
 
         if (!isset($input['id']) || empty($input['id'])) {
-            $input['id'] = $modx->config['site_start'];
+            $input['id'] = evo()->config('site_start');
         }
 
         $modx->documentIdentifier = $input['id'];
@@ -2220,13 +2212,7 @@ class SubParser
 
     function loadLexicon($target = 'manager')
     {
-        global $modx;
-
-        if (!isset($modx->config['manager_language'])) {
-            $langname = 'english';
-        } else {
-            $langname = $modx->config['manager_language'];
-        }
+        $langname = evo()->config('manager_language', 'english');
 
         if ($target === 'manager') {
             global $_lang, $modx_manager_charset, $modx_lang_attribute, $modx_textdir;
@@ -2277,14 +2263,14 @@ class SubParser
             $target = substr(strtolower($target), 0, 1);
         }
 
-        if (!isset($modx->config['snapshot_path']) || empty($modx->config['snapshot_path'])) {
+        if (!evo()->config('snapshot_path')) {
             if (is_dir(MODX_BASE_PATH . 'temp/backup')) {
                 $snapshot_path = MODX_BASE_PATH . 'temp/backup/';
             } elseif (is_dir(MODX_BASE_PATH . 'assets/backup')) {
                 $snapshot_path = MODX_BASE_PATH . 'assets/backup/';
             }
         } else {
-            $snapshot_path = $modx->config['snapshot_path'];
+            $snapshot_path = evo()->config('snapshot_path');
         }
 
         if ($filename === '') {
@@ -2325,7 +2311,7 @@ class SubParser
             $modx->version['branch'] = isset($modx_branch) ? $modx_branch : '';
             $modx->version['release_date'] = isset($modx_release_date) ? $modx_release_date : '';
             $modx->version['full_appname'] = isset($modx_full_appname) ? $modx_full_appname : '';
-            $modx->version['new_version'] = isset($modx->config['newversiontext']) ? $modx->config['newversiontext'] : '';
+            $modx->version['new_version'] = evo()->config('newversiontext', '');
         }
         return ($data !== null && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
     }
@@ -2504,7 +2490,6 @@ class SubParser
         }
 
         ob_start();
-        global $modx;
         $result = include($file_path);
         if ($result === 1) {
             $result = '';
