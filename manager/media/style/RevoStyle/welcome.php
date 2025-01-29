@@ -241,12 +241,12 @@ function tabOnlineUser()
                 $webicon,
                 abs($row['internalKey']),
                 $row['ip'],
-                evo()->mb_strftime('%H:%M:%S', $row['lasthit'] + config('server_offset_time')),
+                date('H:i:s', $row['lasthit'] + config('server_offset_time')),
                 $currentaction
             );
         }
         if (!empty($tr)) $ph['userlist'] = join("\n", $tr);
-        $ph['now'] = evo()->mb_strftime('%H:%M:%S', time() + config('server_offset_time'));
+        $ph['now'] = date('H:i:s', time() + config('server_offset_time'));
         $tpl = <<< TPL
 <p>[+onlineusers_message+]<b>[+now+]</b>)</p>
 <table width="100%" class="grid">
