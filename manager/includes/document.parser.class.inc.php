@@ -4400,6 +4400,8 @@ class DocumentParser
             '%x' => $date->format('Y-m-d'),
             '%X' => $date->format('H:i:s'),
             '%%' => '%',
+            '%-m' => $date->format('n'),
+            '%-d' => $date->format('j'),
             // 必要に応じて他のフォーマットも追加
         ];
 
