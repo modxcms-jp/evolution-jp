@@ -61,33 +61,16 @@ global $database_connection_method, $lastInstallTime;
                         lang('udperms_title'),
                         config('use_udperms') == 1 ? lang('enabled') : lang('disabled')
                     );
-                    echo render_tr(
-                        lang('servertime'),
-                        evo()->mb_strftime('%H:%M:%S', time())
-                    );
-                    echo render_tr(
-                        lang('localtime'),
-                        evo()->mb_strftime(
-                            '%H:%M:%S',
-                            time() + config('server_offset_time')
-                        )
-                    );
+                    echo render_tr(lang('servertime'), date('H:i:s'));
+                    echo render_tr(lang('localtime'), date('H:i:s'));
                     echo render_tr(
                         lang('serveroffset'),
                         (config('server_offset_time') / (60 * 60)) . ' h'
                     );
-                    echo render_tr(
-                        lang('database_name'),
-                        db()->dbname
-                    );
-                    echo render_tr(
-                        lang('database_server'),
-                        db()->hostname
-                    );
-                    echo render_tr(
-                        lang('database_version'),
-                        db()->getVersion()
-                    );
+                    echo render_tr(lang('database_name'), db()->dbname);
+                    echo render_tr(lang('database_server'), db()->hostname);
+                    echo render_tr(lang('database_version'), db()->getVersion());
+
                     $rs = db()->query(
                         "show variables like 'character_set_database'"
                     );
@@ -351,8 +334,8 @@ global $database_connection_method, $lastInstallTime;
             <div class="sectionBody" id="lyr5">
 
                 <?php
-                $html = lang('onlineusers_message') . '<b>' . evo()->mb_strftime(
-                    '%H:%M:%S',
+                $html = lang('onlineusers_message') . '<b>' . date(
+                    'H:i:s',
                     time() + config('server_offset_time')
                 ) . '</b>):<br /><br />
 				<table class="grid">
@@ -396,8 +379,8 @@ global $database_connection_method, $lastInstallTime;
                             $webicon,
                             abs($activeusers['internalKey']),
                             $activeusers['ip'],
-                            evo()->mb_strftime(
-                                '%H:%M:%S',
+                            date(
+                                'H:i:s',
                                 $activeusers['lasthit'] + config('server_offset_time')
                             ),
                             $currentaction,
