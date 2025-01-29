@@ -1095,6 +1095,11 @@ class SubParser
         }
 
         list ($CMD, $param) = $this->splitTVCommand($input);
+
+        if (!$CMD) {
+            return $input;
+        }
+
         $CMD = '@' . trim($CMD);
         $param = trim($param);
         switch ($CMD) {
