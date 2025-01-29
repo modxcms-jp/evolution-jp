@@ -1389,12 +1389,15 @@ class ditto
     function mb_strftime($format = '', $timestamp = '')
     {
         global $modx;
-        return method_exists($modx, 'mb_strftime')
-            ? evo()->mb_strftime($format, $timestamp)
-            : (new DateTime())->setTimestamp($timestamp)->format(
-                !empty($format)
-                    ? $format
-                    : evo()->toDateFormat(null, 'formatOnly') . ' %H:%M'
-            );
+        if (method_exists($modx, 'mb_strftime')) {
+            return evo()->mb_strftime($format, $timestamp);
+        }
+
+        $dateTime = new DateTime();
+        $dateTime->setTimestamp($timestamp);
+
+        $dateFormat = $format?: evo()->toDateFormat(null, 'formatOnly') . ' %H:%M';
+
+        return $dateTime->format($dateFormat);
     }
 }
