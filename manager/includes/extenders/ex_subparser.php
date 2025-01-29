@@ -1094,7 +1094,7 @@ class SubParser
             return '@Bindings is disabled.';
         }
 
-        list ($CMD, $param) = $this->splitTVCommand($input);
+        [$CMD, $param] = $this->splitTVCommand($input);
 
         if (!$CMD) {
             return $input;
