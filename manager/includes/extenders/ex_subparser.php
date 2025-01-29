@@ -1212,7 +1212,7 @@ class SubParser
     function splitTVCommand($binding_string)
     {
         if (strpos($binding_string, '@') !== 0) {
-            return [];
+            return [null, null];
         }
         if (strpos($binding_string, '@INHERIT') === 0) {
             return ['INHERIT', ''];
@@ -1232,7 +1232,7 @@ class SubParser
             $binding_array = [$CMD, trim($code)];
             break;
         }
-        return $binding_array;
+        return $binding_array ?: [null, null];
     }
 
     function getExtention($str)
