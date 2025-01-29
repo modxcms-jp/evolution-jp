@@ -808,8 +808,7 @@ class SubParser
 
     function getSnippetName()
     {
-        global $modx;
-        return $modx->currentSnippet;
+        return evo()->currentSnippet;
     }
 
     # Change current web user's password - returns true if successful, oterhwise return error message
@@ -1322,7 +1321,7 @@ class SubParser
         $row = []
     )
     {
-        global $modx, $_lang, $content;
+        global $modx, $content;
 
         $field_type = strtolower($field_type);
 
