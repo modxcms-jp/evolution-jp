@@ -123,7 +123,7 @@ class TinyMCE
         $params['mce_template_chunks'] = config('mce_template_chunks');
 
         // language settings
-        if (!@include($mce_path . "lang/" . $modx->config['manager_language'] . '.inc.php')) {
+        if (!@include($mce_path . "lang/" . evo()->config('manager_language') . '.inc.php')) {
             include_once("{$mce_path}lang/english.inc.php");
         }
 
@@ -155,7 +155,7 @@ class TinyMCE
                 ]
             ) . "\n";
         }
-        $ph['display'] = $modx->config['use_editor'] == 1 ? 'table-row' : 'none';
+        $ph['display'] = evo()->config('use_editor') == 1 ? 'table-row' : 'none';
 
         $ph['theme_options'] = implode("\n", $themeOptions);
         $ph['skin_options'] = $this->get_skin_names();
@@ -244,26 +244,26 @@ class TinyMCE
         $mce_path = $params['mce_path'];
         $mce_url = $params['mce_url'];
 
-        $params['css_selectors'] = $modx->config['tinymce_css_selectors'];
-        $params['use_browser'] = $modx->config['use_browser'];
-        $params['editor_css_path'] = $modx->config['editor_css_path'];
+        $params['css_selectors']   = evo()->config('tinymce_css_selectors');
+        $params['use_browser']     = evo()->config('use_browser');
+        $params['editor_css_path'] = evo()->config('editor_css_path');
 
         if ($modx->isBackend() || (getv('quickmanagertv') == 1 && isset($_SESSION['mgrValidated']))) {
-            $params['theme'] = $modx->config['tinymce_editor_theme'];
-            $params['mce_editor_skin'] = $modx->config['mce_editor_skin'];
-            $params['mce_entermode'] = $modx->config['mce_entermode'];
-            $params['language'] = $this->get_lang($modx->config['manager_language']);
-            $params['frontend'] = false;
-            $params['custom_plugins'] = $modx->config['tinymce_custom_plugins'];
-            $params['custom_buttons1'] = $modx->config['tinymce_custom_buttons1'];
-            $params['custom_buttons2'] = $modx->config['tinymce_custom_buttons2'];
-            $params['custom_buttons3'] = $modx->config['tinymce_custom_buttons3'];
-            $params['custom_buttons4'] = $modx->config['tinymce_custom_buttons4'];
-            $params['toolbar_align'] = $modx->config['manager_direction'] === 'rtl' ? 'rtl' : 'ltr';
-            $params['webuser'] = null;
+            $params['theme']           = evo()->config('tinymce_editor_theme');
+            $params['mce_editor_skin'] = evo()->config('mce_editor_skin');
+            $params['mce_entermode']   = evo()->config('mce_entermode');
+            $params['language']        = $this->get_lang(evo()->config('manager_language'));
+            $params['frontend']        = false;
+            $params['custom_plugins']  = evo()->config('tinymce_custom_plugins');
+            $params['custom_buttons1'] = evo()->config('tinymce_custom_buttons1');
+            $params['custom_buttons2'] = evo()->config('tinymce_custom_buttons2');
+            $params['custom_buttons3'] = evo()->config('tinymce_custom_buttons3');
+            $params['custom_buttons4'] = evo()->config('tinymce_custom_buttons4');
+            $params['toolbar_align']   = evo()->config('manager_direction') === 'rtl' ? 'rtl' : 'ltr';
+            $params['webuser']         = null;
         } else {
-            $frontend_language = isset($modx->config['fe_editor_lang']) ? $modx->config['fe_editor_lang'] : '';
-            $webuser = (isset($modx->config['rb_webuser']) ? $modx->config['rb_webuser'] : null);
+            $frontend_language = evo()->config('fe_editor_lang', '');
+            $webuser           = evo()->config('rb_webuser');
 
             $params['theme'] = $params['webtheme'];
             $params['webuser'] = $webuser;
@@ -322,7 +322,7 @@ class TinyMCE
                             else                  $buttons1 .= ',fullpage';
                         }
                     }
-                    if (empty($modx->config['mce_template_docs']) && empty($modx->config['mce_template_chunks'])) {
+                    if (!evo()->config('mce_template_docs') && !evo()->config('mce_template_chunks')) {
                         $plugins = str_replace(
                             array('template', ',,'),
                             array('', ','),
@@ -357,9 +357,9 @@ class TinyMCE
         $ph['width'] = (!empty($params['width'])) ? $params['width'] : '100%';
         $ph['height'] = (!empty($params['height'])) ? $params['height'] : '300';
         $ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
-        if (strpos($modx->config['mce_editor_skin'], ':') !== false) {
-            list($skin, $skin_variant) = explode(':', config('mce_editor_skin', 'default'));
-        } else $skin = $modx->config['mce_editor_skin'];
+        if (strpos(evo()->config('mce_editor_skin'), ':') !== false) {
+            [$skin, $skin_variant] = explode(':', evo()->config('mce_editor_skin', 'default'));
+        } else $skin = evo()->config('mce_editor_skin');
         $ph['skin'] = $skin;
         $ph['skin_variant'] = $skin_variant ?? '';
 
@@ -367,7 +367,7 @@ class TinyMCE
         switch ($params['mce_path_options']) {
             case 'Site config':
             case 'siteconfig':
-                if ($modx->config['strip_image_paths'] == 1) {
+                if (evo()->config('strip_image_paths') == 1) {
                     $ph['relative_urls'] = 'true';
                     $ph['remove_script_host'] = 'true';
                     $ph['convert_urls'] = 'true';
@@ -402,7 +402,7 @@ class TinyMCE
                 $ph['convert_urls'] = 'false';
         }
 
-        if ($modx->config['mce_entermode'] !== 'br' && manager()->action !== '78') {
+        if (evo()->config('mce_entermode') !== 'br' && manager()->action != 78) {
             $ph['forced_root_block'] = 'p';
             $ph['force_p_newlines'] = 'true';
             $ph['force_br_newlines'] = 'false';
@@ -411,8 +411,8 @@ class TinyMCE
             $ph['force_p_newlines'] = 'false';
             $ph['force_br_newlines'] = 'true';
         }
-        $ph['element_format'] = $modx->config['mce_element_format'];
-        $ph['schema'] = $modx->config['mce_schema'];
+        $ph['element_format'] = evo()->config('mce_element_format');
+        $ph['schema'] = evo()->config('mce_schema');
 
         $ph['toolbar_align'] = $params['toolbar_align'];
         $ph['file_browser_callback'] = 'mceOpenServerBrowser';
@@ -422,7 +422,7 @@ class TinyMCE
         $ph['buttons3'] = $buttons3;
         $ph['buttons4'] = $buttons4;
         $ph['mce_formats'] = empty($params['mce_formats']) ? 'p,h1,h2,h3,h4,h5,h6,div,blockquote,code,pre,address' : $params['mce_formats'];
-        $ph['css_selectors'] = empty($params['css_selectors']) ? $modx->config['tinymce_css_selectors'] : $params['css_selectors'];
+        $ph['css_selectors'] = empty($params['css_selectors']) ? evo()->config('tinymce_css_selectors') : $params['css_selectors'];
         $ph['disabledButtons'] = isset($params['disabledButtons']) ? $params['disabledButtons'] : '';
         $ph['mce_resizing'] = $params['mce_resizing'];
         $ph['date_format'] = $modx->toDateFormat(null, 'formatOnly');

@@ -111,7 +111,7 @@ class DBAPI
 
         $tstart = evo()->getMicroTime();
         if (strpos($hostname, ':') !== false) {
-            list($hostname, $port) = explode(':', $hostname);
+            [$hostname, $port] = explode(':', $hostname);
             $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
         } else {
             $this->conn = new mysqli($hostname, $this->username, $this->password);

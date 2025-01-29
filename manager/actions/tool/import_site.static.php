@@ -225,7 +225,7 @@ function importFiles($parent, $filedir, $files, $mode)
                 }
 
                 $file = getFileContent($filepath);
-                list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
+                [$pagetitle, $content, $description] = treatContent($file, $filename, $alias);
                 $field['pagetitle'] = $pagetitle;
                 $field['longtitle'] = $pagetitle;
                 $field['description'] = $description;
@@ -287,7 +287,7 @@ function importFiles($parent, $filedir, $files, $mode)
             } else {
                 $filepath = $filedir . $filename;
                 $file = getFileContent($filepath);
-                list($pagetitle, $content, $description) = treatContent($file, $filename, $alias);
+                [$pagetitle, $content, $description] = treatContent($file, $filename, $alias);
 
                 $date = filemtime($filepath);
                 $field = [];

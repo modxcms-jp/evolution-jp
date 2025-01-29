@@ -140,7 +140,7 @@ function input($key, $default = null)
         $input['safeMode'] = 0;
     }
     if (strpos($input['username'], ':roleid=') !== false) {
-        list($input['username'], $input['forceRole']) = explode(':roleid=', $input['username'], 2);
+        [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
         if (!preg_match('@^[0-9]+$@', $input['forceRole'])) {
             $input['forceRole'] = 1;
         }

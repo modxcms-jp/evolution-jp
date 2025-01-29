@@ -70,7 +70,7 @@ class DocAPI
             return false;
         }
         if (is_string($f) && str_contains($f, '=')) {
-            list($k, $v) = explode('=', $f, 2);
+            [$k, $v] = explode('=', $f, 2);
             $f = [
                 trim($k) => trim($v)
             ];
@@ -193,7 +193,7 @@ class DocAPI
                 $fields['createdby'] = 0;
             }
         }
-        
+
         if (empty($fields['publishedon']) && !empty($fields['published'])) {
             $fields['publishedon'] = $fields['editedon'];
         }
@@ -216,7 +216,7 @@ class DocAPI
                 $fields['publishedby'] = $fields['editedby'];
             }
         }
-        
+
         return $fields;
     }
 

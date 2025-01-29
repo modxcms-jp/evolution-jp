@@ -21,7 +21,7 @@ if ($isPWDActivate == 1) {
     }
     $row = db()->getRow($rs);
     $username = $row['username'];
-    list($newpwd, $token, $requestedon) = explode('|', $row['cachepwd']);
+    [$newpwd, $token, $requestedon] = explode('|', $row['cachepwd']);
     $past = time() - $requestedon;
     if (!isset($expireTime)) {
         $expireTime = 60 * 60 * 24;

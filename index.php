@@ -46,7 +46,7 @@ if (isset($conditional_get) && $conditional_get == 1) {
             $handle = fopen($target, 'rb');
             $output = fread($handle, filesize($target));
             unset($handle);
-            list($head, $output) = explode('<!--__MODxCacheSpliter__-->', $output, 2);
+            [$head, $output] = explode('<!--__MODxCacheSpliter__-->', $output, 2);
             if (strpos($head, '"text/html";') === false) {
                 $type = unserialize($head);
                 header('Content-Type:' . $type . '; charset=utf-8');

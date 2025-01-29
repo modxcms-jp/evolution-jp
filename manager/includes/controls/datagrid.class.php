@@ -178,7 +178,7 @@ class DataGrid
     {
         global $modx;
         if (strpos($type, ":") !== false) {
-            list($type, $type_format) = explode(":", $type, 2);
+            [$type, $type_format] = explode(":", $type, 2);
         }
         switch (strtolower($type)) {
             case "integer":
@@ -317,7 +317,7 @@ class DataGrid
 
         // build column header
         if ($this->detectHeader === 'first line') {
-            list($firstline, $this->ds) = explode("\n", $this->ds, 2);
+            [$firstline, $this->ds] = explode("\n", $this->ds, 2);
             $this->_colnames = explode($this->cdelim, $firstline);
         } elseif (!empty($this->columns)) {
             $this->_colnames = explode(

@@ -154,7 +154,7 @@ class synccache
     public function showReport($info)
     {
         global $_lang;
-        list($filesincache, $deletedfilesincache, $deletedfiles) = $info;
+        [$filesincache, $deletedfilesincache, $deletedfiles] = $info;
         // finished cache stuff.
         if (0 < $filesincache) {
             echo sprintf($_lang['refresh_cache'], $filesincache, $deletedfilesincache);
