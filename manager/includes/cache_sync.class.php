@@ -11,6 +11,8 @@ class synccache
     public $config = [];
     public $cacheRefreshTime;
 
+    private $current_time;
+
     public function __construct()
     {
         if (!$this->target) {
@@ -19,6 +21,8 @@ class synccache
         if (defined('MODX_CACHE_PATH')) {
             $this->cachePath = MODX_CACHE_PATH;
         }
+
+        $this->current_time = request_time() + config('server_offset_time', 0);
     }
 
     public function setConfig($config)
@@ -170,10 +174,8 @@ class synccache
 
     private function recent_update()
     {
-        $recent_update = serverv('REQUEST_TIME', 0) + config('server_offset_time', 0);
-
         $f = [
-            'setting_value' => $recent_update,
+            'setting_value' => $this->current_time,
             'setting_name' => 'recent_update'
         ];
         $rs = db()->select(
@@ -267,39 +269,60 @@ class synccache
         $time['content_pub_date'] = $this->minTime(
             'site_content',
             'pub_date',
-            '0 < pub_date and published=0 and (unpub_date=0 OR pub_date<=unpub_date)'
+            sprintf(
+                '(%s < pub_date and published=0) and (unpub_date=0 OR pub_date<=unpub_date)',
+                $this->current_time
+            )
         );
 
         $time['content_unpub_date'] = $this->minTime(
             'site_content',
             'unpub_date',
-            '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
+            sprintf(
+                '(%s < unpub_date and published=1) and (pub_date=0 OR pub_date<=unpub_date)',
+                $this->current_time
+            )
         );
 
         $time['chunk_pub_date'] = $this->minTime(
             'site_htmlsnippets',
             'pub_date',
-            '0 < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)'
+            sprintf(
+                '(%s < pub_date and published=0) and (unpub_date=0 OR pub_date<=unpub_date)',
+                $this->current_time
+            )
         );
 
         $time['chunk_unpub_date'] = $this->minTime(
             'site_htmlsnippets',
             'unpub_date',
-            '0 < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)'
+            sprintf(
+                '(%s < unpub_date and published=1) and (pub_date=0 OR pub_date<=unpub_date)',
+                $this->current_time
+            )
         );
 
         $time['revision_standby'] = $this->minTime(
             'site_revision',
             'pub_date',
-            "0 < pub_date AND status = 'standby'"
+            sprintf(
+                "(%s < pub_date and status = 'standby')",
+                $this->current_time
+            )
         );
+
         $time = array_filter($time, function($v) {
             return !empty($v);
         });
+
         if (!$time) {
             return 0;
         }
-        return (request_time() + config('server_offset_time', 0)) < min($time) ? min($time) : 0;
+
+        return $this->current_time < min($time)
+            ? min($time)
+            : 0
+        ;
     }
 
     private function minTime($table_name, $field_name, $where)
