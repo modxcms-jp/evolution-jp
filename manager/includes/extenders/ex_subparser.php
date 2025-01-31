@@ -303,8 +303,6 @@ class SubParser
             E_USER_ERROR => "USER ERROR",
             E_USER_WARNING => "USER WARNING",
             E_USER_NOTICE => "USER NOTICE",
-            E_STRICT => "STRICT NOTICE",
-            E_RECOVERABLE_ERROR => "RECOVERABLE ERROR",
             E_DEPRECATED => "DEPRECATED",
             E_USER_DEPRECATED => "USER DEPRECATED"
         ];
@@ -497,7 +495,6 @@ class SubParser
         switch ($nr) {
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
-            case E_STRICT :
             case E_NOTICE :
             case E_USER_NOTICE :
                 $error_level = 2;
