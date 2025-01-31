@@ -5128,7 +5128,6 @@ class DocumentParser
                         return true;
                     }
                     break;
-                case E_STRICT:
                 case E_DEPRECATED:
                 case E_USER_DEPRECATED:
                     if ($this->error_reporting <= 1) {
