@@ -5513,140 +5513,73 @@ class DocumentParser
         }
 
         $img = getimagesize($tmp_path);
-        switch ($img[2]) {
-            case IMAGETYPE_JPEG:
-                if (stripos($target_path, '.jpeg') !== false) {
-                    $ext = '.jpeg';
-                } else {
-                    $ext = '.jpg';
-                }
-                break;
-            case IMAGETYPE_PNG:
-                $ext = '.png';
-                break;
-            case IMAGETYPE_GIF:
-                $ext = '.gif';
-                break;
-            case IMAGETYPE_BMP:
-                $ext = '.bmp';
-                break;
-            default:
-                $ext = '';
-        }
-        if ($ext) {
-            $target_path = substr($target_path, 0, strrpos($target_path, '.')) . $ext;
+
+        if ($img) {
+            return $this->resizeImage($tmp_path, $img, $target_path);
         }
 
-        $limit_width = $this->config('image_limit_width');
-        if (!$limit_width || $img[0] <= $limit_width || !$ext) {
-            if (move_uploaded_file($tmp_path, $target_path)) {
-                @chmod($target_path, octdec($this->config('new_file_permissions')));
-                return true;
+        if (move_uploaded_file($tmp_path, $target_path)) {
+            chmod($target_path, $new_file_permissions);
+            return true;
+        }
+
+        return false;
+    }
+
+    private function resizeImage($tmp_path, $img, $target_path)
+    {
+        $limitWidth = $this->config('image_limit_width');
+        if (!$limitWidth || $img[0] <= $limitWidth || empty($img[2])) {
+            $moved = move_uploaded_file($tmp_path, $target_path);
+            if (!$moved) {
+                return false;
             }
-            $this->logEvent(
-                1,
-                3,
-                implode("<br>\n", [
-                    '$tmp_path = ' . $tmp_path,
-                    '$target_path = ' . $target_path,
-                    sprintf(
-                        '$image_limit_width = %s',
-                        $this->config('image_limit_width', '- not set -')
-                    ),
-                    sprintf(
-                        '$target_is_writable = %s',
-                        is_writable(dirname($target_path)) ? 'true' : 'false'
-                    ),
-                    'getimagesize = ' . print_r($img, true)
-                ]),
-                'move_uploaded_file'
+            chmod(
+                $target_path, octdec(ltrim($this->config('new_file_permissions'), '0'))
             );
+            return true;
+        }
+
+        switch ($img[2]) {
+            case IMAGETYPE_JPEG:
+                $source = imagecreatefromjpeg($tmp_path);
+                break;
+            case IMAGETYPE_PNG:
+                $source = imagecreatefrompng($tmp_path);
+                break;
+            case IMAGETYPE_GIF:
+                $source = imagecreatefromgif($tmp_path);
+                break;
+            default:
+                return false;
+        }
+
+        $limit_height = (int)(($img[1] / $img[0]) * $limitWidth);
+        $new_image = imagecreatetruecolor($limitWidth, $limit_height);
+
+        imagecopyresampled(
+            $new_image, $source, 0, 0, 0, 0, $limitWidth, $limit_height, $img[0], $img[1]
+        );
+        switch ($img[2]) {
+            case IMAGETYPE_JPEG:
+                $rs = imagejpeg($new_image, $target_path);
+                break;
+            case IMAGETYPE_PNG:
+                $rs = imagepng($new_image, $target_path);
+                break;
+            case IMAGETYPE_GIF:
+                $rs = imagegif($new_image, $target_path);
+                break;
+        }
+
+        imagedestroy($new_image);
+
+        if (!$rs) {
             return false;
         }
 
-        $limit_height = (int)(($img[1] / $img[0]) * $limit_width);
-        $new_image = imagecreatetruecolor($limit_width, $limit_height);
-        switch ($img[2]) {
-            case IMAGETYPE_JPEG:
-                $rs = imagecopyresampled(
-                    $new_image,
-                    imagecreatefromjpeg($tmp_path),
-                    0,
-                    0,
-                    0,
-                    0,
-                    $limit_width,
-                    $limit_height,
-                    $img[0],
-                    $img[1]
-                );
-                if (!$rs) {
-                    return false;
-                }
-                $rs = imagejpeg($new_image, $target_path, 83);
-                break;
-            case IMAGETYPE_PNG:
-                $rs = imagecopyresampled(
-                    $new_image,
-                    imagecreatefrompng($tmp_path),
-                    0,
-                    0,
-                    0,
-                    0,
-                    $limit_width,
-                    $limit_height,
-                    $img[0],
-                    $img[1]
-                );
-                if (!$rs) {
-                    return false;
-                }
-                $rs = imagepng($new_image, $target_path);
-                break;
-            case IMAGETYPE_GIF:
-                $rs = imagecopyresampled(
-                    $new_image,
-                    imagecreatefromgif($tmp_path),
-                    0,
-                    0,
-                    0,
-                    0,
-                    $limit_width,
-                    $limit_height,
-                    $img[0],
-                    $img[1]
-                );
-                if (!$rs) {
-                    return false;
-                }
-                $rs = imagepng($new_image, $target_path);
-                break;
-            case IMAGETYPE_BMP:
-                $rs = imagecopyresampled(
-                    $new_image,
-                    imagecreatefromwbmp($tmp_path),
-                    0,
-                    0,
-                    0,
-                    0,
-                    $limit_width,
-                    $limit_height,
-                    $img[0],
-                    $img[1]
-                );
-                if (!$rs) {
-                    return false;
-                }
-                $rs = imagepng($new_image, $target_path);
-                break;
-            default:
-        }
-        imagedestroy($new_image);
-        if ($rs) {
-            @chmod($target_path, $new_file_permissions);
-            return $rs;
-        }
-        return false;
+        chmod($target_path, octdec(ltrim($this->config('new_file_permissions'), '0')));
+        return true;
     }
 
     public function input_get($key = null, $default = null)
