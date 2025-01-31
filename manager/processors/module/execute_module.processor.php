@@ -141,7 +141,6 @@ function evalModule($moduleCode, $params)
                 break;
             case E_DEPRECATED :
             case E_USER_DEPRECATED :
-            case E_STRICT :
                 $error_level = 2;
                 break;
             default:

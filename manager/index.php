@@ -31,7 +31,7 @@ if (!is_file($site_mgr_path)) {
 $core_path = MODX_BASE_PATH . 'manager/includes/';
 $incPath = $core_path;
 
-if (@is_file(MODX_BASE_PATH . 'autoload.php')) {
+if (is_file(MODX_BASE_PATH . 'autoload.php')) {
     include_once MODX_BASE_PATH . 'autoload.php';
 }
 
@@ -40,6 +40,13 @@ include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 $modx->mstart = $mstart;
 $modx->safeMode = 0;
+$modx->mstart = $mstart;
+if (is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
+    include_once MODX_CACHE_PATH . 'basicConfig.php';
+}
+$modx->cacheRefreshTime = $cacheRefreshTime ?? 0;
+$modx->error_reporting = $error_reporting ?? 1;
+
 evo()->loadExtension('ManagerAPI');
 
 if (sessionv('safeMode') == 1) {

@@ -430,10 +430,20 @@ function entity($key, $default = null)
                         default:
                             $display = 'style="display:none;"';
                     }
-                    $res1 = db()->select('name', '[+prefix+]site_plugins', "name like'input:%' and disabled!=1");
-                    $name1 = strtolower(substr(db()->getValue($res1), 6));
-                    $res2 = db()->select('name', '[+prefix+]site_snippets', "name like'input:%'");
-                    $name2 = strtolower(substr(db()->getValue($res2), 6));
+
+                    function getInputTypeName($query) {
+                        $value = db()->getValue(
+                            db()->select('name', '[+prefix+]site_plugins', $query)
+                        );
+                        if (!$value) {
+                            return '';
+                        }
+                        return strtolower(substr($value, 6));
+                    }
+
+                    $name1 = getInputTypeName("name like'input:%' and disabled!=1");
+                    $name2 = getInputTypeName("name like'input:%'");
+
                     if ($name1 == entity('type') || $name2 == entity('type')) {
                         $display = '';
                     }

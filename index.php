@@ -3,7 +3,6 @@ if (!isset($_SERVER['REQUEST_TIME_FLOAT'])) {
     $_SERVER['REQUEST_TIME_FLOAT'] = microtime(true);
 }
 $mstart = memory_get_usage();
-
 include 'define-path.php';
 
 if (defined('IN_MANAGER_MODE')) {
@@ -24,7 +23,7 @@ $cacheRefreshTime = 0;
 $site_sessionname = '';
 $site_status = '1';
 if (is_file(MODX_CACHE_PATH . 'basicConfig.php')) {
-    include_once(MODX_CACHE_PATH . 'basicConfig.php');
+    include_once MODX_CACHE_PATH . 'basicConfig.php';
 }
 
 if (isset($conditional_get) && $conditional_get == 1) {
@@ -78,7 +77,7 @@ if (!isset($loaded_autoload) && is_file(MODX_BASE_PATH . 'autoload.php')) {
 }
 
 // initiate a new document parser
-include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
+include_once MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php';
 $evo = new DocumentParser;
 $modx =& $evo;
 

@@ -21,7 +21,7 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
-$id = preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0;
+$id = preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0;
 
 // Check to see the editor isn't locked
 $rs = db()->select('internalKey, username', '[+prefix+]active_users', "action=108 AND id='{$id}'");
@@ -43,7 +43,7 @@ if (!is_numeric($id)) {
     exit('Passed ID is NaN!');
 }
 
-if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
+if (preg_match('@^[1-9][0-9]*$@', getv('id', 0))) {
     $rs = db()->select('*', '[+prefix+]site_modules', "id='{$id}'");
     $total = db()->count($rs);
     if ($total > 1) {

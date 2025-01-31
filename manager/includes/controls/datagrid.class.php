@@ -32,13 +32,13 @@ class DataGrid
     public $altItemStyle;
     public $altItemClass;
 
-    public $fields;
-    public $columns;
-    public $colWidths;
-    public $colAligns;
-    public $colWraps;
-    public $colColors;
-    public $colTypes; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
+    public $fields = '';
+    public $columns = '';
+    public $colWidths = '';
+    public $colAligns = '';
+    public $colWraps = '';
+    public $colColors = '';
+    public $colTypes = ''; // coltype1, coltype2, etc or coltype1:format1, e.g. date:%Y %m
     // data type: integer,float,currency,date
 
     public $header;
@@ -68,7 +68,7 @@ class DataGrid
     private $_colwidths;
     private $_colaligns;
     private $_colwraps;
-    private $_colcolors;
+    private $_colcolors = [];
     private $_coltypes;
     private $_itemStyle;
     private $_itemClass;
@@ -177,6 +177,11 @@ class DataGrid
     function formatColumnValue($row, $value, $type, &$align)
     {
         global $modx;
+
+        if ($value === null) {
+            $value = '';
+        }
+
         if (strpos($type, ":") !== false) {
             [$type, $type_format] = explode(":", $type, 2);
         }
@@ -259,7 +264,7 @@ class DataGrid
         return $value;
     }
 
-    function render()
+    public function render()
     {
         // set datasource
         $this->setDataSource();

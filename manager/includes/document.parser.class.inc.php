@@ -91,6 +91,10 @@ class DocumentParser
     public $mail;
     public $table;
     public $sub;
+    public $phpass;
+    public $revision;
+    public $revisionObject;
+    public $filter;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -166,7 +170,7 @@ class DocumentParser
             ini_set('display_errors', 1);
         }
         if (!defined('MODX_SETUP_PATH')) {
-            set_error_handler([&$this, 'phpError'], E_ALL & ~E_NOTICE); //error_reporting(0);
+            set_error_handler([&$this, 'phpError'], E_ALL & ~E_NOTICE & ~E_DEPRECATED); //error_reporting(0);
         }
         mb_internal_encoding('utf-8');
         $this->loadExtension('DBAPI'); // load DBAPI class
@@ -190,7 +194,7 @@ class DocumentParser
         $this->stopOnNotice = false;
         $this->safeMode = false;
         // set track_errors ini variable
-        @ini_set('track_errors', '1');
+        ini_set('track_errors', '1');
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
         if ($this->isLoggedIn()) {
@@ -550,7 +554,7 @@ class DocumentParser
             // validation routines
             if ($this->checkSiteStatus() === false) {
                 if (!$this->config('site_unavailable_page')) {
-                    header("Content-Type: text/html; charset={$this->config['modx_charset']}");
+                    header("Content-Type: text/html; charset={$this->config('modx_charset')}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
                     $content = $this->parseText($tpl, $this->config);
                     header('Content-Length: ' . strlen($content));
@@ -2657,7 +2661,7 @@ class DocumentParser
                 sprintf('%2.4f s', $this->queryTime),
                 sprintf('%2.4f s', ($totalTime - $this->queryTime)),
                 sprintf('%2.4f s', $totalTime),
-                ($this->documentGenerated || !$this->config['cache_type']) ? 'database' : 'full_cache',
+                ($this->documentGenerated || !$this->config('cache_type')) ? 'database' : 'full_cache',
                 $this->nicesize(memory_get_peak_usage() - $this->mstart),
                 count(get_included_files())
             ],
@@ -2688,7 +2692,7 @@ class DocumentParser
         } else {
             $error_type = 3;
         }
-        if (1 < $this->config['error_reporting'] || 2 < $error_type) {
+        if (1 < $this->config('error_reporting') || 2 < $error_type) {
             if ($echo === false) {
                 $echo = 'ob_get_contents() error';
             }
@@ -2754,7 +2758,7 @@ class DocumentParser
         }
         $echo = ob_get_clean();
 
-        if ((0 < $this->config['error_reporting']) && $echo && error_get_last()) {
+        if ((0 < $this->config('error_reporting')) && $echo && error_get_last()) {
             $error_info = error_get_last();
             if ($error_info['type'] === 2048 || $error_info['type'] === 8192) {
                 $error_type = 2;
@@ -2762,7 +2766,7 @@ class DocumentParser
                 $error_type = 3;
             }
 
-            if (1 < $this->config['error_reporting'] || 2 < $error_type) {
+            if (1 < $this->config('error_reporting') || 2 < $error_type) {
                 $this->messageQuit(
                     'PHP Parse Error',
                     '',
@@ -4336,10 +4340,10 @@ class DocumentParser
 
     public function mb_strftime($format = '%Y/%m/%d', $timestamp = '')
     {
-        global $modx, $_lc;
+        global $_lc;
 
         if (stripos($format, '%a') !== false) {
-            $modx->loadLexicon('locale');
+            $this->loadLexicon('locale');
         }
 
         if (isset($_lc['days.short'])) {
@@ -4400,6 +4404,9 @@ class DocumentParser
             '%x' => $date->format('Y-m-d'),
             '%X' => $date->format('H:i:s'),
             '%%' => '%',
+            '%-m' => $date->format('n'),
+            '%-d' => $date->format('j'),
+            '%曜' => ['日', '月', '火', '水', '木', '金', '土'][$date->format('w')],
             // 必要に応じて他のフォーマットも追加
         ];
 
@@ -5121,7 +5128,6 @@ class DocumentParser
                         return true;
                     }
                     break;
-                case E_STRICT:
                 case E_DEPRECATED:
                 case E_USER_DEPRECATED:
                     if ($this->error_reporting <= 1) {

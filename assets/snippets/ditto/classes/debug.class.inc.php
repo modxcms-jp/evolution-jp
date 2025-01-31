@@ -90,7 +90,7 @@ class debug extends modxDebugConsole
             $ditto_lang['debug'],
             str_replace(MODX_BASE_PATH, MODX_SITE_URL, $ditto_base)
         )
-            . "\r\n\r\n" . '<!--- ' . evo()->mb_strftime('%c', time()) . ' --->';
+            . "\r\n\r\n" . '<!--- ' . date('c') . ' --->';
     }
 
     // ---------------------------------------------------
