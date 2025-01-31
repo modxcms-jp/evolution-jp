@@ -194,7 +194,7 @@ class DocumentParser
         $this->stopOnNotice = false;
         $this->safeMode = false;
         // set track_errors ini variable
-        @ini_set('track_errors', '1');
+        ini_set('track_errors', '1');
         $this->error_reporting = 1;
         // Don't show PHP errors to the public
         if ($this->isLoggedIn()) {

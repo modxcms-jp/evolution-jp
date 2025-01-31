@@ -31,7 +31,7 @@ if (!is_file($site_mgr_path)) {
 $core_path = MODX_BASE_PATH . 'manager/includes/';
 $incPath = $core_path;
 
-if (@is_file(MODX_BASE_PATH . 'autoload.php')) {
+if (is_file(MODX_BASE_PATH . 'autoload.php')) {
     include_once MODX_BASE_PATH . 'autoload.php';
 }
 
