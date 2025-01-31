@@ -225,7 +225,7 @@ function array_set(&$array, $key, $value)
 
 function request_intvar($key)
 {
-    if (preg_match('@^[1-9][0-9]*$@', anyv($key))) {
+    if (preg_match('@^[1-9][0-9]*$@', anyv($key, 0))) {
         return anyv($key);
     }
     return 0;

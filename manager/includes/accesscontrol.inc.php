@@ -43,7 +43,7 @@ if (manager()->action != 1) {
         'username'    => sessionv('mgrShortname'),
         'lasthit'     => serverv('REQUEST_TIME', time()),
         'action'      => manager()->action,
-        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id')) ? anyv('id') : 0,
+        'id'          => preg_match('@^[1-9][0-9]*$@', anyv('id', 0)) ? anyv('id') : 0,
         'ip'          => real_ip()
     ];
 
