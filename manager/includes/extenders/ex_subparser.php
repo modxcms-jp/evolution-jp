@@ -265,7 +265,7 @@ class SubParser
     {
         global $modx;
 
-        if (!$modx->error_reporting && !$modx->isLoggedIn()) {
+        if (!$modx->error_reporting) {
             return true;
         }
 
