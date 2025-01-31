@@ -91,6 +91,10 @@ class DocumentParser
     public $mail;
     public $table;
     public $sub;
+    public $phpass;
+    public $revision;
+    public $revisionObject;
+    public $filter;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
