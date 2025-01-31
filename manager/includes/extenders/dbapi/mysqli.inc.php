@@ -199,6 +199,10 @@ class DBAPI
             }
         }
 
+        if ($s === null) {
+            return 'NULL';
+        }
+
         if (!is_array($s)) {
             return $this->conn->escape_string($s);
         }
