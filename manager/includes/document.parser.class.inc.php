@@ -554,7 +554,7 @@ class DocumentParser
             // validation routines
             if ($this->checkSiteStatus() === false) {
                 if (!$this->config('site_unavailable_page')) {
-                    header("Content-Type: text/html; charset={$this->config['modx_charset']}");
+                    header("Content-Type: text/html; charset={$this->config('modx_charset')}");
                     $tpl = '<!DOCTYPE html><head><title>[+site_unavailable_message+]</title><body>[+site_unavailable_message+]';
                     $content = $this->parseText($tpl, $this->config);
                     header('Content-Length: ' . strlen($content));
@@ -2661,7 +2661,7 @@ class DocumentParser
                 sprintf('%2.4f s', $this->queryTime),
                 sprintf('%2.4f s', ($totalTime - $this->queryTime)),
                 sprintf('%2.4f s', $totalTime),
-                ($this->documentGenerated || !$this->config['cache_type']) ? 'database' : 'full_cache',
+                ($this->documentGenerated || !$this->config('cache_type')) ? 'database' : 'full_cache',
                 $this->nicesize(memory_get_peak_usage() - $this->mstart),
                 count(get_included_files())
             ],
@@ -2692,7 +2692,7 @@ class DocumentParser
         } else {
             $error_type = 3;
         }
-        if (1 < $this->config['error_reporting'] || 2 < $error_type) {
+        if (1 < $this->config('error_reporting') || 2 < $error_type) {
             if ($echo === false) {
                 $echo = 'ob_get_contents() error';
             }
@@ -2758,7 +2758,7 @@ class DocumentParser
         }
         $echo = ob_get_clean();
 
-        if ((0 < $this->config['error_reporting']) && $echo && error_get_last()) {
+        if ((0 < $this->config('error_reporting')) && $echo && error_get_last()) {
             $error_info = error_get_last();
             if ($error_info['type'] === 2048 || $error_info['type'] === 8192) {
                 $error_type = 2;
@@ -2766,7 +2766,7 @@ class DocumentParser
                 $error_type = 3;
             }
 
-            if (1 < $this->config['error_reporting'] || 2 < $error_type) {
+            if (1 < $this->config('error_reporting') || 2 < $error_type) {
                 $this->messageQuit(
                     'PHP Parse Error',
                     '',
