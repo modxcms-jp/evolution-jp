@@ -210,11 +210,9 @@ function getString($line) {
     return trim($ma[1]);
 }
 
-function clean_up($sqlParser)
+function clean_up($table_prefix)
 {
     $ids = [];
-
-    $table_prefix = $sqlParser->prefix;
 
     // secure web documents - privateweb
     db()->query("UPDATE `" . $table_prefix . "site_content` SET privateweb = 0 WHERE privateweb = 1");

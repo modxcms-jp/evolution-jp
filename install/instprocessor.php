@@ -12,7 +12,8 @@ echo "<p>" . lang('setup_database') . "</p>\n";
 $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
-$callBackFnc = include MODX_SETUP_PATH . 'setup.info.php';
+include MODX_SETUP_PATH . 'setup.info.php';
+
 include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
 $sqlParser->prefix = sessionv('table_prefix');
@@ -163,8 +164,7 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     printf('<span class="ok">%s</span></p>', lang('ok'));
 }
 
-// call back function
-if ($callBackFnc != '') $callBackFnc ($sqlParser);
+clean_up($sqlParser->prefix);
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
