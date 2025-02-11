@@ -51,13 +51,14 @@ echo $script;
 function getCollation()
 {
     $rs = db()->query("SHOW COLLATION LIKE 'utf8%'");
+    $collations = [];
     while ($row = db()->getRow($rs)) {
         if (isSafeCollation($row['Collation'])) {
-            $_[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
+            $collations[] = sprintf("%s:'%s'", $row['Collation'], $row['Collation']);
         }
         //$row['Charset'];
     }
-    return implode(',', $_);
+    return implode(',', $collations);
 }
 
 function isSafeCollation($collation)
