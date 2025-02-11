@@ -8,8 +8,6 @@ if (!validateSessionValues()) {
     exit('session values are not valid, go to first step');
 }
 
-@ set_time_limit(120); // used @ to prevent warning when using safe mode?
-
 require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
 echo "<p>" . lang('setup_database') . "</p>\n";
