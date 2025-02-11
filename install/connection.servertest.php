@@ -32,7 +32,7 @@ echo sprintf(
 );
 
 $script = '<script>
-    let characters = {' . getCollation() . "};
+    let characters = {' . getCollations() . "};
     let sel = jQuery('#collation');
     let opt;
     let isSelected;
@@ -48,7 +48,7 @@ jQuery.each(characters, function (value, name) {
 </script>";
 echo $script;
 
-function getCollation()
+function getCollations()
 {
     $rs = db()->query("SHOW COLLATION LIKE 'utf8%'");
     $collations = [];
