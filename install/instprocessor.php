@@ -86,7 +86,7 @@ $ph['https_port'] = '443';
 
 $configString = evo()->parseText($configString, $ph);
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
-$config_saved = @ file_put_contents($config_path, $configString);
+$config_saved = @file_put_contents($config_path, $configString);
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($config_path, 0404);
 
@@ -95,8 +95,8 @@ if ($config_saved === false) {
     printf('<span class="notok">%s</span></p>', lang('failed'));
     $errors += 1;
     echo sprintf(
-        '<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>'
-        , lang('cant_write_config_file')
+        '<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>',
+        lang('cant_write_config_file')
     );
     echo '<textarea style="width:100%; height:200px;font-size:inherit;font-family:\'Courier New\',\'Courier\', monospace;">';
     echo htmlspecialchars($configString);
@@ -118,7 +118,9 @@ if (sessionv('is_upgradeable') == 0) {
     db()->query($query);
 } else {
     $site_id = db()->getValue(
-        'setting_value', '[+prefix+]system_settings', "setting_name='site_id'"
+        'setting_value',
+        '[+prefix+]system_settings',
+        "setting_name='site_id'"
     );
     if ($site_id) {
         if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
@@ -153,10 +155,10 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
         echo "<p>" . lang('installation_error_occured') . "<br /><br />";
         foreach ($sqlParser->mysqlErrors as $info) {
             printf(
-                '<em>%s</em>%s<span class="mono">%s</span>.<hr />'
-                , $info['error']
-                , lang('during_execution_of_sql')
-                , strip_tags($info['sql'])
+                '<em>%s</em>%s<span class="mono">%s</span>.<hr />',
+                $info['error'],
+                lang('during_execution_of_sql'),
+                strip_tags($info['sql'])
             );
         }
         echo '</p>';
@@ -211,7 +213,8 @@ echo '</p>';
 
 $_SESSION = [];
 
-function deleteCacheDirectory($cachePath) {
+function deleteCacheDirectory($cachePath)
+{
     if (!is_dir($cachePath)) {
         return;
     }
