@@ -8,8 +8,6 @@ if (!sessionv('database_server')) {
 
 require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
-extract($_lang, EXTR_PREFIX_ALL, 'lang');
-
 echo "<p>" . lang('setup_database') . "</p>\n";
 $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
