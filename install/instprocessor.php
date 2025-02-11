@@ -9,7 +9,6 @@ if (!sessionv('database_server')) {
 require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
 echo "<p>" . lang('setup_database') . "</p>\n";
-$database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
 include MODX_SETUP_PATH . 'setup.info.php';
@@ -71,7 +70,7 @@ if ($sqlParser->installFailed == true) {
 
 printf('<span class="ok">%s</span></p>', lang('ok'));
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
-$ph['database_type'] = $database_type;
+$ph['database_type'] = 'mysqli';
 $ph['database_server'] = sessionv('database_server');
 $ph['database_user'] = db()->escape(sessionv('database_user'));
 $ph['database_password'] = db()->escape(sessionv('database_password'));
