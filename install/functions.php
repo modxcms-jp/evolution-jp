@@ -567,7 +567,7 @@ function convert2utf8mb4() {
     if (!$collation) {
         throw new Exception('Failed to get collation');
     }
-    
+
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
     if ($collation !== 'utf8mb4_general_ci') {
         $convert->convertDb();
