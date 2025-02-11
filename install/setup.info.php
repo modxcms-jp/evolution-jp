@@ -176,9 +176,6 @@ if (is_dir($modulePath) && is_readable($modulePath)) {
     }
 }
 
-// setup callback function
-return 'clean_up';
-
 function get_installset($params)
 {
     if (array_key_exists('installset', $params)) {
