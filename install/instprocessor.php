@@ -4,6 +4,10 @@ if (!sessionv('database_server')) {
     exit('go to first step');
 }
 
+if (!validateSessionValues()) {
+    exit('session values are not valid, go to first step');
+}
+
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
 require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
@@ -15,6 +19,7 @@ include MODX_SETUP_PATH . 'setup.info.php';
 
 include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
+
 $sqlParser->prefix = sessionv('table_prefix');
 $sqlParser->adminname = sessionv('adminname');
 $sqlParser->adminpass = sessionv('adminpass');

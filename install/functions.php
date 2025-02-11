@@ -562,3 +562,23 @@ function convert2utf8mb4() {
     $convert->updateConfigIncPhp();
     echo "<p>config.inc.php has been updated.</p>";
 }
+
+function validateSessionValues() {
+    $requiredKeys = [
+        'table_prefix',
+        'adminname',
+        'adminpass',
+        'adminemail',
+        'database_charset',
+        'database_collation',
+        'managerlanguage'
+    ];
+
+    foreach ($requiredKeys as $key) {
+        if (!sessionv($key)) {
+            return false;
+        }
+    }
+
+    return true;
+}
