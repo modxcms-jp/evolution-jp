@@ -6,7 +6,7 @@ if (!sessionv('database_server')) {
 
 @ set_time_limit(120); // used @ to prevent warning when using safe mode?
 
-require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
+require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
 extract($_lang, EXTR_PREFIX_ALL, 'lang');
 
@@ -14,8 +14,8 @@ echo "<p>" . lang('setup_database') . "</p>\n";
 $database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
-$callBackFnc = include(MODX_SETUP_PATH . 'setup.info.php');
-include_once(MODX_SETUP_PATH . 'sqlParser.class.php');
+$callBackFnc = include MODX_SETUP_PATH . 'setup.info.php';
+include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
 $sqlParser->prefix = sessionv('table_prefix');
 $sqlParser->adminname = sessionv('adminname');
@@ -50,7 +50,7 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include(MODX_SETUP_PATH . 'sql/fix_settings.php');
+include MODX_SETUP_PATH . 'sql/fix_settings.php';
 
 if (sessionv('is_upgradeable')) {
     convert2utf8mb4();
@@ -134,12 +134,12 @@ if (sessionv('is_upgradeable') == 0) {
     }
 }
 
-include_once('processors/prc_insTemplates.inc.php'); // Install Templates
-include_once('processors/prc_insTVs.inc.php');       // Install Template Variables
-include_once('processors/prc_insChunks.inc.php');    // Install Chunks
-include_once('processors/prc_insModules.inc.php');   // Install Modules
-include_once('processors/prc_insPlugins.inc.php');   // Install Plugins
-include_once('processors/prc_insSnippets.inc.php');  // Install Snippets
+include 'processors/prc_insTemplates.inc.php'; // Install Templates
+include 'processors/prc_insTVs.inc.php';       // Install Template Variables
+include 'processors/prc_insChunks.inc.php';    // Install Chunks
+include 'processors/prc_insModules.inc.php';   // Install Modules
+include 'processors/prc_insPlugins.inc.php';   // Install Plugins
+include 'processors/prc_insSnippets.inc.php';  // Install Snippets
 
 // install data
 if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
