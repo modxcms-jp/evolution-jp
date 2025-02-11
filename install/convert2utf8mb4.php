@@ -60,6 +60,46 @@ class convert2utf8mb4 {
 
     public function convertTablesWithPrefix($prefix)
     {
+        $targetTables = [
+            'active_users',
+            'categories',
+            'document_groups',
+            'documentgroup_names',
+            'event_log',
+            'manager_log',
+            'manager_users',
+            'member_groups',
+            'membergroup_access',
+            'membergroup_names',
+            'site_content',
+            'site_htmlsnippets',
+            'site_module_access',
+            'site_module_depobj',
+            'site_modules',
+            'site_plugin_events',
+            'site_plugins',
+            'site_revision',
+            'site_snippets',
+            'site_templates',
+            'site_tmplvar_access',
+            'site_tmplvar_contentvalues',
+            'site_tmplvar_templates',
+            'site_tmplvars',
+            'system_cache',
+            'system_eventnames',
+            'system_settings',
+            'user_attributes',
+            'user_messages',
+            'user_roles',
+            'user_settings',
+            'web_groups',
+            'web_user_attributes',
+            'web_user_settings',
+            'web_users',
+            'webgroup_access',
+            'webgroup_names'
+        ];
+
         $rs = db()->select(
             'TABLE_NAME, CCSA.CHARACTER_SET_NAME, T.TABLE_COLLATION',
             [
@@ -75,15 +115,19 @@ class convert2utf8mb4 {
                 "AND CCSA.COLLATION_NAME != 'utf8mb4_general_ci'"
             ]
         );
+
         while($row = db()->getRow($rs)) {
-            echo sprintf('%sを変換します<br>', $row['TABLE_NAME']);
-            db()->exec(
-                sprintf(
-                    "ALTER TABLE %s CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",
-                    $row['TABLE_NAME']
-                )
-            );
-            // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
+            $tableNameWithoutPrefix = str_replace($prefix, '', $row['TABLE_NAME']);
+            if (in_array($tableNameWithoutPrefix, $targetTables)) {
+                echo sprintf('%sを変換します<br>', $row['TABLE_NAME']);
+                db()->exec(
+                    sprintf(
+                        "ALTER TABLE %s CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",
+                        $row['TABLE_NAME']
+                    )
+                );
+                // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
+            }
         }
         return db()->count($rs);
     }
