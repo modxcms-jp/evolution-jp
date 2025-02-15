@@ -3231,7 +3231,11 @@ class DocumentParser
 
     private function is_int($string)
     {
-        return preg_match('@^[1-9][0-9]*$@', $string);
+        if (is_int($string)) {
+            return true;
+        }
+
+        return is_string($string) && preg_match('@^[1-9][0-9]*$@', $string);
     }
 
     /**
