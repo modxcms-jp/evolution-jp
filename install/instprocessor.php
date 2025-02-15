@@ -4,19 +4,20 @@ if (!sessionv('database_server')) {
     exit('go to first step');
 }
 
-@ set_time_limit(120); // used @ to prevent warning when using safe mode?
+if (!validateSessionValues()) {
+    exit('session values are not valid, go to first step');
+}
 
-require_once(MODX_BASE_PATH . 'manager/includes/default.config.php');
-
-extract($_lang, EXTR_PREFIX_ALL, 'lang');
+require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
 echo "<p>" . lang('setup_database') . "</p>\n";
-$database_type = function_exists('mysqli_connect') ? 'mysqli' : 'mysql';
 
 // open db connection
-$callBackFnc = include(MODX_SETUP_PATH . 'setup.info.php');
-include_once(MODX_SETUP_PATH . 'sqlParser.class.php');
+include MODX_SETUP_PATH . 'setup.info.php';
+
+include_once MODX_SETUP_PATH . 'sqlParser.class.php';
 $sqlParser = new SqlParser();
+
 $sqlParser->prefix = sessionv('table_prefix');
 $sqlParser->adminname = sessionv('adminname');
 $sqlParser->adminpass = sessionv('adminpass');
@@ -50,7 +51,7 @@ if (!sessionv('is_upgradeable')) {
     }
 }
 
-include(MODX_SETUP_PATH . 'sql/fix_settings.php');
+include MODX_SETUP_PATH . 'sql/fix_settings.php';
 
 if (sessionv('is_upgradeable')) {
     convert2utf8mb4();
@@ -72,7 +73,7 @@ if ($sqlParser->installFailed == true) {
 
 printf('<span class="ok">%s</span></p>', lang('ok'));
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
-$ph['database_type'] = $database_type;
+$ph['database_type'] = 'mysqli';
 $ph['database_server'] = sessionv('database_server');
 $ph['database_user'] = db()->escape(sessionv('database_user'));
 $ph['database_password'] = db()->escape(sessionv('database_password'));
@@ -85,7 +86,7 @@ $ph['https_port'] = '443';
 
 $configString = evo()->parseText($configString, $ph);
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
-$config_saved = @ file_put_contents($config_path, $configString);
+$config_saved = @file_put_contents($config_path, $configString);
 // try to chmod the config file go-rwx (for suexeced php)
 @chmod($config_path, 0404);
 
@@ -94,8 +95,8 @@ if ($config_saved === false) {
     printf('<span class="notok">%s</span></p>', lang('failed'));
     $errors += 1;
     echo sprintf(
-        '<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>'
-        , lang('cant_write_config_file')
+        '<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>',
+        lang('cant_write_config_file')
     );
     echo '<textarea style="width:100%; height:200px;font-size:inherit;font-family:\'Courier New\',\'Courier\', monospace;">';
     echo htmlspecialchars($configString);
@@ -117,7 +118,9 @@ if (sessionv('is_upgradeable') == 0) {
     db()->query($query);
 } else {
     $site_id = db()->getValue(
-        'setting_value', '[+prefix+]system_settings', "setting_name='site_id'"
+        'setting_value',
+        '[+prefix+]system_settings',
+        "setting_name='site_id'"
     );
     if ($site_id) {
         if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
@@ -134,12 +137,12 @@ if (sessionv('is_upgradeable') == 0) {
     }
 }
 
-include_once('processors/prc_insTemplates.inc.php'); // Install Templates
-include_once('processors/prc_insTVs.inc.php');       // Install Template Variables
-include_once('processors/prc_insChunks.inc.php');    // Install Chunks
-include_once('processors/prc_insModules.inc.php');   // Install Modules
-include_once('processors/prc_insPlugins.inc.php');   // Install Plugins
-include_once('processors/prc_insSnippets.inc.php');  // Install Snippets
+include 'processors/prc_insTemplates.inc.php'; // Install Templates
+include 'processors/prc_insTVs.inc.php';       // Install Template Variables
+include 'processors/prc_insChunks.inc.php';    // Install Chunks
+include 'processors/prc_insModules.inc.php';   // Install Modules
+include 'processors/prc_insPlugins.inc.php';   // Install Plugins
+include 'processors/prc_insSnippets.inc.php';  // Install Snippets
 
 // install data
 if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
@@ -152,10 +155,10 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
         echo "<p>" . lang('installation_error_occured') . "<br /><br />";
         foreach ($sqlParser->mysqlErrors as $info) {
             printf(
-                '<em>%s</em>%s<span class="mono">%s</span>.<hr />'
-                , $info['error']
-                , lang('during_execution_of_sql')
-                , strip_tags($info['sql'])
+                '<em>%s</em>%s<span class="mono">%s</span>.<hr />',
+                $info['error'],
+                lang('during_execution_of_sql'),
+                strip_tags($info['sql'])
             );
         }
         echo '</p>';
@@ -165,8 +168,7 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     printf('<span class="ok">%s</span></p>', lang('ok'));
 }
 
-// call back function
-if ($callBackFnc != '') $callBackFnc ($sqlParser);
+clean_up($sqlParser->prefix);
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
@@ -211,7 +213,8 @@ echo '</p>';
 
 $_SESSION = [];
 
-function deleteCacheDirectory($cachePath) {
+function deleteCacheDirectory($cachePath)
+{
     if (!is_dir($cachePath)) {
         return;
     }

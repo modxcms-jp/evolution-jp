@@ -182,7 +182,7 @@ function settings()
         $settings[$row['setting_name']] = $row['setting_value'];
     }
     if (!isset($default_config) || !is_array($default_config)) {
-        $default_config = include(MODX_CORE_PATH . 'default.config.php');
+        $default_config = include MODX_CORE_PATH . 'default.config.php';
     }
     $settings = array_merge($default_config, $settings);
     $modx->config = $settings;

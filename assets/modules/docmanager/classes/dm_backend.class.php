@@ -223,7 +223,7 @@ class DocManagerBackend
                     $updateError .= "ID: " . $docID . " " . $this->dm->lang['DM_tv_template_mismatch'] . '<br />';
                     continue;
                 }
-                $tvID = $this->getTemplateVarIds($tmplVars, $docID);
+                $tvID = $this->getTemplateVarIds($docID, $tmplVars);
                 if (count($tvID) <= 0) {
                     continue;
                 }
@@ -590,7 +590,7 @@ class DocManagerBackend
         return $results;
     }
 
-    function getTemplateVarIds($tvNames = [], $documentId, $ignoreList = [])
+    function getTemplateVarIds($documentId, $tvNames = [], $ignoreList = [])
     {
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName("site_tmplvar_contentvalues");
         if (count($tvNames) <= 0) {

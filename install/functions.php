@@ -210,11 +210,9 @@ function getString($line) {
     return trim($ma[1]);
 }
 
-function clean_up($sqlParser)
+function clean_up($table_prefix)
 {
     $ids = [];
-
-    $table_prefix = $sqlParser->prefix;
 
     // secure web documents - privateweb
     db()->query("UPDATE `" . $table_prefix . "site_content` SET privateweb = 0 WHERE privateweb = 1");
@@ -382,13 +380,16 @@ function isUpGradeable()
     $modx->db->table_prefix = $table_prefix;
     db()->connect();
 
-    if (db()->isConnected() && db()->tableExists('[+prefix+]system_settings')) {
+    if (db()->isConnected() && db()->tableExists('[+prefix+]site_content')) {
+        $collation = getCurrentCollation();
+        if (!$collation) {
+            throw new Exception('Failed to get collation');
+        }
         sessionv('*database_server', $database_server);
         sessionv('*database_user', $database_user);
         sessionv('*database_password', $database_password);
         sessionv('*dbase', $modx->db->dbname);
         sessionv('*table_prefix', $table_prefix);
-        $collation = db()->getCollation();
         sessionv('*database_charset', substr($collation, 0, strpos($collation, '_')));
         sessionv('*database_collation', $collation);
         sessionv('*database_connection_method', 'SET CHARACTER SET');
@@ -397,6 +398,23 @@ function isUpGradeable()
     }
     sessionv('*is_upgradeable', 0);
     return 0;
+}
+
+function getCurrentCollation()
+{
+    $rs = db()->query(
+        sprintf(
+            'SHOW FULL COLUMNS FROM `%s`',
+            str_replace('[+prefix+]', db()->table_prefix, '[+prefix+]site_content')
+        )
+    );
+    while ($row = db()->getRow($rs)) {
+        if ($row['Field'] != 'content' || !isset($row['Collation'])) {
+            continue;
+        }
+        return $row['Collation'];
+    }
+    return false;
 }
 
 function parseProperties($propertyString)
@@ -545,7 +563,11 @@ function convert2utf8mb4() {
         return;
     }
 
-    $collation = db()->getCollation();
+    $collation = getCurrentCollation();
+    if (!$collation) {
+        throw new Exception('Failed to get collation');
+    }
+
     echo "<p>tableのcollationをutf8mb4_general_ciに変換します。</p>";
     if ($collation !== 'utf8mb4_general_ci') {
         $convert->convertDb();
@@ -563,4 +585,24 @@ function convert2utf8mb4() {
 
     $convert->updateConfigIncPhp();
     echo "<p>config.inc.php has been updated.</p>";
+}
+
+function validateSessionValues() {
+    $requiredKeys = [
+        'table_prefix',
+        'adminname',
+        'adminpass',
+        'adminemail',
+        'database_charset',
+        'database_collation',
+        'managerlanguage'
+    ];
+
+    foreach ($requiredKeys as $key) {
+        if (!sessionv($key)) {
+            return false;
+        }
+    }
+
+    return true;
 }

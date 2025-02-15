@@ -1182,23 +1182,6 @@ class DBAPI
         return true;
     }
 
-    public function getCollation($table = '[+prefix+]site_content', $field = 'content')
-    {
-        $rs = $this->query(
-            sprintf(
-                'SHOW FULL COLUMNS FROM `%s`',
-                str_replace('[+prefix+]', $this->table_prefix, $table)
-            )
-        );
-        while ($row = $this->getRow($rs)) {
-            if ($row['Field'] != $field || !isset($row['Collation'])) {
-                continue;
-            }
-            return $row['Collation'];
-        }
-        return 'utf8mb4_general_ci';
-    }
-
     public function _getFieldsStringFromArray($fields = [])
     {
         if (empty($fields)) {
