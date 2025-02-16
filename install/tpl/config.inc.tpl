@@ -3,14 +3,12 @@
  *	MODX Configuration file
  */
 $database_type               = '[+database_type+]';
-$database_server             = '[+database_server+]';
-$database_user               = '[+database_user+]';
-$database_password           = '[+database_password+]';
-$database_connection_charset = '[+database_connection_charset+]';
-$database_connection_method  = '[+database_connection_method+]';
-$dbase                       = '[+dbase+]';
-$table_prefix                = '[+table_prefix+]';
-
+$database_server             = env('DB_HOST', '[+database_server+]');
+$database_user               = env('DB_USERNAME', '[+database_user+]');
+$database_password           = env('DB_PASSWORD', '[+database_password+]');
+$database_connection_charset = env('DB_CHARSET', '[+database_connection_charset+]');
+$dbase                       = env('DB_DATABASE', '[+dbase+]');
+$table_prefix                = env('TABLE_PREFIX', '[+table_prefix+]');
 $https_port                  = '[+https_port+]';
 
 $lastInstallTime             = [+lastInstallTime+];
