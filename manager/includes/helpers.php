@@ -505,3 +505,33 @@ function remove_tags($value, $params = '')
     }
     return strip_tags($value, $params);
 }
+
+if (!function_exists('env')) {
+    /**
+     * 環境変数を取得するヘルパー関数
+     *
+     * @param string $key 環境変数のキー
+     * @param mixed $default デフォルト値（環境変数が存在しない場合）
+     * @return mixed
+     */
+    function env(string $key, $default = null)
+    {
+        $value = getenv($key);
+
+        if ($value === false) {
+            return $default;
+        }
+
+        // "true", "false", "null" 文字列を適切な型に変換
+        switch (strtolower($value)) {
+            case 'true':
+                return true;
+            case 'false':
+                return false;
+            case 'null':
+                return null;
+        }
+
+        return $value;
+    }
+}
