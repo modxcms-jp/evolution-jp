@@ -76,6 +76,11 @@ if (!isset($loaded_autoload) && is_file(MODX_BASE_PATH . 'autoload.php')) {
     include_once MODX_BASE_PATH . 'autoload.php';
 }
 
+if (is_file(MODX_BASE_PATH . '.env')) {
+    require_once MODX_BASE_PATH . 'manager/includes/dotenv-loader.php';
+    $dotenv = new Dotenv(MODX_BASE_PATH . '.env');
+    $dotenv->load();
+}
 // initiate a new document parser
 include_once MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php';
 $evo = new DocumentParser;

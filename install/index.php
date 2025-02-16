@@ -15,6 +15,12 @@ if (!defined('MODX_BASE_PATH')) {
 }
 define('MODX_SETUP_PATH', MODX_BASE_PATH . 'install/');
 
+if (is_file(MODX_BASE_PATH . '.env')) {
+    require_once MODX_BASE_PATH . 'manager/includes/dotenv-loader.php';
+    $dotenv = new Dotenv(MODX_BASE_PATH . '.env');
+    $dotenv->load();
+}
+
 include_once(MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php');
 $modx = new DocumentParser;
 
