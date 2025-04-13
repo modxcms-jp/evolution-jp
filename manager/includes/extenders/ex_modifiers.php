@@ -269,9 +269,11 @@ class MODIFIERS
             $value = $this->getValueFromPreset($key, $value, $cmd, $opt);
         }
 
-        $value = str_replace('[+key+]', $key, $value);
+        if ($value === null) {
+            return '';
+        }
 
-        return $value;
+        return str_replace('[+key+]', $key, $value);
     }
 
     function snippet_exists($cmd)
