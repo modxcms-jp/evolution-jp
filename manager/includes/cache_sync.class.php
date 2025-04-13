@@ -264,52 +264,23 @@ class synccache
 
     private function getCacheRefreshTime()
     {
-        $time = ['cacheRefreshTime' => $this->cacheRefreshTime];
+        $conditions = [
+            'pub' => '%s < pub_date AND published=0 AND (unpub_date=0 OR pub_date<=unpub_date)',
+            'unpub' => '%s < unpub_date AND published=1 AND (pub_date=0 OR pub_date<=unpub_date)',
+            'rvPub' => "%s < pub_date and status = 'standby'",
+        ];
+        $pubDateCondition   = sprintf($conditions['pub'],   $this->current_time);
+        $unpubDateCondition = sprintf($conditions['unpub'], $this->current_time);
+        $rvPubDateCondition = sprintf($conditions['rvPub'], $this->current_time);
 
-        $time['content_pub_date'] = $this->minTime(
-            'site_content',
-            'pub_date',
-            sprintf(
-                '(%s < pub_date and published=0) and (unpub_date=0 OR pub_date<=unpub_date)',
-                $this->current_time
-            )
-        );
-
-        $time['content_unpub_date'] = $this->minTime(
-            'site_content',
-            'unpub_date',
-            sprintf(
-                '(%s < unpub_date and published=1) and (pub_date=0 OR pub_date<=unpub_date)',
-                $this->current_time
-            )
-        );
-
-        $time['chunk_pub_date'] = $this->minTime(
-            'site_htmlsnippets',
-            'pub_date',
-            sprintf(
-                '(%s < pub_date and published=0) and (unpub_date=0 OR pub_date<=unpub_date)',
-                $this->current_time
-            )
-        );
-
-        $time['chunk_unpub_date'] = $this->minTime(
-            'site_htmlsnippets',
-            'unpub_date',
-            sprintf(
-                '(%s < unpub_date and published=1) and (pub_date=0 OR pub_date<=unpub_date)',
-                $this->current_time
-            )
-        );
-
-        $time['revision_standby'] = $this->minTime(
-            'site_revision',
-            'pub_date',
-            sprintf(
-                "(%s < pub_date and status = 'standby')",
-                $this->current_time
-            )
-        );
+        $time = [
+            $this->cacheRefreshTime,
+            $this->minTime('site_content',      'pub_date',   $pubDateCondition),
+            $this->minTime('site_content',      'unpub_date', $unpubDateCondition),
+            $this->minTime('site_htmlsnippets', 'pub_date',   $pubDateCondition),
+            $this->minTime('site_htmlsnippets', 'unpub_date', $unpubDateCondition),
+            $this->minTime('site_revision',     'pub_date',   $rvPubDateCondition)
+        ];
 
         $time = array_filter($time, function($v) {
             return !empty($v);
