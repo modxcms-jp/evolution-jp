@@ -397,8 +397,8 @@ function managerLogin()
             [
                 'expires'  => strtotime('+1 month'),
                 'path'     => MODX_BASE_URL,
-                'secure'   => init::is_ssl() ? true : false,
-                'domain'   => init::get_host_name(),
+                'domain' => '',
+                'secure'   => init::is_ssl(),
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]
@@ -411,8 +411,8 @@ function managerLogin()
             [
                 'expires'  => (request_time() - 3600),
                 'path'     => MODX_BASE_URL,
-                'secure'   => init::is_ssl() ? true : false,
-                'domain'   => init::get_host_name(),
+                'domain'   => '',
+                'secure'   => init::is_ssl(),
                 'httponly' => true,
                 'samesite' => 'Lax',
             ]

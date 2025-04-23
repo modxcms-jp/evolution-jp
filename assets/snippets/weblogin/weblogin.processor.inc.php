@@ -173,7 +173,18 @@ if ($isLogOut == 1) {
         unset($_SESSION['webDocgroups']);
     } else {
         if (isset($_COOKIE[session_name()])) {
-            setcookie(session_name(), '', 0, MODX_BASE_URL);
+            setcookie(
+                session_name(),
+                '',
+                [
+                    'expires' => 0,
+                    'path' => MODX_BASE_URL,
+                    'domain' => '',
+                    'secure' => init::is_ssl(),
+                    'httponly' => true,
+                    'samesite' => 'Lax' // クロスサイト保護
+                ]
+            );
         }
         session_destroy();
     }

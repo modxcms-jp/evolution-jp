@@ -1098,28 +1098,24 @@ class DocumentParser
         }
         $_SESSION['mgrDocgroups'] = $this->manager->getMgrDocgroups($userid);
 
-        if ($this->input_any('rememberme')) {
-            $_SESSION['modx.mgr.session.cookie.lifetime'] = (int)$this->config['session.cookie.lifetime'];
-            setcookie(
-                'modx_remember_manager',
-                $user['username'],
-                [
-                    'expires' => strtotime('+1 month'),
-                    'path' => MODX_BASE_URL,
-                    'secure' => init::is_ssl(),
-                    'httponly' => true,
-                    'samesite' => 'Lax'
-                ]
-            );
-        } else {
-            $_SESSION['modx.mgr.session.cookie.lifetime'] = 0;
-            setcookie(
-                'modx_remember_manager',
-                '',
-                (request_time() - 3600),
-                MODX_BASE_URL
-            );
-        }
+        $_SESSION['modx.mgr.session.cookie.lifetime'] = $this->input_any('rememberme')
+            ? (int)$this->config['session.cookie.lifetime']
+            : 0
+        ;
+        setcookie(
+            'modx_remember_manager',
+            $user['username'],
+            [
+                'expires' => $this->input_any('rememberme')
+                    ? (int) strtotime('+1 month')
+                    : request_time() - 3600,
+                'path' => MODX_BASE_URL,
+                'domain' => '',
+                'secure' => init::is_ssl(),
+                'httponly' => true,
+                'samesite' => 'Lax' // クロスサイト保護に推奨
+            ]
+        );
 
         if ($this->hasPermission('remove_locks')) {
             $this->manager->remove_locks();
@@ -5654,7 +5650,7 @@ class DocumentParser
         if (!$this->config) {
             $this->config = include MODX_CORE_PATH . 'default.config.php';
         }
-        
+
         if (!defined('MODX_SETUP_PATH')) {
             if (empty($this->config['site_url'])) {
                 $this->getSettings();

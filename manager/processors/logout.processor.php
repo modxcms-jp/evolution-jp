@@ -13,11 +13,19 @@ $tmp = array(
 );
 evo()->invokeEvent("OnBeforeManagerLogout", $tmp);
 
-//// Unset all of the session variables.
-//$_SESSION = [];
-// destroy session cookie
 if (isset($_COOKIE[session_name()])) {
-    setcookie(session_name(), '', 0, $modx->config['base_url']);
+    setcookie(
+        session_name(),
+        '',
+        [
+            'expires' => 0,
+            'path' => MODX_BASE_URL,
+            'domain' => '',
+            'secure' => init::is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]
+    );
 }
 //// now destroy the session
 @session_destroy(); // this sometimes generate an error in iis
