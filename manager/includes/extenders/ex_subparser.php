@@ -2644,6 +2644,7 @@ class SubParser
             $draft = $modx->revision->getDraft($row['elmid']);
             $draft['editedon'] = $row['editedon'];
             $draft['editedby'] = $row['editedby'];
+            $draft['published'] = 1;
 
             if ($modx->doc->update($draft, $row['elmid']) !== false) {
                 db()->delete(
