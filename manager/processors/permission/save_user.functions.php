@@ -224,14 +224,25 @@ function hasOldUserEmail()
 
 function newPassword()
 {
-    if (postv('passwordgenmethod') === 'spec') {
-        return postv('specifiedpassword');
+    static $password = null;
+
+    if ($password) {
+        return $password;
     }
-    if (postv('passwordgenmethod') === 'g') {
-        return generate_password(8);
+
+    switch (postv('passwordgenmethod')) {
+        case 'spec':
+            $password = postv('specifiedpassword');
+            break;
+        case 'g':
+            $password = generate_password(8);
+            break;
+        default:
+            webAlert('No password generation method specified!');
+            exit;
     }
-    webAlert('No password generation method specified!');
-    exit;
+
+    return $password;
 }
 
 function confirmPassword()
