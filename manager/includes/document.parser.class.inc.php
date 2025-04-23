@@ -5651,6 +5651,10 @@ class DocumentParser
 
     public function config($key = null, $default = null)
     {
+        if (!$this->config) {
+            $this->config = include MODX_CORE_PATH . 'default.config.php';
+        }
+        
         if (!defined('MODX_SETUP_PATH')) {
             if (empty($this->config['site_url'])) {
                 $this->getSettings();
