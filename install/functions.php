@@ -588,7 +588,13 @@ function convert2utf8mb4() {
 }
 
 function validateSessionValues() {
-    $requiredKeys = [
+    $requiredKeys = sessionv('is_upgradeable')
+    ? [
+        'database_charset',
+        'database_collation',
+        'managerlanguage'
+    ]
+    : [
         'table_prefix',
         'adminname',
         'adminpass',
@@ -600,6 +606,8 @@ function validateSessionValues() {
 
     foreach ($requiredKeys as $key) {
         if (!sessionv($key)) {
+            echo $key;
+            print_r(sessionv());
             return false;
         }
     }
