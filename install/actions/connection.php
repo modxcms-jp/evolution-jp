@@ -10,11 +10,10 @@ if (sessionv('prevAction') === 'options') {
     sessionv('*module', postv('module', []));
 }
 $ph = array_merge(
-    $ph
-    , array(
+    $ph, [
         'adminname'         => 'admin',
-        'database_server'   => sessionv('database_server','localhost'),
-        'table_prefix'      => sessionv('table_prefix','modx_'),
+        'database_server'   => sessionv('database_server', 'localhost'),
+        'table_prefix'      => sessionv('table_prefix', 'modx_'),
         'is_upgradeable'    => sessionv('is_upgradeable'),
         'adminemail'        => sessionv('adminemail', ''),
         'adminpass'         => sessionv('adminpass', ''),
@@ -22,7 +21,7 @@ $ph = array_merge(
         'database_user'     => sessionv('database_user', ''),
         'database_password' => sessionv('database_password', ''),
         'dbase'             => sessionv('dbase', ''),
-    )
+    ]
 );
 if ($ph['database_server'] === '127.0.0.1') {
     $ph['database_server'] = 'localhost';
@@ -30,6 +29,6 @@ if ($ph['database_server'] === '127.0.0.1') {
 echo $modx->parseText(
     file_get_contents(
         MODX_BASE_PATH . 'install/tpl/connection.tpl'
-    )
-    , $ph
+    ),
+    $ph
 );
