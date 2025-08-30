@@ -606,8 +606,6 @@ function validateSessionValues() {
 
     foreach ($requiredKeys as $key) {
         if (!sessionv($key)) {
-            echo $key;
-            print_r(sessionv());
             return false;
         }
     }
