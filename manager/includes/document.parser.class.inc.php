@@ -2130,7 +2130,7 @@ class DocumentParser
         }
         [$key, $str] = explode('@', $key, 2);
 
-        [$context, $option] = explode('(', $str, 2);
+        list($context, $option) = array_pad(explode('(', $str, 2), 2, null);
         if ($option) {
             $option = trim($option, ')(\'"`');
         }
@@ -2770,7 +2770,7 @@ class DocumentParser
                     $error_info['type'],
                     $error_info['file'],
                     'Snippet',
-                    $error_info['text'],
+                    $error_info['text'] ?? '',
                     $error_info['line'],
                     $echo
                 );
