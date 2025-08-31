@@ -702,7 +702,7 @@ class ditto
                     , event()->param('documents')
                 );
             }
-            if ($orderBy['custom']) {
+            if ($orderBy['custom'] ?? null) {
                 $resource = $this->userSort($resource, $orderBy);
             }
             $fields = array_intersect_key($this->fields['backend'], $this->fields['display']);
