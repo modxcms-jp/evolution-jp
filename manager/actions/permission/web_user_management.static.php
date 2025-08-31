@@ -17,7 +17,6 @@ if (anyv('op') == 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
     $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
-    $sqlQuery = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
@@ -123,7 +122,7 @@ echo $cm->render();
                                 <td><?= $_lang["search"] ?></td>
                                 <td>
                                     <input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= $query ?>" />
+                                        value="<?= anyv('search') ?>" />
                                 </td>
                                 <td>
                                     <a class="default" href="#" title="<?= $_lang["search"] ?>"
@@ -146,13 +145,12 @@ echo $cm->render();
         </div>
 
         <div>
-            <?php
-
-            $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked,'" . $_lang['yes'] . "','-') as 'blocked'" .
-                "FROM " . evo()->getFullTableName("web_users") . " wu " .
-                "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
-                ($sqlQuery ? " WHERE (wu.username LIKE '$sqlQuery%') OR (wua.fullname LIKE '%$sqlQuery%') OR (wua.email LIKE '$sqlQuery%')" : "") . " " .
-                "ORDER BY username";
+        <?php
+        $sql = "SELECT wu.id,wu.username,wua.fullname,wua.email,IF(wua.gender=1,'" . $_lang['user_male'] . "',IF(wua.gender=2,'" . $_lang['user_female'] . "','-')) as 'gender',IF(wua.blocked,'" . $_lang['yes'] . "','-') as 'blocked'" .
+            "FROM " . evo()->getFullTableName("web_users") . " wu " .
+            "INNER JOIN " . evo()->getFullTableName("web_user_attributes") . " wua ON wua.internalKey=wu.id " .
+            (anyv('search') ? " WHERE (wu.username LIKE '" . db()->escape('search') . "%') OR (wua.fullname LIKE '%" . db()->escape('search') . "%') OR (wua.email LIKE '" . db()->escape('search') . "%')" : "") . " " .
+            "ORDER BY username";
             $ds = db()->query($sql);
             include_once(MODX_CORE_PATH . 'controls/datagrid.class.php');
             $grd = new DataGrid('', $ds, $number_of_results); // set page size to 0 t show all items
