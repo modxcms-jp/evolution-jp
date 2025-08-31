@@ -16,7 +16,6 @@ if (anyv('op') == 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
     $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
-    $keyword = db()->escape($query);
     $_PAGE['vs']['search'] = $query;
 }
 
@@ -121,7 +120,7 @@ echo $cm->render();
                             <tr>
                                 <td><?= $_lang["search"] ?></td>
                                 <td><input class="searchtext" name="search" type="text" size="15"
-                                        value="<?= $query ?>" /></td>
+                                        value="<?= anyv('search') ?>" /></td>
                                 <td><a href="#" class="default" title="<?= $_lang["search"] ?>"
                                         onclick="searchResource();return false;"><?= $_lang['go'] ?></a></td>
                                 <td><a href="#" title="<?= $_lang["reset"] ?>"
@@ -150,19 +149,21 @@ echo $cm->render();
             $from = "{$tbl_manager_users} AS mu";
             $from .= " INNER JOIN {$tbl_user_attributes} AS mua ON mua.internalKey=mu.id";
             $from .= " LEFT JOIN {$tbl_user_roles} AS roles ON mua.role=roles.id";
-            if ($_SESSION['mgrRole'] == 1) {
-                if ($keyword) {
-                    $where = "(mu.username LIKE '" . $keyword . "%') OR (mua.fullname LIKE '%" . $keyword . "%') OR (mua.email LIKE '" . $keyword . "%')";
-                } else {
-                    $where = '';
-                }
-            } else {
-                if ($keyword) {
-                    $where = "((mu.username LIKE '{$keyword}%') OR (mua.fullname LIKE '%{$keyword}%') OR (mua.email LIKE '{$keyword}%')) AND mua.role != 1";
-                } else {
-                    $where = 'mua.role != 1';
-                }
+            // Build WHERE clause: combine search conditions and role restriction
+            $search = anyv('search');
+            $whereParts = [];
+
+            if ($search) {
+                $keyword = db()->escape($search);
+                $whereParts[] = "(mu.username LIKE '{$keyword}%' OR mua.fullname LIKE '%{$keyword}%' OR mua.email LIKE '{$keyword}%')";
             }
+
+            // Non-admins should not see users with role == 1
+            if (sessionv('mgrRole') != 1) {
+                $whereParts[] = 'mua.role != 1';
+            }
+
+            $where = count($whereParts) ? implode(' AND ', $whereParts) : '';
             $orderby = 'mua.blocked ASC, mua.thislogin DESC';
             $ds = db()->select($field, $from, $where, $orderby);
 
