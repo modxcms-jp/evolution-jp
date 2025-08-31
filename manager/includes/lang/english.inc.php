@@ -296,6 +296,7 @@ $_lang["export_site_success_skip_doc"] = 'Skip this document.';
 $_lang["export_site_suffix"] = 'File suffix:';
 $_lang["export_site_target_unwritable"] = 'Target directory isn\'t writable. Please ensure the directory is writable, and try again.';
 $_lang["export_site_time"] = 'Export finished. Export took %s seconds to complete.';
+$_lang["export_site_basic_auth_warning"] = 'This site is protected by HTTP Basic Authentication.<br><strong>The export feature cannot be used while Basic Authentication is enabled.</strong><br>If you need to restrict access to the site, please use MODX global settings ("Site status") instead of Basic Authentication.';
 $_lang["failed_login_message"] = 'Enter the number of failed login attempts allowed before blocking a user.';
 $_lang["failed_login_title"] = 'Failed Login Attempts';
 $_lang["fe_editor_lang_message"] = 'Choose a language for the editor to use when used as a front-end editor.';

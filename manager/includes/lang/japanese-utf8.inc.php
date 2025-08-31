@@ -299,6 +299,7 @@ $_lang["export_site_success_skip_doc"] = '更新されていないためスキ�
 $_lang["export_site_suffix"] = 'ファイル名のサフィックス';
 $_lang["export_site_target_unwritable"] = 'ターゲットディレクトリ内に書き込みができません。ディレクトリが書き込み可能であるか確認して、再度処理を行ってください。';
 $_lang["export_site_time"] = 'エクスポートが完了しました。エクスポートに要した時間は %s 秒です。';
+$_lang["export_site_basic_auth_warning"] = 'このサイトはHTTPベーシック認証で保護されています。<br><strong>ベーシック認証が有効な状態ではエクスポート機能は利用できません。</strong><br>サイトの限定公開が必要な場合は、ベーシック認証ではなくグローバル設定の「公開ステータス」をご利用ください。';
 $_lang["failed_login_message"] = 'ログイン失敗を許容する回数を設定します。ここで設定した回数を超えると一定時間ロックされログインできなくなります。';
 $_lang["failed_login_title"] = 'ログイン失敗を許容する回数';
 $_lang["fe_editor_lang_message"] = 'フロントエンドエディターで用いるリッチテキストエディターの言語を選んでください。';

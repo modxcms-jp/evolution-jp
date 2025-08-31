@@ -14,6 +14,8 @@ class EXPORT_SITE
     private $output = [];
     private $lock_file_path;
     private $bearer_token;
+    private $curl = null;
+    private $basic_auth_detected = false;
 
     public function __construct()
     {
@@ -222,6 +224,9 @@ class EXPORT_SITE
             evo()->saveBearerToken($this->bearer_token, time() + 60*60*3);
         }
 
+    // Initialize a reusable curl handle before starting the loop (if available)
+    $this->initCurl();
+
         $mask = umask();
         while ($row = db()->getRow($rs)) {
             $_ = $modx->getAliasListing($row['id'], 'path');
@@ -242,6 +247,19 @@ class EXPORT_SITE
             $row['count'] = $this->count;
 
             $this->processRow($row, $target_base_path, $_lang, $mask);
+
+            // If a basic auth (HTTP 401) was detected during fetching, show warning and stop
+            if ($this->basic_auth_detected) {
+                // use language string for the warning (can contain HTML)
+                $this->output[] = '<div style="color:#a00; font-weight:bold; margin-bottom:1em;">' . $_lang['export_site_basic_auth_warning'] . '</div>';
+                break;
+            }
+        }
+
+        // Close reusable curl handle
+        if ($this->curl) {
+            @curl_close($this->curl);
+            $this->curl = null;
         }
 
         if (is_file($this->lock_file_path)) {
@@ -283,10 +301,14 @@ class EXPORT_SITE
             } else {
                 $row['status'] = $this->makeMsg('success_skip_doc');
             }
-            $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+            if (!$this->basic_auth_detected) {
+                $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+            }
         } else {
             $row['status'] = $this->makeMsg('success_skip_dir');
-            $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+            if (!$this->basic_auth_detected) {
+                $this->output[] = evo()->parseText($_lang['export_site_exporting_document'], $row);
+            }
         }
 
         if ($row['isfolder'] != 1) {
@@ -320,14 +342,63 @@ class EXPORT_SITE
             rename($filename, $folder_path . '/index.html');
         }
     }
+
     private function get_contents($url, $timeout = 10)
     {
         if (!extension_loaded('curl')) {
+            // try to detect 401 from headers when curl isn't available
+            $headers = @get_headers($url);
+            if (is_array($headers) && isset($headers[0]) && strpos($headers[0], '401') !== false) {
+                $this->basic_auth_detected = true;
+                return false;
+            }
             return @file_get_contents($url);
         }
 
+        // ensure reusable curl handle is initialized
+        if (!$this->curl) {
+            $this->initCurl($timeout);
+        }
+
+        if (!$this->curl) {
+            return false;
+        }
+
+        // set URL for this request and execute using the reusable handle
+        curl_setopt($this->curl, CURLOPT_URL, $url);
+        $result = curl_exec($this->curl);
+
+        if ($result === false) {
+            $i = 0;
+            while ($i < 2) {
+                usleep(300000);
+                $result = curl_exec($this->curl);
+                $i++;
+            }
+        }
+
+        // check HTTP status and mark basic auth detected on 401
+        $http_code = curl_getinfo($this->curl, CURLINFO_HTTP_CODE);
+        if ($http_code === 401) {
+            $this->basic_auth_detected = true;
+            return false;
+        }
+
+        return $result;
+    }
+
+    // initialize a reusable curl handle with common options
+    private function initCurl($timeout = 10)
+    {
+        if (!extension_loaded('curl')) {
+            return false;
+        }
+
+        if ($this->curl) {
+            return true;
+        }
+
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
@@ -344,25 +415,17 @@ class EXPORT_SITE
         }
 
         if ($this->bearer_token) {
-            curl_setopt(
-                $ch,
-                CURLOPT_HTTPHEADER, [
-                    'Authorization: Bearer '. $this->bearer_token
-                ]
-            );
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Authorization: Bearer '. $this->bearer_token
+            ]);
         }
 
-        $result = curl_exec($ch);
-        if (!$result) {
-            $i = 0;
-            while ($i < 2) {
-                usleep(300000);
-                $result = curl_exec($ch);
-                $i++;
-            }
-        }
-        curl_close($ch);
-        return $result;
+        // cookie persistence can be enabled if needed
+        // curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/export_cookies.txt');
+        // curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/export_cookies.txt');
+
+        $this->curl = $ch;
+        return true;
     }
 
     private function makeMsg($cond, $status = 'success')
