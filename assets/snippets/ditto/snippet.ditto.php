@@ -1225,7 +1225,7 @@ if ($count > 0) {
     $TVs = $ditto->fields['display']['tv'];
     // get the TVs
 
-    switch ($orderBy['parsed'][0][1]) {
+    switch ($orderBy['parsed'][0][1] ?? null) {
         case 'DESC':
             $stop = ($ditto->prefetch === false) ? $stop + $start + $offset : $stop + $offset;
             $start += $offset;
