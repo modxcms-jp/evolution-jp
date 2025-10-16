@@ -20,8 +20,15 @@ class Dotenv
 
         $lines = file($this->path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
+            $trimmedLine = trim($line);
+
             // コメント行を無視
-            if (strpos(trim($line), '#') === 0) {
+            if ($trimmedLine === '' || strpos($trimmedLine, '#') === 0) {
+                continue;
+            }
+
+            // "=" が含まれない行は不正なのでスキップ
+            if (strpos($line, '=') === false) {
                 continue;
             }
 
@@ -32,7 +39,14 @@ class Dotenv
             $value = trim($value);
 
             // 文字列の囲み（""または'')を削除
-            $value = trim($value, '"\'');  // ダブルクォートとシングルクォートの両方を削除
+            if ($value !== '' && in_array($value[0], ["\"", "'"], true)) {
+                $quote = $value[0];
+                if (substr($value, -1) === $quote) {
+                    $value = substr($value, 1, -1);
+                } else {
+                    $value = substr($value, 1);
+                }
+            }
 
             // 環境変数にセット
             if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
