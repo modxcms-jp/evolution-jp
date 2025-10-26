@@ -18,5 +18,5 @@ evo()->sendRedirect(
     evo()->makeUrl(postv('qmrefresh', $id), '', 'quickmanagerclose=1', 'full'),
     0,
     'REDIRECT_HEADER',
-    'HTTP/1.1 301 Moved Permanently'
+    'HTTP/1.1 303 See Other'
 );

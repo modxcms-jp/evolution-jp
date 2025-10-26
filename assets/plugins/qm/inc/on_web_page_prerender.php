@@ -19,7 +19,46 @@ $output = &evo()->documentOutput;
 if (getv('quickmanagerclose')) {
     // Set url to refresh
     $url = evo()->makeUrl($docID, '', '', 'full');
-    exit(sprintf("<script>parent.location.href='%s';</script>", $url));
+    $jsonUrl = json_encode($url, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit(<<<HTML
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>Reloading…</title>
+</head>
+<body>
+<script>
+(function () {
+    var target = {$jsonUrl};
+    var parentWindow = null;
+    try {
+        parentWindow = window.parent;
+    } catch (e) {}
+
+    if (parentWindow && parentWindow !== window) {
+        try {
+            if (parentWindow.jQuery && parentWindow.jQuery.colorbox) {
+                parentWindow.jQuery.colorbox.close();
+            }
+            if (parentWindow.location) {
+                parentWindow.location.href = target;
+                return;
+            }
+        } catch (e) {}
+    }
+
+    if (window.top && window.top !== window) {
+        window.top.location.href = target;
+    } else {
+        window.location.href = target;
+    }
+})();
+</script>
+</body>
+</html>
+HTML
+    );
 }
 
 // QM+ TV edit
