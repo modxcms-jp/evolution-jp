@@ -76,6 +76,8 @@ class DocumentParser
     public $uaType;
     public $functionLog = [];
     public $currentSnippetCall;
+    /** @var OldFunctions */
+    public $old;
     public $previewObject = ''; //プレビュー用のPOSTデータを保存
     public $snipLapCount;
     public $chunkieCache;
