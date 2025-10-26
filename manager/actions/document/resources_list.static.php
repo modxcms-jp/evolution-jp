@@ -9,8 +9,9 @@ if (!hasPermission('view_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
-    $id = getv('id');
+$idParam = (string)getv('id');
+if (preg_match('@^[1-9][0-9]*$@', $idParam)) {
+    $id = (int)$idParam;
 } else {
     $id = 0;
 }
@@ -67,8 +68,9 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    if (preg_match('@^[1-9][0-9]*$@', getv('page'))) {
-        $offset = getv('page') - 1;
+    $pageParam = (string)getv('page');
+    if (preg_match('@^[1-9][0-9]*$@', $pageParam)) {
+        $offset = (int)$pageParam - 1;
     } else {
         $offset = 0;
     }
