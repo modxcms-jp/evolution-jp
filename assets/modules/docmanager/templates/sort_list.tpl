@@ -29,7 +29,20 @@
                 if (window.MODXSortable) {
                     window.MODXSortable.updateAll();
                 }
-                if ('[+sort.disable_tree_select+]' === 'true' && parent && parent.tree) {
+                var disableTreeSelect = (function(value) {
+                    if (typeof value === 'boolean') {
+                        return value;
+                    }
+                    if (value == null) {
+                        return false;
+                    }
+                    if (typeof value === 'number') {
+                        return value !== 0;
+                    }
+                    var normalized = String(value).toLowerCase();
+                    return normalized === 'true' || normalized === '1';
+                })([+sort.disable_tree_select+]);
+                if (disableTreeSelect && parent && parent.tree) {
                     parent.tree.ca = '';
                 }
             });
