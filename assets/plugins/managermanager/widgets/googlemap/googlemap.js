@@ -49,7 +49,9 @@ mm_gmap.draw = function(mapContainerId) {
 };
 
 mm_gmap.addMarker = function(myLatLng,tvId){
-	if(mm_gmap.marker[tvId]){mm_gmap.marker[tvId].setMap(null);}
+	if (mm_gmap.marker[tvId]) {
+		mm_gmap.marker[tvId].setMap(null);
+	}
 	mm_gmap.marker[tvId] = new google.maps.Marker({
 		position: myLatLng,
 		map: mm_gmap.map[tvId],
