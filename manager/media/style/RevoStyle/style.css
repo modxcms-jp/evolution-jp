@@ -1270,6 +1270,7 @@ a.hometblink:hover {
     border-radius: 5px 5px 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
+    background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
