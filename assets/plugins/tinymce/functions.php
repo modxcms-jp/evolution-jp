@@ -468,7 +468,7 @@ class TinyMCE
         foreach ($ph as $name => $value) {
             $name = '[+' . $name . '+]';
             if (is_bool($value)) {
-                $value = $value ? 'true' : 'false';
+                $value = json_encode($value);
             } elseif ($value === null) {
                 $value = '';
             } elseif (!is_scalar($value)) {
