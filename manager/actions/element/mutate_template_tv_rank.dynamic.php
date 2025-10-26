@@ -49,18 +49,21 @@ $rs = db()->select($field, $from, $where, $orderby);
 $limit = db()->count($rs);
 $evtLists = '';
 
-if ($limit > 1) {
+if ($limit > 0) {
     for ($i = 0; $i < $limit; $i++) {
         $row = db()->getRow($rs);
-        if ($i == 0) {
+        if (!$row) {
+            continue;
+        }
+        if ($i === 0) {
             $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">';
         }
         $evtLists .= '<li id="item_' . $row['id'] . '" class="sort">' . $row['name'] . '</li>';
     }
-}
 
-if ($evtLists !== '') {
-    $evtLists .= '</ul>';
+    if ($evtLists !== '') {
+        $evtLists .= '</ul>';
+    }
 }
 
 $header = '
