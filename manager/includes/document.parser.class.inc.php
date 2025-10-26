@@ -1163,18 +1163,20 @@ class DocumentParser
             $this->config[$k] = $v;
         }
 
-        if (strpos($this->config('filemanager_path'), '[(') !== false) {
+        $filemanagerPath = $this->config('filemanager_path');
+        if (is_string($filemanagerPath) && strpos($filemanagerPath, '[(') !== false) {
             $this->config['filemanager_path'] = str_replace(
                 '[(base_path)]',
                 MODX_BASE_PATH,
-                $this->config('filemanager_path')
+                $filemanagerPath
             );
         }
-        if (strpos($this->config('rb_base_dir'), '[(') !== false) {
+        $rbBaseDir = $this->config('rb_base_dir');
+        if (is_string($rbBaseDir) && strpos($rbBaseDir, '[(') !== false) {
             $this->config['rb_base_dir'] = str_replace(
                 '[(base_path)]',
                 MODX_BASE_PATH,
-                $this->config('rb_base_dir')
+                $rbBaseDir
             );
         }
         if (!isset($this->config['modx_charset'])) {
