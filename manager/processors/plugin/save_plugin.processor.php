@@ -19,6 +19,11 @@ $properties = db()->escape(postv('properties'));
 $disabled = postv('disabled') == "on" ? '1' : '0';
 $moduleguid = db()->escape(postv('moduleguid'));
 $sysevents = postv('sysevents');
+$pluginErrorReporting = postv('error_reporting', 'inherit');
+$validErrorLevels = ['inherit', '0', '1', '2', '99'];
+if (!in_array($pluginErrorReporting, $validErrorLevels, true)) {
+    $pluginErrorReporting = 'inherit';
+}
 if (empty($sysevents)) {
     $sysevents[] = 90;
 } // Default OnWebPageInit
@@ -83,6 +88,7 @@ switch (postv('mode')) {
 
         //do stuff to save the new plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f['error_reporting'] = $pluginErrorReporting;
         $newid = db()->insert($f, '[+prefix+]site_plugins');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -150,6 +156,7 @@ switch (postv('mode')) {
         }
         //do stuff to save the edited plugin
         $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f['error_reporting'] = $pluginErrorReporting;
         $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited plugin not saved!";

@@ -357,6 +357,56 @@ trait DocumentParserSubParserTrait
             );
         }
 
+        if (!empty($modx->currentErrorContext)) {
+            $context = $modx->currentErrorContext;
+            $contextParts = [];
+            if (!empty($context['type'])) {
+                $contextParts[] = $context['type'];
+            }
+            if (!empty($context['name'])) {
+                if (!empty($contextParts)) {
+                    $contextParts[count($contextParts) - 1] .= ' - ' . $context['name'];
+                } else {
+                    $contextParts[] = $context['name'];
+                }
+            }
+            if ($contextParts) {
+                $str .= $modx->parseText(
+                    $tpl,
+                    [
+                        'left' => 'Execution Context : ',
+                        'right' => implode('', $contextParts)
+                    ]
+                );
+            }
+
+            $requested = $context['requested'] ?? 'inherit';
+            $effective = $context['effective'] ?? 'n/a';
+            $globalLevel = $context['global'] ?? 'n/a';
+            $str .= $modx->parseText(
+                $tpl,
+                [
+                    'left' => 'PHP Error Level : ',
+                    'right' => sprintf(
+                        'requested: %s / effective: %s / global: %s',
+                        $requested,
+                        $effective,
+                        $globalLevel
+                    )
+                ]
+            );
+
+            if (!empty($context['compatibility'])) {
+                $str .= $modx->parseText(
+                    $tpl,
+                    [
+                        'left' => 'Compatibility Mode : ',
+                        'right' => 'enabled'
+                    ]
+                );
+            }
+        }
+
         if (db()->lastQuery) {
             $str .= $modx->parseText(
                 $tpl, [
@@ -484,6 +534,15 @@ trait DocumentParserSubParserTrait
         }
         if ($line) {
             $title .= ' line:' . $line;
+        }
+
+        if (!empty($modx->currentErrorContext['compatibility'])) {
+            $effective = $modx->currentErrorContext['effective'] ?? '';
+            if ($effective !== '') {
+                $title .= ' [compatibility mode: ' . $effective . ']';
+            } else {
+                $title .= ' [compatibility mode]';
+            }
         }
 
         switch ($nr) {

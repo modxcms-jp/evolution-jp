@@ -13,6 +13,12 @@ $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
+$errorReporting = postv('error_reporting', 'inherit');
+$validErrorLevels = ['inherit', '0', '1', '2', '99'];
+if (!in_array($errorReporting, $validErrorLevels, true)) {
+    $errorReporting = 'inherit';
+}
+
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {
     $snippet = substr($snippet, 2);
@@ -78,6 +84,7 @@ switch (postv('mode')) {
         $field['locked'] = $locked;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
+        $field['error_reporting'] = $errorReporting;
         $newid = db()->insert($field, $tbl_site_snippets);
         if (!$newid) {
             echo '$newid not set! New snippet not saved!';
@@ -119,6 +126,7 @@ switch (postv('mode')) {
         $field['locked'] = $locked;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
+        $field['error_reporting'] = $errorReporting;
         $rs = db()->update($field, $tbl_site_snippets, "id='{$id}'");
         if (!$rs) {
             echo '$rs not set! Edited snippet not saved!';

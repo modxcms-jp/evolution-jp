@@ -1193,6 +1193,7 @@ $_lang['a17_error_reporting_opt0'] = '全て無視する';
 $_lang['a17_error_reporting_opt1'] = '通知レベルの軽度の警告を無視する(<a href="https://www.google.com/search?hl=ja&q=E_DEPRECATED" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang['a17_error_reporting_opt2'] = 'E_NOTICE 以外の全てのエラーを検出';
 $_lang['a17_error_reporting_opt99'] = '全て検出する';
+$_lang['element_error_reporting_inherit'] = 'グローバル設定を継承';
 
 $_lang["role_site_schedule"] = '公開状態の一覧';
 

@@ -76,6 +76,7 @@ class DocumentParser
     public $uaType;
     public $functionLog = [];
     public $currentSnippetCall;
+    public $currentErrorContext;
     /** @var OldFunctions */
     public $old;
     public $previewObject = ''; //プレビュー用のPOSTデータを保存
@@ -2666,7 +2667,7 @@ class DocumentParser
         );
     }
 
-    public function evalPlugin($pluginCode, $params)
+    public function evalPlugin($pluginCode, $params, $errorReporting = 'inherit')
     {
         $modx = &$this;
         $modx->event->params = $params; // store params inside event object
@@ -2674,50 +2675,42 @@ class DocumentParser
             extract($params, EXTR_SKIP);
             $modx->event->cm->setParams($params);
         }
-        ob_start();
+
         $pluginCode = preg_replace('{^<\?php}u', '', trim($pluginCode));
-        $return = eval($pluginCode);
-        unset($modx->event->params);
-        $echo = ob_get_clean();
-        if (!$echo || !error_get_last()) {
-            return $echo . $return;
+        $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
+        $contextState = $this->enterErrorContext('Plugin', $this->event->activePlugin ?? '', $resolvedLevel);
+
+        if (function_exists('error_clear_last')) {
+            error_clear_last();
         }
 
-        $error_info = error_get_last();
-        if ($error_info['type'] === 2048 || $error_info['type'] === 8192) {
-            $error_type = 2;
-        } else {
-            $error_type = 3;
+        ob_start();
+        try {
+            $return = eval($pluginCode);
+        } catch (\Throwable $throwable) {
+            ob_end_clean();
+            $this->handleElementThrowable('Plugin', $this->event->activePlugin ?? '', $throwable);
+            return '';
         }
-        if (1 < $this->config('error_reporting') || 2 < $error_type) {
-            if ($echo === false) {
-                $echo = 'ob_get_contents() error';
-            }
-            $errorMessage = $error_info['message'] ?? '';
-            $this->messageQuit(
-                'PHP Parse Error',
-                '',
-                true,
-                $error_info['type'],
-                $error_info['file'],
-                'Plugin',
-                $errorMessage,
-                $error_info['line'],
-                $echo
-            );
-            if ($this->isBackend()) {
-                $this->event->alert(
-                    sprintf(
-                        'An error occurred while loading. Please see the event log for more information.<p>%s</p>',
-                        $echo
-                    )
-                );
-            }
+
+        $echo = ob_get_clean();
+        $lastError = error_get_last();
+
+        if ($this->shouldProcessBufferedError($resolvedLevel['level'], $echo, $lastError)) {
+            $this->processBufferedError('Plugin', $lastError, $echo);
         }
-        return '';
+
+        $this->leaveErrorContext($contextState);
+        unset($modx->event->params);
+
+        if (function_exists('error_clear_last')) {
+            error_clear_last();
+        }
+
+        return (($echo === false) ? '' : $echo) . ($return ?? '');
     }
 
-    public function evalSnippet($phpcode, $params)
+    public function evalSnippet($phpcode, $params, $errorReporting = 'inherit')
     {
         $this->currentSnippetCode = $phpcode;
         $phpcode = trim($phpcode);
@@ -2748,42 +2741,35 @@ class DocumentParser
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+
+        $resolvedLevel = $this->resolveErrorReportingLevel($errorReporting);
+        $contextState = $this->enterErrorContext('Snippet', $this->currentSnippet ?? '', $resolvedLevel);
+
+        if (function_exists('error_clear_last')) {
+            error_clear_last();
+        }
+
         ob_start();
-        if (strpos($phpcode, ';') !== false || strpos(trim($phpcode), "\n") !== false) {
-            $return = eval($phpcode);
-        } else {
-            $return = $phpcode($params);
-        }
-        $echo = ob_get_clean();
-
-        if ((0 < $this->config('error_reporting')) && $echo && error_get_last()) {
-            $error_info = error_get_last();
-            if ($error_info['type'] === 2048 || $error_info['type'] === 8192) {
-                $error_type = 2;
+        try {
+            if (strpos($phpcode, ';') !== false || strpos(trim($phpcode), "\n") !== false) {
+                $return = eval($phpcode);
             } else {
-                $error_type = 3;
+                $return = $phpcode($params);
             }
-
-            if (1 < $this->config('error_reporting') || 2 < $error_type) {
-                $this->messageQuit(
-                    'PHP Parse Error',
-                    '',
-                    true,
-                    $error_info['type'],
-                    $error_info['file'],
-                    'Snippet',
-                    $error_info['message'] ?? '',
-                    $error_info['line'],
-                    $echo
-                );
-                if ($this->isBackend()) {
-                    $this->event->alert(
-                        'An error occurred while loading. Please see the event log for more information<p>' . $echo . '</p>'
-                    );
-                }
-            }
+        } catch (\Throwable $throwable) {
+            ob_end_clean();
+            $this->handleElementThrowable('Snippet', $this->currentSnippet ?? '', $throwable);
+            return '';
         }
 
+        $echo = ob_get_clean();
+        $lastError = error_get_last();
+
+        if ($this->shouldProcessBufferedError($resolvedLevel['level'], $echo, $lastError)) {
+            $this->processBufferedError('Snippet', $lastError, $echo);
+        }
+
+        $this->leaveErrorContext($contextState);
         unset($modx->event->params);
 
         if ($this->debug) {
@@ -2792,11 +2778,165 @@ class DocumentParser
 
         $this->currentSnippetCall = '';
         $this->currentSnippet = '';
+
+        if (function_exists('error_clear_last')) {
+            error_clear_last();
+        }
+
         if (is_array($return) || is_object($return)) {
             return $return;
         }
 
-        return $echo . $return;
+        return (($echo === false) ? '' : $echo) . ($return ?? '');
+    }
+
+    private function resolveErrorReportingLevel($requested)
+    {
+        $valid = ['0', '1', '2', '99'];
+        $globalSetting = (string)$this->config('error_reporting', '1');
+        if (!in_array($globalSetting, $valid, true)) {
+            $globalSetting = '1';
+        }
+
+        if ($requested === null || $requested === '') {
+            $requested = 'inherit';
+        }
+
+        $requestedValue = (string)$requested;
+        if ($requestedValue !== 'inherit' && !in_array($requestedValue, $valid, true)) {
+            $requestedValue = 'inherit';
+        }
+
+        $effective = $requestedValue === 'inherit' ? $globalSetting : $requestedValue;
+        $level = (int)($effective === '99' ? 99 : $effective);
+
+        return [
+            'requested' => $requestedValue,
+            'effective' => $effective,
+            'level' => $level,
+            'mask' => $this->mapErrorReportingLevelToMask($level),
+            'global' => $globalSetting,
+            'compatibility' => $level !== 99,
+        ];
+    }
+
+    private function mapErrorReportingLevelToMask($level)
+    {
+        switch ($level) {
+            case 0:
+                return 0;
+            case 1:
+                return E_ALL & ~E_NOTICE & ~E_DEPRECATED;
+            case 2:
+                return E_ALL & ~E_NOTICE;
+            default:
+                return E_ALL;
+        }
+    }
+
+    private function enterErrorContext($type, $name, array $resolved)
+    {
+        $previousErrorReporting = $this->error_reporting;
+        $previousPhpErrorReporting = error_reporting($resolved['mask']);
+
+        $this->error_reporting = $resolved['level'];
+        $previousContext = $this->currentErrorContext;
+        $this->currentErrorContext = [
+            'type' => $type,
+            'name' => $name,
+            'requested' => $resolved['requested'],
+            'effective' => $resolved['effective'],
+            'level' => $resolved['level'],
+            'global' => $resolved['global'],
+            'compatibility' => $resolved['compatibility'],
+        ];
+
+        return [
+            'error_reporting' => $previousErrorReporting,
+            'php_error_reporting' => $previousPhpErrorReporting,
+            'context' => $previousContext,
+        ];
+    }
+
+    private function leaveErrorContext(array $state)
+    {
+        if (array_key_exists('error_reporting', $state)) {
+            $this->error_reporting = $state['error_reporting'];
+        }
+        if (array_key_exists('php_error_reporting', $state)) {
+            error_reporting($state['php_error_reporting']);
+        }
+        $this->currentErrorContext = $state['context'];
+    }
+
+    private function shouldProcessBufferedError($level, $echo, $errorInfo)
+    {
+        if ($level <= 0) {
+            return false;
+        }
+        if (!$echo) {
+            return false;
+        }
+        return !empty($errorInfo);
+    }
+
+    private function processBufferedError($type, array $errorInfo, $echo)
+    {
+        $deprecatedTypes = [];
+        if (defined('E_STRICT')) {
+            $deprecatedTypes[] = E_STRICT;
+        }
+        if (defined('E_DEPRECATED')) {
+            $deprecatedTypes[] = E_DEPRECATED;
+        }
+        $errorSeverity = in_array($errorInfo['type'], $deprecatedTypes, true) ? 2 : 3;
+
+        if ($this->error_reporting > 1 || $errorSeverity > 2) {
+            if ($echo === false) {
+                $echo = 'ob_get_contents() error';
+            }
+            $errorMessage = $errorInfo['message'] ?? '';
+            $this->messageQuit(
+                'PHP Parse Error',
+                '',
+                true,
+                $errorInfo['type'],
+                $errorInfo['file'],
+                $type,
+                $errorMessage,
+                $errorInfo['line'],
+                $echo
+            );
+            if ($this->isBackend()) {
+                $this->event->alert(
+                    sprintf(
+                        'An error occurred while loading. Please see the event log for more information.<p>%s</p>',
+                        $echo
+                    )
+                );
+            }
+        }
+    }
+
+    private function handleElementThrowable($type, $name, \Throwable $throwable)
+    {
+        $source = $type;
+        if ($name !== '') {
+            $source .= ' - ' . $name;
+        }
+
+        $message = sprintf('%s: %s', get_class($throwable), $throwable->getMessage());
+
+        $this->messageQuit(
+            'Uncaught Throwable',
+            '',
+            true,
+            E_ERROR,
+            $throwable->getFile(),
+            $source,
+            $message,
+            $throwable->getLine()
+        );
     }
 
     public function evalSnippets($content)
@@ -2853,6 +2993,12 @@ class DocumentParser
 
     public function runSnippet($snippetName, $params = [])
     {
+        $previousSnippet = $this->currentSnippet;
+        $previousSnippetCall = $this->currentSnippetCall;
+
+        $this->currentSnippet = $snippetName;
+        $this->currentSnippetCall = $snippetName;
+
         if (isset($this->snippetCache[$snippetName])) {
             // load default params/properties
             $parameters = array_merge(
@@ -2862,28 +3008,43 @@ class DocumentParser
                 $params
             );
             // run snippet
-            return $this->evalSnippet(
+            $errorReporting = $this->snippetCache[$snippetName . 'ErrorReporting'] ?? 'inherit';
+            $result = $this->evalSnippet(
                 $this->snippetCache[$snippetName],
-                $parameters
+                $parameters,
+                $errorReporting
             );
+            $this->currentSnippet = $previousSnippet;
+            $this->currentSnippetCall = $previousSnippetCall;
+
+            return $result;
         }
 
         // not in cache so let's check the db
         $esc_name = db()->escape($snippetName);
-        $result = db()->select('name,snippet,properties', '[+prefix+]site_snippets', "name='{$esc_name}'");
+        $result = db()->select('name,snippet,properties,error_reporting', '[+prefix+]site_snippets', "name='{$esc_name}'");
         if (db()->count($result) == 1) {
             $row = db()->getRow($result);
             $phpCode = $this->snippetCache[$snippetName] = $row['snippet'];
             $properties = $this->snippetCache["{$snippetName}Props"] = $row['properties'];
+            $this->snippetCache["{$snippetName}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
         } else {
             $phpCode = $this->snippetCache[$snippetName] = "return false;";
             $properties = '';
+            $this->snippetCache["{$snippetName}Props"] = '';
+            $this->snippetCache["{$snippetName}ErrorReporting"] = 'inherit';
         }
         // load default params/properties
         $parameters = $this->parseProperties($properties);
         $parameters = array_merge($parameters, $params);
         // run snippet
-        return $this->evalSnippet($phpCode, $parameters);
+        $errorReporting = $this->snippetCache["{$snippetName}ErrorReporting"] ?? 'inherit';
+        $result = $this->evalSnippet($phpCode, $parameters, $errorReporting);
+
+        $this->currentSnippet = $previousSnippet;
+        $this->currentSnippetCall = $previousSnippetCall;
+
+        return $result;
     }
 
     private function getAbsolutePath($path)
@@ -2962,7 +3123,8 @@ class DocumentParser
             }
             $params = array_merge($default_params, $params);
         }
-        $value = $this->evalSnippet($snippetObject['content'], $params);
+        $errorReporting = $snippetObject['error_reporting'] ?? 'inherit';
+        $value = $this->evalSnippet($snippetObject['content'], $params, $errorReporting);
 
         if ($modifiers !== false) {
             $value = $this->applyFilter($value, $modifiers, $key);
@@ -3203,16 +3365,21 @@ class DocumentParser
             $snippetObject['properties'] = $this->snippetCache[$snip_name . 'Props'];
         }
 
+        if (isset($this->snippetCache[$snip_name . 'ErrorReporting'])) {
+            $snippetObject['error_reporting'] = $this->snippetCache[$snip_name . 'ErrorReporting'];
+        }
+
         return $snippetObject;
     }
 
     private function setSnippetCache()
     {
-        $rs = db()->select('name,snippet,properties', '[+prefix+]site_snippets');
+        $rs = db()->select('name,snippet,properties,error_reporting', '[+prefix+]site_snippets');
         while ($row = db()->getRow($rs)) {
             $name = $row['name'];
             $this->snippetCache[$name] = $row['snippet'];
             $this->snippetCache["{$name}Props"] = $row['properties'];
+            $this->snippetCache["{$name}ErrorReporting"] = $row['error_reporting'] ?? 'inherit';
         }
     }
 
@@ -4783,6 +4950,7 @@ class DocumentParser
             // get plugin code and properties
             $pluginCode = $this->getPluginCode($pluginName);
             $pluginProperties = $this->getPluginProperties($pluginName);
+            $pluginErrorReporting = $this->pluginCache[$pluginName . 'ErrorReporting'] ?? 'inherit';
 
             // load default params/properties
             $parameter = $this->parseProperties($pluginProperties);
@@ -4794,7 +4962,7 @@ class DocumentParser
 
             // eval plugin
             $this->event->activePlugin = $pluginName;
-            $output = $this->evalPlugin($pluginCode, $parameter);
+            $output = $this->evalPlugin($pluginCode, $parameter, $pluginErrorReporting);
             if ($output) {
                 $this->event->cm->addOutput($output);
             }
@@ -4847,6 +5015,9 @@ class DocumentParser
     {
         if (isset($this->pluginCache[$pluginName])) {
             $this->pluginCache["{$pluginName}Props"] = '';
+            if (!isset($this->pluginCache["{$pluginName}ErrorReporting"])) {
+                $this->pluginCache["{$pluginName}ErrorReporting"] = 'inherit';
+            }
             return;
         }
         $result = db()->select(
@@ -4861,12 +5032,15 @@ class DocumentParser
             $row = db()->getRow($result);
             $code = $row['plugincode'];
             $properties = $row['properties'];
+            $errorReporting = $row['error_reporting'] ?? 'inherit';
         } else {
             $code = 'return false;';
             $properties = '';
+            $errorReporting = 'inherit';
         }
         $this->pluginCache[$pluginName] = $code;
         $this->pluginCache["{$pluginName}Props"] = $properties;
+        $this->pluginCache["{$pluginName}ErrorReporting"] = $errorReporting;
     }
 
     # parses a resource property string and returns the result as an array

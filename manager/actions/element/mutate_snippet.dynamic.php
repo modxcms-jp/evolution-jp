@@ -396,6 +396,35 @@ function entity($key, $default = null)
                                 style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                         </td>
                     </tr>
+                    <?php $snippetErrorReporting = entity('error_reporting', 'inherit'); ?>
+                    <tr>
+                        <th align="left" style="padding-top:10px;">
+                            <?= $_lang['a17_error_reporting_title'] ?>:
+                        </th>
+                        <td align="left" style="padding-top:10px;">
+                            <?= wrap_label(
+                                $_lang['element_error_reporting_inherit'],
+                                form_radio('error_reporting', 'inherit', $snippetErrorReporting === 'inherit')
+                            ); ?><br/>
+                            <?= wrap_label(
+                                $_lang['a17_error_reporting_opt0'],
+                                form_radio('error_reporting', '0', $snippetErrorReporting === '0')
+                            ); ?><br/>
+                            <?= wrap_label(
+                                $_lang['a17_error_reporting_opt1'],
+                                form_radio('error_reporting', '1', $snippetErrorReporting === '1')
+                            ); ?><br/>
+                            <?= wrap_label(
+                                $_lang['a17_error_reporting_opt2'],
+                                form_radio('error_reporting', '2', $snippetErrorReporting === '2')
+                            ); ?><br/>
+                            <?= wrap_label(
+                                $_lang['a17_error_reporting_opt99'],
+                                form_radio('error_reporting', '99', $snippetErrorReporting === '99')
+                            ); ?><br/>
+                            <?= $_lang['a17_error_reporting_msg'] ?>
+                        </td>
+                    </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">
