@@ -1,11 +1,7 @@
 var mm_gmap = {
   map: {},
   marker: {},
-  addressField: {},
-  init: {},
-  draw: {},
-  addMarker: {},
-  geoSearch: {}
+  addressField: {}
 };
 
 var $j = jQuery.noConflict();
