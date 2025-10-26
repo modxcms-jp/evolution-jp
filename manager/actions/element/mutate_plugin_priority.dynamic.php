@@ -94,6 +94,9 @@ $header .= sprintf(<<<'HTML'
                         margin: 4px 0;
             border: 1px solid #CCCCCC;
                         background-repeat: repeat-x;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
                 }
         ul.sortableList li.dragging {opacity: 0.6;}
         #sortableListForm {display:none;}
@@ -225,7 +228,7 @@ $header .= sprintf(<<<'HTML'
 HTML
 , json_encode($sortables));
 $header .= '</head>
-<body ondragstart="return false;">
+<body>
 
 <h1>' . $_lang['plugin_priority_title'] . '</h1>
 
