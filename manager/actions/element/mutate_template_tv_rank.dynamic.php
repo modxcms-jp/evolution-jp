@@ -47,6 +47,7 @@ $orderby = 'tr.rank, tv.rank, tv.id';
 
 $rs = db()->select($field, $from, $where, $orderby);
 $limit = db()->count($rs);
+$evtLists = '';
 
 if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
@@ -58,7 +59,9 @@ if ($limit > 1) {
     }
 }
 
-$evtLists .= '</ul>';
+if ($evtLists !== '') {
+    $evtLists .= '</ul>';
+}
 
 $header = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
