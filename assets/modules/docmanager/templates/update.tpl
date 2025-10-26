@@ -4,10 +4,12 @@
 <head>
     <title>[+lang.DM_update_title+]</title>
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
-    <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
     <script type="text/javascript">
         function reset() {
-            $('backform').submit();
+            var form = document.getElementById('backform');
+            if (form) {
+                form.submit();
+            }
         }
     </script>
     <style type="text/css">

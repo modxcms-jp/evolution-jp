@@ -65,76 +65,175 @@ $evtLists .= '</ul>';
 $header = '
 <!doctype html>
 <head>
-	<title>MODX</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-	<script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
-	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>
+        <title>MODX</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
+        <script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
+';
 
-	<style type="text/css">
+$header .= sprintf(<<<'HTML'
+
+        <style type="text/css">
         .topdiv {border: 0;}
-		.subdiv {border: 0;}
-		li {list-style:none;}
-		.tplbutton {text-align: right;}
-		ul.sortableList
-		{
-			padding-left: 20px;
-			margin: 0;
-			width: 300px;
-		}
+                .subdiv {border: 0;}
+                li {list-style:none;}
+                .tplbutton {text-align: right;}
+                ul.sortableList
+                {
+                        padding-left: 20px;
+                        margin: 0;
+                        width: 300px;
+                }
 
-		ul.sortableList li
-		{
-			font-weight: bold;
-			cursor: move;
+                ul.sortableList li
+                {
+                        font-weight: bold;
+                        cursor: move;
             color: #444444;
             padding: 3px 5px;
-			margin: 4px 0;
+                        margin: 4px 0;
             border: 1px solid #CCCCCC;
-			background-repeat: repeat-x;
-		}
+                        background-repeat: repeat-x;
+                }
+        ul.sortableList li.dragging {opacity: 0.6;}
         #sortableListForm {display:none;}
-	</style>
+        </style>
     <script>
-        function save() {
-        	setTimeout("document.sortableListForm.submit()",1000);
-    	}
+        (function() {
+            var listIds = %s;
+            var dragItem = null;
 
-    	window.addEvent(\'domready\', function() {';
-foreach ($sortables as $list) {
-    $header .= 'new Sortables($(\'' . $list . '\'), {
-	               initialize: function() {
-                        $$(\'#' . $list . ' li\').each(function(el, i)
-                        {
-                            el.setStyle(\'padding\', \'3px 5px\');
-                            el.setStyle(\'font-weight\', \'bold\');
-                            el.setStyle(\'width\', \'300px\');
-                            el.setStyle(\'background-color\', \'#ccc\');
-                            el.setStyle(\'cursor\', \'move\');
-                        });
+            function hasListItemClass(el) {
+                return el && el.tagName === 'LI';
+            }
+
+            function clearDragging(el) {
+                if (!el || !el.className) return;
+                el.className = el.className.replace(/\s*dragging\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/^\s+|\s+$/g, '');
+            }
+
+            function updateHidden(list) {
+                if (!list || !list.id) return;
+                var field = document.getElementById('list_' + list.id);
+                if (!field) return;
+                var ids = [];
+                var children = list.children || list.childNodes;
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+                    if (child && child.nodeType === 1 && child.id) {
+                        ids.push(child.id);
                     }
-                    ,onComplete: function() {
-           	var id = null;
-           	var list = this.serialize(function(el) {
-            id = el.getParent().id;
-           	return el.id;
-           });
-           $(\'list_\' + id).value = list;
-                    }
-                });' . "\n";
-}
-$header .= '});
-</script>
-</head>
+                }
+                field.value = ids.join(',');
+            }
+
+            function onDragStart(e) {
+                dragItem = this;
+                this.className += ' dragging';
+                if (e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    try {
+                        e.dataTransfer.setData('text/plain', this.id);
+                    } catch (err) {}
+                }
+            }
+
+            function findItemWithin(list, target) {
+                while (target && target !== list && (target.nodeType !== 1 || target.tagName !== 'LI')) {
+                    target = target.parentNode;
+                }
+                if (target && target !== list && hasListItemClass(target)) {
+                    return target;
+                }
+                return null;
+            }
+
+            function onDragOver(e) {
+                if (!dragItem) return;
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                var list = this;
+                var target = findItemWithin(list, e.target || e.srcElement);
+                if (!target || target === dragItem) {
+                    return;
+                }
+                var rect = target.getBoundingClientRect();
+                var isAfter = (e.clientY || 0) - rect.top > rect.height / 2;
+                list.insertBefore(dragItem, isAfter ? target.nextSibling : target);
+            }
+
+            function onDrop(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                updateHidden(this);
+            }
+
+            function onDragEnd() {
+                clearDragging(this);
+                var parent = this.parentNode;
+                dragItem = null;
+                if (parent) {
+                    updateHidden(parent);
+                }
+            }
+
+            function prepareList(list) {
+                if (!list) return;
+                var items = list.getElementsByTagName('li');
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    item.setAttribute('draggable', 'true');
+                    item.ondragstart = onDragStart;
+                    item.ondragend = onDragEnd;
+                }
+                if (list.addEventListener) {
+                    list.addEventListener('dragover', onDragOver, false);
+                    list.addEventListener('drop', onDrop, false);
+                } else if (list.attachEvent) {
+                    list.attachEvent('ondragover', onDragOver);
+                    list.attachEvent('ondrop', onDrop);
+                }
+                updateHidden(list);
+            }
+
+            function init() {
+                for (var i = 0; i < listIds.length; i++) {
+                    var list = document.getElementById(listIds[i]);
+                    prepareList(list);
+                }
+            }
+
+            if (document.addEventListener) {
+                document.addEventListener('DOMContentLoaded', init, false);
+            } else if (window.attachEvent) {
+                window.attachEvent('onload', init);
+            }
+
+            window.save = function() {
+                for (var i = 0; i < listIds.length; i++) {
+                    var list = document.getElementById(listIds[i]);
+                    updateHidden(list);
+                }
+                if (document.sortableListForm) {
+                    document.sortableListForm.submit();
+                }
+            };
+        })();
+    </script>
+HTML
+, json_encode($sortables));
+$header .= '</head>
 <body ondragstart="return false;">
 
 <h1>' . $_lang['plugin_priority_title'] . '</h1>
 
 <div id="actions">
    <ul class="actionButtons">
-       	<li class="mutate"><a href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="' . $_style["icons_cancel"] . '" /> ' . $_lang['cancel'] . '</a></li>
-	</ul>
+        <li class="mutate"><a href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
+                <li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="' . $_style["icons_cancel"] . '" /> ' . $_lang['cancel'] . '</a></li>
+        </ul>
 </div>
 
 <div class="section">
@@ -153,7 +252,7 @@ echo '<form action="" method="post" name="sortableListForm" style="display: none
             <input type="hidden" name="listSubmitted" value="true" />';
 
 foreach ($sortables as $list) {
-    echo '<input type="text" id="list_' . $list . '" name="list_' . $list . '" value="" />';
+    echo '<input type="hidden" id="list_' . $list . '" name="list_' . $list . '" value="" />';
 }
 
 echo '	</form>

@@ -127,5 +127,14 @@ function hideInteraction() {
     return true;
 }
 
-window.addEvent('domready', hideInteraction);
-document.addEvent('click', hideInteraction);
+if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', hideInteraction, false);
+    document.addEventListener('click', hideInteraction, false);
+} else if (document.attachEvent) {
+    document.attachEvent('onreadystatechange', function() {
+        if (document.readyState === 'complete') {
+            hideInteraction();
+        }
+    });
+    document.attachEvent('onclick', hideInteraction);
+}

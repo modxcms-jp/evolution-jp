@@ -64,72 +64,170 @@ $header = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>MODx</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>';
+        <title>MODx</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />';
 
-$header .= '
+$header .= <<<HTML
     <style type="text/css">
         .topdiv {
-			border: 0;
-		}
+                        border: 0;
+                }
 
-		.subdiv {
-			border: 0;
-		}
+                .subdiv {
+                        border: 0;
+                }
 
-		li {list-style:none;}
+                li {list-style:none;}
 
-		ul.sortableList {
-			padding-left: 20px;
-			margin: 0px;
-			width: 300px;
-			font-family: Arial, sans-serif;
-		}
+                ul.sortableList {
+                        padding-left: 20px;
+                        margin: 0px;
+                        width: 300px;
+                        font-family: Arial, sans-serif;
+                }
 
-		ul.sortableList li {
-			font-weight: bold;
-			cursor: move;
-			color: #444444;
-			padding: 3px 5px;
-			margin: 4px 0px;
-			border: 1px solid #CCCCCC;
-			background-image: url("media/style/' . $manager_theme . '/images/misc/fade.gif");
-			background-repeat: repeat-x;
-		}
-	</style>
+                ul.sortableList li {
+                        font-weight: bold;
+                        cursor: move;
+                        color: #444444;
+                        padding: 3px 5px;
+                        margin: 4px 0px;
+                        border: 1px solid #CCCCCC;
+                        background-image: url("media/style/$manager_theme/images/misc/fade.gif");
+                        background-repeat: repeat-x;
+                }
+
+                ul.sortableList li.dragging {
+                        opacity: 0.6;
+                }
+        </style>
     <script type="text/javascript">
-        function save() {
-        	setTimeout("document.sortableListForm.submit()",1000);
-    	}
+        (function() {
+            var sortList;
+            var dragItem = null;
+            var listField;
 
-        window.addEvent(\'domready\', function() {
-			new Sortables($(\'sortlist\'),
-			{
-				initialize: function()
-				{
-			 		$$(\'li.sort\').each(function(el, i)
-			 		{
-						el.setStyle(\'padding\', \'3px 5px\');
-						el.setStyle(\'font-weight\', \'bold\');
-						el.setStyle(\'width\', \'300px\');
-						el.setStyle(\'background-color\', \'#ccc\');
-						el.setStyle(\'cursor\', \'move\');
-					});
-				},
-				onComplete: function()
-				{
-	               var list = \'\';
-					$$(\'li.sort\').each(function(el, i)
-					{
-	                   list += el.id + \';\';
-	               });
-	               $(\'list\').value = list;
-	           }
-	       });
-	    });
-	</script>';
+            function hasSortClass(el) {
+                return el && el.className && (' ' + el.className + ' ').indexOf(' sort ') !== -1;
+            }
+
+            function clearDragging(el) {
+                if (!el || !el.className) return;
+                el.className = el.className.replace(/\s*dragging\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/^\s+|\s+$/g, '');
+            }
+
+            function updateListField() {
+                if (!sortList) return;
+                if (!listField) {
+                    listField = document.getElementById('list');
+                }
+                if (!listField) return;
+                var ids = [];
+                var children = sortList.children || sortList.childNodes;
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
+                    if (child && child.nodeType === 1 && child.id) {
+                        ids.push(child.id);
+                    }
+                }
+                listField.value = ids.join(';');
+            }
+
+            function onDragStart(e) {
+                dragItem = this;
+                this.className += ' dragging';
+                if (e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    try {
+                        e.dataTransfer.setData('text/plain', this.id);
+                    } catch (err) {
+                        // IE may throw errors for setData with unsupported formats; ignore.
+                    }
+                }
+            }
+
+            function findListItem(target) {
+                while (target && target !== sortList && target.nodeType === 1 && target.tagName !== 'LI') {
+                    target = target.parentNode;
+                }
+                if (target && target.tagName === 'LI' && hasSortClass(target)) {
+                    return target;
+                }
+                return null;
+            }
+
+            function onDragOver(e) {
+                if (!dragItem) return;
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                var target = findListItem(e.target || e.srcElement);
+                if (!target || target === dragItem) {
+                    return;
+                }
+                var rect = target.getBoundingClientRect();
+                var isAfter = (e.clientY || 0) - rect.top > rect.height / 2;
+                sortList.insertBefore(dragItem, isAfter ? target.nextSibling : target);
+            }
+
+            function onDrop(e) {
+                if (e.preventDefault) {
+                    e.preventDefault();
+                }
+                updateListField();
+            }
+
+            function onDragEnd() {
+                clearDragging(this);
+                dragItem = null;
+                updateListField();
+            }
+
+            function prepareItems() {
+                var items = sortList.getElementsByTagName('li');
+                for (var i = 0; i < items.length; i++) {
+                    var item = items[i];
+                    if (!hasSortClass(item)) {
+                        continue;
+                    }
+                    item.setAttribute('draggable', 'true');
+                    item.ondragstart = onDragStart;
+                    item.ondragend = onDragEnd;
+                }
+            }
+
+            function init() {
+                sortList = document.getElementById('sortlist');
+                if (!sortList) {
+                    return;
+                }
+                prepareItems();
+                if (sortList.addEventListener) {
+                    sortList.addEventListener('dragover', onDragOver, false);
+                    sortList.addEventListener('drop', onDrop, false);
+                } else if (sortList.attachEvent) {
+                    sortList.attachEvent('ondragover', onDragOver);
+                    sortList.attachEvent('ondrop', onDrop);
+                }
+                updateListField();
+            }
+
+            if (document.addEventListener) {
+                document.addEventListener('DOMContentLoaded', init, false);
+            } else if (window.attachEvent) {
+                window.attachEvent('onload', init);
+            }
+
+            window.save = function() {
+                updateListField();
+                if (document.sortableListForm) {
+                    document.sortableListForm.submit();
+                }
+            };
+        })();
+        </script>
+HTML;
 
 $header .= '</head>
 <body ondragstart="return false;">
@@ -159,5 +257,5 @@ echo '
 </div>
 <form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />
-            <input type="text" id="list" name="list" value="" />
+            <input type="hidden" id="list" name="list" value="" />
 </form>';
