@@ -12,6 +12,14 @@ $description = db()->escape(postv('description'));
 $locked = postv('locked') == 'on' ? 1 : 0;
 $snippet = db()->escape(trim(postv('post')));
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
+$php_error_reporting = postv('php_error_reporting', '');
+if ($php_error_reporting === 'inherit') {
+    $php_error_reporting = '';
+}
+if (!in_array($php_error_reporting, ['0', '1', '2', '99', ''], true)) {
+    $php_error_reporting = '';
+}
+$php_error_reporting = db()->escape($php_error_reporting);
 
 // strip out PHP tags from snippets
 if (strncmp($snippet, '<?', 2) == 0) {
@@ -76,6 +84,7 @@ switch (postv('mode')) {
         $field['snippet'] = $snippet;
         $field['moduleguid'] = $moduleguid;
         $field['locked'] = $locked;
+        $field['php_error_reporting'] = $php_error_reporting;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
         $newid = db()->insert($field, $tbl_site_snippets);
@@ -117,6 +126,7 @@ switch (postv('mode')) {
         $field['snippet'] = $snippet;
         $field['moduleguid'] = $moduleguid;
         $field['locked'] = $locked;
+        $field['php_error_reporting'] = $php_error_reporting;
         $field['properties'] = $properties;
         $field['category'] = $categoryid;
         $rs = db()->update($field, $tbl_site_snippets, "id='{$id}'");

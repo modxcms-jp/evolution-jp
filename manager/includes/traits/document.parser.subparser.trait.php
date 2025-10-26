@@ -254,7 +254,8 @@ trait DocumentParserSubParserTrait
         $source = '',
         $text = '',
         $line = '',
-        $output = ''
+        $output = '',
+        $terminate = true
     )
     {
         global $modx;
@@ -499,33 +500,36 @@ trait DocumentParserSubParserTrait
         $modx->logEvent(0, $error_level, $str, $title);
 
         // Set 500 response header
-        if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
+        if ($terminate && 2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
             if (!headers_sent()) {
                 header('HTTP/1.1 500 Internal Server Error');
             }
         }
 
         // Display error
-        if (evo()->isLoggedin()) {
-            if ($modx->event->name !== 'OnWebPageComplete') {
-                echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
-                echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
-                echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
-                echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
-                MODX_SITE_URL, evo()->config('manager_theme'));
-                echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
-                echo '</head><body>';
+        if ($terminate) {
+            if (evo()->isLoggedin()) {
+                if ($modx->event->name !== 'OnWebPageComplete') {
+                    echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+                    echo sprintf('<html><head><title>MODX Content Manager %s &raquo; %s</title>', $version, $release_date);
+                    echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
+                    echo sprintf('<link rel="stylesheet" type="text/css" href="%smanager/media/style/%s/style.css" />',
+                    MODX_SITE_URL, evo()->config('manager_theme'));
+                    echo '<style type="text/css">body { padding:10px; } td {font:inherit;}</style>';
+                    echo '</head><body>';
+                }
+                echo '<div style="text-align:left;">' . $str . '</div>';
+                if ($modx->event->name !== 'OnWebPageComplete') {
+                    echo '</body></html>';
+                }
+            } else {
+                echo 'Error';
             }
-            echo '<div style="text-align:left;">' . $str . '</div>';
-            if ($modx->event->name !== 'OnWebPageComplete') {
-                echo '</body></html>';
-            }
-        } else {
-            echo 'Error';
+            ob_end_flush();
+            exit;
         }
-        ob_end_flush();
 
-        exit;
+        return false;
     }
 
     function recDebugInfo()

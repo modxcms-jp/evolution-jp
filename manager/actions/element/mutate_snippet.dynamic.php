@@ -396,6 +396,40 @@ function entity($key, $default = null)
                                 style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                         </td>
                     </tr>
+                    <?php $snippetErrorReporting = entity('php_error_reporting', ''); ?>
+                    <tr>
+                        <th align="left" valign="top" style="padding-top:10px;">
+                            <?= $_lang['element_php_error_reporting'] ?>:
+                        </th>
+                        <td align="left" style="padding-top:10px;">
+                            <label>
+                                <input type="radio" name="php_error_reporting" value="inherit"
+                                    <?= $snippetErrorReporting === '' ? "checked='checked'" : '' ?> />
+                                <?= $_lang['element_php_error_reporting_inherit'] ?>
+                            </label><br />
+                            <label>
+                                <input type="radio" name="php_error_reporting" value="0"
+                                    <?= $snippetErrorReporting === '0' ? "checked='checked'" : '' ?> />
+                                <?= $_lang['a17_error_reporting_opt0'] ?>
+                            </label><br />
+                            <label>
+                                <input type="radio" name="php_error_reporting" value="1"
+                                    <?= $snippetErrorReporting === '1' ? "checked='checked'" : '' ?> />
+                                <?= $_lang['a17_error_reporting_opt1'] ?>
+                            </label><br />
+                            <label>
+                                <input type="radio" name="php_error_reporting" value="2"
+                                    <?= $snippetErrorReporting === '2' ? "checked='checked'" : '' ?> />
+                                <?= $_lang['a17_error_reporting_opt2'] ?>
+                            </label><br />
+                            <label>
+                                <input type="radio" name="php_error_reporting" value="99"
+                                    <?= $snippetErrorReporting === '99' ? "checked='checked'" : '' ?> />
+                                <?= $_lang['a17_error_reporting_opt99'] ?>
+                            </label><br />
+                            <span class="comment"><?= $_lang['element_php_error_reporting_msg'] ?></span>
+                        </td>
+                    </tr>
                     <?php if (evo()->hasPermission('save_snippet') == 1) { ?>
                         <tr>
                             <td style="padding-top:10px" align="left" valign="top" colspan="2">

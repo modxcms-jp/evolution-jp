@@ -1190,6 +1190,9 @@ $_lang['a17_error_reporting_opt0'] = 'Ignore all';
 $_lang['a17_error_reporting_opt1'] = 'Ignore the warning of a slight notice level(<a href="https://www.google.com/search?q=E_DEPRECATED" target="_blank">E_ALL & ~E_NOTICE & ~E_DEPRECATED</a>)';
 $_lang['a17_error_reporting_opt2'] = 'Detect all errors except E_NOTICE';
 $_lang['a17_error_reporting_opt99'] = 'Detect all';
+$_lang['element_php_error_reporting'] = 'PHP error detection level';
+$_lang['element_php_error_reporting_inherit'] = 'Inherit global setting';
+$_lang['element_php_error_reporting_msg'] = 'Override the PHP error detection level for this element. Select "Inherit global setting" to follow the global configuration.';
 
 $_lang["role_site_schedule"] = 'The list which is in a published status';
 

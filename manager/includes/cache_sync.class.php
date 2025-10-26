@@ -498,6 +498,8 @@ class synccache
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
             $modx->snippetCache[$name . 'Props'] = $row['properties'];
+            $modx->snippetCache[$name . 'PhpErrorReporting'] = $row['php_error_reporting'] ?? '';
+
         }
         return $modx->snippetCache;
     }
@@ -512,6 +514,8 @@ class synccache
             $name = db()->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
             $modx->pluginCache[$name . 'Props'] = $row['properties'];
+            $modx->pluginCache[$name . 'PhpErrorReporting'] = $row['php_error_reporting'] ?? '';
+
         }
         return $modx->pluginCache;
     }

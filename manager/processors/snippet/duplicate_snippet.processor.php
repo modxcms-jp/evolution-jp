@@ -15,9 +15,9 @@ if (!preg_match('/^[0-9]+\z/', $id)) {
 // duplicate Snippet
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 $tpl = $_lang['duplicate_title_string'];
-$sql = "INSERT INTO {$tbl_site_snippets} (name, description, snippet, properties, category)
-		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, properties, category
-		FROM {$tbl_site_snippets} WHERE id={$id}";
+$sql = "INSERT INTO {$tbl_site_snippets} (name, description, snippet, properties, category, php_error_reporting)
+                SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, snippet, properties, category, php_error_reporting
+                FROM {$tbl_site_snippets} WHERE id={$id}";
 $rs = db()->query($sql);
 
 if ($rs) {

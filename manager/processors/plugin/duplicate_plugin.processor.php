@@ -16,9 +16,9 @@ if (!preg_match('/^[0-9]+\z/', $id)) {
 // duplicate Plugin
 $tbl_site_plugins = evo()->getFullTableName('site_plugins');
 $tpl = $_lang['duplicate_title_string'];
-$sql = "INSERT INTO {$tbl_site_plugins} (name, description, disabled, moduleguid, plugincode, properties, category) 
-		SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, moduleguid, plugincode, properties, category 
-		FROM {$tbl_site_plugins} WHERE id={$id}";
+$sql = "INSERT INTO {$tbl_site_plugins} (name, description, disabled, moduleguid, plugincode, properties, category, php_error_reporting)
+                SELECT REPLACE('{$tpl}','[+title+]',name) AS 'name', description, disabled, moduleguid, plugincode, properties, category, php_error_reporting
+                FROM {$tbl_site_plugins} WHERE id={$id}";
 $rs = db()->query($sql);
 
 if ($rs) {

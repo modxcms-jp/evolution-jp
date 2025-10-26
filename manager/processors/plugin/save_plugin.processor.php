@@ -19,6 +19,14 @@ $properties = db()->escape(postv('properties'));
 $disabled = postv('disabled') == "on" ? '1' : '0';
 $moduleguid = db()->escape(postv('moduleguid'));
 $sysevents = postv('sysevents');
+$php_error_reporting = postv('php_error_reporting', '');
+if ($php_error_reporting === 'inherit') {
+    $php_error_reporting = '';
+}
+if (!in_array($php_error_reporting, ['0', '1', '2', '99', ''], true)) {
+    $php_error_reporting = '';
+}
+$php_error_reporting = db()->escape($php_error_reporting);
 if (empty($sysevents)) {
     $sysevents[] = 90;
 } // Default OnWebPageInit
@@ -82,7 +90,7 @@ switch (postv('mode')) {
         }
 
         //do stuff to save the new plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category', 'php_error_reporting');
         $newid = db()->insert($f, '[+prefix+]site_plugins');
         if (!$newid) {
             echo "Couldn't get last insert key!";
@@ -149,7 +157,7 @@ switch (postv('mode')) {
             }
         }
         //do stuff to save the edited plugin
-        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category');
+        $f = compact('name', 'description', 'plugincode', 'disabled', 'moduleguid', 'locked', 'properties', 'category', 'php_error_reporting');
         $rs = db()->update($f, '[+prefix+]site_plugins', "id='{$id}'");
         if (!$rs) {
             echo "\$rs not set! Edited plugin not saved!";
