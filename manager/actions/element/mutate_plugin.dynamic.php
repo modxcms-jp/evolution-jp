@@ -709,25 +709,30 @@ function entity($key, $default = null)
                             <?= $_lang['a17_error_reporting_title'] ?>:
                         </th>
                         <td align="left" style="padding-top:10px;">
-                            <?= wrap_label(
-                                $_lang['element_error_reporting_inherit'],
-                                form_radio('error_reporting', 'inherit', $pluginErrorReporting === 'inherit')
+                            <?= sprintf(
+                                '<label>%s %s</label>',
+                                form_radio('error_reporting', 'inherit', $pluginErrorReporting === 'inherit'),
+                                $_lang['element_error_reporting_inherit']
                             ); ?><br/>
-                            <?= wrap_label(
-                                $_lang['a17_error_reporting_opt0'],
-                                form_radio('error_reporting', '0', $pluginErrorReporting === '0')
+                            <?= sprintf(
+                                '<label>%s %s</label>',
+                                form_radio('error_reporting', '0', $pluginErrorReporting === '0'),
+                                $_lang['a17_error_reporting_opt0']
                             ); ?><br/>
-                            <?= wrap_label(
-                                $_lang['a17_error_reporting_opt1'],
-                                form_radio('error_reporting', '1', $pluginErrorReporting === '1')
+                            <?= sprintf(
+                                '<label>%s %s</label>',
+                                form_radio('error_reporting', '1', $pluginErrorReporting === '1'),
+                                $_lang['a17_error_reporting_opt1']
                             ); ?><br/>
-                            <?= wrap_label(
-                                $_lang['a17_error_reporting_opt2'],
-                                form_radio('error_reporting', '2', $pluginErrorReporting === '2')
+                            <?= sprintf(
+                                '<label>%s %s</label>',
+                                form_radio('error_reporting', '2', $pluginErrorReporting === '2'),
+                                $_lang['a17_error_reporting_opt2']
                             ); ?><br/>
-                            <?= wrap_label(
-                                $_lang['a17_error_reporting_opt99'],
-                                form_radio('error_reporting', '99', $pluginErrorReporting === '99')
+                            <?= sprintf(
+                                '<label>%s %s</label>',
+                                form_radio('error_reporting', '99', $pluginErrorReporting === '99'),
+                                $_lang['a17_error_reporting_opt99']
                             ); ?><br/>
                             <?= $_lang['a17_error_reporting_msg'] ?>
                         </td>
