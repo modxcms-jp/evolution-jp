@@ -116,15 +116,15 @@ if (getv('submitok')) {
     if ($searchid) {
         $where[] = "id='" . db()->escape($searchid) . "' ";
     }
-    $searchtitle = trim(getv('pagetitle', ''));
+    $searchtitle = trim((string) getv('pagetitle'));
     if ($searchtitle != '') {
         $where[] = "pagetitle LIKE '%" . db()->escape($searchtitle) . "%' ";
     }
-    $searchlongtitle = trim(getv('longtitle', ''));
+    $searchlongtitle = trim((string) getv('longtitle'));
     if ($searchlongtitle != '') {
         $where[] = "longtitle LIKE '%" . db()->escape($searchlongtitle) . "%' ";
     }
-    $search_alias = trim(getv('alias', ''));
+    $search_alias = trim((string) getv('alias'));
     if ($search_alias != '') {
         $where[] = "alias LIKE '%" . db()->escape($search_alias) . "%' ";
     }
