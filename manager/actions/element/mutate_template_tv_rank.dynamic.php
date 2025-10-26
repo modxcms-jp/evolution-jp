@@ -99,6 +99,9 @@ $header .= <<<HTML
                         border: 1px solid #CCCCCC;
                         background-image: url("media/style/$manager_theme/images/misc/fade.gif");
                         background-repeat: repeat-x;
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        user-select: none;
                 }
 
                 ul.sortableList li.dragging {
@@ -233,7 +236,7 @@ $header .= <<<HTML
 HTML;
 
 $header .= '</head>
-<body ondragstart="return false;">
+<body>
 
 <h1>' . $_lang["template_tv_edit_title"] . '</h1>
 
