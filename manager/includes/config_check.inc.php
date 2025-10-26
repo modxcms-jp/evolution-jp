@@ -314,13 +314,17 @@ function disableTemplateSwitcher(){
             ];
         }
 
-        if (!is_dir(evo()->config('rb_base_dir'))) {
+        $rbBaseDir = evo()->config('rb_base_dir');
+        $hasRbBaseDir = is_string($rbBaseDir) && $rbBaseDir !== '';
+        if (!$hasRbBaseDir || !is_dir($rbBaseDir)) {
             $warnings[] = [
                 'title' => 'configcheck_rb_base_dir',
                 'message' => '$modx->config[\'rb_base_dir\']'
             ];
         }
-        if (!is_dir(evo()->config('filemanager_path'))) {
+        $filemanagerPath = evo()->config('filemanager_path');
+        $hasFilemanagerPath = is_string($filemanagerPath) && $filemanagerPath !== '';
+        if (!$hasFilemanagerPath || !is_dir($filemanagerPath)) {
             $warnings[] = [
                 'title' => 'configcheck_filemanager_path',
                 'message' => '$modx->config[\'filemanager_path\']'
