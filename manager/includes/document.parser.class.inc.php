@@ -99,7 +99,6 @@ class DocumentParser
     public $revision;
     public $revisionObject;
     public $filter;
-    protected $old;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
