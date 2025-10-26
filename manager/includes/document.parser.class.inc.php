@@ -11,9 +11,11 @@ if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
     require_once(MODX_BASE_PATH . 'assets/helpers.php');
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
+require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');
 
 class DocumentParser
 {
+    use DocumentParserSubParserTrait;
     public $version;
     public $db; // db object
     public $event, $Event; // event object
@@ -115,17 +117,6 @@ class DocumentParser
 
     public function __call($method_name, $arguments)
     {
-        $_ = explode(
-            ',',
-            'splitTVCommand,ParseInputOptions,ProcessTVCommand,addEventListener,addLog,atBind,atBindFile,atBindUrl,atBindInclude,changeWebUserPassword,checkPermissions,clearCache,decodeParamValue,genTokenString,getActiveChildren,getAllChildren,getDocumentChildren,getDocumentChildrenTVarOutput,getDocumentChildrenTVars,getExtention,getLoginUserName,getLoginUserType,getMimeType,getOption,getPreviewObject,getSnippetId,getSnippetName,getUnixtimeFromDateString,getUserInfo,getVersionData,getWebUserInfo,get_backtrace,isMemberOfWebGroup,isSelected,loadLexicon,logEvent,mergeInlineFilter,messageQuit,parseInput,recDebugInfo,regClientCSS,regClientHTMLBlock,regClientScript,regClientStartupHTMLBlock,regClientStartupScript,regOption,removeEventListener,renderFormElement,rotate_log,sendErrorPage,sendForward,sendRedirect,sendUnauthorizedPage,sendUnavailablePage,sendmail,setCacheRefreshTime,setOption,snapshot,splitOption,updateDraft,webAlertAndQuit,setdocumentMap,setAliasListing'
-        );
-        if (in_array($method_name, $_, true)) {
-            $this->loadExtension('SubParser');
-            if (method_exists($this->sub, $method_name)) {
-                return call_user_func_array([$this->sub, $method_name], $arguments);
-            }
-        }
-
         $this->loadExtension('DeprecatedAPI');
         if (method_exists($this->old, $method_name)) {
             $error_type = 1;
@@ -209,6 +200,10 @@ class DocumentParser
         if (!isset($this->mstart)) {
             $this->mstart = memory_get_usage();
         }
+
+        // Backwards compatibility: $modx->sub historically referenced the parser itself.
+        // The alias creates a circular reference but is retained for legacy integrations.
+        $this->sub = $this;
     }
 
     /*
@@ -227,13 +222,17 @@ class DocumentParser
             case 'managerapi': // Manager API
             case 'docapi': // Resource API
             case 'export_site':
-            case 'subparser':
+                require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
+                return true;
             case 'revision':
             case 'phpass':
                 require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
                 return true;
             case 'documentapi': // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
+                return true;
+            case 'subparser':
+                // The subparser helpers now live directly on the parser, but return true for legacy calls.
                 return true;
             case 'modifiers': //Modfires
             case 'phx':
