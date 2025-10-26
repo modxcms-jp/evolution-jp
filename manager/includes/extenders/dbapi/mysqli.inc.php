@@ -1217,11 +1217,11 @@ class DBAPI
 
     private function _where($where) {
         if(!$where) {
-            return null;
+            return '';
         }
         if(!is_array($where)) {
             if(trim($where)=='') {
-                return null;
+                return '';
             }
             return 'WHERE ' . $where;
         }
