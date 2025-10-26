@@ -357,11 +357,19 @@ class TinyMCE
         $ph['width'] = (!empty($params['width'])) ? $params['width'] : '100%';
         $ph['height'] = (!empty($params['height'])) ? $params['height'] : '300';
         $ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
-        if (strpos(evo()->config('mce_editor_skin'), ':') !== false) {
-            [$skin, $skin_variant] = explode(':', evo()->config('mce_editor_skin', 'default'));
-        } else $skin = evo()->config('mce_editor_skin');
+        $skinSetting = (string)(evo()->config('mce_editor_skin') ?? '');
+        if ($skinSetting === '') {
+            $skinSetting = 'default';
+        }
+
+        if (strpos($skinSetting, ':') !== false) {
+            [$skin, $skin_variant] = explode(':', $skinSetting, 2);
+        } else {
+            $skin = $skinSetting;
+            $skin_variant = '';
+        }
         $ph['skin'] = $skin;
-        $ph['skin_variant'] = $skin_variant ?? '';
+        $ph['skin_variant'] = $skin_variant;
 
         $ph['document_base_url'] = MODX_SITE_URL;
         switch ($params['mce_path_options']) {
@@ -459,7 +467,14 @@ class TinyMCE
         $mce_init = file_get_contents($mce_path . "js/mce_init.inc.js.template");
         foreach ($ph as $name => $value) {
             $name = '[+' . $name . '+]';
-            $mce_init = str_replace($name, $value, $mce_init);
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            } elseif ($value === null) {
+                $value = '';
+            } elseif (!is_scalar($value)) {
+                $value = '';
+            }
+            $mce_init = str_replace($name, (string)$value, $mce_init);
         }
         return $mce_init;
     }
