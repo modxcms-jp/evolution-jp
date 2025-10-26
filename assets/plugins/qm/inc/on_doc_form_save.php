@@ -14,9 +14,4 @@ evo()->clearCache();
 
 global $modx;
 $modx->config['xhtml_urls'] = 0;
-evo()->sendRedirect(
-    evo()->makeUrl(postv('qmrefresh', $id), '', 'quickmanagerclose=1', 'full'),
-    0,
-    'REDIRECT_HEADER',
-    'HTTP/1.1 301 Moved Permanently'
-);
+exit(sprintf("<script>parent.location.href='%s';</script>", evo()->makeUrl(postv('qmrefresh', $id))));
