@@ -97,6 +97,7 @@ class DocumentParser
     public $revision;
     public $revisionObject;
     public $filter;
+    protected $old;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
@@ -2691,6 +2692,7 @@ class DocumentParser
             if ($echo === false) {
                 $echo = 'ob_get_contents() error';
             }
+            $errorMessage = $error_info['message'] ?? '';
             $this->messageQuit(
                 'PHP Parse Error',
                 '',
@@ -2698,7 +2700,7 @@ class DocumentParser
                 $error_info['type'],
                 $error_info['file'],
                 'Plugin',
-                $error_info['text'],
+                $errorMessage,
                 $error_info['line'],
                 $echo
             );
@@ -2769,7 +2771,7 @@ class DocumentParser
                     $error_info['type'],
                     $error_info['file'],
                     'Snippet',
-                    $error_info['text'] ?? '',
+                    $error_info['message'] ?? '',
                     $error_info['line'],
                     $echo
                 );

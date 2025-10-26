@@ -75,7 +75,11 @@ function setModifiedConfig($form_v, $defaut_v)
 function formv($key, $default = null)
 {
     if (in_array($key, ['filemanager_path', 'rb_base_dir'])) {
-        return str_replace(MODX_BASE_PATH, '[(base_path)]', postv($key));
+        $value = postv($key, $default);
+        if ($value === null) {
+            $value = '';
+        }
+        return str_replace(MODX_BASE_PATH, '[(base_path)]', $value);
     }
     return postv($key, $default);
 }
