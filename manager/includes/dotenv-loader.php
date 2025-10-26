@@ -39,7 +39,7 @@ class Dotenv
             $value = trim($value);
 
             // 文字列の囲み（""または'')を削除
-            if ($value !== '' && in_array($value[0], ["\"", "'"], true)) {
+            if ($value !== '' && ($value[0] === '"' || $value[0] === "'")) {
                 $quote = $value[0];
                 if (substr($value, -1) === $quote) {
                     $value = substr($value, 1, -1);
