@@ -5,33 +5,63 @@
     <title>[+lang.DM_module_title+]</title>
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="media/script/mootools/mootools.js"></script>
     <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
+    <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
     <script type="text/javascript">
-        function save() {
-            //populateHiddenVars();
-            setTimeout("document.sortableListForm.submit()", 1000);
-        }
+        (function() {
+            function onReady(handler) {
+                if (document.addEventListener) {
+                    document.addEventListener('DOMContentLoaded', handler, false);
+                } else if (window.attachEvent) {
+                    window.attachEvent('onload', handler);
+                } else {
+                    var prev = window.onload;
+                    window.onload = function() {
+                        if (typeof prev === 'function') {
+                            prev();
+                        }
+                        handler();
+                    };
+                }
+            }
 
-        function reset() {
-            document.resetform.submit();
-        }
-
-        window.addEvent('domready', function () {
-            new Sortables($('sortlist'), {
-                onComplete: function () {
-                    var list = '';
-                    $$('li.sort').each(function (el, i) {
-                        list += el.id + ';';
-                    });
-                    $('list').value = list;
+            onReady(function() {
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
+                var disableTreeSelect = (function(value) {
+                    if (typeof value === 'boolean') {
+                        return value;
+                    }
+                    if (value == null) {
+                        return false;
+                    }
+                    if (typeof value === 'number') {
+                        return value !== 0;
+                    }
+                    var normalized = String(value).toLowerCase();
+                    return normalized === 'true' || normalized === '1';
+                })([+sort.disable_tree_select+]);
+                if (disableTreeSelect && parent && parent.tree) {
+                    parent.tree.ca = '';
                 }
             });
 
-            if ([+sort.disable_tree_select+] == true) {
-                parent.tree.ca = '';
-            }
-        });
+            window.save = function() {
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
+                if (document.sortableListForm) {
+                    document.sortableListForm.submit();
+                }
+            };
+
+            window.reset = function() {
+                if (document.resetform) {
+                    document.resetform.submit();
+                }
+            };
+        })();
 
         parent.tree.updateTree();
     </script>
@@ -45,6 +75,10 @@
             padding: 1px 4px 1px 24px;
             min-height: 20px;
             width: 50%;
+        }
+
+        ul.sortableList li.dragging {
+            opacity: 0.6;
         }
 
         ul.sortableList li.noChildren {
@@ -95,12 +129,12 @@
     <div class="sectionHeader">[+lang.DM_sort_title+]</div>
     <div class="sectionBody">
         [+sort.message+]
-        <ul id="sortlist" class="sortableList">
+        <ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">
             [+sort.options+]
         </ul>
         <form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="tabAction" value="sortList"/>
-            <input type="text" id="list" name="list" value=""/>
+            <input type="hidden" id="list" name="list" value=""/>
         </form>
     </div>
 </div>

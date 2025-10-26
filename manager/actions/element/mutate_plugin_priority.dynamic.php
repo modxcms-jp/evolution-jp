@@ -53,88 +53,79 @@ while ($row = db()->getRow($rs)) {
     if ($preEvt !== $row['evtid']) {
         $sortables[] = $row['evtid'];
         $evtLists .= $insideUl ? '</ul><br />' : '';
-        $evtLists .= '<strong>' . $row['evtname'] . '</strong><br /><ul id="' . $row['evtid'] . '" class="sortableList">';
+        $evtLists .= '<strong>' . $row['evtname'] . '</strong><br /><ul id="' . $row['evtid'] . '" class="sortableList" data-sortable="true" data-target="list_' . $row['evtid'] . '" data-delimiter=",">';
         $insideUl = 1;
     }
     $evtLists .= '<li id="item_' . $row['pluginid'] . '">' . $row['name'] . '</li>';
     $preEvt = $row['evtid'];
 }
 
-$evtLists .= '</ul>';
+if ($insideUl) {
+    $evtLists .= '</ul>';
+}
 
 $header = '
 <!doctype html>
 <head>
-	<title>MODX</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-	<script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
-	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>
+        <title>MODX</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
+        <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
+';
 
-	<style type="text/css">
+$header .= <<<'HTML'
+
+        <style type="text/css">
         .topdiv {border: 0;}
-		.subdiv {border: 0;}
-		li {list-style:none;}
-		.tplbutton {text-align: right;}
-		ul.sortableList
-		{
-			padding-left: 20px;
-			margin: 0;
-			width: 300px;
-		}
+                .subdiv {border: 0;}
+                li {list-style:none;}
+                .tplbutton {text-align: right;}
+                ul.sortableList
+                {
+                        padding-left: 20px;
+                        margin: 0;
+                        width: 300px;
+                }
 
-		ul.sortableList li
-		{
-			font-weight: bold;
-			cursor: move;
+                ul.sortableList li
+                {
+                        font-weight: bold;
+                        cursor: move;
             color: #444444;
             padding: 3px 5px;
-			margin: 4px 0;
+                        margin: 4px 0;
             border: 1px solid #CCCCCC;
-			background-repeat: repeat-x;
-		}
+                        background-repeat: repeat-x;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+                }
+        ul.sortableList li.dragging {opacity: 0.6;}
         #sortableListForm {display:none;}
-	</style>
-    <script>
-        function save() {
-        	setTimeout("document.sortableListForm.submit()",1000);
-    	}
-
-    	window.addEvent(\'domready\', function() {';
-foreach ($sortables as $list) {
-    $header .= 'new Sortables($(\'' . $list . '\'), {
-	               initialize: function() {
-                        $$(\'#' . $list . ' li\').each(function(el, i)
-                        {
-                            el.setStyle(\'padding\', \'3px 5px\');
-                            el.setStyle(\'font-weight\', \'bold\');
-                            el.setStyle(\'width\', \'300px\');
-                            el.setStyle(\'background-color\', \'#ccc\');
-                            el.setStyle(\'cursor\', \'move\');
-                        });
-                    }
-                    ,onComplete: function() {
-           	var id = null;
-           	var list = this.serialize(function(el) {
-            id = el.getParent().id;
-           	return el.id;
-           });
-           $(\'list_\' + id).value = list;
-                    }
-                });' . "\n";
-}
-$header .= '});
-</script>
-</head>
-<body ondragstart="return false;">
+        </style>
+    <script type="text/javascript">
+        (function() {
+            window.save = function() {
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
+                if (document.sortableListForm) {
+                    document.sortableListForm.submit();
+                }
+            };
+        })();
+    </script>
+HTML;
+$header .= '</head>
+<body>
 
 <h1>' . $_lang['plugin_priority_title'] . '</h1>
 
 <div id="actions">
    <ul class="actionButtons">
-       	<li class="mutate"><a href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="' . $_style["icons_cancel"] . '" /> ' . $_lang['cancel'] . '</a></li>
-	</ul>
+        <li class="mutate"><a href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
+                <li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=76\';"><img src="' . $_style["icons_cancel"] . '" /> ' . $_lang['cancel'] . '</a></li>
+        </ul>
 </div>
 
 <div class="section">
@@ -153,7 +144,7 @@ echo '<form action="" method="post" name="sortableListForm" style="display: none
             <input type="hidden" name="listSubmitted" value="true" />';
 
 foreach ($sortables as $list) {
-    echo '<input type="text" id="list_' . $list . '" name="list_' . $list . '" value="" />';
+    echo '<input type="hidden" id="list_' . $list . '" name="list_' . $list . '" value="" />';
 }
 
 echo '	</form>

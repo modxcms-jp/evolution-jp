@@ -47,92 +47,87 @@ $orderby = 'tr.rank, tv.rank, tv.id';
 
 $rs = db()->select($field, $from, $where, $orderby);
 $limit = db()->count($rs);
+$evtLists = '';
 
-if ($limit > 1) {
+if ($limit > 0) {
     for ($i = 0; $i < $limit; $i++) {
         $row = db()->getRow($rs);
-        if ($i == 0) {
-            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList">';
+        if (!$row) {
+            continue;
+        }
+        if ($i === 0) {
+            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">';
         }
         $evtLists .= '<li id="item_' . $row['id'] . '" class="sort">' . $row['name'] . '</li>';
     }
-}
 
-$evtLists .= '</ul>';
+    if ($evtLists !== '') {
+        $evtLists .= '</ul>';
+    }
+}
 
 $header = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>MODx</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-	<link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-	<script type="text/javascript" src="media/script/mootools/mootools.js"></script>';
+        <title>MODx</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
+        <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>';
 
-$header .= '
+$header .= <<<HTML
     <style type="text/css">
         .topdiv {
-			border: 0;
-		}
+                        border: 0;
+                }
 
-		.subdiv {
-			border: 0;
-		}
+                .subdiv {
+                        border: 0;
+                }
 
-		li {list-style:none;}
+                li {list-style:none;}
 
-		ul.sortableList {
-			padding-left: 20px;
-			margin: 0px;
-			width: 300px;
-			font-family: Arial, sans-serif;
-		}
+                ul.sortableList {
+                        padding-left: 20px;
+                        margin: 0px;
+                        width: 300px;
+                        font-family: Arial, sans-serif;
+                }
 
-		ul.sortableList li {
-			font-weight: bold;
-			cursor: move;
-			color: #444444;
-			padding: 3px 5px;
-			margin: 4px 0px;
-			border: 1px solid #CCCCCC;
-			background-image: url("media/style/' . $manager_theme . '/images/misc/fade.gif");
-			background-repeat: repeat-x;
-		}
-	</style>
+                ul.sortableList li {
+                        font-weight: bold;
+                        cursor: move;
+                        color: #444444;
+                        padding: 3px 5px;
+                        margin: 4px 0px;
+                        border: 1px solid #CCCCCC;
+                        background-image: url("media/style/$manager_theme/images/misc/fade.gif");
+                        background-repeat: repeat-x;
+                        -webkit-user-select: none;
+                        -moz-user-select: none;
+                        user-select: none;
+                }
+
+                ul.sortableList li.dragging {
+                        opacity: 0.6;
+                }
+        </style>
     <script type="text/javascript">
-        function save() {
-        	setTimeout("document.sortableListForm.submit()",1000);
-    	}
-
-        window.addEvent(\'domready\', function() {
-			new Sortables($(\'sortlist\'),
-			{
-				initialize: function()
-				{
-			 		$$(\'li.sort\').each(function(el, i)
-			 		{
-						el.setStyle(\'padding\', \'3px 5px\');
-						el.setStyle(\'font-weight\', \'bold\');
-						el.setStyle(\'width\', \'300px\');
-						el.setStyle(\'background-color\', \'#ccc\');
-						el.setStyle(\'cursor\', \'move\');
-					});
-				},
-				onComplete: function()
-				{
-	               var list = \'\';
-					$$(\'li.sort\').each(function(el, i)
-					{
-	                   list += el.id + \';\';
-	               });
-	               $(\'list\').value = list;
-	           }
-	       });
-	    });
-	</script>';
+        (function() {
+            window.save = function() {
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
+                if (document.sortableListForm) {
+                    document.sortableListForm.submit();
+                }
+            };
+        })();
+        </script>
+HTML;
 
 $header .= '</head>
-<body ondragstart="return false;">
+<body>
 
 <h1>' . $_lang["template_tv_edit_title"] . '</h1>
 
@@ -159,5 +154,5 @@ echo '
 </div>
 <form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />
-            <input type="text" id="list" name="list" value="" />
+            <input type="hidden" id="list" name="list" value="" />
 </form>';
