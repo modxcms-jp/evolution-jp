@@ -17,7 +17,7 @@ $locked = postv('locked') == 'on' ? '1' : '0';
 $plugincode = db()->escape(postv('post'));
 $properties = db()->escape(postv('properties'));
 $disabled = postv('disabled') == "on" ? '1' : '0';
-$moduleguid = db()->escape(postv('moduleguid'));
+$moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
 if (empty($sysevents)) {
     $sysevents[] = 90;
