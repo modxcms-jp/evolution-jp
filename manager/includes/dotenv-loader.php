@@ -44,7 +44,16 @@ class Dotenv
                 if (substr($value, -1) === $quote) {
                     $value = substr($value, 1, -1);
                 } else {
-                    $value = substr($value, 1);
+                    // Leave the value unchanged and log a warning about the missing closing quote
+                    trigger_error(
+                        sprintf(
+                            'Dotenv: Missing closing quote for value of "%s" in file "%s" (line: "%s")',
+                            $name,
+                            $this->path,
+                            $line
+                        ),
+                        E_USER_WARNING
+                    );
                 }
             }
 
