@@ -99,6 +99,7 @@ class DocumentParser
     public $filter;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
+    private $phpErrorContextStack = [];
 
     public function __get($property_name)
     {
@@ -184,6 +185,7 @@ class DocumentParser
         $this->snipLapCount = 0;
         $this->stopOnNotice = false;
         $this->safeMode = false;
+        $this->phpErrorContextStack = [];
         // set track_errors ini variable
         ini_set('track_errors', '1');
         $this->error_reporting = 1;
@@ -2672,11 +2674,13 @@ class DocumentParser
             extract($params, EXTR_SKIP);
             $modx->event->cm->setParams($params);
         }
+        $this->pushPhpErrorContext('plugin');
         ob_start();
         $pluginCode = preg_replace('{^<\?php}u', '', trim($pluginCode));
         $return = eval($pluginCode);
         unset($modx->event->params);
         $echo = ob_get_clean();
+        $this->popPhpErrorContext();
         if (!$echo || !error_get_last()) {
             return $echo . $return;
         }
@@ -2745,13 +2749,25 @@ class DocumentParser
         if (is_array($params)) {
             extract($params, EXTR_SKIP);
         }
+        $this->pushPhpErrorContext('snippet');
         ob_start();
-        if (strpos($phpcode, ';') !== false || strpos(trim($phpcode), "\n") !== false) {
-            $return = eval($phpcode);
-        } else {
-            $return = $phpcode($params);
+        try {
+            if (strpos($phpcode, ';') !== false || strpos(trim($phpcode), "\n") !== false) {
+                $return = eval($phpcode);
+            } else {
+                $return = $phpcode($params);
+            }
+        } catch (\Throwable $throwable) {
+            $echo = ob_get_clean();
+            $this->popPhpErrorContext();
+            $this->handleSnippetThrowable($throwable, $echo);
+            unset($modx->event->params);
+            $this->currentSnippetCall = '';
+            $this->currentSnippet = '';
+            return '';
         }
         $echo = ob_get_clean();
+        $this->popPhpErrorContext();
 
         if ((0 < $this->config('error_reporting')) && $echo && error_get_last()) {
             $error_info = error_get_last();
@@ -2794,6 +2810,35 @@ class DocumentParser
         }
 
         return $echo . $return;
+    }
+
+    private function handleSnippetThrowable(\Throwable $throwable, $echo)
+    {
+        $severity = $throwable instanceof \ErrorException ? $throwable->getSeverity() : E_ERROR;
+        if (!$severity) {
+            $severity = E_ERROR;
+        }
+
+        $this->messageQuit(
+            'PHP Fatal Error',
+            '',
+            true,
+            $severity,
+            $throwable->getFile(),
+            'Snippet',
+            $throwable->getMessage(),
+            $throwable->getLine(),
+            $echo
+        );
+
+        if ($this->isBackend()) {
+            $this->event->alert(
+                sprintf(
+                    'An error occurred while loading. Please see the event log for more information.<p>%s</p>',
+                    $echo
+                )
+            );
+        }
     }
 
     public function evalSnippets($content)
@@ -5119,6 +5164,15 @@ class DocumentParser
         if (error_reporting() == 0 || $nr == 0) {
             return true;
         }
+        $context = $this->getCurrentPhpErrorContext();
+        if (
+            $context
+            && in_array($nr, [E_WARNING, E_USER_WARNING], true)
+            && (int)$this->config('error_reporting', 1) <= 1
+        ) {
+            $this->logSuppressedPhpWarning($text, $file, $line, $context);
+            return true;
+        }
         if ($this->stopOnNotice == false) {
             switch ($nr) {
                 case E_NOTICE:
@@ -5151,6 +5205,62 @@ class DocumentParser
             exit();
         }
         return $result;
+    }
+
+    private function pushPhpErrorContext($context)
+    {
+        $this->phpErrorContextStack[] = $context;
+    }
+
+    private function popPhpErrorContext()
+    {
+        array_pop($this->phpErrorContextStack);
+    }
+
+    private function getCurrentPhpErrorContext()
+    {
+        if (empty($this->phpErrorContextStack)) {
+            return null;
+        }
+
+        return end($this->phpErrorContextStack);
+    }
+
+    private function logSuppressedPhpWarning($text, $file, $line, $context)
+    {
+        $label = $this->describeUserCodeContext($context);
+        $message = sprintf(
+            '%s in %s on line %d',
+            $this->htmlspecialchars($text),
+            $this->htmlspecialchars($file),
+            $line
+        );
+        if ($label) {
+            $message .= '<br />' . $this->htmlspecialchars($label);
+        }
+        $this->logEvent(0, 2, $message, 'Suppressed PHP Warning');
+    }
+
+    private function describeUserCodeContext($context)
+    {
+        if ($context === 'snippet') {
+            if ($this->currentSnippet) {
+                return sprintf('Suppressed while executing snippet "%s"', $this->currentSnippet);
+            }
+            if ($this->currentSnippetCall) {
+                return sprintf('Suppressed while executing snippet call "%s"', $this->currentSnippetCall);
+            }
+            return 'Suppressed while executing a snippet';
+        }
+
+        if ($context === 'plugin') {
+            if (!empty($this->event->activePlugin)) {
+                return sprintf('Suppressed while executing plugin "%s"', $this->event->activePlugin);
+            }
+            return 'Suppressed while executing a plugin';
+        }
+
+        return '';
     }
 
     public function mergeRegisteredClientScripts($content)
