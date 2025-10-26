@@ -30,7 +30,6 @@ function mm_widget_googlemap($fields, $googleApiKey='', $default='', $roles='', 
 			$callBack .= "mm_gmap.init('$tv_id','$default');";
 		}
 
-      $googleApiKey = $googleApiKey ?? '';
 
 	  $output .=<<<EOP
         var gmap_script = document.createElement('script');
