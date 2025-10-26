@@ -47,6 +47,12 @@ db()->query("ALTER TABLE `$table` CHANGE `name` `name` varchar(191) NOT NULL DEF
 $table = sessionv('table_prefix') . 'event_log';
 db()->query("ALTER TABLE `$table` MODIFY `source` VARCHAR(255)");
 
+$table = sessionv('table_prefix') . 'site_snippets';
+addColumnIfNotExists($table, 'php_error_reporting', "varchar(8) NOT NULL DEFAULT '' AFTER `moduleguid`");
+
+$table = sessionv('table_prefix') . 'site_plugins';
+addColumnIfNotExists($table, 'php_error_reporting', "varchar(8) NOT NULL DEFAULT '' AFTER `moduleguid`");
+
 $data = [
     'id' => 1,
     'name' => 'Administrator',
