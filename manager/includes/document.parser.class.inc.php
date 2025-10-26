@@ -5021,7 +5021,7 @@ class DocumentParser
             return;
         }
         $result = db()->select(
-            '*',
+            'plugincode,properties,error_reporting',
             '[+prefix+]site_plugins',
             [
                 where('name', '=', $pluginName),

@@ -492,7 +492,10 @@ class synccache
     private function _get_snippets()
     {
         global $modx;
-        $rs = db()->select('*', '[+prefix+]site_snippets');
+        $rs = db()->select(
+            'name,snippet,properties,error_reporting',
+            '[+prefix+]site_snippets'
+        );
         $modx->snippetCache = [];
         while ($row = db()->getRow($rs)) {
             $name = $row['name'];
@@ -507,7 +510,11 @@ class synccache
     {
         global $modx;
 
-        $rs = db()->select('*', '[+prefix+]site_plugins', 'disabled=0');
+        $rs = db()->select(
+            'name,plugincode,properties,error_reporting',
+            '[+prefix+]site_plugins',
+            'disabled=0'
+        );
         $modx->pluginCache = [];
         while ($row = db()->getRow($rs)) {
             $name = db()->escape($row['name']);
