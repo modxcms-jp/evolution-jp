@@ -136,7 +136,14 @@ class DataGrid
             } else {
                 $key = $c;
             }
-            $value = $row[$key];
+
+            if (is_array($row)) {
+                $value = array_key_exists($key, $row) ? $row[$key] : '';
+            } elseif (is_object($row)) {
+                $value = isset($row->{$key}) ? $row->{$key} : '';
+            } else {
+                $value = '';
+            }
 
             $width = $this->_colwidths[$c] ?? '';
             $align = $this->_colaligns[$c] ?? '';

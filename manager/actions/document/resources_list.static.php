@@ -9,11 +9,8 @@ if (!hasPermission('view_document')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-if (preg_match('@^[1-9][0-9]*$@', getv('id'))) {
-    $id = getv('id');
-} else {
-    $id = 0;
-}
+$idParam = getv('id', '');
+$id = preg_match('@^[1-9][0-9]*$@', $idParam) ? (int)$idParam : 0;
 
 evo()->loadExtension('DocAPI');
 evo()->updatePublishStatus();
@@ -67,11 +64,8 @@ if (!$numRecords) {
         $where[] = sprintf("AND (sc.privatemgr=0 %s)", $in_docgrp);
     }
     $where[] = 'GROUP BY sc.id,rev.status';
-    if (preg_match('@^[1-9][0-9]*$@', getv('page'))) {
-        $offset = getv('page') - 1;
-    } else {
-        $offset = 0;
-    }
+    $pageParam = getv('page', '');
+    $offset = preg_match('@^[1-9][0-9]*$@', $pageParam) ? (int)$pageParam - 1 : 0;
     $rs = db()->select(
         $f,
         array(

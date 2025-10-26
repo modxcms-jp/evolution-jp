@@ -4272,7 +4272,7 @@ class DocumentParser
             return '';
         }
 
-        $timestamp = trim($timestamp);
+        $timestamp = trim((string) $timestamp);
         $timestamp = (int)$timestamp + $this->config('server_offset_time');
 
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
