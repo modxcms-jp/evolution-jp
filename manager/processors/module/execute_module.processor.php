@@ -94,15 +94,24 @@ $parameter = [];
 if (!empty($content["properties"])) {
     $tmpParams = explode("&", $content["properties"]);
     for ($x = 0, $xMax = count($tmpParams); $x < $xMax; $x++) {
-        $pTmp = explode("=", $tmpParams[$x]);
-        $pvTmp = explode(";", trim($pTmp[1]));
-        if ($pvTmp[1] === 'list' && $pvTmp[3] != "") {
-            $parameter[$pTmp[0]] = $pvTmp[3];
-        } //list default
-        else {
-            if ($pvTmp[1] !== 'list' && $pvTmp[2] != "") {
-                $parameter[$pTmp[0]] = $pvTmp[2];
-            }
+        $pTmp = explode("=", $tmpParams[$x], 2);
+        if (count($pTmp) < 2) {
+            continue;
+        }
+
+        $paramName = trim($pTmp[0]);
+        $paramValue = trim($pTmp[1]);
+        if ($paramName === '' || $paramValue === '') {
+            continue;
+        }
+
+        $pvTmp = explode(";", $paramValue);
+        $pvTmp = array_pad($pvTmp, 4, '');
+
+        if ($pvTmp[1] === 'list' && $pvTmp[3] !== "") {
+            $parameter[$paramName] = $pvTmp[3];
+        } elseif ($pvTmp[1] !== 'list' && $pvTmp[2] !== "") {
+            $parameter[$paramName] = $pvTmp[2];
         }
     }
 }
