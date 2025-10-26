@@ -29,7 +29,7 @@
                 if (window.MODXSortable) {
                     window.MODXSortable.updateAll();
                 }
-                if ([+sort.disable_tree_select+] == true && parent && parent.tree) {
+                if ('[+sort.disable_tree_select+]' === 'true' && parent && parent.tree) {
                     parent.tree.ca = '';
                 }
             });
