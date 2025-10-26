@@ -6,117 +6,38 @@
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
+    <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
     <script type="text/javascript">
         (function() {
-            var sortList;
-            var dragItem = null;
-            var listField;
-
-            function updateHidden() {
-                if (!sortList) return;
-                if (!listField) {
-                    listField = document.getElementById('list');
-                }
-                if (!listField) return;
-                var ids = [];
-                var children = sortList.children || sortList.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    var child = children[i];
-                    if (child && child.nodeType === 1 && child.id) {
-                        ids.push(child.id);
-                    }
-                }
-                listField.value = ids.join(';');
-            }
-
-            function clearDragging(el) {
-                if (!el || !el.className) return;
-                el.className = el.className.replace(/\s*dragging\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/^\s+|\s+$/g, '');
-            }
-
-            function onDragStart(e) {
-                dragItem = this;
-                this.className += ' dragging';
-                if (e.dataTransfer) {
-                    e.dataTransfer.effectAllowed = 'move';
-                    try {
-                        e.dataTransfer.setData('text/plain', this.id);
-                    } catch (err) {}
+            function onReady(handler) {
+                if (document.addEventListener) {
+                    document.addEventListener('DOMContentLoaded', handler, false);
+                } else if (window.attachEvent) {
+                    window.attachEvent('onload', handler);
+                } else {
+                    var prev = window.onload;
+                    window.onload = function() {
+                        if (typeof prev === 'function') {
+                            prev();
+                        }
+                        handler();
+                    };
                 }
             }
 
-            function findTarget(list, target) {
-                while (target && target !== list && (target.nodeType !== 1 || target.tagName !== 'LI')) {
-                    target = target.parentNode;
+            onReady(function() {
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
                 }
-                if (target && target !== list && target.tagName === 'LI') {
-                    return target;
-                }
-                return null;
-            }
-
-            function onDragOver(e) {
-                if (!dragItem) return;
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                var target = findTarget(sortList, e.target || e.srcElement);
-                if (!target || target === dragItem) {
-                    return;
-                }
-                var rect = target.getBoundingClientRect();
-                var isAfter = (e.clientY || 0) - rect.top > rect.height / 2;
-                sortList.insertBefore(dragItem, isAfter ? target.nextSibling : target);
-            }
-
-            function onDrop(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                updateHidden();
-            }
-
-            function onDragEnd() {
-                clearDragging(this);
-                dragItem = null;
-                updateHidden();
-            }
-
-            function prepareItems() {
-                var items = sortList.getElementsByTagName('li');
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    item.setAttribute('draggable', 'true');
-                    item.ondragstart = onDragStart;
-                    item.ondragend = onDragEnd;
-                }
-            }
-
-            function init() {
-                sortList = document.getElementById('sortlist');
-                if (!sortList) return;
-                prepareItems();
-                if (sortList.addEventListener) {
-                    sortList.addEventListener('dragover', onDragOver, false);
-                    sortList.addEventListener('drop', onDrop, false);
-                } else if (sortList.attachEvent) {
-                    sortList.attachEvent('ondragover', onDragOver);
-                    sortList.attachEvent('ondrop', onDrop);
-                }
-                updateHidden();
-                if ([+sort.disable_tree_select+] == true) {
+                if ([+sort.disable_tree_select+] == true && parent && parent.tree) {
                     parent.tree.ca = '';
                 }
-            }
-
-            if (document.addEventListener) {
-                document.addEventListener('DOMContentLoaded', init, false);
-            } else if (window.attachEvent) {
-                window.attachEvent('onload', init);
-            }
+            });
 
             window.save = function() {
-                updateHidden();
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
                 if (document.sortableListForm) {
                     document.sortableListForm.submit();
                 }
@@ -195,7 +116,7 @@
     <div class="sectionHeader">[+lang.DM_sort_title+]</div>
     <div class="sectionBody">
         [+sort.message+]
-        <ul id="sortlist" class="sortableList">
+        <ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">
             [+sort.options+]
         </ul>
         <form action="" method="post" name="sortableListForm" style="display: none;">

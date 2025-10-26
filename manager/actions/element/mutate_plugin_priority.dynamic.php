@@ -53,14 +53,16 @@ while ($row = db()->getRow($rs)) {
     if ($preEvt !== $row['evtid']) {
         $sortables[] = $row['evtid'];
         $evtLists .= $insideUl ? '</ul><br />' : '';
-        $evtLists .= '<strong>' . $row['evtname'] . '</strong><br /><ul id="' . $row['evtid'] . '" class="sortableList">';
+        $evtLists .= '<strong>' . $row['evtname'] . '</strong><br /><ul id="' . $row['evtid'] . '" class="sortableList" data-sortable="true" data-target="list_' . $row['evtid'] . '" data-delimiter=",">';
         $insideUl = 1;
     }
     $evtLists .= '<li id="item_' . $row['pluginid'] . '">' . $row['name'] . '</li>';
     $preEvt = $row['evtid'];
 }
 
-$evtLists .= '</ul>';
+if ($insideUl) {
+    $evtLists .= '</ul>';
+}
 
 $header = '
 <!doctype html>
@@ -68,10 +70,10 @@ $header = '
         <title>MODX</title>
         <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
         <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-        <script type="text/javascript" src="media/script/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
 ';
 
-$header .= sprintf(<<<'HTML'
+$header .= <<<'HTML'
 
         <style type="text/css">
         .topdiv {border: 0;}
@@ -101,123 +103,11 @@ $header .= sprintf(<<<'HTML'
         ul.sortableList li.dragging {opacity: 0.6;}
         #sortableListForm {display:none;}
         </style>
-    <script>
+    <script type="text/javascript">
         (function() {
-            var listIds = %s;
-            var dragItem = null;
-
-            function hasListItemClass(el) {
-                return el && el.tagName === 'LI';
-            }
-
-            function clearDragging(el) {
-                if (!el || !el.className) return;
-                el.className = el.className.replace(/\s*dragging\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/^\s+|\s+$/g, '');
-            }
-
-            function updateHidden(list) {
-                if (!list || !list.id) return;
-                var field = document.getElementById('list_' + list.id);
-                if (!field) return;
-                var ids = [];
-                var children = list.children || list.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    var child = children[i];
-                    if (child && child.nodeType === 1 && child.id) {
-                        ids.push(child.id);
-                    }
-                }
-                field.value = ids.join(',');
-            }
-
-            function onDragStart(e) {
-                dragItem = this;
-                this.className += ' dragging';
-                if (e.dataTransfer) {
-                    e.dataTransfer.effectAllowed = 'move';
-                    try {
-                        e.dataTransfer.setData('text/plain', this.id);
-                    } catch (err) {}
-                }
-            }
-
-            function findItemWithin(list, target) {
-                while (target && target !== list && (target.nodeType !== 1 || target.tagName !== 'LI')) {
-                    target = target.parentNode;
-                }
-                if (target && target !== list && hasListItemClass(target)) {
-                    return target;
-                }
-                return null;
-            }
-
-            function onDragOver(e) {
-                if (!dragItem) return;
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                var list = this;
-                var target = findItemWithin(list, e.target || e.srcElement);
-                if (!target || target === dragItem) {
-                    return;
-                }
-                var rect = target.getBoundingClientRect();
-                var isAfter = (e.clientY || 0) - rect.top > rect.height / 2;
-                list.insertBefore(dragItem, isAfter ? target.nextSibling : target);
-            }
-
-            function onDrop(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                updateHidden(this);
-            }
-
-            function onDragEnd() {
-                clearDragging(this);
-                var parent = this.parentNode;
-                dragItem = null;
-                if (parent) {
-                    updateHidden(parent);
-                }
-            }
-
-            function prepareList(list) {
-                if (!list) return;
-                var items = list.getElementsByTagName('li');
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    item.setAttribute('draggable', 'true');
-                    item.ondragstart = onDragStart;
-                    item.ondragend = onDragEnd;
-                }
-                if (list.addEventListener) {
-                    list.addEventListener('dragover', onDragOver, false);
-                    list.addEventListener('drop', onDrop, false);
-                } else if (list.attachEvent) {
-                    list.attachEvent('ondragover', onDragOver);
-                    list.attachEvent('ondrop', onDrop);
-                }
-                updateHidden(list);
-            }
-
-            function init() {
-                for (var i = 0; i < listIds.length; i++) {
-                    var list = document.getElementById(listIds[i]);
-                    prepareList(list);
-                }
-            }
-
-            if (document.addEventListener) {
-                document.addEventListener('DOMContentLoaded', init, false);
-            } else if (window.attachEvent) {
-                window.attachEvent('onload', init);
-            }
-
             window.save = function() {
-                for (var i = 0; i < listIds.length; i++) {
-                    var list = document.getElementById(listIds[i]);
-                    updateHidden(list);
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
                 }
                 if (document.sortableListForm) {
                     document.sortableListForm.submit();
@@ -225,8 +115,7 @@ $header .= sprintf(<<<'HTML'
             };
         })();
     </script>
-HTML
-, json_encode($sortables));
+HTML;
 $header .= '</head>
 <body>
 

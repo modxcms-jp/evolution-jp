@@ -53,7 +53,7 @@ if ($limit > 1) {
     for ($i = 0; $i < $limit; $i++) {
         $row = db()->getRow($rs);
         if ($i == 0) {
-            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList">';
+            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">';
         }
         $evtLists .= '<li id="item_' . $row['id'] . '" class="sort">' . $row['name'] . '</li>';
     }
@@ -69,7 +69,8 @@ $header = '
 <head>
         <title>MODx</title>
         <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />';
+        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
+        <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>';
 
 $header .= <<<HTML
     <style type="text/css">
@@ -110,123 +111,10 @@ $header .= <<<HTML
         </style>
     <script type="text/javascript">
         (function() {
-            var sortList;
-            var dragItem = null;
-            var listField;
-
-            function hasSortClass(el) {
-                return el && el.className && (' ' + el.className + ' ').indexOf(' sort ') !== -1;
-            }
-
-            function clearDragging(el) {
-                if (!el || !el.className) return;
-                el.className = el.className.replace(/\s*dragging\s*/g, ' ').replace(/\s{2,}/g, ' ').replace(/^\s+|\s+$/g, '');
-            }
-
-            function updateListField() {
-                if (!sortList) return;
-                if (!listField) {
-                    listField = document.getElementById('list');
-                }
-                if (!listField) return;
-                var ids = [];
-                var children = sortList.children || sortList.childNodes;
-                for (var i = 0; i < children.length; i++) {
-                    var child = children[i];
-                    if (child && child.nodeType === 1 && child.id) {
-                        ids.push(child.id);
-                    }
-                }
-                listField.value = ids.join(';');
-            }
-
-            function onDragStart(e) {
-                dragItem = this;
-                this.className += ' dragging';
-                if (e.dataTransfer) {
-                    e.dataTransfer.effectAllowed = 'move';
-                    try {
-                        e.dataTransfer.setData('text/plain', this.id);
-                    } catch (err) {
-                        // IE may throw errors for setData with unsupported formats; ignore.
-                    }
-                }
-            }
-
-            function findListItem(target) {
-                while (target && target !== sortList && target.nodeType === 1 && target.tagName !== 'LI') {
-                    target = target.parentNode;
-                }
-                if (target && target.tagName === 'LI' && hasSortClass(target)) {
-                    return target;
-                }
-                return null;
-            }
-
-            function onDragOver(e) {
-                if (!dragItem) return;
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                var target = findListItem(e.target || e.srcElement);
-                if (!target || target === dragItem) {
-                    return;
-                }
-                var rect = target.getBoundingClientRect();
-                var isAfter = (e.clientY || 0) - rect.top > rect.height / 2;
-                sortList.insertBefore(dragItem, isAfter ? target.nextSibling : target);
-            }
-
-            function onDrop(e) {
-                if (e.preventDefault) {
-                    e.preventDefault();
-                }
-                updateListField();
-            }
-
-            function onDragEnd() {
-                clearDragging(this);
-                dragItem = null;
-                updateListField();
-            }
-
-            function prepareItems() {
-                var items = sortList.getElementsByTagName('li');
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    if (!hasSortClass(item)) {
-                        continue;
-                    }
-                    item.setAttribute('draggable', 'true');
-                    item.ondragstart = onDragStart;
-                    item.ondragend = onDragEnd;
-                }
-            }
-
-            function init() {
-                sortList = document.getElementById('sortlist');
-                if (!sortList) {
-                    return;
-                }
-                prepareItems();
-                if (sortList.addEventListener) {
-                    sortList.addEventListener('dragover', onDragOver, false);
-                    sortList.addEventListener('drop', onDrop, false);
-                } else if (sortList.attachEvent) {
-                    sortList.attachEvent('ondragover', onDragOver);
-                    sortList.attachEvent('ondrop', onDrop);
-                }
-                updateListField();
-            }
-
-            if (document.addEventListener) {
-                document.addEventListener('DOMContentLoaded', init, false);
-            } else if (window.attachEvent) {
-                window.attachEvent('onload', init);
-            }
-
             window.save = function() {
-                updateListField();
+                if (window.MODXSortable) {
+                    window.MODXSortable.updateAll();
+                }
                 if (document.sortableListForm) {
                     document.sortableListForm.submit();
                 }
