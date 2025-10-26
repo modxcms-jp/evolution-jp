@@ -11,7 +11,7 @@ if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
     require_once(MODX_BASE_PATH . 'assets/helpers.php');
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
-require_once(__DIR__ . '/extenders/ex_subparser.php');
+require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');
 
 class DocumentParser
 {
@@ -230,6 +230,9 @@ class DocumentParser
                 return true;
             case 'documentapi': // Document API
                 include_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
+                return true;
+            case 'subparser':
+                // The subparser helpers now live directly on the parser, but return true for legacy calls.
                 return true;
             case 'modifiers': //Modfires
             case 'phx':
