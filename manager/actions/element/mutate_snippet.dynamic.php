@@ -402,31 +402,26 @@ function entity($key, $default = null)
                             <?= $_lang['a17_error_reporting_title'] ?>:
                         </th>
                         <td align="left" style="padding-top:10px;">
-                            <?= sprintf(
-                                '<label>%s %s</label>',
-                                form_radio('error_reporting', 'inherit', $snippetErrorReporting === 'inherit'),
-                                $_lang['element_error_reporting_inherit']
-                            ); ?><br/>
-                            <?= sprintf(
-                                '<label>%s %s</label>',
-                                form_radio('error_reporting', '0', $snippetErrorReporting === '0'),
-                                $_lang['a17_error_reporting_opt0']
-                            ); ?><br/>
-                            <?= sprintf(
-                                '<label>%s %s</label>',
-                                form_radio('error_reporting', '1', $snippetErrorReporting === '1'),
-                                $_lang['a17_error_reporting_opt1']
-                            ); ?><br/>
-                            <?= sprintf(
-                                '<label>%s %s</label>',
-                                form_radio('error_reporting', '2', $snippetErrorReporting === '2'),
-                                $_lang['a17_error_reporting_opt2']
-                            ); ?><br/>
-                            <?= sprintf(
-                                '<label>%s %s</label>',
-                                form_radio('error_reporting', '99', $snippetErrorReporting === '99'),
-                                $_lang['a17_error_reporting_opt99']
-                            ); ?><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="inherit"<?= $snippetErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['element_error_reporting_inherit'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="0"<?= $snippetErrorReporting === '0' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt0'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="1"<?= $snippetErrorReporting === '1' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt1'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="2"<?= $snippetErrorReporting === '2' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt2'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="99"<?= $snippetErrorReporting === '99' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt99'] ?>
+                            </label><br/>
                             <?= $_lang['a17_error_reporting_msg'] ?>
                         </td>
                     </tr>
