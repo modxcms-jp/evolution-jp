@@ -6,7 +6,10 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 $esc_request = db()->escape($_REQUEST);
 
-$fieldtype = strpos(config('resource_tree_node_name'), 'edon') !== false ? 'date' : 'str';
+$resourceTreeNodeName = config('resource_tree_node_name', '');
+$fieldtype = is_string($resourceTreeNodeName) && strpos($resourceTreeNodeName, 'edon') !== false
+    ? 'date'
+    : 'str';
 if (!sessionv('tree_sortby')) {
     $_SESSION['tree_sortby'] = tree_sortby_default(
         config('resource_tree_sortby_default','menuindex')
