@@ -5165,6 +5165,10 @@ class DocumentParser
             return true;
         }
         $context = $this->getCurrentPhpErrorContext();
+        if ($this->shouldDowngradeWarningToNotice($nr, $text)) {
+            $this->logDowngradedPhpWarning($text, $file, $line, $context);
+            return true;
+        }
         if (
             $context
             && in_array($nr, [E_WARNING, E_USER_WARNING], true)
@@ -5261,6 +5265,50 @@ class DocumentParser
         }
 
         return '';
+    }
+
+    private function shouldDowngradeWarningToNotice($nr, $text)
+    {
+        if (!in_array($nr, [E_WARNING, E_USER_WARNING], true)) {
+            return false;
+        }
+
+        if ((int)$this->config('error_reporting', 1) > 2) {
+            return false;
+        }
+
+        $patterns = [
+            '/^Undefined array key /',
+            '/^Undefined index: /',
+            '/^Undefined offset: /',
+            '/^Undefined variable /',
+            '/^Undefined property: /',
+            '/^Trying to access array offset on value of type /',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function logDowngradedPhpWarning($text, $file, $line, $context)
+    {
+        $label = $this->describeUserCodeContext($context);
+        $message = sprintf(
+            '%s in %s on line %d',
+            $this->htmlspecialchars($text),
+            $this->htmlspecialchars($file),
+            $line
+        );
+        if ($label) {
+            $message .= '<br />' . $this->htmlspecialchars($label);
+        }
+        $message .= '<br />This warning was treated as a notice for PHP 7 compatibility.';
+        $this->logEvent(0, 2, $message, 'Downgraded PHP Warning');
     }
 
     public function mergeRegisteredClientScripts($content)
