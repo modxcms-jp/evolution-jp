@@ -1,13 +1,7 @@
 <?php
 
-$this->sub = new SubParser();
-
-class SubParser
+trait DocumentParserSubParserTrait
 {
-    public function __construct()
-    {
-    }
-
     function sendmail($params = [], $msg = '')
     {
         global $modx;
@@ -2692,5 +2686,15 @@ class SubParser
             }
         }
         return false;
+    }
+}
+
+if (!class_exists('SubParser')) {
+    /**
+     * @deprecated Use DocumentParser methods directly.
+     */
+    class SubParser
+    {
+        use DocumentParserSubParserTrait;
     }
 }
