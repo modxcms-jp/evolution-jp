@@ -30,7 +30,7 @@ mm_gmap.draw = function(mapContainerId) {
     geoLoc = $j("#"+tvId).val().split(',');
     initOverlay = true;
   }else {
-    geoLoc = (defaultGeoLoc != '')? defaultGeoLoc.split(',') : new Array(35.6585805,139.74543289999997);	// get default from mm_rules, otherwise head to berlin
+    geoLoc = (defaultGeoLoc != '')? defaultGeoLoc.split(',') : [35.6585805, 139.74543289999997];	// get default from mm_rules, otherwise head to berlin
   }
 
   let center = new google.maps.LatLng(geoLoc[0], geoLoc[1]);
