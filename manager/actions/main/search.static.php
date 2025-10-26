@@ -120,15 +120,15 @@ if (getv('submitok')) {
     if ($searchtitle != '') {
         $where[] = "pagetitle LIKE '%" . db()->escape($searchtitle) . "%' ";
     }
-    $searchlongtitle = trim(getv('longtitle'));
+    $searchlongtitle = trim(getv('longtitle', ''));
     if ($searchlongtitle != '') {
         $where[] = "longtitle LIKE '%" . db()->escape($searchlongtitle) . "%' ";
     }
-    $search_alias = trim(getv('alias'));
+    $search_alias = trim(getv('alias', ''));
     if ($search_alias != '') {
         $where[] = "alias LIKE '%" . db()->escape($search_alias) . "%' ";
     }
-    $searchcontent = getv('content');
+    $searchcontent = getv('content', '');
     if ($searchcontent != '') {
         $where[] = "content LIKE '%" . db()->escape($searchcontent) . "%' ";
     }
