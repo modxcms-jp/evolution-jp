@@ -201,6 +201,8 @@ class DocumentParser
             $this->mstart = memory_get_usage();
         }
 
+        // Backwards compatibility: $modx->sub historically referenced the parser itself.
+        // The alias creates a circular reference but is retained for legacy integrations.
         $this->sub = $this;
     }
 
@@ -221,9 +223,6 @@ class DocumentParser
             case 'docapi': // Resource API
             case 'export_site':
                 require_once(MODX_CORE_PATH . "extenders/ex_" . $extname . ".php");
-                return true;
-            case 'subparser':
-                $this->sub = $this;
                 return true;
             case 'revision':
             case 'phpass':
