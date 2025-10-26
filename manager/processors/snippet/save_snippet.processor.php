@@ -24,7 +24,7 @@ if (strncmp($snippet, '<?', 2) == 0) {
     }
 }
 $properties = db()->escape(postv('properties'));
-$moduleguid = db()->escape(postv('moduleguid'));
+$moduleguid = db()->escape(postv('moduleguid', ''));
 $sysevents = postv('sysevents');
 
 //Kyle Jaebker - added category support
