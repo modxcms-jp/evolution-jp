@@ -119,11 +119,7 @@ h2 {
     font-size: 1.64em;
 }
 
-h4 {
-    font-size: 1em;
-    font-weight: bold;
-}
-
+h4,
 h5 {
     font-size: 1em;
     font-weight: bold;
@@ -388,14 +384,10 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border-color: green;
-    border-style: solid;
-    border-width: 1px;
+    border: 1px solid green;
 }
 
-input[type="button"],
-input[type="submit"] {
-    background-color: #ededed;
+input:is([type="button"], [type="submit"]) {
     border: 1px solid green;
     cursor: pointer;
     line-height: normal;
@@ -403,17 +395,8 @@ input[type="submit"] {
     min-height: 27px;
     padding: 4px 10px;
     overflow: visible;
-    margin-left: 5px;
-    -webkit-appearance: button;
-    background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     border-radius: 3px;
-}
-
-input[type="button"]:hover,
-input[type="submit"] {
-    border-color: green;
-    background-color: #ededed;
-    background-image: linear-gradient(#ffffff, #eeeeee);
 }
 
 input.checkbox,
@@ -427,6 +410,11 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
+}
+
+input:is([type="button"], [type="submit"]):hover {
+    border-color: green;
+    background: linear-gradient(#ffffff, #eeeeee);
 }
 
 select {
@@ -576,7 +564,6 @@ form .imeoff {
     border: 1px solid var(--color-border-default);
     border-bottom: none;
     text-shadow: 0 1px 0 var(--color-surface);
-    background-color: var(--color-section-header-start);
     background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     box-shadow: 0 1px 0 var(--color-surface) inset;
     border-radius: 5px 5px 0 0;
@@ -700,7 +687,6 @@ a img {
 
 div.treeframebody {
     background: #f5f5f5 url(images/misc/subnav.png) !important;
-    -webkit-box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
 }
 
@@ -1046,10 +1032,7 @@ a.hometblink:hover {
     float: right;
 }
 
-#nav a:hover {
-    color: #fff;
-}
-
+#nav a:hover,
 #nav a:active {
     color: #fff;
 }
@@ -1057,7 +1040,6 @@ a.hometblink:hover {
 #nav li.active {
     background: none repeat scroll 0 0 #616161;
     border-radius: 5px 5px 0 0;
-    -webkit-box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
     box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
 }
 
@@ -1180,7 +1162,6 @@ a.hometblink:hover {
     font-weight: bold;
     padding: 6px 4px;
     margin-bottom: 3px;
-    background-color: var(--color-accent-green-end);
     text-shadow: 0px -1px 0px #222;
     background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
@@ -1263,10 +1244,8 @@ a.hometblink:hover {
     position: relative;
     top: 1px;
     border: 1px solid #658f1a;
-    background-color: var(--color-accent-green-end);
     text-shadow: 0px -1px 0px #2B5F0C;
     border-radius: 5px 5px 0 0;
-    border-radius: 0;
     background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
@@ -1278,7 +1257,6 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
-    background-color: var(--color-accent-green-active-start);
     background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
 }
 
@@ -1583,13 +1561,11 @@ ul.actionButtons {
 
 .actionButtons a:hover {
     border-color: #fff;
-    background-color: var(--color-surface);
     background-image: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));
 }
 
 .actionButtons a:active {
     border-color: #F0F0F0;
-    background-color: var(--color-neutral-button-active-start);
     background-image: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
 }
 
@@ -1601,7 +1577,6 @@ ul.actionButtons {
 }
 
 .actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
     background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
 }
 
@@ -1631,19 +1606,16 @@ ul.actionButtons {
     color: #fff;
     box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
     text-shadow: 0 -1px 0 #2B5F0C;
-    background-color: var(--color-accent-green-end);
     background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-color: var(--color-accent-green-hover-start);
     background-image: linear-gradient(var(--color-accent-green-hover-start), var(--color-accent-green-hover-end));
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-color: var(--color-accent-green-active-start);
     background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
 }
 
@@ -1797,8 +1769,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 
 .phptextarea {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
-    -webkit-box-sizing: border-box; /* Chrome, Safari */
-    box-sizing: border-box; /* IE8+, Opera */
+    box-sizing: border-box;
 }
 
 /* Custom */
