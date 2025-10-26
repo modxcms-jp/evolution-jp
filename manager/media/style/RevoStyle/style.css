@@ -380,7 +380,6 @@ input[type="submit"] {
     margin-left: 5px;
     -webkit-appearance: button;
     background: -o-linear-gradient(#f5f5f5, #DDDDDD);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5, endColorstr=#DDDDDD);
     border-radius: 3px;
 }
 
@@ -388,7 +387,6 @@ input[type="button"]:hover,
 input[type="submit"] {
     border-color: green;
     background: -o-linear-gradient(#FFFFFF, #EEEEEE);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFFFFF, endColorstr=#EEEEEE);
 }
 
 input.checkbox,
@@ -402,7 +400,6 @@ input[type="button"] {
     height: auto !important;
     width: auto !important;
     cursor: pointer;
-    cursor: hand;
 }
 
 select {
@@ -410,7 +407,6 @@ select {
     border: 0;
     background: #fcfcfc;
     cursor: pointer;
-    cursor: hand;
 }
 
 .form {
@@ -594,7 +590,6 @@ form .imeoff {
 .sectionHeader {
     padding: 5px 9px 5px 15px;
     background: -o-linear-gradient(#f5f5f5, #DDDDDD);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f5f5f5, endColorstr=#DDDDDD);
     background: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#DDDDDD));
     background: linear-gradient(#f5f5f5, #DDDDDD);
     -webkit-box-shadow: 0px 1px 0px #fff inset;
@@ -657,7 +652,6 @@ a img {
 .disabledImage {
     width: 20px;
     opacity: 0.3;
-    filter: alpha(opacity=30);
 }
 
 .disabledImage img {
@@ -945,7 +939,6 @@ a.hometblink:hover {
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
     opacity: .3;
-    filter: alpha(opacity=30);
 }
 
 .cntxMnuSeparator {
@@ -1097,7 +1090,6 @@ a.hometblink:hover {
 #nav li.active ul.subnav a:hover {
     color: #fff;
     text-shadow: 0 0 2px #FFF;
-    -ms-filter: "progid:DXImageTransform.Microsoft.DropShadow(color=#ffffff,offx=0,offy=0)";
 }
 
 #nav li.active ul.subnav a:active {
@@ -1108,8 +1100,6 @@ a.hometblink:hover {
 #nav li.active ul.subnav a {
     background-color: #626262;
     background: -o-linear-gradient(#626262, #444444);
-    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr=#626262, endColorstr=#444444);
-    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#626262,endColorstr=#444444, GradientType=0)";
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
@@ -1166,12 +1156,10 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLinkDisabled img {
     opacity: .3;
-    filter: alpha(opacity=30);
 }
 
 #mx_contextmenu .menuLink:hover img {
     opacity: 1;
-    filter: alpha(opacity=100);
 }
 
 #mx_contextmenu #nameHolder {
@@ -1186,7 +1174,6 @@ a.hometblink:hover {
     background: none repeat scroll 0 0 #66901b;
     text-shadow: 0px -1px 0px #222;
     background: -o-linear-gradient(#8aae4b, #66901b);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#8aae4b, endColorstr=#66901b);
 }
 
 #mx_contextmenu .seperator {
@@ -1297,7 +1284,6 @@ a.hometblink:hover {
     border-width: 1px 1px 0;
     background: #fff;
     background-color: #fff;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#ffffff);
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
@@ -1352,7 +1338,6 @@ a.hometblink:hover {
 .treeButton {
     display: block;
     cursor: pointer;
-    cursor: hand;
     color: #333;
     border: 1px;
     border-bottom-color: #809c47;
@@ -1374,7 +1359,6 @@ a.hometblink:hover {
     color: #777;
     border-width: 0;
     opacity: .5;
-    filter: alpha(opacity=50);
 }
 
 /* -------------------------[ Welcome Page ]--- */
@@ -1560,12 +1544,10 @@ ul.actionButtons {
 .actionButtons img {
     vertical-align: top;
     margin-top: 1px;
-    filter: alpha(opacity=70);
     opacity: .7;
 }
 
 .actionButtons a:hover img {
-    filter: alpha(opacity=100);
     opacity: 1;
 }
 
@@ -1588,7 +1570,6 @@ ul.actionButtons {
     background: -webkit-gradient(linear, left top, left bottom, from(#FAFAFA), to(#D2D2D2));
     background: linear-gradient(#FAFAFA, #D2D2D2);
     background: -o-linear-gradient(#FAFAFA, #D2D2D2);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#FAFAFA, endColorstr=#D2D2D2);
 }
 
 .actionButtons a img {
@@ -1598,13 +1579,11 @@ ul.actionButtons {
 .actionButtons a:hover {
     border-color: #fff;
     background: -o-linear-gradient(#fff, #E5E5E5);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#ffffff, endColorstr=#E5E5E5);
 }
 
 .actionButtons a:active {
     border-color: #F0F0F0;
     background: -o-linear-gradient(#F0F0F0, #CECECE);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#F0F0F0, endColorstr=#CECECE);
 }
 
 .actionButtons a.disabled {
@@ -1632,7 +1611,6 @@ ul.actionButtons {
 
 .actionButtons a.disabled img {
     opacity: .3;
-    filter: alpha(opacity=30);
 }
 
 .actionButtons .and {
@@ -1651,21 +1629,18 @@ ul.actionButtons {
     text-shadow: 0 -1px 0 #2B5F0C;
     background: #66901b;
     background: -o-linear-gradient(#8aae4b, #66901b);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#8aae4b, endColorstr=#66901b);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
     background: #90bf40;
     background: -o-linear-gradient(#90bf40, #82af33);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#90bf40, endColorstr=#82af33);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
     background: #749c2f;
     background: -o-linear-gradient(#749c2f, #4b7109);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#749c2f, endColorstr=#4b7109);
 }
 
 
