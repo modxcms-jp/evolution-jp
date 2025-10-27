@@ -94,21 +94,34 @@ if (!function_exists('str_ends_with')) {
 
 function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
 {
-    if(!$string) {
-        return $string;
+    if ($string === null) {
+        return '';
     }
+
     if (is_object($string)) {
         return $string;
     }
-    if(is_array($string)) {
-        foreach($string as $i=>$v) {
+
+    if (is_array($string)) {
+        foreach ($string as $i => $v) {
             $string[$i] = hsc($v, $flags, $encode, $double_encode);
         }
+
         return $string;
     }
-    if($encode===null) {
+
+    if ($encode === null) {
         $encode = 'utf-8';
     }
+
+    if (!is_string($string)) {
+        if (is_bool($string)) {
+            $string = $string ? '1' : '';
+        } else {
+            $string = (string) $string;
+        }
+    }
+
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 

@@ -5640,7 +5640,11 @@ class DocumentParser
 
     public function hsc($str, $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $encode = null, $double_encode = true)
     {
-        if (!$str) {
+        if ($str === null) {
+            return '';
+        }
+
+        if (is_object($str)) {
             return $str;
         }
 
@@ -5648,16 +5652,25 @@ class DocumentParser
             foreach ($str as $k => $v) {
                 $str[$k] = $this->hsc($v, $flags, $encode, $double_encode);
             }
+
             return $str;
         }
 
-        if (!$encode) {
+        if ($encode === null) {
             $encode = $this->config('modx_charset', 'utf-8');
+        }
+
+        if (!is_string($str)) {
+            if (is_bool($str)) {
+                $str = $str ? '1' : '';
+            } else {
+                $str = (string) $str;
+            }
         }
 
         $ent_str = htmlspecialchars($str, $flags, $encode, $double_encode);
 
-        if ($str && $ent_str == '') {
+        if ($str !== '' && $ent_str === '') {
             $ent_str = $this->hsc(
                 mb_convert_encoding(
                     $str,
