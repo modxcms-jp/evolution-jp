@@ -6,6 +6,40 @@ if (isset($_POST['chkagree'])) {
     $_SESSION['chkagree'] = postv('chkagree');
 }
 
+// Persist the database connection details collected on the previous step so that
+// config.inc.php is generated with the correct credentials even when the
+// connection test is skipped.
+if (isset($_POST['database_server'])) {
+    sessionv('*database_server', postv('database_server'));
+}
+if (isset($_POST['database_user'])) {
+    sessionv('*database_user', postv('database_user'));
+}
+if (isset($_POST['database_password'])) {
+    sessionv('*database_password', postv('database_password'));
+}
+if (isset($_POST['dbase'])) {
+    sessionv('*dbase', trim(postv('dbase'), '`'));
+}
+if (isset($_POST['table_prefix'])) {
+    $tablePrefix = trim(postv('table_prefix'));
+    if ($tablePrefix !== '') {
+        $tablePrefix = rtrim($tablePrefix, '_') . '_';
+    }
+    sessionv('*table_prefix', $tablePrefix);
+}
+if (isset($_POST['database_collation'])) {
+    $databaseCollation = postv('database_collation');
+    sessionv('*database_collation', $databaseCollation);
+    $charset = strpos($databaseCollation, '_') !== false
+        ? substr($databaseCollation, 0, strpos($databaseCollation, '_'))
+        : $databaseCollation;
+    sessionv('*database_charset', $charset);
+}
+if (isset($_POST['database_connection_method'])) {
+    sessionv('*database_connection_method', postv('database_connection_method'));
+}
+
 if (isset($_POST['adminname'])) {
     $_SESSION['adminname'] = postv('adminname');
 }
