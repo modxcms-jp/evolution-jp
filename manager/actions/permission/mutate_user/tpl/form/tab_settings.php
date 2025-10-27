@@ -110,32 +110,35 @@
     <tr>
         <th><?= lang('login_allowed_days') ?></th>
         <td>
-            <?= checkbox('allowed_days[]', '1', lang('sunday'), strpos(user('allowed_days'), '1') !== false) ?>
-            <?= checkbox('allowed_days[]', '2', lang('monday'), strpos(user('allowed_days'), '2') !== false) ?>
+            <?php $allowedDays = user('allowed_days');
+            $allowedDays = is_string($allowedDays) ? $allowedDays : '';
+            ?>
+            <?= checkbox('allowed_days[]', '1', lang('sunday'), strpos($allowedDays, '1') !== false) ?>
+            <?= checkbox('allowed_days[]', '2', lang('monday'), strpos($allowedDays, '2') !== false) ?>
             <?= checkbox(
                 'allowed_days[]',
                 '3',
                 lang('tuesday'),
-                strpos(user('allowed_days'), '3') !== false
+                strpos($allowedDays, '3') !== false
             ); ?>
             <?= checkbox(
                 'allowed_days[]',
                 '4',
                 lang('wednesday'),
-                strpos(user('allowed_days'), '4') !== false
+                strpos($allowedDays, '4') !== false
             ); ?>
             <?= checkbox(
                 'allowed_days[]',
                 '5',
                 lang('thursday'),
-                strpos(user('allowed_days'), '5') !== false
+                strpos($allowedDays, '5') !== false
             ); ?>
-            <?= checkbox('allowed_days[]', '6', lang('friday'), strpos(user('allowed_days'), '6') !== false) ?>
+            <?= checkbox('allowed_days[]', '6', lang('friday'), strpos($allowedDays, '6') !== false) ?>
             <?= checkbox(
                 'allowed_days[]',
                 '7',
                 lang('saturday'),
-                strpos(user('allowed_days'), '7') !== false
+                strpos($allowedDays, '7') !== false
             ); ?>
             <div><?= lang('login_allowed_days_message') ?></div>
         </td>
