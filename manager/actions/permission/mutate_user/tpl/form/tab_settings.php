@@ -18,8 +18,12 @@
     <tr>
         <th><?= lang('user_allowed_parents') ?>:</th>
         <td>
+            <?php
+            $allowedParents = user('allowed_parents');
+            $allowedParents = $allowedParents === null ? '' : $allowedParents;
+            ?>
             <input type="text" name="allowed_parents" class="inputBox"
-                value="<?= htmlspecialchars(user('allowed_parents')) ?>" />
+                value="<?= hsc($allowedParents) ?>" />
             <div><?= lang('user_allowed_parents_message') ?></div>
         </td>
     </tr>
