@@ -12,7 +12,7 @@ if (anyv('r') == 10) {
         "document.location.href='index.php?a=3&id=%s';", anyv('id')
     );
 } else {
-    $ph['reload'] = 'document.location.href="index.php?a=2"';
+    $ph['reload'] = 'top.location.href="index.php?a=2"';
 }
 
 $tpl = get_tpl();
