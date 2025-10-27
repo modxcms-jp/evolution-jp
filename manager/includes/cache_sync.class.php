@@ -215,6 +215,12 @@ class synccache
             '$cache_type = %s;',
             config('cache_type', 1)
         );
+        if (isset($config['settings_version'])) {
+            $content[] = sprintf(
+                '$settings_version = "%s";',
+                $config['settings_version']
+            );
+        }
         if (isset($site_sessionname) && $site_sessionname) {
             $content[] = sprintf(
                 '$site_sessionname = "%s";',
