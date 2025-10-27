@@ -492,12 +492,16 @@ class synccache
     private function _get_snippets()
     {
         global $modx;
-        $rs = db()->select('*', '[+prefix+]site_snippets');
+        $rs = db()->select(
+            'name,snippet,properties,error_reporting',
+            '[+prefix+]site_snippets'
+        );
         $modx->snippetCache = [];
         while ($row = db()->getRow($rs)) {
             $name = $row['name'];
             $modx->snippetCache[$name] = $row['snippet'];
             $modx->snippetCache[$name . 'Props'] = $row['properties'];
+            $modx->snippetCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? 'inherit';
         }
         return $modx->snippetCache;
     }
@@ -506,12 +510,17 @@ class synccache
     {
         global $modx;
 
-        $rs = db()->select('*', '[+prefix+]site_plugins', 'disabled=0');
+        $rs = db()->select(
+            'name,plugincode,properties,error_reporting',
+            '[+prefix+]site_plugins',
+            'disabled=0'
+        );
         $modx->pluginCache = [];
         while ($row = db()->getRow($rs)) {
             $name = db()->escape($row['name']);
             $modx->pluginCache[$name] = $row['plugincode'];
             $modx->pluginCache[$name . 'Props'] = $row['properties'];
+            $modx->pluginCache[$name . 'ErrorReporting'] = $row['error_reporting'] ?? 'inherit';
         }
         return $modx->pluginCache;
     }

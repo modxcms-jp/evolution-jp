@@ -212,6 +212,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_plugins`
     `plugincode`  mediumtext,
     `locked`      tinyint(4)   NOT NULL DEFAULT '0',
     `properties`  text COMMENT 'Default Properties',
+    `error_reporting` varchar(8) NOT NULL DEFAULT 'inherit' COMMENT 'PHP error level override',
     `disabled`    tinyint(4)   NOT NULL DEFAULT '0' COMMENT 'Disables the plugin',
     `moduleguid`  varchar(32)  NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters',
     PRIMARY KEY (`id`)
@@ -236,6 +237,7 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}site_snippets`
     `snippet`     mediumtext,
     `locked`      tinyint(4)   NOT NULL DEFAULT '0',
     `properties`  text COMMENT 'Default Properties',
+    `error_reporting` varchar(8) NOT NULL DEFAULT 'inherit' COMMENT 'PHP error level override',
     `moduleguid`  varchar(32)  NOT NULL DEFAULT '' COMMENT 'GUID of module from which to import shared parameters',
     PRIMARY KEY (`id`)
 ) {TABLE_OPTION} COMMENT ='Contains the site snippets.';

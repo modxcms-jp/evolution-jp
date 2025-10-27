@@ -703,6 +703,35 @@ function entity($key, $default = null)
                                 style="padding:0;height:4em;"><?= entity('description') ?></textarea>
                         </td>
                     </tr>
+                    <?php $pluginErrorReporting = entity('error_reporting', 'inherit'); ?>
+                    <tr>
+                        <th align="left" style="padding-top:10px;">
+                            <?= $_lang['a17_error_reporting_title'] ?>:
+                        </th>
+                        <td align="left" style="padding-top:10px;">
+                            <label>
+                                <input type="radio" name="error_reporting" value="inherit"<?= $pluginErrorReporting === 'inherit' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['element_error_reporting_inherit'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="0"<?= $pluginErrorReporting === '0' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt0'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="1"<?= $pluginErrorReporting === '1' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt1'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="2"<?= $pluginErrorReporting === '2' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt2'] ?>
+                            </label><br/>
+                            <label>
+                                <input type="radio" name="error_reporting" value="99"<?= $pluginErrorReporting === '99' ? ' checked="checked"' : '' ?>>
+                                <?= $_lang['a17_error_reporting_opt99'] ?>
+                            </label><br/>
+                            <?= $_lang['a17_error_reporting_msg'] ?>
+                        </td>
+                    </tr>
                     <?php if (evo()->hasPermission('save_plugin') == 1) { ?>
                         <tr>
                             <td align="left" valign="top" colspan="2">
