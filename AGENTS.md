@@ -9,9 +9,6 @@
 - **PIE**: 自己検証可能な実装を意識し、テストや検証が容易な構成にします。
 - **SSOT**: 真実の単一情報源を保ち、設定値やドキュメントが一貫するようにします。
 
-- **Helper Functions**: ヘルパー関数(manager/includes/helpers.php)を使って簡潔に書くようにしたい。
-
+- **Helper Functions**: ヘルパー関数(manager/includes/helpers.php)を使って簡潔に書く。
 - **Review Language**: レビューは日本語で。
-
-- **Commit Messages**: コミットログは英語でよい。
-
+- **Commit Messages**: コミットログは英語で書く。
