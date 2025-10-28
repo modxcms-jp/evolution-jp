@@ -159,9 +159,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     y = window.setTimeout('reloadtree()', 100);
                 }
                 if (rFrame == 10) {
-                    setInterval(function () {
-                        window.top.location.href = "../manager/";
-                    }, 1000);
+                    window.top.location.href = "../manager/";
                 }
             }
 
@@ -233,6 +231,11 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 <?php } ?>
                 | <a href="index.php?a=8" target="_top"><?= $_lang['logout'] ?></a>
                 <?php
+                $settings_version = db()->getValue(
+                    'setting_value',
+                    evo()->getFullTableName('system_settings'),
+                    'setting_name="settings_version"'
+                );
                 if (empty($settings_version)) {
                     $settings_version = '0.0.0';
                 }
