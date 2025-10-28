@@ -140,9 +140,9 @@ class synccache
             }
             $rs = null;
             if (is_file($file_path)) {
-                $rs = @unlink($file_path);
+                $rs = unlink($file_path);
             } elseif (is_dir($file_path)) {
-                $rs = @rmdir($file_path);
+                $rs = rmdir($file_path);
             }
             if ($rs) {
                 $deletedfiles[] = $name;
