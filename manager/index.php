@@ -95,12 +95,15 @@ switch (manager()->action) {
     default:
         if (is_file(MODX_CACHE_PATH . 'rolePublishing.idx.php')) {
             $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
-            $role = unserialize($content);
-            if (sessionv('mgrLastlogin', 0) < $role[sessionv('mgrRole', 0)]) {
-                @session_destroy();
-                session_unset();
-                header("Location: " . MODX_SITE_URL . "manager/");
-                exit;
+            $role = unserialize($content, ['allowed_classes' => false]);
+            $mgrRole = sessionv('mgrRole', 0);
+            if (isset($role[$mgrRole])) {
+                if (sessionv('mgrLastlogin', 0) < $role[$mgrRole]) {
+                    @session_destroy();
+                    session_unset();
+                    header("Location: " . MODX_SITE_URL . "manager/");
+                    exit;
+                }
             }
         }
 }
