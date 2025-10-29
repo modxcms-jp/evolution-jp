@@ -586,45 +586,46 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                         <td nowrap class="warning" valign="top"><b><?= $_lang["login_allowed_days"] ?></b>
                         </td>
                         <td>
+                            <?php $allowedDays = (string)setting('allowed_days', ''); ?>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="1" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '1'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['sunday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="2" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '2'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['monday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="3" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '3'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['tuesday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="4" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '4'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['wednesday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="5" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '5'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['thursday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="6" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '6'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['friday'] ?>
                             </label>
                             <label><input type="checkbox" name="allowed_days[]"
                                     value="7" <?= strpos(
-                                                    setting('allowed_days'),
+                                                    $allowedDays,
                                                     '7'
                                                 ) !== false ? "checked='checked'" : ""; ?> /> <?= $_lang['saturday'] ?>
                             </label>
