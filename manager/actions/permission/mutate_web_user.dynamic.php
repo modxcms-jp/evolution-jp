@@ -96,7 +96,7 @@ if (manager()->hasFormValues()) {
     }
     $usersettings = array_merge($usersettings, $form_v);
     $allowedDays = $form_v['allowed_days'] ?? '';
-    $usersettings['allowed_days'] = is_array($allowedDays) ? implode(",", $allowedDays) : (string)$allowedDays;
+    $usersettings['allowed_days'] = is_array($allowedDays) ? implode(",", $allowedDays) : $allowedDays;
     extract($usersettings, EXTR_OVERWRITE);
 }
 
