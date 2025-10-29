@@ -854,12 +854,23 @@ class DocumentParser
             switch ($this->config('cache_type')) {
                 case '1':
                     $cacheContent = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
-                    $cacheContent .= serialize($this->documentObject);
+                    $encodedDocument = json_encode(
+                        $this->documentObject,
+                        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                    );
+                    if ($encodedDocument === false) {
+                        return;
+                    }
+                    $cacheContent .= $encodedDocument;
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
                     $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
                     break;
                 case '2':
-                    $cacheContent = serialize($this->doc('contentType'));
+                    $encodedContentType = json_encode($this->doc('contentType'));
+                    if ($encodedContentType === false) {
+                        return;
+                    }
+                    $cacheContent = $encodedContentType;
                     $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
                     $filename = hash('crc32b', request_uri());
                     break;
@@ -1474,9 +1485,14 @@ class DocumentParser
             return $a[1];
         }
 
-        $docObj = unserialize(trim($a['0'])); // rebuild document object
+        $docHeader = trim($a['0']);
+        $docObj = json_decode($docHeader, true);
+        if (!is_array($docObj)) {
+            $docObj = [];
+        }
+
         // add so - check page security(admin(mgrRole=1) is pass)
-        if ($this->session('mgrRole') != 1 && $docObj['privateweb'] && isset($docObj['__MODxDocGroups__'])) {
+        if ($this->session('mgrRole') != 1 && ($docObj['privateweb'] ?? false) && isset($docObj['__MODxDocGroups__'])) {
             $pass = false;
             $usrGrps = $this->getUserDocGroups();
             $docGrps = explode(',', $docObj['__MODxDocGroups__']);

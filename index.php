@@ -46,10 +46,12 @@ if (isset($conditional_get) && $conditional_get == 1) {
             $output = fread($handle, filesize($target));
             unset($handle);
             [$head, $output] = explode('<!--__MODxCacheSpliter__-->', $output, 2);
-            if (strpos($head, '"text/html";') === false) {
-                $type = unserialize($head);
+            $type = json_decode($head, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_string($type) && $type !== '') {
                 header('Content-Type:' . $type . '; charset=utf-8');
-            } else header('Content-Type:text/html; charset=utf-8');
+            } else {
+                header('Content-Type:text/html; charset=utf-8');
+            }
             $msize = memory_get_peak_usage() - $mstart;
             $units = ['B', 'KB', 'MB'];
             $pos = 0;
