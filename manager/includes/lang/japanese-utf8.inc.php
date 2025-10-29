@@ -126,7 +126,7 @@ $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning
 $_lang["configcheck_images"] = 'images/ディレクトリに書き込みできません';
 $_lang["configcheck_images_msg"] = 'images/ディレクトリが書き込み可能でないか、ディレクトリ自体が存在していません。エディターの画像管理機能が動作しません。';
 $_lang["configcheck_installer"] = 'インストーラーが残されています';
-$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が存在します。アップデートの必要がある場合は<a href="https://modx.jp/docs/update.html" target="_blank">アップデート作業</a>を行なってください。新規インストール後、またはすでにアップデート作業を行なっている場合は、第三者にアップデートを再実行され、不要な機能のインストールなどを行なわれてしまう可能性がありますので、すぐに<a href="index.php?a=31">ディレクトリごと削除</a>してください。';
+$_lang["configcheck_installer_msg"] = 'インストーラ(/install/ ディレクトリ)が存在します。アップデートの必要がある場合は<a href="https://modx.jp/docs/update.html" target="_blank">アップデート作業</a>を行なってください。インストール作業が完了している場合は、すぐに<a href="index.php?a=31">ディレクトリごと削除</a>してください。削除するまでサイトにメンテナンス画面が表示されます。';
 $_lang["configcheck_lang_difference"] = '言語ファイルのエントリー数が異なります';
 $_lang["configcheck_lang_difference_msg"] = '現在選択されている言語ファイルのエントリー数がデフォルト言語ファイル(英語)のエントリー数と異なるため、一部が英語で表示されます。日本語で表示したい場合は、最新の言語ファイルを入手しアップデートする必要があります。';
 $_lang["configcheck_notok"] = '動作環境に問題があります。';
