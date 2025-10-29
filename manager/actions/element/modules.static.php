@@ -17,12 +17,18 @@ if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') 
 manager()->initPageViewState();
 
 // get and save search string
+$query = '';
+$sqlQuery = '';
 if (anyv('op') === 'reset') {
-    $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
-    $sqlQuery = db()->escape($query);
+    $query = anyv('search');
+    if ($query === null || $query === '') {
+        $query = array_get($_PAGE, 'vs.search', '');
+    }
+    if ($query !== '') {
+        $sqlQuery = db()->escape($query);
+    }
     $_PAGE['vs']['search'] = $query;
 }
 
