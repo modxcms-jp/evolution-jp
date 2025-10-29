@@ -6,14 +6,12 @@ $this->manager = new ManagerAPI;
 * Written by Raymond Irving 2005
 *
 */
-
-global $_PAGE; // page view state object. Usage $_PAGE['vs']['propertyname'] = $value;
-
 // Content manager wrapper class
 class ManagerAPI
 {
 
     public $action; // action directive
+    protected $viewState = [];
 
     function __construct()
     {
@@ -27,23 +25,47 @@ class ManagerAPI
         }
     }
 
+    protected function &getViewStateStorage()
+    {
+        if (!isset($_SESSION['mgrPageViewSDATA']) || !is_array($_SESSION['mgrPageViewSDATA'])) {
+            $_SESSION['mgrPageViewSDATA'] = [];
+        }
+
+        return $_SESSION['mgrPageViewSDATA'];
+    }
+
     function initPageViewState($id = 0)
     {
-        global $_PAGE;
-
         if (sessionv('mgrPageViewSID', '') != $this->action) {
             $_SESSION['mgrPageViewSDATA'] = []; // new view state
             $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action; // set id
         }
-        $_PAGE['vs'] = &$_SESSION['mgrPageViewSDATA']; // restore viewstate
+        $this->viewState = &$this->getViewStateStorage(); // restore viewstate
     }
 
     // save page view state - not really necessary,
     function savePageViewState($id = 0)
     {
-        global $_PAGE;
-        $_SESSION['mgrPageViewSDATA'] = $_PAGE['vs'];
+        $_SESSION['mgrPageViewSDATA'] = $this->getViewState();
         $_SESSION['mgrPageViewSID'] = ($id > 0) ? $id : $this->action;
+    }
+
+    public function getViewState($key = null, $default = null)
+    {
+        $storage = is_array($this->viewState) ? $this->viewState : $this->getViewStateStorage();
+
+        if ($key === null || $key === '') {
+            return $storage;
+        }
+
+        return array_get($storage, $key, $default);
+    }
+
+    public function setViewState($key, $value)
+    {
+        $storage = &$this->getViewStateStorage();
+        array_set($storage, $key, $value);
+        $this->viewState = &$storage;
     }
 
     // check for saved form

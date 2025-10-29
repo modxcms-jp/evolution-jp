@@ -7,24 +7,23 @@ if (!evo()->hasPermission('view_eventlog')) {
     alert()->dumpError();
 }
 
-global $_PAGE;
 manager()->initPageViewState();
 
 // get and save search string
 if (anyv('op') === 'reset') {
     $search = $query = '';
-    $_PAGE['vs']['search'] = '';
+    manager()->setViewState('search', '');
 } else {
-    $search = $query = anyv('search', array_get($_PAGE, 'vs.search'));
+    $search = $query = anyv('search', manager()->getViewState('search'));
     if (!is_numeric($search)) {
         $search = db()->escape($query);
     }
-    $_PAGE['vs']['search'] = $query;
+    manager()->setViewState('search', $query);
 }
 
 // get & save listmode
-$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+$listmode = anyv('listmode', manager()->getViewState('lm'));
+manager()->setViewState('lm', $listmode);
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');

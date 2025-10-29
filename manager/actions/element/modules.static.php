@@ -8,7 +8,6 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
-global $_PAGE;
 if (!(evo()->hasPermission('new_module') || evo()->hasPermission('edit_module') || evo()->hasPermission('exec_module'))) {
     alert()->setError(3);
     alert()->dumpError();
@@ -20,18 +19,18 @@ manager()->initPageViewState();
 $query = '';
 $sqlQuery = '';
 if (anyv('op') === 'reset') {
-    $_PAGE['vs']['search'] = '';
+    manager()->setViewState('search', '');
 } else {
-    $query = anyv('search', array_get($_PAGE, 'vs.search', ''));
+    $query = anyv('search', manager()->getViewState('search', ''));
     if ($query !== '') {
         $sqlQuery = db()->escape($query);
     }
-    $_PAGE['vs']['search'] = $query;
+    manager()->setViewState('search', $query);
 }
 
 // get & save listmode
-$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+$listmode = anyv('listmode', manager()->getViewState('lm'));
+manager()->setViewState('lm', $listmode);
 
 
 // context menu

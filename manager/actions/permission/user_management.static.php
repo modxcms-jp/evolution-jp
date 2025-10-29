@@ -8,20 +8,20 @@ if (!evo()->hasPermission('edit_user')) {
     alert()->dumpError();
 }
 
-global $_PAGE, $_style;
+global $_style;
 manager()->initPageViewState();
 // get and save search string
 if (anyv('op') == 'reset') {
     $query = '';
-    $_PAGE['vs']['search'] = '';
+    manager()->setViewState('search', '');
 } else {
-    $query = anyv('search') ?: array_get($_PAGE, 'vs.search');
-    $_PAGE['vs']['search'] = $query;
+    $query = anyv('search') ?: manager()->getViewState('search', '');
+    manager()->setViewState('search', $query);
 }
 
 // get & save listmode
-$listmode = anyv('listmode', array_get($_PAGE, 'vs.lm'));
-$_PAGE['vs']['lm'] = $listmode;
+$listmode = anyv('listmode', manager()->getViewState('lm'));
+manager()->setViewState('lm', $listmode);
 
 // context menu
 include_once(MODX_CORE_PATH . 'controls/contextmenu.php');

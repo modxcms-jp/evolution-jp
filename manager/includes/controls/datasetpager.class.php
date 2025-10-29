@@ -39,8 +39,6 @@ class DataSetPager
 
     function __construct($id, $ds, $pageSize = 10, $pageNumber = -1)
     {
-        global $_PAGE; // use view state object
-
         global $__DataSetPagerCnt;
 
         // set id
@@ -53,8 +51,14 @@ class DataSetPager
             $pageNumber = 1;
             if (getv("dpgn" . $this->id)) {
                 $pageNumber = getv("dpgn" . $this->id);
-            } elseif (isset($_PAGE['vs'][$id . '_dpgn'])) {
-                $pageNumber = $_PAGE['vs'][$id . '_dpgn'];
+            } else {
+                $manager = manager();
+                if ($manager) {
+                    $savedPage = $manager->getViewState($id . '_dpgn');
+                    if ($savedPage !== null) {
+                        $pageNumber = $savedPage;
+                    }
+                }
             }
         }
         if (!is_numeric($pageNumber)) {
@@ -102,7 +106,7 @@ class DataSetPager
 
     function render()
     {
-        global $modx, $_PAGE;
+        global $modx;
 
         $isDataset = $modx->db->isResult($this->ds);
 
@@ -137,8 +141,9 @@ class DataSetPager
         $p = $this->pageNumber;
 
         // save page number to view state if available
-        if (isset($_PAGE['vs'])) {
-            $_PAGE['vs'][$this->id . '_dpgn'] = $p;
+        $manager = manager();
+        if ($manager) {
+            $manager->setViewState($this->id . '_dpgn', $p);
         }
 
         // render pager : renderPagerFnc($cuurentPage,$pagerNumber,$arguments="");
