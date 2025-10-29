@@ -46,7 +46,7 @@ if (!is_readable($startpath)) {
     <ul class="actionButtons">
         <?php
         if (getv('mode') !== 'drill') {
-            $href = 'a=31&path=' . urlencode(anyv('path'));
+            $href = 'a=31&path=' . urlencode($startpath);
         } else {
             $href = 'a=2';
         }
