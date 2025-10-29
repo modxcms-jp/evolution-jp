@@ -3,20 +3,16 @@ global $errors, $tplTemplates;
 if (sessionv('is_upgradeable')) {
     return;
 }
-if (!sessionv('template') && !sessionv('installdata')) {
+$selectedTemplates = sessionv('template');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplTemplates, $selectedTemplates, $installSampleData)) {
     return;
 }
 
 echo "<h3>" . lang('templates') . ":</h3>";
 
 foreach ($tplTemplates as $i => $tplInfo) {
-    if (in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
-        $installSample = true;
-    } else {
-        $installSample = false;
-    }
-
-    if (!in_array($i, sessionv('template')) && !$installSample) {
+    if (!shouldInstallElement($i, $tplInfo['installset'], $selectedTemplates, $installSampleData)) {
         continue;
     }
 

@@ -1,19 +1,15 @@
 <?php
 global $errors, $tplPlugins;
-if (!sessionv('plugin') && !sessionv('installdata')) {
+$selectedPlugins = sessionv('plugin');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplPlugins, $selectedPlugins, $installSampleData)) {
     return;
 }
 
 echo '<h3>' . lang('plugins') . ':</h3>';
 
 foreach ($tplPlugins as $i => $tplInfo) {
-    if (in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
-        $installSample = true;
-    } else {
-        $installSample = false;
-    }
-
-    if (!in_array($i, sessionv('plugin')) && !$installSample) {
+    if (!shouldInstallElement($i, $tplInfo['installset'], $selectedPlugins, $installSampleData)) {
         continue;
     }
 

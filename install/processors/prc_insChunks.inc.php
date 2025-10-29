@@ -1,15 +1,15 @@
 <?php
 global $errors, $tplChunks, $modx_version;
-if (!sessionv('chunk') && !sessionv('installdata')) {
+$selectedChunks = sessionv('chunk');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplChunks, $selectedChunks, $installSampleData)) {
     return;
 }
 
 echo sprintf('<h3>%s:</h3>', lang('chunks'));
 foreach ($tplChunks as $i => $tplInfo) {
-    if (!in_array($i, sessionv('chunk'))) {
-        if (!sessionv('installdata') || !in_array('sample', $tplInfo['installset'])) {
-            continue;
-        }
+    if (!shouldInstallElement($i, $tplInfo['installset'], $selectedChunks, $installSampleData)) {
+        continue;
     }
     if (!is_file($tplInfo['tpl_file_path'])) {
         echo ng(

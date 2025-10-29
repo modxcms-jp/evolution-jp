@@ -548,6 +548,40 @@ function withSample($installset)
     return true;
 }
 
+function shouldInstallElement($index, $installset, $selected, $installSampleData = false)
+{
+    $selected = is_array($selected) ? $selected : [];
+    $installset = is_array($installset) ? $installset : [];
+
+    if (in_array($index, $selected)) {
+        return true;
+    }
+    if ($installSampleData && in_array('sample', $installset)) {
+        return true;
+    }
+    if (in_array('base', $installset)) {
+        return true;
+    }
+
+    return false;
+}
+
+function hasInstallableElement($items, $selected, $installSampleData = false)
+{
+    if (!is_array($items) || !$items) {
+        return false;
+    }
+
+    foreach ($items as $index => $info) {
+        $installset = isset($info['installset']) ? $info['installset'] : [];
+        if (shouldInstallElement($index, $installset, $selected, $installSampleData)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function convert2utf8mb4() {
     include MODX_SETUP_PATH . 'convert2utf8mb4.php';
     $convert = new convert2utf8mb4();
