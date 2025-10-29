@@ -95,7 +95,7 @@ switch (manager()->action) {
     default:
         if (is_file(MODX_CACHE_PATH . 'rolePublishing.idx.php')) {
             $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
-            $role = unserialize($content);
+            $role = unserialize($content, ['allowed_classes' => false]);
             $mgrRole = sessionv('mgrRole', 0);
             if (is_array($role) && array_key_exists($mgrRole, $role)) {
                 if (sessionv('mgrLastlogin', 0) < $role[$mgrRole]) {
