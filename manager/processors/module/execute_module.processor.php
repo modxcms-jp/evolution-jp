@@ -139,10 +139,27 @@ function evalModule($moduleCode, $params)
     if (substr($moduleCode, -2) === '?>') {
         $moduleCode = substr($moduleCode, 0, -2);
     }
-    $mod = eval($moduleCode);
+    if (function_exists('error_clear_last')) {
+        error_clear_last();
+    }
+
+    $error_info = null;
+    try {
+        $mod = eval($moduleCode);
+    } catch (\ParseError $exception) {
+        $error_info = [
+            'type' => E_PARSE,
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+        ];
+        $mod = '';
+    }
     $msg = ob_get_clean();
-    if (error_get_last()) {
+    if (!$error_info) {
         $error_info = error_get_last();
+    }
+    if ($error_info) {
         switch ($error_info['type']) {
             case E_NOTICE :
             case E_USER_NOTICE :
@@ -156,9 +173,13 @@ function evalModule($moduleCode, $params)
                 $error_level = 99;
         }
         if ($modx->config['error_reporting'] === '99' || 2 < $error_level) {
-            extract($error_info);
-            $result = $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $content['name'] . ' - Module',
-                $text, $line, $msg);
+            $type = $error_info['type'];
+            $file = $error_info['file'];
+            $message = $error_info['message'];
+            $line = $error_info['line'];
+            $moduleName = $modx->moduleObject['name'] ?? 'Module';
+            $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $moduleName . ' - Module',
+                $message, $line, $msg);
             $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
         }
     }
