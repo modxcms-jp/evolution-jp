@@ -92,6 +92,11 @@ if (isset($error_reporting)) {
     $evo->error_reporting = $error_reporting;
 }
 
+if (evo()->isFrontend()) {
+    include_once MODX_MANAGER_PATH . 'includes/version_mismatch_guard.php';
+    evo_guard_version_mismatch($modx);
+}
+
 // execute the parser if index.php was not included
 if (defined('IN_PARSER_MODE') && IN_PARSER_MODE === 'true') {
     $result = $evo->executeParser();
