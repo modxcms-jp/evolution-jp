@@ -22,10 +22,7 @@ $sqlQuery = '';
 if (anyv('op') === 'reset') {
     $_PAGE['vs']['search'] = '';
 } else {
-    $query = anyv('search');
-    if ($query === null || $query === '') {
-        $query = array_get($_PAGE, 'vs.search', '');
-    }
+    $query = anyv('search', array_get($_PAGE, 'vs.search', ''));
     if ($query !== '') {
         $sqlQuery = db()->escape($query);
     }
