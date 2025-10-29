@@ -91,7 +91,9 @@ if (manager()->hasFormValues()) {
     $userdata = array_merge($userdata, $form_v);
     $userdata['dob'] = ConvertDate($userdata['dob']);
     $usernamedata['username'] = $userdata['newusername'];
-    $usernamedata['oldusername'] = $form_v['oldusername'];
+    if (isset($form_v['oldusername'])) {
+        $usernamedata['oldusername'] = $form_v['oldusername'];
+    }
     $usersettings = array_merge($usersettings, $form_v);
     $usersettings['allowed_days'] = is_array($form_v['allowed_days']) ? implode(",", $form_v['allowed_days']) : "";
     extract($usersettings, EXTR_OVERWRITE);
