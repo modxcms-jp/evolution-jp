@@ -4,19 +4,15 @@ if (sessionv('is_upgradeable')) {
     return;
 }
 
-if (!sessionv('tv') && !sessionv('installdata')) {
+$selectedTVs = sessionv('tv');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplTVs, $selectedTVs, $installSampleData)) {
     return;
 }
 
 echo "<h3>" . lang('tvs') . ":</h3> ";
 foreach ($tplTVs as $i => $tplInfo) {
-    if (in_array('sample', $tplInfo['installset']) && sessionv('installdata') == 1) {
-        $installSample = true;
-    } else {
-        $installSample = false;
-    }
-
-    if (!in_array($i, sessionv('tv')) && !$installSample) {
+    if (!shouldInstallElement($i, $tplInfo['installset'], $selectedTVs, $installSampleData)) {
         continue;
     }
 

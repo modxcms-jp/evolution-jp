@@ -1,13 +1,15 @@
 <?php
 global $errors, $tplSnippets;
-if (!sessionv('snippet') && !sessionv('installdata')) {
+$selectedSnippets = sessionv('snippet');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplSnippets, $selectedSnippets, $installSampleData)) {
     return;
 }
 
 echo '<h3>' . lang('snippets') . ':</h3>';
 
 foreach ($tplSnippets as $k => $tplInfo) {
-    if (!in_array($k, sessionv('snippet')) && !withSample($tplInfo['installset'])) {
+    if (!shouldInstallElement($k, $tplInfo['installset'], $selectedSnippets, $installSampleData)) {
         continue;
     }
 

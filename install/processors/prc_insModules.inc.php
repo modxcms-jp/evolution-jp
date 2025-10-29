@@ -1,13 +1,15 @@
 <?php
 global $errors, $tplModules;
-if (!sessionv('module') && !sessionv('installdata')) {
+$selectedModules = sessionv('module');
+$installSampleData = sessionv('installdata') == 1;
+if (!hasInstallableElement($tplModules, $selectedModules, $installSampleData)) {
     return;
 }
 
 echo '<h3>' . lang('modules') . ':</h3>';
 
 foreach ($tplModules as $k => $tplInfo) {
-    if (!in_array($k, sessionv('module')) && !withSample($tplInfo['installset'])) {
+    if (!shouldInstallElement($k, $tplInfo['installset'], $selectedModules, $installSampleData)) {
         continue;
     }
 
