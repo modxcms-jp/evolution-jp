@@ -97,7 +97,7 @@ switch (manager()->action) {
             $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
             $role = unserialize($content, ['allowed_classes' => false]);
             $mgrRole = sessionv('mgrRole', 0);
-            if (is_array($role) && array_key_exists($mgrRole, $role)) {
+            if (isset($role[$mgrRole])) {
                 if (sessionv('mgrLastlogin', 0) < $role[$mgrRole]) {
                     @session_destroy();
                     session_unset();
