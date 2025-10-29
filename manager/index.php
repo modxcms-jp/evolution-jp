@@ -96,11 +96,14 @@ switch (manager()->action) {
         if (is_file(MODX_CACHE_PATH . 'rolePublishing.idx.php')) {
             $content = file_get_contents(MODX_CACHE_PATH . 'rolePublishing.idx.php');
             $role = unserialize($content);
-            if (sessionv('mgrLastlogin', 0) < $role[sessionv('mgrRole', 0)]) {
-                @session_destroy();
-                session_unset();
-                header("Location: " . MODX_SITE_URL . "manager/");
-                exit;
+            $mgrRole = sessionv('mgrRole', 0);
+            if (is_array($role) && array_key_exists($mgrRole, $role)) {
+                if (sessionv('mgrLastlogin', 0) < $role[$mgrRole]) {
+                    @session_destroy();
+                    session_unset();
+                    header("Location: " . MODX_SITE_URL . "manager/");
+                    exit;
+                }
             }
         }
 }
