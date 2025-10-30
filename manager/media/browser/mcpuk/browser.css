@@ -28,14 +28,17 @@
     --browser-font-family: 'Microsoft Sans Serif', Arial, Helvetica, Verdana;
     --browser-font-size: 11px;
     --browser-heading-size: 14px;
-    --browser-spacing-xs: 4px;
-    --browser-spacing-sm: 6px;
+    --browser-spacing-xs: 5px;
+    --browser-spacing-sm: 7px;
     --browser-spacing-md: 10px;
-    --browser-button-radius: 2px;
+    --browser-resources-spacing: 4px;
+    --browser-button-radius: 0;
+    --browser-button-text-color: #ffffff;
     --browser-progress-background: #F0F7FF;
     --browser-progress-fill: #8fa7c7;
     --browser-thumbnail-border: #cccccc;
     --browser-thumbnail-background: #ffffff;
+    --browser-thumbnail-padding: 5px;
 }
 
 html,
@@ -53,19 +56,23 @@ body {
     font-size: var(--browser-font-size, 11px);
 }
 
+td,
+input,
+select {
+    font-family: var(--browser-font-family, 'Microsoft Sans Serif', Arial, Helvetica, Verdana);
+    font-size: var(--browser-font-size, 11px);
+}
+
 .browser-body {
     margin: 0;
     padding: 0;
 }
 
-.browser-section {
-    padding: var(--browser-spacing-md, 10px);
-}
-
 .FileArea {
     background-color: #e3e9f1;
     background-color: var(--browser-background, #e3e9f1);
-    padding: var(--browser-spacing-md, 10px);
+    margin: var(--browser-spacing-md, 10px);
+    padding: 0;
 }
 
 form {
@@ -74,8 +81,6 @@ form {
 }
 
 .browser-form {
-    display: flex;
-    flex-direction: column;
     height: 100%;
 }
 
@@ -103,7 +108,7 @@ a img.item {
     border-style: solid;
     border-color: #cccccc;
     border-color: var(--browser-thumbnail-border, #cccccc);
-    padding: var(--browser-spacing-xs, 4px);
+    padding: var(--browser-thumbnail-padding, 5px);
     background-color: #ffffff;
     background-color: var(--browser-thumbnail-background, #ffffff);
 }
@@ -118,9 +123,8 @@ frameset {
 }
 
 .browser-panel {
-    width: 100%;
     border: 0;
-    border-collapse: collapse;
+    border-collapse: separate;
     border-spacing: 0;
 }
 
@@ -129,7 +133,7 @@ frameset {
 }
 
 .browser-panel--resources {
-    border-spacing: var(--browser-spacing-sm, 6px);
+    border-spacing: var(--browser-resources-spacing, 4px);
 }
 
 .browser-panel--nested {
@@ -137,9 +141,7 @@ frameset {
 }
 
 .browser-field-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--browser-spacing-xs, 4px);
+    margin: 0;
 }
 
 .browser-field-group select,
@@ -260,7 +262,7 @@ frameset {
     background-color: #ffffff;
     background-color: var(--browser-panel-background, #ffffff);
     padding: 7px 10px;
-    padding: var(--browser-spacing-sm, 6px) var(--browser-spacing-md, 10px);
+    padding: var(--browser-spacing-sm, 7px) var(--browser-spacing-md, 10px);
 }
 
 .Button,
@@ -272,7 +274,7 @@ button,
     color: var(--browser-button-text-color, #ffffff);
     background-color: #8fa7c7;
     background-color: var(--browser-border-color, #8fa7c7);
-    border-radius: var(--browser-button-radius, 2px);
+    border-radius: var(--browser-button-radius, 0);
     cursor: pointer;
 }
 
