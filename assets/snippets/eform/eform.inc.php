@@ -422,9 +422,9 @@ function eForm($modx, $params)
 
             # format report fields
             foreach ($fields as $name => $value) {
-                $fld = $formats[$name];
-                if ($fld) {
-                    $datatype = $fld[2];
+                $fld = isset($formats[$name]) ? $formats[$name] : null;
+                if (is_array($fld) && !empty($fld)) {
+                    $datatype = isset($fld[2]) ? $fld[2] : '';
                     switch ($datatype) {
                         case "integer":
                             $value = number_format((float)$value);    //EM~
