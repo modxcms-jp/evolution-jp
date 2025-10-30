@@ -16,7 +16,7 @@ if (anyv('op') == 'reset') {
     $query = '';
     manager()->setViewState('search', '');
 } else {
-    $query = anyv('search') ?: manager()->getViewState('search', '');
+    $query = anyv('search') ?: manager()->getViewState('search');
     manager()->setViewState('search', $query);
 }
 
