@@ -52,7 +52,7 @@ class ManagerAPI
 
     public function getViewState($key = null, $default = null)
     {
-        $storage = is_array($this->viewState) ? $this->viewState : $this->getViewStateStorage();
+        $storage = $this->getViewStateStorage();
 
         if ($key === null || $key === '') {
             return $storage;
