@@ -201,8 +201,81 @@ class MODxMailer extends PHPMailer
     {
         global $modx;
         $modx->config['send_errormail'] = '0';
-        $modx->logEvent(0, 3, $msg, 'phpmailer');
-        return parent::SetError($msg);
+
+        $result = parent::SetError($msg);
+        $modx->logEvent(0, 3, $this->formatErrorLogMessage($msg), 'phpmailer');
+
+        return $result;
+    }
+
+    protected function formatErrorLogMessage($msg)
+    {
+        $lines = [];
+
+        $lines[] = 'Error message: ' . $this->normalizeLineBreaks($msg);
+        if (!empty($this->ErrorInfo) && $this->ErrorInfo !== $msg) {
+            $lines[] = 'Detailed message: ' . $this->normalizeLineBreaks($this->ErrorInfo);
+        }
+
+        $lines[] = 'Mailer: ' . $this->Mailer;
+        $lines[] = 'Subject: ' . $this->Subject;
+        $lines[] = 'From: ' . $this->FromName . '<' . $this->From . '>';
+
+        $lines[] = 'To: ' . $this->formatAddressList($this->to);
+        $lines[] = 'CC: ' . $this->formatAddressList($this->cc);
+        $lines[] = 'BCC: ' . $this->formatAddressList($this->bcc);
+        $lines[] = 'ReplyTo: ' . $this->formatAddressList($this->ReplyTo);
+
+        if ($this->Mailer === 'smtp') {
+            $lines[] = 'SMTP Host: ' . $this->Host;
+            $lines[] = 'SMTP Port: ' . $this->Port;
+            $lines[] = 'SMTP Secure: ' . ($this->SMTPSecure ?: '(none)');
+            $lines[] = 'SMTP Auth: ' . ($this->SMTPAuth ? 'enabled' : 'disabled');
+        } elseif ($this->Mailer === 'sendmail' || $this->Mailer === 'qmail') {
+            $lines[] = 'Sendmail: ' . $this->Sendmail;
+        } else {
+            $lines[] = 'sendmail_path: ' . ini_get('sendmail_path');
+        }
+
+        $phpError = function_exists('error_get_last') ? error_get_last() : null;
+        if ($phpError && !empty($phpError['message'])) {
+            $lines[] = sprintf(
+                'Last PHP error: [%s] %s in %s on line %s',
+                isset($phpError['type']) ? $phpError['type'] : 'n/a',
+                $phpError['message'],
+                isset($phpError['file']) ? $phpError['file'] : 'n/a',
+                isset($phpError['line']) ? $phpError['line'] : 'n/a'
+            );
+        }
+
+        $logBody = implode("\n", $lines);
+        if (function_exists('hsc')) {
+            $logBody = hsc($logBody);
+        } else {
+            $logBody = htmlspecialchars($logBody, ENT_QUOTES, 'UTF-8');
+        }
+
+        return '<pre>' . $logBody . '</pre>';
+    }
+
+    protected function normalizeLineBreaks($text)
+    {
+        $text = (string)$text;
+        return trim(preg_replace('/<br\s*\/?>(\r?\n)?/i', "\n", $text));
+    }
+
+    protected function formatAddressList($addresses)
+    {
+        if (!is_array($addresses) || empty($addresses)) {
+            return '(none)';
+        }
+
+        $formatted = [];
+        foreach ($addresses as $address) {
+            $formatted[] = $this->addrFormat($address);
+        }
+
+        return implode(', ', $formatted);
     }
 
     function address_split($address)
