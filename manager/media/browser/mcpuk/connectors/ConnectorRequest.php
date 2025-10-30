@@ -94,7 +94,7 @@ class ConnectorRequest
         return str_replace('..', '', $value);
     }
 
-    private static function unescape($source, $iconv_to = 'UTF-8')
+    public static function unescape($source, $iconv_to = 'UTF-8')
     {
         $decodedStr = '';
         $pos = 0;

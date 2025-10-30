@@ -33,6 +33,13 @@ require_once $base_path . 'manager/includes/helpers.php';
 require_once __DIR__ . '/ConnectorRequest.php';
 require_once __DIR__ . '/ConnectorKernel.php';
 
+if (!function_exists('unescape')) {
+    function unescape($source, $iconv_to = 'UTF-8')
+    {
+        return ConnectorRequest::unescape($source, $iconv_to);
+    }
+}
+
 $modx = new DocumentParser();
 $modx->getSettings();
 
