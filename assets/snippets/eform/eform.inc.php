@@ -586,7 +586,12 @@ function eForm($modx, $params)
                 //set reply-to address
                 //$replyto snippet parameter must contain email or fieldname
                 if (strpos($replyto, '@') === false) {
-                    $replyto = ($fields[$replyto] && strpos($fields[$replyto], '@') !== false) ? $fields[$replyto] : $from;
+                    $replyField = trim($replyto);
+                    $replyValue = '';
+                    if ($replyField !== '' && array_key_exists($replyField, $fields)) {
+                        $replyValue = $fields[$replyField];
+                    }
+                    $replyto = ($replyValue && strpos($replyValue, '@') !== false) ? $replyValue : $from;
                 }
 
                 # include PHP Mailer
