@@ -94,7 +94,31 @@
         }
 
         SendCommand(command, params, callBackFunction) {
-            const url = this.buildBaseUrl(command) + (params ? `&${params}` : '');
+            // Build base parameters
+            const baseParams = {
+                Command: command,
+                Type: this.ResourceType,
+                ExtraParams: this.ExtraParams,
+                CurrentFolder: this.CurrentFolder,
+                editor: this.Editor
+            };
+
+            // Merge additional params
+            let mergedParams = { ...baseParams };
+            if (params) {
+                if (typeof params === 'string') {
+                    // Parse string params into object
+                    const searchParams = new URLSearchParams(params);
+                    for (const [key, value] of searchParams.entries()) {
+                        mergedParams[key] = value;
+                    }
+                } else if (typeof params === 'object') {
+                    mergedParams = { ...mergedParams, ...params };
+                }
+            }
+
+            const query = new URLSearchParams(mergedParams);
+            const url = `${this.ConnectorUrl}?${query.toString()}`;
             const xml = new FCKXml();
 
             if (typeof callBackFunction === 'function') {
