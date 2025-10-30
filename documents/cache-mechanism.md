@@ -6,7 +6,7 @@
 - キャッシュはユーザーエージェントごとに `pages` / `pc` / `smartphone` / `tablet` / `mobile` といったバケットに分割され、必要に応じてディレクトリを生成します。
 
 ## 静的 HTML キャッシュ
-- `get_static_pages()` は `temp/public_html/` の事前生成ファイルを配信し、動的パーサーの手前でレスポンスを返します。それでも `parseDocumentSource()` は通過するため、スニペットやプレースホルダーは最新の状態で評価されます。
+- `get_static_pages()` は `temp/public_html/` の事前生成ファイルを配信し、動的パーサーの手前でレスポンスを返します。スニペットやプレースホルダーなど一部の要素は、必要に応じて最新の状態で評価される場合がありますが、通常は `parseDocumentSource()` は実行されません。
 
 ## サイトキャッシュインデックス
 - `synccache::buildCache()` が設定・コンテンツマップ・要素キャッシュを再生成し、`config.siteCache.idx.php` やエイリアスマップ、ドキュメントマップ、要素別キャッシュをまとめて書き出します。`OnBeforeCacheUpdate` / `OnCacheUpdate` イベントでプラグインフックが提供されます。
