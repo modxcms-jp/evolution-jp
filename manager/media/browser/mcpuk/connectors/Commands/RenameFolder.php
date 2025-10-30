@@ -21,21 +21,13 @@
 require_once 'Base.php';
 class RenameFolder extends Base
 {
-    public $fckphp_config;
-    public $type;
-    public $cwd;
-    public $actual_cwd;
     public $newfolder;
 
     function __construct($fckphp_config, $type, $cwd)
     {
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $this->raw_cwd = $cwd;
-        $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
-        $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
-        $this->foldername = str_replace(array("..", "/"), "", getv('FolderName'));
-        $this->newname = str_replace(array("..", "/"), "", $this->checkName(getv('NewName')));
+        parent::__construct($fckphp_config, $type, $cwd);
+        $this->foldername = $this->sanitizeFolderName(getv('FolderName'));
+        $this->newname = $this->sanitizeFolderName($this->checkName(getv('NewName')));
     }
 
     function checkName($name)

@@ -21,20 +21,10 @@
 require_once 'Base.php';
 class DeleteFolder extends Base
 {
-    public $fckphp_config;
-    public $type;
-    public $cwd;
-    public $actual_cwd;
-
-
     function __construct($fckphp_config, $type, $cwd)
     {
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $this->raw_cwd = $cwd;
-        $this->actual_cwd = str_replace("//", "/", ($this->fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
-        $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
-        $this->foldername = str_replace(array("..", "/"), "", getv('FolderName'));
+        parent::__construct($fckphp_config, $type, $cwd);
+        $this->foldername = $this->sanitizeFolderName(getv('FolderName'));
     }
 
     function run()
