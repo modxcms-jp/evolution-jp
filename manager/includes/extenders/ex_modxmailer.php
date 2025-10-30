@@ -219,7 +219,7 @@ class MODxMailer extends PHPMailer
 
         $lines[] = 'Mailer: ' . $this->Mailer;
         $lines[] = 'Subject: ' . $this->Subject;
-        $lines[] = 'From: ' . $this->FromName . '<' . $this->From . '>';
+        $lines[] = 'From: ' . $this->FromName . ' <' . $this->From . '>';
 
         $lines[] = 'To: ' . $this->formatAddressList($this->to);
         $lines[] = 'CC: ' . $this->formatAddressList($this->cc);
