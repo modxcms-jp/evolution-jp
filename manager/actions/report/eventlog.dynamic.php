@@ -15,7 +15,7 @@ if (anyv('op') === 'reset') {
     $search = $query = '';
     $_PAGE['vs']['search'] = '';
 } else {
-    $search = $query = anyv('search', array_get($_PAGE, 'vs.search'));
+    $search = $query = anyv('search', array_get($_PAGE, 'vs.search', ''));
     if (!is_numeric($search)) {
         $search = db()->escape($query);
     }
