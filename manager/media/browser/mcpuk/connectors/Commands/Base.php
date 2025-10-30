@@ -61,9 +61,6 @@ class Base
             }
         }
 
-        if ($path !== '' && $folder !== '' && substr($folder, -1) === '/' && substr($path, -1) !== '/') {
-            $path .= '/';
-        }
 
         return $path;
     }
