@@ -104,13 +104,13 @@ class Base
 
     protected function normalizeSlashes($path)
     {
-        return preg_replace('#/+#', '/', str_replace('\\\\', '/', $path));
+        return preg_replace('#/+#', '/', str_replace('\\', '/', $path));
     }
 
     protected function sanitizeSegment($value)
     {
         $value = (string)$value;
-        $value = str_replace('\\\\', '/', $value);
+        $value = str_replace('\\', '/', $value);
         $value = str_replace(array('../', './'), '', $value);
 
         while (strpos($value, '..') !== false) {
