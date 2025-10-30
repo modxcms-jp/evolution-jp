@@ -52,13 +52,16 @@
     </script>
 </head>
 
-<body bottomMargin="0" topMargin="0">
-<table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+<body class="browser-body">
+<table class="browser-panel browser-panel--full-height" height="100%" cellSpacing="0" cellPadding="0" width="100%"
+       border="0">
     <tr>
         <td nowrap>
-            Resource Type<br/>
-            <select id="cmbType" style="WIDTH: 100%" onchange="SetResourceType(this.value);">
-            </select>
+            <div class="browser-field-group">
+                Resource Type<br/>
+                <select id="cmbType" onchange="SetResourceType(this.value);">
+                </select>
+            </div>
         </td>
     </tr>
 </table>

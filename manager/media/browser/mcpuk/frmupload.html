@@ -204,50 +204,56 @@
         }
     </script>
 </head>
-<body bottomMargin="0" topMargin="0">
-<form id="frmUpload" name="frmUpload" action="" target="frmUploadWorker" method="post" enctype="multipart/form-data"
-      onsubmit="return OnSubmit();">
-    <table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+<body class="browser-body">
+<form id="frmUpload" class="browser-form" name="frmUpload" action="" target="frmUploadWorker" method="post"
+      enctype="multipart/form-data" onsubmit="return OnSubmit();">
+    <table class="browser-panel browser-panel--full-height" height="100%" cellSpacing="0" cellPadding="0" width="100%"
+           border="0">
         <tr>
             <td nowrap>
-                <span id="eUploadMessage">Upload a new file in this folder</span><br/>
-                <table cellSpacing="0" cellPadding="0" width="100%" border="0">
-                    <tr>
-                        <td width="100%">
-                            <div id="filebox"><input id="NewFile" name="NewFile" onchange="document.frmUpload.submit();"
-                                                     style="width: 100%; background-color: transparent;" type="file">
-                            </div>
-                            <div id="progressbox" style="display: none">
-                                <table id="progress" style="width: 100%" class="progress_bar">
-                                    <tr>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                        <td class="progress_hollow">&nbsp;</td>
-                                    </tr>
-                                </table>
-                                <!--<div id="progress_label"></div>-->
-                            </div>
-                        </td>
-                        <td nowrap>&nbsp;<input id="btnUpload" type="submit" value="Upload"></td>
-                    </tr>
-                </table>
+                <div class="browser-field-group">
+                    <span id="eUploadMessage">Upload a new file in this folder</span><br/>
+                    <table class="browser-panel browser-panel--nested" cellSpacing="0" cellPadding="0" width="100%"
+                           border="0">
+                        <tr>
+                            <td width="100%">
+                                <div class="browser-field-group" id="filebox"><input id="NewFile" name="NewFile"
+                                                                                        onchange="document.frmUpload.submit();"
+                                                                                        type="file">
+                                </div>
+                                <div class="browser-field-group" id="progressbox" style="display: none">
+                                    <table id="progress" class="browser-panel browser-panel--nested progress_bar"
+                                           style="width: 100%">
+                                        <tr>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                            <td class="progress_hollow">&nbsp;</td>
+                                        </tr>
+                                    </table>
+                                    <!--<div id="progress_label"></div>-->
+                                </div>
+                            </td>
+                            <td nowrap>&nbsp;<input id="btnUpload" class="browser-button" type="submit" value="Upload"></td>
+                        </tr>
+                    </table>
+                </div>
             </td>
         </tr>
     </table>
