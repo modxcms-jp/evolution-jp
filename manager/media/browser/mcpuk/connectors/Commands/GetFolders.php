@@ -29,46 +29,34 @@ class GetFolders extends Base
 
     function run()
     {
-        header("content-type: text/xml");
-        echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
-        ?>
-        <Connector command="GetFolders" resourceType="<?= $this->type ?>">
-            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-            <Folders>
-                <?php
-                /**
-                 * Initiate the array to store the filenames
-                 */
-                $files_in_folder = [];
-                $files = scandir($this->real_cwd);
-                if ($files) {
-                    foreach ($files as $filename) {
-                        if (($filename != '.') && ($filename != '..')) {
-                            if (is_dir($this->real_cwd . $filename)) {
-                                //check if$fckphp_configured not to show this folder
-                                $hide = false;
-                                for ($i = 0; $i < sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']); $i++) {
-                                    $pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
-                                    $hide = (preg_match("/{$pattern}/", $filename) ? true : $hide);
-                                }
-                                /**
-                                 * Dont echo the entry, push it in the array
-                                 */
-                                if (!$hide) array_push($files_in_folder, $filename);
-                            }
+        $files_in_folder = [];
+        $files = scandir($this->real_cwd);
+        if ($files) {
+            foreach ($files as $filename) {
+                if (($filename != '.') && ($filename != '..')) {
+                    if (is_dir($this->real_cwd . $filename)) {
+                        $hide = false;
+                        for ($i = 0; $i < sizeof($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders']); $i++) {
+                            $pattern = $this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'][$i];
+                            $hide = (preg_match("/{$pattern}/", $filename) ? true : $hide);
+                        }
+                        if (!$hide) {
+                            $files_in_folder[] = $filename;
                         }
                     }
                 }
-                /**
-                 * Sort the array by the way you like and show it.
-                 */
-                natcasesort($files_in_folder);
-                foreach ($files_in_folder as $k => $v) {
-                    echo '<Folder name="' . $v . '" />' . "\n";
-                }
-                ?>
-            </Folders>
-        </Connector>
-        <?php
+            }
+        }
+
+        natcasesort($files_in_folder);
+
+        $response = $this->newXmlResponse('GetFolders');
+        $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd);
+        $foldersNode = $response->addChild('Folders');
+        foreach ($files_in_folder as $folder) {
+            $response->addChild('Folder', ['name' => $folder], null, $foldersNode);
+        }
+
+        $this->outputXml($response);
     }
 }

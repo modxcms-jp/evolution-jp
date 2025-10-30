@@ -49,45 +49,38 @@ class CreateFolder extends Base
 
     public function run()
     {
-        header("content-type: text/xml");
-        echo '<?xml version="1.0" encoding="utf-8" ?>' . "\n";
-        ?>
-        <Connector command="CreateFolder" resourceType="<?= $this->type ?>">
-            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-            <?php
-            $newdir = str_replace(
-                "//",
-                "/",
-                $this->real_cwd . "/" . $this->newfolder
-            );
-            //Check the new name
-            if ($this->checkFolderName($this->newfolder)) {
-                //Check if it already exists
-                if (is_dir($newdir)) {
-                    $err_no = 101;
-                } else {
-                    //Check if we can create the directory here
-                    if (is_writable($this->real_cwd)) {
-                        //Make the directory
-                        if (mkdir($newdir, 0777)) {
-                            $err_no = 0; //Success
-                            @chmod(
-                                $newdir,
-                                octdec(evo()->config('new_folder_permissions', 0777))
-                            ); //added for MODx
-                        } else {
-                            $err_no = 110;
-                        } //Unknown error
-                    } else {
-                        $err_no = 103;
-                    } //No permissions to create
-                }
+        $newdir = str_replace(
+            "//",
+            "/",
+            $this->real_cwd . "/" . $this->newfolder
+        );
+
+        if ($this->checkFolderName($this->newfolder)) {
+            if (is_dir($newdir)) {
+                $err_no = 101;
             } else {
-                $err_no = 102;
-            } //Invalid Folder Name
-            ?>
-            <Error number="<?= "" . $err_no ?>"/>
-        </Connector>
-        <?php
+                if (is_writable($this->real_cwd)) {
+                    if (mkdir($newdir, 0777)) {
+                        $err_no = 0;
+                        @chmod(
+                            $newdir,
+                            octdec(evo()->config('new_folder_permissions', 0777))
+                        );
+                    } else {
+                        $err_no = 110;
+                    }
+                } else {
+                    $err_no = 103;
+                }
+            }
+        } else {
+            $err_no = 102;
+        }
+
+        $response = $this->newXmlResponse('CreateFolder');
+        $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd)
+            ->addChild('Error', ['number' => (string)$err_no]);
+
+        $this->outputXml($response);
     }
 }

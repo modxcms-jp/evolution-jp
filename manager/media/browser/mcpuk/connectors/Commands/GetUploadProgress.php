@@ -42,16 +42,12 @@ class GetUploadProgress extends Base
             $uploadProgressHandler = $this->fckphp_config['uploadProgressHandler'];
             if ($uploadProgressHandler == '') {
                 //Progresshandler not specified, return generic response
-                header("content-type: text/xml"); //Nick Crossland (ncrossland)
-                echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-                ?>
-                <Connector command="GetUploadProgress" resourceType="<?= $this->type ?>">
-                    <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-                    <Progress max="2" value="1"/>
-                    <RefreshURL url=""/>
-                </Connector>
-                <?php
-                exit(0);
+                $response = $this->newXmlResponse('GetUploadProgress');
+                $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd);
+                $response->addChild('Progress', ['max' => '2', 'value' => '1']);
+                $response->addChild('RefreshURL', ['url' => '']);
+                $this->outputXml($response);
+                return;
             }
 
             $url = $uploadProgressHandler . "?iTotal=0&iRead=0&iStatus=1&sessionid=" . $this->uploadID . "&dtnow=" . time() . "&dtstart=" . time();
@@ -71,15 +67,12 @@ class GetUploadProgress extends Base
         $readBytes = isset($vals[$index['READBYTES'][0]]['value']) ? $vals[$index['READBYTES'][0]]['value'] : 0;
         $status = isset($vals[$index['STATUS'][0]]['value']) ? $vals[$index['STATUS'][0]]['value'] : 1;
 
-        header("content-type: text/xml");
-        echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-        ?>
-        <Connector command="GetUploadProgress" resourceType="<?= $this->type ?>">
-            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-            <Progress max="<?= $totalBytes ?>" value="<?= $readBytes ?>"/>
-            <RefreshURL url="<?= htmlentities($refreshURL, ENT_QUOTES, 'UTF-8') ?>"/>
-        </Connector>
-        <?php
+        $response = $this->newXmlResponse('GetUploadProgress');
+        $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd);
+        $response->addChild('Progress', ['max' => $totalBytes, 'value' => $readBytes]);
+        $response->addChild('RefreshURL', ['url' => $refreshURL]);
+
+        $this->outputXml($response);
         xml_parser_free($parser);
     }
 }

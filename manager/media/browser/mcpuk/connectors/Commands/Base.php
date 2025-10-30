@@ -18,6 +18,8 @@
  * Grant French (grant@mcpuk.net)
  */
 
+require_once __DIR__ . '/helpers/ConnectorXmlBuilder.php';
+
 class Base
 {
     public $fckphp_config;
@@ -131,5 +133,16 @@ class Base
     public function sanitizeFileName($value)
     {
         return $this->sanitizeSegment($value);
+    }
+
+    protected function newXmlResponse($command, array $options = [])
+    {
+        return new ConnectorXmlBuilder($command, $this->type, $options);
+    }
+
+    protected function outputXml(ConnectorXmlBuilder $builder, $contentType = 'Content-Type: text/xml')
+    {
+        header($contentType);
+        echo $builder->render();
     }
 }

@@ -48,21 +48,16 @@ class RenameFolder extends Base
             $result1 = rename($this->real_cwd . '/' . $this->foldername, $this->real_cwd . '/' . $this->newname);
         }
 
-        header("content-type: text/xml");
-        echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-        ?>
-        <Connector command="RenameFolder" resourceType="<?= $this->type ?>">
-            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-            <?php
-            if ($result1) {
-                $err_no = 0;
-            } else {
-                $err_no = 602;
-            }
+        if ($result1) {
+            $err_no = 0;
+        } else {
+            $err_no = 602;
+        }
 
-            ?>
-            <Error number="<?= "" . $err_no ?>"/>
-        </Connector>
-        <?php
+        $response = $this->newXmlResponse('RenameFolder');
+        $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd)
+            ->addChild('Error', ['number' => (string)$err_no]);
+
+        $this->outputXml($response);
     }
 }
