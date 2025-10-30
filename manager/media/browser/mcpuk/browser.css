@@ -32,6 +32,7 @@
     --browser-spacing-sm: 7px;
     --browser-spacing-md: 10px;
     --browser-resources-spacing: 4px;
+    --browser-resources-cell-padding: 5px;
     --browser-button-radius: 0;
     --browser-button-text-color: #ffffff;
     --browser-progress-background: #F0F7FF;
@@ -126,6 +127,11 @@ frameset {
     border: 0;
     border-collapse: separate;
     border-spacing: 0;
+    width: 100%;
+}
+
+.browser-panel td {
+    padding: 0;
 }
 
 .browser-panel--full-height {
@@ -136,8 +142,16 @@ frameset {
     border-spacing: var(--browser-resources-spacing, 4px);
 }
 
+.browser-panel--resources td {
+    padding: var(--browser-resources-cell-padding, 5px);
+}
+
 .browser-panel--nested {
     background-color: transparent;
+}
+
+.browser-panel--nested td {
+    padding: 0;
 }
 
 .browser-field-group {
@@ -166,6 +180,7 @@ frameset {
     border-width: 1px;
     border-color: #000000;
     border-style: solid;
+    width: 100%;
 }
 
 .Frame_none {
