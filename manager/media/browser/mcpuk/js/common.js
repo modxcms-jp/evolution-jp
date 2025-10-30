@@ -1,97 +1,171 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *              http://www.opensource.org/licenses/lgpl-license.php
+ *
  * For further information visit:
- * 		http://www.fckeditor.net/
- * 
+ *              http://www.fckeditor.net/
+ *
  * File Name: common.js
- * 	Common objects and functions shared by all pages that compose the
- * 	File Browser dialog window.
- * 
+ *      Common objects and functions shared by all pages that compose the
+ *      File Browser dialog window.
+ *
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ *              Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
-function AddSelectOption(selectElement, optionText, optionValue, sel) {
-    var oOption = document.createElement("OPTION");
+(() => {
+    'use strict';
 
-    oOption.text = optionText;
-    oOption.value = optionValue;
-    if (sel) oOption.selected = true;
+    const globalScope = window;
 
-    selectElement.options.add(oOption);
+    const addSelectOption = (
+        selectElement,
+        optionText,
+        optionValue,
+        isSelected = false
+    ) => {
+        const option = new Option(optionText, optionValue, false, Boolean(isSelected));
+        selectElement.add(option);
+        return option;
+    };
 
-    return oOption;
-}
+    const safeGetSearch = (targetWindow) => {
+        if (!targetWindow) {
+            return '';
+        }
 
-function GetUrlParam(paramName) {
-    var oRegex = new RegExp('[\?&]' + paramName + '=([^&]+)', 'i');
-    var oMatch = oRegex.exec(unescape(window.top.location.search));
+        try {
+            return targetWindow.location?.search ?? '';
+        } catch (error) {
+            console.warn('Unable to read window search parameters.', error);
+            return '';
+        }
+    };
 
-    if (oMatch && oMatch.length > 1)
-        return oMatch[1];
-    else
-        return '';
-}
+    const getParamFromSearch = (search, paramName) => {
+        if (!search) {
+            return '';
+        }
 
-function GetMyUrlParam(paramName) {
-    var oRegex = new RegExp('[\?&]' + paramName + '=([^&]+)', 'i');
-    var oMatch = oRegex.exec(window.location.search);
+        const params = new URLSearchParams(search);
+        return params.get(paramName) ?? '';
+    };
 
-    if (oMatch && oMatch.length > 1)
-        return oMatch[1];
-    else
-        return '';
-}
+    const getUrlParam = (paramName) => {
+        const topSearch = safeGetSearch(globalScope.top) || safeGetSearch(globalScope);
+        return getParamFromSearch(topSearch, paramName);
+    };
 
-var oConnector = {};
-oConnector.CurrentFolder = '/';
-oConnector.UploadHandler = GetUrlParam('UploadHandler');
-var pathname = window.location.pathname.replace(/manager\/media\/browser\/mcpuk\/.*$/, '');
-oConnector.ConnectorUrl = pathname + 'manager/media/browser/mcpuk/connectors/connector.php';
-oConnector.ResourceType = GetUrlParam('Type');
-oConnector.ExtraParams = GetUrlParam('ExtraParams');
-oConnector.Editor = GetUrlParam('editor');
+    const getMyUrlParam = (paramName) => getParamFromSearch(safeGetSearch(globalScope), paramName);
 
-if ((oConnector.UploadHandler == '') || (oConnector.UploadHandler == 'undefined')) oConnector.UploadHandler = oConnector.ConnectorUrl;
+    class Connector {
+        constructor({
+            currentFolder = '/',
+            uploadHandler = '',
+            connectorUrl,
+            resourceType = '',
+            extraParams = '',
+            editor = ''
+        }) {
+            this.CurrentFolder = currentFolder;
+            this.ConnectorUrl = connectorUrl;
+            this.ResourceType = resourceType;
+            this.ExtraParams = extraParams;
+            this.Editor = editor;
+            this.UploadHandler =
+                !uploadHandler || uploadHandler === 'undefined'
+                    ? connectorUrl
+                    : uploadHandler;
+        }
 
+        buildBaseUrl(command) {
+            const query = new URLSearchParams({
+                Command: command,
+                Type: this.ResourceType,
+                ExtraParams: this.ExtraParams,
+                CurrentFolder: this.CurrentFolder,
+                editor: this.Editor
+            });
 
-oConnector.SendCommand = function (command, params, callBackFunction) {
-    var sUrl = this.ConnectorUrl + '?Command=' + command;
-    sUrl += '&Type=' + this.ResourceType;
-    sUrl += '&ExtraParams=' + this.ExtraParams;
-    sUrl += '&CurrentFolder=' + escape(this.CurrentFolder);
-    sUrl += '&editor=' + escape(this.Editor);
+            return `${this.ConnectorUrl}?${query.toString()}`;
+        }
 
-    if (params) sUrl += '&' + params;
+        SendCommand(command, params, callBackFunction) {
+            const url = this.buildBaseUrl(command) + (params ? `&${params}` : '');
+            const xml = new FCKXml();
 
-    var oXML = new FCKXml();
-    if (callBackFunction)
-        oXML.LoadUrl(sUrl, callBackFunction);	// Asynchronous load.
-    else
-        return oXML.LoadUrl(sUrl);
-}
+            if (typeof callBackFunction === 'function') {
+                xml.LoadUrl(url, callBackFunction);
+                return undefined;
+            }
 
-var oIcons = {};
+            return xml.LoadUrl(url);
+        }
+    }
 
-oIcons.AvailableIconsArray = [
-    'ai', 'avi', 'bmp', 'cs', 'dll', 'doc', 'exe', 'fla', 'gif', 'htm', 'html', 'jpg', 'js',
-    'mdb', 'mp3', 'pdf', 'ppt', 'rdp', 'swf', 'swt', 'txt', 'vsd', 'xls', 'xml', 'zip'];
+    const pathname = globalScope.location.pathname.replace(
+        /manager\/media\/browser\/mcpuk\/.*$/,
+        ''
+    );
 
-oIcons.AvailableIcons = {};
+    const connector = new Connector({
+        currentFolder: '/',
+        uploadHandler: getUrlParam('UploadHandler'),
+        connectorUrl: `${pathname}manager/media/browser/mcpuk/connectors/connector.php`,
+        resourceType: getUrlParam('Type'),
+        extraParams: getUrlParam('ExtraParams'),
+        editor: getUrlParam('editor')
+    });
 
-for (var i = 0; i < oIcons.AvailableIconsArray.length; i++)
-    oIcons.AvailableIcons[oIcons.AvailableIconsArray[i]] = true;
+    const availableIconsArray = [
+        'ai',
+        'avi',
+        'bmp',
+        'cs',
+        'dll',
+        'doc',
+        'exe',
+        'fla',
+        'gif',
+        'htm',
+        'html',
+        'jpg',
+        'js',
+        'mdb',
+        'mp3',
+        'pdf',
+        'ppt',
+        'rdp',
+        'swf',
+        'swt',
+        'txt',
+        'vsd',
+        'xls',
+        'xml',
+        'zip'
+    ];
 
-oIcons.GetIcon = function (fileName) {
-    var sExtension = fileName.substr(fileName.lastIndexOf('.') + 1).toLowerCase();
+    const availableIcons = availableIconsArray.reduce((iconMap, icon) => {
+        iconMap[icon] = true;
+        return iconMap;
+    }, {});
 
-    if (this.AvailableIcons[sExtension] == true)
-        return sExtension;
-    else
-        return 'default.icon';
-}
+    const getIcon = (fileName) => {
+        const lastDotIndex = fileName.lastIndexOf('.');
+        const extension = lastDotIndex === -1 ? '' : fileName.substring(lastDotIndex + 1).toLowerCase();
+        return availableIcons[extension] ? extension : 'default.icon';
+    };
+
+    globalScope.AddSelectOption = addSelectOption;
+    globalScope.GetUrlParam = getUrlParam;
+    globalScope.GetMyUrlParam = getMyUrlParam;
+    globalScope.oConnector = connector;
+    globalScope.oIcons = {
+        AvailableIconsArray: availableIconsArray,
+        AvailableIcons: availableIcons,
+        GetIcon: getIcon
+    };
+})();
