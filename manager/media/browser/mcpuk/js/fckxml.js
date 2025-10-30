@@ -56,6 +56,7 @@
 
                         if (!this.DOMDocument) {
                             console.error(`Failed to load XML document from ${urlToCall}`);
+                            return;
                         }
 
                         asyncFunctionPointer(this);
