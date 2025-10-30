@@ -1,0 +1,10 @@
+{
+  "height": 480,
+  "menubar": false,
+  "plugins": "lists link image table code fullscreen",
+  "toolbar": "undo redo | styles | bold italic underline | bullist numlist | link image | code fullscreen",
+  "content_css": false,
+  "branding": false,
+  "relative_urls": false,
+  "convert_urls": false
+}

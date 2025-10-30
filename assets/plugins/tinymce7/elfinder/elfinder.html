@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>elFinder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/elfinder@2.1.65/css/elfinder.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/elfinder@2.1.65/js/elfinder.min.js"></script>
+  </head>
+  <body>
+    <div id="elfinder"></div>
+    <script>
+      (function () {
+        var connectorUrl = window.tinymce7ElfinderConnector || 'php/connector.php';
+        var options = {
+          url: connectorUrl,
+          getFileCallback: function (file) {
+            if (file && file.url) {
+              parent.postMessage({ mceAction: 'fileSelected', data: { file: file } }, '*');
+            }
+          }
+        };
+
+        $(function () {
+          $('#elfinder').elfinder(options).elfinder('instance');
+        });
+      })();
+    </script>
+  </body>
+</html>
