@@ -51,7 +51,19 @@
         }
 
         const params = new URLSearchParams(search);
-        return params.get(paramName) ?? '';
+        const directValue = params.get(paramName);
+        if (directValue !== null) {
+            return directValue;
+        }
+
+        const lowerParam = paramName.toLowerCase();
+        for (const [name, value] of params.entries()) {
+            if (name.toLowerCase() === lowerParam) {
+                return value;
+            }
+        }
+
+        return '';
     };
 
     const getUrlParam = (paramName) => {

@@ -51,11 +51,7 @@ class FileUpload extends Base
 
         if (!isset($_SESSION['mgrValidated'])) exit;
 
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $type = rtrim($type, '/');
-        $cwd = ltrim($cwd, '/');
-        $this->real_cwd = $modx->config['rb_base_dir'] . "{$type}/{$cwd}";
+        parent::__construct($fckphp_config, $type, $cwd);
         $this->real_cwd = rtrim($this->real_cwd, '/');
     }
 

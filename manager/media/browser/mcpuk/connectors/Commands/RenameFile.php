@@ -21,43 +21,11 @@
 require_once 'Base.php';
 class RenameFile extends Base
 {
-    public $fckphp_config;
-    public $type;
-    public $cwd;
-    public $actual_cwd;
-
     function __construct($fckphp_config, $type, $cwd)
     {
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $this->raw_cwd = $cwd;
-        $this->actual_cwd = str_replace(
-            '//',
-            '/',
-            sprintf(
-                "%s/%s/%s",
-                $fckphp_config['UserFilesPath'],
-                $type,
-                $this->raw_cwd
-            )
-        );
-        $this->real_cwd = str_replace(
-            '//',
-            '/',
-            $this->fckphp_config['basedir'] . "/" . $this->actual_cwd
-        );
-        $this->filename = str_replace(
-            array(
-                '../', '/'
-            ),
-            '',
-            getv('FileName')
-        );
-        $this->newname = str_replace(
-            array('../', '/'),
-            '',
-            $this->checkName(getv('NewName'))
-        );
+        parent::__construct($fckphp_config, $type, $cwd);
+        $this->filename = $this->sanitizeFileName(getv('FileName'));
+        $this->newname = $this->sanitizeFileName($this->checkName(getv('NewName')));
     }
 
     function checkName($name)
@@ -88,18 +56,17 @@ class RenameFile extends Base
                 $this->real_cwd . '/' . $this->newname
             );
         }
-        header("content-type: text/xml");
-        echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-        ?>
-        <Connector command="RenameFile" resourceType="<?= $this->type ?>">
-            <CurrentFolder path="<?= $this->raw_cwd ?>" url="<?= $this->actual_cwd ?>"/>
-            <?php
-            if ($result1 && $result2) $err_no = 0;
-            else                    $err_no = 502;
-            ?>
-            <Error number="<?= "" . $err_no ?>"/>
-        </Connector>
-        <?php
+        if ($result1 && $result2) {
+            $err_no = 0;
+        } else {
+            $err_no = 502;
+        }
+
+        $response = $this->newXmlResponse('RenameFile');
+        $response->setCurrentFolder($this->raw_cwd, $this->actual_cwd)
+            ->addChild('Error', ['number' => (string)$err_no]);
+
+        $this->outputXml($response);
     }
 
     function nameValid($fname)

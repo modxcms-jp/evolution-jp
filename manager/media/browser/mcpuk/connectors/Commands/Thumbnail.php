@@ -29,23 +29,13 @@ include_once(MODX_BASE_PATH . 'manager/media/browser/mcpuk/connectors/Commands/h
 require_once 'Base.php';
 class Thumbnail extends Base
 {
-    public $fckphp_config;
-    public $type;
-    public $cwd;
-    public $actual_cwd;
     public $filename;
 
     function __construct($fckphp_config, $type, $cwd)
     {
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $this->actual_cwd = $type . '/';
-        if ($cwd !== '/') {
-            $this->actual_cwd .= $cwd;
-        }
-        $this->real_cwd = $this->fckphp_config['basedir'] . $this->actual_cwd;
+        parent::__construct($fckphp_config, $type, $cwd);
         $this->real_cwd = rtrim($this->real_cwd, '/');
-        $this->filename = str_replace(array('../', '/'), '', unescape(getv('FileName')));
+        $this->filename = $this->sanitizeFileName(unescape(getv('FileName')));
     }
 
     function run()

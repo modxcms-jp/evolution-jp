@@ -22,19 +22,36 @@
 require_once 'Base.php';
 class GetFoldersAndFiles extends Base
 {
-    public $fckphp_config;
-    public $type;
-    public $cwd;
-    public $actual_cwd;
+    private const CONNECTOR_DOCTYPE = <<<'XML'
+<!DOCTYPE Connector [
+
+    <!ELEMENT Connector    (CurrentFolder,Folders,Files)>
+<!ATTLIST Connector command CDATA "noname">
+<!ATTLIST Connector resourceType CDATA "0">
+
+<!ELEMENT CurrentFolder    (#PCDATA)>
+<!ATTLIST CurrentFolder path CDATA "noname">
+<!ATTLIST CurrentFolder url CDATA "0">
+
+<!ELEMENT Folders    (#PCDATA)>
+
+<!ELEMENT Folder    (#PCDATA)>
+<!ATTLIST Folder name CDATA "noname_dir">
+
+<!ELEMENT Files        (#PCDATA)>
+
+<!ELEMENT File        (#PCDATA)>
+<!ATTLIST File name CDATA "noname_file">
+<!ATTLIST File size CDATA "0">
+<!ATTLIST File editable CDATA "0">
+]>
+XML;
+
     public $enable_imgedit;
 
     public function __construct($fckphp_config, $type, $cwd)
     {
-        $this->fckphp_config = $fckphp_config;
-        $this->type = $type;
-        $this->raw_cwd = $cwd;
-        $this->actual_cwd = str_replace("//", "/", ($fckphp_config['UserFilesPath'] . "/$type/" . $this->raw_cwd));
-        $this->real_cwd = str_replace("//", "/", ($this->fckphp_config['basedir'] . "/" . $this->actual_cwd));
+        parent::__construct($fckphp_config, $type, $cwd);
         $self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
         $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
         if (!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
@@ -43,128 +60,95 @@ class GetFoldersAndFiles extends Base
 
     public function run()
     {
-
-        header("Content-Type: application/xml; charset=utf-8");
-        echo "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n";
-        ?>
-        <!DOCTYPE Connector [
-
-            <!ELEMENT Connector    (CurrentFolder,Folders,Files)>
-        <!ATTLIST Connector command CDATA "noname">
-        <!ATTLIST Connector resourceType CDATA "0">
-
-        <!ELEMENT CurrentFolder    (#PCDATA)>
-        <!ATTLIST CurrentFolder path CDATA "noname">
-        <!ATTLIST CurrentFolder url CDATA "0">
-
-        <!ELEMENT Folders    (#PCDATA)>
-
-        <!ELEMENT Folder    (#PCDATA)>
-        <!ATTLIST Folder name CDATA "noname_dir">
-
-        <!ELEMENT Files        (#PCDATA)>
-
-        <!ELEMENT File        (#PCDATA)>
-        <!ATTLIST File name CDATA "noname_file">
-        <!ATTLIST File size CDATA "0">
-        ] >
-
-    <Connector command="GetFoldersAndFiles" resourceType="<?= $this->type ?>">
-        <CurrentFolder path="<?= $this->raw_cwd ?>"
-                       url="<?= $this->fckphp_config['urlprefix'] . $this->actual_cwd ?>"/>
-        <Folders>
-        <?php
         $files = [];
-        if (opendir($this->real_cwd)) {
-            /**
-             * Initiate the array to store the foldernames
-             */
-            $folders_array = [];
-            $filenames = scandir($this->real_cwd);
-            if ($filenames) {
-                foreach ($filenames as $filename) {
-                    if ($filename === "." || $filename === "..") {
-                        continue;
-                    }
-                    if (!is_dir($this->real_cwd . "/$filename")) {
-                        $files[] = $filename;
-                        continue;
-                    }
+        $folders_array = [];
+        $filenames = scandir($this->real_cwd);
+        if ($filenames) {
+            foreach ($filenames as $filename) {
+                if ($filename === '.' || $filename === '..') {
+                    continue;
+                }
 
-                    //check if$fckphp_configured not to show this folder
-                    $hide = false;
-                    foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'] as $iValue) {
-                        $pattern = $iValue;
-                        $hide = (preg_match("/" . $pattern . "/", $filename) ? true : $hide);
-                    }
-                    /**
-                     * Dont echo the entry, push it in the array
-                     */
-                    //if (!$hide) echo "\t\t<Folder name=\"$filename\" />\n";
-                    if (!$hide) {
-                        $folders_array[] = $filename;
-                    }
+                if (!is_dir($this->real_cwd . "/$filename")) {
+                    $files[] = $filename;
+                    continue;
+                }
+
+                $hide = false;
+                foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFolders'] as $pattern) {
+                    $hide = (preg_match("/" . $pattern . "/", $filename) ? true : $hide);
+                }
+
+                if (!$hide) {
+                    $folders_array[] = $filename;
                 }
             }
-            /**
-             * Sort the array by the way you like and show it.
-             */
-            natcasesort($folders_array);
-            foreach ($folders_array as $k => $v) {
-                echo '<Folder name="' . $v . '" />' . "\n";
-            }
         }
-        echo "\t</Folders>\n";
-        echo "\t<Files>\n";
 
-        /**
-         * The filenames are in the array $files
-         * SORT IT!
-         */
+        natcasesort($folders_array);
         natcasesort($files);
         $files = array_values($files);
 
-        foreach ($files as $i => $iValue) {
-            $lastdot = strrpos($iValue, ".");
-            $ext = $lastdot !== false ? strtolower(substr($iValue, $lastdot + 1)) : "";
+        $response = $this->newXmlResponse(
+            'GetFoldersAndFiles',
+            ['doctype' => self::CONNECTOR_DOCTYPE]
+        );
+        $response->setCurrentFolder(
+            $this->raw_cwd,
+            $this->fckphp_config['urlprefix'] . $this->actual_cwd
+        );
+
+        $foldersNode = $response->addChild('Folders');
+        foreach ($folders_array as $folder) {
+            $response->addChild('Folder', ['name' => $folder], null, $foldersNode);
+        }
+
+        $filesNode = $response->addChild('Files');
+        foreach ($files as $fileName) {
+            $lastdot = strrpos($fileName, '.');
+            $ext = $lastdot !== false ? strtolower(substr($fileName, $lastdot + 1)) : '';
 
             if (!in_array($ext, $this->fckphp_config['ResourceAreas'][$this->type]['AllowedExtensions'])) {
                 continue;
             }
 
-            //check if$fckphp_configured not to show this file
-            $editable = $hide = false;
-            foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'] as $jValue) {
-                $hide = (preg_match("/" . $jValue . "/", $files[$i]) ? true : $hide);
+            $hide = false;
+            foreach ($this->fckphp_config['ResourceAreas'][$this->type]['HideFiles'] as $pattern) {
+                $hide = (preg_match("/" . $pattern . "/", $fileName) ? true : $hide);
             }
 
             if ($hide) {
                 continue;
             }
 
-            if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing']) {
-                if ($this->enable_imgedit) {
-                    $editable = $this->isImageEditable($this->real_cwd . "/" . $iValue);
-                }
+            $editable = false;
+            if ($this->fckphp_config['ResourceAreas'][$this->type]['AllowImageEditing'] && $this->enable_imgedit) {
+                $editable = $this->isImageEditable($this->real_cwd . '/' . $fileName);
             }
+
             if (extension_loaded('mbstring')) {
                 $name = mb_convert_encoding(
-                    $iValue,
+                    $fileName,
                     'UTF-8',
-                    mb_detect_encoding($iValue, ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'], true)
+                    mb_detect_encoding($fileName, ['ASCII', 'ISO-2022-JP', 'UTF-8', 'EUC-JP', 'SJIS'], true)
                 );
             } else {
-                $name = $iValue;
+                $name = $fileName;
             }
-            echo sprintf(
-                '<File name="%s" size="%s" editable="%s" />',
-                htmlentities($name, ENT_QUOTES, 'UTF-8'),
-                ceil(filesize($this->real_cwd . "/" . $iValue) / 1024),
-                $editable ? "1" : "0"
+
+            $response->addChild(
+                'File',
+                [
+                    'name' => $name,
+                    'size' => ceil(filesize($this->real_cwd . '/' . $fileName) / 1024),
+                    'editable' => $editable ? '1' : '0',
+                ],
+                null,
+                $filesNode
             );
         }
-        echo "\t</Files>\n";
-        echo "</Connector>\n";
+
+        $this->outputXml($response, 'Content-Type: application/xml; charset=utf-8');
     }
 
 
