@@ -45,7 +45,7 @@
             }
 
             // Set the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder (Upload in progress, please wait... 0%)';
+            document.getElementById('eUploadMessage').innerHTML = 'Upload in progress, please wait... 0%';
             document.getElementById('filebox').style.display = "none";
             resetProgressBar();
             document.getElementById('progressbox').style.display = "inline";
@@ -84,7 +84,7 @@
             //document.getElementById('NewFile').reset() ;
 
             // Reset the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder';
+            document.getElementById('eUploadMessage').innerHTML = '';
             document.getElementById('btnUpload').disabled = false;
             resetFileInput();
 
@@ -198,7 +198,7 @@
             var row = rows[0];
             var cols = row.getElementsByTagName('td');
             var percentage = Math.floor((iValue / iMax) * 100);
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder (Upload in progress, please wait.. ' + percentage + '% )';
+            document.getElementById('eUploadMessage').innerHTML = 'Upload in progress, please wait.. ' + percentage + '%';
 
             //label.innerHTML=percentage+"%"
             for (i = 0; i < (cols.length - 1); i++) {
@@ -227,7 +227,7 @@
     <table class="BrowserTable" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
         <tr>
             <td nowrap>
-                <span id="eUploadMessage">Upload a new file in this folder</span><br/>
+                <span id="eUploadMessage"></span><br/>
                 <table class="BrowserTable BrowserUploadTable" cellSpacing="0" cellPadding="0" width="100%" border="0">
                     <tr>
                         <td width="100%">
