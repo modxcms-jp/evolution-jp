@@ -38,6 +38,30 @@
             oConnector.CurrentFolder = folderPath;
         }
 
+        function setUploadMessage(message) {
+            var messageEl = document.getElementById('eUploadMessage');
+            if (!messageEl) return;
+
+            if (message) {
+                messageEl.innerHTML = message;
+                if (messageEl.classList) {
+                    messageEl.classList.add('is-visible');
+                } else if ((' ' + messageEl.className + ' ').indexOf(' is-visible ') === -1) {
+                    messageEl.className += ' is-visible';
+                }
+            } else {
+                messageEl.innerHTML = '';
+                if (messageEl.classList) {
+                    messageEl.classList.remove('is-visible');
+                } else {
+                    messageEl.className = messageEl.className
+                        .replace(/\bis-visible\b/, '')
+                        .replace(/\s{2,}/g, ' ')
+                        .replace(/^\s+|\s+$/g, '');
+                }
+            }
+        }
+
         function OnSubmit() {
             if (document.getElementById('NewFile').value.length == 0) {
                 alert('Please select a file from your computer');
@@ -45,7 +69,7 @@
             }
 
             // Set the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = 'Upload in progress, please wait... 0%';
+            setUploadMessage('Upload in progress, please wait... 0%');
             document.getElementById('filebox').style.display = "none";
             resetProgressBar();
             document.getElementById('progressbox').style.display = "inline";
@@ -84,7 +108,7 @@
             //document.getElementById('NewFile').reset() ;
 
             // Reset the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = '';
+            setUploadMessage('');
             document.getElementById('btnUpload').disabled = false;
             resetFileInput();
 
@@ -198,7 +222,7 @@
             var row = rows[0];
             var cols = row.getElementsByTagName('td');
             var percentage = Math.floor((iValue / iMax) * 100);
-            document.getElementById('eUploadMessage').innerHTML = 'Upload in progress, please wait.. ' + percentage + '%';
+            setUploadMessage('Upload in progress, please wait.. ' + percentage + '%');
 
             //label.innerHTML=percentage+"%"
             for (i = 0; i < (cols.length - 1); i++) {

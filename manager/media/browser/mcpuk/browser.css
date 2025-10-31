@@ -269,8 +269,12 @@ body.mcpuk-browser .BrowserUploadLayout {
 }
 
 body.mcpuk-browser .BrowserUploadMessage {
+    display: none;
+    margin-bottom: 4px;
+}
+
+body.mcpuk-browser .BrowserUploadMessage.is-visible {
     display: block;
-    min-height: 18px;
 }
 
 body.mcpuk-browser .BrowserUploadTable {
