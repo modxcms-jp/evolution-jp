@@ -204,21 +204,23 @@
         }
     </script>
 </head>
-<body bottomMargin="0" topMargin="0">
-<form id="frmUpload" name="frmUpload" action="" target="frmUploadWorker" method="post" enctype="multipart/form-data"
-      onsubmit="return OnSubmit();">
-    <table height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
+<body class="mcpuk-browser BrowserBody BrowserBody--upload" bottomMargin="0" topMargin="0">
+<form id="frmUpload" class="BrowserBodySection BrowserUploadForm" name="frmUpload" action="" target="frmUploadWorker"
+      method="post" enctype="multipart/form-data" onsubmit="return OnSubmit();">
+    <table class="BrowserTable" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
         <tr>
             <td nowrap>
                 <span id="eUploadMessage">Upload a new file in this folder</span><br/>
-                <table cellSpacing="0" cellPadding="0" width="100%" border="0">
+                <table class="BrowserTable BrowserUploadTable" cellSpacing="0" cellPadding="0" width="100%" border="0">
                     <tr>
                         <td width="100%">
-                            <div id="filebox"><input id="NewFile" name="NewFile" onchange="document.frmUpload.submit();"
-                                                     style="width: 100%; background-color: transparent;" type="file">
+                            <div id="filebox" class="BrowserUploadField">
+                                <input id="NewFile" class="BrowserInput BrowserInput--file" name="NewFile"
+                                       style="width: 100%; background-color: transparent;"
+                                       onchange="document.frmUpload.submit();" type="file">
                             </div>
-                            <div id="progressbox" style="display: none">
-                                <table id="progress" style="width: 100%" class="progress_bar">
+                            <div id="progressbox" class="BrowserProgressBox" style="display: none;">
+                                <table id="progress" class="progress_bar BrowserProgress">
                                     <tr>
                                         <td class="progress_hollow">&nbsp;</td>
                                         <td class="progress_hollow">&nbsp;</td>

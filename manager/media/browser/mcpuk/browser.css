@@ -1,38 +1,69 @@
 /*
  * FCKeditor - The text editor for internet
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
- * 
+ *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
- * 
+ *              http://www.opensource.org/licenses/lgpl-license.php
+ *
  * For further information visit:
- * 		http://www.fckeditor.net/
- * 
+ *              http://www.fckeditor.net/
+ *
  * "Support Open Source software. What about a donation today?"
- * 
+ *
  * File Name: browser.css
- * 	CSS styles used by all pages that compose the File Browser.
- * 
+ *      CSS styles used by all pages that compose the File Browser.
+ *
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ *              Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
+/* ========================================================================
+   Theme tokens (default values can be overridden downstream)
+   ======================================================================== */
+
+:root {
+    --mcpuk-body-background: #e3e9f1;
+    --mcpuk-text-color: #000000;
+    --mcpuk-link-hover-color: #0000fa;
+    --mcpuk-border-color: #000000;
+    --mcpuk-item-border-color: #cccccc;
+    --mcpuk-item-background: #ffffff;
+    --mcpuk-progress-fill-color: #8fa7c7;
+    --mcpuk-progress-track-color: #f0f7ff;
+    --mcpuk-progress-border-color: #000000;
+    --mcpuk-button-border-color: #737357;
+    --mcpuk-button-background: #8fa7c7;
+    --mcpuk-popup-border-color: #8fa7c7;
+    --mcpuk-popup-background: #ffffff;
+    --mcpuk-font-family: 'Microsoft Sans Serif', Arial, Helvetica, Verdana;
+    --mcpuk-font-size: 11px;
+    --mcpuk-actual-folder-font-size: 14px;
+}
+
+/* ========================================================================
+   Base element styles
+   ======================================================================== */
+
 body {
-    background-color: #e3e9f1;
+    background-color: var(--mcpuk-body-background);
+    color: var(--mcpuk-text-color);
 }
 
 form {
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
+    margin: 0;
+    padding: 0;
 }
 
-a, :link, :active, :visited {
-    color: #000000;
+a,
+:link,
+:active,
+:visited {
+    color: var(--mcpuk-text-color);
     text-decoration: none;
 }
 
 :hover {
-    color: #0000fa;
+    color: var(--mcpuk-link-hover-color);
 }
 
 a img {
@@ -42,21 +73,21 @@ a img {
 a img.item {
     border-width: 1px;
     border-style: solid;
-    border-color: #ccc;
+    border-color: var(--mcpuk-item-border-color);
     padding: 5px;
-    background-color: #fff;
+    background-color: var(--mcpuk-item-background);
 }
 
 frame {
-    background-color: #e3e9f1;
-    border-color: #000000;
+    background-color: var(--mcpuk-body-background);
+    border-color: var(--mcpuk-border-color);
     border-collapse: collapse;
     border: none;
 }
 
 frameset {
-    background-color: #e3e9f1;
-    border-color: #000000;
+    background-color: var(--mcpuk-body-background);
+    border-color: var(--mcpuk-border-color);
     border-collapse: collapse;
 }
 
@@ -65,88 +96,88 @@ frameset {
 }
 
 .progress_filled {
-    background-color: #8fa7c7;
+    background-color: var(--mcpuk-progress-fill-color);
 }
 
 .progress_bar {
-    background-color: #F0F7FF;
+    background-color: var(--mcpuk-progress-track-color);
     border-width: 1px;
-    border-color: #000000;
+    border-color: var(--mcpuk-progress-border-color);
     border-style: solid;
 }
 
 .Frame_none {
-    border-width: 0px;
+    border-width: 0;
     border-style: none;
 }
 
 .Frame_t {
-    border-right: 0px none;
+    border-right: 0 none;
     border-top: 1px solid;
-    border-left: 0px none;
-    border-bottom: 0px none;
+    border-left: 0 none;
+    border-bottom: 0 none;
 }
 
 .Frame_tr {
     border-right: 1px solid;
     border-top: 1px solid;
-    border-left: 0px none;
-    border-bottom: 0px none;
+    border-left: 0 none;
+    border-bottom: 0 none;
 }
 
 .Frame_tl {
-    border-right: 0px none;
+    border-right: 0 none;
     border-top: 1px solid;
     border-left: 1px solid;
-    border-bottom: 0px none;
+    border-bottom: 0 none;
 }
 
 .Frame_r {
     border-right: 1px solid;
-    border-top: 0px none;
-    border-left: 0px none;
-    border-bottom: 0px none;
+    border-top: 0 none;
+    border-left: 0 none;
+    border-bottom: 0 none;
 }
 
 .Frame_l {
-    border-right: 0px none;
-    border-top: 0px none;
+    border-right: 0 none;
+    border-top: 0 none;
     border-left: 1px solid;
-    border-bottom: 0px none;
+    border-bottom: 0 none;
 }
 
 .Frame_rl {
     border-right: 1px solid;
-    border-top: 0px none;
+    border-top: 0 none;
     border-left: 1px solid;
-    border-bottom: 0px none;
+    border-bottom: 0 none;
 }
 
 .Frame_b {
-    border-right: 0px none;
-    border-top: 0px none;
-    border-left: 0px none;
+    border-right: 0 none;
+    border-top: 0 none;
+    border-left: 0 none;
     border-bottom: 1px solid;
 }
 
 .Frame_br {
     border-right: 1px solid;
-    border-top: 0px none;
-    border-left: 0px none;
+    border-top: 0 none;
+    border-left: 0 none;
     border-bottom: 1px solid;
 }
 
 .Frame_bl {
-    border-right: 0px none;
-    border-top: 0px none;
+    border-right: 0 none;
+    border-top: 0 none;
     border-left: 1px solid;
     border-bottom: 1px solid;
 }
 
 .Frame_tb {
-    border-right: 0px none;
+    border-right: 0 none;
     border-top: 1px solid;
-    border-left: 0px none;
+    border-left: 0 none;
     border-bottom: 1px solid;
 }
 
@@ -158,34 +189,37 @@ frameset {
 }
 
 body.FileArea {
-
-    background: #e3e9f1;
+    background: var(--mcpuk-body-background);
     padding: 0;
 }
 
-body, td, input, select {
-    font-size: 11px;
-    font-family: 'Microsoft Sans Serif', Arial, Helvetica, Verdana;
+body,
+td,
+input,
+select {
+    font-size: var(--mcpuk-font-size);
+    font-family: var(--mcpuk-font-family);
 }
 
 .ActualFolder {
     font-weight: bold;
-    font-size: 14px;
+    font-size: var(--mcpuk-actual-folder-font-size);
 }
 
 .PopupButtons {
-    border-top: #8fa7c7 1px solid;
-    background-color: #ffffff;
-    padding: 7px 10px 7px 10px;
+    border-top: 1px solid var(--mcpuk-popup-border-color);
+    background-color: var(--mcpuk-popup-background);
+    padding: 7px 10px;
 }
 
-.Button, button {
-    border-right: #737357 1px solid;
-    border-top: #737357 1px solid;
-    border-left: #737357 1px solid;
+.Button,
+button {
+    border-right: 1px solid var(--mcpuk-button-border-color);
+    border-top: 1px solid var(--mcpuk-button-border-color);
+    border-left: 1px solid var(--mcpuk-button-border-color);
     color: #ffffff;
-    border-bottom: #737357 1px solid;
-    background-color: #8fa7c7;
+    border-bottom: 1px solid var(--mcpuk-button-border-color);
+    background-color: var(--mcpuk-button-background);
 }
 
 .FolderListCurrentFolder img {
@@ -194,4 +228,35 @@ body, td, input, select {
 
 .FolderListFolder img {
     background-image: url(images/Folder.gif);
+}
+
+/* ========================================================================
+   Layout helpers for easier customisation
+   ======================================================================== */
+
+body.mcpuk-browser {
+    background-color: var(--mcpuk-body-background);
+    color: var(--mcpuk-text-color);
+}
+
+body.mcpuk-browser .BrowserBodySection,
+body.mcpuk-browser .BrowserTable,
+body.mcpuk-browser .BrowserProgress,
+body.mcpuk-browser .BrowserSelect,
+body.mcpuk-browser .BrowserInput,
+body.mcpuk-browser .BrowserButton {
+    width: 100%;
+}
+
+body.mcpuk-browser .BrowserButton {
+    display: block;
+}
+
+body.mcpuk-browser .BrowserInput--file {
+    background-color: transparent;
+}
+
+body.mcpuk-browser .BrowserProgressBox {
+    display: none;
+    width: 100%;
 }
