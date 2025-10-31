@@ -260,6 +260,31 @@ body.mcpuk-browser .BrowserInput--file {
     background-color: transparent;
 }
 
+body.mcpuk-browser .BrowserUploadForm {
+    height: 100%;
+}
+
+body.mcpuk-browser .BrowserUploadLayout {
+    vertical-align: middle;
+}
+
+body.mcpuk-browser .BrowserUploadMessage {
+    display: block;
+    min-height: 18px;
+}
+
+body.mcpuk-browser .BrowserUploadTable {
+    width: 100%;
+}
+
+body.mcpuk-browser .BrowserUploadCell {
+    vertical-align: middle;
+}
+
+body.mcpuk-browser .BrowserUploadCell--button {
+    padding-left: 6px;
+}
+
 body.mcpuk-browser .BrowserProgressBox {
     display: none;
     width: 100%;

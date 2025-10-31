@@ -226,11 +226,11 @@
       method="post" enctype="multipart/form-data" onsubmit="return OnSubmit();">
     <table class="BrowserTable" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
         <tr>
-            <td nowrap>
-                <span id="eUploadMessage"></span><br/>
+            <td class="BrowserUploadLayout" nowrap>
+                <div id="eUploadMessage" class="BrowserUploadMessage" aria-live="polite"></div>
                 <table class="BrowserTable BrowserUploadTable" cellSpacing="0" cellPadding="0" width="100%" border="0">
                     <tr>
-                        <td width="100%">
+                        <td class="BrowserUploadCell BrowserUploadCell--field" width="100%">
                             <div id="filebox" class="BrowserUploadField">
                                 <input id="NewFile" class="BrowserInput BrowserInput--file" name="NewFile"
                                        style="width: 100%; background-color: transparent;"
@@ -264,7 +264,7 @@
                                 <!--<div id="progress_label"></div>-->
                             </div>
                         </td>
-                        <td nowrap>&nbsp;<input id="btnUpload" class="BrowserButton BrowserButton--hidden" type="submit" value="Upload"></td>
+                        <td class="BrowserUploadCell BrowserUploadCell--button" nowrap>&nbsp;<input id="btnUpload" class="BrowserButton BrowserButton--hidden" type="submit" value="Upload"></td>
                     </tr>
                 </table>
             </td>
