@@ -252,8 +252,41 @@ body.mcpuk-browser .BrowserButton {
     display: block;
 }
 
+body.mcpuk-browser .BrowserButton--hidden {
+    display: none;
+}
+
 body.mcpuk-browser .BrowserInput--file {
     background-color: transparent;
+}
+
+body.mcpuk-browser .BrowserUploadForm {
+    height: 100%;
+}
+
+body.mcpuk-browser .BrowserUploadLayout {
+    vertical-align: middle;
+}
+
+body.mcpuk-browser .BrowserUploadMessage {
+    display: none;
+    margin-bottom: 4px;
+}
+
+body.mcpuk-browser .BrowserUploadMessage.is-visible {
+    display: block;
+}
+
+body.mcpuk-browser .BrowserUploadTable {
+    width: 100%;
+}
+
+body.mcpuk-browser .BrowserUploadCell {
+    vertical-align: middle;
+}
+
+body.mcpuk-browser .BrowserUploadCell--button {
+    padding-left: 6px;
 }
 
 body.mcpuk-browser .BrowserProgressBox {

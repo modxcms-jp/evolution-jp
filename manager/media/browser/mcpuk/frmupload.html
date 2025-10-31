@@ -38,6 +38,30 @@
             oConnector.CurrentFolder = folderPath;
         }
 
+        function setUploadMessage(message) {
+            var messageEl = document.getElementById('eUploadMessage');
+            if (!messageEl) return;
+
+            if (message) {
+                messageEl.innerHTML = message;
+                if (messageEl.classList) {
+                    messageEl.classList.add('is-visible');
+                } else if ((' ' + messageEl.className + ' ').indexOf(' is-visible ') === -1) {
+                    messageEl.className += ' is-visible';
+                }
+            } else {
+                messageEl.innerHTML = '';
+                if (messageEl.classList) {
+                    messageEl.classList.remove('is-visible');
+                } else {
+                    messageEl.className = messageEl.className
+                        .replace(/\bis-visible\b/, '')
+                        .replace(/\s{2,}/g, ' ')
+                        .replace(/^\s+|\s+$/g, '');
+                }
+            }
+        }
+
         function OnSubmit() {
             if (document.getElementById('NewFile').value.length == 0) {
                 alert('Please select a file from your computer');
@@ -45,7 +69,7 @@
             }
 
             // Set the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder (Upload in progress, please wait... 0%)';
+            setUploadMessage('Upload in progress, please wait... 0%');
             document.getElementById('filebox').style.display = "none";
             resetProgressBar();
             document.getElementById('progressbox').style.display = "inline";
@@ -55,6 +79,22 @@
             setTimeout("GetUploadProgress()", 2000);
 
             return true;
+        }
+
+        function resetFileInput() {
+            var fileInput = document.getElementById('NewFile');
+            if (!fileInput) return;
+
+            fileInput.value = '';
+
+            // Some browsers (notably older versions of IE) don't allow clearing
+            // the value property directly. In that case we recreate the element
+            // so that selecting the same file again triggers the change event.
+            if (fileInput.value) {
+                var parent = fileInput.parentNode;
+                var newInput = fileInput.cloneNode(true);
+                parent.replaceChild(newInput, fileInput);
+            }
         }
 
         function OnUploadCompleted(errorNumber, fileName) {
@@ -68,8 +108,9 @@
             //document.getElementById('NewFile').reset() ;
 
             // Reset the interface elements.
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder';
+            setUploadMessage('');
             document.getElementById('btnUpload').disabled = false;
+            resetFileInput();
 
             var randomnumber = Math.floor(Math.random() * 65535);
             SetCurrentFolder(oConnector.ResourceType, oConnector.CurrentFolder);
@@ -181,7 +222,7 @@
             var row = rows[0];
             var cols = row.getElementsByTagName('td');
             var percentage = Math.floor((iValue / iMax) * 100);
-            document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder (Upload in progress, please wait.. ' + percentage + '% )';
+            setUploadMessage('Upload in progress, please wait.. ' + percentage + '%');
 
             //label.innerHTML=percentage+"%"
             for (i = 0; i < (cols.length - 1); i++) {
@@ -209,11 +250,11 @@
       method="post" enctype="multipart/form-data" onsubmit="return OnSubmit();">
     <table class="BrowserTable" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
         <tr>
-            <td nowrap>
-                <span id="eUploadMessage">Upload a new file in this folder</span><br/>
+            <td class="BrowserUploadLayout" nowrap>
+                <div id="eUploadMessage" class="BrowserUploadMessage" aria-live="polite"></div>
                 <table class="BrowserTable BrowserUploadTable" cellSpacing="0" cellPadding="0" width="100%" border="0">
                     <tr>
-                        <td width="100%">
+                        <td class="BrowserUploadCell BrowserUploadCell--field" width="100%">
                             <div id="filebox" class="BrowserUploadField">
                                 <input id="NewFile" class="BrowserInput BrowserInput--file" name="NewFile"
                                        style="width: 100%; background-color: transparent;"
@@ -247,7 +288,7 @@
                                 <!--<div id="progress_label"></div>-->
                             </div>
                         </td>
-                        <td nowrap>&nbsp;<input id="btnUpload" type="submit" value="Upload"></td>
+                        <td class="BrowserUploadCell BrowserUploadCell--button" nowrap>&nbsp;<input id="btnUpload" class="BrowserButton BrowserButton--hidden" type="submit" value="Upload"></td>
                     </tr>
                 </table>
             </td>
