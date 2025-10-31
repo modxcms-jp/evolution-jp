@@ -252,6 +252,10 @@ body.mcpuk-browser .BrowserButton {
     display: block;
 }
 
+body.mcpuk-browser .BrowserButton--hidden {
+    display: none;
+}
+
 body.mcpuk-browser .BrowserInput--file {
     background-color: transparent;
 }

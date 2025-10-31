@@ -57,6 +57,22 @@
             return true;
         }
 
+        function resetFileInput() {
+            var fileInput = document.getElementById('NewFile');
+            if (!fileInput) return;
+
+            fileInput.value = '';
+
+            // Some browsers (notably older versions of IE) don't allow clearing
+            // the value property directly. In that case we recreate the element
+            // so that selecting the same file again triggers the change event.
+            if (fileInput.value) {
+                var parent = fileInput.parentNode;
+                var newInput = fileInput.cloneNode(true);
+                parent.replaceChild(newInput, fileInput);
+            }
+        }
+
         function OnUploadCompleted(errorNumber, fileName) {
             uploading = false;
 
@@ -70,6 +86,7 @@
             // Reset the interface elements.
             document.getElementById('eUploadMessage').innerHTML = 'Upload a new file in this folder';
             document.getElementById('btnUpload').disabled = false;
+            resetFileInput();
 
             var randomnumber = Math.floor(Math.random() * 65535);
             SetCurrentFolder(oConnector.ResourceType, oConnector.CurrentFolder);
@@ -247,7 +264,7 @@
                                 <!--<div id="progress_label"></div>-->
                             </div>
                         </td>
-                        <td nowrap>&nbsp;<input id="btnUpload" type="submit" value="Upload"></td>
+                        <td nowrap>&nbsp;<input id="btnUpload" class="BrowserButton BrowserButton--hidden" type="submit" value="Upload"></td>
                     </tr>
                 </table>
             </td>
