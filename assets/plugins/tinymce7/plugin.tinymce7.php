@@ -64,7 +64,7 @@ if (!function_exists('tinymce7HandleInit')) {
         if ($fileBrowser === 'elfinder') {
             $scripts[] = tinymce7ScriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/elfinder-picker.js');
         } elseif ($fileBrowser === 'mcpuk') {
-            $scripts[] = tinymce7InlineScript('window.MODX_FILE_BROWSER_URL = ' . json_encode(tinymce7McpukBrowserUrl()) . ';');
+            $scripts[] = tinymce7InlineScript(tinymce7McpukBootstrapScript());
             $scripts[] = tinymce7ScriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/mcpuk-picker.js');
         }
 
@@ -249,5 +249,19 @@ if (!function_exists('tinymce7McpukBrowserUrl')) {
         $managerUrl = defined('MODX_MANAGER_URL') ? MODX_MANAGER_URL : MODX_BASE_URL . 'manager/';
 
         return rtrim($managerUrl, '/') . '/media/browser/mcpuk/browser.php?editor=tinymce7';
+    }
+}
+
+if (!function_exists('tinymce7McpukBootstrapScript')) {
+    function tinymce7McpukBootstrapScript(): string
+    {
+        $snippets = [];
+        $snippets[] = 'window.MODX_FILE_BROWSER_URL = ' . json_encode(tinymce7McpukBrowserUrl()) . ';';
+        $snippets[] = 'window.MODX_BASE_URL = ' . json_encode(MODX_BASE_URL) . ';';
+        if (defined('MODX_SITE_URL')) {
+            $snippets[] = 'window.MODX_SITE_URL = ' . json_encode(MODX_SITE_URL) . ';';
+        }
+
+        return implode('', $snippets);
     }
 }

@@ -28,6 +28,35 @@
     return global.open(url, 'modxMcpukBrowser', features);
   }
 
+  function normalizeUrl(fileUrl) {
+    if (!fileUrl && fileUrl !== 0) {
+      return fileUrl;
+    }
+
+    var url = String(fileUrl).trim();
+    if (!url) {
+      return url;
+    }
+
+    if (/^(?:[a-z][a-z0-9+\-.]*:|\/\/|\/)/i.test(url)) {
+      return url;
+    }
+
+    url = url.replace(/^(?:\.\.\/)+/, '');
+
+    var siteUrl = (global.MODX_SITE_URL || '').trim();
+    if (siteUrl) {
+      return siteUrl.replace(/\/+$/, '') + '/' + url.replace(/^\/+/, '');
+    }
+
+    var baseUrl = (global.MODX_BASE_URL || '').trim();
+    if (baseUrl) {
+      return baseUrl.replace(/\/+$/, '') + '/' + url.replace(/^\/+/, '');
+    }
+
+    return '/' + url.replace(/^\/+/, '');
+  }
+
   function createSetUrlGuard(previous, callback) {
     var cleaned = false;
     function restore() {
@@ -49,7 +78,7 @@
     global.SetUrl = function (fileUrl) {
       try {
         if (typeof callback === 'function') {
-          callback(fileUrl);
+          callback(normalizeUrl(fileUrl));
         }
       } finally {
         restore();
