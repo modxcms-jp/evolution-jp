@@ -91,29 +91,6 @@ class TinyMCE
         else                return '';
     }
 
-    private function cleanUpMODXTags($content = '')
-    {
-        if ($content === '' || $content === null) {
-            return '';
-        }
-
-        $patterns = [
-            '/\[\*.*?\*\]/s',
-            '/\[\(.*?\)\]/s',
-            '/\{\{.*?\}\}/s',
-            '/\[\[.*?\]\]/s',
-            '/\[\+.*?\+\]/s',
-        ];
-
-        $content = preg_replace($patterns, '', $content);
-
-        if (strpos($content, '<!---->') !== false) {
-            $content = str_replace('<!---->', '', $content);
-        }
-
-        return $content;
-    }
-
     public function get_mce_settings()
     {
         global $modx, $_lang;
@@ -250,7 +227,7 @@ class TinyMCE
 
         $gsettings = file_get_contents("{$mce_path}inc/gsettings.inc.html");
 
-        return $this->cleanUpMODXTags(
+        return evo()->cleanUpMODXTags(
             evo()->parseText($gsettings, $ph)
         );
     }
