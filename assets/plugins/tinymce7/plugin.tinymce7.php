@@ -67,12 +67,20 @@ function tinymce7HandleInit(): void
     $config['convert_urls'] = $config['convert_urls'] ?? false;
     $config['relative_urls'] = $config['relative_urls'] ?? false;
 
+    [$config, $fileBrowser] = tinymce7ResolveFileBrowser($config, $params);
+
     $configJson = tinymce7EncodeConfig($config);
 
     $scripts = [
         tinymce7ScriptTag(tinymce7ScriptUrl()),
-        tinymce7ScriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/elfinder-picker.js'),
     ];
+
+    if ($fileBrowser === 'elfinder') {
+        $scripts[] = tinymce7ScriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/elfinder-picker.js');
+    } elseif ($fileBrowser === 'mcpuk') {
+        $scripts[] = tinymce7InlineScript('window.MODX_FILE_BROWSER_URL = ' . json_encode(tinymce7McpukBrowserUrl()) . ';');
+        $scripts[] = tinymce7ScriptTag(MODX_BASE_URL . 'assets/plugins/tinymce7/js/mcpuk-picker.js');
+    }
 
     $output = [];
     $output[] = implode("\n", $scripts);
@@ -87,7 +95,18 @@ function tinymce7HandleInit(): void
     $output[] = '        console.warn("TinyMCE7: selector is empty. Please set selector in config file.");';
     $output[] = '        return;';
     $output[] = '    }';
-    $output[] = '    config.file_picker_callback = window.mceElfinderPicker || undefined;';
+    $output[] = '    switch (' . json_encode($fileBrowser) . ') {';
+    $output[] = '        case "elfinder":';
+    $output[] = '            config.file_picker_callback = window.mceElfinderPicker || undefined;';
+    $output[] = '            break;';
+    $output[] = '        case "mcpuk":';
+    $output[] = '            config.file_picker_callback = window.mceModxFilePicker || undefined;';
+    $output[] = '            break;';
+    $output[] = '        default:';
+    $output[] = '            if (!config.file_picker_callback) {';
+    $output[] = '                delete config.file_picker_callback;';
+    $output[] = '            }';
+    $output[] = '    }';
     $output[] = '    tinymce.init(config);';
     $output[] = '})();';
     $output[] = '</script>';
@@ -158,6 +177,31 @@ function tinymce7ScriptUrl(): string
     return 'https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js';
 }
 
+function tinymce7ResolveFileBrowser(array $config, array $params): array
+{
+    $browser = null;
+
+    if (!empty($params['tinymce7_file_browser']) && is_string($params['tinymce7_file_browser'])) {
+        $browser = strtolower((string)$params['tinymce7_file_browser']);
+    } elseif (!empty($params['file_browser']) && is_string($params['file_browser'])) {
+        $browser = strtolower((string)$params['file_browser']);
+    } elseif (isset($config['tinymce7_file_browser']) && is_string($config['tinymce7_file_browser'])) {
+        $browser = strtolower((string)$config['tinymce7_file_browser']);
+        unset($config['tinymce7_file_browser']);
+    }
+
+    switch ($browser) {
+        case 'elfinder':
+            return [$config, 'elfinder'];
+        case 'mcpuk':
+        case null:
+            return [$config, 'mcpuk'];
+        case 'none':
+        default:
+            return [$config, 'none'];
+    }
+}
+
 function tinymce7LanguageUrl(string $language): string
 {
     $language = strtolower(trim($language));
@@ -174,4 +218,16 @@ function tinymce7ScriptTag(string $url): string
     $escaped = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
 
     return '<script src="' . $escaped . '"></script>';
+}
+
+function tinymce7InlineScript(string $script): string
+{
+    return '<script>' . $script . '</script>';
+}
+
+function tinymce7McpukBrowserUrl(): string
+{
+    $managerUrl = defined('MODX_MANAGER_URL') ? MODX_MANAGER_URL : MODX_BASE_URL . 'manager/';
+
+    return rtrim($managerUrl, '/') . '/media/browser/mcpuk/browser.php?editor=tinymce7';
 }
