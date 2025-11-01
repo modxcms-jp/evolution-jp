@@ -79,7 +79,7 @@ function tinymce7HandleInit(): void
     $output[] = '<script>';
     $output[] = '(function() {';
     $output[] = '    if (typeof tinymce === "undefined") {';
-    $output[] = '        console.error("TinyMCE 7 is not loaded. Check assets/plugins/tinymce7/tinymce.min.js");';
+    $output[] = '        console.error("TinyMCE 7 is not loaded. Check assets/plugins/tinymce7/tinymce/tinymce.min.js");';
     $output[] = '        return;';
     $output[] = '    }';
     $output[] = '    const config = ' . $configJson . ';';
@@ -150,9 +150,9 @@ function tinymce7BuildSelector(array $elements): string
 
 function tinymce7ScriptUrl(): string
 {
-    $localPath = MODX_BASE_PATH . 'assets/plugins/tinymce7/tinymce.min.js';
+    $localPath = MODX_BASE_PATH . 'assets/plugins/tinymce7/tinymce/tinymce.min.js';
     if (is_file($localPath)) {
-        return MODX_BASE_URL . 'assets/plugins/tinymce7/tinymce.min.js';
+        return MODX_BASE_URL . 'assets/plugins/tinymce7/tinymce/tinymce.min.js';
     }
 
     return 'https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js';
