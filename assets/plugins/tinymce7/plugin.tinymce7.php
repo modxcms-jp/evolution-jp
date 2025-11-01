@@ -17,21 +17,6 @@ if (!function_exists('evo')) {
     }
 }
 
-$event = evo()->event;
-$eventName = $event->name ?? '';
-
-switch ($eventName) {
-    case 'OnRichTextEditorRegister':
-        $event->output('TinyMCE7');
-        break;
-
-    case 'OnRichTextEditorInit':
-        tinymce7HandleInit();
-        break;
-}
-
-return;
-
 if (!function_exists('tinymce7HandleInit')) {
     function tinymce7HandleInit(): void
     {
@@ -114,6 +99,19 @@ if (!function_exists('tinymce7HandleInit')) {
 
         $event->output(implode("\n", $output));
     }
+}
+
+$event = evo()->event;
+$eventName = $event->name ?? '';
+
+switch ($eventName) {
+    case 'OnRichTextEditorRegister':
+        $event->output('TinyMCE7');
+        break;
+
+    case 'OnRichTextEditorInit':
+        tinymce7HandleInit();
+        break;
 }
 
 if (!function_exists('tinymce7LoadConfig')) {
