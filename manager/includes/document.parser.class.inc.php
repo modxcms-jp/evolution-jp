@@ -5210,7 +5210,7 @@ class DocumentParser
         $this->snippetCache['phx:' . $name] = $phpCode;
     }
 
-    private function cleanUpMODXTags($content = '')
+    public function cleanUpMODXTags($content = '')
     {
         $_ = ['[* *]', '[( )]', '{{ }}', '[[ ]]', '[+ +]'];
         foreach ($_ as $brackets) {
