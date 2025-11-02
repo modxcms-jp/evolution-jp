@@ -14,6 +14,12 @@ init::fix_ssl();
 if (!defined('MODX_BASE_PATH')) {
     include dirname(__DIR__, 2) . '/define-path.php';
 }
+$dotenvFile = MODX_BASE_PATH . '.env';
+if (is_file($dotenvFile)) {
+    require_once __DIR__ . '/dotenv-loader.php';
+    $dotenv = new Dotenv($dotenvFile);
+    $dotenv->load();
+}
 if (!defined('MODX_BASE_URL')) {
     define('MODX_BASE_URL', init::get_base_url(MODX_BASE_PATH));
 }
