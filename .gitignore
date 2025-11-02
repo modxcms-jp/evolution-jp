@@ -1,4 +1,5 @@
 /.htaccess
+/.env
 /manager/includes/config.inc.php
 /manager/includes/extra.config.php
 
