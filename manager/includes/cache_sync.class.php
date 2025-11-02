@@ -142,13 +142,53 @@ class synccache
             if (is_file($file_path)) {
                 $rs = unlink($file_path);
             } elseif (is_dir($file_path)) {
-                $rs = rmdir($file_path);
+                $rs = $this->removeDirectory($file_path);
             }
             if ($rs) {
                 $deletedfiles[] = $name;
             }
         }
         return [$filesincache, count($deletedfiles), $deletedfiles];
+    }
+
+    private function removeDirectory($directory)
+    {
+        $directory = rtrim($directory, '/');
+        if (
+            $directory === ''
+            || !defined('MODX_BASE_PATH')
+            || MODX_BASE_PATH === ''
+            || !str_starts_with($directory, MODX_BASE_PATH)
+        ) {
+            return false;
+        }
+
+        if (!is_dir($directory) || !is_readable($directory)) {
+            return false;
+        }
+
+        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
+
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($directory, $flags),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+        } catch (UnexpectedValueException $exception) {
+            return false;
+        }
+
+        $result = true;
+        foreach ($iterator as $fileInfo) {
+            $path = $fileInfo->getPathname();
+            if ($fileInfo->isDir()) {
+                $result = rmdir($path) && $result;
+            } else {
+                $result = unlink($path) && $result;
+            }
+        }
+
+        return $result ? rmdir($directory) : false;
     }
 
     public function showReport($info)
@@ -567,22 +607,34 @@ class synccache
     private function getFileList($dir, $pattern = '@\.*$@')
     {
         $dir = rtrim($dir, '/');
-        $tmp = array_diff(scandir($dir), ['..', '.']);
-        $files = [];
-        foreach ($tmp as $val) {
-            $files[] = $dir . '/' . $val;
+        if ($dir === '' || !is_dir($dir)) {
+            return [];
+        }
+
+        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
+
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, $flags),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+        } catch (UnexpectedValueException $exception) {
+            return [];
         }
 
         $list = [];
-        foreach ($files as $obj) {
-            if (is_file($obj) && preg_match($pattern, $obj)) {
-                $list[] = $obj;
-            } elseif (is_dir($obj)) {
-                $list[] = $obj;
-                $_ = $this->getFileList($obj, $pattern);
-                $list = array_merge($list, $_);
+        foreach ($iterator as $fileInfo) {
+            $path = $fileInfo->getPathname();
+            if ($fileInfo->isDir()) {
+                $list[] = $path;
+                continue;
+            }
+
+            if (preg_match($pattern, $path)) {
+                $list[] = $path;
             }
         }
+
         return $list;
     }
 }
