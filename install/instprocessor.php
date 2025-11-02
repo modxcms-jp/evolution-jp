@@ -53,7 +53,7 @@ if (!sessionv('is_upgradeable')) {
 
 include MODX_SETUP_PATH . 'sql/fix_settings.php';
 
-if (sessionv('is_upgradeable')) {
+if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
     convert2utf8mb4();
 }
 

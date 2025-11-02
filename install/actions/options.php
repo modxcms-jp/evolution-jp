@@ -19,6 +19,10 @@ if (isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
 }
 
+if (!isset($_SESSION['convert_to_utf8mb4'])) {
+    $_SESSION['convert_to_utf8mb4'] = 1;
+}
+
 $_SESSION['managerlanguage'] = sessionv('install_language');
 include_once MODX_SETUP_PATH . 'setup.info.php';
 
@@ -36,6 +40,15 @@ $ph['block_modules']   = block_modules($tplModules,   $ph);
 $ph['block_plugins']   = block_plugins($tplPlugins,   $ph);
 $ph['block_snippets']  = block_snippets($tplSnippets, $ph);
 
+$ph['convert_utf8mb4_option'] = '';
+$ph['has_utf8mb4_conversion_option'] = 0;
+if (sessionv('is_upgradeable')) {
+    $utf8mb4Details = get_utf8mb4_conversion_details();
+    if (!empty($utf8mb4Details['has_tables'])) {
+        $ph['convert_utf8mb4_option'] = block_convert_utf8mb4_option($ph, $utf8mb4Details) . "\n";
+        $ph['has_utf8mb4_conversion_option'] = 1;
+    }
+}
 $ph['object_list'] = show_object_list($ph) . "\n";
 
 echo evo()->parseText(
@@ -51,7 +64,8 @@ function show_object_list($ph)
         array($ph['block_templates'], $ph['block_tvs'], $ph['block_chunks'], $ph['block_modules'], $ph['block_plugins'], $ph['block_snippets'])
     );
     if (trim($objects) === '') {
-        return evo()->parseText('<strong>[+no_update_options+]</strong>', $ph);
+        $langKey = !empty($ph['has_utf8mb4_conversion_option']) ? 'no_update_options_with_utf8mb4' : 'no_update_options';
+        return evo()->parseText(sprintf('<strong>[+%s+]</strong>', $langKey), $ph);
     }
 
     $tpl = <<< TPL
@@ -81,6 +95,79 @@ function block_install_sample_site($ph)
 <p><em>&nbsp;[+sample_web_site_note+]</em></p>
 TPL;
     $ph['checked'] = sessionv('installdata', false) == 1 ? 'checked' : '';
+    return evo()->parseText($tpl, $ph);
+}
+
+function get_utf8mb4_conversion_details()
+{
+    $details = [
+        'tables' => [],
+        'table_list_html' => '',
+        'has_tables' => false,
+    ];
+
+    include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
+
+    if (class_exists('convert2utf8mb4')) {
+        $tables = [];
+        $prefix = sessionv('table_prefix', '');
+        $converter = new convert2utf8mb4();
+        $canDetermine = false;
+
+        if ($prefix !== '' && method_exists($converter, 'getTablesToConvert')) {
+            $result = $converter->getTablesToConvert($prefix);
+            if ($result !== null) {
+                $tables = $result;
+                $canDetermine = true;
+            }
+        }
+
+        if (!$tables && !$canDetermine && method_exists('convert2utf8mb4', 'getTargetTables')) {
+            $tables = convert2utf8mb4::getTargetTables();
+            if ($prefix !== '') {
+                $tables = array_map(function ($table) use ($prefix) {
+                    return $prefix . $table;
+                }, $tables);
+            }
+        }
+
+        if ($tables) {
+            $items = [];
+            foreach ($tables as $table) {
+                $items[] = sprintf(
+                    '<li>%s</li>',
+                    htmlspecialchars($table, ENT_QUOTES, 'UTF-8')
+                );
+            }
+            $details['table_list_html'] = sprintf(
+                '<p>%s</p><ul class="utf8mb4-table-list">%s</ul>',
+                lang('utf8mb4_conversion_tables_intro'),
+                implode('', $items)
+            );
+            $details['has_tables'] = true;
+        }
+
+        $details['tables'] = $tables;
+    }
+
+    return $details;
+}
+
+function block_convert_utf8mb4_option($ph, array $utf8mb4Details)
+{
+    $convert = sessionv('convert_to_utf8mb4', 1);
+
+    $tpl = <<< TPL
+<h3>[+utf8mb4_conversion_title+]</h3>
+<p>
+    <label><input type="radio" name="convert_to_utf8mb4" value="1" [+convert_checked+] />&nbsp;[+utf8mb4_conversion_enable+]</label><br />
+    <label><input type="radio" name="convert_to_utf8mb4" value="0" [+skip_checked+] />&nbsp;[+utf8mb4_conversion_skip+]</label>
+</p>
+[+utf8mb4_conversion_table_list+]
+TPL;
+    $ph['convert_checked'] = $convert ? 'checked' : '';
+    $ph['skip_checked'] = $convert ? '' : 'checked';
+    $ph['utf8mb4_conversion_table_list'] = $utf8mb4Details['table_list_html'];
     return evo()->parseText($tpl, $ph);
 }
 

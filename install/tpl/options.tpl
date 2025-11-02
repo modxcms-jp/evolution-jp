@@ -6,6 +6,7 @@
     [+object_list+]
 
     <hr/>
+    [+convert_utf8mb4_option+]
     [+install_sample_site+]
 
     <p class="buttonlinks">

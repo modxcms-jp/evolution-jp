@@ -58,9 +58,9 @@ class convert2utf8mb4 {
         return db()->getValue($rs);
     }
 
-    public function convertTablesWithPrefix($prefix)
+    public static function getTargetTables()
     {
-        $targetTables = [
+        return [
             'active_users',
             'categories',
             'document_groups',
@@ -99,6 +99,12 @@ class convert2utf8mb4 {
             'webgroup_access',
             'webgroup_names'
         ];
+    }
+
+    public function getTablesToConvert($prefix)
+    {
+        $targetTables = self::getTargetTables();
+        $tables = [];
 
         $rs = db()->select(
             'TABLE_NAME, CCSA.CHARACTER_SET_NAME, T.TABLE_COLLATION',
@@ -116,20 +122,40 @@ class convert2utf8mb4 {
             ]
         );
 
-        while($row = db()->getRow($rs)) {
+        if (!$rs) {
+            return null;
+        }
+
+        while ($row = db()->getRow($rs)) {
             $tableNameWithoutPrefix = str_replace($prefix, '', $row['TABLE_NAME']);
             if (in_array($tableNameWithoutPrefix, $targetTables)) {
-                echo sprintf('%sを変換します<br>', $row['TABLE_NAME']);
-                db()->exec(
-                    sprintf(
-                        "ALTER TABLE %s CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",
-                        $row['TABLE_NAME']
-                    )
-                );
-                // echo "Table {$row['TABLE_NAME']} charset has been changed to utf8mb4.<br>\n";
+                $tables[] = $row['TABLE_NAME'];
             }
         }
-        return db()->count($rs);
+
+        return $tables;
+    }
+
+    public function convertTablesWithPrefix($prefix)
+    {
+        $tables = $this->getTablesToConvert($prefix);
+
+        if ($tables === null) {
+            return 0;
+        }
+
+        foreach ($tables as $tableName) {
+            echo sprintf('%sを変換します<br>', $tableName);
+            db()->exec(
+                sprintf(
+                    "ALTER TABLE %s CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",
+                    $tableName
+                )
+            );
+            // echo "Table {$tableName} charset has been changed to utf8mb4.<br>\n";
+        }
+
+        return count($tables);
     }
 
     public function getDbCollation()

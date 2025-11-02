@@ -15,6 +15,9 @@ if (sessionv('prevAction') === 'options') {
     $_SESSION['snippet']     = postv('snippet', []);
     $_SESSION['plugin']      = postv('plugin', []);
     $_SESSION['module']      = postv('module', []);
+    if (sessionv('is_upgradeable')) {
+        $_SESSION['convert_to_utf8mb4'] = postv('convert_to_utf8mb4', '1') === '0' ? 0 : 1;
+    }
 }
 
 echo '<h2>' . lang('preinstall_validation') . '</h2>';
