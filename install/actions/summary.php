@@ -20,7 +20,8 @@ if (sessionv('prevAction') === 'options') {
     }
 }
 
-echo '<h2>' . lang('preinstall_validation') . '</h2>';
+$preinstallLangKey = $isUpgrade ? 'preupdate_validation' : 'preinstall_validation';
+echo '<h2>' . lang($preinstallLangKey) . '</h2>';
 echo '<h3>' . lang('summary_setup_check') . '</h3>';
 $errors = 0;
 
@@ -226,7 +227,7 @@ if ($errors > 0) {
 echo p('&nbsp;');
 
 $nextAction = $errors ? 'summary' : 'install';
-$nextButton = $errors ? lang('retry') : lang('install');
+$nextButton = $errors ? lang('retry') : ($isUpgrade ? lang('upgrade') : lang('install'));
 $nextVisibility = $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
 ?>
