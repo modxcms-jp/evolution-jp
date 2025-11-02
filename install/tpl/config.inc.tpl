@@ -1,6 +1,6 @@
 <?php
 /**
- *	MODX Configuration file
+ *      MODX Configuration file
  */
 $database_type               = '[+database_type+]';
 $database_server             = env('DB_HOST', '[+database_server+]');
