@@ -162,6 +162,7 @@ $_lang["status_passed"] = '問題ありません';
 $_lang["status_passed_database_created"] = 'データベースを作成しました。';
 $_lang["status_passed_server"] = '接続できます';
 $_lang["summary_setup_check"] = '<strong>インストール実行前の最終チェックです。</strong>';
+$_lang["summary_update_check"] = '<strong>アップデート実行前の最終チェックです。</strong>';
 $_lang["table_prefix_already_inuse"] = ' - このTableプレフィックスはすでに使われています。';
 $_lang["table_prefix_already_inuse_note"] = '異なるテーブルプレフィックスを指定するか、phpMyAdminなどを利用し関連テーブルを削除し、再びインストールを試してみてください。';
 $_lang["table_prefix_not_exist"] = ' - 指定されたTableプレフィックスがデータベース内に存在していなかったため、インストールが完了しませんでした。正しいテーブルプレフィックスを指定し、再度実行してください。';

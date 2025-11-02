@@ -21,8 +21,9 @@ if (sessionv('prevAction') === 'options') {
 }
 
 $preinstallLangKey = $isUpgrade ? 'preupdate_validation' : 'preinstall_validation';
+$summaryCheckLangKey = $isUpgrade ? 'summary_update_check' : 'summary_setup_check';
 echo '<h2>' . lang($preinstallLangKey) . '</h2>';
-echo '<h3>' . lang('summary_setup_check') . '</h3>';
+echo '<h3>' . lang($summaryCheckLangKey) . '</h3>';
 $errors = 0;
 
 // check PHP version
