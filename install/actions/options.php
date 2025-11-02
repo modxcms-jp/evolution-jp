@@ -40,11 +40,16 @@ $ph['block_modules']   = block_modules($tplModules,   $ph);
 $ph['block_plugins']   = block_plugins($tplPlugins,   $ph);
 $ph['block_snippets']  = block_snippets($tplSnippets, $ph);
 
-$ph['object_list'] = show_object_list($ph) . "\n";
 $ph['convert_utf8mb4_option'] = '';
+$ph['has_utf8mb4_conversion_option'] = 0;
 if (sessionv('is_upgradeable')) {
-    $ph['convert_utf8mb4_option'] = block_convert_utf8mb4_option($ph) . "\n";
+    $utf8mb4Details = get_utf8mb4_conversion_details();
+    if (!empty($utf8mb4Details['has_tables'])) {
+        $ph['convert_utf8mb4_option'] = block_convert_utf8mb4_option($ph, $utf8mb4Details) . "\n";
+        $ph['has_utf8mb4_conversion_option'] = 1;
+    }
 }
+$ph['object_list'] = show_object_list($ph) . "\n";
 
 echo evo()->parseText(
     file_get_contents(MODX_BASE_PATH . 'install/tpl/options.tpl'),
@@ -59,7 +64,8 @@ function show_object_list($ph)
         array($ph['block_templates'], $ph['block_tvs'], $ph['block_chunks'], $ph['block_modules'], $ph['block_plugins'], $ph['block_snippets'])
     );
     if (trim($objects) === '') {
-        return evo()->parseText('<strong>[+no_update_options+]</strong>', $ph);
+        $langKey = !empty($ph['has_utf8mb4_conversion_option']) ? 'no_update_options_with_utf8mb4' : 'no_update_options';
+        return evo()->parseText(sprintf('<strong>[+%s+]</strong>', $langKey), $ph);
     }
 
     $tpl = <<< TPL
@@ -92,10 +98,13 @@ TPL;
     return evo()->parseText($tpl, $ph);
 }
 
-function block_convert_utf8mb4_option($ph)
+function get_utf8mb4_conversion_details()
 {
-    $convert = sessionv('convert_to_utf8mb4', 1);
-    $tableList = '';
+    $details = [
+        'tables' => [],
+        'table_list_html' => '',
+        'has_tables' => false,
+    ];
 
     include_once MODX_SETUP_PATH . 'convert2utf8mb4.php';
 
@@ -130,15 +139,23 @@ function block_convert_utf8mb4_option($ph)
                     htmlspecialchars($table, ENT_QUOTES, 'UTF-8')
                 );
             }
-            $tableList = sprintf(
+            $details['table_list_html'] = sprintf(
                 '<p>%s</p><ul class="utf8mb4-table-list">%s</ul>',
                 lang('utf8mb4_conversion_tables_intro'),
                 implode('', $items)
             );
-        } elseif ($canDetermine) {
-            $tableList = sprintf('<p>%s</p>', lang('utf8mb4_conversion_tables_none'));
+            $details['has_tables'] = true;
         }
+
+        $details['tables'] = $tables;
     }
+
+    return $details;
+}
+
+function block_convert_utf8mb4_option($ph, array $utf8mb4Details)
+{
+    $convert = sessionv('convert_to_utf8mb4', 1);
 
     $tpl = <<< TPL
 <h3>[+utf8mb4_conversion_title+]</h3>
@@ -150,7 +167,7 @@ function block_convert_utf8mb4_option($ph)
 TPL;
     $ph['convert_checked'] = $convert ? 'checked' : '';
     $ph['skip_checked'] = $convert ? '' : 'checked';
-    $ph['utf8mb4_conversion_table_list'] = $tableList;
+    $ph['utf8mb4_conversion_table_list'] = $utf8mb4Details['table_list_html'];
     return evo()->parseText($tpl, $ph);
 }
 

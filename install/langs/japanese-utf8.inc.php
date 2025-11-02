@@ -185,6 +185,7 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 $_lang['checking_if_backup_exists'] = '<span class="mono">/temp/backup</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_backup_writable'] = '<span class="mono">/temp/backup</span>ディレクトリの書き込み属性: ';
 $_lang['no_update_options'] = 'アップデート対象のオプションはありません。config.inc.phpの「$lastInstallTime」のみを更新します。';
+$_lang['no_update_options_with_utf8mb4'] = 'アップデート対象のオプションはありませんが、config.inc.phpの「$lastInstallTime」を更新し、既存のテーブルをutf8mb4に変換します。';
 $_lang['utf8mb4_conversion_title'] = 'データベースの文字セット変換';
 $_lang['utf8mb4_conversion_enable'] = 'アップデート時に既存のutf8テーブルをutf8mb4へ変換する';
 $_lang['utf8mb4_conversion_skip'] = '変換を実施せず既存のutf8テーブルを維持する';
