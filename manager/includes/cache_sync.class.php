@@ -153,12 +153,13 @@ class synccache
 
     private function removeDirectory($directory)
     {
-        if (!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
-            return false;
-        }
-
         $directory = rtrim($directory, '/');
-        if ($directory === '' || strpos($directory, MODX_BASE_PATH) !== 0) {
+        if (
+            $directory === ''
+            || !defined('MODX_BASE_PATH')
+            || MODX_BASE_PATH === ''
+            || !str_starts_with($directory, MODX_BASE_PATH)
+        ) {
             return false;
         }
 
