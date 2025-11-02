@@ -39,13 +39,13 @@
     --mcpuk-button-active-background-start: #f0f0f0;
     --mcpuk-button-active-background-end: #cecece;
     --mcpuk-button-text-color: #444444;
-    --mcpuk-action-button-start: #8aae4b;
-    --mcpuk-action-button-end: #66901b;
-    --mcpuk-action-button-hover-start: #90bf40;
-    --mcpuk-action-button-hover-end: #82af33;
-    --mcpuk-action-button-active-start: #749c2f;
-    --mcpuk-action-button-active-end: #4b7109;
-    --mcpuk-action-button-text-color: #ffffff;
+    --mcpuk-action-button-start: #fafafa;
+    --mcpuk-action-button-end: #d2d2d2;
+    --mcpuk-action-button-hover-start: #ffffff;
+    --mcpuk-action-button-hover-end: #e5e5e5;
+    --mcpuk-action-button-active-start: #f0f0f0;
+    --mcpuk-action-button-active-end: #cecece;
+    --mcpuk-action-button-text-color: #444444;
     --mcpuk-popup-border-color: #cccccc;
     --mcpuk-popup-background: #ffffff;
     --mcpuk-font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
@@ -257,9 +257,12 @@ button:active {
 }
 
 .BrowserButton--action {
-    border-color: var(--mcpuk-action-button-end);
+    border-color: var(--mcpuk-button-border-color);
     background: linear-gradient(to bottom, var(--mcpuk-action-button-start), var(--mcpuk-action-button-end));
     color: var(--mcpuk-action-button-text-color);
+    font-weight: 700;
+    text-shadow: 0 1px 0 #ffffff;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
 .BrowserButton--action:hover {
