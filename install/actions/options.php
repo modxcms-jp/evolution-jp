@@ -27,6 +27,11 @@ $_SESSION['managerlanguage'] = sessionv('install_language');
 include_once MODX_SETUP_PATH . 'setup.info.php';
 
 $ph['is_upgradeable'] = sessionv('is_upgradeable');
+if ($ph['is_upgradeable']) {
+    $ph['optional_items'] = lang('optional_items_update');
+} else {
+    $ph['optional_items'] = lang('optional_items');
+}
 
 if (sessionv('is_upgradeable')) {
     $ph['install_sample_site'] = '';

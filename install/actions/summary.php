@@ -20,8 +20,10 @@ if (sessionv('prevAction') === 'options') {
     }
 }
 
-echo '<h2>' . lang('preinstall_validation') . '</h2>';
-echo '<h3>' . lang('summary_setup_check') . '</h3>';
+$preinstallLangKey = $isUpgrade ? 'preupdate_validation' : 'preinstall_validation';
+$summaryCheckLangKey = $isUpgrade ? 'summary_update_check' : 'summary_setup_check';
+echo '<h2>' . lang($preinstallLangKey) . '</h2>';
+echo '<h3>' . lang($summaryCheckLangKey) . '</h3>';
 $errors = 0;
 
 // check PHP version
@@ -226,7 +228,7 @@ if ($errors > 0) {
 echo p('&nbsp;');
 
 $nextAction = $errors ? 'summary' : 'install';
-$nextButton = $errors ? lang('retry') : lang('install');
+$nextButton = $errors ? lang('retry') : ($isUpgrade ? lang('upgrade') : lang('install'));
 $nextVisibility = $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
 ?>
