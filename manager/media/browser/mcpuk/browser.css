@@ -308,6 +308,16 @@ body.mcpuk-browser .BrowserButton {
     display: block;
 }
 
+body.mcpuk-browser.BrowserBody--create-folder .BrowserButton {
+    display: inline-block;
+    width: auto;
+    padding: 4px 12px;
+}
+
+body.mcpuk-browser.BrowserBody--create-folder .BrowserButtonTable {
+    width: auto;
+}
+
 body.mcpuk-browser .BrowserButton--hidden {
     display: none;
 }
