@@ -1,0 +1,316 @@
+d5721cac refactor: improve code readability by standardizing select statement formatting
+293e293a fix: update search query handling to use escaped values and improve search functionality
+6ab15ff3 fix: improve user search functionality and role-based filtering
+47d869ac new: add basic authentication warning for export feature
+02e9580b fix: handle potential null values in context and error text
+572d5f7c fix: handle potential null value in orderBy custom check
+2803b4df fix: handle potential null value in switch statement for orderBy parsing
+2efa6a5b fix: update release date to 2025-08-30 in version.inc.php
+ad404fd7 fix: remove debug output from validateSessionValues function
+ca5d2f04 fix: update problem
+568cb2d0 fix: refactor array_merge syntax for improved readability in connection.php
+05084e5a fix: clean up sample.htaccess by removing unnecessary comments
+ac7d544c fix: enhance cookie handling with improved security attributes and consistency
+b87933bc fix: initialize config property if not set in DocumentParser class
+dc50271d fix: set draft published status to 1 during update process
+b9507cd3 fix: improve password generation logic in newPassword function
+09a6ba81 Merge pull request #203 from yama/php8
+d7329087 refactor: streamline cache refresh time calculations with improved conditions
+573c75cc feat: use env helper function to load database configuration values
+f6bc0291 feat: load environment variables from .env file in index.php and install/index.php
+4e377627 feat: add Dotenv class to load environment variables from a file
+5a7e80a7 feat: add env helper function to retrieve environment variables with type conversion
+1b67047b Merge pull request #202 from yama/php8
+06fc33e2 fix: handle null value in getValueFromPreset method to prevent unexpected behavior
+ddebcb66 fix: enhance is_int function to handle integer input correctly
+58655a58 fix: reorder parameters in getTemplateVarIds function for improved clarity
+7848f9c9 feat: add target tables for conversion in convertTablesWithPrefix method
+f3714cac fix: remove unnecessary blank line for improved code clarity
+85cc5ec3 fix: replace getCollation function with getCurrentCollation for improved clarity and error handling
+66f3ac28 fix: rename getCollation function to getCollations for consistency
+c57f18d9 fix: refactor getCollation function to improve variable naming and clarity
+381e737f fix: simplify include statements for improved readability
+9ad5b6da fix: improve code formatting for consistency and readability
+33933e04 fix: remove unused set_time_limit call to prevent warnings in safe mode
+5751c50f fix: remove unused callback function declaration for improved clarity
+a7b701cd fix: add session value validation to ensure required keys are present
+d4d1902c fix: replace dynamic database type detection with static 'mysqli' for consistency
+cedca300 fix: simplify include statement for improved clarity
+f54a5b28 fix: refactor clean_up function to accept table prefix directly for improved clarity
+5dd66b57 fix: remove unnecessary extraction of language variables for improved clarity
+4c907d3e fix: simplify include statements for improved readability
+b7de59a3 fix: refactor image upload and resizing logic for improved clarity and performance
+7940038c Merge pull request #200 from yama/php8
+45b95c30 fix: simplify error reporting check in SubParser class for improved clarity
+6ee358b8 fix: handle null values in DBAPI escape method for improved error handling
+48902659 fix: initialize properties in DataGrid class for improved stability and prevent null values
+b6ef4ed1 fix: fix for php8.4, remove E_STRICT case from error handling for improved compatibility
+3f484b60 fix: refactor config access method for improved consistency and error handling
+9b497066 fix: improve cache file count check to handle empty file list for better reliability
+dc111c2c fix: refactor input type name retrieval for improved code clarity and maintainability
+a66f0152 fix: fix for php8.4, update ID validation to use default value for improved error handling
+81a28dbe fix: fix for php8.4, add cache configuration and error reporting settings in index.php for improved functionality
+1f757643 fix: remove error suppression operator from ini_set and is_file for better error handling
+c0c550f6 fix: simplify include statements in index.php for improved readability
+9467bbe8 fix: fix for php8.4, update error handling to exclude E_STRICT and improve error reporting messages
+712770ad fix: fix for php8.4, add new properties to DocumentParser class for enhanced functionality
+c943deda fix: refactor time handling to use current_time property for consistency
+c74fa7c3 fix: replace mb_strftime with date function for time display in welcome.php
+21fde11f fix: refactor date formatting logic to improve readability and maintainability
+4e5539d7 fix: replace mb_strftime with date function for month text generation
+62f50ffe fix: replace mb_strftime with date function for server and local time display
+9f4a1890 source code format
+ea9134c7 fix: replace mb_strftime with date function for improved date formatting in debug class
+32f235ca fix: simplify mb_strftime function and improve date formatting logic
+e817c6f7 fix: add support for %曜 format in mb_strftime and simplify datetime_format function
+1ded4ad1 fix: add support for %-m and %-d date format in DocumentParser
+c730f9e0 Merge pull request #199 from yama/php8
+df6e2cb3 fix: use short array syntax in SubParser for splitTVCommand
+0ca7ecc6 fix: handle empty command in splitTVCommand to return input unchanged
+cd1dd4fd fix: update splitTVCommand to return [null, null] for empty binding strings
+4a65b727 fix: update getSnippetName to use evo() for consistent access to currentSnippet
+4c96b96f fix: update SubParser to use evo() for consistent configuration access
+942492a8 fix: update TinyMCE configuration to use evo() for consistent access to settings
+4ea8695e Merge branch 'php8' of github.com:modxcms-jp/evolution-jp into php8
+7803e86b fix: correct placeholder replacement logic for base path in formv function
+e51a4fdd fix: update directory path checks to replace placeholder with MODX base path
+62a14af0 fix: simplify SMTP password handling by skipping encoding for default placeholder
+c31e18e1 fix: use short array syntax for improved readability in formv function
+ecc54914 fix: optimize request_time function to cache the request time for improved performance
+e5b8f2d1 fix: store current time in a private variable for consistent time reference in cache synchronization
+aa61ee28 refactor: replace list() with short array syntax for improved readability
+f52f7190 refactor: remove unused global variables in instprocessor.php for cleaner code
+f0c15572 Merge pull request #198 from yama/php8
+d533d7c4 fix: update regex in getString function to exclude lines starting with '@'
+4aed0dda fix: refactor compare_check function to use category from params for consistency
+4847e552 fix: set default category for snippet, plugin, and module parameters in setup.info.php
+6071d4e9 refactor table_name function to use associative array for improved readability and maintainability
+40a8dfa2 refactor parse_docblock function to improve name and description extraction logic
+7396eb88 fix
+0d8df881 Merge pull request #197 from yama/php8
+c3dddc7b fix: add currentSnippetCode property and update error handling in DocumentParser and SubParser
+75389c82 fix: streamline error mail sending logic in SubParser by using config() for parameter checks
+b4d3971a fix: handle missing parameters in serverv calls for user agent and referer in SubParser
+8d959f06 fix: add early return for error reporting and login checks in SubParser
+15f7ee6c Merge pull request #196 from yama/php8
+c5e2ba50 fix: standardize formatting and improve consistency in logout handling and multiple fields
+da3d35dc fix: format code and improve consistency in various files
+40afe9d5 fix: reorder setTimeout calls for correct execution order in menu.php
+b7fdf25f fix: change function visibility to private for improved encapsulation in DocumentParser
+18c494f7 fix: simplify content disposition check by removing unnecessary parameter in doc() method
+c630ec4e fix: change function visibility to improve encapsulation in DocumentParser
+1996b010 fix: replace list() with short array syntax for improved readability in DocumentParser
+16d8f517 Merge pull request #194 from yama/php8
+5e12a59e fix: remove redundant set_charset call in DBAPI connection method
+50df6eec fix: update evo function to return null instead of false and simplify manager function
+474d1add fix: refactor DocumentParser to use doc() method for property access
+93e6aa28 fix: function
+d67a8ae3 Merge pull request #193 from yama/php8
+291ed8e2 fix: load ManagerAPI extension in Qm constructor for improved functionality
+68ea6228 fix: update .gitattributes to treat image files as binary
+24d87e7c fix: update .gitattributes to simplify text handling configuration
+c2d07ccf Merge pull request #191 from yama/php8
+3a2cca49 fix: update return value in ManagerAPI to use action-specific form values
+f218e5ac fix: add null checks to user blocked status conditions for improved reliability
+9f0a281e fix: improve user data handling by adding null checks and using null coalescing operator
+83f85fc4 fix: refactor access check to use isAdmin method for improved clarity
+c9852056 fix: refactor access control checks to use isAdmin method for improved clarity and consistency
+9b9a31e8 fix: refactor access control checks to utilize isAdmin method for improved clarity and consistency
+e35d3f98 fix: refactor content access to use entity function for improved consistency and readability
+1d5162f1 fix: refactor access control logic and add isAdmin method for improved clarity and functionality
+452742f7 fix: refactor config check logic for improved clarity and functionality
+aede2446 fix: update filemanager_path check to use function for improved consistency
+65371aaf fix: ensure dbase is properly initialized to avoid potential errors
+2b1b4314 fix: refactor time offset handling for improved consistency and readability
+df808305 fix: replace direct access to $_POST with postv() for improved consistency and security
+3722cea4 fix: refactor URI handling and cache saving logic for improved clarity and consistency
+949e7e60 fix: improve code readability and maintainability in session handling
+71cda7d5 fix: initialize paging array in getPagingArray() for improved clarity
+6a3421c3 fix: format code for consistency in paginate.inc.php
+a273cf5e fix: correct syntax in checked() function for sessionv() consistency
+899763e9 fix: replace session variables with sessionv() for consistency and improved readability
+7d454834 fix: replace session variables with sessionv() for consistency and improved readability
+f5e36a98 fix: replace session variables with sessionv() for consistency and improved readability
+396a2936 feat: add option to trim tree pane titles for better readability
+556ad097 fix: replace array() with short array syntax for improved readability
+b489ae28 fix: replace array() with short array syntax for improved readability
+a72f84c4 fix: format code for improved readability and consistency
+b58a0629 fix: improve error handling in user registration process for better user feedback
+5fd4712e fix: update user authentication flow for enhanced security and user experience
+6bc813f8 fix: replace array() with short array syntax for improved readability
+afe24dc8 fix: remove unnecessary default value for alias parameter in getFileName method
+40d980b5 fix: correct join condition in SubParser for accurate user attribute retrieval
+30f54cdb fix: handle null user case in blockedmode function for improved stability
+a93e725e fix: improve user password handling for better consistency and clarity
+34f80f47 fix: refactor permission processor for improved code consistency and readability
+1a2e3710 fix: refactor role processor for improved clarity and consistency
+cd33c57a fix: add confirmation message for improved user guidance
+e2ef54b6 fix: refactor role data access for improved clarity and consistency
+381cfce5 fix: refactor session variable access for improved clarity and consistency
+81af8a7e fix: refactor content access for improved clarity and consistency
+58c5c961 fix: refactor webuser
+bf5e8faf fix: refactor TinyMCE skin and theme selection for improved clarity and consistency
+a05b0d5a fix: refactor HTML structure for improved readability and consistency in user permissions form
+e2c2f0ed fix: refactor code formatting for improved readability and consistency
+644afea7 fix: refactor manager calls for improved consistency and clarity
+3f990454 fix: refactor browser session handling for improved compatibility
+60c12a04 fix: refactor HTML output for improved readability and consistency in user settings
+567e3940 fix: refactor display style handling for improved consistency across user management interfaces
+7012c2b6 fix: refactor TinyMCE theme options handling for improved clarity and consistency
+296f8933 fix: refactor user mode checks for improved clarity and consistency
+2764a392 fix: refactor language keys initialization for improved consistency
+ff6fa293 fix: refactor user data access for improved consistency and clarity
+73c0712c fix: refactor user data retrieval for improved consistency and clarity
+c538bd93 fix: refactor array initialization for improved consistency
+a26128c6 fix: refactor TinyMCE settings handling for improved clarity and consistency
+480ce739 fix: simplify event handling logic in entity function for improved clarity
+bcaa8004 fix: refactor plugin ID handling for improved consistency and security
+0f52cd0f code format
+64841a74 fix: refactor plugin data access to use entity function for improved consistency
+5d9915ac fix: replace htmlspecialchars with hsc for consistent HTML escaping in mutate_snippet
+3f7fe024 fix: improve HTML structure for better readability and consistency in mutate_snippet
+76e2c0aa fix: format JavaScript and HTML for improved readability and consistency
+83f6d5bf fix: add global content access in entity function for improved snippet handling
+71eced73 fix: introduce entity function for cleaner content access in mutate_snippet
+5ad86499 fix: refactor unzip function to use ZipArchive for improved zip file handling
+31c3428a fix: remove deprecated magic quotes handling from PHPMailer class
+6809aa64 fix: replace strftime with evo()->mb_strftime for improved date handling
+78a1a8ba Array or string offset access with curly braces deprecated in PHP 7.4. Targeting PHP 8.3.0.
+1af44bd3 fix: update debug class to use evo()->mb_strftime for date formatting
+f89124db fix: extend FileUpload class from Base for improved functionality
+6f4058b4 fix: refactor mb_strftime method to use DateTime for improved date formatting
+10055bca fix: update cookie parameters for improved security and compliance
+fa7ae6a1 fix: update jumbotron styles for improved layout and readability
+35614253 fix: replace array initialization syntax from [] to Array() in multiple files
+3215150c fix: update createDocument method to allow groups parameter as an array
+136cdd87 fix: add global language variable to import_site function
+f056af96 fix: instantiate template class for fetching tplTagLinks in tagging extender
+c92c31eb fix: initialize sub variable for correct amount calculation in random class
+f58dcf96 fix: initialize new array for data optimization in random class
+beb7769f fix: remove unused modifier_mode parameter and clean up related code in ditto class
+0528a6c7 fix: add docblock for MODX event reference in MANAGERMANAGER class
+b035dbc8 fix: refactor save_htmlsnippet.processor.php for improved readability and maintainability
+7352a041 fix: replace array() with short array syntax for consistency in save_snippet.processor.php
+12d961bb fix: replace array() with short array syntax for consistency in multiple files
+f6a34f6e fix: replace array() with short array syntax for consistency across multiple files
+29626c9b fix: replace array() with short array syntax for consistency across multiple files
+d7413e33 fix: replace array() with short array syntax for consistency across multiple files
+ec6f5be6 fix: refactor entity function to improve date handling logic in mutate_htmlsnippet.dynamic.php
+a6fb94a6 fix: refactor content handling with entity function for improved readability and maintainability in mutate_htmlsnippet.dynamic.php
+75f7b5df fix: improve code readability by reformatting comments in save_tmplvars.processor.php
+e8d9c8ab fix: format array initialization for consistency in save_tmplvars.processor.php
+f6d43008 fix: replace array() with short array syntax in saveTemplateAccess function for consistency
+46a232de fix: improve error handling in user authentication process
+6533f607 fix: remove backticks from rank field in saveTemplateAccess function for consistency
+e7536c91 fix: streamline form value handling in ManagerAPI for improved session management
+ac9fc588 fix: replace isset with postv for changeMode check in mutate_htmlsnippet.dynamic.php
+091c650b fix: simplify condition for setting which_editor in mutate_htmlsnippet.dynamic.php
+df409c0f fix: refactor save_tmplvars.processor.php for improved readability and maintainability
+3157a415 fix: remove unused global variable in saveTemplateAccess function
+4d169dd2 fix: use null coalescing operator for setting rank in saveTemplateAccess function
+523e792d fix: escape rank column name in SQL query for consistency
+965ae4a6 fix: escape rank column name in SQL query for consistency
+54b2e442 fix: format HTML attributes for improved readability in mutate_templates.dynamic.php
+cda100c9 fix: replace array() with short array syntax in mutate_templates.dynamic.php
+359abac7 fix: comma position
+cac7b460 fix: add docblock for MySQLi connection property in DBAPI class
+b350e970 fix: add Bootstrap 5 breadcrumb styles for improved navigation
+f7890d0c fix: enhance theme handling and improve error reporting for missing themes
+1205f5c9 fix: improve error handling and SQL syntax in duplicate template variable processor
+4ab3a679 fix: add breadcrumb styles for improved navigation clarity
+953dad75 fix: update PasswordHash initialization to improve security settings
+039339e7 fix: refactor date formatting to use DateTime for improved clarity and consistency
+4bee08d8 fix: simplify limit condition and initialize queryLimit to null for clarity
+c724e8ef fix: remove unused formatDate function to clean up code
+dc48f758 fix: format parameter list in getDocuments function for improved readability
+3c41e677 fix: format parameter list in determineIDs function for improved readability
+dbe7f221 fix: handle potential undefined index for qe in ditto.class.inc.php
+62881bf3 fix: ensure session settings are only set when no session is active in initialize.functions.inc.php
+7e5c8b55 fix: remove unnecessary check for utf8mb4 configuration in convert2utf8mb4 function
+24585af1 fix: enhance character set conversion by including table collation in convert2utf8mb4.php
+8b6ffc28 fix: update table reference in fix_settings.php for event_log modification
+a086efdc fix: improve site_id retrieval in instprocessor.php for better clarity
+f909ac02 fix: improve query formatting in instprocessor.php for consistency and readability
+89a22e9e fix: update MODX version to 1.2.0J in version.inc.php
+988a4fa4 fix: simplify query formatting in mysqli.inc.php for better readability
+8fa806ee fix: retrieve MODX version in save_settings.processor.php for accurate settings_version
+0ad1ccec fix: replace SQL file import with PHP include for database structure updates
+8adf2f19 fix: retrieve settings_version from database for accurate version check in welcome.static.php
+e501f8ff fix: use collation from database for utf8mb4 conversion check in convert2utf8mb4 function
+e23716a4 fix: use null coalescing operator for safer access to $_GET in remove_installer.processor.php
+45314c50 fix: use loose comparison for cache type check in ex_subparser.php
+da2999e6 fix: add newline at the end of config.php.sample for better file formatting
+3697fa57 fix: use null coalescing operator for safer access to $_GET in index.php
+6804fca8 rename file
+a5d49840 fix: change function visibility to private for better encapsulation in TinyMCE class
+7e260391 fix: replace dirname(__FILE__) with __DIR__ for improved path handling
+0c7990b4 fix: enhance error handling in XPath evaluation and ensure DOMDocument is not null
+d279e611 fix: correct indentation in Thumbnail class for improved readability
+8ab0f405 fix: improve error handling and code formatting in FCKXml object
+6e06e0ce fix: add Base class requirement to connector command files for improved structure
+4f87ff64 fix: remove default value from result2Array parameter for improved clarity
+6c61372f fix: replace $_GET access with getv() for improved input handling in multiple processors
+3b405c52 fix: replace $_GET access with getv() for improved input handling across multiple files
+fd93209c fix: refactor connector commands to extend Base class for improved structure and maintainability
+2ef610a1 fix: replace echo with short tag syntax for improved readability in connector commands
+89352021 fix: replace echo with short tag syntax for improved readability
+d309846c fix: add ph property to DocManager class for improved functionality
+c23d859a fix: replace $_POST access with postv() for improved input handling
+ba1118d8 fix: update Bootstrap version and improve template structure in bootstrap.install_base.tpl
+2bcb47b2 fix: improve cache file handling in document_data.static.php
+789ade19 fix: update date and MODX version in japanese-utf8.inc.php
+d812a717 fix: http -> https
+fe070452 fix: improve field value handling and default parameters in MakeTable class
+7f703de4 fix: format code for improved readability in bkmanager static file
+7e780801 fix: initialize total variable for overhead calculation in bkmanager
+d9bfb65a fix: replace $_REQUEST with anyv for improved input handling across multiple files
+b2e1ca0c source code format
+b7d9cd6c fix: enhance document group retrieval with fallback for empty session variable
+7d71cf73 fix: streamline URL redirection logic in document data handling
+49ee0987 fix: simplify event check in plugin installation process
+8f850058 fix: improve TinyMCE parameter handling with null coalescing for better defaults
+59e1af57 fix: add global variable declaration for modx in make_changes function
+3434f880 fix: improve error handling for better user feedback and consistency
+2c21fdde fix: update include path for fix_settings.php to use SQL directory
+ce7479ee fix: increase source column size in event_log table for improved data storage
+dd6ed1bf fix: refactor error handling to use array shorthand for improved consistency
+3046c196 fix: refactor SQL table option handling for improved readability and consistency
+6deeaef7 fix: format code for improved readability and consistency in parameter handling
+31d088d1 fix: update request parameter handling to use anyv for improved consistency
+7dd080e4 fix: update SQL parser to replace MyISAM engine with a placeholder for improved flexibility
+082cc2e6 fix: update date retrieval logic to use anyv for improved handling of request parameters
+42f28562 fix: enhance array check for key existence in doc function to prevent errors
+b3cbcb4f fix: improve alias path retrieval logic to handle missing id and pid parameters
+a830b3a6 fix: update saveAfter parameter handling to use anyv and sessionv for improved defaults
+0c1a27d4 fix: update parameter handling and add null coalescing for better defaults in ditto class and related files
+95ebc230 fix: improve error handling for chmod in save_settings.processor.php
+8f060dbd fix: improve parameter handling and error response in SubParser class
+60b609bf fix: handle undefined 'itemid' in log message retrieval
+7096075c fix: refactor DocumentParser class to use config() method for configuration retrieval
+68d39d09 fix: add 'sub' property to DocumentParser class
+725caad2 fix: update config_check.inc.php to use chmod without error suppression
+05c3263c fix: handle empty file list in cache_sync class
+9e2c50e9 fix: update tree.php to use anyv() for retrieving 'dt' value
+e9c17479 fix: refactor getNodes function to use config() for configuration retrieval
+1c15d36f fix: update menu.php to use config() for retrieving configuration values
+222c68e6 fix: remove obsolete fix_settings.sql file
+4e65e695 fix: update form_text calls to include current configuration values
+c7d754c4 feat: add fix_settings.php to manage user roles and update database schema
+d32bc875 fix: handle null values in lang_name variable in includeLang function
+1dbbdb1d fix: remove unnecessary blank line in convert2utf8mb4 function
+cf61e8f4 fix: set default values for fields and intotable parameters in _insert method
+f9905843 remove mysql.inc.php
+59f07333 fix: ensure MODX_BASE_PATH is defined before assignment in index.php
+f3967416 fix: improve HTTPS check to handle null values in initialize.functions.inc.php
+b1b4bca5 fix: add default value for content and options parameters in textarea_tag and select_tag functions
+7da332ab fix: add default value for array parameter in join method
+cabf604f fix: add writable check for temp directory in define-path.php
+e99cfd68 fix: add additional logging information in MODIFIERS class
+2a7b672e fix: remove unnecessary check for params in param method
+f1d77e6a fix: refactor getParam function to simplify parameter handling
+31573f27 fix: add additional tracking parameters to the document parser class
+50e8ad3f fix: correct formatting of placeholders in example2.extender.inc.php
+cdb984c4 fix: streamline purpose comment formatting in example2.extender.inc.php
+36ddad05 fix: simplify noResults parameter handling in snippet.ditto.php
+c29f4373 fix: standardize formatting in cache_sync class for improved readability
+e47d90da fix: remove tracking parameters from URL in document parser class
