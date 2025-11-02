@@ -22,22 +22,23 @@
    ======================================================================== */
 
 :root {
-    --mcpuk-body-background: #e3e9f1;
-    --mcpuk-text-color: #000000;
-    --mcpuk-link-hover-color: #0000fa;
-    --mcpuk-border-color: #000000;
-    --mcpuk-item-border-color: #cccccc;
+    --mcpuk-body-background: #f4f4f4;
+    --mcpuk-text-color: #333333;
+    --mcpuk-link-color: #1285a4;
+    --mcpuk-link-hover-color: #0f1e76;
+    --mcpuk-border-color: #cccccc;
+    --mcpuk-item-border-color: #d0d0d0;
     --mcpuk-item-background: #ffffff;
-    --mcpuk-progress-fill-color: #8fa7c7;
-    --mcpuk-progress-track-color: #f0f7ff;
-    --mcpuk-progress-border-color: #000000;
-    --mcpuk-button-border-color: #737357;
-    --mcpuk-button-background: #8fa7c7;
-    --mcpuk-popup-border-color: #8fa7c7;
+    --mcpuk-progress-fill-color: #8aae4b;
+    --mcpuk-progress-track-color: #eef4e0;
+    --mcpuk-progress-border-color: #c7d7ad;
+    --mcpuk-button-border-color: #6f8d2a;
+    --mcpuk-button-background: #8aae4b;
+    --mcpuk-popup-border-color: #cccccc;
     --mcpuk-popup-background: #ffffff;
-    --mcpuk-font-family: 'Microsoft Sans Serif', Arial, Helvetica, Verdana;
-    --mcpuk-font-size: 11px;
-    --mcpuk-actual-folder-font-size: 14px;
+    --mcpuk-font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    --mcpuk-font-size: 13px;
+    --mcpuk-actual-folder-font-size: 15px;
 }
 
 /* ========================================================================
@@ -58,7 +59,7 @@ a,
 :link,
 :active,
 :visited {
-    color: var(--mcpuk-text-color);
+    color: var(--mcpuk-link-color);
     text-decoration: none;
 }
 
