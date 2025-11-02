@@ -349,3 +349,14 @@ body.mcpuk-browser .BrowserProgressBox {
     display: none;
     width: 100%;
 }
+
+body.mcpuk-browser #tableFiles td[nowrap] {
+    white-space: normal !important;
+}
+
+body.mcpuk-browser #tableFiles a {
+    display: inline-block;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
