@@ -25,6 +25,9 @@ body {
     font-variant: normal;
     font-weight: normal;
     line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 label {
@@ -363,6 +366,7 @@ span.mono {
 
 #contentarea {
     min-height: 250px;
+    flex: 1 0 auto;
 }
 
 #contentarea h2 {
