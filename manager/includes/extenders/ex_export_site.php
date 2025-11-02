@@ -128,18 +128,26 @@ class EXPORT_SITE
             return false;
         }
 
-        $files = glob($directory . '/*');
-        if (!empty($files)) {
-            foreach ($files as $path) {
-                if (is_dir($path)) {
-                    $this->removeDirectoryAll($path);
-                } else {
-                    $rs = unlink($path);
-                }
+        $entries = scandir($directory);
+        if ($entries === false) {
+            return false;
+        }
+
+        $rs = true;
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $path = $directory . '/' . $entry;
+            if (is_dir($path)) {
+                $rs = $this->removeDirectoryAll($path) && $rs;
+            } else {
+                $rs = unlink($path) && $rs;
             }
         }
 
-        if ($directory !== $this->targetDir) {
+        if ($directory !== $this->targetDir && $rs) {
             $rs = rmdir($directory);
         }
 

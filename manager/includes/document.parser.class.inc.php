@@ -39,6 +39,7 @@ class DocumentParser
     public $templateObject = [];
     public $snippetObjects = [];
     public $moduleObject = [];
+    public $export;
     public $stopOnNotice;
     public $executedQueries;
     public $queryTime;
