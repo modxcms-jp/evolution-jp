@@ -118,6 +118,7 @@ $_lang["none"] = '全ての選択を解除';
 $_lang["not_found"] = '見つかりません';
 $_lang["ok"] = '問題なし';
 $_lang["optional_items"] = 'インストールオプションの選択';
+$_lang["optional_items_update"] = 'アップデートオプションの選択';
 $_lang["optional_items_new_note"] = '<b>オプションを選択してください</b><br />初めてMODXを試す場合は、全てチェックを入れましょう。';
 $_lang["optional_items_upd_note"] = '<b>オプションを選択してください</b><br /><b>【アップデート時の注意】</b> プラグインに関しては、インストール時に既存プラグインを無効にします。';
 $_lang["php_security_notice"] = '<legend>セキュリティ警告</legend><p>このサーバ上で稼働しているPHPにはセキュリティ上の問題があります。バージョン4.4.8より古いPHPは深刻な脆弱性を抱えており、MODXの稼働自体には問題はありませんが、この機会にPHPのアップデートをおすすめします。</p>';
