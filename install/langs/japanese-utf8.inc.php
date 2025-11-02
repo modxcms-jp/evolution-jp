@@ -188,7 +188,8 @@ $_lang['no_update_options'] = 'アップデート対象のオプションはあ�
 $_lang['utf8mb4_conversion_title'] = 'データベースの文字セット変換';
 $_lang['utf8mb4_conversion_enable'] = 'アップデート時に既存のutf8テーブルをutf8mb4へ変換する';
 $_lang['utf8mb4_conversion_skip'] = '変換を実施せず既存のutf8テーブルを維持する';
-$_lang['utf8mb4_conversion_note'] = '変換は後からデータベースメンテナンス機能で実行することもできます。';
+$_lang['utf8mb4_conversion_tables_intro'] = 'アップデート時に変換対象となるテーブル一覧:';
+$_lang['utf8mb4_conversion_tables_none'] = '現在変換対象のテーブルはありません。';
 
 $_lang['checking_if_content_exists'] = '<span class="mono">/content</span>ディレクトリの存在(なければ転送に失敗しています): ';
 $_lang['checking_if_content_writable'] = '<span class="mono">/content</span>ディレクトリの書き込み属性: ';

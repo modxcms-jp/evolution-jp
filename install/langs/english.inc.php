@@ -188,5 +188,6 @@ $_lang['no_update_options'] = 'There is no option for update.';
 $_lang['utf8mb4_conversion_title'] = 'Database character set conversion';
 $_lang['utf8mb4_conversion_enable'] = 'Convert existing utf8 tables to utf8mb4 during upgrade';
 $_lang['utf8mb4_conversion_skip'] = 'Skip conversion and keep existing utf8 tables';
-$_lang['utf8mb4_conversion_note'] = 'You can run the conversion later from the database maintenance tools.';
+$_lang['utf8mb4_conversion_tables_intro'] = 'Tables targeted for conversion:';
+$_lang['utf8mb4_conversion_tables_none'] = 'No tables require conversion.';
 $_lang["begin_install_msg"] = '<p>MODx is not currently installed or the configuration file cannot be found.</p><p>Do you want to install now?</p>';
