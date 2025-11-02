@@ -1,6 +1,11 @@
 <?php
 
 $chkagree = postv('chkagree', sessionv('chkagree'));
+$isUpgrade = sessionv('is_upgradeable');
+if ($isUpgrade) {
+    $chkagree = 1;
+    $_SESSION['chkagree'] = 1;
+}
 
 if (sessionv('prevAction') === 'options') {
     $_SESSION['installdata'] = postv('installdata', '');
@@ -229,6 +234,7 @@ $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagr
         <input type="hidden" name="prev_action" value="summary" />
     </div>
 
+    <?php if (!$isUpgrade): ?>
         <h2><?= lang('agree_to_terms') ?></h2>
         <p>
             <input type="checkbox" value="1" id="chkagree" name="chkagree"
@@ -236,6 +242,7 @@ $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagr
                 for="chkagree"
                 style="display:inline;float:none;line-height:18px;"> <?= lang('iagree_box') ?> </label>
         </p>
+    <?php endif; ?>
         <p class="buttonlinks">
             <a href="javascript:void(0);" class="prev"
                title="<?= lang('btnback_value') ?>"><span><?= lang('btnback_value') ?></span></a>
