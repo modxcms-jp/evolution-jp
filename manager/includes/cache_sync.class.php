@@ -166,20 +166,22 @@ class synccache
             return false;
         }
 
-        $entries = scandir($directory);
-        if ($entries === false) {
+        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
+
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($directory, $flags),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+        } catch (UnexpectedValueException $exception) {
             return false;
         }
 
         $result = true;
-        foreach ($entries as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-
-            $path = $directory . '/' . $entry;
-            if (is_dir($path)) {
-                $result = $this->removeDirectory($path) && $result;
+        foreach ($iterator as $fileInfo) {
+            $path = $fileInfo->getPathname();
+            if ($fileInfo->isDir()) {
+                $result = rmdir($path) && $result;
             } else {
                 $result = unlink($path) && $result;
             }
@@ -604,22 +606,34 @@ class synccache
     private function getFileList($dir, $pattern = '@\.*$@')
     {
         $dir = rtrim($dir, '/');
-        $tmp = array_diff(scandir($dir), ['..', '.']);
-        $files = [];
-        foreach ($tmp as $val) {
-            $files[] = $dir . '/' . $val;
+        if ($dir === '' || !is_dir($dir)) {
+            return [];
+        }
+
+        $flags = FilesystemIterator::SKIP_DOTS | FilesystemIterator::CURRENT_AS_FILEINFO;
+
+        try {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, $flags),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+        } catch (UnexpectedValueException $exception) {
+            return [];
         }
 
         $list = [];
-        foreach ($files as $obj) {
-            if (is_file($obj) && preg_match($pattern, $obj)) {
-                $list[] = $obj;
-            } elseif (is_dir($obj)) {
-                $list[] = $obj;
-                $_ = $this->getFileList($obj, $pattern);
-                $list = array_merge($list, $_);
+        foreach ($iterator as $fileInfo) {
+            $path = $fileInfo->getPathname();
+            if ($fileInfo->isDir()) {
+                $list[] = $path;
+                continue;
+            }
+
+            if (preg_match($pattern, $path)) {
+                $list[] = $path;
             }
         }
+
         return $list;
     }
 }
