@@ -142,13 +142,50 @@ class synccache
             if (is_file($file_path)) {
                 $rs = unlink($file_path);
             } elseif (is_dir($file_path)) {
-                $rs = rmdir($file_path);
+                $rs = $this->removeDirectory($file_path);
             }
             if ($rs) {
                 $deletedfiles[] = $name;
             }
         }
         return [$filesincache, count($deletedfiles), $deletedfiles];
+    }
+
+    private function removeDirectory($directory)
+    {
+        if (!defined('MODX_BASE_PATH') || !strlen(MODX_BASE_PATH)) {
+            return false;
+        }
+
+        $directory = rtrim($directory, '/');
+        if ($directory === '' || strpos($directory, MODX_BASE_PATH) !== 0) {
+            return false;
+        }
+
+        if (!is_dir($directory) || !is_readable($directory)) {
+            return false;
+        }
+
+        $entries = scandir($directory);
+        if ($entries === false) {
+            return false;
+        }
+
+        $result = true;
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $path = $directory . '/' . $entry;
+            if (is_dir($path)) {
+                $result = $this->removeDirectory($path) && $result;
+            } else {
+                $result = unlink($path) && $result;
+            }
+        }
+
+        return $result ? rmdir($directory) : false;
     }
 
     public function showReport($info)
