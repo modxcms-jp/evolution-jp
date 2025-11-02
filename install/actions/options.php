@@ -19,6 +19,10 @@ if (isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
 }
 
+if (!isset($_SESSION['convert_to_utf8mb4'])) {
+    $_SESSION['convert_to_utf8mb4'] = 1;
+}
+
 $_SESSION['managerlanguage'] = sessionv('install_language');
 include_once MODX_SETUP_PATH . 'setup.info.php';
 
@@ -37,6 +41,10 @@ $ph['block_plugins']   = block_plugins($tplPlugins,   $ph);
 $ph['block_snippets']  = block_snippets($tplSnippets, $ph);
 
 $ph['object_list'] = show_object_list($ph) . "\n";
+$ph['convert_utf8mb4_option'] = '';
+if (sessionv('is_upgradeable')) {
+    $ph['convert_utf8mb4_option'] = block_convert_utf8mb4_option($ph) . "\n";
+}
 
 echo evo()->parseText(
     file_get_contents(MODX_BASE_PATH . 'install/tpl/options.tpl'),
@@ -81,6 +89,22 @@ function block_install_sample_site($ph)
 <p><em>&nbsp;[+sample_web_site_note+]</em></p>
 TPL;
     $ph['checked'] = sessionv('installdata', false) == 1 ? 'checked' : '';
+    return evo()->parseText($tpl, $ph);
+}
+
+function block_convert_utf8mb4_option($ph)
+{
+    $convert = sessionv('convert_to_utf8mb4', 1);
+    $tpl = <<< TPL
+<h3>[+utf8mb4_conversion_title+]</h3>
+<p>
+    <label><input type="radio" name="convert_to_utf8mb4" value="1" [+convert_checked+] />&nbsp;[+utf8mb4_conversion_enable+]</label><br />
+    <label><input type="radio" name="convert_to_utf8mb4" value="0" [+skip_checked+] />&nbsp;[+utf8mb4_conversion_skip+]</label>
+</p>
+<p><em>&nbsp;[+utf8mb4_conversion_note+]</em></p>
+TPL;
+    $ph['convert_checked'] = $convert ? 'checked' : '';
+    $ph['skip_checked'] = $convert ? '' : 'checked';
     return evo()->parseText($tpl, $ph);
 }
 

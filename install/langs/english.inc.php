@@ -185,4 +185,8 @@ $_lang["you_running_php"] = ' - You are running on PHP ';
 $_lang['checking_if_backup_exists'] = 'Checking if <span class="mono">/assets/backup</span> directory exists: ';
 $_lang['checking_if_backup_writable'] = 'Checking if <span class="mono">/assets/backup</span> directory is writable: ';
 $_lang['no_update_options'] = 'There is no option for update.';
+$_lang['utf8mb4_conversion_title'] = 'Database character set conversion';
+$_lang['utf8mb4_conversion_enable'] = 'Convert existing utf8 tables to utf8mb4 during upgrade';
+$_lang['utf8mb4_conversion_skip'] = 'Skip conversion and keep existing utf8 tables';
+$_lang['utf8mb4_conversion_note'] = 'You can run the conversion later from the database maintenance tools.';
 $_lang["begin_install_msg"] = '<p>MODx is not currently installed or the configuration file cannot be found.</p><p>Do you want to install now?</p>';
