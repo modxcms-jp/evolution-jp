@@ -29,16 +29,17 @@
     --mcpuk-border-color: #cccccc;
     --mcpuk-item-border-color: #d0d0d0;
     --mcpuk-item-background: #ffffff;
-    --mcpuk-progress-fill-color: #8aae4b;
-    --mcpuk-progress-track-color: #eef4e0;
-    --mcpuk-progress-border-color: #c7d7ad;
-    --mcpuk-button-border-color: #6f8d2a;
-    --mcpuk-button-background: #8aae4b;
+    --mcpuk-progress-fill-color: #1285a4;
+    --mcpuk-progress-track-color: #e6e6e6;
+    --mcpuk-progress-border-color: #bcbcbc;
+    --mcpuk-button-border-color: #b3b3b3;
+    --mcpuk-button-background: #f5f5f5;
+    --mcpuk-button-text-color: #444444;
     --mcpuk-popup-border-color: #cccccc;
     --mcpuk-popup-background: #ffffff;
     --mcpuk-font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    --mcpuk-font-size: 13px;
-    --mcpuk-actual-folder-font-size: 15px;
+    --mcpuk-font-size: 75%;
+    --mcpuk-actual-folder-font-size: 1.15em;
 }
 
 /* ========================================================================
@@ -48,6 +49,9 @@
 body {
     background-color: var(--mcpuk-body-background);
     color: var(--mcpuk-text-color);
+    font-family: var(--mcpuk-font-family);
+    font-size: var(--mcpuk-font-size);
+    line-height: 1.5;
 }
 
 form {
@@ -60,7 +64,7 @@ a,
 :active,
 :visited {
     color: var(--mcpuk-link-color);
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 :hover {
@@ -194,12 +198,11 @@ body.FileArea {
     padding: 0;
 }
 
-body,
 td,
 input,
 select {
-    font-size: var(--mcpuk-font-size);
     font-family: var(--mcpuk-font-family);
+    font-size: inherit;
 }
 
 .ActualFolder {
@@ -218,9 +221,9 @@ button {
     border-right: 1px solid var(--mcpuk-button-border-color);
     border-top: 1px solid var(--mcpuk-button-border-color);
     border-left: 1px solid var(--mcpuk-button-border-color);
-    color: #ffffff;
     border-bottom: 1px solid var(--mcpuk-button-border-color);
     background-color: var(--mcpuk-button-background);
+    color: var(--mcpuk-button-text-color);
 }
 
 .FolderListCurrentFolder img {
