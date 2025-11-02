@@ -4440,11 +4440,24 @@ class DocumentParser
 
     public function toDateFormat($timestamp = 0, $mode = '')
     {
-        if ($timestamp == 0 && $mode === '') {
+        if ($timestamp === null) {
             return '';
         }
 
-        $timestamp = trim((string) $timestamp);
+        if (is_string($timestamp)) {
+            $timestamp = trim($timestamp);
+        } elseif (is_numeric($timestamp)) {
+            // keep numeric values as-is
+        } elseif (is_scalar($timestamp)) {
+            $timestamp = trim((string)$timestamp);
+        } else {
+            return '';
+        }
+
+        if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
+            return '';
+        }
+
         $timestamp = (int)$timestamp + $this->config('server_offset_time');
 
         switch ($this->config('datetime_format', 'YYYY/mm/dd')) {
@@ -4471,8 +4484,21 @@ class DocumentParser
 
     public function toTimeStamp($str, $default = '')
     {
-        $str = trim($str);
-        if (empty($str)) {
+        if ($str === null) {
+            return $default;
+        }
+
+        if (is_string($str)) {
+            $str = trim($str);
+        } elseif (is_numeric($str)) {
+            $str = (string)$str;
+        } elseif (is_scalar($str)) {
+            $str = trim((string)$str);
+        } else {
+            return $default;
+        }
+
+        if ($str === '') {
             return $default;
         }
         if (preg_match('@^[0-9]+$@', $str)) {
@@ -4484,20 +4510,34 @@ class DocumentParser
                 if (!preg_match('/^[0-9]{4}\/[0-9]{2}\/[0-9]{2}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                [$Y, $m, $d, $H, $M, $S] = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
+                $parts = sscanf($str, '%4d/%2d/%2d %2d:%2d:%2d');
+                if ($parts === null) {
+                    return '';
+                }
+                [$Y, $m, $d, $H, $M, $S] = array_pad($parts, 6, 0);
                 break;
             case 'dd-mm-YYYY':
                 if (!preg_match('/^[0-9]{2}-[0-9]{2}-[0-9]{4}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                [$d, $m, $Y, $H, $M, $S] = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
+                $parts = sscanf($str, '%2d-%2d-%4d %2d:%2d:%2d');
+                if ($parts === null) {
+                    return '';
+                }
+                [$d, $m, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
                 break;
             case 'mm/dd/YYYY':
                 if (!preg_match('/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}[0-9 :]*$/', $str)) {
                     return '';
                 }
-                [$m, $d, $Y, $H, $M, $S] = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
+                $parts = sscanf($str, '%2d/%2d/%4d %2d:%2d:%2d');
+                if ($parts === null) {
+                    return '';
+                }
+                [$m, $d, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
                 break;
+            default:
+                return '';
         }
         if (!$H && !$M && !$S) {
             $H = 0;

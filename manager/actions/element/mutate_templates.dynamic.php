@@ -411,8 +411,22 @@ function template($key, $default = null)
 
 function id()
 {
-    if (preg_match('@^[0-9]+$@', getv('id'))) {
-        return getv('id');
+    $id = getv('id');
+    if ($id === null) {
+        return '';
+    }
+
+    if (!is_scalar($id)) {
+        return '';
+    }
+
+    $id = trim((string)$id);
+    if ($id === '') {
+        return '';
+    }
+
+    if (preg_match('@^[0-9]+$@', $id)) {
+        return $id;
     }
     return '';
 }
