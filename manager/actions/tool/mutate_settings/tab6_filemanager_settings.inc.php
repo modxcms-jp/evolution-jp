@@ -158,6 +158,28 @@
                 ?>
             </td>
         </tr>
+        <tr>
+            <th><?= lang('setting_convert_datauri_to_file') ?></th>
+            <td>
+                <?= wrap_label(
+                    lang('yes'),
+                    form_radio(
+                        'convert_datauri_to_file',
+                        1,
+                        config('convert_datauri_to_file') == 1
+                    )
+                ); ?><br/>
+                <?= wrap_label(
+                    lang('no'),
+                    form_radio(
+                        'convert_datauri_to_file',
+                        0,
+                        config('convert_datauri_to_file') == 0
+                    )
+                ); ?><br/>
+                <?= lang('setting_convert_datauri_to_file_desc') ?>
+            </td>
+        </tr>
     </table>
 </div>
 <?php
