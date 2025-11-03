@@ -300,6 +300,26 @@ function serverv($key = null, $default = null)
     return array_get($_SERVER, strtoupper($key), $default);
 }
 
+/**
+ * Check if the current request is a POST request
+ *
+ * @return bool
+ */
+function is_post()
+{
+    return serverv('REQUEST_METHOD') === 'POST';
+}
+
+/**
+ * Check if the current request is a GET request
+ *
+ * @return bool
+ */
+function is_get()
+{
+    return serverv('REQUEST_METHOD') === 'GET';
+}
+
 function sessionv($key = null, $default = null)
 {
     if (strpos($key, '*') === 0) {

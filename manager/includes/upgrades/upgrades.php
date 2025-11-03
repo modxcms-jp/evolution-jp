@@ -175,9 +175,10 @@ function update_tbl_user_roles()
 function update_tbl_system_settings()
 {
     global $use_udperms;
-    if (evo()->config('validate_referer') === '00') {
-        evo()->regOption('validate_referer', '0');
-    }
+
+    // Remove deprecated validate_referer setting (replaced by CSRF token)
+    db()->delete('[+prefix+]system_settings', "setting_name='validate_referer'");
+
     if (evo()->config('upload_maxsize') === '1048576') {
         evo()->regOption('upload_maxsize', '');
     }

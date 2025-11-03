@@ -140,8 +140,6 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = 'Your site\'s Unauthorized 
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = 'This means that your Unauthorized page is not accessible to normal web surfers or does not exist. This can lead to a recursive looping condition and many errors in your site logs. Make sure there are no Webuser Groups assigned to the page.';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'The Unauthorized page defined in the site configuration settings is not published.';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'This means that your Unauthorized page is inaccessible to the general public. Publish the page or make sure it is assigned to an existing Resource in your Site Tree in the Tools &gt; Configuration menu.';
-$_lang["configcheck_validate_referer"] = 'Security Warning: HTTP Header Validation';
-$_lang["configcheck_validate_referer_msg"] = "The configuration setting <strong>Validate HTTP_REFERER headers?</strong> is Off. We recommend turning it On. <a href=\"index.php?a=17\">Go to Configuration options</a>";
 $_lang["configcheck_warning"] = 'Configuration warning: ';
 $_lang["confirm_block"] = 'Are you sure you want to block this user?';
 $_lang["confirm_delete_eventlog"] = 'Are you sure you want to delete this event log?';
@@ -1014,8 +1012,6 @@ $_lang["user_use_config"] = 'Use System Configuration Setting';
 $_lang["user_zip"] = 'Zip';
 $_lang["username"] = 'Username';
 $_lang["users"] = 'Security';
-$_lang["validate_referer_message"] = 'Validate the HTTP_REFERER headers to reduce the risk of your content editors being tricked into performing unintended actions in the manager as victims of a CSRF (Cross Site Request Forgery) attack. Some configurations may not be able to use this option if the server is not sending HTTP_REFERER headers.';
-$_lang["validate_referer_title"] = 'Validate HTTP_REFERER headers?';
 $_lang["value"] = 'Value';
 $_lang["view"] = 'View';
 $_lang["view_child_resources_in_container"] = 'View children';

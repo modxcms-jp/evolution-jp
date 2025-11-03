@@ -66,17 +66,6 @@
         </tr>
 
         <tr>
-            <th><?= $_lang["validate_referer_title"] ?></th>
-            <td>
-                <?= wrap_label($_lang["yes"], form_radio('validate_referer', '1', config('validate_referer') == '1')) ?>
-                <br/>
-                <?= wrap_label($_lang["no"], form_radio('validate_referer', '0', config('validate_referer') == '0')) ?>
-                <br/>
-                <?= $_lang["validate_referer_message"] ?>
-            </td>
-        </tr>
-
-        <tr>
             <th><?= $_lang["allow_mgr2web_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"], form_radio('allow_mgr2web', '1', config('allow_mgr2web') == '1')) ?><br/>

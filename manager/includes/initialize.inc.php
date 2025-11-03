@@ -41,6 +41,7 @@ require_once(MODX_CORE_PATH . 'version.inc.php');
 
 if (defined('IN_MANAGER_MODE')) {
     init::init_mgr();
+    include_once(__DIR__ . '/csrf_token.php');
 }
 
 if (!defined('E_DEPRECATED')) {

@@ -35,7 +35,24 @@ if (!sessionv('mgrValidated')) {
 }
 
 // log the user action
-$_SESSION['ip'] = real_ip();
+sessionv('*ip', real_ip());
+
+// CSRF Token Validation for POST requests
+if (is_post()) {
+    // 例外: ログインフォームのみ
+    // 注意: 表示系アクション（a=2, a=27など）でもフォームPOSTが発生する場合があるため、
+    // 基本的にはログイン以外は全てトークン検証を行う
+    $exemptActions = [
+        8,    // ログイン処理のみ例外
+    ];
+
+    $currentAction = manager()->action;
+
+    // 例外アクション以外でトークンを検証
+    if (!in_array($currentAction, $exemptActions, true)) {
+        checkCsrfToken();
+    }
+}
 
 if (manager()->action != 1) {
     $fields = [
@@ -57,7 +74,7 @@ if (manager()->action != 1) {
         echo "error replacing into active users! SQL: " . $sql . "\n" . db()->getLastError();
         exit;
     }
-    $_SESSION['mgrDocgroups'] = manager()->getMgrDocgroups(evo()->getLoginUserID());
+    sessionv('*mgrDocgroups', manager()->getMgrDocgroups(evo()->getLoginUserID()));
 }
 
 clearstatcache(true, $touch_path);
@@ -125,7 +142,7 @@ function checkInstallProc()
         return false;
     }
 
-    if (serverv('REQUEST_METHOD') === 'POST') {
+    if (is_post()) {
         return false;
     }
 
