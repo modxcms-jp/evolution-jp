@@ -2135,8 +2135,8 @@ class DocumentParser
         }
         [$key, $str] = explode('@', $key, 2);
 
-        list($context, $option) = array_pad(explode('(', $str, 2), 2, null);
-        if ($option) {
+        [$context, $option] = array_pad(explode('(', $str, 2), 2, '');
+        if ($option !== '') {
             $option = trim($option, ')(\'"`');
         }
 
