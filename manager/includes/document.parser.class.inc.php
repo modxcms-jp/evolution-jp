@@ -44,6 +44,7 @@ class DocumentParser
     public $queryTime;
     public $currentSnippet;
     public $currentSnippetCode;
+    public $export;
     public $aliases;
     public $entrypage;
     public $dumpSQL;

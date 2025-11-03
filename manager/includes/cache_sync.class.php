@@ -120,7 +120,7 @@ class synccache
         if ($target === 'pageCache') {
             $pattern = '@\.pageCache\.php$@';
         } else {
-            $pattern = '@\.*$@';
+            $pattern = null;
         }
 
         $files = $this->getFileList($this->cachePath, $pattern);
@@ -140,7 +140,9 @@ class synccache
             }
             $rs = null;
             if (is_file($file_path)) {
-                $rs = unlink($file_path);
+                if ($pattern === null || preg_match($pattern, $file_path)) {
+                    $rs = unlink($file_path);
+                }
             } elseif (is_dir($file_path)) {
                 $rs = rmdir($file_path);
             }
@@ -575,7 +577,7 @@ class synccache
 
         $list = [];
         foreach ($files as $obj) {
-            if (is_file($obj) && preg_match($pattern, $obj)) {
+            if (is_file($obj) && ($pattern === null || preg_match($pattern, $obj))) {
                 $list[] = $obj;
             } elseif (is_dir($obj)) {
                 $list[] = $obj;
