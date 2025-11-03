@@ -41,6 +41,90 @@ Evolution CMS JP Edition の中心は `DocumentParser`（`manager/includes/docum
 3. キャッシュや公開状態へ影響する変更は `cache-mechanism.md` を参照し、`evo()->clearCache()` の呼び出し条件を明確にする。
 4. 実装ではヘルパー関数を活用し、直接 `$modx` に触れない。
 
+## ファイル管理とディレクトリ構造
+
+### 主要ディレクトリ
+
+| ディレクトリ | 用途 | 備考 |
+| --- | --- | --- |
+| `assets/files/` | 一般ファイル | グローバル設定 `filemanager_path` で変更可能 |
+| `{rb_base_dir}images/` | 画像ファイル | グローバル設定 `rb_base_dir` に依存（デフォルト: `content/`） |
+| `{rb_base_dir}files/` | ファイル | グローバル設定 `rb_base_dir` に依存 |
+| `{rb_base_dir}media/` | メディアファイル | グローバル設定 `rb_base_dir` に依存 |
+| `assets/templates/` | テンプレートファイル | チャンクやテンプレートの物理ファイル配置 |
+| `temp/` | 一時ファイル | キャッシュ、バックアップ、インポート/エクスポート |
+
+**注意**:
+
+- `rb_base_dir` のデフォルトは `content/` だが、グローバル設定で変更可能
+- ファイルパス関連の実装時は `evo()->getConfig('rb_base_dir')` を参照すること
+- `[(base_path)]` プレースホルダーは `MODX_BASE_PATH` に置換される
+
+## グローバル設定の拡張
+
+新しいシステム設定を追加する際の手順:
+
+### 1. デフォルト値の定義
+
+`manager/includes/default.config.php` に設定のデフォルト値を追加:
+
+```php
+'new_setting_name' => 'default_value',
+```
+
+### 2. 言語ファイルへの追加
+
+`manager/includes/lang/japanese-utf8.inc.php` と `english.inc.php` に翻訳を追加:
+
+```php
+$_lang['setting_new_setting_name'] = '設定名';
+$_lang['setting_new_setting_name_desc'] = '設定の説明文';
+```
+
+### 3. 設定画面への表示
+
+`manager/actions/tool/mutate_settings/tab*.inc.php` のいずれかに設定項目を追加:
+
+```php
+<tr>
+    <th><?= lang('setting_new_setting_name') ?></th>
+    <td>
+        <?= wrap_label(
+            lang('yes'),
+            form_radio('new_setting_name', 1, config('new_setting_name') == 1)
+        ); ?><br/>
+        <?= wrap_label(
+            lang('no'),
+            form_radio('new_setting_name', 0, config('new_setting_name') == 0)
+        ); ?><br/>
+        <?= lang('setting_new_setting_name_desc') ?>
+    </td>
+</tr>
+```
+
+### 4. 設定値の反映
+
+- **新規インストール**: `default.config.php` の値が自動的に使用される
+- **既存インストール**: グローバル設定を一度保存することで、`save_settings.processor.php` が `default.config.php` の値を `system_settings` テーブルに反映
+
+### 設定画面のタブ構成
+
+| ファイル | タブ名 | 主な設定項目 |
+| --- | --- | --- |
+| `tab1_site_settings.inc.php` | サイト設定 | サイト名、URL、ステータスなど |
+| `tab1_doc_settings.inc.php` | リソース設定 | デフォルトテンプレート、公開設定など |
+| `tab2_cache_settings.inc.php` | キャッシュ設定 | キャッシュ有効化、TTL など |
+| `tab2_furl_settings.inc.php` | Friendly URL 設定 | URL エイリアス、サフィックスなど |
+| `tab3_user_settings.inc.php` | ユーザー設定 | セッション、認証関連 |
+| `tab4_manager_settings.inc.php` | 管理画面設定 | エディタ、言語、テーマなど |
+| `tab6_filemanager_settings.inc.php` | ファイル管理設定 | アップロード許可、パス設定など |
+
+### 注意事項
+
+- SQL ファイルでの設定追加は不要（`default.config.php` のみで管理）
+- `save_settings.processor.php` は POST データと `default.config.php` をマージし、`REPLACE INTO` で一括保存
+- 設定値の取得は `evo()->getConfig('setting_name', 'default')` を使用
+
 ## ドキュメント運用
 
 - `AGENTS.md` は AI 向けのハブドキュメントとして継続的に更新してください。新しいモジュールやベストプラクティスを追加する際は、`documents/` 配下に詳細ドキュメントを設け、ここからリンクする構成を守ります。
