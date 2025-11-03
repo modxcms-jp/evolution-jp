@@ -4441,18 +4441,12 @@ class DocumentParser
 
     public function toDateFormat($timestamp = 0, $mode = '')
     {
-        if ($timestamp === null) {
+        if ($timestamp === null || $timestamp === '') {
             return '';
         }
 
-        if (is_string($timestamp)) {
-            $timestamp = trim($timestamp);
-        } elseif (is_numeric($timestamp)) {
-            // keep numeric values as-is
-        } elseif (is_scalar($timestamp)) {
+        if (!is_numeric($timestamp)) {
             $timestamp = trim((string)$timestamp);
-        } else {
-            return '';
         }
 
         if ($timestamp === '' || ($timestamp == 0 && $mode === '')) {
@@ -4471,6 +4465,8 @@ class DocumentParser
             case 'mm/dd/YYYY':
                 $dateFormat = '%m/%d/%Y';
                 break;
+            default:
+                $dateFormat = '%Y/%m/%d';
         }
 
         if (empty($mode)) {
@@ -4485,18 +4481,12 @@ class DocumentParser
 
     public function toTimeStamp($str, $default = '')
     {
-        if ($str === null) {
+        if ($str === null || $str === '') {
             return $default;
         }
 
-        if (is_string($str)) {
-            $str = trim($str);
-        } elseif (is_numeric($str)) {
-            $str = (string)$str;
-        } elseif (is_scalar($str)) {
+        if (!is_numeric($str)) {
             $str = trim((string)$str);
-        } else {
-            return $default;
         }
 
         if ($str === '') {
@@ -4538,7 +4528,7 @@ class DocumentParser
                 [$m, $d, $Y, $H, $M, $S] = array_pad($parts, 6, 0);
                 break;
             default:
-                return '';
+                return $default;
         }
         if (!$H && !$M && !$S) {
             $H = 0;
