@@ -14,7 +14,6 @@
     <input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]"/>
     <input type="hidden" name="newtemplate" value=""/>
     <input type="hidden" name="pid" value="[+pid+]"/>
-    <input type="hidden" name="token" value="[+token+]"/>
     <input type="submit" name="save" style="display:none"/>
     [+OnDocFormPrerender+]
 

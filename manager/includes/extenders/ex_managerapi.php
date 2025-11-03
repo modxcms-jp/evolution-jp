@@ -19,12 +19,6 @@ class ManagerAPI
     {
         global $action;
         $this->action = $action; // set action directive
-        if (postv('token') || getv('token')) {
-            $rs = $this->checkToken();
-            if (!$rs) {
-                exit('unvalid token');
-            }
-        }
     }
 
     function initPageViewState($id = 0)
@@ -164,33 +158,6 @@ class ManagerAPI
     function modx_move_uploaded_file($tmp_path, $target_path)
     {
         return evo()->move_uploaded_file($tmp_path, $target_path);
-    }
-
-    function checkToken()
-    {
-        $clientToken = evo()->input_any('token', false);
-        $serverToken = sessionv('token', false);
-
-        $_SESSION['token'] = '';
-
-        if (!$clientToken) {
-            return false;
-        }
-        if (!$serverToken) {
-            return false;
-        }
-        if ($clientToken !== $serverToken) {
-            return false;
-        }
-
-        return true;
-    }
-
-    function makeToken()
-    {
-        $newToken = evo()->genTokenString();
-        $_SESSION['token'] = $newToken;
-        return $newToken;
     }
 
     function remove_locks($action = 'all', $limit_time = 120)

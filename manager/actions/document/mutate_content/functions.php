@@ -767,7 +767,6 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'class' => (evo()->doc->mode === 'normal') ? '' : 'draft',
         '(ID:%s)' => $id ? sprintf('(ID:%s)', $id) : '',
         'actionButtons' => getActionButtons($id),
-        'token' => manager()->makeToken(),
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
         'remember_last_tab' => (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
@@ -861,16 +860,16 @@ function convertDataUriToFiles($content, $docid)
     $offset = 0;
     while (($pos = strpos($content, 'data:', $offset)) !== false) {
         $result = extractDataUri($content, $pos);
-        
+
         if ($result === null) {
             $offset = $pos + 5;
             continue;
         }
-        
+
         list($dataUri, $endPos) = $result;
         $dimensions = extractImageDimensions($content, $pos);
         $filePath = convertSingleDataUri($dataUri, $docid, $dimensions);
-        
+
         if ($filePath) {
             $content = substr_replace($content, $filePath, $pos, $endPos - $pos);
             $offset = $pos + strlen($filePath);
@@ -878,7 +877,7 @@ function convertDataUriToFiles($content, $docid)
             $offset = $endPos;
         }
     }
-    
+
     return $content;
 }
 
@@ -893,26 +892,26 @@ function extractDataUri($content, $startPos)
 {
     $len = strlen($content);
     $pos = $startPos + 5; // "data:" の長さ
-    
+
     // MIME タイプの終了（; または ,）を探す
     $mimeEnd = $pos;
     while ($mimeEnd < $len && !in_array($content[$mimeEnd], [';', ',', '"', "'", ' ', '>'])) {
         $mimeEnd++;
     }
-    
+
     if ($mimeEnd >= $len || in_array($content[$mimeEnd], ['"', "'", ' ', '>'])) {
         return null;
     }
-    
+
     $mimeType = substr($content, $pos, $mimeEnd - $pos);
-    
+
     if (empty($mimeType) || strpos($mimeType, '/') === false) {
         return null;
     }
-    
+
     $pos = $mimeEnd;
     $isBase64 = false;
-    
+
     // ;base64 チェック
     if ($content[$pos] === ';') {
         if (substr($content, $pos, 8) === ';base64,') {
@@ -931,15 +930,15 @@ function extractDataUri($content, $startPos)
     } else {
         return null;
     }
-    
+
     // データ部分の終了を探す
     $dataStart = $pos;
     $dataEnd = findDataEnd($content, $pos, $len, $isBase64);
-    
+
     if (($dataEnd - $dataStart) < 10) {
         return null;
     }
-    
+
     return [substr($content, $startPos, $dataEnd - $startPos), $dataEnd];
 }
 
@@ -956,7 +955,7 @@ function findDataEnd($content, $pos, $len, $isBase64)
 {
     $terminators = ['"', "'", ' ', '>', '<'];
     $validPattern = $isBase64 ? '/[A-Za-z0-9+\/=\s]/' : '/[A-Za-z0-9%\-._~]/';
-    
+
     while ($pos < $len) {
         $char = $content[$pos];
         if (in_array($char, $terminators) || !preg_match($validPattern, $char)) {
@@ -964,7 +963,7 @@ function findDataEnd($content, $pos, $len, $isBase64)
         }
         $pos++;
     }
-    
+
     return $pos;
 }
 
@@ -979,27 +978,27 @@ function extractImageDimensions($content, $dataUriPos)
 {
     $searchStart = max(0, $dataUriPos - 500);
     $searchContent = substr($content, $searchStart, $dataUriPos - $searchStart);
-    
+
     $imgPos = strrpos($searchContent, '<img');
     if ($imgPos === false) {
         return null;
     }
-    
+
     $imgStart = $searchStart + $imgPos;
     $imgEnd = strpos($content, '>', $imgStart);
     if ($imgEnd === false) {
         return null;
     }
-    
+
     $imgTag = substr($content, $imgStart, $imgEnd - $imgStart + 1);
     $dimensions = [];
-    
+
     foreach (['width', 'height'] as $attr) {
         if (preg_match('/' . $attr . '=["\']?(\d+)["\']?/i', $imgTag, $matches)) {
             $dimensions[$attr] = (int)$matches[1];
         }
     }
-    
+
     return !empty($dimensions) ? $dimensions : null;
 }
 
@@ -1016,34 +1015,34 @@ function convertSingleDataUri($dataUri, $docid, $dimensions = null)
     if (!preg_match('/^data:([^;,]+)(;base64)?,(.+)$/s', $dataUri, $matches)) {
         return null;
     }
-    
+
     $mimeType = $matches[1];
     $isBase64 = !empty($matches[2]);
     $data = $matches[3];
-    
+
     $extension = getExtensionFromMimeType($mimeType);
     if (!$extension) {
         logDataUriEvent(2, 'Unsupported MIME type: %s', $mimeType, $docid);
         return null;
     }
-    
+
     // データのデコード
-    $fileData = $isBase64 
+    $fileData = $isBase64
         ? base64_decode(preg_replace('/\s+/', '', $data), true)
         : urldecode($data);
-    
+
     if ($fileData === false) {
         logDataUriEvent(3, 'Base64 decode failed', null, $docid);
         return null;
     }
-    
+
     // サイズチェック（50MB制限）
     $fileSize = strlen($fileData);
     if ($fileSize > 50 * 1024 * 1024) {
         logDataUriEvent(3, 'Data URI too large: %d bytes', $fileSize, $docid);
         return null;
     }
-    
+
     // 画像のリサイズ処理
     if ($dimensions && strpos($mimeType, 'image/') === 0) {
         $resized = resizeImage($fileData, $mimeType, $dimensions);
@@ -1051,24 +1050,24 @@ function convertSingleDataUri($dataUri, $docid, $dimensions = null)
             $fileData = $resized;
         }
     }
-    
+
     $savedPath = saveDataUriFile($fileData, $extension, $docid);
     if (!$savedPath) {
         return null;
     }
-    
+
     // 成功ログ
-    $logMsg = sprintf('Data URI converted: %s -> %s (size: %d bytes)', 
+    $logMsg = sprintf('Data URI converted: %s -> %s (size: %d bytes)',
         $mimeType, $savedPath, strlen($fileData)
     );
     if ($dimensions) {
-        $logMsg .= sprintf(' [resized to %dx%d]', 
-            $dimensions['width'] ?? 'auto', 
+        $logMsg .= sprintf(' [resized to %dx%d]',
+            $dimensions['width'] ?? 'auto',
             $dimensions['height'] ?? 'auto'
         );
     }
     evo()->logEvent(0, 1, $logMsg, 'convertSingleDataUri');
-    
+
     return $savedPath;
 }
 
@@ -1082,10 +1081,10 @@ function convertSingleDataUri($dataUri, $docid, $dimensions = null)
  */
 function logDataUriEvent($level, $message, $param, $docid)
 {
-    $msg = $param !== null 
+    $msg = $param !== null
         ? sprintf($message . ' (docid: %s)', $param, $docid)
         : sprintf($message . ' (docid: %s)', $docid);
-    
+
     evo()->logEvent(0, $level, $msg, 'convertSingleDataUri');
 }
 
@@ -1133,7 +1132,7 @@ function saveDataUriFile($data, $extension, $docid)
         return null;
     }
 
-    $filename = sprintf('%s_%s%s', 
+    $filename = sprintf('%s_%s%s',
         date('YmdHis'),
         substr(md5(uniqid(mt_rand(), true)), 0, 8),
         $extension
@@ -1164,49 +1163,49 @@ function resizeImage($imageData, $mimeType, $dimensions)
     if (!function_exists('imagecreatefromstring')) {
         return null;
     }
-    
+
     $sourceImage = @imagecreatefromstring($imageData);
     if ($sourceImage === false) {
         return null;
     }
-    
+
     $originalWidth = imagesx($sourceImage);
     $originalHeight = imagesy($sourceImage);
-    
+
     // リサイズサイズを計算
     $resize = calculateResizeDimensions(
-        $originalWidth, 
-        $originalHeight, 
+        $originalWidth,
+        $originalHeight,
         $dimensions
     );
-    
+
     if ($resize === null) {
         imagedestroy($sourceImage);
         return $imageData;
     }
-    
+
     list($finalWidth, $finalHeight) = $resize;
-    
+
     // リサイズ実行
     $resizedImage = createResizedImage(
-        $sourceImage, 
-        $finalWidth, 
-        $finalHeight, 
-        $originalWidth, 
+        $sourceImage,
+        $finalWidth,
+        $finalHeight,
+        $originalWidth,
         $originalHeight,
         $mimeType
     );
-    
+
     imagedestroy($sourceImage);
-    
+
     if ($resizedImage === false) {
         return null;
     }
-    
+
     // 画像を出力
     $output = outputImage($resizedImage, $mimeType);
     imagedestroy($resizedImage);
-    
+
     return $output;
 }
 
@@ -1223,38 +1222,38 @@ function calculateResizeDimensions($originalWidth, $originalHeight, $dimensions)
     if (!isset($dimensions['width']) && !isset($dimensions['height'])) {
         return null;
     }
-    
+
     $targetWidth = $dimensions['width'] ?? $originalWidth;
     $targetHeight = $dimensions['height'] ?? $originalHeight;
-    
+
     // アスペクト比を維持
     if (!isset($dimensions['width'])) {
         $targetWidth = (int)($originalWidth * ($targetHeight / $originalHeight));
     } elseif (!isset($dimensions['height'])) {
         $targetHeight = (int)($originalHeight * ($targetWidth / $originalWidth));
     }
-    
+
     // 拡大しない（縮小のみ）
     if ($targetWidth >= $originalWidth && $targetHeight >= $originalHeight) {
         return null;
     }
-    
+
     // 指定サイズに収める（アスペクト比維持）
     $targetWidth = min($targetWidth, $originalWidth);
     $targetHeight = min($targetHeight, $originalHeight);
-    
+
     $widthRatio = $targetWidth / $originalWidth;
     $heightRatio = $targetHeight / $originalHeight;
     $ratio = min($widthRatio, $heightRatio);
-    
+
     $finalWidth = (int)($originalWidth * $ratio);
     $finalHeight = (int)($originalHeight * $ratio);
-    
+
     // サイズが変わらない場合はリサイズ不要
     if ($finalWidth == $originalWidth && $finalHeight == $originalHeight) {
         return null;
     }
-    
+
     return [$finalWidth, $finalHeight];
 }
 
@@ -1275,7 +1274,7 @@ function createResizedImage($sourceImage, $finalWidth, $finalHeight, $originalWi
     if ($resizedImage === false) {
         return false;
     }
-    
+
     // 透明度をサポート
     if (in_array($mimeType, ['image/png', 'image/gif', 'image/webp'])) {
         imagealphablending($resizedImage, false);
@@ -1283,19 +1282,19 @@ function createResizedImage($sourceImage, $finalWidth, $finalHeight, $originalWi
         $transparent = imagecolorallocatealpha($resizedImage, 0, 0, 0, 127);
         imagefilledrectangle($resizedImage, 0, 0, $finalWidth, $finalHeight, $transparent);
     }
-    
+
     $success = imagecopyresampled(
         $resizedImage, $sourceImage,
         0, 0, 0, 0,
         $finalWidth, $finalHeight,
         $originalWidth, $originalHeight
     );
-    
+
     if (!$success) {
         imagedestroy($resizedImage);
         return false;
     }
-    
+
     return $resizedImage;
 }
 
@@ -1310,7 +1309,7 @@ function outputImage($image, $mimeType)
 {
     ob_start();
     $success = false;
-    
+
     switch ($mimeType) {
         case 'image/jpeg':
             $success = imagejpeg($image, null, 90);
@@ -1328,7 +1327,7 @@ function outputImage($image, $mimeType)
             $success = function_exists('imagebmp') && imagebmp($image);
             break;
     }
-    
+
     $output = ob_get_clean();
     return $success ? $output : null;
 }

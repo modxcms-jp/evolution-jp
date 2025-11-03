@@ -11,8 +11,8 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
  */
 
 // トークン管理の定数
-define('CSRF_TOKEN_MAX', 10);  // 最大トークン数
-define('CSRF_TOKEN_KEEP', 5);  // 上限超過時に保持する数
+define('CSRF_TOKEN_MAX', 10);      // 最大トークン数
+define('CSRF_TOKEN_KEEP', 5);      // 上限超過時に保持する数
 
 /**
  * 新しいCSRFトークンを生成してセッションに保存
@@ -25,13 +25,13 @@ function generateCsrfToken()
 
     // トークン数の上限チェックと整理
     if (count($tokens) >= CSRF_TOKEN_MAX) {
-        asort($tokens);
+        // 古いトークンから削除（FIFOキュー）
         $tokens = array_slice($tokens, -CSRF_TOKEN_KEEP, null, true);
     }
 
     // 新しいトークンを生成
     $token = bin2hex(random_bytes(32));
-    $tokens[$token] = time();
+    $tokens[$token] = true;
 
     sessionv('*csrf_tokens', $tokens);
 
@@ -68,7 +68,7 @@ function getRequestCsrfToken()
 
 /**
  * CSRFトークンを検証
- * 検証に成功したトークンはセッションから削除（ワンタイムユース）
+ * マルチタブ対応のため、トークンは削除せず再利用可能
  *
  * @param string|null $token 検証するトークン（nullの場合はリクエストから取得）
  * @return bool 検証成功時はtrue、失敗時はfalse
@@ -81,15 +81,8 @@ function validateCsrfToken($token = null)
 
     $tokens = sessionv('csrf_tokens', []);
 
-    if (empty($token) || !isset($tokens[$token])) {
-        return false;
-    }
-
-    // トークンを削除（ワンタイムユース）
-    unset($tokens[$token]);
-    sessionv('*csrf_tokens', $tokens);
-
-    return true;
+    // トークンが存在するかチェック（削除はしない）
+    return !empty($token) && isset($tokens[$token]);
 }
 
 /**

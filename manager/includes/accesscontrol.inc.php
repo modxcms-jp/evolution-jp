@@ -48,6 +48,17 @@ if (is_post()) {
 
     $currentAction = manager()->action;
 
+    // デバッグ: トークン情報を確認
+    if (evo()->config('debug', 0)) {
+        $debugInfo = [
+            'action' => $currentAction,
+            'csrf_token_from_post' => postv('csrf_token', 'none'),
+            'csrf_token_from_header' => serverv('HTTP_X_CSRF_TOKEN', 'none'),
+            'tokens_in_session' => sessionv('csrf_tokens', []),
+        ];
+        evo()->logEvent(0, 1, 'CSRF Debug: ' . print_r($debugInfo, true), 'CSRF Token Debug');
+    }
+
     // 例外アクション以外でトークンを検証
     if (!in_array($currentAction, $exemptActions, true)) {
         checkCsrfToken();
