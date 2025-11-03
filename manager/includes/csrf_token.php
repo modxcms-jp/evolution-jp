@@ -123,36 +123,38 @@ function checkCsrfToken($token = null)
     if (validateCsrfToken($token)) {
         return;
     }
-    
+
     // 検証失敗情報を収集
     $info = getCsrfValidationFailureInfo();
-    
+
     // ログメッセージの構築
     $logMsg = 'CSRF token validation failed';
     foreach ($info as $key => $value) {
         $logMsg .= " | {$key}: {$value}";
     }
-    
+
     // Evolution CMSのイベントログに記録（標準のログ機能を使用）
     if (evo() && is_numeric($info['user_id'])) {
         evo()->logEvent(0, 3, $logMsg, 'CSRF Token Validation Failed');
     }
-    
+
     // ユーザー向けエラーメッセージ
     $errorMsg = 'Invalid CSRF token. Please refresh the page and try again.';
-    
+
     // デバッグモード時は詳細情報を追加
-    if (config('debug', 0)) {
+    if (evo()->config('debug', 0)) {
         $errorMsg .= "\n\nDebug Info:";
         foreach ($info as $key => $value) {
             $errorMsg .= "\n- {$key}: {$value}";
         }
     }
-    
+
     header('HTTP/1.1 403 Forbidden');
     header('Content-Type: text/plain; charset=UTF-8');
     exit($errorMsg);
-}/**
+}
+
+/**
  * すべてのCSRFトークンをクリア
  * ログアウト時などに使用
  *
