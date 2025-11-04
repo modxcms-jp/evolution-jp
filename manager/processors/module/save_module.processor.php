@@ -15,7 +15,7 @@ if (preg_match('@^[0-9]+$@', postv('id'))) {
 
 $name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
-if ((postv('icon') !== '') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', postv('icon')) == 1)) {
+if ((postv('icon') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
 $disabled = postv('disabled') === 'on' ? 1 : 0;
@@ -42,11 +42,11 @@ if (!postv('newcategory') && postv('categoryid') > 0) {
 switch (postv('mode')) {
     case '107':
         // invoke OnBeforeModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'new',
             'id' => ''
-        );
-        evo()->invokeEvent("OnBeforeModFormSave", $tmp);
+        ];
+        evo()->invokeEvent("OnBeforeModFormSave", $eventParams);
 
         // disallow duplicate names for new modules
         $rs = db()->select('COUNT(id)', $tbl_site_modules, "name = '{$name}'");
@@ -104,19 +104,19 @@ switch (postv('mode')) {
             exit;
         }
 
-// save user group access permissions
         saveUserGroupAccessPermissons();
 
         // invoke OnModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'new',
             'id' => $newid
-        );
-        evo()->invokeEvent("OnModFormSave", $tmp);
-        if (postv('stay') != '') {
+        ];
+        evo()->invokeEvent("OnModFormSave", $eventParams);
+
+        if (postv('stay')) {
             $stay = postv('stay');
             $a = ($stay == '2') ? "108&id={$newid}" : '107';
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $stay;
+            $header = "Location: index.php?a={$a}&r=2&stay={$stay}";
         } else {
             $header = "Location: index.php?a=106&r=2";
         }
@@ -127,11 +127,11 @@ switch (postv('mode')) {
         break;
     case '108':
         // invoke OnBeforeModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'upd',
             'id' => $id
-        );
-        evo()->invokeEvent('OnBeforeModFormSave', $tmp);
+        ];
+        evo()->invokeEvent('OnBeforeModFormSave', $eventParams);
 
         // save the edited module
         $f = [
@@ -161,14 +161,15 @@ switch (postv('mode')) {
         saveUserGroupAccessPermissons();
 
         // invoke OnModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'upd',
             'id' => $id
-        );
-        evo()->invokeEvent('OnModFormSave', $tmp);
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "108&id=" . $id : "107";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . postv('stay');
+        ];
+        evo()->invokeEvent('OnModFormSave', $eventParams);
+
+        if (postv('stay')) {
+            $a = (postv('stay') == '2') ? "108&id={$id}" : "107";
+            $header = "Location: index.php?a={$a}&r=2&stay=" . postv('stay');
         } else {
             $header = 'Location: index.php?a=106&r=2';
         }
@@ -185,38 +186,38 @@ switch (postv('mode')) {
 // saves module user group access
 function saveUserGroupAccessPermissons()
 {
-    global $modx;
     global $id, $newid;
 
-    $tbl_site_module_access = evo()->getFullTableName('site_module_access');
+    // check for permission update access
+    if (config('use_udperms') != 1) {
+        return;
+    }
 
     if ($newid) {
         $id = $newid;
     }
+
+    // delete old permissions on the module
+    $rs = db()->delete('[+prefix+]site_module_access', "module='" . $id . "'");
+    if (!$rs) {
+        echo "An error occured while attempting to delete previous module user access permission entries.";
+        exit;
+    }
+
     $usrgroups = postv('usrgroups');
+    if (!is_array($usrgroups)) {
+        return;
+    }
 
-    // check for permission update access
-    if ($modx->config['use_udperms'] == 1) {
-        // delete old permissions on the module
-
-        $rs = db()->delete($tbl_site_module_access, "module='" . $id . "'");
+    foreach ($usrgroups as $value) {
+        $f = [
+            'module' => $id,
+            'usergroup' => $value
+        ];
+        $rs = db()->insert(db()->escape($f), '[+prefix+]site_module_access');
         if (!$rs) {
-            echo "An error occured while attempting to delete previous module user access permission entries.";
+            echo "An error occured while attempting to save module user acess permissions.";
             exit;
-        }
-
-        if (is_array($usrgroups)) {
-            foreach ($usrgroups as $ugkey => $value) {
-                $f = [
-                    'module' => $id,
-                    'usergroup' => $value
-                ];
-                $rs = db()->insert(db()->escape($f), $tbl_site_module_access);
-                if (!$rs) {
-                    echo "An error occured while attempting to save module user acess permissions.";
-                    exit;
-                }
-            }
         }
     }
 }
