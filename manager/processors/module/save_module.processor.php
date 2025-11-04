@@ -12,39 +12,31 @@ $tbl_site_modules = evo()->getFullTableName('site_modules');
 if (preg_match('@^[0-9]+$@', postv('id'))) {
     $id = postv('id');
 }
-$name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
-$resourcefile = db()->escape(postv('resourcefile'));
+
+$name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
 if ((postv('icon') !== '') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', postv('icon')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
-$icon = db()->escape(postv('icon'));
 $disabled = postv('disabled') === 'on' ? 1 : 0;
 $wrap = postv('wrap') === 'on' ? 1 : 0;
 $locked = postv('locked') === 'on' ? 1 : 0;
-$modulecode = db()->escape(postv('post'));
-$properties = db()->escape(postv('properties'));
 $enable_sharedparams = postv('enable_sharedparams') === 'on' ? 1 : 0;
-$guid = db()->escape(postv('guid'));
 $createdon = $editedon = time();
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = db()->escape(postv('categoryid'));
+    $category = postv('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = 0;
 } else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
+    $newcategory = postv('newcategory');
+    $catCheck = manager()->checkCategory(db()->escape($newcategory));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = manager()->newCategory(postv('newcategory'));
+        $category = manager()->newCategory($newcategory);
     }
-}
-
-if ($name == "") {
-    $name = "Untitled module";
 }
 
 switch (postv('mode')) {
@@ -89,10 +81,24 @@ switch (postv('mode')) {
 
         // save the new module
 
-        $f = compact('name', 'description', 'icon', 'enable_resource', 'resourcefile',
-            'disabled', 'wrap', 'locked', 'category', 'enable_sharedparams',
-            'guid', 'modulecode', 'properties', 'editedon', 'createdon');
-        $newid = db()->insert($f, $tbl_site_modules);
+        $f = [
+            'name' => $name,
+            'description' => postv('description'),
+            'icon' => postv('icon'),
+            'enable_resource' => $enable_resource,
+            'resourcefile' => postv('resourcefile'),
+            'disabled' => $disabled,
+            'wrap' => $wrap,
+            'locked' => $locked,
+            'category' => $category,
+            'enable_sharedparams' => $enable_sharedparams,
+            'guid' => postv('guid', ''),
+            'modulecode' => postv('post'),
+            'properties' => postv('properties'),
+            'editedon' => $editedon,
+            'createdon' => $createdon
+        ];
+        $newid = db()->insert(db()->escape($f), $tbl_site_modules);
         if (!$newid) {
             echo '$newid not set! New module not saved!';
             exit;
@@ -128,10 +134,24 @@ switch (postv('mode')) {
         evo()->invokeEvent('OnBeforeModFormSave', $tmp);
 
         // save the edited module
-        $f = compact('name', 'description', 'icon', 'enable_resource', 'resourcefile',
-            'disabled', 'wrap', 'locked', 'category', 'enable_sharedparams',
-            'guid', 'modulecode', 'properties', 'editedon');
-        $rs = db()->update($f, $tbl_site_modules, "id='" . $id . "'");
+        $f = [
+            'name' => $name,
+            'description' => postv('description'),
+            'icon' => postv('icon'),
+            'enable_resource' => $enable_resource,
+            'resourcefile' => postv('resourcefile'),
+            'disabled' => $disabled,
+            'wrap' => $wrap,
+            'locked' => $locked,
+            'category' => $category,
+            'enable_sharedparams' => $enable_sharedparams,
+            'guid' => postv('guid', ''),
+            'modulecode' => postv('post'),
+            'properties' => postv('properties'),
+            'editedon' => $editedon
+        ];
+
+        $rs = db()->update(db()->escape($f), $tbl_site_modules, "id='" . $id . "'");
         if (!$rs) {
             echo '$rs not set! Edited module not saved!' . db()->getLastError();
             exit;
@@ -187,9 +207,11 @@ function saveUserGroupAccessPermissons()
 
         if (is_array($usrgroups)) {
             foreach ($usrgroups as $ugkey => $value) {
-                $f['module'] = $id;
-                $f['usergroup'] = db()->escape($value);
-                $rs = db()->insert($f, $tbl_site_module_access);
+                $f = [
+                    'module' => $id,
+                    'usergroup' => $value
+                ];
+                $rs = db()->insert(db()->escape($f), $tbl_site_module_access);
                 if (!$rs) {
                     echo "An error occured while attempting to save module user acess permissions.";
                     exit;
