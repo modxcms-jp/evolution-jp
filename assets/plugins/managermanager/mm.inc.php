@@ -187,22 +187,22 @@ class MANAGERMANAGER
 
             // check if there are any name clashes between TVs and default field names? If there is, preserve the default field
             if (!isset($mm_fields[$n])) {
-                $mm_fields[$n] = array(
+                $mm_fields[$n] = [
                     'fieldtype' => $t,
                     'fieldname' => sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix),
                     'dbname' => '',
                     'tv' => true,
                     'tvtype' => $thisTv['type']
-                );
+                ];
             }
 
-            $mm_fields[sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix)] = array(
+            $mm_fields[sprintf('tv%s%s', $thisTv['id'], $fieldname_suffix)] = [
                 'fieldtype' => $t,
                 'fieldname' => 'tv' . $thisTv['id'] . $fieldname_suffix,
                 'dbname' => '',
                 'tv' => true,
                 'tvtype' => $thisTv['type']
-            );
+            ];
         }
 
         // Check the current event

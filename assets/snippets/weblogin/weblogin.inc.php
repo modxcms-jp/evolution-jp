@@ -86,7 +86,7 @@ EOT;
     // display login
     $form .= '<div id="WebLoginLayer0" style="position:relative">' . $tplLogin . '</div>';
     $form .= '<div id="WebLoginLayer2" style="position:relative;display:none">' . $tplReminder . '</div>';
-    $ref = isset($_REQUEST['refurl']) ? array('refurl' => urlencode($_REQUEST['refurl'])) : [];
+    $ref = isset($_REQUEST['refurl']) ? ['refurl' => urlencode($_REQUEST['refurl'])] : [];
     $form = str_replace("[+action+]", preserveUrl($modx->documentIdentifier, '', $ref), $form);
     $form = str_replace("[+rememberme+]", (isset($cookieSet) ? 1 : 0), $form);
     $form = str_replace("[+username+]", (isset($username) ? $username : ''), $form);

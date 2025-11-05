@@ -108,7 +108,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
             );
             break;
         case 'date':
-            $field_id = str_replace(array('-', '.'), '_', urldecode($field_id));
+            $field_id = str_replace(['-', '.'], '_', urldecode($field_id));
             if ($field_value == '') $field_value = 0;
             $field_html .= sprintf(
                 '<input id="tv%s" name="tv%s" class="DatePicker" type="text" value="%d" onblur="documentDirty=true;" />',

@@ -95,12 +95,12 @@ function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = fal
 
 function fmplang($key, $ph = [])
 {
-    $_lang = array(
+    $_lang = [
         'Invalid password activation key. Your password was NOT activated.' => 'アクティベーションキーが無効になっています。',
         'Your new password was successfully activated.' => 'アクティベーションしました。新しいパスワードでログインできます。',
         'Incorrect username or password entered!' => 'メールアドレスまたはパスワードが間違っています。',
         'You are blocked and cannot log in!' => 'メールアドレスまたはパスワードが間違っています。'
-    );
+    ];
 
     $value = ($_lang[$key]) ? $_lang[$key] : $key;
     if (!$ph) {

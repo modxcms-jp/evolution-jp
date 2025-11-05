@@ -176,7 +176,7 @@ echo $cm->render();
             $grd->altItemClass = 'gridAltItem';
             $grd->fields = 'username,fullname,email,rolename,thislogin,logincount,blocked';
             $grd->colAligns = 'left,left,left,left,left,left,left';
-            $grd->columns = join(',', array(
+            $columns = [
                 $_lang['username'],
                 $_lang['user_full_name'],
                 $_lang['email'],
@@ -184,8 +184,9 @@ echo $cm->render();
                 $_lang['login_button'],
                 $_lang['user_logincount'],
                 $_lang['user_block']
-            ));
-            $grd->colTypes = join('||', array(
+            ];
+            $grd->columns = join(',', $columns);
+            $colTypes = [
                 sprintf(
                     'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="' . $_style['icons_user'] . '" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="%s">[+value+]</a></span>',
                     $_lang['click_to_context'],
@@ -197,7 +198,8 @@ echo $cm->render();
                 'date: ' . $modx->toDateFormat(null, 'formatOnly') . ' %H:%M',
                 '[+logincount+]',
                 '[+blocked+]'
-            ));
+            ];
+            $grd->colTypes = join('||', $colTypes);
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }

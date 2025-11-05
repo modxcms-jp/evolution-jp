@@ -1,5 +1,5 @@
 <?php
-return array(
+return [
     'forgot_your_password' => 'Forgot your password?',
     'account_email' => 'Account email',
     'send' => 'Send',
@@ -12,4 +12,4 @@ return array(
     'could_not_find_user' => 'Could not find user',
     'user_doesnt_exist' => 'User does not exist',
     'email_sent' => 'Email sent',
-);
+];

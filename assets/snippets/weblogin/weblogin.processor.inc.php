@@ -50,11 +50,11 @@ if ($isPWDActivate == 1) {
     $rs2 = db()->update("blockeduntil='0'", $tbl_web_user_attributes, "internalKey='{$uid}'");
 
     // invoke OnWebChangePassword event
-    $tmp = array(
+    $tmp = [
         'userid' => $uid,
         'username' => $username,
         'userpassword' => $newpwd
-    );
+    ];
     evo()->invokeEvent('OnWebChangePassword', $tmp);
 
     if (!$rs || !$rs2) $output = webLoginAlert("Error while activating password.");
@@ -125,11 +125,11 @@ if ($isPWDReminder == 1) {
         $sent = $modx->sendmail($config, $message);         //ignore mail errors in this cas
         if (!$sent) // error
         {
-            $output = webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator", array('email' => $email));
+            $output = webLoginAlert("Error while sending mail to [+email+]. Please contact the Site Administrator", ['email' => $email]);
             return;
         }
 
-        if (!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.", array('email' => $email));
+        if (!$pwdReqId) $output = webLoginAlert("Please check your email account ([+email+]) for login instructions.", ['email' => $email]);
         else // redirect to password request notification page
         {
             $url = $modx->makeURL($pwdReqId, '', '', 'full');
@@ -311,13 +311,13 @@ if (isset($modx->config['allowed_days'])) {
 }
 
 // invoke OnWebAuthentication event
-$tmp = array(
+$tmp = [
     "userid" => $internalKey,
     "username" => $username,
     "userpassword" => $givenPassword,
     "savedpassword" => $dbasePassword,
     "rememberme" => $rememberme
-);
+];
 $rt = evo()->invokeEvent("OnWebAuthentication", $tmp);
 // check if plugin authenticated the user
 if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
@@ -377,7 +377,7 @@ $_SESSION['webUserGroupNames'] = ''; // reset user group names
 // get user's document groups
 $tbl_webgroup_access = evo()->getFullTableName('webgroup_access');
 
-$from = array('[+prefix+]web_groups ug');
+$from = ['[+prefix+]web_groups ug'];
 $from[] = 'INNER JOIN [+prefix+]webgroup_access uga ON uga.webgroup=ug.webgroup';
 $ds = db()->select('uga.documentgroup', $from, "ug.webuser='{$internalKey}'");
 $i = 0;
@@ -388,7 +388,7 @@ while ($row = db()->getRow($ds, 'num')) {
 }
 $_SESSION['webDocgroups'] = $dg;
 
-$from = array('[+prefix+]webgroup_names wgn');
+$from = ['[+prefix+]webgroup_names wgn'];
 $from[] = "INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
 $grpNames = $this->db->getColumn('name', $this->db->select('wgn.name', $from));
 $_SESSION['webUserGroupNames'] = $grpNames;
@@ -436,12 +436,12 @@ if ($id != $modx->documentIdentifier) {
 }
 
 // invoke OnWebLogin event
-$tmp = array(
+$tmp = [
     "userid" => $internalKey,
     "username" => $username,
     "userpassword" => $givenPassword,
     "rememberme" => postv('rememberme')
-);
+];
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect

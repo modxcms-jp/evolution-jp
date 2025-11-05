@@ -186,10 +186,10 @@ class DocManagerBackend
                 if ($row['type'] === 'url') {
                     $tmplvar = postv("tv" . $row['id']);
                     if (postv("tv" . $row['id' . '_prefix']) != '--') {
-                        $tmplvar = str_replace(array(
+                        $tmplvar = str_replace([
                             "ftp://",
                             "http://"
-                        ), "", $tmplvar);
+                        ], "", $tmplvar);
                         $tmplvar = postv("tv" . $row['id' . '_prefix']) . $tmplvar;
                     }
                 } elseif ($row['type'] === 'file') {

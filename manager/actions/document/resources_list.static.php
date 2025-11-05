@@ -68,11 +68,11 @@ if (!$numRecords) {
     $offset = preg_match('@^[1-9][0-9]*$@', $pageParam) ? (int)$pageParam - 1 : 0;
     $rs = db()->select(
         $f,
-        array(
+        [
             '[+prefix+]site_content sc',
             'LEFT JOIN [+prefix+]document_groups dg ON dg.document=sc.id',
             "LEFT JOIN [+prefix+]site_revision rev on rev.elmid=sc.id AND (rev.status='draft' OR rev.status='pending' OR rev.status='standby') AND rev.element='resource'"
-        ),
+        ],
         $where,
         transformOrderBy(
             evo()->config('manager_docs_orderby') ?: 'isfolder desc, publishedon desc, editedon desc, id desc'
@@ -515,7 +515,7 @@ function getTopicPath($id)
     }
 
     $parents = array_merge(
-        array(evo()->config('site_start'))
+        [evo()->config('site_start')]
         , array_reverse(evo()->getParentIds($id))
     );
     $parents[] = $id;
