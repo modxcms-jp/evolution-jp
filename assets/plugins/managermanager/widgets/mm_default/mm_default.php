@@ -22,7 +22,7 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
     // 4  =
     // 72 = Create new weblink
 
-    $allowed_actions = array('85', '4', '72');
+    $allowed_actions = ['85', '4', '72'];
     if (!in_array(manager()->action, $allowed_actions)) {
         return;
     }

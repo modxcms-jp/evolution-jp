@@ -80,7 +80,7 @@ function tplUseTvs($tpl_id, $tvs = '', $types = '')
     $types = makeArray($types);
 
     // Get the DB table names
-    $from = array('[+prefix+]site_tmplvars tvs');
+    $from = ['[+prefix+]site_tmplvars tvs'];
     $from[] = 'LEFT JOIN [+prefix+]site_tmplvar_templates rel ON rel.tmplvarid = tvs.id';
 
     $where = [];

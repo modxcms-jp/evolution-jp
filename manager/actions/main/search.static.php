@@ -171,7 +171,7 @@ if (getv('submitok')) {
                     <tbody>
                     <?php
                     // icons by content type
-                    $icons = array(
+                    $icons = [
                         'application/rss+xml' => style('tree_page_rss'),
                         'application/pdf' => style('tree_page_pdf'),
                         'application/vnd.ms-word' => style('tree_page_word'),
@@ -184,7 +184,7 @@ if (getv('submitok')) {
                         'image/gif' => style('tree_page_gif'),
                         'image/jpg' => style('tree_page_jpg'),
                         'image/png' => style('tree_page_png')
-                    );
+                    ];
 
                     while ($row = db()->getRow($rs)) {
                         // figure out the icon for the document...

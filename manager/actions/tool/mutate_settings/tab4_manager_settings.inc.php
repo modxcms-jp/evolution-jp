@@ -162,12 +162,12 @@
                 <select name="resource_tree_node_name" size="1" class="inputBox">
                     <?php
                     $tpl = '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n";
-                    $option = array('pagetitle', 'menutitle', 'alias', 'createdon', 'editedon', 'publishedon');
+                    $option = ['pagetitle', 'menutitle', 'alias', 'createdon', 'editedon', 'publishedon'];
                     $output = [];
                     foreach ($option as $v) {
                         $selected = ($v == config('resource_tree_node_name')) ? 'selected' : '';
-                        $s = array('[+value+]', '[+selected+]');
-                        $r = array($v, $selected);
+                        $s = ['[+value+]', '[+selected+]'];
+                        $r = [$v, $selected];
                         $output[] = str_replace($s, $r, $tpl);
                     }
                     echo join("\n", $output)
@@ -201,7 +201,7 @@
             <th><?= $_lang["datetime_format"] ?></th>
             <td><select name="datetime_format" size="1" class="inputBox">
                     <?php
-                    $datetime_format_list = array('dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd');
+                    $datetime_format_list = ['dd-mm-YYYY', 'mm/dd/YYYY', 'YYYY/mm/dd'];
                     $str = '';
                     foreach ($datetime_format_list as $value) {
                         $selectedtext = (config('datetime_format') == $value) ? ' selected' : '';

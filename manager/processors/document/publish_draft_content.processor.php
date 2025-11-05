@@ -40,10 +40,10 @@ header($header);
 function setStandBy($docid, $pub_date)
 {
     db()->update(
-        array(
+        [
             'pub_date' => $pub_date,
             'status' => 'standby'
-        )
+        ]
         , '[+prefix+]site_revision'
         , sprintf("elmid='%s'", $docid)
     );
@@ -71,7 +71,7 @@ function publishDraft($docid)
     );
 
     evo()->clearCache();
-    $tmp = array('docid' => $docid, 'type' => 'draftManual');
+    $tmp = ['docid' => $docid, 'type' => 'draftManual'];
     evo()->invokeEvent('OnDocPublished', $tmp); // invoke OnDocPublished  event
 
     return 'publish_draft';

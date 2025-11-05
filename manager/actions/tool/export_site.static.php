@@ -55,7 +55,7 @@ if (!evo()->hasPermission('export_static')) {
                     <table class="settings" cellspacing="0" cellpadding="2">
                         <tr>
                             <td class="head">出力するリソース</td>
-                            <?php $checked = array('all' => '', 'allow_ids' => '', 'ignore_ids' => ''); ?>
+                            <?php $checked = ['all' => '', 'allow_ids' => '', 'ignore_ids' => '']; ?>
                             <?php $checked[sessionv('export_target', 'all')] = 'checked'; ?>
                             <td>
                                 <label>
@@ -82,7 +82,7 @@ if (!evo()->hasPermission('export_static')) {
                                         <?= $checked['ignore_ids'] ?>
                                     >一部のリソースを除外
                                 </label>
-                                <?php $display = array('allow_ids' => 'none', 'ignore_ids' => 'none'); ?>
+                                <?php $display = ['allow_ids' => 'none', 'ignore_ids' => 'none']; ?>
                                 <?php $display[sessionv('export_target', 'all')] = 'block'; ?>
                                 <div
                                     id="allow_ids"
@@ -111,7 +111,7 @@ if (!evo()->hasPermission('export_static')) {
                             </td>
                         </tr>
                         <?php
-                        $checked = array(0 => '', 1 => '');
+                        $checked = [0 => '', 1 => ''];
                         if (sessionv('export_includenoncache')) {
                             $checked[1] = 'checked';
                         } else {

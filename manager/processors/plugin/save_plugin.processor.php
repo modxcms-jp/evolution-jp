@@ -50,10 +50,10 @@ switch (postv('mode')) {
     case '101':
 
         // invoke OnBeforePluginFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => ''
-        );
+        ];
         evo()->invokeEvent('OnBeforePluginFormSave', $tmp);
 
         // disallow duplicate names for active plugins
@@ -99,10 +99,10 @@ switch (postv('mode')) {
         saveEventListeners($newid, $sysevents, postv('mode'));
 
         // invoke OnPluginFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => $newid
-        );
+        ];
         evo()->invokeEvent('OnPluginFormSave', $tmp);
 
         // empty cache
@@ -119,10 +119,10 @@ switch (postv('mode')) {
     case '102':
 
         // invoke OnBeforePluginFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent("OnBeforePluginFormSave", $tmp);
 
         // disallow duplicate names for active plugins
@@ -165,10 +165,10 @@ switch (postv('mode')) {
             saveEventListeners($id, $sysevents, postv('mode'));
 
             // invoke OnPluginFormSave event
-            $tmp = array(
+            $tmp = [
                 'mode' => 'upd',
                 'id' => $id
-            );
+            ];
             evo()->invokeEvent('OnPluginFormSave', $tmp);
 
             // empty cache

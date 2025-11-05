@@ -59,10 +59,10 @@
                 echo '</div>';
             }
             // invoke OnUserFormRender event
-            $tmp = array(
+            $tmp = [
                 'id' => $userid,
                 'usersettings' => $user
-            );
+            ];
             $evtOut = evo()->invokeEvent('OnUserFormRender', $tmp);
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);

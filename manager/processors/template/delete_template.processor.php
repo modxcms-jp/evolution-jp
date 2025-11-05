@@ -29,7 +29,7 @@ if ($id == $default_template) {
 }
 
 // invoke OnBeforeTempFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnBeforeTempFormDelete', $tmp);
 
 //ok, delete the document.
@@ -42,7 +42,7 @@ if (!$rs) {
 $rs = db()->delete($tbl_site_tmplvar_templates, "templateid='{$id}'");
 
 // invoke OnTempFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnTempFormDelete', $tmp);
 
 // empty cache

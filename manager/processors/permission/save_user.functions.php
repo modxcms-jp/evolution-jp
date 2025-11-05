@@ -14,7 +14,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
     $message = evo()->mergeSettingsContent(
         evo()->parseText(
             evo()->config['signupemail_message'],
-            array(
+            [
                 'username' => $uid,
                 'uid' => $uid,
                 'password' => $pwd,
@@ -28,7 +28,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
                 'semail' => evo()->config['emailsender'],
                 'site_url' => MODX_SITE_URL,
                 'surl' => MODX_SITE_URL . 'manager/'
-            )
+            ]
         )
     );
     if (!evo()->sendmail($email, $message)) {
@@ -40,7 +40,7 @@ function sendMailMessage($email, $uid, $pwd, $ufn)
 // Save User Settings
 function saveUserSettings($id)
 {
-    $ignore = array(
+    $ignore = [
         'id',
         'oldusername',
         'oldemail',
@@ -77,15 +77,15 @@ function saveUserSettings($id)
         'save',
         'theme_refresher',
         'userid'
-    );
+    ];
 
     // determine which settings can be saved blank (based on 'default_{settingname}' POST checkbox values)
-    $defaults = array(
+    $defaults = [
         'manager_inline_style',
         'upload_images',
         'upload_media',
         'upload_files'
-    );
+    ];
 
     // get user setting field names
     $settings = [];
@@ -269,7 +269,7 @@ function validEmail()
 
 function validate()
 {
-    $fields = array(
+    $fields = [
         'fullname',
         'role',
         'email',
@@ -288,10 +288,10 @@ function validate()
         'blocked',
         'blockeduntil',
         'blockedafter'
-    );
+    ];
     $rs = [];
     foreach ($fields as $field) {
-        if (in_array($field, array('dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter')) && !postv($field)) {
+        if (in_array($field, ['dob', 'gender', 'blocked', 'blockeduntil', 'blockedafter']) && !postv($field)) {
             $rs[$field] = 0;
             continue;
         }
@@ -303,15 +303,15 @@ function validate()
 function newUser()
 {
     // invoke OnBeforeUserFormSave event
-    $tmp = array(
+    $tmp = [
         'mode' => 'new',
         'id' => null
-    );
+    ];
     evo()->invokeEvent('OnBeforeUserFormSave', $tmp);
 
     // build the SQL
     $internalKey = db()->insert(
-        array('username' => db()->escape(postv('newusername', 'New User'))),
+        ['username' => db()->escape(postv('newusername', 'New User'))],
         '[+prefix+]manager_users'
     );
     if (!$internalKey) {
@@ -319,7 +319,7 @@ function newUser()
         exit;
     }
     db()->update(
-        array('password' => evo()->phpass->HashPassword(newPassword())),
+        ['password' => evo()->phpass->HashPassword(newPassword())],
         '[+prefix+]manager_users',
         sprintf("id='%s'", $internalKey)
     );
@@ -339,7 +339,7 @@ function newUser()
     saveUserSettings($internalKey);
 
     // invoke OnManagerSaveUser event
-    $tmp = array(
+    $tmp = [
         'mode' => 'new',
         'userid' => $internalKey,
         'username' => postv('newusername', 'New User'),
@@ -347,14 +347,14 @@ function newUser()
         'useremail' => postv('email'),
         'userfullname' => postv('fullname'),
         'userroleid' => postv('role', 0)
-    );
+    ];
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
     // invoke OnUserFormSave event
-    $tmp = array(
+    $tmp = [
         'mode' => 'new',
         'id' => $internalKey
-    );
+    ];
     evo()->invokeEvent('OnUserFormSave', $tmp);
 
     // put the user in the user_groups he/ she should be in
@@ -365,7 +365,7 @@ function newUser()
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    array('user_group' => $user_group, 'member' => $internalKey),
+                    ['user_group' => $user_group, 'member' => $internalKey],
                     '[+prefix+]member_groups'
                 );
                 if (!$rs) {
@@ -434,14 +434,14 @@ function newUser()
 function updateUser()
 {
     // invoke OnBeforeUserFormSave event
-    $tmp = array(
+    $tmp = [
         'mode' => 'upd',
         'id' => postv('userid')
-    );
+    ];
     evo()->invokeEvent('OnBeforeUserFormSave', $tmp);
 
     // update user name and password
-    $field = array('username' => postv('newusername', 'New User'));
+    $field = ['username' => postv('newusername', 'New User')];
     if (postv('newpassword') == 1) {
         $field['password'] = evo()->phpass->HashPassword(newPassword());
     }
@@ -471,7 +471,7 @@ function updateUser()
     saveUserSettings(postv('userid'));
 
     // invoke OnManagerSaveUser event
-    $tmp = array(
+    $tmp = [
         'mode' => 'upd',
         'userid' => postv('userid'),
         'username' => postv('newusername', 'New User'),
@@ -481,16 +481,16 @@ function updateUser()
         'userroleid' => postv('role', 0),
         'oldusername' => hasOldUserName() ? postv('oldusername') : '',
         'olduseremail' => hasOldUserEmail() ? postv('oldemail') : ''
-    );
+    ];
     evo()->invokeEvent('OnManagerSaveUser', $tmp);
 
     // invoke OnManagerChangePassword event
     if (postv('newpassword') == 1) {
-        $tmp = array(
+        $tmp = [
             'userid' => postv('userid'),
             'username' => postv('newusername', 'New User'),
             'userpassword' => newPassword()
-        );
+        ];
         evo()->invokeEvent('OnManagerChangePassword', $tmp);
     }
 
@@ -499,10 +499,10 @@ function updateUser()
     }
 
     // invoke OnUserFormSave event
-    $tmp = array(
+    $tmp = [
         'mode' => 'upd',
         'id' => postv('userid')
-    );
+    ];
     evo()->invokeEvent('OnUserFormSave', $tmp);
     evo()->clearCache();
     // put the user in the user_groups he/ she should be in
@@ -519,7 +519,7 @@ function updateUser()
             foreach ($user_groups as $user_group) {
                 $user_group = (int)$user_group;
                 $rs = db()->insert(
-                    array('user_group' => $user_group, 'member' => postv('userid')),
+                    ['user_group' => $user_group, 'member' => postv('userid')],
                     '[+prefix+]member_groups'
                 );
                 if (!$rs) {

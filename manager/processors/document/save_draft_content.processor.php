@@ -42,7 +42,7 @@ if (postv('stay') === 'stay') {
     );
     return;
 }
-if (in_array(postv('stay'), array('save_draft', 'save_standby'))) {
+if (in_array(postv('stay'), ['save_draft', 'save_standby'])) {
     header(
         sprintf('Location: index.php?a=133&id=%s&r=1', postv('id'))
     );

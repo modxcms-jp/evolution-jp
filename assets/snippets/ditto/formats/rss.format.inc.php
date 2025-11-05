@@ -21,9 +21,9 @@ if (!isset($orderBy ['unparsed'])) {
 // date type to display (values can be createdon, pub_date, editedon)
 
 // set tpl rss placeholders
-$placeholders['rss_date']      = array($dateSource, "rss_date");
-$placeholders['rss_pagetitle'] = array("pagetitle", "rss_pagetitle");
-$placeholders['rss_author']    = array("createdby", "rss_author");
+$placeholders['rss_date']      = [$dateSource, "rss_date"];
+$placeholders['rss_pagetitle'] = ["pagetitle", "rss_pagetitle"];
+$placeholders['rss_author']    = ["createdby", "rss_author"];
 
 $extenders[] = 'summary';
 

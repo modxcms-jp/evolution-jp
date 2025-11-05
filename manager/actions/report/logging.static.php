@@ -352,7 +352,7 @@ EOT;
                                 $row['itemname'] = evo()->hsc($row['itemname']);
                                 if (!preg_match('/^[1-9][0-9]*$/', $row['itemid'])) {
                                     $row['title'] = '<div style="text-align:center;">-</div>';
-                                } elseif (in_array($row['action'], array(3, 27, 5))) {
+                                } elseif (in_array($row['action'], [3, 27, 5])) {
                                     $row['title'] = evo()->parseText(
                                         '<a href="index.php?a=3&amp;id=[+itemid+]">[[+itemid+]] [+itemname+]</a>',
                                         $row

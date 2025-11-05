@@ -11,7 +11,7 @@
  *
  */
 $self = 'manager/processors/remove_installer.processor.php';
-$base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
+$base_path = str_replace(['\\', $self], ['/', ''], __FILE__);
 
 $install_dir = "{$base_path}install";
 if ($_GET['rminstall']??null) {

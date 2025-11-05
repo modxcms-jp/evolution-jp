@@ -21,7 +21,7 @@ if ($rs) {
 
 
 // invoke OnBeforeWUsrFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnBeforeWUsrFormDelete", $tmp);
 
 // delete the user.
@@ -47,14 +47,14 @@ if (!$rs) {
 db()->delete('[+prefix+]web_user_settings', "webuser='{$id}'");
 
 // invoke OnWebDeleteUser event
-$tmp = array(
+$tmp = [
     "userid" => $id,
     "username" => $username
-);
+];
 evo()->invokeEvent("OnWebDeleteUser", $tmp);
 
 // invoke OnWUsrFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnWUsrFormDelete", $tmp);
 
 header("Location: index.php?a=99");

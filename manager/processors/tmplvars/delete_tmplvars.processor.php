@@ -59,7 +59,7 @@ if (!$forced) {
 }
 
 // invoke OnBeforeTVFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnBeforeTVFormDelete", $tmp);
 
 // delete variable
@@ -81,5 +81,5 @@ db()->delete($tbl_site_tmplvar_templates, "tmplvarid='{$id}'");
 db()->delete($tbl_site_tmplvar_access, "tmplvarid='{$id}'");
 
 // invoke OnTVFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnTVFormDelete", $tmp);

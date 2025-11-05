@@ -418,7 +418,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=103" enctype="multipart/form-data">
     <?php
     // invoke OnPluginFormPrerender event
-    $tmp = array("id" => getv('id'));
+    $tmp = ["id" => getv('id')];
     $evtOut = evo()->invokeEvent("OnPluginFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -450,28 +450,28 @@ function entity($key, $default = null)
             <?php endif; ?>
             <?php
             if (getv('a') == 102) {
-                $params = array(
+                $params = [
                     'onclick' => 'duplicaterecord();',
                     'icon' => $_style['icons_resource_duplicate'],
                     'label' => $_lang['duplicate']
-                );
+                ];
                 if (evo()->hasPermission('new_plugin')) {
                     echo manager()->ab($params);
                 }
-                $params = array(
+                $params = [
                     'onclick' => 'deletedocument();',
                     'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
-                );
+                ];
                 if (evo()->hasPermission('delete_plugin')) {
                     echo manager()->ab($params);
                 }
             }
-            $params = array(
+            $params = [
                 'onclick' => "document.location.href='index.php?a=76';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
-            );
+            ];
             echo manager()->ab($params);
             ?>
         </ul>
@@ -597,14 +597,14 @@ function entity($key, $default = null)
 
                     // display system events
                     $evtnames = [];
-                    $services = array(
+                    $services = [
                         "Parser Service Events",
                         "Manager Access Events",
                         "Web Access Service Events",
                         "Cache Service Events",
                         "Template Service Events",
                         "User Defined Events"
-                    );
+                    ];
                     $rs = db()->select('*', '[+prefix+]system_eventnames', '', 'service DESC, groupname, name');
                     if (db()->count($rs) == 0) {
                         echo '<tr><td>&nbsp;</td></tr>';
@@ -757,7 +757,7 @@ function entity($key, $default = null)
     </script>
     <?php
     // invoke OnPluginFormRender event
-    $tmp = array("id" => getv('id'));
+    $tmp = ["id" => getv('id')];
     $evtOut = evo()->invokeEvent("OnPluginFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

@@ -29,10 +29,10 @@ switch ($operation) {
             }
 
             // invoke OnWebCreateGroup event
-            $tmp = array(
+            $tmp = [
                 'groupid' => $id,
                 'groupname' => $newgroup,
-            );
+            ];
             evo()->invokeEvent('OnWebCreateGroup', $tmp);
         }
         break;
@@ -47,10 +47,10 @@ switch ($operation) {
             }
 
             // invoke OnCreateDocGroup event
-            $tmp = array(
+            $tmp = [
                 'groupid' => $id,
                 'groupname' => $newgroup,
-            );
+            ];
             evo()->invokeEvent('OnCreateDocGroup', $tmp);
         }
         break;

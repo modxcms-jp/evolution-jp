@@ -61,7 +61,7 @@ if (isset($eFormCSS)) $cssStyle = $eFormCSS;
 $from = (isset($from)) ? $from : $modx->config['emailsender'];
 $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode : '';
-$params = array(
+$params = [
     //                       Snippet Path
     'snipPath' => $snipPath,//includes $snip_dir
     'snipFolder' => $snip_dir,
@@ -115,11 +115,11 @@ $params = array(
     'runSnippet' => (isset($runSnippet) && !is_numeric($runSnippet)) ? $runSnippet : '',
     'autoSenderName' => isset($autoSenderName) ? $autoSenderName : '',
     'version' => isset($version) ? $version : '1.4.4.7'
-);
+];
 
 // pixelchutes PHx workaround
 foreach ($params as $key => $val) {
-    $params[$key] = str_replace(array('((', '))'), array('[+', '+]'), $val);
+    $params[$key] = str_replace(['((', '))'], ['[+', '+]'], $val);
 }
 
 function eForm($modx, $params)
@@ -214,21 +214,21 @@ function eForm($modx, $params)
 
     //these will be added to the HEAD section of the document when the form is displayed!
     if ($cssStyle) {
-        $cssStyle = (strpos($cssStyle, ',') && strpos($cssStyle, '<style') === false) ? explode(',', $cssStyle) : array($cssStyle);
+        $cssStyle = (strpos($cssStyle, ',') && strpos($cssStyle, '<style') === false) ? explode(',', $cssStyle) : [$cssStyle];
         foreach ($cssStyle as $tmp) {
-            $startupSource[] = array($tmp, 'css');
+            $startupSource[] = [$tmp, 'css'];
         }
     }
     if ($jScript) {
-        $jScript = (strpos($jScript, ',') && strpos($jScript, '<script') === false) ? explode(',', $jScript) : array($jScript);
+        $jScript = (strpos($jScript, ',') && strpos($jScript, '<script') === false) ? explode(',', $jScript) : [$jScript];
         foreach ($jScript as $tmp) {
-            $startupSource[] = array($tmp, 'javascript');
+            $startupSource[] = [$tmp, 'javascript'];
         }
     }
 
     #New in 1.4.4 - run snippet to include 'event' functions
     if (strlen($runSnippet) > 0) {
-        $modx->runSnippet($runSnippet, array('formid' => $formid));
+        $modx->runSnippet($runSnippet, ['formid' => $formid]);
         //Sadly we cannot know if the snippet fails or if it exists as modx->runsnippet's return value
         //is ambiguous
     }
@@ -238,7 +238,7 @@ function eForm($modx, $params)
         if ($isDebug && !function_exists($eFormOnBeforeFormParse)) {
             $fields['debug'] .= "eFormOnBeforeFormParse event: Could not find the function " . $eFormOnBeforeFormParse;
         } else {
-            $templates = array('tpl' => $tpl, 'report' => $report, 'thankyou' => $thankyou, 'autotext' => $autotext);
+            $templates = ['tpl' => $tpl, 'report' => $report, 'thankyou' => $thankyou, 'autotext' => $autotext];
             if ($eFormOnBeforeFormParse($fields, $templates) === false) {
                 return "";
             } elseif (is_array($templates))
@@ -492,7 +492,7 @@ function eForm($modx, $params)
                 if (isset($startupSource)) {
                     efRegisterStartupBlock($startupSource);
                 }
-                return formMerge($tpl, array('validationmessage' => $_lang['ef_mail_abuse_error']));
+                return formMerge($tpl, ['validationmessage' => $_lang['ef_mail_abuse_error']]);
             }
 
             # added in 1.4.2 - Limit the time between form submissions
@@ -522,7 +522,7 @@ function eForm($modx, $params)
                 $hash = '';
                 # create a hash of key data
                 if (!is_numeric($protectSubmit)) { //supplied field names
-                    $protectSubmit = (strpos($protectSubmit, ',')) ? explode(',', $protectSubmit) : array($protectSubmit);
+                    $protectSubmit = (strpos($protectSubmit, ',')) ? explode(',', $protectSubmit) : [$protectSubmit];
                     foreach ($protectSubmit as $fld) {
                         $hash .= isset($fields[$fld]) ? $fields[$fld] : '';
                     }
@@ -748,7 +748,7 @@ function eForm($modx, $params)
 
     # get SESSION data - thanks to sottwell
     if ($sessionVars) {
-        $sessionVars = (strpos($sessionVars, ',', 0)) ? explode(',', $sessionVars) : array($sessionVars);
+        $sessionVars = (strpos($sessionVars, ',', 0)) ? explode(',', $sessionVars) : [$sessionVars];
         foreach ($sessionVars as $varName) {
             if (empty($varName)) {
                 continue;
@@ -832,7 +832,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                         , $docText
                     );
                 }
-                if (in_array($datatype, array('checkbox', 'radio')) && in_array($listValue, $docFields[$listName])) {
+                if (in_array($datatype, ['checkbox', 'radio']) && in_array($listValue, $docFields[$listName])) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]'
@@ -855,7 +855,7 @@ function formMerge($docText, $docFields, $vClasses = '')
                         , $docText
                     );
                 }
-                if (in_array($datatype, array('checkbox', 'radio')) && $listValue == $docFields[$listName]) {
+                if (in_array($datatype, ['checkbox', 'radio']) && $listValue == $docFields[$listName]) {
                     $docText = str_replace(
                         sprintf(
                             '[+%s:%s+]'
@@ -967,7 +967,7 @@ function eFormParseTemplate($tpl, $isDebug = false)
         $tagAttributes = attr2array($fieldTags[$i]);
         //attribute values are stored including quotes
         //strip quotes as well as any brackets to get the raw name
-        $name = str_replace(array("'", '"', '[', ']'), '', $tagAttributes['name']);
+        $name = str_replace(["'", '"', '[', ']'], '', $tagAttributes['name']);
 
         #skip vericode field - updated in 1.4.4
         #special case. We need to set the class placeholder but forget about the rest
@@ -988,7 +988,7 @@ function eFormParseTemplate($tpl, $isDebug = false)
             $formats[$name] = explode(":", stripTagQuotes($tagAttributes[$optionsName]), 5);
             array_unshift($formats[$name], $name);
         } else {
-            if (!isset($formats[$name])) $formats[$name] = array($name, '', '', 0);
+            if (!isset($formats[$name])) $formats[$name] = [$name, '', '', 0];
         }
         //added for 1.4 - use label if it is defined
         if (empty($formats[$name][1])) {
@@ -1177,7 +1177,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
         return false;
     }
 
-    $valList = (is_array($value)) ? $value : array($value);
+    $valList = (is_array($value)) ? $value : [$value];
     //init vars
     $errMsg = '';
     unset($vlist);
@@ -1196,7 +1196,7 @@ function validateField($value, $fld, &$vMsg, $isDebug = false)
                     if (strpos($p, '~') > 0) {
                         $range = explode('~', $p);
                     } else {
-                        $range = array($p, $p);
+                        $range = [$p, $p];
                     } //yes,.. I know - cheating :)
 
                     if ($isDebug && (!is_numeric($range[0]) || !is_numeric($range[1])))
@@ -1363,7 +1363,7 @@ function efRegisterStartupBlock($src_array, $noScript = false)
 {
     global $modx;
 
-    if (!array($src_array)) {
+    if (![$src_array]) {
         return;
     }
 

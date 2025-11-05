@@ -324,8 +324,8 @@ class TinyMCE
                     }
                     if (!evo()->config('mce_template_docs') && !evo()->config('mce_template_chunks')) {
                         $plugins = str_replace(
-                            array('template', ',,'),
-                            array('', ','),
+                            ['template', ',,'],
+                            ['', ','],
                             $plugins
                         );
                         $buttons1 = str_replace(',template', '', $buttons1);

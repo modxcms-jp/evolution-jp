@@ -143,7 +143,7 @@ function run()
     if (postv('reset') === 'on') {
         db()->delete('[+prefix+]site_content');
         db()->query(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', evo()->getFullTableName('site_content')));
-        db()->update(array('setting_value' => ''), '[+prefix+]system_settings', "setting_name='error_page'");
+        db()->update(['setting_value' => ''], '[+prefix+]system_settings', "setting_name='error_page'");
     }
 
     $parent = (int)postv('parent', 0);
@@ -163,7 +163,7 @@ function run()
 
     // import files
     if (0 < count($files)) {
-        db()->update(array('isfolder' => 1), '[+prefix+]site_content', "id={$parent}");
+        db()->update(['isfolder' => 1], '[+prefix+]site_content', "id={$parent}");
         importFiles($parent, $filedir, $files, 'root');
     }
 
@@ -218,7 +218,7 @@ function importFiles($parent, $filedir, $files, $mode)
             $field['isfolder'] = 1;
             $field['menuindex'] = 1;
             $find = false;
-            foreach (array('index.html', 'index.htm') as $filename) {
+            foreach (['index.html', 'index.htm'] as $filename) {
                 $filepath = $filedir . $alias . '/' . $filename;
                 if ($find !== false || !is_file($filepath)) {
                     continue;
@@ -235,11 +235,11 @@ function importFiles($parent, $filedir, $files, $mode)
                 $field['editedon'] = $date;
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if (!$newid) {
-                    $vs = array(
+                    $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
                         db()->getLastError()
-                    );
+                    ];
                     echo vsprintf(' - <span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
@@ -262,11 +262,11 @@ function importFiles($parent, $filedir, $files, $mode)
                     echo sprintf(' - <span class="success">%s</span><br />', $_lang['import_site_success']) . "\n";
                     importFiles($newid, $filedir . $alias . '/', $value, 'sub');
                 } else {
-                    $vs = array(
+                    $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
                         db()->getLastError()
-                    );
+                    ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
@@ -311,11 +311,11 @@ function importFiles($parent, $filedir, $files, $mode)
                 $field['menuindex'] = ($alias == 'index') ? 0 : 2;
                 $newid = db()->insert($field, '[+prefix+]site_content');
                 if (!$newid) {
-                    $vs = array(
+                    $vs = [
                         $_lang['import_site_failed'],
                         $_lang['import_site_failed_db_error'],
                         db()->getLastError()
-                    );
+                    ];
                     echo vsprintf('<span class="fail">%s</span> %s %s', $vs);
                     exit;
                 }
@@ -385,7 +385,7 @@ function getFileContent($filepath)
     global $_lang;
     // get the file
     if (!$buffer = file_get_contents($filepath)) {
-        $vs = array($_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], $filepath);
+        $vs = [$_lang['import_site_failed'], $_lang['import_site_failed_no_retrieve_file'], $filepath];
         echo vsprintf('<p><span class="fail">%s</span> %s %s</p>', $vs);
     } else {
         return $buffer;
@@ -444,7 +444,7 @@ function treatContent($src, $filename, $alias)
     $content = str_replace('[*content*]', '[ *content* ]', $content);
     $content = trim($content);
     $pagetitle = db()->escape($pagetitle);
-    return array($pagetitle, $content, $description);
+    return [$pagetitle, $content, $description];
 }
 
 function convertLink()
@@ -521,9 +521,9 @@ function convertLink()
             $i++;
         }
         db()->update(
-            array(
+            [
                 'content' => db()->escape(str_replace($s, $r, $row['content']))
-            ),
+            ],
             '[+prefix+]site_content',
             sprintf("id='%s'", $row['id'])
         );

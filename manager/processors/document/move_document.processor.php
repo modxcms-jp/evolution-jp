@@ -206,11 +206,11 @@ function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
         }
     }
     $rs = db()->update(
-        array(
+        [
             'parent' => $new_parent,
             'editedby' => $user_id,
             'menuindex' => $menuindex
-        )
+        ]
         , '[+prefix+]site_content'
         , sprintf("id='%s'", $doc_id)
     );

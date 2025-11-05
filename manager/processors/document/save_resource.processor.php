@@ -28,11 +28,11 @@ evo()->manager->saveFormValues();
 
 if (mode() === 'new') {
     // invoke OnBeforeDocFormSave event
-    $param = array(
+    $param = [
         'mode' => 'new',
         'doc_vars' => getInputValues(evo()->doc->getNewDocID()),
         'tv_vars' => validated('template') ? get_tmplvars() : []
-    );
+    ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
 
     $newid = db()->insert(
@@ -62,7 +62,7 @@ if (mode() === 'new') {
 
     // invoke OnDocFormSave event
     validated('*id', $newid);
-    evo()->event->vars = array('mode' => 'new', 'id' => $newid);
+    evo()->event->vars = ['mode' => 'new', 'id' => $newid];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
 
     goNextAction($newid, validated('parent'), validated('stay'), validated('type'));
@@ -94,12 +94,12 @@ if (mode() === 'edit') {
         validated('*alias', substr(validated('alias'), 0, -$len));
     }
     // invoke OnBeforeDocFormSave event
-    $param = array(
+    $param = [
         'mode' => 'upd',
         'id' => validated('id'),
         'doc_vars' => getInputValues(validated('id'), 'edit'),
         'tv_vars' => validated('template') ? get_tmplvars() : []
-    );
+    ];
     evo()->invokeEvent('OnBeforeDocFormSave', $param);
     $rs = db()->update(
         db()->escape($param['doc_vars']),
@@ -134,16 +134,16 @@ if (mode() === 'edit') {
 
     if (validated('syncsite')) {
         if (validated('published') != $db_v['published'] || validated('alias') != $db_v['alias']) {
-            evo()->clearCache(array('target' => 'sitecache'));
+            evo()->clearCache(['target' => 'sitecache']);
         } elseif (validated('parent') != $db_v['parent']) {
-            evo()->clearCache(array('target' => 'sitecache'));
+            evo()->clearCache(['target' => 'sitecache']);
         } else {
-            evo()->clearCache(array('target' => 'pagecache'));
+            evo()->clearCache(['target' => 'pagecache']);
         }
     }
 
     // invoke OnDocFormSave event
-    evo()->event->vars = array('mode' => 'upd', 'id' => validated('id'));
+    evo()->event->vars = ['mode' => 'upd', 'id' => validated('id')];
     evo()->invokeEvent('OnDocFormSave', evo()->event->vars);
     goNextAction(validated('id'), validated('parent'), validated('stay'), validated('type'));
     return;
@@ -169,11 +169,11 @@ function get_tmplvars()
 
     $rs = db()->select(
         'DISTINCT tv.*',
-        array(
+        [
             '[+prefix+]site_tmplvars AS tv',
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid = tv.id',
             'LEFT JOIN [+prefix+]site_tmplvar_access tva ON tva.tmplvarid=tv.id'
-        ),
+        ],
         sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template,
@@ -188,7 +188,7 @@ function get_tmplvars()
         $tvid = 'tv' . $row['id'];
 
         if (validated($tvid) === null) {
-            $multi_type = array('checkbox', 'listbox-multiple', 'custom_tv');
+            $multi_type = ['checkbox', 'listbox-multiple', 'custom_tv'];
             if (!in_array($row['type'], $multi_type)) {
                 continue;
             }
@@ -788,10 +788,10 @@ function setDocPermissionsEdit($document_groups, $id)
     }
     $rs = db()->select(
         '`groups`.id, `groups`.document_group',
-        array(
+        [
             '[+prefix+]document_groups AS `groups`',
             'LEFT JOIN [+prefix+]documentgroup_names AS dgn ON dgn.id=`groups`.document_group'
-        ),
+        ],
         sprintf(
             "((1=%s AND dgn.private_memgroup) OR (1=%s AND dgn.private_webgroup)) AND `groups`.document='%s'",
             (int)evo()->hasPermission('access_permissions'),

@@ -194,10 +194,10 @@ class Wayfinder
                     if (isset($referenced[$field])) {
                         $resource[$field] = $referenced[$field];
                     }
-                    if (in_array($field, array('linktext', $linkTextField), true)) {
+                    if (in_array($field, ['linktext', $linkTextField], true)) {
                         $resource['linktext'] = $referenced[$linkTextField];
                     }
-                    if (in_array($field, array('title', $this->_config['titleOfLinks']), true)) {
+                    if (in_array($field, ['title', $this->_config['titleOfLinks']], true)) {
                         $resource['title'] = $referenced[$this->_config['titleOfLinks']];
                     }
                 }
@@ -397,7 +397,7 @@ class Wayfinder
         global $modx;
         //Debug
         if ($this->_config['debug']) {
-            $jsCssDebug = array('js' => 'None Specified.', 'css' => 'None Specified.');
+            $jsCssDebug = ['js' => 'None Specified.', 'css' => 'None Specified.'];
         }
         //Check and load the CSS
         if ($this->_config['cssTpl']) {
@@ -444,10 +444,10 @@ class Wayfinder
         } else {
             $ids = $modx->getChildIds($this->_config['id'], 1, $ids);
             // if startId not in parents, only show children of startId
-            $parents = array($this->_config['hereId']) + $modx->getParentIds($this->_config['hereId']);
+            $parents = [$this->_config['hereId']] + $modx->getParentIds($this->_config['hereId']);
             if ($this->_config['id'] == 0 || in_array($this->_config['id'], $parents)) {
                 //remove parents higher than startId(including startId)
-                $startId_parents = array($this->_config['id']) + $modx->getParentIds($this->_config['id']);
+                $startId_parents = [$this->_config['id']] + $modx->getParentIds($this->_config['id']);
                 $parents = array_diff($parents, $startId_parents);
 
                 //remove parents lower than level of startId + level depth
@@ -713,7 +713,7 @@ class Wayfinder
                         , $name
                         , $name
                         , 'No template found, using default.'
-                        , array($name => $this->_templates[$name])
+                        , [$name => $this->_templates[$name]]
                     );
                 }
                 continue;
@@ -731,7 +731,7 @@ class Wayfinder
                     , $name
                     , $name
                     , 'Template Found.'
-                    , array($name => $this->_templates[$name])
+                    , [$name => $this->_templates[$name]]
                 );
             }
         }
@@ -761,7 +761,7 @@ class Wayfinder
     {
         foreach ($arr2 as $key => $value) {
             if (!is_array($arr1)) {
-                $arr1 = array($arr1);
+                $arr1 = [$arr1];
             }
             if (is_array($value)) {
                 $arr1[$key] = $this->array_merge_recursive($arr1[$key], $value);
@@ -828,7 +828,7 @@ class Wayfinder
                     $key = 'startId';
                 }
                 $value = $this->modxPrep($value);
-                $value = str_replace(array(' ', "\n"), array('&nbsp;', "<br />\n"), $value);
+                $value = str_replace([' ', "\n"], ['&nbsp;', "<br />\n"], $value);
             }
             if ($count == 2) {
                 $infoString .= '</tr>';
@@ -852,11 +852,11 @@ class Wayfinder
         if ($group === 'row') {
             $message = sprintf('<div>%s</div>', $message);
         }
-        $this->debugInfo[$group][$groupkey] = array(
+        $this->debugInfo[$group][$groupkey] = [
             'header' => $this->modxPrep($header),
             'message' => $message,
             'info' => $infoString,
-        );
+        ];
     }
 
     function renderDebugOutput()
@@ -923,8 +923,8 @@ class Wayfinder
         if (strpos($value, '<') !== false) {
             $value = htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']);
         }
-        $s = array('[', ']', '{', '}');
-        $r = array('&#091;', '&#093;', '&#123;', '&#125;');
+        $s = ['[', ']', '{', '}'];
+        $r = ['&#091;', '&#093;', '&#123;', '&#125;'];
         $value = str_replace($s, $r, $value);
         return $value;
     }

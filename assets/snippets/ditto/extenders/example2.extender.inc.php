@@ -10,11 +10,11 @@
 // Defin the values of custom placeholders for access in the tpl like so [+phname+]
 // ---------------------------------------------------
 
-$placeholders['example'] = array(
-    array('pagetitle', '*'),
+$placeholders['example'] = [
+    ['pagetitle', '*'],
     'exampleFunction',
     'pagetitle'
-);
+];
 // Variable: $placeholders['example']
 // Add the placeholder example to the custom placeholders list
 // with the source pagetitle in both display and backend using the

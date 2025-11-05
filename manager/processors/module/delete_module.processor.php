@@ -9,7 +9,7 @@ if (!evo()->hasPermission('delete_module')) {
 $id = (int)getv('id');
 
 // invoke OnBeforeModFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnBeforeModFormDelete", $tmp);
 
 //ok, delete the module.
@@ -29,7 +29,7 @@ $sql = "DELETE FROM " . evo()->getFullTableName("site_module_access") . " WHERE 
 $rs = db()->query($sql);
 
 // invoke OnModFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnModFormDelete", $tmp);
 
 

@@ -29,14 +29,14 @@ class modxDebugConsole
         foreach ($cTabs as $name => $tab_content) {
             $content .= $this->makeTab($name, $tab_content);
         }
-        $placeholders = array(
+        $placeholders = [
             '[+ditto_base_url+]' => $base_path,
             '[+base_url+]' => MODX_SITE_URL . 'manager/',
             '[+theme+]' => $modx->config['manager_theme'],
             '[+title+]' => $title,
             '[+content+]' => $content,
             '[+charset+]' => $modx->config['modx_charset'],
-        );
+        ];
 
         return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['main']);
     }
@@ -61,7 +61,7 @@ class modxDebugConsole
     function makeLink($title, $open_text, $save_text, $base_path, $prefix = '')
     {
         global $modx;
-        $placeholders = array(
+        $placeholders = [
             '[+open_url+]' => $this->buildURL('debug=open', $modx->documentIdentifier, $prefix),
             '[+curl+]' => $_SERVER['REQUEST_URI'],
             '[+dbg_title+]' => $title,
@@ -69,7 +69,7 @@ class modxDebugConsole
             '[+save_url+]' => $this->buildURL('debug=save', $modx->documentIdentifier, $prefix),
             '[+open_dbg_console+]' => $open_text,
             '[+save_dbg_console+]' => $save_text,
-        );
+        ];
         return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['links']);
     }
 
@@ -112,10 +112,10 @@ class modxDebugConsole
     // ---------------------------------------------------
     function makeTab($title, $content)
     {
-        $placeholders = array(
+        $placeholders = [
             '[+title+]' => $title,
             '[+tab_content+]' => $content,
-        );
+        ];
         return str_replace(array_keys($placeholders), array_values($placeholders), $this->templates['tab']);
     }
 
@@ -128,8 +128,8 @@ class modxDebugConsole
         global $modx;
         $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']) . '</pre>' : $value;
         $value = str_replace(
-            array('[', ']', '{', '}')
-            , array('&#091;', '&#093;', '&#123;', '&#125;')
+            ['[', ']', '{', '}']
+            , ['&#091;', '&#093;', '&#123;', '&#125;']
             , $value
         );
         return $value;
@@ -222,7 +222,7 @@ class modxDebugConsole
         }
 
         if (!isset($array[0]) || !is_array($array[0])) {
-            $array = array($array);
+            $array = [$array];
         }
 
         // Start the table

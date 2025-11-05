@@ -111,10 +111,10 @@ function mm_widget_tags(
         // Initiate the tagCompleter class for this field
         $output .= evo()->parseText(
                 'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
-                , array(
+                , [
                     'tv_id' => $tv_id,
                     'delim' => $delimiter
-                )
+                ]
             ) . "\n";
     }
     event()->output($output . "\n");

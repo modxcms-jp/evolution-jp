@@ -121,10 +121,10 @@ if (id()) {
                             if (id() == $row['id']) {
                                 continue;
                             }
-                            $parent[] = array(
+                            $parent[] = [
                                 'id' => $row['id'],
                                 'templatename' => evo()->hsc($row['templatename'])
-                            );
+                            ];
                         }
                         $tpl = '<option value="[+id+]" [+selected+]>[+templatename+]([+id+])</option>';
                         $option = [];
@@ -303,7 +303,7 @@ if (id()) {
                 </div>
                 <?php
                 // invoke OnTempFormRender event
-                $tmp = array('id' => id());
+                $tmp = ['id' => id()];
                 $evtOut = evo()->invokeEvent("OnTempFormRender", $tmp);
                 if (is_array($evtOut)) {
                     echo implode("", $evtOut);

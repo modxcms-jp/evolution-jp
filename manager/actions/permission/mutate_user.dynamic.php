@@ -27,7 +27,7 @@ if (anyv('a') == 12) {
     }
     $_SESSION['itemname'] = $user['username'];
 } else {
-    $user = array();
+    $user = [];
     $_SESSION['itemname'] = 'New user';
 }
 
@@ -49,7 +49,7 @@ global $usersettings;
 $usersettings = $user;
 
 // include the country list language file
-$_country_lang = array();
+$_country_lang = [];
 include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
 $countries_path = MODX_CORE_PATH . sprintf(
         'lang/country/%s_country.inc.php'
@@ -60,7 +60,7 @@ if (evo()->config('manager_language') !== 'english' && is_file($countries_path))
 }
 
 // invoke OnUserFormPrerender event
-$tmp = array('id' => $userid);
+$tmp = ['id' => $userid];
 $evtOut = evo()->invokeEvent('OnUserFormPrerender', $tmp);
 if (is_array($evtOut)) {
     echo implode('', $evtOut);

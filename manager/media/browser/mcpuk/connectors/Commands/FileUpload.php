@@ -88,7 +88,7 @@ class FileUpload extends Base
         }
 
         if ($modx->config['clean_uploaded_filename'] == 1 && isset($ext)) {
-            $filename = $modx->stripAlias($filename, array('file_manager'));
+            $filename = $modx->stripAlias($filename, ['file_manager']);
         } elseif (isset($ext) && $this->cleanFilename($filename) !== $filename) {
             $filename = date('Ymd-his') . ".{$ext}";
             $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";// (*3)
@@ -169,10 +169,10 @@ class FileUpload extends Base
 
                 // (*4)
                 if (substr($disp, 0, 3) !== '202') {
-                    $tmp = array(
+                    $tmp = [
                         'filepath' => $this->real_cwd,
                         'filename' => $filename
-                    );
+                    ];
                     evo()->invokeEvent('OnFileBrowserUpload', $tmp);
                 }
             }

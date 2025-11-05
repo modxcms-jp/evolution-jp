@@ -248,7 +248,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
 <form action="index.php?a=89" method="post" name="userform" enctype="multipart/form-data">
     <?php
     // invoke OnWUsrFormPrerender event
-    $tmp = array("id" => $user);
+    $tmp = ["id" => $user];
     $evtOut = evo()->invokeEvent("OnWUsrFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -690,7 +690,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
     <input type="submit" name="save" style="display:none">
     <?php
     // invoke OnWUsrFormRender event
-    $tmp = array("id" => $user);
+    $tmp = ["id" => $user];
     $evtOut = evo()->invokeEvent("OnWUsrFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

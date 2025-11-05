@@ -49,7 +49,7 @@ if (!class_exists('ddTools')) {
             if ($groups && $id) {
                 //Перебираем все группы
                 foreach ($groups as $gr) {
-                    db()->insert(array('document_group' => $gr, 'document' => $id), evo()->getFullTableName('document_groups'));
+                    db()->insert(['document_group' => $gr, 'document' => $id], evo()->getFullTableName('document_groups'));
                 }
             }
 

@@ -95,7 +95,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Если язык админки — русский
     if (strtolower($modx_lang_attribute) === 'ru') {
         //Все месяцы на русском
-        $ruMonthes = array('Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь');
+        $ruMonthes = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
         //Название месяца на русском
         $ddDate['mTitle'] = $ruMonthes[$ddDate['n'] - 1];
@@ -124,11 +124,11 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
     //Если нужный год существует
     if ($yearId) {
         //Проставим году нужные параметры
-        ddTools::udateDocument($yearId, array(
+        ddTools::udateDocument($yearId, [
             'isfolder' => 1,
             'template' => $ddYearTpl,
             'published' => $ddYearPub
-        ));
+        ]);
         //Получаем месяцы (непосредственных детей текущего года)
         $months = $modx->getChildIds($yearId, 1);
         //Получаем id нужного нам месяца
@@ -136,7 +136,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
         //Если нужный год не существует
     } else {
         //Создадим его
-        $yearId = ddTools::createDocument(array(
+        $yearId = ddTools::createDocument([
             'pagetitle' => $ddDate['y'],
             'alias' => $ddDate['y'],
             'parent' => $ddParent,
@@ -147,21 +147,21 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             //Да пусть будут тупо по году, сортироваться нормально зато будут
             'menuindex' => $ddDate['y'] - 2000,
             'published' => $ddYearPub
-        ), $docGroups);
+        ], $docGroups);
     }
 
 // 		if (!$monthId && $yearId){
     //Если нужный месяц существует
     if ($monthId) {
         //Проставим месяцу нужные параметры
-        ddTools::udateDocument($monthId, array(
+        ddTools::udateDocument($monthId, [
             'isfolder' => 1,
             'template' => $ddMonthTpl,
             'published' => $ddMonthPub
-        ));
+        ]);
         //Если нужный месяц не существует (на всякий случай проверим ещё и год)
     } else if ($yearId) {
-        $monthId = ddTools::createDocument(array(
+        $monthId = ddTools::createDocument([
             'pagetitle' => $ddDate['mTitle'],
             'alias' => $ddDate['m'],
             'parent' => $yearId,
@@ -170,7 +170,7 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             //Для месяца выставляем menuindex в соответствии с его порядковым номером
             'menuindex' => $ddDate['n'] - 1,
             'published' => $ddMonthPub
-        ), $docGroups);
+        ], $docGroups);
     }
 
     //Ещё раз на всякий случай проверим, что с месяцем всё хорошо

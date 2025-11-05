@@ -58,7 +58,7 @@ if ($mode === 'snapshot') {
     if (!is_writable(rtrim(config('snapshot_path'), '/'))) {
         echo evo()->parseText(
             $_lang['bkmgr_alert_mkdir'],
-            array('snapshot_path' => config('snapshot_path'))
+            ['snapshot_path' => config('snapshot_path')]
         );
         exit;
     }
@@ -308,7 +308,7 @@ if (sessionv('result_msg')) {
                     if (!$last_result) {
                         $result = '';
                     } else {
-                        $last_result = array_merge([], array_diff($last_result, array('')));
+                        $last_result = array_merge([], array_diff($last_result, ['']));
                         foreach ($last_result['0'] as $k => $v) {
                             $title[] = $k;
                         }
@@ -376,7 +376,7 @@ if (sessionv('result_msg')) {
         </div>
         <?php
         $today = evo()->toDateFormat(request_time());
-        $today = str_replace(array('/', ' '), '-', $today);
+        $today = str_replace(['/', ' '], '-', $today);
         $today = str_replace(':', '', $today);
         $today = strtolower($today);
         global $settings_version;
@@ -387,7 +387,7 @@ if (sessionv('result_msg')) {
             <?= $ph['result_msg'] ?>
             <?= evo()->parseText(
                 $_lang["bkmgr_snapshot_msg"],
-                array('snapshot_path' => config('snapshot_path'))
+                ['snapshot_path' => config('snapshot_path')]
             ); ?>
             <form method="post" name="snapshot" action="index.php">
                 <input type="hidden" name="a" value="307" />

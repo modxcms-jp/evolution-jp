@@ -29,7 +29,7 @@ $sortby = 'menuindex'; // Could be menuindex or menutitle
 $limit = 0;
 $recent = 0;
 /* That's it to config! */
-$tree_styles = array('|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;');
+$tree_styles = ['|--', '&#9494;&nbsp;', '&#9658;&nbsp;', 'L&nbsp;'];
 define('MODX_API_MODE', true);
 // define('IN_MANAGER_MODE', 'true');
 $self = 'assets/plugins/tinymce/js/tinymce.linklist.php';
@@ -81,7 +81,7 @@ if (file_exists($cache_path)) {
 
                 // How will it be sorted?
                 if ($sortby == 'menuindex') {
-                    $more_sortby_types = array('menutitle', 'pagetitle');
+                    $more_sortby_types = ['menutitle', 'pagetitle'];
                     foreach ($more_sortby_types as $backup_sort_type) {
                         if ($page[$backup_sort_type] != '') {
                             $sortcrumbs[] = sprintf("%010d", $p[$sortby]);
@@ -198,7 +198,7 @@ class LINKLIST
 
     function getAllParents($doc_id)
     {
-        $return_array = array($doc_id);
+        $return_array = [$doc_id];
         while ($doc_id = $this->getParent($doc_id)) {
             if ($doc_id === 0) break;
             $return_array[] = $doc_id;

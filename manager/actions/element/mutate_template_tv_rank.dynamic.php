@@ -30,7 +30,7 @@ if (isset($_POST['listSubmitted'])) {
                 continue;
             }
             $tmplvar = ltrim($item, 'item_');
-            db()->update(array('rank' => $key), '[+prefix+]site_tmplvar_templates',
+            db()->update(['rank' => $key], '[+prefix+]site_tmplvar_templates',
                 "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
         }
     }

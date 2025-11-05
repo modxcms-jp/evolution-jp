@@ -129,10 +129,10 @@ if (!evo()->hasPermission('view_schedule')) {
         //$db->debug = true;
         $rs = db()->select(
             'rv.*, sc.*, rv.pub_date AS pub_date'
-            , array(
+            , [
                 '[+prefix+]site_revision rv',
                 'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
-            )
+            ]
             , "0<rv.pub_date AND rv.status='standby' "
             , 'rv.pub_date ASC'
         );

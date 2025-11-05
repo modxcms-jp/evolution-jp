@@ -48,7 +48,7 @@ if (!$rs) {
 $modx->clearCache();
 
 // invoke OnDocPublished  event
-$tmp = array('docid' => $id, 'type' => 'manual');
+$tmp = ['docid' => $id, 'type' => 'manual'];
 evo()->invokeEvent('OnDocPublished', $tmp);
 
 $pid = db()->getValue(db()->select('parent', '[+prefix+]site_content', "id='{$id}'"));

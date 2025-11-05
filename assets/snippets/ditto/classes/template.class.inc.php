@@ -18,7 +18,7 @@ class template
     public function __construct()
     {
         $this->language = $GLOBALS['ditto_lang'];
-        $this->fields = array(
+        $this->fields = [
             'db' => [],
             'tv' => [],
             'custom' => [],
@@ -29,7 +29,7 @@ class template
             'json' => [],
             'xml' => [],
             'unknown' => []
-        );
+        ];
     }
 
     // ---------------------------------------------------
@@ -56,7 +56,7 @@ class template
 
         $fieldList = array_unique($fieldList);
         $fields = $this->sortFields($fieldList);
-        $checkAgain = array('qe', 'json', 'xml');
+        $checkAgain = ['qe', 'json', 'xml'];
         foreach ($checkAgain as $type) {
             $fields = array_merge_recursive($fields, $this->sortFields($fields[$type]));
         }
@@ -110,7 +110,7 @@ class template
         global $ditto_constantFields;
         $dbFields = $ditto_constantFields['db'];
         $tvFields = $ditto_constantFields['tv'];
-        $fields = array(
+        $fields = [
             'db' => [],
             'tv' => [],
             'custom' => [],
@@ -121,9 +121,9 @@ class template
             'json' => [],
             'xml' => [],
             'unknown' => []
-        );
+        ];
 
-        $custom = array('author', 'date', 'url', 'title', 'ditto_iteration', 'class');
+        $custom = ['author', 'date', 'url', 'title', 'ditto_iteration', 'class'];
 
         foreach ($fieldList as $field) {
             if (strpos($field, 'rss_') === 0) {

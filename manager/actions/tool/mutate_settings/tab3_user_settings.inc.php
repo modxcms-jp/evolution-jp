@@ -111,7 +111,7 @@
                 <?= wrap_label('error + warning + information',
                     form_radio('send_errormail', '1', $send_errormail == '1')); ?><br/>
                 <?= $modx->parseText($_lang['mutate_settings.dynamic.php8'],
-                    array('emailsender' => $modx->config['emailsender'])); ?></td>
+                    ['emailsender' => $modx->config['emailsender']]); ?></td>
         </tr>
         <?php
         // Check for GD before allowing captcha to be enabled

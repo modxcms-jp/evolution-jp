@@ -23,8 +23,8 @@ define('IN_MANAGER_MODE', 'true');
 define('MODX_API_MODE', true);
 
 $base_path = str_replace(
-    array('\\', 'manager/media/browser/mcpuk/connectors/connector.php'),
-    array('/', ''),
+    ['\\', 'manager/media/browser/mcpuk/connectors/connector.php'],
+    ['/', ''],
     __FILE__
 );
 
@@ -49,4 +49,4 @@ include_once __DIR__ . '/config.php';
 $request = ConnectorRequest::fromGlobals($_GET, $_POST, $_FILES, $_SERVER, $_COOKIE);
 $kernel = new ConnectorKernel($modx, $fckphp_config, __DIR__ . '/Commands');
 
-$kernel->handle($request, isset($_SESSION) ? $_SESSION : array());
+$kernel->handle($request, isset($_SESSION) ? $_SESSION : []);

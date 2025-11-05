@@ -18,7 +18,7 @@
 function iconLookup($mime, $ext)
 {
 
-    $mimeIcons = array(
+    $mimeIcons = [
         "image" => "image.png",
         "audio" => "sound.png",
         "video" => "video.png",
@@ -34,9 +34,9 @@ function iconLookup($mime, $ext)
         "application/x-tar" => "tar.png",
         "application/zip" => "tar.png",
         "message/html" => "html.png"
-    );
+    ];
 
-    $extIcons = array(
+    $extIcons = [
         "pdf" => "pdf.png",
         "ps" => "postscript.png",
         "eps" => "postscript.png",
@@ -72,7 +72,7 @@ function iconLookup($mime, $ext)
         "xlt" => "doc.png",
         "xlw" => "doc.png",
         "txt" => "doc.png"
-    );
+    ];
 
     $icon_basedir = MODX_BASE_PATH . 'manager/media/browser/mcpuk/connectors/images/';
 

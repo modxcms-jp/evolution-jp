@@ -81,7 +81,7 @@ function ab_save()
 
     $ph['select'] = '<span class="and"> + </span><select id="stay" name="stay">%s</select>';
     $saveAfter = anyv('stay', sessionv('saveAfter', 'close'));
-    $selected = array('new' => '', 'stay' => '', 'close' => '');
+    $selected = ['new' => '', 'stay' => '', 'close' => ''];
     if (hasPermission('new_document')
         && $saveAfter === 'new') {
         $selected['new'] = 'selected';

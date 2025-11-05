@@ -69,10 +69,10 @@ if ($count > 0) {
 switch (postv('mode')) {
     case '23':
         // invoke OnBeforeSnipFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => ''
-        );
+        ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the new doc
@@ -92,10 +92,10 @@ switch (postv('mode')) {
         }
 
         // invoke OnSnipFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => $newid
-        );
+        ];
         evo()->invokeEvent('OnSnipFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache
@@ -111,10 +111,10 @@ switch (postv('mode')) {
 
     case '22':
         // invoke OnBeforeSnipFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnBeforeSnipFormSave', $tmp);
 
         //do stuff to save the edited doc
@@ -134,10 +134,10 @@ switch (postv('mode')) {
         }
 
 // invoke OnSnipFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnSnipFormSave', $tmp);
         // empty cache
         $modx->clearCache(); // first empty the cache

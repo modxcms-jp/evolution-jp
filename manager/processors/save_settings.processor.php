@@ -241,7 +241,7 @@ function reset_template()
 {
     if (formv('reset_template') == 1) {
         db()->update(
-            array('template' => formv('default_template')),
+            ['template' => formv('default_template')],
             '[+prefix+]site_content',
             where('type', 'document')
         );
@@ -249,7 +249,7 @@ function reset_template()
     }
     if (formv('reset_template') == 2) {
         db()->update(
-            array('template' => formv('default_template')),
+            ['template' => formv('default_template')],
             '[+prefix+]site_content',
             where('template', formv('old_template'))
         );
@@ -260,10 +260,10 @@ function cleanup_tv()
 {
     $rs = db()->select(
         'DISTINCT contentid',
-        array(
+        [
             '[+prefix+]site_tmplvar_contentvalues tvc',
             'LEFT JOIN [+prefix+]site_content doc ON doc.id=tvc.contentid'
-        ),
+        ],
         'doc.id IS NULL'
     );
     if (!db()->count($rs)) {

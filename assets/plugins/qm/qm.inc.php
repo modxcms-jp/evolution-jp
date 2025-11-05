@@ -175,7 +175,7 @@ class Qm
     {
         $conf = evo()->event->params;
         if (!isset($conf[$key])) {
-            $keys = array('hidetabs', 'hidesections', 'tplid', 'custombutton');
+            $keys = ['hidetabs', 'hidesections', 'tplid', 'custombutton'];
             if (in_array($key, $keys)) {
                 return '';
             }
@@ -342,14 +342,14 @@ class Qm
         if (is_array(array_get($doc, $field_name))) {
             return array_get($doc, $field_name);
         }
-        return array(
+        return [
             'type' => $this->formType($doc, $field_name),
             'default_text' => '',
             'elements' => '',
             'value' => array_get($doc, $field_name),
             'access' => true,
             'caption' => $this->caption($field_name)
-        );
+        ];
     }
 
     private function formType($doc, $field_name)
@@ -437,35 +437,35 @@ class Qm
             db()->select(
                 'id',
                 '[+prefix+]site_tmplvar_contentvalues',
-                array(
+                [
                     where('tmplvarid', '=', $tvId),
                     and_where('contentid', '=', evo()->documentIdentifier)
-                )
+                ]
             );
             if (db()->count()) {
                 $result = db()->update(
-                    array('value' => db()->escape($tvContent)),
+                    ['value' => db()->escape($tvContent)],
                     '[+prefix+]site_tmplvar_contentvalues',
-                    array(
+                    [
                         where('tmplvarid', $tvId),
                         and_where('contentid', evo()->documentIdentifier)
-                    )
+                    ]
                 );
             } else {
                 $result = db()->insert(
-                    array(
+                    [
                         'tmplvarid' => $tvId,
                         'contentid' => evo()->documentIdentifier,
                         'value' => db()->escape($tvContent)
-                    ),
+                    ],
                     '[+prefix+]site_tmplvar_contentvalues'
                 );
             }
         } else {
             $result = db()->update(
-                array(
+                [
                     db()->escape($tvName) => db()->escape($tvContent)
-                ),
+                ],
                 '[+prefix+]site_content',
                 where('id', '=', evo()->documentIdentifier)
             );
@@ -504,10 +504,10 @@ class Qm
     {
         return parseText(
             file_get_contents(__DIR__ . '/js/preview_img.tpl'),
-            array(
+            [
                 'jq' => '$',
                 'base_url' => MODX_BASE_URL
-            )
+            ]
         );
     }
 

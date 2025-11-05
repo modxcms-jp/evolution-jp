@@ -261,7 +261,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php?a=24" enctype="multipart/form-data">
     <?php
     // invoke OnSnipFormPrerender event
-    $tmp = array("id" => $id);
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnSnipFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -292,25 +292,25 @@ function entity($key, $default = null)
             <?php
             if (getv('a') == 22) {
                 if (evo()->hasPermission('new_snippet')) {
-                    echo manager()->ab(array(
+                    echo manager()->ab([
                         'onclick' => 'duplicaterecord();',
                         'icon' => $_style['icons_resource_duplicate'],
                         'label' => $_lang['duplicate']
-                    ));
+                    ]);
                 }
                 if (evo()->hasPermission('delete_snippet')) {
-                    echo manager()->ab(array(
+                    echo manager()->ab([
                         'onclick' => 'deletedocument();',
                         'icon' => $_style['icons_delete_document'],
                         'label' => $_lang['delete']
-                    ));
+                    ]);
                 }
             }
-            echo manager()->ab(array(
+            echo manager()->ab([
                 'onclick' => "document.location.href='index.php?a=76';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
-            ));
+            ]);
             ?>
         </ul>
     </div>
@@ -494,7 +494,7 @@ function entity($key, $default = null)
     </div>
     <?php
     // invoke OnSnipFormRender event
-    $tmp = array("id" => $id);
+    $tmp = ["id" => $id];
     $evtOut = evo()->invokeEvent("OnSnipFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

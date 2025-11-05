@@ -44,9 +44,9 @@ $atom_placeholders['atom_charset'] = isset($charset) ? $charset : $modx->config[
 
 $atom_placeholders['atom_lastmodified'] = date('Y-m-d\TH:i:s\Z', $modx->documentObject["editedon"]);
 $placeholders['*'] = "atom_placeholders";
-$placeholders['atom_createdon'] = array("createdon", "atomCreatedDate");
-$placeholders['atom_editedon'] = array("editedon", "atomEditedDate");
-$placeholders['atom_author'] = array("createdby", "atomCreatedBy");
+$placeholders['atom_createdon'] = ["createdon", "atomCreatedDate"];
+$placeholders['atom_editedon'] = ["editedon", "atomEditedDate"];
+$placeholders['atom_author'] = ["createdby", "atomCreatedBy"];
 
 if (!function_exists("atomCreatedDate")) {
     function atomCreatedDate($resource)

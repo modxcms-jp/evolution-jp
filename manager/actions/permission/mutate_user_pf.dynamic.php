@@ -157,7 +157,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     <?php
 
     // invoke OnUserFormPrerender event
-    $tmp = array("id" => $userid);
+    $tmp = ["id" => $userid];
     $evtOut = evo()->invokeEvent("OnUserFormPrerender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -504,7 +504,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
     <?php
 
     // invoke OnUserFormRender event
-    $tmp = array("id" => $userid);
+    $tmp = ["id" => $userid];
     $evtOut = evo()->invokeEvent("OnUserFormRender", $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);

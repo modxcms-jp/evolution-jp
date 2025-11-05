@@ -64,7 +64,7 @@ if (!isset($startId)) {
     exit(sprintf('# %s # Wayfinder &startId error', $startId));
 }
 
-$wf->_config = array(
+$wf->_config = [
     'id' => $startId,
     'level' => isset($level) ? $level : 0,
     'includeDocs' => isset($includeDocs) ? $includeDocs : 0,
@@ -91,10 +91,10 @@ $wf->_config = array(
     // for local references - use original document fields separated by comma (useful for set active if it is current, titles, link attr, etc)
     'useReferenced' => isset($useReferenced) ? $useReferenced : "id",
     'hereId' => isset($hereId) ? (int)$hereId : $modx->documentIdentifier
-);
+];
 
 //get user class definitions
-$wf->_css = array(
+$wf->_css = [
     'first' => isset($firstClass) ? $firstClass : '',
     'last' => isset($lastClass) ? $lastClass : 'last',
     'here' => isset($hereClass) ? $hereClass : 'active',
@@ -106,10 +106,10 @@ $wf->_css = array(
     'level' => isset($levelClass) ? $levelClass : '',
     'self' => isset($selfClass) ? $selfClass : '',
     'weblink' => isset($webLinkClass) ? $webLinkClass : '',
-);
+];
 
 //get user templates
-$wf->_templates = array(
+$wf->_templates = [
     'outerTpl' => isset($outerTpl) ? $outerTpl : '',
     'rowTpl' => isset($rowTpl) ? $rowTpl : '',
     'parentRowTpl' => isset($parentRowTpl) ? $parentRowTpl : '',
@@ -123,7 +123,7 @@ $wf->_templates = array(
     'startItemTpl' => isset($startItemTpl) ? $startItemTpl : '',
     'lastRowTpl' => isset($lastRowTpl) ? $lastRowTpl : '',
     'rowTplLast' => isset($rowTplLast) ? $rowTplLast : '',
-);
+];
 
 //Process Wayfinder
 $output = $wf->run();

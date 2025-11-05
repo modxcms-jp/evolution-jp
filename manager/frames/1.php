@@ -23,7 +23,7 @@ if (sessionv('mainframe.a')) {
     $mainurl = "index.php?a={$action}";
 }
 
-$tmp = array('action' => $action);
+$tmp = ['action' => $action];
 evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 ?>
     <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
@@ -69,5 +69,5 @@ evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
         <noframes>This software requires a browser with support for frames.</noframes>
     </html>
 <?php
-$tmp = array('action' => $action);
+$tmp = ['action' => $action];
 evo()->invokeEvent('OnManagerFrameLoader', $tmp);

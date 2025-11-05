@@ -11,7 +11,7 @@ if (!evo()->hasPermission('delete_plugin')) {
 $id = (int)getv('id');
 
 // invoke OnBeforePluginFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnBeforePluginFormDelete', $tmp);
 
 // delete the plugin.
@@ -29,7 +29,7 @@ if (!$rs) {
 }
 
 // invoke OnPluginFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnPluginFormDelete', $tmp);
 // empty cache
 $modx->clearCache();

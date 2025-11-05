@@ -56,19 +56,19 @@ if (!is_readable($startpath)) {
             if (anyv('mode') === 'save') {
                 $_ = $modx->parseText(
                     '<li class="primary"><a href="#" onclick="document.editFile.submit();"><img src="[+icons_save+]" /> [+lang_save+]</a></li>',
-                    array(
+                    [
                         'icons_save' => $_style['icons_save'],
                         'lang_save' => lang('save')
-                    )
+                    ]
                 ) . "\n";
             }
             $_ .= $modx->parseText(
                 '<li><a href="[+href+]" onclick="return getFolderName(this);"><img src="[+tree_folder+]" alt="" /> [+subject+]</a></li>',
-                array(
+                [
                     'href' => 'index.php?a=31&mode=newfolder&path=' . urlencode($startpath) . '&name=',
                     'tree_folder' => $_style['tree_folder'],
                     'subject' => lang('add_folder')
-                )
+                ]
             );
 
             $tpl = '<li><a href="[+href+]" onclick="return getFileName(this);"><img src="[+image+]" alt="" /> [+lang_newfile+]</a></li>';
@@ -170,18 +170,18 @@ if (!is_readable($startpath)) {
         }
 
         if (rtrim($startpath, '/') == config('filemanager_path')) {
-            $ph = array(
+            $ph = [
                 'image' => $_style['tree_deletedfolder'],
                 'subject' => '<span style="color:#bbb;cursor:default;">Top</span>'
-            );
+            ];
         } else {
-            $ph = array(
+            $ph = [
                 'image' => $_style['tree_folder'],
                 'subject' => sprintf(
                     '<a href="index.php?a=31&mode=drill&path=%s">Top</b></a> / ',
                     config('filemanager_path')
                 )
-            );
+            ];
         }
         echo $modx->parseText(
             '<img src="[+image+]" align="absmiddle" alt="" />[+subject+] ',
@@ -271,7 +271,7 @@ if (!is_readable($startpath)) {
             // Create folder here
             if (anyv('mode') === 'newfolder') {
                 $old_umask = umask(0);
-                $foldername = str_replace(array('../', '..\\'), '', anyv('name'));
+                $foldername = str_replace(['../', '..\\'], '', anyv('name'));
                 if (!mkdirs($startpath . "/" . $foldername, 0777)) {
                     echo sprintf(
                         '<span class="warning"><b>%s</b></span><br /><br />',
@@ -293,7 +293,7 @@ if (!is_readable($startpath)) {
             // Create file here
             if (anyv('mode') === 'newfile') {
                 $old_umask = umask(0);
-                $filename = str_replace(array('../', '..\\'), '', anyv('name'));
+                $filename = str_replace(['../', '..\\'], '', anyv('name'));
                 $filename = db()->escape($filename);
 
                 if (!checkExtension($filename)) {
@@ -797,7 +797,7 @@ function fileupload()
         $name = filev('userfile.name');
         if (evo()->config('clean_uploaded_filename') == 1) {
             $nameparts = explode('.', $name);
-            $nameparts = array_map(array($modx, 'stripAlias'), $nameparts, array('file_manager'));
+            $nameparts = array_map([$modx, 'stripAlias'], $nameparts, ['file_manager']);
             $name = implode('.', $nameparts);
         }
         $userfile['name'] = $name;
@@ -858,10 +858,10 @@ function fileupload()
         return $msg . '<p><span class="warning">' . lang('files_upload_copyfailed') . '</span> ' . lang('files_upload_permissions_error') . '</p>';
     }
     // invoke OnFileManagerUpload event
-    $tmp = array(
+    $tmp = [
         'filepath' => postv('path'),
         'filename' => $userfile['name']
-    );
+    ];
     evo()->invokeEvent('OnFileManagerUpload', $tmp);
     // Log the change
     logFileChange('upload', postv('path') . '/' . $userfile['name']);
@@ -906,8 +906,8 @@ function add_dot($array)
 function webstart_path()
 {
     $webstart_path = str_replace(
-        array(realpath('../'), '\\'),
-        array('', '/'),
+        [realpath('../'), '\\'],
+        ['', '/'],
         realpath(config('filemanager_path'))
     );
     if (strpos($webstart_path, '/') === 0) {
@@ -922,11 +922,11 @@ function proteted_path()
         return [];
     }
 
-    $proteted_path[] = array(
+    $proteted_path[] = [
         base_path() . 'manager',
         base_path() . 'temp/backup',
         base_path() . 'assets/backup'
-    );
+    ];
 
     if (!evo()->hasPermission('save_plugin')) {
         $proteted_path[] = base_path() . 'assets/plugins';

@@ -39,7 +39,7 @@ if (!$rs) {
 }
 
 // invoke OnDocUnPublished  event
-$tmp = array('docid' => $id, 'type' => 'manual');
+$tmp = ['docid' => $id, 'type' => 'manual'];
 evo()->invokeEvent('OnDocUnPublished', $tmp);
 
 $modx->clearCache();

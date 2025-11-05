@@ -14,7 +14,7 @@ class random
 
     public function add($string, $weight = 1)
     {
-        $this->data[] = array('s' => $string, 'w' => $weight);
+        $this->data[] = ['s' => $string, 'w' => $weight];
     }
 
     function optimize()
@@ -26,7 +26,7 @@ class random
         }
         $this->data = [];
         foreach ($new as $key => $var) {
-            $this->data[] = array('s' => $key, 'w' => $var);
+            $this->data[] = ['s' => $key, 'w' => $var];
         }
     }
 

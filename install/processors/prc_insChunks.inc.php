@@ -23,7 +23,7 @@ foreach ($tplChunks as $i => $tplInfo) {
         );
         continue;
     }
-    $field = array(
+    $field = [
         'name' => $tplInfo['name'],
         'description' => $tplInfo['description'],
         'snippet' => preg_replace(
@@ -33,7 +33,7 @@ foreach ($tplChunks as $i => $tplInfo) {
             1
         ),
         'category' => getCreateDbCategory($tplInfo['category'])
-    );
+    ];
 
     $rs = db()->select(
         '*',

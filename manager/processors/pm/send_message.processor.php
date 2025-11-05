@@ -20,7 +20,7 @@ if (anyv('sendto') === 'u') {
         alert()->dumpError();
     }
     send_pm(
-        array(
+        [
             'recipient' => anyv('user'),
             'sender' => evo()->getLoginUserID(),
             'subject' => anyv('messagesubject', '(no subject)'),
@@ -28,7 +28,7 @@ if (anyv('sendto') === 'u') {
             'postdate' => request_time(),
             'type' => 'Message',
             'private' => 1
-        ),
+        ],
         $from
     );
 }
@@ -41,17 +41,17 @@ if (anyv('sendto') === 'g') {
     $rs = db()->select(
         'internalKey',
         '[+prefix+]user_attributes',
-        array(
+        [
             where('role', '=', anyv('group')),
             'AND blocked=0'
-        )
+        ]
     );
     while ($row = db()->getRow($rs)) {
         if ($row['internalKey'] == evo()->getLoginUserID()) {
             continue;
         }
         send_pm(
-            array(
+            [
                 'recipient' => $row['internalKey'],
                 'sender' => evo()->getLoginUserID(),
                 'subject' => anyv('messagesubject', '(no subject)'),
@@ -59,7 +59,7 @@ if (anyv('sendto') === 'g') {
                 'postdate' => request_time(),
                 'type' => 'Message',
                 'private' => 0
-            ),
+            ],
             $from
         );
     }
@@ -72,7 +72,7 @@ if (anyv('sendto') === 'a') {
             continue;
         }
         send_pm(
-            array(
+            [
                 'recipient' => $row['id'],
                 'sender' => evo()->getLoginUserID(),
                 'subject' => anyv('messagesubject', '(no subject)'),
@@ -80,7 +80,7 @@ if (anyv('sendto') === 'a') {
                 'postdate' => request_time(),
                 'type' => 'Message',
                 'private' => 0
-            ),
+            ],
             $from
         );
     }

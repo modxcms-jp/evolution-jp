@@ -6,11 +6,11 @@ if (!isset($modx) || !evo()->isLoggedin()) {
 $now = $_SERVER['REQUEST_TIME'];
 
 $where = "pub_date < {$now} AND pub_date!=0 AND published=0 AND ({$now} < unpub_date or unpub_date=0)";
-$rs = db()->update(array('published' => '1'), '[+prefix+]site_content', $where);
+$rs = db()->update(['published' => '1'], '[+prefix+]site_content', $where);
 $num_rows_pub = db()->getAffectedRows();
 
 $where = "unpub_date < {$now} AND unpub_date!=0 AND published=1";
-$rs = db()->update(array('published' => '0'), '[+prefix+]site_content', $where);
+$rs = db()->update(['published' => '0'], '[+prefix+]site_content', $where);
 $num_rows_unpub = db()->getAffectedRows();
 
 ?>
@@ -30,7 +30,7 @@ $num_rows_unpub = db()->getAffectedRows();
             printf('<p>' . $_lang["refresh_unpublished"] . '</p>', $num_rows_unpub);
         }
 
-        $modx->clearCache(array('showReport' => true));
+        $modx->clearCache(['showReport' => true]);
 
         // invoke OnSiteRefresh event
         evo()->invokeEvent("OnSiteRefresh");

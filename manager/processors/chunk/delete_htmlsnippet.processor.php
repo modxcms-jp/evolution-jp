@@ -8,7 +8,7 @@ if (!evo()->hasPermission('delete_snippet')) {
 }
 $id = (int)getv('id');
 
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnBeforeChunkFormDelete', $tmp);
 
 $rs = db()->delete('[+prefix+]site_htmlsnippets', where('id', '=', $id));
@@ -16,7 +16,7 @@ if (!$rs) {
     exit('Something went wrong while trying to delete the htmlsnippet...');
 }
 
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnChunkFormDelete', $tmp);
 
 evo()->clearCache();

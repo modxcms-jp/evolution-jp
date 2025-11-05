@@ -87,9 +87,9 @@ function compare_check($params)
 {
     $category = $params['category'] ?? '';
 
-    $where = array(
+    $where = [
         sprintf("`%s`='%s'", key_field($category), $params['name'])
-    );
+    ];
     if ($category === 'plugin') {
         $where[] = " AND `disabled`='0'";
     }
@@ -326,7 +326,7 @@ function getCreateDbCategory($category)
         return $dbv_category->id;
     }
     $category_id = db()->insert(
-        array('category' => db()->escape($category)),
+        ['category' => db()->escape($category)],
         '[+prefix+]categories'
     );
     if (!$category_id) {

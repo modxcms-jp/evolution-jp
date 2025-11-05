@@ -110,20 +110,20 @@ function role($key, $default = null)
             <?php endif; ?>
             <?php
             if (getv('a') == 35) {
-                $params = array(
+                $params = [
                     'onclick' => 'deletedocument();',
                     'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
-                );
+                ];
                 if (evo()->hasPermission('delete_role')) {
                     echo manager()->ab($params);
                 }
             }
-            $params = array(
+            $params = [
                 'onclick' => "document.location.href='index.php?a=86';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
-            );
+            ];
             echo manager()->ab($params);
             ?>
         </ul>

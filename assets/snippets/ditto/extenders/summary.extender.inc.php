@@ -8,8 +8,8 @@ include_once(__DIR__ . '/summary.extender.functions.inc.php');
  *  	Legacy support for the [+summary+] placeholder
 */
 
-$placeholders['summary'] = array('introtext,content', 'determineSummary', '@GLOBAL ditto_summary_type');
-$placeholders['link'] = array('id', 'determineLink');
+$placeholders['summary'] = ['introtext,content', 'determineSummary', '@GLOBAL ditto_summary_type'];
+$placeholders['link'] = ['id', 'determineLink'];
 
 $trunc = isset($trunc) ? $trunc : 1;
 /*

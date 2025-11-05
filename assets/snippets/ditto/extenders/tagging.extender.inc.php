@@ -279,7 +279,7 @@ if (!class_exists('tagging')) {
         function combineTags($tagData, $resource, $array = false)
         {
             if ($this->callback !== false) {
-                return call_user_func_array($this->callback, array('tagData' => $tagData, 'resource' => $resource, 'array' => $array));
+                return call_user_func_array($this->callback, ['tagData' => $tagData, 'resource' => $resource, 'array' => $array]);
             }
             $tags = [];
             foreach ($tagData as $source) {
@@ -327,7 +327,7 @@ if (!class_exists('tagging')) {
                 foreach ($tags as $tag) {
                     $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
                     $url = ditto::buildURL("tags={$tag}&start=0", $tagDocID);
-                    $output .= template::replace(array('url' => $url, 'tag' => $tag), $tpl);
+                    $output .= template::replace(['url' => $url, 'tag' => $tag], $tpl);
                     $output .= ($format !== 'rss' && $format !== 'xml' && $format !== 'atom') ? $this->displayDelimiter : '';
                 }
             } else if ($format !== 'rss' && $format !== 'xml' && $format !== 'atom' && $this->displayMode == 2) {
@@ -335,7 +335,7 @@ if (!class_exists('tagging')) {
                 foreach ($tags as $tag) {
                     $tagDocID = (!$tagID) ? $modx->documentObject['id'] : $tagID;
                     $url = ditto::buildURL("tags={$tag}&start=0", $tagDocID);
-                    $tagList[] = template::replace(array('url' => $url, 'tag' => $tag), $tpl);
+                    $tagList[] = template::replace(['url' => $url, 'tag' => $tag], $tpl);
                 }
                 $output = $this->makeList($tagList, $ulroot = 'ditto_tag_list', $ulprefix = 'ditto_tag_', $type = '', $ordered = false, $tablevel = 0);
             }
@@ -380,7 +380,7 @@ if (!class_exists('tagging')) {
 $tags = new tagging($delimiter, $source, $mode, $landing, $givenTags, $format, $caseSensitive, $displayDelimiter, $callback, $sort, $displayMode, $tplTagLinks);
 
 if ($tags->givenTags) {
-    $filters['custom']['tagging'] = array($source, array($tags, 'tagFilter'));
+    $filters['custom']['tagging'] = [$source, [$tags, 'tagFilter']];
     // set tagging custom filter
 }
 
@@ -401,4 +401,4 @@ $modx->setPlaceholder($dittoID . 'tags', implode($delimiter, $tags->givenTags));
 	Raw tags separated by <tagDelimiter>
 */
 // set tagging placeholder
-$placeholders['tagLinks'] = array(array($source, '*'), array($tags, 'makeLinks'));
+$placeholders['tagLinks'] = [[$source, '*'], [$tags, 'makeLinks']];

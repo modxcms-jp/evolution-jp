@@ -70,7 +70,7 @@ $modx->documentObject = &$docObject;
 
 $modx->event->vars['documentObject'] = &$docObject;
 // invoke OnDocFormPrerender event
-$tmp = array('id' => request_intvar('id'));
+$tmp = ['id' => request_intvar('id')];
 $OnDocFormPrerender = evo()->invokeEvent('OnDocFormPrerender', $tmp);
 $modx->event->vars = [];
 
@@ -121,7 +121,7 @@ if (config('use_udperms') == 1) {
 }
 
 // invoke OnDocFormRender event
-$tmp = array('id' => request_intvar('id'));
+$tmp = ['id' => request_intvar('id')];
 $OnDocFormRender = evo()->invokeEvent('OnDocFormRender', $tmp);
 
 $OnRichTextEditorInit = '';
@@ -129,10 +129,10 @@ if (config('use_editor') === '1') {
     $rte_fields = rte_fields();
     if ($rte_fields) {
         // invoke OnRichTextEditorInit event
-        $tmp = array(
+        $tmp = [
             'editor' => evo()->input_post('which_editor', config('which_editor')),
             'elements' => $rte_fields
-        );
+        ];
         $evtOut = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
         if (is_array($evtOut)) {
             $OnRichTextEditorInit = implode('', $evtOut);

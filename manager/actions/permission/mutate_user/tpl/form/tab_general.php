@@ -193,10 +193,10 @@
                 }
                 $options[] = html_tag(
                     'option'
-                    , array(
+                    , [
                         'value' => $row['id'],
                         'selected' => $selected ? null : ''
-                    )
+                    ]
                     , $row['name']
                 );
             }

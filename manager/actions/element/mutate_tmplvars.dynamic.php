@@ -58,7 +58,7 @@ if ($form_v) {
 
 // get available RichText Editors
 $RTEditors = '';
-$tmp = array('forfrontend' => 1);
+$tmp = ['forfrontend' => 1];
 $evtOut = evo()->invokeEvent('OnRichTextEditorRegister', $tmp);
 if (is_array($evtOut)) {
     $RTEditors = implode(',', $evtOut);
@@ -273,7 +273,7 @@ function entity($key, $default = null)
 <form name="mutate" id="mutate" method="post" action="index.php" enctype="multipart/form-data">
     <?php
     // invoke OnTVFormPrerender event
-    $tmp = array('id' => $id);
+    $tmp = ['id' => $id];
     $evtOut = evo()->invokeEvent('OnTVFormPrerender', $tmp);
     if (is_array($evtOut)) {
         echo implode("", $evtOut);
@@ -309,28 +309,28 @@ function entity($key, $default = null)
             <?php endif; ?>
             <?php
             if (getv('a') == 301) {
-                $params = array(
+                $params = [
                     'onclick' => 'duplicaterecord();',
                     'icon' => $_style['icons_resource_duplicate'],
                     'label' => $_lang['duplicate']
-                );
+                ];
                 if (evo()->hasPermission('new_template')) {
                     echo manager()->ab($params);
                 }
-                $params = array(
+                $params = [
                     'onclick' => 'deletedocument();',
                     'icon' => $_style['icons_delete_document'],
                     'label' => $_lang['delete']
-                );
+                ];
                 if (evo()->hasPermission('delete_template')) {
                     echo manager()->ab($params);
                 }
             }
-            $params = array(
+            $params = [
                 'onclick' => "document.location.href='index.php?a=76';",
                 'icon' => $_style['icons_cancel'],
                 'label' => $_lang['cancel']
-            );
+            ];
             echo manager()->ab($params);
             ?>
         </ul>
@@ -678,7 +678,7 @@ function entity($key, $default = null)
             </div>
             <?php
             // invoke OnTVFormRender event
-            $tmp = array('id' => $id);
+            $tmp = ['id' => $id];
             $evtOut = evo()->invokeEvent('OnTVFormRender', $tmp);
             if (is_array($evtOut)) {
                 echo implode('', $evtOut);

@@ -11,23 +11,23 @@
 // Define custom or basic filters within the extender to expand Ditto's filtering capabilities
 // ---------------------------------------------------
 
-$filters['custom']['exampleFilter'] = array(
+$filters['custom']['exampleFilter'] = [
     'pagetitle'
 , 'exampleFilter'
-);
+];
 
 // Variable: $filters['custom']['exampleFilter']
 // Add the filter exampleFilter to the custom filters
 // list with the source pagetitle and the callback
 // exampleFilter
 
-$filters['parsed'][] = array(
-    'exampleFilter' => array(
+$filters['parsed'][] = [
+    'exampleFilter' => [
         'source' => 'id'
     , 'value' => '9239423942'
     , 'mode' => '2'
-    )
-);
+    ]
+];
 // Variable: $filters['parsed'][]
 // Add the pre-parsed filter to the parsed filters list with the
 // source as id, the value of 9239423942 and the mode 2

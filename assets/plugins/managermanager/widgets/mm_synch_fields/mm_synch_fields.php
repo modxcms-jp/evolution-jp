@@ -44,7 +44,7 @@ function mm_synch_fields($fields, $roles = '', $templates = '')
         $fieldtype = $mm_fields[$field]['fieldtype'];
         $fieldname = $mm_fields[$field]['fieldname'];
 
-        $valid_fieldtypes = array('input', 'textarea');
+        $valid_fieldtypes = ['input', 'textarea'];
 
         // Make sure we're dealing with an input
         if (!in_array($fieldtype, $valid_fieldtypes)) {

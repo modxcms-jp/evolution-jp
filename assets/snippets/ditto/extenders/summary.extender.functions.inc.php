@@ -9,10 +9,10 @@ function determineLink($resource)
         return '';
     }
     return $ditto_object->template->replace(
-        array(
+        [
             "url" => $ditto_summary_link,
             "text" => $ditto_summary_params["text"],
-        ),
+        ],
         $ditto_summary_params['trunc_tpl'] === false
             ? '<a href="[+url+]" title="[+text+]">[+text+]</a>'
             : $ditto_summary_params['trunc_tpl']

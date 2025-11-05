@@ -166,7 +166,7 @@ function title($element_name)
 {
     return sprintf(
         '<li><span [+class+]><a href="index.php?id=[+id+]&amp;a=[+action+]">%s</a>[+rlm+]</span> [+description+][+locked+]</li>',
-        in_array($element_name, array('site_templates', 'site_tmplvars')) ? '[[+id+]] [+name+]' : '[+name+]'
+        in_array($element_name, ['site_templates', 'site_tmplvars']) ? '[[+id+]] [+name+]' : '[+name+]'
     );
 }
 
@@ -232,36 +232,36 @@ function createCategoryList()
     $displayInfo = [];
     $hasPermission = 0;
     if (evo()->hasPermission('edit_plugin') || evo()->hasPermission('new_plugin')) {
-        $displayInfo['plugin'] = array('table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']);
+        $displayInfo['plugin'] = ['table' => 'site_plugins', 'action' => 102, 'name' => $_lang['manage_plugins']];
         $hasPermission = 1;
     }
     if (evo()->hasPermission('edit_snippet') || evo()->hasPermission('new_snippet')) {
-        $displayInfo['snippet'] = array(
+        $displayInfo['snippet'] = [
             'table' => 'site_snippets',
             'action' => 22,
             'name' => $_lang['manage_snippets']
-        );
+        ];
         $hasPermission = 1;
     }
     if (evo()->hasPermission('edit_chunk') || evo()->hasPermission('new_chunk')) {
-        $displayInfo['htmlsnippet'] = array(
+        $displayInfo['htmlsnippet'] = [
             'table' => 'site_htmlsnippets',
             'action' => 78,
             'name' => $_lang['manage_htmlsnippets']
-        );
+        ];
         $hasPermission = 1;
     }
     if (evo()->hasPermission('edit_template') || evo()->hasPermission('new_template')) {
-        $displayInfo['templates'] = array(
+        $displayInfo['templates'] = [
             'table' => 'site_templates',
             'action' => 16,
             'name' => $_lang['manage_templates']
-        );
-        $displayInfo['tmplvars'] = array('table' => 'site_tmplvars', 'action' => 301, 'name' => $_lang['tmplvars']);
+        ];
+        $displayInfo['tmplvars'] = ['table' => 'site_tmplvars', 'action' => 301, 'name' => $_lang['tmplvars']];
         $hasPermission = 1;
     }
     if (evo()->hasPermission('edit_module') || evo()->hasPermission('new_module')) {
-        $displayInfo['modules'] = array('table' => 'site_modules', 'action' => 108, 'name' => $_lang['modules']);
+        $displayInfo['modules'] = ['table' => 'site_modules', 'action' => 108, 'name' => $_lang['modules']];
         $hasPermission = 1;
     }
 

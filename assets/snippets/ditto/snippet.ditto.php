@@ -169,7 +169,7 @@ if (isset($orderBy)) {
 if (substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
 }
-$orderBy = array('parsed' => [], 'custom' => [], 'unparsed' => $orderBy);
+$orderBy = ['parsed' => [], 'custom' => [], 'unparsed' => $orderBy];
 // Variable: orderBy
 // An array that holds all criteria to sort the result set by.
 // Note that using a custom sort will disable all other sorting.
@@ -179,13 +179,13 @@ $orderBy = array('parsed' => [], 'custom' => [], 'unparsed' => $orderBy);
 
 //---Includes-------------------------------------------------------- //
 
-$files = array(
+$files = [
     'language' => sprintf('%slang/%s.inc.php', $ditto_base, $language),
     'main_class' => sprintf('%sclasses/ditto.class.inc.php', $ditto_base),
     'template_class' => sprintf('%sclasses/template.class.inc.php', $ditto_base),
     'filter_class' => sprintf('%sclasses/filter.class.inc.php', $ditto_base),
     'format' => sprintf('%sformats/%s.format.inc.php', $ditto_base, $format)
-);
+];
 
 if (isset($randomize)) {
     $files['randomize_class'] = $ditto_base . 'classes/random.class.inc.php';
@@ -321,7 +321,7 @@ if (isset($limit)) {
 if (isset($sortBy) || isset($sortDir) || $orderBy['unparsed'] === null) {
     $sortDir = isset($sortDir) ? strtoupper($sortDir) : 'DESC';
     $sortBy = isset($sortBy) ? $sortBy : "createdon";
-    $orderBy['parsed'][] = array($sortBy, $sortDir);
+    $orderBy['parsed'][] = [$sortBy, $sortDir];
 }
 // Allow backwards compatibility
 
@@ -754,7 +754,7 @@ if (!isset($localFilterDelimiter)) {
     - <parseFilters>
 */
 if (!isset($filters)) {
-    $filters = array('custom' => [], 'parsed' => []);
+    $filters = ['custom' => [], 'parsed' => []];
 }
 // Variable: filters
 // Holds both the custom filters array for configs or extenders to add to
@@ -882,14 +882,14 @@ if (!isset($tplLast)) {
 if (!isset($tplCurrentDocument)) {
     $tplCurrentDocument = '';
 }
-$templates = array(
+$templates = [
     'default' => '@CODE ' . $_lang['default_template'],
     'base' => $tpl,
     'alt' => $tplAlt,
     'first' => $tplFirst,
     'last' => $tplLast,
     'current' => $tplCurrentDocument
-);
+];
 /*
     Param: tpl
 
@@ -1343,7 +1343,7 @@ if ($debug == 1) {
             $ditto_version,
             $ditto_params,
             $documentIDs,
-            array("db" => $dbFields, "tv" => $TVs),
+            ["db" => $dbFields, "tv" => $TVs],
             $display,
             $templates,
             $orderBy,
@@ -1391,7 +1391,7 @@ if (!empty($outerTpl)) {
 
     if ($output) {
         $output = str_replace(
-            array('[+ditto+]', '[+documents+]', '[+docs+]'),
+            ['[+ditto+]', '[+documents+]', '[+docs+]'],
             $output,
             $outerTpl
         );

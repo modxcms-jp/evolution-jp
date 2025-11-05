@@ -53,7 +53,7 @@ XML;
     {
         parent::__construct($fckphp_config, $type, $cwd);
         $self = 'manager/media/browser/mcpuk/connectors/Commands/GetFoldersAndFiles.php';
-        $base_path = str_replace(array('\\', $self), array('/', ''), __FILE__);
+        $base_path = str_replace(['\\', $self], ['/', ''], __FILE__);
         if (!is_file("{$base_path}manager/media/ImageEditor/editor.php")) $this->enable_imgedit = false;
         else                                                             $this->enable_imgedit = true;
     }

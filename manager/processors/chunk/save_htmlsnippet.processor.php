@@ -73,10 +73,10 @@ function entity($key, $default = null)
 
 switch (postv('mode')) {
     case '77':
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => ''
-        );
+        ];
         evo()->invokeEvent('OnBeforeChunkFormSave', $tmp);
 
         $rs = db()->select(
@@ -109,10 +109,10 @@ switch (postv('mode')) {
             exit("Couldn't get last insert key!");
         }
 
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => $newid
-        );
+        ];
         evo()->invokeEvent('OnChunkFormSave', $tmp);
 
         // empty cache
@@ -129,10 +129,10 @@ switch (postv('mode')) {
     case '78':
 
         // invoke OnBeforeChunkFormSave event
-        $tmp = array(
+        $tmp = [
             "mode" => "upd",
             "id" => $id
-        );
+        ];
         evo()->invokeEvent("OnBeforeChunkFormSave", $tmp);
 
         if (check_exist_name(entity('name')) !== false) {
@@ -217,10 +217,10 @@ switch (postv('mode')) {
             }
 
             // invoke OnChunkFormSave event
-            $tmp = array(
+            $tmp = [
                 'mode' => 'upd',
                 'id' => $id
-            );
+            ];
             evo()->invokeEvent('OnChunkFormSave', $tmp);
 
             // empty cache

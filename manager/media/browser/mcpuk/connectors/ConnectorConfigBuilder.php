@@ -16,19 +16,19 @@ class ConnectorConfigBuilder
 
         $baseUrl = $this->resolveResourceBaseUrl();
 
-        $config = array();
+        $config = [];
         $config['prot'] = $this->resolveProtocol();
         $config['basedir'] = $this->resolveBaseDir();
         $config['urlprefix'] = $this->resolveUrlPrefix($baseUrl);
         $config['UserFilesPath'] = '';
         $config['auth'] = $this->buildAuthConfig();
         $config['ResourceAreas'] = $this->buildResourceAreas();
-        $config['DiskQuota'] = array('Global' => -1);
+        $config['DiskQuota'] = ['Global' => -1];
         $config['MaxDirNameLength'] = 25;
         $config['DirNameAllowedChars'] = $this->buildDirectoryCharacters();
         $config['FileNameAllowedChars'] = $this->buildFileCharacters($config['DirNameAllowedChars']);
         $config = array_merge($config, $this->buildDebugConfig());
-        $config['ResourceTypes'] = array('files', 'images', 'media');
+        $config['ResourceTypes'] = ['files', 'images', 'media'];
         $config['Commands'] = $this->buildCommandList();
 
         return $config;
@@ -107,48 +107,48 @@ class ConnectorConfigBuilder
 
     private function buildAuthConfig()
     {
-        return array(
+        return [
             'Req' => false,
             'HandlerClass' => 'Default',
-            'Handler' => array(
+            'Handler' => [
                 'SharedKey' => "->Shared_K3y-F0R*5enD1NG^auth3nt1caT10n'Info/To\\FILE,Brow5er--!",
-            ),
-        );
+            ],
+        ];
     }
 
     private function buildResourceAreas()
     {
         $maxUploadSize = $this->resolveUploadMaxSize();
 
-        return array(
-            'files' => array(
+        return [
+            'files' => [
                 'AllowedExtensions' => $this->explodeExtensions('upload_files'),
-                'AllowedMIME' => array(),
+                'AllowedMIME' => [],
                 'MaxSize' => $maxUploadSize,
                 'DiskQuota' => -1,
-                'HideFolders' => array('^\.'),
-                'HideFiles' => array('^\.'),
+                'HideFolders' => ['^\.'],
+                'HideFiles' => ['^\.'],
                 'AllowImageEditing' => false,
-            ),
-            'images' => array(
+            ],
+            'images' => [
                 'AllowedExtensions' => $this->explodeExtensions('upload_images'),
-                'AllowedMIME' => array(),
+                'AllowedMIME' => [],
                 'MaxSize' => $maxUploadSize,
                 'DiskQuota' => -1,
-                'HideFolders' => array('^\.'),
-                'HideFiles' => array('^\.'),
+                'HideFolders' => ['^\.'],
+                'HideFiles' => ['^\.'],
                 'AllowImageEditing' => true,
-            ),
-            'media' => array(
+            ],
+            'media' => [
                 'AllowedExtensions' => $this->explodeExtensions('upload_media'),
-                'AllowedMIME' => array(),
+                'AllowedMIME' => [],
                 'MaxSize' => $maxUploadSize,
                 'DiskQuota' => -1,
-                'HideFolders' => array('^\.'),
-                'HideFiles' => array('^\.'),
+                'HideFolders' => ['^\.'],
+                'HideFiles' => ['^\.'],
                 'AllowImageEditing' => false,
-            ),
-        );
+            ],
+        ];
     }
 
     private function resolveUploadMaxSize()
@@ -171,7 +171,7 @@ class ConnectorConfigBuilder
 
     private function buildDirectoryCharacters()
     {
-        $chars = array();
+        $chars = [];
 
         for ($i = 48; $i < 58; $i++) {
             $chars[] = chr($i);
@@ -200,7 +200,7 @@ class ConnectorConfigBuilder
 
     private function buildDebugConfig()
     {
-        return array(
+        return [
             'Debug' => false,
             'DebugOutput' => 'fck_conn_dbg',
             'Debug_Errors' => false,
@@ -210,12 +210,12 @@ class ConnectorConfigBuilder
             'Debug_POST' => false,
             'Debug_SERVER' => false,
             'Debug_SESSIONS' => false,
-        );
+        ];
     }
 
     private function buildCommandList()
     {
-        return array(
+        return [
             'CreateFolder',
             'GetFolders',
             'GetFoldersAndFiles',
@@ -226,6 +226,6 @@ class ConnectorConfigBuilder
             'GetUploadProgress',
             'RenameFile',
             'RenameFolder',
-        );
+        ];
     }
 }

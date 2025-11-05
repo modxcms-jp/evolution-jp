@@ -45,9 +45,9 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     global $_lang;
 
     // invoke OnBeforeDocDuplicate event
-    $tmp = array(
+    $tmp = [
         'id' => $docid
-    );
+    ];
     evo()->invokeEvent('OnBeforeDocDuplicate', $tmp);
 
     // Grab the original document
@@ -123,10 +123,10 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     duplicateAccess($docid, $new_id);
 
     // invoke OnDocDuplicate event
-    $tmp = array(
+    $tmp = [
         'id' => $docid,
         'new_id' => $new_id
-    );
+    ];
     evo()->invokeEvent('OnDocDuplicate', $tmp);
 
     // Start duplicating all the child documents that aren't deleted.

@@ -104,10 +104,10 @@ switch (postv('mode')) {
         }
 
         // invoke OnBeforeWUsrFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => null
-        );
+        ];
         evo()->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
         // create the user account
@@ -157,21 +157,21 @@ switch (postv('mode')) {
         saveUserSettings($internalKey);
 
         // invoke OnWebSaveUser event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'userid' => $internalKey,
             'username' => $newusername,
             'userpassword' => $newpassword,
             'useremail' => $email,
             'userfullname' => $fullname
-        );
+        ];
         evo()->invokeEvent('OnWebSaveUser', $tmp);
 
         // invoke OnWUsrFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => $internalKey
-        );
+        ];
         evo()->invokeEvent('OnWUsrFormSave', $tmp);
 
         /*******************************************************************************/
@@ -303,10 +303,10 @@ switch (postv('mode')) {
         }
 
         // invoke OnBeforeWUsrFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnBeforeWUsrFormSave', $tmp);
 
         // update user name and password
@@ -372,19 +372,19 @@ switch (postv('mode')) {
 
         // invoke OnWebChangePassword event
         if (!empty($updatepasswordsql)) {
-            $tmp = array(
+            $tmp = [
                 'userid' => $id,
                 'username' => $newusername,
                 'userpassword' => $newpassword ?? ''
-            );
+            ];
         }
         evo()->invokeEvent('OnWebChangePassword', $tmp);
 
         // invoke OnWUsrFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnWUsrFormSave', $tmp);
 
         /*******************************************************************************/
@@ -501,11 +501,11 @@ function saveUserSettings($id)
 {
     global $modx;
 
-    $settings = array(
+    $settings = [
         'login_home',
         'allowed_ip',
         'allowed_days'
-    );
+    ];
 
     foreach ($settings as $name) {
         db()->delete('[+prefix+]web_user_settings', "webuser='" . $id . "' and setting_name='" . $name . "'");

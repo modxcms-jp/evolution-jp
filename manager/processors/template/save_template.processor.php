@@ -48,10 +48,10 @@ switch (postv('mode')) {
     case '19':
 
         // invoke OnBeforeTempFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'new',
             'id' => ''
-        );
+        ];
         evo()->invokeEvent("OnBeforeTempFormSave", $tmp);
 
         // disallow duplicate names for new templates
@@ -78,10 +78,10 @@ switch (postv('mode')) {
         }
 
         // invoke OnTempFormSave event
-        $tmp = array(
+        $tmp = [
             "mode" => "new",
             "id" => $newid
-        );
+        ];
         evo()->invokeEvent("OnTempFormSave", $tmp);
 
         // empty cache
@@ -98,10 +98,10 @@ switch (postv('mode')) {
     case '16':
 
         // invoke OnBeforeTempFormSave event
-        $tmp = array(
+        $tmp = [
             'mode' => 'upd',
             'id' => $id
-        );
+        ];
         evo()->invokeEvent('OnBeforeTempFormSave', $tmp);
 
         // disallow duplicate names for new templates
@@ -126,10 +126,10 @@ switch (postv('mode')) {
             echo "\$rs not set! Edited template not saved!";
         } else {
             // invoke OnTempFormSave event
-            $tmp = array(
+            $tmp = [
                 "mode" => "upd",
                 "id" => $id
-            );
+            ];
             evo()->invokeEvent("OnTempFormSave", $tmp);
 
             // first empty the cache

@@ -94,10 +94,10 @@ class Thumbnail extends Base
 
     function isImage($mime, $ext)
     {
-        if (in_array($mime, array('image/gif', 'image/jpg', 'image/jpeg', 'image/png'))) {
+        if (in_array($mime, ['image/gif', 'image/jpg', 'image/jpeg', 'image/png'])) {
             return true;
         }
-        if (in_array($ext, array('gif', 'jpg', 'jpeg', 'png'))) {
+        if (in_array($ext, ['gif', 'jpg', 'jpeg', 'png'])) {
             return true;
         }
         return false;
@@ -105,10 +105,10 @@ class Thumbnail extends Base
 
     function isJPEG($mime, $ext)
     {
-        if (in_array($mime, array('image/jpg', 'image/jpeg'))) {
+        if (in_array($mime, ['image/jpg', 'image/jpeg'])) {
             return true;
         }
-        if (in_array($ext, array('jpg', 'jpeg'))) {
+        if (in_array($ext, ['jpg', 'jpeg'])) {
             return true;
         }
         return false;

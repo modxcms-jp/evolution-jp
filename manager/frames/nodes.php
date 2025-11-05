@@ -133,7 +133,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
         }
 
         $tpl = tplEmptyFolder();
-        $param = array('spacer' => $spacer . $pad, 'icon_deletedpage' => $_style['tree_deletedpage'], 'msg' => $msg);
+        $param = ['spacer' => $spacer . $pad, 'icon_deletedpage' => $_style['tree_deletedpage'], 'msg' => $msg];
         if ($msg) {
             $output .= $modx->parseText($tpl, $param);
         }
@@ -275,11 +275,11 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
                     $id
                 );
                 if ($parent != 0 && $container_status === 'too_many' && $loop_count == $hasChild) {
-                    $param = array(
+                    $param = [
                         'spacer' => $spacer . $pad,
                         'icon_deletedpage' => $_style['tree_deletedpage'],
                         'msg' => $_lang['too_many_resources']
-                    );
+                    ];
                     $output .= $modx->parseText(tplEmptyFolder(), $param);
                 }
                 $closed2[] = $id;
@@ -473,7 +473,7 @@ function getNodeTitle($node_name_source, $id, $pagetitle, $menutitle, $alias, $i
             $rs = $pagetitle;
     }
 
-    return evo()->hsc(str_replace(array("\r\n", "\n", "\r"), ' ', $rs));
+    return evo()->hsc(str_replace(["\r\n", "\n", "\r"], ' ', $rs));
 }
 
 function getIcon($id, $contenttype, $isfolder = '0')
@@ -481,7 +481,7 @@ function getIcon($id, $contenttype, $isfolder = '0')
     global $modx, $_style, $privateweb, $privatemgr;
 
     // icons by content type
-    $icons = array(
+    $icons = [
         'application/rss+xml' => $_style["tree_page_rss"],
         'application/pdf' => $_style["tree_page_pdf"],
         'application/vnd.ms-word' => $_style["tree_page_word"],
@@ -494,8 +494,8 @@ function getIcon($id, $contenttype, $isfolder = '0')
         'image/gif' => $_style["tree_page_gif"],
         'image/jpg' => $_style["tree_page_jpg"],
         'image/png' => $_style["tree_page_png"]
-    );
-    $iconsPrivate = array(
+    ];
+    $iconsPrivate = [
         'application/rss+xml' => $_style["tree_page_rss_secure"],
         'application/pdf' => $_style["tree_page_pdf_secure"],
         'application/vnd.ms-word' => $_style["tree_page_word_secure"],
@@ -508,7 +508,7 @@ function getIcon($id, $contenttype, $isfolder = '0')
         'image/gif' => $_style["tree_page_gif"],
         'image/jpg' => $_style["tree_page_jpg"],
         'image/png' => $_style["tree_page_png"]
-    );
+    ];
 
     if ($id == $modx->config('site_start')) {
         $rs = $_style["tree_page_home"];

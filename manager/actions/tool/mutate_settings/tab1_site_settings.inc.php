@@ -47,7 +47,7 @@
                 <?= form_text('site_url') ?><br />
                 <?= evo()->parseText(
                     lang('site_url_message'),
-                    array('MODX_SITE_URL' => MODX_SITE_URL)
+                    ['MODX_SITE_URL' => MODX_SITE_URL]
                 )
                 ?>
             </td>
@@ -59,7 +59,7 @@
                 <?php
                 echo evo()->parseText(
                     lang('base_url_message'),
-                    array('MODX_BASE_URL' => MODX_BASE_URL)
+                    ['MODX_BASE_URL' => MODX_BASE_URL]
                 )
                 ?>
             </td>

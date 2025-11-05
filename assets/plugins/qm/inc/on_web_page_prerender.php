@@ -276,7 +276,7 @@ function getCookie(cookieName)
             if (!empty($mrgDocGroups)) $this->docGroup = implode(",", $mrgDocGroups);
 
             // Create TV buttons and check TV permissions
-            $output = preg_replace_callback('/<!-- ' . $this->tvbclass . ' ([^\\"\'\(\)<>!?]+) -->/', array(&$this, 'createTvButtons'), $output);
+            $output = preg_replace_callback('/<!-- ' . $this->tvbclass . ' ([^\\"\'\(\)<>!?]+) -->/', [&$this, 'createTvButtons'], $output);
         }
     }
 }

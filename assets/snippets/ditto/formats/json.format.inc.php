@@ -65,7 +65,7 @@ if (!function_exists("json_parameters")) {
             $value = addslashes(htmlspecialchars($value, ENT_QUOTES, $modx->config['modx_charset']));
             if ($name == 'date' && !preg_match('@^[0-9]+$@', $value))
                 $value = $modx->getUnixtimeFromDateString($value);
-            $value = str_replace(array("\r\n", "\n", "\r"), '\n', $value);
+            $value = str_replace(["\r\n", "\n", "\r"], '\n', $value);
             $jsonArr["json_{$name}"] = str_replace("\t", '\t', $value);
         }
         $placeholders = array_merge($jsonArr, $placeholders);

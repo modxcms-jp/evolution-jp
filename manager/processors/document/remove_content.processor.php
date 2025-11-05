@@ -8,7 +8,7 @@ if (!evo()->hasPermission('empty_trash')) {
 }
 
 if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@', $_REQUEST['id'])) {
-    $ids = array($_REQUEST['id']);
+    $ids = [$_REQUEST['id']];
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
     $ids = [];

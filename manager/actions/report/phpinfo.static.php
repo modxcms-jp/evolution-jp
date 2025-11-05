@@ -135,16 +135,16 @@ if (!evo()->hasPermission('logs')) {
 ob_start();
 phpinfo();
 echo str_replace(
-    array(
+    [
         '<div class="center">'
     , 'width="600"'
     , 'src,input'
-    )
-    , array(
+    ]
+    , [
         '<div>'
     , 'width="90%"'
     , 'src, input'
-    )
+    ]
     , preg_replace(
         '@.*<body>(.+)</body>.*@s'
         , '$1'

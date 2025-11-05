@@ -23,7 +23,7 @@ $stripTags = isset($stripTags) ? $stripTags : 1;
 	Default:
 	1 - on
 */
-$bad = isset($bad) ? explode(",", $bad) : array("seeThroughtUnpub", "showInMenuOnly", "showPublishedOnly", "debug", "start", "config", "extenders", "dittoID");
+$bad = isset($bad) ? explode(",", $bad) : ["seeThroughtUnpub", "showInMenuOnly", "showPublishedOnly", "debug", "start", "config", "extenders", "dittoID"];
 /*
 	Param: bad
 

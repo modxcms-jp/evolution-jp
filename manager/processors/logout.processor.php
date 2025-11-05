@@ -7,10 +7,10 @@ $internalKey = evo()->getLoginUserID();
 $username = sessionv('mgrShortname');
 
 // invoke OnBeforeManagerLogout event
-$tmp = array(
+$tmp = [
     'userid' => $internalKey,
     'username' => $username
-);
+];
 evo()->invokeEvent("OnBeforeManagerLogout", $tmp);
 
 if (isset($_COOKIE[session_name()])) {
@@ -35,10 +35,10 @@ clearCsrfTokens();
 @session_destroy(); // this sometimes generate an error in iis
 
 // invoke OnManagerLogout event
-$tmp = array(
+$tmp = [
     'userid' => $internalKey,
     'username' => $username
-);
+];
 evo()->invokeEvent("OnManagerLogout", $tmp);
 
 // show login screen

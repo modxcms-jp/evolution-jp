@@ -61,7 +61,7 @@ function check_snapshot_path($snapshot_path)
     if (!is_writable(rtrim($snapshot_path, '/'))) {
         echo evo()->parseText(
             lang('bkmgr_alert_mkdir')
-            , array('snapshot_path' => $snapshot_path)
+            , ['snapshot_path' => $snapshot_path]
         );
         exit;
     }
@@ -79,8 +79,8 @@ function filename()
         return postv('file_name');
     }
     $today = str_replace(
-        array('/', ' ', ':')
-        , array('-', '-', '')
+        ['/', ' ', ':']
+        , ['-', '-', '']
         , strtolower(
             evo()->toDateFormat(request_time())
         )

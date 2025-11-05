@@ -26,7 +26,7 @@ if ($rs) {
 }
 
 // invoke OnBeforeUserFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent("OnBeforeUserFormDelete", $tmp);
 
 //ok, delete the user.
@@ -44,14 +44,14 @@ db()->delete($tbl_user_attributes, "internalKey='{$id}'")
 or exit('Something went wrong while trying to delete the user attributes...');
 
 // invoke OnManagerDeleteUser event
-$tmp = array(
+$tmp = [
     "userid" => $id,
     "username" => $username
-);
+];
 evo()->invokeEvent("OnManagerDeleteUser", $tmp);
 
 // invoke OnUserFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent("OnUserFormDelete", $tmp);
 
 header('Location: index.php?a=75');

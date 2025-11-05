@@ -23,11 +23,11 @@ foreach ($tplSnippets as $k => $tplInfo) {
         continue;
     }
 
-    $f = array(
+    $f = [
         'snippet' => getLast(preg_split("@(//)?\s*<\?php@", file_get_contents($tplInfo['tpl_file_path']))),
         'description' => $tplInfo['description'],
         'properties' => $tplInfo['properties']
-    );
+    ];
     $dbv_snippet = db()->getObject('site_snippets', "name='" . db()->escape($tplInfo['name']) . "'");
     if (!$dbv_snippet) {
         $f['name'] = $tplInfo['name'];

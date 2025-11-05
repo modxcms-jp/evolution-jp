@@ -23,10 +23,10 @@ if ($this->checkLocked()) {
 }
 
 if (tv('type') === 'richtext') {
-    $tmp = array(
+    $tmp = [
         'editor' => evo()->config['which_editor'],
-        'elements' => array('tv' . getv('tvname'))
-    );
+        'elements' => ['tv' . getv('tvname')]
+    ];
     $eventOutput = evo()->invokeEvent('OnRichTextEditorInit', $tmp);
     if (is_array($eventOutput)) {
         $editorHtml = implode('', $eventOutput);
@@ -53,11 +53,11 @@ $output = <<< EOT
 EOT;
 $output = parseText(
     $output,
-    array(
+    [
         'theme' => $theme,
         'site_url' => MODX_SITE_URL,
         'jquery_path' => $this->jqpath
-    )
+    ]
 );
 
 $output .= '<body id="qm-tv-body">';
@@ -73,8 +73,8 @@ if ($locked) {
     if (tv('type') === 'image') {
         $imagePreview = $this->get_img_prev_src();
         $imagePreview = str_replace(
-            array('[+site_url+]', '[+tv_value+]', '[+tv_name+]'),
-            array(MODX_SITE_URL, tv('value'), getv('tvname')),
+            ['[+site_url+]', '[+tv_value+]', '[+tv_name+]'],
+            [MODX_SITE_URL, tv('value'), getv('tvname')],
             $imagePreview
         );
     } else $imagePreview = '';
@@ -113,7 +113,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
 [+editor_html+]
 </body>
 </html>
-', array(
+', [
         'site_url' => MODX_SITE_URL,
         'docid' => $docID,
         'tvname' => getv('tvname'),
@@ -126,7 +126,7 @@ action="[+site_url+]index.php?id=[+docid+]&amp;quickmanagertv=1&amp;tvname=[+tvn
         'form' => $tvHtml,
         'img_preview' => $imagePreview,
         'editor_html' => isset($editorHtml) ? $editorHtml : ''
-    ));
+    ]);
 }
 
 return $output;

@@ -111,7 +111,7 @@ class Base
     {
         $value = (string)$value;
         $value = str_replace('\\', '/', $value);
-        $value = str_replace(array('../', './'), '', $value);
+        $value = str_replace(['../', './'], '', $value);
 
         while (strpos($value, '..') !== false) {
             $value = str_replace('..', '', $value);

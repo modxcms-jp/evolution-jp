@@ -27,11 +27,11 @@ if ($password != postv('pass2')) {
     } else {
         $userinfo = evo()->getUserInfo($uid);
         $msg = '<p class="success">' . $_lang["change_password_success"] . '</p>';
-        $tmp = array(
+        $tmp = [
             "userid" => $uid,
             "username" => $userinfo['username'],
             "userpassword" => $userinfo['password']
-        );
+        ];
         evo()->invokeEvent("OnManagerChangePassword", $tmp);
     }
 }

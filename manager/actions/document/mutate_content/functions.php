@@ -9,7 +9,7 @@ function getTmplvars($docid, $template_id, $docgrp)
     $tmplVars = [];
 
     $rs = db()->select(
-        array(
+        [
             'DISTINCT tv.*',
             'tvtpl.rank',
             'value'
@@ -18,8 +18,8 @@ function getTmplvars($docid, $template_id, $docgrp)
                 :
                 'tv.default_text',
             'tvtpl.rank'
-        ),
-        array(
+        ],
+        [
             '[+prefix+]site_tmplvars AS tv',
             'INNER JOIN [+prefix+]site_tmplvar_templates AS tvtpl ON tvtpl.tmplvarid=tv.id',
             $docid ?
@@ -30,7 +30,7 @@ function getTmplvars($docid, $template_id, $docgrp)
                 :
                 '',
             'LEFT JOIN [+prefix+]site_tmplvar_access AS tva ON tva.tmplvarid=tv.id'
-        ),
+        ],
         sprintf(
             "tvtpl.templateid='%s' AND (1='%s' OR ISNULL(tva.documentgroup) %s)",
             $template_id,
@@ -52,14 +52,14 @@ function getTmplvars($docid, $template_id, $docgrp)
 function rteContent($htmlcontent, $editors)
 {
     return textarea_tag(
-        array(
+        [
             'id' => 'ta',
             'name' => 'ta',
             'style' => 'width:100%;height:350px;'
-        ),
+        ],
         $htmlcontent
     )
-        . html_tag('<span>', array('class' => 'warning'), lang('which_editor_title'))
+        . html_tag('<span>', ['class' => 'warning'], lang('which_editor_title'))
         . getEditors($editors);
 }
 
@@ -73,24 +73,24 @@ function getEditors($editors)
         return '';
     }
 
-    $options = array(
-        html_tag('<option>', array('value' => 'none'), lang('none'))
-    );
+    $options = [
+        html_tag('<option>', ['value' => 'none'], lang('none'))
+    ];
     foreach ($editors as $editor) {
         $options[] = html_tag(
             '<option>',
-            array(
+            [
                 'value' => $editor,
                 'selected' => evo()->input_post('which_editor', config('which_editor')) === $editor ? null : ''
-            ),
+            ],
             $editor
         );
     }
     return select_tag(
-        array(
+        [
             'id' => 'which_editor',
             'name' => 'which_editor'
-        ),
+        ],
         implode("\n", $options)
     );
 }
@@ -195,13 +195,13 @@ function getUDGroups($id)
     if ($docid) {
         $rs = db()->select(
             'dgn.*, `groups`.id AS link_id',
-            array(
+            [
                 '[+prefix+]documentgroup_names AS dgn',
                 sprintf(
                     'LEFT JOIN [+prefix+]document_groups AS `groups` ON `groups`.document_group=dgn.id AND `groups`.document=%s',
                     $docid
                 )
-            ),
+            ],
             '',
             'name'
         );
@@ -273,7 +273,7 @@ function getUDGroups($id)
                 sprintf("<input %s />\n", implode(' ', $inputString))
                     . html_tag(
                         'label',
-                        array('for' => 'group-' . $row['id']),
+                        ['for' => 'group-' . $row['id']],
                         $row['name']
                     )
             );
@@ -297,21 +297,21 @@ function getUDGroups($id)
                 [],
                 html_tag(
                     '<input>',
-                    array(
+                    [
                         'type' => 'checkbox',
                         'class' => 'checkbox',
                         'name' => 'chkalldocs',
                         'id' => 'groupall',
                         'checked' => !$notPublic ? null : '',
                         'onclick' => 'makePublic(true);'
-                    )
+                    ]
                 )
                     . html_tag(
                         'label',
-                        array(
+                        [
                             'for' => 'groupall',
                             'class' => 'warning'
-                        ),
+                        ],
                         lang('all_doc_groups')
                     )
             )
@@ -377,13 +377,13 @@ function tooltip($msg)
 {
     return img_tag(
         style('icons_tooltip'),
-        array(
+        [
             'alt' => $msg,
             'title' => $msg,
             'onclick' => 'alert(this.alt);',
             'style' => 'cursor:help;margin-left:5px;',
             'class' => 'tooltip'
-        )
+        ]
     );
 }
 
@@ -607,7 +607,7 @@ function db_value($id, $docgrp)
 if (!function_exists('default_value')) {
     function default_value($parent_id, $new_template_id)
     {
-        return array(
+        return [
             'menuindex' => getMenuIndexAtNew($parent_id),
             'alias' => getAliasAtNew(),
             'richtext' => config('use_editor'),
@@ -630,7 +630,7 @@ if (!function_exists('default_value')) {
             'unpub_date' => '',
             'isfolder' => 0,
             'content' => ''
-        );
+        ];
     }
 }
 
@@ -755,7 +755,7 @@ function file_get_tpl($path)
 
 function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit)
 {
-    return array(
+    return [
         'JScripts' => getJScripts($id),
         'OnDocFormPrerender' => is_array($OnDocFormPrerender) ? implode("\n", $OnDocFormPrerender) : '',
         'id' => $id,
@@ -770,13 +770,13 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'OnDocFormRender' => is_array($OnDocFormRender) ? implode("\n", $OnDocFormRender) : '',
         'OnRichTextEditorInit' => $OnRichTextEditorInit,
         'remember_last_tab' => (config('remember_last_tab') === '2' || evo()->input_get('stay') === '2') ? 'true' : 'false'
-    );
+    ];
 }
 
 if (!function_exists('collect_tab_general_ph')) {
     function collect_tab_general_ph($docid)
     {
-        return array(
+        return [
             '_lang_settings_general' => lang('settings_general'),
             'fieldPagetitle' => fieldPagetitle(),
             'fieldLongtitle' => fieldLongtitle(),
@@ -792,16 +792,16 @@ if (!function_exists('collect_tab_general_ph')) {
             'sectionContent' => sectionContent(),
             'sectionTV' => config('tvs_below_content', 1)
                 ? sectionTV(file_get_tpl('section_tv.tpl'), fieldsTV()) : ''
-        );
+        ];
     }
 }
 
 function collect_tab_tv_ph()
 {
-    return array(
+    return [
         'TVFields' => fieldsTV(),
         '_lang_tv' => lang('tmplvars')
-    );
+    ];
 }
 
 if (!function_exists('collect_tab_settings_ph')) {
@@ -819,19 +819,19 @@ if (!function_exists('collect_tab_settings_ph')) {
         $ph['fieldType'] = fieldType();
         $ph['fieldContentType'] = (doc('type') === 'reference') ? html_tag(
             '<input>',
-            array(
+            [
                 'type' => 'hidden',
                 'name' => 'contentType',
                 'value' => doc('contentType')
-            )
+            ]
         ) : fieldContentType();
         $ph['fieldContent_dispo'] = (doc('type') === 'reference') ? html_tag(
             '<input>',
-            array(
+            [
                 'type' => 'hidden',
                 'name' => 'content_dispo',
                 'value' => doc('content_dispo')
-            )
+            ]
         ) : fieldContent_dispo();
         $ph['fieldLink_attributes'] = fieldLink_attributes();
         $ph['fieldIsfolder'] = fieldIsfolder();

@@ -18,11 +18,11 @@
                     );
                     $options = [];
                     while ($row = db()->getRow($rs)) {
-                        $options[$row['category'] == null ? lang('no_category') : $row['category']][] = array(
+                        $options[$row['category'] == null ? lang('no_category') : $row['category']][] = [
                             'id' => $row['id'],
                             'name' => $row['templatename'],
                             'selected' => (config('default_template') == $row['id'])
-                        );
+                        ];
                     }
                     $echo = [];
                     foreach ($options as $category => $templates) {

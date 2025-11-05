@@ -48,10 +48,10 @@ function mm_widget_colors($fields, $default = '#ffffff', $roles = '', $templates
                 jQuery("#[+tv_id+]").trigger("change");
             });
             documentDirty = false;
-            ', array(
+            ', [
                 'tv_id' => $mm_fields[$tv]['fieldname'],
                 'default' => $default
-            )
+            ]
         );
     }
 

@@ -134,15 +134,15 @@ class filter
 
     private function _get_operator_name($op)
     {
-        if (in_array($op, array('!=', '1', '<>', 'ne'), true)) return '!=';
-        if (in_array($op, array('==', 2, 'eq'))) return '==';
-        if (in_array($op, array('<', 3, 'lt'))) return '<';
-        if (in_array($op, array('<=', 6, 'lte', 'le'))) return '<=';
-        if (in_array($op, array('>', 4, 'gt'))) return '>';
-        if (in_array($op, array('>=', 5, 'gte', 'ge'))) return '>=';
-        if (in_array($op, array('regex', 'preg'))) return 'regex';
-        if (in_array($op, array('=~', 7, 'find', 'search', 'strpos'))) return '=~';
-        if (in_array($op, array('!=~', 8, '!~', '!find', '!search', '!strpos'))) return '!=~';
+        if (in_array($op, ['!=', '1', '<>', 'ne'], true)) return '!=';
+        if (in_array($op, ['==', 2, 'eq'])) return '==';
+        if (in_array($op, ['<', 3, 'lt'])) return '<';
+        if (in_array($op, ['<=', 6, 'lte', 'le'])) return '<=';
+        if (in_array($op, ['>', 4, 'gt'])) return '>';
+        if (in_array($op, ['>=', 5, 'gte', 'ge'])) return '>=';
+        if (in_array($op, ['regex', 'preg'])) return 'regex';
+        if (in_array($op, ['=~', 7, 'find', 'search', 'strpos'])) return '=~';
+        if (in_array($op, ['!=~', 8, '!~', '!find', '!search', '!strpos'])) return '!=~';
         return false;
     }
 

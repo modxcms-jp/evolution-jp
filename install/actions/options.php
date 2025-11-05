@@ -66,7 +66,7 @@ function show_object_list($ph)
 {
     $objects = implode(
         "\n",
-        array($ph['block_templates'], $ph['block_tvs'], $ph['block_chunks'], $ph['block_modules'], $ph['block_plugins'], $ph['block_snippets'])
+        [$ph['block_templates'], $ph['block_tvs'], $ph['block_chunks'], $ph['block_modules'], $ph['block_plugins'], $ph['block_snippets']]
     );
     if (trim($objects) === '') {
         $langKey = !empty($ph['has_utf8mb4_conversion_option']) ? 'no_update_options_with_utf8mb4' : 'no_update_options';
@@ -182,7 +182,7 @@ function block_templates($tplTemplates, $ph)
         return '';
     }
 
-    $_ = array('<h3>[+templates+]</h3>');
+    $_ = ['<h3>[+templates+]</h3>'];
     foreach ($tplTemplates as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="template[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -202,7 +202,7 @@ function block_tvs($tplTVs, $ph)
         return '';
     }
 
-    $_ = array('<h3>[+tvs+]</h3>');
+    $_ = ['<h3>[+tvs+]</h3>'];
     foreach ($tplTVs as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="tv[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -222,7 +222,7 @@ function block_chunks($tplChunks, $ph)
         return '';
     }
 
-    $_ = array('<h3>[+chunks+]</h3>');
+    $_ = ['<h3>[+chunks+]</h3>'];
     foreach ($tplChunks as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="chunk[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -242,7 +242,7 @@ function block_modules($tplModules, $ph)
         return '';
     }
 
-    $_ = array('<h3>[+modules+]</h3>');
+    $_ = ['<h3>[+modules+]</h3>'];
     foreach ($tplModules as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="module[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -262,7 +262,7 @@ function block_plugins($tplPlugins, $ph)
         return '';
     }
 
-    $_ = array('<h3>[+plugins+]</h3>');
+    $_ = ['<h3>[+plugins+]</h3>'];
     foreach ($tplPlugins as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="plugin[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -281,7 +281,7 @@ function block_snippets($tplSnippets, $ph)
     if (!$tplSnippets) {
         return '';
     }
-    $_ = array('<h3>[+snippets+]</h3>');
+    $_ = ['<h3>[+snippets+]</h3>'];
     foreach ($tplSnippets as $i => $v) {
         $_[] = sprintf(
             '<label><input type="checkbox" name="snippet[]" value="%s" class="%s" %s /><span class="comname">%s</span> - %s</label>',
@@ -305,7 +305,7 @@ function is_demo($option)
 
 function is_check($elements, $num)
 {
-    if (in_array($_SESSION['prevAction'], array('connection', 'mode'))) {
+    if (in_array($_SESSION['prevAction'], ['connection', 'mode'])) {
         if (!isset($_SESSION['installdata'])) {
             return true;
         }

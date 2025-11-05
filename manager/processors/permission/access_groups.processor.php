@@ -31,10 +31,10 @@ switch ($_REQUEST['operation']) {
                 warning("Failed to insert new group. Possible duplicate group name?");
             }
             // invoke OnManagerCreateGroup event
-            $tmp = array(
+            $tmp = [
                 'groupid' => $groupid,
                 'groupname' => $groupname,
-            );
+            ];
             evo()->invokeEvent('OnManagerCreateGroup', $tmp);
         }
         break;
@@ -50,10 +50,10 @@ switch ($_REQUEST['operation']) {
             }
 
             // invoke OnCreateDocGroup event
-            $tmp = array(
+            $tmp = [
                 'groupid' => $groupid,
                 'groupname' => $groupname,
-            );
+            ];
             evo()->invokeEvent('OnCreateDocGroup', $tmp);
         }
         break;

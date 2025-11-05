@@ -26,9 +26,9 @@ if (!manager()->isAllowed($id)) {
 evo()->updatePublishStatus();
 
 // Get the document content
-$where = array(
+$where = [
     sprintf("sc.id ='%s'", $id)
-);
+];
 if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
     $where[] = sprintf(
         "AND (sc.privatemgr=0 OR dg.document_group IN (%s))",
@@ -37,10 +37,10 @@ if (sessionv('mgrDocgroups') && !manager()->isAdmin()) {
 }
 $rs = db()->select(
     'DISTINCT sc.*',
-    array(
+    [
         '[+prefix+]site_content AS sc',
         'LEFT JOIN [+prefix+]document_groups AS dg ON dg.document=sc.id'
-    ),
+    ],
     $where
 );
 $total = db()->count($rs);

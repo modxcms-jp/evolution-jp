@@ -104,7 +104,7 @@ global $database_connection_method, $lastInstallTime;
                     <a href="index.php?a=114">イベントログ</a>に重要なヒントが記録されていることもあります。
                 </p>
                 <?php
-                $info = array(
+                $info = [
                     'OS' => sprintf('%s %s %s %s', PHP_OS, php_uname('r'), php_uname('v'), php_uname('m')),
                     'PHPのバージョン' => PHP_VERSION,
                     'php_sapi_name' => php_sapi_name(),
@@ -124,7 +124,7 @@ global $database_connection_method, $lastInstallTime;
                     'max_execution_time' => ini_get('max_execution_time') . '秒(PHP処理の制限時間。スクリプト暴走の継続を防止します)',
                     'max_input_time' => ini_get('max_input_time') . '秒(POST・GET・ファイルアップロードなどの入力を処理する制限時間。回線の太さの影響を受けることもあります)',
                     'session.save_path' => ini_get('session.save_path') . '(セッションデータを保存するディレクトリ。CGI版PHPの場合はユーザの違いが原因でここに書き込み権限がない場合があるため、注意が必要です)'
-                );
+                ];
 
                 echo '<p>' . getenv('SERVER_SOFTWARE') . '</p>' . "\n" . "\n";
 

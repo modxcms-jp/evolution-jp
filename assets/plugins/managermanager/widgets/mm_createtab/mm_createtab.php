@@ -31,18 +31,18 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
 </table>
 </div>
     ',
-        array(
+        [
             'id' => $id,
             'name' => $name,
             'intro' => $intro,
             'width' => $width,
-        )
+        ]
     );
 
     // Clean up for js output
     $output .= sprintf(
         "jQuery('div#'+mm_lastTab).after('%s');\n",
-        str_replace(array("\n", "\t", "\r"), '', $empty_tab)
+        str_replace(["\n", "\t", "\r"], '', $empty_tab)
     );
     $output .= sprintf("mm_lastTab = 'tab%s';\n", $id);
     $output .= sprintf(

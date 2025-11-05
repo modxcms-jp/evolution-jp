@@ -20,7 +20,7 @@ class ditto
         $this->advSort = false;
         $this->sqlOrderBy = [];
         $this->customReset = [];
-        $this->constantFields[] = array('db', 'tv');
+        $this->constantFields[] = ['db', 'tv'];
         $this->constantFields['db'] = [
             'id', 'type', 'contentType', 'pagetitle', 'longtitle',
             'description', 'alias', 'link_attributes', 'published',
@@ -106,7 +106,7 @@ class ditto
             if (strpos($fields, $delimiter) !== false) {
                 $fields = explode($delimiter, $fields);
             } else {
-                $fields = array($fields);
+                $fields = [$fields];
             }
         }
         foreach ($fields as $field) {
@@ -120,7 +120,7 @@ class ditto
 
             $this->addField($name, $location, $type);
             if ($callback && is_callable($callback)) {
-                call_user_func_array($callback, array($name));
+                call_user_func_array($callback, [$name]);
             }
         }
         return true;
@@ -211,7 +211,7 @@ class ditto
                 $sortDir = $sortDir ? trim($sortDir) : 'asc';
                 $sortBy = $this->checkAdvSort($sortBy, $sortDir);
                 $this->addField($sortBy, 'backend');
-                $orderBy['parsed'][] = array($sortBy, strtoupper($sortDir));
+                $orderBy['parsed'][] = [$sortBy, strtoupper($sortDir)];
             }
         }
         $orderBy['sql'] = implode(', ', $this->sqlOrderBy);
@@ -225,7 +225,7 @@ class ditto
     // ---------------------------------------------------
     function checkAdvSort($sortBy, $sortDir = 'asc')
     {
-        $advSort = array('pub_date', 'unpub_date', "editedon", "deletedon", "publishedon");
+        $advSort = ['pub_date', 'unpub_date', "editedon", "deletedon", "publishedon"];
         $type = $this->getDocVarType($sortBy);
         switch ($type) {
             case 'tv:prefix':
@@ -266,7 +266,7 @@ class ditto
                 $this->addField($source, 'backend');
                 $value = $filterArray[1];
                 $mode = isset ($filterArray[2]) ? $filterArray[2] : 1;
-                $parsedFilters['basic'][] = array('source' => $source, 'value' => $value, 'mode' => $mode);
+                $parsedFilters['basic'][] = ['source' => $source, 'value' => $value, 'mode' => $mode];
             }
         }
         if ($cFilters) {
@@ -350,7 +350,7 @@ class ditto
         if ($removeChunk) {
             foreach ($removeChunk as $chunk) {
                 $output = str_replace(
-                    array('{{' . $chunk . '}}', evo()->getChunk($chunk))
+                    ['{{' . $chunk . '}}', evo()->getChunk($chunk)]
                     , ''
                     , $output
                 );
@@ -420,7 +420,7 @@ class ditto
         $this->addField('id', 'display', 'db');
         $this->addField('pagetitle', 'display', 'db');
         $this->addField('parent', 'display', 'db');
-        $checkOptions = array('pub_date', 'unpub_date', 'editedon', 'deletedon', 'publishedon');
+        $checkOptions = ['pub_date', 'unpub_date', 'editedon', 'deletedon', 'publishedon'];
         if (in_array($dateSource, $checkOptions)) {
             $this->addField('createdon', 'display');
         }
@@ -485,7 +485,7 @@ class ditto
             if ($qe === null) {
                 return;
             }
-            $this->customPlaceholdersMap[$name] = array('qe', $qe);
+            $this->customPlaceholdersMap[$name] = ['qe', $qe];
         }
     }
 
@@ -729,7 +729,7 @@ class ditto
                 }
             }
 
-            $this->prefetch = array('resource' => $keep, 'fields' => $fields);
+            $this->prefetch = ['resource' => $keep, 'fields' => $fields];
             if ($this->debug) {
                 $this->prefetch['dbg_resource'] = $dbg_resource;
                 $this->prefetch['dbg_IDs_pre'] = $documentIDs;
@@ -816,10 +816,10 @@ class ditto
     {
         $rs = db()->select(
             'stv.*, stc.*'
-            , array(
+            , [
                 '[+prefix+]site_tmplvar_contentvalues stc',
                 'LEFT JOIN [+prefix+]site_tmplvars stv ON stv.id=stc.tmplvarid'
-            )
+            ]
             , sprintf(
                 "stv.name='%s' AND stc.contentid IN (%s)"
                 , $tvname
@@ -1202,9 +1202,9 @@ class ditto
             $tplPaginatePrevious = str_replace('lang:previous', 'lang%previous', $tplPaginatePrevious);
         }
         $rNext = evo()->parseText(
-            array(
+            [
                 'url' => self::buildURL('start=' . $next),
-                'lang%next' => $ditto_lang['next']),
+                'lang%next' => $ditto_lang['next']],
             $tplPaginateNext
         );
         $previous = $start - $summarize;
@@ -1226,9 +1226,9 @@ class ditto
             );
         }
         $rPrevious = evo()->parseText(
-            array(
+            [
                 'url' => $prevUrl,
-                'lang%previous' => $ditto_lang['prev']),
+                'lang%previous' => $ditto_lang['prev']],
             $tplPaginatePrevious
         );
         $limten = $summarize + $start;
@@ -1248,11 +1248,11 @@ class ditto
                 );
             }
             $previousplaceholder = evo()->parseText(
-                array('lang%previous' => $ditto_lang['prev']),
+                ['lang%previous' => $ditto_lang['prev']],
                 $tplPaginatePreviousOff
             );
             $nextplaceholder = evo()->parseText(
-                array('lang%next' => $ditto_lang['next']),
+                ['lang%next' => $ditto_lang['next']],
                 $tplPaginateNextOff
             );
         } else {
@@ -1306,15 +1306,15 @@ class ditto
                 evo()->setPlaceholder($dittoID . 'currentPage', $display);
                 $pages[] = evo()->parseText(
                     $tplPaginateCurrentPage
-                    , array('page' => $display)
+                    , ['page' => $display]
                 );
             } else {
                 $pages[] = evo()->parseText(
                     $tplPaginatePage
-                    , array(
+                    , [
                         'url' => self::buildURL('start=' . $inc),
                         'page' => $display
-                    )
+                    ]
                 );
             }
             if ($x < $max_x) {
@@ -1323,17 +1323,17 @@ class ditto
         }
         if ($totalpages > 1 || $paginateAlwaysShowLinks == 1) {
             evo()->toPlaceholders(
-                array(
+                [
                     'next' => $nextplaceholder,
                     'previous' => $previousplaceholder,
                     'prev' => $previousplaceholder,
                     'pages' => implode("\n", $pages)
-                )
+                ]
                 , $dittoID
             );
         }
         evo()->toPlaceholders(
-            array(
+            [
                 'splitter' => $split,
                 'start' => ($start + 1),
                 'urlStart' => $start,
@@ -1342,7 +1342,7 @@ class ditto
                 'perPage', $summarize,
                 'totalPages' => $totalpages,
                 'ditto_pagination_set' => true
-            )
+            ]
             , $dittoID
         );
     }

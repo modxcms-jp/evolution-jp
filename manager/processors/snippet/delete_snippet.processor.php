@@ -10,7 +10,7 @@ $id = (int) getv('id');
 $tbl_site_snippets = evo()->getFullTableName('site_snippets');
 
 // invoke OnBeforeSnipFormDelete event
-$tmp = array('id' => $id);
+$tmp = ['id' => $id];
 evo()->invokeEvent('OnBeforeSnipFormDelete', $tmp);
 
 //ok, delete the snippet.
@@ -21,7 +21,7 @@ if (!$rs) {
 }
 
 // invoke OnSnipFormDelete event
-$tmp = array("id" => $id);
+$tmp = ["id" => $id];
 evo()->invokeEvent('OnSnipFormDelete', $tmp);
 
 // empty cache

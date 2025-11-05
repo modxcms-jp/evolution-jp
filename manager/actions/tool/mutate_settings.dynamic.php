@@ -31,7 +31,7 @@ $settings = settings();
 extract($settings, EXTR_OVERWRITE);
 
 // load languages and keys
-$lang_keys = array();
+$lang_keys = [];
 $dir = scandir(MODX_CORE_PATH . 'lang');
 foreach ($dir as $filename) {
     if (substr($filename, -8) !== '.inc.php') {

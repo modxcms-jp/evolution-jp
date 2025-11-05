@@ -308,7 +308,7 @@ function content($key, $default = null)
 <form name="mutate" id="mutate" class="module" method="post" action="index.php?a=109" enctype="multipart/form-data">
     <?php
     // invoke OnModFormPrerender event
-    $tmp = array('id' => $id);
+    $tmp = ['id' => $id];
     $evtOut = evo()->invokeEvent('OnModFormPrerender', $tmp);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
@@ -344,20 +344,20 @@ function content($key, $default = null)
             if (getv('a') == 108) {
                 if (evo()->hasPermission('delete_module')) {
                     echo manager()->ab(
-                        array(
+                        [
                             'onclick' => 'deletedocument();',
                             'icon' => $_style['icons_delete_document'],
                             'label' => $_lang['delete']
-                        )
+                        ]
                     );
                 }
             }
             echo manager()->ab(
-                array(
+                [
                     'onclick' => "document.location.href='index.php?a=106';",
                     'icon' => $_style['icons_cancel'],
                     'label' => $_lang['cancel']
-                )
+                ]
             );
             ?>
         </ul>
@@ -652,7 +652,7 @@ function content($key, $default = null)
     </div>
     <?php
     // invoke OnModFormRender event
-    $tmp = array('id' => $id);
+    $tmp = ['id' => $id];
     $evtOut = evo()->invokeEvent('OnModFormRender', $tmp);
     if (is_array($evtOut)) {
         echo implode('', $evtOut);
