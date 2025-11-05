@@ -483,7 +483,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 break;
         }
     }
-    document.addEvent('click', function(){
+    document.addEventListener('click', function(){
         contextm.style.visibility = "hidden";
     });
 </script>

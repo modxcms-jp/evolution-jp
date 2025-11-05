@@ -71,11 +71,24 @@ echo $cm->render();
 
     function showContentMenu(id, e) {
         selectedItem = id;
-        contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft)))
-        <?= $modx_textdir === 'rtl' ? '-190' : ''; ?> + "px"; //offset menu if RTL is selected
-        contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + "px";
+        e = e || window.event;
+        var scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft || 0;
+        var scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0;
+        var posX = (typeof e.pageX !== 'undefined' ? e.pageX : e.clientX + scrollLeft);
+        var posY = (typeof e.pageY !== 'undefined' ? e.pageY : e.clientY + scrollTop);
+
+        contextm.style.left = posX<?= $modx_textdir === 'rtl' ? '-190' : ''; ?> + "px"; //offset menu if RTL is selected
+        contextm.style.top = posY + "px";
         contextm.style.visibility = "visible";
+
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
         e.cancelBubble = true;
+        e.returnValue = false;
         return false;
     }
 
@@ -102,9 +115,11 @@ echo $cm->render();
         }
     }
 
-    document.addEvent('click', function() {
+    // Hide context menu when clicking anywhere on the document
+    document.addEventListener('click', function() {
         contextm.style.visibility = "hidden";
     });
+
 </script>
 
 <h1><?= $_lang['module_management'] ?></h1>

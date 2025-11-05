@@ -77,7 +77,7 @@ class ContextMenu
 $ContextMenuScript = <<<BLOCK
 <script>
 	function getCntxMenu(id) {
-		return $(id);
+		return document.getElementById(id);
 	}
 	function hideCntxMenu(id){
 		var cm = getCntxMenu(id);

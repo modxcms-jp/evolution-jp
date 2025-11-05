@@ -79,7 +79,7 @@ echo $cm->render();
         }
     }
 
-    document.addEvent('click', function () {
+    document.addEventListener('click', function () {
         contextm.style.visibility = "hidden";
     });
 </script>
