@@ -143,9 +143,6 @@ if (getv('a') && postv('a')) {
     $modx->manager->action = (int)anyv('a') ?: '';
 }
 
-// attempt to foil some simple types of CSRF attacks
-manager()->validate_referer($modx->config('validate_referer'));
-
 manager()->setView(manager()->action);
 
 if (postv('stay') && postv('stay') !== 'new') {

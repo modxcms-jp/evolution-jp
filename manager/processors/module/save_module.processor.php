@@ -12,49 +12,41 @@ $tbl_site_modules = evo()->getFullTableName('site_modules');
 if (preg_match('@^[0-9]+$@', postv('id'))) {
     $id = postv('id');
 }
-$name = db()->escape(trim(postv('name')));
-$description = db()->escape(postv('description'));
-$resourcefile = db()->escape(postv('resourcefile'));
+
+$name = trim(postv('name') ?: 'Untitled module');
 $enable_resource = postv('enable_resource') === 'on' ? 1 : 0;
-if ((postv('icon') !== '') && (preg_match('@^(' . $modx->config['rb_base_url'] . ')@', postv('icon')) == 1)) {
+if ((postv('icon') !== '') && (preg_match('@^(' . config('rb_base_url') . ')@', postv('icon')) == 1)) {
     $_POST['icon'] = '../' . postv('icon');
 }
-$icon = db()->escape(postv('icon'));
 $disabled = postv('disabled') === 'on' ? 1 : 0;
 $wrap = postv('wrap') === 'on' ? 1 : 0;
 $locked = postv('locked') === 'on' ? 1 : 0;
-$modulecode = db()->escape(postv('post'));
-$properties = db()->escape(postv('properties'));
 $enable_sharedparams = postv('enable_sharedparams') === 'on' ? 1 : 0;
-$guid = db()->escape(postv('guid'));
 $createdon = $editedon = time();
 
 //Kyle Jaebker - added category support
 if (!postv('newcategory') && postv('categoryid') > 0) {
-    $category = db()->escape(postv('categoryid'));
+    $category = postv('categoryid');
 } elseif (!postv('newcategory') && postv('categoryid') <= 0) {
     $category = 0;
 } else {
-    $catCheck = manager()->checkCategory(db()->escape(postv('newcategory')));
+    $newcategory = postv('newcategory');
+    $catCheck = manager()->checkCategory(db()->escape($newcategory));
     if ($catCheck) {
         $category = $catCheck;
     } else {
-        $category = manager()->newCategory(postv('newcategory'));
+        $category = manager()->newCategory($newcategory);
     }
-}
-
-if ($name == "") {
-    $name = "Untitled module";
 }
 
 switch (postv('mode')) {
     case '107':
         // invoke OnBeforeModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'new',
             'id' => ''
-        );
-        evo()->invokeEvent("OnBeforeModFormSave", $tmp);
+        ];
+        evo()->invokeEvent("OnBeforeModFormSave", $eventParams);
 
         // disallow duplicate names for new modules
         $rs = db()->select('COUNT(id)', $tbl_site_modules, "name = '{$name}'");
@@ -89,28 +81,42 @@ switch (postv('mode')) {
 
         // save the new module
 
-        $f = compact('name', 'description', 'icon', 'enable_resource', 'resourcefile',
-            'disabled', 'wrap', 'locked', 'category', 'enable_sharedparams',
-            'guid', 'modulecode', 'properties', 'editedon', 'createdon');
-        $newid = db()->insert($f, $tbl_site_modules);
+        $f = [
+            'name' => $name,
+            'description' => postv('description'),
+            'icon' => postv('icon'),
+            'enable_resource' => $enable_resource,
+            'resourcefile' => postv('resourcefile'),
+            'disabled' => $disabled,
+            'wrap' => $wrap,
+            'locked' => $locked,
+            'category' => $category,
+            'enable_sharedparams' => $enable_sharedparams,
+            'guid' => postv('guid', ''),
+            'modulecode' => postv('post'),
+            'properties' => postv('properties'),
+            'editedon' => $editedon,
+            'createdon' => $createdon
+        ];
+        $newid = db()->insert(db()->escape($f), $tbl_site_modules);
         if (!$newid) {
             echo '$newid not set! New module not saved!';
             exit;
         }
 
-// save user group access permissions
         saveUserGroupAccessPermissons();
 
         // invoke OnModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'new',
             'id' => $newid
-        );
-        evo()->invokeEvent("OnModFormSave", $tmp);
-        if (postv('stay') != '') {
+        ];
+        evo()->invokeEvent("OnModFormSave", $eventParams);
+
+        if (postv('stay')) {
             $stay = postv('stay');
             $a = ($stay == '2') ? "108&id={$newid}" : '107';
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . $stay;
+            $header = "Location: index.php?a={$a}&r=2&stay={$stay}";
         } else {
             $header = "Location: index.php?a=106&r=2";
         }
@@ -121,17 +127,31 @@ switch (postv('mode')) {
         break;
     case '108':
         // invoke OnBeforeModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'upd',
             'id' => $id
-        );
-        evo()->invokeEvent('OnBeforeModFormSave', $tmp);
+        ];
+        evo()->invokeEvent('OnBeforeModFormSave', $eventParams);
 
         // save the edited module
-        $f = compact('name', 'description', 'icon', 'enable_resource', 'resourcefile',
-            'disabled', 'wrap', 'locked', 'category', 'enable_sharedparams',
-            'guid', 'modulecode', 'properties', 'editedon');
-        $rs = db()->update($f, $tbl_site_modules, "id='" . $id . "'");
+        $f = [
+            'name' => $name,
+            'description' => postv('description'),
+            'icon' => postv('icon'),
+            'enable_resource' => $enable_resource,
+            'resourcefile' => postv('resourcefile'),
+            'disabled' => $disabled,
+            'wrap' => $wrap,
+            'locked' => $locked,
+            'category' => $category,
+            'enable_sharedparams' => $enable_sharedparams,
+            'guid' => postv('guid', ''),
+            'modulecode' => postv('post'),
+            'properties' => postv('properties'),
+            'editedon' => $editedon
+        ];
+
+        $rs = db()->update(db()->escape($f), $tbl_site_modules, "id='" . $id . "'");
         if (!$rs) {
             echo '$rs not set! Edited module not saved!' . db()->getLastError();
             exit;
@@ -141,14 +161,15 @@ switch (postv('mode')) {
         saveUserGroupAccessPermissons();
 
         // invoke OnModFormSave event
-        $tmp = array(
+        $eventParams = [
             'mode' => 'upd',
             'id' => $id
-        );
-        evo()->invokeEvent('OnModFormSave', $tmp);
-        if (postv('stay') != '') {
-            $a = (postv('stay') == '2') ? "108&id=" . $id : "107";
-            $header = "Location: index.php?a=" . $a . "&r=2&stay=" . postv('stay');
+        ];
+        evo()->invokeEvent('OnModFormSave', $eventParams);
+
+        if (postv('stay')) {
+            $a = (postv('stay') == '2') ? "108&id={$id}" : "107";
+            $header = "Location: index.php?a={$a}&r=2&stay=" . postv('stay');
         } else {
             $header = 'Location: index.php?a=106&r=2';
         }
@@ -165,36 +186,38 @@ switch (postv('mode')) {
 // saves module user group access
 function saveUserGroupAccessPermissons()
 {
-    global $modx;
     global $id, $newid;
 
-    $tbl_site_module_access = evo()->getFullTableName('site_module_access');
+    // check for permission update access
+    if (config('use_udperms') != 1) {
+        return;
+    }
 
     if ($newid) {
         $id = $newid;
     }
+
+    // delete old permissions on the module
+    $rs = db()->delete('[+prefix+]site_module_access', "module='" . $id . "'");
+    if (!$rs) {
+        echo "An error occured while attempting to delete previous module user access permission entries.";
+        exit;
+    }
+
     $usrgroups = postv('usrgroups');
+    if (!is_array($usrgroups)) {
+        return;
+    }
 
-    // check for permission update access
-    if ($modx->config['use_udperms'] == 1) {
-        // delete old permissions on the module
-
-        $rs = db()->delete($tbl_site_module_access, "module='" . $id . "'");
+    foreach ($usrgroups as $value) {
+        $f = [
+            'module' => $id,
+            'usergroup' => $value
+        ];
+        $rs = db()->insert(db()->escape($f), '[+prefix+]site_module_access');
         if (!$rs) {
-            echo "An error occured while attempting to delete previous module user access permission entries.";
+            echo "An error occured while attempting to save module user acess permissions.";
             exit;
-        }
-
-        if (is_array($usrgroups)) {
-            foreach ($usrgroups as $ugkey => $value) {
-                $f['module'] = $id;
-                $f['usergroup'] = db()->escape($value);
-                $rs = db()->insert($f, $tbl_site_module_access);
-                if (!$rs) {
-                    echo "An error occured while attempting to save module user acess permissions.";
-                    exit;
-                }
-            }
         }
     }
 }

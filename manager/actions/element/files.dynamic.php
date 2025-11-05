@@ -6,7 +6,6 @@ if (!evo()->hasPermission('file_manager')) {
     alert()->setError(3);
     alert()->dumpError();
 }
-$newToken = manager()->makeToken();
 global $_style;
 // settings
 $style_path = parseText('[+site_url+]manager/media/style/[+manager_theme+]/images/', $modx->config);
@@ -123,7 +122,7 @@ if (!is_readable($startpath)) {
 
             function unzipFile(file) {
                 if (confirmUnzip()) {
-                    window.location.href = "index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file + "&token=<?= $newToken; ?>";
+                    window.location.href = "index.php?a=31&mode=unzip&path=" + current_path + '/&file=' + file;
                     return false;
                 }
             }
@@ -144,14 +143,14 @@ if (!is_readable($startpath)) {
 
             function deleteFolder(folder, status) {
                 if (confirmDeleteFolder(status)) {
-                    window.location.href = "index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder + "&token=<?= $newToken; ?>";
+                    window.location.href = "index.php?a=31&mode=deletefolder&path=" + current_path + "&folderpath=" + current_path + '/' + folder;
                     return false;
                 }
             }
 
             function deleteFile(file) {
                 if (confirmDelete()) {
-                    window.location.href = "index.php?a=31&mode=delete&path=" + current_path + '/' + file + "&token=<?= $newToken; ?>";
+                    window.location.href = "index.php?a=31&mode=delete&path=" + current_path + '/' + file;
                     return false;
                 }
             }

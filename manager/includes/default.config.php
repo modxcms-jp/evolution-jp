@@ -75,7 +75,6 @@ $default_config = [
     'use_captcha' => '0',
     'use_editor' => '1',
     'use_udperms' => '0',
-    'validate_referer' => '1',
     'warning_visibility' => '2',
     'which_editor' => 'TinyMCE',
     'xhtml_urls' => '1',

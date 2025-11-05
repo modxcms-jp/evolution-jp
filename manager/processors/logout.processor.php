@@ -4,7 +4,7 @@ if (!defined('IN_MANAGER_MODE') || IN_MANAGER_MODE != 'true') {
 }
 
 $internalKey = evo()->getLoginUserID();
-$username = $_SESSION['mgrShortname'];
+$username = sessionv('mgrShortname');
 
 // invoke OnBeforeManagerLogout event
 $tmp = array(
@@ -27,6 +27,10 @@ if (isset($_COOKIE[session_name()])) {
         ]
     );
 }
+
+// Clear CSRF tokens before destroying session
+clearCsrfTokens();
+
 //// now destroy the session
 @session_destroy(); // this sometimes generate an error in iis
 

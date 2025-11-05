@@ -27,6 +27,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 <head>
     <title>MODX</title>
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
+    <?= csrfTokenMeta() ?>
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
@@ -125,6 +126,84 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                 vv = window.setTimeout('doRefresh(' + r + ')', 200);
             }
         }
+
+        // CSRF Token Auto-Injection
+        (function() {
+            'use strict';
+
+            var debug = <?= config('debug', 0) ? 'true' : 'false' ?>;
+            var tokenElement = document.querySelector('meta[name="csrf-token"]');
+
+            if (!tokenElement) {
+                console.error('CSRF token meta tag not found!');
+                return;
+            }
+
+            var tokenValue = tokenElement.getAttribute('content');
+            if (debug) console.log('CSRF Token loaded:', tokenValue ? 'Yes' : 'No');
+
+            // 全てのPOSTフォームにトークンを追加
+            function addTokenToAllForms() {
+                var forms = document.querySelectorAll('form[method="post"], form[method="POST"]');
+                if (debug) console.log('Found ' + forms.length + ' POST forms');
+
+                forms.forEach(function(form) {
+                    if (form.querySelector('input[name="csrf_token"]')) return;
+
+                    if (debug) console.log('Adding CSRF token to form:', form.name || form.id || 'unnamed');
+
+                    var hiddenField = document.createElement('input');
+                    hiddenField.type = 'hidden';
+                    hiddenField.name = 'csrf_token';
+                    hiddenField.value = tokenValue;
+                    form.insertBefore(hiddenField, form.firstChild);
+                });
+            }
+
+            // jQueryが読み込まれるまで待機
+            function waitForJQuery(callback) {
+                if (typeof jQuery !== 'undefined') {
+                    callback(jQuery);
+                } else {
+                    setTimeout(function() { waitForJQuery(callback); }, 50);
+                }
+            }
+
+            // ページロード時の処理
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', addTokenToAllForms);
+            } else {
+                addTokenToAllForms();
+            }
+
+            // jQuery依存の処理
+            waitForJQuery(function($) {
+                $(document).ready(addTokenToAllForms);
+                $.ajaxSetup({
+                    beforeSend: function(xhr, settings) {
+                        if (settings.type && settings.type.toUpperCase() === 'POST') {
+                            xhr.setRequestHeader('X-CSRF-Token', tokenValue);
+                        }
+                    }
+                });
+            });
+
+            // フォーム送信時の最終チェック
+            document.addEventListener('submit', function(e) {
+                var form = e.target;
+                if (form.tagName === 'FORM' && form.method.toUpperCase() === 'POST') {
+                    var existingToken = form.querySelector('input[name="csrf_token"]');
+                    if (!existingToken) {
+                        if (debug) console.log('Adding CSRF token to form on submit');
+                        var hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = 'csrf_token';
+                        hiddenField.value = tokenValue;
+                        form.insertBefore(hiddenField, form.firstChild);
+                    }
+                }
+            }, true);
+        })();
     </script>
 </head>
 

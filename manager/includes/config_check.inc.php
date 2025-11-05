@@ -102,24 +102,6 @@ function disableTemplateSwitcher(){
         return false;
     }
 
-    private function checkValidateReferer() {
-        if (evo()->config('_hide_configcheck_validate_referer')) {
-            return true;
-        }
-        if (sessionv('mgrPermissions.settings') != 1) {
-            return true;
-        }
-        $rs = db()->select(
-            'setting_value',
-            '[+prefix+]system_settings',
-            "setting_name='validate_referer' AND setting_value=0"
-        );
-        if (!db()->count($rs)) {
-            return true;
-        }
-        return false;
-    }
-
     private function checkActionPhp() {
         $actionphp = MODX_BASE_PATH . 'action.php';
         if (!is_file($actionphp)) {
@@ -229,15 +211,6 @@ function disableTemplateSwitcher(){
             $warnings[] = [
                 'title' => 'configcheck_php_gdzip',
                 'message' => $this->_lang['configcheck_php_gdzip_msg']
-            ];
-        }
-
-        if (!$this->checkValidateReferer()) {
-            $msg = $this->_lang['configcheck_validate_referer_msg'];
-            $msg .= '<br />' . sprintf($this->_lang["configcheck_hide_warning"], 'validate_referer');
-            $warnings[] = [
-                'title' => 'configcheck_validate_referer',
-                'message' => '<span id="validate_referer_warning_wrapper">' . $msg . "</span>\n"
             ];
         }
 

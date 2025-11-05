@@ -19,12 +19,6 @@ class ManagerAPI
     {
         global $action;
         $this->action = $action; // set action directive
-        if (postv('token') || getv('token')) {
-            $rs = $this->checkToken();
-            if (!$rs) {
-                exit('unvalid token');
-            }
-        }
     }
 
     function initPageViewState($id = 0)
@@ -164,115 +158,6 @@ class ManagerAPI
     function modx_move_uploaded_file($tmp_path, $target_path)
     {
         return evo()->move_uploaded_file($tmp_path, $target_path);
-    }
-
-    function validate_referer($flag)
-    {
-        if (getv('frame') === 'main') {
-            switch (evo()->manager->action) {
-                case '3':
-                case '120':
-                case '4':
-                case '72':
-                case '27':
-                case '8':
-                case '87':
-                case '88':
-                case '11':
-                case '12':
-                case '74':
-                case '28':
-                case '35':
-                case '38':
-                case '16':
-                case '19':
-                case '22':
-                case '23':
-                case '77':
-                case '78':
-                case '18':
-                case '106':
-                case '107':
-                case '108':
-                case '100':
-                case '101':
-                case '102':
-                case '131':
-                case '200':
-                case '31':
-                case '40':
-                case '91':
-                case '41':
-                case '92':
-                case '17':
-                case '53':
-                case '13':
-                case '10':
-                case '70':
-                case '71':
-                case '59':
-                case '75':
-                case '99':
-                case '86':
-                case '76':
-                case '83':
-                case '93':
-                case '95':
-                case '9':
-                case '301':
-                case '302':
-                case '115':
-                case '112':
-                    unset($_GET['frame']);
-                    $_SESSION['mainframe'] = $_GET;
-                    header('Location:' . MODX_MANAGER_URL);
-                    exit;
-                    break;
-                default:
-            }
-        }
-
-        if ($flag != 1) {
-            return;
-        }
-        $referer = isset($_SERVER['HTTP_REFERER']) ? strip_tags($_SERVER['HTTP_REFERER']) : '';
-
-        if (empty($referer)) {
-            exit('A possible CSRF attempt was detected. No referer was provided by the server.');
-        }
-
-        $referer = str_replace(['http://', 'https://'], '//', $referer);
-        $site_url = str_replace(['http://', 'https://'], '//', MODX_SITE_URL);
-        if (stripos($referer, $site_url) !== 0) {
-            exit("A possible CSRF attempt was detected from referer: {$referer}.");
-        }
-    }
-
-    function checkToken()
-    {
-        $clientToken = evo()->input_any('token', false);
-        $serverToken = sessionv('token', false);
-
-        $_SESSION['token'] = '';
-
-        if (!$clientToken) {
-            return false;
-        }
-        if (!$serverToken) {
-            return false;
-        }
-        if ($clientToken !== $serverToken) {
-            return false;
-        }
-
-        return true;
-    }
-
-    function makeToken()
-    {
-        $newToken = evo()->genTokenString();
-        $_SESSION['token'] = $newToken;
-        return $newToken;
     }
 
     function remove_locks($action = 'all', $limit_time = 120)

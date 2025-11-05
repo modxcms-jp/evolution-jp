@@ -142,8 +142,6 @@ $_lang["configcheck_unauthorizedpage_unavailable"] = '「権限外告知のペ�
 $_lang["configcheck_unauthorizedpage_unavailable_msg"] = '設定した「権限外告知のページ」が一般的なエンドユーザーからアクセスできないページ（private）かあるいは存在しないことを意味しています。システムがループ状態に陥り、多数のエラーをエラーログに蓄積します。権限フリーの公開ページを「権限外告知のページ」に指定してください。';
 $_lang["configcheck_unauthorizedpage_unpublished"] = 'グローバル設定で設定された権限外告知のページは公開されていません。';
 $_lang["configcheck_unauthorizedpage_unpublished_msg"] = '設定した権限外告知のページが誰でも見られるようにはなっていないことを意味します。権限外告知ページは全ての人「Public」に公開するようにしてください。';
-$_lang["configcheck_validate_referer"] = 'セキュリティ警告: 参照元チェックの設定';
-$_lang["configcheck_validate_referer_msg"] = '<a href="index.php?a=17">グローバル設定</a>の<strong>「管理画面のリファラチェック」</strong>がオフになっています。セキュリティ強化のためオンにすることをおすすめします。';
 $_lang["configcheck_warning"] = '警告';
 $_lang["confirm"] = '確認';
 $_lang["confirm_block"] = 'このアカウントを休止してもよろしいですか?';
@@ -1017,8 +1015,6 @@ $_lang["user_use_config"] = 'グローバル設定を使用';
 $_lang["user_zip"] = '郵便番号';
 $_lang["username"] = 'ログイン名';
 $_lang["users"] = '権限管理';
-$_lang["validate_referer_message"] = 'リファラチェック(参照元チェック)を行い、<a href="https://www.google.com/search?hl=ja&q=csrf" target="_blank">(CSRF=Cross Site Request Forgery)</a>をある程度回避できます。万全ではありませんので、管理画面にログイン中は不用意に外部サイトを閲覧しない・こまめにログアウトするなどを習慣づけてください。';
-$_lang["validate_referer_title"] = '管理画面操作のリファラチェック';
 $_lang["value"] = '値';
 $_lang["view"] = 'ここをクリック';
 $_lang["view_child_resources_in_container"] = 'リソース一覧';
