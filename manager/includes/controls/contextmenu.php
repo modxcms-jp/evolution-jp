@@ -9,7 +9,7 @@ class ContextMenu
     private $width;
     private $visible;
 
-    function __construct($id = '', $width = 120, $visible = false)
+    public function __construct($id = '', $width = 120, $visible = false)
     {
         global $ContextMenuCnt;
         if (!$ContextMenuCnt) {
@@ -17,13 +17,13 @@ class ContextMenu
         }
         $ContextMenuCnt++;
         $this->html = '';
-        $this->visible = $visible ? $visible : false;
+        $this->visible = $visible ?: false;
         $this->width = is_numeric($width) ? intval($width) : 120;
-        $this->id = isset($id) ? $id : "cntxMnu{$ContextMenuCnt}"; // set id
+        $this->id = $id ?: "cntxMnu{$ContextMenuCnt}"; // set id
         $this->i = 0;
     }
 
-    function addItem($text, $action = "", $img = "", $disabled = 0)
+    public function addItem($text, $action = "", $img = "", $disabled = 0)
     {
         global $base_url, $manager_theme, $_style;
         if (!$img) {
@@ -31,59 +31,55 @@ class ContextMenu
         }
         if (substr($action, 0, 3) == "js:") {
             $action = substr($action, 3);
+        } elseif (substr($action, 0, 3) == "hl:") {
+            $action = "window.location.href='" . substr($action, 3) . "'";
         } else {
-            if (substr($action, 0, 3) == "hl:") {
-                $action = "window.location.href='" . substr($action, 3) . "'";
-            } else {
-                $action = "window.location.href='" . $action . "'";
-            }
+            $action = "window.location.href='{$action}'";
         }
-        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"$action; hideCntxMenu('" . $this->id . "');\"";
+        $action = " onmouseover=\"this.className='cntxMnuItemOver';\" onmouseout=\"this.className='cntxMnuItem';\" onclick=\"{$action}; hideCntxMenu('{$this->id}');\"";
         if ($disabled) {
             $action = "";
         }
         $this->html .= "
-			<div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "' $action>
-				<img src='$img' align='absmiddle' />&nbsp;$text
-			</div>
-		";
+            <div class='" . ($disabled ? "cntxMnuItemDisabled" : "cntxMnuItem") . "' {$action}>
+                <img src='{$img}' align='absmiddle' />&nbsp;{$text}
+            </div>
+        ";
         $this->i++;
     }
 
-    function addSeparator()
+    public function addSeparator()
     {
         $this->html .= "
-			<div class='cntxMnuSeparator'></div>
-		";
+            <div class='cntxMnuSeparator'></div>
+        ";
     }
 
-    function render()
+    public function render()
     {
         global $modx;
         global $ContextMenuScript;
 
         $html = $ContextMenuScript .
-            "<div id='" . $this->id . "' class='contextMenu' style='width:" . $this->width . "px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>" . $this->html . "</div>";
+            "<div id='{$this->id}' class='contextMenu' style='width:{$this->width}px; visibility:" . ($this->visible ? 'visible' : 'hidden') . "'>{$this->html}</div>";
         $ContextMenuScript = ""; // reset css
         return $html;
     }
 
-    function getClientScriptObject()
+    public function getClientScriptObject()
     {
-        return "getCntxMenu('" . $this->id . "')";
+        return "getCntxMenu('{$this->id}')";
     }
 }
 
 $ContextMenuScript = <<<BLOCK
 <script>
-	function getCntxMenu(id) {
-		return document.getElementById(id);
-	}
-	function hideCntxMenu(id){
-		var cm = getCntxMenu(id);
-		cm.style.visibility = 'hidden';
-	}
+    function getCntxMenu(id) {
+        return document.getElementById(id);
+    }
+    function hideCntxMenu(id){
+        var cm = getCntxMenu(id);
+        cm.style.visibility = 'hidden';
+    }
 </script>
 BLOCK;
-
-?>
