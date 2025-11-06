@@ -340,11 +340,6 @@ function is_webmatrix()
     return isset($_SERVER['WEBMATRIXMODE']) ? true : false;
 }
 
-function is_iis()
-{
-    return strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') ? true : false;
-}
-
 function isUpGradeable()
 {
     error_reporting(E_ALL & ~E_NOTICE);

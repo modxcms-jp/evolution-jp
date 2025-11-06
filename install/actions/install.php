@@ -9,7 +9,7 @@ session_destroy();
 
 if ($errors == 0) {
     // check if install folder is removeable
-    if ((is_writable('../install') || is_webmatrix()) && !is_iis()) { ?>
+    if (is_writable('../install') || is_webmatrix()) { ?>
         <label style="float:left;line-height:18px;">
             <input
                 type="checkbox" id="rminstaller" value="1" checked
