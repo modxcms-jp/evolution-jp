@@ -428,10 +428,13 @@ function parseProperties($propertyString)
     foreach ($tmpParams as $xValue) {
         if (strpos($xValue, '=', 0)) {
             $pTmp = explode('=', $xValue);
+            if (!isset($pTmp[1])) {
+                continue;
+            }
             $pvTmp = explode(';', trim($pTmp[1]));
-            if ($pvTmp[1] === 'list' && $pvTmp[3] != '') {
+            if (isset($pvTmp[1]) && $pvTmp[1] === 'list' && isset($pvTmp[3]) && $pvTmp[3] != '') {
                 $parameter[trim($pTmp[0])] = $pvTmp[3]; //list default
-            } elseif ($pvTmp[1] !== 'list' && $pvTmp[2] != '') {
+            } elseif (isset($pvTmp[1]) && $pvTmp[1] !== 'list' && isset($pvTmp[2]) && $pvTmp[2] != '') {
                 $parameter[trim($pTmp[0])] = $pvTmp[2];
             }
         }
@@ -444,7 +447,7 @@ function result($status = 'ok', $ph = [])
     global $modx;
 
     $ph['status'] = $status;
-    if ($ph['name']) {
+    if (isset($ph['name']) && $ph['name']) {
         $ph['name'] = sprintf('&nbsp;&nbsp;%s : ', $ph['name']);
     } else {
         $ph['name'] = '';
