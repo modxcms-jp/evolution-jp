@@ -448,10 +448,12 @@ evo()->invokeEvent("OnWebLogin", $tmp);
 if (isset($_REQUEST['refurl']) && !empty(anyv('refurl'))) {
     // last accessed page
     $targetPageId = anyv('refurl');
-    if (strpos($targetPageId, 'q=') !== false) {
-        $urlPos = strpos($targetPageId, 'q=') + 2;
+    $qPos = strpos($targetPageId, 'q=');
+    if ($qPos !== false) {
+        $urlPos = $qPos + 2;
         $alias = substr($targetPageId, $urlPos);
-        $aliasLength = (strpos($alias, '&')) ? strpos($alias, '&') : strlen($alias);
+        $ampPos = strpos($alias, '&');
+        $aliasLength = $ampPos !== false ? $ampPos : strlen($alias);
         $alias = substr($alias, 0, $aliasLength);
         $url = $modx->config['base_url'] . $alias;
     } elseif (intval($targetPageId)) {

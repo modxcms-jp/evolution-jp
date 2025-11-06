@@ -106,8 +106,9 @@ function compare_check($params)
     $row = db()->getRow($rs);
 
     if (mode($category) === 'version_compare') {
+        $strongPos = strpos($row['description'], '</strong>');
         $old_version = strip_tags(
-            substr($row['description'], 0, strpos($row['description'], '</strong>'))
+            $strongPos !== false ? substr($row['description'], 0, $strongPos) : $row['description']
         );
         if ($params['version'] === $old_version) {
             return 'same';
@@ -390,7 +391,8 @@ function isUpGradeable()
         sessionv('*database_password', $database_password);
         sessionv('*dbase', $modx->db->dbname);
         sessionv('*table_prefix', $table_prefix);
-        sessionv('*database_charset', substr($collation, 0, strpos($collation, '_')));
+        $underscorePos = strpos($collation, '_');
+        sessionv('*database_charset', $underscorePos !== false ? substr($collation, 0, $underscorePos) : $collation);
         sessionv('*database_collation', $collation);
         sessionv('*database_connection_method', 'SET CHARACTER SET');
         sessionv('*is_upgradeable', 1);
@@ -461,7 +463,8 @@ function get_langs()
     $langs = [];
     foreach (glob('langs/*.inc.php') as $path) {
         if (substr($path, 6, 1) === '.') continue;
-        $langs[] = substr($path, 6, strpos($path, '.inc.php') - 6);
+        $incPos = strpos($path, '.inc.php');
+        $langs[] = $incPos !== false ? substr($path, 6, $incPos - 6) : substr($path, 6);
     }
     sort($langs);
     return $langs;

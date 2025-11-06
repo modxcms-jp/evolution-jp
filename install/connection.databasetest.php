@@ -26,7 +26,8 @@ if ($table_prefix) {
 }
 $db_collation         = trim(postv('database_collation'));
 $db_connection_method = trim(postv('database_connection_method'));
-$db_charset           = substr($db_collation, 0, strpos($db_collation, '_'));
+$underscorePos        = strpos($db_collation, '_');
+$db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 
 if (db()->select_db(db()->escape($db_name))) {
     if (isAlreadyInUse($db_name, $table_prefix)) {

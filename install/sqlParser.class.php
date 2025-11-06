@@ -57,9 +57,9 @@ class SqlParser
                     'ADMINNAME' => $this->adminname,
                     'ADMINPASS' => md5($this->adminpass),
                     'ADMINEMAIL' => $this->adminemail,
-                    'ADMINFULLNAME' => substr(
-                        $this->adminemail, 0, strpos($this->adminemail, '@')
-                    ),
+                    'ADMINFULLNAME' => ($atPos = strpos($this->adminemail, '@')) !== false
+                        ? substr($this->adminemail, 0, $atPos)
+                        : $this->adminemail,
                     'MANAGERLANGUAGE' => $this->managerlanguage,
                     'DATE_NOW' => time()
                 ],
