@@ -549,6 +549,23 @@ class DBAPI
     public function escape($s)
     {
         if (!$this->isConnected()) {
+            // Prevent infinite loop: if hostname/username not set, don't try to connect
+            if (empty($this->hostname) || empty($this->username)) {
+                // Return escaped value using basic escaping if no connection available
+                if ($s === null) {
+                    return 'NULL';
+                }
+                if (!is_array($s)) {
+                    return is_string($s) ? addslashes($s) : $s;
+                }
+                if (!count($s)) {
+                    return '';
+                }
+                foreach ($s as $i => $v) {
+                    $s[$i] = is_string($v) ? addslashes($v) : $v;
+                }
+                return $s;
+            }
             if (!$this->connect()) {
                 return false;
             }
