@@ -14,42 +14,49 @@ $password = postv('pwd');
 
 // POSTデータが送信されていない場合はエラー
 if (!$host) {
-    exit(sprintf(
-        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span style="color:#FF0000;">%s</span></div>',
-        'データベースホスト名を入力してください'
-    ));
+    exit(errorDiv('データベースホスト名を入力してください'));
 }
 
-// 既存の接続を強制的にクリア（connect() は isConnected() チェックで既存接続があると即座に return true してしまう）
-if (db()->conn) {
-    db()->conn->close();
-    db()->conn = null;
+// 新しいAPIを使用して接続テスト（簡潔で明確！）
+$result = DBAPI::testConnection($host, $username, $password, '', 2);
+
+// エラーハンドリング（詳細なエラー情報が取得できる）
+if (!$result->success) {
+    // エラータイプに応じたメッセージ
+    $message = match($result->errorType) {
+        DBConnectionResult::ERROR_TYPE_DNS => sprintf(
+            'ホスト "%s" が見つかりません。<br>ホスト名を確認してください。',
+            htmlspecialchars($host)
+        ),
+        DBConnectionResult::ERROR_TYPE_AUTH => sprintf(
+            'ユーザー "%s" の認証に失敗しました。<br>ユーザー名とパスワードを確認してください。',
+            htmlspecialchars($username)
+        ),
+        DBConnectionResult::ERROR_TYPE_TIMEOUT => sprintf(
+            '接続がタイムアウトしました（2秒）。<br>ホスト "%s" に到達できません。',
+            htmlspecialchars($host)
+        ),
+        default => sprintf(
+            '%s<br><details style="margin-top:4px;"><summary>詳細情報</summary><pre>%s (エラーコード: %d)</pre></details>',
+            lang('status_failed'),
+            htmlspecialchars($result->errorMessage),
+            $result->errorCode
+        ),
+    };
+
+    exit(errorDiv($message));
 }
 
-// 明示的に接続情報を渡す（タイムアウト2秒）
-$connected = db()->connect($host, $username, $password, '', 2);
-
-// connect() の戻り値をチェック（isConnected() ではなく）
-if (!$connected) {
-    exit(sprintf(
-        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s (host: %s, user: %s)</span></div>',
-        lang('status_failed'),
-        htmlspecialchars($host),
-        htmlspecialchars($username)
-    ));
-}
+// 成功時の処理
 $output = sprintf(
     '<span id="server_pass" style="color:#388000;">%s</span>',
     lang('status_passed_server')
 );
-sessionv('*database_server', db()->hostname);
-sessionv('*database_user', db()->username);
-sessionv('*database_password', db()->password);
+sessionv('*database_server', $host);
+sessionv('*database_user', $username);
+sessionv('*database_password', $password);
 
-echo sprintf(
-    '<div style="background: #e6ffeb;padding:8px;border-radius:5px;">%s</div>',
-    lang('status_connecting') . $output
-);
+echo successDiv(lang('status_connecting') . $output);
 
 $script = '<script>
 (function() {
@@ -95,4 +102,23 @@ function isSafeCollation($collation)
     }
 
     return false;
+}
+
+// Helper functions for cleaner HTML output
+function errorDiv(string $message): string
+{
+    return sprintf(
+        '<div style="background: #ffe6eb; padding: 8px; border-radius: 5px;">
+            <span id="server_fail" style="color: #FF0000;">%s</span>
+        </div>',
+        $message
+    );
+}
+
+function successDiv(string $message): string
+{
+    return sprintf(
+        '<div style="background: #e6ffeb; padding: 8px; border-radius: 5px;">%s</div>',
+        $message
+    );
 }

@@ -1,5 +1,9 @@
 <?php
 
+// Load new database configuration classes
+require_once __DIR__ . '/DBConfig.php';
+require_once __DIR__ . '/DBConnectionResult.php';
+
 class DBAPI
 {
 
@@ -20,6 +24,12 @@ class DBAPI
     private $rs;
     private $rawQuery = false;
     private $dbconnectionmethod;
+
+    // New properties for improved connection management
+    private ?DBConfig $_config = null;
+    private bool $_connected = false;
+    private ?string $_lastError = null;
+    private ?int $_lastErrorCode = null;
 
     /**
      * @name:  DBAPI
@@ -53,6 +63,116 @@ class DBAPI
         $this->dbconnectionmethod = &$this->config['connection_method'];
     }
 
+    // ===============================================
+    // Factory methods for easier instance creation
+    // ===============================================
+
+    /**
+     * Create a new DBAPI instance from global configuration
+     *
+     * @return self
+     */
+    public static function fromGlobals(): self
+    {
+        return new self();
+    }
+
+    /**
+     * Create a new DBAPI instance from an array configuration
+     *
+     * @param array $config Configuration array
+     * @return self
+     */
+    public static function create(array $config): self
+    {
+        $instance = new self(
+            $config['host'] ?? '',
+            $config['database'] ?? '',
+            $config['username'] ?? '',
+            $config['password'] ?? '',
+            $config['table_prefix'] ?? null,
+            $config['charset'] ?? 'utf8mb4',
+            $config['connection_method'] ?? 'SET CHARACTER SET'
+        );
+
+        // Store DBConfig instance for new API
+        $instance->_config = new DBConfig($config);
+
+        return $instance;
+    }
+
+    /**
+     * Create a new DBAPI instance with simple parameters (quick connection)
+     *
+     * @param string $host Database host
+     * @param string $username Database username
+     * @param string $password Database password
+     * @param string $database Database name (optional)
+     * @param array $options Additional options (e.g., ['timeout' => 2])
+     * @return self
+     */
+    public static function quick(
+        string $host,
+        string $username,
+        string $password,
+        string $database = '',
+        array $options = []
+    ): self {
+        return self::create(array_merge([
+            'host' => $host,
+            'username' => $username,
+            'password' => $password,
+            'database' => $database,
+        ], $options));
+    }
+
+    /**
+     * Create a new DBAPI instance for installer (short timeout)
+     *
+     * @param string $host Database host
+     * @param string $username Database username
+     * @param string $password Database password
+     * @param string $database Database name (optional)
+     * @param int $timeout Connection timeout in seconds (default: 2)
+     * @return self
+     */
+    public static function forInstaller(
+        string $host,
+        string $username,
+        string $password,
+        string $database = '',
+        int $timeout = 2
+    ): self {
+        return self::create([
+            'host' => $host,
+            'username' => $username,
+            'password' => $password,
+            'database' => $database,
+            'connect_timeout' => $timeout,
+        ]);
+    }
+
+    /**
+     * Test a database connection (one-liner for connection testing)
+     *
+     * @param string $host Database host
+     * @param string $username Database username
+     * @param string $password Database password
+     * @param string $database Database name (optional)
+     * @param int $timeout Connection timeout in seconds (default: 2)
+     * @return DBConnectionResult Connection result with detailed error information
+     */
+    public static function testConnection(
+        string $host,
+        string $username,
+        string $password,
+        string $database = '',
+        int $timeout = 2
+    ): DBConnectionResult {
+        $db = self::forInstaller($host, $username, $password, $database, $timeout);
+        return $db->connectWithResult();
+    }
+
     public function set($prop_name, $value = null)
     {
         $this->$prop_name = $value;
@@ -75,12 +195,174 @@ class DBAPI
         return $this->get($prop_name, $value);
     }
 
+    // ===============================================
+    // Connection management methods
+    // ===============================================
+
+    /**
+     * Connect to database with detailed result information
+     *
+     * @return DBConnectionResult Connection result with success status and error details
+     */
+    public function connectWithResult(): DBConnectionResult
+    {
+        // Disconnect if already connected
+        if ($this->conn !== null) {
+            $this->disconnect();
+        }
+
+        // Get timeout from config or use default
+        $timeout = $this->_config->connectTimeout ?? 10;
+
+        // PHP 8+ uses exceptions by default, temporarily disable
+        $previous_report_mode = mysqli_report(MYSQLI_REPORT_OFF);
+
+        // Initialize MySQLi
+        $this->conn = mysqli_init();
+        if (!$this->conn) {
+            mysqli_report($previous_report_mode);
+            return DBConnectionResult::failure('mysqli_init() failed', 0, DBConnectionResult::ERROR_TYPE_UNKNOWN);
+        }
+
+        // Set connection timeout
+        if ($timeout > 0) {
+            $this->conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, $timeout);
+        }
+
+        // Prepare hostname
+        $hostname = $this->hostname;
+        if (substr(PHP_OS, 0, 3) === 'WIN' && $hostname === 'localhost') {
+            $hostname = '127.0.0.1';
+        }
+
+        // Validate hostname is not empty
+        if (!$hostname || !$this->username) {
+            mysqli_report($previous_report_mode);
+            $this->conn = null;
+            return DBConnectionResult::failure(
+                'Hostname or username is empty',
+                0,
+                DBConnectionResult::ERROR_TYPE_UNKNOWN
+            );
+        }
+
+        // DNS resolution check (avoid long timeout for non-existent hosts)
+        if ($hostname !== 'localhost' && $hostname !== '127.0.0.1' && !filter_var($hostname, FILTER_VALIDATE_IP)) {
+            $ip = @gethostbyname($hostname);
+            if ($ip === $hostname) {
+                // DNS resolution failed
+                mysqli_report($previous_report_mode);
+                $this->conn = null;
+                return DBConnectionResult::failure(
+                    sprintf('Host "%s" not found', $hostname),
+                    0,
+                    DBConnectionResult::ERROR_TYPE_DNS
+                );
+            }
+        }
+
+        // Extract port if specified
+        $port = null;
+        if (strpos($hostname, ':') !== false) {
+            [$hostname, $port] = explode(':', $hostname, 2);
+            $port = (int)$port;
+        }
+
+        // Attempt connection
+        $startTime = microtime(true);
+        $connected = @$this->conn->real_connect(
+            $hostname,
+            $this->username,
+            $this->password,
+            null, // Don't select database yet
+            $port
+        );
+        $connectTime = microtime(true) - $startTime;
+
+        mysqli_report($previous_report_mode);
+
+        // Check connection result
+        if (!$connected || ($this->conn->connect_error ?? false)) {
+            $errno = $this->conn->connect_errno ?? 0;
+            $error = $this->conn->connect_error ?? 'Unknown connection error';
+            $this->_lastError = $error;
+            $this->_lastErrorCode = $errno;
+            $this->conn = null;
+            $this->_connected = false;
+
+            // Classify error type
+            $errorType = $this->classifyConnectionError($errno, $error, $connectTime, $timeout);
+
+            return DBConnectionResult::failure($error, $errno, $errorType);
+        }
+
+        // Set character set
+        if (!$this->conn->set_charset($this->charset)) {
+            $error = $this->conn->error;
+            $errno = $this->conn->errno;
+            $this->_lastError = $error;
+            $this->_lastErrorCode = $errno;
+            $this->disconnect();
+            return DBConnectionResult::failure($error, $errno, DBConnectionResult::ERROR_TYPE_CHARSET);
+        }
+
+        // Select database if specified
+        if ($this->dbase) {
+            if (!$this->conn->select_db($this->dbase)) {
+                $error = $this->conn->error;
+                $errno = $this->conn->errno;
+                $this->_lastError = $error;
+                $this->_lastErrorCode = $errno;
+                $this->disconnect();
+                return DBConnectionResult::failure($error, $errno, DBConnectionResult::ERROR_TYPE_DATABASE);
+            }
+        }
+
+        $this->_connected = true;
+        return DBConnectionResult::success();
+    }
+
+    /**
+     * Classify connection error type based on error code and timing
+     *
+     * @param int $errno MySQL error code
+     * @param string $error Error message
+     * @param float $connectTime Connection attempt time in seconds
+     * @param int $timeout Configured timeout in seconds
+     * @return string Error type constant
+     */
+    private function classifyConnectionError(int $errno, string $error, float $connectTime, int $timeout): string
+    {
+        // Check if timeout occurred
+        if ($connectTime >= $timeout - 0.1) { // Allow 0.1s tolerance
+            return DBConnectionResult::ERROR_TYPE_TIMEOUT;
+        }
+
+        // Classify by MySQL error code
+        return match($errno) {
+            1045 => DBConnectionResult::ERROR_TYPE_AUTH,      // Access denied
+            2002 => DBConnectionResult::ERROR_TYPE_NETWORK,   // Can't connect to server
+            2003 => DBConnectionResult::ERROR_TYPE_NETWORK,   // Can't connect to MySQL server
+            2005 => DBConnectionResult::ERROR_TYPE_DNS,       // Unknown MySQL server host
+            2006 => DBConnectionResult::ERROR_TYPE_NETWORK,   // MySQL server has gone away
+            2013 => DBConnectionResult::ERROR_TYPE_TIMEOUT,   // Lost connection during query
+            default => DBConnectionResult::ERROR_TYPE_UNKNOWN,
+        };
+    }
+
     /**
      * @name:  connect
      *
      */
     public function connect($host = '', $uid = '', $pwd = '', $dbase = '', $timeout = 0)
     {
+        // If using new API (created via factory methods), use connectWithResult
+        if ($this->_config !== null && $host === '' && $uid === '' && $pwd === '' && $dbase === '' && $timeout === 0) {
+            $result = $this->connectWithResult();
+            return $result->success ? $this->conn : false;
+        }
+
+        // Legacy behavior: check if already connected
         if ($this->isConnected()) {
             return true;
         }
@@ -204,8 +486,57 @@ class DBAPI
      */
     public function disconnect()
     {
-        $this->conn->close();
-        $this->conn = null;
+        if ($this->conn !== null) {
+            @$this->conn->close();
+            $this->conn = null;
+        }
+        $this->_connected = false;
+    }
+
+    /**
+     * Reconnect to database (disconnect and connect again)
+     *
+     * @return DBConnectionResult
+     */
+    public function reconnect(): DBConnectionResult
+    {
+        $this->disconnect();
+        return $this->connectWithResult();
+    }
+
+    /**
+     * Ensure connection is active (reconnect if necessary)
+     *
+     * @return bool
+     */
+    public function ensureConnected(): bool
+    {
+        if ($this->isConnected()) {
+            return true;
+        }
+
+        $result = $this->connectWithResult();
+        return $result->success;
+    }
+
+    /**
+     * Get last error message
+     *
+     * @return string|null
+     */
+    public function getLastConnectionError(): ?string
+    {
+        return $this->_lastError;
+    }
+
+    /**
+     * Get last error code
+     *
+     * @return int|null
+     */
+    public function getLastConnectionErrorCode(): ?int
+    {
+        return $this->_lastErrorCode;
     }
 
     /**
@@ -1200,6 +1531,14 @@ class DBAPI
         if (!$this->isResult($this->conn)) {
             return false;
         }
+
+        // Check actual connection health using ping
+        if (!@$this->conn->ping()) {
+            $this->conn = null;
+            $this->_connected = false;
+            return false;
+        }
+
         return true;
     }
 

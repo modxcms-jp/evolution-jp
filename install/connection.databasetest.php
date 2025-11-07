@@ -26,21 +26,11 @@ sessionv('*database_server', $database_server);
 sessionv('*database_user', $database_user);
 sessionv('*database_password', $database_password);
 
-// 既存の接続をクリア
-if (db()->conn) {
-    db()->conn->close();
-    db()->conn = null;
-}
+// 新しいAPIを使用して接続テスト
+$result = DBAPI::testConnection($database_server, $database_user, $database_password, '', 2);
 
-$connected = db()->connect(
-    $database_server,
-    $database_user,
-    $database_password,
-    '',
-    2
-);
-if (!$connected) {
-    exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
+if (!$result->success) {
+    exit(lang('status_checking_database') . span_fail('#ffe6eb', $result->getUserMessage()));
 }
 
 $db_name              = trim(postv('dbase'), '`');
@@ -53,8 +43,15 @@ $db_connection_method = trim(postv('database_connection_method'));
 $underscorePos        = strpos($db_collation, '_');
 $db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 
-if (db()->select_db(db()->escape($db_name))) {
-    if (isAlreadyInUse($db_name, $table_prefix)) {
+// 接続済みのDBインスタンスを作成（新しいAPIを使用）
+$db = DBAPI::forInstaller($database_server, $database_user, $database_password, '', 2);
+$connResult = $db->connectWithResult();
+if (!$connResult->success) {
+    exit(lang('status_checking_database') . span_fail('#ffe6eb', $connResult->getUserMessage()));
+}
+
+if ($db->select_db($db->escape($db_name))) {
+    if (isAlreadyInUse($db, $db_name, $table_prefix)) {
         exit(
             lang('status_checking_database') . span_fail(
                 '#ffe6eb',
@@ -64,12 +61,12 @@ if (db()->select_db(db()->escape($db_name))) {
     }
     $msg = lang('status_passed');
 } else {
-    if (!createDB($db_name, $db_charset, $db_collation)) {
+    if (!createDB($db, $db_name, $db_charset, $db_collation)) {
         exit(
             lang('status_checking_database')
             . span_fail(
                 '#ffe6eb',
-                $query . lang('status_failed_could_not_create_database')
+                lang('status_failed_could_not_create_database')
             )
         );
     }
@@ -85,26 +82,26 @@ sessionv('*database_charset', $db_charset);
 echo lang('status_checking_database') . span_pass('#e6ffeb', $msg);
 
 
-function createDB($db_name, $db_charset, $db_collation)
+function createDB(DBAPI $db, $db_name, $db_charset, $db_collation)
 {
     $query = sprintf(
         "CREATE DATABASE `%s` CHARACTER SET '%s' COLLATE %s",
-        db()->escape($db_name),
-        db()->escape($db_charset),
-        db()->escape($db_collation)
+        $db->escape($db_name),
+        $db->escape($db_charset),
+        $db->escape($db_collation)
     );
-    return @db()->query($query);
+    return @$db->query($query);
 }
 
-function isAlreadyInUse($db_name, $table_prefix)
+function isAlreadyInUse(DBAPI $db, $db_name, $table_prefix)
 {
     global $modx;
-    $modx->db->dbname       = db()->escape($db_name);
-    $modx->db->table_prefix = db()->escape($table_prefix);
-    if (!db()->tableExists('[+prefix+]site_content')) {
+    $modx->db->dbname       = $db->escape($db_name);
+    $modx->db->table_prefix = $db->escape($table_prefix);
+    if (!$db->tableExists('[+prefix+]site_content')) {
         return false;
     }
-    if (!db()->select('COUNT(id)', '[+prefix+]site_content')) {
+    if (!$db->select('COUNT(id)', '[+prefix+]site_content')) {
         return false;
     }
     return true;
