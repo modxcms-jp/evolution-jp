@@ -107,7 +107,7 @@ function ab_save()
     }
     $option[] = sprintf('<option id="stay3" value="close" %s >%s</option>', $selected['close'], lang('close'));
 
-    $ph['select'] = sprintf($ph['select'], join("\n", $option));
+    $ph['select'] = sprintf($ph['select'], implode("\n", $option));
 
     return parseText($tpl, $ph);
 }

@@ -76,7 +76,7 @@ if ($docid = getv('docid')) {
             foreach ($chunks as $i => $v) {
                 $chunks[$i] = db()->escape(trim($v));
             }
-            $chunks = join("','", $chunks);
+            $chunks = implode("','", $chunks);
             $where = "`name` IN ('{$chunks}')";
             $orderby = "FIELD(name, '{$chunks}')";
         } else {
@@ -94,7 +94,7 @@ if ($docid = getv('docid')) {
         }
     }
 
-    if (0 < count($list)) $output = 'var tinyMCETemplateList = [' . join(',', $list) . '];';
+    if (0 < count($list)) $output = 'var tinyMCETemplateList = [' . implode(',', $list) . '];';
 }
 
 if ($output) {

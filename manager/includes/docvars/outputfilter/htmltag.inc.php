@@ -22,7 +22,7 @@ foreach ($values as $value) {
         if ($v) $_[] = "{$k}=\"{$v}\"";
     }
     if ($params['tagattrib']) $_[] = $params['tagattrib']; // add extra
-    $attributes = join(' ', $_);
+    $attributes = implode(' ', $_);
     if ($attributes !== '') $attributes = ' ' . $attributes;
 
     // Output the HTML Tag

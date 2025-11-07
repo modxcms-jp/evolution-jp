@@ -958,7 +958,7 @@ class ditto
             foreach ($_ as $i => $v) {
                 $_[$i] = trim($v);
             }
-            $where = 'AND sc.' . join(' AND sc.', $_);
+            $where = 'AND sc.' . implode(' AND sc.', $_);
         }
 
         $sort = $randomize ? 'RAND()' : $orderBy['sql'];
@@ -1064,17 +1064,17 @@ class ditto
         $where = [];
         $docGroup = evo()->getUserDocGroups();
         if ($docGroup) {
-            $where[] = sprintf('sc.id IN (%s)', join(',', $ids));
+            $where[] = sprintf('sc.id IN (%s)', implode(',', $ids));
             $where[] = 'AND sc.deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = sprintf(
                     'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
-                    , join(',', $docGroup)
+                    , implode(',', $docGroup)
                 );
             } elseif ($_SESSION['mgrRole'] != 1) {
                 $where[] = sprintf(
                     'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
-                    , join(',', $docGroup)
+                    , implode(',', $docGroup)
                 );
             }
             if ($published) {
@@ -1087,7 +1087,7 @@ class ditto
                 , $where
             );
         } else {
-            $where[] = sprintf('id IN (%s)', join(',', $ids));
+            $where[] = sprintf('id IN (%s)', implode(',', $ids));
             $where[] = 'AND deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = 'AND privateweb=0';

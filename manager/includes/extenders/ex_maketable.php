@@ -388,7 +388,7 @@ EOT;
         if (empty($navlink)) {
             return '';
         }
-        return sprintf('<div id="pagination" class="paginate"><ul>%s</ul></div>', join("\n", $navlink));
+        return sprintf('<div id="pagination" class="paginate"><ul>%s</ul></div>', implode("\n", $navlink));
     }
 
     /**

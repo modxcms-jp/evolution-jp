@@ -297,7 +297,7 @@ function getNodes($indent, $parent = 0, $expandAll=null, $output = '')
             }
         }
         if (!empty($a)) {
-            $output .= '<script type="text/javascript">' . "\n" . join("\n", $a) . "\n</script>";
+            $output .= '<script type="text/javascript">' . "\n" . implode("\n", $a) . "\n</script>";
         }
     endwhile;
     return $output;
@@ -566,7 +566,7 @@ function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
     $_[] = "{$_lang['resource_opt_show_menu']}: " . ($hidemenu == 1 ? $_lang['no'] : $_lang['yes']);
     $_[] = "{$_lang['page_data_web_access']}: " . ($privateweb ? $_lang['private'] : $_lang['public']);
     $_[] = "{$_lang['page_data_mgr_access']}: " . ($privatemgr ? $_lang['private'] : $_lang['public']);
-    $alt = join("\n", $_);
+    $alt = implode("\n", $_);
     $alt = addslashes($alt);
     return htmlspecialchars($alt, ENT_QUOTES, $modx->config('modx_charset'));
 }

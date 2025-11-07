@@ -849,7 +849,7 @@ class DocumentParser
 
             // Attach Document Groups and Scripts
             if (is_array($docGroups)) {
-                $this->documentObject['__MODxDocGroups__'] = join(',', $docGroups);
+                $this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
             }
 
             switch ($this->config('cache_type')) {
@@ -1601,7 +1601,7 @@ class DocumentParser
             $rs = db()->update(
                 'published=0, publishedon=0',
                 '[+prefix+]site_content',
-                sprintf('id in (%s)', join(',', $unpub_ids))
+                sprintf('id in (%s)', implode(',', $unpub_ids))
             );
         }
 
@@ -2301,7 +2301,7 @@ class DocumentParser
         }
 
         if ($this->debug) {
-            $_ = join(', ', $matches[0]);
+            $_ = implode(', ', $matches[0]);
             $this->addLogEntry('$modx->' . __FUNCTION__ . "[{$_}]", $fstart);
         }
         return $content;
@@ -2361,7 +2361,7 @@ class DocumentParser
         }
 
         if ($this->debug) {
-            $_ = join(', ', $matches[0]);
+            $_ = implode(', ', $matches[0]);
             $this->addLogEntry('$modx->' . __FUNCTION__ . "[{$_}]", $fstart);
         }
         return $content;
@@ -2413,7 +2413,7 @@ class DocumentParser
             $content = str_replace($matches[0][$i], $value, $content);
         }
         if ($this->debug) {
-            $_ = join(', ', $matches[0]);
+            $_ = implode(', ', $matches[0]);
             $this->addLogEntry('$modx->' . __FUNCTION__ . "[{$_}]", $fstart);
         }
         return $content;
@@ -2637,7 +2637,7 @@ class DocumentParser
             }
             $cmd[] = $v;
         }
-        $cmd = join('', $cmd);
+        $cmd = implode('', $cmd);
         $cmd = (int)eval("return {$cmd};");
 
         return $cmd;
@@ -3477,7 +3477,7 @@ class DocumentParser
         if ($this->session('mgrRole')) {
             $_[] = sprintf('1=%d', (int)$this->session('mgrRole'));
         }
-        $access = join(' OR ', $_);
+        $access = implode(' OR ', $_);
 
         $result = db()->select(
             'sc.*',
@@ -3864,7 +3864,7 @@ class DocumentParser
                 $limit
             );
         } else {
-            $where[] = sprintf('id IN (%s)', join(',', $ids));
+            $where[] = sprintf('id IN (%s)', implode(',', $ids));
             if ($published !== null) {
                 $where[] = sprintf('AND published=%d', $published);
             }
@@ -4111,7 +4111,7 @@ class DocumentParser
                         foreach ($_ as $i => $v) {
                             $_[$i] = urlencode($v);
                         }
-                        $alPath = join('/', $_);
+                        $alPath = implode('/', $_);
                     } else {
                         $alPath = '';
                     }
@@ -4363,7 +4363,7 @@ class DocumentParser
         } // ditto->paginate()
 
         if (is_array($tpl)) {
-            $tpl = join('', $tpl);
+            $tpl = implode('', $tpl);
         }
 
         if (strpos($tpl, '@') === 0) {
@@ -5202,7 +5202,7 @@ class DocumentParser
                 if ($tvtype === 'checkbox' || $tvtype === 'listbox-multiple') {
                     // add separator
                     $value = explode('||', $value);
-                    $value = join($sep, $value);
+                    $value = implode($sep, $value);
                 }
                 $o = $value;
                 break;
@@ -5370,7 +5370,7 @@ class DocumentParser
         }
         return str_ireplace(
             '</body>',
-            join("\n", $this->jscripts) . "\n</body>",
+            implode("\n", $this->jscripts) . "\n</body>",
             $content
         );
     }
@@ -5382,19 +5382,19 @@ class DocumentParser
         }
         return str_ireplace(
             '</head>',
-            join("\n", $this->sjscripts) . "\n</head>",
+            implode("\n", $this->sjscripts) . "\n</head>",
             $content
         );
     }
 
     public function getRegisteredClientScripts()
     {
-        return join("\n", $this->jscripts);
+        return implode("\n", $this->jscripts);
     }
 
     public function getRegisteredClientStartupScripts()
     {
-        return join("\n", $this->sjscripts);
+        return implode("\n", $this->sjscripts);
     }
 
     /**

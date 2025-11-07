@@ -25,7 +25,7 @@ if ($id == $modx->config['site_start']) {
 }
 
 if (isset($linked) && $linked !== false) {
-    $warning = 'Linked by ' . 'ID:' . join(', ID:', $linked);
+    $warning = 'Linked by ' . 'ID:' . implode(', ID:', $linked);
 }
 
 if (isset($warning)) {

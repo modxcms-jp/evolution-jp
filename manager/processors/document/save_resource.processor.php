@@ -653,7 +653,7 @@ function update_tmplvars($docid, $tmplvars)
     if ($tvDeletions) {
         db()->delete(
             '[+prefix+]site_tmplvar_contentvalues',
-            'id IN(' . join(',', $tvDeletions) . ')'
+            'id IN(' . implode(',', $tvDeletions) . ')'
         );
     }
     if ($tvAdded) {

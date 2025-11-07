@@ -187,7 +187,7 @@ if (evo()->hasPermission('exec_module')) {
 }
 $modules = '';
 if (0 < count($modulemenu)) {
-    $modules = join("\n", $modulemenu);
+    $modules = implode("\n", $modulemenu);
 }
 $modx->setPlaceholder('Modules', $modules);
 

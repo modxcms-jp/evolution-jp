@@ -380,7 +380,7 @@ class Wayfinder
         }
 
         if ($classNames) {
-            return join(' ', $classNames);
+            return implode(' ', $classNames);
         }
         return '';
     }
@@ -550,7 +550,7 @@ class Wayfinder
         }
 
         $result = db()->select(
-            'DISTINCT ' . join(',', $fields)
+            'DISTINCT ' . implode(',', $fields)
             , $from
             , $where
             , $sort

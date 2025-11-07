@@ -212,7 +212,7 @@ if (!is_readable($startpath)) {
                 }
                 $count--;
             }
-            $topic_path = join(' / ', $pieces);
+            $topic_path = implode(' / ', $pieces);
         }
 
         ?> <b><?= mb_convert_encoding(

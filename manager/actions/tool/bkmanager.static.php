@@ -312,14 +312,14 @@ if (sessionv('result_msg')) {
                         foreach ($last_result['0'] as $k => $v) {
                             $title[] = $k;
                         }
-                        $result = '<tr><th>' . join('</th><th>', $title) . '</th></tr>';
+                        $result = '<tr><th>' . implode('</th><th>', $title) . '</th></tr>';
                         foreach ($last_result as $row) {
                             $result_value = [];
                             if ($row) {
                                 foreach ($row as $k => $v) {
                                     $result_value[] = $v;
                                 }
-                                $result .= '<tr><td>' . join('</td><td>', $result_value) . '</td></tr>';
+                                $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
                             }
                         }
                         $style = '<style type="text/css">table th {border:1px solid #ccc;background-color:#ddd;}</style>';

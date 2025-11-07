@@ -373,31 +373,31 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     $tplActive = str_replace(']"><a', ']" class="active"><a', $tpl);
                     if (!empty($sitemenu)) {
                         echo $modx->parseText($tplActive,
-                            ['id' => '1', 'name' => $_lang['site'], 'menuitem' => join("\n", $sitemenu)]);
+                            ['id' => '1', 'name' => $_lang['site'], 'menuitem' => implode("\n", $sitemenu)]);
                     }
                     if (!empty($elementmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '2', 'name' => $_lang['elements'], 'menuitem' => join("\n", $elementmenu)]);
+                            ['id' => '2', 'name' => $_lang['elements'], 'menuitem' => implode("\n", $elementmenu)]);
                     }
                     if (!empty($modulemenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '3', 'name' => $_lang['modules'], 'menuitem' => join("\n", $modulemenu)]);
+                            ['id' => '3', 'name' => $_lang['modules'], 'menuitem' => implode("\n", $modulemenu)]);
                     }
                     if (!empty($securitymenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '4', 'name' => $_lang['users'], 'menuitem' => join("\n", $securitymenu)]);
+                            ['id' => '4', 'name' => $_lang['users'], 'menuitem' => implode("\n", $securitymenu)]);
                     }
                     if (!empty($usermenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '7', 'name' => $_lang['user'], 'menuitem' => join("\n", $usermenu)]);
+                            ['id' => '7', 'name' => $_lang['user'], 'menuitem' => implode("\n", $usermenu)]);
                     }
                     if (!empty($toolsmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '5', 'name' => $_lang['tools'], 'menuitem' => join("\n", $toolsmenu)]);
+                            ['id' => '5', 'name' => $_lang['tools'], 'menuitem' => implode("\n", $toolsmenu)]);
                     }
                     if (!empty($reportsmenu)) {
                         echo $modx->parseText($tpl,
-                            ['id' => '6', 'name' => $_lang['reports'], 'menuitem' => join("\n", $reportsmenu)]);
+                            ['id' => '6', 'name' => $_lang['reports'], 'menuitem' => implode("\n", $reportsmenu)]);
                     }
                     ?>
                 </ul>

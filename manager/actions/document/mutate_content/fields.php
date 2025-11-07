@@ -706,7 +706,7 @@ function fieldContentType()
     $body = parseText(
         file_get_tpl('field_content_type.tpl'),
         [
-            'option' => join("\n", $option)
+            'option' => implode("\n", $option)
         ]
     )
         . tooltip(lang('page_data_contentType_help'));

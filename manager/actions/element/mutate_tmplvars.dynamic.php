@@ -412,7 +412,7 @@ function entity($key, $default = null)
                                     }
                                     $row[$k] = '<option value="' . $k . '" ' . $selected . '>' . $v . '</option>';
                                 }
-                                echo join("\n", $row);
+                                echo implode("\n", $row);
                                 ?>
                             </select>
                         </td>

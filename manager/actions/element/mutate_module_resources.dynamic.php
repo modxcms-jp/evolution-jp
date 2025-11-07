@@ -67,8 +67,8 @@ switch (anyv('op')) {
                 $opid = intval($opid);
                 $v[] = "('{$id}','{$opid}','{$type}')";
             }
-            $values = join(',', $v);
-            $del_opids = join(',', $opids);
+            $values = implode(',', $v);
+            $del_opids = implode(',', $opids);
             db()->delete($tbl_site_module_depobj, "module='{$id}' AND resource IN ({$del_opids}) AND type='{$type}'");
             $ds = db()->query("INSERT INTO {$tbl_site_module_depobj} (module, resource, type) VALUES {$values}");
             if (!$ds) {

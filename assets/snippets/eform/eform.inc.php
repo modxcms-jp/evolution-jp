@@ -461,7 +461,7 @@ function eForm($modx, $params)
                     $fields[$name] = $value;
                 }
                 if (is_array($value)) {
-                    $fields[$name] = join(', ', $value);
+                    $fields[$name] = implode(', ', $value);
                 }
             }
             # set postdate
