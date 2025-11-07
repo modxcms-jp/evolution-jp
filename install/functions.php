@@ -86,6 +86,12 @@ function mode($category)
 function compare_check($params)
 {
     $category = $params['category'] ?? '';
+    $tableName = "[+prefix+]" . table_name($category);
+
+    // テーブルが存在しない場合は処理をスキップ
+    if (!db()->tableExists($tableName)) {
+        return 'no exists';
+    }
 
     $where = [
         sprintf("`%s`='%s'", key_field($category), $params['name'])
@@ -94,7 +100,7 @@ function compare_check($params)
         $where[] = " AND `disabled`='0'";
     }
 
-    $rs = db()->select('*', "[+prefix+]" . table_name($category), $where);
+    $rs = db()->select('*', $tableName, $where);
     if (!$rs) {
         return 'no exists';
     }
@@ -346,19 +352,76 @@ function is_iis()
     return strpos($_SERVER['SERVER_SOFTWARE'], 'IIS') ? true : false;
 }
 
+/**
+ * 主要テーブルのリストを取得
+ *
+ * システムの動作に必須のテーブルを返す。
+ * これらのテーブルが1つでも欠けている場合は新規インストールとみなす。
+ *
+ * @return array アップグレード判定に使用する主要テーブルのリスト
+ */
+function getRequiredTables()
+{
+    return [
+        '[+prefix+]system_settings',    // グローバル設定（最も基本的なテーブル）
+        '[+prefix+]site_content',       // リソース
+        '[+prefix+]site_templates',     // テンプレート
+        '[+prefix+]site_snippets',      // スニペット
+        '[+prefix+]site_plugins',       // プラグイン
+        '[+prefix+]site_tmplvars',      // テンプレート変数
+        '[+prefix+]site_htmlsnippets'   // チャンク
+    ];
+}
+
+/**
+ * 主要テーブルがすべて存在するかチェック
+ *
+ * @return bool すべてのテーブルが存在する場合true
+ */
+function checkAllTablesExist()
+{
+    if (!db()->isConnected()) {
+        return false;
+    }
+
+    // DB名が設定されていない場合はfalse
+    if (!db()->dbname) {
+        return false;
+    }
+
+    // エラーを抑制してテーブル存在確認
+    foreach (getRequiredTables() as $table) {
+        try {
+            if (!db()->tableExists($table)) {
+                return false;
+            }
+        } catch (Exception $e) {
+            // テーブル確認に失敗した場合もfalse
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * アップグレード可能かどうかを判定
+ *
+ * 判定ルール: 主要テーブルが存在すればアップグレード、存在しなければ新規インストール
+ *
+ * @return int アップグレード可能なら1、新規インストールなら0
+ */
 function isUpGradeable()
 {
     error_reporting(E_ALL & ~E_NOTICE);
+
+    // config.inc.php の存在確認
     $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
     if (!is_file($conf_path)) {
         return 0;
     }
 
-    if (sessionv('is_upgradeable') !== null) {
-        return sessionv('is_upgradeable');
-    }
-
-
+    // config.inc.php から設定を読み込み
     $dbase = null;
     $database_server = null;
     $database_user = null;
@@ -368,10 +431,10 @@ function isUpGradeable()
     include($conf_path);
 
     if (!$dbase) {
-    	sessionv('*is_upgradeable', 0);
         return 0;
     }
 
+    // データベースに接続
     global $modx;
     $modx->db->hostname = $database_server;
     $modx->db->username = $database_user;
@@ -381,25 +444,29 @@ function isUpGradeable()
     $modx->db->table_prefix = $table_prefix;
     db()->connect();
 
-    if (db()->isConnected() && db()->tableExists('[+prefix+]site_content')) {
-        $collation = getCurrentCollation();
-        if (!$collation) {
-            throw new Exception('Failed to get collation');
-        }
-        sessionv('*database_server', $database_server);
-        sessionv('*database_user', $database_user);
-        sessionv('*database_password', $database_password);
-        sessionv('*dbase', $modx->db->dbname);
-        sessionv('*table_prefix', $table_prefix);
-        $underscorePos = strpos($collation, '_');
-        sessionv('*database_charset', $underscorePos !== false ? substr($collation, 0, $underscorePos) : $collation);
-        sessionv('*database_collation', $collation);
-        sessionv('*database_connection_method', 'SET CHARACTER SET');
-        sessionv('*is_upgradeable', 1);
-        return 1;
+    // 主要テーブルの存在確認 - これだけが判定基準
+    if (!checkAllTablesExist()) {
+        return 0;
     }
-    sessionv('*is_upgradeable', 0);
-    return 0;
+
+    // アップグレード可能 - データベース情報をセッションに保存
+    $collation = getCurrentCollation();
+    if (!$collation) {
+        throw new Exception('Failed to get collation');
+    }
+
+    sessionv('*database_server', $database_server);
+    sessionv('*database_user', $database_user);
+    sessionv('*database_password', $database_password);
+    sessionv('*dbase', $modx->db->dbname);
+    sessionv('*table_prefix', $table_prefix);
+
+    $underscorePos = strpos($collation, '_');
+    sessionv('*database_charset', $underscorePos !== false ? substr($collation, 0, $underscorePos) : $collation);
+    sessionv('*database_collation', $collation);
+    sessionv('*database_connection_method', 'SET CHARACTER SET');
+
+    return 1;
 }
 
 function getCurrentCollation()

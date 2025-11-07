@@ -44,10 +44,7 @@ sessionv('*prevAction', sessionv('currentAction', ''));
 $action = anyv('action', 'mode');
 sessionv('*currentAction', $action);
 
-if ($action === 'mode') {
-    sessionv('*is_upgradeable', isUpGradeable());
-}
-
+// データベース接続があれば接続して、テーブルの存在で判定
 if (sessionv('database_server')) {
     db()->prop('*dbname', sessionv('dbase'));
     db()->prop('*table_prefix', sessionv('table_prefix', 'modx_'));
@@ -58,6 +55,17 @@ if (sessionv('database_server')) {
         , sessionv('database_user')
         , sessionv('database_password')
     );
+}
+
+// テーブルがあればアップグレード、なければ新規インストール
+if ($action === 'mode') {
+    sessionv('*is_upgradeable', isUpGradeable());
+} elseif (db()->isConnected() && sessionv('dbase')) {
+    // DB接続済み かつ DB名が設定されている場合のみテーブル確認
+    sessionv('*is_upgradeable', checkAllTablesExist() ? 1 : 0);
+} else {
+    // それ以外は新規インストール
+    sessionv('*is_upgradeable', 0);
 }
 
 $_lang = includeLang(lang_name());

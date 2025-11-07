@@ -6,45 +6,64 @@ include_once MODX_BASE_PATH . 'manager/includes/document.parser.class.inc.php';
 $modx = new DocumentParser;
 require_once MODX_BASE_PATH . 'install/functions.php';
 $_lang = includeLang(sessionv('install_language', 'english'));
-$modx->db->hostname = postv('host', 'localhost');
-$modx->db->username = postv('uid', 'root');
-$modx->db->password = postv('pwd', 'passwford');
-db()->connect();
 
-if (!db()->isConnected()) {
+// POSTデータを取得
+$host = postv('host');
+$username = postv('uid');
+$password = postv('pwd');
+
+// POSTデータが送信されていない場合はエラー
+if (!$host) {
     exit(sprintf(
-        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s</span></div>'
-        , lang('status_failed')
+        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span style="color:#FF0000;">%s</span></div>',
+        'データベースホスト名を入力してください'
     ));
 }
 
+// 既存の接続を強制的にクリア（connect() は isConnected() チェックで既存接続があると即座に return true してしまう）
+if (db()->conn) {
+    db()->conn->close();
+    db()->conn = null;
+}
+
+// 明示的に接続情報を渡す（タイムアウト2秒）
+$connected = db()->connect($host, $username, $password, '', 2);
+
+// connect() の戻り値をチェック（isConnected() ではなく）
+if (!$connected) {
+    exit(sprintf(
+        '<div style="background: #ffe6eb;padding:8px;border-radius:5px;"><span id="server_fail" style="color:#FF0000;">%s (host: %s, user: %s)</span></div>',
+        lang('status_failed'),
+        htmlspecialchars($host),
+        htmlspecialchars($username)
+    ));
+}
 $output = sprintf(
-    '<span id="server_pass" style="color:#388000;">%s</span>'
-    , lang('status_passed_server')
+    '<span id="server_pass" style="color:#388000;">%s</span>',
+    lang('status_passed_server')
 );
 sessionv('*database_server', db()->hostname);
 sessionv('*database_user', db()->username);
 sessionv('*database_password', db()->password);
 
 echo sprintf(
-    '<div style="background: #e6ffeb;padding:8px;border-radius:5px;">%s</div>'
-    , lang('status_connecting') . $output
+    '<div style="background: #e6ffeb;padding:8px;border-radius:5px;">%s</div>',
+    lang('status_connecting') . $output
 );
 
 $script = '<script>
-    let characters = {' . getCollations() . "};
-    let sel = jQuery('#collation');
-    let opt;
-    let isSelected;
+(function() {
+    const characters = {' . getCollations() . "};
+    const sel = document.getElementById('collation');
 
-jQuery.each(characters, function (value, name) {
-    isSelected = (value === 'utf8mb4_general_ci');
-    opt = jQuery('<option>')
-        .val(value)
-        .text(name)
-        .prop('selected', isSelected);
-    sel.append(opt);
-});
+    for (const [value, name] of Object.entries(characters)) {
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.text = name;
+        opt.selected = (value === 'utf8mb4_general_ci');
+        sel.appendChild(opt);
+    }
+})();
 </script>";
 echo $script;
 
