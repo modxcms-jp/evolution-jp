@@ -1495,6 +1495,11 @@ class DBAPI
 
     public function tableExists($table_name)
     {
+        // If database name is not set, table cannot exist
+        if (empty($this->dbase)) {
+            return 0;
+        }
+
         $sql = sprintf(
             "SHOW TABLES FROM `%s` LIKE '%s'",
             $this->dbase,
