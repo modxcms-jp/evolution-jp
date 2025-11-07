@@ -8,13 +8,13 @@ if (!evo()->hasPermission('empty_trash')) {
 }
 
 if (isset($_REQUEST['id']) && preg_match('@^[1-9][0-9]*$@', $_REQUEST['id'])) {
-    $ids = [$_REQUEST['id']];
+    $ids = [(int)$_REQUEST['id']];
 } else {
     $rs = db()->select('id', '[+prefix+]site_content', 'deleted=1');
     $ids = [];
     if (db()->count($rs) > 0) {
         while ($row = db()->getRow($rs)) {
-            $ids[] = $row['id'];
+            $ids[] = (int)$row['id'];
         }
     }
 }
@@ -46,6 +46,7 @@ if (!empty($ids)) {
     //'undelete' the document.
     $rs = db()->delete($tbl_site_content, "id IN ({$ids_list}) AND deleted=1");
 } else {
+    // No documents to delete - treat as successful operation
     $rs = true;
 }
 if (!$rs) {
