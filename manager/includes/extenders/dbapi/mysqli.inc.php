@@ -79,7 +79,7 @@ class DBAPI
      * @name:  connect
      *
      */
-    public function connect($host = '', $uid = '', $pwd = '', $dbase = '', $tmp = 0)
+    public function connect($host = '', $uid = '', $pwd = '', $dbase = '', $timeout = 0)
     {
         if ($this->isConnected()) {
             return true;
@@ -110,13 +110,34 @@ class DBAPI
         }
 
         $tstart = evo()->getMicroTime();
+
+        // PHP 8+ では mysqli がデフォルトで例外を投げるため、エラーレポートモードを一時的に変更
+        $previous_report_mode = mysqli_report(MYSQLI_REPORT_OFF);
+
+        // mysqli_init() と mysqli_real_connect() を使って接続タイムアウトを設定
+        $this->conn = mysqli_init();
+        if (!$this->conn) {
+            mysqli_report($previous_report_mode);
+            return false;
+        }
+
+        // タイムアウトが指定されていれば設定（インストール時など）
+        if ($timeout > 0) {
+            $this->conn->options(MYSQLI_OPT_CONNECT_TIMEOUT, $timeout);
+        }
+
         if (strpos($hostname, ':') !== false) {
             [$hostname, $port] = explode(':', $hostname);
-            $this->conn = new mysqli($hostname, $this->username, $this->password, null, $port);
+            $connected = @$this->conn->real_connect($hostname, $this->username, $this->password, null, $port);
         } else {
-            $this->conn = new mysqli($hostname, $this->username, $this->password);
+            $connected = @$this->conn->real_connect($hostname, $this->username, $this->password);
         }
-        if (!$this->conn) {
+
+        // レポートモードを復元
+        mysqli_report($previous_report_mode);
+
+        if (!$connected) {
+            $this->conn = null;
             return false;
         }
         if (isset($this->conn->connect_error) && $this->conn->connect_error) {

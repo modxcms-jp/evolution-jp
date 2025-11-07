@@ -10,12 +10,36 @@ require_once(MODX_BASE_PATH . 'install/functions.php');
 
 includeLang(getOption('install_language'));
 
-db()->connect(
-    sessionv('database_server'),
-    sessionv('database_user'),
-    sessionv('database_password')
+// AJAXリクエストで送信された接続情報を使用
+// JavaScriptは 'host', 'uid', 'pwd' という名前で送信している
+$database_server = postv('host');
+$database_user = postv('uid');
+$database_password = postv('pwd');
+
+// POSTデータが送信されていない場合はエラー
+if (!$database_server && !postv('dbase')) {
+    exit(lang('status_checking_database') . span_fail('#ffe6eb', 'データベース接続情報を入力してください'));
+}
+
+// 接続情報をセッションに保存
+sessionv('*database_server', $database_server);
+sessionv('*database_user', $database_user);
+sessionv('*database_password', $database_password);
+
+// 既存の接続をクリア
+if (db()->conn) {
+    db()->conn->close();
+    db()->conn = null;
+}
+
+$connected = db()->connect(
+    $database_server,
+    $database_user,
+    $database_password,
+    '',
+    2
 );
-if (!db()->isConnected()) {
+if (!$connected) {
     exit(lang('status_checking_database') . span_fail('#ffe6eb', lang('status_failed')));
 }
 
@@ -26,7 +50,8 @@ if ($table_prefix) {
 }
 $db_collation         = trim(postv('database_collation'));
 $db_connection_method = trim(postv('database_connection_method'));
-$db_charset           = substr($db_collation, 0, strpos($db_collation, '_'));
+$underscorePos        = strpos($db_collation, '_');
+$db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 
 if (db()->select_db(db()->escape($db_name))) {
     if (isAlreadyInUse($db_name, $table_prefix)) {
