@@ -3,7 +3,6 @@ include_once __DIR__ . '/dbapi/mysqli.inc.php';
 
 global $modx;
 $modx = $this;
-$this->db = new DBAPI;
 $config_path = 'manager/includes/config.inc.php';
 
 if (!is_file(MODX_BASE_PATH . $config_path)) {
@@ -19,12 +18,16 @@ if (!$rs) {
     return true;
 }
 
-$this->db->hostname = $database_server;
-$this->db->username = $database_user;
-$this->db->password = $database_password;
-$this->db->dbname = $dbase;
-$this->db->charset = $database_connection_charset;
-$this->db->table_prefix = $table_prefix;
+// Initialize DBAPI with explicit connection parameters
+$this->db = new DBAPI(
+    $database_server,
+    $dbase,
+    $database_user,
+    $database_password,
+    $table_prefix,
+    $database_connection_charset ?? 'utf8mb4',
+    $database_connection_method ?? 'SET CHARACTER SET'
+);
 
 $rs = $this->db->connect();
 if (!$rs) {

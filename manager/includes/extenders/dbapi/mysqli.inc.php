@@ -22,26 +22,36 @@ class DBAPI
     private $dbconnectionmethod;
 
     /**
-     * @name:  DBAPI
+     * DBAPI Constructor
      *
+     * Initializes database connection parameters.
+     * All parameters must be explicitly provided - no fallback to global variables.
+     *
+     * @param string $host Database server hostname (e.g., 'localhost', '127.0.0.1:3306')
+     * @param string $dbase Database name
+     * @param string $user Database username
+     * @param string $pwd Database password
+     * @param string $prefix Table prefix (default: '')
+     * @param string $charset Character set for connection (default: 'utf8mb4')
+     * @param string $connection_method Connection method (default: 'SET CHARACTER SET')
      */
     function __construct(
-        $host = '',
-        $dbase = '',
-        $user = '',
-        $pwd = '',
-        $prefix = null,
-        $charset = 'utf8',
-        $connection_method = 'SET CHARACTER SET'
+        string $host,
+        string $dbase,
+        string $user,
+        string $pwd,
+        string $prefix = '',
+        string $charset = 'utf8mb4',
+        string $connection_method = 'SET CHARACTER SET'
     )
     {
-        $this->config['host'] = $host ?: globalv('database_server', '');
-        $this->config['dbase'] = trim($dbase ?: globalv('dbase', ''), '`');
-        $this->config['user'] = $user ?: globalv('database_user', '');
-        $this->config['pass'] = $pwd ?: globalv('database_password', '');
-        $this->config['table_prefix'] = $prefix!==null ? $prefix : globalv('table_prefix');
-        $this->config['charset'] = $charset ?: globalv('database_connection_charset');
-        $this->config['connection_method'] = globalv('database_connection_method', $connection_method);
+        $this->config['host'] = $host;
+        $this->config['dbase'] = trim($dbase, '`');
+        $this->config['user'] = $user;
+        $this->config['pass'] = $pwd;
+        $this->config['table_prefix'] = $prefix;
+        $this->config['charset'] = $charset;
+        $this->config['connection_method'] = $connection_method;
         $this->hostname = &$this->config['host'];
         $this->dbase = &$this->config['dbase'];
         $this->dbname = &$this->dbase;
