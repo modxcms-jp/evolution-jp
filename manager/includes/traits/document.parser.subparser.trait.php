@@ -125,6 +125,11 @@ trait DocumentParserSubParserTrait
         if (!db()->isConnected()) {
             return;
         }
+        // Check if event_log table exists before attempting to log
+        // This prevents infinite loops during installation when table doesn't exist yet
+        if (!db()->tableExists('[+prefix+]event_log')) {
+            return;
+        }
         if (!$modx->config) {
             $modx->getSettings();
         }
@@ -189,8 +194,11 @@ trait DocumentParserSubParserTrait
             $mailbody = implode("\n", $mailbody);
             $modx->sendmail($subject, $mailbody);
         }
+        // Note: Don't exit on insert failure during installation as table may not exist yet
+        // The tableExists check above should prevent this, but keep as safety
         if (!isset($insert_id) || !$insert_id) {
-            exit('Error while inserting event log into database.');
+            // Silent failure - prevents infinite loops during installation
+            return;
         }
 
         $trim = (int)evo()->config('event_log_trim', 100);
