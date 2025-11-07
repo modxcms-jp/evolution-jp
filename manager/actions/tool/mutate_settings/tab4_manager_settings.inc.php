@@ -150,7 +150,7 @@
                             '<option value="[+value+]" [+selected+]>[*[+value+]*]</option>' . "\n"
                         );
                     }
-                    echo join("\n", $output)
+                    echo implode("\n", $output)
                     ?>
                 </select><br/>
                 <?= $_lang["setting_resource_tree_sortby_default_desc"] ?>
@@ -170,7 +170,7 @@
                         $r = [$v, $selected];
                         $output[] = str_replace($s, $r, $tpl);
                     }
-                    echo join("\n", $output)
+                    echo implode("\n", $output)
                     ?>
                 </select><br/>
                 <?= $_lang["setting_resource_tree_node_name_desc"] ?>

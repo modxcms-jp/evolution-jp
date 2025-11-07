@@ -185,7 +185,7 @@ echo $cm->render();
                 $_lang['user_logincount'],
                 $_lang['user_block']
             ];
-            $grd->columns = join(',', $columns);
+            $grd->columns = implode(',', $columns);
             $colTypes = [
                 sprintf(
                     'template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="' . $_style['icons_user'] . '" /></a><span class="[+class+]"><a href="index.php?a=12&id=[+id+]" title="%s">[+value+]</a></span>',
@@ -199,7 +199,7 @@ echo $cm->render();
                 '[+logincount+]',
                 '[+blocked+]'
             ];
-            $grd->colTypes = join('||', $colTypes);
+            $grd->colTypes = implode('||', $colTypes);
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }

@@ -94,7 +94,7 @@ function tplUseTvs($tpl_id, $tvs = '', $types = '')
         $where[] = sprintf('type IN %s', makeSqlList($types));
     }
     if ($where) {
-        $where = join(' AND ', $where);
+        $where = implode(' AND ', $where);
     }
 
     // Do the SQL query

@@ -2181,7 +2181,7 @@ trait DocumentParserSubParserTrait
             if ($access !== '') {
                 $access .= ' OR';
             }
-            $access .= sprintf(' dg.document_group IN (%s)', join(',', $docgrp));
+            $access .= sprintf(' dg.document_group IN (%s)', implode(',', $docgrp));
         }
 
         $_ = [];
@@ -2194,7 +2194,7 @@ trait DocumentParserSubParserTrait
         if ($access != '') {
             $_[] = "({$access})";
         }
-        $where = join(' AND ', $_) . ' GROUP BY sc.id';
+        $where = implode(' AND ', $_) . ' GROUP BY sc.id';
 
         if (strpos($sort, ',') !== false) {
             $orderby = $modx->join(',', explode(',', $sort), 'sc.');

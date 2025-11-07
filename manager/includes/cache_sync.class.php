@@ -292,7 +292,7 @@ class synccache
             );
         }
 
-        if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', join("\n", $content))) {
+        if (!evo()->saveToFile($this->cachePath . 'basicConfig.php', implode("\n", $content))) {
             exit(sprintf('Cannot open file (%sbasicConfig.php)', $this->cachePath));
         }
     }

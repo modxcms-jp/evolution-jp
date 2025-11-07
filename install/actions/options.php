@@ -193,7 +193,7 @@ function block_templates($tplTemplates, $ph)
             $v['description']
         );
     }
-    return evo()->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
 function block_tvs($tplTVs, $ph)
@@ -213,7 +213,7 @@ function block_tvs($tplTVs, $ph)
             $v['description']
         );
     }
-    return evo()->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
 function block_chunks($tplChunks, $ph)
@@ -233,7 +233,7 @@ function block_chunks($tplChunks, $ph)
             $v['description']
         );
     }
-    return evo()->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
 function block_modules($tplModules, $ph)
@@ -253,7 +253,7 @@ function block_modules($tplModules, $ph)
             $v['description']
         );
     }
-    return evo()->parseText(join("<br />\n", $_), $ph);
+    return evo()->parseText(implode("<br />\n", $_), $ph);
 }
 
 function block_plugins($tplPlugins, $ph)

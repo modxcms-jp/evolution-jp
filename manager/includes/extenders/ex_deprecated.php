@@ -183,7 +183,7 @@ class OldFunctions
                     }
                     $_ = array_reverse($_);
                 }
-                $key = join('/', $_);
+                $key = implode('/', $_);
             }
             $modx->documentListing[$key] = $docid;
             $str = "<?php\n// Deprecated since 1.0.6\nreturn " . var_export($modx->documentListing, true) . ';';

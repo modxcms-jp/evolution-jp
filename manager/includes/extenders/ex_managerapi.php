@@ -622,7 +622,7 @@ class ManagerAPI
         if (!isset($ph['tab-pages'])) {
             $ph['tab-pages'] = 'content';
         } elseif (is_array($ph['tab-pages'])) {
-            $ph['tab-pages'] = join("\n", $ph['tab-pages']);
+            $ph['tab-pages'] = implode("\n", $ph['tab-pages']);
         }
 
         return evo()->parseText(

@@ -652,7 +652,7 @@ function entity($key, $default = null)
 
                     function echoEventRows(&$evtnames)
                     {
-                        echo "<tr><td>" . join("</td><td>", $evtnames) . "</td></tr>";
+                        echo "<tr><td>" . implode("</td><td>", $evtnames) . "</td></tr>";
                         $evtnames = [];
                     }
 

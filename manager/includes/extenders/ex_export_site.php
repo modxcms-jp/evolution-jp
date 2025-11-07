@@ -76,7 +76,7 @@ class EXPORT_SITE
                 $v = db()->escape(trim($v));
                 $allow_ids[$i] = "'{$v}'";
             }
-            $allow_ids = join(',', $allow_ids);
+            $allow_ids = implode(',', $allow_ids);
             $allow_ids = "AND id IN ({$allow_ids})";
         }
         if ($ignore_ids !== '') {
@@ -85,7 +85,7 @@ class EXPORT_SITE
                 $v = db()->escape(trim($v));
                 $ignore_ids[$i] = "'{$v}'";
             }
-            $ignore_ids = join(',', $ignore_ids);
+            $ignore_ids = implode(',', $ignore_ids);
             $ignore_ids = "AND NOT id IN ({$ignore_ids})";
         }
 
@@ -274,7 +274,7 @@ class EXPORT_SITE
             unlink($this->lock_file_path);
         }
 
-        return join("\n", $this->output);
+        return implode("\n", $this->output);
     }
 
     private function processRow($row, $target_base_path, $_lang, $mask)

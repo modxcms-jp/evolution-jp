@@ -435,10 +435,10 @@ function renderTr($head, $body, $rowstyle = '')
             }
             $i++;
         }
-        $ph['extra_head'] = join("\n", $extra_head);
+        $ph['extra_head'] = implode("\n", $extra_head);
     }
     if (is_array($body)) {
-        $body = join("\n", $body);
+        $body = implode("\n", $body);
     }
     $ph['body'] = $body;
     $ph['rowstyle'] = $rowstyle;

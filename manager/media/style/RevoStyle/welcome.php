@@ -245,7 +245,7 @@ function tabOnlineUser()
                 $currentaction
             );
         }
-        if (!empty($tr)) $ph['userlist'] = join("\n", $tr);
+        if (!empty($tr)) $ph['userlist'] = implode("\n", $tr);
         $ph['now'] = date('H:i:s', time() + config('server_offset_time'));
         $tpl = <<< TPL
 <p>[+onlineusers_message+]<b>[+now+]</b>)</p>
