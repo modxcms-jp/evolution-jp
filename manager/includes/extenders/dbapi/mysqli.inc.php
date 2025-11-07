@@ -212,7 +212,7 @@ class DBAPI
         }
 
         // Get timeout from config or use default
-        $timeout = $this->_config->connectTimeout ?? 10;
+        $timeout = $this->_config !== null ? $this->_config->connectTimeout : 10;
 
         // PHP 8+ uses exceptions by default, temporarily disable
         $previous_report_mode = mysqli_report(MYSQLI_REPORT_OFF);
@@ -445,6 +445,9 @@ class DBAPI
         if (!$this->isConnected()) {
             return false;
         }
+
+        // Mark as successfully connected
+        $this->_connected = true;
 
         if ($this->dbase) {
             $rs = $this->select_db($this->dbase);
@@ -1531,14 +1534,6 @@ class DBAPI
         if (!$this->isResult($this->conn)) {
             return false;
         }
-
-        // Check actual connection health using ping
-        if (!@$this->conn->ping()) {
-            $this->conn = null;
-            $this->_connected = false;
-            return false;
-        }
-
         return true;
     }
 
