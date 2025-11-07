@@ -307,7 +307,7 @@ class DBAPI
         }
 
         // Select database if specified
-        if ($this->dbase) {
+        if ($this->dbase && $this->dbase !== '') {
             if (!$this->conn->select_db($this->dbase)) {
                 $error = $this->conn->error;
                 $errno = $this->conn->errno;
