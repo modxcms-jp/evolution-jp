@@ -22,7 +22,22 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            background: 
+                radial-gradient(ellipse at 10% 15%, rgba(90, 140, 160, 0.12) 0%, transparent 35%),
+                radial-gradient(ellipse at 90% 85%, rgba(10, 25, 32, 0.25) 0%, transparent 38%),
+                radial-gradient(ellipse at 30% 70%, rgba(44, 83, 100, 0.08) 0%, transparent 45%),
+                radial-gradient(ellipse at 70% 30%, rgba(15, 32, 39, 0.15) 0%, transparent 42%),
+                radial-gradient(ellipse at 50% 50%, rgba(60, 100, 120, 0.06) 0%, transparent 55%),
+                linear-gradient(165deg, rgba(15, 32, 39, 0.4) 0%, transparent 40%),
+                linear-gradient(200deg, rgba(44, 83, 100, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, 
+                    #08151a 0%, 
+                    #0a1a20 15%, 
+                    #0f2027 30%, 
+                    #1a3540 50%, 
+                    #2c5364 70%, 
+                    #3a6a7e 85%, 
+                    #487a90 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -30,24 +45,104 @@
             min-height: 100vh;
             padding: 20px;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Animated Background */
+        /* Mandala Pattern - Layer 1 (Inner circles) */
         body::before {
             content: '';
             position: absolute;
-            top: -50%;
-            right: -50%;
-            bottom: -50%;
-            left: -50%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-            animation: gradient-shift 15s ease infinite;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: 
+                radial-gradient(
+                    ellipse 100% 100% at 50% 50%,
+                    transparent 20%,
+                    rgba(255, 255, 255, 0.08) 20.05%,
+                    rgba(255, 255, 255, 0.08) 20.1%,
+                    transparent 20.2%
+                ),
+                radial-gradient(
+                    ellipse 100% 100% at 50% 50%,
+                    transparent 32%,
+                    rgba(255, 255, 255, 0.075) 32.05%,
+                    rgba(255, 255, 255, 0.075) 32.1%,
+                    transparent 32.2%
+                ),
+                radial-gradient(
+                    ellipse 100% 100% at 50% 50%,
+                    transparent 44%,
+                    rgba(255, 255, 255, 0.073) 44.05%,
+                    rgba(255, 255, 255, 0.073) 44.1%,
+                    transparent 44.2%
+                ),
+                radial-gradient(
+                    ellipse 100% 100% at 50% 50%,
+                    transparent 56%,
+                    rgba(255, 255, 255, 0.07) 56.05%,
+                    rgba(255, 255, 255, 0.07) 56.1%,
+                    transparent 56.2%
+                );
             z-index: 0;
+            pointer-events: none;
         }
 
-        @keyframes gradient-shift {
-            0%, 100% { transform: rotate(0deg); }
-            50% { transform: rotate(180deg); }
+        /* Mandala Pattern - Layer 2 (Radiating curves) */
+        body::after {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: 
+                radial-gradient(
+                    ellipse 140% 80% at 50% 50%,
+                    transparent 26%,
+                    rgba(255, 255, 255, 0.069) 26.05%,
+                    rgba(255, 255, 255, 0.069) 26.1%,
+                    transparent 26.2%
+                ),
+                radial-gradient(
+                    ellipse 80% 140% at 50% 50%,
+                    transparent 26%,
+                    rgba(255, 255, 255, 0.069) 26.05%,
+                    rgba(255, 255, 255, 0.069) 26.1%,
+                    transparent 26.2%
+                ),
+                radial-gradient(
+                    ellipse 120% 90% at 50% 50%,
+                    transparent 38%,
+                    rgba(255, 255, 255, 0.071) 38.05%,
+                    rgba(255, 255, 255, 0.071) 38.1%,
+                    transparent 38.2%
+                ),
+                radial-gradient(
+                    ellipse 90% 120% at 50% 50%,
+                    transparent 38%,
+                    rgba(255, 255, 255, 0.071) 38.05%,
+                    rgba(255, 255, 255, 0.071) 38.1%,
+                    transparent 38.2%
+                ),
+                radial-gradient(
+                    ellipse 130% 85% at 50% 50%,
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.068) 50.05%,
+                    rgba(255, 255, 255, 0.068) 50.1%,
+                    transparent 50.2%
+                ),
+                radial-gradient(
+                    ellipse 85% 130% at 50% 50%,
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.068) 50.05%,
+                    rgba(255, 255, 255, 0.068) 50.1%,
+                    transparent 50.2%
+                );
+            transform: rotate(22.5deg);
+            z-index: 0;
+            pointer-events: none;
         }
 
         /* Main Container */
@@ -76,9 +171,14 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-            padding: 24px 32px;
+            background: 
+                linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(44, 83, 100, 0.95) 100%),
+                radial-gradient(ellipse at 20% 30%, rgba(76, 120, 140, 0.3) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(15, 32, 39, 0.4) 0%, transparent 50%),
+                linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+            padding: 32px;
             text-align: center;
+            position: relative;
         }
 
         .header a {
@@ -100,119 +200,175 @@
             background: #ffffff;
         }
 
-        #logo {
-            display: block;
-            max-width: 200px;
-            height: auto;
-            margin: 0 auto 24px;
+        #mx_loginbox #logo {
+            display: block !important;
+            max-width: 200px !important;
+            height: auto !important;
+            margin: 0 auto 32px !important;
         }
 
         /* Message */
-        .loginMessage {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 24px;
-            line-height: 1.5;
+        #mx_loginbox .loginMessage {
+            color: #666 !important;
+            font-size: 14px !important;
+            text-align: center !important;
+            margin-bottom: 32px !important;
+            line-height: 1.5 !important;
         }
 
-        .warning {
-            color: #dc3545;
-            font-weight: 600;
+        #mx_loginbox .warning {
+            color: #dc3545 !important;
+            font-weight: 600 !important;
         }
 
-        .success {
-            color: #28a745;
-            font-weight: 600;
+        #mx_loginbox .success {
+            color: #28a745 !important;
+            font-weight: 600 !important;
         }
 
         /* Form Elements */
-        label {
+        #mx_loginbox label {
             display: block;
             color: #333;
             font-size: 14px;
             font-weight: 500;
+            margin-top: 0;
             margin-bottom: 8px;
             transition: color 0.3s ease;
         }
 
-        input.text {
-            width: 100%;
-            padding: 12px 16px;
-            font-size: 15px;
-            color: #333;
-            background: #f8f9fa;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-            font-family: inherit;
+        /* 2つ目以降のラベルには上部に余白を追加 */
+        #mx_loginbox label:not(:first-of-type) {
+            margin-top: 24px;
         }
 
-        input.text:focus {
-            outline: none;
-            background: #ffffff;
-            border-color: #2c5364;
-            box-shadow: 0 0 0 3px rgba(44, 83, 100, 0.1);
+        #mx_loginbox input.text,
+        #mx_loginbox input[type="text"],
+        #mx_loginbox input[type="password"] {
+            width: 100% !important;
+            padding: 12px 16px !important;
+            font-size: 15px !important;
+            color: #333 !important;
+            background: #f8f9fa !important;
+            border: 2px solid #e9ecef !important;
+            border-radius: 8px !important;
+            margin: 0 !important;
+            transition: all 0.3s ease !important;
+            font-family: inherit !important;
+            box-sizing: border-box !important;
         }
 
-        input.text:hover {
-            border-color: #dee2e6;
+        #mx_loginbox input.text:focus,
+        #mx_loginbox input[type="text"]:focus,
+        #mx_loginbox input[type="password"]:focus {
+            outline: none !important;
+            background: #ffffff !important;
+            border-color: #2c5364 !important;
+            box-shadow: 0 0 0 3px rgba(44, 83, 100, 0.1) !important;
+        }
+
+        #mx_loginbox input.text:hover,
+        #mx_loginbox input[type="text"]:hover,
+        #mx_loginbox input[type="password"]:hover {
+            border-color: #dee2e6 !important;
+        }
+
+        /* ブラウザの自動補完スタイルを上書き */
+        #mx_loginbox input.text:-webkit-autofill,
+        #mx_loginbox input[type="text"]:-webkit-autofill,
+        #mx_loginbox input[type="password"]:-webkit-autofill,
+        #mx_loginbox input.text:-webkit-autofill:hover,
+        #mx_loginbox input[type="text"]:-webkit-autofill:hover,
+        #mx_loginbox input[type="password"]:-webkit-autofill:hover,
+        #mx_loginbox input.text:-webkit-autofill:focus,
+        #mx_loginbox input[type="text"]:-webkit-autofill:focus,
+        #mx_loginbox input[type="password"]:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #f8f9fa inset !important;
+            -webkit-text-fill-color: #333 !important;
+            transition: background-color 5000s ease-in-out 0s !important;
+            border: 2px solid #e9ecef !important;
         }
 
         /* Captcha */
-        img.loginCaptcha {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            width: 148px;
-            height: 60px;
-            margin-bottom: 16px;
+        #mx_loginbox img.loginCaptcha {
+            border: 2px solid #e9ecef !important;
+            border-radius: 8px !important;
+            width: 148px !important;
+            height: 60px !important;
+            margin-top: 24px !important;
+            margin-bottom: 0 !important;
+            display: block !important;
+        }
+
+        /* Captcha Message */
+        #mx_loginbox .loginCaptchaMessage {
+            margin-top: 24px !important;
+            margin-bottom: 16px !important;
+            color: #666 !important;
+            font-size: 14px !important;
+        }
+
+        /* Captcha Input Field */
+        #mx_loginbox input[name="captcha_code"] {
+            margin-top: 16px !important;
         }
 
         /* Checkbox */
-        .checkbox-wrapper {
+        #mx_loginbox .checkbox-wrapper {
             display: flex;
             align-items: center;
+            margin-top: 24px;
             margin-bottom: 24px;
         }
 
-        input.checkbox {
-            width: 18px;
-            height: 18px;
-            margin: 0 8px 0 0;
-            cursor: pointer;
-            accent-color: #2c5364;
+        #mx_loginbox input.checkbox,
+        #mx_loginbox input[type="checkbox"] {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 8px 0 0 !important;
+            cursor: pointer !important;
+            accent-color: #2c5364 !important;
         }
 
-        label[for="rememberme"] {
-            margin: 0;
+        #mx_loginbox label[for="rememberme"] {
+            margin: 0 !important;
             cursor: pointer;
             font-weight: 400;
             user-select: none;
         }
 
         /* Submit Button */
-        input.login {
-            width: 100%;
-            padding: 16px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #ffffff;
-            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4);
+        #mx_loginbox input.login,
+        #mx_loginbox input[type="submit"] {
+            width: 100% !important;
+            padding: 16px 24px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4) !important;
+            margin-top: 8px !important;
+            margin-bottom: 0 !important;
         }
 
-        input.login:hover {
-            background: linear-gradient(135deg, #1a3a47 0%, #3d6a7a 100%);
+        /* Plugin content after submit button */
+        #mx_loginbox input.login + * {
+            margin-top: 16px !important;
+        }
+
+        #mx_loginbox input.login:hover,
+        #mx_loginbox input[type="submit"]:hover {
+            background: linear-gradient(135deg, #1a3a47 0%, #3d6a7a 100%) !important;
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(44, 83, 100, 0.5);
+            box-shadow: 0 6px 16px rgba(44, 83, 100, 0.5) !important;
         }
 
-        input.login:active {
+        #mx_loginbox input.login:active,
+        #mx_loginbox input[type="submit"]:active {
             transform: translateY(0);
         }
 
@@ -223,7 +379,7 @@
             color: rgba(255, 255, 255, 0.9);
             text-align: center;
             font-size: 13px;
-            margin-top: 24px;
+            margin-top: 32px;
             padding: 0 20px;
             line-height: 1.6;
         }
@@ -253,31 +409,56 @@
                 padding: 24px;
             }
 
-            input.text {
-                font-size: 16px; /* Prevent zoom on iOS */
+            #mx_loginbox #logo {
+                margin-bottom: 24px !important;
+            }
+
+            #mx_loginbox .loginMessage {
+                margin-bottom: 24px !important;
+            }
+
+            #mx_loginbox label:not(:first-of-type) {
+                margin-top: 20px !important;
+            }
+
+            #mx_loginbox .checkbox-wrapper {
+                margin-top: 20px !important;
+                margin-bottom: 20px !important;
+            }
+
+            #mx_loginbox img.loginCaptcha {
+                margin-top: 20px !important;
+            }
+
+            #mx_loginbox .loginCaptchaMessage {
+                margin-top: 20px !important;
+            }
+
+            #mx_loginbox input.text,
+            #mx_loginbox input[type="text"],
+            #mx_loginbox input[type="password"] {
+                font-size: 16px !important; /* Prevent zoom on iOS */
             }
 
             .loginLicense {
                 font-size: 12px;
                 padding: 0 16px;
+                margin-top: 24px;
             }
         }
 
         /* Loading State */
-        input.login.loading {
-            opacity: 0.6;
-            pointer-events: none;
-            transform: translateY(0);
+        #mx_loginbox input.login.loading,
+        #mx_loginbox input[type="submit"].loading {
+            opacity: 0.6 !important;
+            pointer-events: none !important;
+            transform: translateY(0) !important;
         }
 
-        input.login.loading:hover {
-            transform: translateY(0);
-            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4);
-        }
-
-        /* Plugin Content Spacing */
-        .body > div:not(.header):not(.loginMessage) {
-            margin-bottom: 16px;
+        #mx_loginbox input.login.loading:hover,
+        #mx_loginbox input[type="submit"].loading:hover {
+            transform: translateY(0) !important;
+            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4) !important;
         }
     </style>
 
