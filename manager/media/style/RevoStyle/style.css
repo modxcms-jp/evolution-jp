@@ -1022,12 +1022,9 @@ a.hometblink:hover {
 
 #nav li ul li a {
     padding: 8px 22px !important;
-}
-
-#nav li ul li a {
-    background: #d4d4d4;
     float: left;
     width: auto;
+    line-height: 1.4;
 }
 
 .rtl #nav li ul li a {
@@ -1062,42 +1059,38 @@ a.hometblink:hover {
     position: fixed;
     bottom: 0;
     width: 200%;
-    top: 31px;
+    top: 33px;
     left: 0;
+    right: 0;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-#nav li.active ul.subnav {
-    right: 0;
+    background-color: var(--color-nav-subnav-start);
+    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    padding: 6px 0;
 }
 
 #nav li.active ul.subnav a {
     border-bottom: none;
     color: #fff;
     font-weight: normal;
-    background-color: var(--color-nav-subnav-end);
+    background-color: transparent;
     cursor: pointer;
     border-left: none;
+    transition: background-color 0.2s ease;
 }
 
 #nav li.active ul.subnav li {
-    margin: 0;
+    margin: 0 0 2px 0;
 }
 
 #nav li.active ul.subnav a:hover {
     color: #fff;
     text-shadow: 0 0 2px #FFF;
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 #nav li.active ul.subnav a:active {
     color: #ccc;
-}
-
-#nav li.active ul.subnav,
-#nav li.active ul.subnav a {
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
