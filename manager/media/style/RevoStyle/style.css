@@ -982,7 +982,7 @@ a.hometblink:hover {
     right: 10px;
 }
 
-#nav ul:not(.subnav) {
+#nav ul {
     display: none;
     height: 26px;
     position: relative;
@@ -991,7 +991,7 @@ a.hometblink:hover {
     padding: 0 0 0 20px;
 }
 
-.rtl #nav ul:not(.subnav) {
+.rtl #nav ul {
     margin: 0 -10px 0 0;
     padding: 0 20px 0 0;
 }
@@ -1009,7 +1009,7 @@ a.hometblink:hover {
     margin: 0 0 0 3px;
 }
 
-#nav > li > a {
+#nav li a {
     color: #A4B8B6;
     height: 25px;
     text-decoration: none;
@@ -1027,7 +1027,7 @@ a.hometblink:hover {
     padding: 10px 22px !important;
     float: left;
     width: auto;
-    height: auto;
+    height: auto !important;
     line-height: 1.4;
     overflow: visible;
 }
