@@ -982,16 +982,16 @@ a.hometblink:hover {
     right: 10px;
 }
 
-#nav > ul {
+#nav ul {
     display: none;
-    min-height: 26px;
+    height: 26px;
     position: relative;
     z-index: 500;
     margin: 0 0 0 -10px;
     padding: 0 0 0 20px;
 }
 
-.rtl #nav > ul {
+.rtl #nav ul {
     margin: 0 -10px 0 0;
     padding: 0 20px 0 0;
 }
@@ -1062,14 +1062,15 @@ a.hometblink:hover {
 }
 
 #nav li.active ul.subnav {
-    display: block;
+    display: block !important;
     position: fixed;
     top: 33px;
     bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    height: auto;
+    height: auto !important;
+    max-height: none !important;
     overflow-x: hidden;
     overflow-y: auto;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
