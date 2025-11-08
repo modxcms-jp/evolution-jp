@@ -691,7 +691,11 @@ function fieldContentType()
     if (doc('type') === 'reference') {
         return '';
     }
-    $ct = explode(',', config('custom_contenttype'));
+    $custom_contenttype = config('custom_contenttype');
+    if (!$custom_contenttype) {
+        return '';
+    }
+    $ct = explode(',', $custom_contenttype);
     $option = [];
     foreach ($ct as $value) {
         $option[] = html_tag(
