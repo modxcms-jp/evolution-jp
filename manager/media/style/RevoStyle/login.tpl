@@ -15,28 +15,274 @@
         }
 
         html, body {
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            height: 100%; sans-serif;
             font-size: 16px;
             line-height: 1.6;
         }
 
         body {
             background: 
-                radial-gradient(ellipse at 10% 15%, rgba(90, 140, 160, 0.12) 0%, transparent 35%),
-                radial-gradient(ellipse at 90% 85%, rgba(10, 25, 32, 0.25) 0%, transparent 38%),
-                radial-gradient(ellipse at 30% 70%, rgba(44, 83, 100, 0.08) 0%, transparent 45%),
-                radial-gradient(ellipse at 70% 30%, rgba(15, 32, 39, 0.15) 0%, transparent 42%),
-                radial-gradient(ellipse at 50% 50%, rgba(60, 100, 120, 0.06) 0%, transparent 55%),
-                linear-gradient(165deg, rgba(15, 32, 39, 0.4) 0%, transparent 40%),
-                linear-gradient(200deg, rgba(44, 83, 100, 0.3) 0%, transparent 50%),
+                /* Ultra massive gradient shapes - Primary light area */
+                radial-gradient(ellipse 80% 95% at 8% 12%, 
+                    rgba(140, 200, 220, 0.65) 0%, 
+                    rgba(130, 190, 210, 0.58) 9%,
+                    rgba(120, 180, 200, 0.52) 16%,
+                    rgba(110, 170, 190, 0.46) 23%,
+                    rgba(100, 160, 180, 0.41) 30%,
+                    rgba(90, 150, 170, 0.36) 37%,
+                    rgba(80, 140, 160, 0.3) 44%, 
+                    rgba(70, 130, 150, 0.25) 51%,
+                    rgba(60, 120, 140, 0.2) 58%,
+                    rgba(50, 110, 130, 0.14) 66%,
+                    transparent 80%),
+                
+                /* Ultra massive gradient shapes - Primary dark area */
+                radial-gradient(ellipse 85% 90% at 92% 88%, 
+                    rgba(0, 2, 5, 0.92) 0%, 
+                    rgba(1, 4, 8, 0.86) 8%,
+                    rgba(2, 6, 12, 0.8) 15%,
+                    rgba(3, 8, 15, 0.75) 22%,
+                    rgba(5, 11, 18, 0.7) 28%,
+                    rgba(6, 14, 22, 0.65) 34%,
+                    rgba(8, 17, 25, 0.6) 40%,
+                    rgba(10, 20, 28, 0.54) 46%,
+                    rgba(12, 23, 31, 0.48) 52%, 
+                    rgba(14, 27, 35, 0.42) 60%,
+                    rgba(16, 31, 39, 0.34) 70%,
+                    transparent 85%),
+                
+                /* Secondary large gradients - Layer 1 */
+                radial-gradient(ellipse 68% 82% at 18% 68%, 
+                    rgba(70, 122, 142, 0.56) 0%, 
+                    rgba(64, 114, 134, 0.48) 14%,
+                    rgba(58, 106, 126, 0.41) 26%,
+                    rgba(52, 98, 118, 0.35) 38%,
+                    rgba(46, 90, 110, 0.29) 50%,
+                    rgba(40, 82, 102, 0.23) 62%,
+                    rgba(34, 74, 94, 0.17) 74%,
+                    transparent 84%),
+                radial-gradient(ellipse 74% 78% at 82% 32%, 
+                    rgba(8, 19, 28, 0.82) 0%, 
+                    rgba(11, 23, 33, 0.74) 12%,
+                    rgba(14, 27, 37, 0.67) 23%,
+                    rgba(17, 31, 41, 0.6) 34%,
+                    rgba(20, 35, 45, 0.53) 45%,
+                    rgba(23, 39, 49, 0.46) 56%,
+                    rgba(26, 43, 53, 0.38) 67%,
+                    rgba(29, 47, 57, 0.3) 78%,
+                    transparent 87%),
+                
+                /* Secondary large gradients - Layer 2 */
+                radial-gradient(ellipse 64% 76% at 35% 85%, 
+                    rgba(56, 104, 124, 0.5) 0%, 
+                    rgba(51, 97, 117, 0.43) 16%,
+                    rgba(46, 90, 110, 0.37) 30%,
+                    rgba(41, 83, 103, 0.31) 44%,
+                    rgba(36, 76, 96, 0.25) 58%,
+                    rgba(31, 69, 89, 0.19) 72%,
+                    transparent 84%),
+                radial-gradient(ellipse 70% 68% at 72% 18%, 
+                    rgba(12, 26, 36, 0.76) 0%, 
+                    rgba(15, 30, 40, 0.68) 14%,
+                    rgba(18, 34, 44, 0.61) 27%,
+                    rgba(21, 38, 48, 0.54) 40%,
+                    rgba(24, 42, 52, 0.47) 53%,
+                    rgba(27, 46, 56, 0.39) 66%,
+                    rgba(30, 50, 60, 0.31) 79%,
+                    transparent 88%),
+                
+                /* Tertiary mid-size gradients - Multiple positions */
+                radial-gradient(ellipse 58% 68% at 28% 48%, 
+                    rgba(78, 132, 152, 0.44) 0%,
+                    rgba(70, 120, 140, 0.36) 22%,
+                    rgba(62, 108, 128, 0.29) 42%,
+                    rgba(54, 96, 116, 0.22) 62%,
+                    transparent 78%),
+                radial-gradient(ellipse 62% 64% at 72% 52%, 
+                    rgba(10, 22, 32, 0.66) 0%,
+                    rgba(14, 28, 38, 0.56) 20%,
+                    rgba(18, 34, 44, 0.46) 40%,
+                    rgba(22, 40, 50, 0.36) 60%,
+                    transparent 76%),
+                radial-gradient(ellipse 54% 62% at 48% 28%, 
+                    rgba(65, 115, 135, 0.38) 0%,
+                    rgba(58, 104, 124, 0.3) 24%,
+                    rgba(51, 93, 113, 0.23) 46%,
+                    transparent 68%),
+                radial-gradient(ellipse 60% 56% at 52% 72%, 
+                    rgba(16, 32, 42, 0.58) 0%,
+                    rgba(20, 38, 48, 0.48) 22%,
+                    rgba(24, 44, 54, 0.38) 44%,
+                    rgba(28, 50, 60, 0.28) 66%,
+                    transparent 82%),
+                
+                /* Small accent gradients - Creating micro-variations */
+                radial-gradient(ellipse 42% 52% at 22% 32%, 
+                    rgba(88, 145, 165, 0.32) 0%,
+                    rgba(76, 130, 150, 0.24) 28%,
+                    rgba(64, 115, 135, 0.16) 54%,
+                    transparent 74%),
+                radial-gradient(ellipse 48% 46% at 78% 68%, 
+                    rgba(8, 18, 28, 0.54) 0%,
+                    rgba(12, 24, 34, 0.42) 26%,
+                    rgba(16, 30, 40, 0.3) 52%,
+                    transparent 72%),
+                radial-gradient(ellipse 44% 50% at 38% 62%, 
+                    rgba(60, 108, 128, 0.36) 0%,
+                    rgba(52, 96, 116, 0.27) 26%,
+                    rgba(44, 84, 104, 0.18) 52%,
+                    transparent 72%),
+                radial-gradient(ellipse 50% 48% at 62% 38%, 
+                    rgba(14, 28, 38, 0.48) 0%,
+                    rgba(18, 34, 44, 0.37) 24%,
+                    rgba(22, 40, 50, 0.26) 48%,
+                    transparent 68%),
+                
+                /* Complex directional sweeps - 8 directions */
+                linear-gradient(140deg, 
+                    rgba(6, 16, 26, 0.9) 0%, 
+                    rgba(10, 22, 32, 0.78) 11%,
+                    rgba(14, 28, 38, 0.67) 21%,
+                    rgba(18, 34, 44, 0.57) 31%, 
+                    rgba(22, 40, 50, 0.47) 41%,
+                    rgba(26, 46, 56, 0.38) 52%,
+                    rgba(30, 52, 62, 0.29) 64%,
+                    rgba(34, 58, 68, 0.2) 77%,
+                    transparent 88%),
+                linear-gradient(175deg, 
+                    rgba(82, 140, 160, 0.82) 0%, 
+                    rgba(76, 132, 152, 0.72) 12%,
+                    rgba(70, 124, 144, 0.63) 23%,
+                    rgba(64, 116, 136, 0.55) 34%,
+                    rgba(58, 108, 128, 0.47) 45%,
+                    rgba(52, 100, 120, 0.39) 56%,
+                    rgba(46, 92, 112, 0.31) 67%,
+                    rgba(40, 84, 104, 0.23) 78%,
+                    transparent 87%),
+                linear-gradient(220deg, 
+                    rgba(2, 6, 12, 0.94) 0%, 
+                    rgba(4, 10, 18, 0.84) 11%,
+                    rgba(6, 14, 22, 0.75) 21%,
+                    rgba(8, 18, 26, 0.66) 31%,
+                    rgba(10, 22, 30, 0.58) 41%,
+                    rgba(12, 26, 34, 0.49) 52%,
+                    rgba(15, 30, 38, 0.4) 64%,
+                    rgba(18, 35, 43, 0.31) 77%,
+                    transparent 89%),
+                linear-gradient(265deg, 
+                    rgba(4, 12, 20, 0.88) 0%, 
+                    rgba(7, 17, 26, 0.77) 13%,
+                    rgba(10, 22, 31, 0.67) 25%,
+                    rgba(13, 27, 36, 0.58) 37%,
+                    rgba(16, 32, 41, 0.49) 49%,
+                    rgba(19, 37, 46, 0.4) 62%,
+                    rgba(22, 42, 51, 0.31) 75%,
+                    transparent 86%),
+                linear-gradient(50deg, 
+                    rgba(54, 98, 118, 0.68) 0%, 
+                    rgba(50, 92, 112, 0.58) 15%,
+                    rgba(46, 86, 106, 0.49) 29%,
+                    rgba(42, 80, 100, 0.41) 43%,
+                    rgba(38, 74, 94, 0.33) 57%,
+                    rgba(34, 68, 88, 0.25) 71%,
+                    transparent 83%),
+                linear-gradient(95deg, 
+                    rgba(44, 82, 102, 0.62) 0%, 
+                    rgba(40, 76, 96, 0.53) 16%,
+                    rgba(36, 70, 90, 0.44) 31%,
+                    rgba(32, 64, 84, 0.36) 46%,
+                    rgba(28, 58, 78, 0.28) 61%,
+                    transparent 74%),
+                linear-gradient(310deg, 
+                    rgba(62, 110, 130, 0.58) 0%, 
+                    rgba(56, 102, 122, 0.49) 17%,
+                    rgba(50, 94, 114, 0.41) 33%,
+                    rgba(44, 86, 106, 0.33) 49%,
+                    rgba(38, 78, 98, 0.25) 65%,
+                    transparent 79%),
+                linear-gradient(355deg, 
+                    rgba(20, 38, 48, 0.72) 0%, 
+                    rgba(24, 44, 54, 0.61) 18%,
+                    rgba(28, 50, 60, 0.51) 34%,
+                    rgba(32, 56, 66, 0.41) 50%,
+                    rgba(36, 62, 72, 0.31) 66%,
+                    transparent 80%),
+                
+                /* Enhanced primary sources with more stops */
+                radial-gradient(ellipse at 3% 6%, 
+                    rgba(165, 225, 245, 0.72) 0%, 
+                    rgba(152, 212, 232, 0.64) 10%,
+                    rgba(140, 200, 220, 0.57) 19%,
+                    rgba(128, 188, 208, 0.5) 27%, 
+                    rgba(116, 176, 196, 0.43) 35%, 
+                    rgba(104, 164, 184, 0.36) 43%,
+                    rgba(92, 152, 172, 0.3) 51%,
+                    rgba(80, 140, 160, 0.24) 59%,
+                    rgba(68, 128, 148, 0.18) 67%,
+                    rgba(56, 116, 136, 0.12) 75%,
+                    transparent 85%),
+                radial-gradient(ellipse at 97% 94%, 
+                    rgba(0, 0, 2, 0.96) 0%, 
+                    rgba(1, 2, 6, 0.9) 9%,
+                    rgba(2, 5, 10, 0.84) 17%,
+                    rgba(3, 8, 14, 0.78) 25%,
+                    rgba(5, 11, 18, 0.72) 32%, 
+                    rgba(7, 14, 22, 0.66) 39%, 
+                    rgba(9, 18, 26, 0.6) 46%,
+                    rgba(12, 22, 30, 0.54) 53%,
+                    rgba(15, 26, 34, 0.47) 61%,
+                    rgba(18, 30, 38, 0.4) 69%,
+                    rgba(21, 35, 43, 0.32) 78%,
+                    transparent 88%),
+                
+                /* Multi-stage complex vignette */
+                radial-gradient(ellipse 135% 135% at 50% 50%, 
+                    transparent 0%, 
+                    transparent 12%,
+                    rgba(8, 16, 24, 0.08) 26%,
+                    rgba(6, 14, 22, 0.18) 38%,
+                    rgba(5, 12, 20, 0.3) 49%, 
+                    rgba(4, 10, 18, 0.43) 59%,
+                    rgba(3, 8, 15, 0.56) 69%,
+                    rgba(2, 6, 12, 0.69) 79%,
+                    rgba(1, 4, 8, 0.8) 89%,
+                    rgba(0, 2, 4, 0.88) 100%),
+                
+                /* Core gradient with 30 stops */
                 linear-gradient(135deg, 
-                    #08151a 0%, 
-                    #0a1a20 15%, 
-                    #0f2027 30%, 
-                    #1a3540 50%, 
-                    #2c5364 70%, 
-                    #3a6a7e 85%, 
+                    #000306 0%,
+                    #010508 3%,
+                    #020a0e 6%,
+                    #030b10 9%,
+                    #050f14 12%,
+                    #061115 15%,
+                    #08151a 18%, 
+                    #09171d 21%,
+                    #0a1a20 24%, 
+                    #0c1d25 27%,
+                    #0d1f28 30%,
+                    #0e2129 33%,
+                    #0f2027 36%, 
+                    #11242b 39%,
+                    #12252c 42%,
+                    #14272e 45%,
+                    #15282f 48%,
+                    #172b35 52%,
+                    #182d38 56%,
+                    #1a3540 60%, 
+                    #1d3b47 64%,
+                    #1f3e4a 67%,
+                    #22434f 70%,
+                    #244555 73%,
+                    #27505c 76%,
+                    #284d5d 79%,
+                    #2c5364 82%, 
+                    #305a6a 85%,
+                    #35606f 88%,
+                    #386975 91%,
+                    #3a6a7e 94%, 
+                    #3f7084 96%,
+                    #427488 98%,
                     #487a90 100%);
             display: flex;
             flex-direction: column;
@@ -47,8 +293,8 @@
             position: relative;
             overflow: hidden;
         }
-
-        /* Mandala Pattern - Layer 1 (Inner circles) */
+        
+        /* Mandala Pattern with enhanced depth */
         body::before {
             content: '';
             position: absolute;
@@ -89,7 +335,7 @@
             pointer-events: none;
         }
 
-        /* Mandala Pattern - Layer 2 (Radiating curves) */
+        /* Mandala Pattern - Layer 2 with extreme complexity */
         body::after {
             content: '';
             position: absolute;
@@ -98,6 +344,26 @@
             width: 160%;
             height: 160%;
             background: 
+                /* Additional massive gradient clouds with multiple stops */
+                radial-gradient(ellipse 70% 82% at 38% 48%, 
+                    rgba(85, 140, 160, 0.48) 0%, 
+                    rgba(75, 128, 148, 0.4) 16%,
+                    rgba(66, 116, 136, 0.32) 30%,
+                    rgba(56, 104, 124, 0.26) 44%,
+                    rgba(46, 92, 112, 0.2) 56%,
+                    rgba(36, 80, 100, 0.14) 68%,
+                    transparent 80%),
+                radial-gradient(ellipse 76% 72% at 68% 60%, 
+                    rgba(6, 14, 22, 0.75) 0%, 
+                    rgba(9, 19, 28, 0.66) 14%,
+                    rgba(12, 24, 34, 0.58) 26%,
+                    rgba(15, 29, 39, 0.5) 38%,
+                    rgba(18, 34, 44, 0.42) 50%,
+                    rgba(21, 39, 49, 0.34) 62%,
+                    rgba(24, 44, 54, 0.26) 74%,
+                    transparent 84%),
+                
+                /* Mandala curves with enhanced gradients */
                 radial-gradient(
                     ellipse 140% 80% at 50% 50%,
                     transparent 26%,
@@ -176,7 +442,7 @@
                 radial-gradient(ellipse at 20% 30%, rgba(76, 120, 140, 0.3) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 70%, rgba(15, 32, 39, 0.4) 0%, transparent 50%),
                 linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
-            padding: 32px;
+            padding: 24px;
             text-align: center;
             position: relative;
         }
@@ -196,7 +462,7 @@
 
         /* Body */
         .body {
-            padding: 32px;
+            padding: 24px;
             background: #ffffff;
         }
 
@@ -204,16 +470,7 @@
             display: block !important;
             max-width: 200px !important;
             height: auto !important;
-            margin: 0 auto 32px !important;
-        }
-
-        /* Message */
-        #mx_loginbox .loginMessage {
-            color: #666 !important;
-            font-size: 14px !important;
-            text-align: center !important;
-            margin-bottom: 32px !important;
-            line-height: 1.5 !important;
+            margin: 0 auto 16px !important;
         }
 
         #mx_loginbox .warning {
@@ -232,14 +489,9 @@
             color: #333;
             font-size: 14px;
             font-weight: 500;
-            margin-top: 0;
+            margin-top: 16px;
             margin-bottom: 8px;
             transition: color 0.3s ease;
-        }
-
-        /* 2つ目以降のラベルには上部に余白を追加 */
-        #mx_loginbox label:not(:first-of-type) {
-            margin-top: 24px;
         }
 
         #mx_loginbox input.text,
@@ -254,7 +506,6 @@
             border-radius: 8px !important;
             margin: 0 !important;
             transition: all 0.3s ease !important;
-            font-family: inherit !important;
             box-sizing: border-box !important;
         }
 
@@ -317,7 +568,7 @@
         #mx_loginbox .checkbox-wrapper {
             display: flex;
             align-items: center;
-            margin-top: 24px;
+            margin-top: 8px;
             margin-bottom: 24px;
         }
 
@@ -351,13 +602,12 @@
             cursor: pointer !important;
             transition: all 0.3s ease !important;
             box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4) !important;
-            margin-top: 8px !important;
-            margin-bottom: 0 !important;
+            margin: 8px 0 0 0 !important;
         }
 
         /* Plugin content after submit button */
         #mx_loginbox input.login + * {
-            margin-top: 16px !important;
+            margin-top: 8px !important;
         }
 
         #mx_loginbox input.login:hover,
@@ -379,8 +629,7 @@
             color: rgba(255, 255, 255, 0.9);
             text-align: center;
             font-size: 13px;
-            margin-top: 32px;
-            padding: 0 20px;
+            margin-top: 16px;
             line-height: 1.6;
         }
 
@@ -410,15 +659,11 @@
             }
 
             #mx_loginbox #logo {
-                margin-bottom: 24px !important;
-            }
-
-            #mx_loginbox .loginMessage {
-                margin-bottom: 24px !important;
+                margin-bottom: 16px !important;
             }
 
             #mx_loginbox label:not(:first-of-type) {
-                margin-top: 20px !important;
+                margin-top: 16px !important;
             }
 
             #mx_loginbox .checkbox-wrapper {
@@ -482,7 +727,6 @@
         </div>
         <div class="body">
             <img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo"/>
-            <p class="loginMessage">[+login_message+]</p>
             <label for="username">[+username+]</label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" autocomplete="username"/>
             <label for="password">[+password+]</label>
