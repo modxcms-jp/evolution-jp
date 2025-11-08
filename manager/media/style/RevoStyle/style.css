@@ -6,16 +6,16 @@ html, body, form, fieldset {
 
 :root {
     --color-text-primary: #333;
-    --color-background-page: #f4f4f4;
+    --color-background-page: #e8ecef;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
     --color-border-default: #ccc;
     --color-surface: #fff;
-    --color-section-header-text: #606060;
-    --color-section-header-start: #f5f5f5;
-    --color-section-header-end: #dddddd;
-    --color-nav-subnav-start: #626262;
-    --color-nav-subnav-end: #444444;
+    --color-section-header-text: #505050;
+    --color-section-header-start: #f8f8f8;
+    --color-section-header-end: #e5e5e5;
+    --color-nav-subnav-start: #0f2027;
+    --color-nav-subnav-end: #203844;
     --color-accent-green-start: #8aae4b;
     --color-accent-green-end: #66901b;
     --color-accent-green-hover-start: #90bf40;
@@ -97,14 +97,15 @@ h1, h2, h3, h4, h5, h6, .subTitle {
 
 h1 {
     font-size: 1.25em;
-    color: #585858;
+    color: #505050;
     font-weight: bold;
-    background-color: #d0d0d0;
-    letter-spacing: 1px;
+    background-color: #e5e5e5;
+    letter-spacing: 0.5px;
     line-height: 1em;
-    padding: 7px 7px 7px 10px;
-    border-radius: 3px;
-    margin: 8px 15px 10px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    margin: 10px 15px 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 h1.draft {
@@ -559,14 +560,14 @@ form .imeoff {
 .sectionHeader {
     color: var(--color-section-header-text);
     margin: 0 15px;
-    padding: 5px 9px 5px 15px;
+    padding: 8px 12px 8px 16px;
     font-weight: bold;
     border: 1px solid var(--color-border-default);
     border-bottom: none;
     text-shadow: 0 1px 0 var(--color-surface);
     background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 5px 5px 0 0;
+    border-radius: 6px 6px 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -686,8 +687,8 @@ a img {
 }
 
 div.treeframebody {
-    background: #f5f5f5 url(images/misc/subnav.png) !important;
-    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    background: #f8f8f8 url(images/misc/subnav.png) !important;
+    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.08);
 }
 
 #treeMenu * {
@@ -955,11 +956,12 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 #Navcontainer {
-    padding: 0 10px;
+    padding: 4px 15px;
     color: #fff;
 }
 
@@ -969,7 +971,7 @@ a.hometblink:hover {
     height: 25px;
     width: 100%;
     position: absolute;
-    top: 6px;
+    top: 8px;
     overflow: visible !important;
 }
 
@@ -1038,16 +1040,16 @@ a.hometblink:hover {
 }
 
 #nav li.active {
-    background: none repeat scroll 0 0 #616161;
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 5px 5px 0 0;
-    box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 #nav li.active a {
-    border-bottom: 1px solid #616161;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     color: #FFF;
     position: relative;
-    text-shadow: 0 -1px 0 #333;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     z-index: 999999;
 }
 
@@ -1062,8 +1064,8 @@ a.hometblink:hover {
     width: 200%;
     top: 31px;
     left: 0;
-    border-top: 1px solid #888;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #nav li.active ul.subnav {
@@ -1477,15 +1479,16 @@ h2#edit_document_title {
 /* -------------------------[ Action Buttons ]--- */
 /* from https://github.com/manse/ScienceStyle */
 #actions {
-    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
+    background: rgba(255, 255, 255, 0.95);
     margin: 0 -1px 0 0;
-    padding: 8px 5px 7px 10px !important;
+    padding: 8px 10px !important;
     position: fixed;
     right: 16px;
     text-align: right;
     top: 5px;
     z-index: 100;
-    border-radius: 5px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 select#stay {
