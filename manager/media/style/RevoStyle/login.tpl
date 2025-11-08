@@ -22,14 +22,14 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
             position: relative;
-            overflow: hidden;
         }
 
         /* Animated Background */
@@ -76,7 +76,7 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
             padding: 24px 32px;
             text-align: center;
         }
@@ -152,8 +152,8 @@
         input.text:focus {
             outline: none;
             background: #ffffff;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #2c5364;
+            box-shadow: 0 0 0 3px rgba(44, 83, 100, 0.1);
         }
 
         input.text:hover {
@@ -181,7 +181,7 @@
             height: 18px;
             margin: 0 8px 0 0;
             cursor: pointer;
-            accent-color: #667eea;
+            accent-color: #2c5364;
         }
 
         label[for="rememberme"] {
@@ -198,17 +198,17 @@
             font-size: 16px;
             font-weight: 600;
             color: #ffffff;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
             border: none;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4);
         }
 
         input.login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 6px 16px rgba(44, 83, 100, 0.5);
         }
 
         input.login:active {
@@ -217,12 +217,14 @@
 
         /* License */
         .loginLicense {
+            width: 100%;
+            max-width: 440px;
             color: rgba(255, 255, 255, 0.9);
             text-align: center;
             font-size: 13px;
-            margin-top: 24px;
-            position: relative;
-            z-index: 1;
+            margin-top: 20px;
+            padding: 0 20px;
+            line-height: 1.6;
         }
 
         .loginLicense a {
@@ -252,6 +254,11 @@
 
             input.text {
                 font-size: 16px; /* Prevent zoom on iOS */
+            }
+
+            .loginLicense {
+                font-size: 12px;
+                padding: 0 16px;
             }
         }
 
