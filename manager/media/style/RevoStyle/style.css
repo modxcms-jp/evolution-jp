@@ -982,7 +982,7 @@ a.hometblink:hover {
     right: 10px;
 }
 
-#nav ul {
+#nav ul:not(.subnav) {
     display: none;
     height: 26px;
     position: relative;
@@ -991,7 +991,7 @@ a.hometblink:hover {
     padding: 0 0 0 20px;
 }
 
-.rtl #nav ul {
+.rtl #nav ul:not(.subnav) {
     margin: 0 -10px 0 0;
     padding: 0 20px 0 0;
 }
@@ -1009,7 +1009,7 @@ a.hometblink:hover {
     margin: 0 0 0 3px;
 }
 
-#nav li a {
+#nav > ul > li > a {
     color: #A4B8B6;
     height: 25px;
     text-decoration: none;
