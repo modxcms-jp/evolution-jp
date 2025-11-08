@@ -14,11 +14,15 @@ if (!is_file(MODX_BASE_PATH . $config_path)) {
 if (!isset($lastInstallTime) || !$lastInstallTime) {
     $rs = $this->gotoSetup();
 }
+
+// Initialize DBAPI - during installation mode, use empty defaults that can be configured via prop()
 if (!$rs) {
+    // Installation mode: create DBAPI with empty defaults
+    $this->db = new DBAPI('', '', '', '');
     return true;
 }
 
-// Initialize DBAPI with explicit connection parameters
+// Normal mode: Initialize DBAPI with explicit connection parameters from config
 $this->db = new DBAPI(
     $database_server,
     $dbase,
