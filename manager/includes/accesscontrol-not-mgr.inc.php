@@ -81,7 +81,7 @@ if (installGoingOn()) {
     evo()->setPlaceholder(
         'login_message',
         sprintf(
-            '<p><span class="fail">%s</span>span></p><p>%s</p>',
+            '<p><span class="fail">%s</span></p><p>%s</p>',
             $login_message[installGoingOn()],
             $_lang['login_message']
         )
