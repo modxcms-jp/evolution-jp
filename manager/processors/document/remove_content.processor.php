@@ -43,7 +43,7 @@ if (!empty($ids)) {
             WHERE {$tbl_site_content}.id IN ({$ids_list}) AND {$tbl_site_content}.deleted=1";
     db()->query($sql);
     
-    //'undelete' the document.
+    // permanently delete the document.
     $rs = db()->delete($tbl_site_content, "id IN ({$ids_list}) AND deleted=1");
 } else {
     // No documents to delete - treat as successful operation
