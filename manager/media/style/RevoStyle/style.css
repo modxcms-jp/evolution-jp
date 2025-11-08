@@ -995,7 +995,7 @@ a.hometblink:hover {
     padding: 0 20px 0 0;
 }
 
-#nav li {
+#nav > li {
     list-style: none;
     float: left;
     width: auto;
@@ -1003,12 +1003,12 @@ a.hometblink:hover {
     padding: 0;
 }
 
-.rtl #nav li {
+.rtl #nav > li {
     float: right;
     margin: 0 0 0 3px;
 }
 
-#nav li a {
+#nav > li > a {
     color: #A4B8B6;
     height: 25px;
     text-decoration: none;
