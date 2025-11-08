@@ -1009,7 +1009,7 @@ a.hometblink:hover {
     margin: 0 0 0 3px;
 }
 
-#nav > ul > li > a {
+#nav > li > a {
     color: #A4B8B6;
     height: 25px;
     text-decoration: none;
