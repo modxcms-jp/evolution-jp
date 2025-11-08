@@ -1106,9 +1106,13 @@ a.hometblink:hover {
 }
 
 /* Clearfix for subnav floating items */
+#nav li.active ul.subnav::before,
 #nav li.active ul.subnav::after {
     content: "";
     display: table;
+}
+
+#nav li.active ul.subnav::after {
     clear: both;
 }
 
