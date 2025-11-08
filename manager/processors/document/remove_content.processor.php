@@ -24,7 +24,7 @@ $modx->event->vars['ids'] = &$ids;
 evo()->invokeEvent('OnBeforeEmptyTrash', $modx->event->vars);
 
 if (!empty($ids)) {
-    $ids_list = implode(',', $ids);
+    $ids_list = implode(',', array_map('intval', $ids));
     
     // remove the document groups link.
     $tbl_document_groups = evo()->getFullTableName('document_groups');
