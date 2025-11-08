@@ -96,7 +96,7 @@
 
         /* Body */
         .body {
-            padding: 40px 32px;
+            padding: 32px;
             background: #ffffff;
         }
 
@@ -144,7 +144,7 @@
             background: #f8f9fa;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             transition: all 0.3s ease;
             font-family: inherit;
         }
@@ -166,7 +166,7 @@
             border-radius: 8px;
             width: 148px;
             height: 60px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
 
         /* Checkbox */
@@ -194,7 +194,7 @@
         /* Submit Button */
         input.login {
             width: 100%;
-            padding: 14px 24px;
+            padding: 16px 24px;
             font-size: 16px;
             font-weight: 600;
             color: #ffffff;
@@ -223,7 +223,7 @@
             color: rgba(255, 255, 255, 0.9);
             text-align: center;
             font-size: 13px;
-            margin-top: 20px;
+            margin-top: 24px;
             padding: 0 20px;
             line-height: 1.6;
         }
@@ -246,11 +246,11 @@
             }
 
             .header {
-                padding: 20px 24px;
+                padding: 24px;
             }
 
             .body {
-                padding: 32px 24px;
+                padding: 24px;
             }
 
             input.text {
