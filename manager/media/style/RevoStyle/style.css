@@ -1064,9 +1064,7 @@ a.hometblink:hover {
     top: 33px;
     bottom: 0;
     left: 0;
-    right: 0;
     width: 200%;
-    height: auto !important;
     max-height: none !important;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1094,6 +1092,7 @@ a.hometblink:hover {
     height: auto;
     overflow: visible;
     list-style: none;
+    float: left;
 }
 
 #nav li.active ul.subnav a:hover {
