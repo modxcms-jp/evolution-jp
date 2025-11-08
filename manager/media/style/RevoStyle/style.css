@@ -1025,17 +1025,15 @@ a.hometblink:hover {
 
 #nav li ul li a {
     padding: 10px 22px !important;
-    display: block;
-    width: 100%;
+    float: left;
+    width: auto;
     height: auto;
     line-height: 1.4;
     overflow: visible;
-    box-sizing: border-box;
-    margin: 0;
 }
 
 .rtl #nav li ul li a {
-    display: block;
+    float: right;
 }
 
 #nav a:hover,
@@ -1068,11 +1066,10 @@ a.hometblink:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    width: 100%;
+    width: 200%;
     height: auto !important;
     max-height: none !important;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: visible;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background-color: var(--color-nav-subnav-start);
@@ -1089,9 +1086,6 @@ a.hometblink:hover {
     cursor: pointer;
     border-left: none;
     transition: background-color 0.2s ease;
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 #nav li.active ul.subnav li {
@@ -1099,9 +1093,6 @@ a.hometblink:hover {
     padding: 0;
     height: auto;
     overflow: visible;
-    float: none;
-    display: block;
-    width: 100%;
     list-style: none;
 }
 
