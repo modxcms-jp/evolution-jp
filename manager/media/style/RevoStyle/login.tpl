@@ -207,6 +207,7 @@
         }
 
         input.login:hover {
+            background: linear-gradient(135deg, #1a3a47 0%, #3d6a7a 100%);
             transform: translateY(-2px);
             box-shadow: 0 6px 16px rgba(44, 83, 100, 0.5);
         }
@@ -263,9 +264,15 @@
         }
 
         /* Loading State */
-        .loading {
+        input.login.loading {
             opacity: 0.6;
             pointer-events: none;
+            transform: translateY(0);
+        }
+
+        input.login.loading:hover {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(44, 83, 100, 0.4);
         }
 
         /* Plugin Content Spacing */
@@ -321,6 +328,8 @@
 </p>
 <script>
     $('#submitButton').click(function (e) {
+        e.preventDefault(); // Prevent form submission
+
         var $form = $('#loginfrm');
         var $button = $(this);
         var username = $('#username').val();
