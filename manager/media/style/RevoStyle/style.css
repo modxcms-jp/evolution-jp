@@ -4,6 +4,10 @@ html, body, form, fieldset {
     padding: 0;
 }
 
+html, body {
+    min-height: 100vh;
+}
+
 :root {
     --color-text-primary: #333;
     --color-background-page: #e8ecef;
@@ -960,12 +964,14 @@ a.hometblink:hover {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: visible;
+    min-height: 100vh;
 }
 
 #Navcontainer {
     padding: 4px 15px;
     color: #fff;
     overflow: visible;
+    min-height: 100vh;
 }
 
 #nav {
@@ -1049,11 +1055,11 @@ a.hometblink:hover {
 #nav li.active ul.subnav {
     display: flex !important;
     flex-wrap: wrap;
-    position: fixed;
+    position: absolute;
     top: 33px;
     left: 0;
     width: 100%;
-    height: calc(100vh - 33px) !important;
+    min-height: 800px;
     overflow-y: auto;
     overflow-x: hidden;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
