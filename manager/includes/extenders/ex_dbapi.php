@@ -24,7 +24,7 @@ $this->db = new DBAPI(
     $dbase,
     $database_user,
     $database_password,
-    $table_prefix,
+    $table_prefix ?? '',
     $database_connection_charset ?? 'utf8mb4',
     $database_connection_method ?? 'SET CHARACTER SET'
 );
