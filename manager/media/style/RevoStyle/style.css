@@ -983,8 +983,8 @@ a.hometblink:hover {
 }
 
 #nav > ul {
-    display: block;
-    height: 26px;
+    display: none;
+    min-height: 26px;
     position: relative;
     z-index: 500;
     margin: 0 0 0 -10px;
@@ -1024,12 +1024,14 @@ a.hometblink:hover {
 }
 
 #nav li ul li a {
-    padding: 8px 22px !important;
+    padding: 10px 22px !important;
     display: block;
-    width: auto;
+    width: 100%;
     height: auto;
     line-height: 1.4;
     overflow: visible;
+    box-sizing: border-box;
+    margin: 0;
 }
 
 .rtl #nav li ul li a {
@@ -1062,18 +1064,20 @@ a.hometblink:hover {
 #nav li.active ul.subnav {
     display: block;
     position: fixed;
-    bottom: 0;
-    width: 200%;
     top: 33px;
+    bottom: 0;
     left: 0;
     right: 0;
+    width: 100%;
     height: auto;
+    overflow-x: hidden;
     overflow-y: auto;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background-color: var(--color-nav-subnav-start);
     background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
-    padding: 6px 0;
+    padding: 8px 0;
+    z-index: 998;
 }
 
 #nav li.active ul.subnav a {
@@ -1090,12 +1094,14 @@ a.hometblink:hover {
 }
 
 #nav li.active ul.subnav li {
-    margin: 0 0 2px 0;
+    margin: 0;
+    padding: 0;
     height: auto;
     overflow: visible;
     float: none;
     display: block;
     width: 100%;
+    list-style: none;
 }
 
 #nav li.active ul.subnav a:hover {
