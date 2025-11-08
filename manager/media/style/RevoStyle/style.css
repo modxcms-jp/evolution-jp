@@ -971,7 +971,7 @@ a.hometblink:hover {
 #nav {
     margin: 0;
     padding: 0;
-    height: 25px;
+    min-height: 25px;
     width: 100%;
     position: absolute;
     top: 8px;
@@ -983,7 +983,7 @@ a.hometblink:hover {
 }
 
 #nav > ul {
-    display: none;
+    display: block;
     height: 26px;
     position: relative;
     z-index: 500;
@@ -1025,7 +1025,7 @@ a.hometblink:hover {
 
 #nav li ul li a {
     padding: 8px 22px !important;
-    float: left;
+    display: block;
     width: auto;
     height: auto;
     line-height: 1.4;
@@ -1033,7 +1033,7 @@ a.hometblink:hover {
 }
 
 .rtl #nav li ul li a {
-    float: right;
+    display: block;
 }
 
 #nav a:hover,
@@ -1084,12 +1084,18 @@ a.hometblink:hover {
     cursor: pointer;
     border-left: none;
     transition: background-color 0.2s ease;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #nav li.active ul.subnav li {
     margin: 0 0 2px 0;
     height: auto;
     overflow: visible;
+    float: none;
+    display: block;
+    width: 100%;
 }
 
 #nav li.active ul.subnav a:hover {
