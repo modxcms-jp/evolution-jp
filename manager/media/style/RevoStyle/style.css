@@ -958,11 +958,14 @@ a.hometblink:hover {
 #topMenu {
     background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: visible;
 }
 
 #Navcontainer {
     padding: 4px 15px;
     color: #fff;
+    overflow: visible;
 }
 
 #nav {
@@ -979,7 +982,7 @@ a.hometblink:hover {
     right: 10px;
 }
 
-#nav ul {
+#nav > ul {
     display: none;
     height: 26px;
     position: relative;
@@ -988,7 +991,7 @@ a.hometblink:hover {
     padding: 0 0 0 20px;
 }
 
-.rtl #nav ul {
+.rtl #nav > ul {
     margin: 0 -10px 0 0;
     padding: 0 20px 0 0;
 }
@@ -1024,7 +1027,9 @@ a.hometblink:hover {
     padding: 8px 22px !important;
     float: left;
     width: auto;
+    height: auto;
     line-height: 1.4;
+    overflow: visible;
 }
 
 .rtl #nav li ul li a {
@@ -1062,6 +1067,8 @@ a.hometblink:hover {
     top: 33px;
     left: 0;
     right: 0;
+    height: auto;
+    overflow-y: auto;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background-color: var(--color-nav-subnav-start);
@@ -1081,6 +1088,8 @@ a.hometblink:hover {
 
 #nav li.active ul.subnav li {
     margin: 0 0 2px 0;
+    height: auto;
+    overflow: visible;
 }
 
 #nav li.active ul.subnav a:hover {
