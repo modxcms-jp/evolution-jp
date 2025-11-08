@@ -34,8 +34,8 @@ require_once(MODX_SETUP_PATH . 'functions.php');
 
 if (!install_sessionCheck()) {
     echo parseText(
-        file_get_contents(MODX_SETUP_PATH . 'tpl/session_problem.tpl')
-        , includeLang(lang_name())
+        file_get_contents(MODX_SETUP_PATH . 'tpl/session_problem.tpl'),
+        includeLang(lang_name())
     );
     exit;
 }
@@ -51,9 +51,9 @@ if (sessionv('database_server')) {
     db()->prop('*connection_method', sessionv('database_connection_method'));
     db()->prop('*charset', sessionv('database_charset', 'utf8'));
     db()->connect(
-        sessionv('database_server')
-        , sessionv('database_user')
-        , sessionv('database_password')
+        sessionv('database_server'),
+        sessionv('database_user'),
+        sessionv('database_password')
     );
 }
 
@@ -79,14 +79,14 @@ $ph['install_language'] = lang_name();
 ob_start();
 if (!@include(sprintf('%sactions/%s.php', MODX_SETUP_PATH, $action))) {
     exit (sprintf(
-        'Invalid install action attempted. [action=%s]'
-        , $action
+        'Invalid install action attempted. [action=%s]',
+        $action
     ));
 }
 $ph['content'] = ob_get_contents();
 ob_end_clean();
 
 echo evo()->parseText(
-    file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl')
-    , $ph
+    file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+    $ph
 );

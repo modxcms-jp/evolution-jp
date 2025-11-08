@@ -179,10 +179,10 @@
                 $where = '';
             }
             $rs = db()->select(
-                'name, id'
-                , '[+prefix+]user_roles'
-                , $where
-                , 'save_role DESC, new_role DESC, id ASC'
+                'name, id',
+                '[+prefix+]user_roles',
+                $where,
+                'save_role DESC, new_role DESC, id ASC'
             );
             $options = [];
             while ($row = db()->getRow($rs)) {
@@ -192,12 +192,12 @@
                     $selected = ($row['id'] == user('role'));
                 }
                 $options[] = html_tag(
-                    'option'
-                    , [
+                    'option',
+                    [
                         'value' => $row['id'],
                         'selected' => $selected ? null : ''
-                    ]
-                    , $row['name']
+                    ],
+                    $row['name']
                 );
             }
             ?>

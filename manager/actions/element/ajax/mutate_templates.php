@@ -12,9 +12,9 @@ function get_resources_byajax($id)
     global $_lang;
 
     $rs = db()->select(
-        'pagetitle,id'
-        , '[+prefix+]site_content'
-        , "template='" . $id . "'"
+        'pagetitle,id',
+        '[+prefix+]site_content',
+        "template='" . $id . "'"
     );
     $total = db()->count($rs);
     if (evo()->config['limit_by_container'] < $total) {
@@ -27,8 +27,8 @@ function get_resources_byajax($id)
     $items = [];
     while ($ph = db()->getRow($rs)) {
         $items[] = evo()->parseText(
-            '<a href="index.php?a=27&id=[+id+]">[+pagetitle+]([+id+])</a>'
-            , $ph
+            '<a href="index.php?a=27&id=[+id+]">[+pagetitle+]([+id+])</a>',
+            $ph
         );
     }
     return sprintf('<p>%s</p>', implode(', ', $items));

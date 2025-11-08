@@ -515,16 +515,16 @@ function getTopicPath($id)
     }
 
     $parents = array_merge(
-        [evo()->config('site_start')]
-        , array_reverse(evo()->getParentIds($id))
+        [evo()->config('site_start')],
+        array_reverse(evo()->getParentIds($id))
     );
     $parents[] = $id;
 
     foreach ($parents as $topic) {
         $rs = db()->select(
-            "IF(alias='', id, alias) AS alias"
-            , '[+prefix+]site_content'
-            , "id='" . $topic . "'"
+            "IF(alias='', id, alias) AS alias",
+            '[+prefix+]site_content',
+            "id='" . $topic . "'"
         );
         $doc = db()->getRow($rs);
         if ($topic == evo()->config('site_start')) {
@@ -538,8 +538,8 @@ function getTopicPath($id)
         }
     }
     return sprintf(
-        '<div style="margin-bottom:10px;">%s</div>'
-        , implode(' / ', $topics)
+        '<div style="margin-bottom:10px;">%s</div>',
+        implode(' / ', $topics)
     );
 }
 

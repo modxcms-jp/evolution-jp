@@ -41,11 +41,11 @@ if (is_file($theme_path)) {
 evo()->setPlaceholder('modx_charset', $modx_manager_charset);
 evo()->setPlaceholder('theme', evo()->config('manager_theme'));
 evo()->setPlaceholder('manager_theme', evo()->config('manager_theme'));
-evo()->setPlaceholder('manager_theme_url'
-    , sprintf(
-        '%smedia/style/%s/'
-        , MODX_MANAGER_URL
-        , evo()->config('manager_theme')
+evo()->setPlaceholder('manager_theme_url',
+    sprintf(
+        '%smedia/style/%s/',
+        MODX_MANAGER_URL,
+        evo()->config('manager_theme')
     )
 );
 
@@ -79,49 +79,49 @@ if (installGoingOn()) {
         2 => $_lang['login_cancelled_site_was_updated']
     ];
     evo()->setPlaceholder(
-        'login_message'
-        , sprintf(
-            '<p><span class="fail">%s</span>span></p><p>%s</p>'
-            , $login_message[installGoingOn()]
-            , $_lang['login_message']
+        'login_message',
+        sprintf(
+            '<p><span class="fail">%s</span>span></p><p>%s</p>',
+            $login_message[installGoingOn()],
+            $_lang['login_message']
         )
     );
 }
 
 if (evo()->config('use_captcha') == 1) {
     evo()->setPlaceholder(
-        'login_captcha_message'
-        , sprintf(
-            '<p style="margin-top:10px;">%s</p>'
-            , $_lang["login_captcha_message"]
+        'login_captcha_message',
+        sprintf(
+            '<p style="margin-top:10px;">%s</p>',
+            $_lang["login_captcha_message"]
         )
     );
     $captcha_image = sprintf(
-        '<img id="captcha_image" src="../index.php?get=captcha" alt="%s" />'
-        , $_lang["login_captcha_message"]
+        '<img id="captcha_image" src="../index.php?get=captcha" alt="%s" />',
+        $_lang["login_captcha_message"]
     );
     $captcha_image = sprintf(
-        '<a href="%s" class="loginCaptcha">%s</a>'
-        , MODX_MANAGER_URL
-        , $captcha_image
+        '<a href="%s" class="loginCaptcha">%s</a>',
+        MODX_MANAGER_URL,
+        $captcha_image
     );
     evo()->setPlaceholder('captcha_image', "<div>" . $captcha_image . "</div>");
     evo()->setPlaceholder(
-        'captcha_input'
-        , sprintf(
-            '<label>%s<input type="text" class="text" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" /></label>'
-            , $_lang["captcha_code"]
+        'captcha_input',
+        sprintf(
+            '<label>%s<input type="text" class="text" name="captcha_code" tabindex="3" value="" autocomplete="off" style="margin-bottom:8px;" /></label>',
+            $_lang["captcha_code"]
         )
     );
 }
 
 // login info
 evo()->setPlaceholder(
-    'uid'
-    , preg_replace(
-        '/[^a-zA-Z0-9\-_@.]*/'
-        , ''
-        , evo()->input_cookie('modx_remember_manager', '')
+    'uid',
+    preg_replace(
+        '/[^a-zA-Z0-9\-_@.]*/',
+        '',
+        evo()->input_cookie('modx_remember_manager', '')
     )
 );
 evo()->setPlaceholder('username', $_lang["username"]);
@@ -129,8 +129,8 @@ evo()->setPlaceholder('password', $_lang["password"]);
 
 // remember me
 evo()->setPlaceholder(
-    'remember_me'
-    , cookiev('modx_remember_manager') ? 'checked="checked"' : ''
+    'remember_me',
+    cookiev('modx_remember_manager') ? 'checked="checked"' : ''
 );
 evo()->setPlaceholder('remember_username', $_lang["remember_username"]);
 evo()->setPlaceholder('login_button', $_lang["login_button"]);
@@ -138,11 +138,11 @@ evo()->setPlaceholder('login_button', $_lang["login_button"]);
 $loginTplOutput = loadLoginTpl($tpl);
 $evtOut = evo()->invokeEvent('OnManagerLoginFormRender');
 evo()->setPlaceholder(
-    'OnManagerLoginFormRender'
-    , is_array($evtOut)
+    'OnManagerLoginFormRender',
+    is_array($evtOut)
     ? sprintf(
-        '<div id="onManagerLoginFormRender">%s</div>'
-        , implode('', $evtOut)
+        '<div id="onManagerLoginFormRender">%s</div>',
+        implode('', $evtOut)
     )
     : ''
 );

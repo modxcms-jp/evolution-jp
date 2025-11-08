@@ -43,9 +43,9 @@ function setStandBy($docid, $pub_date)
         [
             'pub_date' => $pub_date,
             'status' => 'standby'
-        ]
-        , '[+prefix+]site_revision'
-        , sprintf("elmid='%s'", $docid)
+        ],
+        '[+prefix+]site_revision',
+        sprintf("elmid='%s'", $docid)
     );
     return 'set_standby';
 }
@@ -54,19 +54,19 @@ function publishDraft($docid)
 {
     evo()->loadExtension('DocAPI');
     $rs = db()->select(
-        '*'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $docid)
+        '*',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $docid)
     );
     $documentObject = db()->getRow($rs);
     $draft = evo()->revision->getDraft($docid);
     $draft['published'] = $documentObject['published'];
     evo()->doc->update($draft, $docid);
     db()->delete(
-        '[+prefix+]site_revision'
-        , sprintf(
-            "( status='draft' OR status='standby' ) AND elmid='%s'"
-            , $docid
+        '[+prefix+]site_revision',
+        sprintf(
+            "( status='draft' OR status='standby' ) AND elmid='%s'",
+            $docid
         )
     );
 

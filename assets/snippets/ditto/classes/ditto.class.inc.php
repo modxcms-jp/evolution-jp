@@ -350,9 +350,9 @@ class ditto
         if ($removeChunk) {
             foreach ($removeChunk as $chunk) {
                 $output = str_replace(
-                    ['{{' . $chunk . '}}', evo()->getChunk($chunk)]
-                    , ''
-                    , $output
+                    ['{{' . $chunk . '}}', evo()->getChunk($chunk)],
+                    '',
+                    $output
                 );
                 // remove chunk that is not wanted
             }
@@ -698,8 +698,8 @@ class ditto
                 $resource = $this->multiSort($resource, $orderBy);
             } elseif (event()->param('documents') && !event()->param('orderBy')) {
                 $resource = $this->unsort(
-                    $resource
-                    , event()->param('documents')
+                    $resource,
+                    event()->param('documents')
                 );
             }
             if ($orderBy['custom'] ?? null) {
@@ -815,17 +815,17 @@ class ditto
     function appendTV($tvname = '', $docIDs=[])
     {
         $rs = db()->select(
-            'stv.*, stc.*'
-            , [
+            'stv.*, stc.*',
+            [
                 '[+prefix+]site_tmplvar_contentvalues stc',
                 'LEFT JOIN [+prefix+]site_tmplvars stv ON stv.id=stc.tmplvarid'
-            ]
-            , sprintf(
-                "stv.name='%s' AND stc.contentid IN (%s)"
-                , $tvname
-                , implode(',', $docIDs)
-            )
-            , 'stc.contentid ASC'
+            ],
+            sprintf(
+                "stv.name='%s' AND stc.contentid IN (%s)",
+                $tvname,
+                implode(',', $docIDs)
+            ),
+            'stc.contentid ASC'
         );
         $total = db()->count($rs);
         $docs = [];
@@ -840,11 +840,11 @@ class ditto
         }
 
         $rs = db()->select(
-            '*'
-            , '[+prefix+]site_tmplvars'
-            , sprintf("name='%s'", $tvname)
-            , ''
-            , 1
+            '*',
+            '[+prefix+]site_tmplvars',
+            sprintf("name='%s'", $tvname),
+            '',
+            1
         );
         $row = @db()->getRow($rs);
         if (strtoupper($row['default_text']) === '@INHERIT') {
@@ -1024,8 +1024,8 @@ class ditto
         if ($TVs) {
             foreach ($TVs as $tv) {
                 $TVData = $this->array_merge_recursive(
-                    $this->appendTV($tv, $TVIDs)
-                    , $TVData
+                    $this->appendTV($tv, $TVIDs),
+                    $TVData
                 );
             }
         }
@@ -1068,13 +1068,13 @@ class ditto
             $where[] = 'AND sc.deleted=0';
             if (evo()->isFrontend()) {
                 $where[] = sprintf(
-                    'AND (sc.privateweb=0 OR dg.document_group IN (%s))'
-                    , implode(',', $docGroup)
+                    'AND (sc.privateweb=0 OR dg.document_group IN (%s))',
+                    implode(',', $docGroup)
                 );
             } elseif ($_SESSION['mgrRole'] != 1) {
                 $where[] = sprintf(
-                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
-                    , implode(',', $docGroup)
+                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
+                    implode(',', $docGroup)
                 );
             }
             if ($published) {
@@ -1082,9 +1082,9 @@ class ditto
             }
             $where[] = 'GROUP BY sc.id';
             $rs = db()->select(
-                'DISTINCT sc.id'
-                , '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id'
-                , $where
+                'DISTINCT sc.id',
+                '[+prefix+]site_content sc LEFT JOIN [+prefix+]document_groups dg on dg.document=sc.id',
+                $where
             );
         } else {
             $where[] = sprintf('id IN (%s)', implode(',', $ids));
@@ -1099,9 +1099,9 @@ class ditto
             }
             $where[] = 'GROUP BY id';
             $rs = db()->select(
-                'DISTINCT id'
-                , '[+prefix+]site_content'
-                , $where
+                'DISTINCT id',
+                '[+prefix+]site_content',
+                $where
             );
         }
 
@@ -1305,13 +1305,13 @@ class ditto
             if ($inc == $start) {
                 evo()->setPlaceholder($dittoID . 'currentPage', $display);
                 $pages[] = evo()->parseText(
-                    $tplPaginateCurrentPage
-                    , ['page' => $display]
+                    $tplPaginateCurrentPage,
+                    ['page' => $display]
                 );
             } else {
                 $pages[] = evo()->parseText(
-                    $tplPaginatePage
-                    , [
+                    $tplPaginatePage,
+                    [
                         'url' => self::buildURL('start=' . $inc),
                         'page' => $display
                     ]
@@ -1328,8 +1328,8 @@ class ditto
                     'previous' => $previousplaceholder,
                     'prev' => $previousplaceholder,
                     'pages' => implode("\n", $pages)
-                ]
-                , $dittoID
+                ],
+                $dittoID
             );
         }
         evo()->toPlaceholders(
@@ -1342,8 +1342,8 @@ class ditto
                 'perPage', $summarize,
                 'totalPages' => $totalpages,
                 'ditto_pagination_set' => true
-            ]
-            , $dittoID
+            ],
+            $dittoID
         );
     }
 

@@ -124,8 +124,8 @@ function includeJs($url, $output_type = 'js')
 
     if ($output_type === 'js') {
         return sprintf(
-            'jQuery("head").append(\' <script src="%s" type="text/javascript"></scr\'+\'ipt> \');' . "\n"
-            , $url);
+            'jQuery("head").append(\' <script src="%s" type="text/javascript"></scr\'+\'ipt> \');' . "\n",
+            $url);
     }
     if ($output_type === 'html') {
         return sprintf('<script src="%s" type="text/javascript"></script>' . "\n", $url);
@@ -140,14 +140,14 @@ function includeCss($url, $output_type = 'js')
 {
     if ($output_type === 'js') {
         return sprintf(
-            '$j("head").append(\' <link href="%s" rel="stylesheet" type="text/css" /> \');' . "\n"
-            , $url
+            '$j("head").append(\' <link href="%s" rel="stylesheet" type="text/css" /> \');' . "\n",
+            $url
         );
     }
     if ($output_type === 'html') {
         return sprintf(
-            '<link href="%s" rel="stylesheet" type="text/css" />' . "\n"
-            , $url);
+            '<link href="%s" rel="stylesheet" type="text/css" />' . "\n",
+            $url);
     }
     return '';
 }

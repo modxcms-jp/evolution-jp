@@ -20,8 +20,8 @@ if ($modx->input_get('tok') !== md5(session_id())) {
 
 $modx->updatePublishStatus();
 db()->update(
-    "lasthit=" . request_time()
-    , '[+prefix+]active_users'
-    , "internalKey='" . $_SESSION['mgrInternalKey'] . "'"
+    "lasthit=" . request_time(),
+    '[+prefix+]active_users',
+    "internalKey='" . $_SESSION['mgrInternalKey'] . "'"
 );
 echo '{"status":"ok"}';

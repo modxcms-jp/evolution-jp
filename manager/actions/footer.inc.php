@@ -7,8 +7,8 @@ if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) 
 if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88]))
     echo manager()->loadDatePicker(
         $modx->config(
-            'mgr_date_picker_path'
-            , 'media/script/air-datepicker/datepicker.inc.php'
+            'mgr_date_picker_path',
+            'media/script/air-datepicker/datepicker.inc.php'
         )
     );
 ?>

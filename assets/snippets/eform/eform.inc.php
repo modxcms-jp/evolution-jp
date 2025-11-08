@@ -187,8 +187,8 @@ function eForm($modx, $params)
     if (!preg_match('/<input[^>]*?name=[\'"]formid[\'"]/i', $tpl)) {
         //insert hidden formid field
         $tpl = str_replace('</form>', sprintf(
-            '<input type="hidden" name="formid" value="%s" /></form>'
-            , $formid
+            '<input type="hidden" name="formid" value="%s" /></form>',
+            $formid
         ), $tpl);
     }
 
@@ -685,14 +685,14 @@ function eForm($modx, $params)
 
             if ($isDebug) {
                 $debugText .= sprintf(
-                    '<strong>Mail Headers:</strong><br />From: %s (%s)<br />Reply-to:%s<br />To: %s<br />Subject: %s<br />CC: %s<br /> BCC:%s<br />'
-                    , $from
-                    , $fromname
-                    , $replyto
-                    , $to
-                    , $subject
-                    , $cc
-                    , $bcc
+                    '<strong>Mail Headers:</strong><br />From: %s (%s)<br />Reply-to:%s<br />To: %s<br />Subject: %s<br />CC: %s<br /> BCC:%s<br />',
+                    $from,
+                    $fromname,
+                    $replyto,
+                    $to,
+                    $subject,
+                    $cc,
+                    $bcc
                 );
                 if ($isDebug > 1) {
                     $debugText .= "<br /><strong>Formats array:</strong><pre>" . var_export($formats, true) . '</pre>';
@@ -824,46 +824,46 @@ function formMerge($docText, $docFields, $vClasses = '')
                 if ($datatype === 'listbox' && in_array($listValue, $docFields[$listName])) {
                     $docText = str_replace(
                         sprintf(
-                            '[+%s:%s+]'
-                            , $listName
-                            , $listValue
-                        )
-                        , "selected='selected'"
-                        , $docText
+                            '[+%s:%s+]',
+                            $listName,
+                            $listValue
+                        ),
+                        "selected='selected'",
+                        $docText
                     );
                 }
                 if (in_array($datatype, ['checkbox', 'radio']) && in_array($listValue, $docFields[$listName])) {
                     $docText = str_replace(
                         sprintf(
-                            '[+%s:%s+]'
-                            , $listName
-                            , $listValue
-                        )
-                        , "checked='checked'"
-                        , $docText
+                            '[+%s:%s+]',
+                            $listName,
+                            $listValue
+                        ),
+                        "checked='checked'",
+                        $docText
                     );
                 }
             } else {
                 if ($datatype === 'listbox' && isset($docFields[$listName]) && $listValue == $docFields[$listName]) {
                     $docText = str_replace(
                         sprintf(
-                            '[+%s:%s+]'
-                            , $listName
-                            , $listValue
-                        )
-                        , "selected='selected'"
-                        , $docText
+                            '[+%s:%s+]',
+                            $listName,
+                            $listValue
+                        ),
+                        "selected='selected'",
+                        $docText
                     );
                 }
                 if (in_array($datatype, ['checkbox', 'radio']) && $listValue == $docFields[$listName]) {
                     $docText = str_replace(
                         sprintf(
-                            '[+%s:%s+]'
-                            , $listName
-                            , $listValue
-                        )
-                        , "checked='checked'"
-                        , $docText
+                            '[+%s:%s+]',
+                            $listName,
+                            $listValue
+                        ),
+                        "checked='checked'",
+                        $docText
                     );
                 }
             }
@@ -1124,11 +1124,11 @@ function buildTagPlaceholder($tag, $attributes, $name)
                 case 'radio':
                 case 'checkbox':
                     return sprintf(
-                        '<input%s value=%s [+%s:%s+] />'
-                        , $t
-                        , $quotedValue
-                        , $name
-                        , $val
+                        '<input%s value=%s [+%s:%s+] />',
+                        $t,
+                        $quotedValue,
+                        $name,
+                        $val
                     );
                 case 'text':
                     if ($name == 'vericode') {

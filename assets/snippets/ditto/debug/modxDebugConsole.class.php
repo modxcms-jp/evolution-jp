@@ -128,9 +128,9 @@ class modxDebugConsole
         global $modx;
         $value = (strpos($value, '<') !== false) ? '<pre>' . htmlentities($value, ENT_NOQUOTES, $modx->config['modx_charset']) . '</pre>' : $value;
         $value = str_replace(
-            ['[', ']', '{', '}']
-            , ['&#091;', '&#093;', '&#123;', '&#125;']
-            , $value
+            ['[', ']', '{', '}'],
+            ['&#091;', '&#093;', '&#123;', '&#125;'],
+            $value
         );
         return $value;
     }

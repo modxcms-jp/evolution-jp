@@ -87,10 +87,10 @@
                 <?php
                 foreach ($_country_lang as $key => $country) {
                     echo sprintf(
-                        '<option value="%s"%s>%s</option>'
-                        , $key
-                        , selected(isset($chosenCountry) && $chosenCountry == $key)
-                        , $country
+                        '<option value="%s"%s>%s</option>',
+                        $key,
+                        selected(isset($chosenCountry) && $chosenCountry == $key),
+                        $country
                     );
                 }
                 ?>

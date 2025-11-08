@@ -28,9 +28,9 @@ $modx->clearCache();
 // finish cloning - redirect
 $pid = db()->getValue(
     db()->select(
-        'parent'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $newid)
+        'parent',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $newid)
     )
 );
 if ($pid == 0) {
@@ -52,18 +52,18 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
 
     // Grab the original document
     $rs = db()->select(
-        '*'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $docid)
+        '*',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $docid)
     );
     $content = db()->getRow($rs);
 
     // Once we've grabbed the document object, start doing some modifications
     if ($_toplevel == 0 && $reset_alias === true) {
         $content['pagetitle'] = str_replace(
-            '[+title+]'
-            , $content['pagetitle']
-            , $_lang['duplicate_title_string']
+            '[+title+]',
+            $content['pagetitle'],
+            $_lang['duplicate_title_string']
         );
         $content['alias'] = null;
     } elseif (
@@ -99,9 +99,9 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     if ($_toplevel == 0 && evo()->config('auto_menuindex') === '1') {
         $content['menuindex'] = db()->getValue(
                 db()->select(
-                    'max(menuindex)'
-                    , '[+prefix+]site_content'
-                    , "parent='" . (int)$content['parent'] . "'"
+                    'max(menuindex)',
+                    '[+prefix+]site_content',
+                    "parent='" . (int)$content['parent'] . "'"
                 )
             ) + 1;
     }
@@ -115,8 +115,8 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
     }
 
     $new_id = db()->insert(
-        db()->escape($content)
-        , '[+prefix+]site_content'
+        db()->escape($content),
+        '[+prefix+]site_content'
     );
 
     duplicateTVs($docid, $new_id);
@@ -131,19 +131,19 @@ function duplicateDocument($docid, $parent = null, $_toplevel = 0, $reset_alias 
 
     // Start duplicating all the child documents that aren't deleted.
     $rs = db()->select(
-        'id'
-        , '[+prefix+]site_content'
-        , "parent='" . $docid . "' AND deleted=0"
-        , 'id ASC'
+        'id',
+        '[+prefix+]site_content',
+        "parent='" . $docid . "' AND deleted=0",
+        'id ASC'
     );
     if (db()->count($rs)) {
         $_toplevel++;
         while ($row = db()->getRow($rs)) {
             duplicateDocument(
-                $row['id']
-                , $new_id
-                , $_toplevel
-                , $reset_alias === false
+                $row['id'],
+                $new_id,
+                $_toplevel,
+                $reset_alias === false
             );
         }
     }
@@ -156,11 +156,11 @@ function duplicateTVs($oldid, $newid)
 {
     $tbltvc = evo()->getFullTableName('site_tmplvar_contentvalues');
     db()->insert(
-        'contentid,tmplvarid,value'
-        , $tbltvc
-        , $newid . ",tmplvarid,value"
-        , $tbltvc
-        , "contentid='" . $oldid . "'"
+        'contentid,tmplvarid,value',
+        $tbltvc,
+        $newid . ",tmplvarid,value",
+        $tbltvc,
+        "contentid='" . $oldid . "'"
     );
 }
 
@@ -169,10 +169,10 @@ function duplicateAccess($oldid, $newid)
 {
     $tbldg = evo()->getFullTableName('document_groups');
     db()->insert(
-        'document,document_group'
-        , $tbldg
-        , $newid . ",document_group"
-        , $tbldg
-        , "document='" . $oldid . "'"
+        'document,document_group',
+        $tbldg,
+        $newid . ",document_group",
+        $tbldg,
+        "document='" . $oldid . "'"
     );
 }

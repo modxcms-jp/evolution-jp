@@ -40,10 +40,10 @@ function fieldDraftPub_date($docid)
 
     //statusはdraft/standbyでも気にしない
     $rs = db()->select(
-        'pub_date'
-        , '[+prefix+]site_revision'
-        , sprintf("(status='draft') AND element='resource' AND elmid='%s'"
-        , $docid
+        'pub_date',
+        '[+prefix+]site_revision',
+        sprintf("(status='draft') AND element='resource' AND elmid='%s'",
+        $docid
     ),
         1
     );

@@ -77,9 +77,9 @@ class Wayfinder
                 $wrapper_text = sprintf('[+wf.wrapper.%s+]', $parentId);
                 if (strpos($output, $wrapper_text) !== false) {
                     $output = str_replace(
-                        $wrapper_text
-                        , $subMenu
-                        , $output
+                        $wrapper_text,
+                        $subMenu,
+                        $output
                     );
                 }
             }
@@ -295,26 +295,26 @@ class Wayfinder
                 $resource['-'] = '';
             }
             $this->addDebugInfo(
-                'row'
-                , sprintf(
-                    '%s:%s'
-                    , $resource['parent']
-                    , $resource['id']
-                )
-                , "Doc: #{$resource['id']}"
-                , 'The following fields were used when processing this document.'
-                , $debugDocInfo
+                'row',
+                sprintf(
+                    '%s:%s',
+                    $resource['parent'],
+                    $resource['id']
+                ),
+                "Doc: #{$resource['id']}",
+                'The following fields were used when processing this document.',
+                $debugDocInfo
             );
             $this->addDebugInfo(
-                'rowdata'
-                , sprintf(
-                    '%s:%s'
-                    , $resource['parent']
-                    , $resource['id']
-                )
-                , "Doc: #{$resource['id']}"
-                , 'The following fields were retrieved from the database for this document.'
-                , $resource
+                'rowdata',
+                sprintf(
+                    '%s:%s',
+                    $resource['parent'],
+                    $resource['id']
+                ),
+                "Doc: #{$resource['id']}",
+                'The following fields were retrieved from the database for this document.',
+                $resource
             );
         }
         //Process the row
@@ -438,8 +438,8 @@ class Wayfinder
 
         if (!$this->_config['hideSubMenus']) {
             $ids = $modx->getChildIds(
-                $this->_config['id']
-                , $this->_config['level'] ?: 10
+                $this->_config['id'],
+                $this->_config['level'] ?: 10
             );
         } else {
             $ids = $modx->getChildIds($this->_config['id'], 1, $ids);
@@ -452,9 +452,9 @@ class Wayfinder
 
                 //remove parents lower than level of startId + level depth
                 $parents = array_slice(
-                    array_reverse($parents)
-                    , 0
-                    , ($this->_config['level'] ?: 10) - 1);
+                    array_reverse($parents),
+                    0,
+                    ($this->_config['level'] ?: 10) - 1);
 
                 foreach ($parents as $p) {
                     $ids += $modx->getChildIds($p, 1, $ids);
@@ -484,8 +484,8 @@ class Wayfinder
         } elseif ($_SESSION['mgrRole'] != 1) {
             if ($modx->getUserDocGroups()) {
                 $where[] = sprintf(
-                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))'
-                    , implode(',', $modx->getUserDocGroups()
+                    'AND (sc.privatemgr=0 OR dg.document_group IN (%s))',
+                    implode(',', $modx->getUserDocGroups()
                     )
                 );
             } else {
@@ -501,30 +501,30 @@ class Wayfinder
         //add the include docs to the where clause
         if ($this->_config['includeDocs']) {
             $where[] = sprintf(
-                'AND sc.id IN (%s)'
-                , $this->_config['includeDocs']
+                'AND sc.id IN (%s)',
+                $this->_config['includeDocs']
             );
         }
 
         //add the exclude docs to the where clause
         if ($this->_config['excludeDocs']) {
             $where[] = sprintf(
-                'AND (sc.id NOT IN (%s))'
-                , $this->_config['excludeDocs']
+                'AND (sc.id NOT IN (%s))',
+                $this->_config['excludeDocs']
             );
         }
 
         //add custom where conditions
         if (!empty($this->_config['where'])) {
             $where[] = sprintf(
-                'AND (%s)'
-                , $this->_config['where']
+                'AND (%s)',
+                $this->_config['where']
             );
         }
 
         $where[] = sprintf(
-            'AND sc.id IN (%s)'
-            , implode(',', $ids)
+            'AND sc.id IN (%s)',
+            implode(',', $ids)
         );
         $where[] = 'GROUP BY sc.id';
 
@@ -550,11 +550,11 @@ class Wayfinder
         }
 
         $result = db()->select(
-            'DISTINCT ' . implode(',', $fields)
-            , $from
-            , $where
-            , $sort
-            , $this->_config['limit'] ? $this->_config['limit'] : ''
+            'DISTINCT ' . implode(',', $fields),
+            $from,
+            $where,
+            $sort,
+            $this->_config['limit'] ? $this->_config['limit'] : ''
         );
 
         $level = 1;
@@ -709,11 +709,11 @@ class Wayfinder
                 $this->_templates[$name] = isset($default[$name]) ? $default[$name] : false;
                 if ($this->_config['debug']) {
                     $this->addDebugInfo(
-                        'template'
-                        , $name
-                        , $name
-                        , 'No template found, using default.'
-                        , [$name => $this->_templates[$name]]
+                        'template',
+                        $name,
+                        $name,
+                        'No template found, using default.',
+                        [$name => $this->_templates[$name]]
                     );
                 }
                 continue;
@@ -727,11 +727,11 @@ class Wayfinder
 
             if ($this->_config['debug']) {
                 $this->addDebugInfo(
-                    'template'
-                    , $name
-                    , $name
-                    , 'Template Found.'
-                    , [$name => $this->_templates[$name]]
+                    'template',
+                    $name,
+                    $name,
+                    'Template Found.',
+                    [$name => $this->_templates[$name]]
                 );
             }
         }
@@ -747,11 +747,11 @@ class Wayfinder
             }
             if ($this->_config['debug']) {
                 $this->addDebugInfo(
-                    'tvars'
-                    , 'tvs'
-                    , 'Template Variables'
-                    , 'The following template variables were found in your templates.'
-                    , $this->tvList
+                    'tvars',
+                    'tvs',
+                    'Template Variables',
+                    'The following template variables were found in your templates.',
+                    $this->tvList
                 );
             }
         }

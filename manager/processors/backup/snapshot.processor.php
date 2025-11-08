@@ -60,15 +60,15 @@ function check_snapshot_path($snapshot_path)
     }
     if (!is_writable(rtrim($snapshot_path, '/'))) {
         echo evo()->parseText(
-            lang('bkmgr_alert_mkdir')
-            , ['snapshot_path' => $snapshot_path]
+            lang('bkmgr_alert_mkdir'),
+            ['snapshot_path' => $snapshot_path]
         );
         exit;
     }
     if (!is_file($snapshot_path . '.htaccess')) {
         file_put_contents(
-            $snapshot_path . '.htaccess'
-            , "order deny,allow\ndeny from all\n"
+            $snapshot_path . '.htaccess',
+            "order deny,allow\ndeny from all\n"
         );
     }
 }
@@ -79,9 +79,9 @@ function filename()
         return postv('file_name');
     }
     $today = str_replace(
-        ['/', ' ', ':']
-        , ['-', '-', '']
-        , strtolower(
+        ['/', ' ', ':'],
+        ['-', '-', ''],
+        strtolower(
             evo()->toDateFormat(request_time())
         )
     );

@@ -17,13 +17,13 @@ if (!is_numeric($id)) {
 }
 
 $ds = db()->select(
-    "el.*, IFNULL(wu.username,mu.username) as 'username'"
-    , [
+    "el.*, IFNULL(wu.username,mu.username) as 'username'",
+    [
         '[+prefix+]event_log el',
         ' LEFT JOIN [+prefix+]manager_users mu ON mu.id=el.user AND el.usertype=0',
         ' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1'
-    ]
-    , sprintf("el.id='%d'", $id)
+    ],
+    sprintf("el.id='%d'", $id)
 );
 if (!$ds) {
     echo "Error while load event log";

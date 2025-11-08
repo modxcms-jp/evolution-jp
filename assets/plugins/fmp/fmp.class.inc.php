@@ -177,8 +177,8 @@ class ForgotManagerPassword
     private function formLink()
     {
         return sprintf(
-            '<a href="?action=show_form" id="ForgotManagerPassword-show_form">%s</a>'
-            , $this->lang('forgot_your_password')
+            '<a href="?action=show_form" id="ForgotManagerPassword-show_form">%s</a>',
+            $this->lang('forgot_your_password')
         );
     }
 
@@ -214,8 +214,8 @@ class ForgotManagerPassword
     private function getForm()
     {
         return evo()->parseText(
-            file_get_contents($this->tpl_path . 'form.tpl')
-            , $this->lang
+            file_get_contents($this->tpl_path . 'form.tpl'),
+            $this->lang
         );
     }
 

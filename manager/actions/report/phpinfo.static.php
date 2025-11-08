@@ -136,18 +136,18 @@ ob_start();
 phpinfo();
 echo str_replace(
     [
-        '<div class="center">'
-    , 'width="600"'
-    , 'src,input'
-    ]
-    , [
-        '<div>'
-    , 'width="90%"'
-    , 'src, input'
-    ]
-    , preg_replace(
-        '@.*<body>(.+)</body>.*@s'
-        , '$1'
-        , ob_get_clean()
+        '<div class="center">',
+    'width="600"',
+    'src,input'
+    ],
+    [
+        '<div>',
+    'width="90%"',
+    'src, input'
+    ],
+    preg_replace(
+        '@.*<body>(.+)</body>.*@s',
+        '$1',
+        ob_get_clean()
     )
 );

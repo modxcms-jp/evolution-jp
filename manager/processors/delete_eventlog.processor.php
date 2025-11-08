@@ -11,8 +11,8 @@ if (getv('cls') == 1) {
     $rs = db()->truncate('[+prefix+]event_log');
 } elseif ((int)getv('id')) {
     $rs = db()->delete(
-        '[+prefix+]event_log'
-        , sprintf("id='%d'", (int)getv('id'))
+        '[+prefix+]event_log',
+        sprintf("id='%d'", (int)getv('id'))
     );
     if ($rs) {
         if (!db()->select('*', '[+prefix+]event_log')) {

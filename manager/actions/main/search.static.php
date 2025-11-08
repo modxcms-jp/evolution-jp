@@ -134,10 +134,10 @@ if (getv('submitok')) {
     }
 
     $rs = db()->select(
-        'id, contenttype, pagetitle, description, deleted, published, isfolder, type'
-        , '[+prefix+]site_content'
-        , implode(' and ', $where)
-        , 'id'
+        'id, contenttype, pagetitle, description, deleted, published, isfolder, type',
+        '[+prefix+]site_content',
+        implode(' and ', $where),
+        'id'
     );
     $limit = db()->count($rs);
     if (evo()->hasPermission('edit_document')) {

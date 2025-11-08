@@ -23,9 +23,9 @@ $filters['custom']['exampleFilter'] = [
 
 $filters['parsed'][] = [
     'exampleFilter' => [
-        'source' => 'id'
-    , 'value' => '9239423942'
-    , 'mode' => '2'
+        'source' => 'id',
+    'value' => '9239423942',
+    'mode' => '2'
     ]
 ];
 // Variable: $filters['parsed'][]

@@ -31,9 +31,9 @@ class SystemEvent
         $alert = [];
         if ($this->name && $this->activePlugin) {
             $alert[] = sprintf(
-                '<div><b>%s</b> - <span style="color:maroon;">%s</span></div>'
-                , $this->activePlugin
-                , $this->name
+                '<div><b>%s</b> - <span style="color:maroon;">%s</span></div>',
+                $this->activePlugin,
+                $this->name
             );
         }
         $alert[] = sprintf('<div style="margin-left:10px;margin-top:3px;">%s</div>', $msg);

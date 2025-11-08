@@ -30,9 +30,9 @@ if (evo()->config('manager_login_startup')) {
 
 // merge placeholders
 echo preg_replace(
-    '@\[\+(.*?)\+]@'
-    , ''
-    , evo()->mergePlaceholderContent(tpl_content())
+    '@\[\+(.*?)\+]@',
+    '',
+    evo()->mergePlaceholderContent(tpl_content())
 );
 exit;
 

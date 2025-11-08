@@ -52,9 +52,9 @@ function mm_default($field, $value = '', $roles = '', $templates = '', $eval = f
                 $new_value = evo()->mb_strftime($date_format . ' %H:%M:%S');
             }
             $output .= sprintf(
-                'jQuery("input[name=%s]").val("%s"); ' . "\n"
-                , $field
-                , jsSafe($new_value)
+                'jQuery("input[name=%s]").val("%s"); ' . "\n",
+                $field,
+                jsSafe($new_value)
             );
             break;
 

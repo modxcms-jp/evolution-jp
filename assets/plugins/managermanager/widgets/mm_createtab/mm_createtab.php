@@ -46,9 +46,9 @@ function mm_createTab($name, $id, $roles = '', $templates = '', $intro = '', $wi
     );
     $output .= sprintf("mm_lastTab = 'tab%s';\n", $id);
     $output .= sprintf(
-        '%s.addTabPage( document.getElementById( "tab%s" ) ); '
-        , (event()->name === 'OnPluginFormRender') ? 'tp' : 'tpSettings'
-        , $id
+        '%s.addTabPage( document.getElementById( "tab%s" ) ); ',
+        (event()->name === 'OnPluginFormRender') ? 'tp' : 'tpSettings',
+        $id
     );
 
     $output .= "//  -------------- mm_createTab :: End ------------- \n";
