@@ -1051,9 +1051,9 @@ a.hometblink:hover {
     flex-wrap: wrap;
     position: fixed;
     top: 33px;
-    bottom: 0;
     left: 0;
     width: 100%;
+    height: calc(100vh - 33px) !important;
     overflow-y: auto;
     overflow-x: hidden;
     border-top: 1px solid rgba(0, 0, 0, 0.3);
