@@ -338,8 +338,7 @@ class DocAPI
     public function initValue($form_v)
     {
         $fields = explode(
-            ','
-            
+            ',',
             'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext'
         );
         if (isset($form_v['ta'])) {
