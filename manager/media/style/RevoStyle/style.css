@@ -271,7 +271,7 @@ hr {
     padding: 0 18px;
     position: absolute;
     right: var(--subnav-horizontal-padding);
-    top: 10px;
+    top: calc(var(--topnav-padding-top, 10px) - 1px);
     z-index: 111;
 }
 
@@ -1031,6 +1031,7 @@ a.hometblink:hover {
     --topnav-gap: 18px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
+    --topnav-padding-top: 10px;
     --topnav-link-color: #A4B8B6;
     --topnav-link-hover-color: #fff;
     --topnav-link-active-bg: #616161;
@@ -1040,7 +1041,7 @@ a.hometblink:hover {
 
 #Navcontainer {
     color: #fff;
-    padding: 10px var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
+    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
 }
 
