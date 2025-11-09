@@ -22,11 +22,10 @@ html, body, form, fieldset {
     --color-accent-green-hover-end: #2d879b;
     --color-accent-green-active-start: #1f5a68;
     --color-accent-green-active-end: #154954;
-    --color-neutral-button-start: #fafafa;
-    --color-neutral-button-end: #d2d2d2;
-    --color-neutral-button-hover-end: #e5e5e5;
-    --color-neutral-button-active-start: #f0f0f0;
-    --color-neutral-button-active-end: #cecece;
+    --color-neutral-button-start: #f1f4f6;
+    --color-neutral-button-hover-end: #e6ecef;
+    --color-neutral-button-active-start: #dbe3e7;
+    --color-neutral-button-border: #b9c4c9;
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
 }
@@ -455,15 +454,18 @@ form select:focus {
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid green;
+    border: 1px solid var(--color-neutral-button-border);
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 5px;
     min-height: 27px;
     padding: 4px 10px;
     overflow: visible;
-    background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    background-color: var(--color-neutral-button-start);
+    color: var(--color-text-primary);
     border-radius: 3px;
+    box-shadow: none;
+    text-shadow: none;
 }
 
 input.checkbox,
@@ -480,8 +482,13 @@ input[type="button"] {
 }
 
 input:is([type="button"], [type="submit"]):hover {
-    border-color: green;
-    background: linear-gradient(#ffffff, #eeeeee);
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
+}
+
+input:is([type="button"], [type="submit"]):active {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
 }
 
 select {
@@ -1608,16 +1615,16 @@ ul.actionButtons {
     border-radius: 2px;
     color: #444;
     font-size: 1em;
-    text-shadow: 0 1px 0 #fff;
     font-weight: 700;
     outline: medium none;
     padding: 4px 10px;
     text-decoration: none;
     vertical-align: top;
     white-space: nowrap;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
+    box-shadow: none;
+    text-shadow: none;
     background-color: var(--color-neutral-button-start);
-    background-image: linear-gradient(var(--color-neutral-button-start), var(--color-neutral-button-end));
+    border: 1px solid var(--color-neutral-button-border);
 }
 
 .actionButtons a img {
@@ -1625,24 +1632,27 @@ ul.actionButtons {
 }
 
 .actionButtons a:hover {
-    border-color: #fff;
-    background-image: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
 }
 
 .actionButtons a:active {
-    border-color: #F0F0F0;
-    background-image: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
 }
 
 .actionButtons a.disabled {
-    border: 1px solid #657587;
+    border: 1px solid var(--color-border-default);
     padding: 2px 4px;
     color: #777;
-    border-width: 0;
+    background-color: var(--color-surface);
+    cursor: default;
+    pointer-events: none;
 }
 
 .actionButtons .opendraft a {
-    background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
+    background-color: var(--color-draft-start);
+    border-color: var(--color-draft-end);
 }
 
 .actionButtons select, .actionButtons span.and {
@@ -1669,19 +1679,22 @@ ul.actionButtons {
 .actionButtons a.primary,
 .actionButtons a.default {
     color: #fff;
-    box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
-    text-shadow: 0 -1px 0 #2B5F0C;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    box-shadow: none;
+    text-shadow: none;
+    background-color: var(--color-accent-green-start);
+    border-color: var(--color-accent-green-end);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-image: linear-gradient(var(--color-accent-green-hover-start), var(--color-accent-green-hover-end));
+    background-color: var(--color-accent-green-hover-start);
+    border-color: var(--color-accent-green-hover-end);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
+    background-color: var(--color-accent-green-active-start);
+    border-color: var(--color-accent-green-active-end);
 }
 
 
