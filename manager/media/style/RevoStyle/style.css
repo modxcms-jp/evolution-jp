@@ -195,6 +195,7 @@ hr {
     margin: 0;
     color: var(--color-text-primary);
     padding: 0 5px;
+    position: relative;
 }
 
 #topbar * {
@@ -254,31 +255,97 @@ hr {
 }
 
 #supplementalNav {
-    background: transparent none repeat scroll 0 0;
-    color: #89939e;
+    align-items: center;
+    background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
+    border-radius: 999px;
+    box-sizing: border-box;
+    color: var(--topnav-link-color);
+    column-gap: var(--topnav-gap);
+    display: flex;
+    font-weight: 500;
+    height: var(--topnav-item-height);
+    line-height: var(--topnav-item-height);
     margin: 0;
+    padding: 0 18px;
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: var(--subnav-horizontal-padding);
+    top: 6px;
     z-index: 111;
 }
 
 .rtl #supplementalNav {
-    float: left;
-}
-
-#supplementalNav * {
-    vertical-align: bottom;
+    flex-direction: row-reverse;
+    left: var(--subnav-horizontal-padding);
+    right: auto;
 }
 
 #supplementalNav a {
+    color: inherit;
+    font-weight: inherit;
+    margin: 0;
     padding: 0;
+    text-decoration: none;
+    transition: color .15s ease;
+}
+
+#supplementalNav a:hover,
+#supplementalNav a:focus-visible {
+    color: var(--topnav-link-hover-color);
+}
+
+#supplementalNav .supplementalNav__item {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#supplementalNav .supplementalNav__item + .supplementalNav__item {
+    padding-left: var(--topnav-gap);
+}
+
+.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
+    border-left: none;
+    border-right: 1px solid rgba(255, 255, 255, .2);
+    margin-left: 0;
+    margin-right: var(--topnav-gap);
+    padding-left: 0;
+    padding-right: var(--topnav-gap);
+}
+
+#supplementalNav .supplementalNav__item--messages {
+    gap: 6px;
+}
+
+#supplementalNav #newMail {
     margin: 0;
 }
 
-#msgCounter, #newMail {
-    margin: 0;
-    padding: 0;
+#supplementalNav #newMail a {
+    align-items: center;
+    display: inline-flex;
+}
+
+#supplementalNav #newMail img {
+    display: block;
+}
+
+#supplementalNav #msgCounter {
+    margin-left: 4px;
+}
+
+.rtl #supplementalNav #msgCounter {
+    margin-left: 0;
+    margin-right: 4px;
+}
+
+#supplementalNav .supplementalNav__version-label {
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+
+#supplementalNav .supplementalNav__version-label--mismatch {
+    color: #ffff8a;
 }
 
 /* -------------------------[ Forms ]--- */
@@ -956,20 +1023,21 @@ a.hometblink:hover {
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
     background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
-}
-
-#Navcontainer {
-    --topnav-item-height: 25px;
-    --topnav-gap: 10px;
-    --subnav-height: 26px;
-    --subnav-horizontal-padding: 10px;
+    --topnav-item-height: 32px;
+    --topnav-gap: 4px;
+    --subnav-height: 32px;
+    --subnav-horizontal-padding: 16px;
+    --topnav-padding-top: 12px;
     --topnav-link-color: #A4B8B6;
     --topnav-link-hover-color: #fff;
     --topnav-link-active-bg: #616161;
     --topnav-link-active-border: #616161;
     --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+}
+
+#Navcontainer {
     color: #fff;
-    padding: 6px var(--subnav-horizontal-padding) var(--subnav-height);
+    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
 }
 
@@ -977,7 +1045,9 @@ a.hometblink:hover {
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
-    gap: var(--topnav-gap);
+    column-gap: var(--topnav-gap);
+    row-gap: 8px;
+    flex-wrap: wrap;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -996,7 +1066,7 @@ a.hometblink:hover {
     color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
-    padding: 0 15px;
+    padding: 0 20px;
     text-decoration: none;
     white-space: nowrap;
     transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
@@ -1022,14 +1092,15 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-item-height) + 6px);
+    top: calc(var(--topnav-item-height) + 11px);
     margin: 0;
     list-style: none;
-    padding: 0 var(--subnav-horizontal-padding);
+    padding: 6px var(--subnav-horizontal-padding);
     min-height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--topnav-gap);
+    column-gap: var(--topnav-gap);
+    row-gap: 6px;
     border-top: 1px solid #888;
     border-bottom: 1px solid #eee;
     background-color: var(--color-nav-subnav-start);

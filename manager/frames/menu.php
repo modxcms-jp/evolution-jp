@@ -213,24 +213,45 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
             <div id="supplementalNav">
                 <?php
-                $login_name = $modx->getLoginUserName();
+                $charset = $modx_manager_charset;
+                $supplementalNavItems = [];
+
+                $loginName = htmlspecialchars($modx->getLoginUserName(), ENT_QUOTES, $charset);
                 if (evo()->hasPermission('change_password')) {
-                    echo "<a href=\"index.php?a=74\" target=\"main\">{$login_name}</a>";
+                    $loginMarkup = sprintf('<a href="index.php?a=74" target="main">%s</a>', $loginName);
                 } else {
-                    echo $login_name;
+                    $loginMarkup = $loginName;
                 }
-                ?>
-                <?php if (evo()->hasPermission('messages')) { ?>
-                    | <span id="newMail"><a href="index.php?a=10" title="<?= $_lang['you_got_mail'] ?>"
-                                            target="main"> <img src="<?= $_style['icons_mail'] ?>"/></a></span>
-                    <a onclick="this.blur();" href="index.php?a=10" target="main"><?= $_lang['messages'] ?> <span
-                            id="msgCounter">( ? / ? )</span></a>
-                <?php }
-                if (evo()->hasPermission('help')) { ?>
-                    | <a href="index.php?a=9" target="main"><?= $_lang['help'] ?></a>
-                <?php } ?>
-                | <a href="index.php?a=8" target="_top"><?= $_lang['logout'] ?></a>
-                <?php
+                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--user">%s</span>', $loginMarkup);
+
+                if (evo()->hasPermission('messages')) {
+                    $messagesLabel = htmlspecialchars($_lang['messages'], ENT_QUOTES, $charset);
+                    $mailTooltip = htmlspecialchars($_lang['you_got_mail'], ENT_QUOTES, $charset);
+                    $mailIcon = sprintf(
+                        '<span id="newMail"><a href="index.php?a=10" title="%s" target="main"><img src="%s" alt="%s" /></a></span>',
+                        $mailTooltip,
+                        htmlspecialchars($_style['icons_mail'], ENT_QUOTES, $charset),
+                        $messagesLabel
+                    );
+                    $messagesLink = sprintf(
+                        '<a onclick="this.blur();" href="index.php?a=10" target="main">%s <span id="msgCounter">( ? / ? )</span></a>',
+                        $messagesLabel
+                    );
+                    $supplementalNavItems[] = sprintf(
+                        '<span class="supplementalNav__item supplementalNav__item--messages">%s%s</span>',
+                        $mailIcon,
+                        $messagesLink
+                    );
+                }
+
+                if (evo()->hasPermission('help')) {
+                    $helpLabel = htmlspecialchars($_lang['help'], ENT_QUOTES, $charset);
+                    $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--help"><a href="index.php?a=9" target="main">%s</a></span>', $helpLabel);
+                }
+
+                $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
+                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="index.php?a=8" target="_top">%s</a></span>', $logoutLabel);
+
                 $settings_version = db()->getValue(
                     'setting_value',
                     evo()->getFullTableName('system_settings'),
@@ -239,14 +260,20 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 if (empty($settings_version)) {
                     $settings_version = '0.0.0';
                 }
+                $versionLabelClass = 'supplementalNav__version-label';
+                if ($settings_version != $modx_version) {
+                    $versionLabelClass .= ' supplementalNav__version-label--mismatch';
+                }
+                $versionLabel = htmlspecialchars($settings_version, ENT_QUOTES, $charset);
+                $versionTitle = htmlspecialchars($site_name . ' – ' . $modx_full_appname, ENT_QUOTES, $charset);
+                $supplementalNavItems[] = sprintf(
+                    '<span class="supplementalNav__item supplementalNav__item--version"><span class="%s" title="%s">%s</span></span>',
+                    $versionLabelClass,
+                    $versionTitle,
+                    $versionLabel
+                );
                 ?>
-                |
-                <?= sprintf('<span %s title="%s &ndash; %s">%s</span>&nbsp;',
-                        $settings_version != $modx_version ? 'style="color:#ffff8a;"' : '',
-                        $site_name,
-                        $modx_full_appname,
-                        $settings_version
-                )?>
+                <?= implode("\n                    ", $supplementalNavItems) ?>
                 <!-- close #supplementalNav --></div>
         </div>
     </div>
