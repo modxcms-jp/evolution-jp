@@ -56,11 +56,11 @@ function mm_widget_tags(
         if (strpos($default, '@fix') !== 0) {
             // Get the list of current values for this TV
             $result = db()->select(
-                'value'
-                , '[+prefix+]site_tmplvar_contentvalues'
-                , sprintf(
-                    "tmplvarid IN ('%s')"
-                    , implode(',', $source_tvs[0])
+                'value',
+                '[+prefix+]site_tmplvar_contentvalues',
+                sprintf(
+                    "tmplvarid IN ('%s')",
+                    implode(',', $source_tvs[0])
                 )
             );
             $all_docs = db()->makeArray($result);
@@ -88,18 +88,18 @@ function mm_widget_tags(
         $lis = '';
         foreach ($foundTags as $t => $c) {
             $lis .= sprintf(
-                '<li title="Used %s times">%s%s</li>'
-                , $c
-                , jsSafe($t)
-                , $display_count ? sprintf(' (%s)', $c) : ''
+                '<li title="Used %s times">%s%s</li>',
+                $c,
+                jsSafe($t),
+                $display_count ? sprintf(' (%s)', $c) : ''
             );
         }
 
         $tv_id = $mm_fields[$targetTv]['fieldname'];
         $html_list = sprintf(
-            '<ul class="mmTagList" id="%s_tagList">%s</ul>'
-            , $tv_id
-            , $lis
+            '<ul class="mmTagList" id="%s_tagList">%s</ul>',
+            $tv_id,
+            $lis
         );
 
         // Insert the list of tags after the field
@@ -110,8 +110,8 @@ function mm_widget_tags(
 
         // Initiate the tagCompleter class for this field
         $output .= evo()->parseText(
-                'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); '
-                , [
+                'var [+tv_id+]_tags = new TagCompleter("[+tv_id+]", "[+tv_id+]_tagList", "[+delim+]"); ',
+                [
                     'tv_id' => $tv_id,
                     'delim' => $delimiter
                 ]

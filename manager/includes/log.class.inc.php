@@ -56,8 +56,8 @@ class logHandler
                 'itemid' => $item_id,
                 'itemname' => $this->entry['itemName'],
                 'message' => $this->entry['msg']
-            ])
-            , '[+prefix+]manager_log'
+            ]),
+            '[+prefix+]manager_log'
         );
         if (!$insert_id) {
             $this->logError("Couldn't save log to table! " . db()->getLastError());
@@ -69,9 +69,9 @@ class logHandler
         }
 
         $modx->rotate_log(
-            'manager_log'
-            , (int)$modx->conf_var('manager_log_limit', 2000)
-            , (int)$modx->conf_var('manager_log_trim', 100)
+            'manager_log',
+            (int)$modx->conf_var('manager_log_limit', 2000),
+            (int)$modx->conf_var('manager_log_trim', 100)
         );
     }
 

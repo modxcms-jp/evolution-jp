@@ -58,8 +58,8 @@ class filter
 
         if (stripos($param['value'], '@EVAL') === 0) {
             $eval_code = trim(
-                    substr($param['value'], 6)
-                    , ';'
+                    substr($param['value'], 6),
+                    ';'
                 ) . ';';
             if (strpos($eval_code, 'return') === false) {
                 $eval_code = 'return ' . $eval_code;

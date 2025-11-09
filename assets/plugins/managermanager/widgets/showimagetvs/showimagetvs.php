@@ -27,9 +27,9 @@ function mm_widget_showimagetvs($tvs = '', $w = 300, $h = 100, $thumbnailerUrl =
         if (!$w) $w = 300;
         if (!$h) $h = (int)$w * 0.3;
         $style = sprintf(
-            "'float:left;max-width:%dpx; max-height:%dpx; margin: 4px 0; cursor: pointer;'"
-            , $w
-            , $h
+            "'float:left;max-width:%dpx; max-height:%dpx; margin: 4px 0; cursor: pointer;'",
+            $w,
+            $h
         );
     } else {
         $style = '';
@@ -90,8 +90,8 @@ jQuery("#tv[+id+]").addClass("imageField").bind("change load", function(){
 
         if ($thumbnailerUrl) {
             $output .= evo()->parseText(
-                'url = "%s?src="+escape(url)+"&w=%d&h=%d";' . "\n"
-                , $ph
+                'url = "%s?src="+escape(url)+"&w=%d&h=%d";' . "\n",
+                $ph
             );
         }
         $ph['style'] = $style;

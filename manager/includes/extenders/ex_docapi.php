@@ -41,9 +41,9 @@ class DocAPI
         }
         if (preg_match('@^[1-9][0-9]*$@', array_get($fields, 'doc.parent', 0))) {
             db()->update(
-                ['isfolder' => 1]
-                , '[+prefix+]site_content'
-                , sprintf("id='%s'", array_get($fields, 'doc.parent')));
+                ['isfolder' => 1],
+                '[+prefix+]site_content',
+                sprintf("id='%s'", array_get($fields, 'doc.parent')));
         }
 
         if (!empty($fields['tv'])) {
@@ -55,8 +55,8 @@ class DocAPI
         if ($groups) {
             foreach ($groups as $group) {
                 db()->insert(
-                    ['document_group' => $group, 'document' => $id]
-                    , '[+prefix+]document_groups'
+                    ['document_group' => $group, 'document' => $id],
+                    '[+prefix+]document_groups'
                 );
             }
         }
@@ -92,9 +92,9 @@ class DocAPI
             $rs = db()->update(
                 db()->escape(
                     $fields['doc']
-                )
-                , '[+prefix+]site_content'
-                , sprintf("%s `id`='%d'", $where, $docid)
+                ),
+                '[+prefix+]site_content',
+                sprintf("%s `id`='%d'", $where, $docid)
             );
         }
         if (!empty($fields['tv'])) {
@@ -230,13 +230,13 @@ class DocAPI
                     'tv_name' => 'var.name',
                     'tv_id' => 'tt.tmplvarid',
                     'template_id' => 'doc.template'
-                ]
-                , [
+                ],
+                [
                     '[+prefix+]site_content doc',
                     'left join [+prefix+]site_tmplvar_templates tt on tt.templateid=doc.template',
                     'left join [+prefix+]site_tmplvars var on var.id=tt.tmplvarid'
-                ]
-                , sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
+                ],
+                sprintf("doc.id='%s' and tt.tmplvarid is not null", $doc_id)
             );
             while ($row = db()->getRow($rs)) {
                 $tv[$row['doc_id']][$row['tv_name']] = $row;
@@ -249,12 +249,12 @@ class DocAPI
             db()->update(
                 [
                     'value' => db()->escape($value)
-                ]
-                , '[+prefix+]site_tmplvar_contentvalues'
-                , sprintf(
-                    "tmplvarid='%s' AND contentid='%s'"
-                    , $tv[$doc_id][$name]['tv_id']
-                    , $doc_id
+                ],
+                '[+prefix+]site_tmplvar_contentvalues',
+                sprintf(
+                    "tmplvarid='%s' AND contentid='%s'",
+                    $tv[$doc_id][$name]['tv_id'],
+                    $doc_id
                 )
             );
             return;
@@ -264,8 +264,8 @@ class DocAPI
                 'tmplvarid' => $tv[$doc_id][$name]['tv_id'],
                 'contentid' => $doc_id,
                 'value' => db()->escape($value)
-            ]
-            , '[+prefix+]site_tmplvar_contentvalues'
+            ],
+            '[+prefix+]site_tmplvar_contentvalues'
         );
     }
 
@@ -290,12 +290,12 @@ class DocAPI
     private function hasTmplvar($tmplvarid, $doc_id)
     {
         $rs = db()->select(
-            '*'
-            , '[+prefix+]site_tmplvar_contentvalues'
-            , sprintf(
-                "tmplvarid='%s' AND contentid='%s'"
-                , $tmplvarid
-                , $doc_id
+            '*',
+            '[+prefix+]site_tmplvar_contentvalues',
+            sprintf(
+                "tmplvarid='%s' AND contentid='%s'",
+                $tmplvarid,
+                $doc_id
             )
         );
         return db()->count($rs);
@@ -304,12 +304,12 @@ class DocAPI
     private function hasTmplvarRelation($tmplvarid, $template_id)
     {
         $rs = db()->select(
-            '*'
-            , '[+prefix+]site_tmplvar_templates'
-            , sprintf(
-                "tmplvarid='%s' AND templateid='%s'"
-                , db()->escape($tmplvarid)
-                , db()->escape($template_id)
+            '*',
+            '[+prefix+]site_tmplvar_templates',
+            sprintf(
+                "tmplvarid='%s' AND templateid='%s'",
+                db()->escape($tmplvarid),
+                db()->escape($template_id)
             )
         );
         return db()->count($rs) == 1;
@@ -338,8 +338,7 @@ class DocAPI
     public function initValue($form_v)
     {
         $fields = explode(
-            ','
-            ,
+            ',',
             'id,ta,alias,type,contentType,pagetitle,longtitle,description,link_attributes,isfolder,published,pub_date,unpub_date,parent,template,menuindex,searchable,cacheable,editedby,editedon,publishedon,publishedby,richtext,content_dispo,donthit,menutitle,hidemenu,introtext'
         );
         if (isset($form_v['ta'])) {
@@ -424,10 +423,10 @@ class DocAPI
         global $_lang;
 
         $form_v['alias'] = get_alias(
-            array_get($form_v, 'id')
-            , array_get($form_v, 'alias')
-            , array_get($form_v, 'parent')
-            , array_get($form_v, 'pagetitle')
+            array_get($form_v, 'id'),
+            array_get($form_v, 'alias'),
+            array_get($form_v, 'parent'),
+            array_get($form_v, 'pagetitle')
         );
         if ($form_v['type'] !== 'reference' && $form_v['contentType'] !== 'text/html') {
             $form_v['richtext'] = 0;
@@ -529,17 +528,17 @@ class DocAPI
     {
         if (evo()->config['docid_incrmnt_method'] == 1) {
             $rs = db()->select(
-                'MIN(T0.id)+1'
-                , '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id'
-                , 'T1.id IS NULL'
+                'MIN(T0.id)+1',
+                '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id',
+                'T1.id IS NULL'
             );
             return db()->getValue($rs);
         }
 
         if (evo()->config['docid_incrmnt_method'] == 2) {
             $rs = db()->select(
-                'MAX(id)+1'
-                , '[+prefix+]site_content'
+                'MAX(id)+1',
+                '[+prefix+]site_content'
             );
             return db()->getValue($rs);
         }
@@ -586,9 +585,9 @@ class DocAPI
                 continue;
             }
             $form_v[$k] = str_replace(
-                '[*' . $k . '*]'
-                , '[ *' . $k . '* ]'
-                , $v
+                '[*' . $k . '*]',
+                '[ *' . $k . '* ]',
+                $v
             );
         }
         return $form_v;

@@ -52,9 +52,9 @@ function get_lang_options($key = null, $selected_lang = null)
         $lang_options[] = sprintf('<option value="">%s</option>', lang('language_title'));
         foreach ($languages as $language_name) {
             $lang_options[] = sprintf(
-                '<option value="%s">%s</option>'
-                , $language_name
-                , ucwords(str_replace('_', ' ', $language_name))
+                '<option value="%s">%s</option>',
+                $language_name,
+                ucwords(str_replace('_', ' ', $language_name))
             );
         }
         return implode("\n", $lang_options);
@@ -192,25 +192,25 @@ function settings()
     }
     if (setlocale(LC_CTYPE, 0) === 'Japanese_Japan.932') {
         $settings['filemanager_path'] = mb_convert_encoding(
-            $settings['filemanager_path']
-            , 'utf-8'
-            , 'sjis-win'
+            $settings['filemanager_path'],
+            'utf-8',
+            'sjis-win'
         );
         $settings['rb_base_dir'] = mb_convert_encoding(
-            $settings['rb_base_dir']
-            , 'utf-8'
-            , 'sjis-win'
+            $settings['rb_base_dir'],
+            'utf-8',
+            'sjis-win'
         );
     }
     $settings['filemanager_path'] = preg_replace(
-        '@^' . MODX_BASE_PATH . '@'
-        , '[(base_path)]'
-        , $settings['filemanager_path']
+        '@^' . MODX_BASE_PATH . '@',
+        '[(base_path)]',
+        $settings['filemanager_path']
     );
     $settings['rb_base_dir'] = preg_replace(
-        '@^' . MODX_BASE_PATH . '@'
-        , '[(base_path)]'
-        , $settings['rb_base_dir']
+        '@^' . MODX_BASE_PATH . '@',
+        '[(base_path)]',
+        $settings['rb_base_dir']
     );
     if ($_POST) {
         $settings = array_merge($settings, $_POST);

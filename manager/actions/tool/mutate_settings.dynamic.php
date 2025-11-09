@@ -116,8 +116,8 @@ foreach ($dir as $filename) {
 </form>
 <script>
     tpSettings = new WebFXTabPane(
-        document.getElementById("settingsPane")
-        , <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
+        document.getElementById("settingsPane"),
+        <?= evo()->config['remember_last_tab'] == 0 ? 'false' : 'true' ?>
     );
     jQuery('#udPermsOn').change(function () {
         jQuery('.udPerms').slideDown();

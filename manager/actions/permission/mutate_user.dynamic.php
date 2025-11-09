@@ -52,8 +52,8 @@ $usersettings = $user;
 $_country_lang = [];
 include_once(MODX_CORE_PATH . 'lang/country/english_country.inc.php');
 $countries_path = MODX_CORE_PATH . sprintf(
-        'lang/country/%s_country.inc.php'
-        , evo()->config('manager_language')
+        'lang/country/%s_country.inc.php',
+        evo()->config('manager_language')
     );
 if (evo()->config('manager_language') !== 'english' && is_file($countries_path)) {
     include_once $countries_path;

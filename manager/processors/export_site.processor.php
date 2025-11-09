@@ -22,8 +22,8 @@ if (strpos(MODX_BASE_PATH, $export_dir . '/') === 0 && 0 <= strlen(str_replace($
 
 if (config('rb_base_dir') === $export_dir . '/') {
     return evo()->parseText(
-        lang('export_site.static.php7')
-        , 'rb_base_url=' . MODX_BASE_URL . config('rb_base_url')
+        lang('export_site.static.php7'),
+        'rb_base_url=' . MODX_BASE_URL . config('rb_base_url')
     );
 }
 

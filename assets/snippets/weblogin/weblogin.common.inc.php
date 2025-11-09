@@ -29,8 +29,8 @@ function webLoginAlert($msg, $ph = [])
 {
     global $modx;
     return sprintf(
-        '<script>window.setTimeout("alert(\'%s\')",10);</script>'
-        , addslashes(db()->escape(fmplang($msg, $ph)))
+        '<script>window.setTimeout("alert(\'%s\')",10);</script>',
+        addslashes(db()->escape(fmplang($msg, $ph)))
     );
 }
 
@@ -54,8 +54,8 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
     $ph['ufn'] = $ufn;
     $ph['surl'] = MODX_SITE_URL;
     $message = $modx->parseText(
-        sprintf($modx->config['websignupemail_message'], $uid, $pwd)
-        , $ph
+        sprintf($modx->config['websignupemail_message'], $uid, $pwd),
+        $ph
     );
     $emailsubject = $modx->config['emailsubject'];
 

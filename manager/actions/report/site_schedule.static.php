@@ -32,10 +32,10 @@ if (!evo()->hasPermission('view_schedule')) {
     <div class="sectionBody" id="lyr1">
         <?php
         $rs = db()->select(
-            'id, pagetitle, pub_date'
-            , '[+prefix+]site_content'
-            , 'pub_date > ' . request_time()
-            , 'pub_date ASC'
+            'id, pagetitle, pub_date',
+            '[+prefix+]site_content',
+            'pub_date > ' . request_time(),
+            'pub_date ASC'
         );
         $total = db()->count($rs);
         if ($total < 1) {
@@ -83,10 +83,10 @@ if (!evo()->hasPermission('view_schedule')) {
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
         $rs = db()->select(
-            'id, pagetitle, unpub_date'
-            , '[+prefix+]site_content'
-            , 'unpub_date > ' . request_time()
-            , 'unpub_date ASC'
+            'id, pagetitle, unpub_date',
+            '[+prefix+]site_content',
+            'unpub_date > ' . request_time(),
+            'unpub_date ASC'
         );
         $total = db()->count($rs);
         if ($total < 1) {
@@ -128,13 +128,13 @@ if (!evo()->hasPermission('view_schedule')) {
     <div class="sectionBody" id="lyr2"><?php
         //$db->debug = true;
         $rs = db()->select(
-            'rv.*, sc.*, rv.pub_date AS pub_date'
-            , [
+            'rv.*, sc.*, rv.pub_date AS pub_date',
+            [
                 '[+prefix+]site_revision rv',
                 'INNER JOIN [+prefix+]site_content sc ON rv.elmid=sc.id'
-            ]
-            , "0<rv.pub_date AND rv.status='standby' "
-            , 'rv.pub_date ASC'
+            ],
+            "0<rv.pub_date AND rv.status='standby' ",
+            'rv.pub_date ASC'
         );
         $total = db()->count($rs);
         if ($total < 1) {
@@ -168,9 +168,9 @@ if (!evo()->hasPermission('view_schedule')) {
                         <td>
                             <a
                                 href="<?= sprintf(
-                                    '%s?revision=%s'
-                                    , evo()->makeUrl($row['elmid'])
-                                    , $row['version']
+                                    '%s?revision=%s',
+                                    evo()->makeUrl($row['elmid']),
+                                    $row['version']
                                 ); ?>"
                                 target="_blank"
                             >

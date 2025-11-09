@@ -58,8 +58,8 @@ function lang($key, $default = null)
     global $_lang;
     if (!$_lang) {
         include MODX_CORE_PATH . sprintf(
-                'lang/%s.inc.php'
-                , evo()->config('manager_language', 'english')
+                'lang/%s.inc.php',
+                evo()->config('manager_language', 'english')
             );
     }
     return array_get($_lang, $key, $default ? $default : $key);
@@ -271,8 +271,8 @@ function exprintf()
     $args = func_get_args();
     $args[0] = str_replace('@{%([0-9]+)}@', '%$1s', $args[0]);
     return call_user_func_array(
-        'sprintf'
-        , $args
+        'sprintf',
+        $args
     );
 }
 
@@ -517,12 +517,12 @@ function request_time()
 function real_ip()
 {
     return serverv(
-        'http_client_ip'
-        , serverv(
-            'http_x_forwarded_for'
-            , serverv(
-                'remote_addr'
-                , 'UNKNOWN'
+        'http_client_ip',
+        serverv(
+            'http_x_forwarded_for',
+            serverv(
+                'remote_addr',
+                'UNKNOWN'
             )
         )
     );

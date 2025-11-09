@@ -161,11 +161,11 @@ $location = getv('id') ? '10' : '2';
             $pager .= $array_paging['next_link'] . "&gt;&gt;" . (isset($array_paging['next_link']) ? "</a>" : "");
 
             $rs = db()->select(
-                '*'
-                , '[+prefix+]user_messages'
-                , sprintf("recipient='%s'", $uid)
-                , 'postdate DESC'
-                , sprintf('%d, %s', $int_cur_position, $int_num_result)
+                '*',
+                '[+prefix+]user_messages',
+                sprintf("recipient='%s'", $uid),
+                'postdate DESC',
+                sprintf('%d, %s', $int_cur_position, $int_num_result)
             );
             $limit = db()->count($rs);
             if ($limit < 1):

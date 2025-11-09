@@ -5,9 +5,9 @@
     $groupsarray = [];
     if (evo()->input_get('a') == 12) { // only do this bit if the user is being edited
         $rs = db()->select(
-            '*'
-            , '[+prefix+]member_groups'
-            , sprintf("member='%s'", evo()->input_get('id'))
+            '*',
+            '[+prefix+]member_groups',
+            sprintf("member='%s'", evo()->input_get('id'))
         );
         while ($row = db()->getRow($rs)) {
             $groupsarray[] = $row['user_group'];

@@ -30,6 +30,6 @@ $ph['lang_options'] = get_lang_options(lang_name());
 
 echo evo()->parseText(
     file_get_contents(
-        MODX_BASE_PATH . 'install/tpl/mode.tpl')
-    , $ph
+        MODX_BASE_PATH . 'install/tpl/mode.tpl'),
+    $ph
 );

@@ -17,9 +17,9 @@ function run_update($pre_version)
     global $modx_version;
 
     $pre_version = str_replace(
-        ['j', 'rc', '-r']
-        , ['', 'RC', '-']
-        , strtolower($pre_version)
+        ['j', 'rc', '-r'],
+        ['', 'RC', '-'],
+        strtolower($pre_version)
     );
 
     if (version_compare($pre_version, '1.0.5', '<')) {
@@ -106,8 +106,8 @@ function update_config_custom_contenttype()
             continue;
         }
         evo()->regOption(
-            'custom_contenttype'
-            , 'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain,application/json'
+            'custom_contenttype',
+            'application/rss+xml,application/pdf,application/vnd.ms-word,application/vnd.ms-excel,text/html,text/css,text/xml,text/javascript,text/plain,application/json'
         );
     }
 }
@@ -117,16 +117,16 @@ function update_config_default_template_method()
     global $auto_template_logic;
 
     $rs = db()->select(
-        'properties,disabled'
-        , '[+prefix+]site_plugins'
-        , "`name`='Inherit Parent Template' AND disabled=0"
+        'properties,disabled',
+        '[+prefix+]site_plugins',
+        "`name`='Inherit Parent Template' AND disabled=0"
     );
     $row = db()->getRow($rs);
     if ($row) {
         db()->update(
-            "`disabled`='1'"
-            , '[+prefix+]site_plugins'
-            , "`name` IN ('Inherit Parent Template')"
+            "`disabled`='1'",
+            '[+prefix+]site_plugins',
+            "`name` IN ('Inherit Parent Template')"
         );
     }
     if (!$row || !isset(evo()->config['auto_template_logic'])) {
@@ -166,9 +166,9 @@ function update_tbl_user_roles()
             'empty_trash' => '1',
             'remove_locks' => '1',
             'view_schedule' => '1',
-        ]
-        , '[+prefix+]user_roles'
-        , "`save_role`='1'"
+        ],
+        '[+prefix+]user_roles',
+        "`save_role`='1'"
     );
 }
 
@@ -189,8 +189,8 @@ function update_tbl_system_settings()
     $rs = db()->select('*', '[+prefix+]document_groups');
     $use_udperms = (db()->count($rs) == 0) ? '0' : '1';
     evo()->config['use_udperms'] = evo()->regOption(
-        'use_udperms'
-        , $use_udperms
+        'use_udperms',
+        $use_udperms
     );
 }
 
@@ -220,7 +220,7 @@ function updateTopMenu()
     }
 
     evo()->regOption(
-        'topmenu_site'
-        , 'home,preview,refresh_site,search,resource_list,add_resource,add_weblink'
+        'topmenu_site',
+        'home,preview,refresh_site,search,resource_list,add_resource,add_weblink'
     );
 }

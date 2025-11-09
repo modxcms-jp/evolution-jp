@@ -207,9 +207,9 @@ function isBlockedUser()
         [
             'failedlogincount' => 0,
             'blocked' => 0
-        ]
-        , '[+prefix+]user_attributes'
-        , sprintf("internalKey='%s'", user('internalKey'))
+        ],
+        '[+prefix+]user_attributes',
+        sprintf("internalKey='%s'", user('internalKey'))
     );
     return false;
 }
@@ -228,8 +228,8 @@ function checkAllowedIp()
         }
     }
     $allowed_ip = explode(
-        ','
-        , str_replace(' ', '', user_config('allowed_ip'))
+        ',',
+        str_replace(' ', '', user_config('allowed_ip'))
     );
     if (in_array(serverv('REMOTE_ADDR'), $allowed_ip)) {
         return true;

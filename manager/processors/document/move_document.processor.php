@@ -34,9 +34,9 @@ if (strpos(anyv('id'), ',') === false) {
 }
 
 $rs = db()->select(
-    'parent'
-    , '[+prefix+]site_content'
-    , sprintf("id='%s'", $doc_id)
+    'parent',
+    '[+prefix+]site_content',
+    sprintf("id='%s'", $doc_id)
 );
 if (!$rs) {
     exit("An error occured while attempting to find the resource's current parent.");
@@ -62,8 +62,8 @@ if (evo()->config['use_udperms'] == 1 && $current_parent != $new_parent) {
 
 if ($current_parent == $new_parent) {
     alertAndQuit(
-        lang('move_resource_new_parent')
-        , $doc_id
+        lang('move_resource_new_parent'),
+        $doc_id
     );
     exit;
 }
@@ -71,21 +71,21 @@ if ($current_parent == $new_parent) {
 $children = allChildren($doc_id);
 if (in_array($new_parent, $children)) {
     alertAndQuit(
-        lang('move_resource_cant_myself')
-        , $doc_id
+        lang('move_resource_cant_myself'),
+        $doc_id
     );
     exit;
 }
 
 $rs = db()->update(
-    'isfolder=1'
-    , '[+prefix+]site_content'
-    , "id='" . $new_parent . "'"
+    'isfolder=1',
+    '[+prefix+]site_content',
+    "id='" . $new_parent . "'"
 );
 if (!$rs) {
     alertAndQuit(
-        'An error occured while attempting to change the new parent to a folder.'
-        , $doc_id
+        'An error occured while attempting to change the new parent to a folder.',
+        $doc_id
     );
     exit;
 }
@@ -94,9 +94,9 @@ if (!$rs) {
 if (evo()->config('auto_menuindex') === null || evo()->config('auto_menuindex')) {
     $menuindex = db()->getValue(
             db()->select(
-                'max(menuindex)'
-                , '[+prefix+]site_content'
-                , "parent='" . $new_parent . "'"
+                'max(menuindex)',
+                '[+prefix+]site_content',
+                "parent='" . $new_parent . "'"
             )
         ) + 1;
 } else {
@@ -113,14 +113,14 @@ if (is_array($doc_ids)) {
 
 // finished moving the resource, now check to see if the old_parent should no longer be a folder.
 $rs = db()->select(
-    'count(*) as count'
-    , '[+prefix+]site_content'
-    , "parent='" . $current_parent . "'"
+    'count(*) as count',
+    '[+prefix+]site_content',
+    "parent='" . $current_parent . "'"
 );
 if (!$rs) {
     alertAndQuit(
-        "An error occured while attempting to find the old parents' children."
-        , $doc_id
+        "An error occured while attempting to find the old parents' children.",
+        $doc_id
     );
     exit;
 }
@@ -128,14 +128,14 @@ if (!$rs) {
 $row = db()->getRow($rs);
 if (!$row['count']) {
     $rs = db()->update(
-        'isfolder=0'
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $current_parent)
+        'isfolder=0',
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $current_parent)
     );
     if (!$rs) {
         alertAndQuit(
-            'An error occured while attempting to change the old parent to a regular resource.'
-            , $doc_id
+            'An error occured while attempting to change the old parent to a regular resource.',
+            $doc_id
         );
         exit;
     }
@@ -146,8 +146,8 @@ evo()->clearCache();
 if ($new_parent !== 0) {
     header(
         sprintf(
-            'Location: index.php?a=120&id=%s&r=1'
-            , $current_parent
+            'Location: index.php?a=120&id=%s&r=1',
+            $current_parent
         )
     );
     exit;
@@ -161,10 +161,10 @@ exit;
 function alertAndQuit($string, $docid)
 {
     evo()->webAlertAndQuit(
-        $string
-        , sprintf(
-            "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id=%s';"
-            , $docid
+        $string,
+        sprintf(
+            "javascript:parent.tree.ca='open';window.location.href='index.php?a=51&id=%s';",
+            $docid
         )
     );
     exit;
@@ -210,9 +210,9 @@ function update_parentid($doc_id, $new_parent, $user_id, $menuindex)
             'parent' => $new_parent,
             'editedby' => $user_id,
             'menuindex' => $menuindex
-        ]
-        , '[+prefix+]site_content'
-        , sprintf("id='%s'", $doc_id)
+        ],
+        '[+prefix+]site_content',
+        sprintf("id='%s'", $doc_id)
     );
     if (!$rs) {
         exit("An error occured while attempting to move the resource to the new parent.");

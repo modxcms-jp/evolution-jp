@@ -20,9 +20,9 @@ class DocManager
         $userId = evo()->getLoginUserID();
         if ($userId) {
             $rs = db()->select(
-                'setting_name, setting_value'
-                , '[+prefix+]user_settings'
-                , "setting_name='manager_language' AND user=" . $userId
+                'setting_name, setting_value',
+                '[+prefix+]user_settings',
+                "setting_name='manager_language' AND user=" . $userId
             );
             $row = db()->getRow($rs);
             if ($row) {
@@ -51,9 +51,9 @@ class DocManager
     function getTheme()
     {
         $theme = db()->select(
-            'setting_value'
-            , '[+prefix+]system_settings'
-            , "setting_name='manager_theme'"
+            'setting_value',
+            '[+prefix+]system_settings',
+            "setting_name='manager_theme'"
         );
         if (db()->getRecordCount($theme)) {
             $theme = db()->getRow($theme);
@@ -102,11 +102,11 @@ class DocManager
             }
             $ph['settings_version'] = $modx->config['settings_version'];
             return preg_replace(
-                '/(\[\+.*?\+\])/'
-                , ''
-                , $modx->parseText(
-                $modx->mergeSettingsContent($tpl)
-                , $ph
+                '/(\[\+.*?\+\])/',
+                '',
+                $modx->parseText(
+                $modx->mergeSettingsContent($tpl),
+                $ph
             )
             );
         }
