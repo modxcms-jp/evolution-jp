@@ -1041,21 +1041,21 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #061b24;
-    --topnav-border: #144457;
-    --topnav-link-color: #d6e9ed;
+    --topnav-background: #062a36;
+    --topnav-border: #10475a;
+    --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #1d596d;
-    --topnav-link-active-bg: #1a6579;
-    --topnav-highlight-1: rgba(82, 200, 210, 0.42);
-    --topnav-highlight-2: rgba(52, 147, 167, 0.36);
-    --topnav-highlight-3: rgba(38, 119, 137, 0.4);
-    --topnav-highlight-4: rgba(5, 27, 36, 0.75);
-    --topnav-highlight-5: rgba(27, 114, 138, 0.6);
-    --topnav-highlight-6: rgba(14, 67, 82, 0.5);
-    --topnav-highlight-7: rgba(198, 245, 248, 0.12);
-    --topnav-highlight-8: rgba(37, 108, 126, 0.5);
-    --topnav-highlight-9: rgba(4, 24, 31, 0.78);
+    --topnav-link-hover-bg: #195a70;
+    --topnav-link-active-bg: #1f6a81;
+    --topnav-highlight-1: rgba(66, 181, 206, 0.4);
+    --topnav-highlight-2: rgba(49, 139, 162, 0.36);
+    --topnav-highlight-3: rgba(18, 78, 96, 0.82);
+    --topnav-highlight-4: rgba(4, 33, 42, 0.88);
+    --topnav-highlight-5: rgba(30, 111, 134, 0.62);
+    --topnav-highlight-6: rgba(11, 61, 74, 0.66);
+    --topnav-highlight-7: rgba(208, 244, 248, 0.12);
+    --topnav-highlight-8: rgba(28, 86, 105, 0.58);
+    --topnav-highlight-9: rgba(3, 20, 27, 0.84);
     background-color: var(--topnav-background);
     background-image:
         radial-gradient(150% 150% at 18% 26%, var(--topnav-highlight-1) 0%, transparent 72%),
@@ -1065,8 +1065,8 @@ a.hometblink:hover {
         radial-gradient(200% 200% at 52% 12%, var(--topnav-highlight-7) 0%, transparent 78%),
         radial-gradient(240% 200% at 50% 64%, var(--topnav-highlight-8) 0%, transparent 82%),
         radial-gradient(200% 250% at 26% 74%, var(--topnav-highlight-9) 0%, transparent 86%),
-        linear-gradient(142deg, var(--topnav-highlight-3) 0%, rgba(9, 44, 56, 0.32) 45%, transparent 78%),
-        linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, var(--topnav-highlight-4) 100%);
+        linear-gradient(136deg, rgba(15, 72, 88, 0.9) 0%, rgba(7, 44, 56, 0.32) 52%, transparent 84%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0%, var(--topnav-highlight-4) 100%);
     background-blend-mode: screen, screen, soft-light, color-dodge, screen, soft-light, multiply, overlay, normal;
     border-bottom: 1px solid var(--topnav-border);
 }
