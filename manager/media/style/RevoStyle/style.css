@@ -1044,23 +1044,27 @@ a.hometblink:hover {
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #1b4f5b;
     --topnav-link-active-bg: #1f5a68;
-    --topnav-highlight-1: rgba(66, 174, 206, 0.25);
-    --topnav-highlight-2: rgba(255, 255, 255, 0.16);
-    --topnav-highlight-3: rgba(16, 84, 104, 0.7);
-    --topnav-highlight-4: rgba(255, 255, 255, 0.05);
-    --topnav-highlight-5: rgba(19, 95, 112, 0.55);
-    --topnav-highlight-6: rgba(17, 72, 86, 0.45);
-    --topnav-speckle: rgba(255, 255, 255, 0.06);
+    --topnav-highlight-1: rgba(86, 200, 211, 0.28);
+    --topnav-highlight-2: rgba(214, 244, 248, 0.18);
+    --topnav-highlight-3: rgba(11, 70, 85, 0.75);
+    --topnav-highlight-4: rgba(7, 30, 36, 0.65);
+    --topnav-highlight-5: rgba(18, 82, 99, 0.6);
+    --topnav-highlight-6: rgba(10, 52, 62, 0.5);
+    --topnav-highlight-7: rgba(255, 255, 255, 0.1);
+    --topnav-highlight-8: rgba(19, 98, 117, 0.35);
+    --topnav-highlight-9: rgba(4, 26, 32, 0.7);
     background-color: var(--topnav-background);
     background-image:
-        radial-gradient(135% 180% at 12% 6%, var(--topnav-highlight-1), transparent 64%),
-        radial-gradient(140% 150% at 88% 4%, var(--topnav-highlight-2), transparent 58%),
-        radial-gradient(180% 160% at 68% 88%, var(--topnav-highlight-5), transparent 70%),
-        radial-gradient(200% 140% at 26% 74%, var(--topnav-highlight-6), transparent 66%),
-        linear-gradient(140deg, transparent 0 30%, var(--topnav-highlight-3) 58%, transparent 82%),
-        repeating-conic-gradient(from 12deg at 48% 52%, transparent 0 10deg, var(--topnav-highlight-4) 10deg 16deg),
-        repeating-linear-gradient(128deg, transparent 0 18px, var(--topnav-speckle) 18px 23px);
-    background-blend-mode: screen, screen, color-dodge, multiply, soft-light, overlay, screen;
+        radial-gradient(120% 200% at 8% 10%, var(--topnav-highlight-1) 0, transparent 70%),
+        radial-gradient(160% 200% at 86% 6%, var(--topnav-highlight-2) 0, transparent 72%),
+        radial-gradient(200% 160% at 72% 88%, var(--topnav-highlight-5) 0, transparent 78%),
+        radial-gradient(180% 180% at 24% 72%, var(--topnav-highlight-6) 0, transparent 74%),
+        radial-gradient(140% 220% at 46% -10%, var(--topnav-highlight-7) 0, transparent 78%),
+        radial-gradient(160% 140% at 58% 46%, var(--topnav-highlight-8) 0, transparent 76%),
+        radial-gradient(220% 200% at 12% 84%, var(--topnav-highlight-9) 0, transparent 82%),
+        linear-gradient(168deg, var(--topnav-highlight-3) 0%, rgba(13, 71, 85, 0.45) 42%, var(--topnav-highlight-4) 100%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0%, rgba(6, 32, 39, 0.65) 100%);
+    background-blend-mode: screen, screen, soft-light, color-dodge, screen, soft-light, multiply, overlay, normal;
     border-bottom: 1px solid var(--topnav-border);
 }
 
