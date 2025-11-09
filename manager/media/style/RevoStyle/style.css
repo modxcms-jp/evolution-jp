@@ -1011,7 +1011,6 @@ a.hometblink:hover {
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
     border-bottom: 1px solid var(--topnav-link-active-border);
-    box-shadow: var(--topnav-link-active-shadow);
     color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: 0 -1px 0 #333;
