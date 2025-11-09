@@ -958,103 +958,148 @@ a.hometblink:hover {
     background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
 }
 
+#Navcontainer {
+    padding: 0 10px;
+    color: #fff;
+}
+
 .top-nav {
     position: relative;
-    padding: 6px 10px 44px;
-    color: #fff;
 }
 
 #nav {
     margin: 0;
     padding: 0;
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    height: 25px;
+    width: 100%;
+    position: absolute;
+    top: 6px;
+    overflow: visible !important;
 }
 
 .rtl #nav {
-    flex-direction: row-reverse;
+    right: 10px;
 }
 
-#nav > li {
+#nav ul {
+    display: none;
+    height: 26px;
+    position: relative;
+    z-index: 500;
+    margin: 0 0 0 -10px;
+    padding: 0 0 0 20px;
+}
+
+.rtl #nav ul {
+    margin: 0 -10px 0 0;
+    padding: 0 20px 0 0;
+}
+
+#nav li {
     list-style: none;
-    margin: 0;
+    float: left;
+    width: auto;
+    margin: 0 0 0 10px;
     padding: 0;
 }
 
-#nav > li > a {
-    display: block;
-    padding: 6px 16px;
-    color: #A4B8B6;
-    text-decoration: none;
-    white-space: nowrap;
-    line-height: 1.4;
-    border-radius: 5px 5px 0 0;
-    transition: color .2s ease;
+.rtl #nav li {
+    float: right;
+    margin: 0 0 0 3px;
 }
 
-#nav > li > a:hover,
-#nav > li > a:active {
+#nav li a {
+    color: #A4B8B6;
+    height: 25px;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    line-height: 25px;
+    overflow: hidden;
+    padding: 0 15px;
+    float: none !important;
+    float: left;
+    display: block;
+}
+
+#nav li ul li a {
+    padding: 0 18px !important;
+}
+
+#nav li ul li a {
+    background: #d4d4d4;
+    float: left;
+    width: auto;
+}
+
+.rtl #nav li ul li a {
+    float: right;
+}
+
+#nav a:hover,
+#nav a:active {
     color: #fff;
 }
 
-#nav > li.active {
-    background: #616161;
+#nav li.active {
+    background: none repeat scroll 0 0 #616161;
     border-radius: 5px 5px 0 0;
     box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
 }
 
-#nav > li.active > a {
-    color: #fff;
+#nav li.active a {
+    border-bottom: 1px solid #616161;
+    color: #FFF;
+    position: relative;
     text-shadow: 0 -1px 0 #333;
+    z-index: 999999;
 }
 
-#nav > li .subnav {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    top: calc(100% - 1px);
-    margin: 0;
-    padding: 12px 16px;
-    list-style: none;
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
-    border: 1px solid #888;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
-    z-index: 500;
-    display: none;
-    gap: 8px 16px;
-    flex-wrap: wrap;
+#nav li.active a:hover {
+    cursor: pointer;
 }
 
-#nav > li.active .subnav {
-    display: flex;
-}
-
-#nav > li .subnav li {
-    margin: 0;
-    padding: 0;
-}
-
-#nav > li .subnav a {
+#nav li.active ul.subnav {
     display: block;
-    padding: 4px 12px;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 3px;
-    transition: background .2s ease, color .2s ease;
+    position: fixed;
+    bottom: 0;
+    width: 200%;
+    top: 31px;
+    left: 0;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #eee;
 }
 
-#nav > li .subnav a:hover {
-    background-color: rgba(255, 255, 255, 0.15);
+#nav li.active ul.subnav {
+    right: 0;
+}
+
+#nav li.active ul.subnav a {
+    border-bottom: none;
+    color: #fff;
+    font-weight: normal;
+    background-color: var(--color-nav-subnav-end);
+    cursor: pointer;
+    border-left: none;
+}
+
+#nav li.active ul.subnav li {
+    margin: 0;
+}
+
+#nav li.active ul.subnav a:hover {
+    color: #fff;
     text-shadow: 0 0 2px #FFF;
 }
 
-#nav > li .subnav a:active {
+#nav li.active ul.subnav a:active {
     color: #ccc;
+}
+
+#nav li.active ul.subnav,
+#nav li.active ul.subnav a {
+    background-color: var(--color-nav-subnav-start);
+    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */

@@ -253,7 +253,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     <form name="menuForm" action="l4mnu.php" class="clear">
         <input name="sessToken" type="hidden" id="sessTokenInput" value="<?= md5(session_id()) ?>"/>
-        <nav class="top-nav">
+        <nav id="Navcontainer" class="top-nav">
             <ul id="nav">
                 <?php
                 // Concatenate menu items based on permissions
