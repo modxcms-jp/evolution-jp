@@ -32,7 +32,7 @@ $allowedfiles = ['html', 'htm', 'shtml', 'xml'];
 </div>
 
 <div class="section">
-    <div class="sectionBody">
+    <div class="sectionBody" style="margin:8px;">
         <?php
 
         if (!postv('import')) {
