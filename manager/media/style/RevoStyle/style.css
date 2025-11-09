@@ -1040,28 +1040,23 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #062a36;
-    --topnav-border: #10475a;
-    --topnav-link-color: #e1f1f4;
+    --topnav-background: #041c25;
+    --topnav-border: #0f3a49;
+    --topnav-link-color: #d7e6ea;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #274655;
-    --topnav-highlight-1: rgba(66, 181, 206, 0.4);
-    --topnav-highlight-2: rgba(49, 139, 162, 0.36);
-    --topnav-highlight-3: rgba(18, 78, 96, 0.82);
-    --topnav-highlight-4: rgba(4, 33, 42, 0.88);
-    --topnav-highlight-5: rgba(30, 111, 134, 0.62);
-    --topnav-highlight-6: rgba(11, 61, 74, 0.66);
-    --topnav-highlight-7: rgba(208, 244, 248, 0.12);
-    --topnav-highlight-8: rgba(28, 86, 105, 0.58);
-    --topnav-highlight-9: rgba(3, 20, 27, 0.84);
+    --topnav-link-hover-bg: #164c5f;
+    --topnav-link-active-bg: #1e3845;
+    --topnav-highlight-1: rgba(17, 87, 106, 0.18);
+    --topnav-highlight-2: rgba(10, 56, 70, 0.75);
+    --topnav-highlight-3: rgba(7, 37, 47, 0.94);
+    --topnav-highlight-4: rgba(12, 55, 66, 0.75);
+    --topnav-highlight-5: rgba(19, 101, 121, 0.12);
     background-color: var(--topnav-background);
     background-image:
-        radial-gradient(140% 120% at 0% 0%, var(--topnav-highlight-1) 0, transparent 70%),
-        radial-gradient(120% 140% at 100% 0%, var(--topnav-highlight-2) 0, transparent 65%),
-        linear-gradient(135deg, var(--topnav-highlight-3), var(--topnav-highlight-4));
+        radial-gradient(120% 70% at 50% 0%, var(--topnav-highlight-1) 0, transparent 70%),
+        linear-gradient(90deg, var(--topnav-highlight-2) 0%, var(--topnav-highlight-3) 52%, var(--topnav-highlight-4) 100%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(0, 0, 0, 0.5) 100%);
     background-repeat: no-repeat;
-    background-blend-mode: screen, screen, normal;
     border-bottom: 1px solid var(--topnav-border);
     box-shadow: inset 0 -10px 18px -18px rgba(0, 0, 0, 0.8);
 }
