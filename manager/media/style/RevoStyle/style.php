@@ -29,6 +29,11 @@ if (is_file(__DIR__ . '/config.php')) {
     include __DIR__ . '/config.php';
 }
 
+$defaultManagerMenuHeight = 76;
+if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $defaultManagerMenuHeight) {
+    $modx->config['manager_menu_height'] = (string)$defaultManagerMenuHeight;
+}
+
 if ($tab_your_info == 1) tabYourInfo();
 if ($tab_online == 1) tabOnlineUser();
 

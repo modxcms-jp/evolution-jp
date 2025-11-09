@@ -35,7 +35,6 @@ $default_config = [
     'manager_direction' => 'ltr',
     'manager_language' => 'japanese-utf8',
     'manager_theme' => 'RevoStyle',
-    'manager_menu_height' => '76',
     'modx_charset' => 'UTF-8',
     'new_file_permissions' => '0644',
     'new_folder_permissions' => '0755',
