@@ -1036,9 +1036,9 @@ a.hometblink:hover {
     --topnav-link-color: #c7dde2;
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: rgba(132, 193, 208, 0.22);
-    --topnav-link-active-bg: linear-gradient(135deg, rgba(133, 202, 218, 0.85), rgba(72, 146, 168, 0.9));
-    --topnav-link-active-border: rgba(195, 232, 237, 0.45);
-    --topnav-link-active-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 18px rgba(5, 16, 24, 0.45);
+    --topnav-link-active-bg:
+        radial-gradient(120% 120% at 16% 18%, rgba(122, 197, 213, 0.35), transparent 58%),
+        linear-gradient(135deg, rgba(20, 55, 70, 0.94), rgba(13, 35, 46, 0.97));
 }
 
 #Navcontainer {
@@ -1093,13 +1093,13 @@ a.hometblink:hover {
 
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
-    border-bottom: 1px solid var(--topnav-link-active-border);
-    border-color: var(--topnav-link-active-border);
+    border-color: rgba(12, 28, 36, 0.55);
+    border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
-    text-shadow: 0 2px 6px rgba(14, 33, 42, 0.6);
+    text-shadow: 0 1px 2px rgba(5, 16, 24, 0.35);
     z-index: 2;
-    box-shadow: var(--topnav-link-active-shadow);
+    box-shadow: none;
 }
 
 #nav > li > ul.subnav {
@@ -1116,13 +1116,11 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
     row-gap: 6px;
-    border-top: 1px solid rgba(177, 216, 223, 0.4);
+    border-top: none;
     border-bottom: 1px solid rgba(12, 28, 36, 0.55);
-    background:
-        radial-gradient(120% 120% at 16% 18%, rgba(122, 197, 213, 0.35), transparent 58%),
-        linear-gradient(135deg, rgba(20, 55, 70, 0.94), rgba(13, 35, 46, 0.97));
+    background: var(--topnav-link-active-bg);
     z-index: 1;
-    box-shadow: 0 18px 28px rgba(3, 10, 16, 0.55);
+    box-shadow: none;
 }
 
 .rtl #nav > li > ul.subnav {
