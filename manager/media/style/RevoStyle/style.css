@@ -16,12 +16,12 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
-    --color-accent-green-start: #8aae4b;
-    --color-accent-green-end: #66901b;
-    --color-accent-green-hover-start: #90bf40;
-    --color-accent-green-hover-end: #82af33;
-    --color-accent-green-active-start: #749c2f;
-    --color-accent-green-active-end: #4b7109;
+    --color-accent-green-start: #2f8aa1;
+    --color-accent-green-end: #226b7c;
+    --color-accent-green-hover-start: #37a3bd;
+    --color-accent-green-hover-end: #2d879b;
+    --color-accent-green-active-start: #1f5a68;
+    --color-accent-green-active-end: #154954;
     --color-neutral-button-start: #fafafa;
     --color-neutral-button-end: #d2d2d2;
     --color-neutral-button-hover-end: #e5e5e5;
