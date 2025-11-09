@@ -1022,7 +1022,8 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
+    background-color: #0f2027;
+    background-image: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
     --subnav-height: 32px;
