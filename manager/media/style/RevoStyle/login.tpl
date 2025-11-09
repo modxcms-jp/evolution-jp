@@ -437,10 +437,10 @@
 
         /* Header */
         .header {
-            background: 
-                linear-gradient(135deg, rgba(15, 32, 39, 0.95) 0%, rgba(44, 83, 100, 0.95) 100%),
-                radial-gradient(ellipse at 20% 30%, rgba(76, 120, 140, 0.3) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 70%, rgba(15, 32, 39, 0.4) 0%, transparent 50%),
+            background:
+                linear-gradient(135deg, rgba(15, 32, 39, 0.96) 0%, rgba(44, 83, 100, 0.94) 100%),
+                radial-gradient(ellipse at 20% 30%, rgba(118, 182, 202, 0.45) 0%, transparent 55%),
+                radial-gradient(ellipse at 82% 72%, rgba(6, 18, 26, 0.55) 0%, transparent 58%),
                 linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
             padding: 24px;
             text-align: center;
