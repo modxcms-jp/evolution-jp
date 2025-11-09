@@ -975,7 +975,7 @@ a.hometblink:hover {
 
 #nav {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-end;
     justify-content: flex-start;
     gap: var(--topnav-gap);
     margin: 0;
@@ -1048,6 +1048,7 @@ a.hometblink:hover {
 
 #nav > li > ul.subnav > li {
     margin: 0;
+    list-style: none;
 }
 
 #nav > li > ul.subnav a {
