@@ -255,9 +255,10 @@ hr {
 }
 
 #supplementalNav {
+    --supplemental-nav-border-width: 1px;
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
-    border: 1px solid rgba(255, 255, 255, .16);
+    border: var(--supplemental-nav-border-width) solid rgba(255, 255, 255, .16);
     border-radius: 999px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
     box-sizing: border-box;
@@ -271,7 +272,7 @@ hr {
     padding: 0 18px;
     position: absolute;
     right: var(--subnav-horizontal-padding);
-    top: calc(var(--topnav-padding-top, 10px) - 1px);
+    top: calc(var(--topnav-padding-top, 10px) - var(--supplemental-nav-border-width) - 1px);
     z-index: 111;
 }
 
