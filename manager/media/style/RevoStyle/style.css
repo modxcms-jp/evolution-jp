@@ -973,13 +973,10 @@ a.hometblink:hover {
     position: relative;
 }
 
-.top-nav {
-    position: relative;
-}
-
 #nav {
     display: flex;
     align-items: flex-start;
+    justify-content: flex-start;
     gap: var(--topnav-gap);
     margin: 0;
     padding: 0;
@@ -992,7 +989,6 @@ a.hometblink:hover {
 
 #nav > li {
     list-style: none;
-    position: relative;
 }
 
 #nav > li > a {
@@ -1007,7 +1003,8 @@ a.hometblink:hover {
 }
 
 #nav > li > a:hover,
-#nav > li > a:active {
+#nav > li > a:active,
+#nav > li > a:focus-visible {
     color: var(--topnav-link-hover-color);
 }
 
@@ -1033,6 +1030,7 @@ a.hometblink:hover {
     height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;
+    gap: var(--topnav-gap);
     border-top: 1px solid #888;
     border-bottom: 1px solid #eee;
     background-color: var(--color-nav-subnav-start);
@@ -1062,7 +1060,8 @@ a.hometblink:hover {
     text-decoration: none;
 }
 
-#nav > li > ul.subnav a:hover {
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
     text-shadow: 0 0 2px #FFF;
 }
 
