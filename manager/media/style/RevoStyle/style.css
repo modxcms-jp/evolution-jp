@@ -1050,15 +1050,6 @@ a.hometblink:hover {
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #195a70;
     --topnav-link-active-bg: #274655;
-    --topnav-highlight-1: rgba(66, 181, 206, 0.4);
-    --topnav-highlight-2: rgba(49, 139, 162, 0.36);
-    --topnav-highlight-3: rgba(18, 78, 96, 0.82);
-    --topnav-highlight-4: rgba(4, 33, 42, 0.88);
-    --topnav-highlight-5: rgba(30, 111, 134, 0.62);
-    --topnav-highlight-6: rgba(11, 61, 74, 0.66);
-    --topnav-highlight-7: rgba(208, 244, 248, 0.12);
-    --topnav-highlight-8: rgba(28, 86, 105, 0.58);
-    --topnav-highlight-9: rgba(3, 20, 27, 0.84);
     background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
 }
