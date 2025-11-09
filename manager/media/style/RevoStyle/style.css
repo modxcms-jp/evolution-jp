@@ -1043,14 +1043,20 @@ a.hometblink:hover {
     --topnav-highlight-1: rgba(66, 174, 206, 0.25);
     --topnav-highlight-2: rgba(255, 255, 255, 0.16);
     --topnav-highlight-3: rgba(16, 84, 104, 0.7);
-    --topnav-highlight-4: rgba(255, 255, 255, 0.04);
+    --topnav-highlight-4: rgba(255, 255, 255, 0.05);
+    --topnav-highlight-5: rgba(19, 95, 112, 0.55);
+    --topnav-highlight-6: rgba(17, 72, 86, 0.45);
+    --topnav-speckle: rgba(255, 255, 255, 0.06);
     background-color: var(--topnav-background);
     background-image:
-        radial-gradient(140% 180% at 8% 0%, var(--topnav-highlight-1), transparent 60%),
-        radial-gradient(120% 140% at 92% -10%, var(--topnav-highlight-2), transparent 55%),
-        linear-gradient(135deg, transparent 0 28%, var(--topnav-highlight-3) 60%, transparent 85%),
-        repeating-linear-gradient(130deg, transparent 0 12px, var(--topnav-highlight-4) 12px 16px);
-    background-blend-mode: screen, screen, soft-light, soft-light;
+        radial-gradient(135% 180% at 12% 6%, var(--topnav-highlight-1), transparent 64%),
+        radial-gradient(140% 150% at 88% 4%, var(--topnav-highlight-2), transparent 58%),
+        radial-gradient(180% 160% at 68% 88%, var(--topnav-highlight-5), transparent 70%),
+        radial-gradient(200% 140% at 26% 74%, var(--topnav-highlight-6), transparent 66%),
+        linear-gradient(140deg, transparent 0 30%, var(--topnav-highlight-3) 58%, transparent 82%),
+        repeating-conic-gradient(from 12deg at 48% 52%, transparent 0 10deg, var(--topnav-highlight-4) 10deg 16deg),
+        repeating-linear-gradient(128deg, transparent 0 18px, var(--topnav-speckle) 18px 23px);
+    background-blend-mode: screen, screen, color-dodge, multiply, soft-light, overlay, screen;
     border-bottom: 1px solid var(--topnav-border);
 }
 
