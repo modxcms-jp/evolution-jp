@@ -29,7 +29,7 @@ if (is_file(__DIR__ . '/config.php')) {
     include __DIR__ . '/config.php';
 }
 
-$defaultManagerMenuHeight = 76;
+$defaultManagerMenuHeight = 72;
 if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $defaultManagerMenuHeight) {
     $modx->config['manager_menu_height'] = (string)$defaultManagerMenuHeight;
 }

@@ -194,7 +194,7 @@ hr {
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
-    padding: 0 var(--subnav-horizontal-padding, 14px);
+    padding: var(--topnav-padding-top, 8px) var(--subnav-horizontal-padding, 12px) 0;
 }
 
 #topbar * {
@@ -215,7 +215,7 @@ hr {
 
 #tocText {
     position: absolute;
-    top: calc(var(--topnav-toolbar-offset-base, 42px) + 6px);
+    top: calc(var(--topnav-toolbar-offset-base, 35px) + 4px);
     z-index: 1000;
 }
 
@@ -245,7 +245,7 @@ hr {
 #statusbar {
     position: absolute;
     right: 0;
-    top: calc(var(--topnav-toolbar-offset-base, 42px) + 5px);
+    top: calc(var(--topnav-toolbar-offset-base, 35px) + 2px);
     z-index: 1000;
 }
 
@@ -258,8 +258,8 @@ hr {
     color: #89939e;
     margin: 0;
     position: absolute;
-    right: var(--subnav-horizontal-padding, 14px);
-    top: calc(var(--topnav-padding-top, 10px) + 2px);
+    right: var(--subnav-horizontal-padding, 12px);
+    top: calc(var(--topnav-padding-top, 8px) + 1px);
     z-index: 111;
 }
 
@@ -955,13 +955,13 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    --topnav-padding-top: 10px;
-    --topnav-padding-bottom: 4px;
-    --topnav-item-height: 32px;
+    --topnav-padding-top: 8px;
+    --topnav-padding-bottom: 5px;
+    --topnav-item-height: 27px;
     --topnav-gap: 12px;
-    --subnav-height: 28px;
-    --subnav-horizontal-padding: 14px;
-    --topnav-toolbar-offset-base: calc(var(--topnav-padding-top, 10px) + var(--topnav-item-height, 32px));
+    --subnav-height: 27px;
+    --subnav-horizontal-padding: 12px;
+    --topnav-toolbar-offset-base: calc(var(--topnav-padding-top, 8px) + var(--topnav-item-height, 27px));
     background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
 }
 
@@ -972,7 +972,7 @@ a.hometblink:hover {
     --topnav-link-active-border: #616161;
     --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
     color: #fff;
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding, 14px) calc(var(--subnav-height, 28px) + var(--topnav-padding-bottom, 4px));
+    padding: var(--topnav-padding-top, 8px) var(--subnav-horizontal-padding, 12px) calc(var(--subnav-height, 27px) + var(--topnav-padding-bottom, 5px));
     position: relative;
 }
 
@@ -998,8 +998,8 @@ a.hometblink:hover {
     border-radius: 5px 5px 0 0;
     color: var(--topnav-link-color);
     display: block;
-    line-height: var(--topnav-item-height, 32px);
-    padding: 0 calc(var(--subnav-horizontal-padding, 14px) + 4px);
+    line-height: var(--topnav-item-height, 27px);
+    padding: 0 calc(var(--subnav-horizontal-padding, 12px) + 4px);
     text-decoration: none;
     white-space: nowrap;
     transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
@@ -1025,11 +1025,11 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-padding-top, 10px) + var(--topnav-item-height, 32px));
+    top: calc(var(--topnav-padding-top, 8px) + var(--topnav-item-height, 27px));
     margin: 0;
     list-style: none;
-    padding: 0 var(--subnav-horizontal-padding, 14px);
-    min-height: var(--subnav-height, 28px);
+    padding: 0 var(--subnav-horizontal-padding, 12px);
+    min-height: var(--subnav-height, 27px);
     align-items: center;
     flex-wrap: wrap;
     gap: var(--topnav-gap, 12px);
@@ -1058,8 +1058,8 @@ a.hometblink:hover {
     cursor: pointer;
     display: block;
     font-weight: normal;
-    line-height: var(--subnav-height, 28px);
-    padding: 0 calc(var(--subnav-horizontal-padding, 14px) + 4px);
+    line-height: var(--subnav-height, 27px);
+    padding: 0 calc(var(--subnav-horizontal-padding, 12px) + 4px);
     text-decoration: none;
 }
 
