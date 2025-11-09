@@ -258,9 +258,7 @@ hr {
     --supplemental-nav-border-width: 1px;
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
-    border: var(--supplemental-nav-border-width) solid rgba(255, 255, 255, .16);
     border-radius: 999px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
     box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
@@ -272,7 +270,7 @@ hr {
     padding: 0 18px;
     position: absolute;
     right: var(--subnav-horizontal-padding);
-    top: calc(var(--topnav-padding-top, 10px) - (var(--supplemental-nav-border-width) / 2));
+    top: 6px;
     z-index: 111;
 }
 
@@ -304,8 +302,6 @@ hr {
 }
 
 #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-left: 1px solid rgba(255, 255, 255, .2);
-    margin-left: var(--topnav-gap);
     padding-left: var(--topnav-gap);
 }
 
@@ -1029,7 +1025,7 @@ a.hometblink:hover {
 #topMenu {
     background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
     --topnav-item-height: 32px;
-    --topnav-gap: 18px;
+    --topnav-gap: 4px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 12px;
