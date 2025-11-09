@@ -255,7 +255,6 @@ hr {
 }
 
 #supplementalNav {
-    --supplemental-nav-border-width: 1px;
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
     border-radius: 999px;
