@@ -1022,24 +1022,30 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    background-color: #0f2027;
-    background-image: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+    background:
+        radial-gradient(160% 120% at 12% 8%, rgba(120, 196, 216, 0.32), transparent 62%),
+        radial-gradient(140% 130% at 88% 92%, rgba(3, 9, 15, 0.88), transparent 68%),
+        linear-gradient(120deg, rgba(11, 35, 48, 0.9), rgba(22, 59, 73, 0.95) 48%, rgba(40, 96, 116, 0.98));
+    border-bottom: 1px solid rgba(126, 180, 192, 0.35);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), inset 0 -1px 0 rgba(200, 235, 240, 0.08);
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 12px;
-    --topnav-link-color: #A4B8B6;
-    --topnav-link-hover-color: #fff;
-    --topnav-link-active-bg: #616161;
-    --topnav-link-active-border: #616161;
-    --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+    --topnav-padding-top: 14px;
+    --topnav-link-color: #c7dde2;
+    --topnav-link-hover-color: #ffffff;
+    --topnav-link-hover-bg: rgba(132, 193, 208, 0.22);
+    --topnav-link-active-bg: linear-gradient(135deg, rgba(133, 202, 218, 0.85), rgba(72, 146, 168, 0.9));
+    --topnav-link-active-border: rgba(195, 232, 237, 0.45);
+    --topnav-link-active-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 8px 18px rgba(5, 16, 24, 0.45);
 }
 
 #Navcontainer {
-    color: #fff;
+    color: #e7f2f5;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
 #nav {
@@ -1063,29 +1069,37 @@ a.hometblink:hover {
 }
 
 #nav > li > a {
-    border-radius: 5px 5px 0 0;
+    border: 1px solid transparent;
+    border-radius: 8px 8px 0 0;
     color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
-    padding: 0 20px;
+    padding: 0 22px;
     text-decoration: none;
     white-space: nowrap;
-    transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: saturate(140%);
+    transition: color .18s ease, background-color .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
     color: var(--topnav-link-hover-color);
+    background: var(--topnav-link-hover-bg, rgba(132, 193, 208, 0.22));
+    border-color: rgba(164, 215, 225, 0.45);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
     border-bottom: 1px solid var(--topnav-link-active-border);
+    border-color: var(--topnav-link-active-border);
     color: var(--topnav-link-hover-color);
     position: relative;
-    text-shadow: 0 -1px 0 #333;
+    text-shadow: 0 2px 6px rgba(14, 33, 42, 0.6);
     z-index: 2;
+    box-shadow: var(--topnav-link-active-shadow);
 }
 
 #nav > li > ul.subnav {
@@ -1102,11 +1116,13 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
     row-gap: 6px;
-    border-top: 1px solid #888;
-    border-bottom: 1px solid #eee;
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    border-top: 1px solid rgba(177, 216, 223, 0.4);
+    border-bottom: 1px solid rgba(12, 28, 36, 0.55);
+    background:
+        radial-gradient(120% 120% at 16% 18%, rgba(122, 197, 213, 0.35), transparent 58%),
+        linear-gradient(135deg, rgba(20, 55, 70, 0.94), rgba(13, 35, 46, 0.97));
     z-index: 1;
+    box-shadow: 0 18px 28px rgba(3, 10, 16, 0.55);
 }
 
 .rtl #nav > li > ul.subnav {
@@ -1123,22 +1139,27 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #fff;
+    color: #eff8fa;
     cursor: pointer;
     display: block;
     font-weight: normal;
     line-height: var(--subnav-height);
     padding: 0 18px;
     text-decoration: none;
+    border-radius: 999px;
+    transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
 }
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    text-shadow: 0 0 2px #FFF;
+    background: rgba(136, 198, 213, 0.2);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(200, 236, 240, 0.3) inset, 0 4px 12px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.65);
 }
 
 #nav > li > ul.subnav a:active {
-    color: #ccc;
+    color: #d5eef2;
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
