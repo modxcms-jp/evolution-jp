@@ -16,6 +16,7 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
+    --color-accent-green: #375665;
     --color-accent-green-start: #2f8aa1;
     --color-accent-green-end: #226b7c;
     --color-accent-green-hover-start: #37a3bd;
@@ -639,15 +640,14 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 15px;
-    padding: 5px 9px 5px 15px;
+    margin: 0 16px;
+    padding: 8px 16px;
     font-weight: bold;
     border: 1px solid var(--color-border-default);
     border-bottom: none;
-    text-shadow: 0 1px 0 var(--color-surface);
-    background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    background-color: var(--color-section-header-end);
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 5px 5px 0 0;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -780,7 +780,6 @@ div.treeframebody {
     height: 100%;
     padding: 6px 8px 0;
     line-height: 1.3em;
-    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
 }
 
 #treeHolder {
@@ -1046,7 +1045,7 @@ a.hometblink:hover {
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #1f6a81;
+    --topnav-link-active-bg: #274655;
     --topnav-highlight-1: rgba(66, 181, 206, 0.4);
     --topnav-highlight-2: rgba(49, 139, 162, 0.36);
     --topnav-highlight-3: rgba(18, 78, 96, 0.82);
@@ -1057,17 +1056,6 @@ a.hometblink:hover {
     --topnav-highlight-8: rgba(28, 86, 105, 0.58);
     --topnav-highlight-9: rgba(3, 20, 27, 0.84);
     background-color: var(--topnav-background);
-    background-image:
-        radial-gradient(150% 150% at 18% 26%, var(--topnav-highlight-1) 0%, transparent 72%),
-        radial-gradient(130% 220% at 84% 14%, var(--topnav-highlight-2) 0%, transparent 74%),
-        radial-gradient(220% 180% at 78% 94%, var(--topnav-highlight-5) 0%, transparent 78%),
-        radial-gradient(210% 230% at 14% 88%, var(--topnav-highlight-6) 0%, transparent 80%),
-        radial-gradient(200% 200% at 52% 12%, var(--topnav-highlight-7) 0%, transparent 78%),
-        radial-gradient(240% 200% at 50% 64%, var(--topnav-highlight-8) 0%, transparent 82%),
-        radial-gradient(200% 250% at 26% 74%, var(--topnav-highlight-9) 0%, transparent 86%),
-        linear-gradient(136deg, rgba(15, 72, 88, 0.9) 0%, rgba(7, 44, 56, 0.32) 52%, transparent 84%),
-        linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0%, var(--topnav-highlight-4) 100%);
-    background-blend-mode: screen, screen, soft-light, color-dodge, screen, soft-light, multiply, overlay, normal;
     border-bottom: 1px solid var(--topnav-border);
 }
 
@@ -1327,7 +1315,7 @@ a.hometblink:hover {
     display: inline;
     margin: 3px 2px 1px 0;
     float: left;
-    padding: 3px 10px;
+    padding: 8px 16px;
     z-index: 1;
     position: relative;
     top: 1px;
@@ -1335,7 +1323,6 @@ a.hometblink:hover {
     text-shadow: none;
     border-radius: 5px 5px 0 0;
     background-color: var(--color-accent-green-muted-start);
-    background-image: linear-gradient(var(--color-accent-green-muted-start), var(--color-accent-green-muted-end));
 }
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
@@ -1392,7 +1379,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #ffcc72;
+    color: #c00;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected .alert {
@@ -1585,18 +1572,18 @@ h2#edit_document_title {
 /* from https://github.com/manse/ScienceStyle */
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0 -1px 0 0;
-    padding: 8px 5px 7px 10px !important;
+    margin: 0;
+    padding: 8px 16px !important;
     position: fixed;
     right: 16px;
     text-align: right;
-    top: 5px;
+    top: 8px;
     z-index: 100;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 select#stay {
-    padding: 5px 5px 5px 2px;
+    padding: 8px;
 }
 
 .rtl #actions {
@@ -1648,19 +1635,15 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 2px;
+    border-radius: 4px;
     color: #444;
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
-    padding: 4px 10px;
+    padding: 8px 12px;
     text-decoration: none;
-    vertical-align: top;
     white-space: nowrap;
-    box-shadow: none;
-    text-shadow: none;
     background-color: var(--color-neutral-button-start);
-    border: 1px solid var(--color-neutral-button-border);
 }
 
 .actionButtons a img {
@@ -1717,7 +1700,7 @@ ul.actionButtons {
     color: #fff;
     box-shadow: none;
     text-shadow: none;
-    background-color: var(--color-accent-green-start);
+    background-color: var(--color-accent-green);
     border-color: var(--color-accent-green-end);
 }
 
