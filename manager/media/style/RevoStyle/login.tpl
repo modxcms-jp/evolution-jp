@@ -766,7 +766,7 @@
         // Add loading state
         $button.addClass('loading').val('Loading...');
 
-        params = {
+        var params = {
             'username': username,
             'password': password,
             'rememberme': rememberme,
