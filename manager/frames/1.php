@@ -3,8 +3,9 @@ if (IN_MANAGER_MODE != "true") {
     die("<b>INCLUDE_ORDERING_ERROR</b><br /><br />Please use the MODX Content Manager instead of accessing this file directly.");
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
-if (!isset($modx->config['manager_menu_height'])) {
-    $modx->config['manager_menu_height'] = '58';
+$minimumMenuHeight = 76;
+if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $minimumMenuHeight) {
+    $modx->config['manager_menu_height'] = (string)$minimumMenuHeight;
 }
 if (!isset($modx->config['manager_tree_width'])) {
     $modx->config['manager_tree_width'] = '260';

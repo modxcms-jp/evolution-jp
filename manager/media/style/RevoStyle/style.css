@@ -194,7 +194,7 @@ hr {
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
-    padding: 0 5px;
+    padding: 0 var(--subnav-horizontal-padding, 14px);
 }
 
 #topbar * {
@@ -215,7 +215,7 @@ hr {
 
 #tocText {
     position: absolute;
-    top: 37px;
+    top: calc(var(--topnav-toolbar-offset-base, 42px) + 6px);
     z-index: 1000;
 }
 
@@ -245,7 +245,7 @@ hr {
 #statusbar {
     position: absolute;
     right: 0;
-    top: 36px;
+    top: calc(var(--topnav-toolbar-offset-base, 42px) + 5px);
     z-index: 1000;
 }
 
@@ -258,8 +258,8 @@ hr {
     color: #89939e;
     margin: 0;
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: var(--subnav-horizontal-padding, 14px);
+    top: calc(var(--topnav-padding-top, 10px) + 2px);
     z-index: 111;
 }
 
@@ -955,21 +955,24 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
+    --topnav-padding-top: 10px;
+    --topnav-padding-bottom: 4px;
+    --topnav-item-height: 32px;
+    --topnav-gap: 12px;
+    --subnav-height: 28px;
+    --subnav-horizontal-padding: 14px;
+    --topnav-toolbar-offset-base: calc(var(--topnav-padding-top, 10px) + var(--topnav-item-height, 32px));
     background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
 }
 
 #Navcontainer {
-    --topnav-item-height: 25px;
-    --topnav-gap: 10px;
-    --subnav-height: 26px;
-    --subnav-horizontal-padding: 10px;
     --topnav-link-color: #A4B8B6;
     --topnav-link-hover-color: #fff;
     --topnav-link-active-bg: #616161;
     --topnav-link-active-border: #616161;
     --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
     color: #fff;
-    padding: 6px var(--subnav-horizontal-padding) var(--subnav-height);
+    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding, 14px) calc(var(--subnav-height, 28px) + var(--topnav-padding-bottom, 4px));
     position: relative;
 }
 
@@ -977,7 +980,7 @@ a.hometblink:hover {
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
-    gap: var(--topnav-gap);
+    gap: var(--topnav-gap, 12px);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -995,8 +998,8 @@ a.hometblink:hover {
     border-radius: 5px 5px 0 0;
     color: var(--topnav-link-color);
     display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 15px;
+    line-height: var(--topnav-item-height, 32px);
+    padding: 0 calc(var(--subnav-horizontal-padding, 14px) + 4px);
     text-decoration: none;
     white-space: nowrap;
     transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
@@ -1022,14 +1025,14 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-item-height) + 6px);
+    top: calc(var(--topnav-padding-top, 10px) + var(--topnav-item-height, 32px));
     margin: 0;
     list-style: none;
-    padding: 0 var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
+    padding: 0 var(--subnav-horizontal-padding, 14px);
+    min-height: var(--subnav-height, 28px);
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--topnav-gap);
+    gap: var(--topnav-gap, 12px);
     border-top: 1px solid #888;
     border-bottom: 1px solid #eee;
     background-color: var(--color-nav-subnav-start);
@@ -1055,8 +1058,8 @@ a.hometblink:hover {
     cursor: pointer;
     display: block;
     font-weight: normal;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
+    line-height: var(--subnav-height, 28px);
+    padding: 0 calc(var(--subnav-horizontal-padding, 14px) + 4px);
     text-decoration: none;
 }
 
