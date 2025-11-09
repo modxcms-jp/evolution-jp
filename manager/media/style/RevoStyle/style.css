@@ -265,14 +265,14 @@ hr {
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
     display: flex;
-    font-weight: 600;
+    font-weight: 500;
     height: var(--topnav-item-height);
     line-height: var(--topnav-item-height);
     margin: 0;
     padding: 0 18px;
     position: absolute;
     right: var(--subnav-horizontal-padding);
-    top: calc(var(--topnav-padding-top, 10px) - var(--supplemental-nav-border-width) - 1px);
+    top: calc(var(--topnav-padding-top, 10px) - (var(--supplemental-nav-border-width) / 2));
     z-index: 111;
 }
 
