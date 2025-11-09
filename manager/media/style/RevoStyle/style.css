@@ -23,7 +23,7 @@ html, body, form, fieldset {
     --color-accent-green-hover-end: #2d879b;
     --color-accent-green-active-start: #1f5a68;
     --color-accent-green-active-end: #154954;
-    --color-accent-green-muted-start: #e4e8eb;
+    --color-accent-green-muted-start: #e4e4e4;
     --color-accent-green-muted-end: #d2d8dc;
     --color-accent-green-muted-border: #c2c9ce;
     --color-accent-green-muted-text: #566269;
@@ -45,6 +45,10 @@ body {
     line-height: 1.5;
     color: var(--color-text-primary);
     background: var(--color-background-page);
+}
+
+body#mainpane {
+  padding: 8px;
 }
 
 img, a img {
@@ -109,9 +113,9 @@ h1 {
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 7px 7px 7px 10px;
+    padding: 8px;
     border-radius: 3px;
-    margin: 8px 15px 10px;
+    margin: 8px;
 }
 
 h1.draft {
@@ -640,10 +644,10 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 16px;
+    margin: 0 8px;
     padding: 8px 16px;
     font-weight: bold;
-    border: 1px solid var(--color-border-default);
+    border: 1px solid var(--color-section-header-end);
     border-bottom: none;
     background-color: var(--color-section-header-end);
     box-shadow: 0 1px 0 var(--color-surface) inset;
@@ -661,8 +665,7 @@ form .imeoff {
 
 .sectionBody {
     position: relative;
-    display: none;
-    margin: 5px 15px 15px;
+    margin: 8px;
     display: block;
 }
 
@@ -680,7 +683,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 15px 15px;
+    margin: 0 8px 8px;
     background-color: var(--color-surface);
 }
 
@@ -769,6 +772,7 @@ a img {
 div.treeframebody {
     background: #f5f5f5 url(images/misc/subnav.png) !important;
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    padding: 8px;
 }
 
 #treeMenu * {
@@ -887,7 +891,7 @@ div.treeNode {
 }
 
 .grid th, .grid td {
-    padding: 3px 5px;
+    padding: 8px;
 }
 
 .gridHeader, .grid th {
@@ -1320,7 +1324,6 @@ a.hometblink:hover {
     position: relative;
     top: 1px;
     border: 1px solid var(--color-accent-green-muted-border);
-    text-shadow: none;
     border-radius: 5px 5px 0 0;
     background-color: var(--color-accent-green-muted-start);
 }
