@@ -15,7 +15,8 @@
         }
 
         html, body {
-            height: 100%; sans-serif;
+            height: 100%;
+            font-family: sans-serif;
             font-size: 16px;
             line-height: 1.6;
         }
