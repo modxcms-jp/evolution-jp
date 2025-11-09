@@ -260,10 +260,12 @@ hr {
     border: 1px solid rgba(255, 255, 255, .16);
     border-radius: 999px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, .35);
+    box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
     display: flex;
     font-weight: 600;
+    height: var(--topnav-item-height);
     line-height: var(--topnav-item-height);
     margin: 0;
     padding: 0 18px;
