@@ -16,20 +16,20 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
-    --color-accent-green: #375665;
-    --color-accent-green-start: #2f8aa1;
-    --color-accent-green-end: #226b7c;
-    --color-accent-green-hover-start: #37a3bd;
-    --color-accent-green-hover-end: #2d879b;
-    --color-accent-green-active-start: #1f5a68;
-    --color-accent-green-active-end: #154954;
-    --color-accent-green-muted-start: #e4e4e4;
-    --color-accent-green-muted-end: #d2d8dc;
-    --color-accent-green-muted-border: #c2c9ce;
-    --color-accent-green-muted-text: #566269;
-    --color-accent-green-muted-hover-start: #dbe0e4;
-    --color-accent-green-muted-hover-end: #c6cdd2;
-    --color-accent-green-muted-hover-text: #3f4a51;
+    --color-primary: #375665;
+    --color-primary-start: #2f8aa1;
+    --color-primary-end: #226b7c;
+    --color-primary-hover-start: #37a3bd;
+    --color-primary-hover-end: #2d879b;
+    --color-primary-active-start: #1f5a68;
+    --color-primary-active-end: #154954;
+    --color-secondary-start: #e4e4e4;
+    --color-secondary-end: #d2d8dc;
+    --color-secondary-border: #c2c9ce;
+    --color-secondary-text: #566269;
+    --color-secondary-hover-start: #dbe0e4;
+    --color-secondary-hover-end: #c6cdd2;
+    --color-secondary-hover-text: #3f4a51;
     --color-neutral-button-start: #f1f4f6;
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
@@ -1243,7 +1243,7 @@ a.hometblink:hover {
     padding: 6px 4px;
     margin-bottom: 3px;
     text-shadow: 0px -1px 0px #222;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 #mx_contextmenu .seperator {
@@ -1313,7 +1313,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-accent-green-muted-text);
+    color: var(--color-secondary-text);
     font-size: 1em;
     cursor: pointer;
     display: inline;
@@ -1323,9 +1323,9 @@ a.hometblink:hover {
     z-index: 1;
     position: relative;
     top: 1px;
-    border: 1px solid var(--color-accent-green-muted-border);
+    border: 1px solid var(--color-secondary-border);
     border-radius: 5px 5px 0 0;
-    background-color: var(--color-accent-green-muted-start);
+    background-color: var(--color-secondary-start);
 }
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
@@ -1336,10 +1336,10 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
-    color: var(--color-accent-green-muted-hover-text);
-    border-color: var(--color-accent-green-muted-border);
-    background-color: var(--color-accent-green-muted-hover-start);
-    background-image: linear-gradient(var(--color-accent-green-muted-hover-start), var(--color-accent-green-muted-hover-end));
+    color: var(--color-secondary-hover-text);
+    border-color: var(--color-secondary-border);
+    background-color: var(--color-secondary-hover-start);
+    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
@@ -1348,7 +1348,7 @@ a.hometblink:hover {
     top: 1px;
     border-width: 1px;
     border-bottom-style: solid;
-    border-color: var(--color-accent-green-hover-end) #b7c2c7 #FFF #b7c2c7;
+    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
     border-radius: 5px 5px 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
@@ -1367,12 +1367,12 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.hover span {
-    color: var(--color-accent-green-muted-hover-text);
+    color: var(--color-secondary-hover-text);
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover {
     color: #333;
-    border-color: var(--color-accent-green-hover-end) #b7c2c7 #FFF #b7c2c7;
+    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
     background-color: var(--color-surface);
     background-image: none;
 }
@@ -1703,20 +1703,20 @@ ul.actionButtons {
     color: #fff;
     box-shadow: none;
     text-shadow: none;
-    background-color: var(--color-accent-green);
-    border-color: var(--color-accent-green-end);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-end);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-color: var(--color-accent-green-hover-start);
-    border-color: var(--color-accent-green-hover-end);
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-color: var(--color-accent-green-active-start);
-    border-color: var(--color-accent-green-active-end);
+    background-color: var(--color-primary-active-start);
+    border-color: var(--color-primary-active-end);
 }
 
 
