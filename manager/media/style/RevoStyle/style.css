@@ -6,7 +6,7 @@ html, body, form, fieldset {
 
 :root {
     --color-text-primary: #333;
-    --color-background-page: #f4f4f4;
+    --color-background-page: #e8eff2;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
     --color-border-default: #ccc;
@@ -37,7 +37,14 @@ body {
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
-    background: var(--color-background-page);
+    background-color: var(--color-background-page);
+    background-image:
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.6), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(255, 255, 255, 0.45), transparent 50%),
+        radial-gradient(circle at 30% 50%, rgba(255, 255, 255, 0.25), transparent 55%),
+        radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.35), transparent 60%);
+    background-blend-mode: screen;
+    background-attachment: fixed;
 }
 
 img, a img {
@@ -1027,7 +1034,6 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-active-offset: 2px;
     --topnav-background: #0f2d36;
     --topnav-border: #1b4a57;
     --topnav-link-color: #cde3e7;
@@ -1093,7 +1099,6 @@ a.hometblink:hover {
     color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: none;
-    top: var(--topnav-active-offset);
     z-index: 2;
 }
 
@@ -1102,7 +1107,7 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-item-height) + 11px - var(--topnav-active-offset, 0px));
+    top: calc(var(--topnav-item-height) + 11px);
     margin: 0;
     list-style: none;
     padding: 6px var(--subnav-horizontal-padding);
