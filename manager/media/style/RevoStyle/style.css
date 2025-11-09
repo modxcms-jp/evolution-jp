@@ -1027,20 +1027,19 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-sheen: rgba(214, 238, 242, 0.18);
-    --topnav-line: rgba(20, 58, 72, 0.7);
-    --topnav-panel-highlight: #1f6578;
-    --topnav-link-color: #d4e8ed;
+    --topnav-active-offset: 2px;
+    --topnav-background: #0f2d36;
+    --topnav-border: #1b4a57;
+    --topnav-link-color: #cde3e7;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: rgba(114, 193, 208, 0.22);
-    --topnav-link-active-bg: linear-gradient(180deg, var(--topnav-panel-highlight) 0%, #154554 100%);
-    background: linear-gradient(180deg, rgba(27, 82, 100, 0.92) 0%, rgba(13, 37, 45, 0.95) 100%);
-    border-bottom: 1px solid rgba(52, 110, 126, 0.7);
-    box-shadow: inset 0 1px 0 var(--topnav-sheen);
+    --topnav-link-hover-bg: #1b4f5b;
+    --topnav-link-active-bg: #1f5a68;
+    background: var(--topnav-background);
+    border-bottom: 1px solid var(--topnav-border);
 }
 
 #Navcontainer {
-    color: #e7f2f5;
+    color: #e4f1f3;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
     text-shadow: none;
@@ -1068,35 +1067,34 @@ a.hometblink:hover {
 
 #nav > li > a {
     border: 1px solid transparent;
-    border-radius: 8px 8px 0 0;
+    border-radius: 6px 6px 0 0;
     color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
-    padding: 0 22px;
+    padding: 0 20px;
     text-decoration: none;
     white-space: nowrap;
-    background: rgba(255, 255, 255, 0.06);
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+    background: transparent;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
     color: var(--topnav-link-hover-color);
-    background: var(--topnav-link-hover-bg, rgba(114, 193, 208, 0.22));
-    border-color: rgba(133, 200, 212, 0.45);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    background: var(--topnav-link-hover-bg);
+    border-color: var(--topnav-border);
 }
 
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
-    border-color: var(--topnav-line);
+    border-color: var(--topnav-link-active-bg);
     border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: none;
+    top: var(--topnav-active-offset);
     z-index: 2;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 #nav > li > ul.subnav {
@@ -1104,7 +1102,7 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-item-height) + 11px);
+    top: calc(var(--topnav-item-height) + 11px - var(--topnav-active-offset, 0px));
     margin: 0;
     list-style: none;
     padding: 6px var(--subnav-horizontal-padding);
@@ -1114,7 +1112,7 @@ a.hometblink:hover {
     column-gap: var(--topnav-gap);
     row-gap: 6px;
     border-top: none;
-    border-bottom: 1px solid var(--topnav-line);
+    border-bottom: 1px solid var(--topnav-border);
     background: var(--topnav-link-active-bg);
     z-index: 1;
     box-shadow: none;
@@ -1134,7 +1132,7 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #eff8fa;
+    color: #f1fbfc;
     cursor: pointer;
     display: block;
     font-weight: normal;
@@ -1142,19 +1140,18 @@ a.hometblink:hover {
     padding: 0 18px;
     text-decoration: none;
     border-radius: 999px;
-    transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+    transition: background-color .18s ease, color .18s ease;
 }
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: rgba(136, 198, 213, 0.24);
+    background: #267285;
     color: #ffffff;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
     text-shadow: none;
 }
 
 #nav > li > ul.subnav a:active {
-    color: #d5eef2;
+    color: #d9edf1;
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
