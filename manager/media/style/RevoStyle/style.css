@@ -1041,32 +1041,32 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #0f2d36;
-    --topnav-border: #1b4a57;
-    --topnav-link-color: #cde3e7;
+    --topnav-background: #061b24;
+    --topnav-border: #144457;
+    --topnav-link-color: #d6e9ed;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #1b4f5b;
-    --topnav-link-active-bg: #1f5a68;
-    --topnav-highlight-1: rgba(86, 200, 211, 0.28);
-    --topnav-highlight-2: rgba(214, 244, 248, 0.18);
-    --topnav-highlight-3: rgba(11, 70, 85, 0.75);
-    --topnav-highlight-4: rgba(7, 30, 36, 0.65);
-    --topnav-highlight-5: rgba(18, 82, 99, 0.6);
-    --topnav-highlight-6: rgba(10, 52, 62, 0.5);
-    --topnav-highlight-7: rgba(255, 255, 255, 0.1);
-    --topnav-highlight-8: rgba(19, 98, 117, 0.35);
-    --topnav-highlight-9: rgba(4, 26, 32, 0.7);
+    --topnav-link-hover-bg: #1d596d;
+    --topnav-link-active-bg: #1a6579;
+    --topnav-highlight-1: rgba(82, 200, 210, 0.42);
+    --topnav-highlight-2: rgba(52, 147, 167, 0.36);
+    --topnav-highlight-3: rgba(38, 119, 137, 0.4);
+    --topnav-highlight-4: rgba(5, 27, 36, 0.75);
+    --topnav-highlight-5: rgba(27, 114, 138, 0.6);
+    --topnav-highlight-6: rgba(14, 67, 82, 0.5);
+    --topnav-highlight-7: rgba(198, 245, 248, 0.12);
+    --topnav-highlight-8: rgba(37, 108, 126, 0.5);
+    --topnav-highlight-9: rgba(4, 24, 31, 0.78);
     background-color: var(--topnav-background);
     background-image:
-        radial-gradient(120% 200% at 8% 10%, var(--topnav-highlight-1) 0, transparent 70%),
-        radial-gradient(160% 200% at 86% 6%, var(--topnav-highlight-2) 0, transparent 72%),
-        radial-gradient(200% 160% at 72% 88%, var(--topnav-highlight-5) 0, transparent 78%),
-        radial-gradient(180% 180% at 24% 72%, var(--topnav-highlight-6) 0, transparent 74%),
-        radial-gradient(140% 220% at 46% -10%, var(--topnav-highlight-7) 0, transparent 78%),
-        radial-gradient(160% 140% at 58% 46%, var(--topnav-highlight-8) 0, transparent 76%),
-        radial-gradient(220% 200% at 12% 84%, var(--topnav-highlight-9) 0, transparent 82%),
-        linear-gradient(168deg, var(--topnav-highlight-3) 0%, rgba(13, 71, 85, 0.45) 42%, var(--topnav-highlight-4) 100%),
-        linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0%, rgba(6, 32, 39, 0.65) 100%);
+        radial-gradient(150% 150% at 18% 26%, var(--topnav-highlight-1) 0%, transparent 72%),
+        radial-gradient(130% 220% at 84% 14%, var(--topnav-highlight-2) 0%, transparent 74%),
+        radial-gradient(220% 180% at 78% 94%, var(--topnav-highlight-5) 0%, transparent 78%),
+        radial-gradient(210% 230% at 14% 88%, var(--topnav-highlight-6) 0%, transparent 80%),
+        radial-gradient(200% 200% at 52% 12%, var(--topnav-highlight-7) 0%, transparent 78%),
+        radial-gradient(240% 200% at 50% 64%, var(--topnav-highlight-8) 0%, transparent 82%),
+        radial-gradient(200% 250% at 26% 74%, var(--topnav-highlight-9) 0%, transparent 86%),
+        linear-gradient(142deg, var(--topnav-highlight-3) 0%, rgba(9, 44, 56, 0.32) 45%, transparent 78%),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0%, var(--topnav-highlight-4) 100%);
     background-blend-mode: screen, screen, soft-light, color-dodge, screen, soft-light, multiply, overlay, normal;
     border-bottom: 1px solid var(--topnav-border);
 }
