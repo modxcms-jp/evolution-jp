@@ -6,7 +6,7 @@ html, body, form, fieldset {
 
 :root {
     --color-text-primary: #333;
-    --color-background-page: #0f3a4a;
+    --color-background-page: #f4f4f4;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
     --color-border-default: #ccc;
@@ -37,18 +37,7 @@ body {
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
-    background-color: var(--color-background-page);
-    background-image:
-        radial-gradient(1200px circle at 18% 12%, rgba(255, 255, 255, 0.55), transparent 60%),
-        radial-gradient(1100px circle at 82% 18%, rgba(140, 221, 255, 0.4), transparent 65%),
-        radial-gradient(900px circle at 24% 78%, rgba(255, 201, 164, 0.35), transparent 60%),
-        radial-gradient(750px circle at 78% 82%, rgba(255, 255, 255, 0.3), transparent 65%),
-        linear-gradient(140deg, rgba(12, 64, 82, 0.9), rgba(8, 31, 41, 0.95)),
-        linear-gradient(125deg, rgba(255, 255, 255, 0.05) 25%, rgba(255, 255, 255, 0) 25%),
-        linear-gradient(305deg, rgba(255, 255, 255, 0.04) 20%, rgba(255, 255, 255, 0) 20%);
-    background-size: auto, auto, auto, auto, auto, 160px 160px, 120px 120px;
-    background-blend-mode: screen, color-dodge, screen, screen, normal, soft-light, soft-light;
-    background-attachment: fixed;
+    background: var(--color-background-page);
 }
 
 img, a img {
