@@ -34,6 +34,7 @@ $default_config = [
     'mail_check_timeperiod' => '60',
     'manager_direction' => 'ltr',
     'manager_language' => 'japanese-utf8',
+    'manager_menu_height' => '76',
     'manager_theme' => 'RevoStyle',
     'modx_charset' => 'UTF-8',
     'new_file_permissions' => '0644',
