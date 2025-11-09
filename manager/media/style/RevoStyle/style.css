@@ -959,143 +959,114 @@ a.hometblink:hover {
 }
 
 #Navcontainer {
-    padding: 0 10px;
+    --topnav-item-height: 25px;
+    --topnav-gap: 10px;
+    --subnav-height: 26px;
+    --subnav-horizontal-padding: 10px;
+    --topnav-link-color: #A4B8B6;
+    --topnav-link-hover-color: #fff;
+    --topnav-link-active-bg: #616161;
+    --topnav-link-active-border: #616161;
+    --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
     color: #fff;
+    padding: 6px var(--subnav-horizontal-padding) var(--subnav-height);
+    position: relative;
 }
 
 #nav {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: var(--topnav-gap);
     margin: 0;
     padding: 0;
-    height: 25px;
-    width: 100%;
-    position: absolute;
-    top: 6px;
-    overflow: visible !important;
+    list-style: none;
 }
 
 .rtl #nav {
-    right: 10px;
+    flex-direction: row-reverse;
 }
 
-#nav ul {
-    display: none;
-    height: 26px;
-    position: relative;
-    z-index: 500;
-    margin: 0 0 0 -10px;
-    padding: 0 0 0 20px;
-}
-
-.rtl #nav ul {
-    margin: 0 -10px 0 0;
-    padding: 0 20px 0 0;
-}
-
-#nav li {
+#nav > li {
     list-style: none;
-    float: left;
-    width: auto;
-    margin: 0 0 0 10px;
-    padding: 0;
 }
 
-.rtl #nav li {
-    float: right;
-    margin: 0 0 0 3px;
-}
-
-#nav li a {
-    color: #A4B8B6;
-    height: 25px;
+#nav > li > a {
+    border-radius: 5px 5px 0 0;
+    color: var(--topnav-link-color);
+    display: block;
+    line-height: var(--topnav-item-height);
+    padding: 0 15px;
     text-decoration: none;
     white-space: nowrap;
-    cursor: pointer;
-    line-height: 25px;
-    overflow: hidden;
-    padding: 0 15px;
-    float: none !important;
-    float: left;
-    display: block;
+    transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
 }
 
-#nav li ul li a {
-    padding: 0 18px !important;
+#nav > li > a:hover,
+#nav > li > a:active,
+#nav > li > a:focus-visible {
+    color: var(--topnav-link-hover-color);
 }
 
-#nav li ul li a {
-    background: #d4d4d4;
-    float: left;
-    width: auto;
-}
-
-.rtl #nav li ul li a {
-    float: right;
-}
-
-#nav a:hover,
-#nav a:active {
-    color: #fff;
-}
-
-#nav li.active {
-    background: none repeat scroll 0 0 #616161;
-    border-radius: 5px 5px 0 0;
-    box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
-}
-
-#nav li.active a {
-    border-bottom: 1px solid #616161;
-    color: #FFF;
+#nav > li.active > a {
+    background: var(--topnav-link-active-bg);
+    border-bottom: 1px solid var(--topnav-link-active-border);
+    box-shadow: var(--topnav-link-active-shadow);
+    color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: 0 -1px 0 #333;
-    z-index: 999999;
+    z-index: 2;
 }
 
-#nav li.active a:hover {
-    cursor: pointer;
-}
-
-#nav li.active ul.subnav {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    width: 200%;
-    top: 31px;
+#nav > li > ul.subnav {
+    display: none;
+    position: absolute;
     left: 0;
+    right: 0;
+    top: calc(var(--topnav-item-height) + 6px);
+    margin: 0;
+    list-style: none;
+    padding: 0 var(--subnav-horizontal-padding);
+    min-height: var(--subnav-height);
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--topnav-gap);
     border-top: 1px solid #888;
     border-bottom: 1px solid #eee;
+    background-color: var(--color-nav-subnav-start);
+    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    z-index: 1;
 }
 
-#nav li.active ul.subnav {
-    right: 0;
+.rtl #nav > li > ul.subnav {
+    flex-direction: row-reverse;
 }
 
-#nav li.active ul.subnav a {
-    border-bottom: none;
-    color: #fff;
-    font-weight: normal;
-    background-color: var(--color-nav-subnav-end);
-    cursor: pointer;
-    border-left: none;
+#nav > li.active > ul.subnav {
+    display: flex;
 }
 
-#nav li.active ul.subnav li {
+#nav > li > ul.subnav > li {
     margin: 0;
 }
 
-#nav li.active ul.subnav a:hover {
+#nav > li > ul.subnav a {
     color: #fff;
+    cursor: pointer;
+    display: block;
+    font-weight: normal;
+    line-height: var(--subnav-height);
+    padding: 0 18px;
+    text-decoration: none;
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
     text-shadow: 0 0 2px #FFF;
 }
 
-#nav li.active ul.subnav a:active {
+#nav > li > ul.subnav a:active {
     color: #ccc;
-}
-
-#nav li.active ul.subnav,
-#nav li.active ul.subnav a {
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */

@@ -253,13 +253,12 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
     <form name="menuForm" action="l4mnu.php" class="clear">
         <input name="sessToken" type="hidden" id="sessTokenInput" value="<?= md5(session_id()) ?>"/>
-        <div id="Navcontainer">
-            <div id="divNav">
-                <ul id="nav">
-                    <?php
-                    // Concatenate menu items based on permissions
+        <nav id="Navcontainer" class="top-nav">
+            <ul id="nav">
+                <?php
+                // Concatenate menu items based on permissions
 
-                    // Site Menu
+                // Site Menu
                     $item['home'] = item($_lang['home'], 2);             // home
                     $item['preview'] = item($_lang['view_site'], config("site_url"), 1,
                         'target="_blank"'); // preview
@@ -400,9 +399,8 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                             ['id' => '6', 'name' => $_lang['reports'], 'menuitem' => implode("\n", $reportsmenu)]);
                     }
                     ?>
-                </ul>
-            </div>
-        </div>
+            </ul>
+        </nav>
     </form>
 
     <div id="menuSplitter"></div>
