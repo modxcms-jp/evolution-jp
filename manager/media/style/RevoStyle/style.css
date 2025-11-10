@@ -784,6 +784,7 @@ div.treeframebody {
     height: 100%;
     padding: 6px 8px 0;
     line-height: 1.3em;
+    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
 }
 
 #treeHolder {
