@@ -245,8 +245,8 @@ function clean_up($table_prefix)
                     implode(', ', $ids)
                 )
             );
-            unset($ids);
         }
+        $ids = [];
     }
 
     // secure manager documents privatemgr
@@ -282,8 +282,8 @@ function clean_up($table_prefix)
                     $ids
                 )
             );
-            unset($ids);
         }
+        $ids = [];
     }
 }
 
