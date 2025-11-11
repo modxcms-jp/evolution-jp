@@ -1050,11 +1050,14 @@ a.hometblink:hover {
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #274655;
+    --topnav-link-active-bg: #1b2e37;
     background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
 }
-
+#topMenu {
+    background-color: #23393C;
+    background-image: url("images/misc/headers.jpg");
+}
 #Navcontainer {
     color: #e4f1f3;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
@@ -1106,6 +1109,7 @@ a.hometblink:hover {
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
     border-color: var(--topnav-link-active-bg);
+    border-top: 1px solid var(--topnav-border);
     border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
@@ -1127,7 +1131,7 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
     row-gap: 6px;
-    border-top: none;
+    border-top: 1px solid var(--topnav-border);
     border-bottom: 1px solid var(--topnav-border);
     background: var(--topnav-link-active-bg);
     z-index: 1;
@@ -1155,13 +1159,13 @@ a.hometblink:hover {
     line-height: var(--subnav-height);
     padding: 0 18px;
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: 8px;
     transition: background-color .18s ease, color .18s ease;
 }
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: #267285;
+    background: #184753;
     color: #ffffff;
     text-shadow: none;
 }
