@@ -122,10 +122,12 @@ trait DocumentParserSubParserTrait
     function logEvent($evtid, $type, $msg, $title = 'Parser')
     {
         global $modx;
-        if (!db()->isConnected()) {
+        $isDbConnected = db()->isConnected();
+        $shouldWriteFile = (int)config('event_log_enable_file', 0) === 1;
+        if (!$isDbConnected && !$shouldWriteFile) {
             return;
         }
-        if (!$modx->config) {
+        if ($isDbConnected && !$modx->config) {
             $modx->getSettings();
         }
         $evtid = (int)$evtid;
@@ -136,11 +138,21 @@ trait DocumentParserSubParserTrait
         if (3 < $type) {
             $type = 3;
         }
-        if (db()->isConnected()) {
-            $msg = db()->escape($msg);
+        if (is_array($msg) || is_object($msg)) {
+            $msg = print_r($msg, true);
+        } elseif (is_bool($msg)) {
+            $msg = $msg ? 'true' : 'false';
+        } elseif (!is_string($msg)) {
+            $msg = (string)$msg;
         }
+        $rawMessage = $msg;
+        if ($title === '') {
+            $title = 'no title';
+        }
+        $rawTitle = $title;
         $title = hsc($title);
-        if (db()->isConnected()) {
+        if ($isDbConnected) {
+            $msg = db()->escape($msg);
             $title = db()->escape($title);
         }
         if (function_exists('mb_substr')) {
@@ -159,12 +171,21 @@ trait DocumentParserSubParserTrait
         $fields['source'] = $title;
         $fields['description'] = $msg;
         $fields['user'] = $LoginUserID;
-        $_ = db()->lastQuery;
-        if (db()->isConnected()) {
-            $insert_id = db()->insert($fields, '[+prefix+]event_log');
-        } else {
-            $title = 'DB connect error';
+        $this->writeEventLogToFile(
+            [
+                'eventid' => $fields['eventid'],
+                'type' => $fields['type'],
+                'createdon' => $fields['createdon'],
+                'source' => $rawTitle,
+                'user' => $fields['user'],
+            ],
+            $rawMessage
+        );
+        if (!$isDbConnected) {
+            return;
         }
+        $_ = db()->lastQuery;
+        $insert_id = db()->insert($fields, '[+prefix+]event_log');
         $modx->db->lastQuery = $_;
         if (config('send_errormail') && config('send_errormail') <= $type) {
             $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
@@ -198,6 +219,85 @@ trait DocumentParserSubParserTrait
             $limit = (int)evo()->config('event_log_limit', 2000);
             $modx->rotate_log('event_log', $limit, $trim);
         }
+    }
+
+    protected function writeEventLogToFile(array $logEntry, $message)
+    {
+        if ((int)config('event_log_enable_file', 0) !== 1) {
+            return;
+        }
+        $path = (string)config('event_log_file_path', '');
+        if ($path === '') {
+            $path = rtrim(MODX_BASE_PATH, '/\\') . '/temp/logs/event.log';
+        } elseif (!$this->isAbsolutePath($path)) {
+            $path = rtrim(MODX_BASE_PATH, '/\\') . '/' . ltrim($path, '/\\');
+        }
+        $directory = dirname($path);
+        if (!is_dir($directory)) {
+            $created = @mkdir($directory, 0777, true);
+            if (!$created && !is_dir($directory)) {
+                return;
+            }
+        }
+
+        $typeLabels = [
+            1 => 'INFO',
+            2 => 'WARN',
+            3 => 'ERROR',
+        ];
+        $type = array_get($typeLabels, $logEntry['type'], 'INFO');
+        $timestamp = date('Y-m-d H:i:s', (int)$logEntry['createdon']);
+        $source = $logEntry['source'] !== '' ? $logEntry['source'] : 'no title';
+        $user = $logEntry['user'] !== '' ? $logEntry['user'] : '0';
+        $eventId = isset($logEntry['eventid']) ? (int)$logEntry['eventid'] : 0;
+        $formattedMessage = $this->formatEventLogMessage($message);
+        if ($formattedMessage === '') {
+            $formattedMessage = '-';
+        }
+
+        $logText = sprintf(
+            "[%s] [%s] [event:%d] [user:%s] %s\n%s\n\n",
+            $timestamp,
+            $type,
+            $eventId,
+            $user,
+            $source,
+            $formattedMessage
+        );
+
+        @file_put_contents($path, $logText, FILE_APPEND | LOCK_EX);
+    }
+
+    protected function isAbsolutePath($path)
+    {
+        if ($path === '') {
+            return false;
+        }
+        if ($path[0] === '/' || $path[0] === '\\') {
+            return true;
+        }
+        return (bool)preg_match('@^[A-Za-z]:[\\/]@', $path);
+    }
+
+    protected function formatEventLogMessage($message)
+    {
+        if (is_array($message) || is_object($message)) {
+            $message = print_r($message, true);
+        } elseif (is_bool($message)) {
+            $message = $message ? 'true' : 'false';
+        } elseif (!is_string($message)) {
+            $message = (string)$message;
+        }
+        if ($message === '') {
+            return '';
+        }
+        $charset = config('modx_charset', 'UTF-8');
+        $message = html_entity_decode($message, ENT_QUOTES, $charset);
+        $message = strip_tags($message);
+        $message = str_replace(["\r\n", "\r"], "\n", $message);
+        $message = trim($message);
+        $message = str_replace("\n", PHP_EOL, $message);
+        return $message;
     }
 
     function clearCache($params = [])

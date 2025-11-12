@@ -99,6 +99,8 @@ $default_config = [
     'manager_docs_orderby' => 'isfolder desc, publishedon desc, editedon desc, id desc',
     'manager_treepane_trim_title' => 1,
     'convert_datauri_to_file' => '1',
+    'event_log_enable_file' => '0',
+    'event_log_file_path' => 'temp/logs/event.log',
 ];
 
 if (getv('a') !== '17') {

@@ -220,6 +220,23 @@
                 <?= $_lang["nologentries_message"] ?></td>
         </tr>
         <tr>
+            <th><?= lang('setting_event_log_enable_file') ?></th>
+            <td>
+                <?= wrap_label(lang('enabled'),
+                    form_radio('event_log_enable_file', 1, config('event_log_enable_file') == 1)); ?><br/>
+                <?= wrap_label(lang('disabled'),
+                    form_radio('event_log_enable_file', 0, config('event_log_enable_file') == 0)); ?><br/>
+                <?= lang('setting_event_log_enable_file_desc') ?>
+            </td>
+        </tr>
+        <tr>
+            <th><?= lang('setting_event_log_file_path') ?></th>
+            <td>
+                <?= form_text('event_log_file_path', 255, 'style="width:95%;"') ?><br/>
+                <?= lang('setting_event_log_file_path_desc') ?>
+            </td>
+        </tr>
+        <tr>
             <th><?= $_lang["automatic_optimize_table_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],
