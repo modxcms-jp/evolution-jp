@@ -326,7 +326,7 @@ class DocumentParser
         if (strpos($uri, '?') === false) {
             return $uri;
         }
-        $qs = $this->removeTrackingParameters($_GET);
+        $qs = $this->removeTrackingParameters(getv());
         ksort($qs);
         return strstr($uri, '?', true) . '?' . http_build_query($qs);
     }
@@ -485,7 +485,9 @@ class DocumentParser
                 $_SERVER[$key] = null;
             }
         }
-        $this->sanitize_gpc($_GET);
+        $get = getv();
+        $this->sanitize_gpc($get);
+        globalv('*_GET', $get);
         if ($this->isBackend()) {
             if (session_id() === '' || $this->session('mgrPermissions.save_document') != 1) {
                 $this->sanitize_gpc($_POST);
@@ -509,7 +511,7 @@ class DocumentParser
             return '';
         }
 
-        $qs = $_GET;
+        $qs = getv();
         if (isset($qs['id'])) {
             unset($qs['id']);
         }
@@ -5806,7 +5808,7 @@ class DocumentParser
 
     public function input_get($key = null, $default = null)
     {
-        return $this->array_get($_GET, $key, $default);
+        return getv($key, $default);
     }
 
     public function input_post($key = null, $default = null)

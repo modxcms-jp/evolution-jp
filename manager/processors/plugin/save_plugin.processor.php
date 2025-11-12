@@ -67,8 +67,8 @@ switch (postv('mode')) {
                 // prepare a few variables prior to redisplaying form...
                 $content = [];
                 $_REQUEST['a'] = '101';
-                $_GET['a'] = '101';
-                $_GET['stay'] = postv('stay');
+                globalv('*_GET.a', '101');
+                globalv('*_GET.stay', postv('stay'));
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');
@@ -136,8 +136,8 @@ switch (postv('mode')) {
                 // prepare a few variables prior to redisplaying form...
                 $content = [];
                 $_REQUEST['a'] = '102';
-                $_GET['a'] = '102';
-                $_GET['stay'] = postv('stay');
+                globalv('*_GET.a', '102');
+                globalv('*_GET.stay', postv('stay'));
                 $content = array_merge($content, $_POST);
                 $content['locked'] = $locked;
                 $content['plugincode'] = postv('post');

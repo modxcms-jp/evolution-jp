@@ -46,7 +46,7 @@ $modx->getSettings();
 global $fckphp_config;
 include_once __DIR__ . '/config.php';
 
-$request = ConnectorRequest::fromGlobals($_GET, $_POST, $_FILES, $_SERVER, $_COOKIE);
+$request = ConnectorRequest::fromGlobals(getv(), $_POST, $_FILES, $_SERVER, $_COOKIE);
 $kernel = new ConnectorKernel($modx, $fckphp_config, __DIR__ . '/Commands');
 
 $kernel->handle($request, isset($_SESSION) ? $_SESSION : []);

@@ -1123,7 +1123,7 @@ class ditto
         global $dittoID;
         $dittoID = ($dittoIdentifier !== false) ? $dittoIdentifier : $dittoID;
         $query = [];
-        foreach ($_GET as $param => $value) {
+        foreach (getv() as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $clean_param = hsc($param, ENT_QUOTES);
                 if (is_array($value)) {
@@ -1211,7 +1211,7 @@ class ditto
         if ($previous != 0) {
             $prevUrl = self::buildURL('start=' . $previous);
         } else {
-            $args = $_GET;
+            $args = getv();
             if (isset($args[$dittoID . 'start'])) {
                 unset($args[$dittoID . 'start']);
             }

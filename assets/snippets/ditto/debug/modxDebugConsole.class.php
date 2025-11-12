@@ -81,7 +81,7 @@ class modxDebugConsole
     {
         global $modx;
         $query = [];
-        foreach ($_GET as $param => $value) {
+        foreach (getv() as $param => $value) {
             if ($param !== 'id' && $param !== 'q') {
                 $query[htmlspecialchars($param, ENT_QUOTES)] = htmlspecialchars($value, ENT_QUOTES);
             }

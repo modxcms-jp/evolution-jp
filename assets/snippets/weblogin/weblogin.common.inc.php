@@ -70,7 +70,7 @@ function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
 function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = false)
 {
     global $modx;
-    $array_get = $_GET;
+    $array_get = getv();
     $urlstring = [];
 
     unset($array_get['id'], $array_get['q'], $array_get['webloginmode']);

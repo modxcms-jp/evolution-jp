@@ -152,7 +152,7 @@ class DataSetPager
                     $url = $_SERVER['PHP_SELF'] . '?';
                 }
                 $i = 0;
-                foreach ($_GET as $n => $v) {
+                foreach (getv() as $n => $v) {
                     if ($n != 'dpgn' . $this->id) {
                         $i++;
                         $url .= (($i > 1) ? "&" : "") . "$n=$v";

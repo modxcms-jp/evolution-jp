@@ -63,7 +63,7 @@ switch (postv('mode')) {
             $_REQUEST['a'] = '19';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
             $_POST['category'] = $categoryid;
-            $_GET['stay'] = postv('stay');
+            globalv('*_GET.stay', postv('stay'));
             include(MODX_MANAGER_PATH . 'actions/header.inc.php');
             include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
             include(MODX_MANAGER_PATH . 'actions/footer.inc.php');
@@ -113,7 +113,7 @@ switch (postv('mode')) {
             $_REQUEST['a'] = '16';
             $_POST['locked'] = postv('locked') == 'on' ? 1 : 0;
             $_POST['category'] = $categoryid;
-            $_GET['stay'] = postv('stay');
+            globalv('*_GET.stay', postv('stay'));
             include(MODX_MANAGER_PATH . 'actions/header.inc.php');
             include(MODX_MANAGER_PATH . 'actions/element/mutate_templates.dynamic.php');
             include(MODX_MANAGER_PATH . 'actions/footer.inc.php');

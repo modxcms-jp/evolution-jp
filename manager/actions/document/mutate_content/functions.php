@@ -497,7 +497,8 @@ function checkPermissions($id)
     global $modx;
 
     $isAllowed = manager()->isAllowed($id);
-    if (!isset($_GET['pid']) && !$isAllowed) {
+    $request = getv();
+    if (!array_key_exists('pid', $request) && !$isAllowed) {
         alert()->setError(3);
         alert()->dumpError();
     }

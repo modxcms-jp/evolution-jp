@@ -57,8 +57,8 @@ switch (postv('mode')) {
             // prepare a few variables prior to redisplaying form...
             $content = [];
             $_REQUEST['a'] = '107';
-            $_GET['a'] = '107';
-            $_GET['stay'] = postv('stay');
+            globalv('*_GET.a', '107');
+            globalv('*_GET.stay', postv('stay'));
             $content = array_merge($content, $_POST);
             $content['wrap'] = $wrap;
             $content['disabled'] = $disabled;
