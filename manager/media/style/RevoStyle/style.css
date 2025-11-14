@@ -16,17 +16,24 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
-    --color-accent-green-start: #8aae4b;
-    --color-accent-green-end: #66901b;
-    --color-accent-green-hover-start: #90bf40;
-    --color-accent-green-hover-end: #82af33;
-    --color-accent-green-active-start: #749c2f;
-    --color-accent-green-active-end: #4b7109;
-    --color-neutral-button-start: #fafafa;
-    --color-neutral-button-end: #d2d2d2;
-    --color-neutral-button-hover-end: #e5e5e5;
-    --color-neutral-button-active-start: #f0f0f0;
-    --color-neutral-button-active-end: #cecece;
+    --color-primary: #375665;
+    --color-primary-start: #2f8aa1;
+    --color-primary-end: #226b7c;
+    --color-primary-hover-start: #37a3bd;
+    --color-primary-hover-end: #2d879b;
+    --color-primary-active-start: #1f5a68;
+    --color-primary-active-end: #154954;
+    --color-secondary-start: #e4e4e4;
+    --color-secondary-end: #d2d8dc;
+    --color-secondary-border: #c2c9ce;
+    --color-secondary-text: #566269;
+    --color-secondary-hover-start: #dbe0e4;
+    --color-secondary-hover-end: #c6cdd2;
+    --color-secondary-hover-text: #3f4a51;
+    --color-neutral-button-start: #f1f4f6;
+    --color-neutral-button-hover-end: #e6ecef;
+    --color-neutral-button-active-start: #dbe3e7;
+    --color-neutral-button-border: #b9c4c9;
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
 }
@@ -38,6 +45,10 @@ body {
     line-height: 1.5;
     color: var(--color-text-primary);
     background: var(--color-background-page);
+}
+
+body#mainpane {
+  padding: 8px;
 }
 
 img, a img {
@@ -102,9 +113,9 @@ h1 {
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 7px 7px 7px 10px;
+    padding: 8px;
     border-radius: 3px;
-    margin: 8px 15px 10px;
+    margin: 8px;
 }
 
 h1.draft {
@@ -455,15 +466,18 @@ form select:focus {
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid green;
+    border: 1px solid var(--color-neutral-button-border);
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 5px;
     min-height: 27px;
     padding: 4px 10px;
     overflow: visible;
-    background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    background-color: var(--color-neutral-button-start);
+    color: var(--color-text-primary);
     border-radius: 3px;
+    box-shadow: none;
+    text-shadow: none;
 }
 
 input.checkbox,
@@ -480,8 +494,13 @@ input[type="button"] {
 }
 
 input:is([type="button"], [type="submit"]):hover {
-    border-color: green;
-    background: linear-gradient(#ffffff, #eeeeee);
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
+}
+
+input:is([type="button"], [type="submit"]):active {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
 }
 
 select {
@@ -625,15 +644,14 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 15px;
-    padding: 5px 9px 5px 15px;
+    margin: 0 8px;
+    padding: 8px 16px;
     font-weight: bold;
-    border: 1px solid var(--color-border-default);
+    border: 1px solid var(--color-section-header-end);
     border-bottom: none;
-    text-shadow: 0 1px 0 var(--color-surface);
-    background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
+    background-color: var(--color-section-header-end);
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 5px 5px 0 0;
+    border-radius: 8px 8px 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -647,8 +665,7 @@ form .imeoff {
 
 .sectionBody {
     position: relative;
-    display: none;
-    margin: 5px 15px 15px;
+    margin: 8px;
     display: block;
 }
 
@@ -666,7 +683,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 15px 15px;
+    margin: 0 8px 8px;
     background-color: var(--color-surface);
 }
 
@@ -755,6 +772,7 @@ a img {
 div.treeframebody {
     background: #f5f5f5 url(images/misc/subnav.png) !important;
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    padding: 8px;
 }
 
 #treeMenu * {
@@ -874,7 +892,7 @@ div.treeNode {
 }
 
 .grid th, .grid td {
-    padding: 3px 5px;
+    padding: 8px;
 }
 
 .gridHeader, .grid th {
@@ -1022,23 +1040,29 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 12px;
-    --topnav-link-color: #A4B8B6;
-    --topnav-link-hover-color: #fff;
-    --topnav-link-active-bg: #616161;
-    --topnav-link-active-border: #616161;
-    --topnav-link-active-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+    --topnav-padding-top: 14px;
+    --topnav-background: #062a36;
+    --topnav-border: #10475a;
+    --topnav-link-color: #e1f1f4;
+    --topnav-link-hover-color: #ffffff;
+    --topnav-link-hover-bg: #195a70;
+    --topnav-link-active-bg: #1b2e37;
+    background-color: var(--topnav-background);
+    border-bottom: 1px solid var(--topnav-border);
 }
-
+#topMenu {
+    background-color: #23393C;
+    background-image: url("images/misc/headers.jpg");
+}
 #Navcontainer {
-    color: #fff;
+    color: #e4f1f3;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
+    text-shadow: none;
 }
 
 #nav {
@@ -1062,28 +1086,34 @@ a.hometblink:hover {
 }
 
 #nav > li > a {
-    border-radius: 5px 5px 0 0;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
     color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
     padding: 0 20px;
     text-decoration: none;
     white-space: nowrap;
-    transition: color .15s ease, background-color .15s ease, box-shadow .15s ease;
+    background: transparent;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
 }
 
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
     color: var(--topnav-link-hover-color);
+    background: var(--topnav-link-hover-bg);
+    border-color: var(--topnav-border);
 }
 
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
-    border-bottom: 1px solid var(--topnav-link-active-border);
+    border-color: var(--topnav-link-active-bg);
+    border-top: 1px solid var(--topnav-border);
+    border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
-    text-shadow: 0 -1px 0 #333;
+    text-shadow: none;
     z-index: 2;
 }
 
@@ -1101,11 +1131,11 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
     row-gap: 6px;
-    border-top: 1px solid #888;
-    border-bottom: 1px solid #eee;
-    background-color: var(--color-nav-subnav-start);
-    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    border-top: 1px solid var(--topnav-border);
+    border-bottom: 1px solid var(--topnav-border);
+    background: var(--topnav-link-active-bg);
     z-index: 1;
+    box-shadow: none;
 }
 
 .rtl #nav > li > ul.subnav {
@@ -1122,22 +1152,26 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #fff;
+    color: #f1fbfc;
     cursor: pointer;
     display: block;
     font-weight: normal;
     line-height: var(--subnav-height);
     padding: 0 18px;
     text-decoration: none;
+    border-radius: 8px;
+    transition: background-color .18s ease, color .18s ease;
 }
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    text-shadow: 0 0 2px #FFF;
+    background: #184753;
+    color: #ffffff;
+    text-shadow: none;
 }
 
 #nav > li > ul.subnav a:active {
-    color: #ccc;
+    color: #d9edf1;
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
@@ -1205,7 +1239,7 @@ a.hometblink:hover {
     padding: 6px 4px;
     margin-bottom: 3px;
     text-shadow: 0px -1px 0px #222;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 #mx_contextmenu .seperator {
@@ -1275,20 +1309,19 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
-    color: #313131;
+    color: var(--color-secondary-text);
     font-size: 1em;
     cursor: pointer;
     display: inline;
     margin: 3px 2px 1px 0;
     float: left;
-    padding: 3px 10px;
+    padding: 8px 16px;
     z-index: 1;
     position: relative;
     top: 1px;
-    border: 1px solid #658f1a;
-    text-shadow: 0px -1px 0px #2B5F0C;
+    border: 1px solid var(--color-secondary-border);
     border-radius: 5px 5px 0 0;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    background-color: var(--color-secondary-start);
 }
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
@@ -1299,7 +1332,10 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
-    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
+    color: var(--color-secondary-hover-text);
+    border-color: var(--color-secondary-border);
+    background-color: var(--color-secondary-hover-start);
+    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
@@ -1308,7 +1344,7 @@ a.hometblink:hover {
     top: 1px;
     border-width: 1px;
     border-bottom-style: solid;
-    border-color: #ffcc72 #AAA #FFF #AAA;
+    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
     border-radius: 5px 5px 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
@@ -1322,12 +1358,27 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab span {
-    color: #fff;
+    color: inherit;
     text-decoration: none;
 }
 
+.dynamic-tab-pane-control .tab-row .tab.hover span {
+    color: var(--color-secondary-hover-text);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+    color: #333;
+    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
+    background-color: var(--color-surface);
+    background-image: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+    color: #111;
+}
+
 .dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #ffcc72;
+    color: #c00;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected .alert {
@@ -1435,7 +1486,7 @@ table.sortabletable {
 }
 
 .sortabletable td, .sortabletable th {
-    padding: 3px 5px;
+    padding: 8px;
     border: 1px solid #ccc;
 }
 
@@ -1520,18 +1571,18 @@ h2#edit_document_title {
 /* from https://github.com/manse/ScienceStyle */
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0 -1px 0 0;
-    padding: 8px 5px 7px 10px !important;
+    margin: 0;
+    padding: 8px 16px !important;
     position: fixed;
     right: 16px;
     text-align: right;
-    top: 5px;
+    top: 8px;
     z-index: 100;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 select#stay {
-    padding: 5px 5px 5px 2px;
+    padding: 8px;
 }
 
 .rtl #actions {
@@ -1583,19 +1634,15 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 2px;
+    border-radius: 4px;
     color: #444;
     font-size: 1em;
-    text-shadow: 0 1px 0 #fff;
     font-weight: 700;
     outline: medium none;
-    padding: 4px 10px;
+    padding: 8px 12px;
     text-decoration: none;
-    vertical-align: top;
     white-space: nowrap;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
     background-color: var(--color-neutral-button-start);
-    background-image: linear-gradient(var(--color-neutral-button-start), var(--color-neutral-button-end));
 }
 
 .actionButtons a img {
@@ -1603,24 +1650,27 @@ ul.actionButtons {
 }
 
 .actionButtons a:hover {
-    border-color: #fff;
-    background-image: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
 }
 
 .actionButtons a:active {
-    border-color: #F0F0F0;
-    background-image: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
 }
 
 .actionButtons a.disabled {
-    border: 1px solid #657587;
+    border: 1px solid var(--color-border-default);
     padding: 2px 4px;
     color: #777;
-    border-width: 0;
+    background-color: var(--color-surface);
+    cursor: default;
+    pointer-events: none;
 }
 
 .actionButtons .opendraft a {
-    background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
+    background-color: var(--color-draft-start);
+    border-color: var(--color-draft-end);
 }
 
 .actionButtons select, .actionButtons span.and {
@@ -1647,19 +1697,22 @@ ul.actionButtons {
 .actionButtons a.primary,
 .actionButtons a.default {
     color: #fff;
-    box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
-    text-shadow: 0 -1px 0 #2B5F0C;
-    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
+    box-shadow: none;
+    text-shadow: none;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-end);
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-image: linear-gradient(var(--color-accent-green-hover-start), var(--color-accent-green-hover-end));
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
+    background-color: var(--color-primary-active-start);
+    border-color: var(--color-primary-active-end);
 }
 
 
