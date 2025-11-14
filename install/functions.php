@@ -711,8 +711,10 @@ function validateSessionValues() {
         'managerlanguage'
     ];
 
+    $missing = new stdClass();
+
     foreach ($requiredKeys as $key) {
-        if (!sessionv($key)) {
+        if (sessionv($key, $missing) === $missing) {
             return false;
         }
     }
