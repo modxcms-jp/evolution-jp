@@ -38,19 +38,22 @@
             target.addClass('is-active').attr('aria-pressed', 'true');
         }
     };
-    var areAllSelectableChecked = function () {
-        var selectable = selectableCheckboxes();
-        if (!selectable.length) {
-            return false;
-        }
-        return selectable.filter(':checked').length === selectable.length;
-    };
     var updateActiveToggleState = function () {
-        if (areAllSelectableChecked()) {
-            setActiveToggle(allToggleButton);
-        } else {
+        var selectable = selectableCheckboxes();
+        var selectableCount = selectable.length;
+        var areButtonsDisabled = selectableCount === 0;
+        toggleButtons
+            .prop('disabled', areButtonsDisabled)
+            .attr('aria-disabled', areButtonsDisabled ? 'true' : 'false');
+        if (selectableCount === 0) {
             setActiveToggle(null);
+            return;
         }
+        if (selectable.filter(':checked').length === selectableCount) {
+            setActiveToggle(allToggleButton);
+            return;
+        }
+        setActiveToggle(null);
     };
 
     jQuery('#toggle_check_all').click(function (evt) {
