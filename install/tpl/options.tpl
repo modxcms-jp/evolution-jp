@@ -45,34 +45,37 @@
         }
         return selectable.filter(':checked').length === selectable.length;
     };
+    var updateActiveToggleState = function () {
+        if (areAllSelectableChecked()) {
+            setActiveToggle(allToggleButton);
+        } else {
+            setActiveToggle(null);
+        }
+    };
 
     jQuery('#toggle_check_all').click(function (evt) {
         evt.preventDefault();
         selectableCheckboxes().prop('checked', true);
-        setActiveToggle(jQuery(this));
+        updateActiveToggleState();
     });
     jQuery('#toggle_check_none').click(function (evt) {
         evt.preventDefault();
         selectableCheckboxes().prop('checked', false);
-        setActiveToggle(null);
+        updateActiveToggleState();
     });
     jQuery('#toggle_check_toggle').click(function (evt) {
         evt.preventDefault();
         selectableCheckboxes().prop('checked', function () {
             return !jQuery(this).prop('checked');
         });
-        if (areAllSelectableChecked()) {
-            setActiveToggle(allToggleButton);
-        } else {
-            setActiveToggle(null);
-        }
+        updateActiveToggleState();
     });
 
     checkboxes.change(function () {
-        setActiveToggle(null);
+        updateActiveToggleState();
     });
 
-    var handleSampleDataCheckbox = function (shouldResetActiveState) {
+    var handleSampleDataCheckbox = function () {
         var demo = jQuery('#installdata_field').prop('checked');
         jQuery('input:checkbox.toggle.demo').each(function () {
             if (demo) {
@@ -81,18 +84,13 @@
                 jQuery(this).prop('disabled', false);
             }
         });
-        if (shouldResetActiveState) {
-            setActiveToggle(null);
-        }
+        updateActiveToggleState();
     };
 
     jQuery('#installdata_field').click(function () {
-        handleSampleDataCheckbox(true);
+        handleSampleDataCheckbox();
     });
 
     // handle state of demo content checkbox on page load
-    handleSampleDataCheckbox(false);
-    if (areAllSelectableChecked()) {
-        setActiveToggle(allToggleButton);
-    }
+    handleSampleDataCheckbox();
 </script>
