@@ -26,35 +26,73 @@
         jQuery('#install').submit();
     });
 
+    var toggleButtons = jQuery('.toggle-action');
+    var allToggleButton = jQuery('#toggle_check_all');
+    var checkboxes = jQuery('input:checkbox.toggle');
+    var selectableCheckboxes = function () {
+        return checkboxes.filter(':not(:disabled)');
+    };
+    var setActiveToggle = function (target) {
+        toggleButtons.removeClass('is-active').attr('aria-pressed', 'false');
+        if (target && target.length) {
+            target.addClass('is-active').attr('aria-pressed', 'true');
+        }
+    };
+    var areAllSelectableChecked = function () {
+        var selectable = selectableCheckboxes();
+        if (!selectable.length) {
+            return false;
+        }
+        return selectable.filter(':checked').length === selectable.length;
+    };
+
     jQuery('#toggle_check_all').click(function (evt) {
         evt.preventDefault();
-        jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', true);
+        selectableCheckboxes().prop('checked', true);
+        setActiveToggle(jQuery(this));
     });
     jQuery('#toggle_check_none').click(function (evt) {
         evt.preventDefault();
-        jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', false);
+        selectableCheckboxes().prop('checked', false);
+        setActiveToggle(null);
     });
     jQuery('#toggle_check_toggle').click(function (evt) {
         evt.preventDefault();
-        jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', function () {
+        selectableCheckboxes().prop('checked', function () {
             return !jQuery(this).prop('checked');
         });
-    });
-    jQuery('#installdata_field').click(function (evt) {
-        handleSampleDataCheckbox();
+        if (areAllSelectableChecked()) {
+            setActiveToggle(allToggleButton);
+        } else {
+            setActiveToggle(null);
+        }
     });
 
-    var handleSampleDataCheckbox = function () {
-        demo = jQuery('#installdata_field').prop('checked');
-        jQuery('input:checkbox.toggle.demo').each(function (ix, el) {
+    checkboxes.change(function () {
+        setActiveToggle(null);
+    });
+
+    var handleSampleDataCheckbox = function (shouldResetActiveState) {
+        var demo = jQuery('#installdata_field').prop('checked');
+        jQuery('input:checkbox.toggle.demo').each(function () {
             if (demo) {
                 jQuery(this).prop('checked', true).prop('disabled', true);
             } else {
                 jQuery(this).prop('disabled', false);
             }
         });
-    }
+        if (shouldResetActiveState) {
+            setActiveToggle(null);
+        }
+    };
+
+    jQuery('#installdata_field').click(function () {
+        handleSampleDataCheckbox(true);
+    });
 
     // handle state of demo content checkbox on page load
-    handleSampleDataCheckbox();
+    handleSampleDataCheckbox(false);
+    if (areAllSelectableChecked()) {
+        setActiveToggle(allToggleButton);
+    }
 </script>

@@ -76,9 +76,9 @@ function show_object_list($ph)
     $tpl = <<< TPL
 <p>[+optional_items_upd_note+]</p>
 <p class="actions">
-    <a id="toggle_check_all" href="javascript:void(0);">[+all+]</a>
-    <a id="toggle_check_none" href="javascript:void(0);">[+none+]</a>
-    <a id="toggle_check_toggle" href="javascript:void(0);">[+toggle+]</a>
+    <button type="button" id="toggle_check_all" class="toggle-action" aria-pressed="false">[+all+]</button>
+    <button type="button" id="toggle_check_none" class="toggle-action" aria-pressed="false">[+none+]</button>
+    <button type="button" id="toggle_check_toggle" class="toggle-action" aria-pressed="false">[+toggle+]</button>
 </p>
 <div id="installChoices">
 [+objects+]
