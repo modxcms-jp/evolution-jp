@@ -30,6 +30,24 @@ body {
     flex-direction: column;
 }
 
+:root {
+    --installer-field-bg: #ffffff;
+    --installer-field-border: #c9d2dc;
+    --installer-field-text: #2e3d4f;
+    --installer-field-bg-focus: #f7f9fc;
+    --installer-field-border-focus: #9bb0c3;
+    --installer-field-text-focus: #1f2c3a;
+    --installer-field-shadow: rgba(60, 120, 216, 0.15);
+    --installer-field-ring: rgba(60, 120, 216, 0.25);
+    --installer-field-bg-disabled: #f3f5f8;
+    --installer-field-border-disabled: #d7dde6;
+    --installer-field-text-disabled: #8f9aaa;
+    --installer-field-placeholder: #9aa5b3;
+    --installer-select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%2339475a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+    --installer-select-arrow-active: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%231f2c3a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+    --installer-select-arrow-disabled: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%238f9aaa' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+}
+
 label {
     cursor: pointer;
 }
@@ -610,11 +628,11 @@ textarea {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: #ffffff;
-    border: 1px solid #c9d2dc;
+    background-color: var(--installer-field-bg, #ffffff);
+    border: 1px solid var(--installer-field-border, #c9d2dc);
     border-radius: 4px;
     box-shadow: none;
-    color: #2e3d4f;
+    color: var(--installer-field-text, #2e3d4f);
     padding: 0.5em 0.8em;
     transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
@@ -636,10 +654,10 @@ input[type="url"]:focus,
 input[type="search"]:focus,
 input[type="tel"]:focus,
 textarea:focus {
-    background-color: #f7f9fc;
-    border-color: #9bb0c3;
-    color: #1f2c3a;
-    box-shadow: 0 0 0 1px rgba(60, 120, 216, 0.15);
+    background-color: var(--installer-field-bg-focus, #f7f9fc);
+    border-color: var(--installer-field-border-focus, #9bb0c3);
+    color: var(--installer-field-text-focus, #1f2c3a);
+    box-shadow: 0 0 0 1px var(--installer-field-shadow, rgba(60, 120, 216, 0.15));
 }
 
 input[type="text"]:focus-visible,
@@ -651,7 +669,7 @@ input[type="search"]:focus-visible,
 input[type="tel"]:focus-visible,
 textarea:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(60, 120, 216, 0.25);
+    box-shadow: 0 0 0 2px var(--installer-field-ring, rgba(60, 120, 216, 0.25));
 }
 
 input[type="text"]:disabled,
@@ -662,9 +680,9 @@ input[type="url"]:disabled,
 input[type="search"]:disabled,
 input[type="tel"]:disabled,
 textarea:disabled {
-    color: #8f9aaa;
-    background-color: #f3f5f8;
-    border-color: #d7dde6;
+    color: var(--installer-field-text-disabled, #8f9aaa);
+    background-color: var(--installer-field-bg-disabled, #f3f5f8);
+    border-color: var(--installer-field-border-disabled, #d7dde6);
     box-shadow: none;
     cursor: not-allowed;
 }
@@ -677,21 +695,21 @@ input[type="url"]::placeholder,
 input[type="search"]::placeholder,
 input[type="tel"]::placeholder,
 textarea::placeholder {
-    color: #9aa5b3;
+    color: var(--installer-field-placeholder, #9aa5b3);
 }
 
 select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: #ffffff;
-    border: 1px solid #c9d2dc;
+    background-color: var(--installer-field-bg, #ffffff);
+    border: 1px solid var(--installer-field-border, #c9d2dc);
     border-radius: 4px;
     box-shadow: none;
-    color: #2e3d4f;
+    color: var(--installer-field-text, #2e3d4f);
     padding: 0.5em 2.5em 0.5em 0.8em;
     transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%23525f6d' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+    background-image: var(--installer-select-arrow, url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%2339475a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e"));
     background-repeat: no-repeat;
     background-position: right 0.8em center;
     background-size: 12px 8px;
@@ -704,23 +722,25 @@ select {
 
 select:hover,
 select:focus {
-    background-color: #f7f9fc;
-    border-color: #9bb0c3;
-    color: #1f2c3a;
-    box-shadow: 0 0 0 1px rgba(60, 120, 216, 0.15);
+    background-color: var(--installer-field-bg-focus, #f7f9fc);
+    border-color: var(--installer-field-border-focus, #9bb0c3);
+    color: var(--installer-field-text-focus, #1f2c3a);
+    box-shadow: 0 0 0 1px var(--installer-field-shadow, rgba(60, 120, 216, 0.15));
+    background-image: var(--installer-select-arrow-active, url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%231f2c3a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e"));
 }
 
 select:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(60, 120, 216, 0.25);
+    box-shadow: 0 0 0 2px var(--installer-field-ring, rgba(60, 120, 216, 0.25));
 }
 
 select:disabled {
-    color: #8f9aaa;
-    background-color: #f3f5f8;
-    border-color: #d7dde6;
+    color: var(--installer-field-text-disabled, #8f9aaa);
+    background-color: var(--installer-field-bg-disabled, #f3f5f8);
+    border-color: var(--installer-field-border-disabled, #d7dde6);
     box-shadow: none;
     cursor: not-allowed;
+    background-image: var(--installer-select-arrow-disabled, url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%238f9aaa' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e"));
 }
 
 select::-ms-expand {
