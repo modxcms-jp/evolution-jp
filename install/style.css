@@ -263,16 +263,17 @@ span.mono {
 }
 
 .buttonlinks {
-    display: block;
-    height: 26px;
-    line-height: 26px;
-    margin-bottom: 20px;
-    float: right;
-    clear: left;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    clear: both;
 }
 
 #rtl .buttonlinks {
-    float: left;
+    justify-content: flex-start;
 }
 
 .info .buttonlinks {
@@ -280,43 +281,49 @@ span.mono {
 }
 
 .buttonlinks a {
-    -x-system-font: none;
-    background: transparent url(img/link_button.png) no-repeat scroll -54px;
-    color: #5A5A5A;
-    display: block;
-    float: left;
-    font: bold "Lucida Grande", Lucida, Verdana, sans-serif;
-    height: 26px;
-    margin: 0 20px 0 0;
-    padding: 0;
-    max-width: 250px;
-    line-height: 1.9;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.55em 1.4em;
+    border-radius: 6px;
+    border: 1px solid #cdd6e0;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+    color: #2e3d4f;
+    font-weight: 600;
+    font-size: 1em;
+    line-height: 1.2;
     text-decoration: none;
-    text-transform: uppercase;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 #rtl .buttonlinks a {
-    margin: 0 0 0 20px;
+    flex-direction: row-reverse;
 }
 
 .buttonlinks a span {
-    background: #FFFFFF url(img/link_button.png) no-repeat scroll 100%;
-    display: block;
-    float: left;
-    height: 26px;
-    margin: 0 0 0 10px;
-    padding: 0 22px 0 0;
+    margin: 0;
+    padding: 0;
     white-space: nowrap;
 }
 
-.buttonlinks a:hover {
-    background-image: url(img/link_button_hover.png);
+.buttonlinks a:hover,
+.buttonlinks a:focus {
+    background: linear-gradient(180deg, #f0f4f8 0%, #e3e9f1 100%);
+    color: #1f2c3a;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
     cursor: pointer;
 }
 
-.buttonlinks a:hover span {
-    background-image: url(img/link_button_hover.png);
-    cursor: pointer;
+.buttonlinks a:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18) inset;
+}
+
+.buttonlinks a:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(60, 120, 216, 0.35);
 }
 
 #header .buttonlinks a:hover {
@@ -328,25 +335,24 @@ span.mono {
     margin: 0 auto;
 }
 
-.buttonlinks a.prev {
-    background: transparent url(img/link_button_prev.png) no-repeat scroll right 0;
-    float: left;
-    margin: 0 20px 0 0;
+.buttonlinks a.prev::before {
+    content: "\2039";
+    font-size: 1.4em;
+    line-height: 1;
 }
 
-.buttonlinks a.prev span {
-    background: transparent url(img/link_button_prev.png) no-repeat scroll left 0;
-    float: left;
-    margin: 0 10px 0 0;
-    padding: 0 0 0 22px;
+.buttonlinks a.next::after {
+    content: "\203A";
+    font-size: 1.4em;
+    line-height: 1;
 }
 
-.buttonlinks a.prev:hover {
-    background-position: right -26px;
+#rtl .buttonlinks a.prev::before {
+    content: "\203A";
 }
 
-.buttonlinks a.prev:hover span {
-    background-position: left -26px;
+#rtl .buttonlinks a.next::after {
+    content: "\2039";
 }
 
 #header {
