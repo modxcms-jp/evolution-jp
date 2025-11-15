@@ -58,14 +58,14 @@ Evolution CMS JP Edition の中心は `DocumentParser`（`manager/includes/docum
 
 ## ドキュメントマップ
 
-詳細な設計情報は `documents/` 配下のドキュメントに整理されています。該当領域を編集する前に、必ず関連ドキュメントを確認してください。
+詳細な設計情報は `assets/docs/` 配下のドキュメントに整理されています。該当領域を編集する前に、必ず関連ドキュメントを確認してください。
 
 | ドキュメント | 主題 | 活用ポイント |
 | --- | --- | --- |
-| `documents/architecture.md` | DocumentParser の処理フロー・バックエンド判定・テンプレート取得 | 影響調査と実装方針の初期検討に使用 |
-| `documents/template-system.md` | テンプレート継承、MODX タグ解析、各種要素の評価順序 | テンプレート・TV・スニペットの追加や修正時に参照 |
-| `documents/events-and-plugins.md` | イベントライフサイクル、プラグインキャッシュ、SystemEvent API | プラグイン開発やイベントフック検討時に参照 |
-| `documents/cache-mechanism.md` | ページキャッシュ、静的キャッシュ、TTL と無効化手順 | キャッシュポリシーの変更や公開フロー調整時に参照 |
+| `assets/docs/architecture.md` | DocumentParser の処理フロー・バックエンド判定・テンプレート取得 | 影響調査と実装方針の初期検討に使用 |
+| `assets/docs/template-system.md` | テンプレート継承、MODX タグ解析、各種要素の評価順序 | テンプレート・TV・スニペットの追加や修正時に参照 |
+| `assets/docs/events-and-plugins.md` | イベントライフサイクル、プラグインキャッシュ、SystemEvent API | プラグイン開発やイベントフック検討時に参照 |
+| `assets/docs/cache-mechanism.md` | ページキャッシュ、静的キャッシュ、TTL と無効化手順 | キャッシュポリシーの変更や公開フロー調整時に参照 |
 
 ## 推奨ワークフロー
 
@@ -160,5 +160,5 @@ $_lang['setting_new_setting_name_desc'] = '設定の説明文';
 
 ## ドキュメント運用
 
-- `AGENTS.md` は AI 向けのハブドキュメントとして継続的に更新してください。新しいモジュールやベストプラクティスを追加する際は、`documents/` 配下に詳細ドキュメントを設け、ここからリンクする構成を守ります。
+- `AGENTS.md` は AI 向けのハブドキュメントとして継続的に更新してください。新しいモジュールやベストプラクティスを追加する際は、`assets/docs/` 配下に詳細ドキュメントを設け、ここからリンクする構成を守ります。
 - README は人間開発者向けの概要に留め、ここでは AI が迅速に全体像を把握できる粒度を意識します。
