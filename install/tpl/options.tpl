@@ -40,6 +40,27 @@
         }
     };
 
+    var updateActionStateFromCheckboxes = function () {
+        var selectableCheckboxes = toggleCheckboxes.filter(':not(:disabled)');
+        if (!selectableCheckboxes.length) {
+            clearActionState();
+            return;
+        }
+
+        var selectedCheckboxes = selectableCheckboxes.filter(':checked');
+        if (selectedCheckboxes.length === selectableCheckboxes.length) {
+            setActionState('all');
+            return;
+        }
+
+        if (selectedCheckboxes.length === 0) {
+            setActionState('none');
+            return;
+        }
+
+        clearActionState();
+    };
+
     jQuery('#toggle_check_all').click(function (evt) {
         evt.preventDefault();
         jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', true);
@@ -63,11 +84,11 @@
     });
 
     jQuery('#installdata_field').click(function () {
+        clearActionState();
         handleSampleDataCheckbox();
     });
 
     var handleSampleDataCheckbox = function () {
-        clearActionState();
         var demo = jQuery('#installdata_field').prop('checked');
         jQuery('input:checkbox.toggle.demo').each(function () {
             if (demo) {
@@ -80,4 +101,5 @@
 
     // handle state of demo content checkbox on page load
     handleSampleDataCheckbox();
+    updateActionStateFromCheckboxes();
 </script>
