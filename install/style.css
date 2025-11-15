@@ -573,6 +573,52 @@ input, select {
     letter-spacing: 1px;
 }
 
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f6f8 100%);
+    border: 1px solid #cdd6e0;
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    color: #2e3d4f;
+    padding: 0.5em 2.5em 0.5em 0.8em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%232e3d4f' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.8em center;
+    background-size: 12px 8px;
+}
+
+#rtl select {
+    background-position: left 0.8em center;
+    padding: 0.5em 0.8em 0.5em 2.5em;
+}
+
+select:hover,
+select:focus {
+    border-color: #9bb0c3;
+    color: #1f2c3a;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+select:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(60, 120, 216, 0.35);
+}
+
+select:disabled {
+    color: #9aa5b3;
+    background-color: #f4f6f8;
+    border-color: #d6dde6;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
 input#adminemail {
     style: width: 350px;
 }
