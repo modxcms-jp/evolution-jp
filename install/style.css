@@ -617,7 +617,6 @@ textarea {
     color: #2e3d4f;
     padding: 0.5em 0.8em;
     transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-    width: 100%;
     box-sizing: border-box;
 }
 
