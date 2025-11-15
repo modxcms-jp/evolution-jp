@@ -326,16 +326,23 @@ span.mono {
 
 .buttonlinks a.disabled,
 .buttonlinks a.disabled:hover {
-    background-image: url(img/link_button.png);
+    background: linear-gradient(180deg, #f7f9fc 0%, #edf1f5 100%);
+    border-color: #d7dde6;
+    color: #8f9aaa;
+    box-shadow: none;
+    transform: none;
     cursor: default;
-    opacity: .6;
+    opacity: .75;
     pointer-events: none;
 }
 
 .buttonlinks a.disabled span,
 .buttonlinks a.disabled:hover span {
-    background-image: url(img/link_button.png);
     cursor: default;
+}
+
+.buttonlinks a.disabled:focus-visible {
+    box-shadow: none;
 }
 
 #rtl .buttonlinks a {
