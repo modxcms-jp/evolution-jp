@@ -1,16 +1,74 @@
 <?php
 
+if (!function_exists('install_log_path')) {
+    function install_log_path()
+    {
+        static $path = null;
+
+        if ($path) {
+            return $path;
+        }
+
+        $path = sessionv('install_log_path');
+        if ($path) {
+            return $path;
+        }
+
+        $directory = rtrim(MODX_BASE_PATH, '/') . '/temp/';
+        if (!is_dir($directory)) {
+            @mkdir($directory, 0775, true);
+        }
+
+        $path = $directory . 'install-' . date('Ymd-His') . '-' . substr(md5((string) microtime(true)), 0, 8) . '.log';
+        sessionv('*install_log_path', $path);
+
+        return $path;
+    }
+}
+
+if (!function_exists('log_install_event')) {
+    function log_install_event($message, array $context = [])
+    {
+        $logPath = install_log_path();
+        $timestamp = date('Y-m-d H:i:s');
+        $entry = "[{$timestamp}] {$message}";
+
+        if ($context) {
+            $encoded = json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $entry .= $encoded !== false ? " {$encoded}" : ' ' . var_export($context, true);
+        }
+
+        $entry .= PHP_EOL;
+
+        if (@file_put_contents($logPath, $entry, FILE_APPEND) === false) {
+            error_log($entry);
+        }
+    }
+}
+
+$logPath = install_log_path();
+log_install_event('Installation processor invoked', ['log_path' => $logPath]);
+
 if (!sessionv('database_server')) {
+    log_install_event('Installation aborted: missing database_server in session');
     exit('go to first step');
 }
 
 if (!validateSessionValues()) {
+    log_install_event('Installation aborted: session values validation failed');
     exit('session values are not valid, go to first step');
 }
+
+log_install_event('Session validation succeeded', [
+    'is_upgradeable' => (int) sessionv('is_upgradeable', 0),
+    'installdata' => (int) sessionv('installdata', 0),
+    'table_prefix' => sessionv('table_prefix')
+]);
 
 require_once MODX_BASE_PATH . 'manager/includes/default.config.php';
 
 echo "<p>" . lang('setup_database') . "</p>\n";
+log_install_event('Database setup started');
 
 // open db connection
 include MODX_SETUP_PATH . 'setup.info.php';
@@ -29,7 +87,9 @@ $sqlParser->managerlanguage = sessionv('managerlanguage');
 // install/update database
 
 if (sessionv('is_upgradeable')) {
+    log_install_event('Upgrade path selected');
     if (db()->tableExists('[+prefix+]site_revision') && !db()->fieldExists('elmid', '[+prefix+]site_revision')) {
+        log_install_event('Dropping legacy site_revision table');
         db()->query(
             str_replace(
                 '[+prefix+]',
@@ -41,25 +101,31 @@ if (sessionv('is_upgradeable')) {
 }
 
 echo "<p>" . lang('setup_database_creating_tables');
+log_install_event('Creating database tables');
 
 $sqlParser->intoDB('create_tables.sql');
 
 if (!sessionv('is_upgradeable')) {
+    log_install_event('Installing default settings');
     $sqlParser->intoDB('default_settings.sql');
     if (is_file(MODX_SETUP_PATH . 'sql/default_settings_custom.sql')) {
+        log_install_event('Installing custom default settings');
         $sqlParser->intoDB('default_settings_custom.sql');
     }
 }
 
 include MODX_SETUP_PATH . 'sql/fix_settings.php';
+log_install_event('Applied settings fix script');
 
 if (sessionv('is_upgradeable') && sessionv('convert_to_utf8mb4', 1)) {
+    log_install_event('Converting database to utf8mb4');
     convert2utf8mb4();
 }
 
 // display database results
 if ($sqlParser->installFailed == true) {
     $errors += 1;
+    log_install_event('Database installation failed', ['errors' => $sqlParser->mysqlErrors]);
     printf('<span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
     printf('<p>%s</p>', lang('setup_couldnt_install'));
     printf('<p>%s<br /><br />', lang('installation_error_occured'));
@@ -72,6 +138,7 @@ if ($sqlParser->installFailed == true) {
 }
 
 printf('<span class="ok">%s</span></p>', lang('ok'));
+log_install_event('Database installation completed successfully');
 $configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
 $ph['database_type'] = 'mysqli';
 $ph['database_server'] = sessionv('database_server');
@@ -91,9 +158,11 @@ $config_saved = @file_put_contents($config_path, $configString);
 @chmod($config_path, 0404);
 
 echo "<p>" . lang('writing_config_file');
+log_install_event('Writing configuration file', ['path' => $config_path]);
 if ($config_saved === false) {
     printf('<span class="notok">%s</span></p>', lang('failed'));
     $errors += 1;
+    log_install_event('Failed to write configuration file', ['path' => $config_path]);
     echo sprintf(
         '<p>%s<br /><span class="mono">manager/includes/config.inc.php</span></p>',
         lang('cant_write_config_file')
@@ -104,9 +173,11 @@ if ($config_saved === false) {
     echo "<p>" . lang('cant_write_config_file_note') . "</p>";
 } else {
     printf('<span class="ok">%s</span></p>', lang('ok'));
+    log_install_event('Configuration file written successfully', ['path' => $config_path]);
 }
 
 if (sessionv('is_upgradeable') == 0) {
+    log_install_event('Creating site_id for fresh installation');
     $query = str_replace(
         '[+prefix+]',
         db()->table_prefix,
@@ -124,6 +195,7 @@ if (sessionv('is_upgradeable') == 0) {
     );
     if ($site_id) {
         if (!$site_id || $site_id = 'MzGeQ2faT4Dw06+U49x3') {
+            log_install_event('Regenerating site_id during upgrade');
             $query = str_replace(
                 '[+prefix+]',
                 db()->table_prefix,
@@ -143,13 +215,16 @@ include 'processors/prc_insChunks.inc.php';    // Install Chunks
 include 'processors/prc_insModules.inc.php';   // Install Modules
 include 'processors/prc_insPlugins.inc.php';   // Install Plugins
 include 'processors/prc_insSnippets.inc.php';  // Install Snippets
+log_install_event('Core components installed');
 
 // install data
 if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
     echo "<p>" . lang('installing_demo_site');
+    log_install_event('Installing demo site data');
     $sqlParser->intoDB('sample_data.sql');
     if ($sqlParser->installFailed == true) {
         $errors += 1;
+        log_install_event('Demo site installation failed', ['errors' => $sqlParser->mysqlErrors]);
         printf('<span class="notok"><b>%s</b></span></p>', lang('database_alerts'));
         echo "<p>" . lang('setup_couldnt_install') . "</p>";
         echo "<p>" . lang('installation_error_occured') . "<br /><br />";
@@ -163,12 +238,15 @@ if (sessionv('is_upgradeable') == 0 && sessionv('installdata') == 1) {
         }
         echo '</p>';
         echo '<p>' . lang('some_tables_not_updated') . '</p>';
+        log_install_event('Installation halted after demo data failure');
         return;
     }
     printf('<span class="ok">%s</span></p>', lang('ok'));
+    log_install_event('Demo site installation completed successfully');
 }
 
 clean_up($sqlParser->prefix);
+log_install_event('Clean up completed');
 
 // Setup the MODX API -- needed for the cache processor
 // initiate a new document parser
@@ -183,6 +261,7 @@ foreach ($files as $file) {
 @chmod(MODX_CACHE_PATH . "basicConfig.php", 0644);
 
 evo()->clearCache(); // always empty cache after install
+log_install_event('Cache cleared');
 
 // remove any locks on the manager functions so initial manager login is not blocked
 db()->truncate('[+prefix+]active_users');
@@ -197,6 +276,8 @@ if (is_file(MODX_CACHE_PATH . "installProc.inc.php")) {
 if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
     deleteCacheDirectory(MODX_BASE_PATH . 'assets/cache');
 }
+
+log_install_event('Installation processor finished');
 
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";

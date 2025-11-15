@@ -711,8 +711,16 @@ function validateSessionValues() {
         'managerlanguage'
     ];
 
+    $missing = new stdClass();
+
     foreach ($requiredKeys as $key) {
-        if (!sessionv($key)) {
+        $value = sessionv($key, $missing);
+
+        if ($value === $missing) {
+            return false;
+        }
+
+        if ($value === '' || $value === null || $value === 0 || $value === '0') {
             return false;
         }
     }
