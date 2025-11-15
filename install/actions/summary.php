@@ -278,6 +278,7 @@ $nextButtonProgress = $nextAction === 'install'
                 }
 
                 $nextButton.data('submitting', true).addClass('disabled');
+                $prevButton.addClass('disabled');
                 if (nextButtonProgress) {
                     $nextButton.find('span').text(nextButtonProgress);
                 }
