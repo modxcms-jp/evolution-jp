@@ -714,7 +714,13 @@ function validateSessionValues() {
     $missing = new stdClass();
 
     foreach ($requiredKeys as $key) {
-        if (sessionv($key, $missing) === $missing) {
+        $value = sessionv($key, $missing);
+
+        if ($value === $missing) {
+            return false;
+        }
+
+        if ($value === '' || $value === null || $value === 0 || $value === '0') {
             return false;
         }
     }
