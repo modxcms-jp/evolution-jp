@@ -80,7 +80,6 @@ Evolution CMS JP Edition の中心は `DocumentParser`（`manager/includes/docum
 
 | ディレクトリ | 用途 | 備考 |
 | --- | --- | --- |
-| `assets/files/` | 一般ファイル | グローバル設定 `filemanager_path` で変更可能 |
 | `{rb_base_dir}images/` | 画像ファイル | グローバル設定 `rb_base_dir` に依存（デフォルト: `content/`） |
 | `{rb_base_dir}files/` | ファイル | グローバル設定 `rb_base_dir` に依存 |
 | `{rb_base_dir}media/` | メディアファイル | グローバル設定 `rb_base_dir` に依存 |
