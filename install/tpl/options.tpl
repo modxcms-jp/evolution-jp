@@ -76,7 +76,7 @@
         jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', function () {
             return !jQuery(this).prop('checked');
         });
-        setActionState('toggle');
+        updateActionStateFromCheckboxes();
     });
 
     toggleCheckboxes.on('change', function () {
