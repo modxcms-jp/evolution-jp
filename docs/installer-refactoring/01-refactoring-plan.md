@@ -204,11 +204,12 @@ src/
 - グローバル変数の削除
 - テスト可能な構造
 
-## Phase 5: Controller/Viewの分離（1-2週間）
+## Phase 5: Controller/View分離とフロントエンドモダン化（1-2週間）
 
 ### 目標
 
-actions/のロジックをControllerに、HTMLをViewに分離。
+1. actions/のロジックをControllerに、HTMLをViewに分離
+2. **jQueryを廃止し、Vanilla JavaScriptに移行**
 
 ### 作業内容
 
@@ -260,11 +261,45 @@ return [
 ];
 ```
 
+3. **ルーティングの追加**
+
+```php
+// config/routes.php
+return [
+    'mode' => ModeController::class,
+    'connection' => ConnectionController::class,
+    // ...
+];
+```
+
+4. **フロントエンドのモダン化**
+
+```
+public/js/
+├── installer.js           # メインエントリーポイント
+├── modules/
+│   ├── formHandler.js     # フォーム処理
+│   ├── validation.js      # クライアント側バリデーション
+│   └── collation.js       # 文字コード選択
+└── utils/
+    ├── dom.js             # DOM操作ヘルパー
+    └── events.js          # イベント処理ヘルパー
+```
+
+- jQueryを完全廃止
+- Vanilla JavaScript（ES6+）に移行
+- モジュール分割
+- バンドルサイズ90%削減（85KB → 5-10KB）
+
 ### 成果物
 
 - MVCパターンの実現
 - ビューとロジックの完全分離
 - テスト可能なController
+- **jQueryゼロ依存のモダンJavaScript**
+- パフォーマンス大幅向上
+
+詳細: [07-frontend-modernization.md](./07-frontend-modernization.md)
 
 ## Phase 6: Session抽象化（1週間）
 

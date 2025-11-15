@@ -22,6 +22,7 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）を段階的
 5. [**関数の整理計画**](./04-function-organization.md) - 散在する関数のクラス化計画
 6. [**モダンDB抽象化**](./05-query-builder-design.md) - モダンなDB抽象化レイヤー設計
 7. [**モダンPHPアーキテクチャ**](./06-modern-php-architecture.md) - 包括的なモダンPHP構成
+8. [**フロントエンドモダン化**](./07-frontend-modernization.md) - jQuery廃止とVanilla JS移行
 
 ## 優先実装項目
 

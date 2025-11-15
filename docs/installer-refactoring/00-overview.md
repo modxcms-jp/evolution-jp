@@ -66,6 +66,12 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）の構造が
 - CSRF保護なし
 - パスワードがMD5でハッシュ化（`sqlParser.class.php:62`）
 
+### 11. フロントエンドの問題
+
+- **jQueryへの依存** - 不要な外部ライブラリ（85KB gzipped）
+- モダンブラウザAPIで十分な機能
+- バンドルサイズとパフォーマンスのオーバーヘッド
+
 ## リファクタリングの目標
 
 1. **インストールとアップグレードの完全分離**
@@ -76,6 +82,7 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）の構造が
 6. **セキュリティの強化**
 7. **UXの改善**
 8. **テスト可能な構造**
+9. **jQueryゼロ依存のモダンJavaScript**
 
 ## ドキュメント構成
 
@@ -83,7 +90,9 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）の構造が
 - [02-security-improvements.md](./02-security-improvements.md) - セキュリティ改善提案
 - [03-directory-structure.md](./03-directory-structure.md) - 新しいディレクトリ構造
 - [04-function-organization.md](./04-function-organization.md) - 関数の整理計画
-- [05-query-builder-design.md](./05-query-builder-design.md) - モダンなDB抽象化レイヤー設計
+- [05-query-builder-design.md](./05-query-builder-design.md) - モダンDB抽象化レイヤー設計
+- [06-modern-php-architecture.md](./06-modern-php-architecture.md) - モダンPHPアーキテクチャ
+- [07-frontend-modernization.md](./07-frontend-modernization.md) - フロントエンドモダン化（jQuery廃止）
 
 ## スケジュール
 
