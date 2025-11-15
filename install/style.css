@@ -326,16 +326,23 @@ span.mono {
 
 .buttonlinks a.disabled,
 .buttonlinks a.disabled:hover {
-    background-image: url(img/link_button.png);
+    background: linear-gradient(180deg, #f7f9fc 0%, #edf1f5 100%);
+    border-color: #d7dde6;
+    color: #8f9aaa;
+    box-shadow: none;
+    transform: none;
     cursor: default;
-    opacity: .6;
+    opacity: .75;
     pointer-events: none;
 }
 
 .buttonlinks a.disabled span,
 .buttonlinks a.disabled:hover span {
-    background-image: url(img/link_button.png);
     cursor: default;
+}
+
+.buttonlinks a.disabled:focus-visible {
+    box-shadow: none;
 }
 
 #rtl .buttonlinks a {
@@ -348,8 +355,8 @@ span.mono {
     white-space: nowrap;
 }
 
-.buttonlinks a:hover,
-.buttonlinks a:focus {
+.buttonlinks a:not(.disabled):hover,
+.buttonlinks a:not(.disabled):focus {
     background: linear-gradient(180deg, #f0f4f8 0%, #e3e9f1 100%);
     color: #1f2c3a;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
@@ -357,12 +364,12 @@ span.mono {
     cursor: pointer;
 }
 
-.buttonlinks a:active {
+.buttonlinks a:not(.disabled):active {
     transform: translateY(0);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18) inset;
 }
 
-.buttonlinks a:focus-visible {
+.buttonlinks a:not(.disabled):focus-visible {
     outline: none;
     box-shadow: 0 0 0 3px rgba(60, 120, 216, 0.35);
 }
