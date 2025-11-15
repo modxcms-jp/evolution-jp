@@ -25,13 +25,23 @@
   - [x] `bootstrap.php` - 新しいエントリーポイント
   - [x] `autoload.php` - PSR-4オートローダー
 
-### 次のステップ（Phase 1残り作業）
+- [x] 基本クラスの実装
+  - [x] `src/Core/Application.php` - アプリケーションブートストラップ
+  - [x] `src/Core/Container.php` - PSR-11準拠DIコンテナ
+  - [x] `src/Core/Config.php` - 設定管理（ドット記法サポート）
+  - [x] `src/Core/ContainerException.php` - コンテナ例外
+  - [x] `src/Core/NotFoundException.php` - サービス未検出例外
+  - [x] `src/Core/ConfigException.php` - 設定例外
 
-- [ ] `src/Core/Application.php` の実装
-- [ ] `src/Core/Container.php` の実装（軽量DIコンテナ）
-- [ ] `src/Core/Config.php` の実装
-- [ ] 基本クラスの単体テスト作成
-- [ ] ドキュメントの完成
+- [x] 単体テストの作成
+  - [x] `tests/Unit/Core/ApplicationTest.php`
+  - [x] `tests/Unit/Core/ContainerTest.php`
+  - [x] `tests/Unit/Core/ConfigTest.php`
+  - [x] `phpunit.xml` - PHPUnit設定ファイル
+
+### Phase 1 完了
+
+Phase 1の全作業が完了しました！次はPhase 2（Database層の実装）に進みます。
 
 ### Phase 2以降の予定
 
