@@ -467,8 +467,12 @@ span.mono {
 }
 
 p.labelHolder {
-    clear: left;
-    margin-bottom: 5px;
+    clear: both;
+    margin-bottom: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
 }
 
 #content ul li {
@@ -491,13 +495,35 @@ tbody td {
 }
 
 .labelHolder label {
-    float: left;
-    margin-bottom: 5px;
+    float: none;
+    margin: 0;
     width: 200px;
+    flex: 0 0 200px;
+}
+
+#rtl .labelHolder {
+    flex-direction: row-reverse;
+    text-align: right;
 }
 
 #rtl .labelHolder label {
-    float: right;
+    float: none;
+    text-align: right;
+}
+
+.labelHolder input[type="text"],
+.labelHolder input[type="email"],
+.labelHolder input[type="password"],
+.labelHolder input[type="number"],
+.labelHolder input[type="url"],
+.labelHolder input[type="search"],
+.labelHolder input[type="tel"],
+.labelHolder select,
+.labelHolder textarea {
+    flex: 1 1 280px;
+    min-width: 160px;
+    max-width: 420px;
+    width: auto;
 }
 
 .status {
