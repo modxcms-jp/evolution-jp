@@ -220,7 +220,7 @@ EvolutionCMS\Install\{サブ名前空間}\{クラス名}
 - `EvolutionCMS\Install\Database\Connection`
 - `EvolutionCMS\Install\Security\UpgradeAuthenticator`
 
-## オートロード
+## オートローダー
 
 PSR-4準拠：
 
