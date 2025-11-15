@@ -6,10 +6,10 @@
     <p>[+connection_screen_server_connection_note+]</p>
 
     <p class="labelHolder"><label for="database_server">[+connection_screen_database_host+]</label>
-        <input id="database_server" value="[+database_server+]" name="database_server"/>
+        <input id="database_server" type="text" value="[+database_server+]" name="database_server"/>
     </p>
     <p class="labelHolder"><label for="database_user">[+connection_screen_database_login+]</label>
-        <input id="database_user" name="database_user" value="[+database_user+]"/>
+        <input id="database_user" type="text" name="database_user" value="[+database_user+]"/>
     </p>
     <p class="labelHolder"><label for="database_password">[+connection_screen_database_pass+]</label>
         <input id="database_password" type="password" name="database_password" value="[+database_password+]"/>
@@ -28,14 +28,14 @@
             <h3>[+connection_screen_database_connection_information+]</h3>
             <p>[+connection_screen_database_connection_note+]</p>
             <p class="labelHolder"><label for="dbase">[+connection_screen_database_name+]</label>
-                <input id="dbase" value="[+dbase+]" name="dbase"/>
+                <input id="dbase" type="text" value="[+dbase+]" name="dbase"/>
             </p>
             <p class="labelHolder"><label for="dbase">[+connection_screen_collation+]</label>
                 <select id="collation" name="database_collation"/>
                 </select>
             </p>
             <p class="labelHolder"><label for="table_prefix">[+connection_screen_table_prefix+]</label>
-                <input id="table_prefix" value="[+table_prefix+]" name="table_prefix"/>
+                <input id="table_prefix" type="text" value="[+table_prefix+]" name="table_prefix"/>
             </p>
             <p class="labelHolder">
             <div id="connection_method" name="connection_method">
@@ -66,10 +66,10 @@
             <h3>[+connection_screen_default_admin_user+]</h3>
             <p>[+connection_screen_default_admin_note+]</p>
             <p class="labelHolder"><label for="adminname">[+connection_screen_default_admin_login+]</label>
-                <input id="adminname" value="[+adminname+]" name="adminname"/>
+                <input id="adminname" type="text" value="[+adminname+]" name="adminname"/>
             </p>
             <p class="labelHolder"><label for="adminemail">[+connection_screen_default_admin_email+]</label>
-                <input id="adminemail" value="[+adminemail+]" name="adminemail" style="width:300px;"/>
+                <input id="adminemail" type="email" value="[+adminemail+]" name="adminemail" style="width:300px;"/>
             </p>
             <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
                 <input id="adminpass" type="password" name="adminpass" value="[+adminpass+]"/>
