@@ -26,34 +26,57 @@
         jQuery('#install').submit();
     });
 
+    var actionButtons = jQuery('.actions .action-button');
+    var toggleCheckboxes = jQuery('input:checkbox.toggle');
+
+    var clearActionState = function () {
+        actionButtons.removeClass('is-active');
+    };
+
+    var setActionState = function (action) {
+        clearActionState();
+        if (action) {
+            actionButtons.filter('[data-action="' + action + '"]').addClass('is-active');
+        }
+    };
+
     jQuery('#toggle_check_all').click(function (evt) {
         evt.preventDefault();
         jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', true);
+        setActionState('all');
     });
     jQuery('#toggle_check_none').click(function (evt) {
         evt.preventDefault();
         jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', false);
+        setActionState('none');
     });
     jQuery('#toggle_check_toggle').click(function (evt) {
         evt.preventDefault();
         jQuery('input:checkbox.toggle:not(:disabled)').prop('checked', function () {
             return !jQuery(this).prop('checked');
         });
+        setActionState('toggle');
     });
-    jQuery('#installdata_field').click(function (evt) {
+
+    toggleCheckboxes.on('change', function () {
+        clearActionState();
+    });
+
+    jQuery('#installdata_field').click(function () {
         handleSampleDataCheckbox();
     });
 
     var handleSampleDataCheckbox = function () {
-        demo = jQuery('#installdata_field').prop('checked');
-        jQuery('input:checkbox.toggle.demo').each(function (ix, el) {
+        clearActionState();
+        var demo = jQuery('#installdata_field').prop('checked');
+        jQuery('input:checkbox.toggle.demo').each(function () {
             if (demo) {
                 jQuery(this).prop('checked', true).prop('disabled', true);
             } else {
                 jQuery(this).prop('disabled', false);
             }
         });
-    }
+    };
 
     // handle state of demo content checkbox on page load
     handleSampleDataCheckbox();

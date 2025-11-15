@@ -574,27 +574,48 @@ p.actions {
     zoom: 1;
 }
 
-p.actions a {
-    margin: 0 5px 1px;
-    padding: 2px 6px 3px;
-    border-bottom: 1px solid #039;
-    display: block;
+p.actions .action-button {
+    margin: 0 5px 1px 0;
+    padding: 3px 10px;
+    border: 1px solid #039;
+    border-radius: 3px;
+    display: inline-block;
     float: left;
+    background: transparent;
     color: navy;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.2;
     text-decoration: none;
 }
 
-#rtl p.actions a {
+#rtl p.actions .action-button {
     float: right;
+    margin: 0 0 1px 5px;
 }
 
-p.actions a:hover {
+p.actions .action-button:hover,
+p.actions .action-button:focus {
     background: #039;
     color: #fff;
 }
 
-p.actions a:active {
-    background-color: #ccc;
+p.actions .action-button:focus-visible {
+    outline: 2px solid #0af;
+    outline-offset: 2px;
+}
+
+p.actions .action-button.is-active {
+    background: #039;
+    border-color: #039;
+    color: #fff;
+    cursor: default;
+}
+
+p.actions .action-button.is-active:hover,
+p.actions .action-button.is-active:focus {
+    background: #039;
+    color: #fff;
 }
 
 img.options {
