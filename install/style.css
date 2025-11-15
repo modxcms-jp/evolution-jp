@@ -46,6 +46,15 @@ body {
     --installer-select-arrow: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%2339475a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
     --installer-select-arrow-active: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%231f2c3a' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
     --installer-select-arrow-disabled: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath fill='%238f9aaa' d='M10.59 0.59 6 5.17 1.41.59 0 2l6 6 6-6z'/%3e%3c/svg%3e");
+    --installer-action-button-bg: #f1f4f6;
+    --installer-action-button-border: #b9c4c9;
+    --installer-action-button-text: #566269;
+    --installer-action-button-hover-bg: #e6ecef;
+    --installer-action-button-hover-text: #3f4a51;
+    --installer-action-button-focus-ring: rgba(47, 138, 161, 0.45);
+    --installer-action-button-active-bg: #2f8aa1;
+    --installer-action-button-active-border: #226b7c;
+    --installer-action-button-active-text: #ffffff;
 }
 
 label {
@@ -588,27 +597,51 @@ p.actions {
     zoom: 1;
 }
 
-p.actions a {
-    margin: 0 5px 1px;
-    padding: 2px 6px 3px;
-    border-bottom: 1px solid #039;
-    display: block;
+p.actions .action-button {
+    margin: 0 5px 1px 0;
+    padding: 3px 10px;
+    border: 1px solid var(--installer-action-button-border);
+    border-radius: 3px;
+    display: inline-block;
     float: left;
-    color: navy;
+    background: var(--installer-action-button-bg);
+    color: var(--installer-action-button-text);
+    cursor: pointer;
+    font: inherit;
+    line-height: 1.2;
     text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-#rtl p.actions a {
+#rtl p.actions .action-button {
     float: right;
+    margin: 0 0 1px 5px;
 }
 
-p.actions a:hover {
-    background: #039;
-    color: #fff;
+p.actions .action-button:hover,
+p.actions .action-button:focus {
+    background: var(--installer-action-button-hover-bg);
+    color: var(--installer-action-button-hover-text);
+    border-color: var(--installer-action-button-border);
 }
 
-p.actions a:active {
-    background-color: #ccc;
+p.actions .action-button:focus-visible {
+    outline: 2px solid var(--installer-action-button-focus-ring);
+    outline-offset: 2px;
+}
+
+p.actions .action-button.is-active {
+    background: var(--installer-action-button-active-bg);
+    border-color: var(--installer-action-button-active-border);
+    color: var(--installer-action-button-active-text);
+    cursor: default;
+}
+
+p.actions .action-button.is-active:hover,
+p.actions .action-button.is-active:focus {
+    background: var(--installer-action-button-active-bg);
+    color: var(--installer-action-button-active-text);
+    border-color: var(--installer-action-button-active-border);
 }
 
 img.options {
