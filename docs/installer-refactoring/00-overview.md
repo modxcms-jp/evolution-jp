@@ -81,9 +81,8 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）の構造が
 
 - [01-refactoring-plan.md](./01-refactoring-plan.md) - 段階的リファクタリング計画
 - [02-security-improvements.md](./02-security-improvements.md) - セキュリティ改善提案
-- [03-ux-improvements.md](./03-ux-improvements.md) - UX改善提案
-- [04-directory-structure.md](./04-directory-structure.md) - 新しいディレクトリ構造
-- [05-migration-guide.md](./05-migration-guide.md) - 移行ガイド
+- [03-directory-structure.md](./03-directory-structure.md) - 新しいディレクトリ構造
+- [04-function-organization.md](./04-function-organization.md) - 関数の整理計画
 
 ## スケジュール
 
