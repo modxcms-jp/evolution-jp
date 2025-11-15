@@ -295,6 +295,20 @@ span.mono {
     text-transform: uppercase;
 }
 
+.buttonlinks a.disabled,
+.buttonlinks a.disabled:hover {
+    background-image: url(img/link_button.png);
+    cursor: default;
+    opacity: .6;
+    pointer-events: none;
+}
+
+.buttonlinks a.disabled span,
+.buttonlinks a.disabled:hover span {
+    background-image: url(img/link_button.png);
+    cursor: default;
+}
+
 #rtl .buttonlinks a {
     margin: 0 0 0 20px;
 }

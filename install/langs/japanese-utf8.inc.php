@@ -90,6 +90,7 @@ $_lang["help_title"] = 'インストールで困ったらこのページを見�
 $_lang["iagree_box"] = '<b><a href="license.txt" target="_blank">このライセンス(GPL2)</a>で規定される諸条件に同意します。</b></p><p><a href="http://www.opensource.jp/gpl/gpl.ja.html" target="_blank">GPL2ライセンスの日本語訳はこちらにあります。</a>この翻訳には法的効力はないため、法的検証が必要な場合は英語の原文をご確認ください。';
 $_lang["install"] = 'インストール';
 $_lang["upgrade"] = 'アップデート';
+$_lang["upgrade_in_progress"] = 'アップデートを実行しています…';
 $_lang["install_overwrite"] = 'インストール - ';
 $_lang["install_results"] = 'インストールを実行しました。';
 $_lang["install_update"] = '';
@@ -106,6 +107,7 @@ $_lang["installation_upgrade_existing"] = 'アップデート';
 $_lang["installation_upgrade_existing_note"] = 'データベースをアップデートします。作業を始める前に<a href="http://modx.jp/docs/update.html" target="_blank">手順・要点</a>をチェック！<br /><b style="color:red;">【注意】</b>データベースのバックアップはお済みですか？まだの場合は管理画面「バックアップ・リストア」でスナップショットを追加しておくことをおすすめします。';
 $_lang["installed"] = 'インストールしました';
 $_lang["installing_demo_site"] = 'サンプルサイトのインストール: ';
+$_lang["install_in_progress"] = 'インストールを実行しています…';
 $_lang["language_code"] = 'ja';
 $_lang["loading"] = '処理中...';
 $_lang["modules"] = 'モジュール';
