@@ -151,7 +151,7 @@ dl, hr, ol, ul, dl pre, table, address, fieldset {
 }
 
 p {
-    margin: 0 0 .5em .5em;
+    margin: 0 0 0.75em;
 }
 
 .container_10 {
@@ -458,11 +458,14 @@ span.mono {
 }
 
 #installChoices {
-    margin: 1em 0;
+    margin: 1.5em 0;
+    display: grid;
+    gap: 1.25em;
 }
 
 #installChoices h3 {
-    padding: 0 20px;
+    margin: 0;
+    padding: 0 16px;
     background: url(img/elements.gif) no-repeat top left;
 }
 
@@ -476,17 +479,32 @@ span.mono {
     border-top: 1px dotted #ddd;
 }
 
+#installChoices label {
+    display: block;
+    line-height: 1.4;
+    margin: 0 0 0.5em;
+}
+
+#installChoices br {
+    display: none;
+}
+
 #installChoices input {
-    margin: 0 10px 10px 0;
+    margin: 0 0.6em 0 0;
+    vertical-align: text-top;
+}
+
+#rtl #installChoices label {
+    text-align: right;
 }
 
 #rtl #installChoices input {
-    margin: 0 0 10px 10px;
+    margin: 0 0 0 0.6em;
 }
 
 p.labelHolder {
     clear: both;
-    margin-bottom: 12px;
+    margin: 0 0 12px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -545,13 +563,13 @@ tbody td {
 }
 
 .status {
-    margin: 1em 0 2em;
+    margin: 0.75em 0 1.5em;
     padding: .25em .5em;
 }
 
 p.actions {
     line-height: 1;
-    margin-top: 3px;
+    margin: 0.75em 0;
     overflow: hidden;
     zoom: 1;
 }
