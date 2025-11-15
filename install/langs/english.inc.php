@@ -90,6 +90,7 @@ $_lang["help_title"] = 'Installation assistance in the MODX forums';
 $_lang["iagree_box"] = 'I agree to the terms of <a href="license.txt" target="_blank">the MODX license</a>. For translations of the GPL version 2 license, please visit the <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-translations.html" target="_blank">GNU Operating System website</a>.';
 $_lang["install"] = 'Install';
 $_lang["upgrade"] = 'Upgrade';
+$_lang["upgrade_in_progress"] = 'Upgrade is in progress…';
 $_lang["install_overwrite"] = 'Install/Overwrite';
 $_lang["install_results"] = 'Install results';
 $_lang["install_update"] = 'Install/Update';
@@ -106,6 +107,7 @@ $_lang["installation_upgrade_existing"] = 'Upgrade Existing Install';
 $_lang["installation_upgrade_existing_note"] = 'Upgrade your current files and database.';
 $_lang["installed"] = 'Installed';
 $_lang["installing_demo_site"] = 'Installing demo site: ';
+$_lang["install_in_progress"] = 'Installation is in progress…';
 $_lang["language_code"] = 'en';    // for html element e.g. <html xml:lang="en" lang="en">
 $_lang["loading"] = 'Loading...';
 $_lang["modules"] = 'Modules';

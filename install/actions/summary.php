@@ -231,6 +231,9 @@ $nextAction = $errors ? 'summary' : 'install';
 $nextButton = $errors ? lang('retry') : ($isUpgrade ? lang('upgrade') : lang('install'));
 $nextVisibility = $errors > 0 || $chkagree ? 'visible' : 'hidden';
 $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagree').checked){document.getElementById('nextbutton').style.visibility='visible';}else{document.getElementById('nextbutton').style.visibility='hidden';}\"";
+$nextButtonProgress = $nextAction === 'install'
+    ? ($isUpgrade ? lang('upgrade_in_progress') : lang('install_in_progress'))
+    : '';
 ?>
 <form id="install" action="index.php" method="POST">
     <div>
@@ -256,13 +259,33 @@ $agreeToggle = $errors > 0 ? '' : " onclick=\"if(document.getElementById('chkagr
         </p>
     </form>
     <script type="text/javascript">
-        jQuery('a.prev').click(function () {
-            jQuery('#install input[name=action]').val('options');
-            jQuery('#install').submit();
-        });
-        jQuery('a.next').click(function () {
-            jQuery('#install').submit();
-        });
+        (function ($) {
+            var $form = $('#install');
+            var $prevButton = $('a.prev');
+            var $nextButton = $('a.next');
+            var nextButtonProgress = <?= json_encode($nextButtonProgress) ?>;
+
+            $prevButton.on('click', function (evt) {
+                evt.preventDefault();
+                $form.find('input[name=action]').val('options');
+                $form.submit();
+            });
+
+            $nextButton.on('click', function (evt) {
+                evt.preventDefault();
+                if ($nextButton.data('submitting')) {
+                    return;
+                }
+
+                $nextButton.data('submitting', true).addClass('disabled');
+                $prevButton.addClass('disabled');
+                if (nextButtonProgress) {
+                    $nextButton.find('span').text(nextButtonProgress);
+                }
+
+                $form.submit();
+            });
+        }(jQuery));
     </script>
 
 <?php
