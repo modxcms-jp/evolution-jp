@@ -83,6 +83,7 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）の構造が
 - [02-security-improvements.md](./02-security-improvements.md) - セキュリティ改善提案
 - [03-directory-structure.md](./03-directory-structure.md) - 新しいディレクトリ構造
 - [04-function-organization.md](./04-function-organization.md) - 関数の整理計画
+- [05-query-builder-design.md](./05-query-builder-design.md) - モダンなDB抽象化レイヤー設計
 
 ## スケジュール
 

@@ -20,6 +20,7 @@ Evolution CMSのインストーラ（`install/`ディレクトリ）を段階的
 3. [**セキュリティ改善**](./02-security-improvements.md) - セキュリティ強化の詳細
 4. [**ディレクトリ構造**](./03-directory-structure.md) - 新しい構造とコーディング規約
 5. [**関数の整理計画**](./04-function-organization.md) - 散在する関数のクラス化計画
+6. [**モダンDB抽象化**](./05-query-builder-design.md) - モダンなDB抽象化レイヤー設計
 
 ## 優先実装項目
 

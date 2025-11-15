@@ -69,30 +69,69 @@ spl_autoload_register(function ($class) {
 
 ### 作業内容
 
-1. **Databaseクラスの作成**
+1. **Eloquent風クエリビルダーの実装**
 
 ```
 src/
 └── Database/
     ├── Connection.php          # PDOラッパー
-    ├── QueryBuilder.php        # クエリビルダー（軽量）
+    ├── QueryBuilder.php        # Eloquent風クエリビルダー
+    ├── Grammar.php             # SQL文法生成
+    ├── Expression.php          # Raw SQL式
     └── SqlParser.php           # sqlParser.class.phpを移行
 ```
 
-2. **既存のdb()ヘルパーとの互換性確保**
-   - 新しいConnectionクラスは既存のdb()と同じインターフェース
-   - 段階的に置き換え可能
+2. **Eloquent風クエリビルダーの設計**
 
-3. **sqlParser.class.phpの移行**
+```php
+// メソッドチェーンによるクエリ生成
+$users = DB::table('manager_users')
+    ->where('role', 1)
+    ->where('blocked', 0)
+    ->orderBy('username')
+    ->get();
+
+// 挿入
+DB::table('site_templates')
+    ->insert([
+        'templatename' => 'MyTemplate',
+        'content' => $content,
+        'category' => 1
+    ]);
+
+// 更新
+DB::table('system_settings')
+    ->where('setting_name', 'site_name')
+    ->update(['setting_value' => 'New Site']);
+
+// 削除
+DB::table('active_users')->delete();
+
+// 複雑なクエリ
+$result = DB::table('site_content as c')
+    ->leftJoin('document_groups as dg', 'dg.document', '=', 'c.id')
+    ->where('c.published', 1)
+    ->whereNotNull('dg.id')
+    ->select(['c.*', 'dg.document_group'])
+    ->get();
+```
+
+3. **既存db()からの段階的移行**
+   - インストーラ内で新しいクエリビルダーを優先使用
+   - 成功後、コア全体への展開を検討
+   - 既存のdb()ヘルパーは当面維持（後方互換性）
+
+4. **sqlParser.class.phpの移行**
    - `SqlParser.class.php` → `src/Database/SqlParser.php`
    - 名前空間の追加
-   - PDOプリペアドステートメントの使用
+   - 内部でQueryBuilderを活用
 
 ### 成果物
 
+- **モダンなクエリビルダー**（Laravel Eloquentスタイル）
 - テスト可能なDB層
 - SQLインジェクション対策の強化
-- 既存コードは引き続き動作
+- コア全体への展開の足がかり
 
 ## Phase 3: Installer/Upgraderの分離（2週間）
 
