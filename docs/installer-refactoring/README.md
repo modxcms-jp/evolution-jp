@@ -57,4 +57,3 @@ Evolution CMS本体と同じライセンス（GPL）に従います。
 ## 関連リンク
 
 - [Evolution CMS公式サイト](https://github.com/evolution-cms/evolution)
-- [Issue #XXX](https://github.com/modxcms-jp/evolution-jp/issues/XXX) - この提案の議論
