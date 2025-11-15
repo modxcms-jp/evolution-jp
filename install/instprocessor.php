@@ -46,6 +46,97 @@ if (!function_exists('log_install_event')) {
     }
 }
 
+if (!function_exists('install_error_level_name')) {
+    function install_error_level_name($severity)
+    {
+        $map = [
+            E_ERROR => 'E_ERROR',
+            E_WARNING => 'E_WARNING',
+            E_PARSE => 'E_PARSE',
+            E_NOTICE => 'E_NOTICE',
+            E_CORE_ERROR => 'E_CORE_ERROR',
+            E_CORE_WARNING => 'E_CORE_WARNING',
+            E_COMPILE_ERROR => 'E_COMPILE_ERROR',
+            E_COMPILE_WARNING => 'E_COMPILE_WARNING',
+            E_USER_ERROR => 'E_USER_ERROR',
+            E_USER_WARNING => 'E_USER_WARNING',
+            E_USER_NOTICE => 'E_USER_NOTICE',
+            E_STRICT => 'E_STRICT',
+            E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
+            E_DEPRECATED => 'E_DEPRECATED',
+            E_USER_DEPRECATED => 'E_USER_DEPRECATED'
+        ];
+
+        return $map[$severity] ?? 'E_' . $severity;
+    }
+}
+
+if (!function_exists('register_install_error_handlers')) {
+    function register_install_error_handlers()
+    {
+        static $registered = false;
+
+        if ($registered) {
+            return;
+        }
+
+        $registered = true;
+
+        set_error_handler(function ($severity, $message, $file = '', $line = 0) {
+            if (!(error_reporting() & $severity)) {
+                return false;
+            }
+
+            log_install_event('PHP error triggered during installation', [
+                'severity' => install_error_level_name($severity),
+                'message' => $message,
+                'file' => $file,
+                'line' => $line
+            ]);
+
+            return false;
+        });
+
+        set_exception_handler(function ($exception) {
+            log_install_event('Uncaught exception during installation', [
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'code' => $exception->getCode()
+            ]);
+        });
+
+        register_shutdown_function(function () {
+            $error = error_get_last();
+
+            if (!$error) {
+                return;
+            }
+
+            $fatalTypes = [
+                E_ERROR,
+                E_PARSE,
+                E_CORE_ERROR,
+                E_COMPILE_ERROR,
+                E_USER_ERROR
+            ];
+
+            if (!in_array($error['type'], $fatalTypes, true)) {
+                return;
+            }
+
+            log_install_event('Fatal error during installation', [
+                'severity' => install_error_level_name($error['type']),
+                'message' => $error['message'],
+                'file' => $error['file'],
+                'line' => $error['line']
+            ]);
+        });
+    }
+}
+
+register_install_error_handlers();
+
 $logPath = install_log_path();
 log_install_event('Installation processor invoked', ['log_path' => $logPath]);
 
