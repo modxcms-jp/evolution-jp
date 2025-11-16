@@ -276,7 +276,7 @@ hr {
     font-weight: 500;
     height: var(--topnav-item-height);
     line-height: var(--topnav-item-height);
-    margin: 0;
+    margin: 3px 0 0 0;
     padding: 0 18px;
     position: absolute;
     right: var(--subnav-horizontal-padding);
