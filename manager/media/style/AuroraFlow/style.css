@@ -1972,7 +1972,7 @@ strong[style*='color:#EF1D1D'] {
 }
 
 #nav > li.active > a {
-    background: rgba(15, 23, 42, 0.8) !important;
+    background: rgba(15, 23, 42, 0.6) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
     border-color: rgba(59, 130, 246, 0.4) !important;
@@ -1982,7 +1982,7 @@ strong[style*='color:#EF1D1D'] {
 
 /* === サブナビゲーション === */
 #nav > li > ul.subnav {
-    background: rgba(15, 23, 42, 0.85) !important;
+    background: rgba(15, 23, 42, 0.6) !important;
     backdrop-filter: blur(20px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
     border-top-color: rgba(59, 130, 246, 0.2) !important;
