@@ -267,7 +267,7 @@ hr {
 
 #supplementalNav {
     align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
+    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
     border-radius: 999px;
     box-sizing: border-box;
     color: var(--topnav-link-color);
