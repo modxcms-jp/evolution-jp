@@ -10,6 +10,8 @@ if (!evo()->hasPermission('edit_web_user')) {
 
 manager()->initPageViewState();
 
+$icons_path = manager_style_image_path('icons');
+
 global $_PAGE;
 
 if (anyv('op') == 'reset') {
@@ -31,13 +33,13 @@ $cm = new ContextMenu("cntxm", 150);
 $cm->addItem(
     $_lang["edit"],
     "js:menuAction(1)",
-    "media/style/{$manager_theme}/images/icons/logging.gif",
+    "{$icons_path}logging.gif",
     (!evo()->hasPermission('edit_user') ? 1 : 0)
 );
 $cm->addItem(
     $_lang["delete"],
     "js:menuAction(2)",
-    "media/style/{$manager_theme}/images/icons/delete.gif",
+    "{$icons_path}delete.gif",
     (!evo()->hasPermission('delete_user') ? 1 : 0)
 );
 echo $cm->render();

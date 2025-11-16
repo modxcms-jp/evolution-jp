@@ -7,6 +7,7 @@ if (!evo()->hasPermission('messages')) {
     alert()->setError(3);
     alert()->dumpError();
 }
+$icons_path = manager_style_image_path('icons');
 if (isset($_REQUEST['id'])) {
     $msgid = intval($_REQUEST['id']);
 }
@@ -203,8 +204,8 @@ $location = getv('id') ? '10' : '2';
                     ?>
                     <tr>
                         <td><?php if (($message['messageread'] == 0)) {
-                                echo sprintf('<img src="media/style/%s/images/icons/new1-09.gif">',
-                                    $modx->config['manager_theme']);
+                                echo sprintf('<img src="%snew1-09.gif">',
+                                    $icons_path);
                             } ?></td>
                         <td class="<?= $messagestyle ?>" style="cursor: pointer; text-decoration: underline;"
                             onclick="document.location.href='index.php?a=10&id=<?= $message['id'] ?>&m=r';"><?= $message['subject'] ?></td>

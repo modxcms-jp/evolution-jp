@@ -20,12 +20,12 @@
             margin-left: -7px
         }
 
-        .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;} .body {padding: 20px 20px 20px;display: block;background: #fff;
+        .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;} .body {padding: 20px 20px 20px;display: block;background: #fff;
     box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);} #mx_loginbox {width: 460px;margin: 30px auto 0;
                                  box-shadow: 0 0 10px #aaa;
                              -moz-box-shadow: 0 0 10px #aaa;
                              -webkit-box-shadow: 0 0 15px #ccc;
-} input {margin: 0 0 10px 0;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} #loginfrm
+} input {margin: 0 0 10px 0;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} #loginfrm
 
         {background-color:#fff;padding:20px;}
     </style>
@@ -55,7 +55,7 @@
 
         <!-- the logo -->
         <div id="mx_logobox">
-            <img src='media/style/[+theme+]/images/misc/login-logo.png' alt='[+logo_slogan+]'/>
+            <img src='[+style_misc_path+]login-logo.png' alt='[+logo_slogan+]'/>
         </div>
         <!-- end #mx_logobox -->
 

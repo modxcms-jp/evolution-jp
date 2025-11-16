@@ -547,6 +547,51 @@ function remove_tags($value, $params = '')
     return strip_tags($value, $params);
 }
 
+function manager_style_image_path($subdir = '')
+{
+    $theme = config('manager_theme', '');
+    $subdir = trim((string)$subdir, '/');
+    $segments = $subdir !== '' ? '/' . $subdir : '';
+    $relative = sprintf('media/style/%s/images%s', $theme, $segments);
+    $absolute = MODX_MANAGER_PATH . $relative;
+
+    if ($theme && is_dir($absolute)) {
+        return rtrim($relative, '/') . '/';
+    }
+
+    $relative = 'media/style/common/images' . $segments;
+    return rtrim($relative, '/') . '/';
+}
+
+function manager_style_image_url($subdir = '')
+{
+    return MODX_MANAGER_URL . manager_style_image_path($subdir);
+}
+
+function manager_style_placeholders()
+{
+    static $paths = null;
+    if ($paths !== null) {
+        return $paths;
+    }
+
+    $paths = [
+        'style_images_path' => manager_style_image_path(),
+        'style_icons_path' => manager_style_image_path('icons'),
+        'style_misc_path' => manager_style_image_path('misc'),
+        'style_tree_path' => manager_style_image_path('tree'),
+    ];
+
+    return $paths;
+}
+
+function set_manager_style_placeholders()
+{
+    foreach (manager_style_placeholders() as $key => $value) {
+        evo()->setPlaceholder($key, $value);
+    }
+}
+
 if (!function_exists('env')) {
     /**
      * 環境変数を取得するヘルパー関数

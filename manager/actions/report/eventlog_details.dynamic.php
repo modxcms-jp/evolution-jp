@@ -82,8 +82,9 @@ $content = db()->getRow($ds);
             }
             $description = $content['description'];
             $description = str_replace('&amp;amp;', '&amp;', $description);
+            $icon_path = manager_style_image_path('icons');
             echo <<<HTML
-	<div class="warning"><img src="media/style/{$manager_theme}/images/icons/event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
+        <div class="warning"><img src="{$icon_path}event{$content["type"]}.png" align="absmiddle" /> {$msgtype}</div>
 	<table>
 	<tr><td>{$_lang["event_id"]} </td><td>{$content["id"]}</td></tr>
 	<tr><td>{$_lang["source"]} </td><td>{$content["source"]}</td></tr>

@@ -3,6 +3,8 @@ if (!isset($modx) || !evo()->isLoggedin()) {
     exit;
 }
 
+set_manager_style_placeholders();
+
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
 
 $settings_version = db()->getValue(

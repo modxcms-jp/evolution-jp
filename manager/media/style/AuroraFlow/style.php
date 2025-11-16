@@ -52,9 +52,12 @@ if ($iconSysInfo == 1) iconSysInfo();
 if ($iconHelp == 1) iconHelp();
 
 $style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
+$images_path = manager_style_image_path();
+$icon_path = manager_style_image_path('icons');
+$tree_path = manager_style_image_path('tree');
+$misc_path = manager_style_image_path('misc');
 
 // Tree Menu Toolbar
-$icon_path = $style_path . 'images/icons/';
 $_style['add_doc_tree'] = '<img src="' . $icon_path . 'page_add.png" />';
 $_style['add_weblink_tree'] = '<img src="' . $icon_path . 'link_add.png" />';
 $_style['collapse_tree'] = '<img src="' . $icon_path . 'arrow_up.png" />';
@@ -68,7 +71,6 @@ $_style['sort_tree'] = '<img src="' . $icon_path . 'sort.png" />';
 
 
 // Tree Icons
-$tree_path = $style_path . 'images/tree/';
 $_style['tree_blanknode'] = $tree_path . 'empty.png';
 $_style['tree_deletedpage'] = $tree_path . 'deletedpage.png';
 $_style['tree_folder'] = $tree_path . 'folder.png'; /* folder.png */
@@ -172,5 +174,5 @@ $_style['icons_files_large'] = $icon_path . '32x/files.png';
 $_style['icons_help_large'] = $icon_path . '32x/help.png';
 
 // Miscellaneous
-$_style['ajax_loader'] = '<p>' . $_lang['loading_page'] . '</p><p><img src="' . $style_path . 'images/misc/ajax-loader.gif" alt="Please wait" /></p>';
-$_style['tx'] = $style_path . 'images/misc/_tx_.gif';
+$_style['ajax_loader'] = '<p>' . $_lang['loading_page'] . '</p><p><img src="' . $misc_path . 'ajax-loader.gif" alt="Please wait" /></p>';
+$_style['tx'] = $misc_path . '_tx_.gif';

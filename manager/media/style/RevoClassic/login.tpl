@@ -727,7 +727,7 @@
             <a href="../">[+site_name+]</a>
         </div>
         <div class="body">
-            <img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo"/>
+            <img src="[+style_misc_path+]login-logo.png" alt="[+site_name+]" id="logo"/>
             <label for="username">[+username+]</label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]" autocomplete="username"/>
             <label for="password">[+password+]</label>

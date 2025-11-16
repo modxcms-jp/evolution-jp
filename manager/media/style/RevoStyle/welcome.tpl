@@ -15,7 +15,7 @@
                 <table>
                     <tr>
                         <td width="120" align="center" valign="top">
-                            <img src='media/style/[+theme+]/images/misc/logo.png' alt='[+logo_slogan+]'/>
+                            <img src='[+style_misc_path+]logo.png' alt='[+logo_slogan+]'/>
                         </td>
                         <td valign="top">
                             [+OnManagerWelcomeHome+]
@@ -50,7 +50,7 @@
             <script type="text/javascript">tpPane.addTabPage(document.getElementById("tabcheck"));</script>
             <div class="sectionHeader">[+configcheck_title+]</div>
             <div class="sectionBody">
-                <img src="media/style/[+theme+]/images/icons/error.png"/>
+                <img src="[+style_icons_path+]error.png"/>
                 [+config_check_results+]
             </div>
         </div>

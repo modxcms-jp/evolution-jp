@@ -112,7 +112,7 @@
                 onclick="document.userform.dob.value=''; return true;"
                 style="cursor:pointer; cursor:hand"
             ><img
-                    src="media/style/<?= evo()->config('manager_theme') ?>/images/icons/cal_nodate.gif"
+                    src="<?= manager_style_image_path('icons') ?>cal_nodate.gif"
                     align="absmiddle"
                     border="0"
                     alt="<?= lang('remove_date') ?>"

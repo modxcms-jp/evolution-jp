@@ -17,7 +17,7 @@
             color: #333;
         }
 
-        body {height:auto;font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("media/style/RevoStyle/images/misc/subnav.png") repeat scroll 0 0 #EEEEEE;} img, a img {border: 0 !important;text-decoration: none;padding: 0;margin: 0;} input {font:inherit;} p {margin: 0 0 .5em; /* Reset vertical margins on selected elements */padding: 0;} /* Headers and Paragraphs:
+        body {height:auto;font-size: 75%; /* 12px 62.5% for 10px*/margin-bottom: 1px;background: url("[+style_misc_path+]subnav.png") repeat scroll 0 0 #EEEEEE;} img, a img {border: 0 !important;text-decoration: none;padding: 0;margin: 0;} input {font:inherit;} p {margin: 0 0 .5em; /* Reset vertical margins on selected elements */padding: 0;} /* Headers and Paragraphs:
     ---------------------------------------------------------------- */
         .warning{color: #821517;font-weight: bold;} .success{color: #090;font-weight: bold;} a, a:active, a:visited, a:link {color: #333;text-decoration: underline;} a:hover {color: #777;} input, .inputBox {padding: 1px;} form {
             border: 1px solid #fff;
@@ -27,8 +27,8 @@
             margin-left: -7px
         }
 
-        .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;} .body {padding: 20px 20px 20px;display: block;background: #fff;
-    box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);} #mx_loginbox {width: 460px;margin: 30px auto 0;box-shadow: 0 0 10px #aaa;} img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;} label {display: block;font-weight: bold;} input {margin: 0 0 10px 0;} input.checkbox {float: left;clear: left;margin-right: 3px;} form input.text, input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url(media/style/[+theme+]/images/misc/input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url(media/style/[+theme+]/images/misc/fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} input#FMP-email {width:300px;} label#FMP-email_label
+        .header {padding: 5px 3px 5px 18px;font-weight: bold;color: #000;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border-bottom:1px solid #e0e0e0;} .body {padding: 20px 20px 20px;display: block;background: #fff;
+    box-shadow: inset 0px 5px 10px 0px rgba(70, 70, 70, 0.1);} #mx_loginbox {width: 460px;margin: 30px auto 0;box-shadow: 0 0 10px #aaa;} img.loginCaptcha {border: 1px solid #039;width: 148px;height: 60px;} label {display: block;font-weight: bold;} input {margin: 0 0 10px 0;} input.checkbox {float: left;clear: left;margin-right: 3px;} form input.text, input#FMP-email {margin-bottom:8px;line-height:1;ime-mode:inactive;letter-spacing:1px;font-family: Verdana; width: 400px;background: #fff url([+style_misc_path+]input-bg.gif) repeat-x top left;border:1px solid #ccc;padding:3px;} input.login {float: right;clear: right;margin-right: 0px;padding:5px 8px;cursor: hand; cursor: pointer;background: #EAECEE url([+style_misc_path+]fade.gif) repeat-x top;border:1px solid #ccc;} .loginLicense {width: 460px;color: #B2B2B2;margin: 0.5em auto;font-size: 90%;padding-left: 20px;} .loginLicense a {color: #B2B2B2;} .loginMessage {font-size:12px;color: #999;padding-top: 10px;} input#FMP-email {width:300px;} label#FMP-email_label
 
         {padding-left:0;}
     </style>
@@ -50,7 +50,7 @@
         [+OnManagerLoginFormPrerender+]
         <div class="header"><a href="../">[+site_name+]</a></div>
         <div class="body">
-            <img src="media/style/[+theme+]/images/misc/login-logo.png" alt="[+site_name+]" id="logo"/>
+            <img src="[+style_misc_path+]login-logo.png" alt="[+site_name+]" id="logo"/>
             <p class="loginMessage">[+login_message+]</p>
             <label for="username">[+username+] </label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]"/>
