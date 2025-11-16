@@ -75,6 +75,7 @@ $header = '
         <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
         <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>';
 
+$misc_path = manager_style_image_path('misc');
 $header .= <<<HTML
     <style type="text/css">
         .topdiv {
@@ -101,7 +102,7 @@ $header .= <<<HTML
                         padding: 3px 5px;
                         margin: 4px 0px;
                         border: 1px solid #CCCCCC;
-                        background-image: url("media/style/$manager_theme/images/misc/fade.gif");
+                        background-image: url("{$misc_path}fade.gif");
                         background-repeat: repeat-x;
                         -webkit-user-select: none;
                         -moz-user-select: none;

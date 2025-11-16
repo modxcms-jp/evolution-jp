@@ -82,27 +82,27 @@
         }
 
         ul.sortableList li.noChildren {
-            background-image: url(media/style[+theme+]/images/tree/page.png);
+            background-image: url([+style_tree_path+]page.png);
         }
 
         ul.sortableList li.hasChildren {
-            background-image: url(media/style[+theme+]/images/tree/folder.png);
+            background-image: url([+style_tree_path+]folder.png);
         }
 
         ul.sortableList li.homeNode {
-            background-image: url(media/style[+theme+]/images/tree/application_home.png);
+            background-image: url([+style_tree_path+]application_home.png);
         }
 
         ul.sortableList li.unavailableNode {
-            background-image: url(media/style[+theme+]/images/tree/application_hourglass.png);
+            background-image: url([+style_tree_path+]application_hourglass.png);
         }
 
         ul.sortableList li.unauthorizedNode {
-            background-image: url(media/style[+theme+]/images/tree/application_hourglass.png);
+            background-image: url([+style_tree_path+]application_hourglass.png);
         }
 
         ul.sortableList li.errorNode {
-            background-image: url(media/style[+theme+]/images/tree/application_404.png);
+            background-image: url([+style_tree_path+]application_404.png);
         }
 
         ul.sortableList li.inMenuNode {font-weight:bold;} ul.sortableList li.unpublishedNode

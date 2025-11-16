@@ -12,6 +12,8 @@ $logs = [];
 while ($row = db()->getRow($rs)) {
     $logs[] = $row;
 }
+
+$icons_path = manager_style_image_path('icons');
 ?>
 <h1><?= lang('mgrlog_view') ?></h1>
 <div id="actions">
@@ -149,7 +151,7 @@ while ($row = db()->getRow($rs)) {
                                 <a
                                     onclick="document.logging.datefrom.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img
-                                        src="media/style/<?= config('manager_theme') ?>/images/icons/cal_nodate.gif"
+                                        src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0" alt="No date" /></a>
                             </td>
                         </tr>
@@ -166,7 +168,7 @@ while ($row = db()->getRow($rs)) {
                                     onclick="document.logging.dateto.value=''; return true;"
                                     style="cursor:pointer; cursor:hand">
                                     <img
-                                        src="media/style/<?= config('manager_theme') ?>/images/icons/cal_nodate.gif"
+                                        src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0"
                                         alt="No date" />
                                 </a>

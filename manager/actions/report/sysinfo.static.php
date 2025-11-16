@@ -360,6 +360,7 @@ global $database_connection_method, $lastInstallTime;
                     sprintf('lasthit>%s', $timetocheck),
                     'username ASC'
                 );
+                $tree_path = manager_style_image_path('tree');
                 if (!db()->count($rs)) {
                     $html = "<p>" . lang('no_active_users_found') . "</p>";
                 } else {
@@ -367,8 +368,8 @@ global $database_connection_method, $lastInstallTime;
                         $currentaction = getAction($activeusers['action'], $activeusers['id']);
                         if ($activeusers['internalKey'] < 0) {
                             $webicon = sprintf(
-                                '<img align="absmiddle" src="media/style/%s/images/tree/globe.png" alt="Web user" >',
-                                config('manager_theme')
+                                '<img align="absmiddle" src="%sglobe.png" alt="Web user" >',
+                                $tree_path
                             );
                         } else {
                             $webicon = "";

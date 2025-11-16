@@ -7,6 +7,8 @@ if (anyv('a') == '8' || !sessionv('mgrValidated')) {
     return;
 }
 
+set_manager_style_placeholders();
+
 evo()->toPlaceholders(
     [
         'modx_charset' => $modx_manager_charset,

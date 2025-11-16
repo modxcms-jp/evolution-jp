@@ -1,6 +1,9 @@
 <?php
 if (!isset($modx) || !evo()->isLoggedin()) exit;
 
+$style_images_path = manager_style_image_path();
+$style_tree_path = manager_style_image_path('tree');
+
 function iconMessage()
 {
     global $modx, $_lang;
@@ -219,7 +222,7 @@ TPL;
 
 function tabOnlineUser()
 {
-    global $modx, $_lang;
+    global $modx, $_lang, $style_tree_path;
 
     if (getv('a') != 2) return;
     $ph = $_lang;
@@ -234,7 +237,7 @@ function tabOnlineUser()
         $tr = [];
         while ($row = db()->getRow($rs)) {
             $currentaction = getAction($row['action'], $row['id']);
-            $webicon = ($row['internalKey'] < 0) ? '<img src="media/style/' . $modx->config['manager_theme'] . '/images/tree/globe.png" alt="Web user" />' : '';
+            $webicon = ($row['internalKey'] < 0) ? '<img src="' . $style_tree_path . 'globe.png" alt="Web user" />' : '';
             $tr[] = sprintf(
                 "<tr><td><b>%s</b></td><td>%s&nbsp;%d</td><td>%s</td><td>%s</td><td>%s</td></tr>",
                 $row['username'],
@@ -281,5 +284,7 @@ TPL;
 
 function icontpl()
 {
-    return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="media/style/RevoStyle/images/[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
+    global $style_images_path;
+
+    return '<span class="wm_button" style="border:0"><a class="hometblink" href="[+action+]"><img src="' . $style_images_path . '[+imgsrc+]" /><br />[+title+]</a></span>' . "\n";
 }

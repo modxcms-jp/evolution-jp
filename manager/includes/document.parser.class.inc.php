@@ -1129,14 +1129,14 @@ class DocumentParser
     {
         $this->token_auth();
 
-        $config = $this->getSiteCache();
+        $config = $this->isFrontend() ? $this->getSiteCache() : null;
         if (!$config) {
             $rs = db()->select('setting_name,setting_value', '[+prefix+]system_settings');
             $config = [];
             while ($row = db()->getRow($rs)) {
                 $config[$row['setting_name']] = $row['setting_value'];
             }
-            $this->setSiteCache($config);
+            // $this->setSiteCache($config);
         }
         $this->config = $config;
 

@@ -27,6 +27,8 @@ while ($row = db()->getRow($rs)) {
     $usersettings[$row['setting_name']] = $row['setting_value'];
 }
 
+$icons_path = manager_style_image_path('icons');
+
 // manually extract so that user display settings are not overwritten
 foreach ($usersettings as $k => $v) {
     switch ($k) {
@@ -329,7 +331,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                         ) : ""); ?>" onblur="documentDirty=true;">
                             <a onclick="document.userform.dob.value=''; return true;"
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                    src="media/style/<?= $manager_theme ?>/images/icons/cal_nodate.gif"
+                                    src="<?= $icons_path ?>cal_nodate.gif"
                                     border="0"
                                     alt="<?= $_lang['remove_date'] ?>"></a>
                         </td>

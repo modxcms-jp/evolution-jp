@@ -16,24 +16,17 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
-    --color-primary: #375665;
-    --color-primary-start: #2f8aa1;
-    --color-primary-end: #226b7c;
-    --color-primary-hover-start: #37a3bd;
-    --color-primary-hover-end: #2d879b;
-    --color-primary-active-start: #1f5a68;
-    --color-primary-active-end: #154954;
-    --color-secondary-start: #e4e4e4;
-    --color-secondary-end: #d2d8dc;
-    --color-secondary-border: #c2c9ce;
-    --color-secondary-text: #566269;
-    --color-secondary-hover-start: #dbe0e4;
-    --color-secondary-hover-end: #c6cdd2;
-    --color-secondary-hover-text: #3f4a51;
-    --color-neutral-button-start: #f1f4f6;
-    --color-neutral-button-hover-end: #e6ecef;
-    --color-neutral-button-active-start: #dbe3e7;
-    --color-neutral-button-border: #b9c4c9;
+    --color-accent-green-start: #8aae4b;
+    --color-accent-green-end: #66901b;
+    --color-accent-green-hover-start: #90bf40;
+    --color-accent-green-hover-end: #82af33;
+    --color-accent-green-active-start: #749c2f;
+    --color-accent-green-active-end: #4b7109;
+    --color-neutral-button-start: #fafafa;
+    --color-neutral-button-end: #d2d2d2;
+    --color-neutral-button-hover-end: #e5e5e5;
+    --color-neutral-button-active-start: #f0f0f0;
+    --color-neutral-button-active-end: #cecece;
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
 }
@@ -45,10 +38,6 @@ body {
     line-height: 1.5;
     color: var(--color-text-primary);
     background: var(--color-background-page);
-}
-
-body#mainpane {
-  padding: 8px;
 }
 
 img, a img {
@@ -113,9 +102,9 @@ h1 {
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 8px;
+    padding: 7px 7px 7px 10px;
     border-radius: 3px;
-    margin: 8px;
+    margin: 8px 15px 10px;
 }
 
 h1.draft {
@@ -206,7 +195,6 @@ hr {
     margin: 0;
     color: var(--color-text-primary);
     padding: 0 5px;
-    position: relative;
 }
 
 #topbar * {
@@ -266,97 +254,31 @@ hr {
 }
 
 #supplementalNav {
-    align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
-    border-radius: 999px;
-    box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
-    display: flex;
-    font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
+    background: transparent none repeat scroll 0 0;
+    color: #89939e;
     margin: 0;
-    padding: 0 18px;
     position: absolute;
-    right: var(--subnav-horizontal-padding);
-    top: 6px;
+    right: 8px;
+    top: 8px;
     z-index: 111;
 }
 
 .rtl #supplementalNav {
-    flex-direction: row-reverse;
-    left: var(--subnav-horizontal-padding);
-    right: auto;
+    float: left;
+}
+
+#supplementalNav * {
+    vertical-align: bottom;
 }
 
 #supplementalNav a {
-    color: inherit;
-    font-weight: inherit;
+    padding: 0;
+    margin: 0;
+}
+
+#msgCounter, #newMail {
     margin: 0;
     padding: 0;
-    text-decoration: none;
-    transition: color .15s ease;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: var(--topnav-link-hover-color);
-}
-
-#supplementalNav .supplementalNav__item {
-    align-items: center;
-    display: flex;
-    gap: 8px;
-    white-space: nowrap;
-}
-
-#supplementalNav .supplementalNav__item + .supplementalNav__item {
-    padding-left: var(--topnav-gap);
-}
-
-.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-left: none;
-    border-right: 1px solid rgba(255, 255, 255, .2);
-    margin-left: 0;
-    margin-right: var(--topnav-gap);
-    padding-left: 0;
-    padding-right: var(--topnav-gap);
-}
-
-#supplementalNav .supplementalNav__item--messages {
-    gap: 6px;
-}
-
-#supplementalNav #newMail {
-    margin: 0;
-}
-
-#supplementalNav #newMail a {
-    align-items: center;
-    display: inline-flex;
-}
-
-#supplementalNav #newMail img {
-    display: block;
-}
-
-#supplementalNav #msgCounter {
-    margin-left: 4px;
-}
-
-.rtl #supplementalNav #msgCounter {
-    margin-left: 0;
-    margin-right: 4px;
-}
-
-#supplementalNav .supplementalNav__version-label {
-    font-weight: 600;
-    letter-spacing: .02em;
-}
-
-#supplementalNav .supplementalNav__version-label--mismatch {
-    color: #ffff8a;
 }
 
 /* -------------------------[ Forms ]--- */
@@ -466,18 +388,15 @@ form select:focus {
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid var(--color-neutral-button-border);
+    border: 1px solid green;
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0 5px;
     min-height: 27px;
     padding: 4px 10px;
     overflow: visible;
-    background-color: var(--color-neutral-button-start);
-    color: var(--color-text-primary);
+    background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     border-radius: 3px;
-    box-shadow: none;
-    text-shadow: none;
 }
 
 input.checkbox,
@@ -494,13 +413,8 @@ input[type="button"] {
 }
 
 input:is([type="button"], [type="submit"]):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
-}
-
-input:is([type="button"], [type="submit"]):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
+    border-color: green;
+    background: linear-gradient(#ffffff, #eeeeee);
 }
 
 select {
@@ -644,14 +558,15 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 8px;
-    padding: 8px 16px;
+    margin: 0 15px;
+    padding: 5px 9px 5px 15px;
     font-weight: bold;
-    border: 1px solid var(--color-section-header-end);
+    border: 1px solid var(--color-border-default);
     border-bottom: none;
-    background-color: var(--color-section-header-end);
+    text-shadow: 0 1px 0 var(--color-surface);
+    background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 8px 8px 0 0;
+    border-radius: 5px 5px 0 0;
 }
 
 .tab-page .sectionHeader {
@@ -665,7 +580,8 @@ form .imeoff {
 
 .sectionBody {
     position: relative;
-    margin: 8px;
+    display: none;
+    margin: 5px 15px 15px;
     display: block;
 }
 
@@ -683,7 +599,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 8px 8px;
+    margin: 0 15px 15px;
     background-color: var(--color-surface);
 }
 
@@ -772,7 +688,6 @@ a img {
 div.treeframebody {
     background: #f5f5f5 url(images/misc/subnav.png) !important;
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
-    padding: 8px;
 }
 
 #treeMenu * {
@@ -892,7 +807,7 @@ div.treeNode {
 }
 
 .grid th, .grid td {
-    padding: 8px;
+    padding: 3px 5px;
 }
 
 .gridHeader, .grid th {
@@ -1040,138 +955,147 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    --topnav-item-height: 32px;
-    --topnav-gap: 4px;
-    --subnav-height: 32px;
-    --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 14px;
-    --topnav-background: #062a36;
-    --topnav-border: #10475a;
-    --topnav-link-color: #e1f1f4;
-    --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #1b2e37;
-    background-color: var(--topnav-background);
-    border-bottom: 1px solid var(--topnav-border);
+    background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
 }
-#topMenu {
-    background-color: #23393C;
-    background-image: url("images/misc/headers.jpg");
-}
+
 #Navcontainer {
-    color: #e4f1f3;
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
+    padding: 0 10px;
+    color: #fff;
 }
 
 #nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: 8px;
-    flex-wrap: wrap;
     margin: 0;
     padding: 0;
-    list-style: none;
+    height: 25px;
+    width: 100%;
+    position: absolute;
+    top: 6px;
+    overflow: visible !important;
 }
 
 .rtl #nav {
-    flex-direction: row-reverse;
+    right: 10px;
 }
 
-#nav > li {
+#nav ul {
+    display: none;
+    height: 26px;
+    position: relative;
+    z-index: 500;
+    margin: 0 0 0 -10px;
+    padding: 0 0 0 20px;
+}
+
+.rtl #nav ul {
+    margin: 0 -10px 0 0;
+    padding: 0 20px 0 0;
+}
+
+#nav li {
     list-style: none;
+    float: left;
+    width: auto;
+    margin: 0 0 0 10px;
+    padding: 0;
 }
 
-#nav > li > a {
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
-    color: var(--topnav-link-color);
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 20px;
+.rtl #nav li {
+    float: right;
+    margin: 0 0 0 3px;
+}
+
+#nav li a {
+    color: #A4B8B6;
+    height: 25px;
     text-decoration: none;
     white-space: nowrap;
-    background: transparent;
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: var(--topnav-link-hover-color);
-    background: var(--topnav-link-hover-bg);
-    border-color: var(--topnav-border);
-}
-
-#nav > li.active > a {
-    background: var(--topnav-link-active-bg);
-    border-color: var(--topnav-link-active-bg);
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: none;
-    color: var(--topnav-link-hover-color);
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
-}
-
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(var(--topnav-item-height) + 11px);
-    margin: 0;
-    list-style: none;
-    padding: 6px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: 6px;
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: 1px solid var(--topnav-border);
-    background: var(--topnav-link-active-bg);
-    z-index: 1;
-    box-shadow: none;
-}
-
-.rtl #nav > li > ul.subnav {
-    flex-direction: row-reverse;
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    color: #f1fbfc;
     cursor: pointer;
+    line-height: 25px;
+    overflow: hidden;
+    padding: 0 15px;
+    float: none !important;
+    float: left;
     display: block;
+}
+
+#nav li ul li a {
+    padding: 0 18px !important;
+}
+
+#nav li ul li a {
+    background: #d4d4d4;
+    float: left;
+    width: auto;
+}
+
+.rtl #nav li ul li a {
+    float: right;
+}
+
+#nav a:hover,
+#nav a:active {
+    color: #fff;
+}
+
+#nav li.active {
+    background: none repeat scroll 0 0 #616161;
+    border-radius: 5px 5px 0 0;
+    box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+}
+
+#nav li.active a {
+    border-bottom: 1px solid #616161;
+    color: #FFF;
+    position: relative;
+    text-shadow: 0 -1px 0 #333;
+    z-index: 999999;
+}
+
+#nav li.active a:hover {
+    cursor: pointer;
+}
+
+#nav li.active ul.subnav {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    width: 200%;
+    top: 31px;
+    left: 0;
+    border-top: 1px solid #888;
+    border-bottom: 1px solid #eee;
+}
+
+#nav li.active ul.subnav {
+    right: 0;
+}
+
+#nav li.active ul.subnav a {
+    border-bottom: none;
+    color: #fff;
     font-weight: normal;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background-color .18s ease, color .18s ease;
+    background-color: var(--color-nav-subnav-end);
+    cursor: pointer;
+    border-left: none;
 }
 
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: #184753;
-    color: #ffffff;
-    text-shadow: none;
+#nav li.active ul.subnav li {
+    margin: 0;
 }
 
-#nav > li > ul.subnav a:active {
-    color: #d9edf1;
+#nav li.active ul.subnav a:hover {
+    color: #fff;
+    text-shadow: 0 0 2px #FFF;
+}
+
+#nav li.active ul.subnav a:active {
+    color: #ccc;
+}
+
+#nav li.active ul.subnav,
+#nav li.active ul.subnav a {
+    background-color: var(--color-nav-subnav-start);
+    background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
@@ -1239,7 +1163,7 @@ a.hometblink:hover {
     padding: 6px 4px;
     margin-bottom: 3px;
     text-shadow: 0px -1px 0px #222;
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
 #mx_contextmenu .seperator {
@@ -1309,19 +1233,20 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-secondary-text);
+    color: #313131;
     font-size: 1em;
     cursor: pointer;
     display: inline;
     margin: 3px 2px 1px 0;
     float: left;
-    padding: 8px 16px;
+    padding: 3px 10px;
     z-index: 1;
     position: relative;
     top: 1px;
-    border: 1px solid var(--color-secondary-border);
+    border: 1px solid #658f1a;
+    text-shadow: 0px -1px 0px #2B5F0C;
     border-radius: 5px 5px 0 0;
-    background-color: var(--color-secondary-start);
+    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
 .rtl .dynamic-tab-pane-control .tab-row .tab {
@@ -1332,10 +1257,7 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
-    color: var(--color-secondary-hover-text);
-    border-color: var(--color-secondary-border);
-    background-color: var(--color-secondary-hover-start);
-    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
+    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
@@ -1344,7 +1266,7 @@ a.hometblink:hover {
     top: 1px;
     border-width: 1px;
     border-bottom-style: solid;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
+    border-color: #ffcc72 #AAA #FFF #AAA;
     border-radius: 5px 5px 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
@@ -1358,27 +1280,12 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab span {
-    color: inherit;
+    color: #fff;
     text-decoration: none;
 }
 
-.dynamic-tab-pane-control .tab-row .tab.hover span {
-    color: var(--color-secondary-hover-text);
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected.hover {
-    color: #333;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
-    background-color: var(--color-surface);
-    background-image: none;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
-    color: #111;
-}
-
 .dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #c00;
+    color: #ffcc72;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected .alert {
@@ -1486,7 +1393,7 @@ table.sortabletable {
 }
 
 .sortabletable td, .sortabletable th {
-    padding: 8px;
+    padding: 3px 5px;
     border: 1px solid #ccc;
 }
 
@@ -1571,18 +1478,18 @@ h2#edit_document_title {
 /* from https://github.com/manse/ScienceStyle */
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
-    margin: 0;
-    padding: 8px 16px !important;
+    margin: 0 -1px 0 0;
+    padding: 8px 5px 7px 10px !important;
     position: fixed;
     right: 16px;
     text-align: right;
-    top: 8px;
+    top: 5px;
     z-index: 100;
-    border-radius: 8px;
+    border-radius: 5px;
 }
 
 select#stay {
-    padding: 8px;
+    padding: 5px 5px 5px 2px;
 }
 
 .rtl #actions {
@@ -1634,15 +1541,19 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 4px;
+    border-radius: 2px;
     color: #444;
     font-size: 1em;
+    text-shadow: 0 1px 0 #fff;
     font-weight: 700;
     outline: medium none;
-    padding: 8px 12px;
+    padding: 4px 10px;
     text-decoration: none;
+    vertical-align: top;
     white-space: nowrap;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
     background-color: var(--color-neutral-button-start);
+    background-image: linear-gradient(var(--color-neutral-button-start), var(--color-neutral-button-end));
 }
 
 .actionButtons a img {
@@ -1650,27 +1561,24 @@ ul.actionButtons {
 }
 
 .actionButtons a:hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
+    border-color: #fff;
+    background-image: linear-gradient(var(--color-surface), var(--color-neutral-button-hover-end));
 }
 
 .actionButtons a:active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
+    border-color: #F0F0F0;
+    background-image: linear-gradient(var(--color-neutral-button-active-start), var(--color-neutral-button-active-end));
 }
 
 .actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
+    border: 1px solid #657587;
     padding: 2px 4px;
     color: #777;
-    background-color: var(--color-surface);
-    cursor: default;
-    pointer-events: none;
+    border-width: 0;
 }
 
 .actionButtons .opendraft a {
-    background-color: var(--color-draft-start);
-    border-color: var(--color-draft-end);
+    background-image: linear-gradient(var(--color-draft-start), var(--color-draft-end));
 }
 
 .actionButtons select, .actionButtons span.and {
@@ -1697,22 +1605,19 @@ ul.actionButtons {
 .actionButtons a.primary,
 .actionButtons a.default {
     color: #fff;
-    box-shadow: none;
-    text-shadow: none;
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-end);
+    box-shadow: -1px -1px 0 #658f1a, 1px 1px 0 #658f1a, 1px -1px 0 #658f1a, -1px 1px 0 #658f1a, 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.8);
+    text-shadow: 0 -1px 0 #2B5F0C;
+    background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
 .actionButtons #Button1 a:hover,
 .actionButtons a:hover.default {
-    background-color: var(--color-primary-hover-start);
-    border-color: var(--color-primary-hover-end);
+    background-image: linear-gradient(var(--color-accent-green-hover-start), var(--color-accent-green-hover-end));
 }
 
 .actionButtons #Button1 a:active,
 .actionButtons a:active.default {
-    background-color: var(--color-primary-active-start);
-    border-color: var(--color-primary-active-end);
+    background-image: linear-gradient(var(--color-accent-green-active-start), var(--color-accent-green-active-end));
 }
 
 
