@@ -11,7 +11,7 @@ html, body, form, fieldset {
     --color-link-hover: #0f1e76;
     --color-border-default: #ccc;
     --color-surface: #fff;
-    --color-section-header-text: #e8e8e8;
+    --color-section-header-text: #606060;
     --color-section-header-start: #f5f5f5;
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #0d2c44;
@@ -174,7 +174,8 @@ hr {
 }
 
 .split {
-    background: #556476 url(images/misc/line.gif) repeat-x;
+    background: linear-gradient(180deg, #556476 0%, #556476 50%, transparent 50%, transparent 100%);
+    background-size: 100% 1px;
     height: 1px;
     font-size: 0;
     clear: both;
@@ -705,7 +706,11 @@ thead td {
 li {
     padding: 0;
     margin: 0;
-    list-style: disc outside url(images/misc/li.gif);
+    list-style: disc;
+}
+
+li::marker {
+    color: #999;
 }
 
 ul {
@@ -770,7 +775,10 @@ a img {
 }
 
 div.treeframebody {
-    background: #f5f5f5 url(images/misc/subnav.png) !important;
+    background: #f5f5f5 !important;
+    background-image: linear-gradient(180deg,
+        rgba(13, 44, 68, 0.03) 0%,
+        rgba(10, 34, 51, 0.05) 100%) !important;
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
     padding: 8px;
 }
@@ -983,7 +991,7 @@ a.hometblink:hover {
 }
 
 .cntxMnuItem {
-    background-image: url(images/misc/_tx_.gif);
+    background-image: none;
     cursor: pointer;
     color: var(--color-text-primary);
     padding: 3px 16px 3px 2px;
@@ -1460,7 +1468,10 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: #f5f5f5 url(images/misc/mainbg.gif) repeat-x top;
+    background: #f5f5f5;
+    background-image: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(245, 245, 245, 0.95) 100%);
 }
 
 .tab-page {
@@ -1855,11 +1866,13 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
     width: 150px;
     padding: 3px 3px 3px 24px;
     background-color: #ffffff;
-    background: url(images/misc/datenofocus.gif) no-repeat top left #ffffff;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 4px center;
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(images/misc/datefocus.gif) no-repeat top left;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
     cursor: text;
 }
 
@@ -1958,7 +1971,7 @@ strong[style*='color:#EF1D1D'] {
 /* === メインナビゲーション項目 === */
 #nav > li > a {
     background: transparent !important;
-    color: rgba(226, 232, 240, 0.95) !important;
+    color: rgba(226, 232, 240, 0.55) !important;
     border-color: transparent !important;
     transition: all 0.2s ease !important;
 }
@@ -1975,7 +1988,7 @@ strong[style*='color:#EF1D1D'] {
     background: rgba(15, 23, 42, 0.6) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
-    border-color: rgba(59, 130, 246, 0.4) !important;
+    border-color: rgba(59, 130, 246, 0.2) !important;
     color: rgba(255, 255, 255, 1) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
