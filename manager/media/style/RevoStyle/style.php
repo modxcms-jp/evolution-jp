@@ -29,12 +29,6 @@ if (is_file(__DIR__ . '/config.php')) {
     include __DIR__ . '/config.php';
 }
 
-// Ensure the manager top frame accommodates the expanded navigation spacing.
-$revoMenuHeight = 86;
-if (!isset($modx->config['manager_menu_height']) || (int)$modx->config['manager_menu_height'] < $revoMenuHeight) {
-    $modx->config['manager_menu_height'] = (string)$revoMenuHeight;
-}
-
 if ($tab_your_info == 1) tabYourInfo();
 if ($tab_online == 1) tabOnlineUser();
 
