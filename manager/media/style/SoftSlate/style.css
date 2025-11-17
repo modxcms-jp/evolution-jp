@@ -5,30 +5,30 @@ html, body, form, fieldset {
 }
 
 :root {
-    --color-text-primary: #1f2937;
-    --color-background-page: #f2f4f8;
-    --color-link: #4c8ce4;
-    --color-link-hover: #3a69c4;
-    --color-border-default: #d6dde7;
-    --color-surface: #ffffff;
-    --color-section-header-text: #4b5563;
-    --color-section-header-start: #f7f9fc;
-    --color-section-header-end: #e7ecf4;
-    --color-nav-subnav-start: #4c6fb8;
-    --color-nav-subnav-end: #3d5d9e;
-    --color-accent-green-start: #5fa2e6;
-    --color-accent-green-end: #4b85d6;
-    --color-accent-green-hover-start: #6aa8ec;
-    --color-accent-green-hover-end: #588fdd;
-    --color-accent-green-active-start: #4b85d6;
-    --color-accent-green-active-end: #3c6dbc;
-    --color-neutral-button-start: #f8fafc;
-    --color-neutral-button-end: #e6ecf5;
-    --color-neutral-button-hover-end: #dfe5ef;
-    --color-neutral-button-active-start: #e8edf5;
-    --color-neutral-button-active-end: #d5deea;
-    --color-draft-start: #eef3fb;
-    --color-draft-end: #e1e8f4;
+    --color-text-primary: #333;
+    --color-background-page: #f4f4f4;
+    --color-link: #1285a4;
+    --color-link-hover: #0f1e76;
+    --color-border-default: #ccc;
+    --color-surface: #fff;
+    --color-section-header-text: #606060;
+    --color-section-header-start: #f5f5f5;
+    --color-section-header-end: #dddddd;
+    --color-nav-subnav-start: #626262;
+    --color-nav-subnav-end: #444444;
+    --color-accent-green-start: #8aae4b;
+    --color-accent-green-end: #66901b;
+    --color-accent-green-hover-start: #90bf40;
+    --color-accent-green-hover-end: #82af33;
+    --color-accent-green-active-start: #749c2f;
+    --color-accent-green-active-end: #4b7109;
+    --color-neutral-button-start: #fafafa;
+    --color-neutral-button-end: #d2d2d2;
+    --color-neutral-button-hover-end: #e5e5e5;
+    --color-neutral-button-active-start: #f0f0f0;
+    --color-neutral-button-active-end: #cecece;
+    --color-draft-start: #faf1d4;
+    --color-draft-end: #e9e0c3;
 }
 
 body {
@@ -686,8 +686,8 @@ a img {
 }
 
 div.treeframebody {
-    background: linear-gradient(180deg, #f7f9fc 0%, #eef2f8 100%) !important;
-    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    background: #f5f5f5 !important;
+    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.06);
 }
 
 #treeMenu * {
@@ -898,7 +898,7 @@ a.hometblink:hover {
 }
 
 .cntxMnuItem {
-    background-color: #f6f8fc;
+    background-color: #ffffff;
     cursor: pointer;
     color: var(--color-text-primary);
     padding: 3px 16px 3px 2px;
@@ -955,7 +955,7 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-    background: linear-gradient(180deg, #2b3b5a 0%, #223049 100%);
+    background: linear-gradient(180deg, #d8e7f7 0%, #a9c8e8 35%, #7ea9d5 70%, #6a8fbf 100%);
 }
 
 #Navcontainer {
@@ -1367,7 +1367,7 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: linear-gradient(180deg, #f7f9fc 0%, #e7ecf4 100%);
+    background: linear-gradient(180deg, #f7f7f7 0%, #e8e8e8 100%);
 }
 
 .welcomeBrand {
@@ -1769,12 +1769,12 @@ fieldset#access_permissions dl dd ul li {
 /* -------------------------[ date picker ]--- */
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;
-    padding: 6px 10px;
-    background: linear-gradient(180deg, #ffffff 0%, #eef3fb 100%);
+    padding: 3px 3px 3px 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #f2f2f2 100%);
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: linear-gradient(180deg, #e7ecf4 0%, #d5deea 100%);
+    background: linear-gradient(180deg, #ececec 0%, #dcdcdc 100%);
     cursor: text;
 }
 
@@ -1809,119 +1809,3 @@ strong[style*='color:#EF1D1D'] {
     margin-bottom: 8px;
 }
 
-/* -------------------------[ SoftSlate theme refinements ]--- */
-body {
-    background: var(--color-background-page);
-    color: var(--color-text-primary);
-}
-
-#topbar {
-    background: #f8fafc;
-    border-bottom: 1px solid #d8dee9;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-#topMenu {
-    background: #f8fafc;
-    border-bottom: 1px solid #d8dee9;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
-}
-
-#Navcontainer {
-    color: #1f2937;
-}
-
-#nav li a {
-    color: #4b5563;
-    font-weight: 600;
-}
-
-#nav li a:hover,
-#nav a:active {
-    color: var(--color-link-hover);
-}
-
-#nav li.active {
-    background: var(--color-link);
-    box-shadow: 0 8px 16px rgba(76, 140, 228, 0.25);
-}
-
-#nav li.active a {
-    color: #fff;
-    text-shadow: none;
-    border-bottom-color: var(--color-link);
-}
-
-#nav li.active ul.subnav,
-#nav li.active ul.subnav a {
-    background: linear-gradient(180deg, #6fa0f0 0%, #4c78d6 100%);
-}
-
-div.treeframebody {
-    background: #e7ecf4 !important;
-    box-shadow: inset -2px 2px 6px 0 rgba(0, 0, 0, 0.05);
-}
-
-#treeHolder {
-    background: transparent;
-    color: #253146;
-}
-
-.sectionHeader {
-    background: #f7f9fc;
-    border-color: var(--color-border-default);
-    color: var(--color-section-header-text);
-    box-shadow: none;
-}
-
-h1 {
-    background: #f7f9fc;
-    border: 1px solid var(--color-border-default);
-    color: #1f2937;
-    margin: 12px 15px 14px;
-}
-
-.sectionBody,
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: #ffffff;
-    border: 1px solid var(--color-border-default);
-    border-radius: 0 0 10px 10px;
-    box-shadow: 0 15px 30px rgba(15, 23, 42, 0.08);
-}
-
-input:is([type="button"], [type="submit"]),
-button,
-.btn,
-.btn button {
-    background: linear-gradient(180deg, #6fa0f0 0%, #4c78d6 100%);
-    border: 1px solid #3f6ec6;
-    color: #fff;
-    text-shadow: none;
-    box-shadow: 0 6px 12px rgba(76, 120, 214, 0.25);
-}
-
-input:is([type="button"], [type="submit"]):hover,
-button:hover,
-.btn:hover,
-.btn button:hover {
-    background: linear-gradient(180deg, #7aa8f3 0%, #567fdc 100%);
-    border-color: #3c6dbc;
-}
-
-thead,
-.gridHeader,
-.grid th {
-    background-color: #e6ecf5;
-    color: #1f2937;
-}
-
-table { border-color: var(--color-border-default); }
-
-textarea[readonly],
-textarea[readonly]:focus,
-input[type='text'][readonly],
-input[type='text'][readonly]:focus,
-.readonly {
-    background-color: #eef2f7 !important;
-}
