@@ -45,12 +45,16 @@ class Thumbnail extends Base
         $folder_permissions = octdec(evo()->config['new_folder_permissions']);
         $icon = false;
 
-        if (is_file($thumbfile)) {
-            $icon = $thumbfile;
+        // Convert paths for filesystem compatibility with multibyte characters
+        $thumbfile_fs = $this->convertPathToFilesystem($thumbfile);
+        $fullfile = $this->real_cwd . '/' . $this->filename;
+        $fullfile_fs = $this->convertPathToFilesystem($fullfile);
+
+        if (is_file($thumbfile_fs)) {
+            $icon = $thumbfile_fs;
         } else {
-            $thumbdir = dirname($thumbfile);
-            $fullfile = $this->real_cwd . '/' . $this->filename;
-            $mime = evo()->getMimeType($fullfile);
+            $thumbdir = dirname($thumbfile_fs);
+            $mime = evo()->getMimeType($fullfile_fs);
             $ext = strtolower($this->getExtension($this->filename));
 
             if ($this->isImage($mime, $ext)) {
@@ -64,19 +68,19 @@ class Thumbnail extends Base
                 //    else send generic picture icon.
 
                 if ($this->isJPEG($mime, $ext)) {
-                    $result = $this->resizeFromJPEG($fullfile);
+                    $result = $this->resizeFromJPEG($fullfile_fs);
                 } elseif ($this->isPNG($mime, $ext)) {
-                    $result = $this->resizeFromPNG($fullfile);
+                    $result = $this->resizeFromPNG($fullfile_fs);
                 } elseif ($this->isGIF($mime, $ext)) {
-                    $result = $this->resizeFromGIF($fullfile);
+                    $result = $this->resizeFromGIF($fullfile_fs);
                 } else {
                     $result = false;
                 }
 
                 if ($result !== false && function_exists('imagejpeg')) {
-                    imagejpeg($result, $thumbfile, 80);
-                    @chmod($thumbfile, $file_permissions);
-                    $icon = $thumbfile;
+                    imagejpeg($result, $thumbfile_fs, 80);
+                    @chmod($thumbfile_fs, $file_permissions);
+                    $icon = $thumbfile_fs;
                 }
             }
             if ($icon === false) {
@@ -196,5 +200,41 @@ class Thumbnail extends Base
             return imagecopyresized($thumb, $img, $x, $y, 0, 0, $n_width, $n_height, $width, $height);
         }
         return $result ? $thumb : false;
+    }
+
+    /**
+     * Convert file path encoding for filesystem compatibility
+     * Ensures multibyte characters in filenames work correctly with filesystem operations
+     *
+     * @param string $path File path with potentially multibyte characters
+     * @return string Path with encoding suitable for filesystem operations
+     */
+    private function convertPathToFilesystem($path)
+    {
+        if (!extension_loaded('mbstring')) {
+            return $path;
+        }
+
+        // Split path into directory and filename
+        $dirname = dirname($path);
+        $basename = basename($path);
+
+        // Ensure the filename is in UTF-8
+        $encoding = mb_detect_encoding(
+            $basename,
+            ['UTF-8', 'ASCII', 'ISO-2022-JP', 'EUC-JP', 'SJIS'],
+            true
+        );
+
+        if ($encoding && $encoding !== 'UTF-8') {
+            $basename = mb_convert_encoding($basename, 'UTF-8', $encoding);
+        }
+
+        // Set locale to ensure proper filesystem encoding handling
+        // Try common UTF-8 locales
+        @setlocale(LC_CTYPE, 'en_US.UTF-8', 'ja_JP.UTF-8', 'C.UTF-8', 'UTF-8');
+
+        // Reconstruct the path
+        return $dirname . '/' . $basename;
     }
 }

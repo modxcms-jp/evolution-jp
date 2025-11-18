@@ -5724,6 +5724,42 @@ class DocumentParser
         exit;
     }
 
+    /**
+     * Convert file path encoding for filesystem compatibility
+     * Ensures multibyte characters in filenames work correctly with filesystem operations
+     *
+     * @param string $path File path with potentially multibyte characters
+     * @return string Path with encoding suitable for filesystem operations
+     */
+    private function convertPathToFilesystem($path)
+    {
+        if (!extension_loaded('mbstring')) {
+            return $path;
+        }
+
+        // Split path into directory and filename
+        $dirname = dirname($path);
+        $basename = basename($path);
+
+        // Ensure the filename is in UTF-8
+        $encoding = mb_detect_encoding(
+            $basename,
+            ['UTF-8', 'ASCII', 'ISO-2022-JP', 'EUC-JP', 'SJIS'],
+            true
+        );
+
+        if ($encoding && $encoding !== 'UTF-8') {
+            $basename = mb_convert_encoding($basename, 'UTF-8', $encoding);
+        }
+
+        // Set locale to ensure proper filesystem encoding handling
+        // Try common UTF-8 locales
+        @setlocale(LC_CTYPE, 'en_US.UTF-8', 'ja_JP.UTF-8', 'C.UTF-8', 'UTF-8');
+
+        // Reconstruct the path
+        return $dirname . '/' . $basename;
+    }
+
     public function move_uploaded_file($tmp_path, $target_path)
     {
         $target_path = str_replace('\\', '/', $target_path);
@@ -5734,14 +5770,17 @@ class DocumentParser
             $this->logEvent(1, 3, $msg, 'move_uploaded_file');
         }
 
+        // Convert path encoding for filesystem compatibility with multibyte characters
+        $target_path_fs = $this->convertPathToFilesystem($target_path);
+
         $img = getimagesize($tmp_path);
 
         if ($img) {
-            return $this->resizeImage($tmp_path, $img, $target_path);
+            return $this->resizeImage($tmp_path, $img, $target_path_fs);
         }
 
-        if (move_uploaded_file($tmp_path, $target_path)) {
-            chmod($target_path, $new_file_permissions);
+        if (move_uploaded_file($tmp_path, $target_path_fs)) {
+            chmod($target_path_fs, $new_file_permissions);
             return true;
         }
 
