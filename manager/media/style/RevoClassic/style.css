@@ -16,13 +16,13 @@ html, body, form, fieldset {
     --color-section-header-end: #dddddd;
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
-    --color-primary: #375665;
-    --color-primary-start: #2f8aa1;
-    --color-primary-end: #226b7c;
-    --color-primary-hover-start: #37a3bd;
-    --color-primary-hover-end: #2d879b;
-    --color-primary-active-start: #1f5a68;
-    --color-primary-active-end: #154954;
+    --color-primary: rgba(55, 86, 101, 0.85);
+    --color-primary-start: rgba(47, 138, 161, 0.85);
+    --color-primary-end: rgba(34, 107, 124, 0.85);
+    --color-primary-hover-start: rgba(55, 163, 189, 0.85);
+    --color-primary-hover-end: rgba(45, 135, 155, 0.85);
+    --color-primary-active-start: rgba(31, 90, 104, 0.85);
+    --color-primary-active-end: rgba(21, 73, 84, 0.85);
     --color-secondary-start: #e4e4e4;
     --color-secondary-end: #d2d8dc;
     --color-secondary-border: #c2c9ce;
@@ -1045,12 +1045,12 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #062a36;
-    --topnav-border: #10475a;
+    --topnav-background: rgba(6, 42, 54, 0.85);
+    --topnav-border: rgba(16, 71, 90, 0.85);
     --topnav-link-color: #e1f1f4;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #195a70;
-    --topnav-link-active-bg: #1b2e37;
+    --topnav-link-hover-bg: rgba(25, 90, 112, 0.82);
+    --topnav-link-active-bg: rgba(27, 46, 55, 0.88);
     background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
 }
@@ -1165,7 +1165,7 @@ a.hometblink:hover {
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: #184753;
+    background: rgba(24, 71, 83, 0.8);
     color: #ffffff;
     text-shadow: none;
 }
