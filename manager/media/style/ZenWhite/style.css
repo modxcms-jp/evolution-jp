@@ -1,8 +1,30 @@
-/* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - ZenWhite Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
 
 :root {
     /* Color - Text */
@@ -121,14 +143,6 @@ html, body, form, fieldset {
     --color-context-menu-border: #c0c0c0;
     --color-context-menu-separator: silver;
 
-    /* Color - Topnav (in #topMenu section) */
-    --topnav-background: #3d4f5d;
-    --topnav-border: #4a5f6f;
-    --topnav-link-color: #d4dade;
-    --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #4a5f6f;
-    --topnav-link-active-bg: #2f3d48;
-
     /* Color - Clean Light Theme */
     --clean-nav-text: #24292e;
     --clean-nav-bg-hover: #e8eaed;
@@ -161,6 +175,32 @@ html, body, form, fieldset {
     --radius-md: 6px;
     --radius-lg: 8px;
     --radius-xl: 12px;
+
+    /* Transitions */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.3s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    /* Border Width */
+    --border-thin: 1px;
+    --border-medium: 2px;
+    --border-thick: 3px;
+}
+
+/* ============================================================================
+   2. Base Styles (Reset, Typography, Links)
+   Used in: Document structure, global styles
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -194,8 +234,11 @@ li, dd, blockquote {
     margin-inline: 0 0 0 1em;
 }
 
+/* ============================================================================
+   3. Utility Classes (hide, clear, status messages)
+   Used in: Error messages, visibility controls
+   ============================================================================ */
 
-/* -------------------------[ Miscellaneous conveniences ]--- */
 .clear {
     clear: both;
 }
@@ -223,7 +266,11 @@ li, dd, blockquote {
     display: inline;
 }
 
-/* -------------------------[ Headers and Paragraphs ]--- */
+/* ============================================================================
+   4. Typography (Headings, Paragraphs)
+   Used in: Page headers, content sections
+   ============================================================================ */
+
 h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
@@ -391,10 +438,6 @@ hr {
     z-index: 111;
 }
 
-.rtl #supplementalNav {
-    flex-direction: row-reverse;
-}
-
 #supplementalNav a {
     color: inherit;
     font-weight: inherit;
@@ -418,13 +461,6 @@ hr {
 
 #supplementalNav .supplementalNav__item + .supplementalNav__item {
     padding-inline-start: var(--topnav-gap);
-}
-
-.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-inline-start: none;
-    border-inline-end: 1px solid rgba(255, 255, 255, .2);
-    margin-inline: 0 var(--topnav-gap);
-    padding-inline: 0 var(--topnav-gap);
 }
 
 #supplementalNav .supplementalNav__item--messages {
@@ -457,7 +493,11 @@ hr {
     color: var(--color-warning-mismatch);
 }
 
-/* -------------------------[ Forms ]--- */
+/* ============================================================================
+   5. Forms (Inputs, Selects, Textareas, Buttons)
+   Used in: Document editor, settings pages, all form interactions
+   ============================================================================ */
+
 tbody, thead, tr {
     margin: 0;
     padding: 0;
@@ -613,7 +653,6 @@ form input.hidden {
 .form textarea {
     display: block;
     float: inline-start;
-    vertical-align: middle;
 }
 
 .form label {
@@ -682,7 +721,11 @@ form .imeoff {
     ime-mode: disabled;
 }
 
-/* -------------------------[ Misc stuff ]--- */
+/* ============================================================================
+   6. Layout Components (Sections, Containers)
+   Used in: Content sections, panels, containers
+   ============================================================================ */
+
 .sectionBody fieldset {
     padding: 15px;
 }
@@ -719,10 +762,6 @@ form .imeoff {
     margin: 2px 3px 0;
 }
 
-.rtl .sectionHeader {
-    direction: rtl;
-}
-
 .sectionBody {
     position: relative;
     margin: 8px;
@@ -736,11 +775,6 @@ form .imeoff {
     margin-block: 0 15px;
     margin-inline: 3px;
     padding: 15px;
-}
-
-.rtl .sectionBody {
-    direction: rtl;
-    position: inherit;
 }
 
 .section .sectionBody {
@@ -822,6 +856,11 @@ a img {
 .row3 {
     background-color: var(--color-section-header-start);
 }
+
+/* ============================================================================
+   8. Tree Components (Site Tree, Context Menu)
+   Used in: Resource tree, folder navigation, context menus
+   ============================================================================ */
 
 #treeMenu * {
     vertical-align: middle;
@@ -1024,11 +1063,6 @@ a.hometblink:hover {
     padding-inline: 16px 2px;
 }
 
-.rtl .cntxMnuItem,
-.rtl .cntxMnuItemDisabled {
-    padding-inline: 2px 16px;
-}
-
 .cntxMnuItemDisabled {
     cursor: default;
     padding: 3px 2px;
@@ -1043,10 +1077,6 @@ a.hometblink:hover {
     padding: 2px 1px;
     padding-inline: 15px 1px;
     border: 1px solid var(--color-context-menu-border);
-}
-
-.rtl .cntxMnuItemOver {
-    padding-inline: 1px 15px;
 }
 
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
@@ -1067,51 +1097,11 @@ a.hometblink:hover {
     margin-inline-start: 28px;
 }
 
-/* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
-#topMenu {
-    background-color: var(--topnav-background);
-    border-bottom: 1px solid var(--topnav-border);
-}
-
-#Navcontainer {
-    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
-    position: relative;
-    text-shadow: none;
-}
-
-#nav {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    column-gap: var(--topnav-gap);
-    row-gap: 8px;
-    flex-wrap: wrap;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.rtl #nav {
-    flex-direction: row-reverse;
-}
-
-#nav > li {
-    list-style: none;
-}
-
-#nav > li > a {
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 20px;
-    text-decoration: none;
-    white-space: nowrap;
-}
-
-#nav > li.active > a {
-    position: relative;
-    text-shadow: none;
-    z-index: 2;
-}
+/* ============================================================================
+   7. Navigation (Top Menu, Supplemental Nav)
+   Used in: Main navigation, menu items, sub-navigation
+   Note: ZenWhite uses a clean light theme - see custom overrides section below
+   ============================================================================ */
 
 /* -------------------------[ Settings Table ]--- */
 .settings {
@@ -1133,14 +1123,14 @@ a.hometblink:hover {
     border-bottom: 1px solid #C2C3CF;
 }
 
-/* -------------------------[ Tabs ]--- */
+/* ============================================================================
+   10. Tabs System (Dynamic Tab Pane)
+   Used in: Document editor, settings, multi-section forms
+   ============================================================================ */
+
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
-}
-
-.rtl .dynamic-tab-pane-control.tab-pane {
-    direction: rtl;
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
@@ -1223,10 +1213,6 @@ a.hometblink:hover {
     padding: 20px 15px 14px !important;
 }
 
-.rtl .dynamic-tab-pane-control .tab-page {
-    position: inherit; /* critical adjustment for IE ul li Proper RTL demonstration */
-}
-
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
@@ -1250,7 +1236,6 @@ a.hometblink:hover {
     border-bottom-color: #809c47;
     padding: 3px 5px;
     white-space: nowrap;
-    vertical-align: middle;
 }
 
 .treeButton:hover {
@@ -1296,9 +1281,10 @@ a.hometblink, a.hometblink img {
     padding: 15px 15px 20px !important;
 }
 
-/* -------------------------[ New sortable table class ]--- */
-.sortabletable {
-}
+/* ============================================================================
+   9. Tables & Grids (Data Tables, Sortable)
+   Used in: Resource lists, user management, data grids
+   ============================================================================ */
 
 table.sortabletable {
     width: 100%;
@@ -1383,8 +1369,12 @@ h2#edit_document_title {
     padding: 5px 10px;
 }
 
-/* -------------------------[ Action Buttons ]--- */
-/* from https://github.com/manse/ScienceStyle */
+/* ============================================================================
+   11. Action Buttons (Fixed Position Controls)
+   Used in: Document save/cancel, primary actions
+   Based on: https://github.com/manse/ScienceStyle
+   ============================================================================ */
+
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
@@ -1531,6 +1521,11 @@ ul.actionButtons {
     display: none;
 }
 
+/* ============================================================================
+   12. Specialized Forms (Mutate Forms, Date Pickers)
+   Used in: Document editor, settings forms, template variables
+   ============================================================================ */
+
 /*
 * Generic styles for all form elements
 */
@@ -1608,12 +1603,6 @@ form#mutate fieldset#settings_page_settings select {
 /*
 * Individual Styles for fieldset#meta_keywords
 */
-form#mutate fieldset#meta_keywords {
-}
-
-form#mutate fieldset#meta_keywords {
-}
-
 form#mutate fieldset#meta_keywords select.inputBox {
     display: block;
     margin-bottom: 0;
@@ -1705,7 +1694,10 @@ strong[style*='color:#EF1D1D'] {
     margin-bottom: var(--space-sm);
 }
 
-/* -------------------------[ Custom overrides - Clean Light Theme ]--- */
+/* ============================================================================
+   ZENWHITE THEME - Clean Light Navigation Overrides
+   This section provides complete navigation styling for the light theme
+   ============================================================================ */
 
 /* トップメニュー全体 */
 #topMenu {
@@ -1714,11 +1706,35 @@ strong[style*='color:#EF1D1D'] {
 }
 
 #Navcontainer {
+    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
+    position: relative;
+    text-shadow: none;
     color: var(--clean-nav-text);
 }
 
 /* メインナビゲーション */
+#nav {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    column-gap: var(--topnav-gap);
+    row-gap: 8px;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#nav > li {
+    list-style: none;
+}
+
 #nav > li > a {
+    display: block;
+    line-height: var(--topnav-item-height);
+    padding: 0 20px;
+    text-decoration: none;
+    white-space: nowrap;
     color: var(--clean-nav-text);
     border: none;
     border-radius: var(--radius-md);
@@ -1735,6 +1751,9 @@ strong[style*='color:#EF1D1D'] {
 }
 
 #nav > li.active > a {
+    position: relative;
+    text-shadow: none;
+    z-index: 2;
     color: var(--clean-nav-text);
     background: var(--clean-nav-bg-active);
     border: none;
@@ -1758,10 +1777,6 @@ strong[style*='color:#EF1D1D'] {
     box-shadow: none;
     background: var(--clean-subnav-bg);
     border-bottom: 1px solid var(--light-border);
-}
-
-.rtl #nav > li > ul.subnav {
-    flex-direction: row-reverse;
 }
 
 #nav > li.active > ul.subnav {
