@@ -1472,9 +1472,6 @@ a.hometblink, a.hometblink img {
 }
 
 /* -------------------------[ New sortable table class ]--- */
-.sortabletable {
-}
-
 table.sortabletable {
     width: 100%;
     border-collapse: collapse;
@@ -1796,12 +1793,6 @@ form#mutate fieldset#settings_page_settings select {
 /*
 * Individual Styles for fieldset#meta_keywords
 */
-form#mutate fieldset#meta_keywords {
-}
-
-form#mutate fieldset#meta_keywords {
-}
-
 form#mutate fieldset#meta_keywords select.inputBox {
     display: block;
     margin-bottom: 0;
