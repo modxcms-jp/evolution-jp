@@ -672,7 +672,7 @@ form .imeoff {
     margin: 0 8px;
     padding: 8px 16px;
     font-weight: bold;
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-default);
     border-bottom: none;
     background: linear-gradient(180deg, var(--gray-100), var(--gray-200));
     box-shadow: none;
@@ -697,7 +697,7 @@ form .imeoff {
 .tab-page .sectionBody,
 .section .sectionBody {
     background: var(--color-surface);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    border: 1px solid var(--color-border-default);
     border-radius: 10px;
     box-shadow: var(--shadow-sm);
     margin: 0 3px 15px;
