@@ -22,7 +22,7 @@ window.CKEDITOR_MODX_CONFIG = {
     removePlugins: [
         'CKFinder', 'ImageUpload', 'ImageInsert',
         'MediaEmbed', 'Table', 'AutoImage', 'BlockQuote',
-        'EasyImage', 'CloudServices'
+        'EasyImage', 'CloudServices', 'CKBox', 'CKBoxImageEdit', 'CKBoxUtils'
     ],
     extraPlugins: []
 };
