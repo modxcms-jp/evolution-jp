@@ -1,0 +1,11 @@
+.ck.ck-toolbar {
+    border-radius: 0;
+}
+
+.ck.ck-button {
+    padding: 3px 4px;
+}
+
+.ck.ck-toolbar__items {
+    gap: 2px;
+}
