@@ -1,6 +1,13 @@
 function ImageSelectorPlugin(editor) {
+    const ButtonView = window.CKEDITOR5?.ui?.button?.ButtonView;
+
+    if (!ButtonView) {
+        console.error('CKEditor5 ButtonView is unavailable.');
+        return;
+    }
+
     editor.ui.componentFactory.add('imageSelector', locale => {
-        const view = new editor.ui.button.ButtonView(locale);
+        const view = new ButtonView(locale);
         view.set({ label: '画像', withText: true });
 
         view.on('execute', () => {
