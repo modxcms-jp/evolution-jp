@@ -478,37 +478,25 @@ optgroup option {
     font-family: Consolas, 'Courier New', 'Courier', monospace;
 }
 
-form select {
-    background: var(--color-surface);
-    border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
-    border-style: solid;
-    border-width: 1px;
-    padding: 4px;
-    margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: 3px;
-}
-
-form input[type=text] {
-    line-height: 1;
-}
-
+form select,
 form input[type=text],
 form input[type=password],
 form textarea,
 form#mutate input,
 form#mutate textarea {
     background: var(--color-surface);
-    border-color: #999 #DDD #DDD #999;
-    border-style: solid;
-    border-width: 1px;
-    padding: 4px 2px 4px 4px;
+    border: 1px solid var(--color-border-default);
+    padding: 6px 8px;
     margin: 0 2px 0 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
-    box-shadow: 0px 1px 3px #E8E8E8 inset;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+form input[type=text] {
+    line-height: 1;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -526,7 +514,8 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border: 1px solid green;
+    border: 1px solid var(--color-primary-hover-start);
+    box-shadow: 0 0 0 2px rgba(74, 123, 167, 0.2);
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -535,13 +524,14 @@ input:is([type="button"], [type="submit"]) {
     line-height: normal;
     margin: -1px 0 0 5px;
     min-height: 27px;
-    padding: 4px 10px;
+    padding: 6px 12px;
     overflow: visible;
     background-color: var(--color-neutral-button-start);
-    color: var(--color-text-primary);
-    border-radius: 3px;
+    color: var(--gray-900);
+    border-radius: 6px;
     box-shadow: none;
     text-shadow: none;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 input.checkbox,
@@ -568,9 +558,10 @@ input:is([type="button"], [type="submit"]):active {
 }
 
 select {
-    border: 0;
-    background: #fcfcfc;
+    border: 1px solid var(--color-border-default);
+    background: var(--color-surface);
     cursor: pointer;
+    border-radius: var(--radius-md);
 }
 
 .form {
@@ -681,10 +672,10 @@ form .imeoff {
     margin: 0 8px;
     padding: 8px 16px;
     font-weight: bold;
-    border: 1px solid var(--color-section-header-end);
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-bottom: none;
-    background-color: var(--color-section-header-end);
-    box-shadow: 0 1px 0 var(--color-surface) inset;
+    background: linear-gradient(180deg, var(--gray-100), var(--gray-200));
+    box-shadow: none;
     border-radius: 8px 8px 0 0;
 }
 
@@ -705,9 +696,10 @@ form .imeoff {
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: #ffffff;
+    background: var(--color-surface);
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 10px;
+    box-shadow: var(--shadow-sm);
     margin: 0 3px 15px;
     padding: 15px;
 }
@@ -1691,8 +1683,9 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 4px;
-    color: #444;
+    border-radius: 6px;
+    border: 1px solid var(--color-neutral-button-border);
+    color: var(--gray-900);
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
