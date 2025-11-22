@@ -1,21 +1,108 @@
-/* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - SoftSlate Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ * 13. Custom Navigation Gradients
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
 
 :root {
-    --color-text-primary: #333;
+    /* Gray Scale - Core neutral colors */
+    --gray-50: #f9fafb;
+    --gray-100: #f5f5f5;
+    --gray-200: #eaeaea;
+    --gray-300: #ddd;
+    --gray-400: #ccc;
+    --gray-500: #999;
+    --gray-600: #888;
+    --gray-700: #777;
+    --gray-800: #585858;
+    --gray-900: #333;
+
+    /* Spacing Scale - 8px based system */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
+
+    /* Border Radius */
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 6px;
+    --radius-xl: 8px;
+    --radius-full: 50%;
+
+    /* Border Width */
+    --border-thin: 1px;
+    --border-medium: 2px;
+    --border-thick: 3px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
+    --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.3s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: var(--gray-900);
+    --color-text-muted: #606060;
+    --color-text-subtle: var(--gray-700);
     --color-background-page: #f4f4f4;
     --color-link: #4a7ba7;
     --color-link-hover: #3d6686;
-    --color-border-default: #ccc;
+    --color-border-default: var(--gray-400);
+    --color-border-light: #ededed;
     --color-surface: #fff;
+
+    /* Status Colors */
+    --color-success: #090;
+    --color-success-light: #3ab63a;
+    --color-success-bg: #edffee;
+    --color-error: #900;
+    --color-warning: #444;
+    --color-info: #3CB371;
+
+    /* Component Colors - Sections */
     --color-section-header-text: #606060;
-    --color-section-header-start: #f5f5f5;
+    --color-section-header-start: var(--gray-100);
     --color-section-header-end: #dddddd;
+    --color-section-bg: #F7F7F7;
+
+    /* Component Colors - Navigation */
     --color-nav-subnav-start: #4a5f6f;
     --color-nav-subnav-end: #3d4f5d;
+
+    /* Component Colors - Primary Actions */
     --color-primary: #3d4f5d;
     --color-primary-start: #4a5f6f;
     --color-primary-end: #3d4f5d;
@@ -23,6 +110,8 @@ html, body, form, fieldset {
     --color-primary-hover-end: #4a7ba7;
     --color-primary-active-start: #2f3d48;
     --color-primary-active-end: #253240;
+
+    /* Component Colors - Secondary Actions */
     --color-secondary-start: #e4e4e4;
     --color-secondary-end: #d2d8dc;
     --color-secondary-border: #c2c9ce;
@@ -30,12 +119,26 @@ html, body, form, fieldset {
     --color-secondary-hover-start: #dbe0e4;
     --color-secondary-hover-end: #c6cdd2;
     --color-secondary-hover-text: #3f4a51;
+
+    /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #f1f4f6;
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
+
+    /* Component Colors - Draft/Unpublished */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+}
+
+/* ============================================================================
+   2. Base Styles (Reset, Typography, Links)
+   Used in: All pages
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -48,7 +151,7 @@ body {
 }
 
 body#mainpane {
-  padding: 8px;
+  padding: var(--space-2);
 }
 
 img, a img {
@@ -68,28 +171,27 @@ li, dd, blockquote {
     margin: 0 0 0 1em;
 }
 
-.rtl li, .rtl dd, .rtl blockquote {
-    margin: 0 1em 0 0;
-}
+/* ============================================================================
+   3. Utility Classes (hide, clear, status messages)
+   Used in: All pages for common utilities
+   ============================================================================ */
 
-
-/* -------------------------[ Miscellaneous conveniences ]--- */
 .clear {
     clear: both;
 }
 
 .fail {
-    color: #900;
+    color: var(--color-error);
     font-weight: bold;
 }
 
 .warning {
-    color: #444;
+    color: var(--color-warning);
     font-weight: bold;
 }
 
 .success {
-    color: #090;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -101,29 +203,29 @@ li, dd, blockquote {
     display: inline;
 }
 
-/* -------------------------[ Headers and Paragraphs ]--- */
+/* ============================================================================
+   4. Typography (Headings, Paragraphs)
+   Used in: All pages for text content
+   ============================================================================ */
+
 h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
 
 h1 {
     font-size: 1.25em;
-    color: #585858;
+    color: var(--gray-800);
     font-weight: bold;
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 8px;
-    border-radius: 3px;
-    margin: 8px;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    margin: var(--space-2);
 }
 
 h1.draft {
     background-color: #F4E2C3;
-}
-
-.rtl h1 {
-    margin-right: 10px;
 }
 
 h2 {
@@ -143,7 +245,7 @@ h6 {
 
 p.caption, p.comment {
     font-size: 0.9em;
-    color: #888;
+    color: var(--gray-600);
 }
 
 button {
@@ -151,10 +253,6 @@ button {
     font: inherit;
     margin: 0 5px 0 0;
     cursor: pointer;
-}
-
-.rtl button {
-    margin: 0 0 0 5px;
 }
 
 a, a:active, a:visited, a:link {
@@ -197,11 +295,11 @@ hr {
     padding: 0 20px 20px;
 }
 
-.rtl .right {
-    float: right;
-}
+/* ============================================================================
+   6. Layout Components (Sections, Containers)
+   Used in: Page structure and layout
+   ============================================================================ */
 
-/* -------------------------[ Topbar ]--- */
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
@@ -231,10 +329,6 @@ hr {
     z-index: 1000;
 }
 
-.rtl #tocText {
-    right: 3px;
-}
-
 .tocTextRTL {
     right: 3px;
 }
@@ -261,10 +355,6 @@ hr {
     z-index: 1000;
 }
 
-.rtl #statusbar {
-    left: 0;
-}
-
 #supplementalNav {
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
@@ -282,12 +372,6 @@ hr {
     right: var(--subnav-horizontal-padding);
     top: 6px;
     z-index: 111;
-}
-
-.rtl #supplementalNav {
-    flex-direction: row-reverse;
-    left: var(--subnav-horizontal-padding);
-    right: auto;
 }
 
 #supplementalNav a {
@@ -315,15 +399,6 @@ hr {
     padding-left: var(--topnav-gap);
 }
 
-.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-left: none;
-    border-right: 1px solid rgba(255, 255, 255, .2);
-    margin-left: 0;
-    margin-right: var(--topnav-gap);
-    padding-left: 0;
-    padding-right: var(--topnav-gap);
-}
-
 #supplementalNav .supplementalNav__item--messages {
     gap: 6px;
 }
@@ -345,11 +420,6 @@ hr {
     margin-left: 4px;
 }
 
-.rtl #supplementalNav #msgCounter {
-    margin-left: 0;
-    margin-right: 4px;
-}
-
 #supplementalNav .supplementalNav__version-label {
     font-weight: 600;
     letter-spacing: .02em;
@@ -359,7 +429,11 @@ hr {
     color: #ffff8a;
 }
 
-/* -------------------------[ Forms ]--- */
+/* ============================================================================
+   5. Forms (Inputs, Selects, Textareas, Buttons)
+   Used in: Document editor, settings pages, all form interactions
+   ============================================================================ */
+
 tbody, thead, tr {
     margin: 0;
     padding: 0;
@@ -377,13 +451,6 @@ fieldset {
 input, select, textarea, option, optgroup, td {
     font: inherit;
     color: inherit;
-}
-
-.rtl input,
-.rtl select,
-.rtl textarea,
-.rtl td {
-    text-align: right;
 }
 
 textarea[readonly],
@@ -442,11 +509,6 @@ form#mutate textarea {
     vertical-align: baseline;
     border-radius: 3px;
     box-shadow: 0px 1px 3px #E8E8E8 inset;
-}
-
-.rtl form input[type=text],
-.rtl form textarea {
-    padding: 2px 2px 2px 0;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -535,17 +597,6 @@ form input.hidden {
     width: 110px;
 }
 
-.rtl .form label,
-.rtl .form input,
-.rtl .form textarea {
-    float: right;
-}
-
-.rtl .form label {
-    padding-left: 20px;
-    text-align: left;
-}
-
 form textarea {
     height: 78px;
     width: 350px;
@@ -564,10 +615,6 @@ form textarea {
     float: left;
 }
 
-.rtl .form select {
-    float: right;
-}
-
 .form br {
     clear: both;
 }
@@ -578,18 +625,8 @@ input.submit {
     margin: 20px 0 0 140px !important;
 }
 
-.rtl input.submit {
-    margin: 20px 140px 0 0 !important;
-}
-
 .form fieldset.list {
     margin: 6px 6px 3px 0;
-}
-
-.rtl .form fieldset.list {
-    border: 0;
-    padding: 0 !important;
-    margin: 6px 0 3px 6px;
 }
 
 .form fieldset.list legend {
@@ -606,11 +643,6 @@ input.submit {
     background: none;
     width: auto;
     height: auto;
-}
-
-.rtl .form fieldset.list label,
-.rtl .form fieldset.list input {
-    float: right;
 }
 
 .form fieldset.list label {
@@ -768,13 +800,13 @@ a img {
 }
 
 .row3 {
-    background-color: #f5f5f5;
+    background-color: var(--gray-100);
 }
 
 div.treeframebody {
-    background: #f5f5f5 url(../common/images/misc/subnav.png) !important;
+    background: var(--gray-100) url(../common/images/misc/subnav.png) !important;
     box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
-    padding: 8px;
+    padding: var(--space-2);
 }
 
 #treeMenu * {
@@ -1040,7 +1072,11 @@ a.hometblink:hover {
     margin: 3px 28px 3px 1px;
 }
 
-/* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
+/* ============================================================================
+   7. Navigation (Top Menu, Supplemental Nav)
+   Used in: Main navigation bar and supplemental navigation
+   ============================================================================ */
+
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
@@ -1299,7 +1335,11 @@ a.hometblink:hover {
     border-bottom: 1px solid #C2C3CF;
 }
 
-/* -------------------------[ Tabs ]--- */
+/* ============================================================================
+   10. Tabs System (Dynamic Tab Pane)
+   Used in: Tabbed interfaces throughout the manager
+   ============================================================================ */
+
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
@@ -1340,7 +1380,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: #333;
+    color: var(--gray-900);
     z-index: 999;
     top: 1px;
     border-width: 1px;
@@ -1368,7 +1408,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover {
-    color: #333;
+    color: var(--gray-900);
     border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
     background-color: var(--color-surface);
     background-image: none;
@@ -1415,7 +1455,11 @@ a.hometblink:hover {
     padding-right: 5px;
 }
 
-/* -------------------------[ Tree buttons ]--- */
+/* ============================================================================
+   8. Tree Components (Site Tree, Context Menu)
+   Used in: Site tree navigation and context menus
+   ============================================================================ */
+
 .treeButton {
     display: block;
     cursor: pointer;
@@ -1437,7 +1481,7 @@ a.hometblink:hover {
     cursor: default;
     border: 1px solid #657587;
     padding: 2px 4px;
-    color: #777;
+    color: var(--gray-700);
     border-width: 0;
     opacity: .5;
 }
@@ -1461,7 +1505,7 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
+    background: var(--gray-100) url(../common/images/misc/mainbg.gif) repeat-x top;
 }
 
 .tab-page {
@@ -1473,7 +1517,11 @@ a.hometblink, a.hometblink img {
     padding: 15px 15px 20px !important;
 }
 
-/* -------------------------[ New sortable table class ]--- */
+/* ============================================================================
+   9. Tables & Grids (Data Tables, Sortable)
+   Used in: Data grids, sortable tables, pagination
+   ============================================================================ */
+
 table.sortabletable {
     width: 100%;
     border-collapse: collapse;
@@ -1484,8 +1532,8 @@ table.sortabletable {
 }
 
 .sortabletable td, .sortabletable th {
-    padding: 8px;
-    border: 1px solid #ccc;
+    padding: var(--space-2);
+    border: var(--border-thin) solid var(--gray-400);
 }
 
 .sortabletable th {
@@ -1500,7 +1548,7 @@ table.sortabletable {
 
 .sortabletable th a {
     text-decoration: none;
-    color: #333;
+    color: var(--gray-900);
 }
 
 .sortabletable th:active {
@@ -1565,22 +1613,26 @@ h2#edit_document_title {
     padding: 5px 10px;
 }
 
-/* -------------------------[ Action Buttons ]--- */
+/* ============================================================================
+   11. Action Buttons (Fixed Position Controls)
+   Used in: Document editing and other action-heavy pages
+   ============================================================================ */
+
 /* from https://github.com/manse/ScienceStyle */
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
-    padding: 8px 16px !important;
+    padding: var(--space-2) var(--space-4) !important;
     position: fixed;
-    right: 16px;
+    right: var(--space-4);
     text-align: right;
-    top: 8px;
+    top: var(--space-2);
     z-index: 100;
-    border-radius: 8px;
+    border-radius: var(--space-2);
 }
 
 select#stay {
-    padding: 8px;
+    padding: var(--space-2);
 }
 
 .rtl #actions {
@@ -1664,7 +1716,7 @@ ul.actionButtons {
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
     padding: 2px 4px;
-    color: #777;
+    color: var(--gray-700);
     background-color: var(--color-surface);
     cursor: default;
     pointer-events: none;
@@ -1718,6 +1770,11 @@ ul.actionButtons {
     display: none;
 }
 
+/* ============================================================================
+   12. Specialized Forms (Mutate Forms, Date Pickers)
+   Used in: Document editor, complex form interfaces
+   ============================================================================ */
+
 /*
 * Generic styles for all form elements
 */
@@ -1741,7 +1798,7 @@ form#mutate dd {
 }
 
 form#mutate input.disabled {
-    background-color: #f5f5f5 !important;
+    background-color: var(--gray-100) !important;
 }
 
 form#mutate select.inputBox,
