@@ -1843,14 +1843,14 @@ fieldset#access_permissions dl dd ul li {
 }
 
 /* -------------------------[ date picker ]--- */
-input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
+input.DatePicker {
     width: 150px;
     padding: 3px 3px 3px 24px;
     background-color: #ffffff;
     background: url(../common/images/misc/datenofocus.gif) no-repeat top left #ffffff;
 }
 
-input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
+input.DatePicker:focus {
     background: url(../common/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
 }
