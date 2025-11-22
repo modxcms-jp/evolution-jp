@@ -1,34 +1,182 @@
-/* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - RevoStyle Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
 
 :root {
-    --color-text-primary: #333;
+    /* Gray Scale - Core neutral colors */
+    --gray-50: #f9fafb;
+    --gray-100: #f5f5f5;
+    --gray-150: #eeeeee;
+    --gray-200: #eaeaea;
+    --gray-250: #e5e5e5;
+    --gray-300: #ddd;
+    --gray-350: #dcdcdc;
+    --gray-400: #ccc;
+    --gray-450: #d2d2d2;
+    --gray-500: #999;
+    --gray-600: #888;
+    --gray-700: #777;
+    --gray-750: #626262;
+    --gray-800: #444;
+    --gray-850: #333;
+    --gray-900: #222;
+
+    /* Spacing Scale - 8px based system with additional values */
+    --space-0: 0;
+    --space-1: 2px;
+    --space-2: 3px;
+    --space-3: 4px;
+    --space-4: 5px;
+    --space-5: 6px;
+    --space-6: 7px;
+    --space-7: 8px;
+    --space-8: 10px;
+    --space-9: 15px;
+    --space-10: 16px;
+    --space-11: 18px;
+    --space-12: 20px;
+    --space-13: 25px;
+    --space-14: 28px;
+
+    /* Border Radius */
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 4px;
+    --radius-xl: 5px;
+
+    /* Border Width */
+    --border-thin: 1px;
+    --border-medium: 2px;
+    --border-thick: 3px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 3px 6px rgba(0, 0, 0, 0.15);
+    --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.3s ease-in-out;
+    --transition-slow: 0.5s ease-in-out;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: var(--gray-850);
+    --color-text-muted: #606060;
+    --color-text-subtle: var(--gray-700);
+    --color-text-light: var(--gray-500);
     --color-background-page: #f4f4f4;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
-    --color-border-default: #ccc;
+    --color-border-default: var(--gray-400);
+    --color-border-light: #ededed;
     --color-surface: #fff;
-    --color-section-header-text: #606060;
-    --color-section-header-start: #f5f5f5;
-    --color-section-header-end: #dddddd;
-    --color-nav-subnav-start: #626262;
-    --color-nav-subnav-end: #444444;
+
+    /* Status Colors */
+    --color-success: #090;
+    --color-success-light: #3ab63a;
+    --color-success-bg: #edffee;
+    --color-error: #900;
+    --color-warning: var(--gray-800);
+    --color-info: #3CB371;
+
+    /* Component Colors - Sections */
+    --color-section-header-text: var(--color-text-muted);
+    --color-section-header-start: var(--gray-100);
+    --color-section-header-end: var(--gray-300);
+    --color-section-bg: #F7F7F7;
+    --color-section-border: #d9d9d9;
+
+    /* Component Colors - Navigation */
+    --color-nav-subnav-start: var(--gray-750);
+    --color-nav-subnav-end: var(--gray-800);
+    --color-nav-link: #b4b4b4;
+    --color-nav-link-hover: #fff;
+    --color-nav-border: #525252;
+
+    /* Component Colors - Accent Green (Primary Actions) */
     --color-accent-green-start: #8aae4b;
     --color-accent-green-end: #66901b;
     --color-accent-green-hover-start: #90bf40;
     --color-accent-green-hover-end: #82af33;
     --color-accent-green-active-start: #749c2f;
     --color-accent-green-active-end: #4b7109;
+    --color-accent-green-light: #D9E7C2;
+    --color-accent-green-dark: #658f1a;
+
+    /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #fafafa;
-    --color-neutral-button-end: #d2d2d2;
-    --color-neutral-button-hover-end: #e5e5e5;
+    --color-neutral-button-end: var(--gray-450);
+    --color-neutral-button-hover-end: var(--gray-250);
     --color-neutral-button-active-start: #f0f0f0;
     --color-neutral-button-active-end: #cecece;
+
+    /* Component Colors - Draft State */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+    --color-draft-text: #bd9540;
+
+    /* Component Colors - Tree */
+    --color-tree-published: var(--color-text-primary);
+    --color-tree-unpublished: var(--gray-500);
+    --color-tree-hover-bg: #ffffcc;
+    --color-tree-selected-bg: #acce;
+
+    /* Component Colors - Forms */
+    --color-input-bg: #fff;
+    --color-input-border: var(--gray-400);
+    --color-input-focus-border: var(--gray-500);
+    --color-input-disabled-bg: var(--gray-100);
+
+    /* Component Colors - Tables */
+    --color-table-header-bg: var(--gray-100);
+    --color-table-row-hover: #ffffcc;
+    --color-table-border: var(--gray-400);
+
+    /* Component Colors - Tabs */
+    --color-tab-inactive-bg: var(--gray-200);
+    --color-tab-active-bg: #fff;
+    --color-tab-border: var(--gray-400);
+
+    /* Component Specific - Sizes */
+    --topnav-item-height: 32px;
+    --topnav-gap: var(--space-3);
+    --subnav-height: 32px;
+    --subnav-horizontal-padding: var(--space-10);
+}
+
+/* ============================================================================
+   2. Base Styles (Reset, Typography, Links)
+   Used in: All pages, document structure
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -57,28 +205,26 @@ li, dd, blockquote {
     margin: 0 0 0 1em;
 }
 
-.rtl li, .rtl dd, .rtl blockquote {
-    margin: 0 1em 0 0;
-}
-
-
-/* -------------------------[ Miscellaneous conveniences ]--- */
+/* ============================================================================
+   3. Utility Classes (hide, clear, status messages)
+   Used in: All pages for common helpers
+   ============================================================================ */
 .clear {
     clear: both;
 }
 
 .fail {
-    color: #900;
+    color: var(--color-error);
     font-weight: bold;
 }
 
 .warning {
-    color: #444;
+    color: var(--color-warning);
     font-weight: bold;
 }
 
 .success {
-    color: #090;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -90,7 +236,10 @@ li, dd, blockquote {
     display: inline;
 }
 
-/* -------------------------[ Headers and Paragraphs ]--- */
+/* ============================================================================
+   4. Typography (Headings, Paragraphs)
+   Used in: Content areas, document headers
+   ============================================================================ */
 h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
@@ -100,19 +249,15 @@ h1 {
     color: #585858;
     font-weight: bold;
     background-color: #d0d0d0;
-    letter-spacing: 1px;
+    letter-spacing: var(--border-thin);
     line-height: 1em;
-    padding: 7px 7px 7px 10px;
-    border-radius: 3px;
-    margin: 8px 15px 10px;
+    padding: var(--space-6) var(--space-6) var(--space-6) var(--space-8);
+    border-radius: var(--radius-md);
+    margin: var(--space-7) var(--space-9) var(--space-8);
 }
 
 h1.draft {
     background-color: #F4E2C3;
-}
-
-.rtl h1 {
-    margin-right: 10px;
 }
 
 h2 {
@@ -132,18 +277,14 @@ h6 {
 
 p.caption, p.comment {
     font-size: 0.9em;
-    color: #888;
+    color: var(--gray-600);
 }
 
 button {
     width: 112px;
     font: inherit;
-    margin: 0 5px 0 0;
+    margin: 0 var(--space-4) 0 0;
     cursor: pointer;
-}
-
-.rtl button {
-    margin: 0 0 0 5px;
 }
 
 a, a:active, a:visited, a:link {
@@ -156,9 +297,9 @@ a:hover {
 }
 
 hr {
-    color: #777;
-    background-color: #777;
-    height: 1px;
+    color: var(--gray-700);
+    background-color: var(--gray-700);
+    height: var(--border-thin);
     border: 0;
 }
 
@@ -175,7 +316,7 @@ hr {
 }
 
 .messageUnread {
-    color: #3CB371;
+    color: var(--color-info);
     font-weight: bold;
 }
 
@@ -183,18 +324,17 @@ hr {
     font-weight: bold;
     color: var(--color-text-primary);
     float: left;
-    padding: 0 20px 20px;
+    padding: 0 var(--space-12) var(--space-12);
 }
 
-.rtl .right {
-    float: right;
-}
-
-/* -------------------------[ Topbar ]--- */
+/* ============================================================================
+   6. Layout Components (Sections, Containers, Topbar)
+   Used in: Page structure, section headers
+   ============================================================================ */
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
-    padding: 0 5px;
+    padding: 0 var(--space-4);
 }
 
 #topbar * {
@@ -219,27 +359,19 @@ hr {
     z-index: 1000;
 }
 
-.rtl #tocText {
-    right: 3px;
-}
-
-.tocTextRTL {
-    right: 3px;
-}
-
 #tocText,
 #buildText,
 #workText {
     font-weight: bold;
-    line-height: 16px;
-    margin: 0 15px;
+    line-height: var(--space-10);
+    margin: 0 var(--space-9);
     color: #FFF;
 }
 
 #tocText,
 #buildText img,
 #workText img {
-    margin: 0 5px;
+    margin: 0 var(--space-4);
 }
 
 #statusbar {
@@ -249,22 +381,14 @@ hr {
     z-index: 1000;
 }
 
-.rtl #statusbar {
-    left: 0;
-}
-
 #supplementalNav {
     background: transparent none repeat scroll 0 0;
     color: #89939e;
     margin: 0;
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: var(--space-7);
+    top: var(--space-7);
     z-index: 111;
-}
-
-.rtl #supplementalNav {
-    float: left;
 }
 
 #supplementalNav * {
@@ -281,7 +405,10 @@ hr {
     padding: 0;
 }
 
-/* -------------------------[ Forms ]--- */
+/* ============================================================================
+   5. Forms (Inputs, Selects, Textareas, Buttons)
+   Used in: Document editor, settings pages, all form interactions
+   ============================================================================ */
 tbody, thead, tr {
     margin: 0;
     padding: 0;
@@ -301,27 +428,20 @@ input, select, textarea, option, optgroup, td {
     color: inherit;
 }
 
-.rtl input,
-.rtl select,
-.rtl textarea,
-.rtl td {
-    text-align: right;
-}
-
 textarea[readonly],
 textarea[readonly]:focus,
 input[type='text'][readonly],
 input[type='text'][readonly]:focus,
 .readonly {
-    background-color: #eee !important;
-    text-shadow: 1px 1px #fff !important;
+    background-color: var(--gray-150) !important;
+    text-shadow: var(--border-thin) var(--border-thin) #fff !important;
     cursor: not-allowed;
 }
 
 optgroup {
     font-style: normal;
     font-weight: bold;
-    background-color: #ddd;
+    background-color: var(--gray-300);
 }
 
 optgroup option {
@@ -337,12 +457,12 @@ form select {
     background: var(--color-surface);
     border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
     border-style: solid;
-    border-width: 1px;
-    padding: 4px;
+    border-width: var(--border-thin);
+    padding: var(--space-3);
     margin: 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
+    border-radius: var(--radius-md);
 }
 
 form input[type=text] {
@@ -357,16 +477,11 @@ form textarea {
     border-style: solid;
     border-width: 1px;
     padding: 4px 2px 4px 4px;
-    margin: 0 2px 0 0;
+    margin: 0 var(--space-1) 0 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
-    box-shadow: 0px 1px 3px #E8E8E8 inset;
-}
-
-.rtl form input[type=text],
-.rtl form textarea {
-    padding: 2px 2px 2px 0;
+    border-radius: var(--radius-md);
+    box-shadow: 0px var(--border-thin) var(--radius-md) #E8E8E8 inset;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -384,19 +499,19 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border: 1px solid green;
+    border: var(--border-thin) solid green;
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid green;
+    border: var(--border-thin) solid green;
     cursor: pointer;
     line-height: normal;
-    margin: -1px 0 0 5px;
+    margin: -1px 0 0 var(--space-4);
     min-height: 27px;
-    padding: 4px 10px;
+    padding: var(--space-3) var(--space-8);
     overflow: visible;
     background: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
-    border-radius: 3px;
+    border-radius: var(--radius-md);
 }
 
 input.checkbox,
@@ -414,7 +529,7 @@ input[type="button"] {
 
 input:is([type="button"], [type="submit"]):hover {
     border-color: green;
-    background: linear-gradient(#ffffff, #eeeeee);
+    background: linear-gradient(#ffffff, var(--gray-150));
 }
 
 select {
@@ -424,8 +539,8 @@ select {
 }
 
 .form {
-    padding: 15px;
-    border: solid 1px #ddd;
+    padding: var(--space-9);
+    border: solid var(--border-thin) var(--gray-300);
 }
 
 form input.hidden {
@@ -442,20 +557,9 @@ form input.hidden {
 }
 
 .form label {
-    padding-right: 20px;
+    padding-right: var(--space-12);
     text-align: right;
     width: 110px;
-}
-
-.rtl .form label,
-.rtl .form input,
-.rtl .form textarea {
-    float: right;
-}
-
-.rtl .form label {
-    padding-left: 20px;
-    text-align: left;
 }
 
 form textarea {
@@ -468,16 +572,12 @@ form textarea {
 .form legend {
     color: #04C;
     font-weight: bold;
-    padding: 5px;
+    padding: var(--space-4);
 }
 
 .form select {
     display: inline;
     float: left;
-}
-
-.rtl .form select {
-    float: right;
 }
 
 .form br {
@@ -487,21 +587,11 @@ form textarea {
 input.submit {
     display: block !important;
     float: none !important;
-    margin: 20px 0 0 140px !important;
-}
-
-.rtl input.submit {
-    margin: 20px 140px 0 0 !important;
+    margin: var(--space-12) 0 0 140px !important;
 }
 
 .form fieldset.list {
-    margin: 6px 6px 3px 0;
-}
-
-.rtl .form fieldset.list {
-    border: 0;
-    padding: 0 !important;
-    margin: 6px 0 3px 6px;
+    margin: var(--space-5) var(--space-5) var(--space-2) 0;
 }
 
 .form fieldset.list legend {
@@ -511,7 +601,7 @@ input.submit {
 .form fieldset.list label,
 .form fieldset.list input {
     padding: 0;
-    margin: 0 0 3px;
+    margin: 0 0 var(--space-2);
     float: left;
     display: inline;
     border: 0;
@@ -520,13 +610,8 @@ input.submit {
     height: auto;
 }
 
-.rtl .form fieldset.list label,
-.rtl .form fieldset.list input {
-    float: right;
-}
-
 .form fieldset.list label {
-    padding-left: 5px;
+    padding-left: var(--space-4);
     text-align: left;
     width: auto;
 }
@@ -537,45 +622,40 @@ form .imeoff {
 
 /* -------------------------[ Misc stuff ]--- */
 .sectionBody fieldset {
-    padding: 15px;
+    padding: var(--space-9);
 }
 
 .sectionBody legend {
     font-weight: bold;
-    padding: 5px 15px;
+    padding: var(--space-4) var(--space-9);
     background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
+    border: var(--border-thin) solid var(--color-border-default);
+    box-shadow: var(--border-thin) var(--border-thin) var(--radius-md) var(--color-border-default);
+    border-radius: var(--radius-md);
 }
 
 .sectionBody h3 {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-8);
 }
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 15px;
-    padding: 5px 9px 5px 15px;
+    margin: 0 var(--space-9);
+    padding: var(--space-4) var(--space-8) var(--space-4) var(--space-9);
     font-weight: bold;
-    border: 1px solid var(--color-border-default);
+    border: var(--border-thin) solid var(--color-border-default);
     border-bottom: none;
-    text-shadow: 0 1px 0 var(--color-surface);
+    text-shadow: 0 var(--border-thin) 0 var(--color-surface);
     background-image: linear-gradient(var(--color-section-header-start), var(--color-section-header-end));
-    box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 5px 5px 0 0;
+    box-shadow: 0 var(--border-thin) 0 var(--color-surface) inset;
+    border-radius: var(--space-4) var(--space-4) 0 0;
 }
 
 .tab-page .sectionHeader {
-    margin: 2px 3px 0;
-}
-
-.rtl .sectionHeader {
-    direction: rtl;
-    padding: 5px 18px 5px 3px;
+    margin: var(--space-1) var(--space-2) 0;
 }
 
 .sectionBody {
@@ -593,10 +673,6 @@ form .imeoff {
     padding: 15px;
 }
 
-.rtl .sectionBody {
-    direction: rtl;
-    position: inherit;
-}
 
 .section .sectionBody {
     margin: 0 15px 15px;
@@ -614,8 +690,8 @@ thead {
 }
 
 thead td {
-    color: #333;
-    border-top: 1px solid #fff;
+    color: var(--gray-850);
+    border-top: var(--border-thin) solid #fff;
 }
 
 li {
@@ -625,15 +701,11 @@ li {
 }
 
 ul {
-    margin: 0 20px 0 20px;
-}
-
-.rtl ul {
-    margin: 0 10px 0 20px;
+    margin: 0 var(--space-12) 0 var(--space-12);
 }
 
 .screen {
-    border: 1px solid #ddd;
+    border: var(--border-thin) solid var(--gray-300);
     text-align: center;
 }
 
@@ -665,9 +737,6 @@ a img {
     vertical-align: baseline;
 }
 
-.rtl .editorCell {
-    text-align: right;
-}
 
 .row1, .row2, .row3 {
     color: var(--color-text-primary);
@@ -682,12 +751,12 @@ a img {
 }
 
 .row3 {
-    background-color: #f5f5f5;
+    background-color: var(--gray-100);
 }
 
 div.treeframebody {
-    background: #f5f5f5 url(images/misc/subnav.png) !important;
-    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    background: var(--gray-100) url(images/misc/subnav.png) !important;
+    box-shadow: inset -2px var(--space-1) var(--space-5) 0px rgba(0, 0, 0, 0.1);
 }
 
 #treeMenu * {
@@ -697,13 +766,10 @@ div.treeframebody {
 #treeHolder {
     cursor: default;
     height: 100%;
-    padding: 6px 8px 0;
+    padding: var(--space-5) var(--space-7) 0;
     line-height: 1.3em;
     font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#treeHolder {
-    padding-left: 12px;
+    padding-left: var(--space-8);
 }
 
 #treeRoot {
@@ -715,25 +781,19 @@ div.treeframebody {
     vertical-align: middle;
 }
 
-.rtl #treeRoot div img {
-    margin: 0 -6px 0 0;
-}
 
 #floater {
     display: none;
     position: absolute;
     width: 200px;
-    padding: 5px;
-    top: 25px;
-    left: 4px;
+    padding: var(--space-4);
+    top: var(--space-13);
+    left: var(--space-3);
     background: #fff;
-    border: 1px solid #ccc;
+    border: var(--border-thin) solid var(--gray-400);
     z-index: 500;
 }
 
-.rtl #floater {
-    right: 4px
-}
 
 .rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
     color: #000;
@@ -749,9 +809,9 @@ div.treeNode {
 .treeNodeSelected,
 .treeNodeHover {
     background-color: #FFFFFF;
-    border: 1px solid #CCC;
+    border: var(--border-thin) solid var(--gray-400);
     color: #000;
-    padding: 1px 2px;
+    padding: var(--border-thin) var(--space-1);
     margin-left: -3px;
 }
 
@@ -789,9 +849,6 @@ div.treeNode {
     right: -10px;
 }
 
-.rtl #treeSplitter {
-    left: -10px;
-}
 
 .disabledPlugin a {
     color: #aaa;
@@ -904,10 +961,6 @@ a.hometblink:hover {
     padding: 3px 16px 3px 2px;
 }
 
-.rtl .cntxMnuItem,
-.rtl .cntxMnuItemDisabled {
-    padding: 3px 2px 3px 16px;
-}
 
 .cntxMnuItemDisabled {
     cursor: default;
@@ -923,19 +976,11 @@ a.hometblink:hover {
     border: 1px solid #c0c0c0;
 }
 
-.rtl .cntxMnuItemOver {
-    padding: 2px 1px 2px 15px;
-}
 
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
     margin: 0 8px 0 0;
 }
 
-.rtl .cntxMnuItem img,
-.rtl .cntxMnuItemOver img,
-.rtl .cntxMnuItemDisabled img {
-    margin: 0 0 0 8px;
-}
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
     opacity: .3;
@@ -949,13 +994,13 @@ a.hometblink:hover {
     margin: 3px 1px 3px 28px;
 }
 
-.rtl .cntxMnuSeparator {
-    margin: 3px 28px 3px 1px;
-}
 
-/* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
+/* ============================================================================
+   7. Navigation (Top Menu, Supplemental Nav)
+   Used in: Top navigation bar, menu system
+   ============================================================================ */
 #topMenu {
-    background: url("images/misc/headers.jpg") repeat scroll 0 0 #23393C;
+    background: url("headers.jpg") repeat scroll 0 0 #23393C;
 }
 
 #Navcontainer {
@@ -973,9 +1018,6 @@ a.hometblink:hover {
     overflow: visible !important;
 }
 
-.rtl #nav {
-    right: 10px;
-}
 
 #nav ul {
     display: none;
@@ -986,10 +1028,6 @@ a.hometblink:hover {
     padding: 0 0 0 20px;
 }
 
-.rtl #nav ul {
-    margin: 0 -10px 0 0;
-    padding: 0 20px 0 0;
-}
 
 #nav li {
     list-style: none;
@@ -999,37 +1037,29 @@ a.hometblink:hover {
     padding: 0;
 }
 
-.rtl #nav li {
-    float: right;
-    margin: 0 0 0 3px;
-}
 
 #nav li a {
     color: #A4B8B6;
-    height: 25px;
+    height: var(--space-13);
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
-    line-height: 25px;
+    line-height: var(--space-13);
     overflow: hidden;
-    padding: 0 15px;
+    padding: 0 var(--space-9);
     float: none !important;
     float: left;
     display: block;
 }
 
 #nav li ul li a {
-    padding: 0 18px !important;
+    padding: 0 var(--space-11) !important;
 }
 
 #nav li ul li a {
     background: #d4d4d4;
     float: left;
     width: auto;
-}
-
-.rtl #nav li ul li a {
-    float: right;
 }
 
 #nav a:hover,
@@ -1039,15 +1069,15 @@ a.hometblink:hover {
 
 #nav li.active {
     background: none repeat scroll 0 0 #616161;
-    border-radius: 5px 5px 0 0;
-    box-shadow: 0 1px 0 #999 inset, 1px 1px 2px rgba(0, 0, 0, .9);
+    border-radius: var(--space-4) var(--space-4) 0 0;
+    box-shadow: 0 var(--border-thin) 0 var(--gray-500) inset, var(--border-thin) var(--border-thin) var(--space-1) rgba(0, 0, 0, .9);
 }
 
 #nav li.active a {
-    border-bottom: 1px solid #616161;
+    border-bottom: var(--border-thin) solid #616161;
     color: #FFF;
     position: relative;
-    text-shadow: 0 -1px 0 #333;
+    text-shadow: 0 -1px 0 var(--gray-850);
     z-index: 999999;
 }
 
@@ -1062,8 +1092,8 @@ a.hometblink:hover {
     width: 200%;
     top: 31px;
     left: 0;
-    border-top: 1px solid #888;
-    border-bottom: 1px solid #eee;
+    border-top: var(--border-thin) solid var(--gray-600);
+    border-bottom: var(--border-thin) solid var(--gray-150);
 }
 
 #nav li.active ul.subnav {
@@ -1098,7 +1128,10 @@ a.hometblink:hover {
     background-image: linear-gradient(var(--color-nav-subnav-start), var(--color-nav-subnav-end));
 }
 
-/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
+/* ============================================================================
+   8. Tree Components (Site Tree, Context Menu)
+   Used in: Resource tree, folder navigation
+   ============================================================================ */
 #mx_contextmenu {
     position: absolute;
     height: auto;
@@ -1174,31 +1207,16 @@ a.hometblink:hover {
     margin: 3px 1px 3px 28px;
 }
 
-.rtl #mx_contextmenu .menuLink {
-    padding: 3px 2px 3px 16px;
-}
-
-.rtl #mx_contextmenu .menuLink:hover,
-.rtl #mx_contextmenu .menuLinkDisabled {
-    padding: 2px 1px 2px 15px;
-}
-
-.rtl #mx_contextmenu .menuLink img,
-.rtl #mx_contextmenu .menuLink:hover img,
-.rtl #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 8px;
-}
-
-.rtl #mx_contextmenu #nameHolder {
-    text-align: right;
-}
-
-.rtl #mx_contextmenu .seperator {
-    margin: 3px 28px 3px 1px;
-}
 
 
-/* -------------------------[ Settings Table ]--- */
+
+
+
+
+/* ============================================================================
+   9. Tables & Grids (Data Tables, Settings, Sortable)
+   Used in: Configuration tables, data grids
+   ============================================================================ */
 .settings {
     width: 600px;
 }
@@ -1214,23 +1232,20 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.rtl .settings th {
-    text-align: right;
-}
 
 .filelist td {
     border-bottom: 1px solid #C2C3CF;
 }
 
-/* -------------------------[ Tabs ]--- */
+/* ============================================================================
+   10. Tabs System (Dynamic Tab Pane)
+   Used in: Tabbed interfaces, multi-panel views
+   ============================================================================ */
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
 }
 
-.rtl .dynamic-tab-pane-control.tab-pane {
-    direction: rtl;
-}
 
 .dynamic-tab-pane-control .tab-row .tab {
     color: #313131;
@@ -1249,11 +1264,6 @@ a.hometblink:hover {
     background-image: linear-gradient(var(--color-accent-green-start), var(--color-accent-green-end));
 }
 
-.rtl .dynamic-tab-pane-control .tab-row .tab {
-    margin: 3px 5px 1px -3px;
-    float: right;
-    padding: 2px 15px 3px;
-}
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
@@ -1301,9 +1311,6 @@ a.hometblink:hover {
     padding: 20px 15px 14px !important;
 }
 
-.rtl .dynamic-tab-pane-control .tab-page {
-    position: inherit; /* critical adjustment for IE ul li Proper RTL demonstration */
-}
 
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
@@ -1360,10 +1367,6 @@ a.hometblink, a.hometblink img {
     text-align: center;
 }
 
-.rtl .wm_button {
-    float: right;
-    margin: 0 5px 2px 6px;
-}
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
@@ -1380,9 +1383,6 @@ a.hometblink, a.hometblink img {
 }
 
 /* -------------------------[ New sortable table class ]--- */
-.sortabletable {
-}
-
 table.sortabletable {
     width: 100%;
     border-collapse: collapse;
@@ -1403,9 +1403,6 @@ table.sortabletable {
     color: #333;
 }
 
-.rtl .sortabletable th {
-    text-align: right;
-}
 
 .sortabletable th a {
     text-decoration: none;
@@ -1417,9 +1414,6 @@ table.sortabletable {
     padding: 3px 4px 1px 6px;
 }
 
-.rtl .sortabletable th:active {
-    padding: 3px 6px 1px 4px;
-}
 
 /* -------------------------[ Pagination table ]--- */
 #max-display-records {
@@ -1474,7 +1468,10 @@ h2#edit_document_title {
     padding: 5px 10px;
 }
 
-/* -------------------------[ Action Buttons ]--- */
+/* ============================================================================
+   11. Action Buttons (Fixed Position Controls)
+   Used in: Document editing, form submission
+   ============================================================================ */
 /* from https://github.com/manse/ScienceStyle */
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
@@ -1492,10 +1489,6 @@ select#stay {
     padding: 5px 5px 5px 2px;
 }
 
-.rtl #actions {
-    left: 10px;
-    text-align: left;
-}
 
 .actionButtons {
     margin-bottom: 15px;
@@ -1702,12 +1695,6 @@ form#mutate fieldset#settings_page_settings select {
 /*
 * Individual Styles for fieldset#meta_keywords
 */
-form#mutate fieldset#meta_keywords {
-}
-
-form#mutate fieldset#meta_keywords {
-}
-
 form#mutate fieldset#meta_keywords select.inputBox {
     display: block;
     margin-bottom: 0;
@@ -1755,7 +1742,10 @@ fieldset#access_permissions dl dd ul li {
     list-style-type: none;
 }
 
-/* -------------------------[ date picker ]--- */
+/* ============================================================================
+   12. Specialized Forms (Date Pickers, Custom Inputs)
+   Used in: Date/time selection, advanced form controls
+   ============================================================================ */
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;
     padding: 3px 3px 3px 24px;
