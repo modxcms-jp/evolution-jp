@@ -167,6 +167,14 @@ h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
     font-weight: normal;
 }
 
+.sectionBody p,
+.sectionBody h3,
+.sectionBody h4,
+.sectionBody > div {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
 li, dd, blockquote {
     margin: 0 0 0 1em;
 }
@@ -690,7 +698,7 @@ form .imeoff {
 
 .sectionBody {
     position: relative;
-    margin: 8px;
+    margin: 12px 12px 20px;
     display: block;
 }
 
@@ -710,7 +718,7 @@ form .imeoff {
 }
 
 .section .sectionBody {
-    margin: 0 8px 8px;
+    margin: 0 8px 16px;
     background-color: var(--color-surface);
 }
 
