@@ -778,9 +778,12 @@ form .imeoff {
     border: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
     border-radius: 10px;
+    padding: 15px;
+}
+
+.tab-page .sectionBody {
     margin-block: 0 15px;
     margin-inline: 3px;
-    padding: 15px;
 }
 
 .section .sectionBody {
@@ -1997,19 +2000,6 @@ body {
 
 body#mainpane {
     background: var(--light-bg-tertiary);
-}
-
-/* セクションボディ */
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-    border-radius: 10px;
-}
-
-.section .sectionBody {
-    background-color: #ffffff;
 }
 
 /* -------------------------[ Tree Pane - Light Background ]--- */
