@@ -141,17 +141,22 @@ html, body, form, fieldset {
     padding: 0;
 }
 
+html {
+    background: linear-gradient(180deg, #f5f7fa 0%, #edf1f7 100%);
+}
+
 body {
     font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
     font-size: 75%;
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
-    background: linear-gradient(180deg, #f5f7fa 0%, #edf1f7 100%);
+    background: none;
 }
 
 body#mainpane {
-  padding: var(--space-2);
+    padding: var(--space-2);
+    background: none;
 }
 
 img, a img {
