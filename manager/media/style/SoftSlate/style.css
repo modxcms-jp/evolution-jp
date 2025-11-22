@@ -36,13 +36,6 @@ html, body, form, fieldset {
     --color-neutral-button-border: #b9c4c9;
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
-    --light-bg-primary: #f5f6f7;
-    --light-bg-secondary: #e8eaed;
-    --light-border: #d1d5da;
-    --light-text-primary: #2c3e50;
-    --light-text-secondary: #6c757d;
-    --accent-blue: #4a7ba7;
-    --accent-blue-dark: #3d6686;
 }
 
 body {
@@ -776,6 +769,12 @@ a img {
     background-color: #f5f5f5;
 }
 
+div.treeframebody {
+    background: #f5f5f5 url(../common/images/misc/subnav.png) !important;
+    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+}
+
 #treeMenu * {
     vertical-align: middle;
 }
@@ -1043,18 +1042,23 @@ a.hometblink:hover {
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
-    --subnav-height: 28px;
+    --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 10px;
+    --topnav-padding-top: 16px;
+    /* Softer dark gray palette */
     --topnav-background: #3d4f5d;
     --topnav-border: #4a5f6f;
     --topnav-link-color: #d4dade;
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #4a5f6f;
     --topnav-link-active-bg: #2f3d48;
+    background-color: #3d4f5d;
+    background-image: none;
+    border-bottom: 1px solid var(--topnav-border);
 }
 
 #Navcontainer {
+    color: #d4dade;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
     text-shadow: none;
@@ -1081,18 +1085,193 @@ a.hometblink:hover {
 }
 
 #nav > li > a {
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
     padding: 0 20px;
     text-decoration: none;
     white-space: nowrap;
+    background: transparent;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+
+#nav > li > a:hover,
+#nav > li > a:active,
+#nav > li > a:focus-visible {
+    color: var(--topnav-link-hover-color);
+    background: var(--topnav-link-hover-bg);
+    border-color: var(--topnav-border);
 }
 
 #nav > li.active > a {
+    background: var(--topnav-link-active-bg);
+    border-color: var(--topnav-link-active-bg);
+    border-top: 1px solid var(--topnav-border);
+    border-bottom: none;
+    color: var(--topnav-link-hover-color);
     position: relative;
     text-shadow: none;
     z-index: 2;
 }
+
+#nav > li > ul.subnav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--topnav-item-height) + 15px);
+    margin: 0;
+    list-style: none;
+    padding: 6px var(--subnav-horizontal-padding);
+    min-height: var(--subnav-height);
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: var(--topnav-gap);
+    row-gap: 6px;
+    border-top: 1px solid var(--topnav-border);
+    border-bottom: 1px solid var(--topnav-border);
+    background: var(--topnav-link-active-bg);
+    z-index: 1;
+    box-shadow: none;
+}
+
+.rtl #nav > li > ul.subnav {
+    flex-direction: row-reverse;
+}
+
+#nav > li.active > ul.subnav {
+    display: flex;
+}
+
+#nav > li > ul.subnav > li {
+    margin: 0;
+    list-style: none;
+}
+
+#nav > li > ul.subnav a {
+    color: #c1c9ce;
+    cursor: pointer;
+    display: block;
+    font-weight: normal;
+    line-height: var(--subnav-height);
+    padding: 0 18px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
+    background: #3d4f5d;
+    color: #ffffff;
+    text-shadow: none;
+}
+
+#nav > li > ul.subnav a:active {
+    color: #7eb3d6;
+}
+
+/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
+#mx_contextmenu {
+    position: absolute;
+    height: auto;
+    visibility: hidden;
+    z-index: 10000;
+    width: 165px;
+    background-color: var(--color-surface);
+    margin: 0;
+    padding-bottom: 10px;
+    border: 1px solid #ededed;
+    border-right-color: #dcdcdc;
+    border-bottom-color: #dcdcdc;
+    overflow: hidden;
+    line-height: 11px;
+    box-shadow: 2px 2px 15px #eaeaea;
+}
+
+#mx_contextmenu .menuLink {
+    cursor: pointer;
+    color: #222;
+    padding: 3px 5px 3px 4px;
+}
+
+#mx_contextmenu .menuLink:hover {
+    background: #DDE4EB;
+    border: 1px solid #fdfdfd;
+    border-bottom-color: #dcdcdc;
+    color: var(--color-text-primary);
+}
+
+#mx_contextmenu .menuLink:hover,
+#mx_contextmenu .menuLinkDisabled {
+    cursor: pointer;
+    padding: 2px 4px 2px 3px;
+}
+
+#mx_contextmenu .menuLinkDisabled {
+    cursor: default;
+    color: #787878;
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLink:hover img,
+#mx_contextmenu .menuLinkDisabled img {
+    margin-right: 5px;
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLinkDisabled img {
+    opacity: .3;
+}
+
+#mx_contextmenu .menuLink:hover img {
+    opacity: 1;
+}
+
+#mx_contextmenu #nameHolder {
+    color: #fff;
+    text-align: left;
+    cursor: default;
+    font-weight: bold;
+    padding: 6px 4px;
+    margin-bottom: 3px;
+    text-shadow: 0px -1px 0px #222;
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+}
+
+#mx_contextmenu .seperator {
+    font-size: 0;
+    height: 1px;
+    background-color: silver;
+    overflow: hidden;
+    margin: 3px 1px 3px 28px;
+}
+
+.rtl #mx_contextmenu .menuLink {
+    padding: 3px 2px 3px 16px;
+}
+
+.rtl #mx_contextmenu .menuLink:hover,
+.rtl #mx_contextmenu .menuLinkDisabled {
+    padding: 2px 1px 2px 15px;
+}
+
+.rtl #mx_contextmenu .menuLink img,
+.rtl #mx_contextmenu .menuLink:hover img,
+.rtl #mx_contextmenu .menuLinkDisabled img {
+    margin-right: 8px;
+}
+
+.rtl #mx_contextmenu #nameHolder {
+    text-align: right;
+}
+
+.rtl #mx_contextmenu .seperator {
+    margin: 3px 28px 3px 1px;
+}
+
 
 /* -------------------------[ Settings Table ]--- */
 .settings {
@@ -1712,425 +1891,5 @@ strong[style*='color:#EF1D1D'] {
     border: 2px solid #3ab63a;
     padding: 8px;
     margin-bottom: 8px;
-}
-
-/* -------------------------[ Custom overrides - Clean Light Theme ]--- */
-
-/* トップメニュー全体 */
-#topMenu {
-    background-color: #f5f6f7;
-    border-bottom: 1px solid #d1d5da;
-}
-
-#Navcontainer {
-    color: #24292e;
-}
-
-/* メインナビゲーション */
-#nav > li > a {
-    color: #24292e;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    transition: all 0.2s ease;
-}
-
-#nav > li > a:hover,
-#nav > li > a:active,
-#nav > li > a:focus-visible {
-    color: #24292e;
-    background: #e8eaed;
-    border: none;
-}
-
-#nav > li.active > a {
-    color: #24292e;
-    background: #e9ecef;
-    border: none;
-    font-weight: 700;
-}
-
-/* サブナビゲーション */
-#nav > li > ul.subnav {
-    display: none;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin: 6px 0 0 0;
-    list-style: none;
-    padding: 6px var(--subnav-horizontal-padding);
-    min-height: var(--subnav-height);
-    align-items: center;
-    flex-wrap: wrap;
-    column-gap: var(--topnav-gap);
-    row-gap: 6px;
-    z-index: 1;
-    box-shadow: none;
-    background: #e9ecef;
-    border-bottom: 1px solid #d1d5da;
-}
-
-.rtl #nav > li > ul.subnav {
-    flex-direction: row-reverse;
-}
-
-#nav > li.active > ul.subnav {
-    display: flex;
-}
-
-#nav > li > ul.subnav > li {
-    margin: 0;
-    list-style: none;
-}
-
-#nav > li > ul.subnav a {
-    cursor: pointer;
-    display: block;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
-    text-decoration: none;
-    color: #24292e;
-    font-weight: 500;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-#nav > li > ul.subnav a:hover,
-#nav > li > ul.subnav a:focus-visible {
-    background: #fff;
-    color: #24292e;
-}
-
-#nav > li > ul.subnav a:active {
-    color: #0366d6;
-}
-
-/* 補助ナビゲーション（右上） */
-#supplementalNav {
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid #d1d5da;
-    color: #586069;
-}
-
-#supplementalNav a {
-    color: #586069;
-    font-weight: 500;
-}
-
-#supplementalNav a:hover,
-#supplementalNav a:focus-visible {
-    color: #24292e;
-}
-
-#supplementalNav .supplementalNav__version-label {
-    color: #586069;
-    font-weight: 600;
-}
-
-/* トップバーのリンク */
-#topbar a,
-#topbar a:link,
-#topbar a:visited {
-    color: #586069;
-    font-weight: 500;
-}
-
-#topbar a:hover {
-    color: #24292e;
-}
-
-/* タブデザイン */
-.dynamic-tab-pane-control .tab-row .tab {
-    background: #f0f2f5;
-    border: 1px solid #d1d5da;
-    border-radius: 8px 8px 0 0;
-    color: var(--light-text-secondary);
-    font-weight: 500;
-    padding: 10px 20px;
-    transition: all 0.2s ease;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.hover {
-    background: #e8eaed;
-    color: var(--light-text-primary);
-    border-color: #c1c5c9;
-}
-
-.dynamic-tab-pane-control .tab-row .tab.selected {
-    background: #ffffff;
-    border-color: #d1d5da #d1d5da #ffffff #d1d5da;
-    border-top: 2px solid var(--accent-blue);
-    border-bottom: none;
-    color: var(--light-text-primary);
-    font-weight: 600;
-    position: relative;
-    z-index: 10;
-}
-
-.dynamic-tab-pane-control .tab-page {
-    background: #ffffff;
-    border: 1px solid #d1d5da;
-    border-top: 1px solid #d1d5da;
-}
-
-/* ボタン */
-.actionButtons a {
-    background: #ffffff;
-    border: 1px solid #d1d5da;
-    border-radius: 6px;
-    color: var(--light-text-primary);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.actionButtons a:hover {
-    background: #f8f9fa;
-    border-color: #b8bfc6;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-}
-
-.actionButtons a:active {
-    background: #e9ecef;
-    transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) inset;
-}
-
-/* プライマリボタン */
-.actionButtons #Button1 a,
-.actionButtons li.primary a,
-.actionButtons a.primary,
-.actionButtons a.default {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue-dark);
-    color: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(74, 123, 167, 0.25);
-}
-
-.actionButtons #Button1 a:hover,
-.actionButtons a:hover.default {
-    background: var(--accent-blue-dark);
-    border-color: #2f5570;
-    box-shadow: 0 3px 6px rgba(74, 123, 167, 0.35);
-}
-
-.actionButtons #Button1 a:active,
-.actionButtons a:active.default {
-    background: #2f5570;
-    box-shadow: 0 1px 3px rgba(74, 123, 167, 0.25) inset;
-}
-
-/* セクションヘッダー */
-.sectionHeader {
-    background: #f5f6f7;
-    border: 1px solid #e1e4e8;
-    border-radius: 8px 8px 0 0;
-    color: var(--light-text-primary);
-    font-weight: 600;
-}
-
-/* h1スタイル */
-h1 {
-    background: #f5f6f7;
-    color: var(--light-text-primary);
-    border: 1px solid #e1e4e8;
-    border-radius: 8px;
-    font-weight: 600;
-    padding:12px;
-}
-
-/* フォーム要素 */
-form input[type=text],
-form input[type=password],
-form textarea {
-    border: 1px solid #d1d5da;
-    border-radius: 0 0 6px 6px;
-    transition: all 0.2s ease;
-    background: #ffffff;
-}
-
-form input[type=text]:focus,
-form input[type=password]:focus,
-form textarea:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
-}
-
-form select {
-    border: 1px solid #d1d5da;
-    border-radius: 6px;
-    background: #ffffff;
-}
-
-form select:focus {
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.1);
-    outline: none;
-}
-
-/* アクションエリア */
-#actions {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid #e1e4e8;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* ページ背景 */
-body {
-    background: #fafbfc;
-}
-
-body#mainpane {
-    background: #fafbfc;
-}
-
-/* セクションボディ */
-.tab-page .sectionBody,
-.section .sectionBody {
-    background: #ffffff;
-    border: 1px solid #e1e4e8;
-}
-
-.section .sectionBody {
-    background-color: #ffffff;
-}
-
-/* -------------------------[ Tree Pane - Light Background ]--- */
-
-/* ツリーペイン全体の背景 */
-div.treeframebody {
-    background: #f5f6f7 !important;
-    background-image: none !important;
-    box-shadow: inset -1px 0 0 0 #e1e4e8;
-    padding: 8px;
-}
-
-/* ツリーメニューのツールバー */
-#treeMenu {
-    background: transparent;
-}
-
-/* ツリーボタンのスタイル改善 */
-.treeButton {
-    border: 1px solid transparent;
-    border-radius: 4px;
-    padding: 4px 6px;
-    transition: all 0.2s ease;
-}
-
-.treeButton:hover {
-    background: #e8eaed;
-    border-color: #d1d5da;
-}
-
-/* ツリーホルダー */
-#treeHolder {
-    background: transparent;
-}
-
-/* コンテキストメニューのスタイル改善 */
-#mx_contextmenu {
-    position: absolute;
-    height: auto;
-    visibility: hidden;
-    z-index: 10000;
-    width: 165px;
-    margin: 0;
-    padding-bottom: 10px;
-    overflow: hidden;
-    line-height: 11px;
-    background: #ffffff;
-    border: 1px solid #d1d5da;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-#mx_contextmenu #nameHolder {
-    text-align: left;
-    cursor: default;
-    font-weight: bold;
-    padding: 6px 4px;
-    margin-bottom: 3px;
-    background: #f5f6f7;
-    border-bottom: 1px solid #e1e4e8;
-    color: var(--light-text-primary);
-    text-shadow: none;
-}
-
-.rtl #mx_contextmenu #nameHolder {
-    text-align: right;
-}
-
-#mx_contextmenu .menuLink {
-    cursor: pointer;
-    padding: 3px 5px 3px 4px;
-    border-radius: 4px;
-    margin: 2px 4px;
-    transition: background 0.15s ease;
-    color: #222;
-}
-
-.rtl #mx_contextmenu .menuLink {
-    padding: 3px 2px 3px 16px;
-}
-
-#mx_contextmenu .menuLink:hover {
-    cursor: pointer;
-    padding: 2px 4px 2px 3px;
-    background: #f0f2f5;
-    border: 1px solid #e1e4e8;
-    color: var(--color-text-primary);
-}
-
-.rtl #mx_contextmenu .menuLink:hover {
-    padding: 2px 1px 2px 15px;
-}
-
-#mx_contextmenu .menuLinkDisabled {
-    cursor: default;
-    padding: 2px 4px 2px 3px;
-    color: #787878;
-}
-
-.rtl #mx_contextmenu .menuLinkDisabled {
-    padding: 2px 1px 2px 15px;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLink:hover img,
-#mx_contextmenu .menuLinkDisabled img {
-    margin-right: 5px;
-}
-
-.rtl #mx_contextmenu .menuLink img,
-.rtl #mx_contextmenu .menuLink:hover img,
-.rtl #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 8px;
-}
-
-#mx_contextmenu .menuLink img,
-#mx_contextmenu .menuLinkDisabled img {
-    opacity: .3;
-}
-
-#mx_contextmenu .menuLink:hover img {
-    opacity: 1;
-}
-
-#mx_contextmenu .seperator {
-    font-size: 0;
-    height: 1px;
-    background-color: silver;
-    overflow: hidden;
-    margin: 3px 1px 3px 28px;
-}
-
-.rtl #mx_contextmenu .seperator {
-    margin: 3px 28px 3px 1px;
 }
 
