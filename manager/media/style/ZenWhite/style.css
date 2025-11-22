@@ -586,8 +586,8 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: #ffffff;
-    border: 1px solid #6ca0dc;
-    box-shadow: 0 0 0 2px rgba(108, 160, 220, 0.15);
+    border: 1px solid var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(74, 123, 167, 0.15);
 }
 
 input:is([type="button"], [type="submit"]) {
@@ -627,15 +627,6 @@ input:is([type="button"], [type="submit"]):hover {
 input:is([type="button"], [type="submit"]):active {
     border-color: rgba(0, 0, 0, 0.12);
     background: #e2e7eb;
-}
-
-select {
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    background: #ffffff;
-    cursor: pointer;
-    border-radius: 6px;
-    padding: 4px 8px;
-    box-shadow: none;
 }
 
 .form {
@@ -1993,10 +1984,7 @@ form select:focus {
 }
 
 /* ページ背景 */
-body {
-    background: var(--light-bg-tertiary);
-}
-
+body,
 body#mainpane {
     background: var(--light-bg-tertiary);
 }
