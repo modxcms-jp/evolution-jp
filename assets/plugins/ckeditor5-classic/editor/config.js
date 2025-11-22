@@ -20,9 +20,13 @@ window.CKEDITOR_MODX_CONFIG = {
         ]
     },
     removePlugins: [
-        'CKFinder', 'ImageUpload', 'ImageInsert',
-        'MediaEmbed', 'Table', 'AutoImage', 'BlockQuote',
-        'EasyImage', 'CloudServices', 'CKBox', 'CKBoxImageEdit', 'CKBoxUtils'
+        'CKFinder', 'CKFinderUploadAdapter',
+        'EasyImage', 'CloudServices',
+        'CKBox', 'CKBoxUtils', 'CKBoxImageEdit', 'CKBoxToolbar', 'CKBoxList', 'CKBoxUploadAdapter',
+        'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory',
+        'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory',
+        'Pagination', 'WProofreader', 'MathType',
+        'SlashCommand', 'Template', 'DocumentOutline', 'FormatPainter', 'TableOfContents'
     ],
     extraPlugins: []
 };

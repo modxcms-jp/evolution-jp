@@ -1,5 +1,6 @@
 function ImageSelectorPlugin(editor) {
-    const ButtonView = window.CKEDITOR5?.ui?.button?.ButtonView;
+    const ButtonView = window.CKEDITOR?.ui?.button?.ButtonView
+        || window.CKEDITOR5?.ui?.button?.ButtonView;
 
     if (!ButtonView) {
         console.error('CKEditor5 ButtonView is unavailable.');
