@@ -26,6 +26,13 @@ function ImageSelectorPlugin(editor) {
 window.addEventListener('DOMContentLoaded', () => {
     const textarea = document.getElementById('ta');
     const area = document.createElement('div');
+    const ClassicEditor = window.ClassicEditor || window.CKEDITOR?.ClassicEditor;
+
+    if (!ClassicEditor) {
+        console.error('CKEditor5 ClassicEditor is unavailable.');
+        return;
+    }
+
     area.id = 'ckeditor-area';
     textarea.parentNode.insertBefore(area, textarea.nextSibling);
 
