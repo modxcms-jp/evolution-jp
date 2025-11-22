@@ -9,11 +9,12 @@ if ($event->name === 'OnRichTextEditorRegister') {
 }
 
 if ($event->name === 'OnRichTextEditorInit' && $editor === 'CKEditorClassic') {
+    $pluginUrl = MODX_SITE_URL . 'assets/plugins/ckeditor5-classic/editor/';
     $html = [
-        '<link rel="stylesheet" type="text/css" href="assets/plugins/ckeditor5-classic/editor/style.css" />',
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"{$pluginUrl}style.css\" />",
         '<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>',
-        '<script src="assets/plugins/ckeditor5-classic/editor/config.js"></script>',
-        '<script src="assets/plugins/ckeditor5-classic/editor/init.js"></script>',
+        "<script src=\"{$pluginUrl}config.js\"></script>",
+        "<script src=\"{$pluginUrl}init.js\"></script>",
     ];
 
     $event->output(implode("\n", $html));
