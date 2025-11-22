@@ -543,15 +543,14 @@ optgroup option {
 }
 
 form select {
-    background: var(--color-surface);
-    border-color: var(--color-border-dark) var(--color-border-lighter) var(--color-border-lighter) var(--color-border-dark);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-xs);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
+    padding: 6px 8px;
     margin: 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: var(--radius-sm);
+    box-shadow: none;
 }
 
 form input[type=text] {
@@ -561,18 +560,15 @@ form input[type=text] {
 form input[type=text],
 form input[type=password],
 form textarea {
-    background: var(--color-surface);
-    border-color: var(--color-border-dark) var(--color-border-light) var(--color-border-light) var(--color-border-dark);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-xs) 2px;
-    padding-inline-start: var(--space-xs);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    padding: 6px 8px;
     margin-block: 0;
     margin-inline-end: 2px;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: var(--radius-sm);
-    box-shadow: 0px 1px 3px var(--light-bg-secondary) inset;
+    border-radius: 6px;
+    box-shadow: none;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -589,22 +585,23 @@ input[type="url"]:focus,
 textarea:focus,
 form select:focus {
     outline: none;
-    background: var(--color-surface);
-    border: 1px solid green;
+    background: #ffffff;
+    border: 1px solid #6ca0dc;
+    box-shadow: 0 0 0 2px rgba(108, 160, 220, 0.15);
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid var(--color-neutral-button-border);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     cursor: pointer;
     line-height: normal;
     margin: -1px 0 0;
     margin-inline-start: 5px;
     min-height: 27px;
-    padding: 4px 10px;
+    padding: 6px 12px;
     overflow: visible;
-    background-color: var(--color-neutral-button-start);
+    background: #f7f9fa;
     color: var(--color-text-primary);
-    border-radius: 3px;
+    border-radius: 6px;
     box-shadow: none;
     text-shadow: none;
 }
@@ -623,19 +620,22 @@ input[type="button"] {
 }
 
 input:is([type="button"], [type="submit"]):hover {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-hover-end);
+    border-color: rgba(0, 0, 0, 0.12);
+    background: #eef2f5;
 }
 
 input:is([type="button"], [type="submit"]):active {
-    border-color: var(--color-neutral-button-border);
-    background-color: var(--color-neutral-button-active-start);
+    border-color: rgba(0, 0, 0, 0.12);
+    background: #e2e7eb;
 }
 
 select {
-    border: 0;
-    background: var(--color-surface);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    background: #ffffff;
     cursor: pointer;
+    border-radius: 6px;
+    padding: 4px 8px;
+    box-shadow: none;
 }
 
 .form {
@@ -768,10 +768,16 @@ form .imeoff {
     display: block;
 }
 
+.sectionBody > * + * {
+    margin-top: 0.75rem;
+}
+
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: none repeat scroll 0 0 var(--light-bg-primary);
-    border: 1px solid var(--color-border-default);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
     margin-block: 0 15px;
     margin-inline: 3px;
     padding: 15px;
@@ -779,7 +785,6 @@ form .imeoff {
 
 .section .sectionBody {
     margin: 0 8px 8px;
-    background-color: var(--color-surface);
 }
 
 .comment {
@@ -1701,8 +1706,8 @@ strong[style*='color:#EF1D1D'] {
 
 /* トップメニュー全体 */
 #topMenu {
-    background-color: var(--light-bg-primary);
-    border-bottom: 1px solid var(--light-border);
+    background: linear-gradient(180deg, #f8f9fa 0%, #eceff1 100%);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 #Navcontainer {
@@ -1880,26 +1885,26 @@ strong[style*='color:#EF1D1D'] {
 
 /* ボタン */
 .actionButtons a {
-    background: var(--color-surface);
-    border: 1px solid var(--light-border);
+    background: #f7f9fa;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: var(--radius-md);
     color: var(--light-text-primary);
     font-weight: 500;
     transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: none;
 }
 
 .actionButtons a:hover {
-    background: var(--clean-button-bg-hover);
-    border-color: var(--clean-button-border);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    background: #eef2f5;
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: none;
     transform: translateY(-1px);
 }
 
 .actionButtons a:active {
-    background: var(--clean-button-bg-active);
+    background: #e2e7eb;
     transform: translateY(0);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) inset;
+    box-shadow: none;
 }
 
 /* プライマリボタン */
@@ -1997,21 +2002,22 @@ body#mainpane {
 /* セクションボディ */
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: var(--color-surface);
-    border: 1px solid var(--clean-border);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    border-radius: 10px;
 }
 
 .section .sectionBody {
-    background-color: var(--color-surface);
+    background-color: #ffffff;
 }
 
 /* -------------------------[ Tree Pane - Light Background ]--- */
 
 /* ツリーペイン全体の背景 */
 div.treeframebody {
-    background: var(--light-bg-primary) !important;
-    background-image: none !important;
-    box-shadow: inset -1px 0 0 0 var(--clean-border);
+    background: linear-gradient(180deg, #fafafa 0%, #f3f4f6 100%) !important;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.04);
     padding: var(--space-sm);
 }
 
