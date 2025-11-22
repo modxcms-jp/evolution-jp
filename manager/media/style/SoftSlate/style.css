@@ -1647,6 +1647,10 @@ ul.actionButtons {
     display: none;
 }
 
+.actionButtons a.disabled img {
+    opacity: .3;
+}
+
 .actionButtons a:hover {
     border-color: var(--color-neutral-button-border);
     background-color: var(--color-neutral-button-hover-end);
@@ -1678,10 +1682,6 @@ ul.actionButtons {
 
 .actionButtons span.and {
     padding: 4px 2px;
-}
-
-.actionButtons a.disabled img {
-    opacity: .3;
 }
 
 .actionButtons .and {
