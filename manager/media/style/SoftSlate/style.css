@@ -698,7 +698,7 @@ form .imeoff {
 .section .sectionBody {
     background: var(--color-surface);
     border: 1px solid var(--color-border-default);
-    border-radius: 10px;
+    border-radius: 0 0 10px 10px;
     box-shadow: var(--shadow-sm);
     margin: 0 3px 15px;
     padding: 15px;
