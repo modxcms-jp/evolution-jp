@@ -19,6 +19,8 @@ $mode = postv('mode', '');
 
 include_once(MODX_CORE_PATH . 'mysql_dumper.class.inc.php');
 
+$misc_path = manager_style_image_path('misc');
+
 $dumper = new Mysqldumper();
 if ($mode === 'backup') {
     $tables = postv('chk', '');
@@ -156,7 +158,7 @@ if (sessionv('result_msg')) {
                 <p><?= $_lang['table_hoverinfo'] ?></p>
 
                 <p class="actionButtons"><a class="primary" href="#" onclick="backup();return false;"><img
-                            src="media/style/<?= config('manager_theme') ?>/images/misc/ed_save.gif" /> <?= $_lang['database_table_clickbackup'] ?>
+                            src="<?= $misc_path ?>ed_save.gif" /> <?= $_lang['database_table_clickbackup'] ?>
                     </a></p>
                 <p>
                     <label>

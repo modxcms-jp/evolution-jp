@@ -27,6 +27,8 @@ switch ((int)anyv('a')) {
         alert()->dumpError();
 }
 
+$icons_path = manager_style_image_path('icons');
+
 $user = isset($_REQUEST['id']) ? intval($_REQUEST['id']) : 0;
 
 
@@ -454,7 +456,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                 value="<?= postv('dob', attribute('dob') ? $modx->toDateFormat(attribute('dob'), 'dateOnly') : ""); ?>" onblur='documentDirty=true;'>
                             <a onclick="document.userform.dob.value=''; return true;"
                                 style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                    src="media/style/<?= $manager_theme ?>/images/icons/cal_nodate.gif"
+                                    src="<?= $icons_path ?>cal_nodate.gif"
                                     border="0"
                                     alt="<?= $_lang['remove_date'] ?>"></a>
                         </td>
@@ -558,7 +560,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                        src="media/style/<?= $manager_theme ?>/images/icons/cal_nodate.gif"
+                                        src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0"
                                         alt="<?= $_lang['remove_date'] ?>" /></a>
                             </td>
@@ -571,7 +573,7 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
                                     onblur='documentDirty=true;' readonly="readonly">
                                 <a onclick="document.userform.blockedafter.value=''; return true;"
                                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                                        src="media/style/<?= $manager_theme ?>/images/icons/cal_nodate.gif"
+                                        src="<?= $icons_path ?>cal_nodate.gif"
                                         border="0"
                                         alt="<?= $_lang['remove_date'] ?>" /></a>
                             </td>

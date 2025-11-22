@@ -38,6 +38,8 @@ if (is_file($theme_path)) {
     include_once($theme_path);
 }
 
+set_manager_style_placeholders();
+
 evo()->setPlaceholder('modx_charset', $modx_manager_charset);
 evo()->setPlaceholder('theme', evo()->config('manager_theme'));
 evo()->setPlaceholder('manager_theme', evo()->config('manager_theme'));

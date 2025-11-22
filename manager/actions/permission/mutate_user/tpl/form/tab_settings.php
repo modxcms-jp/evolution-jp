@@ -79,7 +79,7 @@
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockedafter.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                        src="media/style/<?= $modx->config['manager_theme'] ?>/images/icons/cal_nodate.gif"
+                        src="<?= manager_style_image_path('icons') ?>cal_nodate.gif"
                         border="0" alt="<?= lang('remove_date') ?>" /></a>
             </td>
         </tr>
@@ -95,7 +95,7 @@
                     onblur='documentDirty=true;' readonly="readonly">
                 <a onclick="document.userform.blockeduntil.value=''; return true;"
                     style="cursor:pointer; cursor:hand"><img align="absmiddle"
-                        src="media/style/<?= $modx->config['manager_theme'] ?>/images/icons/cal_nodate.gif"
+                        src="<?= manager_style_image_path('icons') ?>cal_nodate.gif"
                         border="0" alt="<?= lang('remove_date') ?>" /></a>
             </td>
         </tr>

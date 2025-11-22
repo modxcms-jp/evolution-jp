@@ -17,6 +17,8 @@ if (!preg_match('@^[0-9]+$@', anyv('id'))) {
     alert()->dumpError();
 }
 
+$icons_path = manager_style_image_path('icons');
+
 $id = anyv('id');
 if (!manager()->isAllowed($id)) {
     alert()->setError(3);
@@ -356,9 +358,9 @@ function entity($key, $default = null)
                                 echo $_lang['public'];
                             } else {
                                 echo sprintf(
-                                    '<b style="color: #821517">%s</b> <img src="media/style/%s/images/icons/secured.gif" />',
+                                    '<b style="color: #821517">%s</b> <img src="%ssecured.gif" />',
                                     $_lang['private'],
-                                    evo()->config('manager_theme')
+                                    $icons_path
                                 );
                             } ?>
                         </td>
@@ -371,9 +373,9 @@ function entity($key, $default = null)
                                 echo $_lang['public'];
                             } else {
                                 echo sprintf(
-                                    '<b style="color: #821517">%s</b> <img src="media/style/%s/images/icons/secured.gif" />',
+                                    '<b style="color: #821517">%s</b> <img src="%ssecured.gif" />',
                                     $_lang['private'],
-                                    evo()->config('manager_theme')
+                                    $icons_path
                                 );
                             } ?></td>
                         <td>[*privatemgr*]</td>

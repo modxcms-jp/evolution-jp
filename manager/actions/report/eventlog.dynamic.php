@@ -180,14 +180,15 @@ echo $cm->render();
             $grd->colWidths = "20,34,,150";
             $grd->columnHeaderStyle = 'text-align:center;';
             $grd->colAligns = "right,center,,,center,center";
-            $param = [
+            $icon_path = manager_style_image_path('icons');
+            $grd->colTypes = sprintf(
+                '||template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="%sevent[+type+].png" /></a>' .
+                '||template:<a href="index.php?a=115&id=[+id+]" title="%s">[+source+]</a>||date: %s',
                 $_lang['click_to_context'],
-                $manager_theme,
+                $icon_path,
                 $_lang['click_to_view_details'],
                 $modx->toDateFormat(null, 'formatOnly') . ' %H:%M:%S'
-            ];
-            $grd->colTypes = vsprintf('||template:<a class="gridRowIcon" href="#" onclick="return showContentMenu([+id+],event);" title="%s"><img src="media/style/%s/images/icons/event[+type+].png" /></a>||template:<a href="index.php?a=115&id=[+id+]" title="%s">[+source+]</a>||date: %s',
-                $param);
+            );
             if ($listmode == '1') {
                 $grd->pageSize = 0;
             }
