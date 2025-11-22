@@ -1,21 +1,77 @@
-/* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - AuroraFlow Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ * 13. Custom Navigation Gradients
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
 
 :root {
-    --color-text-primary: #333;
+    /* Gray Scale - Core neutral colors */
+    --gray-50: #f9fafb;
+    --gray-100: #f5f5f5;
+    --gray-200: #e4e4e4;
+    --gray-300: #ddd;
+    --gray-400: #ccc;
+    --gray-500: #999;
+    --gray-600: #888;
+    --gray-700: #777;
+    --gray-800: #585858;
+    --gray-900: #333;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: var(--gray-900);
+    --color-text-muted: #606060;
+    --color-text-subtle: var(--gray-600);
+    --color-text-dark: #222;
+    --color-text-darker: #111;
     --color-background-page: #f4f4f4;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
-    --color-border-default: #ccc;
+    --color-border-default: var(--gray-400);
+    --color-border-light: #ededed;
     --color-surface: #fff;
-    --color-section-header-text: #606060;
-    --color-section-header-start: #f5f5f5;
+
+    /* Status Colors */
+    --color-success: #090;
+    --color-success-light: #3ab63a;
+    --color-success-bg: #edffee;
+    --color-error: #900;
+    --color-warning: #444;
+    --color-info: #3CB371;
+
+    /* Component Colors - Sections */
+    --color-section-header-text: var(--color-text-muted);
+    --color-section-header-start: var(--gray-100);
     --color-section-header-end: #dddddd;
+    --color-section-bg: #F7F7F7;
+
+    /* Component Colors - Navigation */
     --color-nav-subnav-start: #0d2c44;
     --color-nav-subnav-end: #0a2233;
+
+    /* Component Colors - Primary Actions */
     --color-primary: #375665;
     --color-primary-start: #0e2f47;
     --color-primary-end: #0a3f62;
@@ -23,19 +79,63 @@ html, body, form, fieldset {
     --color-primary-hover-end: #0d3c58;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
-    --color-secondary-start: #e4e4e4;
+
+    /* Component Colors - Secondary Actions */
+    --color-secondary-start: var(--gray-200);
     --color-secondary-end: #d2d8dc;
     --color-secondary-border: #c2c9ce;
     --color-secondary-text: #566269;
     --color-secondary-hover-start: #dbe0e4;
     --color-secondary-hover-end: #c6cdd2;
     --color-secondary-hover-text: #3f4a51;
+
+    /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #f1f4f6;
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
+
+    /* Component Colors - Draft Mode */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+    --color-draft-light: #F4E2C3;
+
+    /* Spacing Scale - 8px base */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Border Radius */
+    --radius-sm: 3px;
+    --radius-md: 5px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+    --radius-full: 999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 1px 1px 3px var(--gray-400);
+    --shadow-lg: 2px 2px 15px #eaeaea;
+    --shadow-inset: inset -2px 2px 6px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.18s ease;
+    --transition-slow: 0.3s ease;
+}
+
+/* ============================================================================
+   2. Base Styles - Reset & Normalize
+   Used throughout: Global reset
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -48,7 +148,7 @@ body {
 }
 
 body#mainpane {
-  padding: 8px;
+    padding: var(--space-2);
 }
 
 img, a img {
@@ -68,10 +168,10 @@ li, dd, blockquote {
     margin: 0 0 0 1em;
 }
 
-.rtl li, .rtl dd, .rtl blockquote {
-    margin: 0 1em 0 0;
-}
-
+/* ============================================================================
+   3. Utility Classes
+   Used in: Various components for common patterns
+   ============================================================================ */
 
 /* -------------------------[ Miscellaneous conveniences ]--- */
 .clear {
@@ -79,17 +179,17 @@ li, dd, blockquote {
 }
 
 .fail {
-    color: #900;
+    color: var(--color-error);
     font-weight: bold;
 }
 
 .warning {
-    color: #444;
+    color: var(--color-warning);
     font-weight: bold;
 }
 
 .success {
-    color: #090;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -101,29 +201,29 @@ li, dd, blockquote {
     display: inline;
 }
 
-/* -------------------------[ Headers and Paragraphs ]--- */
+/* ============================================================================
+   4. Typography - Headings & Paragraphs
+   Used in: Page titles, section headers, content areas
+   ============================================================================ */
+
 h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
 
 h1 {
     font-size: 1.25em;
-    color: #585858;
+    color: var(--gray-800);
     font-weight: bold;
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 8px;
-    border-radius: 3px;
-    margin: 8px;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    margin: var(--space-2);
 }
 
 h1.draft {
-    background-color: #F4E2C3;
-}
-
-.rtl h1 {
-    margin-right: 10px;
+    background-color: var(--color-draft-light);
 }
 
 h2 {
@@ -143,7 +243,7 @@ h6 {
 
 p.caption, p.comment {
     font-size: 0.9em;
-    color: #888;
+    color: var(--gray-600);
 }
 
 button {
@@ -151,10 +251,6 @@ button {
     font: inherit;
     margin: 0 5px 0 0;
     cursor: pointer;
-}
-
-.rtl button {
-    margin: 0 0 0 5px;
 }
 
 a, a:active, a:visited, a:link {
@@ -167,8 +263,8 @@ a:hover {
 }
 
 hr {
-    color: #777;
-    background-color: #777;
+    color: var(--gray-700);
+    background-color: var(--gray-700);
     height: 1px;
     border: 0;
 }
@@ -187,7 +283,7 @@ hr {
 }
 
 .messageUnread {
-    color: #3CB371;
+    color: var(--color-info);
     font-weight: bold;
 }
 
@@ -195,12 +291,13 @@ hr {
     font-weight: bold;
     color: var(--color-text-primary);
     float: left;
-    padding: 0 20px 20px;
+    padding: 0 var(--space-5) var(--space-5);
 }
 
-.rtl .right {
-    float: right;
-}
+/* ============================================================================
+   5. Top Bar & Status Bar
+   Used in: Main navigation frame, status indicators
+   ============================================================================ */
 
 /* -------------------------[ Topbar ]--- */
 #topbar {
@@ -223,17 +320,13 @@ hr {
 }
 
 #topbar a:hover {
-    color: #fff;
+    color: var(--color-surface);
 }
 
 #tocText {
     position: absolute;
     top: 37px;
     z-index: 1000;
-}
-
-.rtl #tocText {
-    right: 3px;
 }
 
 .tocTextRTL {
@@ -246,7 +339,7 @@ hr {
     font-weight: bold;
     line-height: 16px;
     margin: 0 15px;
-    color: #FFF;
+    color: var(--color-surface);
 }
 
 #tocText,
@@ -262,14 +355,10 @@ hr {
     z-index: 1000;
 }
 
-.rtl #statusbar {
-    left: 0;
-}
-
 #supplementalNav {
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .7), rgba(16, 35, 37, .7));
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
@@ -285,19 +374,13 @@ hr {
     z-index: 111;
 }
 
-.rtl #supplementalNav {
-    flex-direction: row-reverse;
-    left: var(--subnav-horizontal-padding);
-    right: auto;
-}
-
 #supplementalNav a {
     color: inherit;
     font-weight: inherit;
     margin: 0;
     padding: 0;
     text-decoration: none;
-    transition: color .15s ease;
+    transition: color var(--transition-fast);
 }
 
 #supplementalNav a:hover,
@@ -314,15 +397,6 @@ hr {
 
 #supplementalNav .supplementalNav__item + .supplementalNav__item {
     padding-left: var(--topnav-gap);
-}
-
-.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-left: none;
-    border-right: 1px solid rgba(255, 255, 255, .2);
-    margin-left: 0;
-    margin-right: var(--topnav-gap);
-    padding-left: 0;
-    padding-right: var(--topnav-gap);
 }
 
 #supplementalNav .supplementalNav__item--messages {
@@ -343,12 +417,7 @@ hr {
 }
 
 #supplementalNav #msgCounter {
-    margin-left: 4px;
-}
-
-.rtl #supplementalNav #msgCounter {
-    margin-left: 0;
-    margin-right: 4px;
+    margin-left: var(--space-1);
 }
 
 #supplementalNav .supplementalNav__version-label {
@@ -360,7 +429,11 @@ hr {
     color: #ffff8a;
 }
 
-/* -------------------------[ Forms ]--- */
+/* ============================================================================
+   6. Forms - Inputs, Selects, Textareas, Buttons
+   Used in: All form elements throughout the application
+   ============================================================================ */
+
 tbody, thead, tr {
     margin: 0;
     padding: 0;
@@ -380,32 +453,25 @@ input, select, textarea, option, optgroup, td {
     color: inherit;
 }
 
-.rtl input,
-.rtl select,
-.rtl textarea,
-.rtl td {
-    text-align: right;
-}
-
 textarea[readonly],
 textarea[readonly]:focus,
 input[type='text'][readonly],
 input[type='text'][readonly]:focus,
 .readonly {
     background-color: #eee !important;
-    text-shadow: 1px 1px #fff !important;
+    text-shadow: 1px 1px var(--color-surface) !important;
     cursor: not-allowed;
 }
 
 optgroup {
     font-style: normal;
     font-weight: bold;
-    background-color: #ddd;
+    background-color: var(--gray-300);
 }
 
 optgroup option {
     font-weight: normal;
-    background-color: #fff;
+    background-color: var(--color-surface);
 }
 
 #ta, .tmplvars textarea {
@@ -417,11 +483,11 @@ form select {
     border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
     border-style: solid;
     border-width: 1px;
-    padding: 4px;
+    padding: var(--space-1);
     margin: 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
 }
 
 form input[type=text] {
@@ -432,20 +498,15 @@ form input[type=text],
 form input[type=password],
 form textarea {
     background: var(--color-surface);
-    border-color: #999 #DDD #DDD #999;
+    border-color: var(--gray-500) #DDD #DDD var(--gray-500);
     border-style: solid;
     border-width: 1px;
-    padding: 4px 2px 4px 4px;
+    padding: var(--space-1) 2px var(--space-1) var(--space-1);
     margin: 0 2px 0 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     box-shadow: 0px 1px 3px #E8E8E8 inset;
-}
-
-.rtl form input[type=text],
-.rtl form textarea {
-    padding: 2px 2px 2px 0;
 }
 
 .sectionBody input.inputBox[type=text],
@@ -472,11 +533,11 @@ input:is([type="button"], [type="submit"]) {
     line-height: normal;
     margin: -1px 0 0 5px;
     min-height: 27px;
-    padding: 4px 10px;
+    padding: var(--space-1) 10px;
     overflow: visible;
     background-color: var(--color-neutral-button-start);
     color: var(--color-text-primary);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     box-shadow: none;
     text-shadow: none;
 }
@@ -512,7 +573,7 @@ select {
 
 .form {
     padding: 15px;
-    border: solid 1px #ddd;
+    border: solid 1px var(--gray-300);
 }
 
 form input.hidden {
@@ -529,20 +590,9 @@ form input.hidden {
 }
 
 .form label {
-    padding-right: 20px;
+    padding-right: var(--space-5);
     text-align: right;
     width: 110px;
-}
-
-.rtl .form label,
-.rtl .form input,
-.rtl .form textarea {
-    float: right;
-}
-
-.rtl .form label {
-    padding-left: 20px;
-    text-align: left;
 }
 
 form textarea {
@@ -563,10 +613,6 @@ form textarea {
     float: left;
 }
 
-.rtl .form select {
-    float: right;
-}
-
 .form br {
     clear: both;
 }
@@ -574,21 +620,11 @@ form textarea {
 input.submit {
     display: block !important;
     float: none !important;
-    margin: 20px 0 0 140px !important;
-}
-
-.rtl input.submit {
-    margin: 20px 140px 0 0 !important;
+    margin: var(--space-5) 0 0 140px !important;
 }
 
 .form fieldset.list {
     margin: 6px 6px 3px 0;
-}
-
-.rtl .form fieldset.list {
-    border: 0;
-    padding: 0 !important;
-    margin: 6px 0 3px 6px;
 }
 
 .form fieldset.list legend {
@@ -607,11 +643,6 @@ input.submit {
     height: auto;
 }
 
-.rtl .form fieldset.list label,
-.rtl .form fieldset.list input {
-    float: right;
-}
-
 .form fieldset.list label {
     padding-left: 5px;
     text-align: left;
@@ -622,7 +653,11 @@ form .imeoff {
     ime-mode: disabled;
 }
 
-/* -------------------------[ Misc stuff ]--- */
+/* ============================================================================
+   7. Layout Components - Sections, Headers, Bodies
+   Used in: Content areas, settings pages, form sections
+   ============================================================================ */
+
 .sectionBody fieldset {
     padding: 15px;
 }
@@ -632,8 +667,8 @@ form .imeoff {
     padding: 5px 15px;
     background: var(--color-surface);
     border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-sm);
 }
 
 .sectionBody h3 {
@@ -645,62 +680,52 @@ form .imeoff {
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 8px;
-    padding: 8px 16px;
+    margin: 0 var(--space-2);
+    padding: var(--space-2) var(--space-4);
     font-weight: bold;
     border: 1px solid var(--color-section-header-end);
     border-bottom: none;
     background-color: var(--color-section-header-end);
     box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .tab-page .sectionHeader {
     margin: 2px 3px 0;
 }
 
-.rtl .sectionHeader {
-    direction: rtl;
-    padding: 5px 18px 5px 3px;
-}
-
 .sectionBody {
     position: relative;
-    margin: 8px;
+    margin: var(--space-2);
     display: block;
 }
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: none repeat scroll 0 0 #F7F7F7;
-    border: 1px solid #CCCCCC;
+    background: var(--color-section-bg);
+    border: 1px solid var(--gray-400);
     margin: 0 3px 15px;
     padding: 15px;
 }
 
-.rtl .sectionBody {
-    direction: rtl;
-    position: inherit;
-}
-
 .section .sectionBody {
-    margin: 0 8px 8px;
+    margin: 0 var(--space-2) var(--space-2);
     background-color: var(--color-surface);
 }
 
 .comment {
-    color: #999;
+    color: var(--gray-500);
 }
 
 thead {
-    color: #333;
+    color: var(--gray-900);
     height: 18px !important;
-    background-color: #E4E4E4;
+    background-color: var(--gray-200);
 }
 
 thead td {
-    color: #333;
-    border-top: 1px solid #fff;
+    color: var(--gray-900);
+    border-top: 1px solid var(--color-surface);
 }
 
 li {
@@ -710,19 +735,15 @@ li {
 }
 
 li::marker {
-    color: #999;
+    color: var(--gray-500);
 }
 
 ul {
-    margin: 0 20px 0 20px;
-}
-
-.rtl ul {
-    margin: 0 10px 0 20px;
+    margin: 0 var(--space-5) 0 var(--space-5);
 }
 
 .screen {
-    border: 1px solid #ddd;
+    border: 1px solid var(--gray-300);
     text-align: center;
 }
 
@@ -735,7 +756,7 @@ a img {
 }
 
 .odd {
-    background: #fff;
+    background: var(--color-surface);
 }
 
 /* -------------------------[ end sortable table ]--- */
@@ -754,16 +775,12 @@ a img {
     vertical-align: baseline;
 }
 
-.rtl .editorCell {
-    text-align: right;
-}
-
 .row1, .row2, .row3 {
     color: var(--color-text-primary);
 }
 
 .row1 {
-    background-color: #fff;
+    background-color: var(--color-surface);
 }
 
 .row2 {
@@ -771,16 +788,21 @@ a img {
 }
 
 .row3 {
-    background-color: #f5f5f5;
+    background-color: var(--gray-100);
 }
 
+/* ============================================================================
+   8. Tree Components - Site Tree, Context Menu
+   Used in: Left frame site tree, document tree navigation
+   ============================================================================ */
+
 div.treeframebody {
-    background: #f5f5f5 !important;
+    background: var(--gray-100) !important;
     background-image: linear-gradient(180deg,
         rgba(13, 44, 68, 0.03) 0%,
         rgba(10, 34, 51, 0.05) 100%) !important;
-    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
-    padding: 8px;
+    box-shadow: var(--shadow-inset);
+    padding: var(--space-2);
 }
 
 #treeMenu * {
@@ -808,10 +830,6 @@ div.treeframebody {
     vertical-align: middle;
 }
 
-.rtl #treeRoot div img {
-    margin: 0 -6px 0 0;
-}
-
 #floater {
     display: none;
     position: absolute;
@@ -819,13 +837,9 @@ div.treeframebody {
     padding: 5px;
     top: 25px;
     left: 4px;
-    background: #fff;
-    border: 1px solid #ccc;
+    background: var(--color-surface);
+    border: 1px solid var(--gray-400);
     z-index: 500;
-}
-
-.rtl #floater {
-    right: 4px
 }
 
 .rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
@@ -841,8 +855,8 @@ div.treeNode {
 
 .treeNodeSelected,
 .treeNodeHover {
-    background-color: #FFFFFF;
-    border: 1px solid #CCC;
+    background-color: var(--color-surface);
+    border: 1px solid var(--gray-400);
     color: #000;
     padding: 1px 2px;
     margin-left: -3px;
@@ -858,7 +872,7 @@ div.treeNode {
 }
 
 .publishedNode {
-    color: #222;
+    color: var(--color-text-dark);
 }
 
 .emptyNode {
@@ -867,7 +881,7 @@ div.treeNode {
 }
 
 .notInMenuNode {
-    color: #777;
+    color: var(--gray-700);
     text-decoration: none;
 }
 
@@ -882,29 +896,29 @@ div.treeNode {
     right: -10px;
 }
 
-.rtl #treeSplitter {
-    left: -10px;
-}
-
 .disabledPlugin a {
     color: #aaa;
     text-decoration: line-through;
 }
 
-/* -------------------------[ grid style ]--- */
+/* ============================================================================
+   9. Tables & Grids - Data Tables, Sortable Tables
+   Used in: User lists, resource grids, sortable data tables
+   ============================================================================ */
+
 .grid {
     width: 100%;
-    background-color: #fff;
+    background-color: var(--color-surface);
     border: 1px solid silver;
     border-collapse: collapse;
 }
 
 .grid th, .grid td {
-    padding: 8px;
+    padding: var(--space-2);
 }
 
 .gridHeader, .grid th {
-    color: #333;
+    color: var(--gray-900);
     font-weight: bold;
     white-space: nowrap;
     background-color: #d2d2d2;
@@ -912,7 +926,7 @@ div.treeNode {
 }
 
 .gridItem {
-    background-color: #fff;
+    background-color: var(--color-surface);
     padding: 3px;
 }
 
@@ -949,7 +963,7 @@ div.treeNode {
 /* -------------------------[ home page main links ]--- */
 a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
     text-decoration: underline;
-    color: #333;
+    color: var(--gray-900);
     font-weight: bold;
 }
 
@@ -969,19 +983,19 @@ a.hometblink:hover {
 }
 
 .preLoaderText {
-    background-color: #fff;
-    border-radius: 10px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
     opacity: .7;
     width: 300px;
     height: 150px;
     margin: 70px auto;
     padding: 50px;
-    border: 1px solid #999;
+    border: 1px solid var(--gray-500);
 }
 
 /* -------------------------[ contextmenu in editing modules ]--- */
 .contextMenu {
-    background: #fff;
+    background: var(--color-surface);
     margin: 0;
     padding: 0;
     border: 1px solid #039;
@@ -997,15 +1011,10 @@ a.hometblink:hover {
     padding: 3px 16px 3px 2px;
 }
 
-.rtl .cntxMnuItem,
-.rtl .cntxMnuItemDisabled {
-    padding: 3px 2px 3px 16px;
-}
-
 .cntxMnuItemDisabled {
     cursor: default;
     padding: 3px 16px 3px 2px;
-    color: #111;
+    color: var(--color-text-darker);
 }
 
 .cntxMnuItemOver {
@@ -1016,18 +1025,8 @@ a.hometblink:hover {
     border: 1px solid #c0c0c0;
 }
 
-.rtl .cntxMnuItemOver {
-    padding: 2px 1px 2px 15px;
-}
-
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 8px 0 0;
-}
-
-.rtl .cntxMnuItem img,
-.rtl .cntxMnuItemOver img,
-.rtl .cntxMnuItemDisabled img {
-    margin: 0 0 0 8px;
+    margin: 0 var(--space-2) 0 0;
 }
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
@@ -1042,9 +1041,10 @@ a.hometblink:hover {
     margin: 3px 1px 3px 28px;
 }
 
-.rtl .cntxMnuSeparator {
-    margin: 3px 28px 3px 1px;
-}
+/* ============================================================================
+   10. Navigation - Top Menu, Supplemental Nav
+   Used in: Main top navigation bar, sub-navigation menus
+   ============================================================================ */
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
@@ -1078,15 +1078,11 @@ a.hometblink:hover {
     align-items: flex-end;
     justify-content: flex-start;
     column-gap: var(--topnav-gap);
-    row-gap: 8px;
+    row-gap: var(--space-2);
     flex-wrap: wrap;
     margin: 0;
     padding: 0;
     list-style: none;
-}
-
-.rtl #nav {
-    flex-direction: row-reverse;
 }
 
 #nav > li {
@@ -1099,11 +1095,11 @@ a.hometblink:hover {
     color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
-    padding: 0 20px;
+    padding: 0 var(--space-5);
     text-decoration: none;
     white-space: nowrap;
     background: transparent;
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+    transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
 }
 
 #nav > li > a:hover,
@@ -1146,10 +1142,6 @@ a.hometblink:hover {
     box-shadow: none;
 }
 
-.rtl #nav > li > ul.subnav {
-    flex-direction: row-reverse;
-}
-
 #nav > li.active > ul.subnav {
     display: flex;
 }
@@ -1167,8 +1159,8 @@ a.hometblink:hover {
     line-height: var(--subnav-height);
     padding: 0 18px;
     text-decoration: none;
-    border-radius: 8px;
-    transition: background-color .18s ease, color .18s ease;
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 #nav > li > ul.subnav a:hover,
@@ -1192,17 +1184,17 @@ a.hometblink:hover {
     background-color: var(--color-surface);
     margin: 0;
     padding-bottom: 10px;
-    border: 1px solid #ededed;
+    border: 1px solid var(--color-border-light);
     border-right-color: #dcdcdc;
     border-bottom-color: #dcdcdc;
     overflow: hidden;
     line-height: 11px;
-    box-shadow: 2px 2px 15px #eaeaea;
+    box-shadow: var(--shadow-lg);
 }
 
 #mx_contextmenu .menuLink {
     cursor: pointer;
-    color: #222;
+    color: var(--color-text-dark);
     padding: 3px 5px 3px 4px;
 }
 
@@ -1240,13 +1232,13 @@ a.hometblink:hover {
 }
 
 #mx_contextmenu #nameHolder {
-    color: #fff;
+    color: var(--color-surface);
     text-align: left;
     cursor: default;
     font-weight: bold;
     padding: 6px 4px;
     margin-bottom: 3px;
-    text-shadow: 0px -1px 0px #222;
+    text-shadow: 0px -1px 0px var(--color-text-dark);
     background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
@@ -1256,29 +1248,6 @@ a.hometblink:hover {
     background-color: silver;
     overflow: hidden;
     margin: 3px 1px 3px 28px;
-}
-
-.rtl #mx_contextmenu .menuLink {
-    padding: 3px 2px 3px 16px;
-}
-
-.rtl #mx_contextmenu .menuLink:hover,
-.rtl #mx_contextmenu .menuLinkDisabled {
-    padding: 2px 1px 2px 15px;
-}
-
-.rtl #mx_contextmenu .menuLink img,
-.rtl #mx_contextmenu .menuLink:hover img,
-.rtl #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 8px;
-}
-
-.rtl #mx_contextmenu #nameHolder {
-    text-align: right;
-}
-
-.rtl #mx_contextmenu .seperator {
-    margin: 3px 28px 3px 1px;
 }
 
 
@@ -1298,22 +1267,18 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.rtl .settings th {
-    text-align: right;
-}
-
 .filelist td {
     border-bottom: 1px solid #C2C3CF;
 }
 
-/* -------------------------[ Tabs ]--- */
+/* ============================================================================
+   11. Tabs System - Dynamic Tab Pane Control
+   Used in: Document editor, settings pages, multi-tab interfaces
+   ============================================================================ */
+
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
-}
-
-.rtl .dynamic-tab-pane-control.tab-pane {
-    direction: rtl;
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
@@ -1323,19 +1288,13 @@ a.hometblink:hover {
     display: inline;
     margin: 3px 2px 1px 0;
     float: left;
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     z-index: 1;
     position: relative;
     top: 1px;
     border: 1px solid var(--color-secondary-border);
-    border-radius: 5px 5px 0 0;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
     background-color: var(--color-secondary-start);
-}
-
-.rtl .dynamic-tab-pane-control .tab-row .tab {
-    margin: 3px 5px 1px -3px;
-    float: right;
-    padding: 2px 15px 3px;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
@@ -1347,20 +1306,20 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: #333;
+    color: var(--gray-900);
     z-index: 999;
     top: 1px;
     border-width: 1px;
     border-bottom-style: solid;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
-    border-radius: 5px 5px 0 0;
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
     border-width: 1px 1px 0;
     background-color: var(--color-surface);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: #111;
+    color: var(--color-text-darker);
     background-color: var(--color-surface);
     text-shadow: none;
 }
@@ -1375,14 +1334,14 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover {
-    color: #333;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
+    color: var(--gray-900);
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
     background-color: var(--color-surface);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover span {
-    color: #111;
+    color: var(--color-text-darker);
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
@@ -1399,11 +1358,7 @@ a.hometblink:hover {
     z-index: 2;
     position: relative;
     top: -2px;
-    padding: 20px 15px 14px !important;
-}
-
-.rtl .dynamic-tab-pane-control .tab-page {
-    position: inherit; /* critical adjustment for IE ul li Proper RTL demonstration */
+    padding: var(--space-5) 15px 14px !important;
 }
 
 .dynamic-tab-pane-control .tab-row {
@@ -1436,15 +1391,15 @@ a.hometblink:hover {
 
 .treeButton:hover {
     border: 1px solid #88939E;
-    padding: 2px 4px;
-    background: #fff;
+    padding: 2px var(--space-1);
+    background: var(--color-surface);
 }
 
 .treeButtonDisabled {
     cursor: default;
     border: 1px solid #657587;
-    padding: 2px 4px;
-    color: #777;
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
     border-width: 0;
     opacity: .5;
 }
@@ -1457,18 +1412,13 @@ a.hometblink, a.hometblink img {
 
 .wm_button {
     float: left;
-    margin: 0 12px 2px 0;
+    margin: 0 var(--space-3) 2px 0;
     text-align: center;
-}
-
-.rtl .wm_button {
-    float: right;
-    margin: 0 5px 2px 6px;
 }
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: #f5f5f5;
+    background: var(--gray-100);
     background-image: linear-gradient(180deg,
         rgba(255, 255, 255, 0.8) 0%,
         rgba(245, 245, 245, 0.95) 100%);
@@ -1476,7 +1426,7 @@ a.hometblink, a.hometblink img {
 
 .tab-page {
     border: 1px solid #AAA;
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
 }
 
 .sectionBody .tab-page {
@@ -1484,9 +1434,6 @@ a.hometblink, a.hometblink img {
 }
 
 /* -------------------------[ New sortable table class ]--- */
-.sortabletable {
-}
-
 table.sortabletable {
     width: 100%;
     border-collapse: collapse;
@@ -1497,32 +1444,24 @@ table.sortabletable {
 }
 
 .sortabletable td, .sortabletable th {
-    padding: 8px;
-    border: 1px solid #ccc;
+    padding: var(--space-2);
+    border: 1px solid var(--gray-400);
 }
 
 .sortabletable th {
     text-align: left;
     cursor: pointer;
-    color: #333;
-}
-
-.rtl .sortabletable th {
-    text-align: right;
+    color: var(--gray-900);
 }
 
 .sortabletable th a {
     text-decoration: none;
-    color: #333;
+    color: var(--gray-900);
 }
 
 .sortabletable th:active {
-    background: #ccc;
-    padding: 3px 4px 1px 6px;
-}
-
-.rtl .sortabletable th:active {
-    padding: 3px 6px 1px 4px;
+    background: var(--gray-400);
+    padding: 3px var(--space-1) 1px 6px;
 }
 
 /* -------------------------[ Pagination table ]--- */
@@ -1549,10 +1488,10 @@ table.sortabletable {
 
 #pagination li a,
 #pagination li span {
-    padding: 3px 8px;
+    padding: 3px var(--space-2);
     border: 1px solid #D9E7C2;
     text-decoration: none;
-    color: #333;
+    color: var(--gray-900);
 }
 
 #pagination li span {
@@ -1561,44 +1500,43 @@ table.sortabletable {
 }
 
 #pagination li.currentPage a, #pagination li a:hover {
-    color: #fff;
+    color: var(--color-surface);
     background-color: #7fa53d;
     border: 1px solid #567959;
 }
 
 fieldset.tab-page {
-    border: 1px solid #e4e4e4 !important;
+    border: 1px solid var(--gray-200) !important;
 }
 
 h2#edit_document_title {
     font-size: 15px;
-    color: #f5f5f5;
+    color: var(--gray-100);
     width: 100%;
     border-bottom: none;
     padding: 5px 10px;
 }
 
-/* -------------------------[ Action Buttons ]--- */
-/* from https://github.com/manse/ScienceStyle */
+/* ============================================================================
+   12. Action Buttons - Fixed Position Controls
+   Used in: Document editor, form pages, action toolbars
+   From: https://github.com/manse/ScienceStyle
+   ============================================================================ */
+
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
-    padding: 8px 16px !important;
+    padding: var(--space-2) var(--space-4) !important;
     position: fixed;
-    right: 16px;
+    right: var(--space-4);
     text-align: right;
-    top: 8px;
+    top: var(--space-2);
     z-index: 100;
-    border-radius: 8px;
+    border-radius: var(--radius-lg);
 }
 
 select#stay {
-    padding: 8px;
-}
-
-.rtl #actions {
-    left: 10px;
-    text-align: left;
+    padding: var(--space-2);
 }
 
 .actionButtons {
@@ -1645,12 +1583,12 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 4px;
-    color: #444;
+    border-radius: var(--radius-sm);
+    color: var(--color-warning);
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     text-decoration: none;
     white-space: nowrap;
     background-color: var(--color-neutral-button-start);
@@ -1672,8 +1610,8 @@ ul.actionButtons {
 
 .actionButtons a.disabled {
     border: 1px solid var(--color-border-default);
-    padding: 2px 4px;
-    color: #777;
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
     background-color: var(--color-surface);
     cursor: default;
     pointer-events: none;
@@ -1707,7 +1645,7 @@ ul.actionButtons {
 .actionButtons li.primary a,
 .actionButtons a.primary,
 .actionButtons a.default {
-    color: #fff;
+    color: var(--color-surface);
     box-shadow: none;
     text-shadow: none;
     background-color: var(--color-primary);
@@ -1731,9 +1669,11 @@ ul.actionButtons {
     display: none;
 }
 
-/*
-* Generic styles for all form elements
-*/
+/* ============================================================================
+   13. Specialized Forms - Mutate Forms, Date Pickers
+   Used in: Document editor forms, settings forms with date pickers
+   ============================================================================ */
+
 form#mutate dt,
 form#mutate dd {
     margin-bottom: 10px;
@@ -1754,7 +1694,7 @@ form#mutate dd {
 }
 
 form#mutate input.disabled {
-    background-color: #f5f5f5 !important;
+    background-color: var(--gray-100) !important;
 }
 
 form#mutate select.inputBox,
@@ -1770,7 +1710,7 @@ form#mutate textarea.textarea {
 
 #tv_body input[type=text],
 #tv_body textarea {
-    background: #fff;
+    background: var(--color-surface);
 }
 
 form#mutate textarea.tv_textareamini {
@@ -1808,12 +1748,6 @@ form#mutate fieldset#settings_page_settings select {
 /*
 * Individual Styles for fieldset#meta_keywords
 */
-form#mutate fieldset#meta_keywords {
-}
-
-form#mutate fieldset#meta_keywords {
-}
-
 form#mutate fieldset#meta_keywords select.inputBox {
     display: block;
     margin-bottom: 0;
@@ -1865,10 +1799,10 @@ fieldset#access_permissions dl dd ul li {
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;
     padding: 3px 3px 3px 24px;
-    background-color: #ffffff;
+    background-color: var(--color-surface);
     background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
     background-repeat: no-repeat;
-    background-position: 4px center;
+    background-position: var(--space-1) center;
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
@@ -1901,15 +1835,17 @@ strong[style*='color:#EF1D1D'] {
 }
 
 .okmsg {
-    background-color: #edffee;
-    border: 2px solid #3ab63a;
-    padding: 8px;
-    margin-bottom: 8px;
+    background-color: var(--color-success-bg);
+    border: 2px solid var(--color-success-light);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
 }
 
-/* ============================================
-   ナビゲーション - デザイン統合
-   ============================================ */
+/* ============================================================================
+   14. Custom Navigation Gradients - Aurora Theme
+   Used in: Top menu bar, navigation system
+   Note: Complex gradient system for visual polish
+   ============================================================================ */
 
 /* #topMenuの背景 - 左側抑えめ、右側グラデーション */
 #topMenu {
@@ -1973,7 +1909,7 @@ strong[style*='color:#EF1D1D'] {
     background: transparent !important;
     color: rgba(226, 232, 240, 0.55) !important;
     border-color: transparent !important;
-    transition: all 0.2s ease !important;
+    transition: all var(--transition-normal) !important;
 }
 
 #nav > li > a:hover,
@@ -2006,7 +1942,7 @@ strong[style*='color:#EF1D1D'] {
 #nav > li > ul.subnav a {
     color: rgba(226, 232, 240, 0.95) !important;
     background: transparent !important;
-    transition: all 0.2s ease !important;
+    transition: all var(--transition-normal) !important;
 }
 
 #nav > li > ul.subnav a:hover,
