@@ -1,21 +1,110 @@
-/* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html, body, form, fieldset {
-    margin: 0;
-    padding: 0;
-}
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - RevoClassic Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
 
 :root {
-    --color-text-primary: #333;
+    /* Gray Scale - Core neutral colors */
+    --gray-50: #f9fafb;
+    --gray-100: #f5f5f5;
+    --gray-200: #eaeaea;
+    --gray-300: #ddd;
+    --gray-400: #ccc;
+    --gray-500: #999;
+    --gray-600: #888;
+    --gray-700: #777;
+    --gray-800: #585858;
+    --gray-900: #333;
+
+    /* Spacing Scale - 8px based system */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-7: 28px;
+    --space-8: 32px;
+
+    /* Border Radius */
+    --radius-sm: 2px;
+    --radius-md: 3px;
+    --radius-lg: 4px;
+    --radius-xl: 5px;
+    --radius-xxl: 6px;
+    --radius-full: 8px;
+    --radius-pill: 999px;
+
+    /* Border Width */
+    --border-thin: 1px;
+    --border-medium: 2px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 1px 3px #E8E8E8 inset;
+    --shadow-lg: 1px 1px 3px var(--gray-400);
+    --shadow-xl: 2px 2px 15px #eaeaea;
+    --shadow-inset: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease-in-out;
+    --transition-normal: 0.18s ease;
+    --transition-slow: 0.3s ease-in-out;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: var(--gray-900);
+    --color-text-muted: #606060;
+    --color-text-subtle: var(--gray-600);
     --color-background-page: #f4f4f4;
     --color-link: #1285a4;
     --color-link-hover: #0f1e76;
-    --color-border-default: #ccc;
+    --color-border-default: var(--gray-400);
+    --color-border-light: #ededed;
     --color-surface: #fff;
-    --color-section-header-text: #606060;
-    --color-section-header-start: #f5f5f5;
-    --color-section-header-end: #dddddd;
+
+    /* Status Colors */
+    --color-success: #090;
+    --color-success-light: #3ab63a;
+    --color-success-bg: #edffee;
+    --color-error: #900;
+    --color-error-light: #c00;
+    --color-warning: #444;
+    --color-info: #3CB371;
+
+    /* Component Colors - Sections */
+    --color-section-header-text: var(--color-text-muted);
+    --color-section-header-start: var(--gray-100);
+    --color-section-header-end: var(--gray-300);
+    --color-section-bg: #F7F7F7;
+
+    /* Component Colors - Navigation */
     --color-nav-subnav-start: #626262;
     --color-nav-subnav-end: #444444;
+
+    /* Component Colors - Primary Actions */
     --color-primary: #375665;
     --color-primary-start: #2f8aa1;
     --color-primary-end: #226b7c;
@@ -23,6 +112,8 @@ html, body, form, fieldset {
     --color-primary-hover-end: #2d879b;
     --color-primary-active-start: #1f5a68;
     --color-primary-active-end: #154954;
+
+    /* Component Colors - Secondary Actions */
     --color-secondary-start: #e4e4e4;
     --color-secondary-end: #d2d8dc;
     --color-secondary-border: #c2c9ce;
@@ -30,12 +121,59 @@ html, body, form, fieldset {
     --color-secondary-hover-start: #dbe0e4;
     --color-secondary-hover-end: #c6cdd2;
     --color-secondary-hover-text: #3f4a51;
+
+    /* Component Colors - Neutral Buttons */
     --color-neutral-button-start: #f1f4f6;
     --color-neutral-button-hover-end: #e6ecef;
     --color-neutral-button-active-start: #dbe3e7;
     --color-neutral-button-border: #b9c4c9;
+
+    /* Component Colors - Draft Status */
     --color-draft-start: #faf1d4;
     --color-draft-end: #e9e0c3;
+    --color-draft-bg: #F4E2C3;
+
+    /* Component Colors - Tree & Tables */
+    --color-tree-bg: var(--gray-100);
+    --color-tree-selected: #FFFFFF;
+    --color-tree-border: var(--gray-400);
+    --color-tree-unpublished: #B68282;
+    --color-tree-deleted: #A52A2A;
+    --color-tree-published: #222;
+    --color-tree-empty: #aaa;
+    --color-tree-not-in-menu: var(--gray-700);
+    --color-tree-protected: #77d;
+
+    /* Component Colors - Table Rows */
+    --color-row-even: #E9F0F3;
+    --color-row-odd: #fff;
+    --color-row-alt: #C8DAA2;
+    --color-row-highlight: #D9E7C2;
+    --color-thead-bg: #E4E4E4;
+    --color-thead-text: var(--gray-900);
+
+    /* Top Navigation Variables */
+    --topnav-item-height: 32px;
+    --topnav-gap: 4px;
+    --subnav-height: 32px;
+    --subnav-horizontal-padding: 16px;
+    --topnav-padding-top: 14px;
+    --topnav-background: #062a36;
+    --topnav-border: #10475a;
+    --topnav-link-color: #e1f1f4;
+    --topnav-link-hover-color: #ffffff;
+    --topnav-link-hover-bg: #195a70;
+    --topnav-link-active-bg: #1b2e37;
+}
+
+/* ============================================================================
+   2. Base Styles (Reset, Typography, Links)
+   Used in: All pages, foundational styles
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -48,7 +186,7 @@ body {
 }
 
 body#mainpane {
-  padding: 8px;
+    padding: var(--space-2);
 }
 
 img, a img {
@@ -68,28 +206,28 @@ li, dd, blockquote {
     margin: 0 0 0 1em;
 }
 
-.rtl li, .rtl dd, .rtl blockquote {
-    margin: 0 1em 0 0;
-}
 
+/* ============================================================================
+   3. Utility Classes (hide, clear, status messages)
+   Used in: Various components for layout and status indication
+   ============================================================================ */
 
-/* -------------------------[ Miscellaneous conveniences ]--- */
 .clear {
     clear: both;
 }
 
 .fail {
-    color: #900;
+    color: var(--color-error);
     font-weight: bold;
 }
 
 .warning {
-    color: #444;
+    color: var(--color-warning);
     font-weight: bold;
 }
 
 .success {
-    color: #090;
+    color: var(--color-success);
     font-weight: bold;
 }
 
@@ -101,29 +239,29 @@ li, dd, blockquote {
     display: inline;
 }
 
-/* -------------------------[ Headers and Paragraphs ]--- */
+/* ============================================================================
+   4. Typography (Headings, Paragraphs)
+   Used in: Page titles, section headers, content formatting
+   ============================================================================ */
+
 h1, h2, h3, h4, h5, h6, .subTitle {
     font-weight: normal;
 }
 
 h1 {
     font-size: 1.25em;
-    color: #585858;
+    color: var(--gray-800);
     font-weight: bold;
     background-color: #d0d0d0;
     letter-spacing: 1px;
     line-height: 1em;
-    padding: 8px;
-    border-radius: 3px;
-    margin: 8px;
+    padding: var(--space-2);
+    border-radius: var(--radius-md);
+    margin: var(--space-2);
 }
 
 h1.draft {
-    background-color: #F4E2C3;
-}
-
-.rtl h1 {
-    margin-right: 10px;
+    background-color: var(--color-draft-bg);
 }
 
 h2 {
@@ -143,18 +281,14 @@ h6 {
 
 p.caption, p.comment {
     font-size: 0.9em;
-    color: #888;
+    color: var(--gray-600);
 }
 
 button {
     width: 112px;
     font: inherit;
-    margin: 0 5px 0 0;
+    margin: 0 var(--space-1) 0 0;
     cursor: pointer;
-}
-
-.rtl button {
-    margin: 0 0 0 5px;
 }
 
 a, a:active, a:visited, a:link {
@@ -167,15 +301,15 @@ a:hover {
 }
 
 hr {
-    color: #777;
-    background-color: #777;
-    height: 1px;
+    color: var(--gray-700);
+    background-color: var(--gray-700);
+    height: var(--border-thin);
     border: 0;
 }
 
 .split {
     background: #556476 url(../common/images/misc/line.gif) repeat-x;
-    height: 1px;
+    height: var(--border-thin);
     font-size: 0;
     clear: both;
     padding: 0;
@@ -186,7 +320,7 @@ hr {
 }
 
 .messageUnread {
-    color: #3CB371;
+    color: var(--color-info);
     font-weight: bold;
 }
 
@@ -194,18 +328,18 @@ hr {
     font-weight: bold;
     color: var(--color-text-primary);
     float: left;
-    padding: 0 20px 20px;
+    padding: 0 var(--space-5) var(--space-5);
 }
 
-.rtl .right {
-    float: right;
-}
+/* ============================================================================
+   7. Navigation (Top Menu, Supplemental Nav)
+   Used in: Header navigation, top menu bar, supplemental links
+   ============================================================================ */
 
-/* -------------------------[ Topbar ]--- */
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
-    padding: 0 5px;
+    padding: 0 var(--space-1);
     position: relative;
 }
 
@@ -231,27 +365,19 @@ hr {
     z-index: 1000;
 }
 
-.rtl #tocText {
-    right: 3px;
-}
-
-.tocTextRTL {
-    right: 3px;
-}
-
 #tocText,
 #buildText,
 #workText {
     font-weight: bold;
     line-height: 16px;
-    margin: 0 15px;
+    margin: 0 var(--space-4);
     color: #FFF;
 }
 
 #tocText,
 #buildText img,
 #workText img {
-    margin: 0 5px;
+    margin: 0 var(--space-1);
 }
 
 #statusbar {
@@ -261,14 +387,10 @@ hr {
     z-index: 1000;
 }
 
-.rtl #statusbar {
-    left: 0;
-}
-
 #supplementalNav {
     align-items: center;
     background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
@@ -276,18 +398,12 @@ hr {
     font-weight: 500;
     height: var(--topnav-item-height);
     line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding: 0 18px;
+    margin: var(--space-1) 0 0 0;
+    padding: 0 var(--space-5);
     position: absolute;
     right: var(--subnav-horizontal-padding);
-    top: 6px;
+    top: var(--space-2);
     z-index: 111;
-}
-
-.rtl #supplementalNav {
-    flex-direction: row-reverse;
-    left: var(--subnav-horizontal-padding);
-    right: auto;
 }
 
 #supplementalNav a {
@@ -296,7 +412,7 @@ hr {
     margin: 0;
     padding: 0;
     text-decoration: none;
-    transition: color .15s ease;
+    transition: color var(--transition-fast);
 }
 
 #supplementalNav a:hover,
@@ -307,7 +423,7 @@ hr {
 #supplementalNav .supplementalNav__item {
     align-items: center;
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
     white-space: nowrap;
 }
 
@@ -315,17 +431,8 @@ hr {
     padding-left: var(--topnav-gap);
 }
 
-.rtl #supplementalNav .supplementalNav__item + .supplementalNav__item {
-    border-left: none;
-    border-right: 1px solid rgba(255, 255, 255, .2);
-    margin-left: 0;
-    margin-right: var(--topnav-gap);
-    padding-left: 0;
-    padding-right: var(--topnav-gap);
-}
-
 #supplementalNav .supplementalNav__item--messages {
-    gap: 6px;
+    gap: var(--space-2);
 }
 
 #supplementalNav #newMail {
@@ -342,12 +449,7 @@ hr {
 }
 
 #supplementalNav #msgCounter {
-    margin-left: 4px;
-}
-
-.rtl #supplementalNav #msgCounter {
-    margin-left: 0;
-    margin-right: 4px;
+    margin-left: var(--space-1);
 }
 
 #supplementalNav .supplementalNav__version-label {
@@ -359,7 +461,11 @@ hr {
     color: #ffff8a;
 }
 
-/* -------------------------[ Forms ]--- */
+/* ============================================================================
+   5. Forms (Inputs, Selects, Textareas, Buttons)
+   Used in: Document editor, settings pages, all form interactions
+   ============================================================================ */
+
 tbody, thead, tr {
     margin: 0;
     padding: 0;
@@ -379,13 +485,6 @@ input, select, textarea, option, optgroup, td {
     color: inherit;
 }
 
-.rtl input,
-.rtl select,
-.rtl textarea,
-.rtl td {
-    text-align: right;
-}
-
 textarea[readonly],
 textarea[readonly]:focus,
 input[type='text'][readonly],
@@ -399,12 +498,12 @@ input[type='text'][readonly]:focus,
 optgroup {
     font-style: normal;
     font-weight: bold;
-    background-color: #ddd;
+    background-color: var(--gray-300);
 }
 
 optgroup option {
     font-weight: normal;
-    background-color: #fff;
+    background-color: var(--color-surface);
 }
 
 #ta, .tmplvars textarea {
@@ -415,12 +514,12 @@ form select {
     background: var(--color-surface);
     border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
     border-style: solid;
-    border-width: 1px;
-    padding: 4px;
+    border-width: var(--border-thin);
+    padding: var(--space-1);
     margin: 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
+    border-radius: var(--radius-md);
 }
 
 form input[type=text] {
@@ -431,20 +530,15 @@ form input[type=text],
 form input[type=password],
 form textarea {
     background: var(--color-surface);
-    border-color: #999 #DDD #DDD #999;
+    border-color: var(--gray-500) var(--gray-300) var(--gray-300) var(--gray-500);
     border-style: solid;
-    border-width: 1px;
-    padding: 4px 2px 4px 4px;
-    margin: 0 2px 0 0;
+    border-width: var(--border-thin);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
+    margin: 0 var(--space-1) 0 0;
     min-height: 17px;
     vertical-align: baseline;
-    border-radius: 3px;
-    box-shadow: 0px 1px 3px #E8E8E8 inset;
-}
-
-.rtl form input[type=text],
-.rtl form textarea {
-    padding: 2px 2px 2px 0;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
 }
 
 .sectionBody input.inputBox[type=text],
@@ -462,20 +556,20 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border: 1px solid green;
+    border: var(--border-thin) solid green;
 }
 
 input:is([type="button"], [type="submit"]) {
-    border: 1px solid var(--color-neutral-button-border);
+    border: var(--border-thin) solid var(--color-neutral-button-border);
     cursor: pointer;
     line-height: normal;
-    margin: -1px 0 0 5px;
+    margin: -1px 0 0 var(--space-1);
     min-height: 27px;
-    padding: 4px 10px;
+    padding: var(--space-1) var(--space-3);
     overflow: visible;
     background-color: var(--color-neutral-button-start);
     color: var(--color-text-primary);
-    border-radius: 3px;
+    border-radius: var(--radius-md);
     box-shadow: none;
     text-shadow: none;
 }
@@ -510,8 +604,8 @@ select {
 }
 
 .form {
-    padding: 15px;
-    border: solid 1px #ddd;
+    padding: var(--space-4);
+    border: solid var(--border-thin) var(--gray-300);
 }
 
 form input.hidden {
@@ -528,20 +622,9 @@ form input.hidden {
 }
 
 .form label {
-    padding-right: 20px;
+    padding-right: var(--space-5);
     text-align: right;
     width: 110px;
-}
-
-.rtl .form label,
-.rtl .form input,
-.rtl .form textarea {
-    float: right;
-}
-
-.rtl .form label {
-    padding-left: 20px;
-    text-align: left;
 }
 
 form textarea {
@@ -554,16 +637,12 @@ form textarea {
 .form legend {
     color: #04C;
     font-weight: bold;
-    padding: 5px;
+    padding: var(--space-1);
 }
 
 .form select {
     display: inline;
     float: left;
-}
-
-.rtl .form select {
-    float: right;
 }
 
 .form br {
@@ -573,21 +652,11 @@ form textarea {
 input.submit {
     display: block !important;
     float: none !important;
-    margin: 20px 0 0 140px !important;
-}
-
-.rtl input.submit {
-    margin: 20px 140px 0 0 !important;
+    margin: var(--space-5) 0 0 140px !important;
 }
 
 .form fieldset.list {
-    margin: 6px 6px 3px 0;
-}
-
-.rtl .form fieldset.list {
-    border: 0;
-    padding: 0 !important;
-    margin: 6px 0 3px 6px;
+    margin: var(--space-2) var(--space-2) var(--space-1) 0;
 }
 
 .form fieldset.list legend {
@@ -597,7 +666,7 @@ input.submit {
 .form fieldset.list label,
 .form fieldset.list input {
     padding: 0;
-    margin: 0 0 3px;
+    margin: 0 0 var(--space-1);
     float: left;
     display: inline;
     border: 0;
@@ -606,13 +675,8 @@ input.submit {
     height: auto;
 }
 
-.rtl .form fieldset.list label,
-.rtl .form fieldset.list input {
-    float: right;
-}
-
 .form fieldset.list label {
-    padding-left: 5px;
+    padding-left: var(--space-1);
     text-align: left;
     width: auto;
 }
@@ -621,85 +685,79 @@ form .imeoff {
     ime-mode: disabled;
 }
 
-/* -------------------------[ Misc stuff ]--- */
+/* ============================================================================
+   6. Layout Components (Sections, Containers)
+   Used in: Section headers, content areas, fieldsets
+   ============================================================================ */
+
 .sectionBody fieldset {
-    padding: 15px;
+    padding: var(--space-4);
 }
 
 .sectionBody legend {
     font-weight: bold;
-    padding: 5px 15px;
+    padding: var(--space-1) var(--space-4);
     background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
+    border: var(--border-thin) solid var(--color-border-default);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-md);
 }
 
 .sectionBody h3 {
     font-size: 1.1em;
     font-weight: bold;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 .sectionHeader {
     color: var(--color-section-header-text);
-    margin: 0 8px;
-    padding: 8px 16px;
+    margin: 0 var(--space-2);
+    padding: var(--space-2) var(--space-4);
     font-weight: bold;
-    border: 1px solid var(--color-section-header-end);
+    border: var(--border-thin) solid var(--color-section-header-end);
     border-bottom: none;
     background-color: var(--color-section-header-end);
-    box-shadow: 0 1px 0 var(--color-surface) inset;
-    border-radius: 8px 8px 0 0;
+    box-shadow: 0 var(--border-thin) 0 var(--color-surface) inset;
+    border-radius: var(--radius-full) var(--radius-full) 0 0;
 }
 
 .tab-page .sectionHeader {
-    margin: 2px 3px 0;
-}
-
-.rtl .sectionHeader {
-    direction: rtl;
-    padding: 5px 18px 5px 3px;
+    margin: var(--space-1) var(--space-1) 0;
 }
 
 .sectionBody {
     position: relative;
-    margin: 8px;
+    margin: var(--space-2);
     display: block;
 }
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: none repeat scroll 0 0 #F7F7F7;
-    border: 1px solid #CCCCCC;
-    margin: 0 3px 15px;
-    padding: 15px;
-}
-
-.rtl .sectionBody {
-    direction: rtl;
-    position: inherit;
+    background: none repeat scroll 0 0 var(--color-section-bg);
+    border: var(--border-thin) solid var(--gray-400);
+    margin: 0 var(--space-1) var(--space-4);
+    padding: var(--space-4);
 }
 
 .section .sectionBody {
-    margin: 0 8px 8px;
+    margin: 0 var(--space-2) var(--space-2);
     background-color: var(--color-surface);
 }
 
 .comment {
-    color: #999;
+    color: var(--gray-500);
 }
 
 thead {
-    color: #333;
+    color: var(--color-thead-text);
     height: 18px !important;
-    background-color: #E4E4E4;
+    background-color: var(--color-thead-bg);
 }
 
 thead td {
-    color: #333;
-    border-top: 1px solid #fff;
+    color: var(--color-thead-text);
+    border-top: var(--border-thin) solid var(--color-surface);
 }
 
 li {
@@ -709,15 +767,11 @@ li {
 }
 
 ul {
-    margin: 0 20px 0 20px;
-}
-
-.rtl ul {
-    margin: 0 10px 0 20px;
+    margin: 0 var(--space-5) 0 var(--space-5);
 }
 
 .screen {
-    border: 1px solid #ddd;
+    border: var(--border-thin) solid var(--gray-300);
     text-align: center;
 }
 
@@ -726,14 +780,18 @@ a img {
 }
 
 .even {
-    background: #D9E7C2;
+    background: var(--color-row-highlight);
 }
 
 .odd {
-    background: #fff;
+    background: var(--color-row-odd);
 }
 
-/* -------------------------[ end sortable table ]--- */
+/* ============================================================================
+   8. Tree Components (Site Tree, Context Menu)
+   Used in: Resource tree, context menus, tree navigation
+   ============================================================================ */
+
 .disabledImage {
     width: 20px;
     opacity: 0.3;
@@ -744,13 +802,9 @@ a img {
 }
 
 .editorCell {
-    border-top: 1px solid #808080;
+    border-top: var(--border-thin) solid #808080;
     text-align: left;
     vertical-align: baseline;
-}
-
-.rtl .editorCell {
-    text-align: right;
 }
 
 .row1, .row2, .row3 {
@@ -758,21 +812,21 @@ a img {
 }
 
 .row1 {
-    background-color: #fff;
+    background-color: var(--color-row-odd);
 }
 
 .row2 {
-    background-color: #C8DAA2;
+    background-color: var(--color-row-alt);
 }
 
 .row3 {
-    background-color: #f5f5f5;
+    background-color: var(--color-tree-bg);
 }
 
 div.treeframebody {
-    background: #f5f5f5 url(../common/images/misc/subnav.png) !important;
-    box-shadow: inset -2px 2px 6px 0px rgba(0, 0, 0, 0.1);
-    padding: 8px;
+    background: var(--color-tree-bg) url(../common/images/misc/subnav.png) !important;
+    box-shadow: var(--shadow-inset);
+    padding: var(--space-2);
 }
 
 #treeMenu * {
@@ -782,13 +836,10 @@ div.treeframebody {
 #treeHolder {
     cursor: default;
     height: 100%;
-    padding: 6px 8px 0;
+    padding: var(--space-2) var(--space-2) 0;
+    padding-left: var(--space-3);
     line-height: 1.3em;
     font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
-}
-
-#treeHolder {
-    padding-left: 12px;
 }
 
 #treeRoot {
@@ -800,24 +851,16 @@ div.treeframebody {
     vertical-align: middle;
 }
 
-.rtl #treeRoot div img {
-    margin: 0 -6px 0 0;
-}
-
 #floater {
     display: none;
     position: absolute;
     width: 200px;
-    padding: 5px;
+    padding: var(--space-1);
     top: 25px;
-    left: 4px;
-    background: #fff;
-    border: 1px solid #ccc;
+    left: var(--space-1);
+    background: var(--color-surface);
+    border: var(--border-thin) solid var(--color-tree-border);
     z-index: 500;
-}
-
-.rtl #floater {
-    right: 4px
 }
 
 .rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
@@ -833,38 +876,38 @@ div.treeNode {
 
 .treeNodeSelected,
 .treeNodeHover {
-    background-color: #FFFFFF;
-    border: 1px solid #CCC;
+    background-color: var(--color-tree-selected);
+    border: var(--border-thin) solid var(--color-tree-border);
     color: #000;
-    padding: 1px 2px;
+    padding: var(--border-thin) var(--space-1);
     margin-left: -3px;
 }
 
 .unpublished a, .unpublishedNode {
-    color: #B68282;
+    color: var(--color-tree-unpublished);
 }
 
 .deletedNode {
-    color: #A52A2A;
+    color: var(--color-tree-deleted);
     text-decoration: line-through;
 }
 
 .publishedNode {
-    color: #222;
+    color: var(--color-tree-published);
 }
 
 .emptyNode {
-    color: #aaa;
+    color: var(--color-tree-empty);
     cursor: default;
 }
 
 .notInMenuNode {
-    color: #777;
+    color: var(--color-tree-not-in-menu);
     text-decoration: none;
 }
 
 .protectedNode {
-    color: #77d;
+    color: var(--color-tree-protected);
 }
 
 #treeSplitter {
@@ -874,29 +917,29 @@ div.treeNode {
     right: -10px;
 }
 
-.rtl #treeSplitter {
-    left: -10px;
-}
-
 .disabledPlugin a {
-    color: #aaa;
+    color: var(--color-tree-empty);
     text-decoration: line-through;
 }
 
-/* -------------------------[ grid style ]--- */
+/* ============================================================================
+   9. Tables & Grids (Data Tables, Sortable)
+   Used in: Resource lists, data grids, sortable tables
+   ============================================================================ */
+
 .grid {
     width: 100%;
-    background-color: #fff;
-    border: 1px solid silver;
+    background-color: var(--color-surface);
+    border: var(--border-thin) solid silver;
     border-collapse: collapse;
 }
 
 .grid th, .grid td {
-    padding: 8px;
+    padding: var(--space-2);
 }
 
 .gridHeader, .grid th {
-    color: #333;
+    color: var(--gray-900);
     font-weight: bold;
     white-space: nowrap;
     background-color: #d2d2d2;
@@ -904,13 +947,13 @@ div.treeNode {
 }
 
 .gridItem {
-    background-color: #fff;
-    padding: 3px;
+    background-color: var(--color-surface);
+    padding: var(--space-1);
 }
 
 .gridAltItem {
     background-color: #eeeeee;
-    padding: 3px;
+    padding: var(--space-1);
 }
 
 .gridRowIcon:hover {
@@ -923,25 +966,25 @@ div.treeNode {
 
 .grid img {
     vertical-align: middle;
-    padding-right: 4px;
+    padding-right: var(--space-1);
 }
 
-/* -------------------------[ search bar ]--- */
+/* Search Bar */
 .searchbar {
     width: 100%;
-    border: 1px solid silver;
+    border: var(--border-thin) solid silver;
     background-color: #DBDBDB;
 }
 
 .searchtext {
     height: 18px;
-    padding: 2px;
+    padding: var(--space-1);
 }
 
-/* -------------------------[ home page main links ]--- */
+/* Home Page Links */
 a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
     text-decoration: underline;
-    color: #333;
+    color: var(--gray-900);
     font-weight: bold;
 }
 
@@ -961,23 +1004,23 @@ a.hometblink:hover {
 }
 
 .preLoaderText {
-    background-color: #fff;
-    border-radius: 10px;
+    background-color: var(--color-surface);
+    border-radius: var(--space-3);
     opacity: .7;
     width: 300px;
     height: 150px;
     margin: 70px auto;
     padding: 50px;
-    border: 1px solid #999;
+    border: var(--border-thin) solid var(--gray-500);
 }
 
-/* -------------------------[ contextmenu in editing modules ]--- */
+/* Context Menu in Editing Modules */
 .contextMenu {
-    background: #fff;
+    background: var(--color-surface);
     margin: 0;
     padding: 0;
-    border: 1px solid #039;
-    border-color: #eaeaea #909090 #707070 #eaeaea;
+    border: var(--border-thin) solid #039;
+    border-color: var(--gray-200) #909090 #707070 var(--gray-200);
     position: absolute;
     z-index: 10000;
 }
@@ -986,40 +1029,25 @@ a.hometblink:hover {
     background-image: url(../common/images/misc/_tx_.gif);
     cursor: pointer;
     color: var(--color-text-primary);
-    padding: 3px 16px 3px 2px;
-}
-
-.rtl .cntxMnuItem,
-.rtl .cntxMnuItemDisabled {
-    padding: 3px 2px 3px 16px;
+    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
 }
 
 .cntxMnuItemDisabled {
     cursor: default;
-    padding: 3px 16px 3px 2px;
-    color: #111;
+    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
+    color: var(--gray-900);
 }
 
 .cntxMnuItemOver {
     cursor: pointer;
     color: var(--color-text-primary);
     background: #e3e3e3;
-    padding: 2px 15px 2px 1px;
-    border: 1px solid #c0c0c0;
-}
-
-.rtl .cntxMnuItemOver {
-    padding: 2px 1px 2px 15px;
+    padding: var(--space-1) var(--space-4) var(--space-1) var(--border-thin);
+    border: var(--border-thin) solid #c0c0c0;
 }
 
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
-    margin: 0 8px 0 0;
-}
-
-.rtl .cntxMnuItem img,
-.rtl .cntxMnuItemOver img,
-.rtl .cntxMnuItemDisabled img {
-    margin: 0 0 0 8px;
+    margin: 0 var(--space-2) 0 0;
 }
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
@@ -1028,17 +1056,13 @@ a.hometblink:hover {
 
 .cntxMnuSeparator {
     font-size: 0;
-    height: 1px;
+    height: var(--border-thin);
     background-color: silver;
     overflow: hidden;
-    margin: 3px 1px 3px 28px;
+    margin: var(--space-1) var(--border-thin) var(--space-1) var(--space-7);
 }
 
-.rtl .cntxMnuSeparator {
-    margin: 3px 28px 3px 1px;
-}
-
-/* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
+/* Top Navbar of snap in top menu bar layout */
 #topMenu {
     --topnav-item-height: 32px;
     --topnav-gap: 4px;
@@ -1052,7 +1076,7 @@ a.hometblink:hover {
     --topnav-link-hover-bg: #195a70;
     --topnav-link-active-bg: #1b2e37;
     background-color: var(--topnav-background);
-    border-bottom: 1px solid var(--topnav-border);
+    border-bottom: var(--border-thin) solid var(--topnav-border);
 }
 #topMenu {
     background-color: #23393C;
@@ -1077,25 +1101,22 @@ a.hometblink:hover {
     list-style: none;
 }
 
-.rtl #nav {
-    flex-direction: row-reverse;
-}
-
 #nav > li {
     list-style: none;
 }
 
 #nav > li > a {
-    border: 1px solid transparent;
-    border-radius: 6px 6px 0 0;
+    border: var(--border-thin) solid transparent;
+    border-radius: var(--radius-xxl) var(--radius-xxl) 0 0;
     color: var(--topnav-link-color);
-    display: block;
-    line-height: var(--topnav-item-height);
-    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    height: var(--topnav-item-height);
+    padding: 3px var(--space-5) 5px;
     text-decoration: none;
     white-space: nowrap;
     background: transparent;
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+    transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
 }
 
 #nav > li > a:hover,
@@ -1109,7 +1130,7 @@ a.hometblink:hover {
 #nav > li.active > a {
     background: var(--topnav-link-active-bg);
     border-color: var(--topnav-link-active-bg);
-    border-top: 1px solid var(--topnav-border);
+    border-top: var(--border-thin) solid var(--topnav-border);
     border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
@@ -1122,24 +1143,20 @@ a.hometblink:hover {
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(var(--topnav-item-height) + 15px);
+    top: calc(var(--topnav-item-height) + var(--space-4));
     margin: 0;
     list-style: none;
-    padding: 6px var(--subnav-horizontal-padding);
+    padding: var(--space-1) var(--subnav-horizontal-padding);
     min-height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
-    row-gap: 6px;
-    border-top: 1px solid var(--topnav-border);
-    border-bottom: 1px solid var(--topnav-border);
+    row-gap: 0;
+    border-top: var(--border-thin) solid var(--topnav-border);
+    border-bottom: var(--border-thin) solid var(--topnav-border);
     background: var(--topnav-link-active-bg);
     z-index: 1;
     box-shadow: none;
-}
-
-.rtl #nav > li > ul.subnav {
-    flex-direction: row-reverse;
 }
 
 #nav > li.active > ul.subnav {
@@ -1154,13 +1171,13 @@ a.hometblink:hover {
 #nav > li > ul.subnav a {
     color: #f1fbfc;
     cursor: pointer;
-    display: block;
+    display: flex;
+    align-items: center;
     font-weight: normal;
-    line-height: var(--subnav-height);
-    padding: 0 18px;
+    padding: var(--space-1) var(--space-5);
     text-decoration: none;
-    border-radius: 8px;
-    transition: background-color .18s ease, color .18s ease;
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 #nav > li > ul.subnav a:hover,
@@ -1174,7 +1191,7 @@ a.hometblink:hover {
     color: #d9edf1;
 }
 
-/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
+/* Contextual Menu used in the Tree Menu */
 #mx_contextmenu {
     position: absolute;
     height: auto;
@@ -1183,24 +1200,24 @@ a.hometblink:hover {
     width: 165px;
     background-color: var(--color-surface);
     margin: 0;
-    padding-bottom: 10px;
-    border: 1px solid #ededed;
+    padding-bottom: var(--space-3);
+    border: var(--border-thin) solid var(--color-border-light);
     border-right-color: #dcdcdc;
     border-bottom-color: #dcdcdc;
     overflow: hidden;
     line-height: 11px;
-    box-shadow: 2px 2px 15px #eaeaea;
+    box-shadow: var(--shadow-xl);
 }
 
 #mx_contextmenu .menuLink {
     cursor: pointer;
-    color: #222;
-    padding: 3px 5px 3px 4px;
+    color: var(--gray-900);
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
 }
 
 #mx_contextmenu .menuLink:hover {
     background: #DDE4EB;
-    border: 1px solid #fdfdfd;
+    border: var(--border-thin) solid #fdfdfd;
     border-bottom-color: #dcdcdc;
     color: var(--color-text-primary);
 }
@@ -1208,7 +1225,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink:hover,
 #mx_contextmenu .menuLinkDisabled {
     cursor: pointer;
-    padding: 2px 4px 2px 3px;
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-1);
 }
 
 #mx_contextmenu .menuLinkDisabled {
@@ -1219,7 +1236,7 @@ a.hometblink:hover {
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
 #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 5px;
+    margin-right: var(--space-1);
 }
 
 #mx_contextmenu .menuLink img,
@@ -1232,49 +1249,26 @@ a.hometblink:hover {
 }
 
 #mx_contextmenu #nameHolder {
-    color: #fff;
+    color: var(--color-surface);
     text-align: left;
     cursor: default;
     font-weight: bold;
-    padding: 6px 4px;
-    margin-bottom: 3px;
-    text-shadow: 0px -1px 0px #222;
+    padding: var(--space-2) var(--space-1);
+    margin-bottom: var(--space-1);
+    text-shadow: 0px -1px 0px var(--gray-900);
     background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
 }
 
 #mx_contextmenu .seperator {
     font-size: 0;
-    height: 1px;
+    height: var(--border-thin);
     background-color: silver;
     overflow: hidden;
-    margin: 3px 1px 3px 28px;
-}
-
-.rtl #mx_contextmenu .menuLink {
-    padding: 3px 2px 3px 16px;
-}
-
-.rtl #mx_contextmenu .menuLink:hover,
-.rtl #mx_contextmenu .menuLinkDisabled {
-    padding: 2px 1px 2px 15px;
-}
-
-.rtl #mx_contextmenu .menuLink img,
-.rtl #mx_contextmenu .menuLink:hover img,
-.rtl #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 8px;
-}
-
-.rtl #mx_contextmenu #nameHolder {
-    text-align: right;
-}
-
-.rtl #mx_contextmenu .seperator {
-    margin: 3px 28px 3px 1px;
+    margin: var(--space-1) var(--border-thin) var(--space-1) var(--space-7);
 }
 
 
-/* -------------------------[ Settings Table ]--- */
+/* Settings Table */
 .settings {
     width: 600px;
 }
@@ -1290,22 +1284,18 @@ a.hometblink:hover {
     font-size: 1.2em;
 }
 
-.rtl .settings th {
-    text-align: right;
-}
-
 .filelist td {
-    border-bottom: 1px solid #C2C3CF;
+    border-bottom: var(--border-thin) solid #C2C3CF;
 }
 
-/* -------------------------[ Tabs ]--- */
+/* ============================================================================
+   10. Tabs System (Dynamic Tab Pane)
+   Used in: Document editor, module configuration, multi-section forms
+   ============================================================================ */
+
 .dynamic-tab-pane-control.tab-pane {
     position: relative;
     width: 100%;
-}
-
-.rtl .dynamic-tab-pane-control.tab-pane {
-    direction: rtl;
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
@@ -1313,21 +1303,15 @@ a.hometblink:hover {
     font-size: 1em;
     cursor: pointer;
     display: inline;
-    margin: 3px 2px 1px 0;
+    margin: var(--space-1) var(--space-1) var(--border-thin) 0;
     float: left;
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     z-index: 1;
     position: relative;
-    top: 1px;
-    border: 1px solid var(--color-secondary-border);
-    border-radius: 5px 5px 0 0;
+    top: var(--border-thin);
+    border: var(--border-thin) solid var(--color-secondary-border);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     background-color: var(--color-secondary-start);
-}
-
-.rtl .dynamic-tab-pane-control .tab-row .tab {
-    margin: 3px 5px 1px -3px;
-    float: right;
-    padding: 2px 15px 3px;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
@@ -1339,20 +1323,20 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: #333;
+    color: var(--gray-900);
     z-index: 999;
-    top: 1px;
-    border-width: 1px;
+    top: var(--border-thin);
+    border-width: var(--border-thin);
     border-bottom-style: solid;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
-    border-radius: 5px 5px 0 0;
-    border-width: 1px 1px 0;
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-width: var(--border-thin) var(--border-thin) 0;
     background-color: var(--color-surface);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: #111;
+    color: var(--gray-900);
     background-color: var(--color-surface);
     text-shadow: none;
 }
@@ -1367,22 +1351,22 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover {
-    color: #333;
-    border-color: var(--color-primary-hover-end) #b7c2c7 #FFF #b7c2c7;
+    color: var(--gray-900);
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
     background-color: var(--color-surface);
     background-image: none;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover span {
-    color: #111;
+    color: var(--gray-900);
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
-    color: #c00;
+    color: var(--color-error-light);
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected .alert {
-    color: #c00;
+    color: var(--color-error-light);
 }
 
 .dynamic-tab-pane-control .tab-page {
@@ -1390,12 +1374,8 @@ a.hometblink:hover {
     background: var(--color-surface);
     z-index: 2;
     position: relative;
-    top: -2px;
-    padding: 20px 15px 14px !important;
-}
-
-.rtl .dynamic-tab-pane-control .tab-page {
-    position: inherit; /* critical adjustment for IE ul li Proper RTL demonstration */
+    top: calc(-1 * var(--space-1));
+    padding: var(--space-5) var(--space-4) var(--space-4) !important;
 }
 
 .dynamic-tab-pane-control .tab-row {
@@ -1404,44 +1384,44 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control ul {
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-bottom: 5px;
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+    padding-bottom: var(--space-1);
 }
 
 .dynamic-tab-pane-control li {
-    padding-left: 5px;
-    padding-right: 5px;
+    padding-left: var(--space-1);
+    padding-right: var(--space-1);
 }
 
-/* -------------------------[ Tree buttons ]--- */
+/* Tree buttons */
 .treeButton {
     display: block;
     cursor: pointer;
     color: var(--color-text-primary);
-    border: 1px;
+    border: var(--border-thin);
     border-bottom-color: #809c47;
-    padding: 3px 5px;
+    padding: var(--space-1) var(--space-1);
     white-space: nowrap;
     vertical-align: middle;
 }
 
 .treeButton:hover {
-    border: 1px solid #88939E;
-    padding: 2px 4px;
-    background: #fff;
+    border: var(--border-thin) solid #88939E;
+    padding: var(--space-1) var(--space-1);
+    background: var(--color-surface);
 }
 
 .treeButtonDisabled {
     cursor: default;
-    border: 1px solid #657587;
-    padding: 2px 4px;
-    color: #777;
+    border: var(--border-thin) solid #657587;
+    padding: var(--space-1) var(--space-1);
+    color: var(--gray-700);
     border-width: 0;
     opacity: .5;
 }
 
-/* -------------------------[ Welcome Page ]--- */
+/* Welcome Page */
 a.hometblink, a.hometblink img {
     border: 0 !important;
     text-decoration: none !important;
@@ -1449,82 +1429,66 @@ a.hometblink, a.hometblink img {
 
 .wm_button {
     float: left;
-    margin: 0 12px 2px 0;
+    margin: 0 var(--space-3) var(--space-1) 0;
     text-align: center;
 }
 
-.rtl .wm_button {
-    float: right;
-    margin: 0 5px 2px 6px;
-}
-
-/* -------------------------[ Welcome Page ]--- */
+/* Welcome Page Content */
 #mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
+    background: var(--gray-100) url(../common/images/misc/mainbg.gif) repeat-x top;
 }
 
 .tab-page {
-    border: 1px solid #AAA;
-    border-radius: 0 0 5px 5px;
+    border: var(--border-thin) solid #AAA;
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
 
 .sectionBody .tab-page {
-    padding: 15px 15px 20px !important;
+    padding: var(--space-4) var(--space-4) var(--space-5) !important;
 }
 
-/* -------------------------[ New sortable table class ]--- */
-.sortabletable {
-}
-
+/* New sortable table class */
 table.sortabletable {
     width: 100%;
     border-collapse: collapse;
 }
 
 .sortabletable tr.even {
-    background: #E9F0F3;
+    background: var(--color-row-even);
 }
 
 .sortabletable td, .sortabletable th {
-    padding: 8px;
-    border: 1px solid #ccc;
+    padding: var(--space-2);
+    border: var(--border-thin) solid var(--gray-400);
 }
 
 .sortabletable th {
     text-align: left;
     cursor: pointer;
-    color: #333;
-}
-
-.rtl .sortabletable th {
-    text-align: right;
+    color: var(--gray-900);
 }
 
 .sortabletable th a {
     text-decoration: none;
-    color: #333;
+    color: var(--gray-900);
 }
 
 .sortabletable th:active {
-    background: #ccc;
-    padding: 3px 4px 1px 6px;
+    background: var(--gray-400);
+    padding: var(--space-1) var(--space-1) var(--border-thin) var(--space-2);
 }
 
-.rtl .sortabletable th:active {
-    padding: 3px 6px 1px 4px;
-}
-
-/* -------------------------[ Pagination table ]--- */
+/* Pagination table */
 #max-display-records {
-    margin: 10px 0;
+    margin: var(--space-3) 0;
 }
 
 #pagination {
-    margin: 10px 0;
+    margin: var(--space-3) 0;
 }
 
 #pagination ul {
-    margin: 10px 0;
+    margin: var(--space-3) 0;
     display: inline;
 }
 
@@ -1532,66 +1496,64 @@ table.sortabletable {
     list-style: none;
     display: inline;
     width: 15px;
-    margin: 0 0 0 1px;
+    margin: 0 0 0 var(--border-thin);
     padding: 0;
 }
 
 #pagination li a,
 #pagination li span {
-    padding: 3px 8px;
-    border: 1px solid #D9E7C2;
+    padding: var(--space-1) var(--space-2);
+    border: var(--border-thin) solid var(--color-row-highlight);
     text-decoration: none;
-    color: #333;
+    color: var(--gray-900);
 }
 
 #pagination li span {
-    color: #D9E7C2;
+    color: var(--color-row-highlight);
     cursor: default;
 }
 
 #pagination li.currentPage a, #pagination li a:hover {
-    color: #fff;
+    color: var(--color-surface);
     background-color: #7fa53d;
-    border: 1px solid #567959;
+    border: var(--border-thin) solid #567959;
 }
 
 fieldset.tab-page {
-    border: 1px solid #e4e4e4 !important;
+    border: var(--border-thin) solid var(--gray-200) !important;
 }
 
 h2#edit_document_title {
     font-size: 15px;
-    color: #f5f5f5;
+    color: var(--gray-100);
     width: 100%;
     border-bottom: none;
-    padding: 5px 10px;
+    padding: var(--space-1) var(--space-3);
 }
 
-/* -------------------------[ Action Buttons ]--- */
-/* from https://github.com/manse/ScienceStyle */
+/* ============================================================================
+   11. Action Buttons (Fixed Position Controls)
+   Used in: Document editor, fixed action bar
+   ============================================================================ */
+
 #actions {
     background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
     margin: 0;
-    padding: 8px 16px !important;
+    padding: var(--space-2) var(--space-4) !important;
     position: fixed;
-    right: 16px;
+    right: var(--space-4);
     text-align: right;
-    top: 8px;
+    top: var(--space-2);
     z-index: 100;
-    border-radius: 8px;
+    border-radius: var(--radius-full);
 }
 
 select#stay {
-    padding: 8px;
-}
-
-.rtl #actions {
-    left: 10px;
-    text-align: left;
+    padding: var(--space-2);
 }
 
 .actionButtons {
-    margin-bottom: 15px;
+    margin-bottom: var(--space-4);
 }
 
 .actionButtons:after {
@@ -1603,11 +1565,10 @@ select#stay {
 ul.actionButtons {
     margin: 0;
     padding: 0;
-    /* accommodate border on buttons - */
     background: none;
     width: auto;
     white-space: nowrap;
-    padding-bottom: 10px;
+    padding-bottom: var(--space-3);
 }
 
 #actions .actionButtons {
@@ -1616,7 +1577,7 @@ ul.actionButtons {
 
 .actionButtons li {
     list-style: none;
-    margin-right: 6px;
+    margin-right: var(--space-2);
     padding: 0;
     float: left;
 }
@@ -1634,12 +1595,12 @@ ul.actionButtons {
 .actionButtons a {
     display: block;
     float: left;
-    border-radius: 4px;
+    border-radius: var(--radius-lg);
     color: #444;
     font-size: 1em;
     font-weight: 700;
     outline: medium none;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     text-decoration: none;
     white-space: nowrap;
     background-color: var(--color-neutral-button-start);
@@ -1660,9 +1621,9 @@ ul.actionButtons {
 }
 
 .actionButtons a.disabled {
-    border: 1px solid var(--color-border-default);
-    padding: 2px 4px;
-    color: #777;
+    border: var(--border-thin) solid var(--color-border-default);
+    padding: var(--space-1) var(--space-1);
+    color: var(--gray-700);
     background-color: var(--color-surface);
     cursor: default;
     pointer-events: none;
@@ -1687,7 +1648,7 @@ ul.actionButtons {
 }
 
 .actionButtons .and {
-    margin: 0 2px 0 5px;
+    margin: 0 var(--space-1) 0 var(--space-1);
     color: #3b454f;
     font-weight: 700;
 }
@@ -1720,12 +1681,14 @@ ul.actionButtons {
     display: none;
 }
 
-/*
-* Generic styles for all form elements
-*/
+/* ============================================================================
+   12. Specialized Forms (Mutate Forms, Date Pickers)
+   Used in: Document editing forms, template variable forms
+   ============================================================================ */
+
 form#mutate dt,
 form#mutate dd {
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
 }
 
 form#mutate dt label,
@@ -1743,7 +1706,7 @@ form#mutate dd {
 }
 
 form#mutate input.disabled {
-    background-color: #f5f5f5 !important;
+    background-color: var(--gray-100) !important;
 }
 
 form#mutate select.inputBox,
@@ -1759,7 +1722,7 @@ form#mutate textarea.textarea {
 
 #tv_body input[type=text],
 #tv_body textarea {
-    background: #fff;
+    background: var(--color-surface);
 }
 
 form#mutate textarea.tv_textareamini {
@@ -1774,12 +1737,10 @@ form#mutate textarea.tv_textarea {
     overflow-y: scroll;
 }
 
-/*
-* Styling for datepicker elements in settings and templavars
-*/
+/* Styling for datepicker elements in settings and templavars */
 form#mutate input.date,
 form#mutate input.tvdate {
-    margin-right: 10px;
+    margin-right: var(--space-3);
 }
 
 /*
@@ -1794,15 +1755,7 @@ form#mutate fieldset#settings_page_settings select {
     width: 155px;
 }
 
-/*
-* Individual Styles for fieldset#meta_keywords
-*/
-form#mutate fieldset#meta_keywords {
-}
-
-form#mutate fieldset#meta_keywords {
-}
-
+/* Individual Styles for fieldset#meta_keywords */
 form#mutate fieldset#meta_keywords select.inputBox {
     display: block;
     margin-bottom: 0;
@@ -1810,7 +1763,7 @@ form#mutate fieldset#meta_keywords select.inputBox {
 
 form#mutate fieldset#meta_keywords dl.keywords {
     float: left;
-    margin-right: 30px;
+    margin-right: var(--space-8);
 }
 
 form#mutate fieldset#meta_keywords dl.metatags {
@@ -1850,12 +1803,12 @@ fieldset#access_permissions dl dd ul li {
     list-style-type: none;
 }
 
-/* -------------------------[ date picker ]--- */
+/* Date picker */
 input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
     width: 150px;
-    padding: 3px 3px 3px 24px;
-    background-color: #ffffff;
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left #ffffff;
+    padding: var(--space-1) var(--space-1) var(--space-1) var(--space-6);
+    background-color: var(--color-surface);
+    background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
@@ -1888,8 +1841,8 @@ strong[style*='color:#EF1D1D'] {
 }
 
 .okmsg {
-    background-color: #edffee;
-    border: 2px solid #3ab63a;
-    padding: 8px;
-    margin-bottom: 8px;
+    background-color: var(--color-success-bg);
+    border: var(--border-medium) solid var(--color-success-light);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
 }
