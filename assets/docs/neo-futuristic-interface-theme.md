@@ -24,6 +24,21 @@
 - 見出しとサマリーは半透明のトップバー、詳細は軽いカードで分節化。
 - モジュール境界には極細のシアン/マゼンタ線か薄い幾何学パターンのみ。
 
+### 構造化プロンプトのテンプレート
+左ペインの明るさと非ゲーム的なトーンを固定し、各セクションの役割を明示したまま生成モデルに渡せるテンプレートです。不要な項目は省略してください。
+
+```
+[Context] Light admin UI dashboard. Keep left navigation bright white/light-gray; forbid dark mode and heavy glow.
+[Layout] Grid of lightly transparent cards, wide spacing, soft micro-shadows. Top summary bar is semi-transparent; detail panels are light cards.
+[Shapes] Gently cut corners or chamfered edges; thin geometric divider lines.
+[Color] Base is bright white to pale gray. Accent only with ultra-thin cyan/magenta lines; no glowing fills.
+[Components]
+- Navigation: flat light background, hover with faint 2-4px outline only.
+- Cards/Tables: subtle translucency (2-6%), thin grid lines, soft inner hover outlines.
+- Forms: flat inputs with 1px neon line only on focus.
+[Mood] Minimal, airy, no game UI look.
+```
+
 ## コンポーネントのデザインメモ
 - **ナビゲーション**: 左ペインは白〜淡グレーのフラット背景。ホバー時は 4px 以内の淡いアウトラインを付与し、背景色の大幅変更は行わない。
 - **カード/パネル**: 2〜6% 程度の透過をかけた明度差で階層化。角は 4〜8px のカットコーナーまたは緩やかな面取り。
@@ -39,6 +54,13 @@
 ## 生成用プロンプト例
 ```
 管理画面UIのデザイン。白〜淡いグレーを基調に、未来感のある半透明レイヤーを重ねたテーマ。背景は明るくフラットで、要素の境界に薄い幾何学的ラインパターンを使用。角はわずかにカットされた“未来的な形状”。左ペインはライト背景のまま暗転させない。アクセントにはごく薄いネオンライン（シアンやマゼンタ）を細く入れるが、全体を暗くしない。パネルは軽い透過と微細な層構造で整理された印象を与える。ゲームUI風の重厚さや全面発光は避け、情報が浮かび上がるようなミニマルな未来感を演出する。
+```
+
+### 追加の文脈を指定する場合のバリエーション
+```
+・コンテンツ密度が高い分析ダッシュボードでも余白を確保し、左ペインは薄いグレーのまま固定する。
+・KPIカードは半透明のトップレイヤーに数値を浮かせ、下層に薄い幾何学ラインを敷く。
+・通知/警告は彩度を抑えたペールトーンのタグにし、発光やダーク化は行わない。
 ```
 
 ### ショートプロンプト（生成モデルに直接投げられる要約版）
