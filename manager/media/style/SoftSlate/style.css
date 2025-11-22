@@ -365,7 +365,8 @@ hr {
 
 #supplementalNav {
     align-items: center;
-    background: linear-gradient(180deg, rgba(15, 23, 24, .4), rgba(16, 35, 37, .4));
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(2px);
     border-radius: 999px;
     box-sizing: border-box;
     color: var(--topnav-link-color);
@@ -1096,10 +1097,21 @@ a.hometblink:hover {
     --topnav-link-hover-color: #ffffff;
     --topnav-link-hover-bg: #4a5f6f;
     --topnav-link-active-bg: #2f3d48;
-    background-color: #3d4f5d;
-    background-image: none;
     border-bottom: 1px solid var(--topnav-border);
-}
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(255,255,255,0.015) 0px,
+            rgba(255,255,255,0.015) 1px,
+            rgba(0,0,0,0) 1px,
+            rgba(0,0,0,0) 4px
+        ),
+        #3d4f5d;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.25) inset,
+        0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
 #Navcontainer {
     color: #d4dade;
@@ -1168,7 +1180,7 @@ a.hometblink:hover {
     top: calc(var(--topnav-item-height) + 15px);
     margin: 0;
     list-style: none;
-    padding: 6px var(--subnav-horizontal-padding);
+    padding: 5px var(--subnav-horizontal-padding);
     min-height: var(--subnav-height);
     align-items: center;
     flex-wrap: wrap;
