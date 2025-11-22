@@ -34,7 +34,7 @@
             justify-content: center;
             padding: 40px 20px;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f6faf8;
         }
 
         /* ============================================
@@ -49,29 +49,29 @@
             left: 0;
             background: 
                 /* 中央からの柔らかい光 */
-                radial-gradient(ellipse at 50% 40%, 
-                    rgba(74, 106, 165, 0.025) 0%, 
-                    rgba(74, 106, 165, 0.012) 25%, 
+                radial-gradient(ellipse at 50% 40%,
+                    rgba(112, 165, 160, 0.028) 0%,
+                    rgba(112, 165, 160, 0.014) 25%,
                     transparent 50%
                 ),
                 /* 左上の微かな青 */
-                radial-gradient(ellipse at 15% 20%, 
-                    rgba(44, 82, 130, 0.02) 0%, 
-                    rgba(44, 82, 130, 0.01) 30%, 
+                radial-gradient(ellipse at 15% 20%,
+                    rgba(104, 152, 146, 0.024) 0%,
+                    rgba(104, 152, 146, 0.012) 30%,
                     transparent 55%
                 ),
                 /* 右下の繊細な青 */
-                radial-gradient(ellipse at 85% 80%, 
-                    rgba(96, 125, 175, 0.015) 0%, 
+                radial-gradient(ellipse at 85% 80%,
+                    rgba(120, 164, 158, 0.018) 0%,
                     transparent 50%
                 ),
                 /* ベースのグラデーション */
-                linear-gradient(135deg, 
-                    #f8f9fa 0%,
-                    #f1f3f5 25%,
-                    #e9ecef 50%,
-                    #f1f3f5 75%,
-                    #f8f9fa 100%
+                linear-gradient(135deg,
+                    #f6faf8 0%,
+                    #edf3f1 25%,
+                    #e6efec 50%,
+                    #edf3f1 75%,
+                    #f6faf8 100%
                 );
             z-index: 0;
         }
@@ -127,10 +127,10 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, 
-                #4a6fa5 0%,
-                #5a7eb5 50%,
-                #4a6fa5 100%
+            background: linear-gradient(90deg,
+                #7cb2ab 0%,
+                #8cc2b9 50%,
+                #7cb2ab 100%
             );
         }
 
@@ -138,14 +138,14 @@
            ヘッダー
            ============================================ */
         .header {
-            background: #fafbfc;
+            background: #f7faf9;
             padding: 24px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #d6e5df;
             position: relative;
         }
 
         .header a {
-            color: #2d3748;
+            color: #43575e;
             text-decoration: none;
             font-size: 18px;
             font-weight: 600;
@@ -155,7 +155,7 @@
         }
 
         .header a:hover {
-            color: #4a6fa5;
+            color: #7aa9a3;
         }
 
         /* ============================================
@@ -177,7 +177,7 @@
            ============================================ */
         label {
             display: block;
-            color: #4a5568;
+            color: #4e6269;
             font-weight: 500;
             margin-bottom: 8px;
             letter-spacing: 0.2px;
@@ -201,10 +201,10 @@
             width: 100%;
             padding: 12px 16px;
             margin-bottom: 0;
-            background: #fafbfc;
-            border: 1px solid #d1d5db;
+            background: #f8fbfa;
+            border: 1px solid #cadbd5;
             border-radius: 6px;
-            color: #2d3748;
+            color: #3c5057;
             font-size: 14px;
             letter-spacing: 0.3px;
             transition: all 0.2s ease;
@@ -246,9 +246,9 @@
         input.text:-webkit-autofill,
         input[type="text"]:-webkit-autofill,
         input[type="password"]:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 1000px #fafbfc inset !important;
-            -webkit-text-fill-color: #2d3748 !important;
-            border: 1px solid #4a6fa5 !important;
+            -webkit-box-shadow: 0 0 0 1000px #f8fbfa inset !important;
+            -webkit-text-fill-color: #3c5057 !important;
+            border: 1px solid #7aa9a3 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
@@ -256,7 +256,7 @@
         input[type="text"]:-webkit-autofill:focus,
         input[type="password"]:-webkit-autofill:focus {
             -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-            border: 1px solid #4a6fa5 !important;
+            border: 1px solid #7aa9a3 !important;
         }
 
         input.text::placeholder,
@@ -270,9 +270,9 @@
         input[type="password"]:focus {
             outline: none;
             background: #ffffff;
-            border-color: #4a6fa5;
-            box-shadow: 
-                0 0 0 3px rgba(74, 111, 165, 0.08),
+            border-color: #7aa9a3;
+            box-shadow:
+                0 0 0 3px rgba(122, 169, 163, 0.12),
                 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
@@ -330,8 +330,8 @@
             display: block;
             margin: 24px auto 0;
             padding: 16px 32px;
-            background: #3d4f5d;
-            border: 1px solid #3d4f5d;
+            background: #7aa9a3;
+            border: 1px solid #7aa9a3;
             border-radius: 6px;
             color: #ffffff;
             font-size: 14px;
@@ -345,15 +345,15 @@
 
         input.login:hover,
         input[type="submit"]:hover {
-            background: #6f8fa9;
-            border-color: #6f8fa9;
+            background: #6c9b95;
+            border-color: #6c9b95;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.10);
         }
 
         input.login:active,
         input[type="submit"]:active {
-            background: #3d5a85;
-            border-color: #3d5a85;
+            background: #5f8d86;
+            border-color: #5f8d86;
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
         }
 
@@ -370,7 +370,7 @@
 
         /* リンク */
         .body a {
-            color: #4a6fa5;
+            color: #7aa9a3;
             text-decoration: none;
             transition: color 0.2s ease;
             display: block;
@@ -379,7 +379,7 @@
         }
 
         .body a:hover {
-            color: #2c5282;
+            color: #5f8d86;
             text-decoration: underline;
         }
 
@@ -422,13 +422,13 @@
         }
 
         .loginLicense a {
-            color: #4a6fa5;
+            color: #7aa9a3;
             text-decoration: none;
             transition: color 0.2s ease;
         }
 
         .loginLicense a:hover {
-            color: #2c5282;
+            color: #5f8d86;
         }
 
         /* ============================================
