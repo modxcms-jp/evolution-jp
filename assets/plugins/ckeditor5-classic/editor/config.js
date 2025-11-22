@@ -26,6 +26,7 @@ window.CKEDITOR_MODX_CONFIG = {
         'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory',
         'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory',
         'Pagination', 'WProofreader', 'MathType',
+        'ExportPdf', 'ExportWord',
         'SlashCommand', 'Template', 'DocumentOutline', 'FormatPainter', 'TableOfContents'
     ],
     extraPlugins: []
