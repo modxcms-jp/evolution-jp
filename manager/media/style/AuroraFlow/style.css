@@ -569,7 +569,8 @@ textarea:focus,
 form select:focus {
     outline: none;
     background: var(--color-surface);
-    border: 1px solid green;
+    border: 1px solid var(--color-primary-start);
+    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
 }
 
 input:is([type="button"], [type="submit"]) {
