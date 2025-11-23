@@ -48,15 +48,22 @@ window.CKEditorModxBrowser = {
 
     setUrl: function(url) {
         if (this.currentCallback) {
-            // Remove /manager/ prefix if present and prepend base URL
             const baseUrl = '[+base_url+]';
+            const managerPrefix = 'manager/';
             let processedUrl = url;
 
-            // If URL starts with /manager/, remove it and add base URL
-            if (url.startsWith('/manager/')) {
-                processedUrl = baseUrl + url.substring(9);  // Remove '/manager/'
+            // Normalize URLs coming back from the manager (absolute or relative)
+            if (url.startsWith(baseUrl + managerPrefix)) {
+                processedUrl = baseUrl + url.substring((baseUrl + managerPrefix).length);
+            } else if (url.startsWith('/' + managerPrefix)) {
+                processedUrl = baseUrl + url.substring(managerPrefix.length + 1);
+            } else if (url.startsWith(managerPrefix)) {
+                processedUrl = baseUrl + url.substring(managerPrefix.length);
             } else if (url.startsWith('/')) {
-                processedUrl = baseUrl + url.substring(1);  // Remove leading '/'
+                processedUrl = baseUrl + url.substring(1);
+            } else if (!/^https?:\/\//i.test(url)) {
+                // Handle relative paths like "content/images/..."
+                processedUrl = baseUrl + url;
             }
 
             this.currentCallback(processedUrl);

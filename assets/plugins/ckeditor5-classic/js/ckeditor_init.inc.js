@@ -164,41 +164,8 @@
         RemoveFormat,
         FindAndReplace,
         SourceEditing,
-        GeneralHtmlSupport,
-        ButtonView,
-        Plugin
+        GeneralHtmlSupport
     } = CKEDITOR;
-
-    class ModxImageButton extends Plugin {
-        static get pluginName() {
-            return 'ModxImageButton';
-        }
-
-        init() {
-            const editor = this.editor;
-
-            editor.ui.componentFactory.add('modxImage', locale => {
-                const defaultImageButton = editor.ui.componentFactory.create('insertImage');
-                const view = new ButtonView(locale);
-
-                view.set({
-                    label: defaultImageButton.label,
-                    icon: defaultImageButton.icon,
-                    tooltip: true
-                });
-
-                view.on('execute', () => {
-                    window.CKEditorModxBrowser.openBrowser(editor, 'image', url => {
-                        if (url) {
-                            editor.execute('insertImage', { source: url });
-                        }
-                    });
-                });
-
-                return view;
-            });
-        }
-    }
 
     const toolbarItems = [+toolbar_config+];
 
@@ -240,8 +207,7 @@
             RemoveFormat,
             FindAndReplace,
             SourceEditing,
-            GeneralHtmlSupport,
-            ModxImageButton
+            GeneralHtmlSupport
         ],
         toolbar: {
             items: toolbarItems,
