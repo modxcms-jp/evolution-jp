@@ -29,7 +29,6 @@
         ImageCaption,
         ImageStyle,
         ImageToolbar,
-        ImageUpload,
         ImageResize,
         LinkImage,
         Table,
@@ -72,7 +71,6 @@
             ImageCaption,
             ImageStyle,
             ImageToolbar,
-            ImageUpload,
             ImageResize,
             LinkImage,
             Table,
@@ -142,7 +140,7 @@
 
     // Initialize CKEditor on specified elements
     const elements = '[+elmList+]'.split(',');
-    const editors = {};
+    window.ckeditorInstances = window.ckeditorInstances || {};
 
     elements.forEach(function(elementId) {
         const element = document.getElementById(elementId);
@@ -150,12 +148,7 @@
             ClassicEditor
                 .create(element, editorConfig)
                 .then(editor => {
-                    editors[elementId] = editor;
-
-                    // Set up file browser integration
-                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-                        return new ModxUploadAdapter(loader);
-                    };
+                    window.ckeditorInstances[elementId] = editor;
 
                     // Track changes for MODX
                     editor.model.document.on('change:data', () => {
@@ -164,33 +157,60 @@
                         }
                     });
 
-                    // Expose editor instance globally
-                    window.ckeditorInstances = window.ckeditorInstances || {};
-                    window.ckeditorInstances[elementId] = editor;
+                    // Override the default insertImage command to use MCPUK browser
+                    const insertImageCommand = editor.commands.get('insertImage');
+                    if (insertImageCommand) {
+                        // Store original execute method
+                        const originalExecute = insertImageCommand.execute.bind(insertImageCommand);
+
+                        // Override execute to open MCPUK browser instead
+                        insertImageCommand.execute = function(options) {
+                            // If URL is provided (from MCPUK callback), use original execute
+                            if (options && options.source) {
+                                originalExecute(options);
+                            } else {
+                                // Otherwise, open MCPUK browser
+                                window.CKEditorModxBrowser.openBrowser(editor, 'image', function(url) {
+                                    if (url) {
+                                        originalExecute({ source: url });
+                                    }
+                                });
+                            }
+                        };
+                    }
+
+                    // Add uploadImage command override if exists
+                    const uploadImageCommand = editor.commands.get('uploadImage');
+                    if (uploadImageCommand) {
+                        uploadImageCommand.on('execute', (evt) => {
+                            evt.stop();
+                            window.CKEditorModxBrowser.openBrowser(editor, 'image', function(url) {
+                                if (url) {
+                                    editor.model.change(writer => {
+                                        const imageElement = writer.createElement('imageBlock', {
+                                            src: url
+                                        });
+                                        editor.model.insertContent(imageElement, editor.model.document.selection);
+                                    });
+                                }
+                            });
+                        }, { priority: 'high' });
+                    }
+
+                    // Disable file dialog for image upload
+                    editor.plugins.get('FileRepository').createUploadAdapter = () => {
+                        return {
+                            upload: () => {
+                                return Promise.reject('Please use the image button to select images from the media browser');
+                            },
+                            abort: () => {}
+                        };
+                    };
                 })
                 .catch(error => {
                     console.error('CKEditor initialization error:', error);
                 });
         }
     });
-
-    // Custom Upload Adapter for MODX file browser
-    class ModxUploadAdapter {
-        constructor(loader) {
-            this.loader = loader;
-        }
-
-        upload() {
-            return this.loader.file
-                .then(file => new Promise((resolve, reject) => {
-                    // This will be handled by the file browser callback
-                    reject('Upload should be handled via file browser');
-                }));
-        }
-
-        abort() {
-            // Reject the promise returned from the upload() method.
-        }
-    }
 })();
 </script>

@@ -59,33 +59,4 @@ window.CKEditorModxBrowser = {
 function SetUrl(url, width, height, alt) {
     window.CKEditorModxBrowser.setUrl(url);
 }
-
-// Initialize image command override for CKEditor instances
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof window.ckeditorInstances !== 'undefined') {
-        Object.keys(window.ckeditorInstances).forEach(function(instanceId) {
-            var editor = window.ckeditorInstances[instanceId];
-
-            // Override image insert command
-            editor.commands.get('insertImage').on('execute', function(evt, args) {
-                evt.stop();
-                window.CKEditorModxBrowser.openBrowser(editor, 'image', function(url) {
-                    editor.model.change(writer => {
-                        const imageElement = writer.createElement('imageBlock', {
-                            src: url
-                        });
-                        editor.model.insertContent(imageElement, editor.model.document.selection);
-                    });
-                });
-            }, { priority: 'high' });
-
-            // Add custom button for media embed
-            if (editor.commands.get('mediaEmbed')) {
-                editor.commands.get('mediaEmbed').on('execute', function(evt, args) {
-                    // Let default behavior handle media embed
-                });
-            }
-        });
-    }
-});
 </script>
