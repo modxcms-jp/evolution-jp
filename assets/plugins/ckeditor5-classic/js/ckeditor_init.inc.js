@@ -343,12 +343,14 @@
                     xhr.addEventListener('load', () => {
                         if (xhr.status === 200) {
                             try {
+                                console.log('MCPUK Upload Response:', xhr.responseText);
                                 const parser = new DOMParser();
                                 const xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
 
                                 const errorNode = xmlDoc.getElementsByTagName('Error')[0];
                                 if (errorNode && errorNode.getAttribute('number') !== '0') {
                                     const errorMsg = errorNode.getAttribute('text') || 'Upload failed';
+                                    console.error('MCPUK Error:', errorMsg);
                                     reject(errorMsg);
                                     return;
                                 }
@@ -358,16 +360,22 @@
                                     const url = currentFolder.getAttribute('url');
                                     const fileName = file.name;
                                     let fullUrl = url + fileName;
+                                    console.log('Original URL:', fullUrl);
                                     // Remove /manager/ from URL if present
                                     fullUrl = fullUrl.replace('/manager/', '/');
+                                    console.log('Final URL:', fullUrl);
                                     resolve({ default: fullUrl });
                                 } else {
+                                    console.error('CurrentFolder not found');
+                                    console.error('XML Doc:', xmlDoc.documentElement);
                                     reject('Failed to get upload URL');
                                 }
                             } catch (e) {
+                                console.error('Parse error:', e);
                                 reject('Failed to parse upload response: ' + e.message);
                             }
                         } else {
+                            console.error('Upload status:', xhr.status);
                             reject('Upload failed with status: ' + xhr.status);
                         }
                     });
