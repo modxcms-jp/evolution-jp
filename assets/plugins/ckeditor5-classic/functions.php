@@ -216,8 +216,11 @@ class CKEditor5
     function build_ckeditor_callback()
     {
         return str_replace(
-            '[+cmsurl+]',
-            MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php?editor=ckeditor',
+            ['[+cmsurl+]', '[+base_url+]'],
+            [
+                MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php?editor=ckeditor',
+                MODX_BASE_URL
+            ],
             file_get_contents($this->params['cke_path'] . 'js/modx_fb.js.inc')
         );
     }
