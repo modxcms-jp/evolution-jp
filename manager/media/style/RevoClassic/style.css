@@ -226,6 +226,20 @@ li, dd, blockquote {
     font-weight: bold;
 }
 
+.mutate-field-row {
+    height: 24px;
+}
+
+.mutate-field-label {
+    width: 120px;
+    text-align: left;
+}
+
+.mutate-field-title {
+    color: var(--color-warning, #444);
+    font-weight: bold;
+}
+
 .success {
     color: var(--color-success);
     font-weight: bold;
