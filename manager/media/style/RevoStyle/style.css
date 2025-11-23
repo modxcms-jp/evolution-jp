@@ -354,8 +354,8 @@ hr {
 }
 
 .split {
-    background: linear-gradient(180deg, #556476 0%, #556476 50%, transparent 50%, transparent 100%);
-    background-size: 100% var(--border-thin);
+    background: transparent;
+    border-top: 1px dotted #556476;
     height: var(--border-thin);
     font-size: 0;
     clear: both;

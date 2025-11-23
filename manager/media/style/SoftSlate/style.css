@@ -330,8 +330,9 @@ hr {
 }
 
 .split {
-    background: #556476 url(../common/images/misc/line.gif) repeat-x;
-    height: 1px;
+    background: transparent;
+    border-top: 1px dotted #556476;
+    height: 0;
     font-size: 0;
     clear: both;
     padding: 0;

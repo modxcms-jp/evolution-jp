@@ -320,12 +320,7 @@ hr {
 }
 
 .split {
-    background: linear-gradient(180deg, #556476 0%, #556476 50%, transparent 50%, transparent 100%);
-    background-size: 100% 1px;
-    height: 1px;
-    font-size: 0;
-    clear: both;
-    padding: 0;
+  display:none;
 }
 
 .messageRead {

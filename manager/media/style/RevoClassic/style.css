@@ -358,8 +358,9 @@ hr {
 }
 
 .split {
-    background: #556476 url(../common/images/misc/line.gif) repeat-x;
-    height: var(--border-thin);
+    background: transparent;
+    border-top: var(--border-thin) dotted #556476;
+    height: 0;
     font-size: 0;
     clear: both;
     padding: 0;
