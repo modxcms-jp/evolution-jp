@@ -279,11 +279,12 @@
                     });
 
                     // Create a dummy upload adapter to prevent errors
-                    // (we don't actually upload via drag-drop or clipboard)
+                    // Silently rejects clipboard/drag-drop uploads without showing alerts
+                    // Users should use the image button to select images via MCPUK browser
                     editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
                         return {
                             upload: () => {
-                                return Promise.reject('Upload not supported. Please use the image button to select images.');
+                                return Promise.reject();
                             },
                             abort: () => {}
                         };
