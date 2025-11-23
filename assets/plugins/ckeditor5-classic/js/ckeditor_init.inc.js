@@ -357,7 +357,9 @@
                                 if (currentFolder) {
                                     const url = currentFolder.getAttribute('url');
                                     const fileName = file.name;
-                                    const fullUrl = url + fileName;
+                                    let fullUrl = url + fileName;
+                                    // Remove /manager/ from URL if present
+                                    fullUrl = fullUrl.replace('/manager/', '/');
                                     resolve({ default: fullUrl });
                                 } else {
                                     reject('Failed to get upload URL');
