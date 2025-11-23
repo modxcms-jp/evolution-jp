@@ -591,8 +591,6 @@ input.checkbox,
 input.radio,
 input.submit,
 input.button,
-input[type="checkbox"],
-input[type="radio"],
 input[type="submit"],
 input[type="button"] {
     height: auto !important;
@@ -1797,7 +1795,7 @@ form#mutate input.disabled {
 }
 
 form#mutate select.inputBox,
-form#mutate input,
+form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
 form#mutate textarea {
     width: 300px;
 }
