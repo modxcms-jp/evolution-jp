@@ -1,8 +1,8 @@
 <?php
 return array(
-    'simple' => json_encode([
+    'simple' => json_encode(
         ['undo', 'redo', '|', 'bold', 'strikethrough', '|', 'alignment:left', 'alignment:center', 'alignment:right', '|', 'link', 'insertImage', '|', 'horizontalLine']
-    ]),
+    ),
     'default' => json_encode([
         ['undo', 'redo', '|', 'heading', '|', 'bold', 'italic', 'strikethrough', '|', 'fontColor', 'fontBackgroundColor', '|', 'link', 'insertImage', 'insertTable', 'mediaEmbed', '|', 'sourceEditing'],
         ['alignment', '|', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'blockQuote', 'horizontalLine', '|', 'removeFormat']
