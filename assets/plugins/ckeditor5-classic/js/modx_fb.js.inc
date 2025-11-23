@@ -48,7 +48,21 @@ window.CKEditorModxBrowser = {
 
     setUrl: function(url) {
         if (this.currentCallback) {
-            this.currentCallback(url);
+            // Remove /manager/ prefix if present and prepend base URL
+            const baseUrl = '[+base_url+]';
+            let processedUrl = url;
+
+            // If URL starts with /manager/, remove it and add base URL
+            if (url.startsWith('/manager/')) {
+                processedUrl = baseUrl + url.substring(9);  // Remove '/manager/'
+            } else if (url.startsWith('/')) {
+                processedUrl = baseUrl + url.substring(1);  // Remove leading '/'
+            }
+
+            console.log('MCPUK Browser original URL:', url);
+            console.log('MCPUK Browser processed URL:', processedUrl);
+
+            this.currentCallback(processedUrl);
             this.currentCallback = null;
         }
         this.currentEditor = null;

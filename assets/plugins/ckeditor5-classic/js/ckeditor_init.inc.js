@@ -359,11 +359,19 @@
                                 if (currentFolder) {
                                     const url = currentFolder.getAttribute('url');
                                     const fileName = file.name;
-                                    let fullUrl = url + fileName;
-                                    console.log('Original URL:', fullUrl);
-                                    // Remove /manager/ from URL if present
-                                    fullUrl = fullUrl.replace('/manager/', '/');
+                                    console.log('CurrentFolder URL:', url);
+                                    console.log('File name:', fileName);
+
+                                    // Build URL using MODX base URL
+                                    // The connector returns /manager/content/images/ but we need /content/images/
+                                    const baseUrl = '[+base_url+]';
+                                    let relativePath = url.replace(/^\/manager\//, '');  // Remove /manager/ prefix
+                                    let fullUrl = baseUrl + relativePath + fileName;
+
+                                    console.log('Base URL:', baseUrl);
+                                    console.log('Relative path:', relativePath);
                                     console.log('Final URL:', fullUrl);
+
                                     resolve({ default: fullUrl });
                                 } else {
                                     console.error('CurrentFolder not found');

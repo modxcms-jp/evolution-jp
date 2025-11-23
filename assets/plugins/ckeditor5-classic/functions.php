@@ -188,6 +188,7 @@ class CKEditor5
         $ph['language'] = (empty($params['language'])) ? 'en' : $params['language'];
 
         $ph['document_base_url'] = MODX_SITE_URL;
+        $ph['base_url'] = MODX_BASE_URL;
 
         $ph['toolbar_config'] = $toolbar_config;
 
