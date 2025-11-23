@@ -217,6 +217,9 @@
         },
         language: '[+language+]',
         image: {
+            insert: {
+                integrations: []  // Disable integrated insert UI (upload from computer, insert via URL)
+            },
             toolbar: [
                 'imageTextAlternative',
                 'toggleImageCaption',
