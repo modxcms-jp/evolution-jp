@@ -59,7 +59,7 @@ function rteContent($htmlcontent, $editors)
         ],
         $htmlcontent
     )
-        . html_tag('<span>', ['class' => 'warning'], lang('which_editor_title'))
+        . html_tag('<span>', ['class' => 'mutate-field-title'], lang('which_editor_title'))
         . getEditors($editors);
 }
 
@@ -310,7 +310,7 @@ function getUDGroups($id)
                         'label',
                         [
                             'for' => 'groupall',
-                            'class' => 'warning'
+                            'class' => 'mutate-field-title clickable-label'
                         ],
                         lang('all_doc_groups')
                     )

@@ -1,9 +1,9 @@
-<tr>
-    <td valign="top" class="tvname">
-        <span class="warning">[+caption+]</span><br/>
+<tr class="mutate-tv-row">
+    <td class="mutate-tv-label">
+        <span class="mutate-field-title">[+caption+]</span><br/>
         <span class="comment">[+description+]</span>
     </td>
-    <td valign="top" style="position:relative;[+zindex+]">
+    <td class="mutate-tv-value" style="[+zindex+]">
         [+FormElement+]
     </td>
 </tr>

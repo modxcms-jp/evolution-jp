@@ -383,8 +383,8 @@ function content($key, $default = null)
                         <td align="left" valign="top" colspan="2"><input name="disabled"
                                 type="checkbox" <?= content('disabled') == 1 ? 'checked="checked"' : '' ?>
                                 value="on" class="inputBox" />
-                            <span style="cursor:pointer"
-                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="warning">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
+                            <span class="clickable-label"
+                                onclick="document.mutate.disabled.click();"><?= content('disabled') == 1 ? '<span class="mutate-field-title">' . $_lang['module_disabled'] . '</span>' : $_lang['module_disabled'] ?></span>
                         </td>
                     </tr>
                 </table>
@@ -640,7 +640,7 @@ function content($key, $default = null)
                         }
                     }
                     if (evo()->hasPermission('access_permissions')) {
-                        $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="warning">' . $_lang['all_usr_groups'] . '</span></label><br />' . "\n" . $chks;
+                        $chks = '<label><input type="checkbox" name="chkallgroups"' . (!$notPublic ? ' checked="checked"' : '') . ' onclick="makePublic(true)" /><span class="mutate-field-title">' . $_lang['all_usr_groups'] . '</span></label><br />' . "\n" . $chks;
                     }
                     echo $chks;
                     ?>
