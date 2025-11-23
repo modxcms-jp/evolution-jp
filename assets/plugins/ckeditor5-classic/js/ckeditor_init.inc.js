@@ -312,14 +312,9 @@
                         }, { priority: 'high' });
                     }
 
-                    // Disable file dialog for image upload
-                    editor.plugins.get('FileRepository').createUploadAdapter = () => {
-                        return {
-                            upload: () => {
-                                return Promise.reject('Please use the image button to select images from the media browser');
-                            },
-                            abort: () => {}
-                        };
+                    // Setup clipboard image upload adapter
+                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                        return new MCPUKUploadAdapter(loader);
                     };
                 })
                 .catch(error => {
@@ -327,5 +322,81 @@
                 });
         }
     });
+
+    // MCPUK Upload Adapter for clipboard images
+    class MCPUKUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file
+                .then(file => new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('NewFile', file);
+                    formData.append('Type', 'Images');
+                    formData.append('Command', 'FileUpload');
+                    formData.append('CurrentFolder', '/');
+
+                    const xhr = new XMLHttpRequest();
+                    const connectorUrl = '[+connector_url+]';
+
+                    xhr.open('POST', connectorUrl, true);
+
+                    xhr.upload.addEventListener('progress', (e) => {
+                        if (e.lengthComputable) {
+                            this.loader.uploadTotal = e.total;
+                            this.loader.uploaded = e.loaded;
+                        }
+                    });
+
+                    xhr.addEventListener('load', () => {
+                        if (xhr.status === 200) {
+                            try {
+                                const parser = new DOMParser();
+                                const xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
+
+                                const errorNode = xmlDoc.getElementsByTagName('Error')[0];
+                                if (errorNode && errorNode.getAttribute('number') !== '0') {
+                                    const errorMsg = errorNode.getAttribute('text') || 'Upload failed';
+                                    reject(errorMsg);
+                                    return;
+                                }
+
+                                const currentFolder = xmlDoc.getElementsByTagName('CurrentFolder')[0];
+                                if (currentFolder) {
+                                    const url = currentFolder.getAttribute('url');
+                                    const fileName = file.name;
+                                    const fullUrl = url + fileName;
+                                    resolve({ default: fullUrl });
+                                } else {
+                                    reject('Failed to get upload URL');
+                                }
+                            } catch (e) {
+                                reject('Failed to parse upload response: ' + e.message);
+                            }
+                        } else {
+                            reject('Upload failed with status: ' + xhr.status);
+                        }
+                    });
+
+                    xhr.addEventListener('error', () => {
+                        reject('Network error during upload');
+                    });
+
+                    xhr.addEventListener('abort', () => {
+                        reject('Upload aborted');
+                    });
+
+                    xhr.send(formData);
+                }));
+        }
+
+        abort() {
+            if (this.xhr) {
+                this.xhr.abort();
+            }
+        }
+    }
 })();
 </script>
