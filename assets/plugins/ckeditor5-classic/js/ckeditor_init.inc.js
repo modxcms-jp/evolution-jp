@@ -10,6 +10,23 @@
     background-color: #fff;
 }
 
+/* Source editing (HTML) view */
+.ck-source-editing-area {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    white-space: pre-wrap !important;
+    background-color: #f7f7f9 !important;
+    color: #1f2933 !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+}
+
+.ck-source-editing-area:focus {
+    outline: 2px solid #2680eb;
+    outline-offset: -2px;
+}
+
 /* Reset MODX styles within CKEditor content area */
 .ck-content,
 .ck-content * {
