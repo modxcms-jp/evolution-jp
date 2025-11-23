@@ -92,13 +92,13 @@ class CKEditor5
             $key = '"' . $key . '"';
             $theme_options .= "<option value={$key}{$selected}>{$value}</option>\n";
         }
-        $ph['display'] = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
+        $ph['display'] = (isset($_SESSION['browser']) && $_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
         $ph['display'] = $modx->config['use_editor'] == 1 ? $ph['display'] : 'none';
 
         $ph['theme_options'] = $theme_options;
 
-        $ph['entermode_options'] = '<label><input name="cke_entermode" type="radio" value="p" ' . $this->checked($ph['cke_entermode'] === 'p') . '/>' . $_lang['cke_entermode_opt1'] . '</label><br />';
-        $ph['entermode_options'] .= '<label><input name="cke_entermode" type="radio" value="br" ' . $this->checked($ph['cke_entermode'] === 'br') . '/>' . $_lang['cke_entermode_opt2'] . '</label>';
+        $ph['entermode_options'] = '<label><input name="cke_entermode" type="radio" value="p" ' . $this->checked($params['cke_entermode'] === 'p') . '/>' . $_lang['cke_entermode_opt1'] . '</label><br />';
+        $ph['entermode_options'] .= '<label><input name="cke_entermode" type="radio" value="br" ' . $this->checked($params['cke_entermode'] === 'br') . '/>' . $_lang['cke_entermode_opt2'] . '</label>';
         switch ($modx->manager->action) {
             case '11':
             case '12':
@@ -128,7 +128,7 @@ class CKEditor5
         $params['use_browser'] = $modx->config['use_browser'];
         $params['editor_css_path'] = $modx->config['editor_css_path'];
 
-        if ($modx->isBackend() || ((int)$_GET['quickmanagertv'] == 1 && isset($_SESSION['mgrValidated']))) {
+        if ($modx->isBackend() || (isset($_GET['quickmanagertv']) && (int)$_GET['quickmanagertv'] == 1 && isset($_SESSION['mgrValidated']))) {
             $params['theme'] = $modx->config['ckeditor5_editor_theme'] ?? 'default';
             $params['cke_entermode'] = $modx->config['cke_entermode'] ?? 'p';
             $params['language'] = $this->get_lang($modx->config['manager_language']);
