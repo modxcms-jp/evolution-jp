@@ -322,7 +322,7 @@ function fieldsTV()
     $i = 0;
     $output = [];
     $hidden = [];
-    $output[] = '<table style="position:relative;" border="0" cellspacing="0" cellpadding="3" width="96%">';
+    $output[] = '<table class="mutate-tv-table" border="0" cellspacing="0" cellpadding="3">';
     $splitLine = renderSplit();
     foreach ($tmplVars as $tv) {
         $tvid = 'tv' . $tv['id'];

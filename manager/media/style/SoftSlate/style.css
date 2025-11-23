@@ -212,6 +212,42 @@ li, dd, blockquote {
     font-weight: bold;
 }
 
+.clickable-label {
+    cursor: pointer;
+}
+
+.menuindex-table {
+    width: 333px;
+}
+
+.menuindex-label {
+    white-space: nowrap;
+}
+
+.menuindex-options {
+    text-align: right;
+}
+
+.mutate-tv-table {
+    position: relative;
+    width: 96%;
+}
+
+.mutate-tv-row {
+    height: 24px;
+}
+
+.mutate-tv-label {
+    width: 200px;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.mutate-tv-value {
+    position: relative;
+    vertical-align: top;
+}
+
 .success {
     color: var(--color-success);
     font-weight: bold;

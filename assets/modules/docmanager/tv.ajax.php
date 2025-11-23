@@ -34,7 +34,7 @@ header('Content-Type: text/html; charset=' . $modx->config['modx_charset']);
 
 if ($total > 0) {
     require(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
-    $output .= "<table style='position:relative' border='0' cellspacing='0' cellpadding='3' width='96%'>";
+    $output .= "<table class='mutate-tv-table' border='0' cellspacing='0' cellpadding='3'>";
 
     for ($i = 0; $i < $total; $i++) {
         $row = db()->getRow($rs);
@@ -43,11 +43,11 @@ if ($total > 0) {
             $output .= '<tr><td colspan="2"><div class="split"></div></td></tr>';
         }
 
-        $output .= '<tr style="height: 24px;">
-			<td align="left" valign="top" width="200">
-				<span class="warning"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . $row['caption'] . '</span><br /><span class="comment">' . $row['description'] . '</span>
-			</td>
-			<td valign="top" style="position:relative">';
+        $output .= '<tr class="mutate-tv-row">
+                        <td class="mutate-tv-label">
+                                <label class="mutate-field-title" for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . $row['caption'] . '</label><br /><span class="comment">' . $row['description'] . '</span>
+                        </td>
+                        <td class="mutate-tv-value">';
         $base_url = $modx->config['base_url'];
         $output .= renderFormElement(
             $row['type'],
