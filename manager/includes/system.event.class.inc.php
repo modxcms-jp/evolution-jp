@@ -96,6 +96,7 @@ class SystemEvent
         $this->_globalVariables = [];
         $this->_propagate = true;
         $this->activated = false;
+        $this->params = [];
     }
 
     public function getParam($key, $default = null)
@@ -116,6 +117,6 @@ class SystemEvent
 
     public function param($key, $default = null)
     {
-        return array_get($this->params, $key, $default);
+        return array_get($this->params ?? [], $key, $default);
     }
 }

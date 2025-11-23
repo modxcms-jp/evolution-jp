@@ -33,6 +33,14 @@ return [
         'OtherTopic' => $microdata,
         'Separator' => "\n"
     ],
+    'raw' => [
+        'Outer' => '[+topics+]',
+        'HomeTopic' => '[+title+]',
+        'CurrentTopic' => '[+title+]',
+        'ReferenceTopic' => '[+title+]',
+        'OtherTopic' => '[+title+]',
+        'Separator' => ' > '
+    ],
     'simple' => [
         'Outer' => '[+topics+]',
         'HomeTopic' => '<a href="[+url+]" class="home">[+title+]</a>',

@@ -1598,8 +1598,8 @@ table.sortabletable {
 
 #pagination li.currentPage a, #pagination li a:hover {
     color: var(--color-surface);
-    background-color: #7fa53d;
-    border: 1px solid #567959;
+    background-color: var(--color-primary);
+    border: 1px solid var(--color-primary-end);
 }
 
 fieldset.tab-page {

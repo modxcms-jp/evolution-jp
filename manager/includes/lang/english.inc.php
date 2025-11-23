@@ -1024,6 +1024,7 @@ $_lang["warning_visibility"] = 'Configuration Warnings visible to';
 $_lang["warning_visibility_message"] = 'Control the visibility of the configuration warnings shown on the Manager welcome page';
 $_lang["web_access_permissions"] = 'Web access permissions';
 $_lang["web_access_permissions_user_groups"] = 'Web User groups';
+$_lang["web_access_permissions_users_in_group"] = 'Web Users in group:';
 $_lang["web_permissions"] = 'Web Permissions';
 $_lang["web_user_management_msg"] = 'Choose the web User you wish to edit. Web Users are those Users who are only allowed to log into the web site';
 $_lang["web_user_management_title"] = 'Web Users';

@@ -279,6 +279,8 @@ class EXPORT_SITE
 
     private function processRow($row, $target_base_path, $_lang, $mask)
     {
+        $filename = null;
+
         if (!$row['wasNull']) { // needs writing a document
             $docname = $this->getFileName(
                 $row['id'],
@@ -346,7 +348,7 @@ class EXPORT_SITE
             return;
         }
 
-        if (is_file($filename)) {
+        if ($filename && is_file($filename)) {
             rename($filename, $folder_path . '/index.html');
         }
     }

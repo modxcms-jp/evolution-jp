@@ -1027,6 +1027,7 @@ $_lang["warning_visibility"] = 'ダッシュボードの警告表示';
 $_lang["warning_visibility_message"] = 'ダッシュボードの警告を表示する<a href="index.php?a=86">対象ロール</a>を設定します。';
 $_lang["web_access_permissions"] = 'グループ管理(ウェブ)';
 $_lang["web_access_permissions_user_groups"] = 'ウェブユーザーグループ';
+$_lang["web_access_permissions_users_in_group"] = '<strong>グループ内ウェブユーザー:</strong>';
 $_lang["web_permissions"] = 'グループ管理(ウェブ)';
 $_lang["web_user_management_msg"] = '会員制サイトを運用する場合、ここでユーザを作成・管理します。グループ管理(ウェブ)の設定を併用し、アクセス対象を設定してください。グループ管理機能を用いずログイン状態のみ提供するシンプルな運用も可能です。<br />※ここで管理するアカウントは管理画面にアクセスする権限は持ちません。';
 $_lang["web_user_management_title"] = 'ウェブユーザー管理';
