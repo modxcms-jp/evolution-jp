@@ -587,14 +587,12 @@ input:is([type="button"], [type="submit"]) {
     text-shadow: none;
 }
 
-input.checkbox,
-input.radio,
 input.submit,
 input.button,
 input[type="submit"],
 input[type="button"] {
-    height: auto !important;
-    width: auto !important;
+    height: auto;
+    width: auto;
     cursor: pointer;
 }
 
