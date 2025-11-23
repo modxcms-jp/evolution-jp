@@ -1,4 +1,5 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.umd.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/43.3.1/translations/ja.umd.js"></script>
 <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.3.1/ckeditor5.css" />
 <style>
 /* CKEditor container */
@@ -144,7 +145,9 @@
         ImageCaption,
         ImageStyle,
         ImageToolbar,
+        ImageInsert,
         ImageResize,
+        ImageUpload,
         LinkImage,
         Table,
         TableToolbar,
@@ -186,7 +189,9 @@
             ImageCaption,
             ImageStyle,
             ImageToolbar,
+            ImageInsert,
             ImageResize,
+            ImageUpload,
             LinkImage,
             Table,
             TableToolbar,
