@@ -128,6 +128,7 @@
 (function() {
     const {
         ClassicEditor,
+        Plugin,
         Essentials,
         Bold,
         Italic,
@@ -164,8 +165,37 @@
         RemoveFormat,
         FindAndReplace,
         SourceEditing,
-        GeneralHtmlSupport
+        GeneralHtmlSupport,
+        ButtonView
     } = CKEDITOR;
+
+    class ModxImageButton extends Plugin {
+        init() {
+            const editor = this.editor;
+            const icon = CKEDITOR.icons && CKEDITOR.icons.image ? CKEDITOR.icons.image : null;
+
+            editor.ui.componentFactory.add('modxImage', locale => {
+                const view = new ButtonView(locale);
+
+                view.set({
+                    label: editor.t('Insert image'),
+                    icon,
+                    tooltip: true
+                });
+
+                view.on('execute', () => {
+                    window.CKEditorModxBrowser.openBrowser(editor, 'image', url => {
+                        if (url) {
+                            editor.execute('insertImage', { source: url });
+                            editor.editing.view.focus();
+                        }
+                    });
+                });
+
+                return view;
+            });
+        }
+    }
 
     const toolbarItems = [+toolbar_config+];
 
@@ -207,7 +237,8 @@
             RemoveFormat,
             FindAndReplace,
             SourceEditing,
-            GeneralHtmlSupport
+            GeneralHtmlSupport,
+            ModxImageButton
         ],
         toolbar: {
             items: toolbarItems,
