@@ -278,6 +278,17 @@
                         }
                     });
 
+                    // Create a dummy upload adapter to prevent errors
+                    // (we don't actually upload via drag-drop or clipboard)
+                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+                        return {
+                            upload: () => {
+                                return Promise.reject('Upload not supported. Please use the image button to select images.');
+                            },
+                            abort: () => {}
+                        };
+                    };
+
                     // Override insertImage command to use MCPUK browser
                     const insertImageCommand = editor.commands.get('insertImage');
                     if (insertImageCommand) {
