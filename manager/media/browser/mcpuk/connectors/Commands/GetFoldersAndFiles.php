@@ -194,30 +194,17 @@ XML;
      */
     private function convertPathToFilesystem($path)
     {
-        if (!extension_loaded('mbstring')) {
+        // Check if path contains non-ASCII (multibyte) characters
+        if (mb_check_encoding($path, 'ASCII')) {
+            // ASCII only, no conversion needed
             return $path;
         }
 
-        // Split path into directory and filename
-        $dirname = dirname($path);
-        $basename = basename($path);
-
-        // Ensure the filename is in UTF-8
-        $encoding = mb_detect_encoding(
-            $basename,
-            ['UTF-8', 'ASCII', 'ISO-2022-JP', 'EUC-JP', 'SJIS'],
-            true
-        );
-
-        if ($encoding && $encoding !== 'UTF-8') {
-            $basename = mb_convert_encoding($basename, 'UTF-8', $encoding);
-        }
-
-        // Set locale to ensure proper filesystem encoding handling
-        // Try common UTF-8 locales
+        // Path contains multibyte characters
+        // Set UTF-8 locale to ensure proper filesystem encoding handling
         @setlocale(LC_CTYPE, 'en_US.UTF-8', 'ja_JP.UTF-8', 'C.UTF-8', 'UTF-8');
 
-        // Reconstruct the path
-        return $dirname . '/' . $basename;
+        // Path is already in UTF-8 (from MODX), return as-is
+        return $path;
     }
 }
