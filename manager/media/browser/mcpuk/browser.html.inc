@@ -30,7 +30,7 @@
     <frameset rows="50,*,50" framespacing="0" class="Frame_none">
         <frame name="frmActualFolder" src="frmactualfolder.html" scrolling="no" frameborder="no">
         <frame name="frmResourcesList" id="mainWindow" src="frmresourceslist.html" scrolling="auto" frameborder="no">
-        <frameset cols="150,*,0" framespacing="0" frameborder="no" class="Frame_t">
+        <frameset cols="200,*,0" framespacing="0" frameborder="no" class="Frame_t">
             <frame name="frmCreateFolder" id="frmCreateFolder" src="frmcreatefolder.html" scrolling="no"
                    frameborder="no">
             <frame name="frmUpload" id="frmUpload" src="frmupload.html" scrolling="no" frameborder="no">
