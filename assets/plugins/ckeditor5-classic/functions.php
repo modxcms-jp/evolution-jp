@@ -168,8 +168,9 @@ class CKEditor5
                 $toolbar_config = $set[$theme] ?? $set['default'];
         }
 
-        $str .= $this->build_ckeditor_init($toolbar_config) . "\n";
+        // MCPUK browser helpers must be loaded before CKEditor initialization hooks
         $str .= $this->build_ckeditor_callback();
+        $str .= $this->build_ckeditor_init($toolbar_config) . "\n";
 
         return $str;
     }
