@@ -146,7 +146,6 @@
         ImageStyle,
         ImageToolbar,
         ImageResize,
-        ImageUpload,
         LinkImage,
         Table,
         TableToolbar,
@@ -190,7 +189,6 @@
             ImageStyle,
             ImageToolbar,
             ImageResize,
-            ImageUpload,
             LinkImage,
             Table,
             TableToolbar,
@@ -301,110 +299,11 @@
 
                         return button;
                     });
-
-                    // Setup clipboard image upload adapter
-                    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-                        return new MCPUKUploadAdapter(loader);
-                    };
                 })
                 .catch(error => {
                     console.error('CKEditor initialization error:', error);
                 });
         }
     });
-
-    // MCPUK Upload Adapter for clipboard images
-    class MCPUKUploadAdapter {
-        constructor(loader) {
-            this.loader = loader;
-        }
-
-        upload() {
-            return this.loader.file
-                .then(file => new Promise((resolve, reject) => {
-                    const formData = new FormData();
-                    formData.append('NewFile', file);
-                    formData.append('Type', 'Images');
-                    formData.append('Command', 'FileUpload');
-                    formData.append('CurrentFolder', '/');
-
-                    const xhr = new XMLHttpRequest();
-                    const connectorUrl = '[+connector_url+]';
-
-                    xhr.open('POST', connectorUrl, true);
-
-                    xhr.upload.addEventListener('progress', (e) => {
-                        if (e.lengthComputable) {
-                            this.loader.uploadTotal = e.total;
-                            this.loader.uploaded = e.loaded;
-                        }
-                    });
-
-                    xhr.addEventListener('load', () => {
-                        if (xhr.status === 200) {
-                            try {
-                                console.log('MCPUK Upload Response:', xhr.responseText);
-                                const parser = new DOMParser();
-                                const xmlDoc = parser.parseFromString(xhr.responseText, 'text/xml');
-
-                                const errorNode = xmlDoc.getElementsByTagName('Error')[0];
-                                if (errorNode && errorNode.getAttribute('number') !== '0') {
-                                    const errorMsg = errorNode.getAttribute('text') || 'Upload failed';
-                                    console.error('MCPUK Error:', errorMsg);
-                                    reject(errorMsg);
-                                    return;
-                                }
-
-                                const currentFolder = xmlDoc.getElementsByTagName('CurrentFolder')[0];
-                                if (currentFolder) {
-                                    const url = currentFolder.getAttribute('url');
-                                    const fileName = file.name;
-                                    console.log('CurrentFolder URL:', url);
-                                    console.log('File name:', fileName);
-
-                                    // Build URL using MODX base URL
-                                    // The connector returns /manager/content/images/ but we need /content/images/
-                                    const baseUrl = '[+base_url+]';
-                                    let relativePath = url.replace(/^\/manager\//, '');  // Remove /manager/ prefix
-                                    let fullUrl = baseUrl + relativePath + fileName;
-
-                                    console.log('Base URL:', baseUrl);
-                                    console.log('Relative path:', relativePath);
-                                    console.log('Final URL:', fullUrl);
-
-                                    resolve({ default: fullUrl });
-                                } else {
-                                    console.error('CurrentFolder not found');
-                                    console.error('XML Doc:', xmlDoc.documentElement);
-                                    reject('Failed to get upload URL');
-                                }
-                            } catch (e) {
-                                console.error('Parse error:', e);
-                                reject('Failed to parse upload response: ' + e.message);
-                            }
-                        } else {
-                            console.error('Upload status:', xhr.status);
-                            reject('Upload failed with status: ' + xhr.status);
-                        }
-                    });
-
-                    xhr.addEventListener('error', () => {
-                        reject('Network error during upload');
-                    });
-
-                    xhr.addEventListener('abort', () => {
-                        reject('Upload aborted');
-                    });
-
-                    xhr.send(formData);
-                }));
-        }
-
-        abort() {
-            if (this.xhr) {
-                this.xhr.abort();
-            }
-        }
-    }
 })();
 </script>

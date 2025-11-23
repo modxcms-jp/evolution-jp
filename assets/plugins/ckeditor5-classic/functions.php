@@ -204,7 +204,6 @@ class CKEditor5
             $content_css[] = MODX_BASE_URL . $params['editor_css_path'];
         }
         $ph['content_css'] = "'" . implode("','", $content_css) . "'";
-        $ph['connector_url'] = MODX_BASE_URL . 'manager/media/browser/mcpuk/connectors/connector.php';
 
         $cke_init = file_get_contents($cke_path . "js/ckeditor_init.inc.js");
         foreach ($ph as $name => $value) {

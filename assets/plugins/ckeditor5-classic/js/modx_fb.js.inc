@@ -59,9 +59,6 @@ window.CKEditorModxBrowser = {
                 processedUrl = baseUrl + url.substring(1);  // Remove leading '/'
             }
 
-            console.log('MCPUK Browser original URL:', url);
-            console.log('MCPUK Browser processed URL:', processedUrl);
-
             this.currentCallback(processedUrl);
             this.currentCallback = null;
         }
