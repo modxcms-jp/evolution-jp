@@ -185,7 +185,7 @@
             <th><?= $_lang["modxmailer_log_title"] ?></th>
             <td>
                 <?= wrap_label($_lang["yes"],
-                    form_radio('modxmailer_log', '1', config('modxmailer_log') == '1')); ?><br/>
+                    form_radio('modxmailer_log', '1', config('modxmailer_log', 0) == '1')); ?><br/>
                 <?= wrap_label($_lang["no"],
                     form_radio('modxmailer_log', '0', config('modxmailer_log', 0) == '0')); ?><br/>
                 <?= $_lang["modxmailer_log_message"] ?>
