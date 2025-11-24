@@ -85,6 +85,9 @@ function get_log_type($type)
 function clean_log_description($description)
 {
     $description = $description ?: '';
+    // Fix double-encoded ampersands caused by upstream data quality issues.
+    // Some event log entries have '&amp;amp;' due to repeated HTML entity encoding.
+    // This workaround ensures correct decoding for export. Investigate upstream encoding if possible.
     $description = str_replace('&amp;amp;', '&amp;', $description);
 
     $lineBreakPatterns = [
