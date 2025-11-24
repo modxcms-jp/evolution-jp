@@ -64,12 +64,12 @@ echo $cm->render();
         form.target = 'fileDownloader';
         form.submit();
 
-        if (previousAction !== null) {
+        if (previousAction) {
             form.action = previousAction;
         } else {
             form.removeAttribute('action');
         }
-        if (previousTarget !== null) {
+        if (previousTarget) {
             form.target = previousTarget;
         } else {
             form.removeAttribute('target');
