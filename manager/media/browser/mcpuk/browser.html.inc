@@ -23,11 +23,11 @@
     [+seturl_js+]
 </head>
 <frameset cols="150,*" framespacing="0" bordercolor="#f1f1e3" frameborder="no" class="Frame_none">
-    <frameset rows="50,*" framespacing="0" class="Frame_r">
+    <frameset rows="60,*" framespacing="0" class="Frame_r">
         <frame src="frmresourcetype.html" scrolling="no" frameborder="no">
         <frame name="frmFolders" id="frmFolders" src="frmfolders.html" scrolling="auto" frameborder="no">
     </frameset>
-    <frameset rows="50,*,50" framespacing="0" class="Frame_none">
+    <frameset rows="60,*,50" framespacing="0" class="Frame_none">
         <frame name="frmActualFolder" src="frmactualfolder.html" scrolling="no" frameborder="no">
         <frame name="frmResourcesList" id="mainWindow" src="frmresourceslist.html" scrolling="auto" frameborder="no">
         <frameset cols="150,*,0" framespacing="0" frameborder="no" class="Frame_t">
