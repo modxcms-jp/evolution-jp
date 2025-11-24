@@ -3406,6 +3406,18 @@ class DocumentParser
         return is_string($string) && preg_match('@^[1-9][0-9]*$@', $string);
     }
 
+    private function summarizeToken($token)
+    {
+        if (!$token) {
+            return '(empty)';
+        }
+
+        $length = strlen($token);
+        $prefix = substr($token, 0, 8);
+
+        return sprintf('%s... (len:%s)', $prefix, $length);
+    }
+
     /**
      * name: getDocumentObject  - used by parser
      * desc: returns a document object - $method: alias, id
@@ -3420,7 +3432,22 @@ class DocumentParser
         }
 
         if ($this->isLoggedIn() && $mode === 'prepareResponse' && $this->is_int($this->input_post('id'))) {
-            if (!$this->input_post('token') || !$this->session('token') || $this->input_post('token') !== $this->session('token')) {
+            $previewId = $this->input_post('id');
+            $requestToken = $this->input_post('token');
+            $sessionToken = $this->session('token');
+
+            if (!$requestToken || !$sessionToken || $requestToken !== $sessionToken) {
+                evo()->logEvent(
+                    0,
+                    2,
+                    sprintf(
+                        'Preview token validation failed (id:%s, request:%s, session:%s)',
+                        $previewId ?: '(empty)',
+                        $this->summarizeToken($requestToken),
+                        $this->summarizeToken($sessionToken)
+                    ),
+                    'DocumentParser::getDocumentObject'
+                );
                 exit('Can not preview');
             }
 

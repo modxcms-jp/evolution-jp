@@ -69,7 +69,22 @@ checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
-$token = sessionv('token') ?: $modx->genTokenString();
+$token = sessionv('token');
+if (!$token) {
+    $token = $modx->genTokenString();
+    sessionv('*token', $token);
+    evo()->logEvent(
+        0,
+        1,
+        sprintf(
+            'Preview token refreshed for resource edit (id:%s, prefix:%s, length:%s)',
+            request_intvar('id') ?: 'new',
+            substr($token, 0, 8),
+            strlen($token)
+        ),
+        'mutate_content'
+    );
+}
 sessionv('*token', $token);
 
 $body = [];
