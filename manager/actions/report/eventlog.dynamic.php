@@ -61,7 +61,7 @@ echo $cm->render();
         var previousTarget = form.getAttribute('target');
 
         form.action = 'index.php?a=121';
-        form.target = '_self';
+        form.target = 'fileDownloader';
         form.submit();
 
         if (previousAction !== null) {
@@ -229,4 +229,5 @@ echo $cm->render();
             ?>
         </div>
     </div>
+    <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
 </form>
