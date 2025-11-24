@@ -130,13 +130,12 @@ echo $cm->render();
             <table border="0" style="width:100%">
                 <tr>
                     <td style="white-space:nowrap;">
-                        <a href="index.php?a=116&cls=1">
+                        <a href="index.php?a=116&cls=1" style="margin-right:8px;">
                             <img
                                 src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
                             /> <?= lang('clear_log') ?>
                         </a>
-                        <span style="margin-left:12px;"></span>
                         <a href="#" onclick="exportLog();return false;">
                             <img
                                 src="<?= $_style['icons_save'] ?>"
