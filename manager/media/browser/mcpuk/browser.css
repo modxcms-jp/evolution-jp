@@ -285,6 +285,10 @@ body.mcpuk-browser {
     color: var(--mcpuk-text-color);
 }
 
+body.mcpuk-browser.BrowserBody--actual-folder {
+    margin: 0;
+}
+
 body.mcpuk-browser .BrowserBodySection,
 body.mcpuk-browser .BrowserTable,
 body.mcpuk-browser .BrowserProgress,
@@ -298,9 +302,26 @@ body.mcpuk-browser .BrowserButton {
     display: block;
 }
 
-body.mcpuk-browser .BrowserButton--path {
-    text-align: left;
-    padding: 8px 12px;
+body.mcpuk-browser .BrowserPathContainer {
+    padding: 10px 12px;
+}
+
+body.mcpuk-browser .BrowserPathBar {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    background-color: var(--mcpuk-item-background);
+    border: 1px solid var(--mcpuk-border-color);
+    border-radius: 6px;
+    color: var(--mcpuk-text-color);
+    font-weight: 600;
+}
+
+body.mcpuk-browser .BrowserPathText {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 body.mcpuk-browser.BrowserBody--create-folder .BrowserButton {
