@@ -181,6 +181,16 @@
                     form_radio('email_method', 'smtp', (evo()->config('email_method') == 'smtp'))); ?><br/>
             </td>
         </tr>
+        <tr>
+            <th><?= $_lang["modxmailer_log_title"] ?></th>
+            <td>
+                <?= wrap_label($_lang["yes"],
+                    form_radio('modxmailer_log', '1', config('modxmailer_log', 0) == '1')); ?><br/>
+                <?= wrap_label($_lang["no"],
+                    form_radio('modxmailer_log', '0', config('modxmailer_log', 0) == '0')); ?><br/>
+                <?= $_lang["modxmailer_log_message"] ?>
+            </td>
+        </tr>
         <tr class="emailMethodRow">
             <th><?= $_lang["smtp_auth_title"] ?></th>
             <td>

@@ -31,6 +31,7 @@ $default_config = [
     'friendly_url_suffix' => '.html',
     'friendly_urls' => '1',
     'limit_by_container' => '100',
+    'modxmailer_log' => '0',
     'mail_check_timeperiod' => '60',
     'manager_direction' => 'ltr',
     'manager_language' => 'japanese-utf8',
