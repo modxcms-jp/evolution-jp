@@ -227,5 +227,5 @@ echo $cm->render();
             ?>
         </div>
     </div>
-    <iframe name="fileDownloader" width="1" height="1" style="display:none; width:1px; height:1px;"></iframe>
+    <iframe name="fileDownloader" style="display:none;"></iframe>
 </form>
