@@ -19,8 +19,66 @@
 <head>
     <link href="browser.css" type="text/css" rel="stylesheet">
     <script type="text/javascript">
+        function buildBreadcrumb(folderPath) {
+            var pathEl = document.getElementById('tdName');
+
+            if (!pathEl) {
+                return;
+            }
+
+            while (pathEl.firstChild) {
+                pathEl.removeChild(pathEl.firstChild);
+            }
+
+            var foldersFrame = window.parent.frames['frmFolders'];
+            var parts = folderPath.split('/').filter(function (segment) {
+                return segment.length;
+            });
+            var currentPath = '/';
+
+            var rootLink = document.createElement('a');
+            rootLink.href = '#';
+            rootLink.className = 'BrowserPathLink';
+            rootLink.onclick = function (event) {
+                if (event && event.preventDefault) {
+                    event.preventDefault();
+                }
+
+                if (foldersFrame && typeof foldersFrame.OpenFolder === 'function') {
+                    foldersFrame.OpenFolder('/');
+                }
+
+                return false;
+            };
+            rootLink.appendChild(document.createTextNode('/'));
+            pathEl.appendChild(rootLink);
+
+            parts.forEach(function (part) {
+                currentPath += part + '/';
+
+                var segmentLink = document.createElement('a');
+                segmentLink.href = '#';
+                segmentLink.className = 'BrowserPathLink';
+                segmentLink.onclick = function (event) {
+                    if (event && event.preventDefault) {
+                        event.preventDefault();
+                    }
+
+                    if (foldersFrame && typeof foldersFrame.OpenFolder === 'function') {
+                        foldersFrame.OpenFolder(currentPath);
+                    }
+
+                    return false;
+                };
+                segmentLink.appendChild(document.createTextNode(part));
+
+                pathEl.appendChild(segmentLink);
+                pathEl.appendChild(document.createTextNode('/'));
+            });
+        }
+
         function SetCurrentFolder(resourceType, folderPath) {
-            document.getElementById('tdName').innerHTML = folderPath;
+            buildBreadcrumb(folderPath);
         }
 
         window.onload = function () {
