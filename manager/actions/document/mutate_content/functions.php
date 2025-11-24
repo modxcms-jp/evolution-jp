@@ -753,7 +753,7 @@ function file_get_tpl($path)
     return file_get_contents(tpl_base_dir() . $path);
 }
 
-function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit)
+function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRichTextEditorInit, $token)
 {
     return [
         'JScripts' => getJScripts($id),
@@ -761,6 +761,7 @@ function collect_template_ph($id, $OnDocFormPrerender, $OnDocFormRender, $OnRich
         'id' => $id,
         'upload_maxsize' => config('upload_maxsize', 32 * 1024 * 1024),
         'mode' => manager()->action,
+        'token' => $token,
         'a' => (evo()->doc->mode === 'normal' && hasPermission('save_document')) ? 5 : 128,
         'pid' => request_intvar('pid'),
         'title' => (evo()->doc->mode === 'normal') ? lang('create_resource_title') : lang('create_draft_title'),

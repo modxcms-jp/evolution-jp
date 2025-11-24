@@ -69,6 +69,9 @@ checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
+$token = $modx->genTokenString();
+sessionv('*token', $token);
+
 $body = [];
 $body[] = parseText(
     file_get_tpl('tab_general.tpl'),
@@ -137,7 +140,8 @@ $ph = collect_template_ph(
     request_intvar('id'),
     $OnDocFormPrerender,
     $OnDocFormRender,
-    $OnRichTextEditorInit
+    $OnRichTextEditorInit,
+    $token
 );
 $ph['content'] = implode("\n", $body);
 echo parseText($template, $ph);
