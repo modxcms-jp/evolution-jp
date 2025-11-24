@@ -39,18 +39,15 @@
     --mcpuk-button-active-background-start: #f0f0f0;
     --mcpuk-button-active-background-end: #cecece;
     --mcpuk-button-text-color: #444444;
-    --mcpuk-action-button-start: #fafafa;
-    --mcpuk-action-button-end: #d2d2d2;
-    --mcpuk-action-button-hover-start: #ffffff;
-    --mcpuk-action-button-hover-end: #e5e5e5;
-    --mcpuk-action-button-active-start: #f0f0f0;
-    --mcpuk-action-button-active-end: #cecece;
-    --mcpuk-action-button-text-color: #444444;
+    --mcpuk-action-button-background: #1285a4;
+    --mcpuk-action-button-border: #0e748e;
+    --mcpuk-action-button-hover: #0f6c84;
+    --mcpuk-action-button-active: #0c5e73;
+    --mcpuk-action-button-text-color: #ffffff;
     --mcpuk-popup-border-color: #cccccc;
     --mcpuk-popup-background: #ffffff;
     --mcpuk-font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    --mcpuk-font-size: 75%;
-    --mcpuk-actual-folder-font-size: 1.15em;
+    --mcpuk-font-size: 13px;
 }
 
 /* ========================================================================
@@ -63,15 +60,6 @@ body {
     font-family: var(--mcpuk-font-family);
     font-size: var(--mcpuk-font-size);
     line-height: 1.5;
-}
-
-body,
-td,
-input,
-select,
-button {
-    font-family: var(--mcpuk-font-family);
-    font-size: var(--mcpuk-font-size);
 }
 
 form {
@@ -220,14 +208,14 @@ body.FileArea {
 
 td,
 input,
-select {
+select,
+button {
     font-family: var(--mcpuk-font-family);
-    font-size: inherit;
+    font-size: var(--mcpuk-font-size);
 }
 
 .ActualFolder {
     font-weight: bold;
-    font-size: var(--mcpuk-actual-folder-font-size);
 }
 
 .PopupButtons {
@@ -257,25 +245,25 @@ button:active {
 }
 
 .BrowserButton--action {
-    border-color: var(--mcpuk-button-border-color);
-    background: linear-gradient(to bottom, var(--mcpuk-action-button-start), var(--mcpuk-action-button-end));
+    background: var(--mcpuk-action-button-background);
+    border-color: var(--mcpuk-action-button-border);
     color: var(--mcpuk-action-button-text-color);
     font-weight: 700;
-    text-shadow: 0 1px 0 #ffffff;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.4), 0 1px 1px rgba(0, 0, 0, 0.3);
+    text-shadow: none;
+    box-shadow: none;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
 }
 
-.BrowserButton--action:hover {
-    background: linear-gradient(to bottom, var(--mcpuk-action-button-hover-start), var(--mcpuk-action-button-hover-end));
+.BrowserButton--action:hover,
+.BrowserButton--action:focus {
+    background: var(--mcpuk-action-button-hover);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .BrowserButton--action:active {
-    background: linear-gradient(to bottom, var(--mcpuk-action-button-active-start), var(--mcpuk-action-button-active-end));
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
-.BrowserButtonTable td {
-    color: inherit;
+    background: var(--mcpuk-action-button-active);
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
 .FolderListCurrentFolder img {
@@ -286,6 +274,66 @@ button:active {
     background-image: url(images/Folder.gif);
 }
 
+body.mcpuk-browser .BrowserFolderTreeRoot {
+    padding: 6px 10px 2px;
+}
+
+.BrowserFolderTree,
+.BrowserFolderTreeChildren {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.BrowserFolderTreeItem {
+    margin: 2px 0;
+}
+
+.BrowserFolderTreeChildren {
+    margin-top: 2px;
+    margin-left: 16px;
+    padding-left: 0;
+}
+
+.BrowserFolderTreeLink {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: var(--mcpuk-text-color);
+    text-decoration: none;
+}
+
+.BrowserFolderTreeLink::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background: url(images/Folder.gif) no-repeat center center;
+    background-size: 16px 16px;
+}
+
+.BrowserFolderTreeLink:hover {
+    background-color: var(--mcpuk-item-background);
+    text-decoration: underline;
+}
+
+.BrowserFolderTreeItem--active > .BrowserFolderTreeLink {
+    font-weight: 700;
+    color: var(--mcpuk-link-color);
+    background-color: var(--mcpuk-item-background);
+    border: 1px solid var(--mcpuk-border-color);
+}
+
+.BrowserFolderTreeItem--active > .BrowserFolderTreeLink::before {
+    background-image: url(images/FolderOpened.gif);
+}
+
+.BrowserFolderTreeLink--current {
+    cursor: default;
+}
+
 /* ========================================================================
    Layout helpers for easier customisation
    ======================================================================== */
@@ -293,6 +341,10 @@ button:active {
 body.mcpuk-browser {
     background-color: var(--mcpuk-body-background);
     color: var(--mcpuk-text-color);
+}
+
+body.mcpuk-browser.BrowserBody--actual-folder {
+    margin: 0;
 }
 
 body.mcpuk-browser .BrowserBodySection,
@@ -308,14 +360,63 @@ body.mcpuk-browser .BrowserButton {
     display: block;
 }
 
-body.mcpuk-browser.BrowserBody--create-folder .BrowserButton {
-    display: inline-block;
-    width: auto;
-    padding: 4px 12px;
+body.mcpuk-browser .BrowserPathContainer {
+    padding: 10px 12px;
 }
 
-body.mcpuk-browser.BrowserBody--create-folder .BrowserButtonTable {
-    width: auto;
+body.mcpuk-browser .BrowserPathBar {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    background-color: var(--mcpuk-item-background);
+    border: 1px solid var(--mcpuk-border-color);
+    border-radius: 6px;
+    color: var(--mcpuk-text-color);
+    font-weight: 600;
+}
+
+body.mcpuk-browser .BrowserPathText {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.mcpuk-browser .BrowserPathText a {
+    text-decoration: none;
+}
+
+body.mcpuk-browser .BrowserPathText a:hover,
+body.mcpuk-browser .BrowserPathText a:focus {
+    text-decoration: underline;
+}
+
+body.mcpuk-browser .BrowserPathCurrent {
+    color: var(--mcpuk-link-hover-color);
+    font-weight: 700;
+}
+
+body.mcpuk-browser .BrowserPathSeparator {
+    color: #9aa0a6;
+}
+
+body.mcpuk-browser.BrowserBody--create-folder {
+    height: 100%;
+}
+
+body.mcpuk-browser .BrowserCreateFolder {
+    height: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+}
+
+body.mcpuk-browser .BrowserCreateFolderButton {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    font-weight: 600;
+    border-radius: 5px;
 }
 
 body.mcpuk-browser .BrowserButton--hidden {
