@@ -333,6 +333,11 @@ body.mcpuk-browser .BrowserPathText a:focus {
     text-decoration: underline;
 }
 
+body.mcpuk-browser .BrowserPathCurrent {
+    color: var(--mcpuk-link-hover-color);
+    font-weight: 700;
+}
+
 body.mcpuk-browser .BrowserPathSeparator {
     color: #9aa0a6;
 }

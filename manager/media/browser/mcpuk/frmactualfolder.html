@@ -63,14 +63,32 @@
                 return link;
             };
 
+            var createCurrent = function (label) {
+                var current = document.createElement('span');
+                current.className = 'BrowserPathCurrent';
+                current.setAttribute('aria-current', 'page');
+                current.appendChild(document.createTextNode(label));
+
+                return current;
+            };
+
+            if (!parts.length) {
+                pathEl.appendChild(createCurrent('images'));
+                appendSeparator(pathEl);
+
+                return;
+            }
+
             pathEl.appendChild(createLink('images', '/'));
 
-            parts.forEach(function (part) {
+            parts.forEach(function (part, index) {
                 var pathForLink = currentPath + part + '/';
+                var isLast = index === parts.length - 1;
+
                 currentPath = pathForLink;
 
                 appendSeparator(pathEl);
-                pathEl.appendChild(createLink(part, pathForLink));
+                pathEl.appendChild(isLast ? createCurrent(part) : createLink(part, pathForLink));
             });
 
             appendSeparator(pathEl);
