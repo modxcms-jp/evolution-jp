@@ -171,8 +171,8 @@
         }
 
         function OpenFolder(folderPath) {
-            // Load the resources list for this folder.
-            window.parent.frames['frmFolders'].LoadFolders(unescape(folderPath));
+            // Navigate through the folders frame so all panels stay in sync.
+            window.parent.frames['frmFolders'].OpenFolder(unescape(folderPath));
         }
 
         function OpenFile(fileUrl) {
