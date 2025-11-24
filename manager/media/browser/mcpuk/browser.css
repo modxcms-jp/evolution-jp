@@ -49,8 +49,7 @@
     --mcpuk-popup-border-color: #cccccc;
     --mcpuk-popup-background: #ffffff;
     --mcpuk-font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    --mcpuk-font-size: 75%;
-    --mcpuk-actual-folder-font-size: 1.15em;
+    --mcpuk-font-size: 13px;
 }
 
 /* ========================================================================
@@ -63,15 +62,6 @@ body {
     font-family: var(--mcpuk-font-family);
     font-size: var(--mcpuk-font-size);
     line-height: 1.5;
-}
-
-body,
-td,
-input,
-select,
-button {
-    font-family: var(--mcpuk-font-family);
-    font-size: var(--mcpuk-font-size);
 }
 
 form {
@@ -220,14 +210,14 @@ body.FileArea {
 
 td,
 input,
-select {
+select,
+button {
     font-family: var(--mcpuk-font-family);
-    font-size: inherit;
+    font-size: var(--mcpuk-font-size);
 }
 
 .ActualFolder {
     font-weight: bold;
-    font-size: var(--mcpuk-actual-folder-font-size);
 }
 
 .PopupButtons {
@@ -306,6 +296,11 @@ body.mcpuk-browser .BrowserButton {
 
 body.mcpuk-browser .BrowserButton {
     display: block;
+}
+
+body.mcpuk-browser .BrowserButton--path {
+    text-align: left;
+    padding: 8px 12px;
 }
 
 body.mcpuk-browser.BrowserBody--create-folder .BrowserButton {
