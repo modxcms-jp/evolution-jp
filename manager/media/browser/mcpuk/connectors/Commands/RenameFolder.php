@@ -27,16 +27,12 @@ class RenameFolder extends Base
     {
         parent::__construct($fckphp_config, $type, $cwd);
         $this->foldername = $this->sanitizeFolderName(getv('FolderName'));
-        $this->newname = $this->sanitizeFolderName($this->checkName(getv('NewName')));
-    }
-
-    function checkName($name)
-    {
-        $newName = "";
-        for ($i = 0; $i < strlen($name); $i++) {
-            if (in_array($name[$i], $this->fckphp_config['DirNameAllowedChars'])) $newName .= $name[$i];
+        $newName = getv('NewName');
+        // Use system-wide stripAlias for consistent name sanitization
+        if (evo()->config('clean_uploaded_filename') == 1) {
+            $newName = evo()->stripAlias($newName, ['file_manager']);
         }
-        return $newName;
+        $this->newname = $this->sanitizeFolderName($newName);
     }
 
     function run()

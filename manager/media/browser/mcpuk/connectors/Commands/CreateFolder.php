@@ -27,7 +27,12 @@ class CreateFolder extends Base
     function __construct($fckphp_config, $type, $cwd)
     {
         parent::__construct($fckphp_config, $type, $cwd);
-        $this->newfolder = $this->sanitizeFolderName(getv('NewFolderName'));
+        $folderName = getv('NewFolderName');
+        // Use system-wide stripAlias for consistent name sanitization
+        if (evo()->config('clean_uploaded_filename') == 1) {
+            $folderName = evo()->stripAlias($folderName, ['file_manager']);
+        }
+        $this->newfolder = $this->sanitizeFolderName($folderName);
     }
 
     public function checkFolderName($folderName)
@@ -36,14 +41,7 @@ class CreateFolder extends Base
         if (strlen($folderName) > $this->fckphp_config['MaxDirNameLength']) {
             return false;
         }
-
-        //Check that it only contains valid characters
-        for ($i = 0, $iMax = strlen($folderName); $i < $iMax; $i++) {
-            if (!in_array(substr($folderName, $i, 1), $this->fckphp_config['DirNameAllowedChars'])) {
-                return false;
-            }
-        }
-        //If it got this far all is ok
+        // Character validation is now handled by stripAlias()
         return true;
     }
 

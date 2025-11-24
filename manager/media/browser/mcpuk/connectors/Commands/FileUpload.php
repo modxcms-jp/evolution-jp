@@ -22,11 +22,11 @@
  * 2009-03-23 by Kazuyuki Ikeda (http://www.hikidas.com/)
  * (*1) fix the bug `MaxSize` unit mismatch (Kbytes => Bytes)
  * (*2) replace `basename` other codes, because it has bugs for multibyte characters
- * (*3) refuse the filename has disallowed characters
- * (multibyte characters cause trouble for browsing resources)
  * ++  japanese localization
  * 2009-03-24 by Kazuyuki Ikeda (http://www.hikidas.com/)
- * (*4) add invoking event `OnFileManagerUpload`
+ * (*3) add invoking event `OnFileManagerUpload`
+ * 2025-11-24 Evolution CMS JP Edition
+ * (*4) remove cleanFilename() method, use system-wide stripAlias() instead
  */
 
 require_once 'Base.php';
@@ -55,21 +55,6 @@ class FileUpload extends Base
         $this->real_cwd = rtrim($this->real_cwd, '/');
     }
 
-    function cleanFilename($filename)
-    {
-        $n_filename = '';
-
-        //Check that it only contains valid characters
-        for ($i = 0; $i < strlen($filename); $i++) {
-            if (in_array(substr($filename, $i, 1), $this->fckphp_config['FileNameAllowedChars'])) {
-                $n_filename .= substr($filename, $i, 1);
-            }
-        }
-
-        //If it got this far all is ok
-        return $n_filename;
-    }
-
     function run()
     {
         global $modx;
@@ -88,10 +73,11 @@ class FileUpload extends Base
         }
 
         if ($modx->config['clean_uploaded_filename'] == 1 && isset($ext)) {
+            $originalFilename = $filename;
             $filename = $modx->stripAlias($filename, ['file_manager']);
-        } elseif (isset($ext) && $this->cleanFilename($filename) !== $filename) {
-            $filename = date('Ymd-his') . ".{$ext}";
-            $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";// (*3)
+            if ($filename !== $originalFilename) {
+                $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";
+            }
         }
 
         if (!array_key_exists('NewFile', $_FILES)) $disp = "202,'Unable to find uploaded file.'"; //No file uploaded with field name NewFile

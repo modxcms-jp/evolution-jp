@@ -25,8 +25,7 @@ class ConnectorConfigBuilder
         $config['ResourceAreas'] = $this->buildResourceAreas();
         $config['DiskQuota'] = ['Global' => -1];
         $config['MaxDirNameLength'] = 25;
-        $config['DirNameAllowedChars'] = $this->buildDirectoryCharacters();
-        $config['FileNameAllowedChars'] = $this->buildFileCharacters($config['DirNameAllowedChars']);
+        // Character validation is now handled by stripAlias() system-wide
         $config = array_merge($config, $this->buildDebugConfig());
         $config['ResourceTypes'] = ['files', 'images', 'media'];
         $config['Commands'] = $this->buildCommandList();
@@ -167,35 +166,6 @@ class ConnectorConfigBuilder
         $value = strtolower((string) $this->modx->config($key));
 
         return explode(',', $value);
-    }
-
-    private function buildDirectoryCharacters()
-    {
-        $chars = [];
-
-        for ($i = 48; $i < 58; $i++) {
-            $chars[] = chr($i);
-        }
-
-        for ($i = 97; $i < 123; $i++) {
-            $chars[] = chr($i);
-        }
-
-        for ($i = 65; $i < 91; $i++) {
-            $chars[] = chr($i);
-        }
-
-        array_push($chars, ' ', '-', '_', '.');
-
-        return $chars;
-    }
-
-    private function buildFileCharacters(array $directoryCharacters)
-    {
-        $chars = $directoryCharacters;
-        array_push($chars, ')', '(', '[', ']', '~');
-
-        return $chars;
     }
 
     private function buildDebugConfig()

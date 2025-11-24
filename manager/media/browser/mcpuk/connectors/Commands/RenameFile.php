@@ -25,19 +25,12 @@ class RenameFile extends Base
     {
         parent::__construct($fckphp_config, $type, $cwd);
         $this->filename = $this->sanitizeFileName(getv('FileName'));
-        $this->newname = $this->sanitizeFileName($this->checkName(getv('NewName')));
-    }
-
-    function checkName($name)
-    {
-        return unescape($name);
-        $newName = "";
-        for ($i = 0, $iMax = strlen($name); $i < $iMax; $i++) {
-            if (in_array($name[$i], $this->fckphp_config['FileNameAllowedChars'])) {
-                $newName .= $name[$i];
-            }
+        $newName = unescape(getv('NewName'));
+        // Use system-wide stripAlias for consistent name sanitization
+        if (evo()->config('clean_uploaded_filename') == 1) {
+            $newName = evo()->stripAlias($newName, ['file_manager']);
         }
-        return $newName;
+        $this->newname = $this->sanitizeFileName($newName);
     }
 
     function run()
