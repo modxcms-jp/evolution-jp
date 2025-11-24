@@ -1,0 +1,34 @@
+{
+  "height": 480,
+  "plugins": "lists link image table code fullscreen",
+  "toolbar": "undo redo | styles | bold italic underline | bullist numlist | link image | code fullscreen",
+  "content_css": false,
+  "branding": false,
+  "promotion": false,
+  "relative_urls": false,
+  "convert_urls": false,
+  "image_cropper": {
+    "enabled": true,
+    "jsUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js",
+    "cssUrl": "https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css",
+    "enableDoubleClick": true,
+    "outputMimeType": "image/png",
+    "outputQuality": 0.92,
+    "labels": {
+      "editTooltip": "画像を編集",
+      "modalTitle": "画像の編集",
+      "apply": "適用",
+      "cancel": "キャンセル",
+      "rotateLeft": "左回転",
+      "rotateRight": "右回転",
+      "reset": "リセット",
+      "zoomIn": "拡大",
+      "zoomOut": "縮小"
+    },
+    "cropperOptions": {
+      "viewMode": 1,
+      "dragMode": "move"
+    }
+  },
+  "license_key": "gpl"
+}

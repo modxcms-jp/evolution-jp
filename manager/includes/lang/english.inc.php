@@ -103,6 +103,7 @@ $_lang["cleaningup"] = 'Cleaning up';
 $_lang["clean_uploaded_filename"] = 'Use Transliteration for File Uploads';
 $_lang["clean_uploaded_filename_message"] = 'Use the default or transalias settings for the file name to clean special characters from uploaded file names, preserving dot-characters (periods)';
 $_lang["clear_log"] = 'Clear log';
+$_lang["export_event_log"] = 'Export log as text';
 $_lang["click_to_context"] = 'Click to access context menu';
 $_lang["click_to_edit_title"] = 'Click here to edit this record';
 $_lang["click_to_view_details"] = 'Click here to view details';

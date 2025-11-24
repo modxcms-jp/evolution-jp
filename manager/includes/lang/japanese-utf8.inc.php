@@ -105,6 +105,7 @@ $_lang["cleaningup"] = 'クリーンアップ処理中';
 $_lang["clean_uploaded_filename"] = 'アップロードファイルの名前の扱い';
 $_lang["clean_uploaded_filename_message"] = 'アップロードするファイルのファイル名を、transaliasルールを用いて正規化します。';
 $_lang["clear_log"] = 'ログをクリア';
+$_lang["export_event_log"] = 'ログをテキストにエクスポート';
 $_lang["click_to_context"] = 'クリックするとコンテキストメニュー';
 $_lang["click_to_edit_title"] = '編集はここをクリック';
 $_lang["click_to_view_details"] = '詳細情報';

@@ -1,0 +1,29 @@
+textarea.mce {
+    width: 95%;
+    height: 53px;
+    display: block;
+}
+
+#editorRow_TinyMCE7 {
+    width: 99%;
+}
+
+#editorRow_TinyMCE7 th {
+    width: 220px;
+    margin-left: 25px;
+}
+
+#editorRow_TinyMCE7 td,
+#editorRow_TinyMCE7 th {
+    border-bottom: 1px dotted #ccc;
+}
+
+#editorRow_TinyMCE7 .tinymce7-settings__header {
+    color: #707070;
+    background-color: #eeeeee;
+}
+
+#editorRow_TinyMCE7 .tinymce7-settings__title {
+    margin: 3px;
+}
+

@@ -557,6 +557,9 @@ switch (manager()->action) {
     case 116: // get the event log delete processor
         include_once($prc_path . 'delete_eventlog.processor.php');
         break;
+    case 121: // export event log
+        include_once($prc_path . 'export_eventlog.processor.php');
+        break;
     case 501: //delete category
         include_once($prc_path . 'delete_category.processor.php');
         break;

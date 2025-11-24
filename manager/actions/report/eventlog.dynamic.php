@@ -55,6 +55,27 @@ echo $cm->render();
         document.resource.submit();
     }
 
+    function exportLog() {
+        var form = document.resource;
+        var previousAction = form.getAttribute('action');
+        var previousTarget = form.getAttribute('target');
+
+        form.action = 'index.php?a=121';
+        form.target = 'fileDownloader';
+        form.submit();
+
+        if (previousAction) {
+            form.action = previousAction;
+        } else {
+            form.removeAttribute('action');
+        }
+        if (previousTarget) {
+            form.target = previousTarget;
+        } else {
+            form.removeAttribute('target');
+        }
+    }
+
     var selectedItem;
     var contextm = <?= $cm->getClientScriptObject()?>;
 
@@ -108,15 +129,21 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td>
-                        <a href="index.php?a=116&cls=1">
+                    <td style="white-space:nowrap;">
+                        <a href="index.php?a=116&cls=1" style="margin-right:8px;">
                             <img
                                 src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
                             /> <?= lang('clear_log') ?>
                         </a>
+                        <a href="#" onclick="exportLog();return false;">
+                            <img
+                                src="<?= $_style["icons_save"] ?>"
+                                align="absmiddle"
+                            /> <?= lang('export_event_log') ?>
+                        </a>
                     </td>
-                    <td nowrap="nowrap">
+                    <td nowrap="nowrap" style="text-align:right;">
                         <table border="0" style="float:right">
                             <tr>
                                 <td><?= lang('search') ?> </td>
@@ -200,4 +227,5 @@ echo $cm->render();
             ?>
         </div>
     </div>
+    <iframe name="fileDownloader" style="display:none;"></iframe>
 </form>

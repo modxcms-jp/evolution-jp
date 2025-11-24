@@ -1,0 +1,99 @@
+{
+  "simple": {},
+  "legacy": {
+    "plugins": [
+      "quickbars",
+      "advlist",
+      "anchor",
+      "autolink",
+      "charmap",
+      "code",
+      "directionality",
+      "fullscreen",
+      "help",
+      "image",
+      "importcss",
+      "insertdatetime",
+      "link",
+      "lists",
+      "media",
+      "nonbreaking",
+      "preview",
+      "save",
+      "searchreplace",
+      "table",
+      "visualblocks",
+      "visualchars",
+      "wordcount"
+    ],
+    "menubar": "edit view insert format tools table help",
+    "quickbars_insert_toolbar": false,
+    "toolbar": [
+      "undo redo bold forecolor backcolor strikethrough formatselect fontsizeselect table alignleft aligncenter alignright template code fullscreen help",
+      "image media link unlink anchor bullist numlist blockquote outdent indent hr visualblocks visualchars removeformat"
+    ],
+    "toolbar_mode": "wrap"
+  },
+  "basic": {
+    "plugins": [
+      "advlist",
+      "autolink",
+      "lists",
+      "link",
+      "image",
+      "preview",
+      "anchor",
+      "code",
+      "fullscreen",
+      "table",
+      "quickbars",
+      "help",
+      "wordcount"
+    ],
+    "menubar": "edit view insert format tools table help",
+    "quickbars_insert_toolbar": false,
+    "toolbar": "bold forecolor backcolor strikethrough removeformat quickimage image link unlink anchor bullist numlist table fullscreen help",
+    "height": 500,
+    "content_style": "body { font-family:Helvetica,Arial,sans-serif; font-size:16px }"
+  },
+  "full": {
+    "menubar": "edit view insert format tools table help",
+    "plugins": [
+      "advlist",
+      "anchor",
+      "autolink",
+      "autoresize",
+      "autosave",
+      "charmap",
+      "code",
+      "codesample",
+      "directionality",
+      "emoticons",
+      "fullscreen",
+      "help",
+      "image",
+      "importcss",
+      "insertdatetime",
+      "link",
+      "lists",
+      "media",
+      "nonbreaking",
+      "pagebreak",
+      "preview",
+      "quickbars",
+      "save",
+      "searchreplace",
+      "table",
+      "visualblocks",
+      "visualchars",
+      "wordcount"
+    ],
+    "toolbar": [
+      "undo redo | blocks | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | outdent indent | bullist numlist",
+      "link image media | codesample charmap emoticons | pagebreak nonbreaking insertdatetime anchor | table | searchreplace | removeformat | code fullscreen preview | save"
+    ],
+    "mobile": {
+      "plugins": "preview searchreplace importcss autolink autosave save directionality visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists quickbars wordcount help"
+    }
+  }
+}
