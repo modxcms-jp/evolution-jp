@@ -55,6 +55,27 @@ echo $cm->render();
         document.resource.submit();
     }
 
+    function exportLog() {
+        var form = document.resource;
+        var previousAction = form.getAttribute('action');
+        var previousTarget = form.getAttribute('target');
+
+        form.action = 'index.php?a=121';
+        form.target = '_self';
+        form.submit();
+
+        if (previousAction !== null) {
+            form.action = previousAction;
+        } else {
+            form.removeAttribute('action');
+        }
+        if (previousTarget !== null) {
+            form.target = previousTarget;
+        } else {
+            form.removeAttribute('target');
+        }
+    }
+
     var selectedItem;
     var contextm = <?= $cm->getClientScriptObject()?>;
 
@@ -114,6 +135,14 @@ echo $cm->render();
                                 src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
                             /> <?= lang('clear_log') ?>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="#" onclick="exportLog();return false;">
+                            <img
+                                src="<?= $_style['icons_save'] ?>"
+                                align="absmiddle"
+                            /> <?= lang('export_event_log') ?>
                         </a>
                     </td>
                     <td nowrap="nowrap">
