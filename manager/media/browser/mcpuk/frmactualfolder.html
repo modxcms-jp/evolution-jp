@@ -26,6 +26,13 @@
                 return;
             }
 
+            var appendSeparator = function (target) {
+                var separator = document.createElement('span');
+                separator.className = 'BrowserPathSeparator';
+                separator.appendChild(document.createTextNode('/'));
+                target.appendChild(separator);
+            };
+
             while (pathEl.firstChild) {
                 pathEl.removeChild(pathEl.firstChild);
             }
@@ -50,7 +57,7 @@
 
                 return false;
             };
-            rootLink.appendChild(document.createTextNode('/'));
+            appendSeparator(rootLink);
             pathEl.appendChild(rootLink);
 
             parts.forEach(function (part) {
@@ -73,7 +80,7 @@
                 segmentLink.appendChild(document.createTextNode(part));
 
                 pathEl.appendChild(segmentLink);
-                pathEl.appendChild(document.createTextNode('/'));
+                appendSeparator(pathEl);
             });
         }
 
