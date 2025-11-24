@@ -78,20 +78,10 @@
     </script>
 </head>
 <body class="mcpuk-browser BrowserBody BrowserBody--create-folder" bottomMargin="0" topMargin="0">
-<table class="BrowserTable BrowserBodySection" height="100%" cellSpacing="0" cellPadding="0" width="100%" border="0">
-    <tr>
-        <td>
-            <button class="BrowserButton BrowserButton--action" type="button" style="width: 100%;" onclick="CreateFolder();">
-                <table class="BrowserTable BrowserButtonTable" cellSpacing="0" cellPadding="0" border="0">
-                    <tr>
-                        <td><img alt="" src="images/Folder.gif"></td>
-                        <td>&nbsp;</td>
-                        <td nowrap>Create New Folder</td>
-                    </tr>
-                </table>
-            </button>
-        </td>
-    </tr>
-</table>
+<div class="BrowserCreateFolder">
+    <button class="BrowserButton BrowserButton--action BrowserCreateFolderButton" type="button" onclick="CreateFolder();">
+        Create New Folder
+    </button>
+</div>
 </body>
 </html>
