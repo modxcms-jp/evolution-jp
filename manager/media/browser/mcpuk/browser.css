@@ -293,17 +293,27 @@ body.mcpuk-browser .BrowserFolderTreeRoot {
 
 .BrowserFolderTreeChildren {
     margin-top: 6px;
-    margin-left: 12px;
-    padding-left: 10px;
-    border-left: 1px solid var(--mcpuk-border-color);
+    margin-left: 16px;
+    padding-left: 0;
 }
 
 .BrowserFolderTreeLink {
-    display: block;
+    display: flex;
+    align-items: center;
     padding: 6px 10px;
     border-radius: 6px;
     color: var(--mcpuk-text-color);
     text-decoration: none;
+}
+
+.BrowserFolderTreeLink::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    background: url(images/Folder.gif) no-repeat center center;
+    background-size: 16px 16px;
 }
 
 .BrowserFolderTreeLink:hover {
@@ -316,6 +326,10 @@ body.mcpuk-browser .BrowserFolderTreeRoot {
     color: var(--mcpuk-link-color);
     background-color: var(--mcpuk-item-background);
     border: 1px solid var(--mcpuk-border-color);
+}
+
+.BrowserFolderTreeItem--active > .BrowserFolderTreeLink::before {
+    background-image: url(images/FolderOpened.gif);
 }
 
 .BrowserFolderTreeLink--current {
