@@ -3,18 +3,18 @@
  * Copyright (C) 2003-2005 Frederico Caldeira Knabben
  *
  * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ *              http://www.opensource.org/licenses/lgpl-license.php
  *
  * For further information visit:
- * 		http://www.fckeditor.net/
+ *              http://www.fckeditor.net/
  *
  * File Name: frmfolders.html
- * 	This page shows the list of folders available in the parent folder
- * 	of the current folder.
+ *      This page shows the list of folders available in the parent folder
+ *      of the current folder.
  *
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
--->
+ *              Frederico Caldeira Knabben (fredck@fckeditor.net)
+ -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
@@ -26,57 +26,96 @@
         var sActiveFolder;
 
         var bIsLoaded = false;
+
         var iIntervalId;
 
-        var oListManager = {};
+        var treeManager = {
+            Init: function () {
+                this.TreeRoot = document.getElementById('folderTree');
+            },
 
-        oListManager.Init = function () {
-            this.Table = document.getElementById('tableFiles');
-            this.UpRow = document.getElementById('trUp');
-
-            this.TableRows = {};
-        }
-
-        oListManager.Clear = function () {
-            // Remove all other rows available.
-            while (this.Table.rows.length > 1)
-                this.Table.deleteRow(1);
-
-            // Reset the TableRows collection.
-            this.TableRows = {};
-        }
-
-        oListManager.AddItem = function (folderName, folderPath) {
-            // Create the new row.
-            var oRow = this.Table.insertRow(-1);
-            oRow.className = 'FolderListFolder';
-
-            // Build the link to view the folder.
-            var sLink = '<a href="#" onclick="OpenFolder(\'' + folderPath + '\');return false;">';
-
-            // Add the folder icon cell.
-            var oCell = oRow.insertCell(-1);
-            oCell.width = 16;
-            oCell.innerHTML = sLink + '<img alt="" src="images/spacer.gif" width="16" height="16" border="0"></a>';
-
-            // Add the folder name cell.
-            oCell = oRow.insertCell(-1);
-            oCell.noWrap = true;
-            oCell.innerHTML = '&nbsp;' + sLink + folderName + '</a>';
-
-            this.TableRows[folderPath] = oRow;
-        }
-
-        oListManager.ShowUpFolder = function (upFolderPath) {
-            this.UpRow.style.display = (upFolderPath != null ? '' : 'none');
-
-            if (upFolderPath != null) {
-                document.getElementById('linkUpIcon').onclick = document.getElementById('linkUp').onclick = function () {
-                    LoadFolders(upFolderPath);
-                    return false;
+            Clear: function () {
+                if (!this.TreeRoot) {
+                    return;
                 }
+
+                while (this.TreeRoot.firstChild) {
+                    this.TreeRoot.removeChild(this.TreeRoot.firstChild);
+                }
+            },
+
+            CreateNode: function (label, path, isActive) {
+                var listItem = document.createElement('li');
+                listItem.className = 'BrowserFolderTreeItem' + (isActive ? ' BrowserFolderTreeItem--active' : '');
+
+                var link = document.createElement('a');
+                link.href = '#';
+                link.className = 'BrowserFolderTreeLink';
+                link.appendChild(document.createTextNode(label));
+
+                if (isActive) {
+                    link.setAttribute('aria-current', 'page');
+                    link.className += ' BrowserFolderTreeLink--current';
+                } else {
+                    link.onclick = function (event) {
+                        if (event && event.preventDefault) {
+                            event.preventDefault();
+                        }
+
+                        OpenFolder(path);
+                        return false;
+                    };
+                }
+
+                var children = document.createElement('ul');
+                children.className = 'BrowserFolderTreeChildren';
+
+                listItem.appendChild(link);
+                listItem.appendChild(children);
+
+                return {
+                    node: listItem,
+                    children: children
+                };
+            },
+
+            Render: function (currentPath, childNodes) {
+                if (!this.TreeRoot) {
+                    return;
+                }
+
+                this.Clear();
+
+                var treeList = document.createElement('ul');
+                treeList.className = 'BrowserFolderTree';
+
+                var pathParts = currentPath.split('/').filter(function (segment) {
+                    return segment.length;
+                });
+
+                var isRootActive = pathParts.length === 0;
+                var rootNode = this.CreateNode('images', '/', isRootActive);
+                treeList.appendChild(rootNode.node);
+
+                var parentNode = rootNode;
+                pathParts.forEach(function (part, index) {
+                    var pathForPart = '/' + pathParts.slice(0, index + 1).join('/') + '/';
+                    var isActive = index === pathParts.length - 1;
+                    var childNode = treeManager.CreateNode(part, pathForPart, isActive);
+                    parentNode.children.appendChild(childNode.node);
+                    parentNode = childNode;
+                });
+
+                var targetContainer = parentNode.children;
+                for (var i = 0; i < childNodes.length; i++) {
+                    var sFolderName = childNodes[i].attributes.getNamedItem('name').value;
+                    var nextNode = this.CreateNode(sFolderName, currentPath + sFolderName + '/', false);
+                    targetContainer.appendChild(nextNode.node);
+                }
+
+                this.TreeRoot.appendChild(treeList);
             }
-        }
+        };
 
         function CheckLoaded() {
             if (window.top.IsLoadedActualFolder
@@ -85,25 +124,11 @@
                 && window.top.IsLoadedResourcesList) {
                 window.clearInterval(iIntervalId);
                 bIsLoaded = true;
-                OpenFolder(sActiveFolder);
+                SyncFrames(sActiveFolder);
             }
         }
 
-        function OpenFolder(folderPath) {
-            sActiveFolder = folderPath;
-
-            if (!bIsLoaded) {
-                if (!iIntervalId)
-                    iIntervalId = window.setInterval(CheckLoaded, 100);
-                return;
-            }
-
-            // Change the style for the select row (to show the opened folder).
-            for (var sFolderPath in oListManager.TableRows) {
-                oListManager.TableRows[sFolderPath].className =
-                    (sFolderPath == folderPath ? 'FolderListCurrentFolder' : 'FolderListFolder');
-            }
-
+        function SyncFrames(folderPath) {
             // Set the current folder in all frames.
             window.parent.frames['frmActualFolder'].SetCurrentFolder(oConnector.ResourceType, folderPath);
             window.parent.frames['frmCreateFolder'].SetCurrentFolder(oConnector.ResourceType, folderPath);
@@ -113,68 +138,50 @@
             window.parent.frames['frmResourcesList'].LoadResources(oConnector.ResourceType, folderPath);
         }
 
-        function LoadFolders(folderPath) {
-            // Clear the folders list.
-            oListManager.Clear();
+        function OpenFolder(folderPath) {
+            sActiveFolder = folderPath;
 
-            // Get the parent folder path.
-            var sParentFolderPath;
-            if (folderPath != '/')
-                sParentFolderPath = folderPath.substring(0, folderPath.lastIndexOf('/', folderPath.length - 2) + 1);
-
-            // Show/Hide the Up Folder.
-            oListManager.ShowUpFolder(sParentFolderPath);
-
-            if (folderPath != '/') {
-                sActiveFolder = folderPath;
-                oConnector.CurrentFolder = sParentFolderPath
-                oConnector.SendCommand('GetFolders', null, GetFoldersCallBack);
+            if (!bIsLoaded) {
+                if (!iIntervalId)
+                    iIntervalId = window.setInterval(CheckLoaded, 100);
             } else {
-                oListManager.ShowUpFolder('/');
-                sActiveFolder = folderPath;
-                oConnector.SendCommand('GetFolders', null, GetFoldersCallBack);
+                SyncFrames(folderPath);
             }
 
+            LoadFolders(folderPath);
+        }
+
+        function LoadFolders(folderPath) {
+            treeManager.Clear();
+            oConnector.CurrentFolder = folderPath;
+            oConnector.SendCommand('GetFolders', null, GetFoldersCallBack);
         }
 
         function GetFoldersCallBack(fckXml) {
-            // Get the current folder path.
             var oNode = fckXml.SelectSingleNode('Connector/CurrentFolder');
             var sCurrentFolderPath = oNode.attributes.getNamedItem('path').value;
 
             var oNodes = fckXml.SelectNodes('Connector/Folders/Folder');
-
-            for (var i = 0; i < oNodes.length; i++) {
-                var sFolderName = oNodes[i].attributes.getNamedItem('name').value;
-                oListManager.AddItem(sFolderName, sCurrentFolderPath + sFolderName + "/");
-            }
-
-            OpenFolder(sActiveFolder);
+            treeManager.Render(sCurrentFolderPath, oNodes);
         }
 
         function SetResourceType(type) {
             oConnector.ResourceType = type;
-            LoadFolders('/');
+            OpenFolder('/');
         }
 
         window.onload = function () {
-            oListManager.Init();
+            treeManager.Init();
 
             if (oConnector.ResourceType.length == 0)
                 SetResourceType('files');
             else
-                LoadFolders('/');
+                OpenFolder('/');
         }
     </script>
 </head>
 <body class="mcpuk-browser FileArea BrowserBody BrowserBody--folders" bottomMargin="10" leftMargin="10" topMargin="10"
       rightMargin="10">
-<table id="tableFiles" class="BrowserTable BrowserBodySection" cellSpacing="0" cellPadding="0" width="100%" border="0">
-    <tr id="trUp" style="DISPLAY: none">
-        <td width="16"><a id="linkUpIcon" href="#"><img alt="" src="images/FolderUp.gif" width="16" height="16"
-                                                        border="0"></a></td>
-        <td nowrap width="100%">&nbsp;<a id="linkUp" href="#">..</a></td>
-    </tr>
-</table>
+<div id="folderTree" class="BrowserFolderTreeRoot" aria-label="Folders" role="tree"></div>
 </body>
 </html>
