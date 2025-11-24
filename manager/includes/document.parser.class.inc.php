@@ -5727,6 +5727,10 @@ class DocumentParser
     public function move_uploaded_file($tmp_path, $target_path)
     {
         $target_path = str_replace('\\', '/', $target_path);
+
+        // ファイル名のサニタイズ処理を追加
+        $target_path = $this->sanitizeUploadedFilename($target_path);
+
         $new_file_permissions = octdec(ltrim($this->config('new_file_permissions'), '0'));
 
         if (strpos($target_path, $this->config('filemanager_path')) !== 0) {
@@ -5746,6 +5750,41 @@ class DocumentParser
         }
 
         return false;
+    }
+
+    /**
+     * アップロードファイル名を安全な文字列にサニタイズ
+     *
+     * @param string $filepath フルパス
+     * @return string サニタイズされたフルパス
+     */
+    private function sanitizeUploadedFilename($filepath)
+    {
+        $dir = dirname($filepath);
+        $filename = basename($filepath);
+
+        // 拡張子を分離
+        $lastDot = strrpos($filename, '.');
+        if ($lastDot !== false) {
+            $name = substr($filename, 0, $lastDot);
+            $ext = substr($filename, $lastDot);
+        } else {
+            $name = $filename;
+            $ext = '';
+        }
+
+        // ASCII文字以外を含む場合のみ処理
+        if (preg_match('/[^\x20-\x7E]/', $name)) {
+            // タイムスタンプベースの安全なファイル名を生成
+            $timestamp = date('Y-md');
+            $random = substr(md5(uniqid(mt_rand(), true)), 0, 8);
+            $name = sprintf('%s-%s', $timestamp, $random);
+        }
+
+        // 安全でない文字を除去
+        $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+
+        return $dir . '/' . $name . $ext;
     }
 
     private function resizeImage($tmp_path, $img, $target_path)
