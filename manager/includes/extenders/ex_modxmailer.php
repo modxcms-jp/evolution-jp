@@ -111,6 +111,8 @@ class MODxMailer extends PHPMailer
         ];
         $this->Body = str_replace(array_keys($target), array_values($target), $this->Body);
 
+        $this->logSendRequest();
+
         try {
             if (!$this->PreSend()) {
                 return false;
@@ -155,6 +157,54 @@ class MODxMailer extends PHPMailer
             return parent::MailSend($header, $body);
         }
         return $this->mbMailSend($header, $body);
+    }
+
+    private function logSendRequest()
+    {
+        if (!config('modxmailer_log', 0)) {
+            return;
+        }
+
+        $logData = [
+            'from' => $this->formatFromAddress(),
+            'sender' => $this->Sender,
+            'reply_to' => $this->formatAddressList($this->ReplyTo),
+            'to' => $this->formatAddressList($this->to),
+            'cc' => $this->formatAddressList($this->cc),
+            'bcc' => $this->formatAddressList($this->bcc),
+            'subject' => $this->Subject,
+            'post' => postv(),
+        ];
+
+        $logJson = json_encode($logData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        if ($logJson === false) {
+            $logJson = json_encode(['error' => 'Failed to encode log data']);
+        }
+
+        evo()->logEvent(1, 1, '<pre>' . hsc($logJson) . '</pre>', 'MODxMailer request log');
+    }
+
+    private function formatFromAddress()
+    {
+        if (!$this->From) {
+            return '';
+        }
+
+        return $this->AddrFormat(['address' => $this->From, 'name' => $this->FromName]);
+    }
+
+    private function formatAddressList($addresses)
+    {
+        if (!is_array($addresses) || empty($addresses)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($addresses as $address) {
+            $result[] = $this->AddrFormat($address);
+        }
+
+        return $result;
     }
 
     function mbMailSend($header, $body)

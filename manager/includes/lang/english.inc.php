@@ -1250,6 +1250,9 @@ $_lang["doc_encoding_message"] = 'Set a default encoding to use for the output o
 
 $_lang["template_parent"] = 'Template parent';
 
+$_lang['modxmailer_log_title'] = 'MODxMailer event log';
+$_lang['modxmailer_log_message'] = 'Write POST payload and mail addresses to the event log when sending emails via MODxMailer.';
+
 $_lang['email_method_title'] = 'Sendmail method';
 $_lang['email_method_mail'] = 'mail() PHP function';
 $_lang['email_method_smtp'] = 'SMTP Server';

@@ -1253,6 +1253,9 @@ $_lang["doc_encoding_message"] = 'ページの出力に用いるエンコード�
 
 $_lang["template_parent"] = '親テンプレート';
 
+$_lang['modxmailer_log_title'] = 'MODxMailerのイベントログ';
+$_lang['modxmailer_log_message'] = 'MODxMailerでメール送信する際にPOSTデータと送信元・送信先情報をイベントログに記録します。';
+
 $_lang["email_method_title"] = 'メール送信方法';
 $_lang["email_method_mail"] = 'mail関数(PHP)';
 $_lang["email_method_smtp"] = 'SMTP';
