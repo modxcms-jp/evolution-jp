@@ -406,8 +406,10 @@ body.mcpuk-browser.BrowserBody--create-folder {
 
 body.mcpuk-browser .BrowserCreateFolder {
     height: 100%;
-    padding: 12px;
+    padding: 8px 12px;
     box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
 }
 
 body.mcpuk-browser .BrowserCreateFolderButton {
