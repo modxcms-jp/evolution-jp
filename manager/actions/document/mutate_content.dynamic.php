@@ -69,7 +69,7 @@ checkViewUnpubDocPerm(doc('published'), doc('editedby'));// Only a=27
 
 $_SESSION['itemname'] = evo()->hsc(doc('pagetitle'));
 
-$token = $modx->genTokenString();
+$token = sessionv('token') ?: $modx->genTokenString();
 sessionv('*token', $token);
 
 $body = [];

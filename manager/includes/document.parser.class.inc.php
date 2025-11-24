@@ -3424,6 +3424,7 @@ class DocumentParser
                 exit('Can not preview');
             }
 
+            unset($_POST['token']);
             $previewObject = $this->getPreviewObject($_POST);
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
