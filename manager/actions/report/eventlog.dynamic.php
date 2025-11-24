@@ -138,7 +138,7 @@ echo $cm->render();
                         </a>
                         <a href="#" onclick="exportLog();return false;">
                             <img
-                                src="<?= $_style['icons_save'] ?>"
+                                src="<?= $_style["icons_save"] ?>"
                                 align="absmiddle"
                             /> <?= lang('export_event_log') ?>
                         </a>
