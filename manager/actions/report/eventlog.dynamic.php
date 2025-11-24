@@ -129,15 +129,14 @@ echo $cm->render();
         <div class="actionButtons">
             <table border="0" style="width:100%">
                 <tr>
-                    <td>
+                    <td style="white-space:nowrap;">
                         <a href="index.php?a=116&cls=1">
                             <img
                                 src="<?= $_style["icons_delete_document"] ?>"
                                 align="absmiddle"
                             /> <?= lang('clear_log') ?>
                         </a>
-                    </td>
-                    <td>
+                        <span style="margin-left:12px;"></span>
                         <a href="#" onclick="exportLog();return false;">
                             <img
                                 src="<?= $_style['icons_save'] ?>"
@@ -145,7 +144,7 @@ echo $cm->render();
                             /> <?= lang('export_event_log') ?>
                         </a>
                     </td>
-                    <td nowrap="nowrap">
+                    <td nowrap="nowrap" style="text-align:right;">
                         <table border="0" style="float:right">
                             <tr>
                                 <td><?= lang('search') ?> </td>
