@@ -26,13 +26,6 @@
                 return;
             }
 
-            var appendSeparator = function (target) {
-                var separator = document.createElement('span');
-                separator.className = 'BrowserPathSeparator';
-                separator.appendChild(document.createTextNode('/'));
-                target.appendChild(separator);
-            };
-
             while (pathEl.firstChild) {
                 pathEl.removeChild(pathEl.firstChild);
             }
@@ -43,45 +36,44 @@
             });
             var currentPath = '/';
 
-            var rootLink = document.createElement('a');
-            rootLink.href = '#';
-            rootLink.className = 'BrowserPathLink';
-            rootLink.onclick = function (event) {
-                if (event && event.preventDefault) {
-                    event.preventDefault();
-                }
-
-                if (foldersFrame && typeof foldersFrame.OpenFolder === 'function') {
-                    foldersFrame.OpenFolder('/');
-                }
-
-                return false;
+            var appendSeparator = function (target) {
+                var separator = document.createElement('span');
+                separator.className = 'BrowserPathSeparator';
+                separator.appendChild(document.createTextNode('/'));
+                target.appendChild(separator);
             };
-            appendSeparator(rootLink);
-            pathEl.appendChild(rootLink);
 
-            parts.forEach(function (part) {
-                currentPath += part + '/';
-
-                var segmentLink = document.createElement('a');
-                segmentLink.href = '#';
-                segmentLink.className = 'BrowserPathLink';
-                segmentLink.onclick = function (event) {
+            var createLink = function (label, path) {
+                var link = document.createElement('a');
+                link.href = '#';
+                link.className = 'BrowserPathLink';
+                link.appendChild(document.createTextNode(label));
+                link.onclick = function (event) {
                     if (event && event.preventDefault) {
                         event.preventDefault();
                     }
 
                     if (foldersFrame && typeof foldersFrame.OpenFolder === 'function') {
-                        foldersFrame.OpenFolder(currentPath);
+                        foldersFrame.OpenFolder(path);
                     }
 
                     return false;
                 };
-                segmentLink.appendChild(document.createTextNode(part));
 
-                pathEl.appendChild(segmentLink);
+                return link;
+            };
+
+            pathEl.appendChild(createLink('images', '/'));
+
+            parts.forEach(function (part) {
+                var pathForLink = currentPath + part + '/';
+                currentPath = pathForLink;
+
                 appendSeparator(pathEl);
+                pathEl.appendChild(createLink(part, pathForLink));
             });
+
+            appendSeparator(pathEl);
         }
 
         function SetCurrentFolder(resourceType, folderPath) {
