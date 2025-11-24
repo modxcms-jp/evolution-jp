@@ -97,6 +97,8 @@ function clean_log_description($description)
     $description = strip_tags($description);
     $description = html_entity_decode($description, ENT_QUOTES, evo()->getConfig('modx_charset', 'UTF-8'));
     $description = str_replace("\xC2\xA0", ' ', $description);
+    // Remove horizontal whitespace (spaces, tabs) at the start of each line.
+    // The regex pattern `/^[\h]+/m` uses `\h` to match horizontal whitespace, which is less common in PHP regex.
     $description = preg_replace('/^[\h]+/m', '', $description);
 
     return trim($description);
