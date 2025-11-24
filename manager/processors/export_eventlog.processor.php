@@ -89,6 +89,8 @@ function clean_log_description($description)
     $description = preg_replace('#<br\s*/?>#i', "\n", $description);
     $description = strip_tags($description);
     $description = html_entity_decode($description, ENT_QUOTES, evo()->getConfig('modx_charset', 'UTF-8'));
+    $description = str_replace("\xC2\xA0", ' ', $description);
+    $description = preg_replace('/^[\h]+/m', '', $description);
 
     return trim($description);
 }
