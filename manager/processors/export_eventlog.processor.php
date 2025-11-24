@@ -20,7 +20,7 @@ $from .= ' LEFT JOIN [+prefix+]web_users wu ON wu.id=el.user AND el.usertype=1';
 $where = '';
 if ($search !== '') {
     if (is_numeric($search)) {
-        $where = "(eventid='{$search}') OR ";
+        $where = "(eventid='" . (int)$search . "') OR ";
     }
     $where .= "(source LIKE '%{$search}%') OR (description LIKE '%{$search}%')";
 }
