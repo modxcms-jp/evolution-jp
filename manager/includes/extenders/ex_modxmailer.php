@@ -190,7 +190,7 @@ class MODxMailer extends PHPMailer
             return '';
         }
 
-        return $this->AddrFormat(['address' => $this->From, 'name' => $this->FromName]);
+        return $this->AddrFormat([$this->From, $this->FromName]);
     }
 
     private function formatAddressList($addresses)
