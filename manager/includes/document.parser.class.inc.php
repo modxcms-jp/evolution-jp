@@ -3431,7 +3431,21 @@ class DocumentParser
             }
         }
 
-        if ($this->isLoggedIn() && $mode === 'prepareResponse' && $this->is_int($this->input_post('id'))) {
+        $isPreviewRequest = $mode === 'prepareResponse' && $this->is_int($this->input_post('id'));
+        if ($isPreviewRequest && !$this->isLoggedIn()) {
+            evo()->logEvent(
+                0,
+                2,
+                sprintf(
+                    'Preview request skipped because manager session is not authenticated (id:%s, session:%s)',
+                    $this->input_post('id') ?: '(empty)',
+                    $this->summarizeToken($this->session('token'))
+                ),
+                'DocumentParser::getDocumentObject'
+            );
+        }
+
+        if ($this->isLoggedIn() && $isPreviewRequest) {
             $previewId = $this->input_post('id');
             $requestToken = $this->input_post('token');
             $sessionToken = $this->session('token');
@@ -3450,6 +3464,17 @@ class DocumentParser
                 );
                 exit('Can not preview');
             }
+
+            evo()->logEvent(
+                0,
+                1,
+                sprintf(
+                    'Preview token validated (id:%s, session:%s)',
+                    $previewId ?: '(empty)',
+                    $this->summarizeToken($sessionToken)
+                ),
+                'DocumentParser::getDocumentObject'
+            );
 
             unset($_POST['token']);
             $previewObject = $this->getPreviewObject($_POST);
