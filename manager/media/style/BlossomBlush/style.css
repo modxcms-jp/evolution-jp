@@ -1,0 +1,2092 @@
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - BlossomBlush Theme
+ * ============================================================================
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ * 13. Custom Navigation Gradients
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
+
+:root {
+    /* Gray Scale - Core neutral colors */
+    --gray-50: #fff9fb;
+    --gray-100: #fff2f7;
+    --gray-200: #f7e7ef;
+    --gray-300: #e9d9e3;
+    --gray-400: #d8c6d1;
+    --gray-500: #b39fae;
+    --gray-600: #947d90;
+    --gray-700: #6f556b;
+    --gray-800: #553d52;
+    --gray-900: #3a273b;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: var(--gray-900);
+    --color-text-muted: #6d4d67;
+    --color-text-subtle: var(--gray-600);
+    --color-text-dark: #2f1c30;
+    --color-text-darker: #1d0f1f;
+    --color-background-page: #fff7fb;
+    --color-link: #d45da7;
+    --color-link-hover: #9c3f7f;
+    --color-border-default: var(--gray-400);
+    --color-border-light: #f2e7ef;
+    --color-surface: #fffafc;
+
+    /* Status Colors */
+    --color-success: #3aa37a;
+    --color-success-light: #5bc49d;
+    --color-success-bg: #e7fbf2;
+    --color-error: #d3447a;
+    --color-warning: #b87b2f;
+    --color-info: #8a6fd1;
+
+    /* Component Colors - Sections */
+    --color-section-header-text: var(--color-text-muted);
+    --color-section-header-start: #fff0f7;
+    --color-section-header-end: #f3dfec;
+    --color-section-bg: #fff5f9;
+
+    /* Component Colors - Navigation */
+    --color-nav-subnav-start: #5c2c4f;
+    --color-nav-subnav-end: #3d1b36;
+
+    /* Component Colors - Primary Actions */
+    --color-primary: #d45da7;
+    --color-primary-start: #e58cc0;
+    --color-primary-end: #c24b93;
+    --color-primary-hover-start: #f1a7d2;
+    --color-primary-hover-end: #c760a8;
+    --color-primary-active-start: #bf4a8e;
+    --color-primary-active-end: #9f3e78;
+
+    /* Component Colors - Secondary Actions */
+    --color-secondary-start: #f6e7f0;
+    --color-secondary-end: #edd9e7;
+    --color-secondary-border: #e0c7d6;
+    --color-secondary-text: #7a4d6a;
+    --color-secondary-hover-start: #fef1f8;
+    --color-secondary-hover-end: #f0deea;
+    --color-secondary-hover-text: #5c3350;
+
+    /* Component Colors - Neutral Buttons */
+    --color-neutral-button-start: #fbf3f8;
+    --color-neutral-button-hover-end: #f3e6ef;
+    --color-neutral-button-active-start: #e7d9e4;
+    --color-neutral-button-border: #d6c3d1;
+
+    /* Component Colors - Draft Mode */
+    --color-draft-start: #fff3da;
+    --color-draft-end: #ffe2c8;
+    --color-draft-light: #ffe9d6;
+
+    /* Spacing Scale - 8px base */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Border Radius */
+    --radius-sm: 3px;
+    --radius-md: 5px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+    --radius-full: 999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 1px 1px 3px var(--gray-400);
+    --shadow-lg: 2px 2px 15px #eaeaea;
+    --shadow-inset: inset -2px 2px 6px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.18s ease;
+    --transition-slow: 0.3s ease;
+}
+
+/* ============================================================================
+   2. Base Styles - Reset & Normalize
+   Used throughout: Global reset
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 75%;
+    height: 100%;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+    background: var(--color-background-page);
+}
+
+body#mainpane {
+    padding: var(--space-2);
+}
+
+img, a img {
+    border: 0 !important;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
+    margin: .5em 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+li, dd, blockquote {
+    margin: 0 0 0 1em;
+}
+
+/* ============================================================================
+   3. Utility Classes
+   Used in: Various components for common patterns
+   ============================================================================ */
+
+/* -------------------------[ Miscellaneous conveniences ]--- */
+.clear {
+    clear: both;
+}
+
+.fail {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.warning {
+    color: var(--color-warning);
+    font-weight: bold;
+}
+
+.mutate-field-row {
+    height: 24px;
+}
+
+.mutate-field-label {
+    width: 120px;
+    text-align: left;
+}
+
+.mutate-field-title {
+    color: var(--color-warning, #444);
+    font-weight: bold;
+}
+
+.clickable-label {
+    cursor: pointer;
+}
+
+.menuindex-table {
+    width: 333px;
+}
+
+.menuindex-label {
+    white-space: nowrap;
+}
+
+.menuindex-options {
+    text-align: right;
+}
+
+.mutate-tv-table {
+    position: relative;
+    width: 96%;
+}
+
+.mutate-tv-row {
+    height: 24px;
+}
+
+.mutate-tv-label {
+    width: 200px;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.mutate-tv-value {
+    position: relative;
+    vertical-align: top;
+}
+
+.success {
+    color: var(--color-success);
+    font-weight: bold;
+}
+
+.hide, .skip, .printonly {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+/* ============================================================================
+   4. Typography - Headings & Paragraphs
+   Used in: Page titles, section headers, content areas
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6, .subTitle {
+    font-weight: normal;
+}
+
+h1 {
+    font-size: 1.25em;
+    color: var(--gray-800);
+    font-weight: bold;
+    background-color: #d0d0d0;
+    letter-spacing: 1px;
+    line-height: 1em;
+    padding: var(--space-2);
+    border-radius: var(--radius-sm);
+    margin: var(--space-2);
+}
+
+h1.draft {
+    background-color: var(--color-draft-light);
+}
+
+h2 {
+    font-size: 1.64em;
+}
+
+h4,
+h5 {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+h6 {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+p.caption, p.comment {
+    font-size: 0.9em;
+    color: var(--gray-600);
+}
+
+button {
+    width: 112px;
+    font: inherit;
+    margin: 0 5px 0 0;
+    cursor: pointer;
+}
+
+a, a:active, a:visited, a:link {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+a:hover {
+    color: var(--color-link-hover);
+}
+
+hr {
+    color: var(--gray-700);
+    background-color: var(--gray-700);
+    height: 1px;
+    border: 0;
+}
+
+.split {
+  display:none;
+}
+
+.messageRead {
+    color: var(--color-text-primary);
+}
+
+.messageUnread {
+    color: var(--color-info);
+    font-weight: bold;
+}
+
+.right {
+    font-weight: bold;
+    color: var(--color-text-primary);
+    float: left;
+    padding: 0 var(--space-5) var(--space-5);
+}
+
+/* ============================================================================
+   5. Top Bar & Status Bar
+   Used in: Main navigation frame, status indicators
+   ============================================================================ */
+
+/* -------------------------[ Topbar ]--- */
+#topbar {
+    margin: 0;
+    color: var(--color-text-primary);
+    padding: 0 5px;
+    position: relative;
+}
+
+#topbar * {
+    vertical-align: middle;
+}
+
+#topbar a,
+#topbar a:link,
+#topbar a:visited {
+    font-weight: bold;
+    color: #AAB1B9;
+    text-decoration: none;
+}
+
+#topbar a:hover {
+    color: var(--color-surface);
+}
+
+#tocText {
+    position: absolute;
+    top: 37px;
+    z-index: 1000;
+}
+
+.tocTextRTL {
+    right: 3px;
+}
+
+#tocText,
+#buildText,
+#workText {
+    font-weight: bold;
+    line-height: 16px;
+    margin: 0 15px;
+    color: var(--color-surface);
+}
+
+#tocText,
+#buildText img,
+#workText img {
+    margin: 0 5px;
+}
+
+#statusbar {
+    position: absolute;
+    right: 0;
+    top: 36px;
+    z-index: 1000;
+}
+
+#supplementalNav {
+    align-items: center;
+    background: linear-gradient(180deg, rgba(255, 214, 232, 0.25), rgba(94, 45, 86, 0.55));
+    border-radius: var(--radius-full);
+    box-sizing: border-box;
+    color: var(--topnav-link-color);
+    column-gap: var(--topnav-gap);
+    display: flex;
+    font-weight: 500;
+    height: var(--topnav-item-height);
+    line-height: var(--topnav-item-height);
+    margin: 3px 0 0 0;
+    padding: 0 18px;
+    position: absolute;
+    right: var(--subnav-horizontal-padding);
+    top: 6px;
+    z-index: 111;
+}
+
+#supplementalNav a {
+    color: rgba(255, 236, 245, 0.9);
+    font-weight: inherit;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+#supplementalNav a:hover,
+#supplementalNav a:focus-visible {
+    color: #ffffff;
+}
+
+#supplementalNav .supplementalNav__item {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#supplementalNav .supplementalNav__item + .supplementalNav__item {
+    padding-left: var(--topnav-gap);
+}
+
+#supplementalNav .supplementalNav__item--messages {
+    gap: 6px;
+}
+
+#supplementalNav #newMail {
+    margin: 0;
+}
+
+#supplementalNav #newMail a {
+    align-items: center;
+    display: inline-flex;
+}
+
+#supplementalNav #newMail img {
+    display: block;
+}
+
+#supplementalNav #msgCounter {
+    margin-left: var(--space-1);
+}
+
+#supplementalNav .supplementalNav__version-label {
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+
+#supplementalNav .supplementalNav__version-label--mismatch {
+    color: #ffff8a;
+}
+
+/* ============================================================================
+   6. Forms - Inputs, Selects, Textareas, Buttons
+   Used in: All form elements throughout the application
+   ============================================================================ */
+
+tbody, thead, tr {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+form label {
+    cursor: pointer;
+}
+
+fieldset {
+    border: none;
+}
+
+input, select, textarea, option, optgroup, td {
+    font: inherit;
+    color: inherit;
+}
+
+textarea[readonly],
+textarea[readonly]:focus,
+input[type='text'][readonly],
+input[type='text'][readonly]:focus,
+.readonly {
+    background-color: #eee !important;
+    text-shadow: 1px 1px var(--color-surface) !important;
+    cursor: not-allowed;
+}
+
+optgroup {
+    font-style: normal;
+    font-weight: bold;
+    background-color: var(--gray-300);
+}
+
+optgroup option {
+    font-weight: normal;
+    background-color: var(--color-surface);
+}
+
+#ta, .tmplvars textarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+}
+
+form select {
+    background: var(--color-surface);
+    border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
+    border-style: solid;
+    border-width: 1px;
+    padding: var(--space-1);
+    margin: 0;
+    min-height: 17px;
+    vertical-align: baseline;
+    border-radius: var(--radius-sm);
+}
+
+form input[type=text] {
+    line-height: 1;
+}
+
+form input[type=text],
+form input[type=password],
+form textarea {
+    background: var(--color-surface);
+    border-color: var(--gray-500) #DDD #DDD var(--gray-500);
+    border-style: solid;
+    border-width: 1px;
+    padding: var(--space-1) 2px var(--space-1) var(--space-1);
+    margin: 0 2px 0 0;
+    min-height: 17px;
+    vertical-align: baseline;
+    border-radius: var(--radius-sm);
+    box-shadow: 0px 1px 3px #E8E8E8 inset;
+}
+
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
+    width: 350px;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+form select:focus {
+    outline: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-primary-start);
+    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+}
+
+input:is([type="button"], [type="submit"]) {
+    border: 1px solid var(--color-neutral-button-border);
+    cursor: pointer;
+    line-height: normal;
+    margin: -1px 0 0 5px;
+    min-height: 27px;
+    padding: var(--space-1) 10px;
+    overflow: visible;
+    background-color: var(--color-neutral-button-start);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-sm);
+    box-shadow: none;
+    text-shadow: none;
+}
+
+input.submit,
+input.button,
+input[type="submit"],
+input[type="button"] {
+    height: auto;
+    width: auto;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 30px;
+    height: 14px;
+    box-sizing: border-box;
+    background: var(--gray-400);
+    border-radius: var(--radius-full);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: var(--radius-full);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    transform: none;
+    transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type="checkbox"]:checked {
+    background: linear-gradient(90deg, var(--color-primary-start), var(--color-primary-end));
+    border-color: var(--color-primary-start);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+input[type="checkbox"]:checked::after {
+    transform: translateX(14px);
+}
+
+input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+}
+
+input[type="checkbox"]:disabled {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled::after {
+    background: var(--gray-100);
+    box-shadow: none;
+}
+
+input:is([type="button"], [type="submit"]):hover {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
+}
+
+input:is([type="button"], [type="submit"]):active {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
+}
+
+select {
+    border: 0;
+    background: #fcfcfc;
+    cursor: pointer;
+}
+
+.form {
+    padding: 15px;
+    border: solid 1px var(--gray-300);
+}
+
+form input.hidden {
+    display: none !important;
+    position: absolute;
+}
+
+.form label,
+.form input,
+.form textarea {
+    display: block;
+    float: left;
+    vertical-align: middle;
+}
+
+.form label {
+    padding-right: var(--space-5);
+    text-align: right;
+    width: 110px;
+}
+
+form textarea {
+    height: 78px;
+    width: 350px;
+    line-height: 1.5;
+    overflow: auto;
+}
+
+.form legend {
+    color: #04C;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.form select {
+    display: inline;
+    float: left;
+}
+
+.form br {
+    clear: both;
+}
+
+input.submit {
+    display: block !important;
+    float: none !important;
+    margin: var(--space-5) 0 0 140px !important;
+}
+
+.form fieldset.list {
+    margin: 6px 6px 3px 0;
+}
+
+.form fieldset.list legend {
+    display: none;
+}
+
+.form fieldset.list label,
+.form fieldset.list input {
+    padding: 0;
+    margin: 0 0 3px;
+    float: left;
+    display: inline;
+    border: 0;
+    background: none;
+    width: auto;
+    height: auto;
+}
+
+.form fieldset.list label {
+    padding-left: 5px;
+    text-align: left;
+    width: auto;
+}
+
+form .imeoff {
+    ime-mode: disabled;
+}
+
+/* ============================================================================
+   7. Layout Components - Sections, Headers, Bodies
+   Used in: Content areas, settings pages, form sections
+   ============================================================================ */
+
+.sectionBody fieldset {
+    padding: 15px;
+}
+
+.sectionBody legend {
+    font-weight: bold;
+    padding: 5px 15px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-sm);
+}
+
+.sectionBody h3 {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-bottom: 0;
+    margin-bottom: 10px;
+}
+
+.sectionHeader {
+    color: var(--color-section-header-text);
+    margin: 0 var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-weight: bold;
+    border: 1px solid var(--color-section-header-end);
+    border-bottom: none;
+    background-color: var(--color-section-header-end);
+    box-shadow: 0 1px 0 var(--color-surface) inset;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.tab-page .sectionHeader {
+    margin: 2px 3px 0;
+}
+
+.sectionBody {
+    position: relative;
+    margin: var(--space-2);
+    display: block;
+}
+
+.tab-page .sectionBody,
+.section .sectionBody {
+    background: var(--color-section-bg);
+    border: 1px solid var(--gray-400);
+    margin: 0 3px 15px;
+    padding: 15px;
+}
+
+.section .sectionBody {
+    margin: 0 var(--space-2) var(--space-2);
+    background-color: var(--color-surface);
+}
+
+.comment {
+    color: var(--gray-500);
+}
+
+thead {
+    color: var(--gray-900);
+    height: 18px !important;
+    background-color: var(--gray-200);
+}
+
+thead td {
+    color: var(--gray-900);
+    border-top: 1px solid var(--color-surface);
+}
+
+li {
+    padding: 0;
+    margin: 0;
+    list-style: disc;
+}
+
+li::marker {
+    color: var(--gray-500);
+}
+
+ul {
+    margin: 0 var(--space-5) 0 var(--space-5);
+}
+
+.screen {
+    border: 1px solid var(--gray-300);
+    text-align: center;
+}
+
+a img {
+    border: 0;
+}
+
+.even {
+    background: #D9E7C2;
+}
+
+.odd {
+    background: var(--color-surface);
+}
+
+/* -------------------------[ end sortable table ]--- */
+.disabledImage {
+    width: 20px;
+    opacity: 0.3;
+}
+
+.disabledImage img {
+    border: 0;
+}
+
+.editorCell {
+    border-top: 1px solid #808080;
+    text-align: left;
+    vertical-align: baseline;
+}
+
+.row1, .row2, .row3 {
+    color: var(--color-text-primary);
+}
+
+.row1 {
+    background-color: var(--color-surface);
+}
+
+.row2 {
+    background-color: #C8DAA2;
+}
+
+.row3 {
+    background-color: var(--gray-100);
+}
+
+/* ============================================================================
+   8. Tree Components - Site Tree, Context Menu
+   Used in: Left frame site tree, document tree navigation
+   ============================================================================ */
+
+div.treeframebody {
+    background: var(--gray-100) !important;
+    background-image: linear-gradient(180deg,
+        rgba(13, 44, 68, 0.03) 0%,
+        rgba(10, 34, 51, 0.05) 100%) !important;
+    box-shadow: var(--shadow-inset);
+    padding: var(--space-2);
+}
+
+#treeMenu * {
+    vertical-align: middle;
+}
+
+#treeHolder {
+    cursor: default;
+    height: 100%;
+    padding: 6px 8px 0;
+    line-height: 1.3em;
+    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
+}
+
+#treeHolder {
+    padding-left: 12px;
+}
+
+#treeRoot {
+    margin-left: -10px;
+}
+
+#treeRoot div img {
+    margin: 0 0 0 -6px;
+    vertical-align: middle;
+}
+
+#floater {
+    display: none;
+    position: absolute;
+    width: 200px;
+    padding: 5px;
+    top: 25px;
+    left: 4px;
+    background: var(--color-surface);
+    border: 1px solid var(--gray-400);
+    z-index: 500;
+}
+
+.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+    color: #000;
+    cursor: pointer;
+    width: auto;
+    margin-right: 0;
+}
+
+div.treeNode {
+    white-space: nowrap;
+}
+
+.treeNodeSelected,
+.treeNodeHover {
+    background-color: var(--color-surface);
+    border: 1px solid var(--gray-400);
+    color: #000;
+    padding: 1px 2px;
+    margin-left: -3px;
+}
+
+.unpublished a, .unpublishedNode {
+    color: #B68282;
+}
+
+.deletedNode {
+    color: #A52A2A;
+    text-decoration: line-through;
+}
+
+.publishedNode {
+    color: var(--color-text-dark);
+}
+
+.emptyNode {
+    color: #aaa;
+    cursor: default;
+}
+
+.notInMenuNode {
+    color: var(--gray-700);
+    text-decoration: none;
+}
+
+.protectedNode {
+    color: #77d;
+}
+
+#treeSplitter {
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    right: -10px;
+}
+
+.disabledPlugin a {
+    color: #aaa;
+    text-decoration: line-through;
+}
+
+/* ============================================================================
+   9. Tables & Grids - Data Tables, Sortable Tables
+   Used in: User lists, resource grids, sortable data tables
+   ============================================================================ */
+
+.grid {
+    width: 100%;
+    background-color: var(--color-surface);
+    border: 1px solid silver;
+    border-collapse: collapse;
+}
+
+.grid th, .grid td {
+    padding: var(--space-2);
+}
+
+.gridHeader, .grid th {
+    color: var(--gray-900);
+    font-weight: bold;
+    white-space: nowrap;
+    background-color: #d2d2d2;
+    text-align: left;
+}
+
+.gridItem {
+    background-color: var(--color-surface);
+    padding: 3px;
+}
+
+.gridAltItem {
+    background-color: #eeeeee;
+    padding: 3px;
+}
+
+.gridRowIcon:hover {
+    background-color: #f5f5dc;
+}
+
+.grid a {
+    text-decoration: none;
+}
+
+.grid img {
+    vertical-align: middle;
+    padding-right: 4px;
+}
+
+/* -------------------------[ search bar ]--- */
+.searchbar {
+    width: 100%;
+    border: 1px solid silver;
+    background-color: #DBDBDB;
+}
+
+.searchtext {
+    height: 18px;
+    padding: 2px;
+}
+
+/* -------------------------[ home page main links ]--- */
+a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
+    text-decoration: underline;
+    color: var(--gray-900);
+    font-weight: bold;
+}
+
+a.hometblink:hover {
+    text-decoration: underline;
+    color: Gray;
+}
+
+#preLoader {
+    position: absolute;
+    z-index: 50000;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, .3);
+}
+
+.preLoaderText {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
+    opacity: .7;
+    width: 300px;
+    height: 150px;
+    margin: 70px auto;
+    padding: 50px;
+    border: 1px solid var(--gray-500);
+}
+
+/* -------------------------[ contextmenu in editing modules ]--- */
+.contextMenu {
+    background: var(--color-surface);
+    margin: 0;
+    padding: 0;
+    border: 1px solid #039;
+    border-color: #eaeaea #909090 #707070 #eaeaea;
+    position: absolute;
+    z-index: 10000;
+}
+
+.cntxMnuItem {
+    background-image: none;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    padding: 3px 16px 3px 2px;
+}
+
+.cntxMnuItemDisabled {
+    cursor: default;
+    padding: 3px 16px 3px 2px;
+    color: var(--color-text-darker);
+}
+
+.cntxMnuItemOver {
+    cursor: pointer;
+    color: var(--color-text-primary);
+    background: #e3e3e3;
+    padding: 2px 15px 2px 1px;
+    border: 1px solid #c0c0c0;
+}
+
+.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
+    margin: 0 var(--space-2) 0 0;
+}
+
+.cntxMnuItem img, .cntxMnuItemDisabled img {
+    opacity: .3;
+}
+
+.cntxMnuSeparator {
+    font-size: 0;
+    height: 1px;
+    background-color: silver;
+    overflow: hidden;
+    margin: 3px 1px 3px 28px;
+}
+
+/* ============================================================================
+   10. Navigation - Top Menu, Supplemental Nav
+   Used in: Main top navigation bar, sub-navigation menus
+   ============================================================================ */
+
+/* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
+#topMenu {
+    --topnav-item-height: 32px;
+    --topnav-gap: 4px;
+    --subnav-height: 32px;
+    --subnav-horizontal-padding: 16px;
+    --topnav-padding-top: 14px;
+    --topnav-background: #3d1b36;
+    --topnav-border: #d45da7;
+    --topnav-link-color: rgba(255, 235, 244, 0.9);
+    --topnav-link-hover-color: #ffffff;
+    --topnav-link-hover-bg: rgba(244, 170, 200, 0.35);
+    --topnav-link-active-bg: rgba(61, 27, 54, 0.75);
+    background-color: var(--topnav-background);
+    border-bottom: 1px solid var(--topnav-border);
+}
+#topMenu {
+    background-color: #3d1b36;
+    background-image:
+        radial-gradient(ellipse 1200px 180px at 12% 60%, rgba(244, 170, 200, 0.24) 0%, transparent 65%),
+        radial-gradient(ellipse 900px 140px at 85% 40%, rgba(206, 149, 222, 0.26) 0%, transparent 60%),
+        radial-gradient(ellipse 720px 120px at 60% 70%, rgba(255, 207, 221, 0.35) 0%, transparent 62%),
+        radial-gradient(ellipse 780px 140px at 35% 35%, rgba(255, 187, 201, 0.28) 0%, transparent 60%),
+        linear-gradient(120deg,
+            rgba(255, 189, 214, 0.35) 0%,
+            rgba(207, 139, 196, 0.28) 42%,
+            rgba(96, 58, 99, 0.25) 100%
+        ),
+        linear-gradient(180deg,
+            rgba(93, 39, 82, 0.85) 0%,
+            rgba(61, 27, 54, 0.95) 100%
+        );
+    border-bottom: 1px solid rgba(212, 93, 155, 0.25);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+#Navcontainer {
+    color: #e4f1f3;
+    padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
+    position: relative;
+    text-shadow: none;
+}
+
+#nav {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    column-gap: var(--topnav-gap);
+    row-gap: var(--space-2);
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#nav > li {
+    list-style: none;
+}
+
+#nav > li > a {
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    color: rgba(255, 235, 244, 0.72);
+    display: block;
+    line-height: var(--topnav-item-height);
+    padding: 0 var(--space-5);
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+#nav > li > a:hover,
+#nav > li > a:active,
+#nav > li > a:focus-visible {
+    color: #ffffff;
+    background: linear-gradient(135deg, rgba(244, 170, 200, 0.35) 0%, rgba(212, 93, 155, 0.25) 100%);
+    border-color: rgba(212, 93, 155, 0.35);
+}
+
+#nav > li.active > a {
+    background: linear-gradient(180deg, rgba(61, 27, 54, 0.9) 0%, rgba(61, 27, 54, 0.7) 100%);
+    border-color: rgba(212, 93, 155, 0.35);
+    border-top: 1px solid rgba(212, 93, 155, 0.35);
+    border-bottom: none;
+    color: var(--topnav-link-hover-color);
+    position: relative;
+    text-shadow: none;
+    z-index: 2;
+}
+
+#nav > li > ul.subnav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--topnav-item-height) + 15px);
+    margin: 0;
+    list-style: none;
+    padding: 6px var(--subnav-horizontal-padding);
+    min-height: var(--subnav-height);
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: var(--topnav-gap);
+    row-gap: 6px;
+    border-top: 1px solid rgba(212, 93, 155, 0.25);
+    border-bottom: 1px solid rgba(212, 93, 155, 0.25);
+    background: rgba(61, 27, 54, 0.78);
+    z-index: 1;
+    box-shadow: 0 10px 24px rgba(61, 27, 54, 0.28);
+}
+
+#nav > li.active > ul.subnav {
+    display: flex;
+}
+
+#nav > li > ul.subnav > li {
+    margin: 0;
+    list-style: none;
+}
+
+#nav > li > ul.subnav a {
+    color: rgba(255, 240, 247, 0.95);
+    cursor: pointer;
+    display: block;
+    font-weight: normal;
+    line-height: var(--subnav-height);
+    padding: 0 18px;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
+    background: rgba(244, 170, 200, 0.35);
+    color: #ffffff;
+    text-shadow: none;
+}
+
+#nav > li > ul.subnav a:active {
+    color: #ffe1f0;
+}
+
+/* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
+#mx_contextmenu {
+    position: absolute;
+    height: auto;
+    visibility: hidden;
+    z-index: 10000;
+    width: 165px;
+    background-color: var(--color-surface);
+    margin: 0;
+    padding-bottom: 10px;
+    border: 1px solid var(--color-border-light);
+    border-right-color: #dcdcdc;
+    border-bottom-color: #dcdcdc;
+    overflow: hidden;
+    line-height: 11px;
+    box-shadow: var(--shadow-lg);
+}
+
+#mx_contextmenu .menuLink {
+    cursor: pointer;
+    color: var(--color-text-dark);
+    padding: 3px 5px 3px 4px;
+}
+
+#mx_contextmenu .menuLink:hover {
+    background: #DDE4EB;
+    border: 1px solid #fdfdfd;
+    border-bottom-color: #dcdcdc;
+    color: var(--color-text-primary);
+}
+
+#mx_contextmenu .menuLink:hover,
+#mx_contextmenu .menuLinkDisabled {
+    cursor: pointer;
+    padding: 2px 4px 2px 3px;
+}
+
+#mx_contextmenu .menuLinkDisabled {
+    cursor: default;
+    color: #787878;
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLink:hover img,
+#mx_contextmenu .menuLinkDisabled img {
+    margin-right: 5px;
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLinkDisabled img {
+    opacity: .3;
+}
+
+#mx_contextmenu .menuLink:hover img {
+    opacity: 1;
+}
+
+#mx_contextmenu #nameHolder {
+    color: var(--color-surface);
+    text-align: left;
+    cursor: default;
+    font-weight: bold;
+    padding: 6px 4px;
+    margin-bottom: 3px;
+    text-shadow: 0px -1px 0px var(--color-text-dark);
+    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+}
+
+#mx_contextmenu .seperator {
+    font-size: 0;
+    height: 1px;
+    background-color: silver;
+    overflow: hidden;
+    margin: 3px 1px 3px 28px;
+}
+
+
+/* -------------------------[ Settings Table ]--- */
+.settings {
+    width: 600px;
+}
+
+.settings tr {
+    width: 100% !important;
+}
+
+.settings th {
+    width: 200px !important;
+    text-align: left;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.filelist td {
+    border-bottom: 1px solid #C2C3CF;
+}
+
+/* ============================================================================
+   11. Tabs System - Dynamic Tab Pane Control
+   Used in: Document editor, settings pages, multi-tab interfaces
+   ============================================================================ */
+
+.dynamic-tab-pane-control.tab-pane {
+    position: relative;
+    width: 100%;
+}
+
+.dynamic-tab-pane-control .tab-row .tab {
+    color: var(--color-secondary-text);
+    font-size: 1em;
+    cursor: pointer;
+    display: inline;
+    margin: 3px 2px 1px 0;
+    float: left;
+    padding: var(--space-2) var(--space-4);
+    z-index: 1;
+    position: relative;
+    top: 1px;
+    border: 1px solid var(--color-secondary-border);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    background-color: var(--color-secondary-start);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.hover {
+    text-decoration: none;
+    color: var(--color-secondary-hover-text);
+    border-color: var(--color-secondary-border);
+    background-color: var(--color-secondary-hover-start);
+    background-image: linear-gradient(var(--color-secondary-hover-start), var(--color-secondary-hover-end));
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected {
+    color: var(--gray-900);
+    z-index: 999;
+    top: 1px;
+    border-width: 1px;
+    border-bottom-style: solid;
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-width: 1px 1px 0;
+    background-color: var(--color-surface);
+    background-image: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected span {
+    color: var(--color-text-darker);
+    background-color: var(--color-surface);
+    text-shadow: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab span {
+    color: inherit;
+    text-decoration: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.hover span {
+    color: var(--color-secondary-hover-text);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+    color: var(--gray-900);
+    border-color: var(--color-primary-hover-end) #b7c2c7 var(--color-surface) #b7c2c7;
+    background-color: var(--color-surface);
+    background-image: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+    color: var(--color-text-darker);
+}
+
+.dynamic-tab-pane-control .tab-row .tab .alert {
+    color: #c00;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected .alert {
+    color: #c00;
+}
+
+.dynamic-tab-pane-control .tab-page {
+    clear: both;
+    background: var(--color-surface);
+    z-index: 2;
+    position: relative;
+    top: -2px;
+    padding: var(--space-5) 15px 14px !important;
+}
+
+.dynamic-tab-pane-control .tab-row {
+    z-index: 1;
+    white-space: nowrap;
+}
+
+.dynamic-tab-pane-control ul {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+}
+
+.dynamic-tab-pane-control li {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* -------------------------[ Tree buttons ]--- */
+.treeButton {
+    display: block;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    border: 1px;
+    border-bottom-color: #809c47;
+    padding: 3px 5px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.treeButton:hover {
+    border: 1px solid #88939E;
+    padding: 2px var(--space-1);
+    background: var(--color-surface);
+}
+
+.treeButtonDisabled {
+    cursor: default;
+    border: 1px solid #657587;
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
+    border-width: 0;
+    opacity: .5;
+}
+
+/* -------------------------[ Welcome Page ]--- */
+a.hometblink, a.hometblink img {
+    border: 0 !important;
+    text-decoration: none !important;
+}
+
+.wm_button {
+    float: left;
+    margin: 0 var(--space-3) 2px 0;
+    text-align: center;
+}
+
+/* -------------------------[ Welcome Page ]--- */
+#mainActionPages {
+    background: var(--gray-100);
+    background-image: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.8) 0%,
+        rgba(245, 245, 245, 0.95) 100%);
+}
+
+.tab-page {
+    border: 1px solid #AAA;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.sectionBody .tab-page {
+    padding: 15px 15px 20px !important;
+}
+
+/* -------------------------[ New sortable table class ]--- */
+table.sortabletable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sortabletable tr.even {
+    background: #E9F0F3;
+}
+
+.sortabletable td, .sortabletable th {
+    padding: var(--space-2);
+    border: 1px solid var(--gray-400);
+}
+
+.sortabletable th {
+    text-align: left;
+    cursor: pointer;
+    color: var(--gray-900);
+}
+
+.sortabletable th a {
+    text-decoration: none;
+    color: var(--gray-900);
+}
+
+.sortabletable th:active {
+    background: var(--gray-400);
+    padding: 3px var(--space-1) 1px 6px;
+}
+
+/* -------------------------[ Pagination table ]--- */
+#max-display-records {
+    margin: 10px 0;
+}
+
+#pagination {
+    margin: 10px 0;
+}
+
+#pagination ul {
+    margin: 10px 0;
+    display: inline;
+}
+
+#pagination li {
+    list-style: none;
+    display: inline;
+    width: 15px;
+    margin: 0 0 0 1px;
+    padding: 0;
+}
+
+#pagination li a,
+#pagination li span {
+    padding: 3px var(--space-2);
+    border: 1px solid var(--color-neutral-button-border);
+    background: var(--color-neutral-button-start);
+    text-decoration: none;
+    color: var(--color-secondary-text);
+    border-radius: var(--radius-sm);
+}
+
+#pagination li span {
+    color: var(--gray-400);
+    cursor: default;
+}
+
+#pagination li.currentPage a, #pagination li a:hover {
+    color: var(--color-surface);
+    background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
+    border: 1px solid var(--color-primary-end);
+}
+
+fieldset.tab-page {
+    border: 1px solid var(--gray-200) !important;
+}
+
+h2#edit_document_title {
+    font-size: 15px;
+    color: var(--gray-100);
+    width: 100%;
+    border-bottom: none;
+    padding: 5px 10px;
+}
+
+/* ============================================================================
+   12. Action Buttons - Fixed Position Controls
+   Used in: Document editor, form pages, action toolbars
+   From: https://github.com/manse/ScienceStyle
+   ============================================================================ */
+
+#actions {
+    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
+    margin: 0;
+    padding: var(--space-2) var(--space-4) !important;
+    position: fixed;
+    right: var(--space-4);
+    text-align: right;
+    top: var(--space-2);
+    z-index: 100;
+    border-radius: var(--radius-lg);
+}
+
+select#stay {
+    padding: var(--space-2);
+}
+
+.actionButtons {
+    margin-bottom: 15px;
+}
+
+.actionButtons:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+ul.actionButtons {
+    margin: 0;
+    padding: 0;
+    /* accommodate border on buttons - */
+    background: none;
+    width: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+
+#actions .actionButtons {
+    padding-bottom: 0;
+}
+
+.actionButtons li {
+    list-style: none;
+    margin-right: 6px;
+    padding: 0;
+    float: left;
+}
+
+.actionButtons img {
+    vertical-align: top;
+    margin-top: 1px;
+    opacity: .7;
+}
+
+.actionButtons a:hover img {
+    opacity: 1;
+}
+
+.actionButtons a {
+    display: block;
+    float: left;
+    border-radius: var(--radius-sm);
+    color: var(--color-secondary-text);
+    font-size: 1em;
+    font-weight: 700;
+    outline: medium none;
+    padding: var(--space-2) var(--space-3);
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-start);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition-fast), color var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.actionButtons a img {
+    display: none;
+}
+
+.actionButtons a:hover {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
+    color: var(--color-secondary-hover-text);
+    box-shadow: var(--shadow-md);
+}
+
+.actionButtons a:active {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
+    box-shadow: none;
+}
+
+.actionButtons a.disabled {
+    border: 1px solid var(--color-border-default);
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
+    background-color: var(--color-surface);
+    cursor: default;
+    pointer-events: none;
+}
+
+.actionButtons .opendraft a {
+    background-color: var(--color-draft-start);
+    border-color: var(--color-draft-end);
+}
+
+.actionButtons select, .actionButtons span.and {
+    display: block;
+    float: left;
+}
+
+.actionButtons span.and {
+    padding: 4px 2px;
+}
+
+.actionButtons a.disabled img {
+    opacity: .3;
+}
+
+.actionButtons .and {
+    margin: 0 2px 0 5px;
+    color: #3b454f;
+    font-weight: 700;
+}
+
+.actionButtons #Button1 a,
+.actionButtons li.primary a,
+.actionButtons a.primary,
+.actionButtons a.default {
+    color: var(--color-surface);
+    box-shadow: none;
+    text-shadow: none;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary-end);
+}
+
+.actionButtons #Button1 a:hover,
+.actionButtons a:hover.default {
+    background-color: var(--color-primary-hover-start);
+    border-color: var(--color-primary-hover-end);
+}
+
+.actionButtons #Button1 a:active,
+.actionButtons a:active.default {
+    background-color: var(--color-primary-active-start);
+    border-color: var(--color-primary-active-end);
+}
+
+
+#loadingmask {
+    display: none;
+}
+
+/* ============================================================================
+   13. Specialized Forms - Mutate Forms, Date Pickers
+   Used in: Document editor forms, settings forms with date pickers
+   ============================================================================ */
+
+form#mutate dt,
+form#mutate dd {
+    margin-bottom: 10px;
+}
+
+form#mutate dt label,
+form#mutate dt h3.label {
+    font-size: 1em;
+    display: inline;
+    float: left;
+    width: 200px;
+    color: #821517 !important;
+    font-weight: bold;
+}
+
+form#mutate dd {
+    margin-left: 210px;
+}
+
+form#mutate input.disabled {
+    background-color: var(--gray-100) !important;
+}
+
+form#mutate select.inputBox,
+form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+form#mutate textarea {
+    width: 300px;
+}
+
+form#mutate textarea.textarea {
+    width: 90%;
+    height: 200px;
+}
+
+#tv_body input[type=text],
+#tv_body textarea {
+    background: var(--color-surface);
+}
+
+form#mutate textarea.tv_textareamini {
+    height: 100px;
+    width: 300px;
+    overflow-y: scroll;
+}
+
+form#mutate textarea.tv_textarea {
+    height: 100px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+/*
+* Styling for datepicker elements in settings and templavars
+*/
+form#mutate input.date,
+form#mutate input.tvdate {
+    margin-right: 10px;
+}
+
+/*
+* Individual Styles for fieldset#settings_page_settings
+*/
+form#mutate fieldset#settings_page_settings input#pub_date,
+form#mutate fieldset#settings_page_settings input#unpub_date {
+    width: 150px;
+}
+
+form#mutate fieldset#settings_page_settings select {
+    width: 155px;
+}
+
+/*
+* Individual Styles for fieldset#meta_keywords
+*/
+form#mutate fieldset#meta_keywords select.inputBox {
+    display: block;
+    margin-bottom: 0;
+}
+
+form#mutate fieldset#meta_keywords dl.keywords {
+    float: left;
+    margin-right: 30px;
+}
+
+form#mutate fieldset#meta_keywords dl.metatags {
+    float: left;
+}
+
+form#mutate fieldset#meta_keywords dl dt label {
+    width: 100px;
+}
+
+form#mutate fieldset#meta_keywords dl dd {
+    margin-left: 110px;
+}
+
+/*
+* Individual Styles for fieldset#document_content
+*/
+
+fieldset#document_content textarea#ta {
+    width: 100%;
+    height: 400px;
+    font-size: 1em;
+}
+
+/*
+* Individual Styles for fieldset#access_permissions
+*/
+fieldset#access_permissions dt label {
+    width: 200px;
+}
+
+fieldset#access_permissions dd {
+    margin-left: 210px;
+}
+
+fieldset#access_permissions dl dd ul li {
+    list-style-type: none;
+}
+
+/* -------------------------[ date picker ]--- */
+input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
+    width: 150px;
+    padding: 3px 3px 3px 24px;
+    background-color: var(--color-surface);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
+    background-repeat: no-repeat;
+    background-position: var(--space-1) center;
+}
+
+input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
+    cursor: text;
+}
+
+.phptextarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+    box-sizing: border-box;
+}
+
+/* Custom */
+/* replace warning red color in tabs */
+strong[style*='color:#EF1D1D'] {
+    color: yellow !important;
+}
+
+.selected strong[style*='color:#EF1D1D'] {
+    color: red !important;
+}
+
+.tmplvars tr {
+    height: 24px;
+}
+
+.tvname {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.okmsg {
+    background-color: var(--color-success-bg);
+    border: 2px solid var(--color-success-light);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+/* ============================================================================
+   14. Custom Navigation Gradients - BlossomBlush Theme
+   Used in: Top menu bar, navigation system
+   Note: Soft pastel gradients for a feminine look
+   ============================================================================ */
+
+/* #topMenuの背景 - 左側抑えめ、右側グラデーション */
+#topMenu {
+    background-color: #0f1825 !important;
+    background-image:
+        /* === 光源：左側は控えめ、右側は色の変化 === */
+
+        /* 左側 - ティール（青緑）系 - かなり控えめ */
+        radial-gradient(ellipse 900px 80px at 15% 50%, rgba(20, 184, 166, 0.12) 0%, rgba(20, 184, 166, 0.07) 22%, rgba(20, 184, 166, 0.03) 42%, transparent 65%),
+
+        radial-gradient(circle 110px at 12% 58%, rgba(6, 182, 212, 0.10) 0%, rgba(6, 182, 212, 0.05) 28%, rgba(6, 182, 212, 0.02) 55%, transparent 78%),
+
+        /* 左寄り - シアン・青系 - 控えめ */
+        radial-gradient(ellipse 800px 75px at 28% 50%, rgba(14, 165, 233, 0.11) 0%, rgba(14, 165, 233, 0.06) 24%, rgba(14, 165, 233, 0.03) 45%, transparent 68%),
+
+        radial-gradient(circle 95px at 25% 42%, rgba(59, 130, 246, 0.09) 0%, rgba(59, 130, 246, 0.05) 30%, rgba(59, 130, 246, 0.02) 58%, transparent 82%),
+
+        /* 中央 - 紫系へ移行 - やや抑えめ */
+        radial-gradient(ellipse 850px 70px at 50% 50%, rgba(139, 92, 246, 0.16) 0%, rgba(139, 92, 246, 0.09) 26%, rgba(139, 92, 246, 0.04) 48%, transparent 70%),
+
+        radial-gradient(circle 100px at 48% 65%, rgba(168, 85, 247, 0.14) 0%, rgba(168, 85, 247, 0.07) 32%, rgba(168, 85, 247, 0.03) 60%, transparent 84%),
+
+        /* 中央やや右 - ローズ・オレンジ系へ - 通常 */
+        radial-gradient(ellipse 900px 75px at 68% 50%, rgba(251, 146, 60, 0.22) 0%, rgba(251, 146, 60, 0.12) 24%, rgba(251, 146, 60, 0.06) 46%, transparent 68%),
+
+        radial-gradient(circle 105px at 65% 55%, rgba(251, 113, 133, 0.19) 0%, rgba(251, 113, 133, 0.10) 30%, rgba(251, 113, 133, 0.05) 56%, transparent 80%),
+
+        /* 右側 - アンバー・黄金系 - 通常 */
+        radial-gradient(ellipse 1000px 85px at 85% 50%, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.15) 22%, rgba(245, 158, 11, 0.07) 40%, transparent 62%),
+
+        radial-gradient(circle 115px at 82% 48%, rgba(251, 191, 36, 0.22) 0%, rgba(251, 191, 36, 0.12) 28%, rgba(251, 191, 36, 0.05) 54%, transparent 76%),
+
+        /* 右端 - 茶色系 - 通常 */
+        radial-gradient(circle 90px at 92% 60%, rgba(217, 119, 6, 0.20) 0%, rgba(217, 119, 6, 0.10) 32%, rgba(217, 119, 6, 0.04) 60%, transparent 85%),
+
+        /* === 全体を繋ぐ横方向グラデーション === */
+        linear-gradient(90deg,
+            rgba(20, 184, 166, 0.05) 0%,
+            rgba(14, 165, 233, 0.04) 15%,
+            rgba(59, 130, 246, 0.03) 25%,
+            rgba(139, 92, 246, 0.05) 40%,
+            rgba(168, 85, 247, 0.06) 50%,
+            rgba(251, 146, 60, 0.07) 65%,
+            rgba(245, 158, 11, 0.09) 80%,
+            rgba(217, 119, 6, 0.07) 100%
+        ),
+
+        /* ベースの縦方向グラデーション */
+        linear-gradient(180deg,
+            rgba(30, 64, 175, 0.08) 0%,
+            rgba(20, 24, 38, 0.95) 50%,
+            rgba(15, 23, 24, 1) 100%
+        ) !important;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.20) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* === メインナビゲーション項目 === */
+#nav > li > a {
+    background: transparent !important;
+    color: rgba(226, 232, 240, 0.55) !important;
+    border-color: transparent !important;
+    transition: all var(--transition-normal) !important;
+}
+
+#nav > li > a:hover,
+#nav > li > a:active,
+#nav > li > a:focus-visible {
+    background: rgba(59, 130, 246, 0.2) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+#nav > li.active > a {
+    background: rgba(61, 27, 54, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-color: rgba(212, 93, 155, 0.35) !important;
+    color: rgba(255, 255, 255, 1) !important;
+    box-shadow: 0 4px 12px rgba(61, 27, 54, 0.35) !important;
+}
+
+/* === サブナビゲーション === */
+#nav > li > ul.subnav {
+    background: rgba(61, 27, 54, 0.72) !important;
+    backdrop-filter: blur(20px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+    border-top-color: rgba(212, 93, 155, 0.25) !important;
+    border-bottom-color: rgba(212, 93, 155, 0.25) !important;
+    box-shadow: 0 4px 16px rgba(61, 27, 54, 0.35) !important;
+}
+
+#nav > li > ul.subnav a {
+    color: rgba(255, 240, 247, 0.95) !important;
+    background: transparent !important;
+    transition: all var(--transition-normal) !important;
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
+    background: rgba(244, 170, 200, 0.35) !important;
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+/* === 右上のユーザー情報エリア === */
+#supplementalNav {
+    background: linear-gradient(180deg, rgba(255, 214, 232, 0.25), rgba(94, 45, 86, 0.55)) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(212, 93, 155, 0.2);
+    box-shadow: 0 2px 8px rgba(61, 27, 54, 0.25);
+}
+
+#supplementalNav a {
+    color: rgba(255, 236, 245, 0.9) !important;
+}
+
+#supplementalNav a:hover,
+#supplementalNav a:focus-visible {
+    color: rgba(255, 255, 255, 1) !important;
+}
