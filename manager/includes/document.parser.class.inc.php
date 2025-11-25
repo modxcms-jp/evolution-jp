@@ -5250,6 +5250,9 @@ class DocumentParser
                 continue;
             }
             $matches = $this->getTagsFromContent($content, $left, $right);
+            if (!$matches || empty($matches[0])) {
+                continue;
+            }
             $content = str_replace($matches[0], '', $content);
         }
         if (strpos($content, '<!---->') !== false) {
