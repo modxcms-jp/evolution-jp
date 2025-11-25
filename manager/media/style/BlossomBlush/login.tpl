@@ -202,19 +202,68 @@
             margin-bottom: 8px;
         }
 
-        input.checkbox {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            accent-color: #d45da7;
+        .remember-row {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        label[for="rememberme"] {
-            display: inline-block;
-            color: #5e3d58;
-            font-weight: 500;
+        .toggle-switch {
+            position: relative;
+            width: 46px;
+            height: 26px;
+            flex: 0 0 auto;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #f6d8eb 0%, #e9d3ff 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 14px rgba(212, 93, 155, 0.12);
+            transition: background 0.2s ease, box-shadow 0.2s ease;
             cursor: pointer;
-            vertical-align: middle;
+        }
+
+        .toggle-switch input.checkbox {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .toggle-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #fff5fb 0%, #ffffff 100%);
+            box-shadow: 0 6px 12px rgba(212, 93, 155, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .toggle-switch input.checkbox:checked + .toggle-track {
+            background: linear-gradient(135deg, #ffb6d9 0%, #d45da7 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 8px 16px rgba(212, 93, 155, 0.18);
+        }
+
+        .toggle-switch input.checkbox:checked + .toggle-track .toggle-knob {
+            transform: translateX(20px);
+            background: linear-gradient(180deg, #fff8fb 0%, #ffe4f2 100%);
+            box-shadow: 0 6px 14px rgba(212, 93, 155, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .remember-label {
+            color: #5e3d58;
+            font-weight: 600;
+            font-size: 13px;
+            line-height: 26px;
+            cursor: pointer;
         }
 
         input.login,
@@ -328,9 +377,14 @@
                 [+captcha_image+]
                 [+captcha_input+]
             </div>
-            <div class="input-wrap" style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox" [+remember_me+]/>
-                <label for="rememberme">[+remember_username+]</label>
+            <div class="remember-row">
+                <label class="toggle-switch" for="rememberme">
+                    <input type="checkbox" id="rememberme" name="rememberme" tabindex="4" value="1" class="checkbox" [+remember_me+] />
+                    <span class="toggle-track">
+                        <span class="toggle-knob"></span>
+                    </span>
+                </label>
+                <label class="remember-label" for="rememberme">[+remember_username+]</label>
             </div>
             <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]"/>
             <div class="forgot-password">[+OnManagerLoginFormRender+]</div>
