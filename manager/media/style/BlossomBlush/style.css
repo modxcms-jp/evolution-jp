@@ -1150,37 +1150,39 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #3d1b36;
-    --topnav-border: #d45da7;
-    --topnav-link-color: rgba(255, 235, 244, 0.9);
-    --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: rgba(244, 170, 200, 0.35);
-    --topnav-link-active-bg: rgba(61, 27, 54, 0.75);
+    --topnav-background: #f8e7f0;
+    --topnav-border: #e6b3cc;
+    --topnav-link-color: #7d345f;
+    --topnav-link-hover-color: #3b1b35;
+    --topnav-link-hover-bg: rgba(255, 255, 255, 0.55);
+    --topnav-link-active-bg: rgba(255, 225, 240, 0.92);
     background-color: var(--topnav-background);
     border-bottom: 1px solid var(--topnav-border);
 }
 #topMenu {
-    background-color: #3d1b36;
+    background-color: #f8e7f0;
     background-image:
-        radial-gradient(ellipse 1200px 180px at 12% 60%, rgba(244, 170, 200, 0.24) 0%, transparent 65%),
-        radial-gradient(ellipse 900px 140px at 85% 40%, rgba(206, 149, 222, 0.26) 0%, transparent 60%),
-        radial-gradient(ellipse 720px 120px at 60% 70%, rgba(255, 207, 221, 0.35) 0%, transparent 62%),
-        radial-gradient(ellipse 780px 140px at 35% 35%, rgba(255, 187, 201, 0.28) 0%, transparent 60%),
-        linear-gradient(120deg,
-            rgba(255, 189, 214, 0.35) 0%,
-            rgba(207, 139, 196, 0.28) 42%,
-            rgba(96, 58, 99, 0.25) 100%
+        radial-gradient(ellipse 1200px 220px at 12% 50%, rgba(255, 214, 230, 0.65) 0%, transparent 62%),
+        radial-gradient(ellipse 960px 180px at 85% 42%, rgba(255, 210, 223, 0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 780px 160px at 60% 70%, rgba(246, 204, 228, 0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 760px 160px at 32% 32%, rgba(225, 191, 231, 0.55) 0%, transparent 58%),
+        linear-gradient(135deg,
+            rgba(255, 239, 247, 0.95) 0%,
+            rgba(248, 216, 235, 0.9) 34%,
+            rgba(233, 184, 216, 0.82) 68%,
+            rgba(220, 163, 206, 0.78) 100%
         ),
         linear-gradient(180deg,
-            rgba(93, 39, 82, 0.85) 0%,
-            rgba(61, 27, 54, 0.95) 100%
+            rgba(255, 243, 248, 0.9) 0%,
+            rgba(246, 210, 231, 0.9) 50%,
+            rgba(234, 180, 214, 0.9) 100%
         );
-    border-bottom: 1px solid rgba(212, 93, 155, 0.25);
+    border-bottom: 1px solid rgba(230, 179, 204, 0.6);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 #Navcontainer {
-    color: #e4f1f3;
+    color: #7d345f;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
     text-shadow: none;
@@ -1205,7 +1207,7 @@ a.hometblink:hover {
 #nav > li > a {
     border: 1px solid transparent;
     border-radius: 6px 6px 0 0;
-    color: rgba(255, 235, 244, 0.72);
+    color: var(--topnav-link-color);
     display: block;
     line-height: var(--topnav-item-height);
     padding: 0 var(--space-5);
@@ -1218,15 +1220,15 @@ a.hometblink:hover {
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(244, 170, 200, 0.35) 0%, rgba(212, 93, 155, 0.25) 100%);
-    border-color: rgba(212, 93, 155, 0.35);
+    color: var(--topnav-link-hover-color);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(241, 203, 224, 0.6) 100%);
+    border-color: rgba(230, 179, 204, 0.6);
 }
 
 #nav > li.active > a {
-    background: linear-gradient(180deg, rgba(61, 27, 54, 0.9) 0%, rgba(61, 27, 54, 0.7) 100%);
-    border-color: rgba(212, 93, 155, 0.35);
-    border-top: 1px solid rgba(212, 93, 155, 0.35);
+    background: linear-gradient(180deg, rgba(255, 237, 246, 0.98) 0%, rgba(244, 208, 228, 0.9) 100%);
+    border-color: rgba(230, 179, 204, 0.7);
+    border-top: 1px solid rgba(230, 179, 204, 0.7);
     border-bottom: none;
     color: var(--topnav-link-hover-color);
     position: relative;
@@ -1248,11 +1250,11 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: var(--topnav-gap);
     row-gap: 6px;
-    border-top: 1px solid rgba(212, 93, 155, 0.25);
-    border-bottom: 1px solid rgba(212, 93, 155, 0.25);
-    background: rgba(61, 27, 54, 0.78);
+    border-top: 1px solid rgba(230, 179, 204, 0.55);
+    border-bottom: 1px solid rgba(230, 179, 204, 0.55);
+    background: rgba(255, 238, 245, 0.92);
     z-index: 1;
-    box-shadow: 0 10px 24px rgba(61, 27, 54, 0.28);
+    box-shadow: 0 10px 24px rgba(180, 119, 158, 0.25);
 }
 
 #nav > li.active > ul.subnav {
@@ -1265,7 +1267,7 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: rgba(255, 240, 247, 0.95);
+    color: var(--topnav-link-color);
     cursor: pointer;
     display: block;
     font-weight: normal;
@@ -1278,13 +1280,13 @@ a.hometblink:hover {
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: rgba(244, 170, 200, 0.35);
-    color: #ffffff;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(241, 203, 224, 0.55) 100%);
+    color: var(--topnav-link-hover-color);
     text-shadow: none;
 }
 
 #nav > li > ul.subnav a:active {
-    color: #ffe1f0;
+    color: var(--topnav-link-hover-color);
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
