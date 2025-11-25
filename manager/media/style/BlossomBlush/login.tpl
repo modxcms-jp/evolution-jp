@@ -153,6 +153,10 @@
             margin-bottom: 16px;
         }
 
+        .input-field {
+            position: relative;
+        }
+
         input.text,
         input[type="text"],
         input[type="password"] {
@@ -164,6 +168,10 @@
             color: #3f2640;
             font-size: 14px;
             transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .input-field input[type="password"] {
+            padding-right: 44px;
         }
 
         input.text:focus,
@@ -369,8 +377,10 @@
             </div>
             <div class="input-wrap">
                 <label for="password">[+password+]</label>
-                <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
-                <span class="toggle-password" onclick="togglePassword()">♡</span>
+                <div class="input-field">
+                    <input type="password" class="text" name="password" id="password" tabindex="2" value=""/>
+                    <span class="toggle-password" onclick="togglePassword()">♡</span>
+                </div>
             </div>
             <div class="captcha-wrapper">
                 [+login_captcha_message+]
