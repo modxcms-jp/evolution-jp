@@ -256,6 +256,27 @@
             line-height: 1.6;
         }
 
+        .forgot-password {
+            margin-top: 18px;
+            text-align: center;
+            font-size: 13px;
+            color: #7a546d;
+            letter-spacing: 0.05px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .forgot-password a {
+            color: #c15b9a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .forgot-password a:hover {
+            color: #d45da7;
+            text-decoration: underline;
+        }
+
         .loginLicense a {
             color: #d45da7;
             text-decoration: none;
@@ -312,7 +333,7 @@
                 <label for="rememberme">[+remember_username+]</label>
             </div>
             <input type="submit" class="login" onclick="return false;" id="submitButton" value="[+login_button+]"/>
-            [+OnManagerLoginFormRender+]
+            <div class="forgot-password">[+OnManagerLoginFormRender+]</div>
         </div>
     </form>
 </div>
