@@ -66,9 +66,21 @@ function mm_widget_tags(
             $all_docs = db()->makeArray($result);
 
             foreach ($all_docs as $theDoc) {
-                $theTags = explode($delimiter, $theDoc['value']);
+                $value = isset($theDoc['value']) ? (string)$theDoc['value'] : '';
+                if ($value === '') {
+                    continue;
+                }
+
+                $theTags = explode($delimiter, $value);
                 foreach ($theTags as $t) {
-                    $foundTags[trim($t)]++;
+                    $tag = trim($t);
+                    if ($tag === '') {
+                        continue;
+                    }
+                    if (!isset($foundTags[$tag])) {
+                        $foundTags[$tag] = 0;
+                    }
+                    $foundTags[$tag]++;
                 }
             }
             // Sort the TV values (case insensitively)
@@ -93,6 +105,10 @@ function mm_widget_tags(
                 jsSafe($t),
                 $display_count ? sprintf(' (%s)', $c) : ''
             );
+        }
+
+        if (!isset($mm_fields[$targetTv])) {
+            continue;
         }
 
         $tv_id = $mm_fields[$targetTv]['fieldname'];
