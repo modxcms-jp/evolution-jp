@@ -1150,7 +1150,8 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #f8e7f0;
+    --topnav-background: #fdf3f8;
+    --topnav-background-pattern: url("images/header-floral.svg");
     --topnav-border: #e6b3cc;
     --topnav-link-color: #7d345f;
     --topnav-link-hover-color: #3b1b35;
@@ -1160,12 +1161,18 @@ a.hometblink:hover {
     border-bottom: 1px solid var(--topnav-border);
 }
 #topMenu {
-    background-color: #f8e7f0;
+    background-color: #fdf3f8;
     background-image:
-        radial-gradient(ellipse 1200px 220px at 12% 50%, rgba(255, 214, 230, 0.65) 0%, transparent 62%),
-        radial-gradient(ellipse 960px 180px at 85% 42%, rgba(255, 210, 223, 0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 780px 160px at 60% 70%, rgba(246, 204, 228, 0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 760px 160px at 32% 32%, rgba(225, 191, 231, 0.55) 0%, transparent 58%),
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.6) 0%,
+            rgba(255, 245, 250, 0.45) 44%,
+            rgba(253, 232, 244, 0.4) 100%
+        ),
+        var(--topnav-background-pattern),
+        radial-gradient(ellipse 1200px 220px at 12% 50%, rgba(255, 214, 230, 0.58) 0%, transparent 62%),
+        radial-gradient(ellipse 960px 180px at 85% 42%, rgba(255, 210, 223, 0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 780px 160px at 60% 70%, rgba(246, 204, 228, 0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 760px 160px at 32% 32%, rgba(225, 191, 231, 0.52) 0%, transparent 58%),
         linear-gradient(135deg,
             rgba(255, 239, 247, 0.95) 0%,
             rgba(248, 216, 235, 0.9) 34%,
@@ -1177,6 +1184,25 @@ a.hometblink:hover {
             rgba(246, 210, 231, 0.9) 50%,
             rgba(234, 180, 214, 0.9) 100%
         );
+    background-repeat: no-repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+    background-size:
+        100% 100%,
+        640px 320px,
+        auto,
+        auto,
+        auto,
+        auto,
+        auto,
+        auto;
+    background-position:
+        center center,
+        center 0px,
+        18% 48%,
+        82% 38%,
+        60% 72%,
+        32% 34%,
+        center center,
+        center center;
     border-bottom: 1px solid rgba(230, 179, 204, 0.6);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
