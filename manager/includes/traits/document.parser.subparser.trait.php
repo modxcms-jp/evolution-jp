@@ -2214,38 +2214,42 @@ trait DocumentParserSubParserTrait
     {
         global $modx;
 
-        if ($modx->previewObject) {
-            return $modx->previewObject;
-        }
+        try {
+            if ($modx->previewObject) {
+                return $modx->previewObject;
+            }
 
-        if (!isset($input['id']) || empty($input['id'])) {
-            $input['id'] = evo()->config('site_start');
-        }
+            if (!isset($input['id']) || empty($input['id'])) {
+                $input['id'] = evo()->config('site_start');
+            }
 
-        $modx->documentIdentifier = $input['id'];
+            $modx->documentIdentifier = $input['id'];
 
-        $rs = db()->select(
-            'id,name,type,display,display_params',
-            '[+prefix+]site_tmplvars'
-        );
-        while ($row = db()->getRow($rs)) {
-            $tvid = 'tv' . $row['id'];
-            $tvname[$tvid] = $row['name'];
-        }
+            $rs = db()->select(
+                'id,name,type,display,display_params',
+                '[+prefix+]site_tmplvars'
+            );
+            $tvname = [];
+            while ($row = db()->getRow($rs)) {
+                $tvid = 'tv' . $row['id'];
+                $tvname[$tvid] = $row['name'];
+            }
+
         foreach ($input as $k => $v) {
             if (isset($tvname[$k])) {
                 if (is_array($v)) {
                     $v = implode('||', $v);
                 }
-                unset($input[$k]);
                 $name = $tvname[$k];
-                if (isset($input["{$k}_prefix"])) {
-                    if ($input[$k . '_prefix'] !== 'DocID') {
-                        $v = $input["{$k}_prefix"] . $v;
+                $prefix_key = "{$k}_prefix";
+                if (isset($input[$prefix_key])) {
+                    if ($input[$prefix_key] !== 'DocID') {
+                        $v = $input[$prefix_key] . $v;
                     } elseif (preg_match('/\A[0-9]+\z/', $v)) {
                         $v = '[~' . $v . '~]';
                     }
                 }
+                unset($input[$k]);
                 $input[$name] = $v;
                 continue;
             }
@@ -2255,13 +2259,23 @@ trait DocumentParserSubParserTrait
             }
         }
 
-        $input['pub_date']    = evo()->toTimeStamp($input['pub_date']);
-        $input['unpub_date']  = evo()->toTimeStamp($input['unpub_date']);
-        $input['publishedon'] = evo()->toTimeStamp($input['publishedon']);
+        $input['pub_date']    = evo()->toTimeStamp($input['pub_date'] ?? 0);
+        $input['unpub_date']  = evo()->toTimeStamp($input['unpub_date'] ?? 0);
+        $input['publishedon'] = evo()->toTimeStamp($input['publishedon'] ?? 0);
 
         $modx->previewObject = $input;
 
-        return $modx->previewObject;
+            return $modx->previewObject;
+
+        } catch (Throwable $e) {
+            $modx->logEvent(
+                0,
+                3,
+                "getPreviewObject: Error occurred - " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine(),
+                'getPreviewObject - Error'
+            );
+            return [];
+        }
     }
 
     function loadLexicon($target = 'manager')

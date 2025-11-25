@@ -3420,13 +3420,24 @@ class DocumentParser
         }
 
         if ($this->isLoggedIn() && $mode === 'prepareResponse' && $this->is_int($this->input_post('id'))) {
-            if (!$this->input_post('token') || !$this->session('token') || $this->input_post('token') !== $this->session('token')) {
+            $postToken = $this->input_post('token');
+            $sessionToken = $this->session('token');
+
+            if (!$postToken || !$sessionToken || $postToken !== $sessionToken) {
+                $this->logEvent(
+                    0,
+                    3,
+                    "Preview failed: Token validation failed. POST token=" . ($postToken ? 'exists' : 'missing') .
+                    ", Session token=" . ($sessionToken ? 'exists' : 'missing'),
+                    'Preview Token Validation Failed'
+                );
                 exit('Can not preview');
             }
 
             $previewObject = $this->getPreviewObject($_POST);
             $identifier = $previewObject['id'];
             $this->documentIdentifier = $identifier;
+            $this->previewObject = $previewObject;
         } elseif ($this->input_get('revision')) {
             if (!$this->isLoggedIn()) {
                 $_SESSION['save_uri'] = request_uri();

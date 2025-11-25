@@ -47,10 +47,15 @@
             if (prevWin && !prevWin.closed) {
                 prevWin.close();
             }
-            prevWin = window.open('[+preview_url+]', 'prevWin');
+            
+            var previewUrl = '[+preview_url+]';
+            // z=manprev パラメータを追加してプレビューモードを有効化
+            previewUrl += (previewUrl.indexOf('?') === -1 ? '?' : '&') + 'z=manprev';
+            
+            prevWin = window.open(previewUrl, 'prevWin');
             var pmode = [+preview_mode+];
             if (pmode == 1) {
-                jQuery('#mutate').prop({action:'[+preview_url+]','target':'prevWin'});
+                jQuery('#mutate').prop({action:previewUrl,'target':'prevWin'});
                 jQuery('#mutate').submit();
                 jQuery('#mutate').prop({action:'index.php','target':'main'});
             }

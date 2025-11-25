@@ -11,6 +11,7 @@
     <input type="hidden" name="a" value="[+a+]"/>
     <input type="hidden" name="id" value="[+id+]"/>
     <input type="hidden" name="mode" value="[+mode+]"/>
+    <input type="hidden" name="token" value="[+token+]"/>
     <input type="hidden" name="MAX_FILE_SIZE" value="[+upload_maxsize+]"/>
     <input type="hidden" name="newtemplate" value=""/>
     <input type="hidden" name="pid" value="[+pid+]"/>
