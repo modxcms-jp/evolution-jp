@@ -68,7 +68,14 @@ function mm_widget_tags(
             foreach ($all_docs as $theDoc) {
                 $theTags = explode($delimiter, $theDoc['value']);
                 foreach ($theTags as $t) {
-                    $foundTags[trim($t)]++;
+                    $tag = trim($t);
+                    if ($tag === '') {
+                        continue;
+                    }
+                    if (!isset($foundTags[$tag])) {
+                        $foundTags[$tag] = 0;
+                    }
+                    $foundTags[$tag]++;
                 }
             }
             // Sort the TV values (case insensitively)
@@ -77,11 +84,12 @@ function mm_widget_tags(
 
         $default = explode(',', $default);
         foreach ($default as $k) {
-            if (strpos($k, '@fix') === 0) {
+            $tag = trim($k);
+            if ($tag === '' || strpos($tag, '@fix') === 0) {
                 continue;
             }
-            if (!isset($foundTags[$k])) {
-                $foundTags[$k] = 0;
+            if (!isset($foundTags[$tag])) {
+                $foundTags[$tag] = 0;
             }
         }
 
