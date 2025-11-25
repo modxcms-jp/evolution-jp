@@ -344,7 +344,7 @@ function getCreateDbCategory($category)
 
 function is_webmatrix()
 {
-    return isset($_SERVER['WEBMATRIXMODE']) ? true : false;
+    return $_SERVER['WEBMATRIXMODE'] ?? false;
 }
 
 function is_iis()
@@ -646,7 +646,7 @@ function hasInstallableElement($items, $selected, $installSampleData = false)
     }
 
     foreach ($items as $index => $info) {
-        $installset = isset($info['installset']) ? $info['installset'] : [];
+        $installset = $info['installset'] ?? [];
         if (shouldInstallElement($index, $installset, $selected, $installSampleData)) {
             return true;
         }

@@ -43,7 +43,7 @@ trait DocumentParserSubParserTrait
         }
 
         evo()->loadExtension('MODxMailer');
-        $sendto = !isset($p['to']) ? evo()->config('emailsender') : $p['to'];
+        $sendto = $p['to'] ?? evo()->config('emailsender');
         $sendto = explode(',', $sendto);
         foreach ($sendto as $address) {
             [$name, $address] = $modx->mail->address_split($address);
@@ -71,9 +71,9 @@ trait DocumentParserSubParserTrait
         if (isset($p['from']) && strpos($p['from'], '<') !== false && substr($p['from'], -1) === '>') {
             [$p['fromname'], $p['from']] = $modx->mail->address_split($p['from']);
         }
-        $modx->mail->From = !isset($p['from']) ? evo()->config('emailsender') : $p['from'];
-        $modx->mail->FromName = !isset($p['fromname']) ? evo()->config('site_name') : $p['fromname'];
-        $modx->mail->Subject = !isset($p['subject']) ? evo()->config('emailsubject') : $p['subject'];
+        $modx->mail->From = $p['from'] ?? evo()->config('emailsender');
+        $modx->mail->FromName = $p['fromname'] ?? evo()->config('site_name');
+        $modx->mail->Subject = $p['subject'] ?? evo()->config('emailsubject');
         $modx->mail->Body = $p['body'];
         if (isset($p['type']) && $p['type'] === 'text') {
             $modx->mail->IsHTML(false);
@@ -997,8 +997,8 @@ trait DocumentParserSubParserTrait
             }
         }
         $name = isset($options['name']) ? strtolower($options['name']) : '';
-        $version = isset($options['version']) ? $options['version'] : '0';
-        $plaintext = isset($options['plaintext']) ? $options['plaintext'] : false;
+        $version = $options['version'] ?? '0';
+        $plaintext = $options['plaintext'] ?? false;
         $key = $name ? $name : $src;
 
         $useThisVer = true;
@@ -1041,10 +1041,10 @@ trait DocumentParserSubParserTrait
         }
 
         if ($startup) {
-            $pos = isset($overwritepos) ? $overwritepos : max(array_merge([0], array_keys($modx->sjscripts))) + 1;
+            $pos = $overwritepos ?? max(array_merge([0], array_keys($modx->sjscripts))) + 1;
             $modx->sjscripts[$pos] = $src;
         } else {
-            $pos = isset($overwritepos) ? $overwritepos : max(array_merge([0], array_keys($modx->jscripts))) + 1;
+            $pos = $overwritepos ?? max(array_merge([0], array_keys($modx->jscripts))) + 1;
             $modx->jscripts[$pos] = $src;
         }
         $modx->loadedjscripts[$key]['version'] = $version;
@@ -2375,10 +2375,10 @@ trait DocumentParserSubParserTrait
             //include for compatibility modx version < 1.0.10
             include MODX_CORE_PATH . 'version.inc.php';
             $modx->version = [];
-            $modx->version['version'] = isset($modx_version) ? $modx_version : '';
-            $modx->version['branch'] = isset($modx_branch) ? $modx_branch : '';
-            $modx->version['release_date'] = isset($modx_release_date) ? $modx_release_date : '';
-            $modx->version['full_appname'] = isset($modx_full_appname) ? $modx_full_appname : '';
+            $modx->version['version'] = $modx_version ?? '';
+            $modx->version['branch'] = $modx_branch ?? '';
+            $modx->version['release_date'] = $modx_release_date ?? '';
+            $modx->version['full_appname'] = $modx_full_appname ?? '';
             $modx->version['new_version'] = evo()->config('newversiontext', '');
         }
         return ($data !== null && is_array($modx->version) && isset($modx->version[$data])) ? $modx->version[$data] : $modx->version;
