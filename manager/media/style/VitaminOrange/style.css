@@ -29,16 +29,16 @@
 
 :root {
     /* Gray Scale - Core neutral colors */
-    --gray-50: #fdf8f2;
-    --gray-100: #f8eddf;
-    --gray-200: #f2e4d6;
-    --gray-300: #e7d4c0;
-    --gray-400: #d7b392;
-    --gray-500: #c4926f;
-    --gray-600: #a97055;
-    --gray-700: #8c583f;
-    --gray-800: #6b3e29;
-    --gray-900: #2c1a10;
+    --gray-50: #f6f7fb;
+    --gray-100: #eef1f6;
+    --gray-200: #e1e5ec;
+    --gray-300: #cfd5df;
+    --gray-400: #b7bec9;
+    --gray-500: #929cab;
+    --gray-600: #6d7786;
+    --gray-700: #4c5562;
+    --gray-800: #343c47;
+    --gray-900: #1c2129;
 
     /* Spacing Scale - 8px based system */
     --space-1: 4px;
@@ -74,18 +74,15 @@
     --transition-slow: 0.5s ease-in-out;
 
     /* Semantic Colors - Primary theme colors */
-    --color-text-primary: #2c1a10;
-    --color-text-muted: #8c583f;
-    --color-text-subtle: #a16a49;
-    --color-background-page:
-        radial-gradient(circle at 20% 20%, rgba(255, 174, 94, 0.15), transparent 28%),
-        radial-gradient(circle at 85% 10%, rgba(255, 140, 64, 0.12), transparent 32%),
-        linear-gradient(145deg, #0f0a05 0%, #0e0c0f 45%, #0a0d12 100%);
-    --color-link: #ff9a3c;
-    --color-link-hover: #ffb86a;
-    --color-border-default: #e1c5ac;
-    --color-border-light: #f6e8da;
-    --color-surface: #fffaf5;
+    --color-text-primary: #1b1f26;
+    --color-text-muted: #505864;
+    --color-text-subtle: #616c7c;
+    --color-background-page: #f4f5f8;
+    --color-link: #ff8d3a;
+    --color-link-hover: #ffb26b;
+    --color-border-default: #d7dce4;
+    --color-border-light: #eaedf3;
+    --color-surface: #ffffff;
 
     /* Status Colors */
     --color-success: #0f7b3d;
@@ -96,42 +93,42 @@
     --color-info: #ff9a3c;
 
     /* Component Colors - Sections */
-    --color-section-header-text: #a14d00;
-    --color-section-header-start: #fff1de;
-    --color-section-header-end: #ffd7a6;
-    --color-section-bg: #fff6ec;
+    --color-section-header-text: #1f252e;
+    --color-section-header-start: #f5f7fb;
+    --color-section-header-end: #e8ecf3;
+    --color-section-bg: #f9fafc;
 
     /* Component Colors - Navigation */
-    --color-nav-subnav-start: #c04e00;
-    --color-nav-subnav-end: #8b3200;
+    --color-nav-subnav-start: #1f2630;
+    --color-nav-subnav-end: #1a1f28;
 
     /* Component Colors - Primary Actions */
-    --color-primary: #ff881d;
-    --color-primary-start: #ff9a3c;
-    --color-primary-end: #ff7a1f;
-    --color-primary-hover-start: #ffb05c;
-    --color-primary-hover-end: #ff9a3c;
-    --color-primary-active-start: #d95f00;
-    --color-primary-active-end: #b84800;
+    --color-primary: #ff812f;
+    --color-primary-start: #ff8f3d;
+    --color-primary-end: #ff6f22;
+    --color-primary-hover-start: #ff9e58;
+    --color-primary-hover-end: #ff8a3c;
+    --color-primary-active-start: #d0621c;
+    --color-primary-active-end: #b04d16;
 
     /* Component Colors - Secondary Actions */
-    --color-secondary-start: #f8edde;
-    --color-secondary-end: #f1dcc6;
-    --color-secondary-border: #e3c4a3;
-    --color-secondary-text: #7a4d2f;
-    --color-secondary-hover-start: #f3e1cf;
-    --color-secondary-hover-end: #e8c9aa;
-    --color-secondary-hover-text: #5a2f18;
+    --color-secondary-start: #f1f4f9;
+    --color-secondary-end: #e6eaf1;
+    --color-secondary-border: #d5dae3;
+    --color-secondary-text: #3c4450;
+    --color-secondary-hover-start: #e8ecf4;
+    --color-secondary-hover-end: #dce1ea;
+    --color-secondary-hover-text: #2b323c;
 
     /* Component Colors - Neutral Buttons */
-    --color-neutral-button-start: #fff5eb;
-    --color-neutral-button-hover-end: #ffe6cc;
-    --color-neutral-button-active-start: #ffdcb8;
-    --color-neutral-button-border: #f1cba1;
+    --color-neutral-button-start: #f7f8fb;
+    --color-neutral-button-hover-end: #eceff5;
+    --color-neutral-button-active-start: #e1e5ed;
+    --color-neutral-button-border: #d7dce4;
 
     /* Component Colors - Draft/Unpublished */
-    --color-draft-start: #fff1d4;
-    --color-draft-end: #f9dcb0;
+    --color-draft-start: #f6f0df;
+    --color-draft-end: #ebdfc6;
 }
 
 /* ============================================================================
@@ -154,7 +151,8 @@ body {
 }
 
 body#mainpane {
-  padding: var(--space-2);
+    padding: var(--space-2);
+    background: var(--color-background-page);
 }
 
 img, a img {
@@ -719,8 +717,8 @@ form .imeoff {
     padding: 5px 15px;
     background: var(--color-surface);
     border: 1px solid var(--color-border-default);
-    box-shadow: 1px 1px 3px var(--color-border-default);
-    border-radius: 3px;
+    box-shadow: none;
+    border-radius: 4px;
 }
 
 .sectionBody h3 {
@@ -762,7 +760,7 @@ form .imeoff {
     background: var(--color-surface);
     border: 1px solid var(--color-border-default);
     border-radius: 0 0 10px 10px;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
     margin: 0 3px 15px;
     padding: 15px;
 }
@@ -860,8 +858,8 @@ a img {
 }
 
 div.treeframebody {
-    background: linear-gradient(180deg, #f3f5f9 0%, #e9edf5 100%) !important;
-    box-shadow: inset -1px 0 0 rgba(15, 23, 42, 0.08);
+    background: #f6f7fb !important;
+    box-shadow: inset -1px 0 0 rgba(15, 23, 42, 0.06);
     padding: var(--space-2);
 }
 
@@ -1145,30 +1143,19 @@ a.hometblink:hover {
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 16px;
     /* Vitamin Orange palette */
-    --topnav-background: #2b1208;
-    --topnav-border: #ff9a3c;
-    --topnav-link-color: #ffd4ad;
-    --topnav-link-hover-color: #fffaf5;
-    --topnav-link-hover-bg: #c04e00;
-    --topnav-link-active-bg: #8b3200;
+    --topnav-background: #1f252e;
+    --topnav-border: #ff8a3c;
+    --topnav-link-color: #f4ddc7;
+    --topnav-link-hover-color: #ffffff;
+    --topnav-link-hover-bg: #2a303a;
+    --topnav-link-active-bg: #242a33;
     border-bottom: 1px solid var(--topnav-border);
-    background:
-        repeating-linear-gradient(
-            90deg,
-            rgba(255,255,255,0.015) 0px,
-            rgba(255,255,255,0.015) 1px,
-            rgba(0,0,0,0) 1px,
-            rgba(0,0,0,0) 4px
-        ),
-        var(--topnav-background);
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.05) inset,
-        0 -1px 0 rgba(0, 0, 0, 0.25) inset,
-        0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--topnav-background);
+    box-shadow: none;
   }
 
 #Navcontainer {
-    color: #ffd4ad;
+    color: #f1dfcf;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
     text-shadow: none;
@@ -1242,7 +1229,7 @@ a.hometblink:hover {
     row-gap: 6px;
     border-top: 1px solid var(--topnav-border);
     border-bottom: 1px solid var(--topnav-border);
-    background: linear-gradient(180deg, var(--color-nav-subnav-start), var(--color-nav-subnav-end));
+    background: var(--topnav-link-hover-bg);
     z-index: 1;
     box-shadow: none;
 }
