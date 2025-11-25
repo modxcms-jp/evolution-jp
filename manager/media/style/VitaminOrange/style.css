@@ -1142,7 +1142,7 @@ a.hometblink:hover {
     --topnav-gap: 4px;
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
-    --topnav-padding-top: 16px;
+    --topnav-padding-top: 15px;
     /* Vitamin Orange palette with molten iron steel tones */
     --topnav-background:
         radial-gradient(circle at 60% 44%, rgba(255, 164, 104, 0.92) 0%, rgba(255, 164, 104, 0.45) 10%, rgba(255, 164, 104, 0) 26%),
@@ -1184,9 +1184,9 @@ a.hometblink:hover {
         radial-gradient(20px 20px at 42% 56%, rgba(255, 220, 188, 0.9) 0%, rgba(255, 220, 188, 0.4) 46%, rgba(255, 220, 188, 0) 85%),
         radial-gradient(16px 16px at 78% 46%, rgba(255, 241, 226, 0.9) 0%, rgba(255, 182, 130, 0.52) 40%, rgba(255, 182, 130, 0) 90%),
         linear-gradient(90deg, rgba(255, 196, 150, 0.62) 0%, rgba(255, 123, 50, 0.92) 28%, rgba(172, 190, 255, 0.86) 54%, rgba(255, 120, 60, 0.9) 82%, rgba(255, 198, 160, 0.62) 100%);
-    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-x;
-    background-size: auto, auto, auto, auto, auto, auto, 100% 1px;
-    background-position: 60% 44%, 72% 60%, 52% 32%, 70% 34%, 42% 56%, 78% 46%, center 12px;
+    background-repeat: no-repeat;
+    background-size: auto, auto, auto, auto, auto, auto, 140% 6px;
+    background-position: 60% 44%, 72% 60%, 52% 32%, 70% 34%, 42% 56%, 78% 46%, center 20px;
     mix-blend-mode: screen;
     opacity: 0.9;
     pointer-events: none;
