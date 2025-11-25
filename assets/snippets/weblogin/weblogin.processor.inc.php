@@ -445,9 +445,10 @@ $tmp = [
 evo()->invokeEvent("OnWebLogin", $tmp);
 
 // redirect
-if (isset($_REQUEST['refurl']) && !empty(anyv('refurl'))) {
+$refUrl = anyv('refurl');
+if (!empty($refUrl)) {
     // last accessed page
-    $targetPageId = anyv('refurl');
+    $targetPageId = $refUrl;
     $qPos = strpos($targetPageId, 'q=');
     if ($qPos !== false) {
         $urlPos = $qPos + 2;
@@ -460,7 +461,7 @@ if (isset($_REQUEST['refurl']) && !empty(anyv('refurl'))) {
         $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($targetPageId);
     } else {
-        $url = anyv('refurl');
+        $url = $refUrl;
     }
     $modx->sendRedirect($url);
 } else // login home page
