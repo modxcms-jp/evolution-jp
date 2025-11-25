@@ -44,19 +44,6 @@
 | Created 2002-01-?? | All changes are in the log above. | Updated 2003-03-03 |
 \----------------------------------------------------------------------------*/
 
-// This function is used to define if the browser supports the needed
-// features
-function hasSupport() {
-
-    if (typeof hasSupport.support != "undefined")
-        return hasSupport.support;
-
-    hasSupport.support = (typeof document.implementation != "undefined" &&
-        document.implementation.hasFeature("html", "1.0"))
-
-    return hasSupport.support;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////
 // The constructor for tab panes
 //
@@ -65,7 +52,7 @@ function hasSupport() {
 //						persistance using cookies or not
 //
 function WebFXTabPane(el, bUseCookie) {
-    if (!hasSupport() || el == null) return;
+    if (el == null) return;
 
     this.element = el;
     this.element.tabPane = this;
@@ -118,8 +105,6 @@ WebFXTabPane.prototype.getSelectedIndex = function () {
 };
 
 WebFXTabPane.prototype.addTabPage = function (oElement, callBackFnc) { // modifed by Raymond
-    if (!hasSupport()) return;
-
     if (oElement.tabPage == this)	// already added
         return oElement.tabPage;
 
@@ -189,7 +174,7 @@ WebFXTabPane.removeCookie = function (name) {
 // nindex :	Number			The index of the page in the parent pane page array
 //
 function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
-    if (!hasSupport() || el == null) return;
+    if (el == null) return;
 
     this.element = el;
     this.element.tabPage = this;
@@ -270,56 +255,30 @@ WebFXTabPage.tabOut = function (tabpage) {
 
 // This function initializes all uninitialized tab panes and tab pages
 function setupAllTabs() {
-    if (!hasSupport()) return;
-
-    var all = document.getElementsByTagName("*");
-    var l = all.length;
-    var tabPaneRe = /tab\-pane/;
-    var tabPageRe = /tab\-page/;
-    var cn, el;
-    var parentTabPane;
-
-    for (var i = 0; i < l; i++) {
-        el = all[i]
-        cn = el.className;
-
-        // no className
-        if (cn == "") continue;
-
-        // uninitiated tab pane
-        if (tabPaneRe.test(cn) && !el.tabPane)
+    // Initialize tab panes
+    document.querySelectorAll(".tab-pane").forEach(el => {
+        if (!el.tabPane) {
             new WebFXTabPane(el);
+        }
+    });
 
-        // unitiated tab page wit a valid tab pane parent
-        else if (tabPageRe.test(cn) && !el.tabPage &&
-            tabPaneRe.test(el.parentNode.className)) {
+    // Initialize tab pages with valid tab pane parent
+    document.querySelectorAll(".tab-page").forEach(el => {
+        if (!el.tabPage && el.parentNode.classList.contains("tab-pane")) {
             el.parentNode.tabPane.addTabPage(el);
         }
-    }
+    });
 }
 
 function disposeAllTabs() {
-    if (!hasSupport()) return;
+    const tabPanes = [];
+    document.querySelectorAll(".tab-pane").forEach(el => {
+        if (el.tabPane) {
+            tabPanes.push(el.tabPane);
+        }
+    });
 
-    var all = document.getElementsByTagName("*");
-    var l = all.length;
-    var tabPaneRe = /tab\-pane/;
-    var cn, el;
-    var tabPanes = [];
-
-    for (var i = 0; i < l; i++) {
-        el = all[i]
-        cn = el.className;
-
-        // no className
-        if (cn == "") continue;
-
-        // tab pane
-        if (tabPaneRe.test(cn) && el.tabPane)
-            tabPanes[tabPanes.length] = el.tabPane;
-    }
-
-    for (var i = tabPanes.length - 1; i >= 0; i--) {
+    for (let i = tabPanes.length - 1; i >= 0; i--) {
         tabPanes[i].dispose();
         tabPanes[i] = null;
     }
@@ -327,18 +286,4 @@ function disposeAllTabs() {
 
 
 // initialization hook up
-
-// DOM2
-if (typeof window.addEventListener != "undefined") {
-    window.addEventListener("load", setupAllTabs, false);
-
-} else {
-    if (window.onload != null) {
-        var oldOnload = window.onload;
-        window.onload = function (e) {
-            oldOnload(e);
-            setupAllTabs();
-        };
-    } else
-        window.onload = setupAllTabs;
-}
+document.addEventListener("DOMContentLoaded", setupAllTabs);
