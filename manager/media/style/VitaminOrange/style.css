@@ -1145,9 +1145,10 @@ a.hometblink:hover {
     --topnav-padding-top: 16px;
     /* Vitamin Orange palette with molten iron steel tones */
     --topnav-background:
-        radial-gradient(circle at 16% 82%, rgba(255, 140, 70, 0.52) 0%, transparent 42%),
-        radial-gradient(circle at 82% 18%, rgba(119, 144, 220, 0.38) 0%, transparent 36%),
-        linear-gradient(115deg, #0e141d 0%, #161e2c 42%, #1d2737 68%, #252f3c 100%);
+        radial-gradient(circle at 60% 44%, rgba(255, 164, 104, 0.92) 0%, rgba(255, 164, 104, 0.45) 10%, rgba(255, 164, 104, 0) 26%),
+        radial-gradient(circle at 70% 62%, rgba(255, 206, 170, 0.55) 0%, rgba(255, 206, 170, 0) 22%),
+        radial-gradient(circle at 46% 24%, rgba(114, 148, 232, 0.36) 0%, rgba(114, 148, 232, 0) 28%),
+        linear-gradient(120deg, #070a12 0%, #0d121c 36%, #151d29 68%, #1b2433 100%);
     --topnav-border: #ff8241;
     --topnav-link-color: #f9e9dc;
     --topnav-link-hover-color: #ffffff;
@@ -1158,28 +1159,39 @@ a.hometblink:hover {
     overflow: hidden;
     border-bottom: 1px solid var(--topnav-border);
     background: var(--topnav-background);
-    box-shadow: inset 0 -1px 0 rgba(255, 132, 70, 0.85), inset 0 8px 24px rgba(255, 142, 85, 0.18), 0 12px 28px rgba(10, 13, 19, 0.45);
-  }
+    box-shadow: inset 0 -1px 0 rgba(255, 132, 70, 0.75), inset 0 4px 18px rgba(255, 132, 82, 0.16), 0 14px 32px rgba(4, 6, 12, 0.62);
+}
 
-  #topMenu::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0;
-      height: 4px;
-      background: linear-gradient(90deg, rgba(255, 142, 74, 0.98) 0%, rgba(134, 158, 232, 0.82) 44%, rgba(255, 97, 42, 0.98) 100%);
-      opacity: 0.96;
-      z-index: 1;
-  }
+#topMenu::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 4px;
+    background: linear-gradient(90deg, rgba(255, 142, 74, 0.98) 0%, rgba(134, 158, 232, 0.82) 44%, rgba(255, 97, 42, 0.98) 100%);
+    opacity: 0.96;
+    z-index: 1;
+}
 
-  #topMenu::before {
-      content: "";
-      position: absolute;
-      inset: 5px 14px auto 14px;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(255, 196, 150, 0.72) 0%, rgba(255, 123, 50, 0.92) 28%, rgba(172, 190, 255, 0.86) 54%, rgba(255, 120, 60, 0.9) 82%, rgba(255, 198, 160, 0.7) 100%);
-      opacity: 0.9;
-      z-index: 1;
-  }
+#topMenu::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(260px 180px at 60% 44%, rgba(255, 196, 144, 0.9) 0%, rgba(255, 146, 78, 0.75) 28%, rgba(255, 146, 78, 0.18) 64%, rgba(255, 146, 78, 0) 100%),
+        radial-gradient(180px 180px at 72% 60%, rgba(255, 208, 182, 0.82) 0%, rgba(255, 208, 182, 0.26) 48%, rgba(255, 208, 182, 0) 88%),
+        radial-gradient(80px 80px at 52% 32%, rgba(142, 180, 255, 0.68) 0%, rgba(142, 180, 255, 0.22) 52%, rgba(142, 180, 255, 0) 90%),
+        radial-gradient(32px 32px at 70% 34%, rgba(255, 248, 230, 0.96) 0%, rgba(255, 198, 154, 0.54) 48%, rgba(255, 198, 154, 0) 90%),
+        radial-gradient(20px 20px at 42% 56%, rgba(255, 220, 188, 0.9) 0%, rgba(255, 220, 188, 0.4) 46%, rgba(255, 220, 188, 0) 85%),
+        radial-gradient(16px 16px at 78% 46%, rgba(255, 241, 226, 0.9) 0%, rgba(255, 182, 130, 0.52) 40%, rgba(255, 182, 130, 0) 90%),
+        linear-gradient(90deg, rgba(255, 196, 150, 0.62) 0%, rgba(255, 123, 50, 0.92) 28%, rgba(172, 190, 255, 0.86) 54%, rgba(255, 120, 60, 0.9) 82%, rgba(255, 198, 160, 0.62) 100%);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-x;
+    background-size: auto, auto, auto, auto, auto, auto, 100% 1px;
+    background-position: 60% 44%, 72% 60%, 52% 32%, 70% 34%, 42% 56%, 78% 46%, center 12px;
+    mix-blend-mode: screen;
+    opacity: 0.9;
+    pointer-events: none;
+    z-index: 1;
+}
 
 #Navcontainer {
     color: #f4e9df;
