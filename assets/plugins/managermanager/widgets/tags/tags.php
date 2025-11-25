@@ -72,10 +72,7 @@ function mm_widget_tags(
                     if ($tag === '') {
                         continue;
                     }
-                    if (!isset($foundTags[$tag])) {
-                        $foundTags[$tag] = 0;
-                    }
-                    $foundTags[$tag]++;
+                    $foundTags[$tag] = ($foundTags[$tag] ?? 0) + 1;
                 }
             }
             // Sort the TV values (case insensitively)
