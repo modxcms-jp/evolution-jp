@@ -220,7 +220,7 @@
         .toggle-switch {
             position: relative;
             width: 46px;
-            height: 26px;
+            height: 24px;
             flex: 0 0 auto;
             border-radius: 999px;
             background: linear-gradient(135deg, #f6d8eb 0%, #e9d3ff 100%);
@@ -247,8 +247,8 @@
             position: absolute;
             top: 3px;
             left: 3px;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             background: linear-gradient(180deg, #fff5fb 0%, #ffffff 100%);
             box-shadow: 0 6px 12px rgba(212, 93, 155, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -261,7 +261,7 @@
         }
 
         .toggle-switch input.checkbox:checked + .toggle-track .toggle-knob {
-            transform: translateX(20px);
+            transform: translateX(22px);
             background: linear-gradient(180deg, #fff8fb 0%, #ffe4f2 100%);
             box-shadow: 0 6px 14px rgba(212, 93, 155, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.95);
         }
@@ -270,7 +270,7 @@
             color: #5e3d58;
             font-weight: 600;
             font-size: 13px;
-            line-height: 26px;
+            line-height: 24px;
             cursor: pointer;
         }
 
