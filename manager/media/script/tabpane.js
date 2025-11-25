@@ -153,23 +153,26 @@ WebFXTabPane.prototype.dispose = function () {
 
 // Cookie handling
 WebFXTabPane.setCookie = function (sName, sValue, nDays) {
-    var expires = "";
+    let expires = "";
     if (nDays) {
-        var d = new Date();
+        const d = new Date();
         d.setTime(d.getTime() + nDays * 24 * 60 * 60 * 1000);
-        expires = "; expires=" + d.toGMTString();
+        expires = "; expires=" + d.toUTCString();
     }
-    document.cookie = sName + "=" + sValue + expires + 
-                     "; path=" + baseurl + 
+    document.cookie = sName + "=" + encodeURIComponent(sValue) + expires +
+                     "; path=" + baseurl +
                      "; SameSite=Lax";
 };
 
 WebFXTabPane.getCookie = function (sName) {
-    var escapedName = sName.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-    var re = new RegExp("(?:^|;)\\s*" + escapedName + "=(.*?)(?:;|$)", "i");
-    var match = document.cookie.match(re);
-    
-    return match ? match[1] : null;
+    const cookies = document.cookie.split("; ");
+    for (const cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name === sName) {
+            return decodeURIComponent(value);
+        }
+    }
+    return null;
 };
 
 WebFXTabPane.removeCookie = function (name) {
