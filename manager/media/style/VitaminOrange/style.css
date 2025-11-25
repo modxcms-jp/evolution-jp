@@ -29,16 +29,16 @@
 
 :root {
     /* Gray Scale - Core neutral colors */
-    --gray-50: #f6f7fb;
-    --gray-100: #eef1f6;
-    --gray-200: #e1e5ec;
-    --gray-300: #cfd5df;
-    --gray-400: #b7bec9;
-    --gray-500: #929cab;
-    --gray-600: #6d7786;
-    --gray-700: #4c5562;
-    --gray-800: #343c47;
-    --gray-900: #1c2129;
+    --gray-50: #f4f6fb;
+    --gray-100: #edf1f7;
+    --gray-200: #e1e6ef;
+    --gray-300: #cdd4df;
+    --gray-400: #afb7c4;
+    --gray-500: #8b95a6;
+    --gray-600: #6a7386;
+    --gray-700: #4c5566;
+    --gray-800: #323a47;
+    --gray-900: #181d26;
 
     /* Spacing Scale - 8px based system */
     --space-1: 4px;
@@ -74,14 +74,14 @@
     --transition-slow: 0.5s ease-in-out;
 
     /* Semantic Colors - Primary theme colors */
-    --color-text-primary: #1b1f26;
-    --color-text-muted: #505864;
-    --color-text-subtle: #616c7c;
-    --color-background-page: #f4f5f8;
-    --color-link: #ff8d3a;
-    --color-link-hover: #ffb26b;
-    --color-border-default: #d7dce4;
-    --color-border-light: #eaedf3;
+    --color-text-primary: #1a1f27;
+    --color-text-muted: #4b5462;
+    --color-text-subtle: #5c6677;
+    --color-background-page: #f2f4f8;
+    --color-link: #ff7633;
+    --color-link-hover: #ffa066;
+    --color-border-default: #d3d9e3;
+    --color-border-light: #e7ebf3;
     --color-surface: #ffffff;
 
     /* Status Colors */
@@ -93,23 +93,23 @@
     --color-info: #ff9a3c;
 
     /* Component Colors - Sections */
-    --color-section-header-text: #1f252e;
-    --color-section-header-start: #f5f7fb;
-    --color-section-header-end: #e8ecf3;
-    --color-section-bg: #f9fafc;
+    --color-section-header-text: #1c212b;
+    --color-section-header-start: #f3f6fb;
+    --color-section-header-end: #e7ebf2;
+    --color-section-bg: #f8f9fc;
 
     /* Component Colors - Navigation */
     --color-nav-subnav-start: #1f2630;
     --color-nav-subnav-end: #1a1f28;
 
     /* Component Colors - Primary Actions */
-    --color-primary: #ff812f;
-    --color-primary-start: #ff8f3d;
-    --color-primary-end: #ff6f22;
-    --color-primary-hover-start: #ff9e58;
-    --color-primary-hover-end: #ff8a3c;
-    --color-primary-active-start: #d0621c;
-    --color-primary-active-end: #b04d16;
+    --color-primary: #ff6f36;
+    --color-primary-start: #ff7f3f;
+    --color-primary-end: #ff4f1e;
+    --color-primary-hover-start: #ff9455;
+    --color-primary-hover-end: #ff7b3a;
+    --color-primary-active-start: #d45a1f;
+    --color-primary-active-end: #b24818;
 
     /* Component Colors - Secondary Actions */
     --color-secondary-start: #f1f4f9;
@@ -147,12 +147,12 @@ body {
     height: 100%;
     line-height: 1.5;
     color: var(--color-text-primary);
-    background: var(--color-background-page);
+    background: linear-gradient(180deg, #f5f7fc 0%, #eef2f7 55%, #fafbfe 100%);
 }
 
 body#mainpane {
     padding: var(--space-2);
-    background: var(--color-background-page);
+    background: linear-gradient(180deg, rgba(240, 244, 249, 0.95) 0%, rgba(232, 237, 244, 0.9) 38%, rgba(246, 249, 254, 0.94) 100%);
 }
 
 img, a img {
@@ -417,9 +417,10 @@ hr {
 
 #supplementalNav {
     align-items: center;
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(90deg, rgba(255, 118, 52, 0.16), rgba(105, 120, 186, 0.14));
     backdrop-filter: blur(2px);
     border-radius: 999px;
+    border: 1px solid rgba(255, 112, 51, 0.35);
     box-sizing: border-box;
     color: var(--topnav-link-color);
     column-gap: var(--topnav-gap);
@@ -858,8 +859,8 @@ a img {
 }
 
 div.treeframebody {
-    background: #f6f7fb !important;
-    box-shadow: inset -1px 0 0 rgba(15, 23, 42, 0.06);
+    background: linear-gradient(180deg, #f6f8fc 0%, #eef2f7 100%) !important;
+    box-shadow: inset -1px 0 0 rgba(24, 31, 43, 0.14), inset 0 1px 0 rgba(255, 122, 61, 0.16);
     padding: var(--space-2);
 }
 
@@ -1142,22 +1143,36 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 16px;
-    /* Vitamin Orange palette */
-    --topnav-background: #1f252e;
-    --topnav-border: #ff8a3c;
-    --topnav-link-color: #f4ddc7;
+    /* Vitamin Orange palette with molten iron steel tones */
+    --topnav-background: radial-gradient(circle at 18% 96%, rgba(255, 120, 56, 0.28), transparent 42%), radial-gradient(circle at 84% 10%, rgba(106, 120, 185, 0.22), transparent 36%), linear-gradient(120deg, #171c24 0%, #1f2732 55%, #252f3b 100%);
+    --topnav-border: #ff7033;
+    --topnav-link-color: #f3e5d8;
     --topnav-link-hover-color: #ffffff;
-    --topnav-link-hover-bg: #2a303a;
-    --topnav-link-active-bg: #242a33;
+    --topnav-link-hover-bg: rgba(55, 66, 82, 0.75);
+    --topnav-link-active-bg: rgba(44, 54, 69, 0.92);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     border-bottom: 1px solid var(--topnav-border);
     background: var(--topnav-background);
-    box-shadow: none;
+    box-shadow: inset 0 -2px 0 rgba(255, 111, 54, 0.9), 0 10px 26px rgba(8, 10, 16, 0.38);
+  }
+
+  #topMenu::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 3px;
+      background: linear-gradient(90deg, rgba(255, 118, 52, 0.92) 0%, rgba(117, 132, 191, 0.7) 42%, rgba(255, 86, 32, 0.95) 100%);
+      opacity: 0.9;
+      z-index: 1;
   }
 
 #Navcontainer {
-    color: #f1dfcf;
+    color: #f4e9df;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
+    z-index: 2;
     text-shadow: none;
 }
 
@@ -1191,7 +1206,7 @@ a.hometblink:hover {
     text-decoration: none;
     white-space: nowrap;
     background: transparent;
-    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 
 #nav > li > a:hover,
@@ -1200,6 +1215,7 @@ a.hometblink:hover {
     color: var(--topnav-link-hover-color);
     background: var(--topnav-link-hover-bg);
     border-color: var(--topnav-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.24);
 }
 
 #nav > li.active > a {
@@ -1229,7 +1245,7 @@ a.hometblink:hover {
     row-gap: 6px;
     border-top: 1px solid var(--topnav-border);
     border-bottom: 1px solid var(--topnav-border);
-    background: var(--topnav-link-hover-bg);
+    background: linear-gradient(120deg, rgba(47, 57, 72, 0.95), rgba(33, 40, 52, 0.92));
     z-index: 1;
     box-shadow: none;
 }
@@ -1248,7 +1264,7 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #ffd8b6;
+    color: #ffd2b2;
     cursor: pointer;
     display: block;
     font-weight: normal;
