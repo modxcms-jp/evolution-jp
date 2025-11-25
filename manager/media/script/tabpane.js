@@ -193,26 +193,26 @@ function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
 
     const a = document.createElement("span");
     this.aElement = a;
-    a.href = "#";
-    a.onclick = function () {
-        return false;
+
+    // Event handler for preventing default action
+    this._handleAClick = (e) => {
+        e.preventDefault();
     };
+    a.addEventListener("click", this._handleAClick);
+
     while (this.tab.hasChildNodes())
         a.appendChild(this.tab.firstChild);
     this.tab.appendChild(a);
 
 
-    // hook up events, using DOM0
-    const oThis = this;
-    this.tab.onclick = function () {
-        return oThis.select();
-    };
-    this.tab.onmouseover = function () {
-        WebFXTabPage.tabOver(oThis);
-    };
-    this.tab.onmouseout = function () {
-        WebFXTabPage.tabOut(oThis);
-    };
+    // hook up events using addEventListener
+    this._handleTabClick = () => this.select();
+    this._handleTabMouseOver = () => WebFXTabPage.tabOver(this);
+    this._handleTabMouseOut = () => WebFXTabPage.tabOut(this);
+
+    this.tab.addEventListener("click", this._handleTabClick);
+    this.tab.addEventListener("mouseover", this._handleTabMouseOver);
+    this.tab.addEventListener("mouseout", this._handleTabMouseOut);
 }
 
 WebFXTabPage.prototype.show = function () {
@@ -232,12 +232,16 @@ WebFXTabPage.prototype.select = function () {
 };
 
 WebFXTabPage.prototype.dispose = function () {
-    this.aElement.onclick = null;
+    this.aElement.removeEventListener("click", this._handleAClick);
+    this._handleAClick = null;
     this.aElement = null;
     this.element.tabPage = null;
-    this.tab.onclick = null;
-    this.tab.onmouseover = null;
-    this.tab.onmouseout = null;
+    this.tab.removeEventListener("click", this._handleTabClick);
+    this.tab.removeEventListener("mouseover", this._handleTabMouseOver);
+    this.tab.removeEventListener("mouseout", this._handleTabMouseOut);
+    this._handleTabClick = null;
+    this._handleTabMouseOver = null;
+    this._handleTabMouseOut = null;
     this.tab = null;
     this.tabPane = null;
     this.element = null;
