@@ -24,6 +24,7 @@
                         linear-gradient(135deg, #fff7fd 0%, #ffe8f3 45%, #f1ddff 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 36px 18px;
@@ -61,6 +62,7 @@
             z-index: 2;
             width: 480px;
             max-width: 100%;
+            margin-bottom: 14px;
         }
 
         form {
