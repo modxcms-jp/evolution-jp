@@ -37,11 +37,13 @@ $bad = isset($bad) ? explode(",", $bad) : ["seeThroughtUnpub", "showInMenuOnly",
 	"seeThroughtUnpub,showInMenuOnly,showPublishedOnly,debug,start,config,extenders,dittoID"
 */
 $good = isset($good) ? explode(",", $good) : false;
-/*
-	Param: good
 
-	Purpose:
-	Parameters that are allowed to be set
+$request = (array) anyv();
+/*
+        Param: good
+
+        Purpose:
+        Parameters that are allowed to be set
 
 	Options:
 	Any valid Ditto options separated by commas
@@ -49,7 +51,7 @@ $good = isset($good) ? explode(",", $good) : false;
 	Default:
 	All parameters execpt those in &bad
 */
-foreach ($_REQUEST as $name => $value) {
+foreach ($request as $name => $value) {
     $saneName = str_replace($dittoID, "", substr($name, 6));
     $dID = ($dittoID == "") ? true : strpos($name, $dittoID);
     if ((strpos($name, "ditto_") === 0 && $dID) && !in_array($saneName, $bad) && ($good == false || in_array($saneName, $good)) && !preg_match("/[\^`~!\/@\\#\}\$%:;\)\(\{&\*=\|'\+]/", $value)) {
@@ -63,14 +65,15 @@ foreach ($_REQUEST as $name => $value) {
 	Purpose:
 	Output variables being set
 
-	Options:
-	0 - off
-	1 - on
+        Options:
+        0 - off
+        1 - on
 
-	Default:
-	0 - off
+        Default:
+        0 - off
 */
-if ($_REQUEST[$dittoID . "dbg"] == 1) {
+$debugRequest = anyv($dittoID . "dbg", 0);
+if ($debugRequest == 1) {
     print_r($variables);
 }
 extract($variables);
