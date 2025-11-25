@@ -61,6 +61,7 @@ class DocumentParser
     public $jscripts = [];
     public $loadedjscripts = [];
     public $documentMap = [];
+    public $documentListing = [];
     public $forwards = 3;
     public $referenceListing;
     public $childrenList = [];
@@ -101,6 +102,7 @@ class DocumentParser
     public $revision;
     public $revisionObject;
     public $filter;
+    public $tvfilter;
 
     private $baseTime = ''; //タイムマシン(基本は現在時間)
 
