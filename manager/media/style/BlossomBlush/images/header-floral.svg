@@ -1,31 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="200" viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice">
     <defs>
         <linearGradient id="petal" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ffe8f1" stop-opacity="0.95" />
-            <stop offset="100%" stop-color="#f6cfe4" stop-opacity="0.85" />
+            <stop offset="0%" stop-color="#fff4fa" stop-opacity="0.92" />
+            <stop offset="100%" stop-color="#f3d4e6" stop-opacity="0.78" />
         </linearGradient>
     </defs>
     <rect width="320" height="200" fill="none" />
-    <g opacity="0.55">
+    <g opacity="0.48">
         <circle cx="70" cy="54" r="40" fill="url(#petal)" />
         <circle cx="210" cy="70" r="36" fill="url(#petal)" />
         <circle cx="128" cy="158" r="36" fill="url(#petal)" />
         <circle cx="270" cy="150" r="28" fill="url(#petal)" />
     </g>
-    <g fill="#f7c6da" opacity="0.35">
+    <g fill="#f7c6da" opacity="0.3">
         <path d="M130 36c10 0 18 8 18 18 0 15-17 27-18 27s-18-12-18-27c0-10 8-18 18-18z" />
         <path d="M240 120c10 0 18 8 18 18 0 15-17 27-18 27s-18-12-18-27c0-10 8-18 18-18z" />
         <path d="M62 118c10 0 18 8 18 18 0 15-17 27-18 27s-18-12-18-27c0-10 8-18 18-18z" />
     </g>
-    <g fill="#f8b7d2" opacity="0.16">
+    <g fill="#f8b7d2" opacity="0.14">
         <circle cx="280" cy="44" r="18" />
         <circle cx="40" cy="158" r="18" />
         <circle cx="172" cy="110" r="20" />
         <circle cx="108" cy="90" r="16" />
+        <circle cx="236" cy="174" r="14" />
     </g>
-    <g stroke="#f4a7c5" stroke-width="3" opacity="0.25" fill="none">
+    <g stroke="#f4a7c5" stroke-width="3" opacity="0.18" fill="none">
         <path d="M26 70c18-14 46-10 58 6" />
         <path d="M182 34c22-8 44 8 50 24" />
         <path d="M110 186c22-14 54-14 76 2" />
+    </g>
+    <g stroke="#f0c6db" stroke-width="2" opacity="0.32" fill="none">
+        <path d="M94 48c10 8 26 10 38 2" />
+        <path d="M214 156c12 10 26 12 40 4" />
     </g>
 </svg>

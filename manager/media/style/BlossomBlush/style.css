@@ -1150,68 +1150,48 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 14px;
-    --topnav-background: #fdf3f8;
+    --topnav-background: #fdf7fb;
     --topnav-background-pattern: url("images/header-floral.svg");
-    --topnav-border: #e6b3cc;
-    --topnav-link-color: #7d345f;
-    --topnav-link-hover-color: #3b1b35;
-    --topnav-link-hover-bg: rgba(255, 255, 255, 0.55);
-    --topnav-link-active-bg: rgba(255, 225, 240, 0.92);
-    background-color: var(--topnav-background);
-    border-bottom: 1px solid var(--topnav-border);
-}
-#topMenu {
-    background-color: #fdf3f8;
-    background-image:
+    --topnav-background-image:
         linear-gradient(180deg,
-            rgba(255, 255, 255, 0.6) 0%,
-            rgba(255, 245, 250, 0.45) 44%,
-            rgba(253, 232, 244, 0.4) 100%
+            rgba(255, 255, 255, 0.9) 0%,
+            rgba(255, 246, 252, 0.78) 32%,
+            rgba(252, 232, 244, 0.7) 100%
         ),
-        var(--topnav-background-pattern),
-        radial-gradient(ellipse 1200px 220px at 12% 50%, rgba(255, 214, 230, 0.58) 0%, transparent 62%),
-        radial-gradient(ellipse 960px 180px at 85% 42%, rgba(255, 210, 223, 0.5) 0%, transparent 60%),
-        radial-gradient(ellipse 780px 160px at 60% 70%, rgba(246, 204, 228, 0.5) 0%, transparent 60%),
-        radial-gradient(ellipse 760px 160px at 32% 32%, rgba(225, 191, 231, 0.52) 0%, transparent 58%),
+        radial-gradient(ellipse 1180px 220px at 14% 46%, rgba(255, 212, 228, 0.45) 0%, transparent 62%),
+        radial-gradient(ellipse 920px 200px at 86% 36%, rgba(239, 205, 228, 0.42) 0%, transparent 64%),
+        radial-gradient(ellipse 780px 200px at 56% 70%, rgba(222, 193, 221, 0.32) 0%, transparent 64%),
         linear-gradient(135deg,
-            rgba(255, 239, 247, 0.95) 0%,
-            rgba(248, 216, 235, 0.9) 34%,
-            rgba(233, 184, 216, 0.82) 68%,
-            rgba(220, 163, 206, 0.78) 100%
+            rgba(255, 235, 245, 0.92) 0%,
+            rgba(242, 206, 227, 0.78) 45%,
+            rgba(223, 178, 211, 0.68) 88%
         ),
-        linear-gradient(180deg,
-            rgba(255, 243, 248, 0.9) 0%,
-            rgba(246, 210, 231, 0.9) 50%,
-            rgba(234, 180, 214, 0.9) 100%
-        );
-    background-repeat: no-repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-    background-size:
-        100% 100%,
-        640px 320px,
-        auto,
-        auto,
-        auto,
-        auto,
-        auto,
-        auto;
-    background-position:
-        center center,
-        center 0px,
-        18% 48%,
-        82% 38%,
-        60% 72%,
-        32% 34%,
-        center center,
-        center center;
-    border-bottom: 1px solid rgba(230, 179, 204, 0.6);
+        var(--topnav-background-pattern);
+    --topnav-background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat;
+    --topnav-background-size: 100% 100%, 1180px 480px, 980px 360px, 880px 320px, 100% 100%, 520px 280px;
+    --topnav-background-position: center center, 14% 50%, 86% 34%, 60% 76%, center center, center 6%;
+    --topnav-background-blend: normal, screen, soft-light, soft-light, normal, normal;
+    --topnav-border: #e9c4d6;
+    --topnav-link-color: #6c2d53;
+    --topnav-link-hover-color: #4d1f3f;
+    --topnav-link-hover-bg: rgba(255, 255, 255, 0.62);
+    --topnav-link-active-bg: rgba(248, 226, 239, 0.95);
+    background-color: var(--topnav-background);
+    background-image: var(--topnav-background-image);
+    background-repeat: var(--topnav-background-repeat);
+    background-size: var(--topnav-background-size);
+    background-position: var(--topnav-background-position);
+    background-blend-mode: var(--topnav-background-blend);
+    border-bottom: 1px solid rgba(233, 196, 214, 0.7);
+    box-shadow: inset 0 -14px 30px rgba(190, 132, 168, 0.12);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 #Navcontainer {
-    color: #7d345f;
+    color: #5c2749;
     padding: var(--topnav-padding-top, 10px) var(--subnav-horizontal-padding) calc(var(--subnav-height) + 12px);
     position: relative;
-    text-shadow: none;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 #nav {
@@ -2000,48 +1980,20 @@ strong[style*='color:#EF1D1D'] {
 /* #topMenuの背景をフェミニンなグラデーションとパターンで上書き */
 #topMenu {
     background-color: var(--topnav-background);
-    background-image:
-        linear-gradient(180deg,
-            rgba(255, 255, 255, 0.65) 0%,
-            rgba(255, 245, 250, 0.55) 40%,
-            rgba(253, 232, 244, 0.48) 100%
-        ),
-        var(--topnav-background-pattern),
-        radial-gradient(ellipse 1200px 220px at 12% 50%, rgba(255, 214, 230, 0.58) 0%, transparent 62%),
-        radial-gradient(ellipse 960px 180px at 85% 42%, rgba(255, 210, 223, 0.5) 0%, transparent 60%),
-        radial-gradient(ellipse 780px 160px at 60% 70%, rgba(246, 204, 228, 0.5) 0%, transparent 60%),
-        radial-gradient(ellipse 760px 160px at 32% 32%, rgba(225, 191, 231, 0.52) 0%, transparent 58%),
-        linear-gradient(135deg,
-            rgba(255, 239, 247, 0.95) 0%,
-            rgba(248, 216, 235, 0.9) 34%,
-            rgba(233, 184, 216, 0.82) 68%,
-            rgba(220, 163, 206, 0.78) 100%
-        );
-    background-repeat: no-repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-    background-size:
-        100% 100%,
-        640px 320px,
-        auto,
-        auto,
-        auto,
-        auto,
-        auto;
-    background-position:
-        center center,
-        center 0,
-        18% 48%,
-        82% 38%,
-        60% 72%,
-        32% 34%,
-        center center;
-    border-bottom: 1px solid rgba(230, 179, 204, 0.6);
+    background-image: var(--topnav-background-image);
+    background-repeat: var(--topnav-background-repeat);
+    background-size: var(--topnav-background-size);
+    background-position: var(--topnav-background-position);
+    background-blend-mode: var(--topnav-background-blend);
+    border-bottom: 1px solid rgba(233, 196, 214, 0.7);
+    box-shadow: inset 0 -14px 30px rgba(190, 132, 168, 0.12);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* === メインナビゲーション項目 === */
 #nav > li > a {
-    background: transparent;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 100%);
     color: var(--topnav-link-color);
     border-color: transparent;
     transition: color var(--transition-normal), background-color var(--transition-normal), border-color var(--transition-normal);
@@ -2050,26 +2002,27 @@ strong[style*='color:#EF1D1D'] {
 #nav > li > a:hover,
 #nav > li > a:active,
 #nav > li > a:focus-visible {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, rgba(241, 203, 224, 0.6) 100%);
-    border-color: rgba(230, 179, 204, 0.6);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 210, 226, 0.58) 100%);
+    border-color: rgba(233, 196, 214, 0.65);
     color: var(--topnav-link-hover-color);
+    box-shadow: 0 4px 12px rgba(190, 132, 168, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
 #nav > li.active > a {
-    background: linear-gradient(180deg, rgba(255, 237, 246, 0.98) 0%, rgba(244, 208, 228, 0.9) 100%);
-    border-color: rgba(230, 179, 204, 0.7);
+    background: linear-gradient(180deg, rgba(255, 238, 247, 0.96) 0%, rgba(242, 208, 228, 0.9) 100%);
+    border-color: rgba(233, 196, 214, 0.75);
     color: var(--topnav-link-hover-color);
-    box-shadow: 0 4px 12px rgba(180, 119, 158, 0.2);
+    box-shadow: 0 6px 18px rgba(178, 120, 158, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.85);
 }
 
 /* === サブナビゲーション === */
 #nav > li > ul.subnav {
-    background: rgba(255, 238, 245, 0.92);
+    background: linear-gradient(180deg, rgba(255, 241, 248, 0.95), rgba(245, 214, 232, 0.9));
     backdrop-filter: blur(16px) saturate(160%);
     -webkit-backdrop-filter: blur(16px) saturate(160%);
-    border-top-color: rgba(230, 179, 204, 0.55);
-    border-bottom-color: rgba(230, 179, 204, 0.55);
-    box-shadow: 0 10px 24px rgba(180, 119, 158, 0.25);
+    border-top-color: rgba(233, 196, 214, 0.6);
+    border-bottom-color: rgba(233, 196, 214, 0.6);
+    box-shadow: 0 10px 24px rgba(178, 120, 158, 0.22);
 }
 
 #nav > li > ul.subnav a {
@@ -2080,17 +2033,17 @@ strong[style*='color:#EF1D1D'] {
 
 #nav > li > ul.subnav a:hover,
 #nav > li > ul.subnav a:focus-visible {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(241, 203, 224, 0.55) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(243, 210, 226, 0.48) 100%);
     color: var(--topnav-link-hover-color);
 }
 
 /* === 右上のユーザー情報エリア === */
 #supplementalNav {
-    background: linear-gradient(180deg, rgba(255, 243, 248, 0.92), rgba(240, 204, 227, 0.82));
+    background: linear-gradient(180deg, rgba(255, 245, 250, 0.94), rgba(239, 207, 228, 0.84));
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(230, 179, 204, 0.45);
-    box-shadow: 0 2px 8px rgba(180, 119, 158, 0.25);
+    border: 1px solid rgba(233, 196, 214, 0.55);
+    box-shadow: 0 3px 10px rgba(178, 120, 158, 0.22);
 }
 
 #supplementalNav a {
