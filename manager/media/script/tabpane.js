@@ -68,7 +68,7 @@ function WebFXTabPane(el, bUseCookie) {
     this.tabRow.className = "tab-row";
     el.insertBefore(this.tabRow, el.firstChild);
 
-    var tabIndex = 0;
+    let tabIndex = 0;
     if (this.useCookie) {
         tabIndex = Number(WebFXTabPane.getCookie("webfxtab_" + this.element.id));
         if (isNaN(tabIndex))
@@ -77,9 +77,8 @@ function WebFXTabPane(el, bUseCookie) {
     this.selectedIndex = tabIndex;
 
     // loop through child nodes and add them
-    var cs = el.childNodes;
-    var n;
-    for (var i = 0; i < cs.length; i++) {
+    const cs = el.childNodes;
+    for (let i = 0; i < cs.length; i++) {
         if (cs[i].nodeType == 1 && cs[i].className == "tab-page") {
             this.addTabPage(cs[i]);
         }
@@ -108,8 +107,8 @@ WebFXTabPane.prototype.addTabPage = function (oElement, callBackFnc) { // modife
     if (oElement.tabPage == this)	// already added
         return oElement.tabPage;
 
-    var n = this.pages.length;
-    var tp = this.pages[n] = new WebFXTabPage(oElement, this, n, callBackFnc); // modified by Raymond
+    const n = this.pages.length;
+    const tp = this.pages[n] = new WebFXTabPage(oElement, this, n, callBackFnc); // modified by Raymond
     tp.tabPane = this;
 
     // move the tab out of the box
@@ -128,7 +127,7 @@ WebFXTabPane.prototype.dispose = function () {
     this.element = null;
     this.tabRow = null;
 
-    for (var i = 0; i < this.pages.length; i++) {
+    for (let i = 0; i < this.pages.length; i++) {
         this.pages[i].dispose();
         this.pages[i] = null;
     }
@@ -181,8 +180,8 @@ function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
     this.callBack = callBackFnc;
     this.index = nIndex;
 
-    var cs = el.childNodes;
-    for (var i = 0; i < cs.length; i++) {
+    const cs = el.childNodes;
+    for (let i = 0; i < cs.length; i++) {
         if (cs[i].nodeType == 1 && cs[i].className == "tab") {
             this.tab = cs[i];
             break;
@@ -192,7 +191,7 @@ function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
     // insert a tag around content to support keyboard navigation
 
 
-    var a = document.createElement("SPAN");
+    const a = document.createElement("span");
     this.aElement = a;
     a.href = "#";
     a.onclick = function () {
@@ -204,7 +203,7 @@ function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
 
 
     // hook up events, using DOM0
-    var oThis = this;
+    const oThis = this;
     this.tab.onclick = function () {
         return oThis.select();
     };
