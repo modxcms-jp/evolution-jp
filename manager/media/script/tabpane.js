@@ -232,20 +232,12 @@ function WebFXTabPage(el, tabPane, nIndex, callBackFnc) {
 }
 
 WebFXTabPage.prototype.show = function () {
-    var el = this.tab;
-    var s = el.className + " selected";
-    s = s.replace(/ +/g, " ");
-    el.className = s;
-
+    this.tab.classList.add("selected");
     this.element.style.display = "block";
 };
 
 WebFXTabPage.prototype.hide = function () {
-    var el = this.tab;
-    var s = el.className;
-    s = s.replace(/ selected/g, "");
-    el.className = s;
-
+    this.tab.classList.remove("selected");
     this.element.style.display = "none";
 };
 
@@ -268,17 +260,11 @@ WebFXTabPage.prototype.dispose = function () {
 };
 
 WebFXTabPage.tabOver = function (tabpage) {
-    var el = tabpage.tab;
-    var s = el.className + " hover";
-    s = s.replace(/ +/g, " ");
-    el.className = s;
+    tabpage.tab.classList.add("hover");
 };
 
 WebFXTabPage.tabOut = function (tabpage) {
-    var el = tabpage.tab;
-    var s = el.className;
-    s = s.replace(/ hover/g, "");
-    el.className = s;
+    tabpage.tab.classList.remove("hover");
 };
 
 
