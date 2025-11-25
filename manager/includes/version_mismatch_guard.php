@@ -2,7 +2,7 @@
 if (!function_exists('evo_render_version_mismatch_page')) {
     function evo_render_version_mismatch_page()
     {
-        $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+        $protocol = $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
         header($protocol . ' 503 Service Unavailable', true, 503);
         header('Content-Type: text/html; charset=utf-8');
         header('Retry-After: 600');
