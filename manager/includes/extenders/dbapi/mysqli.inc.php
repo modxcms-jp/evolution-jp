@@ -261,6 +261,11 @@ class DBAPI
             $sql = implode("\n", $sql);
         }
 
+        if ($this->rs instanceof mysqli_result) {
+            $this->rs->free();
+            $this->rs = null;
+        }
+
         $this->lastQuery = $sql;
         $result = $this->conn->query($sql);
         if (!$result) {
