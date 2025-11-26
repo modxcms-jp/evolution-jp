@@ -189,6 +189,22 @@
             color: #b089a4;
         }
 
+        /* Autofill styles - override browser's yellow background */
+        input.text:-webkit-autofill,
+        input[type="text"]:-webkit-autofill,
+        input[type="password"]:-webkit-autofill,
+        input.text:-webkit-autofill:hover,
+        input[type="text"]:-webkit-autofill:hover,
+        input[type="password"]:-webkit-autofill:hover,
+        input.text:-webkit-autofill:focus,
+        input[type="text"]:-webkit-autofill:focus,
+        input[type="password"]:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px rgba(255, 240, 248, 0.95) inset !important;
+            -webkit-text-fill-color: #3f2640 !important;
+            border-color: rgba(215, 160, 205, 0.7);
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .toggle-password {
             position: absolute;
             right: 12px;
