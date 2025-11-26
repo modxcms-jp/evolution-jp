@@ -28,76 +28,83 @@
    ============================================================================ */
 
 :root {
-    /* Gray Scale - Core neutral colors */
-    --gray-50: #fff9fb;
-    --gray-100: #fff2f7;
-    --gray-200: #f7e7ef;
-    --gray-300: #e9d9e3;
-    --gray-400: #d8c6d1;
-    --gray-500: #b39fae;
-    --gray-600: #947d90;
-    --gray-700: #6f556b;
-    --gray-800: #553d52;
-    --gray-900: #3a273b;
+    /* Gray Scale - Core neutral colors (softer, more feminine palette) */
+    --gray-50: #fffbfd;
+    --gray-100: #fff5f9;
+    --gray-200: #fceef5;
+    --gray-300: #f2dfe8;
+    --gray-400: #e5ced9;
+    --gray-500: #c8aebb;
+    --gray-600: #9d8292;
+    --gray-700: #7a5c6f;
+    --gray-800: #5a3d50;
+    --gray-900: #3f2a3a;
 
     /* Semantic Colors - Primary theme colors */
     --color-text-primary: var(--gray-900);
     --color-text-muted: #6d4d67;
     --color-text-subtle: var(--gray-600);
-    --color-text-dark: #2f1c30;
-    --color-text-darker: #1d0f1f;
-    --color-background-page: #fff7fb;
-    --color-link: #d45da7;
+    --color-text-dark: #3f2640;
+    --color-text-darker: #2a1a28;
+    --color-background-page: linear-gradient(180deg, #fff9fc 0%, #fff5f9 100%);
+    --color-link: #c15b9a;
     --color-link-hover: #9c3f7f;
-    --color-border-default: var(--gray-400);
-    --color-border-light: #f2e7ef;
-    --color-surface: #fffafc;
+    --color-border-default: rgba(215, 160, 205, 0.5);
+    --color-border-light: rgba(255, 220, 240, 0.6);
+    --color-surface: rgba(255, 255, 255, 0.95);
+    --color-surface-glass: rgba(255, 255, 255, 0.72);
 
-    /* Status Colors */
-    --color-success: #3aa37a;
-    --color-success-light: #5bc49d;
-    --color-success-bg: #e7fbf2;
+    /* Status Colors - softer, pastel-toned */
+    --color-success: #3da37a;
+    --color-success-light: #6ec9a5;
+    --color-success-bg: rgba(236, 253, 245, 0.9);
     --color-error: #d3447a;
-    --color-warning: #b87b2f;
+    --color-error-bg: rgba(255, 240, 245, 0.9);
+    --color-warning: #c78f3f;
+    --color-warning-bg: rgba(255, 248, 235, 0.9);
     --color-info: #8a6fd1;
+    --color-info-bg: rgba(245, 240, 255, 0.9);
 
-    /* Component Colors - Sections */
-    --color-section-header-text: var(--color-text-muted);
-    --color-section-header-start: #fff0f7;
-    --color-section-header-end: #f3dfec;
-    --color-section-bg: #fff5f9;
+    /* Component Colors - Sections (glass morphism style) */
+    --color-section-header-text: #5a3c55;
+    --color-section-header-bg: rgba(255, 240, 247, 0.85);
+    --color-section-header-border: rgba(233, 196, 214, 0.6);
+    --color-section-bg: rgba(255, 250, 252, 0.9);
 
-    /* Component Colors - Navigation */
-    --color-nav-subnav-start: #5c2c4f;
-    --color-nav-subnav-end: #3d1b36;
+    /* Component Colors - Navigation (flat, modern) */
+    --color-nav-bg: rgba(255, 247, 251, 0.95);
+    --color-nav-border: rgba(233, 196, 214, 0.5);
+    --color-nav-link: #5c2749;
+    --color-nav-link-hover: #4a1f3d;
+    --color-nav-active-bg: rgba(255, 238, 247, 0.95);
 
-    /* Component Colors - Primary Actions */
+    /* Component Colors - Primary Actions (refined gradients) */
     --color-primary: #d45da7;
-    --color-primary-start: #e58cc0;
-    --color-primary-end: #c24b93;
-    --color-primary-hover-start: #f1a7d2;
+    --color-primary-start: #ffb6d9;
+    --color-primary-end: #d45da7;
+    --color-primary-hover-start: #ffc4df;
     --color-primary-hover-end: #c760a8;
-    --color-primary-active-start: #bf4a8e;
+    --color-primary-active-start: #c24b93;
     --color-primary-active-end: #9f3e78;
 
-    /* Component Colors - Secondary Actions */
-    --color-secondary-start: #f6e7f0;
-    --color-secondary-end: #edd9e7;
-    --color-secondary-border: #e0c7d6;
-    --color-secondary-text: #7a4d6a;
-    --color-secondary-hover-start: #fef1f8;
-    --color-secondary-hover-end: #f0deea;
+    /* Component Colors - Secondary Actions (subtle, glass-like) */
+    --color-secondary-start: rgba(255, 240, 248, 0.9);
+    --color-secondary-end: rgba(243, 220, 235, 0.85);
+    --color-secondary-border: rgba(225, 185, 210, 0.6);
+    --color-secondary-text: #6a4560;
+    --color-secondary-hover-start: rgba(255, 248, 252, 0.95);
+    --color-secondary-hover-end: rgba(248, 228, 240, 0.9);
     --color-secondary-hover-text: #5c3350;
 
-    /* Component Colors - Neutral Buttons */
-    --color-neutral-button-start: #fbf3f8;
-    --color-neutral-button-hover-end: #f3e6ef;
-    --color-neutral-button-active-start: #e7d9e4;
-    --color-neutral-button-border: #d6c3d1;
+    /* Component Colors - Neutral Buttons (flat with subtle depth) */
+    --color-neutral-button-start: rgba(255, 250, 252, 0.95);
+    --color-neutral-button-hover-end: rgba(248, 235, 243, 0.95);
+    --color-neutral-button-active-start: rgba(240, 225, 233, 0.95);
+    --color-neutral-button-border: rgba(215, 180, 200, 0.6);
 
     /* Component Colors - Draft Mode */
-    --color-draft-start: #fff3da;
-    --color-draft-end: #ffe2c8;
+    --color-draft-start: rgba(255, 248, 235, 0.95);
+    --color-draft-end: rgba(255, 235, 215, 0.9);
     --color-draft-light: #ffe9d6;
 
     /* Spacing Scale - 8px base */
@@ -109,23 +116,31 @@
     --space-6: 24px;
     --space-8: 32px;
 
-    /* Border Radius */
-    --radius-sm: 3px;
-    --radius-md: 5px;
-    --radius-lg: 8px;
-    --radius-xl: 10px;
+    /* Border Radius - slightly more rounded for modern feel */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
     --radius-full: 999px;
 
-    /* Shadows */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 1px 1px 3px var(--gray-400);
-    --shadow-lg: 2px 2px 15px #eaeaea;
-    --shadow-inset: inset -2px 2px 6px rgba(0, 0, 0, 0.1);
+    /* Shadows - softer, more diffuse for flat design */
+    --shadow-xs: 0 1px 2px rgba(90, 60, 85, 0.04);
+    --shadow-sm: 0 2px 8px rgba(90, 60, 85, 0.06);
+    --shadow-md: 0 4px 16px rgba(90, 60, 85, 0.08);
+    --shadow-lg: 0 8px 32px rgba(90, 60, 85, 0.10);
+    --shadow-xl: 0 16px 48px rgba(90, 60, 85, 0.12);
+    --shadow-inset: inset 0 1px 3px rgba(90, 60, 85, 0.06);
+    --shadow-glow: 0 0 20px rgba(212, 93, 167, 0.15);
 
-    /* Transitions */
-    --transition-fast: 0.15s ease;
-    --transition-normal: 0.18s ease;
-    --transition-slow: 0.3s ease;
+    /* Glass effect */
+    --glass-blur: blur(20px) saturate(180%);
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 183, 214, 0.4);
+
+    /* Transitions - smooth and refined */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================================================
@@ -139,16 +154,22 @@ html, body, form, fieldset {
 }
 
 body {
-    font-family: Meiryo, "Hiragino Kaku Gothic Pro", Arial, "Helvetica Neue", Helvetica, sans-serif;
-    font-size: 75%;
+    font-family: "Hiragino Sans", "Noto Sans JP", Meiryo, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
     height: 100%;
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--color-text-primary);
-    background: var(--color-background-page);
+    background:
+        radial-gradient(ellipse at 20% 0%, rgba(255, 210, 235, 0.25) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 100%, rgba(230, 200, 240, 0.2) 0%, transparent 50%),
+        linear-gradient(180deg, #fff9fc 0%, #fff5f9 50%, #fef2f7 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body#mainpane {
-    padding: var(--space-2);
+    padding: var(--space-3);
 }
 
 img, a img {
@@ -262,18 +283,21 @@ h1, h2, h3, h4, h5, h6, .subTitle {
 
 h1 {
     font-size: 1.25em;
-    color: var(--gray-800);
-    font-weight: bold;
-    background-color: #d0d0d0;
-    letter-spacing: 1px;
-    line-height: 1em;
-    padding: var(--space-2);
-    border-radius: var(--radius-sm);
+    color: var(--color-text-dark);
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(255, 240, 248, 0.95) 0%, rgba(248, 225, 238, 0.9) 100%);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
     margin: var(--space-2);
+    border: 1px solid rgba(233, 196, 214, 0.5);
+    box-shadow: var(--shadow-sm);
 }
 
 h1.draft {
-    background-color: var(--color-draft-light);
+    background: linear-gradient(135deg, var(--color-draft-start) 0%, var(--color-draft-end) 100%);
+    border-color: rgba(230, 190, 150, 0.5);
 }
 
 h2 {
@@ -348,7 +372,7 @@ hr {
 #topbar {
     margin: 0;
     color: var(--color-text-primary);
-    padding: 0 5px;
+    padding: 0 var(--space-4);
     position: relative;
 }
 
@@ -359,13 +383,14 @@ hr {
 #topbar a,
 #topbar a:link,
 #topbar a:visited {
-    font-weight: bold;
-    color: #AAB1B9;
+    font-weight: 500;
+    color: var(--color-nav-link);
     text-decoration: none;
+    transition: color var(--transition-fast);
 }
 
 #topbar a:hover {
-    color: var(--color-surface);
+    color: var(--color-nav-link-hover);
 }
 
 #tocText {
@@ -381,10 +406,10 @@ hr {
 #tocText,
 #buildText,
 #workText {
-    font-weight: bold;
+    font-weight: 500;
     line-height: 16px;
     margin: 0 15px;
-    color: var(--color-surface);
+    color: var(--color-text-dark);
 }
 
 #tocText,
@@ -402,26 +427,30 @@ hr {
 
 #supplementalNav {
     align-items: center;
-    background: linear-gradient(180deg, rgba(255, 214, 232, 0.25), rgba(94, 45, 86, 0.55));
+    background: linear-gradient(135deg, rgba(255, 248, 252, 0.95) 0%, rgba(248, 235, 245, 0.9) 100%);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid rgba(233, 196, 214, 0.5);
     border-radius: var(--radius-full);
     box-sizing: border-box;
-    color: var(--topnav-link-color);
-    column-gap: var(--topnav-gap);
+    box-shadow: var(--shadow-md);
+    color: var(--color-nav-link);
+    column-gap: var(--space-4);
     display: flex;
     font-weight: 500;
-    height: var(--topnav-item-height);
-    line-height: var(--topnav-item-height);
-    margin: 3px 0 0 0;
-    padding: 0 18px;
+    height: 36px;
+    line-height: 36px;
+    margin: 0;
+    padding: 0 var(--space-5);
     position: absolute;
-    right: var(--subnav-horizontal-padding);
-    top: 6px;
+    right: var(--space-4);
+    top: 10px;
     z-index: 111;
 }
 
 #supplementalNav a {
-    color: rgba(255, 236, 245, 0.9);
-    font-weight: inherit;
+    color: var(--color-nav-link);
+    font-weight: 500;
     margin: 0;
     padding: 0;
     text-decoration: none;
@@ -430,7 +459,7 @@ hr {
 
 #supplementalNav a:hover,
 #supplementalNav a:focus-visible {
-    color: #ffffff;
+    color: var(--color-nav-link-hover);
 }
 
 #supplementalNav .supplementalNav__item {
@@ -524,34 +553,30 @@ optgroup option {
 }
 
 form select {
-    background: var(--color-surface);
-    border-color: #AAAAAA #DEDEDE #DEDEDE #AAAAAA;
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(215, 160, 205, 0.5);
+    padding: var(--space-2) var(--space-3);
     margin: 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
+    min-height: 36px;
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 form input[type=text] {
-    line-height: 1;
+    line-height: 1.4;
 }
 
 form input[type=text],
 form input[type=password],
 form textarea {
-    background: var(--color-surface);
-    border-color: var(--gray-500) #DDD #DDD var(--gray-500);
-    border-style: solid;
-    border-width: 1px;
-    padding: var(--space-1) 2px var(--space-1) var(--space-1);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(215, 160, 205, 0.5);
+    padding: var(--space-2) var(--space-3);
     margin: 0 2px 0 0;
-    min-height: 17px;
-    vertical-align: baseline;
-    border-radius: var(--radius-sm);
-    box-shadow: 0px 1px 3px #E8E8E8 inset;
+    min-height: 36px;
+    border-radius: var(--radius-md);
+    box-shadow: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
 .sectionBody input.inputBox[type=text],
@@ -568,24 +593,25 @@ input[type="url"]:focus,
 textarea:focus,
 form select:focus {
     outline: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-primary-start);
-    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+    background: #fff;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(212, 93, 167, 0.12);
 }
 
 input:is([type="button"], [type="submit"]) {
     border: 1px solid var(--color-neutral-button-border);
     cursor: pointer;
     line-height: normal;
-    margin: -1px 0 0 5px;
-    min-height: 27px;
-    padding: var(--space-1) 10px;
+    margin: 0 0 0 var(--space-2);
+    min-height: 36px;
+    padding: var(--space-2) var(--space-4);
     overflow: visible;
-    background-color: var(--color-neutral-button-start);
+    background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
     color: var(--color-text-primary);
-    border-radius: var(--radius-sm);
-    box-shadow: none;
-    text-shadow: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    font-weight: 500;
+    transition: all var(--transition-fast);
 }
 
 input.submit,
@@ -601,44 +627,44 @@ input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     position: relative;
-    width: 30px;
-    height: 14px;
+    width: 42px;
+    height: 22px;
     box-sizing: border-box;
-    background: var(--gray-400);
+    background: linear-gradient(135deg, #f6d8eb 0%, #e9d3ff 100%);
     border-radius: var(--radius-full);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
-    transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-    vertical-align: middle;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 4px 10px rgba(212, 93, 155, 0.1);
+    transition: background var(--transition-fast), box-shadow var(--transition-fast);
     cursor: pointer;
 }
 
 input[type="checkbox"]::after {
     content: "";
     position: absolute;
-    top: 1px;
-    left: 1px;
-    width: 12px;
-    height: 12px;
-    background: #fff;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(180deg, #fff5fb 0%, #ffffff 100%);
     border-radius: var(--radius-full);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 10px rgba(212, 93, 155, 0.15);
     transform: none;
     transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 input[type="checkbox"]:checked {
-    background: linear-gradient(90deg, var(--color-primary-start), var(--color-primary-end));
-    border-color: var(--color-primary-start);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, var(--color-primary-start) 0%, var(--color-primary-end) 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 14px rgba(212, 93, 155, 0.2);
 }
 
 input[type="checkbox"]:checked::after {
-    transform: translateX(14px);
+    transform: translateX(20px);
+    background: linear-gradient(180deg, #fff8fb 0%, #ffe4f2 100%);
+    box-shadow: 0 4px 12px rgba(212, 93, 155, 0.25);
 }
 
 input[type="checkbox"]:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(14, 47, 71, 0.18);
+    box-shadow: 0 0 0 3px rgba(212, 93, 167, 0.2);
 }
 
 input[type="checkbox"]:disabled {
@@ -756,39 +782,43 @@ form .imeoff {
    ============================================================================ */
 
 .sectionBody fieldset {
-    padding: 15px;
+    padding: var(--space-4);
 }
 
 .sectionBody legend {
-    font-weight: bold;
-    padding: 5px 15px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border-default);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius-sm);
+    font-weight: 600;
+    padding: var(--space-2) var(--space-4);
+    background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
+    border: 1px solid rgba(233, 196, 214, 0.5);
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-md);
+    color: var(--color-text-dark);
 }
 
 .sectionBody h3 {
     font-size: 1.1em;
-    font-weight: bold;
+    font-weight: 600;
     padding-bottom: 0;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-3);
+    color: var(--color-text-dark);
 }
 
 .sectionHeader {
     color: var(--color-section-header-text);
     margin: 0 var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    font-weight: bold;
-    border: 1px solid var(--color-section-header-end);
+    padding: var(--space-3) var(--space-4);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: 1px solid var(--color-section-header-border);
     border-bottom: none;
-    background-color: var(--color-section-header-end);
-    box-shadow: 0 1px 0 var(--color-surface) inset;
+    background: var(--color-section-header-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .tab-page .sectionHeader {
-    margin: 2px 3px 0;
+    margin: var(--space-1) var(--space-1) 0;
 }
 
 .sectionBody {
@@ -799,15 +829,19 @@ form .imeoff {
 
 .tab-page .sectionBody,
 .section .sectionBody {
-    background: var(--color-section-bg);
-    border: 1px solid var(--gray-400);
-    margin: 0 3px 15px;
-    padding: 15px;
+    background: rgba(255, 252, 254, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(233, 196, 214, 0.45);
+    margin: 0 var(--space-1) var(--space-4);
+    padding: var(--space-4);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .section .sectionBody {
     margin: 0 var(--space-2) var(--space-2);
-    background-color: var(--color-surface);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-lg);
 }
 
 .comment {
