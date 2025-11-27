@@ -1166,55 +1166,147 @@ div.treeNode {
 .grid {
     width: 100%;
     background-color: var(--color-surface);
-    border: 1px solid silver;
-    border-collapse: collapse;
+    border: 1px solid var(--pink-200);
+    border-radius: var(--radius-lg);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
 }
 
 .grid th, .grid td {
-    padding: var(--space-2);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--pink-100);
+}
+
+.grid tr:last-child td {
+    border-bottom: none;
 }
 
 .gridHeader, .grid th {
-    color: var(--gray-900);
-    font-weight: bold;
+    color: var(--color-primary-dark);
+    font-weight: 600;
     white-space: nowrap;
-    background-color: #d2d2d2;
+    background: linear-gradient(135deg, var(--pink-50) 0%, var(--pink-100) 100%);
     text-align: left;
+    border-bottom: 2px solid var(--pink-200);
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.grid th:first-child {
+    border-top-left-radius: var(--radius-lg);
+}
+
+.grid th:last-child {
+    border-top-right-radius: var(--radius-lg);
 }
 
 .gridItem {
     background-color: var(--color-surface);
-    padding: 3px;
+    padding: var(--space-2);
+    transition: background-color 0.2s ease;
+}
+
+.gridItem:hover {
+    background-color: var(--pink-50);
 }
 
 .gridAltItem {
-    background-color: #eeeeee;
-    padding: 3px;
+    background-color: rgba(255, 182, 193, 0.08);
+    padding: var(--space-2);
+    transition: background-color 0.2s ease;
+}
+
+.gridAltItem:hover {
+    background-color: var(--pink-50);
 }
 
 .gridRowIcon:hover {
-    background-color: #f5f5dc;
+    background-color: var(--lavender-100);
 }
 
 .grid a {
     text-decoration: none;
+    color: var(--color-text-dark);
+    transition: color 0.2s ease;
+}
+
+.grid a:hover {
+    color: var(--color-primary);
 }
 
 .grid img {
     vertical-align: middle;
-    padding-right: 4px;
+    padding-right: 6px;
+}
+
+/* Grid checkbox styling */
+.grid input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+/* Status badges for resource list */
+.publishedDoc {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
+    color: #166534;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.unpublishedDoc {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Nowrap utility for dates */
+.grid .nowrap {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.grid .nowrap.disable {
+    color: var(--gray-400);
+    font-style: italic;
 }
 
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;
-    border: 1px solid silver;
-    background-color: #DBDBDB;
+    border: 1px solid var(--pink-200);
+    background: linear-gradient(135deg, var(--pink-50) 0%, var(--lavender-50) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
 }
 
 .searchtext {
-    height: 18px;
-    padding: 2px;
+    height: 24px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--pink-200);
+    border-radius: var(--radius-md);
+    background-color: var(--color-surface);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchtext:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15);
+    outline: none;
 }
 
 /* -------------------------[ home page main links ]--- */
@@ -1254,9 +1346,10 @@ a.hometblink:hover {
 .contextMenu {
     background: var(--color-surface);
     margin: 0;
-    padding: 0;
-    border: 1px solid #039;
-    border-color: #eaeaea #909090 #707070 #eaeaea;
+    padding: var(--space-1);
+    border: 1px solid var(--pink-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-elevated);
     position: absolute;
     z-index: 10000;
 }
@@ -1265,21 +1358,29 @@ a.hometblink:hover {
     background-image: none;
     cursor: pointer;
     color: var(--color-text-primary);
-    padding: 3px 16px 3px 2px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease;
+}
+
+.cntxMnuItem:hover {
+    background: linear-gradient(135deg, var(--pink-50) 0%, var(--lavender-50) 100%);
 }
 
 .cntxMnuItemDisabled {
     cursor: default;
-    padding: 3px 16px 3px 2px;
-    color: var(--color-text-darker);
+    padding: var(--space-2) var(--space-3);
+    color: var(--gray-400);
+    border-radius: var(--radius-md);
 }
 
 .cntxMnuItemOver {
     cursor: pointer;
-    color: var(--color-text-primary);
-    background: #e3e3e3;
-    padding: 2px 15px 2px 1px;
-    border: 1px solid #c0c0c0;
+    color: var(--color-primary-dark);
+    background: linear-gradient(135deg, var(--pink-100) 0%, var(--lavender-100) 100%);
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius-md);
 }
 
 .cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
@@ -1287,15 +1388,15 @@ a.hometblink:hover {
 }
 
 .cntxMnuItem img, .cntxMnuItemDisabled img {
-    opacity: .3;
+    opacity: .5;
 }
 
 .cntxMnuSeparator {
     font-size: 0;
     height: 1px;
-    background-color: silver;
+    background: linear-gradient(90deg, transparent, var(--pink-200), transparent);
     overflow: hidden;
-    margin: 3px 1px 3px 28px;
+    margin: var(--space-1) var(--space-2);
 }
 
 /* ============================================================================
@@ -1505,51 +1606,54 @@ a.hometblink:hover {
     height: auto;
     visibility: hidden;
     z-index: 10000;
-    width: 165px;
+    width: 180px;
     background-color: var(--color-surface);
     margin: 0;
-    padding-bottom: 10px;
-    border: 1px solid var(--color-border-light);
-    border-right-color: #dcdcdc;
-    border-bottom-color: #dcdcdc;
+    padding: var(--space-1);
+    border: 1px solid var(--pink-200);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    line-height: 11px;
-    box-shadow: var(--shadow-lg);
+    line-height: 1.4;
+    box-shadow: var(--shadow-elevated);
 }
 
 #mx_contextmenu .menuLink {
+    display: block;
     cursor: pointer;
     color: var(--color-text-dark);
-    padding: 3px 5px 3px 4px;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
 }
 
 #mx_contextmenu .menuLink:hover {
-    background: #DDE4EB;
-    border: 1px solid #fdfdfd;
-    border-bottom-color: #dcdcdc;
-    color: var(--color-text-primary);
+    background: linear-gradient(135deg, var(--pink-50) 0%, var(--lavender-50) 100%);
+    border: none;
+    color: var(--color-primary-dark);
 }
 
 #mx_contextmenu .menuLink:hover,
 #mx_contextmenu .menuLinkDisabled {
     cursor: pointer;
-    padding: 2px 4px 2px 3px;
+    padding: var(--space-2) var(--space-3);
 }
 
 #mx_contextmenu .menuLinkDisabled {
     cursor: default;
-    color: #787878;
+    color: var(--gray-400);
+    border-radius: var(--radius-md);
 }
 
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLink:hover img,
 #mx_contextmenu .menuLinkDisabled img {
-    margin-right: 5px;
+    margin-right: var(--space-2);
+    vertical-align: middle;
 }
 
 #mx_contextmenu .menuLink img,
 #mx_contextmenu .menuLinkDisabled img {
-    opacity: .3;
+    opacity: .5;
 }
 
 #mx_contextmenu .menuLink:hover img {
@@ -1560,19 +1664,20 @@ a.hometblink:hover {
     color: var(--color-surface);
     text-align: left;
     cursor: default;
-    font-weight: bold;
-    padding: 6px 4px;
-    margin-bottom: 3px;
-    text-shadow: 0px -1px 0px var(--color-text-dark);
-    background-image: linear-gradient(var(--color-primary-start), var(--color-primary-end));
+    font-weight: 600;
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-1);
+    border-radius: var(--radius-md);
+    text-shadow: none;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
 }
 
 #mx_contextmenu .seperator {
     font-size: 0;
     height: 1px;
-    background-color: silver;
+    background: linear-gradient(90deg, transparent, var(--pink-200), transparent);
     overflow: hidden;
-    margin: 3px 1px 3px 28px;
+    margin: var(--space-1) var(--space-2);
 }
 
 
