@@ -3,7 +3,7 @@ $this->old = new OldFunctions();
 
 class OldFunctions
 {
-    function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)
+    public function makeList($array, $ulroot = 'root', $ulprefix = 'sub_', $type = '', $ordered = false, $tablevel = 0)
     {
         global $modx;
         // first find out whether the value passed is an array
@@ -37,7 +37,7 @@ class OldFunctions
         return $listhtml;
     }
 
-    function getUserData()
+    public function getUserData()
     {
         $client['host'] = $_SERVER['REMOTE_ADDR'];
         $client['ip'] = $_SERVER['REMOTE_ADDR'];
@@ -45,7 +45,7 @@ class OldFunctions
         return $client;
     }
 
-    function insideManager()
+    public function insideManager()
     {
         $m = false;
         if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE == 'true') {
@@ -59,24 +59,24 @@ class OldFunctions
         return $m;
     }
 
-    function putChunk($chunkName)
+    public function putChunk($chunkName)
     {
         global $modx;
         return $modx->getChunk($chunkName);
     }// deprecated alias name >.<
 
-    function getDocGroups()
+    public function getDocGroups()
     {
         global $modx;
         return $modx->getUserDocGroups();
     } // deprecated
 
-    function changePassword($o, $n)
+    public function changePassword($o, $n)
     {
         return evo()->changeWebUserPassword($o, $n);
     } // deprecated
 
-    function userLoggedIn()
+    public function userLoggedIn()
     {
         global $modx;
         $userdetails = [];
@@ -99,7 +99,7 @@ class OldFunctions
         }
     }
 
-    function makeFriendlyURL($pre, $suff, $path)
+    public function makeFriendlyURL($pre, $suff, $path)
     {
         global $modx;
         $elements = explode('/', $path);
@@ -119,7 +119,7 @@ class OldFunctions
     }
 
     # Displays a javascript alert message in the web browser
-    function webAlert($msg, $url = '')
+    public function webAlert($msg, $url = '')
     {
         global $modx;
 
@@ -138,7 +138,7 @@ class OldFunctions
         }
     }
 
-    function makeDocumentListing()
+    public function makeDocumentListing()
     {
         global $modx;
 

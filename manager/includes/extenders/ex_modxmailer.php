@@ -22,7 +22,7 @@ class MODxMailer extends PHPMailer
     var $mb_language = false;
     var $encode_header_method = null;
 
-    function __construct()
+    public function __construct()
     {
         $this->encode_header_method = '';
 
@@ -89,7 +89,7 @@ class MODxMailer extends PHPMailer
         }
     }
 
-    function EncodeHeader($str, $position = 'text')
+    public function EncodeHeader($str, $position = 'text')
     {
         if ($this->encode_header_method == 'mb_encode_mimeheader') {
             return mb_encode_mimeheader($str, $this->CharSet, 'B', "\n");
@@ -128,7 +128,7 @@ class MODxMailer extends PHPMailer
         }
     }
 
-    function MailSend($header, $body)
+    public function MailSend($header, $body)
     {
         $org_body = $body;
 
@@ -207,7 +207,7 @@ class MODxMailer extends PHPMailer
         return $result;
     }
 
-    function mbMailSend($header, $body)
+    public function mbMailSend($header, $body)
     {
         $to = '';
         for ($i = 0; $i < count($this->to); $i++) {
@@ -247,7 +247,7 @@ class MODxMailer extends PHPMailer
         return true;
     }
 
-    function SetError($msg)
+    public function SetError($msg)
     {
         global $modx;
         $modx->config['send_errormail'] = '0';
@@ -255,7 +255,7 @@ class MODxMailer extends PHPMailer
         return parent::SetError($msg);
     }
 
-    function address_split($address)
+    public function address_split($address)
     {
         $address = trim($address);
         if (strpos($address, '<') !== false && substr($address, -1) === '>') {

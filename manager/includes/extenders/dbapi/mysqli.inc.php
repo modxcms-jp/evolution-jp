@@ -25,7 +25,7 @@ class DBAPI
      * @name:  DBAPI
      *
      */
-    function __construct(
+    public function __construct(
         $host = '',
         $dbase = '',
         $user = '',
@@ -444,12 +444,12 @@ class DBAPI
      * @name:  replace
      * @desc:  returns either last id inserted or the result from the query
      */
-    function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
+    public function replace($fields, $intotable, $fromfields = '*', $fromtable = '', $where = '', $limit = '')
     {
         return $this->_insert('REPLACE INTO', $fields, $intotable, $fromfields, $fromtable, $where, $limit);
     }
 
-    function save($fields, $table, $where = '')
+    public function save($fields, $table, $where = '')
     {
 
         if (!$where || !$this->count($this->select('*', $table, $where))) {
@@ -529,7 +529,7 @@ class DBAPI
      * @name:  freeResult
      *
      */
-    function freeResult($rs)
+    public function freeResult($rs)
     {
         $rs->free_result();
     }
@@ -538,7 +538,7 @@ class DBAPI
      * @name:  fieldName
      *
      */
-    function fieldName($rs, $col = 0)
+    public function fieldName($rs, $col = 0)
     {
         return $rs->fetch_field_direct($col)->name;
     }
@@ -547,7 +547,7 @@ class DBAPI
      * @name:  selectDb
      *
      */
-    function selectDb($name)
+    public function selectDb($name)
     {
         $this->conn->select_db($name);
     }
@@ -556,7 +556,7 @@ class DBAPI
      * @name:  getInsertId
      *
      */
-    function getInsertId($conn = null)
+    public function getInsertId($conn = null)
     {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
@@ -568,7 +568,7 @@ class DBAPI
      * @name:  getAffectedRows
      *
      */
-    function getAffectedRows($conn = null)
+    public function getAffectedRows($conn = null)
     {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
@@ -580,7 +580,7 @@ class DBAPI
      * @name:  lastError
      *
      */
-    function lastError($conn = null)
+    public function lastError($conn = null)
     {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
@@ -588,12 +588,12 @@ class DBAPI
         return $conn->error;
     }
 
-    function getLastError($conn = null)
+    public function getLastError($conn = null)
     {
         return $this->lastError($conn);
     }
 
-    function getLastErrorNo($conn = null)
+    public function getLastErrorNo($conn = null)
     {
         if (!$this->isResult($conn)) {
             $conn =& $this->conn;
@@ -605,7 +605,7 @@ class DBAPI
      * @name:  count
      *
      */
-    function count($rs = null, $from = '', $where = '')
+    public function count($rs = null, $from = '', $where = '')
     {
         if ($rs === null && $this->rs) {
             $rs = $this->rs;
@@ -621,7 +621,7 @@ class DBAPI
         return 0;
     }
 
-    function getRecordCount($rs = null, $from = '', $where = '')
+    public function getRecordCount($rs = null, $from = '', $where = '')
     {
         return $this->count($rs, $from, $where);
     }
@@ -632,7 +632,7 @@ class DBAPI
      * @param: $rs - dataset
      *
      */
-    function getRow($param1 = null, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
+    public function getRow($param1 = null, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
     {
         if ($param1 === null && $this->rs) {
             $param1 = $this->rs;
@@ -672,7 +672,7 @@ class DBAPI
         return false;
     }
 
-    function getRows($param1, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
+    public function getRows($param1, $param2 = 'assoc', $where = '', $orderby = '', $limit = '')
     {
 
         if (is_string($param1)) {
@@ -707,7 +707,7 @@ class DBAPI
      * @desc:  returns an array of the values found on colun $name
      * @param: $dsq - dataset or query string
      */
-    function getColumn($name, $dsq)
+    public function getColumn($name, $dsq)
     {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
@@ -727,7 +727,7 @@ class DBAPI
      * @desc:  returns an array containing the column $name
      * @param: $dsq - dataset or query string
      */
-    function getColumnNames($dsq)
+    public function getColumnNames($dsq)
     {
         if (!$this->isResult($dsq)) {
             $dsq = $this->query($dsq);
@@ -748,7 +748,7 @@ class DBAPI
      * @desc:  returns the value from the first column in the set
      * @param: $rs - dataset or query string
      */
-    function getValue($rs = null, $from = '', $where = '', $orderby = '', $limit = '')
+    public function getValue($rs = null, $from = '', $where = '', $orderby = '', $limit = '')
     {
         if ($rs === null && $this->rs) {
             $rs = $this->rs;
@@ -772,7 +772,7 @@ class DBAPI
      *          if the recordset was empty, returns false if no recordset
      *          was passed
      */
-    function makeArray($rs = '')
+    public function makeArray($rs = '')
     {
         if (!$rs) {
             return false;
@@ -790,7 +790,7 @@ class DBAPI
      *
      * @return string
      */
-    function getVersion()
+    public function getVersion()
     {
         if (!$this->isConnected()) {
             if (!$this->connect()) {
@@ -800,12 +800,12 @@ class DBAPI
         return $this->conn->server_info;
     }
 
-    function server_info()
+    public function server_info()
     {
         return $this->getVersion();
     }
 
-    function host_info()
+    public function host_info()
     {
         return $this->conn->host_info;
     }
@@ -820,7 +820,7 @@ class DBAPI
      * @param string $orderby
      * @return array|bool|false|object|stdClass
      */
-    function getObject($table, $where, $orderby = '')
+    public function getObject($table, $where, $orderby = '')
     {
         $rs = $this->select(
             '*',
@@ -842,7 +842,7 @@ class DBAPI
      * @param string $sql
      * @return array|bool|false|object|stdClass
      */
-    function getObjectSql($sql)
+    public function getObjectSql($sql)
     {
         $rs = $this->query($sql);
         if ($this->count($rs) == 0) {
@@ -864,7 +864,7 @@ class DBAPI
      * @param type $limit
      * @return array
      */
-    function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0)
+    public function getObjects($sql_or_table, $where = '', $orderby = '', $limit = 0)
     {
         $sql_or_table = trim($sql_or_table);
         if (stripos($sql_or_table, 'select') === 0 || stripos($sql_or_table, 'show') === 0) {
@@ -888,7 +888,7 @@ class DBAPI
 
     }
 
-    function isResult($rs)
+    public function isResult($rs)
     {
         return is_object($rs);
     }
@@ -973,7 +973,7 @@ class DBAPI
      *         table
      * @param: $table: the full name of the database table
      */
-    function getTableMetaData($table)
+    public function getTableMetaData($table)
     {
         if (!$table) {
             return false;
@@ -997,7 +997,7 @@ class DBAPI
      * @param: $fieldType: the type of field to format the date for
      *         (in MySQL, you have DATE, TIME, YEAR, and DATETIME)
      */
-    function prepareDate($timestamp, $fieldType = 'DATETIME')
+    public function prepareDate($timestamp, $fieldType = 'DATETIME')
     {
         if (!preg_match('@^[1-9][0-9]*$@', $timestamp)) {
             return '';
@@ -1103,17 +1103,17 @@ class DBAPI
         return $this->query("TRUNCATE TABLE " . $this->replaceFullTableName($table_name));
     }
 
-    function dataSeek($result, $row_number)
+    public function dataSeek($result, $row_number)
     {
         return $result->data_seek($row_number);
     }
 
-    function numFields($rs)
+    public function numFields($rs)
     {
         return $rs->field_count;
     }
 
-    function importSql($source, $watchError = true)
+    public function importSql($source, $watchError = true)
     {
         if (is_file($source)) {
             $source = file_get_contents($source);
@@ -1222,7 +1222,7 @@ class DBAPI
         return implode(',', $_);
     }
 
-    function _getFromStringFromArray($tables = [])
+    public function _getFromStringFromArray($tables = [])
     {
         $_ = [];
         foreach ($tables as $k => $v) {
