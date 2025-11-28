@@ -168,34 +168,40 @@ class truncate
 
     public function execute($resource, $trunc, $splitter, $truncLen, $truncOffset, $truncsplit, $truncChars)
     {
-        if ((strpos($resource['content'], $splitter) !== false) && $truncsplit) {
-            $summary = explode('<p>' . $splitter . '</p>', $resource['content']);
+        $content = is_array($resource) ? ($resource['content'] ?? '') : '';
+        $introtext = is_array($resource) ? ($resource['introtext'] ?? '') : '';
+
+        if ((strpos($content, $splitter) !== false) && $truncsplit) {
+            $summary = explode('<p>' . $splitter . '</p>', $content);
             // For TinyMCE or if it isn't wrapped inside paragraph tags
             $_ = explode($splitter, $summary[0]);
             return $this->closeTags($_[0]);
         }
-        if ($resource['introtext']) {
-            return $resource['introtext'];
+        if ($introtext) {
+            return $introtext;
             // fall back to the summary text count of characters
         }
-        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+        if (strlen($content) > $truncLen && $trunc == 1) {
             // and back to where we started if all else fails (short post)
             return $this->closeTags(
-                $this->html_substr($resource['content'], $truncLen, $truncOffset, $truncChars)
+                $this->html_substr($content, $truncLen, $truncOffset, $truncChars)
             );
         }
-        return $this->closeTags($resource['content']);
+        return $this->closeTags($content);
     }
 
     public function summaryType($resource, $trunc, $splitter, $truncLen, $truncsplit)
     {
-        if (strpos($resource['content'], $splitter) !== false && $truncsplit) {
+        $content = is_array($resource) ? ($resource['content'] ?? '') : '';
+        $introtext = is_array($resource) ? ($resource['introtext'] ?? '') : '';
+
+        if (strpos($content, $splitter) !== false && $truncsplit) {
             return 'content';
         }
-        if (mb_strlen($resource['introtext']) > 0) {
+        if (mb_strlen($introtext) > 0) {
             return 'introtext';
         }
-        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
+        if (strlen($content) > $truncLen && $trunc == 1) {
             return 'content';
         }
         return 'content';
@@ -203,14 +209,18 @@ class truncate
 
     public function link($resource, $trunc, $splitter, $truncLen, $truncsplit)
     {
-        if (strpos($resource['content'], $splitter) !== false && $truncsplit) {
-            return '[~' . $resource['id'] . '~]';
+        $content = is_array($resource) ? ($resource['content'] ?? '') : '';
+        $introtext = is_array($resource) ? ($resource['introtext'] ?? '') : '';
+        $id = is_array($resource) ? ($resource['id'] ?? 0) : 0;
+
+        if (strpos($content, $splitter) !== false && $truncsplit) {
+            return '[~' . $id . '~]';
         }
-        if (mb_strlen($resource['introtext']) > 0) {
-            return '[~' . $resource['id'] . '~]';
+        if (mb_strlen($introtext) > 0) {
+            return '[~' . $id . '~]';
         }
-        if (strlen($resource['content']) > $truncLen && $trunc == 1) {
-            return '[~' . $resource['id'] . '~]';
+        if (strlen($content) > $truncLen && $trunc == 1) {
+            return '[~' . $id . '~]';
         }
         return false;
     }
