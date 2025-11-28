@@ -39,12 +39,17 @@ class template
     // ---------------------------------------------------
     function process($template)
     {
-        $templates = [];
-        if (!isset($template['base'])) {
-            $template['base'] = $template['default'];
-        } else {
-            unset($template['default']);
+        if (!is_array($template) || !$template) {
+            $this->fields = $this->sortFields([]);
+            return [];
         }
+
+        $templates = [];
+        if (!isset($template['base']) && isset($template['default'])) {
+            $template['base'] = $template['default'];
+        }
+        unset($template['default']);
+
         foreach ($template as $name => $tpl) {
             if (!empty($tpl) && $tpl != '') {
                 $templates[$name] = $this->fetch($tpl);
