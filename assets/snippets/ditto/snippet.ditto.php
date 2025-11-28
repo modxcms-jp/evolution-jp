@@ -160,13 +160,9 @@ $placeholders = [];
 // Variable: placeholders
 // Initialize custom placeholders array for configs or extenders to add to
 
-if (isset($orderBy)) {
-    $orderBy = trim($orderBy);
-} else {
-    $orderBy = null;
-}
+$orderBy = isset($orderBy) ? trim($orderBy) : '';
 
-if (substr(strtolower($orderBy), -2) !== 'sc') {
+if ($orderBy !== '' && substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
 }
 $orderBy = ['parsed' => [], 'custom' => [], 'unparsed' => $orderBy];
@@ -881,6 +877,9 @@ if (!isset($tplLast)) {
 }
 if (!isset($tplCurrentDocument)) {
     $tplCurrentDocument = '';
+}
+if (!isset($tpl)) {
+    $tpl = '';
 }
 $templates = [
     'default' => '@CODE ' . $_lang['default_template'],
