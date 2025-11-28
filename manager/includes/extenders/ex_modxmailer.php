@@ -19,8 +19,8 @@ include_once(MODX_CORE_PATH . 'controls/phpmailer/class.phpmailer.php');
 
 class MODxMailer extends PHPMailer
 {
-    var $mb_language = false;
-    var $encode_header_method = null;
+    public $mb_language = false;
+    public $encode_header_method = null;
 
     public function __construct()
     {
