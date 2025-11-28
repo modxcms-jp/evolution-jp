@@ -103,8 +103,12 @@ if (!function_exists("rss_pagetitle")) {
 }
 if (!function_exists("rss_author")) {
     function rss_author($resource) {
-        $createdBy = $resource['createdby'] ?? '';
-        if ($createdBy === '') {
+        if (!is_array($resource) || !array_key_exists('createdby', $resource)) {
+            return '';
+        }
+
+        $createdBy = $resource['createdby'];
+        if ($createdBy === '' || $createdBy === null) {
             return '';
         }
 
