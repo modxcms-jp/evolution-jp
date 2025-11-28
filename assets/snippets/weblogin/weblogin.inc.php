@@ -5,6 +5,8 @@
 
 defined('IN_PARSER_MODE') or die();
 
+$output = '';
+
 # load tpl
 if (is_numeric($tpl)) {
     $doc = $modx->getDocument($tpl);
