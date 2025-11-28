@@ -1222,7 +1222,7 @@ class DBAPI
         return implode(',', $_);
     }
 
-    public function _getFromStringFromArray($tables = [])
+    private function _getFromStringFromArray($tables = [])
     {
         $_ = [];
         foreach ($tables as $k => $v) {
