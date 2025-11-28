@@ -36,7 +36,6 @@ function fieldDescription()
                 'id' => 'field_description',
                 'name' => 'description',
                 'class' => 'inputBox',
-                'style' => 'height:43px;',
                 'rows' => '2'
             ],
             doc('description|hsc', '')
