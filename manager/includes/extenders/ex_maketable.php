@@ -315,7 +315,7 @@ class MakeTable
         );
     }
 
-    public function _getClickAllScript()
+    protected function _getClickAllScript()
     {
         return <<< EOT
 <script>
