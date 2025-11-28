@@ -181,6 +181,15 @@ class template
     // ---------------------------------------------------
     public function determine($templates, $x, $start, $stop, $id)
     {
+        if (!is_array($templates) || !$templates) {
+            $this->current = '';
+            return '';
+        }
+
+        if (!array_key_exists('base', $templates)) {
+            $templates['base'] = reset($templates) ?: '';
+        }
+
         // determine current template
         $currentTPL = 'base';
         if ($x % 2 && !empty($templates['alt'])) {
@@ -196,7 +205,7 @@ class template
             $currentTPL = 'last';
         }
         $this->current = $currentTPL;
-        return $templates[$currentTPL];
+        return $templates[$currentTPL] ?? '';
     }
 
     // ---------------------------------------------------
