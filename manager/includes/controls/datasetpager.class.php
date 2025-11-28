@@ -191,9 +191,13 @@ class DataSetPager
             $minitems = (($p - 1) * $this->pageSize) + 1;
             $maxitems = (($p - 1) * $this->pageSize) + $this->pageSize;
             while ($i <= $maxitems) {
-                $row = $isDataset
-                    ? db()->getRow($this->ds)
-                    : ($this->ds[$i - 1] ?? null);
+                if ($isDataset) {
+                    $row = db()->getRow($this->ds);
+                } elseif (is_array($this->ds) && array_key_exists($i - 1, $this->ds)) {
+                    $row = $this->ds[$i - 1];
+                } else {
+                    $row = null;
+                }
 
                 if (!$row) {
                     break;
