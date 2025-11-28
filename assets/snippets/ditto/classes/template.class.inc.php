@@ -39,6 +39,7 @@ class template
     // ---------------------------------------------------
     function process($template)
     {
+        $templates = [];
         if (!isset($template['base'])) {
             $template['base'] = $template['default'];
         } else {
