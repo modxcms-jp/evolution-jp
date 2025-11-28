@@ -160,7 +160,7 @@ $placeholders = [];
 // Variable: placeholders
 // Initialize custom placeholders array for configs or extenders to add to
 
-$orderBy = isset($orderBy) ? trim($orderBy) : '';
+$orderBy = trim($orderBy ?? '');
 
 if ($orderBy !== '' && substr(strtolower($orderBy), -2) !== 'sc') {
     $orderBy .= ' desc';
