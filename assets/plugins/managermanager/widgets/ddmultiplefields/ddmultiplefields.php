@@ -90,7 +90,7 @@ if (!ddMultiple){
 var ddMultiple = {
 datePickerOffset: ' . evo()->config('datepicker_offset') . ',
 datePickerFormat: "' . evo()->config('datetime_format') . '" + " hh:mm:00",
-ids: new [],
+ids: [],
 //Обновляет мульти-поле, берёт значение из оригинального поля
 updateField: function(id){
     //Если есть текущее поле
@@ -108,7 +108,7 @@ updateTv: function(id){
     //Перебираем все строки
     jQuery("#" + id + "ddMultipleField .ddFieldBlock").each(function(){
         var $this = jQuery(this),
-            masCol = new [],
+            masCol = [],
             id_field = {index: false, val: false, $field: false};
 
         //Перебираем все колонки, закидываем значения в массив
