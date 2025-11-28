@@ -103,6 +103,11 @@ if (!function_exists("rss_pagetitle")) {
 }
 if (!function_exists("rss_author")) {
     function rss_author($resource) {
-        return htmlspecialchars(html_entity_decode(ditto::getAuthor($resource['createdby']), ENT_QUOTES));
+        $createdBy = $resource['createdby'] ?? '';
+        if ($createdBy === '') {
+            return '';
+        }
+
+        return htmlspecialchars(html_entity_decode(ditto::getAuthor($createdBy), ENT_QUOTES));
     }
 }
