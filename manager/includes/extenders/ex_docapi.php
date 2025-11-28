@@ -106,7 +106,7 @@ class DocAPI
         return $rs;
     }
 
-    function delete($id = 0, $where = '')
+    public function delete($id = 0, $where = '')
     {
         if (!preg_match('@^[0-9]+$@', $id)) {
             return;
@@ -128,7 +128,7 @@ class DocAPI
         db()->update($f, '[+prefix+]site_content', "id='" . $id . "'");
     }
 
-    function setPubStatus($f)
+    public function setPubStatus($f)
     {
         if (!isset($f['pub_date']) || empty($f['pub_date'])) {
             $f['pub_date'] = 0;
@@ -418,7 +418,7 @@ class DocAPI
         return $form_v;
     }
 
-    function setValue($form_v)
+    public function setValue($form_v)
     {
         global $_lang;
 
@@ -524,7 +524,7 @@ class DocAPI
         return $form_v;
     }
 
-    function getNewDocID()
+    public function getNewDocID()
     {
         if (evo()->config['docid_incrmnt_method'] == 1) {
             $rs = db()->select(
@@ -545,7 +545,7 @@ class DocAPI
         return false;
     }
 
-    function fixPubStatus($f) // published, pub_date, unpub_date
+    public function fixPubStatus($f) // published, pub_date, unpub_date
     {
         if (isset($f['pub_date']) && !empty($f['pub_date'])) {
             $f['pub_date'] = evo()->toTimeStamp($f['pub_date']);
@@ -574,7 +574,7 @@ class DocAPI
         return $f;
     }
 
-    function fixTvNest($form_v)
+    public function fixTvNest($form_v)
     {
         if (isset($form_v['ta'])) {
             $form_v['content'] = $form_v['ta'];
@@ -593,12 +593,12 @@ class DocAPI
         return $form_v;
     }
 
-    function canSaveDoc()
+    public function canSaveDoc()
     {
         return evo()->hasPermission('save_document');
     }
 
-    function canPublishDoc()
+    public function canPublishDoc()
     {
         if (evo()->hasPermission('new_document')) {
             return 1;
@@ -611,37 +611,37 @@ class DocAPI
         return 0;
     }
 
-    function canSaveDraft()
+    public function canSaveDraft()
     {
         return 1;
     }
 
-    function canMoveDoc()
+    public function canMoveDoc()
     {
         return evo()->hasPermission('save_document');
     }
 
-    function canCopyDoc()
+    public function canCopyDoc()
     {
         return (evo()->hasPermission('new_document') && evo()->hasPermission('save_document'));
     }
 
-    function canDeleteDoc()
+    public function canDeleteDoc()
     {
         return (evo()->hasPermission('save_document') && evo()->hasPermission('delete_document'));
     }
 
-    function canCreateDoc()
+    public function canCreateDoc()
     {
         return evo()->hasPermission('new_document');
     }
 
-    function canEditDoc()
+    public function canEditDoc()
     {
         return evo()->hasPermission('edit_document');
     }
 
-    function existsDoc($id = 0)
+    public function existsDoc($id = 0)
     {
         $rs = db()->select('id', '[+prefix+]site_content', where('id', $id));
         return db()->count($rs) != 0;

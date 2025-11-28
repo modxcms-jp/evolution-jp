@@ -130,7 +130,7 @@ class DataGrid
         $o = "<tr>";
         for ($c = 0; $c < $this->_colcount; $c++) {
             $colStyle = $Style;
-            $fld = trim($this->_fieldnames[$c]);
+            $fld = trim($this->_fieldnames[$c] ?? '');
             if ($this->_isDataset && $fld) {
                 $key = $fld;
             } else {

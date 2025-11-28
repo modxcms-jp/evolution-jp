@@ -64,7 +64,7 @@ class MakeTable
      *
      * @param $columnPosition The index of the column to get the width for.
      */
-    function getColumnWidth($columnPosition)
+    public function getColumnWidth($columnPosition)
     {
 
         if (!is_array($this->columnWidths) || !$this->columnWidths[$columnPosition]) {
@@ -79,7 +79,7 @@ class MakeTable
      *
      * @param $value The position of the current row being rendered.
      */
-    function determineRowClass($pos)
+    public function determineRowClass($pos)
     {
         if ($pos % 2 == 0 && $this->rowAlternatingScheme === 'EVEN') {
             return sprintf('class="%s"', $this->rowAlternateClass);
@@ -94,7 +94,7 @@ class MakeTable
      *
      * @param $value Indicates the INPUT form element type attribute.
      */
-    function getCellAction($currentActionFieldValue)
+    public function getCellAction($currentActionFieldValue)
     {
         if (!$this->cellAction) {
             return '';
@@ -112,7 +112,7 @@ class MakeTable
      * @param $currentActionFieldValue The value to be applied to the link action.
      * @param $value The value of the cell.
      */
-    function createCellText($currentActionFieldValue, $cellText)
+    public function createCellText($currentActionFieldValue, $cellText)
     {
         if (!$this->linkAction) {
             return $cellText;
@@ -130,7 +130,7 @@ class MakeTable
      *
      * @param $value Indicates the INPUT form element type attribute.
      */
-    function prepareLink($path)
+    public function prepareLink($path)
     {
         if (strpos($path, '?') === false) {
             return $path . '?';
@@ -149,12 +149,12 @@ class MakeTable
      * for each column.
      */
 
-    function create($fieldsArray, $fieldHeadersArray = [])
+    public function create($fieldsArray, $fieldHeadersArray = [])
     {
         return $this->renderTable($fieldsArray, $fieldHeadersArray);
     }
 
-    function renderTable($fieldsArray, $fieldHeadersArray = [])
+    public function renderTable($fieldsArray, $fieldHeadersArray = [])
     {
         if (!is_array($fieldsArray)) {
             return '';
@@ -165,7 +165,7 @@ class MakeTable
         return $this->_renderWithForm($fieldsArray, $fieldHeadersArray);
     }
 
-    function _render($fieldsArray, $fieldHeadersArray = [])
+    public function _render($fieldsArray, $fieldHeadersArray = [])
     {
         $i = 0;
         $header = '';
@@ -227,7 +227,7 @@ class MakeTable
         );
     }
 
-    function _renderWithForm($fieldsArray, $fieldHeadersArray = [])
+    public function _renderWithForm($fieldsArray, $fieldHeadersArray = [])
     {
         $i = 0;
         $table = '';
@@ -315,7 +315,7 @@ class MakeTable
         );
     }
 
-    function _getClickAllScript()
+    protected function _getClickAllScript()
     {
         return <<< EOT
 <script>
@@ -339,12 +339,12 @@ EOT;
      * @param $totalRecords The number of records to show per page.
      * @param $base_url An optional query string to be appended to the paging links
      */
-    function createPagingNavigation($totalRecords, $base_url = '')
+    public function createPagingNavigation($totalRecords, $base_url = '')
     {
         return $this->renderPagingNavigation($totalRecords, $base_url);
     }
 
-    function renderPagingNavigation($totalRecords, $base_url = '')
+    public function renderPagingNavigation($totalRecords, $base_url = '')
     {
         global $_lang, $modx;
 
@@ -400,7 +400,7 @@ EOT;
      * @param $currentPage Indicates if the link is to the current page.
      * @param $qs And optional query string to be appended to the link.
      */
-    function createPageLink($path = '', $pageNum=0, $displayText='', $currentPage = false, $qs = '')
+    public function createPageLink($path = '', $pageNum=0, $displayText='', $currentPage = false, $qs = '')
     {
         global $modx;
 
@@ -441,7 +441,7 @@ EOT;
      * @param $isChecked Indicates if the checked attribute should apply to the
      * element.
      */
-    function addFormField($value, $isChecked)
+    public function addFormField($value, $isChecked)
     {
         if (!$this->formElementType) {
             return '';
@@ -460,7 +460,7 @@ EOT;
      * Generates the proper LIMIT clause for queries to retrieve paged results in
      * a MakeTable $fieldsArray.
      */
-    function handlePaging()
+    public function handlePaging()
     {
         $offset = (preg_match('@^[1-9][0-9]*$@', getv('page'))) ? getv('page') - 1 : 0;
         return sprintf(' LIMIT %s,%s', $offset * $this->pageLimit, $this->pageLimit);
@@ -472,7 +472,7 @@ EOT;
      *
      * @param $natural_order If true, the results are returned in natural order.
      */
-    function handleSorting($natural_order = false)
+    public function handleSorting($natural_order = false)
     {
         if ($natural_order) {
             return '';
@@ -496,7 +496,7 @@ EOT;
      * @param $text The text for the link (e.g. table column header).
      * @param $qs An optional query string to append to the order by link.
      */
-    function prepareOrderByLink($key, $text, $qs = '')
+    public function prepareOrderByLink($key, $text, $qs = '')
     {
         return sprintf(
             '<a href="[~%s~]?%s&orderby=%s&orderdir=%s">%s</a>',
@@ -513,7 +513,7 @@ EOT;
      *
      * @param $value A URL to execute when table cells are clicked.
      */
-    function setCellAction($path)
+    public function setCellAction($path)
     {
         $this->cellAction = $this->prepareLink($path);
     }
@@ -523,7 +523,7 @@ EOT;
      *
      * @param $value A URL to execute when text within table cells are clicked.
      */
-    function setLinkAction($path)
+    public function setLinkAction($path)
     {
         $this->linkAction = $this->prepareLink($path);
     }
@@ -533,7 +533,7 @@ EOT;
      *
      * @param $value A valid width attribute for the HTML TABLE tag
      */
-    function setTableWidth($value)
+    public function setTableWidth($value)
     {
         $this->tableWidth = $value;
     }
@@ -543,7 +543,7 @@ EOT;
      *
      * @param $value A class for the main HTML TABLE.
      */
-    function setTableClass($value)
+    public function setTableClass($value)
     {
         $this->tableClass = $value;
     }
@@ -553,7 +553,7 @@ EOT;
      *
      * @param $value A class for the main HTML TABLE.
      */
-    function setTableID($value)
+    public function setTableID($value)
     {
         $this->tableID = $value;
     }
@@ -563,7 +563,7 @@ EOT;
      *
      * @param $value A class for the table header row.
      */
-    function setRowHeaderClass($value)
+    public function setRowHeaderClass($value)
     {
         $this->rowHeaderClass = $value;
     }
@@ -573,7 +573,7 @@ EOT;
      *
      * @param $value A class for the table header row.
      */
-    function setThHeaderClass($value)
+    public function setThHeaderClass($value)
     {
         $this->thClass = $value;
     }
@@ -583,7 +583,7 @@ EOT;
      *
      * @param $value A class for the column header row.
      */
-    function setColumnHeaderClass($value)
+    public function setColumnHeaderClass($value)
     {
         $this->columnHeaderClass = $value;
     }
@@ -594,12 +594,12 @@ EOT;
      * @param $value A class for regular table rows.
      */
 
-    function setRowRegularClass($value)
+    public function setRowRegularClass($value)
     {
         $this->setRowDefaultClass($value);
     }
 
-    function setRowDefaultClass($value)
+    public function setRowDefaultClass($value)
     {
         $this->rowDefaultClass = $value;
     }
@@ -609,7 +609,7 @@ EOT;
      *
      * @param $value A class for alternate table rows.
      */
-    function setRowAlternateClass($value)
+    public function setRowAlternateClass($value)
     {
         $this->rowAlternateClass = $value;
     }
@@ -619,7 +619,7 @@ EOT;
      *
      * @param $value Indicates the INPUT form element type attribute.
      */
-    function setFormElementType($value)
+    public function setFormElementType($value)
     {
         $this->formElementType = $value;
     }
@@ -629,7 +629,7 @@ EOT;
      *
      * @param $value Indicates the INPUT form element name attribute.
      */
-    function setFormElementName($value)
+    public function setFormElementName($value)
     {
         $this->formElementName = $value;
     }
@@ -640,7 +640,7 @@ EOT;
      *
      * @param $value Indicates the FORM name attribute.
      */
-    function setFormName($value)
+    public function setFormName($value)
     {
         $this->formName = $value;
     }
@@ -650,7 +650,7 @@ EOT;
      *
      * @param $value Indicates the FORM action attribute.
      */
-    function setFormAction($value)
+    public function setFormAction($value)
     {
         $this->formAction = $value;
     }
@@ -660,7 +660,7 @@ EOT;
      *
      * @param $value An Array of field keys to exclude from the table.
      */
-    function setExcludeFields($value)
+    public function setExcludeFields($value)
     {
         $this->excludeFields = $value;
     }
@@ -670,7 +670,7 @@ EOT;
      *
      * @param $value 'ODD' or 'EVEN' to indicate the alternate row scheme.
      */
-    function setRowAlternatingScheme($value)
+    public function setRowAlternatingScheme($value)
     {
         $this->rowAlternatingScheme = $value;
     }
@@ -681,7 +681,7 @@ EOT;
      *
      * @param $value The key of the field to add as a query string parameter.
      */
-    function setActionFieldName($value)
+    public function setActionFieldName($value)
     {
         $this->actionField = $value;
     }
@@ -692,7 +692,7 @@ EOT;
      * @param $value An Array of column widths in the order of the keys in the
      *            source table array.
      */
-    function setColumnWidths($widthArray)
+    public function setColumnWidths($widthArray)
     {
         if (!is_array($widthArray)) {
             $widthArray = explode(',', $widthArray);
@@ -708,7 +708,7 @@ EOT;
      *
      * @param $value Indicates the INPUT form element type attribute.
      */
-    function setSelectedValues($valueArray)
+    public function setSelectedValues($valueArray)
     {
         $this->selectedValues = $valueArray;
     }
@@ -719,7 +719,7 @@ EOT;
      *
      * @param $value A string of additional content.
      */
-    function setExtra($value)
+    public function setExtra($value)
     {
         $this->extra = $value;
     }
@@ -728,12 +728,12 @@ EOT;
      * Sets an option to generate a check all link when checkbox is indicated
      * as the table formElementType.
      */
-    function setAllOption()
+    public function setAllOption()
     {
         $this->allOption = 1;
     }
 
-    function setPageLimit($total)
+    public function setPageLimit($total)
     {
         $this->pageLimit = $total;
     }

@@ -3074,17 +3074,21 @@ class DocumentParser
         [$key, $modifiers] = $this->splitKeyAndFilter($key);
 
         $key = str_replace(['(', ')'], ["['", "']"], $key);
+        $session = null;
         if (strpos($key, '$_SESSION') !== false) {
-            $_ = $_SESSION;
-            $key = str_replace('$_SESSION', '$_', $key);
-            if (isset($_['mgrFormValues'])) {
-                unset($_['mgrFormValues']);
+            $session = $_SESSION;
+            if (isset($session['mgrFormValues'])) {
+                unset($session['mgrFormValues']);
             }
-            if (isset($_['token'])) {
-                unset($_['token']);
+            if (isset($session['token'])) {
+                unset($session['token']);
             }
         }
-        if (strpos($key, '[') !== false) {
+        if ($session !== null && $key === '$_SESSION') {
+            $value = print_r($session, true);
+        } elseif ($this->isSuperGlobalAccessor($key) && strpos($key, '[') !== false) {
+            $value = $this->fetchSuperGlobalValue($key, $session);
+        } elseif (strpos($key, '[') !== false) {
             $value = $key ? eval("return {$key};") : '';
         } elseif (0 < eval("return is_array($key) ? count({$key}) : 0;")) {
             $value = eval("return print_r({$key},true)");
@@ -3097,6 +3101,59 @@ class DocumentParser
         }
 
         return $value;
+    }
+
+    private function isSuperGlobalAccessor($key)
+    {
+        return preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)/', $key) === 1;
+    }
+
+    private function fetchSuperGlobalValue($key, $session)
+    {
+        if (!preg_match('/^\$_(GET|POST|REQUEST|SESSION|COOKIE|SERVER)(.*)$/', $key, $matches)) {
+            return '';
+        }
+
+        $target = $matches[1];
+        $path = $this->convertBracketToDot($matches[2]);
+        $superGlobal = $this->getSuperGlobalSource($target, $session);
+
+        if ($path === '') {
+            return $superGlobal;
+        }
+
+        return $this->array_get($superGlobal, $path, '');
+    }
+
+    private function convertBracketToDot($path)
+    {
+        if ($path === '') {
+            return '';
+        }
+
+        preg_match_all("/\[['\"]?([^'\"\]]+)['\"]?\]/", $path, $matches);
+
+        return empty($matches[1]) ? '' : implode('.', $matches[1]);
+    }
+
+    private function getSuperGlobalSource($key, $session)
+    {
+        switch ($key) {
+            case 'GET':
+                return $_GET;
+            case 'POST':
+                return $_POST;
+            case 'REQUEST':
+                return $_REQUEST;
+            case 'SESSION':
+                return $session ?? $_SESSION;
+            case 'COOKIE':
+                return $_COOKIE;
+            case 'SERVER':
+                return $_SERVER;
+        }
+
+        return [];
     }
 
     private function _get_snip_result($piece)
@@ -3181,7 +3238,9 @@ class DocumentParser
                 $_tmp = trim($_tmp);
                 $delim = substr($_tmp, 0, 1);
                 if (in_array($delim, ['"', "'", '`'])) {
-                    [$null, $value, $_tmp] = explode($delim, $_tmp, 3);
+                    $delimParts = explode($delim, $_tmp, 3);
+                    $value = $delimParts[1] ?? '';
+                    $_tmp = $delimParts[2] ?? '';
                     while (strpos(trim($_tmp), '//') === 0) {
                         $_ = $_tmp;
                         $_tmp = strstr(trim($_tmp), "\n");

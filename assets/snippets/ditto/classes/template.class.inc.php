@@ -39,11 +39,17 @@ class template
     // ---------------------------------------------------
     function process($template)
     {
-        if (!isset($template['base'])) {
-            $template['base'] = $template['default'];
-        } else {
-            unset($template['default']);
+        if (!is_array($template) || !$template) {
+            $this->fields = $this->sortFields([]);
+            return [];
         }
+
+        $templates = [];
+        if (!isset($template['base']) && isset($template['default'])) {
+            $template['base'] = $template['default'];
+        }
+        unset($template['default']);
+
         foreach ($template as $name => $tpl) {
             if (!empty($tpl) && $tpl != '') {
                 $templates[$name] = $this->fetch($tpl);
@@ -175,6 +181,15 @@ class template
     // ---------------------------------------------------
     public function determine($templates, $x, $start, $stop, $id)
     {
+        if (!is_array($templates) || !$templates) {
+            $this->current = '';
+            return '';
+        }
+
+        if (!array_key_exists('base', $templates)) {
+            $templates['base'] = reset($templates) ?: '';
+        }
+
         // determine current template
         $currentTPL = 'base';
         if ($x % 2 && !empty($templates['alt'])) {
@@ -190,7 +205,7 @@ class template
             $currentTPL = 'last';
         }
         $this->current = $currentTPL;
-        return $templates[$currentTPL];
+        return $templates[$currentTPL] ?? '';
     }
 
     // ---------------------------------------------------

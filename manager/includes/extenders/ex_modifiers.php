@@ -36,7 +36,7 @@ class MODIFIERS
         $this->condModifiers = '=,is,eq,equals,ne,neq,notequals,isnot,isnt,not,%,isempty,isnotempty,isntempty,>=,gte,eg,gte,greaterthan,>,gt,isgreaterthan,isgt,lowerthan,<,lt,<=,lte,islte,islowerthan,islt,el,find,in,inarray,in_array,fnmatch,wcard,wcard_match,wildcard,wildcard_match,is_file,is_dir,file_exists,is_readable,is_writable,is_image,regex,preg,preg_match,memberof,mo,isinrole,ir';
     }
 
-    function phxFilter($key, $value, $modifiers)
+    public function phxFilter($key, $value, $modifiers)
     {
         if (strpos($modifiers, 'id(') !== 0) {
             $value = $this->parseDocumentSource($value);
@@ -56,7 +56,7 @@ class MODIFIERS
         return $value;
     }
 
-    function _getDelim($mode, $modifiers)
+    public function _getDelim($mode, $modifiers)
     {
         $c = substr($modifiers, 0, 1);
         if (!in_array($c, ['"', "'", '`'])) {
@@ -71,7 +71,7 @@ class MODIFIERS
         return $c;
     }
 
-    function _getOpt($mode, $delim, $modifiers)
+    public function _getOpt($mode, $delim, $modifiers)
     {
         if ($delim) {
             if ($mode === '(') {
@@ -95,7 +95,7 @@ class MODIFIERS
         return $opt;
     }
 
-    function _getRemainModifiers($mode, $delim, $modifiers)
+    public function _getRemainModifiers($mode, $delim, $modifiers)
     {
         if ($delim) {
             if ($mode === '(') {
@@ -120,14 +120,14 @@ class MODIFIERS
         return $modifiers;
     }
 
-    function _fetchContent($string, $delim)
+    public function _fetchContent($string, $delim)
     {
         $len = strlen($delim);
         $string = $this->parseDocumentSource($string);
         return substr($string, strpos($string, $delim) + $len);
     }
 
-    function splitEachModifiers($modifiers)
+    public function splitEachModifiers($modifiers)
     {
         global $modx;
 
@@ -198,7 +198,7 @@ class MODIFIERS
         return $result;
     }
 
-    function parsePhx($key, $value, $modifiers)
+    public function parsePhx($key, $value, $modifiers)
     {
         static $cache = [];
         $cacheKey = hash('crc32b', sprintf('parsePhx#%s#%s#%s', $key, $value, print_r($modifiers, true)));
@@ -240,7 +240,7 @@ class MODIFIERS
     }
 
     // Parser: modifier detection and eXtended processing if needed
-    function Filter($key, $value, $cmd, $opt = '')
+    public function Filter($key, $value, $cmd, $opt = '')
     {
         if ($key === 'documentObject') {
             $value = evo()->documentIdentifier;
@@ -276,7 +276,7 @@ class MODIFIERS
         return str_replace('[+key+]', $key, $value);
     }
 
-    function snippet_exists($cmd)
+    public function snippet_exists($cmd)
     {
         global $modx;
 
@@ -316,7 +316,7 @@ class MODIFIERS
         return 0;
     }
 
-    function chunk_exists($cmd)
+    public function chunk_exists($cmd)
     {
         if (evo()->getChunk('phx:' . $cmd)) {
             return 1;
@@ -329,7 +329,7 @@ class MODIFIERS
         return 0;
     }
 
-    function getValueFromPHP($key, $value, $cmd, $opt)
+    public function getValueFromPHP($key, $value, $cmd, $opt)
     {
         global $modx;
 
@@ -364,7 +364,7 @@ class MODIFIERS
         return $value;
     }
 
-    function getSnippetFromDB($cmd)
+    public function getSnippetFromDB($cmd)
     {
         $rs = db()->select(
             'snippet',
@@ -380,7 +380,7 @@ class MODIFIERS
         return db()->getValue($rs);
     }
 
-    function getSnippetFromFile($cmd)
+    public function getSnippetFromFile($cmd)
     {
         $_ = [
             sprintf('%sassets/modifiers/mdf_%s.inc.php', MODX_BASE_PATH, $cmd),
@@ -412,7 +412,7 @@ class MODIFIERS
         return $code;
     }
 
-    function getValueFromHTML($key, $value, $cmd, $opt)
+    public function getValueFromHTML($key, $value, $cmd, $opt)
     {
         if (evo()->getChunk('phx:' . $cmd)) {
             $html = evo()->getChunk('phx:' . $cmd);
@@ -428,7 +428,7 @@ class MODIFIERS
         return $value;
     }
 
-    function isEmpty($cmd, $value)
+    public function isEmpty($cmd, $value)
     {
         if ($value !== '') {
             return false;
@@ -444,7 +444,7 @@ class MODIFIERS
         return true;
     }
 
-    function getValueFromPreset($key, $value, $cmd, $opt)
+    public function getValueFromPreset($key, $value, $cmd, $opt)
     {
         global $modx;
 
@@ -1351,7 +1351,7 @@ class MODIFIERS
         return $value;
     }
 
-    function includeMdfFile($cmd)
+    public function includeMdfFile($cmd)
     {
         global $modx;
         $key = $this->key;
@@ -1360,7 +1360,7 @@ class MODIFIERS
         return include(MODX_CORE_PATH . "extenders/modifiers/mdf_" . $cmd . ".inc.php");
     }
 
-    function parseDocumentSource($content = '')
+    public function parseDocumentSource($content = '')
     {
         global $modx;
 
@@ -1402,7 +1402,7 @@ class MODIFIERS
         return $content;
     }
 
-    function getDocumentObject($target = '', $field = 'pagetitle')
+    public function getDocumentObject($target = '', $field = 'pagetitle')
     {
         $target = trim($target);
         if (!$target) {
@@ -1433,7 +1433,7 @@ class MODIFIERS
         return $this->documentObject[$target][$field];
     }
 
-    function setPlaceholders($value = '', $key = '', $path = '')
+    public function setPlaceholders($value = '', $key = '', $path = '')
     {
         if ($path !== '') {
             $key = $path . "." . $key;
@@ -1448,7 +1448,7 @@ class MODIFIERS
     }
 
     // Sets a placeholder variable which can only be access by Modifiers
-    function setModifiersVariable($key, $value)
+    public function setModifiersVariable($key, $value)
     {
         if ($key !== 'phx' && $key !== 'dummy') {
             $this->placeholders[$key] = $value;
