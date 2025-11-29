@@ -1,0 +1,15 @@
+<?php
+$tab_your_info   = 1;
+$tab_online      = 1;
+
+$iconResources   = 1;
+$iconNewDoc      = 1;
+$iconSearch      = 1;
+$iconMessage     = 1;
+
+$iconElements    = 1;
+$iconSettings    = 1;
+$iconFileManager = 1;
+$iconEventLog    = 1;
+$iconSysInfo     = 1;
+$iconHelp        = 1;
