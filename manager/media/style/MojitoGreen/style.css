@@ -1,0 +1,2528 @@
+/*
+ * ============================================================================
+ * Evolution CMS JP Edition - MojitoGreen Theme
+ * ============================================================================
+ *
+ * A refreshing mint & lime green theme inspired by the classic cocktail.
+ * Features a complex green palette with subtle texture and depth.
+ *
+ * TABLE OF CONTENTS:
+ *
+ * 1. CSS Variables & Design Tokens
+ * 2. Base Styles (Reset, Typography, Links)
+ * 3. Utility Classes (hide, clear, status messages)
+ * 4. Typography (Headings, Paragraphs)
+ * 5. Forms (Inputs, Selects, Textareas, Buttons)
+ * 6. Layout Components (Sections, Containers)
+ * 7. Navigation (Top Menu, Supplemental Nav)
+ * 8. Tree Components (Site Tree, Context Menu)
+ * 9. Tables & Grids (Data Tables, Sortable)
+ * 10. Tabs System (Dynamic Tab Pane)
+ * 11. Action Buttons (Fixed Position Controls)
+ * 12. Specialized Forms (Mutate Forms, Date Pickers)
+ * 13. Custom Navigation Gradients
+ *
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. CSS Variables & Design Tokens
+   Used throughout: All components
+   ============================================================================ */
+
+:root {
+    /* Gray Scale - Core neutral colors (モヒートパレット準拠)
+       Base: #FDFDFB(氷白), #FAFFF4(極淡ライム), #DFF5D7, #CBEEC5, #B6E7B3
+       Accent: #EAFCCF(レモンイエロー), #F7FFDE(淡黄緑) */
+    --gray-50: #FDFDFB;
+    --gray-100: #FAFFF4;
+    --gray-200: #F7FFDE;
+    --gray-300: #EAFCCF;
+    --gray-400: #DFF5D7;
+    --gray-500: #CBEEC5;
+    --gray-600: #B6E7B3;
+    --gray-700: #8DC78A;
+    --gray-800: #5A9A5E;
+    --gray-900: #3A6A40;
+
+    /* Semantic Colors - Primary theme colors */
+    --color-text-primary: #3A6A40;
+    --color-text-muted: #5A9A5E;
+    --color-text-subtle: #8DC78A;
+    --color-text-dark: #2E5535;
+    --color-text-darker: #1E3A22;
+    --color-background-page: linear-gradient(180deg, #FDFDFB 0%, #FAFFF4 50%, #F7FFDE 100%);
+    --color-link: #5A9A5E;
+    --color-link-hover: #3A6A40;
+    --color-border-default: rgba(255, 255, 255, 0.5);
+    --color-border-light: rgba(203, 238, 197, 0.6);
+    --color-surface: rgba(253, 253, 251, 0.98);
+    --color-surface-glass: rgba(250, 255, 244, 0.85);
+
+    /* Status Colors - harmonized with mojito palette */
+    --color-success: #5A9A5E;
+    --color-success-light: #8DC78A;
+    --color-success-bg: rgba(203, 238, 197, 0.4);
+    --color-error: #c05050;
+    --color-error-bg: rgba(255, 242, 242, 0.9);
+    --color-warning: #c08040;
+    --color-warning-bg: rgba(255, 248, 235, 0.9);
+    --color-info: #5080a0;
+    --color-info-bg: rgba(240, 248, 255, 0.9);
+
+    /* Component Colors - Sections (氷の透明感 + ライムの淡い色) */
+    --color-section-header-text: #3A6A40;
+    --color-section-header-bg: rgba(250, 255, 244, 0.92);
+    --color-section-header-border: rgba(255, 255, 255, 0.45);
+    --color-section-bg: rgba(253, 253, 251, 0.94);
+
+    /* Component Colors - Navigation (氷白 + ライムアクセント) */
+    --color-nav-bg: rgba(253, 253, 251, 0.97);
+    --color-nav-border: rgba(255, 255, 255, 0.4);
+    --color-nav-link: #3A6A40;
+    --color-nav-link-hover: #2E5535;
+    --color-nav-active-bg: rgba(234, 252, 207, 0.6);
+
+    /* Component Colors - Primary Actions (ライムグラデーション) */
+    --color-primary: #5A9A5E;
+    --color-primary-start: #CBEEC5;
+    --color-primary-end: #B6E7B3;
+    --color-primary-hover-start: #DFF5D7;
+    --color-primary-hover-end: #CBEEC5;
+    --color-primary-active-start: #B6E7B3;
+    --color-primary-active-end: #8DC78A;
+
+    /* Component Colors - Secondary Actions (氷のガラス調) */
+    --color-secondary-start: rgba(253, 253, 251, 0.95);
+    --color-secondary-end: rgba(250, 255, 244, 0.9);
+    --color-secondary-border: rgba(255, 255, 255, 0.45);
+    --color-secondary-text: #3A6A40;
+    --color-secondary-hover-start: rgba(247, 255, 222, 0.95);
+    --color-secondary-hover-end: rgba(234, 252, 207, 0.9);
+    --color-secondary-hover-text: #2E5535;
+
+    /* Component Colors - Neutral Buttons (氷の透明感) */
+    --color-neutral-button-start: rgba(253, 253, 251, 0.97);
+    --color-neutral-button-hover-end: rgba(250, 255, 244, 0.97);
+    --color-neutral-button-active-start: rgba(234, 252, 207, 0.97);
+    --color-neutral-button-border: rgba(255, 255, 255, 0.5);
+
+    /* Component Colors - Draft Mode (レモンイエロー系) */
+    --color-draft-start: rgba(247, 255, 222, 0.95);
+    --color-draft-end: rgba(234, 252, 207, 0.9);
+    --color-draft-light: #F7FFDE;
+
+    /* Spacing Scale - 8px base */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+
+    /* Border Radius - slightly more rounded for modern feel */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-full: 999px;
+
+    /* Shadows - 自然で柔らかなシャドウ */
+    --shadow-xs: 0 1px 2px rgba(40, 70, 55, 0.04);
+    --shadow-sm: 0 2px 8px rgba(40, 70, 55, 0.06);
+    --shadow-md: 0 4px 16px rgba(40, 70, 55, 0.08);
+    --shadow-lg: 0 8px 32px rgba(40, 70, 55, 0.10);
+    --shadow-xl: 0 16px 48px rgba(40, 70, 55, 0.12);
+    --shadow-inset: inset 0 2px 4px rgba(40, 70, 55, 0.06);
+    --shadow-glow: 0 0 24px rgba(100, 160, 130, 0.15);
+
+    /* Glass effect - 上品な透明感 */
+    --glass-blur: blur(24px) saturate(180%);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(160, 200, 180, 0.3);
+
+    /* Transitions - smooth and refined */
+    --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================================
+   2. Base Styles - Reset & Normalize
+   Used throughout: Global reset
+   ============================================================================ */
+
+html, body, form, fieldset {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Hiragino Sans", "Noto Sans JP", Meiryo, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    height: 100%;
+    line-height: 1.6;
+    color: var(--color-text-primary);
+    background:
+        linear-gradient(180deg,
+            #DFF5D7 0%,
+            #E5F7DE 10%,
+            #EBF9E5 20%,
+            #F2FBEF 35%,
+            #F7FCF5 50%,
+            #FBFDFB 70%,
+            #FDFDFB 85%,
+            #ffffff 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body#mainpane {
+    padding: var(--space-4);
+    background:
+        /* === 氷の表面に反射したシャープな白いハイライト === */
+        linear-gradient(125deg, transparent 42%, rgba(253, 253, 251, 0.9) 42.5%, rgba(253, 253, 251, 0.9) 43%, transparent 43.5%),
+        linear-gradient(135deg, transparent 28%, rgba(253, 253, 251, 0.7) 28.3%, rgba(253, 253, 251, 0.7) 28.6%, transparent 29%),
+        linear-gradient(118deg, transparent 67%, rgba(250, 255, 244, 0.8) 67.2%, rgba(250, 255, 244, 0.8) 67.5%, transparent 68%),
+        linear-gradient(142deg, transparent 55%, rgba(253, 253, 251, 0.6) 55.2%, rgba(253, 253, 251, 0.6) 55.4%, transparent 55.8%),
+        /* === 極細の黄緑ライン（光の透過） === */
+        linear-gradient(130deg, transparent 35%, rgba(234, 252, 207, 0.5) 35.1%, rgba(234, 252, 207, 0.5) 35.2%, transparent 35.3%),
+        linear-gradient(122deg, transparent 72%, rgba(247, 255, 222, 0.45) 72.05%, rgba(247, 255, 222, 0.45) 72.15%, transparent 72.2%),
+        linear-gradient(138deg, transparent 48%, rgba(234, 252, 207, 0.4) 48.08%, rgba(234, 252, 207, 0.4) 48.16%, transparent 48.25%),
+        /* === 透明な氷越しの強い白のきらめき（点在） === */
+        radial-gradient(circle 3px at 82% 18%, rgba(253, 253, 251, 0.95) 0%, rgba(253, 253, 251, 0.95) 60%, transparent 100%),
+        radial-gradient(circle 2px at 45% 32%, rgba(253, 253, 251, 0.9) 0%, rgba(253, 253, 251, 0.9) 70%, transparent 100%),
+        radial-gradient(circle 2.5px at 68% 55%, rgba(250, 255, 244, 0.92) 0%, rgba(250, 255, 244, 0.92) 65%, transparent 100%),
+        radial-gradient(circle 2px at 28% 72%, rgba(253, 253, 251, 0.88) 0%, rgba(253, 253, 251, 0.88) 70%, transparent 100%),
+        radial-gradient(circle 3px at 91% 42%, rgba(253, 253, 251, 0.9) 0%, rgba(253, 253, 251, 0.9) 60%, transparent 100%),
+        radial-gradient(circle 2px at 55% 85%, rgba(250, 255, 244, 0.85) 0%, rgba(250, 255, 244, 0.85) 70%, transparent 100%),
+        radial-gradient(circle 2.5px at 15% 48%, rgba(253, 253, 251, 0.92) 0%, rgba(253, 253, 251, 0.92) 65%, transparent 100%),
+        radial-gradient(circle 2px at 78% 68%, rgba(253, 253, 251, 0.88) 0%, rgba(253, 253, 251, 0.88) 70%, transparent 100%),
+
+        /* ========================================
+           炭酸の泡 - モヒートの清涼感
+           透明感を保ちつつ内部に薄く色を入れた泡
+           ======================================== */
+
+        /* --- 超特大の泡（主役級）130px, 100px --- */
+        /* 泡本体：内部に淡い色あり + 白い輪郭 */
+        radial-gradient(circle 130px at 88% 88%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.08) 40%, rgba(203, 238, 197, 0.12) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.15) 50%, transparent 50.5%),
+        radial-gradient(circle 25px at 82% 80%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+        radial-gradient(circle 100px at 95% 75%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.06) 40%, rgba(203, 238, 197, 0.1) 46%, rgba(255, 255, 255, 0.8) 48%, rgba(255, 255, 255, 0.9) 49%, rgba(255, 255, 255, 0.9) 49.5%, rgba(223, 245, 215, 0.12) 50%, transparent 50.5%),
+        radial-gradient(circle 18px at 90% 68%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
+
+        /* --- 特大の泡 70px〜55px --- */
+        radial-gradient(circle 70px at 75% 92%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.09) 40%, rgba(203, 238, 197, 0.14) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.16) 50%, transparent 50.5%),
+        radial-gradient(circle 12px at 70% 86%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+        radial-gradient(circle 60px at 92% 95%, rgba(223, 245, 215, 0.035) 0%, rgba(203, 238, 197, 0.075) 40%, rgba(203, 238, 197, 0.12) 46%, rgba(255, 255, 255, 0.8) 48%, rgba(255, 255, 255, 0.9) 49%, rgba(255, 255, 255, 0.9) 49.5%, rgba(223, 245, 215, 0.14) 50%, transparent 50.5%),
+        radial-gradient(circle 10px at 88% 90%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
+        radial-gradient(circle 55px at 65% 78%, rgba(223, 245, 215, 0.03) 0%, rgba(203, 238, 197, 0.07) 40%, rgba(203, 238, 197, 0.11) 46%, rgba(255, 255, 255, 0.78) 48%, rgba(255, 255, 255, 0.88) 49%, rgba(255, 255, 255, 0.88) 49.5%, rgba(223, 245, 215, 0.13) 50%, transparent 50.5%),
+        radial-gradient(circle 9px at 60% 72%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
+
+        /* --- 大きめの泡 48px〜35px --- */
+        radial-gradient(circle 48px at 82% 65%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.1) 38%, rgba(203, 238, 197, 0.16) 46%, rgba(255, 255, 255, 0.9) 48%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.18) 50%, transparent 50.5%),
+        radial-gradient(circle 8px at 78% 60%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+        radial-gradient(circle 42px at 98% 85%, rgba(223, 245, 215, 0.04) 0%, rgba(203, 238, 197, 0.09) 38%, rgba(203, 238, 197, 0.14) 46%, rgba(255, 255, 255, 0.85) 48%, rgba(255, 255, 255, 0.95) 49%, rgba(255, 255, 255, 0.95) 49.5%, rgba(223, 245, 215, 0.16) 50%, transparent 50.5%),
+        radial-gradient(circle 7px at 94% 80%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
+        radial-gradient(circle 38px at 70% 98%, rgba(223, 245, 215, 0.045) 0%, rgba(203, 238, 197, 0.095) 38%, rgba(203, 238, 197, 0.15) 46%, rgba(255, 255, 255, 0.88) 48%, rgba(255, 255, 255, 0.98) 49%, rgba(255, 255, 255, 0.98) 49.5%, rgba(223, 245, 215, 0.17) 50%, transparent 50.5%),
+        radial-gradient(circle 6px at 66% 93%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%),
+        radial-gradient(circle 35px at 55% 88%, rgba(223, 245, 215, 0.035) 0%, rgba(203, 238, 197, 0.08) 38%, rgba(203, 238, 197, 0.13) 46%, rgba(255, 255, 255, 0.82) 48%, rgba(255, 255, 255, 0.92) 49%, rgba(255, 255, 255, 0.92) 49.5%, rgba(223, 245, 215, 0.15) 50%, transparent 50.5%),
+
+        /* --- 中くらいの泡 32px〜22px --- */
+        radial-gradient(circle 32px at 88% 78%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.11) 36%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
+        radial-gradient(circle 5px at 85% 74%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%),
+        radial-gradient(circle 28px at 78% 55%, rgba(223, 245, 215, 0.05) 0%, rgba(203, 238, 197, 0.1) 36%, rgba(203, 238, 197, 0.16) 45%, rgba(255, 255, 255, 0.9) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.18) 50%, transparent 50.5%),
+        radial-gradient(circle 4.5px at 75% 51%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.42) 50%, transparent 100%),
+        radial-gradient(circle 25px at 95% 68%, rgba(223, 245, 215, 0.055) 0%, rgba(203, 238, 197, 0.105) 36%, rgba(203, 238, 197, 0.17) 45%, rgba(255, 255, 255, 0.92) 47.5%, rgba(255, 255, 255, 1) 49%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.19) 50%, transparent 50.5%),
+        radial-gradient(circle 4px at 92% 64%, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%),
+        radial-gradient(circle 22px at 60% 72%, rgba(223, 245, 215, 0.045) 0%, rgba(203, 238, 197, 0.09) 36%, rgba(203, 238, 197, 0.15) 45%, rgba(255, 255, 255, 0.88) 47.5%, rgba(255, 255, 255, 0.98) 49%, rgba(255, 255, 255, 0.98) 49.5%, rgba(223, 245, 215, 0.17) 50%, transparent 50.5%),
+        radial-gradient(circle 3.5px at 57% 68%, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.38) 50%, transparent 100%),
+
+        /* --- 小さめの泡 18px〜12px --- */
+        radial-gradient(circle 18px at 85% 92%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 34%, rgba(203, 238, 197, 0.2) 45%, rgba(255, 255, 255, 1) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
+        radial-gradient(circle 3px at 83% 89%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+        radial-gradient(circle 16px at 72% 68%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.125) 34%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
+        radial-gradient(circle 2.5px at 70% 65%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.48) 50%, transparent 100%),
+        radial-gradient(circle 15px at 98% 92%, rgba(223, 245, 215, 0.065) 0%, rgba(203, 238, 197, 0.13) 34%, rgba(203, 238, 197, 0.19) 45%, rgba(255, 255, 255, 0.98) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
+        radial-gradient(circle 2.5px at 96% 89%, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%),
+        radial-gradient(circle 14px at 50% 82%, rgba(223, 245, 215, 0.055) 0%, rgba(203, 238, 197, 0.115) 34%, rgba(203, 238, 197, 0.17) 45%, rgba(255, 255, 255, 0.92) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.19) 50%, transparent 50.5%),
+        radial-gradient(circle 12px at 90% 58%, rgba(223, 245, 215, 0.06) 0%, rgba(203, 238, 197, 0.125) 34%, rgba(203, 238, 197, 0.18) 45%, rgba(255, 255, 255, 0.95) 47.5%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.2) 50%, transparent 50.5%),
+        radial-gradient(circle 2px at 88% 55%, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.48) 50%, transparent 100%),
+
+        /* --- 小さい泡 10px〜7px --- */
+        radial-gradient(circle 10px at 80% 85%, rgba(223, 245, 215, 0.09) 0%, rgba(203, 238, 197, 0.16) 32%, rgba(203, 238, 197, 0.22) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.24) 50%, transparent 50.5%),
+        radial-gradient(circle 1.8px at 78% 82%, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.55) 50%, transparent 100%),
+        radial-gradient(circle 9px at 92% 82%, rgba(223, 245, 215, 0.08) 0%, rgba(203, 238, 197, 0.15) 32%, rgba(203, 238, 197, 0.21) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.23) 50%, transparent 50.5%),
+        radial-gradient(circle 8px at 68% 95%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 32%, rgba(203, 238, 197, 0.2) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
+        radial-gradient(circle 1.5px at 66% 92%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.52) 50%, transparent 100%),
+        radial-gradient(circle 7px at 78% 62%, rgba(223, 245, 215, 0.07) 0%, rgba(203, 238, 197, 0.13) 32%, rgba(203, 238, 197, 0.19) 44%, rgba(255, 255, 255, 0.98) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
+        radial-gradient(circle 9px at 55% 92%, rgba(223, 245, 215, 0.075) 0%, rgba(203, 238, 197, 0.14) 32%, rgba(203, 238, 197, 0.2) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.22) 50%, transparent 50.5%),
+        radial-gradient(circle 8px at 95% 75%, rgba(223, 245, 215, 0.08) 0%, rgba(203, 238, 197, 0.15) 32%, rgba(203, 238, 197, 0.21) 44%, rgba(255, 255, 255, 1) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.23) 50%, transparent 50.5%),
+        radial-gradient(circle 1.5px at 93% 72%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.52) 50%, transparent 100%),
+        radial-gradient(circle 7px at 62% 78%, rgba(223, 245, 215, 0.07) 0%, rgba(203, 238, 197, 0.13) 32%, rgba(203, 238, 197, 0.19) 44%, rgba(255, 255, 255, 0.98) 47%, rgba(255, 255, 255, 1) 49.5%, rgba(223, 245, 215, 0.21) 50%, transparent 50.5%),
+
+        /* --- とても小さい泡 6px〜4px --- */
+        radial-gradient(circle 6px at 88% 70%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
+        radial-gradient(circle 1.2px at 87% 68%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+        radial-gradient(circle 5px at 75% 88%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
+        radial-gradient(circle 6px at 98% 78%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
+        radial-gradient(circle 1.2px at 97% 76%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%),
+        radial-gradient(circle 4px at 82% 98%, rgba(223, 245, 215, 0.17) 0%, rgba(203, 238, 197, 0.33) 30%, rgba(203, 238, 197, 0.5) 45%, rgba(255, 255, 255, 0.85) 46.5%, rgba(255, 255, 255, 0.95) 47.5%, rgba(223, 245, 215, 0.6) 49%, transparent 50%),
+        radial-gradient(circle 5px at 65% 65%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
+        radial-gradient(circle 4px at 92% 92%, rgba(223, 245, 215, 0.2) 0%, rgba(203, 238, 197, 0.38) 30%, rgba(203, 238, 197, 0.55) 45%, rgba(255, 255, 255, 0.9) 46.5%, rgba(255, 255, 255, 1) 47.5%, rgba(223, 245, 215, 0.65) 49%, transparent 50%),
+        radial-gradient(circle 1px at 91% 91%, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.65) 50%, transparent 100%),
+        radial-gradient(circle 6px at 70% 75%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
+        radial-gradient(circle 5px at 85% 55%, rgba(223, 245, 215, 0.17) 0%, rgba(203, 238, 197, 0.33) 30%, rgba(203, 238, 197, 0.5) 45%, rgba(255, 255, 255, 0.85) 46.5%, rgba(255, 255, 255, 0.95) 47.5%, rgba(223, 245, 215, 0.6) 49%, transparent 50%),
+        radial-gradient(circle 4px at 58% 85%, rgba(223, 245, 215, 0.18) 0%, rgba(203, 238, 197, 0.35) 30%, rgba(203, 238, 197, 0.52) 45%, rgba(255, 255, 255, 0.88) 46.5%, rgba(255, 255, 255, 0.98) 47.5%, rgba(223, 245, 215, 0.62) 49%, transparent 50%),
+
+        /* --- 極小の泡 3px〜2px --- */
+        radial-gradient(circle 3px at 90% 88%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+        radial-gradient(circle 0.8px at 89% 87%, rgba(255, 255, 255, 1) 0%, transparent 100%),
+        radial-gradient(circle 2.5px at 78% 72%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
+        radial-gradient(circle 3px at 95% 85%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+        radial-gradient(circle 0.8px at 94% 84%, rgba(255, 255, 255, 1) 0%, transparent 100%),
+        radial-gradient(circle 2px at 68% 90%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
+        radial-gradient(circle 2.5px at 85% 65%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
+        radial-gradient(circle 3px at 72% 82%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+        radial-gradient(circle 0.8px at 71% 81%, rgba(255, 255, 255, 1) 0%, transparent 100%),
+        radial-gradient(circle 2px at 98% 88%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
+        radial-gradient(circle 2.5px at 55% 78%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
+        radial-gradient(circle 3px at 82% 95%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+        radial-gradient(circle 2px at 62% 68%, rgba(223, 245, 215, 0.22) 0%, rgba(203, 238, 197, 0.42) 28%, rgba(203, 238, 197, 0.57) 44%, rgba(255, 255, 255, 0.92) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.67) 48.5%, transparent 50%),
+        radial-gradient(circle 2.5px at 92% 72%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+        radial-gradient(circle 0.8px at 91% 71%, rgba(255, 255, 255, 1) 0%, transparent 100%),
+        radial-gradient(circle 3px at 75% 95%, rgba(223, 245, 215, 0.28) 0%, rgba(203, 238, 197, 0.48) 28%, rgba(203, 238, 197, 0.63) 44%, rgba(255, 255, 255, 0.98) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.73) 48.5%, transparent 50%),
+        radial-gradient(circle 2px at 88% 78%, rgba(223, 245, 215, 0.25) 0%, rgba(203, 238, 197, 0.45) 28%, rgba(203, 238, 197, 0.6) 44%, rgba(255, 255, 255, 0.95) 45.5%, rgba(255, 255, 255, 1) 47%, rgba(223, 245, 215, 0.7) 48.5%, transparent 50%),
+
+        /* === ライムの皮のエッジ（酸味の光） === */
+        radial-gradient(
+            ellipse 60% 40% at 20% 8%,
+            rgba(247, 255, 222, 0.28) 0%,
+            rgba(234, 252, 207, 0.15) 40%,
+            transparent 75%
+        ),
+        radial-gradient(
+            ellipse 50% 35% at 80% 12%,
+            rgba(247, 255, 222, 0.22) 0%,
+            rgba(234, 252, 207, 0.1) 50%,
+            transparent 80%
+        ),
+        radial-gradient(
+            ellipse 45% 30% at 55% 5%,
+            rgba(250, 255, 244, 0.25) 0%,
+            rgba(247, 255, 222, 0.12) 45%,
+            transparent 75%
+        ),
+        /* === 自然なライムグリーンのグラデーション === */
+        radial-gradient(
+            ellipse 130% 110% at 100% 100%,
+            rgba(255, 255, 255, 0.3) 0%,
+            rgba(203, 238, 197, 0.2) 25%,
+            rgba(223, 245, 215, 0.12) 50%,
+            transparent 75%
+        ),
+        radial-gradient(
+            ellipse 90% 90% at 90% 85%,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(203, 238, 197, 0.15) 30%,
+            transparent 60%
+        ),
+        radial-gradient(
+            ellipse 70% 70% at 80% 95%,
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 50%
+        ),
+        /* ベースのグラデーション（白から淡いライムグリーンへ） */
+        linear-gradient(180deg,
+            #DFF5D7 0%,
+            #E5F7DE 10%,
+            #EBF9E5 20%,
+            #F2FBEF 35%,
+            #F7FCF5 50%,
+            #FBFDFB 70%,
+            #FDFDFB 85%,
+            #ffffff 100%);
+    background-attachment: fixed;
+}
+
+img, a img {
+    border: 0 !important;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6, p, pre, blockquote, ul, ol, dl, address {
+    margin: .5em 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+li, dd, blockquote {
+    margin: 0 0 0 1em;
+}
+
+/* ============================================================================
+   3. Utility Classes
+   Used in: Various components for common patterns
+   ============================================================================ */
+
+/* -------------------------[ Miscellaneous conveniences ]--- */
+.clear {
+    clear: both;
+}
+
+.fail {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.warning {
+    color: var(--color-warning);
+    font-weight: bold;
+}
+
+.mutate-field-row {
+    height: 24px;
+}
+
+.mutate-field-label {
+    width: 120px;
+    text-align: left;
+}
+
+.mutate-field-title {
+    color: #3d7a5c;
+    font-weight: 600;
+}
+
+.clickable-label {
+    cursor: pointer;
+}
+
+.menuindex-table {
+    width: 333px;
+}
+
+.menuindex-label {
+    white-space: nowrap;
+}
+
+.menuindex-options {
+    text-align: right;
+}
+
+.mutate-tv-table {
+    position: relative;
+    width: 96%;
+}
+
+.mutate-tv-row {
+    height: 24px;
+}
+
+.mutate-tv-label {
+    width: 200px;
+    vertical-align: top;
+    white-space: nowrap;
+}
+
+.mutate-tv-value {
+    position: relative;
+    vertical-align: top;
+}
+
+.success {
+    color: var(--color-success);
+    font-weight: bold;
+}
+
+.hide, .skip, .printonly {
+    display: none;
+}
+
+.inline {
+    display: inline;
+}
+
+/* ============================================================================
+   4. Typography - Headings & Paragraphs
+   Used in: Page titles, section headers, content areas
+   ============================================================================ */
+
+h1, h2, h3, h4, h5, h6, .subTitle {
+    font-weight: normal;
+}
+
+h1 {
+    font-size: 1.25em;
+    color: var(--color-text-dark);
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(248, 252, 249, 0.96) 0%, rgba(235, 245, 238, 0.92) 100%);
+    letter-spacing: 0.5px;
+    line-height: 1.4;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    margin: 0 0 var(--space-3) 0;
+    border: 1px solid rgba(160, 195, 175, 0.4);
+    box-shadow: var(--shadow-sm);
+}
+
+h1.draft {
+    background: linear-gradient(135deg, var(--color-draft-start) 0%, var(--color-draft-end) 100%);
+    border-color: rgba(230, 190, 150, 0.5);
+}
+
+h2 {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #3a5845;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+}
+
+h4,
+h5 {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+h6 {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+p.caption, p.comment {
+    font-size: 0.9em;
+    color: var(--gray-600);
+}
+
+button {
+    width: 112px;
+    font: inherit;
+    margin: 0 5px 0 0;
+    cursor: pointer;
+}
+
+a, a:active, a:visited, a:link {
+    color: var(--color-link);
+    text-decoration: underline;
+}
+
+a:hover {
+    color: var(--color-link-hover);
+}
+
+hr {
+    color: var(--gray-700);
+    background-color: var(--gray-700);
+    height: 1px;
+    border: 0;
+}
+
+.split {
+  display:none;
+}
+
+.messageRead {
+    color: var(--color-text-primary);
+}
+
+.messageUnread {
+    color: var(--color-info);
+    font-weight: bold;
+}
+
+.right {
+    font-weight: bold;
+    color: var(--color-text-primary);
+    float: left;
+    padding: 0 var(--space-5) var(--space-5);
+}
+
+/* ============================================================================
+   5. Top Bar & Status Bar
+   Used in: Main navigation frame, status indicators
+   ============================================================================ */
+
+/* -------------------------[ Topbar ]--- */
+#topbar {
+    margin: 0;
+    color: var(--color-text-primary);
+    padding: 0 var(--space-4);
+    position: relative;
+}
+
+#topbar * {
+    vertical-align: middle;
+}
+
+#topbar a,
+#topbar a:link,
+#topbar a:visited {
+    font-weight: 500;
+    color: var(--color-nav-link);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+#topbar a:hover {
+    color: var(--color-nav-link-hover);
+}
+
+#tocText {
+    position: absolute;
+    top: 37px;
+    z-index: 1000;
+}
+
+.tocTextRTL {
+    right: 3px;
+}
+
+#tocText,
+#buildText,
+#workText {
+    font-weight: 500;
+    line-height: 16px;
+    margin: 0 15px;
+    color: var(--color-text-dark);
+}
+
+#tocText,
+#buildText img,
+#workText img {
+    margin: 0 5px;
+}
+
+#statusbar {
+    position: absolute;
+    right: 0;
+    top: 36px;
+    z-index: 1000;
+}
+
+#supplementalNav {
+    align-items: center;
+    background: transparent;
+    box-sizing: border-box;
+    color: #2a5040;
+    column-gap: var(--space-5);
+    display: flex;
+    font-weight: 500;
+    height: 36px;
+    line-height: 36px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    right: var(--space-4);
+    top: 10px;
+    z-index: 111;
+}
+
+#supplementalNav a {
+    color: #2a5040;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+#supplementalNav a:hover,
+#supplementalNav a:focus-visible {
+    color: #00bfa5;
+}
+
+#supplementalNav .supplementalNav__item {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+#supplementalNav .supplementalNav__item + .supplementalNav__item {
+    padding-left: var(--topnav-gap);
+}
+
+#supplementalNav .supplementalNav__item--messages {
+    gap: 6px;
+}
+
+#supplementalNav #newMail {
+    margin: 0;
+}
+
+#supplementalNav #newMail a {
+    align-items: center;
+    display: inline-flex;
+}
+
+#supplementalNav #newMail img {
+    display: block;
+}
+
+#supplementalNav #msgCounter {
+    margin-left: var(--space-1);
+}
+
+#supplementalNav .supplementalNav__version-label {
+    font-weight: 600;
+    letter-spacing: .02em;
+}
+
+#supplementalNav .supplementalNav__version-label--mismatch {
+    color: #ffff8a;
+}
+
+/* ============================================================================
+   6. Forms - Inputs, Selects, Textareas, Buttons
+   Used in: All form elements throughout the application
+   ============================================================================ */
+
+tbody, thead, tr {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+form label {
+    cursor: pointer;
+}
+
+fieldset {
+    border: none;
+}
+
+input, select, textarea, option, optgroup, td {
+    color: inherit;
+}
+
+textarea[readonly],
+textarea[readonly]:focus,
+input[type='text'][readonly],
+input[type='text'][readonly]:focus,
+.readonly {
+    background-color: #eee !important;
+    text-shadow: 1px 1px var(--color-surface) !important;
+    cursor: not-allowed;
+}
+
+optgroup {
+    font-style: normal;
+    font-weight: bold;
+    background-color: var(--gray-300);
+}
+
+optgroup option {
+    font-weight: normal;
+    background-color: var(--color-surface);
+}
+
+#ta, .tmplvars textarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+}
+
+form select {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(130, 200, 170, 0.4);
+    padding: var(--space-2);
+    margin: 0;
+    border-radius: var(--radius-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+form input[type=text] {
+    line-height: 1.4;
+}
+
+form input[type=text],
+form input[type=password],
+form textarea {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(130, 200, 170, 0.4);
+    padding: var(--space-1) var(--space-2);
+    margin: 0 2px 0 0;
+    border-radius: var(--radius-sm);
+    box-shadow: none;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.sectionBody input.inputBox[type=text],
+.sectionBody input.inputBox[type=password],
+.sectionBody select.inputBox {
+    width: 350px;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="search"]:focus,
+input[type="text"]:focus,
+input[type="url"]:focus,
+textarea:focus,
+form select:focus {
+    outline: none;
+    background: #fff;
+    border-color: rgba(120, 170, 145, 0.6);
+    box-shadow: 0 0 0 4px rgba(120, 170, 145, 0.1);
+}
+
+input:is([type="button"], [type="submit"]) {
+    border: 1px solid var(--color-neutral-button-border);
+    cursor: pointer;
+    line-height: normal;
+    margin: 0 0 0 var(--space-2);
+    min-height: 36px;
+    padding: var(--space-2) var(--space-4);
+    overflow: visible;
+    background: linear-gradient(135deg, rgba(255, 250, 252, 0.98) 0%, rgba(248, 235, 243, 0.95) 100%);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xs);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+input.submit,
+input.button,
+input[type="submit"],
+input[type="button"] {
+    height: auto;
+    width: auto;
+    cursor: pointer;
+}
+
+/* チェックボックス - モヒートパレット準拠
+   通常のチェックボックス（トグルスイッチではない） */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, #FDFDFB 0%, #FAFFF4 100%);
+    border: 2px solid #CBEEC5;
+    border-radius: var(--radius-sm);
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.9), 0 2px 4px rgba(90, 154, 94, 0.08);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 5px;
+    height: 9px;
+    border: solid #5A9A5E;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    opacity: 0;
+    transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #CBEEC5 0%, #B6E7B3 100%);
+    border-color: #B6E7B3;
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.7), 0 2px 6px rgba(90, 154, 94, 0.15);
+}
+
+input[type="checkbox"]:checked::after {
+    transform: rotate(45deg) scale(1);
+    opacity: 1;
+}
+
+input[type="checkbox"]:hover {
+    border-color: #B6E7B3;
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.9), 0 3px 8px rgba(90, 154, 94, 0.12);
+}
+
+input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+input[type="checkbox"]:disabled {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+    cursor: not-allowed;
+}
+
+input[type="checkbox"]:disabled::after {
+    border-color: var(--gray-400);
+}
+
+/* -------------------------[ Radio Buttons - ラジオボタン ]--- */
+/* ラジオボタン - モヒートパレット準拠 */
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    background: linear-gradient(180deg, #FDFDFB 0%, #FAFFF4 100%);
+    border: 2px solid #CBEEC5;
+    border-radius: var(--radius-full);
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.9), 0 2px 4px rgba(90, 154, 94, 0.08);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    vertical-align: middle;
+    margin: 0 6px 0 0;
+}
+
+input[type="radio"]::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: transparent;
+    border-radius: var(--radius-full);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+input[type="radio"]:checked {
+    background: linear-gradient(180deg, #FDFDFB 0%, #F7FFDE 100%);
+    border-color: #B6E7B3;
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.8), 0 3px 6px rgba(90, 154, 94, 0.12);
+}
+
+input[type="radio"]:checked::after {
+    background: linear-gradient(135deg, #8DC78A 0%, #5A9A5E 100%);
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 1px 3px rgba(90, 154, 94, 0.3);
+}
+
+input[type="radio"]:hover {
+    border-color: #B6E7B3;
+    box-shadow: inset 0 1px 0 rgba(253, 253, 251, 0.9), 0 3px 8px rgba(90, 154, 94, 0.1);
+}
+
+input[type="radio"]:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+input[type="radio"]:disabled {
+    background: var(--gray-200);
+    border-color: var(--gray-300);
+    cursor: not-allowed;
+}
+
+input[type="radio"]:disabled::after {
+    background: var(--gray-400);
+}
+
+input:is([type="button"], [type="submit"]):hover {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-hover-end);
+}
+
+input:is([type="button"], [type="submit"]):active {
+    border-color: var(--color-neutral-button-border);
+    background-color: var(--color-neutral-button-active-start);
+}
+
+select {
+    border: 0;
+    background: #fcfcfc;
+    cursor: pointer;
+}
+
+.form {
+    padding: 15px;
+    border: solid 1px var(--gray-300);
+}
+
+form input.hidden {
+    display: none !important;
+    position: absolute;
+}
+
+.form label,
+.form input,
+.form textarea {
+    display: block;
+    float: left;
+}
+
+.form label {
+    padding-right: var(--space-5);
+    text-align: right;
+    width: 110px;
+}
+
+form textarea {
+    height: 78px;
+    width: 350px;
+    line-height: 1.5;
+    overflow: auto;
+    font-size: inherit;
+}
+
+.form legend {
+    color: #04C;
+    font-weight: bold;
+    padding: 5px;
+}
+
+.form select {
+    display: inline;
+    float: left;
+}
+
+.form br {
+    clear: both;
+}
+
+input.submit {
+    display: block !important;
+    float: none !important;
+    margin: var(--space-5) 0 0 140px !important;
+}
+
+.form fieldset.list {
+    margin: 6px 6px 3px 0;
+}
+
+.form fieldset.list legend {
+    display: none;
+}
+
+.form fieldset.list label,
+.form fieldset.list input {
+    padding: 0;
+    margin: 0 0 3px;
+    float: left;
+    display: inline;
+    border: 0;
+    background: none;
+    width: auto;
+    height: auto;
+}
+
+.form fieldset.list label {
+    padding-left: 5px;
+    text-align: left;
+    width: auto;
+}
+
+form .imeoff {
+    ime-mode: disabled;
+}
+
+/* ============================================================================
+   7. Layout Components - Sections, Headers, Bodies
+   Used in: Content areas, settings pages, form sections
+   ============================================================================ */
+
+.sectionBody fieldset {
+    padding: var(--space-4);
+}
+
+.sectionBody legend {
+    font-weight: 600;
+    padding: var(--space-2) var(--space-4);
+    background: linear-gradient(135deg, rgba(252, 254, 252, 0.98) 0%, rgba(242, 250, 245, 0.95) 100%);
+    border: 1px solid rgba(160, 195, 175, 0.4);
+    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-md);
+    color: var(--color-text-dark);
+}
+
+.sectionBody h3 {
+    font-size: 1.1em;
+    font-weight: 600;
+    padding-bottom: 0;
+    margin-bottom: var(--space-3);
+    color: var(--color-text-dark);
+}
+
+.sectionHeader {
+    color: #3a5845;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: none;
+    background: transparent;
+    border-radius: 0;
+}
+
+.tab-page .sectionHeader {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+}
+
+.sectionBody {
+    position: relative;
+    display: block;
+}
+
+/* セクション - モヒートパレット準拠（氷の透明感） */
+.tab-page .sectionBody,
+.section .sectionBody {
+    background:
+        /* 氷越しの水平ハイライト */
+        linear-gradient(
+            180deg,
+            rgba(253, 253, 251, 0.5) 0%,
+            rgba(253, 253, 251, 0.15) 2px,
+            transparent 3px,
+            transparent 100%
+        ),
+        /* 透明感のあるベース */
+        rgba(253, 253, 251, 0.85);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    margin: 0 0 var(--space-4);
+    padding: var(--space-5);
+    border-radius: var(--radius-xl);
+    box-shadow:
+        inset 0 1px 0 rgba(253, 253, 251, 0.7),
+        0 8px 32px rgba(90, 154, 94, 0.06);
+}
+
+.section .sectionBody {
+    margin: 0 0 var(--space-3);
+    background:
+        linear-gradient(
+            180deg,
+            rgba(253, 253, 251, 0.4) 0%,
+            transparent 2px
+        ),
+        rgba(253, 253, 251, 0.78);
+    border-radius: var(--radius-xl);
+}
+
+.comment {
+    color: var(--gray-500);
+}
+
+/* テーブルヘッダー - モヒートパレット準拠 */
+thead {
+    color: #3A6A40;
+    height: 18px !important;
+    background: linear-gradient(180deg, rgba(234, 252, 207, 0.6) 0%, rgba(223, 245, 215, 0.5) 100%);
+}
+
+thead td {
+    color: #3A6A40;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+li {
+    padding: 0;
+    margin: 0;
+    list-style: disc;
+}
+
+li::marker {
+    color: var(--gray-500);
+}
+
+ul {
+    margin: 0 var(--space-5) 0 var(--space-5);
+}
+
+.screen {
+    border: 1px solid var(--gray-300);
+    text-align: center;
+}
+
+a img {
+    border: 0;
+}
+
+/* 一覧表の行色 - モヒートパレット準拠 */
+.even {
+    background: rgba(234, 252, 207, 0.4);  /* #EAFCCF 40% */
+}
+
+.odd {
+    background: rgba(253, 253, 251, 0.95);  /* #FDFDFB */
+}
+
+/* -------------------------[ end sortable table ]--- */
+.disabledImage {
+    width: 20px;
+    opacity: 0.3;
+}
+
+.disabledImage img {
+    border: 0;
+}
+
+.editorCell {
+    border-top: 1px solid #808080;
+    text-align: left;
+    vertical-align: baseline;
+}
+
+/* 行スタイル - モヒートパレット準拠 */
+.row1, .row2, .row3 {
+    color: var(--color-text-primary);
+}
+
+.row1 {
+    background-color: rgba(253, 253, 251, 0.95);  /* #FDFDFB */
+}
+
+.row2 {
+    background-color: rgba(234, 252, 207, 0.45);  /* #EAFCCF */
+}
+
+.row3 {
+    background-color: rgba(250, 255, 244, 0.9);  /* #FAFFF4 */
+}
+
+/* ============================================================================
+   8. Tree Components - Site Tree, Context Menu
+   Used in: Left frame site tree, document tree navigation
+   ============================================================================ */
+
+/* ツリーフレーム - メインペインと連続したグラデーション */
+div.treeframebody {
+    /* メインペインと同じ固定背景グラデーションを使用し、境界をなくす */
+    background:
+        linear-gradient(180deg,
+            #DFF5D7 0%,
+            #E5F7DE 10%,
+            #EBF9E5 20%,
+            #F2FBEF 35%,
+            #F7FCF5 50%,
+            #FBFDFB 70%,
+            #FDFDFB 85%,
+            #ffffff 100%);
+    background-attachment: fixed;
+    padding: var(--space-2);
+    min-height: 100%;
+}
+
+/* ツリーフレームのbodyにも同じ固定背景を適用 */
+body.treeFrame,
+body:not(#mainpane):not(#login) {
+    background:
+        linear-gradient(180deg,
+            #DFF5D7 0%,
+            #E5F7DE 10%,
+            #EBF9E5 20%,
+            #F2FBEF 35%,
+            #F7FCF5 50%,
+            #FBFDFB 70%,
+            #FDFDFB 85%,
+            #ffffff 100%);
+    background-attachment: fixed;
+}
+
+#treeMenu * {
+    vertical-align: middle;
+}
+
+#treeHolder {
+    cursor: default;
+    height: 100%;
+    padding: 6px 8px 0;
+    line-height: 1.3em;
+    font-family: Arial, "Helvetica Neue", Helvetica, Meiryo, "Hiragino Kaku Gothic Pro", sans-serif;
+}
+
+#treeHolder {
+    padding-left: 12px;
+}
+
+#treeRoot {
+    margin-left: -10px;
+}
+
+#treeRoot div img {
+    margin: 0 0 0 -6px;
+    vertical-align: middle;
+}
+
+#floater {
+    display: none;
+    position: absolute;
+    width: 200px;
+    padding: 5px;
+    top: 25px;
+    left: 4px;
+    background: var(--color-surface);
+    border: 1px solid var(--gray-400);
+    z-index: 500;
+}
+
+/* ツリーノード - モヒートパレット準拠 */
+.rootNode, .treeNode, .treeNodeHover, .treeNodeSelected, .emptyNode {
+    color: #3A6A40;
+    cursor: pointer;
+    width: auto;
+    margin-right: 0;
+}
+
+div.treeNode {
+    white-space: nowrap;
+}
+
+.treeNodeSelected,
+.treeNodeHover {
+    background-color: rgba(234, 252, 207, 0.7);  /* #EAFCCF */
+    border: 1px solid rgba(255, 255, 255, 0.6);  /* #B6E7B3 */
+    border-radius: 4px;
+    color: #2E5535;
+    padding: 1px 4px;
+    margin-left: -3px;
+}
+
+.unpublished a, .unpublishedNode {
+    color: #B07070;
+}
+
+.deletedNode {
+    color: #A05050;
+    text-decoration: line-through;
+}
+
+.publishedNode {
+    color: #3A6A40;
+}
+
+.emptyNode {
+    color: #8DC78A;
+    cursor: default;
+}
+
+.notInMenuNode {
+    color: #5A9A5E;
+    text-decoration: none;
+}
+
+.protectedNode {
+    color: #6080A0;
+}
+
+#treeSplitter {
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    right: -10px;
+}
+
+.disabledPlugin a {
+    color: #aaa;
+    text-decoration: line-through;
+}
+
+/* ============================================================================
+   9. Tables & Grids - Data Tables, Sortable Tables
+   Used in: User lists, resource grids, sortable data tables
+   ============================================================================ */
+
+/* グリッド - モヒートパレット */
+.grid {
+    width: 100%;
+    background-color: rgba(253, 253, 251, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-lg);
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(90, 154, 94, 0.08);
+}
+
+.grid th, .grid td {
+    padding: var(--space-3);
+    border-bottom: 1px solid rgba(203, 238, 197, 0.5);
+}
+
+.grid tr:last-child td {
+    border-bottom: none;
+}
+
+.gridHeader, .grid th {
+    color: #3A6A40;
+    font-weight: 600;
+    white-space: nowrap;
+    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
+    text-align: left;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+.grid th:first-child {
+    border-top-left-radius: var(--radius-lg);
+}
+
+.grid th:last-child {
+    border-top-right-radius: var(--radius-lg);
+}
+
+.gridItem {
+    background-color: rgba(253, 253, 251, 0.95);
+    padding: var(--space-2);
+    transition: background-color 0.2s ease;
+}
+
+.gridItem:hover {
+    background-color: rgba(234, 252, 207, 0.5);
+}
+
+.gridAltItem {
+    background-color: rgba(234, 252, 207, 0.3);
+    padding: var(--space-2);
+    transition: background-color 0.2s ease;
+}
+
+.gridAltItem:hover {
+    background-color: rgba(234, 252, 207, 0.5);
+}
+
+.gridRowIcon:hover {
+    background-color: rgba(223, 245, 215, 0.6);
+}
+
+.grid a {
+    text-decoration: none;
+    color: var(--color-text-dark);
+    transition: color 0.2s ease;
+}
+
+.grid a:hover {
+    color: var(--color-primary);
+}
+
+.grid img {
+    vertical-align: middle;
+    padding-right: 6px;
+}
+
+/* Grid checkbox styling */
+.grid input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+/* Status badges for resource list */
+.publishedDoc {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-success-bg) 0%, #dcfce7 100%);
+    color: #166534;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.unpublishedDoc {
+    display: inline-block;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #991b1b;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Nowrap utility for dates */
+.grid .nowrap {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--gray-600);
+}
+
+.grid .nowrap.disable {
+    color: var(--gray-400);
+    font-style: italic;
+}
+
+/* 検索バー - モヒートパレット */
+.searchbar {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, rgba(250, 255, 244, 0.9) 0%, rgba(247, 255, 222, 0.85) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+}
+
+.searchtext {
+    height: 24px;
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-md);
+    background-color: rgba(253, 253, 251, 0.95);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchtext:focus {
+    border-color: #B6E7B3;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+    outline: none;
+}
+
+/* -------------------------[ home page main links ]--- */
+a.hometblink, a.hometblink:active, a.hometblink:visited, a.hometblink:link, .hometblink {
+    text-decoration: none;
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+
+a.hometblink:hover {
+    text-decoration: none;
+    color: var(--color-primary);
+}
+
+#preLoader {
+    position: absolute;
+    z-index: 50000;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgba(255, 255, 255, .3);
+}
+
+.preLoaderText {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-xl);
+    opacity: .7;
+    width: 300px;
+    height: 150px;
+    margin: 70px auto;
+    padding: 50px;
+    border: 1px solid var(--gray-500);
+}
+
+/* コンテキストメニュー - モヒートパレット */
+.contextMenu {
+    background: rgba(253, 253, 251, 0.98);
+    margin: 0;
+    padding: var(--space-1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px rgba(90, 154, 94, 0.15);
+    position: absolute;
+    z-index: 10000;
+}
+
+.cntxMnuItem {
+    background-image: none;
+    cursor: pointer;
+    color: #3A6A40;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s ease;
+}
+
+.cntxMnuItem:hover {
+    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
+}
+
+.cntxMnuItemDisabled {
+    cursor: default;
+    padding: var(--space-2) var(--space-3);
+    color: #8DC78A;
+    border-radius: var(--radius-md);
+}
+
+.cntxMnuItemOver {
+    cursor: pointer;
+    color: #2E5535;
+    background: linear-gradient(135deg, rgba(223, 245, 215, 0.8) 0%, rgba(203, 238, 197, 0.7) 100%);
+    padding: var(--space-2) var(--space-3);
+    border: none;
+    border-radius: var(--radius-md);
+}
+
+.cntxMnuItem img, .cntxMnuItemOver img, .cntxMnuItemDisabled img {
+    margin: 0 var(--space-2) 0 0;
+}
+
+.cntxMnuItem img, .cntxMnuItemDisabled img {
+    opacity: .5;
+}
+
+.cntxMnuSeparator {
+    font-size: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    overflow: hidden;
+    margin: var(--space-1) var(--space-2);
+}
+
+/* ============================================================================
+   10. Navigation - Top Menu, Supplemental Nav
+   Used in: Main top navigation bar, sub-navigation menus
+   ============================================================================ */
+
+/* -------------------------[ Top Navbar - Flat Design ]--- */
+#topMenu {
+    --topnav-item-height: 32px;
+    --topnav-gap: 2px;
+    --subnav-height: 32px;
+    --subnav-horizontal-padding: 16px;
+    --topnav-padding-top: 8px;
+    --topnav-link-color: #3A6A40;
+    --topnav-link-hover-color: #2E5535;
+
+    /* 背景より少し濃いパステルライム - 多層グラデーション
+       濁りなし、灰色味なし、蛍光色禁止
+       複数光源のにじみ + 水平光帯 + 斜め反射 + 円形ボケ */
+    background:
+        /* 円形ボケ（半透明の光のにじみ） */
+        radial-gradient(ellipse 180px 60px at 12% 30%, rgba(234, 252, 207, 0.5) 0%, transparent 70%),
+        radial-gradient(ellipse 140px 50px at 35% 65%, rgba(223, 245, 215, 0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 200px 70px at 65% 25%, rgba(203, 238, 197, 0.4) 0%, transparent 70%),
+        radial-gradient(ellipse 160px 55px at 88% 55%, rgba(234, 252, 207, 0.45) 0%, transparent 65%),
+        /* 斜め方向の薄い反射光 */
+        linear-gradient(
+            135deg,
+            transparent 0%,
+            transparent 20%,
+            rgba(253, 253, 251, 0.35) 25%,
+            rgba(250, 255, 244, 0.25) 30%,
+            transparent 35%,
+            transparent 55%,
+            rgba(253, 253, 251, 0.3) 60%,
+            rgba(247, 255, 222, 0.2) 65%,
+            transparent 70%,
+            transparent 100%
+        ),
+        /* 水平方向の淡い光の帯 */
+        linear-gradient(
+            180deg,
+            rgba(253, 253, 251, 0.55) 0%,
+            rgba(250, 255, 244, 0.35) 3px,
+            transparent 6px,
+            transparent 40%,
+            rgba(253, 253, 251, 0.2) 50%,
+            transparent 60%,
+            transparent 92%,
+            rgba(250, 255, 244, 0.25) 96%,
+            rgba(253, 253, 251, 0.4) 100%
+        ),
+        /* ベースグラデーション - 背景よりわずかに濃いパステルライム */
+        linear-gradient(
+            90deg,
+            rgba(223, 245, 215, 0.92) 0%,
+            rgba(234, 252, 207, 0.88) 20%,
+            rgba(223, 245, 215, 0.85) 40%,
+            rgba(203, 238, 197, 0.82) 60%,
+            rgba(223, 245, 215, 0.85) 80%,
+            rgba(234, 252, 207, 0.9) 100%
+        ),
+        /* 下地（彩度をほんの少し強めたライム） */
+        linear-gradient(
+            180deg,
+            #E8FCDA 0%,
+            #DFF5D7 50%,
+            #D8F0D0 100%
+        );
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(253, 253, 251, 0.85),
+        inset 0 -1px 0 rgba(203, 238, 197, 0.5),
+        0 1px 4px rgba(90, 154, 94, 0.08);
+}
+
+#Navcontainer {
+    color: var(--topnav-link-color);
+    padding: var(--topnav-padding-top) var(--space-4) calc(var(--subnav-height) + 10px);
+    position: relative;
+}
+
+#nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    column-gap: var(--topnav-gap);
+    row-gap: var(--space-2);
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#nav > li {
+    list-style: none;
+}
+
+#nav > li > a {
+    border: none;
+    border-radius: 0;
+    color: var(--topnav-link-color);
+    display: block;
+    line-height: var(--topnav-item-height);
+    padding: 0 var(--space-4);
+    text-decoration: none;
+    white-space: nowrap;
+    background: transparent;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+#nav > li > a:hover,
+#nav > li > a:active,
+#nav > li > a:focus-visible {
+    color: var(--topnav-link-hover-color);
+    background: transparent;
+    border-bottom-color: var(--topnav-link-hover-color);
+}
+
+#nav > li.active > a {
+    background: transparent;
+    color: var(--topnav-link-hover-color);
+    border-bottom-color: var(--topnav-link-hover-color);
+}
+
+#nav > li > ul.subnav {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(var(--topnav-item-height) + 10px);
+    margin: 0;
+    list-style: none;
+    padding: var(--space-2) var(--space-4);
+    min-height: var(--subnav-height);
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 0;
+    row-gap: 0;
+    border-top: 1px solid rgba(253, 253, 251, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+        inset 0 1px 0 rgba(253, 253, 251, 0.5),
+        0 1px 2px rgba(90, 154, 94, 0.05);
+    z-index: 1;
+    /* トップメニューと調和する多層グラデーション */
+    background:
+        /* 円形ボケ（小さめ） */
+        radial-gradient(ellipse 120px 40px at 20% 50%, rgba(234, 252, 207, 0.35) 0%, transparent 70%),
+        radial-gradient(ellipse 100px 35px at 70% 40%, rgba(223, 245, 215, 0.3) 0%, transparent 65%),
+        /* 水平方向の淡い光の帯 */
+        linear-gradient(
+            180deg,
+            rgba(253, 253, 251, 0.45) 0%,
+            rgba(250, 255, 244, 0.25) 2px,
+            transparent 4px,
+            transparent 90%,
+            rgba(250, 255, 244, 0.2) 100%
+        ),
+        /* ベース - トップメニューより少し明るめ */
+        linear-gradient(
+            90deg,
+            rgba(234, 252, 207, 0.85) 0%,
+            rgba(223, 245, 215, 0.8) 50%,
+            rgba(234, 252, 207, 0.85) 100%
+        ),
+        /* 下地 */
+        #E5F8D8;
+}
+
+#nav > li.active > ul.subnav {
+    display: flex;
+}
+
+#nav > li > ul.subnav > li {
+    margin: 0;
+    list-style: none;
+}
+
+#nav > li > ul.subnav a {
+    color: #3A6A40;
+    cursor: pointer;
+    display: block;
+    font-weight: 500;
+    font-size: 0.92em;
+    line-height: var(--subnav-height);
+    padding: 0 var(--space-4);
+    text-decoration: none;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-fast);
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
+    background: transparent;
+    color: #5A9A5E;
+    border-bottom-color: #5A9A5E;
+}
+
+#nav > li > ul.subnav a:active {
+    background: transparent;
+    color: #3A6A40;
+    border-bottom-color: #3A6A40;
+}
+
+/* コンテキストメニュー - モヒートパレット準拠 */
+#mx_contextmenu {
+    position: absolute;
+    height: auto;
+    visibility: hidden;
+    z-index: 10000;
+    width: 180px;
+    background:
+        linear-gradient(180deg, rgba(253, 253, 251, 0.5) 0%, transparent 2px),
+        rgba(253, 253, 251, 0.96);
+    margin: 0;
+    padding: var(--space-1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    line-height: 1.4;
+    box-shadow: 0 8px 32px rgba(90, 154, 94, 0.15), 0 4px 12px rgba(90, 154, 94, 0.1);
+}
+
+#mx_contextmenu .menuLink {
+    display: block;
+    cursor: pointer;
+    color: #3A6A40;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+#mx_contextmenu .menuLink:hover {
+    background: linear-gradient(135deg, rgba(234, 252, 207, 0.7) 0%, rgba(223, 245, 215, 0.6) 100%);
+    border: none;
+    color: #2E5535;
+}
+
+#mx_contextmenu .menuLink:hover,
+#mx_contextmenu .menuLinkDisabled {
+    cursor: pointer;
+    padding: var(--space-2) var(--space-3);
+}
+
+#mx_contextmenu .menuLinkDisabled {
+    cursor: default;
+    color: #8DC78A;
+    border-radius: var(--radius-md);
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLink:hover img,
+#mx_contextmenu .menuLinkDisabled img {
+    margin-right: var(--space-2);
+    vertical-align: middle;
+}
+
+#mx_contextmenu .menuLink img,
+#mx_contextmenu .menuLinkDisabled img {
+    opacity: .5;
+}
+
+#mx_contextmenu .menuLink:hover img {
+    opacity: 1;
+}
+
+#mx_contextmenu #nameHolder {
+    color: #3A6A40;
+    text-align: left;
+    cursor: default;
+    font-weight: 600;
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-1);
+    border-radius: var(--radius-md);
+    text-shadow: none;
+    background: linear-gradient(135deg, #DFF5D7 0%, #CBEEC5 50%, #B6E7B3 100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+#mx_contextmenu .seperator {
+    font-size: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    overflow: hidden;
+    margin: var(--space-1) var(--space-2);
+}
+
+
+/* -------------------------[ Settings Table ]--- */
+.settings {
+    width: 600px;
+}
+
+.settings tr {
+    width: 100% !important;
+}
+
+.settings th {
+    width: 200px !important;
+    text-align: left;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.filelist td {
+    border-bottom: 1px solid #C2C3CF;
+}
+
+/* ============================================================================
+   11. Tabs System - Dynamic Tab Pane Control
+   Used in: Document editor, settings pages, multi-tab interfaces
+   ============================================================================ */
+
+.dynamic-tab-pane-control.tab-pane {
+    position: relative;
+    width: 100%;
+    margin-top: 0;
+}
+
+.dynamic-tab-pane-control .tab-row .tab {
+    color: var(--color-text-dark);
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    display: block;
+    margin: 0 var(--space-1) 0 0;
+    float: left;
+    padding: var(--space-2) var(--space-5);
+    z-index: 1;
+    position: relative;
+    top: 0;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    transition: all var(--transition-fast);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.hover {
+    text-decoration: none;
+    color: var(--color-nav-link-hover);
+    background: rgba(242, 250, 245, 0.75);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected {
+    color: var(--color-nav-link-hover);
+    z-index: 999;
+    top: 0;
+    border: none;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, rgba(200, 225, 210, 0.55) 0%, rgba(120, 170, 145, 0.3) 100%);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected span {
+    color: var(--color-nav-link-hover);
+    background: transparent;
+    text-shadow: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab span {
+    color: inherit;
+    text-decoration: none;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.hover span {
+    color: var(--color-secondary-hover-text);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover {
+    color: var(--color-nav-link-hover);
+    background: linear-gradient(135deg, rgba(210, 230, 218, 0.65) 0%, rgba(130, 180, 155, 0.4) 100%);
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected.hover span {
+    color: var(--color-nav-link-hover);
+}
+
+.dynamic-tab-pane-control .tab-row .tab .alert {
+    color: #c62828;
+    font-weight: 600;
+}
+
+.dynamic-tab-pane-control .tab-row .tab.selected .alert {
+    color: #b71c1c;
+}
+
+.dynamic-tab-pane-control .tab-page {
+    clear: both;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(170, 200, 185, 0.32);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 32px rgba(60, 90, 75, 0.06);
+    z-index: 2;
+    position: relative;
+    top: 12px;
+    margin-top: 0;
+    padding: var(--space-5) !important;
+}
+
+.dynamic-tab-pane-control .tab-row {
+    z-index: 1;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+.dynamic-tab-pane-control.tab-pane {
+    padding-bottom: 20px;
+}
+
+.dynamic-tab-pane-control ul {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 5px;
+}
+
+.dynamic-tab-pane-control li {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+/* -------------------------[ Tree buttons ]--- */
+.treeButton {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--color-text-dark);
+    border: none;
+    padding: 4px 6px;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition-fast);
+}
+
+.treeButton:hover {
+    background: rgba(220, 245, 235, 0.8);
+    padding: 2px var(--space-1);
+    background: var(--color-surface);
+}
+
+.treeButtonDisabled {
+    cursor: default;
+    border: 1px solid #657587;
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
+    border-width: 0;
+    opacity: .5;
+}
+
+/* -------------------------[ Welcome Page ]--- */
+a.hometblink, a.hometblink img {
+    border: 0 !important;
+    text-decoration: none !important;
+}
+
+.wm_button {
+    float: left;
+    margin: 0;
+    text-align: center;
+    padding: var(--space-4) var(--space-5);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    min-width: 100px;
+}
+
+.wm_button:hover {
+    background: rgba(220, 245, 235, 0.6);
+    transform: translateY(-1px);
+}
+
+.wm_button img {
+    display: block;
+    margin: 0 auto var(--space-2);
+    opacity: 0.85;
+    transition: opacity var(--transition-fast);
+}
+
+.wm_button:hover img {
+    opacity: 1;
+}
+
+/* Container for welcome buttons grid */
+.wm_buttons_container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+}
+
+/* Clear fix for floating buttons */
+.wm_button + br {
+    display: none;
+}
+
+/* -------------------------[ Welcome Page ]--- */
+#mainActionPages {
+    background: transparent;
+    padding: var(--space-3);
+}
+
+.tab-page {
+    border: none;
+    border-radius: var(--radius-xl);
+}
+
+.sectionBody .tab-page {
+    padding: var(--space-4) !important;
+}
+
+/* -------------------------[ New sortable table class ]--- */
+table.sortabletable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sortabletable tr.even {
+    background: rgba(234, 252, 207, 0.35);  /* #EAFCCF */
+}
+
+.sortabletable td, .sortabletable th {
+    padding: var(--space-2);
+    border: 1px solid var(--gray-400);
+}
+
+.sortabletable th {
+    text-align: left;
+    cursor: pointer;
+    color: var(--gray-900);
+}
+
+.sortabletable th a {
+    text-decoration: none;
+    color: var(--gray-900);
+}
+
+.sortabletable th:active {
+    background: var(--gray-400);
+    padding: 3px var(--space-1) 1px 6px;
+}
+
+/* -------------------------[ Pagination table ]--- */
+#max-display-records {
+    margin: 10px 0;
+}
+
+#pagination {
+    margin: 10px 0;
+}
+
+#pagination ul {
+    margin: 10px 0;
+    display: inline;
+}
+
+#pagination li {
+    list-style: none;
+    display: inline;
+    width: 15px;
+    margin: 0 0 0 1px;
+    padding: 0;
+}
+
+#pagination li a,
+#pagination li span {
+    padding: 3px var(--space-2);
+    border: 1px solid var(--color-neutral-button-border);
+    background: var(--color-neutral-button-start);
+    text-decoration: none;
+    color: var(--color-secondary-text);
+    border-radius: var(--radius-sm);
+}
+
+#pagination li span {
+    color: var(--gray-400);
+    cursor: default;
+}
+
+#pagination li.currentPage a, #pagination li a:hover {
+    color: var(--color-surface);
+    background: linear-gradient(180deg, var(--color-primary-start), var(--color-primary-end));
+    border: 1px solid var(--color-primary-end);
+}
+
+fieldset.tab-page {
+    border: 1px solid var(--gray-200) !important;
+}
+
+h2#edit_document_title {
+    font-size: 15px;
+    color: var(--gray-100);
+    width: 100%;
+    border-bottom: none;
+    padding: 5px 10px;
+}
+
+/* ============================================================================
+   12. Action Buttons - Fixed Position Controls
+   Used in: Document editor, form pages, action toolbars
+   From: https://github.com/manse/ScienceStyle
+   ============================================================================ */
+
+#actions {
+    background: none repeat scroll 0 0 rgba(60, 60, 60, 0.2);
+    margin: 0;
+    padding: var(--space-2) var(--space-4) !important;
+    position: fixed;
+    right: var(--space-4);
+    text-align: right;
+    top: var(--space-2);
+    z-index: 100;
+    border-radius: var(--radius-lg);
+}
+
+select#stay {
+    padding: var(--space-2);
+}
+
+.actionButtons {
+    margin-bottom: 15px;
+}
+
+.actionButtons:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+ul.actionButtons {
+    margin: 0;
+    padding: 0;
+    /* accommodate border on buttons - */
+    background: none;
+    width: auto;
+    white-space: nowrap;
+    padding-bottom: 10px;
+}
+
+#actions .actionButtons {
+    padding-bottom: 0;
+}
+
+.actionButtons li {
+    list-style: none;
+    margin-right: 6px;
+    padding: 0;
+    float: left;
+}
+
+.actionButtons img {
+    vertical-align: top;
+    margin-top: 1px;
+    opacity: .7;
+}
+
+.actionButtons a:hover img {
+    opacity: 1;
+}
+
+.actionButtons a {
+    display: block;
+    float: left;
+    border-radius: var(--radius-md);
+    color: #3a5845;
+    font-size: 0.95em;
+    font-weight: 600;
+    outline: medium none;
+    padding: var(--space-2) var(--space-4);
+    text-decoration: none;
+    white-space: nowrap;
+    border: 1px solid rgba(170, 200, 185, 0.45);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 2px 8px rgba(60, 90, 75, 0.06);
+    transition: all var(--transition-fast);
+}
+
+.actionButtons a img {
+    display: none;
+}
+
+.actionButtons a:hover {
+    border-color: rgba(160, 195, 175, 0.55);
+    background: rgba(252, 255, 253, 0.96);
+    color: #2d4838;
+    box-shadow: 0 4px 12px rgba(60, 90, 75, 0.1);
+    transform: translateY(-1px);
+}
+
+.actionButtons a:active {
+    border-color: rgba(160, 195, 175, 0.55);
+    background: rgba(248, 253, 250, 0.96);
+    box-shadow: 0 1px 4px rgba(60, 90, 75, 0.08);
+    transform: translateY(0);
+}
+
+.actionButtons a.disabled {
+    border: 1px solid var(--color-border-default);
+    padding: 2px var(--space-1);
+    color: var(--gray-700);
+    background-color: var(--color-surface);
+    cursor: default;
+    pointer-events: none;
+}
+
+.actionButtons .opendraft a {
+    background-color: var(--color-draft-start);
+    border-color: var(--color-draft-end);
+}
+
+.actionButtons select, .actionButtons span.and {
+    display: block;
+    float: left;
+}
+
+.actionButtons span.and {
+    padding: 4px 2px;
+}
+
+.actionButtons a.disabled img {
+    opacity: .3;
+}
+
+.actionButtons .and {
+    margin: 0 2px 0 5px;
+    color: #3a5845;
+    font-weight: 600;
+}
+
+.actionButtons #Button1 a,
+.actionButtons li.primary a,
+.actionButtons a.primary,
+.actionButtons a.default {
+    color: #fff;
+    text-shadow: none;
+    background: linear-gradient(135deg, #a0d4b0 0%, #78b890 50%, #5a9a70 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(90, 154, 112, 0.25);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+}
+
+.actionButtons #Button1 a:hover,
+.actionButtons a:hover.default {
+    background: linear-gradient(135deg, #b0dcc0 0%, #88c4a0 50%, #68a880 100%);
+    box-shadow: 0 6px 20px rgba(90, 154, 112, 0.3);
+    transform: translateY(-1px);
+}
+
+.actionButtons #Button1 a:active,
+.actionButtons a:active.default {
+    background: linear-gradient(135deg, #88c4a0 0%, #5a9a70 50%, #4a8a60 100%);
+    box-shadow: 0 2px 10px rgba(90, 154, 112, 0.25);
+    transform: translateY(0);
+}
+
+
+#loadingmask {
+    display: none;
+}
+
+/* ============================================================================
+   13. Specialized Forms - Mutate Forms, Date Pickers
+   Used in: Document editor forms, settings forms with date pickers
+   ============================================================================ */
+
+form#mutate dt,
+form#mutate dd {
+    margin-bottom: 10px;
+}
+
+form#mutate dt label,
+form#mutate dt h3.label {
+    font-size: 1em;
+    display: inline;
+    float: left;
+    width: 200px;
+    color: #3d7a5c !important;
+    font-weight: 600;
+}
+
+form#mutate dd {
+    margin-left: 210px;
+}
+
+form#mutate input.disabled {
+    background-color: var(--gray-100) !important;
+}
+
+form#mutate select.inputBox,
+form#mutate input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+form#mutate textarea {
+    width: 300px;
+}
+
+form#mutate textarea.textarea {
+    width: 90%;
+    height: 200px;
+}
+
+#tv_body input[type=text],
+#tv_body textarea {
+    background: var(--color-surface);
+}
+
+form#mutate textarea.tv_textareamini {
+    height: 100px;
+    width: 300px;
+    overflow-y: scroll;
+}
+
+form#mutate textarea.tv_textarea {
+    height: 100px;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+/*
+* Styling for datepicker elements in settings and templavars
+*/
+form#mutate input.date,
+form#mutate input.tvdate {
+    margin-right: 10px;
+}
+
+/*
+* Individual Styles for fieldset#settings_page_settings
+*/
+form#mutate fieldset#settings_page_settings input#pub_date,
+form#mutate fieldset#settings_page_settings input#unpub_date {
+    width: 150px;
+}
+
+form#mutate fieldset#settings_page_settings select {
+    width: 155px;
+}
+
+/*
+* Individual Styles for fieldset#meta_keywords
+*/
+form#mutate fieldset#meta_keywords select.inputBox {
+    display: block;
+    margin-bottom: 0;
+}
+
+form#mutate fieldset#meta_keywords dl.keywords {
+    float: left;
+    margin-right: 30px;
+}
+
+form#mutate fieldset#meta_keywords dl.metatags {
+    float: left;
+}
+
+form#mutate fieldset#meta_keywords dl dt label {
+    width: 100px;
+}
+
+form#mutate fieldset#meta_keywords dl dd {
+    margin-left: 110px;
+}
+
+/*
+* Individual Styles for fieldset#document_content
+*/
+
+fieldset#document_content textarea#ta {
+    width: 100%;
+    height: 400px;
+    font-size: 1em;
+}
+
+/*
+* Individual Styles for fieldset#access_permissions
+*/
+fieldset#access_permissions dt label {
+    width: 200px;
+}
+
+fieldset#access_permissions dd {
+    margin-left: 210px;
+}
+
+fieldset#access_permissions dl dd ul li {
+    list-style-type: none;
+}
+
+/* -------------------------[ date picker ]--- */
+input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUserPane input.DatePicker, input#datefrom.DatePicker, input#dateto.DatePicker {
+    width: 150px;
+    padding: 3px 3px 3px 24px;
+    background-color: var(--color-surface);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%23999" stroke-width="1"/><line x1="5" y1="1" x2="5" y2="5" stroke="%23999" stroke-width="1"/><line x1="11" y1="1" x2="11" y2="5" stroke="%23999" stroke-width="1"/></svg>');
+    background-repeat: no-repeat;
+    background-position: var(--space-1) center;
+}
+
+input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" fill="none" stroke="%230066cc" stroke-width="1.5"/><line x1="5" y1="1" x2="5" y2="5" stroke="%230066cc" stroke-width="1.5"/><line x1="11" y1="1" x2="11" y2="5" stroke="%230066cc" stroke-width="1.5"/></svg>');
+    cursor: text;
+}
+
+.phptextarea {
+    font-family: Consolas, 'Courier New', 'Courier', monospace;
+    box-sizing: border-box;
+}
+
+/* Custom */
+/* replace warning red color in tabs */
+strong[style*='color:#EF1D1D'] {
+    color: yellow !important;
+}
+
+.selected strong[style*='color:#EF1D1D'] {
+    color: red !important;
+}
+
+.tmplvars tr {
+    height: 24px;
+}
+
+.tvname {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.okmsg {
+    background-color: var(--color-success-bg);
+    border: 2px solid var(--color-success-light);
+    padding: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+/* ============================================================================
+   14. Custom Navigation Gradients - MojitoGreen Theme
+   Used in: Top menu bar, navigation system
+   Note: Fresh mint & lime gradients for a refreshing look
+   ============================================================================ */
+
+/* === ナビゲーション上書き（フラットスタイル） === */
+
+#nav > li > ul.subnav a {
+    color: var(--topnav-link-color);
+    background: transparent;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+#nav > li > ul.subnav a:hover,
+#nav > li > ul.subnav a:focus-visible {
+    background: transparent;
+    color: var(--topnav-link-hover-color);
+}
+
+/* === 右上のユーザー情報エリア === */
+#supplementalNav a {
+    color: var(--topnav-link-color);
+}
+
+#supplementalNav a:hover,
+#supplementalNav a:focus-visible {
+    color: var(--topnav-link-hover-color);
+}
