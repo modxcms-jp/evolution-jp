@@ -1208,8 +1208,7 @@ div.treeframebody {
 }
 
 /* ツリーフレームのbodyにも同じ固定背景を適用 */
-body.treeFrame,
-body:not(#mainpane):not(#login) {
+body.treeFrame {
     background:
         linear-gradient(180deg,
             #DFF5D7 0%,
@@ -1625,16 +1624,16 @@ a.hometblink:hover {
             rgba(234, 252, 207, 0.9) 100%
         ),
         /* 下地（彩度をほんの少し強めたライム） */
-        linear-gradient(
-            180deg,
-            #E8FCDA 0%,
-            #DFF5D7 50%,
-            #D8F0D0 100%
-        );
+    linear-gradient(
+        180deg,
+        #C6E3B6 0%,    /* ほんの少し深める */
+        #BADCAA 50%,   /* 中間も1段深く */
+        #B0D4A1 100%   /* 下端はさらに1段深め */
+    );
     border-bottom: 1px solid rgba(255, 255, 255, 0.45);
     box-shadow:
         inset 0 1px 0 rgba(253, 253, 251, 0.85),
-        inset 0 -1px 0 rgba(203, 238, 197, 0.5),
+        inset 0 -2px 4px rgba(150, 180, 150, 0.45),
         0 1px 4px rgba(90, 154, 94, 0.08);
 }
 
