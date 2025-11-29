@@ -952,7 +952,6 @@ form .imeoff {
 
 .sectionBody {
     position: relative;
-    margin: var(--space-2);
     display: block;
 }
 
