@@ -348,7 +348,7 @@ body#mainpane {
 }
 
 img, a img {
-    border: 0 !important;
+    border: 0;
     text-decoration: none;
     padding: 0;
     margin: 0;
@@ -705,8 +705,8 @@ textarea[readonly]:focus,
 input[type='text'][readonly],
 input[type='text'][readonly]:focus,
 .readonly {
-    background-color: #eee !important;
-    text-shadow: 1px 1px var(--color-surface) !important;
+    background-color: #eee;
+    text-shadow: 1px 1px var(--color-surface);
     cursor: not-allowed;
 }
 
@@ -943,7 +943,7 @@ select {
 }
 
 form input.hidden {
-    display: none !important;
+    display: none;
     position: absolute;
 }
 
@@ -984,9 +984,9 @@ form textarea {
 }
 
 input.submit {
-    display: block !important;
-    float: none !important;
-    margin: var(--space-5) 0 0 140px !important;
+    display: block;
+    float: none;
+    margin: var(--space-5) 0 0 140px;
 }
 
 .form fieldset.list {
@@ -1110,7 +1110,7 @@ form .imeoff {
 /* テーブルヘッダー - モヒートパレット準拠 */
 thead {
     color: #3A6A40;
-    height: 18px !important;
+    height: 18px;
     background: linear-gradient(180deg, rgba(234, 252, 207, 0.6) 0%, rgba(223, 245, 215, 0.5) 100%);
 }
 
@@ -1918,11 +1918,11 @@ a.hometblink:hover {
 }
 
 .settings tr {
-    width: 100% !important;
+    width: 100%;
 }
 
 .settings th {
-    width: 200px !important;
+    width: 200px;
     text-align: left;
     color: #555;
     font-size: 1.2em;
@@ -2128,7 +2128,7 @@ a.hometblink, a.hometblink img {
 }
 
 .sectionBody .tab-page {
-    padding: var(--space-4) !important;
+    padding: var(--space-4);
 }
 
 /* -------------------------[ New sortable table class ]--- */
