@@ -9,10 +9,10 @@ if (!evo()->hasPermission('save_plugin')) {
 
 $updateMsg = '';
 
-if (isset($_POST['listSubmitted'])) {
+if (postv('listSubmitted')) {
     $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
 
-    foreach ($_POST as $listName => $listValue) {
+    foreach (postv() as $listName => $listValue) {
         if ($listName === 'listSubmitted') {
             continue;
         }
@@ -69,6 +69,7 @@ $header = '
 <head>
         <title>MODX</title>
         <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
+        ' . csrfTokenMeta() . '
         <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
         <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
 ';
@@ -142,6 +143,8 @@ echo $evtLists;
 
 echo '<form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />';
+
+echo csrfTokenField();
 
 foreach ($sortables as $list) {
     echo '<input type="hidden" id="list_' . $list . '" name="list_' . $list . '" value="" />';
