@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>[+lang.DM_module_title+]</title>
+    [+csrf_meta+]
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
     <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
@@ -113,6 +114,7 @@
 <body>
 <h1>[+lang.DM_module_title+]</h1>
 <form action="" method="post" name="resetform" style="display: none;">
+    [+csrf_token+]
     <input name="actionkey" type="hidden" value="0"/>
 </form>
 <div id="actions">
@@ -133,6 +135,7 @@
             [+sort.options+]
         </ul>
         <form action="" method="post" name="sortableListForm" style="display: none;">
+            [+csrf_token+]
             <input type="hidden" name="tabAction" value="sortList"/>
             <input type="hidden" id="list" name="list" value=""/>
         </form>
