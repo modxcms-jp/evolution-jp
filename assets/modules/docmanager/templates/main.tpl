@@ -18,10 +18,13 @@
         var $j = jQuery.noConflict();
 
         function loadTemplateVars(tplId) {
+            var tokenElement = document.querySelector('meta[name="csrf-token"]');
+            var csrfToken = tokenElement ? tokenElement.content : '';
             $j('#tvloading').css('display', 'block');
             $j.ajax({
                 'type': 'POST',
                 'url': '[+ajax.endpoint+]',
+                'headers': {'X-CSRF-TOKEN': csrfToken},
                 'data': {'tplID':tplId},
                 'success': function (r, s) {
                     document.getElementById('results').innerHTML = r;
