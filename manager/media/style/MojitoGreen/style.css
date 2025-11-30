@@ -1476,6 +1476,16 @@ div.treeNode {
     color: var(--gray-800);
 }
 
+/* Disabled label */
+.label-disabled {
+    color: var(--gray-600);
+}
+
+/* Private access indicator */
+.access-private {
+    color: var(--color-error);
+}
+
 /* 検索バー - モヒートパレット */
 .searchbar {
     width: 100%;

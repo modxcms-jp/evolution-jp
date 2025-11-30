@@ -1309,6 +1309,16 @@ div.treeNode {
     color: var(--gray-600);
 }
 
+/* Disabled label */
+.label-disabled {
+    color: var(--gray-400);
+}
+
+/* Private access indicator */
+.access-private {
+    color: var(--color-error);
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;

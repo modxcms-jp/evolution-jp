@@ -1048,6 +1048,16 @@ div.treeNode {
     color: #666;
 }
 
+/* Disabled label */
+.label-disabled {
+    color: #ccc;
+}
+
+/* Private access indicator */
+.access-private {
+    color: #821517;
+}
+
 /* Search Bar */
 .searchbar {
     width: 100%;

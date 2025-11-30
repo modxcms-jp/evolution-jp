@@ -105,7 +105,7 @@ function getTplDraft()
 		<div style="margin-bottom:1em;">
 			<label><input name="publishoption" type="radio" value="now" checked /> 今すぐ採用する</label>
 			<label><input name="publishoption" type="radio" value="reserve" /> 採用日時を指定する</label>
-			<label style="color:#ccc;"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
+			<label class="label-disabled"><input name="publishoption" type="radio" value="approve" disabled /> 承認を申請する</label>
 		</div>
 		<div id="pubdate" style="display:none;">
 			<table width="99%" border="0" cellspacing="5" cellpadding="0">

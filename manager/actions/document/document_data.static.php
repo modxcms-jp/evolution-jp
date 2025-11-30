@@ -358,7 +358,7 @@ function entity($key, $default = null)
                                 echo $_lang['public'];
                             } else {
                                 echo sprintf(
-                                    '<b style="color: #821517">%s</b> <img src="%ssecured.gif" />',
+                                    '<b class="access-private">%s</b> <img src="%ssecured.gif" />',
                                     $_lang['private'],
                                     $icons_path
                                 );
@@ -373,7 +373,7 @@ function entity($key, $default = null)
                                 echo $_lang['public'];
                             } else {
                                 echo sprintf(
-                                    '<b style="color: #821517">%s</b> <img src="%ssecured.gif" />',
+                                    '<b class="access-private">%s</b> <img src="%ssecured.gif" />',
                                     $_lang['private'],
                                     $icons_path
                                 );
