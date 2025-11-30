@@ -16,6 +16,8 @@ $dm = new DocManager($modx);
 $dm->getLang();
 $dm->getTheme();
 
+checkCsrfToken();
+
 $output = '';
 
 if (!is_numeric(postv('tplID'))) {

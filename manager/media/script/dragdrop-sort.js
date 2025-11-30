@@ -7,33 +7,9 @@
         return String(str).replace(/^\s+|\s+$/g, '');
     }
 
-    function hasSortableAttribute(node) {
-        if (!node || node.nodeType !== 1) {
-            return false;
-        }
-        if (node.getAttribute) {
-            return !!node.getAttribute('data-sortable');
-        }
-        return false;
-    }
-
     function findSortableLists(root) {
         var context = root || document;
-        if (context.querySelectorAll) {
-            return context.querySelectorAll('ul[data-sortable], ol[data-sortable]');
-        }
-
-        var lists = [];
-        var tags = ['ul', 'ol'];
-        for (var t = 0; t < tags.length; t++) {
-            var elements = context.getElementsByTagName(tags[t]);
-            for (var i = 0; i < elements.length; i++) {
-                if (hasSortableAttribute(elements[i])) {
-                    lists.push(elements[i]);
-                }
-            }
-        }
-        return lists;
+        return context.querySelectorAll('ul[data-sortable], ol[data-sortable]');
     }
 
     function clearDragging(el) {
@@ -91,7 +67,7 @@
             try {
                 e.dataTransfer.setData('text/plain', this.id);
             } catch (err) {
-                // Ignore unsupported data transfer errors (IE)
+                // Ignore unsupported data transfer errors
             }
         }
     }
@@ -100,27 +76,19 @@
         if (!dragItem) {
             return;
         }
-        if (e && e.preventDefault) {
-            e.preventDefault();
-        }
+        e.preventDefault();
         var list = this;
-        var target = resolveListItem(list, (e && (e.target || e.srcElement)) || null);
+        var target = resolveListItem(list, e.target);
         if (!target || target === dragItem) {
             return;
         }
-        var rect = target.getBoundingClientRect ? target.getBoundingClientRect() : null;
-        var after = false;
-        if (rect) {
-            var clientY = (e && (e.clientY || e.pageY)) || 0;
-            after = clientY - rect.top > rect.height / 2;
-        }
+        var rect = target.getBoundingClientRect();
+        var after = e.clientY - rect.top > rect.height / 2;
         list.insertBefore(dragItem, after ? target.nextSibling : target);
     }
 
     function onDrop(e) {
-        if (e && e.preventDefault) {
-            e.preventDefault();
-        }
+        e.preventDefault();
         updateHidden(this);
     }
 
@@ -148,13 +116,8 @@
                 item.style.userSelect = 'none';
             }
         }
-        if (list.addEventListener) {
-            list.addEventListener('dragover', onDragOver, false);
-            list.addEventListener('drop', onDrop, false);
-        } else if (list.attachEvent) {
-            list.attachEvent('ondragover', onDragOver);
-            list.attachEvent('ondrop', onDrop);
-        }
+        list.addEventListener('dragover', onDragOver, false);
+        list.addEventListener('drop', onDrop, false);
         updateHidden(list);
     }
 
@@ -189,13 +152,7 @@
 
     window.MODXSortable = api;
 
-    if (document.addEventListener) {
-        document.addEventListener('DOMContentLoaded', function() {
-            initAll();
-        }, false);
-    } else if (window.attachEvent) {
-        window.attachEvent('onload', function() {
-            initAll();
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        initAll();
+    }, false);
 })(window, document);

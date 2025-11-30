@@ -1,4 +1,5 @@
 <form method="post" action="" name="newdocumentparent">
+    [+csrf_token+]
     <span id="parentName" class="warning">[+lang.DM_sort_pick_item+]</span><br/>
     <input name="actionkey" type="hidden" value="1"/>
     <input type="hidden" name="new_parent" value="" class="inputBox"/>

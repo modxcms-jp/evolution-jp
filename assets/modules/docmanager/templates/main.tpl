@@ -5,6 +5,7 @@
 <head>
     <title>[+lang.DM_module_title+]</title>
     <meta http-equiv="Content-Type" content="text/html; charset=[(modx_charset)]"/>
+    [+csrf_meta+]
     <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript" src="media/script/jquery/jquery.min.js?[+settings_version+]"></script>
@@ -17,10 +18,13 @@
         var $j = jQuery.noConflict();
 
         function loadTemplateVars(tplId) {
+            var tokenElement = document.querySelector('meta[name="csrf-token"]');
+            var csrfToken = tokenElement ? tokenElement.content : '';
             $j('#tvloading').css('display', 'block');
             $j.ajax({
                 'type': 'POST',
                 'url': '[+ajax.endpoint+]',
+                'headers': {'X-CSRF-TOKEN': csrfToken},
                 'data': {'tplID':tplId},
                 'success': function (r, s) {
                     document.getElementById('results').innerHTML = r;
