@@ -427,24 +427,15 @@ function getInputValues($id = 0, $mode = 'new')
         }
         $fields[$key] = validated($key);
     }
-    
+
     // Data URI を自動的にファイル化
     $convertEnabled = evo()->getConfig('convert_datauri_to_file', 1); // デフォルト有効
-    if (!empty($fields['content']) && $convertEnabled) {
-        evo()->logEvent(
-            0,
-            1,
-            sprintf('Converting Data URI in content (enabled: %s, docid: %s)', $convertEnabled, $id),
-            'save_resource'
-        );
-        $fields['content'] = convertDataUriToFiles($fields['content'], $id);
-    }
-    
+
     // introtext も処理対象にする場合
     if (!empty($fields['introtext']) && $convertEnabled) {
         $fields['introtext'] = convertDataUriToFiles($fields['introtext'], $id);
     }
-    
+
     if ($fields['type'] === 'reference') {
         if (!empty($fields['content']) && !preg_match('{^[1-9][0-9]+$}', $fields['content'])) {
             $fetch_id = evo()->getIdFromUrl($fields['content']);
