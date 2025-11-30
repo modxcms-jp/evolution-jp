@@ -211,7 +211,7 @@ if (sessionv('result_msg')) {
                                 '<td><label><input type="checkbox" name="chk[]" value="' . $row['Name'] . '"' . (strstr(
                                     $table_string,
                                     $row['Name']
-                                ) === false ? '' : ' checked="checked"') . ' /><b style="color:#009933">' . $row['Name'] . '</b></label></td>' . "\n" .
+                                ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
                                 '<td align="right">' . $row['Rows'] . '</td>' . "\n";
                             echo '<td align="right">' . $row['Collation'] . '</td>' . "\n";
 
@@ -254,7 +254,7 @@ if (sessionv('result_msg')) {
                             <td valign="top"><b><?= $_lang['database_table_totals'] ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir="ltr" align="right"
-                                valign="top"><?= $totaloverhead > 0 ? '<b style="color:#990033">' . evo()->nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
+                                valign="top"><?= $totaloverhead > 0 ? '<b class="overhead-warning">' . evo()->nicesize($totaloverhead) . '</b><br />(' . number_format($totaloverhead) . ' B)' : '-' ?></td>
                             <td colspan="2">&nbsp;</td>
                             <td dir="ltr" align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>

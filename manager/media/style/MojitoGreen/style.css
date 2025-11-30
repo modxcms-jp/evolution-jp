@@ -1486,6 +1486,27 @@ div.treeNode {
     color: var(--color-error);
 }
 
+/* Database table name */
+.table-name {
+    color: var(--color-success);
+}
+
+/* Database overhead warning */
+.overhead-warning {
+    color: var(--color-error);
+}
+
+/* Database table list (sysinfo/backup) - remove left border on first column */
+.sectionBody table[style*="background-color:#ccc"] td:first-child,
+.sectionBody table[style*="background-color:#ccc"] th:first-child {
+    border-left: none;
+}
+
+.sectionBody table[style*="background-color:#ccc"] td:last-child,
+.sectionBody table[style*="background-color:#ccc"] th:last-child {
+    border-right: none;
+}
+
 /* 検索バー - モヒートパレット */
 .searchbar {
     width: 100%;

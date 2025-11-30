@@ -280,7 +280,7 @@ global $database_connection_method, $lastInstallTime;
                         ?>
                             <tr bgcolor="<?= $bgcolor ?>" title="<?= $log_status['Comment'] ?>"
                                 style="cursor:default">
-                                <td><b style="color:#009933"><?= $log_status['Name'] ?></b></td>
+                                <td><b class="table-name"><?= $log_status['Name'] ?></b></td>
                                 <td><?= $log_status['Engine'] ?></td>
                                 <td align="right"><?= $log_status['Rows'] ?></td>
                                 <td dir="ltr"
@@ -313,7 +313,7 @@ global $database_connection_method, $lastInstallTime;
                             <td valign="top"><b><?= lang('database_table_totals') ?></b></td>
                             <td colspan="3">&nbsp;</td>
                             <td dir='ltr' align="right"
-                                valign="top"><?= $totaloverhead > 0 ? "<b style='color:#990033'>" . evo()->nicesize($totaloverhead) . "</b><br />(" . number_format($totaloverhead) . " B)" : "-" ?></td>
+                                valign="top"><?= $totaloverhead > 0 ? "<b class='overhead-warning'>" . evo()->nicesize($totaloverhead) . "</b><br />(" . number_format($totaloverhead) . " B)" : "-" ?></td>
                             <td colspan="2">&nbsp;</td>
                             <td dir='ltr' align="right"
                                 valign="top"><?= "<b>" . evo()->nicesize($total) . "</b><br />(" . number_format($total) . " B)" ?></td>

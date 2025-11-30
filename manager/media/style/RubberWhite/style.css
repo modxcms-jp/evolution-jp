@@ -1168,6 +1168,16 @@ div.treeNode {
     color: var(--color-error);
 }
 
+/* Database table name */
+.table-name {
+    color: #009933;
+}
+
+/* Database overhead warning */
+.overhead-warning {
+    color: #990033;
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;

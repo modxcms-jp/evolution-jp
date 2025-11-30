@@ -1319,6 +1319,16 @@ div.treeNode {
     color: var(--color-error);
 }
 
+/* Database table name */
+.table-name {
+    color: var(--color-success);
+}
+
+/* Database overhead warning */
+.overhead-warning {
+    color: var(--color-error);
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;
