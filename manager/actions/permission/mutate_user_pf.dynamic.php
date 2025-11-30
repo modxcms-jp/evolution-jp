@@ -398,7 +398,7 @@ if ($modx->config['manager_language'] != "english" && is_file($lang_path)) {
                                     $file = str_replace('\\', '/', $file);
                                     if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
                                         $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
-                                        if (strpos($themename, '_') === 0) {
+                                        if (strpos($themename, '_') === 0 || $themename === 'common') {
                                             continue;
                                         }
                                         $selectedtext = $themename == setting('manager_theme') ? "selected='selected'" : "";
