@@ -43,8 +43,18 @@ if (!function_exists('manager_style_set_tree_toolbar_defaults')) {
 }
 
 if (!function_exists('manager_style_set_defaults')) {
-    function manager_style_set_defaults(array &$style, array $lang, string $iconPath, string $treePath, string $miscPath): void
+    function manager_style_set_defaults(
+        array &$style,
+        array $lang,
+        ?string $iconPath = null,
+        ?string $treePath = null,
+        ?string $miscPath = null
+    ): void
     {
+        $iconPath = $iconPath ?: manager_style_image_path('icons');
+        $treePath = $treePath ?: manager_style_image_path('tree');
+        $miscPath = $miscPath ?: manager_style_image_path('misc');
+
         manager_style_set_tree_toolbar_defaults($style, $iconPath);
 
         $treeDefaults = [

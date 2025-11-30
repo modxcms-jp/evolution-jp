@@ -50,8 +50,4 @@ if ($iconEventLog == 1) iconEventLog();
 if ($iconSysInfo == 1) iconSysInfo();
 if ($iconHelp == 1) iconHelp();
 
-$icon_path = manager_style_image_path('icons');
-$tree_path = manager_style_image_path('tree');
-$misc_path = manager_style_image_path('misc');
-
-manager_style_set_defaults($_style, $_lang, $icon_path, $tree_path, $misc_path);
+manager_style_set_defaults($_style, $_lang);
