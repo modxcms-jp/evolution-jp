@@ -1,23 +1,9 @@
 // return window dimensions in array
 function getWindowDimension() {
-    var width = 0;
-    var height = 0;
-
-    if (typeof (window.innerWidth) == 'number') {
-        width = window.innerWidth;
-        height = window.innerHeight;
-    } else if (document.documentElement &&
-        (document.documentElement.clientWidth ||
-            document.documentElement.clientHeight)) {
-        width = document.documentElement.clientWidth;
-        height = document.documentElement.clientHeight;
-    } else if (document.body &&
-        (document.body.clientWidth || document.body.clientHeight)) {
-        width = document.body.clientWidth;
-        height = document.body.clientHeight;
-    }
-
-    return {'width': width, 'height': height};
+    return {
+        width: window.innerWidth,
+        height: window.innerHeight
+    };
 }
 
 function resizeTree() {
@@ -34,19 +20,7 @@ function resizeTree() {
 }
 
 function getScrollY() {
-    var scrOfY = 0;
-    if (typeof (window.pageYOffset) == 'number') {
-        //Netscape compliant
-        scrOfY = window.pageYOffset;
-    } else if (document.body && (document.body.scrollLeft || document.body.scrollTop)) {
-        //DOM compliant
-        scrOfY = document.body.scrollTop;
-    } else if (document.documentElement &&
-        (document.documentElement.scrollTop)) {
-        //IE6 standards compliant mode
-        scrOfY = document.documentElement.scrollTop;
-    }
-    return scrOfY;
+    return window.pageYOffset;
 }
 
 function hideMenu() {
