@@ -6,7 +6,7 @@
         </script>
 
         <!-- home tab -->
-        <div class="tab-page" id="tabhome" style="padding-left:0; padding-right:0;">
+        <div class="tab-page" id="tabhome">
             [+OnManagerWelcomePrerender+]
             <h2 class="tab">[+welcome_title+]</h2>
             <script type="text/javascript">tpPane.addTabPage(document.getElementById("tabhome"));</script>
