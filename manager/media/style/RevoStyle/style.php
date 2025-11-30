@@ -19,5 +19,6 @@ require_once __DIR__ . '/../common/style_defaults.php';
 manager_style_initialize_theme(
     $_style,
     $_lang,
-    manager_style_prepare_welcome_options()
+    manager_style_prepare_welcome_options(),
+    94
 );
