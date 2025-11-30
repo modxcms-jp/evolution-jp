@@ -1,5 +1,5 @@
 /* -------------------------[ Neutralize styles, fonts and viewport ]--- */
-html { /overflow-x: hidden; /overflow-y: auto;} /* for IE7, IE6 */
+html { overflow-x: hidden; overflow-y: auto; }
 html, body, form, fieldset,img {
 	margin: 0;
 	padding: 0;
@@ -1567,12 +1567,8 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 	color: #333;
 	background: #fff6bf;
 }
-/* -------------------------[ must have this for the IE6 select box hiding ]--- */
-.dp_hide {
-	visibility: hidden;
-}
 .dp_empty {
-	background: #eee;
+        background: #eee;
 }
 .dp_today {
 	background: #daf2e6;

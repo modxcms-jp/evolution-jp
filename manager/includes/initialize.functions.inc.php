@@ -31,13 +31,12 @@ function set_parser_mode()
         define('MODX_API_MODE', false);
     }
 
-    // set some settings, and address some IE issues
+    // set session-related settings
     if (!session_id()) {
         ini_set('url_rewriter.tags', '');
         ini_set('session.use_trans_sid', 0);
         ini_set('session.use_only_cookies', 1);
     }
-    header('P3P: CP="NOI NID ADMa OUR IND UNI COM NAV"'); // header for weird cookie stuff. Blame IE.
     header('Cache-Control: private, must-revalidate');
     if (session_id()) {
         return;
@@ -55,7 +54,6 @@ class init
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Cache-Control: post-check=0, pre-check=0', false);
         header('Pragma: no-cache');
-        header('X-UA-Compatible: IE=edge;FF=3;OtherUA=4');
     }
 
     public static function session_set_cookie_params($options = [])
