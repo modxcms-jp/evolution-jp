@@ -23,8 +23,7 @@ body {
 }
 body#mainpane,
 body.treeframebody {
-	background-image :url(img/misc/mainbg.png);
-	background-repeat:repeat-x;
+        background: linear-gradient(to bottom, #f8f9fb 0%, #e6e8eb 100%);
 }
 a img {
 	text-decoration: none;
@@ -138,10 +137,10 @@ hr {
 	border: 0;
 }
 .split {
-	background: #556476 url(img/misc/line.gif) repeat-x;
-	height: 1px;
-	font-size: 0;
-	clear: both;
+        background: #556476;
+        height: 1px;
+        font-size: 0;
+        clear: both;
 	padding: 0;
 }
 #previewIframe {
@@ -270,12 +269,12 @@ input, select, textarea, td {
 }
 form input[type=text],
 form textarea {
-	border: 1px solid #ddd;
-	border-left-color: #c3c3c3;
-	border-top-color: #acacac;
-	padding: 3px 3px 2px 2px;
-	background: #fff url(img/misc/input-bg.gif) repeat-x top left;
-	vertical-align: baseline;
+        border: 1px solid #ddd;
+        border-left-color: #c3c3c3;
+        border-top-color: #acacac;
+        padding: 3px 3px 2px 2px;
+        background: linear-gradient(to bottom, #ffffff 0%, #f3f4f6 100%);
+        vertical-align: baseline;
 }
 form input[type=text] {
 	line-height:1;
@@ -425,15 +424,15 @@ input.submit {
 		padding: 5px 18px 5px 3px;
 	}
 .sectionBody, .layerVisible {
-	position: relative;
-	display: none;
-	background: #fff;
-	border: 1px solid #e3e3e3;
-	border-top: 1px solid #e3e3e3;
-	margin: 0 10px 10px;
-	padding: 10px;
-	display: block;
-	background: #fff url(img/misc/tabareabg.gif) repeat-x top;
+        position: relative;
+        display: none;
+        background: #fff;
+        border: 1px solid #e3e3e3;
+        border-top: 1px solid #e3e3e3;
+        margin: 0 10px 10px;
+        padding: 10px;
+        display: block;
+        background: linear-gradient(to bottom, #ffffff 0%, #f2f4f7 100%);
 }
 .tab-page .sectionBody {
 	margin: 0 10px 10px;
@@ -446,11 +445,11 @@ input.submit {
 	margin: 0 10px 4px;
 }
 .sectionHeader {
-	padding: 5px 3px 5px 18px;
-	background: #EFEFEF url(img/misc/fade.gif) repeat-x top;
-	border-radius : 5px 5px 0 0;
-	-moz-border-radius : 5px 5px 0 0;
-	-webkit-border-radius:5px 5px 0 0;
+        padding: 5px 3px 5px 18px;
+        background: linear-gradient(to bottom, #f8f8f8 0%, #efefef 100%);
+        border-radius : 5px 5px 0 0;
+        -moz-border-radius : 5px 5px 0 0;
+        -webkit-border-radius:5px 5px 0 0;
 }
 	.rtl .sectionHeader {
 		direction: rtl;
@@ -723,10 +722,10 @@ a.hometblink:hover {
 	white-space: nowrap;
 }
 .cntxMnuItem {
-	background-image: url(img/misc/_tx_.gif);
-	cursor: pointer;
-	color: #333;
-	padding: 3px 16px 3px 2px;
+        background: linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%);
+        cursor: pointer;
+        color: #333;
+        padding: 3px 16px 3px 2px;
 }
 	.rtl .cntxMnuItem,
 	.rtl .cntxMnuItemDisabled {
@@ -773,7 +772,7 @@ a.hometblink:hover {
 
 /* -------------------------[ Top Navbar of snap in top menu bar layout ]--- */
 #topMenu {
-	background: #e4e4e4 url(img/misc/menubg.png);
+        background: linear-gradient(to bottom, #eeeeee 0%, #d8d8d8 100%);
 }
 #Navcontainer {
 	padding: 0 10px;
@@ -804,12 +803,12 @@ a.hometblink:hover {
 	    padding: 0 20px 0 0;
 	}
 #nav li {
-	list-style: none;
-	background: #323c52 url(img/misc/tab.gif) 100% 100%;
-	float: left;
-	width: auto;
-	margin: 0 3px 0 0;
-	padding: 0;
+        list-style: none;
+        background: linear-gradient(to bottom, #3a465f 0%, #2c3447 100%);
+        float: left;
+        width: auto;
+        margin: 0 3px 0 0;
+        padding: 0;
 }
 	.rtl #nav li {
 		float: right;
@@ -849,7 +848,7 @@ a.hometblink:hover {
 	color: #fff;
 }
 #nav li.active {
-	background: #758ca2 url(img/misc/tab.gif) 100% 0;
+        background: linear-gradient(to bottom, #8aa0bc 0%, #5f718a 100%);
 }
 #nav li.active a {
 	color: #fff;
@@ -895,23 +894,21 @@ a.hometblink:hover {
 }
 #nav li.active ul.subnav,
 #nav li.active ul.subnav a {
-	background: #657587 url(img/misc/longbarbg.png) repeat-x top;
+        background: linear-gradient(to bottom, #6f8095 0%, #576579 100%);
 }
 
 /* -------------------------[ Contextual Menu used in the Tree Menu ]--- */
 #mx_contextmenu {
-	position: absolute;
-	height: auto;
-	visibility: hidden;
-	z-index: 10000;
-	width: 165px;
-	background-color: #fff;
-	background-image:url(img/misc/tabareabg.gif);
-	background-repeat:repeat-x;
-	background-position:0 20px;
-	margin: 0;
-	padding-bottom:10px;
-	border: 1px solid #ededed;
+        position: absolute;
+        height: auto;
+        visibility: hidden;
+        z-index: 10000;
+        width: 165px;
+        background-color: #fff;
+        background: linear-gradient(to bottom, #ffffff 0%, #f2f4f7 100%);
+        margin: 0;
+        padding-bottom:10px;
+        border: 1px solid #ededed;
 	border-right-color: #dcdcdc;
 	border-bottom-color: #dcdcdc;
 	overflow: hidden;
@@ -956,15 +953,14 @@ a.hometblink:hover {
 }
 
 #mx_contextmenu #nameHolder {
-	color: #fff;
-	text-align: left;
-	cursor: default;
-	font-weight: bold;
-	padding: 6px 4px;
-	margin-bottom: 3px;
-	background-color: #86939E;
-	background-image:url(img/misc/contextmenubg.png);
-	background-repeat:repeat-x;
+        color: #fff;
+        text-align: left;
+        cursor: default;
+        font-weight: bold;
+        padding: 6px 4px;
+        margin-bottom: 3px;
+        background-color: #86939E;
+        background: linear-gradient(to bottom, #93a0ab 0%, #73808c 100%);
 }
 #mx_contextmenu .seperator {
 	font-size: 0;
@@ -1128,7 +1124,7 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-	background: #f4f4f4 url(img/misc/mainbg.gif) repeat-x top;
+        background: linear-gradient(to bottom, #f9f9f9 0%, #e6e8eb 100%);
 }
 .tab-page {
 	border: 1px solid #e4e4e4;
@@ -1256,13 +1252,13 @@ ul.actionButtons {
 	margin-top: 1px;
 }
 .actionButtons a {
-	color: #222c36;
-	font-weight: bold;
-	font-size: 12px;
-	background: #c7ced2 url(img/misc/button-gradient.png) repeat-x top left;
-	padding: 4px;
-	white-space: nowrap;
-	vertical-align: top;
+        color: #222c36;
+        font-weight: bold;
+        font-size: 12px;
+        background: linear-gradient(to bottom, #d6dde1 0%, #aab6bf 100%);
+        padding: 4px;
+        white-space: nowrap;
+        vertical-align: top;
 	text-decoration: none;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
@@ -1274,18 +1270,17 @@ ul.actionButtons {
 	outline: none;
 }
 .actionButtons a:hover {
-	background-position: bottom left;
-	-webkit-box-shadow: 0 0 10px #b8c7d6;
-	-moz-box-shadow: 0 0 10px #b8c7d6;
-	box-shadow:  0 0 10px #b8c7d6;
-	-webkit-transition: -webkit-box-shadow 0.2s linear;
+        background: linear-gradient(to bottom, #e0e6ea 0%, #b8c4cd 100%);
+        -webkit-box-shadow: 0 0 10px #b8c7d6;
+        -moz-box-shadow: 0 0 10px #b8c7d6;
+        box-shadow:  0 0 10px #b8c7d6;
+        -webkit-transition: -webkit-box-shadow 0.2s linear;
 }
 .actionButtons a:active {
-	background-color: #92aac4;
-	background-position: bottom left;
-	-webkit-box-shadow: 0 0 10px #b8c7d6;
-	-moz-box-shadow: 0 0 10px #b8c7d6;
-	box-shadow:  0 0 10px #b8c7d6;
+        background: linear-gradient(to bottom, #b8c4cd 0%, #9aa7b2 100%);
+        -webkit-box-shadow: 0 0 10px #b8c7d6;
+        -moz-box-shadow: 0 0 10px #b8c7d6;
+        box-shadow:  0 0 10px #b8c7d6;
 }
 .actionButtons a.disabled,
 .actionButtons .disabled a {
@@ -1333,7 +1328,7 @@ form#mutate input
 form#mutate input.inputBox,
 form#mutate textarea,
 div.tmplvars input[type=text] {
-	background: #fff url(img/misc/input-bg.gif) repeat-x top left;
+        background: linear-gradient(to bottom, #ffffff 0%, #f3f4f6 100%);
 }
 form#mutate textarea.tv_textareamini {
 	height: 100px;
@@ -1455,12 +1450,12 @@ form#mutate select.tv_url_select {
 }
 
 .custom-title {
-	font-weight: bold;
-	font-size: 12px;
-	margin: 0;
-	color: #fff;
-	padding: 6px 6px 4px;
-	background: #758CA2 url(img/misc/tab.gif);
+        font-weight: bold;
+        font-size: 12px;
+        margin: 0;
+        color: #fff;
+        padding: 6px 6px 4px;
+        background: linear-gradient(to bottom, #8aa0bc 0%, #5f718a 100%);
 }
 
 .custom-text {
@@ -1579,7 +1574,7 @@ input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.Da
 ---------------------------------------------------------- */
 .cbOverlay {background-color: #000;z-index: 50000;}
 .cbContainer {padding:5px;background-color:white;z-index: 50000;}
-.cbBox h3 {color:#000;background: #bee860 url(img/misc/fade.gif) repeat-x top;padding:5px;font-weight:bold;}
+.cbBox h3 {color:#000;background: linear-gradient(to bottom, #c8f07a 0%, #bee860 100%);padding:5px;font-weight:bold;}
 .cbBox p {margin:3px;}
 .cbBox .cbButtons {text-align:center;}
 .sysAlert {width: 500px;height: 330px;white-space: nowrap;overflow: auto;}
