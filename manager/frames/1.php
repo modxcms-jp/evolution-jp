@@ -4,7 +4,7 @@ if (IN_MANAGER_MODE != "true") {
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 if (!isset($modx->config['manager_menu_height'])) {
-    $modx->config['manager_menu_height'] = '58';
+    $modx->config['manager_menu_height'] = '86';
 }
 if (!isset($modx->config['manager_tree_width'])) {
     $modx->config['manager_tree_width'] = '260';
