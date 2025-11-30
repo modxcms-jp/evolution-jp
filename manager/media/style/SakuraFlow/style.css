@@ -1240,13 +1240,10 @@ div.treeNode {
     padding-right: 6px;
 }
 
-/* Grid checkbox styling */
+/* Grid checkbox styling - Toggle UI */
 .grid input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--color-primary);
-    cursor: pointer;
-    border-radius: var(--radius-sm);
+    width: 30px;
+    height: 14px;
 }
 
 /* Status badges for resource list */
