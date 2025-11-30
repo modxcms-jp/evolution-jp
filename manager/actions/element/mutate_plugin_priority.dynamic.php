@@ -13,13 +13,11 @@ if (postv('listSubmitted')) {
     $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /> </span>';
 
     foreach (postv() as $listName => $listValue) {
-        if ($listName === 'listSubmitted') {
+        if ($listName === 'listSubmitted' || strpos($listName, 'list_') !== 0) {
             continue;
         }
         $orderArray = explode(',', $listValue);
-        if (substr($listName, 0, 5) === 'list_') {
-            $listName = substr($listName, 5);
-        }
+        $listName = substr($listName, 5);
         if (count($orderArray) > 0) {
             foreach ($orderArray as $key => $item) {
                 if ($item == '') {
