@@ -608,7 +608,7 @@ hr {
     align-items: center;
     background: transparent;
     box-sizing: border-box;
-    color: #2a5040;
+    color: #244A30;
     column-gap: var(--space-5);
     display: flex;
     font-weight: 500;
@@ -623,7 +623,7 @@ hr {
 }
 
 #supplementalNav a {
-    color: #2a5040;
+    color: #244A30;
     font-weight: 500;
     margin: 0;
     padding: 0;
@@ -633,7 +633,7 @@ hr {
 
 #supplementalNav a:hover,
 #supplementalNav a:focus-visible {
-    color: #00bfa5;
+    color: #159070;
 }
 
 #supplementalNav .supplementalNav__item {
@@ -1633,67 +1633,67 @@ a.hometblink:hover {
     --subnav-height: 32px;
     --subnav-horizontal-padding: 16px;
     --topnav-padding-top: 8px;
-    --topnav-link-color: #3A6A40;
-    --topnav-link-hover-color: #2E5535;
+    --topnav-link-color: #346038;
+    --topnav-link-hover-color: #244828;
 
-    /* 背景より少し濃いパステルライム - 多層グラデーション
+    /* 背景より少し濃いめのグリーン - 多層グラデーション
        濁りなし、灰色味なし、蛍光色禁止
        複数光源のにじみ + 水平光帯 + 斜め反射 + 円形ボケ */
     background:
         /* 円形ボケ（半透明の光のにじみ） */
-        radial-gradient(ellipse 180px 60px at 12% 30%, rgba(234, 252, 207, 0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 140px 50px at 35% 65%, rgba(223, 245, 215, 0.45) 0%, transparent 65%),
-        radial-gradient(ellipse 200px 70px at 65% 25%, rgba(203, 238, 197, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 160px 55px at 88% 55%, rgba(234, 252, 207, 0.45) 0%, transparent 65%),
+        radial-gradient(ellipse 180px 60px at 12% 30%, rgba(215, 242, 192, 0.48) 0%, transparent 70%),
+        radial-gradient(ellipse 140px 50px at 35% 65%, rgba(205, 235, 190, 0.42) 0%, transparent 65%),
+        radial-gradient(ellipse 200px 70px at 65% 25%, rgba(188, 228, 178, 0.38) 0%, transparent 70%),
+        radial-gradient(ellipse 160px 55px at 88% 55%, rgba(215, 242, 192, 0.42) 0%, transparent 65%),
         /* 斜め方向の薄い反射光 */
         linear-gradient(
             135deg,
             transparent 0%,
             transparent 20%,
-            rgba(253, 253, 251, 0.35) 25%,
-            rgba(250, 255, 244, 0.25) 30%,
+            rgba(250, 255, 245, 0.32) 25%,
+            rgba(242, 252, 235, 0.22) 30%,
             transparent 35%,
             transparent 55%,
-            rgba(253, 253, 251, 0.3) 60%,
-            rgba(247, 255, 222, 0.2) 65%,
+            rgba(250, 255, 245, 0.28) 60%,
+            rgba(238, 250, 225, 0.18) 65%,
             transparent 70%,
             transparent 100%
         ),
         /* 水平方向の淡い光の帯 */
         linear-gradient(
             180deg,
-            rgba(253, 253, 251, 0.55) 0%,
-            rgba(250, 255, 244, 0.35) 3px,
+            rgba(250, 255, 245, 0.52) 0%,
+            rgba(242, 252, 235, 0.32) 3px,
             transparent 6px,
             transparent 40%,
-            rgba(253, 253, 251, 0.2) 50%,
+            rgba(250, 255, 245, 0.18) 50%,
             transparent 60%,
             transparent 92%,
-            rgba(250, 255, 244, 0.25) 96%,
-            rgba(253, 253, 251, 0.4) 100%
+            rgba(242, 252, 235, 0.22) 96%,
+            rgba(250, 255, 245, 0.38) 100%
         ),
-        /* ベースグラデーション - 背景よりわずかに濃いパステルライム */
+        /* ベースグラデーション - 程よい濃さのグリーン */
         linear-gradient(
             90deg,
-            rgba(223, 245, 215, 0.92) 0%,
-            rgba(234, 252, 207, 0.88) 20%,
-            rgba(223, 245, 215, 0.85) 40%,
-            rgba(203, 238, 197, 0.82) 60%,
-            rgba(223, 245, 215, 0.85) 80%,
-            rgba(234, 252, 207, 0.9) 100%
+            rgba(200, 230, 185, 0.9) 0%,
+            rgba(215, 240, 195, 0.86) 20%,
+            rgba(200, 230, 185, 0.84) 40%,
+            rgba(185, 220, 170, 0.82) 60%,
+            rgba(200, 230, 185, 0.84) 80%,
+            rgba(215, 240, 195, 0.88) 100%
         ),
-        /* 下地（彩度をほんの少し強めたライム） */
+        /* 下地（程よい濃さのグリーン） */
     linear-gradient(
         180deg,
-        #C6E3B6 0%,    /* ほんの少し深める */
-        #BADCAA 50%,   /* 中間も1段深く */
-        #B0D4A1 100%   /* 下端はさらに1段深め */
+        #B8DDA8 0%,    /* 程よく深いグリーン */
+        #ACD59C 50%,   /* 中間 */
+        #A2CD92 100%   /* 下端 */
     );
-    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.42);
     box-shadow:
-        inset 0 1px 0 rgba(253, 253, 251, 0.85),
-        inset 0 -2px 4px rgba(150, 180, 150, 0.45),
-        0 1px 4px rgba(90, 154, 94, 0.08);
+        inset 0 1px 0 rgba(250, 255, 245, 0.82),
+        inset 0 -2px 4px rgba(120, 165, 120, 0.38),
+        0 1px 4px rgba(80, 140, 85, 0.1);
 }
 
 #Navcontainer {
@@ -1761,35 +1761,34 @@ a.hometblink:hover {
     flex-wrap: wrap;
     column-gap: 0;
     row-gap: 0;
-    border-top: 1px solid rgba(253, 253, 251, 0.7);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.32);
     box-shadow:
-        inset 0 1px 0 rgba(253, 253, 251, 0.5),
-        0 1px 2px rgba(90, 154, 94, 0.05);
+        inset 0 1px 0 rgba(250, 255, 245, 0.48),
+        0 1px 2px rgba(80, 140, 85, 0.06);
     z-index: 1;
     /* トップメニューと調和する多層グラデーション */
     background:
         /* 円形ボケ（小さめ） */
-        radial-gradient(ellipse 120px 40px at 20% 50%, rgba(234, 252, 207, 0.35) 0%, transparent 70%),
-        radial-gradient(ellipse 100px 35px at 70% 40%, rgba(223, 245, 215, 0.3) 0%, transparent 65%),
+        radial-gradient(ellipse 120px 40px at 20% 50%, rgba(215, 242, 192, 0.32) 0%, transparent 70%),
+        radial-gradient(ellipse 100px 35px at 70% 40%, rgba(205, 235, 185, 0.28) 0%, transparent 65%),
         /* 水平方向の淡い光の帯 */
         linear-gradient(
             180deg,
-            rgba(253, 253, 251, 0.45) 0%,
-            rgba(250, 255, 244, 0.25) 2px,
+            rgba(250, 255, 245, 0.42) 0%,
+            rgba(242, 252, 235, 0.24) 2px,
             transparent 4px,
             transparent 90%,
-            rgba(250, 255, 244, 0.2) 100%
+            rgba(242, 252, 235, 0.18) 100%
         ),
-        /* ベース - トップメニューより少し明るめ */
+        /* ベース - トップメニューと調和 */
         linear-gradient(
             90deg,
-            rgba(234, 252, 207, 0.85) 0%,
-            rgba(223, 245, 215, 0.8) 50%,
-            rgba(234, 252, 207, 0.85) 100%
+            rgba(212, 240, 195, 0.84) 0%,
+            rgba(202, 232, 188, 0.8) 50%,
+            rgba(212, 240, 195, 0.84) 100%
         ),
         /* 下地 */
-        #E5F8D8;
+        #C8EBB8;
 }
 
 #nav > li.active > ul.subnav {
@@ -1802,7 +1801,7 @@ a.hometblink:hover {
 }
 
 #nav > li > ul.subnav a {
-    color: #3A6A40;
+    color: #346038;
     cursor: pointer;
     display: block;
     font-weight: 500;
@@ -1944,7 +1943,7 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab {
-    color: var(--color-text-dark);
+    color: #346038;
     font-size: 0.95em;
     font-weight: 500;
     cursor: pointer;
@@ -1963,21 +1962,32 @@ a.hometblink:hover {
 
 .dynamic-tab-pane-control .tab-row .tab.hover {
     text-decoration: none;
-    color: var(--color-nav-link-hover);
-    background: rgba(242, 250, 245, 0.75);
+    color: #244828;
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected {
-    color: var(--color-nav-link-hover);
+    color: #346038;
     z-index: 999;
     top: 0;
     border: none;
     border-radius: var(--radius-full);
-    background: linear-gradient(135deg, rgba(200, 225, 210, 0.55) 0%, rgba(120, 170, 145, 0.3) 100%);
+    /* ヘッダーと同じ緑の背景 */
+    background:
+        linear-gradient(
+            90deg,
+            rgba(200, 230, 185, 0.92) 0%,
+            rgba(215, 240, 195, 0.88) 50%,
+            rgba(200, 230, 185, 0.92) 100%
+        ),
+        #B8DDA8;
+    box-shadow:
+        inset 0 1px 0 rgba(250, 255, 245, 0.7),
+        0 1px 3px rgba(60, 100, 70, 0.12);
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected span {
-    color: var(--color-nav-link-hover);
+    color: #346038;
     background: transparent;
     text-shadow: none;
 }
@@ -1988,16 +1998,23 @@ a.hometblink:hover {
 }
 
 .dynamic-tab-pane-control .tab-row .tab.hover span {
-    color: var(--color-secondary-hover-text);
+    color: #244828;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover {
-    color: var(--color-nav-link-hover);
-    background: linear-gradient(135deg, rgba(210, 230, 218, 0.65) 0%, rgba(130, 180, 155, 0.4) 100%);
+    color: #244828;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(190, 225, 175, 0.95) 0%,
+            rgba(205, 235, 188, 0.9) 50%,
+            rgba(190, 225, 175, 0.95) 100%
+        ),
+        #ACD59C;
 }
 
 .dynamic-tab-pane-control .tab-row .tab.selected.hover span {
-    color: var(--color-nav-link-hover);
+    color: #244828;
 }
 
 .dynamic-tab-pane-control .tab-row .tab .alert {
