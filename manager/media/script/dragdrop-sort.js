@@ -88,11 +88,7 @@
         }
         if (e && e.dataTransfer) {
             e.dataTransfer.effectAllowed = 'move';
-            try {
-                e.dataTransfer.setData('text/plain', this.id);
-            } catch (err) {
-                // Ignore unsupported data transfer errors (IE)
-            }
+            e.dataTransfer.setData('text/plain', this.id);
         }
     }
 

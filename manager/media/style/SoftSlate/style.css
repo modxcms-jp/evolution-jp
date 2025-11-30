@@ -1503,11 +1503,6 @@ a.hometblink:hover {
     top: -2px;
     padding: 20px 15px 14px !important;
 }
-
-.rtl .dynamic-tab-pane-control .tab-page {
-    position: inherit; /* critical adjustment for IE ul li Proper RTL demonstration */
-}
-
 .dynamic-tab-pane-control .tab-row {
     z-index: 1;
     white-space: nowrap;
