@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 if (!function_exists('apply_tree_toolbar_style_defaults')) {
     function apply_tree_toolbar_style_defaults(string $iconPath, array &$style): void
     {
