@@ -460,7 +460,7 @@ h1 {
     font-size: 1.25em;
     color: var(--color-text-dark);
     font-weight: 600;
-    background: linear-gradient(135deg, rgba(248, 252, 249, 0.96) 0%, rgba(235, 245, 238, 0.92) 100%);
+    background: rgba(255, 255, 255, 0.55);
     letter-spacing: 0.5px;
     line-height: 1.4;
     padding: var(--space-3) var(--space-4);
@@ -2031,7 +2031,7 @@ a.hometblink:hover {
     background: rgba(255, 255, 255, 0.55);
     border: 1px solid rgba(170, 200, 185, 0.32);
     border-radius: var(--radius-xl);
-    box-shadow: 0 8px 32px rgba(60, 90, 75, 0.06);
+    box-shadow: var(--shadow-sm);
     z-index: 2;
     position: relative;
     top: 12px;

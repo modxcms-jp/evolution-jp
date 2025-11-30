@@ -90,7 +90,7 @@ foreach ($dir as $filename) {
             width: 250px;
         }
     </style>
-    <div style="margin: 8px">
+    <div>
         <input type="hidden" name="site_id" value="<?= $site_id ?>"/>
         <input type="hidden" name="settings_version" value="<?= $modx_version ?>"/>
         <!-- this field is used to check site settings have been entered/ updated after install or upgrade -->
