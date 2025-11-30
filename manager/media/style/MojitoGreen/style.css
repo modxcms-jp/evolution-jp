@@ -496,7 +496,7 @@ h6 {
 
 p.caption, p.comment {
     font-size: 0.9em;
-    color: var(--gray-600);
+    color: var(--gray-800);
 }
 
 button {
@@ -1104,7 +1104,7 @@ form .imeoff {
 }
 
 .comment {
-    color: var(--gray-500);
+    color: var(--gray-800);
 }
 
 /* テーブルヘッダー - モヒートパレット準拠 */
@@ -1440,11 +1440,11 @@ div.treeNode {
 .grid .nowrap {
     white-space: nowrap;
     font-size: 0.85rem;
-    color: var(--gray-600);
+    color: var(--gray-800);
 }
 
 .grid .nowrap.disable {
-    color: var(--gray-400);
+    color: var(--gray-700);
     font-style: italic;
 }
 
