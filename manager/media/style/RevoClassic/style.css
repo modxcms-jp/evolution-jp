@@ -1025,6 +1025,12 @@ div.treeNode {
     color: #777;
 }
 
+/* File manager disabled items */
+.file-disabled {
+    color: #999;
+    cursor: default;
+}
+
 /* Search Bar */
 .searchbar {
     width: 100%;

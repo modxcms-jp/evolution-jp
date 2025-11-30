@@ -1453,6 +1453,12 @@ div.treeNode {
     color: var(--gray-800);
 }
 
+/* File manager disabled items */
+.file-disabled {
+    color: var(--gray-700);
+    cursor: default;
+}
+
 /* 検索バー - モヒートパレット */
 .searchbar {
     width: 100%;

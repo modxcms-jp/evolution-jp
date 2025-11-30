@@ -172,7 +172,7 @@ if (!is_readable($startpath)) {
         if (rtrim($startpath, '/') == config('filemanager_path')) {
             $ph = [
                 'image' => $_style['tree_deletedfolder'],
-                'subject' => '<span style="color:#bbb;cursor:default;">Top</span>'
+                'subject' => '<span class="file-disabled">Top</span>'
             ];
         } else {
             $ph = [
@@ -338,7 +338,7 @@ if (!is_readable($startpath)) {
     ls($startpath);
     echo "\n\n\n";
     if ($folders == 0 && $files == 0) {
-        echo '<tr><td colspan="4"><img src="' . $_style['tree_deletedfolder'] . '" /><span style="color:#888;cursor:default;"> This directory is empty.</span></td></tr>';
+        echo '<tr><td colspan="4"><img src="' . $_style['tree_deletedfolder'] . '" /><span class="file-disabled"> This directory is empty.</span></td></tr>';
     }
     ?>
 </table>
@@ -490,7 +490,7 @@ function ls($curpath)
 
             if (in_array($newpath, $proteted_path)) {
                 $dirs_array[$dircounter]['text'] = sprintf(
-                    '<img src="%s" align="absmiddle" alt="" /> <span style="color:#bbb;">%s</span>',
+                    '<img src="%s" align="absmiddle" alt="" /> <span class="file-disabled">%s</span>',
                     $_style['tree_deletedfolder'],
                     $file
                 );
