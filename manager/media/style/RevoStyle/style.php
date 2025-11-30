@@ -45,8 +45,6 @@ if ($iconEventLog == 1) iconEventLog();
 if ($iconSysInfo == 1) iconSysInfo();
 if ($iconHelp == 1) iconHelp();
 
-$style_path = 'media/style/' . $modx->config['manager_theme'] . '/';
-$images_path = manager_style_image_path();
 $icon_path = manager_style_image_path('icons');
 $tree_path = manager_style_image_path('tree');
 $misc_path = manager_style_image_path('misc');
