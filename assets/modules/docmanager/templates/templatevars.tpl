@@ -1,6 +1,7 @@
 <p>[+lang.DM_tv_desc+]</p>
 <br/>
 <form name="templatevariables" action="" method="post">
+    [+csrf_token+]
     [+templatevars.grid+]
     <div id="tvloading" class="warning" style="display:none">[+lang.DM_tv_loading+]</div>
     <br/>

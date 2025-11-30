@@ -3,6 +3,7 @@
         <div class="sectionHeader">[+lang.DM_range_title+]</div>
         <div class="sectionBody">
             <form id="range" action="" method="post">
+                [+csrf_token+]
                 <input type="hidden" id="newvalue" name="newvalue" value=""/>
                 <input type="hidden" id="setoption" name="setoption" value=""/>
                 <input type="hidden" id="pubdate" name="pubdate" value=""/>

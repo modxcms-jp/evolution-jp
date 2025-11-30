@@ -2,6 +2,7 @@
 <p>[+lang.DM_adjust_authors_desc+]</p>
 
 <form style="margin-left:50px;margint-bottom:20px;" name="authors" method="post" action="">
+    [+csrf_token+]
     <label for="author_createdby">[+lang.DM_adjust_authors_createdby+]</label>
     <select name="author_createdby" style="width:50%">
         <option value="0">[+lang.DM_adjust_authors_noselection+]</option>

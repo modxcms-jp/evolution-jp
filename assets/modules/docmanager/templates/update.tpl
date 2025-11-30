@@ -43,6 +43,7 @@
     <div class="sectionBody">
         <p>[+update.message+]</p>
         <form id="backform" method="post" style="display: none;">
+            [+csrf_token+]
             <input type="submit" name="back" value="[+lang.DM_process_back+]"/>
         </form>
     </div>
