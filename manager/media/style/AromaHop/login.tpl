@@ -17,7 +17,7 @@
             font-family: "Hiragino Sans", "Noto Sans JP", "Helvetica Neue", Arial, sans-serif;
         }
 
-        /* MojitoGreen ログイン画面
+        /* AromaHop ログイン画面
            カラーパレット: #FDFDFB(氷白), #FAFFF4(極淡ライム), #DFF5D7, #CBEEC5, #B6E7B3
            アクセント: #EAFCCF(レモンイエロー), #F7FFDE(淡黄緑) */
         body {
