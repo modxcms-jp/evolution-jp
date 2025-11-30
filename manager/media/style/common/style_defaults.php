@@ -22,6 +22,35 @@ if (!function_exists('manager_style_set_default_menu_height')) {
     }
 }
 
+if (!function_exists('manager_style_set_default_welcome_options')) {
+    function manager_style_set_default_welcome_options(array &$options): void
+    {
+        $defaults = [
+            'tab_your_info' => 1,
+            'tab_online' => 1,
+            'iconResources' => 1,
+            'iconNewDoc' => 1,
+            'iconSearch' => 1,
+            'iconMessage' => 1,
+            'iconElements' => 1,
+            'iconSettings' => 1,
+            'iconFileManager' => 1,
+            'iconEventLog' => 1,
+            'iconSysInfo' => 1,
+            'iconHelp' => 1,
+        ];
+
+        foreach ($defaults as $key => $default) {
+            if (!array_key_exists($key, $options) || $options[$key] === null) {
+                $options[$key] = $default;
+                continue;
+            }
+
+            $options[$key] = (int)$options[$key];
+        }
+    }
+}
+
 if (!function_exists('manager_style_set_tree_toolbar_defaults')) {
     function manager_style_set_tree_toolbar_defaults(array &$style, string $iconPath): void
     {

@@ -9,27 +9,30 @@
  * MODX version:   1.0.6-
  */
 
-$tab_your_info = 1;
-$tab_online = 1;
-
-$iconResources = 1;
-$iconNewDoc = 1;
-$iconSearch = 1;
-$iconMessage = 1;
-
-$iconElements = 1;
-$iconSettings = 1;
-$iconFileManager = 1;
-$iconEventLog = 1;
-$iconSysInfo = 1;
-$iconHelp = 1;
-
 include_once(__DIR__ . '/welcome.php');
 if (is_file(__DIR__ . '/config.php')) {
     include __DIR__ . '/config.php';
 }
 
 require_once __DIR__ . '/../common/style_defaults.php';
+
+$welcomeOptions = [
+    'tab_your_info' => &$tab_your_info,
+    'tab_online' => &$tab_online,
+    'iconResources' => &$iconResources,
+    'iconNewDoc' => &$iconNewDoc,
+    'iconSearch' => &$iconSearch,
+    'iconMessage' => &$iconMessage,
+    'iconElements' => &$iconElements,
+    'iconSettings' => &$iconSettings,
+    'iconFileManager' => &$iconFileManager,
+    'iconEventLog' => &$iconEventLog,
+    'iconSysInfo' => &$iconSysInfo,
+    'iconHelp' => &$iconHelp,
+];
+
+manager_style_set_default_welcome_options($welcomeOptions);
+unset($welcomeOptions);
 
 $managerMenuHeight = isset($managerMenuHeight) ? (int)$managerMenuHeight : 86;
 manager_style_set_default_menu_height($managerMenuHeight);
