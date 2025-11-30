@@ -95,7 +95,7 @@ $location = getv('id') ? '10' : '2';
                                 // format the message :)
                                 $message = str_replace("\n", "<br />", $message['message']);
                                 $dashcount = substr_count($message, "-----");
-                                $message = str_replace("-----", "<i style='color:#666;'>", $message);
+                                $message = str_replace("-----", "<i class='message-quote'>", $message);
                                 for ($i = 0; $i < $dashcount; $i++) {
                                     $message .= "</i>";
                                 }

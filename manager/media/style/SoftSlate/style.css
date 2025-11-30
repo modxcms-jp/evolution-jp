@@ -1029,6 +1029,23 @@ div.treeNode {
     cursor: default;
 }
 
+/* Welcome page inbox title */
+.inbox-title {
+    color: #909090;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* New message count */
+.message-count-new {
+    color: red;
+}
+
+/* Message quote */
+.message-quote {
+    color: #666;
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;

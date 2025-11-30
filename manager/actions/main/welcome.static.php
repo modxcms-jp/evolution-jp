@@ -50,13 +50,13 @@ if (evo()->hasPermission('messages')) {
     $_SESSION['nrnewmessages'] = $messages['new'];
 
     $msg = '<a href="index.php?a=10"><img src="' . $_style['icons_mail_large'] . '" /></a>
-    <span style="color:#909090;font-size:15px;font-weight:bold">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span style='color:red'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
+    <span class="inbox-title">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span class='message-count-new'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
     if (sessionv('nrnewmessages') > 0) {
         $msg .= '<span class="comment">'
             . sprintf(
                 $_lang["welcome_messages"],
                 sessionv('nrtotalmessages'),
-                "<span style='color:red;'>" . sessionv('nrnewmessages') . "</span>"
+                "<span class='message-count-new'>" . sessionv('nrnewmessages') . "</span>"
             ) . '</span>';
         $mail_icon = $_style['icons_mail_new_large'];
     } else {

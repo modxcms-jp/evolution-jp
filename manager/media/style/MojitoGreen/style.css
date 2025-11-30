@@ -1459,6 +1459,23 @@ div.treeNode {
     cursor: default;
 }
 
+/* Welcome page inbox title */
+.inbox-title {
+    color: var(--gray-800);
+    font-size: 15px;
+    font-weight: bold;
+}
+
+/* New message count */
+.message-count-new {
+    color: var(--color-error);
+}
+
+/* Message quote */
+.message-quote {
+    color: var(--gray-800);
+}
+
 /* 検索バー - モヒートパレット */
 .searchbar {
     width: 100%;
