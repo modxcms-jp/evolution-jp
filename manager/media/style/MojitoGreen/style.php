@@ -12,4 +12,4 @@ include_once(__DIR__ . '/welcome.php');
 if (is_file(__DIR__ . '/config.php')) {
     include __DIR__ . '/config.php';
 }
-require __DIR__ . '/../common/style.defaults.php';
+require __DIR__ . '/../_system/style.defaults.php';

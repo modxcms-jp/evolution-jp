@@ -60,7 +60,7 @@ class errorHandler
     {
         include_once MODX_MANAGER_PATH . 'actions/header.inc.php';
         echo evo()->parseText(
-            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/dump_error.tpl'),
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/_system/dump_error.tpl'),
             [
                 'message' => db()->escape($this->errormessage),
                 'warning' => lang('warning'),

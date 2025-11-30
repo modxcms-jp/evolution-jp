@@ -851,7 +851,7 @@ thead td {
 li {
     padding: 0;
     margin: 0;
-    list-style: disc outside url(../common/images/misc/li.gif);
+    list-style: disc outside url(../_system/images/misc/li.gif);
 }
 
 ul {
@@ -1417,7 +1417,7 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: #f5f5f5 url(../common/images/misc/mainbg.gif) repeat-x top;
+    background: #f5f5f5 url(../_system/images/misc/mainbg.gif) repeat-x top;
 }
 
 .tab-page {
@@ -1803,11 +1803,11 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
     width: 150px;
     padding: 3px 3px 3px var(--space-xl);
     background-color: var(--color-surface);
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
+    background: url(../_system/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
+    background: url(../_system/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
 }
 

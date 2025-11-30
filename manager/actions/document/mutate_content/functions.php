@@ -730,7 +730,7 @@ function getJScripts($docid)
     $ph['suffix'] = config('friendly_url_suffix');
 
     return parseText(
-        file_get_contents(MODX_MANAGER_PATH . 'media/style/common/jscripts.tpl'),
+        file_get_contents(MODX_MANAGER_PATH . 'media/style/_system/jscripts.tpl'),
         $ph
     );
 }

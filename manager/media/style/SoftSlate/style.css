@@ -792,7 +792,7 @@ thead td {
 li {
     padding: 0;
     margin: 0;
-    list-style: disc outside url(../common/images/misc/li.gif);
+    list-style: disc outside url(../_system/images/misc/li.gif);
 }
 
 ul {
@@ -1075,7 +1075,7 @@ a.hometblink:hover {
 }
 
 .cntxMnuItem {
-    background-image: url(../common/images/misc/_tx_.gif);
+    background-image: url(../_system/images/misc/_tx_.gif);
     cursor: pointer;
     color: var(--color-text-primary);
     padding: 3px 16px 3px 2px;
@@ -1574,7 +1574,7 @@ a.hometblink, a.hometblink img {
 
 /* -------------------------[ Welcome Page ]--- */
 #mainActionPages {
-    background: var(--gray-100) url(../common/images/misc/mainbg.gif) repeat-x top;
+    background: var(--gray-100) url(../_system/images/misc/mainbg.gif) repeat-x top;
 }
 
 .tab-page {
@@ -1975,11 +1975,11 @@ input.DatePicker {
     width: 150px;
     padding: 3px 3px 3px 24px;
     background-color: #ffffff;
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left #ffffff;
+    background: url(../_system/images/misc/datenofocus.gif) no-repeat top left #ffffff;
 }
 
 input.DatePicker:focus {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
+    background: url(../_system/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
 }
 

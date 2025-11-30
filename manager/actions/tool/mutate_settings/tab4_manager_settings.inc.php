@@ -11,6 +11,9 @@
                         $file = str_replace('\\', '/', $file);
                         if ($file != "." && $file != ".." && substr($file, 0, 1) != '.') {
                             $themename = substr(dirname($file), strrpos(dirname($file), '/') + 1);
+                            if (strpos($themename, '_') === 0) {
+                                continue;
+                            }
                             $selectedtext = $themename == $manager_theme ? "selected='selected'" : "";
                             echo "<option value='$themename' $selectedtext>" . ucwords(str_replace("_", " ",
                                     $themename)) . "</option>";

@@ -15,4 +15,4 @@ if (is_file(__DIR__ . '/config.php')) {
 }
 $revoMenuHeight = 58;
 
-require __DIR__ . '/../common/style.defaults.php';
+require __DIR__ . '/../_system/style.defaults.php';

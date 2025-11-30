@@ -413,7 +413,7 @@ class ManagerAPI
         }
 
         return evo()->parseText(
-            file_get_contents(MODX_MANAGER_PATH . 'media/style/common/sysalert.tpl'),
+            file_get_contents(MODX_MANAGER_PATH . 'media/style/_system/sysalert.tpl'),
             [
                 'alerts' => db()->escape(implode('<hr />', $alerts)),
                 'title' => $_lang['sys_alert']

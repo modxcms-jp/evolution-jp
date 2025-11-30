@@ -559,7 +559,7 @@ function manager_style_image_path($subdir = '')
         return rtrim($relative, '/') . '/';
     }
 
-    $relative = 'media/style/common/images' . $segments;
+    $relative = 'media/style/_system/images' . $segments;
     return rtrim($relative, '/') . '/';
 }
 

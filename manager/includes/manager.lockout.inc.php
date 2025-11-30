@@ -43,7 +43,7 @@ function tpl_content()
     if (evo()->config('manager_lockout_tpl')) {
         $target = evo()->config('manager_lockout_tpl');
     } else {
-        $target = MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl';
+        $target = MODX_MANAGER_PATH . 'media/style/_system/manager.lockout.tpl';
     }
 
     if (strpos($target, '@') === 0) {
@@ -76,5 +76,5 @@ function tpl_content()
         return file_get_contents($style_path . 'html/manager.lockout.html');
     }
 
-    return file_get_contents(MODX_MANAGER_PATH . 'media/style/common/manager.lockout.tpl');
+    return file_get_contents(MODX_MANAGER_PATH . 'media/style/_system/manager.lockout.tpl');
 }

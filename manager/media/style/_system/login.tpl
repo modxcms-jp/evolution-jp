@@ -87,7 +87,7 @@
         [+OnManagerLoginFormPrerender+]
         <div class="header"><a href="../">[+site_name+]</a></div>
         <div class="body">
-            <img src="media/style/common/images/misc/login-logo.png" alt="[+site_name+]" id="logo"/>
+            <img src="media/style/_system/images/misc/login-logo.png" alt="[+site_name+]" id="logo"/>
             <p class="loginMessage">[+login_message+]</p>
             <label for="username">[+username+] </label>
             <input type="text" class="text" name="username" id="username" tabindex="1" value="[+uid+]"/>

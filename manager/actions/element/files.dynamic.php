@@ -8,7 +8,7 @@ if (!evo()->hasPermission('file_manager')) {
 }
 global $_style;
 // settings
-$style_path = parseText('[+site_url+]manager/media/style/common/images/', $modx->config);
+$style_path = parseText('[+site_url+]manager/media/style/_system/images/', $modx->config);
 $alias_suffix = (!empty($friendly_url_suffix)) ? ',' . ltrim($friendly_url_suffix, '.') : '';
 
 $proteted_path = proteted_path();

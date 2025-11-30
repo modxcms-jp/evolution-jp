@@ -814,7 +814,7 @@ thead td {
 li {
     padding: 0;
     margin: 0;
-    list-style: disc outside url(../common/images/misc/li.gif);
+    list-style: disc outside url(../_system/images/misc/li.gif);
 }
 
 ul {
@@ -875,7 +875,7 @@ a img {
 }
 
 div.treeframebody {
-    background: var(--color-tree-bg) url(../common/images/misc/subnav.png) !important;
+    background: var(--color-tree-bg) url(../_system/images/misc/subnav.png) !important;
     box-shadow: var(--shadow-inset);
     padding: var(--space-2);
 }
@@ -1077,7 +1077,7 @@ a.hometblink:hover {
 }
 
 .cntxMnuItem {
-    background-image: url(../common/images/misc/_tx_.gif);
+    background-image: url(../_system/images/misc/_tx_.gif);
     cursor: pointer;
     color: var(--color-text-primary);
     padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
@@ -1131,7 +1131,7 @@ a.hometblink:hover {
 }
 #topMenu {
     background-color: #23393C;
-    background-image: url("../common/images/misc/headers.jpg");
+    background-image: url("../_system/images/misc/headers.jpg");
 }
 #Navcontainer {
     color: #e4f1f3;
@@ -1486,7 +1486,7 @@ a.hometblink, a.hometblink img {
 
 /* Welcome Page Content */
 #mainActionPages {
-    background: var(--gray-100) url(../common/images/misc/mainbg.gif) repeat-x top;
+    background: var(--gray-100) url(../_system/images/misc/mainbg.gif) repeat-x top;
 }
 
 .tab-page {
@@ -1859,11 +1859,11 @@ input.DatePicker, #mutate input.DatePicker, #userPane input.DatePicker, #webUser
     width: 150px;
     padding: var(--space-1) var(--space-1) var(--space-1) var(--space-6);
     background-color: var(--color-surface);
-    background: url(../common/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
+    background: url(../_system/images/misc/datenofocus.gif) no-repeat top left var(--color-surface);
 }
 
 input:focus.DatePicker, #mutate input:focus.DatePicker, #userPane input:focus.DatePicker, #webUserPane input:focus.DatePicker, input#datefrom:focus.DatePicker, input#dateto:focus.DatePicker {
-    background: url(../common/images/misc/datefocus.gif) no-repeat top left;
+    background: url(../_system/images/misc/datefocus.gif) no-repeat top left;
     cursor: text;
 }
 
