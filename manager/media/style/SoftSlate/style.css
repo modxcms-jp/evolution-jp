@@ -2036,16 +2036,6 @@ input.DatePicker:focus {
     box-sizing: border-box;
 }
 
-/* Custom */
-/* replace warning red color in tabs */
-strong[style*='color:#EF1D1D'] {
-    color: yellow !important;
-}
-
-.selected strong[style*='color:#EF1D1D'] {
-    color: red !important;
-}
-
 .tmplvars tr {
     height: 24px;
 }
