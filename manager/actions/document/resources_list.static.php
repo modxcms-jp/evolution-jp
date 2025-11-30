@@ -274,7 +274,7 @@ function getIcon($doc)
 function getDescription($doc)
 {
     $len = mb_strlen($doc['pagetitle'] . $doc['description'], evo()->config('modx_charset'));
-    $tpl = '<span style="color:#777;">%s</span>';
+    $tpl = '<span class="resource-description">%s</span>';
     if ($len < 50) {
         if (empty($doc['description'])) {
             return '';

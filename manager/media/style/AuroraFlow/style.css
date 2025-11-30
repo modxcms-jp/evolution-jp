@@ -1045,6 +1045,11 @@ div.treeNode {
     padding-right: 4px;
 }
 
+/* Resource description in grid */
+.resource-description {
+    color: #777;
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;

@@ -1448,6 +1448,11 @@ div.treeNode {
     font-style: italic;
 }
 
+/* Resource description in grid */
+.resource-description {
+    color: var(--gray-800);
+}
+
 /* 検索バー - モヒートパレット */
 .searchbar {
     width: 100%;

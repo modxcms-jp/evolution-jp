@@ -1130,6 +1130,11 @@ div.treeNode {
     font-style: italic;
 }
 
+/* Resource description in grid */
+.resource-description {
+    color: var(--color-text-secondary);
+}
+
 /* -------------------------[ search bar ]--- */
 .searchbar {
     width: 100%;
