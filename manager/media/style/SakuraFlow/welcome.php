@@ -1,8 +1,8 @@
 <?php
 if (!isset($modx) || !evo()->isLoggedin()) exit;
 
-$style_images_path = manager_style_image_path();
-$style_tree_path = manager_style_image_path('tree');
+$GLOBALS['style_images_path'] = manager_style_image_path();
+$GLOBALS['style_tree_path'] = manager_style_image_path('tree');
 
 function iconMessage()
 {
