@@ -51,6 +51,41 @@ if (!function_exists('manager_style_set_default_welcome_options')) {
     }
 }
 
+if (!function_exists('manager_style_render_welcome_options')) {
+    function manager_style_render_welcome_options(array $options): void
+    {
+        $tabCallbacks = [
+            'tab_your_info' => 'tabYourInfo',
+            'tab_online' => 'tabOnlineUser',
+        ];
+
+        foreach ($tabCallbacks as $key => $callback) {
+            if (!empty($options[$key]) && function_exists($callback)) {
+                $callback();
+            }
+        }
+
+        $iconCallbacks = [
+            'iconResources' => 'iconResources',
+            'iconNewDoc' => 'iconNewDoc',
+            'iconSearch' => 'iconSearch',
+            'iconMessage' => 'iconMessage',
+            'iconElements' => 'iconElements',
+            'iconSettings' => 'iconSettings',
+            'iconFileManager' => 'iconFileManager',
+            'iconEventLog' => 'iconEventLog',
+            'iconSysInfo' => 'iconSysInfo',
+            'iconHelp' => 'iconHelp',
+        ];
+
+        foreach ($iconCallbacks as $key => $callback) {
+            if (!empty($options[$key]) && function_exists($callback)) {
+                $callback();
+            }
+        }
+    }
+}
+
 if (!function_exists('manager_style_set_tree_toolbar_defaults')) {
     function manager_style_set_tree_toolbar_defaults(array &$style, string $iconPath): void
     {

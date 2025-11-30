@@ -32,25 +32,9 @@ $welcomeOptions = [
 ];
 
 manager_style_set_default_welcome_options($welcomeOptions);
+manager_style_render_welcome_options($welcomeOptions);
 unset($welcomeOptions);
 
-$managerMenuHeight = isset($managerMenuHeight) ? (int)$managerMenuHeight : 86;
-manager_style_set_default_menu_height($managerMenuHeight);
-
-if ($tab_your_info == 1) tabYourInfo();
-if ($tab_online == 1) tabOnlineUser();
-
-if ($iconResources == 1) iconResources();
-if ($iconNewDoc == 1) iconNewDoc();
-if ($iconSearch == 1) iconSearch();
-if ($iconMessage == 1) iconMessage();
-
-if ($iconElements == 1) iconElements();
-if ($iconFileManager == 1) iconFileManager();
-
-if ($iconSettings == 1) iconSettings();
-if ($iconEventLog == 1) iconEventLog();
-if ($iconSysInfo == 1) iconSysInfo();
-if ($iconHelp == 1) iconHelp();
+manager_style_set_default_menu_height(86);
 
 manager_style_set_defaults($_style, $_lang);
