@@ -2657,19 +2657,34 @@ class DocumentParser
 
         $totalTime = ($this->getMicroTime() - $this->tstart);
 
-        return str_replace(
-            ['[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]', '[^f^]'],
-            [
-                isset($this->executedQueries) ? $this->executedQueries : 0,
-                sprintf('%2.4f s', $this->queryTime),
-                sprintf('%2.4f s', ($totalTime - $this->queryTime)),
-                sprintf('%2.4f s', $totalTime),
-                ($this->documentGenerated || !$this->config('cache_type')) ? 'database' : 'full_cache',
-                $this->nicesize(memory_get_peak_usage() - $this->mstart),
-                count(get_included_files())
-            ],
-            $content
-        );
+        try {
+            return str_replace(
+                ['[^q^]', '[^qt^]', '[^p^]', '[^t^]', '[^s^]', '[^m^]', '[^f^]'],
+                [
+                    isset($this->executedQueries) ? $this->executedQueries : 0,
+                    sprintf('%2.4f s', $this->queryTime),
+                    sprintf('%2.4f s', ($totalTime - $this->queryTime)),
+                    sprintf('%2.4f s', $totalTime),
+                    ($this->documentGenerated || !$this->config('cache_type')) ? 'database' : 'full_cache',
+                    $this->nicesize(memory_get_peak_usage() - $this->mstart),
+                    count(get_included_files())
+                ],
+                $content
+            );
+        } catch (\Throwable $throwable) {
+            $this->logEvent(
+                0,
+                3,
+                sprintf(
+                    '%s (content length: %d)',
+                    $this->htmlspecialchars($throwable->getMessage()),
+                    strlen($content)
+                ),
+                'Benchmark placeholders'
+            );
+        }
+
+        return $content;
     }
 
     public function evalPlugin($pluginCode, $params, $errorReporting = 'inherit')
