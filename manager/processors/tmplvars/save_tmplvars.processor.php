@@ -245,10 +245,18 @@ function saveDocumentAccessPermissons()
             exit;
         }
         if (is_array($docgroups)) {
-            foreach ($docgroups as $dgkey => $value) {
-                $field['tmplvarid'] = $id;
-                $field['documentgroup'] = stripslashes($value);
-                $rs = db()->insert($field, '[+prefix+]site_tmplvar_access');
+            foreach ($docgroups as $value) {
+                $documentGroupId = (int)stripslashes($value);
+                if ($documentGroupId <= 0) {
+                    continue;
+                }
+
+                $field = [
+                    'tmplvarid' => $id,
+                    'documentgroup' => $documentGroupId
+                ];
+
+                $rs = db()->insert(db()->escape($field), '[+prefix+]site_tmplvar_access');
                 if (!$rs) {
                     echo "An error occured while attempting to save template variable acess permissions.";
                     exit;
