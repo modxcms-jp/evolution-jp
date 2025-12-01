@@ -749,8 +749,24 @@ if (!isset($localFilterDelimiter)) {
     - <filter>
     - <parseFilters>
 */
-if (!isset($filters)) {
-    $filters = ['custom' => [], 'parsed' => []];
+if (!isset($filters) || !is_array($filters)) {
+    $filters = [];
+}
+
+if (!array_key_exists('custom', $filters)) {
+    $filters['custom'] = [];
+}
+
+if ($filters['custom'] !== false && !is_array($filters['custom'])) {
+    $filters['custom'] = [];
+}
+
+if (!array_key_exists('parsed', $filters)) {
+    $filters['parsed'] = [];
+}
+
+if ($filters['parsed'] !== false && !is_array($filters['parsed'])) {
+    $filters['parsed'] = [];
 }
 // Variable: filters
 // Holds both the custom filters array for configs or extenders to add to
@@ -758,11 +774,11 @@ if (!isset($filters)) {
 // (code)
 // $filters["parsed"][] = array("name" => array("source"=>$source,"value"=>$value,"mode"=>$mode));
 // $filters["custom"][] = array("source","callback_function");
-if (isset($cFilters)) {
+if (isset($cFilters) && $filters['custom'] !== false) {
     $filters['custom'] = array_merge($filters['custom'], $cFilters);
 }
 
-if (isset($parsedFilters)) {
+if (isset($parsedFilters) && $filters['parsed'] !== false) {
     $filters['parsed'] = array_merge($filters['parsed'], $parsedFilters);
 }
 // handle 2.0.0 compatibility
