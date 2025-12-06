@@ -70,6 +70,8 @@ if ($action === 'mode') {
 
 $_lang = includeLang(lang_name());
 
+guardInstallerAccess();
+
 $errors = 0;
 
 $ph = ph();

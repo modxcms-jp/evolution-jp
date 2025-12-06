@@ -581,6 +581,110 @@ function ph()
     return $ph;
 }
 
+function installConfigPath()
+{
+    return MODX_SETUP_PATH . 'install-config.php';
+}
+
+function installConfigSamplePath()
+{
+    return MODX_SETUP_PATH . 'install-config.sample.php';
+}
+
+function installerRemoteAddress()
+{
+    return serverv('REMOTE_ADDR', '');
+}
+
+function requireInstallConfig()
+{
+    if (is_file(installConfigPath())) {
+        return loadInstallConfig();
+    }
+
+    renderInstallConfigNotice('install_config_missing_message');
+    return [];
+}
+
+function loadInstallConfig()
+{
+    $config = include installConfigPath();
+    if (is_array($config)) {
+        return $config;
+    }
+
+    return [];
+}
+
+function isInstallerIpAllowed(array $config)
+{
+    $allowedIps = array_map('trim', (array)($config['allowed_ips'] ?? []));
+    $allowedIps = array_filter($allowedIps, 'strlen');
+    if (!$allowedIps) {
+        return true;
+    }
+
+    return in_array(installerRemoteAddress(), $allowedIps, true);
+}
+
+function installBasicAuthEnabled(array $config)
+{
+    $user = trim($config['basic_auth']['user'] ?? '');
+    $password = $config['basic_auth']['password'] ?? '';
+
+    return $user !== '' && $password !== '';
+}
+
+function enforceInstallBasicAuth(array $config)
+{
+    if (!installBasicAuthEnabled($config)) {
+        return;
+    }
+
+    $user = serverv('PHP_AUTH_USER', '');
+    $password = serverv('PHP_AUTH_PW', '');
+    if ($user === $config['basic_auth']['user'] && $password === $config['basic_auth']['password']) {
+        return;
+    }
+
+    header('WWW-Authenticate: Basic realm="Evolution CMS Installer"');
+    header('HTTP/1.0 401 Unauthorized');
+    renderInstallConfigNotice('install_config_auth_message');
+}
+
+function guardInstallerAccess()
+{
+    $config = requireInstallConfig();
+
+    if (!isInstallerIpAllowed($config)) {
+        renderInstallConfigNotice('install_config_ip_message');
+    }
+
+    enforceInstallBasicAuth($config);
+}
+
+function renderInstallConfigNotice($messageKey)
+{
+    $ph = ph();
+    $ph['install_config_title'] = lang('install_config_title');
+    $ph['install_config_message'] = lang($messageKey);
+    $ph['install_config_step1'] = sprintf(lang('install_config_step1'), hsc(installConfigSamplePath()), hsc(installConfigPath()));
+    $ph['install_config_step2'] = lang('install_config_step2');
+    $ph['install_config_step3'] = lang('install_config_step3');
+    $ph['install_config_footer'] = lang('install_config_footer');
+    $ph['remote_addr'] = hsc(installerRemoteAddress());
+    $ph['content'] = parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/install_config.tpl'),
+        $ph
+    );
+
+    echo evo()->parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+        $ph
+    );
+    exit;
+}
+
 function install_sessionCheck()
 {
     $_SESSION['test'] = 1;

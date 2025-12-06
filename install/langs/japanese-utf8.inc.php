@@ -207,3 +207,11 @@ $_lang['checking_if_temp_writable'] = '<span class="mono">/temp</span>ディレ�
 $_lang["welcome_message_upd_text"] = 'MODXのアップデートは簡単。インストーラの説明に従って進めてください。';
 $_lang["welcome_message_upd_welcome"] = 'MODXのアップデートを開始します。';
 $_lang["begin_install_msg"] = '<p>MODXがインストールされていないか設定ファイルが見つかりません。</p><p>今すぐインストールしますか？</p>';
+$_lang["install_config_title"] = 'インストーラーのアクセス制御';
+$_lang["install_config_missing_message"] = '<span class="mono">install-config.php</span> が存在しないため、インストールを続行できません。';
+$_lang["install_config_ip_message"] = '現在の接続元IPアドレスからはインストールを実行できません。<span class="mono">install-config.php</span> の <span class="mono">allowed_ips</span> を更新してください。';
+$_lang["install_config_auth_message"] = 'インストーラーにアクセスするには BASIC 認証が必要です。<span class="mono">install-config.php</span> で設定したユーザー名とパスワードを入力してください。';
+$_lang["install_config_step1"] = '%s を %s にコピーしてください。';
+$_lang["install_config_step2"] = '<span class="mono">install-config.php</span> を編集し、BASIC 認証のユーザー名とパスワード、または <span class="mono">allowed_ips</span> を設定してください。';
+$_lang["install_config_step3"] = '設定ファイルを保存したら、このページを再読み込みしてください。';
+$_lang["install_config_footer"] = 'インストールを実行できるのはサーバーの操作権限を持つ管理者のみとしてください。';
