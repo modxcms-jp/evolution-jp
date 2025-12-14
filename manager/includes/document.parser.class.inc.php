@@ -914,22 +914,12 @@ class DocumentParser
         foreach ($s as $_) {
             $r[] = " {$_['0']} {$_['1']} ";
         }
-        foreach ($target as $key => $value) {
-            if (is_array($value)) {
-                $count++;
-                if (10 < $count) {
-                    echo 'too many nested array';
-                    exit;
-                }
-                $this->sanitize_gpc($value, $count);
-            } else {
-                $value = str_replace($s, $r, $value);
-                $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
-                $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
-                $target[$key] = $value;
-            }
-            $count = 0;
-        }
+
+        array_walk_recursive($target, static function (&$value) use ($s, $r) {
+            $value = str_replace($s, $r, $value);
+            $value = str_ireplace('<script', 'sanitized_by_modx<s cript', $value);
+            $value = preg_replace('/&#(\d+);/', 'sanitized_by_modx& #$1', $value);
+        });
         return $target;
     }
 
