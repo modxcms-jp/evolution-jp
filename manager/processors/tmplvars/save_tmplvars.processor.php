@@ -258,7 +258,7 @@ function saveDocumentAccessPermissons()
 
                 $rs = db()->insert(db()->escape($field), '[+prefix+]site_tmplvar_access');
                 if (!$rs) {
-                    echo "An error occured while attempting to save template variable acess permissions.";
+                    echo "An error occurred while attempting to save template variable access permissions.";
                     exit;
                 }
             }
