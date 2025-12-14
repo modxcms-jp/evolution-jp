@@ -905,8 +905,8 @@ class DocumentParser
         if (!$target) {
             return [];
         }
-        $_ = implode('', $target);
-        if (strpos($_, '[') === false && strpos($_, '<') === false && strpos($_, '#') === false) {
+        $flattened = $this->flattenToString($target);
+        if (strpos($flattened, '[') === false && strpos($flattened, '<') === false && strpos($flattened, '#') === false) {
             return '';
         }
 
@@ -931,6 +931,20 @@ class DocumentParser
             $count = 0;
         }
         return $target;
+    }
+
+    private function flattenToString($value)
+    {
+        if (!is_array($value)) {
+            return (string) $value;
+        }
+
+        $result = '';
+        array_walk_recursive($value, static function ($item) use (&$result) {
+            $result .= (string) $item;
+        });
+
+        return $result;
     }
 
     private function getUaType()
