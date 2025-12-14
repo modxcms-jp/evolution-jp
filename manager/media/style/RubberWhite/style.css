@@ -127,16 +127,16 @@
     --color-tree-protected: #77d;
 
     /* Color - Table */
-    --color-table-even: #D9E7C2;
+    --color-table-even: #e8eaed;
     --color-table-even-alt: #E9F0F3;
-    --color-table-row-alt: #C8DAA2;
+    --color-table-row-alt: #d1d5da;
     --color-table-header: #d2d2d2;
-    --color-table-hover: #f5f5dc;
+    --color-table-hover: #e8eaed;
 
     /* Color - Pagination */
-    --color-pagination-border: #D9E7C2;
-    --color-pagination-active-bg: #7fa53d;
-    --color-pagination-active-border: #567959;
+    --color-pagination-border: var(--color-border-default);
+    --color-pagination-active-bg: var(--accent-blue);
+    --color-pagination-active-border: var(--accent-blue-dark);
 
     /* Color - Context Menu */
     --color-context-menu-bg: #e3e3e3;
@@ -1429,7 +1429,7 @@ a.hometblink:hover {
     cursor: pointer;
     color: var(--color-text-primary);
     border: 1px;
-    border-bottom-color: #809c47;
+    border-bottom-color: var(--accent-blue);
     padding: 3px 5px;
     white-space: nowrap;
 }
