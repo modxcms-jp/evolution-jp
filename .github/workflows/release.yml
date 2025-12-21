@@ -16,7 +16,7 @@ jobs:
       - name: Prepare dist directory
         run: |
           mkdir dist
-          cp -R assets manager install connectors core dist/
+          cp -R assets content  install  manager  temp /
 
       - name: Remove unnecessary files
         run: |
