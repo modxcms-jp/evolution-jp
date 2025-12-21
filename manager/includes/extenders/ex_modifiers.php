@@ -340,28 +340,108 @@ class MODIFIERS
         }
 
         ob_start();
-        $options = $opt;
-        $output = $value;
-        $name = $key;
+        $this->setupEvalContext($key, $value, $opt);
+        $return = $this->executeEvalCode($code, $cmd, $key, $value, $opt);
+        $msg = ob_get_contents();
+        ob_end_clean();
+
+        if ($value === $this->bt) {
+            $value = $msg . $return;
+        }
+
+        return $value;
+    }
+
+    private function setupEvalContext($key, &$value, &$opt)
+    {
         $this->bt = $value;
         $this->vars['value'] = &$value;
         $this->vars['input'] = &$value;
         $this->vars['option'] = &$opt;
         $this->vars['options'] = &$opt;
+    }
 
-        if (strpos($code, ';') !== false) {
-            $return = eval($code);
-        } else {
-            $return = call_user_func_array($code, [$value, $opt]);
+    private function executeEvalCode($code, $cmd, $key, $value, $opt)
+    {
+        set_error_handler(function($errno, $errstr, $errfile, $errline) use ($code, $cmd, $key, $value, $opt) {
+            $this->logEvalError($errno, $errstr, $errfile, $errline, $code, $cmd, $key, $value, $opt);
+            return false;
+        });
+
+        try {
+            if (strpos($code, ';') !== false) {
+                // evalされるコード内で使用される可能性がある変数
+                $options = $opt;
+                $output = $value;
+                $name = $key;
+                $return = eval($code);
+            } else {
+                $return = call_user_func_array($code, [$value, $opt]);
+            }
+        } finally {
+            restore_error_handler();
         }
 
-        $msg = ob_get_contents();
-        if ($value === $this->bt) {
-            $value = $msg . $return;
-        }
-        ob_end_clean();
+        return $return;
+    }
 
-        return $value;
+    private function logEvalError($errno, $errstr, $errfile, $errline, $code, $cmd, $key, $value, $opt)
+    {
+        $codeLines = explode("\n", $code);
+        $errorContext = '';
+        $contextRange = 3;
+
+        $startLine = max(0, $errline - $contextRange - 1);
+        $endLine = min(count($codeLines) - 1, $errline + $contextRange - 1);
+
+        for ($i = $startLine; $i <= $endLine; $i++) {
+            $lineNum = $i + 1;
+            $marker = ($lineNum === $errline) ? '>>> ' : '    ';
+            $errorContext .= sprintf("%s%d: %s\n", $marker, $lineNum, $codeLines[$i] ?: '');
+        }
+
+        $errorType = $this->getErrorTypeName($errno);
+        $valuePreview = is_string($value) && strlen($value) > 100
+            ? substr($value, 0, 100) . '...'
+            : var_export($value, true);
+
+        evo()->logEvent(
+            0,
+            2,
+            "Modifier '{$cmd}' execution error\n\n" .
+            "Error Type: {$errorType}\n" .
+            "Error Message: {$errstr}\n" .
+            "Error Line: {$errline}\n\n" .
+            "Key: {$key}\n" .
+            "Value: {$valuePreview}\n" .
+            "Option: " . var_export($opt, true) . "\n\n" .
+            "Code Context:\n{$errorContext}\n" .
+            "Full Code:\n{$code}",
+            'Modifier Execution Error'
+        );
+    }
+
+    private function getErrorTypeName($errno)
+    {
+        $errorTypes = [
+            E_ERROR => 'ERROR',
+            E_WARNING => 'WARNING',
+            E_PARSE => 'PARSE',
+            E_NOTICE => 'NOTICE',
+            E_CORE_ERROR => 'CORE_ERROR',
+            E_CORE_WARNING => 'CORE_WARNING',
+            E_COMPILE_ERROR => 'COMPILE_ERROR',
+            E_COMPILE_WARNING => 'COMPILE_WARNING',
+            E_USER_ERROR => 'USER_ERROR',
+            E_USER_WARNING => 'USER_WARNING',
+            E_USER_NOTICE => 'USER_NOTICE',
+            E_STRICT => 'STRICT',
+            E_RECOVERABLE_ERROR => 'RECOVERABLE_ERROR',
+            E_DEPRECATED => 'DEPRECATED',
+            E_USER_DEPRECATED => 'USER_DEPRECATED',
+        ];
+
+        return $errorTypes[$errno] ?? 'UNKNOWN';
     }
 
     public function getSnippetFromDB($cmd)
