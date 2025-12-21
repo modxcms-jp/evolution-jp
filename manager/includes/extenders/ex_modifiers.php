@@ -371,6 +371,7 @@ class MODIFIERS
         try {
             if (strpos($code, ';') !== false) {
                 // evalされるコード内で使用される可能性がある変数
+                global $modx;
                 $options = $opt;
                 $output = $value;
                 $name = $key;
