@@ -1,0 +1,34 @@
+name: Build Release Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare dist directory
+        run: |
+          mkdir dist
+          cp -R assets manager install connectors core dist/
+
+      - name: Remove unnecessary files
+        run: |
+          find dist -type d -name docs -prune -exec rm -rf {} +
+          find dist -type f -iname "readme*" -delete
+
+      - name: Create zip archive
+        run: |
+          cd dist
+          zip -r ../evolution-jp-${GITHUB_REF_NAME}.zip .
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: evo-${{ github.ref_name }}.zip
