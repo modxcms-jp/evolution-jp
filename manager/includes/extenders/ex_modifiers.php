@@ -363,9 +363,12 @@ class MODIFIERS
 
     private function executeEvalCode($code, $cmd, $key, $value, $opt)
     {
-        set_error_handler(function($errno, $errstr, $errfile, $errline) use ($code, $cmd, $key, $value, $opt) {
+        $errorOccurred = false;
+
+        set_error_handler(function($errno, $errstr, $errfile, $errline) use ($code, $cmd, $key, $value, $opt, &$errorOccurred) {
             $this->logEvalError($errno, $errstr, $errfile, $errline, $code, $cmd, $key, $value, $opt);
-            return false;
+            $errorOccurred = true;
+            return true; // エラーを抑制（通常のエラーハンドラーに渡さない）
         });
 
         try {
@@ -375,12 +378,17 @@ class MODIFIERS
                 $options = $opt;
                 $output = $value;
                 $name = $key;
-                $return = eval($code);
+                $return = @eval($code); // @ でPHP標準のエラー出力も抑制
             } else {
-                $return = call_user_func_array($code, [$value, $opt]);
+                $return = @call_user_func_array($code, [$value, $opt]);
             }
         } finally {
             restore_error_handler();
+        }
+
+        // エラーが発生した場合は空文字列を返す
+        if ($errorOccurred) {
+            return '';
         }
 
         return $return;
