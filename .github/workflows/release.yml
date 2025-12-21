@@ -21,10 +21,14 @@ jobs:
             --exclude='.github/' \
             --exclude='.gitignore' \
             --exclude='.gitkeep' \
+            --exclude='.gitattributes' \
+            --exclude='.editorconfig' \
+            --exclude='dist/' \
             --exclude='docs/' \
             --exclude='**/docs/' \
             --exclude='readme*' \
-            --exclude='README*'
+            --exclude='README*' \
+            --exclude='AGENTS.md'
 
       - name: Create zip archive
         run: |
