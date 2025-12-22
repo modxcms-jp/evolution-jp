@@ -89,7 +89,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = fal
             $url .= '&';
         }
     }
-    return $modx->makeUrl($docid, $alias, $url, 'full');
+    return evo()->makeUrl($docid, $alias, $url, 'full');
 }
 
 function fmplang($key, $ph = [])
