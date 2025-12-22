@@ -58,7 +58,7 @@ if (isset($eformOnBeforeFormParse)) $eFormOnBeforeFormParse = $eformOnBeforeForm
 if (isset($eFormCSS)) $cssStyle = $eFormCSS;
 
 # Snippet customize settings
-$from = (isset($from)) ? $from : $modx->config['emailsender'];
+$from = isset($from) ? $from : config('emailsender');
 $formid = (isset($formid)) ? $formid : 'eform';
 $vericode = (isset($vericode)) ? $vericode : '';
 $params = [
@@ -70,8 +70,8 @@ $params = [
     'vericode' => $vericode,
     'formid' => $formid,
     'from' => $from,
-    'fromname' => isset($fromname) ? $fromname : $modx->config['site_name'],
-    'to' => isset($to) ? $to : $modx->config['emailsender'],
+    'fromname' => isset($fromname) ? $fromname : config('site_name'),
+    'to' => isset($to) ? $to : config('emailsender'),
     'cc' => isset($cc) ? $cc : '',
     'bcc' => isset($bcc) ? $bcc : '',
     'subject' => isset($subject) ? $subject : '',
@@ -92,7 +92,7 @@ $params = [
     'allowhtml' => isset($allowhtml) ? $allowhtml : 0,
     //Added                  by      JJ
     'replyto' => isset($replyto) ? $replyto : '',
-    'language' => isset($language) ? $language : $modx->config['manager_language'],
+    'language' => isset($language) ? $language : config('manager_language', 'english'),
     'thankyou' => isset($thankyou) ? $thankyou : '',
     'isDebug' => isset($debug) ? $debug : 0,
     'reportAbuse' => isset($reportAbuse) ? $reportAbuse : false,
@@ -139,7 +139,7 @@ function eForm($modx, $params)
     include_once($snipPath . "lang/english.inc.php");
 
     #include other language file if set.
-    $form_language = isset($language) ? $language : $modx->config['manager_language'];
+    $form_language = isset($language) ? $language : config('manager_language', 'english');
     if ($form_language != "english" && $form_language != '') {
         if (file_exists("{$snipPath}lang/{$form_language}.inc.php")) {
             include_once("{$snipPath}lang/{$form_language}.inc.php");
@@ -195,7 +195,7 @@ function eForm($modx, $params)
     $validFormId = $formid == postv('formid') ? 1 : 0;
 
     # check if postback mode
-    $efPostBack = ($validFormId && $_POST && (strpos($_SERVER["HTTP_REFERER"], $modx->config["site_url"]) !== FALSE)) ? true : false; //retain old variable?
+    $efPostBack = ($validFormId && is_post() && (strpos(serverv('HTTP_REFERER', ''), config('site_url', MODX_SITE_URL)) !== false)) ? true : false; //retain old variable?
 
 
     if ($efPostBack) {
@@ -480,11 +480,11 @@ function eForm($modx, $params)
                     evo()->loadExtension('MODxMailer');
                     # send abuse alert
                     $modx->mail->IsHTML($isHtml);
-                    $modx->mail->From = $modx->config['emailsender'];
-                    $modx->mail->FromName = $modx->config['site_name'];
+                    $modx->mail->From = $modx->config('emailsender');
+                    $modx->mail->FromName = $modx->config('site_name');
                     $modx->mail->Subject = $_lang['ef_mail_abuse_subject'];
                     $modx->mail->Body = $body;
-                    AddAddressToMailer($modx->mail, "to", $modx->config['emailsender']);
+                    AddAddressToMailer($modx->mail, "to", $modx->config('emailsender'));
                     $modx->mail->send(); //ignore mail errors in this case
                 }
                 //return empty form with error message
@@ -497,9 +497,12 @@ function eForm($modx, $params)
 
             # added in 1.4.2 - Limit the time between form submissions
             if ($submitLimit > 0) {
-                if (time() < $submitLimit + $_SESSION[$formid . '_limit']) {
+                if (time() < $submitLimit + sessionv($formid . '_limit', 0)) {
                     return formMerge($_lang['ef_submit_time_limit'], $fields);
-                } else unset($_SESSION[$formid . '_limit'], $_SESSION[$formid . '_hash']); //time expired
+                } else {
+                    sessionv('*' . $formid . '_limit', null);
+                    sessionv('*' . $formid . '_hash', null);
+                } //time expired
             }
 
             # invoke OnBeforeMailSent event set by another script
@@ -536,12 +539,13 @@ function eForm($modx, $params)
                     $hash = md5($hash);
                 }
 
+                $sessionHash = sessionv($formid . '_hash', '');
                 if ($isDebug) {
-                    $debugText .= "<strong>SESSION HASH</strong>:" . $_SESSION[$formid . '_hash'] . "<br />" . "<b>FORM HASH</b>:" . $hash . "<br />";
+                    $debugText .= "<strong>SESSION HASH</strong>:" . $sessionHash . "<br />" . "<b>FORM HASH</b>:" . $hash . "<br />";
                 }
 
                 # check if already succesfully submitted with same data
-                if (isset($_SESSION[$formid . '_hash']) && $_SESSION[$formid . '_hash'] == $hash && $hash != '') {
+                if ($sessionHash === $hash && $hash != '') {
                     return formMerge($_lang['ef_multiple_submit'], $fields);
                 }
             }
@@ -665,12 +669,12 @@ function eForm($modx, $params)
             }//end test nomail
             # added in 1.4.2 - Protection against multiple submit with same form data
             if ($protectSubmit) {
-                $_SESSION[$formid . '_hash'] = $hash;
+                sessionv('*' . $formid . '_hash', $hash);
             } //hash is set earlier
 
             # added in 1.4.2 - Limit the time between form submissions
             if ($submitLimit > 0) {
-                $_SESSION[$formid . '_limit'] = time();
+                sessionv('*' . $formid . '_limit', time());
             }
 
             # invoke OnMailSent event set by another script
@@ -742,8 +746,9 @@ function eForm($modx, $params)
 
     // set vericode
     if ($vericode) {
-        $_SESSION['eForm.VeriCode'] = $fields['vericode'] = substr(uniqid(''), -5);
-        $fields['verimageurl'] = $modx->config['base_url'] . 'index.php?get=captcha';
+        sessionv('*eForm.VeriCode', substr(uniqid(''), -5));
+        $fields['vericode'] = sessionv('eForm.VeriCode');
+        $fields['verimageurl'] = $modx->config('base_url') . 'index.php?get=captcha';
     }
 
     # get SESSION data - thanks to sottwell
@@ -754,11 +759,12 @@ function eForm($modx, $params)
                 continue;
             }
             $varName = trim($varName);
-            if (isset($_SESSION[$varName]) && !empty($_SESSION[$varName])) {
+            $sessionValue = sessionv($varName);
+            if ($sessionValue !== null && $sessionValue !== '') {
                 if (isset($fields[$varName]) && $postOverides) {
                     $fields[$varName] = $fields[$varName];
                 } else {
-                    $fields[$varName] = $_SESSION[$varName];
+                    $fields[$varName] = $sessionValue;
                 }
             }
         }

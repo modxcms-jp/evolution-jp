@@ -32,7 +32,7 @@ $rs = db()->select(
 );
 $total = db()->count($rs);
 
-header('Content-Type: text/html; charset=' . $modx->config['modx_charset']);
+header('Content-Type: text/html; charset=' . $modx->config('modx_charset', 'UTF-8'));
 
 if ($total > 0) {
     require(MODX_CORE_PATH . 'tmplvars.commands.inc.php');
@@ -50,7 +50,7 @@ if ($total > 0) {
                                 <label class="mutate-field-title" for="cb_update_tv_' . $row['id'] . '"><input type="checkbox" name="update_tv_' . $row['id'] . '" id="cb_update_tv_' . $row['id'] . '" value="yes" />&nbsp;' . $row['caption'] . '</label><br /><span class="comment">' . $row['description'] . '</span>
                         </td>
                         <td class="mutate-tv-value">';
-        $base_url = $modx->config['base_url'];
+        $base_url = $modx->config('base_url');
         $output .= renderFormElement(
             $row['type'],
             $row['id'],

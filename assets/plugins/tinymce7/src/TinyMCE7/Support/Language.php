@@ -14,8 +14,8 @@ final class Language
         $managerLanguage = '';
 
         $modx = evo();
-        if (is_object($modx) && isset($modx->config['manager_language'])) {
-            $managerLanguage = (string)$modx->config['manager_language'];
+        if (is_object($modx)) {
+            $managerLanguage = (string)$modx->config('manager_language', '');
         }
 
         $normalized = strtolower(trim($managerLanguage));
@@ -127,8 +127,8 @@ final class Language
 
         $managerLanguage = '';
         $modx = evo();
-        if (is_object($modx) && isset($modx->config['manager_language'])) {
-            $managerLanguage = (string)$modx->config['manager_language'];
+        if (is_object($modx)) {
+            $managerLanguage = (string)$modx->config('manager_language', '');
         }
 
         $managerLanguage = trim($managerLanguage);

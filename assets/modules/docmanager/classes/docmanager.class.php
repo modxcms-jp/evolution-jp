@@ -15,7 +15,7 @@ class DocManager
     {
         $_lang = [];
         $ph = [];
-        $managerLanguage = evo()->config['manager_language'];
+        $managerLanguage = config('manager_language', 'english');
 
         $userId = evo()->getLoginUserID();
         if ($userId) {
@@ -94,13 +94,11 @@ class DocManager
         }
         if ($tpl) {
             if (strpos($tpl, '</body>') !== false) {
-                if (!isset($modx->config['mgr_date_picker_path'])) {
-                    $modx->config['mgr_date_picker_path'] = 'media/script/air-datepicker/datepicker.inc.php';
-                }
-                $dp = manager()->loadDatePicker($modx->config['mgr_date_picker_path']);
+                $datePickerPath = $modx->config('mgr_date_picker_path', 'media/script/air-datepicker/datepicker.inc.php');
+                $dp = manager()->loadDatePicker($datePickerPath);
                 $tpl = str_replace('</body>', $dp . '</body>', $tpl);
             }
-            $ph['settings_version'] = $modx->config['settings_version'];
+            $ph['settings_version'] = $modx->config('settings_version');
             return preg_replace(
                 '/(\[\+.*?\+\])/',
                 '',
