@@ -434,7 +434,16 @@ if ($id != $modx->documentIdentifier) {
     if ($a != 1) {
         // web users are stored with negative id
         $tbl_active_users = evo()->getFullTableName('active_users');
-        $sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-" . sessionv('webInternalKey') . ", '" . sessionv('webShortname') . "', '{$lasthittime}', '{$a}', {$itemid}, '{$ip}')";
+        $sql = sprintf(
+            "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) VALUES (-%d, '%s', %d, '%s', %d, '%s')",
+            $tbl_active_users,
+            sessionv('webInternalKey'),
+            sessionv('webShortname'),
+            $lasthittime,
+            $a,
+            $itemid,
+            real_ip()
+        );
         if (!$ds = db()->query($sql)) {
             $output = "error replacing into active users! SQL: {$sql}";
             return;
