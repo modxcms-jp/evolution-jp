@@ -39,6 +39,9 @@ function where($field, $op, $value = null)
         $value = $op;
         $op = '=';
     }
+
+    $value = db()->escape($value);
+
     return sprintf(
         strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
         $field, $op, $value
@@ -72,4 +75,3 @@ function and_where_in($field, $values = [])
     }
     return 'AND ' . where_in($field, $values);
 }
-
