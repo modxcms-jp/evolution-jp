@@ -45,7 +45,7 @@ function where($field, $op, $value = null)
         $op = '=';
     }
     return sprintf(
-        strpos($field, '`') === false ? '`%s` %s "%s"' : '%s %s "%s"',
+        strpos($field, '`') === false ? '`%s` %s \'%s\'' : '%s %s \'%s\'',
         $field, $op, db()->escape($value)
     );
 }
