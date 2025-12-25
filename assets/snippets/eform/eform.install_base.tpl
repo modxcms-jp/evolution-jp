@@ -23,7 +23,7 @@
 
 # Set Snippet Paths
 $snip_dir = isset($snip_dir) ? $snip_dir : 'eform';
-$snipPath = "{$modx->config['base_path']}assets/snippets/{$snip_dir}/";
+$snipPath = base_path() . "assets/snippets/{$snip_dir}/";
 
 # check if inside manager
 if ($modx->isBackend()) return ''; // don't go any further when inside manager

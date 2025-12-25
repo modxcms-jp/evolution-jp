@@ -47,30 +47,29 @@ function webLoginGeneratePassword($length = 10, $allow_chars = '')
 function webLoginSendNewPassword($email, $uid, $pwd, $ufn)
 {
     global $modx, $site_url;
-    $ph = $modx->config;
-    $ph['sname'] = $modx->config['site_name'];
+    $ph = $modx->getConfig();
+    $ph['sname'] = $modx->config('site_name');
     $ph['uid'] = $uid;
     $ph['pwd'] = $pwd;
     $ph['ufn'] = $ufn;
     $ph['surl'] = MODX_SITE_URL;
     $message = $modx->parseText(
-        sprintf($modx->config['websignupemail_message'], $uid, $pwd),
+        sprintf($modx->config('websignupemail_message'), $uid, $pwd),
         $ph
     );
-    $emailsubject = $modx->config['emailsubject'];
+    $emailsubject = $modx->config('emailsubject');
 
     $sent = $modx->sendmail($email, $message);         //ignore mail errors in this cas
 
     if (!$sent) {
-        webLoginAlert('Error while sending mail to ' . $modx->config['mailto'], 1);
+        webLoginAlert('Error while sending mail to ' . $modx->config('mailto'), 1);
     }
     return true;
 }
 
 function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = false)
 {
-    global $modx;
-    $array_get = $_GET;
+    $array_get = getv();
     $urlstring = [];
 
     unset($array_get['id'], $array_get['q'], $array_get['webloginmode']);
@@ -90,7 +89,7 @@ function preserveUrl($docid = '', $alias = '', $array_values = [], $suffix = fal
             $url .= '&';
         }
     }
-    return $modx->makeUrl($docid, $alias, $url, 'full');
+    return evo()->makeUrl($docid, $alias, $url, 'full');
 }
 
 function fmplang($key, $ph = [])

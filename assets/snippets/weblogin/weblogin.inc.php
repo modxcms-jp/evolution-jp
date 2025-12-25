@@ -118,7 +118,7 @@ EOT;
         $_SESSION['webShortname'],
         time(),
         $itemid,
-        $ip
+        real_ip()
     );
     if (!$rs = db()->query($sql)) {
         $output .= webLoginAlert("error replacing into active users! SQL: {$sql}");

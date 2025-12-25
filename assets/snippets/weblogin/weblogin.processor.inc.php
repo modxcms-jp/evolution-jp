@@ -76,10 +76,10 @@ if ($isPWDReminder == 1) {
         else $message = $modx->getChunk($reminder_message);
     }
     if (!isset($reminder_message) || empty($message))
-        $message = $modx->config['webpwdreminder_message'];
-    if (!isset($reminder_subject)) $reminder_subject = 'New Password Activation for ' . $modx->config['site_name'];
-    if (!isset($reminder_from)) $reminder_from = $modx->config['emailsender'];
-    if (!isset($reminder_fromname)) $reminder_fromname = $modx->config['site_name'];
+        $message = $modx->config('webpwdreminder_message');
+    if (!isset($reminder_subject)) $reminder_subject = 'New Password Activation for ' . $modx->config('site_name');
+    if (!isset($reminder_from)) $reminder_from = $modx->config('emailsender');
+    if (!isset($reminder_fromname)) $reminder_fromname = $modx->config('site_name');
     // lookup account
     $sql = "SELECT wu.*, wua.fullname
 	FROM {$tbl_web_users} wu
@@ -99,7 +99,7 @@ if ($isPWDReminder == 1) {
         $f['cachepwd'] = "{$newpwd}|{$token}|{$requestedon}";
         db()->update($f, $tbl_web_users, "id='{$uid}'");
         // built activation url
-        $xhtmlUrlSetting = $modx->config['xhtml_urls'];
+        $xhtmlUrlSetting = $modx->config('xhtml_urls', false);
         $modx->config['xhtml_urls'] = false;
         $url = $modx->makeURL($modx->documentIdentifier, '', "webloginmode=actp&uid={$uid}&token={$token}", 'full');
         $modx->config['xhtml_urls'] = $xhtmlUrlSetting;
@@ -111,7 +111,7 @@ if ($isPWDReminder == 1) {
         $ph['pwd'] = $newpwd;
         $ph['ufn'] = $row['fullname'];
         $ph['fullname'] = $row['fullname'];
-        $ph['sname'] = $modx->config['site_name'];
+        $ph['sname'] = $modx->config('site_name');
         $ph['semail'] = $reminder_from;
         $ph['url'] = $url;
         $ph['surl'] = $url;
@@ -147,8 +147,8 @@ if ($isPWDReminder == 1) {
 
 # process logout
 if ($isLogOut == 1) {
-    $internalKey = $_SESSION['webInternalKey'];
-    $username = $_SESSION['webShortname'];
+    $internalKey = sessionv('webInternalKey');
+    $username = sessionv('webShortname');
 
     // invoke OnBeforeWebLogout event
     $v = [];
@@ -158,21 +158,21 @@ if ($isLogOut == 1) {
 
     // if we were launched from the manager
     // do NOT destroy session
-    if (isset($_SESSION['mgrValidated'])) {
-        unset($_SESSION['webShortname']);
-        unset($_SESSION['webFullname']);
-        unset($_SESSION['webEmail']);
-        unset($_SESSION['webValidated']);
-        unset($_SESSION['webInternalKey']);
-        unset($_SESSION['webValid']);
-        unset($_SESSION['webUser']);
-        unset($_SESSION['webFailedlogins']);
-        unset($_SESSION['webLastlogin']);
-        unset($_SESSION['webnrlogins']);
-        unset($_SESSION['webUserGroupNames']);
-        unset($_SESSION['webDocgroups']);
+    if (sessionv('mgrValidated') !== null) {
+        sessionv('*webShortname', null);
+        sessionv('*webFullname', null);
+        sessionv('*webEmail', null);
+        sessionv('*webValidated', null);
+        sessionv('*webInternalKey', null);
+        sessionv('*webValid', null);
+        sessionv('*webUser', null);
+        sessionv('*webFailedlogins', null);
+        sessionv('*webLastlogin', null);
+        sessionv('*webnrlogins', null);
+        sessionv('*webUserGroupNames', null);
+        sessionv('*webDocgroups', null);
     } else {
-        if (isset($_COOKIE[session_name()])) {
+        if (cookiev(session_name()) !== null) {
             setcookie(
                 session_name(),
                 '',
@@ -250,7 +250,13 @@ if ($internalKey) {
     }
 }
 
-if ($failedlogins >= $modx->config['failed_login_attempts'] && $blockeduntildate > time()) {
+$failedLoginLimit = (int)config('failed_login_attempts', 5);
+$blockMinutes = (int)config('blocked_minutes', 10);
+$allowedIp = config('allowed_ip', '');
+$allowedDays = config('allowed_days', '');
+$useCaptcha = (int)config('use_captcha', 0);
+
+if ($failedlogins >= $failedLoginLimit && $blockeduntildate > time()) {
     // blocked due to number of login errors.
     session_destroy();
     session_unset();
@@ -258,7 +264,7 @@ if ($failedlogins >= $modx->config['failed_login_attempts'] && $blockeduntildate
     return;
 }
 
-if ($failedlogins >= $modx->config['failed_login_attempts'] && $blockeduntildate < time()) {
+if ($failedlogins >= $failedLoginLimit && $blockeduntildate < time()) {
     // blocked due to number of login errors, but get to try again
     $f = [];
     $f['failedlogincount'] = '0';
@@ -293,18 +299,18 @@ if ($blockedafterdate > 0 && $blockedafterdate < time()) // this user has a bloc
 }
 
 // allowed ip
-if (isset($modx->config['allowed_ip'])) {
-    if (strpos($modx->config['allowed_ip'], $_SERVER['REMOTE_ADDR']) === false) {
+if ($allowedIp !== '') {
+    if (strpos($allowedIp, serverv('REMOTE_ADDR', '')) === false) {
         $output = webLoginAlert('You are not allowed to login from this location.');
         return;
     }
 }
 
 // allowed days
-if (isset($modx->config['allowed_days'])) {
+if ($allowedDays !== '') {
     $date = getdate();
     $day = $date['wday'] + 1;
-    if (strpos($modx->config['allowed_days'], "$day") === false) {
+    if (strpos($allowedDays, (string)$day) === false) {
         $output = webLoginAlert('You are not allowed to login at this time. Please try again later.');
         return;
     }
@@ -328,8 +334,8 @@ if (!$rt || (is_array($rt) && !in_array(TRUE, $rt))) {
     }
 }
 
-if (isset($modx->config['use_captcha']) && $modx->config['use_captcha'] == 1) {
-    if ($_SESSION['veriword'] != $captcha_code) {
+if ($useCaptcha === 1) {
+    if (sessionv('veriword') != $captcha_code) {
         $output = webLoginAlert("The security code you entered didn't validate! Please try to login again!");
         $newloginerror = 1;
     }
@@ -337,12 +343,12 @@ if (isset($modx->config['use_captcha']) && $modx->config['use_captcha'] == 1) {
 
 if (isset($newloginerror) && $newloginerror == 1) {
     $failedlogins += $newloginerror;
-    if ($failedlogins >= $modx->config['failed_login_attempts']) //increment the failed login counter, and block!
+    if ($failedlogins >= $failedLoginLimit) //increment the failed login counter, and block!
     {
         $f = [];
         $f['failedlogincount'] = $failedlogins;
         $f['blocked'] = 1;
-        $f['blockeduntil'] = time() + ($modx->config['blocked_minutes'] * 60);
+        $f['blockeduntil'] = time() + ($blockMinutes * 60);
     } else //increment the failed login counter
     {
         $f = [];
@@ -357,22 +363,22 @@ if (isset($newloginerror) && $newloginerror == 1) {
 
 $currentsessionid = session_id();
 
-if (!isset($_SESSION['webValidated'])) {
+if (sessionv('webValidated') === null) {
     $sql = "update {$tbl_web_user_attributes} SET failedlogincount=0, logincount=logincount+1, lastlogin=thislogin, thislogin=" . time() . ", sessionid='$currentsessionid' where internalKey=$internalKey";
     $ds = db()->query($sql);
 }
 
-$_SESSION['webShortname'] = $username;
-$_SESSION['webFullname'] = $fullname;
-$_SESSION['webEmail'] = $email;
-$_SESSION['webValidated'] = 1;
-$_SESSION['webInternalKey'] = $internalKey;
-$_SESSION['webValid'] = base64_encode($givenPassword);
-$_SESSION['webUser'] = base64_encode($username);
-$_SESSION['webFailedlogins'] = $failedlogins;
-$_SESSION['webLastlogin'] = $lastlogin;
-$_SESSION['webnrlogins'] = $nrlogins;
-$_SESSION['webUserGroupNames'] = ''; // reset user group names
+sessionv('*webShortname', $username);
+sessionv('*webFullname', $fullname);
+sessionv('*webEmail', $email);
+sessionv('*webValidated', 1);
+sessionv('*webInternalKey', $internalKey);
+sessionv('*webValid', base64_encode($givenPassword));
+sessionv('*webUser', base64_encode($username));
+sessionv('*webFailedlogins', $failedlogins);
+sessionv('*webLastlogin', $lastlogin);
+sessionv('*webnrlogins', $nrlogins);
+sessionv('*webUserGroupNames', ''); // reset user group names
 
 // get user's document groups
 $tbl_webgroup_access = evo()->getFullTableName('webgroup_access');
@@ -386,25 +392,26 @@ while ($row = db()->getRow($ds, 'num')) {
     $i++;
     $dg[$i] = $row[0];
 }
-$_SESSION['webDocgroups'] = $dg;
+sessionv('*webDocgroups', $dg);
 
 $from = ['[+prefix+]webgroup_names wgn'];
 $from[] = "INNER JOIN [+prefix+]web_groups wg ON wg.webgroup=wgn.id AND wg.webuser={$internalKey}";
 $grpNames = $this->db->getColumn('name', $this->db->select('wgn.name', $from));
-$_SESSION['webUserGroupNames'] = $grpNames;
+sessionv('*webUserGroupNames', $grpNames);
 
 if ($rememberme) {
-    $_SESSION['modx.web.session.cookie.lifetime'] = intval($modx->config['session.cookie.lifetime']);
+    sessionv('*modx.web.session.cookie.lifetime', (int)config('session.cookie.lifetime', 0));
 } else {
-    $_SESSION['modx.web.session.cookie.lifetime'] = 0;
+    sessionv('*modx.web.session.cookie.lifetime', 0);
 }
 
 $log = new logHandler;
-$log->initAndWriteLog("Logged in", $_SESSION['webInternalKey'], $_SESSION['webShortname'], "58", "-", "WebLogin");
+$log->initAndWriteLog("Logged in", sessionv('webInternalKey'), sessionv('webShortname'), "58", "-", "WebLogin");
 
 // get login home page
 $ok = false;
-if (isset($modx->config['login_home']) && $id = $modx->config['login_home']) {
+$loginHome = config('login_home', 0);
+if ($loginHome && $id = $loginHome) {
     if ($modx->getPageInfo($id)) $ok = true;
 }
 if (!$ok) // check if a login home id page was set
@@ -420,14 +427,23 @@ if (!$ok) // check if a login home id page was set
 
 // update active users list if redirectinq to another page
 if ($id != $modx->documentIdentifier) {
-    $_SESSION['ip'] = real_ip();
+    sessionv('*ip', real_ip());
     $itemid = anyv('id');
     $lasthittime = time();
     $a = 998;
     if ($a != 1) {
         // web users are stored with negative id
         $tbl_active_users = evo()->getFullTableName('active_users');
-        $sql = "REPLACE INTO {$tbl_active_users} (internalKey, username, lasthit, action, id, ip) values(-{$_SESSION['webInternalKey']}, '{$_SESSION['webShortname']}', '{$lasthittime}', '{$a}', {$itemid}, '{$ip}')";
+        $sql = sprintf(
+            "REPLACE INTO %s (internalKey, username, lasthit, action, id, ip) VALUES (-%d, '%s', %d, '%s', %d, '%s')",
+            $tbl_active_users,
+            sessionv('webInternalKey'),
+            sessionv('webShortname'),
+            $lasthittime,
+            $a,
+            $itemid,
+            real_ip()
+        );
         if (!$ds = db()->query($sql)) {
             $output = "error replacing into active users! SQL: {$sql}";
             return;
@@ -456,7 +472,7 @@ if (!empty($refUrl)) {
         $ampPos = strpos($alias, '&');
         $aliasLength = $ampPos !== false ? $ampPos : strlen($alias);
         $alias = substr($alias, 0, $aliasLength);
-        $url = $modx->config['base_url'] . $alias;
+        $url = $modx->config('base_url') . $alias;
     } elseif (intval($targetPageId)) {
         $modx->config['xhtml_urls'] = '0';
         $url = preserveUrl($targetPageId);
