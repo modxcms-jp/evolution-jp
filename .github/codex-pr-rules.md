@@ -1,32 +1,37 @@
-あなたは Evolution JP のコードベースを扱っています。
+# Codex Pull Request Rules for Evolution JP
 
-以下のルールを厳守して Pull Request を作成してください。
+When creating Pull Requests in this repository, follow these rules strictly.
 
-- main ブランチに直接 push しない
-- 必ず Pull Request を作成する
-- PRタイトルは GitHub のリリースノートにそのまま掲載できる日本語にする
-- PRタイトルは必ず動詞で終わらせず、簡潔に変更内容を表すこと
-- 「更新」「修正対応」「その他」などの曖昧な表現は使わない
+## Pull Request creation
+- Do not push directly to the main branch
+- Always create a Pull Request
 
-PRタイトル例：
+## PR title rules
+- PR titles must be suitable for GitHub release notes
+- Write PR titles in Japanese
+- Titles must clearly describe the change
+- Do not use vague expressions such as:
+  - 更新
+  - 修正対応
+  - その他
+- Good examples:
+  - PHP 8.2 以降に対応
+  - 管理画面に CSRF 対策を導入
+  - データベース文字コードを utf8mb4 に移行
+  - IE 向けレガシーコードを削除
 
-- PHP 8.2 以降に対応
-- 管理画面に CSRF 対策を導入
-- データベース文字コードを utf8mb4 に移行
-- IE 向けレガシーコードを削除
+## PR description rules
+- Include a Summary section (1–2 sentences)
+- Include a Notes section only if there are compatibility concerns
+- Avoid long explanations
 
-PR本文のルール：
+## Labeling rules
+- Replace or add one of the following labels based on the change intent:
+  - enhancement
+  - bug
+  - security
+  - breaking-change
+  - internal
+- Do not use a label named `codex` for change classification
 
-- Summary を 1〜2 文で書く
-- 互換性や注意点がある場合のみ Notes を書く
-- 長文説明は不要
-
-ラベル付け：
-
-- enhancement（機能追加・改善）
-- bug（不具合修正）
-- security（セキュリティ関連）
-- breaking-change（後方互換性なし）
-- internal（内部整理）
-
-この PR は GitHub の自動リリースノートでそのまま利用されることを前提とする。
+These rules are intended to ensure compatibility with GitHub auto-generated release notes.
