@@ -215,3 +215,7 @@ $_lang["install_config_step1"] = '%s を %s にコピーしてください。';
 $_lang["install_config_step2"] = '<span class="mono">install-config.php</span> を編集し、BASIC 認証のユーザー名とパスワード、または <span class="mono">allowed_ips</span> を設定してください。';
 $_lang["install_config_step3"] = '設定ファイルを保存したら、このページを再読み込みしてください。';
 $_lang["install_config_footer"] = 'インストールを実行できるのはサーバーの操作権限を持つ管理者のみとしてください。';
+$_lang["upgrade_auth_required_title"] = 'アップグレードには管理者認証が必要です';
+$_lang["upgrade_auth_required_message"] = '<p>アップグレードを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
+$_lang["upgrade_auth_login_link"] = '管理画面にログイン';
+$_lang["upgrade_auth_after_login"] = 'ログイン後、このページに戻ってアップグレードを続行してください。';

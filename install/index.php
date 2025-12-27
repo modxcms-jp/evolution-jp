@@ -70,10 +70,12 @@ if ($action === 'mode') {
 
 $_lang = includeLang(lang_name());
 
-// アップグレード時は install-config.php の制限をスキップ
-// 既存インストールでは管理者権限を持つユーザーがアクセスする想定
+// 新規インストール時: install-config.php による保護
+// アップグレード時: Evolution CMS の管理者認証を要求
 if (!sessionv('is_upgradeable')) {
     guardInstallerAccess();
+} else {
+    guardUpgradeAccess();
 }
 
 $errors = 0;

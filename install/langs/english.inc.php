@@ -206,3 +206,7 @@ $_lang["install_config_step1"] = 'Copy %s to %s.';
 $_lang["install_config_step2"] = 'Edit <span class="mono">install-config.php</span> to set BASIC authentication and/or allowed IP addresses.';
 $_lang["install_config_step3"] = 'Reload this page after saving the configuration file.';
 $_lang["install_config_footer"] = 'Only administrators with server access should create this file to run the installer.';
+$_lang["upgrade_auth_required_title"] = 'Manager authentication required for upgrade';
+$_lang["upgrade_auth_required_message"] = '<p>To perform an upgrade, you must be logged into the Evolution CMS manager.</p>';
+$_lang["upgrade_auth_login_link"] = 'Log in to manager';
+$_lang["upgrade_auth_after_login"] = 'After logging in, return to this page to continue the upgrade.';

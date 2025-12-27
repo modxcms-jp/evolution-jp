@@ -663,6 +663,38 @@ function guardInstallerAccess()
     enforceInstallBasicAuth($config);
 }
 
+function isManagerAuthenticated()
+{
+    return sessionv('mgrValidated') && sessionv('mgrInternalKey');
+}
+
+function guardUpgradeAccess()
+{
+    if (!isManagerAuthenticated()) {
+        renderUpgradeAuthRequired();
+    }
+}
+
+function renderUpgradeAuthRequired()
+{
+    $ph = ph();
+    $ph['install_config_title'] = lang('upgrade_auth_required_title');
+    $ph['install_config_message'] = lang('upgrade_auth_required_message');
+    $ph['upgrade_auth_login_link'] = lang('upgrade_auth_login_link');
+    $ph['upgrade_auth_after_login'] = lang('upgrade_auth_after_login');
+    $ph['manager_url'] = MODX_MANAGER_URL;
+    $ph['content'] = parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/upgrade_auth.tpl'),
+        $ph
+    );
+
+    echo evo()->parseText(
+        file_get_contents(MODX_SETUP_PATH . 'tpl/template.tpl'),
+        $ph
+    );
+    exit;
+}
+
 function renderInstallConfigNotice($messageKey)
 {
     $ph = ph();
