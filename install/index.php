@@ -70,7 +70,11 @@ if ($action === 'mode') {
 
 $_lang = includeLang(lang_name());
 
-guardInstallerAccess();
+// アップグレード時は install-config.php の制限をスキップ
+// 既存インストールでは管理者権限を持つユーザーがアクセスする想定
+if (!sessionv('is_upgradeable')) {
+    guardInstallerAccess();
+}
 
 $errors = 0;
 
