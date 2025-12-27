@@ -390,8 +390,8 @@ class DocumentParser
         db()->delete(
             '[+prefix+]system_cache',
             [
-                where('cache_section', $category),
-                and_where('cache_key', $key)
+                where('cache_section', db()->escape($category)),
+                and_where('cache_key', db()->escape($key))
             ]
         );
 
@@ -414,9 +414,9 @@ class DocumentParser
             'cache_value',
             '[+prefix+]system_cache',
             [
-                where('cache_section', '=', $category),
+                where('cache_section', '=', db()->escape($category)),
                 'and',
-                where('cache_key', '=', $key)
+                where('cache_key', '=', db()->escape($key))
             ]
         );
         if (!$rs) {
