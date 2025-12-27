@@ -52,7 +52,7 @@
 ## サポートとリソース
 
 - 日本語ポータル: [modx.jp](https://modx.jp/)
-- ドキュメントハブ: [documents/](documents/)
+- ドキュメントハブ: [assets/docs/](assets/docs/)
 - イベント・ニュース: [modx.jp/news.html](https://modx.jp/news.html)
 - フォーラム: [MODX Japan Users Group](https://forum.modx.jp/)
 - アップデート手順: [modx.jp/update.html](https://modx.jp/update.html)
