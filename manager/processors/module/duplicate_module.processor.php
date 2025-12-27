@@ -62,8 +62,8 @@ header("Location: index.php?r=2&a=108&id=" . $newid);
 // create globally unique identifiers (guid)
 function createGUID()
 {
-    mt_srand((double)microtime() * 1000000);
+    mt_srand((float)microtime() * 1000000);
     $r = mt_rand();
-    $u = uniqid(getmypid() . $r . (double)microtime() * 1000000, 1);
+    $u = uniqid(getmypid() . $r . (float)microtime() * 1000000, 1);
     return md5($u);
 }
