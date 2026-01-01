@@ -198,3 +198,15 @@ $_lang['utf8mb4_conversion_skip'] = 'Skip conversion and keep existing utf8 tabl
 $_lang['utf8mb4_conversion_tables_intro'] = 'Tables targeted for conversion:';
 $_lang['utf8mb4_conversion_tables_none'] = 'No tables require conversion.';
 $_lang["begin_install_msg"] = '<p>MODx is not currently installed or the configuration file cannot be found.</p><p>Do you want to install now?</p>';
+$_lang["install_config_title"] = 'Installer access control';
+$_lang["install_config_missing_message"] = 'Installation cannot continue because <span class="mono">install-config.php</span> is missing.';
+$_lang["install_config_ip_message"] = 'Installation cannot continue because access from your IP address is not allowed. Please update <span class="mono">allowed_ips</span> in <span class="mono">install-config.php</span>.';
+$_lang["install_config_auth_message"] = 'Authentication is required to access the installer. Please enter the BASIC authentication credentials defined in <span class="mono">install-config.php</span>.';
+$_lang["install_config_step1"] = 'Copy %s to %s.';
+$_lang["install_config_step2"] = 'Edit <span class="mono">install-config.php</span> to set BASIC authentication and/or allowed IP addresses.';
+$_lang["install_config_step3"] = 'Reload this page after saving the configuration file.';
+$_lang["install_config_footer"] = 'Only administrators with server access should create this file to run the installer.';
+$_lang["upgrade_auth_required_title"] = 'Manager authentication required for upgrade';
+$_lang["upgrade_auth_required_message"] = '<p>To perform an upgrade, you must be logged into the Evolution CMS manager.</p>';
+$_lang["upgrade_auth_login_link"] = 'Log in to manager';
+$_lang["upgrade_auth_after_login"] = 'After logging in, return to this page to continue the upgrade.';
