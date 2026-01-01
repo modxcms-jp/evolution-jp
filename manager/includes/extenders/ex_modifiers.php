@@ -996,7 +996,7 @@ class MODIFIERS
                     if ($opt === 'false') {
                         $opt = false;
                     }
-                    return nl2br($value, (boolean) $opt);
+                    return nl2br($value, (bool) $opt);
                 }
                 return nl2br(
                     $value,
