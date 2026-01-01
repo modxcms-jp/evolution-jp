@@ -1,0 +1,40 @@
+name: Auto Assign Labels from Conventional Commits
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+jobs:
+  label_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Assign labels based on Conventional Commits
+        uses: mauroalderete/action-assign-labels@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          conventional-commits: |
+            - type: 'feat'
+              labels: ['新機能']
+            - type: 'fix'
+              labels: ['バグ修正']
+            - type: 'enhancement'
+              labels: ['改善／拡張']
+            - type: 'refactor'
+              labels: ['リファクタ']
+            - type: 'perf'
+              labels: ['パフォーマンス']
+            - type: 'docs'
+              labels: ['ドキュメント']
+            - type: 'test'
+              labels: ['テスト']
+            - type: 'ci/cd'
+              labels: ['CI/CD']
+            - type: 'chore'
+              labels: ['雑務']
+            - type: 'security'
+              labels: ['セキュリティ']
+            - type: 'breaking_change'
+              labels: ['破壊的変更']
