@@ -61,13 +61,13 @@ Evolution CMS JP Edition の中心は `DocumentParser`（`manager/includes/docum
 
 ## ドキュメントマップ
 
-詳細な設計情報は `assets/docs/` 配下のドキュメントに整理されています。該当領域を編集する前に、必ず関連ドキュメントを確認してください。
+詳細な設計情報は `assets/docs/` 配下に整理されています。該当領域を編集する前に、必ず関連ドキュメントを確認してください。
 
 | ドキュメント | 主題 | 活用ポイント |
 | --- | --- | --- |
-| `assets/docs/architecture.md` | DocumentParser の処理フロー・バックエンド判定・テンプレート取得 | 影響調査と実装方針の初期検討に使用 |
+| `assets/docs/architecture.md` | DocumentParser の処理フロー・バックエンド判定・データアクセス | 影響調査と実装方針の初期検討に使用 |
+| `assets/docs/events-and-plugins.md` | イベントライフサイクル、プラグインキャッシュ、SystemEvent API、実装パターン | プラグイン開発やイベントフック検討時に参照 |
 | `assets/docs/template-system.md` | テンプレート継承、MODX タグ解析、各種要素の評価順序 | テンプレート・TV・スニペットの追加や修正時に参照 |
-| `assets/docs/events-and-plugins.md` | イベントライフサイクル、プラグインキャッシュ、SystemEvent API | プラグイン開発やイベントフック検討時に参照 |
 | `assets/docs/cache-mechanism.md` | ページキャッシュ、静的キャッシュ、TTL と無効化手順 | キャッシュポリシーの変更や公開フロー調整時に参照 |
 
 ## 推奨ワークフロー
