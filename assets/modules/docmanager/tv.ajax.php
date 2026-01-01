@@ -78,7 +78,7 @@ function renderFormElement($field_type, $field_id, $default_text, $field_element
 
     switch ($field_type) {
         case 'text': // handler for regular text boxes
-        case 'rawtext'; // non-htmlentity converted text boxes
+        case 'rawtext': // non-htmlentity converted text boxes
         case 'email': // handles email input fields
         case 'number': // handles the input of numbers
             $field_html .= sprintf(
