@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Evolution\CMS\Cli\Application;
+use Evolution\CMS\Cli\Command\StatusCommand;
+use Evolution\CMS\Cli\Infrastructure\CacheStore;
+use Evolution\CMS\Cli\Service\SystemStatusService;
+use Evolution\CMS\Cli\Support\ConsoleOutput;
+
+$basePath = dirname(__DIR__, 3);
+$modx = require $basePath . '/manager/cli/bootstrap.php';
+unset($modx);
+
+$output = new ConsoleOutput();
+$cacheStore = new CacheStore(MODX_CACHE_PATH);
+$statusService = new SystemStatusService($cacheStore);
+$statusCommand = new StatusCommand($statusService, $output);
+
+$application = new Application($output, [$statusCommand]);
+exit($application->run($argv));
