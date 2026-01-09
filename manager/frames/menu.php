@@ -455,13 +455,13 @@ function buildMenu($target, $item)
         $modx->config = $default_config;
     }
     $menu = [
-        'site' => $modx->config['topmenu_site'],
-        'element' => $modx->config['topmenu_element'],
+        'site' => config('topmenu_site', ''),
+        'element' => config('topmenu_element', ''),
         'module' => 'modules',
-        'security' => $modx->config['topmenu_security'],
-        'user' => $modx->config['topmenu_user'],
-        'tools' => $modx->config['topmenu_tools'],
-        'reports' => $modx->config['topmenu_reports'],
+        'security' => config('topmenu_security', ''),
+        'user' => config('topmenu_user', ''),
+        'tools' => config('topmenu_tools', ''),
+        'reports' => config('topmenu_reports', ''),
     ];
 
     if (empty($menu[$target])) {
