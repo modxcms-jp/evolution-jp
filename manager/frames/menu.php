@@ -454,13 +454,15 @@ function buildMenu($target, $item)
         include(MODX_CORE_PATH . 'default.config.php');
         $modx->config = $default_config;
     }
-    $menu['site'] = $modx->config['topmenu_site'];
-    $menu['element'] = $modx->config['topmenu_element'];
-    $menu['module'] = 'modules';
-    $menu['security'] = $modx->config['topmenu_security'];
-    $menu['user'] = $modx->config['topmenu_user'];
-    $menu['tools'] = $modx->config['topmenu_tools'];
-    $menu['reports'] = $modx->config['topmenu_reports'];
+    $menu = [
+        'site' => $modx->config['topmenu_site'],
+        'element' => $modx->config['topmenu_element'],
+        'module' => 'modules',
+        'security' => $modx->config['topmenu_security'],
+        'user' => $modx->config['topmenu_user'],
+        'tools' => $modx->config['topmenu_tools'],
+        'reports' => $modx->config['topmenu_reports'],
+    ];
 
     if (empty($menu[$target])) {
         return false;
