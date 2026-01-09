@@ -466,6 +466,7 @@ function buildMenu($target, $item)
         return false;
     }
 
+    $result = [];
     $a = explode(',', $menu[$target]);
     foreach ($a as $v) {
         $v = trim($v);
