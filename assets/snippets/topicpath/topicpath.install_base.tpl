@@ -7,7 +7,7 @@
  * @category	snippet
  * @version 	2.0.4
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
- * @internal	@properties &theme=Theme;list;string,list;string
+ * @internal	@properties &theme=Theme;list;simple,list,bootstrap,bootstrap5,microdata,raw;simple
  * @internal	@modx_category Navigation
  * @internal    @installset base, sample
  * @author  	yamamoto https://kyms.jp
