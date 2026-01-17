@@ -143,6 +143,7 @@ class DocumentParser
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
             $info = debug_backtrace();
+            $m = [];
             $m[] = $msg;
             if ($this->currentSnippet) {
                 $m[] = 'Snippet - ' . $this->currentSnippet;
@@ -911,6 +912,7 @@ class DocumentParser
         }
 
         $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
+        $r = [];
         foreach ($s as $_) {
             $r[] = " {$_['0']} {$_['1']} ";
         }
@@ -1663,6 +1665,7 @@ class DocumentParser
         if (!$_) {
             return [];
         }
+        $tags = [[], []];
         foreach ($_ as $v) {
             $tags[0][] = $left . $v . $right;
             $tags[1][] = $v;
@@ -4743,6 +4746,7 @@ class DocumentParser
             return false;
         }
         if (!$resource['template']) {
+            $result = [];
             foreach ($resource as $key => $value) {
                 if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
                     $result[] = ['name' => $key, 'value' => $value];
