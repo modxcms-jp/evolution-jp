@@ -94,7 +94,8 @@
                 });
 
                 var isRootActive = pathParts.length === 0;
-                var rootNode = this.CreateNode('images', '/', isRootActive);
+                var rootLabel = getResourceTypeLabel(oConnector.ResourceType);
+                var rootNode = this.CreateNode(rootLabel, '/', isRootActive);
                 treeList.appendChild(rootNode.node);
 
                 var parentNode = rootNode;
@@ -168,6 +169,18 @@
         function SetResourceType(type) {
             oConnector.ResourceType = type;
             OpenFolder('/');
+        }
+
+        function getResourceTypeLabel(resourceType) {
+            if (resourceType === 'files') {
+                return 'Files';
+            }
+
+            if (resourceType === 'media') {
+                return 'Media';
+            }
+
+            return 'Images';
         }
 
         window.onload = function () {
