@@ -831,6 +831,7 @@ class ditto
         $docs = [];
         while ($row = db()->getRow($rs)) {
             $k = '#' . $row['contentid'];
+            $row['docid'] = $row['contentid'];
             $v = evo()->tvProcessor($row);
             $docs[$k][$row['name']] = $v;
             $docs[$k]['tv' . $row['name']] = $v;
@@ -853,6 +854,7 @@ class ditto
                 $k = '#' . $id;
                 if (!isset($docs[$k])) {
                     $row['contentid'] = $id;
+                    $row['docid'] = $id;
                     $v = evo()->tvProcessor($row);
                     $docs[$k][$tvname] = $v;
                     $docs[$k]['tv' . $tvname] = $v;
@@ -868,6 +870,7 @@ class ditto
             if (isset($docs[$k])) {
                 continue;
             }
+            $row['docid'] = $id;
             $v = evo()->tvProcessor($row);
             $docs[$k][$tvname] = $v;
             $docs[$k]['tv' . $tvname] = $v;
