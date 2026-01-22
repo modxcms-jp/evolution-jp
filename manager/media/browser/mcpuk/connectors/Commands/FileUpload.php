@@ -74,7 +74,12 @@ class FileUpload extends Base
 
         if ($modx->config['clean_uploaded_filename'] == 1 && isset($ext)) {
             $originalFilename = $filename;
-            $filename = $modx->stripAlias($filename, ['file_manager']);
+            $basename = substr($filename, 0, strrpos($filename, '.'));
+            $basename = $modx->stripAlias($basename, ['file_manager']);
+            if ($basename === '') {
+                $basename = date('Ymd') . '-' . substr(md5(uniqid(mt_rand(), true)), 0, 8);
+            }
+            $filename = "{$basename}.{$ext}";
             if ($filename !== $originalFilename) {
                 $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";
             }
