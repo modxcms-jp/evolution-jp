@@ -5871,12 +5871,6 @@ class DocumentParser
             $name = $this->stripAlias($name, ['file_manager']);
         }
 
-        if ($name === '') {
-            $timestamp = date('Ymd');
-            $random = substr(md5(uniqid(mt_rand(), true)), 0, 8);
-            $name = sprintf('%s-%s', $timestamp, $random);
-        }
-
         // 安全でない文字を除去
         $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
 
