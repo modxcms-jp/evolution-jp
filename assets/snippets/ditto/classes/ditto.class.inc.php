@@ -829,15 +829,8 @@ class ditto
         );
         $total = db()->count($rs);
         $docs = [];
-        $appendTvValue = function ($row, $contentId, $name) use (&$docs) {
-            $k = '#' . $contentId;
-            $row['docid'] = $contentId;
-            $v = evo()->tvProcessor($row);
-            $docs[$k][$name] = $v;
-            $docs[$k]['tv' . $name] = $v;
-        };
         while ($row = db()->getRow($rs)) {
-            $appendTvValue($row, $row['contentid'], $row['name']);
+            $this->appendTvValue($docs, $row, $row['contentid'], $row['name']);
         }
         if ($total == count($docIDs)) {
             return $docs;
@@ -857,7 +850,7 @@ class ditto
                 $k = '#' . $id;
                 if (!isset($docs[$k])) {
                     $row['contentid'] = $id;
-                    $appendTvValue($row, $id, $tvname);
+                    $this->appendTvValue($docs, $row, $id, $tvname);
                 }
             }
             return $docs;
@@ -870,9 +863,23 @@ class ditto
             if (isset($docs[$k])) {
                 continue;
             }
-            $appendTvValue($row, $id, $tvname);
+            $this->appendTvValue($docs, $row, $id, $tvname);
         }
         return $docs;
+    }
+
+    // ---------------------------------------------------
+    // Function: appendTvValue
+    // Append processed TV output to documents array
+    // ---------------------------------------------------
+
+    function appendTvValue(&$docs, $row, $contentId, $name)
+    {
+        $k = '#' . $contentId;
+        $row['docid'] = $contentId;
+        $v = evo()->tvProcessor($row);
+        $docs[$k][$name] = $v;
+        $docs[$k]['tv' . $name] = $v;
     }
 
     // ---------------------------------------------------
