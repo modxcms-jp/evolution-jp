@@ -72,19 +72,6 @@ class FileUpload extends Base
             }
         }
 
-        if ($modx->config['clean_uploaded_filename'] == 1 && isset($ext)) {
-            $originalFilename = $filename;
-            $basename = substr($filename, 0, strrpos($filename, '.'));
-            $basename = $modx->stripAlias($basename, ['file_manager']);
-            if ($basename === '') {
-                $basename = date('Ymd') . '-' . substr(md5(uniqid(mt_rand(), true)), 0, 8);
-            }
-            $filename = "{$basename}.{$ext}";
-            if ($filename !== $originalFilename) {
-                $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";
-            }
-        }
-
         if (!array_key_exists('NewFile', $_FILES)) $disp = "202,'Unable to find uploaded file.'"; //No file uploaded with field name NewFile
         elseif ($_FILES['NewFile']['error'] || ($typeconfig['MaxSize']) < $_FILES['NewFile']['size']) {
             $disp = "202,'ファイル容量オーバーです。'";//Too big
@@ -135,6 +122,13 @@ class FileUpload extends Base
                 $tmp_name = $_FILES['NewFile']['tmp_name'];
                 $filename = "{$basename}.{$ext}";
                 $target = "{$this->real_cwd}/{$filename}";
+                $originalFilename = $filename;
+                $target = $modx->sanitizeUploadedFilename($target);
+                $filename = basename($target);
+                $basename = substr($filename, 0, strrpos($filename, '.'));
+                if ($filename !== $originalFilename) {
+                    $disp = "201,'ファイル名に使えない文字が含まれているため変更しました。'";
+                }
                 if (!is_file($target)) {
                     //Upload file
                     $rs = $this->file_upload($tmp_name, $target);
