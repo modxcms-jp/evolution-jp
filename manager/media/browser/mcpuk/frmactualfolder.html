@@ -19,7 +19,7 @@
 <head>
     <link href="browser.css" type="text/css" rel="stylesheet">
     <script type="text/javascript">
-        function buildBreadcrumb(folderPath) {
+        function buildBreadcrumb(resourceType, folderPath) {
             var pathEl = document.getElementById('tdName');
 
             if (!pathEl) {
@@ -73,12 +73,12 @@
             };
 
             if (!parts.length) {
-                pathEl.appendChild(createCurrent('images'));
+                pathEl.appendChild(createCurrent(getResourceTypeLabel(resourceType)));
 
                 return;
             }
 
-            pathEl.appendChild(createLink('images', '/'));
+            pathEl.appendChild(createLink(getResourceTypeLabel(resourceType), '/'));
 
             parts.forEach(function (part, index) {
                 var pathForLink = currentPath + part + '/';
@@ -92,7 +92,19 @@
         }
 
         function SetCurrentFolder(resourceType, folderPath) {
-            buildBreadcrumb(folderPath);
+            buildBreadcrumb(resourceType, folderPath);
+        }
+
+        function getResourceTypeLabel(resourceType) {
+            if (resourceType === 'files') {
+                return 'Files';
+            }
+
+            if (resourceType === 'media') {
+                return 'Media';
+            }
+
+            return 'Images';
         }
 
         window.onload = function () {
