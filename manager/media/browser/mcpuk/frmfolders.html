@@ -154,13 +154,15 @@
 
         function LoadFolders(folderPath) {
             treeManager.Clear();
-            oConnector.CurrentFolder = folderPath;
+            oConnector.CurrentFolder = normalizeFolderPath(folderPath);
             oConnector.SendCommand('GetFolders', null, GetFoldersCallBack);
         }
 
         function GetFoldersCallBack(fckXml) {
             var oNode = fckXml.SelectSingleNode('Connector/CurrentFolder');
-            var sCurrentFolderPath = oNode.attributes.getNamedItem('path').value;
+            var sCurrentFolderPath = normalizeFolderPath(
+                oConnector.CurrentFolder || (oNode && oNode.attributes.getNamedItem('path').value)
+            );
 
             var oNodes = fckXml.SelectNodes('Connector/Folders/Folder');
             treeManager.Render(sCurrentFolderPath, oNodes);
@@ -181,6 +183,20 @@
             }
 
             return 'Images';
+        }
+
+        function normalizeFolderPath(folderPath) {
+            var normalized = folderPath || '/';
+
+            if (normalized.charAt(0) !== '/') {
+                normalized = '/' + normalized;
+            }
+
+            if (normalized.length > 1 && normalized.charAt(normalized.length - 1) !== '/') {
+                normalized += '/';
+            }
+
+            return normalized;
         }
 
         window.onload = function () {
