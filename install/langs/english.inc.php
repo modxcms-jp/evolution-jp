@@ -165,6 +165,7 @@ $_lang["status_passed_database_created"] = 'passed - database created';
 $_lang["status_passed_server"] = 'passed - collations now available';
 $_lang["summary_setup_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the setup.';
 $_lang["summary_update_check"] = 'Setup has carried out a number of checks to see if everything\'s ready to start the upgrade.';
+$_lang["summary_path_config_note"] = 'filemanager_path and rb_base_dir are managed via environment variables or config.inc.php. Review the configuration if needed.';
 $_lang["table_prefix_already_inuse"] = ' - Table prefix is already in use in this database!';
 $_lang["table_prefix_already_inuse_note"] = 'Setup couldn\'t install into the selected database, as it already contains tables with the prefix you specified. Please choose a new table prefix, and run Setup again.';
 $_lang["table_prefix_not_exist"] = ' - Table prefix does not exist in this database!';

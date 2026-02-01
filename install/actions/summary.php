@@ -24,6 +24,7 @@ $preinstallLangKey = $isUpgrade ? 'preupdate_validation' : 'preinstall_validatio
 $summaryCheckLangKey = $isUpgrade ? 'summary_update_check' : 'summary_setup_check';
 echo '<h2>' . lang($preinstallLangKey) . '</h2>';
 echo '<h3>' . lang($summaryCheckLangKey) . '</h3>';
+echo p(lang('summary_path_config_note'));
 $errors = 0;
 
 // check PHP version
