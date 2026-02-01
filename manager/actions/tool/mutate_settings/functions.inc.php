@@ -175,7 +175,7 @@ function checkConfig($key)
 
 function settings()
 {
-    global $modx, $default_config;
+    global $modx, $default_config, $filemanager_path, $rb_base_dir;
     $settings = [];
     $rs = db()->select('setting_name, setting_value', '[+prefix+]system_settings');
     while ($row = db()->getRow($rs)) {
@@ -185,6 +185,15 @@ function settings()
         $default_config = include MODX_CORE_PATH . 'default.config.php';
     }
     $settings = array_merge($default_config, $settings);
+
+    // config.inc.php で定義された値を優先
+    if (isset($filemanager_path)) {
+        $settings['filemanager_path'] = $filemanager_path;
+    }
+    if (isset($rb_base_dir)) {
+        $settings['rb_base_dir'] = $rb_base_dir;
+    }
+
     $modx->config = $settings;
 
     if (manager()->hasFormValues()) {

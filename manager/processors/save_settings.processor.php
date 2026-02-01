@@ -14,7 +14,17 @@ if ($warnings) {
     exit;
 }
 if (!save_settiongs()) {
+    evo()->logEvent(0, 3, 'Failed to update system settings', 'save_settings.processor');
     echo 'Failed to update setting value!';
+    exit;
+}
+
+if (!update_config_inc()) {
+    evo()->logEvent(0, 3, 'Failed to update config.inc.php', 'save_settings.processor');
+    evo()->webAlertAndQuit(
+        'config.inc.php の更新に失敗しました。ファイルのパーミッションを確認してください。',
+        'index.php?a=17'
+    );
     exit;
 }
 
@@ -305,4 +315,61 @@ function repairDocs() {
         '[+prefix+]site_content',
         'editedon=0'
     );
+}
+
+function update_config_inc()
+{
+    $config_path = MODX_CORE_PATH . 'config.inc.php';
+
+    if (!is_file($config_path)) {
+        return false;
+    }
+
+    $filemanager_path = formv('filemanager_path');
+    $rb_base_dir = formv('rb_base_dir');
+
+    // 現在のconfig.inc.phpを読み込む
+    $content = file_get_contents($config_path);
+
+    // 現在の値を抽出
+    $current_filemanager_path = '';
+    $current_rb_base_dir = '';
+
+    if (preg_match('/\$filemanager_path\s*=\s*env\([^,]+,\s*[\'"]([^\'"]+)[\'"]\s*\);/', $content, $matches)) {
+        $current_filemanager_path = $matches[1];
+    }
+    if (preg_match('/\$rb_base_dir\s*=\s*env\([^,]+,\s*[\'"]([^\'"]+)[\'"]\s*\);/', $content, $matches)) {
+        $current_rb_base_dir = $matches[1];
+    }
+
+    // 値が変更されていない場合はスキップ
+    if ($current_filemanager_path === $filemanager_path && $current_rb_base_dir === $rb_base_dir) {
+        return true;
+    }
+
+    // パーミッションチェック
+    if (!is_writable($config_path)) {
+        @chmod($config_path, 0644);
+        if (!is_writable($config_path)) {
+            return false;
+        }
+    }
+
+    // エスケープ処理
+    $filemanager_path = str_replace("'", "\\'", $filemanager_path);
+    $rb_base_dir = str_replace("'", "\\'", $rb_base_dir);
+    // rb_base_dir の行を更新
+    $content = preg_replace(
+        '/\$rb_base_dir\s*=\s*env\([^)]+\);/',
+        "\$rb_base_dir                 = env('MODX_RB_BASE_DIR', '{$rb_base_dir}');",
+        $content
+    );
+
+    // ファイルに書き込む
+    $result = file_put_contents($config_path, $content);
+
+    // パーミッションを戻す
+    @chmod($config_path, 0444);
+
+    return $result !== false;
 }

@@ -6,6 +6,9 @@ $modx = $this;
 $this->db = new DBAPI;
 $config_path = 'manager/includes/config.inc.php';
 
+// config.inc.php で定義される変数をグローバルスコープで受け取る
+global $filemanager_path, $rb_base_dir;
+
 if (!is_file(MODX_BASE_PATH . $config_path)) {
     $rs = $this->gotoSetup();
 } else {

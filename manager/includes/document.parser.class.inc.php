@@ -1171,6 +1171,16 @@ class DocumentParser
             $this->config[$k] = $v;
         }
 
+        // config.inc.php で定義されたパス設定を優先
+        global $filemanager_path, $rb_base_dir;
+        if (isset($filemanager_path)) {
+            $this->config['filemanager_path'] = $filemanager_path;
+        }
+        if (isset($rb_base_dir)) {
+            $this->config['rb_base_dir'] = $rb_base_dir;
+        }
+
+        // プレースホルダーの置換
         $filemanagerPath = $this->config('filemanager_path');
         if (is_string($filemanagerPath) && strpos($filemanagerPath, '[(') !== false) {
             $this->config['filemanager_path'] = str_replace(
@@ -6051,7 +6061,9 @@ class DocumentParser
                 $this->config[$key] = $filemanager_path;
                 return $filemanager_path;
             }
-            $this->config[$key] = null;
+            if (isset($this->config[$key])) {
+                return $this->config[$key];
+            }
             return null;
         }
 
@@ -6061,11 +6073,15 @@ class DocumentParser
                 $this->config[$key] = $rb_base_dir;
                 return $rb_base_dir;
             }
-            $this->config[$key] = null;
+            if (isset($this->config[$key])) {
+                return $this->config[$key];
+            }
             return null;
         }
 
-        $this->config[$key] = null;
+        if (isset($this->config[$key])) {
+            return $this->config[$key];
+        }
         return null;
     }
 

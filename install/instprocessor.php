@@ -230,7 +230,7 @@ if ($sqlParser->installFailed == true) {
 
 printf('<span class="ok">%s</span></p>', lang('ok'));
 log_install_event('Database installation completed successfully');
-$configString = file_get_contents(MODX_SETUP_PATH . 'tpl/config.inc.tpl');
+$configString = file_get_contents(MODX_BASE_PATH . 'manager/includes/templates/config.inc.tpl');
 $ph['database_type'] = 'mysqli';
 $ph['database_server'] = sessionv('database_server');
 $ph['database_user'] = db()->escape(sessionv('database_user'));
