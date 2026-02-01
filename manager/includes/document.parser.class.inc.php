@@ -6002,6 +6002,9 @@ class DocumentParser
 
     public function config($key = null, $default = null)
     {
+        if (in_array($key, ['filemanager_path', 'rb_base_dir'], true)) {
+            return $this->resolvePathConfig($key);
+        }
         if (!$this->config) {
             $this->config = include MODX_CORE_PATH . 'default.config.php';
         }
@@ -6027,6 +6030,43 @@ class DocumentParser
             return $value;
         }
         return $this->array_get($this->config, $key, $default);
+    }
+
+    protected function resolvePathConfig($key)
+    {
+        if (!is_array($this->config)) {
+            $this->config = [];
+        }
+
+        $envKey = 'MODX_' . strtoupper($key);
+        $envValue = getenv($envKey);
+        if ($envValue !== false) {
+            $this->config[$key] = $envValue;
+            return $envValue;
+        }
+
+        if ($key === 'filemanager_path') {
+            global $filemanager_path;
+            if (isset($filemanager_path)) {
+                $this->config[$key] = $filemanager_path;
+                return $filemanager_path;
+            }
+            $this->config[$key] = null;
+            return null;
+        }
+
+        if ($key === 'rb_base_dir') {
+            global $rb_base_dir;
+            if (isset($rb_base_dir)) {
+                $this->config[$key] = $rb_base_dir;
+                return $rb_base_dir;
+            }
+            $this->config[$key] = null;
+            return null;
+        }
+
+        $this->config[$key] = null;
+        return null;
     }
 
     public function setConfig($key, $value)

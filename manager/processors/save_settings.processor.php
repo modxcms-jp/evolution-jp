@@ -34,14 +34,16 @@ function setPermission()
 {
     $rb_base_dir = str_replace('[(base_path)]', MODX_BASE_PATH, formv('rb_base_dir'));
 
-    if (!is_dir($rb_base_dir . 'images')) {
-        mkd($rb_base_dir . 'images');
-    }
-    if (!is_dir($rb_base_dir . 'files')) {
-        mkd($rb_base_dir . 'files');
-    }
-    if (!is_dir($rb_base_dir . 'media')) {
-        mkd($rb_base_dir . 'media');
+    if (is_string($rb_base_dir) && $rb_base_dir !== '') {
+        if (!is_dir($rb_base_dir . 'images')) {
+            mkd($rb_base_dir . 'images');
+        }
+        if (!is_dir($rb_base_dir . 'files')) {
+            mkd($rb_base_dir . 'files');
+        }
+        if (!is_dir($rb_base_dir . 'media')) {
+            mkd($rb_base_dir . 'media');
+        }
     }
     if (!is_dir(MODX_BASE_PATH . 'temp/export')) {
         mkd(MODX_BASE_PATH . 'temp/export');
@@ -148,6 +150,9 @@ function save_settiongs()
 
     $savethese = [];
     foreach ($form_v as $k => $v) {
+        if (in_array($k, ['filemanager_path', 'rb_base_dir'], true)) {
+            continue;
+        }
         switch ($k) {
             case 'base_url':
                 if ($v !== '' && $v !== '/') {

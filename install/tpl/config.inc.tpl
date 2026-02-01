@@ -10,6 +10,8 @@ $database_connection_charset = env('DB_CHARSET', '[+database_connection_charset+
 $dbase                       = env('DB_DATABASE', '[+dbase+]');
 $table_prefix                = env('TABLE_PREFIX', '[+table_prefix+]');
 $https_port                  = '[+https_port+]';
+$filemanager_path            = env('MODX_FILEMANAGER_PATH', '[+filemanager_path+]');
+$rb_base_dir                 = env('MODX_RB_BASE_DIR', '[+rb_base_dir+]');
 
 $lastInstallTime             = [+lastInstallTime+];
 

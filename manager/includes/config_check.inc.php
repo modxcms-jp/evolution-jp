@@ -293,18 +293,17 @@ function disableTemplateSwitcher(){
             ];
         }
 
-        // rb_base_dir と filemanager_path はDB から直接取得（キャッシュタイミング問題を回避）
-        $rbBaseDir = $this->getConfigFromDB('rb_base_dir') ?: evo()->config('rb_base_dir');
+        $rbBaseDir = evo()->config('rb_base_dir');
         $rbBaseDir = str_replace('[(base_path)]', MODX_BASE_PATH, $rbBaseDir);
 
-        if (!is_writable($rbBaseDir . 'images')) {
+        $hasRbBaseDir = is_string($rbBaseDir) && $rbBaseDir !== '';
+        if ($hasRbBaseDir && !is_writable($rbBaseDir . 'images')) {
             $warnings[] = [
                 'title' => 'configcheck_images',
                 'message' => $this->_lang['configcheck_images_msg']
             ];
         }
 
-        $hasRbBaseDir = is_string($rbBaseDir) && $rbBaseDir !== '';
         if (!$hasRbBaseDir || !is_dir($rbBaseDir)) {
             $warnings[] = [
                 'title' => 'configcheck_rb_base_dir',
@@ -312,7 +311,7 @@ function disableTemplateSwitcher(){
             ];
         }
 
-        $filemanagerPath = $this->getConfigFromDB('filemanager_path') ?: evo()->config('filemanager_path');
+        $filemanagerPath = evo()->config('filemanager_path');
         $filemanagerPath = str_replace('[(base_path)]', MODX_BASE_PATH, $filemanagerPath);
 
         $hasFilemanagerPath = is_string($filemanagerPath) && $filemanagerPath !== '';

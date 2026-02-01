@@ -241,6 +241,8 @@ $ph['dbase'] = trim(sessionv('dbase'), '`');
 $ph['table_prefix'] = sessionv('table_prefix');
 $ph['lastInstallTime'] = time();
 $ph['https_port'] = '443';
+$ph['filemanager_path'] = getSystemSettingValue('filemanager_path') ?: '';
+$ph['rb_base_dir'] = getSystemSettingValue('rb_base_dir') ?: '';
 
 $configString = evo()->parseText($configString, $ph);
 $config_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
@@ -266,6 +268,12 @@ if ($config_saved === false) {
     printf('<span class="ok">%s</span></p>', lang('ok'));
     log_install_event('Configuration file written successfully', ['path' => $config_path]);
 }
+
+db()->delete(
+    '[+prefix+]system_settings',
+    "setting_name IN ('filemanager_path','rb_base_dir')"
+);
+log_install_event('Removed path settings from system_settings', ['settings' => ['filemanager_path', 'rb_base_dir']]);
 
 if (sessionv('is_upgradeable') == 0) {
     log_install_event('Creating site_id for fresh installation');
@@ -416,4 +424,49 @@ function ng($name, $msg)
 function showError()
 {
     printf('<p>%s</p>', db()->getLastError());
+}
+
+function getSystemSettingValue($key)
+{
+    $configValue = getConfigSettingValue($key);
+    if ($configValue !== null && $configValue !== '') {
+        return $configValue;
+    }
+
+    return db()->getValue(
+        'setting_value',
+        '[+prefix+]system_settings',
+        sprintf("setting_name='%s'", db()->escape($key))
+    );
+}
+
+function getConfigSettingValue($key)
+{
+    static $configValues = null;
+
+    if ($configValues === null) {
+        $configValues = [
+            'filemanager_path' => null,
+            'rb_base_dir' => null,
+        ];
+
+        $configPath = MODX_BASE_PATH . 'manager/includes/config.inc.php';
+        if (is_file($configPath)) {
+            $filemanager_path = null;
+            $rb_base_dir = null;
+            include $configPath;
+            if (isset($filemanager_path)) {
+                $configValues['filemanager_path'] = $filemanager_path;
+            }
+            if (isset($rb_base_dir)) {
+                $configValues['rb_base_dir'] = $rb_base_dir;
+            }
+        }
+    }
+
+    if (array_key_exists($key, $configValues)) {
+        return $configValues[$key];
+    }
+
+    return null;
 }
