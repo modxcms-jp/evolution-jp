@@ -24,7 +24,9 @@ $preinstallLangKey = $isUpgrade ? 'preupdate_validation' : 'preinstall_validatio
 $summaryCheckLangKey = $isUpgrade ? 'summary_update_check' : 'summary_setup_check';
 echo '<h2>' . lang($preinstallLangKey) . '</h2>';
 echo '<h3>' . lang($summaryCheckLangKey) . '</h3>';
-echo p(lang('summary_path_config_note'));
+if ($isUpgrade && needsPathConfigMigration()) {
+    echo p(lang('summary_path_config_note'));
+}
 $errors = 0;
 
 // check PHP version
@@ -331,4 +333,63 @@ function mkd($path)
 function p($str)
 {
     return '<p>' . $str . '</p>';
+}
+
+function needsPathConfigMigration()
+{
+    $configValues = getPathConfigValues();
+    $dbFilemanagerPath = getSystemSettingValue('filemanager_path');
+    $dbRbBaseDir = getSystemSettingValue('rb_base_dir');
+
+    $hasDbFilemanagerPath = is_string($dbFilemanagerPath) && $dbFilemanagerPath !== '';
+    $hasDbRbBaseDir = is_string($dbRbBaseDir) && $dbRbBaseDir !== '';
+
+    if ($configValues['filemanager_path'] === '' && $hasDbFilemanagerPath) {
+        return true;
+    }
+    if ($configValues['rb_base_dir'] === '' && $hasDbRbBaseDir) {
+        return true;
+    }
+    return false;
+}
+
+function getPathConfigValues()
+{
+    static $values = null;
+
+    if ($values !== null) {
+        return $values;
+    }
+
+    $values = [
+        'filemanager_path' => '',
+        'rb_base_dir' => '',
+    ];
+
+    $configPath = MODX_BASE_PATH . 'manager/includes/config.inc.php';
+    if (!is_file($configPath)) {
+        return $values;
+    }
+
+    $filemanager_path = null;
+    $rb_base_dir = null;
+    include $configPath;
+
+    if (is_string($filemanager_path)) {
+        $values['filemanager_path'] = $filemanager_path;
+    }
+    if (is_string($rb_base_dir)) {
+        $values['rb_base_dir'] = $rb_base_dir;
+    }
+
+    return $values;
+}
+
+function getSystemSettingValue($key)
+{
+    return db()->getValue(
+        'setting_value',
+        '[+prefix+]system_settings',
+        sprintf("setting_name='%s'", db()->escape($key))
+    );
 }
