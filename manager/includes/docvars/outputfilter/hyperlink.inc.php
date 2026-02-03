@@ -2,6 +2,7 @@
 if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
 $urls = $this->parseInput($value, '||', 'array');
+$o = '';
 foreach ($urls as $url) {
     [$name, $url] = is_array($url) ? $url : explode('==', $url);
     if (!$url) $url = $name;
@@ -11,18 +12,18 @@ foreach ($urls as $url) {
         // setup the link attributes
         $attr = [
             'href' => $url,
-            'title' => $params['title'] ? htmlspecialchars($params['title']) : $name,
-            'class' => $params['linkclass'],
-            'style' => $params['linkstyle'],
-            'target' => $params['target'],
+            'title' => ($params['title'] ?? '') ? htmlspecialchars($params['title']) : $name,
+            'class' => $params['linkclass'] ?? '',
+            'style' => $params['linkstyle'] ?? '',
+            'target' => $params['target'] ?? '',
         ];
         foreach ($attr as $k => $v) {
             $attributes .= ($v ? " {$k}=\"{$v}\"" : '');
         }
-        $attributes .= ' ' . $params['linkattrib']; // add extra
+        $attributes .= ' ' . ($params['linkattrib'] ?? ''); // add extra
 
         // Output the link
-        $o .= '<a' . rtrim($attributes) . '>' . ($params['text'] ? htmlspecialchars($params['text']) : $name) . '</a>';
+        $o .= '<a' . rtrim($attributes) . '>' . (($params['text'] ?? '') ? htmlspecialchars($params['text']) : $name) . '</a>';
     }
 }
 
