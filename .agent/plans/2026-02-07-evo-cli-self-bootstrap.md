@@ -4,9 +4,17 @@
 Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コマンドを追加し、後続の CLI 機能を自分自身で生成できる土台を作る。結果として、管理作業や開発補助が CLI で再現可能になる。
 
 ## Progress
-- [x] (2026-02-07) 既存コードと CLI 周辺の参照パターンを確認し、導入場所を確定する
-- [x] (2026-02-07) CLI ブートストラップと最小コマンド一式を実装する
-- [ ] (2026-02-07) 動作確認とドキュメント更新を行う
+- [x] (2026-02-07) 既存コードと初期化フローを確認し、CLI 配置先を `manager/includes/cli/` に決定
+- [x] (2026-02-07) ルート `evo` エントリポイントを追加し、CLI ルーティングを実装
+- [x] (2026-02-07) CLI ブートストラップを追加し、`DocumentParser` 初期化を有効化
+- [x] (2026-02-07) 最小コマンド（`help`/`db:console`/`db:query`/`make:command`）を実装
+- [x] (2026-02-07) CLI 補助機能（出力ヘルパー、`cache:clear`/`config:show`/`db:tables`/`db:describe`/`db:count`）を追加
+- [x] (2026-02-07) CLI での実行時の安定化（セッション抑止、`mb_internal_encoding` ガード）を実施
+- [x] (2026-02-07) Docker 環境で CLI 動作確認（`help`/`db:query`/`make:command`/`db:tables`/`db:describe`/`db:count`/`cache:clear`）
+- [x] (2026-02-07) CLI README と ExecPlan を更新
+- [ ] (2026-02-07) 未実装コマンドの候補を整理し、優先順位を決定（`db:export`/`db:import`/`db:backup`/`db:restore`/`health:check`）
+- [ ] (2026-02-07) CLI 共通のエラー/出力形式を固め、`--json` などの方針を決める
+- [ ] (2026-02-07) `evo()->logEvent()` を使った実行ログ出力方針を検討する
 
 ## Surprises & Discoveries
 なし（実装中に更新）
