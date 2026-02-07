@@ -507,6 +507,107 @@ class Logger
         fclose($handle);
         return $logs;
     }
+
+    /**
+     * 古いログファイルをgzip圧縮（ストレージ節約）
+     *
+     * @param int $days 何日以上前のログを圧縮するか（デフォルト: 7日）
+     * @return array 圧縮結果の統計情報
+     */
+    public function compressOldLogs($days = 7)
+    {
+        $cutoffTime = time() - ($days * 86400);
+        $result = [
+            'count' => 0,
+            'before_size' => 0.0,
+            'after_size' => 0.0,
+            'saved_size' => 0.0,
+            'ratio' => 0.0,
+        ];
+
+        $this->compressDirectory($this->logDir, $cutoffTime, $result);
+
+        // 削減率を計算
+        if ($result['before_size'] > 0) {
+            $result['ratio'] = round(($result['saved_size'] / $result['before_size']) * 100, 1);
+        }
+
+        // サイズをMB単位に変換
+        $result['before_size'] = round($result['before_size'] / 1048576, 2);
+        $result['after_size'] = round($result['after_size'] / 1048576, 2);
+        $result['saved_size'] = round($result['saved_size'] / 1048576, 2);
+
+        return $result;
+    }
+
+    /**
+     * ディレクトリを再帰的に走査して古いログファイルを圧縮
+     *
+     * @param string $dir 対象ディレクトリ
+     * @param int $cutoffTime 圧縮対象の閾値タイムスタンプ
+     * @param array &$result 統計情報（参照渡し）
+     */
+    private function compressDirectory($dir, $cutoffTime, &$result)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $path = $dir . $item;
+            if (is_dir($path)) {
+                $this->compressDirectory($path . '/', $cutoffTime, $result);
+            } elseif (is_file($path) && preg_match('/\\.log(\\.\\d+)?$/', $item)) {
+                // 既に圧縮済みのファイルはスキップ
+                if (preg_match('/\\.gz$/', $item)) {
+                    continue;
+                }
+
+                // カットオフ時刻より古いファイルのみ圧縮
+                if (filemtime($path) < $cutoffTime) {
+                    $beforeSize = filesize($path);
+                    $gzPath = $path . '.gz';
+
+                    // gzip圧縮
+                    $fpIn = fopen($path, 'rb');
+                    $fpOut = gzopen($gzPath, 'wb9'); // 最高圧縮率
+                    if ($fpIn && $fpOut) {
+                        while (!feof($fpIn)) {
+                            gzwrite($fpOut, fread($fpIn, 8192));
+                        }
+                        fclose($fpIn);
+                        gzclose($fpOut);
+
+                        // 元ファイルを削除
+                        unlink($path);
+
+                        // 統計情報を更新
+                        $afterSize = filesize($gzPath);
+                        $result['count']++;
+                        $result['before_size'] += $beforeSize;
+                        $result['after_size'] += $afterSize;
+                        $result['saved_size'] += ($beforeSize - $afterSize);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 保持期間を超えた古いログファイルを削除
+     *
+     * @param int $days 保持期間（日数）
+     */
+    public function deleteOldLogs($days)
+    {
+        $cutoffTime = time() - ($days * 86400);
+        $this->cleanDirectory($this->logDir, $cutoffTime);
+    }
 }
 ```
 
