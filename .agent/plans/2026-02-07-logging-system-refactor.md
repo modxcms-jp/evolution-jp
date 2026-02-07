@@ -1347,43 +1347,6 @@ cat temp/logs/system/2026/02/system-2026-02-07.log | head -n 5
 # → ファイルパスが「manager/...」形式で表示され、サーバー構成が推測できないこと
 ```
 
-**6. issue-resolver スキルがログを活用できる**
-```bash
-# analyze-issue で自動ログ検索
-/analyze-issue "Error: Undefined variable"
-# → log:search が自動実行され、エラー箇所が特定される
-
-# reproduce でリアルタイム監視
-/reproduce
-# → log:tail --follow でログを監視しながら再現
-
-# implement-fix で修正前後を比較
-/implement-fix
-# → before.json と after.json でエラー消失を確認
-```
-
-**7. セキュリティ要件を満たしている**
-```bash
-# ログから物理パスが漏洩していないことを確認
-grep -r "$(pwd)" temp/logs/system/
-# → 何もヒットしないこと（相対パスのみ記録されている）
-
-# フォーラム投稿シミュレーション
-cat temp/logs/system/2026/02/system-2026-02-07.log | head -n 5
-# → ファイルパスが「manager/...」形式で表示され、サーバー構成が推測できないこと
-```
-
-**7. セキュリティ要件を満たしている**
-```bash
-# ログから物理パスが漏洩していないことを確認
-grep -r "$(pwd)" temp/logs/system/
-# → 何もヒットしないこと（相対パスのみ記録されている）
-
-# フォーラム投稿シミュレーション
-cat temp/logs/system/2026/02/system-2026-02-07.log | head -n 5
-# → ファイルパスが「manager/...」形式で表示され、サーバー構成が推測できないこと
-```
-
 ### 後方互換性の確認
 
 - 既存の `logEvent()` 呼び出し（26箇所）が正常動作
