@@ -266,7 +266,6 @@ class EXPORT_SITE
 
         // Close reusable curl handle
         if ($this->curl) {
-            @curl_close($this->curl);
             $this->curl = null;
         }
 

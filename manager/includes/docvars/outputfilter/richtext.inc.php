@@ -2,9 +2,9 @@
 if (!defined('IN_PARSER_MODE') && !defined('IN_MANAGER_MODE')) exit();
 
 $value = $this->parseInput($value);
-$w = $params['w'] ? $params['w'] : '100%';
-$h = $params['h'] ? $params['h'] : '400px';
-$richtexteditor = $params['edt'] ? $params['edt'] : '';
+$w = ($params['w'] ?? '') ?: '100%';
+$h = ($params['h'] ?? '') ?: '400px';
+$richtexteditor = $params['edt'] ?? '';
 $o = '<div class="MODX_RichTextWidget"><textarea id="' . $id . '" name="' . $id . '" style="width:' . $w . '; height:' . $h . ';">';
 $o .= htmlspecialchars($value);
 $o .= '</textarea></div>';

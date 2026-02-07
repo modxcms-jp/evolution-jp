@@ -24,6 +24,6 @@
 - `loadExtension()` によって `DBAPI`（`manager/includes/extenders/dbapi/mysqli.inc.php` など）が遅延ロードされ、必要な拡張のみを読み込みます。
 - TV は `getDocumentObject()` 内でドキュメントと同時に取得され、後続の解析パスでコアフィールドと同じ扱いを受けます。
 
-## イベントフローの概要
+## イベント統合
 
-- 通常のフロントエンドリクエストでは `OnWebPageInit` → `OnLoadWebPageCache` → `OnLoadWebDocument` → `OnParseDocument`（解析ループ内）→ `OnLogPageHit` / `OnWebPagePrerender` → `OnBeforeSaveWebPageCache` → `OnWebPageComplete` の順でイベントが進行します。詳細は `events-and-plugins.md` を参照してください。
+DocumentParser は処理の各段階で `invokeEvent()` によりプラグインフックを提供します。イベントライフサイクルの詳細、発火タイミング、プラグイン実装パターンについては [`events-and-plugins.md`](events-and-plugins.md) を参照してください。

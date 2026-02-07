@@ -71,7 +71,8 @@ class TopicPath
         elseif (in_array(docid(), $this->disabledOn)) return;
         $default = include(__DIR__ . '/config/default.php');
         if (!isset($default[$this->theme])) {
-            throw new Exception("Theme '{$this->theme}' not found in configuration.");
+            $available = implode(', ', array_keys($default));
+            throw new Exception("設定に存在しないテーマ '{$this->theme}' が指定されています。利用可能なテーマ: {$available}");
         }
         $tpl = $default[$this->theme];
         $tpl = array_merge($tpl, $this->tpl);

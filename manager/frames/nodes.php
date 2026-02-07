@@ -560,6 +560,7 @@ function getAlt($id, $alias, $menuindex, $hidemenu, $privatemgr, $privateweb)
 {
     global $modx, $_lang;
 
+    $_ = [];
     $_[] = "[{$id}] ";
     $_[] = $_lang['alias'] . ': ' . (!empty($alias) ? $alias : '-');
     $_[] = "{$_lang['resource_opt_menu_index']}: {$menuindex}";

@@ -996,7 +996,7 @@ class MODIFIERS
                     if ($opt === 'false') {
                         $opt = false;
                     }
-                    return nl2br($value, (boolean) $opt);
+                    return nl2br($value, (bool) $opt);
                 }
                 return nl2br(
                     $value,
@@ -1162,20 +1162,20 @@ class MODIFIERS
                 $where = [];
                 foreach ($options as $option) {
                     switch (trim($option)) {
-                        case 'page';
-                        case '!folder';
+                        case 'page':
+                        case '!folder':
                         case '!isfolder':
                             $where[] = 'sc.isfolder=0';
                             break;
-                        case 'folder';
+                        case 'folder':
                         case 'isfolder':
                             $where[] = 'sc.isfolder=1';
                             break;
-                        case  'menu';
+                        case  'menu':
                         case  'show_menu':
                             $where[] = 'sc.hidemenu=0';
                             break;
-                        case '!menu';
+                        case '!menu':
                         case '!show_menu':
                             $where[] = 'sc.hidemenu=1';
                             break;

@@ -822,3 +822,28 @@ select::-ms-expand {
 input#adminemail {
     width: 350px;
 }
+
+.install-config-guard {
+    background: #fff4e5;
+    border: 1px solid #f5c46b;
+    border-radius: 6px;
+    margin: 1em 0;
+    padding: 1.2em;
+}
+
+.install-config-remote {
+    margin: 0.2em 0 1em;
+}
+
+.install-config-instructions ol {
+    margin-top: 0.8em;
+}
+
+.install-config-instructions li + li {
+    margin-top: 0.4em;
+}
+
+.install-config-footer {
+    margin-top: 1em;
+    color: #5a5a5a;
+}
