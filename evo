@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+
+define('EVO_CLI', true);
+define('EVO_CLI_START', microtime(true));
+define('MODX_API_MODE', true);
+
+$bootstrap = __DIR__ . '/manager/includes/cli/bootstrap.php';
+if (!is_file($bootstrap)) {
+    fwrite(STDERR, "CLI bootstrap not found: {$bootstrap}\n");
+    exit(1);
+}
+
+require $bootstrap;
+
+$command = $argv[1] ?? 'help';
+$args = array_slice($argv, 2);
+
+$commandFile = EVO_CLI_COMMANDS_PATH . str_replace(':', '-', $command) . '.php';
+if (is_file($commandFile)) {
+    require $commandFile;
+    exit(0);
+}
+
+fwrite(STDERR, "Unknown command: {$command}\n");
+$helpFile = EVO_CLI_COMMANDS_PATH . 'help.php';
+if (is_file($helpFile)) {
+    require $helpFile;
+}
+exit(1);
