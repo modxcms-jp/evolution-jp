@@ -95,7 +95,7 @@ Evolution CMS の管理操作ログ（管理者の操作履歴）を改修し、
 4. 方針決定後、このプランを更新して実装開始
 
 ## References
-- [システムログ改修プラン](.agent/plans/2026-02-07-logging-system-refactor.md)
-- [ロードマップ](assets/docs/roadmap.md)
+- [システムログ改修プラン](./2026-02-07-logging-system-refactor.md)
+- [ロードマップ](../../assets/docs/roadmap.md)
 - 現在の実装: `manager/includes/log.class.inc.php`
 - 現在の管理画面: `manager/actions/report/logging.static.php`
