@@ -73,6 +73,5 @@ class GetUploadProgress extends Base
         $response->addChild('RefreshURL', ['url' => $refreshURL]);
 
         $this->outputXml($response);
-        xml_parser_free($parser);
     }
 }

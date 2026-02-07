@@ -454,18 +454,21 @@ function buildMenu($target, $item)
         include(MODX_CORE_PATH . 'default.config.php');
         $modx->config = $default_config;
     }
-    $menu['site'] = $modx->config['topmenu_site'];
-    $menu['element'] = $modx->config['topmenu_element'];
-    $menu['module'] = 'modules';
-    $menu['security'] = $modx->config['topmenu_security'];
-    $menu['user'] = $modx->config['topmenu_user'];
-    $menu['tools'] = $modx->config['topmenu_tools'];
-    $menu['reports'] = $modx->config['topmenu_reports'];
+    $menu = [
+        'site' => config('topmenu_site', ''),
+        'element' => config('topmenu_element', ''),
+        'module' => 'modules',
+        'security' => config('topmenu_security', ''),
+        'user' => config('topmenu_user', ''),
+        'tools' => config('topmenu_tools', ''),
+        'reports' => config('topmenu_reports', ''),
+    ];
 
     if (empty($menu[$target])) {
         return false;
     }
 
+    $result = [];
     $a = explode(',', $menu[$target]);
     foreach ($a as $v) {
         $v = trim($v);

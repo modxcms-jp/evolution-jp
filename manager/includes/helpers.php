@@ -358,20 +358,21 @@ function pr($content)
 function doc($key, $default = '')
 {
     global $modx, $docObject;
+    $doc = [];
     if (isset($docObject)) {
         $doc = &$docObject;
-    } elseif (!empty($modx->documntObject)) {
-        $doc = &$modx->documntObject;
-    } elseif(!empty(evo()->documentIdentifier)) {
+    } elseif (!empty($modx->documentObject)) {
+        $doc = &$modx->documentObject;
+    } elseif (!empty(evo()->documentIdentifier)) {
         $docObject = evo()->getDocumentObject('id', evo()->documentIdentifier);
         $doc = &$docObject;
     }
-    if(empty(evo()->documentIdentifier)) {
-        if(!empty($doc['id'])) {
+    if (empty(evo()->documentIdentifier)) {
+        if (!empty($doc['id'])) {
             $modx->documentIdentifier = $doc['id'];
         } else {
             global $id;
-            if(!empty($id)) {
+            if (!empty($id)) {
                 $modx->documentIdentifier = $id;
             }
         }

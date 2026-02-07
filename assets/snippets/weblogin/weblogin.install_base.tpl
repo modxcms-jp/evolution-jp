@@ -5,100 +5,88 @@
  * ウェブユーザーのログインフォームスニペット
  *
  * @category 	snippet
- * @version 	1.1.1
+ * @version 	1.2
  * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * @internal	@properties &loginhomeid=Login Home Id;string; &logouthomeid=Logout Home Id;string; &logintext=Login Button Text;string; &logouttext=Logout Button Text;string; &tpl=Template;string;
  * @internal	@modx_category Login
  * @internal    @installset base
  */
 
-# Created By Raymond Irving 2004
-#::::::::::::::::::::::::::::::::::::::::
-# Params:	
-#
-#	&loginhomeid 	- (Optional)
-#		redirects the user to first authorized page in the list.
-#		If no id was specified then the login home page id or 
-#		the current document id will be used
-#
-#	&logouthomeid 	- (Optional)
-#		document id to load when user logs out	
-#
-#	&pwdreqid 	- (Optional)
-#		document id to load after the user has submited
-#		a request for a new password
-#
-#	&pwdactid 	- (Optional)
-#		document id to load when the after the user has activated
-#		their new password
-#
-#	&logintext		- (Optional) 
-#		Text to be displayed inside login button (for built-in form)
-#
-#	&logouttext 	- (Optional)
-#		Text to be displayed inside logout link (for built-in form)
-#	
-#	&tpl			- (Optional)
-#		Chunk name or document id to as a template
-#	
-#	Note: Templats design:
-#			section 1: login template
-#			section 2: logout template 
-#			section 3: password reminder template 
-#
-#			See weblogin.tpl for more information
-#
-# Examples:
-#
-#	[!WebLogin? &loginhomeid=`8` &logouthomeid=`1`!] 
-#
-#	[!WebLogin? &loginhomeid=`8,18,7,5` &tpl=`Login`!]
+/* --------------------------------
+ * Manager 内では何もしない
+ * -------------------------------- */
+if (evo()->isBackend()) {
+    return '';
+}
 
-# Set Snippet Paths 
 $snipPath = base_path() . 'assets/snippets/';
 
-# check if inside manager
-if ($m = $modx->isBackend()) {
-return ''; // don't go any further when inside manager
+/* --------------------------------
+ * 後方互換パラメータ
+ * -------------------------------- */
+if (isset($loginid)) {
+    $loginhomeid = $loginid;
+}
+if (isset($logoutid)) {
+    $logouthomeid = $logoutid;
+}
+if (isset($template)) {
+    $tpl = $template;
 }
 
-# deprecated params - only for backward compatibility
-if(isset($loginid))  $loginhomeid=$loginid;
-if(isset($logoutid)) $logouthomeid = $logoutid;
-if(isset($template)) $tpl = $template;
+/* --------------------------------
+ * スニペット設定値
+ * -------------------------------- */
+$defaultLoginHome = config('login_home', evo()->documentIdentifier);
 
-# Snippet customize settings
-$defaultLoginHome = config('login_home', $modx->documentIdentifier);
-$liHomeId   = isset($loginhomeid) ? explode(',',$loginhomeid):[$defaultLoginHome, $modx->documentIdentifier];
-$loHomeId   = isset($logouthomeid)? $logouthomeid:$modx->documentIdentifier;
-$pwdReqId   = isset($pwdreqid)    ? $pwdreqid:0;
-$pwdActId   = isset($pwdactid)    ? $pwdactid:0;
-$loginText  = isset($logintext)   ? $logintext:'Login';
-$logoutText = isset($logouttext)  ? $logouttext:'Logout';
-$tpl        = isset($tpl)         ? $tpl:'';
+$liHomeId = !empty($loginhomeid)
+    ? explode(',', $loginhomeid)
+    : [$defaultLoginHome, evo()->documentIdentifier];
 
-# System settings
+$loHomeId   = $logouthomeid ?? evo()->documentIdentifier;
+$pwdReqId   = $pwdreqid    ?? 0;
+$pwdActId   = $pwdactid    ?? 0;
+$loginText  = $logintext   ?? 'Login';
+$logoutText = $logouttext  ?? 'Logout';
+$tpl        = $tpl         ?? '';
+
+/* --------------------------------
+ * システム状態判定
+ * -------------------------------- */
 $webLoginMode  = anyv('webloginmode', '');
-$isLogOut      = $webLoginMode=='lo' ? 1:0;
-$isPWDActivate = $webLoginMode=='actp' ? 1:0;
-$isPostBack    = is_post() && (postv('cmdweblogin') !== null || postv('cmdweblogin_x') !== null);
+$isLogOut      = ($webLoginMode === 'lo');
+$isPWDActivate = ($webLoginMode === 'actp');
+
+$isPostBack =
+    is_post() &&
+    (postv('cmdweblogin') !== null || postv('cmdweblogin_x') !== null);
+
 $txtPwdRem     = anyv('txtpwdrem', 0);
-$isPWDReminder = $isPostBack && $txtPwdRem=='1' ? 1:0;
+$isPWDReminder = $isPostBack && $txtPwdRem === '1';
 
-$site_id = isset($site_id) ? $site_id: '';
-$cookieKey = substr(md5("{$site_id}Web-User"),0,15);
+/* --------------------------------
+ * Cookie key
+ * -------------------------------- */
+$site_id   = $site_id ?? '';
+$cookieKey = substr(md5($site_id . 'Web-User'), 0, 15);
 
-# Start processing
-include_once("{$snipPath}weblogin/weblogin.common.inc.php");
-include_once("{$snipPath}weblogin/crypt.class.inc.php");
+/* --------------------------------
+ * 共通処理
+ * -------------------------------- */
+require_once $snipPath . 'weblogin/weblogin.common.inc.php';
+require_once $snipPath . 'weblogin/crypt.class.inc.php';
 
+/* --------------------------------
+ * 状態に応じた処理
+ * -------------------------------- */
 if ($isPWDActivate || $isPWDReminder || $isLogOut || $isPostBack) {
-# include the logger class
-include_once(MODX_CORE_PATH . 'log.class.inc.php');
-include_once("{$snipPath}weblogin/weblogin.processor.inc.php");
+    require_once MODX_CORE_PATH . 'log.class.inc.php';
+    require_once $snipPath . 'weblogin/weblogin.processor.inc.php';
 }
 
-include_once("{$snipPath}weblogin/weblogin.inc.php");
+/* --------------------------------
+ * 表示処理
+ * -------------------------------- */
+require_once $snipPath . 'weblogin/weblogin.inc.php';
 
-# Return
 return $output;

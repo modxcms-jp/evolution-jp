@@ -143,6 +143,7 @@ class DocumentParser
                 $msg = $this->htmlspecialchars("\$modx->{$method_name}() is undefined function");
             }
             $info = debug_backtrace();
+            $m = [];
             $m[] = $msg;
             if ($this->currentSnippet) {
                 $m[] = 'Snippet - ' . $this->currentSnippet;
@@ -911,6 +912,7 @@ class DocumentParser
         }
 
         $s = ['[[', ']]', '[!', '!]', '[*', '*]', '[(', ')]', '{{', '}}', '[+', '+]', '[~', '~]', '[^', '^]'];
+        $r = [];
         foreach ($s as $_) {
             $r[] = " {$_['0']} {$_['1']} ";
         }
@@ -1663,6 +1665,7 @@ class DocumentParser
         if (!$_) {
             return [];
         }
+        $tags = [[], []];
         foreach ($_ as $v) {
             $tags[0][] = $left . $v . $right;
             $tags[1][] = $v;
@@ -4743,6 +4746,7 @@ class DocumentParser
             return false;
         }
         if (!$resource['template']) {
+            $result = [];
             foreach ($resource as $key => $value) {
                 if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
                     $result[] = ['name' => $key, 'value' => $value];
@@ -5852,7 +5856,7 @@ class DocumentParser
      * @param string $filepath フルパス
      * @return string サニタイズされたフルパス
      */
-    private function sanitizeUploadedFilename($filepath)
+    public function sanitizeUploadedFilename($filepath)
     {
         $dir = dirname($filepath);
         $filename = basename($filepath);
@@ -5867,16 +5871,18 @@ class DocumentParser
             $ext = '';
         }
 
-        // ASCII文字以外を含む場合のみ処理
-        if (preg_match('/[^\x20-\x7E]/', $name)) {
-            // タイムスタンプベースの安全なファイル名を生成
-            $timestamp = date('Y-md');
-            $random = substr(md5(uniqid(mt_rand(), true)), 0, 8);
-            $name = sprintf('%s-%s', $timestamp, $random);
+        if ($this->config('clean_uploaded_filename') == 1) {
+            $name = $this->stripAlias($name, ['file_manager']);
         }
 
         // 安全でない文字を除去
         $name = preg_replace('/[^a-zA-Z0-9._-]/', '_', $name);
+
+        if ($name === '') {
+            $timestamp = date('Ymd');
+            $random = substr(md5(uniqid(mt_rand(), true)), 0, 8);
+            $name = sprintf('%s-%s', $timestamp, $random);
+        }
 
         return $dir . '/' . $name . $ext;
     }
