@@ -881,14 +881,14 @@ class DocumentParser
                     break;
             }
 
-            if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
+            if (!@mkdir(MODX_CACHE_PATH . $this->uaType, 0777) && !is_dir(MODX_CACHE_PATH . $this->uaType)) {
+                throw new \RuntimeException('Failed to create cache directory: ' . MODX_CACHE_PATH . $this->uaType);
             }
 
             if ($this->config['cache_type'] == 1) {
                 $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                if (!is_dir($path)) {
-                    mkdir($path, 0777, true);
+                if (!@mkdir($path, 0777, true) && !is_dir($path)) {
+                    throw new \RuntimeException('Failed to create cache directory: ' . $path);
                 }
             }
             $this->saveToFile(
