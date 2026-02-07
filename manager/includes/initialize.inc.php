@@ -56,6 +56,6 @@ error_reporting(E_ALL & ~E_NOTICE);
 if (!defined('MODX_API_MODE')) {
     set_parser_mode();
 }
-if (session_id() === '') {
+if (session_id() === '' && php_sapi_name() !== 'cli') {
     startCMSSession();
 }
