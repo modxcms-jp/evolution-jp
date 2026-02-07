@@ -466,8 +466,7 @@ class Logger
         $count = 0;
         $handle = fopen($file, 'r');
         if ($handle) {
-            while (!feof($handle)) {
-                fgets($handle);
+            while (($line = fgets($handle)) !== false) {
                 $count++;
             }
             fclose($handle);
