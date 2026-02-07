@@ -602,11 +602,62 @@ class Logger
      * 保持期間を超えた古いログファイルを削除
      *
      * @param int $days 保持期間（日数）
+     * @param bool $dryRun trueの場合は削除せず対象ファイルのみ返す（プレビュー）
+     * @return array 削除結果の統計情報
      */
-    public function deleteOldLogs($days)
+    public function deleteOldLogs($days, $dryRun = false)
     {
         $cutoffTime = time() - ($days * 86400);
-        $this->cleanDirectory($this->logDir, $cutoffTime);
+        $result = [
+            'count' => 0,
+            'size' => 0.0,
+            'files' => [],
+        ];
+
+        // 削除対象ファイルを収集（統計情報とプレビュー用）
+        $this->collectOldFiles($this->logDir, $cutoffTime, $result);
+
+        // dry-runモードでない場合のみ実際に削除
+        if (!$dryRun) {
+            $this->cleanDirectory($this->logDir, $cutoffTime);
+        }
+
+        // サイズをMB単位に変換
+        $result['size'] = round($result['size'] / 1048576, 2);
+
+        return $result;
+    }
+
+    /**
+     * 古いログファイルを収集（削除プレビュー用）
+     *
+     * @param string $dir 対象ディレクトリ
+     * @param int $cutoffTime 削除対象の閾値タイムスタンプ
+     * @param array &$result 統計情報（参照渡し）
+     */
+    private function collectOldFiles($dir, $cutoffTime, &$result)
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $path = $dir . $item;
+            if (is_dir($path)) {
+                $this->collectOldFiles($path . '/', $cutoffTime, $result);
+            } elseif (is_file($path)) {
+                if (filemtime($path) < $cutoffTime) {
+                    $result['count']++;
+                    $result['size'] += filesize($path);
+                    $result['files'][] = str_replace($this->logDir, '', $path);
+                }
+            }
+        }
     }
 }
 ```
