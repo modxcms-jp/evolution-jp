@@ -16,12 +16,17 @@ php evo db:tables --pattern=site_%
 php evo db:describe site_content
 php evo db:count site_content
 php evo db:count site_content --where=published=1
+php evo db:export --output=/tmp/backup.sql
+php evo db:export --tables=site_content,site_templates --output=/tmp/content.sql
+EVO_CLI_IMPORT=1 php evo db:import /tmp/backup.sql
 php evo db:console
 php evo make:command cache:clear
 ```
 
 注意: シェル展開が必要な記号（`*` など）を含む場合は引用符で囲むことを推奨します。
 `db:tables --pattern=` は `LIKE` で評価されます。`db:count --where=` は生 SQL をそのまま渡すため、条件に空白がある場合は引用符で囲んでください。
+`db:export` を `--output` なしで実行すると SQL が標準出力へ流れるため、必要に応じてリダイレクトしてください。
+`db:import` は `system_cache` をインポート対象から除外し、事前に `TRUNCATE` します。`system_settings` はインポートした上で `site_url`/`base_url`/`filemanager_path`/`rb_base_dir` を復元します。
 
 ## 追加したコマンドの場所
 

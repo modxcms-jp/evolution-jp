@@ -15,6 +15,15 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 - [ ] (2026-02-07) 未実装コマンドの候補を整理し、優先順位を決定（`db:export`/`db:import`/`db:backup`/`db:restore`/`health:check`）
 - [ ] (2026-02-07) CLI 共通のエラー/出力形式を固め、`--json` などの方針を決める
 - [ ] (2026-02-07) `evo()->logEvent()` を使った実行ログ出力方針を検討する
+- [ ] (2026-02-07) `db:export` の実装方針（出力先、テーブル指定、ログ／権限）を整理して着手する
+- [x] (2026-02-07) `db:export` を実装（`mysql_dumper` を利用し `--tables` と `--output` を提供）
+- [x] (2026-02-07) Docker で `db:export` の出力を確認（`/tmp/site_content.sql` を生成）
+- [x] (2026-02-07) `db:import` を実装し、環境変数 `EVO_CLI_IMPORT=1` を必須化
+- [x] (2026-02-07) Docker で安全確認（未指定時に拒否されることを確認）
+- [x] (2026-02-07) `db:import` は `system_cache` を除外・`TRUNCATE` し、`system_settings` はインポート後に `site_url`/`base_url`/`filemanager_path`/`rb_base_dir` を復元する
+- [x] (2026-02-07) 開発環境で `db:import` 実行確認（`/tmp/site_content.sql` を取り込み）
+- [x] (2026-02-07) `db:import` の保全テストを実施（`site_url`/`base_url` を保持、`system_cache` が空であることを確認）
+- [x] (2026-02-07) `db:query` で結果セットが返らない場合はエラー扱いにする
 
 ## Surprises & Discoveries
 なし（実装中に更新）

@@ -27,6 +27,9 @@ $rs = db()->query($sql);
 if ($rs === false) {
     cli_usage('Error: ' . db()->getLastError());
 }
+if (!db()->isResult($rs)) {
+    cli_usage('Error: unexpected result for COUNT query.');
+}
 
 $row = db()->getRow($rs, 'assoc');
 db()->freeResult($rs);

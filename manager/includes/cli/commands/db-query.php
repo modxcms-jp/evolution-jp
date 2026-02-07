@@ -14,6 +14,16 @@ if ($result === false) {
     cli_usage("Error: {$error}");
 }
 
+$normalized = ltrim($query);
+$isResultQuery = preg_match('/^(select|show|describe|explain)\b/i', $normalized) === 1;
+if ($isResultQuery && !db()->isResult($result)) {
+    $error = db()->getLastError();
+    if (!$error) {
+        $error = 'Query did not return a result set.';
+    }
+    cli_usage("Error: {$error}");
+}
+
 if (db()->isResult($result)) {
     $rows = [];
     while ($row = db()->getRow($result, 'assoc')) {

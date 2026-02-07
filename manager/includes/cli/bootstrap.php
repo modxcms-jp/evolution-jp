@@ -36,6 +36,10 @@ if (!isset($_SERVER['REQUEST_METHOD'])) {
     $_SERVER['REQUEST_METHOD'] = 'CLI';
 }
 
+if (getenv('EVO_CLI_IMPORT') === '1') {
+    define('EVO_CLI_IMPORT', true);
+}
+
 $basePath = dirname(__DIR__, 3) . '/';
 $definePath = $basePath . 'define-path.php';
 if (!defined('MODX_BASE_PATH')) {
