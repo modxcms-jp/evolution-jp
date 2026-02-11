@@ -20,7 +20,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
    空セクションは見出しのみ残す（プレースホルダ説明は書かない）
 5. `/validate-plan` を自動実行
 
-探索の重点: `assets/docs/architecture.md`（処理フロー）、`assets/docs/events-and-plugins.md`（フック）、対象ファイルの既存パターン
+探索の重点: `assets/docs/architecture.md`（処理フロー）、`assets/docs/events-and-plugins.md`（フック）、`assets/docs/core-issues.md`（既知の課題）、対象ファイルの既存パターン
 
 移行タスクでは追加で: 旧API使用箇所のGrep棚卸し、旧→新の置換パターン表、モジュール単位の分割
 
@@ -36,6 +36,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 2. Surprises & Discoveries に追記（観察+根拠）
 3. Decision Log に日付・著者・根拠・代替案を記録
 4. 完了マイルストーンの Progress 詳細を1行の要約に圧縮（トークン節約）
+5. コア側の課題（UI結合・設計上の制約・技術的負債等）を発見した場合は `assets/docs/core-issues.md` に追記（発見日・発見元・ファイル・課題・改善案・関連ロードマップ）
 
 ## 意思決定の閾値
 
