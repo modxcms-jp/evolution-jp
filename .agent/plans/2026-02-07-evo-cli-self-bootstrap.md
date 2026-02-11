@@ -12,10 +12,15 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 - [x] (2026-02-07) CLI での実行時の安定化（セッション抑止、`mb_internal_encoding` ガード）を実施
 - [x] (2026-02-07) Docker 環境で CLI 動作確認（`help`/`db:query`/`make:command`/`db:tables`/`db:describe`/`db:count`/`cache:clear`）
 - [x] (2026-02-07) CLI README と ExecPlan を更新
-- [ ] (2026-02-07) 未実装コマンドの候補を整理し、優先順位を決定（`db:export`/`db:import`/`db:backup`/`db:restore`/`health:check`）
-- [ ] (2026-02-07) CLI 共通のエラー/出力形式を固め、`--json` などの方針を決める
-- [ ] (2026-02-07) `evo()->logEvent()` を使った実行ログ出力方針を検討する
-- [ ] (2026-02-07) `db:export` の実装方針（出力先、テーブル指定、ログ／権限）を整理して着手する
+- [x] (2026-02-11) コマンド候補を整理し優先順位を決定: `health:check` > `log:show` > `db:backup` > `log:clear`。`db:restore` は `db:import` と重複するため不要
+- [x] (2026-02-11) CLI 出力形式の方針を決定: `--json` は必要になったコマンドから個別対応。共通規約として正常=exit 0/stdout、エラー=exit 1+/stderr
+- [x] (2026-02-11) `logEvent` 方針を決定: 副作用コマンドで `evo()->logEvent(0, 1, "...", 'CLI')` を記録。実装は待機
+- [ ] (2026-02-11) `health:check` を実装（`ConfigCheck` クラスを CLI から呼び出し）
+- [ ] (2026-02-11) `log:show` を実装（`event_log` テーブルを整形表示、HTML 除去を試みる）
+- [ ] (2026-02-11) `db:backup` を実装（`db:export` + snapshot パス + 世代管理）
+- [ ] (2026-02-11) `log:clear` を実装（`event_log` テーブルの TRUNCATE）
+- [ ] (2026-02-11) Docker 環境で新コマンドの動作確認
+- [ ] (2026-02-11) CLI README を更新
 - [x] (2026-02-07) `db:export` を実装（`mysql_dumper` を利用し `--tables` と `--output` を提供）
 - [x] (2026-02-07) Docker で `db:export` の出力を確認（`/tmp/site_content.sql` を生成）
 - [x] (2026-02-07) `db:import` を実装し、環境変数 `EVO_CLI_IMPORT=1` を必須化
@@ -39,6 +44,7 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 2026-02-07: コマンド名は `evo` を採用する。短く入力しやすく、既存のブランド名を保持できるため。代替案は `evolution` と `evocli`。
 2026-02-07: CLI 本体は公開領域の URL 競合を避けるため `manager/includes/` 配下に配置する。`evo` エントリポイントはルート配置を許容する。
 2026-02-11: `db:export` のデフォルトを `mysqldump` ラッパーに変更する。理由: ストリーミング出力で省メモリ、`--single-transaction` による一貫性、ネイティブエスケープの信頼性。既存 `Mysqldumper` は `--driver=php` で引き続き利用可能とする。
+2026-02-11: 次期コマンド優先順位を `health:check` > `log:show` > `db:backup` > `log:clear` に決定。`db:restore` は `db:import` と重複するため見送り。`--json` 出力は全面導入せず必要なコマンドから個別対応。`logEvent` 記録は副作用コマンドに限定し `title='CLI'` で統一、実装は待機。
 
 ## Outcomes & Retrospective
 実装後に記載
