@@ -15,12 +15,12 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 - [x] (2026-02-11) コマンド候補を整理し優先順位を決定: `health:check` > `log:show` > `db:backup` > `log:clear`。`db:restore` は `db:import` と重複するため不要
 - [x] (2026-02-11) CLI 出力形式の方針を決定: `--json` は必要になったコマンドから個別対応。共通規約として正常=exit 0/stdout、エラー=exit 1+/stderr
 - [x] (2026-02-11) `logEvent` 方針を決定: 副作用コマンドで `evo()->logEvent(0, 1, "...", 'CLI')` を記録。実装は待機
-- [ ] (2026-02-11) `health:check` を実装（`ConfigCheck` クラスを CLI から呼び出し）
-- [ ] (2026-02-11) `log:show` を実装（`event_log` テーブルを整形表示、HTML 除去を試みる）
-- [ ] (2026-02-11) `db:backup` を実装（`db:export` + snapshot パス + 世代管理）
+- [x] (2026-02-11) `health:check` を実装（`ConfigCheck` 直呼びは採用せず、CLI向け独自チェックとして実装）
+- [x] (2026-02-11) `log:show` を実装（`event_log` テーブルを整形表示し、HTML 除去を実装）
+- [x] (2026-02-11) `db:backup` を実装（`db:export` 共通ロジックを利用し、snapshot パス + 世代管理を追加）
 - [ ] (2026-02-11) `log:clear` を実装（`event_log` テーブルの TRUNCATE）
 - [ ] (2026-02-11) Docker 環境で新コマンドの動作確認
-- [ ] (2026-02-11) CLI README を更新
+- [x] (2026-02-11) CLI README を更新（`health:check` / `log:show` / `db:backup` の利用例と注意点を追記）
 - [x] (2026-02-07) `db:export` を実装（`mysql_dumper` を利用し `--tables` と `--output` を提供）
 - [x] (2026-02-07) Docker で `db:export` の出力を確認（`/tmp/site_content.sql` を生成）
 - [x] (2026-02-07) `db:import` を実装し、環境変数 `EVO_CLI_IMPORT=1` を必須化
@@ -39,18 +39,20 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 ## Surprises & Discoveries
 - (2026-02-11) 既存の `Mysqldumper` クラスは `addslashes` ベースのエスケープ、トランザクション整合性なし、最終的に全体を `file_get_contents` でメモリに読み込む設計。大規模 DB やバイナリデータでは信頼性に懸念があり、`mysqldump` をデフォルトにする方針を決定。
 - (2026-02-11) MariaDB クライアントの `mysqldump` は MySQL 8 サーバーに接続時に TLS 自己署名証明書エラーが発生。SSL 無効化オプションも MariaDB は `ssl=0`、MySQL は `ssl-mode=DISABLED` と異なる。ヘルパーで `mysql --version` の出力からクライアント種別を判定して対応。また `--no-tablespaces` が PROCESS 権限なしの環境で必要。
+- (2026-02-11) `ConfigCheck` は管理画面HTML出力と結合しており、CLIから安全に再利用しにくい。`health:check` は UI依存を避けるため CLI専用チェックとして先に実装した。
 
 ## Decision Log
 2026-02-07: コマンド名は `evo` を採用する。短く入力しやすく、既存のブランド名を保持できるため。代替案は `evolution` と `evocli`。
 2026-02-07: CLI 本体は公開領域の URL 競合を避けるため `manager/includes/` 配下に配置する。`evo` エントリポイントはルート配置を許容する。
 2026-02-11: `db:export` のデフォルトを `mysqldump` ラッパーに変更する。理由: ストリーミング出力で省メモリ、`--single-transaction` による一貫性、ネイティブエスケープの信頼性。既存 `Mysqldumper` は `--driver=php` で引き続き利用可能とする。
 2026-02-11: 次期コマンド優先順位を `health:check` > `log:show` > `db:backup` > `log:clear` に決定。`db:restore` は `db:import` と重複するため見送り。`--json` 出力は全面導入せず必要なコマンドから個別対応。`logEvent` 記録は副作用コマンドに限定し `title='CLI'` で統一、実装は待機。
+2026-02-11: `health:check` は `ConfigCheck` クラス直呼びではなく CLI向けの独自実装とする。理由: `ConfigCheck` は管理画面UI/セッション依存が強く、CLI共有のためにはコア側リファクタリングが必要なため。
 
 ## Outcomes & Retrospective
 実装後に記載
 
 ## Context and Orientation
-CLI エントリポイントは未実装。ロードマップでは `cli.php` の整備とコマンドルーティングが Phase 1 に位置付けられている。`AGENTS.md` に従い、グローバルアクセスは `evo()` / `db()` / `manager()` を経由し、スーパーグローバルは禁止。CLI では `$_SERVER` が最小限なので `serverv()` などのラッパーは前提にせず、必要な情報は CLI 専用の引数や設定から取得する。CLI ブートストラップで `$_SERVER` の必要最小限を補完する場合は、互換目的で `serverv()` を使ってもよい。既存のフロントエンドは `DocumentParser` 中心だが、CLI はフロントルーティングとは独立して初期化を行う必要がある。関連ドキュメントは `assets/docs/architecture.md` と `assets/docs/events-and-plugins.md` を参照する。
+CLI エントリポイント（`evo`）とブートストラップ（`manager/includes/cli/bootstrap.php`）は実装済み。`AGENTS.md` に従い、グローバルアクセスは `evo()` / `db()` / `manager()` を経由し、スーパーグローバルは禁止。CLI では `$_SERVER` が最小限なので `serverv()` などのラッパーは前提にせず、必要な情報は CLI 専用の引数や設定から取得する。既存のフロントエンドは `DocumentParser` 中心だが、CLI はフロントルーティングとは独立して初期化を行う。関連ドキュメントは `assets/docs/architecture.md` と `assets/docs/events-and-plugins.md` を参照する。
 
 用語:
 CLI はコマンドラインから実行する小さなプログラム群。ブートストラップは最小限の初期化処理。コマンドルーティングは入力されたコマンド名を対応する処理に振り分ける仕組み。DocumentParser はフロントエンドのリクエスト解析と出力を担う中心クラス。
