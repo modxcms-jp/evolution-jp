@@ -26,6 +26,7 @@ php evo db:backup --driver=php
 php evo health:check
 php evo log:show
 php evo log:show --type=error --limit=50
+php evo log:clear --yes
 php evo db:console
 php evo make:command cache:clear
 ```
@@ -36,6 +37,7 @@ php evo make:command cache:clear
 `db:backup` は `snapshot_path`（未設定または不正な場合は `temp/backup/` または `assets/backup/`）へ SQL スナップショットを保存し、`--max` を超えた世代を古い順に削除します。
 `health:check` はシステム要件と主要設定の簡易健全性チェックを表示します。
 `log:show` はイベントログを時系列表示します。`description` 内の HTML は CLI 表示向けに整形されます。
+`log:clear` は `event_log` を全削除します。誤実行防止のため `--yes` が必須です。
 `db:import` は `system_cache` をインポート対象から除外し、事前に `TRUNCATE` します。`system_settings` はインポートした上で `site_url`/`base_url`/`filemanager_path`/`rb_base_dir` を復元します。
 
 ## 追加したコマンドの場所

@@ -18,8 +18,8 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 - [x] (2026-02-11) `health:check` を実装（`ConfigCheck` 直呼びは採用せず、CLI向け独自チェックとして実装）
 - [x] (2026-02-11) `log:show` を実装（`event_log` テーブルを整形表示し、HTML 除去を実装）
 - [x] (2026-02-11) `db:backup` を実装（`db:export` 共通ロジックを利用し、snapshot パス + 世代管理を追加）
-- [ ] (2026-02-11) `log:clear` を実装（`event_log` テーブルの TRUNCATE）
-- [ ] (2026-02-11) Docker 環境で新コマンドの動作確認
+- [x] (2026-02-11) `log:clear` を実装（`event_log` テーブルの TRUNCATE、`--yes` 必須）
+- [x] (2026-02-11) Docker 環境で新コマンドの動作確認（`health:check` / `log:show` / `log:clear` / `db:backup`）
 - [x] (2026-02-11) Docker 環境で `db:backup` の動作確認（`mysqldump` / `--driver=php`、世代管理を確認）
 - [x] (2026-02-11) CLI README を更新（`health:check` / `log:show` / `db:backup` の利用例と注意点を追記）
 - [x] (2026-02-07) `db:export` を実装（`mysql_dumper` を利用し `--tables` と `--output` を提供）
@@ -42,6 +42,7 @@ Evolution CMS JP Edition に最小限の CLI エントリポイントと DB コ�
 - (2026-02-11) MariaDB クライアントの `mysqldump` は MySQL 8 サーバーに接続時に TLS 自己署名証明書エラーが発生。SSL 無効化オプションも MariaDB は `ssl=0`、MySQL は `ssl-mode=DISABLED` と異なる。ヘルパーで `mysql --version` の出力からクライアント種別を判定して対応。また `--no-tablespaces` が PROCESS 権限なしの環境で必要。
 - (2026-02-11) `ConfigCheck` は管理画面HTML出力と結合しており、CLIから安全に再利用しにくい。`health:check` は UI依存を避けるため CLI専用チェックとして先に実装した。
 - (2026-02-11) `Mysqldumper` はファイル先頭で `$modx` の存在を前提に `exit` する。関数スコープで `require` すると `$modx` が見えず即終了するため、CLI共通ヘルパー側で `global $modx` を明示する必要がある。
+- (2026-02-11) Docker上で `health:check` は `install/` ディレクトリが存在するため `EXIT:1` となった。コマンド自体は想定どおりに FAIL を返しており実装上の問題ではない。
 
 ## Decision Log
 2026-02-07: コマンド名は `evo` を採用する。短く入力しやすく、既存のブランド名を保持できるため。代替案は `evolution` と `evocli`。
