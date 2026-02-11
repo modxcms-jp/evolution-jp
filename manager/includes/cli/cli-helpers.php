@@ -92,6 +92,10 @@ function cli_export_database($driver = 'mysqldump', $outputPath = '', $fullTable
     }
 
     if ($driver === 'php') {
+        global $modx;
+        if (!isset($modx) || !is_object($modx)) {
+            cli_usage('Error: MODX context is not initialized.');
+        }
         require_once MODX_CORE_PATH . 'mysql_dumper.class.inc.php';
         $dump = new Mysqldumper();
         if ($fullTables) {
