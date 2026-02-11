@@ -4715,6 +4715,7 @@ class DocumentParser
 
     // Modified by Raymond for TV - Orig Modified by Apodigm - DocVars
     # returns a single TV record. $idnames - can be an id or name that belongs the template that the current document is using
+    # $fields is kept for backward compatibility but no longer used (always selects all columns)
     public function getTemplateVar($idname = '', $fields = '*', $docid = '', $published = 1)
     {
         if ($idname == '') {
@@ -4726,95 +4727,87 @@ class DocumentParser
     }
 
     # returns an array of TV records. $idnames - can be an id or name that belongs the template that the current document is using
+    # $fields is kept for backward compatibility but no longer used (always selects all columns)
     public function getTemplateVars($idnames = '*', $fields = '*', $docid = '', $published = 1, $sort = 'rank', $dir = 'ASC')
     {
-        // get document record
         if ($docid === '' && $this->documentIdentifier) {
             $docid = $this->documentIdentifier;
         }
 
+        $resource = $this->getResourceForTV($docid, $published);
+        if (!$resource) {
+            return false;
+        }
+
+        // built-in resource fields
+        $result = $this->collectResourceFields($resource, $idnames);
+
+        // user-defined template variables
+        if ($resource['template']) {
+            $where = $this->buildTVWhereClause($idnames);
+            $orderby = $sort
+                ? sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
+                : '';
+
+            $rs = db()->select(
+                "tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value",
+                [
+                    '[+prefix+]site_tmplvars tv',
+                    'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl ON tvtpl.tmplvarid = tv.id',
+                    sprintf(
+                        "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
+                        $docid
+                    )
+                ],
+                sprintf('%s AND tvtpl.templateid=%s', $where, $resource['template']),
+                $orderby
+            );
+            while ($row = db()->getRow($rs)) {
+                $result[] = $row;
+            }
+        }
+
+        return $result;
+    }
+
+    private function getResourceForTV($docid, $published)
+    {
         if ($this->array_get($this->previewObject, 'template')) {
-            $resource = $this->getDocument($docid, '*', null); //Ignore published when the preview.
+            $resource = $this->getDocument($docid, '*', null);
             $resource['template'] = $this->previewObject['template'];
         } elseif ($docid == $this->documentIdentifier) {
             $resource = $this->documentObject;
         } else {
             $resource = $this->getDocument($docid, '*', $published);
         }
+        return $resource ?: false;
+    }
 
-        if (!$resource) {
-            return false;
-        }
-        if (!$resource['template']) {
-            $result = [];
-            foreach ($resource as $key => $value) {
-                if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
-                    $result[] = ['name' => $key, 'value' => $value];
-                }
-            }
-            return $result;
-        }
-
-        if ($fields === '*' || $fields === '') {
-            $fields = "tv.*, IF(tvc.value!='',tvc.value,tv.default_text) as value";
-        } else {
-            $fields = sprintf(
-                "%s, IF(tvc.value!='',tvc.value,tv.default_text) as value",
-                array_map(
-                    function ($v) {
-                        return 'tv.' . $v;
-                    },
-                    explode(',', $fields)
-                )
-            );
-        }
-
-        if (is_array($idnames) && !empty($idnames)) {
-            $idnames = sprintf(
-                "'%s'",
-                implode("','", db()->escape($idnames))
-            );
-        }
-
-        if ($idnames === '*') {
-            $where = 'tv.id<>0';
-        } elseif (preg_match('@^[1-9][0-9]*$@', $idnames)) {
-            $where = sprintf('tv.id=%s', $idnames);
-        } elseif (strpos($idnames, "'") === 0) {
-            $where = sprintf("tv.name IN (%s)", $idnames);
-        } else {
-            $where = sprintf("tv.name='%s'", db()->escape($idnames));
-        }
-
+    private function collectResourceFields($resource, $idnames)
+    {
         $result = [];
-        $rs = db()->select(
-            $fields,
-            [
-                '[+prefix+]site_tmplvars tv',
-                'INNER JOIN [+prefix+]site_tmplvar_templates tvtpl  ON tvtpl.tmplvarid = tv.id',
-                sprintf(
-                    "LEFT JOIN [+prefix+]site_tmplvar_contentvalues tvc ON tvc.tmplvarid=tv.id AND tvc.contentid='%s'",
-                    $docid
-                )
-            ],
-            sprintf('%s AND tvtpl.templateid=%s', $where, $resource['template']),
-            $sort ?
-                sprintf('%s %s', $this->join(',', explode(',', $sort), 'tv.'), $dir)
-                :
-                ''
-        );
-        while ($row = db()->getRow($rs)) {
-            $result[] = $row;
-        }
-
-        // get default/built-in template variables
         ksort($resource);
         foreach ($resource as $key => $value) {
-            if ($idnames === '*' || in_array($key, explode(',', $idnames))) {
+            if ($idnames === '*' || (is_string($idnames) && in_array($key, explode(',', $idnames)))) {
                 $result[] = ['name' => $key, 'value' => $value];
             }
         }
         return $result;
+    }
+
+    private function buildTVWhereClause($idnames)
+    {
+        if (is_array($idnames) && !empty($idnames)) {
+            $escaped = implode("','", db()->escape($idnames));
+            return sprintf("tv.name IN ('%s')", $escaped);
+        }
+        if ($idnames === '*') {
+            return 'tv.id<>0';
+        }
+        if (preg_match('@^[1-9][0-9]*$@', $idnames)) {
+            return sprintf('tv.id=%s', $idnames);
+        }
+        return sprintf("tv.name='%s'", db()->escape($idnames));
     }
 
     # returns an associative array containing TV rendered output values. $idnames - can be an id or name that belongs the template that the current document is using
