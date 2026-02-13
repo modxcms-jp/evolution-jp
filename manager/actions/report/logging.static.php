@@ -288,7 +288,7 @@ $icons_path = manager_style_image_path('icons');
                     // Load up the 2 array in order to display result
                     $array_paging = $p->getPagingArray();
                     $array_row_paging = $p->getPagingRowArray();
-                    $current_row = evo()->input_get('int_cur_position', 0) / $int_num_result;
+                    $current_row = (int)(evo()->input_get('int_cur_position', 0) / $int_num_result);
 
                     // Display the result as you like...
                     echo sprintf('<p>%s %s', lang('paging_showing'), $array_paging['lower']);
@@ -303,11 +303,11 @@ $icons_path = manager_style_image_path('icons');
                     $paging .= $array_paging['previous_link'] . lang('paging_prev') . (isset($array_paging['previous_link']) ? "</a> " : " ");
                     $pagesfound = sizeof($array_row_paging);
                     if ($pagesfound > 6) {
-                        $paging .= $array_row_paging[$current_row - 2];
-                        $paging .= $array_row_paging[$current_row - 1];
-                        $paging .= $array_row_paging[$current_row];
-                        $paging .= $array_row_paging[$current_row + 1];
-                        $paging .= $array_row_paging[$current_row + 2];
+                        $start = max(0, min($current_row - 2, $pagesfound - 5));
+                        $end = min($pagesfound - 1, $start + 4);
+                        for ($i = $start; $i <= $end; $i++) {
+                            $paging .= $array_row_paging[$i];
+                        }
                     } else {
                         for ($i = 0; $i < $pagesfound; $i++) {
                             $paging .= $array_row_paging[$i] . "&nbsp;";
