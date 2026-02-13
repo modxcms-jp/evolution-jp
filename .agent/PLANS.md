@@ -35,7 +35,7 @@ ExecPlan の仕様書。複雑なタスクはこの仕様に従い `.agent/plans
 
 - **Purpose**: ユーザーにとっての価値を1–2文で
 - **Progress**: タイムスタンプ付きチェックリスト。完了マイルストーンは1行要約に圧縮
-- **Surprises & Discoveries**: 予期しない挙動や知見（根拠を添える）
+- **Surprises & Discoveries**: 想定外の挙動や知見（根拠を添える）
 - **Decision Log**: 設計判断（日付・著者・根拠・代替案）
 - **Outcomes & Retrospective**: 達成内容と教訓
 - **Context and Orientation**: 対象コードの場所・前提条件（パスはリポジトリルート相対）
