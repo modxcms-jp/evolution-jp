@@ -43,7 +43,7 @@ CLIは実装済み。着手順は下記「実行順ロードマップ（依存�
   - ローカル開発でCLI中心の運用フローが再現できる
 - 非対象（やらないこと）: API Router統合、管理画面UI刷新
 - 依存関係: なし
-- ExecPlan: `.agent/plans/2026-02-07-evo-cli-self-bootstrap.md`
+- ExecPlan: `.agent/plans/archive/2026-02-11-evo-cli-self-bootstrap.md`
 - メモ/判断ログ: 実装手順・検証詳細はExecPlanを参照
 
 ### システムログ機構の改修

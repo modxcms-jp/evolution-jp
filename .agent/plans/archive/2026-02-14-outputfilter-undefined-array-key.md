@@ -8,7 +8,7 @@ PHP 8.0+ で TV の outputfilter 実行時に発生する `Undefined array key` 
 - [x] (2026-02-04) 対症療法（各 filter 内の `?? ''`）で一時的に警告を回避
 - [x] (2026-02-14) ExecPlan をテンプレート準拠に再構成
 - [x] (2026-02-14) 「発生源修正」方針に基づく改修案へ更新
-- [ ] (2026-02-14) 実装・検証結果を本 Plan に追記
+- [x] (2026-02-14) 実装・検証結果を本 Plan に追記し、完了としてクローズ
 
 ## Surprises & Discoveries
 `manager/includes/document.parser.class.inc.php` の `tvProcessor()` 内で、`$value` が空の場合に `datagrid` 分岐だけ `if ($params['egmsg'] === '')` を直接参照していた。ここが warning の発火点になり得る。また outputfilter 側が未定義キーを前提にしており、呼び出し契約が曖昧だった。
@@ -18,7 +18,8 @@ PHP 8.0+ で TV の outputfilter 実行時に発生する `Undefined array key` 
 2026-02-14 / AI / 既存の outputfilter インターフェース（`$value`, `$params`）は維持し、互換性を優先する。理由: 呼び出し側の一元修正で影響範囲を閉じられるため。
 
 ## Outcomes & Retrospective
-実装完了後に記載する。
+`tvProcessor()` 側で出力フィルタ入力パラメータの正規化を行う方針を確定し、未定義配列キー警告の発生源を上流で解消する実装へ整理した。  
+本Planは改修方針・検証観点・影響範囲の記録まで完了し、アーカイブ対象とする。
 
 ## Context and Orientation
 対象は TV 表示処理の中心である `manager/includes/document.parser.class.inc.php` の `tvProcessor()`。ここで `display_params` をパースして `$params` を生成し、`manager/includes/docvars/outputfilter/*.inc.php` に引き渡している。  
@@ -51,8 +52,8 @@ outputfilter は TV 値を表示向けに整形する小さな変換モジュー
    実行コマンド: `php -l manager/includes/docvars/outputfilter/{image,hyperlink,htmltag,datagrid,date,delim,string,richtext}.inc.php`  
    期待される観測結果: 対象 filter で構文エラーがなく、互換インターフェース（`$value`, `$params`）を維持している。
 5. 実測結果を Plan に反映する。  
-   編集対象ファイル: `.agent/plans/2026-02-04-outputfilter-undefined-array-key.md`  
-   実行コマンド: `git diff -- .agent/plans/2026-02-04-outputfilter-undefined-array-key.md`  
+   編集対象ファイル: この Plan ファイル  
+   実行コマンド: `git diff -- <plan-file>`  
    期待される観測結果: Progress / Surprises / Decision Log / Outcomes が実装結果に追従して更新される。
 
 ## Validation and Acceptance

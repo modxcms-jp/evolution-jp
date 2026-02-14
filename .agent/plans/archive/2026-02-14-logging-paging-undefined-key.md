@@ -9,7 +9,7 @@
 - [x] (2026-02-13) logging.static.php のページングウィンドウに境界チェックを追加
 - [x] (2026-02-13) paginate.inc.php の getNumberOfPage() に ceil() を適用
 - [x] (2026-02-13) 静的検証（対象2ファイルの `php -l` で構文エラーなし）
-- [ ] (未実施) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生を確認）
+- [x] (2026-02-14) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生）を完了
 
 ## Surprises & Discoveries
 - `Paging::getNumberOfPage()` が小数を返す設計のため、`getCurrentPage()` の計算が間接的に小数依存になっていた。`ceil()` + `int` 化で `getPagingRowArray()` のループ境界が明確化された。
@@ -21,7 +21,7 @@
 ## Outcomes & Retrospective
 - `manager/actions/report/logging.static.php` で配列アクセスを固定オフセットから境界付きループへ変更し、`Undefined array key` の発生条件を除去した。
 - `manager/includes/paginate.inc.php` で総ページ数を切り上げ整数化し、ページ配列生成の境界を安定化した。
-- 画面手動確認（イベントログ7ページ以上の実ブラウザ確認）は未実施。コード上の再発要因は解消済み。
+- 画面手動確認（イベントログ7ページ以上の実ブラウザ確認）を実施し、1/2/中間/最終ページで warning 非発生を確認した。
 ## Context and Orientation
 
 **エラー報告**:
