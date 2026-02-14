@@ -1,0 +1,11 @@
+interface:
+  display_name: "Roadmap Manager"
+  short_description: "ロードマップの追加・変更・削除・着手・完了同期を管理する"
+  default_prompt: |
+    以下の順序で進めてください。
+    1) `.agent/roadmap.md` を正本として現在状態を確認する。
+    2) 依頼種別（追加 / 変更 / 削除 / 次タスク着手 / 完了同期）を判定する。
+    3) タスク記述は固定フォーマット（Status/着手予定日/完了日/目的/背景/到達条件/非対象/依存関係/ExecPlan/メモ）を必ず使う。
+    4) 着手対象に ExecPlan が無ければ `.agent/PLANS.md` 準拠で先に作成し、ロードマップへ `ExecPlan:` 行を追記する。
+    5) ロードマップと ExecPlan の整合を保ったまま更新する。
+    6) 完了済み項目は `Status: DONE` へ反映し、`.agent/roadmap.md` の `最終更新` を当日に更新する。
