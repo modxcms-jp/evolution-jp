@@ -90,6 +90,17 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
   - これらは新ログ機構で不要（削除機能は管理画面から、エクスポートはJSON形式で対応）
 - **理由**: 新規ユーザーには最初から新方式を提供し、既存ユーザーには移行期間を確保
 
+### 2026-02-14: Sentry連携の扱い（今回は実装しない）
+- **決定**: 本プランではSentry送信実装は行わず、将来連携可能な拡張ポイントのみを設計に含める
+- **理由**:
+  - 先にローカルJSONLinesの安定運用を確立し、観測データの品質を担保する
+  - 外部送信は運用ポリシー（PII・マスキング・サンプリング）の合意後に導入する方が安全
+- **実装方針**:
+  - ロガー内部に `LogTransportInterface`（例: `send(array $entry): void`）を導入できる構造にする
+  - 初期実装は `FileTransport` のみを有効化し、外部送信トランスポートは未実装のままにする
+  - 送信前サニタイズは `Sanitizer` コンポーネントとして分離し、設定駆動（allowlist/mask）で拡張可能にする
+  - 処理順序は常に「ローカル保存 → 外部送信（将来）」を前提とし、フォールバック可能性を担保する
+
 ## Outcomes & Retrospective
 （完了時に記入）
 
@@ -451,6 +462,10 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
    編集対象ファイル: `manager/includes/lang/*.inc.php`, `install/sql/create_tables.sql`, `manager/processors/delete_eventlog.processor.php`, `manager/processors/export_eventlog.processor.php`, `manager/actions/report/eventlog_details.dynamic.php`  
    実行コマンド: `rg -n "event_log|イベントログ|システムログ" manager/includes/lang install/sql manager/actions/report manager/processors`  
    期待される観測結果: 新規インストールで `event_log` テーブル定義が除外され、UI 文言が「システムログ」に統一される。
+6. 外部連携の拡張ポイントを固定する（Sentry実装はしない）。  
+   編集対象ファイル: `manager/includes/logger.class.php`（インターフェース導入方針のコメント/構造）, `assets/docs/architecture.md` または本Planの `Interfaces and Dependencies`  
+   実行コマンド: `rg -n "Transport|Sanitizer|fallback|external" manager/includes/logger.class.php .agent/plans/2026-02-07-logging-system-refactor.md`  
+   期待される観測結果: 外部送信を差し込む責務境界が明記され、現時点では `FileTransport` のみ有効であることが確認できる。
 
 ---
 
@@ -475,6 +490,11 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
    - ログファイルが日付別に分割されている
    - 100MB超過で自動ローテーションされる
    - 古いログが自動削除される（設定可能）
+
+5. **将来拡張性（Sentry対応準備）**
+   - 外部送信トランスポートを差し込める拡張ポイントが定義されている
+   - 現時点で外部送信が無効でも、ローカル保存のみで完結して動作する
+   - 送信前サニタイズ方針（allowlist/mask）が設計として明記されている
 
 ### テストシナリオ（コマンドと期待観測結果）
 
@@ -570,6 +590,7 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
 - **CLI**: 新規コマンドを `manager/includes/cli/commands/` に追加
 - **AI エージェント**: `log:search --json` でエラーパターンを取得
 - **issue-resolver スキル**: ログ解析機能を活用した不具合調査・修正
+- **将来の外部送信先（例: Sentry）**: `LogTransportInterface` を介して追加可能とし、現時点では未接続
 
 ### 破壊的変更なし
 
