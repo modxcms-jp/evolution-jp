@@ -1,4 +1,4 @@
 interface:
-  display_name: "実行計画"
+  display_name: "ExecPlan"
   short_description: "複雑な作業向けのExecPlanを設計・検証・更新する"
   default_prompt: "`.agent/PLANS.md` に従って `.agent/plans` の ExecPlan を新規作成または更新し、具体的な実装手順と観察可能な検証条件を含めて、品質チェックを実施してください。"
