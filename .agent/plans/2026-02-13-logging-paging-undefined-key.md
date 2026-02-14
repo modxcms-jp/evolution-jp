@@ -8,7 +8,8 @@
 
 - [x] (2026-02-13) logging.static.php のページングウィンドウに境界チェックを追加
 - [x] (2026-02-13) paginate.inc.php の getNumberOfPage() に ceil() を適用
-- [x] (2026-02-13) 動作検証（対象2ファイルの `php -l` で構文エラーなし）
+- [x] (2026-02-13) 静的検証（対象2ファイルの `php -l` で構文エラーなし）
+- [ ] (未実施) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生を確認）
 
 ## Surprises & Discoveries
 - `Paging::getNumberOfPage()` が小数を返す設計のため、`getCurrentPage()` の計算が間接的に小数依存になっていた。`ceil()` + `int` 化で `getPagingRowArray()` のループ境界が明確化された。
@@ -44,7 +45,7 @@ Source: $paging .= $array_row_paging[$current_row - 2];
 
 2箇所を修正する。
 
-**修正1: logging.static.php（主原因）** — 固定インデックス `$current_row - 2` 〜 `$current_row + 2` でページ番号配列にアクセスしている箇所を、境界クランプ付きのループに置き換える。表示するページ数（5ページ）は変わらず、端のページでもウィンドウがスライドして範囲外アクセスを防ぐ。
+**修正1: logging.static.php（主原因）** — 固定インデックス `$current_row - 2` 〜 `$current_row + 2` でページ番号配列にアクセスしている箇所を、境界クランプ付きのループに置き換える。表示するページ数（5ページ）は変わらず、端のページでもウィンドウがスライドして範囲外アクセスを防ぐ。ここでいう「5件ウィンドウ」は、現在ページを中心に最大5個のページ番号リンクを表示する仕組みを指す。
 
 **修正2: paginate.inc.php（副次的）** — `getNumberOfPage()` が `$nbr_row / $num_result` を返しているが、`ceil()` を使っていないため端数がある場合にページ数が浮動小数点になる。`ceil()` を適用して正確な整数ページ数を返すようにする。また `$current_row` も `(int)` でキャストして型安全を確保する。
 この Plan は実装者が過去チャットを参照しなくても実施できるよう、対象ファイル・コマンド・期待観測結果を各手順に明記する。
@@ -78,7 +79,11 @@ Source: $paging .= $array_row_paging[$current_row - 2];
 
 ## Idempotence and Recovery
 
-変更は2ファイル・3箇所のみ。`git diff` で差分確認し、問題があれば `git checkout` で復元可能。
+変更は2ファイル・3箇所のみ。再実行しても同じ差分に収束する。中断時は次の順で復帰する。
+
+1. `git diff -- manager/actions/report/logging.static.php manager/includes/paginate.inc.php` で差分を確認する。
+2. 作業を破棄する場合は `git restore --source=HEAD -- manager/actions/report/logging.static.php manager/includes/paginate.inc.php` で対象2ファイルのみ復元する。
+3. 復元後に `php -l manager/actions/report/logging.static.php manager/includes/paginate.inc.php` を再実行し、構文正常を確認してから再着手する。
 
 ## Artifacts and Notes
 
