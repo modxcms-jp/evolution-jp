@@ -119,7 +119,7 @@ class Paging
 
     private function getNumberOfPage()
     {
-        return $this->int_nbr_row / $this->int_num_result;
+        return (int)ceil($this->int_nbr_row / $this->int_num_result);
     }
 
     private function getCurrentPage()
