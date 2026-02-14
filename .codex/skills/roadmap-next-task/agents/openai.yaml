@@ -1,0 +1,11 @@
+interface:
+  display_name: "Roadmap Next Task"
+  short_description: "ロードマップから次タスクを選び、必要ならExecPlanを作って着手する"
+  default_prompt: |
+    以下の順序で進めてください。
+    1) `.agent/roadmap.md` を読み、依存順で次の未完了タスクを1件選定する。
+    2) 完了済みなのに未チェックの項目があれば先に同期する。
+    3) 対象タスクに ExecPlan が無ければ `.agent/PLANS.md` 準拠で新規作成し、ロードマップへ `ExecPlan:` 行を追記する。
+    4) ExecPlan の `Progress` と検証手順を更新してから実装に着手する。
+    5) 完了後は対象タスクを `[x]` にし、必要なら親タスクも `[x]` に更新する。
+    6) `.agent/roadmap.md` の `最終更新` を当日に更新する。
