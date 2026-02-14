@@ -55,7 +55,7 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 | `template-system.md` | テンプレート継承・MODX タグ解析・評価順序 |
 | `events-and-plugins.md` | イベントライフサイクル・プラグインキャッシュ |
 | `cache-mechanism.md` | ページキャッシュ・TTL・無効化手順 |
-| `roadmap.md` | 次期バージョン (v1.3.0–v1.5.0) ロードマップ |
+| `.agent/roadmap.md` | 次期バージョン (v1.3.0–v1.5.0) ロードマップ |
 | `global-settings.md` | グローバル設定の追加手順・タブ構成 |
 | `core-issues.md` | 改修を通じて発見されたコア側の課題記録 |
 
@@ -86,4 +86,4 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
 - `AGENTS.md`（本ファイル）: AI 向けハブ。詳細は `assets/docs/` に分離しリンクする
 - `.agent/PLANS.md`: ExecPlan 仕様書。個別計画は `.agent/plans/` に格納
-- `assets/docs/roadmap.md`: プロジェクトロードマップ
+- `.agent/roadmap.md`: プロジェクトロードマップ

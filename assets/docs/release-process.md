@@ -232,16 +232,16 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
 - [ ] ローカルでの動作確認（インストール・アップグレード）
 - [ ] テストケースの実行
-- [ ] ドキュメントの更新（`assets/docs/roadmap.md` など）
+- [ ] ドキュメントの更新（`.agent/roadmap.md` など）
 - [ ] リリースノートの準備（GitHub Release の説明文）
 
 ## リリース後の対応
 
 1. リリース告知（フォーラム、SNS など）
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
-3. `assets/docs/roadmap.md` の更新
+3. `.agent/roadmap.md` の更新
 
 ## 参考リンク
 
 - GitHub Actions ワークフロー: [.github/workflows/release.yml](../../.github/workflows/release.yml)
-- ロードマップ: [roadmap.md](roadmap.md)
+- ロードマップ: [`../../.agent/roadmap.md`](../../.agent/roadmap.md)

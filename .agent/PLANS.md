@@ -66,4 +66,4 @@ ExecPlan の仕様書。複雑なタスクはこの仕様に従い `.agent/plans
 ## 関連
 
 - `AGENTS.md` — 開発ルール
-- `assets/docs/roadmap.md` — ロードマップ
+- `.agent/roadmap.md` — ロードマップ
