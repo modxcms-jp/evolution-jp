@@ -42,17 +42,20 @@ description: 不具合報告（GitHub Issue、フォーラム投稿、社内報�
 ## Workflow
 
 ### analyze-issue <URL|テキスト>
-1. 入力が URL の場合は最初から制限外実行で本文取得し、HTMLタグを除去したテキストのみを扱う。`curl -fsSL -A "Mozilla/5.0" "<URL>" | php -r '$h=stream_get_contents(STDIN); $t=strip_tags($h); $t=preg_replace("/\s+/u"," ",$t); echo trim($t), PHP_EOL;'` を承認付きで実行し、失敗時は `wget -qO- "<URL>" | php -r '$h=stream_get_contents(STDIN); $t=strip_tags($h); $t=preg_replace("/\s+/u"," ",$t); echo trim($t), PHP_EOL;'` を同様に承認付きで実行する。取得テキストから事実情報（環境、手順、実際結果、期待結果）を抽出する。
-2. `AGENTS.md` のドキュメントマップを参照し、関連コンポーネントと確認ドキュメントを特定する。
-3. `docker compose exec <app-service> php evo config:show <key>` で関連設定値を確認する。
-4. `docker compose exec <app-service> php evo db:describe <table>` で対象テーブル構造を確認する。
-5. 必要時のみ `docker compose exec <app-service> php evo db:count <table> --where=...` で件数を確認する。
-6. 現象の要約、再現条件、原因仮説（最大3件）を作る。
-7. 原因が判明した場合は、修正前に「原因・影響範囲・修正方針案」を短く報告する。
-8. URL本文を取得できない場合は、失敗理由を1行で記録し、環境制限またはアクセス制限の種別を明記する。
-9. 制限外実行でも取得できない場合は、投稿本文の貼り付けを依頼する。
-10. URL本文が得られるまでは原因推測や修正方針の断定を行わず、エンジニアの対応を待つ。
-11. 情報不足がある場合は、追加確認項目を短く列挙する。
+1. 入力が URL の場合は、最初の取得を制限外実行（承認付き）で行う。
+2. 取得コマンドは `curl -fsSL -A "Mozilla/5.0" "<URL>" | php -r '$h=stream_get_contents(STDIN); $t=strip_tags($h); $t=preg_replace("/\s+/u"," ",$t); echo trim($t), PHP_EOL;'` を使う。
+3. `curl` が失敗した場合は、制限外実行（承認付き）で `wget -qO- "<URL>" | php -r '$h=stream_get_contents(STDIN); $t=strip_tags($h); $t=preg_replace("/\s+/u"," ",$t); echo trim($t), PHP_EOL;'` を実行する。
+4. 取得したテキストから事実情報（環境、手順、実際結果、期待結果）を抽出する。
+5. `AGENTS.md` のドキュメントマップを参照し、関連コンポーネントと確認ドキュメントを特定する。
+6. `docker compose exec <app-service> php evo config:show <key>` で関連設定値を確認する。
+7. `docker compose exec <app-service> php evo db:describe <table>` で対象テーブル構造を確認する。
+8. 必要時のみ `docker compose exec <app-service> php evo db:count <table> --where=...` で件数を確認する。
+9. 現象の要約、再現条件、原因仮説（最大3件）を作る。
+10. 原因が判明した場合は、修正前に「原因・影響範囲・修正方針案」を短く報告する。
+11. URL本文を取得できない場合は、失敗理由を1行で記録し、環境制限またはアクセス制限の種別を明記する。
+12. 制限外実行でも取得できない場合は、投稿本文の貼り付けを依頼する。
+13. URL本文が得られるまでは原因推測や修正方針の断定を行わず、エンジニアの対応を待つ。
+14. 情報不足がある場合は、追加確認項目を短く列挙する。
 
 
 ### reproduce
