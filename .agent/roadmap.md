@@ -17,11 +17,15 @@ CLIは実装済み。着手順は下記「実行順ロードマップ（依存�
     - [x] コマンドルーティング
     - [x] 主要運用コマンド（`help`, `db:*`, `config:show`, `cache:clear`, `health:check`, `log:show`, `log:clear`）
 - [ ] **システムログ機構の改修**（AI自走デバッグ）
+    - [ ] 対象はシステムログのみ（管理操作ログは別タスクで進行）
     - [ ] PSR-3準拠ロガー (`manager/includes/logger.class.php`)
     - [ ] JSONLines保存 (`temp/logs/system/YYYY/MM/`)
     - [ ] ローテーション/圧縮/削除運用
     - [ ] 管理画面「システムログ」UI
-    - [ ] CLI拡張（`log:tail system`, `log:search system`, `log:rotate system`, `log:compress system`, `log:clean system`）
+    - [ ] CLI拡張（`log:tail system`, `log:search system`, `log:compress system`, `log:clean system`）
+    - [ ] issue-resolver スキル更新（ログ解析機能統合）
+    - [ ] 多言語対応（「イベントログ」→「システムログ」）
+    - [ ] Sentry連携の拡張ポイント設計（送信実装は今回は行わない）
     - [ ] `event_log` 依存の段階廃止
 - [ ] **マイグレーション機構**
     - [ ] `up`/`down` を持つクラス設計
