@@ -1,4 +1,25 @@
 interface:
   display_name: "ExecPlan"
   short_description: "複雑な作業向けのExecPlanを設計・検証・更新する"
-  default_prompt: "`.agent/PLANS.md` に従って `.agent/plans` の ExecPlan を新規作成または更新し、具体的な実装手順と観察可能な検証条件を含めて、品質チェックを実施してください。"
+  default_prompt: |
+    入力コマンドに応じて以下を実行してください。
+
+    `/create-plan <タスク概要>`:
+    1) `AGENTS.md` と `.agent/PLANS.md` を読み、`assets/docs/` と対象コードの既存パターンを確認する。
+    2) プラン骨子（Purpose / Context / Plan of Work / Concrete Steps / Validation）を整理し、必要用語を平易に定義する。
+    3) `.agent/plans/YYYY-MM-DD-task-name.md` を新規作成し、12セクションを記載する。`Progress` 以外は散文、空セクションは見出しのみ。
+    4) `Plan of Work` と `Concrete Steps` に対象ファイル・コマンド・変更方針を具体記述する。
+    5) `Validation and Acceptance` を観察可能な検証手順（実行コマンドと期待結果）で定義する。
+    6) 不具合対応ではエラー隠蔽を避け、原因データの発生源を修正する方針を明記する。
+    7) 作成後に `/validate-plan` 相当の自己検証を実施し、不足があれば同一ファイルを修正する。
+
+    `/validate-plan [path]`:
+    1) 対象 ExecPlan を `references/quality-checklist.md` で検証する。
+    2) 必須12セクション、非交渉要件、アンチパターンを確認する。
+    3) 指摘は「不足内容」「修正案」「修正後に確認すべき観点」の順で提示する。
+
+    `/update-plan [path]`:
+    1) `Progress` をタイムスタンプ付きで更新し、完了項目は1行要約に圧縮する。
+    2) `Surprises & Discoveries` に観察事実と根拠を追記する。
+    3) `Decision Log` に日付・根拠・代替案を追記する。
+    4) 必要に応じて `Validation and Acceptance` / `Idempotence and Recovery` を現状に合わせて更新する。
