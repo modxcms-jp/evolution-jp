@@ -15,6 +15,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 3. 紐付くExecPlanを完了した場合、同一タスクの `Status` を `DONE` に更新し、`完了日` を更新する。
 4. 着手した時点で `Status` を `WIP` に更新し、`着手予定日` が `未定` なら当日を設定する。
 5. ロードマップ上で対応タスクを一意に特定できない場合は、推測で更新せずエンジニアへ確認する。
+6. 完了したExecPlanは `.agent/plans/archive/` へ移動し、ファイル名先頭の日付を完了日（`YYYY-MM-DD`）へ更新する。必要ならロードマップの `ExecPlan:` パスを更新する。
 
 ## コマンド
 
@@ -54,6 +55,7 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 5. コア側の課題（UI結合・設計上の制約・技術的負債等）を発見した場合は `assets/docs/core-issues.md` に追記（発見日・発見元・ファイル・課題・改善案・関連ロードマップ）
 6. 当該ExecPlanがロードマップ対象で完了条件を満たした場合、`.agent/roadmap.md` の対応タスクを `Status: DONE` / `完了日: 当日` に更新する
 7. ロードマップ対象で完了条件を満たしていない場合でも、着手中なら `Status: WIP` を維持する
+8. 完了条件を満たしたExecPlanは `.agent/plans/archive/` へ移動し、ファイル名先頭の日付を完了日（`YYYY-MM-DD`）へ更新する。必要なら `.agent/roadmap.md` の `ExecPlan:` パスを移動先へ更新する
 
 ## 意思決定の閾値
 
