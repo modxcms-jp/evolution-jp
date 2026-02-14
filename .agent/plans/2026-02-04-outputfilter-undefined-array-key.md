@@ -34,18 +34,34 @@ outputfilter は TV 値を表示向けに整形する小さな変換モジュー
 同時に、`$value` 空判定の `datagrid` 早期 return 条件を未定義キー参照しない実装に変更し、warning 発火点を除去する。
 
 ## Concrete Steps
-1. `tvProcessor()` の `$params` 構築直後に、`$format` ごとの既定値配列を返すヘルパー（private メソッド）を追加する。
-2. `array_replace($defaults, $params)` 相当で `$params` を正規化し、未定義キーを生成しない状態にする。
-3. `if ($format === 'datagrid' && $params['egmsg'] === '')` の参照が常に安全になることを担保する。
-4. outputfilter 側で「既に正規化済み」を前提にできる箇所を点検し、不要な防御コードがあれば最小限に整理する（互換性を崩さない範囲）。
-5. `manager/includes/docvars/outputfilter/` の主要 filter（`image`, `hyperlink`, `htmltag`, `datagrid`, `date`, `delim`, `string`, `richtext`）で warning 不在と従来表示を確認する。
-6. Plan の Progress / Surprises / Decision Log / Outcomes を実測結果で更新する。
+1. format ごとの既定値マップを `tvProcessor()` に追加する。  
+   編集対象ファイル: `manager/includes/document.parser.class.inc.php`  
+   実行コマンド: `rg -n "function tvProcessor|datagrid|display_params" manager/includes/document.parser.class.inc.php`  
+   期待される観測結果: 既定値マップの配置場所と `tvProcessor()` の入力処理位置が特定できる。
+2. `$params` 生成直後に正規化処理（`array_replace($defaults, $params)` 相当）を挿入する。  
+   編集対象ファイル: `manager/includes/document.parser.class.inc.php`  
+   実行コマンド: `php -l manager/includes/document.parser.class.inc.php`  
+   期待される観測結果: 構文エラーがなく、`$params` 参照前に必ず既定キーが存在する状態になる。
+3. `datagrid` の早期 return 判定で未定義キー参照を発生させない。  
+   編集対象ファイル: `manager/includes/document.parser.class.inc.php`  
+   実行コマンド: `rg -n "egmsg|datagrid" manager/includes/document.parser.class.inc.php`  
+   期待される観測結果: `egmsg` 参照が正規化後の `$params` に対してのみ行われ、未定義キー warning の経路が消える。
+4. 主要 outputfilter の呼び出し契約が維持されることを点検する。  
+   編集対象ファイル: `manager/includes/docvars/outputfilter/image.inc.php`, `manager/includes/docvars/outputfilter/hyperlink.inc.php`, `manager/includes/docvars/outputfilter/htmltag.inc.php`, `manager/includes/docvars/outputfilter/datagrid.inc.php`, `manager/includes/docvars/outputfilter/date.inc.php`, `manager/includes/docvars/outputfilter/delim.inc.php`, `manager/includes/docvars/outputfilter/string.inc.php`, `manager/includes/docvars/outputfilter/richtext.inc.php`  
+   実行コマンド: `php -l manager/includes/docvars/outputfilter/{image,hyperlink,htmltag,datagrid,date,delim,string,richtext}.inc.php`  
+   期待される観測結果: 対象 filter で構文エラーがなく、互換インターフェース（`$value`, `$params`）を維持している。
+5. 実測結果を Plan に反映する。  
+   編集対象ファイル: `.agent/plans/2026-02-04-outputfilter-undefined-array-key.md`  
+   実行コマンド: `git diff -- .agent/plans/2026-02-04-outputfilter-undefined-array-key.md`  
+   期待される観測結果: Progress / Surprises / Decision Log / Outcomes が実装結果に追従して更新される。
 
 ## Validation and Acceptance
-1. PHP 8.0+ で、`display_params` を省略した TV を各 outputfilter 形式で表示して warning が出ないこと。
-2. 既存の `display_params` 指定あり TV で、表示 HTML が改修前と同等であること。
-3. `datagrid` で `egmsg` 未指定時に warning なく従来どおりレンダリングされること。
-4. 対象ファイルの `php -l` が全て成功すること。
+1. `php -l manager/includes/document.parser.class.inc.php` を実行し、`No syntax errors detected` が出ること。
+2. 主要 outputfilter 8ファイルに対する `php -l` で `No syntax errors detected` が出ること。
+3. 管理画面で `display_params` を省略した TV を各 outputfilter 形式で表示し、PHP warning（`Undefined array key`）が出ないこと。
+4. `datagrid` で `egmsg` 未指定の TV を表示し、warning なしで従来どおりレンダリングされること。
+5. `display_params` 指定あり TV でも表示 HTML が改修前と同等であること（回帰なし）。
+6. 上記検証結果（実行コマンドと観測結果）を本 Plan に追記し、過去チャットを見ずに再現できる状態にすること。
 
 ## Idempotence and Recovery
 変更は `document.parser.class.inc.php` と必要最小限の outputfilter のみ。差分は `git diff` で確認し、想定外があれば対象コミットを revert して復旧できる。  
