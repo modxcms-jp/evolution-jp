@@ -170,7 +170,9 @@ class DocumentParser
         if (!defined('MODX_SETUP_PATH')) {
             set_error_handler([&$this, 'phpError'], E_ALL & ~E_NOTICE & ~E_DEPRECATED); //error_reporting(0);
         }
-        mb_internal_encoding('utf-8');
+        if (function_exists('mb_internal_encoding')) {
+            mb_internal_encoding('utf-8');
+        }
         $this->loadExtension('DBAPI'); // load DBAPI class
         $this->loadExtension('DocumentAPI');
         if ($this->isBackend()) {
