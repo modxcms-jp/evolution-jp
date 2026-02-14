@@ -19,7 +19,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - [ ] (2026-02-07) 統合テスト・動作確認
 
 ## Surprises & Discoveries
-（実装中に遭遇した予期しない挙動や知見をここに記録）
+なし（2026-02-14 時点）
 
 ## Decision Log
 
@@ -410,7 +410,7 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
 ### ステップ5-8: 残りの実装
 
 **ステップ5**: issue-resolver スキルの更新
-- `.claude/skills/issue-resolver/SKILL.md` に新しいログ機構を活用した不具合解析機能を追加
+- `.codex/skills/issue-resolver/SKILL.md` に新しいログ機構を活用した不具合解析機能を追加
 - `/analyze-issue` コマンドで自動的にログ検索を実行
 - `/reproduce` コマンドで `log:tail --follow` を使用したリアルタイム確認
 
@@ -426,6 +426,31 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
 - 全機能の動作確認
 - セキュリティ検証（相対パス変換）
 - 後方互換性確認（既存プラグイン・モジュール）
+
+---
+
+## Concrete Steps
+
+1. PSR-3 準拠ロガーを追加する。  
+   編集対象ファイル: `manager/includes/logger.class.php`（新規）  
+   実行コマンド: `php -l manager/includes/logger.class.php`  
+   期待される観測結果: `No syntax errors detected` が表示され、`evo()->logEvent()` 実行で `temp/logs/system/YYYY/MM/system-YYYY-MM-DD.log` に JSONLines が追記される。
+2. 既存 `logEvent()` の互換レイヤーを置換する。  
+   編集対象ファイル: `manager/includes/traits/document.parser.subparser.trait.php`  
+   実行コマンド: `php -l manager/includes/traits/document.parser.subparser.trait.php`  
+   期待される観測結果: 既存の `logEvent($evtid, $type, $msg, $title)` 呼び出しでファイルログへ記録され、呼び出し側コード変更が不要である。
+3. 管理画面のログ表示をファイルベースへ更新する。  
+   編集対象ファイル: `manager/actions/report/eventlog.dynamic.php`  
+   実行コマンド: `php -l manager/actions/report/eventlog.dynamic.php`  
+   期待される観測結果: 管理画面でログファイル一覧と選択ファイルの内容表示が可能で、レベルフィルタが機能する。
+4. CLI コマンド群を追加する。  
+   編集対象ファイル: `manager/includes/cli/commands/log-tail.php`, `manager/includes/cli/commands/log-search.php`, `manager/includes/cli/commands/log-clean.php`, `manager/includes/cli/commands/log-compress.php`  
+   実行コマンド: `php -l manager/includes/cli/commands/log-tail.php manager/includes/cli/commands/log-search.php manager/includes/cli/commands/log-clean.php manager/includes/cli/commands/log-compress.php`  
+   期待される観測結果: 各コマンドの構文エラーがなく、`./evo log:search system "error" --level=error --json` が JSON を返す。
+5. 多言語・インストール定義・不要コードを更新する。  
+   編集対象ファイル: `manager/includes/lang/*.inc.php`, `install/sql/create_tables.sql`, `manager/processors/delete_eventlog.processor.php`, `manager/processors/export_eventlog.processor.php`, `manager/actions/report/eventlog_details.dynamic.php`  
+   実行コマンド: `rg -n "event_log|イベントログ|システムログ" manager/includes/lang install/sql manager/actions/report manager/processors`  
+   期待される観測結果: 新規インストールで `event_log` テーブル定義が除外され、UI 文言が「システムログ」に統一される。
 
 ---
 
@@ -451,12 +476,20 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
    - 100MB超過で自動ローテーションされる
    - 古いログが自動削除される（設定可能）
 
-### テストシナリオ
+### テストシナリオ（コマンドと期待観測結果）
 
-1. エラー発生 → ログ記録 → 管理画面で確認
-2. CLI `log:search` でエラーパターン検出
-3. AI が `log:search --json` でエラー情報を取得し、該当コードを修正
-4. 修正後、同じ操作を実行してエラーが消えたことを確認
+1. `php -l manager/includes/logger.class.php manager/includes/traits/document.parser.subparser.trait.php manager/actions/report/eventlog.dynamic.php`  
+   期待観測結果: すべて `No syntax errors detected`。
+2. `./evo log:search system "error" --level=error --json | jq 'length'`  
+   期待観測結果: 0 以上の整数が返り、JSON として解釈できる。
+3. `./evo log:tail system --lines=5`  
+   期待観測結果: 最新5件のログが時系列で表示される。
+4. `grep -E '/home/|/var/www/|C:\\\\' temp/logs/system/*/*/*.log`  
+   期待観測結果: 物理パスに一致する行が出力されない。
+5. 管理画面「ツール → システムログ」で最新ログを選択する。  
+   期待観測結果: JSON 表示、レベルフィルタ、ダウンロードが動作する。
+6. 既存コードから `evo()->logEvent(101, 3, 'Document not found', 'DocumentParser')` を実行する。  
+   期待観測結果: 新ログへ `eventid=101` と `source=DocumentParser` を含むエントリが記録される。
 
 ---
 
@@ -485,9 +518,12 @@ Evolution CMS は `event_log` テーブルにログを記録しているが、�
 
 ### リカバリ
 
-- ログ書き込み失敗時はサイレントに継続（サービスを止めない）
-- ログファイル削除時は確認プロンプト表示
-- バックアップ推奨: `temp/logs/` ディレクトリ全体
+中断・失敗時は次の手順で復帰する。
+
+1. `git diff -- manager/includes/logger.class.php manager/includes/traits/document.parser.subparser.trait.php manager/actions/report/eventlog.dynamic.php manager/includes/cli/commands/log-tail.php manager/includes/cli/commands/log-search.php manager/includes/cli/commands/log-clean.php manager/includes/cli/commands/log-compress.php install/sql/create_tables.sql` で差分を確認する。
+2. 直近作業を破棄する場合は `git restore --source=HEAD -- manager/includes/logger.class.php manager/includes/traits/document.parser.subparser.trait.php manager/actions/report/eventlog.dynamic.php manager/includes/cli/commands/log-tail.php manager/includes/cli/commands/log-search.php manager/includes/cli/commands/log-clean.php manager/includes/cli/commands/log-compress.php install/sql/create_tables.sql` を実行する。
+3. 既存ログデータのみ退避したい場合は `cp -a temp/logs temp/logs.backup.$(date +%Y%m%d%H%M%S)` を実行してから再開する。
+4. 復帰後に `php -l` と `./evo log:search system "error" --level=error --json` を再実行し、動作基線を確認する。
 
 ---
 
