@@ -26,6 +26,24 @@ function jsAlert($msg)
     }
 }
 
+function validateLoginInput()
+{
+    $username = postv('username', getv('username'));
+    $password = postv('password');
+
+    if (!$username || trim((string)$username) === '') {
+        jsAlert(alert()->errors[901]);
+        return false;
+    }
+
+    if (!$password) {
+        jsAlert(alert()->errors[901]);
+        return false;
+    }
+
+    return true;
+}
+
 function failedLogin()
 {
     //increment the failed login counter
