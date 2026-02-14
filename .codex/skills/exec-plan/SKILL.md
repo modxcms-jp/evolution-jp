@@ -8,6 +8,14 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 `.agent/PLANS.md` の仕様に準拠した ExecPlan を作成・管理するワークフロー。
 コーディング規約・ドキュメントマップは `AGENTS.md` を参照。
 
+## ロードマップ連携（必須）
+
+1. `.agent/roadmap.md` に記載されたタスクには、必ず対応するExecPlanを持たせる。
+2. `/create-plan` でロードマップ対象のExecPlanを新規作成した場合は、対応タスクの `ExecPlan:` 行へ反映する（未記載の場合）。
+3. 紐付くExecPlanを完了した場合、同一タスクの `Status` を `DONE` に更新し、`完了日` を更新する。
+4. 着手した時点で `Status` を `WIP` に更新し、`着手予定日` が `未定` なら当日を設定する。
+5. ロードマップ上で対応タスクを一意に特定できない場合は、推測で更新せずエンジニアへ確認する。
+
 ## コマンド
 
 ### /create-plan <タスク概要>
@@ -18,7 +26,8 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 4. `.agent/PLANS.md` テンプレートに従い `.agent/plans/YYYY-MM-DD-task-name.md` を作成
    全12セクション記載、Progress以外は散文、CMS用語を定義、Validationは観察可能な動作で定義
    空セクションは見出しのみ残す（プレースホルダ説明は書かない）
-5. `/validate-plan` を自動実行
+5. ロードマップ対象タスクの場合のみ、`.agent/roadmap.md` の対応タスクへ `ExecPlan:` 行を反映し、必要なら `Status: WIP` / `着手予定日` を更新
+6. `/validate-plan` を自動実行
 
 トークン効率の原則（精度優先）:
 - 実装精度・再現性を落とさない範囲で簡潔に書く（必要十分な情報量を維持）
@@ -43,6 +52,8 @@ description: ExecPlan（実行計画）の作成・検証・更新を支援す�
 3. Decision Log に日付・著者・根拠・代替案を記録
 4. 完了マイルストーンの Progress 詳細を1行の要約に圧縮（トークン節約）
 5. コア側の課題（UI結合・設計上の制約・技術的負債等）を発見した場合は `assets/docs/core-issues.md` に追記（発見日・発見元・ファイル・課題・改善案・関連ロードマップ）
+6. 当該ExecPlanがロードマップ対象で完了条件を満たした場合、`.agent/roadmap.md` の対応タスクを `Status: DONE` / `完了日: 当日` に更新する
+7. ロードマップ対象で完了条件を満たしていない場合でも、着手中なら `Status: WIP` を維持する
 
 ## 意思決定の閾値
 
