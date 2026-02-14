@@ -4,86 +4,158 @@
 
 SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真実の単一情報源）を遵守する。
 
-### 補助ルール
+---
 
-- **既存パターンの踏襲**: 新機能は必ず既存コードのパターンを調査し同じアプローチを採用する。新方式が必要な場合はシステム全体への適用を前提に設計する。
-- **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
-- **スーパーグローバル変数の禁止**:
-  - `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`
-  - `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
-  - `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
-  - リクエストメソッド判定 → `is_post()` / `is_get()`
-- **DB操作のセキュリティ**: エスケープはDB操作直前で行う。
-  - `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
-  - ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
-- **コーディングスタイル**:
-  - 配列は `[]`（`array()` 非推奨）/ デフォルト値は `?:` で簡潔に / 早期リターンでネスト最小化
-  - 文字列補間 `"{$var}"` を活用 / インデント: スペース4つ / `?>` 不要
-- **ログ**: `evo()->logEvent()` を使用（管理画面「ツール」→「イベントログ」で確認）
-- **レビュー**: 日本語 / **コミットメッセージ**: 英語
+## 判断優先順位（迷ったらこれを守る）
+
+1. **設計の健全性を最優先**（改善できるなら改善する。既存実装が不適切なら是正する）
+2. **SSOTを壊さない**（責務分散・重複ロジックを作らない）
+3. **セキュリティとエスケープは実行直前で担保**
+4. **キャッシュ整合性を維持**
+5. 局所最適よりも「システム全体の進化」を優先
+
+---
+
+## 補助ルール
+
+* **既存パターンの評価と改善**: 新機能追加時は既存パターンを必ず調査する。ただし不適切・冗長・設計的に弱い場合は改善を優先する。局所的な新方式導入は禁止し、改善は横断的に適用する前提で設計する。
+* **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
+* **スーパーグローバル変数の禁止**:
+
+  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`
+  * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
+  * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
+  * リクエストメソッド判定 → `is_post()` / `is_get()`
+* **DB操作のセキュリティ**: エスケープはDB操作直前で行う。
+
+  * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
+  * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
+* **コーディングスタイル**:
+
+  * 配列は `[]`（`array()` 非推奨）/ デフォルト値は `?:` / 早期リターン
+  * 文字列補間 `"{$var}"` / インデント: スペース4つ / `?>` 不要
+* **ログ**: `evo()->logEvent()` を使用
+* **レビュー**: 日本語
+* **コミットメッセージ**: 日本語で生成（Conventional Commits 準拠）
+
+---
+
+## Conventional Commits
+
+### フォーマット
+
+```
+<type>(optional scope): <subject>
+```
+
+* type は英語固定
+* subject は日本語・簡潔に・現在形・句点なし
+
+### type 一覧
+
+| type     | 用途     |
+| -------- | ------ |
+| feat     | 新機能    |
+| fix      | 不具合修正  |
+| refactor | 内部改善   |
+| perf     | 性能改善   |
+| docs     | ドキュメント |
+| style    | 形式修正   |
+| test     | テスト    |
+| chore    | 雑務     |
+| ci       | CI変更   |
+
+### 例
+
+```
+feat(parser): キャッシュ生成前にフックを追加
+```
+
+```
+fix(db): 実行直前でエスケープ処理を統一
+```
+
+---
+
+## AIが誤りやすいポイント
+
+* 直接 `$modx` やスーパーグローバルへ触れる
+* エスケープを代入時に行う
+* 既存フック位置を無視して新イベントを追加する
+* キャッシュ無効化条件を考慮しない
+* 小規模修正で新アーキテクチャを導入する
+
+---
 
 ## 移行ルール（v1.3.0+）
 
 ### フロントエンド
 
-- **jQuery 禁止** → Vanilla JS (ES6+): `querySelectorAll` / `fetch` / `DOMContentLoaded`
-- **frame/iframe 禁止** → HTML5 + CSS (Flexbox/Grid) + Ajax
+* jQuery 禁止 → Vanilla JS (ES6+)
+* frame/iframe 禁止
 
 ### データベース
 
-- **`db()` ヘルパー厳守**: `db()->query()` / `db()->select()` / `db()->insert()` 等を必ず使用
-- **生SQL自粛**: クエリビルダメソッド優先、`mysql_` 関数依存を避ける
+* `db()` ヘルパー厳守
+* 生SQL自粛
 
 ### CLI / ログ
 
-- 管理機能は CLI (`php cli.php`) からも実行可能に設計
-- ログはコンテキスト配列を伴う形式（将来の PSR-3 準拠のため）
+* 管理機能は CLI 実行可能
+* ログはコンテキスト配列形式
+
+---
 
 ## DocumentParser
 
-中心クラス: `manager/includes/document.parser.class.inc.php`
-`index.php` → サニタイズ → リソース特定 → テンプレート解析 → `invokeEvent()` → キャッシュ生成。
-実装時は「どの段階（`executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()`）にフックすべきか」を意識する。
+中心: `manager/includes/document.parser.class.inc.php`
+実装時は `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のどこに影響するかを必ず明示する。
+
+---
 
 ## ドキュメントマップ
 
-`assets/docs/` 配下。該当領域の編集前に必ず参照すること。
+`assets/docs/` 配下を必ず参照する。
 
-| ドキュメント | 主題 |
-| --- | --- |
-| `architecture.md` | DocumentParser の処理フロー・バックエンド判定 |
-| `template-system.md` | テンプレート継承・MODX タグ解析・評価順序 |
-| `events-and-plugins.md` | イベントライフサイクル・プラグインキャッシュ |
-| `cache-mechanism.md` | ページキャッシュ・TTL・無効化手順 |
-| `.agent/roadmap.md` | 次期バージョン (v1.3.0–v1.5.0) ロードマップ |
-| `global-settings.md` | グローバル設定の追加手順・タブ構成 |
-| `core-issues.md` | 改修を通じて発見されたコア側の課題記録 |
+| ドキュメント                  | 主題     |
+| ----------------------- | ------ |
+| `architecture.md`       | 処理フロー  |
+| `template-system.md`    | タグ解析   |
+| `events-and-plugins.md` | イベント   |
+| `cache-mechanism.md`    | キャッシュ  |
+| `.agent/roadmap.md`     | ロードマップ |
+| `global-settings.md`    | 設定追加   |
+| `core-issues.md`        | コア課題   |
 
-### ExecPlan（実行計画）
-
-複雑なタスクは `.agent/PLANS.md` の仕様に従い `.agent/plans/` に ExecPlan を作成する。
+---
 
 ## 推奨ワークフロー
 
-1. `architecture.md` と `events-and-plugins.md` で影響範囲を整理
-2. テンプレート・TV を触る場合は `template-system.md` で解析順序を確認
-3. キャッシュ影響がある変更は `cache-mechanism.md` で `evo()->clearCache()` の条件を確認
-4. ヘルパー関数を活用し、直接 `$modx` に触れない
+1. 既存実装を grep 検索して確認
+2. `architecture.md` で影響範囲整理
+3. キャッシュ影響を確認
+4. ヘルパー経由で実装
+
+---
 
 ## ファイル管理
 
-| ディレクトリ | 用途 |
-| --- | --- |
-| `{rb_base_dir}images/` `files/` `media/` | メディアファイル（`rb_base_dir` デフォルト: `content/`） |
-| `assets/templates/` | テンプレート・チャンクの物理ファイル |
-| `temp/` | キャッシュ・バックアップ・インポート/エクスポート |
+* メディア: `{rb_base_dir}` 配下
+* テンプレート: `assets/templates/`
+* 一時領域: `temp/`
 
-**除外対象**: `assets/plugins/*/tinymce/` 以下はベンダー資産（CHANGELOG.md 等）。AI 参照不要。
+除外: `assets/plugins/*/tinymce/` 以下は参照不要
 
-- パス取得: `evo()->getConfig('rb_base_dir')` / `[(base_path)]` → `MODX_BASE_PATH`
+---
 
 ## ドキュメント運用
 
-- `AGENTS.md`（本ファイル）: AI 向けハブ。詳細は `assets/docs/` に分離しリンクする
-- `.agent/PLANS.md`: ExecPlan 仕様書。個別計画は `.agent/plans/` に格納
-- `.agent/roadmap.md`: プロジェクトロードマップ
+* AGENTS.md は **判断基準のみを記載（詳細は docs へ分離）**
+* ExecPlan は `.agent/plans/` に格納
+* ロードマップは `.agent/roadmap.md`
+
+---
+
+## 肥大化防止ポリシー
+
+AGENTS.md は「原則と判断基準のみ」を記載し、手順や詳細仕様は必ず `assets/docs/` に分離する。
