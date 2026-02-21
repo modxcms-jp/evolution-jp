@@ -210,11 +210,13 @@ $_lang["begin_install_msg"] = '<p>MODXがインストールされていないか
 $_lang["install_config_title"] = 'インストーラーのアクセス制御';
 $_lang["install_config_missing_message"] = '<span class="mono">install-config.php</span> が存在しないため、インストールを続行できません。';
 $_lang["install_config_ip_message"] = '現在の接続元IPアドレスからはインストールを実行できません。<span class="mono">install-config.php</span> の <span class="mono">allowed_ips</span> を更新してください。';
-$_lang["install_config_auth_message"] = 'インストーラーにアクセスするには BASIC 認証が必要です。<span class="mono">install-config.php</span> で設定したユーザー名とパスワードを入力してください。';
+$_lang["install_config_auth_message"] = '<span class="mono">install-config.php</span> の <span class="mono">allowed_ips</span> に接続元IPアドレスを登録してください。';
 $_lang["install_config_step1"] = '%s を %s にコピーしてください。';
-$_lang["install_config_step2"] = '<span class="mono">install-config.php</span> を編集し、BASIC 認証のユーザー名とパスワード、または <span class="mono">allowed_ips</span> を設定してください。';
+$_lang["install_config_step2"] = '<span class="mono">install-config.php</span> を編集し、<span class="mono">allowed_ips</span> を設定してください。';
 $_lang["install_config_step3"] = '設定ファイルを保存したら、このページを再読み込みしてください。';
 $_lang["install_config_footer"] = 'インストールを実行できるのはサーバーの操作権限を持つ管理者のみとしてください。';
+$_lang["install_config_removed"] = '<span class="mono">install-config.php</span> を自動削除しました。';
+$_lang["install_config_remove_failed"] = '<span class="mono">install-config.php</span> を自動削除できませんでした。権限を確認して手動で削除してください。';
 $_lang["upgrade_auth_required_title"] = 'アップグレードには管理者認証が必要です';
 $_lang["upgrade_auth_required_message"] = '<p>アップグレードを実行するには、Evolution CMS の管理画面にログインしている必要があります。</p>';
 $_lang["upgrade_auth_login_link"] = '管理画面にログイン';

@@ -19,13 +19,20 @@ jobs:
           rsync -a ./ dist/ \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='.agent/' \
+            --exclude='.claude/' \
+            --exclude='.codex/' \
             --exclude='.gitignore' \
             --exclude='.gitkeep' \
             --exclude='.gitattributes' \
             --exclude='.editorconfig' \
+            --exclude='.env' \
+            --exclude='.env.*' \
             --exclude='dist/' \
             --exclude='docs/' \
             --exclude='**/docs/' \
+            --exclude='evo' \
+            --exclude='manager/includes/cli/' \
             --exclude='readme*' \
             --exclude='README*' \
             --exclude='AGENTS.md'

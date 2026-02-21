@@ -370,6 +370,8 @@ if (is_dir(MODX_BASE_PATH . 'assets/cache')) {
 
 log_install_event('Installation processor finished');
 
+removeInstallConfigFile();
+
 // setup completed!
 echo "<p><b>" . lang('installation_successful') . "</b></p>";
 echo "<p>" . lang('to_log_into_content_manager') . "</p>";
@@ -384,6 +386,23 @@ if (sessionv('is_upgradeable') == 0) {
 echo '</p>';
 
 $_SESSION = [];
+
+function removeInstallConfigFile()
+{
+    $configPath = installConfigPath();
+    if (!is_file($configPath)) {
+        return;
+    }
+
+    if (@unlink($configPath)) {
+        log_install_event('install-config.php removed automatically', ['path' => $configPath]);
+        echo '<p><span class="ok">' . lang('install_config_removed') . '</span></p>';
+        return;
+    }
+
+    log_install_event('Failed to remove install-config.php automatically', ['path' => $configPath]);
+    echo '<p><span class="notok">' . lang('install_config_remove_failed') . '</span></p>';
+}
 
 function deleteCacheDirectory($cachePath)
 {

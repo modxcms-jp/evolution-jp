@@ -1,0 +1,4 @@
+interface:
+  display_name: "URL Article Reader"
+  short_description: "指定URL記事の本文取得と根拠付き要約を標準化するスキル"
+  default_prompt: "指定URLを必ず直接参照し、本文を取得して根拠付きで要約してください。取得失敗時は代替経路と失敗理由を明示してください。"

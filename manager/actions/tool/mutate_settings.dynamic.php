@@ -30,7 +30,7 @@ if ($settings_version && $settings_version != $modx_version) {
 $settings = settings();
 extract($settings, EXTR_OVERWRITE);
 
-// load languages and keys
+// load language names
 $lang_keys = [];
 $dir = scandir(MODX_CORE_PATH . 'lang');
 foreach ($dir as $filename) {
@@ -38,7 +38,7 @@ foreach ($dir as $filename) {
         continue;
     }
     $languagename = str_replace('.inc.php', '', $filename);
-    $lang_keys[$languagename] = get_lang_keys($filename);
+    $lang_keys[$languagename] = true;
 }
 ?>
 <script type="text/javascript">

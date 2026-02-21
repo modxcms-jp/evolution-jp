@@ -627,31 +627,6 @@ function isInstallerIpAllowed(array $config)
     return in_array(installerRemoteAddress(), $allowedIps, true);
 }
 
-function installBasicAuthEnabled(array $config)
-{
-    $user = trim($config['basic_auth']['user'] ?? '');
-    $password = $config['basic_auth']['password'] ?? '';
-
-    return $user !== '' && $password !== '';
-}
-
-function enforceInstallBasicAuth(array $config)
-{
-    if (!installBasicAuthEnabled($config)) {
-        return;
-    }
-
-    $user = serverv('PHP_AUTH_USER', '');
-    $password = serverv('PHP_AUTH_PW', '');
-    if ($user === $config['basic_auth']['user'] && $password === $config['basic_auth']['password']) {
-        return;
-    }
-
-    header('WWW-Authenticate: Basic realm="Evolution CMS Installer"');
-    header('HTTP/1.0 401 Unauthorized');
-    renderInstallConfigNotice('install_config_auth_message');
-}
-
 function guardInstallerAccess()
 {
     $config = requireInstallConfig();
@@ -659,8 +634,6 @@ function guardInstallerAccess()
     if (!isInstallerIpAllowed($config)) {
         renderInstallConfigNotice('install_config_ip_message');
     }
-
-    enforceInstallBasicAuth($config);
 }
 
 function isManagerAuthenticated()
