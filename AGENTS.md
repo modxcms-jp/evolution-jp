@@ -1,8 +1,12 @@
 # 開発ガイドライン
 
+このドキュメントは、このリポジトリにおけるAI駆動実装のローカル判断基準として最上位に扱う。
+
+AIは実装前に必ずこのドキュメントを参照し、理解した上で「AGENTS.mdを読みました」と宣言して作業を進める。
+
 ## 基本原則
 
-SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真実の単一情報源）を遵守する。
+SOLID / KISS / YAGNI / DRY / PIE / SSOT を遵守する。
 
 ---
 
@@ -16,74 +20,22 @@ SOLID / KISS / YAGNI / DRY / PIE（自己検証可能な実装） / SSOT（真�
 
 ---
 
-## 補助ルール
+## 重要方針
 
-* **既存パターンの評価と改善**: 新機能追加時は既存パターンを必ず調査する。ただし不適切・冗長・設計的に弱い場合は改善を優先する。局所的な新方式導入は禁止し、改善は横断的に適用する前提で設計する。
-* **ヘルパー利用**: `manager/includes/helpers.php` の `evo()` / `db()` / `manager()` を経由してグローバルオブジェクトへアクセスする。
-* **スーパーグローバル変数の禁止**:
-
-  * `$_GET` → `getv($key, $default)` / `$_POST` → `postv($key, $default)` / `$_REQUEST` → `anyv($key, $default)`
-  * `$_SERVER` → `serverv($key, $default)` / `$_COOKIE` → `cookiev($key, $default)`
-  * `$_SESSION` → `sessionv($key, $default)`（読み取り） / `sessionv('*key', $value)`（書き込み）
-  * リクエストメソッド判定 → `is_post()` / `is_get()`
-* **DB操作のセキュリティ**: エスケープはDB操作直前で行う。
-
-  * `db()->insert(db()->escape($data), $table)` / `db()->update(db()->escape($data), $table, $where)`
-  * ❌ 変数宣言時の個別エスケープ / ❌ `compact()` 関数
-* **コーディングスタイル**:
-
-  * 配列は `[]`（`array()` 非推奨）/ デフォルト値は `?:` / 早期リターン
-  * 文字列補間 `"{$var}"` / インデント: スペース4つ / `?>` 不要
-* **ログ**: `evo()->logEvent()` を使用
-* **レビュー**: 日本語
-* **コミットメッセージ**: 日本語で生成（Conventional Commits 準拠）
+* 実装は既存パターンを調査して整合させる。ただし不適切な既存実装は改善を優先する。
+* 局所的な独自方式の導入は禁止し、横断適用可能な設計で改善する。
+* セキュリティ（特にDBエスケープ）は実行直前で担保する。
+* キャッシュ整合性、イベント/フック整合性を破壊しない。
+* レビュー・コミュニケーションは日本語を基本とする。
 
 ---
 
-## Conventional Commits
+## 禁止事項（要点）
 
-### フォーマット
-
-```
-<type>(optional scope): <subject>
-```
-
-* type は英語固定
-* subject は日本語・簡潔に・現在形・句点なし
-
-### type 一覧
-
-| type     | 用途     |
-| -------- | ------ |
-| feat     | 新機能    |
-| fix      | 不具合修正  |
-| refactor | 内部改善   |
-| perf     | 性能改善   |
-| docs     | ドキュメント |
-| style    | 形式修正   |
-| test     | テスト    |
-| chore    | 雑務     |
-| ci       | CI変更   |
-
-### 例
-
-```
-feat(parser): キャッシュ生成前にフックを追加
-```
-
-```
-fix(db): 実行直前でエスケープ処理を統一
-```
-
----
-
-## AIが誤りやすいポイント
-
-* 直接 `$modx` やスーパーグローバルへ触れる
-* エスケープを代入時に行う
-* 既存フック位置を無視して新イベントを追加する
-* キャッシュ無効化条件を考慮しない
-* 小規模修正で新アーキテクチャを導入する
+* `$modx` やスーパーグローバルへの直接アクセス
+* 変数代入時の早期エスケープ
+* フック位置・キャッシュ無効化条件の無視
+* 小規模修正への新アーキテクチャ持ち込み
 
 ---
 
@@ -106,19 +58,14 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ---
 
-## DocumentParser
-
-中心: `manager/includes/document.parser.class.inc.php`
-実装時は `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のどこに影響するかを必ず明示する。
-
----
-
 ## ドキュメントマップ
 
 `assets/docs/` 配下を必ず参照する。
 
 | ドキュメント                  | 主題     |
 | ----------------------- | ------ |
+| `development-standards.md` | 実装規約（ヘルパー・入力値取得・DB・スタイル・ログ） |
+| `commit-message-guidelines.md` | コミットメッセージ規約 |
 | `architecture.md`       | 処理フロー  |
 | `template-system.md`    | タグ解析   |
 | `events-and-plugins.md` | イベント   |
@@ -129,12 +76,12 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ---
 
-## 推奨ワークフロー
+## 実装時の必須確認
 
-1. 既存実装を grep 検索して確認
-2. `architecture.md` で影響範囲整理
-3. キャッシュ影響を確認
-4. ヘルパー経由で実装
+* 既存実装を `rg` で調査し、重複実装を作らない。
+* `architecture.md` で影響範囲を整理する。
+* `cache-mechanism.md` と `events-and-plugins.md` で整合性を確認する。
+* DocumentParser関連は `manager/includes/document.parser.class.inc.php` のどの段階に影響するかを明示する。
 
 ---
 
@@ -150,7 +97,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## ドキュメント運用
 
-* AGENTS.md は **判断基準のみを記載（詳細は docs へ分離）**
+* AGENTS.md は **判断基準とポインタのみ** を記載する。
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
 
@@ -158,4 +105,4 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## 肥大化防止ポリシー
 
-AGENTS.md は「原則と判断基準のみ」を記載し、手順や詳細仕様は必ず `assets/docs/` に分離する。
+AGENTS.md は「原則・優先順位・禁止事項・参照先」のみを保持し、手順や詳細仕様は必ず `assets/docs/` に分離する。
