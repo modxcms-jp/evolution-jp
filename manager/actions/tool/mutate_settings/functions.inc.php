@@ -6,10 +6,14 @@
  */
 function get_lang_keys($filename)
 {
-    global $_lang;
     $path = sprintf('%slang/%s', MODX_CORE_PATH, $filename);
     if (is_file($path) && is_readable($path)) {
-        include($path);
+        // Isolate language extraction from global $_lang used by the current UI language.
+        $_lang = [];
+        include $path;
+        if (!is_array($_lang)) {
+            return [];
+        }
         return array_keys($_lang);
     }
     return [];
