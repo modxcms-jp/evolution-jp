@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adaptive Validation Runner"
+  short_description: "CLI優先で必要時のみE2Eブラウザ操作へ切り替える検証スキル"
+  default_prompt: "まずCLIで検証し、CLIで判定不能な場合のみPlaywrightへ切り替えてください。既定はheadless、目視確認はheaded指定時のみ実施してください。"
