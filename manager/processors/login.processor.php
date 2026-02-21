@@ -17,6 +17,10 @@ $modx->config['login_by'] = 'username,email';
 
 checkSafedUri();
 
+if (!validateLoginInput()) {
+    return;
+}
+
 $_SESSION['safeMode'] = input('safeMode');
 if (!sessionv('SystemAlertMsgQueque')) {
     $_SESSION['SystemAlertMsgQueque'] = [];

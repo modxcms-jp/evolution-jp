@@ -26,6 +26,24 @@ function jsAlert($msg)
     }
 }
 
+function validateLoginInput()
+{
+    $username = postv('username', getv('username'));
+    $password = postv('password');
+
+    if (!$username || trim((string)$username) === '') {
+        jsAlert('ユーザー名とパスワードを入力してください');
+        return false;
+    }
+
+    if (!$password) {
+        jsAlert('ユーザー名とパスワードを入力してください');
+        return false;
+    }
+
+    return true;
+}
+
 function failedLogin()
 {
     //increment the failed login counter
