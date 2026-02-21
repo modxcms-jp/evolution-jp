@@ -7,16 +7,18 @@
 function get_lang_keys($filename)
 {
     $path = sprintf('%slang/%s', MODX_CORE_PATH, $filename);
-    if (is_file($path) && is_readable($path)) {
-        // Isolate language extraction from global $_lang used by the current UI language.
-        $_lang = [];
-        include $path;
-        if (!is_array($_lang)) {
-            return [];
-        }
-        return array_keys($_lang);
+    if (!is_file($path) || !is_readable($path)) {
+        return [];
     }
-    return [];
+    $content = file_get_contents($path);
+    if ($content === false) {
+        return [];
+    }
+    $matched = preg_match_all('/\$_lang\[\s*([\'"])(.*?)\1\s*\]\s*=/', $content, $matches);
+    if (!$matched || !isset($matches[2])) {
+        return [];
+    }
+    return array_values(array_unique($matches[2]));
 }
 
 /**
@@ -29,7 +31,11 @@ function get_langs_by_key($key)
     global $lang_keys;
     $lang_return = [];
     foreach ($lang_keys as $lang => $keys) {
-        if (!in_array($key, $keys)) {
+        if ($keys === true) {
+            $keys = get_lang_keys("{$lang}.inc.php");
+            $lang_keys[$lang] = $keys;
+        }
+        if (!is_array($keys) || !in_array($key, $keys, true)) {
             continue;
         }
         $lang_return[] = $lang;

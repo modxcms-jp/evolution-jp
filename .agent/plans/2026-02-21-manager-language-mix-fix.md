@@ -8,7 +8,7 @@
 
 - [x] (2026-02-21) 影響範囲と再現条件を固定し、回帰確認観点を確定する
 - [x] (2026-02-21) `get_lang_keys()` の副作用（`$_lang` 汚染）を除去する
-- [ ] (2026-02-21) 言語一覧取得処理の不要な全件読み込みを最小化する
+- [x] (2026-02-21) 言語一覧取得処理の不要な全件読み込みを最小化する
 - [ ] (2026-02-21) 管理画面で混在表示が再発しないことを確認する
 
 ## Surprises & Discoveries
@@ -17,6 +17,7 @@
 - `manager/actions/tool/mutate_settings.dynamic.php` は設定画面描画時に `lang/*.inc.php` を全件走査している。
 - `manager/actions/tool/mutate_settings/functions.inc.php` の `get_lang_keys()` は `global $_lang` を使って `include` するため、収集処理の副作用が表示言語へ漏れる。
 - `get_lang_keys('english.inc.php')` を呼び出しても、既存の `$_lang['sentinel']` が保持されることをCLIで確認した。
+- 言語キー判定を `include` からファイル内容のパターン検出へ変更し、設定画面ロード時の全言語 `include` を撤廃した。
 
 ## Decision Log
 
@@ -27,8 +28,10 @@
 ## Outcomes & Retrospective
 
 - `manager/actions/tool/mutate_settings/functions.inc.php` の `get_lang_keys()` をローカルスコープ化し、言語キー収集時に `$_lang` を汚染しないようにした。
+- `manager/actions/tool/mutate_settings.dynamic.php` は言語ファイル名の列挙のみ行い、キー配列の全件構築をしない構成へ変更した。
+- `manager/actions/tool/mutate_settings/functions.inc.php` は必要な言語だけ遅延評価し、`$lang_keys` にキャッシュする構成へ変更した。
 - 構文検証: `mutate_settings.dynamic.php` / `functions.inc.php` / `tab3_user_settings.inc.php` / `tab4_manager_settings.inc.php` の `php -l` が成功した。
-- 未完了: 全件読み込み最小化の実装と、実ブラウザでの混在再発確認。
+- 未完了: 実ブラウザでの混在再発確認。
 
 ## Context and Orientation
 
