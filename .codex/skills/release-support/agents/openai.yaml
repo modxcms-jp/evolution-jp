@@ -1,0 +1,4 @@
+interface:
+  display_name: "Release Support"
+  short_description: "リリース準備から実施後確認までを一貫して確実に支援する"
+  default_prompt: "リリース作業を開始します。対象バージョン・ブランチ・チェック項目を確認し、手順を進めてください。"
