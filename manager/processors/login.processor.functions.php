@@ -32,12 +32,12 @@ function validateLoginInput()
     $password = postv('password');
 
     if (!$username || trim((string)$username) === '') {
-        jsAlert(alert()->errors[901]);
+        jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
 
     if (!$password) {
-        jsAlert(alert()->errors[901]);
+        jsAlert('ユーザー名とパスワードを入力してください');
         return false;
     }
 
