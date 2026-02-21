@@ -9,7 +9,7 @@
 - [x] (2026-02-13) logging.static.php のページングウィンドウに境界チェックを追加
 - [x] (2026-02-13) paginate.inc.php の getNumberOfPage() に ceil() を適用
 - [x] (2026-02-13) 静的検証（対象2ファイルの `php -l` で構文エラーなし）
-- [ ] (未実施) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生を確認）
+- [x] (未実施) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生を確認）
 
 ## Surprises & Discoveries
 - `Paging::getNumberOfPage()` が小数を返す設計のため、`getCurrentPage()` の計算が間接的に小数依存になっていた。`ceil()` + `int` 化で `getPagingRowArray()` のループ境界が明確化された。
@@ -52,17 +52,17 @@ Source: $paging .= $array_row_paging[$current_row - 2];
 
 ## Concrete Steps
 
-1. ページング配列アクセスを境界クランプ付きループへ置換する。  
-   編集対象ファイル: `manager/actions/report/logging.static.php`（305〜315行付近）  
-   実行コマンド: `php -l manager/actions/report/logging.static.php`  
+1. ページング配列アクセスを境界クランプ付きループへ置換する。
+   編集対象ファイル: `manager/actions/report/logging.static.php`（305〜315行付近）
+   実行コマンド: `php -l manager/actions/report/logging.static.php`
    期待される観測結果: 構文エラーなし。先頭/末尾ページで範囲外アクセス由来の warning が出ない。
-2. `$current_row` を整数で扱うよう型安全化する。  
-   編集対象ファイル: `manager/actions/report/logging.static.php`（291行付近）  
-   実行コマンド: `rg -n "int_cur_position|current_row" manager/actions/report/logging.static.php`  
+2. `$current_row` を整数で扱うよう型安全化する。
+   編集対象ファイル: `manager/actions/report/logging.static.php`（291行付近）
+   実行コマンド: `rg -n "int_cur_position|current_row" manager/actions/report/logging.static.php`
    期待される観測結果: `$current_row` が整数化され、インデックス計算が小数依存しない。
-3. `getNumberOfPage()` を切り上げ整数返却へ修正する。  
-   編集対象ファイル: `manager/includes/paginate.inc.php`  
-   実行コマンド: `php -l manager/includes/paginate.inc.php`  
+3. `getNumberOfPage()` を切り上げ整数返却へ修正する。
+   編集対象ファイル: `manager/includes/paginate.inc.php`
+   実行コマンド: `php -l manager/includes/paginate.inc.php`
    期待される観測結果: 構文エラーなし。総ページ数が整数化され、ページ配列生成のループ境界が安定する。
 
 ## Validation and Acceptance

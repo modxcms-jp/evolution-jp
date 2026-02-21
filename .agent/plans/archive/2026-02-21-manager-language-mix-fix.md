@@ -9,7 +9,7 @@
 - [x] (2026-02-21) 影響範囲と再現条件を固定し、回帰確認観点を確定する
 - [x] (2026-02-21) `get_lang_keys()` の副作用（`$_lang` 汚染）を除去する
 - [x] (2026-02-21) 言語一覧取得処理の不要な全件読み込みを最小化する
-- [ ] (2026-02-21) 管理画面で混在表示が再発しないことを確認する
+- [x] (2026-02-21) 管理画面で混在表示が再発しないことを確認する
 
 ## Surprises & Discoveries
 
@@ -58,29 +58,29 @@
 
 ## Concrete Steps
 
-1. 現状挙動を固定する。  
-   編集対象ファイル: なし（調査のみ）  
-   実行コマンド: `nl -ba manager/actions/tool/mutate_settings.dynamic.php | sed -n '33,45p'`  
+1. 現状挙動を固定する。
+   編集対象ファイル: なし（調査のみ）
+   実行コマンド: `nl -ba manager/actions/tool/mutate_settings.dynamic.php | sed -n '33,45p'`
    期待される観測結果: 言語ファイル全件走査と `get_lang_keys()` 呼び出し位置が確認できる。
 
-2. `get_lang_keys()` で `$_lang` 汚染を防ぐ。  
-   編集対象ファイル: `manager/actions/tool/mutate_settings/functions.inc.php`  
-   実行コマンド: `php -l manager/actions/tool/mutate_settings/functions.inc.php`  
+2. `get_lang_keys()` で `$_lang` 汚染を防ぐ。
+   編集対象ファイル: `manager/actions/tool/mutate_settings/functions.inc.php`
+   実行コマンド: `php -l manager/actions/tool/mutate_settings/functions.inc.php`
    期待される観測結果: 構文エラーなし、かつ `$_lang` を退避・復元する処理が存在する。
 
-3. 言語一覧生成の責務を分離する。  
-   編集対象ファイル: `manager/actions/tool/mutate_settings.dynamic.php`, `manager/actions/tool/mutate_settings/functions.inc.php`  
-   実行コマンド: `rg -n "scandir\\(|get_lang_keys\\(|get_lang_options\\(" manager/actions/tool/mutate_settings* -S`  
+3. 言語一覧生成の責務を分離する。
+   編集対象ファイル: `manager/actions/tool/mutate_settings.dynamic.php`, `manager/actions/tool/mutate_settings/functions.inc.php`
+   実行コマンド: `rg -n "scandir\\(|get_lang_keys\\(|get_lang_options\\(" manager/actions/tool/mutate_settings* -S`
    期待される観測結果: 言語一覧取得とキー収集の用途が分離され、不要な全件 `include` が減っている。
 
-4. 設定画面表示の回帰確認を行う。  
-   編集対象ファイル: なし（確認のみ）  
-   実行コマンド: `php -l manager/actions/tool/mutate_settings.dynamic.php manager/actions/tool/mutate_settings/functions.inc.php manager/actions/tool/mutate_settings/tab4_manager_settings.inc.php`  
+4. 設定画面表示の回帰確認を行う。
+   編集対象ファイル: なし（確認のみ）
+   実行コマンド: `php -l manager/actions/tool/mutate_settings.dynamic.php manager/actions/tool/mutate_settings/functions.inc.php manager/actions/tool/mutate_settings/tab4_manager_settings.inc.php`
    期待される観測結果: 構文チェックが成功し、管理画面のラベルが単一言語で表示される。
 
-5. 再発防止の記録を残す。  
-   編集対象ファイル: `assets/docs/troubleshooting/solved-issues.md`（必要時）  
-   実行コマンド: `rg -n "言語|global設定|Svenska|混在" assets/docs/troubleshooting/solved-issues.md`  
+5. 再発防止の記録を残す。
+   編集対象ファイル: `assets/docs/troubleshooting/solved-issues.md`（必要時）
+   実行コマンド: `rg -n "言語|global設定|Svenska|混在" assets/docs/troubleshooting/solved-issues.md`
    期待される観測結果: 再現条件・原因・修正方針が追記され、将来の切り分けに使える。
 
 ## Validation and Acceptance
