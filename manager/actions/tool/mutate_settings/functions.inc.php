@@ -14,7 +14,9 @@ function get_lang_keys($filename)
     if ($content === false) {
         return [];
     }
-    $matched = preg_match_all('/\$_lang\[\s*([\'"])(.*?)\1\s*\]\s*=/', $content, $matches);
+    // キーを正確に抽出：エスケープされたクォート（例: 'test\'key'）にも対応
+    // (?:(?!\1)[^\\]|\\.)* → 開きクォートでない非バックスラッシュ文字、またはエスケープシーケンス
+    $matched = preg_match_all('/\$_lang\[\s*([\'"])((?:(?!\1)[^\\\\]|\\\\.)*)\1\s*\]\s*=/', $content, $matches);
     if (!$matched || !isset($matches[2])) {
         return [];
     }
@@ -29,6 +31,11 @@ function get_lang_keys($filename)
 function get_langs_by_key($key)
 {
     global $lang_keys;
+    // $lang_keys は mutate_settings.dynamic.php で初期化されることを前提とするが、
+    // 他のコンテキストから呼ばれた場合に未初期化の可能性があるため防御的チェックを行う
+    if (!is_array($lang_keys)) {
+        return [];
+    }
     $lang_return = [];
     foreach ($lang_keys as $lang => $keys) {
         if ($keys === true) {
