@@ -62,6 +62,9 @@ function get_langs_by_key($key)
 function get_lang_options($key = null, $selected_lang = null)
 {
     global $lang_keys;
+    if (!is_array($lang_keys)) {
+        return '';
+    }
     $lang_options = [];
     if ($key) {
         $languages = get_langs_by_key($key);
