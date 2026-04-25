@@ -1,0 +1,14 @@
+interface:
+  display_name: "Agent Orchestrator"
+  short_description: "エージェント定義を使って調査・計画・実装・レビュー・検証を分担する"
+  default_prompt: |
+    `.agent/agents/README.md` と `.agent/agents/orchestrator.md` を読み、必要な担当エージェントを選んでください。
+
+    進め方:
+    1) 単独で完結する作業か、分担が有効な作業かを判断する。
+    2) 分担が有効な場合のみ、explorer / planner / worker / reviewer / tester / roadmap-curator から担当を選ぶ。
+    3) 作業開始時に、使用スキル、使用エージェント、使わないエージェントと理由を1-3行で宣言する。
+    4) 各担当の入力、成果物、書き込み範囲を明示する。
+    5) 実装担当の書き込み範囲が重ならないようにする。
+    6) `AGENTS.md` と関連する `assets/docs/` を参照し、SSOT・キャッシュ・DB安全性・DocumentParser影響を確認する。
+    7) 必要な作業を実行し、最後に担当ごとの結果と残リスクを短くまとめる。
