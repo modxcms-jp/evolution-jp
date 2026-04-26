@@ -27,7 +27,7 @@ services:
     container_name: evo-db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-evo}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-evo-db}
       MYSQL_USER: ${MYSQL_USER:-user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     volumes:
