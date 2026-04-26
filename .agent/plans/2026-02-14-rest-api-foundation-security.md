@@ -50,8 +50,8 @@
 
 前提依存:
 
-- `.agent/plans/2026-02-14-api-router-foundation.md` 完了済み
-- `.agent/plans/2026-02-14-manager-url-routing-migration.md` 完了済み
+- `.agent/plans/2026-02-14-api-router-foundation.md`
+- `.agent/plans/2026-02-14-manager-url-routing-migration.md`
 
 ## Plan of Work
 
