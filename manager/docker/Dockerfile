@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
   msmtp msmtp-mta \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install gd mysqli curl mbstring zip xml opcache intl bcmath soap exif \
-  && a2enmod rewrite
+  && a2enmod rewrite \
+  && rm -rf /var/lib/apt/lists/*
 
 # 権限調整
 RUN groupmod -g ${GROUP_ID} www-data && \

@@ -21,7 +21,6 @@ services:
       - mailpit
     networks:
       - evo_net
-    user: www-data
 
   db:
     image: mysql:8.3
