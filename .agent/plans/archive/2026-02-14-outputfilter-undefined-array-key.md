@@ -53,7 +53,7 @@ outputfilter は TV 値を表示向けに整形する小さな変換モジュー
    期待される観測結果: 対象 filter で構文エラーがなく、互換インターフェース（`$value`, `$params`）を維持している。
 5. 実測結果を Plan に反映する。  
    編集対象ファイル: この Plan ファイル  
-   実行コマンド: `git diff -- <plan-file>`  
+   実行コマンド: `git diff -- .agent/plans/archive/2026-02-14-outputfilter-undefined-array-key.md`  
    期待される観測結果: Progress / Surprises / Decision Log / Outcomes が実装結果に追従して更新される。
 
 ## Validation and Acceptance
