@@ -40,9 +40,9 @@
 - `manager/includes/initialize.inc.php` または設定ロード箇所
 - `manager/includes/rest-api.inc.php`（優先順位ルール再利用時）
 
-前提依存:
+前提依存（着手前に完了が必要）:
 
-- `.agent/plans/2026-02-14-api-router-foundation.md` 完了済み
+- `.agent/plans/2026-02-14-api-router-foundation.md`
 
 ## Plan of Work
 

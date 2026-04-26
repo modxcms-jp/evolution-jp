@@ -43,11 +43,11 @@
 - `manager/includes/rest-routes.php`
 - `manager/includes/rest-api.inc.php`（共通整形ロジック）
 
-前提依存:
+前提依存（着手前に完了が必要）:
 
-- `.agent/plans/2026-02-14-api-router-foundation.md` 完了済み
-- `.agent/plans/2026-02-14-manager-url-routing-migration.md` 完了済み
-- `.agent/plans/2026-02-14-rest-api-foundation-security.md` 完了済み
+- `.agent/plans/2026-02-14-api-router-foundation.md`
+- `.agent/plans/2026-02-14-manager-url-routing-migration.md`
+- `.agent/plans/2026-02-14-rest-api-foundation-security.md`
 
 ## Plan of Work
 
