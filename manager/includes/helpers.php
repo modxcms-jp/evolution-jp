@@ -308,6 +308,16 @@ function normalize_url_tv_value($value, $prefix = '--')
         return $value;
     }
 
+    foreach (tv_url_prefixes() as $knownPrefix) {
+        if ($knownPrefix === '--' || $knownPrefix === 'DocID') {
+            continue;
+        }
+        if (strpos($value, $knownPrefix) === 0) {
+            $value = substr($value, strlen($knownPrefix));
+            break;
+        }
+    }
+
     return $prefix . $value;
 }
 
