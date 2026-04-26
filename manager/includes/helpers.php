@@ -290,6 +290,27 @@ function postv($key = null, $default = null)
     return array_get($_POST, $key, $default);
 }
 
+function tv_url_prefixes()
+{
+    return ['--', 'http://', 'https://', 'ftp://', 'mailto:', 'DocID'];
+}
+
+function normalize_url_tv_value($value, $prefix = '--')
+{
+    $value = (string)($value ?? '');
+    $prefix = in_array($prefix, tv_url_prefixes(), true) ? $prefix : '--';
+
+    if ($prefix === 'DocID') {
+        return preg_match('/\A[0-9]+\z/', $value) ? '[~' . $value . '~]' : $value;
+    }
+
+    if ($prefix === '--') {
+        return $value;
+    }
+
+    return $prefix . $value;
+}
+
 function anyv($key = null, $default = null)
 {
     return array_get($_REQUEST, $key, $default);

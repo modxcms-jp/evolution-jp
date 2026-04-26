@@ -15,7 +15,6 @@
         jQuery('#workText', parent.mainMenu.document).html('');
         var baseurl = '[+baseurl+]';
         top.mainMenu.defaultTreeFrame();
-        var $j = jQuery.noConflict();
         var lastImageCtrl;
         var lastFileCtrl;
 

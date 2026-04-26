@@ -1524,19 +1524,14 @@ trait DocumentParserSubParserTrait
     private function rendarFormUrl($field_id, $field_value, $field_style)
     {
         $field_value = (string)$field_value;
-        $prefixes = [
-            '--' => '--',
-            'http://' => 'http://',
-            'https://' => 'https://',
-            'ftp://' => 'ftp://',
-            'mailto:' => 'mailto:',
-            'DocID' => 'DocID'
-        ];
+        $prefixes = array_combine(tv_url_prefixes(), tv_url_prefixes());
         $selectedPrefix = '--';
 
         if (preg_match('/^\[~([0-9]+)~\]$/', $field_value, $matches)) {
             $selectedPrefix = 'DocID';
             $field_value = $matches[1];
+        } elseif (strpos($field_value, '--') === 0) {
+            $field_value = substr($field_value, 2);
         } else {
             foreach ($prefixes as $prefix => $label) {
                 if ($prefix === '--' || $prefix === 'DocID') {
@@ -1592,7 +1587,7 @@ trait DocumentParserSubParserTrait
                 ),
                 'name'            => 'tv' . $field_id,
                 'value'           => $field_value ? evo()->hsc($field_value) : '',
-                'style'           => $field_style,
+                'style'           => evo()->hsc($field_style),
                 'tvtype'          => $field_type,
                 'form_name'       => evo()->hsc($formName),
                 'cal_nodate'      => style('icons_cal_nodate'),
@@ -2308,11 +2303,7 @@ trait DocumentParserSubParserTrait
                 $name = $tvname[$k];
                 $prefix_key = "{$k}_prefix";
                 if (isset($input[$prefix_key])) {
-                    if ($input[$prefix_key] !== 'DocID') {
-                        $v = $input[$prefix_key] . $v;
-                    } elseif (preg_match('/\A[0-9]+\z/', $v)) {
-                        $v = '[~' . $v . '~]';
-                    }
+                    $v = normalize_url_tv_value($v, $input[$prefix_key]);
                 }
                 unset($input[$k]);
                 $input[$name] = $v;

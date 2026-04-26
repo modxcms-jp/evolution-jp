@@ -184,15 +184,10 @@ class DocManagerBackend
                 $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . $tvKeyName);
                 $row = db()->getRow($typeSQL);
                 if ($row['type'] === 'url') {
-                    $tmplvar = postv("tv" . $row['id']);
-                    $prefix = postv("tv" . $row['id'] . '_prefix', '--');
-                    if ($prefix === 'DocID') {
-                        if (preg_match('/\A[0-9]+\z/', $tmplvar)) {
-                            $tmplvar = '[~' . $tmplvar . '~]';
-                        }
-                    } elseif ($prefix !== '--') {
-                        $tmplvar = $prefix . $tmplvar;
-                    }
+                    $tmplvar = normalize_url_tv_value(
+                        postv("tv" . $row['id']),
+                        postv("tv" . $row['id'] . '_prefix', '--')
+                    );
                 } elseif ($row['type'] === 'file') {
                     $tmplvar = postv("tv" . $row['id']);
                 } else {
