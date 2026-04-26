@@ -11,6 +11,7 @@ if (is_file(MODX_BASE_PATH . 'assets/helpers.php')) {
     require_once(MODX_BASE_PATH . 'assets/helpers.php');
 }
 require_once(__DIR__ . '/system.event.class.inc.php');
+require_once(__DIR__ . '/logger.class.php');
 require_once(__DIR__ . '/traits/document.parser.subparser.trait.php');
 
 class DocumentParser

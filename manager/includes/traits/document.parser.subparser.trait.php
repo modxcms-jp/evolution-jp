@@ -122,12 +122,10 @@ trait DocumentParserSubParserTrait
     function logEvent($evtid, $type, $msg, $title = 'Parser')
     {
         global $modx;
-        if (!db()->isConnected()) {
-            return;
-        }
         if (!$modx->config) {
             $modx->getSettings();
         }
+
         $evtid = (int)$evtid;
         $type = (int)$type;
         if ($type < 1) {
@@ -136,39 +134,36 @@ trait DocumentParserSubParserTrait
         if (3 < $type) {
             $type = 3;
         }
-        if (db()->isConnected()) {
-            $msg = db()->escape($msg);
-        }
-        $title = hsc($title);
-        if (db()->isConnected()) {
-            $title = db()->escape($title);
-        }
+
+        $title = (string)$title;
         if (function_exists('mb_substr')) {
             $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
         } else {
             $title = substr($title, 0, 100);
         }
-        $LoginUserID = evo()->getLoginUserID();
-        if (!$LoginUserID) {
-            $LoginUserID = '0';
+
+        $levelMap = [
+            1 => Logger::INFO,
+            2 => Logger::WARNING,
+            3 => Logger::ERROR,
+        ];
+        $level = $levelMap[$type] ?? Logger::INFO;
+        try {
+            $logger = new Logger();
+            $logger->log($level, $msg, [
+                'eventid' => $evtid,
+                'source' => $title,
+                'legacy_type' => $type,
+            ]);
+        } catch (Throwable $e) {
+            error_log('Failed to write system log: ' . $e->getMessage());
         }
 
-        $fields['eventid'] = $evtid;
-        $fields['type'] = $type;
-        $fields['createdon'] = request_time();
-        $fields['source'] = $title;
-        $fields['description'] = $msg;
-        $fields['user'] = $LoginUserID;
-        $_ = db()->lastQuery;
-        if (db()->isConnected()) {
-            $insert_id = db()->insert($fields, '[+prefix+]event_log');
-        } else {
-            $title = 'DB connect error';
-        }
-        $modx->db->lastQuery = $_;
         if (config('send_errormail') && config('send_errormail') <= $type) {
+            $hostname = '';
+            $mailbody = [];
             $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
-            $body['Source'] = $fields['source'];
+            $body['Source'] = $title;
             $body['IP'] = evo()->server('REMOTE_ADDR');
             if (evo()->server('REMOTE_ADDR')) {
                 $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
@@ -176,7 +171,7 @@ trait DocumentParserSubParserTrait
             if ($hostname) {
                 $body['Host name'] = $hostname;
             }
-            if ($modx->event->activePlugin) {
+            if (is_object($modx->event) && $modx->event->activePlugin) {
                 $body['Plugin'] = $modx->event->activePlugin;
             }
             if ($modx->currentSnippet) {
@@ -188,15 +183,6 @@ trait DocumentParserSubParserTrait
             }
             $mailbody = implode("\n", $mailbody);
             $modx->sendmail($subject, $mailbody);
-        }
-        if (!isset($insert_id) || !$insert_id) {
-            exit('Error while inserting event log into database.');
-        }
-
-        $trim = (int)evo()->config('event_log_trim', 100);
-        if (($insert_id % $trim) == 0) {
-            $limit = (int)evo()->config('event_log_limit', 2000);
-            $modx->rotate_log('event_log', $limit, $trim);
         }
     }
 
