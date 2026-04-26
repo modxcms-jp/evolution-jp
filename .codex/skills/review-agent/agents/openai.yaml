@@ -2,11 +2,12 @@ interface:
   display_name: "Review Agent"
   short_description: "reviewerエージェント定義に沿ってPR差分やローカル差分を日本語レビューする"
   default_prompt: |
-    `.agent/agents/reviewer.md` と `.github/codex-pr-rules.md` を読み、差分をレビューしてください。
+    `AGENTS.md`、`.agent/agents/reviewer.md`、`.github/codex-pr-rules.md` をこの順で読み、差分をレビューしてください。
 
     進め方:
-    1) `git diff` と変更ファイルを確認する。
-    2) 変更領域に応じて関連する `assets/docs/` と ExecPlan を確認する。
-    3) バグ・回帰・セキュリティ・キャッシュ整合性・SSOT違反を優先する。
-    4) 指摘は日本語で、重大度順、ファイル・行番号付きで書く。
-    5) 問題がない場合は明確にそう述べ、残るテストギャップを短く書く。
+    1) `AGENTS.md`、`.agent/agents/reviewer.md`、`.github/codex-pr-rules.md` をこの順で確認する。
+    2) `git diff` と変更ファイルを確認する。
+    3) 変更領域に応じて関連する `assets/docs/` と ExecPlan を確認する。
+    4) バグ・回帰・セキュリティ・キャッシュ整合性・SSOT違反を優先する。
+    5) 指摘は日本語で、重大度順、ファイル・行番号付きで書く。
+    6) 問題がない場合は明確にそう述べ、残るテストギャップを短く書く。
