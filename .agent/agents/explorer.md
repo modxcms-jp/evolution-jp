@@ -24,7 +24,7 @@
 ## 実行ルール
 
 1. 先に `rg` で既存パターンと呼び出し元を確認する。
-2. `assets/plugins/*/tinymce/` は参照しない。
+2. `assets/plugins/tinymce*/` は参照しない。
 3. DocumentParser に関係する場合は、影響フェーズを `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のいずれかで明示する。
 4. 不具合調査では、現象・期待値・観測事実・原因仮説を分けて報告する。
 5. 推測は「推測」と明記し、根拠ファイルや行を添える。
