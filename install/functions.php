@@ -404,6 +404,11 @@ function checkAllTablesExist()
     return true;
 }
 
+function managerConfigExists()
+{
+    return is_file(MODX_BASE_PATH . 'manager/includes/config.inc.php');
+}
+
 /**
  * アップグレード可能かどうかを判定
  *
@@ -416,12 +421,12 @@ function isUpGradeable()
     error_reporting(E_ALL & ~E_NOTICE);
 
     // config.inc.php の存在確認
-    $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
-    if (!is_file($conf_path)) {
+    if (!managerConfigExists()) {
         return 0;
     }
 
     // config.inc.php から設定を読み込み
+    $conf_path = MODX_BASE_PATH . 'manager/includes/config.inc.php';
     $dbase = null;
     $database_server = null;
     $database_user = null;
@@ -700,7 +705,13 @@ function renderInstallConfigNotice($messageKey)
     $ph = ph();
     $ph['install_config_title'] = lang('install_config_title');
     $ph['install_config_message'] = lang($messageKey);
-    $ph['install_config_step1'] = sprintf(lang('install_config_step1'), hsc(installConfigSamplePath()), hsc(installConfigPath()));
+    $ph['install_config_remote_hint'] = lang('install_config_remote_hint');
+    $ph['install_config_step1'] = sprintf(
+        lang('install_config_step1'),
+        hsc(rtrim(dirname(installConfigPath()), '/') . '/'),
+        hsc(basename(installConfigSamplePath())),
+        hsc(basename(installConfigPath()))
+    );
     $ph['install_config_step2'] = lang('install_config_step2');
     $ph['install_config_step3'] = lang('install_config_step3');
     $ph['install_config_footer'] = lang('install_config_footer');

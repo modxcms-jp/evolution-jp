@@ -110,6 +110,8 @@
     // database test
     jQuery('#databasetest').click(function () {
         jQuery('#databasetest').fadeOut();
+        jQuery('#AUH').fadeOut();
+        jQuery('#databasestatus').html('').hide();
         var url = 'connection.databasetest.php';
         var pars = {
             'q': url,
@@ -125,8 +127,14 @@
         };
         jQuery.post(url, pars, function (data) {
             jQuery('#databasestatus').html(data).fadeIn();
-            if (0 < data.indexOf('database_pass'))
+            if (0 < data.indexOf('database_pass')) {
                 jQuery('#AUH').fadeIn();
+            } else {
+                jQuery('#databasetest').fadeIn();
+            }
+        }).fail(function () {
+            jQuery('#databasestatus').html('<span id="database_fail" style="background: #ffe6eb;padding:8px;border-radius:5px;color:#FF0000;">[+alert_database_test_connection_failed+]</span>').fadeIn();
+            jQuery('#databasetest').fadeIn();
         });
     });
 

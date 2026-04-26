@@ -832,7 +832,22 @@ input#adminemail {
 }
 
 .install-config-remote {
-    margin: 0.2em 0 1em;
+    margin: 0.2em 0 0;
+}
+
+.install-config-hint {
+    background: #fffaf2;
+    border-left: 4px solid #f5c46b;
+    margin-top: 1em;
+    padding: 0.8em 1em;
+}
+
+.install-config-hint p {
+    margin: 0;
+}
+
+.install-config-hint p + p {
+    margin-top: 0.4em;
 }
 
 .install-config-instructions ol {
