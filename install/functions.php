@@ -700,7 +700,13 @@ function renderInstallConfigNotice($messageKey)
     $ph = ph();
     $ph['install_config_title'] = lang('install_config_title');
     $ph['install_config_message'] = lang($messageKey);
-    $ph['install_config_step1'] = sprintf(lang('install_config_step1'), hsc(installConfigSamplePath()), hsc(installConfigPath()));
+    $ph['install_config_remote_hint'] = lang('install_config_remote_hint');
+    $ph['install_config_step1'] = sprintf(
+        lang('install_config_step1'),
+        hsc(rtrim(dirname(installConfigPath()), '/') . '/'),
+        hsc(basename(installConfigSamplePath())),
+        hsc(basename(installConfigPath()))
+    );
     $ph['install_config_step2'] = lang('install_config_step2');
     $ph['install_config_step3'] = lang('install_config_step3');
     $ph['install_config_footer'] = lang('install_config_footer');
