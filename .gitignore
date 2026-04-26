@@ -3,6 +3,10 @@
 /manager/includes/config.inc.php
 /manager/includes/extra.config.php
 
+# 個人操作履歴
+.bash_history
+**/.bash_history
+
 # システムが動的に生成するサーバ固有のファイルのため同期が不要なファイル・ディレクトリ
 .thumbs/
 /temp/cache/*
