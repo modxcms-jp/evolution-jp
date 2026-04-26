@@ -5,7 +5,7 @@ interface:
     `AGENTS.md`、`.agent/agents/reviewer.md`、`.github/codex-pr-rules.md` をこの順で読み、差分をレビューしてください。
 
     進め方:
-    1) `AGENTS.md` を確認する。
+    1) `AGENTS.md`、`.agent/agents/reviewer.md`、`.github/codex-pr-rules.md` をこの順で確認する。
     2) `git diff` と変更ファイルを確認する。
     3) 変更領域に応じて関連する `assets/docs/` と ExecPlan を確認する。
     4) バグ・回帰・セキュリティ・キャッシュ整合性・SSOT違反を優先する。
