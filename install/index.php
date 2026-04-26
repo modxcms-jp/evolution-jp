@@ -60,6 +60,9 @@ if (sessionv('database_server')) {
 // テーブルがあればアップグレード、なければ新規インストール
 if ($action === 'mode') {
     sessionv('*is_upgradeable', isUpGradeable());
+} elseif (!managerConfigExists()) {
+    // config.inc.php が無い場合は、古いセッションのDB情報より新規インストール判定を優先する
+    sessionv('*is_upgradeable', 0);
 } elseif (db()->isConnected() && sessionv('dbase')) {
     // DB接続済み かつ DB名が設定されている場合のみテーブル確認
     sessionv('*is_upgradeable', checkAllTablesExist() ? 1 : 0);
