@@ -1379,6 +1379,11 @@ trait DocumentParserSubParserTrait
         global $modx, $content;
 
         $field_type = strtolower($field_type);
+        $default_text = (string)($default_text ?? '');
+        $field_elements = (string)($field_elements ?? '');
+        if ($field_value === null) {
+            $field_value = '';
+        }
 
         if (isset($content['id'])) {
             global $docObject;
@@ -1396,7 +1401,7 @@ trait DocumentParserSubParserTrait
         if (strpos($default_text, '<?php') === 0) {
             $default_text = "@@EVAL:\n" . substr($default_text, 6);
         }
-        if (strpos($field_value, '<?php') === 0) {
+        if (is_string($field_value) && strpos($field_value, '<?php') === 0) {
             $field_value = "@@EVAL:\n" . substr($field_value, 6);
         }
 
@@ -1405,15 +1410,18 @@ trait DocumentParserSubParserTrait
             $field_value = $default_text;
         }
 
-        if (in_array($field_type, ['text', 'rawtext', 'email', 'number', 'zipcode', 'tel', 'url'])) {
+        if (in_array($field_type, ['text', 'rawtext', 'email', 'number', 'zipcode', 'tel'])) {
             return $this->rendarFormText($field_type, $field_id, $field_value, $field_style);
+        }
+        if ($field_type === 'url') {
+            return $this->rendarFormUrl($field_id, $field_value, $field_style);
         }
 
         if (in_array($field_type, ['textarea', 'rawtextarea', 'htmlarea', 'richtext', 'textareamini'])) {
             return $this->rendarFormTextarea($field_type, $field_id, $field_value, $field_style);
         }
         if (in_array($field_type, ['date', 'dateonly'])) {
-            return $this->rendarFormDate($field_type, $field_id, $field_value, $field_style);
+            return $this->rendarFormDate($field_type, $field_id, $field_value, $field_style, $row);
         }
 
         if ($field_type === 'image') {
@@ -1468,11 +1476,11 @@ trait DocumentParserSubParserTrait
         }
 
         return sprintf(
-            '<input type="text" id="tv%s" name="tv%s" value="%s" %s />',
+            '<input type="text" id="tv%s" name="tv%s" value="%s" style="%s" />',
             $field_id,
             $field_id,
             $modx->hsc($field_value),
-            $field_style
+            $modx->hsc($field_style)
         );
     }
 
@@ -1513,12 +1521,68 @@ trait DocumentParserSubParserTrait
         );
     }
 
-    private function rendarFormDate($field_type, $field_id, $field_value, $field_style)
+    private function rendarFormUrl($field_id, $field_value, $field_style)
+    {
+        $field_value = (string)$field_value;
+        $prefixes = [
+            '--' => '--',
+            'http://' => 'http://',
+            'https://' => 'https://',
+            'ftp://' => 'ftp://',
+            'mailto:' => 'mailto:',
+            'DocID' => 'DocID'
+        ];
+        $selectedPrefix = '--';
+
+        if (preg_match('/^\[~([0-9]+)~\]$/', $field_value, $matches)) {
+            $selectedPrefix = 'DocID';
+            $field_value = $matches[1];
+        } else {
+            foreach ($prefixes as $prefix => $label) {
+                if ($prefix === '--' || $prefix === 'DocID') {
+                    continue;
+                }
+                if (strpos($field_value, $prefix) === 0) {
+                    $selectedPrefix = $prefix;
+                    $field_value = substr($field_value, strlen($prefix));
+                    break;
+                }
+            }
+        }
+
+        $options = [];
+        foreach ($prefixes as $prefix => $label) {
+            $options[] = evo()->parseText(
+                '<option value="[+value+]" [+selected+]>[+label+]</option>',
+                [
+                    'value' => evo()->hsc($prefix),
+                    'label' => evo()->hsc($label),
+                    'selected' => $prefix === $selectedPrefix ? 'selected="selected"' : ''
+                ]
+            );
+        }
+
+        return evo()->parseText(
+            file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_url.tpl'),
+            [
+                'id' => 'tv' . $field_id,
+                'name' => 'tv' . $field_id,
+                'prefix_id' => 'tv' . $field_id . '_prefix',
+                'prefix_name' => 'tv' . $field_id . '_prefix',
+                'options' => implode("\n", $options),
+                'value' => evo()->hsc($field_value),
+                'style' => evo()->hsc($field_style)
+            ]
+        );
+    }
+
+    private function rendarFormDate($field_type, $field_id, $field_value, $field_style, $row = [])
     {
         $format = evo()->config('datetime_format');
         if ($field_type === 'date') {
             $format .= ' hh:mm:00';
         }
+        $formName = isset($row['form_name']) ? $row['form_name'] : 'mutate';
         return evo()->parseText(
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_date.tpl'),
             [
@@ -1530,6 +1594,7 @@ trait DocumentParserSubParserTrait
                 'value'           => $field_value ? evo()->hsc($field_value) : '',
                 'style'           => $field_style,
                 'tvtype'          => $field_type,
+                'form_name'       => evo()->hsc($formName),
                 'cal_nodate'      => style('icons_cal_nodate'),
                 'yearOffset'      => evo()->config('datepicker_offset'),
                 'datetime_format' => $format,
@@ -1639,8 +1704,8 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_image.tpl'),
             $field_id,
             $field_id,
-            $field_value,
-            $field_style,
+            evo()->hsc($field_value),
+            evo()->hsc($field_style),
             lang('insert'),
             $field_id
         );
@@ -1652,8 +1717,8 @@ trait DocumentParserSubParserTrait
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_file.tpl'),
             $field_id,
             $field_id,
-            $field_value,
-            $field_style,
+            evo()->hsc($field_value),
+            evo()->hsc($field_style),
             lang('insert'),
             $field_id
         );

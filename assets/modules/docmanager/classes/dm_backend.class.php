@@ -185,12 +185,13 @@ class DocManagerBackend
                 $row = db()->getRow($typeSQL);
                 if ($row['type'] === 'url') {
                     $tmplvar = postv("tv" . $row['id']);
-                    if (postv("tv" . $row['id' . '_prefix']) != '--') {
-                        $tmplvar = str_replace([
-                            "ftp://",
-                            "http://"
-                        ], "", $tmplvar);
-                        $tmplvar = postv("tv" . $row['id' . '_prefix']) . $tmplvar;
+                    $prefix = postv("tv" . $row['id'] . '_prefix', '--');
+                    if ($prefix === 'DocID') {
+                        if (preg_match('/\A[0-9]+\z/', $tmplvar)) {
+                            $tmplvar = '[~' . $tmplvar . '~]';
+                        }
+                    } elseif ($prefix !== '--') {
+                        $tmplvar = $prefix . $tmplvar;
                     }
                 } elseif ($row['type'] === 'file') {
                     $tmplvar = postv("tv" . $row['id']);
