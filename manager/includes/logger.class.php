@@ -114,6 +114,7 @@ class Logger
                 'url' => serverv('REQUEST_URI', ''),
                 'method' => serverv('REQUEST_METHOD', ''),
                 'ip' => serverv('REMOTE_ADDR', ''),
+                'ua' => serverv('HTTP_USER_AGENT', ''),
             ],
             'user' => $this->getCurrentUserId(),
         ];
