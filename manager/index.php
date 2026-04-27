@@ -157,7 +157,7 @@ $evtOutOnMPI = evo()->invokeEvent("OnManagerPageInit", $tmp);
 
 $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';
-$isRawSystemLogRequest = manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
+$isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
 
 // Now we decide what to do according to the action request. This is a BIG list :)
 
