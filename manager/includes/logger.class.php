@@ -68,7 +68,7 @@ class Logger
     public function log($level, $message, array $context = []): void
     {
         $level = $this->normalizeLevel($level);
-        $context = array_merge($context, $this->collectContext($level));
+        $context = array_merge($context, $this->collectContext($level, $context));
         $entry = [
             'timestamp' => date(DATE_ATOM, request_time()),
             'level' => $level,
@@ -107,7 +107,7 @@ class Logger
         return print_r($message, true);
     }
 
-    private function collectContext(string $level): array
+    private function collectContext(string $level, array $givenContext = []): array
     {
         $context = [
             'request' => [
@@ -122,20 +122,15 @@ class Logger
             return $context;
         }
 
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 8);
-        $caller = $this->findCaller($trace);
+        $trace = $this->filterTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 16));
+        $caller = $this->findCaller($trace, $givenContext);
         $context['caller'] = [
             'file' => $this->toRelativePath($caller['file'] ?? ''),
             'line' => (int)($caller['line'] ?? 0),
         ];
-        $context['trace'] = array_map(function ($frame) {
-            return [
-                'file' => $this->toRelativePath($frame['file'] ?? ''),
-                'line' => (int)($frame['line'] ?? 0),
-                'function' => $frame['function'] ?? '',
-                'class' => $frame['class'] ?? '',
-            ];
-        }, $trace);
+        if (!isset($givenContext['exception']) && !isset($givenContext['fatal'])) {
+            $context['trace'] = $trace;
+        }
 
         if (evo()) {
             if (is_object(evo()->event) && !empty(evo()->event->activePlugin)) {
@@ -160,17 +155,71 @@ class Logger
         ], true);
     }
 
-    private function findCaller(array $trace): array
+    private function findCaller(array $trace, array $givenContext = []): array
     {
+        if (isset($givenContext['error']) && is_array($givenContext['error'])) {
+            return [
+                'file' => $givenContext['error']['file'] ?? '',
+                'line' => (int)($givenContext['error']['line'] ?? 0),
+            ];
+        }
+        if (isset($givenContext['exception']) && is_array($givenContext['exception'])) {
+            return [
+                'file' => $givenContext['exception']['file'] ?? '',
+                'line' => (int)($givenContext['exception']['line'] ?? 0),
+            ];
+        }
+        if (isset($givenContext['fatal']) && is_array($givenContext['fatal'])) {
+            return [
+                'file' => $givenContext['fatal']['file'] ?? '',
+                'line' => (int)($givenContext['fatal']['line'] ?? 0),
+            ];
+        }
+
         foreach ($trace as $frame) {
             $file = $frame['file'] ?? '';
-            if ($file === '' || $this->toRelativePath($file) === 'manager/includes/logger.class.php') {
+            if ($file === '') {
                 continue;
             }
             return $frame;
         }
 
         return [];
+    }
+
+    private function filterTrace(array $trace): array
+    {
+        $frames = [];
+        foreach ($trace as $frame) {
+            if ($this->isLogInfrastructureFrame($frame)) {
+                continue;
+            }
+            $frames[] = [
+                'file' => $this->toRelativePath($frame['file'] ?? ''),
+                'line' => (int)($frame['line'] ?? 0),
+                'function' => $frame['function'] ?? '',
+                'class' => $frame['class'] ?? '',
+            ];
+        }
+
+        return $frames;
+    }
+
+    private function isLogInfrastructureFrame(array $frame): bool
+    {
+        $file = $this->toRelativePath($frame['file'] ?? '');
+        $function = $frame['function'] ?? '';
+        $class = $frame['class'] ?? '';
+
+        if ($class === 'Logger' || $file === 'manager/includes/logger.class.php') {
+            return true;
+        }
+
+        return $class === 'DocumentParser' && in_array($function, [
+            'logEvent',
+            'messageQuit',
+            'phpError',
+        ], true);
     }
 
     private function getCurrentUserId(): int

@@ -151,9 +151,7 @@ trait DocumentParserSubParserTrait
         try {
             $logger = new Logger();
             $logger->log($level, $this->normalizeLogMessage($msg), array_merge([
-                'eventid' => $evtid,
                 'source' => $title,
-                'legacy_type' => $type,
             ], $context));
         } catch (Throwable $e) {
             error_log('Failed to write system log: ' . $e->getMessage());
