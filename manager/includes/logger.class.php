@@ -77,6 +77,9 @@ class Logger
         ];
 
         $logFile = $this->getLogFile(self::SYSTEM_TYPE);
+        if ($logFile === '') {
+            return;
+        }
         $this->rotateIfNeeded($logFile);
         $this->writeLog($logFile, $entry);
     }
@@ -183,31 +186,50 @@ class Logger
     {
         $type = preg_replace('/[^a-z0-9_-]/i', '', $type) ?: self::SYSTEM_TYPE;
         $dir = MODX_BASE_PATH . 'temp/logs/' . $type . '/' . date('Y/m', request_time()) . '/';
-        $this->ensureLogDirectory($dir);
+        if (!$this->ensureLogDirectory($dir)) {
+            return '';
+        }
 
         return $dir . $type . '-' . date('Y-m-d', request_time()) . '.log';
     }
 
-    private function ensureLogDirectory(string $dir): void
+    private function ensureLogDirectory(string $dir): bool
     {
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
-            throw new RuntimeException('Failed to create log directory: ' . $this->toRelativePath($dir));
+            $this->reportFailure('Failed to create log directory: ' . $this->toRelativePath($dir));
+            return false;
+        }
+
+        if (!is_writable($dir)) {
+            @chmod($dir, 0775);
+        }
+        if (!is_writable($dir)) {
+            $this->reportFailure('System log directory is not writable: ' . $this->toRelativePath($dir));
+            return false;
         }
 
         $root = MODX_BASE_PATH . 'temp/logs/';
         if (!is_dir($root)) {
-            return;
+            return true;
         }
 
         $htaccess = $root . '.htaccess';
-        if (!is_file($htaccess)) {
-            file_put_contents($htaccess, "Require all denied\nDeny from all\n", LOCK_EX);
+        if (!is_file($htaccess) && is_writable($root)) {
+            @file_put_contents($htaccess, "Require all denied\nDeny from all\n", LOCK_EX);
         }
+
+        return true;
     }
 
     private function rotateIfNeeded(string $logFile): void
     {
-        if (!is_file($logFile) || filesize($logFile) < $this->getMaxBytes()) {
+        if (!is_file($logFile) || @filesize($logFile) < $this->getMaxBytes()) {
+            return;
+        }
+
+        $dir = dirname($logFile);
+        if (!is_writable($dir)) {
+            $this->reportFailure('System log directory is not writable for rotation: ' . $this->toRelativePath($dir));
             return;
         }
 
@@ -215,11 +237,11 @@ class Logger
             $source = "{$logFile}.{$i}";
             $target = $logFile . '.' . ($i + 1);
             if (is_file($source)) {
-                rename($source, $target);
+                @rename($source, $target);
             }
         }
 
-        rename($logFile, "{$logFile}.1");
+        @rename($logFile, "{$logFile}.1");
     }
 
     private function getMaxBytes(): int
@@ -242,7 +264,15 @@ class Logger
 
         $jsonLine = $json . "\n";
         $jsonLine = str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $jsonLine);
-        file_put_contents($logFile, $jsonLine, FILE_APPEND | LOCK_EX);
+        $written = @file_put_contents($logFile, $jsonLine, FILE_APPEND | LOCK_EX);
+        if ($written === false) {
+            $this->reportFailure('Failed to write system log: ' . $this->toRelativePath($logFile));
+        }
+    }
+
+    private function reportFailure(string $message): void
+    {
+        error_log($message);
     }
 
     private function sanitizeValue($value)
