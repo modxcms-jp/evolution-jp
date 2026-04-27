@@ -159,6 +159,194 @@ $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';
 $isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
 
+function manager_system_log_manager_action(): array
+{
+    static $actions = null;
+
+    if ($actions === null) {
+        $actions = [];
+        if (is_file(MODX_CORE_PATH . 'actionlist.inc.php')) {
+            include MODX_CORE_PATH . 'actionlist.inc.php';
+            $actions = globalv('action_list', []);
+        }
+    }
+
+    $action = (int)manager()->action;
+
+    return [
+        'id' => $action,
+        'name' => $actions[$action] ?? '',
+    ];
+}
+
+function manager_system_log_trace(array $trace): array
+{
+    $frames = [];
+    foreach ($trace as $frame) {
+        $frames[] = [
+            'file' => $frame['file'] ?? '',
+            'line' => (int)($frame['line'] ?? 0),
+            'function' => $frame['function'] ?? '',
+            'class' => $frame['class'] ?? '',
+        ];
+    }
+
+    return $frames;
+}
+
+function manager_log_uncaught_throwable(Throwable $exception): void
+{
+    try {
+        $logger = new Logger();
+        $logger->critical($exception->getMessage(), [
+            'source' => 'Manager action',
+            'exception' => [
+                'class' => get_class($exception),
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => manager_system_log_trace($exception->getTrace()),
+            ],
+            'manager_action' => manager_system_log_manager_action(),
+        ]);
+    } catch (Throwable $loggingException) {
+        error_log('Failed to write uncaught throwable to system log: ' . $loggingException->getMessage());
+    }
+}
+
+function manager_log_shutdown_fatal(): void
+{
+    $error = error_get_last();
+    if (!is_array($error)) {
+        return;
+    }
+
+    $fatalTypes = [
+        E_ERROR,
+        E_PARSE,
+        E_CORE_ERROR,
+        E_CORE_WARNING,
+        E_COMPILE_ERROR,
+        E_COMPILE_WARNING,
+    ];
+    if (!in_array((int)($error['type'] ?? 0), $fatalTypes, true)) {
+        return;
+    }
+
+    try {
+        $source = '';
+        $file = (string)($error['file'] ?? '');
+        $line = (int)($error['line'] ?? 0);
+        if ($file !== '' && $line > 0 && is_readable($file)) {
+            $lines = file($file);
+            $source = $lines[$line - 1] ?? '';
+        }
+
+        $logger = new Logger();
+        $logger->critical((string)($error['message'] ?? 'Fatal error'), [
+            'source' => 'Manager shutdown',
+            'fatal' => [
+                'type' => manager_system_log_error_type((int)($error['type'] ?? 0)),
+                'number' => (int)($error['type'] ?? 0),
+                'message' => (string)($error['message'] ?? ''),
+                'file' => $file,
+                'line' => $line,
+                'source' => $source,
+            ],
+            'manager_action' => manager_system_log_manager_action(),
+        ]);
+    } catch (Throwable $loggingException) {
+        error_log('Failed to write fatal error to system log: ' . $loggingException->getMessage());
+    }
+}
+
+function manager_system_log_error_type(int $type): string
+{
+    $types = [
+        E_ERROR => 'ERROR',
+        E_PARSE => 'PARSING ERROR',
+        E_CORE_ERROR => 'CORE ERROR',
+        E_CORE_WARNING => 'CORE WARNING',
+        E_COMPILE_ERROR => 'COMPILE ERROR',
+        E_COMPILE_WARNING => 'COMPILE WARNING',
+    ];
+
+    return $types[$type] ?? '';
+}
+
+function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLogRequest): void
+{
+    if ($isRawSystemLogRequest) {
+        if (!headers_sent()) {
+            http_response_code(500);
+            header(sprintf('Content-Type: application/json; charset=%s', config('modx_charset', 'utf-8')));
+        }
+        echo json_encode([
+            'success' => false,
+            'message' => 'A fatal manager error occurred. See the system log for details.',
+            'exception' => [
+                'class' => get_class($exception),
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return;
+    }
+
+    if (!headers_sent()) {
+        http_response_code(500);
+    }
+
+    $message = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getMessage()));
+    $file = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getFile()));
+    $line = (int)$exception->getLine();
+    $source = '';
+    if ($exception->getFile() !== '' && $line > 0 && is_readable($exception->getFile())) {
+        $lines = file($exception->getFile());
+        $source = hsc($lines[$line - 1] ?? '');
+    }
+    $action = manager_system_log_manager_action();
+    $requestUri = hsc(serverv('REQUEST_URI', ''));
+    $referer = hsc(serverv('HTTP_REFERER', ''));
+    $userAgent = hsc(serverv('HTTP_USER_AGENT', ''));
+    $ip = hsc(serverv('REMOTE_ADDR', ''));
+
+    echo '<div role="alert">';
+    echo '<h3 style="color:red">&laquo; MODX Manager Error &raquo;</h3>';
+    echo '<p>MODX encountered the following error while processing the manager request:</p>';
+    echo '<p><b style="color:red;">&laquo; Uncaught ' . hsc(get_class($exception)) . ' &raquo;</b></p>';
+    echo '<p><b>PHP error debug</b></p>';
+    if ($message !== '') {
+        echo '<div style="font-weight:bold;border:1px solid #ccc;padding:8px;color:#333;background-color:#ffffcd;">Error : ' . $message . '</div>';
+    }
+    echo '<table border="0" cellpadding="1" cellspacing="0">';
+    echo '<tr><td valign="top">ErrorType[num] : </td><td>UNCAUGHT EXCEPTION[' . hsc(get_class($exception)) . ']</td></tr>';
+    echo '<tr><td valign="top">File : </td><td>' . $file . '</td></tr>';
+    echo '<tr><td valign="top">Line : </td><td>' . $line . '</td></tr>';
+    if ($source !== '') {
+        echo '<tr><td valign="top">Source : </td><td><code>' . $source . '</code></td></tr>';
+    }
+    echo '<tr><td colspan="2"><b>Basic info</b></td></tr>';
+    echo '<tr><td valign="top">REQUEST_URI : </td><td>' . $requestUri . '</td></tr>';
+    echo '<tr><td valign="top">Manager action : </td><td>' . (int)$action['id'] . ' - ' . hsc($action['name']) . '</td></tr>';
+    echo '<tr><td valign="top">Referer : </td><td>' . $referer . '</td></tr>';
+    echo '<tr><td valign="top">User Agent : </td><td>' . $userAgent . '</td></tr>';
+    echo '<tr><td valign="top">IP : </td><td>' . $ip . '</td></tr>';
+    echo '</table>';
+    echo '<p><b>Backtrace</b></p>';
+    echo '<table border="0" cellpadding="1" cellspacing="0">';
+    foreach (manager_system_log_trace($exception->getTrace()) as $index => $frame) {
+        $traceFile = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $frame['file']));
+        $traceLine = (int)$frame['line'];
+        $traceCall = hsc(trim(($frame['class'] ? $frame['class'] . '::' : '') . $frame['function']));
+        echo '<tr><td valign="top">' . ($index + 1) . '&nbsp;</td><td>' . $traceCall . '()<br />' . $traceFile . ' on line ' . $traceLine . '</td></tr>';
+    }
+    echo '</table>';
+    echo '</div>';
+}
+
+register_shutdown_function('manager_log_shutdown_fatal');
+
+try {
+
 // Now we decide what to do according to the action request. This is a BIG list :)
 
 if (in_array(manager()->action, [
@@ -606,6 +794,11 @@ switch (manager()->action) {
             $log = new logHandler;
             $log->initAndWriteLog();
         }
+}
+} catch (Throwable $exception) {
+    manager_log_uncaught_throwable($exception);
+    manager_render_uncaught_error($exception, $isRawSystemLogRequest);
+    exit;
 }
 
 unset($_SESSION['itemname']); // clear this, because it's only set for logging purposes
