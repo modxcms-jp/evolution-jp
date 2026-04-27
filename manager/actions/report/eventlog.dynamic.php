@@ -244,7 +244,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
             </form>
             <?php if ($isLatest) { ?>
                 <p class="system-log-summary">
-                    <?= hsc(lang('latest_log_summary', '最新ログを複数ファイルから横断表示しています。')) ?>
+                    <?= hsc(lang('latest_log_summary', '最新100件のログファイルを横断して表示しています。')) ?>
                 </p>
             <?php } elseif ($selectedFileInfo) { ?>
                 <p class="system-log-summary">
@@ -568,7 +568,7 @@ function system_log_files(string $root): array
         return $b['mtime'] <=> $a['mtime'];
     });
 
-    return array_slice($items, 0, 50);
+    return array_slice($items, 0, 100);
 }
 
 function system_log_period(string $period): string
