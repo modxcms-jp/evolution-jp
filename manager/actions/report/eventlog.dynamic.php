@@ -44,7 +44,7 @@ if (getv('ajax') === 'entries') {
         ? ['entries' => [], 'has_more' => false, 'before_line' => 0]
         : system_log_read_entries($selectedPath, $level, $query, $beforeLine, 20));
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    echo system_log_json_encode($result);
     exit;
 }
 
@@ -441,7 +441,21 @@ function downloadSystemLog(url) {
         }
 
         const response = await fetch(`index.php?${params.toString()}`, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
-        const payload = await response.json();
+        const text = await response.text();
+        let payload;
+        try {
+            payload = text ? JSON.parse(text) : null;
+        } catch (error) {
+            payload = null;
+        }
+        if (!response.ok || !payload) {
+            marker.remove();
+            const message = text ? escapeHtml(text.slice(0, 1000)) : 'Empty response from log API.';
+            stream.insertAdjacentHTML('beforeend', `<div class="system-log-empty">${message}</div>`);
+            loading = false;
+            hasMore = false;
+            return;
+        }
         marker.remove();
 
         const html = payload.entries.map(renderEntry).join('');
@@ -853,12 +867,75 @@ function system_log_normalize_entry(array $data, int $lineNumber): array
         'line' => $lineNumber,
         'timestamp' => (string)array_get($data, 'timestamp', ''),
         'level' => strtolower((string)array_get($data, 'level', 'unknown')) ?: 'unknown',
-        'message' => (string)array_get($data, 'message', ''),
+        'message' => system_log_plain_text((string)array_get($data, 'message', '')),
         'source' => (string)array_get($context, 'source', ''),
         'caller' => is_array(array_get($context, 'caller')) ? array_get($context, 'caller') : [],
         'context' => $context,
         'raw' => $data,
     ];
+}
+
+function system_log_json_encode(array $payload): string
+{
+    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+    if ($json !== false) {
+        return $json;
+    }
+
+    $fallback = system_log_utf8_normalize($payload);
+    $json = json_encode($fallback, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($json !== false) {
+        return $json;
+    }
+
+    return json_encode([
+        'entries' => [],
+        'has_more' => false,
+        'before_line' => 0,
+        'cursor_file' => '',
+        'error' => 'Failed to encode log response: ' . json_last_error_msg(),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
+function system_log_utf8_normalize($value)
+{
+    if (is_array($value)) {
+        foreach ($value as $key => $item) {
+            $value[$key] = system_log_utf8_normalize($item);
+        }
+        return $value;
+    }
+
+    if (is_string($value)) {
+        if (function_exists('mb_convert_encoding')) {
+            return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        }
+        if (function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+            if ($converted !== false) {
+                return $converted;
+            }
+        }
+    }
+
+    return $value;
+}
+
+function system_log_plain_text(string $message): string
+{
+    if ($message === '' || strpos($message, '<') === false) {
+        return $message;
+    }
+
+    $message = preg_replace('@<(br|/p|/div|/tr|/table|/h[1-6])\b[^>]*>@i', "\n", $message);
+    $message = strip_tags($message);
+    $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5, config('modx_charset', 'utf-8'));
+    $lines = array_map('trim', preg_split('/\R+/', $message) ?: []);
+    $lines = array_filter($lines, function ($line) {
+        return $line !== '';
+    });
+
+    return implode("\n", $lines);
 }
 
 function system_log_count_lines(string $path): int
