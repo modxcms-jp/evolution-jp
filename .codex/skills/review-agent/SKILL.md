@@ -1,6 +1,6 @@
 ---
-name: review-agent
-description: `.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。
+name: "review-agent"
+description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。"
 ---
 
 # Review Agent
@@ -70,4 +70,3 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 **Tests**
 - 実行済み、または未実行の理由
 ```
-

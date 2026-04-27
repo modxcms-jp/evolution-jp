@@ -1,6 +1,6 @@
 ---
-name: agent-orchestrator
-description: `.agent/agents/` のエージェント定義を入口に、タスクを調査・計画・実装・レビュー・検証へ分担するスキル。ユーザーが「エージェント」「マルチエージェント」「orchestrator」「役割分担」「複数担当」などを求めたとき、または大きな変更で担当境界を決める必要があるときに使う。
+name: "agent-orchestrator"
+description: "`.agent/agents/` のエージェント定義を入口に、タスクを調査・計画・実装・レビュー・検証へ分担するスキル。ユーザーが「エージェント」「マルチエージェント」「orchestrator」「役割分担」「複数担当」などを求めたとき、または大きな変更で担当境界を決める必要があるときに使う。"
 ---
 
 # Agent Orchestrator
