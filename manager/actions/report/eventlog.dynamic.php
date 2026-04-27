@@ -383,11 +383,12 @@ function downloadSystemLog(url) {
         const context = JSON.stringify(entry.context || {}, null, 2);
         const raw = JSON.stringify(entry.raw || {}, null, 2);
         const caller = entry.caller ? `${entry.caller.file || ''}:${entry.caller.line || ''}` : '';
+        const timestampLabel = entry.timestamp_label || entry.timestamp || '';
         return `
             <div class="system-log-entry" data-line="${entry.line}" data-level="${escapeHtml(entry.level)}" data-raw="${escapeHtml(raw)}">
                 <div class="system-log-entry-header">
                     <span class="system-log-level">${highlight(entry.level)}</span>
-                    <span>${highlight(entry.timestamp)}</span>
+                    <span title="${escapeHtml(entry.timestamp || '')}">${highlight(timestampLabel)}</span>
                     ${entry.file ? `<span>${highlight(entry.file)}</span>` : ''}
                     ${entry.source ? `<span>${highlight(entry.source)}</span>` : ''}
                     ${caller ? `<span>${highlight(caller)}</span>` : ''}
@@ -866,6 +867,7 @@ function system_log_normalize_entry(array $data, int $lineNumber): array
     return [
         'line' => $lineNumber,
         'timestamp' => (string)array_get($data, 'timestamp', ''),
+        'timestamp_label' => system_log_format_timestamp((string)array_get($data, 'timestamp', '')),
         'level' => strtolower((string)array_get($data, 'level', 'unknown')) ?: 'unknown',
         'message' => system_log_plain_text((string)array_get($data, 'message', '')),
         'source' => (string)array_get($context, 'source', ''),
@@ -873,6 +875,20 @@ function system_log_normalize_entry(array $data, int $lineNumber): array
         'context' => $context,
         'raw' => $data,
     ];
+}
+
+function system_log_format_timestamp(string $timestamp): string
+{
+    if ($timestamp === '') {
+        return '';
+    }
+
+    $parsed = strtotime($timestamp);
+    if ($parsed === false) {
+        return $timestamp;
+    }
+
+    return date('Y-m-d H:i:s', $parsed);
 }
 
 function system_log_json_encode(array $payload): string
