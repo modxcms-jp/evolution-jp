@@ -119,7 +119,7 @@ trait DocumentParserSubParserTrait
         );
     }
 
-    function logEvent($evtid, $type, $msg, $title = 'Parser')
+    function logEvent($evtid, $type, $msg, $title = 'Parser', array $context = [])
     {
         global $modx;
         if (!$modx->config) {
@@ -150,11 +150,11 @@ trait DocumentParserSubParserTrait
         $level = $levelMap[$type] ?? Logger::INFO;
         try {
             $logger = new Logger();
-            $logger->log($level, $msg, [
+            $logger->log($level, $this->normalizeLogMessage($msg), array_merge([
                 'eventid' => $evtid,
                 'source' => $title,
                 'legacy_type' => $type,
-            ]);
+            ], $context));
         } catch (Throwable $e) {
             error_log('Failed to write system log: ' . $e->getMessage());
         }
@@ -458,7 +458,7 @@ trait DocumentParserSubParserTrait
 
         $str .= $modx->parseText($tpl, ['left' => 'Referer : ', 'right' => $referer]);
         $str .= $modx->parseText($tpl, ['left' => 'User Agent : ', 'right' => $ua]);
-        $str .= $modx->parseText($tpl, ['left' => 'IP : ', 'right' => $_SERVER['REMOTE_ADDR']]);
+        $str .= $modx->parseText($tpl, ['left' => 'IP : ', 'right' => serverv('REMOTE_ADDR', '')]);
 
         $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
@@ -495,10 +495,6 @@ trait DocumentParserSubParserTrait
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        $last_error = error_get_last();
-        if ($last_error) {
-            $str = "<b>" . print_r($last_error, true) . "</b><br />\n{$str}";
-        }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
 
 
@@ -508,7 +504,7 @@ trait DocumentParserSubParserTrait
         } elseif ($modx->event->activePlugin) {
             $title = 'Plugin - ' . $modx->event->activePlugin;
         } elseif (isset($title) && $title !== '') {
-            $title = 'Parser - ' . $text ? $text : $source;
+            $title = 'Parser - ' . ($text ? $text : $source);
         } elseif ($query !== '') {
             $title = 'SQL Query';
         } else {
@@ -541,7 +537,25 @@ trait DocumentParserSubParserTrait
             default:
                 $error_level = 3;
         }
-        $modx->logEvent(0, $error_level, $str, $title);
+        $logMessage = $text !== '' ? $text : $msg;
+        $logContext = [
+            'error' => [
+                'type' => $errortype[$nr] ?? '',
+                'number' => (int)$nr,
+                'file' => $file,
+                'line' => (int)$line,
+                'source' => $source,
+                'query' => $query,
+                'last_query' => db()->lastQuery ?: '',
+            ],
+            'manager_action' => isset($action)
+                ? [
+                    'id' => $action,
+                    'name' => $actionName ?? '',
+                ]
+                : [],
+        ];
+        $modx->logEvent(0, $error_level, $logMessage, $title, $logContext);
 
         // Set 500 response header
         if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
@@ -2711,6 +2725,30 @@ trait DocumentParserSubParserTrait
                                 'Draft update error');
             }
         }
+    }
+
+    private function normalizeLogMessage($message): string
+    {
+        if (is_array($message)) {
+            $message = print_r($message, true);
+        } elseif (!is_scalar($message) && $message !== null) {
+            $message = print_r($message, true);
+        }
+
+        $message = (string)$message;
+        if ($message === '' || strpos($message, '<') === false) {
+            return $message;
+        }
+
+        $message = preg_replace('@<(br|/p|/div|/tr|/table|/h[1-6])\b[^>]*>@i', "\n", $message);
+        $message = strip_tags($message);
+        $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset', 'utf-8'));
+        $lines = array_map('trim', preg_split('/\R+/', $message) ?: []);
+        $lines = array_filter($lines, function ($line) {
+            return $line !== '';
+        });
+
+        return implode("\n", $lines);
     }
 
     function setdocumentMap()
