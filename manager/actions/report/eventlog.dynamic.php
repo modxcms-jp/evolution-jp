@@ -243,11 +243,16 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <?php } ?>
                     </select>
                 </label>
-                <label>
-                    <?= hsc(lang('search')) ?>
-                    <input type="text" name="q" id="systemLogQuery" value="<?= hsc($query) ?>" />
+                <label title="<?= hsc(lang('search')) ?>">
+                    <input
+                        type="text"
+                        name="q"
+                        id="systemLogQuery"
+                        value="<?= hsc($query) ?>"
+                        placeholder="<?= hsc(lang('keyword', 'キーワード')) ?>"
+                    />
                 </label>
-                <button type="submit" class="primary"><?= hsc(lang('go')) ?></button>
+                <button type="submit" class="primary"><?= hsc(lang('search')) ?></button>
             </form>
             <?php if ($isLatest) { ?>
                 <p class="system-log-summary">
