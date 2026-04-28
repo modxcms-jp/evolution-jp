@@ -260,10 +260,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                 </p>
             <?php } elseif ($selectedFileInfo) { ?>
                 <p class="system-log-summary">
-                    <?= hsc($selectedFileInfo['name']) ?> /
-                    <?= hsc($selectedFileInfo['size']) ?> /
-                    <?= hsc($selectedFileInfo['lines']) ?> lines /
-                    <?= hsc($selectedFileInfo['modified']) ?>
+                    <?= hsc($selectedFileInfo['name']) ?>
                     <?php if ($selectedPath !== '') { ?>
                     <a
                         href="<?= hsc('index.php?a=114&download=1&file=' . urlencode($selectedFile)) ?>"
