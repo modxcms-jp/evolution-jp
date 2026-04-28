@@ -407,30 +407,27 @@ function downloadSystemLog(url) {
         `;
     }
 
-    async function loadEntries(prepend) {
-        if (loading || !hasMore && prepend) {
+    async function loadEntries(loadMore) {
+        if (loading || !hasMore && loadMore) {
             return;
         }
         loading = true;
         const marker = document.createElement('div');
         marker.className = 'system-log-loading';
         marker.textContent = 'Loading...';
-        if (prepend) {
-            stream.prepend(marker);
-        } else {
+        if (!loadMore) {
             stream.innerHTML = '';
-            stream.append(marker);
         }
+        stream.append(marker);
 
-        const previousHeight = stream.scrollHeight;
         const params = new URLSearchParams({
             a: '114',
             ajax: 'entries',
             period: period,
-            before: prepend ? String(beforeLine) : '0'
+            before: loadMore ? String(beforeLine) : '0'
         });
         if (period === 'latest') {
-            if (prepend && cursorFile) {
+            if (loadMore && cursorFile) {
                 params.set('cursor_file', cursorFile);
             }
         } else {
@@ -461,13 +458,11 @@ function downloadSystemLog(url) {
         }
         marker.remove();
 
-        const html = payload.entries.map(renderEntry).join('');
-        if (prepend) {
-            stream.insertAdjacentHTML('afterbegin', html);
-            stream.scrollTop = stream.scrollHeight - previousHeight;
+        const html = payload.entries.slice().reverse().map(renderEntry).join('');
+        if (loadMore) {
+            stream.insertAdjacentHTML('beforeend', html);
         } else {
             stream.insertAdjacentHTML('beforeend', html || '<div class="system-log-empty">No matching log entries.</div>');
-            stream.scrollTop = stream.scrollHeight;
         }
         beforeLine = payload.before_line || 0;
         cursorFile = payload.cursor_file || '';
@@ -476,7 +471,7 @@ function downloadSystemLog(url) {
     }
 
     stream.addEventListener('scroll', function () {
-        if (stream.scrollTop < 48) {
+        if (stream.scrollTop + stream.clientHeight > stream.scrollHeight - 48) {
             loadEntries(true);
         }
     });
