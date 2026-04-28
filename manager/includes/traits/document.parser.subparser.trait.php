@@ -540,6 +540,7 @@ trait DocumentParserSubParserTrait
             'error' => [
                 'type' => $errortype[$nr] ?? '',
                 'number' => (int)$nr,
+                'message' => $logMessage,
                 'file' => $file,
                 'line' => (int)$line,
                 'source' => $source,
