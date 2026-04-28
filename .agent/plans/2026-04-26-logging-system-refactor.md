@@ -25,6 +25,8 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 ## Surprises & Discoveries
 
 - (2026-04-28) `actionlist.inc.php` は `$GLOBALS['action_list']` をSSOTとしているため、manager action 名の記録も `globalv('action_list', [])` 経由にした。
+- (2026-04-28) リモート環境で `configcheck_installer_msg` に含まれる「必」がログ画面上で `�` に置換される現象を確認。`config_check.inc.php` の `logEvent()` 直前で `bin2hex($this->_lang['configcheck_installer_msg'])` を表示した結果、`の必要` は `e381ae e5bf85 e8a681` として正常だったため、言語ファイル読み込み時点では壊れていない。次は `normalizeLogMessage()` 後、Logger 書き込み時、ログ画面API/表示時のどこで置換されるかを切り分ける。
+- (2026-04-28) 同じ `configcheck_installer_msg` の確認用 `echo` がダッシュボードで2回表示された。`config_check.inc.php` / ダッシュボードタブ / config check 呼び出し経路が重複している可能性があるため、別途調査する。
 
 ## Decision Log
 
