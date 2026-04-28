@@ -389,7 +389,6 @@ function downloadSystemLog(url) {
                 <div class="system-log-entry-header">
                     <span class="system-log-level">${highlight(entry.level)}</span>
                     <span title="${escapeHtml(entry.timestamp || '')}">${highlight(timestampLabel)}</span>
-                    ${entry.file ? `<span>${highlight(entry.file)}</span>` : ''}
                     ${entry.source ? `<span>${highlight(entry.source)}</span>` : ''}
                     ${caller ? `<span>${highlight(caller)}</span>` : ''}
                     <span class="system-log-entry-actions">
