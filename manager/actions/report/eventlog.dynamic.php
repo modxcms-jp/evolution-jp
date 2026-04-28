@@ -162,6 +162,9 @@ if (getv('download') === '1' && $selectedPath !== '') {
     .system-log-context {
         margin-top: 6px;
     }
+    .system-log-context summary {
+        cursor: pointer;
+    }
     .system-log-context pre {
         margin: 6px 0 0;
         padding: 8px;
