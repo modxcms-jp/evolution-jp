@@ -7,28 +7,32 @@ if (!evo()->hasPermission('view_eventlog')) {
     alert()->dumpError();
 }
 
+include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
+
 $logRoot = MODX_BASE_PATH . 'temp/logs/system/';
-$files = system_log_files($logRoot);
+$files = SystemLogViewer::files($logRoot);
+$latestFiles = SystemLogViewer::latestFiles($files, 100);
 $isDownload = getv('download') === '1';
-$period = system_log_period((string)getv('period', 'latest'));
+$period = SystemLogViewer::period((string)getv('period', 'latest'));
 $isLatest = $period === 'latest' && !$isDownload;
 $isYearPeriod = strpos($period, 'year:') === 0;
-$months = system_log_months($files, $period);
-$selectedMonth = $isYearPeriod ? system_log_selected_month((string)getv('month', ''), $months) : '';
-$visibleFiles = system_log_filter_files($files, $period, $selectedMonth);
+$months = SystemLogViewer::months($files, $period);
+$selectedMonth = $isYearPeriod ? SystemLogViewer::selectedMonth((string)getv('month', ''), $months) : '';
+$visibleFiles = SystemLogViewer::filterFiles($files, $period, $selectedMonth);
+$visibleFiles = SystemLogViewer::withLineCounts($visibleFiles);
 $selectedFile = $isLatest ? '' : getv('file', '');
-$selectedFileInfo = system_log_find_file($files, $selectedFile);
-if (!$isLatest && ($selectedFile === '' || !system_log_find_file($visibleFiles, $selectedFile)) && $visibleFiles) {
+$selectedFileInfo = SystemLogViewer::findFile($visibleFiles, $selectedFile);
+if (!$isLatest && ($selectedFile === '' || !SystemLogViewer::findFile($visibleFiles, $selectedFile)) && $visibleFiles) {
     $selectedFile = $visibleFiles[0]['relative'];
     $selectedFileInfo = $visibleFiles[0];
 }
 if (!$isLatest && !$selectedFileInfo && $files) {
     $selectedFile = $files[0]['relative'];
-    $selectedFileInfo = $files[0];
+    $selectedFileInfo = SystemLogViewer::withLineCounts([$files[0]])[0];
 }
-$selectedPath = $isLatest ? '' : system_log_resolve_file($logRoot, $selectedFile);
-$fileList = system_log_file_list($visibleFiles);
-$years = system_log_years($files);
+$selectedPath = $isLatest ? '' : SystemLogViewer::resolveFile($logRoot, $selectedFile);
+$fileList = SystemLogViewer::fileList($visibleFiles);
+$years = SystemLogViewer::years($files);
 $level = strtolower((string)getv('level', ''));
 $query = trim((string)getv('q', ''));
 $allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
@@ -37,14 +41,14 @@ if (!in_array($level, $allowedLevels, true)) {
 }
 
 if (getv('ajax') === 'entries') {
-    $beforeLine = (int)getv('before', 0);
+    $olderBeforeLine = (int)getv('before', 0);
     $result = $isLatest
-        ? system_log_read_latest_entries($logRoot, $files, $level, $query, (string)getv('cursor_file', ''), $beforeLine, 20)
+        ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $query, (string)getv('cursor_file', ''), $olderBeforeLine, 20)
         : ($selectedPath === ''
         ? ['entries' => [], 'has_more' => false, 'before_line' => 0]
-        : system_log_read_entries($selectedPath, $level, $query, $beforeLine, 20));
+        : SystemLogViewer::readEntries($selectedPath, $level, $query, $olderBeforeLine, 20));
     header('Content-Type: application/json; charset=utf-8');
-    echo system_log_json_encode($result);
+    echo SystemLogViewer::jsonEncode($result);
     exit;
 }
 
@@ -251,6 +255,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                 </p>
             <?php } elseif ($selectedFileInfo) { ?>
                 <p class="system-log-summary">
+                    <?= hsc($selectedFileInfo['name']) ?> /
                     <?= hsc($selectedFileInfo['size']) ?> /
                     <?= hsc($selectedFileInfo['lines']) ?> lines /
                     <?= hsc($selectedFileInfo['modified']) ?>
@@ -307,8 +312,8 @@ function downloadSystemLog(url) {
     const file = stream.dataset.file;
     const level = stream.dataset.level;
     const query = stream.dataset.query;
-    let beforeLine = 0;
-    let cursorFile = '';
+    let olderBeforeLine = 0;
+    let olderCursorFile = '';
     let hasMore = true;
     let loading = false;
 
@@ -424,11 +429,11 @@ function downloadSystemLog(url) {
             a: '114',
             ajax: 'entries',
             period: period,
-            before: loadMore ? String(beforeLine) : '0'
+            before: loadMore ? String(olderBeforeLine) : '0'
         });
         if (period === 'latest') {
-            if (loadMore && cursorFile) {
-                params.set('cursor_file', cursorFile);
+            if (loadMore && olderCursorFile) {
+                params.set('cursor_file', olderCursorFile);
             }
         } else {
             params.set('file', file);
@@ -464,8 +469,8 @@ function downloadSystemLog(url) {
         } else {
             stream.insertAdjacentHTML('beforeend', html || '<div class="system-log-empty">No matching log entries.</div>');
         }
-        beforeLine = payload.before_line || 0;
-        cursorFile = payload.cursor_file || '';
+        olderBeforeLine = payload.before_line || 0;
+        olderCursorFile = payload.cursor_file || '';
         hasMore = !!payload.has_more;
         loading = false;
     }
@@ -507,472 +512,3 @@ function downloadSystemLog(url) {
 })();
 </script>
 <?php } ?>
-
-<?php
-function system_log_files(string $root): array
-{
-    if (!is_dir($root)) {
-        return [];
-    }
-
-    $rootPath = realpath($root);
-    if ($rootPath === false) {
-        return [];
-    }
-    $rootPath = str_replace('\\', '/', $rootPath);
-    $items = [];
-    $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($rootPath, FilesystemIterator::SKIP_DOTS)
-    );
-
-    foreach ($iterator as $file) {
-        if (!$file->isFile()) {
-            continue;
-        }
-        $name = $file->getFilename();
-        if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', $name)) {
-            continue;
-        }
-
-        $path = str_replace('\\', '/', $file->getPathname());
-        $relative = ltrim(substr($path, strlen($rootPath)), '/');
-        $year = '';
-        $month = '';
-        if (preg_match('@^([0-9]{4})/([0-9]{2})/@', $relative, $matches)) {
-            $year = $matches[1];
-            $month = $matches[2];
-        }
-        $dateTimestamp = $file->getMTime();
-        if (preg_match('/^system-([0-9]{4}-[0-9]{2}-[0-9]{2})\.log/', $name, $matches)) {
-            $parsedTimestamp = strtotime($matches[1] . ' 00:00:00');
-            if ($parsedTimestamp !== false) {
-                $dateTimestamp = $parsedTimestamp;
-            }
-        }
-        $items[] = [
-            'name' => $name,
-            'relative' => $relative,
-            'year' => $year,
-            'month' => $month,
-            'size' => system_log_format_bytes($file->getSize()),
-            'lines' => system_log_count_lines($path),
-            'date_ts' => $dateTimestamp,
-            'mtime' => $file->getMTime(),
-            'modified' => date('Y-m-d H:i:s', $file->getMTime()),
-        ];
-    }
-
-    usort($items, function ($a, $b) {
-        return $b['mtime'] <=> $a['mtime'];
-    });
-
-    return array_slice($items, 0, 100);
-}
-
-function system_log_period(string $period): string
-{
-    if (in_array($period, ['latest', 'recent30'], true)) {
-        return $period;
-    }
-
-    if (preg_match('/^year:[0-9]{4}$/', $period)) {
-        return $period;
-    }
-
-    return 'latest';
-}
-
-function system_log_filter_files(array $files, string $period, string $month = ''): array
-{
-    if (strpos($period, 'year:') === 0) {
-        $year = substr($period, 5);
-        return array_values(array_filter($files, function ($file) use ($year, $month) {
-            return (string)array_get($file, 'year', '') === $year
-                && ($month === '' || (string)array_get($file, 'month', '') === $month);
-        }));
-    }
-
-    if ($period === 'latest') {
-        return $files;
-    }
-
-    $days = 30;
-    $today = strtotime(date('Y-m-d') . ' 00:00:00');
-    if ($today === false) {
-        return $files;
-    }
-    $threshold = strtotime('-' . ($days - 1) . ' days', $today);
-    if ($threshold === false) {
-        return $files;
-    }
-
-    $filtered = array_values(array_filter($files, function ($file) use ($threshold) {
-        return (int)array_get($file, 'date_ts', 0) >= $threshold;
-    }));
-
-    return $filtered ?: $files;
-}
-
-function system_log_months(array $files, string $period): array
-{
-    if (strpos($period, 'year:') !== 0) {
-        return [];
-    }
-
-    $year = substr($period, 5);
-    $months = [];
-    foreach ($files as $file) {
-        if ((string)array_get($file, 'year', '') !== $year) {
-            continue;
-        }
-        $month = (string)array_get($file, 'month', '');
-        if ($month !== '') {
-            $months[$month] = $month;
-        }
-    }
-
-    krsort($months);
-
-    return array_values($months);
-}
-
-function system_log_selected_month(string $month, array $months): string
-{
-    if (in_array($month, $months, true)) {
-        return $month;
-    }
-
-    return $months[0] ?? '';
-}
-
-function system_log_years(array $files): array
-{
-    $years = [];
-    foreach ($files as $file) {
-        $year = (string)array_get($file, 'year', '');
-        if ($year !== '') {
-            $years[$year] = $year;
-        }
-    }
-
-    krsort($years);
-
-    return array_values($years);
-}
-
-function system_log_find_file(array $files, string $relative): array
-{
-    foreach ($files as $file) {
-        if ($file['relative'] === $relative) {
-            return $file;
-        }
-    }
-
-    return [];
-}
-
-function system_log_file_list(array $files): array
-{
-    return array_map(function ($file) {
-        return [
-            'relative' => $file['relative'],
-            'label' => system_log_file_label($file),
-        ];
-    }, $files);
-}
-
-function system_log_file_label(array $file): string
-{
-    return sprintf(
-        '%s (%s / %s lines)',
-        $file['name'],
-        $file['size'],
-        $file['lines']
-    );
-}
-
-function system_log_resolve_file(string $root, string $relative): string
-{
-    if ($relative === '' || strpos($relative, "\0") !== false) {
-        return '';
-    }
-
-    $rootPath = realpath($root);
-    $path = realpath($root . $relative);
-    if ($rootPath === false || $path === false || !is_file($path)) {
-        return '';
-    }
-
-    $rootPath = rtrim(str_replace('\\', '/', $rootPath), '/') . '/';
-    $path = str_replace('\\', '/', $path);
-    if (strpos($path, $rootPath) !== 0) {
-        return '';
-    }
-    if (!preg_match('/^system-[0-9]{4}-[0-9]{2}-[0-9]{2}\.log(\.[0-9]+)?$/', basename($path))) {
-        return '';
-    }
-
-    return $path;
-}
-
-function system_log_read_latest_entries(
-    string $root,
-    array $files,
-    string $level = '',
-    string $query = '',
-    string $cursorFile = '',
-    int $beforeLine = 0,
-    int $limit = 20
-): array {
-    if (!$files) {
-        return ['entries' => [], 'has_more' => false, 'before_line' => 0, 'cursor_file' => ''];
-    }
-
-    $startIndex = 0;
-    if ($cursorFile !== '') {
-        $startIndex = system_log_file_index($files, $cursorFile);
-        if ($startIndex < 0) {
-            return ['entries' => [], 'has_more' => false, 'before_line' => 0, 'cursor_file' => ''];
-        }
-    }
-
-    $chunks = [];
-    $remaining = max(1, $limit);
-    $nextCursorFile = '';
-    $nextBeforeLine = 0;
-    $hasMore = false;
-    $lastIndex = $startIndex - 1;
-
-    for ($i = $startIndex, $count = count($files); $i < $count && $remaining > 0; $i++) {
-        $lastIndex = $i;
-        $fileInfo = $files[$i];
-        $path = system_log_resolve_file($root, $fileInfo['relative']);
-        if ($path === '') {
-            continue;
-        }
-
-        $lineCursor = $i === $startIndex ? $beforeLine : 0;
-        $result = system_log_read_entries($path, $level, $query, $lineCursor, $remaining);
-        if ($result['entries']) {
-            $chunks[] = array_map(function ($entry) use ($fileInfo) {
-                $entry['file'] = $fileInfo['relative'];
-                return $entry;
-            }, $result['entries']);
-            $remaining -= count($result['entries']);
-        }
-
-        if ($result['has_more']) {
-            $hasMore = true;
-            $nextCursorFile = $fileInfo['relative'];
-            $nextBeforeLine = (int)$result['before_line'];
-            break;
-        }
-    }
-
-    if (!$hasMore && $remaining <= 0 && isset($files[$lastIndex + 1])) {
-        $hasMore = true;
-        $nextCursorFile = $files[$lastIndex + 1]['relative'];
-        $nextBeforeLine = 0;
-    }
-
-    $entries = [];
-    foreach (array_reverse($chunks) as $chunk) {
-        $entries = array_merge($entries, $chunk);
-    }
-
-    return [
-        'entries' => $entries,
-        'has_more' => $hasMore,
-        'before_line' => $nextBeforeLine,
-        'cursor_file' => $nextCursorFile,
-    ];
-}
-
-function system_log_file_index(array $files, string $relative): int
-{
-    foreach ($files as $index => $file) {
-        if ($file['relative'] === $relative) {
-            return $index;
-        }
-    }
-
-    return -1;
-}
-
-function system_log_read_entries(string $path, string $level = '', string $query = '', int $beforeLine = 0, int $limit = 20): array
-{
-    $entries = [];
-    $lineNumber = 0;
-    $firstLine = 0;
-    $hasMore = false;
-
-    $file = new SplFileObject($path, 'r');
-    while (!$file->eof()) {
-        $line = trim((string)$file->fgets());
-        $lineNumber++;
-        if ($line === '') {
-            continue;
-        }
-        if ($beforeLine > 0 && $lineNumber >= $beforeLine) {
-            continue;
-        }
-
-        $data = json_decode($line, true);
-        if (!is_array($data)) {
-            $data = [
-                'timestamp' => '',
-                'level' => 'raw',
-                'message' => $line,
-                'context' => [],
-            ];
-        }
-
-        $entryLevel = strtolower((string)array_get($data, 'level', ''));
-        $encoded = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if ($level !== '' && $entryLevel !== $level) {
-            continue;
-        }
-        if ($query !== '' && stripos($encoded, $query) === false) {
-            continue;
-        }
-
-        $entries[] = system_log_normalize_entry($data, $lineNumber);
-        if (count($entries) > $limit) {
-            array_shift($entries);
-            $hasMore = true;
-        }
-    }
-
-    if ($entries) {
-        $firstLine = (int)$entries[0]['line'];
-    }
-
-    return [
-        'entries' => $entries,
-        'has_more' => $hasMore,
-        'before_line' => $firstLine,
-    ];
-}
-
-function system_log_normalize_entry(array $data, int $lineNumber): array
-{
-    $context = array_get($data, 'context', []);
-    if (!is_array($context)) {
-        $context = [];
-    }
-
-    return [
-        'line' => $lineNumber,
-        'timestamp' => (string)array_get($data, 'timestamp', ''),
-        'timestamp_label' => system_log_format_timestamp((string)array_get($data, 'timestamp', '')),
-        'level' => strtolower((string)array_get($data, 'level', 'unknown')) ?: 'unknown',
-        'message' => system_log_plain_text((string)array_get($data, 'message', '')),
-        'source' => (string)array_get($context, 'source', ''),
-        'caller' => is_array(array_get($context, 'caller')) ? array_get($context, 'caller') : [],
-        'context' => $context,
-        'raw' => $data,
-    ];
-}
-
-function system_log_format_timestamp(string $timestamp): string
-{
-    if ($timestamp === '') {
-        return '';
-    }
-
-    $parsed = strtotime($timestamp);
-    if ($parsed === false) {
-        return $timestamp;
-    }
-
-    return date('Y-m-d H:i:s', $parsed);
-}
-
-function system_log_json_encode(array $payload): string
-{
-    $json = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
-    if ($json !== false) {
-        return $json;
-    }
-
-    $fallback = system_log_utf8_normalize($payload);
-    $json = json_encode($fallback, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    if ($json !== false) {
-        return $json;
-    }
-
-    return json_encode([
-        'entries' => [],
-        'has_more' => false,
-        'before_line' => 0,
-        'cursor_file' => '',
-        'error' => 'Failed to encode log response: ' . json_last_error_msg(),
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-}
-
-function system_log_utf8_normalize($value)
-{
-    if (is_array($value)) {
-        foreach ($value as $key => $item) {
-            $value[$key] = system_log_utf8_normalize($item);
-        }
-        return $value;
-    }
-
-    if (is_string($value)) {
-        if (function_exists('mb_convert_encoding')) {
-            return mb_convert_encoding($value, 'UTF-8', 'UTF-8');
-        }
-        if (function_exists('iconv')) {
-            $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
-            if ($converted !== false) {
-                return $converted;
-            }
-        }
-    }
-
-    return $value;
-}
-
-function system_log_plain_text(string $message): string
-{
-    if ($message === '' || strpos($message, '<') === false) {
-        return $message;
-    }
-
-    $message = preg_replace('@<(br|/p|/div|/tr|/table|/h[1-6])\b[^>]*>@i', "\n", $message);
-    $message = strip_tags($message);
-    $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5, config('modx_charset', 'utf-8'));
-    $lines = array_map('trim', preg_split('/\R+/u', $message) ?: []);
-    $lines = array_filter($lines, function ($line) {
-        return $line !== '';
-    });
-
-    return implode("\n", $lines);
-}
-
-function system_log_count_lines(string $path): int
-{
-    $lines = 0;
-    $file = new SplFileObject($path, 'r');
-    while (!$file->eof()) {
-        $file->fgets();
-        $lines++;
-    }
-
-    return max(0, $lines - 1);
-}
-
-function system_log_format_bytes(int $bytes): string
-{
-    $units = ['B', 'KB', 'MB', 'GB'];
-    $value = $bytes;
-    foreach ($units as $unit) {
-        if ($value < 1024 || $unit === 'GB') {
-            return sprintf('%s %s', round($value, 1), $unit);
-        }
-        $value = $value / 1024;
-    }
-
-    return $bytes . ' B';
-}
