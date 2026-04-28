@@ -39,6 +39,51 @@ $allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'not
 if (!in_array($level, $allowedLevels, true)) {
     $level = '';
 }
+$deleteActionParams = [
+    'a' => '114',
+    'period' => $period,
+    'file' => $selectedFile,
+];
+if ($selectedMonth !== '') {
+    $deleteActionParams['month'] = $selectedMonth;
+}
+if ($level !== '') {
+    $deleteActionParams['level'] = $level;
+}
+if ($query !== '') {
+    $deleteActionParams['q'] = $query;
+}
+$deleteActionUrl = 'index.php?' . http_build_query($deleteActionParams);
+$deleteError = '';
+
+if (is_post() && postv('delete_log') === '1') {
+    if ($selectedPath !== '' && @unlink($selectedPath)) {
+        if (basename($selectedPath) !== 'system-' . date('Y-m-d') . '.log') {
+            evo()->logEvent(0, 1, 'Deleted system log file', 'SystemLogViewer', [
+                'file' => $selectedFile,
+            ]);
+        }
+
+        $redirect = [
+            'a' => '114',
+            'period' => $period,
+        ];
+        if ($selectedMonth !== '') {
+            $redirect['month'] = $selectedMonth;
+        }
+        if ($level !== '') {
+            $redirect['level'] = $level;
+        }
+        if ($query !== '') {
+            $redirect['q'] = $query;
+        }
+
+        header('Location: index.php?' . http_build_query($redirect));
+        exit;
+    }
+
+    $deleteError = lang('failed_delete', '削除に失敗しました。');
+}
 
 if (getv('ajax') === 'entries') {
     $olderBeforeLine = (int)getv('before', 0);
@@ -86,6 +131,13 @@ if (getv('download') === '1' && $selectedPath !== '') {
     .system-log-summary a {
         margin-left: 8px;
         white-space: nowrap;
+    }
+    .system-log-summary form {
+        display: inline;
+        margin-left: 8px;
+    }
+    .system-log-delete {
+        cursor: pointer;
     }
     .system-log-toolbar {
         display: flex;
@@ -203,6 +255,9 @@ if (getv('download') === '1' && $selectedPath !== '') {
         <?php if (!$files) { ?>
             <div class="system-log-empty"><?= hsc(lang('no_records_found')) ?></div>
         <?php } else { ?>
+            <?php if ($deleteError !== '') { ?>
+                <div class="system-log-empty"><?= hsc($deleteError) ?></div>
+            <?php } ?>
             <form class="system-log-toolbar" method="get" action="index.php">
                 <input type="hidden" name="a" value="114" />
                 <label>
@@ -259,7 +314,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     <?= hsc(lang('latest_log_summary', '最新100件のログファイルを横断して表示しています。')) ?>
                 </p>
             <?php } elseif ($selectedFileInfo) { ?>
-                <p class="system-log-summary">
+                <div class="system-log-summary">
                     <?= hsc($selectedFileInfo['name']) ?>
                     <?php if ($selectedPath !== '') { ?>
                     <a
@@ -269,8 +324,22 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     >
                         <img src="<?= style('icons_save') ?>" alt="" /> <?= hsc(lang('file_download_file', 'Download File')) ?>
                     </a>
+                    <form
+                        method="post"
+                        action="<?= hsc($deleteActionUrl) ?>"
+                        onsubmit="return confirm('<?= hsc(lang('confirm_delete_file')) ?>');"
+                    >
+                        <?= csrfTokenField() ?>
+                        <input type="hidden" name="delete_log" value="1" />
+                        <input type="hidden" name="period" value="<?= hsc($period) ?>" />
+                        <input type="hidden" name="month" value="<?= hsc($selectedMonth) ?>" />
+                        <input type="hidden" name="file" value="<?= hsc($selectedFile) ?>" />
+                        <input type="hidden" name="level" value="<?= hsc($level) ?>" />
+                        <input type="hidden" name="q" value="<?= hsc($query) ?>" />
+                        <button type="submit" class="system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
+                    </form>
                     <?php } ?>
-                </p>
+                </div>
             <?php } ?>
             <?php if (!$isLatest && $selectedPath === '') { ?>
                 <div class="system-log-empty"><?= hsc(lang('no_records_found')) ?></div>
