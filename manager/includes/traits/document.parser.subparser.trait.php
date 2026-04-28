@@ -2741,7 +2741,7 @@ trait DocumentParserSubParserTrait
         $message = preg_replace('@<(br|/p|/div|/tr|/table|/h[1-6])\b[^>]*>@i', "\n", $message);
         $message = strip_tags($message);
         $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset', 'utf-8'));
-        $lines = array_map('trim', preg_split('/\R+/', $message) ?: []);
+        $lines = array_map('trim', preg_split('/\R+/u', $message) ?: []);
         $lines = array_filter($lines, function ($line) {
             return $line !== '';
         });
