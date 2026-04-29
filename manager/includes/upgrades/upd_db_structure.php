@@ -238,8 +238,10 @@ db()->query("ALTER TABLE `{$prefix}user_roles` MODIFY COLUMN `move_document` int
 
 db()->query("ALTER TABLE `{$prefix}active_users` MODIFY COLUMN `ip` varchar(50) NOT NULL DEFAULT '';");
 
-db()->query("ALTER TABLE `{$prefix}event_log` MODIFY COLUMN `source` varchar(245) NOT NULL DEFAULT '';");
-db()->query("ALTER TABLE `{$prefix}event_log` MODIFY COLUMN `description` text;");
+if (db()->tableExists("{$prefix}event_log")) {
+    db()->query("ALTER TABLE `{$prefix}event_log` MODIFY COLUMN `source` varchar(245) NOT NULL DEFAULT '';");
+    db()->query("ALTER TABLE `{$prefix}event_log` MODIFY COLUMN `description` text;");
+}
 
 db()->query("ALTER TABLE `{$prefix}categories` MODIFY COLUMN `category` varchar(45) NOT NULL DEFAULT '';");
 

@@ -115,13 +115,10 @@ $GLOBALS['action_list'] = [
     '112' => 'Execute module',
     '113' => 'Manage module dependencies',
     '114' => 'View system log',
-    '115' => 'View system log details',
-    '116' => 'Delete system log',
     '117' => 'Editing tv rank',
     '118' => 'Call settings ajax include',
     '119' => 'Editing user profile',
     '120' => 'Viewing Resources List',
-    '121' => 'Export system log',
 
     '300' => 'Create Template Variable',
     '301' => 'Edit Template Variable',

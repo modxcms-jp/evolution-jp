@@ -39,20 +39,6 @@ CREATE TABLE IF NOT EXISTS `{PREFIX}documentgroup_names`
     UNIQUE KEY `name` (`name`)
 ) {TABLE_OPTION} COMMENT ='Contains data used for access permissions.';
 
-CREATE TABLE IF NOT EXISTS `{PREFIX}event_log`
-(
-    `id`          int(11)     NOT NULL AUTO_INCREMENT,
-    `eventid`     int(11)              DEFAULT '0',
-    `createdon`   int(11)     NOT NULL DEFAULT '0',
-    `type`        tinyint(4)  NOT NULL DEFAULT '1' COMMENT '1- information, 2 - warning, 3- error',
-    `user`        int(11)     NOT NULL DEFAULT '0' COMMENT 'link to user table',
-    `usertype`    tinyint(4)  NOT NULL DEFAULT '0' COMMENT '0 - manager, 1 - web',
-    `source`      varchar(255) NOT NULL DEFAULT '',
-    `description` text,
-    PRIMARY KEY (`id`),
-    KEY `user` (`user`)
-) {TABLE_OPTION} COMMENT ='Stores event and error logs';
-
 CREATE TABLE IF NOT EXISTS `{PREFIX}manager_log`
 (
     `id`          int(10)      NOT NULL AUTO_INCREMENT,

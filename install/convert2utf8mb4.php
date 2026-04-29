@@ -65,7 +65,6 @@ class convert2utf8mb4 {
             'categories',
             'document_groups',
             'documentgroup_names',
-            'event_log',
             'manager_log',
             'manager_users',
             'member_groups',

@@ -36,11 +36,12 @@
 - **改善案**: CLI では `mysqldump` ラッパーをデフォルトにすることで回避済み。管理画面のバックアップ機能でも同様に `mysqldump` を優先候補にすることを検討。クラス自体の改修は PDO 移行と合わせて行うのが効率的。
 - **関連ロードマップ**: Phase 2 PDO 移行
 
-## logEvent の HTML 混入
+## logEvent の HTML 混入（解決済み）
 
 - **発見日**: 2026-02-11
-- **発見元**: CLI self-bootstrap プラン (`log:show` 方針検討時)
+- **解決日**: 2026-04-29
+- **発見元**: CLI self-bootstrap プラン（旧DBログ表示の方針検討時）
 - **ファイル**: `manager/includes/traits/document.parser.subparser.trait.php` (logEvent メソッド)
-- **課題**: `event_log` テーブルの `description` カラムに HTML タグが混入している。呼び出し元が管理画面表示を前提として HTML を含むメッセージを渡しているため、CLI やAPI で消費する際に `strip_tags` 等の後処理が必要になる。
-- **改善案**: ロードマップに記載済みの「構造化データ（JSON等）による保存設計」で解決予定。移行期間中は CLI 側で軽い HTML 除去処理を行う。
+- **課題**: `event_log` テーブルの `description` カラムに HTML タグが混入していた。呼び出し元が管理画面表示を前提として HTML を含むメッセージを渡していたため、CLI やAPI で消費する際に `strip_tags` 等の後処理が必要だった。
+- **対応**: システムログをJSONLines形式のファイル保存へ移行し、旧DBログ用の表示・削除・エクスポート入口を削除した。CLI は `log:tail` / `log:search` で構造化ログを扱う。
 - **関連ロードマップ**: Phase 1 ログ機構の改修（構造化データ保存・HTML 保存の廃止）
