@@ -53,7 +53,7 @@ include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
 
 $root = MODX_BASE_PATH . 'temp/logs/system/';
 $files = SystemLogViewer::latestFiles(SystemLogViewer::files($root), $fileLimit);
-$result = SystemLogViewer::readLatestEntries($root, $files, $level, $query, '', 0, $limit);
+$result = SystemLogViewer::readLatestEntries($root, $files, $level, '', $query, '', 0, $limit);
 
 if (!$result['entries']) {
     cli_out('(no matching system log entries)');
