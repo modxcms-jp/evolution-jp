@@ -240,13 +240,9 @@ function manager_log_shutdown_fatal(): void
     }
 
     try {
-        $source = '';
         $file = (string)($error['file'] ?? '');
         $line = (int)($error['line'] ?? 0);
-        if ($file !== '' && $line > 0 && is_readable($file)) {
-            $lines = file($file);
-            $source = $lines[$line - 1] ?? '';
-        }
+        $source = manager_read_source_line($file, $line);
 
         $logger = new Logger();
         $logger->critical((string)($error['message'] ?? 'Fatal error'), [
@@ -280,6 +276,21 @@ function manager_system_log_error_type(int $type): string
     return $types[$type] ?? '';
 }
 
+function manager_read_source_line(string $file, int $line): string
+{
+    if ($file === '' || $line <= 0 || !is_readable($file)) {
+        return '';
+    }
+
+    try {
+        $sourceFile = new SplFileObject($file, 'r');
+        $sourceFile->seek($line - 1);
+        return (string)$sourceFile->current();
+    } catch (Throwable $e) {
+        return '';
+    }
+}
+
 function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLogRequest): void
 {
     if ($isRawSystemLogRequest) {
@@ -304,11 +315,7 @@ function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLo
     $message = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getMessage()));
     $file = hsc(str_replace(MODX_BASE_PATH, '{BASE_PATH}/', $exception->getFile()));
     $line = (int)$exception->getLine();
-    $source = '';
-    if ($exception->getFile() !== '' && $line > 0 && is_readable($exception->getFile())) {
-        $lines = file($exception->getFile());
-        $source = hsc($lines[$line - 1] ?? '');
-    }
+    $source = hsc(manager_read_source_line($exception->getFile(), $line));
     $action = manager_system_log_manager_action();
     $requestUri = hsc(serverv('REQUEST_URI', ''));
     $referer = hsc(serverv('HTTP_REFERER', ''));
