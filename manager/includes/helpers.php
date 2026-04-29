@@ -125,6 +125,78 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
+function manager_safe_mode_can_toggle()
+{
+    return defined('IN_MANAGER_MODE')
+        && IN_MANAGER_MODE === 'true'
+        && evo()
+        && evo()->isLoggedin()
+        && (
+            evo()->hasPermission('save_plugin')
+            || evo()->hasPermission('edit_plugin')
+            || evo()->hasPermission('delete_plugin')
+        );
+}
+
+function manager_apply_safe_mode_request()
+{
+    $requested = getv('manager_safe_mode');
+    if (
+        $requested === null
+        || getv('a') !== '1'
+        || getv('f') !== 'menu'
+        || !manager_safe_mode_can_toggle()
+    ) {
+        return false;
+    }
+
+    sessionv('*safeMode', $requested === '1' ? 1 : 0);
+    return true;
+}
+
+function manager_safe_mode_toggle_url()
+{
+    $isSafeMode = sessionv('safeMode') == 1;
+    return MODX_MANAGER_URL . 'index.php?a=1&f=menu&manager_safe_mode=' . ($isSafeMode ? '0' : '1') . '&manager_safe_mode_redirect=1';
+}
+
+function manager_safe_mode_nav_item_html()
+{
+    if (!manager_safe_mode_can_toggle()) {
+        return '';
+    }
+
+    $isSafeMode = sessionv('safeMode') == 1;
+    $label = $isSafeMode ? 'セーフモード解除' : 'セーフモード';
+
+    return sprintf(
+        '<span class="supplementalNav__item supplementalNav__item--safe-mode"><a href="%s" target="_top">%s</a></span>',
+        hsc(manager_safe_mode_toggle_url()),
+        hsc($label)
+    );
+}
+
+function manager_safe_mode_button_html()
+{
+    if (!manager_safe_mode_can_toggle() || getv('a') !== '1' || getv('f') !== 'menu') {
+        return '';
+    }
+
+    $isSafeMode = sessionv('safeMode') == 1;
+    $label = $isSafeMode ? 'セーフモードを解除' : 'セーフモードで表示';
+    $background = $isSafeMode ? '#333' : '#c62828';
+
+    return sprintf(
+        '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
+        . '<a href="%s" target="_top" style="display:inline-block;padding:9px 14px;border-radius:4px;'
+        . 'background:%s;color:#fff;font:14px/1.2 Arial,sans-serif;text-decoration:none;'
+        . 'box-shadow:0 2px 8px rgba(0,0,0,.25);">%s</a></div>',
+        hsc(manager_safe_mode_toggle_url()),
+        $background,
+        hsc($label)
+    );
+}
+
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
 {
     if (evo()) {

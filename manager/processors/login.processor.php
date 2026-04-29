@@ -21,7 +21,7 @@ if (!validateLoginInput()) {
     return;
 }
 
-$_SESSION['safeMode'] = input('safeMode');
+sessionv('*safeMode', input('safeMode'));
 if (!sessionv('SystemAlertMsgQueque')) {
     $_SESSION['SystemAlertMsgQueque'] = [];
 }

@@ -49,12 +49,20 @@ $modx->error_reporting = $error_reporting ?? 1;
 
 evo()->loadExtension('ManagerAPI');
 
+$managerSafeModeUpdated = manager_apply_safe_mode_request();
+
 if (sessionv('safeMode') == 1) {
-    if (evo()->hasPermission('save_role')) {
+    if (manager_safe_mode_can_toggle()) {
         $modx->safeMode = 1;
     } else {
-        $modx->safeMode = $_SESSION['safeMode'] = 0;
+        sessionv('*safeMode', 0);
+        $modx->safeMode = 0;
     }
+}
+
+if ($managerSafeModeUpdated && getv('manager_safe_mode_redirect') === '1') {
+    header('Location: ' . MODX_MANAGER_URL);
+    exit;
 }
 
 $modx->getSettings();
@@ -309,6 +317,7 @@ function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLo
     $userAgent = hsc(serverv('HTTP_USER_AGENT', ''));
     $ip = hsc(serverv('REMOTE_ADDR', ''));
 
+    echo manager_safe_mode_button_html();
     echo '<div role="alert">';
     echo '<h3 style="color:red">&laquo; MODX Manager Error &raquo;</h3>';
     echo '<p>MODX encountered the following error while processing the manager request:</p>';

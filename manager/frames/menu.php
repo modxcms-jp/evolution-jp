@@ -249,6 +249,11 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--help"><a href="index.php?a=9" target="main">%s</a></span>', $helpLabel);
                 }
 
+                $safeModeNavItem = manager_safe_mode_nav_item_html();
+                if ($safeModeNavItem !== '') {
+                    $supplementalNavItems[] = $safeModeNavItem;
+                }
+
                 $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
                 $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="index.php?a=8" target="_top">%s</a></span>', $logoutLabel);
 
