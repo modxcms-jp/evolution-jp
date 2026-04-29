@@ -746,17 +746,8 @@ switch (manager()->action) {
     case 304: // get the duplicate processor
         include_once($prc_path . 'tmplvars/duplicate_tmplvars.processor.php');
         break;
-    case 114: // Event viewer: show event message log
+    case 114: // System log viewer
         include_once($action_path . 'report/eventlog.dynamic.php');
-        break;
-    case 115: // get event log details viewer
-        include_once($action_path . 'report/eventlog_details.dynamic.php');
-        break;
-    case 116: // get the event log delete processor
-        include_once($prc_path . 'delete_eventlog.processor.php');
-        break;
-    case 121: // export event log
-        include_once($prc_path . 'export_eventlog.processor.php');
         break;
     case 501: //delete category
         include_once($prc_path . 'delete_category.processor.php');
