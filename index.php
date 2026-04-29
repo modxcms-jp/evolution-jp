@@ -143,6 +143,21 @@ function frontend_system_log_context(): array
     return $context;
 }
 
+function frontend_read_source_line(string $file, int $line): string
+{
+    if ($file === '' || $line <= 0 || !is_readable($file)) {
+        return '';
+    }
+
+    try {
+        $sourceFile = new SplFileObject($file, 'r');
+        $sourceFile->seek($line - 1);
+        return (string)$sourceFile->current();
+    } catch (Throwable $e) {
+        return '';
+    }
+}
+
 function frontend_log_uncaught_throwable(Throwable $exception): void
 {
     try {
@@ -181,13 +196,9 @@ function frontend_log_shutdown_fatal(): void
     }
 
     try {
-        $source = '';
         $file = (string)($error['file'] ?? '');
         $line = (int)($error['line'] ?? 0);
-        if ($file !== '' && $line > 0 && is_readable($file)) {
-            $lines = file($file);
-            $source = $lines[$line - 1] ?? '';
-        }
+        $source = frontend_read_source_line($file, $line);
 
         $logger = new Logger();
         $logger->critical((string)($error['message'] ?? 'Fatal error'), [
