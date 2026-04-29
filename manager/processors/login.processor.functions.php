@@ -151,7 +151,6 @@ function input($key, $default = null)
         'captcha_code' => postv('captcha_code', ''),
         'rememberme'   => postv('rememberme', '')
     ];
-    $input['safeMode'] = 0;
     if (strpos($input['username'], ':roleid=') !== false) {
         [$input['username'], $input['forceRole']] = explode(':roleid=', $input['username'], 2);
         if (!preg_match('@^[0-9]+$@', $input['forceRole'])) {
