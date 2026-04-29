@@ -343,7 +343,10 @@ class SystemLogViewer
 
             $entryLevel = strtolower((string)array_get($data, 'level', ''));
             $entrySource = (string)array_get(array_get($data, 'context', []), 'source', '');
-            $encoded = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $encoded = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($encoded === false) {
+                $encoded = $line;
+            }
             if ($level !== '' && $entryLevel !== $level) {
                 continue;
             }
