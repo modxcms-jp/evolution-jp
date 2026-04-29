@@ -143,6 +143,7 @@ $_lang["configcheck_unauthorizedpage_unpublished_msg"] = 'This means that your U
 $_lang["configcheck_warning"] = 'Configuration warning: ';
 $_lang["confirm_block"] = 'Are you sure you want to block this user?';
 $_lang["confirm_delete_file"] = 'Are you sure you want to delete the file?\n\nThis may stop your site from working properly! Only delete this file if you know for certain what you are doing will not break anything.';
+$_lang["confirm_delete_system_log"] = 'Are you sure you want to delete this system log file?';
 $_lang["confirm_delete_dir"] = 'Are you sure you want to delete the directory?';
 $_lang["confirm_delete_dir_recursive"] = 'Are you sure you want to delete the directory?\n\nAny children files will also be deleted.';
 $_lang["confirm_delete_htmlsnippet"] = 'Are you sure you want to delete this Chunk?';

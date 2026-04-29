@@ -363,7 +363,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     <form
                         method="post"
                         action="<?= hsc($deleteActionUrl) ?>"
-                        onsubmit="return confirm('<?= hsc(lang('confirm_delete_file')) ?>');"
+                        onsubmit="return confirm('<?= hsc(lang('confirm_delete_system_log', 'このシステムログを削除します。よろしいですか？')) ?>');"
                     >
                         <?= csrfTokenField() ?>
                         <input type="hidden" name="delete_log" value="1" />
