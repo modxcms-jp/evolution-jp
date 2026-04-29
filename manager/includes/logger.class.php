@@ -152,7 +152,6 @@ class Logger
             self::ALERT,
             self::CRITICAL,
             self::ERROR,
-            self::WARNING,
         ], true);
     }
 
