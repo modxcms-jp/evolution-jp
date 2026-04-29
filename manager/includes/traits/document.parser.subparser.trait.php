@@ -130,7 +130,6 @@ trait DocumentParserSubParserTrait
             }
         }
 
-        $evtid = (int)$evtid;
         $type = (int)$type;
         if ($type < 1) {
             $type = 1;

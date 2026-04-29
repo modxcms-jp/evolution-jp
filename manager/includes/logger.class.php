@@ -13,6 +13,7 @@ class Logger
 
     private const SYSTEM_TYPE = 'system';
     private const DEFAULT_MAX_BYTES = 104857600;
+    private static string $runtimeTraceId = '';
 
     private array $levels = [
         self::EMERGENCY,
@@ -116,6 +117,7 @@ class Logger
                 'ip' => serverv('REMOTE_ADDR', ''),
                 'ua' => serverv('HTTP_USER_AGENT', ''),
             ],
+            'trace_id' => $this->getTraceId(),
             'user' => $this->getCurrentUserId(),
         ];
 
@@ -143,6 +145,37 @@ class Logger
         }
 
         return $context;
+    }
+
+    private function getTraceId(): string
+    {
+        if (self::$runtimeTraceId !== '') {
+            return self::$runtimeTraceId;
+        }
+
+        $requestId = $this->normalizeIdentifier(serverv('HTTP_X_REQUEST_ID', ''));
+        if ($requestId !== '') {
+            self::$runtimeTraceId = $requestId;
+            return self::$runtimeTraceId;
+        }
+
+        try {
+            self::$runtimeTraceId = bin2hex(random_bytes(8));
+        } catch (Throwable $e) {
+            self::$runtimeTraceId = substr(md5(uniqid('', true)), 0, 16);
+        }
+
+        return self::$runtimeTraceId;
+    }
+
+    private function normalizeIdentifier($value): string
+    {
+        $value = trim((string)$value);
+        if ($value === '') {
+            return '';
+        }
+
+        return substr(preg_replace('/[^a-zA-Z0-9._:-]/', '', $value) ?: '', 0, 128);
     }
 
     private function shouldCollectTrace(string $level): bool
