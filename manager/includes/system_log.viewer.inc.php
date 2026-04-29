@@ -57,7 +57,12 @@ class SystemLogViewer
         }
 
         usort($items, function ($a, $b) {
-            return $b['mtime'] <=> $a['mtime'];
+            $nameCompare = strnatcasecmp((string)$b['name'], (string)$a['name']);
+            if ($nameCompare !== 0) {
+                return $nameCompare;
+            }
+
+            return strnatcasecmp((string)$b['relative'], (string)$a['relative']);
         });
 
         return $items;
