@@ -403,7 +403,6 @@ if (in_array(manager()->action, [
     300,
     301,
     114,
-    115,
     998
 ]) && !$isRawSystemLogRequest) {
     include_once($action_path . 'header.inc.php');
@@ -765,7 +764,7 @@ switch (manager()->action) {
         include_once($action_path . 'footer.inc.php');
 }
 
-if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 115, 998]) && !$isRawSystemLogRequest) {
+if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 998]) && !$isRawSystemLogRequest) {
     include_once($action_path . 'footer.inc.php');
 }
 
