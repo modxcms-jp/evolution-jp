@@ -2,14 +2,14 @@
 
 ## Purpose / Big Picture
 
-管理画面「ツール→イベントログ」でログが7ページ以上ある場合、1ページ目や最終ページ付近で `Undefined array key` 警告が発生する。この警告を解消し、全ページで正常にページネーションが表示されるようにする。
+管理画面「ツール→システムログ」でログが7ページ以上ある場合、1ページ目や最終ページ付近で `Undefined array key` 警告が発生する。この警告を解消し、全ページで正常にページネーションが表示されるようにする。
 
 ## Progress
 
 - [x] (2026-02-13) logging.static.php のページングウィンドウに境界チェックを追加
 - [x] (2026-02-13) paginate.inc.php の getNumberOfPage() に ceil() を適用
 - [x] (2026-02-13) 静的検証（対象2ファイルの `php -l` で構文エラーなし）
-- [x] (2026-02-14) 画面検証（イベントログ7ページ以上で 1/2/中間/最終ページの warning 非発生）を完了
+- [x] (2026-02-14) 画面検証（システムログ7ページ以上で 1/2/中間/最終ページの warning 非発生）を完了
 
 ## Surprises & Discoveries
 - `Paging::getNumberOfPage()` が小数を返す設計のため、`getCurrentPage()` の計算が間接的に小数依存になっていた。`ceil()` + `int` 化で `getPagingRowArray()` のループ境界が明確化された。
@@ -21,7 +21,7 @@
 ## Outcomes & Retrospective
 - `manager/actions/report/logging.static.php` で配列アクセスを固定オフセットから境界付きループへ変更し、`Undefined array key` の発生条件を除去した。
 - `manager/includes/paginate.inc.php` で総ページ数を切り上げ整数化し、ページ配列生成の境界を安定化した。
-- 画面手動確認（イベントログ7ページ以上の実ブラウザ確認）を実施し、1/2/中間/最終ページで warning 非発生を確認した。
+- 画面手動確認（システムログ7ページ以上の実ブラウザ確認）を実施し、1/2/中間/最終ページで warning 非発生を確認した。
 ## Context and Orientation
 
 **エラー報告**:
@@ -67,7 +67,7 @@ Source: $paging .= $array_row_paging[$current_row - 2];
 
 ## Validation and Acceptance
 
-管理画面「ツール→イベントログ」で以下を確認する:
+管理画面「ツール→システムログ」で以下を確認する:
 
 1. `php -l manager/actions/report/logging.static.php manager/includes/paginate.inc.php` を実行し、両ファイルで `No syntax errors detected` が出ること。
 2. ログが7ページ以上（700件超）ある状態で検索を実行し、1ページ目で `Undefined array key` 警告が出ないこと。

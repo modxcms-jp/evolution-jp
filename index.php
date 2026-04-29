@@ -97,8 +97,149 @@ if (evo()->isFrontend()) {
     evo_guard_version_mismatch($modx);
 }
 
+function frontend_system_log_trace(array $trace): array
+{
+    $frames = [];
+    foreach ($trace as $frame) {
+        $frames[] = [
+            'file' => $frame['file'] ?? '',
+            'line' => (int)($frame['line'] ?? 0),
+            'function' => $frame['function'] ?? '',
+            'class' => $frame['class'] ?? '',
+        ];
+    }
+
+    return $frames;
+}
+
+function frontend_system_log_error_type(int $type): string
+{
+    $types = [
+        E_ERROR => 'ERROR',
+        E_PARSE => 'PARSING ERROR',
+        E_CORE_ERROR => 'CORE ERROR',
+        E_CORE_WARNING => 'CORE WARNING',
+        E_COMPILE_ERROR => 'COMPILE ERROR',
+        E_COMPILE_WARNING => 'COMPILE WARNING',
+    ];
+
+    return $types[$type] ?? '';
+}
+
+function frontend_system_log_context(): array
+{
+    $context = [];
+    if (evo()) {
+        $context['document_identifier'] = evo()->documentIdentifier ?? '';
+        $context['document_method'] = evo()->documentMethod ?? '';
+        if (is_object(evo()->event) && !empty(evo()->event->activePlugin)) {
+            $context['active_plugin'] = evo()->event->activePlugin;
+        }
+        if (!empty(evo()->currentSnippet)) {
+            $context['current_snippet'] = evo()->currentSnippet;
+        }
+    }
+
+    return $context;
+}
+
+function frontend_read_source_line(string $file, int $line): string
+{
+    if ($file === '' || $line <= 0 || !is_readable($file)) {
+        return '';
+    }
+
+    try {
+        $sourceFile = new SplFileObject($file, 'r');
+        $sourceFile->seek($line - 1);
+        return (string)$sourceFile->current();
+    } catch (Throwable $e) {
+        return '';
+    }
+}
+
+function frontend_log_uncaught_throwable(Throwable $exception): void
+{
+    try {
+        $logger = new Logger();
+        $logger->critical($exception->getMessage(), [
+            'source' => 'Frontend request',
+            'exception' => [
+                'class' => get_class($exception),
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => frontend_system_log_trace($exception->getTrace()),
+            ],
+            'frontend' => frontend_system_log_context(),
+        ]);
+    } catch (Throwable $loggingException) {
+        error_log('Failed to write frontend throwable to system log: ' . $loggingException->getMessage());
+    }
+}
+
+function frontend_log_shutdown_fatal(): void
+{
+    $error = error_get_last();
+    if (!is_array($error)) {
+        return;
+    }
+
+    $fatalTypes = [
+        E_ERROR,
+        E_PARSE,
+        E_CORE_ERROR,
+        E_COMPILE_ERROR,
+    ];
+    if (!in_array((int)($error['type'] ?? 0), $fatalTypes, true)) {
+        return;
+    }
+
+    try {
+        $file = (string)($error['file'] ?? '');
+        $line = (int)($error['line'] ?? 0);
+        $source = frontend_read_source_line($file, $line);
+
+        $logger = new Logger();
+        $logger->critical((string)($error['message'] ?? 'Fatal error'), [
+            'source' => 'Frontend shutdown',
+            'fatal' => [
+                'type' => frontend_system_log_error_type((int)($error['type'] ?? 0)),
+                'number' => (int)($error['type'] ?? 0),
+                'message' => (string)($error['message'] ?? ''),
+                'file' => $file,
+                'line' => $line,
+                'source' => $source,
+            ],
+            'frontend' => frontend_system_log_context(),
+        ]);
+    } catch (Throwable $loggingException) {
+        error_log('Failed to write frontend fatal error to system log: ' . $loggingException->getMessage());
+    }
+}
+
+function frontend_render_uncaught_error(): void
+{
+    if (!headers_sent()) {
+        http_response_code(500);
+        header(sprintf('Content-Type: text/html; charset=%s', config('modx_charset', 'utf-8')));
+    }
+
+    echo '<!doctype html><html><head><title>Internal Server Error</title></head><body>';
+    echo '<h1>Internal Server Error</h1>';
+    echo '<p>The site encountered an error. Details were written to the system log.</p>';
+    echo '</body></html>';
+}
+
+register_shutdown_function('frontend_log_shutdown_fatal');
+
 // execute the parser if index.php was not included
 if (defined('IN_PARSER_MODE') && IN_PARSER_MODE === 'true') {
-    $result = $evo->executeParser();
-    echo $result;
+    try {
+        $result = $evo->executeParser();
+        echo $result;
+    } catch (Throwable $exception) {
+        frontend_log_uncaught_throwable($exception);
+        frontend_render_uncaught_error();
+    }
 }

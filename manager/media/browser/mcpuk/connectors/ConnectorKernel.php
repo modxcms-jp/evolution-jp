@@ -23,12 +23,12 @@ class ConnectorKernel
         $type = $request->getType();
 
         if (!$this->isValidCommand($command)) {
-            $this->modx->logEvent(0, 3, 'Invalid command.(No reason for me to be here)');
+            $this->modx->logEvent(0, 2, 'Invalid command.(No reason for me to be here)');
             exit(0);
         }
 
         if (!$this->isValidResourceType($type)) {
-            $this->modx->logEvent(0, 3, 'Invalid resource type.');
+            $this->modx->logEvent(0, 2, 'Invalid resource type.');
             exit(0);
         }
 

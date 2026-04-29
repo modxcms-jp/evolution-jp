@@ -6,7 +6,7 @@ services:
       args:
         USER_ID: ${UID:-1000}
         GROUP_ID: ${GID:-1000}
-    container_name: app-php8
+    container_name: evo
     ports:
       - "80:80"
     volumes:
@@ -24,10 +24,10 @@ services:
 
   db:
     image: mysql:8.3
-    container_name: db-mysql8
+    container_name: evo-db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-app-php8}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-evo-db}
       MYSQL_USER: ${MYSQL_USER:-user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     volumes:

@@ -14,15 +14,62 @@ if (!function_exists('install_log_path')) {
             return $path;
         }
 
-        $directory = rtrim(MODX_BASE_PATH, '/') . '/temp/';
+        $directory = rtrim(MODX_BASE_PATH, '/') . '/temp/logs/install/' . date('Y/m') . '/';
         if (!is_dir($directory)) {
             @mkdir($directory, 0775, true);
         }
+        install_ensure_logs_htaccess();
 
-        $path = $directory . 'install-' . date('Ymd-His') . '-' . substr(md5((string) microtime(true)), 0, 8) . '.log';
+        $path = $directory . 'install-' . date('Y-m-d') . '.log';
         sessionv('*install_log_path', $path);
 
         return $path;
+    }
+}
+
+if (!function_exists('install_ensure_logs_htaccess')) {
+    function install_ensure_logs_htaccess()
+    {
+        $root = rtrim(MODX_BASE_PATH, '/') . '/temp/logs/';
+        if (!is_dir($root) || !is_writable($root)) {
+            return;
+        }
+
+        $htaccess = $root . '.htaccess';
+        if (!is_file($htaccess)) {
+            @file_put_contents($htaccess, "Require all denied\nDeny from all\n", LOCK_EX);
+        }
+    }
+}
+
+if (!function_exists('install_log_max_bytes')) {
+    function install_log_max_bytes()
+    {
+        return 104857600;
+    }
+}
+
+if (!function_exists('install_rotate_log_if_needed')) {
+    function install_rotate_log_if_needed($logPath)
+    {
+        if (!is_file($logPath) || @filesize($logPath) < install_log_max_bytes()) {
+            return;
+        }
+
+        $dir = dirname($logPath);
+        if (!is_writable($dir)) {
+            return;
+        }
+
+        for ($i = 9; $i >= 1; $i--) {
+            $source = "{$logPath}.{$i}";
+            $target = $logPath . '.' . ($i + 1);
+            if (is_file($source)) {
+                @rename($source, $target);
+            }
+        }
+
+        @rename($logPath, "{$logPath}.1");
     }
 }
 
@@ -30,6 +77,7 @@ if (!function_exists('log_install_event')) {
     function log_install_event($message, array $context = [])
     {
         $logPath = install_log_path();
+        install_rotate_log_if_needed($logPath);
         $timestamp = date('Y-m-d H:i:s');
         $entry = "[{$timestamp}] {$message}";
 

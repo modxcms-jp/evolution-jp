@@ -119,16 +119,17 @@ trait DocumentParserSubParserTrait
         );
     }
 
-    function logEvent($evtid, $type, $msg, $title = 'Parser')
+    function logEvent($evtid, $type, $msg, $title = 'Parser', array $context = [])
     {
         global $modx;
-        if (!db()->isConnected()) {
-            return;
+        if (!$modx->config && db()->isConnected()) {
+            try {
+                $modx->getSettings();
+            } catch (Throwable $e) {
+                error_log('Failed to load settings in logEvent: ' . $e->getMessage());
+            }
         }
-        if (!$modx->config) {
-            $modx->getSettings();
-        }
-        $evtid = (int)$evtid;
+
         $type = (int)$type;
         if ($type < 1) {
             $type = 1;
@@ -136,39 +137,34 @@ trait DocumentParserSubParserTrait
         if (3 < $type) {
             $type = 3;
         }
-        if (db()->isConnected()) {
-            $msg = db()->escape($msg);
-        }
-        $title = hsc($title);
-        if (db()->isConnected()) {
-            $title = db()->escape($title);
-        }
+
+        $title = (string)$title;
         if (function_exists('mb_substr')) {
             $title = mb_substr($title, 0, 100, $modx->config('modx_charset', 'utf-8'));
         } else {
             $title = substr($title, 0, 100);
         }
-        $LoginUserID = evo()->getLoginUserID();
-        if (!$LoginUserID) {
-            $LoginUserID = '0';
+
+        $levelMap = [
+            1 => Logger::INFO,
+            2 => Logger::WARNING,
+            3 => Logger::ERROR,
+        ];
+        $level = $levelMap[$type] ?? Logger::INFO;
+        try {
+            $logger = new Logger();
+            $logger->log($level, $this->normalizeLogMessage($msg), array_merge([
+                'source' => $title,
+            ], $context));
+        } catch (Throwable $e) {
+            error_log('Failed to write system log: ' . $e->getMessage());
         }
 
-        $fields['eventid'] = $evtid;
-        $fields['type'] = $type;
-        $fields['createdon'] = request_time();
-        $fields['source'] = $title;
-        $fields['description'] = $msg;
-        $fields['user'] = $LoginUserID;
-        $_ = db()->lastQuery;
-        if (db()->isConnected()) {
-            $insert_id = db()->insert($fields, '[+prefix+]event_log');
-        } else {
-            $title = 'DB connect error';
-        }
-        $modx->db->lastQuery = $_;
         if (config('send_errormail') && config('send_errormail') <= $type) {
+            $hostname = '';
+            $mailbody = [];
             $body['URL'] = MODX_SITE_URL . ltrim(evo()->server('REQUEST_URI'), '/');
-            $body['Source'] = $fields['source'];
+            $body['Source'] = $title;
             $body['IP'] = evo()->server('REMOTE_ADDR');
             if (evo()->server('REMOTE_ADDR')) {
                 $hostname = gethostbyaddr(evo()->server('REMOTE_ADDR'));
@@ -176,7 +172,7 @@ trait DocumentParserSubParserTrait
             if ($hostname) {
                 $body['Host name'] = $hostname;
             }
-            if ($modx->event->activePlugin) {
+            if (is_object($modx->event) && $modx->event->activePlugin) {
                 $body['Plugin'] = $modx->event->activePlugin;
             }
             if ($modx->currentSnippet) {
@@ -188,15 +184,6 @@ trait DocumentParserSubParserTrait
             }
             $mailbody = implode("\n", $mailbody);
             $modx->sendmail($subject, $mailbody);
-        }
-        if (!isset($insert_id) || !$insert_id) {
-            exit('Error while inserting event log into database.');
-        }
-
-        $trim = (int)evo()->config('event_log_trim', 100);
-        if (($insert_id % $trim) == 0) {
-            $limit = (int)evo()->config('event_log_limit', 2000);
-            $modx->rotate_log('event_log', $limit, $trim);
         }
     }
 
@@ -472,7 +459,7 @@ trait DocumentParserSubParserTrait
 
         $str .= $modx->parseText($tpl, ['left' => 'Referer : ', 'right' => $referer]);
         $str .= $modx->parseText($tpl, ['left' => 'User Agent : ', 'right' => $ua]);
-        $str .= $modx->parseText($tpl, ['left' => 'IP : ', 'right' => $_SERVER['REMOTE_ADDR']]);
+        $str .= $modx->parseText($tpl, ['left' => 'IP : ', 'right' => serverv('REMOTE_ADDR', '')]);
 
         $str .= '<tr><td colspan="2"><b>Benchmarks</b></td></tr>';
 
@@ -509,10 +496,6 @@ trait DocumentParserSubParserTrait
 
         $str = $modx->mergeBenchmarkContent($str);
 
-        $last_error = error_get_last();
-        if ($last_error) {
-            $str = "<b>" . print_r($last_error, true) . "</b><br />\n{$str}";
-        }
         $str .= '<br />' . $modx->get_backtrace() . "\n";
 
 
@@ -522,7 +505,7 @@ trait DocumentParserSubParserTrait
         } elseif ($modx->event->activePlugin) {
             $title = 'Plugin - ' . $modx->event->activePlugin;
         } elseif (isset($title) && $title !== '') {
-            $title = 'Parser - ' . $text ? $text : $source;
+            $title = 'Parser - ' . ($text ? $text : $source);
         } elseif ($query !== '') {
             $title = 'SQL Query';
         } else {
@@ -555,7 +538,26 @@ trait DocumentParserSubParserTrait
             default:
                 $error_level = 3;
         }
-        $modx->logEvent(0, $error_level, $str, $title);
+        $logMessage = $text !== '' ? $text : $msg;
+        $logContext = [
+            'error' => [
+                'type' => $errortype[$nr] ?? '',
+                'number' => (int)$nr,
+                'message' => $logMessage,
+                'file' => $file,
+                'line' => (int)$line,
+                'source' => $source,
+                'query' => $query,
+                'last_query' => db()->lastQuery ?: '',
+            ],
+            'manager_action' => isset($action)
+                ? [
+                    'id' => $action,
+                    'name' => $actionName ?? '',
+                ]
+                : [],
+        ];
+        $modx->logEvent(0, $error_level, $logMessage, $title, $logContext);
 
         // Set 500 response header
         if (2 < $error_level && $modx->event->name !== 'OnWebPageComplete') {
@@ -2725,6 +2727,30 @@ trait DocumentParserSubParserTrait
                                 'Draft update error');
             }
         }
+    }
+
+    private function normalizeLogMessage($message): string
+    {
+        if (is_array($message)) {
+            $message = print_r($message, true);
+        } elseif (!is_scalar($message) && $message !== null) {
+            $message = print_r($message, true);
+        }
+
+        $message = (string)$message;
+        if ($message === '' || strpos($message, '<') === false) {
+            return $message;
+        }
+
+        $message = preg_replace('@<(br|/p|/div|/tr|/table|/h[1-6])\b[^>]*>@i', "\n", $message);
+        $message = strip_tags($message);
+        $message = html_entity_decode($message, ENT_QUOTES | ENT_HTML5, evo()->config('modx_charset', 'utf-8'));
+        $lines = array_map('trim', preg_split('/\R+/u', $message) ?: []);
+        $lines = array_filter($lines, function ($line) {
+            return $line !== '';
+        });
+
+        return implode("\n", $lines);
     }
 
     function setdocumentMap()

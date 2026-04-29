@@ -209,7 +209,7 @@ function disableTemplateSwitcher(){
             if (!sessionv('mgrConfigCheck')) {
                 evo()->logEvent(
                     0,
-                    3,
+                    2,
                     $this->_lang['configcheck_installer_msg'],
                     $this->_lang['configcheck_installer']
                 );
