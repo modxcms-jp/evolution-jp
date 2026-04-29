@@ -14,13 +14,14 @@ $canDeleteLog = evo()->hasPermission('delete_eventlog');
 $files = SystemLogViewer::files($logRoot);
 $latestFiles = SystemLogViewer::latestFiles($files, 100);
 $isDownload = getv('download') === '1';
+$isEntriesApi = getv('ajax') === 'entries';
 $period = SystemLogViewer::period((string)getv('period', 'latest'));
 $isLatest = $period === 'latest' && !$isDownload;
 $isYearPeriod = strpos($period, 'year:') === 0;
 $months = SystemLogViewer::months($files, $period);
 $selectedMonth = $isYearPeriod ? SystemLogViewer::selectedMonth((string)getv('month', ''), $months) : '';
 $visibleFiles = SystemLogViewer::filterFiles($files, $period, $selectedMonth);
-if (!$isLatest) {
+if (!$isLatest && !$isDownload && !$isEntriesApi) {
     $visibleFiles = SystemLogViewer::withLineCounts($visibleFiles);
 }
 $selectedFile = $isLatest ? '' : getv('file', '');
@@ -109,7 +110,7 @@ if (is_post() && postv('delete_log') === '1') {
     }
 }
 
-if (getv('ajax') === 'entries') {
+if ($isEntriesApi) {
     $olderBeforeLine = (int)getv('before', 0);
     $result = $isLatest
         ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $source, $query, (string)getv('cursor_file', ''), $olderBeforeLine, 20)
