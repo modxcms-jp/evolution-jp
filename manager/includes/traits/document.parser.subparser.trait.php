@@ -122,8 +122,12 @@ trait DocumentParserSubParserTrait
     function logEvent($evtid, $type, $msg, $title = 'Parser', array $context = [])
     {
         global $modx;
-        if (!$modx->config) {
-            $modx->getSettings();
+        if (!$modx->config && db()->isConnected()) {
+            try {
+                $modx->getSettings();
+            } catch (Throwable $e) {
+                error_log('Failed to load settings in logEvent: ' . $e->getMessage());
+            }
         }
 
         $evtid = (int)$evtid;
