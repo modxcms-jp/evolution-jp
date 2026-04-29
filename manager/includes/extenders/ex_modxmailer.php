@@ -176,12 +176,19 @@ class MODxMailer extends PHPMailer
             'post' => postv(),
         ];
 
-        $logJson = json_encode($logData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        if ($logJson === false) {
-            $logJson = json_encode(['error' => 'Failed to encode log data']);
+        $subject = trim((string)$this->Subject);
+        if ($subject === '') {
+            $subject = '(no subject)';
         }
+        $toSummary = implode(', ', $logData['to']);
+        if ($toSummary === '') {
+            $toSummary = '(no recipients)';
+        }
+        $summary = 'subject: ' . $subject . ' to: ' . $toSummary;
 
-        evo()->logEvent(1, 1, '<pre>' . hsc($logJson) . '</pre>', 'MODxMailer request log');
+        evo()->logEvent(1, 1, $summary, 'MODxMailer request log', [
+            'mail' => $logData,
+        ]);
     }
 
     private function formatFromAddress()
