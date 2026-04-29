@@ -60,7 +60,7 @@ if (sessionv('safeMode') == 1) {
     }
 }
 
-if ($managerSafeModeUpdated && getv('manager_safe_mode_redirect') === '1') {
+if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
     header('Location: ' . MODX_MANAGER_URL);
     exit;
 }

@@ -140,9 +140,10 @@ function manager_safe_mode_can_toggle()
 
 function manager_apply_safe_mode_request()
 {
-    $requested = getv('manager_safe_mode');
+    $requested = postv('manager_safe_mode');
     if (
-        $requested === null
+        !is_post()
+        || $requested === null
         || getv('a') !== '1'
         || getv('f') !== 'menu'
         || !manager_safe_mode_can_toggle()
@@ -150,14 +151,38 @@ function manager_apply_safe_mode_request()
         return false;
     }
 
+    checkCsrfToken();
     sessionv('*safeMode', $requested === '1' ? 1 : 0);
     return true;
 }
 
-function manager_safe_mode_toggle_url()
+function manager_safe_mode_toggle_value()
 {
     $isSafeMode = sessionv('safeMode') == 1;
-    return MODX_MANAGER_URL . 'index.php?a=1&f=menu&manager_safe_mode=' . ($isSafeMode ? '0' : '1') . '&manager_safe_mode_redirect=1';
+    return $isSafeMode ? '0' : '1';
+}
+
+function manager_safe_mode_toggle_form($label, $className = '', $style = '')
+{
+    $classAttr = $className !== '' ? ' class="' . hsc($className) . '"' : '';
+    $styleAttr = $style !== '' ? ' style="' . hsc($style) . '"' : '';
+
+    return sprintf(
+        '<form method="post" action="%s" style="display:inline;">'
+        . '<input type="hidden" name="a" value="1">'
+        . '<input type="hidden" name="f" value="menu">'
+        . '<input type="hidden" name="manager_safe_mode" value="%s">'
+        . '<input type="hidden" name="manager_safe_mode_redirect" value="1">'
+        . '%s'
+        . '<button type="submit"%s%s>%s</button>'
+        . '</form>',
+        hsc(MODX_MANAGER_URL . 'index.php'),
+        hsc(manager_safe_mode_toggle_value()),
+        csrfTokenField(),
+        $classAttr,
+        $styleAttr,
+        hsc($label)
+    );
 }
 
 function manager_safe_mode_nav_item_html()
@@ -170,9 +195,12 @@ function manager_safe_mode_nav_item_html()
     $label = $isSafeMode ? 'セーフモード解除' : 'セーフモード';
 
     return sprintf(
-        '<span class="supplementalNav__item supplementalNav__item--safe-mode"><a href="%s" target="_top">%s</a></span>',
-        hsc(manager_safe_mode_toggle_url()),
-        hsc($label)
+        '<span class="supplementalNav__item supplementalNav__item--safe-mode">%s</span>',
+        manager_safe_mode_toggle_form(
+            $label,
+            'supplementalNav__link',
+            'background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit;'
+        )
     );
 }
 
@@ -188,12 +216,14 @@ function manager_safe_mode_button_html()
 
     return sprintf(
         '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
-        . '<a href="%s" target="_top" style="display:inline-block;padding:9px 14px;border-radius:4px;'
-        . 'background:%s;color:#fff;font:14px/1.2 Arial,sans-serif;text-decoration:none;'
-        . 'box-shadow:0 2px 8px rgba(0,0,0,.25);">%s</a></div>',
-        hsc(manager_safe_mode_toggle_url()),
-        $background,
-        hsc($label)
+        . '%s</div>',
+        manager_safe_mode_toggle_form(
+            $label,
+            '',
+            'display:inline-block;padding:9px 14px;border-radius:4px;'
+            . 'background:' . $background . ';color:#fff;font:14px/1.2 Arial,sans-serif;text-decoration:none;'
+            . 'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer;border:0;'
+        )
     );
 }
 
