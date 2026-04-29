@@ -18,11 +18,27 @@ if (!function_exists('install_log_path')) {
         if (!is_dir($directory)) {
             @mkdir($directory, 0775, true);
         }
+        install_ensure_logs_htaccess();
 
         $path = $directory . 'install-' . date('Y-m-d') . '.log';
         sessionv('*install_log_path', $path);
 
         return $path;
+    }
+}
+
+if (!function_exists('install_ensure_logs_htaccess')) {
+    function install_ensure_logs_htaccess()
+    {
+        $root = rtrim(MODX_BASE_PATH, '/') . '/temp/logs/';
+        if (!is_dir($root) || !is_writable($root)) {
+            return;
+        }
+
+        $htaccess = $root . '.htaccess';
+        if (!is_file($htaccess)) {
+            @file_put_contents($htaccess, "Require all denied\nDeny from all\n", LOCK_EX);
+        }
     }
 }
 
