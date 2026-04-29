@@ -146,6 +146,7 @@ $_lang["configcheck_warning"] = '警告';
 $_lang["confirm"] = '確認';
 $_lang["confirm_block"] = 'このアカウントを休止してもよろしいですか?';
 $_lang["confirm_delete_file"] = 'このファイルを削除してもよろしいですか?';
+$_lang["confirm_delete_system_log"] = 'このシステムログを削除します。よろしいですか?';
 $_lang["confirm_delete_dir"] = 'このディレクトリを削除してもよろしいですか?';
 $_lang["confirm_delete_dir_recursive"] = 'ディレクトリ内にファイルが存在します。\nこのディレクトリを削除してもよろしいですか?';
 $_lang["confirm_delete_htmlsnippet"] = 'このチャンクを削除してもよろしいですか?';
