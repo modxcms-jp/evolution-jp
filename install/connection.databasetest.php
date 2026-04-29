@@ -57,6 +57,16 @@ $db_connection_method = trim(postv('database_connection_method'));
 $underscorePos        = strpos($db_collation, '_');
 $db_charset           = $underscorePos !== false ? substr($db_collation, 0, $underscorePos) : $db_collation;
 
+if (!isValidDbIdentifier($db_name) || !isValidCharsetName($db_charset) || !isValidCollationName($db_collation)) {
+    exit(
+        lang('status_checking_database')
+        . span_fail(
+            '#ffe6eb',
+            lang('status_failed_could_not_create_database')
+        )
+    );
+}
+
 if (@db()->select_db($db_name)) {
     if (isAlreadyInUse($db_name, $table_prefix)) {
         exit(
@@ -98,6 +108,24 @@ function createDB($db_name, $db_charset, $db_collation)
         db()->escape($db_collation)
     );
     return @db()->conn->query($query);
+}
+
+function isValidDbIdentifier($value)
+{
+    return is_string($value)
+        && preg_match('/^[A-Za-z0-9_\\$]{1,64}$/', $value);
+}
+
+function isValidCharsetName($value)
+{
+    return is_string($value)
+        && preg_match('/^[A-Za-z0-9_]{1,64}$/', $value);
+}
+
+function isValidCollationName($value)
+{
+    return is_string($value)
+        && preg_match('/^[A-Za-z0-9_]{1,64}$/', $value);
 }
 
 function isAlreadyInUse($db_name, $table_prefix)
