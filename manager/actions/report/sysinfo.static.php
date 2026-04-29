@@ -101,7 +101,7 @@ global $database_connection_method, $lastInstallTime;
             <div class="sectionBody" style="padding:10px 20px;">
                 <p>
                     <a href="http://forum.modx.jp/" target="_blank">公式フォーラム</a>でサポートを受けることができます。以下の情報を付記いただくと解決の助けとなります。<br />
-                    <a href="index.php?a=114">イベントログ</a>に重要なヒントが記録されていることもあります。
+                    <a href="index.php?a=114"><?= hsc(lang('system_log', 'システムログ')) ?></a>に重要なヒントが記録されていることもあります。
                 </p>
                 <?php
                 $info = [

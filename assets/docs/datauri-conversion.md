@@ -33,4 +33,4 @@
 
 ## トラブルシューティング
 
-変換されない場合: (1) `convert_datauri_to_file` が `1` か確認 (2) イベントログ確認 (3) `content/images/datauri/` の書き込み権限確認。50MB 超や非対応 MIME の Data URI は変換されずイベントログに記録される。
+変換されない場合: (1) `convert_datauri_to_file` が `1` か確認 (2) システムログ確認 (3) `content/images/datauri/` の書き込み権限確認。50MB 超や非対応 MIME の Data URI は変換されずシステムログに記録される。
