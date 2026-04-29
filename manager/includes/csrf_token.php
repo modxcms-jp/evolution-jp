@@ -126,7 +126,7 @@ function checkCsrfToken($token = null)
         $logMsg .= " | {$key}: {$value}";
     }
 
-    // Evolution CMSのイベントログに記録（標準のログ機能を使用）
+    // Evolution CMSのシステムログに記録（標準のログ機能を使用）
     if (evo() && is_numeric($info['user_id'])) {
         evo()->logEvent(0, 3, $logMsg, 'CSRF Token Validation Failed');
     }
