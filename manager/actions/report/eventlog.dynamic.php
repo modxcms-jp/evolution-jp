@@ -20,7 +20,9 @@ $isYearPeriod = strpos($period, 'year:') === 0;
 $months = SystemLogViewer::months($files, $period);
 $selectedMonth = $isYearPeriod ? SystemLogViewer::selectedMonth((string)getv('month', ''), $months) : '';
 $visibleFiles = SystemLogViewer::filterFiles($files, $period, $selectedMonth);
-$visibleFiles = SystemLogViewer::withLineCounts($visibleFiles);
+if (!$isLatest) {
+    $visibleFiles = SystemLogViewer::withLineCounts($visibleFiles);
+}
 $selectedFile = $isLatest ? '' : getv('file', '');
 $selectedFileInfo = SystemLogViewer::findFile($visibleFiles, $selectedFile);
 if (!$isLatest && ($selectedFile === '' || !SystemLogViewer::findFile($visibleFiles, $selectedFile)) && $visibleFiles) {
