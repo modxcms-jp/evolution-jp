@@ -558,35 +558,39 @@ function downloadSystemLog(url) {
         if (query) {
             params.set('q', query);
         }
-
-        const response = await fetch(`index.php?${params.toString()}`, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
-        const text = await response.text();
-        let payload;
         try {
-            payload = text ? JSON.parse(text) : null;
-        } catch (error) {
-            payload = null;
-        }
-        if (!response.ok || !payload) {
-            marker.remove();
-            const message = text ? escapeHtml(text.slice(0, 1000)) : 'Empty response from log API.';
-            stream.insertAdjacentHTML('beforeend', `<div class="system-log-empty">${message}</div>`);
-            loading = false;
-            hasMore = false;
-            return;
-        }
-        marker.remove();
+            const response = await fetch(`index.php?${params.toString()}`, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+            const text = await response.text();
+            let payload;
+            try {
+                payload = text ? JSON.parse(text) : null;
+            } catch (error) {
+                payload = null;
+            }
+            if (!response.ok || !payload) {
+                const message = text ? escapeHtml(text.slice(0, 1000)) : 'Empty response from log API.';
+                stream.insertAdjacentHTML('beforeend', `<div class="system-log-empty">${message}</div>`);
+                hasMore = false;
+                return;
+            }
 
-        const html = payload.entries.slice().reverse().map(renderEntry).join('');
-        if (loadMore) {
-            stream.insertAdjacentHTML('beforeend', html);
-        } else {
-            stream.insertAdjacentHTML('beforeend', html || '<div class="system-log-empty">No matching log entries.</div>');
+            const html = payload.entries.slice().reverse().map(renderEntry).join('');
+            if (loadMore) {
+                stream.insertAdjacentHTML('beforeend', html);
+            } else {
+                stream.insertAdjacentHTML('beforeend', html || '<div class="system-log-empty">No matching log entries.</div>');
+            }
+            olderBeforeLine = payload.before_line || 0;
+            olderCursorFile = payload.cursor_file || '';
+            hasMore = !!payload.has_more;
+        } catch (error) {
+            const message = error && error.message ? escapeHtml(error.message) : 'Failed to load log entries.';
+            stream.insertAdjacentHTML('beforeend', `<div class="system-log-empty">${message}</div>`);
+            hasMore = false;
+        } finally {
+            marker.remove();
+            loading = false;
         }
-        olderBeforeLine = payload.before_line || 0;
-        olderCursorFile = payload.cursor_file || '';
-        hasMore = !!payload.has_more;
-        loading = false;
     }
 
     stream.addEventListener('scroll', function () {
