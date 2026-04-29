@@ -236,6 +236,7 @@ class SystemLogViewer
         string $root,
         array $files,
         string $level = '',
+        string $source = '',
         string $query = '',
         string $olderCursorFile = '',
         int $olderBeforeLine = 0,
@@ -269,7 +270,7 @@ class SystemLogViewer
             }
 
             $lineCursor = $i === $startIndex ? $olderBeforeLine : 0;
-            $result = self::readEntries($path, $level, $query, $lineCursor, $remaining);
+            $result = self::readEntries($path, $level, $source, $query, $lineCursor, $remaining);
             if ($result['entries']) {
                 $chunks[] = array_map(function ($entry) use ($fileInfo) {
                     $entry['file'] = $fileInfo['relative'];
@@ -305,7 +306,14 @@ class SystemLogViewer
         ];
     }
 
-    public static function readEntries(string $path, string $level = '', string $query = '', int $olderBeforeLine = 0, int $limit = 20): array
+    public static function readEntries(
+        string $path,
+        string $level = '',
+        string $source = '',
+        string $query = '',
+        int $olderBeforeLine = 0,
+        int $limit = 20
+    ): array
     {
         $entries = [];
         $lineNumber = 0;
@@ -334,8 +342,12 @@ class SystemLogViewer
             }
 
             $entryLevel = strtolower((string)array_get($data, 'level', ''));
+            $entrySource = (string)array_get(array_get($data, 'context', []), 'source', '');
             $encoded = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             if ($level !== '' && $entryLevel !== $level) {
+                continue;
+            }
+            if ($source !== '' && $entrySource !== $source) {
                 continue;
             }
             if ($query !== '' && stripos($encoded, $query) === false) {

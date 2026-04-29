@@ -34,10 +34,18 @@ $selectedPath = $isLatest ? '' : SystemLogViewer::resolveFile($logRoot, $selecte
 $fileList = SystemLogViewer::fileList($visibleFiles);
 $years = SystemLogViewer::years($files);
 $level = strtolower((string)getv('level', ''));
+$source = trim((string)getv('source', ''));
 $query = trim((string)getv('q', ''));
 $allowedLevels = ['', 'emergency', 'alert', 'critical', 'error', 'warning', 'notice', 'info', 'debug'];
 if (!in_array($level, $allowedLevels, true)) {
     $level = '';
+}
+$sourceOptions = [
+    '' => lang('all', 'All'),
+    'MODxMailer request log' => 'MODxMailer',
+];
+if (!isset($sourceOptions[$source])) {
+    $source = '';
 }
 $deleteActionParams = [
     'a' => '114',
@@ -49,6 +57,9 @@ if ($selectedMonth !== '') {
 }
 if ($level !== '') {
     $deleteActionParams['level'] = $level;
+}
+if ($source !== '') {
+    $deleteActionParams['source'] = $source;
 }
 if ($query !== '') {
     $deleteActionParams['q'] = $query;
@@ -74,6 +85,9 @@ if (is_post() && postv('delete_log') === '1') {
         if ($level !== '') {
             $redirect['level'] = $level;
         }
+        if ($source !== '') {
+            $redirect['source'] = $source;
+        }
         if ($query !== '') {
             $redirect['q'] = $query;
         }
@@ -93,10 +107,10 @@ if (is_post() && postv('delete_log') === '1') {
 if (getv('ajax') === 'entries') {
     $olderBeforeLine = (int)getv('before', 0);
     $result = $isLatest
-        ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $query, (string)getv('cursor_file', ''), $olderBeforeLine, 20)
+        ? SystemLogViewer::readLatestEntries($logRoot, $latestFiles, $level, $source, $query, (string)getv('cursor_file', ''), $olderBeforeLine, 20)
         : ($selectedPath === ''
         ? ['entries' => [], 'has_more' => false, 'before_line' => 0]
-        : SystemLogViewer::readEntries($selectedPath, $level, $query, $olderBeforeLine, 20));
+        : SystemLogViewer::readEntries($selectedPath, $level, $source, $query, $olderBeforeLine, 20));
     header('Content-Type: application/json; charset=utf-8');
     echo SystemLogViewer::jsonEncode($result);
     exit;
@@ -303,6 +317,16 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <?php } ?>
                     </select>
                 </label>
+                <label>
+                    <?= hsc(lang('source', '発生元')) ?>
+                    <select name="source" id="systemLogSource">
+                        <?php foreach ($sourceOptions as $sourceValue => $sourceLabel) { ?>
+                            <option value="<?= hsc($sourceValue) ?>"<?= $source === $sourceValue ? ' selected' : '' ?>>
+                                <?= hsc($sourceLabel) ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                </label>
                 <label title="<?= hsc(lang('search')) ?>">
                     <input
                         type="text"
@@ -340,6 +364,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <input type="hidden" name="month" value="<?= hsc($selectedMonth) ?>" />
                         <input type="hidden" name="file" value="<?= hsc($selectedFile) ?>" />
                         <input type="hidden" name="level" value="<?= hsc($level) ?>" />
+                        <input type="hidden" name="source" value="<?= hsc($source) ?>" />
                         <input type="hidden" name="q" value="<?= hsc($query) ?>" />
                         <button type="submit" class="system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
                     </form>
@@ -355,6 +380,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     data-period="<?= hsc($period) ?>"
                     data-file="<?= hsc($selectedFile) ?>"
                     data-level="<?= hsc($level) ?>"
+                    data-source="<?= hsc($source) ?>"
                     data-query="<?= hsc($query) ?>"
                 >
                     <div class="system-log-loading"><?= hsc(lang('loading', 'Loading...')) ?></div>
@@ -387,6 +413,7 @@ function downloadSystemLog(url) {
     const period = stream.dataset.period;
     const file = stream.dataset.file;
     const level = stream.dataset.level;
+    const source = stream.dataset.source;
     const query = stream.dataset.query;
     let olderBeforeLine = 0;
     let olderCursorFile = '';
@@ -516,6 +543,9 @@ function downloadSystemLog(url) {
         }
         if (level) {
             params.set('level', level);
+        }
+        if (source) {
+            params.set('source', source);
         }
         if (query) {
             params.set('q', query);
