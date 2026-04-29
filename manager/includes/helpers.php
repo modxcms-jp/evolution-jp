@@ -144,8 +144,8 @@ function manager_apply_safe_mode_request()
     if (
         !is_post()
         || $requested === null
-        || getv('a') !== '1'
-        || getv('f') !== 'menu'
+        || anyv('a') !== '1'
+        || anyv('f') !== 'menu'
         || !manager_safe_mode_can_toggle()
     ) {
         return false;
