@@ -21,6 +21,26 @@ function cli_usage($message, $code = 1)
     exit($code);
 }
 
+function cli_system_log_format_entry(array $entry): string
+{
+    $level = strtoupper((string)array_get($entry, 'level', ''));
+    $time = (string)array_get($entry, 'timestamp_label', array_get($entry, 'timestamp', ''));
+    $source = (string)array_get($entry, 'source', '');
+    $caller = array_get($entry, 'caller', []);
+    $location = '';
+    if (is_array($caller) && (string)array_get($caller, 'file', '') !== '') {
+        $location = sprintf('%s:%s', array_get($caller, 'file', ''), array_get($caller, 'line', ''));
+    }
+
+    $head = trim(sprintf('[%s] %s %s %s', $level, $time, $source, $location));
+    $message = trim((string)array_get($entry, 'message', ''));
+    if ($message === '') {
+        return $head;
+    }
+
+    return $head . "\n" . preg_replace('/^/m', '  ', $message);
+}
+
 /**
  * Create a temporary MySQL defaults-extra-file for secure credential passing.
  * Returns the temp file path. The file is auto-deleted on shutdown.

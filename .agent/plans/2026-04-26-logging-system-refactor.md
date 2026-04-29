@@ -16,7 +16,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - [x] (2026-04-26) システムログ画面の改修（ファイル一覧・表示）
 - [x] (2026-04-28) 管理画面側の未捕捉 Throwable / fatal error の捕捉
 - [x] (2026-04-29) フロントエンド側の未捕捉 Throwable / fatal error の捕捉
-- [ ] (2026-04-26) CLI コマンドの実装（log:tail system, log:search system）
+- [x] (2026-04-29) CLI コマンドの実装（log:tail system, log:search system）
 - [ ] (2026-04-26) issue-resolver スキルの更新（ログ解析機能統合）
 - [ ] (2026-04-26) 多言語対応（メニュー名「イベントログ」→「システムログ」）
 - [ ] (2026-04-26) インストールスクリプト修正・旧クラス削除
