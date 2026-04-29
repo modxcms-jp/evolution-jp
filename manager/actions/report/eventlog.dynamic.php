@@ -10,6 +10,7 @@ if (!evo()->hasPermission('view_eventlog')) {
 include_once MODX_CORE_PATH . 'system_log.viewer.inc.php';
 
 $logRoot = MODX_BASE_PATH . 'temp/logs/system/';
+$canDeleteLog = evo()->hasPermission('delete_eventlog');
 $files = SystemLogViewer::files($logRoot);
 $latestFiles = SystemLogViewer::latestFiles($files, 100);
 $isDownload = getv('download') === '1';
@@ -68,7 +69,9 @@ $deleteActionUrl = 'index.php?' . http_build_query($deleteActionParams);
 $deleteError = '';
 
 if (is_post() && postv('delete_log') === '1') {
-    if ($selectedPath !== '' && @unlink($selectedPath)) {
+    if (!$canDeleteLog) {
+        $deleteError = lang('access_permission_denied', 'アクセス権限がありません。');
+    } elseif ($selectedPath !== '' && @unlink($selectedPath)) {
         if (basename($selectedPath) !== 'system-' . date('Y-m-d') . '.log') {
             evo()->logEvent(0, 1, 'Deleted system log file', 'SystemLogViewer', [
                 'file' => $selectedFile,
@@ -99,9 +102,9 @@ if (is_post() && postv('delete_log') === '1') {
             echo '<script>window.location.href=' . json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ';</script>';
         }
         exit;
+    } else {
+        $deleteError = lang('failed_delete', '削除に失敗しました。');
     }
-
-    $deleteError = lang('failed_delete', '削除に失敗しました。');
 }
 
 if (getv('ajax') === 'entries') {
@@ -353,6 +356,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                     >
                         <img src="<?= style('icons_save') ?>" alt="" /> <?= hsc(lang('file_download_file', 'Download File')) ?>
                     </a>
+                    <?php if ($canDeleteLog) { ?>
                     <form
                         method="post"
                         action="<?= hsc($deleteActionUrl) ?>"
@@ -368,6 +372,7 @@ if (getv('download') === '1' && $selectedPath !== '') {
                         <input type="hidden" name="q" value="<?= hsc($query) ?>" />
                         <button type="submit" class="system-log-delete"><?= hsc(lang('delete', '削除')) ?></button>
                     </form>
+                    <?php } ?>
                     <?php } ?>
                 </div>
             <?php } ?>
