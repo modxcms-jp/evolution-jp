@@ -78,7 +78,12 @@ if (is_post() && postv('delete_log') === '1') {
             $redirect['q'] = $query;
         }
 
-        header('Location: index.php?' . http_build_query($redirect));
+        $redirectUrl = 'index.php?' . http_build_query($redirect);
+        if (!headers_sent()) {
+            header('Location: ' . $redirectUrl);
+        } else {
+            echo '<script>window.location.href=' . json_encode($redirectUrl, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . ';</script>';
+        }
         exit;
     }
 
