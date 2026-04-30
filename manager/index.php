@@ -49,14 +49,6 @@ $modx->error_reporting = $error_reporting ?? 1;
 
 evo()->loadExtension('ManagerAPI');
 
-if (sessionv('safeMode') == 1) {
-    if (evo()->hasPermission('save_role')) {
-        $modx->safeMode = 1;
-    } else {
-        $modx->safeMode = $_SESSION['safeMode'] = 0;
-    }
-}
-
 $modx->getSettings();
 
 extract($modx->config);
@@ -75,6 +67,22 @@ manager()->action = anyv('a', 1);
 
 // accesscontrol.php checks to see if the user is logged in. If not, a log in form is shown
 include_once(MODX_CORE_PATH . 'accesscontrol.inc.php');
+
+$managerSafeModeUpdated = manager_apply_safe_mode_request();
+
+if (sessionv('safeMode') == 1) {
+    if (manager_safe_mode_can_toggle()) {
+        $modx->safeMode = 1;
+    } else {
+        sessionv('*safeMode', 0);
+        $modx->safeMode = 0;
+    }
+}
+
+if ($managerSafeModeUpdated && anyv('manager_safe_mode_redirect') === '1') {
+    header('Location: ' . MODX_MANAGER_URL);
+    exit;
+}
 
 // double check the session
 if (!isset($_SESSION['mgrValidated'])) {
@@ -314,6 +322,7 @@ function manager_render_uncaught_error(Throwable $exception, bool $isRawSystemLo
     $userAgent = hsc(serverv('HTTP_USER_AGENT', ''));
     $ip = hsc(serverv('REMOTE_ADDR', ''));
 
+    echo manager_safe_mode_button_html();
     echo '<div role="alert">';
     echo '<h3 style="color:red">&laquo; MODX Manager Error &raquo;</h3>';
     echo '<p>MODX encountered the following error while processing the manager request:</p>';

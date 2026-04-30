@@ -125,6 +125,108 @@ function hsc($string = '', $flags = ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, $
     return htmlspecialchars($string, $flags, $encode, $double_encode);
 }
 
+function manager_safe_mode_can_toggle()
+{
+    return defined('IN_MANAGER_MODE')
+        && IN_MANAGER_MODE === 'true'
+        && evo()
+        && evo()->isLoggedin()
+        && (
+            evo()->hasPermission('save_plugin')
+            || evo()->hasPermission('edit_plugin')
+            || evo()->hasPermission('delete_plugin')
+        );
+}
+
+function manager_apply_safe_mode_request()
+{
+    $requested = postv('manager_safe_mode');
+    if (
+        !is_post()
+        || $requested === null
+        || anyv('a') !== '1'
+        || anyv('f') !== 'menu'
+        || !manager_safe_mode_can_toggle()
+    ) {
+        return false;
+    }
+
+    checkCsrfToken();
+    sessionv('*safeMode', $requested === '1' ? 1 : 0);
+    return true;
+}
+
+function manager_safe_mode_toggle_value()
+{
+    $isSafeMode = sessionv('safeMode') == 1;
+    return $isSafeMode ? '0' : '1';
+}
+
+function manager_safe_mode_toggle_form($label, $className = '', $style = '')
+{
+    $classAttr = $className !== '' ? ' class="' . hsc($className) . '"' : '';
+    $styleAttr = $style !== '' ? ' style="' . hsc($style) . '"' : '';
+
+    return sprintf(
+        '<form method="post" action="%s" style="display:inline;">'
+        . '<input type="hidden" name="a" value="1">'
+        . '<input type="hidden" name="f" value="menu">'
+        . '<input type="hidden" name="manager_safe_mode" value="%s">'
+        . '<input type="hidden" name="manager_safe_mode_redirect" value="1">'
+        . '%s'
+        . '<button type="submit"%s%s>%s</button>'
+        . '</form>',
+        hsc(MODX_MANAGER_URL . 'index.php'),
+        hsc(manager_safe_mode_toggle_value()),
+        csrfTokenField(),
+        $classAttr,
+        $styleAttr,
+        hsc($label)
+    );
+}
+
+function manager_safe_mode_nav_item_html()
+{
+    if (!manager_safe_mode_can_toggle()) {
+        return '';
+    }
+
+    $isSafeMode = sessionv('safeMode') == 1;
+    $label = $isSafeMode ? 'セーフモード解除' : 'セーフモード';
+
+    return sprintf(
+        '<span class="supplementalNav__item supplementalNav__item--safe-mode">%s</span>',
+        manager_safe_mode_toggle_form(
+            $label,
+            'supplementalNav__link',
+            'background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit;'
+        )
+    );
+}
+
+function manager_safe_mode_button_html()
+{
+    if (!manager_safe_mode_can_toggle() || getv('a') !== '1' || getv('f') !== 'menu') {
+        return '';
+    }
+
+    $isSafeMode = sessionv('safeMode') == 1;
+    $label = $isSafeMode ? 'セーフモードを解除' : 'セーフモードで表示';
+    $background = $isSafeMode ? '#333' : '#c62828';
+
+    return sprintf(
+        '<div style="position:fixed;top:12px;right:12px;z-index:2147483647;">'
+        . '%s</div>',
+        manager_safe_mode_toggle_form(
+            $label,
+            '',
+            'display:inline-block;padding:9px 14px;border-radius:4px;'
+            . 'background:' . $background . ';color:#fff;font:14px/1.2 Arial,sans-serif;text-decoration:none;'
+            . 'box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer;border:0;'
+        )
+    );
+}
+
 function parseText($tpl, $ph, $left = '[+', $right = '+]', $execModifier = false)
 {
     if (evo()) {

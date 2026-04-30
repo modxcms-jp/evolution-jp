@@ -5184,15 +5184,23 @@ class DocumentParser
         $parameter = [];
         $tmpParams = explode('&', $propertyString);
         foreach ($tmpParams as $tmpParam) {
-            if (strpos($tmpParam, '=') === false) {
+            $pTmp = explode('=', $tmpParam, 2);
+            if (count($pTmp) < 2) {
                 continue;
             }
-            $pTmp = explode('=', $tmpParam);
-            $pvTmp = explode(';', trim($pTmp['1']));
-            if ($pvTmp['1'] === 'list' && $pvTmp['3'] != '') {
-                $parameter[trim($pTmp['0'])] = $pvTmp['3']; //list default
-            } elseif ($pvTmp['1'] !== 'list' && $pvTmp['2'] != '') {
-                $parameter[trim($pTmp['0'])] = $pvTmp['2'];
+
+            $paramName = trim($pTmp[0]);
+            $paramValue = trim($pTmp[1]);
+            if ($paramName === '' || $paramValue === '') {
+                continue;
+            }
+
+            $pvTmp = explode(';', $paramValue);
+            $pvTmp = array_pad($pvTmp, 4, '');
+            if ($pvTmp[1] === 'list' && $pvTmp[3] !== '') {
+                $parameter[$paramName] = $pvTmp[3]; // list default
+            } elseif ($pvTmp[1] !== 'list' && $pvTmp[2] !== '') {
+                $parameter[$paramName] = $pvTmp[2];
             }
         }
         foreach ($parameter as $k => $v) {
