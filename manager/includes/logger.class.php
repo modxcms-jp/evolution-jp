@@ -121,6 +121,24 @@ class Logger
             'user' => $this->getCurrentUserId(),
         ];
 
+        if (evo()) {
+            if (isset(evo()->documentIdentifier) && evo()->documentIdentifier !== null && evo()->documentIdentifier !== '') {
+                $context['document_identifier'] = evo()->documentIdentifier;
+            }
+            if (isset(evo()->documentMethod) && evo()->documentMethod !== null && evo()->documentMethod !== '') {
+                $context['document_method'] = evo()->documentMethod;
+            }
+            if (isset(evo()->decoded_request_uri) && evo()->decoded_request_uri !== null && evo()->decoded_request_uri !== '') {
+                $context['decoded_request_uri'] = evo()->decoded_request_uri;
+            }
+            if (is_object(evo()->event) && !empty(evo()->event->activePlugin)) {
+                $context['active_plugin'] = evo()->event->activePlugin;
+            }
+            if (!empty(evo()->currentSnippet)) {
+                $context['current_snippet'] = evo()->currentSnippet;
+            }
+        }
+
         if (!$this->shouldCollectTrace($level)) {
             return $context;
         }
@@ -133,15 +151,6 @@ class Logger
         ];
         if (!isset($givenContext['exception']) && !isset($givenContext['fatal'])) {
             $context['trace'] = $trace;
-        }
-
-        if (evo()) {
-            if (is_object(evo()->event) && !empty(evo()->event->activePlugin)) {
-                $context['active_plugin'] = evo()->event->activePlugin;
-            }
-            if (!empty(evo()->currentSnippet)) {
-                $context['current_snippet'] = evo()->currentSnippet;
-            }
         }
 
         return $context;

@@ -172,12 +172,24 @@ function evalModule($moduleCode, $params)
             default:
                 $error_level = 99;
         }
+        $type = $error_info['type'];
+        $file = $error_info['file'];
+        $message = $error_info['message'];
+        $line = $error_info['line'];
+        $moduleName = $modx->moduleObject['name'] ?? 'Module';
+
+        if ($error_level > 1 || $modx->config['error_reporting'] === '99') {
+            evo()->logEvent(0, $error_level > 2 ? 3 : 2, $message, $moduleName . ' - Module', [
+                'error' => [
+                    'type' => $type,
+                    'message' => $message,
+                    'file' => $file,
+                    'line' => (int)$line,
+                ],
+            ]);
+        }
+
         if ($modx->config['error_reporting'] === '99' || 2 < $error_level) {
-            $type = $error_info['type'];
-            $file = $error_info['file'];
-            $message = $error_info['message'];
-            $line = $error_info['line'];
-            $moduleName = $modx->moduleObject['name'] ?? 'Module';
             $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $moduleName . ' - Module',
                 $message, $line, $msg);
             $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");

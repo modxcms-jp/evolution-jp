@@ -192,7 +192,7 @@ function manager_safe_mode_nav_item_html()
     }
 
     $isSafeMode = sessionv('safeMode') == 1;
-    $label = $isSafeMode ? 'セーフモード解除' : 'セーフモード';
+    $label = $isSafeMode ? lang('manager_safe_mode_nav_disable') : lang('manager_safe_mode_nav_enable');
 
     return sprintf(
         '<span class="supplementalNav__item supplementalNav__item--safe-mode">%s</span>',
@@ -211,7 +211,7 @@ function manager_safe_mode_button_html()
     }
 
     $isSafeMode = sessionv('safeMode') == 1;
-    $label = $isSafeMode ? 'セーフモードを解除' : 'セーフモードで表示';
+    $label = $isSafeMode ? lang('manager_safe_mode_button_disable') : lang('manager_safe_mode_button_enable');
     $background = $isSafeMode ? '#333' : '#c62828';
 
     return sprintf(
