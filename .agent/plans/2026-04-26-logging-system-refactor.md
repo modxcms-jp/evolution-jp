@@ -22,6 +22,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - [x] (2026-04-29) インストールスクリプト修正・旧DBログ入口削除
 - [x] (2026-04-29) installer ログ保存先とローテーションを `temp/logs/install/YYYY/MM/install-YYYY-MM-DD.log` に変更
 - [x] (2026-05-01) 共通ログコンテキストに `document_identifier` / `document_method` / `decoded_request_uri` を追加
+- [x] (2026-05-01) module 実行時の `E_DEPRECATED` / `E_USER_DEPRECATED` を system log に記録
 - [ ] (2026-04-26) 統合テスト・動作確認
 
 ## Surprises & Discoveries
@@ -31,6 +32,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - (2026-04-28) 同じ `configcheck_installer_msg` の確認用 `echo` がダッシュボードで2回表示された。`config_check.inc.php` / ダッシュボードタブ / config check 呼び出し経路が重複している可能性があるため、別途調査する。
 - (2026-04-29) インストーラの退避ログは `temp/logs/install/YYYY/MM/` 配下へ寄せる方針にした。DB 接続後も install ログのまま残し、system log とは分離する。
 - (2026-05-01) `request.url` は `Logger::collectContext()` で自動収集されていたが、`DocumentParser::phpError()` 経由の warning では `documentIdentifier` が共通コンテキストに載っていなかった。調査時のSSOTを保つため、呼び出し元ごとの個別追加ではなく `Logger` 側で収集する方針にした。
+- (2026-05-01) module 実行時の `eval()` 経路では `error_get_last()` で `E_DEPRECATED` / `E_USER_DEPRECATED` を検知しても system log へ流していなかった。停止条件とは分け、warning 相当として system log に残す方針にした。
 
 ## Decision Log
 
@@ -159,12 +161,17 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 
 ### 2026-05-01 時点の追加改善メモ
 
-- `Logger::collectContext()` が「常時必要な共通文脈」と「error 以上でのみ必要な trace/caller 文脈」を同時に扱っており、early return の影響で warning から `document_identifier` が欠落する不具合を生んだ。
-- フロントエンドの fatal / uncaught Throwable では `index.php` 側に `frontend_system_log_context()` があり、`Logger` の共通コンテキスト収集と責務が重複している。
-- `timestamp` が `request_time()` ベースのため、同一リクエスト中の複数ログで記録時刻が同一になる。解析用途では「リクエスト開始時刻」と「実際のログ記録時刻」を分けたほうがよい可能性がある。
-- `Logger` が文脈収集、trace 制御、パス正規化、ローテーション、書き込みまで一括で担っており、構造改善の余地がある。
+#### 確認済みの問題
 
-次回着手時は以下を候補にする。
+- `Logger::collectContext()` が「常時必要な共通文脈」と「error 以上でのみ必要な trace/caller 文脈」を同時に扱っていたため、early return の影響で warning から `document_identifier` が欠落した。
+- 上記は `Logger` 側で共通コンテキスト収集を見直すことで解消した。
+
+#### 構造上の懸念
+
+- フロントエンドの fatal / uncaught Throwable では `index.php` 側に `frontend_system_log_context()` があり、`Logger` の共通コンテキスト収集と責務が一部重複している。
+- `Logger` が文脈収集、trace 制御、パス正規化、ローテーション、書き込みまで一括で担っており、今後の拡張時に影響範囲が広がりやすい。
+
+#### 次回検討事項
 
 1. `collectBaseContext()` と `collectDebugContext()` を分離し、共通文脈と詳細文脈の責務を明確化する
 2. `frontend_system_log_context()` を縮小または廃止し、`Logger` 側の共通コンテキストへ寄せてログ schema を一本化する
@@ -173,12 +180,10 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 
 ## Next Steps
 
-1. ロガー基盤（`logger.class.php`）+ コンテキスト収集
-2. 互換レイヤー（既存 `logEvent()` を新ロガーで実装）
-3. システムログ画面（ファイル一覧・JSONLines表示）
-4. CLIコマンド（AI向けに最適化）
-5. **issue-resolver スキルの更新**（ログ解析機能統合）
-6. ドキュメント・多言語対応
+1. 統合テスト・動作確認を完了し、ExecPlan の Progress をクローズする
+2. `Logger::collectContext()` の責務分離（共通文脈と debug 文脈）を検討する
+3. フロントエンド側の `frontend_system_log_context()` を `Logger` 共通コンテキストへ寄せられるか整理する
+4. `timestamp` と request 開始時刻の扱いを見直し、必要なら別フィールドを追加する
 
 ---
 
