@@ -23,7 +23,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - [x] (2026-04-29) installer ログ保存先とローテーションを `temp/logs/install/YYYY/MM/install-YYYY-MM-DD.log` に変更
 - [x] (2026-05-01) 共通ログコンテキストに `document_identifier` / `document_method` / `decoded_request_uri` を追加
 - [x] (2026-05-01) module 実行時の `E_DEPRECATED` / `E_USER_DEPRECATED` を system log に記録
-- [ ] (2026-04-26) 統合テスト・動作確認
+- [x] (2026-05-01) 統合テスト・動作確認
 
 ## Surprises & Discoveries
 
@@ -33,6 +33,7 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 - (2026-04-29) インストーラの退避ログは `temp/logs/install/YYYY/MM/` 配下へ寄せる方針にした。DB 接続後も install ログのまま残し、system log とは分離する。
 - (2026-05-01) `request.url` は `Logger::collectContext()` で自動収集されていたが、`DocumentParser::phpError()` 経由の warning では `documentIdentifier` が共通コンテキストに載っていなかった。調査時のSSOTを保つため、呼び出し元ごとの個別追加ではなく `Logger` 側で収集する方針にした。
 - (2026-05-01) module 実行時の `eval()` 経路では `error_get_last()` で `E_DEPRECATED` / `E_USER_DEPRECATED` を検知しても system log へ流していなかった。停止条件とは分け、warning 相当として system log に残す方針にした。
+- (2026-05-01) 統合テストでは CLI の `log:tail` / `log:search`、構文確認、物理パス非露出確認を自動で通し、管理画面「システムログ」の表示・検索・ダウンロード・削除は実ブラウザで確認した。
 
 ## Decision Log
 
@@ -157,7 +158,8 @@ Evolution CMS のシステムログ（エラー・警告・情報）をファイ
 
 ## Outcomes & Retrospective
 
-（完了時に記入）
+- 2026-05-01 時点で、システムログ本体の改修範囲は完了した。JSONLines 保存、管理画面 UI、CLI、fatal / uncaught Throwable 捕捉、installer ログ分離、多言語対応、module deprecation 記録まで一通り動作確認済み。
+- 今後の改善候補は本 ExecPlan から切り離し、`.agent/plans/2026-05-01-logger-context-architecture-refactor.md` で扱う。
 
 ### 2026-05-01 時点の追加改善メモ
 
