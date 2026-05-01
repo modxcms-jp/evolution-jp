@@ -177,8 +177,9 @@ function evalModule($moduleCode, $params)
         $message = $error_info['message'];
         $line = $error_info['line'];
         $moduleName = $modx->moduleObject['name'] ?? 'Module';
+        $willMessageQuit = $modx->config['error_reporting'] === '99' || 2 < $error_level;
 
-        if ($error_level > 1 || $modx->config['error_reporting'] === '99') {
+        if (($error_level > 1 || $modx->config['error_reporting'] === '99') && !$willMessageQuit) {
             evo()->logEvent(0, $error_level > 2 ? 3 : 2, $message, $moduleName . ' - Module', [
                 'error' => [
                     'type' => $type,
@@ -189,7 +190,7 @@ function evalModule($moduleCode, $params)
             ]);
         }
 
-        if ($modx->config['error_reporting'] === '99' || 2 < $error_level) {
+        if ($willMessageQuit) {
             $modx->messageQuit('PHP Parse Error', '', true, $type, $file, $moduleName . ' - Module',
                 $message, $line, $msg);
             $modx->event->alert("An error occurred while loading. Please see the event log for more information<p>{$msg}</p>");
