@@ -1,4 +1,5 @@
 <?php
+
 /**
  * mm_ddAutoFolders
  * @param $ddRoles {comma separated string} - List of role IDs this should be applied to. Leave empty (or omit) for all roles. [Optional; Default: '']
@@ -143,14 +144,14 @@ function mm_ddAutoFolders($ddRoles = '', $ddTemplates = '', $ddParent = '', $ddD
             'isfolder' => 1,
             'template' => $ddYearTpl,
             //Года запихиваем тупо в самый конец
-// 				'menuindex' => count($years),
+            //                 'menuindex' => count($years),
             //Да пусть будут тупо по году, сортироваться нормально зато будут
             'menuindex' => $ddDate['y'] - 2000,
             'published' => $ddYearPub
         ], $docGroups);
     }
 
-// 		if (!$monthId && $yearId){
+    //         if (!$monthId && $yearId){
     //Если нужный месяц существует
     if ($monthId) {
         //Проставим месяцу нужные параметры

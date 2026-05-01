@@ -4,13 +4,13 @@
  *
  * 投稿画面を自由自在にカスタマイズ。
  *
- * @category 	plugin
- * @version 	0.4
- * @license 	http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @category     plugin
+ * @version     0.4
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
  * 
- * @internal	@properties &config_chunk=Configuration Chunk;text;mm_rules;
- * @internal	@events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnManagerMainFrameHeaderHTMLBlock
- * @internal	@modx_category Manager and Admin
+ * @internal    @properties &config_chunk=Configuration Chunk;text;mm_rules;
+ * @internal    @events OnDocFormRender,OnDocFormPrerender,OnBeforeDocFormSave,OnPluginFormRender,OnManagerMainFrameHeaderHTMLBlock
+ * @internal    @modx_category Manager and Admin
  * @internal    @legacy_names Image TV Preview, Show Image TVs
  * @internal    @installset base
  * @link http://code.divandesign.biz/modx/managermanager/0.4

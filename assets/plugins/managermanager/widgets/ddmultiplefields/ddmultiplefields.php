@@ -187,8 +187,8 @@ init: function(id, val, target){
         handle: ".ddSortHandle",
         cursor: "move",
         axis: "y",
-/*			tolerance: "pointer",*/
-/*			containment: "parent",*/
+/*            tolerance: "pointer",*/
+/*            containment: "parent",*/
         placeholder: "ui-state-highlight",
         start: function(event, ui){
             ui.placeholder.html("<td colspan=\""+(ddMultiple[id].coloumns.length+2)+"\"><div></div></td>").find("div").css("height", ui.item.height());
@@ -289,7 +289,7 @@ makeDeleteButton: function(id, fieldCol){
         $par.find(".ddField").val("");
 
         //Если больше одной строки, то можно удалить текущую строчку
-//			jQuery(".ddField_image").hide();alert(\'test\');
+//            jQuery(".ddField_image").hide();alert(\'test\');
         if(jQuery("#" + id + "ddMultipleField .ddFieldBlock").length==1)
             jQuery(".ddField_image").hide();
         if ($par.siblings(".ddFieldBlock").length > 0){
@@ -394,7 +394,7 @@ maskQuoutes: function(text){
 jQuery(function(){
 if (typeof(SetUrl) != "undefined") {
     var OldSetUrl = SetUrl; // Copy the existing Image browser SetUrl function
-    SetUrl = function(url, width, height, alt){	// Redefine it to also tell the preview to update
+    SetUrl = function(url, width, height, alt){    // Redefine it to also tell the preview to update
         if(lastFileCtrl) {
             var c = jQuery(document.mutate[lastFileCtrl]);
         } else if(lastImageCtrl) {
