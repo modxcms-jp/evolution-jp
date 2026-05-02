@@ -16,7 +16,7 @@ Evolution CMS JP Edition の開発ワークフロー。
 3. 取り組むタスクを特定し、ユーザーに確認
 
 ### /sync-status
-`.agent/roadmap.md` のタスク状態を更新（SSOT原則）:
+`.agent/roadmap.md` のタスク状態を更新（着手後の遷移のみ担当。`NEXT` への遷移はroadmap直接編集で行う）:
 - 着手時: `WIP`
 - 完了時: `DONE`
 - 問題時: `BLOCKED` + 理由
