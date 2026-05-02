@@ -11,15 +11,15 @@ Evolution CMS JP Edition の開発ワークフロー。
 ## コマンド
 
 ### /start-session
-1. `AGENTS.md`（開発ルール）と `assets/docs/roadmap.md`（ロードマップ）を読み込む
-2. `assets/docs/roadmap.md` の未完了タスクと現在のブランチ状態を確認
+1. `AGENTS.md`（開発ルール）と `.agent/roadmap.md`（ロードマップ）を読み込む
+2. `.agent/roadmap.md` の未完了タスクと現在のブランチ状態を確認
 3. 取り組むタスクを特定し、ユーザーに確認
 
 ### /sync-status
-`assets/docs/roadmap.md` のタスク状態を更新（SSOT原則）:
-- 着手時: `cc:WIP`
-- 完了時: `cc:DONE`
-- 問題時: `cc:BLOCKED` + 理由
+`.agent/roadmap.md` のタスク状態を更新（SSOT原則）:
+- 着手時: `WIP`
+- 完了時: `DONE`
+- 問題時: `BLOCKED` + 理由
 
 ### /work
 1. `AGENTS.md` のドキュメントマップから関連ファイルを特定
@@ -40,4 +40,4 @@ Evolution CMS JP Edition の開発ワークフロー。
 
 **自律判断可能**: 規約準拠、リファクタリング、構文エラー修正、ヘルパー関数への置き換え
 
-**要相談**: DBスキーマ変更、互換性を損なう変更、`assets/docs/roadmap.md` の優先順位変更、大きな設計変更
+**要相談**: DBスキーマ変更、互換性を損なう変更、`.agent/roadmap.md` の優先順位変更、大きな設計変更

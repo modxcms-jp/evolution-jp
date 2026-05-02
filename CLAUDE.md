@@ -94,7 +94,8 @@
 
 ### コミット
 
-- コミットメッセージはConventional Commits準拠、`type` は英語、`subject` は日本語で記載
+- Conventional Commits準拠（`type` は英語固定、`subject` は日本語で記載）
+- 例: `fix(logger): ログファイル名を実時刻ベースに統一`
 - 自動生成時も `subject` は日本語を使用
 - 詳細ルールは `AGENTS.md` のコミット規約に従う
 
