@@ -61,7 +61,7 @@
 ### roadmap-manager スキル - ロードマップ管理
 
 - **用途**: ロードマップのタスク追加・変更・削除・フォーマット正規化
-- **コマンド**: `/roadmap-add` / `/roadmap-update` / `/roadmap-remove` / `/roadmap-sync` / `/roadmap-normalize`
+- **コマンド**: `/roadmap-next`（次タスク着手）/ `/roadmap-add` / `/roadmap-update` / `/roadmap-remove` / `/roadmap-sync` / `/roadmap-normalize`
 
 ### roadmap-next-task スキル - 次タスク着手
 

@@ -25,7 +25,7 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 1. すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば、先に `/sync-roadmap` で `.agent/PLANS.md` の「完了処理プロトコル」に従って反映する。
 2. `.agent/roadmap.md` の未完了項目を依存順で確認し、最上位の次タスクを1件特定する。
 3. 対象タスクに `ExecPlan:` 行があるか確認する。
-4. `ExecPlan:` 行が無い場合、`.agent/plans/YYYY-MM-DD-task-name.md` を作成し、該当タスク配下へ `ExecPlan:` 行を追記する。
+4. `ExecPlan:` 行が無いか値が `なし` の場合、`.agent/plans/YYYY-MM-DD-task-name.md` を作成し、該当タスクの `ExecPlan:` 行を更新する。
 5. 作成済み/新規の ExecPlan を更新し、最初の実装ステップを `Progress` に追加する。
 6. 実装に着手する。
 

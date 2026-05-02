@@ -45,7 +45,7 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 
 ### /roadmap-next
 1. 依存順で次の未完了タスクを1件選定する。
-2. ExecPlan 行を確認し、無ければ `.agent/PLANS.md` 準拠で新規作成して `ExecPlan:` 行を追記する。
+2. `ExecPlan:` 行を確認し、無いか値が `なし` であれば `.agent/PLANS.md` 準拠で新規作成して行を更新する。
 3. ExecPlan の `Progress` 初期行を更新して着手する。
 
 ### /roadmap-add <セクション> <タスク>
