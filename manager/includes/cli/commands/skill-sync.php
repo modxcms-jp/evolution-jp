@@ -97,8 +97,10 @@ $writeText = function (string $path, string $content, bool $append = false) use 
     chmod($path, 0644);
 };
 
-$isRelevantRun = function (array $request) use ($skill, $planId) {
-    if ($skill !== '' && (string)($request['skill'] ?? '') !== $skill) {
+$isRelevantRun = function (array $request, string $currentSkill) use ($skill, $planId) {
+    $requestSkill = (string)($request['skill'] ?? '');
+    $expectedSkill = $skill !== '' ? $skill : $currentSkill;
+    if ($requestSkill !== $expectedSkill) {
         return false;
     }
     if ($planId !== '' && (string)($request['plan_id'] ?? '') !== $planId) {
@@ -119,7 +121,6 @@ $summary = [
     'stats_items' => 0,
 ];
 
-$outputs = [];
 foreach ($skills as $skillName) {
     $skillDir = $metaRoot . $skillName . '/';
     $inventory = $readJson($skillDir . 'inventory.json');
@@ -162,13 +163,12 @@ foreach ($skills as $skillName) {
     $activeRuns = 0;
     $proposalChanges = 0;
     $runItemStats = [];
-    $runItemTargets = [];
     $runDirs = [];
-    foreach ($runsRoots as $root) {
-        if (!is_dir($root)) {
+    foreach ($runsRoots as $runRoot) {
+        if (!is_dir($runRoot)) {
             continue;
         }
-        $dirs = glob($root . '*', GLOB_ONLYDIR);
+        $dirs = glob($runRoot . '*', GLOB_ONLYDIR);
         if (!is_array($dirs)) {
             continue;
         }
@@ -190,7 +190,7 @@ foreach ($skills as $skillName) {
         if (!is_array($request) || !is_array($proposal)) {
             continue;
         }
-        if (!$isRelevantRun($request)) {
+        if (!$isRelevantRun($request, $skillName)) {
             continue;
         }
 
@@ -205,6 +205,10 @@ foreach ($skills as $skillName) {
             $archivedRuns++;
         } else {
             $activeRuns++;
+        }
+
+        if ($proposalStatus === 'rejected') {
+            continue;
         }
 
         $changes = is_array($proposal['changes'] ?? null) ? $proposal['changes'] : [];

@@ -114,8 +114,7 @@ foreach ($skills as $skillName) {
         $conflictedRuns = (int)($itemStats['conflicted_runs'] ?? 0);
         $staleRuns = (int)($itemStats['stale_runs'] ?? 0);
 
-        $totalSignals = max(1, $usedRuns);
-        $usedRatio = $usedRuns > 0 ? ($helpedRuns / max(1, $usedRuns)) : 0.0;
+        $usedRatio = $seenRuns > 0 ? ($usedRuns / $seenRuns) : 0.0;
         $isStale = false;
         $reasons = [];
 
@@ -125,7 +124,7 @@ foreach ($skills as $skillName) {
         }
         if ($usedRuns > 0 && $usedRatio < $minUsedRatio) {
             $isStale = true;
-            $reasons[] = sprintf('helped/used ratio %.2f < %.2f', $usedRatio, $minUsedRatio);
+            $reasons[] = sprintf('used/seen ratio %.2f < %.2f', $usedRatio, $minUsedRatio);
         }
         if ($staleRuns >= $staleRunsThreshold) {
             $isStale = true;

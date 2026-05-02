@@ -120,14 +120,29 @@ if (is_file($tracePath)) {
             $validateAllowed($event['type'] ?? null, ['step', 'decision', 'error', 'feedback', 'result'], 'trace event type');
             $validateAllowed($event['agent'] ?? null, ['worker', 'explorer', 'reviewer', 'planner', 'user', 'system'], 'trace agent');
 
+            if (($event['type'] ?? '') === 'step') {
+                $validateRequiredKeys($event, ['action', 'status'], 'trace step event');
+                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace step status');
+            }
+
+            if (($event['type'] ?? '') === 'decision') {
+                $validateRequiredKeys($event, ['category'], 'trace decision event');
+            }
+
             if (($event['type'] ?? '') === 'error') {
                 $validateRequiredKeys($event, ['failure_mode', 'status'], 'trace error event');
                 $validateAllowed($event['failure_mode'] ?? null, ['bad_assumption', 'missing_instruction', 'missing_reference', 'repeated_manual_work', 'tool_gap', 'validation_gap'], 'trace failure_mode');
+                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace error status');
             }
 
             if (($event['type'] ?? '') === 'feedback') {
                 $validateRequiredKeys($event, ['feedback_type', 'source'], 'trace feedback event');
                 $validateAllowed($event['feedback_type'] ?? null, ['direction_change', 'rework_request', 'scope_change', 'priority_change'], 'trace feedback_type');
+            }
+
+            if (($event['type'] ?? '') === 'result') {
+                $validateRequiredKeys($event, ['status'], 'trace result event');
+                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace result status');
             }
         }
     }

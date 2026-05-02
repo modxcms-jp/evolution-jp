@@ -66,11 +66,24 @@ if (!is_dir($runsRoot) && !mkdir($runsRoot, 0775, true)) {
     cli_usage("Failed to create directory: {$runsRoot}");
 }
 
+$scanRunRoots = [
+    $runsRoot,
+    MODX_BASE_PATH . '.agent/runs/archive/',
+];
+
 if ($runId === '') {
     $pattern = '/^' . preg_quote($planId, '/') . '-([0-9]{3})$/';
     $maxSeq = 0;
-    $existing = glob($runsRoot . $planId . '-*', GLOB_ONLYDIR);
-    if (is_array($existing)) {
+    foreach ($scanRunRoots as $root) {
+        if (!is_dir($root)) {
+            continue;
+        }
+
+        $existing = glob($root . $planId . '-*', GLOB_ONLYDIR);
+        if (!is_array($existing)) {
+            continue;
+        }
+
         foreach ($existing as $dir) {
             $name = basename($dir);
             if (preg_match($pattern, $name, $matches)) {
@@ -123,7 +136,7 @@ if ($trigger === 'user_feedback') {
 
 $writeFile = function (string $path, string $content, bool $allowOverwrite = false, bool $skipIfExists = false) use ($force) {
     if (is_file($path)) {
-        if ($skipIfExists && !$force) {
+        if ($skipIfExists) {
             return;
         }
         if (!$allowOverwrite && !$force) {
