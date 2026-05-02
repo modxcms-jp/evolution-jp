@@ -43,7 +43,7 @@
 - `plan_id` / `run_id` / `skill` は英数字開始、以降は `A-Za-z0-9._-` のみ。
 - `templates` / `archive` は run ディレクトリの予約名として扱う。
 - `learning-request.json` の `evidence` は許可済みファイルのみ記録する。
-- `skill:validate --strict` 実行時は、`evidence` に列挙したファイル実体も一致させる。
+- `skill:validate --strict` 実行時は、`evidence` に列挙した項目のうち `trace.jsonl` と `user_feedback` の `chat.md` について実体との整合を確認する。
 
 ## 推奨運用フロー
 
