@@ -300,7 +300,7 @@ class Logger
             return '';
         }
 
-        return $dir . $type . '-' . date('Y-m-d', request_time()) . '.log';
+        return $dir . $type . '-' . date('Y-m-d') . '.log';
     }
 
     private function ensureLogDirectory(string $dir): bool
