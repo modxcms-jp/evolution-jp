@@ -62,7 +62,7 @@ if (is_file(MODX_BASE_PATH . 'autoload.php')) {
 }
 
 if (!extension_loaded('mysqli')) {
-    fwrite(STDERR, "PHP extension 'mysqli' is not available.\\n");
+    fwrite(STDERR, "PHP extension 'mysqli' is not available. Run `php evo` inside the app container.\\n");
     exit(1);
 }
 

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "plan_id": "2026-05-02-agent-skill-growth-loop",
+  "run_id": "2026-05-02-agent-skill-growth-loop-001",
+  "skill": "issue-resolver",
+  "generated_at": "2026-05-02T16:12:00+09:00",
+  "status": "proposed",
+  "source_files": [
+    "learning.json",
+    "pruning.json"
+  ],
+  "changes": [
+    {
+      "id": "change-001",
+      "action": "add",
+      "target": "SKILL.md",
+      "summary": "proposal-first を明記する",
+      "source_ref": "finding-001",
+      "confidence": "high"
+    },
+    {
+      "id": "change-002",
+      "action": "move",
+      "target": "SKILL.md#proposal-lifecycle",
+      "destination": "references/proposal-lifecycle.md",
+      "summary": "詳細手順を reference へ移す",
+      "source_ref": "prune-001",
+      "confidence": "high"
+    }
+  ]
+}

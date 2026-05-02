@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "plan_id": "2026-05-02-agent-skill-growth-loop",
+  "run_id": "2026-05-02-agent-skill-growth-loop-001",
+  "skill": "issue-resolver",
+  "generated_at": "2026-05-02T16:11:00+09:00",
+  "budget": {
+    "skill_md_max_lines": 200,
+    "max_loaded_references": 3
+  },
+  "items": [
+    {
+      "id": "prune-001",
+      "action": "move",
+      "target": "SKILL.md#proposal-lifecycle",
+      "reason": "詳細すぎて常時ロードに不向き",
+      "destination": "references/proposal-lifecycle.md",
+      "evidence": [
+        "trace.jsonl"
+      ],
+      "confidence": "high"
+    }
+  ]
+}
