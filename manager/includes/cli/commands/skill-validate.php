@@ -183,6 +183,25 @@ if (is_array($proposal)) {
     skill_validate_path_list($proposal['source_files'] ?? null, 'proposal source_files', $errors);
     if (!is_array($proposal['changes'] ?? null)) {
         $errors[] = 'proposal.json changes must be an array';
+    } else {
+        $proposalChangeActions = defined('SKILL_PROPOSAL_CHANGE_ACTIONS') ? constant('SKILL_PROPOSAL_CHANGE_ACTIONS') : null;
+        foreach ($proposal['changes'] as $index => $change) {
+            if (!is_array($change)) {
+                $errors[] = 'proposal.json changes[' . $index . '] must be an array';
+                continue;
+            }
+            if (!array_key_exists('action', $change)) {
+                $errors[] = 'proposal.json changes[' . $index . '].action is required';
+                continue;
+            }
+            if (!is_string($change['action']) || trim($change['action']) === '') {
+                $errors[] = 'proposal.json changes[' . $index . '].action must be a non-empty string';
+                continue;
+            }
+            if (is_array($proposalChangeActions)) {
+                skill_validate_allowed($change['action'], $proposalChangeActions, 'proposal changes[' . $index . '].action', $errors);
+            }
+        }
     }
     if ($planId !== '' && (string)($proposal['plan_id'] ?? '') !== $planId) {
         $errors[] = 'proposal.json plan_id does not match CLI plan id';
