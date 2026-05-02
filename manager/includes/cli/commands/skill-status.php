@@ -1,34 +1,19 @@
 <?php
 
-$planId = '';
-$skill = '';
-$limit = 20;
-$json = false;
-$archived = false;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:status [--plan=PLAN_ID] [--skill=SKILL] [--limit=N] [--json] [--archived]');
 };
 
+$planId = skill_get_arg($args, 'plan', '');
+$skill = skill_get_arg($args, 'skill', '');
+$limit = skill_get_int_arg($args, 'limit', 20, 1, 200);
+$json = skill_has_flag($args, 'json');
+$archived = skill_has_flag($args, 'archived');
+
 foreach ($args as $arg) {
-    if (strpos($arg, '--plan=') === 0) {
-        $planId = trim(substr($arg, strlen('--plan=')));
-        continue;
-    }
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if (strpos($arg, '--limit=') === 0) {
-        $limit = max(1, min(200, (int)substr($arg, strlen('--limit='))));
-        continue;
-    }
-    if ($arg === '--json') {
-        $json = true;
-        continue;
-    }
-    if ($arg === '--archived') {
-        $archived = true;
+    if (strpos($arg, '--plan=') === 0 || strpos($arg, '--skill=') === 0 || strpos($arg, '--limit=') === 0 || $arg === '--json' || $arg === '--archived') {
         continue;
     }
 
@@ -47,29 +32,15 @@ if (!is_array($runDirs)) {
 
 rsort($runDirs, SORT_STRING);
 
-$readJson = function (string $path) {
-    if (!is_file($path)) {
-        return null;
-    }
-
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        return null;
-    }
-
-    $data = json_decode($raw, true);
-    return is_array($data) ? $data : null;
-};
-
 $rows = [];
 foreach ($runDirs as $runDir) {
     $name = basename($runDir);
-    if ($name === 'templates' || $name === 'archive') {
+    if (in_array($name, SKILL_RESERVED_DIRS, true)) {
         continue;
     }
 
-    $request = $readJson($runDir . '/learning-request.json');
-    $proposal = $readJson($runDir . '/proposal.json');
+    $request = skill_read_json($runDir . '/learning-request.json');
+    $proposal = skill_read_json($runDir . '/proposal.json');
 
     $row = [
         'run_id' => $name,
@@ -104,8 +75,8 @@ if ($archived && is_dir($archiveRoot)) {
         rsort($archiveDirs, SORT_STRING);
         foreach ($archiveDirs as $runDir) {
             $name = basename($runDir);
-            $request = $readJson($runDir . '/learning-request.json');
-            $proposal = $readJson($runDir . '/proposal.json');
+            $request = skill_read_json($runDir . '/learning-request.json');
+            $proposal = skill_read_json($runDir . '/proposal.json');
             $row = [
                 'run_id' => $name,
                 'plan_id' => (string)($request['plan_id'] ?? ''),

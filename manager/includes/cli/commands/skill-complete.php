@@ -1,39 +1,20 @@
 <?php
 
-$runDir = '';
-$planId = '';
-$runId = '';
-$skill = '';
-$strict = false;
-$skipNext = false;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:complete --run-dir=PATH | --plan=PLAN_ID --run-id=RUN_ID [--skill=SKILL] [--strict] [--skip-next]');
 };
 
+$runDir = skill_get_arg($args, 'run-dir', '');
+$planId = skill_get_arg($args, 'plan', '');
+$runId = skill_get_arg($args, 'run-id', '');
+$skill = skill_get_arg($args, 'skill', '');
+$strict = skill_has_flag($args, 'strict');
+$skipNext = skill_has_flag($args, 'skip-next');
+
 foreach ($args as $arg) {
-    if (strpos($arg, '--run-dir=') === 0) {
-        $runDir = trim(substr($arg, strlen('--run-dir=')));
-        continue;
-    }
-    if (strpos($arg, '--plan=') === 0) {
-        $planId = trim(substr($arg, strlen('--plan=')));
-        continue;
-    }
-    if (strpos($arg, '--run-id=') === 0) {
-        $runId = trim(substr($arg, strlen('--run-id=')));
-        continue;
-    }
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if ($arg === '--strict') {
-        $strict = true;
-        continue;
-    }
-    if ($arg === '--skip-next') {
-        $skipNext = true;
+    if (strpos($arg, '--run-dir=') === 0 || strpos($arg, '--plan=') === 0 || strpos($arg, '--run-id=') === 0 || strpos($arg, '--skill=') === 0 || $arg === '--strict' || $arg === '--skip-next') {
         continue;
     }
 
@@ -52,64 +33,19 @@ if (!is_dir($runDir)) {
     cli_usage("Run directory not found: {$runDir}");
 }
 
-$readJson = function (string $path, string $label) {
-    if (!is_file($path)) {
-        cli_usage("{$label} missing: {$path}");
-    }
+$identifiers = skill_complete_identifiers_from_request($runDir, $planId, $runId, $skill);
+$planId = $identifiers['plan_id'];
+$runId = $identifiers['run_id'];
+$skill = $identifiers['skill'];
 
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        cli_usage("{$label} unreadable: {$path}");
-    }
-
-    $data = json_decode($raw, true);
-    if (!is_array($data)) {
-        cli_usage("{$label} invalid JSON: {$path}");
-    }
-
-    return $data;
-};
-
-$writeJson = function (string $path, array $data) {
-    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    if ($json === false) {
-        cli_usage("Failed to encode JSON: {$path}");
-    }
-    if (file_put_contents($path, $json . PHP_EOL) === false) {
-        cli_usage("Failed to write: {$path}");
-    }
-    chmod($path, 0644);
-};
-
-$request = $readJson($runDir . 'learning-request.json', 'learning-request.json');
-$planId = $planId !== '' ? $planId : (string)($request['plan_id'] ?? '');
-$skill = $skill !== '' ? $skill : (string)($request['skill'] ?? '');
-$runId = $runId !== '' ? $runId : basename(rtrim($runDir, '/'));
+$request = skill_read_json_strict($runDir . 'learning-request.json', 'learning-request.json');
 
 if ($strict) {
-    $validateArgs = ['--run-dir=' . $runDir, '--strict'];
-    if ($planId !== '') {
-        $validateArgs[] = '--plan=' . $planId;
-    }
-    if ($runId !== '') {
-        $validateArgs[] = '--run-id=' . $runId;
-    }
-    if ($skill !== '') {
-        $validateArgs[] = '--skill=' . $skill;
-    }
+    $validateArgs = ['--run-dir=' . $runDir, '--strict', '--plan=' . $planId, '--run-id=' . $runId, '--skill=' . $skill];
     $args = $validateArgs;
     include __DIR__ . '/skill-validate.php';
 } else {
-    $validateArgs = ['--run-dir=' . $runDir];
-    if ($planId !== '') {
-        $validateArgs[] = '--plan=' . $planId;
-    }
-    if ($runId !== '') {
-        $validateArgs[] = '--run-id=' . $runId;
-    }
-    if ($skill !== '') {
-        $validateArgs[] = '--skill=' . $skill;
-    }
+    $validateArgs = ['--run-dir=' . $runDir, '--plan=' . $planId, '--run-id=' . $runId, '--skill=' . $skill];
     $args = $validateArgs;
     include __DIR__ . '/skill-validate.php';
 }
@@ -125,7 +61,7 @@ cli_out("Validated: {$runDir}");
 
 if ($skipNext) {
     $request['status'] = 'completed';
-    $writeJson($currentRequestPath, $request);
+    skill_write_json($currentRequestPath, $request);
     cli_out("Learning request marked completed: {$currentRequestPath}");
     exit(0);
 }
@@ -138,5 +74,5 @@ $args = $initArgs;
 include __DIR__ . '/skill-init.php';
 
 $request['status'] = 'completed';
-$writeJson($currentRequestPath, $request);
+skill_write_json($currentRequestPath, $request);
 cli_out("Learning request marked completed: {$currentRequestPath}");

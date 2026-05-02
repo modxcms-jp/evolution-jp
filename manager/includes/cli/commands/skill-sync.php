@@ -1,46 +1,26 @@
 <?php
 
-$skill = '';
-$planId = '';
-$json = false;
-$dryRun = false;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:sync [--skill=SKILL] [--plan=PLAN_ID] [--json] [--dry-run]');
 };
 
-$validateIdentifier = function (string $value, string $label) {
-    if ($value !== '' && !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
-        cli_usage("Invalid {$label}: {$value}");
-    }
-    if ($value === 'templates') {
-        cli_usage("Reserved {$label}: {$value}");
-    }
-};
+$skill = skill_get_arg($args, 'skill', '');
+$planId = skill_get_arg($args, 'plan', '');
+$json = skill_has_flag($args, 'json');
+$dryRun = skill_has_flag($args, 'dry-run');
 
 foreach ($args as $arg) {
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if (strpos($arg, '--plan=') === 0) {
-        $planId = trim(substr($arg, strlen('--plan=')));
-        continue;
-    }
-    if ($arg === '--json') {
-        $json = true;
-        continue;
-    }
-    if ($arg === '--dry-run') {
-        $dryRun = true;
+    if (strpos($arg, '--skill=') === 0 || strpos($arg, '--plan=') === 0 || $arg === '--json' || $arg === '--dry-run') {
         continue;
     }
 
     $usage();
 }
 
-$validateIdentifier($skill, 'skill name');
-$validateIdentifier($planId, 'plan id');
+skill_validate_skill_name($skill, true);
+skill_validate_identifier($planId, 'plan id', true);
 
 $metaRoot = MODX_BASE_PATH . '.agent/skill-metadata/';
 $runsRoots = [
@@ -60,7 +40,7 @@ if ($skill !== '') {
     if (is_array($entries)) {
         foreach ($entries as $entry) {
             $name = basename($entry);
-            if ($name === 'templates') {
+            if (in_array($name, SKILL_RESERVED_DIRS, true)) {
                 continue;
             }
             $skills[] = $name;
@@ -99,7 +79,7 @@ foreach ($runsRoots as $runRoot) {
 
     foreach ($dirs as $dir) {
         $baseName = basename($dir);
-        if ($baseName === 'templates' || $baseName === 'archive') {
+        if (in_array($baseName, SKILL_RESERVED_DIRS, true)) {
             continue;
         }
 
@@ -126,34 +106,6 @@ foreach ($runsRoots as $runRoot) {
         ];
     }
 }
-
-$readJson = function (string $path) {
-    if (!is_file($path)) {
-        return null;
-    }
-
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        return null;
-    }
-
-    $data = json_decode($raw, true);
-    return is_array($data) ? $data : null;
-};
-
-$writeJson = function (string $path, array $data) use ($dryRun) {
-    if ($dryRun) {
-        return;
-    }
-    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    if ($json === false) {
-        cli_usage("Failed to encode JSON: {$path}");
-    }
-    if (file_put_contents($path, $json . PHP_EOL) === false) {
-        cli_usage("Failed to write: {$path}");
-    }
-    chmod($path, 0644);
-};
 
 $writeText = function (string $path, string $content, bool $append = false) use ($dryRun) {
     if ($dryRun) {
@@ -183,8 +135,8 @@ $summary['runs_scanned'] = count($runRecords);
 foreach ($skillDirs as $skillInfo) {
     $skillName = $skillInfo['name'];
     $skillDir = $skillInfo['dir'];
-    $inventory = $readJson($skillDir . 'inventory.json');
-    $stats = $readJson($skillDir . 'stats.json');
+    $inventory = skill_read_json($skillDir . 'inventory.json');
+    $stats = skill_read_json($skillDir . 'stats.json');
     $historyPath = $skillDir . 'history.jsonl';
     $existingHistory = [];
     if (is_file($historyPath)) {
@@ -383,8 +335,8 @@ foreach ($skillDirs as $skillInfo) {
         $statsItems['__summary']['stale_runs'] += (int)($itemStats['stale_runs'] ?? 0);
     }
 
-    $writeJson($skillDir . 'inventory.json', ['items' => $inventoryList]);
-    $writeJson($skillDir . 'stats.json', ['items' => $statsItems]);
+    skill_write_json($skillDir . 'inventory.json', ['items' => $inventoryList], $dryRun);
+    skill_write_json($skillDir . 'stats.json', ['items' => $statsItems], $dryRun);
 
     $summary['skills'][] = [
         'skill' => $skillName,
