@@ -6,17 +6,22 @@
 
 ## Progress
 
-- [ ] (2026-05-01) 現状のログコンテキスト収集経路と責務分担を棚卸しする
-- [ ] (2026-05-01) `Logger` の共通文脈収集と debug 文脈収集を分離する
-- [ ] (2026-05-01) `frontend_system_log_context()` と `Logger` の責務境界を整理する
-- [ ] (2026-05-01) `timestamp` と request 開始時刻の扱いを見直す
-- [ ] (2026-05-01) 構文確認とログ観測の回帰確認を行う
+- [x] (2026-05-02) 現状のログコンテキスト収集経路と責務分担を棚卸しする
+- [x] (2026-05-02) `Logger` の共通文脈収集と debug 文脈収集を分離する
+- [x] (2026-05-02) `frontend_system_log_context()` と `Logger` の責務境界を整理する
+- [x] (2026-05-02) `timestamp` と request 開始時刻の扱いを見直す
+- [x] (2026-05-02) 構文確認とログ観測の回帰確認を行う
 
 ## Surprises & Discoveries
 
 - 2026-05-01 時点では、warning で `document_identifier` が欠落した原因は `Logger::collectContext()` の early return にあったことが分かっている。
 - フロントエンド入口の `index.php` には `frontend_system_log_context()` があり、`Logger` 側の共通文脈と一部重複している。
 - `timestamp` は `request_time()` ベースのため、同一リクエストで複数件のログを書いても同じ時刻になる。
+- 2026-05-02 に `timestamp` を実記録時刻へ変更し、旧 `request_time()` ベースの意味は `context.request_started_at` へ分離した。
+- 2026-05-02 の回帰確認では `php -l` は通過したが、`php evo log:tail --lines=3` は `mysqli` 拡張未導入により起動前で停止した。
+- 2026-05-02 に `docker compose up -d app db` 後、`docker compose exec -T app php evo log:tail --lines=3` で CLI 読取が通ることを確認した。
+- 2026-05-02 に生ログ末尾も確認したが、観測できたのは既存エントリで、新規 schema の `request_started_at` を含む行はこの確認では採取できなかった。
+- 2026-05-02 に `docker compose exec -T app` で `Logger` を直接呼び出して warning を1件生成し、raw log line に `request_started_at` が含まれることを確認した。
 
 ## Decision Log
 
@@ -32,7 +37,10 @@
 
 ## Outcomes & Retrospective
 
-（完了時に記入）
+- `Logger` の文脈収集を `collectCommonContext()` と `collectDebugContext()` に分離し、warning/info と error 以上の責務境界を読み取りやすくした。
+- フロントエンド入口の重複コンテキスト収集を削除し、document/plugin/snippet 情報は `Logger` の共通文脈へ一本化した。
+- ログ schema は `timestamp` を実際の書き込み時刻、`context.request_started_at` をリクエスト開始時刻として扱う構成へ整理した。
+- コンテナ内では `log:tail` の回帰確認と、新規 warning 行での `request_started_at` 出力確認が完了した。CLI と既存ログの読取互換は維持されている。
 
 ## Context and Orientation
 

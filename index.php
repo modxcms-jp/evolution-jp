@@ -126,23 +126,6 @@ function frontend_system_log_error_type(int $type): string
     return $types[$type] ?? '';
 }
 
-function frontend_system_log_context(): array
-{
-    $context = [];
-    if (evo()) {
-        $context['document_identifier'] = evo()->documentIdentifier ?? '';
-        $context['document_method'] = evo()->documentMethod ?? '';
-        if (is_object(evo()->event) && !empty(evo()->event->activePlugin)) {
-            $context['active_plugin'] = evo()->event->activePlugin;
-        }
-        if (!empty(evo()->currentSnippet)) {
-            $context['current_snippet'] = evo()->currentSnippet;
-        }
-    }
-
-    return $context;
-}
-
 function frontend_read_source_line(string $file, int $line): string
 {
     if ($file === '' || $line <= 0 || !is_readable($file)) {
@@ -171,7 +154,6 @@ function frontend_log_uncaught_throwable(Throwable $exception): void
                 'line' => $exception->getLine(),
                 'trace' => frontend_system_log_trace($exception->getTrace()),
             ],
-            'frontend' => frontend_system_log_context(),
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write frontend throwable to system log: ' . $loggingException->getMessage());
@@ -211,7 +193,6 @@ function frontend_log_shutdown_fatal(): void
                 'line' => $line,
                 'source' => $source,
             ],
-            'frontend' => frontend_system_log_context(),
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write frontend fatal error to system log: ' . $loggingException->getMessage());
