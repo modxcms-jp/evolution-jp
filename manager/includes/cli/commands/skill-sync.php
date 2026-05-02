@@ -67,6 +67,22 @@ if ($skill !== '') {
 
 sort($skills, SORT_STRING);
 
+$skillDirs = [];
+foreach ($skills as $skillName) {
+    $skillDir = $metaRoot . $skillName . '/';
+    if (!is_dir($skillDir)) {
+        if ($skill !== '') {
+            cli_usage("Skill metadata directory not found: {$skillDir}");
+        }
+        continue;
+    }
+
+    $skillDirs[] = [
+        'name' => $skillName,
+        'dir' => $skillDir,
+    ];
+}
+
 $runRecords = [];
 foreach ($runsRoots as $runRoot) {
     if (!is_dir($runRoot)) {
@@ -161,8 +177,9 @@ $summary = [
 
 $summary['runs_scanned'] = count($runRecords);
 
-foreach ($skills as $skillName) {
-    $skillDir = $metaRoot . $skillName . '/';
+foreach ($skillDirs as $skillInfo) {
+    $skillName = $skillInfo['name'];
+    $skillDir = $skillInfo['dir'];
     $inventory = $readJson($skillDir . 'inventory.json');
     $stats = $readJson($skillDir . 'stats.json');
     $historyPath = $skillDir . 'history.jsonl';
@@ -178,9 +195,8 @@ foreach ($skills as $skillName) {
                 $entry = json_decode($line, true);
                 if (is_array($entry)) {
                     $existingHistory[(string)($entry['run_id'] ?? '') . '|' . (string)($entry['item_id'] ?? '') . '|' . (string)($entry['action'] ?? '')] = true;
-    }
-}
-
+                }
+            }
         }
     }
 

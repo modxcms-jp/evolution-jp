@@ -83,6 +83,12 @@ $writeJson = function (string $path, array $data) {
 
 if ($strict) {
     $validateArgs = ['--run-dir=' . $runDir, '--strict'];
+    if ($planId !== '') {
+        $validateArgs[] = '--plan=' . $planId;
+    }
+    if ($runId !== '') {
+        $validateArgs[] = '--run-id=' . $runId;
+    }
     if ($skill !== '') {
         $validateArgs[] = '--skill=' . $skill;
     }
@@ -90,6 +96,12 @@ if ($strict) {
     include __DIR__ . '/skill-validate.php';
 } else {
     $validateArgs = ['--run-dir=' . $runDir];
+    if ($planId !== '') {
+        $validateArgs[] = '--plan=' . $planId;
+    }
+    if ($runId !== '') {
+        $validateArgs[] = '--run-id=' . $runId;
+    }
     if ($skill !== '') {
         $validateArgs[] = '--skill=' . $skill;
     }

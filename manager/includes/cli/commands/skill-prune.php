@@ -71,6 +71,13 @@ if ($skill !== '') {
 
 sort($skills, SORT_STRING);
 
+if ($skill !== '') {
+    $skillDir = $metaRoot . $skill . '/';
+    if (!is_dir($skillDir)) {
+        cli_usage("Skill metadata directory not found: {$skillDir}");
+    }
+}
+
 $readJson = function (string $path) {
     if (!is_file($path)) {
         return null;

@@ -171,7 +171,8 @@ if (is_file($tracePath)) {
 $learningRequest = $readJson($runDir . 'learning-request.json', 'learning-request.json');
 if (is_array($learningRequest)) {
     $validateRequiredKeys($learningRequest, ['version', 'plan_id', 'run_id', 'skill', 'trigger', 'requested_at', 'status', 'priority', 'reason_summary', 'evidence'], 'learning-request.json');
-    $validateAllowed($learningRequest['trigger'] ?? null, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
+    $trigger = (string)($learningRequest['trigger'] ?? '');
+    $validateAllowed($trigger, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
     $validateAllowed($learningRequest['status'] ?? null, ['pending', 'processing', 'completed', 'skipped'], 'learning-request status');
     $validateAllowed($learningRequest['priority'] ?? null, ['low', 'normal', 'high'], 'learning-request priority');
     $evidence = $learningRequest['evidence'] ?? null;
@@ -179,6 +180,12 @@ if (is_array($learningRequest)) {
     if (is_array($evidence)) {
         if (!in_array('trace.jsonl', $evidence, true)) {
             $errors[] = 'learning-request evidence must include trace.jsonl';
+        }
+        if ($trigger === 'user_feedback' && !in_array('chat.md', $evidence, true)) {
+            $errors[] = 'learning-request evidence must include chat.md for user_feedback';
+        }
+        if ($trigger === 'failure_threshold_exceeded' && !in_array('notes.md', $evidence, true)) {
+            $errors[] = 'learning-request evidence must include notes.md for failure_threshold_exceeded';
         }
         $allowedEvidence = ['trace.jsonl', 'chat.md', 'learning.json', 'pruning.json', 'proposal.json', 'notes.md'];
         foreach ($evidence as $item) {

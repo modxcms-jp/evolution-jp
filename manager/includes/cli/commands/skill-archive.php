@@ -82,6 +82,12 @@ $writeJson = function (string $path, array $data) {
 };
 
 $validateArgs = ['--run-dir=' . $runDir];
+if ($planId !== '') {
+    $validateArgs[] = '--plan=' . $planId;
+}
+if ($runId !== '') {
+    $validateArgs[] = '--run-id=' . $runId;
+}
 if ($skill !== '') {
     $validateArgs[] = '--skill=' . $skill;
 }
