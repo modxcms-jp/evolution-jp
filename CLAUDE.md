@@ -71,7 +71,9 @@
 
 **【完了後】**
 
-6. **roadmap更新**: 実装完了後に、ステータスを `WIP` → `DONE`、完了日を記録する
+6. **完了処理**:
+   - ExecPlanあり → 完了宣言後、`.agent/PLANS.md` の ExecPlan完了処理に従う。ユーザー確認後にのみ、roadmapのステータスを `WIP` → `DONE` へ更新し、完了日を記録する
+   - ExecPlanなし → 実装完了後に、roadmapのステータスを `WIP` → `DONE` へ更新し、完了日を記録する
 
 ### 不具合対応時
 
