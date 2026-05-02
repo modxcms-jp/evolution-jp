@@ -81,6 +81,11 @@ $writeJson = function (string $path, array $data) {
     chmod($path, 0644);
 };
 
+$request = $readJson($runDir . 'learning-request.json', 'learning-request.json');
+$planId = $planId !== '' ? $planId : (string)($request['plan_id'] ?? '');
+$skill = $skill !== '' ? $skill : (string)($request['skill'] ?? '');
+$runId = $runId !== '' ? $runId : basename(rtrim($runDir, '/'));
+
 if ($strict) {
     $validateArgs = ['--run-dir=' . $runDir, '--strict'];
     if ($planId !== '') {
@@ -109,10 +114,6 @@ if ($strict) {
     include __DIR__ . '/skill-validate.php';
 }
 
-$request = $readJson($runDir . 'learning-request.json', 'learning-request.json');
-$planId = $planId !== '' ? $planId : (string)($request['plan_id'] ?? '');
-$skill = $skill !== '' ? $skill : (string)($request['skill'] ?? '');
-$runId = $runId !== '' ? $runId : basename(rtrim($runDir, '/'));
 $currentRunDir = $runDir;
 $currentRequestPath = $currentRunDir . 'learning-request.json';
 

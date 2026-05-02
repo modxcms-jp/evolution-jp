@@ -66,6 +66,9 @@ if ($runId !== '') {
 }
 if ($skill !== '') {
     $validateIdentifier($skill, 'skill name');
+    if ($skill === 'templates') {
+        cli_usage('Reserved skill name: templates');
+    }
 }
 
 $validateAllowed = function ($value, array $allowed, string $label) use (&$errors) {
@@ -171,8 +174,9 @@ if (is_file($tracePath)) {
 $learningRequest = $readJson($runDir . 'learning-request.json', 'learning-request.json');
 if (is_array($learningRequest)) {
     $validateRequiredKeys($learningRequest, ['version', 'plan_id', 'run_id', 'skill', 'trigger', 'requested_at', 'status', 'priority', 'reason_summary', 'evidence'], 'learning-request.json');
-    $trigger = (string)($learningRequest['trigger'] ?? '');
-    $validateAllowed($trigger, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
+    $triggerValue = $learningRequest['trigger'] ?? null;
+    $validateAllowed($triggerValue, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
+    $trigger = is_string($triggerValue) ? $triggerValue : '';
     $validateAllowed($learningRequest['status'] ?? null, ['pending', 'processing', 'completed', 'skipped'], 'learning-request status');
     $validateAllowed($learningRequest['priority'] ?? null, ['low', 'normal', 'high'], 'learning-request priority');
     $evidence = $learningRequest['evidence'] ?? null;
@@ -183,9 +187,6 @@ if (is_array($learningRequest)) {
         }
         if ($trigger === 'user_feedback' && !in_array('chat.md', $evidence, true)) {
             $errors[] = 'learning-request evidence must include chat.md for user_feedback';
-        }
-        if ($trigger === 'failure_threshold_exceeded' && !in_array('notes.md', $evidence, true)) {
-            $errors[] = 'learning-request evidence must include notes.md for failure_threshold_exceeded';
         }
         $allowedEvidence = ['trace.jsonl', 'chat.md', 'learning.json', 'pruning.json', 'proposal.json', 'notes.md'];
         foreach ($evidence as $item) {

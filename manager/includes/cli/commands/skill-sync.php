@@ -13,6 +13,9 @@ $validateIdentifier = function (string $value, string $label) {
     if ($value !== '' && !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
         cli_usage("Invalid {$label}: {$value}");
     }
+    if ($value === 'templates') {
+        cli_usage("Reserved {$label}: {$value}");
+    }
 };
 
 foreach ($args as $arg) {

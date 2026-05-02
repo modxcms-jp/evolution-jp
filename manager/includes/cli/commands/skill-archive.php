@@ -81,6 +81,13 @@ $writeJson = function (string $path, array $data) {
     chmod($path, 0644);
 };
 
+$request = $readJson($runDir . 'learning-request.json', 'learning-request.json');
+$proposal = $readJson($runDir . 'proposal.json', 'proposal.json');
+
+$planId = $planId !== '' ? $planId : (string)($request['plan_id'] ?? '');
+$skill = $skill !== '' ? $skill : (string)($request['skill'] ?? '');
+$runId = $runId !== '' ? $runId : basename(rtrim($runDir, '/'));
+
 $validateArgs = ['--run-dir=' . $runDir];
 if ($planId !== '') {
     $validateArgs[] = '--plan=' . $planId;
@@ -96,13 +103,6 @@ if ($strict) {
 }
 $args = $validateArgs;
 include __DIR__ . '/skill-validate.php';
-
-$request = $readJson($runDir . 'learning-request.json', 'learning-request.json');
-$proposal = $readJson($runDir . 'proposal.json', 'proposal.json');
-
-$planId = $planId !== '' ? $planId : (string)($request['plan_id'] ?? '');
-$skill = $skill !== '' ? $skill : (string)($request['skill'] ?? '');
-$runId = $runId !== '' ? $runId : basename(rtrim($runDir, '/'));
 
 if ($planId === '' || $skill === '') {
     cli_usage('Unable to determine plan or skill from the run.');
