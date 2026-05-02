@@ -104,9 +104,14 @@ $learningRequest = skill_read_json_with_errors($runDir . 'learning-request.json'
 
 // 自律性向上: --skillが未指定でもlearning-request.jsonから取得
 if ($skill === '' && is_array($learningRequest)) {
-    $skill = (string)($learningRequest['skill'] ?? '');
-    if ($skill !== '') {
-        skill_validate_skill_name($skill);
+    $learningRequestSkill = $learningRequest['skill'] ?? null;
+    if (is_string($learningRequestSkill)) {
+        $skill = $learningRequestSkill;
+        if ($skill !== '') {
+            skill_validate_skill_name($skill);
+        }
+    } elseif ($learningRequestSkill !== null) {
+        $errors[] = 'learning-request.json skill must be a string';
     }
 }
 
