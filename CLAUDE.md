@@ -27,6 +27,12 @@
 
 ## スキル一覧と使い方
 
+### agent-orchestrator スキル - マルチエージェントオーケストレーション
+
+- **用途**: 大きなタスクを調査・計画・実装・レビュー・検証へ役割分担する
+- **タイミング**: 「エージェント」「役割分担」「複数担当」などを求めたとき、または担当境界を決める必要があるとき
+- **コマンド**: `/orchestrate <タスク>` で開始、レビューは `/agent-review-flow`
+
 ### exec-plan スキル - 実行計画の作成・検証・更新
 
 - **用途**: 新機能開発、リファクタリング、バグ修正の設計フェーズ
@@ -46,6 +52,22 @@
 - **用途**: フォーラムやIssueの不具合報告に対する調査・再現・修正
 - **コマンド**: `analyze-issue <URL|テキスト>` から開始（reproduce → implement-fix の順に進む）
 
+### review-agent スキル - コードレビュー
+
+- **用途**: PR差分やローカル差分を日本語でレビューする
+- **タイミング**: 「レビュー」「PR確認」「差分確認」「コードレビュー」を依頼したとき
+- **コマンド**: `/review-diff`（ローカル差分）/ `/review-pr`（PR）
+
+### roadmap-manager スキル - ロードマップ管理
+
+- **用途**: ロードマップのタスク追加・変更・削除・フォーマット正規化
+- **コマンド**: `/roadmap-add` / `/roadmap-update` / `/roadmap-remove` / `/roadmap-sync` / `/roadmap-normalize`
+
+### roadmap-next-task スキル - 次タスク着手
+
+- **用途**: 依存順で次の未完了タスクを選定し、ExecPlan作成から実装完了・同期まで一貫して行う
+- **コマンド**: `/next-task`（着手）/ `/finish-task`（完了処理）/ `/sync-roadmap`（状態同期）
+
 ### skill-creator スキル - スキル作成支援
 
 - **用途**: 新規スキルの作成・検証・パッケージング
@@ -56,29 +78,33 @@
 
 ### 新タスク着手時
 
-**【着手前】**
+**ショートカット**: `roadmap-next-task` スキルの `/next-task` で着手〜完了同期まで一貫実行できる。
 
-1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定
+**手動手順**:
+
+1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定（roadmap-next-task スキル）
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
    - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
    - ExecPlanなし → `/create-plan <タスク概要>` で計画作成（exec-plan スキル）
 4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
-
-**【実装】**
-
 5. **実装**: `AGENTS.md` の規約に従って実装
+6. **完了処理**: `roadmap-next-task` スキルの `/finish-task` で完了宣言・ユーザー確認・同期を行う
 
-**【完了後】**
+### レビュー時
 
-6. **完了処理**:
-   - ExecPlanあり → 完了宣言後、`.agent/PLANS.md` の ExecPlan完了処理に従う。ユーザー確認後にのみ、roadmapのステータスを `WIP` → `DONE` へ更新し、完了日を記録する
-   - ExecPlanなし → 実装完了後に、roadmapのステータスを `WIP` → `DONE` へ更新し、完了日を記録する
+1. review-agent スキルを使ってレビューを実行
+   - ローカル差分: `/review-diff`
+   - PR: `/review-pr`
 
 ### 不具合対応時
 
 1. issue-resolver スキルを使って調査・再現・修正を実行（`analyze-issue <URL|テキスト>` から開始）
-2. 必要に応じてroadmapへ反映（構造的問題の場合）
+2. 必要に応じてroadmapへ反映（roadmap-manager スキルを使用）
+
+### マルチエージェント分担時
+
+1. agent-orchestrator スキルの `/orchestrate <タスク>` で担当と書き込み範囲を宣言してから開始する
 
 ---
 
