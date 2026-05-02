@@ -159,6 +159,8 @@ $summary = [
     'stats_items' => 0,
 ];
 
+$summary['runs_scanned'] = count($runRecords);
+
 foreach ($skills as $skillName) {
     $skillDir = $metaRoot . $skillName . '/';
     $inventory = $readJson($skillDir . 'inventory.json');
@@ -179,7 +181,6 @@ foreach ($skills as $skillName) {
     }
 }
 
-$summary['runs_scanned'] = count($runRecords);
         }
     }
 
@@ -237,12 +238,13 @@ $summary['runs_scanned'] = count($runRecords);
             if (!is_array($change)) {
                 continue;
             }
-            $itemId = (string)($change['id'] ?? $change['target'] ?? '');
+            $target = (string)($change['target'] ?? '');
+            $itemId = (string)($change['id'] ?? $target);
             if ($itemId === '') {
                 continue;
             }
             $action = (string)($change['action'] ?? '');
-            $location = (string)($change['destination'] ?? $change['target']);
+            $location = (string)($change['destination'] ?? $target);
             $proposalTs = (string)($proposal['generated_at'] ?? ($request['requested_at'] ?? ''));
             $key = $runId . '|' . $itemId . '|' . $action;
 
