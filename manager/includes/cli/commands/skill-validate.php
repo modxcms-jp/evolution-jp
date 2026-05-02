@@ -207,7 +207,7 @@ if (is_array($proposal)) {
     if (!is_array($proposal['changes'] ?? null)) {
         $errors[] = 'proposal.json changes must be an array';
     } else {
-        $proposalChangeActions = defined('SKILL_PROPOSAL_CHANGE_ACTIONS') ? constant('SKILL_PROPOSAL_CHANGE_ACTIONS') : null;
+        $proposalChangeActions = defined('SKILL_CHANGE_ACTIONS') ? constant('SKILL_CHANGE_ACTIONS') : null;
         foreach ($proposal['changes'] as $index => $change) {
             if (!is_array($change)) {
                 $errors[] = 'proposal.json changes[' . $index . '] must be an array';

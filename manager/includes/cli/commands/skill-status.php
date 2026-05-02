@@ -12,18 +12,12 @@ $limit = skill_get_int_arg($args, 'limit', 20, 1, 200);
 $json = skill_has_flag($args, 'json');
 $archived = skill_has_flag($args, 'archived');
 
-$validateIdentifier = function ($value, $option) {
-    if ($value === '') {
-        return;
-    }
-
-    if (!preg_match('/^[a-z][a-z0-9-]*$/', $value) || in_array($value, SKILL_RESERVED_DIRS, true)) {
-        cli_usage("Invalid {$option} identifier: {$value}");
-    }
-};
-
-$validateIdentifier($planId, '--plan');
-$validateIdentifier($skill, '--skill');
+if ($planId !== '') {
+    skill_validate_identifier($planId, '--plan');
+}
+if ($skill !== '') {
+    skill_validate_skill_name($skill);
+}
 
 foreach ($args as $arg) {
     if (strpos($arg, '--plan=') === 0 || strpos($arg, '--skill=') === 0 || strpos($arg, '--limit=') === 0 || $arg === '--json' || $arg === '--archived') {
