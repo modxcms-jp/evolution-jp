@@ -458,9 +458,28 @@ function skill_complete_identifiers_from_request(string $runDir, string $planId,
 {
     $request = skill_read_json_strict($runDir . 'learning-request.json', 'learning-request.json');
 
+    $completedPlanId = $planId;
+    $completedSkill = $skill;
+
+    if ($planId === '') {
+        $jsonPlanId = $request['plan_id'] ?? null;
+        if (!is_string($jsonPlanId)) {
+            cli_usage('learning-request.json plan_id must be a string');
+        }
+        $completedPlanId = $jsonPlanId;
+    }
+
+    if ($skill === '') {
+        $jsonSkill = $request['skill'] ?? null;
+        if (!is_string($jsonSkill)) {
+            cli_usage('learning-request.json skill must be a string');
+        }
+        $completedSkill = $jsonSkill;
+    }
+
     return [
-        'plan_id' => $planId !== '' ? $planId : (string)($request['plan_id'] ?? ''),
+        'plan_id' => $completedPlanId,
         'run_id' => $runId !== '' ? $runId : basename(rtrim($runDir, '/')),
-        'skill' => $skill !== '' ? $skill : (string)($request['skill'] ?? ''),
+        'skill' => $completedSkill,
     ];
 }

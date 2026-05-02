@@ -27,6 +27,10 @@ if ($runDir === '') {
     skill_validate_identifier($planId, 'plan id');
     skill_validate_identifier($runId, 'run id');
     $runDir = MODX_BASE_PATH . '.agent/runs/' . $runId . '/';
+} else {
+    if ($runId === '') {
+        $runId = basename(rtrim($runDir, "/\\"));
+    }
 }
 
 $runDir = rtrim($runDir, "/\\") . '/';
@@ -117,6 +121,25 @@ if ($skill === '' && is_array($learningRequest)) {
 
 if (is_array($learningRequest)) {
     skill_validate_required_keys($learningRequest, ['version', 'plan_id', 'run_id', 'skill', 'trigger', 'requested_at', 'status', 'priority', 'reason_summary', 'evidence'], 'learning-request.json', $errors);
+
+    $jsonPlanId = $learningRequest['plan_id'] ?? null;
+    if (is_string($jsonPlanId) && $jsonPlanId !== '') {
+        if (!skill_is_valid_identifier($jsonPlanId)) {
+            $errors[] = 'learning-request.json plan_id has invalid format: ' . $jsonPlanId;
+        }
+    } elseif ($jsonPlanId !== null) {
+        $errors[] = 'learning-request.json plan_id must be a string';
+    }
+
+    $jsonRunId = $learningRequest['run_id'] ?? null;
+    if (is_string($jsonRunId) && $jsonRunId !== '') {
+        if (!skill_is_valid_identifier($jsonRunId)) {
+            $errors[] = 'learning-request.json run_id has invalid format: ' . $jsonRunId;
+        }
+    } elseif ($jsonRunId !== null) {
+        $errors[] = 'learning-request.json run_id must be a string';
+    }
+
     $triggerValue = $learningRequest['trigger'] ?? null;
     skill_validate_allowed($triggerValue, SKILL_TRIGGERS, 'learning-request trigger', $errors);
     $trigger = is_string($triggerValue) ? $triggerValue : '';
