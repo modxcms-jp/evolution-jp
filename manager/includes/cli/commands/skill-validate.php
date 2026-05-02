@@ -114,7 +114,12 @@ if ($skill === '' && is_array($learningRequest)) {
         if ($skill === '') {
             $errors[] = 'learning-request.json skill must not be empty';
         } else {
-            skill_validate_skill_name($skill);
+            if (!skill_is_valid_identifier($skill)) {
+                $errors[] = 'learning-request.json skill has invalid format: ' . $skill;
+            }
+            if (in_array($skill, SKILL_RESERVED_NAMES, true)) {
+                $errors[] = 'learning-request.json skill is reserved: ' . $skill;
+            }
         }
     } elseif ($learningRequestSkill !== null) {
         $errors[] = 'learning-request.json skill must be a string';
