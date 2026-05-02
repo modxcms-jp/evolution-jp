@@ -34,6 +34,7 @@
 - 2026-05-02 時点で `skill:prune` コマンドを追加し、stale 候補の抽出を機械化した。
 - 2026-05-02 時点で `skill:archive` コマンドを追加し、完了済み run を archive へ移せるようにした。
 - 2026-05-02 時点で `skill:sync` コマンドを追加し、run と archive から skill metadata を再集計できるようにした。
+- 2026-05-02 時点でレビュー指摘を受け、`skill:validate` の契約検証と `skill:sync` / `skill:prune` の入力検証を強化した。
 
 ## Decision Log
 
@@ -156,6 +157,16 @@
   - `--dry-run` で更新前の差分確認ができる
 - **代替案**: `inventory.json` / `stats.json` / `history.jsonl` を各コマンドで個別更新する
 - **不採用理由**: 集計の責務が分散し、同期漏れと二重更新が起きやすい
+
+### 2026-05-02: レビューで露出した契約穴は検証側で塞ぐ
+
+- **決定**: `skill:validate` で `evidence` の必須ファイル、`skill` / `plan_id` / `run_id` の整合、`trace.jsonl` の type ごとの必須キーを検証する
+- **理由**:
+  - 例示用の README と実装の契約ずれを、実行時検証で早期に検出できる
+  - `skill:init` / `skill:validate` / `skill:sync` / `skill:prune` の入力を同じ識別子規則へ寄せられる
+  - 失敗が run 生成時点で止まるため、後続の同期・退役判定の汚染を抑えられる
+- **代替案**: README とサンプルだけ更新し、CLI 側の検証は最小限に留める
+- **不採用理由**: 契約逸脱を実行後まで持ち越してしまい、自己成長基盤の SSOT と検証性が弱くなる
 
 ## Outcomes & Retrospective
 

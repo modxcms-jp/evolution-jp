@@ -10,6 +10,12 @@ $usage = function () {
     cli_usage('Usage: php evo skill:validate --run-dir=PATH | --plan=PLAN_ID --run-id=RUN_ID [--skill=SKILL] [--strict]');
 };
 
+$validateIdentifier = function (string $value, string $label) {
+    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
+        cli_usage("Invalid {$label}: {$value}");
+    }
+};
+
 foreach ($args as $arg) {
     if (strpos($arg, '--run-dir=') === 0) {
         $runDir = trim(substr($arg, strlen('--run-dir=')));
@@ -39,6 +45,8 @@ if ($runDir === '') {
     if ($planId === '' || $runId === '') {
         $usage();
     }
+    $validateIdentifier($planId, 'plan id');
+    $validateIdentifier($runId, 'run id');
     $runDir = MODX_BASE_PATH . '.agent/runs/' . $runId . '/';
 }
 
@@ -49,6 +57,16 @@ if (!is_dir($runDir)) {
 }
 
 $errors = [];
+
+if ($planId !== '') {
+    $validateIdentifier($planId, 'plan id');
+}
+if ($runId !== '') {
+    $validateIdentifier($runId, 'run id');
+}
+if ($skill !== '') {
+    $validateIdentifier($skill, 'skill name');
+}
 
 $validateAllowed = function ($value, array $allowed, string $label) use (&$errors) {
     if (!in_array($value, $allowed, true)) {
@@ -156,7 +174,28 @@ if (is_array($learningRequest)) {
     $validateAllowed($learningRequest['trigger'] ?? null, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
     $validateAllowed($learningRequest['status'] ?? null, ['pending', 'processing', 'completed', 'skipped'], 'learning-request status');
     $validateAllowed($learningRequest['priority'] ?? null, ['low', 'normal', 'high'], 'learning-request priority');
-    $validatePathList($learningRequest['evidence'] ?? null, 'learning-request evidence');
+    $evidence = $learningRequest['evidence'] ?? null;
+    $validatePathList($evidence, 'learning-request evidence');
+    if (is_array($evidence)) {
+        if (!in_array('trace.jsonl', $evidence, true)) {
+            $errors[] = 'learning-request evidence must include trace.jsonl';
+        }
+        $allowedEvidence = ['trace.jsonl', 'chat.md', 'learning.json', 'pruning.json', 'proposal.json', 'notes.md'];
+        foreach ($evidence as $item) {
+            if (is_string($item) && !in_array($item, $allowedEvidence, true)) {
+                $errors[] = "learning-request evidence contains invalid file: {$item}";
+            }
+        }
+    }
+    if ($planId !== '' && (string)($learningRequest['plan_id'] ?? '') !== $planId) {
+        $errors[] = 'learning-request.json plan_id does not match CLI plan id';
+    }
+    if ($runId !== '' && (string)($learningRequest['run_id'] ?? '') !== $runId) {
+        $errors[] = 'learning-request.json run_id does not match CLI run id';
+    }
+    if ($skill !== '' && (string)($learningRequest['skill'] ?? '') !== $skill) {
+        $errors[] = 'learning-request.json skill does not match CLI skill';
+    }
 }
 
 $learning = $readJson($runDir . 'learning.json', 'learning.json');
@@ -188,6 +227,15 @@ if (is_array($proposal)) {
     $validatePathList($proposal['source_files'] ?? null, 'proposal source_files');
     if (!is_array($proposal['changes'] ?? null)) {
         $errors[] = 'proposal.json changes must be an array';
+    }
+    if ($planId !== '' && (string)($proposal['plan_id'] ?? '') !== $planId) {
+        $errors[] = 'proposal.json plan_id does not match CLI plan id';
+    }
+    if ($runId !== '' && (string)($proposal['run_id'] ?? '') !== $runId) {
+        $errors[] = 'proposal.json run_id does not match CLI run id';
+    }
+    if ($skill !== '' && (string)($proposal['skill'] ?? '') !== $skill) {
+        $errors[] = 'proposal.json skill does not match CLI skill';
     }
 }
 

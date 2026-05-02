@@ -11,6 +11,12 @@ $usage = function () {
     cli_usage('Usage: php evo skill:prune [--skill=SKILL] [--limit=N] [--json] [--min-seen=N] [--min-used-ratio=R] [--stale-runs=N]');
 };
 
+$validateIdentifier = function (string $value, string $label) {
+    if ($value !== '' && !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
+        cli_usage("Invalid {$label}: {$value}");
+    }
+};
+
 foreach ($args as $arg) {
     if (strpos($arg, '--skill=') === 0) {
         $skill = trim(substr($arg, strlen('--skill=')));
@@ -39,6 +45,8 @@ foreach ($args as $arg) {
 
     $usage();
 }
+
+$validateIdentifier($skill, 'skill name');
 
 $metaRoot = MODX_BASE_PATH . '.agent/skill-metadata/';
 if (!is_dir($metaRoot)) {

@@ -9,6 +9,12 @@ $usage = function () {
     cli_usage('Usage: php evo skill:sync [--skill=SKILL] [--plan=PLAN_ID] [--json] [--dry-run]');
 };
 
+$validateIdentifier = function (string $value, string $label) {
+    if ($value !== '' && !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
+        cli_usage("Invalid {$label}: {$value}");
+    }
+};
+
 foreach ($args as $arg) {
     if (strpos($arg, '--skill=') === 0) {
         $skill = trim(substr($arg, strlen('--skill=')));
@@ -29,6 +35,9 @@ foreach ($args as $arg) {
 
     $usage();
 }
+
+$validateIdentifier($skill, 'skill name');
+$validateIdentifier($planId, 'plan id');
 
 $metaRoot = MODX_BASE_PATH . '.agent/skill-metadata/';
 $runsRoots = [
@@ -57,6 +66,47 @@ if ($skill !== '') {
 }
 
 sort($skills, SORT_STRING);
+
+$runRecords = [];
+foreach ($runsRoots as $runRoot) {
+    if (!is_dir($runRoot)) {
+        continue;
+    }
+
+    $dirs = glob($runRoot . '*', GLOB_ONLYDIR);
+    if (!is_array($dirs)) {
+        continue;
+    }
+
+    foreach ($dirs as $dir) {
+        $baseName = basename($dir);
+        if ($baseName === 'templates' || $baseName === 'archive') {
+            continue;
+        }
+
+        $request = null;
+        $proposal = null;
+        $requestPath = $dir . '/learning-request.json';
+        $proposalPath = $dir . '/proposal.json';
+        if (is_file($requestPath)) {
+            $request = json_decode((string)file_get_contents($requestPath), true);
+        }
+        if (is_file($proposalPath)) {
+            $proposal = json_decode((string)file_get_contents($proposalPath), true);
+        }
+        if (!is_array($request) || !is_array($proposal)) {
+            continue;
+        }
+
+        $runRecords[] = [
+            'run_dir' => $dir,
+            'run_id' => basename($dir),
+            'request' => $request,
+            'proposal' => $proposal,
+            'archived' => str_starts_with($runRoot, MODX_BASE_PATH . '.agent/runs/archive/'),
+        ];
+    }
+}
 
 $readJson = function (string $path) {
     if (!is_file($path)) {
@@ -97,18 +147,6 @@ $writeText = function (string $path, string $content, bool $append = false) use 
     chmod($path, 0644);
 };
 
-$isRelevantRun = function (array $request, string $currentSkill) use ($skill, $planId) {
-    $requestSkill = (string)($request['skill'] ?? '');
-    $expectedSkill = $skill !== '' ? $skill : $currentSkill;
-    if ($requestSkill !== $expectedSkill) {
-        return false;
-    }
-    if ($planId !== '' && (string)($request['plan_id'] ?? '') !== $planId) {
-        return false;
-    }
-    return true;
-};
-
 $summary = [
     'skills' => [],
     'runs_scanned' => 0,
@@ -138,8 +176,10 @@ foreach ($skills as $skillName) {
                 $entry = json_decode($line, true);
                 if (is_array($entry)) {
                     $existingHistory[(string)($entry['run_id'] ?? '') . '|' . (string)($entry['item_id'] ?? '') . '|' . (string)($entry['action'] ?? '')] = true;
-                }
-            }
+    }
+}
+
+$summary['runs_scanned'] = count($runRecords);
         }
     }
 
@@ -163,60 +203,41 @@ foreach ($skills as $skillName) {
     $activeRuns = 0;
     $proposalChanges = 0;
     $runItemStats = [];
-    $runDirs = [];
-    foreach ($runsRoots as $runRoot) {
-        if (!is_dir($runRoot)) {
-            continue;
-        }
-        $dirs = glob($runRoot . '*', GLOB_ONLYDIR);
-        if (!is_array($dirs)) {
-            continue;
-        }
-        foreach ($dirs as $dir) {
-            $baseName = basename($dir);
-            if ($baseName === 'templates' || $baseName === 'archive') {
-                continue;
-            }
-            $runDirs[] = $dir;
-        }
-    }
-
-    sort($runDirs, SORT_STRING);
-
-    foreach ($runDirs as $runDir) {
-        $summary['runs_scanned']++;
-        $request = $readJson($runDir . '/learning-request.json');
-        $proposal = $readJson($runDir . '/proposal.json');
+    foreach ($runRecords as $record) {
+        $request = $record['request'];
+        $proposal = $record['proposal'];
         if (!is_array($request) || !is_array($proposal)) {
             continue;
         }
-        if (!$isRelevantRun($request, $skillName)) {
+        if ((string)($request['skill'] ?? '') !== $skillName) {
+            continue;
+        }
+        if ($planId !== '' && (string)($request['plan_id'] ?? '') !== $planId) {
             continue;
         }
 
         $matchedRuns++;
-        $runId = basename($runDir);
+        $runId = (string)($record['run_id'] ?? '');
         $runSkill = (string)($request['skill'] ?? '');
         $runPlanId = (string)($request['plan_id'] ?? '');
         $requestStatus = (string)($request['status'] ?? 'missing');
         $proposalStatus = (string)($proposal['status'] ?? 'missing');
-        $isArchived = str_starts_with($runDir, MODX_BASE_PATH . '.agent/runs/archive/');
+        $isArchived = (bool)($record['archived'] ?? false);
         if ($isArchived) {
             $archivedRuns++;
         } else {
             $activeRuns++;
         }
 
-        if ($proposalStatus === 'rejected') {
-            continue;
-        }
-
         $changes = is_array($proposal['changes'] ?? null) ? $proposal['changes'] : [];
+        $seenRunItems = [];
+        $usedRunItems = [];
+        $conflictedRunItems = [];
         foreach ($changes as $change) {
             if (!is_array($change)) {
                 continue;
             }
-            $itemId = (string)($change['target'] ?? '');
+            $itemId = (string)($change['id'] ?? $change['target'] ?? '');
             if ($itemId === '') {
                 continue;
             }
@@ -237,18 +258,29 @@ foreach ($skills as $skillName) {
                 ];
             }
 
-            $runItemStats[$itemId]['seen_runs']++;
+            if ($proposalStatus === 'rejected') {
+                if (!isset($conflictedRunItems[$itemId])) {
+                    $runItemStats[$itemId]['conflicted_runs']++;
+                    $conflictedRunItems[$itemId] = true;
+                }
+                continue;
+            }
+
+            if (!isset($seenRunItems[$itemId])) {
+                $runItemStats[$itemId]['seen_runs']++;
+                $seenRunItems[$itemId] = true;
+            }
             if (in_array($action, ['add', 'move', 'merge', 'script_extraction'], true)) {
-                $runItemStats[$itemId]['used_runs']++;
-                $runItemStats[$itemId]['helped_runs']++;
-                $runItemStats[$itemId]['last_used_at'] = $proposalTs;
-                $runItemStats[$itemId]['source'] = $runId;
+                if (!isset($usedRunItems[$itemId])) {
+                    $runItemStats[$itemId]['used_runs']++;
+                    $runItemStats[$itemId]['helped_runs']++;
+                    $runItemStats[$itemId]['last_used_at'] = $proposalTs;
+                    $runItemStats[$itemId]['source'] = $runId;
+                    $usedRunItems[$itemId] = true;
+                }
             }
             if ($action === 'retire') {
                 $runItemStats[$itemId]['stale_runs']++;
-            }
-            if ($proposalStatus === 'rejected') {
-                $runItemStats[$itemId]['conflicted_runs']++;
             }
 
             if (!isset($inventoryItems[$itemId])) {
@@ -311,14 +343,24 @@ foreach ($skills as $skillName) {
     });
 
     $statsItems['__summary'] = [
-        'seen_runs' => $matchedRuns,
-        'used_runs' => $proposalChanges,
-        'helped_runs' => $proposalChanges,
+        'seen_runs' => 0,
+        'used_runs' => 0,
+        'helped_runs' => 0,
         'conflicted_runs' => 0,
         'stale_runs' => 0,
         'archived_runs' => $archivedRuns,
         'active_runs' => $activeRuns,
     ];
+    foreach ($statsItems as $itemId => $itemStats) {
+        if (!is_array($itemStats) || str_starts_with((string)$itemId, '__')) {
+            continue;
+        }
+        $statsItems['__summary']['seen_runs'] += (int)($itemStats['seen_runs'] ?? 0);
+        $statsItems['__summary']['used_runs'] += (int)($itemStats['used_runs'] ?? 0);
+        $statsItems['__summary']['helped_runs'] += (int)($itemStats['helped_runs'] ?? 0);
+        $statsItems['__summary']['conflicted_runs'] += (int)($itemStats['conflicted_runs'] ?? 0);
+        $statsItems['__summary']['stale_runs'] += (int)($itemStats['stale_runs'] ?? 0);
+    }
 
     $writeJson($skillDir . 'inventory.json', ['items' => $inventoryList]);
     $writeJson($skillDir . 'stats.json', ['items' => $statsItems]);
