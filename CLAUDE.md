@@ -27,13 +27,13 @@
 
 ## スキル一覧と使い方
 
-### `/exec-plan` - 実行計画の作成・検証・更新
+### exec-plan スキル - 実行計画の作成・検証・更新
 
 - **用途**: 新機能開発、リファクタリング、バグ修正の設計フェーズ
 - **タイミング**: roadmapで`NEXT`ステータスかつExecPlan未作成のタスク着手時
 - **コマンド**: `/create-plan <タスク概要>` でプラン作成開始
 
-### `/project-worker` - 開発タスク実行
+### project-worker スキル - 開発タスク実行
 
 - **用途**: Evolution CMS JP Editionの開発作業全般
 - **コマンド**:
@@ -41,12 +41,12 @@
   - `/start-session` - 開発セッション開始
 - **参照**: `AGENTS.md` のコーディング規約を遵守
 
-### `/issue-resolver` - 不具合調査・修正
+### issue-resolver スキル - 不具合調査・修正
 
 - **用途**: フォーラムやIssueの不具合報告に対する調査・再現・修正
 - **機能**: URLからの情報取得、再現コード作成、修正、記録
 
-### `/skill-creator` - スキル作成支援
+### skill-creator スキル - スキル作成支援
 
 - **用途**: 新規スキルの作成・検証・パッケージング
 
@@ -61,8 +61,8 @@
 1. **roadmap確認**: `.agent/roadmap.md` で次タスクを特定
 2. **依存関係チェック**: 依存タスクがすべて `DONE` か確認
 3. **ExecPlan確認**:
-   - ExecPlanあり → 内容を読んで `/project-worker` で実装開始
-   - ExecPlanなし → `/exec-plan` で計画作成
+   - ExecPlanあり → 内容を読んで `/work` で実装開始（project-worker スキル）
+   - ExecPlanなし → `/create-plan <タスク概要>` で計画作成（exec-plan スキル）
 4. **roadmap更新**: 実装開始前に、ステータスを `NEXT` → `WIP` へ更新する
 
 **【実装】**
