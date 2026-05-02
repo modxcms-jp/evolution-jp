@@ -22,19 +22,21 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 ## コマンド
 
 ### /next-task
-1. `.agent/roadmap.md` の未完了項目を依存順で確認し、最上位の次タスクを1件特定する。
-2. 対象タスクに `ExecPlan:` 行があるか確認する。
-3. `ExecPlan:` 行が無い場合、`.agent/plans/YYYY-MM-DD-task-name.md` を作成し、該当タスク配下へ `ExecPlan:` 行を追記する。
-4. 作成済み/新規の ExecPlan を更新し、最初の実装ステップを `Progress` に追加する。
-5. 実装に着手する。
+1. すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば、先に `/sync-roadmap` で完了状態を反映する。
+2. `.agent/roadmap.md` の未完了項目を依存順で確認し、最上位の次タスクを1件特定する。
+3. 対象タスクに `ExecPlan:` 行があるか確認する。
+4. `ExecPlan:` 行が無い場合、`.agent/plans/YYYY-MM-DD-task-name.md` を作成し、該当タスク配下へ `ExecPlan:` 行を追記する。
+5. 作成済み/新規の ExecPlan を更新し、最初の実装ステップを `Progress` に追加する。
+6. 実装に着手する。
 
 ### /sync-roadmap
 1. 直近の実装結果・テスト結果から、実装と検証が完了し、ユーザー確認が取れた項目を抽出する。
 2. `.agent/roadmap.md` の該当タスクの `Status` を `DONE` に更新し、`完了日` を当日に更新する。
-3. 対応する ExecPlan は `.agent/plans/archive/` へ移動し、ファイル名先頭の日付を完了日へ更新する。
-4. ロードマップの `ExecPlan:` パスをアーカイブ先へ同期する。
-5. 互換表示としてチェックボックスが残っている項目がある場合のみ整合させる。
-6. `最終更新` を当日に更新する。
+3. 必要に応じて親タスクの `Status` も同期する。
+4. 対応する ExecPlan は `.agent/plans/archive/` へ移動し、ファイル名先頭の日付を完了日へ更新する。
+5. ロードマップの `ExecPlan:` パスをアーカイブ先へ同期する。
+6. 互換表示としてチェックボックスが残っている項目がある場合のみ整合させる。
+7. `最終更新` を当日に更新する。
 
 ### /finish-task
 1. 対象 ExecPlan の `Progress` と `Validation and Acceptance` を完了状態に更新する。
