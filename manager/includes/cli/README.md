@@ -46,13 +46,25 @@ php evo skill:sync --skill=issue-resolver
 `db:import` は `system_cache` をインポート対象から除外し、事前に `TRUNCATE` します。`system_settings` はインポートした上で `site_url`/`base_url`/`filemanager_path`/`rb_base_dir` を復元します。
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
 `skill:validate` は run scaffold と skill metadata の JSON 契約を確認します。
-ExecPlan 完了後は `skill:validate` を通してから `skill:init` で次の run scaffold を準備します。
+ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-request.json` 完了更新、次 run scaffold 準備をまとめて行います。
 `skill:complete` は validate、`learning-request.json` の完了更新、次 run scaffold の準備をまとめて実行します。
 `skill:status` は run の一覧と `learning-request.json` / `proposal.json` の状態を表示します。
 `skill:prune` は `stats.json` と `history.jsonl` から stale 候補を抽出します。
 `skill:archive` は完了済み run を `archive/` へ移し、`proposal.json` を `archived` に更新します。
 `skill:sync` は run と archive を再集計し、`inventory.json` / `stats.json` / `history.jsonl` を更新します。
 ホスト側で `php evo` が `mysqli` 不在になる環境では、`docker compose exec <app-service> php evo ...` を使ってください。
+
+## スキル自己成長コマンド運用メモ
+
+- `skill:*` 系コマンドの契約は `manager/includes/cli/skill-lib.php` を SSOT とする。
+- `--plan` / `--run-id` / `--skill` は識別子形式（`[A-Za-z0-9][A-Za-z0-9._-]*`）のみ許可。
+- `skill` 名に `templates` は使えない（予約名）。
+- `run` ディレクトリの予約名は `templates` / `archive`。
+- `skill:validate --strict` は `trace.jsonl` と metadata (`history.jsonl` 含む) の存在を必須チェックする。
+- `learning-request.json` の `evidence` は許可済みファイルのみ指定でき、最低 `trace.jsonl` を含める。
+- `trigger=user_feedback` の run は `evidence` に `chat.md` が必要で、`--strict` では実ファイル存在も検証される。
+- 推奨フロー: `skill:complete` → `skill:archive` → `skill:sync` → `skill:prune`。
+- `skill:validate` / `skill:complete` は `--run-dir` に加え `--plan` + `--run-id` 指定でも実行できる。
 
 ## 追加したコマンドの場所
 

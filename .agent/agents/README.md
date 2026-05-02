@@ -27,6 +27,8 @@
 
 エージェントの作業結果は、必要に応じて `.agent/runs/YYYY-MM-DD-<slug>/` に記録する。
 短い作業ではチャット上の要約でよいが、設計判断・検証結果・レビュー指摘は再利用できる形で残す。
+学習ループ対象の run は `skill:complete` / `skill:archive` / `skill:sync` / `skill:prune` の順で更新し、契約チェックは `skill:validate --strict` を使う。
+`php evo` はホスト直実行せず、`docker compose exec <app-service> php evo ...` を使う。
 
 ## 開始時の宣言
 

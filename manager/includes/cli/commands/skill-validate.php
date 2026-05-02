@@ -1,40 +1,19 @@
 <?php
 
-$runDir = '';
-$planId = '';
-$runId = '';
-$skill = '';
-$strict = false;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:validate --run-dir=PATH | --plan=PLAN_ID --run-id=RUN_ID [--skill=SKILL] [--strict]');
 };
 
-$validateIdentifier = function (string $value, string $label) {
-    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
-        cli_usage("Invalid {$label}: {$value}");
-    }
-};
+$runDir = skill_get_arg($args, 'run-dir', '');
+$planId = skill_get_arg($args, 'plan', '');
+$runId = skill_get_arg($args, 'run-id', '');
+$skill = skill_get_arg($args, 'skill', '');
+$strict = skill_has_flag($args, 'strict');
 
 foreach ($args as $arg) {
-    if (strpos($arg, '--run-dir=') === 0) {
-        $runDir = trim(substr($arg, strlen('--run-dir=')));
-        continue;
-    }
-    if (strpos($arg, '--plan=') === 0) {
-        $planId = trim(substr($arg, strlen('--plan=')));
-        continue;
-    }
-    if (strpos($arg, '--run-id=') === 0) {
-        $runId = trim(substr($arg, strlen('--run-id=')));
-        continue;
-    }
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if ($arg === '--strict') {
-        $strict = true;
+    if (strpos($arg, '--run-dir=') === 0 || strpos($arg, '--plan=') === 0 || strpos($arg, '--run-id=') === 0 || strpos($arg, '--skill=') === 0 || $arg === '--strict') {
         continue;
     }
 
@@ -45,9 +24,13 @@ if ($runDir === '') {
     if ($planId === '' || $runId === '') {
         $usage();
     }
-    $validateIdentifier($planId, 'plan id');
-    $validateIdentifier($runId, 'run id');
+    skill_validate_identifier($planId, 'plan id');
+    skill_validate_identifier($runId, 'run id');
     $runDir = MODX_BASE_PATH . '.agent/runs/' . $runId . '/';
+} else {
+    if ($runId === '') {
+        $runId = basename(rtrim($runDir, "/\\"));
+    }
 }
 
 $runDir = rtrim($runDir, "/\\") . '/';
@@ -59,62 +42,15 @@ if (!is_dir($runDir)) {
 $errors = [];
 
 if ($planId !== '') {
-    $validateIdentifier($planId, 'plan id');
+    skill_validate_identifier($planId, 'plan id');
 }
 if ($runId !== '') {
-    $validateIdentifier($runId, 'run id');
+    skill_validate_identifier($runId, 'run id');
 }
 if ($skill !== '') {
-    $validateIdentifier($skill, 'skill name');
+    skill_validate_skill_name($skill);
 }
 
-$validateAllowed = function ($value, array $allowed, string $label) use (&$errors) {
-    if (!in_array($value, $allowed, true)) {
-        $errors[] = "{$label} invalid value: " . (is_scalar($value) ? (string)$value : gettype($value));
-    }
-};
-
-$validateRequiredKeys = function (array $data, array $keys, string $label) use (&$errors) {
-    foreach ($keys as $key) {
-        if (!array_key_exists($key, $data)) {
-            $errors[] = "{$label} missing key: {$key}";
-        }
-    }
-};
-
-$validatePathList = function ($value, string $label) use (&$errors) {
-    if (!is_array($value)) {
-        $errors[] = "{$label} must be an array";
-        return;
-    }
-
-    foreach ($value as $item) {
-        if (!is_string($item) || $item === '' || str_starts_with($item, '/') || strpos($item, '..') !== false) {
-            $errors[] = "{$label} contains invalid path: " . json_encode($item, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        }
-    }
-};
-
-$readJson = function (string $path, string $label) use (&$errors) {
-    if (!is_file($path)) {
-        $errors[] = "{$label} missing: {$path}";
-        return null;
-    }
-
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        $errors[] = "{$label} unreadable: {$path}";
-        return null;
-    }
-
-    $data = json_decode($raw, true);
-    if (!is_array($data)) {
-        $errors[] = "{$label} invalid JSON: {$path}";
-        return null;
-    }
-
-    return $data;
-};
 
 $tracePath = $runDir . 'trace.jsonl';
 if (is_file($tracePath)) {
@@ -134,33 +70,33 @@ if (is_file($tracePath)) {
                 continue;
             }
 
-            $validateRequiredKeys($event, ['ts', 'plan_id', 'run_id', 'agent', 'skill', 'type', 'summary'], 'trace event');
-            $validateAllowed($event['type'] ?? null, ['step', 'decision', 'error', 'feedback', 'result'], 'trace event type');
-            $validateAllowed($event['agent'] ?? null, ['worker', 'explorer', 'reviewer', 'planner', 'user', 'system'], 'trace agent');
+            skill_validate_required_keys($event, ['ts', 'plan_id', 'run_id', 'agent', 'skill', 'type', 'summary'], 'trace event', $errors);
+            skill_validate_allowed($event['type'] ?? null, SKILL_TRACE_EVENT_TYPES, 'trace event type', $errors);
+            skill_validate_allowed($event['agent'] ?? null, SKILL_TRACE_AGENTS, 'trace agent', $errors);
 
             if (($event['type'] ?? '') === 'step') {
-                $validateRequiredKeys($event, ['action', 'status'], 'trace step event');
-                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace step status');
+                skill_validate_required_keys($event, ['action', 'status'], 'trace step event', $errors);
+                skill_validate_allowed($event['status'] ?? null, SKILL_TRACE_STATUSES, 'trace step status', $errors);
             }
 
             if (($event['type'] ?? '') === 'decision') {
-                $validateRequiredKeys($event, ['category'], 'trace decision event');
+                skill_validate_required_keys($event, ['category'], 'trace decision event', $errors);
             }
 
             if (($event['type'] ?? '') === 'error') {
-                $validateRequiredKeys($event, ['failure_mode', 'status'], 'trace error event');
-                $validateAllowed($event['failure_mode'] ?? null, ['bad_assumption', 'missing_instruction', 'missing_reference', 'repeated_manual_work', 'tool_gap', 'validation_gap'], 'trace failure_mode');
-                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace error status');
+                skill_validate_required_keys($event, ['failure_mode', 'status'], 'trace error event', $errors);
+                skill_validate_allowed($event['failure_mode'] ?? null, SKILL_FAILURE_MODES, 'trace failure_mode', $errors);
+                skill_validate_allowed($event['status'] ?? null, SKILL_TRACE_STATUSES, 'trace error status', $errors);
             }
 
             if (($event['type'] ?? '') === 'feedback') {
-                $validateRequiredKeys($event, ['feedback_type', 'source'], 'trace feedback event');
-                $validateAllowed($event['feedback_type'] ?? null, ['direction_change', 'rework_request', 'scope_change', 'priority_change'], 'trace feedback_type');
+                skill_validate_required_keys($event, ['feedback_type', 'source'], 'trace feedback event', $errors);
+                skill_validate_allowed($event['feedback_type'] ?? null, SKILL_FEEDBACK_TYPES, 'trace feedback_type', $errors);
             }
 
             if (($event['type'] ?? '') === 'result') {
-                $validateRequiredKeys($event, ['status'], 'trace result event');
-                $validateAllowed($event['status'] ?? null, ['started', 'ok', 'failed', 'blocked', 'done'], 'trace result status');
+                skill_validate_required_keys($event, ['status'], 'trace result event', $errors);
+                skill_validate_allowed($event['status'] ?? null, SKILL_TRACE_STATUSES, 'trace result status', $errors);
             }
         }
     }
@@ -168,21 +104,68 @@ if (is_file($tracePath)) {
     $errors[] = "trace.jsonl missing: {$tracePath}";
 }
 
-$learningRequest = $readJson($runDir . 'learning-request.json', 'learning-request.json');
+$learningRequest = skill_read_json_with_errors($runDir . 'learning-request.json', 'learning-request.json', $errors);
+
+// 自律性向上: --skillが未指定でもlearning-request.jsonから取得
+if ($skill === '' && is_array($learningRequest)) {
+    $learningRequestSkill = $learningRequest['skill'] ?? null;
+    if (is_string($learningRequestSkill)) {
+        $skill = $learningRequestSkill;
+        if ($skill === '') {
+            $errors[] = 'learning-request.json skill must not be empty';
+        } else {
+            if (!skill_is_valid_identifier($skill)) {
+                $errors[] = 'learning-request.json skill has invalid format: ' . $skill;
+            }
+            if (in_array($skill, SKILL_RESERVED_NAMES, true)) {
+                $errors[] = 'learning-request.json skill is reserved: ' . $skill;
+            }
+        }
+    } elseif ($learningRequestSkill !== null) {
+        $errors[] = 'learning-request.json skill must be a string';
+    }
+}
+
 if (is_array($learningRequest)) {
-    $validateRequiredKeys($learningRequest, ['version', 'plan_id', 'run_id', 'skill', 'trigger', 'requested_at', 'status', 'priority', 'reason_summary', 'evidence'], 'learning-request.json');
-    $validateAllowed($learningRequest['trigger'] ?? null, ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'], 'learning-request trigger');
-    $validateAllowed($learningRequest['status'] ?? null, ['pending', 'processing', 'completed', 'skipped'], 'learning-request status');
-    $validateAllowed($learningRequest['priority'] ?? null, ['low', 'normal', 'high'], 'learning-request priority');
+    skill_validate_required_keys($learningRequest, ['version', 'plan_id', 'run_id', 'skill', 'trigger', 'requested_at', 'status', 'priority', 'reason_summary', 'evidence'], 'learning-request.json', $errors);
+
+    $jsonPlanId = $learningRequest['plan_id'] ?? null;
+    if (is_string($jsonPlanId) && $jsonPlanId !== '') {
+        if (!skill_is_valid_identifier($jsonPlanId)) {
+            $errors[] = 'learning-request.json plan_id has invalid format: ' . $jsonPlanId;
+        }
+    } elseif ($jsonPlanId !== null) {
+        $errors[] = 'learning-request.json plan_id must be a string';
+    }
+
+    $jsonRunId = $learningRequest['run_id'] ?? null;
+    if (is_string($jsonRunId) && $jsonRunId !== '') {
+        if (!skill_is_valid_identifier($jsonRunId)) {
+            $errors[] = 'learning-request.json run_id has invalid format: ' . $jsonRunId;
+        }
+    } elseif ($jsonRunId !== null) {
+        $errors[] = 'learning-request.json run_id must be a string';
+    }
+
+    $triggerValue = $learningRequest['trigger'] ?? null;
+    skill_validate_allowed($triggerValue, SKILL_TRIGGERS, 'learning-request trigger', $errors);
+    $trigger = is_string($triggerValue) ? $triggerValue : '';
+    skill_validate_allowed($learningRequest['status'] ?? null, SKILL_REQUEST_STATUSES, 'learning-request status', $errors);
+    skill_validate_allowed($learningRequest['priority'] ?? null, SKILL_PRIORITIES, 'learning-request priority', $errors);
     $evidence = $learningRequest['evidence'] ?? null;
-    $validatePathList($evidence, 'learning-request evidence');
+    skill_validate_path_list($evidence, 'learning-request evidence', $errors);
     if (is_array($evidence)) {
         if (!in_array('trace.jsonl', $evidence, true)) {
             $errors[] = 'learning-request evidence must include trace.jsonl';
         }
-        $allowedEvidence = ['trace.jsonl', 'chat.md', 'learning.json', 'pruning.json', 'proposal.json', 'notes.md'];
+        if ($trigger === 'user_feedback' && !in_array('chat.md', $evidence, true)) {
+            $errors[] = 'learning-request evidence must include chat.md for user_feedback';
+        }
+        if ($trigger === 'user_feedback' && $strict && in_array('chat.md', $evidence, true) && !is_file($runDir . 'chat.md')) {
+            $errors[] = "learning-request evidence file missing: {$runDir}chat.md";
+        }
         foreach ($evidence as $item) {
-            if (is_string($item) && !in_array($item, $allowedEvidence, true)) {
+            if (is_string($item) && !in_array($item, SKILL_ALLOWED_EVIDENCE, true)) {
                 $errors[] = "learning-request evidence contains invalid file: {$item}";
             }
         }
@@ -196,22 +179,25 @@ if (is_array($learningRequest)) {
     if ($skill !== '' && (string)($learningRequest['skill'] ?? '') !== $skill) {
         $errors[] = 'learning-request.json skill does not match CLI skill';
     }
+    if ($skill === '' && (string)($learningRequest['skill'] ?? '') === 'templates') {
+        $errors[] = 'learning-request.json skill is reserved: templates';
+    }
 }
 
-$learning = $readJson($runDir . 'learning.json', 'learning.json');
+$learning = skill_read_json_with_errors($runDir . 'learning.json', 'learning.json', $errors);
 if (is_array($learning)) {
-    $validateRequiredKeys($learning, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'request_ref', 'outcome', 'findings'], 'learning.json');
-    $validateAllowed($learning['outcome'] ?? null, ['success', 'success_with_rework', 'partial', 'failed', 'cancelled'], 'learning outcome');
+    skill_validate_required_keys($learning, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'request_ref', 'outcome', 'findings'], 'learning.json', $errors);
+    skill_validate_allowed($learning['outcome'] ?? null, SKILL_OUTCOMES, 'learning outcome', $errors);
     if (!is_array($learning['findings'] ?? null)) {
         $errors[] = 'learning.json findings must be an array';
     }
 }
 
-$pruning = $readJson($runDir . 'pruning.json', 'pruning.json');
+$pruning = skill_read_json_with_errors($runDir . 'pruning.json', 'pruning.json', $errors);
 if (is_array($pruning)) {
-    $validateRequiredKeys($pruning, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'budget', 'items'], 'pruning.json');
+    skill_validate_required_keys($pruning, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'budget', 'items'], 'pruning.json', $errors);
     if (is_array($pruning['budget'] ?? null)) {
-        $validateRequiredKeys($pruning['budget'], ['skill_md_max_lines', 'max_loaded_references'], 'pruning budget');
+        skill_validate_required_keys($pruning['budget'], ['skill_md_max_lines', 'max_loaded_references'], 'pruning budget', $errors);
     } else {
         $errors[] = 'pruning.json budget must be an array';
     }
@@ -220,13 +206,32 @@ if (is_array($pruning)) {
     }
 }
 
-$proposal = $readJson($runDir . 'proposal.json', 'proposal.json');
+$proposal = skill_read_json_with_errors($runDir . 'proposal.json', 'proposal.json', $errors);
 if (is_array($proposal)) {
-    $validateRequiredKeys($proposal, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'status', 'source_files', 'changes'], 'proposal.json');
-    $validateAllowed($proposal['status'] ?? null, ['proposed', 'approved', 'rejected', 'applied', 'archived'], 'proposal status');
-    $validatePathList($proposal['source_files'] ?? null, 'proposal source_files');
+    skill_validate_required_keys($proposal, ['version', 'plan_id', 'run_id', 'skill', 'generated_at', 'status', 'source_files', 'changes'], 'proposal.json', $errors);
+    skill_validate_allowed($proposal['status'] ?? null, SKILL_PROPOSAL_STATUSES, 'proposal status', $errors);
+    skill_validate_path_list($proposal['source_files'] ?? null, 'proposal source_files', $errors);
     if (!is_array($proposal['changes'] ?? null)) {
         $errors[] = 'proposal.json changes must be an array';
+    } else {
+        $proposalChangeActions = defined('SKILL_CHANGE_ACTIONS') ? constant('SKILL_CHANGE_ACTIONS') : null;
+        foreach ($proposal['changes'] as $index => $change) {
+            if (!is_array($change)) {
+                $errors[] = 'proposal.json changes[' . $index . '] must be an array';
+                continue;
+            }
+            if (!array_key_exists('action', $change)) {
+                $errors[] = 'proposal.json changes[' . $index . '].action is required';
+                continue;
+            }
+            if (!is_string($change['action']) || trim($change['action']) === '') {
+                $errors[] = 'proposal.json changes[' . $index . '].action must be a non-empty string';
+                continue;
+            }
+            if (is_array($proposalChangeActions)) {
+                skill_validate_allowed($change['action'], $proposalChangeActions, 'proposal changes[' . $index . '].action', $errors);
+            }
+        }
     }
     if ($planId !== '' && (string)($proposal['plan_id'] ?? '') !== $planId) {
         $errors[] = 'proposal.json plan_id does not match CLI plan id';
@@ -237,6 +242,9 @@ if (is_array($proposal)) {
     if ($skill !== '' && (string)($proposal['skill'] ?? '') !== $skill) {
         $errors[] = 'proposal.json skill does not match CLI skill';
     }
+    if ($skill === '' && (string)($proposal['skill'] ?? '') === 'templates') {
+        $errors[] = 'proposal.json skill is reserved: templates';
+    }
 }
 
 if ($skill !== '') {
@@ -244,12 +252,12 @@ if ($skill !== '') {
     if (!is_dir($skillDir)) {
         $errors[] = "skill metadata missing: {$skillDir}";
     } else {
-        $inventory = $readJson($skillDir . 'inventory.json', 'inventory.json');
+        $inventory = skill_read_json_with_errors($skillDir . 'inventory.json', 'inventory.json', $errors);
         if (is_array($inventory) && !is_array($inventory['items'] ?? null)) {
             $errors[] = 'inventory.json items must be an array';
         }
 
-        $stats = $readJson($skillDir . 'stats.json', 'stats.json');
+        $stats = skill_read_json_with_errors($skillDir . 'stats.json', 'stats.json', $errors);
         if (is_array($stats) && !is_array($stats['items'] ?? null)) {
             $errors[] = 'stats.json items must be an array';
         }

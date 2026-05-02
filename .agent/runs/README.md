@@ -37,6 +37,22 @@
 - `proposal.json`: 昇格前の改善提案
 - `notes.md`: 任意の補助メモ
 
+## 命名・検証ルール
+
+- run ID は `<plan_id>-<seq3>`（例: `2026-05-02-agent-skill-growth-loop-001`）。
+- `plan_id` / `run_id` / `skill` は英数字開始、以降は `A-Za-z0-9._-` のみ。
+- `templates` / `archive` は run ディレクトリの予約名として扱う。
+- `learning-request.json` の `evidence` は許可済みファイルのみ記録する。
+- `skill:validate --strict` 実行時は、`evidence` に列挙した項目のうち `trace.jsonl` と `user_feedback` の `chat.md` について実体との整合を確認する。
+
+## 推奨運用フロー
+
+1. run 開始時に `php evo skill:init --plan=... --skill=...` を実行する。
+2. 学習結果を更新したら `php evo skill:complete --run-dir=... --strict` で完了処理する。
+3. 退避が必要なら `php evo skill:archive --run-dir=... --strict` を実行する。
+4. 集計を `php evo skill:sync [--skill=...]` で更新する。
+5. stale 候補を `php evo skill:prune [--skill=...]` で確認する。
+
 ## テンプレート
 
 雛形は `templates/` 配下に置く。

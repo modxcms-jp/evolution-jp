@@ -1,52 +1,27 @@
 <?php
 
-$skill = '';
-$limit = 50;
-$json = false;
-$minSeen = 10;
-$minUsedRatio = 0.2;
-$staleRunsThreshold = 2;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:prune [--skill=SKILL] [--limit=N] [--json] [--min-seen=N] [--min-used-ratio=R] [--stale-runs=N]');
 };
 
-$validateIdentifier = function (string $value, string $label) {
-    if ($value !== '' && !preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $value)) {
-        cli_usage("Invalid {$label}: {$value}");
-    }
-};
+$skill = skill_get_arg($args, 'skill', '');
+$limit = skill_get_int_arg($args, 'limit', 50, 1, 200);
+$json = skill_has_flag($args, 'json');
+$minSeen = skill_get_int_arg($args, 'min-seen', 10, 1, PHP_INT_MAX);
+$minUsedRatio = skill_get_float_arg($args, 'min-used-ratio', 0.2, 0.0, 1.0);
+$staleRunsThreshold = skill_get_int_arg($args, 'stale-runs', 2, 1, PHP_INT_MAX);
 
 foreach ($args as $arg) {
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if (strpos($arg, '--limit=') === 0) {
-        $limit = max(1, min(200, (int)substr($arg, strlen('--limit='))));
-        continue;
-    }
-    if ($arg === '--json') {
-        $json = true;
-        continue;
-    }
-    if (strpos($arg, '--min-seen=') === 0) {
-        $minSeen = max(1, (int)substr($arg, strlen('--min-seen=')));
-        continue;
-    }
-    if (strpos($arg, '--min-used-ratio=') === 0) {
-        $minUsedRatio = max(0.0, min(1.0, (float)substr($arg, strlen('--min-used-ratio='))));
-        continue;
-    }
-    if (strpos($arg, '--stale-runs=') === 0) {
-        $staleRunsThreshold = max(1, (int)substr($arg, strlen('--stale-runs=')));
+    if (strpos($arg, '--skill=') === 0 || strpos($arg, '--limit=') === 0 || $arg === '--json' || strpos($arg, '--min-seen=') === 0 || strpos($arg, '--min-used-ratio=') === 0 || strpos($arg, '--stale-runs=') === 0) {
         continue;
     }
 
     $usage();
 }
 
-$validateIdentifier($skill, 'skill name');
+skill_validate_skill_name($skill, true);
 
 $metaRoot = MODX_BASE_PATH . '.agent/skill-metadata/';
 if (!is_dir($metaRoot)) {
@@ -61,7 +36,7 @@ if ($skill !== '') {
     if (is_array($entries)) {
         foreach ($entries as $entry) {
             $name = basename($entry);
-            if ($name === 'templates') {
+            if (in_array($name, SKILL_RESERVED_NAMES, true)) {
                 continue;
             }
             $skills[] = $name;
@@ -71,25 +46,18 @@ if ($skill !== '') {
 
 sort($skills, SORT_STRING);
 
-$readJson = function (string $path) {
-    if (!is_file($path)) {
-        return null;
+if ($skill !== '') {
+    $skillDir = $metaRoot . $skill . '/';
+    if (!is_dir($skillDir)) {
+        cli_usage("Skill metadata directory not found: {$skillDir}");
     }
-
-    $raw = file_get_contents($path);
-    if ($raw === false) {
-        return null;
-    }
-
-    $data = json_decode($raw, true);
-    return is_array($data) ? $data : null;
-};
+}
 
 $candidates = [];
 foreach ($skills as $skillName) {
     $skillDir = $metaRoot . $skillName . '/';
-    $inventory = $readJson($skillDir . 'inventory.json');
-    $stats = $readJson($skillDir . 'stats.json');
+    $inventory = skill_read_json($skillDir . 'inventory.json');
+    $stats = skill_read_json($skillDir . 'stats.json');
     $historyPath = $skillDir . 'history.jsonl';
 
     if (!is_array($stats) || !is_array($stats['items'] ?? null)) {

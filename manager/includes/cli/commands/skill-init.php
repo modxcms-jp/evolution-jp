@@ -1,39 +1,20 @@
 <?php
 
-$planId = '';
-$skill = '';
-$runId = '';
-$trigger = 'execplan_completed';
-$priority = 'normal';
-$force = false;
+require_once __DIR__ . '/../skill-lib.php';
 
 $usage = function () {
     cli_usage('Usage: php evo skill:init --plan=PLAN_ID --skill=SKILL [--run-id=RUN_ID] [--trigger=execplan_completed|user_feedback|failure_threshold_exceeded] [--priority=low|normal|high] [--force]');
 };
 
+$planId = skill_get_arg($args, 'plan', '');
+$skill = skill_get_arg($args, 'skill', '');
+$runId = skill_get_arg($args, 'run-id', '');
+$trigger = skill_get_arg($args, 'trigger', 'execplan_completed');
+$priority = skill_get_arg($args, 'priority', 'normal');
+$force = skill_has_flag($args, 'force');
+
 foreach ($args as $arg) {
-    if (strpos($arg, '--plan=') === 0) {
-        $planId = trim(substr($arg, strlen('--plan=')));
-        continue;
-    }
-    if (strpos($arg, '--skill=') === 0) {
-        $skill = trim(substr($arg, strlen('--skill=')));
-        continue;
-    }
-    if (strpos($arg, '--run-id=') === 0) {
-        $runId = trim(substr($arg, strlen('--run-id=')));
-        continue;
-    }
-    if (strpos($arg, '--trigger=') === 0) {
-        $trigger = trim(substr($arg, strlen('--trigger=')));
-        continue;
-    }
-    if (strpos($arg, '--priority=') === 0) {
-        $priority = trim(substr($arg, strlen('--priority=')));
-        continue;
-    }
-    if ($arg === '--force') {
-        $force = true;
+    if (strpos($arg, '--plan=') === 0 || strpos($arg, '--skill=') === 0 || strpos($arg, '--run-id=') === 0 || strpos($arg, '--trigger=') === 0 || strpos($arg, '--priority=') === 0 || $arg === '--force') {
         continue;
     }
 
@@ -44,20 +25,14 @@ if ($planId === '' || $skill === '') {
     $usage();
 }
 
-if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $planId)) {
-    cli_usage("Invalid plan id: {$planId}");
-}
-if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $skill)) {
-    cli_usage("Invalid skill name: {$skill}");
-}
+skill_validate_identifier($planId, 'plan id');
+skill_validate_skill_name($skill);
 
-$allowedTriggers = ['execplan_completed', 'user_feedback', 'failure_threshold_exceeded'];
-if (!in_array($trigger, $allowedTriggers, true)) {
+if (!in_array($trigger, SKILL_TRIGGERS, true)) {
     $usage();
 }
 
-$allowedPriorities = ['low', 'normal', 'high'];
-if (!in_array($priority, $allowedPriorities, true)) {
+if (!in_array($priority, SKILL_PRIORITIES, true)) {
     $usage();
 }
 
@@ -150,21 +125,13 @@ $writeFile = function (string $path, string $content, bool $allowOverwrite = fal
     chmod($path, 0644);
 };
 
-$encode = function (array $data): string {
-    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    if ($json === false) {
-        cli_usage('Failed to encode JSON.');
-    }
-    return $json . PHP_EOL;
-};
-
 $writeFile($runDir . 'trace.jsonl', '');
 $writeFile($runDir . 'chat.md', "# Chat Log\n\n");
 $writeFile($runDir . 'notes.md', "# Notes\n\n");
 
 $writeFile(
     $runDir . 'learning-request.json',
-    $encode([
+    skill_encode_json([
         'version' => 1,
         'plan_id' => $planId,
         'run_id' => $runId,
@@ -180,7 +147,7 @@ $writeFile(
 
 $writeFile(
     $runDir . 'learning.json',
-    $encode([
+    skill_encode_json([
         'version' => 1,
         'plan_id' => $planId,
         'run_id' => $runId,
@@ -194,7 +161,7 @@ $writeFile(
 
 $writeFile(
     $runDir . 'pruning.json',
-    $encode([
+    skill_encode_json([
         'version' => 1,
         'plan_id' => $planId,
         'run_id' => $runId,
@@ -210,7 +177,7 @@ $writeFile(
 
 $writeFile(
     $runDir . 'proposal.json',
-    $encode([
+    skill_encode_json([
         'version' => 1,
         'plan_id' => $planId,
         'run_id' => $runId,
@@ -227,7 +194,7 @@ $writeFile(
 
 $writeFile(
     $skillDir . 'inventory.json',
-    $encode([
+    skill_encode_json([
         'items' => [],
     ]),
     false,
@@ -236,7 +203,7 @@ $writeFile(
 
 $writeFile(
     $skillDir . 'stats.json',
-    $encode([
+    skill_encode_json([
         'items' => [],
     ]),
     false,
