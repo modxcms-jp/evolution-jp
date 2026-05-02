@@ -66,7 +66,7 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 ### /roadmap-sync
 1. 実装・検証結果に基づき、対象項目の `Status` を `NEXT/WIP/DONE/BLOCKED` へ更新する。
 2. `Status: DONE` に変更する項目だけは、事前にユーザー確認が取れていることを確認する。
-3. `Status: DONE` に変更する項目は、`.agent/PLANS.md` の「完了処理プロトコル」に従って完了日・親タスク・ExecPlan アーカイブ・`ExecPlan:` パス・`最終更新` を同期する。
+3. `Status: DONE` に変更する項目は、`.agent/PLANS.md` の「完了処理プロトコル」に従って完了日・親タスク・ExecPlan アーカイブ・アーカイブ時のファイル名日付更新・`ExecPlan:` パス・`最終更新` を同期する。
 4. 互換表示としてチェックボックスが残っている場合のみ整合させる。
 
 ### /roadmap-normalize
