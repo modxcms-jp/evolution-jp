@@ -3,9 +3,8 @@ interface:
   short_description: "ロードマップから次タスクを選び、必要ならExecPlanを作って着手する"
   default_prompt: |
     以下の順序で進めてください。
-    1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に完了同期する。
+    1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に `.agent/PLANS.md` の「完了処理プロトコル」に従って完了同期する。
     2) 依存順で次に着手すべき `Status: NEXT` のタスクを1件選定する。
     3) 対象タスクに ExecPlan が無ければ `.agent/PLANS.md` 準拠で新規作成し、ロードマップへ `ExecPlan:` 行を追記する。
     4) ExecPlan の `Progress` と検証手順を更新し、対象タスクを `Status: WIP` にしてから実装に着手する。
-    5) 実装と検証の完了後は完了を告げてユーザー確認を求め、確認後に対象タスクの `Status: DONE` / `完了日` / 必要な親タスクの `Status` を同期する。
-    6) `.agent/roadmap.md` の `最終更新` を更新し、ExecPlan を `.agent/plans/archive/` へ移動してファイル名日付と `ExecPlan:` パスもユーザー確認後に同期する。
+    5) 実装と検証の完了後は完了を告げてユーザー確認を求め、確認後に `.agent/PLANS.md` の「完了処理プロトコル」に従って対象タスク・親タスク・ExecPlan を同期する。

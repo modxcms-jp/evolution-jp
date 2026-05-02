@@ -8,4 +8,4 @@ interface:
     3) タスク記述は固定フォーマット（Status/着手予定日/完了日/目的/背景/到達条件/非対象/依存関係/ExecPlan/メモ）を必ず使う。
     4) 着手対象に ExecPlan が無ければ `.agent/PLANS.md` 準拠で先に作成し、ロードマップへ `ExecPlan:` 行を追記する。
     5) ロードマップと ExecPlan の整合を保ったまま更新する。
-    6) 実装と検証の完了後は完了を告げてユーザー確認を求め、確認後に `Status: DONE` / `完了日` / 必要な親タスクの `Status` / `最終更新` を `.agent/roadmap.md` へ反映し、ExecPlan を `.agent/plans/archive/` へ移動してファイル名日付と `ExecPlan:` パスを同期する。
+    6) 実装と検証の完了後は完了を告げてユーザー確認を求め、確認後に `.agent/PLANS.md` の「完了処理プロトコル」に従って完了同期する。
