@@ -271,6 +271,7 @@ class DocumentParser
     public function executeParser()
     {
         ob_start();
+        Logger::pushEvent('parser.execute.start');
 
         $this->http_status_code = '200';
 
@@ -543,10 +544,14 @@ class DocumentParser
             if ($params['useCache'] != true) {  //no use cache
                 $this->config['cache_type'] = 0;
                 $this->documentContent = '';
+                Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+            } else {
+                Logger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
             }
         }
 
         if ($this->documentContent == '') {
+            Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
             // get document object
             if ($this->documentObject) {
                 $_ = $this->documentObject;
@@ -829,6 +834,7 @@ class DocumentParser
 
     private function postProcess()
     {
+        Logger::pushEvent('parser.post_process.start');
         // if the current document was generated, cache it!
         if (
             $this->documentGenerated == 1

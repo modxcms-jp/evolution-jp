@@ -6,11 +6,12 @@ fatal error、OOM、断続的な一過性障害が発生したときに、追加
 
 ## Progress
 
-- [ ] (2026-05-01) 現行ログ schema と fatal 捕捉経路を棚卸しし、追加フィールドの責務を確定する
-- [ ] (2026-05-01) fatal/OOM 向け共通コンテキスト拡張の設計を固める
-- [ ] (2026-05-01) recent events の収集地点を `DocumentParser` の処理段階ごとに定義する
-- [ ] (2026-05-01) fingerprint の正規化ルールと互換方針を決める
-- [ ] (2026-05-01) 実装手順、回帰確認、ロールバック手順を確定する
+- [x] (2026-05-03) 現行ログ schema と fatal 捕捉経路を棚卸し完了。`collectCommonContext` で request/user/document を収集済み。memory・cache_status・recent_events・fingerprint が欠落していることを確認。
+- [x] (2026-05-03) `Logger::pushEvent` / `flushRecentEvents` / `collectFatalContext` / `buildFatalFingerprint` を実装。critical 以上のログに `recent_events` と `fatal_fingerprint` を自動付与。
+- [x] (2026-05-03) `DocumentParser` の `executeParser()` / `prepareResponse()` (cache.hit / cache.miss / cache.disabled) / `postProcess()` に `Logger::pushEvent` を追加。
+- [x] (2026-05-03) `index.php` / `manager/index.php` の fatal / throwable ハンドラに `memory_limit` / `memory_usage` / `memory_peak_usage` / `cache_status` を追加。
+- [x] (2026-05-03) viewer / CLI（system_log.viewer.inc.php, log-tail.php, log-search.php）が新フィールドを固定キーで参照しないことを確認。後方互換維持。
+- [ ] (2026-05-03) 観測ベースで受け入れ確認（コンテナ内で実際のログを確認）
 
 ## Surprises & Discoveries
 
