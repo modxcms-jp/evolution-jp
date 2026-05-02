@@ -22,3 +22,10 @@
 
 `skill:init` は各 skill ディレクトリに初回ファイルを作成する。
 `templates/` 配下の example は、初期内容の参照用として使う。
+
+## 運用ルール
+
+- `templates/` は参照専用であり、skill 名としては使用しない。
+- `inventory.json` / `stats.json` は `skill:sync` で再集計して更新する（手編集を正本にしない）。
+- `history.jsonl` は `skill:sync` の追記履歴を保持する。`skill:validate --strict` では存在が必須。
+- stale 判定は `skill:prune` の出力を基準にし、`retire` / `move` / `merge` 候補を proposal へ反映する。
