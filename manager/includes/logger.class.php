@@ -295,12 +295,12 @@ class Logger
     private function getLogFile(string $type): string
     {
         $type = preg_replace('/[^a-z0-9_-]/i', '', $type) ?: self::SYSTEM_TYPE;
-        $dir = MODX_BASE_PATH . 'temp/logs/' . $type . '/' . date('Y/m', request_time()) . '/';
+        $dir = MODX_BASE_PATH . 'temp/logs/' . $type . '/' . date('Y/m') . '/';
         if (!$this->ensureLogDirectory($dir)) {
             return '';
         }
 
-        return $dir . $type . '-' . date('Y-m-d', request_time()) . '.log';
+        return $dir . $type . '-' . date('Y-m-d') . '.log';
     }
 
     private function ensureLogDirectory(string $dir): bool
