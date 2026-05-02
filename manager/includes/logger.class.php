@@ -69,9 +69,10 @@ class Logger
     public function log($level, $message, array $context = []): void
     {
         $level = $this->normalizeLevel($level);
-        $context = array_merge($context, $this->collectContext($level, $context));
+        $context = array_merge($context, $this->collectCommonContext());
+        $context = array_merge($context, $this->collectDebugContext($level, $context));
         $entry = [
-            'timestamp' => date(DATE_ATOM, request_time()),
+            'timestamp' => $this->formatLogTimestamp(),
             'level' => $level,
             'message' => $this->normalizeMessage($message),
             'context' => $this->sanitizeValue($context),
@@ -108,7 +109,7 @@ class Logger
         return print_r($message, true);
     }
 
-    private function collectContext(string $level, array $givenContext = []): array
+    private function collectCommonContext(): array
     {
         $context = [
             'request' => [
@@ -117,6 +118,7 @@ class Logger
                 'ip' => serverv('REMOTE_ADDR', ''),
                 'ua' => serverv('HTTP_USER_AGENT', ''),
             ],
+            'request_started_at' => $this->formatRequestStartedAt(),
             'trace_id' => $this->getTraceId(),
             'user' => $this->getCurrentUserId(),
         ];
@@ -139,15 +141,22 @@ class Logger
             }
         }
 
+        return $context;
+    }
+
+    private function collectDebugContext(string $level, array $givenContext = []): array
+    {
         if (!$this->shouldCollectTrace($level)) {
-            return $context;
+            return [];
         }
 
         $trace = $this->filterTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 16));
         $caller = $this->findCaller($trace, $givenContext);
-        $context['caller'] = [
+        $context = [
+            'caller' => [
             'file' => $this->toRelativePath($caller['file'] ?? ''),
             'line' => (int)($caller['line'] ?? 0),
+            ],
         ];
         if (!isset($givenContext['exception']) && !isset($givenContext['fatal'])) {
             $context['trace'] = $trace;
@@ -273,6 +282,16 @@ class Logger
         return (int)evo()->getLoginUserID();
     }
 
+    private function formatLogTimestamp(): string
+    {
+        return date(DATE_ATOM);
+    }
+
+    private function formatRequestStartedAt(): string
+    {
+        return date(DATE_ATOM, request_time());
+    }
+
     private function getLogFile(string $type): string
     {
         $type = preg_replace('/[^a-z0-9_-]/i', '', $type) ?: self::SYSTEM_TYPE;
@@ -346,10 +365,13 @@ class Logger
         $json = json_encode($logEntry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         if ($json === false) {
             $json = json_encode([
-                'timestamp' => date(DATE_ATOM, request_time()),
+                'timestamp' => $this->formatLogTimestamp(),
                 'level' => self::ERROR,
                 'message' => 'Failed to encode system log entry.',
-                'context' => ['json_error' => json_last_error_msg()],
+                'context' => [
+                    'json_error' => json_last_error_msg(),
+                    'request_started_at' => $this->formatRequestStartedAt(),
+                ],
             ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         }
 
