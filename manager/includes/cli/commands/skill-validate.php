@@ -66,7 +66,7 @@ if (is_file($tracePath)) {
                 continue;
             }
 
-            skill_validate_required_keys($event, ['ts', 'plan_id', 'run_id', 'agent', 'skill', 'type', 'summary'], 'trace event');
+            skill_validate_required_keys($event, ['ts', 'plan_id', 'run_id', 'agent', 'skill', 'type', 'summary'], 'trace event', $errors);
             skill_validate_allowed($event['type'] ?? null, SKILL_TRACE_EVENT_TYPES, 'trace event type', $errors);
             skill_validate_allowed($event['agent'] ?? null, SKILL_TRACE_AGENTS, 'trace agent', $errors);
 
@@ -105,6 +105,9 @@ $learningRequest = skill_read_json_with_errors($runDir . 'learning-request.json'
 // 自律性向上: --skillが未指定でもlearning-request.jsonから取得
 if ($skill === '' && is_array($learningRequest)) {
     $skill = (string)($learningRequest['skill'] ?? '');
+    if ($skill !== '') {
+        skill_validate_skill_name($skill);
+    }
 }
 
 if (is_array($learningRequest)) {

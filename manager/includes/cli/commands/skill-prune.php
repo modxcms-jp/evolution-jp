@@ -36,7 +36,7 @@ if ($skill !== '') {
     if (is_array($entries)) {
         foreach ($entries as $entry) {
             $name = basename($entry);
-            if (in_array($name, SKILL_RESERVED_DIRS, true)) {
+            if (in_array($name, SKILL_RESERVED_NAMES, true)) {
                 continue;
             }
             $skills[] = $name;
