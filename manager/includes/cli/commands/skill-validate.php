@@ -111,7 +111,9 @@ if ($skill === '' && is_array($learningRequest)) {
     $learningRequestSkill = $learningRequest['skill'] ?? null;
     if (is_string($learningRequestSkill)) {
         $skill = $learningRequestSkill;
-        if ($skill !== '') {
+        if ($skill === '') {
+            $errors[] = 'learning-request.json skill must not be empty';
+        } else {
             skill_validate_skill_name($skill);
         }
     } elseif ($learningRequestSkill !== null) {
