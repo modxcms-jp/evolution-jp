@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "plan_id": "2026-05-02-agent-skill-growth-loop",
+  "run_id": "2026-05-02-agent-skill-growth-loop-001",
+  "skill": "issue-resolver",
+  "trigger": "execplan_completed",
+  "requested_at": "2026-05-02T15:30:00+09:00",
+  "status": "pending",
+  "priority": "normal",
+  "reason_summary": "ExecPlan完了により学び生成対象になった",
+  "evidence": [
+    "trace.jsonl"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "skillmd-proposal-first",
+      "location": "SKILL.md",
+      "status": "adopted",
+      "added_at": "2026-05-02",
+      "last_used_at": "2026-05-10",
+      "source": "proposal-2026-05-02-01"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "plan_id": "2026-05-02-agent-skill-growth-loop",
+  "run_id": "2026-05-02-agent-skill-growth-loop-001",
+  "skill": "issue-resolver",
+  "generated_at": "2026-05-02T16:10:00+09:00",
+  "request_ref": "learning-request.json",
+  "outcome": "success_with_rework",
+  "findings": [
+    {
+      "id": "finding-001",
+      "kind": "missing_instruction",
+      "summary": "proposal-first の運用を SKILL.md で明示すべき",
+      "evidence": [
+        "trace.jsonl"
+      ],
+      "suggested_action": "add",
+      "target": "SKILL.md",
+      "confidence": "high"
+    }
+  ]
+}
