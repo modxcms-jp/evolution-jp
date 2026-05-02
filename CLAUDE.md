@@ -44,7 +44,7 @@
 ### issue-resolver スキル - 不具合調査・修正
 
 - **用途**: フォーラムやIssueの不具合報告に対する調査・再現・修正
-- **機能**: URLからの情報取得、再現コード作成、修正、記録
+- **コマンド**: `analyze-issue <URL|テキスト>` から開始（reproduce → implement-fix の順に進む）
 
 ### skill-creator スキル - スキル作成支援
 
@@ -75,7 +75,7 @@
 
 ### 不具合対応時
 
-1. `/issue-resolver` で調査・再現・修正を実行
+1. issue-resolver スキルを使って調査・再現・修正を実行（`analyze-issue <URL|テキスト>` から開始）
 2. 必要に応じてroadmapへ反映（構造的問題の場合）
 
 ---
