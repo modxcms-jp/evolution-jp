@@ -94,8 +94,9 @@
 
 ### コミット
 
-- コミットメッセージは日本語、Conventional Commits準拠
-- 自動生成時も日本語を使用
+- コミットメッセージはConventional Commits準拠、`type` は英語、`subject` は日本語で記載
+- 自動生成時も `subject` は日本語を使用
+- 詳細ルールは `AGENTS.md` のコミット規約に従う
 
 ### レビュー
 
