@@ -2128,10 +2128,11 @@ class DocumentParser
                 $value = $this->getReadableValue($key, $value);
             }
 
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $content = str_replace($matches[0][$i], $value, $content);
+            $content = str_replace($matches[0][$i], (string) $value, $content);
         }
 
         if ($this->debug) {
@@ -2334,10 +2335,11 @@ class DocumentParser
             if ($modifiers !== false) {
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $content = str_replace($matches[0][$i], $value, $content);
+            $content = str_replace($matches[0][$i], (string) $value, $content);
         }
 
         if ($this->debug) {
@@ -2397,10 +2399,11 @@ class DocumentParser
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
 
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $content = str_replace($matches[0][$i], $value, $content);
+            $content = str_replace($matches[0][$i], (string) $value, $content);
         }
 
         if ($this->debug) {
@@ -2453,10 +2456,11 @@ class DocumentParser
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $content = str_replace($matches[0][$i], $value, $content);
+            $content = str_replace($matches[0][$i], (string) $value, $content);
         }
         if ($this->debug) {
             $_ = implode(', ', $matches[0]);
@@ -3028,10 +3032,11 @@ class DocumentParser
                 } else {
                     $value = $matches[0][$i];
                 }
-                if (!is_string($value)) {
+                // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+                if (is_array($value)) {
                     continue;
                 }
-                $content = str_replace($matches[0][$i], $value, $content);
+                $content = str_replace($matches[0][$i], (string) $value, $content);
                 continue;
             }
             if (stripos($call, '@include:') === 0) {
@@ -3048,10 +3053,11 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $content = str_replace($matches[0][$i], $value, $content);
+            $content = str_replace($matches[0][$i], (string) $value, $content);
         }
 
         if ($this->dumpSnippets) {
@@ -4555,10 +4561,11 @@ class DocumentParser
                 }
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
-            if (!is_string($value)) {
+            // 配列は str_replace の置換値に使用不可（PHP 8.1+ TypeError）。整数・ブール等のスカラーは文字列化して通す
+            if (is_array($value)) {
                 continue;
             }
-            $tpl = str_replace($matches[0][$i], $value, $tpl);
+            $tpl = str_replace($matches[0][$i], (string) $value, $tpl);
         }
 
         return $tpl;
