@@ -45,46 +45,58 @@ class Logger
         return self::$recentEvents;
     }
 
+    /** @param mixed $message */
     public function emergency($message, array $context = []): void
     {
         $this->log(self::EMERGENCY, $message, $context);
     }
 
+    /** @param mixed $message */
     public function alert($message, array $context = []): void
     {
         $this->log(self::ALERT, $message, $context);
     }
 
+    /** @param mixed $message */
     public function critical($message, array $context = []): void
     {
         $this->log(self::CRITICAL, $message, $context);
     }
 
+    /** @param mixed $message */
     public function error($message, array $context = []): void
     {
         $this->log(self::ERROR, $message, $context);
     }
 
+    /** @param mixed $message */
     public function warning($message, array $context = []): void
     {
         $this->log(self::WARNING, $message, $context);
     }
 
+    /** @param mixed $message */
     public function notice($message, array $context = []): void
     {
         $this->log(self::NOTICE, $message, $context);
     }
 
+    /** @param mixed $message */
     public function info($message, array $context = []): void
     {
         $this->log(self::INFO, $message, $context);
     }
 
+    /** @param mixed $message */
     public function debug($message, array $context = []): void
     {
         $this->log(self::DEBUG, $message, $context);
     }
 
+    /**
+     * @param mixed $level
+     * @param mixed $message
+     */
     public function log($level, $message, array $context = []): void
     {
         $level = $this->normalizeLevel($level);
@@ -107,6 +119,7 @@ class Logger
         $this->writeLog($logFile, $entry);
     }
 
+    /** @param mixed $level */
     private function normalizeLevel($level): string
     {
         $level = strtolower((string)$level);
@@ -116,6 +129,7 @@ class Logger
         return $level;
     }
 
+    /** @param mixed $message */
     private function normalizeMessage($message): string
     {
         if (is_scalar($message) || $message === null) {
@@ -207,6 +221,7 @@ class Logger
         return self::$runtimeTraceId;
     }
 
+    /** @param mixed $value */
     private function normalizeIdentifier($value): string
     {
         $value = trim((string)$value);
@@ -449,6 +464,10 @@ class Logger
         return substr(hash('sha256', $type . '|' . $normFile . '|' . $line . '|' . $normMsg), 0, 16);
     }
 
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
     private function sanitizeValue($value)
     {
         if (is_array($value)) {
@@ -469,6 +488,7 @@ class Logger
         return $this->normalizeMessage($value);
     }
 
+    /** @param mixed $path */
     private function toRelativePath($path): string
     {
         if (!is_string($path) || $path === '') {
