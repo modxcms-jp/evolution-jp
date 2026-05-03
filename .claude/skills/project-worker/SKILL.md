@@ -37,9 +37,9 @@ Evolution CMS JP Edition の開発ワークフロー。
 - 実施タスク / 変更内容 / 検証結果 / 次のアクション
 
 ExecPlan を伴うタスクの完了時は、報告後に以下をアプリコンテナ内で実行する:
-1. `php evo skill:init --plan=<plan-slug> --skill=<skill-name>`（初回のみ）
-2. `php evo skill:complete --plan=<plan-slug> --run-id=<run-id>`（learning/pruning/proposal 生成）
-   ※ `run-id` は `php evo skill:status` で確認できる
+1. `php evo skill:init --plan=<plan-id> --skill=<skill-name>`（初回のみ）
+2. `php evo skill:complete --plan=<plan-id> --run-id=<run-id>`（learning/pruning/proposal 生成）
+   ※ `run-id` は `php evo skill:status --plan=<plan-id>` で確認できる
 
 ## 意思決定の閾値
 
