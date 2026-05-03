@@ -23,7 +23,7 @@ Evolution CMS JP Edition の開発ワークフロー。
 
 ### /work
 1. `AGENTS.md` のドキュメントマップから関連ファイルを特定
-2. ExecPlan を伴うタスクの初回着手時は `php evo skill:init --plan=<plan_id> --skill=project-worker` でアプリコンテナ内で run を初期化する
+2. ExecPlan を伴うタスクの初回着手時は `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=project-worker` で run を初期化する
 3. 複雑なタスクはステップごとの計画を提示
 4. `AGENTS.md` の規約を厳守して実装
 5. 規約チェック: No jQuery / No Frames / Helpers First / Secure SQL
@@ -37,9 +37,9 @@ Evolution CMS JP Edition の開発ワークフロー。
 作業完了報告を以下の形式で出力:
 - 実施タスク / 変更内容 / 検証結果 / 次のアクション
 
-ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8 として以下をアプリコンテナ内で実行する:
-1. `php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict`（整合検証と learning/pruning/proposal 生成）
-   ※ `<run_id>` は `php evo skill:status --plan=<plan_id>` で確認できる
+ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8 として以下を実行する:
+1. `docker compose exec <app-service> php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict`（整合検証と learning/pruning/proposal 生成）
+   ※ `<run_id>` は `docker compose exec <app-service> php evo skill:status --plan=<plan_id>` で確認できる
    ※ `skill:init` が未実行の場合は先に実行すること（`/work` の手順2を参照）
 
 ## 意思決定の閾値
