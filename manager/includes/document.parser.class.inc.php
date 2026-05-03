@@ -1045,6 +1045,8 @@ class DocumentParser
             return false;
         }
 
+        Logger::pushEvent('static_cache.hit');
+
         $ext = strtolower(substr($filepath, strrpos($filepath, '.')));
         $get_mime_type = function ($ext) use ($filepath) {
             if (in_array($ext, ['.html', '.htm'])) {
