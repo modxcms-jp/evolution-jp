@@ -1,0 +1,14 @@
+interface:
+  display_name: "Release"
+  short_description: "Evolution CMS JP Edition のリリース作業を対話形式でガイドする"
+  default_prompt: |
+    リリース作業を対話形式で進めてください。
+
+    進め方:
+    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。
+    2) 問題があれば警告し、続行確認を取る。
+    3) ユーザーに新バージョン番号（形式: X.Y.ZJ）を質問する。
+    4) `manager/includes/version.inc.php` の `$modx_version` と `$modx_release_date`（今日の日付）を更新し、変更内容を提示してユーザー確認を取る。
+    5) `chore(release): バージョンを {version} に更新` の形式でコミットする（ユーザー確認後）。
+    6) `git tag release-{version}`、`git push origin main`、`git push origin release-{version}` を提示してユーザー確認後に実行する。
+    7) GitHub Actions `Build Release Package` がトリガーされた旨と、完了後に GitHub Releases へ ZIP が添付されることを伝えてリリース完了を宣言する。
