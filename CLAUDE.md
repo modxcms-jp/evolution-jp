@@ -120,7 +120,7 @@
 ### CLI実行環境
 
 - `php evo` はホストから `docker compose exec <app-service> php evo ...` で実行する
-- ホスト直接実行は `mysqli` 不在で失敗する
+- ホスト直接実行は `mysqli` 不在で失敗する場合がある
 
 ### ログ確認
 

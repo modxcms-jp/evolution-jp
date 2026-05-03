@@ -103,7 +103,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 * 管理機能は CLI 実行可能
 * ログはコンテキスト配列形式
-* `php evo` はアプリコンテナ内で実行する。ホスト側では `mysqli` 不在で失敗する場合がある
+* `php evo` はホストから `docker compose exec <app-service> php evo ...` で実行する。ホスト直接実行は `mysqli` 不在で失敗する場合がある
 
 ---
 
