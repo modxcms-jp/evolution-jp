@@ -2128,6 +2128,9 @@ class DocumentParser
                 $value = $this->getReadableValue($key, $value);
             }
 
+            if (!is_string($value)) {
+                continue;
+            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -2331,6 +2334,9 @@ class DocumentParser
             if ($modifiers !== false) {
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
+            if (!is_string($value)) {
+                continue;
+            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -2391,6 +2397,9 @@ class DocumentParser
                 $value = $this->applyFilter($value, $modifiers, $key);
             }
 
+            if (!is_string($value)) {
+                continue;
+            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -2443,6 +2452,9 @@ class DocumentParser
             if ($modifiers !== false) {
                 $modifiers = $this->mergePlaceholderContent($modifiers);
                 $value = $this->applyFilter($value, $modifiers, $key);
+            }
+            if (!is_string($value)) {
+                continue;
             }
             $content = str_replace($matches[0][$i], $value, $content);
         }
@@ -3016,6 +3028,9 @@ class DocumentParser
                 } else {
                     $value = $matches[0][$i];
                 }
+                if (!is_string($value)) {
+                    continue;
+                }
                 $content = str_replace($matches[0][$i], $value, $content);
                 continue;
             }
@@ -3033,6 +3048,9 @@ class DocumentParser
                 continue;
             }
             $value = $this->_get_snip_result($call);
+            if (!is_string($value)) {
+                continue;
+            }
             $content = str_replace($matches[0][$i], $value, $content);
         }
 
@@ -4536,6 +4554,9 @@ class DocumentParser
                     $modifiers = $this->parseText($modifiers, $ph, $left, $right);
                 }
                 $value = $this->applyFilter($value, $modifiers, $key);
+            }
+            if (!is_string($value)) {
+                continue;
             }
             $tpl = str_replace($matches[0][$i], $value, $tpl);
         }
