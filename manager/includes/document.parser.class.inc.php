@@ -849,6 +849,49 @@ class DocumentParser
     private function postProcess()
     {
         Logger::pushEvent('parser.post_process.start');
+        // Register a shutdown handler to catch fatals occurring within postProcess itself.
+        // frontend_log_shutdown_fatal (registered at index.php) runs before postProcess in PHP's
+        // shutdown queue, so any fatal inside postProcess would otherwise go unlogged.
+        register_shutdown_function(function (): void {
+            $error = error_get_last();
+            if (!is_array($error)) {
+                return;
+            }
+            $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR];
+            if (!in_array((int)($error['type'] ?? 0), $fatalTypes, true)) {
+                return;
+            }
+            try {
+                $file = (string)($error['file'] ?? '');
+                $line = (int)($error['line'] ?? 0);
+                $source = function_exists('frontend_read_source_line')
+                    ? frontend_read_source_line($file, $line)
+                    : null;
+                $logger = new Logger();
+                $logger->critical((string)($error['message'] ?? 'Fatal error'), [
+                    'source' => 'postProcess shutdown',
+                    'fatal' => [
+                        'type' => function_exists('frontend_system_log_error_type')
+                            ? frontend_system_log_error_type((int)($error['type'] ?? 0))
+                            : (string)($error['type'] ?? 0),
+                        'number' => (int)($error['type'] ?? 0),
+                        'message' => (string)($error['message'] ?? ''),
+                        'file' => $file,
+                        'line' => $line,
+                        'source' => $source,
+                    ],
+                    'memory_limit' => ini_get('memory_limit'),
+                    'memory_usage' => memory_get_usage(),
+                    'memory_peak_usage' => memory_get_peak_usage(),
+                    'cache_status' => function_exists('frontend_collect_cache_status')
+                        ? frontend_collect_cache_status()
+                        : 'unknown',
+                ]);
+            } catch (Throwable $loggingException) {
+                error_log('Failed to write postProcess fatal error to system log: ' . $loggingException->getMessage());
+            }
+        });
+
         // if the current document was generated, cache it!
         if (
             $this->documentGenerated == 1
