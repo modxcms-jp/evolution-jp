@@ -58,8 +58,9 @@ Conventional Commits 準拠でコミットする：
 - ユーザーに確認を取り、承認後に実行する
 - タグのプッシュで GitHub Actions `Build Release Package` がトリガーされる旨を伝える
 
-#### ステップ 6：完了確認
+#### ステップ 6：ドラフト確認と公開
 
-- GitHub の Actions タブで `Build Release Package` ワークフローの進行を確認するよう伝える
-- ワークフロー完了後、GitHub Releases にZIPが添付されることを説明する
-- リリース完了を宣言する
+- GitHub の Actions タブで `Build Release Package` ワークフローの完了を確認するよう伝える
+- ワークフロー完了後、GitHub Releases にドラフト状態でリリースが作成される（一般非公開）
+- ZIPをダウンロードして内容を確認するよう案内する
+- 問題がなければ GitHub Releases 画面で「Publish release」を押して公開するよう伝える

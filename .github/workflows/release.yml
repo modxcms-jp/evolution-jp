@@ -49,3 +49,4 @@ jobs:
         with:
           files: evo-${{ github.ref_name }}.zip
           generate_release_notes: true
+          draft: true
