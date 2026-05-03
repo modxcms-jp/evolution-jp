@@ -22,7 +22,7 @@ interface:
 
     `/handoff`:
     1) 実施タスク / 変更内容 / 検証結果 / 次のアクションを報告する。
-    2) ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8（8-1〜8-3）に従う。`skill:init` が未実行の場合は `/work` の手順2を先に実行すること。
+    2) ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8（8-1〜8-3）に従う。
 
     共通ルール:
     - `AGENTS.md` のコーディング規約を最優先する。

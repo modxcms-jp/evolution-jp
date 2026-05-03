@@ -38,7 +38,6 @@ Evolution CMS JP Edition の開発ワークフロー。
 - 実施タスク / 変更内容 / 検証結果 / 次のアクション
 
 ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8（8-1〜8-3）に従う。
-（`skill:init` が未実行の場合は `/work` の手順2を先に実行すること）
 
 ## 意思決定の閾値
 
