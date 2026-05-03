@@ -26,5 +26,5 @@ interface:
 
     共通ルール:
     - `AGENTS.md` のコーディング規約を最優先する。
-    - `php evo` はアプリコンテナ内で実行する（ホスト側では mysqli 不在で失敗する）。
+    - `php evo` はアプリコンテナに対してホストから実行する（`docker compose exec <app-service> php evo ...` を使用。ホスト直接実行は mysqli 不在で失敗する）。
     - DBスキーマ変更・互換性を損なう変更・設計変更は実施前にユーザー確認を取る。
