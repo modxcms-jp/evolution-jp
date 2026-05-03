@@ -36,8 +36,7 @@ jobs:
             --exclude='README*' \
             --exclude='AGENTS.md' \
             --exclude='CLAUDE.md' \
-            --exclude='compose.yml' \
-            --exclude='evo'
+            --exclude='compose.yml'
 
       - name: Create zip archive
         run: |

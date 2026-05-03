@@ -18,7 +18,7 @@ services:
       - DB_HOST=${DB_HOST:-db}
       - DB_USERNAME=${DB_USERNAME:-user}
       - DB_PASSWORD=${DB_PASSWORD:-password}
-      - DB_DATABASE=${DB_DATABASE:-evo-db}
+      - DB_DATABASE=${DB_DATABASE:-evodb}
       - TABLE_PREFIX=${TABLE_PREFIX:-modx_}
     depends_on:
       - db
@@ -31,7 +31,7 @@ services:
     container_name: evo-db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-evo-db}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-evodb}
       MYSQL_USER: ${MYSQL_USER:-user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     volumes:
