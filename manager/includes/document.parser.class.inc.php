@@ -933,6 +933,11 @@ class DocumentParser
     {
         try {
             $trace = $exception->getTrace();
+            // Normalize trace to exclude args for security (args may contain sensitive data)
+            $normalizedTrace = function_exists('frontend_system_log_trace')
+                ? frontend_system_log_trace($trace)
+                : $this->normalizeTraceFrames($trace);
+
             $logger = new Logger();
             $logger->critical($exception->getMessage(), [
                 'source' => 'postProcess execution',
@@ -941,9 +946,7 @@ class DocumentParser
                     'message' => $exception->getMessage(),
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
-                    'trace' => function_exists('frontend_system_log_trace')
-                        ? frontend_system_log_trace($trace)
-                        : $trace,
+                    'trace' => $normalizedTrace,
                 ],
                 'memory_limit' => ini_get('memory_limit'),
                 'memory_usage' => memory_get_usage(),
@@ -955,6 +958,20 @@ class DocumentParser
         } catch (Throwable $loggingException) {
             error_log('Failed to write postProcess throwable to system log: ' . $loggingException->getMessage());
         }
+    }
+
+    private function normalizeTraceFrames(array $trace): array
+    {
+        $frames = [];
+        foreach ($trace as $frame) {
+            $frames[] = [
+                'file' => $frame['file'] ?? '',
+                'line' => (int)($frame['line'] ?? 0),
+                'function' => $frame['function'] ?? '',
+                'class' => $frame['class'] ?? '',
+            ];
+        }
+        return $frames;
     }
 
     public function sanitize_gpc(&$target, $count = 0)
