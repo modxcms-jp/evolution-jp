@@ -3,11 +3,19 @@
 このディレクトリは、スキルを実行する「担当者」としてのエージェント定義を管理する。
 スキルは手順と判断基準、エージェントは責務境界と成果物を定義する。
 
+## 正本の分担
+
+- `AGENTS.md`: 共通ルールの正本
+- `.agent/agents/`: エージェント責務の正本
+- スキル本文: 各ランタイム側の入口から参照する
+
+ランタイム固有の起動方法やメタデータは各ランタイム側に限定し、このディレクトリには責務境界と成果物だけを記載する。
+
 ## 基本方針
 
 - `AGENTS.md` を最優先の開発ルールとする。
-- `.codex/skills/*/SKILL.md` は再利用可能な手順として参照する。
-- 自動選択の入口は `.codex/skills/agent-orchestrator/SKILL.md` と `.codex/skills/review-agent/SKILL.md` に置く。
+- スキル本文の詳細は、各ランタイム側の入口から参照する。
+- 自動選択の入口は、各ランタイム側で定義する。
 - エージェント定義には、スキル本文の詳細を重複記載しない。
 - 複数エージェントで並行作業する場合は、編集対象ファイルを明確に分離する。
 - 調査担当は原則読み取り専用、実装担当は指定された書き込み範囲のみ編集する。
@@ -27,7 +35,9 @@
 
 エージェントの作業結果は、必要に応じて `.agent/runs/YYYY-MM-DD-<slug>/` に記録する。
 短い作業ではチャット上の要約でよいが、設計判断・検証結果・レビュー指摘は再利用できる形で残す。
-学習ループ対象の run は `skill:complete` / `skill:archive` / `skill:sync` / `skill:prune` の順で更新し、契約チェックは `skill:validate --strict` を使う。
+学習ループ対象の run は `skill:complete` / `skill:archive` /
+`skill:sync` / `skill:prune` の順で更新し、契約チェックは
+`skill:validate --strict` を使う。
 `php evo` はホスト直実行せず、`docker compose exec <app-service> php evo ...` を使う。
 
 ## 開始時の宣言

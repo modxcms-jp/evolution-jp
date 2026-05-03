@@ -7,11 +7,11 @@ Evolution CMS JP Edition のリリースパッケージを作成し、GitHub Rel
 ### 1. リリースタグの作成
 
 ```bash
-# タグ作成（例: release-1.5.0）
-git tag release-1.5.0
+# タグ作成（例: release-1.3.0J）
+git tag release-1.3.0J
 
 # タグを push
-git push origin release-1.5.0
+git push origin release-1.3.0J
 ```
 
 ### 2. GitHub Actions の自動実行
@@ -23,7 +23,7 @@ git push origin release-1.5.0
 1. リポジトリをチェックアウト
 2. `dist/` ディレクトリを作成
 3. 除外ファイルを除いてプロジェクトファイルを `dist/` にコピー
-4. `evo-release-1.5.0.zip` を作成
+4. `evo-release-1.3.0J.zip` を作成
 5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
 
 ### 3. ドラフト確認と公開
@@ -129,7 +129,7 @@ manager/docker/
 
 ### タグの命名規則
 
-- **必須形式**: `release-*`（例: `release-1.5.0`, `release-2.0.0-beta1`）
+- **必須形式**: `release-*`（例: `release-1.3.0J`, `release-2.0.0J-beta1`）
 - 形式が異なるとワークフローが実行されない
 
 ### GitHub Actions が失敗した場合
@@ -144,14 +144,14 @@ GitHub リポジトリ → Actions タブ → 失敗したワークフロー →
 
 ```bash
 # ローカルのタグを削除
-git tag -d release-1.5.0
+git tag -d release-1.3.0J
 
 # リモートのタグを削除（GitHub Release も削除される）
-git push --delete origin release-1.5.0
+git push --delete origin release-1.3.0J
 
 # 修正後、再度タグを作成して push
-git tag release-1.5.0
-git push origin release-1.5.0
+git tag release-1.3.0J
+git push origin release-1.3.0J
 ```
 
 #### 3. 手動でワークフローを再実行
@@ -242,14 +242,13 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 ## バージョニング規則
 
-- **メジャーリリース**: `release-2.0.0`（破壊的変更を含む）
-- **マイナーリリース**: `release-1.5.0`（機能追加、下位互換性あり）
-- **パッチリリース**: `release-1.4.1`（バグ修正のみ）
-- **プレリリース**: `release-1.5.0-beta1`, `release-1.5.0-rc1`
+- **メジャーリリース**: `release-2.0.0J`（破壊的変更を含む）
+- **マイナーリリース**: `release-1.3.0J`（機能追加、下位互換性あり）
+- **パッチリリース**: `release-1.2.1J`（バグ修正のみ）
+- **プレリリース**: `release-1.3.0J-beta1`, `release-1.3.0J-rc1`
 
 ## リリース前チェックリスト
 
-- [ ] `CHANGELOG.md` の更新（該当バージョンの変更内容を記載）
 - [ ] `manager/includes/version.inc.php` のバージョン番号更新
 - [ ] ローカルでの動作確認（インストール・アップグレード）
 - [ ] テストケースの実行

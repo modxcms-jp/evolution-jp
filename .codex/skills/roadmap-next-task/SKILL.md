@@ -5,6 +5,9 @@ description: ロードマップ（`.agent/roadmap.md`）の依存順を基準に
 
 # Roadmap Next Task
 
+このファイルは Codex 実行用の入口とメタデータを管理する。
+手順本文の正本は `.claude/skills/roadmap-next-task/SKILL.md` に置く。
+
 `.agent/roadmap.md` をSSOTとして、次に着手すべきタスクを選定し、必要なら ExecPlan を作成してから実装に入る。
 実装規約は `AGENTS.md` を最優先とする。
 ロードマップ全体の追加・変更・削除や記述フォーマットの維持は `roadmap-manager` を使い、このスキルは「次タスク着手」に限定する。

@@ -7,9 +7,9 @@
 
 ## 利用スキル
 
-- `.codex/skills/roadmap-manager/SKILL.md`
-- `.codex/skills/roadmap-next-task/SKILL.md`
-- `.codex/skills/exec-plan/SKILL.md`
+- `roadmap-manager` スキル
+- `roadmap-next-task` スキル
+- `exec-plan` スキル
 
 ## 入力
 

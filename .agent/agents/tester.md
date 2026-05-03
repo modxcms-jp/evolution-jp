@@ -7,8 +7,8 @@
 
 ## 利用スキル
 
-- `.codex/skills/issue-resolver/SKILL.md` の `reproduce`
-- `.codex/skills/exec-plan/SKILL.md` の `Validation and Acceptance`
+- `issue-resolver` スキルの再現観点
+- `exec-plan` スキルの検証条件
 
 ## 入力
 
@@ -44,4 +44,3 @@
 - 再現不能のまま原因を断定しない。
 - テストを通すためだけに本体実装を変更しない。
 - ローカル環境制約と実装不具合を混同しない。
-
