@@ -5,6 +5,9 @@ description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル
 
 # Review Agent
 
+このファイルは Codex 実行用の入口とメタデータを管理する。
+手順本文の正本は `.claude/skills/review-agent/SKILL.md` に置く。
+
 `.agent/agents/reviewer.md` を主担当として、バグ・回帰・セキュリティ・キャッシュ整合性・SSOT 違反を優先してレビューする。
 PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する。
 

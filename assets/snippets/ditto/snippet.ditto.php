@@ -1339,7 +1339,7 @@ if ($count > 0) {
         evo()->setPlaceholder($dittoID . "ditto_object", $ditto);
         evo()->setPlaceholder($dittoID . "ditto_resource", ($save == "1") ? array_slice($resource, $display) : $resource);
         if ($save == 3) {
-            return $resource;
+            return '';
         }
     }
 } else {

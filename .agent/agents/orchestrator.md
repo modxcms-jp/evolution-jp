@@ -7,10 +7,10 @@
 
 ## 利用スキル
 
-- `.codex/skills/issue-resolver/SKILL.md`
-- `.codex/skills/exec-plan/SKILL.md`
-- `.codex/skills/roadmap-manager/SKILL.md`
-- `.codex/skills/roadmap-next-task/SKILL.md`
+- `issue-resolver` スキル
+- `exec-plan` スキル
+- `roadmap-manager` スキル
+- `roadmap-next-task` スキル
 
 ## 入力
 
@@ -42,4 +42,3 @@
 - 根拠なしに複数エージェントへ分割しない。
 - 子エージェントの調査結果を無視して実装方針を変えない。
 - 競合する編集範囲を同時に割り当てない。
-

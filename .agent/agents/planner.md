@@ -7,8 +7,8 @@
 
 ## 利用スキル
 
-- `.codex/skills/exec-plan/SKILL.md`
-- `.codex/skills/roadmap-manager/SKILL.md`
+- `exec-plan` スキル
+- `roadmap-manager` スキル
 
 ## 入力
 

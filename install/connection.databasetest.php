@@ -113,7 +113,7 @@ function createDB($db_name, $db_charset, $db_collation)
 function isValidDbIdentifier($value)
 {
     return is_string($value)
-        && preg_match('/^[A-Za-z0-9_\\$]{1,64}$/', $value);
+        && preg_match('/^[A-Za-z0-9_\\$-]{1,64}$/', $value);
 }
 
 function isValidCharsetName($value)

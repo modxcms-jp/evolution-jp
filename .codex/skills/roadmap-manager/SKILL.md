@@ -5,6 +5,9 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 
 # Roadmap Manager
 
+このファイルは Codex 実行用の入口とメタデータを管理する。
+手順本文の正本は `.claude/skills/roadmap-manager/SKILL.md` に置く。
+
 `.agent/roadmap.md` をSSOTとして、ロードマップの保守と実行を行う。
 実装規約は `AGENTS.md` を最優先とする。
 

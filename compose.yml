@@ -6,9 +6,8 @@ services:
       args:
         USER_ID: ${UID:-1000}
         GROUP_ID: ${GID:-1000}
-    container_name: evo
     ports:
-      - "80:80"
+      - "80:8080"
     volumes:
       - ./:/var/www/html
       - ./manager/docker/php.ini:/usr/local/etc/php/php.ini
@@ -16,6 +15,11 @@ services:
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
+      - DB_HOST=${DB_HOST:-db}
+      - DB_USERNAME=${DB_USERNAME:-user}
+      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_DATABASE=${DB_DATABASE:-evodb}
+      - TABLE_PREFIX=${TABLE_PREFIX:-modx_}
     depends_on:
       - db
       - mailpit
@@ -24,10 +28,10 @@ services:
 
   db:
     image: mysql:8.3
-    container_name: evo-db
+    container_name: evodb
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-evo-db}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-evodb}
       MYSQL_USER: ${MYSQL_USER:-user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     volumes:
@@ -39,7 +43,6 @@ services:
 
   mailpit:
     image: axllent/mailpit:latest
-    container_name: mailpit
     ports:
       - "1025:1025"
       - "8025:8025"

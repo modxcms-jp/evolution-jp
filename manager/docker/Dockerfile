@@ -24,5 +24,15 @@ RUN groupmod -g ${GROUP_ID} www-data && \
 RUN echo 'sendmail_path = "/usr/bin/msmtp -t -i"' > /usr/local/etc/php/conf.d/msmtp.ini && \
     ln -sf /usr/bin/msmtp /usr/sbin/sendmail
 
+# Apache を 8080 で動かす（www-data はポート 80 にバインドできないため）
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf && \
+    sed -i 's/<VirtualHost \*:80>/<VirtualHost *:8080>/' /etc/apache2/sites-enabled/000-default.conf
+
 # Apache起動
+COPY manager/docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+USER www-data
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["apache2-foreground"]

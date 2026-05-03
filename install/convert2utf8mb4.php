@@ -43,7 +43,7 @@ class convert2utf8mb4 {
     {
         db()->exec(
             sprintf(
-                "ALTER DATABASE %s CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
+                "ALTER DATABASE `%s` CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci",
                 db()->dbase
             )
         );

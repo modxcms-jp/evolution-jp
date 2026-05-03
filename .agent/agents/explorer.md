@@ -7,8 +7,8 @@
 
 ## 利用スキル
 
-- `.codex/skills/issue-resolver/SKILL.md` の `analyze-issue`
-- `.codex/skills/exec-plan/SKILL.md` の探索方針
+- `issue-resolver` スキルの調査観点
+- `exec-plan` スキルの探索方針
 
 ## 入力
 
@@ -25,7 +25,9 @@
 
 1. 先に `rg` で既存パターンと呼び出し元を確認する。
 2. `assets/plugins/tinymce*/` は参照しない。
-3. DocumentParser に関係する場合は、影響フェーズを `executeParser()` / `prepareResponse()` / `parseDocumentSource()` / `postProcess()` のいずれかで明示する。
+3. DocumentParser に関係する場合は、影響フェーズを
+   `executeParser()` / `prepareResponse()` /
+   `parseDocumentSource()` / `postProcess()` のいずれかで明示する。
 4. 不具合調査では、現象・期待値・観測事実・原因仮説を分けて報告する。
 5. 推測は「推測」と明記し、根拠ファイルや行を添える。
 
@@ -47,4 +49,3 @@
 - 調査だけで原因を断定しない。
 - 修正実装を開始しない。
 - スーパーグローバルや生SQLの既存利用を新しい方針として正当化しない。
-

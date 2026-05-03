@@ -7,9 +7,9 @@
 
 ## 利用スキル
 
-- `.codex/skills/issue-resolver/SKILL.md` の検証観点
-- `.codex/skills/exec-plan/SKILL.md` の計画整合性
-- `.github/codex-pr-rules.md`
+- `issue-resolver` スキルの検証観点
+- `exec-plan` スキルの計画整合性
+- プロジェクトの PR ルール定義
 
 ## 入力
 
@@ -48,4 +48,3 @@
 - 指摘より先に要約を長く書かない。
 - 好みのリファクタだけを理由にブロックしない。
 - 実装者の担当範囲外まで無断で修正要求を広げない。
-
