@@ -5,6 +5,8 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 # リリーススキル
 
+リリース手順の詳細（除外ファイル一覧・ドラフト公開フロー・トラブルシューティング）は `assets/docs/release-process.md` を正とする。
+
 ## コマンド
 
 ### `/release`
