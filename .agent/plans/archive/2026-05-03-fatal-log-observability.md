@@ -11,7 +11,7 @@ fatal error、OOM、断続的な一過性障害が発生したときに、追加
 - [x] (2026-05-03) `DocumentParser` の `executeParser()` / `prepareResponse()` (cache.hit / cache.miss / cache.disabled) / `postProcess()` に `Logger::pushEvent` を追加。
 - [x] (2026-05-03) `index.php` / `manager/index.php` の fatal / throwable ハンドラに `memory_limit` / `memory_usage` / `memory_peak_usage` / `cache_status` を追加。
 - [x] (2026-05-03) viewer / CLI（system_log.viewer.inc.php, log-tail.php, log-search.php）が新フィールドを固定キーで参照しないことを確認。後方互換維持。
-- [ ] (2026-05-03) 観測ベースで受け入れ確認（コンテナ内で実際のログを確認）
+- [x] (2026-05-03) 観測ベースで受け入れ確認完了。critical ログに recent_events（4件）/ fatal_fingerprint / memory_* / cache_status が正常出力。通常の error ログへの混入なし。
 
 ## Surprises & Discoveries
 
@@ -54,7 +54,9 @@ fatal error、OOM、断続的な一過性障害が発生したときに、追加
 
 ## Outcomes & Retrospective
 
-未着手。完了時に、fatal/OOM 調査に必要だった情報が 1 レコードまたは少数の関連ログで揃うようになったか、ログ量とノイズが許容範囲に収まったかを振り返る。
+2026-05-03 完了。
+
+fatal/OOM 調査に必要なフィールドが 1 レコードで揃うようになった。`recent_events` のリングバッファ設計により通常リクエストのログ量は増えず、critical 以上でのみ出力されることを確認。`fatal_fingerprint` は `log:search` に渡すだけで同種障害の時系列追跡ができ、修正前後の比較にも使いやすい。`cache_status` により「キャッシュヒット中の fatal か、生成中の fatal か」をログ単体で判断できるようになった。
 
 ## Context and Orientation
 
