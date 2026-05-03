@@ -129,7 +129,7 @@ manager/docker/
 
 ### タグの命名規則
 
-- **必須形式**: `release-*`（例: `release-1.3.0J`, `release-2.0.0J-beta1`）
+- **必須形式**: `release-*`（例: `release-1.3.0J`）
 - 形式が異なるとワークフローが実行されない
 
 ### GitHub Actions が失敗した場合
@@ -245,7 +245,6 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 - **メジャーリリース**: `release-2.0.0J`（破壊的変更を含む）
 - **マイナーリリース**: `release-1.3.0J`（機能追加、下位互換性あり）
 - **パッチリリース**: `release-1.2.1J`（バグ修正のみ）
-- **プレリリース**: `release-1.3.0J-beta1`, `release-1.3.0J-rc1`
 
 ## リリース前チェックリスト
 
