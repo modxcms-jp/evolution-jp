@@ -849,79 +849,129 @@ class DocumentParser
     private function postProcess()
     {
         Logger::pushEvent('parser.post_process.start');
-        // if the current document was generated, cache it!
-        if (
-            $this->documentGenerated == 1
-            && $this->doc('cacheable') == 1
-            && $this->doc('type') === 'document'
-            && $this->doc('published') == 1
-        ) {
-            $docid = $this->documentIdentifier;
-            $param = ['makeCache' => true];
-            // invoke OnBeforeSaveWebPageCache event
-            $this->invokeEvent('OnBeforeSaveWebPageCache', $param);
+        try {
+            // if the current document was generated, cache it!
+            if (
+                $this->documentGenerated == 1
+                && $this->doc('cacheable') == 1
+                && $this->doc('type') === 'document'
+                && $this->doc('published') == 1
+            ) {
+                $docid = $this->documentIdentifier;
+                $param = ['makeCache' => true];
+                // invoke OnBeforeSaveWebPageCache event
+                $this->invokeEvent('OnBeforeSaveWebPageCache', $param);
 
-            if ($param['makeCache'] != true) {
-                return;
-            }
-
-            // get and store document groups inside document object. Document groups will be used to check security on cache pages
-            $dsq = db()->select(
-                'document_group',
-                '[+prefix+]document_groups',
-                where('document', '=', $docid)
-            );
-            $docGroups = db()->getColumn('document_group', $dsq);
-
-            // Attach Document Groups and Scripts
-            if (is_array($docGroups)) {
-                $this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
-            }
-
-            switch ($this->config('cache_type')) {
-                case '1':
-                    $cacheContent = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
-                    $cacheContent .= serialize($this->documentObject);
-                    $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
-                    $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
-                    break;
-                case '2':
-                    $cacheContent = serialize($this->doc('contentType'));
-                    $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
-                    $filename = hash('crc32b', request_uri());
-                    break;
-            }
-
-            switch ($this->http_status_code) {
-                case '404':
-                    $filename = 'error404';
-                    break;
-                case '403':
-                    $filename = 'error403';
-                    break;
-                case '503':
-                    $filename = 'error503';
-                    break;
-            }
-
-            if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
-                mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
-            }
-
-            if ($this->config['cache_type'] == 1) {
-                $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
-                if (!is_dir($path)) {
-                    mkdir($path, 0777, true);
+                if ($param['makeCache'] != true) {
+                    return;
                 }
+
+                // get and store document groups inside document object. Document groups will be used to check security on cache pages
+                $dsq = db()->select(
+                    'document_group',
+                    '[+prefix+]document_groups',
+                    where('document', '=', $docid)
+                );
+                $docGroups = db()->getColumn('document_group', $dsq);
+
+                // Attach Document Groups and Scripts
+                if (is_array($docGroups)) {
+                    $this->documentObject['__MODxDocGroups__'] = implode(',', $docGroups);
+                }
+
+                switch ($this->config('cache_type')) {
+                    case '1':
+                        $cacheContent = '<?php header("HTTP/1.0 404 Not Found");exit; ?>';
+                        $cacheContent .= serialize($this->documentObject);
+                        $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentContent}";
+                        $filename = "{$this->uri_parent_dir}docid_{$docid}{$this->qs_hash}";
+                        break;
+                    case '2':
+                        $cacheContent = serialize($this->doc('contentType'));
+                        $cacheContent .= "<!--__MODxCacheSpliter__-->{$this->documentOutput}";
+                        $filename = hash('crc32b', request_uri());
+                        break;
+                }
+
+                switch ($this->http_status_code) {
+                    case '404':
+                        $filename = 'error404';
+                        break;
+                    case '403':
+                        $filename = 'error403';
+                        break;
+                    case '503':
+                        $filename = 'error503';
+                        break;
+                }
+
+                if (!is_dir(MODX_CACHE_PATH . $this->uaType)) {
+                    mkdir(MODX_CACHE_PATH . $this->uaType, 0777);
+                }
+
+                if ($this->config['cache_type'] == 1) {
+                    $path = MODX_CACHE_PATH . sprintf("%s/%s", $this->uaType, $this->uri_parent_dir);
+                    if (!is_dir($path)) {
+                        mkdir($path, 0777, true);
+                    }
+                }
+                $this->saveToFile(
+                    MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
+                    $cacheContent
+                );
             }
-            $this->saveToFile(
-                MODX_CACHE_PATH . sprintf('%s/%s.pageCache.php', $this->uaType, $filename),
-                $cacheContent
-            );
+            // Useful for example to external page counters/stats packages
+            $this->invokeEvent('OnWebPageComplete');
+            // end post processing
+        } catch (Throwable $exception) {
+            $this->logPostProcessThrowable($exception);
+            throw $exception;
         }
-        // Useful for example to external page counters/stats packages
-        $this->invokeEvent('OnWebPageComplete');
-        // end post processing
+    }
+
+    private function logPostProcessThrowable(Throwable $exception): void
+    {
+        try {
+            $trace = $exception->getTrace();
+            // Normalize trace to exclude args for security (args may contain sensitive data)
+            $normalizedTrace = function_exists('frontend_system_log_trace')
+                ? frontend_system_log_trace($trace)
+                : $this->normalizeTraceFrames($trace);
+
+            $logger = new Logger();
+            $logger->critical($exception->getMessage(), [
+                'source' => 'postProcess execution',
+                'exception' => [
+                    'class' => get_class($exception),
+                    'message' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                    'trace' => $normalizedTrace,
+                ],
+                'memory_limit' => ini_get('memory_limit'),
+                'memory_usage' => memory_get_usage(),
+                'memory_peak_usage' => memory_get_peak_usage(),
+                'cache_status' => function_exists('frontend_collect_cache_status')
+                    ? frontend_collect_cache_status()
+                    : 'unknown',
+            ]);
+        } catch (Throwable $loggingException) {
+            error_log('Failed to write postProcess throwable to system log: ' . $loggingException->getMessage());
+        }
+    }
+
+    private function normalizeTraceFrames(array $trace): array
+    {
+        $frames = [];
+        foreach ($trace as $frame) {
+            $frames[] = [
+                'file' => $frame['file'] ?? '',
+                'line' => (int)($frame['line'] ?? 0),
+                'function' => $frame['function'] ?? '',
+                'class' => $frame['class'] ?? '',
+            ];
+        }
+        return $frames;
     }
 
     public function sanitize_gpc(&$target, $count = 0)
