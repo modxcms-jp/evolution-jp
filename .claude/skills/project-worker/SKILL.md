@@ -37,10 +37,8 @@ Evolution CMS JP Edition の開発ワークフロー。
 作業完了報告を以下の形式で出力:
 - 実施タスク / 変更内容 / 検証結果 / 次のアクション
 
-ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8 として以下を実行する:
-1. `docker compose exec <app-service> php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict`（整合検証と learning/pruning/proposal 生成）
-   ※ `<run_id>` は `docker compose exec <app-service> php evo skill:status --plan=<plan_id>` で確認できる
-   ※ `skill:init` が未実行の場合は先に実行すること（`/work` の手順2を参照）
+ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8（8-1〜8-3）に従う。
+（`skill:init` が未実行の場合は `/work` の手順2を先に実行すること）
 
 ## 意思決定の閾値
 
