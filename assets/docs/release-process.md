@@ -24,12 +24,13 @@ git push origin release-1.5.0
 2. `dist/` ディレクトリを作成
 3. 除外ファイルを除いてプロジェクトファイルを `dist/` にコピー
 4. `evo-release-1.5.0.zip` を作成
-5. GitHub Release を自動作成し、zip ファイルを添付
+5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
 
-### 3. リリース完了の確認
+### 3. ドラフト確認と公開
 
-- GitHub の Releases ページで新しいリリースが作成されていることを確認
-- zip ファイルがダウンロード可能であることを確認
+1. GitHub の Actions タブでワークフローの完了を確認
+2. Releases ページでドラフトリリースを開き、zip をダウンロードして内容を確認
+3. 問題がなければ「Publish release」を押して一般公開する
 
 ## 除外ファイル一覧
 
@@ -38,6 +39,12 @@ git push origin release-1.5.0
 ```
 .git/
 .github/
+.agent/
+.agents/
+.claude/
+.codex/
+.vscode/
+.work/
 .gitignore
 .gitkeep
 .gitattributes
@@ -48,6 +55,10 @@ docs/
 readme*
 README*
 AGENTS.md
+CLAUDE.md
+compose.yml
+custom-instructions/
+manager/docker/
 ```
 
 ### 除外設定の追加方法
@@ -159,6 +170,12 @@ mkdir dist
 rsync -a ./ dist/ \
   --exclude='.git/' \
   --exclude='.github/' \
+  --exclude='.agent/' \
+  --exclude='.agents/' \
+  --exclude='.claude/' \
+  --exclude='.codex/' \
+  --exclude='.vscode/' \
+  --exclude='.work/' \
   --exclude='.gitignore' \
   --exclude='.gitkeep' \
   --exclude='.gitattributes' \
@@ -168,7 +185,11 @@ rsync -a ./ dist/ \
   --exclude='**/docs/' \
   --exclude='readme*' \
   --exclude='README*' \
-  --exclude='AGENTS.md'
+  --exclude='AGENTS.md' \
+  --exclude='CLAUDE.md' \
+  --exclude='compose.yml' \
+  --exclude='custom-instructions/' \
+  --exclude='manager/docker/'
 
 # 内容を確認
 ls -la dist/
