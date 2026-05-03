@@ -28,7 +28,7 @@ services:
 
   db:
     image: mysql:8.3
-    container_name: evo-db
+    container_name: evodb
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-evodb}
