@@ -154,7 +154,7 @@
 5. アーカイブ時はファイル名先頭の日付を完了日（`YYYY-MM-DD`）へ更新する
 6. ロードマップに `ExecPlan:` を記載している場合は、移動後のパスへ更新する
 7. `.agent/roadmap.md` の `最終更新` を同期する
-8. **スキル成長ループ**: `php evo skill:complete --plan=<plan-id> --run-id=<run-id>` をアプリコンテナ内で実行し、run の learning/pruning/proposal を生成する（`skill:init` が未実行の場合は先に `php evo skill:init --plan=<plan-id> --skill=<skill-name>` を実行する。いずれもアプリコンテナ内で実行すること。`run-id` は `php evo skill:status --plan=<plan-id>` で確認できる）
+8. **スキル成長ループ**: `.agent/PLANS.md` の「完了処理プロトコル」step 8 に従う（`php evo` コマンドはアプリコンテナ内で実行すること）
 
 ---
 

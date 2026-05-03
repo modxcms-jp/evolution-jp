@@ -23,9 +23,10 @@ Evolution CMS JP Edition の開発ワークフロー。
 
 ### /work
 1. `AGENTS.md` のドキュメントマップから関連ファイルを特定
-2. 複雑なタスクはステップごとの計画を提示
-3. `AGENTS.md` の規約を厳守して実装
-4. 規約チェック: No jQuery / No Frames / Helpers First / Secure SQL
+2. ExecPlan を伴うタスクの初回着手時は `php evo skill:init --plan=<plan-id> --skill=project-worker` で run を初期化する
+3. 複雑なタスクはステップごとの計画を提示
+4. `AGENTS.md` の規約を厳守して実装
+5. 規約チェック: No jQuery / No Frames / Helpers First / Secure SQL
 
 ### /validate
 1. 構文チェック: `find . -path "./vendor" -prune -o -name "*.php" -exec php -l {} +`
@@ -37,9 +38,9 @@ Evolution CMS JP Edition の開発ワークフロー。
 - 実施タスク / 変更内容 / 検証結果 / 次のアクション
 
 ExecPlan を伴うタスクの完了時は、報告後に以下をアプリコンテナ内で実行する:
-1. `php evo skill:init --plan=<plan-id> --skill=<skill-name>`（初回のみ）
-2. `php evo skill:complete --plan=<plan-id> --run-id=<run-id>`（learning/pruning/proposal 生成）
+1. `php evo skill:complete --plan=<plan-id> --run-id=<run-id>`（learning/pruning/proposal 生成）
    ※ `run-id` は `php evo skill:status --plan=<plan-id>` で確認できる
+   ※ `skill:init` が未実行の場合は先に実行すること（`/work` の手順2を参照）
 
 ## 意思決定の閾値
 
