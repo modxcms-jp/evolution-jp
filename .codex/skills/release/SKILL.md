@@ -21,7 +21,7 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 4. 直近のリリースタグ（`git tag --sort=-creatordate | grep '^release-' | head -5`）
 5. `.agent/roadmap.md` に `WIP` タスクが残っていないか
 
-問題がある場合（未コミット変更、WIP タスクなど）はユーザーに警告し、続行するか確認する。
+問題がある場合（未コミット変更、WIP タスクなど、または現在のブランチが `main` でない場合）はユーザーに警告し、続行するか確認する。リリース作業は `main` ブランチ上で行うことを強く推奨する。
 
 #### ステップ 2：新バージョン番号の決定
 
@@ -52,7 +52,7 @@ Conventional Commits 準拠でコミットする：
 - 実行するコマンドを提示:
   ```
   git tag release-{バージョン}
-  git push origin main
+  git push origin HEAD
   git push origin release-{バージョン}
   ```
 - ユーザーに確認を取り、承認後に実行する

@@ -5,10 +5,10 @@ interface:
     リリース作業を対話形式で進めてください。
 
     進め方:
-    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。
+    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。現在のブランチが `main` でない場合は警告し、続行確認を取る。リリース作業は `main` ブランチ上で行うことを強く推奨する。
     2) 問題があれば警告し、続行確認を取る。
     3) ユーザーに新バージョン番号（形式: X.Y.ZJ）を質問する。
     4) `manager/includes/version.inc.php` の `$modx_version` と `$modx_release_date`（今日の日付）を更新し、変更内容を提示してユーザー確認を取る。
     5) `chore(release): バージョンを {version} に更新` の形式でコミットする（ユーザー確認後）。
-    6) `git tag release-{version}`、`git push origin main`、`git push origin release-{version}` を提示してユーザー確認後に実行する。
-    7) GitHub Actions `Build Release Package` がトリガーされた旨を伝え、完了後に GitHub Releases へドラフト状態でリリースが作成される（一般非公開）ことを案内する。ZIPをダウンロードして内容確認後、GitHub Releases 画面で「Publish release」を押して公開するよう伝える。
+    6) `git tag release-{version}`、`git push origin HEAD`、`git push origin release-{version}` を提示してユーザー確認後に実行する。
+    7) GitHub Actions `Build Release Package` がトリガーされた旨を伝え、完了後に GitHub Releases へドラフト状態でリリースが作成される（一般非公開）ことを案内する。ZIPをダウンロードして内容確認後、問題がなければ GitHub Releases 画面で「Publish release」を押して公開するよう伝える。
