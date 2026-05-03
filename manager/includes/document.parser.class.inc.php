@@ -538,7 +538,8 @@ class DocumentParser
     {
         // we now know the method and identifier, let's check the cache
         $this->documentContent = $this->getCache($this->documentIdentifier);
-        if ($this->documentContent != '') {
+        $cacheChecked = ($this->documentContent != '');
+        if ($cacheChecked) {
             $params = ['useCache' => true];
             $this->invokeEvent('OnLoadWebPageCache', $params); // invoke OnLoadWebPageCache  event
             if ($params['useCache'] != true) {  //no use cache
@@ -551,7 +552,13 @@ class DocumentParser
         }
 
         if ($this->documentContent == '') {
-            Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
+            if (!$cacheChecked) {
+                if ($this->config('cache_type')) {
+                    Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
+                } else {
+                    Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                }
+            }
             // get document object
             if ($this->documentObject) {
                 $_ = $this->documentObject;

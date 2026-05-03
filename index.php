@@ -149,7 +149,13 @@ function frontend_collect_cache_status(): string
     if (!evo()->config('cache_type')) {
         return 'disabled';
     }
-    return evo()->documentGenerated == 1 ? 'generated' : 'from_cache';
+    if (evo()->documentGenerated === 1) {
+        return 'generated';
+    }
+    if (evo()->documentGenerated === 0) {
+        return 'from_cache';
+    }
+    return 'unknown'; // null = prepareResponse() 未到達
 }
 
 function frontend_log_uncaught_throwable(Throwable $exception): void

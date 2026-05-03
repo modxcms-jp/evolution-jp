@@ -40,7 +40,7 @@ class Logger
         }
     }
 
-    public static function flushRecentEvents(): array
+    public static function getRecentEvents(): array
     {
         return self::$recentEvents;
     }

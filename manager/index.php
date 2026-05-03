@@ -219,6 +219,7 @@ function manager_log_uncaught_throwable(Throwable $exception): void
             'memory_limit' => ini_get('memory_limit'),
             'memory_usage' => memory_get_usage(),
             'memory_peak_usage' => memory_get_peak_usage(),
+            'cache_status' => 'n/a',
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write uncaught throwable to system log: ' . $loggingException->getMessage());
@@ -262,6 +263,7 @@ function manager_log_shutdown_fatal(): void
             'memory_limit' => ini_get('memory_limit'),
             'memory_usage' => memory_get_usage(),
             'memory_peak_usage' => memory_get_peak_usage(),
+            'cache_status' => 'n/a',
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write fatal error to system log: ' . $loggingException->getMessage());
