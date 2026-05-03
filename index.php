@@ -143,11 +143,12 @@ function frontend_read_source_line(string $file, int $line): string
 
 function frontend_collect_cache_status(): string
 {
+    global $cache_type;
+    if (!$cache_type) {
+        return 'disabled';
+    }
     if (!evo()) {
         return 'unknown';
-    }
-    if (!evo()->config('cache_type')) {
-        return 'disabled';
     }
     if (evo()->documentGenerated === 1) {
         return 'generated';
