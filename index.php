@@ -143,17 +143,12 @@ function frontend_read_source_line(string $file, int $line): string
 
 function frontend_collect_cache_status(): string
 {
-    // evo()->config は public array。直接参照で config() メソッド経由の DB 読み出しを避ける。
-    // evo() が未初期化の場合は basicConfig.php 由来の $cache_type にフォールバック。
-    if (evo()) {
-        $cacheType = evo()->config['cache_type'] ?? 0;
-    } else {
-        global $cache_type;
-        $cacheType = $cache_type;
-    }
-
-    if (!$cacheType) {
+    global $cache_type;
+    if (!$cache_type) {
         return 'disabled';
+    }
+    if (!evo()) {
+        return 'unknown';
     }
     if (evo()->documentGenerated === 1) {
         return 'generated';

@@ -305,6 +305,7 @@ class DocumentParser
 
         if (serverv('REQUEST_METHOD') === 'POST') {
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         }
 
         $rs = $this->get_static_pages($this->decoded_request_uri);
@@ -544,6 +545,7 @@ class DocumentParser
             $this->invokeEvent('OnLoadWebPageCache', $params); // invoke OnLoadWebPageCache  event
             if ($params['useCache'] != true) {  //no use cache
                 $this->config['cache_type'] = 0;
+                $GLOBALS['cache_type'] = 0;
                 $this->documentContent = '';
                 Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
             } else {
@@ -821,6 +823,7 @@ class DocumentParser
         }
         if ($this->config('cache_type') == 2) {
             $this->config['cache_type'] = 1;
+            $GLOBALS['cache_type'] = 1;
         }
 
         $i = 0;
@@ -1219,6 +1222,7 @@ class DocumentParser
 
         if ($this->config('disable_cache_at_login') && $this->isFrontEnd() && $this->isLoggedIn('mgr')) {
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         }
 
         $this->invokeEvent('OnGetConfig');
@@ -1459,6 +1463,7 @@ class DocumentParser
 
         if ($this->session('mgrValidated') || $this->input_post()) {
             $this->config['cache_type'] = '1';
+            $GLOBALS['cache_type'] = 1;
         }
 
         if ($this->config('cache_ttl') && is_file($cacheFile)) {
@@ -3569,6 +3574,7 @@ class DocumentParser
                 $previewObject = $this->previewObject;
             }
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         } else {
             $previewObject = false;
         }
