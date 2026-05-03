@@ -271,8 +271,13 @@ class DocumentParser
     public function executeParser()
     {
         ob_start();
+        Logger::pushEvent('parser.execute.start');
 
         $this->http_status_code = '200';
+
+        if (serverv('REQUEST_METHOD') === 'POST') {
+            $GLOBALS['cache_type'] = 0;
+        }
 
         // get the settings
         if (!isset($this->config) || !$this->config) {
@@ -304,6 +309,7 @@ class DocumentParser
 
         if (serverv('REQUEST_METHOD') === 'POST') {
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         }
 
         $rs = $this->get_static_pages($this->decoded_request_uri);
@@ -537,16 +543,28 @@ class DocumentParser
     {
         // we now know the method and identifier, let's check the cache
         $this->documentContent = $this->getCache($this->documentIdentifier);
-        if ($this->documentContent != '') {
+        $cacheChecked = ($this->documentContent != '');
+        if ($cacheChecked) {
             $params = ['useCache' => true];
             $this->invokeEvent('OnLoadWebPageCache', $params); // invoke OnLoadWebPageCache  event
             if ($params['useCache'] != true) {  //no use cache
                 $this->config['cache_type'] = 0;
+                $GLOBALS['cache_type'] = 0;
                 $this->documentContent = '';
+                Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+            } else {
+                Logger::pushEvent('cache.hit', ['id' => $this->documentIdentifier]);
             }
         }
 
         if ($this->documentContent == '') {
+            if (!$cacheChecked) {
+                if ($this->config('cache_type')) {
+                    Logger::pushEvent('cache.miss', ['id' => $this->documentIdentifier]);
+                } else {
+                    Logger::pushEvent('cache.disabled', ['id' => $this->documentIdentifier]);
+                }
+            }
             // get document object
             if ($this->documentObject) {
                 $_ = $this->documentObject;
@@ -809,6 +827,7 @@ class DocumentParser
         }
         if ($this->config('cache_type') == 2) {
             $this->config['cache_type'] = 1;
+            $GLOBALS['cache_type'] = 1;
         }
 
         $i = 0;
@@ -829,6 +848,7 @@ class DocumentParser
 
     private function postProcess()
     {
+        Logger::pushEvent('parser.post_process.start');
         // if the current document was generated, cache it!
         if (
             $this->documentGenerated == 1
@@ -1206,6 +1226,7 @@ class DocumentParser
 
         if ($this->config('disable_cache_at_login') && $this->isFrontEnd() && $this->isLoggedIn('mgr')) {
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         }
 
         $this->invokeEvent('OnGetConfig');
@@ -1446,6 +1467,7 @@ class DocumentParser
 
         if ($this->session('mgrValidated') || $this->input_post()) {
             $this->config['cache_type'] = '1';
+            $GLOBALS['cache_type'] = 1;
         }
 
         if ($this->config('cache_ttl') && is_file($cacheFile)) {
@@ -3556,6 +3578,7 @@ class DocumentParser
                 $previewObject = $this->previewObject;
             }
             $this->config['cache_type'] = 0;
+            $GLOBALS['cache_type'] = 0;
         } else {
             $previewObject = false;
         }

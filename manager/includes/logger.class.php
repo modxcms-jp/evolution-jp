@@ -13,7 +13,9 @@ class Logger
 
     private const SYSTEM_TYPE = 'system';
     private const DEFAULT_MAX_BYTES = 104857600;
+    private const RECENT_EVENTS_MAX = 20;
     private static string $runtimeTraceId = '';
+    private static array $recentEvents = [];
 
     private array $levels = [
         self::EMERGENCY,
@@ -26,51 +28,82 @@ class Logger
         self::DEBUG,
     ];
 
+    public static function pushEvent(string $event, array $data = []): void
+    {
+        $entry = ['at_ms' => (int)(microtime(true) * 1000), 'event' => $event];
+        if ($data !== []) {
+            $entry['data'] = $data;
+        }
+        self::$recentEvents[] = $entry;
+        if (count(self::$recentEvents) > self::RECENT_EVENTS_MAX) {
+            array_shift(self::$recentEvents);
+        }
+    }
+
+    public static function getRecentEvents(): array
+    {
+        return self::$recentEvents;
+    }
+
+    /** @param mixed $message */
     public function emergency($message, array $context = []): void
     {
         $this->log(self::EMERGENCY, $message, $context);
     }
 
+    /** @param mixed $message */
     public function alert($message, array $context = []): void
     {
         $this->log(self::ALERT, $message, $context);
     }
 
+    /** @param mixed $message */
     public function critical($message, array $context = []): void
     {
         $this->log(self::CRITICAL, $message, $context);
     }
 
+    /** @param mixed $message */
     public function error($message, array $context = []): void
     {
         $this->log(self::ERROR, $message, $context);
     }
 
+    /** @param mixed $message */
     public function warning($message, array $context = []): void
     {
         $this->log(self::WARNING, $message, $context);
     }
 
+    /** @param mixed $message */
     public function notice($message, array $context = []): void
     {
         $this->log(self::NOTICE, $message, $context);
     }
 
+    /** @param mixed $message */
     public function info($message, array $context = []): void
     {
         $this->log(self::INFO, $message, $context);
     }
 
+    /** @param mixed $message */
     public function debug($message, array $context = []): void
     {
         $this->log(self::DEBUG, $message, $context);
     }
 
+    /**
+     * @param mixed $level
+     * @param mixed $message
+     */
     public function log($level, $message, array $context = []): void
     {
         $level = $this->normalizeLevel($level);
+        $fatalContext = $this->collectFatalContext($level, $context);
         $context = array_merge($context, $this->collectCommonContext());
         $context = array_merge($context, $this->collectDebugContext($level, $context));
+        $context = array_merge($context, $fatalContext);
         $entry = [
             'timestamp' => $this->formatLogTimestamp(),
             'level' => $level,
@@ -86,6 +119,7 @@ class Logger
         $this->writeLog($logFile, $entry);
     }
 
+    /** @param mixed $level */
     private function normalizeLevel($level): string
     {
         $level = strtolower((string)$level);
@@ -95,6 +129,7 @@ class Logger
         return $level;
     }
 
+    /** @param mixed $message */
     private function normalizeMessage($message): string
     {
         if (is_scalar($message) || $message === null) {
@@ -186,6 +221,7 @@ class Logger
         return self::$runtimeTraceId;
     }
 
+    /** @param mixed $value */
     private function normalizeIdentifier($value): string
     {
         $value = trim((string)$value);
@@ -388,6 +424,50 @@ class Logger
         error_log($message);
     }
 
+    private function collectFatalContext(string $level, array $givenContext): array
+    {
+        if (!in_array($level, [self::EMERGENCY, self::ALERT, self::CRITICAL], true)) {
+            return [];
+        }
+
+        $result = ['recent_events' => self::$recentEvents];
+
+        if (isset($givenContext['fatal']) && is_array($givenContext['fatal'])) {
+            $result['fatal_fingerprint'] = self::buildFatalFingerprint(
+                $givenContext['fatal']['type'] ?? 'fatal',
+                $givenContext['fatal']['message'] ?? '',
+                $givenContext['fatal']['file'] ?? '',
+                (int)($givenContext['fatal']['line'] ?? 0)
+            );
+        } elseif (isset($givenContext['exception']) && is_array($givenContext['exception'])) {
+            $result['fatal_fingerprint'] = self::buildFatalFingerprint(
+                $givenContext['exception']['class'] ?? 'Exception',
+                $givenContext['exception']['message'] ?? '',
+                $givenContext['exception']['file'] ?? '',
+                (int)($givenContext['exception']['line'] ?? 0)
+            );
+        }
+
+        return $result;
+    }
+
+    private static function buildFatalFingerprint(string $type, string $message, string $file, int $line): string
+    {
+        $normFile = str_replace('\\', '/', $file);
+        if (defined('MODX_BASE_PATH')) {
+            $normFile = str_replace(str_replace('\\', '/', MODX_BASE_PATH), '', $normFile);
+        }
+        $normMsg = preg_replace('/0x[0-9a-fA-F]+/', '0x?', $message) ?? $message;
+        $normMsg = preg_replace('/\b\d+\b/', 'N', $normMsg) ?? $normMsg;
+        $normMsg = substr($normMsg, 0, 120);
+
+        return substr(hash('sha256', $type . '|' . $normFile . '|' . $line . '|' . $normMsg), 0, 16);
+    }
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
     private function sanitizeValue($value)
     {
         if (is_array($value)) {
@@ -408,6 +488,7 @@ class Logger
         return $this->normalizeMessage($value);
     }
 
+    /** @param mixed $path */
     private function toRelativePath($path): string
     {
         if (!is_string($path) || $path === '') {

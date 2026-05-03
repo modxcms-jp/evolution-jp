@@ -141,6 +141,24 @@ function frontend_read_source_line(string $file, int $line): string
     }
 }
 
+function frontend_collect_cache_status(): string
+{
+    global $cache_type;
+    if (!$cache_type) {
+        return 'disabled';
+    }
+    if (!evo()) {
+        return 'unknown';
+    }
+    if (evo()->documentGenerated === 1) {
+        return 'generated';
+    }
+    if (evo()->documentGenerated === 0) {
+        return 'from_cache';
+    }
+    return 'unknown'; // prepareResponse() 未到達
+}
+
 function frontend_log_uncaught_throwable(Throwable $exception): void
 {
     try {
@@ -154,6 +172,10 @@ function frontend_log_uncaught_throwable(Throwable $exception): void
                 'line' => $exception->getLine(),
                 'trace' => frontend_system_log_trace($exception->getTrace()),
             ],
+            'memory_limit' => ini_get('memory_limit'),
+            'memory_usage' => memory_get_usage(),
+            'memory_peak_usage' => memory_get_peak_usage(),
+            'cache_status' => frontend_collect_cache_status(),
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write frontend throwable to system log: ' . $loggingException->getMessage());
@@ -193,6 +215,10 @@ function frontend_log_shutdown_fatal(): void
                 'line' => $line,
                 'source' => $source,
             ],
+            'memory_limit' => ini_get('memory_limit'),
+            'memory_usage' => memory_get_usage(),
+            'memory_peak_usage' => memory_get_peak_usage(),
+            'cache_status' => frontend_collect_cache_status(),
         ]);
     } catch (Throwable $loggingException) {
         error_log('Failed to write frontend fatal error to system log: ' . $loggingException->getMessage());
