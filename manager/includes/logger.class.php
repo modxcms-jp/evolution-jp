@@ -45,47 +45,47 @@ class Logger
         return self::$recentEvents;
     }
 
-    public function emergency($message, array $context = []): void
+    public function emergency(mixed $message, array $context = []): void
     {
         $this->log(self::EMERGENCY, $message, $context);
     }
 
-    public function alert($message, array $context = []): void
+    public function alert(mixed $message, array $context = []): void
     {
         $this->log(self::ALERT, $message, $context);
     }
 
-    public function critical($message, array $context = []): void
+    public function critical(mixed $message, array $context = []): void
     {
         $this->log(self::CRITICAL, $message, $context);
     }
 
-    public function error($message, array $context = []): void
+    public function error(mixed $message, array $context = []): void
     {
         $this->log(self::ERROR, $message, $context);
     }
 
-    public function warning($message, array $context = []): void
+    public function warning(mixed $message, array $context = []): void
     {
         $this->log(self::WARNING, $message, $context);
     }
 
-    public function notice($message, array $context = []): void
+    public function notice(mixed $message, array $context = []): void
     {
         $this->log(self::NOTICE, $message, $context);
     }
 
-    public function info($message, array $context = []): void
+    public function info(mixed $message, array $context = []): void
     {
         $this->log(self::INFO, $message, $context);
     }
 
-    public function debug($message, array $context = []): void
+    public function debug(mixed $message, array $context = []): void
     {
         $this->log(self::DEBUG, $message, $context);
     }
 
-    public function log($level, $message, array $context = []): void
+    public function log(mixed $level, mixed $message, array $context = []): void
     {
         $level = $this->normalizeLevel($level);
         $fatalContext = $this->collectFatalContext($level, $context);
@@ -107,7 +107,7 @@ class Logger
         $this->writeLog($logFile, $entry);
     }
 
-    private function normalizeLevel($level): string
+    private function normalizeLevel(mixed $level): string
     {
         $level = strtolower((string)$level);
         if (!in_array($level, $this->levels, true)) {
@@ -116,7 +116,7 @@ class Logger
         return $level;
     }
 
-    private function normalizeMessage($message): string
+    private function normalizeMessage(mixed $message): string
     {
         if (is_scalar($message) || $message === null) {
             return (string)$message;
