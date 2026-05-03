@@ -207,7 +207,7 @@ class Logger
         return self::$runtimeTraceId;
     }
 
-    private function normalizeIdentifier($value): string
+    private function normalizeIdentifier(mixed $value): string
     {
         $value = trim((string)$value);
         if ($value === '') {
@@ -449,7 +449,7 @@ class Logger
         return substr(hash('sha256', $type . '|' . $normFile . '|' . $line . '|' . $normMsg), 0, 16);
     }
 
-    private function sanitizeValue($value)
+    private function sanitizeValue(mixed $value): mixed
     {
         if (is_array($value)) {
             foreach ($value as $key => $item) {
@@ -469,7 +469,7 @@ class Logger
         return $this->normalizeMessage($value);
     }
 
-    private function toRelativePath($path): string
+    private function toRelativePath(mixed $path): string
     {
         if (!is_string($path) || $path === '') {
             return '';
