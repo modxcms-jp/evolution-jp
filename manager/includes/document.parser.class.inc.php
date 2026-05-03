@@ -275,6 +275,10 @@ class DocumentParser
 
         $this->http_status_code = '200';
 
+        if (serverv('REQUEST_METHOD') === 'POST') {
+            $GLOBALS['cache_type'] = 0;
+        }
+
         // get the settings
         if (!isset($this->config) || !$this->config) {
             $this->config = $this->getSettings();
