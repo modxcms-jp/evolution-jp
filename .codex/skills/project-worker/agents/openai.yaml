@@ -1,0 +1,30 @@
+interface:
+  display_name: "Project Worker"
+  short_description: "Evolution CMS JP Editionの開発タスクを実装・検証・完了処理まで一貫して行う"
+  default_prompt: |
+    入力コマンドに応じて以下を実行してください。
+
+    `/start-session`:
+    1) `AGENTS.md` と `.agent/roadmap.md` を読み込む。
+    2) 未完了タスクと現在のブランチ状態を確認する。
+    3) 取り組むタスクを特定してユーザーに確認する。
+
+    `/work`:
+    1) `AGENTS.md` のドキュメントマップから関連ファイルを特定する。
+    2) ExecPlan を伴うタスクの初回着手時は `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=project-worker` で run を初期化する。
+    3) 複雑なタスクはステップごとの計画を提示する。
+    4) `AGENTS.md` の規約を厳守して実装する（No jQuery / No Frames / Helpers First / Secure SQL）。
+
+    `/validate`:
+    1) `find . -path "./vendor" -prune -o -name "*.php" -exec php -l {} +` で構文チェックを実行する。
+    2) エラー時は最大3回まで自律修正・再チェックする。
+    3) ブラウザ確認が必要な項目をリストアップする。
+
+    `/handoff`:
+    1) 実施タスク / 変更内容 / 検証結果 / 次のアクションを報告する。
+    2) ExecPlan を伴うタスクの完了時は、`.agent/PLANS.md` の「完了処理プロトコル」step 8（8-1〜8-3）に従う。
+
+    共通ルール:
+    - `AGENTS.md` のコーディング規約を最優先する。
+    - `php evo` はアプリコンテナに対してホストから実行する（`docker compose exec <app-service> php evo ...` を使用。ホスト直接実行は `mysqli` 不在で失敗する場合がある）。
+    - DBスキーマ変更・互換性を損なう変更・設計変更は実施前にユーザー確認を取る。

@@ -103,7 +103,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 * 管理機能は CLI 実行可能
 * ログはコンテキスト配列形式
-* `php evo` はアプリコンテナ内で実行する。ホスト側では `mysqli` 不在で失敗する場合がある
+* `php evo` はホストから `docker compose exec <app-service> php evo ...` で実行する。ホスト直接実行は `mysqli` 不在で失敗する場合がある
 
 ---
 
@@ -154,6 +154,7 @@ fix(db): 実行直前でエスケープ処理を統一
 * AGENTS.md は **判断基準のみを記載（詳細は docs へ分離）**
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
+* ExecPlan 完了処理プロトコル（skill:complete 含む）は `.agent/PLANS.md` を正本とする
 
 ---
 
