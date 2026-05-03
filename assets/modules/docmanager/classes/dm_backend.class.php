@@ -184,14 +184,10 @@ class DocManagerBackend
                 $typeSQL = db()->select('*', evo()->getFullTableName('site_tmplvars'), "id=" . $tvKeyName);
                 $row = db()->getRow($typeSQL);
                 if ($row['type'] === 'url') {
-                    $tmplvar = postv("tv" . $row['id']);
-                    if (postv("tv" . $row['id' . '_prefix']) != '--') {
-                        $tmplvar = str_replace([
-                            "ftp://",
-                            "http://"
-                        ], "", $tmplvar);
-                        $tmplvar = postv("tv" . $row['id' . '_prefix']) . $tmplvar;
-                    }
+                    $tmplvar = normalize_url_tv_value(
+                        postv("tv" . $row['id']),
+                        postv("tv" . $row['id'] . '_prefix', '--')
+                    );
                 } elseif ($row['type'] === 'file') {
                     $tmplvar = postv("tv" . $row['id']);
                 } else {

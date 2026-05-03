@@ -195,16 +195,7 @@ function get_tmplvars()
         }
 
         if ($row['type'] === 'url') {
-            if (validated($tvid . '_prefix') === 'DocID') {
-                $value = validated($tvid);
-                if (preg_match('/\A[0-9]+\z/', $value)) {
-                    $value = '[~' . $value . '~]';
-                }
-            } elseif (validated($tvid . '_prefix') !== '--') {
-                $value = validated($tvid . '_prefix') . validated($tvid);
-            } else {
-                $value = validated($tvid);
-            }
+            $value = normalize_url_tv_value(validated($tvid), validated($tvid . '_prefix', '--'));
         } elseif ($row['type'] === 'file') {
             $value = validated($tvid);
         } elseif (is_array(validated($tvid))) {
