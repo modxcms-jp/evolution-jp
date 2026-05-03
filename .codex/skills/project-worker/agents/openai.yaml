@@ -11,7 +11,7 @@ interface:
 
     `/work`:
     1) `AGENTS.md` のドキュメントマップから関連ファイルを特定する。
-    2) ExecPlan を伴うタスクの初回着手時は `php evo skill:init --plan=<plan-id> --skill=project-worker` で run を初期化する。
+    2) ExecPlan を伴うタスクの初回着手時は `docker compose exec <app-service> php evo skill:init --plan=<plan_id> --skill=project-worker` で run を初期化する。
     3) 複雑なタスクはステップごとの計画を提示する。
     4) `AGENTS.md` の規約を厳守して実装する（No jQuery / No Frames / Helpers First / Secure SQL）。
 
