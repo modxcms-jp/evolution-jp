@@ -154,6 +154,7 @@ fix(db): 実行直前でエスケープ処理を統一
 * AGENTS.md は **判断基準のみを記載（詳細は docs へ分離）**
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
+* ExecPlan 完了処理プロトコル（skill:complete 含む）は `.agent/PLANS.md` を正本とする
 
 ---
 
