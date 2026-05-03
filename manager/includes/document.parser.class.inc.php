@@ -4616,6 +4616,8 @@ class DocumentParser
             $strTime = $this->mb_strftime($dateFormat, $timestamp);
         } elseif ($mode == 'formatOnly') {
             $strTime = $dateFormat;
+        } else {
+            $strTime = '';
         }
         return $strTime;
     }
