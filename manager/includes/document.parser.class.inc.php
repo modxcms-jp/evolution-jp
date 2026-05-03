@@ -1045,8 +1045,6 @@ class DocumentParser
             return false;
         }
 
-        Logger::pushEvent('static_cache.hit');
-
         $ext = strtolower(substr($filepath, strrpos($filepath, '.')));
         $get_mime_type = function ($ext) use ($filepath) {
             if (in_array($ext, ['.html', '.htm'])) {
@@ -1076,6 +1074,7 @@ class DocumentParser
 
         $content = file_get_contents($filepath);
         if ($content) {
+            Logger::pushEvent('cache.static.hit');
             $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: " . $get_mime_type($ext));
