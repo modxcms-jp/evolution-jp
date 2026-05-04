@@ -1,6 +1,6 @@
 ---
 name: "review-agent"
-description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。GitHubレビュー指摘への対応（修正・コミット・push・resolved）も扱う。"
+description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。GitHubレビュー指摘の対応（分類・方針提示・Worker委譲・resolved化）も扱う。"
 ---
 
 # Review Agent
@@ -157,8 +157,8 @@ gh api graphql -f query='
 対応しないスレッドは、スレッドへの返信として理由を残す:
 
 ```bash
-# 各スレッドに返信（comment_id は gh api で取得したコメントのID）
-gh api /repos/{owner}/{repo}/pulls/<PR番号>/comments/<comment_id>/replies \
+# 各スレッドに返信（comment_id はステップ6の1.で取得したコメントのID）
+gh api /repos/<owner>/<repo>/pulls/<PR番号>/comments/<comment_id>/replies \
   -f body="見送り理由の説明"
 ```
 
