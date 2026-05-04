@@ -22,3 +22,43 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 5. `.agent/roadmap.md` の WIP タスク有無
 
 問題がなければ `assets/docs/release-process.md` の手順に従いリリースを進める。
+
+---
+
+## リリースノート生成（手順 3）
+
+タグ push 後、GitHub Actions の完了を待ってからリリースノートを生成する。
+
+### 実行コマンド
+
+```bash
+# 前回タグを特定
+PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
+CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
+
+# コミット一覧（内部変更を除外）
+git log ${PREV_TAG}..${CURR_TAG} --oneline | grep -v "^\S* chore\|^\S* docs\|^\S* fix(skill)\|^\S* fix(roadmap)\|Merge pull request"
+
+# 変更規模
+git diff ${PREV_TAG}..${CURR_TAG} --stat | tail -3
+
+# 前回リリースのノート形式を参照
+gh release view ${PREV_TAG}
+```
+
+### 生成ルール
+
+- `assets/docs/release-process.md` の「リリースノートの構成」セクションのフォーマットに従う
+- skill/agent/roadmap 関連コミットはリリースノートに含めない
+- ユーザーへの提示後、確認・編集を経てから `gh release edit` で適用する
+
+### ドラフトへの適用
+
+```bash
+gh release edit <タグ名> --notes "$(cat <<'EOF'
+（リリースノート本文）
+EOF
+)"
+```
+
+適用後、ユーザーに Releases ページの確認と「Publish release」を案内して完了。
