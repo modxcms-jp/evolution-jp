@@ -1,7 +1,7 @@
 ---
 name: Reviewer
 description: >-
-  レビュー、PR確認、差分確認、コードレビュー、reviewer が必要なときに使う。
+  レビュー、PR確認、差分確認、コードレビュー、reviewer、レビュー指摘に対応 が必要なときに使う。
   バグ、回帰、セキュリティ、SSOT違反を優先して確認する。
 tools: [read, search, execute]
 ---

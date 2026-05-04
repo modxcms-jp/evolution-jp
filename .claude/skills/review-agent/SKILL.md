@@ -171,7 +171,7 @@ gh api /repos/<owner>/<repo>/pulls/<PR番号>/comments/<comment_id>/replies \
   -f body="見送り理由の説明"
 ```
 
-`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文にはレビュアー名と対象レビューの概要（投稿日時など）を含め、どのレビューへの返答かを特定できるようにする:
+`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文にはレビュアー名と対象レビューの概要（投稿日時など）を含め、どのレビューへの返答かを特定できるようにする。`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、既に返答済みの review body は評価対象から外す:
 
 ```bash
 gh pr comment <PR番号> --body "@レビュアー名（YYYY-MM-DD のレビュー）: 対応内容または見送り理由"
