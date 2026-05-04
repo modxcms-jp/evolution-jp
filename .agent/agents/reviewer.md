@@ -33,7 +33,7 @@
 ## 書き込み権限
 
 原則なし。
-レビューコメント、PR本文案、または `.agent/runs/` のレビュー記録のみ作成できる。
+レビューコメント、PR本文案、`.agent/runs/` のレビュー記録、および `resolveReviewThread` による GitHub レビュースレッドの resolved 化のみ実行できる。
 
 ## 成果物
 
