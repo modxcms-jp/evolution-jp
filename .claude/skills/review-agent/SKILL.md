@@ -62,7 +62,7 @@ gh api --paginate "/repos/<owner>/<repo>/pulls/<PR番号>/comments"
 gh api --paginate "/repos/<owner>/<repo>/pulls/<PR番号>/reviews"
 ```
 
-取得した `/reviews` の結果は、`submitted_at` でソートし各レビュアーの最新レビューのみを残す。対応対象に含める `state` は `CHANGES_REQUESTED` と `COMMENTED` のみに限定し、`APPROVED`・`DISMISSED` などそれ以外は除外する。
+取得した `/reviews` の結果は、`state` が `DISMISSED` のものを除外する（`CHANGES_REQUESTED`・`COMMENTED` はどちらも対象）。同一レビュアーが複数回投稿している場合は全件を評価対象とする。
 
 分類に先立ち、GraphQL で unresolved なスレッド一覧を取得しておく。REST `/comments` には `isResolved` がないため、既に resolved 済みのスレッドに属するコメントは分類対象から除外する。
 
