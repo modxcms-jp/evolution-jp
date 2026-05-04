@@ -1,6 +1,6 @@
 ---
 name: "review-agent"
-description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。GitHubレビュー指摘の対応（分類・方針提示・ Worker 委譲・resolved化）も扱う。"
+description: "`.agent/agents/reviewer.md` を入口に、PR差剆やローカル差剆を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差剆確認」「コードレビュー」「reviewer」「レビュー指摘に対応」などを依頼したときに使う。GitHubレビュー指摘の対応（分類・方針提示・ Worker 委譲・resolved化）も扱う。"
 ---
 
 # Review Agent
