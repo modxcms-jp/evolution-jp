@@ -55,7 +55,7 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 概要:
 1. `gh api --paginate` でレビューコメントを全件収集し、対応 / 検討 / 見送りに分類。
 2. 方針をユーザーに提示して確認を取る。
-3. 修正を実装・検証・コミット・push する。
+3. 修正は Worker エージェントに委譲して実装・検証・コミット・push を行う。
 4. GraphQL `resolveReviewThread` で対応済みスレッドを resolved にする。
 5. 見送りスレッドには `gh api .../replies` でスレッド返信として理由を残す。
 
