@@ -87,7 +87,7 @@ Codex レビューボット（`chatgpt-codex-connector`）は PR の差分をレ
 
 ## Idempotence and Recovery
 
-変更は `.github/codex-pr-rules.md` への追記1行のみ。中断しても既存ルールに影響しない。
+変更は `.github/codex-pr-rules.md` への1セクション追記のみ（複数行）。中断しても既存ルールに影響しない。
 
 ## Artifacts and Notes
 
