@@ -40,4 +40,4 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 
 ## 出力形式
 
-差分レビューおよび /resolve-review の出力形式は `.claude/skills/review-agent/SKILL.md` の `## 出力形式` を参照。
+差分レビューおよび /resolve-review の出力形式は `.claude/skills/review-agent/SKILL.md` の `/resolve-review` セクション内および `## 出力形式` を参照。

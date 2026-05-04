@@ -49,6 +49,8 @@ tools: [read, search, execute, agent]
 - 対応する: スレッド xxxx（概要）→ 修正方針
 - 対応を検討: スレッド xxxx（概要）→ 検討内容
 - 対応しない: スレッド xxxx（概要）→ 見送り理由
+- 対応する: /reviews本文 @レビュアー名（YYYY-MM-DD）→ 修正方針
+- 対応しない: /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
 ```
 
 完了報告（ステップ7）:
@@ -56,6 +58,8 @@ tools: [read, search, execute, agent]
 ```text
 対応完了:
 - スレッド xxxx（概要）→ 対応内容
+- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 対応内容
 見送り:
 - スレッド xxxx（概要）→ 見送り理由
+- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
 ```
