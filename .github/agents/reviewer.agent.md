@@ -36,9 +36,30 @@ tools: [read, search, execute, agent]
 
 **差分レビュー（/review-diff / /review-pr）:**
 
-- Findings
-- Open Questions
-- Tests
+セクション見出し（`Findings` / `Open Questions` / `Tests`）は固定ラベルとして英語のまま使用する。指摘内容・確認事項・テスト説明は日本語で記載する。
+
+指摘がある場合:
+
+```text
+**Findings**
+- [High] path/to/file.php:123: 指摘内容。影響と修正方針。
+- [Medium] path/to/file.php:45: 指摘内容。影響と修正方針。
+
+**Open Questions**
+- 確認事項
+
+**Tests**
+- 実行済み、または未実行の理由
+```
+
+指摘がない場合:
+
+```text
+重大な問題は見つかりませんでした。
+
+**Tests**
+- 実行済み、または未実行の理由
+```
 
 **レビュー指摘対応（/resolve-review）:**
 
