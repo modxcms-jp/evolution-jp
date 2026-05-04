@@ -78,8 +78,7 @@ gh api graphql -f query='
   }
 }'
 # isResolved == false のスレッドのみを分類・解決対象にする
-# comments(first: 1) の先頭コメントはスレッド識別用。databaseId が REST /comments の各コメントの id（スレッド先頭）または in_reply_to_id（返信）と対応する
-# REST /comments の各コメントで in_reply_to_id が null → スレッド先頭（databaseId で照合）、in_reply_to_id がある → 返信（in_reply_to_id で照合）
+# 取得した databaseId は、REST /comments のスレッド先頭コメント（in_reply_to_id が null）の id と一致する
 ```
 
 次に、インラインレビューコメントとレビュー本文を取得する:
@@ -160,10 +159,10 @@ gh api /repos/<owner>/<repo>/pulls/<PR番号>/comments/<comment_id>/replies \
 # 返信後に resolved 化（対応済みスレッドと同様）
 ```
 
-`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文にはレビュアー名に加え、対象レビューを一意に識別できる情報（review ID、`submitted_at` の完全な日時、review body の先頭抜粋など）を含め、どの review body への返答かを特定できるようにする。`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、同じ review ID または同じ日時・本文抜粋の組み合わせで既に返答済みの review body は評価対象から外す:
+`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文には対象 review の `id`（GitHub が発行する一意な数値 ID）を含め、どの review body への返答かを特定できるようにする。`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、同じ review_id で既に返答済みの review body は評価対象から外す:
 
 ```bash
-gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789, 2025-01-30T12:34:56Z, body: \"先頭抜粋...\"）: 対応内容または見送り理由"
+gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789）: 対応内容または見送り理由"
 ```
 
 **ステップ 7: 完了報告**
@@ -208,15 +207,15 @@ gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789, 202
 
 - 対応する
   - スレッド xxxx（先頭コメント概要）→ [修正方針]
-  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ [修正方針]
+  - /reviews本文 @レビュアー名（review_id: XXXX）→ [修正方針]
 
 - 対応を検討（ユーザー判断を仰ぐ）
   - スレッド xxxx（先頭コメント概要）→ [対応した場合の影響と見送りのリスク]
-  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ [対応した場合の影響と見送りのリスク]
+  - /reviews本文 @レビュアー名（review_id: XXXX）→ [対応した場合の影響と見送りのリスク]
 
 - 対応しない（理由付き）
   - スレッド xxxx（先頭コメント概要）→ 見送り理由
-  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
+  - /reviews本文 @レビュアー名（review_id: XXXX）→ 見送り理由
 ```
 
 完了報告（ステップ7）:
@@ -224,8 +223,8 @@ gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789, 202
 ```text
 対応完了:
 - スレッド xxxx（先頭コメント概要）→ 対応内容
-- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 対応内容
+- /reviews本文 @レビュアー名（review_id: XXXX）→ 対応内容
 見送り:
 - スレッド xxxx（先頭コメント概要）→ 見送り理由
-- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
+- /reviews本文 @レビュアー名（review_id: XXXX）→ 見送り理由
 ```
