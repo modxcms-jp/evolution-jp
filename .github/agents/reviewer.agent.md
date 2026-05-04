@@ -50,6 +50,7 @@ tools: [read, search, execute, agent]
 - 対応を検討: スレッド xxxx（概要）→ 検討内容
 - 対応しない: スレッド xxxx（概要）→ 見送り理由
 - 対応する: /reviews本文 @レビュアー名（YYYY-MM-DD）→ 修正方針
+- 対応を検討: /reviews本文 @レビュアー名（YYYY-MM-DD）→ 検討内容
 - 対応しない: /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
 ```
 
