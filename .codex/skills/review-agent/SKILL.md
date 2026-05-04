@@ -40,25 +40,4 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 
 ## 出力形式
 
-指摘がある場合:
-
-```text
-**Findings**
-- [High] path/to/file.php:123: 指摘内容。影響と修正方針。
-- [Medium] path/to/file.php:45: 指摘内容。影響と修正方針。
-
-**Open Questions**
-- 確認事項
-
-**Tests**
-- 実行済み、または未実行の理由
-```
-
-指摘がない場合:
-
-```text
-重大な問題は見つかりませんでした。
-
-**Tests**
-- 実行済み、または未実行の理由
-```
+差分レビューおよび /resolve-review の出力形式は `.claude/skills/review-agent/SKILL.md` の `## 出力形式` を参照。

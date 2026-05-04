@@ -78,7 +78,8 @@ gh api graphql -f query='
   }
 }'
 # isResolved == false のスレッドのみを分類・解決対象にする
-# comments(first: 1) の先頭コメントはスレッド識別用。スレッドへの返信も同一 threadId で管理される
+# comments(first: 1) の先頭コメントはスレッド識別用。databaseId が REST /comments の各コメントの id（スレッド先頭）または in_reply_to_id（返信）と対応する
+# REST /comments の各コメントで in_reply_to_id が null → スレッド先頭（databaseId で照合）、in_reply_to_id がある → 返信（in_reply_to_id で照合）
 ```
 
 次に、インラインレビューコメントとレビュー本文を取得する:
@@ -167,12 +168,13 @@ gh api graphql -f query='
 '
 ```
 
-対応しないスレッドは、スレッドへの返信として理由を残す:
+対応しないスレッドは、スレッドへの返信として理由を残した上で resolved にする（再実行時の重複を防ぐため）:
 
 ```bash
-# 各スレッドに返信（comment_id はステップ1で取得したコメントのID）
+# 各スレッドに返信（comment_id はステップ1で取得した先頭コメントの databaseId）
 gh api /repos/<owner>/<repo>/pulls/<PR番号>/comments/<comment_id>/replies \
   -f body="見送り理由の説明"
+# 返信後に resolved 化（対応済みスレッドと同様）
 ```
 
 `/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文にはレビュアー名に加え、対象レビューを一意に識別できる情報（review ID、`submitted_at` の完全な日時、review body の先頭抜粋など）を含め、どの review body への返答かを特定できるようにする。`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、同じ review ID または同じ日時・本文抜粋の組み合わせで既に返答済みの review body は評価対象から外す:
