@@ -35,3 +35,25 @@ When creating Pull Requests in this repository, follow these rules strictly.
 - Do not use a label named `codex` for change classification
 
 These rules are intended to ensure compatibility with GitHub auto-generated release notes.
+
+## Review scope for agent and skill definitions
+
+For changes to the following paths:
+- `.claude/skills/`
+- `.codex/skills/`
+- `.github/agents/`
+- `.agent/agents/`
+- `.agent/plans/`
+- `.agent/roadmap.md`
+
+Focus only on:
+- Consistency with the design principles defined in `AGENTS.md`
+- Correctness of referenced file paths, API endpoints, and command syntax
+- Whether the change contradicts other agent or skill definitions in the same repository
+
+Do NOT raise issues about:
+- Completeness of edge case coverage in procedures
+- Whether every possible scenario is explicitly handled
+- Style, wording, or naming preferences
+- Requests to add more examples or alternative approaches
+- Hypothetical failure modes that are not demonstrated by the change itself
