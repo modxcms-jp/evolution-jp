@@ -108,7 +108,8 @@ gh api --paginate "/repos/{owner}/{repo}/pulls/<PR番号>/comments"
 ```bash
 git add -p  # または対象ファイルを指定
 # type は変更内容に応じて選択（fix / refactor / docs / chore など）
-git commit -m "<type>[(<scope>)]: レビュー指摘に対応"
+# scope は省略可能
+git commit -m "<type>: レビュー指摘に対応"
 git push
 ```
 
