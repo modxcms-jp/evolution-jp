@@ -138,13 +138,13 @@ git push
 
 **ステップ 6: GitHub上でのコメント解決**
 
-対応したスレッドを resolved にする（コードへの書き込みではなく GitHub 上のスレッド状態変更のため review-agent が直接実行する）。ステップ1で取得した thread の node_id を使う:
+対応したスレッドを resolved にする（コードへの書き込みではなく GitHub 上のスレッド状態変更のため review-agent が直接実行する）。ステップ1で取得した thread の id を使う:
 
 ```bash
-# 対応済みスレッドを resolve（id はステップ1で取得した node_id）
+# 対応済みスレッドを resolve（id はステップ1で取得した thread の id）
 gh api graphql -f query='
   mutation {
-    resolveReviewThread(input: {threadId: "<thread_node_id>"}) {
+    resolveReviewThread(input: {threadId: "<thread_id>"}) {
       thread { isResolved }
     }
   }
@@ -208,15 +208,15 @@ gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789, 202
 
 - 対応する
   - スレッド xxxx（先頭コメント概要）→ [修正方針]
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ [修正方針]
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ [修正方針]
 
 - 対応を検討（ユーザー判断を仰ぐ）
   - スレッド xxxx（先頭コメント概要）→ [対応した場合の影響と見送りのリスク]
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ [対応した場合の影響と見送りのリスク]
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ [対応した場合の影響と見送りのリスク]
 
 - 対応しない（理由付き）
   - スレッド xxxx（先頭コメント概要）→ 見送り理由
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
 ```
 
 完了報告（ステップ7）:
@@ -224,8 +224,8 @@ gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789, 202
 ```text
 対応完了:
 - スレッド xxxx（先頭コメント概要）→ 対応内容
-- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 対応内容
+- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 対応内容
 見送り:
 - スレッド xxxx（先頭コメント概要）→ 見送り理由
-- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
+- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
 ```

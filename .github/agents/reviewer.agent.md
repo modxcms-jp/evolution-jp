@@ -70,15 +70,15 @@ tools: [read, search, execute, agent]
 
 - 対応する
   - スレッド xxxx（先頭コメント概要）→ 修正方針
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ 修正方針
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 修正方針
 
 - 対応を検討（ユーザー判断を仰ぐ）
   - スレッド xxxx（先頭コメント概要）→ 影響と見送りのリスク
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ 影響と見送りのリスク
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 影響と見送りのリスク
 
 - 対応しない（理由付き）
   - スレッド xxxx（先頭コメント概要）→ 見送り理由
-  - /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
+  - /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
 ```
 
 完了報告（ステップ7）:
@@ -86,8 +86,8 @@ tools: [read, search, execute, agent]
 ```text
 対応完了:
 - スレッド xxxx（先頭コメント概要）→ 対応内容
-- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 対応内容
+- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 対応内容
 見送り:
 - スレッド xxxx（先頭コメント概要）→ 見送り理由
-- /reviews本文 @レビュアー名（YYYY-MM-DD）→ 見送り理由
+- /reviews本文 @レビュアー名（review_id: XXXX, YYYY-MM-DD）→ 見送り理由
 ```
