@@ -103,21 +103,35 @@ git push
 
 **ステップ 5: GitHub上でのコメント解決**
 
-対応したコメントを resolved にする（GitHub GraphQL API を使用）:
+対応したコメントのスレッドを resolved にする。スレッドの node_id は GraphQL で取得する:
 
 ```bash
-# スレッドIDを取得して GraphQL で resolve
-# thread_id は gh api で取得したコメントの pull_request_review_thread_id
+# 1. PR のレビュースレッド一覧とその node_id を取得
+gh api graphql -f query='
+{
+  repository(owner: "<owner>", name: "<repo>") {
+    pullRequest(number: <PR番号>) {
+      reviewThreads(first: 50) {
+        nodes {
+          id
+          isResolved
+          comments(first: 1) {
+            nodes { databaseId body }
+          }
+        }
+      }
+    }
+  }
+}'
+
+# 2. 対応済みスレッドを resolve（id は上記で取得した node_id）
 gh api graphql -f query='
   mutation {
-    resolveReviewThread(input: {threadId: "<thread_id>"}) {
+    resolveReviewThread(input: {threadId: "<thread_node_id>"}) {
       thread { isResolved }
     }
   }
 '
-
-# または gh pr review でまとめてコメント
-gh pr review <PR番号> --comment --body "レビュー対応の説明"
 ```
 
 対応しないコメントは、スレッドへの返信として理由を残す:
