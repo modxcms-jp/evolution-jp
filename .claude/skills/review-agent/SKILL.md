@@ -120,10 +120,12 @@ gh api graphql -f query='
 gh pr review <PR番号> --comment --body "レビュー対応の説明"
 ```
 
-対応しないコメントは、理由を reply コメントとして残す:
+対応しないコメントは、スレッドへの返信として理由を残す:
 
 ```bash
-gh pr comment <PR番号> --body "コメントID xxxx について: [見送り理由]"
+# 各スレッドに返信（comment_id は gh api で取得したコメントのID）
+gh api /repos/{owner}/{repo}/pulls/<PR番号>/comments/<comment_id>/replies \
+  -f body="見送り理由の説明"
 ```
 
 **ステップ 6: 完了報告**
