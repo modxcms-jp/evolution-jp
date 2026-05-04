@@ -28,18 +28,11 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 
 ### /review-diff
 
-1. `git diff` と変更ファイルを確認する。
-2. 変更領域に応じて関連 docs を読む。
-3. `.agent/agents/reviewer.md` の観点でレビューする。
-4. 指摘を重大度順にまとめる。
-5. テスト不足と残リスクをまとめる。
+詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/review-diff` を参照。
 
 ### /review-pr
 
-1. PR の目的、差分、関連 Issue、CI 結果を確認する。
-2. `.github/codex-pr-rules.md` に照らしてタイトル、説明、ラベル方針を確認する。
-3. `.agent/agents/reviewer.md` の観点でレビューする。
-4. 指摘を重大度順にまとめる。
+詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/review-pr` を参照。
 
 ### /resolve-review <PR番号>
 
