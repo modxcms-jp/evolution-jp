@@ -91,7 +91,7 @@ gh api --paginate "/repos/<owner>/<repo>/pulls/<PR番号>/comments"
 gh api --paginate "/repos/<owner>/<repo>/pulls/<PR番号>/reviews"
 ```
 
-取得した `/reviews` の結果は、`state` が `DISMISSED` または `APPROVED` のものを除外する（`CHANGES_REQUESTED`・`COMMENTED` のみ対象）。同一レビュアーが複数回投稿している場合は全件を評価対象とする。
+取得した `/reviews` の結果は、`state` が `DISMISSED` のものを除外する。`APPROVED` は state のみで除外せず、本文がある場合は評価対象に含める（本文が空の `APPROVED` は除外してよい）。`CHANGES_REQUESTED`・`COMMENTED` は従来どおり対象とし、同一レビュアーが複数回投稿している場合は全件を評価対象とする。
 
 インラインコメントの各スレッドを1単位として以下の基準で分類する（同一スレッド内の複数コメントは一括で判断する）:
 
