@@ -1074,6 +1074,7 @@ class DocumentParser
 
         $content = file_get_contents($filepath);
         if ($content) {
+            Logger::pushEvent('cache.static.hit');
             $this->documentOutput = $this->parseDocumentSource($content);
             $this->invokeEvent('OnWebPagePrerender');
             header("Content-type: " . $get_mime_type($ext));
