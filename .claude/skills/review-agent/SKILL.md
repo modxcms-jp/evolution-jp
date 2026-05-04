@@ -47,7 +47,7 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 3. `.agent/agents/reviewer.md` の観点でレビューする。
 4. 指摘を重大度順にまとめる。
 
-### /resolve-review [PR番号]
+### /resolve-review <PR番号>
 
 GitHub PR のレビューコメントを取得し、各指摘を評価・対応・解決する。
 実装・コミット・push を伴う場合は Worker エージェントに委譲する。
@@ -118,12 +118,15 @@ git push
 対応したコメントのスレッドを resolved にする。スレッドの node_id は GraphQL で取得する:
 
 ```bash
-# 1. PR のレビュースレッド一覧とその node_id を取得
+# 1. PR のレビュースレッドを全件取得し、未解決（isResolved == false）のものだけを対象にする
+# GitHub GraphQL API は reviewThreads にフィルタ引数がないため全件取得後に選別する
+# pageInfo.hasNextPage が true の場合は after: "<endCursor>" を追加して再実行する
 gh api graphql -f query='
 {
   repository(owner: "<owner>", name: "<repo>") {
     pullRequest(number: <PR番号>) {
       reviewThreads(first: 100) {
+        pageInfo { hasNextPage endCursor }
         nodes {
           id
           isResolved
@@ -135,6 +138,8 @@ gh api graphql -f query='
     }
   }
 }'
+# isResolved == false のスレッドのみを resolve 対象にする
+# comments(first: 1) の先頭コメントはスレッド識別用。スレッドへの返信も同一 threadId で管理される
 
 # 2. 対応済みスレッドを resolve（id は上記で取得した node_id）
 gh api graphql -f query='
