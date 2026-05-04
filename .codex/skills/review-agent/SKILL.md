@@ -1,6 +1,6 @@
 ---
 name: "review-agent"
-description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。"
+description: "`.agent/agents/reviewer.md` を入口に、PR差分やローカル差分を日本語でレビューするスキル。ユーザーが「レビュー」「PR確認」「差分確認」「コードレビュー」「reviewer」などを依頼したときに使う。GitHubレビュー指摘への対応（修正・コミット・push・resolved）も扱う。"
 ---
 
 # Review Agent
@@ -48,6 +48,16 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 2. `.github/codex-pr-rules.md` に照らしてタイトル、説明、ラベル方針を確認する。
 3. `.agent/agents/reviewer.md` の観点でレビューする。
 4. 指摘を重大度順にまとめる。
+
+### /resolve-review [PR番号]
+
+詳細な手順は `.claude/skills/review-agent/SKILL.md` の `/resolve-review` を参照。
+概要:
+1. `gh api --paginate` でレビューコメントを全件収集し、対応 / 検討 / 見送りに分類。
+2. 方針をユーザーに提示して確認を取る。
+3. 修正を実装・検証・コミット・push する。
+4. GraphQL `resolveReviewThread` で対応済みスレッドを resolved にする。
+5. 見送りスレッドには `gh api .../replies` でスレッド返信として理由を残す。
 
 ## 出力形式
 

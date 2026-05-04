@@ -103,6 +103,7 @@
 1. review-agent スキルを使ってレビューを実行
    - ローカル差分: `/review-diff`
    - PR: `/review-pr`
+   - PR のレビュー指摘対応: `/resolve-review <PR番号>`
 
 ### 不具合対応時
 
