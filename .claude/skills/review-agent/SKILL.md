@@ -78,7 +78,8 @@ gh api graphql -f query='
   }
 }'
 # isResolved == false のスレッドのみを分類・解決対象にする
-# 取得した databaseId は、REST /comments のスレッド先頭コメント（in_reply_to_id が null）の id と一致する
+# 取得した databaseId は REST /comments のスレッド先頭コメント（in_reply_to_id が null）の id と一致する
+# 返信コメント（in_reply_to_id がある）は in_reply_to_id を先頭コメントの id と照合してスレッドを特定する
 ```
 
 次に、インラインレビューコメントとレビュー本文を取得する:
@@ -92,6 +93,8 @@ gh api --paginate "/repos/<owner>/<repo>/pulls/<PR番号>/reviews"
 ```
 
 取得した `/reviews` の結果は、`state` が `DISMISSED` のものを除外する。`APPROVED` は state のみで除外せず、本文がある場合は評価対象に含める（本文が空の `APPROVED` は除外してよい）。`CHANGES_REQUESTED`・`COMMENTED` は従来どおり対象とし、同一レビュアーが複数回投稿している場合は全件を評価対象とする。
+
+`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、同じ review_id で既に返答済みの review body はこの段階で評価対象から外す（ステップ2の方針一覧に重複項目を残さないため）。
 
 インラインコメントの各スレッドおよび `/reviews` の各レビュー本文をそれぞれ1単位として以下の基準で分類する（スレッド内の複数コメントは一括で判断する）:
 
@@ -159,7 +162,7 @@ gh api /repos/<owner>/<repo>/pulls/<PR番号>/comments/<comment_id>/replies \
 # 返信後に resolved 化（対応済みスレッドと同様）
 ```
 
-`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文には対象 review の `id`（GitHub が発行する一意な数値 ID）を含め、どの review body への返答かを特定できるようにする。`/resolve-review` を再実行する場合は、PR の既存コメント一覧（`gh pr view <PR番号> --comments`）を確認し、同じ review_id で既に返答済みの review body は評価対象から外す:
+`/reviews` 取得のレビュー本文に対する対応完了・見送り理由は PR コメントとして残す。本文には対象 review の `id`（GitHub が発行する一意な数値 ID）を含め、再実行時にステップ1で除外できるようにする:
 
 ```bash
 gh pr comment <PR番号> --body "@レビュアー名（review_id: 123456789）: 対応内容または見送り理由"
