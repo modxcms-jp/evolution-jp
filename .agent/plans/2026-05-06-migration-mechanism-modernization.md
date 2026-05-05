@@ -243,8 +243,8 @@ function evo_run_migrations(): void
 function evo_mark_migration_applied(string $table, string $id): void
 {
     db()->query(
-        "INSERT IGNORE INTO `{$table}` (`id`, `applied_at`) VALUES ("
-        . db()->escape($id) . ", NOW())"
+        "INSERT IGNORE INTO `{$table}` (`id`, `applied_at`) VALUES ('"
+        . db()->escape($id) . "', NOW())"
     );
 }
 ```
