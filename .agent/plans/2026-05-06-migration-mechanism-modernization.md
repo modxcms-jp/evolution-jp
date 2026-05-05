@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `{prefix}modx_migrations` (
 ### マイグレーションランナーの責務
 
 1. `modx_migrations` テーブルが存在しなければ作成する（ブートストラップ）
-2. ブートストラップ直後、`site_content` テーブルの存在でアップグレードか新規かを判定し、baselineの実行要否を決定する
+2. ブートストラップ直後、`system_settings.settings_version` の有無でアップグレードか新規かを判定し、baselineの実行要否を決定する
 3. `migrations/` ディレクトリをスキャンし、ファイル名の辞書順（= タイムスタンプ順）で並べる
 4. `modx_migrations` に記録されていないIDのみ順次実行する
 5. 実行成功後、`modx_migrations` にIDと実行日時を INSERT する
@@ -377,7 +377,7 @@ v1.0.0J では以下のカラムが欠けており、baseline の ADD COLUMN が
 3. `system_settings` に `settings_version` が書き込まれていること（インストーラが書く）
 4. 設定ページを開いても baseline が再実行されない
 
-### テストケース 3: 新規マイグレーションの追加
+### テストケース 4: 新規マイグレーションの追加
 
 1. テスト用ファイル `manager/includes/migrations/20260505_test.php` を作成する（副作用のない処理、例: `db()->query("SELECT 1")`）
 2. 設定ページを開くと実行され、`modx_migrations` に `id='20260505_test'` が記録される

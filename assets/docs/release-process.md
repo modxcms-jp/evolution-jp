@@ -80,12 +80,57 @@ gh release view <前回タグ>
 ```
 
 **注意事項:**
-- `skill/`, `.agent/`, `.claude/` 関連のコミットはリリースノートに記載しない（開発者向け内部変更のため）
+- `skill/`, `.agent/`, `.claude/`, `.codex/` 関連のコミットはリリースノートに記載しない（開発者向け内部変更のため）
 - `chore`, `docs` プレフィックスのコミットは原則省略
 - **非エンジニアファーストで書く**（エンジニアも読むので技術用語・技術詳細を入れること自体は構わない）
   - 「何を変えたか」より「なぜ変えたか・どう嬉しいか」を先に説明する
   - 技術用語は補足として添える形にし、説明の主軸は非エンジニアにも伝わる言葉で書く
   - トレードオフや制限事項は隠さず正直に書く
+
+コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
+
+```bash
+git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
+BEGIN {
+    RS="__COMMIT__"
+    FS="\n"
+}
+NR == 1 {
+    next
+}
+{
+    header = $1
+    sub(/^\n/, "", header)
+    split(header, parts, "\t")
+    hash = substr(parts[1], 1, 7)
+    subject = parts[2]
+    internalOnly = 1
+
+    for (i = 2; i <= NF; i++) {
+        if ($i == "") {
+            continue
+        }
+        if ($i !~ /^(\.agent\/|\.claude\/|\.codex\/)/) {
+            internalOnly = 0
+        }
+    }
+
+    if (subject ~ /^Merge pull request/) {
+        next
+    }
+    if (subject ~ /^(chore|docs)(\(|:)/) {
+        next
+    }
+    if (subject ~ /^(feat|fix|refactor|perf|style|test|ci|chore|docs)\((skill|skills|agent|agents|roadmap|claude|codex)\):/) {
+        next
+    }
+    if (internalOnly) {
+        next
+    }
+
+    print hash " " subject
+}'
+```
 
 #### ドラフトリリースへの適用
 

@@ -37,7 +37,46 @@ PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
 CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
 
 # コミット一覧（内部変更を除外）
-git log ${PREV_TAG}..${CURR_TAG} --oneline | grep -v "^\S* chore\|^\S* docs\|^\S* fix(skill)\|^\S* fix(roadmap)\|Merge pull request"
+git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
+BEGIN {
+    RS="__COMMIT__"
+    FS="\n"
+}
+NR == 1 {
+    next
+}
+{
+    header = $1
+    sub(/^\n/, "", header)
+    split(header, parts, "\t")
+    hash = substr(parts[1], 1, 7)
+    subject = parts[2]
+    internalOnly = 1
+
+    for (i = 2; i <= NF; i++) {
+        if ($i == "") {
+            continue
+        }
+        if ($i !~ /^(\.agent\/|\.claude\/|\.codex\/)/) {
+            internalOnly = 0
+        }
+    }
+
+    if (subject ~ /^Merge pull request/) {
+        next
+    }
+    if (subject ~ /^(chore|docs)(\(|:)/) {
+        next
+    }
+    if (subject ~ /^(feat|fix|refactor|perf|style|test|ci|chore|docs)\((skill|skills|agent|agents|roadmap|claude|codex)\):/) {
+        next
+    }
+    if (internalOnly) {
+        next
+    }
+
+    print hash " " subject
+}'
 
 # 変更規模
 git diff ${PREV_TAG}..${CURR_TAG} --stat | tail -3
@@ -49,7 +88,7 @@ gh release view ${PREV_TAG}
 ### 生成ルール
 
 - `assets/docs/release-process.md` の「リリースノートの構成」セクションのフォーマットに従う
-- skill/agent/roadmap 関連コミットはリリースノートに含めない
+- skill/agent/roadmap/.claude/.codex 関連コミットはリリースノートに含めない
 - **非エンジニアファーストで書く**（エンジニアも読むので技術用語・技術詳細を入れること自体は構わない）
   - "What（何を変えたか）"より "Why（なぜ変えたか）・どう嬉しいか" を先に書く
   - 技術用語は補足として添える形にし、説明の主軸は非エンジニアにも伝わる言葉で書く
