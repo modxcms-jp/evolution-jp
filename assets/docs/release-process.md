@@ -80,8 +80,8 @@ gh release view <前回タグ>
 ```
 
 **注意事項:**
-- `skill/`, `.agent/`, `.claude/`, `.codex/` 関連のコミットはリリースノートに記載しない（開発者向け内部変更のため）
-- `chore`, `docs` プレフィックスのコミットは原則省略
+- `(skill)` / `(agent)` / `(roadmap)` スコープのコミットや `.agent/`、`.claude/`、`.codex/` 配下のみを変更するコミットはリリースノートに記載しない（開発者向け内部変更のため）
+- `chore`、`docs` プレフィックスのコミットは除外する
 - **非エンジニアファーストで書く**（エンジニアも読むので技術用語・技術詳細を入れること自体は構わない）
   - 「何を変えたか」より「なぜ変えたか・どう嬉しいか」を先に説明する
   - 技術用語は補足として添える形にし、説明の主軸は非エンジニアにも伝わる言葉で書く
@@ -90,6 +90,10 @@ gh release view <前回タグ>
 コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
 
 ```bash
+# タグを変数にセット
+PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
+CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
+
 git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
 BEGIN {
     RS="__COMMIT__"

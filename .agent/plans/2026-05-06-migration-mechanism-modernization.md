@@ -181,17 +181,16 @@ function evo_run_migrations(): void
     $prefix = db()->config['table_prefix'];
     $migrationsTable = "{$prefix}modx_migrations";
 
-    // ブートストラップ: テーブルが存在しない場合は作成してbaselineの実行要否を決定
-    $tableExists = db()->tableExists($migrationsTable);
-    $isUpgrade = null;
-    if (!$tableExists) {
-        $settingsVersion = db()->getValue(
-            db()->select('setting_value', "{$prefix}system_settings", "setting_name='settings_version'")
-        );
-        $isUpgrade = !empty($settingsVersion);
-    }
+    // アップグレードか新規インストールかを settings_version の有無で常に判定する。
+    // テーブルの有無で判定すると、create_tables.sql で新規インストール時から
+    // modx_migrations が存在するため誤判定が生じる。
+    $settingsVersion = db()->getValue(
+        db()->select('setting_value', "{$prefix}system_settings", "setting_name='settings_version'")
+    );
+    $isUpgrade = !empty($settingsVersion);
 
-    if (!$tableExists) {
+    // ブートストラップ: テーブルが存在しない場合は作成する
+    if (!db()->tableExists($migrationsTable)) {
         db()->query(
             "CREATE TABLE IF NOT EXISTS `{$migrationsTable}` ("
             . "`id` VARCHAR(100) NOT NULL, "
@@ -222,8 +221,8 @@ function evo_run_migrations(): void
         }
         $id = basename($file, '.php');
 
-        // ブートストラップ: 新規インストールの場合はbaselineをスキップして記録のみ
-        if ($id === '00000000_baseline' && $isUpgrade === false) {
+        // 新規インストールの場合はbaselineをスキップして記録のみ
+        if ($id === '00000000_baseline' && !$isUpgrade) {
             evo_mark_migration_applied($migrationsTable, $id);
             continue;
         }
@@ -372,10 +371,17 @@ v1.0.0J では以下のカラムが欠けており、baseline の ADD COLUMN が
 
 ### テストケース 3: 新規インストール
 
+> **注意**: `mutate_settings.dynamic.php` のトリガー条件は `settings_version != $modx_version` のため、
+> 新規インストール後は `settings_version == $modx_version` となりランナーが呼ばれない。
+> インストーラからランナーを呼ぶ対応は次フェーズのため、本フェーズでは以下を期待値とする。
+
 1. まっさらな DB でインストーラを新規実行する
-2. `modx_migrations` テーブルが存在し `id='00000000_baseline'` が1件ある
+2. `modx_migrations` テーブルが存在するが **レコードは0件**（ランナーが呼ばれないため）
 3. `system_settings` に `settings_version` が書き込まれていること（インストーラが書く）
-4. 設定ページを開いても baseline が再実行されない
+4. 設定ページを開いてもランナーが起動しない（バージョンが一致するため）
+5. 次バージョンへアップグレード後、設定ページを開くと baseline が実行されて記録される
+   - このとき `$isUpgrade = true`（settings_version が存在するため）なので baseline は実行される
+   - 新規インストール時に baseline をスキップして記録する処理はインストーラ統合（次フェーズ）で対応
 
 ### テストケース 4: 新規マイグレーションの追加
 
