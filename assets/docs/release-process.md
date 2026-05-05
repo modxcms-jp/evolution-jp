@@ -26,7 +26,129 @@ git push origin release-1.3.0J
 4. `evo-release-1.3.0J.zip` を作成
 5. GitHub Release を**ドラフト状態**で自動作成し、zip ファイルを添付（自動リリースノート生成あり）
 
-### 3. ドラフト確認と公開
+### 3. リリースノートの生成と適用
+
+GitHub Actions が完了したら、AI にリリースノートを生成させてドラフトリリースに適用する。
+
+#### リリースノートの生成
+
+以下の情報を使って日本語リリースノートを生成する:
+
+```bash
+# 前回タグからの変更コミット一覧
+git log <前回タグ>..<今回タグ> --oneline
+
+# 変更規模
+git diff <前回タグ>..<今回タグ> --stat | tail -3
+
+# 前回リリースのノート形式を参照
+gh release view <前回タグ>
+```
+
+#### リリースノートの構成
+
+1.2.0J リリースのフォーマットに準拠する（`gh release view release-1.2.0J` で確認可）:
+
+```markdown
+## 概要
+（1〜2 文でバージョンの位置付けを説明）
+
+---
+
+## 主な変更点（ハイライト）
+（箇条書きで 3〜5 項目）
+
+---
+
+## 新機能・改善内容
+（セクションごとに詳述）
+
+---
+
+## バグ修正
+（修正内容を説明）
+
+---
+
+## 開発規模
+（ファイル変更数・追加行数・削除行数）
+
+---
+
+## アップグレード時の注意
+（必要な場合のみ記載）
+```
+
+**注意事項:**
+- `(skill)` / `(agent)` / `(roadmap)` スコープのコミットや `.agent/`、`.claude/`、`.codex/` 配下のみを変更するコミットはリリースノートに記載しない（開発者向け内部変更のため）
+- `chore`、`docs` プレフィックスのコミットは除外する
+- **非エンジニアファーストで書く**（エンジニアも読むので技術用語・技術詳細を入れること自体は構わない）
+  - 「何を変えたか」より「なぜ変えたか・どう嬉しいか」を先に説明する
+  - 技術用語は補足として添える形にし、説明の主軸は非エンジニアにも伝わる言葉で書く
+  - トレードオフや制限事項は隠さず正直に書く
+
+コミット一覧を抽出するときは、内部変更だけのコミットが混ざらないように以下のようにフィルタする:
+
+```bash
+# タグを変数にセット
+PREV_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '2p')
+CURR_TAG=$(git tag --sort=-creatordate | grep '^release-' | sed -n '1p')
+
+git log "${PREV_TAG}..${CURR_TAG}" --format='__COMMIT__%H%x09%s' --name-only | awk '
+BEGIN {
+    RS="__COMMIT__"
+    FS="\n"
+}
+NR == 1 {
+    next
+}
+{
+    header = $1
+    sub(/^\n/, "", header)
+    split(header, parts, "\t")
+    hash = substr(parts[1], 1, 7)
+    subject = parts[2]
+    internalOnly = 1
+
+    for (i = 2; i <= NF; i++) {
+        if ($i == "") {
+            continue
+        }
+        if ($i !~ /^(\.agent\/|\.claude\/|\.codex\/)/) {
+            internalOnly = 0
+        }
+    }
+
+    if (subject ~ /^Merge pull request/) {
+        next
+    }
+    if (subject ~ /^(chore|docs)(\(|:)/) {
+        next
+    }
+    if (subject ~ /^(feat|fix|refactor|perf|style|test|ci|chore|docs)\((skill|skills|agent|agents|roadmap|claude|codex)\):/) {
+        next
+    }
+    if (internalOnly) {
+        next
+    }
+
+    print hash " " subject
+}'
+```
+
+#### ドラフトリリースへの適用
+
+生成したリリースノートをユーザーが確認・編集した後、`gh` コマンドで適用する:
+
+```bash
+gh release edit <タグ名> --notes "$(cat <<'EOF'
+## 概要
+...（リリースノート本文）...
+EOF
+)"
+```
+
+### 4. ドラフト確認と公開
 
 1. GitHub の Actions タブでワークフローの完了を確認
 2. Releases ページでドラフトリリースを開き、zip をダウンロードして内容を確認
