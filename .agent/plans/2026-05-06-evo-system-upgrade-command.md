@@ -19,7 +19,7 @@
 
 ## Decision Log
 
-- 2026-05-06 / yamamoto: `compose.yml` は `.gitattributes` に `export-ignore` 指定がないため zipball に含まれる。ルートファイルの上書き対象はパッケージ内容から動的に決定するが、サイト固有・環境依存ファイル（`compose.yml`, `compose.override.yml`, `.env`, `.htaccess`）は明示的な除外リスト（`$rootExclude`）でスキップする（2026-05-06 レビュー指摘で修正）。
+- 2026-05-06 / yamamoto: `compose.yml` は `.gitattributes` に `export-ignore` 指定がないため zipball に含まれる。ルートファイルの上書き対象はパッケージ内容から動的に決定するが、サイト固有・環境依存ファイル（`compose.yml`, `compose.override.yml`, `.env`, `.htaccess`）は明示的な除外リスト（`$rootExclude`）でスキップする（PR #439 レビュー指摘により修正）。
 - 2026-05-06 / yamamoto: `assets/images/` と `assets/files/` はバックアップ除外。サイトによっては大容量になるため。
 - 2026-05-06 / yamamoto: `.htaccess.maintenance` はコマンドが自動生成する。`/install/` パスは通過させ、ブラウザからのアップグレード操作を可能にする。
 - 2026-05-06 / yamamoto: バックアップ先は `temp/backup/migrate/YYYYMMDD_HHMMSS/`。`migrate/` サブディレクトリでDB（`db-backup.php` が使う `temp/backup/`）との混在を回避。
@@ -110,18 +110,33 @@ foreach ($args as $arg) {
 
 ### Step 2: GitHub API で最新リリース情報取得
 
+エラー抑制演算子（`@`）は使わず、`$http_response_header` と `error_get_last()` で失敗原因をユーザーに提示して中断する。
+
 ```php
 $apiUrl = $tag !== ''
     ? "https://api.github.com/repos/modxcms-jp/evolution-jp/releases/tags/{$tag}"
     : 'https://api.github.com/repos/modxcms-jp/evolution-jp/releases/latest';
 
 $ctx = stream_context_create(['http' => [
-    'method' => 'GET',
-    'header' => "User-Agent: evo-cli\r\nAccept: application/vnd.github+json\r\n",
-    'timeout' => 30,
+    'method'          => 'GET',
+    'header'          => "User-Agent: evo-cli\r\nAccept: application/vnd.github+json\r\n",
+    'timeout'         => 30,
+    'ignore_errors'   => true,   // 4xx/5xx でも本文を取得してエラー内容を表示できるようにする
 ]]);
-$json = @file_get_contents($apiUrl, false, $ctx);
-// JSONデコード → tag_name / zipball_url を取得
+$json = file_get_contents($apiUrl, false, $ctx);
+if ($json === false) {
+    $err = error_get_last();
+    cli_usage('GitHub API 取得失敗: ' . ($err['message'] ?? '不明なエラー'));
+}
+// HTTP ステータス確認（$http_response_header[0] 例: "HTTP/1.1 404 Not Found"）
+if (!isset($http_response_header[0]) || strpos($http_response_header[0], '200') === false) {
+    cli_usage('GitHub API エラー: ' . ($http_response_header[0] ?? '不明') . "\n" . substr($json, 0, 200));
+}
+$release = json_decode($json, true);
+if (!is_array($release) || empty($release['zipball_url'])) {
+    cli_usage('GitHub API レスポンスが不正です。tag 名を確認してください。');
+}
+// $release['tag_name'], $release['zipball_url'] を以降で使用
 ```
 
 取得した `tag_name` と `zipball_url` を表示してユーザーに確認させる。
@@ -135,7 +150,21 @@ $extractTo = MODX_BASE_PATH . 'temp/upgrade-extract-' . date('YmdHis') . '/';
 
 - `file_get_contents($zipball_url, ...)` でダウンロード（リダイレクト追跡が必要: `'follow_location' => 1`）
 - `ZipArchive::open()` → `extractTo($extractTo)`
-- 展開後のトップレベルディレクトリを `glob($extractTo . '*/')[0]` で検出 → `$pkgRoot`
+- 展開後のトップレベルディレクトリを検出 → `$pkgRoot`
+
+`glob()` の結果が空の場合は明示的にエラー終了する（未定義オフセット防止）:
+
+```php
+$dirs = glob($extractTo . '*/');
+if (empty($dirs)) {
+    cli_usage('zip 展開後にパッケージディレクトリが見つかりません。アーカイブ構造を確認してください。');
+}
+$pkgRoot = $dirs[0];
+// 最低限 manager/ が含まれていることを確認
+if (!is_dir($pkgRoot . 'manager/')) {
+    cli_usage("展開先 ({$pkgRoot}) に manager/ が存在しません。想定外のアーカイブ構造です。");
+}
+```
 
 ### Step 4: 確認プロンプト（--yes でスキップ）
 
