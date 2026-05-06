@@ -38,13 +38,13 @@
 | `.gitattributes` | `.gitattributes export-ignore`（既存） |
 | `.editorconfig` | `.editorconfig export-ignore`（既存） |
 | `dist/` | git 非管理のため不要 |
-| `docs/` / `**/docs/` | `docs export-ignore` |
+| `docs/` / `**/docs/` | `docs/ export-ignore` + `**/docs/ export-ignore` |
 | `readme*` / `README*` | `readme* export-ignore` / `README* export-ignore` |
 | `AGENTS.md` | `AGENTS.md export-ignore` |
 | `CLAUDE.md` | `CLAUDE.md export-ignore` |
 | `compose.yml` | `compose.yml export-ignore` |
-| `custom-instructions/` | `custom-instructions export-ignore` |
-| `manager/docker/` | `manager/docker export-ignore` |
+| `custom-instructions/` | `custom-instructions/ export-ignore` |
+| `manager/docker/` | `manager/docker/ export-ignore` |
 
 ## Plan of Work
 
@@ -53,8 +53,10 @@
 移行後の `release.yml` は checkout → `git archive` → GitHub Release 作成の 3 ステップになる。
 
 `.gitattributes` のパターンマッチング（git 仕様）:
-- スラッシュを含まないパターン（`.github`、`AGENTS.md` 等）はツリー内の任意の位置にマッチ
-- スラッシュを含むパターン（`manager/docker`）はリポジトリルートからのパスに固定
+- ディレクトリは trailing `/` を付ける（例: `.github/`、`docs/`、`manager/docker/`）。trailing `/` を付けることでディレクトリのみにマッチし、意図が明確になる
+- trailing `/` なしのパターン（`AGENTS.md` 等）は最終コンポーネントにマッチ。ファイルに使用
+- `manager/docker/` のように中間スラッシュを含むパターンはリポジトリルートからのパスに固定
+- `**/docs/` のようなパターンは任意の深さのサブディレクトリにマッチ
 - 大文字小文字は区別される（`readme*` と `README*` は別パターン）
 
 ## Concrete Steps
@@ -65,22 +67,23 @@
 
 既存エントリの末尾に以下を追記する:
 
-    .github export-ignore
-    .agent export-ignore
-    .agents export-ignore
-    .claude export-ignore
-    .codex export-ignore
-    .vscode export-ignore
-    .work export-ignore
+    .github/ export-ignore
+    .agent/ export-ignore
+    .agents/ export-ignore
+    .claude/ export-ignore
+    .codex/ export-ignore
+    .vscode/ export-ignore
+    .work/ export-ignore
     .gitkeep export-ignore
-    docs export-ignore
+    docs/ export-ignore
+    **/docs/ export-ignore
     readme* export-ignore
     README* export-ignore
     AGENTS.md export-ignore
     CLAUDE.md export-ignore
     compose.yml export-ignore
-    custom-instructions export-ignore
-    manager/docker export-ignore
+    custom-instructions/ export-ignore
+    manager/docker/ export-ignore
 
 確認:
 ```bash
