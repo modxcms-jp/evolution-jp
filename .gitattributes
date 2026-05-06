@@ -1,7 +1,23 @@
 * text eol=lf
 .gitattributes export-ignore
 .gitignore export-ignore
+.gitkeep export-ignore
 .editorconfig export-ignore
+.github export-ignore
+.agent export-ignore
+.agents export-ignore
+.claude export-ignore
+.codex export-ignore
+.vscode export-ignore
+.work export-ignore
+docs export-ignore
+readme* export-ignore
+README* export-ignore
+AGENTS.md export-ignore
+CLAUDE.md export-ignore
+compose.yml export-ignore
+custom-instructions export-ignore
+manager/docker export-ignore
 *.png binary
 *.jpg binary
 *.gif binary
