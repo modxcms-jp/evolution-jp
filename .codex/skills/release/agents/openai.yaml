@@ -2,7 +2,14 @@ interface:
   display_name: "Release"
   short_description: "Evolution CMS JP Edition のリリース作業を対話形式でガイドする"
   default_prompt: |
-    リリース作業を対話形式で進めてください。
+    入力コマンドに応じて以下を実行してください。
+
+    `/release`:
+    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。
+    2) 現在のブランチが `main` でない場合は警告し、続行確認を取る。
+    3) 問題があれば警告し、続行確認を取る。
+    4) ユーザーに新バージョン番号（形式: X.Y.ZJ）を質問する。
+    5) バージョン更新、コミット、タグ、push、GitHub Releases 公開手順まで対話形式で進める。
 
     進め方:
     1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。現在のブランチが `main` でない場合は警告し、続行確認を取る。リリース作業は `main` ブランチ上で行うことを強く推奨する。
