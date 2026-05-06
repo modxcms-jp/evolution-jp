@@ -29,7 +29,7 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 8. スーパーグローバル、直接 `$modx` 参照、生SQL、`compact()` の混入を確認する。
 9. キャッシュに関係する変更では、無効化条件と再生成条件を確認する。
 10. 指摘対象のファイル・行・シンボルが差分またはワークスペースに存在しない場合、推測で指摘を作らず「検証不能」として事実のみ報告する。
-11. GitHub への返信、PR コメント、review thread の resolved 化は、修正と push の完了後に「GitHub 返信と review thread の resolved 化を行いますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
+11. GitHub への返信・コメントと review thread の resolved 化は、修正と push の完了後に「GitHub上へ返信・コメントし、review thread を resolved 化しますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
 
 ## コマンド
 
@@ -152,7 +152,7 @@ git push
 ステップ5の完了後、まずユーザーに次の1問だけ確認する。
 
 ```text
-GitHub 返信と review thread の resolved 化を行いますか？ はい・いいえ
+GitHub上へ返信・コメントし、review thread を resolved 化しますか？ はい・いいえ
 ```
 
 `はい` の場合のみ、このステップを実行する。`いいえ` の場合は GitHub への書き込みを行わず、ローカル修正と push の完了だけを報告して終了する。
