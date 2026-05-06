@@ -51,7 +51,7 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 ### /resolve-review <PR番号>
 
 GitHub PR のレビューコメントを取得し、各指摘を評価・対応・解決する。
-実装・コミット・push を伴う場合は Worker エージェントに委譲する。
+実装・コミット・push を伴う場合は Worker エージェントに委譲し、review-agent 自身は方針整理、確認、GitHub 上の返信・resolved 化のみ担当する。
 
 **ステップ 1: 指摘の収集と評価**
 
@@ -139,7 +139,7 @@ git commit -m "<type>: レビュー指摘に対応"
 git push
 ```
 
-実行前に、まずユーザーに次の1問だけ確認する。
+Worker による修正結果を確認した後、コミットと push を行う前に、まずユーザーに次の1問だけ確認する。
 
 ```text
 コミットして push しますか？ はい・いいえ
