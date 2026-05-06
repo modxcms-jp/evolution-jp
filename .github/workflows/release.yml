@@ -13,37 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare dist directory
-        run: |
-          mkdir dist
-          rsync -a ./ dist/ \
-            --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='.agent/' \
-            --exclude='.agents/' \
-            --exclude='.claude/' \
-            --exclude='.codex/' \
-            --exclude='.vscode/' \
-            --exclude='.work/' \
-            --exclude='.gitignore' \
-            --exclude='.gitkeep' \
-            --exclude='.gitattributes' \
-            --exclude='.editorconfig' \
-            --exclude='dist/' \
-            --exclude='docs/' \
-            --exclude='**/docs/' \
-            --exclude='readme*' \
-            --exclude='README*' \
-            --exclude='AGENTS.md' \
-            --exclude='CLAUDE.md' \
-            --exclude='compose.yml' \
-            --exclude='custom-instructions/' \
-            --exclude='manager/docker/'
-
       - name: Create zip archive
-        run: |
-          cd dist
-          zip -r ../evo-${GITHUB_REF_NAME}.zip .
+        run: git archive --format=zip HEAD -o evo-${GITHUB_REF_NAME}.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
