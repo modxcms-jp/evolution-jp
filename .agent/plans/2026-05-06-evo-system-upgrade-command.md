@@ -19,7 +19,7 @@
 
 ## Decision Log
 
-- 2026-05-06 / yamamoto: `compose.yml` はパッケージに含まれないため、ルートファイルの上書き対象はパッケージの内容から動的に決定する（ハードコードしない）。
+- 2026-05-06 / yamamoto: `compose.yml` は `.gitattributes` に `export-ignore` 指定がないため zipball に含まれる。ルートファイルの上書き対象はパッケージ内容から動的に決定するが、サイト固有・環境依存ファイル（`compose.yml`, `compose.override.yml`, `.env`, `.htaccess`）は明示的な除外リスト（`$rootExclude`）でスキップする（2026-05-06 レビュー指摘で修正）。
 - 2026-05-06 / yamamoto: `assets/images/` と `assets/files/` はバックアップ除外。サイトによっては大容量になるため。
 - 2026-05-06 / yamamoto: `.htaccess.maintenance` はコマンドが自動生成する。`/install/` パスは通過させ、ブラウザからのアップグレード操作を可能にする。
 - 2026-05-06 / yamamoto: バックアップ先は `temp/backup/migrate/YYYYMMDD_HHMMSS/`。`migrate/` サブディレクトリでDB（`db-backup.php` が使う `temp/backup/`）との混在を回避。
@@ -175,20 +175,23 @@ cli_out("DB backup: {$dbFile}");
 $journal = [];
 
 // manager/ を移動
-rename(BASE . 'manager/', $backupDir . 'manager/');
-$journal[] = ['type' => 'moved', 'from' => BASE . 'manager/', 'to' => $backupDir . 'manager/'];
+rename(MODX_BASE_PATH . 'manager/', $backupDir . 'manager/');
+$journal[] = ['type' => 'moved', 'from' => MODX_BASE_PATH . 'manager/', 'to' => $backupDir . 'manager/'];
 
 // assets/ を再帰コピー（images/, files/ 除外）
 $excludeDirs = ['images', 'files'];
-upgrade_copy_dir(BASE . 'assets/', $backupDir . 'assets/', $excludeDirs);
+upgrade_copy_dir(MODX_BASE_PATH . 'assets/', $backupDir . 'assets/', $excludeDirs);
 $journal[] = ['type' => 'copied_dir', 'to' => $backupDir . 'assets/'];
 
-// ルートファイル（パッケージに含まれるファイルのみ）をコピー
+// ルートファイル（パッケージ内ファイルのみ、除外リストを適用）をコピー
+$rootExclude  = ['compose.yml', 'compose.override.yml', '.env', '.htaccess', '.htaccess.maintenance'];
 $pkgRootFiles = upgrade_list_root_files($pkgRoot);  // glob($pkgRoot . '*') でファイルのみ
+mkdir($backupDir . 'root/', 0755, true);
 foreach ($pkgRootFiles as $file) {
     $name = basename($file);
-    if (is_file(BASE . $name)) {
-        copy(BASE . $name, $backupDir . 'root/' . $name);
+    if (in_array($name, $rootExclude)) continue;
+    if (is_file(MODX_BASE_PATH . $name)) {
+        copy(MODX_BASE_PATH . $name, $backupDir . 'root/' . $name);
     }
 }
 $journal[] = ['type' => 'copied_root', 'to' => $backupDir . 'root/'];
@@ -198,12 +201,13 @@ $journal[] = ['type' => 'copied_root', 'to' => $backupDir . 'root/'];
 
 ### Step 8: メンテナンス化
 
-```php
-// .htaccess → .htaccess.pre-upgrade
-rename(BASE . '.htaccess', BASE . '.htaccess.pre-upgrade');
-$journal[] = ['type' => 'renamed', 'from' => BASE . '.htaccess', 'to' => BASE . '.htaccess.pre-upgrade'];
+`.htaccess` はリネームではなくバックアップディレクトリへコピーしてから上書きする。これにより再実行時のファイル名衝突を防ぐ（`$backupDir` はタイムスタンプで一意）。
 
-// .htaccess.maintenance を生成
+```php
+// 元の .htaccess をバックアップディレクトリへコピー
+copy(MODX_BASE_PATH . '.htaccess', $backupDir . '.htaccess.orig');
+
+// .htaccess をメンテナンス内容で上書き
 $maintenance = <<<'HTACCESS'
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -212,29 +216,37 @@ $maintenance = <<<'HTACCESS'
 </IfModule>
 ErrorDocument 503 "System under maintenance. Please try again later."
 HTACCESS;
-file_put_contents(BASE . '.htaccess', $maintenance);
-$journal[] = ['type' => 'wrote', 'path' => BASE . '.htaccess'];
+file_put_contents(MODX_BASE_PATH . '.htaccess', $maintenance);
+$journal[] = ['type' => 'overwritten', 'path' => MODX_BASE_PATH . '.htaccess', 'backup' => $backupDir . '.htaccess.orig'];
 ```
 
 `/install/` パスのみ通過させ、アップグレード操作をブラウザから実行可能にする。
 
 ### Step 9: ファイル差し替え
 
-```php
-// 新 manager/ を配置（バックアップ内からではなくパッケージから）
-upgrade_copy_dir($pkgRoot . 'manager/', BASE . 'manager/');
-$journal[] = ['type' => 'placed_dir', 'path' => BASE . 'manager/'];
+assets/ とルートファイルの上書きもジャーナルに記録し、ロールバック時にバックアップから復元できるようにする。
 
-// config.inc.php をバックアップから復元
-copy($backupDir . 'manager/includes/config.inc.php', BASE . 'manager/includes/config.inc.php');
+```php
+// 新 manager/ を配置（パッケージから）
+upgrade_copy_dir($pkgRoot . 'manager/', MODX_BASE_PATH . 'manager/');
+$journal[] = ['type' => 'placed_dir', 'path' => MODX_BASE_PATH . 'manager/'];
+
+// config.inc.php をバックアップから復元（新 manager/ 配置直後に実施）
+copy($backupDir . 'manager/includes/config.inc.php', MODX_BASE_PATH . 'manager/includes/config.inc.php');
 
 // assets/ を上書き（images/, files/ 除外）
-upgrade_copy_dir($pkgRoot . 'assets/', BASE . 'assets/', $excludeDirs);
+upgrade_copy_dir($pkgRoot . 'assets/', MODX_BASE_PATH . 'assets/', $excludeDirs);
+$journal[] = ['type' => 'overwritten_dir', 'src' => $backupDir . 'assets/', 'dst' => MODX_BASE_PATH . 'assets/', 'exclude' => $excludeDirs];
 
-// ルートファイルを上書き
+// ルートファイルを上書き（除外リストを適用）
+$overwrittenRootFiles = [];
 foreach ($pkgRootFiles as $file) {
-    copy($file, BASE . basename($file));
+    $name = basename($file);
+    if (in_array($name, $rootExclude)) continue;
+    copy($file, MODX_BASE_PATH . $name);
+    $overwrittenRootFiles[] = $name;
 }
+$journal[] = ['type' => 'overwritten_root', 'backup' => $backupDir . 'root/', 'files' => $overwrittenRootFiles];
 ```
 
 ### Step 10: クリーンアップ・完了通知
@@ -250,33 +262,44 @@ cli_out("バックアップ: {$backupDir}");
 cli_out('');
 cli_out('次の手順:');
 cli_out('  1. ブラウザで /install/ を開いてアップグレードを実行してください');
-cli_out('  2. 完了後、.htaccess をメンテナンス状態から元に戻してください:');
-cli_out('       mv .htaccess.pre-upgrade .htaccess');
+cli_out("  2. 完了後、.htaccess をメンテナンス状態から元に戻してください:");
+cli_out("       cp {$backupDir}.htaccess.orig .htaccess");
 cli_out('  問題があった場合、上記バックアップから手動リストアできます');
 ```
 
 ### ロールバック実装
 
-エラー発生時に呼び出す `upgrade_rollback($journal)`:
+エラー発生時に呼び出す `upgrade_rollback($journal)`。ジャーナルの逆順で処理し、各操作を復元する。
 
 ```php
 function upgrade_rollback(array $journal): void {
     foreach (array_reverse($journal) as $op) {
         switch ($op['type']) {
             case 'moved':
-                // 新manager/が置かれていれば削除してからバックアップを戻す
+                // 新 manager/ が置かれていれば先に削除してからバックアップを戻す
                 if (is_dir($op['from'])) upgrade_rmdir($op['from']);
                 if (is_dir($op['to']))   rename($op['to'], $op['from']);
                 break;
-            case 'wrote':
-                if (is_file($op['path'])) unlink($op['path']);
-                break;
-            case 'renamed':
-                if (is_file($op['to'])) rename($op['to'], $op['from']);
+            case 'overwritten':
+                // .htaccess → バックアップから復元
+                if (is_file($op['backup'])) copy($op['backup'], $op['path']);
                 break;
             case 'placed_dir':
+                // 新しく配置したディレクトリを削除（moved の復元で元が戻る）
                 if (is_dir($op['path'])) upgrade_rmdir($op['path']);
                 break;
+            case 'overwritten_dir':
+                // assets/ → バックアップから上書き復元
+                if (is_dir($op['src'])) upgrade_copy_dir($op['src'], $op['dst'], $op['exclude']);
+                break;
+            case 'overwritten_root':
+                // ルートファイル → バックアップから1ファイルずつ復元
+                foreach ($op['files'] as $name) {
+                    $src = $op['backup'] . $name;
+                    if (is_file($src)) copy($src, MODX_BASE_PATH . $name);
+                }
+                break;
+            // copied_dir / copied_root はバックアップ自体なので復元不要
         }
     }
 }
@@ -323,17 +346,18 @@ docker compose exec <app-service> php evo system-upgrade --yes
 ```
 
 完了後に確認すること:
-- `temp/backup/migrate/YYYYMMDD_HHMMSS/` が存在し `db-*.sql`, `manager/`, `assets/` が格納されている
+- `temp/backup/migrate/YYYYMMDD_HHMMSS/` が存在し `db-*.sql`, `manager/`, `assets/`, `root/`, `.htaccess.orig` が格納されている
 - `manager/includes/config.inc.php` が存在し、元の接続情報が入っている
 - `.htaccess` がメンテナンス内容（503返却）になっている
-- `.htaccess.pre-upgrade` が元の内容で存在する
+- `temp/backup/migrate/YYYYMMDD_HHMMSS/.htaccess.orig` に元の `.htaccess` が保存されている
 - ブラウザで `/install/` にアクセスできる（サイト本体は503）
 
 ### エラー系
 
 展開後のStep 9（ファイル差し替え中）で強制的にエラーを起こし:
 - `manager/` が元の場所に戻っていること
-- `.htaccess` が元の内容に戻っていること（`.htaccess.pre-upgrade` が消え `.htaccess` になっている）
+- `.htaccess` が元の内容に戻っていること（バックアップの `.htaccess.orig` から復元）
+- `assets/` のファイルがバックアップから復元されていること
 - `cli_err` に「ロールバック完了」メッセージが出力されていること
 
 ### バージョン指定
@@ -349,8 +373,10 @@ docker compose exec <app-service> php evo system-upgrade --tag=v1.3.0
 
 中断時は:
 1. `temp/backup/migrate/YYYYMMDD_HHMMSS/` の中を確認してバックアップ状況を把握する
-2. `.htaccess.pre-upgrade` が存在すれば `mv .htaccess.pre-upgrade .htaccess` でメンテナンス解除できる
+2. `.htaccess` をメンテナンス解除するには `cp temp/backup/migrate/YYYYMMDD_HHMMSS/.htaccess.orig .htaccess`
 3. `manager/` が欠損している場合は `cp -r temp/backup/migrate/.../manager/ manager/` で戻す
+
+なお、`.htaccess` のバックアップは実行ごとにタイムスタンプ付きのバックアップディレクトリ内に `.htaccess.orig` として保存されるため、複数回実行しても衝突しない。
 
 ## Artifacts and Notes
 
