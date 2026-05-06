@@ -19,7 +19,7 @@
 
 ## Decision Log
 
-- 2026-05-06 / yamamoto: `compose.yml` は `.gitattributes` に `export-ignore` 指定がないため zipball に含まれる。ルートファイルの上書き対象はパッケージ内容から動的に決定するが、サイト固有・環境依存ファイル（`compose.yml`, `compose.override.yml`, `.env`, `.htaccess`）は明示的な除外リスト（`$rootExclude`）でスキップする（PR #439 レビュー指摘により修正）。
+- 2026-05-06 / yamamoto: `compose.yml` は `.gitattributes` に `export-ignore` 指定があるため zipball には含まれない。ただし `.env` や `.htaccess` などサイト固有・環境依存ファイルを保護するため、明示的な除外リスト（`$rootExclude`）を設けてルートファイルの上書き対象を制御する（当初の前提が誤りだったことを PR #439 レビューで指摘・確認。`.gitattributes` 更新後の実態に合わせて修正）。
 - 2026-05-06 / yamamoto: `assets/images/` と `assets/files/` はバックアップ除外。サイトによっては大容量になるため。
 - 2026-05-06 / yamamoto: `.htaccess.maintenance` はコマンドが自動生成する。`/install/` パスは通過させ、ブラウザからのアップグレード操作を可能にする。
 - 2026-05-06 / yamamoto: バックアップ先は `temp/backup/migrate/YYYYMMDD_HHMMSS/`。`migrate/` サブディレクトリでDB（`db-backup.php` が使う `temp/backup/`）との混在を回避。
