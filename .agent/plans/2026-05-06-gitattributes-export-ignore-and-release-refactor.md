@@ -26,13 +26,13 @@
 | rsync --exclude | .gitattributes での対応 |
 |----------------|------------------------|
 | `.git/` | `git archive` が自動除外（対応不要） |
-| `.github/` | `.github export-ignore` |
-| `.agent/` | `.agent export-ignore` |
-| `.agents/` | `.agents export-ignore` |
-| `.claude/` | `.claude export-ignore` |
-| `.codex/` | `.codex export-ignore` |
-| `.vscode/` | `.vscode export-ignore` |
-| `.work/` | `.work export-ignore` |
+| `.github/` | `.github/ export-ignore` |
+| `.agent/` | `.agent/ export-ignore` |
+| `.agents/` | `.agents/ export-ignore` |
+| `.claude/` | `.claude/ export-ignore` |
+| `.codex/` | `.codex/ export-ignore` |
+| `.vscode/` | `.vscode/ export-ignore` |
+| `.work/` | `.work/ export-ignore` |
 | `.gitignore` | `.gitignore export-ignore`（既存） |
 | `.gitkeep` | `.gitkeep export-ignore` |
 | `.gitattributes` | `.gitattributes export-ignore`（既存） |
