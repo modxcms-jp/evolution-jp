@@ -359,6 +359,13 @@ docker compose exec <app-service> php evo system-upgrade --tag=v1.3.0
 - 参考コマンド（パターン）: `commands/db-backup.php`, `commands/health-check.php`
 - ヘルパー: `manager/includes/cli/cli-helpers.php`（`cli_export_database` 等）
 
+**後続タスクへの参照**:  
+このコマンドの設計（バックアップ戦略・ジャーナル方式ロールバック・GitHub API 取得・ファイル差し替え順序・config.inc.php 引き継ぎ）は、ロードマップの「オンラインアップデート機構（基本設計）」タスクの設計入力として活用できる。特に以下が再利用・発展の起点になる：
+- `temp/backup/migrate/YYYYMMDD_HHMMSS/` バックアップ構造
+- ジャーナル配列によるロールバック方式
+- `assets/images/`, `assets/files/` 除外ルール
+- `/install/` のみ通過させるメンテナンス `.htaccess` パターン
+
 **想定コミット**:
 1. `feat(cli): system-upgrade コマンド骨格（引数・GitHub取得・展開）`  
    対象: `commands/system-upgrade.php`（Phase 1〜3）
