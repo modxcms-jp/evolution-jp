@@ -6,7 +6,7 @@ interface:
 
     `/roadmap-next`:
     1) 依存順で次の未完了タスクを1件選定する。
-    2) ExecPlan 行を確認し、無ければ先に作成して `ExecPlan:` 行を追記する。
+    2) ExecPlan 行を確認し、無い、または値が `なし` であれば先に作成して `ExecPlan:` 行を追記する。
     3) ExecPlan の `Progress` 初期行を更新して着手する。
 
     `/roadmap-add <セクション> <タスク>`:

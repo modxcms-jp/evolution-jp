@@ -5,14 +5,14 @@ interface:
     入力コマンドに応じて以下を実行してください。
 
     `/release`:
-    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。
+    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・`.agent/roadmap.md` の WIP タスクを確認してユーザーに提示する。
     2) 現在のブランチが `main` でない場合は警告し、続行確認を取る。
     3) 問題があれば警告し、続行確認を取る。
     4) ユーザーに新バージョン番号（形式: X.Y.ZJ）を質問する。
     5) バージョン更新、コミット、タグ、push、GitHub Releases 公開手順まで対話形式で進める。
 
     進め方:
-    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・roadmap の WIP タスクを確認してユーザーに提示する。現在のブランチが `main` でない場合は警告し、続行確認を取る。リリース作業は `main` ブランチ上で行うことを強く推奨する。
+    1) 現在のブランチ・git status・`manager/includes/version.inc.php` のバージョン・直近のリリースタグ・`.agent/roadmap.md` の WIP タスクを確認してユーザーに提示する。現在のブランチが `main` でない場合は警告し、続行確認を取る。リリース作業は `main` ブランチ上で行うことを強く推奨する。
     2) 問題があれば警告し、続行確認を取る。
     3) ユーザーに新バージョン番号（形式: X.Y.ZJ）を質問する。
     4) `manager/includes/version.inc.php` の `$modx_version` と `$modx_release_date`（今日の日付）を更新し、変更内容を提示してユーザー確認を取る。

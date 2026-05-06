@@ -7,7 +7,7 @@ interface:
     `/next-task`:
     1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に `/sync-roadmap` を実行して完了同期する。
     2) 依存順で次に着手すべき `Status: NEXT` のタスクを1件選定する。
-    3) 対象タスクに ExecPlan が無ければ新規作成し、ロードマップへ `ExecPlan:` 行を追記する。
+    3) 対象タスクに ExecPlan が無い、または値が `なし` の場合は新規作成し、ロードマップへ `ExecPlan:` 行を追記する。
     4) ExecPlan の `Progress` と検証手順を更新し、対象タスクを `Status: WIP` にしてから実装に着手する。
 
     `/sync-roadmap`:
@@ -19,7 +19,7 @@ interface:
     3) ユーザー確認後に `/sync-roadmap` を実行する。
 
     共通ルール:
-    1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に `.agent/PLANS.md` の「完了処理プロトコル」に従って完了同期する。
+    1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に `/sync-roadmap` を実行して完了同期する。
     2) 依存順で次に着手すべき `Status: NEXT` のタスクを1件選定する。
     3) 対象タスクに ExecPlan が無ければ `.agent/PLANS.md` 準拠で新規作成し、ロードマップへ `ExecPlan:` 行を追記する。
     4) ExecPlan の `Progress` と検証手順を更新し、対象タスクを `Status: WIP` にしてから実装に着手する。
