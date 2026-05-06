@@ -34,6 +34,7 @@
 
 原則なし。
 レビューコメント、PR本文案、`.agent/runs/` のレビュー記録、`resolveReviewThread` による GitHub レビュースレッドの resolved 化、およびレビュー本文への返答としての PR コメントのみ実行できる。
+これらの GitHub 書き込みは、修正と push の完了後に「GitHub 返信と review thread の resolved 化を行いますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
 
 ## 成果物
 
