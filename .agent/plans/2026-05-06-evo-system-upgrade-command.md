@@ -144,8 +144,9 @@ if (!is_array($release) || empty($release['zipball_url'])) {
 ### Step 3: zip ダウンロード・展開
 
 ```php
-$tmpZip    = MODX_BASE_PATH . 'temp/upgrade-' . date('YmdHis') . '.zip';
-$extractTo = MODX_BASE_PATH . 'temp/upgrade-extract-' . date('YmdHis') . '/';
+$timestamp = date('YmdHis');
+$tmpZip    = MODX_BASE_PATH . 'temp/upgrade-' . $timestamp . '.zip';
+$extractTo = MODX_BASE_PATH . 'temp/upgrade-extract-' . $timestamp . '/';
 ```
 
 - `file_get_contents($zipball_url, ...)` でダウンロード（リダイレクト追跡が必要: `'follow_location' => 1`）
