@@ -7,3 +7,9 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 このファイルは Codex 実行用の入口とメタデータを管理する。
 手順本文の正本は `.claude/skills/release/SKILL.md` に置き、実行時は `assets/docs/release-process.md` を参照する。
+
+## コマンド
+
+### /release
+
+このスキルは `/release` を入口として開始する。

@@ -33,7 +33,7 @@
 ## 書き込み権限
 
 原則なし。
-レビューコメント、PR本文案、`.agent/runs/` のレビュー記録、`resolveReviewThread` による GitHub レビュースレッドの resolved 化、およびレビュー本文への返答としての PR コメントのみ実行できる。
+レビューコメント、PR本文案、`.agent/runs/` のレビュー記録、`resolveReviewThread` による GitHub レビュースレッドの resolved 化、レビュー本文への返答としての PR コメント、ならびにレビュー対応に必要なコミットと push を実行できる。
 コミットと push は、修正と検証の完了後に「コミットして push しますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
 これらの GitHub 書き込みは、修正と push の完了後に「GitHub上へ返信・コメントし、review thread を resolved 化しますか？ はい・いいえ」で確認し、`はい` の場合のみ実行する。
 
