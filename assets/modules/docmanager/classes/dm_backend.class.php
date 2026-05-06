@@ -162,6 +162,7 @@ class DocManagerBackend
     {
         $tbl_site_tmplvar_contentvalues = evo()->getFullTableName('site_tmplvar_contentvalues');
         $updateError = '';
+        $updated = false;
 
         $results = $this->processRange($pids, 'id', 0);
         $pids = $results[0];
