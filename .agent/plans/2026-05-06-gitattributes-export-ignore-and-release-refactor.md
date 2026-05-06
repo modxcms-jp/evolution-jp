@@ -4,9 +4,9 @@
 リリースパッケージの除外パス定義を `.gitattributes`（`export-ignore`）に一元化し、`release.yml` を `git archive` ベースへシンプル化する。現状は `.gitattributes` の `export-ignore`（3 エントリ）と `release.yml` の rsync `--exclude`（15 以上）が二重管理になっており、どちらかを更新した際にもう一方を更新し忘れる保守リスクがある。
 
 ## Progress
-- [ ] (2026-05-06) `.gitattributes` に不足している `export-ignore` エントリを追加
-- [ ] (2026-05-06) `release.yml` を `git archive` ベースへ書き換え
-- [ ] (2026-05-06) ローカルで `git archive` を実行してアーカイブ内容を確認
+- [x] (2026-05-06) `.gitattributes` に不足している `export-ignore` エントリを追加
+- [x] (2026-05-06) `release.yml` を `git archive` ベースへ書き換え
+- [x] (2026-05-06) ローカルで `git archive` を実行してアーカイブ内容を確認
 
 ## Surprises & Discoveries
 
