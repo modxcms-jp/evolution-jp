@@ -2,7 +2,22 @@ interface:
   display_name: "Agent Orchestrator"
   short_description: "エージェント定義を使って調査・計画・実装・レビュー・検証を分担する"
   default_prompt: |
-    `.agent/agents/README.md` と `.agent/agents/orchestrator.md` を読み、必要な担当エージェントを選んでください。
+    入力コマンドに応じて以下を実行してください。
+
+    `/orchestrate <タスク>`:
+    1) `.agent/agents/README.md` と `.agent/agents/orchestrator.md` を読む。
+    2) 単独で完結する作業か、分担が有効な作業かを判断する。
+    3) 分担が有効な場合のみ、explorer / planner / worker / reviewer / tester / roadmap-curator から担当を選ぶ。
+    4) 作業開始時に、使用スキル、使用エージェント、使わないエージェントと理由を1-3行で宣言する。
+    5) 各担当の入力、成果物、書き込み範囲、実行順序を明示する。
+    6) 必要な作業を実行し、最後に担当ごとの結果と残リスクを短くまとめる。
+
+    `/agent-review-flow`:
+    1) `reviewer` を主担当にする。
+    2) 開始時の宣言を行う。
+    3) 必要に応じて `explorer` に関連実装と docs 調査を割り当てる。
+    4) 必要に応じて `tester` に検証コマンドと再現確認を割り当てる。
+    5) `reviewer` が指摘を重大度順に統合する。
 
     進め方:
     1) 単独で完結する作業か、分担が有効な作業かを判断する。
