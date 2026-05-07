@@ -49,9 +49,10 @@
 
 1. run 開始時に `php evo skill:init --plan=... --skill=...` を実行する。
 2. 学習結果を更新したら `php evo skill:complete --run-dir=... --strict` で完了処理する。
-3. 退避が必要なら `php evo skill:archive --run-dir=... --strict` を実行する。
-4. 集計を `php evo skill:sync [--skill=...]` で更新する。
-5. stale 候補を `php evo skill:prune [--skill=...]` で確認する。
+3. `learning.json` と `proposal.json` を確認し、得られた学びを skill へ反映するかを判断する。
+4. 退避が必要なら `php evo skill:archive --run-dir=... --strict` を実行する。
+5. 集計を `php evo skill:sync [--skill=...]` で更新する。
+6. stale 候補を `php evo skill:prune [--skill=...]` で確認する。
 
 ## テンプレート
 

@@ -17,6 +17,7 @@ interface:
     1) 対象 ExecPlan の `Progress` と `Validation and Acceptance` を完了状態に更新する。
     2) 実装と検証の完了を告げ、ロードマップ反映前にユーザー確認を求める。
     3) ユーザー確認後に `/sync-roadmap` を実行する。
+    4) スキル自己成長対象タスクでは、`.agent/PLANS.md` の「完了処理プロトコル」step 8 に従い、`skill:complete` 実行後に得られた学びと反映候補を示してから、`この学びをスキルへ反映しますか？ はい・いいえ` と確認する。
 
     共通ルール:
     1) `.agent/roadmap.md` を読み、すでに実装と検証が完了し、ユーザー確認済みなのに未同期の項目があれば先に `/sync-roadmap` を実行して完了同期する。
