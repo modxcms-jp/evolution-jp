@@ -1,0 +1,10 @@
+{
+    "version": 1,
+    "plan_id": "2026-05-07-ai-doc-ssot-refactor",
+    "run_id": "2026-05-07-ai-doc-ssot-refactor-002",
+    "skill": "project-worker",
+    "generated_at": "2026-05-07T23:30:19+09:00",
+    "request_ref": "learning-request.json",
+    "outcome": "partial",
+    "findings": []
+}

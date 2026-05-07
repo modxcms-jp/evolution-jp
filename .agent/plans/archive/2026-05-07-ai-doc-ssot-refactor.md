@@ -20,6 +20,8 @@ PR #442 のレビューラリー分析で判明した構造的問題を解消し
 
 ## Outcomes & Retrospective
 
+`AGENTS.md` のレビュー時フローに `/pr-sync` 確認導線を組み込み、`codex-pr-rules.md` に SSOT 整合性観点を追加した。あわせて `roadmap-manager` / `roadmap-next-task` / `exec-plan` 周辺の完了処理参照粒度を `.agent/PLANS.md` 基準へそろえ、ドキュメント変更のレビュー論点を減らす形に整理した。
+
 ## Context and Orientation
 
 関連ファイル:

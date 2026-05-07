@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "plan_id": "2026-05-07-ai-doc-ssot-refactor",
+    "run_id": "2026-05-07-ai-doc-ssot-refactor-002",
+    "skill": "project-worker",
+    "trigger": "execplan_completed",
+    "requested_at": "2026-05-07T23:30:19+09:00",
+    "status": "pending",
+    "priority": "normal",
+    "reason_summary": "ExecPlan完了により学び生成対象になった",
+    "evidence": [
+        "trace.jsonl"
+    ]
+}
