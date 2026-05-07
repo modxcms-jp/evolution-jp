@@ -23,7 +23,7 @@ PR 作成や説明文の確認では `.github/codex-pr-rules.md` も参照する
 ## 実行ルール
 
 正本の実行ルールは `.claude/skills/review-agent/SKILL.md` の `## 実行ルール` を参照。
-GitHub への返信・コメントと review thread の resolved 化は、修正と push の完了後に `はい・いいえ` で確認し、`はい` の場合のみ実行する。
+GitHub への返信・コメントと review thread の resolved 化は、修正と push の完了後に `はい・いいえ` で確認し、`はい` の場合のみ実行する。`/resolve-review` を経由せず直接修正・push した場合も、push 後に resolved 化をユーザーに確認してから実行する（スキップ禁止）。
 
 ## コマンド
 
