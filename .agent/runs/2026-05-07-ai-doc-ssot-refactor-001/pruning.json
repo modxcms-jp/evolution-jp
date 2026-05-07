@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "plan_id": "2026-05-07-ai-doc-ssot-refactor",
+    "run_id": "2026-05-07-ai-doc-ssot-refactor-001",
+    "skill": "project-worker",
+    "generated_at": "2026-05-07T23:30:05+09:00",
+    "budget": {
+        "skill_md_max_lines": 200,
+        "max_loaded_references": 3
+    },
+    "items": []
+}
