@@ -380,7 +380,17 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 1. リリース告知（フォーラム、SNS など）
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
-3. `.agent/roadmap.md` の更新
+3. ロードマップの整理（下記手順）
+
+### ロードマップ整理手順
+
+`Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動する。
+
+1. `.agent/roadmap.md` から `Status: DONE` のタスクをすべて抽出する
+2. `.agent/roadmap-archive.md` の対応セクションに追記する（セクションがない場合は新設）
+3. `.agent/roadmap.md` から抽出したタスクを削除する
+4. `.agent/roadmap.md` の `最終更新` を更新する
+5. コミットする（例: `docs(roadmap): vX.X.X リリースに伴い完了タスクをアーカイブ`）
 
 ## 参考リンク
 

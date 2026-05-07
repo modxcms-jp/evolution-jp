@@ -25,6 +25,12 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 ---
 
+## リリース後のロードマップ整理（手順 4）
+
+「Publish release」完了後、`assets/docs/release-process.md` の「ロードマップ整理手順」に従い、`Status: DONE` のタスクを `roadmap.md` から `roadmap-archive.md` へ移動してコミットする。
+
+---
+
 ## リリースノート生成（手順 3）
 
 タグ push 後、GitHub Actions の完了を待ってからリリースノートを生成する。
