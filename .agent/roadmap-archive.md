@@ -152,5 +152,5 @@
   - `release.yml` が `git archive` ベースになり rsync 除外リストが不要になっている
 - 非対象（やらないこと）: リリースフロー全体の再設計
 - 依存関係: なし
-- ExecPlan: `.agent/plans/2026-05-06-gitattributes-export-ignore-and-release-refactor.md`
+- ExecPlan: `.agent/plans/archive/2026-05-06-gitattributes-export-ignore-and-release-refactor.md`
 - メモ/判断ログ: `git archive` は `.gitattributes` の `export-ignore` を自動的に尊重するため SSOT が実現できる
