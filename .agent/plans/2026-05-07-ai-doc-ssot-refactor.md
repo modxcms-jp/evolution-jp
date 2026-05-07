@@ -16,7 +16,7 @@ PR #442 のレビューラリー分析で判明した構造的問題を解消し
 ## Decision Log
 
 - 2026-05-07: PR #442 で SKILL.md と release-process.md の二重管理を解消（案 A 採用）。同種問題が roadmap-manager/roadmap-next-task にも存在することを確認。
-- 2026-05-07: `/pr-sync` コマンドを doc-maintainer スキルに追加。ワークフローへの組み込みは PR マージ後に対応することにした。
+- 2026-05-07: `/pr-sync` コマンドを doc-maintainer スキルに追加し、`CLAUDE.md` の「レビュー時」ワークフローへの組み込みも同 PR で完了。
 
 ## Outcomes & Retrospective
 
