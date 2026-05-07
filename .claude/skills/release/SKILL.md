@@ -27,7 +27,7 @@ description: Evolution CMS JP Edition のリリース作業を対話形式でガ
 
 ## リリース後のロードマップ整理
 
-「Publish release」完了後、`assets/docs/release-process.md` の「ロードマップ整理手順」に従い、`Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動してコミットする。
+「Publish release」完了後、`assets/docs/release-process.md` の「リリース後の対応」手順 3 に従い、`Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動してコミットする。
 
 ---
 

@@ -380,7 +380,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
 
 1. リリース告知（フォーラム、SNS など）
 2. 次期バージョンの開発ブランチ作成（必要に応じて）
-3. ロードマップの整理（ロードマップ整理手順）
+3. ロードマップの整理（下記手順）
 
    `Status: DONE` のタスクを `.agent/roadmap.md` から `.agent/roadmap-archive.md` へ移動する。
 
