@@ -104,6 +104,7 @@
    - ローカル差分: `/review-diff`
    - PR: `/review-pr`
    - PR のレビュー指摘対応: `/resolve-review <PR番号>`
+2. PR に追加コミットをした後は `/pr-sync <PR番号>` で概要との乖離を確認・更新する
 
 ### 不具合対応時
 

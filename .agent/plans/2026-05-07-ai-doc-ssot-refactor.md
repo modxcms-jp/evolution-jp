@@ -6,10 +6,10 @@ PR #442 のレビューラリー分析で判明した構造的問題を解消し
 
 ## Progress
 
-- [ ] (2026-05-07) Step 1: `/pr-sync` をワークフローへ組み込む
-- [ ] (2026-05-07) Step 2: `codex-pr-rules.md` に SSOT 整合性チェック制約を追加
-- [ ] (2026-05-07) Step 3: `roadmap-manager` / `roadmap-next-task` の重複手順を整理
-- [ ] (2026-05-07) Step 4: 完了処理プロトコルの粒度をスキル間で統一
+- [x] (2026-05-07) Step 1: `/pr-sync` をワークフローへ組み込む
+- [x] (2026-05-07) Step 2: `codex-pr-rules.md` に SSOT 整合性チェック制約を追加
+- [x] (2026-05-07) Step 3: `roadmap-manager` / `roadmap-next-task` の重複手順を整理
+- [x] (2026-05-07) Step 4: 完了処理プロトコルの粒度をスキル間で統一
 
 ## Surprises & Discoveries
 
@@ -36,16 +36,16 @@ PR #442 のレビューラリー分析で判明した構造的問題を解消し
 
 4ステップを独立した小変更として進める。各ステップは個別コミット。
 
-**Step 1（最優先・小）**: `/pr-sync` をワークフローへ組み込む  
+**Step 1（最優先・小）**: `/pr-sync` をワークフローへ組み込む
 PR 作成後や追加コミット後に `/pr-sync` を実行するステップを `CLAUDE.md` に追記。`doc-maintainer/SKILL.md` にも使い方ガイダンスを添える。
 
-**Step 2（優先・小）**: `codex-pr-rules.md` に SSOT 整合性制約を追加  
+**Step 2（優先・小）**: `codex-pr-rules.md` に SSOT 整合性制約を追加
 「SKILL.md と参照先 docs の間でコンテンツが重複していないか」「見出し参照が実在するか」をチェック観点に追加。ボットの過剰指摘を減らしつつ、重要な SSOT 違反は指摘してもらう。
 
-**Step 3（中）**: `roadmap-manager` / `roadmap-next-task` の重複整理  
+**Step 3（中）**: `roadmap-manager` / `roadmap-next-task` の重複整理
 両スキルの完了処理・着手処理の記述を読み比べ、重複している手順を `.agent/PLANS.md` 参照に統一する。機能変更はしない。
 
-**Step 4（中）**: 完了処理プロトコルの粒度統一  
+**Step 4（中）**: 完了処理プロトコルの粒度統一
 `exec-plan/SKILL.md` は完了処理を詳細に列挙、`roadmap-manager/SKILL.md` は `.agent/PLANS.md` に丸投げ、という粒度差を整理する。どちらも「詳細は `.agent/PLANS.md` を正本とする」形に統一し、各スキルには差分（スキル固有の追加手順）だけを残す。
 
 ## Concrete Steps
