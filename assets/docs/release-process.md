@@ -388,7 +388,7 @@ GitHub の Releases ページから該当リリースを開き、「Edit release
    2. `.agent/roadmap-archive.md` の対応セクションに追記する（セクションがない場合は新設）
    3. `.agent/roadmap.md` から抽出したタスクを削除する
    4. `.agent/roadmap.md` の `最終更新` を更新する
-   5. コミットする（例: `docs(roadmap): vX.X.X リリースに伴い完了タスクをアーカイブ`）
+   5. コミットする（例: `docs(roadmap): release-1.3.0J リリースに伴い完了タスクをアーカイブ`）
 
 ## 参考リンク
 
