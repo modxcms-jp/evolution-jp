@@ -108,7 +108,7 @@
 1. review-agent スキルを使ってレビューを実行
    - ローカル差分: `/review-diff`
    - PR: `/review-pr`
-   - PR のレビュー指摘対応: `/resolve-review <PR番号>`
+   - PR のレビュー指摘対応: `/resolve-review <PR番号>`（**必ずこのコマンドを使う**。直接修正した場合も、push 後にスレッドの resolved 化とユーザー確認を忘れず行う）
 2. PR 作成直後、および追加コミットをした後は `/pr-sync <PR番号>` で概要との乖離を確認・更新する
 
 ### 不具合対応時
