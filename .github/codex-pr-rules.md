@@ -51,8 +51,10 @@ Focus only on:
 - Correctness of referenced file paths, API endpoints, and command syntax
 - Whether the change contradicts other agent or skill definitions in the same repository
 - SKILL.md や agent 定義が「正本は〇〇」と宣言している場合、その正本と記述が矛盾していないか
-- SKILL.md 内で別ファイルの見出しを参照しているとき、その見出しが実際に存在するか
+- 変更ファイル内で別ファイルの見出しやセクション番号（例: 「手順N」）を参照しているとき、その見出しや番号が実際に存在・一致するか
 - 同一ドキュメント内でバージョン表記形式（例: `vX.X.X` vs `release-1.3.0J`）が混在していないか
+- 番号付きリストの途中に見出し（H2/H3 等）が挿入されていないか（リスト構造が途切れる原因になる）
+- 同一ファイルが `.agent/plans/` と `.agent/plans/archive/` の両方に存在していないか（ExecPlan の二重管理）
 
 Do NOT raise issues about:
 - Completeness of edge case coverage in procedures

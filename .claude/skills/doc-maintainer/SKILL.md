@@ -26,6 +26,8 @@ AI向けドキュメントの SSOT 違反・表記ゆれ・構造問題を検出
 
 対象省略時は `.claude/skills/`、`AGENTS.md`、`CLAUDE.md`、`.agent/roadmap.md`、`.agent/PLANS.md` を対象とする。
 
+**推奨タイミング:** PR 作成前に変更ファイルを対象として実行し、Copilot レビューで指摘される前に問題を解消する。
+
 **手順:**
 
 1. 対象ファイルを読み込む
