@@ -47,7 +47,7 @@ php evo skill:sync --skill=issue-resolver
 `skill:init` は `.agent/runs/<run_id>/` と `.agent/skill-metadata/<skill>/` の初期ファイルを生成します。
 `skill:validate` は run scaffold と skill metadata の JSON 契約を確認します。
 ExecPlan 完了後は `skill:complete` を実行し、validate と `learning-request.json` 完了更新、次 run scaffold 準備をまとめて行います。
-`skill:complete` は validate、`learning-request.json` の完了更新、次 run scaffold の準備をまとめて実行します。
+`skill:complete` は validate、`learning-request.json` の完了更新、次 run scaffold の準備をまとめて実行します。skill 本体への反映は自動ではなく、`learning.json` / `proposal.json` を確認した上でエージェントまたは人が判断します。
 `skill:status` は run の一覧と `learning-request.json` / `proposal.json` の状態を表示します。
 `skill:prune` は `stats.json` と `history.jsonl` から stale 候補を抽出します。
 `skill:archive` は完了済み run を `archive/` へ移し、`proposal.json` を `archived` に更新します。

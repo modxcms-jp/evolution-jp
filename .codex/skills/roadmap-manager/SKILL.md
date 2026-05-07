@@ -71,7 +71,7 @@ description: ロードマップ（`.agent/roadmap.md`）を運用するスキル
 2. `Status: DONE` に変更する項目だけは、事前にユーザー確認が取れていることを確認する。
 3. `Status: DONE` に変更する項目は、`.agent/PLANS.md` の「完了処理プロトコル」に従う。
 4. 互換表示としてチェックボックスが残っている場合のみ整合させる。
-5. スキル自己成長タスクでは、完了同期後に `docker compose exec <app-service> php evo skill:complete --plan=<plan_id> --run-id=<run_id> --strict` を実行し、集計更新は `skill:sync` を正本とする。
+5. スキル自己成長タスクでは、完了同期後に `.agent/PLANS.md` の「完了処理プロトコル」step 8 に従う。`skill:complete` 実行後は `learning.json` / `proposal.json` の内容を示し、`この学びをスキルへ反映しますか？ はい・いいえ` と確認してから次へ進む。
 
 ### /roadmap-normalize
 1. 旧ToDo形式の項目を固定フォーマットへ変換する。
