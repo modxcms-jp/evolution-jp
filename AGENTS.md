@@ -151,7 +151,7 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## ドキュメント運用
 
-* AGENTS.md は **判断基準のみを記載（詳細は docs へ分離）**
+* AGENTS.md は **判断基準・スキル一覧・ワークフローを記載（詳細手順は docs へ分離）**
 * ExecPlan は `.agent/plans/` に格納
 * ロードマップは `.agent/roadmap.md`
 * ExecPlan 完了処理プロトコル（skill:complete 含む）は `.agent/PLANS.md` を正本とする
@@ -267,4 +267,4 @@ fix(db): 実行直前でエスケープ処理を統一
 
 ## 肥大化防止ポリシー
 
-AGENTS.md は「原則と判断基準のみ」を記載し、手順や詳細仕様は必ず `assets/docs/` に分離する。
+AGENTS.md は「原則・判断基準・スキル一覧・ワークフロー」を記載し、詳細仕様は必ず `assets/docs/` に分離する。
