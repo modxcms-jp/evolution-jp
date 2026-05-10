@@ -204,22 +204,6 @@ function disableTemplateSwitcher(){
             ];
         }
 
-        if (is_dir('../install/')) {
-            $output = $this->_lang['configcheck_installer_msg'];
-            if (!sessionv('mgrConfigCheck')) {
-                evo()->logEvent(
-                    0,
-                    2,
-                    $this->_lang['configcheck_installer_msg'],
-                    $this->_lang['configcheck_installer']
-                );
-            }
-            $warnings[] = [
-                'title' => 'configcheck_installer',
-                'message' => $output
-            ];
-        }
-
         if (!extension_loaded('gd')) {
             $warnings[] = [
                 'title' => 'configcheck_php_gdzip',

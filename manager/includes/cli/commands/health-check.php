@@ -38,10 +38,6 @@ $configFile = MODX_CORE_PATH . 'config.inc.php';
 $configWritable = is_writable($configFile);
 $checks[] = check('config.inc.php read-only', !$configWritable, 'writable (should be read-only)');
 
-// Install directory removed
-$installDir = MODX_BASE_PATH . 'install/';
-$checks[] = check('Install directory removed', !is_dir($installDir), 'exists (security risk)');
-
 // action.php removed or safe
 $actionPhp = MODX_BASE_PATH . 'action.php';
 $actionOk = true;
