@@ -195,11 +195,26 @@ if (sessionv('result_msg')) {
                             db()->dbname,
                             db()->table_prefix
                         ));
+                        $truncateable = [
+                            db()->table_prefix . 'event_log',
+                            db()->table_prefix . 'manager_log',
+                        ];
                         $i = 0;
                         $totaloverhead = 0;
                         $total = 0;
                         while ($row = db()->getRow($rs)) {
                             $bgcolor = ($i % 2) ? '#EEEEEE' : '#FFFFFF';
+                            $isTruncateable = in_array($row['Name'], $truncateable, true);
+                            $isInnoDb = strtolower((string)($row['Engine'] ?? '')) === 'innodb';
+                            $recordCount = (int)$row['Rows'];
+                            if ($isTruncateable) {
+                                $recordCount = (int)db()->getValue(
+                                    db()->select(
+                                        'COUNT(*)',
+                                        $row['Name']
+                                    )
+                                );
+                            }
 
                             if (isset($dumper->_dbtables) && !empty($dumper->_dbtables)) {
                                 $table_string = implode(',', $dumper->_dbtables);
@@ -212,26 +227,22 @@ if (sessionv('result_msg')) {
                                     $table_string,
                                     $row['Name']
                                 ) === false ? '' : ' checked="checked"') . ' /><b class="table-name">' . $row['Name'] . '</b></label></td>' . "\n" .
-                                '<td align="right">' . $row['Rows'] . '</td>' . "\n";
+                                '<td align="right">' . (
+                                    evo()->hasPermission('settings') && $isTruncateable && $recordCount > 0
+                                    ? '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . $recordCount . '</a>'
+                                    : $recordCount
+                                ) . '</td>' . "\n";
                             echo '<td align="right">' . $row['Collation'] . '</td>' . "\n";
 
-                            // Enable record deletion for certain tables (TRUNCATE TABLE) if they're not already empty
-                            $truncateable = [
-                                db()->table_prefix . 'event_log',
-                                db()->table_prefix . 'manager_log',
-                            ];
-                            if (evo()->hasPermission('settings') && in_array(
-                                $row['Name'],
-                                $truncateable
-                            ) && $row['Rows'] > 0) {
-                                echo '<td dir="ltr" align="right">' .
-                                    '<a href="index.php?a=54&mode=' . $action . '&u=' . $row['Name'] . '" title="' . $_lang['truncate_table'] . '">' . evo()->nicesize($row['Data_length'] + $row['Data_free']) . '</a>' .
-                                    '</td>' . "\n";
+                            if ($isInnoDb) {
+                                echo '<td dir="ltr" align="right">-</td>' . "\n";
                             } else {
                                 echo '<td dir="ltr" align="right">' . evo()->nicesize($row['Data_length'] + $row['Data_free']) . '</td>' . "\n";
                             }
 
-                            if (evo()->hasPermission('settings')) {
+                            if ($isInnoDb) {
+                                echo '<td align="right">-</td>' . "\n";
+                            } elseif (evo()->hasPermission('settings')) {
                                 echo '<td align="right">' . ($row['Data_free'] > 0 ?
                                     '<a href="index.php?a=54&mode=' . $action . '&t=' . $row['Name'] . '" title="' . $_lang['optimize_table'] . '">' . evo()->nicesize($row['Data_free']) . '</a>' :
                                     '-') .
