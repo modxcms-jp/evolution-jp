@@ -623,7 +623,8 @@ function content($key, $default = null)
                         <p><?= $_lang['module_group_access_msg'] ?></p>
                     <?php
                     }
-                    $chk = '';
+                    $chks = '';
+                    $notPublic = false;
                     $rs = db()->select('name, id', '[+prefix+]membergroup_names');
                     $total = db()->count($rs);
                     for ($i = 0; $i < $total; $i++) {
