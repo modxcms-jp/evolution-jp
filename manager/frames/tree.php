@@ -206,8 +206,7 @@ if (!sessionv('tree_sortdir')) {
                     alert('<?= $_lang['unable_set_parent'] ?>');
                 }
             }
-            if (ca == "open" || ca == "docinfo" || ca == "doclist" || ca == "") {
-                <?php $action = (!empty(config('tree_page_click')) ? config('tree_page_click') : '27'); ?>
+            if (ca == "open" || ca == "docinfo" || ca == "doclist") {
                 if (id == 0) {
                     // do nothing?
                     parent.main.location.href = "index.php?a=120";
@@ -215,11 +214,8 @@ if (!sessionv('tree_sortdir')) {
                     parent.main.location.href = "index.php?a=3&id=" + id;
                 } else if (ca == "doclist") {
                     parent.main.location.href = "index.php?a=120&id=" + id;
-                } else if (ca == "open") {
-                    parent.main.location.href = "index.php?a=27&id=" + id;
                 } else {
-                    // parent.main.location.href="index.php?a=3&id=" + id + getFolderState(); //just added the getvar &opened=
-                    parent.main.location.href = "index.php?a=<?= $action ?>&id=" + id; // edit as default action
+                    parent.main.location.href = "index.php?a=27&id=" + id;
                 }
             }
             if (ca == "parent") {
