@@ -123,8 +123,6 @@ $_lang["configcheck_errorpage_unpublished_msg"] = 'This means that your Error pa
 $_lang["configcheck_hide_warning"] = '<a href="javascript:hideConfigCheckWarning(\'%s\');"><em>Don\'t show this again.</em></a>';
 $_lang["configcheck_images"] = 'Images directory not writable';
 $_lang["configcheck_images_msg"] = 'The images directory isn\'t writable, or doesn\'t exist. This means the Image Manager functions in the editor will not work!';
-$_lang["configcheck_installer"] = 'Installer still present';
-$_lang["configcheck_installer_msg"] = 'The /install directory contains the installer for MODX. If the installation is complete, please <a href="index.php?a=31">delete this directory</a> immediately. The site will display a maintenance screen until it is removed.';
 $_lang["configcheck_lang_difference"] = 'Incorrect number of entries in language file';
 $_lang["configcheck_lang_difference_msg"] = 'The currently selected language has a different number of entries than the default language. While not necessarily a problem, this may mean the language file needs to be updated.';
 $_lang["configcheck_notok"] = 'One or more configuration details didn\'t check out OK:';
