@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace TinyMCE7\Editor;
@@ -96,6 +97,8 @@ final class EditorInitializer
         $config = $this->preferences->applyMenubarPreference($config);
         $config = $this->preferences->applyEnterMode($config);
 
+        $config = $this->applyEditorCssPath($config);
+
         [$config, $fileBrowser] = $this->fileBrowserResolver->resolve($config, $params);
 
         $configJson = $this->configRepository->encode($config);
@@ -147,5 +150,74 @@ final class EditorInitializer
         $output[] = '</script>';
 
         $event->output(implode("\n", $output));
+    }
+
+    private function applyEditorCssPath(array $config): array
+    {
+        if (!function_exists('evo')) {
+            return $config;
+        }
+
+        $editorCssPath = (string)evo()->config('editor_css_path', '');
+        if ($editorCssPath === '') {
+            return $config;
+        }
+
+        if (str_starts_with($editorCssPath, '/') || preg_match('@^https?://@', $editorCssPath)) {
+            $cssUrl = $editorCssPath;
+        } else {
+            $cssUrl = defined('MODX_BASE_URL') ? MODX_BASE_URL . $editorCssPath : '/' . $editorCssPath;
+        }
+
+        $cssUrl = $this->appendEditorCssVersion($cssUrl, $editorCssPath);
+
+        $existing = $config['content_css'] ?? [];
+        if ($existing === false || $existing === '' || $existing === null) {
+            $config['content_css'] = $cssUrl;
+        } elseif (is_array($existing)) {
+            $existing[] = $cssUrl;
+            $config['content_css'] = $existing;
+        } else {
+            $config['content_css'] = [(string)$existing, $cssUrl];
+        }
+
+        return $config;
+    }
+
+    private function appendEditorCssVersion(string $cssUrl, string $editorCssPath): string
+    {
+        if (preg_match('@^https?://@', $editorCssPath)) {
+            return $cssUrl;
+        }
+
+        $queryString = parse_url($cssUrl, PHP_URL_QUERY);
+        if (is_string($queryString)) {
+            parse_str($queryString, $queryParams);
+            if (isset($queryParams['v'])) {
+                return $cssUrl;
+            }
+        }
+
+        $pathPart = parse_url($editorCssPath, PHP_URL_PATH);
+        if (!is_string($pathPart) || $pathPart === '') {
+            $pathPart = $editorCssPath;
+        }
+
+        $localPath = defined('MODX_BASE_PATH')
+            ? MODX_BASE_PATH . ltrim($pathPart, '/')
+            : ltrim($pathPart, '/');
+
+        if (!is_file($localPath)) {
+            return $cssUrl;
+        }
+
+        $mtime = filemtime($localPath);
+        if ($mtime === false) {
+            return $cssUrl;
+        }
+
+        $separator = str_contains($cssUrl, '?') ? '&' : '?';
+
+        return $cssUrl . $separator . 'v=' . $mtime;
     }
 }
