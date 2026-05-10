@@ -1563,10 +1563,10 @@ trait DocumentParserSubParserTrait
         return evo()->parseText(
             file_get_contents(MODX_CORE_PATH . 'docvars/inputform/form_url.tpl'),
             [
-                'id' => 'tv' . $field_id,
-                'name' => 'tv' . $field_id,
-                'prefix_id' => 'tv' . $field_id . '_prefix',
-                'prefix_name' => 'tv' . $field_id . '_prefix',
+                'id' => evo()->hsc('tv' . $field_id),
+                'name' => evo()->hsc('tv' . $field_id),
+                'prefix_id' => evo()->hsc('tv' . $field_id . '_prefix'),
+                'prefix_name' => evo()->hsc('tv' . $field_id . '_prefix'),
                 'options' => implode("\n", $options),
                 'value' => evo()->hsc($field_value),
                 'style' => evo()->hsc($field_style)
@@ -2295,7 +2295,7 @@ trait DocumentParserSubParserTrait
             $tvname = [];
             while ($row = db()->getRow($rs)) {
                 $tvid = 'tv' . $row['id'];
-                $tvname[$tvid] = $row['name'];
+                $tvname[$tvid] = ['name' => $row['name'], 'type' => $row['type']];
             }
 
         foreach ($input as $k => $v) {
@@ -2303,9 +2303,9 @@ trait DocumentParserSubParserTrait
                 if (is_array($v)) {
                     $v = implode('||', $v);
                 }
-                $name = $tvname[$k];
+                $name = $tvname[$k]['name'];
                 $prefix_key = "{$k}_prefix";
-                if (isset($input[$prefix_key])) {
+                if (($tvname[$k]['type'] ?? '') === 'url' && isset($input[$prefix_key])) {
                     $v = normalize_url_tv_value($v, $input[$prefix_key]);
                 }
                 unset($input[$k]);
