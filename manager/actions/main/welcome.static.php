@@ -46,8 +46,8 @@ $modx->setPlaceholder('info', $_lang['info']);
 // setup message info
 if (evo()->hasPermission('messages')) {
     $messages = manager()->getMessageCount();
-    $_SESSION['nrtotalmessages'] = $messages['total'];
-    $_SESSION['nrnewmessages'] = $messages['new'];
+    sessionv('*nrtotalmessages', $messages['total']);
+    sessionv('*nrnewmessages', $messages['new']);
 
     $msg = '<a href="index.php?a=10"><img src="' . $_style['icons_mail_large'] . '" /></a>
     <span class="inbox-title">&nbsp;' . $_lang["inbox"] . (sessionv('nrnewmessages') > 0 ? " (<span class='message-count-new'>" . sessionv('nrnewmessages') . '</span>)' : '') . '</span><br />';
@@ -194,7 +194,8 @@ if (0 < count($modulemenu)) {
 $modx->setPlaceholder('Modules', $modules);
 
 // do some config checks
-if (config('warning_visibility' == 0 && manager()->isAdmin())
+if (
+    config('warning_visibility' == 0 && manager()->isAdmin())
     || (config('warning_visibility') == 2 && evo()->hasPermission('save_role') == 1)
     || config('warning_visibility') == 1
 ) {

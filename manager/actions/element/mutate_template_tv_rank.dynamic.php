@@ -7,21 +7,21 @@ if (!evo()->hasPermission('save_template')) {
     alert()->dumpError();
 }
 
-if (!is_numeric($_REQUEST['id'])) {
+if (!is_numeric(anyv('id'))) {
     echo 'Template ID is NaN';
     exit;
 }
-$id = intval($_REQUEST['id']);
+$id = intval(anyv('id'));
 
 $basePath = $modx->config['base_path'];
 $siteURL = MODX_SITE_URL;
 
 $updateMsg = '';
 
-if (isset($_POST['listSubmitted'])) {
+if (postv('listSubmitted')) {
     $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
     foreach ($_POST as $listName => $listValue) {
-        if ($listName === 'listSubmitted') {
+        if ($listName === 'listSubmitted' || $listName === 'csrf_token') {
             continue;
         }
         $orderArray = explode(';', rtrim($listValue, ';'));
@@ -155,5 +155,9 @@ echo '
 </div>
 <form action="" method="post" name="sortableListForm" style="display: none;">
             <input type="hidden" name="listSubmitted" value="true" />
-            <input type="hidden" id="list" name="list" value="" />
+            <input type="hidden" id="list" name="list" value="" />';
+
+echo csrfTokenField();
+
+echo '
 </form>';
