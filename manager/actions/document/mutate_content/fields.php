@@ -334,11 +334,7 @@ function fieldsTV()
                     $tvPBV = implode('||', $form_v[$tvid]);
                     break;
                 case 'url':
-                    if ($form_v[$tvid . '_prefix'] === 'DocID') {
-                        $tvPBV = sprintf('[~%s~]', $form_v[$tvid]);
-                    } else {
-                        $tvPBV = $form_v[$tvid . '_prefix'] . $form_v[$tvid];
-                    }
+                    $tvPBV = normalize_url_tv_value($form_v[$tvid], array_get($form_v, $tvid . '_prefix', '--'));
                     break;
                 default:
                     $tvPBV = $form_v[$tvid];

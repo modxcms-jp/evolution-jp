@@ -1,0 +1,11 @@
+language: "ja-JP"
+
+reviews:
+    profile: "assertive"
+    high_level_summary: true
+    review_status: true
+    poem: false
+    collapse_walkthrough: true
+
+chat:
+    auto_reply: true

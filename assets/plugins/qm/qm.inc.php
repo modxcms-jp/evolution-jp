@@ -431,6 +431,17 @@ class Qm
         if (is_array($tvContent)) {
             $tvContent = implode('||', $tvContent);
         }
+        if ($tvId || $tvName !== '') {
+            $tvType = $tvId
+                ? db()->getValue(db()->select('type', '[+prefix+]site_tmplvars', "id='" . (int)$tvId . "'"))
+                : db()->getValue(db()->select('type', '[+prefix+]site_tmplvars', "name='" . db()->escape($tvName) . "'"));
+            if ($tvType === 'url') {
+                $tvContent = normalize_url_tv_value(
+                    $tvContent,
+                    postv('tv' . $tvId . '_prefix', postv('tv' . $tvName . '_prefix', '--'))
+                );
+            }
+        }
 
         // Save TV
         if ($tvId) {
