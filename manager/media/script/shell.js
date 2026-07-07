@@ -113,6 +113,16 @@
         document.close();
     }
 
+    // 前ページが残したグローバルなUI部品を破棄する(差し替え前のクリーンアップ)
+    function teardownPane(pane) {
+        document.dispatchEvent(new CustomEvent('evoshell:unload'));
+
+        // TinyMCEはEditorManagerに旧インスタンスが残ると同じidで再初期化できない
+        if (window.tinymce && typeof window.tinymce.remove === 'function') {
+            window.tinymce.remove();
+        }
+    }
+
     function applyFragment(html, finalUrl, push) {
         const pane = document.getElementById('mainPane');
         if (!pane) {
@@ -120,6 +130,7 @@
             return;
         }
 
+        teardownPane(pane);
         window.documentDirty = false;
         pane.innerHTML = html;
         pane.scrollTop = 0;
