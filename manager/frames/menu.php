@@ -357,7 +357,7 @@ if (!$isShellPartial) {
 
                     // Tools Menu
                     $item['bk_manager'] = item($_lang['bk_manager'], 93,
-                        evo()->hasPermission('bk_manager'), 'data-no-ajax');// backup-mgr
+                        evo()->hasPermission('bk_manager'));// backup-mgr
                     $item['import_site'] = item($_lang['import_site'], 95,
                         evo()->hasPermission('import_static'));// import-html
                     $item['export_site'] = item($_lang['export_site'], 83,
