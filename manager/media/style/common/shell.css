@@ -41,9 +41,6 @@ body.evo-shell > #mainPane {
     grid-area: main;
     overflow: auto;
     position: relative;
-    /* コンテンツ内のposition:fixed(#actionsの保存ボタン等)の基準を
-       旧mainフレームと同じくこの領域のビューポートにするための包含ブロック化 */
-    transform: translateZ(0);
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */
@@ -67,14 +64,13 @@ body.evo-shell #mx_contextmenu {
     z-index: 10000;
 }
 
-/* アクションボタン(保存/キャンセル等)。テーマのposition:fixedを上書きし、
-   コンテンツをスクロールしても#mainPane上端に留まるstickyにする */
+/* アクションボタン(保存/キャンセル等)。旧mainフレームと同様に
+   コンテンツへ重なるレイヤーとして、メニュー直下の右端へ固定する */
 body.evo-shell #mainPane #actions {
-    position: sticky;
-    top: var(--space-2, 8px);
-    right: auto;
+    position: fixed;
+    top: calc(var(--shell-menu-height, 58px) + var(--space-2, 8px));
+    inset-inline-end: var(--space-4, 16px);
     z-index: 100;
-    margin-inline-start: auto;
     width: max-content;
-    max-width: 100%;
+    max-width: calc(100% - var(--shell-tree-width, 260px) - 2 * var(--space-4, 16px));
 }
