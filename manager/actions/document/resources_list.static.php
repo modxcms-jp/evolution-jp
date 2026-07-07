@@ -472,7 +472,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 63:        // undelete
                 if(confirm("{$_lang['confirm_undelete']}")==true)
                 {
-                    top.main.document.location.href="index.php?a=63&id=" + id{$page};
+                    window.location.href="index.php?a=63&id=" + id{$page};
                 }
                 break;
             case 72:         // new Weblink

@@ -91,7 +91,7 @@ function setMoveValue(pId, pName) {
 // check if the selected parent is a child of this document
 function checkParentChildRelation(pId, pName) {
     const id = document.newdocumentparent.id.value;
-    const tdoc = parent.tree.document;
+    const tdoc = document; // シェルではツリーと同一document
     let pn = tdoc.getElementById("node"+pId);
     if (!pn) return false;
     if (pn.id.substr(4)===id) {
