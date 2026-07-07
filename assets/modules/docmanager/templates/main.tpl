@@ -91,7 +91,7 @@
 <div id="actions">
     <ul class="actionButtons">
         <li id="Button1"><a href="index.php?a=2"><img
-                        src="media/style[+theme+]/images/icons/stop.png"/> [+lang.DM_close+]</a></li>
+                        src="media/style/common/images/icons/stop.png"/> [+lang.DM_close+]</a></li>
     </ul>
 </div>
 <div class="section">
