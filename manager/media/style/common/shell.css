@@ -66,3 +66,15 @@ body.evo-shell #mx_contextmenu {
     position: fixed;
     z-index: 10000;
 }
+
+/* アクションボタン(保存/キャンセル等)。テーマのposition:fixedを上書きし、
+   コンテンツをスクロールしても#mainPane上端に留まるstickyにする */
+body.evo-shell #mainPane #actions {
+    position: sticky;
+    top: var(--space-2, 8px);
+    right: auto;
+    z-index: 100;
+    margin-inline-start: auto;
+    width: max-content;
+    max-width: 100%;
+}
