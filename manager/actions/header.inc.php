@@ -75,9 +75,10 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
             if (window.tree) tree.ca = "open";
         });
 
-        jQuery(function() {
-            var action = <?= manager()->action ?>;
-            switch (action) {
+        // 編集系アクションで入力変更時にdocumentDirtyを立てる。
+        // AJAX遷移後の断片にも適用できるよう関数化し、shell.jsからも呼ばれる
+        window.evoBindDirtyTracking = function (action) {
+            switch (parseInt(action, 10)) {
                 case 27:
                 case 17:
                 case 4:
@@ -102,7 +103,8 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                 case 102:
                 case 300:
                 case 301:
-                    jQuery('input,textarea,select:not(#field_template,#which_editor,#stay)')
+                    jQuery('#mainPane').find('input,textarea,select')
+                        .not('#field_template,#which_editor,#stay')
                         .change(
                             function() {
                                 documentDirty = true;
@@ -111,8 +113,12 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
                     gotosave = false;
                     break;
             }
+        };
+
+        jQuery(function() {
+            evoBindDirtyTracking(<?= (int)manager()->action ?>);
             <?php if (anyv('r')) {
-                echo sprintf("doRefresh(%s);\n", anyv('r'));
+                echo sprintf("doRefresh(%s);\n", (int)anyv('r'));
             }
             ?>
             jQuery('.tooltip').powerTip({
@@ -228,7 +234,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" ondragstart="return false" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <div id="preLoader">
         <div class="preLoaderText"><?= style('ajax_loader') ?></div>
     </div>

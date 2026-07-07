@@ -31,7 +31,8 @@ $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('mana
 $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
 if (!sessionv('mgrValidated')) {
     // AJAXシェルからの要求にはログイン要求を示すヘッダーを返し、クライアント側でフルリロードさせる
-    if (serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
+    // (判定条件はmanager/index.phpの$isPaneRequestと一致させる)
+    if (serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest' || getv('ajax') === 'pane') {
         header('X-Evo-Login: required');
     }
     include __DIR__ . '/accesscontrol-not-mgr.inc.php';

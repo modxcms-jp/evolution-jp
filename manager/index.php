@@ -819,6 +819,22 @@ if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87,
     include_once($action_path . 'footer.inc.php');
 }
 
+// AJAX断片応答にもfooter.inc.php相当の後処理を出力する
+// (システムアラート表示とDatePickerの読み込み。対象アクションはfooter.inc.phpと同一)
+if ($isPaneRequest) {
+    if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
+        echo manager()->sysAlert($modx->SystemAlertMsgQueque);
+    }
+    if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88])) {
+        echo manager()->loadDatePicker(
+            $modx->config(
+                'mgr_date_picker_path',
+                'media/script/air-datepicker/datepicker.inc.php'
+            )
+        );
+    }
+}
+
 // log action, unless it's a frame request
 switch (manager()->action) {
     case 1:

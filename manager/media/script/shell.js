@@ -150,6 +150,18 @@
                 window.jQuery('#preLoader').hide();
                 window.jQuery('.tooltip').powerTip({ fadeInTime: '0', placement: 'e' });
             }
+            // window.load / DOMContentLoaded 依存の既存ライブラリを再初期化する
+            if (window.fdTableSort && typeof window.fdTableSort.init === 'function') {
+                window.fdTableSort.init(false);
+            }
+            if (window.MODXSortable && typeof window.MODXSortable.initAll === 'function') {
+                window.MODXSortable.initAll();
+            }
+            // 編集系アクションでは未保存変更の検知を再バインドする(header.inc.phpで定義)
+            if (typeof window.evoBindDirtyTracking === 'function') {
+                const action = new URL(finalUrl, window.location.href).searchParams.get('a');
+                window.evoBindDirtyTracking(action);
+            }
             handleRefreshParam(finalUrl);
             stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
@@ -168,7 +180,15 @@
     function downloadResponse(response) {
         const disposition = response.headers.get('Content-Disposition') || '';
         const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
-        const filename = match ? decodeURIComponent(match[1]) : 'download';
+        let filename = 'download';
+        if (match) {
+            try {
+                filename = decodeURIComponent(match[1]);
+            } catch (e) {
+                // URLエンコードされていない/不正な%シーケンスはそのまま使う
+                filename = match[1];
+            }
+        }
         return response.blob().then(function (blob) {
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -213,6 +233,41 @@
             });
     }
 
+    // ツリー/メニュー部品を再取得して差し替える(セッション切れ検出・失敗時の後始末込み)
+    function reloadPartial(url, elementId) {
+        const current = document.getElementById(elementId);
+        if (!current) {
+            return;
+        }
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin'
+        })
+            .then(function (response) {
+                if (response.headers.get('X-Evo-Login') === 'required') {
+                    fullReload('index.php');
+                    return null;
+                }
+                return response.text();
+            })
+            .then(function (html) {
+                if (html === null) {
+                    return;
+                }
+                const tpl = document.createElement('template');
+                tpl.innerHTML = html;
+                const fresh = tpl.content.getElementById(elementId);
+                if (!fresh) {
+                    return;
+                }
+                current.replaceWith(fresh);
+                executeScripts(fresh);
+            })
+            .catch(function () {
+                stopWork();
+            });
+    }
+
     const EvoShell = {
         // header.inc.phpが言語別メッセージで上書きする
         unsavedMessage: 'Your changes are not saved. Continue?',
@@ -246,25 +301,7 @@
         },
 
         reloadTree: function () {
-            const pane = document.getElementById('treePane');
-            if (!pane) {
-                return;
-            }
-            fetch('index.php?a=1&f=tree', {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin'
-            })
-                .then(function (response) { return response.text(); })
-                .then(function (html) {
-                    const tpl = document.createElement('template');
-                    tpl.innerHTML = html;
-                    const fresh = tpl.content.getElementById('treePane');
-                    if (!fresh) {
-                        return;
-                    }
-                    pane.replaceWith(fresh);
-                    executeScripts(fresh);
-                });
+            reloadPartial('index.php?a=1&f=tree', 'treePane');
         },
 
         reloadMenu: function () {
@@ -273,21 +310,7 @@
                 window.location.reload();
                 return;
             }
-            fetch('index.php?a=1&f=menu', {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                credentials: 'same-origin'
-            })
-                .then(function (response) { return response.text(); })
-                .then(function (html) {
-                    const tpl = document.createElement('template');
-                    tpl.innerHTML = html;
-                    const fresh = tpl.content.getElementById('topMenu');
-                    if (!fresh) {
-                        return;
-                    }
-                    bar.replaceWith(fresh);
-                    executeScripts(fresh);
-                });
+            reloadPartial('index.php?a=1&f=menu', 'topMenu');
         }
     };
 

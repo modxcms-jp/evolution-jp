@@ -29,8 +29,8 @@
                 var normalized = String(value).toLowerCase();
                 return normalized === 'true' || normalized === '1';
             })([+sort.disable_tree_select+]);
-            if (disableTreeSelect && parent && parent.tree) {
-                parent.tree.ca = '';
+            if (disableTreeSelect && window.tree) {
+                window.tree.ca = '';
             }
         });
 
@@ -53,7 +53,7 @@
     if (window.tree && tree.updateTree) tree.updateTree();
 </script>
 <style type="text/css">
-    ul.sortableList li {
+    #mainPane ul.sortableList li {
         cursor: move;
         border: 1px solid #ccc;
         background: #eee no-repeat 2px center;
@@ -64,37 +64,37 @@
         width: 50%;
     }
 
-    ul.sortableList li.dragging {
+    #mainPane ul.sortableList li.dragging {
         opacity: 0.6;
     }
 
-    ul.sortableList li.noChildren {
+    #mainPane ul.sortableList li.noChildren {
         background-image: url([+style_tree_path+]page.png);
     }
 
-    ul.sortableList li.hasChildren {
+    #mainPane ul.sortableList li.hasChildren {
         background-image: url([+style_tree_path+]folder.png);
     }
 
-    ul.sortableList li.homeNode {
+    #mainPane ul.sortableList li.homeNode {
         background-image: url([+style_tree_path+]application_home.png);
     }
 
-    ul.sortableList li.unavailableNode {
+    #mainPane ul.sortableList li.unavailableNode {
         background-image: url([+style_tree_path+]application_hourglass.png);
     }
 
-    ul.sortableList li.unauthorizedNode {
+    #mainPane ul.sortableList li.unauthorizedNode {
         background-image: url([+style_tree_path+]application_hourglass.png);
     }
 
-    ul.sortableList li.errorNode {
+    #mainPane ul.sortableList li.errorNode {
         background-image: url([+style_tree_path+]application_404.png);
     }
 
-    ul.sortableList li.inMenuNode {font-weight:bold;} ul.sortableList li.unpublishedNode
+    #mainPane ul.sortableList li.inMenuNode {font-weight:bold;}
 
-    {background-color:#f6f3ea;}
+    #mainPane ul.sortableList li.unpublishedNode {background-color:#f6f3ea;}
 </style>
 <h1>[+lang.DM_module_title+]</h1>
 <form action="" method="post" name="resetform" style="display: none;">
