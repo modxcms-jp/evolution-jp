@@ -412,8 +412,9 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
         document.location.href = "index.php?id={$id}&a=51";
     }
 
-    let selectedItem;
-    let contextm = {$contextm};
+    // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
+    var selectedItem;
+    var contextm = {$contextm};
     function showContentMenu(id,e){
         selectedItem=id;
         //offset menu if RTL is selected

@@ -21,6 +21,8 @@
 - **a=29（error_dialog.static.php）は本ブランチ以前から壊れている**: includeファイル自体がリポジトリに存在せず500になる（mainでも同様）。本タスクの範囲外。core-issues.md へ記録する。
 - **shell.js/shell.cssのキャッシュ**: 開発中の修正が反映されない事故が起きたため、filemtimeベースのバージョンクエリを付与した。
 - **curlでの検証時の注意**: 未ログイン判定は `Accept-Language` ヘッダー必須（無いと404）。セッションが切れやすいためスクラッチパッドの `mgr.sh`（セッション自動再確立）を使用した。管理者は admin/password（ローカルdocker環境）。
+- **断片のトップレベル `let`/`const` は再訪時にSyntaxErrorになる**: AJAX遷移で同じ画面を再訪するとインラインscriptが同一グローバルスコープで再実行され、`let`/`const` の再宣言が `SyntaxError` となりブロック全体が無効化する（resources_listのコンテキストメニュー不動作として発現）。断片のトップレベル宣言は `var` を使うか、IIFE/関数内に収めること。
+- **ライブラリがbody直下に追加する要素はシェルのグリッドを崩す**: air-datepickerのカレンダー等がbody直下に入るとグリッドのセルを占有する。shell.cssの保険ルール（3ペイン以外は `grid-area: main`）と、断片内`<link>`のhead巻き上げ（shell.jsの`hoistStylesheets`）で対処した。
 
 ## Decision Log
 
