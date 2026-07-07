@@ -106,6 +106,23 @@
         window.location.href = url;
     }
 
+    // 断片内のスタイルシートを<head>へ移す。
+    // 断片ごと消えると、body直下に残るUI部品(datepickerのカレンダー等)が
+    // スタイルを失いシェルのグリッドを崩すため、headに恒久配置して重複は除去する
+    function hoistStylesheets(container) {
+        container.querySelectorAll('link[rel="stylesheet"]').forEach(function (link) {
+            const href = resolveUrl(link.getAttribute('href'));
+            const exists = Array.from(document.head.querySelectorAll('link[rel="stylesheet"]')).some(function (el) {
+                return resolveUrl(el.getAttribute('href')) === href;
+            });
+            if (exists) {
+                link.remove();
+            } else {
+                document.head.appendChild(link);
+            }
+        });
+    }
+
     // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)
     function replaceDocument(html) {
         document.open();
@@ -134,6 +151,7 @@
         window.documentDirty = false;
         pane.innerHTML = html;
         pane.scrollTop = 0;
+        hoistStylesheets(pane);
 
         if (push) {
             window.history.pushState({ url: finalUrl }, '', finalUrl);

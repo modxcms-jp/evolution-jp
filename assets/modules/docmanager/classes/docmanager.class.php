@@ -93,10 +93,12 @@ class DocManager
             $tpl = $this->getFileContents($tpl);
         }
         if ($tpl) {
+            // DatePicker入力を含むテンプレートに読み込みスクリプトを注入する。
+            // 断片テンプレート(シェル内表示)には</body>が無いため末尾へ追記する
             if (strpos($tpl, '</body>') !== false) {
-                $datePickerPath = $modx->config('mgr_date_picker_path', 'media/script/air-datepicker/datepicker.inc.php');
-                $dp = manager()->loadDatePicker($datePickerPath);
-                $tpl = str_replace('</body>', $dp . '</body>', $tpl);
+                $tpl = str_replace('</body>', $this->getDatePicker() . '</body>', $tpl);
+            } elseif (strpos($tpl, 'class="DatePicker"') !== false) {
+                $tpl .= $this->getDatePicker();
             }
             $ph['settings_version'] = $modx->config('settings_version');
             return preg_replace(
@@ -110,5 +112,12 @@ class DocManager
         }
 
         return '';
+    }
+
+    function getDatePicker()
+    {
+        global $modx;
+        $datePickerPath = $modx->config('mgr_date_picker_path', 'media/script/air-datepicker/datepicker.inc.php');
+        return manager()->loadDatePicker($datePickerPath);
     }
 }

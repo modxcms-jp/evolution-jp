@@ -48,6 +48,12 @@ body.evo-shell > #mainPane {
     box-sizing: border-box;
 }
 
+/* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
+   グリッドのセルを占有してレイアウトを崩さないよう、メイン領域に重ねて配置する */
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane) {
+    grid-area: main;
+}
+
 /* ツリー非表示 (旧hideTreeFrame相当) */
 body.evo-shell.tree-hidden {
     grid-template-columns: 0 1fr;
