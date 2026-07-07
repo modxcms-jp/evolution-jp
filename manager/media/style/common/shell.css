@@ -27,12 +27,23 @@ body.evo-shell > #treePane {
     grid-area: tree;
     overflow: auto;
     border-inline-end: 3px solid #f7f7f7;
+    /* 旧treeフレームのbody背景相当。テーマの.treeframebodyを縦いっぱいに広げる */
+    display: flex;
+    flex-direction: column;
+}
+
+body.evo-shell > #treePane .treeframebody {
+    flex: 1 0 auto;
+    box-sizing: border-box;
 }
 
 body.evo-shell > #mainPane {
     grid-area: main;
     overflow: auto;
     position: relative;
+    /* コンテンツ内のposition:fixed(#actionsの保存ボタン等)の基準を
+       旧mainフレームと同じくこの領域のビューポートにするための包含ブロック化 */
+    transform: translateZ(0);
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */
