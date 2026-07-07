@@ -8,12 +8,20 @@ function getWindowDimension() {
 
 function resizeTree() {
 
-    // get window width/height
-    var win = getWindowDimension();
-
-    // set tree height
     var tree = document.getElementById('treeHolder');
-    var tmnu = document.getElementById('treeMenu');
+    if (!tree) return;
+
+    // シェルレイアウトではツリー領域(#treePane)のサイズをCSSに任せる
+    var pane = document.getElementById('treePane');
+    if (pane) {
+        tree.style.width = '';
+        tree.style.height = '';
+        tree.style.overflow = 'auto';
+        return;
+    }
+
+    // 旧フルページ表示(a=1&f=tree直アクセス)時はウィンドウ基準で計算する
+    var win = getWindowDimension();
     tree.style.width = (win['width'] - 20) + 'px';
     tree.style.height = (win['height'] - tree.offsetTop - 6) + 'px';
     tree.style.overflow = 'auto';
@@ -35,7 +43,8 @@ function rpcLoadData(response) {
     rpcNode.innerHTML = response;
     rpcNode.style.display = 'block';
     rpcNode.loaded = true;
-    var elm = top.mainMenu.document.getElementById('buildText');
+    // シェルではメニューと同一document。フレーム時代のtop.mainMenu.documentは不要
+    var elm = document.getElementById('buildText');
     if (elm) {
         elm.innerHTML = '';
         elm.style.display = 'none';

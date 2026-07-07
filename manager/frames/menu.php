@@ -6,6 +6,8 @@ if (!isset($modx->config['mail_check_timeperiod']) || empty($modx->config['mail_
     $modx->config['mail_check_timeperiod'] = 0;
 }
 $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
+$isShellPartial = defined('EVO_SHELL_PARTIAL');
+if (!$isShellPartial) {
 ?>
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
     <html <?php if ($modx_textdir === 'rtl') {
@@ -18,28 +20,26 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
               href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
         <?= config('manager_inline_style') ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+<?php } ?>
         <script type="text/javascript">
-            // TREE FUNCTIONS - FRAME
-            // These functions affect the tree frame and any items that may be pointing to the tree.
-            var currentFrameState = 'open';
-            var defaultFrameWidth = '<?= $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
-            var userDefinedFrameWidth = '<?= $modx_textdir === 'ltr' ? '260,*' : '*,260'?>';
-            var workText;
-            var buildText;
             var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;
 
             var $j = jQuery.noConflict();
             jQuery(function () {
-                window.setInterval('keepMeAlive()', 1000 * 60);
+                // シェルでのメニュー再読込時にタイマーが多重登録されないよう、一旦解除する
+                if (window.__menuTimers) {
+                    window.__menuTimers.forEach(clearInterval);
+                }
+                window.__menuTimers = [];
+                window.__menuTimers.push(window.setInterval(keepMeAlive, 1000 * 60));
                 if (msgcheck != 0) updateMail(true); // First run update
                 var mailinterval = <?= config('mail_check_timeperiod');?>;
                 if (mailinterval != '' && mailinterval != 0) {
-                    if (msgcheck != 0) setInterval('updateMail(true)', mailinterval * 1000);
+                    if (msgcheck != 0) window.__menuTimers.push(setInterval(function () { updateMail(true); }, mailinterval * 1000));
                 }
 
                 if (top.__hideTree) {
-                    // display toc icon
-                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
+                    hideTreeFrame();
                 }
             });
 
@@ -81,46 +81,16 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             }
 
             function hideTreeFrame() {
-                userDefinedFrameWidth = parent.document.getElementsByTagName("FRAMESET").item(1).cols;
-                currentFrameState = 'closed';
-                try {
-                    jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
-                    parent.document.getElementsByTagName("FRAMESET").item(1).cols = '<?php echo($modx_textdir === 'ltr' ? '0,*' : '*,0')?>';
-                    top.__hideTree = true;
-                } catch (oException) {
-                    x = window.setTimeout('hideTreeFrame()', 100);
-                }
+                jQuery('#tocText').html("<a href='#' onclick='defaultTreeFrame();return false;'><img src='<?= $_style['show_tree']?>' alt='<?= $_lang['show_tree']?>' /></a>");
+                document.body.classList.add('tree-hidden');
+                top.__hideTree = true;
             }
 
             function defaultTreeFrame() {
-                userDefinedFrameWidth = defaultFrameWidth;
-                currentFrameState = 'open';
-                try {
-                    var elm = document.getElementById('tocText');
-                    if (elm) elm.innerHTML = "";
-                    parent.document.getElementsByTagName("FRAMESET").item(1).cols = defaultFrameWidth;
-                    top.__hideTree = false;
-                } catch (oException) {
-                    z = window.setTimeout('defaultTreeFrame()', 100);
-                }
-            }
-
-            // TREE FUNCTIONS - Expand/ Collapse
-            // These functions affect the expanded/collapsed state of the tree and any items that may be pointing to it
-            function expandTree() {
-                try {
-                    parent.tree.d.openAll();  // dtree
-                } catch (oException) {
-                    zz = window.setTimeout('expandTree()', 100);
-                }
-            }
-
-            function collapseTree() {
-                try {
-                    parent.tree.d.closeAll();  // dtree
-                } catch (oException) {
-                    yy = window.setTimeout('collapseTree()', 100);
-                }
+                var elm = document.getElementById('tocText');
+                if (elm) elm.innerHTML = "";
+                document.body.classList.remove('tree-hidden');
+                top.__hideTree = false;
             }
 
             // GENERAL FUNCTIONS - Refresh
@@ -141,22 +111,22 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     elm.innerHTML = "&nbsp;&nbsp;<img src='<?= $_style['icons_working']?>' />&nbsp;<?= $_lang['loading_menu']?>";
                     jQuery(elm).show();
                 }
-                parent.mainMenu.location.reload();
+                EvoShell.reloadMenu();
             }
 
             function reloadPane(rFrame) {
                 if (rFrame == 1) {
-                    x = window.setTimeout('reloadtree()', 100);
+                    window.setTimeout(reloadtree, 100);
                 }
                 if (rFrame == 2) {
-                    x = window.setTimeout('reloadmenu()', 100);
+                    window.setTimeout(reloadmenu, 100);
                 }
                 if (rFrame == 3) {
-                    top.tree.location.href = 'index.php?a=1&f=tree';
+                    EvoShell.reloadTree();
                 }
                 if (rFrame == 9) {
-                    x = window.setTimeout('reloadmenu()', 200);
-                    y = window.setTimeout('reloadtree()', 100);
+                    window.setTimeout(reloadmenu, 200);
+                    window.setTimeout(reloadtree, 100);
                 }
                 if (rFrame == 10) {
                     window.top.location.href = "../manager/";
@@ -177,7 +147,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
             // This function removes locks on documents, templates, parsers, and snippets
             function removeLocks() {
                 if (confirm("<?= $_lang['confirm_remove_locks']?>") == true) {
-                    top.main.document.location.href = "index.php?a=67";
+                    EvoShell.navigate("index.php?a=67");
                 }
             }
 
@@ -198,10 +168,29 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 // remove focus from top nav
                 if (element) element.blur();
             }
+
+            // 旧フレーム参照(top.mainMenu.X)の互換API。シェルではこのオブジェクトが窓口になる
+            window.mainMenu = {
+                updateMail: updateMail,
+                keepMeAlive: keepMeAlive,
+                hideTreeFrame: hideTreeFrame,
+                defaultTreeFrame: defaultTreeFrame,
+                reloadtree: reloadtree,
+                reloadmenu: reloadmenu,
+                reloadPane: reloadPane,
+                removeLocks: removeLocks,
+                showWin: showWin,
+                work: function () { window.work(); },
+                stopWork: function () { window.stopWork(); }
+            };
         </script>
+<?php if (!$isShellPartial) { ?>
     </head>
 
     <body id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
+<?php } else { ?>
+    <header id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
+<?php } ?>
 
     <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>
     <div id="topbar">
@@ -218,7 +207,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                 $loginName = htmlspecialchars($modx->getLoginUserName(), ENT_QUOTES, $charset);
                 if (evo()->hasPermission('change_password')) {
-                    $loginMarkup = sprintf('<a href="index.php?a=74" target="main">%s</a>', $loginName);
+                    $loginMarkup = sprintf('<a href="index.php?a=74">%s</a>', $loginName);
                 } else {
                     $loginMarkup = $loginName;
                 }
@@ -228,13 +217,13 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                     $messagesLabel = htmlspecialchars($_lang['messages'], ENT_QUOTES, $charset);
                     $mailTooltip = htmlspecialchars($_lang['you_got_mail'], ENT_QUOTES, $charset);
                     $mailIcon = sprintf(
-                        '<span id="newMail"><a href="index.php?a=10" title="%s" target="main"><img src="%s" alt="%s" /></a></span>',
+                        '<span id="newMail"><a href="index.php?a=10" title="%s"><img src="%s" alt="%s" /></a></span>',
                         $mailTooltip,
                         htmlspecialchars($_style['icons_mail'], ENT_QUOTES, $charset),
                         $messagesLabel
                     );
                     $messagesLink = sprintf(
-                        '<a onclick="this.blur();" href="index.php?a=10" target="main">%s <span id="msgCounter">( ? / ? )</span></a>',
+                        '<a onclick="this.blur();" href="index.php?a=10">%s <span id="msgCounter">( ? / ? )</span></a>',
                         $messagesLabel
                     );
                     $supplementalNavItems[] = sprintf(
@@ -246,7 +235,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                 if (evo()->hasPermission('help')) {
                     $helpLabel = htmlspecialchars($_lang['help'], ENT_QUOTES, $charset);
-                    $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--help"><a href="index.php?a=9" target="main">%s</a></span>', $helpLabel);
+                    $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--help"><a href="index.php?a=9">%s</a></span>', $helpLabel);
                 }
 
                 $safeModeNavItem = manager_safe_mode_nav_item_html();
@@ -255,7 +244,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                 }
 
                 $logoutLabel = htmlspecialchars($_lang['logout'], ENT_QUOTES, $charset);
-                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="index.php?a=8" target="_top">%s</a></span>', $logoutLabel);
+                $supplementalNavItems[] = sprintf('<span class="supplementalNav__item supplementalNav__item--logout"><a href="index.php?a=8" data-no-ajax>%s</a></span>', $logoutLabel);
 
                 $settings_version = db()->getValue(
                     'setting_value',
@@ -342,8 +331,9 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
                         }
 
                         while ($content = db()->getRow($rs)) {
+                            // モジュールは独自の完全HTMLを出すためシェル内AJAXでは開かない
                             $item['modules'][$content['name']] = item($content['name'],
-                                "index.php?a=112&amp;id={$content['id']}");
+                                "index.php?a=112&amp;id={$content['id']}", 1, 'data-no-ajax');
                         }
                         $modulemenu = $item['modules'];
                     }
@@ -366,7 +356,7 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
 
                     // Tools Menu
                     $item['bk_manager'] = item($_lang['bk_manager'], 93,
-                        evo()->hasPermission('bk_manager'));// backup-mgr
+                        evo()->hasPermission('bk_manager'), 'data-no-ajax');// backup-mgr
                     $item['import_site'] = item($_lang['import_site'], 95,
                         evo()->hasPermission('import_static'));// import-html
                     $item['export_site'] = item($_lang['export_site'], 83,
@@ -436,11 +426,15 @@ $mxla = $modx_lang_attribute ? $modx_lang_attribute : 'en';
     </form>
 
     <div id="menuSplitter"></div>
+<?php if (!$isShellPartial) { ?>
     </body>
     </html>
+<?php } else { ?>
+    </header>
+<?php } ?>
 
 <?php
-function item($name, $href, $display = 1, $attrib = 'target="main"')
+function item($name, $href, $display = 1, $attrib = '')
 {
     if ($display == 0) {
         return false;

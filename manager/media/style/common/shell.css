@@ -1,0 +1,57 @@
+/*
+ * 管理画面シェルレイアウト (frameset代替)
+ * 上部メニュー / 左ツリー / メインコンテンツをCSS Gridで配置する。
+ * テーマのstyle.cssより後に読み込み、配置に関する指定だけを上書きする。
+ * 寸法は header.inc.php が出力するCSS変数 (--shell-menu-height / --shell-tree-width) で制御する。
+ */
+
+body.evo-shell {
+    display: grid;
+    grid-template-rows: var(--shell-menu-height, 58px) 1fr;
+    grid-template-columns: var(--shell-tree-width, 260px) 1fr;
+    grid-template-areas:
+        "menu menu"
+        "tree main";
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body.evo-shell > #topMenu {
+    grid-area: menu;
+    overflow: hidden;
+}
+
+body.evo-shell > #treePane {
+    grid-area: tree;
+    overflow: auto;
+    border-inline-end: 3px solid #f7f7f7;
+}
+
+body.evo-shell > #mainPane {
+    grid-area: main;
+    overflow: auto;
+    position: relative;
+}
+
+/* ツリー非表示 (旧hideTreeFrame相当) */
+body.evo-shell.tree-hidden {
+    grid-template-columns: 0 1fr;
+}
+
+body.evo-shell.tree-hidden > #treePane {
+    display: none;
+}
+
+/* ツリー内の高さ計算をJSからCSSへ移行 */
+body.evo-shell #treeHolder {
+    height: auto;
+    overflow: visible;
+}
+
+/* コンテキストメニューはビューポート基準で重ねる */
+body.evo-shell #mx_contextmenu {
+    position: fixed;
+    z-index: 10000;
+}

@@ -12,5 +12,6 @@ if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 7
         )
     );
 ?>
+</main>
 </body>
 </html>

@@ -29,8 +29,15 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <meta http-equiv="Content-Type" content="text/html; charset=<?= $modx->config('modx_charset') ?>" />
     <?= csrfTokenMeta() ?>
     <link rel="stylesheet" type="text/css" href="media/style/<?= $modx->config('manager_theme') ?>/style.css?<?= globalv('modx_version') ?>" />
+    <link rel="stylesheet" type="text/css" href="media/style/common/shell.css?<?= globalv('modx_version') ?>" />
     <link rel="stylesheet" type="text/css" href="media/script/jquery/jquery.powertip.css" />
     <link rel="stylesheet" href="media/script/jquery/jquery.alerts.css" type="text/css" />
+    <style>
+        :root {
+            --shell-menu-height: <?= (int)$modx->config('manager_menu_height', 58) ?>px;
+            --shell-tree-width: <?= (int)$modx->config('manager_tree_width', 260) ?>px;
+        }
+    </style>
     <!-- OnManagerMainFrameHeaderHTMLBlock -->
     <?php if (is_array($evtOut)) {
         echo implode("\n", $evtOut);
@@ -44,20 +51,25 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script src="media/script/jquery/jquery.powertip.min.js" type="text/javascript"></script>
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
+    <script type="text/javascript" src="media/script/shell.js"></script>
     <script type="text/javascript">
+        // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
+        window.main = window;
+
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
-        if (treeopen === 0 && top.mainMenu) top.mainMenu.hideTreeFrame();
 
         var documentDirty = false;
         var dontShowWorker = false;
         var baseurl = '<?= MODX_BASE_URL ?>';
         var $j = jQuery.noConflict();
 
-        // set tree to default action.
-        if (parent.tree) parent.tree.ca = "open";
+        jQuery(function () {
+            // メニュー/ツリー部品のscriptが定義済みになった後に初期化する
+            if (treeopen === 0 && window.mainMenu) mainMenu.hideTreeFrame();
 
-        // call the updateMail function, updates mail notification in top navigation
-        if (top.mainMenu && top.mainMenu.updateMail) top.mainMenu.updateMail(true);
+            // set tree to default action.
+            if (window.tree) tree.ca = "open";
+        });
 
         jQuery(function() {
             var action = <?= manager()->action ?>;
@@ -207,7 +219,22 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     </script>
 </head>
 
-<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" <?php if (globalv('modx_textdir') === 'rtl') { ?> class="rtl" <?php } ?>>
+<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" class="evo-shell<?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <div id="preLoader">
         <div class="preLoaderText"><?= style('ajax_loader') ?></div>
     </div>
+<?php
+// シェル: 旧framesetのメニュー/ツリーを同一ページの部品として描画する
+$tmp = ['action' => manager()->action];
+evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
+
+if (!defined('EVO_SHELL_PARTIAL')) {
+    define('EVO_SHELL_PARTIAL', true);
+}
+include_once MODX_MANAGER_PATH . 'frames/menu.php';
+include_once MODX_MANAGER_PATH . 'frames/tree.php';
+
+$tmp = ['action' => manager()->action];
+evo()->invokeEvent('OnManagerFrameLoader', $tmp);
+?>
+    <main id="mainPane">

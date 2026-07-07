@@ -137,9 +137,17 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 }
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// first we check to see if this is a frameset request
+// 旧framesetの入口。シェル化に伴い、初期表示アクションへリダイレクトする
 if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCount'])) {
-    include_once(MODX_MANAGER_PATH . 'frames/1.php');
+    if (sessionv('mainframe.a')) {
+        $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
+        unset($_SESSION['mainframe']);
+    } elseif (sessionv('mgrForgetPassword')) {
+        $mainurl = 'index.php?a=28';
+    } else {
+        $mainurl = 'index.php?a=2';
+    }
+    header('Location: ' . MODX_MANAGER_URL . $mainurl);
     exit;
 }
 
@@ -450,6 +458,10 @@ switch (manager()->action) {
             $frame = $_REQUEST['f'];
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
                 return;
+            }
+            // シェルからの部分再取得(fetch)ではhtml/head無しの断片を返す
+            if ($isPaneRequest && !defined('EVO_SHELL_PARTIAL')) {
+                define('EVO_SHELL_PARTIAL', true);
             }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
         } elseif (isset($_REQUEST['ajaxa'])) {

@@ -21,6 +21,8 @@ if (!sessionv('tree_sortdir')) {
     );
 }
 
+$isShellPartial = defined('EVO_SHELL_PARTIAL');
+if (!$isShellPartial) {
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html <?= ($modx_textdir === 'rtl' ? 'dir="rtl" lang="' : 'lang="') . $mxla . '" xml:lang="' . $mxla . '"' ?>>
 <head>
@@ -30,7 +32,12 @@ if (!sessionv('tree_sortdir')) {
             href="media/style/<?= $manager_theme ?>/style.css?<?= $modx_version ?>"/>
     <?= config('manager_inline_style') ?>
     <script src="media/script/jquery/jquery.min.js"></script>
+<?php } ?>
     <script>
+        // 旧フレーム参照(top.tree / parent.tree)の互換API。状態(ca)とツリー操作の窓口
+        window.tree = window.tree || {};
+        tree.ca = "open";
+
         jQuery(function () {
             resizeTree();
             restoreTree();
@@ -55,7 +62,6 @@ if (!sessionv('tree_sortdir')) {
 
 
         var rpcNode = null;
-        var ca = "open";
         var selectedObject = 0;
         var selectedObjectDeleted = 0;
         var selectedObjectName = "";
@@ -120,13 +126,13 @@ if (!sessionv('tree_sortdir')) {
                     if (document.getElementById('item64') != null) jQuery('#item64').hide();
                 }
             }
-            var bodyHeight = parseInt(document.body.offsetHeight);
+            // position:fixed のためビューポート座標をそのまま使う
             x = e.clientX > 0 ? e.clientX : e.pageX;
             y = e.clientY > 0 ? e.clientY : e.pageY;
-            y = getScrollY() + (y / 2);
-            if (y + mnu.offsetHeight > bodyHeight) {
-                // make sure context menu is within frame
-                y = mnu.offsetHeight - bodyHeight + 5;
+            var viewportHeight = window.innerHeight;
+            if (y + mnu.offsetHeight > viewportHeight) {
+                // make sure context menu is within viewport
+                y = Math.max(0, viewportHeight - mnu.offsetHeight - 5);
             }
             itemToChange = id;
             selectedObjectName = title;
@@ -192,42 +198,42 @@ if (!sessionv('tree_sortdir')) {
 
         function emptyTrash() {
             if (confirm("<?= $_lang['confirm_empty_trash'] ?>") == true) {
-                top.main.document.location.href = "index.php?a=64";
+                EvoShell.navigate("index.php?a=64");
             }
         }
 
         currSorterState = "none";
 
         function treeAction(id, name) {
-            if (ca == "move") {
+            if (tree.ca == "move") {
                 try {
-                    parent.main.setMoveValue(id, name);
+                    main.setMoveValue(id, name);
                 } catch (oException) {
                     alert('<?= $_lang['unable_set_parent'] ?>');
                 }
             }
-            if (ca == "open" || ca == "docinfo" || ca == "doclist") {
+            if (tree.ca == "open" || tree.ca == "docinfo" || tree.ca == "doclist") {
                 if (id == 0) {
                     // do nothing?
-                    parent.main.location.href = "index.php?a=120";
-                } else if (ca == "docinfo") {
-                    parent.main.location.href = "index.php?a=3&id=" + id;
-                } else if (ca == "doclist") {
-                    parent.main.location.href = "index.php?a=120&id=" + id;
+                    EvoShell.navigate("index.php?a=120");
+                } else if (tree.ca == "docinfo") {
+                    EvoShell.navigate("index.php?a=3&id=" + id);
+                } else if (tree.ca == "doclist") {
+                    EvoShell.navigate("index.php?a=120&id=" + id);
                 } else {
-                    parent.main.location.href = "index.php?a=27&id=" + id;
+                    EvoShell.navigate("index.php?a=27&id=" + id);
                 }
             }
-            if (ca == "parent") {
+            if (tree.ca == "parent") {
                 try {
-                    parent.main.setParent(id, name);
+                    main.setParent(id, name);
                 } catch (oException) {
                     alert('<?= $_lang['unable_set_parent'] ?>');
                 }
             }
-            if (ca == "link") {
+            if (tree.ca == "link") {
                 try {
-                    parent.main.setLink(id);
+                    main.setLink(id);
                 } catch (oException) {
                     alert('<?= $_lang['unable_set_link'] ?>');
                 }
@@ -261,8 +267,19 @@ if (!sessionv('tree_sortdir')) {
 
     </script>
     <script src="media/script/tree.js"></script>
+<?php if (!$isShellPartial) { ?>
 </head>
 <body onclick="hideMenu();" class="<?= $modx_textdir === 'rtl' ? ' rtl' : '' ?>">
+<?php } else { ?>
+<aside id="treePane">
+    <script>
+        // フレーム時代のbody onclick相当。コンテキストメニューを閉じる
+        if (!window.__treeHideMenuBound) {
+            window.__treeHideMenuBound = true;
+            document.addEventListener('click', function () { hideMenu(); });
+        }
+    </script>
+<?php } ?>
 <?php
 // invoke OnTreePrerender event
 $evtOut = evo()->invokeEvent('OnManagerTreeInit', $esc_request);
@@ -286,11 +303,11 @@ if (is_array($evtOut)) {
                         </td>
                         <?php if (evo()->hasPermission('new_document') && isAllowroot()) { ?>
                             <td><a href="#" class="treeButton" id="Button3a"
-                                    onclick="top.main.document.location.href='index.php?a=4';"
+                                    onclick="EvoShell.navigate('index.php?a=4');return false;"
                                     title="<?= $_lang['add_resource'] ?>"><?= $_style['add_doc_tree'] ?></a>
                             </td>
                             <td><a href="#" class="treeButton" id="Button3c"
-                                    onclick="top.main.document.location.href='index.php?a=72';"
+                                    onclick="EvoShell.navigate('index.php?a=72');return false;"
                                     title="<?= $_lang['add_weblink'] ?>"><?= $_style['add_weblink_tree'] ?></a>
                             </td>
                         <?php } ?>
@@ -412,42 +429,42 @@ if (is_array($evtOut)) {
             switch (action) {
                 case '3' : // view
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=3&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=3&id=" + itemToChange);
                     break;
                 case '27' : // edit
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=27&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=27&id=" + itemToChange);
                     break;
                 case 'createDraft' : // createt draft
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=132&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=132&id=" + itemToChange);
                     break
                 case 'editDraft' : // edit draft
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=131&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=131&id=" + itemToChange);
                     break
                 case '4' : // new Resource
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=4&pid=" + itemToChange;
+                    EvoShell.navigate("index.php?a=4&pid=" + itemToChange);
                     break;
                 case '51' : // move
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=51&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=51&id=" + itemToChange);
                     break;
                 case '72' : // new Weblink
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=72&pid=" + itemToChange;
+                    EvoShell.navigate("index.php?a=72&pid=" + itemToChange);
                     break;
                 case '94' : // duplicate
                     if (confirm("<?= $_lang['confirm_resource_duplicate'] ?>") == true) {
                         setActiveFromContextMenu(itemToChange);
-                        top.main.document.location.href = "index.php?a=94&id=" + itemToChange;
+                        EvoShell.navigate("index.php?a=94&id=" + itemToChange);
                     }
                     break;
                 case '6' : // delete
                     if (selectedObjectDeleted == 0) {
                         if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
-                            top.main.document.location.href = "index.php?a=6&id=" + itemToChange;
+                            EvoShell.navigate("index.php?a=6&id=" + itemToChange);
                         }
                     } else {
                         alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
@@ -458,14 +475,14 @@ if (is_array($evtOut)) {
                         alert("'" + selectedObjectName + "' <?= $_lang['not_deleted'] ?>");
                     } else {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_undelete'] ?>") == true) {
-                            top.main.document.location.href = "index.php?a=63&id=" + itemToChange;
+                            EvoShell.navigate("index.php?a=63&id=" + itemToChange);
                         }
                     }
                     break;
                 case '64' : // delete
                     if (selectedObjectDeleted == 1) {
                         if (confirm("'" + selectedObjectName + "'\n\n<?= $_lang['confirm_delete_resource'] ?>") == true) {
-                            top.main.document.location.href = "index.php?a=64&id=" + itemToChange;
+                            EvoShell.navigate("index.php?a=64&id=" + itemToChange);
                         }
                     } else {
                         alert("'" + selectedObjectName + "' <?= $_lang['already_deleted'] ?>");
@@ -474,14 +491,14 @@ if (is_array($evtOut)) {
                 case '61' : // publish
                     if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_publish'] ?>") == true) {
                         setActiveFromContextMenu(itemToChange);
-                        top.main.document.location.href = "index.php?a=61&id=" + itemToChange;
+                        EvoShell.navigate("index.php?a=61&id=" + itemToChange);
                     }
                     break;
                 case '62' : // unpublish
                     if (itemToChange != <?= config('site_start') ?>) {
                         if (confirm("'" + selectedObjectName + "' <?= $_lang['confirm_unpublish'] ?>") == true) {
                             setActiveFromContextMenu(itemToChange);
-                            top.main.document.location.href = "index.php?a=62&id=" + itemToChange;
+                            EvoShell.navigate("index.php?a=62&id=" + itemToChange);
                         }
                     } else {
                         alert('Document is linked to site_start variable and cannot be unpublished!');
@@ -493,7 +510,7 @@ if (is_array($evtOut)) {
                     break;
                 case '120' : // resources list
                     setActiveFromContextMenu(itemToChange);
-                    top.main.document.location.href = "index.php?a=120&id=" + itemToChange;
+                    EvoShell.navigate("index.php?a=120&id=" + itemToChange);
                     break;
 
                 default :
@@ -554,8 +571,24 @@ EOT;
     echo evo()->parseText($tpl, $ph);
 
     ?>
+<script>
+    // 旧フレーム参照(top.tree.X)互換のためツリー操作関数を公開する
+    jQuery.extend(window.tree, {
+        saveFolderState: saveFolderState,
+        restoreTree: restoreTree,
+        resizeTree: resizeTree,
+        expandTree: expandTree,
+        collapseTree: collapseTree,
+        updateTree: updateTree,
+        reload: function () { EvoShell.reloadTree(); }
+    });
+</script>
+<?php if (!$isShellPartial) { ?>
 </body>
 </html>
+<?php } else { ?>
+</aside>
+<?php } ?>
 <?php
 function select($cond = false)
 {
