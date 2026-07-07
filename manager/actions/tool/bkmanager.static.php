@@ -101,7 +101,9 @@ if ($mode === 'snapshot') {
     exit;
 }
 
-include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
+if (empty($isPaneRequest)) { // シェルの断片要求ではheader/footerを重複出力しない
+    include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');  // start normal header
+}
 if (sessionv('result_msg')) {
     switch (sessionv('result_msg')) {
         case 'import_ok':
@@ -475,7 +477,9 @@ if (sessionv('result_msg')) {
 </script>
 
 <?php
-include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+if (empty($isPaneRequest)) {
+    include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+}
 function checked($cond)
 {
     if ($cond) {

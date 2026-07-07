@@ -9,10 +9,10 @@ if (anyv('r') == 10) {
     $ph['reload'] = 'top.mainMenu.reloadPane(10);';
 } elseif (anyv('dv') == 1 && anyv('id') != '') {
     $ph['reload'] = sprintf(
-        "document.location.href='index.php?a=3&id=%s';", anyv('id')
+        "EvoShell.navigate('index.php?a=3&id=%s');", anyv('id')
     );
 } else {
-    $ph['reload'] = 'document.location.href="index.php?a=2"';
+    $ph['reload'] = 'EvoShell.navigate("index.php?a=2");';
 }
 
 $tpl = get_tpl();
