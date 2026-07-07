@@ -167,6 +167,17 @@ $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';
 $isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
 
+// AJAXシェル(shell.js)からの断片要求: header/footerを出力せずアクション本文のみ返す
+$isPaneRequest = !$isRawSystemLogRequest
+    && (
+        serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest'
+        || getv('ajax') === 'pane'
+    );
+if ($isPaneRequest) {
+    header('X-Evo-Pane: 1');
+    header('X-Evo-Action: ' . (int)manager()->action);
+}
+
 function manager_system_log_manager_action(): array
 {
     static $actions = null;
@@ -428,7 +439,7 @@ if (in_array(manager()->action, [
     301,
     114,
     998
-]) && !$isRawSystemLogRequest) {
+]) && !$isRawSystemLogRequest && !$isPaneRequest) {
     include_once($action_path . 'header.inc.php');
 }
 
@@ -776,7 +787,9 @@ switch (manager()->action) {
         break;
     default: // default action: show not implemented message
         // say that what was requested doesn't do anything yet
-        include_once($action_path . 'header.inc.php');
+        if (!$isPaneRequest) {
+            include_once($action_path . 'header.inc.php');
+        }
         echo "
             <div class='section'>
             <div class='sectionHeader'>" . $_lang['functionnotimpl'] . "</div>
@@ -785,10 +798,12 @@ switch (manager()->action) {
             </div>
             </div>
         ";
-        include_once($action_path . 'footer.inc.php');
+        if (!$isPaneRequest) {
+            include_once($action_path . 'footer.inc.php');
+        }
 }
 
-if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 998]) && !$isRawSystemLogRequest) {
+if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 998]) && !$isRawSystemLogRequest && !$isPaneRequest) {
     include_once($action_path . 'footer.inc.php');
 }
 

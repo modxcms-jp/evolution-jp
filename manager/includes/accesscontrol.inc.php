@@ -30,6 +30,10 @@ if (isset($lastInstallTime) && sessionv('modx.session.created.time') && sessionv
 $theme_path = MODX_MANAGER_PATH . sprintf('media/style/%s/', evo()->config('manager_theme'));
 $touch_path = MODX_CACHE_PATH . 'touch.siteCache.idx.php';
 if (!sessionv('mgrValidated')) {
+    // AJAXシェルからの要求にはログイン要求を示すヘッダーを返し、クライアント側でフルリロードさせる
+    if (serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest') {
+        header('X-Evo-Login: required');
+    }
     include __DIR__ . '/accesscontrol-not-mgr.inc.php';
     exit;
 }
