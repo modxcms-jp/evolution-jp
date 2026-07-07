@@ -208,9 +208,7 @@ echo get_jscript($id, $cm);
                     </li>
                 </ul>
             <?php }
-            if ($numRecords > 0) {
-                $topicPath = getTopicPath($id);
-            }
+            $topicPath = $numRecords > 0 ? getTopicPath($id) : '';
             echo <<< EOT
 <script type="text/javascript">
     function selectAll() {
