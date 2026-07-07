@@ -13,8 +13,10 @@ body.evo-shell {
         "menu menu"
         "tree main";
     height: 100vh;
-    margin: 0;
-    padding: 0;
+    /* テーマのbody#mainpane(IDセレクタ)のpadding指定より優先させる。
+       旧mainフレームbody相当の余白は#mainPane側で確保する */
+    margin: 0 !important;
+    padding: 0 !important;
     overflow: hidden;
 }
 
@@ -41,6 +43,9 @@ body.evo-shell > #mainPane {
     grid-area: main;
     overflow: auto;
     position: relative;
+    /* 旧mainフレームのbody paddingに相当する内側余白 */
+    padding: var(--shell-main-padding, var(--space-2, 8px));
+    box-sizing: border-box;
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */
