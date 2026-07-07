@@ -69,8 +69,11 @@ body.evo-shell #treeHolder {
     overflow: visible;
 }
 
-/* コンテキストメニューはビューポート基準で重ねる */
-body.evo-shell #mx_contextmenu {
+/* コンテキストメニューはビューポート基準で重ねる。
+   各画面はe.pageX/pageYで配置するが、シェルではbodyがスクロールしないため
+   ビューポート座標と一致し、fixed化で#mainPane基準のずれを解消できる */
+body.evo-shell #mx_contextmenu,
+body.evo-shell .contextMenu {
     position: fixed;
     z-index: 10000;
 }
