@@ -120,8 +120,27 @@ if (!empty($content["properties"])) {
 $_SESSION['itemname'] = $content['name'];
 
 $output = evalModule($content["modulecode"], $parameter);
-echo $output;
-include(MODX_CORE_PATH . 'sysalert.display.inc.php');
+
+// モジュール出力が完全HTML(<html>を含む)なら従来どおり単独ページとして返し、
+// 断片ならシェル(メニュー/ツリー)内に表示する
+$isFullDocument = stripos($output, '<html') !== false;
+if ($isFullDocument) {
+    if (!empty($isPaneRequest)) {
+        // 断片ではないためshell.jsにフルページ遷移へフォールバックさせる
+        header_remove('X-Evo-Pane');
+    }
+    echo $output;
+    include(MODX_CORE_PATH . 'sysalert.display.inc.php');
+} else {
+    if (empty($isPaneRequest)) {
+        include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
+    }
+    echo $output;
+    include(MODX_CORE_PATH . 'sysalert.display.inc.php');
+    if (empty($isPaneRequest)) {
+        include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
+    }
+}
 
 // evalModule
 function evalModule($moduleCode, $params)

@@ -1,108 +1,96 @@
-<!DOCTYPE html
-        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<!-- Doc Manager: シェル(メニュー/ツリー)内に表示される断片テンプレート。
+     jQuery/tabpane/CSSはシェル(header.inc.php)が読み込み済みのため含めない -->
+<script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    if (window.stopWork) window.stopWork();
+    var baseurl = '[+baseurl+]';
+    if (window.mainMenu && mainMenu.defaultTreeFrame) mainMenu.defaultTreeFrame();
+    var lastImageCtrl;
+    var lastFileCtrl;
 
-<head>
-    <title>[+lang.DM_module_title+]</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=[(modx_charset)]"/>
-    [+csrf_meta+]
-    <link rel="stylesheet" type="text/css" href="media/style[+theme+]/style.css"/>
-    <script type="text/javascript" src="media/script/tabpane.js"></script>
-    <script type="text/javascript" src="media/script/jquery/jquery.min.js?[+settings_version+]"></script>
-    <script type="text/javascript" src="../assets/modules/docmanager/js/docmanager.js"></script>
-    <script type="text/javascript">
-        var $j = jQuery.noConflict();
-        jQuery('#workText', parent.mainMenu.document).html('');
-        var baseurl = '[+baseurl+]';
-        top.mainMenu.defaultTreeFrame();
-        var lastImageCtrl;
-        var lastFileCtrl;
+    function OpenServerBrowser(url, width, height) {
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+        var options = 'toolbar=no,status=no,resizable=yes,dependent=yes';
+        options += ',width=' + width;
+        options += ',height=' + height;
+        options += ',left=' + left;
+        options += ',top=' + top;
+        window.open(url, 'FCKBrowseWindow', options);
+    }
 
-        function OpenServerBrowser(url, width, height) {
-            var left = (screen.width - width) / 2;
-            var top = (screen.height - height) / 2;
-            var options = 'toolbar=no,status=no,resizable=yes,dependent=yes';
-            options += ',width=' + width;
-            options += ',height=' + height;
-            options += ',left=' + left;
-            options += ',top=' + top;
-            window.open(url, 'FCKBrowseWindow', options);
+    function BrowseServer(ctrl) {
+        lastImageCtrl = ctrl;
+        var width = screen.width * 0.7;
+        var height = screen.height * 0.7;
+        OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=images', width, height);
+    }
+
+    function BrowseFileServer(ctrl) {
+        lastFileCtrl = ctrl;
+        var width = screen.width * 0.7;
+        var height = screen.height * 0.7;
+        OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=files', width, height);
+    }
+
+    function SetUrl(url, width, height, alt) {
+        var fieldName = lastFileCtrl || lastImageCtrl;
+        var field = fieldName ? document.templatevariables[fieldName] : null;
+        if (field) {
+            field.value = url;
         }
+        lastFileCtrl = '';
+        lastImageCtrl = '';
+    }
 
-        function BrowseServer(ctrl) {
-            lastImageCtrl = ctrl;
-            var width = screen.width * 0.7;
-            var height = screen.height * 0.7;
-            OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=images', width, height);
-        }
-
-        function BrowseFileServer(ctrl) {
-            lastFileCtrl = ctrl;
-            var width = screen.width * 0.7;
-            var height = screen.height * 0.7;
-            OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=files', width, height);
-        }
-
-        function SetUrl(url, width, height, alt) {
-            var fieldName = lastFileCtrl || lastImageCtrl;
-            var field = fieldName ? document.templatevariables[fieldName] : null;
-            if (field) {
-                field.value = url;
+    function loadTemplateVars(tplId) {
+        var tokenElement = document.querySelector('meta[name="csrf-token"]');
+        var csrfToken = tokenElement ? tokenElement.content : '';
+        $j('#tvloading').css('display', 'block');
+        $j.ajax({
+            'type': 'POST',
+            'url': '[+ajax.endpoint+]',
+            'headers': {'X-CSRF-TOKEN': csrfToken},
+            'data': {'tplID':tplId},
+            'success': function (r, s) {
+                document.getElementById('results').innerHTML = r;
+                document.getElementById('tvloading').style.display = 'none';
             }
-            lastFileCtrl = '';
-            lastImageCtrl = '';
-        }
+        });
+    }
 
-        function loadTemplateVars(tplId) {
-            var tokenElement = document.querySelector('meta[name="csrf-token"]');
-            var csrfToken = tokenElement ? tokenElement.content : '';
-            $j('#tvloading').css('display', 'block');
-            $j.ajax({
-                'type': 'POST',
-                'url': '[+ajax.endpoint+]',
-                'headers': {'X-CSRF-TOKEN': csrfToken},
-                'data': {'tplID':tplId},
-                'success': function (r, s) {
-                    document.getElementById('results').innerHTML = r;
-                    document.getElementById('tvloading').style.display = 'none';
-                }
-            });
-        }
+    function save() {
+        document.newdocumentparent.submit();
+    }
 
-        function save() {
-            document.newdocumentparent.submit();
+    function setMoveValue(pId, pName) {
+        if (!pId || checkParentChildRelation(pId, pName)) {
+            document.newdocumentparent.new_parent.value = pId;
+            document.getElementById('parentName').innerHTML = "Parent: <strong>" + pId + "</strong> (" + pName +
+                ")";
         }
+    }
 
-        function setMoveValue(pId, pName) {
-            if (!pId || checkParentChildRelation(pId, pName)) {
-                document.newdocumentparent.new_parent.value = pId;
-                document.getElementById('parentName').innerHTML = "Parent: <strong>" + pId + "</strong> (" + pName +
-                    ")";
+    function checkParentChildRelation(pId, pName) {
+        const id = document.newdocumentparent.id.value;
+        const tdoc = document; // シェルではツリーと同一document
+        let pn = tdoc.getElementById("node" + pId);
+        if (!pn) return false;
+        while (pn.p > 0) {
+            pn = tdoc.getElementById("node" + pn.p);
+            if (pn.id.substr(4) === id) {
+                alert("Illegal Parent");
+                return false;
             }
         }
-
-        function checkParentChildRelation(pId, pName) {
-            const id = document.newdocumentparent.id.value;
-            const tdoc = parent.tree.document;
-            let pn = tdoc.getElementById("node" + pId);
-            if (!pn) return false;
-            while (pn.p > 0) {
-                pn = tdoc.getElementById("node" + pn.p);
-                if (pn.id.substr(4) === id) {
-                    alert("Illegal Parent");
-                    return false;
-                }
-            }
-            return true;
-        }
-    </script>
-</head>
-
-<body>
+        return true;
+    }
+</script>
 <h1>[+lang.DM_module_title+]</h1>
 <div id="actions">
     <ul class="actionButtons">
-        <li id="Button1"><a href="#" onclick="document.location.href='index.php?a=2';"><img
+        <li id="Button1"><a href="index.php?a=2"><img
                         src="media/style[+theme+]/images/icons/stop.png"/> [+lang.DM_close+]</a></li>
     </ul>
 </div>
@@ -143,6 +131,3 @@
     </div>
 </div>
 [+view.documents+]
-</body>
-
-</html>

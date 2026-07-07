@@ -331,9 +331,10 @@ if (!$isShellPartial) {
                         }
 
                         while ($content = db()->getRow($rs)) {
-                            // モジュールは独自の完全HTMLを出すためシェル内AJAXでは開かない
+                            // 断片出力のモジュールはシェル内に表示される。
+                            // 完全HTMLを出すモジュールはshell.jsが自動でフルページ表示へフォールバックする
                             $item['modules'][$content['name']] = item($content['name'],
-                                "index.php?a=112&amp;id={$content['id']}", 1, 'data-no-ajax');
+                                "index.php?a=112&amp;id={$content['id']}");
                         }
                         $modulemenu = $item['modules'];
                     }

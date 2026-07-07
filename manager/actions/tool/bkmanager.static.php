@@ -337,7 +337,7 @@ if (sessionv('result_msg')) {
                                 $result .= '<tr><td>' . implode('</td><td>', $result_value) . '</td></tr>';
                             }
                         }
-                        $style = '<style type="text/css">table th {border:1px solid #ccc;background-color:#ddd;}</style>';
+                        $style = '<style type="text/css">#mainPane table th, body > .tab-page table th {border:1px solid #ccc;background-color:#ddd;}</style>';
                         $result = $style . '<table>' . $result . '</table>';
                     }
                 }
@@ -426,12 +426,13 @@ if (sessionv('result_msg')) {
             </form>
         </div>
         <style type="text/css">
-            table {
+            /* シェル化でツリー等と同一documentになったため、コンテンツ領域内に限定する */
+            #mainPane table, body > .tab-page table {
                 background-color: #fff;
                 border-collapse: collapse;
             }
 
-            table td {
+            #mainPane table td, body > .tab-page table td {
                 padding: 4px;
             }
         </style>
