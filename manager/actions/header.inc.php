@@ -56,6 +56,10 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
         window.main = window;
 
+        if (window.EvoShell) {
+            EvoShell.unsavedMessage = '<?= addslashes(lang('warning_not_saved')) ?>';
+        }
+
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
 
         var documentDirty = false;

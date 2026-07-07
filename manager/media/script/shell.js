@@ -1,0 +1,361 @@
+/*
+ * EvoShell - 管理画面シェルのSPAナビゲーション (frameset代替)
+ *
+ * コンテンツ領域(#mainPane)だけをfetchで差し替え、メニューとツリーを
+ * 再描画せずに画面遷移する。URLはHistory API(pushState)で同期する。
+ * サーバー側は X-Requested-With: XMLHttpRequest を検出すると
+ * header/footer抜きの断片HTMLを X-Evo-Pane ヘッダー付きで返す(manager/index.php)。
+ * Vanilla JS (ES6+)。jQueryには依存しない。
+ */
+(function () {
+    'use strict';
+
+    const loadedScriptSrcs = new Set();
+
+    // 初期ロード時に読み込み済みのscript srcを記録し、断片側での二重読込を防ぐ
+    function registerInitialScripts() {
+        document.querySelectorAll('script[src]').forEach(function (el) {
+            loadedScriptSrcs.add(resolveUrl(el.getAttribute('src')));
+        });
+    }
+
+    function resolveUrl(url) {
+        return new URL(url, window.location.href).href;
+    }
+
+    function isManagerUrl(url) {
+        const resolved = new URL(url, window.location.href);
+        if (resolved.origin !== window.location.origin) {
+            return false;
+        }
+        const base = window.location.pathname.replace(/[^\/]*$/, '');
+        return resolved.pathname === base + 'index.php' || resolved.pathname === base;
+    }
+
+    function getCsrfToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+
+    function confirmIfDirty() {
+        if (!window.documentDirty) {
+            return true;
+        }
+        const ok = window.confirm(EvoShell.unsavedMessage);
+        if (ok) {
+            window.documentDirty = false;
+        }
+        return ok;
+    }
+
+    function startWork() {
+        if (window.mainMenu && typeof window.mainMenu.work === 'function') {
+            window.mainMenu.work();
+        }
+    }
+
+    function stopWork() {
+        if (window.mainMenu && typeof window.mainMenu.stopWork === 'function') {
+            window.mainMenu.stopWork();
+        }
+    }
+
+    // 差し替えたHTML内の<script>は自動実行されないため、生成し直して順次実行する
+    function executeScripts(container, done) {
+        const scripts = Array.from(container.querySelectorAll('script'));
+
+        function runNext(index) {
+            if (index >= scripts.length) {
+                if (done) done();
+                return;
+            }
+            const old = scripts[index];
+            const src = old.getAttribute('src');
+
+            if (src) {
+                const resolved = resolveUrl(src);
+                if (loadedScriptSrcs.has(resolved)) {
+                    runNext(index + 1);
+                    return;
+                }
+                loadedScriptSrcs.add(resolved);
+                const el = document.createElement('script');
+                Array.from(old.attributes).forEach(function (attr) {
+                    el.setAttribute(attr.name, attr.value);
+                });
+                el.onload = el.onerror = function () {
+                    runNext(index + 1);
+                };
+                old.parentNode.replaceChild(el, old);
+                return;
+            }
+
+            const el = document.createElement('script');
+            Array.from(old.attributes).forEach(function (attr) {
+                el.setAttribute(attr.name, attr.value);
+            });
+            el.text = old.text;
+            old.parentNode.replaceChild(el, old);
+            runNext(index + 1);
+        }
+
+        runNext(0);
+    }
+
+    function fullReload(url) {
+        window.location.href = url;
+    }
+
+    // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)
+    function replaceDocument(html) {
+        document.open();
+        document.write(html);
+        document.close();
+    }
+
+    function applyFragment(html, finalUrl, push) {
+        const pane = document.getElementById('mainPane');
+        if (!pane) {
+            fullReload(finalUrl);
+            return;
+        }
+
+        window.documentDirty = false;
+        pane.innerHTML = html;
+        pane.scrollTop = 0;
+
+        if (push) {
+            window.history.pushState({ url: finalUrl }, '', finalUrl);
+        }
+
+        // 遷移のたびにツリーのクリック動作を既定(開く)へ戻す(旧header.inc.php相当)
+        if (window.tree) {
+            window.tree.ca = 'open';
+        }
+
+        executeScripts(pane, function () {
+            // 断片内のjQuery ready相当は即時実行済み。共通後処理を行う
+            if (window.jQuery) {
+                window.jQuery('#preLoader').hide();
+                window.jQuery('.tooltip').powerTip({ fadeInTime: '0', placement: 'e' });
+            }
+            handleRefreshParam(finalUrl);
+            stopWork();
+            document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
+        });
+    }
+
+    // processorのリダイレクトURLに付くr=Nはツリー/メニュー再読込の合図
+    function handleRefreshParam(url) {
+        const r = new URL(url, window.location.href).searchParams.get('r');
+        if (r && window.mainMenu && typeof window.mainMenu.reloadPane === 'function') {
+            window.mainMenu.reloadPane(parseInt(r, 10));
+        }
+    }
+
+    // Content-Disposition: attachment の応答をファイル保存として処理する
+    function downloadResponse(response) {
+        const disposition = response.headers.get('Content-Disposition') || '';
+        const match = disposition.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+        const filename = match ? decodeURIComponent(match[1]) : 'download';
+        return response.blob().then(function (blob) {
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(link.href);
+        });
+    }
+
+    function request(url, options, push) {
+        startWork();
+        const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest' }, options.headers || {});
+        fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
+            .then(function (response) {
+                if (response.headers.get('X-Evo-Login') === 'required') {
+                    // セッション切れ。ログイン画面へフルリロードする
+                    fullReload('index.php');
+                    return null;
+                }
+                if (/attachment/i.test(response.headers.get('Content-Disposition') || '')) {
+                    return downloadResponse(response).then(stopWork);
+                }
+                return response.text().then(function (text) {
+                    if (response.headers.get('X-Evo-Pane') === '1') {
+                        applyFragment(text, response.url, push);
+                    } else if (options.method === 'POST') {
+                        // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える
+                        replaceDocument(text);
+                    } else {
+                        fullReload(url);
+                    }
+                    return null;
+                });
+            })
+            .catch(function () {
+                stopWork();
+                if (options.method !== 'POST') {
+                    fullReload(url);
+                }
+            });
+    }
+
+    const EvoShell = {
+        // header.inc.phpが言語別メッセージで上書きする
+        unsavedMessage: 'Your changes are not saved. Continue?',
+
+        navigate: function (url, opts) {
+            const push = !opts || opts.push !== false;
+            if (!confirmIfDirty()) {
+                return;
+            }
+            request(url, { method: 'GET' }, push);
+        },
+
+        submit: function (form) {
+            const method = (form.getAttribute('method') || 'GET').toUpperCase();
+            const action = form.getAttribute('action') || window.location.href;
+
+            if (method === 'GET') {
+                const params = new URLSearchParams(new FormData(form));
+                const url = action.split('?')[0] + '?' + params.toString();
+                window.documentDirty = false;
+                request(url, { method: 'GET' }, true);
+                return;
+            }
+
+            window.documentDirty = false;
+            request(action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'X-CSRF-Token': getCsrfToken() }
+            }, true);
+        },
+
+        reloadTree: function () {
+            const pane = document.getElementById('treePane');
+            if (!pane) {
+                return;
+            }
+            fetch('index.php?a=1&f=tree', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            })
+                .then(function (response) { return response.text(); })
+                .then(function (html) {
+                    const tpl = document.createElement('template');
+                    tpl.innerHTML = html;
+                    const fresh = tpl.content.getElementById('treePane');
+                    if (!fresh) {
+                        return;
+                    }
+                    pane.replaceWith(fresh);
+                    executeScripts(fresh);
+                });
+        },
+
+        reloadMenu: function () {
+            const bar = document.getElementById('topMenu');
+            if (!bar || bar.tagName === 'BODY') {
+                window.location.reload();
+                return;
+            }
+            fetch('index.php?a=1&f=menu', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            })
+                .then(function (response) { return response.text(); })
+                .then(function (html) {
+                    const tpl = document.createElement('template');
+                    tpl.innerHTML = html;
+                    const fresh = tpl.content.getElementById('topMenu');
+                    if (!fresh) {
+                        return;
+                    }
+                    bar.replaceWith(fresh);
+                    executeScripts(fresh);
+                });
+        }
+    };
+
+    window.EvoShell = EvoShell;
+
+    // 既存コードのform.submit()直接呼び出し(submitイベント非発火)もシェル経由にする
+    const nativeFormSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function () {
+        const action = this.getAttribute('action') || window.location.href;
+        if (
+            document.body.classList.contains('evo-shell')
+            && this.closest('#mainPane')
+            && !this.hasAttribute('data-no-ajax')
+            && !this.hasAttribute('target')
+            && isManagerUrl(action)
+        ) {
+            EvoShell.submit(this);
+            return;
+        }
+        nativeFormSubmit.call(this);
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        registerInitialScripts();
+
+        if (!document.body.classList.contains('evo-shell')) {
+            return;
+        }
+
+        window.history.replaceState({ url: window.location.href }, '', window.location.href);
+
+        // リンククリックの委譲。data-no-ajax / target付き / 外部URL / #アンカーは素通しする
+        document.addEventListener('click', function (e) {
+            if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+                return;
+            }
+            const link = e.target.closest('a[href]');
+            if (!link || link.hasAttribute('data-no-ajax') || link.hasAttribute('target') || link.hasAttribute('download')) {
+                return;
+            }
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+                return;
+            }
+            if (!isManagerUrl(href)) {
+                return;
+            }
+            const url = new URL(href, window.location.href);
+            if (!url.searchParams.get('a')) {
+                return;
+            }
+            e.preventDefault();
+            EvoShell.navigate(url.href);
+        });
+
+        // コンテンツ領域のフォーム送信の委譲
+        document.addEventListener('submit', function (e) {
+            if (e.defaultPrevented) {
+                return;
+            }
+            const form = e.target;
+            if (form.tagName !== 'FORM' || !form.closest('#mainPane')) {
+                return;
+            }
+            if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
+                return;
+            }
+            const action = form.getAttribute('action') || window.location.href;
+            if (!isManagerUrl(action)) {
+                return;
+            }
+            e.preventDefault();
+            EvoShell.submit(form);
+        });
+
+        // ブラウザの戻る/進む
+        window.addEventListener('popstate', function (e) {
+            const url = (e.state && e.state.url) ? e.state.url : window.location.href;
+            EvoShell.navigate(url, { push: false });
+        });
+    });
+})();
