@@ -6,16 +6,21 @@
 
 ## Progress
 
-- [ ] (未着手) M1: サーバー側の断片応答モード追加（`index.php` にAJAX判定を実装）
-- [ ] (未着手) M2: シェルレイアウト構築（`header.inc.php` にメニュー・ツリーを統合、`frames/1.php` 退役）
-- [ ] (未着手) M3: SPAナビゲーションJS実装（fetch + pushState + script再実行）
-- [ ] (未着手) M4: フレーム間参照の書き換え（tree.php / menu.php ほか12ファイル・約70箇所）
-- [ ] (未着手) M5: 特殊アクション対応（フォーム送信・processor・ポップアップ・モジュール実行）
-- [ ] (未着手) M6: 自走表示確認と回帰チェック
+- [x] (2026-07-07) M1: 断片応答モード実装（$isPaneRequest、X-Evo-Pane/X-Evo-Action/X-Evo-Loginヘッダー）
+- [x] (2026-07-07) M2: シェルレイアウト構築完了（frames/1.php削除、menu/tree部品化、shell.css）
+- [x] (2026-07-07) M3: shell.js実装完了（EvoShellオブジェクト、form.submit()プロトタイプパッチ、添付ダウンロード対応込み）
+- [x] (2026-07-07) M4: フレーム間参照の書き換え完了（残存参照は互換API経由で動作、grep確認済み）
+- [x] (2026-07-07) M5: 特殊アクション対応完了（wait/bkmanager/モジュールdata-no-ajax/ログアウト）
+- [ ] (2026-07-07) M6: 自走表示確認 — curl検証は完了（54アクション200・断片応答・リダイレクト・未ログイン検出・a=84/93疎通）。ユーザーのブラウザ確認で発見された5件の不具合を修正済み。ブラウザでの最終確認（保存フロー・履歴・未保存警告・RTL）が残り
 
 ## Surprises & Discoveries
 
-（実装前のためなし。事前調査の発見は Context and Orientation に集約済み）
+- **部品includeによる変数スコープ汚染（重大）**: menu.php/tree.phpをheader.inc.phpから素朴にincludeすると、部品のローカル変数（`$tpl`, `$ph` 等）が同一スコープで実行される後続アクションファイルへ漏れ、welcome.static.php が tree.php のコンテキストメニューテンプレートを誤描画して「ダッシュボードが空白」になった。クロージャ（`static function` + `extract($GLOBALS, EXTR_SKIP)`）でのinclude隔離により解決。アクションファイルの多くは `$tpl`/`$ph` を未初期化で使うため、シェルに部品を追加する際は必ずスコープ隔離すること。
+- **transform包含ブロック内のposition:fixedはスクロールに追従する**: `#mainPane` に `transform` を与えて fixed の基準を移す手法は、スクロールコンテナ自身が transform されているため `#actions` がコンテンツと共にスクロールしてしまった。最終的に「ウィンドウ基準の fixed + メニュー高さのオフセット」でレイヤー表示にした。
+- **TinyMCEはAJAX遷移で再初期化されない**: `tinymce.EditorManager` に旧インスタンスが残ると同一セレクタへの `tinymce.init()` が無視される。差し替え前の `tinymce.remove()` で解決（shell.jsのteardownPane）。SPA共通の注意点。
+- **a=29（error_dialog.static.php）は本ブランチ以前から壊れている**: includeファイル自体がリポジトリに存在せず500になる（mainでも同様）。本タスクの範囲外。core-issues.md へ記録する。
+- **shell.js/shell.cssのキャッシュ**: 開発中の修正が反映されない事故が起きたため、filemtimeベースのバージョンクエリを付与した。
+- **curlでの検証時の注意**: 未ログイン判定は `Accept-Language` ヘッダー必須（無いと404）。セッションが切れやすいためスクラッチパッドの `mgr.sh`（セッション自動再確立）を使用した。管理者は admin/password（ローカルdocker環境）。
 
 ## Decision Log
 
@@ -27,6 +32,8 @@
 - 2026-07-07 (yamamoto/Claude): モジュール実行（a=112）は独自の完全HTMLを出力するためシェル内に埋め込めない（iframeはAGENTS.mdで禁止）。フルウィンドウ表示（通常のページ遷移）とし、UX改善は将来課題として `assets/docs/core-issues.md` に記録する。
 - 2026-07-07 (yamamoto/Claude): サードパーティプラグイン互換のため、`OnManagerPreFrameLoader` / `OnManagerFrameLoader` / `OnManagerMainFrameHeaderHTMLBlock` イベントはシェル描画時に従来どおり発火させる。また `window.main` / `window.tree` / `window.mainMenu` の互換シム（旧APIの形を保った代替オブジェクト）を提供する。
 - 2026-07-07 (yamamoto/Claude): ロードマップのタスク定義には「段階移行計画」「依存関係: API Router基盤」とあるが、ユーザー判断により一括移行・API Router非依存（既存 `index.php?a=` ルーティングのまま）で先行実施する。
+- 2026-07-07 (yamamoto/Claude): アクションボタン（#actions）はユーザー要望により「コンテンツに重なるレイヤー」とし、ウィンドウ基準の `position: fixed` + メニュー高さオフセットで実装。sticky案はフロー内に高さを取りコンテンツを押し下げるため却下。transform包含ブロック案はスクロール追従してしまうため却下。
+- 2026-07-07 (yamamoto/Claude): シェル部品（menu/tree）のincludeはクロージャで変数スコープを隔離する（Surprises参照）。部品には `extract($GLOBALS, EXTR_SKIP)` でグローバル変数の読み取りアクセスを与える。
 
 ## Outcomes & Retrospective
 
