@@ -223,29 +223,36 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     </script>
 </head>
 
-<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" class="evo-shell<?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<?php
+// クロームレスモード: QuickManager等がiframeへ埋め込む際は、
+// 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
+$evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
+?>
+<body id="<?= getv('f', 'mainpane') ?>" ondragstart="return false" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
     <div id="preLoader">
         <div class="preLoaderText"><?= style('ajax_loader') ?></div>
     </div>
 <?php
-// シェル: 旧framesetのメニュー/ツリーを同一ページの部品として描画する
-$tmp = ['action' => manager()->action];
-evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
+if (!$evoShellChromeless) {
+    // シェル: 旧framesetのメニュー/ツリーを同一ページの部品として描画する
+    $tmp = ['action' => manager()->action];
+    evo()->invokeEvent('OnManagerPreFrameLoader', $tmp);
 
-if (!defined('EVO_SHELL_PARTIAL')) {
-    define('EVO_SHELL_PARTIAL', true);
+    if (!defined('EVO_SHELL_PARTIAL')) {
+        define('EVO_SHELL_PARTIAL', true);
+    }
+    // 部品を独立スコープで実行し、部品側のローカル変数($tpl,$ph等)が
+    // 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
+    $evoShellIncludePartial = static function (string $evoShellPartialPath): void {
+        extract($GLOBALS, EXTR_SKIP);
+        include_once $evoShellPartialPath;
+    };
+    $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');
+    $evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/tree.php');
+    unset($evoShellIncludePartial);
+
+    $tmp = ['action' => manager()->action];
+    evo()->invokeEvent('OnManagerFrameLoader', $tmp);
 }
-// 部品を独立スコープで実行し、部品側のローカル変数($tpl,$ph等)が
-// 後続のアクションファイル(同一スコープで実行される)を汚染しないようにする
-$evoShellIncludePartial = static function (string $evoShellPartialPath): void {
-    extract($GLOBALS, EXTR_SKIP);
-    include_once $evoShellPartialPath;
-};
-$evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/menu.php');
-$evoShellIncludePartial(MODX_MANAGER_PATH . 'frames/tree.php');
-unset($evoShellIncludePartial);
-
-$tmp = ['action' => manager()->action];
-evo()->invokeEvent('OnManagerFrameLoader', $tmp);
 ?>
     <main id="mainPane">
