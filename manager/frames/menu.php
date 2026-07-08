@@ -26,7 +26,8 @@ if (!$isShellPartial) {
             var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;
 
             var $j = jQuery.noConflict();
-            jQuery(function () {
+            function initMenuState(nextMsgcheck, mailinterval) {
+                msgcheck = nextMsgcheck;
                 // シェルでのメニュー再読込時にタイマーが多重登録されないよう、一旦解除する
                 if (window.__menuTimers) {
                     window.__menuTimers.forEach(clearInterval);
@@ -34,7 +35,6 @@ if (!$isShellPartial) {
                 window.__menuTimers = [];
                 window.__menuTimers.push(window.setInterval(keepMeAlive, 1000 * 60));
                 if (msgcheck != 0) updateMail(true); // First run update
-                var mailinterval = <?= config('mail_check_timeperiod');?>;
                 if (mailinterval != '' && mailinterval != 0) {
                     if (msgcheck != 0) window.__menuTimers.push(setInterval(function () { updateMail(true); }, mailinterval * 1000));
                 }
@@ -42,6 +42,10 @@ if (!$isShellPartial) {
                 if (top.__hideTree) {
                     hideTreeFrame();
                 }
+            }
+
+            jQuery(function () {
+                initMenuState(msgcheck, <?= config('mail_check_timeperiod');?>);
             });
 
             function keepMeAlive() {
@@ -181,6 +185,7 @@ if (!$isShellPartial) {
                 reloadPane: reloadPane,
                 removeLocks: removeLocks,
                 showWin: showWin,
+                initMenuState: initMenuState,
                 work: function () { window.work(); },
                 stopWork: function () { window.stopWork(); }
             };
@@ -191,6 +196,15 @@ if (!$isShellPartial) {
     <body id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
 <?php } else { ?>
     <header id="topMenu" class="<?= $modx_textdir === 'rtl' ? 'rtl' : 'ltr' ?>">
+        <script type="text/javascript">
+            // シェルの部分再取得では#topMenu内のscriptだけが実行されるため、メニュー状態を再初期化する
+            if (window.mainMenu && typeof window.mainMenu.initMenuState === 'function') {
+                window.mainMenu.initMenuState(
+                    <?= evo()->hasPermission('messages') ? 1 : 0;?>,
+                    <?= config('mail_check_timeperiod');?>
+                );
+            }
+        </script>
 <?php } ?>
 
     <div id="tocText"<?= $modx_textdir === 'rtl' ? ' class="tocTextRTL"' : '' ?>></div>

@@ -218,6 +218,14 @@
         });
     }
 
+    function getFormData(form, submitter) {
+        const formData = new FormData(form);
+        if (submitter && submitter.name && !submitter.disabled) {
+            formData.append(submitter.name, submitter.value);
+        }
+        return formData;
+    }
+
     function request(url, options, push) {
         startWork();
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest' }, options.headers || {});
@@ -304,12 +312,13 @@
             request(url, { method: 'GET' }, push);
         },
 
-        submit: function (form) {
+        submit: function (form, submitter) {
             const method = (form.getAttribute('method') || 'GET').toUpperCase();
             const action = form.getAttribute('action') || window.location.href;
+            const formData = getFormData(form, submitter);
 
             if (method === 'GET') {
-                const params = new URLSearchParams(new FormData(form));
+                const params = new URLSearchParams(formData);
                 const url = action.split('?')[0] + '?' + params.toString();
                 window.documentDirty = false;
                 request(url, { method: 'GET' }, true);
@@ -319,7 +328,7 @@
             window.documentDirty = false;
             request(action, {
                 method: 'POST',
-                body: new FormData(form),
+                body: formData,
                 headers: { 'X-CSRF-Token': getCsrfToken() }
             }, true);
         },
@@ -407,7 +416,7 @@
                 return;
             }
             e.preventDefault();
-            EvoShell.submit(form);
+            EvoShell.submit(form, e.submitter);
         });
 
         // ブラウザの戻る/進む

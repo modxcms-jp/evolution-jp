@@ -581,6 +581,7 @@ EOT;
     ?>
 <script>
     // 旧フレーム参照(top.tree.X)互換のためツリー操作関数を公開する
+    window.tree = window.tree || {};
     jQuery.extend(window.tree, {
         saveFolderState: saveFolderState,
         restoreTree: restoreTree,
@@ -590,6 +591,14 @@ EOT;
         updateTree: updateTree,
         reload: function () { EvoShell.reloadTree(); }
     });
+<?php if ($isShellPartial) { ?>
+    // シェルの部分再取得では#treePane内のscriptだけが実行されるため、ここで再初期化する
+    jQuery(window)
+        .off('resize.evoTreePartial')
+        .on('resize.evoTreePartial', resizeTree);
+    resizeTree();
+    restoreTree();
+<?php } ?>
 </script>
 <?php if (!$isShellPartial) { ?>
 </body>
