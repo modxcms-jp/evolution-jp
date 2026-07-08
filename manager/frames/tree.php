@@ -32,6 +32,7 @@ if (!$isShellPartial) {
             href="media/style/<?= $manager_theme ?>/style.css?<?= $modx_version ?>"/>
     <?= config('manager_inline_style') ?>
     <script src="media/script/jquery/jquery.min.js"></script>
+    <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>"></script>
 <?php } ?>
     <script>
         // 旧フレーム参照(top.tree / parent.tree)の互換API。状態(ca)とツリー操作の窓口

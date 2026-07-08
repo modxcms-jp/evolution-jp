@@ -20,6 +20,7 @@ if (!$isShellPartial) {
               href="media/style/<?= config('manager_theme') ?>/style.css?<?= $modx_version ?>"/>
         <?= config('manager_inline_style') ?>
         <script src="media/script/jquery/jquery.min.js" type="text/javascript"></script>
+        <script src="media/script/shell-fallback.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell-fallback.js') ?>" type="text/javascript"></script>
 <?php } ?>
         <script type="text/javascript">
             var msgcheck = <?= evo()->hasPermission('messages') ? 1 : 0;?>;

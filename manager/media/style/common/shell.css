@@ -88,3 +88,7 @@ body.evo-shell #mainPane #actions {
     width: max-content;
     max-width: calc(100% - var(--shell-tree-width, 260px) - 2 * var(--space-4, 16px));
 }
+
+body.evo-shell.tree-hidden #mainPane #actions {
+    max-width: calc(100% - 2 * var(--space-4, 16px));
+}
