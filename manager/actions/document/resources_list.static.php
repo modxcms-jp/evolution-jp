@@ -385,7 +385,8 @@ function get_jscript($id, $cm)
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
-    $page = (getv('page')) ? " + '&page=" . getv('page') . "'" : '';
+    // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
+    $page = (getv('page')) ? " + '&page=" . (int)getv('page') . "'" : '';
 
     $block = <<< EOT
 <style type="text/css">

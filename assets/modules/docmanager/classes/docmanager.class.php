@@ -116,8 +116,7 @@ class DocManager
 
     function getDatePicker()
     {
-        global $modx;
-        $datePickerPath = $modx->config('mgr_date_picker_path', 'media/script/air-datepicker/datepicker.inc.php');
+        $datePickerPath = config('mgr_date_picker_path', 'media/script/air-datepicker/datepicker.inc.php');
         return manager()->loadDatePicker($datePickerPath);
     }
 }

@@ -138,10 +138,10 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
 // 旧framesetの入口。シェル化に伴い、初期表示アクションへリダイレクトする
-if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCount'])) {
+if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') === null) {
     if (sessionv('mainframe.a')) {
         $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
-        unset($_SESSION['mainframe']);
+        sessionv('*mainframe', null);
     } elseif (sessionv('mgrForgetPassword')) {
         $mainurl = 'index.php?a=28';
     } else {
@@ -175,12 +175,15 @@ $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';
 $isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
 
+// header/footerを介さず自前で完全な<html>を出力するアクション。
+// 断片(#mainPaneへの差し込み)にすると入れ子文書になり表示・JSが壊れるため、
+// 常にフルページ応答とし、shell.js側のフルリロードにフォールバックさせる
+$evoShellFullDocumentActions = [100, 117];
+
 // AJAXシェル(shell.js)からの断片要求: header/footerを出力せずアクション本文のみ返す
 $isPaneRequest = !$isRawSystemLogRequest
-    && (
-        serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest'
-        || getv('ajax') === 'pane'
-    );
+    && !in_array((int)manager()->action, $evoShellFullDocumentActions, true)
+    && isEvoPaneRequest();
 if ($isPaneRequest) {
     header('X-Evo-Pane: 1');
     header('X-Evo-Action: ' . (int)manager()->action);
@@ -819,20 +822,9 @@ if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87,
     include_once($action_path . 'footer.inc.php');
 }
 
-// AJAX断片応答にもfooter.inc.php相当の後処理を出力する
-// (システムアラート表示とDatePickerの読み込み。対象アクションはfooter.inc.phpと同一)
+// AJAX断片応答にもfooter.inc.php相当の後処理を出力する(footer.inc.phpと共通のヘルパーを使用)
 if ($isPaneRequest) {
-    if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
-        echo manager()->sysAlert($modx->SystemAlertMsgQueque);
-    }
-    if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88])) {
-        echo manager()->loadDatePicker(
-            $modx->config(
-                'mgr_date_picker_path',
-                'media/script/air-datepicker/datepicker.inc.php'
-            )
-        );
-    }
+    evoRenderPaneFooterExtras();
 }
 
 // log action, unless it's a frame request

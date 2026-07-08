@@ -755,3 +755,45 @@ if (!function_exists('env')) {
         return $value;
     }
 }
+
+if (!function_exists('isEvoPaneRequest')) {
+    /**
+     * AJAXシェル(shell.js)からの断片要求かどうかを判定する。
+     * manager/index.php と manager/includes/accesscontrol.inc.php の両方から
+     * 同一の判定を行うための共通ヘルパー(条件のズレを防ぐ)。
+     *
+     * @return bool
+     */
+    function isEvoPaneRequest(): bool
+    {
+        return serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest'
+            || getv('ajax') === 'pane';
+    }
+}
+
+if (!function_exists('evoRenderPaneFooterExtras')) {
+    /**
+     * footer.inc.php相当の後処理(システムアラート表示とDatePicker読み込み)を出力する。
+     * AJAX断片応答(manager/index.php)と通常のフルページ応答(footer.inc.php)の
+     * 両方から呼び出し、重複実装によるズレを防ぐ。
+     *
+     * @return void
+     */
+    function evoRenderPaneFooterExtras(): void
+    {
+        global $modx;
+
+        if (is_array($modx->SystemAlertMsgQueque) && count($modx->SystemAlertMsgQueque) > 0) {
+            echo manager()->sysAlert($modx->SystemAlertMsgQueque);
+        }
+
+        if (in_array(manager()->action, [85, 27, 4, 72, 131, 132, 133, 74, 13, 11, 12, 77, 78, 87, 88], true)) {
+            echo manager()->loadDatePicker(
+                $modx->config(
+                    'mgr_date_picker_path',
+                    'media/script/air-datepicker/datepicker.inc.php'
+                )
+            );
+        }
+    }
+}

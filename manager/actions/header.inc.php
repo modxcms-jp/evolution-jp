@@ -57,7 +57,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         window.main = window;
 
         if (window.EvoShell) {
-            EvoShell.unsavedMessage = '<?= addslashes(lang('warning_not_saved')) ?>';
+            EvoShell.unsavedMessage = <?= json_encode(lang('warning_not_saved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
         }
 
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;
@@ -133,7 +133,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         });
 
         jQuery(window).on('beforeunload', function() {
-            if (documentDirty) return '<?= addslashes(lang('warning_not_saved')) ?>';
+            if (documentDirty) return window.EvoShell ? EvoShell.unsavedMessage : documentDirty;
             jQuery('#actions').fadeOut(100);
             jQuery('input,textarea,select').addClass('readonly');
             jQuery('#preLoader').show();
@@ -141,11 +141,15 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         });
 
         function doRefresh(r) {
+            // chromeless(QuickManager埋め込み等)ではmainMenuが存在せず、
+            // 例外→再試行を無限に繰り返してしまうため、事前に存在確認する
+            if (!top.mainMenu) {
+                return;
+            }
             try {
-                rr = r;
-                top.mainMenu.reloadPane(rr);
+                top.mainMenu.reloadPane(r);
             } catch (oException) {
-                vv = window.setTimeout('doRefresh(' + r + ')', 200);
+                window.setTimeout(function() { doRefresh(r); }, 200);
             }
         }
 
@@ -259,6 +263,11 @@ if (!$evoShellChromeless) {
 
     $tmp = ['action' => manager()->action];
     evo()->invokeEvent('OnManagerFrameLoader', $tmp);
+}
+// footer.inc.phpが</main>を出力してよいかの目印(header.inc.phpを介さず
+// 独自に<html>を出力するアクション(a=100/117等)ではfooterだけが呼ばれるため)
+if (!defined('EVO_SHELL_MAIN_OPENED')) {
+    define('EVO_SHELL_MAIN_OPENED', true);
 }
 ?>
     <main id="mainPane">

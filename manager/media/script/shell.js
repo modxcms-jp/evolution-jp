@@ -245,7 +245,12 @@
             })
             .catch(function () {
                 stopWork();
-                if (options.method !== 'POST') {
+                if (options.method === 'POST') {
+                    // POST(保存等)の通信失敗を無反応のまま放置しない。
+                    // フォームの再送信は避け、現在の画面を再取得して復旧させる
+                    window.alert(EvoShell.networkErrorMessage);
+                    fullReload(window.location.href);
+                } else {
                     fullReload(url);
                 }
             });
@@ -289,6 +294,7 @@
     const EvoShell = {
         // header.inc.phpが言語別メッセージで上書きする
         unsavedMessage: 'Your changes are not saved. Continue?',
+        networkErrorMessage: 'A network error occurred. The page will be reloaded.',
 
         navigate: function (url, opts) {
             const push = !opts || opts.push !== false;
