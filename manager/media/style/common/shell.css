@@ -49,9 +49,17 @@ body.evo-shell > #mainPane {
 }
 
 /* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
-   グリッドのセルを占有してレイアウトを崩さないよう、メイン領域に重ねて配置する */
+   グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
+   メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ */
 body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane) {
     grid-area: main;
+    align-self: start;
+    justify-self: start;
+    width: 0;
+    height: 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: visible;
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */
