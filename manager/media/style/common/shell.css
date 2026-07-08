@@ -148,3 +148,20 @@ body.evo-shell #mainPane #actions {
 body.evo-shell.tree-hidden #mainPane #actions {
     max-width: calc(100% - 2 * var(--space-4, 16px));
 }
+
+/* TinyMCE fullscreen時はエディタを最前面にし、管理画面シェルの操作部品を隠す */
+body.evo-shell.tox-fullscreen {
+    grid-template-rows: 0 1fr;
+    grid-template-columns: 0 1fr;
+}
+
+body.evo-shell.tox-fullscreen > #topMenu,
+body.evo-shell.tox-fullscreen > #treePane,
+body.evo-shell.tox-fullscreen #mainPane #actions,
+body.evo-shell.tox-fullscreen #mainPane .dynamic-tab-pane-control > .tab-row {
+    display: none !important;
+}
+
+body.evo-shell.tox-fullscreen > #mainPane {
+    padding: 0;
+}
