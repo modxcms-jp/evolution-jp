@@ -315,7 +315,7 @@ if (is_array($evtOut)) {
                         <td><a href="#" class="treeButton" id="Button4" onclick="top.mainMenu.reloadtree();"
                                 title="<?= $_lang['refresh_tree'] ?>"><?= $_style['refresh_tree'] ?></a>
                         </td>
-                        <td><a href="#" class="treeButton" id="Button5" onclick="showSorter();"
+                        <td><a href="#" class="treeButton" id="Button5" onclick="showSorter(event);return false;"
                                 title="<?= $_lang['sort_tree'] ?>"><?= $_style['sort_tree'] ?></a></td>
                         <?php if (evo()->hasPermission('empty_trash')) { ?>
                             <td><a href="#" id="Button10" class="treeButtonDisabled"
@@ -337,6 +337,13 @@ if (is_array($evtOut)) {
     </table>
 
     <div id="floater">
+        <button
+            type="button"
+            class="tree-sorter-close"
+            onclick="hideSorter();return false;"
+            aria-label="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
+            title="<?= htmlspecialchars($_lang['close'], ENT_QUOTES, $modx_manager_charset) ?>"
+        >×</button>
         <form name="sortFrm" id="sortFrm" action="menu.php">
             <table style="width:100%;border:none;padding:0;margin:0">
                 <tr>
@@ -388,7 +395,7 @@ if (is_array($evtOut)) {
                         class="treeButton"
                         id="button7"
                         style="text-align:right"
-                        onclick="updateTree();showSorter();"
+                        onclick="updateTree();hideSorter();"
                         title="<?= $_lang['sort_tree'] ?>"
                     ><?= $_lang['sort_tree'] ?></a>
                     </td>

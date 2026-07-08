@@ -36,6 +36,14 @@ function hideMenu() {
     jQuery('#mx_contextmenu').css('visibility', 'hidden');
 }
 
+function hideSorter() {
+    currSorterState = "none";
+    var floater = document.getElementById('floater');
+    if (floater) {
+        floater.style.display = currSorterState;
+    }
+}
+
 function rpcLoadData(response) {
     if (rpcNode == null) {
         return;
@@ -171,13 +179,36 @@ function saveFolderState() {
     jQuery.get(url);
 }
 
-function showSorter() {
+function showSorter(event) {
+    if (event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+    }
+
     if (currSorterState === "none") {
         currSorterState = "block";
         document.getElementById('floater').style.display = currSorterState;
     } else {
-        currSorterState = "none";
-        document.getElementById('floater').style.display = currSorterState;
+        hideSorter();
     }
 }
 
+jQuery(function () {
+    jQuery(document)
+        .off('click.evoTreeSorter')
+        .on('click.evoTreeSorter', function (event) {
+            var floater = document.getElementById('floater');
+            if (!floater || currSorterState === "none") {
+                return;
+            }
+            if (floater.contains(event.target)) {
+                return;
+            }
+            hideSorter();
+        });
+
+    jQuery('#floater')
+        .off('click.evoTreeSorter')
+        .on('click.evoTreeSorter', function (event) {
+            event.stopPropagation();
+        });
+});

@@ -51,7 +51,7 @@ body.evo-shell > #mainPane {
 /* シェルの3ペイン以外のbody直下要素(ライブラリが追加するオーバーレイ等)が
    グリッドのセルを占有してレイアウトを崩さないよう、ゼロサイズのアンカーとして
    メイン領域に重ねる。TinyMCE等の補助コンテナが透明レイヤー化して入力を奪うのを防ぐ */
-body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane) {
+body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane):not(#preLoader) {
     grid-area: main;
     align-self: start;
     justify-self: start;
@@ -60,6 +60,24 @@ body.evo-shell > :not(#topMenu):not(#treePane):not(#mainPane) {
     min-width: 0;
     min-height: 0;
     overflow: visible;
+}
+
+body.evo-shell > #preLoader {
+    grid-area: main;
+    align-self: stretch;
+    justify-self: stretch;
+    inset: 0;
+    width: auto;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    box-sizing: border-box;
+    padding-top: 70px;
+}
+
+body.evo-shell > #preLoader .preLoaderText {
+    margin: 0;
 }
 
 /* ツリー非表示 (旧hideTreeFrame相当) */
@@ -75,6 +93,36 @@ body.evo-shell.tree-hidden > #treePane {
 body.evo-shell #treeHolder {
     height: auto;
     overflow: visible;
+}
+
+body.evo-shell #floater {
+    left: auto;
+    right: auto;
+    inset-inline-start: 20px;
+    box-sizing: border-box;
+    padding: 10px;
+    padding-inline-end: 34px;
+}
+
+body.evo-shell #floater .tree-sorter-close {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 6px;
+    width: 22px;
+    height: 22px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 20px;
+    padding: 0;
+}
+
+body.evo-shell #floater .tree-sorter-close:hover,
+body.evo-shell #floater .tree-sorter-close:focus {
+    background: rgba(0, 0, 0, .08);
+    outline: none;
 }
 
 /* コンテキストメニューはビューポート基準で重ねる。
