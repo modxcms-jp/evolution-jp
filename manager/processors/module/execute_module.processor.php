@@ -7,11 +7,7 @@ if (!evo()->hasPermission('exec_module')) {
     alert()->dumpError();
 }
 
-if (isset($_REQUEST['id'])) {
-    $id = (int)$_REQUEST['id'];
-} else {
-    $id = 0;
-}
+$id = (int)anyv('id', 0);
 
 $tbl_site_module_access = evo()->getFullTableName('site_module_access');
 $tbl_member_groups = evo()->getFullTableName('member_groups');
@@ -79,7 +75,7 @@ if ($limit < 1) {
     exit;
 }
 $content = db()->getRow($rs);
-$modx->moduleObject = $content;
+evo()->moduleObject = $content;
 if ($content['disabled']) {
     echo "<script type='text/javascript'>" .
         "function jsalert(){ alert('This module is disabled and cannot be executed.');" .
@@ -117,7 +113,7 @@ if (!empty($content["properties"])) {
 }
 
 // Set the item name for logger
-$_SESSION['itemname'] = $content['name'];
+sessionv('*itemname', $content['name']);
 
 $output = evalModule($content["modulecode"], $parameter);
 
@@ -130,13 +126,11 @@ if ($isFullDocument) {
         header_remove('X-Evo-Pane');
     }
     echo $output;
-    include(MODX_CORE_PATH . 'sysalert.display.inc.php');
 } else {
     if (empty($isPaneRequest)) {
         include_once(MODX_MANAGER_PATH . 'actions/header.inc.php');
     }
     echo $output;
-    include(MODX_CORE_PATH . 'sysalert.display.inc.php');
     if (empty($isPaneRequest)) {
         include_once(MODX_MANAGER_PATH . 'actions/footer.inc.php');
     }

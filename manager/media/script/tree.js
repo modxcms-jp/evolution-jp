@@ -16,7 +16,7 @@ function resizeTree() {
     if (pane) {
         tree.style.width = '';
         tree.style.height = '';
-        tree.style.overflow = 'auto';
+        tree.style.overflow = '';
         return;
     }
 
@@ -33,7 +33,10 @@ function getScrollY() {
 
 function hideMenu() {
     if (_rc) return false;
-    jQuery('#mx_contextmenu').css('visibility', 'hidden');
+    var contextMenu = document.getElementById('mx_contextmenu');
+    if (contextMenu) {
+        contextMenu.style.visibility = 'hidden';
+    }
 }
 
 function hideSorter() {
@@ -42,6 +45,26 @@ function hideSorter() {
     if (floater) {
         floater.style.display = currSorterState;
     }
+}
+
+function buildTreeRequestUrl(params) {
+    var query = Object.keys(params).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+    }).join('&');
+
+    return 'index.php?' + query;
+}
+
+function loadTreeRequest(params, callback) {
+    fetch(buildTreeRequestUrl(params), { credentials: 'same-origin' })
+        .then(function (response) {
+            return response.text();
+        })
+        .then(callback);
+}
+
+function sendTreeRequest(url) {
+    fetch(url, { credentials: 'same-origin' });
 }
 
 function rpcLoadData(response) {
@@ -76,7 +99,7 @@ function rpcLoadData(response) {
 
 function expandTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -87,7 +110,7 @@ function expandTree() {
 
 function collapseTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -99,7 +122,7 @@ function collapseTree() {
 // new function used in body onload
 function restoreTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -147,7 +170,7 @@ function updateTree() {
     var t_sortby = document.sortFrm.sortby.value;
     var t_sortdir = document.sortFrm.sortdir.value;
 
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -175,8 +198,8 @@ function getFolderState() {
 
 function saveFolderState() {
     var folderState = getFolderState();
-    url = 'index.php?a=1&f=nodes&savestateonly=1' + folderState;
-    jQuery.get(url);
+    var url = 'index.php?a=1&f=nodes&savestateonly=1' + folderState;
+    sendTreeRequest(url);
 }
 
 function showSorter(event) {
@@ -192,23 +215,28 @@ function showSorter(event) {
     }
 }
 
-jQuery(function () {
-    jQuery(document)
-        .off('click.evoTreeSorter')
-        .on('click.evoTreeSorter', function (event) {
-            var floater = document.getElementById('floater');
-            if (!floater || currSorterState === "none") {
-                return;
-            }
-            if (floater.contains(event.target)) {
-                return;
-            }
-            hideSorter();
-        });
+function initTreeSorterHandlers() {
+    document.addEventListener('click', function (event) {
+        var floater = document.getElementById('floater');
+        if (!floater || currSorterState === "none") {
+            return;
+        }
+        if (floater.contains(event.target)) {
+            return;
+        }
+        hideSorter();
+    });
 
-    jQuery('#floater')
-        .off('click.evoTreeSorter')
-        .on('click.evoTreeSorter', function (event) {
+    var floater = document.getElementById('floater');
+    if (floater) {
+        floater.addEventListener('click', function (event) {
             event.stopPropagation();
         });
-});
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTreeSorterHandlers, { once: true });
+} else {
+    initTreeSorterHandlers();
+}

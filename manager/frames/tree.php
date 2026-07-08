@@ -582,7 +582,7 @@ EOT;
 <script>
     // 旧フレーム参照(top.tree.X)互換のためツリー操作関数を公開する
     window.tree = window.tree || {};
-    jQuery.extend(window.tree, {
+    Object.assign(window.tree, {
         saveFolderState: saveFolderState,
         restoreTree: restoreTree,
         resizeTree: resizeTree,
