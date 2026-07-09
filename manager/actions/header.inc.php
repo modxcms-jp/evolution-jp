@@ -133,7 +133,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
         });
 
         jQuery(window).on('beforeunload', function() {
-            if (documentDirty) return window.EvoShell ? EvoShell.unsavedMessage : documentDirty;
+            if (documentDirty) return window.EvoShell ? window.EvoShell.unsavedMessage : '<?= addslashes(lang('warning_not_saved')) ?>';
             jQuery('#actions').fadeOut(100);
             jQuery('input,textarea,select').addClass('readonly');
             jQuery('#preLoader').show();

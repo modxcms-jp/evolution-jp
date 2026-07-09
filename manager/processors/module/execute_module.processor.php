@@ -124,6 +124,7 @@ if ($isFullDocument) {
     if (!empty($isPaneRequest)) {
         // 断片ではないためshell.jsにフルページ遷移へフォールバックさせる
         header_remove('X-Evo-Pane');
+        $isPaneRequest = false;
     }
     echo $output;
 } else {

@@ -58,13 +58,27 @@ function buildTreeRequestUrl(params) {
 function loadTreeRequest(params, callback) {
     fetch(buildTreeRequestUrl(params), { credentials: 'same-origin' })
         .then(function (response) {
+            if (!response.ok) {
+                throw new Error('tree request failed: HTTP ' + response.status);
+            }
             return response.text();
         })
-        .then(callback);
+        .then(callback)
+        .catch(function (error) {
+            console.error(error);
+        });
 }
 
 function sendTreeRequest(url) {
-    fetch(url, { credentials: 'same-origin' });
+    fetch(url, { credentials: 'same-origin' })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('tree request failed: HTTP ' + response.status);
+            }
+        })
+        .catch(function (error) {
+            console.error(error);
+        });
 }
 
 function rpcLoadData(response) {
