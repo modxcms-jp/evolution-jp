@@ -69,7 +69,8 @@
                 <input id="adminname" type="text" value="[+adminname+]" name="adminname"/>
             </p>
             <p class="labelHolder"><label for="adminemail">[+connection_screen_default_admin_email+]</label>
-                <input id="adminemail" type="email" value="[+adminemail+]" name="adminemail" style="width:300px;"/>
+                <input id="adminemail" type="email" value="[+adminemail+]" name="adminemail" style="width:300px;" required/>
+                <span class="warning">[+connection_error+]</span>
             </p>
             <p class="labelHolder"><label for="adminpass">[+connection_screen_default_admin_password+]</label>
                 <input id="adminpass" type="password" name="adminpass" value="[+adminpass+]"/>
@@ -151,7 +152,9 @@
         jQuery('#install').submit();
     });
     jQuery('a.next').click(function () {
-        if (jQuery('#adminpass').val() !== jQuery('#adminpassconfirm').val())
+        if (is_upgradeable != 1 && jQuery.trim(jQuery('#adminemail').val()) === '')
+            alert("[+alert_enter_adminemail+]");
+        else if (jQuery('#adminpass').val() !== jQuery('#adminpassconfirm').val())
             alert("[+alert_enter_adminpassword+]");
         else
             jQuery('#install').submit();

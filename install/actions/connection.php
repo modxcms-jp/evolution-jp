@@ -22,6 +22,7 @@ $ph = array_merge(
         'database_user'     => sessionv('database_user') ?: env('DB_USERNAME') ?: '',
         'database_password' => sessionv('database_password') ?: env('DB_PASSWORD') ?: '',
         'dbase'             => sessionv('dbase') ?: env('DB_DATABASE') ?: '',
+        'connection_error'  => $ph['connection_error'] ?? '',
     ]
 );
 if ($ph['database_server'] === '127.0.0.1') {

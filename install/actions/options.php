@@ -19,6 +19,12 @@ if (isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
 }
 
+if (sessionv('prevAction') === 'connection' && !sessionv('is_upgradeable') && trim(postv('adminemail', '')) === '') {
+    $ph['connection_error'] = lang('alert_enter_adminemail');
+    include MODX_SETUP_PATH . 'actions/connection.php';
+    return;
+}
+
 if (!isset($_SESSION['convert_to_utf8mb4'])) {
     $_SESSION['convert_to_utf8mb4'] = 1;
 }

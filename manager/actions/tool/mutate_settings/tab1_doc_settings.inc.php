@@ -43,6 +43,8 @@
                     }
                     echo implode("\n", $echo);
                     echo '</select><br />';
+                    $savedTmpId = 0;
+                    $savedTmpName = '(blank)';
                     foreach ($options as $category => $templates) {
                         foreach ($templates as $template) {
                             if (!($template['selected'])) {
@@ -50,7 +52,7 @@
                             }
                             $savedTmpId = $template['id'];
                             $savedTmpName = $template['name'];
-                            break;
+                            break 2;
                         }
                     }
                     ?>
