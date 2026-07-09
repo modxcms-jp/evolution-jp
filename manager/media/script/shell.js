@@ -106,6 +106,42 @@
         window.location.href = url;
     }
 
+    function paneTargetFromHash(pane, hash) {
+        if (!pane || !hash || hash === '#') {
+            return null;
+        }
+        const id = decodeURIComponent(hash.slice(1));
+        if (!id) {
+            return null;
+        }
+        const escaped = window.CSS && CSS.escape ? CSS.escape(id) : id.replace(/"/g, '\\"');
+        return pane.querySelector('#' + escaped) || pane.querySelector('[name="' + escaped + '"]');
+    }
+
+    function scrollPaneToHash(url) {
+        const pane = document.getElementById('mainPane');
+        const hash = new URL(url, window.location.href).hash;
+        const target = pane ? paneTargetFromHash(pane, hash) : null;
+        if (!target) {
+            return;
+        }
+        requestAnimationFrame(function () {
+            const paneTop = pane.getBoundingClientRect().top;
+            const targetTop = target.getBoundingClientRect().top;
+            pane.scrollTop += targetTop - paneTop;
+            window.scrollTo(0, 0);
+        });
+    }
+
+    function responseUrlWithRequestHash(responseUrl, requestUrl) {
+        const finalUrl = new URL(responseUrl, window.location.href);
+        const requested = new URL(requestUrl, window.location.href);
+        if (requested.hash) {
+            finalUrl.hash = requested.hash;
+        }
+        return finalUrl.href;
+    }
+
     // 断片内のスタイルシートを<head>へ移す。
     // 断片ごと消えると、body直下に残るUI部品(datepickerのカレンダー等)が
     // スタイルを失いシェルのグリッドを崩すため、headに恒久配置して重複は除去する
@@ -181,6 +217,7 @@
                 window.evoBindDirtyTracking(action);
             }
             handleRefreshParam(finalUrl);
+            scrollPaneToHash(finalUrl);
             stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
         });
@@ -241,7 +278,7 @@
                 }
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
-                        applyFragment(text, response.url, push);
+                        applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
                     } else if (options.method === 'POST') {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える
                         replaceDocument(text);
@@ -385,7 +422,18 @@
                 return;
             }
             const href = link.getAttribute('href');
-            if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            if (!href || href.startsWith('javascript:')) {
+                return;
+            }
+            if (href.startsWith('#')) {
+                const url = new URL(window.location.href);
+                url.hash = href;
+                const pane = document.getElementById('mainPane');
+                if (paneTargetFromHash(pane, url.hash)) {
+                    e.preventDefault();
+                    window.history.pushState({ url: url.href }, '', url.href);
+                    scrollPaneToHash(url.href);
+                }
                 return;
             }
             if (!isManagerUrl(href)) {
@@ -424,5 +472,7 @@
             const url = (e.state && e.state.url) ? e.state.url : window.location.href;
             EvoShell.navigate(url, { push: false });
         });
+
+        scrollPaneToHash(window.location.href);
     });
 })();
