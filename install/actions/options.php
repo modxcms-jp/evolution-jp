@@ -19,7 +19,7 @@ if (isset($_POST['adminpassconfirm'])) {
     $_SESSION['adminpassconfirm'] = postv('adminpassconfirm');
 }
 
-if (sessionv('prevAction') === 'connection' && !sessionv('is_upgradeable') && trim(postv('adminemail', '')) === '') {
+if (!sessionv('is_upgradeable') && trim(sessionv('adminemail', '')) === '') {
     $ph['connection_error'] = lang('alert_enter_adminemail');
     include MODX_SETUP_PATH . 'actions/connection.php';
     return;

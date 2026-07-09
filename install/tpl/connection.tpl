@@ -60,7 +60,7 @@
             target.animate({scrollTop: jQuery('#footer').offset().top}, 'slow');
         });
     </script>
-    <div id="AUH" style="margin-top:1.5em;display:none;">
+    <div id="AUH" style="margin-top:1.5em;display:[+auh_display+];">
         <div id="AUHMask">
             <h2>[+connection_screen_defaults+]</h2>
             <h3>[+connection_screen_default_admin_user+]</h3>
@@ -152,7 +152,7 @@
         jQuery('#install').submit();
     });
     jQuery('a.next').click(function () {
-        if (is_upgradeable != 1 && jQuery.trim(jQuery('#adminemail').val()) === '')
+        if (is_upgradeable != 1 && document.getElementById('adminemail').value.trim() === '')
             alert("[+alert_enter_adminemail+]");
         else if (jQuery('#adminpass').val() !== jQuery('#adminpassconfirm').val())
             alert("[+alert_enter_adminpassword+]");

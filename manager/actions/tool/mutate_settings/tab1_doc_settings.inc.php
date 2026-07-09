@@ -24,10 +24,16 @@
                             'selected' => (config('default_template') == $row['id'])
                         ];
                     }
+                    $savedTmpId = 0;
+                    $savedTmpName = '(blank)';
                     $echo = [];
                     foreach ($options as $category => $templates) {
                         $group = [];
                         foreach ($templates as $template) {
+                            if ($template['selected']) {
+                                $savedTmpId = $template['id'];
+                                $savedTmpName = $template['name'];
+                            }
                             $group[] = sprintf(
                                 '<option value="%s"%s>%s</option>',
                                 $template['id'],
@@ -43,18 +49,6 @@
                     }
                     echo implode("\n", $echo);
                     echo '</select><br />';
-                    $savedTmpId = 0;
-                    $savedTmpName = '(blank)';
-                    foreach ($options as $category => $templates) {
-                        foreach ($templates as $template) {
-                            if (!($template['selected'])) {
-                                continue;
-                            }
-                            $savedTmpId = $template['id'];
-                            $savedTmpName = $template['name'];
-                            break 2;
-                        }
-                    }
                     ?>
                     <div id="template_reset_options_wrapper" style="display:none;">
                         <?= wrap_label(
