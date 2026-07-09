@@ -766,7 +766,7 @@ if (!function_exists('isEvoPaneRequest')) {
      */
     function isEvoPaneRequest(): bool
     {
-        return serverv('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest'
+        return strcasecmp((string)serverv('HTTP_X_REQUESTED_WITH'), 'XMLHttpRequest') === 0
             || getv('ajax') === 'pane';
     }
 }

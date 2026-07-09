@@ -81,8 +81,12 @@
                 loadedScriptSrcs.add(resolved);
                 const el = document.createElement('script');
                 Array.from(old.attributes).forEach(function (attr) {
+                    if (attr.name === 'async' || attr.name === 'defer') {
+                        return;
+                    }
                     el.setAttribute(attr.name, attr.value);
                 });
+                el.async = false;
                 el.onload = el.onerror = function () {
                     runNext(index + 1);
                 };
@@ -92,6 +96,9 @@
 
             const el = document.createElement('script');
             Array.from(old.attributes).forEach(function (attr) {
+                if (attr.name === 'async' || attr.name === 'defer') {
+                    return;
+                }
                 el.setAttribute(attr.name, attr.value);
             });
             el.text = old.text;
@@ -106,6 +113,10 @@
         window.location.href = url;
     }
 
+    function isFullDocumentHtml(text) {
+        return /<\s*html\b/i.test(text);
+    }
+
     function paneTargetFromHash(pane, hash) {
         if (!pane || !hash || hash === '#') {
             return null;
@@ -114,8 +125,13 @@
         if (!id) {
             return null;
         }
-        const escaped = window.CSS && CSS.escape ? CSS.escape(id) : id.replace(/"/g, '\\"');
-        return pane.querySelector('#' + escaped) || pane.querySelector('[name="' + escaped + '"]');
+        const byId = pane.ownerDocument.getElementById(id);
+        if (byId && pane.contains(byId)) {
+            return byId;
+        }
+        return Array.from(pane.querySelectorAll('[name]')).find(function (element) {
+            return element.getAttribute('name') === id;
+        }) || null;
     }
 
     function scrollPaneToHash(url) {
@@ -279,7 +295,7 @@
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
-                    } else if (options.method === 'POST') {
+                    } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える
                         replaceDocument(text);
                     } else {
