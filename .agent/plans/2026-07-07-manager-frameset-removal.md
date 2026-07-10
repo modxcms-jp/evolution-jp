@@ -31,7 +31,9 @@
 - 2026-07-07 (yamamoto/Claude): 一括移行（全アクションを一度に新レイアウトへ対応させてからリリース）とする。段階移行は旧フレームと新レイアウトの混在確認コストが高いため却下。ユーザー確認済み。
 - 2026-07-07 (yamamoto/Claude): 本番環境はさくらインターネット等の共有レンタルサーバを想定するため、Node.js実行環境に依存しない。新規JSはビルド不要の素のJavaScript（ES6+）で `manager/media/script/` に直接配置する。AGENTS.md の「jQuery禁止 → Vanilla JS」ルールに従い、新規コードはjQueryを使わない（既存コードのjQueryは本タスクでは温存し、jQuery廃止タスクで別途対応）。
 - 2026-07-07 (yamamoto/Claude): AJAX判定はリクエストヘッダー `X-Requested-With: XMLHttpRequest` とクエリ `ajax=pane` の併用とする。ヘッダーはfetchで自前付与し、リダイレクト追跡後も維持されるためprocessor経由の遷移でも断片応答を受け取れる。
+- 2026-07-10 (レビュー指摘対応): `X-Requested-With` はjQueryが同一オリジンXHRへ自動付与するため、shell.js以外の既存AJAX呼び出し（`updateMsgCount`等）まで断片要求と誤判定していた（システムアラート消失・サードパーティ互換破壊）。shell.jsが明示的に付与する専用ヘッダー `X-Evo-Shell: 1` へ判定基準を変更した（`ajax=pane` クエリは手動テスト用に併用継続）。
 - 2026-07-07 (yamamoto/Claude): モジュール実行（a=112）は独自の完全HTMLを出力するためシェル内に埋め込めない（iframeはAGENTS.mdで禁止）。フルウィンドウ表示（通常のページ遷移）とし、UX改善は将来課題として `assets/docs/core-issues.md` に記録する。
+- 2026-07-07 (yamamoto/Claude, 開発中に前倒し実施): 上記方針を撤回し、モジュール出力を `<html` タグの有無でバッファリング判定する方式へ変更した。断片ならシェル内表示、完全HTMLならフルページ応答（shell.jsが自動フォールバック）とする（`manager/processors/module/execute_module.processor.php`）。`assets/docs/core-issues.md` の該当項目は解決済みへ更新済み。
 - 2026-07-07 (yamamoto/Claude): サードパーティプラグイン互換のため、`OnManagerPreFrameLoader` / `OnManagerFrameLoader` / `OnManagerMainFrameHeaderHTMLBlock` イベントはシェル描画時に従来どおり発火させる。また `window.main` / `window.tree` / `window.mainMenu` の互換シム（旧APIの形を保った代替オブジェクト）を提供する。
 - 2026-07-07 (yamamoto/Claude): ロードマップのタスク定義には「段階移行計画」「依存関係: API Router基盤」とあるが、ユーザー判断により一括移行・API Router非依存（既存 `index.php?a=` ルーティングのまま）で先行実施する。
 - 2026-07-07 (yamamoto/Claude): アクションボタン（#actions）はユーザー要望により「コンテンツに重なるレイヤー」とし、ウィンドウ基準の `position: fixed` + メニュー高さオフセットで実装。sticky案はフロー内に高さを取りコンテンツを押し下げるため却下。transform包含ブロック案はスクロール追従してしまうため却下。

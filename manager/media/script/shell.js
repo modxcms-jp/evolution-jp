@@ -11,6 +11,8 @@
     'use strict';
 
     const loadedScriptSrcs = new Set();
+    // 現在表示中の内容に対応するURL(popstateキャンセル時に履歴を戻すために追跡する)
+    let currentUrl = window.location.href;
 
     // 初期ロード時に読み込み済みのscript srcを記録し、断片側での二重読込を防ぐ
     function registerInitialScripts() {
@@ -175,8 +177,12 @@
         });
     }
 
-    // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)
-    function replaceDocument(html) {
+    // 応答全体でドキュメントを書き換える(断片でない完全HTMLが返った場合の保険)。
+    // document.writeはアドレスバーを更新しないため、応答先URLをhistoryへ反映する
+    function replaceDocument(html, finalUrl) {
+        if (finalUrl && finalUrl !== window.location.href) {
+            window.history.replaceState({ url: finalUrl }, '', finalUrl);
+        }
         document.open();
         document.write(html);
         document.close();
@@ -205,6 +211,7 @@
         pane.scrollTop = 0;
         hoistStylesheets(pane);
 
+        currentUrl = finalUrl;
         if (push) {
             window.history.pushState({ url: finalUrl }, '', finalUrl);
         }
@@ -294,7 +301,7 @@
 
     function request(url, options, push) {
         startWork();
-        const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest' }, options.headers || {});
+        const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
         fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
                 if (response.headers.get('X-Evo-Login') === 'required') {
@@ -309,8 +316,9 @@
                     if (response.headers.get('X-Evo-Pane') === '1') {
                         applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
                     } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
-                        // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える
-                        replaceDocument(text);
+                        // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
+                        // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
+                        replaceDocument(text, responseUrlWithRequestHash(response.url, url));
                     } else {
                         fullReload(url);
                     }
@@ -337,7 +345,7 @@
             return;
         }
         fetch(url, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' },
             credentials: 'same-origin'
         })
             .then(function (response) {
@@ -499,6 +507,11 @@
         // ブラウザの戻る/進む
         window.addEventListener('popstate', function (e) {
             const url = (e.state && e.state.url) ? e.state.url : window.location.href;
+            if (!confirmIfDirty()) {
+                // 履歴は既に移動済みのため、表示中の内容に対応するURLへ戻して整合させる
+                window.history.pushState({ url: currentUrl }, '', currentUrl);
+                return;
+            }
             EvoShell.navigate(url, { push: false });
         });
 

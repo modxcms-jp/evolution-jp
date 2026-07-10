@@ -762,11 +762,16 @@ if (!function_exists('isEvoPaneRequest')) {
      * manager/index.php と manager/includes/accesscontrol.inc.php の両方から
      * 同一の判定を行うための共通ヘルパー(条件のズレを防ぐ)。
      *
+     * X-Requested-With はjQueryが同一オリジンXHRへ自動付与するため、
+     * shell.js以外の既存AJAX呼び出しまで断片要求と誤判定してしまう
+     * (システムアラートの誤消費、サードパーティ互換破壊)。
+     * shell.jsが明示的に付与する専用ヘッダーで判定する。
+     *
      * @return bool
      */
     function isEvoPaneRequest(): bool
     {
-        return strcasecmp((string)serverv('HTTP_X_REQUESTED_WITH'), 'XMLHttpRequest') === 0
+        return serverv('HTTP_X_EVO_SHELL') === '1'
             || getv('ajax') === 'pane';
     }
 }
