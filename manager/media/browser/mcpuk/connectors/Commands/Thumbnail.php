@@ -44,12 +44,12 @@ class Thumbnail extends Base
         $file_permissions = octdec(evo()->config['new_file_permissions']);
         $folder_permissions = octdec(evo()->config['new_folder_permissions']);
         $icon = false;
+        $fullfile = $this->real_cwd . '/' . $this->filename;
 
-        if (is_file($thumbfile)) {
+        if ($this->isReusableThumbnail($thumbfile, $fullfile)) {
             $icon = $thumbfile;
         } else {
             $thumbdir = dirname($thumbfile);
-            $fullfile = $this->real_cwd . '/' . $this->filename;
             $mime = evo()->getMimeType($fullfile);
             $ext = strtolower($this->getExtension($this->filename));
 
@@ -90,6 +90,17 @@ class Thumbnail extends Base
         }
         header(sprintf('Content-type: %s', $iconMime), true);
         readfile($icon);
+    }
+
+    function isReusableThumbnail($thumbfile, $fullfile)
+    {
+        if (!is_file($thumbfile)) {
+            return false;
+        }
+        if (!is_file($fullfile)) {
+            return true;
+        }
+        return filemtime($thumbfile) >= filemtime($fullfile);
     }
 
     function isImage($mime, $ext)
