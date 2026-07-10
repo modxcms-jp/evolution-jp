@@ -177,8 +177,9 @@ $isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'en
 
 // header/footerを介さず自前で完全な<html>を出力するアクション。
 // 断片(#mainPaneへの差し込み)にすると入れ子文書になり表示・JSが壊れるため、
-// 常にフルページ応答とし、shell.js側のフルリロードにフォールバックさせる
-$evoShellFullDocumentActions = [100, 117];
+// 常にフルページ応答とし、shell.js側のフルリロードにフォールバックさせる。
+// a=100(プラグイン優先度)・a=117(TVソート順)は本文断片出力に対応済みのため対象外
+$evoShellFullDocumentActions = [];
 
 // AJAXシェル(shell.js)からの断片要求: header/footerを出力せずアクション本文のみ返す
 $isPaneRequest = !$isRawSystemLogRequest
@@ -425,8 +426,10 @@ if (in_array(manager()->action, [
     107,
     108,
     113,
+    100,
     101,
     102,
+    117,
     127,
     200,
     31,

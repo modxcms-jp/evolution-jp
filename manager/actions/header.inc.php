@@ -238,7 +238,19 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 // 旧mainフレーム相当のコンテンツのみを返し、メニュー/ツリー/SPA機能を出さない
 $evoShellChromeless = (bool)anyv('quickmanager') || getv('chromeless') === '1';
 ?>
-<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" ondragstart="return false" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+<body id="<?= preg_replace('@[^a-zA-Z0-9_-]@', '', getv('f', 'mainpane')) ?: 'mainpane' ?>" class="<?= $evoShellChromeless ? '' : 'evo-shell' ?><?= globalv('modx_textdir') === 'rtl' ? ' rtl' : '' ?>">
+    <script type="text/javascript">
+        // 旧ondragstart="return false"(body属性)相当。画像・リンク・選択テキストの
+        // ネイティブドラッグを防ぐ。ただしbody属性方式はD&Dソート(dragdrop-sort.js)の
+        // dragstartまでバブリングで潰すため、draggable明示要素は除外して許可する
+        document.body.addEventListener('dragstart', function (e) {
+            var el = e.target && e.target.nodeType === 1 ? e.target : e.target.parentElement;
+            if (el && el.closest && el.closest('[draggable="true"]')) {
+                return;
+            }
+            e.preventDefault();
+        });
+    </script>
     <div id="preLoader">
         <div class="preLoaderText"><?= style('ajax_loader') ?></div>
     </div>
@@ -265,7 +277,7 @@ if (!$evoShellChromeless) {
     evo()->invokeEvent('OnManagerFrameLoader', $tmp);
 }
 // footer.inc.phpが</main>を出力してよいかの目印(header.inc.phpを介さず
-// 独自に<html>を出力するアクション(a=100/117等)ではfooterだけが呼ばれるため)
+// 独自に<html>を出力するアクションが将来追加された場合、footerだけが呼ばれるため)
 if (!defined('EVO_SHELL_MAIN_OPENED')) {
     define('EVO_SHELL_MAIN_OPENED', true);
 }

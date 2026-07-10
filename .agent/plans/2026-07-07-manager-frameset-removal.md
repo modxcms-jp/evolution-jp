@@ -38,6 +38,7 @@
 - 2026-07-07 (yamamoto/Claude): ロードマップのタスク定義には「段階移行計画」「依存関係: API Router基盤」とあるが、ユーザー判断により一括移行・API Router非依存（既存 `index.php?a=` ルーティングのまま）で先行実施する。
 - 2026-07-07 (yamamoto/Claude): アクションボタン（#actions）はユーザー要望により「コンテンツに重なるレイヤー」とし、ウィンドウ基準の `position: fixed` + メニュー高さオフセットで実装。sticky案はフロー内に高さを取りコンテンツを押し下げるため却下。transform包含ブロック案はスクロール追従してしまうため却下。
 - 2026-07-07 (yamamoto/Claude): シェル部品（menu/tree）のincludeはクロージャで変数スコープを隔離する（Surprises参照）。部品には `extract($GLOBALS, EXTR_SKIP)` でグローバル変数の読み取りアクセスを与える。
+- 2026-07-10 (ユーザー報告対応, yamamoto/Claude): a=117（TVソート順）・a=100（プラグイン優先度）は「header/footerを介さず自前で完全な`<html>`を出力する」例外実装のまま残っており、AJAXシェル経由で開くとメニュー・ツリーを伴わない独立ページとして表示される不具合として報告された（ユーザー報告「テンプレート変数の順序を書き換えても変更されない」→実際はDB更新自体は成功していたが、画面が別レイアウトになる体験が「壊れている」と認識された）。frameset廃止でモーダル表示という選択肢が使えるようになったため、シェル内ページ遷移ではなく汎用モーダル機構（`shell.js` の `EvoShell.openModal`/`closeModal`、`data-modal`属性付きリンクで起動、`shell.css` の `#evoShellModalOverlay`）を新設し、この2画面をモーダルダイアログ化した。あわせて両アクションのPHPを本文断片出力へ書き換え、保存結果を検証せず常に成功メッセージを表示していた実装不備とCSRF未検証を修正した。保存後もモーダルは開いたままとする（ユーザー確認済み、現状踏襲）。
 
 ## Outcomes & Retrospective
 
@@ -49,7 +50,7 @@
 
 **framesetの構造**: `manager/index.php:141-144` で `a` パラメータ（アクション番号。管理画面の各機能を数値で識別する仕組み）が無い場合に `manager/frames/1.php` を出力して終了する。`1.php` は `mainMenu`（上部58px、`frames/menu.php`）・`tree`（左260px、`frames/tree.php`）・`main`（コンテンツ、`index.php?a=N` 自身）の3フレームを定義する。`$_SESSION['mainframe']` に保存されたURLで `main` の初期表示を復元する機能（`1.php:13-24`）がある。
 
-**アクションルーティング**: `manager/index.php:435-789` の巨大switchで `a` の値に応じて `manager/actions/**/*.php`（画面表示）または `manager/processors/**/*.php`（保存・削除などの処理）をincludeする。`index.php:374-433` のリストにある約58アクションだけが `manager/actions/header.inc.php`（`<!DOCTYPE html>`〜`<body>` とCSRFメタタグ・共通JSを出力）と `manager/actions/footer.inc.php`（`</body></html>`）で挟まれ、アクションファイル自体は本文断片のみを出力する。footerの挟み込みリストは `index.php:791` にheaderとは別に存在する（内容がわずかに異なる: 117, 100 はfooterのみ）。
+**アクションルーティング**: `manager/index.php:435-789` の巨大switchで `a` の値に応じて `manager/actions/**/*.php`（画面表示）または `manager/processors/**/*.php`（保存・削除などの処理）をincludeする。`index.php:374-433` のリストにあるアクションが `manager/actions/header.inc.php`（`<!DOCTYPE html>`〜`<body>` とCSRFメタタグ・共通JSを出力）と `manager/actions/footer.inc.php`（`</body></html>`）で挟まれ、アクションファイル自体は本文断片のみを出力する。footerの挟み込みリストは `index.php:791` にheaderとは別に存在する。a=117（TVソート順）・a=100（プラグイン優先度）は2026-07-10まで独自に完全`<html>`を出力する例外だったが、汎用モーダル対応（Decision Log参照）で本文断片出力に統一され、両リストとも一致した。
 
 **アクションの4分類**:
 1. ページ型（headerリストの約58個）: 断片HTMLを出力 → AJAX差し替え対象

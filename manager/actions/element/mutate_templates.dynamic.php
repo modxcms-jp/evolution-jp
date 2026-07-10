@@ -284,7 +284,7 @@ if (id()) {
                                 </li>
                                 <?php
                                 if (evo()->hasPermission('save_template') && $total > 1) {
-                                    echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '"><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
+                                    echo '<li><a href="index.php?a=117&amp;id=' . getv('id') . '" data-modal><img src="' . style('sort') . '" />' . lang('template_tv_edit') . '</a></li>';
                                 }
                                 ?>
                             </ul>

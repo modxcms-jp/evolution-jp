@@ -13,27 +13,32 @@ if (!is_numeric(anyv('id'))) {
 }
 $id = intval(anyv('id'));
 
-$basePath = $modx->config['base_path'];
-$siteURL = MODX_SITE_URL;
-
 $updateMsg = '';
 
 if (postv('listSubmitted')) {
-    $updateMsg .= '<span class="success" id="updated">Updated!<br /><br /></span>';
+    checkCsrfToken();
+
+    $updatedCount = 0;
     foreach ($_POST as $listName => $listValue) {
         if ($listName === 'listSubmitted' || $listName === 'csrf_token') {
             continue;
         }
         $orderArray = explode(';', rtrim($listValue, ';'));
         foreach ($orderArray as $key => $item) {
-            if (strlen($item) == 0) {
+            if ($item === '') {
                 continue;
             }
-            $tmplvar = ltrim($item, 'item_');
+            $tmplvar = preg_replace('/^item_/', '', $item);
             db()->update(['rank' => $key], '[+prefix+]site_tmplvar_templates',
                 "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
+            $updatedCount++;
         }
     }
+
+    $updateMsg = $updatedCount > 0
+        ? '<span class="success" id="updated">Updated!<br /><br /></span>'
+        : '<span class="warning" id="updated">No changes to save.<br /><br /></span>';
+
     // empty cache
     $modx->clearCache(); // first empty the cache
 }
@@ -56,9 +61,9 @@ if ($limit > 0) {
             continue;
         }
         if ($i === 0) {
-            $evtLists .= '<strong>' . $row['templatename'] . '</strong><br /><ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">';
+            $evtLists .= '<strong>' . hsc($row['templatename']) . '</strong><br /><ul id="sortlist" class="sortableList" data-sortable="true" data-target="list" data-delimiter=";">';
         }
-        $evtLists .= '<li id="item_' . $row['id'] . '" class="sort">' . $row['name'] . '</li>';
+        $evtLists .= '<li id="item_' . (int)$row['id'] . '" class="sort">' . hsc($row['name']) . '</li>';
     }
 
     if ($evtLists !== '') {
@@ -66,98 +71,77 @@ if ($limit > 0) {
     }
 }
 
-$header = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-        <title>MODx</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=' . $modx_manager_charset . '" />
-        <link rel="stylesheet" type="text/css" href="media/style/' . $manager_theme . '/style.css" />
-        <script type="text/javascript" src="media/script/dragdrop-sort.js"></script>';
-
 $misc_path = manager_style_image_path('misc');
-$header .= <<<HTML
-    <style type="text/css">
-        .topdiv {
-                        border: 0;
-                }
+$cancelUrl = 'index.php?a=16&id=' . (int)anyv('id');
+?>
+<style type="text/css">
+    ul.sortableList {
+        padding-left: 20px;
+        margin: 0;
+        width: 300px;
+        font-family: Arial, sans-serif;
+    }
 
-                .subdiv {
-                        border: 0;
-                }
+    ul.sortableList li {
+        list-style: none;
+        font-weight: bold;
+        cursor: move;
+        color: #444444;
+        padding: 3px 5px;
+        margin: 4px 0;
+        border: 1px solid #CCCCCC;
+        background-image: url("<?= $misc_path ?>fade.gif");
+        background-repeat: repeat-x;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
 
-                li {list-style:none;}
+    ul.sortableList li.dragging {
+        opacity: 0.6;
+    }
+</style>
+<script type="text/javascript" src="media/script/dragdrop-sort.js"></script>
+<script type="text/javascript">
+    (function() {
+        window.save = function() {
+            if (window.MODXSortable) {
+                window.MODXSortable.updateAll();
+            }
+            if (document.sortableListForm) {
+                document.sortableListForm.submit();
+            }
+        };
+        window.evoCancelTvRank = function(el, fallbackUrl) {
+            if (el.closest('#evoShellModal') && window.EvoShell) {
+                window.EvoShell.closeModal();
+            } else {
+                document.location.href = fallbackUrl;
+            }
+        };
+    })();
+</script>
 
-                ul.sortableList {
-                        padding-left: 20px;
-                        margin: 0px;
-                        width: 300px;
-                        font-family: Arial, sans-serif;
-                }
+<h1><?= $_lang["template_tv_edit_title"] ?></h1>
 
-                ul.sortableList li {
-                        font-weight: bold;
-                        cursor: move;
-                        color: #444444;
-                        padding: 3px 5px;
-                        margin: 4px 0px;
-                        border: 1px solid #CCCCCC;
-                        background-image: url("{$misc_path}fade.gif");
-                        background-repeat: repeat-x;
-                        -webkit-user-select: none;
-                        -moz-user-select: none;
-                        user-select: none;
-                }
-
-                ul.sortableList li.dragging {
-                        opacity: 0.6;
-                }
-        </style>
-    <script type="text/javascript">
-        (function() {
-            window.save = function() {
-                if (window.MODXSortable) {
-                    window.MODXSortable.updateAll();
-                }
-                if (document.sortableListForm) {
-                    document.sortableListForm.submit();
-                }
-            };
-        })();
-        </script>
-HTML;
-
-$header .= '</head>
-<body>
-
-<h1>' . $_lang["template_tv_edit_title"] . '</h1>
+<div class="section">
+<div class="sectionHeader"><?= $_lang['template_tv_edit'] ?></div>
+<div class="sectionBody">
+<p><?= $_lang["template_tv_edit_message"] ?></p>
+<?= $updateMsg ?><span class="warning" style="display:none;" id="updating">Updating...<br /><br /> </span>
+<?= $evtLists ?>
+</div>
+</div>
 
 <div id="actions">
     <ul class="actionButtons">
-        <li class="mutate"><a class="default" href="#" onclick="save();"><img src="' . $_style["icons_save"] . '" /> ' . $_lang['update'] . '</a></li>
-		<li class="mutate"><a href="#" onclick="document.location.href=\'index.php?a=16&amp;id=' . anyv('id') . '\';"><img src="' . $_style["icons_cancel"] . '"> ' . $_lang['cancel'] . '</a></li>
-	</ul>
+        <li class="mutate"><a href="#" onclick="evoCancelTvRank(this, '<?= $cancelUrl ?>'); return false;"><img src="<?= $_style["icons_cancel"] ?>"> <?= $_lang['cancel'] ?></a></li>
+        <li class="mutate"><a class="default" href="#" onclick="save(); return false;"><img src="<?= $_style["icons_save"] ?>" /> <?= $_lang['update'] ?></a></li>
+    </ul>
 </div>
 
-<div class="section">
-<div class="sectionHeader">' . $_lang['template_tv_edit'] . '</div>
-<div class="sectionBody">
-<p>' . $_lang["template_tv_edit_message"] . '</p>';
-
-echo $header;
-
-echo $updateMsg . "<span class=\"warning\" style=\"display:none;\" id=\"updating\">Updating...<br /><br /> </span>";
-
-echo $evtLists;
-
-echo '
-</div>
-</div>
-<form action="" method="post" name="sortableListForm" style="display: none;">
-            <input type="hidden" name="listSubmitted" value="true" />
-            <input type="hidden" id="list" name="list" value="" />';
-
-echo csrfTokenField();
-
-echo '
-</form>';
+<form action="index.php?a=117&amp;id=<?= $id ?>" method="post" name="sortableListForm" style="display: none;">
+    <input type="hidden" name="listSubmitted" value="true" />
+    <input type="hidden" id="list" name="list" value="" />
+    <?= csrfTokenField() ?>
+</form>

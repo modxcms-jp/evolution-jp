@@ -13,6 +13,11 @@
     const loadedScriptSrcs = new Set();
     // 現在表示中の内容に対応するURL(popstateキャンセル時に履歴を戻すために追跡する)
     let currentUrl = window.location.href;
+    // モーダルに表示中のコンテンツのURL。モーダル内フォームのaction=""(自己送信)は
+    // ページのURLではなくこちらを基準に解決する(モーダルはhistoryに触らないため乖離する)
+    let currentModalUrl = '';
+    // モーダル内でPOST(保存)が行われたか。真なら閉じる際に背後の#mainPaneを再取得する
+    let modalDirty = false;
 
     // 初期ロード時に読み込み済みのscript srcを記録し、断片側での二重読込を防ぐ
     function registerInitialScripts() {
@@ -231,8 +236,8 @@
             if (window.fdTableSort && typeof window.fdTableSort.init === 'function') {
                 window.fdTableSort.init(false);
             }
-            if (window.MODXSortable && typeof window.MODXSortable.initAll === 'function') {
-                window.MODXSortable.initAll();
+            if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
+                window.MODXSortable.init();
             }
             // 編集系アクションでは未保存変更の検知を再バインドする(header.inc.phpで定義)
             if (typeof window.evoBindDirtyTracking === 'function') {
@@ -243,6 +248,111 @@
             scrollPaneToHash(finalUrl);
             stopWork();
             document.dispatchEvent(new CustomEvent('evoshell:load', { detail: { url: finalUrl } }));
+        });
+    }
+
+    // 汎用モーダル(data-modalリンク・EvoShell.openModal用)のDOMを遅延生成する
+    function getModalElements() {
+        let overlay = document.getElementById('evoShellModalOverlay');
+        if (overlay) {
+            return { overlay: overlay, body: document.getElementById('evoShellModalBody') };
+        }
+        overlay = document.createElement('div');
+        overlay.id = 'evoShellModalOverlay';
+        overlay.className = 'hidden';
+        overlay.innerHTML =
+            '<div id="evoShellModal" role="dialog" aria-modal="true">' +
+            '<div id="evoShellModalHeader">' +
+            '<button type="button" class="evo-modal-close" aria-label="Close">&times;</button>' +
+            '</div>' +
+            '<div id="evoShellModalBody"></div>' +
+            '<div id="evoShellModalFooter"></div>' +
+            '</div>';
+        document.body.appendChild(overlay);
+
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) {
+                closeModal();
+            }
+        });
+        overlay.querySelector('.evo-modal-close').addEventListener('click', function () {
+            closeModal();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        return { overlay: overlay, body: document.getElementById('evoShellModalBody') };
+    }
+
+    function closeModal() {
+        const overlay = document.getElementById('evoShellModalOverlay');
+        if (!overlay || overlay.classList.contains('hidden')) {
+            return;
+        }
+        const body = document.getElementById('evoShellModalBody');
+        if (body) {
+            teardownPane(body);
+            body.innerHTML = '';
+        }
+        currentModalUrl = '';
+        overlay.classList.add('hidden');
+        if (modalDirty) {
+            // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
+            modalDirty = false;
+            request(currentUrl, { method: 'GET' }, false);
+        }
+        document.dispatchEvent(new CustomEvent('evoshell:modalclose'));
+    }
+
+    function applyModalFragment(html, finalUrl) {
+        const { overlay, body } = getModalElements();
+        if (!body) {
+            return;
+        }
+        if (finalUrl) {
+            currentModalUrl = finalUrl;
+        }
+        teardownPane(body);
+        body.innerHTML = html;
+        body.scrollTop = 0;
+        hoistStylesheets(body);
+        overlay.classList.remove('hidden');
+
+        // #actionsはスクロールしないフッターへ、見出し(h1)は固定ヘッダーへ移す
+        // (断片側は#mainPane前提のマークアップのため、移動先の存在はここでしか保証できない)
+        const footer = document.getElementById('evoShellModalFooter');
+        const actions = body.querySelector('#actions');
+        if (footer) {
+            footer.innerHTML = '';
+            if (actions) {
+                footer.appendChild(actions);
+            }
+        }
+
+        const header = document.getElementById('evoShellModalHeader');
+        const closeButton = header ? header.querySelector('.evo-modal-close') : null;
+        const heading = body.querySelector('h1');
+        if (header) {
+            header.querySelectorAll('h1').forEach(function (el) {
+                el.remove();
+            });
+            if (heading) {
+                header.insertBefore(heading, closeButton);
+            }
+        }
+
+        executeScripts(body, function () {
+            if (window.jQuery) {
+                window.jQuery('.tooltip').powerTip({ fadeInTime: '0', placement: 'e' });
+            }
+            if (window.MODXSortable && typeof window.MODXSortable.init === 'function') {
+                window.MODXSortable.init(body);
+            }
+            stopWork();
+            document.dispatchEvent(new CustomEvent('evoshell:modalload'));
         });
     }
 
@@ -299,8 +409,10 @@
         return formData;
     }
 
-    function request(url, options, push) {
+    // targetが'modal'の場合、断片はEvoShellモーダルへ差し込む(#mainPaneやhistoryは触らない)
+    function request(url, options, push, target) {
         startWork();
+        const isModalTarget = target === 'modal';
         const headers = Object.assign({ 'X-Requested-With': 'XMLHttpRequest', 'X-Evo-Shell': '1' }, options.headers || {});
         fetch(url, Object.assign({}, options, { headers: headers, credentials: 'same-origin' }))
             .then(function (response) {
@@ -314,7 +426,14 @@
                 }
                 return response.text().then(function (text) {
                     if (response.headers.get('X-Evo-Pane') === '1') {
-                        applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
+                        if (isModalTarget) {
+                            if (options.method === 'POST') {
+                                modalDirty = true;
+                            }
+                            applyModalFragment(text, responseUrlWithRequestHash(response.url, url));
+                        } else {
+                            applyFragment(text, responseUrlWithRequestHash(response.url, url), push);
+                        }
                     } else if (options.method === 'POST' || isFullDocumentHtml(text)) {
                         // 断片で返せない応答(モジュール実行等)はドキュメントごと差し替える。
                         // document.writeはアドレスバーを更新しないため、応答先のURLで補正する
@@ -388,14 +507,21 @@
 
         submit: function (form, submitter) {
             const method = (form.getAttribute('method') || 'GET').toUpperCase();
-            const action = form.getAttribute('action') || window.location.href;
             const formData = getFormData(form, submitter);
+            // モーダル内フォームはhistory/#mainPaneに触れず、モーダル自身を差し替える。
+            // action未指定(自己送信)はページのURLではなくモーダルコンテンツのURLへ送る
+            const isModalForm = !!form.closest('#evoShellModal');
+            const target = isModalForm ? 'modal' : undefined;
+            const push = !isModalForm;
+            const action = form.getAttribute('action')
+                || (isModalForm && currentModalUrl)
+                || window.location.href;
 
             if (method === 'GET') {
                 const params = new URLSearchParams(formData);
                 const url = action.split('?')[0] + '?' + params.toString();
                 window.documentDirty = false;
-                request(url, { method: 'GET' }, true);
+                request(url, { method: 'GET' }, push, target);
                 return;
             }
 
@@ -404,7 +530,15 @@
                 method: 'POST',
                 body: formData,
                 headers: { 'X-CSRF-Token': getCsrfToken() }
-            }, true);
+            }, push, target);
+        },
+
+        openModal: function (url) {
+            request(url, { method: 'GET' }, false, 'modal');
+        },
+
+        closeModal: function () {
+            closeModal();
         },
 
         reloadTree: function () {
@@ -429,7 +563,7 @@
         const action = this.getAttribute('action') || window.location.href;
         if (
             document.body.classList.contains('evo-shell')
-            && this.closest('#mainPane')
+            && this.closest('#mainPane, #evoShellModal')
             && !this.hasAttribute('data-no-ajax')
             && !this.hasAttribute('target')
             && isManagerUrl(action)
@@ -481,6 +615,10 @@
                 return;
             }
             e.preventDefault();
+            if (link.hasAttribute('data-modal')) {
+                EvoShell.openModal(url.href);
+                return;
+            }
             EvoShell.navigate(url.href);
         });
 
@@ -490,7 +628,7 @@
                 return;
             }
             const form = e.target;
-            if (form.tagName !== 'FORM' || !form.closest('#mainPane')) {
+            if (form.tagName !== 'FORM' || !form.closest('#mainPane, #evoShellModal')) {
                 return;
             }
             if (form.hasAttribute('data-no-ajax') || form.hasAttribute('target')) {
