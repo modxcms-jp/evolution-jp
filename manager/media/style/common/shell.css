@@ -8,7 +8,7 @@
 body.evo-shell {
     display: grid;
     grid-template-rows: var(--shell-menu-height, 58px) 1fr;
-    grid-template-columns: var(--shell-tree-width, 260px) 1fr;
+    grid-template-columns: var(--shell-tree-width, 260px) minmax(0, 1fr);
     grid-template-areas:
         "menu menu"
         "tree main";
@@ -22,6 +22,7 @@ body.evo-shell {
 
 body.evo-shell > #topMenu {
     grid-area: menu;
+    min-width: 0;
     overflow: hidden;
 }
 
@@ -41,6 +42,7 @@ body.evo-shell > #treePane .treeframebody {
 
 body.evo-shell > #mainPane {
     grid-area: main;
+    min-width: 0;
     overflow: auto;
     position: relative;
     /* 旧mainフレームのbody paddingに相当する内側余白 */
