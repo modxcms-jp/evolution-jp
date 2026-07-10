@@ -241,9 +241,22 @@
 
     // processorのリダイレクトURLに付くr=Nはツリー/メニュー再読込の合図
     function handleRefreshParam(url) {
-        const r = new URL(url, window.location.href).searchParams.get('r');
-        if (r && window.mainMenu && typeof window.mainMenu.reloadPane === 'function') {
-            window.mainMenu.reloadPane(parseInt(r, 10));
+        const r = parseInt(new URL(url, window.location.href).searchParams.get('r'), 10);
+        if (!r) {
+            return;
+        }
+        if (r === 1 || r === 3) {
+            EvoShell.reloadTree();
+        }
+        if (r === 2) {
+            EvoShell.reloadMenu();
+        }
+        if (r === 9) {
+            EvoShell.reloadTree();
+            EvoShell.reloadMenu();
+        }
+        if (r === 10) {
+            window.location.href = 'index.php';
         }
     }
 

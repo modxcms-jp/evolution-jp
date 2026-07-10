@@ -396,21 +396,28 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 .disable {color:#777;}
 </style>
 <script type="text/javascript">
+    function gotoResourceListUrl(url) {
+        if (window.EvoShell) {
+            EvoShell.navigate(url);
+        } else {
+            window.location.href = url;
+        }
+    }
     function duplicatedocument() {
         if (confirm("{$_lang['confirm_resource_duplicate']}") == true) {
-            document.location.href = "index.php?id={$id}&a=94";
+            gotoResourceListUrl("index.php?id={$id}&a=94");
         }
     }
     function deletedocument() {
         if (confirm("{$_lang['confirm_delete_resource']}") == true) {
-            document.location.href = "index.php?id={$id}&a=6";
+            gotoResourceListUrl("index.php?id={$id}&a=6");
         }
     }
     function editdocument() {
-        document.location.href = "index.php?id={$id}&a=27";
+        gotoResourceListUrl("index.php?id={$id}&a=27");
     }
     function movedocument() {
-        document.location.href = "index.php?id={$id}&a=51";
+        gotoResourceListUrl("index.php?id={$id}&a=51");
     }
 
     // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
@@ -429,13 +436,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
     function menuAction(a) {
         let id = selectedItem;
         // シェルではAJAX遷移、未ロード時(単独表示)はフルリロードへフォールバック
-        const gotoUrl = function (url) {
-            if (window.EvoShell) {
-                EvoShell.navigate(url);
-            } else {
-                window.location.href = url;
-            }
-        };
+        const gotoUrl = gotoResourceListUrl;
         switch(a) {
             case 27:        // edit
                 gotoUrl('index.php?a=27&id='+id);
