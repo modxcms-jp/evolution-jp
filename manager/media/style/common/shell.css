@@ -200,7 +200,8 @@ body.evo-shell #evoShellModal {
 }
 
 /* タイトル(断片側のh1をここへ移す)と閉じるボタンの固定ヘッダー。
-   テーマの見出し配色(actionButtons a.defaultと同じ--color-primary系)を流用する */
+   テーマの見出し配色(actionButtons a.defaultと同じ--color-primary系)を流用しつつ、
+   明るいテーマ色でも白文字とのコントラストを確保するため暗色オーバーレイを重ねる */
 body.evo-shell #evoShellModalHeader {
     flex: 0 0 auto;
     display: flex;
@@ -209,7 +210,9 @@ body.evo-shell #evoShellModalHeader {
     gap: var(--space-2, 8px);
     padding: 0 var(--space-2, 8px) 0 var(--space-4, 16px);
     min-height: 44px;
-    background-image: linear-gradient(var(--color-primary-start, var(--color-primary, #375665)), var(--color-primary-end, var(--color-primary, #375665)));
+    background-image:
+        linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, .3)),
+        linear-gradient(var(--color-primary-start, var(--color-primary, #375665)), var(--color-primary-end, var(--color-primary, #375665)));
     color: #fff;
 }
 
@@ -217,8 +220,10 @@ body.evo-shell #evoShellModalHeader h1 {
     margin: 0;
     padding: var(--space-2, 8px) 0;
     background: none;
+    border: none;
     color: inherit;
     font-size: 1.1em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .4);
 }
 
 body.evo-shell #evoShellModalBody {
