@@ -18,6 +18,8 @@
     let currentModalUrl = '';
     // モーダル内でPOST(保存)が行われたか。真なら閉じる際に背後の#mainPaneを再取得する
     let modalDirty = false;
+    // openFilePickerで開いたファイルブラウザの選択結果を受け取るコールバック
+    let filePickerCallback = null;
 
     // 初期ロード時に読み込み済みのscript srcを記録し、断片側での二重読込を防ぐ
     function registerInitialScripts() {
@@ -209,9 +211,17 @@
             window.jQuery('#datepickers-container').empty();
         }
 
-        // TinyMCEはEditorManagerに旧インスタンスが残ると同じidで再初期化できない
-        if (window.tinymce && typeof window.tinymce.remove === 'function') {
-            window.tinymce.remove();
+        // TinyMCEはEditorManagerに旧インスタンスが残ると同じidで再初期化できない。
+        // ただし全インスタンスを無条件にremove()すると、モーダルを閉じただけで
+        // 背後の#mainPane側のエディタまで消えてしまう(モーダル内にエディタを含まない
+        // 操作でも発生する重大な副作用だった)。paneの外側にあるエディタは対象外にする
+        if (window.tinymce && Array.isArray(window.tinymce.editors)) {
+            window.tinymce.editors.slice().forEach(function (editor) {
+                const el = typeof editor.getElement === 'function' ? editor.getElement() : null;
+                if (el && pane.contains(el)) {
+                    editor.remove();
+                }
+            });
         }
     }
 
@@ -281,7 +291,6 @@
             '<div id="evoShellModalFooter"></div>' +
             '</div>';
         document.body.appendChild(overlay);
-
         overlay.addEventListener('click', function (e) {
             if (e.target === overlay) {
                 closeModal();
@@ -294,6 +303,11 @@
             if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
                 closeModal();
             }
+        });
+        // TinyMCE等のダイアログはdocumentのfocusinを監視してフォーカスを奪還するため、
+        // モーダル内のフォーカス移動を外へ伝播させない(入力欄が使えなくなるのを防ぐ)
+        overlay.addEventListener('focusin', function (e) {
+            e.stopPropagation();
         });
 
         return { overlay: overlay, body: document.getElementById('evoShellModalBody') };
@@ -310,6 +324,7 @@
             body.innerHTML = '';
         }
         currentModalUrl = '';
+        filePickerCallback = null;
         overlay.classList.add('hidden');
         if (modalDirty) {
             // モーダルで保存された変更を背後の画面へ反映する(#mainPaneを黙って再取得)
@@ -559,6 +574,15 @@
             closeModal();
         },
 
+        // ファイルブラウザ等のピッカーをモーダルで開く。断片側はグローバルフック
+        // EvoFileBrowserPick(url) を呼ぶと、モーダルが閉じてonPick(url)が実行される
+        openFilePicker: function (url, onPick) {
+            filePickerCallback = typeof onPick === 'function' ? onPick : null;
+            const resolved = new URL(url, window.location.href);
+            resolved.searchParams.set('modal', '1');
+            request(resolved.href, { method: 'GET' }, false, 'modal');
+        },
+
         reloadTree: function () {
             reloadPartial('index.php?a=1&f=tree', 'treePane');
         },
@@ -574,6 +598,17 @@
     };
 
     window.EvoShell = EvoShell;
+
+    // モーダル内ファイルブラウザ(filebrowser.js)が選択確定時に呼ぶグローバルフック。
+    // closeModal()がfilePickerCallbackをクリアするため、先に退避してから閉じる
+    window.EvoFileBrowserPick = function (pickedUrl) {
+        const callback = filePickerCallback;
+        filePickerCallback = null;
+        closeModal();
+        if (callback) {
+            callback(pickedUrl);
+        }
+    };
 
     // 既存コードのform.submit()直接呼び出し(submitイベント非発火)もシェル経由にする
     const nativeFormSubmit = HTMLFormElement.prototype.submit;

@@ -281,8 +281,12 @@ function content($key, $default = null)
         return s;
     }
 
-    // Resource browser
+    // Resource browser (シェル内はモーダル、chromelessはポップアップ)
     function OpenServerBrowser(url, width, height) {
+        if (window.EvoShell && typeof EvoShell.openFilePicker === 'function' && document.body.classList.contains('evo-shell')) {
+            EvoShell.openFilePicker(url, SetUrl);
+            return;
+        }
         let iLeft = (screen.width - width) / 2;
         let iTop = (screen.height - height) / 2;
 
@@ -298,7 +302,7 @@ function content($key, $default = null)
     function BrowseServer() {
         let w = screen.width * 0.7;
         let h = screen.height * 0.7;
-        OpenServerBrowser("<?= $base_url ?>manager/media/browser/mcpuk/browser.php?Type=images", w, h);
+        OpenServerBrowser("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images", w, h);
     }
 
     function SetUrl(url, width, height, alt) {

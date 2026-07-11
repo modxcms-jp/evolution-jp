@@ -1,7 +1,22 @@
 var lastImageCtrl;
 var lastFileCtrl;
 
+// シェル(EvoShell)内ではモーダルで開き、chromeless(QuickManager等)では
+// 従来どおりポップアップで開く。選択結果はどちらもSetUrl(url)へ渡る
+function evoShellFilePickerAvailable() {
+    return window.EvoShell
+        && typeof window.EvoShell.openFilePicker === 'function'
+        && document.body.classList.contains('evo-shell');
+}
+
 function OpenServerBrowser(url, width, height) {
+    if (evoShellFilePickerAvailable()) {
+        EvoShell.openFilePicker(url, function (pickedUrl) {
+            SetUrl(pickedUrl);
+        });
+        return;
+    }
+
     var iLeft = (screen.width - width) / 2;
     var iTop = (screen.height - height) / 2;
 
