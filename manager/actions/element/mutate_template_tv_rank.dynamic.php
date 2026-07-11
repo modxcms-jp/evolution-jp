@@ -19,7 +19,7 @@ if (postv('listSubmitted')) {
     checkCsrfToken();
 
     $updatedCount = 0;
-    foreach ($_POST as $listName => $listValue) {
+    foreach (postv() as $listName => $listValue) {
         if ($listName === 'listSubmitted' || $listName === 'csrf_token') {
             continue;
         }
@@ -28,7 +28,10 @@ if (postv('listSubmitted')) {
             if ($item === '') {
                 continue;
             }
-            $tmplvar = preg_replace('/^item_/', '', $item);
+            $tmplvar = (int) preg_replace('/^item_/', '', $item);
+            if ($tmplvar <= 0) {
+                continue;
+            }
             db()->update(['rank' => $key], '[+prefix+]site_tmplvar_templates',
                 "tmplvarid='{$tmplvar}' AND templateid='{$id}'");
             $updatedCount++;

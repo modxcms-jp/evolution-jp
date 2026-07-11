@@ -58,6 +58,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
 
         if (window.EvoShell) {
             EvoShell.unsavedMessage = <?= json_encode(lang('warning_not_saved'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
+            EvoShell.closeLabel = <?= json_encode(lang('close'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG) ?>;
         }
 
         var treeopen = <?= $modx->config('tree_pane_open_default', 1) ?>;

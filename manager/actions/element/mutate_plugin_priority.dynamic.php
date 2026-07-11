@@ -18,12 +18,18 @@ if (postv('listSubmitted')) {
             continue;
         }
         $orderArray = explode(',', $listValue);
-        $evtId = substr($listName, 5);
+        $evtId = (int) substr($listName, 5);
+        if ($evtId <= 0) {
+            continue;
+        }
         foreach ($orderArray as $key => $item) {
             if ($item === '') {
                 continue;
             }
-            $pluginId = preg_replace('/^item_/', '', $item);
+            $pluginId = (int) preg_replace('/^item_/', '', $item);
+            if ($pluginId <= 0) {
+                continue;
+            }
             $field = ['priority' => $key];
             db()->update($field, '[+prefix+]site_plugin_events', "pluginid={$pluginId} AND evtid='{$evtId}'");
             $updatedCount++;

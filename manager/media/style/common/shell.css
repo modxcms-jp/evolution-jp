@@ -121,10 +121,14 @@ body.evo-shell #floater .tree-sorter-close {
     padding: 0;
 }
 
-body.evo-shell #floater .tree-sorter-close:hover,
-body.evo-shell #floater .tree-sorter-close:focus {
+body.evo-shell #floater .tree-sorter-close:hover {
     background: rgba(0, 0, 0, .08);
-    outline: none;
+}
+
+body.evo-shell #floater .tree-sorter-close:focus-visible {
+    background: rgba(0, 0, 0, .08);
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
 }
 
 /* コンテキストメニューはビューポート基準で重ねる。
@@ -277,8 +281,12 @@ body.evo-shell #evoShellModal .evo-modal-close {
     padding: 0;
 }
 
-body.evo-shell #evoShellModal .evo-modal-close:hover,
-body.evo-shell #evoShellModal .evo-modal-close:focus {
+body.evo-shell #evoShellModal .evo-modal-close:hover {
     background: rgba(255, 255, 255, .2);
-    outline: none;
+}
+
+body.evo-shell #evoShellModal .evo-modal-close:focus-visible {
+    background: rgba(255, 255, 255, .2);
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
 }

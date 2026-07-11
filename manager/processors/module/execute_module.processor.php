@@ -119,7 +119,7 @@ $output = evalModule($content["modulecode"], $parameter);
 
 // モジュール出力が完全HTML(<html>を含む)なら従来どおり単独ページとして返し、
 // 断片ならシェル(メニュー/ツリー)内に表示する
-$isFullDocument = stripos($output, '<html') !== false;
+$isFullDocument = preg_match('/<\s*html\b/i', $output) === 1;
 if ($isFullDocument) {
     if (!empty($isPaneRequest)) {
         // 断片ではないためshell.jsにフルページ遷移へフォールバックさせる

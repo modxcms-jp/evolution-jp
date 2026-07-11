@@ -312,6 +312,12 @@
         if (!body) {
             return;
         }
+        overlay.querySelector('.evo-modal-close').setAttribute(
+            'aria-label',
+            window.EvoShell && typeof window.EvoShell.closeLabel === 'string' && window.EvoShell.closeLabel
+                ? window.EvoShell.closeLabel
+                : 'Close'
+        );
         if (finalUrl) {
             currentModalUrl = finalUrl;
         }
