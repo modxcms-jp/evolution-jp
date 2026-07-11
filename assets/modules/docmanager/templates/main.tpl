@@ -9,29 +9,14 @@
     var lastImageCtrl;
     var lastFileCtrl;
 
-    function OpenServerBrowser(url, width, height) {
-        var left = (screen.width - width) / 2;
-        var top = (screen.height - height) / 2;
-        var options = 'toolbar=no,status=no,resizable=yes,dependent=yes';
-        options += ',width=' + width;
-        options += ',height=' + height;
-        options += ',left=' + left;
-        options += ',top=' + top;
-        window.open(url, 'FCKBrowseWindow', options);
-    }
-
     function BrowseServer(ctrl) {
         lastImageCtrl = ctrl;
-        var width = screen.width * 0.7;
-        var height = screen.height * 0.7;
-        OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=images', width, height);
+        window.evoOpenFilePicker(baseurl + 'manager/media/browser/evo/browser.php?type=images');
     }
 
     function BrowseFileServer(ctrl) {
         lastFileCtrl = ctrl;
-        var width = screen.width * 0.7;
-        var height = screen.height * 0.7;
-        OpenServerBrowser(baseurl + 'manager/media/browser/mcpuk/browser.php?Type=files', width, height);
+        window.evoOpenFilePicker(baseurl + 'manager/media/browser/evo/browser.php?type=files');
     }
 
     function SetUrl(url, width, height, alt) {

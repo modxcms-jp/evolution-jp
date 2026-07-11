@@ -94,7 +94,7 @@ class PathResolver
 
         $real = str_replace('\\', '/', $real);
 
-        if (strpos($real, rtrim($this->baseDir, '/')) !== 0) {
+        if (strpos($real, $this->baseDir) !== 0) {
             return null;
         }
 
