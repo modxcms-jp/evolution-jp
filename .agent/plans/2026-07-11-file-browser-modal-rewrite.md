@@ -14,7 +14,7 @@
 - 2026-07-11 (yamamoto/Claude): filebrowser.js(実装当初985行)が機能追加のたびに肥大化する懸念をユーザーから指摘され、ESモジュール(`<script type="module">`)へ分割した。分割構成: `js/utils.js`(HTMLエスケープ・表示整形・パンくず・アイコン)/`js/api.js`(list/thumb/postForm通信)/`js/dnd.js`(内部移動D&DとOSファイルD&Dの判別・バインド)/`js/marquee.js`(矩形選択、新設)/`js/tree.js`(左ペインツリー)/`js/grid.js`(右ペイングリッド・選択)/`js/upload.js`(アップロードUI)/`js/dialogs.js`(移動先選択・プレビューの2オーバーレイ)、`filebrowser.js`(状態を保持し各モジュールへコールバックを渡す構成ルート、288行)。ESモジュールの相対import(`./js/utils.js`等)はモジュール自身の解決済みURL基準になるため、モーダル断片(/manager/index.php上で実行)とスタンドアロン(/manager/media/browser/evo/上で実行)でscriptタグのsrcパスが異なっていても正しく解決される(モーダル判定でapiUrlだけ切り替えている非対称性と対照的に、モジュール分割後はこの種の相対パス問題が構造的に起きない)。
 - [x] (2026-07-11) M4実機検証・不具合修正: TinyMCEはeditor.windowManager.openUrl()(公式のiframeダイアログAPI)へ切替えて成功。副次的に発見したshell.js teardownPaneのTinyMCE全削除バグを修正(pane内のエディタのみremove、詳細はcore-issues.md)。ツリー開閉・D&D移動・ダブルクリック選択・矩形選択・インラインリネーム・モーダル幅・拡張子フィルタ等、ユーザー実機検証で見つかった不具合を都度修正済み。
 - [x] (2026-07-11) 「正式リリース前に宿題を残さず改善したい」というユーザー要望を受けた構造改善: (1) EvoShell利用可否判定+ポップアップ/モーダル分岐が browser.js と呼び出し元4ファイル(mutate_module/mutate_user_pf/mutate_user/mutate_web_user)に計5重複していたのを `manager/media/browser/evo-file-picker.js`(window.evoOpenFilePicker(url))へ集約し、header.inc.php(全マネージャページ共通ヘッダー)で読み込むよう変更。各呼び出し元は1行呼ぶだけになった。(2) モーダル幅拡張CSSのbody.evo-shell prefix合わせによる詳細度勝負(shell.css側のセレクタが変われば静かに負ける)をやめ、`.evo-fb-modal-wide`専用の!importantに変更(ファイルブラウザのモーダル限定の例外であることが自明なため許容)。(3) filebrowser.js/cssはmtimeクエリでキャッシュバスターが効くが、js/配下のESモジュール8本には効いておらずデプロイ後も古いモジュールが使われ得る問題を発見。`manager/media/browser/evo/.htaccess`でCache-Control: no-cache(mod_headers、IfModuleガード付き)を追加し、Dockerfile(manager/docker/Dockerfile)にa2enmod headersを追加。稼働中コンテナでも同様に有効化し、curlでCache-Control付与を確認済み。
-- [ ] M5: mcpuk削除・ドキュメント更新・将来拡張(KCFinder級)の課題記録
+- [x] (2026-07-11) M5: manager/media/browser/mcpuk/(344KB、56ファイル)を`git rm -r`で削除。`grep -rn "mcpuk" manager assets`の残存参照は(a)evo/配下の歴史的コメント、(b)TinyMCE7の設定値名'mcpuk'(実体はevo/browser.php、後方互換のため識別子名は維持)、(c)mcpuk-picker.jsというファイル名自体、のみで実装上の参照ゼロを確認。`<frameset>`/`<frame>`の実タグはリポジトリ内0件(マネージャ内frame要素全廃、2026-07-07-manager-frameset-removal.md側にも追記)。アプリ全体のPHP構文チェック(find+php -l)エラーなし。サイズ差分: 新規evo/+evo-file-picker.js合計152KB、削除mcpuk 344KB→正味192KB削減(サイズ予算の決定事項どおり増加なし)。KCFinder級の将来拡張候補(クリップボード・zip一括DL・画像リサイズ回転・右クリックメニュー・多言語化)はロードマップへの登録要否をユーザーへ提示、判断待ち。
 
 ## Surprises & Discoveries
 
@@ -42,6 +42,14 @@
 - 2026-07-11 (yamamoto/Claude): サムネイル管理を刷新する(ユーザー要望・提案)。保存先をコンテンツフォルダ直下の .thumb/ から temp/thumbs/ へ移す。temp/ はこのフォークの書き込み領域の正本(define-path.php で MODX_CACHE_PATH=temp/cache/ と定義され、backup/export/logs も temp 配下)であり、コンテンツ領域(assets/images等)へのキャッシュ混入がなくなる。temp/cache/ 直下ではなく temp/thumbs/ とするのは、clearCache(サイトキャッシュ削除)のたびに全サムネイルが再生成されるのを避けるため。キャッシュキーは「type+相対パスのハッシュ+元ファイルmtime」をファイル名に含める方式とし、元ファイルの更新で自動的に新キーへ切り替わる(リネーム・移動・削除時の個別追随処理が不要。旧キーのファイルは参照されなくなるだけなので、list実行時などに古いものを間引く軽量な掃除を入れる)。出力はPNG/GIF透過を保持(元がJPEGならJPEG、それ以外はPNG)し、Cache-Control+Last-Modifiedで304応答を返してHTTPキャッシュを効かせる。
 
 ## Outcomes & Retrospective
+
+旧mcpuk(7フレーム・単一アップロード・一括操作なし)を、JSON API+ESモジュール構成のVanilla JSへゼロから作り直し、D&Dアップロード・一括削除/移動・検索・ソート・グリッド/リスト切替・エクスプローラ準拠の左ツリー・矩形選択・インラインリネーム・プレビュー拡大を備えたモーダルUIに刷新した。TV画像/ファイル入力・ユーザー写真・モジュールアイコンの計6箇所はEvoShellモーダル化に成功し、ポップアップブロッカー問題を解消。TinyMCEのみ、外部モーダルとの競合(ダイアログのコンポーネントツリー破棄)が実機検証で判明したため、TinyMCE公式のeditor.windowManager.openUrl()(iframeダイアログ)方式へ切替えて対応した。
+
+副次的に、shell.js側の重大なバグ(モーダルを閉じるとpane無関係の背後ページのTinyMCEまで全削除される)を発見・修正できたのは、このExecPlanの実機検証がなければ見つからなかった収穫。
+
+サイズは旧mcpuk 344KBに対し新実装152KBで、正味192KB削減。当初の「配布サイズを増やさない」というサイズ予算の決定を上回る結果になった。
+
+反省点: 実装途中でユーザーから逐次寄せられた要望(ツリー・D&D移動・矩形選択・インラインリネーム等)に都度対応したため、M1〜M4完了時点では想定していなかった機能がM4完了後に多く積み増しされた。都度ExecPlanへ記録はしたが、当初のマイルストーン区切り(M1〜M5)と実際の作業順序がやや乖離した。次回同種のタスクでは、初期スコープを「PoC後にユーザーレビューを挟む」前提でマイルストーンをもう一段細かく切ると、後追いのProgress記録がしやすい。
 
 ## Context and Orientation
 
