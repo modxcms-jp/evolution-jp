@@ -197,6 +197,18 @@
     function teardownPane(pane) {
         document.dispatchEvent(new CustomEvent('evoshell:unload'));
 
+        // Air Datepickerはbody直下の #datepickers-container にポップアップを持つため、
+        // 断片を捨てる前に入力とポップアップを明示的に破棄する
+        if (window.jQuery && window.jQuery.fn && window.jQuery.fn.datepicker) {
+            window.jQuery(pane).find('input.DatePicker').each(function (_, input) {
+                const instance = window.jQuery(input).data('datepicker');
+                if (instance && typeof instance.destroy === 'function') {
+                    instance.destroy();
+                }
+            });
+            window.jQuery('#datepickers-container').empty();
+        }
+
         // TinyMCEはEditorManagerに旧インスタンスが残ると同じidで再初期化できない
         if (window.tinymce && typeof window.tinymce.remove === 'function') {
             window.tinymce.remove();
