@@ -281,28 +281,8 @@ function content($key, $default = null)
         return s;
     }
 
-    // Resource browser (シェル内はモーダル、chromelessはポップアップ)
-    function OpenServerBrowser(url, width, height) {
-        if (window.EvoShell && typeof EvoShell.openFilePicker === 'function' && document.body.classList.contains('evo-shell')) {
-            EvoShell.openFilePicker(url, SetUrl);
-            return;
-        }
-        let iLeft = (screen.width - width) / 2;
-        let iTop = (screen.height - height) / 2;
-
-        let sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes";
-        sOptions += ",width=" + width;
-        sOptions += ",height=" + height;
-        sOptions += ",left=" + iLeft;
-        sOptions += ",top=" + iTop;
-
-        var oWindow = window.open(url, "FCKBrowseWindow", sOptions);
-    }
-
     function BrowseServer() {
-        let w = screen.width * 0.7;
-        let h = screen.height * 0.7;
-        OpenServerBrowser("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images", w, h);
+        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
     }
 
     function SetUrl(url, width, height, alt) {

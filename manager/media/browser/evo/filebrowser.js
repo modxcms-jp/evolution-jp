@@ -54,6 +54,14 @@ function init() {
         return state.rawFiles.find(function (f) { return f.name === name; });
     }
 
+    // ファイルブラウザは3通りの埋め込まれ方をし、それぞれ選択結果の返し方が異なる。
+    // 上から順に判定し、該当する経路だけを実行する:
+    //   1. EvoShellモーダル断片(TV入力・ユーザー写真・モジュールアイコン等)
+    //      → shell.jsが公開するグローバルフックを直接呼ぶ
+    //   2. chromeless(QuickManager等)のポップアップウィンドウ
+    //      → window.opener.SetUrl(旧mcpuk互換の規約)
+    //   3. TinyMCEのeditor.windowManager.openUrl()によるiframeダイアログ
+    //      → postMessageでmcpuk-picker.jsのonMessageハンドラへ返す
     function pickFile(path) {
         if (typeof window.EvoFileBrowserPick === 'function') {
             window.EvoFileBrowserPick(path);
@@ -65,8 +73,6 @@ function init() {
             return;
         }
         if (window.parent && window.parent !== window) {
-            // TinyMCEのeditor.windowManager.openUrl()によるiframe埋め込み。
-            // mcpuk-picker.jsのonMessageハンドラがこのmceActionを拾う
             window.parent.postMessage({ mceAction: 'evoFbPick', url: path }, window.location.origin);
             return;
         }

@@ -24,11 +24,14 @@
 
 /* EvoShellモーダル内: ファイルブラウザ表示中だけモーダルを広げ、高さを確保する。
    :has()未対応ブラウザでも確実に効くよう、クラス付与はfilebrowser.js側で行う。
-   shell.css の body.evo-shell #evoShellModal (詳細度: ID1+class1+要素1) より
-   確実に詳細度を上回るよう、同じ prefix を付けたセレクタにする。 */
-body.evo-shell #evoShellModal.evo-fb-modal-wide {
-    max-width: min(1100px, 92vw);
-    width: 92vw;
+   shell.css側の body.evo-shell #evoShellModal { max-width: ... } と詳細度で
+   競合しないよう !important にする(同名prefixでの詳細度合わせは、shell.css側の
+   セレクタが将来変わると静かに負けるため採用しない)。このモーダル拡張ルールは
+   .evo-fb-modal-wide クラスが付与されている間だけ効く、ファイルブラウザ専用の
+   例外的な上書きであることが明確なため、!important の使用はここに限り妥当とする。 */
+#evoShellModal.evo-fb-modal-wide {
+    max-width: min(1100px, 92vw) !important;
+    width: 92vw !important;
 }
 
 #evoShellModalBody .evo-fb {

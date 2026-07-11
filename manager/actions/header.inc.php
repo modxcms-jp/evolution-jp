@@ -52,6 +52,7 @@ $evtOut = evo()->invokeEvent('OnManagerMainFrameHeaderHTMLBlock');
     <script src="media/script/jquery/jquery.alerts.js" type="text/javascript"></script>
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript" src="media/script/shell.js?<?= filemtime(MODX_MANAGER_PATH . 'media/script/shell.js') ?>"></script>
+    <script type="text/javascript" src="media/browser/evo-file-picker.js?<?= filemtime(MODX_MANAGER_PATH . 'media/browser/evo-file-picker.js') ?>"></script>
     <script type="text/javascript">
         // 旧フレーム参照(top.main / parent.main)互換: シェルではmainは自ウィンドウ
         window.main = window;

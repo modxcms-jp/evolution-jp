@@ -200,27 +200,8 @@ if ($manager_language != "english" && is_file(MODX_CORE_PATH . "lang/country/{$m
         }
     }
 
-    function OpenServerBrowser(url, width, height) {
-        if (window.EvoShell && typeof EvoShell.openFilePicker === 'function' && document.body.classList.contains('evo-shell')) {
-            EvoShell.openFilePicker(url, SetUrl);
-            return;
-        }
-        var iLeft = (screen.width - width) / 2;
-        var iTop = (screen.height - height) / 2;
-
-        var sOptions = "toolbar=no,status=no,resizable=yes,dependent=yes";
-        sOptions += ",width=" + width;
-        sOptions += ",height=" + height;
-        sOptions += ",left=" + iLeft;
-        sOptions += ",top=" + iTop;
-
-        var oWindow = window.open(url, "FCKBrowseWindow", sOptions);
-    }
-
     function BrowseServer() {
-        var w = screen.width * 0.7;
-        var h = screen.height * 0.7;
-        OpenServerBrowser("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images", w, h);
+        window.evoOpenFilePicker("<?= $base_url ?>manager/media/browser/evo/browser.php?type=images");
     }
 
     function SetUrl(url, width, height, alt) {
