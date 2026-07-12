@@ -526,7 +526,9 @@ class DocAPI
 
     public function getNewDocID()
     {
-        if (evo()->config['docid_incrmnt_method'] == 1) {
+        $docIdIncrementMethod = (int)config('docid_incrmnt_method', 0);
+
+        if ($docIdIncrementMethod === 1) {
             $rs = db()->select(
                 'MIN(T0.id)+1',
                 '[+prefix+]site_content AS T0 LEFT JOIN [+prefix+]site_content AS T1 ON T0.id + 1 = T1.id',
@@ -535,7 +537,7 @@ class DocAPI
             return db()->getValue($rs);
         }
 
-        if (evo()->config['docid_incrmnt_method'] == 2) {
+        if ($docIdIncrementMethod === 2) {
             $rs = db()->select(
                 'MAX(id)+1',
                 '[+prefix+]site_content'
@@ -647,4 +649,3 @@ class DocAPI
         return db()->count($rs) != 0;
     }
 }
-

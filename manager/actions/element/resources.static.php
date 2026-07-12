@@ -98,7 +98,7 @@ if (!isset($modx) || !evo()->isLoggedin()) {
                                     src="<?= $_style["icons_add"] ?>"/> <?= $_lang['new_plugin'] ?>
                             </a></li>
                         <?php if (evo()->hasPermission('save_plugin')) { ?>
-                            <li><a href="index.php?a=100"><img
+                            <li><a href="index.php?a=100" data-modal><img
                                     src="<?= $_style["sort"] ?>"/> <?= $_lang['plugin_priority'] ?>
                             </a></li><?php } ?>
                     </ul>

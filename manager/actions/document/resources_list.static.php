@@ -208,9 +208,7 @@ echo get_jscript($id, $cm);
                     </li>
                 </ul>
             <?php }
-            if ($numRecords > 0) {
-                $topicPath = getTopicPath($id);
-            }
+            $topicPath = $numRecords > 0 ? getTopicPath($id) : '';
             echo <<< EOT
 <script type="text/javascript">
     function selectAll() {
@@ -387,7 +385,8 @@ function get_jscript($id, $cm)
 
     $contextm = $cm->getClientScriptObject();
     $textdir = $modx_textdir === 'rtl' ? '-190' : '';
-    $page = (getv('page')) ? " + '&page=" . getv('page') . "'" : '';
+    // JS文字列へ直接連結するため、数値以外を許容しない(XSS対策)
+    $page = (getv('page')) ? " + '&page=" . (int)getv('page') . "'" : '';
 
     $block = <<< EOT
 <style type="text/css">
@@ -397,25 +396,33 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 .disable {color:#777;}
 </style>
 <script type="text/javascript">
+    function gotoResourceListUrl(url) {
+        if (window.EvoShell) {
+            EvoShell.navigate(url);
+        } else {
+            window.location.href = url;
+        }
+    }
     function duplicatedocument() {
         if (confirm("{$_lang['confirm_resource_duplicate']}") == true) {
-            document.location.href = "index.php?id={$id}&a=94";
+            gotoResourceListUrl("index.php?id={$id}&a=94");
         }
     }
     function deletedocument() {
         if (confirm("{$_lang['confirm_delete_resource']}") == true) {
-            document.location.href = "index.php?id={$id}&a=6";
+            gotoResourceListUrl("index.php?id={$id}&a=6");
         }
     }
     function editdocument() {
-        document.location.href = "index.php?id={$id}&a=27";
+        gotoResourceListUrl("index.php?id={$id}&a=27");
     }
     function movedocument() {
-        document.location.href = "index.php?id={$id}&a=51";
+        gotoResourceListUrl("index.php?id={$id}&a=51");
     }
 
-    let selectedItem;
-    let contextm = {$contextm};
+    // AJAXで再訪した際にスクリプトが再実行されるため、再宣言可能なvarを使う
+    var selectedItem;
+    var contextm = {$contextm};
     function showContentMenu(id,e){
         selectedItem=id;
         //offset menu if RTL is selected
@@ -428,26 +435,28 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
 
     function menuAction(a) {
         let id = selectedItem;
+        // シェルではAJAX遷移、未ロード時(単独表示)はフルリロードへフォールバック
+        const gotoUrl = gotoResourceListUrl;
         switch(a) {
             case 27:        // edit
-                window.location.href='index.php?a=27&id='+id;
+                gotoUrl('index.php?a=27&id='+id);
                 break;
             case 4:         // new Resource
-                window.location.href='index.php?a=4&pid='+id;
+                gotoUrl('index.php?a=4&pid='+id);
                 break;
             case 51:        // move
-                window.location.href='index.php?a=51&id='+id{$page};
+                gotoUrl('index.php?a=51&id='+id{$page});
                 break;
             case 94:        // duplicate
                 if(confirm("{$_lang['confirm_resource_duplicate']}")==true)
                 {
-                    window.location.href='index.php?a=94&id='+id{$page};
+                    gotoUrl('index.php?a=94&id='+id{$page});
                 }
                 break;
             case 61:        // publish
                 if(confirm("{$_lang['confirm_publish']}")==true)
                 {
-                    window.location.href='index.php?a=61&id='+id{$page};
+                    gotoUrl('index.php?a=61&id='+id{$page});
                 }
                 break;
             case 62:        // unpublish
@@ -455,7 +464,7 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
                 {
                     if(confirm("{$_lang['confirm_unpublish']}")==true)
                     {
-                        window.location.href="index.php?a=62&id=" + id{$page};
+                        gotoUrl("index.php?a=62&id=" + id{$page});
                     }
                 }
                 else
@@ -466,20 +475,20 @@ a span.withmenu:hover {border:1px solid #ccc;background-color:#fff;}
             case 6:         // delete
                 if(confirm("{$_lang['confirm_delete_resource']}")==true)
                 {
-                    window.location.href='index.php?a=6&id='+id{$page};
+                    gotoUrl('index.php?a=6&id='+id{$page});
                 }
                 break;
             case 63:        // undelete
                 if(confirm("{$_lang['confirm_undelete']}")==true)
                 {
-                    top.main.document.location.href="index.php?a=63&id=" + id{$page};
+                    gotoUrl("index.php?a=63&id=" + id{$page});
                 }
                 break;
             case 72:         // new Weblink
-                window.location.href='index.php?a=72&pid='+id;
+                gotoUrl('index.php?a=72&pid='+id);
                 break;
             case 3:        // view
-                window.location.href='index.php?a=3&id='+id;
+                gotoUrl('index.php?a=3&id='+id);
                 break;
         }
     }

@@ -8,12 +8,20 @@ function getWindowDimension() {
 
 function resizeTree() {
 
-    // get window width/height
-    var win = getWindowDimension();
-
-    // set tree height
     var tree = document.getElementById('treeHolder');
-    var tmnu = document.getElementById('treeMenu');
+    if (!tree) return;
+
+    // シェルレイアウトではツリー領域(#treePane)のサイズをCSSに任せる
+    var pane = document.getElementById('treePane');
+    if (pane) {
+        tree.style.width = '';
+        tree.style.height = '';
+        tree.style.overflow = '';
+        return;
+    }
+
+    // 旧フルページ表示(a=1&f=tree直アクセス)時はウィンドウ基準で計算する
+    var win = getWindowDimension();
     tree.style.width = (win['width'] - 20) + 'px';
     tree.style.height = (win['height'] - tree.offsetTop - 6) + 'px';
     tree.style.overflow = 'auto';
@@ -25,7 +33,52 @@ function getScrollY() {
 
 function hideMenu() {
     if (_rc) return false;
-    jQuery('#mx_contextmenu').css('visibility', 'hidden');
+    var contextMenu = document.getElementById('mx_contextmenu');
+    if (contextMenu) {
+        contextMenu.style.visibility = 'hidden';
+    }
+}
+
+function hideSorter() {
+    currSorterState = "none";
+    var floater = document.getElementById('floater');
+    if (floater) {
+        floater.style.display = currSorterState;
+    }
+}
+
+function buildTreeRequestUrl(params) {
+    var query = Object.keys(params).map(function (key) {
+        return encodeURIComponent(key) + '=' + encodeURIComponent(params[key]);
+    }).join('&');
+
+    return 'index.php?' + query;
+}
+
+function loadTreeRequest(params, callback) {
+    fetch(buildTreeRequestUrl(params), { credentials: 'same-origin' })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('tree request failed: HTTP ' + response.status);
+            }
+            return response.text();
+        })
+        .then(callback)
+        .catch(function (error) {
+            console.error(error);
+        });
+}
+
+function sendTreeRequest(url) {
+    fetch(url, { credentials: 'same-origin' })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('tree request failed: HTTP ' + response.status);
+            }
+        })
+        .catch(function (error) {
+            console.error(error);
+        });
 }
 
 function rpcLoadData(response) {
@@ -35,7 +88,8 @@ function rpcLoadData(response) {
     rpcNode.innerHTML = response;
     rpcNode.style.display = 'block';
     rpcNode.loaded = true;
-    var elm = top.mainMenu.document.getElementById('buildText');
+    // シェルではメニューと同一document。フレーム時代のtop.mainMenu.documentは不要
+    var elm = document.getElementById('buildText');
     if (elm) {
         elm.innerHTML = '';
         elm.style.display = 'none';
@@ -59,7 +113,7 @@ function rpcLoadData(response) {
 
 function expandTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -70,7 +124,7 @@ function expandTree() {
 
 function collapseTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -82,7 +136,7 @@ function collapseTree() {
 // new function used in body onload
 function restoreTree() {
     rpcNode = document.getElementById('treeRoot');
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -130,7 +184,7 @@ function updateTree() {
     var t_sortby = document.sortFrm.sortby.value;
     var t_sortdir = document.sortFrm.sortdir.value;
 
-    jQuery.get('index.php', {
+    loadTreeRequest({
         "a": "1",
         "f": "nodes",
         "indent": "1",
@@ -158,17 +212,45 @@ function getFolderState() {
 
 function saveFolderState() {
     var folderState = getFolderState();
-    url = 'index.php?a=1&f=nodes&savestateonly=1' + folderState;
-    jQuery.get(url);
+    var url = 'index.php?a=1&f=nodes&savestateonly=1' + folderState;
+    sendTreeRequest(url);
 }
 
-function showSorter() {
+function showSorter(event) {
+    if (event && typeof event.stopPropagation === 'function') {
+        event.stopPropagation();
+    }
+
     if (currSorterState === "none") {
         currSorterState = "block";
         document.getElementById('floater').style.display = currSorterState;
     } else {
-        currSorterState = "none";
-        document.getElementById('floater').style.display = currSorterState;
+        hideSorter();
     }
 }
 
+function initTreeSorterHandlers() {
+    document.addEventListener('click', function (event) {
+        var floater = document.getElementById('floater');
+        if (!floater || currSorterState === "none") {
+            return;
+        }
+        if (floater.contains(event.target)) {
+            return;
+        }
+        hideSorter();
+    });
+
+    var floater = document.getElementById('floater');
+    if (floater) {
+        floater.addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTreeSorterHandlers, { once: true });
+} else {
+    initTreeSorterHandlers();
+}

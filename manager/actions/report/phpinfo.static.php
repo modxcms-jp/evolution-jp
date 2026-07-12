@@ -7,111 +7,110 @@ if (!evo()->hasPermission('logs')) {
 }
 ?>
     <style type="text/css">
-        body {
+        .phpinfoReport {
+            font-family: inherit;
             padding: 20px;
+            overflow-x: auto;
         }
 
-        pre {
+        .phpinfoReport pre {
             margin: 0px;
             font-family: monospace;
         }
 
-        a:link {
+        .phpinfoReport a:link {
             color: #000099;
             text-decoration: none;
             background-color: #f7f7f7;
         }
 
-        a:hover {
+        .phpinfoReport a:hover {
             text-decoration: underline;
         }
 
-        table {
+        .phpinfoReport table {
             margin-top: 20px;
             border-collapse: collapse;
             background-color: #ffffff;
         }
 
-        .center {
+        .phpinfoReport .center {
             text-align: center;
         }
 
-        .center table {
+        .phpinfoReport .center table {
             margin-left: auto;
             margin-right: auto;
             text-align: left;
         }
 
-        .center th {
+        .phpinfoReport .center th {
             text-align: center !important;
         }
 
-        td, th {
+        .phpinfoReport td,
+        .phpinfoReport th {
             border: 1px solid #999999;
             vertical-align: baseline;
             padding: 4px;
         }
 
-        h1 {
+        .phpinfoReport h1 {
             text-align: left;
             margin: 10px auto;
         }
 
-        h2 {
+        .phpinfoReport h2 {
             text-align: left;
             margin: 10px auto;
         }
 
-        .p {
+        .phpinfoReport .p {
             text-align: left;
         }
 
-        h1.p {
+        .phpinfoReport h1.p {
             background: transparent;
         }
 
-        .e {
+        .phpinfoReport .e {
             width: 150px;
             background-color: #eeeeee;
             color: #333333;
         }
 
-        .h {
+        .phpinfoReport .h {
             background-color: #bcbcd6;
             font-weight: bold;
             color: #333333;
         }
 
-        .h h1 {
+        .phpinfoReport .h h1 {
             width: 90%;
             font-size: 20px;
         }
 
-        .v {
+        .phpinfoReport .v {
             width: 400px;
             color: #333333;
         }
 
-        .vr {
+        .phpinfoReport .vr {
             background-color: #cccccc;
             text-align: right;
             color: #333333;
         }
 
-        img {
+        .phpinfoReport img {
             float: right;
             border: 0px;
         }
 
-        hr {
+        .phpinfoReport hr {
             background-color: #cccccc;
             border: 0px;
             height: 1px;
             color: #333333;
-        }
-
-        ul.actionButtons li a:hover {
-            text-decoration: none;
         }
     </style>
 
@@ -134,6 +133,7 @@ if (!evo()->hasPermission('logs')) {
 <?php
 ob_start();
 phpinfo();
+echo '<div class="phpinfoReport">';
 echo str_replace(
     [
         '<div class="center">',
@@ -151,3 +151,4 @@ echo str_replace(
         ob_get_clean()
     )
 );
+echo '</div>';

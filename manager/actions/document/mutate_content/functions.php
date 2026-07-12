@@ -707,9 +707,9 @@ function getAliasAtNew()
 function getJScripts($docid)
 {
     $ph = [];
-    $browser_url = MODX_BASE_URL . 'manager/media/browser/mcpuk/browser.php';
-    $ph['imanager_url'] = config('imanager_url', $browser_url . '?Type=images');
-    $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?Type=files');
+    $browser_url = MODX_BASE_URL . 'manager/media/browser/evo/browser.php';
+    $ph['imanager_url'] = config('imanager_url', $browser_url . '?type=images');
+    $ph['fmanager_url'] = config('fmanager_url', $browser_url . '?type=files');
     $ph['preview_url'] = evo()->makeUrl($docid, '', '', 'full', true);
     $ph['preview_mode'] = config('preview_mode', 1);
     $ph['lang_confirm_delete_resource'] = lang('confirm_delete_resource');

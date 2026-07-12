@@ -72,6 +72,16 @@
         }
     }
 
+    // dragenter専用。preventDefaultのみ行い、要素の移動(insertBefore)はしない。
+    // dragoverと同じ処理を割り当てると、insertBeforeによるDOM変更が新たな
+    // dragenter/dragleaveを誘発し、ブラウザによってはドラッグが混乱する
+    function onDragEnter(e) {
+        if (!dragItem) {
+            return;
+        }
+        e.preventDefault();
+    }
+
     function onDragOver(e) {
         if (!dragItem) {
             return;
@@ -116,6 +126,9 @@
                 item.style.userSelect = 'none';
             }
         }
+        // dragoverだけでなくdragenterでもpreventDefault()しないと、
+        // ブラウザによってはドロップ先として認識されずdragoverが発火しない
+        list.addEventListener('dragenter', onDragEnter, false);
         list.addEventListener('dragover', onDragOver, false);
         list.addEventListener('drop', onDrop, false);
         updateHidden(list);

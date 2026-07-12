@@ -137,9 +137,17 @@ if (!isset($_SESSION['SystemAlertMsgQueque'])) {
 }
 $modx->SystemAlertMsgQueque = &$_SESSION['SystemAlertMsgQueque'];
 
-// first we check to see if this is a frameset request
-if (!evo()->input_any('a') && !alert()->hasError() && !isset($_POST['updateMsgCount'])) {
-    include_once(MODX_MANAGER_PATH . 'frames/1.php');
+// 旧framesetの入口。シェル化に伴い、初期表示アクションへリダイレクトする
+if (!evo()->input_any('a') && !alert()->hasError() && postv('updateMsgCount') === null) {
+    if (sessionv('mainframe.a')) {
+        $mainurl = 'index.php?' . http_build_query(sessionv('mainframe'));
+        sessionv('*mainframe', null);
+    } elseif (sessionv('mgrForgetPassword')) {
+        $mainurl = 'index.php?a=28';
+    } else {
+        $mainurl = 'index.php?a=2';
+    }
+    header('Location: ' . MODX_MANAGER_URL . $mainurl);
     exit;
 }
 
@@ -166,6 +174,22 @@ $evtOutOnMPI = evo()->invokeEvent("OnManagerPageInit", $tmp);
 $action_path = MODX_MANAGER_PATH . 'actions/';
 $prc_path = MODX_MANAGER_PATH . 'processors/';
 $isRawSystemLogRequest = (int)manager()->action === 114 && (getv('ajax') === 'entries' || getv('download') === '1');
+
+// header/footerを介さず自前で完全な<html>を出力するアクション。
+// 断片(#mainPaneへの差し込み)にすると入れ子文書になり表示・JSが壊れるため、
+// 常にフルページ応答とし、shell.js側のフルリロードにフォールバックさせる。
+// a=84(resource selector) は自前で完全HTMLを出力する。
+// a=100(プラグイン優先度)・a=117(TVソート順)は本文断片出力に対応済みのため対象外
+$evoShellFullDocumentActions = [84];
+
+// AJAXシェル(shell.js)からの断片要求: header/footerを出力せずアクション本文のみ返す
+$isPaneRequest = !$isRawSystemLogRequest
+    && !in_array((int)manager()->action, $evoShellFullDocumentActions, true)
+    && isEvoPaneRequest();
+if ($isPaneRequest) {
+    header('X-Evo-Pane: 1');
+    header('X-Evo-Action: ' . (int)manager()->action);
+}
 
 function manager_system_log_manager_action(): array
 {
@@ -403,8 +427,10 @@ if (in_array(manager()->action, [
     107,
     108,
     113,
+    100,
     101,
     102,
+    117,
     127,
     200,
     31,
@@ -428,7 +454,7 @@ if (in_array(manager()->action, [
     301,
     114,
     998
-]) && !$isRawSystemLogRequest) {
+]) && !$isRawSystemLogRequest && !$isPaneRequest) {
     include_once($action_path . 'header.inc.php');
 }
 
@@ -439,6 +465,10 @@ switch (manager()->action) {
             $frame = $_REQUEST['f'];
             if ($frame !== 'tree' && $frame !== 'menu' && $frame !== 'nodes') {
                 return;
+            }
+            // シェルからの部分再取得(fetch)ではhtml/head無しの断片を返す
+            if ($isPaneRequest && !defined('EVO_SHELL_PARTIAL')) {
+                define('EVO_SHELL_PARTIAL', true);
             }
             include_once MODX_MANAGER_PATH . 'frames/' . $frame . '.php';
         } elseif (isset($_REQUEST['ajaxa'])) {
@@ -776,7 +806,9 @@ switch (manager()->action) {
         break;
     default: // default action: show not implemented message
         // say that what was requested doesn't do anything yet
-        include_once($action_path . 'header.inc.php');
+        if (!$isPaneRequest) {
+            include_once($action_path . 'header.inc.php');
+        }
         echo "
             <div class='section'>
             <div class='sectionHeader'>" . $_lang['functionnotimpl'] . "</div>
@@ -785,11 +817,18 @@ switch (manager()->action) {
             </div>
             </div>
         ";
-        include_once($action_path . 'footer.inc.php');
+        if (!$isPaneRequest) {
+            include_once($action_path . 'footer.inc.php');
+        }
 }
 
-if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 998]) && !$isRawSystemLogRequest) {
+if (in_array(manager()->action, [2, 3, 120, 4, 72, 27, 132, 131, 51, 133, 7, 87, 88, 11, 12, 74, 28, 38, 35, 16, 19, 117, 22, 23, 78, 77, 18, 26, 106, 107, 108, 113, 100, 101, 102, 127, 200, 31, 40, 91, 17, 53, 13, 10, 70, 71, 59, 75, 99, 86, 76, 83, 95, 9, 300, 301, 114, 998]) && !$isRawSystemLogRequest && !$isPaneRequest) {
     include_once($action_path . 'footer.inc.php');
+}
+
+// AJAX断片応答にもfooter.inc.php相当の後処理を出力する(footer.inc.phpと共通のヘルパーを使用)
+if ($isPaneRequest) {
+    evoRenderPaneFooterExtras();
 }
 
 // log action, unless it's a frame request

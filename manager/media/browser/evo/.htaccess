@@ -1,0 +1,10 @@
+# filebrowser.js/css はエントリのURLにmtimeクエリでキャッシュバスターを付けているが、
+# js/配下の分割モジュールは(ESモジュールのimport指定子が静的文字列のため)
+# クエリを付けられない。ブラウザの発見的キャッシュにより、デプロイ後も
+# 古いモジュールが無期限に使われ続けるのを避けるため、毎回サーバーへ
+# 再検証(If-Modified-Since等)させる。
+<IfModule mod_headers.c>
+    <FilesMatch "\.(js|css)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>

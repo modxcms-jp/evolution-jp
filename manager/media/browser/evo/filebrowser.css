@@ -1,0 +1,615 @@
+/*
+ * ファイルブラウザ。配置(グリッド・余白・スクロール)のみを定義し、
+ * 色・境界線・フォントは管理画面テーマのCSS変数をフォールバック値付きで参照する。
+ */
+
+.evo-fb {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 320px;
+    font-family: inherit;
+    color: var(--color-text-primary, #333);
+}
+
+.evo-fb-standalone {
+    margin: 0;
+    background: var(--color-background-page, #f4f4f4);
+}
+
+.evo-fb-standalone .evo-fb {
+    height: 100vh;
+}
+
+/* EvoShellモーダル内: ファイルブラウザ表示中だけモーダルを広げ、高さを確保する。
+   :has()未対応ブラウザでも確実に効くよう、クラス付与はfilebrowser.js側で行う。
+   shell.css側の body.evo-shell #evoShellModal { max-width: ... } と詳細度で
+   競合しないよう !important にする(同名prefixでの詳細度合わせは、shell.css側の
+   セレクタが将来変わると静かに負けるため採用しない)。このモーダル拡張ルールは
+   .evo-fb-modal-wide クラスが付与されている間だけ効く、ファイルブラウザ専用の
+   例外的な上書きであることが明確なため、!important の使用はここに限り妥当とする。 */
+#evoShellModal.evo-fb-modal-wide {
+    max-width: min(1100px, 92vw) !important;
+    width: 92vw !important;
+}
+
+#evoShellModalBody .evo-fb {
+    height: min(72vh, 760px);
+}
+
+.evo-fb-toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2, 8px);
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    background: var(--color-surface, #fff);
+}
+
+.evo-fb-toolbar-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-2, 8px);
+    margin-left: auto;
+}
+
+.evo-fb-btn {
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    background: var(--gray-50, #f9fafb);
+    color: var(--color-text-primary, #333);
+    border-radius: var(--radius-md, 3px);
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    cursor: pointer;
+}
+
+/* トップツールバーのボタンは折り返しの中でも文字を切らない。オーバーレイの
+   フッターボタンは幅が限られるため折り返しを許可する(下記overlay-footer参照) */
+.evo-fb-toolbar-actions .evo-fb-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.evo-fb-btn:hover,
+.evo-fb-btn:focus {
+    background: var(--gray-100, #f5f5f5);
+}
+
+.evo-fb-btn-primary {
+    background: var(--color-primary, #375665);
+    border-color: var(--color-primary, #375665);
+    color: #fff;
+}
+
+.evo-fb-btn-primary:hover,
+.evo-fb-btn-primary:focus {
+    background: var(--color-primary-start, var(--color-primary, #2f8aa1));
+}
+
+.evo-fb-search,
+.evo-fb-sort {
+    flex: 0 0 auto;
+    border: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    border-radius: var(--radius-md, 3px);
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+    color: var(--color-text-primary, #333);
+    background: var(--color-surface, #fff);
+}
+
+.evo-fb-search {
+    width: 12em;
+}
+
+.evo-fb-icon-toggle {
+    line-height: 1;
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+}
+
+.evo-fb-selectionbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    padding: var(--space-1, 4px) var(--space-3, 12px);
+    background: var(--gray-100, #f5f5f5);
+    border-bottom: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+}
+
+.evo-fb-selectionbar[hidden] {
+    display: none;
+}
+
+.evo-fb-path {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-1, 4px);
+}
+
+.evo-fb-crumb {
+    border: none;
+    background: none;
+    color: var(--color-link, #1285a4);
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: var(--radius-sm, 2px);
+}
+
+.evo-fb-crumb:hover,
+.evo-fb-crumb:focus {
+    background: var(--gray-100, #f5f5f5);
+    text-decoration: underline;
+}
+
+.evo-fb-crumb-sep {
+    color: var(--color-text-subtle, #999);
+}
+
+.evo-fb-body {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    background: var(--color-surface, #fff);
+}
+
+/* 左ペイン: フォルダツリー */
+
+.evo-fb-tree {
+    flex: 0 0 200px;
+    overflow: auto;
+    padding: var(--space-2, 8px) var(--space-1, 4px);
+    border-right: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+    background: var(--gray-50, #f9fafb);
+}
+
+.evo-fb-tree-children {
+    padding-left: var(--space-4, 16px);
+}
+
+.evo-fb-tree-row {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: var(--radius-sm, 2px);
+    white-space: nowrap;
+}
+
+.evo-fb-tree-row:hover {
+    background: var(--gray-100, #f5f5f5);
+}
+
+.evo-fb-tree-row.is-active {
+    background: var(--color-primary, #375665);
+    color: #fff;
+}
+
+.evo-fb-tree-row.is-dropover {
+    outline: var(--border-medium, 2px) solid var(--color-primary, #375665);
+    outline-offset: -2px;
+}
+
+.evo-fb-tree-toggle {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 22px;
+    border: none;
+    background: none;
+    color: var(--color-text-subtle, #999);
+    cursor: pointer;
+    padding: 0;
+}
+
+.evo-fb-tree-row.is-active .evo-fb-tree-toggle {
+    color: #fff;
+}
+
+.evo-fb-tree-toggle svg {
+    transition: transform var(--transition-fast, 0.15s ease-in-out);
+}
+
+.evo-fb-tree-toggle.is-open svg {
+    transform: rotate(90deg);
+}
+
+.evo-fb-tree-toggle-none {
+    cursor: default;
+}
+
+.evo-fb-tree-label {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-1, 4px);
+    min-width: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 3px 4px;
+    text-align: left;
+}
+
+.evo-fb-tree-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.evo-fb-tree-loading {
+    color: var(--color-text-muted, #606060);
+    padding: 2px 4px;
+}
+
+/* 右ペイン: ファイルグリッド(アップロードのドロップ受け) */
+
+.evo-fb-main {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: auto;
+}
+
+.evo-fb-dropoverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+}
+
+.evo-fb-main.is-dragover .evo-fb-dropoverlay {
+    display: flex;
+}
+
+/* ラバーバンド(矩形)選択 */
+
+.evo-fb-marquee-active {
+    user-select: none;
+}
+
+.evo-fb-marquee {
+    position: absolute;
+    z-index: 5;
+    border: 1px solid var(--color-primary, #375665);
+    background: rgba(55, 86, 101, 0.15);
+    pointer-events: none;
+}
+
+/* D&D移動のフィードバック */
+
+.evo-fb-item.is-dragging,
+.evo-fb-tree-file.is-dragging {
+    opacity: 0.5;
+}
+
+.evo-fb-item-folder.is-dropover,
+.evo-fb-crumb.is-dropover {
+    outline: var(--border-medium, 2px) solid var(--color-primary, #375665);
+    outline-offset: -2px;
+    background: var(--gray-100, #f5f5f5);
+}
+
+.evo-fb-uploads {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1, 4px);
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    border-top: var(--border-thin, 1px) solid var(--color-border-default, #ccc);
+}
+
+.evo-fb-uploads:empty {
+    display: none;
+}
+
+.evo-fb-upload-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2, 8px);
+}
+
+.evo-fb-upload-name {
+    flex: 0 0 auto;
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.evo-fb-upload-progress {
+    flex: 1 1 auto;
+}
+
+.evo-fb-upload-row.is-done .evo-fb-upload-name {
+    color: var(--color-success, #090);
+}
+
+.evo-fb-upload-row.is-error .evo-fb-upload-name {
+    color: var(--color-error, #900);
+}
+
+.evo-fb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: var(--space-3, 12px);
+    padding: var(--space-3, 12px);
+}
+
+.evo-fb-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--color-text-muted, #606060);
+    padding: var(--space-6, 24px);
+}
+
+.evo-fb-empty.evo-fb-error {
+    color: var(--color-error, #900);
+}
+
+.evo-fb-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: var(--border-thin, 1px) solid transparent;
+    border-radius: var(--radius-md, 3px);
+    overflow: hidden;
+}
+
+.evo-fb-item:hover,
+.evo-fb-item:focus-within {
+    background: var(--gray-100, #f5f5f5);
+    border-color: var(--color-border-light, #ededed);
+}
+
+.evo-fb-item.is-checked {
+    background: var(--color-primary, #375665);
+    color: #fff;
+    border-color: var(--color-primary, #375665);
+}
+
+.evo-fb-item-main,
+.evo-fb-item-thumb-btn,
+.evo-fb-item-name-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: inherit;
+}
+
+.evo-fb-item-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1, 4px);
+    width: 100%;
+    padding: var(--space-2, 8px);
+    text-align: center;
+}
+
+/* ファイル項目はサムネイル(クリック=プレビュー)とファイル名(クリック=選択/リネーム)を
+   別ボタンに分ける。見た目は従来のevo-fb-item-main(縦積み)と同じになるよう
+   paddingを上下に分割する */
+.evo-fb-item-thumb-btn {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: var(--space-2, 8px) var(--space-2, 8px) 0;
+}
+
+.evo-fb-item-name-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1, 4px);
+    width: 100%;
+    padding: 0 var(--space-2, 8px) var(--space-2, 8px);
+    text-align: center;
+}
+
+.evo-fb-item-actions {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    display: none;
+    gap: 2px;
+}
+
+.evo-fb-item:hover .evo-fb-item-actions,
+.evo-fb-item:focus-within .evo-fb-item-actions {
+    display: flex;
+}
+
+.evo-fb-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: var(--radius-sm, 2px);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    cursor: pointer;
+}
+
+.evo-fb-icon-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.evo-fb-icon-btn.evo-fb-icon-danger:hover {
+    background: var(--color-error, #900);
+}
+
+.evo-fb-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    color: var(--color-text-subtle, #999);
+}
+
+.evo-fb-item.is-checked .evo-fb-thumb {
+    color: #fff;
+}
+
+.evo-fb-thumb-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.evo-fb-name {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.evo-fb-rename-input {
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    text-align: center;
+    color: var(--color-text-primary, #333);
+    border: var(--border-thin, 1px) solid var(--color-primary, #375665);
+    border-radius: var(--radius-sm, 2px);
+    padding: 1px 2px;
+}
+
+.evo-fb-grid--list .evo-fb-rename-input {
+    text-align: left;
+}
+
+/* リスト表示 */
+
+.evo-fb-grid--list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: var(--space-1, 4px) var(--space-2, 8px);
+}
+
+.evo-fb-grid--list .evo-fb-item {
+    flex-direction: row;
+}
+
+.evo-fb-grid--list .evo-fb-item-main {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    text-align: left;
+    padding: var(--space-1, 4px) var(--space-2, 8px) var(--space-1, 4px) var(--space-6, 24px);
+}
+
+.evo-fb-grid--list .evo-fb-item-thumb-btn {
+    flex: 0 0 auto;
+    width: auto;
+    padding: var(--space-1, 4px) 0 var(--space-1, 4px) var(--space-6, 24px);
+}
+
+.evo-fb-grid--list .evo-fb-item-name-btn {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2, 8px);
+    flex: 1 1 auto;
+    width: auto;
+    text-align: left;
+    padding: var(--space-1, 4px) var(--space-2, 8px) var(--space-1, 4px) 0;
+}
+
+.evo-fb-grid--list .evo-fb-thumb {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+}
+
+.evo-fb-grid--list .evo-fb-name {
+    width: auto;
+    flex: 1 1 auto;
+}
+
+.evo-fb-meta {
+    display: flex;
+    gap: var(--space-3, 12px);
+    color: var(--color-text-subtle, #999);
+    flex: 0 0 auto;
+}
+
+.evo-fb-grid--list .evo-fb-item.is-checked .evo-fb-meta {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* 移動先選択・プレビューのオーバーレイ */
+
+.evo-fb-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.evo-fb-overlay[hidden] {
+    display: none;
+}
+
+.evo-fb-overlay-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2, 8px);
+    width: min(560px, 92%);
+    max-height: 80%;
+    padding: var(--space-4, 16px);
+    background: var(--color-surface, #fff);
+    border-radius: var(--radius-lg, 4px);
+    box-shadow: var(--shadow-xl, 0 2px 15px rgba(0, 0, 0, 0.2));
+}
+
+.evo-fb-overlay-header {
+    font-weight: bold;
+}
+
+.evo-fb-grid-folders {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    max-height: 260px;
+    overflow: auto;
+    padding: var(--space-2, 8px) 0;
+}
+
+.evo-fb-overlay-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--space-2, 8px);
+}
+
+.evo-fb-preview-panel {
+    align-items: center;
+    text-align: center;
+}
+
+.evo-fb-preview-img {
+    max-width: 100%;
+    max-height: 50vh;
+    object-fit: contain;
+}
+
+.evo-fb-preview-meta {
+    color: var(--color-text-muted, #606060);
+    word-break: break-all;
+}
+
+.evo-fb-preview-name {
+    font-weight: bold;
+    color: var(--color-text-primary, #333);
+}

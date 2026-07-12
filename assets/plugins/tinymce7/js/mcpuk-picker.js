@@ -40,6 +40,31 @@
     return global.open(url, 'modxMcpukBrowser', features);
   }
 
+  // TinyMCE公式が案内する、外部UIをTinyMCE自身のダイアログ管理下(iframe)に
+  // 表示する方式。file_picker_callbackで直接window.open/EvoShellモーダルを
+  // 開く方式と異なり、TinyMCEのコンポーネントツリーの外に出ないため、
+  // 「画像の挿入/編集」ダイアログとの競合(コンテキスト破棄)が起きない。
+  // iframe内(filebrowser.js)はwindow.parent.postMessageで選択結果を返す。
+  function openInEditorDialog(editor, url, onPick) {
+    const maxWidth = global.innerWidth || 1024;
+    const maxHeight = global.innerHeight || 768;
+    const width = Math.max(Math.min(Math.round(maxWidth * 0.8), 1200), 600);
+    const height = Math.max(Math.min(Math.round(maxHeight * 0.8), 800), 400);
+
+    return editor.windowManager.openUrl({
+      title: 'ファイルブラウザ',
+      url: url,
+      width: width,
+      height: height,
+      onMessage: function (api, details) {
+        if (details && details.mceAction === 'evoFbPick') {
+          api.close();
+          onPick(details.url);
+        }
+      }
+    });
+  }
+
   function normalizeUrl(fileUrl) {
     if (!fileUrl && fileUrl !== 0) {
       return fileUrl;
@@ -104,6 +129,20 @@
     const baseUrl = global.MODX_FILE_BROWSER_URL;
     if (!baseUrl) {
       console.error('TinyMCE7: MODX_FILE_BROWSER_URL is not defined.');
+      return;
+    }
+
+    // 実機検証の結果、EvoShellモーダル(外部の別モーダル)をTinyMCEダイアログの上に
+    // 開くと "component must be in a context to execute" エラーの後エディタごと
+    // 解除される事象を確認した。そのため、TinyMCE自身のダイアログ管理下(iframe)に
+    // 表示するwindowManager.openUrl()を優先し、非対応環境ではポップアップへ落とす。
+    const editor = global.tinymce && global.tinymce.activeEditor;
+    if (editor && editor.windowManager && typeof editor.windowManager.openUrl === 'function') {
+      openInEditorDialog(editor, buildUrl(baseUrl, meta), function (fileUrl) {
+        if (typeof callback === 'function') {
+          callback(normalizeUrl(fileUrl));
+        }
+      });
       return;
     }
 

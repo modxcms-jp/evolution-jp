@@ -125,7 +125,7 @@ class WebFXTabPane {
     return this.selectedIndex;
   }
   addTabPage(oElement, callBackFnc) {
-    if (oElement.tabPage == this) // already added
+    if (oElement.tabPage && oElement.tabPage.tabPane === this) // already added
       return oElement.tabPage;
 
     const n = this.pages.length;
