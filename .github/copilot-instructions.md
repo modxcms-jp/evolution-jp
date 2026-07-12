@@ -1,6 +1,7 @@
 ## Language
 
 - このリポジトリの共通ルールは `AGENTS.md` を正本とする。
+- AIランタイム分担の正本は `assets/docs/ai-runtime-governance.md` とする。
 - スキル本文の共通正本は `.claude/skills/` に置き、必要に応じて参照する。
 - エージェント責務の共通正本は `.agent/agents/` に置く。
 
