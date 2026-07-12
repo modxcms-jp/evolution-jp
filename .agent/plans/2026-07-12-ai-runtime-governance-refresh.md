@@ -84,11 +84,11 @@ Codex 主運用へ実態が移っている一方、AI向け文書の正本配置
 - `.agent/agents/README.md`、`.agent/agents/orchestrator.md`、`CLAUDE.md`、`.agent/roadmap.md`、`assets/docs/ai-runtime-governance.md` の相互参照と内容が矛盾していない
 - `.agent/agents/orchestrator.md` に、sub-agent 化条件と推論レベル運用の抽象方針が追加されている
 - `.github/copilot-instructions.md` が新しい共通ポリシー文書を参照している
-- Markdown 変更後に `/doc-audit` を実行し、問題が出た場合は `/doc-fix` で修正して再監査し、文書構造・参照整合性に問題がない
+- Markdown 変更後に `/doc-audit assets/docs/ .agent/plans/ .agent/agents/ .claude/skills/ .codex/skills/ .github/ AGENTS.md CLAUDE.md .agent/roadmap.md` を実行し、問題が出た場合は `/doc-fix` で修正して同じ対象範囲を再監査し、文書構造・参照整合性に問題がない
 
 ## Idempotence and Recovery
 
-すべて文書変更のみ。途中中断時は対象ファイルを再読し、`ai-runtime-governance` の参照がそろっているかを確認して再開する。再開時は `/doc-audit` を実行し、問題があれば `/doc-fix` で修正してから再度監査する。
+すべて文書変更のみ。途中中断時は対象ファイルを再読し、`ai-runtime-governance` の参照がそろっているかを確認して再開する。再開時は `/doc-audit assets/docs/ .agent/plans/ .agent/agents/ .claude/skills/ .codex/skills/ .github/ AGENTS.md CLAUDE.md .agent/roadmap.md` を実行し、問題があれば `/doc-fix` で修正してから同じ対象範囲を再監査する。
 
 ## Artifacts and Notes
 
